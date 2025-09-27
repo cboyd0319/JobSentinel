@@ -2,8 +2,8 @@ import os
 import json
 from flask import Flask, render_template, request, redirect, url_for, flash
 from utils.config import config_manager
-from database import get_database_stats, engine
-from sqlmodel import Session, select, Job
+from database import get_database_stats, engine, Job
+from sqlmodel import Session, select
 
 # --- Flask App Initialization ---
 app = Flask(__name__)

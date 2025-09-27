@@ -155,16 +155,29 @@ See `docs/CLOUD_COSTS.md` for detailed cost analysis and protection details.
 
 Security scanning & monitoring
 
-The project includes enterprise-grade security scanning:
+The project includes enterprise-grade security scanning with multiple automated tools:
 
-- **Secrets detection**: TruffleHog scans for leaked API keys/passwords
-- **Vulnerability scanning**: Trivy checks for known security issues
-- **Dependency monitoring**: Safety checks Python packages for vulnerabilities  
-- **Code security**: Bandit analyzes Python code for security issues
-- **License compliance**: Automatic license compatibility checking
+**Core Security Analysis:**
+- **CodeQL Analysis**: GitHub's semantic code vulnerability detection
+- **OSV Scanner**: Google's comprehensive vulnerability database (replaces Trivy)
+- **Secrets detection**: TruffleHog scans for leaked API keys/passwords (verified results only)
+
+**Python Security:**
+- **Enhanced Bandit**: Python security linter with 50+ comprehensive security tests
+- **Safety**: Python dependency vulnerability scanner with SARIF format
+- **Ruff**: Fast Python code quality and security linting
+
+**Configuration & Infrastructure:**
+- **yamllint**: YAML syntax and style validation for workflows
+- **ShellCheck**: Shell script security analysis
+- **Dependency Review**: License compliance and vulnerability blocking
 - **CI hardening**: Step-Security hardens GitHub Actions runners
 
-All security results are uploaded to the **GitHub Security tab** for easy monitoring.
+**Supply Chain Security:**
+- **Build Provenance**: Attestation for key project files
+- **FOSSA License Scanning**: Advanced license compatibility checking
+
+All security results are uploaded in **SARIF format** to the **GitHub Security tab** for centralized monitoring and vulnerability management.
 
 Usage examples
 

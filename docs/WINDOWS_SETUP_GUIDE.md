@@ -47,7 +47,20 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 - Press Enter
 
 **What happens next:**
-- Downloads and installs Python 3.11
+- **Pre-flight checks**: Verifies admin rights and internet connection
+- **Downloads and installs Python 3.11** (if not already installed)
+- **Downloads and installs Git** (for project updates)
+- **Creates isolated Python environment** (keeps your system clean)
+- **Downloads all job scraper files** from GitHub
+- **Installs all required packages** (about 20-30 packages)
+- **Downloads web browser components** (for scraping job sites)
+- **Creates configuration files** with examples
+- **Sets up automated tasks** (runs every 15 minutes)
+- **Creates desktop shortcuts** for easy testing and management
+- **Tests the installation** to ensure everything works
+- **Shows completion summary** with next steps
+
+**This process takes 10-20 minutes** depending on your internet speed.
 - Downloads the job scraper
 - Installs all required packages
 - Sets up automatic scheduling

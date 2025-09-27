@@ -1,3 +1,4 @@
+-i https://pkgs.safetycli.com/repository/chad-boyd/project/job-private-scraper-filter/pypi/simple/
 # Python Job Scraper Requirements
 #
 # Compatibility: Tested with Python 3.11-3.13
