@@ -1,5 +1,6 @@
 import os
 import argparse
+import json
 from dotenv import load_dotenv
 
 from utils.logging import setup_logging, get_logger
@@ -221,13 +222,20 @@ def send_digest():
         # Convert to dict format expected by emailer
         jobs_data = []
         for job in digest_jobs:
+            # Safely parse score_reasons JSON instead of using eval()
+            try:
+                score_reasons = json.loads(job.score_reasons) if job.score_reasons else []
+            except (json.JSONDecodeError, TypeError):
+                score_reasons = []
+                main_logger.warning(f"Could not parse score_reasons for job {job.id}: {job.score_reasons}")
+            
             jobs_data.append({
                 'title': job.title,
                 'url': job.url,
                 'company': job.company,
                 'location': job.location,
                 'score': job.score,
-                'score_reasons': eval(job.score_reasons) if job.score_reasons else []
+                'score_reasons': score_reasons
             })
 
         # Send digest email
@@ -453,8 +461,8 @@ def main():
         try:
             db_resilience.create_backup("emergency")
             main_logger.info("Emergency database backup created")
-        except Exception:
-            pass
+        except Exception as backup_error:
+            main_logger.error(f"Failed to create emergency backup: {backup_error}")
         exit(1)
     finally:
         # Always release the process lock

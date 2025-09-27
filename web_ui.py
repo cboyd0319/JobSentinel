@@ -70,4 +70,6 @@ def logs():
 if __name__ == "__main__":
     print("🚀 Starting Job Scraper Web UI...")
     print("View and edit your configuration at http://127.0.0.1:5000")
-    app.run(debug=True, port=5000)
+    # Only enable debug mode in development, not in production
+    debug_mode = os.getenv('FLASK_ENV') == 'development'
+    app.run(debug=debug_mode, port=5000)

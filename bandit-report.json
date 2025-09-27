@@ -1,0 +1,376 @@
+{
+  "errors": [],
+  "generated_at": "2025-09-27T21:38:43Z",
+  "metrics": {
+    "./__init__.py": {
+      "CONFIDENCE.HIGH": 1,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 1,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 16,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "./agent.py": {
+      "CONFIDENCE.HIGH": 2,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 1,
+      "SEVERITY.MEDIUM": 1,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 351,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "./matchers/rules.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 109,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "./notify/__init__.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 0,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "./notify/emailer.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 120,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "./notify/slack.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 66,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "./sources/__init__.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 10,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "./sources/common.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 58,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "./sources/generic_js.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 90,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "./sources/greenhouse.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 49,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "./sources/lever.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 57,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "./sources/workday.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 79,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "./utils/__init__.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 0,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "./utils/config.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 220,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "./utils/errors.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 41,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "./utils/health.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 355,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "./utils/llm.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 239,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "./utils/logging.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 98,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "./utils/resilience.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 255,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "./utils/scraping.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 0,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 0,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 238,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "./web_ui.py": {
+      "CONFIDENCE.HIGH": 0,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 1,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 1,
+      "SEVERITY.LOW": 0,
+      "SEVERITY.MEDIUM": 0,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 57,
+      "nosec": 0,
+      "skipped_tests": 0
+    },
+    "_totals": {
+      "CONFIDENCE.HIGH": 3,
+      "CONFIDENCE.LOW": 0,
+      "CONFIDENCE.MEDIUM": 1,
+      "CONFIDENCE.UNDEFINED": 0,
+      "SEVERITY.HIGH": 1,
+      "SEVERITY.LOW": 2,
+      "SEVERITY.MEDIUM": 1,
+      "SEVERITY.UNDEFINED": 0,
+      "loc": 2508,
+      "nosec": 0,
+      "skipped_tests": 0
+    }
+  },
+  "results": [
+    {
+      "code": "19             return version_file.read_text().strip()\n20     except Exception:\n21         pass\n22     return __version__\n",
+      "col_offset": 4,
+      "end_col_offset": 12,
+      "filename": "./__init__.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 703,
+        "link": "https://cwe.mitre.org/data/definitions/703.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Try, Except, Pass detected.",
+      "line_number": 20,
+      "line_range": [
+        20,
+        21
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/plugins/b110_try_except_pass.html",
+      "test_id": "B110",
+      "test_name": "try_except_pass"
+    },
+    {
+      "code": "229                 'score': job.score,\n230                 'score_reasons': eval(job.score_reasons) if job.score_reasons else []\n231             })\n",
+      "col_offset": 33,
+      "end_col_offset": 56,
+      "filename": "./agent.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 78,
+        "link": "https://cwe.mitre.org/data/definitions/78.html"
+      },
+      "issue_severity": "MEDIUM",
+      "issue_text": "Use of possibly insecure function - consider using safer ast.literal_eval.",
+      "line_number": 230,
+      "line_range": [
+        230
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_calls.html#b307-eval",
+      "test_id": "B307",
+      "test_name": "blacklist"
+    },
+    {
+      "code": "455             main_logger.info(\"Emergency database backup created\")\n456         except Exception:\n457             pass\n458         exit(1)\n",
+      "col_offset": 8,
+      "end_col_offset": 16,
+      "filename": "./agent.py",
+      "issue_confidence": "HIGH",
+      "issue_cwe": {
+        "id": 703,
+        "link": "https://cwe.mitre.org/data/definitions/703.html"
+      },
+      "issue_severity": "LOW",
+      "issue_text": "Try, Except, Pass detected.",
+      "line_number": 456,
+      "line_range": [
+        456,
+        457
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/plugins/b110_try_except_pass.html",
+      "test_id": "B110",
+      "test_name": "try_except_pass"
+    },
+    {
+      "code": "72     print(\"View and edit your configuration at http://127.0.0.1:5000\")\n73     app.run(debug=True, port=5000)\n",
+      "col_offset": 4,
+      "end_col_offset": 34,
+      "filename": "./web_ui.py",
+      "issue_confidence": "MEDIUM",
+      "issue_cwe": {
+        "id": 94,
+        "link": "https://cwe.mitre.org/data/definitions/94.html"
+      },
+      "issue_severity": "HIGH",
+      "issue_text": "A Flask app appears to be run with debug=True, which exposes the Werkzeug debugger and allows the execution of arbitrary code.",
+      "line_number": 73,
+      "line_range": [
+        73
+      ],
+      "more_info": "https://bandit.readthedocs.io/en/1.8.6/plugins/b201_flask_debug_true.html",
+      "test_id": "B201",
+      "test_name": "flask_debug_true"
+    }
+  ]
+}
