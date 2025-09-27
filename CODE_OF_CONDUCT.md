@@ -1,40 +1,12 @@
 # Code of Conduct
 
-## My Commitment
+I want this project to be a friendly, welcoming place. A few simple rules:
 
-I am committed to providing a welcoming and inclusive environment for all contributors and users of this project, regardless of background, experience level, or identity.
+- Be respectful and assume good intent.
+- Give helpful feedback, not harsh criticism.
+- Don't share private information about others.
+- Don't be abusive, harassing, or hateful.
 
-## Expected Behavior
+If something happens, please open a private issue or use GitHub's reporting tools. I'll review reports and take action as needed.
 
-- Be respectful and considerate in all communications
-- Provide constructive feedback and accept criticism gracefully
-- Focus on what is best for the community and project
-- Help newcomers and answer questions patiently
-- Collaborate openly and share knowledge
-
-## Unacceptable Behavior
-
-- Harassment, discrimination, or hostile behavior
-- Personal attacks or inflammatory language
-- Publishing private information without consent
-- Spam, trolling, or disruptive behavior
-- Any conduct that would be inappropriate in a professional setting
-
-## Reporting
-
-If you experience or witness unacceptable behavior, please report it by:
-- Opening a private issue or contacting project maintainers
-- Using GitHub's reporting features
-- Emailing the project team directly
-
-## Enforcement
-
-Project maintainers will review reported incidents and take appropriate action, which may include warnings, temporary restrictions, or permanent removal from the project.
-
-## Attribution
-
-This Code of Conduct is adapted from open source community standards and best practices.
-
----
-
-*I want this to be a positive space for everyone interested in job automation and privacy-focused tools.*
+This is adapted from common open-source conduct guides — thanks to everyone who helps keep this project welcoming.

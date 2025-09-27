@@ -150,21 +150,30 @@ For urgent security matters:
 - **Code Injection**: Input validation and sanitization
 - **Denial of Service**: Rate limiting and resource controls
 - **Supply Chain Attacks**: Dependency pinning and verification
+# Security
 
-### Threats Outside This Project's Scope
-- **Physical Access**: Secure your computer and file systems
-- **Network Interception**: Use HTTPS and secure networks
-- **Social Engineering**: Verify communications authenticity
-- **Third-party Services**: Slack, email providers, job boards
+Short and practical notes about security for this project. I try to pick sensible defaults so the tool is safe for personal use, but you should still follow best practices.
 
-### Assumptions
-- Users have basic security hygiene
-- Operating system is reasonably secure
-- Network connections are trusted
-- Python environment is secure
+What I aim for
+- Local-first: processing happens on your computer
+- No telemetry: I don't collect or send data
+- Secrets: put API keys in `.env` and don't commit them
 
----
+If you find a security problem
+- Preferred: open a private security advisory on GitHub
+- Alternative: open a private issue or email me (see repo contact)
 
-**Remember: Security is a shared responsibility. This project provides secure defaults, but users must follow security best practices for their environment.**
+What to include when reporting
+- Description and steps to reproduce
+- Potential impact
+- Any suggested fixes you have
+
+Quick tips for users
+- Use a virtualenv and keep dependencies updated
+- Restrict `.env` permissions (`chmod 600 .env`)
+- Use app-specific passwords for email if possible
+- Monitor `data/logs/` if you run this regularly
+
+I appreciate anyone who reports issues responsibly — I can credit you in the repo if you'd like.
 
 *Last updated: January 26, 2025*
