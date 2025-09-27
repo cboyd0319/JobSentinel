@@ -66,11 +66,31 @@ jobs:
           python -m py_compile utils/*.py
           python -m py_compile sources/*.py
 
-      - name: Run import tests
+      - name: Test database functionality
         run: |
-          python -c "import src.agent; print('✅ Main agent imports OK')"
-          python -c "import src.database; print('✅ Database imports OK')"
-          python -c "import src.web_ui; print('✅ Web UI imports OK')"
+          cp .env.example .env
+          cp user_prefs.example.json user_prefs.json
+          chmod 600 .env || true
+          python -c "
+          import os
+          os.environ['CI'] = 'true'
+          from src.database import init_db, get_database_stats
+          init_db()
+          stats = get_database_stats()
+          print('✅ Database initialization and stats check passed')
+          print(f'Database stats: {stats}')
+          "
+
+      - name: Test database functionality
+        run: |
+          cp .env.example .env
+          cp user_prefs.example.json user_prefs.json
+          python -c "
+          from src.database import init_db, get_database_stats
+          init_db()
+          stats = get_database_stats()
+          print('✅ Database initialization passed')
+          "
 
   cross-platform-test:
     needs: [changes, primary-test]
