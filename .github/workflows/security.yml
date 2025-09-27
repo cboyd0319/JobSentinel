@@ -13,6 +13,8 @@ permissions:
   contents: read
   security-events: write
   actions: read
+  issues: write
+  pull-requests: write
 
 jobs:
   # Step-Security Harden Runner for enhanced security
@@ -51,7 +53,14 @@ jobs:
         path: ./
         base: ${{ github.event.repository.default_branch }}
         head: HEAD
-        extra_args: --debug --only-verified
+        extra_args: --debug --only-verified --format sarif --output trufflehog-results.sarif
+
+    - name: Upload TruffleHog results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: trufflehog-results.sarif
+        category: secrets
 
   # Dependency Review - Check for vulnerable dependencies
   dependency-review:
@@ -116,7 +125,16 @@ jobs:
 
     - name: Run Bandit security linter
       run: |
+        bandit -r . -f sarif -o bandit-results.sarif --exclude ./.git,./.github,./data,./venv,./.venv || true
+        # Also create JSON for artifacts
         bandit -r . -f json -o bandit-report.json --exclude ./.git,./.github,./data,./venv,./.venv || true
+
+    - name: Upload Bandit results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: bandit-results.sarif
+        category: python-security
 
     - name: Upload Bandit results
       uses: actions/upload-artifact@v4
@@ -127,7 +145,65 @@ jobs:
 
     - name: Run Safety check for known vulnerabilities
       run: |
+        # JSON format for artifacts
         safety check --json --output safety-report.json || true
+        # Convert to SARIF for Security tab (manual conversion)
+        python3 -c "
+import json
+import sys
+try:
+    with open('safety-report.json', 'r') as f:
+        safety_data = json.load(f)
+    
+    sarif = {
+        'version': '2.1.0',
+        'schema': 'https://docs.oasis-open.org/sarif/sarif/v2.1.0/errata01/os/schemas/sarif-schema-2.1.0.json',
+        'runs': [{
+            'tool': {
+                'driver': {
+                    'name': 'Safety',
+                    'version': '2.0.0',
+                    'informationUri': 'https://pyup.io/safety/',
+                    'rules': []
+                }
+            },
+            'results': []
+        }]
+    }
+    
+    for vuln in safety_data:
+        result = {
+            'ruleId': f\"safety-{vuln.get('advisory', 'unknown')}\",
+            'message': {'text': f\"Vulnerability in {vuln.get('package_name', 'unknown')}: {vuln.get('advisory', 'No details')}\"},
+            'level': 'warning',
+            'locations': [{
+                'physicalLocation': {
+                    'artifactLocation': {'uri': 'requirements.txt'},
+                    'region': {'startLine': 1, 'endLine': 1}
+                }
+            }]
+        }
+        sarif['runs'][0]['results'].append(result)
+    
+    with open('safety-results.sarif', 'w') as f:
+        json.dump(sarif, f, indent=2)
+except Exception as e:
+    # Create empty SARIF if conversion fails
+    sarif = {
+        'version': '2.1.0',
+        'schema': 'https://docs.oasis-open.org/sarif/sarif/v2.1.0/errata01/os/schemas/sarif-schema-2.1.0.json',
+        'runs': [{'tool': {'driver': {'name': 'Safety'}}, 'results': []}]
+    }
+    with open('safety-results.sarif', 'w') as f:
+        json.dump(sarif, f)
+" || true
+
+    - name: Upload Safety results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: safety-results.sarif
+        category: python-dependencies
 
     - name: Upload Safety results
       uses: actions/upload-artifact@v4

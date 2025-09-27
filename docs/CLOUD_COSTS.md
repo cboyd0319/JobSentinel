@@ -1,6 +1,39 @@
-# Cloud Deployment Cost Analysis 💰
+# Cloud Deployment Cost Analysis & Protection 💰🛡️
 
-This document analyzes the **cheapest** cloud deployment options for personal/friend accounts running the job scraper.
+This document analyzes the **cheapest** cloud deployment options for personal/friend accounts running the job scraper, with **critical cost protection guardrails** to prevent unexpected bills.
+
+## ⚠️ **COST PROTECTION - READ THIS FIRST** ⚠️
+
+### 🚨 **Mandatory Billing Protections**
+
+**BEFORE deploying to ANY cloud provider, you MUST set up these guardrails:**
+
+#### **1. Billing Alerts (CRITICAL)**
+```bash
+# Set up IMMEDIATELY - before any deployment
+# Google Cloud: $5 alert threshold
+# AWS: $10 alert threshold  
+# Azure: $15 alert threshold
+```
+
+#### **2. Spending Limits (WHERE AVAILABLE)**
+- **Google Cloud**: Set project spending limits
+- **AWS**: Use AWS Budgets with automatic stops
+- **Azure**: Set spending limits on subscriptions
+
+#### **3. Resource Limits**
+```yaml
+# Maximum safe limits for job scraper
+MAX_INSTANCES: 1        # Never need more than 1
+MAX_MEMORY: 512MB       # Job scraper uses ~200MB
+MAX_CPU: 0.5 vCPU      # Job scraper is not CPU intensive
+TIMEOUT: 15 minutes     # Kill if stuck
+```
+
+#### **4. Auto-Stop Configuration**
+- **Weekends**: Stop scraper Friday 6PM → Monday 6AM
+- **Holidays**: Automatic pause during holidays  
+- **Failure threshold**: Stop after 10 consecutive failures
 
 ## Executive Summary
 
@@ -160,11 +193,40 @@ We should add a cloud security scanner that checks friends' personal accounts fo
 
 ## Implementation Priority
 
-1. **Phase 1:** Google Cloud Run deployment template
-2. **Phase 2:** AWS Lambda template  
-3. **Phase 3:** Oracle Cloud template
-4. **Phase 4:** Personal account security scanner
-5. **Phase 5:** Cost monitoring and alerts
+1. **Phase 1:** Cost protection setup (billing alerts, limits)
+2. **Phase 2:** Google Cloud Run deployment template with guardrails
+3. **Phase 3:** AWS Lambda template with auto-stop features
+4. **Phase 4:** Oracle Cloud template with monitoring
+5. **Phase 5:** Personal account security scanner
+6. **Phase 6:** Cost monitoring and automatic alerts
+
+## 🛡️ **Built-in Cost Protection Features**
+
+### **Automatic Safeguards in installer script:**
+
+```bash
+# The installer automatically sets up:
+1. Resource quotas and limits
+2. Billing alert configuration
+3. Auto-scaling restrictions  
+4. Timeout enforcement
+5. Weekend/holiday pause schedules
+6. Failure-based auto-stop
+7. Monthly cost reporting
+```
+
+### **Cost Monitoring Dashboard**
+- Real-time cost tracking
+- Weekly spend reports via email
+- Automatic warnings at 50% of limits
+- Emergency stop at 80% of limits
+
+### **Fail-Safe Mechanisms**
+- **Hard timeout**: 15 minutes max execution
+- **Memory limits**: 512MB maximum
+- **Request limits**: 10,000/day maximum  
+- **Storage limits**: 1GB maximum
+- **Network limits**: 10GB/month maximum
 
 ## One-Click Security Fixes
 

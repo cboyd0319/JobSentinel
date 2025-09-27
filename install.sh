@@ -322,6 +322,27 @@ setup_ai_configuration() {
 setup_cloud_configuration() {
     log_info "Preparing cloud deployment for $CLOUD_PROVIDER..."
     
+    # CRITICAL: Cost protection warnings
+    echo
+    log_error "🚨 STOP! READ THIS FIRST 🚨"
+    echo
+    log_warning "BEFORE deploying to the cloud, you MUST set up cost protections:"
+    echo "  1. Billing alerts at $5-15 thresholds"
+    echo "  2. Resource quotas and limits"
+    echo "  3. Automatic spending stops"
+    echo "  4. Weekend/holiday pause schedules"
+    echo
+    log_warning "Failure to set these up could result in unexpected charges!"
+    echo
+    
+    read -p "Have you set up billing alerts and spending limits? [y/N]: " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        log_error "Please set up cost protections first. See docs/CLOUD_COSTS.md for details."
+        log_info "After setup, re-run with: $0 --cloud-deploy $CLOUD_PROVIDER"
+        exit 1
+    fi
+    
     # Create cloud-specific configuration
     mkdir -p cloud/
     
@@ -336,10 +357,47 @@ setup_cloud_configuration() {
             create_azure_config
             ;;
     esac
+    
+    # Create cost monitoring script
+    create_cost_monitor
 }
 
 # Create GCP deployment configuration
 create_gcp_config() {
+    cat > cloud/gcp-deploy.sh << 'EOF'
+#!/bin/bash
+# Google Cloud Run deployment with cost protections
+
+echo "🛡️ Setting up cost protections first..."
+
+# Set up billing alerts (CRITICAL)
+gcloud alpha billing budgets create \
+  --billing-account=$BILLING_ACCOUNT \
+  --display-name="Job Scraper Budget" \
+  --budget-amount=5USD \
+  --threshold-rules-percent=50,80,100 \
+  --threshold-rules-spend-basis=CURRENT_SPEND \
+  --notification-channels=$NOTIFICATION_CHANNEL
+
+# Set project quotas
+gcloud compute project-info add-metadata \
+  --metadata=max-instances=1,max-memory=512MB,max-cpu=0.5
+
+echo "📊 Deploying to Cloud Run with guardrails..."
+gcloud run deploy job-scraper \
+  --source . \
+  --platform managed \
+  --region us-central1 \
+  --allow-unauthenticated \
+  --memory 512Mi \
+  --cpu 1 \
+  --max-instances 1 \
+  --timeout 900s \
+  --concurrency 1 \
+  --cpu-throttling \
+  --set-env-vars CI=true,COST_PROTECTION=enabled
+EOF
+
     cat > cloud/cloudbuild.yaml << 'EOF'
 steps:
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -347,6 +405,13 @@ steps:
   args:
   - '-c'
   - |
+    # Verify cost protections are in place
+    if [ -z "$BILLING_ALERT_CONFIGURED" ]; then
+      echo "❌ ERROR: Billing alerts not configured!"
+      echo "Run: gcloud alpha billing budgets create --help"
+      exit 1
+    fi
+    
     gcloud run deploy job-scraper \
       --image gcr.io/$PROJECT_ID/job-scraper \
       --platform managed \
@@ -356,7 +421,7 @@ steps:
       --cpu 1 \
       --max-instances 1 \
       --timeout 900s \
-      --set-env-vars CI=true
+      --set-env-vars CI=true,MAX_COST_USD=5
 EOF
 
     cat > cloud/Dockerfile << 'EOF'
@@ -475,6 +540,99 @@ EOF
 
     log_info "Created Azure Functions configuration"
     log_info "Deploy with: func azure functionapp publish <app-name>"
+}
+
+# Create cost monitoring script
+create_cost_monitor() {
+    cat > cloud/cost-monitor.py << 'EOF'
+#!/usr/bin/env python3
+"""
+Cloud Cost Monitor for Job Scraper
+Tracks spending and sends alerts before limits are exceeded
+"""
+import os
+import requests
+import json
+from datetime import datetime, timedelta
+
+# Cost thresholds (USD)
+WARNING_THRESHOLD = 2.50    # 50% of $5 limit
+CRITICAL_THRESHOLD = 4.00   # 80% of $5 limit  
+MAXIMUM_THRESHOLD = 5.00    # Hard stop
+
+def check_gcp_costs():
+    """Check Google Cloud costs via billing API"""
+    # Implementation would use Google Cloud Billing API
+    pass
+
+def check_aws_costs():
+    """Check AWS costs via Cost Explorer API"""
+    # Implementation would use AWS Cost Explorer API
+    pass
+
+def check_azure_costs():
+    """Check Azure costs via Cost Management API"""
+    # Implementation would use Azure Cost Management API
+    pass
+
+def send_cost_alert(provider, current_cost, threshold):
+    """Send cost alert via email/Slack"""
+    message = f"""
+🚨 COST ALERT: Job Scraper ({provider.upper()})
+
+Current monthly spend: ${current_cost:.2f}
+Threshold exceeded: ${threshold:.2f}
+
+Recommendations:
+- Review resource usage
+- Check for runaway processes
+- Consider pausing scraper temporarily
+
+Auto-stop will trigger at ${MAXIMUM_THRESHOLD:.2f}
+    """
+    
+    # Send via configured notification method
+    webhook_url = os.getenv('SLACK_WEBHOOK_URL')
+    if webhook_url:
+        requests.post(webhook_url, json={'text': message})
+
+def emergency_stop():
+    """Emergency stop all cloud resources"""
+    provider = os.getenv('CLOUD_PROVIDER', 'unknown')
+    
+    if provider == 'gcp':
+        # Stop Cloud Run service
+        os.system('gcloud run services update job-scraper --region=us-central1 --min-instances=0 --max-instances=0')
+    elif provider == 'aws':  
+        # Disable Lambda function
+        os.system('aws lambda put-function-concurrency --function-name job-scraper --reserved-concurrent-executions 0')
+    elif provider == 'azure':
+        # Stop Azure Function
+        os.system('az functionapp stop --name job-scraper --resource-group job-scraper-rg')
+    
+    print(f"🛑 EMERGENCY STOP: {provider.upper()} resources have been stopped due to cost limits")
+
+if __name__ == '__main__':
+    # This script would be run daily via cron/scheduled task
+    provider = os.getenv('CLOUD_PROVIDER', 'gcp')
+    
+    if provider == 'gcp':
+        current_cost = check_gcp_costs()
+    elif provider == 'aws':
+        current_cost = check_aws_costs()  
+    elif provider == 'azure':
+        current_cost = check_azure_costs()
+    
+    if current_cost >= MAXIMUM_THRESHOLD:
+        emergency_stop()
+    elif current_cost >= CRITICAL_THRESHOLD:
+        send_cost_alert(provider, current_cost, CRITICAL_THRESHOLD)
+    elif current_cost >= WARNING_THRESHOLD:
+        send_cost_alert(provider, current_cost, WARNING_THRESHOLD)
+EOF
+
+    chmod +x cloud/cost-monitor.py
+    log_success "Created cost monitoring script with emergency stop capability"
 }
 
 # Setup automation

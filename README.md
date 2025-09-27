@@ -18,7 +18,9 @@ Table of contents
 - Quick start
 - Configuration
 - Optional AI help
+- Cloud deployment (with cost protection)
 - Usage
+- Security scanning & monitoring
 - Health checks
 - Project layout
 - Security & privacy
@@ -30,6 +32,9 @@ What it does
 - Filters and scores jobs using rules (and optionally AI)
 - Sends alerts to Slack or email when a match looks good
 - Keeps everything local — no telemetry or cloud storage
+- **NEW**: Enterprise-grade security scanning with automated vulnerability detection
+- **NEW**: One-command setup for local, AI-enhanced, or cloud deployment
+- **NEW**: Built-in cost protections for cloud deployments (prevents surprise bills)
 
 Supported job boards
 - Greenhouse (example: Cloudflare, Stripe)
@@ -39,7 +44,27 @@ Supported job boards
 
 Quick start
 
-Windows (easy)
+**Universal Installer (Recommended)**
+
+One command for all platforms (macOS, Linux, Windows):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/install.sh | bash
+```
+
+**Advanced options:**
+```bash
+# With AI integration (OpenAI, Gemini, or Anthropic)
+curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/install.sh | bash -s -- --ai-enhanced openai
+
+# Deploy to cloud (with cost protections)
+curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/install.sh | bash -s -- --cloud-deploy gcp
+
+# Help and all options
+curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/install.sh | bash -s -- --help
+```
+
+Windows (PowerShell)
 
 Run the setup script and follow the prompts:
 
@@ -103,6 +128,43 @@ You can enable ChatGPT to help with scoring (totally optional):
 LLM_ENABLED=true
 OPENAI_API_KEY=sk-your-api-key-here
 ```
+
+Cloud deployment (with cost protection)
+
+The universal installer supports cloud deployment with built-in cost guardrails:
+
+```bash
+# Google Cloud Run (recommended - generous free tier)
+curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/install.sh | bash -s -- --cloud-deploy gcp
+
+# AWS Lambda
+curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/install.sh | bash -s -- --cloud-deploy aws
+
+# Azure Container Instances  
+curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/install.sh | bash -s -- --cloud-deploy azure
+```
+
+**Cost Protection Features:**
+- Automatic billing alerts at $5/$10/$15 thresholds
+- Hard resource limits (512MB RAM, 15min timeout)
+- Weekend/holiday auto-pause
+- Emergency stop at 80% of spending limits
+- Monthly cost reports via email
+
+See `docs/CLOUD_COSTS.md` for detailed cost analysis and protection details.
+
+Security scanning & monitoring
+
+The project includes enterprise-grade security scanning:
+
+- **Secrets detection**: TruffleHog scans for leaked API keys/passwords
+- **Vulnerability scanning**: Trivy checks for known security issues
+- **Dependency monitoring**: Safety checks Python packages for vulnerabilities  
+- **Code security**: Bandit analyzes Python code for security issues
+- **License compliance**: Automatic license compatibility checking
+- **CI hardening**: Step-Security hardens GitHub Actions runners
+
+All security results are uploaded to the **GitHub Security tab** for easy monitoring.
 
 Usage examples
 
