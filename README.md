@@ -179,6 +179,39 @@ The project includes enterprise-grade security scanning with multiple automated 
 
 All security results are uploaded in **SARIF format** to the **GitHub Security tab** for centralized monitoring and vulnerability management.
 
+**PowerShell Script Validation:**
+- **PSScriptAnalyzer**: Static analysis for PowerShell scripts
+- **Syntax Testing**: Automated parsing validation for all .ps1 files
+- **Security Analysis**: Checks for common PowerShell security issues
+- **Cross-platform Testing**: Validates PowerShell compatibility across Windows, macOS, and Linux
+
+## Project Structure
+
+The project follows an organized structure for better maintainability:
+
+```
+├── src/                     # Core application code
+│   ├── agent.py            # Main job scraper logic
+│   ├── database.py         # Database models and operations
+│   ├── web_ui.py          # Flask web interface
+│   └── __init__.py        # Package initialization
+├── scripts/                # Installation and setup scripts
+│   ├── install.sh         # Universal installer (all platforms)
+│   ├── setup.sh           # macOS/Linux setup
+│   ├── setup_windows.ps1  # Enhanced Windows setup
+│   └── setup_windows_original.ps1  # Original Windows setup
+├── config/                 # Configuration files
+│   ├── bandit.yaml        # Python security linting config
+│   └── .yamllint.yml      # YAML validation rules
+├── utils/                  # Utility modules
+├── sources/               # Job board scrapers
+├── notify/                # Notification handlers
+├── matchers/              # Job filtering rules
+└── docs/                  # Documentation
+```
+
+**Backward Compatibility:** Root-level `agent.py`, `database.py`, and `web_ui.py` are maintained as entry point wrappers for existing scripts and workflows.
+
 Usage examples
 
 ```bash

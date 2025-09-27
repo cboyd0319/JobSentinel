@@ -427,15 +427,14 @@ function Test-Installation {
         # Test basic Python imports
         Write-Step "Testing Python environment..."
         $testScript = @"
-import sys, os
-sys.path.insert(0, os.getcwd())
+        # Test imports
+        import sys, os
+        sys.path.insert(0, os.getcwd())
 
-# Test imports
-import agent, database, web_ui
-from utils.config import config_manager
-from utils.logging import get_logger
-
-print("✅ All imports successful")
+        # Test imports with new structure
+        from src import agent, database, web_ui
+        from utils.config import config_manager
+        from utils.logging import get_loggerprint("✅ All imports successful")
 print(f"Python: {sys.version}")
 print(f"Working directory: {os.getcwd()}")
 "@
@@ -465,7 +464,7 @@ function Setup-TaskScheduler {
     Write-Step "Setting up Windows Task Scheduler..."
 
     $pythonPath = Join-Path $InstallPath ".venv\\Scripts\\python.exe"
-    $agentPath = Join-Path $InstallPath "agent.py"
+    $agentPath = Join-Path $InstallPath "src\\agent.py"
 
     try {
         # Remove existing tasks first to avoid conflicts

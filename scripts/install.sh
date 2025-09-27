@@ -449,7 +449,7 @@ COPY . .
 RUN mkdir -p data/logs
 
 # Run the application
-CMD ["python", "agent.py", "--mode", "poll"]
+CMD ["python", "src/agent.py", "--mode", "poll"]
 EOF
 
     log_info "Created GCP Cloud Run configuration"
@@ -490,7 +490,7 @@ import sys
 def lambda_handler(event, context):
     try:
         result = subprocess.run([
-            sys.executable, 'agent.py', '--mode', 'poll'
+            sys.executable, 'src/agent.py', '--mode', 'poll'
         ], capture_output=True, text=True, timeout=870)
         
         return {
@@ -667,7 +667,7 @@ setup_local_automation() {
     log_info "Run: crontab -e"
     echo
     echo "# Job Scraper - Check every 15 minutes"
-    echo "*/15 * * * * cd $agent_path && $python_path agent.py --mode poll >> $agent_path/data/logs/cron.log 2>&1"
+    echo "*/15 * * * * cd $agent_path && $python_path src/agent.py --mode poll >> $agent_path/data/logs/cron.log 2>&1"
     echo "# Job Scraper - Daily digest at 9 AM"
     echo "0 9 * * * cd $agent_path && $python_path agent.py --mode digest >> $agent_path/data/logs/cron.log 2>&1"
     echo
@@ -687,7 +687,7 @@ After=network.target
 Type=simple
 User=$USER
 WorkingDirectory=$agent_path
-ExecStart=$python_path agent.py --mode poll
+ExecStart=$python_path src/agent.py --mode poll
 Restart=on-failure
 RestartSec=300
 
@@ -706,7 +706,7 @@ run_health_check() {
     
     source .venv/bin/activate
     export CI=true
-    python agent.py --mode health
+    python src/agent.py --mode health
     
     log_success "Health check completed"
 }
@@ -765,7 +765,7 @@ EOF
     log_info "Next steps:"
     echo "  1. cd $INSTALL_DIR"
     echo "  2. Edit .env and user_prefs.json with your settings"
-    echo "  3. Test: source .venv/bin/activate && python agent.py --mode test"
+    echo "  3. Test: source .venv/bin/activate && python src/agent.py --mode test"
     echo "  4. Set up automation (cron/systemd) as shown above"
     echo
     log_info "Need help? Check the docs/ directory or open an issue on GitHub"

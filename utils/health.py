@@ -12,7 +12,7 @@ from dataclasses import dataclass
 
 from utils.logging import get_logger
 from utils.config import config_manager
-from database import get_database_stats
+from src.database import get_database_stats
 from notify import slack
 
 logger = get_logger("health")
