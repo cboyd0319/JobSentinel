@@ -50,6 +50,58 @@ function Write-Step {
     Write-Host "${Cyan}🔄 $Message${Reset}" -ForegroundColor Cyan
 }
 
+function Test-SystemRequirements {
+    Write-Step "Checking system requirements..."
+    
+    $issues = @()
+    
+    # Check Windows version
+    $osVersion = [Environment]::OSVersion.Version
+    if ($osVersion.Major -lt 10) {
+        $issues += "Windows 10 or later required (found: Windows $($osVersion.Major).$($osVersion.Minor))"
+    } else {
+        Write-Success "Windows version: $($osVersion.Major).$($osVersion.Minor) ✓"
+    }
+    
+    # Check PowerShell version
+    if ($PSVersionTable.PSVersion.Major -lt 5) {
+        $issues += "PowerShell 5.0+ required (found: $($PSVersionTable.PSVersion))"
+    } else {
+        Write-Success "PowerShell version: $($PSVersionTable.PSVersion) ✓"
+    }
+    
+    # Check available disk space (need at least 2GB)
+    $drive = Get-WmiObject Win32_LogicalDisk -Filter "DeviceID='C:'"
+    $freeSpaceGB = [math]::Round($drive.FreeSpace / 1GB, 2)
+    if ($freeSpaceGB -lt 2) {
+        $issues += "Insufficient disk space: $freeSpaceGB GB free (need 2GB+)"
+    } else {
+        Write-Success "Disk space: $freeSpaceGB GB available ✓"
+    }
+    
+    # Check if .NET Framework is available
+    try {
+        $dotNetVersion = Get-ItemProperty "HKLM:SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full\" -Name Release -ErrorAction SilentlyContinue
+        if (!$dotNetVersion) {
+            $issues += ".NET Framework 4.0+ required for some components"
+        } else {
+            Write-Success ".NET Framework available ✓"
+        }
+    } catch {
+        Write-Warning "Could not verify .NET Framework (non-critical)"
+    }
+    
+    if ($issues.Count -gt 0) {
+        Write-Error "System requirements not met:"
+        foreach ($issue in $issues) {
+            Write-Host "  ❌ $issue" -ForegroundColor Red
+        }
+        throw "System requirements check failed"
+    } else {
+        Write-Success "All system requirements met"
+    }
+}
+
 function Test-AdminRights {
     $currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
     $principal = New-Object Security.Principal.WindowsPrincipal($currentUser)
@@ -200,13 +252,36 @@ function Setup-JobScraper {
     if (!(Test-Path "agent.py")) {
         Write-Step "Downloading project files from GitHub..."
         try {
-            git clone https://github.com/cboyd0319/job-private-scraper-filter.git temp-download
-            Move-Item temp-download\\* . -Force
-            Remove-Item temp-download -Recurse -Force
+            # More robust cloning approach
+            $tempDir = "job-scraper-temp"
+            if (Test-Path $tempDir) {
+                Remove-Item $tempDir -Recurse -Force
+            }
+            
+            git clone https://github.com/cboyd0319/job-private-scraper-filter.git $tempDir
+            
+            # Move files more carefully
+            $sourceFiles = Get-ChildItem -Path $tempDir -Recurse
+            foreach ($file in $sourceFiles) {
+                if ($file.PSIsContainer) {
+                    # Create directory if it doesn't exist
+                    $destPath = $file.FullName.Replace($tempDir, $InstallPath)
+                    if (!(Test-Path $destPath)) {
+                        New-Item -ItemType Directory -Path $destPath -Force | Out-Null
+                    }
+                } else {
+                    # Copy file
+                    $destPath = $file.FullName.Replace($tempDir, $InstallPath)
+                    Copy-Item $file.FullName $destPath -Force
+                }
+            }
+            
+            Remove-Item $tempDir -Recurse -Force
             Write-Success "Project files downloaded successfully"
         } catch {
             Write-Error "Failed to download project files: $($_.Exception.Message)"
-            Write-Info "Please download manually from GitHub and extract to $InstallPath"
+            Write-Info "Alternative: Download ZIP from https://github.com/cboyd0319/job-private-scraper-filter/archive/main.zip"
+            Write-Info "Extract to $InstallPath and re-run this script"
             throw $_
         }
     }
@@ -236,18 +311,29 @@ function Setup-JobScraper {
     # Activate virtual environment with verification
     Write-Step "Activating virtual environment..."
     try {
-        & ".\.venv\Scripts\Activate.ps1"
-        Write-Success "Virtual environment activated"
+        $activateScript = Join-Path $InstallPath ".venv\Scripts\Activate.ps1"
+        if (Test-Path $activateScript) {
+            & $activateScript
+            Write-Success "Virtual environment activated"
+        } else {
+            Write-Warning "Activation script not found, using direct Python path"
+        }
         
         # Verify we're using the virtual environment Python
-        $activePython = python -c "import sys; print(sys.executable)" 2>$null
-        if ($activePython -like "*\.venv*") {
-            Write-Success "Confirmed using virtual environment Python"
+        $venvPython = Join-Path $InstallPath ".venv\Scripts\python.exe"
+        if (Test-Path $venvPython) {
+            Write-Success "Virtual environment Python confirmed at: $venvPython"
+            # Use the venv python directly for reliability
+            Set-Alias python $venvPython
+            Set-Alias pip (Join-Path $InstallPath ".venv\Scripts\pip.exe")
         } else {
-            Write-Warning "May not be using virtual environment Python, but continuing..."
+            throw "Virtual environment Python not found"
         }
     } catch {
-        Write-Warning "Failed to activate virtual environment, but continuing: $($_.Exception.Message)"
+        Write-Error "Failed to setup virtual environment: $($_.Exception.Message)"
+        Write-Info "This may cause package installation issues"
+        # Continue with system Python as fallback
+        Write-Warning "Falling back to system Python"
     }
 
     # Upgrade pip first
@@ -419,35 +505,106 @@ FLASK_ENV=production
 function Test-Installation {
     param($InstallPath)
     
-    Write-Step "Testing installation..."
+    Write-Step "Running comprehensive installation validation..."
+    
+    $validationErrors = @()
     
     try {
         Push-Location $InstallPath
         
-        # Test basic Python imports
-        Write-Step "Testing Python environment..."
-        $testScript = @"
-        # Test imports
-        import sys, os
-        sys.path.insert(0, os.getcwd())
-
-        # Test imports with new structure
-        from src import agent, database, web_ui
-        from utils.config import config_manager
-        from utils.logging import get_loggerprint("✅ All imports successful")
-print(f"Python: {sys.version}")
-print(f"Working directory: {os.getcwd()}")
-"@
+        # Test 1: Check required files exist
+        $requiredFiles = @("agent.py", "database.py", "web_ui.py", "requirements.txt", ".env", "user_prefs.json")
+        foreach ($file in $requiredFiles) {
+            if (!(Test-Path $file)) {
+                $validationErrors += "Missing required file: $file"
+            }
+        }
         
-        & ".\.venv\Scripts\python.exe" -c $testScript
-        if ($LASTEXITCODE -eq 0) {
-            Write-Success "Installation test passed"
+        # Test 2: Check directory structure
+        $requiredDirs = @("src", "utils", "sources", "notify", "matchers", "data", "data\logs")
+        foreach ($dir in $requiredDirs) {
+            if (!(Test-Path $dir)) {
+                $validationErrors += "Missing required directory: $dir"
+            }
+        }
+        
+        # Test 3: Check virtual environment
+        $venvPython = ".\.venv\Scripts\python.exe"
+        if (!(Test-Path $venvPython)) {
+            $validationErrors += "Virtual environment Python not found"
         } else {
-            Write-Warning "Installation test had issues, but setup completed"
+            # Test Python imports
+            $testScript = @"
+import sys, os
+sys.path.insert(0, os.getcwd())
+try:
+    from src import agent, database, web_ui
+    from utils.config import config_manager
+    from utils.logging import get_logger
+    print("SUCCESS: All imports working")
+except ImportError as e:
+    print(f"ERROR: {e}")
+    sys.exit(1)
+"@
+            
+            $testResult = & $venvPython -c $testScript 2>&1
+            if ($LASTEXITCODE -ne 0) {
+                $validationErrors += "Python imports failed: $testResult"
+            } else {
+                Write-Success "Python environment validation passed"
+            }
+        }
+        
+        # Test 4: Check scheduled tasks
+        $scheduledTasks = @("JobScraper-Poll", "JobScraper-Digest", "JobScraper-Cleanup")
+        $missingTasks = @()
+        foreach ($taskName in $scheduledTasks) {
+            try {
+                $task = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
+                if (!$task) {
+                    $missingTasks += $taskName
+                }
+            } catch {
+                $missingTasks += $taskName
+            }
+        }
+        if ($missingTasks.Count -gt 0) {
+            $validationErrors += "Missing scheduled tasks: $($missingTasks -join ', ')"
+        } else {
+            Write-Success "Scheduled tasks created successfully"
+        }
+        
+        # Test 5: Check desktop shortcuts
+        $desktop = [System.Environment]::GetFolderPath('Desktop')
+        $shortcuts = @("Test Job Scraper.lnk", "Run Job Scraper.lnk", "Job Scraper Web UI.lnk")
+        $missingShortcuts = @()
+        foreach ($shortcut in $shortcuts) {
+            if (!(Test-Path "$desktop\$shortcut")) {
+                $missingShortcuts += $shortcut
+            }
+        }
+        if ($missingShortcuts.Count -gt 0) {
+            $validationErrors += "Missing desktop shortcuts: $($missingShortcuts -join ', ')"
+        } else {
+            Write-Success "Desktop shortcuts created successfully"
+        }
+        
+        # Report results
+        if ($validationErrors.Count -eq 0) {
+            Write-Success "🎉 Installation validation PASSED - everything looks perfect!"
+            return $true
+        } else {
+            Write-Warning "Installation validation found issues:"
+            foreach ($error in $validationErrors) {
+                Write-Host "  ⚠️  $error" -ForegroundColor Yellow
+            }
+            Write-Info "Installation may still work, but some features might be affected"
+            return $false
         }
         
     } catch {
-        Write-Warning "Installation test failed: $($_.Exception.Message)"
+        Write-Error "Installation validation failed: $($_.Exception.Message)"
+        return $false
     } finally {
         Pop-Location
     }
@@ -583,7 +740,10 @@ try {
     Write-Host ""
 
     # Pre-flight checks
-    Write-Step "Running pre-flight checks..."
+    Write-Step "Running comprehensive pre-flight checks..."
+    
+    # Check system requirements first
+    Test-SystemRequirements
     
     if (!(Test-AdminRights)) {
         Write-Error "This script requires administrator privileges."
@@ -598,13 +758,6 @@ try {
         exit 1
     }
     Write-Success "Internet connection verified"
-
-    # Validate PowerShell version
-    if ($PSVersionTable.PSVersion.Major -lt 5) {
-        Write-Warning "PowerShell version $($PSVersionTable.PSVersion) detected. Version 5+ recommended."
-    } else {
-        Write-Success "PowerShell version $($PSVersionTable.PSVersion) is compatible"
-    }
 
     Write-Info "Starting installation to: $InstallPath"
     Write-Host ""
