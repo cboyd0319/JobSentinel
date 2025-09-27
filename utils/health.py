@@ -208,10 +208,10 @@ class HealthMonitor:
             # Log size metric
             log_size_mb = total_log_size / (1024 * 1024)
             log_size_status = "ok"
-            if log_size_mb > 100:
-                log_size_status = "warning"
-            elif log_size_mb > 500:
+            if log_size_mb > 500:
                 log_size_status = "critical"
+            elif log_size_mb > 100:
+                log_size_status = "warning"
 
             metrics.append(
                 HealthMetric(

@@ -96,13 +96,14 @@ def score_job_rules_only(job: dict, prefs: dict) -> tuple[float, list[str]]:
     if salary_floor:
         # Try to extract salary from description
         salary_found = _extract_salary(full_text)
-        if salary_found and salary_found < salary_floor:
-            return 0.0, [
-                f"Rejected: Salary ${salary_found:,} below floor ${salary_floor:,}"
-            ]
-        elif salary_found and salary_found >= salary_floor:
-            score += 0.1
-            reasons.append(f"Salary ${salary_found:,} meets requirements")
+        if salary_found:
+            if salary_found < salary_floor:
+                return 0.0, [
+                    f"Rejected: Salary ${salary_found:,} below floor ${salary_floor:,}"
+                ]
+            else:
+                score += 0.1
+                reasons.append(f"Salary ${salary_found:,} meets requirements")
 
     return min(score, 1.0), reasons  # Cap score at 1.0
 
