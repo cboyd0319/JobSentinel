@@ -1,5 +1,10 @@
 import asyncio
-from .common import fetch_url, create_job_hash, fetch_job_description, extract_company_from_url
+from .common import (
+    fetch_url,
+    create_job_hash,
+    fetch_job_description,
+    extract_company_from_url,
+)
 from utils.logging import get_logger
 
 logger = get_logger("sources.workday")
@@ -40,9 +45,11 @@ def scrape(board_url: str, fetch_descriptions: bool = True):
                 text = link.get_text(strip=True)
 
                 # Filter for actual job postings
-                if ("job" in href.lower() or "position" in href.lower()) and text and len(
-                    text
-                ) > 5:
+                if (
+                    ("job" in href.lower() or "position" in href.lower())
+                    and text
+                    and len(text) > 5
+                ):
                     if not href.startswith("http"):
                         if href.startswith("/"):
                             from urllib.parse import urljoin

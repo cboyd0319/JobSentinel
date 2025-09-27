@@ -1,5 +1,10 @@
 import asyncio
-from .common import fetch_url, create_job_hash, fetch_job_description, extract_company_from_url
+from .common import (
+    fetch_url,
+    create_job_hash,
+    fetch_job_description,
+    extract_company_from_url,
+)
 from utils.logging import get_logger
 
 logger = get_logger("sources.greenhouse")

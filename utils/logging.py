@@ -28,9 +28,7 @@ class ColoredFormatter(logging.Formatter):
         return super().format(record)
 
 
-def setup_logging(
-    log_level: str = "INFO", log_to_file: bool = True
-) -> logging.Logger:
+def setup_logging(log_level: str = "INFO", log_to_file: bool = True) -> logging.Logger:
     """
     Sets up comprehensive logging for the job scraper.
 
@@ -104,7 +102,11 @@ def log_performance(
 
 
 def log_scrape_result(
-    logger: logging.Logger, company: str, jobs_found: int, new_jobs: int, errors: int = 0
+    logger: logging.Logger,
+    company: str,
+    jobs_found: int,
+    new_jobs: int,
+    errors: int = 0,
 ):
     """Log scraping results in a standardized format."""
     logger.info(

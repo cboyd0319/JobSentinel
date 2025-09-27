@@ -66,15 +66,15 @@ def add_job(job_data: dict) -> Job:
         with Session(engine) as session:
             # Check if job already exists
             existing_job = session.exec(
-                select(Job).where(Job.hash == job_data['hash'])
+                select(Job).where(Job.hash == job_data["hash"])
             ).first()
 
             if existing_job:
                 # Update existing job
                 existing_job.last_seen = datetime.now(timezone.utc)
                 existing_job.times_seen += 1
-                existing_job.score = job_data.get('score', existing_job.score)
-                existing_job.score_reasons = str(job_data.get('score_reasons', []))
+                existing_job.score = job_data.get("score", existing_job.score)
+                existing_job.score_reasons = str(job_data.get("score_reasons", []))
                 existing_job.updated_at = datetime.now(timezone.utc)
                 session.add(existing_job)
                 session.commit()
@@ -84,14 +84,14 @@ def add_job(job_data: dict) -> Job:
             else:
                 # Create new job
                 job = Job(
-                    hash=job_data['hash'],
-                    title=job_data['title'],
-                    url=job_data['url'],
-                    company=job_data['company'],
-                    location=job_data.get('location', 'N/A'),
-                    description=job_data.get('description'),
-                    score=job_data['score'],
-                    score_reasons=str(job_data.get('score_reasons', []))
+                    hash=job_data["hash"],
+                    title=job_data["title"],
+                    url=job_data["url"],
+                    company=job_data["company"],
+                    location=job_data.get("location", "N/A"),
+                    description=job_data.get("description"),
+                    score=job_data["score"],
+                    score_reasons=str(job_data.get("score_reasons", [])),
                 )
                 session.add(job)
                 session.commit()
@@ -99,7 +99,9 @@ def add_job(job_data: dict) -> Job:
                 logger.debug(f"Added new job: {job.title}")
                 return job
     except Exception as e:
-        logger.error(f"Failed to add/update job {job_data.get('title', 'Unknown')}: {e}")
+        logger.error(
+            f"Failed to add/update job {job_data.get('title', 'Unknown')}: {e}"
+        )
         raise DatabaseException("add_job", str(e), e)
 
 
@@ -195,6 +197,7 @@ def cleanup_old_jobs(days_to_keep: int = 90):
     """Remove jobs older than specified days to manage database size."""
     try:
         from datetime import timedelta
+
         cutoff_date = datetime.now(timezone.utc) - timedelta(days=days_to_keep)
 
         with Session(engine) as session:

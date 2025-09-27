@@ -21,6 +21,7 @@ openai_client = None
 @dataclass
 class LLMConfig:
     """Configuration for LLM integration."""
+
     enabled: bool = False
     api_key: Optional[str] = None
     model: str = "gpt-4o-mini"
@@ -34,6 +35,7 @@ class LLMConfig:
 @dataclass
 class LLMResult:
     """Result from LLM scoring."""
+
     score: float
     reasons: List[str]
     summary: str
@@ -68,11 +70,15 @@ class TokenTracker:
 
         # Check limits
         if self.daily_tokens >= self.max_daily_tokens:
-            logger.warning(f"Daily token limit reached: {self.daily_tokens}/{self.max_daily_tokens}")
+            logger.warning(
+                f"Daily token limit reached: {self.daily_tokens}/{self.max_daily_tokens}"
+            )
             return False
 
         if self.requests_this_minute >= self.max_rpm:
-            logger.debug(f"Rate limit reached: {self.requests_this_minute}/{self.max_rpm} requests per minute")
+            logger.debug(
+                f"Rate limit reached: {self.requests_this_minute}/{self.max_rpm} requests per minute"
+            )
             return False
 
         return True
@@ -81,7 +87,9 @@ class TokenTracker:
         """Record token usage."""
         self.daily_tokens += tokens
         self.requests_this_minute += 1
-        logger.debug(f"Token usage: +{tokens} tokens (daily total: {self.daily_tokens})")
+        logger.debug(
+            f"Token usage: +{tokens} tokens (daily total: {self.daily_tokens})"
+        )
 
 
 # Global token tracker
@@ -94,30 +102,35 @@ def initialize_llm() -> bool:
 
     try:
         # Check if LLM is enabled in environment
-        llm_enabled = os.getenv('LLM_ENABLED', 'false').lower() == 'true'
-        api_key = os.getenv('OPENAI_API_KEY')
+        llm_enabled = os.getenv("LLM_ENABLED", "false").lower() == "true"
+        api_key = os.getenv("OPENAI_API_KEY")
 
         if not llm_enabled:
             logger.info("LLM integration disabled (LLM_ENABLED=false)")
             return False
 
         if not api_key:
-            logger.warning("LLM enabled but OPENAI_API_KEY not found, disabling LLM features")
+            logger.warning(
+                "LLM enabled but OPENAI_API_KEY not found, disabling LLM features"
+            )
             return False
 
         # Try to import OpenAI
         try:
             import openai
+
             openai_client = openai.OpenAI(api_key=api_key)
             LLM_ENABLED = True
 
             # Update token tracker with environment settings
-            max_daily = int(os.getenv('LLM_MAX_DAILY_TOKENS', '50000'))
-            max_rpm = int(os.getenv('LLM_MAX_RPM', '20'))
+            max_daily = int(os.getenv("LLM_MAX_DAILY_TOKENS", "50000"))
+            max_rpm = int(os.getenv("LLM_MAX_RPM", "20"))
             token_tracker.max_daily_tokens = max_daily
             token_tracker.max_rpm = max_rpm
 
-            logger.info(f"LLM integration initialized successfully (model: {get_llm_config().model})")
+            logger.info(
+                f"LLM integration initialized successfully (model: {get_llm_config().model})"
+            )
             return True
 
         except ImportError:
@@ -133,13 +146,13 @@ def get_llm_config() -> LLMConfig:
     """Get LLM configuration from environment."""
     return LLMConfig(
         enabled=LLM_ENABLED,
-        api_key=os.getenv('OPENAI_API_KEY'),
-        model=os.getenv('OPENAI_MODEL', 'gpt-4o-mini'),
-        temperature=float(os.getenv('LLM_TEMPERATURE', '0.0')),
-        max_tokens=int(os.getenv('LLM_MAX_TOKENS', '500')),
-        max_daily_tokens=int(os.getenv('LLM_MAX_DAILY_TOKENS', '50000')),
-        max_requests_per_minute=int(os.getenv('LLM_MAX_RPM', '20')),
-        fallback_to_rules=os.getenv('LLM_FALLBACK_TO_RULES', 'true').lower() == 'true'
+        api_key=os.getenv("OPENAI_API_KEY"),
+        model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
+        temperature=float(os.getenv("LLM_TEMPERATURE", "0.0")),
+        max_tokens=int(os.getenv("LLM_MAX_TOKENS", "500")),
+        max_daily_tokens=int(os.getenv("LLM_MAX_DAILY_TOKENS", "50000")),
+        max_requests_per_minute=int(os.getenv("LLM_MAX_RPM", "20")),
+        fallback_to_rules=os.getenv("LLM_FALLBACK_TO_RULES", "true").lower() == "true",
     )
 
 
@@ -229,14 +242,16 @@ def score_job_with_llm(job: Dict, preferences: Dict) -> Optional[LLMResult]:
 
         # Create result object
         llm_result = LLMResult(
-            score=float(result_data.get('score', 0.0)),
-            reasons=result_data.get('reasons', []),
-            summary=result_data.get('summary', ''),
+            score=float(result_data.get("score", 0.0)),
+            reasons=result_data.get("reasons", []),
+            summary=result_data.get("summary", ""),
             tokens_used=tokens_used,
-            model_used=config.model
+            model_used=config.model,
         )
 
-        logger.debug(f"LLM scored '{job.get('title')}': {llm_result.score:.2f} ({tokens_used} tokens)")
+        logger.debug(
+            f"LLM scored '{job.get('title')}': {llm_result.score:.2f} ({tokens_used} tokens)"
+        )
         return llm_result
 
     except json.JSONDecodeError as e:
@@ -318,7 +333,7 @@ def get_token_usage_stats() -> Dict:
         "requests_this_minute": token_tracker.requests_this_minute,
         "rpm_limit": token_tracker.max_rpm,
         "llm_enabled": LLM_ENABLED,
-        "can_make_request": token_tracker.can_make_request()
+        "can_make_request": token_tracker.can_make_request(),
     }
 
 

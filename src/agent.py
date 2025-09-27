@@ -31,8 +31,8 @@ from notify import slack, emailer
 load_dotenv()
 
 # Setup logging
-logger = setup_logging(log_level=os.getenv('LOG_LEVEL', 'INFO'))
-main_logger = get_logger('agent')
+logger = setup_logging(log_level=os.getenv("LOG_LEVEL", "INFO"))
+main_logger = get_logger("agent")
 
 
 def load_user_prefs():
@@ -59,24 +59,29 @@ def poll_sources(prefs):
         "greenhouse": greenhouse.scrape,
         "lever": lever.scrape,
         "workday": workday.scrape,
-        "generic_js": generic_js.scrape
+        "generic_js": generic_js.scrape,
     }
 
     companies = config_manager.get_companies()
     scraping_config = config_manager.get_scraping_config()
 
-    for company in companies[:scraping_config.max_companies_per_run]:
+    for company in companies[: scraping_config.max_companies_per_run]:
         scraper_func = scrapers.get(company.board_type)
         if not scraper_func:
-            main_logger.warning(f"No scraper found for board type '{company.board_type}' for {company.id}")
+            main_logger.warning(
+                f"No scraper found for board type '{company.board_type}' for {company.id}"
+            )
             continue
 
         # Check if domain should be skipped due to network failures
         from urllib.parse import urlparse
+
         domain = urlparse(company.url).netloc
         if network_resilience.should_skip_domain(domain):
             failure_count = network_resilience.get_failure_count(domain)
-            main_logger.warning(f"Skipping {company.id} due to {failure_count} consecutive failures")
+            main_logger.warning(
+                f"Skipping {company.id} due to {failure_count} consecutive failures"
+            )
             continue
 
         try:
@@ -85,7 +90,8 @@ def poll_sources(prefs):
             # Call scraper with enhanced parameters
             jobs = scraper_func(
                 company.url,
-                fetch_descriptions=company.fetch_descriptions and scraping_config.fetch_descriptions
+                fetch_descriptions=company.fetch_descriptions
+                and scraping_config.fetch_descriptions,
             )
 
             # Record successful scraping
@@ -94,7 +100,7 @@ def poll_sources(prefs):
             new_jobs_count = 0
             for job in jobs:
                 total_jobs_found += 1
-                existing_job = get_job_by_hash(job['hash'])
+                existing_job = get_job_by_hash(job["hash"])
                 if not existing_job:
                     all_new_jobs.append(job)
                     new_jobs_count += 1
@@ -165,18 +171,20 @@ def process_jobs(jobs, prefs):
                 # Enhanced logging with metadata
                 method = job["score_metadata"].get("scoring_method", "unknown")
                 tokens = job["score_metadata"].get("tokens_used", 0)
-                log_msg = (
-                    f"Processed job: {job['title']} (score: {score:.2f}, method: {method}"
-                )
+                log_msg = f"Processed job: {job['title']} (score: {score:.2f}, method: {method}"
                 if tokens > 0:
                     log_msg += f", tokens: {tokens}"
                 log_msg += ")"
                 main_logger.debug(log_msg)
             else:
-                main_logger.debug(f"Filtered out job: {job['title']} (score: {score:.2f})")
+                main_logger.debug(
+                    f"Filtered out job: {job['title']} (score: {score:.2f})"
+                )
 
         except Exception as e:
-            main_logger.error(f"Error processing job {job.get('title', 'Unknown')}: {e}")
+            main_logger.error(
+                f"Error processing job {job.get('title', 'Unknown')}: {e}"
+            )
 
     # Send immediate Slack alerts
     if immediate_alerts and notification_config.validate_slack():
@@ -224,19 +232,25 @@ def send_digest():
         for job in digest_jobs:
             # Safely parse score_reasons JSON instead of using eval()
             try:
-                score_reasons = json.loads(job.score_reasons) if job.score_reasons else []
+                score_reasons = (
+                    json.loads(job.score_reasons) if job.score_reasons else []
+                )
             except (json.JSONDecodeError, TypeError):
                 score_reasons = []
-                main_logger.warning(f"Could not parse score_reasons for job {job.id}: {job.score_reasons}")
-            
-            jobs_data.append({
-                'title': job.title,
-                'url': job.url,
-                'company': job.company,
-                'location': job.location,
-                'score': job.score,
-                'score_reasons': score_reasons
-            })
+                main_logger.warning(
+                    f"Could not parse score_reasons for job {job.id}: {job.score_reasons}"
+                )
+
+            jobs_data.append(
+                {
+                    "title": job.title,
+                    "url": job.url,
+                    "company": job.company,
+                    "location": job.location,
+                    "score": job.score,
+                    "score_reasons": score_reasons,
+                }
+            )
 
         # Send digest email
         emailer.send_digest_email(jobs_data)
@@ -258,18 +272,20 @@ def test_notifications():
 
     notification_config = config_manager.get_notification_config()
 
-    test_job = [{
-        'title': 'Test Security Engineer Position',
-        'url': 'https://example.com/job/test-123',
-        'company': 'TestCorp',
-        'location': 'Remote (US)',
-        'score': 0.95,
-        'score_reasons': [
-            'Title matched "Security Engineer"',
-            'Location matched "Remote"',
-            'Keyword boost: "Security"'
-        ]
-    }]
+    test_job = [
+        {
+            "title": "Test Security Engineer Position",
+            "url": "https://example.com/job/test-123",
+            "company": "TestCorp",
+            "location": "Remote (US)",
+            "score": 0.95,
+            "score_reasons": [
+                'Title matched "Security Engineer"',
+                'Location matched "Remote"',
+                'Keyword boost: "Security"',
+            ],
+        }
+    ]
 
     # Test Slack
     if notification_config.validate_slack():
@@ -300,7 +316,7 @@ def cleanup():
 
     try:
         # Clean up old jobs (configurable, default 90 days)
-        cleanup_days = int(os.getenv('CLEANUP_DAYS', '90'))
+        cleanup_days = int(os.getenv("CLEANUP_DAYS", "90"))
         deleted_count = cleanup_old_jobs(cleanup_days)
         main_logger.info(f"Cleanup completed: removed {deleted_count} old jobs")
     except Exception as e:
@@ -351,7 +367,9 @@ def health_check():
                 print(f"  -> {latest_backup.name}")
 
                 try:
-                    response = input("Attempt to restore from this backup? (y/n): ").lower()
+                    response = input(
+                        "Attempt to restore from this backup? (y/n): "
+                    ).lower()
                     if response == "y":
                         print("Restoring database...")
                         if db_resilience.restore_from_backup(latest_backup):
@@ -378,8 +396,11 @@ def main():
     except ImportError:
         try:
             from pathlib import Path
+
             version_file = Path(__file__).parent / "VERSION"
-            __version__ = version_file.read_text().strip() if version_file.exists() else "1.0.0"
+            __version__ = (
+                version_file.read_text().strip() if version_file.exists() else "1.0.0"
+            )
         except Exception:
             __version__ = "1.0.0"
 
@@ -391,7 +412,7 @@ def main():
   %(prog)s --mode digest      # Send daily digest email
   %(prog)s --mode test        # Test notification channels
   %(prog)s --mode cleanup     # Clean up old database entries
-        """
+        """,
     )
     parser.add_argument(
         "--version", action="version", version=f"%(prog)s {__version__}"
@@ -411,6 +432,7 @@ def main():
     # Set log level based on verbose flag
     if args.verbose:
         import logging
+
         logging.getLogger("job_scraper").setLevel(logging.DEBUG)
         main_logger.info("Verbose logging enabled")
 

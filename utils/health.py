@@ -233,9 +233,11 @@ class HealthMonitor:
                     value=1 if recent_log_activity else 0,
                     unit="status",
                     status=activity_status,
-                    message="Recent log activity detected"
-                    if recent_log_activity
-                    else "No recent log activity",
+                    message=(
+                        "Recent log activity detected"
+                        if recent_log_activity
+                        else "No recent log activity"
+                    ),
                 )
             )
 
@@ -280,9 +282,11 @@ class HealthMonitor:
                     value=1 if notification_config.validate_slack() else 0,
                     unit="status",
                     status=slack_status,
-                    message="Slack configured"
-                    if notification_config.validate_slack()
-                    else "Slack not configured",
+                    message=(
+                        "Slack configured"
+                        if notification_config.validate_slack()
+                        else "Slack not configured"
+                    ),
                 )
             )
 
@@ -293,9 +297,11 @@ class HealthMonitor:
                     value=1 if notification_config.validate_email() else 0,
                     unit="status",
                     status=email_status,
-                    message="Email configured"
-                    if notification_config.validate_email()
-                    else "Email not configured",
+                    message=(
+                        "Email configured"
+                        if notification_config.validate_email()
+                        else "Email not configured"
+                    ),
                 )
             )
 

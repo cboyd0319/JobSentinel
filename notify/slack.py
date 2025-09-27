@@ -4,14 +4,19 @@ import requests
 
 def format_jobs_for_slack(jobs: list[dict]) -> dict:
     """Formats a list of jobs into a Slack message block with enhanced AI insights."""
-    blocks = [{"type": "header", "text": {"type": "plain_text", "text": "🚨 New High-Match Jobs Found!"}}]
+    blocks = [
+        {
+            "type": "header",
+            "text": {"type": "plain_text", "text": "🚨 New High-Match Jobs Found!"},
+        }
+    ]
 
     for job in jobs:
-        score_percent = int(job.get('score', 0) * 100)
+        score_percent = int(job.get("score", 0) * 100)
 
         # Get scoring metadata for enhanced display
-        metadata = job.get('score_metadata', {})
-        llm_used = metadata.get('llm_used', False)
+        metadata = job.get("score_metadata", {})
+        llm_used = metadata.get("llm_used", False)
 
         # Build the main job info
         job_text = f"<{job['url']}|*{job['title']}*> at *{job['company'].title()}*\n"
@@ -19,23 +24,25 @@ def format_jobs_for_slack(jobs: list[dict]) -> dict:
 
         # Enhanced scoring display
         if llm_used:
-            rules_score = metadata.get('rules_score', 0)
-            llm_score = metadata.get('llm_score', 0)
+            rules_score = metadata.get("rules_score", 0)
+            llm_score = metadata.get("llm_score", 0)
             job_text += f"📈 Score: *{score_percent}%* (Rules: {int(rules_score*100)}% • AI: {int(llm_score*100)}%)\n"
 
             # Add AI summary if available
-            llm_summary = metadata.get('llm_summary', '')
+            llm_summary = metadata.get("llm_summary", "")
             if llm_summary:
                 job_text += f"🤖 *AI Summary:* {llm_summary}\n"
         else:
             job_text += f"📈 Match Score: *{score_percent}%*\n"
 
         # Organize reasons by source
-        reasons = job.get('score_reasons', [])
+        reasons = job.get("score_reasons", [])
         if reasons:
-            rules_reasons = [r for r in reasons if r.startswith('Rules:')]
-            ai_reasons = [r for r in reasons if r.startswith('AI:')]
-            other_reasons = [r for r in reasons if not r.startswith(('Rules:', 'AI:', 'Summary:'))]
+            rules_reasons = [r for r in reasons if r.startswith("Rules:")]
+            ai_reasons = [r for r in reasons if r.startswith("AI:")]
+            other_reasons = [
+                r for r in reasons if not r.startswith(("Rules:", "AI:", "Summary:"))
+            ]
 
             if rules_reasons or other_reasons:
                 job_text += f"✅ *Matched:* {', '.join([r.replace('Rules: ', '') for r in rules_reasons] + other_reasons)}\n"
@@ -50,9 +57,9 @@ def format_jobs_for_slack(jobs: list[dict]) -> dict:
             "accessory": {
                 "type": "button",
                 "text": {"type": "plain_text", "text": "View Job"},
-                "url": job['url'],
-                "action_id": "view_job"
-            }
+                "url": job["url"],
+                "action_id": "view_job",
+            },
         }
 
         blocks.append(block)
@@ -60,16 +67,17 @@ def format_jobs_for_slack(jobs: list[dict]) -> dict:
 
     # Add footer with scoring info
     total_jobs = len(jobs)
-    llm_jobs = len([j for j in jobs if j.get('score_metadata', {}).get('llm_used', False)])
+    llm_jobs = len(
+        [j for j in jobs if j.get("score_metadata", {}).get("llm_used", False)]
+    )
 
     footer_text = f"Found {total_jobs} high-scoring job{'s' if total_jobs != 1 else ''}"
     if llm_jobs > 0:
         footer_text += f" • {llm_jobs} enhanced with AI analysis"
 
-    blocks.append({
-        "type": "context",
-        "elements": [{"type": "mrkdwn", "text": footer_text}]
-    })
+    blocks.append(
+        {"type": "context", "elements": [{"type": "mrkdwn", "text": footer_text}]}
+    )
 
     return {"blocks": blocks}
 

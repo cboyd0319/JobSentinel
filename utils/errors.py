@@ -3,6 +3,7 @@
 
 class JobScraperException(Exception):
     """Base exception for job scraper errors."""
+
     pass
 
 
@@ -31,15 +32,14 @@ class NotificationException(JobScraperException):
 
 class ConfigurationException(JobScraperException):
     """Exception raised for configuration errors."""
+
     pass
 
 
 class DatabaseException(JobScraperException):
     """Exception raised for database operations."""
 
-    def __init__(
-        self, operation: str, message: str, original_error: Exception = None
-    ):
+    def __init__(self, operation: str, message: str, original_error: Exception = None):
         self.operation = operation
         self.original_error = original_error
         super().__init__(f"Database {operation} failed: {message}")
