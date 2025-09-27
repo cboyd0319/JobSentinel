@@ -1,0 +1,234 @@
+name: CI/CD Pipeline (Optimized)
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  # Detect what types of changes occurred to optimize testing strategy
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      core-python: ${{ steps.changes.outputs.core-python }}
+      platform-scripts: ${{ steps.changes.outputs.platform-scripts }}
+      windows-specific: ${{ steps.changes.outputs.windows-specific }}
+      docs-only: ${{ steps.changes.outputs.docs-only }}
+      workflows: ${{ steps.changes.outputs.workflows }}
+    steps:
+    - uses: actions/checkout@v5
+    - uses: dorny/paths-filter@v3
+      id: changes
+      with:
+        filters: |
+          core-python:
+            - 'src/**/*.py'
+            - 'utils/**/*.py' 
+            - 'sources/**/*.py'
+            - 'notify/**/*.py'
+            - 'matchers/**/*.py'
+            - 'requirements.txt'
+          platform-scripts:
+            - 'scripts/**'
+            - '*.sh'
+            - '*.ps1'
+          windows-specific:
+            - '**/*.ps1'
+            - 'scripts/setup_windows*'
+          docs-only:
+            - '**/*.md'
+            - 'docs/**'
+          workflows:
+            - '.github/workflows/**'
+
+  # Fast primary test - runs on most changes for quick feedback
+  primary-test:
+    needs: changes
+    if: needs.changes.outputs.core-python == 'true' || needs.changes.outputs.workflows == 'true'
+    name: 🚀 Fast Primary Test (Ubuntu + Python 3.12)
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.12'
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Import test
+      run: |
+        python -c "import utils.config; import utils.resilience; import utils.health; print('✅ Imports successful')"
+
+    - name: Configuration validation test
+      run: |
+        cp .env.example .env
+        cp user_prefs.example.json user_prefs.json
+        chmod 600 .env || true
+        python -c "
+        import os
+        os.environ['CI'] = 'true'
+        from utils.config import config_manager
+        config = config_manager.load_config()
+        print('✅ Configuration validation passed')
+        "
+
+    - name: Database test
+      run: |
+        mkdir -p data/logs data/backups
+        python -c "
+        import os
+        os.environ['CI'] = 'true'
+        from src.database import Database
+        db = Database()
+        print('✅ Database initialization passed')
+        "
+
+  # Cross-platform testing - only runs when core Python changes
+  cross-platform-test:
+    needs: changes
+    if: needs.changes.outputs.core-python == 'true'
+    name: 🌐 Cross-Platform Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
+    
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Basic import test
+      run: |
+        python -c "import utils.config; import utils.health; print('✅ Cross-platform imports OK on ${{ matrix.os }}')"
+
+    - name: Configuration test
+      shell: bash
+      run: |
+        cp .env.example .env
+        cp user_prefs.example.json user_prefs.json
+        python -c "
+        import os
+        os.environ['CI'] = 'true'
+        from utils.config import config_manager
+        config = config_manager.load_config()
+        print('✅ Cross-platform config OK on ${{ matrix.os }}')
+        "
+
+  # Windows-specific testing - only when Windows files change
+  windows-specific-test:
+    needs: changes
+    if: needs.changes.outputs.windows-specific == 'true' || needs.changes.outputs.platform-scripts == 'true'
+    name: 🪟 Windows-Specific Test
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v5
+    
+    - name: Test PowerShell scripts accessibility
+      shell: pwsh
+      run: |
+        Write-Host "🔍 Checking PowerShell scripts..."
+        $scripts = Get-ChildItem -Path "scripts" -Filter "*.ps1" -ErrorAction SilentlyContinue
+        if ($scripts) {
+            foreach ($script in $scripts) {
+                Write-Host "✅ Found: $($script.Name)"
+                if (-not (Test-Path $script.FullName)) {
+                    Write-Error "❌ Script not accessible: $($script.FullName)"
+                    exit 1
+                }
+            }
+            Write-Host "✅ All PowerShell scripts accessible"
+        } else {
+            Write-Host "ℹ️  No PowerShell scripts found in scripts/ directory"
+        }
+
+  # Shell script testing - only when shell scripts change  
+  shell-script-test:
+    needs: changes
+    if: needs.changes.outputs.platform-scripts == 'true'
+    name: 🐚 Shell Script Test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v5
+    
+    - name: Test shell scripts
+      run: |
+        echo "🔍 Checking shell scripts..."
+        scripts_found=false
+        find scripts -name "*.sh" -type f 2>/dev/null | while read script; do
+          scripts_found=true
+          echo "✅ Testing syntax: $script"
+          bash -n "$script" || exit 1
+        done
+        if [ "$scripts_found" = false ]; then
+          echo "ℹ️  No shell scripts found in scripts/ directory"
+        else
+          echo "✅ All shell scripts have valid syntax"
+        fi
+
+  # Documentation-only changes
+  docs-test:
+    needs: changes
+    if: needs.changes.outputs.docs-only == 'true'
+    name: 📚 Documentation Test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v5
+    - name: Validate documentation
+      run: |
+        echo "✅ Documentation changes detected - no additional testing required"
+        echo "📚 Files can be merged safely"
+
+  # Summary job - provides single status check
+  ci-summary:
+    if: always()
+    needs: [changes, primary-test, cross-platform-test, windows-specific-test, shell-script-test, docs-test]
+    name: 📋 CI Summary
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Check results
+      run: |
+        echo "🔍 CI Results Summary:"
+        echo "Primary Test: ${{ needs.primary-test.result }}"
+        echo "Cross-Platform: ${{ needs.cross-platform-test.result }}"
+        echo "Windows Specific: ${{ needs.windows-specific-test.result }}"
+        echo "Shell Scripts: ${{ needs.shell-script-test.result }}"
+        echo "Documentation: ${{ needs.docs-test.result }}"
+        
+        # Check if any required jobs failed
+        if [[ "${{ needs.primary-test.result }}" == "failure" || 
+              "${{ needs.cross-platform-test.result }}" == "failure" || 
+              "${{ needs.windows-specific-test.result }}" == "failure" || 
+              "${{ needs.shell-script-test.result }}" == "failure" ]]; then
+          echo "❌ One or more required tests failed"
+          exit 1
+        else
+          echo "✅ All applicable tests passed"
+        fi
