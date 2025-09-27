@@ -72,6 +72,8 @@ Run the setup script and follow the prompts:
 Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; irm "https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/scripts/setup_windows.ps1" | iex
 ```
 
+> 📖 **Windows users**: See the detailed [Windows Setup Guide](docs/WINDOWS_SETUP_GUIDE.md) for step-by-step instructions with screenshots and troubleshooting tips.
+
 macOS / Linux
 
 ```bash
@@ -282,7 +284,12 @@ MIT — see the `LICENSE` file.
 
 Need help?
 
-- Check `docs/` for guides
+- Check [`docs/`](docs/) for guides:
+  - [🪟 Windows Setup Guide](docs/WINDOWS_SETUP_GUIDE.md) - Complete Windows 11 setup instructions
+  - [☁️ Cloud Costs](docs/CLOUD_COSTS.md) - Detailed cloud deployment cost analysis
+  - [🚀 Installation](docs/INSTALLATION.md) - Alternative installation methods
+  - [🛠️ Troubleshooting](docs/TROUBLESHOOTING.md) - Common issues and solutions
+  - [🤖 ChatGPT Integration](docs/ChatGPT-Integration.md) - AI-enhanced job scoring setup
 - Run `python agent.py --mode health` for diagnostics
 - Open an issue if you find a bug — I try to help folks who are using this.
 
