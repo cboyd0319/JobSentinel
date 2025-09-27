@@ -67,8 +67,11 @@ desktop.ini
 $PROFILE
 *.psm1-backup
 
-# Security reports (generated locally)
-.security-reports/*.json
+# Security reports and artifacts (generated locally, not project files)
+.security-reports/
+*.security-report.*
+bandit-report.*
+safety-report.*
 
 # Playwright browsers (downloaded by setup scripts)
 ~/.cache/ms-playwright/
