@@ -105,7 +105,41 @@ On your Desktop, you'll find these shortcuts:
    - This manually runs one complete job search
    - Check the output to see if it finds jobs
 
-**If both work**: Congratulations! Your job scraper is now running automatically!
+3. **Double-click "Update Job Scraper"** 🔄
+   - This checks for and installs the latest updates
+   - Your configuration is automatically preserved
+   - Run this anytime to get security and feature updates
+
+**If both Test and Run work**: Congratulations! Your job scraper is now running automatically!
+
+## 🔄 **Automatic Updates - SUPER EASY!**
+
+Your friend never needs to worry about updates! The system **automatically updates itself** every day at 6 AM with the latest security fixes and features.
+
+### **How Auto-Updates Work:**
+- ✅ **Daily Check**: Runs at 6 AM every morning
+- ✅ **Zero Configuration**: Completely automatic
+- ✅ **Preserves Settings**: Your .env and user_prefs.json are never touched  
+- ✅ **Safe Updates**: Creates backups before updating
+- ✅ **Logged**: All updates are recorded in data/logs/updates.log
+
+### **Manual Updates (Optional):**
+- **Desktop Shortcut**: Double-click "Update Job Scraper" anytime
+- **Always Safe**: Your job preferences and notifications settings are preserved
+- **Quick**: Usually takes 30-60 seconds
+- **Smart**: Only updates if there are actually new changes
+
+### **What Gets Updated:**
+- ✅ **Security Fixes**: Latest security patches applied automatically
+- ✅ **New Features**: Enhanced job matching, new job boards, improvements
+- ✅ **Bug Fixes**: Any issues get resolved automatically
+- ✅ **Dependencies**: Python packages stay up-to-date
+
+### **What NEVER Changes:**
+- ❌ **Your Settings**: .env file (Slack, email settings) 
+- ❌ **Job Preferences**: user_prefs.json (companies, keywords, etc.)
+- ❌ **Your Data**: All found jobs and history preserved
+- ❌ **Scheduled Tasks**: Continues running every 15 minutes
 
 ---
 
@@ -215,6 +249,7 @@ DIGEST_TO=your_email@outlook.com
 The setup creates these automatic tasks:
 
 - **Every 15 minutes**: Check for new jobs → Send immediate alerts
+- **Daily at 6 AM**: **Auto-update** with latest security fixes and features 🔄
 - **Daily at 9 AM**: Send email digest of all matched jobs
 - **Weekly on Sunday**: Clean up old database entries
 - **Every 6 hours**: Health check and system monitoring
@@ -223,6 +258,13 @@ The setup creates these automatic tasks:
 1. Press `Windows key + R`
 2. Type `taskschd.msc` and press Enter
 3. Look for tasks starting with "JobScraper"
+
+### **The Auto-Update Task:**
+- **Task Name**: JobScraper-AutoUpdate
+- **Schedule**: Daily at 6:00 AM
+- **What it does**: Downloads latest code, updates dependencies, preserves your settings
+- **Runs silently**: No interruption to your work
+- **Logs everything**: Check data/logs/updates.log for update history
 
 ---
 

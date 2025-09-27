@@ -656,6 +656,14 @@ function Setup-TaskScheduler {
         Register-ScheduledTask -TaskName "JobScraper-Cleanup" -Action $cleanupAction -Trigger $cleanupTrigger -Settings $digestSettings -Principal $pollPrincipal -Force | Out-Null
         Write-Success "Created cleanup task (weekly on Sunday)"
 
+        # Create auto-update task (daily at 6 AM)
+        $updateAction = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-WindowStyle Hidden -ExecutionPolicy Bypass -Command `"cd '$InstallPath'; . './scripts/setup_windows.ps1'; Update-JobScraper -InstallPath '$InstallPath' -Quiet`"" -WorkingDirectory $InstallPath
+        $updateTrigger = New-ScheduledTaskTrigger -Daily -At "6:00AM"
+        $updateSettings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -MultipleInstances IgnoreNew
+        
+        Register-ScheduledTask -TaskName "JobScraper-AutoUpdate" -Action $updateAction -Trigger $updateTrigger -Settings $updateSettings -Principal $pollPrincipal -Force | Out-Null
+        Write-Success "Created auto-update task (daily at 6 AM)"
+
     } catch {
         Write-Warning "Failed to create some scheduled tasks: $($_.Exception.Message)"
         Write-Info "You can manually run jobs using the desktop shortcuts"
@@ -695,7 +703,15 @@ function Create-StartupShortcuts {
         $webShortcut.Description = "Start Job Scraper web interface"
         $webShortcut.Save()
 
-        Write-Success "Created desktop shortcuts"
+        # Update shortcut
+        $updateShortcut = $shell.CreateShortcut("$desktop\\Update Job Scraper.lnk")
+        $updateShortcut.TargetPath = "powershell.exe"
+        $updateShortcut.Arguments = "-WindowStyle Normal -ExecutionPolicy Bypass -Command `"cd '$InstallPath'; . './scripts/setup_windows.ps1'; Update-JobScraper -InstallPath '$InstallPath'; Write-Host 'Press any key to close...'; `$null = `$Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')`""
+        $updateShortcut.WorkingDirectory = $InstallPath
+        $updateShortcut.Description = "Check for and install Job Scraper updates"
+        $updateShortcut.Save()
+
+        Write-Success "Created desktop shortcuts (including update shortcut)"
     } catch {
         Write-Warning "Failed to create desktop shortcuts: $($_.Exception.Message)"
     }
@@ -726,11 +742,193 @@ function Show-CompletionSummary {
     Write-Host "      • Use 'Run Job Scraper' shortcut for manual runs"
     Write-Host "      • Use 'Job Scraper Web UI' to view results"
     Write-Host ""
+    Write-Host "   4. ${Blue}Automatic updates:${Reset}"
+    Write-Host "      • Updates check daily at 6 AM automatically"
+    Write-Host "      • Use 'Update Job Scraper' shortcut for manual updates"
+    Write-Host "      • Your configuration (.env, user_prefs.json) is always preserved"
+    Write-Host ""
     Write-Host "${Green}💡 Pro Tips:${Reset}"
     Write-Host "   • Check Task Scheduler for automated runs status"
     Write-Host "   • Logs are stored in $InstallPath\\data\\logs\\"
     Write-Host "   • Database file: $InstallPath\\data\\jobs.sqlite"
+    Write-Host "   • Update logs: $InstallPath\\data\\logs\\updates.log"
     Write-Host ""
+}
+
+function Update-JobScraper {
+    param(
+        [string]$InstallPath = "$env:USERPROFILE\\job-scraper",
+        [switch]$Force,
+        [switch]$Quiet
+    )
+    
+    if (!$Quiet) {
+        Write-Step "Checking for updates to Private Job Scraper..."
+    }
+    
+    try {
+        Push-Location $InstallPath
+        
+        # Backup user configuration files
+        $configBackup = "$env:TEMP\\job-scraper-config-backup-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+        New-Item -ItemType Directory -Path $configBackup -Force | Out-Null
+        
+        $configFiles = @(".env", "user_prefs.json")
+        foreach ($file in $configFiles) {
+            if (Test-Path $file) {
+                Copy-Item $file "$configBackup\\$file" -Force
+                if (!$Quiet) { Write-Info "Backed up $file" }
+            }
+        }
+        
+        # Check if we have Git repository
+        if (Test-Path ".git") {
+            # Git repository - pull latest changes
+            if (!$Quiet) { Write-Step "Pulling latest updates from GitHub..." }
+            
+            $gitResult = git pull origin main 2>&1
+            if ($LASTEXITCODE -eq 0) {
+                if (!$Quiet) { Write-Success "Successfully pulled latest code" }
+                $updateAvailable = $true
+            } elseif ($gitResult -match "Already up to date") {
+                if (!$Quiet) { Write-Success "Already up to date" }
+                $updateAvailable = $false
+            } else {
+                throw "Git pull failed: $gitResult"
+            }
+        } else {
+            # No Git - download fresh copy and compare
+            if (!$Quiet) { Write-Step "Downloading latest version for comparison..." }
+            
+            $tempDir = "$env:TEMP\\job-scraper-update-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+            git clone https://github.com/cboyd0319/job-private-scraper-filter.git $tempDir
+            
+            # Check if VERSION file differs or doesn't exist
+            $currentVersion = ""
+            $newVersion = ""
+            
+            if (Test-Path "VERSION") {
+                $currentVersion = Get-Content "VERSION" -Raw
+            }
+            
+            if (Test-Path "$tempDir\\VERSION") {
+                $newVersion = Get-Content "$tempDir\\VERSION" -Raw
+            }
+            
+            if ($currentVersion -ne $newVersion -or $Force) {
+                if (!$Quiet) { Write-Step "Updating from version '$currentVersion' to '$newVersion'..." }
+                
+                # Copy new files (excluding user config and data)
+                $excludePatterns = @(".env", "user_prefs.json", "data\\*", ".venv\\*")
+                
+                Get-ChildItem $tempDir -Recurse | ForEach-Object {
+                    $relativePath = $_.FullName.Substring($tempDir.Length + 1)
+                    $shouldExclude = $false
+                    
+                    foreach ($pattern in $excludePatterns) {
+                        if ($relativePath -like $pattern) {
+                            $shouldExclude = $true
+                            break
+                        }
+                    }
+                    
+                    if (!$shouldExclude) {
+                        $targetPath = Join-Path $InstallPath $relativePath
+                        $targetDir = Split-Path $targetPath -Parent
+                        
+                        if (!(Test-Path $targetDir)) {
+                            New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
+                        }
+                        
+                        if ($_.PSIsContainer -eq $false) {
+                            Copy-Item $_.FullName $targetPath -Force
+                        }
+                    }
+                }
+                
+                # Cleanup temp directory
+                Remove-Item $tempDir -Recurse -Force -ErrorAction SilentlyContinue
+                
+                $updateAvailable = $true
+                if (!$Quiet) { Write-Success "Successfully updated to version '$newVersion'" }
+            } else {
+                Remove-Item $tempDir -Recurse -Force -ErrorAction SilentlyContinue
+                $updateAvailable = $false
+                if (!$Quiet) { Write-Success "Already up to date (version: $currentVersion)" }
+            }
+        }
+        
+        if ($updateAvailable) {
+            # Update Python dependencies
+            if (!$Quiet) { Write-Step "Updating Python dependencies..." }
+            & ".\.venv\Scripts\python.exe" -m pip install --upgrade pip
+            & ".\.venv\Scripts\python.exe" -m pip install -r requirements.txt --upgrade
+            
+            # Restore user configuration files
+            foreach ($file in $configFiles) {
+                if (Test-Path "$configBackup\\$file") {
+                    Copy-Item "$configBackup\\$file" $file -Force
+                    if (!$Quiet) { Write-Success "Restored $file" }
+                }
+            }
+            
+            # Test installation after update
+            if (!$Quiet) { Write-Step "Validating updated installation..." }
+            $testResult = & ".\.venv\Scripts\python.exe" -c "
+import sys, os
+sys.path.insert(0, os.getcwd())
+try:
+    from src.agent import main
+    from src.database import init_db
+    print('SUCCESS: Update validation passed')
+except Exception as e:
+    print(f'ERROR: {e}')
+    sys.exit(1)
+"
+            
+            if ($LASTEXITCODE -eq 0) {
+                if (!$Quiet) { Write-Success "Update completed successfully!" }
+                
+                # Log update
+                $logDir = "data\\logs"
+                if (!(Test-Path $logDir)) {
+                    New-Item -ItemType Directory -Path $logDir -Force | Out-Null
+                }
+                $logFile = "$logDir\\updates.log"
+                $logEntry = "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - Updated to version '$newVersion'"
+                Add-Content $logFile $logEntry
+                
+                return $true
+            } else {
+                throw "Update validation failed"
+            }
+        }
+        
+        # Cleanup config backup if successful
+        if (Test-Path $configBackup) {
+            Remove-Item $configBackup -Recurse -Force -ErrorAction SilentlyContinue
+        }
+        
+        return $updateAvailable
+        
+    } catch {
+        Write-Error "Update failed: $($_.Exception.Message)"
+        
+        # Restore configuration from backup if it exists
+        if (Test-Path $configBackup) {
+            foreach ($file in $configFiles) {
+                if (Test-Path "$configBackup\\$file") {
+                    Copy-Item "$configBackup\\$file" $file -Force
+                    Write-Warning "Restored $file from backup"
+                }
+            }
+            Remove-Item $configBackup -Recurse -Force -ErrorAction SilentlyContinue
+        }
+        
+        return $false
+    } finally {
+        Pop-Location
+    }
 }
 
 # Main execution with comprehensive error handling
