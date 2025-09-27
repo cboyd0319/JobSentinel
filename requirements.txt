@@ -30,3 +30,5 @@ Flask>=3.1.0
 
 # Code Quality
 flake8
+black
+isort

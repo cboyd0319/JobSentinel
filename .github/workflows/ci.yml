@@ -197,8 +197,8 @@ jobs:
 
   lint:
     needs: changes
-    if: needs.changes.outputs.code == 'true' || needs.changes.outputs.docs == 'true'
-    name: Code Quality
+    if: needs.changes.outputs.code == 'true'
+    name: Code Quality & Linting
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v5
@@ -208,50 +208,37 @@ jobs:
       with:
         python-version: '3.12'
 
-    - name: Install linting tools
+    - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 black isort
+        pip install -r requirements.txt
+
+    - name: Lint with flake8 (strict)
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+
+    - name: Lint with flake8 (full check)
+      run: |
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
     - name: Check code formatting with Black
-      if: needs.changes.outputs.code == 'true'
-      shell: bash
-      run: black --check --diff . || true
+      run: black --check --diff . || echo "Black formatting issues found (non-blocking)"
 
     - name: Check import sorting with isort
-      if: needs.changes.outputs.code == 'true'
-      shell: bash
-      run: isort --check-only --diff . || true
+      run: isort --check-only --diff . || echo "Import sorting issues found (non-blocking)"
 
-    - name: Lint with flake8
-      if: needs.changes.outputs.code == 'true'
-      shell: bash
-      run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics || true
-
-    - name: Check Markdown links (docs only)
-      if: needs.changes.outputs.docs == 'true'
+  docs-lint:
+    needs: changes
+    if: needs.changes.outputs.docs == 'true'
+    name: Documentation Linting
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v5
+    - name: Check Markdown links
       shell: bash
       run: |
         echo "✅ Checking markdown syntax and links..."
         find . -name "*.md" -exec echo "Validating: {}" \;
         echo "✅ Markdown validation completed"
-
-  lint:
-    name: Lint Code
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v5
-    - name: Set up Python
-      uses: actions/setup-python@v6
-      with:
-        python-version: '3.12'
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-    - name: Lint with flake8
-      run: |
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
