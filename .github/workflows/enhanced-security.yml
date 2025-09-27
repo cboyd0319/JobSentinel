@@ -175,10 +175,12 @@ jobs:
 
       - name: Run Bandit security linter (enhanced)
         run: |
-        # Use existing comprehensive config/bandit.yaml configuration
-        bandit -r . -c config/bandit.yaml -f sarif -o bandit-results.sarif || true
-        # Also create JSON for artifacts
-        bandit -r . -c config/bandit.yaml -f json -o bandit-report.json || true      - name: Upload Bandit results to GitHub Security tab
+          # Use existing comprehensive config/bandit.yaml configuration
+          bandit -r . -c config/bandit.yaml -f sarif -o bandit-results.sarif || true
+          # Also create JSON for artifacts
+          bandit -r . -c config/bandit.yaml -f json -o bandit-report.json || true
+          
+      - name: Upload Bandit results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:

@@ -2,9 +2,9 @@ name: Security & Vulnerability Scanning
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
   schedule:
     # Run weekly security scans on Sundays at 2 AM UTC
     - cron: '0 2 * * 0'
@@ -24,15 +24,15 @@ jobs:
     outputs:
       continue: ${{ steps.harden.outputs.success }}
     steps:
-    - name: Harden Runner
-      id: harden
-      uses: step-security/harden-runner@v2
-      with:
-        egress-policy: audit
-        allowed-endpoints: >
-          api.github.com:443
-          github.com:443
-          objects.githubusercontent.com:443
+      - name: Harden Runner
+        id: harden
+        uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
+          allowed-endpoints: >
+            api.github.com:443
+            github.com:443
+            objects.githubusercontent.com:443
           pypi.org:443
           files.pythonhosted.org:443
 
