@@ -1,10 +1,11 @@
-
 # Heads-up
 
 This is my personal project and it's still evolving. I make frequent changes and sometimes break things. If you're trying this out, expect rough edges. I’ll remove this notice once things settle down.
 
 
 # Private Job Scraper & Filter
+
+[![GitHub release](https://img.shields.io/github/v/release/cboyd0319/job-private-scraper-filter)](https://github.com/cboyd0319/job-private-scraper-filter/releases)
 
 This is a local job-scraper I built to watch job boards I care about and to share with friends or anyone else who finds it useful. It runs on your machine and doesn't send your data anywhere.
 
