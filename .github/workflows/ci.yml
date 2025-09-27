@@ -115,7 +115,7 @@ jobs:
         python -c "
         import os
         os.environ['CI'] = 'true'
-        from database import init_db, add_job
+        from src.database import init_db, add_job
         init_db()
         test_job = {
           'title': 'Test Job',

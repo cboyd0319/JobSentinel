@@ -18,6 +18,7 @@ logger = get_logger("config")
 @dataclass
 class CompanyConfig:
     """Configuration for a single company's job board."""
+
     id: str
     board_type: str
     url: str
@@ -27,25 +28,38 @@ class CompanyConfig:
     def __post_init__(self):
         """Validate company configuration."""
         if not self.id or not self.board_type or not self.url:
-            raise ConfigurationException("Invalid company config: missing required fields")
+            raise ConfigurationException(
+                "Invalid company config: missing required fields"
+            )
 
         # Validate URL
         try:
             parsed = urlparse(self.url)
             if not parsed.scheme or not parsed.netloc:
-                raise ConfigurationException(f"Invalid URL for company {self.id}: {self.url}")
+                raise ConfigurationException(
+                    f"Invalid URL for company {self.id}: {self.url}"
+                )
         except Exception as e:
             raise ConfigurationException(f"Invalid URL for company {self.id}: {e}")
 
         # Validate board type
-        supported_boards = ['greenhouse', 'lever', 'workday', 'ashby', 'smartrecruiters']
+        supported_boards = [
+            "greenhouse",
+            "lever",
+            "workday",
+            "ashby",
+            "smartrecruiters",
+        ]
         if self.board_type not in supported_boards:
-            logger.warning(f"Board type '{self.board_type}' for {self.id} may not be fully supported")
+            logger.warning(
+                f"Board type '{self.board_type}' for {self.id} may not be fully supported"
+            )
 
 
 @dataclass
 class ScrapingConfig:
     """Configuration for scraping behavior."""
+
     max_companies_per_run: int = 10
     fetch_descriptions: bool = True
     timeout_seconds: int = 30
@@ -85,6 +99,7 @@ class FilterConfig:
 @dataclass
 class NotificationConfig:
     """Configuration for notifications."""
+
     slack_webhook_url: Optional[str] = None
     smtp_host: Optional[str] = None
     smtp_port: int = 587
@@ -94,16 +109,19 @@ class NotificationConfig:
 
     def validate_slack(self) -> bool:
         """Check if Slack notifications are properly configured."""
-        return bool(self.slack_webhook_url and self.slack_webhook_url.startswith('https://hooks.slack.com/'))
+        return bool(
+            self.slack_webhook_url
+            and self.slack_webhook_url.startswith("https://hooks.slack.com/")
+        )
 
     def validate_email(self) -> bool:
         """Check if email notifications are properly configured."""
         return bool(
-            self.smtp_host and
-            self.smtp_user and
-            self.smtp_pass and
-            self.digest_to and
-            '@' in self.digest_to
+            self.smtp_host
+            and self.smtp_user
+            and self.smtp_pass
+            and self.digest_to
+            and "@" in self.digest_to
         )
 
 
@@ -121,10 +139,12 @@ class ConfigManager:
 
         # Load user preferences
         if not self.config_path.exists():
-            raise ConfigurationException(f"Configuration file not found: {self.config_path}")
+            raise ConfigurationException(
+                f"Configuration file not found: {self.config_path}"
+            )
 
         try:
-            with open(self.config_path, 'r', encoding='utf-8') as f:
+            with open(self.config_path, "r", encoding="utf-8") as f:
                 config_data = json.load(f)
         except json.JSONDecodeError as e:
             raise ConfigurationException(f"Invalid JSON in {self.config_path}: {e}")
@@ -134,6 +154,7 @@ class ConfigManager:
         # Load environment variables
         if self.env_path.exists():
             from dotenv import load_dotenv
+
             load_dotenv(self.env_path)
 
         # Validate configuration
@@ -148,7 +169,7 @@ class ConfigManager:
         logger.debug("Validating configuration...")
 
         # Validate companies
-        companies = config.get('companies', [])
+        companies = config.get("companies", [])
         if not companies:
             raise ConfigurationException("No companies configured")
 
@@ -156,19 +177,21 @@ class ConfigManager:
             try:
                 CompanyConfig(**company_data)
             except Exception as e:
-                raise ConfigurationException(f"Invalid company config at index {i}: {e}")
+                raise ConfigurationException(
+                    f"Invalid company config at index {i}: {e}"
+                )
 
         # Validate filters
         try:
             FilterConfig(
-                title_allowlist=config.get('title_allowlist', []),
-                title_blocklist=config.get('title_blocklist', []),
-                keywords_boost=config.get('keywords_boost', []),
-                keywords_exclude=config.get('keywords_exclude', []),
-                location_constraints=config.get('location_constraints', []),
-                salary_floor_usd=config.get('salary_floor_usd'),
-                immediate_alert_threshold=config.get('immediate_alert_threshold', 0.9),
-                max_matches_per_run=config.get('max_matches_per_run', 50)
+                title_allowlist=config.get("title_allowlist", []),
+                title_blocklist=config.get("title_blocklist", []),
+                keywords_boost=config.get("keywords_boost", []),
+                keywords_exclude=config.get("keywords_exclude", []),
+                location_constraints=config.get("location_constraints", []),
+                salary_floor_usd=config.get("salary_floor_usd"),
+                immediate_alert_threshold=config.get("immediate_alert_threshold", 0.9),
+                max_matches_per_run=config.get("max_matches_per_run", 50),
             )
         except Exception as e:
             raise ConfigurationException(f"Invalid filter configuration: {e}")
@@ -183,8 +206,13 @@ class ConfigManager:
             digest_to=os.getenv("DIGEST_TO"),
         )
 
-        if not notification_config.validate_slack() and not notification_config.validate_email():
-            logger.warning("No notification methods configured. You will not receive alerts.")
+        if (
+            not notification_config.validate_slack()
+            and not notification_config.validate_email()
+        ):
+            logger.warning(
+                "No notification methods configured. You will not receive alerts."
+            )
 
         # Security validation
         self._validate_security()
@@ -222,9 +250,7 @@ class ConfigManager:
             if self.env_path.exists():
                 stat_info = self.env_path.stat()
                 if stat_info.st_mode & 0o077:
-                    logger.warning(
-                        f"{self.env_path} has overly permissive permissions"
-                    )
+                    logger.warning(f"{self.env_path} has overly permissive permissions")
         except Exception as e:
             logger.warning(f"Could not check file permissions: {e}")
 
@@ -234,7 +260,7 @@ class ConfigManager:
             self.load_config()
 
         companies = []
-        for company_data in self._config_data.get('companies', []):
+        for company_data in self._config_data.get("companies", []):
             companies.append(CompanyConfig(**company_data))
 
         return companies
@@ -274,10 +300,10 @@ class ConfigManager:
             self.load_config()
 
         return ScrapingConfig(
-            max_companies_per_run=self._config_data.get('max_companies_per_run', 10),
-            fetch_descriptions=self._config_data.get('fetch_descriptions', True),
-            timeout_seconds=self._config_data.get('timeout_seconds', 30),
-            max_retries=self._config_data.get('max_retries', 3)
+            max_companies_per_run=self._config_data.get("max_companies_per_run", 10),
+            fetch_descriptions=self._config_data.get("fetch_descriptions", True),
+            timeout_seconds=self._config_data.get("timeout_seconds", 30),
+            max_retries=self._config_data.get("max_retries", 3),
         )
 
 

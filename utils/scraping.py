@@ -12,7 +12,12 @@ from datetime import datetime, timedelta
 
 import requests
 from playwright.async_api import async_playwright, Browser
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+from tenacity import (
+    retry,
+    stop_after_attempt,
+    wait_exponential,
+    retry_if_exception_type,
+)
 
 from utils.logging import get_logger
 from utils.errors import ScrapingException, RateLimitException
@@ -23,6 +28,7 @@ logger = get_logger("scraping")
 @dataclass
 class RateLimitConfig:
     """Configuration for rate limiting per domain."""
+
     requests_per_minute: int = 30
     min_delay_seconds: float = 2.0
     max_delay_seconds: float = 10.0
@@ -32,6 +38,7 @@ class RateLimitConfig:
 @dataclass
 class DomainStats:
     """Track stats for a domain."""
+
     last_request_time: datetime = field(default_factory=datetime.now)
     request_count: int = 0
     failed_requests: int = 0
@@ -44,7 +51,9 @@ class RateLimiter:
     def __init__(self):
         self.domain_configs: Dict[str, RateLimitConfig] = {}
         self.domain_stats: Dict[str, DomainStats] = {}
-        self.request_history: Dict[str, list] = {}  # domain -> list of request timestamps
+        self.request_history: Dict[str, list] = (
+            {}
+        )  # domain -> list of request timestamps
 
     def get_domain(self, url: str) -> str:
         """Extract domain from URL."""
@@ -53,7 +62,9 @@ class RateLimiter:
     def configure_domain(self, domain: str, config: RateLimitConfig):
         """Set custom rate limiting for a specific domain."""
         self.domain_configs[domain] = config
-        logger.info(f"Configured rate limiting for {domain}: {config.requests_per_minute} req/min")
+        logger.info(
+            f"Configured rate limiting for {domain}: {config.requests_per_minute} req/min"
+        )
 
     def get_config(self, domain: str) -> RateLimitConfig:
         """Get rate limit config for domain."""
@@ -75,8 +86,7 @@ class RateLimiter:
             self.request_history[domain] = []
 
         self.request_history[domain] = [
-            ts for ts in self.request_history[domain]
-            if ts > cutoff
+            ts for ts in self.request_history[domain] if ts > cutoff
         ]
 
         # Check if we're within rate limits

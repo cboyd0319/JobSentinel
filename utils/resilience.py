@@ -13,7 +13,6 @@ from typing import Optional, Dict, Any
 from dataclasses import dataclass
 
 from utils.logging import get_logger
-from utils.errors import DatabaseException
 
 logger = get_logger("resilience")
 
@@ -21,6 +20,7 @@ logger = get_logger("resilience")
 @dataclass
 class BackupConfig:
     """Configuration for backup operations."""
+
     enabled: bool = True
     backup_dir: str = "data/backups"
     max_backups: int = 7
@@ -171,7 +171,7 @@ class DatabaseResilience:
         backups.sort(key=lambda p: p.stat().st_mtime)
 
         # Remove oldest backups
-        for backup in backups[:-self.config.max_backups]:
+        for backup in backups[: -self.config.max_backups]:
             try:
                 backup.unlink()
                 logger.debug(f"Removed old backup: {backup}")
@@ -195,7 +195,9 @@ class NetworkResilience:
         delay = min(300, 30 * (2 ** min(failures - 1, 4)))  # Max 5 minutes
         self.backoff_delays[domain] = time.time() + delay
 
-        logger.warning(f"Network failure #{failures} for {domain}, backing off {delay}s")
+        logger.warning(
+            f"Network failure #{failures} for {domain}, backing off {delay}s"
+        )
 
     def record_success(self, domain: str):
         """Record a successful connection for a domain."""
@@ -229,7 +231,7 @@ class ProcessResilience:
         try:
             if self.lockfile_path.exists():
                 # Check if process is still running
-                with open(self.lockfile_path, 'r') as f:
+                with open(self.lockfile_path, "r") as f:
                     old_pid = int(f.read().strip())
 
                 if self._is_process_running(old_pid):
@@ -240,7 +242,7 @@ class ProcessResilience:
                     self.lockfile_path.unlink()
 
             # Create new lockfile
-            with open(self.lockfile_path, 'w') as f:
+            with open(self.lockfile_path, "w") as f:
                 f.write(str(os.getpid()))
 
             logger.debug(f"Process lock acquired (PID: {os.getpid()})")
@@ -263,6 +265,7 @@ class ProcessResilience:
         """Check if a process with given PID is running."""
         try:
             import psutil
+
             return psutil.pid_exists(pid)
         except ImportError:
             # Fallback for systems without psutil

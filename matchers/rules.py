@@ -1,4 +1,6 @@
-def score_job(job: dict, prefs: dict, use_llm: bool = None) -> tuple[float, list[str], dict]:
+def score_job(
+    job: dict, prefs: dict, use_llm: bool = None
+) -> tuple[float, list[str], dict]:
     """
     Applies rule-based scoring to a job, with optional LLM enhancement.
 
@@ -18,18 +20,21 @@ def score_job(job: dict, prefs: dict, use_llm: bool = None) -> tuple[float, list
     if rules_score > 0 and _should_use_llm(use_llm, prefs):
         try:
             from utils.llm import score_job_with_llm
+
             llm_result = score_job_with_llm(job, prefs)
         except ImportError:
             pass  # LLM not available, continue with rules only
         except Exception as e:
             from utils.logging import get_logger
+
             logger = get_logger("scoring")
             logger.debug(f"LLM scoring failed for {job.get('title', 'Unknown')}: {e}")
 
     # Create hybrid score
     if llm_result:
         from utils.llm import create_hybrid_score
-        llm_weight = prefs.get('llm_weight', 0.5)
+
+        llm_weight = prefs.get("llm_weight", 0.5)
         rules_weight = 1.0 - llm_weight
         final_score, combined_reasons, metadata = create_hybrid_score(
             rules_score, rules_reasons, llm_result, rules_weight
@@ -42,7 +47,7 @@ def score_job(job: dict, prefs: dict, use_llm: bool = None) -> tuple[float, list
             "llm_score": None,
             "llm_used": False,
             "tokens_used": 0,
-            "scoring_method": "rules_only"
+            "scoring_method": "rules_only",
         }
         return rules_score, rules_reasons, metadata
 
@@ -108,12 +113,13 @@ def _should_use_llm(use_llm: bool, prefs: dict) -> bool:
         return use_llm
 
     # Check preferences
-    if 'use_llm' in prefs:
-        return prefs['use_llm']
+    if "use_llm" in prefs:
+        return prefs["use_llm"]
 
     # Check environment
     import os
-    return os.getenv('LLM_ENABLED', 'false').lower() == 'true'
+
+    return os.getenv("LLM_ENABLED", "false").lower() == "true"
 
 
 def _extract_salary(text: str) -> int:

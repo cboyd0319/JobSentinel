@@ -9,7 +9,9 @@ def format_jobs_for_email(jobs: list[dict]) -> str:
 
     # Email header with stats
     total_jobs = len(jobs)
-    llm_jobs = len([j for j in jobs if j.get('score_metadata', {}).get('llm_used', False)])
+    llm_jobs = len(
+        [j for j in jobs if j.get("score_metadata", {}).get("llm_used", False)]
+    )
 
     html = f"""
     <html>
@@ -37,12 +39,12 @@ def format_jobs_for_email(jobs: list[dict]) -> str:
     html += "</p></div>"
 
     # Sort jobs by score (highest first)
-    sorted_jobs = sorted(jobs, key=lambda x: x.get('score', 0), reverse=True)
+    sorted_jobs = sorted(jobs, key=lambda x: x.get("score", 0), reverse=True)
 
     for job in sorted_jobs:
-        score_percent = int(job.get('score', 0) * 100)
-        metadata = job.get('score_metadata', {})
-        llm_used = metadata.get('llm_used', False)
+        score_percent = int(job.get("score", 0) * 100)
+        metadata = job.get("score_metadata", {})
+        llm_used = metadata.get("llm_used", False)
 
         # Determine score class for styling
         score_class = "score-high" if score_percent >= 80 else "score-medium"
@@ -58,8 +60,8 @@ def format_jobs_for_email(jobs: list[dict]) -> str:
 
         # Enhanced scoring display
         if llm_used:
-            rules_score = metadata.get('rules_score', 0)
-            llm_score = metadata.get('llm_score', 0)
+            rules_score = metadata.get("rules_score", 0)
+            llm_score = metadata.get("llm_score", 0)
             html += f"""
             <div class="job-meta">
                 <span class="{score_class}">Overall Score: {score_percent}%</span>
@@ -68,7 +70,7 @@ def format_jobs_for_email(jobs: list[dict]) -> str:
             """
 
             # Add AI summary
-            llm_summary = metadata.get('llm_summary', '')
+            llm_summary = metadata.get("llm_summary", "")
             if llm_summary:
                 html += f"""
                 <div class="ai-insights">
@@ -83,11 +85,15 @@ def format_jobs_for_email(jobs: list[dict]) -> str:
             """
 
         # Organize and display reasons
-        reasons = job.get('score_reasons', [])
+        reasons = job.get("score_reasons", [])
         if reasons:
-            rules_reasons = [r.replace('Rules: ', '') for r in reasons if r.startswith('Rules:')]
-            ai_reasons = [r.replace('AI: ', '') for r in reasons if r.startswith('AI:')]
-            other_reasons = [r for r in reasons if not r.startswith(('Rules:', 'AI:', 'Summary:'))]
+            rules_reasons = [
+                r.replace("Rules: ", "") for r in reasons if r.startswith("Rules:")
+            ]
+            ai_reasons = [r.replace("AI: ", "") for r in reasons if r.startswith("AI:")]
+            other_reasons = [
+                r for r in reasons if not r.startswith(("Rules:", "AI:", "Summary:"))
+            ]
 
             html += '<div class="reasons">'
 
@@ -98,12 +104,14 @@ def format_jobs_for_email(jobs: list[dict]) -> str:
             if ai_reasons:
                 html += f"<strong>🧠 AI Insights:</strong> {', '.join(ai_reasons)}"
 
-            html += '</div>'
+            html += "</div>"
 
         # Add job description snippet if available
-        description = job.get('description', '')
+        description = job.get("description", "")
         if description and len(description) > 100:
-            snippet = description[:400] + "..." if len(description) > 400 else description
+            snippet = (
+                description[:400] + "..." if len(description) > 400 else description
+            )
             html += f"""
             <div style="margin-top: 10px; font-size: 0.9em; color: #666;">
                 <strong>Description:</strong> {snippet}
@@ -114,6 +122,7 @@ def format_jobs_for_email(jobs: list[dict]) -> str:
 
     # Footer with timestamp and usage stats
     from datetime import datetime
+
     html += f"""
         <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #666; font-size: 0.8em;">
             Generated on {datetime.now().strftime('%Y-%m-%d at %H:%M:%S')}

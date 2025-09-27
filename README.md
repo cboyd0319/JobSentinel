@@ -49,19 +49,19 @@ Quick start
 One command for all platforms (macOS, Linux, Windows):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/scripts/install.sh | bash
 ```
 
 **Advanced options:**
 ```bash
 # With AI integration (OpenAI, Gemini, or Anthropic)
-curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/install.sh | bash -s -- --ai-enhanced openai
+curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/scripts/install.sh | bash -s -- --ai-enhanced openai
 
 # Deploy to cloud (with cost protections)
-curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/install.sh | bash -s -- --cloud-deploy gcp
+curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/scripts/install.sh | bash -s -- --cloud-deploy gcp
 
 # Help and all options
-curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/install.sh | bash -s -- --help
+curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/scripts/install.sh | bash -s -- --help
 ```
 
 Windows (PowerShell)
@@ -69,7 +69,7 @@ Windows (PowerShell)
 Run the setup script and follow the prompts:
 
 ```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; irm "https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/setup_windows.ps1" | iex
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; irm "https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/scripts/setup_windows.ps1" | iex
 ```
 
 macOS / Linux
@@ -77,7 +77,7 @@ macOS / Linux
 ```bash
 git clone https://github.com/cboyd0319/job-private-scraper-filter.git
 cd job-private-scraper-filter
-chmod +x setup.sh && ./setup.sh
+chmod +x scripts/setup.sh && ./scripts/setup.sh
 ```
 
 Config files
@@ -135,13 +135,13 @@ The universal installer supports cloud deployment with built-in cost guardrails:
 
 ```bash
 # Google Cloud Run (recommended - generous free tier)
-curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/install.sh | bash -s -- --cloud-deploy gcp
+curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/scripts/install.sh | bash -s -- --cloud-deploy gcp
 
 # AWS Lambda
-curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/install.sh | bash -s -- --cloud-deploy aws
+curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/scripts/install.sh | bash -s -- --cloud-deploy aws
 
 # Azure Container Instances  
-curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/install.sh | bash -s -- --cloud-deploy azure
+curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/scripts/install.sh | bash -s -- --cloud-deploy azure
 ```
 
 **Cost Protection Features:**
@@ -179,6 +179,39 @@ The project includes enterprise-grade security scanning with multiple automated 
 
 All security results are uploaded in **SARIF format** to the **GitHub Security tab** for centralized monitoring and vulnerability management.
 
+**PowerShell Script Validation:**
+- **PSScriptAnalyzer**: Static analysis for PowerShell scripts
+- **Syntax Testing**: Automated parsing validation for all .ps1 files
+- **Security Analysis**: Checks for common PowerShell security issues
+- **Cross-platform Testing**: Validates PowerShell compatibility across Windows, macOS, and Linux
+
+## Project Structure
+
+The project follows an organized structure for better maintainability:
+
+```
+├── src/                     # Core application code
+│   ├── agent.py            # Main job scraper logic
+│   ├── database.py         # Database models and operations
+│   ├── web_ui.py          # Flask web interface
+│   └── __init__.py        # Package initialization
+├── scripts/                # Installation and setup scripts
+│   ├── install.sh         # Universal installer (all platforms)
+│   ├── setup.sh           # macOS/Linux setup
+│   ├── setup_windows.ps1  # Enhanced Windows setup
+│   └── setup_windows_original.ps1  # Original Windows setup
+├── config/                 # Configuration files
+│   ├── bandit.yaml        # Python security linting config
+│   └── .yamllint.yml      # YAML validation rules
+├── utils/                  # Utility modules
+├── sources/               # Job board scrapers
+├── notify/                # Notification handlers
+├── matchers/              # Job filtering rules
+└── docs/                  # Documentation
+```
+
+**Backward Compatibility:** Root-level `agent.py`, `database.py`, and `web_ui.py` are maintained as entry point wrappers for existing scripts and workflows.
+
 Usage examples
 
 ```bash
@@ -205,16 +238,26 @@ Run `python agent.py --mode health` to get a quick status report.
 Project layout (important files)
 
 ```
-agent.py         - main entry point
-database.py      - local database code
-requirements.txt - dependencies
-setup.sh         - macOS/Linux setup script
-setup_windows.ps1- Windows setup script
-docs/            - extra docs (setup, troubleshooting)
-sources/         - job board scrapers
-utils/           - helper modules (config, scraping, llm)
-notify/          - slack/email code
-matchers/        - job scoring rules
+├── src/                     # Core application code
+│   ├── agent.py            # Main job scraper logic
+│   ├── database.py         # Database models and operations
+│   └── web_ui.py          # Flask web interface
+├── scripts/                # Installation and setup scripts
+│   ├── install.sh         # Universal installer (all platforms)
+│   ├── setup.sh           # macOS/Linux setup
+│   └── setup_windows.ps1  # Enhanced Windows setup
+├── config/                 # Configuration files
+│   ├── bandit.yaml        # Python security linting config
+│   └── .yamllint.yml      # YAML validation rules
+├── utils/                  # Helper modules (config, scraping, llm)
+├── sources/               # Job board scrapers
+├── notify/                # Slack/email notification code
+├── matchers/              # Job scoring rules
+├── docs/                  # Extra docs (setup, troubleshooting)
+├── requirements.txt       # Python dependencies
+├── agent.py              # Entry point wrapper (backward compatibility)
+├── database.py           # Entry point wrapper (backward compatibility)
+└── web_ui.py             # Entry point wrapper (backward compatibility)
 ```
 
 Security & privacy

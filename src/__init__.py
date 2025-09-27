@@ -20,10 +20,12 @@ def get_version():
     except (OSError, IOError) as e:
         # Log specific file read errors
         import logging
+
         logging.getLogger(__name__).debug(f"Could not read VERSION file: {e}")
     except Exception as e:
         # Log unexpected errors but continue
         import logging
+
         logging.getLogger(__name__).warning(f"Unexpected error reading VERSION: {e}")
     return __version__
 

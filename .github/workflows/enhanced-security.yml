@@ -175,12 +175,10 @@ jobs:
 
       - name: Run Bandit security linter (enhanced)
         run: |
-          # Use existing comprehensive bandit.yaml configuration
-          bandit -r . -c bandit.yaml -f sarif -o bandit-results.sarif || true
-          # Also create JSON for artifacts
-          bandit -r . -c bandit.yaml -f json -o bandit-report.json || true
-
-      - name: Upload Bandit results to GitHub Security tab
+        # Use existing comprehensive config/bandit.yaml configuration
+        bandit -r . -c config/bandit.yaml -f sarif -o bandit-results.sarif || true
+        # Also create JSON for artifacts
+        bandit -r . -c config/bandit.yaml -f json -o bandit-report.json || true      - name: Upload Bandit results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
@@ -295,8 +293,8 @@ jobs:
 
       - name: Validate YAML files
         run: |
-          # Use existing .yamllint.yml configuration
-          yamllint . --format parsable > yamllint-report.txt || true
+          # Use existing config/.yamllint.yml configuration
+          yamllint . --config-file config/.yamllint.yml --format parsable > yamllint-report.txt || true
           echo "YAML validation complete"
 
       - name: Validate shell scripts
