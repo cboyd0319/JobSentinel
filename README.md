@@ -168,5 +168,5 @@ Need help?
 - Open an issue if you find a bug — I try to help folks who are using this.
 
 Made with ❤️ — hope you find it useful.
-- **Network Resilience**: Exponential backoff and domain-specific failure tracking
+
 

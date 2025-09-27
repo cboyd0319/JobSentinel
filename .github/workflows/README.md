@@ -1,35 +1,20 @@
 # GitHub Actions Workflows
 
-This directory contains the CI/CD workflows for the Private Job Scraper & Filter project.
+These are simple CI workflows I use to keep the project healthy across platforms. Nothing fancy — just enough to catch obvious issues.
 
 ## Active Workflows
 
-### 1. `ci.yml` - CI/CD Pipeline
-- **Triggers**: Push to main/develop, PRs to main
-- **Purpose**: Comprehensive testing, security scanning, and code quality checks
-- **Features**:
-  - Intelligent path-based filtering (only runs full tests when code changes)
-  - Cross-platform testing (Ubuntu, Windows, macOS)
-  - Python 3.11, 3.12, 3.13 support
-  - Security scanning with Bandit and Safety
-  - Code quality checks with Black, isort, flake8
+### 1. `ci.yml` — basic CI
+- Triggers: pushes and PRs
+- Runs a small set of checks to keep things from breaking
+- Tests on Ubuntu/Windows/macOS with supported Python versions
 
-### 2. `release.yml` - Automated Releases
-- **Triggers**: Version tags (v*.*.*), manual workflow dispatch
-- **Purpose**: Creates GitHub releases with automated changelog and assets
-- **Features**:
-  - Semantic versioning support
-  - Automatic changelog generation from commits
-  - Release asset building (tar.gz, zip)
-  - Professional release notes with installation instructions
+### 2. `release.yml` — releases
+- Triggered by tags (`v*.*.*`) or manual dispatch
+- Creates a GitHub release and attaches basic assets
 
-### 3. `dependency-submission.yml` - Dependency Management
-- **Triggers**: Changes to requirements.txt, weekly schedule
-- **Purpose**: Submits Python dependencies to GitHub's dependency graph
-- **Features**:
-  - Security vulnerability alerts
-  - Dependency insights and management
-  - Compatible with Dependabot
+### 3. `dependency-submission.yml`
+- Submits Python dependencies so GitHub can surface security notices
 
 ## Configuration Files
 
@@ -38,12 +23,10 @@ This directory contains the CI/CD workflows for the Private Job Scraper & Filter
 - Weekly schedule with review assignments
 - Conventional commit message formatting
 
-## Workflow Philosophy
+## Workflow notes
 
-1. **Efficiency**: Workflows only run when necessary (path-based filtering)
-2. **Reliability**: Cross-platform testing ensures broad compatibility
-3. **Security**: Multiple security scanning tools and dependency monitoring
-4. **Automation**: Minimal manual intervention required for releases and updates
+- Keep runs fast and only as complex as needed
+- Cross-platform checks are there to catch common issues
 
 ## Troubleshooting
 
@@ -71,9 +54,8 @@ git push origin v1.0.1
 # Or use GitHub UI: Actions > Release > Run workflow
 ```
 
-## Security Considerations
+## Security notes
 
-- Workflows run with minimal permissions
-- No secrets are exposed in logs
-- Security scanning runs on all code changes
-- Dependency vulnerabilities are automatically detected
+- Minimal permissions
+- Avoid secrets in logs
+- Dependabot and GitHub alerts help flag risky dependencies

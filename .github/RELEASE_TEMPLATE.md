@@ -1,6 +1,6 @@
-## 🎉 Job Scraper v{VERSION}
+## Job Scraper v{VERSION}
 
-<!-- Brief description of this release -->
+<!-- Short note about what's in this release -->
 
 ### ✨ What's New
 
@@ -17,7 +17,7 @@
 <!-- List fixed issues -->
 -
 
-### 🛡️ Security Updates
+### Security
 
 <!-- List security-related changes -->
 -
@@ -27,7 +27,7 @@
 <!-- List any breaking changes (for major versions) -->
 -
 
-## 📦 Installation
+## Install
 
 ### Windows (Recommended)
 ```powershell
@@ -42,7 +42,7 @@ git checkout v{VERSION}
 chmod +x setup.sh && ./setup.sh
 ```
 
-### Manual Installation
+### Manual
 Download the source code archive below and follow the [installation guide](docs/INSTALLATION.md).
 
 ## 🔄 Upgrade Instructions
@@ -60,28 +60,19 @@ python -m playwright install chromium
 <!-- List any configuration file changes needed -->
 -
 
-## 🧪 Testing
+## Testing
 
-This release has been tested with:
-- ✅ Python 3.11, 3.12, 3.13
-- ✅ Windows 10/11, macOS, Ubuntu Linux
-- ✅ All supported job board platforms
-- ✅ Security vulnerability scans
-- ✅ Cross-platform compatibility
+Tested on:
+- Python 3.11–3.13
+- Windows, macOS, Ubuntu
 
-## 📊 Metrics
+## Notes
 
-<!-- Include relevant metrics if available -->
-- Job boards supported: X
-- Total commits: X
-- Contributors: X
-- Lines of code: X
+<!-- Optional: brief notes, caveats, or follow-ups -->
 
-## 🙏 Contributors
+## Thanks
 
-Thanks to all contributors who made this release possible!
-
-<!-- Auto-generated contributor list -->
+Thanks to everyone who tried things out and sent fixes or ideas.
 
 ## 📚 Documentation
 
