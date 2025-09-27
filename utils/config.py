@@ -57,6 +57,7 @@ class ScrapingConfig:
 @dataclass
 class FilterConfig:
     """Configuration for job filtering and scoring."""
+
     title_allowlist: List[str]
     title_blocklist: List[str] = None
     keywords_boost: List[str] = None
@@ -72,12 +73,13 @@ class FilterConfig:
         if not self.title_allowlist:
             raise ConfigurationException("title_allowlist cannot be empty")
 
-        if self.immediate_alert_threshold < 0 or self.immediate_alert_threshold > 1:
-            raise ConfigurationException("immediate_alert_threshold must be between 0 and 1")
+        if not 0 <= self.immediate_alert_threshold <= 1:
+            raise ConfigurationException(
+                "immediate_alert_threshold must be between 0 and 1"
+            )
 
         if self.max_matches_per_run < 1:
             raise ConfigurationException("max_matches_per_run must be at least 1")
-
 
 
 @dataclass
@@ -173,12 +175,12 @@ class ConfigManager:
 
         # Validate notifications
         notification_config = NotificationConfig(
-            slack_webhook_url=os.getenv('SLACK_WEBHOOK_URL'),
-            smtp_host=os.getenv('SMTP_HOST'),
-            smtp_port=int(os.getenv('SMTP_PORT', '587')),
-            smtp_user=os.getenv('SMTP_USER'),
-            smtp_pass=os.getenv('SMTP_PASS'),
-            digest_to=os.getenv('DIGEST_TO')
+            slack_webhook_url=os.getenv("SLACK_WEBHOOK_URL"),
+            smtp_host=os.getenv("SMTP_HOST"),
+            smtp_port=int(os.getenv("SMTP_PORT", "587")),
+            smtp_user=os.getenv("SMTP_USER"),
+            smtp_pass=os.getenv("SMTP_PASS"),
+            digest_to=os.getenv("DIGEST_TO"),
         )
 
         if not notification_config.validate_slack() and not notification_config.validate_email():
@@ -195,8 +197,13 @@ class ConfigManager:
         if self._config_data:
             config_str = json.dumps(self._config_data)
             suspicious_patterns = [
-                'password', 'secret', 'key', 'token', 'webhook',
-                'smtp_pass', 'api_key'
+                "password",
+                "secret",
+                "key",
+                "token",
+                "webhook",
+                "smtp_pass",
+                "api_key",
             ]
 
             for pattern in suspicious_patterns:
@@ -204,12 +211,8 @@ class ConfigManager:
                     logger.warning(f"Potential secret found in config file: {pattern}")
 
         # Check environment variables
-        required_env_vars = ['SLACK_WEBHOOK_URL', 'SMTP_PASS']
-        missing_vars = []
-
-        for var in required_env_vars:
-            if not os.getenv(var):
-                missing_vars.append(var)
+        required_env_vars = ["SLACK_WEBHOOK_URL", "SMTP_PASS"]
+        missing_vars = [var for var in required_env_vars if not os.getenv(var)]
 
         if missing_vars:
             logger.warning(f"Missing environment variables: {', '.join(missing_vars)}")
@@ -219,7 +222,9 @@ class ConfigManager:
             if self.env_path.exists():
                 stat_info = self.env_path.stat()
                 if stat_info.st_mode & 0o077:
-                    logger.warning(f"{self.env_path} has overly permissive permissions")
+                    logger.warning(
+                        f"{self.env_path} has overly permissive permissions"
+                    )
         except Exception as e:
             logger.warning(f"Could not check file permissions: {e}")
 
@@ -240,25 +245,27 @@ class ConfigManager:
             self.load_config()
 
         return FilterConfig(
-            title_allowlist=self._config_data.get('title_allowlist', []),
-            title_blocklist=self._config_data.get('title_blocklist', []),
-            keywords_boost=self._config_data.get('keywords_boost', []),
-            keywords_exclude=self._config_data.get('keywords_exclude', []),
-            location_constraints=self._config_data.get('location_constraints', []),
-            salary_floor_usd=self._config_data.get('salary_floor_usd'),
-            immediate_alert_threshold=self._config_data.get('immediate_alert_threshold', 0.9),
-            max_matches_per_run=self._config_data.get('max_matches_per_run', 50)
+            title_allowlist=self._config_data.get("title_allowlist", []),
+            title_blocklist=self._config_data.get("title_blocklist", []),
+            keywords_boost=self._config_data.get("keywords_boost", []),
+            keywords_exclude=self._config_data.get("keywords_exclude", []),
+            location_constraints=self._config_data.get("location_constraints", []),
+            salary_floor_usd=self._config_data.get("salary_floor_usd"),
+            immediate_alert_threshold=self._config_data.get(
+                "immediate_alert_threshold", 0.9
+            ),
+            max_matches_per_run=self._config_data.get("max_matches_per_run", 50),
         )
 
     def get_notification_config(self) -> NotificationConfig:
         """Get validated notification configuration."""
         return NotificationConfig(
-            slack_webhook_url=os.getenv('SLACK_WEBHOOK_URL'),
-            smtp_host=os.getenv('SMTP_HOST'),
-            smtp_port=int(os.getenv('SMTP_PORT', '587')),
-            smtp_user=os.getenv('SMTP_USER'),
-            smtp_pass=os.getenv('SMTP_PASS'),
-            digest_to=os.getenv('DIGEST_TO')
+            slack_webhook_url=os.getenv("SLACK_WEBHOOK_URL"),
+            smtp_host=os.getenv("SMTP_HOST"),
+            smtp_port=int(os.getenv("SMTP_PORT", "587")),
+            smtp_user=os.getenv("SMTP_USER"),
+            smtp_pass=os.getenv("SMTP_PASS"),
+            digest_to=os.getenv("DIGEST_TO"),
         )
 
     def get_scraping_config(self) -> ScrapingConfig:

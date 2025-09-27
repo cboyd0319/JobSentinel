@@ -3,6 +3,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
+
 def format_jobs_for_email(jobs: list[dict]) -> str:
     """Formats a list of jobs into an HTML email body with AI insights."""
 
@@ -123,6 +124,7 @@ def format_jobs_for_email(jobs: list[dict]) -> str:
 
     return html
 
+
 def send_digest_email(jobs: list[dict]):
     """Sends a digest email with the given jobs."""
     smtp_host = os.getenv("SMTP_HOST")
@@ -139,7 +141,7 @@ def send_digest_email(jobs: list[dict]):
     message["Subject"] = "Your Daily Job Digest"
     message["From"] = smtp_user
     message["To"] = digest_to
-    
+
     html_body = format_jobs_for_email(jobs)
     message.attach(MIMEText(html_body, "html"))
 

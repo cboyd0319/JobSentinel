@@ -90,7 +90,7 @@ class DatabaseResilience:
             "readable": False,
             "table_count": 0,
             "job_count": 0,
-            "errors": []
+            "errors": [],
         }
 
         if not self.db_path.exists():
@@ -105,7 +105,9 @@ class DatabaseResilience:
                 # Check integrity
                 integrity_check = conn.execute("PRAGMA integrity_check").fetchone()
                 if integrity_check[0] != "ok":
-                    result["errors"].append(f"Integrity check failed: {integrity_check[0]}")
+                    result["errors"].append(
+                        f"Integrity check failed: {integrity_check[0]}"
+                    )
 
                 # Count tables
                 tables = conn.execute(
@@ -139,7 +141,9 @@ class DatabaseResilience:
             return True
 
         # Check if backup is needed based on interval
-        backup_age = datetime.now() - datetime.fromtimestamp(latest_backup.stat().st_mtime)
+        backup_age = datetime.now() - datetime.fromtimestamp(
+            latest_backup.stat().st_mtime
+        )
         if backup_age > timedelta(hours=self.config.backup_interval_hours):
             self.create_backup("scheduled")
             return True
@@ -279,7 +283,7 @@ def run_startup_checks() -> Dict[str, Any]:
         "config_valid": False,
         "directories_ready": False,
         "issues_found": [],
-        "actions_taken": []
+        "actions_taken": [],
     }
 
     try:
@@ -318,6 +322,7 @@ def run_startup_checks() -> Dict[str, Any]:
         # Configuration validation
         try:
             from utils.config import config_manager
+
             config_manager.load_config()
             results["config_valid"] = True
             logger.info("Configuration validation passed")

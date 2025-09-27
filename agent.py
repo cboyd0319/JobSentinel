@@ -6,9 +6,22 @@ from utils.logging import setup_logging, get_logger
 from utils.config import config_manager
 from utils.errors import ConfigurationException, ScrapingException
 from utils.health import health_monitor
-from utils.resilience import run_startup_checks, db_resilience, network_resilience, process_resilience
+from utils.resilience import (
+    run_startup_checks,
+    db_resilience,
+    network_resilience,
+    process_resilience,
+)
 
-from database import init_db, get_job_by_hash, add_job, get_jobs_for_digest, mark_jobs_digest_sent, mark_job_alert_sent, cleanup_old_jobs
+from database import (
+    init_db,
+    get_job_by_hash,
+    add_job,
+    get_jobs_for_digest,
+    mark_jobs_digest_sent,
+    mark_job_alert_sent,
+    cleanup_old_jobs,
+)
 from sources import greenhouse, lever, workday, generic_js
 from matchers.rules import score_job
 from notify import slack, emailer
@@ -89,7 +102,9 @@ def poll_sources(prefs):
                     # Update existing job's last_seen timestamp
                     add_job(job)  # This will update the existing job
 
-            main_logger.info(f"Completed {company.id}: {len(jobs)} total, {new_jobs_count} new")
+            main_logger.info(
+                f"Completed {company.id}: {len(jobs)} total, {new_jobs_count} new"
+            )
 
         except ScrapingException as e:
             errors += 1
@@ -100,7 +115,9 @@ def poll_sources(prefs):
             network_resilience.record_failure(domain)
             main_logger.error(f"Unexpected error scraping {company.id}: {e}")
 
-    main_logger.info(f"Polling completed: {total_jobs_found} jobs found, {len(all_new_jobs)} new, {errors} errors")
+    main_logger.info(
+        f"Polling completed: {total_jobs_found} jobs found, {len(all_new_jobs)} new, {errors} errors"
+    )
     return all_new_jobs
 
 
@@ -123,14 +140,14 @@ def process_jobs(jobs, prefs):
             # Handle both old and new scoring formats
             if len(result) == 3:
                 score, reasons, metadata = result
-                job['score_metadata'] = metadata
+                job["score_metadata"] = metadata
             else:
                 # Backward compatibility
                 score, reasons = result
-                job['score_metadata'] = {"scoring_method": "legacy"}
+                job["score_metadata"] = {"scoring_method": "legacy"}
 
-            job['score'] = score
-            job['score_reasons'] = reasons
+            job["score"] = score
+            job["score_reasons"] = reasons
 
             if score > 0:
                 # Add to database
@@ -145,9 +162,11 @@ def process_jobs(jobs, prefs):
                     digest_jobs.append(job)
 
                 # Enhanced logging with metadata
-                method = job['score_metadata'].get('scoring_method', 'unknown')
-                tokens = job['score_metadata'].get('tokens_used', 0)
-                log_msg = f"Processed job: {job['title']} (score: {score:.2f}, method: {method}"
+                method = job["score_metadata"].get("scoring_method", "unknown")
+                tokens = job["score_metadata"].get("tokens_used", 0)
+                log_msg = (
+                    f"Processed job: {job['title']} (score: {score:.2f}, method: {method}"
+                )
                 if tokens > 0:
                     log_msg += f", tokens: {tokens}"
                 log_msg += ")"
@@ -161,14 +180,20 @@ def process_jobs(jobs, prefs):
     # Send immediate Slack alerts
     if immediate_alerts and notification_config.validate_slack():
         try:
-            main_logger.info(f"Sending {len(immediate_alerts)} immediate alerts to Slack")
+            main_logger.info(
+                f"Sending {len(immediate_alerts)} immediate alerts to Slack"
+            )
             slack.send_slack_alert(immediate_alerts)
         except Exception as e:
             main_logger.error(f"Failed to send Slack alerts: {e}")
     elif immediate_alerts:
-        main_logger.warning(f"Have {len(immediate_alerts)} high-score jobs but Slack not configured")
+        main_logger.warning(
+            f"Have {len(immediate_alerts)} high-score jobs but Slack not configured"
+        )
 
-    main_logger.info(f"Job processing completed: {processed_count} jobs added to database")
+    main_logger.info(
+        f"Job processing completed: {processed_count} jobs added to database"
+    )
 
 
 def send_digest():
@@ -184,7 +209,9 @@ def send_digest():
 
         # Get jobs for digest, using the new preference
         filter_config = config_manager.get_filter_config()
-        min_score = getattr(filter_config, 'digest_min_score', 0.0) # Safely get the new attribute
+        min_score = getattr(
+            filter_config, "digest_min_score", 0.0
+        )  # Safely get the new attribute
         digest_jobs = get_jobs_for_digest(min_score=min_score, hours_back=24)
 
         if not digest_jobs:
@@ -276,47 +303,55 @@ def health_check():
     """Perform an interactive system health check."""
     main_logger.info("Starting interactive health check...")
     report = health_monitor.generate_health_report()
-    
+
     # --- ANSI Colors for printing ---
-    C_OK, C_WARN, C_CRIT, C_END = '\033[92m', '\033[93m', '\033[91m', '\033[0m'
+    C_OK, C_WARN, C_CRIT, C_END = "\033[92m", "\033[93m", "\033[91m", "\033[0m"
 
     def print_metric(m):
         status_colors = {"ok": C_OK, "warning": C_WARN, "critical": C_CRIT}
-        status_color = status_colors.get(m['status'], '')
-        print(f"  - {m['name']:<20} | Status: {status_color}{m['status'].upper():<10}{C_END} | {m['message']}")
+        status_color = status_colors.get(m["status"], "")
+        print(
+            f"  - {m['name']:<20} | Status: {status_color}{m['status'].upper():<10}{C_END} | {m['message']}"
+        )
 
     print("\n--- 🏥 Job Scraper Health Report ---")
     print(f"Overall Status: {report['overall_status'].upper()}")
     print("-" * 35)
-    
-    for metric in report['metrics']:
+
+    for metric in report["metrics"]:
         print_metric(metric)
-    
+
     print("-" * 35)
-    
+
     # --- Interactive Actions for Critical Issues ---
-    critical_metrics = [m for m in report['metrics'] if m['status'] == 'critical']
+    critical_metrics = [m for m in report["metrics"] if m["status"] == "critical"]
     if critical_metrics:
         print(f"\n{C_CRIT}CRITICAL ISSUES DETECTED:{C_END}")
-        
+
         # Check for database corruption issue
-        db_integrity_issue = any(m['name'] == 'database_status' and 'Integrity check failed' in m['message'] for m in critical_metrics)
-        
+        db_integrity_issue = any(
+            m["name"] == "database_status" and "Integrity check failed" in m["message"]
+            for m in critical_metrics
+        )
+
         if db_integrity_issue:
             from utils.resilience import db_resilience
+
             latest_backup = db_resilience._get_latest_backup()
             if latest_backup:
-                print(f"Database integrity check failed. A recent backup is available:")
+                print("Database integrity check failed. A recent backup is available:")
                 print(f"  -> {latest_backup.name}")
-                
+
                 try:
                     response = input("Attempt to restore from this backup? (y/n): ").lower()
-                    if response == 'y':
+                    if response == "y":
                         print("Restoring database...")
                         if db_resilience.restore_from_backup(latest_backup):
                             print(f"{C_OK}Database restored successfully.{C_END}")
                         else:
-                            print(f"{C_CRIT}Database restore failed. Check logs for details.{C_END}")
+                            print(
+                                f"{C_CRIT}Database restore failed. Check logs for details.{C_END}"
+                            )
                     else:
                         print("Skipping database restore.")
                 except KeyboardInterrupt:
@@ -351,20 +386,16 @@ def main():
         """
     )
     parser.add_argument(
-        "--version",
-        action="version",
-        version=f"%(prog)s {__version__}"
+        "--version", action="version", version=f"%(prog)s {__version__}"
     )
     parser.add_argument(
         "--mode",
         choices=["poll", "digest", "test", "cleanup", "health"],
         required=True,
-        help="The mode to run the agent in"
+        help="The mode to run the agent in",
     )
     parser.add_argument(
-        "--verbose", "-v",
-        action="store_true",
-        help="Enable verbose logging"
+        "--verbose", "-v", action="store_true", help="Enable verbose logging"
     )
 
     args = parser.parse_args()
@@ -397,7 +428,8 @@ def main():
         # Execute requested mode
         if args.mode == "poll":
             new_jobs = poll_sources(prefs)
-            process_jobs(new_jobs, prefs)
+            if new_jobs:
+                process_jobs(new_jobs, prefs)
         elif args.mode == "digest":
             send_digest()
         elif args.mode == "test":

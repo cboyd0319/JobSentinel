@@ -10,4 +10,4 @@ Supported boards:
 
 from . import greenhouse, lever, workday, generic_js
 
-__all__ = ['greenhouse', 'lever', 'workday', 'generic_js']
+__all__ = ["greenhouse", "lever", "workday", "generic_js"]

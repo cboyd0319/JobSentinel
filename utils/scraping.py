@@ -147,15 +147,17 @@ class WebScraper:
         self.session = requests.Session()
 
         # Set realistic headers
-        self.session.headers.update({
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-            'Accept-Language': 'en-US,en;q=0.5',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'DNT': '1',
-            'Connection': 'keep-alive',
-            'Upgrade-Insecure-Requests': '1',
-        })
+        self.session.headers.update(
+            {
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+                "Accept-Language": "en-US,en;q=0.5",
+                "Accept-Encoding": "gzip, deflate, br",
+                "DNT": "1",
+                "Connection": "keep-alive",
+                "Upgrade-Insecure-Requests": "1",
+            }
+        )
 
     async def __aenter__(self):
         """Async context manager entry."""
@@ -163,11 +165,11 @@ class WebScraper:
         self.browser = await playwright.chromium.launch(
             headless=True,
             args=[
-                '--no-sandbox',
-                '--disable-dev-shm-usage',
-                '--disable-gpu',
-                '--disable-features=VizDisplayCompositor'
-            ]
+                "--no-sandbox",
+                "--disable-dev-shm-usage",
+                "--disable-gpu",
+                "--disable-features=VizDisplayCompositor",
+            ],
         )
         return self
 
@@ -179,7 +181,7 @@ class WebScraper:
     @retry(
         stop=stop_after_attempt(3),
         wait=wait_exponential(multiplier=1, min=1, max=10),
-        retry=retry_if_exception_type((requests.RequestException, RateLimitException))
+        retry=retry_if_exception_type((requests.RequestException, RateLimitException)),
     )
     def fetch_url(self, url: str, timeout: int = 30) -> requests.Response:
         """
@@ -199,7 +201,7 @@ class WebScraper:
 
             # Check for rate limiting indicators
             if response.status_code == 429:
-                retry_after = response.headers.get('Retry-After')
+                retry_after = response.headers.get("Retry-After")
                 retry_seconds = int(retry_after) if retry_after else 60
                 rate_limiter.record_request(domain, success=False)
                 raise RateLimitException(domain, retry_seconds)
@@ -215,12 +217,16 @@ class WebScraper:
             logger.warning(f"Failed to fetch {url}: {e}")
             raise
 
-    async def fetch_with_playwright(self, url: str, wait_for_selector: str = None, timeout: int = 30000) -> str:
+    async def fetch_with_playwright(
+        self, url: str, wait_for_selector: str = None, timeout: int = 30000
+    ) -> str:
         """
         Fetch URL content using Playwright for JavaScript-heavy sites.
         """
         if not self.browser:
-            raise ScrapingException("", url, "Browser not initialized. Use async context manager.")
+            raise ScrapingException(
+                "", url, "Browser not initialized. Use async context manager."
+            )
 
         domain = rate_limiter.get_domain(url)
         await rate_limiter.wait_if_needed(url)
@@ -232,7 +238,9 @@ class WebScraper:
             await page.set_viewport_size({"width": 1920, "height": 1080})
 
             logger.debug(f"Loading page with Playwright: {url}")
-            response = await page.goto(url, timeout=timeout, wait_until='domcontentloaded')
+            response = await page.goto(
+                url, timeout=timeout, wait_until="domcontentloaded"
+            )
 
             if response.status >= 400:
                 rate_limiter.record_request(domain, success=False)
@@ -243,7 +251,9 @@ class WebScraper:
                 try:
                     await page.wait_for_selector(wait_for_selector, timeout=10000)
                 except Exception as e:
-                    logger.warning(f"Selector '{wait_for_selector}' not found on {url}: {e}")
+                    logger.warning(
+                        f"Selector '{wait_for_selector}' not found on {url}: {e}"
+                    )
 
             # Get page content
             content = await page.content()
@@ -260,18 +270,19 @@ class WebScraper:
 
     def get_content_hash(self, content: str) -> str:
         """Generate hash of content for change detection."""
-        return hashlib.sha256(content.encode('utf-8')).hexdigest()[:16]
+        return hashlib.sha256(content.encode("utf-8")).hexdigest()[:16]
 
 
 # Global scraper instance
 web_scraper = WebScraper()
 
 
-def configure_domain_rate_limit(domain: str, requests_per_minute: int = 30, min_delay: float = 2.0):
+def configure_domain_rate_limit(
+    domain: str, requests_per_minute: int = 30, min_delay: float = 2.0
+):
     """Configure rate limiting for a specific domain."""
     config = RateLimitConfig(
-        requests_per_minute=requests_per_minute,
-        min_delay_seconds=min_delay
+        requests_per_minute=requests_per_minute, min_delay_seconds=min_delay
     )
     rate_limiter.configure_domain(domain, config)
 
@@ -282,22 +293,31 @@ def setup_default_rate_limits():
 
     # Conservative limits for major job boards
     job_board_configs = {
-        'boards.greenhouse.io': RateLimitConfig(requests_per_minute=20, min_delay_seconds=3.0),
-        'jobs.lever.co': RateLimitConfig(requests_per_minute=15, min_delay_seconds=4.0),
-        'careers.workday.com': RateLimitConfig(requests_per_minute=10, min_delay_seconds=6.0),
-        'jobs.ashbyhq.com': RateLimitConfig(requests_per_minute=20, min_delay_seconds=3.0),
-        'jobs.smartrecruiters.com': RateLimitConfig(requests_per_minute=15, min_delay_seconds=4.0),
-
+        "boards.greenhouse.io": RateLimitConfig(
+            requests_per_minute=20, min_delay_seconds=3.0
+        ),
+        "jobs.lever.co": RateLimitConfig(requests_per_minute=15, min_delay_seconds=4.0),
+        "careers.workday.com": RateLimitConfig(
+            requests_per_minute=10, min_delay_seconds=6.0
+        ),
+        "jobs.ashbyhq.com": RateLimitConfig(
+            requests_per_minute=20, min_delay_seconds=3.0
+        ),
+        "jobs.smartrecruiters.com": RateLimitConfig(
+            requests_per_minute=15, min_delay_seconds=4.0
+        ),
         # More aggressive limits for sites that are known to be strict
-        'linkedin.com': RateLimitConfig(requests_per_minute=5, min_delay_seconds=12.0),
-        'indeed.com': RateLimitConfig(requests_per_minute=8, min_delay_seconds=8.0),
-        'angel.co': RateLimitConfig(requests_per_minute=10, min_delay_seconds=6.0),
+        "linkedin.com": RateLimitConfig(requests_per_minute=5, min_delay_seconds=12.0),
+        "indeed.com": RateLimitConfig(requests_per_minute=8, min_delay_seconds=8.0),
+        "angel.co": RateLimitConfig(requests_per_minute=10, min_delay_seconds=6.0),
     }
 
     for domain, config in job_board_configs.items():
         rate_limiter.configure_domain(domain, config)
 
-    logger.info(f"Configured rate limits for {len(job_board_configs)} job board domains")
+    logger.info(
+        f"Configured rate limits for {len(job_board_configs)} job board domains"
+    )
 
 
 # Initialize default rate limits

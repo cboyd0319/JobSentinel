@@ -21,6 +21,7 @@ logger = get_logger("health")
 @dataclass
 class HealthMetric:
     """A single health metric measurement."""
+
     name: str
     value: float
     unit: str
@@ -49,15 +50,17 @@ class HealthMonitor:
         elif cpu_percent > 60:
             cpu_status = "warning"
 
-        metrics.append(HealthMetric(
-            name="cpu_usage",
-            value=cpu_percent,
-            unit="%",
-            status=cpu_status,
-            threshold_warning=60,
-            threshold_critical=80,
-            message=f"CPU usage: {cpu_percent:.1f}%"
-        ))
+        metrics.append(
+            HealthMetric(
+                name="cpu_usage",
+                value=cpu_percent,
+                unit="%",
+                status=cpu_status,
+                threshold_warning=60,
+                threshold_critical=80,
+                message=f"CPU usage: {cpu_percent:.1f}%",
+            )
+        )
 
         # Memory usage
         memory = psutil.virtual_memory()
@@ -68,18 +71,20 @@ class HealthMonitor:
         elif mem_percent > 75:
             mem_status = "warning"
 
-        metrics.append(HealthMetric(
-            name="memory_usage",
-            value=mem_percent,
-            unit="%",
-            status=mem_status,
-            threshold_warning=75,
-            threshold_critical=90,
-            message=f"Memory usage: {mem_percent:.1f}% ({memory.used / 1024**3:.1f}GB / {memory.total / 1024**3:.1f}GB)"
-        ))
+        metrics.append(
+            HealthMetric(
+                name="memory_usage",
+                value=mem_percent,
+                unit="%",
+                status=mem_status,
+                threshold_warning=75,
+                threshold_critical=90,
+                message=f"Memory usage: {mem_percent:.1f}% ({memory.used / 1024**3:.1f}GB / {memory.total / 1024**3:.1f}GB)",
+            )
+        )
 
         # Disk usage (where the scraper is installed)
-        disk = psutil.disk_usage('.')
+        disk = psutil.disk_usage(".")
         disk_percent = (disk.used / disk.total) * 100
         disk_status = "ok"
         if disk_percent > 95:
@@ -87,15 +92,17 @@ class HealthMonitor:
         elif disk_percent > 85:
             disk_status = "warning"
 
-        metrics.append(HealthMetric(
-            name="disk_usage",
-            value=disk_percent,
-            unit="%",
-            status=disk_status,
-            threshold_warning=85,
-            threshold_critical=95,
-            message=f"Disk usage: {disk_percent:.1f}% ({disk.used / 1024**3:.1f}GB / {disk.total / 1024**3:.1f}GB)"
-        ))
+        metrics.append(
+            HealthMetric(
+                name="disk_usage",
+                value=disk_percent,
+                unit="%",
+                status=disk_status,
+                threshold_warning=85,
+                threshold_critical=95,
+                message=f"Disk usage: {disk_percent:.1f}% ({disk.used / 1024**3:.1f}GB / {disk.total / 1024**3:.1f}GB)",
+            )
+        )
 
         return metrics
 
@@ -107,17 +114,19 @@ class HealthMonitor:
             stats = get_database_stats()
 
             # Total jobs
-            total_jobs = stats.get('total_jobs', 0)
-            metrics.append(HealthMetric(
-                name="total_jobs",
-                value=total_jobs,
-                unit="jobs",
-                status="ok",
-                message=f"Total jobs in database: {total_jobs}"
-            ))
+            total_jobs = stats.get("total_jobs", 0)
+            metrics.append(
+                HealthMetric(
+                    name="total_jobs",
+                    value=total_jobs,
+                    unit="jobs",
+                    status="ok",
+                    message=f"Total jobs in database: {total_jobs}",
+                )
+            )
 
             # Recent jobs (last 24h)
-            recent_jobs = stats.get('recent_jobs_24h', 0)
+            recent_jobs = stats.get("recent_jobs_24h", 0)
             recent_status = "ok"
             if recent_jobs == 0:
                 recent_status = "warning"
@@ -125,33 +134,39 @@ class HealthMonitor:
             else:
                 message = f"New jobs in last 24h: {recent_jobs}"
 
-            metrics.append(HealthMetric(
-                name="recent_jobs_24h",
-                value=recent_jobs,
-                unit="jobs",
-                status=recent_status,
-                message=message
-            ))
+            metrics.append(
+                HealthMetric(
+                    name="recent_jobs_24h",
+                    value=recent_jobs,
+                    unit="jobs",
+                    status=recent_status,
+                    message=message,
+                )
+            )
 
             # High score jobs
-            high_score_jobs = stats.get('high_score_jobs', 0)
-            metrics.append(HealthMetric(
-                name="high_score_jobs",
-                value=high_score_jobs,
-                unit="jobs",
-                status="ok",
-                message=f"High-scoring jobs (≥0.8): {high_score_jobs}"
-            ))
+            high_score_jobs = stats.get("high_score_jobs", 0)
+            metrics.append(
+                HealthMetric(
+                    name="high_score_jobs",
+                    value=high_score_jobs,
+                    unit="jobs",
+                    status="ok",
+                    message=f"High-scoring jobs (≥0.8): {high_score_jobs}",
+                )
+            )
 
         except Exception as e:
             logger.error(f"Failed to get database stats: {e}")
-            metrics.append(HealthMetric(
-                name="database_status",
-                value=0,
-                unit="status",
-                status="critical",
-                message=f"Database error: {e}"
-            ))
+            metrics.append(
+                HealthMetric(
+                    name="database_status",
+                    value=0,
+                    unit="status",
+                    status="critical",
+                    message=f"Database error: {e}",
+                )
+            )
 
         return metrics
 
@@ -161,13 +176,15 @@ class HealthMonitor:
 
         log_dir = "data/logs"
         if not os.path.exists(log_dir):
-            metrics.append(HealthMetric(
-                name="log_directory",
-                value=0,
-                unit="status",
-                status="warning",
-                message="Log directory does not exist"
-            ))
+            metrics.append(
+                HealthMetric(
+                    name="log_directory",
+                    value=0,
+                    unit="status",
+                    status="warning",
+                    message="Log directory does not exist",
+                )
+            )
             return metrics
 
         try:
@@ -177,7 +194,7 @@ class HealthMonitor:
             now = datetime.now()
 
             for log_file in os.listdir(log_dir):
-                if log_file.endswith('.log'):
+                if log_file.endswith(".log"):
                     log_path = os.path.join(log_dir, log_file)
                     if os.path.isfile(log_path):
                         file_size = os.path.getsize(log_path)
@@ -196,35 +213,43 @@ class HealthMonitor:
             elif log_size_mb > 500:
                 log_size_status = "critical"
 
-            metrics.append(HealthMetric(
-                name="log_size",
-                value=log_size_mb,
-                unit="MB",
-                status=log_size_status,
-                threshold_warning=100,
-                threshold_critical=500,
-                message=f"Total log size: {log_size_mb:.1f}MB"
-            ))
+            metrics.append(
+                HealthMetric(
+                    name="log_size",
+                    value=log_size_mb,
+                    unit="MB",
+                    status=log_size_status,
+                    threshold_warning=100,
+                    threshold_critical=500,
+                    message=f"Total log size: {log_size_mb:.1f}MB",
+                )
+            )
 
             # Recent activity metric
             activity_status = "ok" if recent_log_activity else "warning"
-            metrics.append(HealthMetric(
-                name="log_activity",
-                value=1 if recent_log_activity else 0,
-                unit="status",
-                status=activity_status,
-                message="Recent log activity detected" if recent_log_activity else "No recent log activity"
-            ))
+            metrics.append(
+                HealthMetric(
+                    name="log_activity",
+                    value=1 if recent_log_activity else 0,
+                    unit="status",
+                    status=activity_status,
+                    message="Recent log activity detected"
+                    if recent_log_activity
+                    else "No recent log activity",
+                )
+            )
 
         except Exception as e:
             logger.error(f"Failed to check log files: {e}")
-            metrics.append(HealthMetric(
-                name="log_check",
-                value=0,
-                unit="status",
-                status="critical",
-                message=f"Log check error: {e}"
-            ))
+            metrics.append(
+                HealthMetric(
+                    name="log_check",
+                    value=0,
+                    unit="status",
+                    status="critical",
+                    message=f"Log check error: {e}",
+                )
+            )
 
         return metrics
 
@@ -235,44 +260,56 @@ class HealthMonitor:
         try:
             # Test configuration loading
             config_manager.load_config()
-            metrics.append(HealthMetric(
-                name="configuration",
-                value=1,
-                unit="status",
-                status="ok",
-                message="Configuration loaded successfully"
-            ))
+            metrics.append(
+                HealthMetric(
+                    name="configuration",
+                    value=1,
+                    unit="status",
+                    status="ok",
+                    message="Configuration loaded successfully",
+                )
+            )
 
             # Check notification setup
             notification_config = config_manager.get_notification_config()
 
             slack_status = "ok" if notification_config.validate_slack() else "warning"
-            metrics.append(HealthMetric(
-                name="slack_config",
-                value=1 if notification_config.validate_slack() else 0,
-                unit="status",
-                status=slack_status,
-                message="Slack configured" if notification_config.validate_slack() else "Slack not configured"
-            ))
+            metrics.append(
+                HealthMetric(
+                    name="slack_config",
+                    value=1 if notification_config.validate_slack() else 0,
+                    unit="status",
+                    status=slack_status,
+                    message="Slack configured"
+                    if notification_config.validate_slack()
+                    else "Slack not configured",
+                )
+            )
 
             email_status = "ok" if notification_config.validate_email() else "warning"
-            metrics.append(HealthMetric(
-                name="email_config",
-                value=1 if notification_config.validate_email() else 0,
-                unit="status",
-                status=email_status,
-                message="Email configured" if notification_config.validate_email() else "Email not configured"
-            ))
+            metrics.append(
+                HealthMetric(
+                    name="email_config",
+                    value=1 if notification_config.validate_email() else 0,
+                    unit="status",
+                    status=email_status,
+                    message="Email configured"
+                    if notification_config.validate_email()
+                    else "Email not configured",
+                )
+            )
 
         except Exception as e:
             logger.error(f"Configuration check failed: {e}")
-            metrics.append(HealthMetric(
-                name="configuration",
-                value=0,
-                unit="status",
-                status="critical",
-                message=f"Configuration error: {e}"
-            ))
+            metrics.append(
+                HealthMetric(
+                    name="configuration",
+                    value=0,
+                    unit="status",
+                    status="critical",
+                    message=f"Configuration error: {e}",
+                )
+            )
 
         return metrics
 
@@ -307,7 +344,7 @@ class HealthMonitor:
             "system_info": {
                 "platform": platform.platform(),
                 "python_version": platform.python_version(),
-                "hostname": platform.node()
+                "hostname": platform.node(),
             },
             "metrics": [
                 {
@@ -317,7 +354,7 @@ class HealthMonitor:
                     "status": m.status,
                     "message": m.message,
                     "threshold_warning": m.threshold_warning,
-                    "threshold_critical": m.threshold_critical
+                    "threshold_critical": m.threshold_critical,
                 }
                 for m in all_metrics
             ],
@@ -325,12 +362,14 @@ class HealthMonitor:
                 "total_metrics": len(all_metrics),
                 "ok_count": len([m for m in all_metrics if m.status == "ok"]),
                 "warning_count": warning_count,
-                "critical_count": critical_count
-            }
+                "critical_count": critical_count,
+            },
         }
 
         self.last_check = datetime.now()
-        logger.info(f"Health report generated: {overall_status} status with {warning_count} warnings, {critical_count} critical issues")
+        logger.info(
+            f"Health report generated: {overall_status} status with {warning_count} warnings, {critical_count} critical issues"
+        )
 
         return report
 
@@ -341,7 +380,9 @@ class HealthMonitor:
                 notification_config = config_manager.get_notification_config()
 
                 if notification_config.validate_slack():
-                    critical_metrics = [m for m in report["metrics"] if m["status"] == "critical"]
+                    critical_metrics = [
+                        m for m in report["metrics"] if m["status"] == "critical"
+                    ]
 
                     alert_message = {
                         "blocks": [
@@ -349,26 +390,28 @@ class HealthMonitor:
                                 "type": "header",
                                 "text": {
                                     "type": "plain_text",
-                                    "text": "🚨 Job Scraper Health Alert"
-                                }
+                                    "text": "🚨 Job Scraper Health Alert",
+                                },
                             },
                             {
                                 "type": "section",
                                 "text": {
                                     "type": "mrkdwn",
                                     "text": f"*Critical issues detected on {report['system_info']['hostname']}*\n\n"
-                                           f"*Issues:*\n" +
-                                           "\n".join([f"• {m['message']}" for m in critical_metrics])
-                                }
+                                    f"*Issues:*\n"
+                                    + "\n".join(
+                                        [f"• {m['message']}" for m in critical_metrics]
+                                    ),
+                                },
                             },
                             {
                                 "type": "section",
                                 "text": {
                                     "type": "mrkdwn",
                                     "text": f"*System uptime:* {report['uptime_hours']:.1f} hours\n"
-                                           f"*Timestamp:* {report['timestamp']}"
-                                }
-                            }
+                                    f"*Timestamp:* {report['timestamp']}",
+                                },
+                            },
                         ]
                     }
 

@@ -4,6 +4,7 @@ from typing import Optional
 from utils.logging import get_logger
 from utils.errors import DatabaseException
 
+
 class Job(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     hash: str = Field(index=True, unique=True)
@@ -31,10 +32,12 @@ class Job(SQLModel, table=True):
     immediate_alert_sent: bool = Field(default=False)
     alert_sent_at: Optional[datetime] = None
 
+
 # The path to the SQLite database file
 DB_FILE = "data/jobs.sqlite"
 engine = create_engine(f"sqlite:///{DB_FILE}", echo=False)
 logger = get_logger("database")
+
 
 def init_db():
     """Creates the database and tables if they don't exist."""
@@ -45,6 +48,7 @@ def init_db():
         logger.error(f"Failed to initialize database: {e}")
         raise DatabaseException("initialization", str(e), e)
 
+
 def get_job_by_hash(job_hash: str) -> Optional[Job]:
     """Checks if a job with the given hash already exists."""
     try:
@@ -54,6 +58,7 @@ def get_job_by_hash(job_hash: str) -> Optional[Job]:
     except Exception as e:
         logger.error(f"Failed to get job by hash {job_hash}: {e}")
         raise DatabaseException("get_job_by_hash", str(e), e)
+
 
 def add_job(job_data: dict) -> Job:
     """Adds a new job to the database or updates if it exists."""
@@ -103,13 +108,18 @@ def get_jobs_for_digest(min_score: float = 0.0, hours_back: int = 24) -> list[Jo
     try:
         with Session(engine) as session:
             from datetime import timedelta
+
             cutoff_time = datetime.now(timezone.utc) - timedelta(hours=hours_back)
 
-            statement = select(Job).where(
-                Job.created_at >= cutoff_time,
-                Job.included_in_digest == False,
-                Job.score >= min_score  # Use the new min_score filter
-            ).order_by(Job.score.desc(), Job.created_at.desc())
+            statement = (
+                select(Job)
+                .where(
+                    Job.created_at >= cutoff_time,
+                    Job.included_in_digest.is_(False),
+                    Job.score >= min_score,
+                )
+                .order_by(Job.score.desc(), Job.created_at.desc())
+            )
 
             return list(session.exec(statement).all())
     except Exception as e:
@@ -158,21 +168,23 @@ def get_database_stats() -> dict:
             total_jobs = len(list(session.exec(select(Job)).all()))
 
             # Jobs added in last 24 hours
-            yesterday = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
-            recent_jobs = len(list(session.exec(
-                select(Job).where(Job.created_at >= yesterday)
-            ).all()))
+            yesterday = datetime.now(timezone.utc).replace(
+                hour=0, minute=0, second=0, microsecond=0
+            )
+            recent_jobs = len(
+                list(session.exec(select(Job).where(Job.created_at >= yesterday)).all())
+            )
 
             # High score jobs (>= 0.8)
-            high_score_jobs = len(list(session.exec(
-                select(Job).where(Job.score >= 0.8)
-            ).all()))
+            high_score_jobs = len(
+                list(session.exec(select(Job).where(Job.score >= 0.8)).all())
+            )
 
             return {
                 "total_jobs": total_jobs,
                 "recent_jobs_24h": recent_jobs,
                 "high_score_jobs": high_score_jobs,
-                "last_updated": datetime.now(timezone.utc).isoformat()
+                "last_updated": datetime.now(timezone.utc).isoformat(),
             }
     except Exception as e:
         logger.error(f"Failed to get database stats: {e}")

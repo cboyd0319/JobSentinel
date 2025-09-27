@@ -52,7 +52,7 @@ def score_job_rules_only(job: dict, prefs: dict) -> tuple[float, list[str]]:
     score = 0.0
     reasons = []
 
-    title = job.get('title', '').lower()
+    title = job.get("title", "").lower()
 
     # --- BLOCKLIST FILTER (IMMEDIATE REJECTION) ---
     for blocked_word in prefs.get("title_blocklist", []):
@@ -71,33 +71,35 @@ def score_job_rules_only(job: dict, prefs: dict) -> tuple[float, list[str]]:
         return 0.0, ["Rejected: Title did not match allowlist"]
 
     # --- LOCATION SCORING ---
-    location = job.get('location', '').lower()
+    location = job.get("location", "").lower()
     for loc_pref in prefs.get("location_constraints", []):
         if loc_pref.lower() in location:
             score += 0.2
             reasons.append(f"Location matched '{loc_pref}'")
-            break # Only add points for the first location match
+            break  # Only add points for the first location match
 
     # --- KEYWORD BOOSTS ---
-    description = job.get('description', '').lower()
-    full_text = title + ' ' + description
+    description = job.get("description", "").lower()
+    full_text = title + " " + description
     for boost_word in prefs.get("keywords_boost", []):
         if boost_word.lower() in full_text:
             score += 0.05
             reasons.append(f"Keyword boost: '{boost_word}'")
 
     # --- SALARY FILTER ---
-    salary_floor = prefs.get('salary_floor_usd')
+    salary_floor = prefs.get("salary_floor_usd")
     if salary_floor:
         # Try to extract salary from description
         salary_found = _extract_salary(full_text)
         if salary_found and salary_found < salary_floor:
-            return 0.0, [f"Rejected: Salary ${salary_found:,} below floor ${salary_floor:,}"]
+            return 0.0, [
+                f"Rejected: Salary ${salary_found:,} below floor ${salary_floor:,}"
+            ]
         elif salary_found and salary_found >= salary_floor:
             score += 0.1
             reasons.append(f"Salary ${salary_found:,} meets requirements")
 
-    return min(score, 1.0), reasons # Cap score at 1.0
+    return min(score, 1.0), reasons  # Cap score at 1.0
 
 
 def _should_use_llm(use_llm: bool, prefs: dict) -> bool:
@@ -120,10 +122,10 @@ def _extract_salary(text: str) -> int:
 
     # Common salary patterns
     patterns = [
-        r'\$(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)[kK]?',  # $150k, $150,000
-        r'(\d{1,3}(?:,\d{3})*)[kK]',                 # 150k, 150,000
-        r'salary.*?(\d{1,3}(?:,\d{3})*)',            # salary of 150000
-        r'compensation.*?(\d{1,3}(?:,\d{3})*)',      # compensation 150000
+        r"\$(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)[kK]?",  # $150k, $150,000
+        r"(\d{1,3}(?:,\d{3})*)[kK]",  # 150k, 150,000
+        r"salary.*?(\d{1,3}(?:,\d{3})*)",  # salary of 150000
+        r"compensation.*?(\d{1,3}(?:,\d{3})*)",  # compensation 150000
     ]
 
     for pattern in patterns:
@@ -131,11 +133,11 @@ def _extract_salary(text: str) -> int:
         for match in matches:
             try:
                 # Clean and convert to integer
-                salary_str = match.replace(',', '').replace('$', '')
+                salary_str = match.replace(",", "").replace("$", "")
                 salary = int(salary_str)
 
                 # Handle 'k' suffix
-                if 'k' in match.lower():
+                if "k" in match.lower():
                     salary *= 1000
 
                 # Reasonable salary range check

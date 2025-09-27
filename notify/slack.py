@@ -1,6 +1,7 @@
 import os
 import requests
 
+
 def format_jobs_for_slack(jobs: list[dict]) -> dict:
     """Formats a list of jobs into a Slack message block with enhanced AI insights."""
     blocks = [{"type": "header", "text": {"type": "plain_text", "text": "🚨 New High-Match Jobs Found!"}}]
@@ -71,6 +72,7 @@ def format_jobs_for_slack(jobs: list[dict]) -> dict:
     })
 
     return {"blocks": blocks}
+
 
 def send_slack_alert(jobs: list[dict], custom_message: dict = None):
     """Sends a formatted list of jobs or custom message to the configured Slack webhook."""

@@ -7,7 +7,7 @@ import os
 import json
 from typing import Dict, List, Tuple, Optional
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from utils.logging import get_logger
 
@@ -147,14 +147,14 @@ def create_scoring_prompt(job: Dict, preferences: Dict) -> str:
     """Create a prompt for job scoring."""
 
     # Extract preferences
-    title_allowlist = preferences.get('title_allowlist', [])
-    title_blocklist = preferences.get('title_blocklist', [])
-    keywords_boost = preferences.get('keywords_boost', [])
-    location_constraints = preferences.get('location_constraints', [])
-    salary_floor = preferences.get('salary_floor_usd')
+    title_allowlist = preferences.get("title_allowlist", [])
+    title_blocklist = preferences.get("title_blocklist", [])
+    keywords_boost = preferences.get("keywords_boost", [])
+    location_constraints = preferences.get("location_constraints", [])
+    salary_floor = preferences.get("salary_floor_usd")
 
     # Truncate description to save tokens
-    description = job.get('description', '')[:1200]
+    description = job.get("description", "")[:1200]
 
     prompt = f"""You are a job matching expert. Score this job posting for relevance to the candidate's preferences.
 
@@ -184,7 +184,8 @@ Return JSON format:
     "reasons": ["Title matches Product Security", "Remote location fits", "Mentions Kubernetes"],
     "summary": "Strong security role with relevant tech stack",
     "red_flags": ["Potential management duties", "Salary not specified"]
-}}"""
+}}
+"""
 
     return prompt
 
@@ -209,13 +210,13 @@ def score_job_with_llm(job: Dict, preferences: Dict) -> Optional[LLMResult]:
             messages=[
                 {
                     "role": "system",
-                    "content": "You are a precise job matching expert. Always return valid JSON."
+                    "content": "You are a precise job matching expert. Always return valid JSON.",
                 },
-                {"role": "user", "content": prompt}
+                {"role": "user", "content": prompt},
             ],
             temperature=config.temperature,
             max_tokens=config.max_tokens,
-            response_format={"type": "json_object"}
+            response_format={"type": "json_object"},
         )
 
         # Parse response
@@ -246,9 +247,12 @@ def score_job_with_llm(job: Dict, preferences: Dict) -> Optional[LLMResult]:
         return None
 
 
-def create_hybrid_score(rules_score: float, rules_reasons: List[str],
-                       llm_result: Optional[LLMResult],
-                       rules_weight: float = 0.5) -> Tuple[float, List[str], Dict]:
+def create_hybrid_score(
+    rules_score: float,
+    rules_reasons: List[str],
+    llm_result: Optional[LLMResult],
+    rules_weight: float = 0.5,
+) -> Tuple[float, List[str], Dict]:
     """
     Create hybrid score combining rules and LLM results.
 
@@ -266,7 +270,7 @@ def create_hybrid_score(rules_score: float, rules_reasons: List[str],
         "llm_score": None,
         "llm_used": False,
         "tokens_used": 0,
-        "scoring_method": "rules_only"
+        "scoring_method": "rules_only",
     }
 
     # If no LLM result, use rules only
@@ -293,13 +297,15 @@ def create_hybrid_score(rules_score: float, rules_reasons: List[str],
         combined_reasons.append(f"Summary: {llm_result.summary}")
 
     # Update metadata
-    metadata.update({
-        "llm_score": llm_result.score,
-        "llm_used": True,
-        "tokens_used": llm_result.tokens_used,
-        "scoring_method": f"hybrid_{int(rules_weight*100)}r_{int(llm_weight*100)}ai",
-        "llm_summary": llm_result.summary
-    })
+    metadata.update(
+        {
+            "llm_score": llm_result.score,
+            "llm_used": True,
+            "tokens_used": llm_result.tokens_used,
+            "scoring_method": f"hybrid_{int(rules_weight*100)}r_{int(llm_weight*100)}ai",
+            "llm_summary": llm_result.summary,
+        }
+    )
 
     return final_score, combined_reasons, metadata
 
