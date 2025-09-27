@@ -1,0 +1,270 @@
+name: Security & Vulnerability Scanning
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run weekly security scans on Sundays at 2 AM UTC
+    - cron: '0 2 * * 0'
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  # Step-Security Harden Runner for enhanced security
+  harden-runner:
+    name: Harden CI Runner
+    runs-on: ubuntu-latest
+    outputs:
+      continue: ${{ steps.harden.outputs.success }}
+    steps:
+    - name: Harden Runner
+      id: harden
+      uses: step-security/harden-runner@v2
+      with:
+        egress-policy: audit
+        allowed-endpoints: >
+          api.github.com:443
+          github.com:443
+          objects.githubusercontent.com:443
+          pypi.org:443
+          files.pythonhosted.org:443
+
+  # TruffleHog - Secrets Detection
+  secrets-scan:
+    needs: harden-runner
+    name: 🔍 Secrets Detection
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
+
+    - name: Run TruffleHog
+      uses: trufflesecurity/trufflehog@main
+      with:
+        path: ./
+        base: ${{ github.event.repository.default_branch }}
+        head: HEAD
+        extra_args: --debug --only-verified --format sarif --output trufflehog-results.sarif
+
+    - name: Upload TruffleHog results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: trufflehog-results.sarif
+        category: secrets
+
+  # Dependency Review - Check for vulnerable dependencies
+  dependency-review:
+    needs: harden-runner
+    name: 📦 Dependency Vulnerability Check
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+
+    - name: Dependency Review
+      uses: actions/dependency-review-action@v4
+      with:
+        fail-on-severity: moderate
+        allow-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC
+        deny-licenses: GPL-2.0, GPL-3.0
+
+  # Trivy - Comprehensive vulnerability scanner
+  trivy-scan:
+    needs: harden-runner
+    name: 🛡️ Trivy Security Scan
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+
+    - name: Run Trivy vulnerability scanner in repo mode
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+        severity: 'CRITICAL,HIGH,MEDIUM'
+
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  # Python-specific security scanning
+  python-security:
+    needs: harden-runner
+    name: 🐍 Python Security Analysis
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install bandit[toml] safety
+
+    - name: Run Bandit security linter
+      run: |
+        bandit -r . -f sarif -o bandit-results.sarif --exclude ./.git,./.github,./data,./venv,./.venv || true
+        # Also create JSON for artifacts
+        bandit -r . -f json -o bandit-report.json --exclude ./.git,./.github,./data,./venv,./.venv || true
+
+    - name: Upload Bandit results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: bandit-results.sarif
+        category: python-security
+
+    - name: Upload Bandit results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: bandit-security-report
+        path: bandit-report.json
+
+    - name: Run Safety check for known vulnerabilities
+      run: |
+        # JSON format for artifacts
+        safety check --json --output safety-report.json || true
+        # Convert to SARIF for Security tab (manual conversion)
+        python3 -c "
+import json
+import sys
+try:
+    with open('safety-report.json', 'r') as f:
+        safety_data = json.load(f)
+    
+    sarif = {
+        'version': '2.1.0',
+        'schema': 'https://docs.oasis-open.org/sarif/sarif/v2.1.0/errata01/os/schemas/sarif-schema-2.1.0.json',
+        'runs': [{
+            'tool': {
+                'driver': {
+                    'name': 'Safety',
+                    'version': '2.0.0',
+                    'informationUri': 'https://pyup.io/safety/',
+                    'rules': []
+                }
+            },
+            'results': []
+        }]
+    }
+    
+    for vuln in safety_data:
+        result = {
+            'ruleId': f\"safety-{vuln.get('advisory', 'unknown')}\",
+            'message': {'text': f\"Vulnerability in {vuln.get('package_name', 'unknown')}: {vuln.get('advisory', 'No details')}\"},
+            'level': 'warning',
+            'locations': [{
+                'physicalLocation': {
+                    'artifactLocation': {'uri': 'requirements.txt'},
+                    'region': {'startLine': 1, 'endLine': 1}
+                }
+            }]
+        }
+        sarif['runs'][0]['results'].append(result)
+    
+    with open('safety-results.sarif', 'w') as f:
+        json.dump(sarif, f, indent=2)
+except Exception as e:
+    # Create empty SARIF if conversion fails
+    sarif = {
+        'version': '2.1.0',
+        'schema': 'https://docs.oasis-open.org/sarif/sarif/v2.1.0/errata01/os/schemas/sarif-schema-2.1.0.json',
+        'runs': [{'tool': {'driver': {'name': 'Safety'}}, 'results': []}]
+    }
+    with open('safety-results.sarif', 'w') as f:
+        json.dump(sarif, f)
+" || true
+
+    - name: Upload Safety results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: safety-results.sarif
+        category: python-dependencies
+
+    - name: Upload Safety results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: safety-vulnerability-report
+        path: safety-report.json
+
+  # License compliance check
+  license-check:
+    needs: harden-runner
+    name: 📋 License Compliance
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+
+    - name: License Scanner
+      uses: fossa-contrib/fossa-action@v3
+      with:
+        api-key: ${{ secrets.FOSSA_API_KEY }}
+        # Only run if FOSSA_API_KEY is available
+      continue-on-error: true
+
+  # Supply chain security - SLSA provenance
+  provenance:
+    needs: [secrets-scan, trivy-scan, python-security]
+    name: 🔗 Supply Chain Security
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+
+    - name: Generate build provenance
+      uses: actions/attest-build-provenance@v1
+      with:
+        subject-path: |
+          agent.py
+          database.py
+          requirements.txt
+
+  # Security summary report
+  security-summary:
+    needs: [secrets-scan, dependency-review, trivy-scan, python-security, license-check]
+    name: 📊 Security Summary
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+    - name: Create security summary
+      run: |
+        echo "## 🛡️ Security Scan Summary" >> $GITHUB_STEP_SUMMARY
+        echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+        echo "|-------|---------|" >> $GITHUB_STEP_SUMMARY
+        echo "| Secrets Scan | ${{ needs.secrets-scan.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Dependency Review | ${{ needs.dependency-review.result == 'success' && '✅ Pass' || (needs.dependency-review.result == 'skipped' && '⏭️ Skipped' || '❌ Fail') }} |" >> $GITHUB_STEP_SUMMARY  
+        echo "| Trivy Scan | ${{ needs.trivy-scan.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Python Security | ${{ needs.python-security.result == 'success' && '✅ Pass' || '❌ Fail' }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| License Check | ${{ needs.license-check.result == 'success' && '✅ Pass' || (needs.license-check.result == 'skipped' && '⏭️ Skipped' || '❌ Fail') }} |" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📈 Next Steps" >> $GITHUB_STEP_SUMMARY
+        echo "- Review any failed checks above" >> $GITHUB_STEP_SUMMARY
+        echo "- Check the Security tab for detailed vulnerability reports" >> $GITHUB_STEP_SUMMARY
+        echo "- Download artifact reports for detailed analysis" >> $GITHUB_STEP_SUMMARY

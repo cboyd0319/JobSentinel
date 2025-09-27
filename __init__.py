@@ -17,8 +17,14 @@ def get_version():
         version_file = Path(__file__).parent / "VERSION"
         if version_file.exists():
             return version_file.read_text().strip()
-    except Exception:
-        pass
+    except (OSError, IOError) as e:
+        # Log specific file read errors
+        import logging
+        logging.getLogger(__name__).debug(f"Could not read VERSION file: {e}")
+    except Exception as e:
+        # Log unexpected errors but continue
+        import logging
+        logging.getLogger(__name__).warning(f"Unexpected error reading VERSION: {e}")
     return __version__
 
 

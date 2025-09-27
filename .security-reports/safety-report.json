@@ -1,0 +1,2060 @@
+
+
++===========================================================================================================================================================================================+
+
+
+DEPRECATED: this command (`check`) has been DEPRECATED, and will be unsupported beyond 01 June 2024.
+
+
+We highly encourage switching to the new `scan` command which is easier to use, more powerful, and can be set up to mimic the deprecated command if required.
+
+
++===========================================================================================================================================================================================+
+
+
+{
+    "report_meta": {
+        "scan_target": "environment",
+        "scanned": [
+            "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/lib-dynload",
+            "/Library/Frameworks/Python.framework/Versions/3.13/bin",
+            "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/setuptools/_vendor",
+            "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13",
+            "/Library/Frameworks/Python.framework/Versions/3.13/lib/python313.zip",
+            "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+        ],
+        "scanned_full_path": [
+            "/Library/Frameworks/Python.framework/Versions/3.13/bin",
+            "/Library/Frameworks/Python.framework/Versions/3.13/lib/python313.zip",
+            "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13",
+            "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/lib-dynload",
+            "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages",
+            "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/setuptools/_vendor"
+        ],
+        "target_languages": [
+            "python"
+        ],
+        "policy_file": null,
+        "policy_file_source": "local",
+        "audit_and_monitor": false,
+        "api_key": false,
+        "account": "",
+        "local_database_path": null,
+        "safety_version": "3.6.2",
+        "timestamp": "2025-09-27 15:39:30",
+        "packages_found": 84,
+        "vulnerabilities_found": 1,
+        "vulnerabilities_ignored": 0,
+        "remediations_recommended": 0,
+        "telemetry": {
+            "safety_options": {
+                "json": {
+                    "--json": 1
+                }
+            },
+            "safety_version": "3.6.2",
+            "safety_source": "cli",
+            "os_type": "Darwin",
+            "os_release": "24.6.0",
+            "os_description": "macOS-15.7-x86_64-i386-64bit-Mach-O",
+            "python_version": "3.13.3",
+            "safety_command": "check"
+        },
+        "git": {
+            "branch": "develop",
+            "tag": "",
+            "commit": "05c7114cfe48072e4bf4fb11a92570318c7fa87b",
+            "dirty": "False",
+            "origin": "https://github.com/cboyd0319/job-private-scraper-filter.git"
+        },
+        "project": null,
+        "json_version": "1.1",
+        "remediations_attempted": 0,
+        "remediations_completed": 0,
+        "remediation_mode": "NON_INTERACTIVE"
+    },
+    "scanned_packages": {
+        "pyyaml": {
+            "name": "pyyaml",
+            "version": "6.0.2",
+            "requirements": [
+                {
+                    "raw": "pyyaml==6.0.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pyyaml",
+                    "specifier": "==6.0.2",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "aiofiles": {
+            "name": "aiofiles",
+            "version": "24.1.0",
+            "requirements": [
+                {
+                    "raw": "aiofiles==24.1.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "aiofiles",
+                    "specifier": "==24.1.0",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "annotated-types": {
+            "name": "annotated-types",
+            "version": "0.7.0",
+            "requirements": [
+                {
+                    "raw": "annotated-types==0.7.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "annotated-types",
+                    "specifier": "==0.7.0",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "anyio": {
+            "name": "anyio",
+            "version": "4.11.0",
+            "requirements": [
+                {
+                    "raw": "anyio==4.11.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "anyio",
+                    "specifier": "==4.11.0",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "authlib": {
+            "name": "authlib",
+            "version": "1.6.4",
+            "requirements": [
+                {
+                    "raw": "authlib==1.6.4",
+                    "extras": [],
+                    "marker": null,
+                    "name": "authlib",
+                    "specifier": "==1.6.4",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "bandit": {
+            "name": "bandit",
+            "version": "1.8.6",
+            "requirements": [
+                {
+                    "raw": "bandit==1.8.6",
+                    "extras": [],
+                    "marker": null,
+                    "name": "bandit",
+                    "specifier": "==1.8.6",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "beautifulsoup4": {
+            "name": "beautifulsoup4",
+            "version": "4.14.0",
+            "requirements": [
+                {
+                    "raw": "beautifulsoup4==4.14.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "beautifulsoup4",
+                    "specifier": "==4.14.0",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "blinker": {
+            "name": "blinker",
+            "version": "1.9.0",
+            "requirements": [
+                {
+                    "raw": "blinker==1.9.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "blinker",
+                    "specifier": "==1.9.0",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "certifi": {
+            "name": "certifi",
+            "version": "2025.1.31",
+            "requirements": [
+                {
+                    "raw": "certifi==2025.1.31",
+                    "extras": [],
+                    "marker": null,
+                    "name": "certifi",
+                    "specifier": "==2025.1.31",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "cffi": {
+            "name": "cffi",
+            "version": "2.0.0",
+            "requirements": [
+                {
+                    "raw": "cffi==2.0.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "cffi",
+                    "specifier": "==2.0.0",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "charset-normalizer": {
+            "name": "charset-normalizer",
+            "version": "3.4.3",
+            "requirements": [
+                {
+                    "raw": "charset-normalizer==3.4.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "charset-normalizer",
+                    "specifier": "==3.4.3",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "click": {
+            "name": "click",
+            "version": "8.3.0",
+            "requirements": [
+                {
+                    "raw": "click==8.3.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "click",
+                    "specifier": "==8.3.0",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "cryptography": {
+            "name": "cryptography",
+            "version": "46.0.1",
+            "requirements": [
+                {
+                    "raw": "cryptography==46.0.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "cryptography",
+                    "specifier": "==46.0.1",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "dparse": {
+            "name": "dparse",
+            "version": "0.6.4",
+            "requirements": [
+                {
+                    "raw": "dparse==0.6.4",
+                    "extras": [],
+                    "marker": null,
+                    "name": "dparse",
+                    "specifier": "==0.6.4",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "filelock": {
+            "name": "filelock",
+            "version": "3.19.1",
+            "requirements": [
+                {
+                    "raw": "filelock==3.19.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "filelock",
+                    "specifier": "==3.19.1",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "flake8": {
+            "name": "flake8",
+            "version": "7.3.0",
+            "requirements": [
+                {
+                    "raw": "flake8==7.3.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "flake8",
+                    "specifier": "==7.3.0",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "flask": {
+            "name": "flask",
+            "version": "3.1.2",
+            "requirements": [
+                {
+                    "raw": "flask==3.1.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "flask",
+                    "specifier": "==3.1.2",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "greenlet": {
+            "name": "greenlet",
+            "version": "3.2.4",
+            "requirements": [
+                {
+                    "raw": "greenlet==3.2.4",
+                    "extras": [],
+                    "marker": null,
+                    "name": "greenlet",
+                    "specifier": "==3.2.4",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "h11": {
+            "name": "h11",
+            "version": "0.16.0",
+            "requirements": [
+                {
+                    "raw": "h11==0.16.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "h11",
+                    "specifier": "==0.16.0",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "httpcore": {
+            "name": "httpcore",
+            "version": "1.0.9",
+            "requirements": [
+                {
+                    "raw": "httpcore==1.0.9",
+                    "extras": [],
+                    "marker": null,
+                    "name": "httpcore",
+                    "specifier": "==1.0.9",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "httpx": {
+            "name": "httpx",
+            "version": "0.28.1",
+            "requirements": [
+                {
+                    "raw": "httpx==0.28.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "httpx",
+                    "specifier": "==0.28.1",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "idna": {
+            "name": "idna",
+            "version": "3.10",
+            "requirements": [
+                {
+                    "raw": "idna==3.10",
+                    "extras": [],
+                    "marker": null,
+                    "name": "idna",
+                    "specifier": "==3.10",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "itsdangerous": {
+            "name": "itsdangerous",
+            "version": "2.2.0",
+            "requirements": [
+                {
+                    "raw": "itsdangerous==2.2.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "itsdangerous",
+                    "specifier": "==2.2.0",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "jinja2": {
+            "name": "jinja2",
+            "version": "3.1.6",
+            "requirements": [
+                {
+                    "raw": "jinja2==3.1.6",
+                    "extras": [],
+                    "marker": null,
+                    "name": "jinja2",
+                    "specifier": "==3.1.6",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "joblib": {
+            "name": "joblib",
+            "version": "1.5.2",
+            "requirements": [
+                {
+                    "raw": "joblib==1.5.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "joblib",
+                    "specifier": "==1.5.2",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "lxml": {
+            "name": "lxml",
+            "version": "6.0.2",
+            "requirements": [
+                {
+                    "raw": "lxml==6.0.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "lxml",
+                    "specifier": "==6.0.2",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "markdown-it-py": {
+            "name": "markdown-it-py",
+            "version": "4.0.0",
+            "requirements": [
+                {
+                    "raw": "markdown-it-py==4.0.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "markdown-it-py",
+                    "specifier": "==4.0.0",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "markupsafe": {
+            "name": "markupsafe",
+            "version": "3.0.3",
+            "requirements": [
+                {
+                    "raw": "markupsafe==3.0.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "markupsafe",
+                    "specifier": "==3.0.3",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "marshmallow": {
+            "name": "marshmallow",
+            "version": "4.0.1",
+            "requirements": [
+                {
+                    "raw": "marshmallow==4.0.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "marshmallow",
+                    "specifier": "==4.0.1",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "mccabe": {
+            "name": "mccabe",
+            "version": "0.7.0",
+            "requirements": [
+                {
+                    "raw": "mccabe==0.7.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "mccabe",
+                    "specifier": "==0.7.0",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "mdurl": {
+            "name": "mdurl",
+            "version": "0.1.2",
+            "requirements": [
+                {
+                    "raw": "mdurl==0.1.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "mdurl",
+                    "specifier": "==0.1.2",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "nltk": {
+            "name": "nltk",
+            "version": "3.9.1",
+            "requirements": [
+                {
+                    "raw": "nltk==3.9.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "nltk",
+                    "specifier": "==3.9.1",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "packaging": {
+            "name": "packaging",
+            "version": "24.2",
+            "requirements": [
+                {
+                    "raw": "packaging==24.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "packaging",
+                    "specifier": "==24.2",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "pathspec": {
+            "name": "pathspec",
+            "version": "0.12.1",
+            "requirements": [
+                {
+                    "raw": "pathspec==0.12.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pathspec",
+                    "specifier": "==0.12.1",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "pip": {
+            "name": "pip",
+            "version": "25.0.1",
+            "requirements": [
+                {
+                    "raw": "pip==25.0.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pip",
+                    "specifier": "==25.0.1",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "playwright": {
+            "name": "playwright",
+            "version": "1.55.0",
+            "requirements": [
+                {
+                    "raw": "playwright==1.55.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "playwright",
+                    "specifier": "==1.55.0",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "psutil": {
+            "name": "psutil",
+            "version": "7.1.0",
+            "requirements": [
+                {
+                    "raw": "psutil==7.1.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "psutil",
+                    "specifier": "==7.1.0",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "pycodestyle": {
+            "name": "pycodestyle",
+            "version": "2.14.0",
+            "requirements": [
+                {
+                    "raw": "pycodestyle==2.14.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pycodestyle",
+                    "specifier": "==2.14.0",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "pycparser": {
+            "name": "pycparser",
+            "version": "2.23",
+            "requirements": [
+                {
+                    "raw": "pycparser==2.23",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pycparser",
+                    "specifier": "==2.23",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "pydantic": {
+            "name": "pydantic",
+            "version": "2.11.9",
+            "requirements": [
+                {
+                    "raw": "pydantic==2.11.9",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pydantic",
+                    "specifier": "==2.11.9",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "pydantic-core": {
+            "name": "pydantic-core",
+            "version": "2.33.2",
+            "requirements": [
+                {
+                    "raw": "pydantic-core==2.33.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pydantic-core",
+                    "specifier": "==2.33.2",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "pyee": {
+            "name": "pyee",
+            "version": "13.0.0",
+            "requirements": [
+                {
+                    "raw": "pyee==13.0.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pyee",
+                    "specifier": "==13.0.0",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "pyflakes": {
+            "name": "pyflakes",
+            "version": "3.4.0",
+            "requirements": [
+                {
+                    "raw": "pyflakes==3.4.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pyflakes",
+                    "specifier": "==3.4.0",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "pygments": {
+            "name": "pygments",
+            "version": "2.19.2",
+            "requirements": [
+                {
+                    "raw": "pygments==2.19.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pygments",
+                    "specifier": "==2.19.2",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "python-dotenv": {
+            "name": "python-dotenv",
+            "version": "1.1.1",
+            "requirements": [
+                {
+                    "raw": "python-dotenv==1.1.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "python-dotenv",
+                    "specifier": "==1.1.1",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "regex": {
+            "name": "regex",
+            "version": "2025.9.18",
+            "requirements": [
+                {
+                    "raw": "regex==2025.9.18",
+                    "extras": [],
+                    "marker": null,
+                    "name": "regex",
+                    "specifier": "==2025.9.18",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "requests": {
+            "name": "requests",
+            "version": "2.32.5",
+            "requirements": [
+                {
+                    "raw": "requests==2.32.5",
+                    "extras": [],
+                    "marker": null,
+                    "name": "requests",
+                    "specifier": "==2.32.5",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "rich": {
+            "name": "rich",
+            "version": "14.1.0",
+            "requirements": [
+                {
+                    "raw": "rich==14.1.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "rich",
+                    "specifier": "==14.1.0",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "ruamel.yaml": {
+            "name": "ruamel.yaml",
+            "version": "0.18.15",
+            "requirements": [
+                {
+                    "raw": "ruamel.yaml==0.18.15",
+                    "extras": [],
+                    "marker": null,
+                    "name": "ruamel.yaml",
+                    "specifier": "==0.18.15",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "ruamel.yaml.clib": {
+            "name": "ruamel.yaml.clib",
+            "version": "0.2.14",
+            "requirements": [
+                {
+                    "raw": "ruamel.yaml.clib==0.2.14",
+                    "extras": [],
+                    "marker": null,
+                    "name": "ruamel.yaml.clib",
+                    "specifier": "==0.2.14",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "safety": {
+            "name": "safety",
+            "version": "3.6.2",
+            "requirements": [
+                {
+                    "raw": "safety==3.6.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "safety",
+                    "specifier": "==3.6.2",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "safety-schemas": {
+            "name": "safety-schemas",
+            "version": "0.0.16",
+            "requirements": [
+                {
+                    "raw": "safety-schemas==0.0.16",
+                    "extras": [],
+                    "marker": null,
+                    "name": "safety-schemas",
+                    "specifier": "==0.0.16",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "setuptools": {
+            "name": "setuptools",
+            "version": "78.1.0",
+            "requirements": [
+                {
+                    "raw": "setuptools==78.1.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "setuptools",
+                    "specifier": "==78.1.0",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "shellcheck-py": {
+            "name": "shellcheck-py",
+            "version": "0.11.0.1",
+            "requirements": [
+                {
+                    "raw": "shellcheck-py==0.11.0.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "shellcheck-py",
+                    "specifier": "==0.11.0.1",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "shellingham": {
+            "name": "shellingham",
+            "version": "1.5.4",
+            "requirements": [
+                {
+                    "raw": "shellingham==1.5.4",
+                    "extras": [],
+                    "marker": null,
+                    "name": "shellingham",
+                    "specifier": "==1.5.4",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "sniffio": {
+            "name": "sniffio",
+            "version": "1.3.1",
+            "requirements": [
+                {
+                    "raw": "sniffio==1.3.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "sniffio",
+                    "specifier": "==1.3.1",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "soupsieve": {
+            "name": "soupsieve",
+            "version": "2.8",
+            "requirements": [
+                {
+                    "raw": "soupsieve==2.8",
+                    "extras": [],
+                    "marker": null,
+                    "name": "soupsieve",
+                    "specifier": "==2.8",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "sqlalchemy": {
+            "name": "sqlalchemy",
+            "version": "2.0.43",
+            "requirements": [
+                {
+                    "raw": "sqlalchemy==2.0.43",
+                    "extras": [],
+                    "marker": null,
+                    "name": "sqlalchemy",
+                    "specifier": "==2.0.43",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "sqlmodel": {
+            "name": "sqlmodel",
+            "version": "0.0.25",
+            "requirements": [
+                {
+                    "raw": "sqlmodel==0.0.25",
+                    "extras": [],
+                    "marker": null,
+                    "name": "sqlmodel",
+                    "specifier": "==0.0.25",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "stevedore": {
+            "name": "stevedore",
+            "version": "5.5.0",
+            "requirements": [
+                {
+                    "raw": "stevedore==5.5.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "stevedore",
+                    "specifier": "==5.5.0",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "tenacity": {
+            "name": "tenacity",
+            "version": "9.1.2",
+            "requirements": [
+                {
+                    "raw": "tenacity==9.1.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "tenacity",
+                    "specifier": "==9.1.2",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "tomlkit": {
+            "name": "tomlkit",
+            "version": "0.13.3",
+            "requirements": [
+                {
+                    "raw": "tomlkit==0.13.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "tomlkit",
+                    "specifier": "==0.13.3",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "tqdm": {
+            "name": "tqdm",
+            "version": "4.67.1",
+            "requirements": [
+                {
+                    "raw": "tqdm==4.67.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "tqdm",
+                    "specifier": "==4.67.1",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "typer": {
+            "name": "typer",
+            "version": "0.19.2",
+            "requirements": [
+                {
+                    "raw": "typer==0.19.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "typer",
+                    "specifier": "==0.19.2",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "typing-extensions": {
+            "name": "typing-extensions",
+            "version": "4.15.0",
+            "requirements": [
+                {
+                    "raw": "typing-extensions==4.15.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "typing-extensions",
+                    "specifier": "==4.15.0",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "typing-inspection": {
+            "name": "typing-inspection",
+            "version": "0.4.1",
+            "requirements": [
+                {
+                    "raw": "typing-inspection==0.4.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "typing-inspection",
+                    "specifier": "==0.4.1",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "urllib3": {
+            "name": "urllib3",
+            "version": "2.5.0",
+            "requirements": [
+                {
+                    "raw": "urllib3==2.5.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "urllib3",
+                    "specifier": "==2.5.0",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "werkzeug": {
+            "name": "werkzeug",
+            "version": "3.1.3",
+            "requirements": [
+                {
+                    "raw": "werkzeug==3.1.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "werkzeug",
+                    "specifier": "==3.1.3",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "wheel": {
+            "name": "wheel",
+            "version": "0.46.1",
+            "requirements": [
+                {
+                    "raw": "wheel==0.46.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "wheel",
+                    "specifier": "==0.46.1",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "xlwt": {
+            "name": "xlwt",
+            "version": "1.3.0",
+            "requirements": [
+                {
+                    "raw": "xlwt==1.3.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "xlwt",
+                    "specifier": "==1.3.0",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "yamllint": {
+            "name": "yamllint",
+            "version": "1.37.1",
+            "requirements": [
+                {
+                    "raw": "yamllint==1.37.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "yamllint",
+                    "specifier": "==1.37.1",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ]
+        },
+        "autocommand": {
+            "name": "autocommand",
+            "version": "2.2.2",
+            "requirements": [
+                {
+                    "raw": "autocommand==2.2.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "autocommand",
+                    "specifier": "==2.2.2",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/setuptools/_vendor"
+                }
+            ]
+        },
+        "backports.tarfile": {
+            "name": "backports.tarfile",
+            "version": "1.2.0",
+            "requirements": [
+                {
+                    "raw": "backports.tarfile==1.2.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "backports.tarfile",
+                    "specifier": "==1.2.0",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/setuptools/_vendor"
+                }
+            ]
+        },
+        "importlib-metadata": {
+            "name": "importlib-metadata",
+            "version": "8.0.0",
+            "requirements": [
+                {
+                    "raw": "importlib-metadata==8.0.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "importlib-metadata",
+                    "specifier": "==8.0.0",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/setuptools/_vendor"
+                }
+            ]
+        },
+        "inflect": {
+            "name": "inflect",
+            "version": "7.3.1",
+            "requirements": [
+                {
+                    "raw": "inflect==7.3.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "inflect",
+                    "specifier": "==7.3.1",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/setuptools/_vendor"
+                }
+            ]
+        },
+        "jaraco.collections": {
+            "name": "jaraco.collections",
+            "version": "5.1.0",
+            "requirements": [
+                {
+                    "raw": "jaraco.collections==5.1.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "jaraco.collections",
+                    "specifier": "==5.1.0",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/setuptools/_vendor"
+                }
+            ]
+        },
+        "jaraco.context": {
+            "name": "jaraco.context",
+            "version": "5.3.0",
+            "requirements": [
+                {
+                    "raw": "jaraco.context==5.3.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "jaraco.context",
+                    "specifier": "==5.3.0",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/setuptools/_vendor"
+                }
+            ]
+        },
+        "jaraco.functools": {
+            "name": "jaraco.functools",
+            "version": "4.0.1",
+            "requirements": [
+                {
+                    "raw": "jaraco.functools==4.0.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "jaraco.functools",
+                    "specifier": "==4.0.1",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/setuptools/_vendor"
+                }
+            ]
+        },
+        "jaraco.text": {
+            "name": "jaraco.text",
+            "version": "3.12.1",
+            "requirements": [
+                {
+                    "raw": "jaraco.text==3.12.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "jaraco.text",
+                    "specifier": "==3.12.1",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/setuptools/_vendor"
+                }
+            ]
+        },
+        "more-itertools": {
+            "name": "more-itertools",
+            "version": "10.3.0",
+            "requirements": [
+                {
+                    "raw": "more-itertools==10.3.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "more-itertools",
+                    "specifier": "==10.3.0",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/setuptools/_vendor"
+                }
+            ]
+        },
+        "platformdirs": {
+            "name": "platformdirs",
+            "version": "4.2.2",
+            "requirements": [
+                {
+                    "raw": "platformdirs==4.2.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "platformdirs",
+                    "specifier": "==4.2.2",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/setuptools/_vendor"
+                }
+            ]
+        },
+        "tomli": {
+            "name": "tomli",
+            "version": "2.0.1",
+            "requirements": [
+                {
+                    "raw": "tomli==2.0.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "tomli",
+                    "specifier": "==2.0.1",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/setuptools/_vendor"
+                }
+            ]
+        },
+        "typeguard": {
+            "name": "typeguard",
+            "version": "4.3.0",
+            "requirements": [
+                {
+                    "raw": "typeguard==4.3.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "typeguard",
+                    "specifier": "==4.3.0",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/setuptools/_vendor"
+                }
+            ]
+        },
+        "zipp": {
+            "name": "zipp",
+            "version": "3.19.2",
+            "requirements": [
+                {
+                    "raw": "zipp==3.19.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "zipp",
+                    "specifier": "==3.19.2",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/setuptools/_vendor"
+                }
+            ]
+        }
+    },
+    "affected_packages": {
+        "setuptools": {
+            "name": "setuptools",
+            "version": "78.1.0",
+            "requirements": [
+                {
+                    "raw": "setuptools==78.1.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "setuptools",
+                    "specifier": "==78.1.0",
+                    "url": null,
+                    "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                }
+            ],
+            "found": null,
+            "insecure_versions": [
+                "0.6b1",
+                "0.6b2",
+                "0.6b3",
+                "0.6b4",
+                "0.6rc1",
+                "0.6rc10",
+                "0.6rc11",
+                "0.6rc2",
+                "0.6rc3",
+                "0.6rc4",
+                "0.6rc5",
+                "0.6rc6",
+                "0.6rc7",
+                "0.6rc8",
+                "0.6rc9",
+                "0.7.2",
+                "0.7.3",
+                "0.7.4",
+                "0.7.5",
+                "0.7.6",
+                "0.7.7",
+                "0.7.8",
+                "0.8",
+                "0.9",
+                "0.9.1",
+                "0.9.2",
+                "0.9.3",
+                "0.9.4",
+                "0.9.5",
+                "0.9.6",
+                "0.9.7",
+                "0.9.8",
+                "1.0",
+                "10.0",
+                "10.0.1",
+                "10.1",
+                "10.2",
+                "10.2.1",
+                "1.1",
+                "11.0",
+                "1.1.1",
+                "11.1",
+                "1.1.2",
+                "11.2",
+                "1.1.3",
+                "11.3",
+                "11.3.1",
+                "1.1.4",
+                "1.1.5",
+                "1.1.6",
+                "1.1.7",
+                "1.2",
+                "12.0",
+                "12.0.1",
+                "12.0.2",
+                "12.0.3",
+                "12.0.4",
+                "12.0.5",
+                "12.1",
+                "12.2",
+                "12.3",
+                "12.4",
+                "1.3",
+                "13.0",
+                "13.0.1",
+                "13.0.2",
+                "1.3.1",
+                "1.3.2",
+                "1.4",
+                "14.0",
+                "1.4.1",
+                "14.1",
+                "14.1.1",
+                "1.4.2",
+                "14.2",
+                "14.3",
+                "14.3.1",
+                "15.0",
+                "15.1",
+                "15.2",
+                "16.0",
+                "17.0",
+                "17.1",
+                "17.1.1",
+                "18.0",
+                "18.0.1",
+                "18.1",
+                "18.2",
+                "18.3",
+                "18.3.1",
+                "18.3.2",
+                "18.4",
+                "18.5",
+                "18.6",
+                "18.6.1",
+                "18.7",
+                "18.7.1",
+                "18.8",
+                "18.8.1",
+                "19.0",
+                "19.1",
+                "19.1.1",
+                "19.2",
+                "19.3",
+                "19.4",
+                "19.4.1",
+                "19.5",
+                "19.6",
+                "19.6.1",
+                "19.6.2",
+                "19.7",
+                "2.0",
+                "20.0",
+                "2.0.1",
+                "20.1",
+                "20.10.1",
+                "20.1.1",
+                "2.0.2",
+                "20.2.2",
+                "20.3",
+                "20.3.1",
+                "20.4",
+                "20.6.6",
+                "20.6.7",
+                "20.6.8",
+                "20.7.0",
+                "20.8.0",
+                "20.8.1",
+                "20.9.0",
+                "2.1",
+                "21.0.0",
+                "2.1.1",
+                "21.1.0",
+                "2.1.2",
+                "21.2.0",
+                "21.2.1",
+                "21.2.2",
+                "2.2",
+                "22.0.0",
+                "22.0.1",
+                "22.0.2",
+                "22.0.4",
+                "22.0.5",
+                "23.0.0",
+                "23.1.0",
+                "23.2.0",
+                "23.2.1",
+                "24.0.0",
+                "24.0.1",
+                "24.0.2",
+                "24.0.3",
+                "24.1.0",
+                "24.1.1",
+                "24.2.0",
+                "24.2.1",
+                "24.3.0",
+                "24.3.1",
+                "25.0.0",
+                "25.0.1",
+                "25.0.2",
+                "25.1.0",
+                "25.1.1",
+                "25.1.2",
+                "25.1.3",
+                "25.1.4",
+                "25.1.5",
+                "25.1.6",
+                "25.2.0",
+                "25.3.0",
+                "25.4.0",
+                "26.0.0",
+                "26.1.0",
+                "26.1.1",
+                "27.0.0",
+                "27.1.0",
+                "27.1.2",
+                "27.2.0",
+                "27.3.0",
+                "27.3.1",
+                "28.0.0",
+                "28.1.0",
+                "28.2.0",
+                "28.3.0",
+                "28.4.0",
+                "28.5.0",
+                "28.6.0",
+                "28.6.1",
+                "28.7.0",
+                "28.7.1",
+                "28.8.0",
+                "28.8.1",
+                "29.0.0",
+                "29.0.1",
+                "3.0",
+                "30.0.0",
+                "3.0.1",
+                "30.1.0",
+                "3.0.2",
+                "30.2.0",
+                "30.2.1",
+                "30.3.0",
+                "30.4.0",
+                "3.1",
+                "31.0.0",
+                "31.0.1",
+                "3.2",
+                "32.0.0",
+                "32.1.0",
+                "32.1.1",
+                "32.1.2",
+                "32.1.3",
+                "32.2.0",
+                "32.3.0",
+                "32.3.1",
+                "3.3",
+                "33.1.0",
+                "33.1.1",
+                "3.4",
+                "34.0.0",
+                "34.0.1",
+                "34.0.2",
+                "34.0.3",
+                "3.4.1",
+                "34.1.0",
+                "34.1.1",
+                "3.4.2",
+                "34.2.0",
+                "3.4.3",
+                "34.3.0",
+                "34.3.1",
+                "34.3.2",
+                "34.3.3",
+                "3.4.4",
+                "34.4.0",
+                "34.4.1",
+                "3.5",
+                "35.0.0",
+                "35.0.1",
+                "35.0.2",
+                "3.5.1",
+                "3.5.2",
+                "3.6",
+                "36.0.1",
+                "36.1.0",
+                "36.1.1",
+                "36.2.0",
+                "36.2.1",
+                "36.2.2",
+                "36.2.3",
+                "36.2.4",
+                "36.2.5",
+                "36.2.6",
+                "36.2.7",
+                "36.3.0",
+                "36.4.0",
+                "36.5.0",
+                "36.6.0",
+                "36.6.1",
+                "36.7.0",
+                "36.7.1",
+                "36.7.2",
+                "36.8.0",
+                "3.7",
+                "37.0.0",
+                "3.7.1",
+                "3.8",
+                "38.0.0",
+                "3.8.1",
+                "38.1.0",
+                "38.2.0",
+                "38.2.1",
+                "38.2.3",
+                "38.2.4",
+                "38.2.5",
+                "38.3.0",
+                "38.4.0",
+                "38.4.1",
+                "38.5.0",
+                "38.5.1",
+                "38.5.2",
+                "38.6.0",
+                "38.6.1",
+                "38.7.0",
+                "39.0.0",
+                "39.0.1",
+                "39.1.0",
+                "39.2.0",
+                "4.0",
+                "40.0.0",
+                "4.0.1",
+                "40.1.0",
+                "40.1.1",
+                "40.2.0",
+                "40.3.0",
+                "40.4.0",
+                "40.4.1",
+                "40.4.2",
+                "40.4.3",
+                "40.5.0",
+                "40.6.0",
+                "40.6.1",
+                "40.6.2",
+                "40.6.3",
+                "40.7.0",
+                "40.7.1",
+                "40.7.2",
+                "40.7.3",
+                "40.8.0",
+                "40.9.0",
+                "41.0.0",
+                "41.0.1",
+                "41.1.0",
+                "41.2.0",
+                "41.3.0",
+                "41.4.0",
+                "41.5.0",
+                "41.5.1",
+                "41.6.0",
+                "42.0.0",
+                "42.0.1",
+                "42.0.2",
+                "43.0.0",
+                "44.0.0",
+                "44.1.0",
+                "44.1.1",
+                "45.0.0",
+                "45.1.0",
+                "45.2.0",
+                "45.3.0",
+                "46.0.0",
+                "46.1.0",
+                "46.1.1",
+                "46.1.2",
+                "46.1.3",
+                "46.2.0",
+                "46.3.0",
+                "46.3.1",
+                "46.4.0",
+                "47.0.0",
+                "47.1.0",
+                "47.1.1",
+                "47.2.0",
+                "47.3.0",
+                "47.3.1",
+                "47.3.2",
+                "48.0.0",
+                "49.0.0",
+                "49.0.1",
+                "49.1.0",
+                "49.1.1",
+                "49.1.2",
+                "49.1.3",
+                "49.2.0",
+                "49.2.1",
+                "49.3.0",
+                "49.3.1",
+                "49.3.2",
+                "49.4.0",
+                "49.5.0",
+                "49.6.0",
+                "5.0",
+                "50.0.0",
+                "50.0.1",
+                "50.0.2",
+                "50.0.3",
+                "5.0.1",
+                "50.1.0",
+                "5.0.2",
+                "50.2.0",
+                "50.3.0",
+                "50.3.1",
+                "50.3.2",
+                "5.1",
+                "51.0.0",
+                "51.1.0",
+                "51.1.0.post20201221",
+                "51.1.1",
+                "51.1.2",
+                "51.2.0",
+                "51.3.0",
+                "51.3.1",
+                "51.3.2",
+                "51.3.3",
+                "5.2",
+                "52.0.0",
+                "5.3",
+                "53.0.0",
+                "53.1.0",
+                "5.4",
+                "54.0.0",
+                "5.4.1",
+                "54.1.0",
+                "54.1.1",
+                "54.1.2",
+                "54.1.3",
+                "5.4.2",
+                "54.2.0",
+                "5.5",
+                "5.5.1",
+                "5.6",
+                "56.0.0",
+                "56.1.0",
+                "56.2.0",
+                "5.7",
+                "57.0.0",
+                "57.1.0",
+                "57.2.0",
+                "57.3.0",
+                "57.4.0",
+                "57.5.0",
+                "5.8",
+                "58.0.0",
+                "58.0.1",
+                "58.0.2",
+                "58.0.3",
+                "58.0.4",
+                "58.1.0",
+                "58.2.0",
+                "58.3.0",
+                "58.4.0",
+                "58.5.0",
+                "58.5.1",
+                "58.5.2",
+                "58.5.3",
+                "59.0.1",
+                "59.1.0",
+                "59.1.1",
+                "59.2.0",
+                "59.3.0",
+                "59.4.0",
+                "59.5.0",
+                "59.6.0",
+                "59.7.0",
+                "59.8.0",
+                "60.0.0",
+                "60.0.1",
+                "60.0.2",
+                "60.0.3",
+                "60.0.4",
+                "60.0.5",
+                "6.0.1",
+                "60.1.0",
+                "60.10.0",
+                "60.1.1",
+                "6.0.2",
+                "60.2.0",
+                "60.3.0",
+                "60.3.1",
+                "60.4.0",
+                "60.5.0",
+                "60.6.0",
+                "60.7.0",
+                "60.7.1",
+                "60.8.0",
+                "60.8.1",
+                "60.8.2",
+                "60.9.0",
+                "60.9.1",
+                "60.9.2",
+                "60.9.3",
+                "6.1",
+                "61.0.0",
+                "61.1.0",
+                "61.1.1",
+                "61.2.0",
+                "61.3.0",
+                "61.3.1",
+                "62.0.0",
+                "62.1.0",
+                "62.2.0",
+                "62.3.0",
+                "62.3.1",
+                "62.3.2",
+                "62.3.3",
+                "62.3.4",
+                "62.4.0",
+                "62.5.0",
+                "62.6.0",
+                "63.0.0",
+                "63.0.0b1",
+                "63.1.0",
+                "63.2.0",
+                "63.3.0",
+                "63.4.0",
+                "63.4.1",
+                "63.4.2",
+                "63.4.3",
+                "64.0.0",
+                "64.0.1",
+                "64.0.2",
+                "64.0.3",
+                "65.0.0",
+                "65.0.1",
+                "65.0.2",
+                "65.1.0",
+                "65.1.1",
+                "65.2.0",
+                "65.3.0",
+                "65.4.0",
+                "65.4.1",
+                "65.5.0",
+                "65.5.1",
+                "65.6.0",
+                "65.6.1",
+                "65.6.2",
+                "65.6.3",
+                "65.7.0",
+                "66.0.0",
+                "66.1.0",
+                "66.1.1",
+                "67.0.0",
+                "67.1.0",
+                "67.2.0",
+                "67.3.1",
+                "67.3.2",
+                "67.3.3",
+                "67.4.0",
+                "67.5.0",
+                "67.5.1",
+                "67.6.0",
+                "67.6.1",
+                "67.7.0",
+                "67.7.1",
+                "67.7.2",
+                "67.8.0",
+                "68.0.0",
+                "68.1.0",
+                "68.1.2",
+                "68.2.0",
+                "68.2.1",
+                "68.2.2",
+                "69.0.0",
+                "69.0.1",
+                "69.0.2",
+                "69.0.3",
+                "69.1.0",
+                "69.1.1",
+                "69.2.0",
+                "69.3.0",
+                "69.3.1",
+                "69.4.0",
+                "69.4.1",
+                "69.4.2",
+                "69.5.0",
+                "69.5.1",
+                "7.0",
+                "70.0.0",
+                "70.1.0",
+                "70.1.1",
+                "70.2.0",
+                "70.3.0",
+                "71.0.0",
+                "71.0.1",
+                "71.0.2",
+                "71.0.3",
+                "71.0.4",
+                "71.1.0",
+                "72.0.0",
+                "72.1.0",
+                "72.2.0",
+                "73.0.0",
+                "73.0.1",
+                "74.0.0",
+                "74.1.0",
+                "74.1.1",
+                "74.1.2",
+                "74.1.3",
+                "75.0.0",
+                "75.1.0",
+                "75.2.0",
+                "75.3.0",
+                "75.3.1",
+                "75.3.2",
+                "75.4.0",
+                "75.5.0",
+                "75.6.0",
+                "75.7.0",
+                "75.8.0",
+                "75.8.1",
+                "75.8.2",
+                "75.9.0",
+                "75.9.1",
+                "76.0.0",
+                "76.1.0",
+                "77.0.1",
+                "77.0.3",
+                "78.0.1",
+                "78.0.2",
+                "78.1.0",
+                "8.0",
+                "8.0.1",
+                "8.0.2",
+                "8.0.3",
+                "8.0.4",
+                "8.1",
+                "8.2",
+                "8.2.1",
+                "8.3",
+                "9.0",
+                "9.0.1",
+                "9.1"
+            ],
+            "secure_versions": [
+                "80.9.0",
+                "80.8.0",
+                "80.7.1",
+                "80.7.0",
+                "80.6.0",
+                "80.4.0",
+                "80.3.1",
+                "80.3.0",
+                "80.2.0",
+                "80.1.0",
+                "80.0.1",
+                "80.0.0",
+                "79.0.1",
+                "79.0.0",
+                "78.1.1"
+            ],
+            "latest_version_without_known_vulnerabilities": "80.9.0",
+            "latest_version": "80.9.0",
+            "more_info_url": "https://data.safetycli.com/p/pypi/setuptools/97c/"
+        }
+    },
+    "announcements": [],
+    "vulnerabilities": [
+        {
+            "vulnerability_id": "76752",
+            "package_name": "setuptools",
+            "ignored": {},
+            "ignored_reason": null,
+            "ignored_expires": null,
+            "vulnerable_spec": [
+                "<78.1.1"
+            ],
+            "all_vulnerable_specs": [
+                "<78.1.1"
+            ],
+            "analyzed_version": "78.1.0",
+            "analyzed_requirement": {
+                "raw": "setuptools==78.1.0",
+                "extras": [],
+                "marker": null,
+                "name": "setuptools",
+                "specifier": "==78.1.0",
+                "url": null,
+                "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+            },
+            "advisory": "Affected versions of Setuptools are vulnerable to Path Traversal via PackageIndex.download(). The impact is Arbitrary File Overwrite: An attacker would be allowed to write files to arbitrary locations on the filesystem with the permissions of the process running the Python code, which could escalate to RCE depending on the context.",
+            "is_transitive": false,
+            "published_date": null,
+            "fixed_versions": [],
+            "closest_versions_without_known_vulnerabilities": [],
+            "resources": [],
+            "CVE": "CVE-2025-47273",
+            "severity": null,
+            "affected_versions": [],
+            "more_info_url": "https://data.safetycli.com/v/76752/97c"
+        }
+    ],
+    "ignored_vulnerabilities": [],
+    "remediations": {
+        "setuptools": {
+            "requirements": {
+                "==78.1.0": {
+                    "vulnerabilities_found": 1,
+                    "version": "78.1.0",
+                    "requirement": {
+                        "raw": "setuptools==78.1.0",
+                        "extras": [],
+                        "marker": null,
+                        "name": "setuptools",
+                        "specifier": "==78.1.0",
+                        "url": null,
+                        "found": "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages"
+                    },
+                    "more_info_url": "https://data.safetycli.com/p/pypi/setuptools/97c/"
+                }
+            },
+            "current_version": null,
+            "vulnerabilities_found": null,
+            "recommended_version": null,
+            "other_recommended_versions": [],
+            "more_info_url": null
+        }
+    },
+    "remediations_results": {
+        "vulnerabilities_fixed": [],
+        "remediations_applied": {},
+        "remediations_skipped": {}
+    }
+}
+
+
++===========================================================================================================================================================================================+
+
+
+DEPRECATED: this command (`check`) has been DEPRECATED, and will be unsupported beyond 01 June 2024.
+
+
+We highly encourage switching to the new `scan` command which is easier to use, more powerful, and can be set up to mimic the deprecated command if required.
+
+
++===========================================================================================================================================================================================+
+
+

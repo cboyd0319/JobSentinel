@@ -1,0 +1,372 @@
+# Enhanced Security Analysis Workflow
+# This workflow provides comprehensive security scanning for the job scraper filter
+# with state-of-the-art tools and proper SARIF format uploads to GitHub Security tab
+
+name: 🔒 Enhanced Security Analysis
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # Run weekly security scans on Sundays at 2 AM UTC
+    - cron: '0 2 * * 0'
+  workflow_dispatch:
+    inputs:
+      security_level:
+        description: 'Security scanning level'
+        required: false
+        default: 'standard'
+        type: choice
+        options:
+          - standard
+          - comprehensive
+
+jobs:
+  # Harden runner environment (security best practice)
+  harden-runner:
+    name: 🔐 Harden Runner Environment
+    runs-on: ubuntu-latest
+    outputs:
+      success: ${{ steps.harden.outputs.success }}
+    continue-on-error: false
+    if: |
+      github.event_name != 'schedule' ||
+      github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Harden Runner
+        id: harden
+        uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
+          allowed-endpoints: >
+            api.github.com:443
+            github.com:443
+            objects.githubusercontent.com:443
+            pypi.org:443
+            files.pythonhosted.org:443
+            registry.npmjs.org:443
+
+  # CodeQL Analysis - GitHub's semantic code analyzer
+  codeql:
+    name: 🔍 CodeQL Analysis
+    runs-on: ubuntu-latest
+    needs: harden-runner
+    timeout-minutes: 15
+    permissions:
+      security-events: write
+      packages: read
+      actions: read
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['python']
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-and-quality
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{matrix.language}}"
+
+  # OSV Scanner - Google's vulnerability database scanner
+  osv-scan:
+    needs: harden-runner
+    name: 🛡️ OSV Vulnerability Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Run OSV Scanner
+        uses: google/osv-scanner-action@v1
+        with:
+          scan-args: |-
+            --format=sarif
+            --output=osv-results.sarif
+            .
+        continue-on-error: true
+
+      - name: Upload OSV scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: osv-results.sarif
+          category: osv-vulnerabilities
+
+  # TruffleHog - Secrets Detection
+  secrets-scan:
+    needs: harden-runner
+    name: 🔑 Secrets Detection
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Run TruffleHog
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: >
+            --debug --only-verified --format sarif
+            --output trufflehog-results.sarif
+
+      - name: Upload TruffleHog results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: trufflehog-results.sarif
+          category: secrets-detection
+
+  # Dependency Review - PR only
+  dependency-review:
+    needs: harden-runner
+    name: 📦 Dependency Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: moderate
+          allow-licenses: >
+            MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC,
+            0BSD, Unlicense, WTFPL
+          deny-licenses: GPL-2.0, GPL-3.0, AGPL-1.0, AGPL-3.0
+
+  # Enhanced Python security scanning
+  python-security:
+    needs: harden-runner
+    name: 🐍 Python Security Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install 'bandit[toml]' safety ruff
+
+      - name: Run Bandit security linter (enhanced)
+        run: |
+          # Use existing comprehensive bandit.yaml configuration
+          bandit -r . -c bandit.yaml -f sarif -o bandit-results.sarif || true
+          # Also create JSON for artifacts
+          bandit -r . -c bandit.yaml -f json -o bandit-report.json || true
+
+      - name: Upload Bandit results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: bandit-results.sarif
+          category: python-security
+
+      - name: Run Safety check for known vulnerabilities
+        run: |
+          # Use new safety scan command
+          safety scan --json --output safety-report.json || true
+
+          # Convert to SARIF for Security tab
+          python3 << 'EOF'
+          import json
+          import sys
+
+          try:
+              with open('safety-report.json', 'r') as f:
+                  safety_data = json.load(f)
+
+              sarif = {
+                  'version': '2.1.0',
+                  'schema': 'https://docs.oasis-open.org/sarif/sarif/v2.1.0/errata01/os/schemas/sarif-schema-2.1.0.json',
+                  'runs': [{
+                      'tool': {
+                          'driver': {
+                              'name': 'Safety',
+                              'version': '3.0.0',
+                              'informationUri': 'https://pyup.io/safety/',
+                              'rules': []
+                          }
+                      },
+                      'results': []
+                  }]
+              }
+
+              vulnerabilities = safety_data.get('vulnerabilities', [])
+              for vuln in vulnerabilities:
+                  result = {
+                      'ruleId': f"safety-{vuln.get('vulnerability_id', 'unknown')}",
+                      'message': {
+                          'text': f"Vulnerability in {vuln.get('package_name', 'unknown')}: {vuln.get('advisory', 'No details')}"
+                      },
+                      'level': 'warning',
+                      'locations': [{
+                          'physicalLocation': {
+                              'artifactLocation': {'uri': 'requirements.txt'},
+                              'region': {'startLine': 1, 'endLine': 1}
+                          }
+                      }]
+                  }
+                  sarif['runs'][0]['results'].append(result)
+
+              with open('safety-results.sarif', 'w') as f:
+                  json.dump(sarif, f, indent=2)
+
+          except Exception as e:
+              print(f"Error converting Safety results: {e}")
+              # Create empty SARIF if conversion fails
+              sarif = {
+                  'version': '2.1.0',
+                  'schema': 'https://docs.oasis-open.org/sarif/sarif/v2.1.0/errata01/os/schemas/sarif-schema-2.1.0.json',
+                  'runs': [{'tool': {'driver': {'name': 'Safety'}}, 'results': []}]
+              }
+              with open('safety-results.sarif', 'w') as f:
+                  json.dump(sarif, f)
+          EOF
+
+      - name: Upload Safety results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: safety-results.sarif
+          category: python-dependencies
+
+      - name: Run Ruff linter (fast Python linter)
+        run: |
+          ruff check --output-format=sarif --output-file=ruff-results.sarif . || true
+
+      - name: Upload Ruff results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: ruff-results.sarif
+          category: code-quality
+
+      - name: Archive security reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-reports
+          path: |
+            bandit-results.sarif
+            bandit-report.json
+            safety-report.json
+            safety-results.sarif
+            ruff-results.sarif
+          retention-days: 30
+
+  # YAML and Shell validation
+  config-validation:
+    needs: harden-runner
+    name: 📝 Configuration Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Install validation tools
+        run: |
+          pip install yamllint shellcheck-py
+
+      - name: Validate YAML files
+        run: |
+          # Use existing .yamllint.yml configuration
+          yamllint . --format parsable > yamllint-report.txt || true
+          echo "YAML validation complete"
+
+      - name: Validate shell scripts
+        run: |
+          find . -name "*.sh" -type f -exec shellcheck -f json {} + > shellcheck-report.json || true
+          echo "Shell script validation complete"
+
+  # License and compliance scanning
+  compliance-scan:
+    needs: harden-runner
+    name: ⚖️ License & Compliance
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Run FOSSA license scan
+        uses: fossa-contrib/fossa-action@v3
+        with:
+          api-key: ${{ secrets.FOSSA_API_KEY || 'demo-key' }}
+
+  # Supply chain security
+  supply-chain:
+    needs: harden-runner
+    name: 🏗️ Supply Chain Security
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      attestations: write
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Generate build provenance attestation
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: |
+            requirements.txt
+            setup.sh
+            install.sh
+
+  # Security summary and reporting
+  security-summary:
+    name: 📊 Security Summary
+    runs-on: ubuntu-latest
+    needs: [codeql, osv-scan, secrets-scan, python-security, config-validation]
+    if: always()
+    steps:
+      - name: Generate Security Summary
+        run: |
+          echo "## 🔒 Enhanced Security Analysis Summary" >> $GITHUB_STEP_SUMMARY
+          echo "### 📈 Scan Results" >> $GITHUB_STEP_SUMMARY
+          echo "- **CodeQL Analysis**: ${{ needs.codeql.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **OSV Vulnerability Scan**: ${{ needs.osv-scan.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Secrets Detection**: ${{ needs.secrets-scan.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Python Security**: ${{ needs.python-security.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Configuration Validation**: ${{ needs.config-validation.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔍 Security Tools Used" >> $GITHUB_STEP_SUMMARY
+          echo "- **CodeQL**: Semantic code analysis (GitHub native)" >> $GITHUB_STEP_SUMMARY
+          echo "- **OSV Scanner**: Google's comprehensive vulnerability database" >> $GITHUB_STEP_SUMMARY
+          echo "- **TruffleHog**: Advanced secrets detection" >> $GITHUB_STEP_SUMMARY
+          echo "- **Bandit**: Python security linter with enhanced rules" >> $GITHUB_STEP_SUMMARY
+          echo "- **Safety**: Python dependency vulnerability scanner" >> $GITHUB_STEP_SUMMARY
+          echo "- **Ruff**: Fast Python linter and code quality checker" >> $GITHUB_STEP_SUMMARY
+          echo "- **ShellCheck**: Shell script analysis" >> $GITHUB_STEP_SUMMARY
+          echo "- **yamllint**: YAML syntax and style validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📈 Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "- Review any failed checks above" >> $GITHUB_STEP_SUMMARY
+          echo "- Check GitHub Security tab for detailed findings" >> $GITHUB_STEP_SUMMARY
+          echo "- Address high-priority security issues first" >> $GITHUB_STEP_SUMMARY
