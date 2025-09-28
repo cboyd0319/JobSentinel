@@ -52,7 +52,7 @@
                     <ul class="list-group list-group-flush">
                          {% for job in jobs %}
                             <li class="list-group-item">
-                                <a href="{{ job.url }}" target="_blank">{{ job.title }}</a><br>
+                                <a href="{{ job.url | safe_external_url }}" target="_blank" rel="noopener noreferrer">{{ job.title }}</a><br>
                                 <small class="text-muted">{{ job.company }} | Score: {{ "%.2f"|format(job.score) }}</small>
                             </li>
                          {% else %}

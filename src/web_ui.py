@@ -1,5 +1,6 @@
 import os
 import json
+from urllib.parse import urlparse, urlunparse
 from flask import Flask, render_template, request, redirect, url_for, flash
 from utils.config import config_manager
 from src.database import get_database_stats, engine, Job
@@ -8,6 +9,24 @@ from sqlmodel import Session, select
 # --- Flask App Initialization ---
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
+
+
+# --- Filters ---
+@app.template_filter("safe_external_url")
+def safe_external_url(value: str) -> str:
+    """Ensure external links are http(s) URLs; otherwise return '#'."""
+
+    try:
+        parsed = urlparse(value)
+    except Exception:
+        return "#"
+
+    if parsed.scheme not in {"http", "https"}:
+        return "#"
+    if not parsed.netloc:
+        return "#"
+    sanitized = parsed._replace(fragment="")
+    return urlunparse(sanitized)
 
 
 # --- Helper Functions ---

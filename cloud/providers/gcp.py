@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import random
@@ -12,6 +13,7 @@ import tarfile
 import tempfile
 import textwrap
 import urllib.error
+import urllib.parse
 import urllib.request
 import zipfile
 from pathlib import Path
@@ -48,12 +50,15 @@ class GCPBootstrap:
         self.job_name: str = "job-scraper"
         self.runtime_sa: str | None = None
         self.scheduler_sa: str | None = None
+        self.scheduler_region: str | None = None
         self.user_prefs_payload: str = ""
         self.env_values: Dict[str, str] = {}
         self.env_secret_bindings: Dict[str, str] = {}
+        self.env_plain_env: Dict[str, str] = {}
         self.env_secret_prefix = "job-scraper"
         self.prefs_secret_name = "job-scraper-prefs"
         self.project_root = resolve_project_root()
+        self.job_mode: str = "poll"
 
     # ------------------------------------------------------------------
     # public API
@@ -64,6 +69,7 @@ class GCPBootstrap:
         self._ensure_gcloud()
         self._authenticate()
         self._select_region()
+        self._select_scheduler_region()
         self._choose_billing_account()
         self._create_project()
         self._enable_services()
@@ -153,20 +159,38 @@ class GCPBootstrap:
 
     def _download_and_extract(self, url: str, destination: Path) -> Path:
         ensure_directory(destination)
+        parsed = urllib.parse.urlparse(url)
+        if parsed.scheme != "https" or parsed.netloc != "dl.google.com":
+            raise RuntimeError("Refusing to download Cloud SDK from non-Google host")
+
         fd, tmp_path = tempfile.mkstemp(dir=destination, suffix=Path(url).suffix)
         os.close(fd)
         download_path = Path(tmp_path)
         print(f"⬇️  Downloading {url}")
         urllib.request.urlretrieve(url, download_path)
+        self._verify_checksum(url, download_path)
 
         if download_path.suffix == ".zip":
             with zipfile.ZipFile(download_path, "r") as archive:
                 archive.extractall(destination)
-            return destination / "google-cloud-sdk"
+        else:
+            with tarfile.open(download_path, "r:gz") as archive:
+                archive.extractall(destination)
 
-        with tarfile.open(download_path, "r:gz") as archive:
-            archive.extractall(destination)
+        download_path.unlink(missing_ok=True)
         return destination / "google-cloud-sdk"
+
+    def _verify_checksum(self, url: str, archive: Path) -> None:
+        checksum_url = f"{url}.sha256"
+        parsed = urllib.parse.urlparse(checksum_url)
+        if parsed.scheme != "https" or parsed.netloc != "dl.google.com":
+            raise RuntimeError("Invalid checksum host for Cloud SDK download")
+
+        expected_raw = urllib.request.urlopen(checksum_url, timeout=30).read().decode("utf-8").strip()
+        expected_hash = expected_raw.split()[0]
+        actual_hash = hashlib.sha256(archive.read_bytes()).hexdigest()
+        if expected_hash != actual_hash:
+            raise RuntimeError("Checksum mismatch while downloading Google Cloud SDK")
 
     def _authenticate(self) -> None:
         print_header("Authenticating with Google Cloud")
@@ -179,11 +203,43 @@ class GCPBootstrap:
             "us-central1",
             "us-east1",
             "us-west1",
+            "us-west2",
             "europe-west1",
+            "europe-west4",
             "asia-northeast1",
+            "asia-southeast1",
+            "australia-southeast1",
         ]
         self.region = choose("Choose the closest region:", regions)
         run_command(["gcloud", "config", "set", "run/region", self.region])
+
+    def _select_scheduler_region(self) -> None:
+        print_header("Select Cloud Scheduler region")
+        supported = {
+            "us-central1",
+            "us-east1",
+            "us-east4",
+            "us-west1",
+            "us-west2",
+            "europe-west1",
+            "europe-west2",
+            "asia-northeast1",
+            "asia-southeast1",
+            "asia-south1",
+            "australia-southeast1",
+        }
+        if self.region in supported:
+            self.scheduler_region = self.region
+            run_command(["gcloud", "config", "set", "scheduler/location", self.scheduler_region])
+            return
+
+        print(
+            "⚠️ Cloud Scheduler is not available in your chosen Cloud Run region. "
+            "Select the nearest supported location for the scheduler trigger."
+        )
+        scheduler_choice = choose("Select a Scheduler location:", sorted(supported))
+        self.scheduler_region = scheduler_choice
+        run_command(["gcloud", "config", "set", "scheduler/location", self.scheduler_region])
 
     def _choose_billing_account(self) -> None:
         print_header("Locate Billing Account")
@@ -266,20 +322,33 @@ class GCPBootstrap:
 
     def _setup_artifact_registry(self) -> None:
         print_header("Preparing Artifact Registry")
-        run_command(
+        describe_repo = run_command(
             [
                 "gcloud",
                 "artifacts",
                 "repositories",
-                "create",
+                "describe",
                 self.artifact_repo,
-                "--repository-format=docker",
                 f"--location={self.region}",
-                "--description=Job scraper container images",
-                "--quiet",
+                "--project",
+                self.project_id,
             ],
+            capture_output=True,
             check=False,
         )
+        if describe_repo.returncode != 0:
+            run_command(
+                [
+                    "gcloud",
+                    "artifacts",
+                    "repositories",
+                    "create",
+                    self.artifact_repo,
+                    "--repository-format=docker",
+                    f"--location={self.region}",
+                    "--description=Job scraper container images",
+                ]
+            )
         run_command(
             [
                 "gcloud",
@@ -296,17 +365,42 @@ class GCPBootstrap:
         if not env_template.exists():
             raise FileNotFoundError(".env.example missing from repository root")
 
-        print("Provide values for each setting. Press Enter to accept the default shown.")
+        print(
+            "Provide values for each setting. Press Enter to accept the default shown. "
+            "Type 'skip' to leave a value empty if a feature is not required."
+        )
+
         for line in env_template.read_text(encoding="utf-8").splitlines():
             stripped = line.strip()
-            if not stripped or stripped.startswith("#"):
+            if not stripped or stripped.startswith("#") or "=" not in stripped:
                 continue
-            if "=" not in stripped:
-                continue
+
             key, default = stripped.split("=", 1)
-            prompt = f"{key} [{default}]: " if default else f"{key}: "
-            value = input(prompt).strip()
-            self.env_values[key] = value or default
+            default = default.strip()
+            default_value = default.split("#", 1)[0].strip()
+
+            prompt = f"{key} [{default_value or 'blank'}]: "
+            while True:
+                user_input = input(prompt).strip()
+                if user_input.lower() == "skip":
+                    candidate = ""
+                    break
+
+                candidate = user_input or default_value
+                candidate = candidate.split("#", 1)[0].strip()
+
+                if candidate == "" and default_value:
+                    print("Value cannot be empty. Enter a real value or type 'skip' to leave blank.")
+                    continue
+
+                if self._looks_like_placeholder(candidate, default_value):
+                    print(
+                        "Placeholder value detected. Enter a real value or type 'skip' to leave blank."
+                    )
+                    continue
+                break
+
+            self.env_values[key] = candidate
 
         prefs_template = self.project_root / "user_prefs.example.json"
         self.user_prefs_payload = prefs_template.read_text(encoding="utf-8")
@@ -315,15 +409,25 @@ class GCPBootstrap:
             " Manager. Update it after deployment if you need different companies."
         )
 
+        mode_options = ["poll", "digest", "health"]
+        self.job_mode = choose("Select default Cloud Run job mode:", mode_options)
+
     def _provision_secrets(self) -> None:
         print_header("Configuring Secret Manager")
-        for key, value in self.env_values.items():
-            secret_name = f"{self.env_secret_prefix}-{key.lower().replace('_', '-')}"
-            self._create_or_update_secret(secret_name, value)
-            self.env_secret_bindings[key] = secret_name
+        self.env_secret_bindings.clear()
+        self.env_plain_env.clear()
 
-        self._create_or_update_secret(self.prefs_secret_name, self.user_prefs_payload)
-        self.env_secret_bindings.setdefault("USER_PREFS_JSON", self.prefs_secret_name)
+        for key, value in self.env_values.items():
+            if value:
+                secret_name = f"{self.env_secret_prefix}-{key.lower().replace('_', '-')}"
+                self._create_or_update_secret(secret_name, value)
+                self.env_secret_bindings[key] = secret_name
+            else:
+                self.env_plain_env[key] = ""
+
+        if self.user_prefs_payload:
+            self._create_or_update_secret(self.prefs_secret_name, self.user_prefs_payload)
+            self.env_secret_bindings.setdefault("USER_PREFS_JSON", self.prefs_secret_name)
 
     def _create_or_update_secret(self, name: str, value: str) -> None:
         describe = run_command(
@@ -441,6 +545,11 @@ class GCPBootstrap:
         for env_key, secret_name in self.env_secret_bindings.items():
             secret_flags.extend(["--set-secrets", f"{env_key}={secret_name}:latest"])
 
+        env_var_flags: list[str] = []
+        for env_key, value in self.env_plain_env.items():
+            env_var_flags.extend(["--set-env-vars", f"{env_key}={value}"])
+        env_var_flags.extend(["--set-env-vars", f"JOB_RUN_MODE={self.job_mode}"])
+
         create_command = [
             "gcloud",
             "run",
@@ -457,6 +566,7 @@ class GCPBootstrap:
             "--max-retries=1",
             "--task-timeout=900s",
             *secret_flags,
+            *env_var_flags,
         ]
         update_command = [
             "gcloud",
@@ -474,6 +584,7 @@ class GCPBootstrap:
             "--max-retries=1",
             "--task-timeout=900s",
             *secret_flags,
+            *env_var_flags,
         ]
 
         run_command(create_command, check=False)
@@ -481,6 +592,8 @@ class GCPBootstrap:
 
     def _schedule_job(self) -> None:
         print_header("Scheduling recurring executions")
+        if not self.scheduler_region:
+            raise RuntimeError("Scheduler region not configured")
         job_uri = (
             "https://run.googleapis.com/apis/run.googleapis.com/v1/"
             f"projects/{self.project_id}/locations/{self.region}/jobs/{self.job_name}:run"
@@ -493,7 +606,7 @@ class GCPBootstrap:
             "create",
             "http",
             f"{self.job_name}-schedule",
-            f"--location={self.region}",
+            f"--location={self.scheduler_region}",
             f"--schedule={schedule}",
             f"--uri={job_uri}",
             "--http-method=POST",
@@ -518,6 +631,9 @@ class GCPBootstrap:
             "https://billingbudgets.googleapis.com/v1beta1/billingAccounts/"
             f"{self.billing_account}/budgets"
         )
+        parsed_endpoint = urllib.parse.urlparse(budget_endpoint)
+        if parsed_endpoint.netloc != "billingbudgets.googleapis.com":
+            raise RuntimeError("Unexpected billing API endpoint")
         body = {
             "budget": {
                 "displayName": "Job Scraper Free Tier Guardrail",
@@ -573,6 +689,24 @@ class GCPBootstrap:
             "Run an ad-hoc scrape with: "
             f"gcloud run jobs execute {self.job_name} --region {self.region}"
         )
+
+    @staticmethod
+    def _looks_like_placeholder(candidate: str, default: str) -> bool:
+        placeholder_tokens = [
+            "your_",
+            "example.com",
+            "example_",
+            "hooks.slack.com/services/xxx",
+            "recipient_email@example.com",
+            "your_app_password",
+        ]
+        value = candidate.lower()
+        default_lower = default.lower()
+        if not value:
+            return False
+        if value == default_lower:
+            return True
+        return any(token in value for token in placeholder_tokens)
 
 
 def get_bootstrap() -> GCPBootstrap:
