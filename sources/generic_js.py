@@ -25,13 +25,17 @@ async def scrape_js_career_page(
         parsed_url = urlparse(board_url)
         domain = parsed_url.netloc.lower()
 
-        # Secure platform detection using only domain validation
-        # Avoid checking page content to prevent URL substring sanitization issues
-        if domain.endswith("ashbyhq.com"):
+        # Secure platform detection using exact domain matching
+        # Prevents URL substring sanitization vulnerabilities
+        domain_parts = domain.split('.')
+
+        # AshbyHQ platform - exact domain match
+        if len(domain_parts) >= 2 and domain_parts[-2:] == ["ashbyhq", "com"]:
             logger.info(f"Detected AshbyHQ platform for {company_name}")
             return await _scrape_ashby(page_content, board_url, company_name)
 
-        if domain.endswith("smartrecruiters.com"):
+        # SmartRecruiters platform - exact domain match
+        if len(domain_parts) >= 2 and domain_parts[-2:] == ["smartrecruiters", "com"]:
             logger.info(f"Detected SmartRecruiters platform for {company_name}")
             return await _scrape_smartrecruiters(page_content, board_url, company_name)
 

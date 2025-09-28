@@ -72,6 +72,10 @@ $PROFILE
 *.security-report.*
 bandit-report.*
 safety-report.*
+safety-results.*
+
+# Linting caches
+.ruff_cache/
 
 # Playwright browsers (downloaded by setup scripts)
 ~/.cache/ms-playwright/

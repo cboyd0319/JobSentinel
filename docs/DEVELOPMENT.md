@@ -58,38 +58,31 @@ This guide covers development setup, contribution workflows, and advanced usage 
 ## Project Structure
 
 ```
-├── src/                     # Core application code
-│   ├── agent.py            # Main scraper logic and CLI
-│   ├── database.py         # Database models and operations
-│   └── web_ui.py          # Flask web interface
-├── scripts/                # Installation and deployment scripts
-│   ├── install.sh         # Universal installer
-│   ├── deploy-cloud.sh    # Cloud deployment orchestrator
+├── src/                       # Core application code and APIs
+│   ├── agent.py              # Main scraper logic and CLI
+│   ├── database.py           # Database models and operations
+│   └── web_ui.py             # Flask web interface
+├── scripts/                  # Installation, deployment, and security tooling
+│   ├── install.sh            # Universal installer
+│   ├── setup.sh              # macOS/Linux developer bootstrap
+│   ├── setup_windows*.ps1    # Windows setup (current + legacy)
+│   ├── setup-dev-tools.sh    # Developer tooling installer
+│   ├── local-security-scan.sh # Local Bandit + Safety gating script
+│   ├── enhanced-security-scan.sh # Comprehensive security analysis suite
+│   ├── deploy-cloud.sh       # Cloud deployment orchestrator
 │   ├── validate-cloud-config.sh  # Pre-deployment validation
 │   └── enhanced-cost-monitor.py  # Cost monitoring and protection
-├── config/                 # Configuration files
-│   ├── bandit.yaml        # Security scanning configuration
-│   ├── .yamllint.yml      # YAML validation rules
-│   └── .safety-project.ini # Dependency security configuration
-├── utils/                  # Utility modules
-│   ├── config.py          # Configuration management
-│   ├── scraping.py        # Web scraping utilities
-│   ├── llm.py            # AI/LLM integration
-│   ├── health.py         # System health monitoring
-│   └── logging.py        # Logging configuration
-├── sources/               # Job board scrapers
-│   ├── greenhouse.py     # Greenhouse ATS scraper
-│   ├── lever.py          # Lever ATS scraper
-│   ├── workday.py        # Workday scraper
-│   └── generic_js.py     # Generic JavaScript-powered sites
-├── notify/                # Notification handlers
-│   ├── slack.py          # Slack integration
-│   └── emailer.py        # Email notifications
-├── matchers/              # Job filtering and scoring
-│   └── rules.py          # Rule-based job matching
-├── templates/             # Web UI templates
-├── docs/                  # Documentation
-└── agent.py              # Backward compatibility wrapper
+├── config/                   # Configuration files
+│   ├── bandit.yaml           # Security scanning configuration
+│   ├── .yamllint.yml         # YAML validation rules
+│   └── .safety-project.ini   # Safety CLI project metadata
+├── utils/                    # Helper modules (config, scraping, logging, etc.)
+├── sources/                  # Job board scrapers
+├── notify/                   # Notification handlers
+├── matchers/                 # Job filtering and scoring rules
+├── templates/                # Web UI templates
+├── docs/                     # Documentation
+└── agent.py                  # Backward compatibility wrapper
 ```
 
 ## Development Workflow
@@ -107,9 +100,16 @@ flake8 --max-line-length=120 --exclude=.venv src/ utils/ sources/ notify/ matche
 
 # Security scan
 bandit -r . -x ./.venv --quiet
+safety scan --json --output safety-results.json --project config/.safety-project.ini || true
+rm -f safety-results.json safety-results.sarif
 
 # Type checking (optional)
 mypy src/ --ignore-missing-imports
+```
+
+To run all local security checks in one go, use:
+```bash
+scripts/local-security-scan.sh
 ```
 
 **Pre-commit hook setup:**

@@ -7,7 +7,7 @@ Here are a bunch of ideas I might work on eventually. No promises — just a lis
 **Enterprise-Grade Security Implementation:**
 - ✅ **CodeQL Analysis**: GitHub's semantic code vulnerability detection
 - ✅ **OSV Scanner**: Google's comprehensive vulnerability database integration
-- ✅ **Enhanced Security Scanning**: Bandit, Safety, TruffleHog, Ruff integration
+- ✅ **Enhanced Security Scanning**: Bandit, Safety, and TruffleHog integration (Ruff planned)
 - ✅ **SARIF Format**: Proper Security tab integration for all vulnerability data
 - ✅ **Local Validation Tools**: Comprehensive security validation pipeline
 - ✅ **Supply Chain Security**: Build provenance attestation and dependency reviews

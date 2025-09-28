@@ -166,8 +166,7 @@ The project includes enterprise-grade security scanning with multiple automated 
 
 **Python Security:**
 - **Enhanced Bandit**: Python security linter with 50+ comprehensive security tests
-- **Safety**: Python dependency vulnerability scanner with SARIF format
-- **Ruff**: Fast Python code quality and security linting
+- **Safety**: Dependency vulnerability scanner configured with `config/.safety-project.ini`, blocking fixable Critical/High/Medium issues and exporting SARIF locally/CI
 
 **Configuration & Infrastructure:**
 - **yamllint**: YAML syntax and style validation for workflows
@@ -179,7 +178,7 @@ The project includes enterprise-grade security scanning with multiple automated 
 - **Build Provenance**: Attestation for key project files
 - **FOSSA License Scanning**: Advanced license compatibility checking
 
-All security results are uploaded in **SARIF format** to the **GitHub Security tab** for centralized monitoring and vulnerability management.
+All security results are uploaded in **SARIF format** to the **GitHub Security tab** for centralized monitoring and vulnerability management. Locally, run `scripts/local-security-scan.sh` to execute the same blocking policy before pushing changes.
 
 **PowerShell Script Validation:**
 - **PSScriptAnalyzer**: Static analysis for PowerShell scripts
@@ -192,24 +191,28 @@ All security results are uploaded in **SARIF format** to the **GitHub Security t
 The project follows an organized structure for better maintainability:
 
 ```
-├── src/                     # Core application code
-│   ├── agent.py            # Main job scraper logic
-│   ├── database.py         # Database models and operations
-│   ├── web_ui.py          # Flask web interface
-│   └── __init__.py        # Package initialization
-├── scripts/                # Installation and setup scripts
-│   ├── install.sh         # Universal installer (all platforms)
-│   ├── setup.sh           # macOS/Linux setup
-│   ├── setup_windows.ps1  # Enhanced Windows setup
-│   └── setup_windows_original.ps1  # Original Windows setup
-├── config/                 # Configuration files
-│   ├── bandit.yaml        # Python security linting config
-│   └── .yamllint.yml      # YAML validation rules
-├── utils/                  # Utility modules
-├── sources/               # Job board scrapers
-├── notify/                # Notification handlers
-├── matchers/              # Job filtering rules
-└── docs/                  # Documentation
+├── src/                       # Core application code
+│   ├── agent.py              # Main job scraper logic
+│   ├── database.py           # Database models and operations
+│   ├── web_ui.py             # Flask web interface
+│   └── __init__.py           # Package initialization
+├── scripts/                  # Installation and security tooling
+│   ├── install.sh            # Universal installer (all platforms)
+│   ├── setup.sh              # macOS/Linux setup helpers
+│   ├── setup_windows*.ps1    # Windows setup (current & legacy)
+│   ├── setup-dev-tools.sh    # Developer tooling bootstrap
+│   ├── local-security-scan.sh # Pre-commit security gate (Bandit + Safety)
+│   └── enhanced-security-scan.sh # Comprehensive local security suite
+├── config/                   # Configuration files
+│   ├── bandit.yaml           # Python security linting config
+│   ├── .yamllint.yml         # YAML validation rules
+│   └── .safety-project.ini   # Safety metadata (project id, findings url)
+├── utils/                    # Utility modules (config, logging, health checks)
+├── sources/                  # Job board scrapers
+├── notify/                   # Notification handlers
+├── matchers/                 # Job filtering rules
+├── templates/                # Web UI templates
+└── docs/                     # Documentation (installation, development, ops)
 ```
 
 **Backward Compatibility:** Root-level `agent.py`, `database.py`, and `web_ui.py` are maintained as entry point wrappers for existing scripts and workflows.
@@ -294,5 +297,3 @@ Need help?
 - Open an issue if you find a bug — I try to help folks who are using this.
 
 Made with ❤️ — hope you find it useful.
-
-

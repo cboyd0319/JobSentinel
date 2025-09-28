@@ -107,7 +107,14 @@ Please provide:
 - Dependabot alerts for vulnerable dependencies
 - CodeQL analysis for code vulnerabilities
 - Security-focused CI/CD pipelines
+- Safety CLI dependency scanning with project policy (`config/.safety-project.ini`)
 - Regular penetration testing recommendations
+
+#### Safety Dependency Scanning
+- **Configuration**: `[tool.safety]` block in `pyproject.toml` enforces the blocking policy and output format (JSON for automation).
+- **Project metadata**: `config/.safety-project.ini` links findings back to this repository.
+- **CI coverage**: `.github/workflows/security.yml` and `.github/workflows/enhanced-security.yml` run `safety scan` with SARIF uploads and the same blocking policy used locally.
+- **Local parity**: `scripts/enhanced-security-scan.sh` and `scripts/local-security-scan.sh` run Safety with automatic fallbacks, generate SARIF for GitHub uploads, and honour the Critical/High/Medium fix-required gate.
 
 ## 📚 Security Resources
 
@@ -118,8 +125,8 @@ Please provide:
 
 ### For Users
 - [Secure Development Practices](CONTRIBUTING.md#security)
-- [Configuration Security Guide](docs/SECURITY_CONFIGURATION.md)
-- [Incident Response Guide](docs/INCIDENT_RESPONSE.md)
+- [Developer Workflow & Security Checks](docs/DEVELOPMENT.md#code-quality)
+- [Troubleshooting & Incident Response Tips](docs/TROUBLESHOOTING.md)
 
 ## 🏆 Security Recognition
 
@@ -150,30 +157,11 @@ For urgent security matters:
 - **Code Injection**: Input validation and sanitization
 - **Denial of Service**: Rate limiting and resource controls
 - **Supply Chain Attacks**: Dependency pinning and verification
-# Security
+## 📝 Quick Reference
 
-Short and practical notes about security for this project. I try to pick sensible defaults so the tool is safe for personal use, but you should still follow best practices.
+- Local-first processing ensures job data stays on your machine; keep `.env` permissions tight (`chmod 600 .env`).
+- Run `scripts/local-security-scan.sh` before committing to catch Bandit and Safety findings early.
+- Use virtual environments and keep dependencies updated to pick up security fixes quickly.
+- Monitor `data/logs/` for long-running deployments and rotate API keys periodically.
 
-What I aim for
-- Local-first: processing happens on your computer
-- No telemetry: I don't collect or send data
-- Secrets: put API keys in `.env` and don't commit them
-
-If you find a security problem
-- Preferred: open a private security advisory on GitHub
-- Alternative: open a private issue or email me (see repo contact)
-
-What to include when reporting
-- Description and steps to reproduce
-- Potential impact
-- Any suggested fixes you have
-
-Quick tips for users
-- Use a virtualenv and keep dependencies updated
-- Restrict `.env` permissions (`chmod 600 .env`)
-- Use app-specific passwords for email if possible
-- Monitor `data/logs/` if you run this regularly
-
-I appreciate anyone who reports issues responsibly — I can credit you in the repo if you'd like.
-
-*Last updated: January 26, 2025*
+*Last reviewed: January 26, 2025*

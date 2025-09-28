@@ -75,19 +75,23 @@ def extract_company_from_url(url: str) -> str:
 
     parsed = urlparse(url)
 
-    # Secure domain validation to prevent URL substring sanitization issues
+    # Secure domain validation using exact domain matching
+    # Prevents URL substring sanitization vulnerabilities
     netloc_lower = parsed.netloc.lower()
 
-    # Greenhouse boards
-    if netloc_lower.endswith("greenhouse.io"):
+    # Split domain parts for secure validation
+    domain_parts = netloc_lower.split('.')
+
+    # Greenhouse boards - exact domain match
+    if len(domain_parts) >= 2 and domain_parts[-2:] == ["greenhouse", "io"]:
         return parsed.path.split("/")[-1] or "unknown"
 
-    # Lever boards
-    if netloc_lower.endswith("lever.co"):
-        return netloc_lower.split(".")[0]
+    # Lever boards - exact domain match
+    if len(domain_parts) >= 2 and domain_parts[-2:] == ["lever", "co"]:
+        return domain_parts[0] if domain_parts else "unknown"
 
-    # Workday boards
-    if netloc_lower.endswith("workday.com"):
+    # Workday boards - exact domain match
+    if len(domain_parts) >= 2 and domain_parts[-2:] == ["workday", "com"]:
         return (
             parsed.path.split("/")[1] if len(parsed.path.split("/")) > 1 else "unknown"
         )

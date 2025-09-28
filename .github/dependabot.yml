@@ -11,11 +11,34 @@ updates:
     target-branch: "develop"
     reviewers:
       - "cboyd0319"
+    assignees:
+      - "cboyd0319"
+    labels:
+      - "dependencies"
+      - "security"
     commit-message:
       prefix: "deps"
       prefix-development: "deps-dev"
       include: "scope"
-    automerge: true
+    # Disable automerge for security - manual review required
+    automerge: false
+    # Group security updates for priority handling
+    groups:
+      security-updates:
+        patterns:
+          - "*"
+        update-types:
+          - "security-update"
+      development-dependencies:
+        patterns:
+          - "pytest*"
+          - "black"
+          - "flake8*"
+          - "mypy*"
+          - "bandit*"
+          - "safety"
+          - "pre-commit"
+          - "semgrep"
 
   # Enable version updates for GitHub Actions
   - package-ecosystem: "github-actions"
@@ -28,7 +51,14 @@ updates:
     target-branch: "develop"
     reviewers:
       - "cboyd0319"
+    assignees:
+      - "cboyd0319"
+    labels:
+      - "github-actions"
+      - "dependencies"
+      - "security"
     commit-message:
       prefix: "ci"
       include: "scope"
-    automerge: true
+    # Disable automerge for manual security review
+    automerge: false
