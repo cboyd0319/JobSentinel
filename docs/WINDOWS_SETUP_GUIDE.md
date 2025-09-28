@@ -1,6 +1,6 @@
 # 🪟 **Windows 11 Setup Guide - Job Private Scraper & Filter**
 
-This guide is written for your friend who needs **crystal-clear, step-by-step instructions** to get the job scraper running on Windows 11 with **zero technical background required**.
+This guide provides **crystal-clear, step-by-step instructions** to get the job scraper running on Windows 11 with **maximum security** and **zero technical background required**.
 
 ---
 
@@ -12,129 +12,234 @@ This software will:
 - **Send immediate Slack alerts** for high-scoring matches
 - **Email daily digest** of all relevant jobs
 - **Run completely private** on your own computer
-- **Work 24/7** in the background
+- **Work 24/7** in the background with **zero elevated privileges**
 
 **No ChatGPT required** - it works perfectly without any external AI services!
 
 ---
 
-## ⚡ **Super Quick Start (15 Minutes)**
+## 🔐 **RECOMMENDED: Secure Service Account Setup** 
+
+### **🛡️ Why This Method is Best:**
+- **Maximum Security**: Runs with absolutely zero admin privileges after setup
+- **Complete Isolation**: Separate from your main user account
+- **Production Ready**: Follows enterprise security best practices
+- **Audit Trail**: Clean logging and monitoring
+- **Principle of Least Privilege**: Only the permissions needed, nothing more
+
+### **📋 Table of Contents**
+- [🔐 **RECOMMENDED: Secure Service Account Setup**](#-recommended-secure-service-account-setup)
+- [⚡ **Alternative: Quick Personal Setup**](#-alternative-quick-personal-setup)
+- [🔧 **Configuration Guide**](#-configuration-guide)
+- [🔒 **Security & Architecture**](#-security--architecture)
+- [🔧 **Troubleshooting & Debug Mode**](#-troubleshooting--debug-mode)
+- [🛠 **Manual Installation (If Script Fails)**](#-manual-installation-if-script-fails)
+
+---
+
+### **Step 1: Create Dedicated Service Account** 
+
+🔒 **This creates a dedicated non-admin user ONLY for job scraping - maximum security!**
+
+1. **Open PowerShell as Administrator** (one-time setup)
+   - Press `Windows key + X`
+   - Click "Windows PowerShell (Admin)" or "Terminal (Admin)"
+   - When it asks "Do you want to allow this app to make changes?", click **YES**
+
+2. **Create the service account:**
+```powershell
+# Create dedicated user (choose a secure password!)
+net user jobscraper "YourSecurePassword123!" /add /passwordchg:no /fullname:"Job Scraper Service"
+net localgroup "Users" jobscraper /add
+
+# Verify the account was created
+net user jobscraper
+```
+
+3. **Close PowerShell** (we're done with admin privileges!)
+
+### **Step 2: Login as Service Account**
+
+1. **Sign out of your current user**
+   - Click Start → Your profile picture → Sign out
+
+2. **Login as jobscraper**
+   - On login screen, click "Other user"  
+   - Username: `jobscraper`
+   - Password: `YourSecurePassword123!` (the password you chose above)
+
+### **Step 3: Run Secure Installation**
+
+**Now logged in as jobscraper (non-admin user):**
+
+1. **Update Windows** (Important!)
+   - Press `Windows key + I` → Windows Update → Check for updates
+   - Install any updates and restart if needed
+
+2. **Open PowerShell** (NOT as admin - we want limited privileges!)
+   - Press `Windows key + X` → Click "Windows PowerShell" (NOT Admin)
+   - You should see a blue window
+
+3. **Run the secure installation:**
+```powershell
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; irm "https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/scripts/setup_windows.ps1" | iex
+```
+
+**🔐 Security Benefits:**
+- ✅ **No admin privileges** during normal operation
+- ✅ **Isolated from main user** - maximum security
+- ✅ **Limited attack surface** - minimal permissions
+- ✅ **Enterprise-grade security** - follows best practices
+
+**What happens next:**
+- **Downloads and installs Python 3.12** to user directory (no admin needed)
+- **Creates isolated Python environment** (keeps system clean)
+- **Downloads job scraper files** from GitHub
+- **Installs required packages** (about 20-30 packages)
+- **Downloads web browser components** (for scraping job sites)
+- **Creates configuration files** with examples
+- **Sets up automated tasks** (runs as LIMITED user every 15 minutes)
+- **Creates desktop shortcuts** for easy management
+- **Tests installation** to ensure everything works
+
+**This takes 10-20 minutes** - when done, you'll see: `🎉 Setup completed successfully!`
+
+➡️ **Continue to [Configuration Guide](#-configuration-guide)** to set up your job search criteria.
+
+---
+
+## ⚡ **Alternative: Quick Personal Setup**
+
+**⚠️ Less Secure**: This method runs on your main user account. Use the [Secure Service Account Setup](#-recommended-secure-service-account-setup) above for better security.
 
 ### **Step 1: Prepare Your Computer**
 
 1. **Update Windows** (Important!)
    - Press `Windows key + I`
-   - Click "Windows Update"
-   - Click "Check for updates"
+   - Click "Windows Update" → "Check for updates"
    - Install any available updates and restart if needed
 
 2. **Open PowerShell as Administrator** 
    
-   🔒 **Security Note**: Admin rights are needed **ONLY** for initial setup (Python install, scheduled tasks). After setup, everything runs as a **limited user** with no elevated privileges.
+   🔒 **Security Note**: Admin rights needed **ONLY** for initial setup (Python install, scheduled tasks). After setup, everything runs as **limited user**.
    
    - Press `Windows key + X`
    - Click "Windows PowerShell (Admin)" or "Terminal (Admin)"
    - When it asks "Do you want to allow this app to make changes?", click **YES**
-   - You should see a blue window with white text
 
-### **Step 2: Run the Magic Setup Command**
-
-**Copy this entire command** (click the copy button if available):
+### **Step 2: Run Setup Command**
 
 ```powershell
 Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; irm "https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/scripts/setup_windows.ps1" | iex
 ```
 
-**Paste it in PowerShell**:
-- Right-click in the blue PowerShell window
-- Press Enter
+---
 
-**What happens next:**
-- **Pre-flight checks**: Verifies admin rights and internet connection
-- **Downloads and installs Python 3.12** (if not already installed)
-- **Downloads and installs Git** (for project updates)
-- **Creates isolated Python environment** (keeps your system clean)
-- **Downloads all job scraper files** from GitHub
-- **Installs all required packages** (about 20-30 packages)
-- **Downloads web browser components** (for scraping job sites)
-- **Creates configuration files** with examples
-- **Sets up automated tasks** (runs every 15 minutes)
-- **Creates desktop shortcuts** for easy testing and management
-- **Tests the installation** to ensure everything works
-- **Shows completion summary** with next steps
+## 🔧 **Configuration Guide**
 
-**This process takes 10-20 minutes** depending on your internet speed.
-- Downloads the job scraper
-- Installs all required packages
-- Sets up automatic scheduling
-- Creates configuration files
-- **Takes 5-10 minutes** - lots of text will scroll by
+**📁 Location**: After setup, find the `job-scraper` folder on your Desktop.
 
-**When it's done**, you'll see: `🎉 Setup completed successfully!`
+### **🔔 Step 1: Setup Notifications (Optional but Recommended)**
 
-### **Step 3: Configure Your Job Search**
+#### **A. Slack Alerts (Immediate notifications)**
+1. **Right-click `.env`** → "Open with" → "Notepad"
+2. **Get Slack webhook URL**:
+   - Go to your Slack workspace
+   - Add the "Incoming Webhooks" app
+   - Create a webhook URL (starts with `https://hooks.slack.com/`)
+3. **Paste it after** `SLACK_WEBHOOK_URL=`
 
-The setup creates a folder on your Desktop called `job-scraper`. Open it and you'll find two important files:
+#### **B. Email Digest (Daily summary)**
+1. **Use Gmail** and create an "App Password":
+   - Google Account → Security → 2-Step Verification → App passwords
+   - Generate password for "Mail" 
+2. **Fill in `.env` file**:
+   ```
+   SMTP_SERVER=smtp.gmail.com
+   SMTP_PORT=587
+   SMTP_USER=your_email@gmail.com
+   SMTP_PASSWORD=your_app_password
+   EMAIL_TO=your_email@gmail.com
+   ```
 
-#### **A. Edit `.env` file (for notifications)**
-- Right-click `.env` → "Open with" → "Notepad"
-- **For Slack alerts** (immediate notifications):
-  1. Go to your Slack workspace
-  2. Add the "Incoming Webhooks" app
-  3. Create a webhook URL (starts with `https://hooks.slack.com/`)
-  4. Paste it after `SLACK_WEBHOOK_URL=`
+### **🎯 Step 2: Configure Job Search Criteria**
 
-- **For email digest** (daily summary):
-  1. Use Gmail and create an "App Password" (Google for instructions)
-  2. Fill in your email settings in the `.env` file
+1. **Right-click `user_prefs.json`** → "Open with" → "Notepad"
+2. **Customize these key sections**:
 
-#### **B. Edit `user_prefs.json` (what jobs to find)**
-- Right-click `user_prefs.json` → "Open with" → "Notepad"
-- **Change these sections:**
-  - `companies`: Add job board URLs you want to monitor
-  - `title_allowlist`: Job titles you want (e.g., "Software Engineer")
-  - `location_constraints`: Where you want to work (e.g., "Remote", "New York")
-  - `salary_floor_usd`: Minimum salary you'll accept
+#### **Companies (Job Boards to Monitor)**
+```json
+"companies": [
+    "https://boards.greenhouse.io/company",
+    "https://company.lever.co/",
+    "https://company.workday.com/careers"
+]
+```
 
-### **Step 4: Test Everything**
+#### **Job Titles You Want**
+```json
+"title_allowlist": [
+    "Software Engineer",
+    "Full Stack Developer", 
+    "Python Developer",
+    "Backend Engineer"
+]
+```
 
-On your Desktop, you'll find these shortcuts:
+#### **Location Preferences**
+```json
+"location_constraints": [
+    "Remote",
+    "New York", 
+    "San Francisco",
+    "Hybrid"
+]
+```
 
-1. **Double-click "Test Job Scraper"**
-   - This sends a test notification to verify your setup
-   - You should receive a Slack message and/or email
+#### **Salary Requirements**
+```json
+"salary_floor_usd": 120000
+```
 
-2. **Double-click "Run Job Scraper"**
-   - This manually runs one complete job search
-   - Check the output to see if it finds jobs
+### **🧪 Step 3: Test Your Configuration**
 
-3. **Double-click "Update Job Scraper"** 🔄
-   - This checks for and installs the latest updates
-   - Your configuration is automatically preserved
-   - Run this anytime to get security and feature updates
+**Desktop shortcuts created for you:**
 
-**If both Test and Run work**: Congratulations! Your job scraper is now running automatically!
+1. **🧪 "Test Job Scraper"**
+   - Sends test notification to verify Slack/email setup
+   - Should receive test message within 30 seconds
 
-## 🔄 **Automatic Updates - SUPER EASY!**
+2. **▶️ "Run Job Scraper"** 
+   - Manually runs one complete job search cycle
+   - Check output to see jobs found and scoring
 
-Your friend never needs to worry about updates! The system **automatically updates itself** every day at 6 AM with the latest security fixes and features.
+3. **🔄 "Update Job Scraper"**
+   - Gets latest security and feature updates
+   - Preserves your configuration automatically
 
-### **How Auto-Updates Work:**
-- ✅ **Daily Check**: Runs at 6 AM every morning
-- ✅ **Zero Configuration**: Completely automatic
-- ✅ **Preserves Settings**: Your .env and user_prefs.json are never touched  
-- ✅ **Safe Updates**: Creates backups before updating
-- ✅ **Logged**: All updates are recorded in data/logs/updates.log
+**✅ Success**: If both Test and Run work, you're all set! The system now runs automatically every 15 minutes.
 
-### **Manual Updates (Optional):**
-- **Desktop Shortcut**: Double-click "Update Job Scraper" anytime
-- **Always Safe**: Your job preferences and notifications settings are preserved
-- **Quick**: Usually takes 30-60 seconds
-- **Smart**: Only updates if there are actually new changes
+➡️ **Next**: Check out [Security & Architecture](#-security--architecture) to understand how everything works securely.
 
-### **What Gets Updated:**
-- ✅ **Security Fixes**: Latest security patches applied automatically
-- ✅ **New Features**: Enhanced job matching, new job boards, improvements
+---
+
+## 🔄 **Automatic Operation & Updates**
+
+### **⚙️ Automatic Job Monitoring**
+- **🕐 Every 15 minutes**: Checks for new jobs matching your criteria
+- **🌅 Daily at 9 AM**: Sends digest email with all jobs found
+- **🧹 Weekly cleanup**: Removes old jobs (90+ days) to save space
+
+### **🔄 Automatic Updates (Zero Maintenance!)**
+Your system **automatically updates itself** every day at 6 AM:
+
+- ✅ **Security patches** applied automatically
+- ✅ **New features** and job board support added
+- ✅ **Your settings preserved** - never touched
+- ✅ **Backup created** before each update
+- ✅ **Logged activity** in `data/logs/updates.log`
+
+**Manual Updates**: Double-click "Update Job Scraper" shortcut anytime.
 - ✅ **Bug Fixes**: Any issues get resolved automatically
 - ✅ **Dependencies**: Python packages stay up-to-date
 
@@ -336,7 +441,7 @@ If you want AI-enhanced job matching:
 
 ---
 
-## 🔒 **Security & Privacy**
+## 🔒 **Security & Architecture**
 
 ### **🛡️ Secure Architecture (Why Admin is Needed Only Once)**
 
