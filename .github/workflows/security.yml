@@ -6,7 +6,6 @@ on:
   pull_request:
     branches: [main, develop]
   schedule:
-    # Run comprehensive security scan daily at 2 AM UTC
     - cron: '0 2 * * *'
   workflow_dispatch:
     inputs:
@@ -28,9 +27,13 @@ permissions:
   pull-requests: write
 
 jobs:
-  bandit-scan:
-    name: 🔍 Bandit Security Scan
+  python-security:
+    name: 🐍 Python Security Bundle
     runs-on: ubuntu-latest
+    outputs:
+      bandit: ${{ steps.bandit.outputs.status }}
+      safety: ${{ steps.safety.outputs.status }}
+      osv: ${{ steps.osv-status.outputs.status }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -40,56 +43,37 @@ jobs:
         with:
           python-version: '3.12.10'
 
-      - name: Install Bandit
-        run: pip install bandit[toml]
+      - name: Install security tooling
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install bandit[toml] safety
 
       - name: Run Bandit Security Scan
+        id: bandit
         run: |
-          bandit -r . -x ./.venv -f sarif -o bandit-results.sarif || echo "Bandit completed with warnings"
-          # Ensure SARIF file exists even if bandit fails
-          if [ ! -f bandit-results.sarif ]; then
-            echo '{"version":"2.1.0","$schema":"https://docs.oasis-open.org/sarif/sarif/v2.1.0/' \
-              'errata01/os/schemas/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":' \
-              '{"name":"Bandit","version":"1.8.6"}},"results":[]}]}' > bandit-results.sarif
+          set +e
+          bandit -r . -x ./.venv -f sarif -o bandit-results.sarif
+          exit_code=$?
+          set -e
+          if [ $exit_code -ne 0 ]; then
+            echo "status=failed" >> "$GITHUB_OUTPUT"
+          else
+            echo "status=passed" >> "$GITHUB_OUTPUT"
           fi
-
-      - name: Upload Bandit SARIF
-        if: always()
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: bandit-results.sarif
-          category: bandit
-
-  safety-scan:
-    name: 🔒 Safety Dependency Scan
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12.10'
-
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-          pip install safety
+          if [ ! -s bandit-results.sarif ]; then
+            cat <<'EOF2' > bandit-results.sarif
+{"version":"2.1.0","$schema":"https://json.schemastore.org/sarif-2.1.0.json","runs":[{"tool":{"driver":{"name":"Bandit","version":"1.8.6"}},"results":[]}]} 
+EOF2
+          fi
+          exit 0
 
       - name: Run Safety Check
+        id: safety
         env:
           SAFETY_API_KEY: ${{ secrets.SAFETY_API_KEY }}
         run: |
-          # Run Safety with API key and blocking policy
-          # Block on Critical, High, Medium issues that have fixes
-          # Allow unfixed or unknown severity issues to pass
-
           echo "Running Safety scan with blocking policy..."
-          echo "Policy: Block Critical/High/Medium issues WITH fixes available"
-          echo "Policy: Allow unfixed or unknown severity issues"
-
-          # Run safety scan and capture exit code
           SAFETY_PROJECT_ARGS=""
           if [ -f config/.safety-project.ini ]; then
             SAFETY_PROJECT_ARGS="--project config/.safety-project.ini"
@@ -101,74 +85,60 @@ jobs:
           else
             safety check --json $SAFETY_PROJECT_ARGS > safety-report.json 2>&1
           fi
-          SAFETY_EXIT_CODE=$?
+          safety_exit=$?
           set -e
 
-          # Ensure JSON file exists even if safety fails
           if [ ! -f safety-report.json ]; then
-            echo '{"vulnerabilities":[],"scan_id":"ci-scan",' \
-              '"timestamp":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"}' > safety-report.json
+            echo '{"vulnerabilities":[],"scan_id":"ci-scan","timestamp":"'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"}' > safety-report.json
           fi
 
-          # Process results and apply blocking policy
-          python3 << 'EOF'
-          import json
-          import sys
-          import os
-
-          try:
-              with open('safety-report.json', 'r') as f:
-                  data = json.load(f)
-
-              vulnerabilities = data.get('vulnerabilities', [])
-              should_block = False
-              blocked_count = 0
-              allowed_count = 0
-
-              print(f"\n📊 Safety Scan Results: {len(vulnerabilities)} vulnerabilities found")
-
-              for vuln in vulnerabilities:
-                  severity = vuln.get('severity', 'unknown').lower()
-                  has_fix = vuln.get('fix_available', False) or vuln.get('patched_versions', [])
-                  pkg_name = vuln.get('package_name', 'unknown')
-                  vuln_id = vuln.get('vulnerability_id', 'unknown')
-
-                  # Apply blocking policy
-                  if severity in ['critical', 'high', 'medium'] and has_fix:
-                      print(f"🚫 BLOCKING: {pkg_name} - {vuln_id} ({severity.upper()}) - Fix available")
-                      should_block = True
-                      blocked_count += 1
-                  else:
-                      reason = "no fix available" if not has_fix else "severity below threshold"
-                      print(f"✅ ALLOWED: {pkg_name} - {vuln_id} ({severity.upper()}) - {reason}")
-                      allowed_count += 1
-
-              print(f"\n📋 Summary:")
-              print(f"  🚫 Blocked (fixable Critical/High/Medium): {blocked_count}")
-              print(f"  ✅ Allowed (unfixed or Low severity): {allowed_count}")
-
-              if should_block:
-                  print(f"\n❌ FAILING BUILD: {blocked_count} fixable vulnerabilities found")
-                  print("Fix these vulnerabilities by updating dependencies:")
-                  for vuln in vulnerabilities:
-                      severity = vuln.get('severity', 'unknown').lower()
-                      has_fix = vuln.get('fix_available', False) or vuln.get('patched_versions', [])
-                      if severity in ['critical', 'high', 'medium'] and has_fix:
-                          pkg_name = vuln.get('package_name', 'unknown')
-                          current_version = vuln.get('analyzed_version', 'unknown')
-                          patched_versions = vuln.get('patched_versions', [])
-                          if patched_versions:
-                              print(f"  pip install {pkg_name}>={patched_versions[0]}")
-                          else:
-                              print(f"  pip install --upgrade {pkg_name}")
-                  sys.exit(1)
-              else:
-                  print(f"\n✅ PASSING: No blocking vulnerabilities found")
-
-          except Exception as e:
-              print(f"Error processing Safety results: {e}")
-              # Don't fail on processing errors
-          EOF
+          python3 <<'PY'
+import json
+from datetime import datetime, timezone
+with open('safety-report.json', 'r', encoding='utf-8') as fh:
+    data = json.load(fh)
+vulns = data if isinstance(data, list) else data.get('vulnerabilities', [])
+should_block = False
+for vuln in vulns:
+    severity = (vuln.get('severity') or 'unknown').lower()
+    has_fix = bool(vuln.get('fix_available') or vuln.get('patched_versions'))
+    if severity in {'critical', 'high', 'medium'} and has_fix:
+        should_block = True
+        break
+sarif = {
+    "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+    "version": "2.1.0",
+    "runs": [{
+        "tool": {"driver": {"name": "Safety", "informationUri": "https://safetycli.com/", "rules": []}},
+        "results": [],
+        "invocations": [{"executionSuccessful": not should_block, "startTimeUtc": datetime.now(timezone.utc).isoformat()}]
+    }]
+}
+for vuln in vulns:
+    rule = {
+        "id": vuln.get('vulnerability_id', 'UNKNOWN'),
+        "name": vuln.get('package_name', 'unknown'),
+        "shortDescription": {"text": vuln.get('description', 'Dependency vulnerability')},
+        "properties": {"tags": ['dependency', 'safety']}
+    }
+    sarif["runs"][0]["tool"]["driver"]["rules"].append(rule)
+    sarif["runs"][0]["results"].append({
+        "ruleId": rule["id"],
+        "level": "error",
+        "message": {"text": rule["shortDescription"]["text"]},
+        "locations": [{"physicalLocation": {"artifactLocation": {"uri": "requirements.txt"}}}]
+    })
+with open('safety-results.sarif', 'w', encoding='utf-8') as fh:
+    json.dump(sarif, fh, indent=2)
+if should_block:
+    raise SystemExit(1)
+PY
+          policy_exit=$?
+          if [ $policy_exit -ne 0 ] || [ $safety_exit -ne 0 ]; then
+            echo "status=failed" >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
+          echo "status=passed" >> "$GITHUB_OUTPUT"
 
       - name: Upload Safety Results
         if: always()
@@ -177,72 +147,61 @@ jobs:
           name: safety-scan-results
           path: safety-report.json
 
-  codeql-analysis:
-    name: 🔬 CodeQL Analysis
-    runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
-
-    strategy:
-      fail-fast: false
-      matrix:
-        language: ['python']
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
-
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+      - name: Run OSV scan (SARIF)
+        id: osv-sarif
+        uses: google/osv-scanner-action@v1
         with:
-          languages: ${{ matrix.language }}
-
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
-        with:
-          category: "/language:${{matrix.language}}"
-
-  osv-scanner:
-    name: 🛡️ OSV Vulnerability Scanner
-    runs-on: ubuntu-latest
-    if: github.event.inputs.scan_type != 'basic'
-    permissions:
-      contents: read
-      security-events: write
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
-
-      - name: Install OSV Scanner
-        run: |
-          curl -sSL https://github.com/google/osv-scanner/releases/download/v1.9.0/osv-scanner_1.9.0_linux_amd64.tar.gz -o osv-scanner.tar.gz
-          tar -xzf osv-scanner.tar.gz osv-scanner
-          chmod +x osv-scanner
-          mkdir -p "$HOME/.local/bin"
-          mv osv-scanner "$HOME/.local/bin/osv-scanner"
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          scan-args: |-
+            --format sarif
+            --output osv-results.sarif
+            .
+        continue-on-error: true
 
       - name: Run OSV scan (JSON)
+        uses: google/osv-scanner-action@v1
+        with:
+          scan-args: |-
+            --format json
+            --output osv-results.json
+            .
         continue-on-error: true
-        run: |
-          osv-scanner --format json --output osv-results.json .
 
-      - name: Run OSV scan (SARIF)
-        continue-on-error: true
+      - name: Determine OSV status
+        id: osv-status
         run: |
-          osv-scanner --format sarif --output osv-results.sarif .
+          if [ -f osv-results.sarif ]; then
+            echo "status=passed" >> "$GITHUB_OUTPUT"
+          else
+            echo "status=failed" >> "$GITHUB_OUTPUT"
+          fi
 
-      - name: Upload OSV SARIF results to Security tab
-        uses: github/codeql-action/upload-sarif@v3
+      - name: Upload Bandit SARIF
         if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: bandit-results.sarif
+          category: bandit
+
+      - name: Upload Safety SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: safety-results.sarif
+          category: safety
+
+     - name: Upload OSV SARIF results to Security tab
+        if: always() && steps.osv-status.outputs.status == 'passed'
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: osv-results.sarif
           category: osv-scanner
+
+      - name: Upload OSV JSON result
+        if: always() && steps.osv-status.outputs.status == 'passed'
+        uses: actions/upload-artifact@v4
+        with:
+          name: osv-scan-results
+          path: osv-results.json
 
   semgrep-scan:
     name: 🔬 Semgrep Security Analysis
@@ -275,178 +234,51 @@ jobs:
           sarif_file: semgrep.sarif
           category: semgrep
 
-  enhanced-safety-scan:
-    name: 🔐 Enhanced Safety & SARIF Upload
+  codeql-analysis:
+    name: 🔬 CodeQL Analysis
     runs-on: ubuntu-latest
     permissions:
+      actions: read
       contents: read
       security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['python']
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
         with:
-          python-version: '3.12.10'
+          languages: ${{ matrix.language }}
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install safety
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
 
-      - name: Run Safety scan with SARIF conversion
-        env:
-          SAFETY_API_KEY: ${{ secrets.SAFETY_API_KEY }}
-        run: |
-          # Generate JSON output for conversion to SARIF with blocking policy
-          echo "Running Safety scan with API key and blocking policy..."
-
-          SAFETY_PROJECT_ARGS=""
-          if [ -f config/.safety-project.ini ]; then
-            SAFETY_PROJECT_ARGS="--project config/.safety-project.ini"
-          fi
-
-          # Run safety scan and capture exit code
-          set +e
-          if safety --help 2>/dev/null | grep -q "scan"; then
-            safety scan --json --output safety-results.json $SAFETY_PROJECT_ARGS 2>&1
-          else
-            safety check --json $SAFETY_PROJECT_ARGS > safety-results.json 2>&1
-          fi
-          SAFETY_EXIT_CODE=$?
-          set -e
-
-          # Ensure JSON file exists
-          if [ ! -f safety-results.json ]; then
-            echo '{"vulnerabilities": []}' > safety-results.json
-          fi
-
-          # Apply blocking policy (same as above but for enhanced scan)
-          python3 << 'EOF'
-          import json
-          import sys
-
-          try:
-              with open('safety-results.json', 'r') as f:
-                  data = json.load(f)
-
-              # Handle both old and new Safety API response formats
-              vulnerabilities = data if isinstance(data, list) else data.get('vulnerabilities', [])
-              should_block = False
-              blocked_count = 0
-
-              for vuln in vulnerabilities:
-                  severity = vuln.get('severity', 'unknown').lower()
-                  has_fix = vuln.get('fix_available', False) or vuln.get('patched_versions', [])
-
-                  if severity in ['critical', 'high', 'medium'] and has_fix:
-                      should_block = True
-                      blocked_count += 1
-
-              if should_block:
-                  print(f"❌ Safety found {blocked_count} fixable Critical/High/Medium vulnerabilities")
-                  sys.exit(1)
-              else:
-                  print("✅ Safety scan passed blocking policy")
-
-          except Exception as e:
-              print(f"Warning: Error processing Safety results: {e}")
-              # Don't fail on processing errors, let SARIF upload continue
-          EOF
-
-          # Convert Safety results to SARIF format
-          python3 << 'EOF'
-          import json
-          import os
-          from datetime import datetime
-
-          # Create SARIF structure for Safety results
-          sarif_template = {
-              "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
-              "version": "2.1.0",
-              "runs": [
-                  {
-                      "tool": {
-                          "driver": {
-                              "name": "Safety",
-                              "version": "3.0.0",
-                              "informationUri": "https://pyup.io/safety/",
-                              "rules": []
-                          }
-                      },
-                      "results": []
-                  }
-              ]
-          }
-
-          try:
-              with open('safety-results.json', 'r') as f:
-                  safety_raw = json.load(f)
-
-              vulnerabilities = safety_raw if isinstance(safety_raw, list) else safety_raw.get('vulnerabilities', [])
-
-              for vuln in vulnerabilities:
-                  rule_id = vuln.get('vulnerability_id', 'SAFETY-UNKNOWN')
-                  package_name = vuln.get('package_name', 'unknown')
-
-                  # Add rule
-                  rule = {
-                      "id": rule_id,
-                      "name": f"VulnerablePackage/{package_name}",
-                      "shortDescription": {
-                          "text": f"Vulnerable package: {package_name}"
-                      },
-                      "fullDescription": {
-                          "text": vuln.get('advisory', 'No description available')
-                      },
-                      "defaultConfiguration": {
-                          "level": "error"
-                      },
-                      "helpUri": f"https://pyup.io/vulnerabilities/{rule_id}/"
-                  }
-                  sarif_template["runs"][0]["tool"]["driver"]["rules"].append(rule)
-
-                  # Add result
-                  result = {
-                      "ruleId": rule_id,
-                      "ruleIndex": len(sarif_template["runs"][0]["tool"]["driver"]["rules"]) - 1,
-                      "message": {
-                          "text": f"Vulnerable package {package_name} {vuln.get('analyzed_version', '')} found. {vuln.get('advisory', '')}"
-                      },
-                      "level": "error",
-                      "locations": [
-                          {
-                              "physicalLocation": {
-                                  "artifactLocation": {
-                                      "uri": "requirements.txt"
-                                  },
-                                  "region": {
-                                      "startLine": 1,
-                                      "startColumn": 1
-                                  }
-                              }
-                          }
-                      ]
-                  }
-                  sarif_template["runs"][0]["results"].append(result)
-
-          except (FileNotFoundError, json.JSONDecodeError):
-              # No vulnerabilities found or file doesn't exist
-              pass
-
-          # Write SARIF file
-          with open('safety-results.sarif', 'w') as f:
-              json.dump(sarif_template, f, indent=2)
-          EOF
-
-      - name: Upload Safety SARIF results to Security tab
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
         with:
-          sarif_file: safety-results.sarif
-          category: safety
+          category: "/language:${{matrix.language}}"
+
+  dependency-review:
+    name: 📋 Dependency Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+          allow-licenses: MIT, BSD-2-Clause, BSD-3-Clause, Apache-2.0, ISC, LGPL-2.1, LGPL-3.0
+          deny-licenses: GPL-2.0, GPL-3.0, AGPL-1.0, AGPL-3.0
 
   prowler-github:
     name: 🔐 GitHub CIS Benchmark
@@ -522,28 +354,10 @@ jobs:
           name: prowler-github-cis-report
           path: ${{ steps.prowler_outputs.outputs.json }}
 
-  dependency-review:
-    name: 📋 Dependency Review
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    permissions:
-      contents: read
-      pull-requests: write
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
-
-      - name: Dependency Review
-        uses: actions/dependency-review-action@v4
-        with:
-          fail-on-severity: high
-          allow-licenses: MIT, BSD-2-Clause, BSD-3-Clause, Apache-2.0, ISC, LGPL-2.1, LGPL-3.0
-          deny-licenses: GPL-2.0, GPL-3.0, AGPL-1.0, AGPL-3.0
-
   security-summary:
     name: 📊 Security Analysis Summary
     runs-on: ubuntu-latest
-    needs: [bandit-scan, safety-scan, codeql-analysis, osv-scanner, semgrep-scan, enhanced-safety-scan, prowler-github]
+    needs: [python-security, semgrep-scan, codeql-analysis, dependency-review, prowler-github]
     if: always()
     permissions:
       contents: read
@@ -554,62 +368,82 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Generate Security Summary
+        env:
+          BANDIT_STATUS: ${{ needs.python-security.outputs.bandit }}
+          SAFETY_STATUS: ${{ needs.python-security.outputs.safety }}
+          OSV_STATUS: ${{ needs.python-security.outputs.osv }}
+          SEMGREP_RESULT: ${{ needs.semgrep-scan.result }}
+          CODEQL_RESULT: ${{ needs.codeql-analysis.result }}
+          DEP_REVIEW_RESULT: ${{ needs.dependency-review.result }}
+          PROWLER_ENABLED: ${{ needs.prowler-github.outputs.enabled }}
+          PROWLER_RESULT: ${{ needs.prowler-github.result }}
         run: |
-          echo "# 🔒 Security Analysis Summary" > security-summary.md
-          echo "" >> security-summary.md
-          echo "## 📊 Scan Results" >> security-summary.md
-          echo "" >> security-summary.md
-          echo "| Tool | Status | Integration | Description |" >> security-summary.md
-          echo "|------|--------|-------------|-------------|" >> security-summary.md
-          echo "| 🔬 CodeQL | ${{ needs.codeql-analysis.result }} | ✅ Security Tab | GitHub's semantic code analysis |" >> security-summary.md
-          echo "| 🔍 Bandit | ${{ needs.bandit-scan.result }} | ✅ Security Tab | Python security linter (SARIF) |" >> security-summary.md
-          echo "| 🔬 Semgrep | ${{ needs.semgrep-scan.result }} | ✅ Security Tab | Multi-language security patterns |" >> security-summary.md
-          echo "| 🛡️ OSV Scanner | ${{ needs.osv-scanner.result }} | ✅ Security Tab | Open Source Vulnerability database |" >> security-summary.md
-          echo "| 🔐 Safety | ${{ needs.enhanced-safety-scan.result }} | ✅ Security Tab | Python dependency vulnerabilities |" >> security-summary.md
-          echo "| 📋 Dependency Review | ${{ needs.dependency-review.result }} | ✅ Security Tab | License & vulnerability review |" >> security-summary.md
-          if [ "${{ needs.prowler-github.outputs.enabled }}" = "true" ]; then
-            echo "| 🛡️ Prowler GitHub | ${{ needs.prowler-github.result }} | ✅ Security Tab | CIS 1.0 benchmark (prowler github) |" >> security-summary.md
+          status_emoji() {
+            case "$1" in
+              passed|success|succeeded) echo "✅" ;;
+              failed|failure) echo "❌" ;;
+              skipped) echo "⚪" ;;
+              *) echo "⚠️" ;;
+            esac
+          }
+
+          BANDIT_MARK=$(status_emoji "$BANDIT_STATUS")
+          SAFETY_MARK=$(status_emoji "$SAFETY_STATUS")
+          OSV_MARK=$(status_emoji "$OSV_STATUS")
+          SEMGREP_MARK=$(status_emoji "$SEMGREP_RESULT")
+          CODEQL_MARK=$(status_emoji "$CODEQL_RESULT")
+          if [ "$PROWLER_ENABLED" = "true" ]; then
+            PROWLER_MARK=$(status_emoji "$PROWLER_RESULT")
+            PROWLER_DESC="CIS 1.0 benchmark (prowler github)"
           else
-            echo "| 🛡️ Prowler GitHub | skipped | ⚪ Optional | Configure PROWLER_GITHUB_TOKEN to enable |" >> security-summary.md
+            PROWLER_MARK="⚪"
+            PROWLER_RESULT="skipped"
+            PROWLER_DESC="Configure PROWLER_GITHUB_TOKEN to enable"
           fi
-          echo "" >> security-summary.md
-          echo "## 🎯 Where to View Results" >> security-summary.md
-          echo "" >> security-summary.md
-          echo "### [📈 Security Tab](../../security)" >> security-summary.md
-          echo "All vulnerability findings are now integrated with GitHub's Security tab:" >> security-summary.md
-          echo "" >> security-summary.md
-          echo "- **[Code scanning alerts](../../security/code-scanning)**: Source code vulnerabilities" >> security-summary.md
-          echo "- **[Dependabot alerts](../../security/dependabot)**: Dependency vulnerabilities" >> security-summary.md
-          echo "- **[Secret scanning alerts](../../security/secret-scanning)**: Exposed secrets" >> security-summary.md
-          echo "" >> security-summary.md
-          echo "### 🔧 SARIF Integration Details" >> security-summary.md
-          echo "" >> security-summary.md
-          echo "The following tools upload SARIF results to GitHub Security:" >> security-summary.md
-          echo "- **Bandit**: `bandit` category" >> security-summary.md
-          echo "- **Semgrep**: `semgrep` category" >> security-summary.md
-          echo "- **OSV Scanner**: `osv-scanner` category" >> security-summary.md
-          echo "- **Safety**: `safety` category" >> security-summary.md
-          echo "- **CodeQL**: `/language:python` category" >> security-summary.md
-          echo "" >> security-summary.md
-          echo "## 🚀 Local Development" >> security-summary.md
-          echo "" >> security-summary.md
-          echo "Run these commands locally to catch issues before commit:" >> security-summary.md
-          echo "" >> security-summary.md
-          echo "\`\`\`bash" >> security-summary.md
-          echo "# Comprehensive scan" >> security-summary.md
-          echo "scripts/enhanced-security-scan.sh" >> security-summary.md
-          echo "" >> security-summary.md
-          echo "# Quick scan" >> security-summary.md
-          echo "scripts/local-security-scan.sh" >> security-summary.md
-          echo "" >> security-summary.md
-          echo "# Individual tools" >> security-summary.md
-          echo "bandit -r . -x ./.venv" >> security-summary.md
-          echo "safety scan --json --output safety-results.json --project config/.safety-project.ini" >> security-summary.md
-          echo "osv-scanner ." >> security-summary.md
-          echo "semgrep --config=auto ." >> security-summary.md
-          echo "\`\`\`" >> security-summary.md
-          echo "" >> security-summary.md
-          echo "_This summary was generated automatically by the Security Analysis workflow._" >> security-summary.md
+
+          cat <<'EOF2' > security-summary.md
+# 🔒 Security Analysis Summary
+
+## 📊 Scan Results
+
+| Tool | Status | Integration | Description |
+|------|--------|-------------|-------------|
+EOF2
+          cat <<EOF2 >> security-summary.md
+| 🔍 Bandit | $BANDIT_MARK ${BANDIT_STATUS:-unknown} | ✅ Security Tab | Python static analysis (SARIF) |
+| 🔒 Safety | $SAFETY_MARK ${SAFETY_STATUS:-unknown} | ✅ Security Tab | Dependency vulnerability scan |
+| 🛡️ OSV Scanner | $OSV_MARK ${OSV_STATUS:-unknown} | ✅ Security Tab | Open Source Vulnerability database |
+| 🔬 Semgrep | $SEMGREP_MARK ${SEMGREP_RESULT} | ✅ Security Tab | Multi-language security patterns |
+| 🧪 CodeQL | $CODEQL_MARK ${CODEQL_RESULT} | ✅ Security Tab | GitHub's semantic code analysis |
+| 📋 Dependency Review | $(status_emoji "$DEP_REVIEW_RESULT") ${DEP_REVIEW_RESULT} | ✅ Security Tab | License & vulnerability review |
+| 🛡️ Prowler GitHub | $PROWLER_MARK ${PROWLER_RESULT} | ✅ Security Tab | $PROWLER_DESC |
+
+## 🎯 Where to View Results
+
+- **[Code scanning alerts](../../security/code-scanning)**
+- **[Dependabot alerts](../../security/dependabot)**
+- **[Secret scanning alerts](../../security/secret-scanning)**
+
+## 🚀 Local Development
+
+Run these commands locally to catch issues before commit:
+
+```bash
+# Comprehensive scan
+scripts/enhanced-security-scan.sh
+
+# Quick scan
+scripts/local-security-scan.sh
+
+# Individual tools
+bandit -r . -x ./.venv
+safety scan --json --output safety-results.json --project config/.safety-project.ini
+osv-scanner --format json --output osv-results.json .
+semgrep --config=auto .
+```
+
+_This summary was generated automatically by the Security & Vulnerability Scanning workflow._
+EOF2
 
       - name: Comment on PR with Security Summary
         if: github.event_name == 'pull_request'
@@ -618,21 +452,16 @@ jobs:
           script: |
             const fs = require('fs');
             const summary = fs.readFileSync('security-summary.md', 'utf8');
-
-            // Find existing security summary comment
             const comments = await github.rest.issues.listComments({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
             });
-
+            const marker = '🔒 Security Analysis Summary';
             const botComment = comments.data.find(comment =>
-              comment.user.type === 'Bot' &&
-              comment.body.includes('🔒 Security Analysis Summary')
+              comment.user.type === 'Bot' && comment.body.includes(marker)
             );
-
             if (botComment) {
-              // Update existing comment
               await github.rest.issues.updateComment({
                 comment_id: botComment.id,
                 owner: context.repo.owner,
@@ -640,7 +469,6 @@ jobs:
                 body: summary
               });
             } else {
-              // Create new comment
               await github.rest.issues.createComment({
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
@@ -648,3 +476,9 @@ jobs:
                 body: summary
               });
             }
+
+      - name: Upload summary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-summary
+          path: security-summary.md
