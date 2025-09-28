@@ -67,8 +67,7 @@ This guide covers development setup, contribution workflows, and advanced usage 
 │   ├── setup.sh              # macOS/Linux developer bootstrap
 │   ├── setup_windows*.ps1    # Windows setup (current + legacy)
 │   ├── setup-dev-tools.sh    # Developer tooling installer
-│   ├── local-security-scan.sh # Local Bandit + Safety gating script
-│   ├── enhanced-security-scan.sh # Comprehensive security analysis suite
+│   ├── precommit-security-scan.sh # Pre-commit Bandit + Safety gating script
 │   ├── deploy-cloud.sh       # Cloud deployment orchestrator
 │   ├── validate-cloud-config.sh  # Pre-deployment validation
 │   └── enhanced-cost-monitor.py  # Cost monitoring and protection
@@ -108,9 +107,9 @@ rm -f safety-results.json safety-results.sarif
 mypy src/ --ignore-missing-imports
 ```
 
-To run all local security checks in one go, use:
+To run pre-commit security checks manually:
 ```bash
-scripts/local-security-scan.sh
+scripts/precommit-security-scan.sh
 ```
 
 **Pre-commit hook setup:**

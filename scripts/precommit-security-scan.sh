@@ -30,7 +30,10 @@ report_success() {
 
 # 1. Bandit Security Scan
 echo "Running Bandit security scan..."
-if bandit -r . -x ./.venv --quiet -f json -o bandit-report.json; then
+if ! command -v bandit &> /dev/null; then
+    report_warning "Bandit not installed - run: pip install bandit"
+    echo "Skipping Bandit scan..."
+elif bandit -r . -x ./.venv --quiet -f json -o bandit-report.json; then
     # Check if any issues were found
     BANDIT_ISSUES=$(python3 -c "
 import json
@@ -62,7 +65,7 @@ if command -v safety &> /dev/null; then
 
     set +e
     if safety --help 2>/dev/null | grep -q "scan"; then
-        safety scan --json --output safety-results.json "${SAFETY_PROJECT_ARGS[@]}" 1>/dev/null 2>&1
+        safety scan --output json "${SAFETY_PROJECT_ARGS[@]}" > safety-results.json 2>/dev/null
         SAFETY_EXIT=$?
     else
         safety check --json "${SAFETY_PROJECT_ARGS[@]}" > safety-results.json 2>/dev/null
@@ -224,9 +227,9 @@ else
     echo "To fix these issues:"
     echo "1. Review the security issues above"
     echo "2. Fix the identified problems"
-    echo "3. Run this script again: scripts/local-security-scan.sh"
+    echo "3. Run this script again: scripts/precommit-security-scan.sh"
     echo "4. Or run individual tools:"
     echo "   • bandit -r . -x ./.venv"
-    echo "   • safety scan --json --output safety-results.json --project config/.safety-project.ini"
+    echo "   • safety scan --output json --project config/.safety-project.ini"
     exit 1
 fi

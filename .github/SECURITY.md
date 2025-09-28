@@ -80,11 +80,11 @@ Run these commands locally to catch security issues:
 # Setup development security tools (once)
 scripts/setup-dev-tools.sh
 
-# Comprehensive security scan
-scripts/enhanced-security-scan.sh
+# Pre-commit security check
+scripts/precommit-security-scan.sh
 
-# Quick security check
-scripts/local-security-scan.sh
+# Comprehensive security scan (use GitHub workflow)
+# See: .github/workflows/security.yml
 
 # Individual scans
 bandit -r . -x ./.venv                # Python security

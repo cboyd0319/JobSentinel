@@ -21,6 +21,9 @@ tenacity>=9.0.0
 aiofiles>=24.1.0
 psutil>=7.0.0
 
+# Cloud storage (for persistence)
+google-cloud-storage>=2.18.0
+
 # Web interface (optional)
 Flask>=3.1.0
 

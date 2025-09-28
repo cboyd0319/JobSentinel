@@ -212,7 +212,7 @@ The project includes enterprise-grade security scanning with multiple automated 
 
 > Configure repository secret `PROWLER_GITHUB_TOKEN` (PAT with "repo" scope) to enable the scheduled GitHub CIS scan.
 
-All security results are uploaded in **SARIF format** to the **GitHub Security tab** for centralized monitoring and vulnerability management. Locally, run `scripts/local-security-scan.sh` to execute the same blocking policy before pushing changes.
+All security results are uploaded in **SARIF format** to the **GitHub Security tab** for centralized monitoring and vulnerability management. Locally, run `scripts/precommit-security-scan.sh` to execute the same blocking policy before pushing changes.
 
 **PowerShell Script Validation:**
 - **PSScriptAnalyzer**: Static analysis for PowerShell scripts
@@ -235,8 +235,7 @@ The project follows an organized structure for better maintainability:
 │   ├── setup.sh              # macOS/Linux setup helpers
 │   ├── setup_windows*.ps1    # Windows setup (current & legacy)
 │   ├── setup-dev-tools.sh    # Developer tooling bootstrap
-│   ├── local-security-scan.sh # Pre-commit security gate (Bandit + Safety)
-│   └── enhanced-security-scan.sh # Comprehensive local security suite
+│   └── precommit-security-scan.sh # Pre-commit security gate (Bandit + Safety)
 ├── cloud/                    # Cross-provider automation (Cloud Run bootstrap, etc.)
 ├── config/                   # Configuration & samples (.env.example, user_prefs.example.json, linters)
 │   ├── bandit.yaml           # Python security linting config

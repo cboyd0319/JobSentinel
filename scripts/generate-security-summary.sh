@@ -55,15 +55,15 @@ cat <<EOF > security-summary.md
 Run these commands locally to catch issues before commit:
 
 ```bash
-# Comprehensive scan
-scripts/enhanced-security-scan.sh
+# Pre-commit security scan
+scripts/precommit-security-scan.sh
 
-# Quick scan
-scripts/local-security-scan.sh
+# Comprehensive scan (use GitHub workflow)
+# See: .github/workflows/security.yml
 
 # Individual tools
 bandit -r . -x ./.venv
-safety scan --json --output safety-results.json --project config/.safety-project.ini
+safety scan --output json --project config/.safety-project.ini
 osv-scanner --format json --output osv-results.json .
 semgrep --config=auto .
 yamllint .

@@ -64,9 +64,9 @@ repos:
 
   - repo: local
     hooks:
-      - id: enhanced-security-scan
-        name: Enhanced Security & Quality Scan
-        entry: scripts/enhanced-security-scan.sh
+      - id: precommit-security-scan
+        name: Pre-commit Security Scan
+        entry: scripts/precommit-security-scan.sh
         language: script
         pass_filenames: false
         always_run: true
@@ -74,7 +74,7 @@ repos:
 
       - id: basic-security-scan
         name: Basic Security Scan (Fast)
-        entry: scripts/local-security-scan.sh
+        entry: scripts/precommit-security-scan.sh
         language: script
         pass_filenames: false
         always_run: true

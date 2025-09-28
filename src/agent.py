@@ -15,7 +15,6 @@ from utils.resilience import (
 )
 
 from src.database import (
-    init_db,
     get_job_by_hash,
     add_job,
     get_jobs_for_digest,
@@ -23,6 +22,7 @@ from src.database import (
     mark_job_alert_sent,
     cleanup_old_jobs,
 )
+from src.cloud_database import init_cloud_db, sync_cloud_db, get_cloud_db_stats
 from sources import greenhouse, lever, workday, generic_js
 from matchers.rules import score_job
 from notify import slack, emailer
@@ -449,8 +449,15 @@ def main():
         if startup_results["issues_found"]:
             main_logger.warning("Startup issues detected but continuing...")
 
-        # Initialize database
-        init_db()
+        # Initialize cloud-aware database
+        init_cloud_db()
+
+        # Log cloud database status
+        db_stats = get_cloud_db_stats()
+        if db_stats["cloud_enabled"]:
+            main_logger.info(f"☁️ Cloud storage enabled: gs://{db_stats['bucket_name']}")
+        else:
+            main_logger.info("💾 Running in local-only mode")
 
         # Load and validate configuration
         prefs = load_user_prefs()
@@ -487,6 +494,13 @@ def main():
             main_logger.error(f"Failed to create emergency backup: {backup_error}")
         exit(1)
     finally:
+        # Sync database to cloud storage before shutdown
+        try:
+            sync_cloud_db()
+            main_logger.info("✅ Database synced to cloud storage")
+        except Exception as sync_error:
+            main_logger.error(f"Failed to sync database to cloud: {sync_error}")
+
         # Always release the process lock
         process_resilience.release_lock()
 

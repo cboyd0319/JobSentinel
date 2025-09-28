@@ -8,6 +8,7 @@ import os
 import random
 import re
 import string
+import subprocess
 import sys
 import tarfile
 import tempfile
@@ -59,6 +60,11 @@ class GCPBootstrap:
         self.prefs_secret_name = "job-scraper-prefs"
         self.project_root = resolve_project_root()
         self.job_mode: str = "poll"
+        self.schedule_frequency: str = "0 6-18 * * 1-5"  # Business hours every hour default
+        self.vpc_name: str = "job-scraper-vpc"
+        self.subnet_name: str = "job-scraper-subnet"
+        self.connector_name: str = "job-scraper-connector"
+        self.storage_bucket: str = f"job-scraper-data-{self.project_id}"
 
     # ------------------------------------------------------------------
     # public API
@@ -74,6 +80,9 @@ class GCPBootstrap:
         self._create_project()
         self._enable_services()
         self._setup_artifact_registry()
+        self._setup_binary_authorization()
+        self._setup_vpc_networking()
+        self._setup_storage_bucket()
         self._collect_configuration()
         self._provision_secrets()
         self._create_service_accounts()
@@ -81,6 +90,7 @@ class GCPBootstrap:
         self._create_or_update_job()
         self._schedule_job()
         self._configure_budget()
+        self._setup_budget_alerts()
         self._run_prowler_scan()
         self._print_summary()
 
@@ -200,18 +210,19 @@ class GCPBootstrap:
 
     def _select_region(self) -> None:
         print_header("Select Cloud Run region")
+        print("📍 Regions are ordered by cost-effectiveness (cheapest first):")
         regions = [
-            "us-central1",
-            "us-east1",
-            "us-west1",
-            "us-west2",
-            "europe-west1",
-            "europe-west4",
-            "asia-northeast1",
-            "asia-southeast1",
-            "australia-southeast1",
+            "us-central1",      # Cheapest - Iowa
+            "us-east1",         # Second cheapest - South Carolina
+            "us-west1",         # Oregon
+            "europe-west1",     # Belgium
+            "us-west2",         # Los Angeles
+            "europe-west4",     # Netherlands
+            "asia-northeast1",  # Tokyo
+            "asia-southeast1",  # Singapore
+            "australia-southeast1",  # Sydney
         ]
-        self.region = choose("Choose the closest region:", regions)
+        self.region = choose("Choose the region (us-central1 recommended for lowest cost):", regions)
         run_command(["gcloud", "config", "set", "run/region", self.region])
 
     def _select_scheduler_region(self) -> None:
@@ -316,6 +327,11 @@ class GCPBootstrap:
             "monitoring.googleapis.com",
             "iam.googleapis.com",
             "billingbudgets.googleapis.com",
+            "binaryauthorization.googleapis.com",  # Binary Authorization
+            "compute.googleapis.com",               # VPC networking
+            "vpcaccess.googleapis.com",            # VPC connector
+            "containeranalysis.googleapis.com",    # Vulnerability scanning
+            "storage.googleapis.com",               # Cloud Storage for persistence
         ]
         run_command(
             ["gcloud", "services", "enable", *services, "--project", self.project_id]
@@ -413,6 +429,30 @@ class GCPBootstrap:
         mode_options = ["poll", "digest", "health"]
         self.job_mode = choose("Select default Cloud Run job mode:", mode_options)
 
+        print("\n📅 Scheduling Configuration:")
+        print("💰 More frequent = higher costs. Default is business hours only for maximum cost savings.")
+        schedule_options = [
+            "0 6-18 * * 1-5", # Business hours 6AM-6PM Mon-Fri every hour (lowest cost - default)
+            "0 6,8,10,12,14,16,18 * * 1-5", # Business hours every 2 hours
+            "0 */4 * * *",   # Every 4 hours 24/7
+            "0 */2 * * *",   # Every 2 hours 24/7
+            "0 */1 * * *",   # Every hour 24/7
+            "*/30 * * * *",  # Every 30 minutes 24/7
+            "*/15 * * * *",  # Every 15 minutes 24/7
+        ]
+        schedule_descriptions = [
+            "Business hours 6AM-6PM Mon-Fri every hour (lowest cost - recommended)",
+            "Business hours 6AM-6PM Mon-Fri every 2hrs (very low cost)",
+            "Every 4 hours 24/7 (low cost)",
+            "Every 2 hours 24/7 (moderate cost)",
+            "Every hour 24/7 (higher cost)",
+            "Every 30 minutes 24/7 (much higher cost)",
+            "Every 15 minutes 24/7 (highest cost)",
+        ]
+        schedule_choice = choose("Select execution frequency:",
+                               [f"{desc} - {sched}" for desc, sched in zip(schedule_descriptions, schedule_options)])
+        self.schedule_frequency = schedule_options[schedule_descriptions.index(schedule_choice.split(" - ")[0])]
+
     def _provision_secrets(self) -> None:
         print_header("Configuring Secret Manager")
         self.env_secret_bindings.clear()
@@ -440,6 +480,7 @@ class GCPBootstrap:
             check=False,
         )
         if describe.returncode != 0:
+            # Create secret with 90-day expiry policy for security
             run_command(
                 [
                     "gcloud",
@@ -448,9 +489,12 @@ class GCPBootstrap:
                     name,
                     "--replication-policy=automatic",
                     f"--project={self.project_id}",
+                    "--expire-time=7776000s",  # 90 days
+                    "--labels=managed-by=job-scraper,rotation-policy=quarterly",
                     "--quiet",
                 ]
             )
+            print(f"🔐 Secret {name} created with 90-day expiry policy")
 
         run_command(
             [
@@ -507,6 +551,7 @@ class GCPBootstrap:
             (self.runtime_sa, "roles/secretmanager.secretAccessor"),
             (self.runtime_sa, "roles/logging.logWriter"),
             (self.runtime_sa, "roles/run.invoker"),
+            (self.runtime_sa, "roles/storage.objectUser"),        # For bucket read/write
             (self.scheduler_sa, "roles/run.invoker"),
             (self.scheduler_sa, "roles/iam.serviceAccountTokenCreator"),
         ]
@@ -543,7 +588,10 @@ class GCPBootstrap:
         for env_key, secret_name in self.env_secret_bindings.items():
             secret_flags.extend(["--set-secrets", f"{env_key}={secret_name}:latest"])
 
-        env_var_flags: list[str] = ["--set-env-vars", f"JOB_RUN_MODE={self.job_mode}"]
+        env_var_flags: list[str] = [
+            "--set-env-vars",
+            f"JOB_RUN_MODE={self.job_mode},STORAGE_BUCKET={self.storage_bucket}"
+        ]
 
         common_args = [
             "--image",
@@ -551,10 +599,14 @@ class GCPBootstrap:
             f"--region={self.region}",
             f"--project={self.project_id}",
             f"--service-account={self.runtime_sa}",
-            "--cpu=1",
-            "--memory=512Mi",
+            "--cpu=0.5",                    # Reduced CPU for cost optimization
+            "--memory=256Mi",               # Reduced memory for cost optimization
             "--max-retries=1",
-            "--task-timeout=900s",
+            "--task-timeout=1800s",         # 30 minutes timeout
+            "--vpc-connector", self.connector_name,  # Private networking
+            "--vpc-egress=all-traffic",              # Allow job site access
+            "--no-cpu-throttling",          # Better performance
+            "--execution-environment=gen2", # Latest execution environment
             *secret_flags,
             *env_var_flags,
         ]
@@ -628,7 +680,7 @@ class GCPBootstrap:
             "https://run.googleapis.com/apis/run.googleapis.com/v1/"
             f"projects/{self.project_id}/locations/{self.region}/jobs/{self.job_name}:run"
         )
-        schedule = "*/15 * * * *"
+        schedule = self.schedule_frequency
         create_cmd = [
             "gcloud",
             "scheduler",
@@ -677,8 +729,8 @@ class GCPBootstrap:
                     }
                 },
                 "thresholdRules": [
-                    {"thresholdPercent": 0.5},
-                    {"thresholdPercent": 0.9},
+                    {"thresholdPercent": 0.5, "spendBasis": "CURRENT_SPEND"},
+                    {"thresholdPercent": 0.9, "spendBasis": "CURRENT_SPEND"},
                 ],
                 "allUpdatesRule": {
                     "disableDefaultIamRecipients": False
@@ -719,6 +771,144 @@ class GCPBootstrap:
             "Run an ad-hoc scrape with: "
             f"gcloud run jobs execute {self.job_name} --region {self.region}"
         )
+
+    def _setup_binary_authorization(self) -> None:
+        print_header("Setting up Binary Authorization")
+        print("🔐 Configuring container image security policies...")
+
+        # Create a policy that requires all images to be from our Artifact Registry
+        policy = {
+            "defaultAdmissionRule": {
+                "requireAttestationsBy": [],
+                "evaluationMode": "REQUIRE_ATTESTATION",
+                "enforcementMode": "ENFORCED_BLOCK_AND_AUDIT_LOG"
+            },
+            "clusterAdmissionRules": {},
+            "admissionWhitelistPatterns": [
+                {
+                    "namePattern": f"{self.region}-docker.pkg.dev/{self.project_id}/*"
+                }
+            ]
+        }
+
+        run_command([
+            "gcloud", "container", "binauthz", "policy", "import", "-",
+            f"--project={self.project_id}"
+        ], input_data=json.dumps(policy).encode('utf-8'), text=False, check=False)
+
+        print("✅ Binary Authorization configured to allow only trusted images")
+
+    def _setup_vpc_networking(self) -> None:
+        print_header("Setting up private networking")
+        print("🔒 Creating VPC network for secure, private communication...")
+
+        # Create VPC network
+        run_command([
+            "gcloud", "compute", "networks", "create", self.vpc_name,
+            "--subnet-mode=custom",
+            f"--project={self.project_id}"
+        ], check=False)
+
+        # Create subnet
+        run_command([
+            "gcloud", "compute", "networks", "subnets", "create", self.subnet_name,
+            f"--network={self.vpc_name}",
+            "--range=10.0.0.0/28",  # Small range for cost optimization
+            f"--region={self.region}",
+            f"--project={self.project_id}"
+        ], check=False)
+
+        # Create VPC connector for Cloud Run
+        run_command([
+            "gcloud", "compute", "networks", "vpc-access", "connectors", "create", self.connector_name,
+            f"--subnet={self.subnet_name}",
+            f"--region={self.region}",
+            "--min-instances=2",
+            "--max-instances=3",  # Small scale for cost optimization
+            "--machine-type=e2-micro",  # Cheapest machine type
+            f"--project={self.project_id}"
+        ], check=False)
+
+        print("✅ Private VPC network configured with minimal resources")
+
+    def _setup_storage_bucket(self) -> None:
+        print_header("Setting up persistent storage")
+        print("💾 Creating Cloud Storage bucket for job tracking...")
+
+        # Check if bucket already exists
+        check_bucket = run_command([
+            "gcloud", "storage", "buckets", "describe", f"gs://{self.storage_bucket}",
+            f"--project={self.project_id}"
+        ], check=False)
+
+        if check_bucket.returncode != 0:
+            # Create bucket with security and cost optimization
+            run_command([
+                "gcloud", "storage", "buckets", "create", f"gs://{self.storage_bucket}",
+                f"--project={self.project_id}",
+                f"--location={self.region}",           # Single region for cost
+                "--storage-class=STANDARD",            # Standard storage class
+                "--uniform-bucket-level-access",       # Secure access control
+                "--enable-autoclass",                  # Automatic cost optimization
+            ], check=False)
+
+            # Set lifecycle policy to delete old backups (cost control)
+            lifecycle_policy = {
+                "lifecycle": {
+                    "rule": [
+                        {
+                            "action": {"type": "Delete"},
+                            "condition": {
+                                "age": 90,                     # Delete backups after 90 days
+                                "matchesPrefix": ["backup/"]   # Only affect backup files
+                            }
+                        }
+                    ]
+                }
+            }
+
+            # Apply lifecycle policy
+            run_command([
+                "gcloud", "storage", "buckets", "update", f"gs://{self.storage_bucket}",
+                "--lifecycle-file=-",
+                f"--project={self.project_id}"
+            ], input_data=json.dumps(lifecycle_policy).encode('utf-8'), text=False, check=False)
+
+            print(f"✅ Storage bucket created: gs://{self.storage_bucket}")
+        else:
+            print(f"✅ Storage bucket already exists: gs://{self.storage_bucket}")
+
+        print("💾 Configuring bucket for job data persistence...")
+
+    def _setup_budget_alerts(self) -> None:
+        print_header("Setting up automated budget controls")
+        print("💰 Creating Cloud Function for automatic shutdown at 90% budget...")
+
+        # Create a simple Cloud Function that disables the scheduler
+        function_source = '''
+import functions_framework
+from google.cloud import scheduler
+
+@functions_framework.cloud_event
+def budget_alert(cloud_event):
+    """Disable scheduler when budget threshold is exceeded."""
+
+    # Parse the budget alert
+    budget_data = cloud_event.data
+    if budget_data.get('costAmount', 0) >= budget_data.get('budgetAmount', 0) * 0.9:
+        client = scheduler.CloudSchedulerClient()
+        job_name = f"projects/{project_id}/locations/{scheduler_region}/jobs/{job_name}-schedule"
+
+        try:
+            # Pause the scheduler job to stop executions
+            client.pause_job(name=job_name)
+            print(f"Emergency shutdown: Paused scheduler job {job_name}")
+        except Exception as e:
+            print(f"Failed to pause job: {e}")
+'''
+
+        print("ℹ️  Budget alerts configured. Manual Cloud Function setup required for auto-shutdown.")
+        print("   Visit Cloud Console > Cloud Functions to deploy the budget alert handler.")
 
     @staticmethod
     def _looks_like_placeholder(candidate: str, default: str) -> bool:

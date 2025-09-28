@@ -55,7 +55,7 @@ jobs:
 
       - name: Run Safety Check
         id: safety
-        run: safety scan --sarif --output safety-results.sarif || true
+        run: safety scan --output sarif > safety-results.sarif || true
         env:
           SAFETY_API_KEY: ${{ secrets.SAFETY_API_KEY }}
 

@@ -117,7 +117,7 @@ Please provide:
 - **Configuration**: `[tool.safety]` block in `pyproject.toml` enforces the blocking policy and output format (JSON for automation).
 - **Project metadata**: `config/.safety-project.ini` links findings back to this repository.
 - **CI coverage**: `.github/workflows/security.yml` and `.github/workflows/enhanced-security.yml` run `safety scan` with SARIF uploads and the same blocking policy used locally.
-- **Local parity**: `scripts/enhanced-security-scan.sh` and `scripts/local-security-scan.sh` run Safety with automatic fallbacks, generate SARIF for GitHub uploads, and honour the Critical/High/Medium fix-required gate.
+- **Local parity**: `scripts/precommit-security-scan.sh` runs Safety with automatic fallbacks and honours the Critical/High/Medium fix-required gate.
 
 ## 📚 Security Resources
 
@@ -165,7 +165,7 @@ For urgent security matters:
 ## 📝 Quick Reference
 
 - Local-first processing ensures job data stays on your machine; keep `.env` permissions tight (`chmod 600 .env`).
-- Run `scripts/local-security-scan.sh` before committing to catch Bandit and Safety findings early.
+- Run `scripts/precommit-security-scan.sh` before committing to catch Bandit and Safety findings early.
 - Use virtual environments and keep dependencies updated to pick up security fixes quickly.
 - Monitor `data/logs/` for long-running deployments and rotate API keys periodically.
 
