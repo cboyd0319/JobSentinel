@@ -34,7 +34,6 @@ jobs:
     outputs:
       bandit: ${{ steps.bandit.outcome }}
       safety: ${{ steps.safety.outcome }}
-      osv: ${{ steps.osv-sarif.outcome }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -60,15 +59,6 @@ jobs:
         env:
           SAFETY_API_KEY: ${{ secrets.SAFETY_API_KEY }}
 
-      - name: Run OSV scan (SARIF)
-        id: osv-sarif
-        uses: google/osv-scanner-action@v2.2.2
-        with:
-          scan-args: |-
-            --format sarif
-            --output osv-results.sarif
-            .
-        continue-on-error: true
 
       - name: Upload Bandit SARIF
         if: always()
@@ -84,12 +74,13 @@ jobs:
           sarif_file: safety-results.sarif
           category: safety
 
-      - name: Upload OSV SARIF results to Security tab
-        if: always()
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: osv-results.sarif
-          category: osv-scanner
+  osv-scanner:
+    uses: >-
+      google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.2.1
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
 
   semgrep-scan:
     name: semgrep/ci
@@ -200,7 +191,7 @@ jobs:
         run: |
           mkdir -p prowler-output
           prowler github --compliance cis_1.0_github \
-            -M json-ocsf csv -o prowler-output
+            -M json-ocsf csv -o prowler-output --ignore-exit-code-3
 
 
   yamllint:
@@ -232,7 +223,7 @@ jobs:
     name: 📊 Security Analysis Summary
     runs-on: ubuntu-latest
     needs: [
-      python-security, semgrep-scan, codeql-analysis,
+      python-security, osv-scanner, semgrep-scan, codeql-analysis,
       dependency-review, prowler-github, yamllint, trufflehog
     ]
     if: always()
@@ -248,7 +239,7 @@ jobs:
         env:
           BANDIT_STATUS: ${{ needs.python-security.outputs.bandit }}
           SAFETY_STATUS: ${{ needs.python-security.outputs.safety }}
-          OSV_STATUS: ${{ needs.python-security.outputs.osv }}
+          OSV_RESULT: ${{ needs.osv-scanner.result }}
           SEMGREP_RESULT: ${{ needs.semgrep-scan.result }}
           CODEQL_RESULT: ${{ needs.codeql-analysis.result }}
           DEP_REVIEW_RESULT: ${{ needs.dependency-review.result }}

@@ -1,3 +1,4 @@
+---
 # Bandit configuration file for job scraper security scanning
 exclude_dirs:
   - ./data
@@ -9,7 +10,7 @@ exclude_dirs:
 # Security tests to run (comprehensive list)
 tests:
   - B101  # assert_used
-  - B102  # exec_used  
+  - B102  # exec_used
   - B103  # set_bad_file_permissions
   - B104  # hardcoded_bind_all_interfaces
   - B105  # hardcoded_password_string
@@ -72,5 +73,5 @@ skips: []
 # Confidence levels: LOW, MEDIUM, HIGH
 confidence: MEDIUM
 
-# Severity levels: LOW, MEDIUM, HIGH  
+# Severity levels: LOW, MEDIUM, HIGH
 severity: MEDIUM
