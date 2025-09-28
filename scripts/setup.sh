@@ -20,8 +20,8 @@ fi
 print_success "Homebrew is installed."
 
 # --- Step 2: Install Dependencies ---
-echo "Installing Python 3.11 and Git..."
-brew install python@3.11 git || print_error "Failed to install dependencies with Homebrew."
+echo "Installing Python 3.12 and Git..."
+brew install python@3.12 git || print_error "Failed to install dependencies with Homebrew."
 print_success "Python and Git are installed."
 
 # --- Step 3: Set up Python Virtual Environment ---

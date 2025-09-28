@@ -3,7 +3,7 @@
 Short, practical installation steps for the platforms I care about. If something doesn't work, open an issue and I'll try to help.
 
 Prereqs
-- Python 3.11+
+- Python 3.12+
 - Git
 - Internet (for dependencies and Playwright)
 

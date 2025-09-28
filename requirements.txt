@@ -1,8 +1,8 @@
 -i https://pkgs.safetycli.com/repository/chad-boyd/project/job-private-scraper-filter/pypi/simple/
 # Python Job Scraper Requirements
 #
-# Compatibility: Tested with Python 3.11-3.13
-# For optimal compatibility, Python 3.11 or 3.12 is recommended
+# Compatibility: Tested with Python 3.12-3.13
+# For optimal compatibility, Python 3.12 is recommended
 # On Python 3.13, some packages may require compilation from source
 
 # Core scraping and web automation

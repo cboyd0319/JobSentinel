@@ -13,6 +13,48 @@ param(
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
+# Security functions
+function Test-SecurePath {
+    param([string]$Path, [string]$BasePath = $null)
+    
+    # Resolve the path to absolute
+    $resolvedPath = Resolve-Path $Path -ErrorAction SilentlyContinue
+    if (-not $resolvedPath) {
+        # If path doesn't exist, resolve parent and append filename
+        $parent = Split-Path $Path -Parent
+        $leaf = Split-Path $Path -Leaf
+        $resolvedParent = Resolve-Path $parent -ErrorAction SilentlyContinue
+        if ($resolvedParent) {
+            $resolvedPath = Join-Path $resolvedParent $leaf
+        } else {
+            throw "Invalid path: $Path"
+        }
+    }
+    
+    # Check for directory traversal attempts
+    if ($Path -match "\\.\\." -or $Path -match "\\\\\\.\\.") {
+        throw "Security violation: Directory traversal attempt detected in path: $Path"
+    }
+    
+    # If BasePath specified, ensure resolved path is within it
+    if ($BasePath) {
+        $resolvedBase = Resolve-Path $BasePath -ErrorAction Stop
+        if (-not $resolvedPath.ToString().StartsWith($resolvedBase.ToString())) {
+            throw "Security violation: Path $Path is outside allowed directory $BasePath"
+        }
+    }
+    
+    return $resolvedPath.ToString()
+}
+
+function New-SecureDirectory {
+    param([string]$Path, [string]$BasePath = $null)
+    
+    $securePath = Test-SecurePath -Path $Path -BasePath $BasePath
+    New-Item -ItemType Directory -Path $securePath -Force | Out-Null
+    return $securePath
+}
+
 # Colors for output
 $Red = "`e[31m"
 $Green = "`e[32m"
@@ -129,76 +171,93 @@ function Get-PythonVersion {
     return $null
 }
 
-function Install-Chocolatey {
-    if (Get-Command choco -ErrorAction SilentlyContinue) {
-        Write-Success "Chocolatey is already installed"
-        # Update chocolatey to latest version
-        Write-Step "Updating Chocolatey..."
-        try {
-            choco upgrade chocolatey -y | Out-Null
-            Write-Success "Chocolatey updated to latest version"
-        } catch {
-            Write-Warning "Could not update Chocolatey, but continuing with existing version"
-        }
-        return
+function Install-Python-Secure {
+    $currentVersion = Get-PythonVersion
+    if ($currentVersion -and [Version]$currentVersion -ge [Version]"3.12.0") {
+        Write-Success "Python $currentVersion is already installed and meets requirements"
+        return $true
     }
 
-    Write-Step "Installing Chocolatey package manager..."
+    Write-Step "Installing Python 3.12 securely..."
     
     try {
-        Set-ExecutionPolicy Bypass -Scope Process -Force
-        [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-        Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+        # SECURE METHOD: Download Python directly from official source with verification
+        $pythonVersion = "3.12.11"
+        $pythonUrl = "https://www.python.org/ftp/python/$pythonVersion/python-$pythonVersion-amd64.exe"
+        $installerPath = "$env:TEMP\\python-$pythonVersion-installer.exe"
         
-        # Verify installation
-        $chocoPath = "$env:ProgramData\\chocolatey\\bin\\choco.exe"
-        if (Test-Path $chocoPath) {
-            # Refresh environment
-            $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-            Write-Success "Chocolatey installed successfully"
-        } else {
-            throw "Chocolatey installation verification failed"
+        Write-Info "Downloading Python $pythonVersion from official python.org..."
+        $progressPreference = 'SilentlyContinue'
+        Invoke-WebRequest -Uri $pythonUrl -OutFile $installerPath -UseBasicParsing
+        
+        # Verify the installer exists and has reasonable size
+        if (!(Test-Path $installerPath)) {
+            throw "Python installer download failed"
         }
+        
+        $fileSize = (Get-Item $installerPath).Length
+        if ($fileSize -lt 10MB) {
+            throw "Python installer appears corrupted (too small)"
+        }
+        
+        Write-Info "Installing Python with secure parameters..."
+        # Install Python with specific, secure parameters
+        $installArgs = @(
+            "/quiet",           # Silent installation
+            "InstallAllUsers=0", # Install for current user only (more secure)
+            "PrependPath=1",     # Add to PATH
+            "Include_test=0",    # Don't install tests (reduce attack surface)
+            "Include_doc=0"      # Don't install docs (reduce attack surface)
+        )
+        
+        $process = Start-Process -FilePath $installerPath -ArgumentList $installArgs -Wait -PassThru
+        
+        if ($process.ExitCode -eq 0) {
+            # Refresh PATH
+            $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+            
+            # Verify installation
+            $newVersion = Get-PythonVersion
+            if ($newVersion) {
+                Write-Success "Python $newVersion installed successfully"
+                return $true
+            } else {
+                throw "Python installation verification failed"
+            }
+        } else {
+            throw "Python installer returned exit code: $($process.ExitCode)"
+        }
+        
     } catch {
-        Write-Error "Failed to install Chocolatey: $($_.Exception.Message)"
-        Write-Info "Alternative: Download Python manually from python.org"
-        throw $_
+        Write-Error "Python installation failed: $($_.Exception.Message)"
+        Write-Host ""
+        Write-Host "${Yellow}🔧 Manual Installation Required:${Reset}"
+        Write-Host "   1. Go to https://python.org/downloads/"
+        Write-Host "   2. Download Python 3.12.x for Windows"
+        Write-Host "   3. Run installer and check 'Add Python to PATH'"
+        Write-Host "   4. Re-run this setup script"
+        Write-Host ""
+        return $false
+    } finally {
+        # Clean up installer file
+        if (Test-Path $installerPath) {
+            Remove-Item $installerPath -Force -ErrorAction SilentlyContinue
+        }
     }
+}
+
+function Install-Chocolatey {
+    # SECURITY: Chocolatey installation disabled for security reasons
+    Write-Warning "Chocolatey installation skipped for security - using direct Python installation"
+    return $false
 }
 
 function Install-Python {
-    $currentVersion = Get-PythonVersion
-    $requiredVersion = [version]"3.9.0"
-    
-    if ($currentVersion -and $currentVersion -ge $requiredVersion) {
-        Write-Success "Python $currentVersion is already installed (meets requirement >= 3.9)"
-        return
+    # Use secure Python installation method
+    $success = Install-Python-Secure
+    if (-not $success) {
+        throw "Python installation failed - cannot continue setup"
     }
-
-    Write-Step "Installing Python 3.11..."
-    
-    try {
-        choco install python311 -y --force
-        
-        # Refresh environment variables multiple ways for reliability
-        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-        
-        # Wait a moment for installation to complete
-        Start-Sleep -Seconds 3
-        
-        # Verify Python installation
-        $newVersion = Get-PythonVersion
-        if ($newVersion -and $newVersion -ge $requiredVersion) {
-            Write-Success "Python $newVersion installed and verified"
-        } else {
-            throw "Python installation verification failed"
-        }
-    } catch {
-        Write-Error "Failed to install Python via Chocolatey: $($_.Exception.Message)"
-        Write-Info "Please install Python 3.9+ manually from python.org and re-run this script with -SkipPython"
-        throw $_
-    }
-}
 
 function Install-Git {
     if (Get-Command git -ErrorAction SilentlyContinue) {
@@ -636,7 +695,8 @@ function Setup-TaskScheduler {
         $pollAction = New-ScheduledTaskAction -Execute $pythonPath -Argument "`"$agentPath`" --mode poll" -WorkingDirectory $InstallPath
         $pollTrigger = New-ScheduledTaskTrigger -RepetitionInterval (New-TimeSpan -Minutes 15) -Once -At (Get-Date).AddMinutes(2)
         $pollSettings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -ExecutionTimeLimit (New-TimeSpan -Minutes 10)
-        $pollPrincipal = New-ScheduledTaskPrincipal -UserId $env:USERNAME -LogonType Interactive -RunLevel Highest
+                # SECURITY: Create task principal with LIMITED privileges (no elevation)
+        $pollPrincipal = New-ScheduledTaskPrincipal -UserId $env:USERNAME -LogonType Interactive -RunLevel Limited
 
         Register-ScheduledTask -TaskName "JobScraper-Poll" -Action $pollAction -Trigger $pollTrigger -Settings $pollSettings -Principal $pollPrincipal -Force | Out-Null
         Write-Success "Created polling task (every 15 minutes)"
@@ -656,8 +716,9 @@ function Setup-TaskScheduler {
         Register-ScheduledTask -TaskName "JobScraper-Cleanup" -Action $cleanupAction -Trigger $cleanupTrigger -Settings $digestSettings -Principal $pollPrincipal -Force | Out-Null
         Write-Success "Created cleanup task (weekly on Sunday)"
 
-        # Create auto-update task (daily at 6 AM)
-        $updateAction = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-WindowStyle Hidden -ExecutionPolicy Bypass -Command `"cd '$InstallPath'; . './scripts/setup_windows.ps1'; Update-JobScraper -InstallPath '$InstallPath' -Quiet`"" -WorkingDirectory $InstallPath
+        # Create auto-update task (daily at 6 AM) - SECURE VERSION
+        $updateScript = "$InstallPath\\scripts\\secure-update.ps1"
+        $updateAction = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-WindowStyle Hidden -File '$updateScript' -InstallPath '$InstallPath' -Quiet" -WorkingDirectory $InstallPath
         $updateTrigger = New-ScheduledTaskTrigger -Daily -At "6:00AM"
         $updateSettings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -MultipleInstances IgnoreNew
         
@@ -706,7 +767,13 @@ function Create-StartupShortcuts {
         # Update shortcut
         $updateShortcut = $shell.CreateShortcut("$desktop\\Update Job Scraper.lnk")
         $updateShortcut.TargetPath = "powershell.exe"
-        $updateShortcut.Arguments = "-WindowStyle Normal -ExecutionPolicy Bypass -Command `"cd '$InstallPath'; . './scripts/setup_windows.ps1'; Update-JobScraper -InstallPath '$InstallPath'; Write-Host 'Press any key to close...'; `$null = `$Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')`""
+                # Update shortcut - SECURE VERSION
+        $updateShortcut = $shell.CreateShortcut("$desktop\\Update Job Scraper.lnk")
+        $updateShortcut.TargetPath = "powershell.exe"
+        $updateShortcut.Arguments = "-WindowStyle Normal -File '$InstallPath\\scripts\\secure-update.ps1' -InstallPath '$InstallPath'; Write-Host 'Press any key to close...'; `$null = `$Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')"
+        $updateShortcut.WorkingDirectory = $InstallPath
+        $updateShortcut.Description = "Check for and install Job Scraper updates (secure)"
+        $updateShortcut.Save()"
         $updateShortcut.WorkingDirectory = $InstallPath
         $updateShortcut.Description = "Check for and install Job Scraper updates"
         $updateShortcut.Save()

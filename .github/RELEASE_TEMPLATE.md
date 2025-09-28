@@ -63,7 +63,7 @@ python -m playwright install chromium
 ## Testing
 
 Tested on:
-- Python 3.11–3.13
+- Python 3.12–3.13
 - Windows, macOS, Ubuntu
 
 ## Notes

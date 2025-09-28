@@ -9,12 +9,14 @@ sys.path.insert(0, str(project_root))
 
 # Re-export specific items from src.database for backward compatibility
 from src.database import (
-    DatabaseManager,
     Job,
-    get_db_manager,
-    init_database,
-    store_job,
-    get_recent_jobs,
+    init_db,
+    get_job_by_hash,
+    add_job,
+    get_jobs_for_digest,
+    mark_jobs_digest_sent,
+    mark_job_alert_sent,
+    get_database_stats,
     cleanup_old_jobs
 )
 

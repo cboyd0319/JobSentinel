@@ -9,7 +9,7 @@ This is my personal project and it's still evolving. I make frequent changes and
 
 This is a local job-scraper I built to watch job boards I care about and to share with friends or anyone else who finds it useful. It runs on your machine and doesn't send your data anywhere.
 
-![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)
+![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 
 Table of contents

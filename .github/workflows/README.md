@@ -34,7 +34,7 @@ These are simple CI workflows I use to keep the project healthy across platforms
 
 1. **"python-version input not set" warning**
    - Resolved by explicit `python-version` specification in all workflows
-   - All workflows now use Python 3.12 as the default version
+   - All workflows now use Python 3.12 as the standard version
 
 2. **Excessive workflow runs**
    - CI pipeline uses path filtering to avoid unnecessary runs

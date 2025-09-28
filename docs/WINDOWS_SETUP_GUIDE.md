@@ -28,7 +28,10 @@ This software will:
    - Click "Check for updates"
    - Install any available updates and restart if needed
 
-2. **Open PowerShell as Administrator**
+2. **Open PowerShell as Administrator** 
+   
+   🔒 **Security Note**: Admin rights are needed **ONLY** for initial setup (Python install, scheduled tasks). After setup, everything runs as a **limited user** with no elevated privileges.
+   
    - Press `Windows key + X`
    - Click "Windows PowerShell (Admin)" or "Terminal (Admin)"
    - When it asks "Do you want to allow this app to make changes?", click **YES**
@@ -48,7 +51,7 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 
 **What happens next:**
 - **Pre-flight checks**: Verifies admin rights and internet connection
-- **Downloads and installs Python 3.11** (if not already installed)
+- **Downloads and installs Python 3.12** (if not already installed)
 - **Downloads and installs Git** (for project updates)
 - **Creates isolated Python environment** (keeps your system clean)
 - **Downloads all job scraper files** from GitHub
@@ -335,11 +338,44 @@ If you want AI-enhanced job matching:
 
 ## 🔒 **Security & Privacy**
 
+### **🛡️ Secure Architecture (Why Admin is Needed Only Once)**
+
+**Admin Rights Required ONLY for Initial Setup:**
+- **Python installation** (if not already installed)
+- **Scheduled task creation** (Windows requirement)
+- **System dependency installation** (Git, web drivers)
+
+**After Setup: 100% Non-Admin Operation** ✅
+- **All tasks run as LIMITED user** (RunLevel Limited)
+- **No elevated privileges** during normal operation
+- **Installs to user directory only** (`%USERPROFILE%\job-scraper`)
+- **No system modifications** after initial setup
+
+### **🏢 Production Deployment (Recommended)**
+
+**Best Practice: Dedicated Service Account**
+```powershell
+# 1. Create dedicated non-admin user (as administrator)
+net user jobscraper SecurePassword123! /add /passwordchg:no
+net localgroup "Users" jobscraper /add
+
+# 2. Login as jobscraper user and run setup
+runas /user:jobscraper "powershell -File setup_windows.ps1"
+```
+
+**Why This Matters:**
+- **🔒 Principle of least privilege** - runs with minimal permissions
+- **🚫 No admin access** during daily operation  
+- **🔐 Isolated from main user account** - better security
+- **📊 Clean audit trail** - separate user for job scraping activity
+
+### **🔐 Data Security**
 - **Runs 100% on your computer** - no external dependencies
 - **Your data never leaves your machine** (except for configured notifications)
 - **No telemetry or tracking**
 - **API keys stored securely** in local `.env` file
 - **Rate-limited scraping** respects website terms
+- **Database encryption** - SQLite with secure file permissions
 
 ---
 
@@ -368,9 +404,9 @@ Jobs are automatically deduplicated - you'll never get the same job alert twice.
 
 If the automatic script doesn't work:
 
-### **Step 1: Install Python 3.11**
+### **Step 1: Install Python 3.12**
 1. Go to python.org
-2. Download Python 3.11.x for Windows
+2. Download Python 3.12.x for Windows
 3. **Important**: Check "Add Python to PATH" during installation
 
 ### **Step 2: Download Project**
@@ -408,6 +444,36 @@ This system is designed to be **completely self-sufficient**. If something goes 
 2. **Try the desktop shortcuts** to test individual components
 3. **Use the health check** to diagnose issues
 4. **The system auto-recovers** from most problems
+
+---
+
+## 🔧 **Troubleshooting & Debug Mode**
+
+### **Setup Debug Mode**
+If setup fails, run with verbose logging:
+```powershell
+.\setup_windows.ps1 -Verbose
+```
+This provides timestamped detailed output for troubleshooting.
+
+### **Agent Debug Mode**
+For detailed scraping logs:
+```powershell
+cd %USERPROFILE%\job-scraper
+.\.venv\Scripts\python.exe agent.py --mode test --verbose
+.\.venv\Scripts\python.exe agent.py --mode poll -v
+```
+
+**Debug Features:**
+- **Detailed HTTP logs** - See exactly what's being scraped
+- **Database operation tracking** - Monitor data storage
+- **Error context** - Enhanced error messages
+- **Timing information** - Performance analysis
+
+### **Log Files**
+Check these for issues:
+- `data/logs/scraper_YYYYMMDD.log` - Scraping activity
+- `data/logs/errors_YYYYMMDD.log` - Error details
 
 **Remember**: This runs completely on your computer, so it works as long as your computer is on and connected to the internet!
 
