@@ -108,6 +108,7 @@ Please provide:
 - CodeQL analysis for code vulnerabilities
 - Security-focused CI/CD pipelines
 - Safety CLI dependency scanning with project policy (`config/.safety-project.ini`)
+- Benchmarked against CIS GitHub and GCP foundations (see docs/CIS Github Benchmark V1.1.0.PDF and docs/CIS_Google_Cloud_Platform_Foundation_Benchmark_v4.0.0.pdf)
 - Regular penetration testing recommendations
 
 #### Safety Dependency Scanning
@@ -122,6 +123,8 @@ Please provide:
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
 - [Python Security Guidelines](https://python.org/dev/security/)
 - [GitHub Security Best Practices](https://docs.github.com/en/code-security)
+- [CIS GitHub Benchmark v1.1.0 (PDF)](docs/CIS%20Github%20Benchmark%20V1.1.0.PDF)
+- [CIS Google Cloud Platform Foundation Benchmark v4.0.0 (PDF)](docs/CIS_Google_Cloud_Platform_Foundation_Benchmark_v4.0.0.pdf)
 
 ### For Users
 - [Secure Development Practices](CONTRIBUTING.md#security)

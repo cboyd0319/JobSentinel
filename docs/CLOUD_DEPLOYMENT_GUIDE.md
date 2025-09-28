@@ -15,13 +15,13 @@ The job scraper supports deployment to three major cloud platforms with built-in
 ### One-Command Deployment
 
 ```bash
-# Deploy to Google Cloud Run (recommended)
-curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/scripts/install.sh | bash -s -- --cloud-deploy gcp
+# Google Cloud Run (recommended, best free tier)
+python -m cloud.bootstrap --provider gcp
 
-# Deploy to AWS Lambda
+# AWS Lambda
 curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/scripts/install.sh | bash -s -- --cloud-deploy aws
 
-# Deploy to Azure Functions
+# Azure Functions
 curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/scripts/install.sh | bash -s -- --cloud-deploy azure
 ```
 
@@ -33,6 +33,9 @@ For more control and validation:
 # 1. Clone the repository
 git clone https://github.com/cboyd0319/job-private-scraper-filter.git
 cd job-private-scraper-filter
+
+# 1a. Automated provisioning
+python -m cloud.bootstrap --provider gcp
 
 # 2. Validate deployment readiness
 scripts/validate-cloud-config.sh gcp
@@ -49,9 +52,8 @@ scripts/enhanced-cost-monitor.py --provider gcp --check
 ### Required Tools
 
 **For GCP:**
-- `gcloud` CLI authenticated and configured
-- Docker installed and running
-- Billing account with alerts configured
+- No pre-installed tools required — `python -m cloud.bootstrap --provider gcp` installs the Cloud SDK during setup
+- Billing account with alerts configured (script guides the confirmation step)
 
 **For AWS:**
 - `aws` CLI authenticated and configured
@@ -113,6 +115,26 @@ scripts/enhanced-cost-monitor.py --provider gcp --check
 ## Deployment Architecture
 
 ### Google Cloud Run (Recommended)
+
+### Automated Cloud Run bootstrap (script overview)
+
+`python -m cloud.bootstrap --provider gcp` performs the following in sequence:
+
+- Installs the Google Cloud SDK if it is missing
+- Creates a dedicated project with billing linked
+- Enables Cloud Run, Cloud Build, Secret Manager, Cloud Scheduler, Artifact Registry, Pub/Sub, and Monitoring APIs
+- Builds the container image via Cloud Build and stores it in Artifact Registry
+- Stores `.env` values and `user_prefs.json` inside Secret Manager
+- Creates least-privilege service accounts for Cloud Run and Cloud Scheduler
+- Deploys a Cloud Run Job that executes `python src/agent.py --mode poll`
+- Creates a Cloud Scheduler job that triggers the Cloud Run Job every 15 minutes using OIDC
+- Configures a $5 USD budget guardrail via the Billing Budgets API
+
+You can re-run the script at any time; it safely updates existing resources and only prompts for confirmation when manual steps are required.
+
+Additional reference: Google’s official [Cloud Run sample applications](https://github.com/GoogleCloudPlatform/cloud-run-samples) showcase runtime patterns that align with this setup.
+
+
 
 ```mermaid
 graph TD

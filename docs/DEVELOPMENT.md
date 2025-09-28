@@ -72,6 +72,7 @@ This guide covers development setup, contribution workflows, and advanced usage 
 │   ├── deploy-cloud.sh       # Cloud deployment orchestrator
 │   ├── validate-cloud-config.sh  # Pre-deployment validation
 │   └── enhanced-cost-monitor.py  # Cost monitoring and protection
+├── cloud/                    # Cross-provider automation (Cloud Run bootstrap, etc.)
 ├── config/                   # Configuration files
 │   ├── bandit.yaml           # Security scanning configuration
 │   ├── .yamllint.yml         # YAML validation rules

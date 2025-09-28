@@ -73,6 +73,7 @@ $PROFILE
 bandit-report.*
 safety-report.*
 safety-results.*
+google-cloud-sdk-download/
 
 # Linting caches
 .ruff_cache/

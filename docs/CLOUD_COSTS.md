@@ -41,6 +41,7 @@ TIMEOUT: 15 minutes     # Kill if stuck
 - **Monthly Cost: $0** (for typical personal job scraping)
 - **After free tier: ~$1-3/month** for heavy usage
 - **Why:** Most generous free tier, scales to zero, dead simple deployment
+- **How:** Run `python -m cloud.bootstrap --provider gcp` for a fully automated, hardened setup
 
 ## Detailed Cost Breakdown
 

@@ -27,6 +27,10 @@ Table of contents
 - Contributing
 - License
 
+> 🎯 **Project priorities:** Ease of use and security come first. Every installer,
+> deployment path, and feature aims to be simple to adopt while defaulting to
+> hardened, least-privilege configurations.
+
 What it does
 - Monitors job boards on a schedule (default: every 15 minutes)
 - Filters and scores jobs using rules (and optionally AI)
@@ -44,9 +48,24 @@ Supported job boards
 
 Quick start
 
-**Universal Installer (Recommended)**
+**Recommended: free Google Cloud Run deployment (secure & automated)**
 
-One command for all platforms (macOS, Linux, Windows):
+The easiest, most secure way to run the scraper is the new Cloud Run bootstrapper.
+It installs the Google Cloud SDK if needed, creates a dedicated project, enables
+required APIs, stores secrets in Secret Manager, wires Cloud Scheduler, and sets
+up a $5 USD budget guardrail — all in one command:
+
+```bash
+python -m cloud.bootstrap --provider gcp
+```
+
+> ℹ️ The script pauses so you can confirm Google Cloud account creation and
+> billing activation (a Google requirement even for free tier usage). Everything
+> else is handled automatically with security-first defaults.
+
+**Local install (macOS, Linux, Windows)**
+
+Prefer to run everything on your own machine? Use the universal installer:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/scripts/install.sh | bash
@@ -56,9 +75,6 @@ curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filte
 ```bash
 # With AI integration (OpenAI, Gemini, or Anthropic)
 curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/scripts/install.sh | bash -s -- --ai-enhanced openai
-
-# Deploy to cloud (with cost protections)
-curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/scripts/install.sh | bash -s -- --cloud-deploy gcp
 
 # Help and all options
 curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/scripts/install.sh | bash -s -- --help
@@ -133,16 +149,28 @@ OPENAI_API_KEY=sk-your-api-key-here
 
 Cloud deployment (with cost protection)
 
-The universal installer supports cloud deployment with built-in cost guardrails:
+**New cross-platform bootstrapper:** provision an entire Google Cloud Run Jobs
+stack without pre-installed tooling. A single command works on Windows, macOS,
+and Linux:
 
 ```bash
-# Google Cloud Run (recommended - generous free tier)
+python -m cloud.bootstrap --provider gcp
+```
+
+The guided workflow installs the Cloud SDK if necessary, creates a dedicated
+project, enables required APIs, builds the container via Cloud Build, configures
+Secret Manager, and wires Cloud Scheduler for a 15-minute polling cadence.
+
+Legacy installer flows remain available:
+
+```bash
+# Google Cloud Run (legacy path)
 curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/scripts/install.sh | bash -s -- --cloud-deploy gcp
 
 # AWS Lambda
 curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/scripts/install.sh | bash -s -- --cloud-deploy aws
 
-# Azure Container Instances  
+# Azure Container Instances
 curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/scripts/install.sh | bash -s -- --cloud-deploy azure
 ```
 
@@ -203,6 +231,7 @@ The project follows an organized structure for better maintainability:
 │   ├── setup-dev-tools.sh    # Developer tooling bootstrap
 │   ├── local-security-scan.sh # Pre-commit security gate (Bandit + Safety)
 │   └── enhanced-security-scan.sh # Comprehensive local security suite
+├── cloud/                    # Cross-provider automation (Cloud Run bootstrap, etc.)
 ├── config/                   # Configuration files
 │   ├── bandit.yaml           # Python security linting config
 │   ├── .yamllint.yml         # YAML validation rules

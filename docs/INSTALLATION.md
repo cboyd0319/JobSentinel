@@ -2,6 +2,27 @@
 
 Short, practical installation steps for the platforms I care about. If something doesn't work, open an issue and I'll try to help.
 
+Priorities
+- ✅ Ease of use — minimal steps, predictable defaults
+- ✅ Security — least privilege, secrets handled properly
+
+## Recommended: Google Cloud Run (free tier, fully automated)
+
+If you want the simplest and safest deployment, use the Cloud Run bootstrapper.
+It installs the Google Cloud SDK when necessary, creates and secures a new
+project, deploys the container, wires Cloud Scheduler, and enables budget
+alerts — all in one command:
+
+```bash
+python -m cloud.bootstrap --provider gcp
+```
+
+The only manual task is confirming you have created a Google Cloud account and
+enabled billing (Google requires this even for the free tier). The script pauses
+until you confirm, then continues automatically.
+
+## Local installation
+
 Prereqs
 - Python 3.12+
 - Git

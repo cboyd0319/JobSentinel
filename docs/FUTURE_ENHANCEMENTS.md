@@ -15,6 +15,8 @@ Here are a bunch of ideas I might work on eventually. No promises — just a lis
 
 ## 🚀 Next Priority Items
 
+- **Provider bootstrap parity**: extend `python -m cloud.bootstrap` to cover AWS Lambda and Azure Functions while reusing the new provider registry
+
 **Windows Setup Hardening:**
 - 🔄 **Rock-solid Windows Installation**: PowerShell script testing and validation
 - 🔄 **Cross-platform Consistency**: Ensure identical experience across macOS/Linux/Windows
