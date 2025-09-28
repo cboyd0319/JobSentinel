@@ -32,7 +32,7 @@ from cloud.utils import (
     which,
 )
 
-INSTALL_VERSION = "465.0.0"
+INSTALL_VERSION = "540.0.0"
 
 
 class GCPBootstrap:
@@ -545,30 +545,7 @@ class GCPBootstrap:
 
         env_var_flags: list[str] = ["--set-env-vars", f"JOB_RUN_MODE={self.job_mode}"]
 
-        create_command = [
-            "gcloud",
-            "run",
-            "jobs",
-            "create",
-            self.job_name,
-            "--image",
-            self.image_uri,
-            f"--region={self.region}",
-            f"--project={self.project_id}",
-            f"--service-account={self.runtime_sa}",
-            "--cpu=1",
-            "--memory=512Mi",
-            "--max-retries=1",
-            "--task-timeout=900s",
-            *secret_flags,
-            *env_var_flags,
-        ]
-        update_command = [
-            "gcloud",
-            "run",
-            "jobs",
-            "update",
-            self.job_name,
+        common_args = [
             "--image",
             self.image_uri,
             f"--region={self.region}",
@@ -582,8 +559,28 @@ class GCPBootstrap:
             *env_var_flags,
         ]
 
-        run_command(create_command, check=False)
-        run_command(update_command)
+        describe_job = run_command(
+            [
+                "gcloud",
+                "run",
+                "jobs",
+                "describe",
+                self.job_name,
+                f"--region={self.region}",
+                f"--project={self.project_id}",
+            ],
+            capture_output=True,
+            check=False,
+        )
+
+        if describe_job.returncode == 0:
+            print(f"Job '{self.job_name}' already exists. Updating...")
+            command = ["gcloud", "run", "jobs", "update", self.job_name, *common_args]
+        else:
+            print(f"Job '{self.job_name}' not found. Creating...")
+            command = ["gcloud", "run", "jobs", "create", self.job_name, *common_args]
+
+        run_command(command)
 
 
     def _run_prowler_scan(self) -> None:
@@ -592,12 +589,14 @@ class GCPBootstrap:
         timestamp = datetime.utcnow().strftime('%Y%m%d-%H%M%S')
         output_file = reports_dir / f'prowler-cis-gcp-{timestamp}.json'
 
-        try:
-            run_command(['python3', '-m', 'pip', 'install', '--quiet', 'prowler'], check=True)
-        except Exception as exc:
-            print(f"⚠️  Unable to install Prowler CLI automatically: {exc}")
-            print('   • Install manually: python3 -m pip install prowler')
-            return
+        if not which("prowler"):
+            print("Prowler not found, attempting to install...")
+            try:
+                run_command([sys.executable, '-m', 'pip', 'install', '--quiet', 'prowler'], check=True)
+            except subprocess.CalledProcessError as exc:
+                print(f"⚠️  Unable to install Prowler CLI automatically: {exc}")
+                print('   • Install manually: python3 -m pip install prowler')
+                return
 
         try:
             run_command([
@@ -614,7 +613,7 @@ class GCPBootstrap:
                 '--region',
                 self.region
             ])
-        except Exception as exc:
+        except subprocess.CalledProcessError as exc:
             print(f"⚠️  Prowler scan failed: {exc}")
             print('   • You can rerun manually: prowler gcp --compliance cis_4.0_gcp --output-types json')
             return

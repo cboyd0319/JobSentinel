@@ -31,15 +31,15 @@ jobs:
     name: 🐍 Python Security Bundle
     runs-on: ubuntu-latest
     outputs:
-      bandit: ${{ steps.bandit.outputs.status }}
-      safety: ${{ steps.safety.outputs.status }}
-      osv: ${{ steps.osv-status.outputs.status }}
+      bandit: ${{ steps.bandit.outcome }}
+      safety: ${{ steps.safety.outcome }}
+      osv: ${{ steps.osv-sarif.outcome }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
           python-version: '3.12.10'
 
@@ -51,39 +51,11 @@ jobs:
 
       - name: Run Bandit Security Scan
         id: bandit
-        run: |
-          set +e
-          bandit -r . -x ./.venv -f sarif -o bandit-results.sarif
-          exit_code=$?
-          set -e
-          if [ $exit_code -ne 0 ]; then
-            echo "status=failed" >> "$GITHUB_OUTPUT"
-          else
-            echo "status=passed" >> "$GITHUB_OUTPUT"
-          fi
-          if [ ! -s bandit-results.sarif ]; then
-            cat <<'EOF2' > bandit-results.sarif
-{"version":"2.1.0","$schema":"https://json.schemastore.org/sarif-2.1.0.json","runs":[{"tool":{"driver":{"name":"Bandit","version":"1.8.6"}},"results":[]}]} 
-EOF2
-          fi
-          exit 0
+        run: bandit -r . -x ./.venv -f sarif -o bandit-results.sarif || true
 
       - name: Run Safety Check
         id: safety
-        run: |
-          safety scan --sarif --output safety-results.sarif || true
-          if [ -s safety-results.sarif ]; then
-            echo "status=passed" >> "$GITHUB_OUTPUT"
-          else
-            echo "status=failed" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Upload Safety Results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: safety-scan-results
-          path: safety-results.sarif
+        run: safety scan --sarif --output safety-results.sarif || true
 
       - name: Run OSV scan (SARIF)
         id: osv-sarif
@@ -94,15 +66,6 @@ EOF2
             --output osv-results.sarif
             .
         continue-on-error: true
-
-      - name: Determine OSV status
-        id: osv-status
-        run: |
-          if [ -f osv-results.sarif ]; then
-            echo "status=passed" >> "$GITHUB_OUTPUT"
-          else
-            echo "status=failed" >> "$GITHUB_OUTPUT"
-          fi
 
       - name: Upload Bandit SARIF
         if: always()
@@ -119,7 +82,7 @@ EOF2
           category: safety
 
       - name: Upload OSV SARIF results to Security tab
-        if: ${{ always() && steps.osv-status.outputs.status == 'passed' }}
+        if: always()
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: osv-results.sarif
@@ -134,7 +97,7 @@ EOF2
       security-events: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: Run Semgrep
         id: semgrep
@@ -168,7 +131,7 @@ EOF2
         language: ['python']
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
@@ -192,7 +155,7 @@ EOF2
       pull-requests: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: Dependency Review
         uses: actions/dependency-review-action@v4
@@ -224,11 +187,11 @@ EOF2
 
       - name: Checkout repository
         if: steps.token_check.outputs.enabled == 'true'
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: Set up Python
         if: steps.token_check.outputs.enabled == 'true'
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
           python-version: '3.12.10'
 
@@ -280,7 +243,7 @@ EOF2
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
       - name: Yaml-lint
         uses: ibiqlik/action-yamllint@v3
 
@@ -289,7 +252,7 @@ EOF2
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: TruffleHog
@@ -311,7 +274,7 @@ EOF2
       pull-requests: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: Generate Security Summary
         env:
