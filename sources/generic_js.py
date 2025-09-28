@@ -25,11 +25,13 @@ async def scrape_js_career_page(
         parsed_url = urlparse(board_url)
         domain = parsed_url.netloc.lower()
 
-        if "ashbyhq.com" in page_content or domain.endswith("ashbyhq.com"):
+        # Secure platform detection using only domain validation
+        # Avoid checking page content to prevent URL substring sanitization issues
+        if domain.endswith("ashbyhq.com"):
             logger.info(f"Detected AshbyHQ platform for {company_name}")
             return await _scrape_ashby(page_content, board_url, company_name)
 
-        if "smartrecruiters.com" in page_content or domain.endswith("smartrecruiters.com"):
+        if domain.endswith("smartrecruiters.com"):
             logger.info(f"Detected SmartRecruiters platform for {company_name}")
             return await _scrape_smartrecruiters(page_content, board_url, company_name)
 
