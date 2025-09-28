@@ -289,7 +289,7 @@ EOF
     cat > "$CLOUD_DIR/cloudbuild.yaml" << EOF
 steps:
   # Install dependencies
-  - name: 'python:3.12-slim'
+  - name: 'python:3.12.10-slim'
     entrypoint: 'bash'
     args:
       - '-c'

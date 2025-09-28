@@ -62,10 +62,15 @@ function Update-JobScraperSecure {
         $configBackup = "$env:TEMP\\job-scraper-secure-backup-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
         New-Item -ItemType Directory -Path $configBackup -Force | Out-Null
         
-        $configFiles = @(".env", "user_prefs.json")
+        $configFiles = @(".env", "config/user_prefs.json")
         foreach ($file in $configFiles) {
             if (Test-Path $file) {
-                Copy-Item $file "$configBackup\\$file" -Force
+                $destination = Join-Path $configBackup $file
+                $destDir = Split-Path $destination
+                if (!(Test-Path $destDir)) {
+                    New-Item -ItemType Directory -Path $destDir -Force | Out-Null
+                }
+                Copy-Item $file $destination -Force
                 Write-SecureLog "Backed up $file" "SECURITY"
             }
         }
@@ -120,7 +125,7 @@ function Update-JobScraperSecure {
                 Write-SecureLog "Updating from version '$currentVersion' to '$newVersion'..." "INFO"
                 
                 # Secure file copy with validation
-                $excludePatterns = @(".env", "user_prefs.json", "data\\*", ".venv\\*", ".git\\*")
+                $excludePatterns = @(".env", "config/user_prefs.json", "data\\*", ".venv\\*", ".git\\*")
                 
                 Get-ChildItem $tempDir -Recurse | ForEach-Object {
                     $relativePath = $_.FullName.Substring($tempDir.Length + 1)
@@ -182,6 +187,10 @@ function Update-JobScraperSecure {
             # Restore user configuration files
             foreach ($file in $configFiles) {
                 if (Test-Path "$configBackup\\$file") {
+                    $destDir = Split-Path $file
+                    if ($destDir -and !(Test-Path $destDir)) {
+                        New-Item -ItemType Directory -Path $destDir -Force | Out-Null
+                    }
                     Copy-Item "$configBackup\\$file" $file -Force
                     Write-SecureLog "Restored $file" "SECURITY"
                 }
@@ -223,6 +232,10 @@ except Exception as e:
         if (Test-Path $configBackup) {
             foreach ($file in $configFiles) {
                 if (Test-Path "$configBackup\\$file") {
+                    $destDir = Split-Path $file
+                    if ($destDir -and !(Test-Path $destDir)) {
+                        New-Item -ItemType Directory -Path $destDir -Force | Out-Null
+                    }
                     Copy-Item "$configBackup\\$file" $file -Force
                     Write-SecureLog "Restored $file from backup" "SECURITY"
                 }

@@ -206,11 +206,15 @@ CLEANUP_DAYS=90
         }
     }
 
-    # Create user_prefs.json if it doesn't exist
-    if (!(Test-Path "user_prefs.json")) {
-        if (Test-Path "user_prefs.example.json") {
-            Copy-Item "user_prefs.example.json" "user_prefs.json"
-            Write-Success "Created user_prefs.json from example"
+    if (!(Test-Path "config")) {
+        New-Item -ItemType Directory -Path "config" -Force | Out-Null
+    }
+
+    # Create config/user_prefs.json if it doesn't exist
+    if (!(Test-Path "config/user_prefs.json")) {
+        if (Test-Path "config/user_prefs.example.json") {
+            Copy-Item "config/user_prefs.example.json" "config/user_prefs.json"
+            Write-Success "Created config/user_prefs.json from example"
         } else {
             @"
 {
@@ -229,8 +233,8 @@ CLEANUP_DAYS=90
   "fetch_descriptions": true,
   "max_companies_per_run": 10
 }
-"@ | Out-File -FilePath "user_prefs.json" -Encoding UTF8
-            Write-Success "Created default user_prefs.json"
+"@ | Out-File -FilePath "config/user_prefs.json" -Encoding UTF8
+            Write-Success "Created default config/user_prefs.json"
         }
     }
 
@@ -248,7 +252,7 @@ function Setup-TaskScheduler {
     Write-Info "Setting up Windows Task Scheduler..."
 
     $pythonPath = Join-Path $InstallPath ".venv\Scripts\python.exe"
-    $agentPath = Join-Path $InstallPath "agent.py"
+    $agentPath = Join-Path $InstallPath "src\agent.py"
     $logPath = Join-Path $InstallPath "data\logs\scheduler.log"
 
     # Create polling task (every 15 minutes)
@@ -298,7 +302,7 @@ function Create-StartupShortcuts {
     # Test shortcut
     $testShortcut = $shell.CreateShortcut("$desktop\Test Job Scraper.lnk")
     $testShortcut.TargetPath = "powershell.exe"
-    $testShortcut.Arguments = "-Command `"cd '$InstallPath'; .\.venv\Scripts\python.exe agent.py --mode test; pause`""
+    $testShortcut.Arguments = "-Command `"cd '$InstallPath'; .\.venv\Scripts\python.exe src/agent.py --mode test; pause`""
     $testShortcut.WorkingDirectory = $InstallPath
     $testShortcut.Description = "Test Job Scraper notifications"
     $testShortcut.Save()
@@ -306,7 +310,7 @@ function Create-StartupShortcuts {
     # Manual run shortcut
     $runShortcut = $shell.CreateShortcut("$desktop\Run Job Scraper.lnk")
     $runShortcut.TargetPath = "powershell.exe"
-    $runShortcut.Arguments = "-Command `"cd '$InstallPath'; .\.venv\Scripts\python.exe agent.py --mode poll; pause`""
+    $runShortcut.Arguments = "-Command `"cd '$InstallPath'; .\.venv\Scripts\python.exe src/agent.py --mode poll; pause`""
     $runShortcut.WorkingDirectory = $InstallPath
     $runShortcut.Description = "Manually run Job Scraper"
     $runShortcut.Save()
@@ -353,7 +357,7 @@ try {
     Write-Info ""
     Write-Info "Next steps:"
     Write-Info "1. Edit $InstallPath\.env with your notification settings"
-    Write-Info "2. Edit $InstallPath\user_prefs.json with your job preferences"
+    Write-Info "2. Edit $InstallPath\config/user_prefs.json with your job preferences"
     Write-Info "3. Use desktop shortcuts to test the setup"
     Write-Info "4. Check Task Scheduler for automated runs"
     Write-Info ""

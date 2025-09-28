@@ -42,6 +42,7 @@ data/
 
 # User configuration files (should be created from examples)
 user_prefs.json
+config/user_prefs.json
 
 # Runtime files and logs
 *.log

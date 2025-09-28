@@ -9,7 +9,7 @@ This is my personal project and it's still evolving. I make frequent changes and
 
 This is a local job-scraper I built to watch job boards I care about and to share with friends or anyone else who finds it useful. It runs on your machine and doesn't send your data anywhere.
 
-![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)
+![Python 3.12.10](https://img.shields.io/badge/python-3.12.10-blue.svg)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 
 Table of contents
@@ -104,7 +104,7 @@ Copy the examples and edit them:
 
 ```bash
 cp .env.example .env
-cp user_prefs.example.json user_prefs.json
+cp config/user_prefs.example.json config/user_prefs.json
 ```
 
 Notifications
@@ -123,7 +123,7 @@ SMTP_PASS=your_app_password
 DIGEST_TO=your_email@gmail.com
 ```
 
-Job filters (example `user_prefs.json`)
+Job filters (example `config/user_prefs.json`)
 
 ```json
 {
@@ -154,12 +154,15 @@ stack without pre-installed tooling. A single command works on Windows, macOS,
 and Linux:
 
 ```bash
-python -m cloud.bootstrap --provider gcp
+python3 -m cloud.bootstrap --provider gcp
 ```
 
 The guided workflow installs the Cloud SDK if necessary, creates a dedicated
 project, enables required APIs, builds the container via Cloud Build, configures
 Secret Manager, and wires Cloud Scheduler for a 15-minute polling cadence.
+
+> 🔁 **Windows note:** Replace `python3` with `python` in the commands below if
+> the `python3` alias is not available on your system.
 
 Legacy installer flows remain available:
 
@@ -232,10 +235,11 @@ The project follows an organized structure for better maintainability:
 │   ├── local-security-scan.sh # Pre-commit security gate (Bandit + Safety)
 │   └── enhanced-security-scan.sh # Comprehensive local security suite
 ├── cloud/                    # Cross-provider automation (Cloud Run bootstrap, etc.)
-├── config/                   # Configuration files
+├── config/                   # Configuration & samples (.env.example, user_prefs.example.json, linters)
 │   ├── bandit.yaml           # Python security linting config
 │   ├── .yamllint.yml         # YAML validation rules
-│   └── .safety-project.ini   # Safety metadata (project id, findings url)
+│   ├── .safety-project.ini   # Safety metadata (project id, findings url)
+│   └── user_prefs.example.json # Copy to user_prefs.json and customize
 ├── utils/                    # Utility modules (config, logging, health checks)
 ├── sources/                  # Job board scrapers
 ├── notify/                   # Notification handlers
@@ -244,30 +248,30 @@ The project follows an organized structure for better maintainability:
 └── docs/                     # Documentation (installation, development, ops)
 ```
 
-**Backward Compatibility:** Root-level `agent.py`, `database.py`, and `web_ui.py` are maintained as entry point wrappers for existing scripts and workflows.
-
 Usage examples
 
 ```bash
 # Run job search and send alerts
-python agent.py --mode poll
+python3 -m src.agent --mode poll
 
 # Send daily digest email
-python agent.py --mode digest
+python3 -m src.agent --mode digest
 
 # Test notification setup
-python agent.py --mode test
+python3 -m src.agent --mode test
 
 # System health check
-python agent.py --mode health
+python3 -m src.agent --mode health
 
 # Clean up old data
-python agent.py --mode cleanup
+python3 -m src.agent --mode cleanup
 ```
+
+> 💡 On Windows, use `python` in place of `python3` when running these commands.
 
 Health checks
 
-Run `python agent.py --mode health` to get a quick status report.
+Run `python3 -m src.agent --mode health` to get a quick status report.
 
 Project layout (important files)
 
@@ -280,18 +284,18 @@ Project layout (important files)
 │   ├── install.sh         # Universal installer (all platforms)
 │   ├── setup.sh           # macOS/Linux setup
 │   └── setup_windows.ps1  # Enhanced Windows setup
-├── config/                 # Configuration files
-│   ├── bandit.yaml        # Python security linting config
-│   └── .yamllint.yml      # YAML validation rules
+├── cloud/                 # Cross-provider automation (Cloud Run bootstrap, etc.)
+├── config/                # Config samples & security policies
+│   ├── bandit.yaml       # Python security linting config
+│   ├── .yamllint.yml     # YAML validation rules
+│   ├── .safety-project.ini # Safety configuration
+│   └── user_prefs.example.json # Copy to user_prefs.json and customize
 ├── utils/                  # Helper modules (config, scraping, llm)
 ├── sources/               # Job board scrapers
 ├── notify/                # Slack/email notification code
 ├── matchers/              # Job scoring rules
 ├── docs/                  # Extra docs (setup, troubleshooting)
 ├── requirements.txt       # Python dependencies
-├── agent.py              # Entry point wrapper (backward compatibility)
-├── database.py           # Entry point wrapper (backward compatibility)
-└── web_ui.py             # Entry point wrapper (backward compatibility)
 ```
 
 Security & privacy
@@ -322,7 +326,7 @@ Need help?
   - [🚀 Installation](docs/INSTALLATION.md) - Alternative installation methods
   - [🛠️ Troubleshooting](docs/TROUBLESHOOTING.md) - Common issues and solutions
   - [🤖 ChatGPT Integration](docs/ChatGPT-Integration.md) - AI-enhanced job scoring setup
-- Run `python agent.py --mode health` for diagnostics
+- Run `python3 -m src.agent --mode health` for diagnostics
 - Open an issue if you find a bug — I try to help folks who are using this.
 
 Made with ❤️ — hope you find it useful.

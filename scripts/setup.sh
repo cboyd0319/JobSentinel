@@ -20,7 +20,7 @@ fi
 print_success "Homebrew is installed."
 
 # --- Step 2: Install Dependencies ---
-echo "Installing Python 3.12 and Git..."
+echo "Installing Python 3.12.10 and Git..."
 brew install python@3.12 git || print_error "Failed to install dependencies with Homebrew."
 print_success "Python and Git are installed."
 
@@ -48,11 +48,16 @@ else
   print_success ".env file already exists."
 fi
 
-if [ ! -f "user_prefs.json" ]; then
-  cp user_prefs.example.json user_prefs.json
-  print_success "Created user_prefs.json file. Edit it to customize your job search."
+mkdir -p config
+if [ ! -f "config/user_prefs.json" ]; then
+  if [ -f "config/user_prefs.example.json" ]; then
+    cp config/user_prefs.example.json config/user_prefs.json
+  else
+    cp examples/user_prefs.example.json config/user_prefs.json 2>/dev/null || true
+  fi
+  print_success "Created config/user_prefs.json file. Edit it to customize your job search."
 else
-  print_success "user_prefs.json already exists."
+  print_success "config/user_prefs.json already exists."
 fi
 
 # --- Step 7: Create Data Directories ---
@@ -69,8 +74,8 @@ echo "First, run 'crontab -e' to open the editor."
 echo "Then, copy and paste these lines, then save and exit:"
 echo ""
 echo "# --- Jobs Agent ---"
-echo "*/15 * * * * cd $AGENT_PATH && $PYTHON_PATH agent.py --mode poll >> $AGENT_PATH/data/logs/cron.log 2>&1"
-echo "0 9 * * * cd $AGENT_PATH && $PYTHON_PATH agent.py --mode digest >> $AGENT_PATH/data/logs/cron.log 2>&1"
+echo "*/15 * * * * cd $AGENT_PATH && $PYTHON_PATH src/agent.py --mode poll >> $AGENT_PATH/data/logs/cron.log 2>&1"
+echo "0 9 * * * cd $AGENT_PATH && $PYTHON_PATH src/agent.py --mode digest >> $AGENT_PATH/data/logs/cron.log 2>&1"
 echo "# --- End Jobs Agent ---"
 echo ""
-echo "✨ Remember to edit the '.env' and 'user_prefs.json' files with your preferences!"
+echo "✨ Remember to edit the '.env' and 'config/user_prefs.json' files with your preferences!"

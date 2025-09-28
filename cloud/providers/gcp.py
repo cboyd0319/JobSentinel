@@ -402,11 +402,11 @@ class GCPBootstrap:
 
             self.env_values[key] = candidate
 
-        prefs_template = self.project_root / "user_prefs.example.json"
+        prefs_template = self.project_root / "config/user_prefs.example.json"
         self.user_prefs_payload = prefs_template.read_text(encoding="utf-8")
         print(
-            "A default user_prefs.json template has been scheduled for upload to Secret"
-            " Manager. Update it after deployment if you need different companies."
+            "A default config/user_prefs.json template has been scheduled for upload to"
+            " Secret Manager. Update it after deployment if you need different companies."
         )
 
         mode_options = ["poll", "digest", "health"]
@@ -422,8 +422,6 @@ class GCPBootstrap:
                 secret_name = f"{self.env_secret_prefix}-{key.lower().replace('_', '-')}"
                 self._create_or_update_secret(secret_name, value)
                 self.env_secret_bindings[key] = secret_name
-            else:
-                self.env_plain_env[key] = ""
 
         if self.user_prefs_payload:
             self._create_or_update_secret(self.prefs_secret_name, self.user_prefs_payload)

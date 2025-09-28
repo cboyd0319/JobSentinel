@@ -28,7 +28,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: '3.12'
+          python-version: '3.12.10'
 
       - name: Install dependencies
         run: |
@@ -38,5 +38,5 @@ jobs:
       - name: Submit dependencies to GitHub
         uses: py-actions/py-dependency-submission@v4
         with:
-          python-version: '3.12'
+          python-version: '3.12.10'
           requirements: 'requirements.txt'

@@ -14,8 +14,10 @@ project, deploys the container, wires Cloud Scheduler, and enables budget
 alerts — all in one command:
 
 ```bash
-python -m cloud.bootstrap --provider gcp
+python3 -m cloud.bootstrap --provider gcp
 ```
+
+> 💡 On Windows, replace `python3` with `python` if the alias is not available.
 
 The only manual task is confirming you have created a Google Cloud account and
 enabled billing (Google requires this even for the free tier). The script pauses
@@ -24,7 +26,7 @@ until you confirm, then continues automatically.
 ## Local installation
 
 Prereqs
-- Python 3.12+
+- Python 3.12.10
 - Git
 - Internet (for dependencies and Playwright)
 
@@ -46,10 +48,10 @@ cd job-private-scraper-filter
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-python -m playwright install chromium
+python3 -m playwright install chromium
 copy .env.example .env
-copy user_prefs.example.json user_prefs.json
-# Edit .env and user_prefs.json
+copy config/user_prefs.example.json config/user_prefs.json
+# Edit .env and config/user_prefs.json
 ```
 
 macOS / Linux
@@ -60,17 +62,17 @@ cd job-private-scraper-filter
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-python -m playwright install chromium
+python3 -m playwright install chromium
 cp .env.example .env
-cp user_prefs.example.json user_prefs.json
-# Edit .env and user_prefs.json
+cp config/user_prefs.example.json config/user_prefs.json
+# Edit .env and config/user_prefs.json
 ```
 
 Post-install
 
-- Edit `.env` and `user_prefs.json` to your liking.
-- Test basic functionality: `python agent.py --mode health`
-- Test notifications: `python agent.py --mode test`
+- Edit `.env` and `config/user_prefs.json` to your liking.
+- Test basic functionality: `python3 -m src.agent --mode health`
+- Test notifications: `python3 -m src.agent --mode test`
 
 Automation
 
@@ -80,23 +82,23 @@ macOS/Linux: use `crontab -e` to add something like:
 
 ```bash
 # Run every 15 minutes
-*/15 * * * * cd /path/to/job-private-scraper-filter && .venv/bin/python agent.py --mode poll
+*/15 * * * * cd /path/to/job-private-scraper-filter && .venv/bin/python3 -m src.agent --mode poll
 
 # Daily digest at 9 AM
-0 9 * * * cd /path/to/job-private-scraper-filter && .venv/bin/python agent.py --mode digest
+0 9 * * * cd /path/to/job-private-scraper-filter && .venv/bin/python3 -m src.agent --mode digest
 ```
 
 Troubleshooting (quick)
 - Python not found: try `python3` or add Python to PATH
 - Permission errors: make sure your user can write to the project folder
-- Playwright issues: run `python -m playwright install-deps` and retry
+- Playwright issues: run `python3 -m playwright install-deps` and retry
 
 Updating
 
 ```bash
 git pull origin main
 pip install -r requirements.txt --upgrade
-python -m playwright install chromium
+python3 -m playwright install chromium
 ```
 
 Uninstall

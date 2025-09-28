@@ -39,7 +39,7 @@ Error message here
 Add any other context about the problem here.
 
 **Health check output**
-If possible, run `python agent.py --mode health` and include relevant output:
+If possible, run `python3 -m src.agent --mode health` and include relevant output:
 ```
 Health check output here
 ```

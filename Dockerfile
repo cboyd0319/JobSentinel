@@ -1,4 +1,4 @@
-FROM python:3.12.7-slim AS runtime
+FROM python:3.12.10-slim AS runtime
 
 ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1

@@ -2,18 +2,18 @@
 
 Quick steps I usually try when something goes wrong.
 
-1. Run `python agent.py --mode health` to get a status report.
+1. Run `python3 -m src.agent --mode health` to get a status report.
 2. Check the latest logs: `tail -50 data/logs/scraper_*.log`
 
 Common problems
 
 - Python not found: try `python3` or add Python to PATH
 - Permission issues: use a venv and check file permissions
-- Playwright install fails: run `python -m playwright install-deps`
+- Playwright install fails: run `python3 -m playwright install-deps`
 
 No jobs found?
 
-- Check `user_prefs.json` and company URLs
+- Check `config/user_prefs.json` and company URLs
 - Broaden `title_allowlist` or remove restrictive filters for testing
 
 Notification problems
@@ -23,7 +23,7 @@ Notification problems
 
 Scraping quirks
 
-- Timeouts: increase `timeout_seconds` in `user_prefs.json` (try 60)
+- Timeouts: increase `timeout_seconds` in `config/user_prefs.json` (try 60)
 - JS-heavy pages: use the `generic_js` board type and ensure Playwright is installed
 
 Advanced checks

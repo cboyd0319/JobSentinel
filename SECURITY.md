@@ -85,7 +85,7 @@ Please provide:
 
 ### Operational Security
 - **Monitor Logs**: Check `data/logs/` for suspicious activity
-- **Health Checks**: Run `python agent.py --mode health` regularly
+- **Health Checks**: Run `python3 -m src.agent --mode health` regularly
 - **Backup Verification**: Test database backup restoration
 - **Network Monitoring**: Monitor outbound connections if needed
 

@@ -25,5 +25,5 @@ Hotfixes
 Check version at runtime
 
 ```bash
-python agent.py --version
+python3 -m src.agent --version
 ```

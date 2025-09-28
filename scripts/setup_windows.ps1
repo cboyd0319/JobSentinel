@@ -221,12 +221,12 @@ function Install-Python-Secure {
         return $true
     }
 
-    Write-Step "Installing Python 3.12 (latest binary release)..."
+    Write-Step "Installing Python 3.12.10 (latest binary release)..."
     
     try {
         # SECURE METHOD: Download Python directly from official source with verification
         # Note: Python 3.12.11 is source-only release - using latest binary release
-        Write-Info "Python 3.12.11 is available only as source code (requires compilation)"
+        Write-Info "Python 3.12.11 currently ships without a Windows installer (source only)"
         Write-Info "Using Python 3.12.10 - the latest binary release with Windows installer"
 
         $pythonVersion = "3.12.10"
@@ -280,7 +280,7 @@ function Install-Python-Secure {
         Write-Host ""
         Write-Host "${Yellow}🔧 Manual Installation Required:${Reset}"
         Write-Host "   1. Go to https://python.org/downloads/"
-        Write-Host "   2. Download Python 3.12.x for Windows"
+        Write-Host "   2. Download Python 3.12.10 for Windows"
         Write-Host "   3. Run installer and check 'Add Python to PATH'"
         Write-Host "   4. Re-run this setup script"
         Write-Host ""
@@ -403,7 +403,7 @@ function Setup-JobScraper {
     }
 
     # Download project files if not already present
-    if (!(Test-Path "agent.py")) {
+    if (!(Test-Path "src\agent.py")) {
         Write-Step "Downloading project files from GitHub..."
         try {
             # More robust cloning approach
@@ -611,11 +611,15 @@ FLASK_ENV=production
             Write-Info ".env file already exists"
         }
 
-        # Create user_prefs.json if it doesn't exist
-        if (!(Test-Path "user_prefs.json")) {
-            if (Test-Path "user_prefs.example.json") {
-                Copy-Item "user_prefs.example.json" "user_prefs.json"
-                Write-Success "Created user_prefs.json from example"
+        if (!(Test-Path "config")) {
+            New-Item -ItemType Directory -Path "config" -Force | Out-Null
+        }
+
+        # Create config/user_prefs.json if it doesn't exist
+        if (!(Test-Path "config/user_prefs.json")) {
+            if (Test-Path "config/user_prefs.example.json") {
+                Copy-Item "config/user_prefs.example.json" "config/user_prefs.json"
+                Write-Success "Created config/user_prefs.json from example"
             } else {
                 @'
 {
@@ -634,11 +638,11 @@ FLASK_ENV=production
   "fetch_descriptions": true,
   "max_companies_per_run": 10
 }
-'@ | Out-File -FilePath "user_prefs.json" -Encoding UTF8
-                Write-Success "Created default user_prefs.json"
+'@ | Out-File -FilePath "config/user_prefs.json" -Encoding UTF8
+                Write-Success "Created default config/user_prefs.json"
             }
         } else {
-            Write-Info "user_prefs.json already exists"
+            Write-Info "config/user_prefs.json already exists"
         }
 
         # Create data directory structure
@@ -667,7 +671,7 @@ function Test-Installation {
         Push-Location $InstallPath
         
         # Test 1: Check required files exist
-        $requiredFiles = @("agent.py", "database.py", "web_ui.py", "requirements.txt", ".env", "user_prefs.json")
+        $requiredFiles = @("src/agent.py", "src/database.py", "src/web_ui.py", "requirements.txt", ".env", "config/user_prefs.json")
         foreach ($file in $requiredFiles) {
             if (!(Test-Path $file)) {
                 $validationErrors += "Missing required file: $file"
@@ -675,7 +679,7 @@ function Test-Installation {
         }
         
         # Test 2: Check directory structure
-        $requiredDirs = @("src", "utils", "sources", "notify", "matchers", "data", "data\logs")
+        $requiredDirs = @("src", "utils", "sources", "notify", "matchers", "config", "data", "data\logs")
         foreach ($dir in $requiredDirs) {
             if (!(Test-Path $dir)) {
                 $validationErrors += "Missing required directory: $dir"
@@ -775,7 +779,7 @@ function Setup-TaskScheduler {
     Write-Step "Setting up Windows Task Scheduler..."
 
     $pythonPath = Join-Path $InstallPath ".venv" | Join-Path -ChildPath "Scripts" | Join-Path -ChildPath "python.exe"
-    $agentPath = Join-Path $InstallPath "agent.py"
+    $agentPath = Join-Path $InstallPath "src\agent.py"
 
     try {
         # Remove existing tasks first to avoid conflicts
@@ -841,7 +845,7 @@ function Create-StartupShortcuts {
         # Test shortcut
         $testShortcut = $shell.CreateShortcut((Join-Path $desktop "Test Job Scraper.lnk"))
         $testShortcut.TargetPath = "powershell.exe"
-        $testShortcut.Arguments = "-WindowStyle Normal -Command `"cd '$InstallPath'; & '.\.venv\Scripts\python.exe' agent.py --mode test; Write-Host 'Press any key to close...'; `$null = `$Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')`""
+        $testShortcut.Arguments = "-WindowStyle Normal -Command `"cd '$InstallPath'; & '.\.venv\Scripts\python.exe' src/agent.py --mode test; Write-Host 'Press any key to close...'; `$null = `$Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')`""
         $testShortcut.WorkingDirectory = $InstallPath
         $testShortcut.Description = "Test Job Scraper notifications and setup"
         $testShortcut.Save()
@@ -849,7 +853,7 @@ function Create-StartupShortcuts {
         # Manual run shortcut
         $runShortcut = $shell.CreateShortcut((Join-Path $desktop "Run Job Scraper.lnk"))
         $runShortcut.TargetPath = "powershell.exe"
-        $runShortcut.Arguments = "-WindowStyle Normal -Command `"cd '$InstallPath'; & '.\.venv\Scripts\python.exe' agent.py --mode poll; Write-Host 'Job search completed. Press any key to close...'; `$null = `$Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')`""
+        $runShortcut.Arguments = "-WindowStyle Normal -Command `"cd '$InstallPath'; & '.\.venv\Scripts\python.exe' src/agent.py --mode poll; Write-Host 'Job search completed. Press any key to close...'; `$null = `$Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')`""
         $runShortcut.WorkingDirectory = $InstallPath
         $runShortcut.Description = "Manually run Job Scraper search"
         $runShortcut.Save()
@@ -857,7 +861,7 @@ function Create-StartupShortcuts {
         # Web UI shortcut
         $webShortcut = $shell.CreateShortcut((Join-Path $desktop "Job Scraper Web UI.lnk"))
         $webShortcut.TargetPath = "powershell.exe"
-        $webShortcut.Arguments = "-WindowStyle Normal -Command `"cd '$InstallPath'; Write-Host 'Starting web interface on http://localhost:5000'; Write-Host 'Press Ctrl+C to stop...'; & '.\.venv\Scripts\python.exe' web_ui.py`""
+        $webShortcut.Arguments = "-WindowStyle Normal -Command `"cd '$InstallPath'; Write-Host 'Starting web interface on http://localhost:5000'; Write-Host 'Press Ctrl+C to stop...'; & '.\.venv\Scripts\python.exe' src/web_ui.py`""
         $webShortcut.WorkingDirectory = $InstallPath
         $webShortcut.Description = "Start Job Scraper web interface"
         $webShortcut.Save()
@@ -890,7 +894,7 @@ function Show-CompletionSummary {
     Write-Host "${Yellow}🔧 Next Steps:${Reset}"
     Write-Host "   1. ${Blue}Edit configuration files:${Reset}"
     Write-Host "      • $(Join-Path $InstallPath '.env') (notification settings)"
-    Write-Host "      • $(Join-Path $InstallPath 'user_prefs.json') (job preferences)"
+    Write-Host "      • $(Join-Path $InstallPath 'config/user_prefs.json') (job preferences)"
     Write-Host ""
     Write-Host "   2. ${Blue}Test your setup:${Reset}"
     Write-Host "      • Use the 'Test Job Scraper' desktop shortcut"
@@ -904,7 +908,7 @@ function Show-CompletionSummary {
     Write-Host "   4. ${Blue}Automatic updates:${Reset}"
     Write-Host "      • Updates check daily at 6 AM automatically"
     Write-Host "      • Use 'Update Job Scraper' shortcut for manual updates"
-    Write-Host "      • Your configuration (.env, user_prefs.json) is always preserved"
+    Write-Host "      • Your configuration (.env, config/user_prefs.json) is always preserved"
     Write-Host ""
     Write-Host "${Green}💡 Pro Tips:${Reset}"
     Write-Host "   • Check Task Scheduler for automated runs status"
@@ -932,7 +936,7 @@ function Update-JobScraper {
         $configBackup = Join-Path $env:TEMP "job-scraper-config-backup-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
         New-Item -ItemType Directory -Path $configBackup -Force | Out-Null
         
-        $configFiles = @(".env", "user_prefs.json")
+        $configFiles = @(".env", "config/user_prefs.json")
         foreach ($file in $configFiles) {
             if (Test-Path $file) {
                 Copy-Item $file (Join-Path $configBackup $file) -Force
@@ -978,7 +982,7 @@ function Update-JobScraper {
                 if (!$Quiet) { Write-Step "Updating from version '$currentVersion' to '$newVersion'..." }
                 
                 # Copy new files (excluding user config and data)
-                $excludePatterns = @(".env", "user_prefs.json", "data/*", ".venv/*")
+                $excludePatterns = @(".env", "config/user_prefs.json", "data/*", ".venv/*")
                 
                 Get-ChildItem $tempDir -Recurse | ForEach-Object {
                     $relativePath = $_.FullName.Substring($tempDir.Length + 1)

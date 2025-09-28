@@ -16,7 +16,7 @@ The job scraper supports deployment to three major cloud platforms with built-in
 
 ```bash
 # Google Cloud Run (recommended, best free tier)
-python -m cloud.bootstrap --provider gcp
+python3 -m cloud.bootstrap --provider gcp
 
 # AWS Lambda
 curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/scripts/install.sh | bash -s -- --cloud-deploy aws
@@ -24,6 +24,9 @@ curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filte
 # Azure Functions
 curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/scripts/install.sh | bash -s -- --cloud-deploy azure
 ```
+
+> 🔁 On Windows environments use `python` instead of `python3` if the alias is
+> unavailable.
 
 ### Enhanced Deployment Workflow
 
@@ -35,7 +38,7 @@ git clone https://github.com/cboyd0319/job-private-scraper-filter.git
 cd job-private-scraper-filter
 
 # 1a. Automated provisioning
-python -m cloud.bootstrap --provider gcp
+python3 -m cloud.bootstrap --provider gcp
 
 # 2. Validate deployment readiness
 scripts/validate-cloud-config.sh gcp
@@ -124,9 +127,9 @@ scripts/enhanced-cost-monitor.py --provider gcp --check
 - Creates a dedicated project with billing linked
 - Enables Cloud Run, Cloud Build, Secret Manager, Cloud Scheduler, Artifact Registry, Pub/Sub, and Monitoring APIs
 - Builds the container image via Cloud Build and stores it in Artifact Registry
-- Stores `.env` values and `user_prefs.json` inside Secret Manager
+- Stores `.env` values and `config/user_prefs.json` inside Secret Manager
 - Creates least-privilege service accounts for Cloud Run and Cloud Scheduler
-- Deploys a Cloud Run Job that executes `python src/agent.py --mode poll`
+- Deploys a Cloud Run Job that executes `python3 src/agent.py --mode poll`
 - Creates a Cloud Scheduler job that triggers the Cloud Run Job every 15 minutes using OIDC
 - Configures a $5 USD budget guardrail via the Billing Budgets API
 
@@ -340,7 +343,7 @@ The application exports custom metrics:
 
 ```bash
 # Application health check
-python src/agent.py --mode health
+python3 src/agent.py --mode health
 
 # Infrastructure health (post-deployment)
 scripts/validate-cloud-config.sh --post-deployment gcp
@@ -441,7 +444,7 @@ scripts/enhanced-cost-monitor.py --provider gcp --report
 scripts/deploy-cloud.sh --export-config > cloud-config-backup.json
 
 # Backup data
-python src/agent.py --mode backup --output cloud-data-backup.json
+python3 src/agent.py --mode backup --output cloud-data-backup.json
 ```
 
 ### Cross-Platform Migration

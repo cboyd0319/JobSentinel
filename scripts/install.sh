@@ -264,7 +264,7 @@ setup_python_environment() {
     pip install -r requirements.txt
     
     # Install Playwright browsers
-    python -m playwright install chromium
+    python3 -m playwright install chromium
     
     log_success "Python environment configured"
 }
@@ -275,7 +275,8 @@ setup_configuration() {
     
     # Copy example files
     [[ ! -f .env ]] && cp .env.example .env
-    [[ ! -f user_prefs.json ]] && cp user_prefs.example.json user_prefs.json
+    mkdir -p config
+    [[ ! -f config/user_prefs.json ]] && cp config/user_prefs.example.json config/user_prefs.json
     
     # Create data directories
     mkdir -p data/logs data/backups
@@ -425,7 +426,7 @@ steps:
 EOF
 
     cat > cloud/Dockerfile << 'EOF'
-FROM python:3.12-slim
+FROM python:3.12.10-slim
 
 WORKDIR /app
 
@@ -449,7 +450,7 @@ COPY . .
 RUN mkdir -p data/logs
 
 # Run the application
-CMD ["python", "src/agent.py", "--mode", "poll"]
+CMD ["python3", "src/agent.py", "--mode", "poll"]
 EOF
 
     log_info "Created GCP Cloud Run configuration"
@@ -468,7 +469,7 @@ Resources:
     Properties:
       CodeUri: ../
       Handler: lambda_handler.lambda_handler
-      Runtime: python3.12
+      Runtime: python3.12.10
       MemorySize: 512
       Timeout: 900
       Environment:
@@ -670,7 +671,7 @@ setup_local_automation() {
     echo "# Job Scraper - Check every 15 minutes"
     echo "*/15 * * * * cd $agent_path && $python_path src/agent.py --mode poll >> $agent_path/data/logs/cron.log 2>&1"
     echo "# Job Scraper - Daily digest at 9 AM"
-    echo "0 9 * * * cd $agent_path && $python_path agent.py --mode digest >> $agent_path/data/logs/cron.log 2>&1"
+    echo "0 9 * * * cd $agent_path && $python_path src/agent.py --mode digest >> $agent_path/data/logs/cron.log 2>&1"
     echo
 }
 
@@ -707,7 +708,7 @@ run_health_check() {
     
     source .venv/bin/activate
     export CI=true
-    python src/agent.py --mode health
+    python3 src/agent.py --mode health
     
     log_success "Health check completed"
 }
@@ -765,8 +766,8 @@ EOF
     echo
     log_info "Next steps:"
     echo "  1. cd $INSTALL_DIR"
-    echo "  2. Edit .env and user_prefs.json with your settings"
-    echo "  3. Test: source .venv/bin/activate && python src/agent.py --mode test"
+    echo "  2. Edit .env and config/user_prefs.json with your settings"
+    echo "  3. Test: source .venv/bin/activate && python3 src/agent.py --mode test"
     echo "  4. Set up automation (cron/systemd) as shown above"
     echo
     log_info "Need help? Check the docs/ directory or open an issue on GitHub"

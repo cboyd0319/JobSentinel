@@ -117,7 +117,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: '3.12'
+          python-version: '3.12.10'
 
       - name: Create distribution package
         run: |
@@ -125,10 +125,9 @@ jobs:
           mkdir -p dist/job-private-scraper-filter
 
           # Copy source files
-          cp -r sources/ utils/ notify/ matchers/ templates/ docs/ scripts/ dist/job-private-scraper-filter/
-          cp agent.py database.py web_ui.py dist/job-private-scraper-filter/
-          cp requirements.txt .env.example user_prefs.example.json dist/job-private-scraper-filter/
-          cp scripts/setup.sh dist/job-private-scraper-filter/
+          cp -r sources/ utils/ notify/ matchers/ templates/ docs/ scripts/ cloud/ dist/job-private-scraper-filter/
+          cp -r config/ dist/job-private-scraper-filter/
+          cp requirements.txt .env.example dist/job-private-scraper-filter/
           cp README.md LICENSE CHANGELOG.md CONTRIBUTING.md SECURITY.md CODE_OF_CONDUCT.md \
             dist/job-private-scraper-filter/
 

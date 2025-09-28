@@ -20,7 +20,7 @@ OPENAI_API_KEY=sk-your-api-key
 3. Test it:
 
 ```bash
-python agent.py --mode test
+python3 -m src.agent --mode test
 ```
 
 How it helps

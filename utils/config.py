@@ -128,8 +128,19 @@ class NotificationConfig:
 class ConfigManager:
     """Manages configuration loading and validation."""
 
-    def __init__(self, config_path: str = "user_prefs.json", env_path: str = ".env"):
-        self.config_path = Path(config_path)
+    def __init__(
+        self,
+        config_path: str = "config/user_prefs.json",
+        env_path: str = ".env",
+        fallback_paths: Optional[List[str]] = None,
+    ):
+        candidates = [Path(config_path)]
+        if fallback_paths is None:
+            fallback_paths = ["user_prefs.json"]
+        candidates.extend(Path(p) for p in fallback_paths)
+
+        self._candidate_paths = candidates
+        self.config_path = next((p for p in candidates if p.exists()), Path(config_path))
         self.env_path = Path(env_path)
         self._config_data: Optional[Dict[str, Any]] = None
 
@@ -140,7 +151,8 @@ class ConfigManager:
         # Load user preferences
         if not self.config_path.exists():
             raise ConfigurationException(
-                f"Configuration file not found: {self.config_path}"
+                "Configuration file not found. Expected one of: "
+                + ", ".join(str(path) for path in self._candidate_paths)
             )
 
         try:

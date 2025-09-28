@@ -53,7 +53,7 @@ jobs:
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: '3.12.10'
 
       - name: Install dependencies
         run: |
@@ -69,7 +69,8 @@ jobs:
       - name: Test database functionality
         run: |
           cp .env.example .env
-          cp user_prefs.example.json user_prefs.json
+          mkdir -p config
+          cp config/user_prefs.example.json config/user_prefs.json
           chmod 600 .env || true
           python3 -c "
           import os
@@ -90,7 +91,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ['3.12']
+        python-version: ['3.12.10']
     steps:
       - name: Checkout code
         uses: actions/checkout@v5

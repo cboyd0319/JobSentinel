@@ -5,7 +5,7 @@ This guide covers development setup, contribution workflows, and advanced usage 
 ## Quick Development Setup
 
 ### Prerequisites
-- Python 3.12+ (3.13 recommended)
+- Python 3.12.10 (3.13 recommended)
 - Git
 - Virtual environment tool (venv, conda, etc.)
 
@@ -28,10 +28,10 @@ This guide covers development setup, contribution workflows, and advanced usage 
    ```bash
    # Copy example configurations
    cp .env.example .env
-   cp user_prefs.example.json user_prefs.json
+   cp config/user_prefs.example.json config/user_prefs.json
 
    # Edit .env with your settings (optional for development)
-   # Edit user_prefs.json with test job preferences
+   # Edit config/user_prefs.json with test job preferences
    ```
 
 3. **Development Tools**
@@ -40,16 +40,16 @@ This guide covers development setup, contribution workflows, and advanced usage 
    pip install flake8 bandit yamllint black isort mypy pytest
 
    # Install Playwright for JavaScript scraping (optional)
-   python -m playwright install chromium --with-deps
+   python3 -m playwright install chromium --with-deps
    ```
 
 4. **Verify Setup**
    ```bash
    # Run health check
-   python src/agent.py --mode health
+   python3 src/agent.py --mode health
 
    # Run syntax validation
-   python -m py_compile src/agent.py
+   python3 -m py_compile src/agent.py
 
    # Run security scan
    bandit -r . -x ./.venv --quiet
@@ -83,7 +83,7 @@ This guide covers development setup, contribution workflows, and advanced usage 
 ├── matchers/                 # Job filtering and scoring rules
 ├── templates/                # Web UI templates
 ├── docs/                     # Documentation
-└── agent.py                  # Backward compatibility wrapper
+└── config/                   # Config samples and linters (copy user_prefs.example.json → user_prefs.json)
 ```
 
 ## Development Workflow
@@ -155,12 +155,12 @@ pre-commit install
 **Manual Testing:**
 ```bash
 # Test main functionality
-python src/agent.py --mode health      # System health
-python src/agent.py --mode test        # Test notifications
-python src/agent.py --mode poll        # Run job scraping (dry run)
+python3 src/agent.py --mode health      # System health
+python3 src/agent.py --mode test        # Test notifications
+python3 src/agent.py --mode poll        # Run job scraping (dry run)
 
 # Test web UI
-python src/web_ui.py                   # Start web interface at http://127.0.0.1:5000
+python3 src/web_ui.py                   # Start web interface at http://127.0.0.1:5000
 
 # Test cloud deployment validation
 scripts/validate-cloud-config.sh gcp   # Validate GCP deployment readiness
@@ -214,7 +214,7 @@ scripts/deploy-cloud.sh --dry-run gcp
    }
    ```
 
-3. **Add configuration example to `user_prefs.example.json`:**
+3. **Add configuration example to `config/user_prefs.example.json`:**
    ```json
    {
      "companies": [
@@ -330,13 +330,13 @@ which python  # Should show .venv/bin/python
 ```bash
 # Reset database
 rm -f data/jobs.db
-python src/agent.py --mode health  # Will recreate database
+python3 src/agent.py --mode health  # Will recreate database
 ```
 
 **Playwright Issues:**
 ```bash
 # Reinstall browser
-python -m playwright install chromium --with-deps
+python3 -m playwright install chromium --with-deps
 ```
 
 **Permission Issues (macOS/Linux):**
@@ -348,7 +348,7 @@ chmod +x scripts/*.sh
 ### Getting Help
 
 1. **Check logs:** `tail -f data/logs/scraper_*.log`
-2. **Run health check:** `python src/agent.py --mode health`
+2. **Run health check:** `python3 src/agent.py --mode health`
 3. **Check GitHub issues:** https://github.com/cboyd0319/job-private-scraper-filter/issues
 4. **Review documentation:** All files in `docs/`
 

@@ -21,19 +21,19 @@ Local setup (quick)
 ```bash
 git clone https://github.com/YOUR_USERNAME/job-private-scraper-filter.git
 cd job-private-scraper-filter
-python -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate  # macOS/Linux
 # .venv\Scripts\activate   # Windows PowerShell
 pip install -r requirements.txt
-python -m playwright install chromium
+python3 -m playwright install chromium
 cp .env.example .env
-cp user_prefs.example.json user_prefs.json
+cp config/user_prefs.example.json config/user_prefs.json
 # Edit the files and run the basic health check
-python agent.py --mode health
+python3 -m src.agent --mode health
 ```
 
 Testing tips
-- Run `python agent.py --mode test` to exercise notifications and basic flows.
+- Run `python3 -m src.agent --mode test` to exercise notifications and basic flows.
 - If you change scraping logic, try a few real pages to make sure selectors still work.
 
 Areas where help is useful

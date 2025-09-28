@@ -164,17 +164,17 @@ check_environment_config() {
     fi
 
     # Check user preferences
-    if [[ -f "user_prefs.json" ]]; then
-        log_success "user_prefs.json configuration exists"
+    if [[ -f "config/user_prefs.json" ]]; then
+        log_success "config/user_prefs.json configuration exists"
 
         # Validate JSON syntax
-        if python3 -m json.tool user_prefs.json >/dev/null 2>&1; then
-            log_success "user_prefs.json has valid JSON syntax"
+        if python3 -m json.tool config/user_prefs.json >/dev/null 2>&1; then
+            log_success "config/user_prefs.json has valid JSON syntax"
         else
-            log_error "user_prefs.json has invalid JSON syntax"
+            log_error "config/user_prefs.json has invalid JSON syntax"
         fi
     else
-        log_error "user_prefs.json not found. Copy from user_prefs.example.json and configure"
+        log_error "config/user_prefs.json not found. Copy from config/user_prefs.example.json and configure"
     fi
 }
 

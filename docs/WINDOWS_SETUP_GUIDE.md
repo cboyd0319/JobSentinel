@@ -94,7 +94,7 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 - ✅ **Enterprise-grade security** - follows best practices
 
 **What happens next:**
-- **Downloads and installs Python 3.12** to user directory (no admin needed)
+- **Downloads and installs Python 3.12.10** to user directory (no admin needed)
 - **Creates isolated Python environment** (keeps system clean)
 - **Downloads job scraper files** from GitHub
 - **Installs required packages** (about 20-30 packages)
@@ -166,7 +166,7 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 
 ### **🎯 Step 2: Configure Job Search Criteria**
 
-1. **Right-click `user_prefs.json`** → "Open with" → "Notepad"
+1. **Right-click `config/user_prefs.json`** → "Open with" → "Notepad"
 2. **Customize these key sections**:
 
 #### **Companies (Job Boards to Monitor)**
@@ -247,7 +247,7 @@ Your system **automatically updates itself** every day at 6 AM:
 
 ### **What NEVER Changes:**
 - ❌ **Your Settings**: .env file (Slack, email settings) 
-- ❌ **Job Preferences**: user_prefs.json (companies, keywords, etc.)
+- ❌ **Job Preferences**: config/user_prefs.json (companies, keywords, etc.)
 - ❌ **Your Data**: All found jobs and history preserved
 - ❌ **Scheduled Tasks**: Continues running every 15 minutes
 
@@ -257,7 +257,7 @@ Your system **automatically updates itself** every day at 6 AM:
 
 ### **Job Board Setup**
 
-In `user_prefs.json`, the `companies` section tells the scraper where to look:
+In `config/user_prefs.json`, the `companies` section tells the scraper where to look:
 
 ```json
 {
@@ -413,11 +413,11 @@ The setup creates these automatic tasks:
 1. **Check logs first**: `Desktop/job-scraper/data/logs/scraper_YYYYMMDD.log`
 2. **Run health check**: Open PowerShell in the job-scraper folder, run:
    ```powershell
-   .\.venv\Scripts\python.exe agent.py --mode health
+   .\.venv\Scripts\python.exe src/agent.py --mode health
    ```
 3. **Manual test run**:
    ```powershell
-   .\.venv\Scripts\python.exe agent.py --mode test --verbose
+   .\.venv\Scripts\python.exe src/agent.py --mode test --verbose
    ```
 
 ---
@@ -493,9 +493,9 @@ runas /user:jobscraper "powershell -File scripts/setup_windows.ps1"
 
 ### **Multiple Job Searches**
 You can create different configurations for different job types:
-1. Copy `user_prefs.json` to `user_prefs_fulltime.json`
+1. Copy `config/user_prefs.json` to `user_prefs_fulltime.json`
 2. Create different search criteria in each file
-3. Run manually: `python agent.py --mode poll --config user_prefs_fulltime.json`
+3. Run manually: `python3 -m src.agent --mode poll --config user_prefs_fulltime.json`
 
 ### **Salary Extraction**
 The scraper automatically detects salary information in job descriptions and filters based on your `salary_floor_usd`.
@@ -514,9 +514,9 @@ Jobs are automatically deduplicated - you'll never get the same job alert twice.
 
 If the automatic script doesn't work:
 
-### **Step 1: Install Python 3.12**
+### **Step 1: Install Python 3.12.10**
 1. Go to python.org
-2. Download Python 3.12.x for Windows
+2. Download Python 3.12.10 for Windows
 3. **Important**: Check "Add Python to PATH" during installation
 
 ### **Step 2: Download Project**
@@ -534,11 +534,11 @@ python -m playwright install chromium
 
 ### **Step 4: Configure**
 1. Copy `.env.example` to `.env` and edit
-2. Copy `user_prefs.example.json` to `user_prefs.json` and edit
+2. Copy `config/user_prefs.example.json` to `config/user_prefs.json` and edit
 
 ### **Step 5: Test**
 ```powershell
-python agent.py --mode test
+python3 -m src.agent --mode test
 ```
 
 ### **Step 6: Schedule**
@@ -570,8 +570,8 @@ This provides timestamped detailed output for troubleshooting.
 For detailed scraping logs:
 ```powershell
 cd %USERPROFILE%\job-scraper
-.\.venv\Scripts\python.exe agent.py --mode test --verbose
-.\.venv\Scripts\python.exe agent.py --mode poll -v
+.\.venv\Scripts\python.exe src/agent.py --mode test --verbose
+.\.venv\Scripts\python.exe src/agent.py --mode poll -v
 ```
 
 **Debug Features:**
