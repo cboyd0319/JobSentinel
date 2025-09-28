@@ -61,14 +61,14 @@ jobs:
 
 
       - name: Upload Bandit SARIF
-        if: always()
+        if: always() && hashFiles('bandit-results.sarif') != ''
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: bandit-results.sarif
           category: bandit
 
       - name: Upload Safety SARIF
-        if: always()
+        if: always() && hashFiles('safety-results.sarif') != ''
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: safety-results.sarif

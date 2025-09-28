@@ -48,13 +48,13 @@ repos:
     rev: v2.2.6
     hooks:
       - id: codespell
-        args: [--skip=*.json,*.log,.git,.venv]
+        args: [--skip, "*.json,*.log,.git,.venv"]
 
   - repo: https://github.com/pycqa/pylint
     rev: v3.0.3
     hooks:
       - id: pylint
-        args: [--score=n, --disable=all, --enable=W,E,F]
+        args: [--score=n, --disable=all, --enable=W, E, F]
 
   - repo: https://github.com/PyCQA/autoflake
     rev: v2.2.1
