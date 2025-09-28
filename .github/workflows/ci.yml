@@ -69,6 +69,7 @@ jobs:
       - name: Test database functionality
         run: |
           cp .env.example .env
+          mkdir -p data
           mkdir -p config
           cp config/user_prefs.example.json config/user_prefs.json
           chmod 600 .env || true
