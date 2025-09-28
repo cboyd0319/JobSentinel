@@ -1,6 +1,6 @@
 name: Release
 
-on:
+'on':
   push:
     tags:
       - 'v*.*.*'  # Semantic versioning tags only
@@ -34,7 +34,8 @@ jobs:
           else
             VERSION=${GITHUB_REF#refs/tags/v}
           fi
-          if ! printf '%s' "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+          if ! printf '%s' "$VERSION" | \
+               grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
             echo "Invalid version format: $VERSION" >&2
             exit 1
           fi
@@ -47,17 +48,20 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add VERSION
-          git commit -m "chore: bump version to ${{ steps.extract_version.outputs.version }}" || exit 0
+          git commit -m \
+            "chore: bump version to ${{ steps.extract_version.outputs.version }}" || exit 0
 
       - name: Generate changelog
         id: changelog
         run: |
           # Generate changelog from git commits since last tag
-          LAST_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          LAST_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || \
+                     echo "")
           if [ -z "$LAST_TAG" ]; then
             CHANGELOG=$(git log --pretty=format:"- %s" --reverse)
           else
-            CHANGELOG=$(git log "${LAST_TAG}..HEAD" --pretty=format:"- %s" --reverse)
+            CHANGELOG=$(git log "${LAST_TAG}..HEAD" \
+                        --pretty=format:"- %s" --reverse)
           fi
 
           # Save to file for upload
@@ -73,7 +77,8 @@ jobs:
           Set-ExecutionPolicy Bypass -Scope Process -Force;
           [System.Net.ServicePointManager]::SecurityProtocol = \
             [System.Net.ServicePointManager]::SecurityProtocol -bor 3072;
-          irm "https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/scripts/setup_windows.ps1" \
+          irm ("https://raw.githubusercontent.com/cboyd0319/" +
+               "job-private-scraper-filter/main/scripts/setup_windows.ps1") \
             | iex
           \`\`\`
 
