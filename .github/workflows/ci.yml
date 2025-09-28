@@ -1,6 +1,6 @@
 name: CI/CD Pipeline (Optimized)
 
-on:
+'on':
   push:
     branches: [main, develop]
   pull_request:
@@ -43,7 +43,9 @@ jobs:
 
   primary-test:
     needs: changes
-    if: needs.changes.outputs.core-python == 'true' || needs.changes.outputs.workflows == 'true'
+    if: >-
+      needs.changes.outputs.core-python == 'true' ||
+      needs.changes.outputs.workflows == 'true'
     name: 🚀 Fast Primary Test (Ubuntu + Python 3.12)
     runs-on: ubuntu-latest
     steps:
@@ -85,7 +87,9 @@ jobs:
 
   cross-platform-test:
     needs: [changes, primary-test]
-    if: needs.changes.outputs.core-python == 'true' && needs.primary-test.result == 'success'
+    if: >-
+      needs.changes.outputs.core-python == 'true' &&
+      needs.primary-test.result == 'success'
     name: 🌍 Cross-Platform Test
     runs-on: ${{ matrix.os }}
     strategy:
@@ -114,7 +118,9 @@ jobs:
 
   powershell-validation:
     needs: changes
-    if: needs.changes.outputs.windows-specific == 'true' || needs.changes.outputs.platform-scripts == 'true'
+    if: >-
+      needs.changes.outputs.windows-specific == 'true' ||
+      needs.changes.outputs.platform-scripts == 'true'
     name: 🪟 PowerShell Script Validation
     runs-on: windows-latest
     steps:
@@ -124,7 +130,8 @@ jobs:
       - name: Test PowerShell script syntax
         run: |
           Get-Content scripts/setup_windows.ps1 | ForEach-Object {
-            $null = [System.Management.Automation.PSParser]::Tokenize($_, [ref]$null)
+            $null = [System.Management.Automation.PSParser]::Tokenize(
+              $_, [ref]$null)
           }
           Write-Host "✅ PowerShell syntax is valid"
 
