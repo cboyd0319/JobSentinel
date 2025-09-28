@@ -218,14 +218,24 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
 
-      - name: Run OSV-Scanner
-        uses: google/osv-scanner-action@v2.2.2
-        with:
-          scan-args: |-
-            --format=sarif
-            --output=osv-results.sarif
-            .
+      - name: Install OSV Scanner
+        run: |
+          curl -sSL https://github.com/google/osv-scanner/releases/download/v1.9.0/osv-scanner_1.9.0_linux_amd64.tar.gz -o osv-scanner.tar.gz
+          tar -xzf osv-scanner.tar.gz osv-scanner
+          chmod +x osv-scanner
+          mkdir -p "$HOME/.local/bin"
+          mv osv-scanner "$HOME/.local/bin/osv-scanner"
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Run OSV scan (JSON)
         continue-on-error: true
+        run: |
+          osv-scanner --format json --output osv-results.json .
+
+      - name: Run OSV scan (SARIF)
+        continue-on-error: true
+        run: |
+          osv-scanner --format sarif --output osv-results.sarif .
 
       - name: Upload OSV SARIF results to Security tab
         uses: github/codeql-action/upload-sarif@v3
@@ -483,18 +493,26 @@ jobs:
           GITHUB_REPO: ${{ github.repository }}
         run: |
           mkdir -p prowler-output
-          prowler github \
-            --compliance cis_1.0_github \
-            --output-types sarif,json \
-            --output-filename prowler-output/cis-github \
-            --github-org "$GITHUB_ORG" \
-            --github-repo "$GITHUB_REPO"
+          prowler github --compliance cis_1.0_github -M json,sarif -o prowler-output --no-banner
+
+      - name: Collect Prowler outputs
+        if: steps.token_check.outputs.enabled == 'true'
+        id: prowler_outputs
+        run: |
+          JSON_REPORT=$(find prowler-output -name '*.json' -print -quit)
+          SARIF_REPORT=$(find prowler-output -name '*.sarif' -print -quit)
+          if [ -z "$JSON_REPORT" ] || [ -z "$SARIF_REPORT" ]; then
+            echo "Prowler outputs not found" >&2
+            exit 1
+          fi
+          echo "json=$JSON_REPORT" >> "$GITHUB_OUTPUT"
+          echo "sarif=$SARIF_REPORT" >> "$GITHUB_OUTPUT"
 
       - name: Upload Prowler SARIF
         if: steps.token_check.outputs.enabled == 'true'
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: prowler-output/cis-github.sarif
+          sarif_file: ${{ steps.prowler_outputs.outputs.sarif }}
           category: prowler-github
 
       - name: Upload Prowler artifact
@@ -502,7 +520,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: prowler-github-cis-report
-          path: prowler-output/cis-github.json
+          path: ${{ steps.prowler_outputs.outputs.json }}
 
   dependency-review:
     name: 📋 Dependency Review
