@@ -16,6 +16,20 @@ These are simple CI workflows I use to keep the project healthy across platforms
 ### 3. `dependency-submission.yml`
 - Submits Python dependencies so GitHub can surface security notices
 
+### 4. `security.yml` — Security & Vulnerability Scanning
+- Triggers: pushes, PRs, and weekly schedule
+- Runs a comprehensive suite of security tools, including:
+  - **Bandit**: Python static analysis
+  - **Safety**: Dependency vulnerability scanning
+  - **OSV**: Open Source Vulnerability database
+  - **Semgrep**: Multi-language security patterns
+  - **CodeQL**: GitHub's semantic code analysis
+  - **Dependency Review**: License and vulnerability review for PRs
+  - **Prowler**: GitHub CIS benchmark scanning
+  - **yamllint**: YAML syntax and style checking
+  - **TruffleHog**: Secret scanning
+- Posts a summary of the scan results as a comment on pull requests.
+
 ## Configuration Files
 
 ### `dependabot.yml`
