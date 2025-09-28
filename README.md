@@ -210,6 +210,8 @@ The project includes enterprise-grade security scanning with multiple automated 
 - **FOSSA License Scanning**: Advanced license compatibility checking
 - **Prowler CIS Reports**: Automated Cloud Run bootstrap report (cis_4.0_gcp) saved in `cloud/reports/`, plus scheduled GitHub CIS scans via Prowler.
 
+> Configure repository secret `PROWLER_GITHUB_TOKEN` (PAT with "repo" scope) to enable the scheduled GitHub CIS scan.
+
 All security results are uploaded in **SARIF format** to the **GitHub Security tab** for centralized monitoring and vulnerability management. Locally, run `scripts/local-security-scan.sh` to execute the same blocking policy before pushing changes.
 
 **PowerShell Script Validation:**

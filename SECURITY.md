@@ -111,6 +111,7 @@ Please provide:
 - Benchmarked against CIS GitHub and GCP foundations (see docs/CIS Github Benchmark V1.1.0.PDF and docs/CIS_Google_Cloud_Platform_Foundation_Benchmark_v4.0.0.pdf)
 - Regular penetration testing recommendations
 - Prowler CIS scanning for Cloud Run (cis_4.0_gcp) and GitHub (cis_1.0)
+  (set repo secret `PROWLER_GITHUB_TOKEN` with a PAT containing the `repo` scope to enable GitHub scans)
 
 #### Safety Dependency Scanning
 - **Configuration**: `[tool.safety]` block in `pyproject.toml` enforces the blocking policy and output format (JSON for automation).
