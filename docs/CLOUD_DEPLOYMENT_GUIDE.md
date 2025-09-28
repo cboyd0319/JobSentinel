@@ -168,6 +168,17 @@ scaling:
 timeout: 900s
 ```
 
+### CIS Benchmark Reports with Prowler
+
+- After the Cloud Run bootstrap completes, a JSON report is stored in `cloud/reports/` (filename `prowler-cis-gcp-<timestamp>.json`).
+- Run additional provider scans from any machine with credentials:
+  - **GCP:** `prowler gcp --compliance cis_4.0_gcp --project <project-id> --output-types json`
+  - **AWS:** `prowler aws --compliance cis_5.0_aws --profile <profile> --output-types json`
+  - **Azure:** `prowler azure --compliance cis_4.0_azure --subscription-ids <subscription-id> --output-types json`
+- Reports can be uploaded manually or archived alongside other deployment artifacts.
+
+> Install the CLI locally with `python3 -m pip install prowler` (or `pip install prowler` on Windows).
+
 ### AWS Lambda
 
 ```mermaid

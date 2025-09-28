@@ -18,6 +18,7 @@ import urllib.request
 import zipfile
 from pathlib import Path
 from typing import Dict
+from datetime import datetime
 
 from cloud.utils import (
     choose,
@@ -54,7 +55,6 @@ class GCPBootstrap:
         self.user_prefs_payload: str = ""
         self.env_values: Dict[str, str] = {}
         self.env_secret_bindings: Dict[str, str] = {}
-        self.env_plain_env: Dict[str, str] = {}
         self.env_secret_prefix = "job-scraper"
         self.prefs_secret_name = "job-scraper-prefs"
         self.project_root = resolve_project_root()
@@ -81,6 +81,7 @@ class GCPBootstrap:
         self._create_or_update_job()
         self._schedule_job()
         self._configure_budget()
+        self._run_prowler_scan()
         self._print_summary()
 
     # ------------------------------------------------------------------
@@ -415,7 +416,6 @@ class GCPBootstrap:
     def _provision_secrets(self) -> None:
         print_header("Configuring Secret Manager")
         self.env_secret_bindings.clear()
-        self.env_plain_env.clear()
 
         for key, value in self.env_values.items():
             if value:
@@ -543,10 +543,7 @@ class GCPBootstrap:
         for env_key, secret_name in self.env_secret_bindings.items():
             secret_flags.extend(["--set-secrets", f"{env_key}={secret_name}:latest"])
 
-        env_var_flags: list[str] = []
-        for env_key, value in self.env_plain_env.items():
-            env_var_flags.extend(["--set-env-vars", f"{env_key}={value}"])
-        env_var_flags.extend(["--set-env-vars", f"JOB_RUN_MODE={self.job_mode}"])
+        env_var_flags: list[str] = ["--set-env-vars", f"JOB_RUN_MODE={self.job_mode}"]
 
         create_command = [
             "gcloud",
@@ -587,6 +584,42 @@ class GCPBootstrap:
 
         run_command(create_command, check=False)
         run_command(update_command)
+
+
+    def _run_prowler_scan(self) -> None:
+        print_header("Generating CIS benchmark report with Prowler")
+        reports_dir = ensure_directory(resolve_project_root() / 'cloud' / 'reports')
+        timestamp = datetime.utcnow().strftime('%Y%m%d-%H%M%S')
+        output_file = reports_dir / f'prowler-cis-gcp-{timestamp}.json'
+
+        try:
+            run_command(['python3', '-m', 'pip', 'install', '--quiet', 'prowler'], check=True)
+        except Exception as exc:
+            print(f"⚠️  Unable to install Prowler CLI automatically: {exc}")
+            print('   • Install manually: python3 -m pip install prowler')
+            return
+
+        try:
+            run_command([
+                'prowler',
+                'gcp',
+                '--compliance',
+                'cis_4.0_gcp',
+                '--output-types',
+                'json',
+                '--output-filename',
+                str(output_file),
+                '--project',
+                self.project_id,
+                '--region',
+                self.region
+            ])
+        except Exception as exc:
+            print(f"⚠️  Prowler scan failed: {exc}")
+            print('   • You can rerun manually: prowler gcp --compliance cis_4.0_gcp --output-types json')
+            return
+
+        print(f"✅ Prowler CIS report saved to {output_file}")
 
     def _schedule_job(self) -> None:
         print_header("Scheduling recurring executions")

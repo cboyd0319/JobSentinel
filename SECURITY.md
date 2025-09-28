@@ -110,6 +110,7 @@ Please provide:
 - Safety CLI dependency scanning with project policy (`config/.safety-project.ini`)
 - Benchmarked against CIS GitHub and GCP foundations (see docs/CIS Github Benchmark V1.1.0.PDF and docs/CIS_Google_Cloud_Platform_Foundation_Benchmark_v4.0.0.pdf)
 - Regular penetration testing recommendations
+- Prowler CIS scanning for Cloud Run (cis_4.0_gcp) and GitHub (cis_1.0)
 
 #### Safety Dependency Scanning
 - **Configuration**: `[tool.safety]` block in `pyproject.toml` enforces the blocking policy and output format (JSON for automation).

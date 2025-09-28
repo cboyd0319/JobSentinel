@@ -127,3 +127,6 @@ dmypy.json
 
 # pyenv version files
 .python-version
+
+# Prowler reports
+cloud/reports/

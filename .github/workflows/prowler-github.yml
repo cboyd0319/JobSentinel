@@ -1,0 +1,46 @@
+name: Prowler GitHub CIS Scan
+
+on:
+  schedule:
+    - cron: '0 4 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  prowler-github:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.10'
+
+      - name: Install Prowler
+        run: |
+          python -m pip install --upgrade pip
+          pip install prowler
+
+      - name: Run Prowler CIS benchmark
+        env:
+          PROWLER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p prowler-output
+          prowler github --compliance cis_1.0_github --output-types json --output-filename prowler-output/cis-github
+          ls -R prowler-output
+
+      - name: Prepare report artifact
+        run: |
+          REPORT=$(ls prowler-output/*.json | head -1)
+          cp "$REPORT" prowler-github-cis.json
+
+      - name: Upload Prowler report
+        uses: actions/upload-artifact@v4
+        with:
+          name: prowler-github-cis-report
+          path: prowler-github-cis.json
