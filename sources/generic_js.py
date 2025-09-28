@@ -20,7 +20,6 @@ async def scrape_js_career_page(
     async with web_scraper as scraper:
         # --- Platform Auto-Detection ---
         page_content = await scraper.fetch_with_playwright(board_url)
-        
         # Use proper URL parsing for security
         from urllib.parse import urlparse
         parsed_url = urlparse(board_url)

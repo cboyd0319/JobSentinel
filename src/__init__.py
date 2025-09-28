@@ -14,7 +14,8 @@ __version__ = "1.0.0"
 def get_version():
     """Get the current version from VERSION file or fallback to __version__."""
     try:
-        version_file = Path(__file__).parent / "VERSION"
+        # Look for VERSION file in project root
+        version_file = Path(__file__).parent.parent / "VERSION"
         if version_file.exists():
             return version_file.read_text().strip()
     except (OSError, IOError) as e:

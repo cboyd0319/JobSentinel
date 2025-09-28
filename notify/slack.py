@@ -45,7 +45,8 @@ def format_jobs_for_slack(jobs: list[dict]) -> dict:
             ]
 
             if rules_reasons or other_reasons:
-                job_text += f"✅ *Matched:* {', '.join([r.replace('Rules: ', '') for r in rules_reasons] + other_reasons)}\n"
+                matched_items = [r.replace('Rules: ', '') for r in rules_reasons] + other_reasons
+                job_text += f"✅ *Matched:* {', '.join(matched_items)}\n"
 
             if ai_reasons:
                 job_text += f"🧠 *AI Insights:* {', '.join([r.replace('AI: ', '') for r in ai_reasons])}\n"

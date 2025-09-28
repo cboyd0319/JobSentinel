@@ -79,7 +79,8 @@ class HealthMonitor:
                 status=mem_status,
                 threshold_warning=75,
                 threshold_critical=90,
-                message=f"Memory usage: {mem_percent:.1f}% ({memory.used / 1024**3:.1f}GB / {memory.total / 1024**3:.1f}GB)",
+                message=f"Memory usage: {mem_percent:.1f}% "
+                        f"({memory.used / 1024**3:.1f}GB / {memory.total / 1024**3:.1f}GB)",
             )
         )
 
@@ -374,7 +375,8 @@ class HealthMonitor:
 
         self.last_check = datetime.now()
         logger.info(
-            f"Health report generated: {overall_status} status with {warning_count} warnings, {critical_count} critical issues"
+            f"Health report generated: {overall_status} status with {warning_count} warnings, "
+            f"{critical_count} critical issues"
         )
 
         return report
