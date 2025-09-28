@@ -7,7 +7,7 @@ rules:
   document-start:
     present: false
   truthy:
-    allowed-values: ['true', 'false', 'on', 'off']
+    allowed-values: ['true', 'false', 'on', 'off', 'yes', 'no']
   brackets:
     forbid: false
     min-spaces-inside: 0
@@ -17,3 +17,4 @@ rules:
     indent-sequences: true
   comments:
     min-spaces-from-content: 1
+  trailing-spaces: enable

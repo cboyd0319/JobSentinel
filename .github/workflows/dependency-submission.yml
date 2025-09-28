@@ -22,21 +22,21 @@ jobs:
     runs-on: ubuntu-latest
     name: Submit Python Dependencies
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v5
+      - name: Checkout repository
+        uses: actions/checkout@v5
 
-    - name: Set up Python
-      uses: actions/setup-python@v6
-      with:
-        python-version: '3.12'
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-    - name: Submit dependencies to GitHub
-      uses: py-actions/py-dependency-submission@v4
-      with:
-        python-version: '3.12'
-        requirements: 'requirements.txt'
+      - name: Submit dependencies to GitHub
+        uses: py-actions/py-dependency-submission@v4
+        with:
+          python-version: '3.12'
+          requirements: 'requirements.txt'

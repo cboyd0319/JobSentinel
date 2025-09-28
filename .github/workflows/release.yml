@@ -66,7 +66,11 @@ jobs:
 
           ### Windows (Recommended)
           \`\`\`powershell
-          Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; irm "https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/scripts/setup_windows.ps1" | iex
+          Set-ExecutionPolicy Bypass -Scope Process -Force;
+          [System.Net.ServicePointManager]::SecurityProtocol = \
+            [System.Net.ServicePointManager]::SecurityProtocol -bor 3072;
+          irm "https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/scripts/setup_windows.ps1" \
+            | iex
           \`\`\`
 
           ### macOS/Linux
@@ -79,9 +83,12 @@ jobs:
 
           ## Security
 
-          This release has been tested for security vulnerabilities. See [SECURITY.md](SECURITY.md) for security practices.
+          This release has been tested for security vulnerabilities.
+          See [SECURITY.md](SECURITY.md) for security practices.
 
-          **Full Changelog**: https://github.com/cboyd0319/job-private-scraper-filter/compare/${LAST_TAG}...v${{ steps.extract_version.outputs.version }}
+          **Full Changelog**:
+          https://github.com/cboyd0319/job-private-scraper-filter/compare/${LAST_TAG}...\
+          v${{ steps.extract_version.outputs.version }}
           EOF
 
       - name: Create Release
@@ -118,11 +125,13 @@ jobs:
           cp agent.py database.py web_ui.py dist/job-private-scraper-filter/
           cp requirements.txt .env.example user_prefs.example.json dist/job-private-scraper-filter/
           cp scripts/setup.sh dist/job-private-scraper-filter/
-          cp README.md LICENSE CHANGELOG.md CONTRIBUTING.md SECURITY.md CODE_OF_CONDUCT.md dist/job-private-scraper-filter/
+          cp README.md LICENSE CHANGELOG.md CONTRIBUTING.md SECURITY.md CODE_OF_CONDUCT.md \
+            dist/job-private-scraper-filter/
 
           # Create archive
           cd dist
-          tar -czf job-private-scraper-filter-v${{ needs.create-release.outputs.version }}.tar.gz job-private-scraper-filter/
+          tar -czf job-private-scraper-filter-v${{ needs.create-release.outputs.version }}.tar.gz \
+            job-private-scraper-filter/
           zip -r job-private-scraper-filter-v${{ needs.create-release.outputs.version }}.zip job-private-scraper-filter/
 
       - name: Upload Release Assets
