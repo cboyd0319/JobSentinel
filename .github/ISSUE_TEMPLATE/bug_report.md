@@ -27,7 +27,7 @@ Error message here
 
 **Environment (please complete the following information):**
 - OS: [e.g. Windows 11, macOS Sonoma, Ubuntu 22.04]
-- Python version: [e.g. 3.12.11]
+- Python version: [e.g. 3.12.10]
 - Installation method: [e.g. Windows setup script, manual installation]
 
 **Configuration**

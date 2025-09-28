@@ -221,18 +221,22 @@ function Install-Python-Secure {
         return $true
     }
 
-    Write-Step "Installing Python 3.12 securely..."
+    Write-Step "Installing Python 3.12 (latest binary release)..."
     
     try {
         # SECURE METHOD: Download Python directly from official source with verification
-        $pythonVersion = "3.12.11"
+        # Note: Python 3.12.11 is source-only release - using latest binary release
+        Write-Info "Python 3.12.11 is available only as source code (requires compilation)"
+        Write-Info "Using Python 3.12.10 - the latest binary release with Windows installer"
+
+        $pythonVersion = "3.12.10"
         $pythonUrl = "https://www.python.org/ftp/python/$pythonVersion/python-$pythonVersion-amd64.exe"
         $installerPath = Join-Path $env:TEMP "python-$pythonVersion-installer.exe"
-        
+
         Write-Info "Downloading Python $pythonVersion from official python.org..."
         $progressPreference = 'SilentlyContinue'
         Invoke-WebRequest -Uri $pythonUrl -OutFile $installerPath -UseBasicParsing
-        
+
         # Verify the installer exists and has reasonable size
         if (!(Test-Path $installerPath)) {
             throw "Python installer download failed"
@@ -311,22 +315,69 @@ function Install-Git {
     }
 
     Write-Step "Installing Git..."
-    
+
     try {
-        choco install git -y
-        
-        # Refresh environment variables
-        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-        
-        # Verify Git installation
-        if (Get-Command git -ErrorAction SilentlyContinue) {
-            $gitVersion = git --version
-            Write-Success "Git installed and verified: $gitVersion"
+        # SECURE METHOD: Download Git directly from official source
+        $gitVersion = "2.47.0"
+        $gitUrl = "https://github.com/git-for-windows/git/releases/download/v$gitVersion.windows.1/Git-$gitVersion-64-bit.exe"
+        $installerPath = Join-Path $env:TEMP "git-$gitVersion-installer.exe"
+
+        Write-Info "Downloading Git $gitVersion from official GitHub releases..."
+        $progressPreference = 'SilentlyContinue'
+        Invoke-WebRequest -Uri $gitUrl -OutFile $installerPath -UseBasicParsing
+
+        # Verify the installer exists and has reasonable size
+        if (!(Test-Path $installerPath)) {
+            throw "Git installer download failed"
+        }
+
+        $fileSize = (Get-Item $installerPath).Length
+        if ($fileSize -lt 30MB) {
+            throw "Git installer appears corrupted (too small)"
+        }
+
+        Write-Info "Installing Git with secure parameters..."
+
+        # Install Git with silent parameters
+        $installArgs = @(
+            "/VERYSILENT",
+            "/NORESTART",
+            "/NOCANCEL",
+            "/SP-",
+            "/CLOSEAPPLICATIONS",
+            "/RESTARTAPPLICATIONS",
+            "/COMPONENTS=`"icons,ext\shell\shellhere,assoc,assoc_sh`""
+        )
+
+        $process = Start-Process -FilePath $installerPath -ArgumentList $installArgs -Wait -PassThru
+
+        if ($process.ExitCode -eq 0) {
+            # Refresh environment variables
+            $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+
+            # Wait a moment for PATH to refresh
+            Start-Sleep -Seconds 2
+
+            # Verify Git installation
+            if (Get-Command git -ErrorAction SilentlyContinue) {
+                $gitVersion = git --version
+                Write-Success "Git installed and verified: $gitVersion"
+
+                # Clean up installer
+                Remove-Item $installerPath -Force -ErrorAction SilentlyContinue
+                return $true
+            } else {
+                throw "Git installation verification failed"
+            }
         } else {
-            throw "Git installation verification failed"
+            throw "Git installer exited with code $($process.ExitCode)"
         }
     } catch {
         Write-Error "Failed to install Git: $($_.Exception.Message)"
+        # Clean up installer on failure
+        if (Test-Path $installerPath) {
+            Remove-Item $installerPath -Force -ErrorAction SilentlyContinue
+        }
         throw $_
     }
 }
