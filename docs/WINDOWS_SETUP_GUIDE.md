@@ -48,8 +48,10 @@ This software will:
 
 2. **Create the service account:**
 ```powershell
-# Create dedicated user (choose a secure password!)
-net user jobscraper "YourSecurePassword123!" /add /passwordchg:no /fullname:"Job Scraper Service"
+# Create dedicated user (you will be prompted for password)
+$password = Read-Host "Enter secure password for jobscraper account" -AsSecureString
+$plaintextPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($password))
+net user jobscraper "$plaintextPassword" /add /passwordchg:no /fullname:"Job Scraper Service"
 net localgroup "Users" jobscraper /add
 
 # Verify the account was created
@@ -66,7 +68,7 @@ net user jobscraper
 2. **Login as jobscraper**
    - On login screen, click "Other user"  
    - Username: `jobscraper`
-   - Password: `YourSecurePassword123!` (the password you chose above)
+   - Password: (the secure password you entered when creating the account)
 
 ### **Step 3: Run Secure Installation**
 
@@ -461,11 +463,14 @@ If you want AI-enhanced job matching:
 **Best Practice: Dedicated Service Account**
 ```powershell
 # 1. Create dedicated non-admin user (as administrator)
-net user jobscraper SecurePassword123! /add /passwordchg:no
+# Prompt for secure password
+$password = Read-Host "Enter secure password for jobscraper account" -AsSecureString
+$plaintextPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($password))
+net user jobscraper "$plaintextPassword" /add /passwordchg:no
 net localgroup "Users" jobscraper /add
 
 # 2. Login as jobscraper user and run setup
-runas /user:jobscraper "powershell -File setup_windows.ps1"
+runas /user:jobscraper "powershell -File scripts/setup_windows.ps1"
 ```
 
 **Why This Matters:**
@@ -537,7 +542,7 @@ python agent.py --mode test
 ```
 
 ### **Step 6: Schedule**
-Create Windows scheduled tasks manually or use the provided PowerShell commands in `setup_windows.ps1`.
+Create Windows scheduled tasks manually or use the provided PowerShell commands in `scripts/setup_windows.ps1`.
 
 ---
 
@@ -557,7 +562,7 @@ This system is designed to be **completely self-sufficient**. If something goes 
 ### **Setup Debug Mode**
 If setup fails, run with verbose logging:
 ```powershell
-.\setup_windows.ps1 -Verbose
+.\scripts\setup_windows.ps1 -Verbose
 ```
 This provides timestamped detailed output for troubleshooting.
 

@@ -321,7 +321,7 @@ setup_ai_configuration() {
 # Setup cloud configuration
 setup_cloud_configuration() {
     log_info "Preparing cloud deployment for $CLOUD_PROVIDER..."
-    
+
     # CRITICAL: Cost protection warnings
     echo
     log_error "🚨 STOP! READ THIS FIRST 🚨"
@@ -651,7 +651,8 @@ setup_automation() {
 
 # Setup local automation (cron/systemd)
 setup_local_automation() {
-    local agent_path="$(pwd)"
+    local agent_path
+    agent_path="$(pwd)"
     local python_path="$agent_path/.venv/bin/python"
     
     log_info "Setting up local automation..."

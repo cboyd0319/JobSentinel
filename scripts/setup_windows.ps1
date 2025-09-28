@@ -112,25 +112,48 @@ function Test-SystemRequirements {
         Write-Success "PowerShell version: $($PSVersionTable.PSVersion) ✓"
     }
     
-    # Check available disk space (need at least 2GB)
-    $drive = Get-WmiObject Win32_LogicalDisk -Filter "DeviceID='C:'"
-    $freeSpaceGB = [math]::Round($drive.FreeSpace / 1GB, 2)
-    if ($freeSpaceGB -lt 2) {
-        $issues += "Insufficient disk space: $freeSpaceGB GB free (need 2GB+)"
+    # Check available disk space (need at least 2GB) - Windows only
+    if ($IsWindows -or ($PSVersionTable.PSVersion.Major -lt 6)) {
+        try {
+            if ($PSVersionTable.PSVersion.Major -ge 6) {
+                # PowerShell Core on Windows - use Get-CimInstance
+                $drive = Get-CimInstance -ClassName Win32_LogicalDisk -Filter "DeviceID='C:'" -ErrorAction SilentlyContinue
+            } else {
+                # Windows PowerShell - use Get-WmiObject
+                $drive = Get-WmiObject Win32_LogicalDisk -Filter "DeviceID='C:'" -ErrorAction SilentlyContinue
+            }
+
+            if ($drive) {
+                $freeSpaceGB = [math]::Round($drive.FreeSpace / 1GB, 2)
+                if ($freeSpaceGB -lt 2) {
+                    $issues += "Insufficient disk space: $freeSpaceGB GB free (need 2GB+)"
+                } else {
+                    Write-Success "Disk space: $freeSpaceGB GB available ✓"
+                }
+            } else {
+                Write-Warning "Could not check disk space (non-critical)"
+            }
+        } catch {
+            Write-Warning "Could not check disk space: $($_.Exception.Message) (non-critical)"
+        }
     } else {
-        Write-Success "Disk space: $freeSpaceGB GB available ✓"
+        Write-Success "Disk space check skipped (not Windows) ✓"
     }
     
-    # Check if .NET Framework is available
-    try {
-        $dotNetVersion = Get-ItemProperty "HKLM:SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full\" -Name Release -ErrorAction SilentlyContinue
-        if (!$dotNetVersion) {
-            $issues += ".NET Framework 4.0+ required for some components"
-        } else {
-            Write-Success ".NET Framework available ✓"
+    # Check if .NET Framework is available (Windows only)
+    if ($IsWindows -or ($PSVersionTable.PSVersion.Major -lt 6)) {
+        try {
+            $dotNetVersion = Get-ItemProperty "HKLM:SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full\" -Name Release -ErrorAction SilentlyContinue
+            if (!$dotNetVersion) {
+                $issues += ".NET Framework 4.0+ required for some components"
+            } else {
+                Write-Success ".NET Framework available ✓"
+            }
+        } catch {
+            Write-Warning "Could not verify .NET Framework (non-critical)"
         }
-    } catch {
-        Write-Warning "Could not verify .NET Framework (non-critical)"
+    } else {
+        Write-Success ".NET Framework check skipped (not Windows) ✓"
     }
     
     if ($issues.Count -gt 0) {
@@ -145,15 +168,35 @@ function Test-SystemRequirements {
 }
 
 function Test-AdminRights {
-    $currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
-    $principal = New-Object Security.Principal.WindowsPrincipal($currentUser)
-    return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+    if ($IsWindows -or ($PSVersionTable.PSVersion.Major -lt 6)) {
+        try {
+            $currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
+            $principal = New-Object Security.Principal.WindowsPrincipal($currentUser)
+            return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+        } catch {
+            Write-Warning "Could not check admin rights: $($_.Exception.Message)"
+            return $false
+        }
+    } else {
+        # Non-Windows platforms - return true to skip admin check
+        return $true
+    }
 }
 
 function Test-InternetConnection {
     try {
-        $null = Test-NetConnection -ComputerName "google.com" -Port 80 -InformationLevel Quiet
-        return $true
+        if (Get-Command Test-NetConnection -ErrorAction SilentlyContinue) {
+            $testHost = "8.8.8.8"  # Google DNS - more appropriate for connectivity test
+            $null = Test-NetConnection -ComputerName $testHost -Port 53 -InformationLevel Quiet
+            return $true
+        } else {
+            # Fallback for platforms without Test-NetConnection
+            $request = [System.Net.WebRequest]::Create("https://www.microsoft.com")
+            $request.Timeout = 5000
+            $response = $request.GetResponse()
+            $response.Close()
+            return $true
+        }
     } catch {
         return $false
     }
@@ -184,7 +227,7 @@ function Install-Python-Secure {
         # SECURE METHOD: Download Python directly from official source with verification
         $pythonVersion = "3.12.11"
         $pythonUrl = "https://www.python.org/ftp/python/$pythonVersion/python-$pythonVersion-amd64.exe"
-        $installerPath = "$env:TEMP\\python-$pythonVersion-installer.exe"
+        $installerPath = Join-Path $env:TEMP "python-$pythonVersion-installer.exe"
         
         Write-Info "Downloading Python $pythonVersion from official python.org..."
         $progressPreference = 'SilentlyContinue'
@@ -258,6 +301,7 @@ function Install-Python {
     if (-not $success) {
         throw "Python installation failed - cannot continue setup"
     }
+}
 
 function Install-Git {
     if (Get-Command git -ErrorAction SilentlyContinue) {
@@ -434,7 +478,7 @@ function Setup-JobScraper {
         
         # Verify key imports
         Write-Step "Verifying package installations..."
-        $testScript = @"
+        $testScript = @'
 import sys
 try:
     import requests, pydantic, sqlmodel, dotenv, tenacity, playwright
@@ -444,7 +488,7 @@ try:
 except ImportError as e:
     print(f"❌ Import error: {e}")
     sys.exit(1)
-"@
+'@
         $testResult = python -c $testScript
         if ($LASTEXITCODE -eq 0) {
             Write-Success "Package verification completed"
@@ -463,7 +507,7 @@ except ImportError as e:
         Write-Success "Playwright browsers installed"
         
         # Verify Playwright installation
-        $playwrightTest = python -c "from playwright.sync_api import sync_playwright; print('✅ Playwright working')" 2>$null
+        $null = python -c "from playwright.sync_api import sync_playwright; print('✅ Playwright working')" 2>$null
         if ($LASTEXITCODE -eq 0) {
             Write-Success "Playwright installation verified"
         } else {
@@ -487,7 +531,7 @@ function Setup-ConfigFiles {
                 Copy-Item ".env.example" ".env"
                 Write-Success "Created .env file from example"
             } else {
-                @"
+                @'
 # Timezone for logging and scheduling
 TZ=America/New_York
 
@@ -509,7 +553,7 @@ CLEANUP_DAYS=90
 
 # Flask settings
 FLASK_ENV=production
-"@ | Out-File -FilePath ".env" -Encoding UTF8
+'@ | Out-File -FilePath ".env" -Encoding UTF8
                 Write-Success "Created default .env file"
             }
         } else {
@@ -522,7 +566,7 @@ FLASK_ENV=production
                 Copy-Item "user_prefs.example.json" "user_prefs.json"
                 Write-Success "Created user_prefs.json from example"
             } else {
-                @"
+                @'
 {
   "companies": [
     {"id":"cloudflare","board_type":"greenhouse", "url":"https://boards.greenhouse.io/cloudflare"},
@@ -539,7 +583,7 @@ FLASK_ENV=production
   "fetch_descriptions": true,
   "max_companies_per_run": 10
 }
-"@ | Out-File -FilePath "user_prefs.json" -Encoding UTF8
+'@ | Out-File -FilePath "user_prefs.json" -Encoding UTF8
                 Write-Success "Created default user_prefs.json"
             }
         } else {
@@ -547,7 +591,7 @@ FLASK_ENV=production
         }
 
         # Create data directory structure
-        $directories = @("data", "data\\logs", ".security-reports")
+        $directories = @("data", (Join-Path "data" "logs"), ".security-reports")
         foreach ($dir in $directories) {
             if (!(Test-Path $dir)) {
                 New-Item -ItemType Directory -Path $dir -Force | Out-Null
@@ -593,7 +637,7 @@ function Test-Installation {
             $validationErrors += "Virtual environment Python not found"
         } else {
             # Test Python imports
-            $testScript = @"
+            $testScript = @'
 import sys, os
 sys.path.insert(0, os.getcwd())
 try:
@@ -604,7 +648,7 @@ try:
 except ImportError as e:
     print(f"ERROR: {e}")
     sys.exit(1)
-"@
+'@
             
             $testResult = & $venvPython -c $testScript 2>&1
             if ($LASTEXITCODE -ne 0) {
@@ -654,8 +698,8 @@ except ImportError as e:
             return $true
         } else {
             Write-Warning "Installation validation found issues:"
-            foreach ($error in $validationErrors) {
-                Write-Host "  ⚠️  $error" -ForegroundColor Yellow
+            foreach ($validationError in $validationErrors) {
+                Write-Host "  ⚠️  $validationError" -ForegroundColor Yellow
             }
             Write-Info "Installation may still work, but some features might be affected"
             return $false
@@ -679,8 +723,8 @@ function Setup-TaskScheduler {
 
     Write-Step "Setting up Windows Task Scheduler..."
 
-    $pythonPath = Join-Path $InstallPath ".venv\\Scripts\\python.exe"
-    $agentPath = Join-Path $InstallPath "src\\agent.py"
+    $pythonPath = Join-Path $InstallPath ".venv" | Join-Path -ChildPath "Scripts" | Join-Path -ChildPath "python.exe"
+    $agentPath = Join-Path $InstallPath "agent.py"
 
     try {
         # Remove existing tasks first to avoid conflicts
@@ -688,7 +732,10 @@ function Setup-TaskScheduler {
         foreach ($taskName in $existingTasks) {
             try {
                 Unregister-ScheduledTask -TaskName $taskName -Confirm:$false -ErrorAction SilentlyContinue
-            } catch {}
+            } catch {
+                # Ignore errors when removing non-existent tasks
+                Write-Verbose "Task $taskName not found or could not be removed"
+            }
         }
 
         # Create polling task (every 15 minutes)
@@ -717,7 +764,7 @@ function Setup-TaskScheduler {
         Write-Success "Created cleanup task (weekly on Sunday)"
 
         # Create auto-update task (daily at 6 AM) - SECURE VERSION
-        $updateScript = "$InstallPath\\scripts\\secure-update.ps1"
+        $updateScript = Join-Path $InstallPath "scripts" | Join-Path -ChildPath "secure-update.ps1"
         $updateAction = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-WindowStyle Hidden -File '$updateScript' -InstallPath '$InstallPath' -Quiet" -WorkingDirectory $InstallPath
         $updateTrigger = New-ScheduledTaskTrigger -Daily -At "6:00AM"
         $updateSettings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -MultipleInstances IgnoreNew
@@ -741,7 +788,7 @@ function Create-StartupShortcuts {
         $desktop = [System.Environment]::GetFolderPath('Desktop')
 
         # Test shortcut
-        $testShortcut = $shell.CreateShortcut("$desktop\\Test Job Scraper.lnk")
+        $testShortcut = $shell.CreateShortcut((Join-Path $desktop "Test Job Scraper.lnk"))
         $testShortcut.TargetPath = "powershell.exe"
         $testShortcut.Arguments = "-WindowStyle Normal -Command `"cd '$InstallPath'; & '.\.venv\Scripts\python.exe' agent.py --mode test; Write-Host 'Press any key to close...'; `$null = `$Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')`""
         $testShortcut.WorkingDirectory = $InstallPath
@@ -749,7 +796,7 @@ function Create-StartupShortcuts {
         $testShortcut.Save()
 
         # Manual run shortcut
-        $runShortcut = $shell.CreateShortcut("$desktop\\Run Job Scraper.lnk")
+        $runShortcut = $shell.CreateShortcut((Join-Path $desktop "Run Job Scraper.lnk"))
         $runShortcut.TargetPath = "powershell.exe"
         $runShortcut.Arguments = "-WindowStyle Normal -Command `"cd '$InstallPath'; & '.\.venv\Scripts\python.exe' agent.py --mode poll; Write-Host 'Job search completed. Press any key to close...'; `$null = `$Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')`""
         $runShortcut.WorkingDirectory = $InstallPath
@@ -757,25 +804,19 @@ function Create-StartupShortcuts {
         $runShortcut.Save()
 
         # Web UI shortcut
-        $webShortcut = $shell.CreateShortcut("$desktop\\Job Scraper Web UI.lnk")
+        $webShortcut = $shell.CreateShortcut((Join-Path $desktop "Job Scraper Web UI.lnk"))
         $webShortcut.TargetPath = "powershell.exe"
         $webShortcut.Arguments = "-WindowStyle Normal -Command `"cd '$InstallPath'; Write-Host 'Starting web interface on http://localhost:5000'; Write-Host 'Press Ctrl+C to stop...'; & '.\.venv\Scripts\python.exe' web_ui.py`""
         $webShortcut.WorkingDirectory = $InstallPath
         $webShortcut.Description = "Start Job Scraper web interface"
         $webShortcut.Save()
 
-        # Update shortcut
-        $updateShortcut = $shell.CreateShortcut("$desktop\\Update Job Scraper.lnk")
+        # Update shortcut - SECURE VERSION
+        $updateShortcut = $shell.CreateShortcut((Join-Path $desktop "Update Job Scraper.lnk"))
         $updateShortcut.TargetPath = "powershell.exe"
-                # Update shortcut - SECURE VERSION
-        $updateShortcut = $shell.CreateShortcut("$desktop\\Update Job Scraper.lnk")
-        $updateShortcut.TargetPath = "powershell.exe"
-        $updateShortcut.Arguments = "-WindowStyle Normal -File '$InstallPath\\scripts\\secure-update.ps1' -InstallPath '$InstallPath'; Write-Host 'Press any key to close...'; `$null = `$Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')"
+        $updateShortcut.Arguments = "-WindowStyle Normal -File '$updateScript' -InstallPath '$InstallPath'; Write-Host 'Press any key to close...'; `$null = `$Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')"
         $updateShortcut.WorkingDirectory = $InstallPath
         $updateShortcut.Description = "Check for and install Job Scraper updates (secure)"
-        $updateShortcut.Save()"
-        $updateShortcut.WorkingDirectory = $InstallPath
-        $updateShortcut.Description = "Check for and install Job Scraper updates"
         $updateShortcut.Save()
 
         Write-Success "Created desktop shortcuts (including update shortcut)"
@@ -793,12 +834,12 @@ function Show-CompletionSummary {
     Write-Host "${Cyan}📍 Installation Details:${Reset}"
     Write-Host "   Location: $InstallPath"
     Write-Host "   Python: $(Get-PythonVersion)"
-    Write-Host "   Virtual Environment: $InstallPath\\.venv"
+    Write-Host "   Virtual Environment: $(Join-Path $InstallPath '.venv')"
     Write-Host ""
     Write-Host "${Yellow}🔧 Next Steps:${Reset}"
     Write-Host "   1. ${Blue}Edit configuration files:${Reset}"
-    Write-Host "      • $InstallPath\\.env (notification settings)"
-    Write-Host "      • $InstallPath\\user_prefs.json (job preferences)"
+    Write-Host "      • $(Join-Path $InstallPath '.env') (notification settings)"
+    Write-Host "      • $(Join-Path $InstallPath 'user_prefs.json') (job preferences)"
     Write-Host ""
     Write-Host "   2. ${Blue}Test your setup:${Reset}"
     Write-Host "      • Use the 'Test Job Scraper' desktop shortcut"
@@ -816,15 +857,15 @@ function Show-CompletionSummary {
     Write-Host ""
     Write-Host "${Green}💡 Pro Tips:${Reset}"
     Write-Host "   • Check Task Scheduler for automated runs status"
-    Write-Host "   • Logs are stored in $InstallPath\\data\\logs\\"
-    Write-Host "   • Database file: $InstallPath\\data\\jobs.sqlite"
-    Write-Host "   • Update logs: $InstallPath\\data\\logs\\updates.log"
+    Write-Host "   • Logs are stored in $(Join-Path $InstallPath 'data' | Join-Path -ChildPath 'logs')/"
+    Write-Host "   • Database file: $(Join-Path $InstallPath 'data' | Join-Path -ChildPath 'jobs.sqlite')"
+    Write-Host "   • Update logs: $(Join-Path $InstallPath 'data' | Join-Path -ChildPath 'logs' | Join-Path -ChildPath 'updates.log')"
     Write-Host ""
 }
 
 function Update-JobScraper {
     param(
-        [string]$InstallPath = "$env:USERPROFILE\\job-scraper",
+        [string]$InstallPath = (Join-Path $env:USERPROFILE "job-scraper"),
         [switch]$Force,
         [switch]$Quiet
     )
@@ -837,13 +878,13 @@ function Update-JobScraper {
         Push-Location $InstallPath
         
         # Backup user configuration files
-        $configBackup = "$env:TEMP\\job-scraper-config-backup-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+        $configBackup = Join-Path $env:TEMP "job-scraper-config-backup-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
         New-Item -ItemType Directory -Path $configBackup -Force | Out-Null
         
         $configFiles = @(".env", "user_prefs.json")
         foreach ($file in $configFiles) {
             if (Test-Path $file) {
-                Copy-Item $file "$configBackup\\$file" -Force
+                Copy-Item $file (Join-Path $configBackup $file) -Force
                 if (!$Quiet) { Write-Info "Backed up $file" }
             }
         }
@@ -867,7 +908,7 @@ function Update-JobScraper {
             # No Git - download fresh copy and compare
             if (!$Quiet) { Write-Step "Downloading latest version for comparison..." }
             
-            $tempDir = "$env:TEMP\\job-scraper-update-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+            $tempDir = Join-Path $env:TEMP "job-scraper-update-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
             git clone https://github.com/cboyd0319/job-private-scraper-filter.git $tempDir
             
             # Check if VERSION file differs or doesn't exist
@@ -878,15 +919,15 @@ function Update-JobScraper {
                 $currentVersion = Get-Content "VERSION" -Raw
             }
             
-            if (Test-Path "$tempDir\\VERSION") {
-                $newVersion = Get-Content "$tempDir\\VERSION" -Raw
+            if (Test-Path (Join-Path $tempDir "VERSION")) {
+                $newVersion = Get-Content (Join-Path $tempDir "VERSION") -Raw
             }
             
             if ($currentVersion -ne $newVersion -or $Force) {
                 if (!$Quiet) { Write-Step "Updating from version '$currentVersion' to '$newVersion'..." }
                 
                 # Copy new files (excluding user config and data)
-                $excludePatterns = @(".env", "user_prefs.json", "data\\*", ".venv\\*")
+                $excludePatterns = @(".env", "user_prefs.json", "data/*", ".venv/*")
                 
                 Get-ChildItem $tempDir -Recurse | ForEach-Object {
                     $relativePath = $_.FullName.Substring($tempDir.Length + 1)
@@ -933,35 +974,35 @@ function Update-JobScraper {
             
             # Restore user configuration files
             foreach ($file in $configFiles) {
-                if (Test-Path "$configBackup\\$file") {
-                    Copy-Item "$configBackup\\$file" $file -Force
+                if (Test-Path (Join-Path $configBackup $file)) {
+                    Copy-Item (Join-Path $configBackup $file) $file -Force
                     if (!$Quiet) { Write-Success "Restored $file" }
                 }
             }
             
             # Test installation after update
             if (!$Quiet) { Write-Step "Validating updated installation..." }
-            $testResult = & ".\.venv\Scripts\python.exe" -c "
+            $null = & ".\.venv\Scripts\python.exe" -c @'
 import sys, os
 sys.path.insert(0, os.getcwd())
 try:
     from src.agent import main
     from src.database import init_db
-    print('SUCCESS: Update validation passed')
+    print("SUCCESS: Update validation passed")
 except Exception as e:
-    print(f'ERROR: {e}')
+    print(f"ERROR: {e}")
     sys.exit(1)
-"
+'@
             
             if ($LASTEXITCODE -eq 0) {
                 if (!$Quiet) { Write-Success "Update completed successfully!" }
                 
                 # Log update
-                $logDir = "data\\logs"
+                $logDir = Join-Path "data" "logs"
                 if (!(Test-Path $logDir)) {
                     New-Item -ItemType Directory -Path $logDir -Force | Out-Null
                 }
-                $logFile = "$logDir\\updates.log"
+                $logFile = Join-Path $logDir "updates.log"
                 $logEntry = "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - Updated to version '$newVersion'"
                 Add-Content $logFile $logEntry
                 
@@ -984,8 +1025,8 @@ except Exception as e:
         # Restore configuration from backup if it exists
         if (Test-Path $configBackup) {
             foreach ($file in $configFiles) {
-                if (Test-Path "$configBackup\\$file") {
-                    Copy-Item "$configBackup\\$file" $file -Force
+                if (Test-Path (Join-Path $configBackup $file)) {
+                    Copy-Item (Join-Path $configBackup $file) $file -Force
                     Write-Warning "Restored $file from backup"
                 }
             }

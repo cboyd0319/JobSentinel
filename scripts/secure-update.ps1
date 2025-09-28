@@ -3,7 +3,7 @@
 # This script runs updates without bypassing execution policy
 
 param(
-    [string]$InstallPath = "$env:USERPROFILE\\job-scraper",
+    [string]$InstallPath = (Join-Path $env:USERPROFILE "job-scraper"),
     [switch]$Quiet
 )
 
@@ -21,11 +21,12 @@ function Write-SecureLog {
     }
     
     # Log to file
-    $logDir = "$InstallPath\\data\\logs"
+    $logDir = Join-Path $InstallPath "data" | Join-Path -ChildPath "logs"
     if (!(Test-Path $logDir)) {
         New-Item -ItemType Directory -Path $logDir -Force | Out-Null
     }
-    Add-Content "$logDir\\secure-updates.log" $logEntry
+    $logFile = Join-Path $logDir "secure-updates.log"
+    Add-Content $logFile $logEntry
 }
 
 function Test-GitRepositorySecurity {
