@@ -10,6 +10,7 @@ Here’s the running list of things I’m curious about exploring. No schedule, 
 
 ## Up next (maybe)
 
+- Implement a robust, reusable checksum validation function for all downloaded executables, images, and dependencies.
 - Bring the nicer Cloud Run bootstrapper experience to AWS Lambda and Azure Functions
 - Keep hammering on the Windows setup script until it feels as smooth as macOS/Linux
 - Expand CI to cover more scraping edge cases and make rollback easier

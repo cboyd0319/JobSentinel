@@ -6,7 +6,7 @@ I run this project locally most of the time, but the cloud bootstrapper is handy
 
 ```bash
 # Google Cloud Run (my default)
-python -m cloud.bootstrap --provider gcp
+python3 -m cloud.bootstrap --provider gcp
 
 # AWS Lambda
 curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/scripts/install.sh | bash -s -- --cloud-deploy aws
@@ -24,7 +24,7 @@ The bootstrap script includes a powerful logging and debugging feature. You can 
 By default, the script runs at the `INFO` level, which provides a high-level overview of the deployment process. If you need to troubleshoot or get a more detailed view of the operations being performed, you can set the log level to `DEBUG`:
 
 ```bash
-python3 cloud/bootstrap.py --log-level DEBUG
+python3 -m cloud.bootstrap --log-level DEBUG
 ```
 
 When running in `DEBUG` mode, the script will output:
@@ -86,7 +86,7 @@ If you need to update your configuration after deployment (for example, to chang
 To use the script, run the following command from the root of the repository:
 
 ```bash
-python3 cloud/update.py --project-id <your-gcp-project-id>
+python3 -m cloud.update --project-id <your-gcp-project-id>
 ```
 
 The script will present you with a menu of configurations that can be updated. Select "User Preferences", and you will be prompted to provide the path to your updated `user_prefs.json` file.
@@ -98,7 +98,7 @@ To make cleanup easy and safe, a `teardown.py` script is now included in the `cl
 To use the script, run the following command from the root of the repository:
 
 ```bash
-python3 cloud/teardown.py --project-id <your-gcp-project-id>
+python3 -m cloud.teardown --project-id <your-gcp-project-id>
 ```
 
 The script uses the `managed-by=job-scraper` label that is attached to all resources to identify what to delete. For an extra layer of safety, it will ask for a final confirmation before it begins deleting resources.

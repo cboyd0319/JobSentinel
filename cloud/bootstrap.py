@@ -29,6 +29,11 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
         help="Set the logging level (default: INFO)",
     )
+    parser.add_argument(
+        "--yes",
+        action="store_true",
+        help="Automatically answer yes to all prompts",
+    )
     return parser.parse_args(argv)
 
 
@@ -37,7 +42,7 @@ def main(argv: list[str] | None = None) -> int:
 
     namespace = parse_args(argv or sys.argv[1:])
     logger = setup_logging(log_level=namespace.log_level)
-    bootstrapper = load_provider(namespace.provider, logger)
+    bootstrapper = load_provider(namespace.provider, logger, namespace.yes)
     bootstrapper.run()
     return 0
 

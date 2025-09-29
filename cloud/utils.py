@@ -3,10 +3,14 @@
 from __future__ import annotations
 
 import os
+import logging
+import itertools
 import platform
 import shutil
 import subprocess  # nosec B404
 import sys
+import threading
+import time
 from pathlib import Path
 from typing import Iterable, Sequence
 
@@ -32,20 +36,44 @@ def run_command(
     text: bool = True,
     env: dict[str, str] | None = None,
     input_data: bytes | str | None = None,
+    show_spinner: bool = False,
 ) -> subprocess.CompletedProcess[str]:
     """Wrapper around :func:`subprocess.run` with sensible defaults."""
 
     if logger:
         logger.debug(f"Running command: {' '.join(command)}")
 
-    return subprocess.run(  # type: ignore[no-any-return] # nosec B603
-        list(command),
-        check=check,
-        capture_output=capture_output,
-        text=text,
-        env=env,
-        input=input_data,  # type: ignore[arg-type]
-    )
+    spinner_thread = None
+    stop_spinner = threading.Event()
+
+    def _spinner():
+        for char in itertools.cycle(['-', '\\', '|', '/']):
+            if stop_spinner.is_set():
+                break
+            sys.stdout.write(char)
+            sys.stdout.flush()
+            time.sleep(0.1)
+            sys.stdout.write('\b')
+
+    if show_spinner and (not logger or logger.getEffectiveLevel() > logging.DEBUG):
+        spinner_thread = threading.Thread(target=_spinner)
+        spinner_thread.start()
+
+    try:
+        process = subprocess.run(
+            list(command),
+            check=check,
+            capture_output=capture_output,
+            text=text,
+            env=env,
+            input=input_data,
+        )
+    finally:
+        if spinner_thread:
+            stop_spinner.set()
+            spinner_thread.join()
+
+    return process
 
 
 def which(binary: str) -> Path | None:
@@ -80,9 +108,11 @@ def ensure_directory(path: Path) -> Path:
 
 
 
-def confirm(prompt: str) -> bool:
+def confirm(prompt: str, no_prompt: bool = False) -> bool:
     """Prompt for a yes/no confirmation, defaulting to ``False``."""
 
+    if no_prompt:
+        return True
     answer = input(f"{prompt} [y/N]: ").strip().lower()
     return answer in {"y", "yes"}
 
