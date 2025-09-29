@@ -63,12 +63,53 @@ jobs:
         env:
           SAFETY_API_KEY: ${{ secrets.SAFETY_API_KEY }}
 
-      - name: Ensure Safety SARIF exists
+      - name: Normalize Safety SARIF
         if: always()
         run: |
-          if [ ! -s safety-results.sarif ]; then
-            echo '{"version":"2.1.0","$schema":"https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0.json","runs":[]}' > safety-results.sarif
-          fi
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path("safety-results.sarif")
+
+          def minimal_sarif():
+              return {
+                  "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0.json",
+                  "version": "2.1.0",
+                  "runs": [
+                      {
+                          "tool": {
+                              "driver": {
+                                  "name": "safety",
+                                  "informationUri": "https://github.com/pyupio/safety",
+                                  "rules": []
+                              }
+                          },
+                          "results": []
+                      }
+                  ]
+              }
+
+          if not path.exists() or path.stat().st_size == 0:
+              path.write_text(json.dumps(minimal_sarif()))
+          else:
+              try:
+                  data = json.loads(path.read_text())
+              except json.JSONDecodeError:
+                  data = minimal_sarif()
+              runs = data.get("runs")
+              if not isinstance(runs, list) or not runs:
+                  data = minimal_sarif()
+              else:
+                  for run in runs:
+                      tool = run.setdefault("tool", {})
+                      driver = tool.setdefault("driver", {})
+                      driver.setdefault("name", "safety")
+                      driver.setdefault("informationUri", "https://github.com/pyupio/safety")
+                      driver.setdefault("rules", driver.get("rules", []))
+                      run.setdefault("results", [])
+              path.write_text(json.dumps(data))
+          PY
 
 
       - name: Upload Bandit SARIF
