@@ -2,7 +2,6 @@
 
 This is my personal project and it's still evolving. I make frequent changes and sometimes break things. If you're trying this out, expect rough edges. I’ll remove this notice once things settle down.
 
-
 # Private Job Scraper & Filter
 
 [![GitHub release](https://img.shields.io/github/v/release/cboyd0319/job-private-scraper-filter)](https://github.com/cboyd0319/job-private-scraper-filter/releases)
@@ -12,7 +11,8 @@ This is a local job-scraper I built to watch job boards I care about and to shar
 ![Python 3.12.10](https://img.shields.io/badge/python-3.12.10-blue.svg)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 
-Table of contents
+## Table of contents
+
 - Features
 - Supported job boards
 - Quick start
@@ -31,7 +31,8 @@ Table of contents
 > deployment path, and feature aims to be simple to adopt while defaulting to
 > hardened, least-privilege configurations.
 
-What it does
+## What it does
+
 - Monitors job boards on a schedule (default: every 15 minutes)
 - Filters and scores jobs using rules (and optionally AI)
 - Sends alerts to Slack or email when a match looks good
@@ -40,15 +41,16 @@ What it does
 - **NEW**: One-command setup for local, AI-enhanced, or cloud deployment
 - **NEW**: Built-in cost protections for cloud deployments (prevents surprise bills)
 
-Supported job boards
+## Supported job boards
+
 - Greenhouse (example: Cloudflare, Stripe)
 - Lever (example: Netflix, Uber)
 - Workday (many large companies)
 - Generic JS-powered career pages
 
-Quick start
+## Quick start
 
-**Recommended: free Google Cloud Run deployment (secure & automated)**
+### Recommended: free Google Cloud Run deployment (secure & automated)
 
 The easiest, most secure way to run the scraper is the new Cloud Run bootstrapper.
 It installs the Google Cloud SDK if needed, creates a dedicated project, enables
@@ -63,7 +65,7 @@ python -m cloud.bootstrap --provider gcp
 > billing activation (a Google requirement even for free tier usage). Everything
 > else is handled automatically with security-first defaults.
 
-**Local install (macOS, Linux, Windows)**
+### Local install (macOS, Linux, Windows)
 
 Prefer to run everything on your own machine? Use the universal installer:
 
@@ -72,6 +74,7 @@ curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filte
 ```
 
 **Advanced options:**
+
 ```bash
 # With AI integration (OpenAI, Gemini, or Anthropic)
 curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/scripts/install.sh | bash -s -- --ai-enhanced openai
@@ -80,7 +83,7 @@ curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filte
 curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/scripts/install.sh | bash -s -- --help
 ```
 
-Windows (PowerShell)
+### Windows (PowerShell)
 
 Run the setup script and follow the prompts:
 
@@ -90,7 +93,7 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 
 > 📖 **Windows users**: See the detailed [Windows Setup Guide](docs/WINDOWS_SETUP_GUIDE.md) for step-by-step instructions with screenshots and troubleshooting tips.
 
-macOS / Linux
+### macOS / Linux
 
 ```bash
 git clone https://github.com/cboyd0319/job-private-scraper-filter.git
@@ -98,7 +101,7 @@ cd job-private-scraper-filter
 chmod +x scripts/setup.sh && ./scripts/setup.sh
 ```
 
-Config files
+## Config files
 
 Copy the examples and edit them:
 
@@ -107,7 +110,7 @@ cp .env.example .env
 cp config/user_prefs.example.json config/user_prefs.json
 ```
 
-Notifications
+## Notifications
 
 Put your webhook or email settings in `.env`:
 
@@ -118,12 +121,12 @@ SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK
 # Email settings for daily digest
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
-SMTP_USER=your_email@gmail.com
+SMTP_USER=your_email@example.com
 SMTP_PASS=your_app_password
-DIGEST_TO=your_email@gmail.com
+DIGEST_TO=your_email@example.com
 ```
 
-Job filters (example `config/user_prefs.json`)
+## Job filters (example `config/user_prefs.json`)
 
 ```json
 {
@@ -138,7 +141,7 @@ Job filters (example `config/user_prefs.json`)
 }
 ```
 
-Optional: AI scoring
+## Optional: AI scoring
 
 You can enable ChatGPT to help with scoring (totally optional):
 
@@ -147,9 +150,11 @@ LLM_ENABLED=true
 OPENAI_API_KEY=sk-your-api-key-here
 ```
 
-Cloud deployment (with cost protection)
+## Cloud deployment (with cost protection)
 
-**New cross-platform bootstrapper:** provision an entire Google Cloud Run Jobs
+### New cross-platform bootstrapper
+
+provision an entire Google Cloud Run Jobs
 stack without pre-installed tooling. A single command works on Windows, macOS,
 and Linux:
 
@@ -164,7 +169,7 @@ Secret Manager, and wires Cloud Scheduler for a 15-minute polling cadence.
 > 🔁 **Windows note:** Replace `python3` with `python` in the commands below if
 > the `python3` alias is not available on your system.
 
-Legacy installer flows remain available:
+### Legacy installer flows remain available
 
 ```bash
 # Google Cloud Run (legacy path)
@@ -178,6 +183,7 @@ curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filte
 ```
 
 **Cost Protection Features:**
+
 - Automatic billing alerts at $5/$10/$15 thresholds
 - Hard resource limits (512MB RAM, 15min timeout)
 - Weekend/holiday auto-pause
@@ -186,26 +192,30 @@ curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filte
 
 See `docs/CLOUD_COSTS.md` for detailed cost analysis and protection details.
 
-Security scanning & monitoring
+## Security scanning & monitoring
 
 The project includes enterprise-grade security scanning with multiple automated tools:
 
 **Core Security Analysis:**
+
 - **CodeQL Analysis**: GitHub's semantic code vulnerability detection
 - **OSV Scanner**: Google's comprehensive vulnerability database (replaces Trivy)
 - **Secrets detection**: TruffleHog scans for leaked API keys/passwords (verified results only)
 
 **Python Security:**
+
 - **Enhanced Bandit**: Python security linter with 50+ comprehensive security tests
 - **Safety**: Dependency vulnerability scanner configured with `config/.safety-project.ini`, blocking fixable Critical/High/Medium issues and exporting SARIF locally/CI
 
 **Configuration & Infrastructure:**
+
 - **yamllint**: YAML syntax and style validation for workflows
 - **ShellCheck**: Shell script security analysis
 - **Dependency Review**: License compliance and vulnerability blocking
 - **CI hardening**: Step-Security hardens GitHub Actions runners
 
 **Supply Chain Security:**
+
 - **Build Provenance**: Attestation for key project files
 - **FOSSA License Scanning**: Advanced license compatibility checking
 - **Prowler CIS Reports**: Automated Cloud Run bootstrap report (cis_4.0_gcp) saved in `cloud/reports/`, plus scheduled GitHub CIS scans via Prowler.
@@ -215,6 +225,7 @@ The project includes enterprise-grade security scanning with multiple automated 
 All security results are uploaded in **SARIF format** to the **GitHub Security tab** for centralized monitoring and vulnerability management. Locally, run `scripts/precommit-security-scan.sh` to execute the same blocking policy before pushing changes.
 
 **PowerShell Script Validation:**
+
 - **PSScriptAnalyzer**: Static analysis for PowerShell scripts
 - **Syntax Testing**: Automated parsing validation for all .ps1 files
 - **Security Analysis**: Checks for common PowerShell security issues
@@ -250,7 +261,7 @@ The project follows an organized structure for better maintainability:
 └── docs/                     # Documentation (installation, development, ops)
 ```
 
-Usage examples
+## Usage examples
 
 ```bash
 # Run job search and send alerts
@@ -271,11 +282,11 @@ python3 -m src.agent --mode cleanup
 
 > 💡 On Windows, use `python` in place of `python3` when running these commands.
 
-Health checks
+## Health checks
 
 Run `python3 -m src.agent --mode health` to get a quick status report.
 
-Project layout (important files)
+## Project layout (important files)
 
 ```
 ├── src/                     # Core application code
@@ -300,13 +311,13 @@ Project layout (important files)
 ├── requirements.txt       # Python dependencies
 ```
 
-Security & privacy
+## Security & privacy
 
 - Everything runs locally by default
 - Secrets live in `.env` on your machine
 - No telemetry or tracking
 
-Contributing
+## Contributing
 
 If you want to help:
 
@@ -315,12 +326,11 @@ If you want to help:
 3. Make changes and test
 4. Open a pull request
 
-License
+## License
 
 MIT — see the `LICENSE` file.
 
-
-Need help?
+## Need help?
 
 - Check [`docs/`](docs/) for guides:
   - [🪟 Windows Setup Guide](docs/WINDOWS_SETUP_GUIDE.md) - Complete Windows 11 setup instructions
