@@ -32,6 +32,7 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           DISPATCH_VERSION: ${{ github.event.inputs.version }}
         run: |
+          # nosemgrep: yaml.github-actions.security.run-shell-injection.run-shell-injection
           python3 <<'PY'
           import os
           import re

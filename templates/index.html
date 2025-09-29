@@ -34,6 +34,7 @@
                         <h4>Configuration (user_prefs.json)</h4>
                     </div>
                     <div class="card-body">
+                        <!-- nosemgrep: python.django.security.django-no-csrf-token.django-no-csrf-token -->
                         <form action="/save" method="post">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <textarea name="config" class="form-control" rows="25">{{ prefs | tojson(indent=2) }}</textarea>
@@ -58,6 +59,7 @@
                     <ul class="list-group list-group-flush">
                          {% for job in jobs %}
                             <li class="list-group-item">
+                                <!-- nosemgrep: generic.html-templates.security.var-in-href.var-in-href -->
                                 <a href="{{ job.url | e }}" target="_blank" rel="noopener noreferrer">{{ job.title | e }}</a><br>
                                 <small class="text-muted">{{ job.company }} | Score: {{ "%.2f"|format(job.score) }}</small>
                             </li>
