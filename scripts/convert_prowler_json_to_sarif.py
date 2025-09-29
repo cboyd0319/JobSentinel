@@ -22,23 +22,39 @@ def map_severity_to_level(severity: str) -> str:
     return severity_map.get(severity.lower(), "warning")
 
 
-def extract_findings_from_json(data: Dict[str, Any]) -> List[Dict[str, Any]]:
+def extract_findings_from_json(data: Any) -> List[Dict[str, Any]]:
     """Extract findings from Prowler JSON-OCSF format."""
     findings = []
 
+    # Debug: Print structure info
+    print(f"DEBUG: JSON data type: {type(data)}")
+
     # Handle different possible JSON structures
     if isinstance(data, list):
+        print(f"DEBUG: Processing list with {len(data)} items")
         # If data is a list of findings
         findings = data
     elif isinstance(data, dict):
+        print(f"DEBUG: Processing dict with keys: {list(data.keys())}")
         # If data is a dict, look for findings in common locations
         if 'findings' in data:
             findings = data['findings']
+            print(f"DEBUG: Found 'findings' key with {len(findings) if isinstance(findings, list) else 1} items")
         elif 'results' in data:
             findings = data['results']
+            print(f"DEBUG: Found 'results' key with {len(findings) if isinstance(findings, list) else 1} items")
         else:
+            # Check if this might be a newline-delimited JSON file
+            print("DEBUG: No 'findings' or 'results' key found. Keys available:", list(data.keys())[:10])
             # Assume the dict itself is a finding
             findings = [data]
+    else:
+        print(f"DEBUG: Unexpected data type: {type(data)}")
+
+    print(f"DEBUG: Extracted {len(findings)} findings")
+    if findings and len(findings) > 0:
+        print(f"DEBUG: First finding keys: {list(findings[0].keys()) if isinstance(findings[0], dict) else 'Not a dict'}")
+        print(f"DEBUG: First finding sample: {str(findings[0])[:200]}...")
 
     return findings
 
@@ -52,8 +68,24 @@ def build_sarif_from_json(json_data: Dict[str, Any]) -> Dict[str, Any]:
 
     for finding in findings:
         # Skip if not a failed finding
-        status = finding.get('status', '').lower()
-        if status not in {'fail', 'failed', 'failure'}:
+        status = str(finding.get('status', '')).lower()
+        status_id = str(finding.get('status_id', '')).lower()
+        activity_name = str(finding.get('activity_name', '')).lower()
+
+        # Debug the status values for the first few findings
+        if len(results) < 3:
+            print(f"DEBUG: Finding {len(results)+1} - status: '{status}', status_id: '{status_id}', activity_name: '{activity_name}'")
+            print(f"DEBUG: Available keys: {list(finding.keys())}")
+
+        # Check various possible status indicators for failed checks
+        is_failed = (
+            status in {'fail', 'failed', 'failure'} or
+            status_id in {'fail', 'failed', 'failure', '2'} or  # OCSF status_id 2 = failure
+            activity_name in {'fail', 'failed', 'failure'} or
+            'fail' in status or 'fail' in status_id or 'fail' in activity_name
+        )
+
+        if not is_failed:
             continue
 
         # Extract rule information
@@ -170,9 +202,29 @@ def main() -> None:
 
     try:
         with json_path.open('r', encoding='utf-8') as f:
-            json_data = json.load(f)
-    except json.JSONDecodeError as e:
-        raise SystemExit(f"Invalid JSON file: {e}")
+            content = f.read().strip()
+
+        # Try to parse as regular JSON first
+        try:
+            json_data = json.loads(content)
+        except json.JSONDecodeError:
+            # If that fails, try as newline-delimited JSON (NDJSON)
+            print("DEBUG: Failed to parse as regular JSON, trying NDJSON format")
+            lines = content.split('\n')
+            json_data = []
+            for line_num, line in enumerate(lines, 1):
+                line = line.strip()
+                if line:
+                    try:
+                        json_data.append(json.loads(line))
+                    except json.JSONDecodeError as line_err:
+                        print(f"DEBUG: Failed to parse line {line_num}: {line_err}")
+                        print(f"DEBUG: Line content (first 100 chars): {line[:100]}...")
+                        continue
+            print(f"DEBUG: Parsed {len(json_data)} objects from NDJSON")
+
+    except Exception as e:
+        raise SystemExit(f"Error reading JSON file: {e}")
 
     sarif = build_sarif_from_json(json_data)
 
