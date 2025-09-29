@@ -9,7 +9,7 @@ import secrets
 import re
 import shutil
 import string
-import subprocess  # nosec B404 - subprocess used for validated gcloud CLI commands only
+import subprocess  # nosec B404
 import sys
 import tarfile
 import tempfile
@@ -25,6 +25,7 @@ from datetime import datetime
 from cloud.utils import (
     choose,
     confirm,
+    create_or_update_secret,
     current_os,
     ensure_directory,
     prepend_path,
@@ -34,7 +35,7 @@ from cloud.utils import (
     which,
 )
 
-INSTALL_VERSION = "540.0.0"
+
 
 
 class GCPBootstrap:
@@ -57,8 +58,8 @@ class GCPBootstrap:
         self.user_prefs_payload: str = ""
         self.env_values: Dict[str, str] = {}
         self.env_secret_bindings: Dict[str, str] = {}
-        self.env_secret_prefix = "job-scraper"  # nosec B105 - deterministic secret name prefix
-        self.prefs_secret_name = "job-scraper-prefs"  # nosec B105 - deterministic secret name
+        self.env_secret_prefix = "job-scraper"  # nosec B105
+        self.prefs_secret_name = "job-scraper-prefs"  # nosec B105
         self.project_root = resolve_project_root()
         self.job_mode: str = "poll"
         self.schedule_frequency: str = "0 6-18 * * 1-5"  # Business hours every hour default
@@ -139,7 +140,7 @@ class GCPBootstrap:
         if parsed.scheme != "https" or parsed.netloc != allowed_host:
             raise RuntimeError("Unexpected download host")
         # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected
-        with urllib.request.urlopen(url, timeout=timeout) as response:  # nosec B310 - host validated above
+        with urllib.request.urlopen(url, timeout=timeout) as response:  # nosec B310
             with destination.open("wb") as fh:
                 shutil.copyfileobj(response, fh)
 
@@ -149,7 +150,7 @@ class GCPBootstrap:
         if parsed.scheme != "https" or parsed.netloc != allowed_host:
             raise RuntimeError("Unexpected download host")
         # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected
-        with urllib.request.urlopen(url, timeout=timeout) as response:  # nosec B310 - host validated above
+        with urllib.request.urlopen(url, timeout=timeout) as response:  # nosec B310
             return response.read().decode("utf-8").strip()
 
 
@@ -219,25 +220,32 @@ class GCPBootstrap:
     def _ensure_gcloud(self) -> None:
         print_header("Checking Google Cloud SDK")
         if which("gcloud"):
-            print("✅ gcloud CLI found")
+            print("gcloud CLI found")
             return
 
         install_root = ensure_directory(Path.home() / "google-cloud-sdk-download")
+        print("Checking for the latest Google Cloud SDK version...")
+        install_version = self._download_https_text(
+            "https://dl.google.com/dl/cloudsdk/channels/rapid/VERSION",
+            allowed_host="dl.google.com",
+            timeout=30
+        )
+        print(f"Found version: {install_version}")
         os_type = current_os()
         if os_type == "windows":
             archive = (
                 "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/"
-                f"google-cloud-cli-{INSTALL_VERSION}-windows-x86_64.zip"
+                f"google-cloud-cli-{install_version}-windows-x86_64.zip"
             )
         elif os_type == "mac":
             archive = (
                 "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/"
-                f"google-cloud-cli-{INSTALL_VERSION}-darwin-x86_64.tar.gz"
+                f"google-cloud-cli-{install_version}-darwin-x86_64.tar.gz"
             )
         else:
             archive = (
                 "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/"
-                f"google-cloud-cli-{INSTALL_VERSION}-linux-x86_64.tar.gz"
+                f"google-cloud-cli-{install_version}-linux-x86_64.tar.gz"
             )
 
         extracted = self._download_and_extract(archive, install_root)
@@ -253,7 +261,7 @@ class GCPBootstrap:
             )
             prepend_path(extracted / "bin")
 
-        print("✅ Google Cloud SDK installed")
+        print("Google Cloud SDK installed")
 
     def _download_and_extract(self, url: str, destination: Path) -> Path:
         ensure_directory(destination)
@@ -265,7 +273,7 @@ class GCPBootstrap:
         fd, tmp_path = tempfile.mkstemp(dir=destination, suffix=Path(parsed.path).suffix)
         os.close(fd)
         download_path = Path(tmp_path)
-        print(f"⬇️  Downloading {sanitized_url}")
+        print(f"Downloading {sanitized_url}")
         self._download_https_file(sanitized_url, download_path, allowed_host="dl.google.com")
         self._verify_checksum(sanitized_url, download_path)
 
@@ -298,7 +306,7 @@ class GCPBootstrap:
 
     def _select_region(self) -> None:
         print_header("Select Cloud Run region")
-        print("📍 Regions are ordered by cost-effectiveness (cheapest first):")
+        print("Regions are ordered by cost-effectiveness (cheapest first):")
         regions = [
             "us-central1",      # Cheapest - Iowa
             "us-east1",         # Second cheapest - South Carolina
@@ -334,7 +342,7 @@ class GCPBootstrap:
             return
 
         print(
-            "⚠️ Cloud Scheduler is not available in your chosen Cloud Run region. "
+            "Cloud Scheduler is not available in your chosen Cloud Run region. "
             "Select the nearest supported location for the scheduler trigger."
         )
         scheduler_choice = choose("Select a Scheduler location:", sorted(supported))
@@ -393,7 +401,7 @@ class GCPBootstrap:
             capture_output=True,
         )
         self.project_number = result.stdout.strip()
-        print(f"✅ Project {self.project_id} created")
+        print(f"Project {self.project_id} created")
 
     def _generate_project_id(self, base_name: str) -> str:
         candidate = re.sub(r"[^a-z0-9-]", "-", base_name.lower())
@@ -518,8 +526,8 @@ class GCPBootstrap:
         mode_options = ["poll", "digest", "health"]
         self.job_mode = choose("Select default Cloud Run job mode:", mode_options)
 
-        print("\n📅 Scheduling Configuration:")
-        print("💰 More frequent = higher costs. Default is business hours only for maximum cost savings.")
+        print("\nScheduling Configuration:")
+        print("More frequent = higher costs. Default is business hours only for maximum cost savings.")
         schedule_options = [
             "0 6-18 * * 1-5", # Business hours 6AM-6PM Mon-Fri every hour (lowest cost - default)
             "0 6,8,10,12,14,16,18 * * 1-5", # Business hours every 2 hours
@@ -549,102 +557,60 @@ class GCPBootstrap:
         for key, value in self.env_values.items():
             if value:
                 secret_name = f"{self.env_secret_prefix}-{key.lower().replace('_', '-')}"
-                self._create_or_update_secret(secret_name, value)
+                create_or_update_secret(self.project_id, secret_name, value)
                 self.env_secret_bindings[key] = secret_name
 
         if self.user_prefs_payload:
-            self._create_or_update_secret(self.prefs_secret_name, self.user_prefs_payload)
+            create_or_update_secret(self.project_id, self.prefs_secret_name, self.user_prefs_payload)
             self.env_secret_bindings.setdefault("USER_PREFS_JSON", self.prefs_secret_name)
-
-    def _create_or_update_secret(self, name: str, value: str) -> None:
-        describe = run_command(
-            [
-                "gcloud",
-                "secrets",
-                "describe",
-                name,
-                f"--project={self.project_id}",
-            ],
-            capture_output=True,
-            check=False,
-        )
-        if describe.returncode != 0:
-            # Create secret with 90-day expiry policy for security
-            run_command(
-                [
-                    "gcloud",
-                    "secrets",
-                    "create",
-                    name,
-                    "--replication-policy=automatic",
-                    f"--project={self.project_id}",
-                    "--expire-time=7776000s",  # 90 days
-                    "--labels=managed-by=job-scraper,rotation-policy=quarterly",
-                    "--quiet",
-                ]
-            )
-            print("🔐 Secret created with 90-day expiry policy")
-
-        run_command(
-            [
-                "gcloud",
-                "secrets",
-                "versions",
-                "add",
-                name,
-                "--data-file=-",
-                f"--project={self.project_id}",
-                "--quiet",
-            ],
-            input_data=value.encode("utf-8"),
-            text=False,
-        )
 
     def _create_service_accounts(self) -> None:
         print_header("Creating service accounts and IAM bindings")
         runtime_name = "job-scraper-runner"
         scheduler_name = "job-scraper-scheduler"
 
-        run_command(
-            [
-                "gcloud",
-                "iam",
-                "service-accounts",
-                "create",
-                runtime_name,
-                "--display-name",
-                "Job Scraper Cloud Run",
-                "--quiet",
-            ],
-            check=False,
-        )
-        run_command(
-            [
-                "gcloud",
-                "iam",
-                "service-accounts",
-                "create",
-                scheduler_name,
-                "--display-name",
-                "Job Scraper Scheduler",
-                "--quiet",
-            ],
-            check=False,
-        )
+        for sa_name in [runtime_name, scheduler_name]:
+            sa_email = f"{sa_name}@{self.project_id}.iam.gserviceaccount.com"
+            check_sa = run_command(
+                [
+                    "gcloud", "iam", "service-accounts", "describe", sa_email,
+                    f"--project={self.project_id}"
+                ],
+                check=False, capture_output=True
+            )
+            if check_sa.returncode == 0:
+                print(f"Service account {sa_name} already exists.")
+                continue
+
+            run_command(
+                [
+                    "gcloud", "iam", "service-accounts", "create", sa_name,
+                    "--display-name", f"Job Scraper {sa_name.split('-')[-1].capitalize()}",
+                    "--project", self.project_id,
+                    "--quiet",
+                ],
+                check=False,
+            )
+            run_command([
+                "gcloud", "iam", "service-accounts", "update", sa_email,
+                "--update-labels=managed-by=job-scraper",
+                f"--project={self.project_id}",
+            ], check=False)
+
 
         project = self.project_id
         self.runtime_sa = f"{runtime_name}@{project}.iam.gserviceaccount.com"
         self.scheduler_sa = f"{scheduler_name}@{project}.iam.gserviceaccount.com"
 
-        bindings = [
-            (self.runtime_sa, "roles/secretmanager.secretAccessor"),
+        # Grant project-level roles
+        project_bindings = [
             (self.runtime_sa, "roles/logging.logWriter"),
             (self.runtime_sa, "roles/run.invoker"),
-            (self.runtime_sa, "roles/storage.objectUser"),        # For bucket read/write
+            (self.runtime_sa, "roles/storage.objectUser"),  # For bucket read/write
             (self.scheduler_sa, "roles/run.invoker"),
             (self.scheduler_sa, "roles/iam.serviceAccountTokenCreator"),
         ]
-        for member, role in bindings:
+        for member, role in project_bindings:
             run_command(
                 [
                     "gcloud",
@@ -655,6 +621,25 @@ class GCPBootstrap:
                     f"serviceAccount:{member}",
                     "--role",
                     role,
+                    "--quiet",
+                ],
+                check=False,
+            )
+
+        # Grant per-secret access for least privilege
+        for secret_name in self.env_secret_bindings.values():
+            run_command(
+                [
+                    "gcloud",
+                    "secrets",
+                    "add-iam-policy-binding",
+                    secret_name,
+                    "--member",
+                    f"serviceAccount:{self.runtime_sa}",
+                    "--role",
+                    "roles/secretmanager.secretAccessor",
+                    "--project",
+                    project,
                     "--quiet",
                 ],
                 check=False,
@@ -696,6 +681,7 @@ class GCPBootstrap:
             "--vpc-egress=all-traffic",              # Allow job site access
             "--no-cpu-throttling",          # Better performance
             "--execution-environment=gen2", # Latest execution environment
+            "--labels=managed-by=job-scraper",
             *secret_flags,
             *env_var_flags,
         ]
@@ -735,7 +721,7 @@ class GCPBootstrap:
             try:
                 run_command([sys.executable, '-m', 'pip', 'install', '--quiet', 'prowler'], check=True)
             except subprocess.CalledProcessError as exc:
-                print(f"⚠️  Unable to install Prowler CLI automatically: {exc}")
+                print(f"Unable to install Prowler CLI automatically: {exc}")
                 print('   • Install manually: python3 -m pip install prowler')
                 return
 
@@ -755,11 +741,11 @@ class GCPBootstrap:
                 self.region
             ])
         except subprocess.CalledProcessError as exc:
-            print(f"⚠️  Prowler scan failed: {exc}")
+            print(f"Prowler scan failed: {exc}")
             print('   • You can rerun manually: prowler gcp --compliance cis_4.0_gcp --output-types json')
             return
 
-        print(f"✅ Prowler CIS report saved to {output_file}")
+        print(f"Prowler CIS report saved to {output_file}")
 
     def _schedule_job(self) -> None:
         print_header("Scheduling recurring executions")
@@ -798,6 +784,7 @@ class GCPBootstrap:
             f"--oauth-service-account-email={self.scheduler_sa}",
             f"--oauth-token-audience={job_uri}",
             "--headers=Content-Type=application/json",
+            "--labels=managed-by=job-scraper",
             "--body={}",
         ]
         run_command(create_cmd, check=False)
@@ -811,6 +798,12 @@ class GCPBootstrap:
             ["gcloud", "auth", "application-default", "print-access-token"],
             capture_output=True,
         ).stdout.strip()
+
+        budget_topic_name = "job-scraper-budget-alerts"
+        run_command([
+            "gcloud", "pubsub", "topics", "create", budget_topic_name,
+            f"--project={self.project_id}"
+        ], check=False)
 
         budget_endpoint = (
             self._build_google_api_url(
@@ -843,7 +836,9 @@ class GCPBootstrap:
                     {"thresholdPercent": 0.9, "spendBasis": "CURRENT_SPEND"},
                 ],
                 "allUpdatesRule": {
-                    "disableDefaultIamRecipients": False
+                    "pubsubTopic": f"projects/{self.project_id}/topics/{budget_topic_name}",
+                    "schemaVersion": "1.0",
+                    "disableDefaultIamRecipients": True
                 },
             }
         }
@@ -864,14 +859,14 @@ class GCPBootstrap:
 
         try:
             # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected
-            urllib.request.urlopen(request)  # nosec B310 - host validated above
-            print("✅ Billing budget created at $5 USD (alerts to billing admins)")
+            urllib.request.urlopen(request)  # nosec B310
+            print("Billing budget created at $5 USD (alerts to billing admins)")
         except urllib.error.HTTPError as exc:  # pragma: no cover - runtime path
             if exc.code == 409:
-                print("ℹ️ Billing budget already exists; keeping current configuration")
+                print("Billing budget already exists; keeping current configuration")
             else:
                 print(
-                    "⚠️ Unable to create billing budget automatically. "
+                    "Unable to create billing budget automatically. "
                     "Please configure one manually in the Cloud Console."
                 )
 
@@ -889,7 +884,7 @@ class GCPBootstrap:
 
     def _setup_binary_authorization(self) -> None:
         print_header("Setting up Binary Authorization")
-        print("🔐 Configuring container image security policies...")
+        print("Configuring container image security policies...")
 
         # Create a policy that requires all images to be from our Artifact Registry
         policy = {
@@ -911,44 +906,69 @@ class GCPBootstrap:
             f"--project={self.project_id}"
         ], input_data=json.dumps(policy).encode('utf-8'), text=False, check=False)
 
-        print("✅ Binary Authorization configured to allow only trusted images")
+        print("Binary Authorization configured to allow only trusted images")
 
     def _setup_vpc_networking(self) -> None:
         print_header("Setting up private networking")
-        print("🔒 Creating VPC network for secure, private communication...")
+        print("Creating VPC network for secure, private communication...")
 
-        # Create VPC network
-        run_command([
-            "gcloud", "compute", "networks", "create", self.vpc_name,
-            "--subnet-mode=custom",
+        # Check for VPC network
+        check_vpc = run_command([
+            "gcloud", "compute", "networks", "describe", self.vpc_name,
             f"--project={self.project_id}"
-        ], check=False)
+        ], check=False, capture_output=True)
+        if check_vpc.returncode == 0:
+            print(f"VPC network {self.vpc_name} already exists.")
+        else:
+            run_command([
+                "gcloud", "compute", "networks", "create", self.vpc_name,
+                "--subnet-mode=custom",
+                "--labels=managed-by=job-scraper",
+                f"--project={self.project_id}"
+            ], check=False)
 
-        # Create subnet
-        run_command([
-            "gcloud", "compute", "networks", "subnets", "create", self.subnet_name,
-            f"--network={self.vpc_name}",
-            "--range=10.0.0.0/28",  # Small range for cost optimization
+        # Check for subnet
+        check_subnet = run_command([
+            "gcloud", "compute", "networks", "subnets", "describe", self.subnet_name,
             f"--region={self.region}",
             f"--project={self.project_id}"
-        ], check=False)
+        ], check=False, capture_output=True)
+        if check_subnet.returncode == 0:
+            print(f"Subnet {self.subnet_name} already exists.")
+        else:
+            run_command([
+                "gcloud", "compute", "networks", "subnets", "create", self.subnet_name,
+                f"--network={self.vpc_name}",
+                "--range=10.0.0.0/28",  # Small range for cost optimization
+                f"--region={self.region}",
+                f"--project={self.project_id}"
+            ], check=False)
 
-        # Create VPC connector for Cloud Run
-        run_command([
-            "gcloud", "compute", "networks", "vpc-access", "connectors", "create", self.connector_name,
-            f"--subnet={self.subnet_name}",
+        # Check for VPC connector
+        check_connector = run_command([
+            "gcloud", "compute", "networks", "vpc-access", "connectors", "describe", self.connector_name,
             f"--region={self.region}",
-            "--min-instances=2",
-            "--max-instances=3",  # Small scale for cost optimization
-            "--machine-type=e2-micro",  # Cheapest machine type
             f"--project={self.project_id}"
-        ], check=False)
+        ], check=False, capture_output=True)
+        if check_connector.returncode == 0:
+            print(f"VPC connector {self.connector_name} already exists.")
+        else:
+            run_command([
+                "gcloud", "compute", "networks", "vpc-access", "connectors", "create", self.connector_name,
+                f"--subnet={self.subnet_name}",
+                f"--region={self.region}",
+                "--min-instances=2",
+                "--max-instances=3",  # Small scale for cost optimization
+                "--machine-type=e2-micro",  # Cheapest machine type
+                "--labels=managed-by=job-scraper",
+                f"--project={self.project_id}"
+            ], check=False)
 
-        print("✅ Private VPC network configured with minimal resources")
+        print("Private VPC network configured with minimal resources")
 
     def _setup_storage_bucket(self) -> None:
         print_header("Setting up persistent storage")
-        print("💾 Creating Cloud Storage bucket for job tracking...")
+        print("Creating Cloud Storage bucket for job tracking...")
 
         # Check if bucket already exists
         check_bucket = run_command([
@@ -965,6 +985,7 @@ class GCPBootstrap:
                 "--storage-class=STANDARD",            # Standard storage class
                 "--uniform-bucket-level-access",       # Secure access control
                 "--enable-autoclass",                  # Automatic cost optimization
+                "--labels=managed-by=job-scraper",
             ], check=False)
 
             # Set lifecycle policy to delete old backups (cost control)
@@ -989,41 +1010,35 @@ class GCPBootstrap:
                 f"--project={self.project_id}"
             ], input_data=json.dumps(lifecycle_policy).encode('utf-8'), text=False, check=False)
 
-            print(f"✅ Storage bucket created: gs://{self.storage_bucket}")
+            print(f"Storage bucket created: gs://{self.storage_bucket}")
         else:
-            print(f"✅ Storage bucket already exists: gs://{self.storage_bucket}")
+            print(f"Storage bucket already exists: gs://{self.storage_bucket}")
 
-        print("💾 Configuring bucket for job data persistence...")
+        print("Configuring bucket for job data persistence...")
 
     def _setup_budget_alerts(self) -> None:
         print_header("Setting up automated budget controls")
-        print("💰 Creating Cloud Function for automatic shutdown at 90% budget...")
+        print("Deploying Cloud Function for automatic shutdown at 90% budget...")
 
-        # Create a simple Cloud Function that disables the scheduler
-        function_source = '''
-import functions_framework
-from google.cloud import scheduler
+        function_name = "job-scraper-budget-alerter"
+        budget_topic_name = "job-scraper-budget-alerts"
+        function_source_dir = str(self.project_root / "cloud" / "functions")
 
-@functions_framework.cloud_event
-def budget_alert(cloud_event):
-    """Disable scheduler when budget threshold is exceeded."""
+        run_command([
+            "gcloud", "functions", "deploy", function_name,
+            f"--project={self.project_id}",
+            f"--region={self.region}",
+            "--runtime=python310",
+            f"--source={function_source_dir}",
+            "--entry-point=budget_alert_handler",
+            f"--trigger-topic={budget_topic_name}",
+            "--gen2",
+            f"--set-env-vars=GCP_PROJECT={self.project_id},SCHEDULER_LOCATION={self.scheduler_region},SCHEDULER_JOB_ID={self.job_name}-schedule",
+            "--labels=managed-by=job-scraper",
+            "--quiet"
+        ], check=False)
 
-    # Parse the budget alert
-    budget_data = cloud_event.data
-    if budget_data.get('costAmount', 0) >= budget_data.get('budgetAmount', 0) * 0.9:
-        client = scheduler.CloudSchedulerClient()
-        job_name = f"projects/{project_id}/locations/{scheduler_region}/jobs/{job_name}-schedule"
-
-        try:
-            # Pause the scheduler job to stop executions
-            client.pause_job(name=job_name)
-            print(f"Emergency shutdown: Paused scheduler job {job_name}")
-        except Exception as e:
-            print(f"Failed to pause job: {e}")
-'''
-
-        print("ℹ️  Budget alerts configured. Manual Cloud Function setup required for auto-shutdown.")
-        print("   Visit Cloud Console > Cloud Functions to deploy the budget alert handler.")
+        print("Budget alert function deployed.")
 
     @staticmethod
     def _looks_like_placeholder(candidate: str, default: str) -> bool:

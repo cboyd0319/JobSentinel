@@ -51,16 +51,38 @@ Those commands double-check IAM bindings, schedules, and cost protections withou
 
 With the tuned defaults (hourly during business hours, 0.5 vCPU, 256Mi memory) Cloud Run costs me under a dollar a month. Turning the schedule up to every 15 minutes all day lands closer to $5–8/month. AWS and Azure have similar numbers but higher cold-start latency in my testing.
 
-## Rolling back
+## Automated Budget Shutdown
 
-Every script prints the commands it runs, so you can delete things manually with the provider CLI if you want a clean slate. For GCP I usually run:
+The bootstrap script now includes a fully automated budget shutdown mechanism to protect against unexpected costs. When you deploy to GCP, the script sets up the following:
+
+1.  **A $5 Budget:** A monthly budget is created for the new project.
+2.  **A Pub/Sub Topic:** A topic named `job-scraper-budget-alerts` is created to receive notifications from the budget.
+3.  **A Cloud Function:** A function named `job-scraper-budget-alerter` is deployed. This function is triggered by messages on the budget alert topic.
+
+When the monthly cost exceeds 90% of the budget, a message is sent to the Pub/Sub topic. This message triggers the Cloud Function, which then automatically pauses the `job-scraper-schedule` Cloud Scheduler job, preventing any further executions and stopping additional costs from accruing.
+
+## Updating Configuration
+
+If you need to update your configuration after deployment (for example, to change the list of companies in `user_prefs.json`), you can use the `update.py` script. This script provides a safe and easy way to update secrets without having to tear down and rebuild your infrastructure.
+
+To use the script, run the following command from the root of the repository:
 
 ```bash
-gcloud run jobs delete job-private-scraper --quiet
-gcloud scheduler jobs delete job-private-scraper --quiet
-gcloud artifacts repositories delete job-private-scraper --location=us-central1 --quiet
+python3 cloud/update.py --project-id <your-gcp-project-id>
 ```
 
-Adjust the names to match whatever you chose during bootstrap.
+The script will present you with a menu of configurations that can be updated. Select "User Preferences", and you will be prompted to provide the path to your updated `user_prefs.json` file.
+
+## Tearing Down the Infrastructure
+
+To make cleanup easy and safe, a `teardown.py` script is now included in the `cloud` directory. This script will deprovision all the resources created by the bootstrap process.
+
+To use the script, run the following command from the root of the repository:
+
+```bash
+python3 cloud/teardown.py --project-id <your-gcp-project-id>
+```
+
+The script uses the `managed-by=job-scraper` label that is attached to all resources to identify what to delete. For an extra layer of safety, it will ask for a final confirmation before it begins deleting resources.
 
 If you discover a cheaper or simpler deployment path, open an issue or PR — I’m happy to kick the tires.

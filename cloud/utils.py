@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 import platform
 import shutil
-import subprocess  # nosec B404 - subprocess used for validated gcloud CLI commands only
+import subprocess  # nosec B404
 import sys
 from pathlib import Path
 from typing import Iterable, Sequence
@@ -34,7 +34,7 @@ def run_command(
 ) -> subprocess.CompletedProcess[str]:
     """Wrapper around :func:`subprocess.run` with sensible defaults."""
 
-    return subprocess.run(  # type: ignore[no-any-return] # nosec B603 - command list validated by callers
+    return subprocess.run(  # type: ignore[no-any-return] # nosec B603
         list(command),
         check=check,
         capture_output=capture_output,
@@ -111,6 +111,49 @@ def choose(prompt: str, options: Iterable[str]) -> str:
         if 1 <= selected <= len(options_list):
             return options_list[selected - 1]
 
+
+def create_or_update_secret(project_id: str, name: str, value: str) -> None:
+    describe = run_command(
+        [
+            "gcloud",
+            "secrets",
+            "describe",
+            name,
+            f"--project={project_id}",
+        ],
+        capture_output=True,
+        check=False,
+    )
+    if describe.returncode != 0:
+        run_command(
+            [
+                "gcloud",
+                "secrets",
+                "create",
+                name,
+                "--replication-policy=automatic",
+                f"--project={project_id}",
+                "--labels=managed-by=job-scraper,rotation-policy=quarterly",
+                "--quiet",
+            ]
+        )
+        print(f"Secret '{name}' created.")
+
+    run_command(
+        [
+            "gcloud",
+            "secrets",
+            "versions",
+            "add",
+            name,
+            "--data-file=-",
+            f"--project={project_id}",
+            "--quiet",
+        ],
+        input_data=value.encode("utf-8"),
+        text=False,
+    )
+    print(f"Secret '{name}' updated.")
 
 def resolve_project_root() -> Path:
     """Return the repository root (assumed to be two levels above modules)."""
