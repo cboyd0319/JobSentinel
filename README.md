@@ -4,6 +4,9 @@
 
 ![Python 3.12.10](https://img.shields.io/badge/python-3.12.10-blue.svg)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+[![CI/CD Pipeline](https://github.com/cboyd0319/job-private-scraper-filter/actions/workflows/ci.yml/badge.svg)](https://github.com/cboyd0319/job-private-scraper-filter/actions/workflows/ci.yml)
+[![Security Scan](https://github.com/cboyd0319/job-private-scraper-filter/actions/workflows/security.yml/badge.svg)](https://github.com/cboyd0319/job-private-scraper-filter/actions/workflows/security.yml)
+[![PowerShell Validation](https://github.com/cboyd0319/job-private-scraper-filter/actions/workflows/powershell-validation.yml/badge.svg)](https://github.com/cboyd0319/job-private-scraper-filter/actions/workflows/powershell-validation.yml)
 
 I built this for friends who wanted a quiet helper watching their favorite job boards, scoring listings, and nudging them when something looks promising. It runs locally by default so your data stays on your machine.
 

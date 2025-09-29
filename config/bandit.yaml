@@ -1,4 +1,3 @@
----
 # Bandit configuration file for job scraper security scanning
 exclude_dirs:
   - ./data

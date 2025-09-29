@@ -24,7 +24,6 @@ safety_status = os.getenv('SAFETY_STATUS', 'unknown')
 osv_status = os.getenv('OSV_RESULT', 'unknown')
 semgrep_status = os.getenv('SEMGREP_RESULT', 'unknown')
 codeql_status = os.getenv('CODEQL_RESULT', 'unknown')
-dep_review_status = os.getenv('DEP_REVIEW_RESULT', 'skipped') or 'skipped'
 yamllint_status = os.getenv('YAMLLINT_RESULT', 'unknown')
 trufflehog_status = os.getenv('TRUFFLEHOG_RESULT', 'unknown')
 
@@ -50,7 +49,6 @@ summary = f"""\
 | 🛡️ OSV Scanner | {status_emoji(osv_status)} {osv_status} | ✅ Security Tab | Open Source Vulnerability database |
 | 🔬 Semgrep | {status_emoji(semgrep_status)} {semgrep_status} | ✅ Security Tab | Multi-language security patterns |
 | 🧪 CodeQL | {status_emoji(codeql_status)} {codeql_status} | ✅ Security Tab | GitHub's semantic code analysis |
-| 📋 Dependency Review | {status_emoji(dep_review_status)} {dep_review_status} | ✅ Security Tab | License & vulnerability review |
 | 🛡️ Prowler GitHub | {prowler_mark} {prowler_status} | 📊 Reports Only | {prowler_desc} |
 | 📝 YAML Lint | {status_emoji(yamllint_status)} {yamllint_status} | ✅ CI Logs | YAML syntax and style checking |
 | 🐷 TruffleHog | {status_emoji(trufflehog_status)} {trufflehog_status} | ✅ CI Logs | Secret scanning for verified secrets |

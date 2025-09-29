@@ -37,16 +37,20 @@ jobs:
               - 'scripts/setup_windows*'
             workflows:
               - '.github/workflows/**'
-            docs-only:
-              type: and
+            markdown:
+              - '**/*.md'
+            non-doc:
+              type: union
               filters:
-                - '**/*.md'
-                - type: not
-                  filters:
-                    - core-python
-                    - platform-scripts
-                    - windows-specific
-                    - workflows
+                - core-python
+                - platform-scripts
+                - windows-specific
+                - workflows
+            docs-only:
+              type: difference
+              filters:
+                - markdown
+                - non-doc
 
   primary-test:
     needs: changes
