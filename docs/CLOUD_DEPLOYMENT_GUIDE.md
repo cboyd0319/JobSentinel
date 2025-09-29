@@ -17,6 +17,24 @@ curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filte
 
 On Windows, swap `python` for `python3` if needed. Each script prints the resources it creates and usually asks you to confirm the billing setup step before it does anything destructive.
 
+## Debugging the Deployment
+
+The bootstrap script includes a powerful logging and debugging feature. You can control the verbosity of the script's output using the `--log-level` argument.
+
+By default, the script runs at the `INFO` level, which provides a high-level overview of the deployment process. If you need to troubleshoot or get a more detailed view of the operations being performed, you can set the log level to `DEBUG`:
+
+```bash
+python3 cloud/bootstrap.py --log-level DEBUG
+```
+
+When running in `DEBUG` mode, the script will output:
+
+*   Detailed information about each step of the deployment.
+*   The exact `gcloud` commands being executed.
+*   Color-coded log levels for easy readability.
+
+All logs are also saved to the `data/logs/` directory for later analysis.
+
 ## What you need first
 
 - A billing-enabled account on the provider you pick

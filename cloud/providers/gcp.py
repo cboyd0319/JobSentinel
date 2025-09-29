@@ -43,7 +43,8 @@ class GCPBootstrap:
 
     name = "Google Cloud Platform"
 
-    def __init__(self) -> None:
+    def __init__(self, logger) -> None:
+        self.logger = logger
         self.project_id: str | None = None
         self.project_number: str | None = None
         self.project_name: str | None = None
@@ -186,8 +187,8 @@ class GCPBootstrap:
     # workflow steps
     # ------------------------------------------------------------------
     def _print_welcome(self) -> None:
-        print_header("Google Cloud Run Automated Provisioning")
-        print(
+        self.logger.info("Google Cloud Run Automated Provisioning")
+        self.logger.info(
             textwrap.dedent(
                 """
                 This guided workflow will deploy the Job Private Scraper & Filter to
@@ -199,8 +200,8 @@ class GCPBootstrap:
         )
 
     def _confirm_prerequisites(self) -> None:
-        print_header("Prerequisite Verification")
-        print(
+        self.logger.info("Prerequisite Verification")
+        self.logger.info(
             textwrap.dedent(
                 """
                 Before continuing, make sure you have:
@@ -214,23 +215,23 @@ class GCPBootstrap:
             ).strip()
         )
         if not confirm("Have you completed these steps?"):
-            print("Please finish the account setup and re-run this script.")
+            self.logger.error("Please finish the account setup and re-run this script.")
             sys.exit(1)
 
     def _ensure_gcloud(self) -> None:
-        print_header("Checking Google Cloud SDK")
+        self.logger.info("Checking Google Cloud SDK")
         if which("gcloud"):
-            print("gcloud CLI found")
+            self.logger.info("gcloud CLI found")
             return
 
         install_root = ensure_directory(Path.home() / "google-cloud-sdk-download")
-        print("Checking for the latest Google Cloud SDK version...")
+        self.logger.info("Checking for the latest Google Cloud SDK version...")
         install_version = self._download_https_text(
             "https://dl.google.com/dl/cloudsdk/channels/rapid/VERSION",
             allowed_host="dl.google.com",
             timeout=30
         )
-        print(f"Found version: {install_version}")
+        self.logger.info(f"Found version: {install_version}")
         os_type = current_os()
         if os_type == "windows":
             archive = (
@@ -251,17 +252,18 @@ class GCPBootstrap:
         extracted = self._download_and_extract(archive, install_root)
         if current_os() == "windows":
             installer = extracted / "install.bat"
-            run_command(["cmd", "/c", str(installer), "--quiet"])
+            run_command(["cmd", "/c", str(installer), "--quiet"], logger=self.logger)
             prepend_path(extracted / "bin")
         else:
             installer = extracted / "install.sh"
             run_command(
                 [str(installer), "--quiet"],
                 env={"CLOUDSDK_CORE_DISABLE_PROMPTS": "1"},
+                logger=self.logger
             )
             prepend_path(extracted / "bin")
 
-        print("Google Cloud SDK installed")
+        self.logger.info("Google Cloud SDK installed")
 
     def _download_and_extract(self, url: str, destination: Path) -> Path:
         ensure_directory(destination)
@@ -273,7 +275,7 @@ class GCPBootstrap:
         fd, tmp_path = tempfile.mkstemp(dir=destination, suffix=Path(parsed.path).suffix)
         os.close(fd)
         download_path = Path(tmp_path)
-        print(f"Downloading {sanitized_url}")
+        self.logger.info(f"Downloading {sanitized_url}")
         self._download_https_file(sanitized_url, download_path, allowed_host="dl.google.com")
         self._verify_checksum(sanitized_url, download_path)
 
@@ -300,13 +302,13 @@ class GCPBootstrap:
             raise RuntimeError("Checksum mismatch while downloading Google Cloud SDK")
 
     def _authenticate(self) -> None:
-        print_header("Authenticating with Google Cloud")
-        run_command(["gcloud", "auth", "login"])
-        run_command(["gcloud", "auth", "application-default", "login"])
+        self.logger.info("Authenticating with Google Cloud")
+        run_command(["gcloud", "auth", "login"], logger=self.logger)
+        run_command(["gcloud", "auth", "application-default", "login"], logger=self.logger)
 
     def _select_region(self) -> None:
-        print_header("Select Cloud Run region")
-        print("Regions are ordered by cost-effectiveness (cheapest first):")
+        self.logger.info("Select Cloud Run region")
+        self.logger.info("Regions are ordered by cost-effectiveness (cheapest first):")
         regions = [
             "us-central1",      # Cheapest - Iowa
             "us-east1",         # Second cheapest - South Carolina
@@ -319,10 +321,10 @@ class GCPBootstrap:
             "australia-southeast1",  # Sydney
         ]
         self.region = choose("Choose the region (us-central1 recommended for lowest cost):", regions)
-        run_command(["gcloud", "config", "set", "run/region", self.region])
+        run_command(["gcloud", "config", "set", "run/region", self.region], logger=self.logger)
 
     def _select_scheduler_region(self) -> None:
-        print_header("Select Cloud Scheduler region")
+        self.logger.info("Select Cloud Scheduler region")
         supported = {
             "us-central1",
             "us-east1",
@@ -338,30 +340,31 @@ class GCPBootstrap:
         }
         if self.region in supported:
             self.scheduler_region = self.region
-            run_command(["gcloud", "config", "set", "scheduler/location", self.scheduler_region])
+            run_command(["gcloud", "config", "set", "scheduler/location", self.scheduler_region], logger=self.logger)
             return
 
-        print(
+        self.logger.info(
             "Cloud Scheduler is not available in your chosen Cloud Run region. "
             "Select the nearest supported location for the scheduler trigger."
         )
         scheduler_choice = choose("Select a Scheduler location:", sorted(supported))
         self.scheduler_region = scheduler_choice
-        run_command(["gcloud", "config", "set", "scheduler/location", self.scheduler_region])
+        run_command(["gcloud", "config", "set", "scheduler/location", self.scheduler_region], logger=self.logger)
 
     def _choose_billing_account(self) -> None:
-        print_header("Locate Billing Account")
+        self.logger.info("Locate Billing Account")
         result = run_command(
             ["gcloud", "billing", "accounts", "list", "--format=json"],
             capture_output=True,
+            logger=self.logger
         )
         accounts = json.loads(result.stdout)
         if not accounts:
-            print("No billing accounts detected. Create one in the console and re-run.")
+            self.logger.error("No billing accounts detected. Create one in the console and re-run.")
             sys.exit(1)
         if len(accounts) == 1:
             self.billing_account = accounts[0]["name"].split("/")[-1]
-            print(f"Billing account detected: {self.billing_account}")
+            self.logger.info(f"Billing account detected: {self.billing_account}")
             return
         choices = [
             f"{acc['name'].split('/')[-1]} ({acc['displayName']})" for acc in accounts
@@ -370,14 +373,14 @@ class GCPBootstrap:
         self.billing_account = selection.split()[0]
 
     def _create_project(self) -> None:
-        print_header("Creating dedicated GCP project")
+        self.logger.info("Creating dedicated GCP project")
         display_default = "Job Scraper"
         proposed = input(f"Project display name [{display_default}]: ").strip() or display_default
         self.project_name = proposed
         self.project_id = self._generate_project_id(proposed)
 
-        run_command(["gcloud", "projects", "create", self.project_id, "--name", proposed])
-        run_command(["gcloud", "config", "set", "project", self.project_id])
+        run_command(["gcloud", "projects", "create", self.project_id, "--name", proposed], logger=self.logger)
+        run_command(["gcloud", "config", "set", "project", self.project_id], logger=self.logger)
         run_command(
             [
                 "gcloud",
@@ -388,7 +391,8 @@ class GCPBootstrap:
                 self.project_id,
                 "--billing-account",
                 self.billing_account,
-            ]
+            ],
+            logger=self.logger
         )
         result = run_command(
             [
@@ -399,9 +403,10 @@ class GCPBootstrap:
                 "--format=value(projectNumber)",
             ],
             capture_output=True,
+            logger=self.logger
         )
         self.project_number = result.stdout.strip()
-        print(f"Project {self.project_id} created")
+        self.logger.info(f"Project {self.project_id} created")
 
     def _generate_project_id(self, base_name: str) -> str:
         candidate = re.sub(r"[^a-z0-9-]", "-", base_name.lower())
@@ -412,7 +417,7 @@ class GCPBootstrap:
         return f"{candidate}-{suffix}"
 
     def _enable_services(self) -> None:
-        print_header("Enabling required Google APIs")
+        self.logger.info("Enabling required Google APIs")
         services = [
             "run.googleapis.com",
             "cloudbuild.googleapis.com",
@@ -431,11 +436,12 @@ class GCPBootstrap:
             "storage.googleapis.com",               # Cloud Storage for persistence
         ]
         run_command(
-            ["gcloud", "services", "enable", *services, "--project", self.project_id]
+            ["gcloud", "services", "enable", *services, "--project", self.project_id],
+            logger=self.logger
         )
 
     def _setup_artifact_registry(self) -> None:
-        print_header("Preparing Artifact Registry")
+        self.logger.info("Preparing Artifact Registry")
         describe_repo = run_command(
             [
                 "gcloud",
@@ -449,6 +455,7 @@ class GCPBootstrap:
             ],
             capture_output=True,
             check=False,
+            logger=self.logger
         )
         if describe_repo.returncode != 0:
             run_command(
@@ -461,7 +468,8 @@ class GCPBootstrap:
                     "--repository-format=docker",
                     f"--location={self.region}",
                     "--description=Job scraper container images",
-                ]
+                ],
+                logger=self.logger
             )
         run_command(
             [
@@ -470,16 +478,17 @@ class GCPBootstrap:
                 "configure-docker",
                 f"{self.region}-docker.pkg.dev",
                 "--quiet",
-            ]
+            ],
+            logger=self.logger
         )
 
     def _collect_configuration(self) -> None:
-        print_header("Collect runtime configuration")
+        self.logger.info("Collect runtime configuration")
         env_template = self.project_root / ".env.example"
         if not env_template.exists():
             raise FileNotFoundError(".env.example missing from repository root")
 
-        print(
+        self.logger.info(
             "Provide values for each setting. Press Enter to accept the default shown. "
             "Type 'skip' to leave a value empty if a feature is not required."
         )
@@ -504,11 +513,11 @@ class GCPBootstrap:
                 candidate = candidate.split("#", 1)[0].strip()
 
                 if candidate == "" and default_value:
-                    print("Value cannot be empty. Enter a real value or type 'skip' to leave blank.")
+                    self.logger.warning("Value cannot be empty. Enter a real value or type 'skip' to leave blank.")
                     continue
 
                 if self._looks_like_placeholder(candidate, default_value):
-                    print(
+                    self.logger.warning(
                         "Placeholder value detected. Enter a real value or type 'skip' to leave blank."
                     )
                     continue
@@ -518,7 +527,7 @@ class GCPBootstrap:
 
         prefs_template = self.project_root / "config/user_prefs.example.json"
         self.user_prefs_payload = prefs_template.read_text(encoding="utf-8")
-        print(
+        self.logger.info(
             "A default config/user_prefs.json template has been scheduled for upload to"
             " Secret Manager. Update it after deployment if you need different companies."
         )
@@ -526,8 +535,8 @@ class GCPBootstrap:
         mode_options = ["poll", "digest", "health"]
         self.job_mode = choose("Select default Cloud Run job mode:", mode_options)
 
-        print("\nScheduling Configuration:")
-        print("More frequent = higher costs. Default is business hours only for maximum cost savings.")
+        self.logger.info("\nScheduling Configuration:")
+        self.logger.info("More frequent = higher costs. Default is business hours only for maximum cost savings.")
         schedule_options = [
             "0 6-18 * * 1-5", # Business hours 6AM-6PM Mon-Fri every hour (lowest cost - default)
             "0 6,8,10,12,14,16,18 * * 1-5", # Business hours every 2 hours
@@ -551,7 +560,7 @@ class GCPBootstrap:
         self.schedule_frequency = schedule_options[schedule_descriptions.index(schedule_choice.split(" - ")[0])]
 
     def _provision_secrets(self) -> None:
-        print_header("Configuring Secret Manager")
+        self.logger.info("Configuring Secret Manager")
         self.env_secret_bindings.clear()
 
         for key, value in self.env_values.items():
@@ -565,7 +574,7 @@ class GCPBootstrap:
             self.env_secret_bindings.setdefault("USER_PREFS_JSON", self.prefs_secret_name)
 
     def _create_service_accounts(self) -> None:
-        print_header("Creating service accounts and IAM bindings")
+        self.logger.info("Creating service accounts and IAM bindings")
         runtime_name = "job-scraper-runner"
         scheduler_name = "job-scraper-scheduler"
 
@@ -576,10 +585,11 @@ class GCPBootstrap:
                     "gcloud", "iam", "service-accounts", "describe", sa_email,
                     f"--project={self.project_id}"
                 ],
-                check=False, capture_output=True
+                check=False, capture_output=True,
+                logger=self.logger
             )
             if check_sa.returncode == 0:
-                print(f"Service account {sa_name} already exists.")
+                self.logger.info(f"Service account {sa_name} already exists.")
                 continue
 
             run_command(
@@ -590,12 +600,13 @@ class GCPBootstrap:
                     "--quiet",
                 ],
                 check=False,
+                logger=self.logger
             )
             run_command([
                 "gcloud", "iam", "service-accounts", "update", sa_email,
                 "--update-labels=managed-by=job-scraper",
                 f"--project={self.project_id}",
-            ], check=False)
+            ], check=False, logger=self.logger)
 
 
         project = self.project_id
@@ -624,6 +635,7 @@ class GCPBootstrap:
                     "--quiet",
                 ],
                 check=False,
+                logger=self.logger
             )
 
         # Grant per-secret access for least privilege
@@ -643,21 +655,23 @@ class GCPBootstrap:
                     "--quiet",
                 ],
                 check=False,
+                logger=self.logger
             )
 
     def _build_and_push_image(self) -> None:
-        print_header("Building container image via Cloud Build")
+        self.logger.info("Building container image via Cloud Build")
         image_tag = (
             f"{self.region}-docker.pkg.dev/{self.project_id}/{self.artifact_repo}/"
             "job-scraper:latest"
         )
         self.image_uri = image_tag
         run_command(
-            ["gcloud", "builds", "submit", "--tag", image_tag, str(self.project_root)]
+            ["gcloud", "builds", "submit", "--tag", image_tag, str(self.project_root)],
+            logger=self.logger
         )
 
     def _create_or_update_job(self) -> None:
-        print_header("Configuring Cloud Run Job")
+        self.logger.info("Configuring Cloud Run Job")
         secret_flags: list[str] = []
         for env_key, secret_name in self.env_secret_bindings.items():
             secret_flags.extend(["--set-secrets", f"{env_key}={secret_name}:latest"])
@@ -698,31 +712,32 @@ class GCPBootstrap:
             ],
             capture_output=True,
             check=False,
+            logger=self.logger
         )
 
         if describe_job.returncode == 0:
-            print(f"Job '{self.job_name}' already exists. Updating...")
+            self.logger.info(f"Job '{self.job_name}' already exists. Updating...")
             command = ["gcloud", "run", "jobs", "update", self.job_name, *common_args]
         else:
-            print(f"Job '{self.job_name}' not found. Creating...")
+            self.logger.info(f"Job '{self.job_name}' not found. Creating...")
             command = ["gcloud", "run", "jobs", "create", self.job_name, *common_args]
 
-        run_command(command)
+        run_command(command, logger=self.logger)
 
 
     def _run_prowler_scan(self) -> None:
-        print_header("Generating CIS benchmark report with Prowler")
+        self.logger.info("Generating CIS benchmark report with Prowler")
         reports_dir = ensure_directory(resolve_project_root() / 'cloud' / 'reports')
         timestamp = datetime.utcnow().strftime('%Y%m%d-%H%M%S')
         output_file = reports_dir / f'prowler-cis-gcp-{timestamp}.json'
 
         if not which("prowler"):
-            print("Prowler not found, attempting to install...")
+            self.logger.warning("Prowler not found, attempting to install...")
             try:
-                run_command([sys.executable, '-m', 'pip', 'install', '--quiet', 'prowler'], check=True)
+                run_command([sys.executable, '-m', 'pip', 'install', '--quiet', 'prowler'], check=True, logger=self.logger)
             except subprocess.CalledProcessError as exc:
-                print(f"Unable to install Prowler CLI automatically: {exc}")
-                print('   • Install manually: python3 -m pip install prowler')
+                self.logger.error(f"Unable to install Prowler CLI automatically: {exc}")
+                self.logger.error('   • Install manually: python3 -m pip install prowler')
                 return
 
         try:
@@ -739,16 +754,16 @@ class GCPBootstrap:
                 self.project_id,
                 '--region',
                 self.region
-            ])
+            ], logger=self.logger)
         except subprocess.CalledProcessError as exc:
-            print(f"Prowler scan failed: {exc}")
-            print('   • You can rerun manually: prowler gcp --compliance cis_4.0_gcp --output-types json')
+            self.logger.error(f"Prowler scan failed: {exc}")
+            self.logger.error('   • You can rerun manually: prowler gcp --compliance cis_4.0_gcp --output-types json')
             return
 
-        print(f"Prowler CIS report saved to {output_file}")
+        self.logger.info(f"Prowler CIS report saved to {output_file}")
 
     def _schedule_job(self) -> None:
-        print_header("Scheduling recurring executions")
+        self.logger.info("Scheduling recurring executions")
         if not self.scheduler_region:
             raise RuntimeError("Scheduler region not configured")
         if not all([self.project_id, self.region, self.job_name]):
@@ -787,23 +802,24 @@ class GCPBootstrap:
             "--labels=managed-by=job-scraper",
             "--body={}",
         ]
-        run_command(create_cmd, check=False)
+        run_command(create_cmd, check=False, logger=self.logger)
         update_cmd = create_cmd.copy()
         update_cmd[3] = "update"
-        run_command(update_cmd)
+        run_command(update_cmd, logger=self.logger)
 
     def _configure_budget(self) -> None:
-        print_header("Configuring cost guardrails")
+        self.logger.info("Configuring cost guardrails")
         token = run_command(
             ["gcloud", "auth", "application-default", "print-access-token"],
             capture_output=True,
+            logger=self.logger
         ).stdout.strip()
 
         budget_topic_name = "job-scraper-budget-alerts"
         run_command([
             "gcloud", "pubsub", "topics", "create", budget_topic_name,
             f"--project={self.project_id}"
-        ], check=False)
+        ], check=False, logger=self.logger)
 
         budget_endpoint = (
             self._build_google_api_url(
@@ -860,31 +876,31 @@ class GCPBootstrap:
         try:
             # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected
             urllib.request.urlopen(request)  # nosec B310
-            print("Billing budget created at $5 USD (alerts to billing admins)")
+            self.logger.info("Billing budget created at $5 USD (alerts to billing admins)")
         except urllib.error.HTTPError as exc:  # pragma: no cover - runtime path
             if exc.code == 409:
-                print("Billing budget already exists; keeping current configuration")
+                self.logger.info("Billing budget already exists; keeping current configuration")
             else:
-                print(
+                self.logger.error(
                     "Unable to create billing budget automatically. "
                     "Please configure one manually in the Cloud Console."
                 )
 
     def _print_summary(self) -> None:
-        print_header("Deployment Summary")
-        print(f"Project ID: {self.project_id}")
-        print(f"Region: {self.region}")
-        print(f"Artifact Registry: {self.artifact_repo}")
-        print(f"Cloud Run Job: {self.job_name}")
-        print(f"Scheduler Job: {self.job_name}-schedule")
-        print(
+        self.logger.info("Deployment Summary")
+        self.logger.info(f"Project ID: {self.project_id}")
+        self.logger.info(f"Region: {self.region}")
+        self.logger.info(f"Artifact Registry: {self.artifact_repo}")
+        self.logger.info(f"Cloud Run Job: {self.job_name}")
+        self.logger.info(f"Scheduler Job: {self.job_name}-schedule")
+        self.logger.info(
             "Run an ad-hoc scrape with: "
             f"gcloud run jobs execute {self.job_name} --region {self.region}"
         )
 
     def _setup_binary_authorization(self) -> None:
-        print_header("Setting up Binary Authorization")
-        print("Configuring container image security policies...")
+        self.logger.info("Setting up Binary Authorization")
+        self.logger.info("Configuring container image security policies...")
 
         # Create a policy that requires all images to be from our Artifact Registry
         policy = {
@@ -904,37 +920,37 @@ class GCPBootstrap:
         run_command([
             "gcloud", "container", "binauthz", "policy", "import", "-",
             f"--project={self.project_id}"
-        ], input_data=json.dumps(policy).encode('utf-8'), text=False, check=False)
+        ], input_data=json.dumps(policy).encode('utf-8'), text=False, check=False, logger=self.logger)
 
-        print("Binary Authorization configured to allow only trusted images")
+        self.logger.info("Binary Authorization configured to allow only trusted images")
 
     def _setup_vpc_networking(self) -> None:
-        print_header("Setting up private networking")
-        print("Creating VPC network for secure, private communication...")
+        self.logger.info("Setting up private networking")
+        self.logger.info("Creating VPC network for secure, private communication...")
 
         # Check for VPC network
         check_vpc = run_command([
             "gcloud", "compute", "networks", "describe", self.vpc_name,
             f"--project={self.project_id}"
-        ], check=False, capture_output=True)
+        ], check=False, capture_output=True, logger=self.logger)
         if check_vpc.returncode == 0:
-            print(f"VPC network {self.vpc_name} already exists.")
+            self.logger.info(f"VPC network {self.vpc_name} already exists.")
         else:
             run_command([
                 "gcloud", "compute", "networks", "create", self.vpc_name,
                 "--subnet-mode=custom",
                 "--labels=managed-by=job-scraper",
                 f"--project={self.project_id}"
-            ], check=False)
+            ], check=False, logger=self.logger)
 
         # Check for subnet
         check_subnet = run_command([
             "gcloud", "compute", "networks", "subnets", "describe", self.subnet_name,
             f"--region={self.region}",
             f"--project={self.project_id}"
-        ], check=False, capture_output=True)
+        ], check=False, capture_output=True, logger=self.logger)
         if check_subnet.returncode == 0:
-            print(f"Subnet {self.subnet_name} already exists.")
+            self.logger.info(f"Subnet {self.subnet_name} already exists.")
         else:
             run_command([
                 "gcloud", "compute", "networks", "subnets", "create", self.subnet_name,
@@ -942,16 +958,16 @@ class GCPBootstrap:
                 "--range=10.0.0.0/28",  # Small range for cost optimization
                 f"--region={self.region}",
                 f"--project={self.project_id}"
-            ], check=False)
+            ], check=False, logger=self.logger)
 
         # Check for VPC connector
         check_connector = run_command([
             "gcloud", "compute", "networks", "vpc-access", "connectors", "describe", self.connector_name,
             f"--region={self.region}",
             f"--project={self.project_id}"
-        ], check=False, capture_output=True)
+        ], check=False, capture_output=True, logger=self.logger)
         if check_connector.returncode == 0:
-            print(f"VPC connector {self.connector_name} already exists.")
+            self.logger.info(f"VPC connector {self.connector_name} already exists.")
         else:
             run_command([
                 "gcloud", "compute", "networks", "vpc-access", "connectors", "create", self.connector_name,
@@ -962,19 +978,19 @@ class GCPBootstrap:
                 "--machine-type=e2-micro",  # Cheapest machine type
                 "--labels=managed-by=job-scraper",
                 f"--project={self.project_id}"
-            ], check=False)
+            ], check=False, logger=self.logger)
 
-        print("Private VPC network configured with minimal resources")
+        self.logger.info("Private VPC network configured with minimal resources")
 
     def _setup_storage_bucket(self) -> None:
-        print_header("Setting up persistent storage")
-        print("Creating Cloud Storage bucket for job tracking...")
+        self.logger.info("Setting up persistent storage")
+        self.logger.info("Creating Cloud Storage bucket for job tracking...")
 
         # Check if bucket already exists
         check_bucket = run_command([
             "gcloud", "storage", "buckets", "describe", f"gs://{self.storage_bucket}",
             f"--project={self.project_id}"
-        ], check=False)
+        ], check=False, logger=self.logger)
 
         if check_bucket.returncode != 0:
             # Create bucket with security and cost optimization
@@ -986,7 +1002,7 @@ class GCPBootstrap:
                 "--uniform-bucket-level-access",       # Secure access control
                 "--enable-autoclass",                  # Automatic cost optimization
                 "--labels=managed-by=job-scraper",
-            ], check=False)
+            ], check=False, logger=self.logger)
 
             # Set lifecycle policy to delete old backups (cost control)
             lifecycle_policy = {
@@ -1008,17 +1024,17 @@ class GCPBootstrap:
                 "gcloud", "storage", "buckets", "update", f"gs://{self.storage_bucket}",
                 "--lifecycle-file=-",
                 f"--project={self.project_id}"
-            ], input_data=json.dumps(lifecycle_policy).encode('utf-8'), text=False, check=False)
+            ], input_data=json.dumps(lifecycle_policy).encode('utf-8'), text=False, check=False, logger=self.logger)
 
-            print(f"Storage bucket created: gs://{self.storage_bucket}")
+            self.logger.info(f"Storage bucket created: gs://{self.storage_bucket}")
         else:
-            print(f"Storage bucket already exists: gs://{self.storage_bucket}")
+            self.logger.info(f"Storage bucket already exists: gs://{self.storage_bucket}")
 
-        print("Configuring bucket for job data persistence...")
+        self.logger.info("Configuring bucket for job data persistence...")
 
     def _setup_budget_alerts(self) -> None:
-        print_header("Setting up automated budget controls")
-        print("Deploying Cloud Function for automatic shutdown at 90% budget...")
+        self.logger.info("Setting up automated budget controls")
+        self.logger.info("Deploying Cloud Function for automatic shutdown at 90% budget...")
 
         function_name = "job-scraper-budget-alerter"
         budget_topic_name = "job-scraper-budget-alerts"
@@ -1036,9 +1052,9 @@ class GCPBootstrap:
             f"--set-env-vars=GCP_PROJECT={self.project_id},SCHEDULER_LOCATION={self.scheduler_region},SCHEDULER_JOB_ID={self.job_name}-schedule",
             "--labels=managed-by=job-scraper",
             "--quiet"
-        ], check=False)
+        ], check=False, logger=self.logger)
 
-        print("Budget alert function deployed.")
+        self.logger.info("Budget alert function deployed.")
 
     @staticmethod
     def _looks_like_placeholder(candidate: str, default: str) -> bool:
@@ -1059,5 +1075,5 @@ class GCPBootstrap:
         return any(token in value for token in placeholder_tokens)
 
 
-def get_bootstrap() -> GCPBootstrap:
-    return GCPBootstrap()
+def get_bootstrap(logger) -> GCPBootstrap:
+    return GCPBootstrap(logger)

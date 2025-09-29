@@ -1,6 +1,6 @@
 name: Security & Vulnerability Scanning
 
-'on':
+on:
   push:
     branches: [main, develop]
   pull_request:
@@ -128,18 +128,13 @@ jobs:
   osv-scanner:
     uses: >-
       google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.2.2
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
 
   semgrep-scan:
     name: semgrep/ci
     runs-on: ubuntu-latest
     if: >-
       (github.actor != 'dependabot[bot]') &&
-      (github.event.inputs.scan_type == 'full' ||
-       github.event.inputs.scan_type == null)
+      (github.event.inputs.scan_type == 'full' || !github.event.inputs.scan_type)
     permissions:
       contents: read
       security-events: write
@@ -246,7 +241,7 @@ jobs:
             # Debug: Show conversion results
             if [ -f "$sarif_path" ]; then
               echo "SARIF file created successfully"
-              echo "SARIF file size: $(stat -f%z "$sarif_path" 2>/dev/null || stat -c%s "$sarif_path")"
+              python -c "import os; print(f'SARIF file size: {os.path.getsize(\'$sarif_path\')}')"
             fi
           elif [ -n "$csv_file" ]; then
             echo "Fallback: Found Prowler CSV file: $csv_file"

@@ -21,19 +21,21 @@ class ProviderBootstrap(Protocol):
         """Execute the interactive provisioning workflow."""
 
 
-def load_provider(provider_key: str) -> ProviderBootstrap:
+def load_provider(provider_key: str, logger) -> ProviderBootstrap:
     """Return the provider bootstrap class for ``provider_key``.
 
     Parameters
     ----------
     provider_key:
         Normalised provider selector (``gcp``, ``aws``, ``azure``).
+    logger:
+        The logger instance to use.
     """
 
     if provider_key == "gcp":
         from cloud.providers import gcp
 
-        return gcp.get_bootstrap()
+        return gcp.get_bootstrap(logger)
 
     raise ValueError(f"Unknown provider '{provider_key}'")
 

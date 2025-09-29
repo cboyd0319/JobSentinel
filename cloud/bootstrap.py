@@ -8,6 +8,7 @@ import sys
 from cloud import load_provider
 from cloud.providers import PROVIDERS
 from cloud.utils import ensure_python_version
+from utils.logging import setup_logging, get_logger
 
 MIN_PYTHON = (3, 10)
 
@@ -22,6 +23,12 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         choices=sorted(PROVIDERS),
         help="Target cloud provider (default: gcp)",
     )
+    parser.add_argument(
+        "--log-level",
+        default="INFO",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+        help="Set the logging level (default: INFO)",
+    )
     return parser.parse_args(argv)
 
 
@@ -29,7 +36,8 @@ def main(argv: list[str] | None = None) -> int:
     ensure_python_version(MIN_PYTHON)
 
     namespace = parse_args(argv or sys.argv[1:])
-    bootstrapper = load_provider(namespace.provider)
+    logger = setup_logging(log_level=namespace.log_level)
+    bootstrapper = load_provider(namespace.provider, logger)
     bootstrapper.run()
     return 0
 

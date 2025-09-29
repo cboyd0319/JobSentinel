@@ -26,6 +26,7 @@ def ensure_python_version(min_version: tuple[int, int]) -> None:
 def run_command(
     command: Sequence[str],
     *,
+    logger: logging.Logger | None = None,
     check: bool = True,
     capture_output: bool = False,
     text: bool = True,
@@ -33,6 +34,9 @@ def run_command(
     input_data: bytes | str | None = None,
 ) -> subprocess.CompletedProcess[str]:
     """Wrapper around :func:`subprocess.run` with sensible defaults."""
+
+    if logger:
+        logger.debug(f"Running command: {' '.join(command)}")
 
     return subprocess.run(  # type: ignore[no-any-return] # nosec B603
         list(command),
@@ -75,12 +79,6 @@ def ensure_directory(path: Path) -> Path:
     return path
 
 
-def print_header(title: str) -> None:
-    """Render a terminal header for readability."""
-
-    bar = "=" * len(title)
-    print(f"\n{title}\n{bar}")
-
 
 def confirm(prompt: str) -> bool:
     """Prompt for a yes/no confirmation, defaulting to ``False``."""
@@ -96,9 +94,9 @@ def choose(prompt: str, options: Iterable[str]) -> str:
     if not options_list:
         raise ValueError("No options provided")
 
-    print(prompt)
+    sys.stdout.write(prompt + "\n")
     for idx, option in enumerate(options_list, start=1):
-        print(f"  [{idx}] {option}")
+        sys.stdout.write(f"  [{idx}] {option}\n")
 
     while True:
         choice = input("Select option: ").strip()
@@ -137,7 +135,6 @@ def create_or_update_secret(project_id: str, name: str, value: str) -> None:
                 "--quiet",
             ]
         )
-        print(f"Secret '{name}' created.")
 
     run_command(
         [
@@ -153,7 +150,6 @@ def create_or_update_secret(project_id: str, name: str, value: str) -> None:
         input_data=value.encode("utf-8"),
         text=False,
     )
-    print(f"Secret '{name}' updated.")
 
 def resolve_project_root() -> Path:
     """Return the repository root (assumed to be two levels above modules)."""
