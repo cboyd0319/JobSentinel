@@ -1,48 +1,59 @@
 #!/bin/bash
 
-set -e
+set -euo pipefail
 
-status_emoji() {
-  case "$1" in
-    passed|success|succeeded) echo "✅" ;;
-    failed|failure) echo "❌" ;;
-    skipped) echo "⚪" ;;
-    *) echo "⚠️" ;;
-  esac
+python3 <<'PY'
+import os
+import textwrap
+
+STATUS_MAP = {
+    'passed': '✅',
+    'success': '✅',
+    'succeeded': '✅',
+    'failed': '❌',
+    'failure': '❌',
+    'skipped': '⚪',
 }
 
-BANDIT_MARK=$(status_emoji "$BANDIT_STATUS")
-SAFETY_MARK=$(status_emoji "$SAFETY_STATUS")
-OSV_MARK=$(status_emoji "$OSV_RESULT")
-SEMGREP_MARK=$(status_emoji "$SEMGREP_RESULT")
-CODEQL_MARK=$(status_emoji "$CODEQL_RESULT")
-YAMLLINT_MARK=$(status_emoji "$YAMLLINT_RESULT")
-TRUFFLEHOG_MARK=$(status_emoji "$TRUFFLEHOG_RESULT")
-if [ "$PROWLER_ENABLED" = "true" ]; then
-  PROWLER_MARK=$(status_emoji "$PROWLER_RESULT")
-  PROWLER_DESC="CIS 1.0 benchmark (prowler github)"
-else
-  PROWLER_MARK="⚪"
-  PROWLER_RESULT="skipped"
-  PROWLER_DESC="Configure PROWLER_GITHUB_TOKEN to enable"
-fi
+def status_emoji(name: str) -> str:
+    value = (name or '').strip().lower()
+    return STATUS_MAP.get(value, '⚠️')
 
-cat <<EOF > security-summary.md
+bandit_status = os.getenv('BANDIT_STATUS', 'unknown')
+safety_status = os.getenv('SAFETY_STATUS', 'unknown')
+osv_status = os.getenv('OSV_RESULT', 'unknown')
+semgrep_status = os.getenv('SEMGREP_RESULT', 'unknown')
+codeql_status = os.getenv('CODEQL_RESULT', 'unknown')
+dep_review_status = os.getenv('DEP_REVIEW_RESULT', 'skipped') or 'skipped'
+yamllint_status = os.getenv('YAMLLINT_RESULT', 'unknown')
+trufflehog_status = os.getenv('TRUFFLEHOG_RESULT', 'unknown')
+
+prowler_enabled = os.getenv('PROWLER_ENABLED', 'false').lower() == 'true'
+prowler_status = os.getenv('PROWLER_RESULT', 'skipped')
+if prowler_enabled:
+    prowler_mark = status_emoji(prowler_status)
+    prowler_desc = 'CIS 1.0 benchmark (prowler github)'
+else:
+    prowler_mark = '⚪'
+    prowler_status = 'skipped'
+    prowler_desc = 'Configure PROWLER_GITHUB_TOKEN to enable'
+
+summary = f"""\
 # 🔒 Security Analysis Summary
 
 ## 📊 Scan Results
 
 | Tool | Status | Integration | Description |
 |------|--------|-------------|-------------|
-| 🔍 Bandit | $BANDIT_MARK ${BANDIT_STATUS:-unknown} | ✅ Security Tab | Python static analysis (SARIF) |
-| 🔒 Safety | $SAFETY_MARK ${SAFETY_STATUS:-unknown} | ✅ Security Tab | Dependency vulnerability scan |
-| 🛡️ OSV Scanner | $OSV_MARK ${OSV_RESULT:-unknown} | ✅ Security Tab | Open Source Vulnerability database |
-| 🔬 Semgrep | $SEMGREP_MARK ${SEMGREP_RESULT} | ✅ Security Tab | Multi-language security patterns |
-| 🧪 CodeQL | $CODEQL_MARK ${CODEQL_RESULT} | ✅ Security Tab | GitHub's semantic code analysis |
-| 📋 Dependency Review | $(status_emoji "$DEP_REVIEW_RESULT") ${DEP_REVIEW_RESULT} | ✅ Security Tab | License & vulnerability review |
-| 🛡️ Prowler GitHub | $PROWLER_MARK ${PROWLER_RESULT} | 📊 Reports Only | $PROWLER_DESC |
-| 📝 YAML Lint | $YAMLLINT_MARK ${YAMLLINT_RESULT} | ✅ CI Logs | YAML syntax and style checking |
-| 🐷 TruffleHog | $TRUFFLEHOG_MARK ${TRUFFLEHOG_RESULT} | ✅ CI Logs | Secret scanning for verified secrets |
+| 🔍 Bandit | {status_emoji(bandit_status)} {bandit_status} | ✅ Security Tab | Python static analysis (SARIF) |
+| 🔒 Safety | {status_emoji(safety_status)} {safety_status} | ✅ Security Tab | Dependency vulnerability scan |
+| 🛡️ OSV Scanner | {status_emoji(osv_status)} {osv_status} | ✅ Security Tab | Open Source Vulnerability database |
+| 🔬 Semgrep | {status_emoji(semgrep_status)} {semgrep_status} | ✅ Security Tab | Multi-language security patterns |
+| 🧪 CodeQL | {status_emoji(codeql_status)} {codeql_status} | ✅ Security Tab | GitHub's semantic code analysis |
+| 📋 Dependency Review | {status_emoji(dep_review_status)} {dep_review_status} | ✅ Security Tab | License & vulnerability review |
+| 🛡️ Prowler GitHub | {prowler_mark} {prowler_status} | 📊 Reports Only | {prowler_desc} |
+| 📝 YAML Lint | {status_emoji(yamllint_status)} {yamllint_status} | ✅ CI Logs | YAML syntax and style checking |
+| 🐷 TruffleHog | {status_emoji(trufflehog_status)} {trufflehog_status} | ✅ CI Logs | Secret scanning for verified secrets |
 
 ## 🎯 Where to View Results
 
@@ -71,4 +82,8 @@ trufflehog filesystem .
 ```
 
 _This summary was generated automatically by the Security & Vulnerability Scanning workflow._
-EOF
+"""
+
+with open('security-summary.md', 'w', encoding='utf-8') as fh:
+    fh.write(textwrap.dedent(summary))
+PY

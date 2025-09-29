@@ -35,17 +35,26 @@ jobs:
             windows-specific:
               - '**/*.ps1'
               - 'scripts/setup_windows*'
-            docs-only:
-              - '**/*.md'
-              - 'docs/**'
             workflows:
               - '.github/workflows/**'
+            docs-only:
+              type: and
+              filters:
+                - '**/*.md'
+                - type: not
+                  filters:
+                    - core-python
+                    - platform-scripts
+                    - windows-specific
+                    - workflows
 
   primary-test:
     needs: changes
     if: >-
-      needs.changes.outputs.core-python == 'true' ||
-      needs.changes.outputs.workflows == 'true'
+      needs.changes.outputs.docs-only != 'true' && (
+        needs.changes.outputs.core-python == 'true' ||
+        needs.changes.outputs.workflows == 'true'
+      )
     name: 🚀 Fast Primary Test (Ubuntu + Python 3.12)
     runs-on: ubuntu-latest
     steps:
