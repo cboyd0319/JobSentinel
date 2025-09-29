@@ -41,16 +41,18 @@ jobs:
               - '.github/workflows/**'
             markdown:
               - '**/*.md'
+            non-doc:
+              type: union
+              filters:
+                - core-python
+                - platform-scripts
+                - windows-specific
+                - workflows
             docs-only:
               type: difference
               filters:
                 - markdown
-                - type: union
-                  filters:
-                    - core-python
-                    - platform-scripts
-                    - windows-specific
-                    - workflows
+                - non-doc
 
   primary-test:
     needs: changes
