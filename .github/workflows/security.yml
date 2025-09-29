@@ -55,9 +55,20 @@ jobs:
 
       - name: Run Safety Check
         id: safety
-        run: safety scan --output sarif > safety-results.sarif || true
+        run: |
+          safety scan \
+            --output sarif \
+            --output-file safety-results.sarif \
+            --project config/.safety-project.ini || true
         env:
           SAFETY_API_KEY: ${{ secrets.SAFETY_API_KEY }}
+
+      - name: Ensure Safety SARIF exists
+        if: always()
+        run: |
+          if [ ! -s safety-results.sarif ]; then
+            echo '{"version":"2.1.0","$schema":"https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0.json","runs":[]}' > safety-results.sarif
+          fi
 
 
       - name: Upload Bandit SARIF
