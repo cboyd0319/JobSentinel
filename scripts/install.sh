@@ -208,7 +208,14 @@ install_dependencies() {
         macos)
             if ! command -v brew &> /dev/null; then
                 log_info "Installing Homebrew..."
-                /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+                installer_url="https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
+                installer_path=$(mktemp)
+                if ! curl -fsSL "$installer_url" -o "$installer_path"; then
+                    log_error "Failed to download Homebrew installer"
+                    exit 1
+                fi
+                /bin/bash "$installer_path"
+                rm -f "$installer_path"
             fi
             brew install python@3.12 git
             ;;

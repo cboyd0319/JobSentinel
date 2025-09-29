@@ -12,6 +12,10 @@ from __future__ import annotations
 from importlib import import_module
 from typing import Protocol
 
+_PROVIDER_MODULES = {
+    "gcp": "cloud.providers.gcp",
+}
+
 
 class ProviderBootstrap(Protocol):
     """Minimal interface each cloud provider bootstrapper must implement."""
@@ -31,7 +35,12 @@ def load_provider(provider_key: str) -> ProviderBootstrap:
         Normalised provider selector (``gcp``, ``aws``, ``azure``).
     """
 
-    module = import_module(f"cloud.providers.{provider_key}")
+    try:
+        module_path = _PROVIDER_MODULES[provider_key]
+    except KeyError as exc:
+        raise ValueError(f"Unknown provider '{provider_key}'") from exc
+
+    module = import_module(module_path)
     return module.get_bootstrap()  # type: ignore[no-any-return]
 
 

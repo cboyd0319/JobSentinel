@@ -1,7 +1,8 @@
 import os
 import json
 from urllib.parse import urlparse, urlunparse
-from flask import Flask, render_template, request, redirect, url_for, flash
+import secrets
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from utils.config import config_manager
 from src.database import get_database_stats, engine, Job
 from sqlmodel import Session, select
@@ -9,6 +10,17 @@ from sqlmodel import Session, select
 # --- Flask App Initialization ---
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
+
+
+def _generate_csrf_token() -> str:
+    token = session.get("_csrf_token")
+    if not token:
+        token = secrets.token_urlsafe(32)
+        session["_csrf_token"] = token
+    return token
+
+
+app.jinja_env.globals["csrf_token"] = _generate_csrf_token
 
 
 # --- Filters ---
@@ -70,6 +82,12 @@ def index():
 def save_config():
     """Saves the user_prefs.json configuration."""
     try:
+        form_token = request.form.get("_csrf_token")
+        session_token = session.get("_csrf_token")
+        if not form_token or not session_token or form_token != session_token:
+            flash("Invalid submission token. Please try again.", "danger")
+            return redirect(url_for("index"))
+
         # Get the form data as a string
         config_str = request.form.get("config")
         if not config_str:
@@ -88,6 +106,7 @@ def save_config():
             json.dump(config_data, f, indent=2)
 
         flash("Configuration saved successfully!", "success")
+        session.pop("_csrf_token", None)
     except Exception as e:
         flash(f"Error saving configuration: {e}", "danger")
 
