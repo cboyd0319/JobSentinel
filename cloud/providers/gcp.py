@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
-import random
+import secrets
 import re
 import string
 import subprocess
@@ -108,6 +108,30 @@ class GCPBootstrap:
 
         path = "/" + "/".join(quoted_segments)
         return urllib.parse.urlunparse(("https", host, path, "", "", ""))
+
+    @staticmethod
+    def _safe_extract_zip(archive: zipfile.ZipFile, destination: Path) -> None:
+        destination_path = destination.resolve()
+        members = archive.namelist()
+        for member in members:
+            member_path = (destination_path / member).resolve()
+            try:
+                member_path.relative_to(destination_path)
+            except ValueError as exc:
+                raise RuntimeError("Zip archive contains unsafe path") from exc
+            archive.extract(member, destination_path)
+
+    @staticmethod
+    def _safe_extract_tar(archive: tarfile.TarFile, destination: Path) -> None:
+        destination_path = destination.resolve()
+        for member in archive.getmembers():
+            member_path = (destination_path / member.name).resolve()
+            try:
+                member_path.relative_to(destination_path)
+            except ValueError as exc:
+                raise RuntimeError("Tar archive contains unsafe path") from exc
+            archive.extract(member, destination_path)
+
 
     # ------------------------------------------------------------------
     # public API
@@ -213,34 +237,35 @@ class GCPBootstrap:
 
     def _download_and_extract(self, url: str, destination: Path) -> Path:
         ensure_directory(destination)
-        parsed = urllib.parse.urlparse(url)
-        if parsed.scheme != "https" or parsed.netloc != "dl.google.com":
+        sanitized_url = self._sanitize_api_url(url)
+        parsed = urllib.parse.urlparse(sanitized_url)
+        if parsed.netloc != "dl.google.com":
             raise RuntimeError("Refusing to download Cloud SDK from non-Google host")
 
-        fd, tmp_path = tempfile.mkstemp(dir=destination, suffix=Path(url).suffix)
+        fd, tmp_path = tempfile.mkstemp(dir=destination, suffix=Path(parsed.path).suffix)
         os.close(fd)
         download_path = Path(tmp_path)
-        print(f"⬇️  Downloading {url}")
-        urllib.request.urlretrieve(url, download_path)
-        self._verify_checksum(url, download_path)
+        print(f"⬇️  Downloading {sanitized_url}")
+        urllib.request.urlretrieve(sanitized_url, download_path)
+        self._verify_checksum(sanitized_url, download_path)
 
         if download_path.suffix == ".zip":
             with zipfile.ZipFile(download_path, "r") as archive:
-                archive.extractall(destination)
+                self._safe_extract_zip(archive, destination)
         else:
             with tarfile.open(download_path, "r:gz") as archive:
-                archive.extractall(destination)
+                self._safe_extract_tar(archive, destination)
 
         download_path.unlink(missing_ok=True)
         return destination / "google-cloud-sdk"
 
     def _verify_checksum(self, url: str, archive: Path) -> None:
-        checksum_url = f"{url}.sha256"
+        checksum_url = self._sanitize_api_url(f"{url}.sha256")
         parsed = urllib.parse.urlparse(checksum_url)
-        if parsed.scheme != "https" or parsed.netloc != "dl.google.com":
+        if parsed.netloc != "dl.google.com":
             raise RuntimeError("Invalid checksum host for Cloud SDK download")
 
-        expected_raw = urllib.request.urlopen(checksum_url, timeout=30).read().decode("utf-8").strip()
+        expected_raw = urllib.request.urlopen(checksum_url, timeout=30).read().decode("utf-8").strip()  # nosec B310
         expected_hash = expected_raw.split()[0]
         actual_hash = hashlib.sha256(archive.read_bytes()).hexdigest()
         if expected_hash != actual_hash:
@@ -353,7 +378,8 @@ class GCPBootstrap:
     def _generate_project_id(self, base_name: str) -> str:
         candidate = re.sub(r"[^a-z0-9-]", "-", base_name.lower())
         candidate = re.sub(r"-+", "-", candidate).strip("-") or "job-scraper"
-        suffix = "".join(random.choices(string.ascii_lowercase + string.digits, k=6))
+        alphabet = string.ascii_lowercase + string.digits
+        suffix = "".join(secrets.choice(alphabet) for _ in range(6))
         candidate = candidate[:20]
         return f"{candidate}-{suffix}"
 
@@ -537,7 +563,7 @@ class GCPBootstrap:
                     "--quiet",
                 ]
             )
-            print(f"🔐 Secret {name} created with 90-day expiry policy")
+            print("🔐 Secret created with 90-day expiry policy")
 
         run_command(
             [

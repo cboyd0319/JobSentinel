@@ -368,7 +368,7 @@ class SetupWizard:
         salary_min = self.user_profile.get('salary_min')
         salary_max = self.user_profile.get('salary_max')
         if salary_min or salary_max:
-            print(f"💰 Salary: ${salary_min or '?'} - ${salary_max or '?'}")
+            print("💰 Salary preferences captured (values hidden for privacy)")
 
         custom_boards = self.user_profile.get('custom_job_boards', [])
         if custom_boards:

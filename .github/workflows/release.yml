@@ -28,19 +28,22 @@ jobs:
 
       - name: Extract version
         id: extract_version
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          DISPATCH_VERSION: ${{ github.event.inputs.version }}
+        shell: bash --noprofile --norc -eo pipefail
         run: |
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            VERSION="${{ github.event.inputs.version }}"
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            VERSION="$DISPATCH_VERSION"
           else
-            VERSION=${GITHUB_REF#refs/tags/v}
+            VERSION="${GITHUB_REF#refs/tags/v}"
           fi
-          if ! printf '%s' "$VERSION" | \
-               grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+          if ! printf '%s' "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
             echo "Invalid version format: $VERSION" >&2
             exit 1
           fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "Version: $VERSION"
+          printf 'Version: %s\n' "$VERSION"
 
       - name: Update VERSION file
         run: |
