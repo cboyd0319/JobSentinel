@@ -34,6 +34,7 @@ Advanced checks
 When reporting an issue
 
 Include:
+
 - OS and Python version
 - A short description and steps to reproduce
 - Health check output and recent log excerpts
@@ -41,7 +42,7 @@ Include:
 
 Where to get help
 
-- File an issue on GitHub: https://github.com/cboyd0319/job-private-scraper-filter/issues
+- File an issue on GitHub: <https://github.com/cboyd0319/job-private-scraper-filter/issues>
 - Start a discussion if it's a feature request
 
 That's it — if you hit something weird and want me to look, open an issue and I'll try to help when I can.

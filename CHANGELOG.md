@@ -4,12 +4,14 @@ Notes about this project — short and practical. I keep a simple changelog here
 
 ## [Unreleased]
 
-### Added
+### Added in 1.0.0
+
 - Release and versioning helpers
 - CI tweaks to make releases smoother
 - A small CLI `--version` flag
 
 ### Changed
+
 - Skip some heavy CI steps for docs-only edits
 
 ---
@@ -17,6 +19,7 @@ Notes about this project — short and practical. I keep a simple changelog here
 ## [1.0.0] - 2025-01-26
 
 ### Added
+
 - Initial public release
 - Support for Greenhouse, Lever, Workday, and JS-powered career pages
 - Rule-based job scoring and optional AI enhancement
@@ -27,12 +30,14 @@ Notes about this project — short and practical. I keep a simple changelog here
 - Privacy-first: everything runs locally
 
 ### Technical bits
+
 - SQLite with SQLModel
 - Playwright for scraping JS-heavy pages
 - JSON-based user prefs and `.env` for secrets
 - Structured logs with rotation
 
 ### Planned
+
 - More job board scrapers
 - Discord alerts and Docker support
 - A few UI and analytics improvements
@@ -40,6 +45,7 @@ Notes about this project — short and practical. I keep a simple changelog here
 ---
 
 Legend:
+
 - 🎉 Major feature
 - ✨ New feature
 - 🐛 Bug fix

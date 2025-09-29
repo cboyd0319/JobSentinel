@@ -1,39 +1,25 @@
 # Roadmap ideas
 
-Here are a bunch of ideas I might work on eventually. No promises — just a list of things I'd like to try if I get time or help.
+Here’s the running list of things I’m curious about exploring. No schedule, just a parking lot of ideas.
 
-## ✅ Completed Recently (September 2025)
+## Done recently
 
-**Enterprise-Grade Security Implementation:**
-- ✅ **CodeQL Analysis**: GitHub's semantic code vulnerability detection
-- ✅ **OSV Scanner**: Google's comprehensive vulnerability database integration
-- ✅ **Enhanced Security Scanning**: Bandit, Safety, and TruffleHog integration (Ruff planned)
-- ✅ **SARIF Format**: Proper Security tab integration for all vulnerability data
-- ✅ **Local Validation Tools**: Comprehensive security validation pipeline
-- ✅ **Supply Chain Security**: Build provenance attestation and dependency reviews
-- ✅ **Configuration Validation**: YAML and shell script security analysis
+- Wired up CodeQL, Safety, and Bandit so the security checks match what I run locally
+- Added OSV scanning and SARIF uploads so GitHub’s Security tab stays current
+- Tidied the cloud bootstrapper with budget alerts and Binary Authorization
 
-## 🚀 Next Priority Items
+## Up next (maybe)
 
-- **Provider bootstrap parity**: extend `python -m cloud.bootstrap` to cover AWS Lambda and Azure Functions while reusing the new provider registry
+- Bring the nicer Cloud Run bootstrapper experience to AWS Lambda and Azure Functions
+- Keep hammering on the Windows setup script until it feels as smooth as macOS/Linux
+- Expand CI to cover more scraping edge cases and make rollback easier
 
-**Windows Setup Hardening:**
-- 🔄 **Rock-solid Windows Installation**: PowerShell script testing and validation
-- 🔄 **Cross-platform Consistency**: Ensure identical experience across macOS/Linux/Windows
-- 🔄 **Dependency Management**: Robust Python environment setup on Windows
+## Nice-to-haves for later
 
-**Development Infrastructure:**
-- **Enhanced CI/CD**: Automated testing, deployment, and rollback capabilities
-- **Performance Monitoring**: Real-time job scraping performance and health metrics
-- **Error Recovery**: Improved resilience and automatic recovery from failures
+- Smarter AI helpers (resume hints, matcher explanations)
+- More scrapers for sites friends keep asking about
+- Lightweight mobile or web notifications
+- Better privacy tooling (data export, key rotation reminders)
+- Full encryption of data in transit and at rest
 
-## 💡 Future Feature Ideas
-
-- Better AI features (resume matching, interview prep, etc.)
-- More scrapers (LinkedIn, AngelList, freelance sites)
-- Automation helpers (auto-fill, resume tweaks) — only if users want it
-- Mobile notifications and a tiny web UI
-- Privacy tools (export data, better `.env` handling)
-- Performance improvements and smarter rate limiting
-
-If you care about any of these, file an issue or a PR and tell me why — that helps me prioritize.
+If one of these matters to you, open an issue with context. Knowing why you need it helps me decide what to tackle next.

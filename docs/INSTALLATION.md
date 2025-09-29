@@ -3,6 +3,7 @@
 Short, practical installation steps for the platforms I care about. If something doesn't work, open an issue and I'll try to help.
 
 Priorities
+
 - ✅ Ease of use — minimal steps, predictable defaults
 - ✅ Security — least privilege, secrets handled properly
 
@@ -26,6 +27,7 @@ until you confirm, then continues automatically.
 ## Local installation
 
 Prereqs
+
 - Python 3.12.10
 - Git
 - Internet (for dependencies and Playwright)
@@ -89,6 +91,7 @@ macOS/Linux: use `crontab -e` to add something like:
 ```
 
 Troubleshooting (quick)
+
 - Python not found: try `python3` or add Python to PATH
 - Permission errors: make sure your user can write to the project folder
 - Playwright issues: run `python3 -m playwright install-deps` and retry
@@ -102,6 +105,7 @@ python3 -m playwright install chromium
 ```
 
 Uninstall
+
 - Remove scheduled tasks or cron jobs and delete the project folder.
 
 See the `docs/` folder for more details.

@@ -1,6 +1,5 @@
 # Contributing
 
-
 Thanks for taking a look — I appreciate it. This is a small personal project I maintain for myself and to share with friends and others who find it helpful. I'm happy to accept fixes and helpful additions.
 
 If you find a bug or want to add something, the easiest way is to open an issue describing what you saw and how to reproduce it.
@@ -12,6 +11,7 @@ If you'd like to send a change:
 3. Push the branch and open a PR.
 
 A few notes I care about:
+
 - Keep things small and focused — small PRs are easier to review.
 - Add or update docs when you change behavior.
 - No secrets in commits, please.
@@ -33,10 +33,12 @@ python3 -m src.agent --mode health
 ```
 
 Testing tips
+
 - Run `python3 -m src.agent --mode test` to exercise notifications and basic flows.
 - If you change scraping logic, try a few real pages to make sure selectors still work.
 
 Areas where help is useful
+
 - Additional job board scrapers
 - Improving robustness around flaky sites
 - Better docs or examples for common companies
