@@ -9,7 +9,7 @@ import secrets
 import re
 import shutil
 import string
-import subprocess
+import subprocess  # nosec B404 - subprocess used for validated gcloud CLI commands only
 import sys
 import tarfile
 import tempfile

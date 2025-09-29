@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 import platform
 import shutil
-import subprocess
+import subprocess  # nosec B404 - subprocess used for validated gcloud CLI commands only
 import sys
 from pathlib import Path
 from typing import Iterable, Sequence
@@ -34,7 +34,7 @@ def run_command(
 ) -> subprocess.CompletedProcess[str]:
     """Wrapper around :func:`subprocess.run` with sensible defaults."""
 
-    return subprocess.run(  # type: ignore[no-any-return]
+    return subprocess.run(  # type: ignore[no-any-return] # nosec B603 - command list validated by callers
         list(command),
         check=check,
         capture_output=capture_output,

@@ -53,16 +53,19 @@ jobs:
           PY
 
       - name: Update VERSION file
+        env:
+          VERSION: ${{ steps.extract_version.outputs.version }}
         run: |
-          echo "${{ steps.extract_version.outputs.version }}" > VERSION
+          echo "$VERSION" > VERSION
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add VERSION
-          git commit -m \
-            "chore: bump version to ${{ steps.extract_version.outputs.version }}" || exit 0
+          git commit -m "chore: bump version to $VERSION" || exit 0
 
       - name: Generate changelog
         id: changelog
+        env:
+          VERSION: ${{ steps.extract_version.outputs.version }}
         run: |
           # Generate changelog from git commits since last tag
           LAST_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || \
@@ -96,7 +99,7 @@ jobs:
           \`\`\`bash
           git clone https://github.com/cboyd0319/job-private-scraper-filter.git
           cd job-private-scraper-filter
-          git checkout v${{ steps.extract_version.outputs.version }}
+          git checkout v${VERSION}
           chmod +x scripts/setup.sh && ./scripts/setup.sh
           \`\`\`
 
@@ -107,7 +110,7 @@ jobs:
 
           **Full Changelog**:
           https://github.com/cboyd0319/job-private-scraper-filter/compare/${LAST_TAG}...\
-          v${{ steps.extract_version.outputs.version }}
+          v${VERSION}
           EOF
 
       - name: Create Release
@@ -135,6 +138,8 @@ jobs:
           python-version: '3.12.10'
 
       - name: Create distribution package
+        env:
+          VERSION: ${{ needs.create-release.outputs.version }}
         run: |
           # Create a clean distribution
           mkdir -p dist/job-private-scraper-filter
@@ -148,14 +153,15 @@ jobs:
 
           # Create archive
           cd dist
-          tar -czf job-private-scraper-filter-v${{ needs.create-release.outputs.version }}.tar.gz \
+          tar -czf "job-private-scraper-filter-v${VERSION}.tar.gz" \
             job-private-scraper-filter/
-          zip -r job-private-scraper-filter-v${{ needs.create-release.outputs.version }}.zip job-private-scraper-filter/
+          zip -r "job-private-scraper-filter-v${VERSION}.zip" job-private-scraper-filter/
 
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.create-release.outputs.version }}
         with:
           tag_name: v${{ needs.create-release.outputs.version }}
           files: |

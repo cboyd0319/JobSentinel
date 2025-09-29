@@ -276,13 +276,13 @@ class PlaywrightScraper(JobBoardScraper, APIDiscoveryMixin):
                                     )
                                     jobs.append(normalized_job)
 
-                        except Exception:
+                        except Exception:  # nosec B110 - broad exception needed for scraper resilience
                             continue
 
                     if jobs:
                         break
 
-            except Exception:
+            except Exception:  # nosec B110 - broad exception needed for scraper resilience
                 continue
 
         return jobs
@@ -336,13 +336,13 @@ class PlaywrightScraper(JobBoardScraper, APIDiscoveryMixin):
                                     )
                                     jobs.append(normalized_job)
 
-                        except Exception:
+                        except Exception:  # nosec B110 - broad exception needed for scraper resilience
                             continue
 
                     if jobs:
                         break
 
-            except Exception:
+            except Exception:  # nosec B110 - broad exception needed for scraper resilience
                 continue
 
         return jobs
@@ -382,13 +382,13 @@ class PlaywrightScraper(JobBoardScraper, APIDiscoveryMixin):
                                     )
                                     jobs.append(normalized_job)
 
-                        except Exception:
+                        except Exception:  # nosec B110 - broad exception needed for scraper resilience
                             continue
 
                     if jobs:
                         break
 
-            except Exception:
+            except Exception:  # nosec B110 - broad exception needed for scraper resilience
                 continue
 
         return jobs

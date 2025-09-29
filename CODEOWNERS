@@ -1,0 +1,13 @@
+# Global code ownership
+* @cboyd0319
+
+# Security-sensitive files require extra review
+/.github/ @cboyd0319
+/scripts/ @cboyd0319
+/config/ @cboyd0319
+SECURITY.md @cboyd0319
+requirements.txt @cboyd0319
+
+# Documentation
+*.md @cboyd0319
+/docs/ @cboyd0319
