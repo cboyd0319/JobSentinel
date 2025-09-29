@@ -163,21 +163,33 @@ def build_sarif_from_json(json_data: Dict[str, Any]) -> Dict[str, Any]:
             if key in finding and finding[key]:
                 properties[key] = finding[key]
 
-        # Create SARIF result
+        # Create SARIF result with required location
+        # SARIF requires at least one location for each result
+        resources = finding.get('resources', [])
+        resource_name = finding.get('resource_name', '')
+
+        # Build location information
+        if resources and len(resources) > 0:
+            # Use first resource if available
+            resource = resources[0]
+            location_text = resource.get('name', resource.get('uid', 'Repository'))
+        elif resource_name:
+            location_text = resource_name
+        else:
+            # Default location for repository-level findings
+            location_text = "Repository"
+
         result = {
             "ruleId": rule_id,
             "level": sarif_level,
             "message": {"text": message_text},
-            "properties": properties
-        }
-
-        # Add location if available (for repository-level findings, this might be minimal)
-        if finding.get('resource_id') or finding.get('resource_name'):
-            result["locations"] = [{
+            "properties": properties,
+            "locations": [{
                 "message": {
-                    "text": finding.get('resource_id') or finding.get('resource_name', 'Repository')
+                    "text": location_text
                 }
             }]
+        }
 
         results.append(result)
 
