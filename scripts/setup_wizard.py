@@ -10,6 +10,7 @@ from sources.job_scraper_base import GenericJobExtractor
 import sys
 import json
 from pathlib import Path
+from urllib.parse import urlparse, urlunparse
 
 # Add project root to path
 sys.path.append(str(Path(__file__).parent.parent))
@@ -25,6 +26,33 @@ class SetupWizard:
         self.extractor = GenericJobExtractor()
         self.user_profile = {}
         self.config_path = Path("config/user_profile.json")
+
+    @staticmethod
+    def _sanitize_board_url(raw_url: str) -> str:
+        """Validate and normalize a custom job board URL."""
+        candidate = raw_url.strip()
+        if not candidate:
+            raise ValueError("empty URL")
+
+        if "://" not in candidate:
+            candidate = f"https://{candidate}"
+
+        parsed = urlparse(candidate)
+
+        if parsed.scheme not in {"http", "https"}:
+            raise ValueError(f"unsupported scheme: {parsed.scheme}")
+
+        if not parsed.hostname:
+            raise ValueError("missing hostname")
+
+        normalized = parsed._replace(
+            scheme=parsed.scheme.lower(),
+            netloc=(parsed.hostname or "").lower(),
+            fragment="",
+            params="",
+        )
+
+        return urlunparse(normalized)
 
     def welcome(self):
         """Display welcome message and overview."""
@@ -250,7 +278,17 @@ class SetupWizard:
             url = input("🔗 Company URL: ").strip()
             if not url:
                 break
-            custom_urls.append(url)
+            try:
+                sanitized = self._sanitize_board_url(url)
+            except ValueError as exc:
+                print(f"⚠️ Invalid URL ({exc}). Please try again.")
+                continue
+
+            if sanitized in custom_urls:
+                print("⚠️ URL already added, skipping duplicate")
+                continue
+
+            custom_urls.append(sanitized)
 
         self.user_profile['custom_job_boards'] = custom_urls
 

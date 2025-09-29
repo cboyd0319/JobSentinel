@@ -5,6 +5,7 @@ Handles JavaScript-heavy sites and provides fallback for unknown platforms.
 
 import asyncio
 from typing import List, Dict
+from urllib.parse import urlparse, urlunparse
 from playwright.async_api import async_playwright
 from .job_scraper_base import JobBoardScraper, APIDiscoveryMixin, GenericJobExtractor, fetch_url
 from utils.logging import get_logger
@@ -95,6 +96,46 @@ class PlaywrightScraper(JobBoardScraper, APIDiscoveryMixin):
 
             return []
 
+    @staticmethod
+    def _sanitize_url(raw_url: str) -> str:
+        """Normalise and validate URLs before navigation or matching."""
+        candidate = raw_url.strip()
+        if not candidate:
+            raise ValueError("Received empty URL")
+
+        if "://" not in candidate:
+            candidate = f"https://{candidate}"
+
+        parsed = urlparse(candidate)
+
+        if parsed.scheme not in {"http", "https"}:
+            raise ValueError(f"Unsupported URL scheme: {parsed.scheme}")
+
+        if not parsed.hostname:
+            raise ValueError("URL is missing hostname")
+
+        normalized = parsed._replace(
+            netloc=(parsed.hostname or "").lower(),
+            fragment="",
+            params="",
+        )
+
+        return urlunparse(normalized)
+
+    @staticmethod
+    def _host_matches(url: str, expected_domain: str) -> bool:
+        """Return True when the URL's host matches the expected domain or a subdomain."""
+        try:
+            sanitized = PlaywrightScraper._sanitize_url(url)
+            parsed = urlparse(sanitized)
+        except ValueError:
+            return False
+
+        hostname = (parsed.hostname or "").lower()
+        expected = expected_domain.lower()
+
+        return hostname == expected or hostname.endswith(f".{expected}")
+
     async def scrape_with_enhanced_selectors(
             self, board_url: str, fetch_descriptions: bool = True) -> List[Dict]:
         """Scrape using enhanced content selectors."""
@@ -105,19 +146,22 @@ class PlaywrightScraper(JobBoardScraper, APIDiscoveryMixin):
             try:
                 logger.info(f"🎯 Enhanced content extraction for {board_url}")
 
-                await page.goto(board_url, wait_until='networkidle')
+                safe_board_url = self._sanitize_url(board_url)
+
+                await page.goto(safe_board_url, wait_until='networkidle')
                 await page.wait_for_timeout(3000)
 
-                company_name = self.extract_company_name(board_url)
+                company_name = self.extract_company_name(safe_board_url)
                 jobs = []
 
                 # Site-specific selector strategies
-                if "spectrum.com" in board_url:
+                if self._host_matches(safe_board_url, "spectrum.com"):
                     jobs = await self._extract_spectrum_jobs(page, company_name)
-                elif "google.com" in board_url:
+                elif self._host_matches(safe_board_url, "google.com"):
                     jobs = await self._extract_google_jobs(page, company_name)
                 else:
-                    jobs = await self._extract_generic_jobs(page, company_name, board_url)
+                    jobs = await self._extract_generic_jobs(
+                        page, company_name, safe_board_url)
 
                 await browser.close()
 

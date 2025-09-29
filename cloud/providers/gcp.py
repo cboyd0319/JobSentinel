@@ -66,6 +66,49 @@ class GCPBootstrap:
         self.connector_name: str = "job-scraper-connector"
         self.storage_bucket: str = f"job-scraper-data-{self.project_id}"
 
+    @staticmethod
+    def _sanitize_api_url(raw_url: str) -> str:
+        candidate = raw_url.strip()
+        if not candidate:
+            raise ValueError("empty URL provided")
+
+        if "://" not in candidate:
+            candidate = f"https://{candidate}"
+
+        parsed = urllib.parse.urlparse(candidate)
+
+        if parsed.scheme not in {"http", "https"}:
+            raise ValueError(f"Unsupported URL scheme: {parsed.scheme}")
+
+        if not parsed.hostname:
+            raise ValueError("URL is missing hostname")
+
+        normalized = parsed._replace(
+            scheme=parsed.scheme.lower(),
+            netloc=(parsed.hostname or "").lower(),
+            fragment="",
+            params="",
+        )
+
+        return urllib.parse.urlunparse(normalized)
+
+    @staticmethod
+    def _build_google_api_url(host: str, segments: list[str], *, allow_colon_last: bool = False) -> str:
+        if not host:
+            raise ValueError("API host is required")
+
+        quoted_segments: list[str] = []
+        for index, segment in enumerate(segments):
+            if not segment:
+                raise ValueError("Empty path segment in API URL")
+            safe = "-._~"
+            if allow_colon_last and index == len(segments) - 1:
+                safe += ":"
+            quoted_segments.append(urllib.parse.quote(segment, safe=safe))
+
+        path = "/" + "/".join(quoted_segments)
+        return urllib.parse.urlunparse(("https", host, path, "", "", ""))
+
     # ------------------------------------------------------------------
     # public API
     # ------------------------------------------------------------------
@@ -676,9 +719,23 @@ class GCPBootstrap:
         print_header("Scheduling recurring executions")
         if not self.scheduler_region:
             raise RuntimeError("Scheduler region not configured")
-        job_uri = (
-            "https://run.googleapis.com/apis/run.googleapis.com/v1/"
-            f"projects/{self.project_id}/locations/{self.region}/jobs/{self.job_name}:run"
+        if not all([self.project_id, self.region, self.job_name]):
+            raise RuntimeError("Project ID, region, and job name must be configured before scheduling")
+
+        job_uri = self._build_google_api_url(
+            host="run.googleapis.com",
+            segments=[
+                "apis",
+                "run.googleapis.com",
+                "v1",
+                "projects",
+                self.project_id,
+                "locations",
+                self.region,
+                "jobs",
+                f"{self.job_name}:run",
+            ],
+            allow_colon_last=True,
         )
         schedule = self.schedule_frequency
         create_cmd = [
@@ -710,8 +767,15 @@ class GCPBootstrap:
         ).stdout.strip()
 
         budget_endpoint = (
-            "https://billingbudgets.googleapis.com/v1beta1/billingAccounts/"
-            f"{self.billing_account}/budgets"
+            self._build_google_api_url(
+                host="billingbudgets.googleapis.com",
+                segments=[
+                    "v1beta1",
+                    "billingAccounts",
+                    self.billing_account,
+                    "budgets",
+                ],
+            )
         )
         parsed_endpoint = urllib.parse.urlparse(budget_endpoint)
         if parsed_endpoint.netloc != "billingbudgets.googleapis.com":
