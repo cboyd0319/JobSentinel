@@ -67,49 +67,62 @@ def build_sarif_from_json(json_data: Dict[str, Any]) -> Dict[str, Any]:
     results: List[Dict[str, Any]] = []
 
     for finding in findings:
-        # Skip if not a failed finding
+        # Extract OCSF status fields
         status = str(finding.get('status', '')).lower()
-        status_id = str(finding.get('status_id', '')).lower()
-        activity_name = str(finding.get('activity_name', '')).lower()
+        status_code = str(finding.get('status_code', '')).upper()
+        status_id = str(finding.get('status_id', ''))
+        status_detail = str(finding.get('status_detail', ''))
 
         # Debug the status values for the first few findings
         if len(results) < 3:
-            print(f"DEBUG: Finding {len(results)+1} - status: '{status}', status_id: '{status_id}', activity_name: '{activity_name}'")
-            print(f"DEBUG: Available keys: {list(finding.keys())}")
+            print(f"DEBUG: Finding {len(results)+1}:")
+            print(f"  status: '{status}'")
+            print(f"  status_code: '{status_code}'")
+            print(f"  status_id: '{status_id}'")
+            print(f"  status_detail: '{status_detail}'")
+            print(f"  Available keys: {list(finding.keys())}")
 
-        # Check various possible status indicators for failed checks
-        is_failed = (
+        # Check OCSF Detection Finding status
+        # In OCSF Detection Finding format:
+        # - status: 'new' + status_id: '1' = newly discovered security finding
+        # - These ARE the security issues we want to report
+        # - activity_name: 'create' means the finding was created/detected
+        activity_name = finding.get('activity_name', '').lower()
+
+        is_security_finding = (
+            status == 'new' and status_id == '1' or  # OCSF new finding
+            status_code == 'FAIL' or                  # Explicit fail
             status in {'fail', 'failed', 'failure'} or
-            status_id in {'fail', 'failed', 'failure', '2'} or  # OCSF status_id 2 = failure
-            activity_name in {'fail', 'failed', 'failure'} or
-            'fail' in status or 'fail' in status_id or 'fail' in activity_name
+            activity_name == 'create'                 # Created/detected finding
         )
 
-        if not is_failed:
+        if not is_security_finding:
+            if len(results) < 3:  # Debug first few non-security findings too
+                print(f"DEBUG: Skipping finding - not a security finding (status: '{status}', status_id: '{status_id}')")
             continue
 
-        # Extract rule information
+        # Extract rule information from OCSF Detection Finding
+        finding_info = finding.get('finding_info', {})
+
         rule_id = (
             finding.get('check_id') or
-            finding.get('control_id') or
-            finding.get('rule_id') or
-            finding.get('id') or
+            finding_info.get('uid') or
+            finding.get('uid') or
             'prowler-finding'
         )
 
         rule_name = (
+            finding_info.get('title') or
             finding.get('check_title') or
-            finding.get('control_title') or
             finding.get('title') or
-            finding.get('name') or
             rule_id
         )
 
         rule_desc = (
+            finding_info.get('desc') or
             finding.get('check_description') or
-            finding.get('control_description') or
             finding.get('description') or
-            finding.get('notes') or
+            status_detail or
             'Prowler security finding'
         )
 
@@ -126,15 +139,16 @@ def build_sarif_from_json(json_data: Dict[str, Any]) -> Dict[str, Any]:
                 }
             }
 
-        # Extract severity and map to SARIF level
-        severity = finding.get('severity', finding.get('level', 'medium'))
+        # Extract severity from OCSF format
+        severity = finding.get('severity', 'Medium')
+        severity_id = finding.get('severity_id', 3)  # OCSF default medium = 3
         sarif_level = map_severity_to_level(str(severity))
 
-        # Build result message
+        # Build result message from OCSF fields
         message_text = (
-            finding.get('status_extended') or
-            finding.get('description') or
-            finding.get('notes') or
+            status_detail or
+            finding_info.get('desc') or
+            finding.get('message') or
             f"{rule_name}: Security finding detected"
         )
 
