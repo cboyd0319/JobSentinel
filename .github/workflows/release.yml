@@ -33,24 +33,24 @@ jobs:
           DISPATCH_VERSION: ${{ github.event.inputs.version }}
         run: |
           python3 <<'PY'
-import os
-import re
+          import os
+          import re
 
-event = os.getenv("EVENT_NAME")
-if event == "workflow_dispatch":
-    version = os.getenv("DISPATCH_VERSION", "")
-else:
-    ref = os.getenv("GITHUB_REF", "")
-    version = ref.removeprefix("refs/tags/v")
+          event = os.getenv("EVENT_NAME")
+          if event == "workflow_dispatch":
+              version = os.getenv("DISPATCH_VERSION", "")
+          else:
+              ref = os.getenv("GITHUB_REF", "")
+              version = ref.removeprefix("refs/tags/v")
 
-if not re.fullmatch(r"\d+\.\d+\.\d+", version or ""):
-    raise SystemExit(f"Invalid version format: {version!r}")
+          if not re.fullmatch(r"\d+\.\d+\.\d+", version or ""):
+              raise SystemExit(f"Invalid version format: {version!r}")
 
-with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
-    fh.write(f"version={version}\n")
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
+              fh.write(f"version={version}\n")
 
-print(f"Version: {version}")
-PY
+          print(f"Version: {version}")
+          PY
 
       - name: Update VERSION file
         run: |

@@ -230,7 +230,7 @@ jobs:
           GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.PROWLER_GITHUB_TOKEN }}
         run: |
           mkdir -p prowler-output
-          prowler github --compliance cis_1.0_github \
+          prowler github --repository ${{ github.repository }} --compliance cis_1.0_github \
             --output-formats json-ocsf \
             --output-directory prowler-output --ignore-exit-code-3
 
