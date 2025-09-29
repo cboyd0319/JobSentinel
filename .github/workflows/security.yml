@@ -231,18 +231,32 @@ jobs:
         run: |
           mkdir -p prowler-output
           prowler github --compliance cis_1.0_github \
-            --output-formats csv \
+            --output-formats json-ocsf \
             --output-directory prowler-output --ignore-exit-code-3
 
+          json_file=$(find prowler-output -type f -name '*.ocsf.json' | head -n 1)
           csv_file=$(find prowler-output -type f -name '*.csv' | head -n 1)
           sarif_path="prowler-output/prowler-results.sarif"
 
-          if [ -n "$csv_file" ]; then
+          if [ -n "$json_file" ]; then
+            echo "Found Prowler JSON-OCSF file: $json_file"
+            python3 scripts/convert_prowler_json_to_sarif.py "$json_file" "$sarif_path"
+            echo "sarif_file=$sarif_path" >> "$GITHUB_OUTPUT"
+
+            # Debug: Show conversion results
+            if [ -f "$sarif_path" ]; then
+              echo "SARIF file created successfully"
+              echo "SARIF file size: $(stat -f%z "$sarif_path" 2>/dev/null || stat -c%s "$sarif_path")"
+            fi
+          elif [ -n "$csv_file" ]; then
+            echo "Fallback: Found Prowler CSV file: $csv_file"
             python3 scripts/convert_prowler_csv_to_sarif.py "$csv_file" "$sarif_path"
             echo "sarif_file=$sarif_path" >> "$GITHUB_OUTPUT"
           else
             echo "sarif_file=" >> "$GITHUB_OUTPUT"
-            echo "Prowler CSV output not found" >&2
+            echo "Prowler output not found" >&2
+            echo "Available files in prowler-output:"
+            ls -la prowler-output/
           fi
 
       - name: Upload Prowler SARIF
