@@ -1,6 +1,7 @@
+---
 name: Security & Vulnerability Scanning
 
-on:
+"on":
   push:
     branches: [main, develop]
   pull_request:
@@ -25,6 +26,7 @@ permissions:
   actions: read
   issues: write
   pull-requests: write
+  id-token: write  # Required for secure OIDC token access
 
 jobs:
   python-security:
@@ -73,14 +75,16 @@ jobs:
 
           def minimal_sarif():
               return {
-                  "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0.json",
+                  "$schema": >-
+                    https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0.json,
                   "version": "2.1.0",
                   "runs": [
                       {
                           "tool": {
                               "driver": {
                                   "name": "safety",
-                                  "informationUri": "https://github.com/pyupio/safety",
+                                  "informationUri": >-
+                  https://github.com/pyupio/safety,
                                   "rules": []
                               }
                           },
@@ -104,7 +108,9 @@ jobs:
                       tool = run.setdefault("tool", {})
                       driver = tool.setdefault("driver", {})
                       driver.setdefault("name", "safety")
-                      driver.setdefault("informationUri", "https://github.com/pyupio/safety")
+                      driver.setdefault(
+                          "informationUri", "https://github.com/pyupio/safety"
+                      )
                       driver.setdefault("rules", driver.get("rules", []))
                       run.setdefault("results", [])
               path.write_text(json.dumps(data))
@@ -134,7 +140,8 @@ jobs:
     runs-on: ubuntu-latest
     if: >-
       (github.actor != 'dependabot[bot]') &&
-      (github.event.inputs.scan_type == 'full' || !github.event.inputs.scan_type)
+      (github.event.inputs.scan_type == 'full' ||
+       !github.event.inputs.scan_type)
     permissions:
       contents: read
       security-events: write
@@ -216,7 +223,7 @@ jobs:
         if: steps.token_check.outputs.enabled == 'true'
         run: |
           python -m pip install --upgrade pip
-          pip install prowler
+          pip install --no-cache-dir --timeout 300 prowler
 
       - name: Run Prowler GitHub CIS benchmark
         id: prowler
@@ -225,27 +232,34 @@ jobs:
           GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.PROWLER_GITHUB_TOKEN }}
         run: |
           mkdir -p prowler-output
-          prowler github --repository ${{ github.repository }} --compliance cis_1.0_github \
+          prowler github \
+            --repository ${{ github.repository }} \
+            --compliance cis_1.0_github \
             --output-formats json-ocsf \
-            --output-directory prowler-output --ignore-exit-code-3
+            --output-directory prowler-output \
+            --ignore-exit-code-3
 
-          json_file=$(find prowler-output -type f -name '*.ocsf.json' | head -n 1)
+          json_file=$(find prowler-output -type f \
+            -name '*.ocsf.json' | head -n 1)
           csv_file=$(find prowler-output -type f -name '*.csv' | head -n 1)
           sarif_path="prowler-output/prowler-results.sarif"
 
           if [ -n "$json_file" ]; then
             echo "Found Prowler JSON-OCSF file: $json_file"
-            python3 scripts/convert_prowler_json_to_sarif.py "$json_file" "$sarif_path"
+            python3 scripts/convert_prowler_json_to_sarif.py \
+              "$json_file" "$sarif_path"
             echo "sarif_file=$sarif_path" >> "$GITHUB_OUTPUT"
 
             # Debug: Show conversion results
             if [ -f "$sarif_path" ]; then
               echo "SARIF file created successfully"
-              python -c "import os; print(f'SARIF file size: {os.path.getsize(\'$sarif_path\')}')"
+              python -c \
+                "import os; print(f'SARIF size: {os.path.getsize(\"$sarif_path\")}')"
             fi
           elif [ -n "$csv_file" ]; then
             echo "Fallback: Found Prowler CSV file: $csv_file"
-            python3 scripts/convert_prowler_csv_to_sarif.py "$csv_file" "$sarif_path"
+            python3 scripts/convert_prowler_csv_to_sarif.py \
+              "$csv_file" "$sarif_path"
             echo "sarif_file=$sarif_path" >> "$GITHUB_OUTPUT"
           else
             echo "sarif_file=" >> "$GITHUB_OUTPUT"
@@ -255,7 +269,9 @@ jobs:
           fi
 
       - name: Upload Prowler SARIF
-        if: steps.token_check.outputs.enabled == 'true' && steps.prowler.outputs.sarif_file != ''
+        if: >
+          steps.token_check.outputs.enabled == 'true' &&
+          steps.prowler.outputs.sarif_file != ''
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: ${{ steps.prowler.outputs.sarif_file }}
