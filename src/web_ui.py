@@ -82,7 +82,7 @@ def index():
 def save_config():
     """Saves the user_prefs.json configuration."""
     try:
-        form_token = request.form.get("_csrf_token")
+        form_token = request.form.get("csrf_token")
         session_token = session.get("_csrf_token")
         if not form_token or not session_token or form_token != session_token:
             flash("Invalid submission token. Please try again.", "danger")

@@ -7,6 +7,7 @@ import json
 import os
 import secrets
 import re
+import shutil
 import string
 import subprocess
 import sys
@@ -56,8 +57,8 @@ class GCPBootstrap:
         self.user_prefs_payload: str = ""
         self.env_values: Dict[str, str] = {}
         self.env_secret_bindings: Dict[str, str] = {}
-        self.env_secret_prefix = "job-scraper"
-        self.prefs_secret_name = "job-scraper-prefs"
+        self.env_secret_prefix = "job-scraper"  # nosec B105 - deterministic secret name prefix
+        self.prefs_secret_name = "job-scraper-prefs"  # nosec B105 - deterministic secret name
         self.project_root = resolve_project_root()
         self.job_mode: str = "poll"
         self.schedule_frequency: str = "0 6-18 * * 1-5"  # Business hours every hour default
@@ -131,6 +132,23 @@ class GCPBootstrap:
             except ValueError as exc:
                 raise RuntimeError("Tar archive contains unsafe path") from exc
             archive.extract(member, destination_path)
+
+    @staticmethod
+    def _download_https_file(url: str, destination: Path, *, allowed_host: str, timeout: int = 60) -> None:
+        parsed = urllib.parse.urlparse(url)
+        if parsed.scheme != "https" or parsed.netloc != allowed_host:
+            raise RuntimeError("Unexpected download host")
+        with urllib.request.urlopen(url, timeout=timeout) as response:  # nosec B310 - host validated above
+            with destination.open("wb") as fh:
+                shutil.copyfileobj(response, fh)
+
+    @staticmethod
+    def _download_https_text(url: str, *, allowed_host: str, timeout: int = 30) -> str:
+        parsed = urllib.parse.urlparse(url)
+        if parsed.scheme != "https" or parsed.netloc != allowed_host:
+            raise RuntimeError("Unexpected download host")
+        with urllib.request.urlopen(url, timeout=timeout) as response:  # nosec B310 - host validated above
+            return response.read().decode("utf-8").strip()
 
 
     # ------------------------------------------------------------------
@@ -246,7 +264,7 @@ class GCPBootstrap:
         os.close(fd)
         download_path = Path(tmp_path)
         print(f"⬇️  Downloading {sanitized_url}")
-        urllib.request.urlretrieve(sanitized_url, download_path)
+        self._download_https_file(sanitized_url, download_path, allowed_host="dl.google.com")
         self._verify_checksum(sanitized_url, download_path)
 
         if download_path.suffix == ".zip":
@@ -265,7 +283,7 @@ class GCPBootstrap:
         if parsed.netloc != "dl.google.com":
             raise RuntimeError("Invalid checksum host for Cloud SDK download")
 
-        expected_raw = urllib.request.urlopen(checksum_url, timeout=30).read().decode("utf-8").strip()  # nosec B310
+        expected_raw = self._download_https_text(checksum_url, allowed_host="dl.google.com", timeout=30)
         expected_hash = expected_raw.split()[0]
         actual_hash = hashlib.sha256(archive.read_bytes()).hexdigest()
         if expected_hash != actual_hash:
@@ -838,8 +856,12 @@ class GCPBootstrap:
             method="POST",
         )
 
+        request_url = urllib.parse.urlparse(request.full_url)
+        if request_url.scheme != "https" or request_url.netloc != "billingbudgets.googleapis.com":
+            raise RuntimeError("Unexpected billing budget request host")
+
         try:
-            urllib.request.urlopen(request)
+            urllib.request.urlopen(request)  # nosec B310 - host validated above
             print("✅ Billing budget created at $5 USD (alerts to billing admins)")
         except urllib.error.HTTPError as exc:  # pragma: no cover - runtime path
             if exc.code == 409:

@@ -355,7 +355,7 @@ class GenericJobExtractor:
         """Create a unique hash for job deduplication."""
         import hashlib
         content = f"{company.lower()}:{title.lower()}:{description[:100].lower()}"
-        return hashlib.md5(content.encode()).hexdigest()
+        return hashlib.sha256(content.encode()).hexdigest()
 
     @staticmethod
     def normalize_job_data(raw_job: Dict, company_name: str,

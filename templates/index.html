@@ -35,7 +35,7 @@
                     </div>
                     <div class="card-body">
                         <form action="/save" method="post">
-                            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <textarea name="config" class="form-control" rows="25">{{ prefs | tojson(indent=2) }}</textarea>
                             <button type="submit" class="btn btn-primary mt-3">Save Configuration</button>
                              <a href="/logs" class="btn btn-secondary mt-3">View Logs</a>
@@ -58,7 +58,7 @@
                     <ul class="list-group list-group-flush">
                          {% for job in jobs %}
                             <li class="list-group-item">
-                                <a href="{{ job.url | safe_external_url }}" target="_blank" rel="noopener noreferrer">{{ job.title | e }}</a><br>
+                                <a href="{{ job.url | safe_external_url | e }}" target="_blank" rel="noopener noreferrer">{{ job.title | e }}</a><br>
                                 <small class="text-muted">{{ job.company }} | Score: {{ "%.2f"|format(job.score) }}</small>
                             </li>
                          {% else %}
