@@ -29,28 +29,28 @@ jobs:
               - 'matchers/**/*.py'
               - 'requirements.txt'
             platform-scripts:
-              - 'scripts/**'
+              - 'scripts/**/*.py'
+              - 'scripts/**/*.sh'
               - '*.sh'
-              - '*.ps1'
+              - '*.py'
             windows-specific:
-              - '**/*.ps1'
+              - 'scripts/**/*.ps1'
+              - '*.ps1'
               - 'scripts/setup_windows*'
             workflows:
               - '.github/workflows/**'
             markdown:
               - '**/*.md'
-            non-doc:
-              type: union
-              filters:
-                - core-python
-                - platform-scripts
-                - windows-specific
-                - workflows
             docs-only:
               type: difference
               filters:
                 - markdown
-                - non-doc
+                - type: union
+                  filters:
+                    - core-python
+                    - platform-scripts
+                    - windows-specific
+                    - workflows
 
   primary-test:
     needs: changes

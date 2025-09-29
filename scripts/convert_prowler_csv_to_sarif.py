@@ -10,11 +10,25 @@ from pathlib import Path
 from typing import Dict, List
 
 
-def normalize_keys(row: Dict[str, str]) -> Dict[str, str]:
-    return {
-        (key or "").strip().replace(" ", "_").upper(): (value or "").strip()
-        for key, value in row.items()
-    }
+def _to_text(value) -> str:
+    """Convert any Prowler CSV cell value to a plain string."""
+    if isinstance(value, list):
+        return " ".join(str(item).strip() for item in value if item)
+    if value is None:
+        return ""
+    return str(value).strip()
+
+
+def normalize_keys(row: Dict[str, object]) -> Dict[str, str]:
+    """Normalize CSV row keys and values to uppercase snake-like strings."""
+    normalized: Dict[str, str] = {}
+    for key, value in row.items():
+        if key is None:
+            # Extra, unnamed columns end up in the None key; ignore them.
+            continue
+        norm_key = str(key).strip().replace(" ", "_").upper()
+        normalized[norm_key] = _to_text(value)
+    return normalized
 
 
 def build_sarif(rows: List[Dict[str, str]]) -> Dict[str, object]:
@@ -35,7 +49,11 @@ def build_sarif(rows: List[Dict[str, str]]) -> Dict[str, object]:
         if status not in {"FAIL", "FAILED"}:
             continue
 
-        rule_id = row.get("CONTROL_ID") or row.get("CHECK_ID") or "prowler-control"
+        rule_id = (
+            row.get("CONTROL_ID")
+            or row.get("CHECK_ID")
+            or "prowler-control"
+        )
         rule_name = (
             row.get("CONTROL_TITLE")
             or row.get("CHECK_TITLE")
@@ -84,7 +102,9 @@ def build_sarif(rows: List[Dict[str, str]]) -> Dict[str, object]:
             "tool": {
                 "driver": {
                     "name": "Prowler",
-                    "informationUri": "https://github.com/prowler-cloud/prowler",
+                    "informationUri": (
+                        "https://github.com/prowler-cloud/prowler"
+                    ),
                     "rules": list(rules.values()),
                 }
             },
@@ -93,7 +113,10 @@ def build_sarif(rows: List[Dict[str, str]]) -> Dict[str, object]:
     ]
 
     return {
-        "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0.json",
+        "$schema": (
+            "https://schemastore.azurewebsites.net/schemas/"
+            "json/sarif-2.1.0.json"
+        ),
         "version": "2.1.0",
         "runs": runs,
     }
@@ -101,13 +124,17 @@ def build_sarif(rows: List[Dict[str, str]]) -> Dict[str, object]:
 
 def main() -> None:
     if len(sys.argv) != 3:
-        raise SystemExit("Usage: convert_prowler_csv_to_sarif.py <input.csv> <output.sarif>")
+        raise SystemExit(
+            "Usage: convert_prowler_csv_to_sarif.py <input.csv> <output.sarif>"
+        )
 
     csv_path = Path(sys.argv[1])
     output_path = Path(sys.argv[2])
 
     if not csv_path.is_file():
-        raise SystemExit(f"CSV file not found: {csv_path}")
+        raise SystemExit(
+            f"CSV file not found: {csv_path}"
+        )
 
     with csv_path.open(newline="", encoding="utf-8") as fh:
         reader = csv.DictReader(fh)
