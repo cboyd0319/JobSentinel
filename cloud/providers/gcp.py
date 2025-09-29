@@ -138,7 +138,8 @@ class GCPBootstrap:
         parsed = urllib.parse.urlparse(url)
         if parsed.scheme != "https" or parsed.netloc != allowed_host:
             raise RuntimeError("Unexpected download host")
-        with urllib.request.urlopen(url, timeout=timeout) as response:  # nosec B310 - host validated above  # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected
+        # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected
+        with urllib.request.urlopen(url, timeout=timeout) as response:  # nosec B310 - host validated above
             with destination.open("wb") as fh:
                 shutil.copyfileobj(response, fh)
 
@@ -147,7 +148,8 @@ class GCPBootstrap:
         parsed = urllib.parse.urlparse(url)
         if parsed.scheme != "https" or parsed.netloc != allowed_host:
             raise RuntimeError("Unexpected download host")
-        with urllib.request.urlopen(url, timeout=timeout) as response:  # nosec B310 - host validated above  # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected
+        # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected
+        with urllib.request.urlopen(url, timeout=timeout) as response:  # nosec B310 - host validated above
             return response.read().decode("utf-8").strip()
 
 
@@ -861,7 +863,8 @@ class GCPBootstrap:
             raise RuntimeError("Unexpected billing budget request host")
 
         try:
-            urllib.request.urlopen(request)  # nosec B310 - host validated above  # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected
+            # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected
+            urllib.request.urlopen(request)  # nosec B310 - host validated above
             print("✅ Billing budget created at $5 USD (alerts to billing admins)")
         except urllib.error.HTTPError as exc:  # pragma: no cover - runtime path
             if exc.code == 409:
