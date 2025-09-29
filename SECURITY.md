@@ -7,8 +7,10 @@ I treat job data and alert settings as sensitive, so I focus on keeping everythi
 - Local-first design; the agent only leaves your machine if you run the cloud bootstrapper
 - Secrets live in `.env` and never ship with the repo
 - Bandit + Safety are bundled in `scripts/precommit-security-scan.sh`
-- GitHub Actions run CodeQL, Safety, OSV Scanner, and TruffleHog on every push
-- Workflows also lint YAML with `yamllint`, check shell scripts with `shellcheck`, and upload SARIF reports to the Security tab
+- Enhanced GitHub Actions security pipeline runs CodeQL, Safety, OSV Scanner, Bandit, Semgrep, Prowler CIS benchmarks, and TruffleHog on every push
+- Workflows implement security best practices: `persist-credentials: false`, OIDC token support, minimal permissions, and dependabot protection
+- YAML linting with project-specific rules, shell script validation with `shellcheck`, and comprehensive SARIF reporting to Security tab
+- Multi-layered security scanning with optimized timeouts and caching for faster execution
 - Cloud deployments enforce Binary Authorization, private VPC connectors, budget alerts, and tight resource limits
 
 ## Reporting a vulnerability

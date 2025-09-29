@@ -1,9 +1,7 @@
 # PowerShell Script Validation
 # Validates PowerShell scripts using PSScriptAnalyzer and custom tests
-
-name: 🪟 PowerShell Validation
-
-on:
+name: PowerShell Validation
+"on":
   push:
     paths:
       - '**/*.ps1'
@@ -12,89 +10,69 @@ on:
     paths:
       - '**/*.ps1'
   workflow_dispatch:
-
 jobs:
   powershell-analysis:
-    name: 📝 PowerShell Script Analysis
+    name: PowerShell Script Analysis
     runs-on: windows-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
-
       - name: Install PSScriptAnalyzer
         shell: pwsh
         run: |
           Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser
-
       - name: Run PSScriptAnalyzer
         shell: pwsh
         run: |
-          Write-Host "🔍 Running PowerShell Script Analysis..."
-
+          Write-Host "Running PowerShell Script Analysis..."
           # Get all PowerShell files
           $psFiles = Get-ChildItem -Path . -Filter "*.ps1" -Recurse
-
           $issues = @()
-
           foreach ($file in $psFiles) {
               Write-Host "Analyzing: $($file.FullName)"
-
               $results = Invoke-ScriptAnalyzer -Path $file.FullName -Severity @('Error','Warning') -Recurse
-
               if ($results) {
                   $issues += $results
-                  Write-Host "⚠️  Found $($results.Count) issues in $($file.Name)" -ForegroundColor Yellow
-
+                  Write-Host "Found $($results.Count) issues in $($file.Name)" -ForegroundColor Yellow
                   foreach ($result in $results) {
                       Write-Host "  $($result.Severity): $($result.Message)" `
                           -ForegroundColor ($result.Severity -eq 'Error' ? 'Red' : 'Yellow')
                       Write-Host "    Line $($result.Line): $($result.ScriptName)" -ForegroundColor Gray
                   }
               } else {
-                  Write-Host "✅ No issues found in $($file.Name)" -ForegroundColor Green
+                  Write-Host "No issues found in $($file.Name)" -ForegroundColor Green
               }
           }
-
           # Summary
           Write-Host ""
-          Write-Host "📊 Analysis Summary:" -ForegroundColor Cyan
+          Write-Host "Analysis Summary:" -ForegroundColor Cyan
           Write-Host "Files analyzed: $($psFiles.Count)"
           Write-Host "Total issues: $($issues.Count)"
-
           $errors = $issues | Where-Object { $_.Severity -eq 'Error' }
           $warnings = $issues | Where-Object { $_.Severity -eq 'Warning' }
-
           Write-Host "Errors: $($errors.Count)" -ForegroundColor Red
           Write-Host "Warnings: $($warnings.Count)" -ForegroundColor Yellow
-
           # Fail if there are errors
           if ($errors.Count -gt 0) {
-              Write-Host "❌ PowerShell analysis failed due to errors" -ForegroundColor Red
+              Write-Host "PowerShell analysis failed due to errors" -ForegroundColor Red
               exit 1
           } else {
-              Write-Host "✅ PowerShell analysis passed" -ForegroundColor Green
+              Write-Host "PowerShell analysis passed" -ForegroundColor Green
           }
-
   powershell-syntax-test:
-    name: 🧪 PowerShell Syntax Test
+    name: PowerShell Syntax Test
     runs-on: windows-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
-
       - name: Test PowerShell Syntax
         shell: pwsh
         run: |
-          Write-Host "🧪 Testing PowerShell Syntax..."
-
+          Write-Host "Testing PowerShell Syntax..."
           $psFiles = Get-ChildItem -Path . -Filter "*.ps1" -Recurse
           $syntaxErrors = @()
-
           foreach ($file in $psFiles) {
               Write-Host "Testing syntax: $($file.Name)"
-
               try {
                   # Parse the script to check for syntax errors
                   $tokens = $null
@@ -102,50 +80,42 @@ jobs:
                   $ast = [System.Management.Automation.Language.Parser]::ParseFile(
                       $file.FullName, [ref]$tokens, [ref]$parseErrors
                   )
-
                   if ($parseErrors) {
                       $syntaxErrors += $parseErrors
-                      Write-Host "❌ Syntax errors in $($file.Name):" -ForegroundColor Red
+                      Write-Host "Syntax errors in $($file.Name):" -ForegroundColor Red
                       foreach ($error in $parseErrors) {
                           Write-Host "  Line $($error.Extent.StartLineNumber): $($error.Message)" -ForegroundColor Red
                       }
                   } else {
-                      Write-Host "✅ Syntax OK: $($file.Name)" -ForegroundColor Green
+                      Write-Host "Syntax OK: $($file.Name)" -ForegroundColor Green
                   }
               } catch {
-                  Write-Host "❌ Failed to parse $($file.Name): $($_.Exception.Message)" -ForegroundColor Red
+                  Write-Host "Failed to parse $($file.Name): $($_.Exception.Message)" -ForegroundColor Red
                   $syntaxErrors += $_
               }
           }
-
           Write-Host ""
-          Write-Host "📊 Syntax Test Summary:" -ForegroundColor Cyan
+          Write-Host "Syntax Test Summary:" -ForegroundColor Cyan
           Write-Host "Files tested: $($psFiles.Count)"
           Write-Host "Syntax errors: $($syntaxErrors.Count)"
-
           if ($syntaxErrors.Count -gt 0) {
-              Write-Host "❌ Syntax test failed" -ForegroundColor Red
+              Write-Host "Syntax test failed" -ForegroundColor Red
               exit 1
           } else {
-              Write-Host "✅ All PowerShell files have valid syntax" -ForegroundColor Green
+              Write-Host "All PowerShell files have valid syntax" -ForegroundColor Green
           }
-
   powershell-security-test:
-    name: 🔒 PowerShell Security Test
+    name: PowerShell Security Test
     runs-on: windows-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
-
       - name: PowerShell Security Analysis
         shell: pwsh
         run: |
-          Write-Host "🔒 Running PowerShell Security Analysis..."
-
+          Write-Host "Running PowerShell Security Analysis..."
           $psFiles = Get-ChildItem -Path . -Filter "*.ps1" -Recurse
           $securityIssues = @()
-
           # Define security patterns to check
           $securityPatterns = @{
               'Invoke-Expression with user input' = 'Invoke-Expression.*\$.*'
@@ -154,11 +124,9 @@ jobs:
               'Hardcoded credentials' = "(password|secret|key)\s*=\s*[`"'][^`"']{8,}[`"']"
               'Unsafe web requests' = 'System\.Net\.WebClient.*Download'
           }
-
           foreach ($file in $psFiles) {
               Write-Host "Security scan: $($file.Name)"
               $content = Get-Content -Path $file.FullName -Raw
-
               foreach ($patternName in $securityPatterns.Keys) {
                   if ($content -match $securityPatterns[$patternName]) {
                       $securityIssues += @{
@@ -166,20 +134,17 @@ jobs:
                           Issue = $patternName
                           Pattern = $securityPatterns[$patternName]
                       }
-                      Write-Host "⚠️  Security concern in $($file.Name): $patternName" -ForegroundColor Yellow
+                      Write-Host "Security concern in $($file.Name): $patternName" -ForegroundColor Yellow
                   }
               }
           }
-
           Write-Host ""
-          Write-Host "📊 Security Analysis Summary:" -ForegroundColor Cyan
+          Write-Host "Security Analysis Summary:" -ForegroundColor Cyan
           Write-Host "Files scanned: $($psFiles.Count)"
           Write-Host "Security concerns: $($securityIssues.Count)"
-
           if ($securityIssues.Count -gt 0) {
-              Write-Host "⚠️  Security analysis completed with concerns" -ForegroundColor Yellow
+              Write-Host "Security analysis completed with concerns" -ForegroundColor Yellow
               Write-Host "Review the issues above - they may be acceptable in your context"
           } else {
-              Write-Host "✅ No security concerns found" -ForegroundColor Green
+              Write-Host "No security concerns found" -ForegroundColor Green
           }
-

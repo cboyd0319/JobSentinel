@@ -181,8 +181,11 @@ python3 -m src.agent --mode cleanup
 ## Security & privacy
 
 - Runs locally by default; no telemetry
-- Secrets stay in `.env`
-- Run `scripts/precommit-security-scan.sh` before pushing to catch obvious issues
+- Secrets stay in `.env` with strict file permissions
+- Enhanced security pipeline: multi-layered scanning (CodeQL, Bandit, Safety, Semgrep, Prowler CIS, TruffleHog)
+- GitHub Actions implement enterprise security best practices (OIDC tokens, minimal permissions, credential isolation)
+- Run `scripts/precommit-security-scan.sh` before pushing to catch issues early
+- Cloud deployments include advanced security: Binary Authorization, private VPC, secret rotation
 
 ## Contributing
 
