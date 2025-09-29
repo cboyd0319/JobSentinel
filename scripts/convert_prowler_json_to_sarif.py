@@ -185,6 +185,11 @@ def build_sarif_from_json(json_data: Dict[str, Any]) -> Dict[str, Any]:
             "message": {"text": message_text},
             "properties": properties,
             "locations": [{
+                "physicalLocation": {
+                    "artifactLocation": {
+                        "uri": "repository"
+                    }
+                },
                 "message": {
                     "text": location_text
                 }
