@@ -151,7 +151,7 @@ jobs:
               'Invoke-Expression with user input' = 'Invoke-Expression.*\$.*'
               'Unrestricted execution policy' = 'Set-ExecutionPolicy.*Unrestricted'
               'Download without verification' = 'DownloadString.*http[^s]'
-              'Hardcoded credentials' = '(password|secret|key)\s*=\s*["\'][^"\']{8,}["\']'
+              'Hardcoded credentials' = "(password|secret|key)\s*=\s*[`"'][^`"']{8,}[`"']"
               'Unsafe web requests' = 'System\.Net\.WebClient.*Download'
           }
 
