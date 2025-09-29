@@ -23,7 +23,7 @@ from src.database import (
     cleanup_old_jobs,
 )
 from src.cloud_database import init_cloud_db, sync_cloud_db, get_cloud_db_stats
-from sources import greenhouse, lever, workday, generic_js
+from sources import job_scraper
 from matchers.rules import score_job
 from notify import slack, emailer
 
@@ -54,25 +54,10 @@ def poll_sources(prefs):
     total_jobs_found = 0
     errors = 0
 
-    # Map board types to scraper functions
-    scrapers = {
-        "greenhouse": greenhouse.scrape,
-        "lever": lever.scrape,
-        "workday": workday.scrape,
-        "generic_js": generic_js.scrape,
-    }
-
     companies = config_manager.get_companies()
     scraping_config = config_manager.get_scraping_config()
 
     for company in companies[: scraping_config.max_companies_per_run]:
-        scraper_func = scrapers.get(company.board_type)
-        if not scraper_func:
-            main_logger.warning(
-                f"No scraper found for board type '{company.board_type}' for {company.id}"
-            )
-            continue
-
         # Check if domain should be skipped due to network failures
         from urllib.parse import urlparse
 
@@ -87,11 +72,13 @@ def poll_sources(prefs):
         try:
             main_logger.info(f"Scraping {company.id} ({company.board_type})...")
 
-            # Call scraper with enhanced parameters
-            jobs = scraper_func(
+            # Call unified scraper; registry picks the right implementation
+            jobs = job_scraper.scrape_jobs(
                 company.url,
-                fetch_descriptions=company.fetch_descriptions
-                and scraping_config.fetch_descriptions,
+                fetch_descriptions=(
+                    company.fetch_descriptions
+                    and scraping_config.fetch_descriptions
+                ),
             )
 
             # Record successful scraping
