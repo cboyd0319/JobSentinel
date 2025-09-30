@@ -47,6 +47,11 @@ jobs:
           python3 -m pip install -r requirements.txt
           python3 -m pip install build
 
+      - name: Debug Build Command
+        run: |
+          python3 -m pip install build # Ensure build is installed in this context
+          python3 -m build
+
       - name: Evaluate | Verify upstream has NOT changed
         # Last chance to abort before causing an error as another PR/push was applied to
         # the upstream branch while this workflow was running. This is important
