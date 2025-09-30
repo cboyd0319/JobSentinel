@@ -1,9 +1,9 @@
 [tool.black]
 line-length = 120
 target-version = ['py312']
-include = '\.pyi?$'
+include = '\.pyi?$' 
 extend-exclude = '''
-/(
+/( 
   # directories
   \.eggs
   | \.git
@@ -13,7 +13,7 @@ extend-exclude = '''
   | \.venv
   | build
   | dist
-)/
+)/ 
 '''
 
 [tool.isort]
@@ -124,3 +124,7 @@ repository = "https://oauth2:${GITHUB_TOKEN}@github.com/${{ github.repository }}
 [tool.semantic_release.version]
 # This will be updated by semantic-release
 current = "0.2.0" # Placeholder, will be updated by semantic-release
+
+[build-system]
+requires = ["build>=0.5.1"]
+build-backend = "setuptools.build_meta"
