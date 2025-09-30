@@ -17,58 +17,35 @@ jobs:
       cancel-in-progress: false
 
     permissions:
+      id-token: write
+      attestations: write
       contents: write
 
     steps:
-      - name: Setup | Checkout Repository on Release Branch
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          ref: ${{ github.ref_name }}
           fetch-depth: 0
-
-      - name: Setup | Force release branch to be at workflow sha
+          ref: ${{ github.sha }}
+      - name: Checkout commit for release
         run: |
-          git reset --hard ${{ github.sha }}
-
-      - name: Setup | Set up Python and Build
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12.10'
-      - run: |
-          python3 -m pip install --upgrade pip setuptools build
-          python3 -m build
-
-      - name: Action | Semantic Version Release
-        id: release
-        # Adjust tag with desired version if applicable.
+          git checkout -B ${{ github.ref_name }} ${{ github.sha }}
+      # On main branch: actual PSR + upload to GitHub
+      - name: Release
         uses: python-semantic-release/python-semantic-release@v10.4.1
+        id: release
+        if: github.ref_name == 'main'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          config_file: pyproject.toml
           git_committer_name: "github-actions"
           git_committer_email: "actions@users.noreply.github.com"
-          build: false # Tell the action to skip its internal build step
-
-      - name: Publish | Upload to GitHub Release Assets
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v2
+        if: steps.release.outputs.released == 'true'
+        with:
+          subject-path: "dist/*"
+      - name: Publish package distributions to GitHub Releases
         uses: python-semantic-release/publish-action@v10.4.1
         if: steps.release.outputs.released == 'true'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ steps.release.outputs.tag }}
-
-      - name: Upload | Distribution Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: distribution-artifacts
-          path: dist
-          if-no-files-found: error
-
-      - name: Upload Release Assets
-        uses: softprops/action-gh-release@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{ steps.release.outputs.version }}
-          files: |
-            ./dist/job-private-scraper-filter-v${{ steps.release.outputs.version }}.tar.gz
-            ./dist/job-private-scraper-filter-v${{ steps.release.outputs.version }}.zip
