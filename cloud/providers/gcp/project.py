@@ -1,6 +1,42 @@
 """GCP project management functions."""
 
+import json
+import sys
+
 from cloud.utils import choose, run_command
+
+
+async def create_project(logger, project_id: str, project_name: str, billing_account: str) -> None:
+    """Create a new GCP project and link billing account.
+
+    Args:
+        logger: Logger instance
+        project_id: Unique project ID
+        project_name: Display name for the project
+        billing_account: Billing account ID to link
+    """
+    logger.info(f"Creating GCP project: {project_id}")
+
+    # Create the project
+    result = await run_command(
+        ["gcloud", "projects", "create", project_id, f"--name={project_name}"],
+        logger=logger
+    )
+
+    # Link billing account
+    logger.info(f"Linking billing account: {billing_account}")
+    await run_command(
+        ["gcloud", "billing", "projects", "link", project_id, f"--billing-account={billing_account}"],
+        logger=logger
+    )
+
+    # Set as active project
+    await run_command(
+        ["gcloud", "config", "set", "project", project_id],
+        logger=logger
+    )
+
+    logger.info(f"✓ Project {project_id} created and configured")
 
 
 async def choose_billing_account(logger, no_prompt: bool) -> str:

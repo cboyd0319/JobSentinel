@@ -44,7 +44,7 @@ from cloud.providers.gcp.utils import (
 )
 from cloud.providers.gcp.auth import authenticate
 from cloud.providers.gcp.sdk import ensure_gcloud
-from cloud.providers.gcp.project import choose_billing_account, create_project, enable_services
+from cloud.providers.gcp.project import choose_billing_account, create_project
 from cloud.providers.gcp.regions import select_region, select_scheduler_region
 from cloud.providers.gcp.security import setup_binary_authorization, run_prowler_scan
 from cloud.providers.gcp.cloud_run import build_and_push_image
