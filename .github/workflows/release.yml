@@ -49,7 +49,7 @@ jobs:
 
       - name: Debug Build Command
         run: |
-          python3 -m pip install build # Ensure build is installed in this context
+          python3 -m pip install build setuptools # Ensure build and setuptools are installed in this context
           python3 -m build
 
       - name: Evaluate | Verify upstream has NOT changed
