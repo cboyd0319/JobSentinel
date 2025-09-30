@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import os
 import logging
 import itertools
@@ -15,65 +16,106 @@ from pathlib import Path
 from typing import Iterable, Sequence
 
 
-def ensure_python_version(min_version: tuple[int, int]) -> None:
-    """Verify the interpreter meets the minimum version requirements."""
+class Spinner:
+    """A simple spinner for long-running operations."""
 
-    if sys.version_info < min_version:
-        version_str = ".".join(str(v) for v in sys.version_info[:3])
-        required = ".".join(str(v) for v in (*min_version, 0))
-        raise RuntimeError(
-            "Python version mismatch: running "
-            f"{version_str}, but {required}+ is required."
-        )
+    def __init__(self, message: str, logger_instance: logging.Logger):
+        self.message = message
+        self.logger = logger_instance
+        self.stop_spinner = False
+        self.spinner_thread = None
+
+    def _spinner_task(self):
+        spinner_chars = "|/-\\"
+        while not self.stop_spinner:
+            for char in spinner_chars:
+                self.logger.info(f"{self.message} {char}", extra={"markup": True})
+                time.sleep(0.1)
+                if self.stop_spinner:
+                    break
+
+    def __enter__(self):
+        self.stop_spinner = False
+        self.spinner_thread = threading.Thread(target=self._spinner_task)
+        self.spinner_thread.start()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.stop_spinner = True
+        if self.spinner_thread:
+            self.spinner_thread.join()
+        self.logger.info(f"{self.message} [green]Done[/green]")
 
 
-def run_command(
-    command: Sequence[str],
-    *,
-    logger: logging.Logger | None = None,
+async def run_command(
+    command: list[str],
+    logger,
     check: bool = True,
     capture_output: bool = False,
-    text: bool = True,
-    env: dict[str, str] | None = None,
-    input_data: bytes | str | None = None,
+    cwd: Path | None = None,
+    env: dict | None = None,
     show_spinner: bool = False,
-) -> subprocess.CompletedProcess[str]:
-    """Wrapper around :func:`subprocess.run` with sensible defaults."""
-
-    if logger:
-        logger.debug(f"Running command: {' '.join(command)}")
-
-    spinner_thread = None
-    stop_spinner = threading.Event()
-
-    def _spinner():
-        for char in itertools.cycle(['-', '\\', '|', '/']):
-            if stop_spinner.is_set():
-                break
-            sys.stdout.write(char)
-            sys.stdout.flush()
-            time.sleep(0.1)
-            sys.stdout.write('\b')
-
-    if show_spinner and (not logger or logger.getEffectiveLevel() > logging.DEBUG):
-        spinner_thread = threading.Thread(target=_spinner)
-        spinner_thread.start()
-
-    try:
-        process = subprocess.run(
-            list(command),
-            check=check,
-            capture_output=capture_output,
-            text=text,
-            env=env,
-            input=input_data,
-        )
-    finally:
-        if spinner_thread:
-            stop_spinner.set()
-            spinner_thread.join()
-
-    return process
+    retries: int = 0,
+    delay: float = 1.0,
+    backoff_factor: float = 2.0,
+    input_data: bytes | None = None,
+    text: bool = True,
+) -> subprocess.CompletedProcess:
+    """Runs a shell command, optionally with retries and exponential backoff."""
+    full_command = " ".join(command)
+    for attempt in range(retries + 1):
+        try:
+            if show_spinner:
+                # Spinner is synchronous, run in a thread
+                loop = asyncio.get_event_loop()
+                result = await loop.run_in_executor(
+                    None,
+                    lambda: subprocess.run(
+                        command,
+                        capture_output=capture_output,
+                        text=text,
+                        check=check,
+                        cwd=cwd,
+                        env=env,
+                        input=input_data,
+                    ),
+                )
+            else:
+                result = await asyncio.create_subprocess_exec(
+                    *command,
+                    stdout=subprocess.PIPE if capture_output else None,
+                    stderr=subprocess.PIPE if capture_output else None,
+                    cwd=cwd,
+                    env=env,
+                    stdin=subprocess.PIPE if input_data else None,
+                )
+                stdout, stderr = await result.communicate(input=input_data)
+                result.stdout = stdout.decode() if stdout else ""
+                result.stderr = stderr.decode() if stderr else ""
+                if check and result.returncode != 0:
+                    raise subprocess.CalledProcessError(
+                        result.returncode, command, result.stdout, result.stderr
+                    )
+            return result
+        except subprocess.CalledProcessError as e:
+            if attempt < retries:
+                logger.warning(
+                    f"Command failed (attempt {attempt + 1}/{retries + 1}): {full_command}. "
+                    f"Retrying in {delay:.1f} seconds... Error: {e.stderr.strip() or e.stdout.strip() or e}"
+                )
+                await asyncio.sleep(delay)
+                delay *= backoff_factor
+            else:
+                error_message = f"Command failed after {retries + 1} attempts: {full_command}"
+                if e.stderr:
+                    error_message += f"\nStderr: {e.stderr.strip()}"
+                if e.stdout:
+                    error_message += f"\nStdout: {e.stdout.strip()}"
+                error_message += f"\nExit Code: {e.returncode}"
+                logger.error(error_message)
+                raise RuntimeError(error_message) from e
+    # This part should ideally not be reached, but for type hinting
+    raise RuntimeError("Unexpected error in run_command retry logic")
 
 
 def which(binary: str) -> Path | None:
@@ -100,6 +142,12 @@ def current_os() -> str:
     return "linux"
 
 
+def print_header(title: str) -> None:
+    """Print a formatted header."""
+    print(f"\n=== {title} ===")
+    print("=" * (len(title) + 8))
+
+
 def ensure_directory(path: Path) -> Path:
     """Create ``path`` if it does not exist and return it."""
 
@@ -117,12 +165,16 @@ def confirm(prompt: str, no_prompt: bool = False) -> bool:
     return answer in {"y", "yes"}
 
 
-def choose(prompt: str, options: Iterable[str]) -> str:
+def choose(prompt: str, options: Iterable[str], no_prompt: bool = False) -> str:
     """Prompt the user to choose from ``options``."""
 
     options_list = list(options)
     if not options_list:
         raise ValueError("No options provided")
+
+    if no_prompt:
+        # Auto-select the first option when in no-prompt mode
+        return options_list[0]
 
     sys.stdout.write(prompt + "\n")
     for idx, option in enumerate(options_list, start=1):
@@ -140,8 +192,8 @@ def choose(prompt: str, options: Iterable[str]) -> str:
             return options_list[selected - 1]
 
 
-def create_or_update_secret(project_id: str, name: str, value: str) -> None:
-    describe = run_command(
+async def create_or_update_secret(project_id: str, name: str, value: str) -> None:
+    describe = await run_command(
         [
             "gcloud",
             "secrets",
@@ -151,9 +203,10 @@ def create_or_update_secret(project_id: str, name: str, value: str) -> None:
         ],
         capture_output=True,
         check=False,
+        logger=logging.getLogger("cloud.utils"), # Use a logger instance
     )
     if describe.returncode != 0:
-        run_command(
+        await run_command(
             [
                 "gcloud",
                 "secrets",
@@ -163,10 +216,11 @@ def create_or_update_secret(project_id: str, name: str, value: str) -> None:
                 f"--project={project_id}",
                 "--labels=managed-by=job-scraper,rotation-policy=quarterly",
                 "--quiet",
-            ]
+            ],
+            logger=logging.getLogger("cloud.utils"), # Use a logger instance
         )
 
-    run_command(
+    await run_command(
         [
             "gcloud",
             "secrets",
@@ -179,6 +233,7 @@ def create_or_update_secret(project_id: str, name: str, value: str) -> None:
         ],
         input_data=value.encode("utf-8"),
         text=False,
+        logger=logging.getLogger("cloud.utils"), # Use a logger instance
     )
 
 def resolve_project_root() -> Path:

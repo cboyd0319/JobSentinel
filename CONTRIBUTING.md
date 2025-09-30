@@ -8,7 +8,8 @@ If you'd like to send a change:
 
 1. Fork the repo and make a branch.
 2. Make the change and test it locally.
-3. Push the branch and open a PR.
+3. Ensure your commit messages follow the [Conventional Commits specification](https://www.conventionalcommits.org/en/v1.0.0/).
+4. Push the branch and open a PR.
 
 A few notes I care about:
 
@@ -16,7 +17,11 @@ A few notes I care about:
 - Add or update docs when you change behavior.
 - No secrets in commits, please.
 
-Local setup (quick)
+## Local setup (quick)
+
+For the quickest local setup, use the [Interactive Setup Wizard](#interactive-setup-wizard-recommended) as described in `README.md`.
+
+If you prefer a manual setup:
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/job-private-scraper-filter.git

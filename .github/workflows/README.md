@@ -6,12 +6,16 @@ These are simple CI workflows I use to keep the project healthy across platforms
 
 ### 1. `ci.yml` — basic CI
 - Triggers: pushes and PRs
-- Runs a small set of checks to keep things from breaking
+- Runs a comprehensive set of checks including linting, formatting, unit tests, and `mypy` type checking.
 - Tests on Ubuntu/Windows/macOS with supported Python versions
 
-### 2. `release.yml` — releases
-- Triggered by tags (`v*.*.*`) or manual dispatch
-- Creates a GitHub release and attaches basic assets
+### 2. `release.yml` — Automated Releases
+- Triggered by `push` to `main` branch.
+- Uses `semantic-release` to automatically:
+  - Determine next semantic version.
+  - Generate changelog.
+  - Create Git tags.
+  - Create GitHub releases with attached assets.
 
 ### 3. `dependency-submission.yml`
 - Submits Python dependencies so GitHub can surface security notices
@@ -27,7 +31,7 @@ These are simple CI workflows I use to keep the project healthy across platforms
   - **Dependency Review**: License and vulnerability review for PRs
   - **Prowler**: GitHub CIS benchmark scanning
   - **yamllint**: YAML syntax and style checking
-  - **TruffleHog**: Secret scanning
+  - **TruffleHog**: Secret scanning (now correctly configured for PRs)
 - Posts a summary of the scan results as a comment on pull requests.
 
 ## Configuration Files
@@ -58,15 +62,6 @@ These are simple CI workflows I use to keep the project healthy across platforms
    - Workflows have minimal required permissions for security
    - Dependency submission has `security-events: write` for vulnerability alerts
 
-### Manual Workflow Triggers
-
-```bash
-# Create a new release
-git tag v1.0.1
-git push origin v1.0.1
-
-# Or use GitHub UI: Actions > Release > Run workflow
-```
 
 ## Security notes
 

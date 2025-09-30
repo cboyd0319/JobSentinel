@@ -6,7 +6,7 @@ Here’s the running list of things I’m curious about exploring. No schedule, 
 
 - Wired up CodeQL, Safety, and Bandit so the security checks match what I run locally
 - Added OSV scanning and SARIF uploads so GitHub’s Security tab stays current
-- Tidied the cloud bootstrapper with budget alerts and Binary Authorization
+- Tidied the cloud deployment with budget alerts and Binary Authorization
 
 ## Up next (maybe)
 
@@ -14,6 +14,16 @@ Here’s the running list of things I’m curious about exploring. No schedule, 
 - Bring the nicer Cloud Run bootstrapper experience to AWS Lambda and Azure Functions
 - Keep hammering on the Windows setup script until it feels as smooth as macOS/Linux
 - Expand CI to cover more scraping edge cases and make rollback easier
+
+## Code Quality & Architecture
+
+- **Refactor `cloud/providers/gcp.py`** (1,199 lines → modular structure)
+  - Extract `cloud/gcp_security.py` - Security utilities (URL validation, safe extraction, download validation)
+  - Extract `cloud/gcp_sdk.py` - SDK management (gcloud CLI installation, version management)
+  - Extract `cloud/gcp_docker.py` - Container build logic (Dockerfile generation, Cloud Build orchestration)
+  - Extract `cloud/gcp_resources.py` - Infrastructure provisioning (VPC, storage, artifact registry, binary auth)
+  - Keep orchestration & interactive setup in main `gcp.py`
+  - Benefits: Better testability, reusability, maintainability, and portability for CI/CD integration
 
 ## Nice-to-haves for later
 

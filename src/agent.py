@@ -1,9 +1,14 @@
 import os
 import argparse
 import json
+import asyncio
 from dotenv import load_dotenv
 
-from utils.logging import setup_logging, get_logger
+from rich.console import Console
+from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn, TimeRemainingColumn
+from rich.text import Text
+
+from utils.logging import setup_logging, get_logger, console
 from utils.config import config_manager
 from utils.errors import ConfigurationException, ScrapingException
 from utils.health import health_monitor
@@ -22,100 +27,38 @@ from src.database import (
     mark_job_alert_sent,
     cleanup_old_jobs,
 )
-from src.cloud_database import init_cloud_db, sync_cloud_db, get_cloud_db_stats
+from cloud.providers.gcp.cloud_database import init_cloud_db, sync_cloud_db, get_cloud_db_stats
 from sources import job_scraper
+from sources.concurrent_scraper import scrape_multiple_async_fast # Import the async scraper
 from matchers.rules import score_job
 from notify import slack, emailer
 
 # Load environment variables
 load_dotenv()
 
-# Setup logging
+# Setup logging (now uses RichHandler internally)
 logger = setup_logging(log_level=os.getenv("LOG_LEVEL", "INFO"))
 main_logger = get_logger("agent")
 
+def get_job_board_urls() -> list[str]:
+    """Extracts job board URLs from configured companies."""
+    companies = config_manager.get_companies()
+    urls = [company.url for company in companies]
+    return urls
 
 def load_user_prefs():
     """Loads and validates user preferences."""
     try:
         return config_manager.load_config()
     except ConfigurationException as e:
-        main_logger.error(f"Configuration error: {e}")
+        main_logger.error(f"[bold red]Configuration error:[/bold red] {e}")
         raise
     except Exception as e:
-        main_logger.error(f"Failed to load configuration: {e}")
+        main_logger.error(f"[bold red]Failed to load configuration:[/bold red] {e}")
         raise
 
 
-def poll_sources(prefs):
-    """Scrapes all configured sources for new jobs."""
-    main_logger.info("Starting polling cycle")
-    all_new_jobs = []
-    total_jobs_found = 0
-    errors = 0
-
-    companies = config_manager.get_companies()
-    scraping_config = config_manager.get_scraping_config()
-
-    for company in companies[: scraping_config.max_companies_per_run]:
-        # Check if domain should be skipped due to network failures
-        from urllib.parse import urlparse
-
-        domain = urlparse(company.url).netloc
-        if network_resilience.should_skip_domain(domain):
-            failure_count = network_resilience.get_failure_count(domain)
-            main_logger.warning(
-                f"Skipping {company.id} due to {failure_count} consecutive failures"
-            )
-            continue
-
-        try:
-            main_logger.info(f"Scraping {company.id} ({company.board_type})...")
-
-            # Call unified scraper; registry picks the right implementation
-            jobs = job_scraper.scrape_jobs(
-                company.url,
-                fetch_descriptions=(
-                    company.fetch_descriptions
-                    and scraping_config.fetch_descriptions
-                ),
-            )
-
-            # Record successful scraping
-            network_resilience.record_success(domain)
-
-            new_jobs_count = 0
-            for job in jobs:
-                total_jobs_found += 1
-                existing_job = get_job_by_hash(job["hash"])
-                if not existing_job:
-                    all_new_jobs.append(job)
-                    new_jobs_count += 1
-                    main_logger.info(f"  New job: {job['title']} at {job['location']}")
-                else:
-                    # Update existing job's last_seen timestamp
-                    add_job(job)  # This will update the existing job
-
-            main_logger.info(
-                f"Completed {company.id}: {len(jobs)} total, {new_jobs_count} new"
-            )
-
-        except ScrapingException as e:
-            errors += 1
-            network_resilience.record_failure(domain)
-            main_logger.error(f"Scraping failed for {company.id}: {e}")
-        except Exception as e:
-            errors += 1
-            network_resilience.record_failure(domain)
-            main_logger.error(f"Unexpected error scraping {company.id}: {e}")
-
-    main_logger.info(
-        f"Polling completed: {total_jobs_found} jobs found, {len(all_new_jobs)} new, {errors} errors"
-    )
-    return all_new_jobs
-
-
-def process_jobs(jobs, prefs):
+async def process_jobs(jobs, prefs):
     """Scores and alerts for new jobs."""
     immediate_alerts = []
     digest_jobs = []
@@ -126,52 +69,64 @@ def process_jobs(jobs, prefs):
 
     main_logger.info(f"Processing {len(jobs)} jobs...")
 
-    for job in jobs:
-        try:
-            # Get enhanced scoring with metadata
-            result = score_job(job, prefs)
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(),
+        TaskProgressColumn(),
+        TimeRemainingColumn(),
+        console=console,
+        transient=True,
+    ) as progress:
+        processing_task = progress.add_task("[cyan]Processing jobs...", total=len(jobs))
 
-            # Handle both old and new scoring formats
-            if len(result) == 3:
-                score, reasons, metadata = result
-                job["score_metadata"] = metadata
-            else:
-                # Backward compatibility
-                score, reasons = result
-                job["score_metadata"] = {"scoring_method": "legacy"}
+        for job in jobs:
+            try:
+                # Get enhanced scoring with metadata
+                result = score_job(job, prefs)
 
-            job["score"] = score
-            job["score_reasons"] = reasons
-
-            if score > 0:
-                # Add to database
-                db_job = add_job(job)
-                processed_count += 1
-
-                if score >= filter_config.immediate_alert_threshold:
-                    immediate_alerts.append(job)
-                    # Mark as alert sent
-                    mark_job_alert_sent(db_job.id)
+                # Handle both old and new scoring formats
+                if len(result) == 3:
+                    score, reasons, metadata = result
+                    job["score_metadata"] = metadata
                 else:
-                    digest_jobs.append(job)
+                    # Backward compatibility
+                    score, reasons = result
+                    job["score_metadata"] = {"scoring_method": "legacy"}
 
-                # Enhanced logging with metadata
-                method = job["score_metadata"].get("scoring_method", "unknown")
-                tokens = job["score_metadata"].get("tokens_used", 0)
-                log_msg = f"Processed job: {job['title']} (score: {score:.2f}, method: {method}"
-                if tokens > 0:
-                    log_msg += f", tokens: {tokens}"
-                log_msg += ")"
-                main_logger.debug(log_msg)
-            else:
-                main_logger.debug(
-                    f"Filtered out job: {job['title']} (score: {score:.2f})"
+                job["score"] = score
+                job["score_reasons"] = reasons
+
+                if score > 0:
+                    # Add to database
+                    db_job = await add_job(job)
+                    processed_count += 1
+
+                    if score >= filter_config.immediate_alert_threshold:
+                        immediate_alerts.append(job)
+                        # Mark as alert sent
+                        await mark_job_alert_sent(db_job.id)
+                    else:
+                        digest_jobs.append(job)
+
+                    # Enhanced logging with metadata
+                    method = job["score_metadata"].get("scoring_method", "unknown")
+                    tokens = job["score_metadata"].get("tokens_used", 0)
+                    log_msg = f"Processed job: {job['title']} (score: {score:.2f}, method: {method}"
+                    if tokens > 0:
+                        log_msg += f", tokens: {tokens}"
+                    log_msg += ")"
+                    main_logger.debug(log_msg)
+                else:
+                    main_logger.debug(
+                        f"Filtered out job: {job['title']} (score: {score:.2f})"
+                    )
+
+            except Exception as e:
+                main_logger.error(
+                    f"[bold red]Error processing job {job.get('title', 'Unknown')}:[/bold red] {e}"
                 )
-
-        except Exception as e:
-            main_logger.error(
-                f"Error processing job {job.get('title', 'Unknown')}: {e}"
-            )
+            progress.update(processing_task, advance=1)
 
     # Send immediate Slack alerts
     if immediate_alerts and notification_config.validate_slack():
@@ -181,10 +136,10 @@ def process_jobs(jobs, prefs):
             )
             slack.send_slack_alert(immediate_alerts)
         except Exception as e:
-            main_logger.error(f"Failed to send Slack alerts: {e}")
+            main_logger.error(f"[bold red]Failed to send Slack alerts:[/bold red] {e}")
     elif immediate_alerts:
         main_logger.warning(
-            f"Have {len(immediate_alerts)} high-score jobs but Slack not configured"
+            f"[yellow]Have {len(immediate_alerts)} high-score jobs but Slack not configured[/yellow]"
         )
 
     main_logger.info(
@@ -192,7 +147,7 @@ def process_jobs(jobs, prefs):
     )
 
 
-def send_digest():
+async def send_digest():
     """Sends the daily email digest."""
     main_logger.info("Starting digest generation...")
 
@@ -200,7 +155,7 @@ def send_digest():
         notification_config = config_manager.get_notification_config()
 
         if not notification_config.validate_email():
-            main_logger.warning("Email not configured, skipping digest")
+            main_logger.warning("[yellow]Email not configured, skipping digest[/yellow]")
             return
 
         # Get jobs for digest, using the new preference
@@ -208,7 +163,7 @@ def send_digest():
         min_score = getattr(
             filter_config, "digest_min_score", 0.0
         )  # Safely get the new attribute
-        digest_jobs = get_jobs_for_digest(min_score=min_score, hours_back=24)
+        digest_jobs = await get_jobs_for_digest(min_score=min_score, hours_back=24)
 
         if not digest_jobs:
             main_logger.info("No jobs to include in digest")
@@ -225,7 +180,7 @@ def send_digest():
             except (json.JSONDecodeError, TypeError):
                 score_reasons = []
                 main_logger.warning(
-                    f"Could not parse score_reasons for job {job.id}: {job.score_reasons}"
+                    f"[yellow]Could not parse score_reasons for job {job.id}:[/yellow] {job.score_reasons}"
                 )
 
             jobs_data.append(
@@ -244,12 +199,12 @@ def send_digest():
 
         # Mark jobs as digest sent
         job_ids = [job.id for job in digest_jobs]
-        mark_jobs_digest_sent(job_ids)
+        await mark_jobs_digest_sent(job_ids)
 
         main_logger.info(f"Digest sent successfully with {len(digest_jobs)} jobs")
 
     except Exception as e:
-        main_logger.error(f"Failed to send digest: {e}")
+        main_logger.error(f"[bold red]Failed to send digest:[/bold red] {e}")
         raise
 
 
@@ -278,36 +233,36 @@ def test_notifications():
     if notification_config.validate_slack():
         try:
             slack.send_slack_alert(test_job)
-            main_logger.info("✅ Slack test message sent successfully")
+            main_logger.info("[green]✅ Slack test message sent successfully[/green]")
         except Exception as e:
-            main_logger.error(f"❌ Slack test failed: {e}")
+            main_logger.error(f"[bold red]❌ Slack test failed:[/bold red] {e}")
     else:
-        main_logger.warning("❌ Slack not configured or invalid webhook URL")
+        main_logger.warning("[yellow]❌ Slack not configured or invalid webhook URL[/yellow]")
 
     # Test Email
     if notification_config.validate_email():
         try:
             emailer.send_digest_email(test_job)
-            main_logger.info("✅ Email test message sent successfully")
+            main_logger.info("[green]✅ Email test message sent successfully[/green]")
         except Exception as e:
-            main_logger.error(f"❌ Email test failed: {e}")
+            main_logger.error(f"[bold red]❌ Email test failed:[/bold red] {e}")
     else:
-        main_logger.warning("❌ Email not configured or missing required settings")
+        main_logger.warning("[yellow]❌ Email not configured or missing required settings[/yellow]")
 
     main_logger.info("Notification testing completed")
 
 
-def cleanup():
+async def cleanup():
     """Perform database cleanup and maintenance."""
     main_logger.info("Starting cleanup tasks...")
 
     try:
         # Clean up old jobs (configurable, default 90 days)
         cleanup_days = int(os.getenv("CLEANUP_DAYS", "90"))
-        deleted_count = cleanup_old_jobs(cleanup_days)
+        deleted_count = await cleanup_old_jobs(cleanup_days)
         main_logger.info(f"Cleanup completed: removed {deleted_count} old jobs")
     except Exception as e:
-        main_logger.error(f"Cleanup failed: {e}")
+        main_logger.error(f"[bold red]Cleanup failed:[/bold red] {e}")
 
 
 def health_check():
@@ -316,28 +271,28 @@ def health_check():
     report = health_monitor.generate_health_report()
 
     # --- ANSI Colors for printing ---
-    C_OK, C_WARN, C_CRIT, C_END = "\033[92m", "\033[93m", "\033[91m", "\033[0m"
+    # C_OK, C_WARN, C_CRIT, C_END = "\033[92m", "\033[93m", "\033[91m", "\033[0m"
 
     def print_metric(m):
-        status_colors = {"ok": C_OK, "warning": C_WARN, "critical": C_CRIT}
-        status_color = status_colors.get(m["status"], "")
-        print(
-            f"  - {m['name']:<20} | Status: {status_color}{m['status'].upper():<10}{C_END} | {m['message']}"
+        status_colors = {"ok": "[green]OK[/green]", "warning": "[yellow]WARNING[/yellow]", "critical": "[bold red]CRITICAL[/bold red]"}
+        status_text = status_colors.get(m["status"], m["status"].upper())
+        console.print(
+            f"  - {m['name']:<20} | Status: {status_text:<25} | {m['message']}"
         )
 
-    print("\n--- 🏥 Job Scraper Health Report ---")
-    print(f"Overall Status: {report['overall_status'].upper()}")
-    print("-" * 35)
+    console.print("\n[bold blue]--- 🏥 Job Scraper Health Report ---[/bold blue]")
+    console.print(f"Overall Status: [bold]{report['overall_status'].upper()}[/bold]")
+    console.print("-" * 35)
 
     for metric in report["metrics"]:
         print_metric(metric)
 
-    print("-" * 35)
+    console.print("-" * 35)
 
     # --- Interactive Actions for Critical Issues ---
     critical_metrics = [m for m in report["metrics"] if m["status"] == "critical"]
     if critical_metrics:
-        print(f"\n{C_CRIT}CRITICAL ISSUES DETECTED:{C_END}")
+        console.print(f"\n[bold red]CRITICAL ISSUES DETECTED:[/bold red]")
 
         # Check for database corruption issue
         db_integrity_issue = any(
@@ -350,147 +305,88 @@ def health_check():
 
             latest_backup = db_resilience._get_latest_backup()
             if latest_backup:
-                print("Database integrity check failed. A recent backup is available:")
-                print(f"  -> {latest_backup.name}")
+                console.print("Database integrity check failed. A recent backup is available:")
+                console.print(f"  -> [cyan]{latest_backup.name}[/cyan]")
 
                 try:
-                    response = input(
-                        "Attempt to restore from this backup? (y/n): "
+                    response = console.input(
+                        "[bold yellow]Attempt to restore from this backup? (y/n):[/bold yellow] "
                     ).lower()
                     if response == "y":
-                        print("Restoring database...")
+                        console.print("Restoring database...")
                         if db_resilience.restore_from_backup(latest_backup):
-                            print(f"{C_OK}Database restored successfully.{C_END}")
+                            console.print(f"[green]Database restored successfully.[/green]")
                         else:
-                            print(
-                                f"{C_CRIT}Database restore failed. Check logs for details.{C_END}"
+                            console.print(
+                                f"[bold red]Database restore failed. Check logs for details.[/bold red]"
                             )
                     else:
-                        print("Skipping database restore.")
+                        console.print("Skipping database restore.")
                 except KeyboardInterrupt:
-                    print("\nOperation cancelled.")
+                    console.print("\nOperation cancelled.")
     else:
-        print(f"\n{C_OK}System is healthy. No critical issues found.{C_END}")
+        console.print(f"\n[green]System is healthy. No critical issues found.[/green]")
 
     return report
 
 
-def main():
-    """Main entry point for the job scraper agent."""
-    # Import version info
-    try:
-        from . import __version__
-    except ImportError:
-        try:
-            from pathlib import Path
+async def main():
+    args = parse_args()
+    console.print(f"[bold blue]Starting job scraper in {args.mode} mode...[/bold blue]")
 
-            version_file = Path(__file__).parent / "VERSION"
-            __version__ = (
-                version_file.read_text().strip() if version_file.exists() else "1.0.0"
-            )
-        except Exception:
-            __version__ = "1.0.0"
+    # Initialize unified database (local and cloud)
+    await init_unified_db()
 
-    parser = argparse.ArgumentParser(
-        description=f"Private Job Scraper Agent v{__version__}",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""Examples:
-  %(prog)s --mode poll        # Scrape job boards and send alerts
-  %(prog)s --mode digest      # Send daily digest email
-  %(prog)s --mode test        # Test notification channels
-  %(prog)s --mode cleanup     # Clean up old database entries
-        """,
-    )
-    parser.add_argument(
-        "--version", action="version", version=f"%(prog)s {__version__}"
-    )
-    parser.add_argument(
-        "--mode",
-        choices=["poll", "digest", "test", "cleanup", "health"],
-        required=True,
-        help="The mode to run the agent in",
-    )
-    parser.add_argument(
-        "--verbose", "-v", action="store_true", help="Enable verbose logging"
-    )
+    if args.mode == "poll":
+        console.print("[cyan]Polling for new jobs...[/cyan]")
+        urls = get_job_board_urls()
+        if not urls:
+            console.print("[yellow]No job board URLs configured. Exiting.[/yellow]")
+            return
 
-    args = parser.parse_args()
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            BarColumn(),
+            TaskProgressColumn(),
+            TimeRemainingColumn(),
+            console=console,
+            transient=True,
+        ) as progress:
+            scraping_task = progress.add_task("[cyan]Scraping job boards...", total=len(urls))
 
-    # Set log level based on verbose flag
-    if args.verbose:
-        import logging
+            results = await scrape_multiple_async_fast(urls, fetch_descriptions=True)
 
-        logging.getLogger("job_scraper").setLevel(logging.DEBUG)
-        main_logger.info("Verbose logging enabled")
+            all_jobs = []
+            for result in results:
+                if result.success:
+                    all_jobs.extend(result.jobs)
+                    progress.update(scraping_task, advance=1, description=f"[green]Scraped {result.url} - {len(result.jobs)} jobs[/green]")
+                else:
+                    main_logger.error(f"[bold red]Scraping failed for {result.url}:[/bold red] {result.error}")
+                    progress.update(scraping_task, advance=1, description=f"[red]Failed {result.url}[/red]")
 
-    try:
-        main_logger.info(f"Starting job scraper in {args.mode} mode")
+            console.print(f"[bold green]Found {len(all_jobs)} total jobs.[/bold green]")
+            await process_jobs(all_jobs)
 
-        # Acquire process lock to prevent multiple instances
-        if not process_resilience.acquire_lock():
-            main_logger.error("Another instance is already running")
-            exit(1)
+    elif args.mode == "digest":
+        console.print("[cyan]Generating daily digest...[/cyan]")
+        await send_digest()
 
-        # Run startup checks and recovery
-        startup_results = run_startup_checks()
-        if startup_results["issues_found"]:
-            main_logger.warning("Startup issues detected but continuing...")
+    elif args.mode == "health":
+        console.print("[cyan]Running health check...[/cyan]")
+        health_check()
 
-        # Initialize cloud-aware database
-        init_cloud_db()
+    elif args.mode == "test":
+        console.print("[cyan]Running test mode...[/cyan]")
+        test_notifications()
 
-        # Log cloud database status
-        db_stats = get_cloud_db_stats()
-        if db_stats["cloud_enabled"]:
-            main_logger.info(f"☁️ Cloud storage enabled: gs://{db_stats['bucket_name']}")
-        else:
-            main_logger.info("💾 Running in local-only mode")
+    elif args.mode == "cleanup":
+        console.print("[cyan]Running cleanup...[/cyan]")
+        await cleanup()
 
-        # Load and validate configuration
-        prefs = load_user_prefs()
-
-        # Execute requested mode
-        if args.mode == "poll":
-            new_jobs = poll_sources(prefs)
-            if new_jobs:
-                process_jobs(new_jobs, prefs)
-        elif args.mode == "digest":
-            send_digest()
-        elif args.mode == "test":
-            test_notifications()
-        elif args.mode == "cleanup":
-            cleanup()
-        elif args.mode == "health":
-            health_check()
-
-        main_logger.info(f"Job scraper completed successfully ({args.mode} mode)")
-
-    except ConfigurationException as e:
-        main_logger.error(f"Configuration error: {e}")
-        exit(1)
-    except KeyboardInterrupt:
-        main_logger.info("Received interrupt signal, shutting down gracefully...")
-        exit(0)
-    except Exception as e:
-        main_logger.error(f"Unexpected error: {e}")
-        # Create emergency backup on critical failure
-        try:
-            db_resilience.create_backup("emergency")
-            main_logger.info("Emergency database backup created")
-        except Exception as backup_error:
-            main_logger.error(f"Failed to create emergency backup: {backup_error}")
-        exit(1)
-    finally:
-        # Sync database to cloud storage before shutdown
-        try:
-            sync_cloud_db()
-            main_logger.info("✅ Database synced to cloud storage")
-        except Exception as sync_error:
-            main_logger.error(f"Failed to sync database to cloud: {sync_error}")
-
-        # Always release the process lock
-        process_resilience.release_lock()
+    console.print("[bold blue]Job scraper finished.[/bold blue]")
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

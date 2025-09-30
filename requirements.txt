@@ -1,39 +1,82 @@
--i https://pkgs.safetycli.com/repository/chad-boyd/project/job-private-scraper-filter/pypi/simple/
 # Python Job Scraper Requirements
 #
-# Compatibility: Tested with Python 3.12.10-3.13
-# For optimal compatibility, Python 3.12.10 is recommended
-# On Python 3.13, some packages may require compilation from source
+# Recommended Python Version: 3.12.10 (for optimal compatibility, especially on Windows)
+# Ensure your pip is up-to-date: python -m pip install --upgrade pip
+#
+# Compatibility: Tested with Python 3.12.x
 
-# Core scraping and web automation
-playwright>=1.55.0
-requests>=2.32.0
-beautifulsoup4>=4.12.0
-lxml>=6.0.0
-
-# Data handling and validation
-pydantic>=2.11.0
-sqlmodel>=0.0.25
-python-dotenv>=1.1.0
-
-# Utility libraries
-tenacity>=9.0.0
-aiofiles>=24.1.0
-psutil>=7.0.0
-tzlocal>=5.2
-
-# Cloud storage (for persistence)
-google-cloud-storage>=2.18.0
-
-# Web interface (optional)
-Flask>=3.1.0
-
-# Optional: For ChatGPT API integration
-# Uncomment to enable AI-enhanced scoring
-# openai>=1.40.0
-# tiktoken>=0.7.0
-
-# Code Quality
-flake8
-black
-isort
+aiofiles==24.1.0
+annotated-types==0.7.0
+beautifulsoup4==4.14.2
+black==25.9.0
+blinker==1.9.0
+cachetools==6.2.0
+certifi==2025.8.3
+charset-normalizer==3.4.3
+click==8.1.8
+click-option-group==0.5.7
+Deprecated==1.2.18
+dotty-dict==1.3.1
+flake8==7.3.0
+Flask==3.1.2
+gitdb==4.0.12
+GitPython==3.1.45
+google-api-core==2.25.1
+google-auth==2.41.0
+google-cloud-core==2.4.3
+google-cloud-storage==3.4.0
+google-crc32c==1.7.1
+google-resumable-media==2.7.2
+googleapis-common-protos==1.70.0
+greenlet==3.2.4
+idna==3.10
+importlib_resources==6.5.2
+inquirerpy==0.3.4
+isort==6.0.1
+itsdangerous==2.2.0
+Jinja2==3.1.6
+lxml==6.0.2
+markdown-it-py==4.0.0
+MarkupSafe==3.0.3
+mccabe==0.7.0
+mdurl==0.1.2
+mypy_extensions==1.1.0
+packaging==25.0
+pathspec==0.12.1
+pfzy==0.3.4
+platformdirs==4.4.0
+playwright==1.55.0
+prompt_toolkit==3.0.52
+proto-plus==1.26.1
+protobuf==6.32.1
+psutil==7.1.0
+pyasn1==0.6.1
+pyasn1_modules==0.4.2
+pycodestyle==2.14.0
+pydantic==2.11.9
+pydantic_core==2.33.2
+pyee==13.0.0
+pyflakes==3.4.0
+Pygments==2.19.2
+python-dotenv==1.1.1
+python-gitlab==6.4.0
+python-semantic-release==10.4.1
+pytokens==0.1.10
+requests==2.32.5
+requests-toolbelt==1.0.0
+rich==14.1.0
+rsa==4.9.1
+shellingham==1.5.4
+smmap==5.0.2
+soupsieve==2.8
+SQLAlchemy==2.0.43
+sqlmodel==0.0.25
+tenacity==9.1.2
+tomlkit==0.13.3
+typing-inspection==0.4.1
+typing_extensions==4.15.0
+tzlocal==5.3.1
+urllib3==2.5.0
+wcwidth==0.2.14
+Werkzeug==3.1.3
+wrapt==1.17.3

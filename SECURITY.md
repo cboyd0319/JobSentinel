@@ -4,7 +4,7 @@ I treat job data and alert settings as sensitive, so I focus on keeping everythi
 
 ## Built-in protections
 
-- Local-first design; the agent only leaves your machine if you run the cloud bootstrapper
+- Local-first design; the agent only leaves your machine if you deploy to the cloud
 - Secrets live in `.env` and never ship with the repo
 - Bandit + Safety are bundled in `scripts/precommit-security-scan.sh`
 - Enhanced GitHub Actions security pipeline runs CodeQL, Safety, OSV Scanner, Bandit, Semgrep, Prowler CIS benchmarks, and TruffleHog on every push

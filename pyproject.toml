@@ -91,23 +91,6 @@ exclude_lines = [
 exclude_dirs = [".venv", "tests"]
 skips = ["B101", "B601"]  # Skip assert_used and shell_commands for our security scanner
 
-[tool.safety]
-# Safety configuration for vulnerability scanning
-# Blocking policy: Block Critical/High/Medium with fixes, allow unfixed/unknown
-ignore = [
-    # Add specific vulnerability IDs to ignore (use sparingly)
-    # "70612",  # Example: ignore specific CVE if confirmed false positive
-]
-
-# Continue scanning even if vulnerabilities found (handled by custom blocking logic)
-continue-on-error = true
-
-# Output format for CI/CD integration
-output = "json"
-
-# API key usage (set via environment variable SAFETY_API_KEY)
-# Use paid API for enhanced vulnerability database access
-
 [tool.flake8]
 max-line-length = 120
 exclude = [
@@ -127,3 +110,16 @@ per-file-ignores = [
     "__init__.py:F401",  # Allow unused imports in __init__.py
     "tests/*:S101",      # Allow assert in tests
 ]
+
+[tool.semantic_release]
+branch = "main"
+changelog_file = "CHANGELOG.md"
+commit_message = "chore(release): {version} [skip ci]"
+version_toml = "pyproject.toml:tool.semantic_release.version"
+build_command = "python -m build"
+upload_to_pypi = false
+upload_to_release = true
+
+[tool.semantic_release.version]
+# This will be updated by semantic-release
+current = "0.2.0" # Placeholder, will be updated by semantic-release

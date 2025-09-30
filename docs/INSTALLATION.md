@@ -1,102 +1,87 @@
 # Installation
 
-Short, practical installation steps for the platforms I care about. If something doesn't work, open an issue and I'll try to help.
+This guide outlines the installation process for the job scraper. The recommended approach is to use the interactive setup wizard, which streamlines the entire process.
 
-Priorities
+## Recommended: Interactive Setup Wizard
 
-- ✅ Ease of use — minimal steps, predictable defaults
-- ✅ Security — least privilege, secrets handled properly
-
-## Recommended: Google Cloud Run (free tier, fully automated)
-
-If you want the simplest and safest deployment, use the Cloud Run bootstrapper.
-It installs the Google Cloud SDK when necessary, creates and secures a new
-project, deploys the container, wires Cloud Scheduler, and enables budget
-alerts — all in one command:
+For the simplest and most guided installation, use the interactive setup wizard. It will walk you through setting up your local environment, configuring preferences, and optionally deploying to the cloud.
 
 ```bash
-python3 -m cloud.bootstrap --provider gcp
+python3 scripts/setup_wizard.py
 ```
 
-> 💡 On Windows, replace `python3` with `python` if the alias is not available.
+This wizard handles:
 
-The only manual task is confirming you have created a Google Cloud account and
-enabled billing (Google requires this even for the free tier). The script pauses
-until you confirm, then continues automatically.
+*   **Virtual Environment Setup:** Ensures a clean and isolated Python environment.
+*   **Dependency Installation:** Installs all required Python packages and Playwright browsers.
+*   **Configuration:** Helps you create and populate `.env` and `config/user_prefs.json`.
+*   **Cloud Deployment (GCP):** Optionally guides you through deploying to Google Cloud Run using Terraform.
 
-## Local installation
+## Manual Local Installation
 
-Prereqs
+If you prefer a manual setup or need to troubleshoot specific steps, follow these instructions.
 
-- Python 3.12.10
-- Git
-- Internet (for dependencies and Playwright)
+### Prerequisites
 
-Windows (quick)
+*   Python 3.12.10+
+*   Git
+*   Internet connection (for dependencies and Playwright)
 
-Either run the setup script or follow the manual steps below.
+### Steps
 
-Automated (one-liner):
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/cboyd0319/job-private-scraper-filter.git
+    cd job-private-scraper-filter
+    ```
+2.  **Set up Virtual Environment:**
+    *   **Using `direnv` (Recommended):** If you have `direnv` installed, simply run `direnv allow` in the project root. This will automatically create and activate a virtual environment.
+    *   **Manual `venv`:**
+        ```bash
+        python3 -m venv .venv
+        source .venv/bin/activate # macOS/Linux
+        # .venv\Scripts\activate   # Windows PowerShell
+        ```
+3.  **Install Dependencies:**
+    ```bash
+    pip install -r requirements.txt
+    python3 -m playwright install chromium
+    ```
+4.  **Configure:**
+    ```bash
+    cp .env.example .env
+    cp config/user_prefs.example.json config/user_prefs.json
+    # Edit .env and config/user_prefs.json with your filters and alerts
+    ```
 
-```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; irm "https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/setup_windows.ps1" | iex
-```
+## Cloud Deployment
 
-Manual (if you prefer):
-
-```powershell
-git clone https://github.com/cboyd0319/job-private-scraper-filter.git
-cd job-private-scraper-filter
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-python3 -m playwright install chromium
-copy .env.example .env
-copy config/user_prefs.example.json config/user_prefs.json
-# Edit .env and config/user_prefs.json
-```
-
-macOS / Linux
+For cloud deployment, use the `scripts/deploy-cloud.sh` script. The setup wizard can help you prepare for this.
 
 ```bash
-git clone https://github.com/cboyd0319/job-private-scraper-filter.git
-cd job-private-scraper-filter
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-python3 -m playwright install chromium
-cp .env.example .env
-cp config/user_prefs.example.json config/user_prefs.json
-# Edit .env and config/user_prefs.json
+# For GCP deployment (Terraform-managed)
+export GCP_PROJECT_ID="your-gcp-project-id"
+export GCP_REGION="us-central1"
+export GCP_SOURCE_REPO="your-github-username/job-private-scraper-filter"
+scripts/deploy-cloud.sh gcp
 ```
 
-Post-install
+## Post-Installation
 
-- Edit `.env` and `config/user_prefs.json` to your liking.
-- Test basic functionality: `python3 -m src.agent --mode health`
-- Test notifications: `python3 -m src.agent --mode test`
+*   **Edit Configuration:** Adjust `.env` and `config/user_prefs.json` to your liking.
+*   **Test Functionality:**
+    *   Basic health check: `python3 -m src.agent --mode health`
+    *   Test notifications: `python3 -m src.agent --mode test`
 
-Automation
+## Automation
 
-Windows: the setup script can create scheduled tasks for you.
+For setting up automated runs (e.g., via cron jobs or scheduled tasks), refer to the instructions provided by the [Interactive Setup Wizard](#recommended-interactive-setup-wizard) or consult the `docs/DEVELOPMENT.md` for manual cron job examples.
 
-macOS/Linux: use `crontab -e` to add something like:
+## Troubleshooting
 
-```bash
-# Run every 15 minutes
-*/15 * * * * cd /path/to/job-private-scraper-filter && .venv/bin/python3 -m src.agent --mode poll
+Refer to `docs/TROUBLESHOOTING.md` for common issues and solutions.
 
-# Daily digest at 9 AM
-0 9 * * * cd /path/to/job-private-scraper-filter && .venv/bin/python3 -m src.agent --mode digest
-```
-
-Troubleshooting (quick)
-
-- Python not found: try `python3` or add Python to PATH
-- Permission errors: make sure your user can write to the project folder
-- Playwright issues: run `python3 -m playwright install-deps` and retry
-
-Updating
+## Updating
 
 ```bash
 git pull origin main
@@ -104,8 +89,8 @@ pip install -r requirements.txt --upgrade
 python3 -m playwright install chromium
 ```
 
-Uninstall
+## Uninstall
 
-- Remove scheduled tasks or cron jobs and delete the project folder.
+Remove scheduled tasks or cron jobs and delete the project folder.
 
 See the `docs/` folder for more details.

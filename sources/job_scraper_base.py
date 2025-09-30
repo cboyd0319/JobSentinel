@@ -9,6 +9,7 @@ import hashlib
 from abc import ABC, abstractmethod
 from typing import List, Dict, Optional
 from urllib.parse import urlparse
+import httpx # Added httpx import
 from utils.logging import get_logger
 from utils.scraping import web_scraper
 from utils.errors import ScrapingException
@@ -29,15 +30,15 @@ def create_job_hash(company: str, title: str, description: str) -> str:
     return hashlib.sha256(hash_input).hexdigest()
 
 
-def fetch_url(url: str) -> dict:
+async def fetch_url(url: str) -> dict:
     """Fetches a URL with retries and rate limiting. Returns response data."""
     try:
-        response = web_scraper.fetch_url(url)
+        response = await web_scraper.fetch_url(url)
 
         # Try to parse as JSON, fall back to text
         try:
             return response.json()
-        except ValueError:
+        except httpx.RequestError: # Changed from ValueError to httpx.RequestError
             return {"content": response.text,
                     "status_code": response.status_code}
 

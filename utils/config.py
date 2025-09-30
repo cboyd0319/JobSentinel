@@ -101,27 +101,12 @@ class NotificationConfig:
     """Configuration for notifications."""
 
     slack_webhook_url: Optional[str] = None
-    smtp_host: Optional[str] = None
-    smtp_port: int = 587
-    smtp_user: Optional[str] = None
-    smtp_pass: Optional[str] = None
-    digest_to: Optional[str] = None
 
     def validate_slack(self) -> bool:
         """Check if Slack notifications are properly configured."""
         return bool(
             self.slack_webhook_url
             and self.slack_webhook_url.startswith("https://hooks.slack.com/")
-        )
-
-    def validate_email(self) -> bool:
-        """Check if email notifications are properly configured."""
-        return bool(
-            self.smtp_host
-            and self.smtp_user
-            and self.smtp_pass
-            and self.digest_to
-            and "@" in self.digest_to
         )
 
 
@@ -143,6 +128,7 @@ class ConfigManager:
         self.config_path = next((p for p in candidates if p.exists()), Path(config_path))
         self.env_path = Path(env_path)
         self._config_data: Optional[Dict[str, Any]] = None
+        self.database_url: str = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///data/jobs.sqlite")
 
     def load_config(self) -> Dict[str, Any]:
         """Load and validate complete configuration."""
@@ -211,17 +197,9 @@ class ConfigManager:
         # Validate notifications
         notification_config = NotificationConfig(
             slack_webhook_url=os.getenv("SLACK_WEBHOOK_URL"),
-            smtp_host=os.getenv("SMTP_HOST"),
-            smtp_port=int(os.getenv("SMTP_PORT", "587")),
-            smtp_user=os.getenv("SMTP_USER"),
-            smtp_pass=os.getenv("SMTP_PASS"),
-            digest_to=os.getenv("DIGEST_TO"),
         )
 
-        if (
-            not notification_config.validate_slack()
-            and not notification_config.validate_email()
-        ):
+        if not notification_config.validate_slack():
             logger.warning(
                 "No notification methods configured. You will not receive alerts."
             )
@@ -242,7 +220,6 @@ class ConfigManager:
                 "key",
                 "token",
                 "webhook",
-                "smtp_pass",
                 "api_key",
             ]
 
@@ -251,7 +228,7 @@ class ConfigManager:
                     logger.warning(f"Potential secret found in config file: {pattern}")
 
         # Check environment variables
-        required_env_vars = ["SLACK_WEBHOOK_URL", "SMTP_PASS"]
+        required_env_vars = ["SLACK_WEBHOOK_URL"]
         missing_vars = [var for var in required_env_vars if not os.getenv(var)]
 
         if missing_vars:
@@ -299,11 +276,6 @@ class ConfigManager:
         """Get validated notification configuration."""
         return NotificationConfig(
             slack_webhook_url=os.getenv("SLACK_WEBHOOK_URL"),
-            smtp_host=os.getenv("SMTP_HOST"),
-            smtp_port=int(os.getenv("SMTP_PORT", "587")),
-            smtp_user=os.getenv("SMTP_USER"),
-            smtp_pass=os.getenv("SMTP_PASS"),
-            digest_to=os.getenv("DIGEST_TO"),
         )
 
     def get_scraping_config(self) -> ScrapingConfig:

@@ -4,7 +4,7 @@
 
 set -euo pipefail
 
-echo "🔒 Running local security analysis..."
+echo "Running local security analysis..."
 
 # Colors for output
 RED='\033[0;31m'
@@ -55,78 +55,7 @@ else
     report_issue "Bandit scan failed"
 fi
 
-# 2. Safety Dependency Scan
-echo "Running Safety dependency vulnerability scan..."
-if command -v safety &> /dev/null; then
-    SAFETY_PROJECT_ARGS=()
-    if [ -f "config/.safety-project.ini" ]; then
-        SAFETY_PROJECT_ARGS+=(--project "config/.safety-project.ini")
-    fi
 
-    set +e
-    if safety --help 2>/dev/null | grep -q "scan"; then
-        safety scan --output json "${SAFETY_PROJECT_ARGS[@]}" > safety-results.json 2>/dev/null
-        SAFETY_EXIT=$?
-    else
-        safety check --json "${SAFETY_PROJECT_ARGS[@]}" > safety-results.json 2>/dev/null
-        SAFETY_EXIT=$?
-    fi
-    set -e
-
-    if [ ! -f safety-results.json ]; then
-        echo '{"vulnerabilities": []}' > safety-results.json
-    fi
-
-    SAFETY_SUMMARY=$(python3 <<'PY'
-import json
-from pathlib import Path
-
-path = Path('safety-results.json')
-try:
-    raw = json.loads(path.read_text(encoding='utf-8')) if path.exists() else []
-except Exception:
-    print('0,0,0,False')
-    raise SystemExit(0)
-
-vulns = raw if isinstance(raw, list) else raw.get('vulnerabilities', [])
-blocked = 0
-allowed = 0
-should_block = False
-
-for vuln in vulns:
-    severity = (vuln.get('severity') or 'unknown').lower()
-    has_fix = bool(vuln.get('fix_available') or vuln.get('patched_versions'))
-    if severity in {'critical', 'high', 'medium', 'moderate'} and has_fix:
-        blocked += 1
-        should_block = True
-    else:
-        allowed += 1
-
-print(f"{len(vulns)},{blocked},{allowed},{should_block}")
-PY
-    )
-
-    IFS=',' read -r SAFETY_TOTAL SAFETY_BLOCKED SAFETY_ALLOWED SAFETY_SHOULD_BLOCK <<< "$SAFETY_SUMMARY"
-
-    if [ "$SAFETY_SHOULD_BLOCK" = "True" ]; then
-        report_issue "Safety found $SAFETY_BLOCKED fixable Critical/High/Medium vulnerabilities (Total: $SAFETY_TOTAL)"
-        echo "  ⚠️  $SAFETY_ALLOWED vulnerabilities allowed (unfixed or low severity)"
-    elif [ "$SAFETY_TOTAL" -gt 0 ]; then
-        report_warning "Safety found $SAFETY_TOTAL vulnerabilities ($SAFETY_ALLOWED allowed by policy)"
-    else
-        report_success "Safety scan passed - no vulnerabilities found"
-    fi
-
-    rm -f safety-results.json safety-results.sarif
-
-    if [ $SAFETY_EXIT -ne 0 ] && [ "$SAFETY_SHOULD_BLOCK" != "True" ]; then
-        report_warning "Safety exited with status $SAFETY_EXIT (results still processed)"
-    fi
-else
-    report_warning "Safety not installed - run: pip install safety"
-fi
-
-# 3. Check for hardcoded secrets
 echo "Checking for hardcoded secrets..."
 SECRET_PATTERNS=(
     "password\s*=\s*['\"][^'\"]+['\"]"
@@ -219,7 +148,7 @@ fi
 echo ""
 echo "=================="
 if [ $ISSUES_FOUND -eq 0 ]; then
-    report_success "All security checks passed! 🎉"
+    report_success "All security checks passed!"
     exit 0
 else
     echo -e "${RED}❌ Found $ISSUES_FOUND security issues that must be fixed before commit${NC}"

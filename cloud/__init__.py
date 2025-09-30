@@ -1,11 +1,4 @@
-"""Cloud deployment automation package.
-
-This package provides provider-specific bootstrapping helpers that can be
-invoked via ``python -m cloud.bootstrap``. The initial implementation focuses
-on Google Cloud Run but the module layout is intentionally generic so that
-AWS and Azure automation can plug in later without refactoring existing
-scripts.
-"""
+"""Cloud deployment and management modules."""
 
 from __future__ import annotations
 

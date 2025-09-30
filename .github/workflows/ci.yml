@@ -63,7 +63,7 @@ jobs:
                 - non-doc
 
   primary-test:
-    needs: changes
+    needs: [changes, code-quality]
     if: >-
       needs.changes.outputs.docs-only != 'true' && (
         needs.changes.outputs.core-python == 'true' ||
@@ -87,12 +87,12 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install --no-deps -r requirements.txt
+          pip install -r requirements.txt
 
       - name: Run basic syntax check
         run: |
           find . -name "*.py" -not -path "./.venv/*" -not -path "./build/*" \
-            -exec python3 -m py_compile {} + || echo "Compilation check passed"
+            -exec python3 -m py_compile {} +
 
       - name: Test database functionality
         run: |
@@ -103,16 +103,19 @@ jobs:
           chmod 600 .env || true
           python3 -c "
           import os
+          import asyncio
           os.environ['CI'] = 'true'
           from src.database import init_db, get_database_stats
-          init_db()
-          stats = get_database_stats()
-          print('Database initialization and stats check passed')
-          print(f'Database stats: {stats}')
+          async def test_db():
+              await init_db()
+              stats = await get_database_stats()
+              print('Database initialization and stats check passed')
+              print(f'Database stats: {stats}')
+          asyncio.run(test_db())
           "
 
   cross-platform-test:
-    needs: [changes, primary-test]
+    needs: [changes, primary-test, code-quality]
     if: >-
       needs.changes.outputs.core-python == 'true' &&
       needs.primary-test.result == 'success'
@@ -139,12 +142,76 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install --no-deps -r requirements.txt
+          pip install -r requirements.txt
 
       - name: Test core functionality
         run: |
-          python3 -c "import src.agent; print('Agent module OK')"
-          python3 src/agent.py --mode health
+          python -m src.agent --mode health
+
+  code-quality:
+    needs: changes
+    if: needs.changes.outputs.core-python == 'true'
+    name: Code Quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.10'
+          cache: 'pip'
+          cache-dependency-path: 'requirements.txt'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install black isort flake8 bandit safety pytest
+
+      - name: Run Black (Formatter)
+        run: black --check src/ utils/ sources/ notify/ matchers/
+
+      - name: Run Isort (Import Sorter)
+        run: isort --check-only src/ utils/ sources/ notify/ matchers/
+
+      - name: Run Flake8 (Linter)
+        run: flake8 src/ utils/ sources/ notify/ matchers/
+
+      - name: Run Bandit (Security Linter)
+        run: bandit -r . -x .venv --quiet
+
+      - name: Run Safety (Dependency Vulnerability Scan)
+        run: safety check -r requirements.txt
+
+      - name: Run Pytest (Unit Tests)
+        run: pytest tests/ -v
+
+  type-check:
+    needs: [changes, code-quality]
+    if: needs.changes.outputs.core-python == 'true'
+    name: Type Check (Mypy)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.10'
+          cache: 'pip'
+          cache-dependency-path: 'requirements.txt'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install mypy types-requests types-setuptools
+
+      - name: Run Mypy
+        run: mypy src/ utils/ sources/ notify/ matchers/ --ignore-missing-imports --no-strict-optional
 
   powershell-validation:
     needs: changes

@@ -3,11 +3,62 @@ API-based job board scrapers.
 For sites with discoverable or known APIs (Microsoft, SpaceX, etc.)
 """
 
+import asyncio
+import json
 from typing import List, Dict
-from .job_scraper_base import JobBoardScraper, GenericJobExtractor, fetch_url
+from .job_scraper_base import JobBoardScraper, fetch_url, GenericJobExtractor
 from utils.logging import get_logger
 
 logger = get_logger("sources.api_based_scrapers")
+
+
+class APIBasedScraper(JobBoardScraper):
+    """Scrapes job listings from API-driven job boards."""
+
+    def __init__(self, name: str, base_domains: List[str], api_endpoints: List[str]):
+        super().__init__(name, base_domains)
+        self.api_endpoints = api_endpoints
+
+    async def scrape(self, board_url: str, fetch_descriptions: bool = True) -> List[Dict]:
+        logger.info(f"Scraping {self.name} API endpoints: {self.api_endpoints}")
+        all_jobs = []
+
+        async def fetch_and_process(endpoint):
+            try:
+                response_data = await fetch_url(endpoint)
+                if response_data.status_code == 200:
+                    jobs_data = response_data.json()
+                    if isinstance(jobs_data, dict) and "jobs" in jobs_data:
+                        jobs_data = jobs_data["jobs"]
+                    elif isinstance(jobs_data, dict) and "results" in jobs_data:
+                        jobs_data = jobs_data["results"]
+                    elif not isinstance(jobs_data, list):
+                        logger.warning(f"Unexpected API response format from {endpoint}")
+                        return []
+
+                    company_name = self.extract_company_name(board_url)
+                    extracted_jobs = []
+                    for job_data in jobs_data:
+                        normalized_job = GenericJobExtractor.normalize_job_data(
+                            job_data, company_name, self.name, board_url
+                        )
+                        extracted_jobs.append(normalized_job)
+                    return extracted_jobs
+                else:
+                    logger.error(f"Failed to fetch {endpoint}: Status {response_data.status_code}")
+            except Exception as e:
+                logger.error(f"Error processing API endpoint {endpoint}: {e}")
+            return []
+
+        tasks = [fetch_and_process(endpoint) for endpoint in self.api_endpoints]
+        results = await asyncio.gather(*tasks)
+
+        for result in results:
+            all_jobs.extend(result)
+
+        logger.info(f"Found {len(all_jobs)} jobs from {self.name} API")
+        return all_jobs
+
 
 
 class MicrosoftCareersScraper(JobBoardScraper):

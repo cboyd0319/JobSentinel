@@ -1,43 +1,54 @@
-# Multi-stage build for optimized container size
-FROM python:3.12.10-slim AS builder
-
-ENV PYTHONUNBUFFERED=1 \
-    PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
+FROM python:3.12-slim
 
 WORKDIR /app
 
-# Install build dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc \
+# Install system dependencies
+# Set DEBIAN_FRONTEND=noninteractive to suppress debconf warnings
+RUN export DEBIAN_FRONTEND=noninteractive && \
+    apt-get update && apt-get install -y \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
-COPY requirements.txt ./
-RUN pip install --no-cache-dir --user -r requirements.txt
+# Create non-root user for security
+RUN groupadd -r appuser && useradd -r -g appuser -u 1001 appuser
 
-# Production stage using distroless image
-FROM gcr.io/distroless/python3-debian12:latest AS runtime
+# Copy requirements and install Python dependencies as root
+COPY requirements.txt .
 
-ENV PYTHONUNBUFFERED=1 \
-    PATH="/home/nonroot/.local/bin:${PATH}"
+# Install requirements with better error handling
+# Using --root-user-action=ignore to suppress pip warnings in container build
+RUN pip install --no-cache-dir --upgrade pip --root-user-action=ignore && \
+    pip install --no-cache-dir --root-user-action=ignore \
+        python-dotenv>=1.1.0 \
+        requests>=2.32.0 \
+        beautifulsoup4>=4.12.0 \
+        lxml>=6.0.0 \
+        pydantic>=2.11.0 \
+        sqlmodel>=0.0.25 \
+        tenacity>=9.0.0 \
+        aiofiles>=24.1.0 \
+        psutil>=7.0.0 \
+        tzlocal>=5.2 \
+        google-cloud-storage>=2.18.0 \
+        Flask>=3.1.0 \
+        playwright>=1.49.0
 
-WORKDIR /app
-
-# Copy Python dependencies from builder
-COPY --from=builder /root/.local /home/nonroot/.local
+# Install playwright browsers (still as root since it needs system deps)
+# Set DEBIAN_FRONTEND for playwright deps install
+RUN playwright install chromium && \
+    DEBIAN_FRONTEND=noninteractive playwright install-deps chromium
 
 # Copy application code
-COPY src/ ./src/
-COPY utils/ ./utils/
-COPY sources/ ./sources/
-COPY notify/ ./notify/
-COPY matchers/ ./matchers/
-COPY templates/ ./templates/
-COPY config/ ./config/
+COPY . .
 
-# Use non-root user from distroless image
-USER nonroot
+# Set proper ownership for non-root user
+RUN chown -R appuser:appuser /app
 
-# Direct Python execution instead of shell script
-ENTRYPOINT ["python3", "src/agent.py"]
+# Set up proper Python path
+ENV PYTHONPATH=/app
+
+# Switch to non-root user
+USER appuser
+
+# Run the job scraper
+CMD ["python3", "src/agent.py", "--mode", "poll"]

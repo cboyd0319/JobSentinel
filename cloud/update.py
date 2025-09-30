@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
+import asyncio
 import argparse
 import sys
 
-from cloud.providers.gcp_update import GCPUpdate
+from cloud.providers.gcp.update import GCPUpdate
 from cloud.utils import ensure_python_version
 
-MIN_PYTHON = (3, 10)
+MIN_PYTHON = (3, 12)
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
@@ -29,14 +30,14 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
-def main(argv: list[str] | None = None) -> int:
+async def main(argv: list[str] | None = None) -> int:
     ensure_python_version(MIN_PYTHON)
 
     namespace = parse_args(argv or sys.argv[1:])
     updater = GCPUpdate(namespace.project_id)
-    updater.run()
+    await updater.run()
     return 0
 
 
 if __name__ == "__main__":  # pragma: no cover - CLI entry
-    raise SystemExit(main())
+    asyncio.run(main())

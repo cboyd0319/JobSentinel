@@ -14,9 +14,17 @@ jobs:
   powershell-analysis:
     name: PowerShell Script Analysis
     runs-on: windows-latest
+    outputs:
+      ps_files: ${{ steps.get_ps_files.outputs.ps_files }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
+      - name: Get PowerShell Files
+        id: get_ps_files
+        shell: pwsh
+        run: |
+          $psFiles = Get-ChildItem -Path . -Filter "*.ps1" -Recurse | Select-Object -ExpandProperty FullName
+          echo "ps_files=$($psFiles | ConvertTo-Json)" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8
       - name: Install PSScriptAnalyzer
         shell: pwsh
         run: |
@@ -25,22 +33,21 @@ jobs:
         shell: pwsh
         run: |
           Write-Host "Running PowerShell Script Analysis..."
-          # Get all PowerShell files
-          $psFiles = Get-ChildItem -Path . -Filter "*.ps1" -Recurse
+          $psFiles = ConvertFrom-Json '${{ steps.get_ps_files.outputs.ps_files }}'
           $issues = @()
           foreach ($file in $psFiles) {
-              Write-Host "Analyzing: $($file.FullName)"
-              $results = Invoke-ScriptAnalyzer -Path $file.FullName -Severity @('Error','Warning') -Recurse
+              Write-Host "Analyzing: $($file)"
+              $results = Invoke-ScriptAnalyzer -Path $file -Severity @('Error','Warning') -Recurse
               if ($results) {
                   $issues += $results
-                  Write-Host "Found $($results.Count) issues in $($file.Name)" -ForegroundColor Yellow
+                  Write-Host "Found $($results.Count) issues in $(Split-Path -Leaf $file)" -ForegroundColor Yellow
                   foreach ($result in $results) {
                       Write-Host "  $($result.Severity): $($result.Message)" `
                           -ForegroundColor ($result.Severity -eq 'Error' ? 'Red' : 'Yellow')
                       Write-Host "    Line $($result.Line): $($result.ScriptName)" -ForegroundColor Gray
                   }
               } else {
-                  Write-Host "No issues found in $($file.Name)" -ForegroundColor Green
+                  Write-Host "No issues found in $(Split-Path -Leaf $file)" -ForegroundColor Green
               }
           }
           # Summary
@@ -62,6 +69,7 @@ jobs:
   powershell-syntax-test:
     name: PowerShell Syntax Test
     runs-on: windows-latest
+    needs: powershell-analysis
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -69,29 +77,29 @@ jobs:
         shell: pwsh
         run: |
           Write-Host "Testing PowerShell Syntax..."
-          $psFiles = Get-ChildItem -Path . -Filter "*.ps1" -Recurse
+          $psFiles = ConvertFrom-Json '${{ needs.powershell-analysis.outputs.ps_files }}'
           $syntaxErrors = @()
           foreach ($file in $psFiles) {
-              Write-Host "Testing syntax: $($file.Name)"
+              Write-Host "Testing syntax: $(Split-Path -Leaf $file)"
               try {
                   # Parse the script to check for syntax errors
                   $tokens = $null
                   $parseErrors = $null
                   $ast = [System.Management.Automation.Language.Parser]::ParseFile(
-                      $file.FullName, [ref]$tokens, [ref]$parseErrors
+                      $file, [ref]$tokens, [ref]$parseErrors
                   )
                   if ($parseErrors) {
                       $syntaxErrors += $parseErrors
-                      Write-Host "Syntax errors in $($file.Name):" -ForegroundColor Red
+                      Write-Host "Syntax errors in $(Split-Path -Leaf $file):" -ForegroundColor Red
                       foreach ($error in $parseErrors) {
                           Write-Host "  Line $($error.Extent.StartLineNumber): $($error.Message)" -ForegroundColor Red
                       }
                   } else {
-                      Write-Host "Syntax OK: $($file.Name)" -ForegroundColor Green
+                      Write-Host "Syntax OK: $(Split-Path -Leaf $file)" -ForegroundColor Green
                   }
               } catch {
-                  Write-Host "Failed to parse $($file.Name): $($_.Exception.Message)" -ForegroundColor Red
-                  $syntaxErrors += $_
+                  Write-Host "Failed to parse $($file): $($_.Exception.Message)" -ForegroundColor Red
+                  $syntaxErrors += $_.Exception.Message
               }
           }
           Write-Host ""
@@ -107,6 +115,7 @@ jobs:
   powershell-security-test:
     name: PowerShell Security Test
     runs-on: windows-latest
+    needs: powershell-analysis
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -114,7 +123,7 @@ jobs:
         shell: pwsh
         run: |
           Write-Host "Running PowerShell Security Analysis..."
-          $psFiles = Get-ChildItem -Path . -Filter "*.ps1" -Recurse
+          $psFiles = ConvertFrom-Json '${{ needs.powershell-analysis.outputs.ps_files }}'
           $securityIssues = @()
           # Define security patterns to check
           $securityPatterns = @{
@@ -125,16 +134,16 @@ jobs:
               'Unsafe web requests' = 'System\.Net\.WebClient.*Download'
           }
           foreach ($file in $psFiles) {
-              Write-Host "Security scan: $($file.Name)"
-              $content = Get-Content -Path $file.FullName -Raw
+              Write-Host "Security scan: $(Split-Path -Leaf $file)"
+              $content = Get-Content -Path $file -Raw
               foreach ($patternName in $securityPatterns.Keys) {
                   if ($content -match $securityPatterns[$patternName]) {
                       $securityIssues += @{
-                          File = $file.Name
+                          File = $file
                           Issue = $patternName
                           Pattern = $securityPatterns[$patternName]
                       }
-                      Write-Host "Security concern in $($file.Name): $patternName" -ForegroundColor Yellow
+                      Write-Host "Security concern in $(Split-Path -Leaf $file): $patternName" -ForegroundColor Yellow
                   }
               }
           }

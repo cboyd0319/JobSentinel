@@ -43,7 +43,7 @@ check_prerequisites() {
 
     case ${CLOUD_PROVIDER:-gcp} in
         gcp)
-            required_tools=("gcloud" "docker")
+            required_tools=("gcloud" "docker" "terraform")
             ;;
         aws)
             required_tools=("aws" "sam" "docker")
@@ -57,9 +57,31 @@ check_prerequisites() {
         if command -v "$tool" >/dev/null 2>&1; then
             log_success "$tool is installed"
         else
-            log_error "$tool is required but not installed"
-        fi
-    done
+    log_error "$tool is required but not installed"
+}
+
+# Validate GCP environment variables
+check_gcp_env_vars() {
+    log_info "Checking GCP environment variables..."
+
+    if [[ -z "${GCP_PROJECT_ID:-}" ]]; then
+        log_error "GCP_PROJECT_ID environment variable is not set."
+    else
+        log_success "GCP_PROJECT_ID is set: $GCP_PROJECT_ID"
+    fi
+
+    if [[ -z "${GCP_REGION:-}" ]]; then
+        log_error "GCP_REGION environment variable is not set. Defaulting to us-central1."
+        GCP_REGION="us-central1"
+    else
+        log_success "GCP_REGION is set: $GCP_REGION"
+    fi
+
+    if [[ -z "${GCP_SOURCE_REPO:-}" ]]; then
+        log_error "GCP_SOURCE_REPO environment variable is not set (e.g., 'owner/repo' for GitHub)."
+    else:
+        log_success "GCP_SOURCE_REPO is set: $GCP_SOURCE_REPO"
+    fi
 }
 
 # Validate cloud credentials
@@ -113,8 +135,12 @@ check_billing_protections() {
             if [[ -n "$billing_account" ]]; then
                 log_success "Billing account configured: $billing_account"
 
-                # Check for budgets (this would require more complex API calls)
-                log_warning "Manual verification required: Ensure billing alerts are configured at \$5 threshold"
+                # Check for budgets managed by Terraform
+                if terraform -chdir="$(dirname "$0")"/../terraform/gcp output -raw google_billing_budget.job_scraper_budget.budget_id >/dev/null 2>&1; then
+                    log_success "Terraform-managed billing budget detected."
+                else
+                    log_warning "Terraform-managed billing budget not found. Ensure Terraform is applied or configure manually."
+                fi
             else
                 log_warning "No billing account configured. This may be required for some services."
             fi
@@ -246,6 +272,60 @@ validate_cloud_config() {
     esac
 }
 
+# Check GCP permissions and resource conflicts
+check_gcp_resources_and_permissions() {
+    log_info "Checking GCP permissions and resource conflicts..."
+
+    # Check project permissions
+    local current_user=$(gcloud auth list --filter=status:ACTIVE --format="value(account)" | head -1)
+    if [[ -z "$current_user" ]]; then
+        log_error "Cannot determine current authenticated GCP user."
+        return
+    fi
+
+    log_info "Verifying permissions for $current_user on project $GCP_PROJECT_ID..."
+    local project_policy=$(gcloud projects get-iam-policy "$GCP_PROJECT_ID" --format=json)
+    if echo "$project_policy" | grep -q "role: roles/owner" || echo "$project_policy" | grep -q "role: roles/editor"; then
+        log_success "User has Owner or Editor role on project $GCP_PROJECT_ID."
+    else
+        log_warning "User may not have sufficient permissions (Owner/Editor) on project $GCP_PROJECT_ID. Deployment might fail."
+    fi
+
+    # Check for existing Cloud Run service
+    if gcloud run jobs describe "job-scraper-${DEPLOYMENT_ENV}" --region="$GCP_REGION" --project="$GCP_PROJECT_ID" >/dev/null 2>&1; then
+        log_warning "Cloud Run job 'job-scraper-${DEPLOYMENT_ENV}' already exists. It will be updated."
+    else
+        log_info "Cloud Run job 'job-scraper-${DEPLOYMENT_ENV}' does not exist. It will be created."
+    fi
+
+    # Check for existing Artifact Registry repository
+    if gcloud artifacts repositories describe "job-scraper-${DEPLOYMENT_ENV}-repo" --location="$GCP_REGION" --project="$GCP_PROJECT_ID" >/dev/null 2>&1; then
+        log_warning "Artifact Registry repository 'job-scraper-${DEPLOYMENT_ENV}-repo' already exists. It will be used."
+    else
+        log_info "Artifact Registry repository 'job-scraper-${DEPLOYMENT_ENV}-repo' does not exist. It will be created."
+    fi
+
+    # Run Terraform validation
+    local TF_DIR="$(dirname "$0")"/../terraform/gcp"
+    if [[ -d "$TF_DIR" ]]; then
+        log_info "Running Terraform validation..."
+        if terraform -chdir="$TF_DIR" validate >/dev/null 2>&1; then
+            log_success "Terraform configuration is valid."
+        else
+            log_error "Terraform configuration is invalid. Check syntax in $TF_DIR."
+        fi
+
+        log_info "Running Terraform plan (dry-run)..."
+        if terraform -chdir="$TF_DIR" plan -destroy -var="project_id=$GCP_PROJECT_ID" -var="region=$GCP_REGION" -var="deployment_env=$DEPLOYMENT_ENV" -var="source_repo=$GCP_SOURCE_REPO" >/dev/null 2>&1; then
+            log_success "Terraform plan (destroy) completed without critical errors."
+        else
+            log_warning "Terraform plan (destroy) encountered issues. Review potential resource conflicts or misconfigurations."
+        fi
+    else
+        log_error "Terraform directory not found: $TF_DIR"
+    fi
+}
+
 # Test basic functionality
 test_application() {
     log_info "Testing application functionality..."
@@ -322,8 +402,20 @@ main() {
 
     check_prerequisites
     echo
+
+    if [[ "$CLOUD_PROVIDER" == "gcp" ]]; then
+        check_gcp_env_vars
+        echo
+    fi
+
     check_cloud_auth
     echo
+
+    if [[ "$CLOUD_PROVIDER" == "gcp" ]]; then
+        check_gcp_resources_and_permissions
+        echo
+    fi
+
     check_billing_protections
     echo
     check_environment_config

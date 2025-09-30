@@ -185,14 +185,19 @@ UNIFIED_DB_FILE = "data/jobs_unified.sqlite"
 unified_engine = create_engine(f"sqlite:///{UNIFIED_DB_FILE}", echo=False)
 
 
-def init_unified_db():
-    """Initialize the unified database."""
-    try:
-        UnifiedJob.metadata.create_all(unified_engine)
-        logger.info("Unified database initialized successfully")
-    except Exception as e:
-        logger.error(f"Failed to initialize unified database: {e}")
-        raise DatabaseException("unified_initialization", str(e), e)
+from src.database import init_db
+from cloud.providers.gcp.cloud_database import init_cloud_db
+from utils.logging import get_logger
+
+logger = get_logger("unified_database")
+
+
+async def init_unified_db():
+    """Initializes both local and cloud databases."""
+    logger.info("Initializing unified database...")
+    await init_db()
+    await init_cloud_db() # This is now async
+    logger.info("Unified database initialization complete.")
 
 
 def save_unified_job(job_data: dict,

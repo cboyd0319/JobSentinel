@@ -192,9 +192,8 @@ class ConcurrentJobScraper:
         start_time = time.time()
 
         try:
-            # Use thread-safe scraping
-            with _registry_lock:
-                jobs = scrape_jobs(task.url, task.fetch_descriptions)
+            # Run the async scraper in its own event loop
+            jobs = asyncio.run(scrape_jobs(task.url, task.fetch_descriptions))
 
             duration = time.time() - start_time
             jobs_per_second = len(jobs) / duration if duration > 0 else 0
@@ -270,12 +269,8 @@ class ConcurrentJobScraper:
         start_time = time.time()
 
         try:
-            # Run the synchronous scraper in a thread pool
-            loop = asyncio.get_event_loop()
-            jobs = await loop.run_in_executor(
-                None,
-                lambda: scrape_jobs(url, fetch_descriptions)
-            )
+            # Directly await the now-async scrape_jobs
+            jobs = await scrape_jobs(url, fetch_descriptions)
 
             duration = time.time() - start_time
             jobs_per_second = len(jobs) / duration if duration > 0 else 0
@@ -307,7 +302,8 @@ def _scrape_task_worker(task: ScrapeTask) -> ScrapeResult:
     start_time = time.time()
 
     try:
-        jobs = scrape_jobs(task.url, task.fetch_descriptions)
+        # Run the async scraper in its own event loop
+        jobs = asyncio.run(scrape_jobs(task.url, task.fetch_descriptions))
         duration = time.time() - start_time
         jobs_per_second = len(jobs) / duration if duration > 0 else 0
 
@@ -369,7 +365,7 @@ def benchmark_scraper_performance(urls: List[str]) -> Dict:
     sequential_jobs = []
     for url in urls:
         try:
-            jobs = scrape_jobs(url, fetch_descriptions=False)
+            jobs = asyncio.run(scrape_jobs(url, fetch_descriptions=False))
             sequential_jobs.extend(jobs)
         except BaseException:
             pass

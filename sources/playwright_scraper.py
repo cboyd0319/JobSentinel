@@ -28,7 +28,7 @@ class PlaywrightScraper(JobBoardScraper, APIDiscoveryMixin):
         """This is a fallback scraper, so it can attempt any URL."""
         return True
 
-    def scrape(self, board_url: str,
+    async def scrape(self, board_url: str,
                fetch_descriptions: bool = True) -> List[Dict]:
         """
         Scrape using Playwright with API discovery and enhanced selectors.
@@ -36,16 +36,14 @@ class PlaywrightScraper(JobBoardScraper, APIDiscoveryMixin):
         logger.info(f"🎭 Using Playwright scraper for {board_url}")
 
         # Try API discovery first
-        discovered_jobs = asyncio.run(
-            self.scrape_with_api_discovery(
-                board_url, fetch_descriptions))
+        discovered_jobs = await self.scrape_with_api_discovery(
+            board_url, fetch_descriptions)
         if discovered_jobs:
             return discovered_jobs
 
         # Fall back to enhanced content extraction
-        content_jobs = asyncio.run(
-            self.scrape_with_enhanced_selectors(
-                board_url, fetch_descriptions))
+        content_jobs = await self.scrape_with_enhanced_selectors(
+            board_url, fetch_descriptions)
         if content_jobs:
             return content_jobs
 

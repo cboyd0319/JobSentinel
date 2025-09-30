@@ -1,8 +1,10 @@
-from sqlmodel import Field, Session, SQLModel, create_engine, select
+from sqlmodel import Field, SQLModel, create_async_engine, select
+from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime, timezone
 from typing import Optional
 from utils.logging import get_logger
 from utils.errors import DatabaseException
+import os
 
 
 class Job(SQLModel, table=True):
@@ -34,40 +36,44 @@ class Job(SQLModel, table=True):
 
 
 # The path to the SQLite database file
-DB_FILE = "data/jobs.sqlite"
-engine = create_engine(f"sqlite:///{DB_FILE}", echo=False)
+# DB_FILE = "data/jobs.sqlite" # Moved to config
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///data/jobs.sqlite")
+async_engine = create_async_engine(DATABASE_URL, echo=False)
 logger = get_logger("database")
 
 
-def init_db():
+async def init_db():
     """Creates the database and tables if they don't exist."""
     try:
-        SQLModel.metadata.create_all(engine)
+        async with async_engine.begin() as conn:
+            await conn.run_sync(SQLModel.metadata.create_all)
         logger.info("Database initialized successfully")
     except Exception as e:
         logger.error(f"Failed to initialize database: {e}")
         raise DatabaseException("initialization", str(e), e)
 
 
-def get_job_by_hash(job_hash: str) -> Optional[Job]:
+async def get_job_by_hash(job_hash: str) -> Optional[Job]:
     """Checks if a job with the given hash already exists."""
     try:
-        with Session(engine) as session:
+        async with AsyncSession(async_engine) as session:
             statement = select(Job).where(Job.hash == job_hash)
-            return session.exec(statement).first()
+            result = await session.exec(statement)
+            return result.first()
     except Exception as e:
         logger.error(f"Failed to get job by hash {job_hash}: {e}")
         raise DatabaseException("get_job_by_hash", str(e), e)
 
 
-def add_job(job_data: dict) -> Job:
+async def add_job(job_data: dict) -> Job:
     """Adds a new job to the database or updates if it exists."""
     try:
-        with Session(engine) as session:
+        async with AsyncSession(async_engine) as session:
             # Check if job already exists
-            existing_job = session.exec(
+            existing_job = await session.exec(
                 select(Job).where(Job.hash == job_data["hash"])
-            ).first()
+            )
+            existing_job = existing_job.first()
 
             if existing_job:
                 # Update existing job
@@ -77,8 +83,8 @@ def add_job(job_data: dict) -> Job:
                 existing_job.score_reasons = str(job_data.get("score_reasons", []))
                 existing_job.updated_at = datetime.now(timezone.utc)
                 session.add(existing_job)
-                session.commit()
-                session.refresh(existing_job)
+                await session.commit()
+                await session.refresh(existing_job)
                 logger.debug(f"Updated existing job: {existing_job.title}")
                 return existing_job
             else:
@@ -94,8 +100,8 @@ def add_job(job_data: dict) -> Job:
                     score_reasons=str(job_data.get("score_reasons", [])),
                 )
                 session.add(job)
-                session.commit()
-                session.refresh(job)
+                await session.commit()
+                await session.refresh(job)
                 logger.debug(f"Added new job: {job.title}")
                 return job
     except Exception as e:
@@ -105,10 +111,10 @@ def add_job(job_data: dict) -> Job:
         raise DatabaseException("add_job", str(e), e)
 
 
-def get_jobs_for_digest(min_score: float = 0.0, hours_back: int = 24) -> list[Job]:
+async def get_jobs_for_digest(min_score: float = 0.0, hours_back: int = 24) -> list[Job]:
     """Get jobs that should be included in digest, with a minimum score."""
     try:
-        with Session(engine) as session:
+        async with AsyncSession(async_engine) as session:
             from datetime import timedelta
 
             cutoff_time = datetime.now(timezone.utc) - timedelta(hours=hours_back)
@@ -123,64 +129,62 @@ def get_jobs_for_digest(min_score: float = 0.0, hours_back: int = 24) -> list[Jo
                 .order_by(Job.score.desc(), Job.created_at.desc())
             )
 
-            return list(session.exec(statement).all())
+            result = await session.exec(statement)
+            return list(result.all())
     except Exception as e:
         logger.error(f"Failed to get jobs for digest: {e}")
         raise DatabaseException("get_jobs_for_digest", str(e), e)
 
 
-def mark_jobs_digest_sent(job_ids: list[int]):
+async def mark_jobs_digest_sent(job_ids: list[int]):
     """Mark jobs as included in digest."""
     try:
-        with Session(engine) as session:
+        async with AsyncSession(async_engine) as session:
             statement = select(Job).where(Job.id.in_(job_ids))
-            jobs = session.exec(statement).all()
+            result = await session.exec(statement)
+            jobs = result.all()
 
             for job in jobs:
                 job.included_in_digest = True
                 job.digest_sent_at = datetime.now(timezone.utc)
                 session.add(job)
 
-            session.commit()
+            await session.commit()
             logger.info(f"Marked {len(job_ids)} jobs as digest sent")
     except Exception as e:
         logger.error(f"Failed to mark jobs as digest sent: {e}")
         raise DatabaseException("mark_jobs_digest_sent", str(e), e)
 
 
-def mark_job_alert_sent(job_id: int):
+async def mark_job_alert_sent(job_id: int):
     """Mark a job as having sent an immediate alert."""
     try:
-        with Session(engine) as session:
-            job = session.get(Job, job_id)
+        async with AsyncSession(async_engine) as session:
+            job = await session.get(Job, job_id)
             if job:
                 job.immediate_alert_sent = True
                 job.alert_sent_at = datetime.now(timezone.utc)
                 session.add(job)
-                session.commit()
+                await session.commit()
     except Exception as e:
         logger.error(f"Failed to mark job {job_id} alert sent: {e}")
         raise DatabaseException("mark_job_alert_sent", str(e), e)
 
 
-def get_database_stats() -> dict:
+async def get_database_stats() -> dict:
     """Get database statistics for monitoring."""
     try:
-        with Session(engine) as session:
-            total_jobs = len(list(session.exec(select(Job)).all()))
+        async with AsyncSession(async_engine) as session:
+            from sqlalchemy import func
+
+            total_jobs = await session.exec(select(func.count(Job.id))).scalar_one()
 
             # Jobs added in last 24 hours
-            yesterday = datetime.now(timezone.utc).replace(
-                hour=0, minute=0, second=0, microsecond=0
-            )
-            recent_jobs = len(
-                list(session.exec(select(Job).where(Job.created_at >= yesterday)).all())
-            )
+            yesterday = datetime.now(timezone.utc) - timedelta(hours=24)
+            recent_jobs = await session.exec(select(func.count(Job.id)).where(Job.created_at >= yesterday)).scalar_one()
 
             # High score jobs (>= 0.8)
-            high_score_jobs = len(
-                list(session.exec(select(Job).where(Job.score >= 0.8)).all())
-            )
+            high_score_jobs = await session.exec(select(func.count(Job.id)).where(Job.score >= 0.8)).scalar_one()
 
             return {
                 "total_jobs": total_jobs,
@@ -193,23 +197,23 @@ def get_database_stats() -> dict:
         raise DatabaseException("get_database_stats", str(e), e)
 
 
-def cleanup_old_jobs(days_to_keep: int = 90):
+async def cleanup_old_jobs(days_to_keep: int = 90):
     """Remove jobs older than specified days to manage database size."""
     try:
         from datetime import timedelta
 
         cutoff_date = datetime.now(timezone.utc) - timedelta(days=days_to_keep)
 
-        with Session(engine) as session:
-            old_jobs = session.exec(
-                select(Job).where(Job.created_at < cutoff_date)
-            ).all()
+        async with AsyncSession(async_engine) as session:
+            statement = select(Job).where(Job.created_at < cutoff_date)
+            result = await session.exec(statement)
+            old_jobs = result.all()
 
             count = len(old_jobs)
             for job in old_jobs:
-                session.delete(job)
+                await session.delete(job)
 
-            session.commit()
+            await session.commit()
             logger.info(f"Cleaned up {count} jobs older than {days_to_keep} days")
             return count
     except Exception as e:

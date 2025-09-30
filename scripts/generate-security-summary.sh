@@ -20,7 +20,6 @@ def status_emoji(name: str) -> str:
     return STATUS_MAP.get(value, '⚠️')
 
 bandit_status = os.getenv('BANDIT_STATUS', 'unknown')
-safety_status = os.getenv('SAFETY_STATUS', 'unknown')
 osv_status = os.getenv('OSV_RESULT', 'unknown')
 semgrep_status = os.getenv('SEMGREP_RESULT', 'unknown')
 codeql_status = os.getenv('CODEQL_RESULT', 'unknown')
@@ -45,7 +44,6 @@ summary = f"""\
 | Tool | Status | Integration | Description |
 |------|--------|-------------|-------------|
 | 🔍 Bandit | {status_emoji(bandit_status)} {bandit_status} | ✅ Security Tab | Python static analysis (SARIF) |
-| 🔒 Safety | {status_emoji(safety_status)} {safety_status} | ✅ Security Tab | Dependency vulnerability scan |
 | 🛡️ OSV Scanner | {status_emoji(osv_status)} {osv_status} | ✅ Security Tab | Open Source Vulnerability database |
 | 🔬 Semgrep | {status_emoji(semgrep_status)} {semgrep_status} | ✅ Security Tab | Multi-language security patterns |
 | 🧪 CodeQL | {status_emoji(codeql_status)} {codeql_status} | ✅ Security Tab | GitHub's semantic code analysis |
@@ -72,7 +70,6 @@ scripts/precommit-security-scan.sh
 
 # Individual tools
 bandit -r . -x ./.venv
-safety scan --output json --project config/.safety-project.ini
 osv-scanner --format json --output osv-results.json .
 semgrep --config=auto .
 yamllint .

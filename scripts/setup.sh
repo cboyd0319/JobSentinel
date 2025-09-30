@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🚀 Starting the Jobs Agent setup for macOS..."
+echo "Starting the Jobs Agent setup for macOS..."
 
 # --- Helper Functions ---
 print_success() {
@@ -69,7 +69,7 @@ print_success "Created data directory and database file."
 AGENT_PATH=$(pwd)
 PYTHON_PATH="$AGENT_PATH/.venv/bin/python"
 
-echo -e "\n🎉 Setup complete! To automate the agent, add the following lines to your crontab:"
+echo -e "\nSetup complete! To automate the agent, add the following lines to your crontab:"
 echo "First, run 'crontab -e' to open the editor."
 echo "Then, copy and paste these lines, then save and exit:"
 echo ""

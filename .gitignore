@@ -35,14 +35,23 @@ ENV/
 
 # Data and Logs
 data/
+!data/logs/.gitkeep
 
 # IDE files
 .vscode/
 .idea/
 
+# Terraform
+.terraform/
+.terraform.lock.hcl
+*.tfplan
+*.tfstate
+*.tfstate.backup
+
 # User configuration files (should be created from examples)
 user_prefs.json
 config/user_prefs.json
+config/user_profile.json
 
 # Runtime files and logs
 *.log

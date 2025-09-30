@@ -4,15 +4,41 @@ Here’s how I set the project up for day-to-day hacking and what I run before o
 
 ## Quick setup
 
-```bash
-python3 -m venv .venv
-source .venv/bin/activate      # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-pip install black isort flake8 bandit safety mypy pytest
-cp .env.example .env
-cp config/user_prefs.example.json config/user_prefs.json
-python3 -m playwright install chromium --with-deps
-```
+To ensure a clean and reproducible development environment, we use Python virtual environments. If you use `direnv`, you can set it up to automatically activate the virtual environment when you enter the project directory.
+
+1.  **Install `direnv` (if you don't have it):**
+    *   macOS (Homebrew): `brew install direnv`
+    *   Linux (apt): `sudo apt-get install direnv`
+    *   Then, hook it into your shell (e.g., `echo 'eval "$(direnv hook bash)"' >> ~/.bashrc` or `~/.zshrc`)
+
+2.  **Allow `.envrc`:** Once `direnv` is installed, navigate to the project root and run:
+    ```bash
+    direnv allow
+    ```
+    This will activate the virtual environment automatically.
+
+3.  **Manual Virtual Environment Setup (if not using `direnv` or for initial setup):**
+    ```bash
+    python3 -m venv .venv
+    source .venv/bin/activate      # Windows: .venv\Scripts\activate
+    ```
+
+4.  **Install Dependencies:**
+    ```bash
+    pip install -r requirements.txt
+    pip install black isort flake8 bandit safety mypy pytest
+    ```
+
+5.  **Initialize Configuration Files:**
+    ```bash
+    cp .env.example .env
+    cp config/user_prefs.example.json config/user_prefs.json
+    ```
+
+6.  **Install Playwright Browsers:**
+    ```bash
+    python3 -m playwright install chromium --with-deps
+    ```
 
 I normally keep the virtual environment in place and reuse it between sessions. If Playwright gives you trouble, rerun the install command with `--with-deps` to pull system libraries.
 
@@ -25,7 +51,7 @@ I normally keep the virtual environment in place and reuse it between sessions. 
 ├── notify/         # Email and Slack integrations
 ├── utils/          # Shared helpers (config, logging, health checks)
 ├── scripts/        # Installers, deployment flows, and security checks
-├── cloud/          # Cloud bootstrapper code
+├── cloud/          # Cloud deployment logic
 ├── config/         # Sample config files and linter settings
 ├── templates/      # Web UI templates
 └── docs/           # Extra guides like this one

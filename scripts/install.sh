@@ -44,7 +44,7 @@ log_error() {
 }
 
 log_step() {
-    echo -e "${PURPLE}🚀 $1${NC}"
+    echo -e "${PURPLE}$1${NC}"
 }
 
 # Parse command line arguments
@@ -332,7 +332,7 @@ setup_cloud_configuration() {
 
     # CRITICAL: Cost protection warnings
     echo
-    log_error "🚨 STOP! READ THIS FIRST 🚨"
+    log_error "STOP! READ THIS FIRST"
     echo
     log_warning "BEFORE deploying to the cloud, you MUST set up cost protections:"
     echo "  1. Billing alerts at $5-15 thresholds"
@@ -376,7 +376,7 @@ create_gcp_config() {
 #!/bin/bash
 # Google Cloud Run deployment with cost protections
 
-echo "🛡️ Setting up cost protections first..."
+echo "Setting up cost protections first..."
 
 # Set up billing alerts (CRITICAL)
 gcloud alpha billing budgets create \
@@ -391,7 +391,7 @@ gcloud alpha billing budgets create \
 gcloud compute project-info add-metadata \
   --metadata=max-instances=1,max-memory=512MB,max-cpu=0.5
 
-echo "📊 Deploying to Cloud Run with guardrails..."
+echo "Deploying to Cloud Run with guardrails..."
 gcloud run deploy job-scraper \
   --source . \
   --platform managed \
@@ -586,7 +586,7 @@ def check_azure_costs():
 def send_cost_alert(provider, current_cost, threshold):
     """Send cost alert via email/Slack"""
     message = f"""
-🚨 COST ALERT: Job Scraper ({provider.upper()})
+COST ALERT: Job Scraper ({provider.upper()})
 
 Current monthly spend: ${current_cost:.2f}
 Threshold exceeded: ${threshold:.2f}
@@ -618,7 +618,7 @@ def emergency_stop():
         # Stop Azure Function
         os.system('az functionapp stop --name job-scraper --resource-group job-scraper-rg')
     
-    print(f"🛑 EMERGENCY STOP: {provider.upper()} resources have been stopped due to cost limits")
+    print(f"EMERGENCY STOP: {provider.upper()} resources have been stopped due to cost limits")
 
 if __name__ == '__main__':
     # This script would be run daily via cron/scheduled task
@@ -724,7 +724,7 @@ run_health_check() {
 show_security_recommendations() {
     log_step "Security Recommendations"
     echo
-    log_info "🔒 Security Best Practices:"
+    log_info "Security Best Practices:"
     echo "  1. Keep your .env file secure (never commit to version control)"
     echo "  2. Use strong, unique passwords for email/Slack webhooks"
     echo "  3. Regularly update dependencies: pip install -r requirements.txt --upgrade"
@@ -733,7 +733,7 @@ show_security_recommendations() {
     
     if [[ "$MODE" == "cloud-deploy" ]]; then
         echo
-        log_info "☁️ Cloud Security:"
+        log_info "Cloud Security:"
         echo "  1. Enable cloud logging and monitoring"
         echo "  2. Use IAM roles instead of API keys where possible"
         echo "  3. Set up billing alerts to avoid unexpected charges"
@@ -767,9 +767,9 @@ EOF
     echo
     log_success "Installation completed successfully!"
     echo
-    log_info "📍 Installation location: $INSTALL_DIR"
-    log_info "🔧 Configuration mode: $MODE"
-    log_info "💻 Platform: $PLATFORM"
+    log_info "Installation location: $INSTALL_DIR"
+    log_info "Configuration mode: $MODE"
+    log_info "Platform: $PLATFORM"
     echo
     log_info "Next steps:"
     echo "  1. cd $INSTALL_DIR"
@@ -778,7 +778,7 @@ EOF
     echo "  4. Set up automation (cron/systemd) as shown above"
     echo
     log_info "Need help? Check the docs/ directory or open an issue on GitHub"
-    log_success "Happy job hunting! 🎯"
+    log_success "Happy job hunting!"
 }
 
 # Run main function with all arguments

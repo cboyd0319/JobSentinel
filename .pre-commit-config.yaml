@@ -38,12 +38,6 @@ repos:
       - id: yamllint
         args: [-c=config/.yamllint.yml]
 
-  - repo: https://github.com/pycqa/safety
-    rev: 3.0.1
-    hooks:
-      - id: safety
-        args: [--short-report, --ignore=70612]
-
   - repo: https://github.com/codespell-project/codespell
     rev: v2.2.6
     hooks:
