@@ -92,7 +92,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          VERSION=$(semantic-release version --config pyproject.toml)
+          VERSION=$(semantic-release version)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
 
