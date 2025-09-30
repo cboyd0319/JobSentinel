@@ -267,7 +267,7 @@ Success! The configuration is valid.
 
 2. **Run new deployment**:
    ```bash
-   python scripts/deploy_gcp.py
+   python3 -m cloud.bootstrap
    ```
 
 #### Option 2: Import Existing Resources (Advanced)

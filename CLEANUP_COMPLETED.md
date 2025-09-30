@@ -65,6 +65,7 @@ terraform.tfvars  # NEW: User-specific config
 ?? REFACTORING_SUMMARY.md
 ?? TODO.md
 ?? CLEANUP_COMPLETED.md
+?? cloud/bootstrap.py
 ?? cloud/providers/common/terraform_installer.py
 ?? cloud/providers/gcp/project_detection.py
 ?? terraform/gcp/README.md

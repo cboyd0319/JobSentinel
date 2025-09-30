@@ -91,7 +91,13 @@ terraform/gcp/
 The easiest way to deploy is via the Python bootstrap script, which handles everything:
 
 ```bash
-python scripts/deploy_gcp.py
+python3 -m cloud.bootstrap
+```
+
+or for non-interactive deployment:
+
+```bash
+python3 -m cloud.bootstrap --no-prompt --yes
 ```
 
 This will:
