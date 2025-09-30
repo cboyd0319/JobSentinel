@@ -119,6 +119,7 @@ version_toml = ["pyproject.toml:tool.semantic_release.version"]
 build_command = "python -m build"
 upload_to_pypi = false
 upload_to_release = true
+repository = "https://oauth2:${GITHUB_TOKEN}@github.com/${{ github.repository }}"
 
 [tool.semantic_release.version]
 # This will be updated by semantic-release
