@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61.0", "build>=0.5.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "job-private-scraper-filter"
+version = "0.2.0" # This will be updated by semantic-release
+description = "A private job scraper and filter"
+authors = [{name = "Your Name", email = "your.email@example.com"}]
+license = "MIT"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    # Add your project's runtime dependencies here
+    # e.g., "requests", "beautifulsoup4", "playwright"
+]
+
+[tool.semantic_release]
+branch = "main"
+changelog_file = "CHANGELOG.md"
+commit_message = "chore(release): {version} [skip ci]"
+version_toml = ["pyproject.toml:project.version"]
+build_command = "python -m build"
+upload_to_pypi = false
+upload_to_release = true
+repository = "https://oauth2:${GITHUB_TOKEN}@github.com/${{ github.repository }}"
