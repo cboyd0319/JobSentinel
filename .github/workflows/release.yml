@@ -6,8 +6,10 @@ name: Release
       - main # Trigger semantic-release on push to main branch
 
 permissions:
-  contents: write # Grant write permissions for semantic-release to create releases and tags
-  pull-requests: write # Required for semantic-release to update pull requests
+  contents: write
+  pull-requests: write
+  issues: write
+  id-token: write
 
 jobs:
   release:
