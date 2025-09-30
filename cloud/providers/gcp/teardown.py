@@ -7,6 +7,7 @@ import subprocess  # nosec B404
 from cloud.utils import (
     confirm,
     run_command,
+    _redact_command_for_logging,
 )
 from utils.logging import get_logger
 
@@ -42,9 +43,9 @@ class GCPTeardown:
 
     async def _execute_gcloud_command(self, command: list[str], description: str) -> None:
         if self.dry_run:
-            logger.info(f"DRY RUN: Would execute: {' '.join(command)} ({description})")
+            logger.info(f"DRY RUN: Would execute: {_redact_command_for_logging(command)} ({description})")
         else:
-            logger.info(f"Executing: {' '.join(command)} ({description})")
+            logger.info(f"Executing: {_redact_command_for_logging(command)} ({description})")
             await run_command(command, check=False, logger=logger)
 
     async def run(self) -> None:

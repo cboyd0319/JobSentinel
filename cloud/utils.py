@@ -47,6 +47,28 @@ class Spinner:
         self.logger.info(f"{self.message} [green]Done[/green]")
 
 
+def _redact_command_for_logging(command: list[str]) -> str:
+    """Redact sensitive information from a command list for logging purposes."""
+    redacted_command = []
+    skip_next = False
+    for i, arg in enumerate(command):
+        if skip_next:
+            skip_next = False
+            continue
+        if arg.startswith("--") and ("token" in arg or "password" in arg or "key" in arg or "secret" in arg):
+            redacted_command.append(arg)
+            if "=" in arg:  # e.g., --token=abc
+                redacted_command[-1] = f"{arg.split('=')[0]}=***REDACTED***"
+            elif i + 1 < len(command):  # e.g., --token abc
+                redacted_command.append("***REDACTED***")
+                skip_next = True
+            else: # e.g., --token at the end of the command
+                redacted_command[-1] = f"{arg}=***REDACTED***"
+        else:
+            redacted_command.append(arg)
+    return " ".join(redacted_command)
+
+
 async def run_command(
     command: list[str],
     logger,
@@ -61,8 +83,12 @@ async def run_command(
     input_data: bytes | None = None,
     text: bool = True,
 ) -> subprocess.CompletedProcess:
-    """Runs a shell command, optionally with retries and exponential backoff."""
-    full_command = " ".join(command)
+    """Runs a shell command, optionally with retries and exponential backoff.
+
+    The `command` argument is expected to be a list of trusted inputs. Untrusted
+    input should be sanitized before being passed to this function.
+    """
+    redacted_full_command = _redact_command_for_logging(command)
     for attempt in range(retries + 1):
         try:
             if show_spinner:
@@ -98,13 +124,13 @@ async def run_command(
         except subprocess.CalledProcessError as e:
             if attempt < retries:
                 logger.warning(
-                    f"Command failed (attempt {attempt + 1}/{retries + 1}): {full_command}. "
+                    f"Command failed (attempt {attempt + 1}/{retries + 1}): {redacted_full_command}. "
                     f"Retrying in {delay:.1f} seconds... Error: {e.stderr.strip() or e.stdout.strip() or e}"
                 )
                 await asyncio.sleep(delay)
                 delay *= backoff_factor
             else:
-                error_message = f"Command failed after {retries + 1} attempts: {full_command}"
+                error_message = f"Command failed after {retries + 1} attempts: {redacted_full_command}"
                 if e.stderr:
                     error_message += f"\nStderr: {e.stderr.strip()}"
                 if e.stdout:

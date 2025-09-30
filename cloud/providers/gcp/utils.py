@@ -81,12 +81,9 @@ def safe_extract_tar(archive: tarfile.TarFile, destination: Path) -> None:
         archive.extract(member, destination_path)
 
 
-def download_https_file(
-    url: str, destination: Path, *, allowed_host: str, timeout: int = 60, show_progress: bool = False
-) -> None:
-    parsed = urllib.parse.urlparse(url)
     if parsed.scheme != "https" or parsed.netloc != allowed_host:
         raise RuntimeError("Unexpected download host")
+    # The URL is validated against allowed_host, mitigating dynamic urllib use risk.
     # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected
     with urllib.request.urlopen(url, timeout=timeout) as response:  # nosec B310
         total_size = int(response.headers.get("Content-Length", 0))
@@ -123,6 +120,7 @@ def download_https_text(url: str, *, allowed_host: str, timeout: int = 30) -> st
     parsed = urllib.parse.urlparse(url)
     if parsed.scheme != "https" or parsed.netloc != allowed_host:
         raise RuntimeError("Unexpected download host")
+    # The URL is validated against allowed_host, mitigating dynamic urllib use risk.
     # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected
     with urllib.request.urlopen(url, timeout=timeout) as response:  # nosec B310
         return response.read().decode("utf-8").strip()
