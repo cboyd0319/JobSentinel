@@ -22,7 +22,6 @@ jobs:
       contents: write
       pull-requests: write
       issues: write
-      repository: write
 
     steps:
       - uses: actions/checkout@v4
