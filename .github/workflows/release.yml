@@ -37,7 +37,12 @@ jobs:
           python -m pip install -r requirements.txt
 
       - name: Debug GITHUB_TOKEN
-        run: echo "GITHUB_TOKEN is set: ${{ secrets.GITHUB_TOKEN != '' }}"
+        run: |
+          if [ -n "${{ secrets.GITHUB_TOKEN }}" ]; then
+            echo "GITHUB_TOKEN is set: true"
+          else
+            echo "GITHUB_TOKEN is set: false"
+          fi
 
       - name: Run Semantic Release
         id: semantic_release
