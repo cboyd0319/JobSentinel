@@ -20,12 +20,6 @@ jobs:
       contents: write
 
     steps:
-      # Note: We checkout the repository at the branch that triggered the workflow
-      # with the entire history to ensure to match PSR's release branch detection
-      # and history evaluation.
-      # However, we forcefully reset the branch to the workflow sha because it is
-      # possible that the branch was updated while the workflow was running. This
-      # prevents accidentally releasing un-evaluated changes.
       - name: Setup | Checkout Repository on Release Branch
         uses: actions/checkout@v4
         with:
@@ -36,27 +30,21 @@ jobs:
         run: |
           git reset --hard ${{ github.sha }}
 
-      - name: Setup | Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12.10'
-
-      - name: Setup | Install dependencies
-        run: |
-          python3 -m pip install --upgrade pip setuptools
-          python3 -m pip install -r requirements.txt
-          python3 -m pip install build
-
       - name: Action | Semantic Version Release
         id: release
         # Adjust tag with desired version if applicable.
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          VERSION=$(semantic-release version)
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+        uses: python-semantic-release/python-semantic-release@v10.4.1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          git_committer_name: "github-actions"
+          git_committer_email: "actions@users.noreply.github.com"
 
-
+      - name: Publish | Upload to GitHub Release Assets
+        uses: python-semantic-release/publish-action@v10.4.1
+        if: steps.release.outputs.released == 'true'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ steps.release.outputs.tag }}
 
       - name: Upload | Distribution Artifacts
         uses: actions/upload-artifact@v4
