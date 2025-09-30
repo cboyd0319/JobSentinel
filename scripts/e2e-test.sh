@@ -46,11 +46,12 @@ echo ""
 # Test 3: Bootstrap Version
 echo -e "${BLUE}[TEST 3] Bootstrap Version${NC}"
 VERSION=$(python3 -m cloud.bootstrap --version 2>&1)
-if [[ $VERSION == *"2."* ]]; then
-    echo -e "  ${GREEN}✓${NC} Version check: $VERSION"
+EXPECTED_VERSION=$(python3 -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
+if [[ $VERSION == *"$EXPECTED_VERSION"* ]]; then
+    echo -e "  ${GREEN}✓${NC} Version check: $VERSION (matches pyproject.toml)"
     ((PASSED++))
 else
-    echo -e "  ${RED}✗${NC} Version check failed"
+    echo -e "  ${RED}✗${NC} Version mismatch: $VERSION (expected $EXPECTED_VERSION)"
     ((FAILED++))
 fi
 echo ""

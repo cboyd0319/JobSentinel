@@ -32,6 +32,7 @@ import argparse
 import asyncio
 import logging
 import sys
+import tomllib
 from pathlib import Path
 
 # Add project root to Python path
@@ -39,6 +40,17 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 from utils.logging import get_logger
+
+
+def get_version() -> str:
+    """Read version from pyproject.toml."""
+    pyproject_path = project_root / "pyproject.toml"
+    try:
+        with open(pyproject_path, "rb") as f:
+            data = tomllib.load(f)
+            return data["project"]["version"]
+    except Exception:
+        return "unknown"
 
 
 def parse_args():
@@ -91,7 +103,7 @@ For more information, see: terraform/gcp/README.md
     parser.add_argument(
         "--version",
         action="version",
-        version="Job Scraper Cloud Bootstrap 2.0.0",
+        version=f"Job Scraper Cloud Bootstrap {get_version()}",
     )
 
     return parser.parse_args()
@@ -139,8 +151,11 @@ async def main():
     logger = get_logger("cloud_bootstrap", level=log_level)
 
     # Print banner
+    version = get_version()
+    version_text = f"Job Scraper Cloud Bootstrap v{version}"
+    padding = (46 - len(version_text)) // 2
     print("╔══════════════════════════════════════════════╗")
-    print("║     Job Scraper Cloud Bootstrap v2.0.0      ║")
+    print(f"║{' ' * padding}{version_text}{' ' * (46 - padding - len(version_text))}║")
     print("║         Terraform-First Architecture         ║")
     print("╚══════════════════════════════════════════════╝")
     print()
