@@ -188,7 +188,14 @@ jobs:
 
       - name: Terraform Plan (no changes expected)
         id: plan
-        run: terraform plan -detailed-exitcode -var="project_id=dummy-project" -var="region=us-central1" -var="billing_account_id=dummy-billing" -var="source_repo=dummy/repo" -var="alert_email_address=test@example.com" terraform/gcp/
+        run: |
+          terraform plan -detailed-exitcode \
+            -var="project_id=dummy-project" \
+            -var="region=us-central1" \
+            -var="billing_account_id=dummy-billing" \
+            -var="source_repo=dummy/repo" \
+            -var="alert_email_address=test@example.com" \
+            terraform/gcp/
         continue-on-error: true
 
       - name: Report Terraform Format Issues
