@@ -6,6 +6,7 @@
 # Compatibility: Tested with Python 3.12.x
 
 aiofiles==24.1.0
+aiohttp==3.10.11
 annotated-types==0.7.0
 beautifulsoup4==4.14.2
 black==25.9.0
@@ -24,6 +25,7 @@ GitPython==3.1.45
 google-api-core==2.25.1
 google-auth==2.41.0
 google-cloud-core==2.4.3
+google-cloud-scheduler==2.14.7
 google-cloud-storage==3.4.0
 google-crc32c==1.7.1
 google-resumable-media==2.7.2
