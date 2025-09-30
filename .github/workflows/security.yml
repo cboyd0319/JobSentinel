@@ -215,7 +215,7 @@ jobs:
         if: >-
           steps.token_check.outputs.enabled == 'true' &&
           steps.prowler.outputs.sarif_file != ''
-        uses: github.com/github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: ${{ steps.prowler.outputs.sarif_file }}
           category: prowler-github
@@ -247,7 +247,7 @@ jobs:
       - name: TruffleHog
         uses: trufflesecurity/trufflehog@v3.90.8
         with:
-          path: ./ 
+          path: ./
           base: ${{ github.event.pull_request.base.sha || github.event.before }}
           head: ${{ github.event.pull_request.head.sha || github.event.after }}
           extra_args: --only-verified
