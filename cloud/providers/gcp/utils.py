@@ -3,6 +3,7 @@
 import hashlib
 import json
 import os
+import shutil
 import tarfile
 import tempfile
 import urllib.error
@@ -81,6 +82,16 @@ def safe_extract_tar(archive: tarfile.TarFile, destination: Path) -> None:
         archive.extract(member, destination_path)
 
 
+def download_https_file(
+    url: str,
+    destination: Path,
+    *,
+    allowed_host: str,
+    timeout: int = 60,
+    show_progress: bool = True,
+) -> None:
+    """Download a file over HTTPS with optional progress bar."""
+    parsed = urllib.parse.urlparse(url)
     if parsed.scheme != "https" or parsed.netloc != allowed_host:
         raise RuntimeError("Unexpected download host")
     # The URL is validated against allowed_host, mitigating dynamic urllib use risk.

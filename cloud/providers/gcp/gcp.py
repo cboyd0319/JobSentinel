@@ -41,12 +41,6 @@ INSTALL_VERSION = "540.0.0"
 
 from cloud.providers.gcp.utils import (
     build_google_api_url,
-    get_gcp_project_id,
-    get_gcp_region,
-    get_gcp_zone,
-    set_gcp_project_id,
-    set_gcp_region,
-    set_gcp_zone,
 )
 from cloud.providers.gcp.auth import authenticate
 from cloud.providers.gcp.sdk import ensure_gcloud

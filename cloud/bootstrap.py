@@ -148,7 +148,8 @@ async def main():
 
     # Set up logging
     log_level = getattr(logging, args.log_level.upper())
-    logger = get_logger("cloud_bootstrap", level=log_level)
+    logger = get_logger("cloud_bootstrap")
+    logger.setLevel(log_level)
 
     # Print banner
     version = get_version()
