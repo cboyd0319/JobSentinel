@@ -1,70 +1,136 @@
-name: Release
+name: Continuous Delivery
 
-'on':
+on:
   push:
     branches:
-      - main # Trigger semantic-release on push to main branch
+      - main
 
+# default: least privileged permissions across all jobs
 permissions:
-  contents: write
-  pull-requests: write
-  issues: write
-  id-token: write
+  contents: read
 
 jobs:
   release:
-    name: Semantic Release
     runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-release-${{ github.ref_name }}
+      cancel-in-progress: false
+
+    permissions:
+      contents: write
+
     steps:
-      - name: Checkout code
+      # Note: We checkout the repository at the branch that triggered the workflow
+      # with the entire history to ensure to match PSR's release branch detection
+      # and history evaluation.
+      # However, we forcefully reset the branch to the workflow sha because it is
+      # possible that the branch was updated while the workflow was running. This
+      # prevents accidentally releasing un-evaluated changes.
+      - name: Setup | Checkout Repository on Release Branch
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.ref_name }}
           fetch-depth: 0
 
-      - name: Python Semantic Release
+      - name: Setup | Force release branch to be at workflow sha
+        run: |
+          git reset --hard ${{ github.sha }}
+
+      - name: Evaluate | Verify upstream has NOT changed
+        # Last chance to abort before causing an error as another PR/push was applied to
+        # the upstream branch while this workflow was running. This is important
+        # because we are committing a version change (--commit). You may omit this step
+        # if you have 'commit: false' in your configuration.
+        #
+        # You may consider moving this to a repo script and call it from this step instead
+        # of writing it in-line.
+        shell: bash
+        run: |
+          set +o pipefail
+
+          UPSTREAM_BRANCH_NAME="$(git status -sb | head -n 1 | awk -F '\\.\\.\\.' '{print $2}' | cut -d ' ' -f1)"
+          printf '%s\n' "Upstream branch name: $UPSTREAM_BRANCH_NAME"
+
+          set -o pipefail
+
+          if [ -z "$UPSTREAM_BRANCH_NAME" ]; then
+              printf >&2 '%s\n' "::error::Unable to determine upstream branch name!"
+              exit 1
+          fi
+
+          git fetch "${UPSTREAM_BRANCH_NAME%%/*}"
+
+          if ! UPSTREAM_SHA="$(git rev-parse "$UPSTREAM_BRANCH_NAME")"; then
+              printf >&2 '%s\n' "::error::Unable to determine upstream branch sha!"
+              exit 1
+          fi
+
+          HEAD_SHA="$(git rev-parse HEAD)"
+
+          if [ "$HEAD_SHA" != "$UPSTREAM_SHA" ]; then
+              printf >&2 '%s\n' "[HEAD SHA] $HEAD_SHA != $UPSTREAM_SHA [UPSTREAM SHA]"
+              printf >&2 '%s\n' "::error::Upstream has changed, aborting release..."
+              exit 1
+          fi
+
+          printf '%s\n' "Verified upstream branch has not changed, continuing with release..."
+
+      - name: Action | Semantic Version Release
+        id: release
+        # Adjust tag with desired version if applicable.
         uses: python-semantic-release/python-semantic-release@v10.4.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          git_committer_name: "github-actions"
+          git_committer_email: "actions@users.noreply.github.com"
 
-  build-and-upload:
-    name: Build and Upload Assets
+      - name: Publish | Upload to GitHub Release Assets
+        uses: python-semantic-release/publish-action@v10.4.1
+        if: steps.release.outputs.released == 'true'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ steps.release.outputs.tag }}
+
+      - name: Upload | Distribution Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: distribution-artifacts
+          path: dist
+          if-no-files-found: error
+
+  deploy:
+    # 1. Separate out the deploy step from the publish step to run each step at
+    #    the least amount of token privilege
+    # 2. Also, deployments can fail, and its better to have a separate job if you need to retry
+    #    and it won't require reversing the release.
     runs-on: ubuntu-latest
     needs: release
-    if: needs.release.outputs.released == 'true'
+    if: ${{ needs.release.outputs.released == 'true' }}
+
+    permissions:
+      contents: read
+      id-token: write
+
     steps:
-      - uses: actions/checkout@v5
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Setup | Download Build Artifacts
+        uses: actions/download-artifact@v4
+        id: artifact-download
         with:
-          python-version: '3.12.10'
+          name: distribution-artifacts
+          path: dist
 
-      - name: Create distribution package
-        env:
-          VERSION: ${{ needs.release.outputs.version }}
-        run: |
-          # Create a clean distribution
-          mkdir -p dist/job-private-scraper-filter
+      # ------------------------------------------------------------------- #
+      # Python Semantic Release is not responsible for publishing your      #
+      # python artifacts to PyPI. Use the official PyPA publish action      #
+      # instead. The following steps are an example but is not guaranteed   #
+      # to work as the action is not maintained by the                      #
+      # python-semantic-release team.                                       #
+      # ------------------------------------------------------------------- #
 
-          # Copy source files
-          cp -r sources/ utils/ notify/ matchers/ templates/ docs/ scripts/ cloud/ dist/job-private-scraper-filter/
-          cp -r config/ dist/job-private-scraper-filter/
-          cp requirements.txt .env.example dist/job-private-scraper-filter/
-          cp README.md LICENSE CHANGELOG.md CONTRIBUTING.md SECURITY.md CODE_OF_CONDUCT.md \
-            dist/job-private-scraper-filter/
-
-          # Create archive
-          cd dist
-          tar -czf "job-private-scraper-filter-v${VERSION}.tar.gz" \
-            job-private-scraper-filter/
-          zip -r "job-private-scraper-filter-v${VERSION}.zip" job-private-scraper-filter/
-
-      - name: Upload Release Assets
-        uses: softprops/action-gh-release@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # see https://docs.pypi.org/trusted-publishers/
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@@SHA1_HASH  # vX.X.X
         with:
-          tag_name: v${{ needs.release.outputs.version }}
-          files: |
-            ./dist/job-private-scraper-filter-v${{ needs.release.outputs.version }}.tar.gz
-            ./dist/job-private-scraper-filter-v${{ needs.release.outputs.version }}.zip
+          packages-dir: dist
+          print-hash: true
+          verbose: true
