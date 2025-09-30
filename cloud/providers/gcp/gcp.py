@@ -105,7 +105,7 @@ class GCPBootstrap:
         await self._confirm_prerequisites()
 
         # Install prerequisites
-        await ensure_gcloud(self.logger, self.no_prompt, self.project_root)
+        ensure_gcloud(self.logger, self.no_prompt, self.project_root)
         await ensure_terraform(self.logger)
         await authenticate(self.logger)
 
