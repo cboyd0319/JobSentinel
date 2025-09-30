@@ -24,7 +24,7 @@ jobs:
         shell: pwsh
         run: |
           $psFiles = Get-ChildItem -Path . -Filter "*.ps1" -Recurse | Select-Object -ExpandProperty FullName
-          echo "ps_files=$($psFiles | ConvertTo-Json)" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8
+          echo "ps_files=$((@($psFiles) | ConvertTo-Json))" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8
       - name: Install PSScriptAnalyzer
         shell: pwsh
         run: |
