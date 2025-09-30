@@ -36,69 +36,15 @@ jobs:
         run: |
           git reset --hard ${{ github.sha }}
 
-      - name: Setup | Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12.10'
-
-      - name: Setup | Install dependencies
-        run: |
-          python3 -m pip install --upgrade pip setuptools
-          python3 -m pip install -r requirements.txt
-          python3 -m pip install build
-
-      - name: Debug Build Command
-        run: |
-          python3 -m pip install build setuptools # Ensure build and setuptools are installed in this context
-          python3 -m build
-
-      - name: Evaluate | Verify upstream has NOT changed
-        # Last chance to abort before causing an error as another PR/push was applied to
-        # the upstream branch while this workflow was running. This is important
-        # because we are committing a version change (--commit). You may omit this step
-        # if you have 'commit: false' in your configuration.
-        #
-        # You may consider moving this to a repo script and call it from this step instead
-        # of writing it in-line.
-        shell: bash
-        run: |
-          set +o pipefail
-
-          UPSTREAM_BRANCH_NAME="$(git status -sb | head -n 1 | awk -F '\\.\\.\\.' '{print $2}' | cut -d ' ' -f1)"
-          printf '%s\n' "Upstream branch name: $UPSTREAM_BRANCH_NAME"
-
-          set -o pipefail
-
-          if [ -z "$UPSTREAM_BRANCH_NAME" ]; then
-              printf >&2 '%s\n' "::error::Unable to determine upstream branch name!"
-              exit 1
-          fi
-
-          git fetch "${UPSTREAM_BRANCH_NAME%%/*}"
-
-          if ! UPSTREAM_SHA="$(git rev-parse "$UPSTREAM_BRANCH_NAME")"; then
-              printf >&2 '%s\n' "::error::Unable to determine upstream branch sha!"
-              exit 1
-          fi
-
-          HEAD_SHA="$(git rev-parse HEAD)"
-
-          if [ "$HEAD_SHA" != "$UPSTREAM_SHA" ]; then
-              printf >&2 '%s\n' "[HEAD SHA] $HEAD_SHA != $UPSTREAM_SHA [UPSTREAM SHA]"
-              printf >&2 '%s\n' "::error::Upstream has changed, aborting release..."
-              exit 1
-          fi
-
-          printf '%s\n' "Verified upstream branch has not changed, continuing with release..."
-
       - name: Action | Semantic Version Release
         id: release
         # Adjust tag with desired version if applicable.
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          VERSION=$(semantic-release version)
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+        uses: python-semantic-release/python-semantic-release@v10.4.1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          config_file: pyproject.toml
+          git_committer_name: "github-actions"
+          git_committer_email: "actions@users.noreply.github.com"
 
 
 
