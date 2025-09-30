@@ -19,7 +19,7 @@ import urllib.parse
 import urllib.request
 import zipfile
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Optional
 from datetime import datetime
 from tzlocal import get_localzone_name
 import asyncio
@@ -553,6 +553,115 @@ budget_alert_threshold_percent = 0.9
         self.logger.info("")
         return terraform_outputs
 
+    def _collect_resume_preferences(self) -> Optional[Dict]:
+        """
+        Optional: Parse user's resume to auto-populate preferences.
+
+        Returns:
+            Dictionary of user preferences or None if skipped
+        """
+        if self.no_prompt:
+            return None
+
+        self.logger.info("")
+        self.logger.info("=" * 70)
+        self.logger.info("OPTIONAL: RESUME-BASED AUTO-CONFIGURATION")
+        self.logger.info("=" * 70)
+        self.logger.info("")
+        self.logger.info("You can upload your resume (PDF or DOCX) to automatically:")
+        self.logger.info("  • Extract technical skills for job matching")
+        self.logger.info("  • Detect relevant job titles")
+        self.logger.info("  • Estimate appropriate salary range")
+        self.logger.info("")
+
+        while True:
+            response = input("Would you like to upload your resume? (y/n): ").strip().lower()
+            if response in ["y", "yes"]:
+                break
+            elif response in ["n", "no"]:
+                self.logger.info("Skipping resume upload. You can manually configure preferences later.")
+                return None
+            else:
+                self.logger.error("Please enter 'y' or 'n'")
+
+        # Check dependencies
+        try:
+            from utils.resume_parser import check_dependencies, ResumeParser
+        except ImportError:
+            self.logger.error("Resume parser module not found. Please ensure utils/resume_parser.py exists.")
+            return None
+
+        has_deps, missing = check_dependencies()
+        if not has_deps:
+            self.logger.error(f"Missing required packages: {', '.join(missing)}")
+            self.logger.info("Install with: pip install " + " ".join(missing))
+            return None
+
+        # Get resume file path
+        while True:
+            self.logger.info("")
+            resume_path = input("Enter path to your resume (PDF or DOCX): ").strip()
+
+            # Expand user paths like ~/Documents/resume.pdf
+            resume_path = Path(resume_path).expanduser()
+
+            if not resume_path.exists():
+                self.logger.error(f"File not found: {resume_path}")
+                retry = input("Try another file? (y/n): ").strip().lower()
+                if retry not in ["y", "yes"]:
+                    return None
+                continue
+
+            # Parse resume
+            try:
+                self.logger.info("Parsing resume...")
+                parser = ResumeParser()
+                result = parser.parse_file(resume_path)
+
+                # Show extracted information
+                self.logger.info("")
+                self.logger.info("=" * 70)
+                self.logger.info("EXTRACTED INFORMATION")
+                self.logger.info("=" * 70)
+
+                if result.get("skills"):
+                    self.logger.info(f"\n📚 Skills Found ({len(result['skills'])}):")
+                    self.logger.info("  " + ", ".join(result["skills"][:15]))
+                    if len(result["skills"]) > 15:
+                        self.logger.info(f"  ... and {len(result['skills']) - 15} more")
+
+                if result.get("titles"):
+                    self.logger.info(f"\n💼 Job Titles Found:")
+                    for title in result["titles"][:5]:
+                        self.logger.info(f"  • {title}")
+
+                if result.get("years_experience"):
+                    self.logger.info(f"\n📅 Estimated Experience: {result['years_experience']} years")
+
+                self.logger.info("")
+                self.logger.info("=" * 70)
+                self.logger.info("")
+
+                # Confirm usage
+                while True:
+                    use_it = input("Use this information for job matching? (y/n): ").strip().lower()
+                    if use_it in ["y", "yes"]:
+                        # Convert to user_prefs format
+                        user_prefs = parser.to_user_prefs()
+                        self.logger.info("✓ Resume information will be used for configuration")
+                        return user_prefs
+                    elif use_it in ["n", "no"]:
+                        self.logger.info("Resume information discarded.")
+                        return None
+                    else:
+                        self.logger.error("Please enter 'y' or 'n'")
+
+            except Exception as e:
+                self.logger.error(f"Failed to parse resume: {e}")
+                retry = input("Try another file? (y/n): ").strip().lower()
+                if retry not in ["y", "yes"]:
+                    return None
+
     def _collect_configuration(self) -> None:
         """Collect user configuration for deployment."""
         self.logger.info("")
@@ -560,6 +669,9 @@ budget_alert_threshold_percent = 0.9
         self.logger.info("CONFIGURATION COLLECTION")
         self.logger.info("=" * 70)
         self.logger.info("")
+
+        # Optional: Parse resume for auto-config
+        resume_prefs = self._collect_resume_preferences()
 
         # Collect alert email
         if not self.no_prompt:
@@ -699,12 +811,19 @@ budget_alert_threshold_percent = 0.9
             if key != "SLACK_WEBHOOK_URL":  # Only add non-Slack webhook values to env_values
                 self.env_values[key] = candidate
 
-        prefs_template = self.project_root / "config/user_prefs.example.json"
-        self.user_prefs_payload = prefs_template.read_text(encoding="utf-8")
-        self.logger.info(
-            "A default config/user_prefs.json template has been scheduled for upload to"
-            " Secret Manager. Update it after deployment if you need different companies."
-        )
+        # Use resume-based prefs if available, otherwise use template
+        if resume_prefs:
+            self.user_prefs_payload = json.dumps(resume_prefs, indent=2)
+            self.logger.info("")
+            self.logger.info("✓ User preferences configured from resume")
+            self.logger.info("  You can update these preferences after deployment in Secret Manager")
+        else:
+            prefs_template = self.project_root / "config/user_prefs.example.json"
+            self.user_prefs_payload = prefs_template.read_text(encoding="utf-8")
+            self.logger.info(
+                "A default config/user_prefs.json template has been scheduled for upload to"
+                " Secret Manager. Update it after deployment if you need different companies."
+            )
 
         mode_options = {
             "poll": "(Default) Full scrape and alert mode. Use for most scheduled jobs.",

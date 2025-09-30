@@ -32,6 +32,7 @@ I built this for friends who wanted a quiet helper watching their favorite job b
 - Polls job boards on a schedule (hourly during business hours by default)
 - Filters and scores results with rules you control
 - Sends Slack alerts when a match crosses your threshold
+- **NEW:** Auto-configures from your resume (PDF/DOCX) - extracts skills, titles, and experience
 - Keeps everything local unless you opt into cloud deployment
 
 ## Supported job boards

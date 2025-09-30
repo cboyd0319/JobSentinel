@@ -5,7 +5,7 @@ This document tracks planned features, improvements, and technical debt for the 
 ## Priority: HIGH (Next Release)
 
 ### Resume Parser for Auto-Config
-**Status**: Not Started
+**Status**: ✅ **COMPLETED** (v2.2.0)
 **Effort**: 2-3 days
 **Description**: Allow users to upload their resume (PDF/DOCX) and automatically extract:
 - Skills (Python, AWS, Kubernetes, etc.)
