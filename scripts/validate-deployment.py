@@ -34,9 +34,13 @@ from cloud.utils import run_command
 class DeploymentValidator:
     """Validate GCP deployment health and configuration."""
 
-    def __init__(self, project_id: Optional[str] = None, logger=None):
+    def __init__(self, project_id: Optional[str] = None, logger=None, log_level=logging.INFO):
         self.project_id = project_id
-        self.logger = logger or get_logger("deployment_validator")
+        if logger:
+            self.logger = logger
+        else:
+            self.logger = get_logger("deployment_validator")
+            self.logger.setLevel(log_level)
         self.errors: List[str] = []
         self.warnings: List[str] = []
         self.successes: List[str] = []
@@ -372,13 +376,12 @@ Examples:
 
     # Set up logging
     log_level = getattr(logging, args.log_level.upper())
-    logger = get_logger("deployment_validator", level=log_level)
 
     if args.list:
         await list_deployments()
         return 0
 
-    validator = DeploymentValidator(project_id=args.project_id, logger=logger)
+    validator = DeploymentValidator(project_id=args.project_id, log_level=log_level)
     success = await validator.validate()
 
     return 0 if success else 1

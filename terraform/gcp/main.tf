@@ -5,29 +5,29 @@ provider "google" {
 
 # Enable Google Cloud Run API
 resource "google_project_service" "run_api" {
-  project = var.project_id
-  service = "run.googleapis.com"
+  project            = var.project_id
+  service            = "run.googleapis.com"
   disable_on_destroy = false
 }
 
 # Enable Google Cloud Build API
 resource "google_project_service" "cloudbuild_api" {
-  project = var.project_id
-  service = "cloudbuild.googleapis.com"
+  project            = var.project_id
+  service            = "cloudbuild.googleapis.com"
   disable_on_destroy = false
 }
 
 # Enable Google Artifact Registry API
 resource "google_project_service" "artifactregistry_api" {
-  project = var.project_id
-  service = "artifactregistry.googleapis.com"
+  project            = var.project_id
+  service            = "artifactregistry.googleapis.com"
   disable_on_destroy = false
 }
 
 # Enable Secret Manager API
 resource "google_project_service" "secretmanager_api" {
-  project = var.project_id
-  service = "secretmanager.googleapis.com"
+  project            = var.project_id
+  service            = "secretmanager.googleapis.com"
   disable_on_destroy = false
 }
 
@@ -50,8 +50,8 @@ resource "google_compute_subnetwork" "vpc_subnet" {
 
 # Enable Serverless VPC Access API
 resource "google_project_service" "vpcaccess_api" {
-  project = var.project_id
-  service = "vpcaccess.googleapis.com"
+  project            = var.project_id
+  service            = "vpcaccess.googleapis.com"
   disable_on_destroy = false
 }
 
@@ -273,7 +273,7 @@ resource "google_monitoring_alert_policy" "cloud_run_job_failures" {
   ]
 
   documentation {
-    content = "This alert fires when a Cloud Run job execution fails. Investigate the Cloud Run job logs for details."
+    content   = "This alert fires when a Cloud Run job execution fails. Investigate the Cloud Run job logs for details."
     mime_type = "text/markdown"
   }
 }
@@ -291,7 +291,7 @@ resource "google_billing_budget" "job_scraper_budget" {
   }
 
   all_updates_rule {
-    pubsub_topic = google_pubsub_topic.budget_alerts.id
+    pubsub_topic   = google_pubsub_topic.budget_alerts.id
     schema_version = "1.0"
   }
 
