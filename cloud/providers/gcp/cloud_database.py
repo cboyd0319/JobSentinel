@@ -14,15 +14,16 @@ from utils.logging import get_logger
 from utils.errors import DatabaseException
 
 # Import the existing database module
-from src.database import init_db, get_database_stats # Import specific functions
+from src.database import init_db, get_database_stats  # Import specific functions
 
 logger = get_logger("gcp_cloud_database")
+
 
 class CloudDatabase:
     """Database handler that syncs SQLite with Cloud Storage."""
 
     def __init__(self):
-        self.bucket_name = os.environ.get('STORAGE_BUCKET')
+        self.bucket_name = os.environ.get("STORAGE_BUCKET")
         self.local_db_path = Path("data/jobs.sqlite")
         self.cloud_db_path = "jobs.sqlite"
         self.backup_path = f"backup/jobs-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}.sqlite"
@@ -76,7 +77,9 @@ class CloudDatabase:
                 if existing_blob.exists():
                     backup_blob = self.bucket.blob(self.backup_path)
                     # Download existing to memory, then upload to backup path
-                    await asyncio.to_thread(backup_blob.upload_from_string, await asyncio.to_thread(existing_blob.download_as_bytes))
+                    await asyncio.to_thread(
+                        backup_blob.upload_from_string, await asyncio.to_thread(existing_blob.download_as_bytes)
+                    )
                     logger.info(f"✅ Backup created: gs://{self.bucket_name}/{self.backup_path}")
 
             # Upload current database
@@ -106,16 +109,20 @@ class CloudDatabase:
         await self.upload_database(create_backup=True)
         logger.info("✅ Database sync completed")
 
+
 # Global instance
 cloud_db = CloudDatabase()
+
 
 async def init_cloud_db():
     """Initialize cloud-aware database - call at app startup."""
     await cloud_db.sync_on_startup()
 
+
 async def sync_cloud_db():
     """Sync database to cloud - call at app shutdown or periodically."""
     await cloud_db.sync_on_shutdown()
+
 
 async def get_cloud_db_stats() -> dict:
     """Get database and cloud storage statistics."""
@@ -123,7 +130,7 @@ async def get_cloud_db_stats() -> dict:
         "cloud_enabled": cloud_db.cloud_enabled,
         "local_db_exists": cloud_db.local_db_path.exists(),
         "local_db_size": 0,
-        "bucket_name": cloud_db.bucket_name
+        "bucket_name": cloud_db.bucket_name,
     }
 
     if cloud_db.local_db_path.exists():

@@ -4,6 +4,7 @@ import subprocess
 
 from cloud.utils import run_command
 
+
 def authenticate(logger) -> None:
     logger.info("Checking Google Cloud authentication")
 
@@ -12,7 +13,7 @@ def authenticate(logger) -> None:
         ["gcloud", "auth", "list", "--filter=status:ACTIVE", "--format=value(account)"],
         capture_output=True,
         check=False,
-        logger=logger
+        logger=logger,
     )
 
     if check_auth.returncode == 0 and check_auth.stdout.strip():
@@ -24,7 +25,7 @@ def authenticate(logger) -> None:
             ["gcloud", "auth", "application-default", "print-access-token"],
             capture_output=True,
             check=False,
-            logger=logger
+            logger=logger,
         )
 
         if check_adc.returncode == 0:

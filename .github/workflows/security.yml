@@ -189,19 +189,19 @@ jobs:
 
           if [ -n "$json_file" ]; then
             echo "Found Prowler JSON-OCSF file: $json_file"
-            python3 scripts/convert_prowler_json_to_sarif.py \
+            python3.12 scripts/convert_prowler_json_to_sarif.py \
               "$json_file" "$sarif_path"
             echo "sarif_file=$sarif_path" >> "$GITHUB_OUTPUT"
 
             # Debug: Show conversion results
             if [ -f "$sarif_path" ]; then
               echo "SARIF file created successfully"
-              python -c \
+              python3.12 -c \
                 "import os; print(f'Size: {os.path.getsize(\"$sarif_path\")}')"
             fi
           elif [ -n "$csv_file" ]; then
             echo "Fallback: Found Prowler CSV file: $csv_file"
-            python3 scripts/convert_prowler_csv_to_sarif.py \
+            python3.12 scripts/convert_prowler_csv_to_sarif.py \
               "$csv_file" "$sarif_path"
             echo "sarif_file=$sarif_path" >> "$GITHUB_OUTPUT"
           else

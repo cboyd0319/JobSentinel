@@ -14,6 +14,7 @@ from typing import Any
 
 from cloud.utils import current_os
 
+
 def sanitize_api_url(raw_url: str) -> str:
     candidate = raw_url.strip()
     if not candidate:
@@ -39,6 +40,7 @@ def sanitize_api_url(raw_url: str) -> str:
 
     return urllib.parse.urlunparse(normalized)
 
+
 def build_google_api_url(host: str, segments: list[str], *, allow_colon_last: bool = False) -> str:
     if not host:
         raise ValueError("API host is required")
@@ -55,6 +57,7 @@ def build_google_api_url(host: str, segments: list[str], *, allow_colon_last: bo
     path = "/" + "/".join(quoted_segments)
     return urllib.parse.urlunparse(("https", host, path, "", "", ""))
 
+
 def safe_extract_zip(archive: zipfile.ZipFile, destination: Path) -> None:
     destination_path = destination.resolve()
     members = archive.namelist()
@@ -66,6 +69,7 @@ def safe_extract_zip(archive: zipfile.ZipFile, destination: Path) -> None:
             raise RuntimeError("Zip archive contains unsafe path") from exc
         archive.extract(member, destination_path)
 
+
 def safe_extract_tar(archive: tarfile.TarFile, destination: Path) -> None:
     destination_path = destination.resolve()
     for member in archive.getmembers():
@@ -76,13 +80,16 @@ def safe_extract_tar(archive: tarfile.TarFile, destination: Path) -> None:
             raise RuntimeError("Tar archive contains unsafe path") from exc
         archive.extract(member, destination_path)
 
-def download_https_file(url: str, destination: Path, *, allowed_host: str, timeout: int = 60, show_progress: bool = False) -> None:
+
+def download_https_file(
+    url: str, destination: Path, *, allowed_host: str, timeout: int = 60, show_progress: bool = False
+) -> None:
     parsed = urllib.parse.urlparse(url)
     if parsed.scheme != "https" or parsed.netloc != allowed_host:
         raise RuntimeError("Unexpected download host")
     # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected
     with urllib.request.urlopen(url, timeout=timeout) as response:  # nosec B310
-        total_size = int(response.headers.get('Content-Length', 0))
+        total_size = int(response.headers.get("Content-Length", 0))
 
         with destination.open("wb") as fh:
             if show_progress and total_size > 0:
@@ -100,16 +107,17 @@ def download_https_file(url: str, destination: Path, *, allowed_host: str, timeo
                     percent = int((downloaded / total_size) * 100)
                     bar_length = 40
                     filled = int((downloaded / total_size) * bar_length)
-                    bar = '█' * filled + '░' * (bar_length - filled)
+                    bar = "█" * filled + "░" * (bar_length - filled)
                     downloaded_mb = downloaded / (1024 * 1024)
                     total_mb = total_size / (1024 * 1024)
 
                     # Print progress bar (carriage return to overwrite)
-                    print(f'\r   |{bar}| {percent:3d}% ({downloaded_mb:.1f}/{total_mb:.1f} MB)', end='', flush=True)
+                    print(f"\r   |{bar}| {percent:3d}% ({downloaded_mb:.1f}/{total_mb:.1f} MB)", end="", flush=True)
                 print()  # New line after completion
             else:
                 # Download without progress bar for small files
                 shutil.copyfileobj(response, fh)
+
 
 def download_https_text(url: str, *, allowed_host: str, timeout: int = 30) -> str:
     parsed = urllib.parse.urlparse(url)
@@ -118,6 +126,7 @@ def download_https_text(url: str, *, allowed_host: str, timeout: int = 30) -> st
     # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected
     with urllib.request.urlopen(url, timeout=timeout) as response:  # nosec B310
         return response.read().decode("utf-8").strip()
+
 
 def looks_like_placeholder(candidate: str, default: str) -> bool:
     placeholder_tokens = [

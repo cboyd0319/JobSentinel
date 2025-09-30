@@ -50,21 +50,15 @@ def benchmark_sequential_vs_concurrent():
 
     sequential_time = time.time() - start_time
 
-    print(
-        f"  ✅ Sequential: {len(sequential_jobs)} jobs in {sequential_time:.2f}s")
-    print(
-        f"     Rate: {len(sequential_jobs) / sequential_time:.1f} jobs/second\n")
+    print(f"  ✅ Sequential: {len(sequential_jobs)} jobs in {sequential_time:.2f}s")
+    print(f"     Rate: {len(sequential_jobs) / sequential_time:.1f} jobs/second\n")
 
     # Concurrent benchmark
     print("⚡ Concurrent Scraping:")
     start_time = time.time()
 
     try:
-        concurrent_results = scrape_multiple_fast(
-            SMALL_TEST_URLS,
-            fetch_descriptions=False,
-            max_workers=4
-        )
+        concurrent_results = scrape_multiple_fast(SMALL_TEST_URLS, fetch_descriptions=False, max_workers=4)
         concurrent_jobs = []
         for result in concurrent_results:
             if result.success:
@@ -75,10 +69,8 @@ def benchmark_sequential_vs_concurrent():
 
     concurrent_time = time.time() - start_time
 
-    print(
-        f"  ✅ Concurrent: {len(concurrent_jobs)} jobs in {concurrent_time:.2f}s")
-    print(
-        f"     Rate: {len(concurrent_jobs) / concurrent_time:.1f} jobs/second")
+    print(f"  ✅ Concurrent: {len(concurrent_jobs)} jobs in {concurrent_time:.2f}s")
+    print(f"     Rate: {len(concurrent_jobs) / concurrent_time:.1f} jobs/second")
 
     # Performance improvement
     if sequential_time > 0:
@@ -86,17 +78,17 @@ def benchmark_sequential_vs_concurrent():
         print(f"     🎯 Speedup: {speedup:.1f}x faster\n")
 
     return {
-        'sequential': {
-            'jobs': len(sequential_jobs),
-            'time': sequential_time,
-            'rate': len(sequential_jobs) / sequential_time if sequential_time > 0 else 0
+        "sequential": {
+            "jobs": len(sequential_jobs),
+            "time": sequential_time,
+            "rate": len(sequential_jobs) / sequential_time if sequential_time > 0 else 0,
         },
-        'concurrent': {
-            'jobs': len(concurrent_jobs),
-            'time': concurrent_time,
-            'rate': len(concurrent_jobs) / concurrent_time if concurrent_time > 0 else 0,
-            'speedup': sequential_time / concurrent_time if concurrent_time > 0 else 0
-        }
+        "concurrent": {
+            "jobs": len(concurrent_jobs),
+            "time": concurrent_time,
+            "rate": len(concurrent_jobs) / concurrent_time if concurrent_time > 0 else 0,
+            "speedup": sequential_time / concurrent_time if concurrent_time > 0 else 0,
+        },
     }
 
 
@@ -109,15 +101,17 @@ def benchmark_database_operations():
     # Create sample job data
     sample_jobs = []
     for i in range(100):
-        sample_jobs.append({
-            'hash': f'test_job_{i}',
-            'title': f'Test Job {i}',
-            'company': 'test_company',
-            'url': f'https://example.com/job/{i}',
-            'location': 'Remote',
-            'description': f'Test job description {i}',
-            'job_board': 'test_board'
-        })
+        sample_jobs.append(
+            {
+                "hash": f"test_job_{i}",
+                "title": f"Test Job {i}",
+                "company": "test_company",
+                "url": f"https://example.com/job/{i}",
+                "location": "Remote",
+                "description": f"Test job description {i}",
+                "job_board": "test_board",
+            }
+        )
 
     # Test different batch sizes
     batch_sizes = [1, 10, 50, 100]
@@ -128,31 +122,22 @@ def benchmark_database_operations():
 
         # Initialize database handler with specific batch size
         from src.concurrent_database import ConcurrentJobDatabase
-        db_handler = ConcurrentJobDatabase(
-            batch_size=batch_size,
-            enable_batching=True
-        )
+
+        db_handler = ConcurrentJobDatabase(batch_size=batch_size, enable_batching=True)
 
         start_time = time.time()
-        saved_count = db_handler.save_jobs_batch(
-            sample_jobs[:50])  # Test with 50 jobs
+        saved_count = db_handler.save_jobs_batch(sample_jobs[:50])  # Test with 50 jobs
         elapsed_time = time.time() - start_time
 
         rate = saved_count / elapsed_time if elapsed_time > 0 else 0
-        results[batch_size] = {
-            'jobs_saved': saved_count,
-            'time': elapsed_time,
-            'rate': rate
-        }
+        results[batch_size] = {"jobs_saved": saved_count, "time": elapsed_time, "rate": rate}
 
-        print(
-            f"  ✅ Saved {saved_count} jobs in {elapsed_time:.3f}s ({rate:.1f} jobs/sec)")
+        print(f"  ✅ Saved {saved_count} jobs in {elapsed_time:.3f}s ({rate:.1f} jobs/sec)")
 
     # Find optimal batch size
-    best_batch_size = max(results.keys(), key=lambda k: results[k]['rate'])
+    best_batch_size = max(results.keys(), key=lambda k: results[k]["rate"])
     print(f"\n🎯 Optimal batch size: {best_batch_size} jobs")
-    print(
-        f"   Best rate: {results[best_batch_size]['rate']:.1f} jobs/second\n")
+    print(f"   Best rate: {results[best_batch_size]['rate']:.1f} jobs/second\n")
 
     return results
 
@@ -168,12 +153,8 @@ def benchmark_full_pipeline():
 
     try:
         # Concurrent scraping
-        scraper = ConcurrentJobScraper(
-            max_workers=4, enable_database_batching=True)
-        results = scraper.scrape_multiple_concurrent(
-            SMALL_TEST_URLS,
-            fetch_descriptions=False
-        )
+        scraper = ConcurrentJobScraper(max_workers=4, enable_database_batching=True)
+        results = scraper.scrape_multiple_concurrent(SMALL_TEST_URLS, fetch_descriptions=False)
 
         # Collect all jobs
         all_jobs = []
@@ -193,19 +174,21 @@ def benchmark_full_pipeline():
         print(f"   Scraped: {len(all_jobs)} jobs")
         print(f"   Saved: {saved_count} jobs")
         print(f"   Total time: {total_time:.2f}s")
-        print(f"   End-to-end rate: {len(all_jobs) /
-                                     total_time:.1f} jobs/second\n")
+        print(
+            f"   End-to-end rate: {len(all_jobs) /
+                                     total_time:.1f} jobs/second\n"
+        )
 
         return {
-            'scraped_jobs': len(all_jobs),
-            'saved_jobs': saved_count,
-            'total_time': total_time,
-            'end_to_end_rate': len(all_jobs) / total_time if total_time > 0 else 0
+            "scraped_jobs": len(all_jobs),
+            "saved_jobs": saved_count,
+            "total_time": total_time,
+            "end_to_end_rate": len(all_jobs) / total_time if total_time > 0 else 0,
         }
 
     except Exception as e:
         logger.error(f"Full pipeline benchmark failed: {e}")
-        return {'error': str(e)}
+        return {"error": str(e)}
 
 
 def run_comprehensive_benchmark():
@@ -219,40 +202,38 @@ def run_comprehensive_benchmark():
 
     try:
         # 1. Scraping performance
-        results['scraping'] = benchmark_sequential_vs_concurrent()
+        results["scraping"] = benchmark_sequential_vs_concurrent()
 
         # 2. Database performance
-        results['database'] = benchmark_database_operations()
+        results["database"] = benchmark_database_operations()
 
         # 3. Full pipeline
-        results['pipeline'] = benchmark_full_pipeline()
+        results["pipeline"] = benchmark_full_pipeline()
 
         # Generate summary report
         print("📋 PERFORMANCE SUMMARY")
         print("=" * 30)
 
-        scraping = results.get('scraping', {})
-        if 'concurrent' in scraping:
-            speedup = scraping['concurrent'].get('speedup', 0)
-            print(
-                f"🚀 Scraping Speedup: {speedup:.1f}x faster with concurrency")
+        scraping = results.get("scraping", {})
+        if "concurrent" in scraping:
+            speedup = scraping["concurrent"].get("speedup", 0)
+            print(f"🚀 Scraping Speedup: {speedup:.1f}x faster with concurrency")
 
-        pipeline = results.get('pipeline', {})
-        if 'end_to_end_rate' in pipeline:
-            rate = pipeline['end_to_end_rate']
+        pipeline = results.get("pipeline", {})
+        if "end_to_end_rate" in pipeline:
+            rate = pipeline["end_to_end_rate"]
             print(f"⚡ End-to-End Rate: {rate:.1f} jobs/second")
 
-        database = results.get('database', {})
+        database = results.get("database", {})
         if database:
-            best_rate = max(batch['rate']
-                            for batch in database.values() if 'rate' in batch)
+            best_rate = max(batch["rate"] for batch in database.values() if "rate" in batch)
             print(f"💾 Database Peak Rate: {best_rate:.1f} jobs/second")
 
         print("\n✨ Benchmark completed successfully!")
 
     except Exception as e:
         logger.error(f"Benchmark failed: {e}")
-        results['error'] = str(e)
+        results["error"] = str(e)
         print(f"❌ Benchmark failed: {e}")
 
     return results
@@ -264,7 +245,8 @@ if __name__ == "__main__":
 
     # Save results for analysis
     import json
-    with open('benchmark_results.json', 'w') as f:
+
+    with open("benchmark_results.json", "w") as f:
         json.dump(results, f, indent=2, default=str)
 
     print("\n📁 Detailed results saved to: benchmark_results.json")

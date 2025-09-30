@@ -86,4 +86,4 @@ class WebScraper:
             return content
 
 
-web_scraper = WebScraper() # Global instance for convenience
+web_scraper = WebScraper()  # Global instance for convenience

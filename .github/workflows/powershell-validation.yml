@@ -37,7 +37,7 @@ jobs:
           $issues = @()
           foreach ($file in $psFiles) {
               Write-Host "Analyzing: $($file)"
-              $results = Invoke-ScriptAnalyzer -Path $file -Severity @('Error','Warning') -Recurse
+              $results = Invoke-ScriptAnalyzer -Path $file -Severity @('Error','Warning')
               if ($results) {
                   $issues += $results
                   Write-Host "Found $($results.Count) issues in $(Split-Path -Leaf $file)" -ForegroundColor Yellow

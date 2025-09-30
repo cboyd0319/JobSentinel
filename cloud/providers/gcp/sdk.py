@@ -13,6 +13,7 @@ from cloud.providers.gcp.utils import sanitize_api_url, download_https_file, saf
 
 INSTALL_VERSION = "540.0.0"
 
+
 def ensure_gcloud(logger, no_prompt: bool, project_root: Path) -> None:
     logger.info("Checking Google Cloud SDK")
 
@@ -21,19 +22,14 @@ def ensure_gcloud(logger, no_prompt: bool, project_root: Path) -> None:
     if gcloud_path:
         # Verify version
         try:
-            result = subprocess.run(
-                ["gcloud", "version"],
-                capture_output=True,
-                text=True,
-                check=True
-            )
+            result = subprocess.run(["gcloud", "version"], capture_output=True, text=True, check=True)
             # Extract version from output like "Google Cloud SDK 540.0.0"
-            for line in result.stdout.split('\n'):
-                if 'Google Cloud SDK' in line:
+            for line in result.stdout.split("\n"):
+                if "Google Cloud SDK" in line:
                     version = line.split()[3]
                     logger.info(f"✓ gcloud CLI found: version {version}")
                     # Check if version is recent enough (at least 400.0.0)
-                    major_version = int(version.split('.')[0])
+                    major_version = int(version.split(".")[0])
                     if major_version < 400:
                         logger.warning(f"⚠ gcloud version {version} is old (< 400.0.0)")
                         logger.warning("  Consider updating: gcloud components update")
@@ -81,14 +77,12 @@ def ensure_gcloud(logger, no_prompt: bool, project_root: Path) -> None:
     else:
         installer = extracted / "install.sh"
         run_command(
-            [str(installer), "--quiet"],
-            env={"CLOUDSDK_CORE_DISABLE_PROMPTS": "1"},
-            logger=logger,
-            show_spinner=True
+            [str(installer), "--quiet"], env={"CLOUDSDK_CORE_DISABLE_PROMPTS": "1"}, logger=logger, show_spinner=True
         )
         prepend_path(extracted / "bin")
 
     logger.info("Google Cloud SDK installed")
+
 
 def _download_and_extract(url: str, destination: Path, logger, no_prompt: bool) -> Path:
     ensure_directory(destination)
@@ -146,7 +140,7 @@ def _download_and_extract(url: str, destination: Path, logger, no_prompt: bool) 
             logger.error("   This could indicate a compromised download!")
             if not no_prompt:
                 response = input("Continue anyway? (not recommended) (y/n): ").strip().lower()
-                if response not in ['y', 'yes']:
+                if response not in ["y", "yes"]:
                     logger.error("Installation aborted for security")
                     sys.exit(1)
     else:
@@ -157,7 +151,7 @@ def _download_and_extract(url: str, destination: Path, logger, no_prompt: bool) 
         logger.info("")
         if not no_prompt:
             response = input("Continue with installation? (y/n): ").strip().lower()
-            if response not in ['y', 'yes']:
+            if response not in ["y", "yes"]:
                 logger.error("Installation aborted by user")
                 sys.exit(1)
 

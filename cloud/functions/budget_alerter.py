@@ -13,10 +13,10 @@ def budget_alert_handler(event, context):
 
     try:
         # The budget notification is in the 'data' field, base64-encoded.
-        pubsub_message = base64.b64decode(event['data']).decode('utf-8')
+        pubsub_message = base64.b64decode(event["data"]).decode("utf-8")
         message_data = json.loads(pubsub_message)
-        cost_amount = message_data.get('costAmount', 0)
-        budget_amount = message_data.get('budgetAmount', 0)
+        cost_amount = message_data.get("costAmount", 0)
+        budget_amount = message_data.get("budgetAmount", 0)
 
         print(f"Budget alert details: Cost={cost_amount}, Budget={budget_amount}")
 
@@ -32,11 +32,12 @@ def budget_alert_handler(event, context):
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
 
+
 def _pause_scheduler_job():
     """Pauses the Cloud Scheduler job."""
-    project_id = os.environ.get('GCP_PROJECT')
-    location = os.environ.get('SCHEDULER_LOCATION')
-    job_id = os.environ.get('SCHEDULER_JOB_ID')
+    project_id = os.environ.get("GCP_PROJECT")
+    location = os.environ.get("SCHEDULER_LOCATION")
+    job_id = os.environ.get("SCHEDULER_JOB_ID")
 
     if not all([project_id, location, job_id]):
         print("Error: Missing required environment variables for scheduler job.")

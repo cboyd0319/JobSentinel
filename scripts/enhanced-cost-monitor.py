@@ -18,30 +18,32 @@ import shutil
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('cost-monitor.log'),
-        logging.StreamHandler()
-    ]
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.FileHandler("cost-monitor.log"), logging.StreamHandler()],
 )
 logger = logging.getLogger(__name__)
+
 
 @dataclass
 class CostAlert:
     """Represents a cost alert configuration"""
+
     threshold_amount: float
     threshold_percent: float
     alert_type: str  # 'warning', 'critical', 'emergency'
     action: str  # 'notify', 'throttle', 'stop'
 
+
 @dataclass
 class CostData:
     """Represents current cost information"""
+
     current_spend: float
     forecast_spend: float
     last_updated: datetime
     currency: str = "USD"
     period: str = "month"
+
 
 def _safe_subprocess_run(cmd_list: List[str], **kwargs) -> subprocess.CompletedProcess:
     """
@@ -52,11 +54,7 @@ def _safe_subprocess_run(cmd_list: List[str], **kwargs) -> subprocess.CompletedP
         raise ValueError("Command must be a non-empty list")
 
     # Validate first command (executable)
-    allowed_executables = {
-        'gcloud': '/usr/local/bin/gcloud',
-        'aws': '/usr/local/bin/aws',
-        'az': '/usr/local/bin/az'
-    }
+    allowed_executables = {"gcloud": "/usr/local/bin/gcloud", "aws": "/usr/local/bin/aws", "az": "/usr/local/bin/az"}
 
     cmd_name = cmd_list[0]
     if cmd_name not in allowed_executables:
@@ -68,14 +66,16 @@ def _safe_subprocess_run(cmd_list: List[str], **kwargs) -> subprocess.CompletedP
 
     # Additional security: validate no shell injection patterns
     for arg in cmd_list:
-        if any(char in str(arg) for char in ['|', '&', ';', '>', '<', '`', '$(']):
+        if any(char in str(arg) for char in ["|", "&", ";", ">", "<", "`", "$("]):
             raise ValueError(f"Potential shell injection detected in argument: {arg}")
 
     return subprocess.run(safe_cmd, **kwargs)  # nosec B603 - safe commands with validation
 
+
 def _safe_subprocess_check_output(cmd_list: List[str], **kwargs) -> str:
     """Secure wrapper for subprocess.check_output"""
     return _safe_subprocess_run(cmd_list, check=True, capture_output=True, text=True, **kwargs).stdout
+
 
 class CloudCostMonitor:
     """Enhanced cloud cost monitoring with multiple provider support"""
@@ -88,35 +88,37 @@ class CloudCostMonitor:
     def _load_config(self) -> Dict:
         """Load configuration from environment and files"""
         return {
-            'max_monthly_spend': float(os.getenv('MAX_MONTHLY_SPEND', '10.0')),
-            'emergency_threshold': float(os.getenv('EMERGENCY_THRESHOLD', '8.0')),
-            'warning_threshold': float(os.getenv('WARNING_THRESHOLD', '5.0')),
-            'slack_webhook': os.getenv('SLACK_WEBHOOK_URL'),
-            'email_alerts': os.getenv('EMAIL_ALERTS', 'true').lower() == 'true',
-            'auto_stop_enabled': os.getenv('AUTO_STOP_ENABLED', 'true').lower() == 'true',
+            "max_monthly_spend": float(os.getenv("MAX_MONTHLY_SPEND", "10.0")),
+            "emergency_threshold": float(os.getenv("EMERGENCY_THRESHOLD", "8.0")),
+            "warning_threshold": float(os.getenv("WARNING_THRESHOLD", "5.0")),
+            "slack_webhook": os.getenv("SLACK_WEBHOOK_URL"),
+            "email_alerts": os.getenv("EMAIL_ALERTS", "true").lower() == "true",
+            "auto_stop_enabled": os.getenv("AUTO_STOP_ENABLED", "true").lower() == "true",
         }
 
     def _setup_alerts(self) -> List[CostAlert]:
         """Setup cost alert thresholds"""
-        max_spend = self.config['max_monthly_spend']
+        max_spend = self.config["max_monthly_spend"]
         return [
-            CostAlert(self.config['warning_threshold'], 50.0, 'warning', 'notify'),
-            CostAlert(max_spend * 0.8, 80.0, 'critical', 'throttle'),
-            CostAlert(self.config['emergency_threshold'], 90.0, 'emergency', 'stop'),
+            CostAlert(self.config["warning_threshold"], 50.0, "warning", "notify"),
+            CostAlert(max_spend * 0.8, 80.0, "critical", "throttle"),
+            CostAlert(self.config["emergency_threshold"], 90.0, "emergency", "stop"),
         ]
 
     def get_gcp_costs(self) -> CostData:
         """Get Google Cloud costs using billing API"""
         try:
             # Get current project
-            project_id = _safe_subprocess_check_output([
-                'gcloud', 'config', 'get-value', 'project'
-            ]).strip()
+            project_id = _safe_subprocess_check_output(["gcloud", "config", "get-value", "project"]).strip()
 
             # Get billing account
             billing_cmd = [
-                'gcloud', 'billing', 'projects', 'describe', project_id,
-                '--format=value(billingAccountName)'
+                "gcloud",
+                "billing",
+                "projects",
+                "describe",
+                project_id,
+                "--format=value(billingAccountName)",
             ]
             billing_account = _safe_subprocess_check_output(billing_cmd).strip()
 
@@ -125,14 +127,10 @@ class CloudCostMonitor:
                 return CostData(0.0, 0.0, datetime.now())
 
             # Get current month costs
-            start_date = datetime.now().replace(day=1).strftime('%Y-%m-%d')
-            end_date = datetime.now().strftime('%Y-%m-%d')
+            start_date = datetime.now().replace(day=1).strftime("%Y-%m-%d")
+            end_date = datetime.now().strftime("%Y-%m-%d")
 
-            cost_cmd = [
-                'gcloud', 'billing', 'budgets', 'list',
-                f'--billing-account={billing_account}',
-                '--format=json'
-            ]
+            cost_cmd = ["gcloud", "billing", "budgets", "list", f"--billing-account={billing_account}", "--format=json"]
 
             try:
                 output = _safe_subprocess_check_output(cost_cmd)
@@ -141,12 +139,12 @@ class CloudCostMonitor:
                 # Extract current spend from budget data
                 current_spend = 0.0
                 for budget in budgets:
-                    if 'amount' in budget and 'actualSpend' in budget:
-                        current_spend += float(budget.get('actualSpend', {}).get('units', 0))
+                    if "amount" in budget and "actualSpend" in budget:
+                        current_spend += float(budget.get("actualSpend", {}).get("units", 0))
 
                 # Simple forecast: current spend * (days remaining / days elapsed)
                 now = datetime.now()
-                days_in_month = (now.replace(month=now.month+1, day=1) - timedelta(days=1)).day
+                days_in_month = (now.replace(month=now.month + 1, day=1) - timedelta(days=1)).day
                 days_elapsed = now.day
                 days_remaining = days_in_month - days_elapsed
 
@@ -172,37 +170,29 @@ class CloudCostMonitor:
             import boto3
             from botocore.exceptions import ClientError
 
-            client = boto3.client('ce')  # Cost Explorer
+            client = boto3.client("ce")  # Cost Explorer
 
             # Get current month costs
-            start_date = datetime.now().replace(day=1).strftime('%Y-%m-%d')
-            end_date = datetime.now().strftime('%Y-%m-%d')
+            start_date = datetime.now().replace(day=1).strftime("%Y-%m-%d")
+            end_date = datetime.now().strftime("%Y-%m-%d")
 
             try:
                 response = client.get_cost_and_usage(
-                    TimePeriod={
-                        'Start': start_date,
-                        'End': end_date
-                    },
-                    Granularity='MONTHLY',
-                    Metrics=['BlendedCost'],
-                    GroupBy=[
-                        {
-                            'Type': 'DIMENSION',
-                            'Key': 'SERVICE'
-                        }
-                    ]
+                    TimePeriod={"Start": start_date, "End": end_date},
+                    Granularity="MONTHLY",
+                    Metrics=["BlendedCost"],
+                    GroupBy=[{"Type": "DIMENSION", "Key": "SERVICE"}],
                 )
 
                 current_spend = 0.0
-                for result in response['ResultsByTime']:
-                    for group in result['Groups']:
-                        amount = float(group['Metrics']['BlendedCost']['Amount'])
+                for result in response["ResultsByTime"]:
+                    for group in result["Groups"]:
+                        amount = float(group["Metrics"]["BlendedCost"]["Amount"])
                         current_spend += amount
 
                 # Simple forecast
                 now = datetime.now()
-                days_in_month = (now.replace(month=now.month+1, day=1) - timedelta(days=1)).day
+                days_in_month = (now.replace(month=now.month + 1, day=1) - timedelta(days=1)).day
                 days_elapsed = now.day
 
                 if days_elapsed > 0:
@@ -228,30 +218,37 @@ class CloudCostMonitor:
         """Get Azure costs using Azure CLI"""
         try:
             # Get current subscription
-            subscription_cmd = ['az', 'account', 'show', '--query', 'id', '-o', 'tsv']
+            subscription_cmd = ["az", "account", "show", "--query", "id", "-o", "tsv"]
             subscription_id = _safe_subprocess_check_output(subscription_cmd).strip()
 
             # Get consumption data for current month
-            start_date = datetime.now().replace(day=1).strftime('%Y-%m-%d')
-            end_date = datetime.now().strftime('%Y-%m-%d')
+            start_date = datetime.now().replace(day=1).strftime("%Y-%m-%d")
+            end_date = datetime.now().strftime("%Y-%m-%d")
 
             cost_cmd = [
-                'az', 'consumption', 'usage', 'list',
-                '--start-date', start_date,
-                '--end-date', end_date,
-                '--query', '[].{cost:pretaxCost,currency:currency}',
-                '-o', 'json'
+                "az",
+                "consumption",
+                "usage",
+                "list",
+                "--start-date",
+                start_date,
+                "--end-date",
+                end_date,
+                "--query",
+                "[].{cost:pretaxCost,currency:currency}",
+                "-o",
+                "json",
             ]
 
             try:
                 output = _safe_subprocess_check_output(cost_cmd)
                 usage_data = json.loads(output) if output.strip() else []
 
-                current_spend = sum(float(item.get('cost', 0)) for item in usage_data)
+                current_spend = sum(float(item.get("cost", 0)) for item in usage_data)
 
                 # Simple forecast
                 now = datetime.now()
-                days_in_month = (now.replace(month=now.month+1, day=1) - timedelta(days=1)).day
+                days_in_month = (now.replace(month=now.month + 1, day=1) - timedelta(days=1)).day
                 days_elapsed = now.day
 
                 if days_elapsed > 0:
@@ -272,11 +269,11 @@ class CloudCostMonitor:
 
     def get_current_costs(self) -> CostData:
         """Get current costs for the configured provider"""
-        if self.provider == 'gcp':
+        if self.provider == "gcp":
             return self.get_gcp_costs()
-        elif self.provider == 'aws':
+        elif self.provider == "aws":
             return self.get_aws_costs()
-        elif self.provider == 'azure':
+        elif self.provider == "azure":
             return self.get_azure_costs()
         else:
             logger.error(f"Unsupported provider: {self.provider}")
@@ -292,40 +289,20 @@ class CloudCostMonitor:
                 {
                     "color": "warning" if alert.alert_type == "warning" else "danger",
                     "fields": [
-                        {
-                            "title": "Current Spend",
-                            "value": f"${cost_data.current_spend:.2f}",
-                            "short": True
-                        },
-                        {
-                            "title": "Forecast",
-                            "value": f"${cost_data.forecast_spend:.2f}",
-                            "short": True
-                        },
-                        {
-                            "title": "Threshold",
-                            "value": f"${alert.threshold_amount:.2f}",
-                            "short": True
-                        },
-                        {
-                            "title": "Alert Type",
-                            "value": alert.alert_type.title(),
-                            "short": True
-                        }
+                        {"title": "Current Spend", "value": f"${cost_data.current_spend:.2f}", "short": True},
+                        {"title": "Forecast", "value": f"${cost_data.forecast_spend:.2f}", "short": True},
+                        {"title": "Threshold", "value": f"${alert.threshold_amount:.2f}", "short": True},
+                        {"title": "Alert Type", "value": alert.alert_type.title(), "short": True},
                     ],
-                    "text": message
+                    "text": message,
                 }
-            ]
+            ],
         }
 
         # Send Slack notification
-        if self.config['slack_webhook']:
+        if self.config["slack_webhook"]:
             try:
-                response = requests.post(
-                    self.config['slack_webhook'],
-                    json=notification,
-                    timeout=10
-                )
+                response = requests.post(self.config["slack_webhook"], json=notification, timeout=10)
                 if response.status_code == 200:
                     logger.info("Slack notification sent successfully")
                 else:
@@ -341,31 +318,54 @@ class CloudCostMonitor:
         logger.info(f"Throttling {self.provider} services to reduce costs")
 
         try:
-            if self.provider == 'gcp':
+            if self.provider == "gcp":
                 # Reduce Cloud Run instances
-                _safe_subprocess_run([
-                    'gcloud', 'run', 'services', 'update', 'job-scraper',
-                    '--region=us-central1',
-                    '--max-instances=1',
-                    '--cpu-throttling'
-                ], check=True)
+                _safe_subprocess_run(
+                    [
+                        "gcloud",
+                        "run",
+                        "services",
+                        "update",
+                        "job-scraper",
+                        "--region=us-central1",
+                        "--max-instances=1",
+                        "--cpu-throttling",
+                    ],
+                    check=True,
+                )
 
-            elif self.provider == 'aws':
+            elif self.provider == "aws":
                 # Reduce Lambda concurrency
-                _safe_subprocess_run([
-                    'aws', 'lambda', 'put-provisioned-concurrency-config',
-                    '--function-name', 'job-scraper',
-                    '--provisioned-concurrency-config', 'ProvisionedConcurrencyExecutions=1'
-                ], check=True)
+                _safe_subprocess_run(
+                    [
+                        "aws",
+                        "lambda",
+                        "put-provisioned-concurrency-config",
+                        "--function-name",
+                        "job-scraper",
+                        "--provisioned-concurrency-config",
+                        "ProvisionedConcurrencyExecutions=1",
+                    ],
+                    check=True,
+                )
 
-            elif self.provider == 'azure':
+            elif self.provider == "azure":
                 # Scale down Azure Functions
-                _safe_subprocess_run([
-                    'az', 'functionapp', 'plan', 'update',
-                    '--name', 'job-scraper-plan',
-                    '--resource-group', 'job-scraper-rg',
-                    '--sku', 'Y1'  # Consumption plan
-                ], check=True)
+                _safe_subprocess_run(
+                    [
+                        "az",
+                        "functionapp",
+                        "plan",
+                        "update",
+                        "--name",
+                        "job-scraper-plan",
+                        "--resource-group",
+                        "job-scraper-rg",
+                        "--sku",
+                        "Y1",  # Consumption plan
+                    ],
+                    check=True,
+                )
 
             logger.info("Services throttled successfully")
 
@@ -377,30 +377,43 @@ class CloudCostMonitor:
         logger.critical(f"EMERGENCY STOP: Stopping all {self.provider} services")
 
         try:
-            if self.provider == 'gcp':
+            if self.provider == "gcp":
                 # Stop Cloud Run service
-                _safe_subprocess_run([
-                    'gcloud', 'run', 'services', 'update', 'job-scraper',
-                    '--region=us-central1',
-                    '--min-instances=0',
-                    '--max-instances=0'
-                ], check=True)
+                _safe_subprocess_run(
+                    [
+                        "gcloud",
+                        "run",
+                        "services",
+                        "update",
+                        "job-scraper",
+                        "--region=us-central1",
+                        "--min-instances=0",
+                        "--max-instances=0",
+                    ],
+                    check=True,
+                )
 
-            elif self.provider == 'aws':
+            elif self.provider == "aws":
                 # Disable Lambda function
-                _safe_subprocess_run([
-                    'aws', 'lambda', 'put-function-concurrency',
-                    '--function-name', 'job-scraper',
-                    '--reserved-concurrent-executions', '0'
-                ], check=True)
+                _safe_subprocess_run(
+                    [
+                        "aws",
+                        "lambda",
+                        "put-function-concurrency",
+                        "--function-name",
+                        "job-scraper",
+                        "--reserved-concurrent-executions",
+                        "0",
+                    ],
+                    check=True,
+                )
 
-            elif self.provider == 'azure':
+            elif self.provider == "azure":
                 # Stop Azure Function App
-                _safe_subprocess_run([
-                    'az', 'functionapp', 'stop',
-                    '--name', 'job-scraper',
-                    '--resource-group', 'job-scraper-rg'
-                ], check=True)
+                _safe_subprocess_run(
+                    ["az", "functionapp", "stop", "--name", "job-scraper", "--resource-group", "job-scraper-rg"],
+                    check=True,
+                )
 
             logger.critical("EMERGENCY STOP COMPLETED - All services stopped")
 
@@ -412,7 +425,7 @@ class CloudCostMonitor:
                 f"Review costs and configuration before restarting."
             )
 
-            emergency_alert = CostAlert(0, 100, 'emergency', 'stop')
+            emergency_alert = CostAlert(0, 100, "emergency", "stop")
             cost_data = CostData(999.0, 999.0, datetime.now())  # Dummy data for notification
             self.send_notification(emergency_alert, cost_data, emergency_message)
 
@@ -427,8 +440,7 @@ class CloudCostMonitor:
             logger.info("No cost data available or services not deployed")
             return
 
-        logger.info(f"Current spend: ${cost_data.current_spend:.2f}, "
-                   f"Forecast: ${cost_data.forecast_spend:.2f}")
+        logger.info(f"Current spend: ${cost_data.current_spend:.2f}, " f"Forecast: ${cost_data.forecast_spend:.2f}")
 
         # Check against each alert threshold
         for alert in sorted(self.alerts, key=lambda x: x.threshold_amount):
@@ -440,17 +452,15 @@ class CloudCostMonitor:
                     f"Forecasted monthly total: ${cost_data.forecast_spend:.2f}"
                 )
 
-                if alert.action == 'notify':
+                if alert.action == "notify":
                     self.send_notification(alert, cost_data, message)
 
-                elif alert.action == 'throttle':
-                    self.send_notification(alert, cost_data,
-                                         message + "\n\n🔧 Throttling services to reduce costs...")
+                elif alert.action == "throttle":
+                    self.send_notification(alert, cost_data, message + "\n\n🔧 Throttling services to reduce costs...")
                     self.throttle_services()
 
-                elif alert.action == 'stop' and self.config['auto_stop_enabled']:
-                    self.send_notification(alert, cost_data,
-                                         message + "\n\n🛑 Executing emergency stop...")
+                elif alert.action == "stop" and self.config["auto_stop_enabled"]:
+                    self.send_notification(alert, cost_data, message + "\n\n🛑 Executing emergency stop...")
                     self.emergency_stop()
                     break  # Don't process further alerts after emergency stop
 
@@ -467,26 +477,27 @@ class CloudCostMonitor:
             "current_spend": cost_data.current_spend,
             "forecast_spend": cost_data.forecast_spend,
             "currency": cost_data.currency,
-            "max_budget": self.config['max_monthly_spend'],
-            "budget_utilization": (cost_data.current_spend / self.config['max_monthly_spend']) * 100,
+            "max_budget": self.config["max_monthly_spend"],
+            "budget_utilization": (cost_data.current_spend / self.config["max_monthly_spend"]) * 100,
             "alerts_configured": len(self.alerts),
-            "auto_stop_enabled": self.config['auto_stop_enabled']
+            "auto_stop_enabled": self.config["auto_stop_enabled"],
         }
+
 
 def main():
     """Main function for command-line usage"""
     import argparse
 
-    parser = argparse.ArgumentParser(description='Enhanced Cloud Cost Monitor')
-    parser.add_argument('--provider', choices=['gcp', 'aws', 'azure'],
-                       default=os.getenv('CLOUD_PROVIDER', 'gcp'),
-                       help='Cloud provider to monitor')
-    parser.add_argument('--check', action='store_true',
-                       help='Check costs and trigger alerts')
-    parser.add_argument('--report', action='store_true',
-                       help='Generate cost report')
-    parser.add_argument('--test-alert', choices=['warning', 'critical', 'emergency'],
-                       help='Test alert notification')
+    parser = argparse.ArgumentParser(description="Enhanced Cloud Cost Monitor")
+    parser.add_argument(
+        "--provider",
+        choices=["gcp", "aws", "azure"],
+        default=os.getenv("CLOUD_PROVIDER", "gcp"),
+        help="Cloud provider to monitor",
+    )
+    parser.add_argument("--check", action="store_true", help="Check costs and trigger alerts")
+    parser.add_argument("--report", action="store_true", help="Generate cost report")
+    parser.add_argument("--test-alert", choices=["warning", "critical", "emergency"], help="Test alert notification")
 
     args = parser.parse_args()
 
@@ -499,13 +510,13 @@ def main():
         print(json.dumps(report, indent=2))
     elif args.test_alert:
         # Test alert notification
-        test_alert = CostAlert(5.0, 50.0, args.test_alert, 'notify')
+        test_alert = CostAlert(5.0, 50.0, args.test_alert, "notify")
         test_cost = CostData(6.0, 12.0, datetime.now())
-        monitor.send_notification(test_alert, test_cost,
-                                f"Test {args.test_alert} alert notification")
+        monitor.send_notification(test_alert, test_cost, f"Test {args.test_alert} alert notification")
     else:
         # Default: check costs
         monitor.check_and_alert()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

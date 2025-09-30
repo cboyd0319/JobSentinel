@@ -2,16 +2,17 @@
 
 from cloud.utils import choose, run_command
 
+
 def select_region(logger, no_prompt: bool) -> str:
     logger.info("Select Cloud Run region")
     logger.info("Regions are ordered by cost-effectiveness (cheapest first):")
     regions = [
-        "us-central1",      # Cheapest - Iowa
-        "us-east1",         # Second cheapest - South Carolina
-        "us-west1",         # Oregon
-        "europe-west1",     # Belgium
-        "us-west2",         # Los Angeles
-        "europe-west4",     # Netherlands
+        "us-central1",  # Cheapest - Iowa
+        "us-east1",  # Second cheapest - South Carolina
+        "us-west1",  # Oregon
+        "europe-west1",  # Belgium
+        "us-west2",  # Los Angeles
+        "europe-west4",  # Netherlands
         "asia-northeast1",  # Tokyo
         "asia-southeast1",  # Singapore
         "australia-southeast1",  # Sydney
@@ -19,6 +20,7 @@ def select_region(logger, no_prompt: bool) -> str:
     region = choose("Choose the region (us-central1 recommended for lowest cost):", regions, no_prompt)
     run_command(["gcloud", "config", "set", "run/region", region], logger=logger)
     return region
+
 
 def select_scheduler_region(logger, no_prompt: bool, region: str) -> str:
     logger.info("Select Cloud Scheduler region")

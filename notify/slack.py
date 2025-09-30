@@ -40,12 +40,10 @@ def format_jobs_for_slack(jobs: list[dict]) -> dict:
         if reasons:
             rules_reasons = [r for r in reasons if r.startswith("Rules:")]
             ai_reasons = [r for r in reasons if r.startswith("AI:")]
-            other_reasons = [
-                r for r in reasons if not r.startswith(("Rules:", "AI:", "Summary:"))
-            ]
+            other_reasons = [r for r in reasons if not r.startswith(("Rules:", "AI:", "Summary:"))]
 
             if rules_reasons or other_reasons:
-                matched_items = [r.replace('Rules: ', '') for r in rules_reasons] + other_reasons
+                matched_items = [r.replace("Rules: ", "") for r in rules_reasons] + other_reasons
                 job_text += f"✅ *Matched:* {', '.join(matched_items)}\n"
 
             if ai_reasons:
@@ -68,17 +66,13 @@ def format_jobs_for_slack(jobs: list[dict]) -> dict:
 
     # Add footer with scoring info
     total_jobs = len(jobs)
-    llm_jobs = len(
-        [j for j in jobs if j.get("score_metadata", {}).get("llm_used", False)]
-    )
+    llm_jobs = len([j for j in jobs if j.get("score_metadata", {}).get("llm_used", False)])
 
     footer_text = f"Found {total_jobs} high-scoring job{'s' if total_jobs != 1 else ''}"
     if llm_jobs > 0:
         footer_text += f" • {llm_jobs} enhanced with AI analysis"
 
-    blocks.append(
-        {"type": "context", "elements": [{"type": "mrkdwn", "text": footer_text}]}
-    )
+    blocks.append({"type": "context", "elements": [{"type": "mrkdwn", "text": footer_text}]})
 
     return {"blocks": blocks}
 

@@ -80,7 +80,7 @@ class HealthMonitor:
                 threshold_warning=75,
                 threshold_critical=90,
                 message=f"Memory usage: {mem_percent:.1f}% "
-                        f"({memory.used / 1024**3:.1f}GB / {memory.total / 1024**3:.1f}GB)",
+                f"({memory.used / 1024**3:.1f}GB / {memory.total / 1024**3:.1f}GB)",
             )
         )
 
@@ -234,11 +234,7 @@ class HealthMonitor:
                     value=1 if recent_log_activity else 0,
                     unit="status",
                     status=activity_status,
-                    message=(
-                        "Recent log activity detected"
-                        if recent_log_activity
-                        else "No recent log activity"
-                    ),
+                    message=("Recent log activity detected" if recent_log_activity else "No recent log activity"),
                 )
             )
 
@@ -283,11 +279,7 @@ class HealthMonitor:
                     value=1 if notification_config.validate_slack() else 0,
                     unit="status",
                     status=slack_status,
-                    message=(
-                        "Slack configured"
-                        if notification_config.validate_slack()
-                        else "Slack not configured"
-                    ),
+                    message=("Slack configured" if notification_config.validate_slack() else "Slack not configured"),
                 )
             )
 
@@ -298,11 +290,7 @@ class HealthMonitor:
                     value=1 if notification_config.validate_email() else 0,
                     unit="status",
                     status=email_status,
-                    message=(
-                        "Email configured"
-                        if notification_config.validate_email()
-                        else "Email not configured"
-                    ),
+                    message=("Email configured" if notification_config.validate_email() else "Email not configured"),
                 )
             )
 
@@ -388,9 +376,7 @@ class HealthMonitor:
                 notification_config = config_manager.get_notification_config()
 
                 if notification_config.validate_slack():
-                    critical_metrics = [
-                        m for m in report["metrics"] if m["status"] == "critical"
-                    ]
+                    critical_metrics = [m for m in report["metrics"] if m["status"] == "critical"]
 
                     alert_message = {
                         "blocks": [
@@ -406,10 +392,7 @@ class HealthMonitor:
                                 "text": {
                                     "type": "mrkdwn",
                                     "text": f"*Critical issues detected on {report['system_info']['hostname']}*\n\n"
-                                    f"*Issues:*\n"
-                                    + "\n".join(
-                                        [f"• {m['message']}" for m in critical_metrics]
-                                    ),
+                                    f"*Issues:*\n" + "\n".join([f"• {m['message']}" for m in critical_metrics]),
                                 },
                             },
                             {

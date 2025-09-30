@@ -29,7 +29,7 @@ from src.database import (
 )
 from cloud.providers.gcp.cloud_database import init_cloud_db, sync_cloud_db, get_cloud_db_stats
 from sources import job_scraper
-from sources.concurrent_scraper import scrape_multiple_async_fast # Import the async scraper
+from sources.concurrent_scraper import scrape_multiple_async_fast  # Import the async scraper
 from matchers.rules import score_job
 from notify import slack, emailer
 
@@ -40,11 +40,13 @@ load_dotenv()
 logger = setup_logging(log_level=os.getenv("LOG_LEVEL", "INFO"))
 main_logger = get_logger("agent")
 
+
 def get_job_board_urls() -> list[str]:
     """Extracts job board URLs from configured companies."""
     companies = config_manager.get_companies()
     urls = [company.url for company in companies]
     return urls
+
 
 def load_user_prefs():
     """Loads and validates user preferences."""
@@ -118,33 +120,23 @@ async def process_jobs(jobs, prefs):
                     log_msg += ")"
                     main_logger.debug(log_msg)
                 else:
-                    main_logger.debug(
-                        f"Filtered out job: {job['title']} (score: {score:.2f})"
-                    )
+                    main_logger.debug(f"Filtered out job: {job['title']} (score: {score:.2f})")
 
             except Exception as e:
-                main_logger.error(
-                    f"[bold red]Error processing job {job.get('title', 'Unknown')}:[/bold red] {e}"
-                )
+                main_logger.error(f"[bold red]Error processing job {job.get('title', 'Unknown')}:[/bold red] {e}")
             progress.update(processing_task, advance=1)
 
     # Send immediate Slack alerts
     if immediate_alerts and notification_config.validate_slack():
         try:
-            main_logger.info(
-                f"Sending {len(immediate_alerts)} immediate alerts to Slack"
-            )
+            main_logger.info(f"Sending {len(immediate_alerts)} immediate alerts to Slack")
             slack.send_slack_alert(immediate_alerts)
         except Exception as e:
             main_logger.error(f"[bold red]Failed to send Slack alerts:[/bold red] {e}")
     elif immediate_alerts:
-        main_logger.warning(
-            f"[yellow]Have {len(immediate_alerts)} high-score jobs but Slack not configured[/yellow]"
-        )
+        main_logger.warning(f"[yellow]Have {len(immediate_alerts)} high-score jobs but Slack not configured[/yellow]")
 
-    main_logger.info(
-        f"Job processing completed: {processed_count} jobs added to database"
-    )
+    main_logger.info(f"Job processing completed: {processed_count} jobs added to database")
 
 
 async def send_digest():
@@ -160,9 +152,7 @@ async def send_digest():
 
         # Get jobs for digest, using the new preference
         filter_config = config_manager.get_filter_config()
-        min_score = getattr(
-            filter_config, "digest_min_score", 0.0
-        )  # Safely get the new attribute
+        min_score = getattr(filter_config, "digest_min_score", 0.0)  # Safely get the new attribute
         digest_jobs = await get_jobs_for_digest(min_score=min_score, hours_back=24)
 
         if not digest_jobs:
@@ -174,9 +164,7 @@ async def send_digest():
         for job in digest_jobs:
             # Safely parse score_reasons JSON instead of using eval()
             try:
-                score_reasons = (
-                    json.loads(job.score_reasons) if job.score_reasons else []
-                )
+                score_reasons = json.loads(job.score_reasons) if job.score_reasons else []
             except (json.JSONDecodeError, TypeError):
                 score_reasons = []
                 main_logger.warning(
@@ -274,11 +262,13 @@ def health_check():
     # C_OK, C_WARN, C_CRIT, C_END = "\033[92m", "\033[93m", "\033[91m", "\033[0m"
 
     def print_metric(m):
-        status_colors = {"ok": "[green]OK[/green]", "warning": "[yellow]WARNING[/yellow]", "critical": "[bold red]CRITICAL[/bold red]"}
+        status_colors = {
+            "ok": "[green]OK[/green]",
+            "warning": "[yellow]WARNING[/yellow]",
+            "critical": "[bold red]CRITICAL[/bold red]",
+        }
         status_text = status_colors.get(m["status"], m["status"].upper())
-        console.print(
-            f"  - {m['name']:<20} | Status: {status_text:<25} | {m['message']}"
-        )
+        console.print(f"  - {m['name']:<20} | Status: {status_text:<25} | {m['message']}")
 
     console.print("\n[bold blue]--- 🏥 Job Scraper Health Report ---[/bold blue]")
     console.print(f"Overall Status: [bold]{report['overall_status'].upper()}[/bold]")
@@ -296,8 +286,7 @@ def health_check():
 
         # Check for database corruption issue
         db_integrity_issue = any(
-            m["name"] == "database_status" and "Integrity check failed" in m["message"]
-            for m in critical_metrics
+            m["name"] == "database_status" and "Integrity check failed" in m["message"] for m in critical_metrics
         )
 
         if db_integrity_issue:
@@ -317,9 +306,7 @@ def health_check():
                         if db_resilience.restore_from_backup(latest_backup):
                             console.print(f"[green]Database restored successfully.[/green]")
                         else:
-                            console.print(
-                                f"[bold red]Database restore failed. Check logs for details.[/bold red]"
-                            )
+                            console.print(f"[bold red]Database restore failed. Check logs for details.[/bold red]")
                     else:
                         console.print("Skipping database restore.")
                 except KeyboardInterrupt:
@@ -361,7 +348,11 @@ async def main():
             for result in results:
                 if result.success:
                     all_jobs.extend(result.jobs)
-                    progress.update(scraping_task, advance=1, description=f"[green]Scraped {result.url} - {len(result.jobs)} jobs[/green]")
+                    progress.update(
+                        scraping_task,
+                        advance=1,
+                        description=f"[green]Scraped {result.url} - {len(result.jobs)} jobs[/green]",
+                    )
                 else:
                     main_logger.error(f"[bold red]Scraping failed for {result.url}:[/bold red] {result.error}")
                     progress.update(scraping_task, advance=1, description=f"[red]Failed {result.url}[/red]")

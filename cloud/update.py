@@ -22,11 +22,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         choices=["gcp"],
         help="Target cloud provider (default: gcp)",
     )
-    parser.add_argument(
-        "--project-id",
-        required=True,
-        help="The GCP project ID to update."
-    )
+    parser.add_argument("--project-id", required=True, help="The GCP project ID to update.")
     return parser.parse_args(argv)
 
 

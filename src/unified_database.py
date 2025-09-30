@@ -33,15 +33,9 @@ class UnifiedJob(SQLModel, table=True):
     score_reasons: Optional[str] = None  # JSON string of reasons
 
     # Timestamp tracking (existing fields)
-    created_at: datetime = Field(
-        default_factory=lambda: datetime.now(
-            timezone.utc))
-    updated_at: datetime = Field(
-        default_factory=lambda: datetime.now(
-            timezone.utc))
-    last_seen: datetime = Field(
-        default_factory=lambda: datetime.now(
-            timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    last_seen: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     times_seen: int = Field(default=1)
 
     # Notification tracking (existing fields)
@@ -55,8 +49,8 @@ class UnifiedJob(SQLModel, table=True):
     # Job board identification and metadata
     # "greenhouse", "microsoft_api", "spacex_api", etc.
     job_board: Optional[str] = None
-    external_job_id: Optional[str] = None        # Job ID from source system
-    requisition_id: Optional[str] = None         # Requisition/posting ID
+    external_job_id: Optional[str] = None  # Job ID from source system
+    requisition_id: Optional[str] = None  # Requisition/posting ID
 
     # Job categorization and hierarchy
     # "Engineering", "Sales", "Marketing"
@@ -79,12 +73,12 @@ class UnifiedJob(SQLModel, table=True):
     salary_min: Optional[int] = None
     # Maximum salary in base currency
     salary_max: Optional[int] = None
-    salary_currency: Optional[str] = None        # "USD", "EUR", "GBP", etc.
+    salary_currency: Optional[str] = None  # "USD", "EUR", "GBP", etc.
     # "yearly", "monthly", "hourly"
     salary_frequency: Optional[str] = None
     # Whether equity/stock options offered
     equity_offered: Optional[bool] = None
-    benefits_summary: Optional[str] = None       # JSON string of benefits
+    benefits_summary: Optional[str] = None  # JSON string of benefits
 
     # Technical requirements and skills
     # JSON array of required skills
@@ -93,8 +87,8 @@ class UnifiedJob(SQLModel, table=True):
     preferred_skills: Optional[str] = None
     # JSON array of technologies mentioned
     technologies: Optional[str] = None
-    education_required: Optional[str] = None     # Education requirements
-    certifications: Optional[str] = None         # Required certifications
+    education_required: Optional[str] = None  # Education requirements
+    certifications: Optional[str] = None  # Required certifications
 
     # Source metadata and tracking
     # When job was originally posted
@@ -105,7 +99,7 @@ class UnifiedJob(SQLModel, table=True):
     is_featured: Optional[bool] = None
 
     # Application process
-    application_url: Optional[str] = None        # Direct application link
+    application_url: Optional[str] = None  # Direct application link
     requires_cover_letter: Optional[bool] = None
     requires_portfolio: Optional[bool] = None
     # Description of application process
@@ -116,67 +110,66 @@ class UnifiedJob(SQLModel, table=True):
     def to_legacy_job(self):
         """Convert to legacy Job format for backward compatibility."""
         return {
-            'id': self.id,
-            'hash': self.hash,
-            'title': self.title,
-            'url': self.url,
-            'company': self.company,
-            'location': self.location,
-            'description': self.description,
-            'score': self.score,
-            'score_reasons': self.score_reasons,
-            'created_at': self.created_at,
-            'updated_at': self.updated_at,
-            'last_seen': self.last_seen,
-            'times_seen': self.times_seen,
-            'included_in_digest': self.included_in_digest,
-            'digest_sent_at': self.digest_sent_at,
-            'immediate_alert_sent': self.immediate_alert_sent,
-            'alert_sent_at': self.alert_sent_at,
+            "id": self.id,
+            "hash": self.hash,
+            "title": self.title,
+            "url": self.url,
+            "company": self.company,
+            "location": self.location,
+            "description": self.description,
+            "score": self.score,
+            "score_reasons": self.score_reasons,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at,
+            "last_seen": self.last_seen,
+            "times_seen": self.times_seen,
+            "included_in_digest": self.included_in_digest,
+            "digest_sent_at": self.digest_sent_at,
+            "immediate_alert_sent": self.immediate_alert_sent,
+            "alert_sent_at": self.alert_sent_at,
         }
 
     @classmethod
     def from_scraped_data(cls, job_data: dict, score: float = 0.0):
         """Create UnifiedJob from scraped job data."""
         return cls(
-            hash=job_data.get('hash', ''),
-            title=job_data.get('title', ''),
-            url=job_data.get('url', ''),
-            company=job_data.get('company', ''),
-            location=job_data.get('location', ''),
-            description=job_data.get('description', ''),
+            hash=job_data.get("hash", ""),
+            title=job_data.get("title", ""),
+            url=job_data.get("url", ""),
+            company=job_data.get("company", ""),
+            location=job_data.get("location", ""),
+            description=job_data.get("description", ""),
             score=score,
-
             # Enhanced fields
-            job_board=job_data.get('job_board'),
-            external_job_id=job_data.get('external_job_id'),
-            requisition_id=job_data.get('requisition_id'),
-            department=job_data.get('department'),
-            team=job_data.get('team'),
-            seniority_level=job_data.get('seniority_level'),
-            employment_type=job_data.get('employment_type'),
-            work_arrangement=job_data.get('work_arrangement'),
-            experience_required=job_data.get('experience_required'),
-            salary_min=job_data.get('salary_min'),
-            salary_max=job_data.get('salary_max'),
-            salary_currency=job_data.get('salary_currency'),
-            salary_frequency=job_data.get('salary_frequency'),
-            equity_offered=job_data.get('equity_offered'),
-            benefits_summary=job_data.get('benefits_summary'),
-            required_skills=job_data.get('required_skills'),
-            preferred_skills=job_data.get('preferred_skills'),
-            technologies=job_data.get('technologies'),
-            education_required=job_data.get('education_required'),
-            certifications=job_data.get('certifications'),
-            posting_date=job_data.get('posting_date'),
-            last_updated_source=job_data.get('last_updated_source'),
-            application_deadline=job_data.get('application_deadline'),
-            is_featured=job_data.get('is_featured'),
-            application_url=job_data.get('application_url'),
-            requires_cover_letter=job_data.get('requires_cover_letter'),
-            requires_portfolio=job_data.get('requires_portfolio'),
-            application_process=job_data.get('application_process'),
-            contact_email=job_data.get('contact_email'),
+            job_board=job_data.get("job_board"),
+            external_job_id=job_data.get("external_job_id"),
+            requisition_id=job_data.get("requisition_id"),
+            department=job_data.get("department"),
+            team=job_data.get("team"),
+            seniority_level=job_data.get("seniority_level"),
+            employment_type=job_data.get("employment_type"),
+            work_arrangement=job_data.get("work_arrangement"),
+            experience_required=job_data.get("experience_required"),
+            salary_min=job_data.get("salary_min"),
+            salary_max=job_data.get("salary_max"),
+            salary_currency=job_data.get("salary_currency"),
+            salary_frequency=job_data.get("salary_frequency"),
+            equity_offered=job_data.get("equity_offered"),
+            benefits_summary=job_data.get("benefits_summary"),
+            required_skills=job_data.get("required_skills"),
+            preferred_skills=job_data.get("preferred_skills"),
+            technologies=job_data.get("technologies"),
+            education_required=job_data.get("education_required"),
+            certifications=job_data.get("certifications"),
+            posting_date=job_data.get("posting_date"),
+            last_updated_source=job_data.get("last_updated_source"),
+            application_deadline=job_data.get("application_deadline"),
+            is_featured=job_data.get("is_featured"),
+            application_url=job_data.get("application_url"),
+            requires_cover_letter=job_data.get("requires_cover_letter"),
+            requires_portfolio=job_data.get("requires_portfolio"),
+            application_process=job_data.get("application_process"),
+            contact_email=job_data.get("contact_email"),
         )
 
 
@@ -196,27 +189,24 @@ async def init_unified_db():
     """Initializes both local and cloud databases."""
     logger.info("Initializing unified database...")
     await init_db()
-    await init_cloud_db() # This is now async
+    await init_cloud_db()  # This is now async
     logger.info("Unified database initialization complete.")
 
 
-def save_unified_job(job_data: dict,
-                     score: float = 0.0) -> Optional[UnifiedJob]:
+def save_unified_job(job_data: dict, score: float = 0.0) -> Optional[UnifiedJob]:
     """
     Save a job to the unified database.
     Handles deduplication and updates existing jobs.
     """
     try:
         with Session(unified_engine) as session:
-            job_hash = job_data.get('hash')
+            job_hash = job_data.get("hash")
             if not job_hash:
                 logger.warning("Job data missing hash, skipping save")
                 return None
 
             # Check if job already exists
-            existing_job = session.exec(
-                select(UnifiedJob).where(UnifiedJob.hash == job_hash)
-            ).first()
+            existing_job = session.exec(select(UnifiedJob).where(UnifiedJob.hash == job_hash)).first()
 
             if existing_job:
                 # Update existing job
@@ -253,11 +243,7 @@ def get_jobs_by_board(job_board: str, limit: int = 100) -> list[UnifiedJob]:
     """Get jobs by job board type."""
     try:
         with Session(unified_engine) as session:
-            jobs = session.exec(
-                select(UnifiedJob)
-                .where(UnifiedJob.job_board == job_board)
-                .limit(limit)
-            ).all()
+            jobs = session.exec(select(UnifiedJob).where(UnifiedJob.job_board == job_board).limit(limit)).all()
             return list(jobs)
     except Exception as e:
         logger.error(f"Failed to get jobs by board: {e}")
@@ -273,7 +259,7 @@ def get_job_board_stats() -> dict:
 
             stats = {}
             for job in jobs:
-                board = job.job_board or 'unknown'
+                board = job.job_board or "unknown"
                 if board not in stats:
                     stats[board] = 0
                 stats[board] += 1
@@ -301,17 +287,16 @@ def migrate_legacy_jobs():
             for legacy_job in legacy_jobs:
                 # Convert legacy job to unified format
                 job_data = {
-                    'hash': legacy_job.hash,
-                    'title': legacy_job.title,
-                    'url': legacy_job.url,
-                    'company': legacy_job.company,
-                    'location': legacy_job.location,
-                    'description': legacy_job.description,
-                    'job_board': 'legacy',  # Mark as migrated from legacy
+                    "hash": legacy_job.hash,
+                    "title": legacy_job.title,
+                    "url": legacy_job.url,
+                    "company": legacy_job.company,
+                    "location": legacy_job.location,
+                    "description": legacy_job.description,
+                    "job_board": "legacy",  # Mark as migrated from legacy
                 }
 
-                unified_job = UnifiedJob.from_scraped_data(
-                    job_data, legacy_job.score)
+                unified_job = UnifiedJob.from_scraped_data(job_data, legacy_job.score)
 
                 # Copy timestamps and tracking data
                 unified_job.created_at = legacy_job.created_at
@@ -329,8 +314,7 @@ def migrate_legacy_jobs():
 
             unified_session.commit()
 
-        logger.info(
-            f"Successfully migrated {migrated_count} jobs from legacy database")
+        logger.info(f"Successfully migrated {migrated_count} jobs from legacy database")
         return migrated_count
 
     except Exception as e:
@@ -362,7 +346,7 @@ class UserProfile(SQLModel, table=True):
     willing_to_relocate: bool = Field(default=False)
 
     # Skills and expertise (JSON arrays)
-    skills: Optional[str] = None                    # JSON array of all skills
+    skills: Optional[str] = None  # JSON array of all skills
     # JSON array of technical skills
     technical_skills: Optional[str] = None
     # JSON array of marketing skills
@@ -373,37 +357,30 @@ class UserProfile(SQLModel, table=True):
     # Career goals and compensation
     # lateral, promotion, leadership, open
     career_goal: Optional[str] = None
-    target_seniority: Optional[str] = None          # Desired seniority level
-    salary_min: Optional[int] = None                # Minimum desired salary
-    salary_max: Optional[int] = None                # Maximum desired salary
-    salary_currency: str = Field(default="USD")     # Currency preference
+    target_seniority: Optional[str] = None  # Desired seniority level
+    salary_min: Optional[int] = None  # Minimum desired salary
+    salary_max: Optional[int] = None  # Maximum desired salary
+    salary_currency: str = Field(default="USD")  # Currency preference
 
     # Job preferences
-    preferred_departments: Optional[str] = None     # JSON array of departments
+    preferred_departments: Optional[str] = None  # JSON array of departments
     # JSON array of company names
     preferred_companies: Optional[str] = None
     # JSON array of companies to avoid
     excluded_companies: Optional[str] = None
-    custom_job_boards: Optional[str] = None         # JSON array of custom URLs
+    custom_job_boards: Optional[str] = None  # JSON array of custom URLs
 
     # Notification preferences
     # Minimum match % for notifications
     notification_threshold: int = Field(default=75)
-    notification_frequency: str = Field(
-        default="daily")  # realtime, daily, weekly
+    notification_frequency: str = Field(default="daily")  # realtime, daily, weekly
     email_notifications: bool = Field(default=True)
     slack_notifications: bool = Field(default=False)
 
     # Timestamps
-    created_at: datetime = Field(
-        default_factory=lambda: datetime.now(
-            timezone.utc))
-    updated_at: datetime = Field(
-        default_factory=lambda: datetime.now(
-            timezone.utc))
-    last_active: datetime = Field(
-        default_factory=lambda: datetime.now(
-            timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    last_active: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     def set_skills(self, skills_list: List[str]):
         """Set skills from a list."""
@@ -415,33 +392,27 @@ class UserProfile(SQLModel, table=True):
 
     def set_technical_skills(self, skills_list: List[str]):
         """Set technical skills from a list."""
-        self.technical_skills = json.dumps(
-            skills_list) if skills_list else None
+        self.technical_skills = json.dumps(skills_list) if skills_list else None
 
     def get_technical_skills(self) -> List[str]:
         """Get technical skills as a list."""
-        return json.loads(
-            self.technical_skills) if self.technical_skills else []
+        return json.loads(self.technical_skills) if self.technical_skills else []
 
     def set_marketing_skills(self, skills_list: List[str]):
         """Set marketing skills from a list."""
-        self.marketing_skills = json.dumps(
-            skills_list) if skills_list else None
+        self.marketing_skills = json.dumps(skills_list) if skills_list else None
 
     def get_marketing_skills(self) -> List[str]:
         """Get marketing skills as a list."""
-        return json.loads(
-            self.marketing_skills) if self.marketing_skills else []
+        return json.loads(self.marketing_skills) if self.marketing_skills else []
 
     def set_preferred_departments(self, departments: List[str]):
         """Set preferred departments from a list."""
-        self.preferred_departments = json.dumps(
-            departments) if departments else None
+        self.preferred_departments = json.dumps(departments) if departments else None
 
     def get_preferred_departments(self) -> List[str]:
         """Get preferred departments as a list."""
-        return json.loads(
-            self.preferred_departments) if self.preferred_departments else []
+        return json.loads(self.preferred_departments) if self.preferred_departments else []
 
     def set_custom_job_boards(self, urls: List[str]):
         """Set custom job board URLs from a list."""
@@ -449,8 +420,7 @@ class UserProfile(SQLModel, table=True):
 
     def get_custom_job_boards(self) -> List[str]:
         """Get custom job board URLs as a list."""
-        return json.loads(
-            self.custom_job_boards) if self.custom_job_boards else []
+        return json.loads(self.custom_job_boards) if self.custom_job_boards else []
 
     def update_activity(self):
         """Update last activity timestamp."""
@@ -513,8 +483,7 @@ def get_user_profile() -> Optional[UserProfile]:
         return None
 
 
-def calculate_job_match_score(
-        job: UnifiedJob, user_profile: UserProfile) -> float:
+def calculate_job_match_score(job: UnifiedJob, user_profile: UserProfile) -> float:
     """
     Calculate how well a job matches the user's profile.
 
@@ -532,14 +501,12 @@ def calculate_job_match_score(
         # Skills matching (40% of total score)
         user_skills = user_profile.get_skills()
         if user_skills and job.required_skills:
-            job_skills = json.loads(
-                job.required_skills) if job.required_skills else []
+            job_skills = json.loads(job.required_skills) if job.required_skills else []
 
             skill_matches = 0
             for job_skill in job_skills:
                 for user_skill in user_skills:
-                    if job_skill.lower() in user_skill.lower(
-                    ) or user_skill.lower() in job_skill.lower():
+                    if job_skill.lower() in user_skill.lower() or user_skill.lower() in job_skill.lower():
                         skill_matches += 1
                         break
 
@@ -549,16 +516,15 @@ def calculate_job_match_score(
 
         # Seniority matching (20% of total score)
         if user_profile.seniority_level and job.seniority_level:
-            seniority_levels = [
-                'Junior',
-                'Mid-level',
-                'Senior',
-                'Staff',
-                'Principal']
-            user_level_idx = seniority_levels.index(
-                user_profile.seniority_level) if user_profile.seniority_level in seniority_levels else 2
-            job_level_idx = seniority_levels.index(
-                job.seniority_level) if job.seniority_level in seniority_levels else 2
+            seniority_levels = ["Junior", "Mid-level", "Senior", "Staff", "Principal"]
+            user_level_idx = (
+                seniority_levels.index(user_profile.seniority_level)
+                if user_profile.seniority_level in seniority_levels
+                else 2
+            )
+            job_level_idx = (
+                seniority_levels.index(job.seniority_level) if job.seniority_level in seniority_levels else 2
+            )
 
             # Perfect match or one level up is ideal
             if user_level_idx == job_level_idx or job_level_idx == user_level_idx + 1:
@@ -570,11 +536,15 @@ def calculate_job_match_score(
 
         # Location/remote matching (15% of total score)
         location_match = False
-        if user_profile.work_arrangement_preference == 'Any':
+        if user_profile.work_arrangement_preference == "Any":
             location_match = True
-        elif user_profile.work_arrangement_preference == 'Remote' and job.work_arrangement in ['Remote', 'Hybrid']:
+        elif user_profile.work_arrangement_preference == "Remote" and job.work_arrangement in ["Remote", "Hybrid"]:
             location_match = True
-        elif user_profile.work_arrangement_preference == 'Hybrid' and job.work_arrangement in ['Remote', 'Hybrid', 'On-site']:
+        elif user_profile.work_arrangement_preference == "Hybrid" and job.work_arrangement in [
+            "Remote",
+            "Hybrid",
+            "On-site",
+        ]:
             location_match = True
         elif user_profile.location and job.location and user_profile.location.lower() in job.location.lower():
             location_match = True
@@ -604,8 +574,7 @@ def calculate_job_match_score(
         return 0.0
 
 
-def get_personalized_job_matches(
-        limit: int = 50, min_score: float = 60.0) -> List[Dict[str, Any]]:
+def get_personalized_job_matches(limit: int = 50, min_score: float = 60.0) -> List[Dict[str, Any]]:
     """
     Get jobs that match the user's profile above the minimum score.
 
@@ -623,23 +592,23 @@ def get_personalized_job_matches(
             return []
 
         with Session(unified_engine) as session:
-            jobs = session.exec(
-                select(UnifiedJob).limit(
-                    limit * 2)).all()  # Get more to filter
+            jobs = session.exec(select(UnifiedJob).limit(limit * 2)).all()  # Get more to filter
 
             job_matches = []
             for job in jobs:
                 match_score = calculate_job_match_score(job, user_profile)
 
                 if match_score >= min_score:
-                    job_matches.append({
-                        'job': job,
-                        'match_score': match_score,
-                        'match_reasons': _get_match_reasons(job, user_profile, match_score)
-                    })
+                    job_matches.append(
+                        {
+                            "job": job,
+                            "match_score": match_score,
+                            "match_reasons": _get_match_reasons(job, user_profile, match_score),
+                        }
+                    )
 
             # Sort by match score and limit results
-            job_matches.sort(key=lambda x: x['match_score'], reverse=True)
+            job_matches.sort(key=lambda x: x["match_score"], reverse=True)
             return job_matches[:limit]
 
     except Exception as e:
@@ -647,21 +616,18 @@ def get_personalized_job_matches(
         return []
 
 
-def _get_match_reasons(
-        job: UnifiedJob, user_profile: UserProfile, score: float) -> List[str]:
+def _get_match_reasons(job: UnifiedJob, user_profile: UserProfile, score: float) -> List[str]:
     """Generate human-readable reasons for job match."""
     reasons = []
 
     # Skills match
     user_skills = user_profile.get_skills()
     if user_skills and job.required_skills:
-        job_skills = json.loads(
-            job.required_skills) if job.required_skills else []
+        job_skills = json.loads(job.required_skills) if job.required_skills else []
         matching_skills = []
         for job_skill in job_skills:
             for user_skill in user_skills:
-                if job_skill.lower() in user_skill.lower(
-                ) or user_skill.lower() in job_skill.lower():
+                if job_skill.lower() in user_skill.lower() or user_skill.lower() in job_skill.lower():
                     matching_skills.append(job_skill)
                     break
 
@@ -673,8 +639,7 @@ def _get_match_reasons(
         reasons.append(f"Perfect seniority match: {job.seniority_level}")
 
     # Location match
-    if job.work_arrangement == 'Remote' and user_profile.work_arrangement_preference in [
-            'Remote', 'Any']:
+    if job.work_arrangement == "Remote" and user_profile.work_arrangement_preference in ["Remote", "Any"]:
         reasons.append("Remote work available")
 
     # Salary match

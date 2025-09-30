@@ -6,6 +6,7 @@ from rich.logging import RichHandler
 # Initialize Rich Console for direct output
 console = Console()
 
+
 def setup_logging(log_level: str = "INFO") -> logging.Logger:
     """Configures logging for the application, using Rich for console output."""
     level = getattr(logging, log_level.upper(), logging.INFO)
@@ -34,18 +35,16 @@ def setup_logging(log_level: str = "INFO") -> logging.Logger:
     os.makedirs(log_dir, exist_ok=True)
     file_handler = logging.FileHandler(os.path.join(log_dir, "application.log"))
     file_handler.setLevel(logging.DEBUG)
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
 
     return logger
 
+
 def get_logger(name: str) -> logging.Logger:
     """Returns a logger instance for a given name."""
     return logging.getLogger(name)
-
 
 
 def log_exception(logger: logging.Logger, message: str = "An error occurred"):
@@ -53,9 +52,7 @@ def log_exception(logger: logging.Logger, message: str = "An error occurred"):
     logger.exception(message)
 
 
-def log_performance(
-    logger: logging.Logger, operation: str, duration: float, extra_info: dict = None
-):
+def log_performance(logger: logging.Logger, operation: str, duration: float, extra_info: dict = None):
     """Log performance metrics for operations."""
     info = {"operation": operation, "duration_ms": round(duration * 1000, 2)}
     if extra_info:
@@ -83,9 +80,7 @@ def log_scrape_result(
     )
 
 
-def log_notification_sent(
-    logger: logging.Logger, notification_type: str, recipient: str, job_count: int
-):
+def log_notification_sent(logger: logging.Logger, notification_type: str, recipient: str, job_count: int):
     """Log notification events."""
     logger.info(
         f"Notification sent: {notification_type} to {recipient} with {job_count} jobs",

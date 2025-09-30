@@ -105,14 +105,10 @@ class DatabaseResilience:
                 # Check integrity
                 integrity_check = conn.execute("PRAGMA integrity_check").fetchone()
                 if integrity_check[0] != "ok":
-                    result["errors"].append(
-                        f"Integrity check failed: {integrity_check[0]}"
-                    )
+                    result["errors"].append(f"Integrity check failed: {integrity_check[0]}")
 
                 # Count tables
-                tables = conn.execute(
-                    "SELECT COUNT(*) FROM sqlite_master WHERE type='table'"
-                ).fetchone()
+                tables = conn.execute("SELECT COUNT(*) FROM sqlite_master WHERE type='table'").fetchone()
                 result["table_count"] = tables[0] if tables else 0
 
                 # Count jobs
@@ -141,9 +137,7 @@ class DatabaseResilience:
             return True
 
         # Check if backup is needed based on interval
-        backup_age = datetime.now() - datetime.fromtimestamp(
-            latest_backup.stat().st_mtime
-        )
+        backup_age = datetime.now() - datetime.fromtimestamp(latest_backup.stat().st_mtime)
         if backup_age > timedelta(hours=self.config.backup_interval_hours):
             self.create_backup("scheduled")
             return True
@@ -195,9 +189,7 @@ class NetworkResilience:
         delay = min(300, 30 * (2 ** min(failures - 1, 4)))  # Max 5 minutes
         self.backoff_delays[domain] = time.time() + delay
 
-        logger.warning(
-            f"Network failure #{failures} for {domain}, backing off {delay}s"
-        )
+        logger.warning(f"Network failure #{failures} for {domain}, backing off {delay}s")
 
     def record_success(self, domain: str):
         """Record a successful connection for a domain."""

@@ -40,8 +40,6 @@ from cloud.utils import (
 INSTALL_VERSION = "540.0.0"
 
 
-
-
 class GCPBootstrap:
     """Interactive bootstrapper for Google Cloud Run Jobs."""
 
@@ -74,6 +72,8 @@ class GCPBootstrap:
         self.prefs_secret_name: str | None = None
         self.slack_webhook_secret_name: str | None = None
         self.budget_topic_name: str | None = None
+
+
 from cloud.providers.gcp.utils import (
     build_google_api_url,
     get_gcp_project_id,
@@ -93,6 +93,7 @@ from cloud.providers.gcp.cloud_run import build_and_push_image, create_or_update
 from cloud.providers.gcp.scheduler import schedule_job
 from cloud.providers.gcp.budget import configure_budget, setup_budget_alerts
 from cloud.providers.gcp.summary import verify_deployment, print_summary, send_slack_notification
+
 
 class GCPBootstrap:
     """Interactive bootstrapper for Google Cloud Run Jobs."""
@@ -161,22 +162,64 @@ class GCPBootstrap:
         # build_and_push_image is still needed to build the image and push it to the repo created by Terraform
         await build_and_push_image(self.logger, self.project_root, self.project_id, self.region, self.artifact_repo)
         # Pass Terraform-managed service account and connector to create_or_update_job
-        await create_or_update_job(self.logger, self.project_id, self.region, self.job_name, self.image_uri, self.runtime_sa, self.job_mode, self.storage_bucket, self.connector_name, self.prefs_secret_name, self.slack_webhook_secret_name)
+        await create_or_update_job(
+            self.logger,
+            self.project_id,
+            self.region,
+            self.job_name,
+            self.image_uri,
+            self.runtime_sa,
+            self.job_mode,
+            self.storage_bucket,
+            self.connector_name,
+            self.prefs_secret_name,
+            self.slack_webhook_secret_name,
+        )
         # Pass Terraform-managed service account to schedule_job
-        await schedule_job(self.logger, self.project_id, self.region, self.job_name, self.scheduler_region, self.scheduler_sa, self.schedule_frequency)
+        await schedule_job(
+            self.logger,
+            self.project_id,
+            self.region,
+            self.job_name,
+            self.scheduler_region,
+            self.scheduler_sa,
+            self.schedule_frequency,
+        )
 
         # Budget controls (now largely managed by Terraform)
         # The budget itself and the Pub/Sub topic are created by Terraform.
         # We still need to deploy the Cloud Function for budget alerts.
-        await self._setup_budget_alerts() # This will use self.budget_topic_name
+        await self._setup_budget_alerts()  # This will use self.budget_topic_name
 
         # Verification and reporting (MUST run last after all resources created)
-        await verify_deployment(self.logger, self.job_name, self.region, self.project_id, self.scheduler_region, self.storage_bucket)
-        await run_prowler_scan(self.logger, self.project_id, self.project_root)  # Security scan after everything is deployed
+        await verify_deployment(
+            self.logger, self.job_name, self.region, self.project_id, self.scheduler_region, self.storage_bucket
+        )
+        await run_prowler_scan(
+            self.logger, self.project_id, self.project_root
+        )  # Security scan after everything is deployed
 
         # Final summary and notification
-        print_summary(self.logger, self.project_id, self.region, self.artifact_repo, self.job_name, self.schedule_frequency, self.storage_bucket, self.image_uri)
-        await send_slack_notification(self.logger, self.project_id, self.region, self.job_name, self.schedule_frequency, self.storage_bucket, self.image_uri, self.env_values)
+        print_summary(
+            self.logger,
+            self.project_id,
+            self.region,
+            self.artifact_repo,
+            self.job_name,
+            self.schedule_frequency,
+            self.storage_bucket,
+            self.image_uri,
+        )
+        await send_slack_notification(
+            self.logger,
+            self.project_id,
+            self.region,
+            self.job_name,
+            self.schedule_frequency,
+            self.storage_bucket,
+            self.image_uri,
+            self.env_values,
+        )
 
     async def _update_secret_values(self) -> None:
         self.logger.info("Updating Secret Manager secret values...")
@@ -282,11 +325,11 @@ class GCPBootstrap:
                 capture_output=True,
                 text=True,
                 check=True,
-                logger=self.logger
+                logger=self.logger,
             )
             pip_version = pip_result.stdout.strip()
             self.logger.info(f"✓ pip installed: {pip_version.split()[1]}")
-        except RuntimeError: # run_command raises RuntimeError on failure
+        except RuntimeError:  # run_command raises RuntimeError on failure
             self.logger.error("❌ pip is not installed!")
             self.logger.error("   Install pip: https://pip.pypa.io/en/stable/installation/")
             sys.exit(1)
@@ -315,7 +358,7 @@ class GCPBootstrap:
 
             if not self.no_prompt:
                 response = input("Install missing packages now? (y/n): ").strip().lower()
-                if response not in ['y', 'yes']:
+                if response not in ["y", "yes"]:
                     self.logger.error("Package installation declined by user")
                     self.logger.info("Please install manually: pip install -r requirements.txt")
                     sys.exit(1)
@@ -327,29 +370,37 @@ class GCPBootstrap:
                 # --no-index-url ignores pip.conf settings
                 env = os.environ.copy()
                 # Remove any Safety CLI environment variables that might affect pip
-                env.pop('PIP_INDEX_URL', None)
-                env.pop('PIP_EXTRA_INDEX_URL', None)
+                env.pop("PIP_INDEX_URL", None)
+                env.pop("PIP_EXTRA_INDEX_URL", None)
 
                 result = await run_command(
-                    [sys.executable, "-m", "pip", "install", "-r",
-                     str(self.project_root / "requirements.txt"),
-                     "--index-url", "https://pypi.org/simple",
-                     "--no-warn-conflicts", "-v"],
+                    [
+                        sys.executable,
+                        "-m",
+                        "pip",
+                        "install",
+                        "-r",
+                        str(self.project_root / "requirements.txt"),
+                        "--index-url",
+                        "https://pypi.org/simple",
+                        "--no-warn-conflicts",
+                        "-v",
+                    ],
                     check=True,
                     capture_output=True,
                     text=True,
                     env=env,
-                    logger=self.logger
+                    logger=self.logger,
                 )
                 # Log verification details
-                for line in result.stdout.split('\n'):
-                    if 'Successfully installed' in line:
+                for line in result.stdout.split("\n"):
+                    if "Successfully installed" in line:
                         self.logger.info(f"   {line.strip()}")
-                    elif 'sha256' in line.lower() or 'hash' in line.lower():
+                    elif "sha256" in line.lower() or "hash" in line.lower():
                         self.logger.debug(f"   {line.strip()}")
 
                 self.logger.info("✓ Required packages installed and verified")
-            except RuntimeError as e: # run_command raises RuntimeError on failure
+            except RuntimeError as e:  # run_command raises RuntimeError on failure
                 self.logger.error("❌ Failed to install required packages")
                 self.logger.error(f"   Error: {e}")
                 self.logger.error("   Please run: pip install -r requirements.txt")
@@ -393,12 +444,13 @@ class GCPBootstrap:
         # Plan Terraform changes
         self.logger.info("Planning Terraform changes...")
         plan_command = [
-            "terraform", "plan",
+            "terraform",
+            "plan",
             f"-var=project_id={self.project_id}",
             f"-var=project_name={self.project_name}",
             f"-var=billing_account={self.billing_account}",
             f"-var=region={self.region}",
-            "-out=tfplan"
+            "-out=tfplan",
         ]
         await run_command(plan_command, logger=self.logger, cwd=self.terraform_dir)
 
@@ -410,25 +462,15 @@ class GCPBootstrap:
         # Get Terraform outputs
         self.logger.info("Retrieving Terraform outputs...")
         output_command = ["terraform", "output", "-json"]
-        output_result = await run_command(output_command, capture_output=True, logger=self.logger, cwd=self.terraform_dir)
+        output_result = await run_command(
+            output_command, capture_output=True, logger=self.logger, cwd=self.terraform_dir
+        )
         terraform_outputs = json.loads(output_result.stdout)
 
         self.project_id = terraform_outputs["project_id"]["value"]
         self.project_number = terraform_outputs["project_number"]["value"]
         self.logger.info(f"Terraform applied successfully. Project ID: {self.project_id}")
         return terraform_outputs
-
-
-
-
-
-
-
-
-
-
-
-
 
     def _collect_configuration(self) -> None:
         self.logger.info("Collect runtime configuration")
@@ -540,7 +582,7 @@ class GCPBootstrap:
                             continue
                         self.logger.info("✓ Valid Slack webhook URL!")
                         # Do not add to env_values, it will be handled by _update_secret_values
-                        self.env_values[key] = candidate # Temporarily store for _update_secret_values
+                        self.env_values[key] = candidate  # Temporarily store for _update_secret_values
                         break
 
                     # For non-required fields, allow empty/skip
@@ -555,7 +597,7 @@ class GCPBootstrap:
                         continue
                     break
 
-            if key != "SLACK_WEBHOOK_URL": # Only add non-Slack webhook values to env_values
+            if key != "SLACK_WEBHOOK_URL":  # Only add non-Slack webhook values to env_values
                 self.env_values[key] = candidate
 
         prefs_template = self.project_root / "config/user_prefs.example.json"
@@ -571,9 +613,7 @@ class GCPBootstrap:
             "health": "Run an interactive health check of the system.",
         }
         mode_choice = choose(
-            "Select default Cloud Run job mode:",
-            [f"{k} - {v}" for k, v in mode_options.items()],
-            self.no_prompt
+            "Select default Cloud Run job mode:", [f"{k} - {v}" for k, v in mode_options.items()], self.no_prompt
         )
         self.job_mode = mode_choice.split(" - ")[0]
 
@@ -582,11 +622,11 @@ class GCPBootstrap:
         self.logger.info("Please choose a frequency that balances your alerting needs with your budget.")
         self.logger.info("Default is business hours only for maximum cost savings.")
         schedule_options = [
-            "0 6-18 * * 1-5", # Business hours 6AM-6PM Mon-Fri every hour (lowest cost - default)
-            "0 6,8,10,12,14,16,18 * * 1-5", # Business hours every 2 hours
-            "0 */4 * * *",   # Every 4 hours 24/7
-            "0 */2 * * *",   # Every 2 hours 24/7
-            "0 */1 * * *",   # Every hour 24/7
+            "0 6-18 * * 1-5",  # Business hours 6AM-6PM Mon-Fri every hour (lowest cost - default)
+            "0 6,8,10,12,14,16,18 * * 1-5",  # Business hours every 2 hours
+            "0 */4 * * *",  # Every 4 hours 24/7
+            "0 */2 * * *",  # Every 2 hours 24/7
+            "0 */1 * * *",  # Every hour 24/7
             "*/30 * * * *",  # Every 30 minutes 24/7
             "*/15 * * * *",  # Every 15 minutes 24/7
         ]
@@ -604,8 +644,6 @@ class GCPBootstrap:
         selected_index = schedule_choices.index(schedule_choice)
         self.schedule_frequency = schedule_options[selected_index]
 
-
-
     async def _create_service_accounts(self) -> None:
         self.logger.info("Creating service accounts and IAM bindings")
         runtime_name = "job-scraper-runner"
@@ -614,12 +652,10 @@ class GCPBootstrap:
         for sa_name in [runtime_name, scheduler_name]:
             sa_email = f"{sa_name}@{self.project_id}.iam.gserviceaccount.com"
             check_sa = await run_command(
-                [
-                    "gcloud", "iam", "service-accounts", "describe", sa_email,
-                    f"--project={self.project_id}"
-                ],
-                check=False, capture_output=True,
-                logger=self.logger
+                ["gcloud", "iam", "service-accounts", "describe", sa_email, f"--project={self.project_id}"],
+                check=False,
+                capture_output=True,
+                logger=self.logger,
             )
             if check_sa.returncode == 0:
                 self.logger.info(f"Service account {sa_name} already exists.")
@@ -627,17 +663,22 @@ class GCPBootstrap:
 
             await run_command(
                 [
-                    "gcloud", "iam", "service-accounts", "create", sa_name,
-                    "--display-name", f"Job Scraper {sa_name.split('-')[-1].capitalize()}",
-                    "--project", self.project_id,
+                    "gcloud",
+                    "iam",
+                    "service-accounts",
+                    "create",
+                    sa_name,
+                    "--display-name",
+                    f"Job Scraper {sa_name.split('-')[-1].capitalize()}",
+                    "--project",
+                    self.project_id,
                     "--quiet",
                 ],
                 check=False,
-                logger=self.logger
+                logger=self.logger,
             )
             # Note: Service accounts don't support --update-labels, skip labeling
             pass
-
 
         project = self.project_id
         self.runtime_sa = f"{runtime_name}@{project}.iam.gserviceaccount.com"
@@ -646,6 +687,7 @@ class GCPBootstrap:
         # Wait for service account propagation (IAM can take a few seconds)
         self.logger.info("Waiting for service accounts to propagate (5 seconds)...")
         import asyncio
+
         await asyncio.sleep(5)
 
         # Grant project-level roles
@@ -671,7 +713,7 @@ class GCPBootstrap:
                 ],
                 logger=self.logger,
                 retries=5,  # Add retries for IAM propagation delays
-                delay=2,    # Start with 2 seconds delay
+                delay=2,  # Start with 2 seconds delay
             )
 
         # Grant per-secret access for least privilege
@@ -692,36 +734,40 @@ class GCPBootstrap:
                 ],
                 logger=self.logger,
                 retries=5,  # Add retries for IAM propagation delays
-                delay=2,    # Start with 2 seconds delay
+                delay=2,  # Start with 2 seconds delay
             )
-
-
-
-
-
-
-
 
     async def _setup_budget_alerts(self) -> None:
         self.logger.info("Setting up automated budget controls")
         self.logger.info("Deploying Cloud Function for automatic shutdown at 90% budget...")
 
         function_name = "job-scraper-budget-alerter"
-        budget_topic_name = self.budget_topic_name.split('/')[-1] # Extract topic name from full resource name
+        budget_topic_name = self.budget_topic_name.split("/")[-1]  # Extract topic name from full resource name
         function_source_dir = str(self.project_root / "cloud" / "functions")
 
-        result = await run_command([
-            "gcloud", "functions", "deploy", function_name,
-            f"--project={self.project_id}",
-            f"--region={self.region}",
-            f"--runtime=python312",
-            f"--source={function_source_dir}",
-            "--entry-point=budget_alert_handler",
-            f"--trigger-topic={budget_topic_name}",
-            "--gen2",
-            f"--set-env-vars=GCP_PROJECT={self.project_id},SCHEDULER_LOCATION={self.scheduler_region},SCHEDULER_JOB_ID={self.job_name}-schedule",
-            "--quiet"
-        ], check=False, logger=self.logger, show_spinner=True, capture_output=True, retries=3, delay=5)
+        result = await run_command(
+            [
+                "gcloud",
+                "functions",
+                "deploy",
+                function_name,
+                f"--project={self.project_id}",
+                f"--region={self.region}",
+                f"--runtime=python312",
+                f"--source={function_source_dir}",
+                "--entry-point=budget_alert_handler",
+                f"--trigger-topic={budget_topic_name}",
+                "--gen2",
+                f"--set-env-vars=GCP_PROJECT={self.project_id},SCHEDULER_LOCATION={self.scheduler_region},SCHEDULER_JOB_ID={self.job_name}-schedule",
+                "--quiet",
+            ],
+            check=False,
+            logger=self.logger,
+            show_spinner=True,
+            capture_output=True,
+            retries=3,
+            delay=5,
+        )
 
         if result.returncode == 0:
             self.logger.info("✓ Budget alert function deployed")
@@ -731,8 +777,6 @@ class GCPBootstrap:
                 self.logger.debug(f"Cloud Functions error: {result.stderr}")
             self.logger.info("   • Budget alerts will not auto-pause the scheduler at 90% spend")
             self.logger.info("   • Manual setup: https://cloud.google.com/billing/docs/how-to/budgets")
-
-
 
 
 def get_bootstrap(logger, no_prompt: bool = False) -> GCPBootstrap:

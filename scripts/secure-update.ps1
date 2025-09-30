@@ -43,7 +43,7 @@ function Test-GitRepositorySecurity {
     Push-Location $RepoPath
     try {
         $remoteUrl = git config --get remote.origin.url
-        if ($remoteUrl -notmatch "github\\.com[:/]cboyd0319/job-private-scraper-filter") {
+        if ($remoteUrl -notmatch "github\.com[:/]cboyd0319/job-private-scraper-filter") {
             throw "Invalid repository origin: $remoteUrl"
         }
         Write-SecureLog "Repository origin validated: $remoteUrl" "SECURITY"

@@ -70,9 +70,7 @@ async def add_job(job_data: dict) -> Job:
     try:
         async with AsyncSession(async_engine) as session:
             # Check if job already exists
-            existing_job = await session.exec(
-                select(Job).where(Job.hash == job_data["hash"])
-            )
+            existing_job = await session.exec(select(Job).where(Job.hash == job_data["hash"]))
             existing_job = existing_job.first()
 
             if existing_job:
@@ -105,9 +103,7 @@ async def add_job(job_data: dict) -> Job:
                 logger.debug(f"Added new job: {job.title}")
                 return job
     except Exception as e:
-        logger.error(
-            f"Failed to add/update job {job_data.get('title', 'Unknown')}: {e}"
-        )
+        logger.error(f"Failed to add/update job {job_data.get('title', 'Unknown')}: {e}")
         raise DatabaseException("add_job", str(e), e)
 
 

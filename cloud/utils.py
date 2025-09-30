@@ -93,9 +93,7 @@ async def run_command(
                 result.stdout = stdout.decode() if stdout else ""
                 result.stderr = stderr.decode() if stderr else ""
                 if check and result.returncode != 0:
-                    raise subprocess.CalledProcessError(
-                        result.returncode, command, result.stdout, result.stderr
-                    )
+                    raise subprocess.CalledProcessError(result.returncode, command, result.stdout, result.stderr)
             return result
         except subprocess.CalledProcessError as e:
             if attempt < retries:
@@ -155,7 +153,6 @@ def ensure_directory(path: Path) -> Path:
     return path
 
 
-
 def confirm(prompt: str, no_prompt: bool = False) -> bool:
     """Prompt for a yes/no confirmation, defaulting to ``False``."""
 
@@ -203,7 +200,7 @@ async def create_or_update_secret(project_id: str, name: str, value: str) -> Non
         ],
         capture_output=True,
         check=False,
-        logger=logging.getLogger("cloud.utils"), # Use a logger instance
+        logger=logging.getLogger("cloud.utils"),  # Use a logger instance
     )
     if describe.returncode != 0:
         await run_command(
@@ -217,7 +214,7 @@ async def create_or_update_secret(project_id: str, name: str, value: str) -> Non
                 "--labels=managed-by=job-scraper,rotation-policy=quarterly",
                 "--quiet",
             ],
-            logger=logging.getLogger("cloud.utils"), # Use a logger instance
+            logger=logging.getLogger("cloud.utils"),  # Use a logger instance
         )
 
     await run_command(
@@ -233,8 +230,9 @@ async def create_or_update_secret(project_id: str, name: str, value: str) -> Non
         ],
         input_data=value.encode("utf-8"),
         text=False,
-        logger=logging.getLogger("cloud.utils"), # Use a logger instance
+        logger=logging.getLogger("cloud.utils"),  # Use a logger instance
     )
+
 
 def resolve_project_root() -> Path:
     """Return the repository root (assumed to be two levels above modules)."""

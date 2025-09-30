@@ -29,8 +29,7 @@ def get_job_scraper_registry() -> JobBoardRegistry:
         _registry.register(SpaceXCareersScraper())
         _registry.register(PlaywrightScraper())  # Fallback for everything else
 
-        logger.info(
-            f"Initialized job scraper registry with {len(_registry.scrapers)} scrapers")
+        logger.info(f"Initialized job scraper registry with {len(_registry.scrapers)} scrapers")
 
     return _registry
 
@@ -50,7 +49,7 @@ logger = get_logger("sources.job_scraper")
 registry = JobBoardRegistry()
 
 # Register scrapers
-registry.register(APIBasedScraper("API-Based Scraper", [], [])) # Placeholder, actual endpoints passed at runtime
+registry.register(APIBasedScraper("API-Based Scraper", [], []))  # Placeholder, actual endpoints passed at runtime
 registry.register(GreenhouseScraper())
 registry.register(PlaywrightScraper())
 
@@ -64,7 +63,7 @@ async def scrape_jobs(board_url: str, fetch_descriptions: bool = True) -> List[D
             # This is a simplification. In a real scenario, api_endpoints would be configured
             # based on the board_url or a more sophisticated lookup.
             # For now, we'll assume a single API endpoint for demonstration.
-            scraper.api_endpoints = [board_url] # Or derive from board_url
+            scraper.api_endpoints = [board_url]  # Or derive from board_url
 
         return await scraper.scrape(board_url, fetch_descriptions)
     else:
@@ -72,7 +71,6 @@ async def scrape_jobs(board_url: str, fetch_descriptions: bool = True) -> List[D
         # Fallback to a generic scraper if no specific one is found
         # This part might need more sophisticated logic depending on requirements
         return []
-
 
 
 def list_supported_platforms() -> List[str]:

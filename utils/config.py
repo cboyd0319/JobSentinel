@@ -28,17 +28,13 @@ class CompanyConfig:
     def __post_init__(self):
         """Validate company configuration."""
         if not self.id or not self.board_type or not self.url:
-            raise ConfigurationException(
-                "Invalid company config: missing required fields"
-            )
+            raise ConfigurationException("Invalid company config: missing required fields")
 
         # Validate URL
         try:
             parsed = urlparse(self.url)
             if not parsed.scheme or not parsed.netloc:
-                raise ConfigurationException(
-                    f"Invalid URL for company {self.id}: {self.url}"
-                )
+                raise ConfigurationException(f"Invalid URL for company {self.id}: {self.url}")
         except Exception as e:
             raise ConfigurationException(f"Invalid URL for company {self.id}: {e}")
 
@@ -51,9 +47,7 @@ class CompanyConfig:
             "smartrecruiters",
         ]
         if self.board_type not in supported_boards:
-            logger.warning(
-                f"Board type '{self.board_type}' for {self.id} may not be fully supported"
-            )
+            logger.warning(f"Board type '{self.board_type}' for {self.id} may not be fully supported")
 
 
 @dataclass
@@ -88,9 +82,7 @@ class FilterConfig:
             raise ConfigurationException("title_allowlist cannot be empty")
 
         if not 0 <= self.immediate_alert_threshold <= 1:
-            raise ConfigurationException(
-                "immediate_alert_threshold must be between 0 and 1"
-            )
+            raise ConfigurationException("immediate_alert_threshold must be between 0 and 1")
 
         if self.max_matches_per_run < 1:
             raise ConfigurationException("max_matches_per_run must be at least 1")
@@ -104,10 +96,7 @@ class NotificationConfig:
 
     def validate_slack(self) -> bool:
         """Check if Slack notifications are properly configured."""
-        return bool(
-            self.slack_webhook_url
-            and self.slack_webhook_url.startswith("https://hooks.slack.com/")
-        )
+        return bool(self.slack_webhook_url and self.slack_webhook_url.startswith("https://hooks.slack.com/"))
 
 
 class ConfigManager:
@@ -175,9 +164,7 @@ class ConfigManager:
             try:
                 CompanyConfig(**company_data)
             except Exception as e:
-                raise ConfigurationException(
-                    f"Invalid company config at index {i}: {e}"
-                )
+                raise ConfigurationException(f"Invalid company config at index {i}: {e}")
 
         # Validate filters
         try:
@@ -200,9 +187,7 @@ class ConfigManager:
         )
 
         if not notification_config.validate_slack():
-            logger.warning(
-                "No notification methods configured. You will not receive alerts."
-            )
+            logger.warning("No notification methods configured. You will not receive alerts.")
 
         # Security validation
         self._validate_security()
@@ -266,9 +251,7 @@ class ConfigManager:
             keywords_exclude=self._config_data.get("keywords_exclude", []),
             location_constraints=self._config_data.get("location_constraints", []),
             salary_floor_usd=self._config_data.get("salary_floor_usd"),
-            immediate_alert_threshold=self._config_data.get(
-                "immediate_alert_threshold", 0.9
-            ),
+            immediate_alert_threshold=self._config_data.get("immediate_alert_threshold", 0.9),
             max_matches_per_run=self._config_data.get("max_matches_per_run", 50),
         )
 

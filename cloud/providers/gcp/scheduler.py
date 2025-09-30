@@ -3,7 +3,16 @@
 from cloud.utils import run_command
 from cloud.providers.gcp.utils import build_google_api_url
 
-async def schedule_job(logger, project_id: str, region: str, job_name: str, scheduler_region: str, scheduler_sa: str, schedule_frequency: str) -> None:
+
+async def schedule_job(
+    logger,
+    project_id: str,
+    region: str,
+    job_name: str,
+    scheduler_region: str,
+    scheduler_sa: str,
+    schedule_frequency: str,
+) -> None:
     logger.info("Scheduling recurring executions")
     if not scheduler_region:
         raise RuntimeError("Scheduler region not configured")

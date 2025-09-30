@@ -13,7 +13,6 @@ jobs:
   release:
     name: Semantic Release
     runs-on: ubuntu-latest
-    needs: [primary-test, code-quality, type-check] # Ensure CI passes before releasing
     outputs:
       version: ${{ steps.semantic_release.outputs.version }}
     steps:

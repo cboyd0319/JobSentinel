@@ -11,6 +11,7 @@ from cloud.utils import (
     run_command,
 )
 
+
 class GCPUpdate:
     """Interactive updater for Google Cloud Run Jobs."""
 
@@ -19,7 +20,7 @@ class GCPUpdate:
 
     async def run(self) -> None:
         self._print_welcome()
-        
+
         update_options = {
             "User Preferences": self._update_user_preferences,
         }
@@ -35,7 +36,7 @@ class GCPUpdate:
 
     async def _update_user_preferences(self) -> None:
         print_header("Updating User Preferences")
-        
+
         while True:
             prefs_path_str = input("Enter the path to your user_prefs.json file: ").strip()
             prefs_path = Path(prefs_path_str)

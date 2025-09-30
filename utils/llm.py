@@ -70,15 +70,11 @@ class TokenTracker:
 
         # Check limits
         if self.daily_tokens >= self.max_daily_tokens:
-            logger.warning(
-                f"Daily token limit reached: {self.daily_tokens}/{self.max_daily_tokens}"
-            )
+            logger.warning(f"Daily token limit reached: {self.daily_tokens}/{self.max_daily_tokens}")
             return False
 
         if self.requests_this_minute >= self.max_rpm:
-            logger.debug(
-                f"Rate limit reached: {self.requests_this_minute}/{self.max_rpm} requests per minute"
-            )
+            logger.debug(f"Rate limit reached: {self.requests_this_minute}/{self.max_rpm} requests per minute")
             return False
 
         return True
@@ -87,9 +83,7 @@ class TokenTracker:
         """Record token usage."""
         self.daily_tokens += tokens
         self.requests_this_minute += 1
-        logger.debug(
-            f"Token usage: +{tokens} tokens (daily total: {self.daily_tokens})"
-        )
+        logger.debug(f"Token usage: +{tokens} tokens (daily total: {self.daily_tokens})")
 
 
 # Global token tracker
@@ -110,9 +104,7 @@ def initialize_llm() -> bool:
             return False
 
         if not api_key:
-            logger.warning(
-                "LLM enabled but OPENAI_API_KEY not found, disabling LLM features"
-            )
+            logger.warning("LLM enabled but OPENAI_API_KEY not found, disabling LLM features")
             return False
 
         # Try to import OpenAI
@@ -128,9 +120,7 @@ def initialize_llm() -> bool:
             token_tracker.max_daily_tokens = max_daily
             token_tracker.max_rpm = max_rpm
 
-            logger.info(
-                f"LLM integration initialized successfully (model: {get_llm_config().model})"
-            )
+            logger.info(f"LLM integration initialized successfully (model: {get_llm_config().model})")
             return True
 
         except ImportError:
@@ -249,9 +239,7 @@ def score_job_with_llm(job: Dict, preferences: Dict) -> Optional[LLMResult]:
             model_used=config.model,
         )
 
-        logger.debug(
-            f"LLM scored '{job.get('title')}': {llm_result.score:.2f} ({tokens_used} tokens)"
-        )
+        logger.debug(f"LLM scored '{job.get('title')}': {llm_result.score:.2f} ({tokens_used} tokens)")
         return llm_result
 
     except json.JSONDecodeError as e:
