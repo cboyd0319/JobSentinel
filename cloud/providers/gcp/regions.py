@@ -3,7 +3,7 @@
 from cloud.utils import choose, run_command
 
 
-def select_region(logger, no_prompt: bool) -> str:
+async def select_region(logger, no_prompt: bool) -> str:
     logger.info("Select Cloud Run region")
     logger.info("Regions are ordered by cost-effectiveness (cheapest first):")
     regions = [
@@ -18,7 +18,7 @@ def select_region(logger, no_prompt: bool) -> str:
         "australia-southeast1",  # Sydney
     ]
     region = choose("Choose the region (us-central1 recommended for lowest cost):", regions, no_prompt)
-    run_command(["gcloud", "config", "set", "run/region", region], logger=logger)
+    await run_command(["gcloud", "config", "set", "run/region", region], logger=logger)
     return region
 
 
