@@ -5,11 +5,11 @@ import subprocess
 from cloud.utils import run_command
 
 
-def authenticate(logger) -> None:
+async def authenticate(logger) -> None:
     logger.info("Checking Google Cloud authentication")
 
     # Check if already authenticated
-    check_auth = run_command(
+    check_auth = await run_command(
         ["gcloud", "auth", "list", "--filter=status:ACTIVE", "--format=value(account)"],
         capture_output=True,
         check=False,
@@ -21,7 +21,7 @@ def authenticate(logger) -> None:
         logger.info(f"Already authenticated as {active_account}")
 
         # Check application-default credentials
-        check_adc = run_command(
+        check_adc = await run_command(
             ["gcloud", "auth", "application-default", "print-access-token"],
             capture_output=True,
             check=False,
@@ -34,5 +34,5 @@ def authenticate(logger) -> None:
 
     # Not authenticated, proceed with login
     logger.info("Authenticating with Google Cloud")
-    run_command(["gcloud", "auth", "login"], logger=logger)
-    run_command(["gcloud", "auth", "application-default", "login"], logger=logger)
+    await run_command(["gcloud", "auth", "login"], logger=logger)
+    await run_command(["gcloud", "auth", "application-default", "login"], logger=logger)
