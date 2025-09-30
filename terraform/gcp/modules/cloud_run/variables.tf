@@ -48,3 +48,19 @@ variable "env_vars" {
   type        = map(string)
   default     = {}
 }
+
+variable "service_account_email" {
+  description = "Service account email for the Cloud Run job to run as."
+  type        = string
+}
+
+variable "vpc_connector" {
+  description = "VPC connector ID for private networking."
+  type        = string
+}
+
+variable "vpc_egress" {
+  description = "VPC egress setting (all-traffic, private-ranges-only)."
+  type        = string
+  default     = "all-traffic"
+}

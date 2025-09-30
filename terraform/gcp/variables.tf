@@ -51,11 +51,6 @@ variable "cloud_run_concurrency" {
   default     = 1
 }
 
-variable "source_repo" {
-  description = "The URL of the source repository (e.g., 'owner/repo' for GitHub)."
-  type        = string
-}
-
 variable "alert_email_address" {
   description = "Email address to send monitoring alerts to."
   type        = string

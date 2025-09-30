@@ -22,6 +22,7 @@ jobs:
       contents: write
       pull-requests: write
       issues: write
+      repository: write
 
     steps:
       - uses: actions/checkout@v4
@@ -45,9 +46,3 @@ jobs:
         if: steps.release.outputs.released == 'true'
         with:
           subject-path: "dist/*"
-      - name: Publish package distributions to GitHub Releases
-        uses: python-semantic-release/publish-action@v10.4.1
-        if: steps.release.outputs.released == 'true'
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ steps.release.outputs.tag }}

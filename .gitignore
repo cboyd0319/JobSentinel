@@ -47,6 +47,7 @@ data/
 *.tfplan
 *.tfstate
 *.tfstate.backup
+terraform.tfvars  # User-specific config (use terraform.tfvars.example as template)
 
 # User configuration files (should be created from examples)
 user_prefs.json

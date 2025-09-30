@@ -1,6 +1,11 @@
-output "cloud_run_service_url" {
-  description = "The URL of the deployed Cloud Run service."
-  value       = module.cloud_run.service_url
+output "cloud_run_job_name" {
+  description = "The name of the deployed Cloud Run job."
+  value       = module.cloud_run.service_name
+}
+
+output "cloud_run_job_id" {
+  description = "The full resource ID of the Cloud Run job."
+  value       = module.cloud_run.job_id
 }
 
 output "project_id" {
@@ -18,19 +23,14 @@ output "artifact_registry_repo_name" {
   value       = google_artifact_registry_repository.docker_repo.repository_id
 }
 
-output "cloud_run_job_name" {
-  description = "The name of the deployed Cloud Run job."
-  value       = module.cloud_run.service_name
+output "image_uri" {
+  description = "The full Docker image URI for the job."
+  value       = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.docker_repo.repository_id}/${var.service_name_prefix}:latest"
 }
 
-output "cloud_build_image_name_with_tag" {
-  description = "The full image name with tag from Cloud Build."
-  value       = module.cloud_build.image_name_with_tag
-}
-
-output "budget_id" {
-  description = "The ID of the created billing budget."
-  value       = google_billing_budget.job_scraper_budget.budget_id
+output "budget_name" {
+  description = "The name of the created billing budget."
+  value       = google_billing_budget.job_scraper_budget.name
 }
 
 output "budget_pubsub_topic" {

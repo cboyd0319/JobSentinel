@@ -24,6 +24,13 @@ resource "google_project_service" "artifactregistry_api" {
   disable_on_destroy = false
 }
 
+# Enable Secret Manager API
+resource "google_project_service" "secretmanager_api" {
+  project = var.project_id
+  service = "secretmanager.googleapis.com"
+  disable_on_destroy = false
+}
+
 # VPC Network
 resource "google_compute_network" "vpc_network" {
   project                 = var.project_id
@@ -41,32 +48,29 @@ resource "google_compute_subnetwork" "vpc_subnet" {
   network       = google_compute_network.vpc_network.self_link
 }
 
-# Serverless VPC Access Connector
-resource "google_vpc_access_connector" "vpc_connector" {
-  project       = var.project_id
-  name          = var.connector_name
-  region        = var.region
-  ip_cidr_range = google_compute_subnetwork.vpc_subnet.ip_cidr_range
-  min_throughput = 200 # Mbps
-  max_throughput = 300 # Mbps
-
-  # Scale to 2-3 instances for cost optimization
-  min_instances = 2
-  max_instances = 3
-
-  depends_on = [
-    google_compute_network.vpc_network,
-    google_compute_subnetwork.vpc_subnet,
-  ]
-}
-
 # Enable Serverless VPC Access API
 resource "google_project_service" "vpcaccess_api" {
   project = var.project_id
   service = "vpcaccess.googleapis.com"
   disable_on_destroy = false
+}
+
+# Serverless VPC Access Connector
+resource "google_vpc_access_connector" "vpc_connector" {
+  project        = var.project_id
+  name           = var.connector_name
+  region         = var.region
+  network        = google_compute_network.vpc_network.name
+  ip_cidr_range  = "10.8.0.0/28"
+  min_throughput = 200
+  max_throughput = 300
+  min_instances  = 2
+  max_instances  = 3
+
   depends_on = [
-    google_vpc_access_connector.vpc_connector
+    google_compute_network.vpc_network,
+    google_compute_subnetwork.vpc_subnet,
+    google_project_service.vpcaccess_api,
   ]
 }
 
@@ -76,8 +80,11 @@ resource "google_storage_bucket" "job_data_bucket" {
   name                        = "${var.storage_bucket_name}-${var.project_id}"
   location                    = var.region
   uniform_bucket_level_access = true
-  default_storage_class       = "STANDARD"
-  enable_autoclass            = true
+  storage_class               = "STANDARD"
+
+  autoclass {
+    enabled = true
+  }
 
   lifecycle_rule {
     action {
@@ -90,7 +97,7 @@ resource "google_storage_bucket" "job_data_bucket" {
   }
 
   depends_on = [
-    google_project_service.run_api # Ensure Cloud Run API is enabled for potential future integrations
+    google_project_service.run_api
   ]
 }
 
@@ -143,17 +150,27 @@ resource "google_project_iam_member" "scheduler_sa_token_creator" {
 resource "google_secret_manager_secret" "user_prefs_secret" {
   project   = var.project_id
   secret_id = var.prefs_secret_name
+
   replication {
-    automatic = true
+    auto {}
   }
+
+  depends_on = [
+    google_project_service.secretmanager_api
+  ]
 }
 
 resource "google_secret_manager_secret" "slack_webhook_secret" {
   project   = var.project_id
   secret_id = var.slack_webhook_secret_name
+
   replication {
-    automatic = true
+    auto {}
   }
+
+  depends_on = [
+    google_project_service.secretmanager_api
+  ]
 }
 
 # IAM for Secret Manager secrets (grant runtime SA access)
@@ -179,44 +196,34 @@ resource "google_artifact_registry_repository" "docker_repo" {
   format        = "DOCKER"
   project       = var.project_id
 
-        depends_on = [
-          google_project_service.artifactregistry_api
-        ]
-      }
-  
-  module "cloud_build" {
-    source = "./modules/cloud_build"
-  
-    project_id                  = var.project_id
-    region                      = var.region
-    image_name                  = "${var.service_name_prefix}-${var.deployment_env}"
-    source_repo                 = var.source_repo
-    artifact_registry_repo_name = google_artifact_registry_repository.docker_repo.repository_id
-  }
-  
-  module "cloud_run" {
-    source = "./modules/cloud_run"
-  
-    project_id      = var.project_id
-    region          = var.region
-    service_name    = "${var.service_name_prefix}-${var.deployment_env}"
-    image           = module.cloud_build.image_name_with_tag
-    cpu             = var.cloud_run_cpu
-    memory          = var.cloud_run_memory
-    max_instances   = var.cloud_run_max_instances
-    timeout_seconds = var.cloud_run_timeout_seconds
-    concurrency     = var.cloud_run_concurrency
-    service_account_email = google_service_account.runtime_sa.email
-    vpc_connector   = google_vpc_access_connector.vpc_connector.id
-    vpc_egress      = "ALL_TRAFFIC"
-    env_vars = {
-      DEPLOYMENT_ENV = var.deployment_env
-      CLOUD_PROVIDER = "gcp"
-      STORAGE_BUCKET = google_storage_bucket.job_data_bucket.name
-    }
-  
   depends_on = [
-    module.cloud_build,
+    google_project_service.artifactregistry_api
+  ]
+}
+
+module "cloud_run" {
+  source = "./modules/cloud_run"
+
+  project_id            = var.project_id
+  region                = var.region
+  service_name          = "${var.service_name_prefix}-${var.deployment_env}"
+  image                 = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.docker_repo.repository_id}/${var.service_name_prefix}:latest"
+  cpu                   = var.cloud_run_cpu
+  memory                = var.cloud_run_memory
+  max_instances         = var.cloud_run_max_instances
+  timeout_seconds       = var.cloud_run_timeout_seconds
+  concurrency           = var.cloud_run_concurrency
+  service_account_email = google_service_account.runtime_sa.email
+  vpc_connector         = google_vpc_access_connector.vpc_connector.id
+  vpc_egress            = "all-traffic"
+  env_vars = {
+    DEPLOYMENT_ENV = var.deployment_env
+    CLOUD_PROVIDER = "gcp"
+    STORAGE_BUCKET = google_storage_bucket.job_data_bucket.name
+  }
+
+  depends_on = [
+    google_artifact_registry_repository.docker_repo,
     google_vpc_access_connector.vpc_connector,
     google_project_service.vpcaccess_api,
     google_service_account.runtime_sa,
@@ -246,10 +253,10 @@ resource "google_monitoring_alert_policy" "cloud_run_job_failures" {
   conditions {
     display_name = "Failed Cloud Run Job Executions"
     condition_threshold {
-      filter     = "resource.type = \"cloud_run_job\" AND resource.labels.job_name = \"${module.cloud_run.service_name}\" AND metric.type = \"run.googleapis.com/job/execution_count\" AND metric.labels.state = \"FAILED\""
-      duration   = "300s"
-      comparison = "COMPARISON_GT"
-      threshold  = 0
+      filter          = "resource.type = \"cloud_run_job\" AND resource.labels.job_name = \"${module.cloud_run.service_name}\" AND metric.type = \"run.googleapis.com/job/execution_count\" AND metric.labels.state = \"FAILED\""
+      duration        = "300s"
+      comparison      = "COMPARISON_GT"
+      threshold_value = 0
       aggregations {
         alignment_period   = "300s"
         per_series_aligner = "ALIGN_RATE"
@@ -273,7 +280,7 @@ resource "google_monitoring_alert_policy" "cloud_run_job_failures" {
 
 # Billing Budget for Cost Tracking
 resource "google_billing_budget" "job_scraper_budget" {
-  billing_account = data.google_billing_account.account.billing_account_id
+  billing_account = data.google_billing_account.account.id
   display_name    = "${var.service_name_prefix}-${var.deployment_env}-budget"
 
   amount {
@@ -293,7 +300,7 @@ resource "google_billing_budget" "job_scraper_budget" {
     spend_basis       = "CURRENT_SPEND"
   }
 
-  filter {
+  budget_filter {
     projects = ["projects/${var.project_id}"]
   }
 }
@@ -304,46 +311,12 @@ resource "google_pubsub_topic" "budget_alerts" {
   project = var.project_id
 }
 
-# Alert Policy for Budget Threshold
-resource "google_monitoring_alert_policy" "budget_threshold_alert" {
-  display_name = "Budget Threshold Exceeded - ${var.service_name_prefix}-${var.deployment_env}"
-  project      = var.project_id
-
-  combiner = "OR"
-
-  conditions {
-    display_name = "Budget Exceeded"
-    condition_monitoring_query_language {
-      query = <<EOT
-fetch billing.googleapis.com/billing_account/cost_budget/budget_amount
-| filter resource.labels.billing_account_id = "${data.google_billing_account.account.billing_account_id}"
-| filter metric.labels.budget_id = "${google_billing_budget.job_scraper_budget.budget_id}"
-| group_by 1d, [value_budget_amount_mean: mean(value.budget_amount)]
-| every 1d
-| condition val() > ${var.budget_amount_usd} * ${var.budget_alert_threshold_percent}
-EOT
-      duration   = "0s"
-      trigger {
-        count = 1
-      }
-    }
-  }
-
-  alert_strategy {
-    auto_close = "604800s"
-  }
-
-  notification_channels = [
-    google_monitoring_notification_channel.email_channel.id
-  ]
-
-  documentation {
-    content = "This alert fires when the defined budget threshold for the Job Scraper project is exceeded. Review your GCP billing to understand cost drivers."
-    mime_type = "text/markdown"
-  }
-}
+# Note: Budget alerts are handled via Pub/Sub topic and Cloud Function
+# The budget resource above will publish to the Pub/Sub topic when thresholds are exceeded
+# The Cloud Function (deployed by Python bootstrap) will handle the alert and take action
 
 # Data source for billing account ID
 data "google_billing_account" "account" {
-  billing_account_id = var.billing_account_id
+  billing_account = var.billing_account_id
+  open            = true
 }

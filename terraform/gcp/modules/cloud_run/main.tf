@@ -1,48 +1,44 @@
-resource "google_cloud_run_service" "default" {
+resource "google_cloud_run_v2_job" "default" {
   name     = var.service_name
   location = var.region
   project  = var.project_id
 
   template {
-    spec {
+    template {
+      service_account = var.service_account_email
+
+      vpc_access {
+        connector = var.vpc_connector
+        egress    = upper(replace(var.vpc_egress, "-", "_"))
+      }
+
+      max_retries = 1
+      timeout     = "${var.timeout_seconds}s"
+
       containers {
         image = var.image
+
         resources {
           limits = {
-            cpu    = var.cpu
+            cpu    = tostring(var.cpu)
             memory = var.memory
           }
         }
-        env = [
-          for k, v in var.env_vars : {
-            name  = k
-            value = v
+
+        dynamic "env" {
+          for_each = var.env_vars
+          content {
+            name  = env.key
+            value = env.value
           }
-        ]
-      }
-      container_concurrency = var.concurrency
-      timeout_seconds       = var.timeout_seconds
-    }
-    metadata {
-      annotations = {
-        "autoscaling.knative.dev/maxScale" = var.max_instances
-        "run.googleapis.com/cpu-throttling" = "true"
+        }
       }
     }
   }
 
-  traffic {
-    percent = 100
-    latest_revision = true
+  lifecycle {
+    ignore_changes = [
+      launch_stage,
+    ]
   }
-
-  autogenerate_revision_name = true
-}
-
-resource "google_cloud_run_service_iam_member" "noauth" {
-  location = google_cloud_run_service.default.location
-  project  = google_cloud_run_service.default.project
-  service  = google_cloud_run_service.default.name
-  role     = "roles/run.invoker"
-  member   = "allUsers"
 }

@@ -39,6 +39,33 @@ from cloud.utils import (
 
 INSTALL_VERSION = "540.0.0"
 
+from cloud.providers.gcp.utils import (
+    build_google_api_url,
+    get_gcp_project_id,
+    get_gcp_region,
+    get_gcp_zone,
+    set_gcp_project_id,
+    set_gcp_region,
+    set_gcp_zone,
+)
+from cloud.providers.gcp.auth import authenticate
+from cloud.providers.gcp.sdk import ensure_gcloud
+from cloud.providers.gcp.project import choose_billing_account, create_project, enable_services
+from cloud.providers.gcp.regions import select_region, select_scheduler_region
+from cloud.providers.gcp.security import setup_binary_authorization, run_prowler_scan
+from cloud.providers.gcp.cloud_run import build_and_push_image
+from cloud.providers.gcp.scheduler import schedule_job
+from cloud.providers.gcp.summary import verify_deployment, print_summary, send_slack_notification
+from cloud.providers.gcp.project_detection import (
+    detect_existing_deployment,
+    generate_project_id,
+    get_state_directory,
+    get_terraform_state_path,
+    save_deployment_config,
+    load_deployment_config,
+)
+from cloud.providers.common.terraform_installer import ensure_terraform
+
 
 class GCPBootstrap:
     """Interactive bootstrapper for Google Cloud Run Jobs."""
@@ -65,77 +92,70 @@ class GCPBootstrap:
         self.project_root = resolve_project_root()
         self.terraform_dir = self.project_root / "terraform" / "gcp"
         self.job_mode: str = "poll"
-        self.schedule_frequency: str = "0 6-18 * * 1-5"  # Business hours every hour default
+        self.schedule_frequency: str = "0 6-18 * * 1-5"
+        self.alert_email: str | None = None
         self.vpc_name: str | None = None
         self.subnet_name: str | None = None
         self.connector_name: str | None = None
+        self.storage_bucket: str | None = None
         self.prefs_secret_name: str | None = None
         self.slack_webhook_secret_name: str | None = None
         self.budget_topic_name: str | None = None
-
-
-from cloud.providers.gcp.utils import (
-    build_google_api_url,
-    get_gcp_project_id,
-    get_gcp_region,
-    get_gcp_zone,
-    run_command,
-    set_gcp_project_id,
-    set_gcp_region,
-    set_gcp_zone,
-)
-from cloud.providers.gcp.auth import authenticate
-from cloud.providers.gcp.sdk import ensure_gcloud
-from cloud.providers.gcp.project import choose_billing_account, create_project, enable_services
-from cloud.providers.gcp.regions import select_region, select_scheduler_region
-from cloud.providers.gcp.security import setup_binary_authorization, run_prowler_scan
-from cloud.providers.gcp.cloud_run import build_and_push_image, create_or_update_job
-from cloud.providers.gcp.scheduler import schedule_job
-from cloud.providers.gcp.budget import configure_budget, setup_budget_alerts
-from cloud.providers.gcp.summary import verify_deployment, print_summary, send_slack_notification
-
-
-class GCPBootstrap:
-    """Interactive bootstrapper for Google Cloud Run Jobs."""
-
-    name = "Google Cloud Platform"
-
-    def __init__(self, logger, no_prompt: bool = False) -> None:
-        self.logger = logger
-        self.no_prompt = no_prompt
-        self.project_id: str | None = None
-        self.project_number: str | None = None
-        self.project_name: str | None = None
-        self.billing_account: str | None = None
-        self.region: str | None = None
-        self.artifact_repo: str = "job-scraper"
-        self.image_uri: str | None = None
-        self.job_name: str = "job-scraper"
-        self.runtime_sa: str | None = None
-        self.scheduler_sa: str | None = None
-        self.scheduler_region: str | None = None
-        self.user_prefs_payload: str = ""
-        self.env_values: Dict[str, str] = {}
-        self.env_secret_bindings: Dict[str, str] = {}
-        self.project_root = resolve_project_root()
-        self.terraform_dir = self.project_root / "terraform" / "gcp"
 
     # ------------------------------------------------------------------
     # public API
     # ------------------------------------------------------------------
     async def run(self) -> None:
+        """Main deployment workflow."""
         self._print_welcome()
         await self._confirm_prerequisites()
+
+        # Install prerequisites
         await ensure_gcloud(self.logger, self.no_prompt, self.project_root)
+        await ensure_terraform(self.logger)
         await authenticate(self.logger)
-        self.region = await select_region(self.logger, self.no_prompt)
-        self.billing_account = await choose_billing_account(self.logger, self.no_prompt)
+
+        # Check for existing deployment
+        existing_project_id = await detect_existing_deployment(self.logger, self.no_prompt)
+
+        if existing_project_id:
+            # Update existing deployment
+            self.project_id = existing_project_id
+            self.logger.info(f"Updating existing project: {self.project_id}")
+
+            # Load existing config
+            existing_config = load_deployment_config(self.project_id)
+            if existing_config:
+                self.region = existing_config.get('region')
+                self.billing_account = existing_config.get('billing_account')
+                self.logger.info(f"Loaded configuration from previous deployment")
+            else:
+                # Config not found, collect fresh
+                self.region = await select_region(self.logger, self.no_prompt)
+                self.billing_account = await choose_billing_account(self.logger, self.no_prompt)
+        else:
+            # New deployment
+            self.project_id = generate_project_id()
+            self.logger.info(f"Creating new project: {self.project_id}")
+            self.region = await select_region(self.logger, self.no_prompt)
+            self.billing_account = await choose_billing_account(self.logger, self.no_prompt)
+
+            # Create GCP project
+            await create_project(self.logger, self.project_id, self.project_id, self.billing_account)
+
+        # Collect user configuration (Slack webhook, schedule, etc.)
+        self._collect_configuration()
+
+        # Write terraform.tfvars with collected configuration
+        await self._write_terraform_vars()
+
+        # Run Terraform to provision infrastructure
         terraform_outputs = await self._run_terraform_apply()
 
         # Extract Terraform outputs
         self.artifact_repo = terraform_outputs["artifact_registry_repo_name"]["value"]
         self.job_name = terraform_outputs["cloud_run_job_name"]["value"]
-        self.image_uri = terraform_outputs["cloud_build_image_name_with_tag"]["value"]
+        self.image_uri = terraform_outputs["image_uri"]["value"]
         self.budget_topic_name = terraform_outputs["budget_pubsub_topic"]["value"]
         self.vpc_name = terraform_outputs["vpc_network_name"]["value"]
         self.subnet_name = terraform_outputs["vpc_subnet_name"]["value"]
@@ -145,37 +165,28 @@ class GCPBootstrap:
         self.scheduler_sa = terraform_outputs["scheduler_service_account_email"]["value"]
         self.prefs_secret_name = terraform_outputs["user_prefs_secret_id"]["value"]
         self.slack_webhook_secret_name = terraform_outputs["slack_webhook_secret_id"]["value"]
-        self.scheduler_region = await select_scheduler_region(self.logger, self.no_prompt, self.region)
+        self.project_number = terraform_outputs["project_number"]["value"]
 
-        # Infrastructure setup - now largely managed by Terraform, but some post-TF steps remain
-        # setup_binary_authorization is still needed as it's not in Terraform
-        await setup_binary_authorization(self.logger, self.project_id, self.region)
+        # Save deployment configuration for future updates
+        save_deployment_config(self.project_id, {
+            'project_id': self.project_id,
+            'region': self.region,
+            'billing_account': self.billing_account,
+            'job_name': self.job_name,
+            'terraform_version': '1.10.3',
+        })
 
-        # Configuration and secrets
-        self._collect_configuration()
-        # Secrets are now defined in Terraform, only their values are managed by Python
-        # We need to update the secret values using the Terraform-provided secret IDs
+        # Update secret values (secrets are created by Terraform, we just set the values)
         await self._update_secret_values()
 
-        # Build and deploy
-        # image_uri and job_name are now from Terraform outputs
-        # build_and_push_image is still needed to build the image and push it to the repo created by Terraform
+        # Select scheduler region
+        self.scheduler_region = await select_scheduler_region(self.logger, self.no_prompt, self.region)
+
+        # Build and push Docker image (one-time build)
+        self.logger.info("Building and pushing Docker image...")
         await build_and_push_image(self.logger, self.project_root, self.project_id, self.region, self.artifact_repo)
-        # Pass Terraform-managed service account and connector to create_or_update_job
-        await create_or_update_job(
-            self.logger,
-            self.project_id,
-            self.region,
-            self.job_name,
-            self.image_uri,
-            self.runtime_sa,
-            self.job_mode,
-            self.storage_bucket,
-            self.connector_name,
-            self.prefs_secret_name,
-            self.slack_webhook_secret_name,
-        )
-        # Pass Terraform-managed service account to schedule_job
+
+        # Schedule the job (Cloud Run Job already created by Terraform, just need scheduler)
         await schedule_job(
             self.logger,
             self.project_id,
@@ -186,20 +197,24 @@ class GCPBootstrap:
             self.schedule_frequency,
         )
 
-        # Budget controls (now largely managed by Terraform)
-        # The budget itself and the Pub/Sub topic are created by Terraform.
-        # We still need to deploy the Cloud Function for budget alerts.
-        await self._setup_budget_alerts()  # This will use self.budget_topic_name
+        # Deploy budget alert Cloud Function
+        await self._setup_budget_alerts()
 
-        # Verification and reporting (MUST run last after all resources created)
+        # Optional: Binary Authorization (if needed)
+        # await setup_binary_authorization(self.logger, self.project_id, self.region)
+
+        # Verification and reporting
         await verify_deployment(
             self.logger, self.job_name, self.region, self.project_id, self.scheduler_region, self.storage_bucket
         )
-        await run_prowler_scan(
-            self.logger, self.project_id, self.project_root
-        )  # Security scan after everything is deployed
 
-        # Final summary and notification
+        # Security scan (optional but recommended)
+        try:
+            await run_prowler_scan(self.logger, self.project_id, self.project_root)
+        except Exception as e:
+            self.logger.warning(f"Security scan failed (non-critical): {e}")
+
+        # Final summary
         print_summary(
             self.logger,
             self.project_id,
@@ -210,6 +225,8 @@ class GCPBootstrap:
             self.storage_bucket,
             self.image_uri,
         )
+
+        # Send Slack notification
         await send_slack_notification(
             self.logger,
             self.project_id,
@@ -434,46 +451,128 @@ class GCPBootstrap:
             self.logger.error("Please finish the account setup and re-run this script.")
             sys.exit(1)
 
-    async def _run_terraform_apply(self) -> None:
-        self.logger.info("Applying Terraform configuration for GCP infrastructure...")
+    async def _write_terraform_vars(self) -> None:
+        """Write terraform.tfvars file with collected configuration."""
+        self.logger.info("Writing Terraform configuration...")
+
+        # Get state directory for this project
+        state_dir = get_state_directory(self.project_id)
+        terraform_work_dir = state_dir / "terraform"
+        terraform_work_dir.mkdir(parents=True, exist_ok=True)
+
+        # Copy Terraform files to state directory
+        import shutil
+        for item in self.terraform_dir.iterdir():
+            if item.is_file() or (item.is_dir() and item.name == "modules"):
+                dest = terraform_work_dir / item.name
+                if item.is_dir():
+                    if dest.exists():
+                        shutil.rmtree(dest)
+                    shutil.copytree(item, dest)
+                else:
+                    shutil.copy2(item, dest)
+
+        # Update terraform_dir to point to state directory
+        self.terraform_dir = terraform_work_dir
+
+        # Write terraform.tfvars
+        tfvars_path = terraform_work_dir / "terraform.tfvars"
+        tfvars_content = f"""# Auto-generated by job-scraper deployment script
+# Project configuration
+project_id           = "{self.project_id}"
+billing_account_id   = "{self.billing_account}"
+region               = "{self.region}"
+deployment_env       = "production"
+
+# Monitoring
+alert_email_address  = "{self.alert_email}"
+
+# Cloud Run configuration
+cloud_run_cpu             = 1
+cloud_run_memory          = "512Mi"
+cloud_run_max_instances   = 1
+cloud_run_timeout_seconds = 900
+cloud_run_concurrency     = 1
+
+# Budget controls
+budget_amount_usd              = 5.0
+budget_alert_threshold_percent = 0.9
+"""
+
+        with open(tfvars_path, 'w') as f:
+            f.write(tfvars_content)
+
+        self.logger.info(f"✓ Terraform configuration written to {tfvars_path}")
+
+    async def _run_terraform_apply(self) -> dict:
+        """Run terraform init/plan/apply and return outputs."""
+        self.logger.info("")
+        self.logger.info("=" * 70)
+        self.logger.info("TERRAFORM INFRASTRUCTURE PROVISIONING")
+        self.logger.info("=" * 70)
+        self.logger.info("")
 
         # Initialize Terraform
         self.logger.info("Initializing Terraform...")
-        await run_command(["terraform", "init"], logger=self.logger, cwd=self.terraform_dir)
+        await run_command(
+            ["terraform", "init"],
+            logger=self.logger,
+            cwd=str(self.terraform_dir),
+        )
 
         # Plan Terraform changes
         self.logger.info("Planning Terraform changes...")
-        plan_command = [
-            "terraform",
-            "plan",
-            f"-var=project_id={self.project_id}",
-            f"-var=project_name={self.project_name}",
-            f"-var=billing_account={self.billing_account}",
-            f"-var=region={self.region}",
-            "-out=tfplan",
-        ]
-        await run_command(plan_command, logger=self.logger, cwd=self.terraform_dir)
+        await run_command(
+            ["terraform", "plan", "-out=tfplan"],
+            logger=self.logger,
+            cwd=str(self.terraform_dir),
+            show_spinner=True,
+        )
 
         # Apply Terraform changes
-        self.logger.info("Applying Terraform changes...")
-        apply_command = ["terraform", "apply", "-auto-approve", "tfplan"]
-        await run_command(apply_command, logger=self.logger, cwd=self.terraform_dir)
+        self.logger.info("Applying Terraform changes (this may take 5-10 minutes)...")
+        await run_command(
+            ["terraform", "apply", "-auto-approve", "tfplan"],
+            logger=self.logger,
+            cwd=str(self.terraform_dir),
+            show_spinner=True,
+        )
 
         # Get Terraform outputs
         self.logger.info("Retrieving Terraform outputs...")
-        output_command = ["terraform", "output", "-json"]
         output_result = await run_command(
-            output_command, capture_output=True, logger=self.logger, cwd=self.terraform_dir
+            ["terraform", "output", "-json"],
+            capture_output=True,
+            text=True,
+            logger=self.logger,
+            cwd=str(self.terraform_dir),
         )
         terraform_outputs = json.loads(output_result.stdout)
 
-        self.project_id = terraform_outputs["project_id"]["value"]
-        self.project_number = terraform_outputs["project_number"]["value"]
-        self.logger.info(f"Terraform applied successfully. Project ID: {self.project_id}")
+        self.logger.info("✓ Terraform infrastructure provisioned successfully")
+        self.logger.info("")
         return terraform_outputs
 
     def _collect_configuration(self) -> None:
-        self.logger.info("Collect runtime configuration")
+        """Collect user configuration for deployment."""
+        self.logger.info("")
+        self.logger.info("=" * 70)
+        self.logger.info("CONFIGURATION COLLECTION")
+        self.logger.info("=" * 70)
+        self.logger.info("")
+
+        # Collect alert email
+        if not self.no_prompt:
+            self.logger.info("Enter an email address for monitoring alerts (budget, failures, etc.):")
+            while True:
+                email_input = input("Email address: ").strip()
+                if "@" in email_input and "." in email_input:
+                    self.alert_email = email_input
+                    break
+                self.logger.error("Invalid email format. Please try again.")
+        else:
+            self.alert_email = "noreply@example.com"  # Placeholder for no-prompt mode
+
         self.logger.info("")
         self.logger.info("=" * 70)
         self.logger.info("SLACK WEBHOOK SETUP (REQUIRED FOR NOTIFICATIONS)")
@@ -644,98 +743,8 @@ class GCPBootstrap:
         selected_index = schedule_choices.index(schedule_choice)
         self.schedule_frequency = schedule_options[selected_index]
 
-    async def _create_service_accounts(self) -> None:
-        self.logger.info("Creating service accounts and IAM bindings")
-        runtime_name = "job-scraper-runner"
-        scheduler_name = "job-scraper-scheduler"
-
-        for sa_name in [runtime_name, scheduler_name]:
-            sa_email = f"{sa_name}@{self.project_id}.iam.gserviceaccount.com"
-            check_sa = await run_command(
-                ["gcloud", "iam", "service-accounts", "describe", sa_email, f"--project={self.project_id}"],
-                check=False,
-                capture_output=True,
-                logger=self.logger,
-            )
-            if check_sa.returncode == 0:
-                self.logger.info(f"Service account {sa_name} already exists.")
-                continue
-
-            await run_command(
-                [
-                    "gcloud",
-                    "iam",
-                    "service-accounts",
-                    "create",
-                    sa_name,
-                    "--display-name",
-                    f"Job Scraper {sa_name.split('-')[-1].capitalize()}",
-                    "--project",
-                    self.project_id,
-                    "--quiet",
-                ],
-                check=False,
-                logger=self.logger,
-            )
-            # Note: Service accounts don't support --update-labels, skip labeling
-            pass
-
-        project = self.project_id
-        self.runtime_sa = f"{runtime_name}@{project}.iam.gserviceaccount.com"
-        self.scheduler_sa = f"{scheduler_name}@{project}.iam.gserviceaccount.com"
-
-        # Wait for service account propagation (IAM can take a few seconds)
-        self.logger.info("Waiting for service accounts to propagate (5 seconds)...")
-        import asyncio
-
-        await asyncio.sleep(5)
-
-        # Grant project-level roles
-        project_bindings = [
-            (self.runtime_sa, "roles/logging.logWriter"),
-            (self.runtime_sa, "roles/run.invoker"),
-            (self.runtime_sa, "roles/storage.objectUser"),  # For bucket read/write
-            (self.scheduler_sa, "roles/run.invoker"),
-            (self.scheduler_sa, "roles/iam.serviceAccountTokenCreator"),
-        ]
-        for member, role in project_bindings:
-            await run_command(
-                [
-                    "gcloud",
-                    "projects",
-                    "add-iam-policy-binding",
-                    project,
-                    "--member",
-                    f"serviceAccount:{member}",
-                    "--role",
-                    role,
-                    "--quiet",
-                ],
-                logger=self.logger,
-                retries=5,  # Add retries for IAM propagation delays
-                delay=2,  # Start with 2 seconds delay
-            )
-
-        # Grant per-secret access for least privilege
-        for secret_name in self.env_secret_bindings.values():
-            await run_command(
-                [
-                    "gcloud",
-                    "secrets",
-                    "add-iam-policy-binding",
-                    secret_name,
-                    "--member",
-                    f"serviceAccount:{self.runtime_sa}",
-                    "--role",
-                    "roles/secretmanager.secretAccessor",
-                    "--project",
-                    project,
-                    "--quiet",
-                ],
-                logger=self.logger,
-                retries=5,  # Add retries for IAM propagation delays
-                delay=2,  # Start with 2 seconds delay
-            )
+    # Service accounts and IAM bindings are now created by Terraform
+    # This method is no longer needed but kept as a comment for reference
 
     async def _setup_budget_alerts(self) -> None:
         self.logger.info("Setting up automated budget controls")
