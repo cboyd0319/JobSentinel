@@ -44,7 +44,7 @@ try {
 
     # --- Launch Main Installer ---
     # Use -ExecutionPolicy Bypass for this single, trusted script launch
-    Start-Process powershell.exe -ArgumentList "-ExecutionPolicy Bypass -File `"$InstallerPath`"" -WorkingDirectory (Split-Path $InstallerPath -Parent)
+    Start-Process powershell.exe -ArgumentList "-ExecutionPolicy Bypass -File `"$InstallerPath`"" -WorkingDirectory (Split-Path $InstallerPath -Parent) -Wait
 
 } catch {
     Write-Host "`nOh dear, something went wrong during the download." -ForegroundColor Red
