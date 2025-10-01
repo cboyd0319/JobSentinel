@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v2.4.4 (2025-10-01)
+
+### Bug Fixes
+
+- Windows issues
+  ([`4427af5`](https://github.com/cboyd0319/job-private-scraper-filter/commit/4427af54a0ea48c29a79f49eead300d6063aa07d))
+
+
 ## v2.4.3 (2025-10-01)
 
 
