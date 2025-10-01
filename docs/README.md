@@ -1,57 +1,75 @@
-# Documentation
+# Documentation Index
 
-## Quick Start
+Complete guide to setting up, deploying, and maintaining the job scraper.
 
-- [Windows Quick Start](WINDOWS_QUICKSTART.md) - One-command install for Windows users
-- [Windows Error Recovery](WINDOWS_ERROR_RECOVERY.md) - Troubleshooting Windows install issues
-- [Installation](INSTALLATION.md) - Detailed setup instructions
-- [Cloud Deployment](CLOUD_DEPLOYMENT_GUIDE.md) - GCP deployment guide
+---
 
-## Core Docs
+## Getting Started
 
-- [Architecture](JOB_SCRAPER_ARCHITECTURE.md) - System design overview
-- [Development](DEVELOPMENT.md) - Contributing and development setup
-- [Troubleshooting](TROUBLESHOOTING.md) - Common issues and fixes
+### Quick Setup
+- **[Main README](../README.md)** - Project overview and quickstart
+- **[Installation](INSTALLATION.md)** - Local setup (macOS/Linux)
+- **[Windows Setup](WINDOWS.md)** - Complete Windows guide
+- **[Slack Notifications](SLACK.md)** - Configure Slack alerts (5 min)
+
+### Cloud Deployment
+- **[Cloud Deployment](CLOUD.md)** - GCP deployment guide ($1-2/month)
+- **[Presentation Design](PRESENTATION_DESIGN.md)** - Polished CLI UX features
+
+---
 
 ## Configuration
 
-- [Slack Setup](SLACK_SETUP.md) - Complete Slack webhook guide
-- [API Key Management](API_KEY_MANAGEMENT.md) - Setting up API keys for LLMs
-- [Setup Wizard](SETUP_WIZARD_GUIDE.md) - Interactive configuration tool
-- [Tone Guide](TONE_GUIDE.md) - Customizing notification style
+- **[User Preferences](../config/user_prefs.example.json)** - Job filters and scoring
+- **[Environment Variables](../env.example)** - API keys and webhooks
+- **[API Key Management](API_KEY_MANAGEMENT.md)** - Secure credential handling
 
-## Deployment
+---
 
-- [Cloud Costs](CLOUD_COSTS.md) - Cost estimates and budget controls
-- [GitHub Actions](GITHUB_ACTIONS_GUIDE.md) - CI/CD setup
-- [Release Process](RELEASE_PROCESS.md) - How to cut releases
+## Architecture & Development
 
-## Security
+- **[Architecture](JOB_SCRAPER_ARCHITECTURE.md)** - System design overview
+- **[Database Schema](DATABASE_SCHEMA_GUIDE.md)** - SQLite schema
+- **[Development Guide](DEVELOPMENT.md)** - Contributing code
+- **[GitHub Actions](GITHUB_ACTIONS_GUIDE.md)** - CI/CD pipeline
 
-- [Security Policy](SECURITY.md) - Reporting vulnerabilities
-- [Checksum Validation](CHECKSUM_VALIDATION.md) - Download integrity verification
-- [Code of Conduct](CODE_OF_CONDUCT.md) - Community guidelines
-- [Contributing](CONTRIBUTING.md) - How to contribute
+---
 
-## Validation Reports
+## Operations
 
-- [GCP Deployment Validation](validation/GCP_DEPLOYMENT_VALIDATION_REPORT.md) - Latest test results
-- [Fixes Applied](validation/FIXES_APPLIED.md) - Recent improvements
+- **[Troubleshooting](TROUBLESHOOTING.md)** - Common issues and fixes
+- **[Security](SECURITY.md)** - Security practices and audits
+- **[Release Process](RELEASE_PROCESS.md)** - How releases are created
+
+---
+
+## Reference
+
+- **[Agents Guide](AGENTS.md)** - Using specialized agents
+- **[User Data Storage](USER_DATA_STORAGE.md)** - Where data lives
+- **[Changelog](CHANGELOG.md)** - Version history
+- **[TODO](TODO.md)** - Planned features
+
+---
+
+## Meta
+
+- **[Contributing](CONTRIBUTING.md)** - How to contribute
+- **[Code of Conduct](CODE_OF_CONDUCT.md)** - Community guidelines
+- **[Future Enhancements](FUTURE_ENHANCEMENTS.md)** - Roadmap
+
+---
 
 ## Archive
 
-- [Cleanup Summary](archive/CLEANUP_COMPLETED.md) - Past cleanup operations
-- [Refactoring Summary](archive/REFACTORING_SUMMARY.md) - Major refactoring history
+Older docs moved to [`archive/`](archive/):
+- Refactoring summaries
+- Validation reports
+- Performance analyses
+- Deprecated guides
 
-## Agents & Advanced
+---
 
-- [Agents](AGENTS.md) - Multi-agent orchestration
-- [Future Enhancements](FUTURE_ENHANCEMENTS.md) - Roadmap
-- [Database Schema](DATABASE_SCHEMA_GUIDE.md) - Data structure
-- [User Data Storage](USER_DATA_STORAGE.md) - Privacy and data handling
-- [Resume Compatibility](RESUME_COMPATIBILITY_ANALYSIS.md) - Resume parsing features
+**Total docs:** 20 core + 8 archived = 28 (down from 35)
 
-## References
-
-- [CIS GCP Benchmark v4.0.0](CIS_Google_Cloud_Platform_Foundation_Benchmark_v4.0.0.pdf) - Security baseline
-- [CIS GitHub Benchmark v1.1.0](CIS%20Github%20Benchmark%20V1.1.0.PDF) - GitHub security
+**Need help?** Check [Troubleshooting](TROUBLESHOOTING.md) or open an issue.
