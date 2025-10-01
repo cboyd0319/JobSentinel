@@ -1,19 +1,19 @@
-# Top-level error capture for debugging
+# --- SCRIPT METADATA AND SECURITY ---
+<#
+.SYNOPSIS
+    A simple, user-friendly installer for the Job Finder application.
+.DESCRIPTION
+    Provides a graphical interface for a non-technical user to choose between
+    a local or cloud-based installation, with resilient dependency checking.
+#>
+
+# --- INITIAL SETUP ---
+Set-StrictMode -Version Latest
+$ErrorActionPreference = 'Stop'
+
+# This top-level try/catch is the final safety net to log any terminating errors.
 try {
-    # --- SCRIPT METADATA AND SECURITY ---
-    <#
-    .SYNOPSIS
-        A simple, user-friendly installer for the Job Finder application.
-    .DESCRIPTION
-        Provides a graphical interface for a non-technical user to choose between
-        a local or cloud-based installation, with resilient dependency checking.
-    #>
-
-    # --- INITIAL SETUP ---
-    Set-StrictMode -Version Latest
-    $ErrorActionPreference = 'Stop' # Stop on terminating errors to ensure they are caught
-
-    # --- GUI DEFINITION (WPF with Presentation-First Aesthetic) ---
+    # --- GUI DEFINITION (WPF) ---
     Add-Type -AssemblyName PresentationFramework, System.Windows.Forms
 
     $brand = @{ Primary = '#4C8BF5'; Secondary = '#6c757d'; Accent = '#22C55E'; Text = '#333333'; BG = '#fdfdfd'; BtnText = '#ffffff'; Error = '#EF4444' }
@@ -119,13 +119,49 @@ try {
     }
 
     function Run-Step-InstallPython {
-        $actionButton.IsEnabled = $false
-        Update-Status "Downloading Python installer..."
-        Start-Sleep -Seconds 3 # Simulate download and install
+    $actionButton.IsEnabled = $false
+    Update-Status "Downloading Python installer from python.org..."
+    
+    $job = Start-Job -ScriptBlock {
+        param($UpdateCallback)
+        $pythonVersion = "3.12.10"
+        $pythonUrl = "https://www.python.org/ftp/python/$pythonVersion/python-$pythonVersion-amd64.exe"
+        $installerPath = Join-Path $env:TEMP "python-installer.exe"
+        # Official SHA256 from https://www.python.org/downloads/release/python-31210/
+        $expectedSHA256 = "c3a526c6a84353c8633f01add54abe584535048303455150591e3e9ad884b424"
+
+        try {
+            Invoke-WebRequest -Uri $pythonUrl -OutFile $installerPath -UseBasicParsing
+            Invoke-Command -ScriptBlock $UpdateCallback -ArgumentList "Verifying download..."
+            $actualHash = (Get-FileHash $installerPath -Algorithm SHA256).Hash
+            if ($actualHash -ne $expectedSHA256) {
+                throw "Python installer checksum failed! File may be corrupt."
+            }
+            Invoke-Command -ScriptBlock $UpdateCallback -ArgumentList "✓ Download verified. Installing Python..."
+            Start-Process -FilePath $installerPath -ArgumentList "/quiet InstallAllUsers=0 PrependPath=1 Include_test=0" -Wait
+
+            # Refresh PATH for the current session
+            $userPath = [System.Environment]::GetEnvironmentVariable("Path", "User")
+            $env:Path = $env:Path + ";" + $userPath
+            return $true
+        } catch {
+            Invoke-Command -ScriptBlock $UpdateCallback -ArgumentList "Error installing Python: $($_.Exception.Message)" -Type Error
+            return $false
+        }
+    } -ArgumentList ([scriptblock]::Create("Update-Status"))
+
+    while ($job.State -eq 'Running') { Start-Sleep -Milliseconds 200 }
+    $success = Receive-Job $job
+
+    if ($success) {
         Update-Status "✓ Python has been installed!" -Type Success
         Set-Step -stepName "CheckGcloud" -buttonText "Next: Check Google Cloud Tools" -action $function:Run-Step-CheckGcloud
         $actionButton.RaiseEvent((New-Object System.Windows.RoutedEventArgs([System.Windows.Controls.Button]::ClickEvent)))
+    } else {
+        Update-Status "Python installation failed. Please check the logs." -Type Error
+        $actionButton.IsEnabled = $true
     }
+}
 
     function Run-Step-CheckGcloud {
         Update-Status "Checking for Google Cloud tools..."
@@ -140,21 +176,79 @@ try {
     }
 
     function Run-Step-InstallGcloud {
-        $actionButton.IsEnabled = $false
-        Update-Status "Downloading Google Cloud tools... (this may take a moment)"
-        Start-Sleep -Seconds 5
+    $actionButton.IsEnabled = $false
+    Update-Status "Downloading Google Cloud SDK... (this may take a moment)"
+
+    $job = Start-Job -ScriptBlock {
+        param($UpdateCallback)
+        $installerUrl = "https://dl.google.com/dl/cloudsdk/channels/rapid/GoogleCloudSDKInstaller.exe"
+        $installerPath = Join-Path $env:TEMP "gcloud-installer.exe"
+
+        try {
+            Invoke-WebRequest -Uri $installerUrl -OutFile $installerPath -UseBasicParsing
+            Invoke-Command -ScriptBlock $UpdateCallback -ArgumentList "Installing Google Cloud tools..."
+            
+            # Run the installer silently
+            Start-Process -FilePath $installerPath -ArgumentList "/S /allusers /noreporting" -Wait
+
+            # Refresh PATH. gcloud adds its path to the Machine scope.
+            $machinePath = [System.Environment]::GetEnvironmentVariable("Path", "Machine")
+            $env:Path = $env:Path + ";" + $machinePath
+            return $true
+        } catch {
+            Invoke-Command -ScriptBlock $UpdateCallback -ArgumentList "Error installing Google Cloud SDK: $($_.Exception.Message)" -Type Error
+            return $false
+        }
+    } -ArgumentList ([scriptblock]::Create("Update-Status"))
+
+    while ($job.State -eq 'Running') { Start-Sleep -Milliseconds 200 }
+    $success = Receive-Job $job
+
+    if ($success) {
         Update-Status "✓ Google Cloud tools installed!" -Type Success
         Set-Step -stepName "Deploy" -buttonText "Begin Cloud Setup" -action $function:Run-Step-Deploy
         $actionButton.RaiseEvent((New-Object System.Windows.RoutedEventArgs([System.Windows.Controls.Button]::ClickEvent)))
+    } else {
+        Update-Status "Google Cloud SDK installation failed. Please check the logs." -Type Error
+        $actionButton.IsEnabled = $true
     }
+}
 
     function Run-Step-Deploy {
-        $actionButton.IsEnabled = $false
-        Update-Status "Starting the main cloud setup. This is the longest step (5-10 minutes)..."
-        Start-Sleep -Seconds 8 # Simulate call to engine script
-        Update-Status "✓ Your secure Job Finder is ready!" -Type Success
+    $actionButton.IsEnabled = $false
+    Update-Status "Starting the main cloud setup. This is the longest step (5-10 minutes)..."
+
+    $job = Start-Job -ScriptBlock {
+        param($UpdateCallback)
+        $enginePath = Join-Path $PSScriptRoot "engine\Deploy-GCP.ps1"
+        try {
+            # This calls the robust engine script for GCP deployment
+            $process = Start-Process -FilePath "powershell.exe" -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$enginePath`" deploy" -PassThru -RedirectStandardOutput "$PSScriptRoot\logs\deploy_cloud.log" -RedirectStandardError "$PSScriptRoot\logs\error_cloud.log" -Wait -WindowStyle Hidden
+            
+            if ($process.ExitCode -ne 0) { 
+                throw (Get-Content "$PSScriptRoot\logs\error_cloud.log" -Raw)
+            }
+            
+            Invoke-Command -ScriptBlock $UpdateCallback -ArgumentList "✓ Your secure Job Finder is ready!" -Type Success
+            return $true
+        } catch {
+            Invoke-Command -ScriptBlock $UpdateCallback -ArgumentList "`nOh dear, we hit a snag during the cloud setup." -Type Error
+            Invoke-Command -ScriptBlock $UpdateCallback -ArgumentList "Please email me the file at $(Get-Location)\logs\error_cloud.log so I can help."
+            return $false
+        }
+    } -ArgumentList ([scriptblock]::Create("Update-Status"))
+
+    while ($job.State -eq 'Running') { Start-Sleep -Milliseconds 200 }
+    $success = Receive-Job $job
+
+    if ($success) {
         Set-Step -stepName "Done" -buttonText "Finish" -action { $window.Close() }
+    } else {
+        $actionButton.Content = "Finished with Errors"
+        $actionButton.Background = [System.Windows.Media.Brushes]::Red
+        $actionButton.IsEnabled = $true
     }
+}
 
     # --- Main Button Handlers ---
     $cloudButton.add_Click({
@@ -178,18 +272,12 @@ try {
         }
     })
 
-    # --- Main Execution & Resume Logic ---
+    # --- Initial State Check & Window Launch ---
     $initialState = Get-InstallerState
     if ($initialState -and $initialState.lastAttemptedStep) {
-        Update-Status "Welcome back! It looks like we were in the middle of a cloud setup."
-        if ($initialState.errorCount -gt 0) {
-            Update-Status "The last step failed. Let's try that again." -Type Warn
-        }
-        $resumeStep = $initialState.lastAttemptedStep
-        Update-Status "Resuming from step: $resumeStep"
-        
         Show-StatusView
-        switch ($resumeStep) {
+        Update-Status "Welcome back! Resuming previous cloud setup..."
+        switch ($initialState.lastAttemptedStep) {
             "InstallPython" { Set-Step -stepName "InstallPython" -buttonText "Install Python For Me" -action $function:Run-Step-InstallPython }
             "CheckGcloud"   { Set-Step -stepName "CheckGcloud" -buttonText "Next: Check Google Cloud Tools" -action $function:Run-Step-CheckGcloud }
             "InstallGcloud" { Set-Step -stepName "InstallGcloud" -buttonText "Install Google Cloud Tools" -action $function:Run-Step-InstallGcloud }
@@ -210,6 +298,7 @@ try {
     $errorDetails += "ScriptStackTrace: $($_.ScriptStackTrace)`n"
     Set-Content -Path $errorLogPath -Value $errorDetails
     
-    # Also try to show a message box, which might work even if WPF window failed.
+    # Also try to show a message box, which might work even if the main window failed.
+    try { Add-Type -AssemblyName System.Windows.Forms } catch {}
     [System.Windows.Forms.MessageBox]::Show("A critical error occurred during setup. A file named 'installer-crash.log' has been created with the details. Please send this file to the developer for help.", "Setup Failed", 0, [System.Windows.Forms.MessageBoxIcon]::Error)
 }
