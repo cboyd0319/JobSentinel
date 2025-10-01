@@ -14,10 +14,13 @@ async def create_project(logger, project_id: str, project_name: str, billing_acc
         project_id: Unique project ID
         project_name: Display name for the project
         billing_account: Billing account ID to link
+
+    Raises:
+        RuntimeError: If project creation fails (including quota errors)
     """
     logger.info(f"Creating GCP project: {project_id}")
 
-    # Create the project
+    # Create the project (may raise RuntimeError on quota/other failures)
     result = await run_command(
         ["gcloud", "projects", "create", project_id, f"--name={project_name}"],
         logger=logger

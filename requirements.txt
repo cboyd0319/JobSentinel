@@ -86,3 +86,6 @@ wrapt==1.17.3
 # Resume parsing (optional - for auto-configuration feature)
 pdfplumber==0.11.4
 python-docx==1.1.2
+
+# Clipboard integration (optional - for Slack webhook auto-detection)
+pyperclip==1.9.0

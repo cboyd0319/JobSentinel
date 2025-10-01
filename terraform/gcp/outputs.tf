@@ -28,10 +28,11 @@ output "image_uri" {
   value       = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.docker_repo.repository_id}/${var.service_name_prefix}:latest"
 }
 
-output "budget_name" {
-  description = "The name of the created billing budget."
-  value       = google_billing_budget.job_scraper_budget.name
-}
+# Budget outputs disabled - budget resource is commented out
+# output "budget_name" {
+#   description = "The name of the created billing budget."
+#   value       = google_billing_budget.job_scraper_budget.name
+# }
 
 output "budget_pubsub_topic" {
   description = "The full resource name of the Pub/Sub topic for budget alerts."

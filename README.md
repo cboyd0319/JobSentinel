@@ -1,14 +1,34 @@
-# Private Job Scraper & Filter
+# Job Scraper & Filter
 
-> **Heads-up:** This repo is my ongoing side project. I refactor often and sometimes break things. If you run into trouble, open an issue and I’ll take a look.
+```
+╔══════════════════════════════════════════════╗
+║       Smart Job Search, Running Quietly      ║
+║         Local-First • Cloud-Optional         ║
+╚══════════════════════════════════════════════╝
+```
+
+**One command. Your dream job, filtered and delivered.**
+
+Polls job boards on your schedule → Scores matches with custom rules → Sends Slack alerts when opportunities cross your threshold.
 
 ![Python 3.12.10](https://img.shields.io/badge/python-3.12.10-blue.svg)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 [![CI/CD Pipeline](https://github.com/cboyd0319/job-private-scraper-filter/actions/workflows/ci.yml/badge.svg)](https://github.com/cboyd0319/job-private-scraper-filter/actions/workflows/ci.yml)
 [![Security Scan](https://github.com/cboyd0319/job-private-scraper-filter/actions/workflows/security.yml/badge.svg)](https://github.com/cboyd0319/job-private-scraper-filter/actions/workflows/security.yml)
-[![PowerShell Validation](https://github.com/cboyd0319/job-private-scraper-filter/actions/workflows/powershell-validation.yml/badge.svg)](https://github.com/cboyd0319/job-private-scraper-filter/actions/workflows/powershell-validation.yml)
 
-I built this for friends who wanted a quiet helper watching their favorite job boards, scoring listings, and nudging them when something looks promising. It runs locally by default so your data stays on your machine.
+---
+
+## ⚡ Quickstart
+
+```bash
+# Local setup (5 minutes)
+python3 scripts/setup_wizard.py
+
+# Cloud deployment (GCP, one command)
+python3 -m cloud.bootstrap --yes
+```
+
+> **Privacy-first:** Runs locally by default. Your data stays on your machine unless you opt into cloud deployment.
 
 ## Table of contents
 

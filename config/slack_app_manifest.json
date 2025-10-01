@@ -1,0 +1,26 @@
+{
+  "display_information": {
+    "name": "Job Scraper",
+    "description": "Automated job matching and notification system. Sends alerts when relevant jobs are found.",
+    "background_color": "#1a1a2e",
+    "long_description": "Job Scraper monitors job boards and sends Slack notifications when positions matching your criteria are found. This app only sends messages - it cannot read your Slack messages or access other data."
+  },
+  "features": {
+    "bot_user": {
+      "display_name": "Job Scraper Bot",
+      "always_online": false
+    }
+  },
+  "oauth_config": {
+    "scopes": {
+      "bot": [
+        "incoming-webhook"
+      ]
+    }
+  },
+  "settings": {
+    "org_deploy_enabled": false,
+    "socket_mode_enabled": false,
+    "is_hosted": false
+  }
+}

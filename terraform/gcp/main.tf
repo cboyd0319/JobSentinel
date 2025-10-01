@@ -31,12 +31,24 @@ resource "google_project_service" "secretmanager_api" {
   disable_on_destroy = false
 }
 
+# Enable Compute Engine API (required for VPC)
+resource "google_project_service" "compute_api" {
+  project            = var.project_id
+  service            = "compute.googleapis.com"
+  disable_on_destroy = false
+}
+
 # VPC Network
 resource "google_compute_network" "vpc_network" {
   project                 = var.project_id
   name                    = var.vpc_name
   auto_create_subnetworks = false
   routing_mode            = "REGIONAL"
+
+  depends_on = [
+    google_project_service.compute_api,
+    time_sleep.wait_for_api_enablement
+  ]
 }
 
 # Subnet for VPC Access Connector
@@ -97,7 +109,8 @@ resource "google_storage_bucket" "job_data_bucket" {
   }
 
   depends_on = [
-    google_project_service.run_api
+    google_project_service.run_api,
+    time_sleep.wait_for_api_enablement
   ]
 }
 
@@ -156,7 +169,8 @@ resource "google_secret_manager_secret" "user_prefs_secret" {
   }
 
   depends_on = [
-    google_project_service.secretmanager_api
+    google_project_service.secretmanager_api,
+    time_sleep.wait_for_api_enablement
   ]
 }
 
@@ -169,7 +183,8 @@ resource "google_secret_manager_secret" "slack_webhook_secret" {
   }
 
   depends_on = [
-    google_project_service.secretmanager_api
+    google_project_service.secretmanager_api,
+    time_sleep.wait_for_api_enablement
   ]
 }
 
@@ -188,6 +203,20 @@ resource "google_secret_manager_secret_iam_member" "slack_webhook_secret_accesso
   member    = "serviceAccount:${google_service_account.runtime_sa.email}"
 }
 
+# Wait for API enablement to propagate (GCP needs 30-60 seconds)
+resource "time_sleep" "wait_for_api_enablement" {
+  depends_on = [
+    google_project_service.run_api,
+    google_project_service.cloudbuild_api,
+    google_project_service.artifactregistry_api,
+    google_project_service.secretmanager_api,
+    google_project_service.compute_api,
+    google_project_service.vpcaccess_api,
+  ]
+
+  create_duration = "45s"
+}
+
 # Create an Artifact Registry repository for Docker images
 resource "google_artifact_registry_repository" "docker_repo" {
   location      = var.region
@@ -197,7 +226,8 @@ resource "google_artifact_registry_repository" "docker_repo" {
   project       = var.project_id
 
   depends_on = [
-    google_project_service.artifactregistry_api
+    google_project_service.artifactregistry_api,
+    time_sleep.wait_for_api_enablement
   ]
 }
 
@@ -279,31 +309,33 @@ resource "google_monitoring_alert_policy" "cloud_run_job_failures" {
 }
 
 # Billing Budget for Cost Tracking
-resource "google_billing_budget" "job_scraper_budget" {
-  billing_account = data.google_billing_account.account.id
-  display_name    = "${var.service_name_prefix}-${var.deployment_env}-budget"
-
-  amount {
-    specified_amount {
-      currency_code = "USD"
-      units         = format("%d", var.budget_amount_usd)
-    }
-  }
-
-  all_updates_rule {
-    pubsub_topic   = google_pubsub_topic.budget_alerts.id
-    schema_version = "1.0"
-  }
-
-  threshold_rules {
-    threshold_percent = var.budget_alert_threshold_percent
-    spend_basis       = "CURRENT_SPEND"
-  }
-
-  budget_filter {
-    projects = ["projects/${var.project_id}"]
-  }
-}
+# NOTE: Temporarily disabled due to quota project authentication issue
+# To enable: Configure quota project with: gcloud auth application-default set-quota-project PROJECT_ID
+# resource "google_billing_budget" "job_scraper_budget" {
+#   billing_account = data.google_billing_account.account.id
+#   display_name    = "${var.service_name_prefix}-${var.deployment_env}-budget"
+#
+#   amount {
+#     specified_amount {
+#       currency_code = "USD"
+#       units         = format("%d", var.budget_amount_usd)
+#     }
+#   }
+#
+#   all_updates_rule {
+#     pubsub_topic   = google_pubsub_topic.budget_alerts.id
+#     schema_version = "1.0"
+#   }
+#
+#   threshold_rules {
+#     threshold_percent = var.budget_alert_threshold_percent
+#     spend_basis       = "CURRENT_SPEND"
+#   }
+#
+#   budget_filter {
+#     projects = ["projects/${var.project_id}"]
+#   }
+# }
 
 # Pub/Sub Topic for Budget Alerts
 resource "google_pubsub_topic" "budget_alerts" {
@@ -311,8 +343,8 @@ resource "google_pubsub_topic" "budget_alerts" {
   project = var.project_id
 }
 
-# Note: Budget alerts are handled via Pub/Sub topic and Cloud Function
-# The budget resource above will publish to the Pub/Sub topic when thresholds are exceeded
+# Note: Budget alerts would be handled via Pub/Sub topic and Cloud Function
+# The budget resource (when enabled) will publish to the Pub/Sub topic when thresholds are exceeded
 # The Cloud Function (deployed by Python bootstrap) will handle the alert and take action
 
 # Data source for billing account ID

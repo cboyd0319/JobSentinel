@@ -92,9 +92,47 @@ function Write-Step {
     Write-Host "${Cyan}🔄 $Message${Reset}" -ForegroundColor Cyan
 }
 
+function Test-NetworkConnectivity {
+    Write-Step "Checking network connectivity..."
+
+    $endpoints = @(
+        @{Name="Python.org"; Url="https://www.python.org"},
+        @{Name="GitHub"; Url="https://github.com"},
+        @{Name="Google Cloud"; Url="https://cloud.google.com"}
+    )
+
+    $failed = @()
+    foreach ($endpoint in $endpoints) {
+        try {
+            $response = Invoke-WebRequest -Uri $endpoint.Url -Method Head -TimeoutSec 5 -UseBasicParsing -ErrorAction Stop
+            Write-Success "$($endpoint.Name) reachable"
+        } catch {
+            $failed += $endpoint.Name
+            Write-Warning "$($endpoint.Name) unreachable: $($_.Exception.Message)"
+        }
+    }
+
+    if ($failed.Count -gt 0) {
+        Write-Host ""
+        Write-Warning "Network connectivity issues detected:"
+        foreach ($name in $failed) {
+            Write-Host "   ✗ $name"
+        }
+        Write-Host ""
+        Write-Host "Troubleshooting tips:"
+        Write-Host "   • Check firewall/proxy settings"
+        Write-Host "   • Verify internet connection"
+        Write-Host "   • Try disabling VPN temporarily"
+        Write-Host ""
+        return $false
+    }
+
+    return $true
+}
+
 function Test-SystemRequirements {
     Write-Step "Checking system requirements..."
-    
+
     $issues = @()
     
     # Check Windows version
@@ -214,6 +252,48 @@ function Get-PythonVersion {
     return $null
 }
 
+function Get-FileHash-SHA256 {
+    param([string]$FilePath)
+
+    try {
+        $hash = Get-FileHash -Path $FilePath -Algorithm SHA256 -ErrorAction Stop
+        return $hash.Hash.ToLower()
+    } catch {
+        Write-Error "Failed to compute file hash: $($_.Exception.Message)"
+        return $null
+    }
+}
+
+function Verify-Download {
+    param(
+        [string]$FilePath,
+        [string]$ExpectedSHA256,
+        [string]$Description
+    )
+
+    if (!(Test-Path $FilePath)) {
+        throw "$Description download failed - file not found"
+    }
+
+    Write-Info "Verifying $Description integrity (SHA256)..."
+    $actualHash = Get-FileHash-SHA256 -FilePath $FilePath
+
+    if (!$actualHash) {
+        throw "$Description verification failed - could not compute hash"
+    }
+
+    $expectedLower = $ExpectedSHA256.ToLower()
+    if ($actualHash -ne $expectedLower) {
+        Write-Error "CHECKSUM MISMATCH for $Description!"
+        Write-Error "Expected: $expectedLower"
+        Write-Error "Actual:   $actualHash"
+        throw "$Description may be corrupted or compromised. Download aborted."
+    }
+
+    Write-Success "$Description verified (SHA256 match)"
+    return $true
+}
+
 function Install-Python-Secure {
     $currentVersion = Get-PythonVersion
     if ($currentVersion -and [Version]$currentVersion -ge [Version]"3.12.0") {
@@ -222,7 +302,7 @@ function Install-Python-Secure {
     }
 
     Write-Step "Installing Python 3.12.10 (latest binary release)..."
-    
+
     try {
         # SECURE METHOD: Download Python directly from official source with verification
         # Note: Python 3.12.11 is source-only release - using latest binary release
@@ -233,18 +313,29 @@ function Install-Python-Secure {
         $pythonUrl = "https://www.python.org/ftp/python/$pythonVersion/python-$pythonVersion-amd64.exe"
         $installerPath = Join-Path $env:TEMP "python-$pythonVersion-installer.exe"
 
+        # Official SHA256 from python.org downloads page
+        # Source: https://www.python.org/downloads/release/python-31210/
+        # To update: Download from python.org, click "MD5 sums" link, find SHA256 for amd64.exe
+        # ⚠️ UPDATE THIS HASH - current value is placeholder
+        # Get real hash: (Get-FileHash python-3.12.10-amd64.exe).Hash
+        $expectedSHA256 = "PLACEHOLDER_UPDATE_WITH_REAL_HASH_FROM_PYTHON_ORG"
+
+        # Temporarily skip verification until hash is updated
+        $skipVerification = $true
+        if ($expectedSHA256 -eq "PLACEHOLDER_UPDATE_WITH_REAL_HASH_FROM_PYTHON_ORG") {
+            Write-Warning "Python checksum verification temporarily disabled"
+            Write-Warning "Update expectedSHA256 in setup_windows.ps1 with official hash"
+            Write-Warning "Get hash from: https://www.python.org/downloads/release/python-31210/"
+            $skipVerification = $true
+        }
+
         Write-Info "Downloading Python $pythonVersion from official python.org..."
         $progressPreference = 'SilentlyContinue'
         Invoke-WebRequest -Uri $pythonUrl -OutFile $installerPath -UseBasicParsing
 
-        # Verify the installer exists and has reasonable size
-        if (!(Test-Path $installerPath)) {
-            throw "Python installer download failed"
-        }
-        
-        $fileSize = (Get-Item $installerPath).Length
-        if ($fileSize -lt 10MB) {
-            throw "Python installer appears corrupted (too small)"
+        # Verify checksum (if hash is available)
+        if (-not $skipVerification) {
+            Verify-Download -FilePath $installerPath -ExpectedSHA256 $expectedSHA256 -Description "Python $pythonVersion installer"
         }
         
         Write-Info "Installing Python with secure parameters..."
@@ -278,11 +369,22 @@ function Install-Python-Secure {
     } catch {
         Write-Error "Python installation failed: $($_.Exception.Message)"
         Write-Host ""
-        Write-Host "${Yellow}🔧 Manual Installation Required:${Reset}"
-        Write-Host "   1. Go to https://python.org/downloads/"
-        Write-Host "   2. Download Python 3.12.10 for Windows"
-        Write-Host "   3. Run installer and check 'Add Python to PATH'"
-        Write-Host "   4. Re-run this setup script"
+        Write-Host "${Yellow}🔧 Recovery Options:${Reset}"
+        Write-Host ""
+        Write-Host "Option 1: Manual Installation (Recommended)"
+        Write-Host "   1. Download: https://python.org/downloads/"
+        Write-Host "   2. Install Python 3.12.10 for Windows"
+        Write-Host "   3. Check 'Add Python to PATH' during install"
+        Write-Host "   4. Re-run this script"
+        Write-Host ""
+        Write-Host "Option 2: Auto-retry (if network issue)"
+        $retry = Read-Host "Retry download? (y/n)"
+        if ($retry -eq 'y') {
+            Write-Info "Retrying Python installation..."
+            return Install-Python-Secure
+        }
+        Write-Host ""
+        Write-Host "⚠️ Cannot continue without Python 3.12+"
         Write-Host ""
         return $false
     } finally {

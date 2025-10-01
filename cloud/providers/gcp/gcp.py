@@ -59,6 +59,7 @@ from cloud.providers.gcp.project_detection import (
     load_deployment_config,
 )
 from cloud.providers.common.terraform_installer import ensure_terraform
+from cloud.exceptions import QuotaExceededError
 
 
 class GCPBootstrap:
@@ -134,8 +135,60 @@ class GCPBootstrap:
             self.region = await select_region(self.logger, self.no_prompt)
             self.billing_account = await choose_billing_account(self.logger, self.no_prompt)
 
-            # Create GCP project
-            await create_project(self.logger, self.project_id, self.project_id, self.billing_account)
+            # Check project count before attempting creation
+            result = await run_command(
+                ["gcloud", "projects", "list", "--format=value(lifecycleState)"],
+                capture_output=True,
+                logger=self.logger
+            )
+            project_states = [s.strip() for s in result.stdout.strip().split('\n') if s.strip()]
+            total_projects = len(project_states)
+            self.logger.info(f"Total active projects: {total_projects}")
+
+            # If projects exist, offer to reuse (avoids quota issues)
+            if total_projects >= 1:
+                self.logger.info("")
+                self.logger.info(f"⚠ Found {total_projects} projects (limit: ~12). Checking for reusable projects...")
+                self.logger.info("")
+
+                # Get active projects
+                result = await run_command(
+                    ["gcloud", "projects", "list", "--filter=lifecycleState:ACTIVE", "--format=value(projectId)"],
+                    capture_output=True,
+                    logger=self.logger
+                )
+                active_projects = [p.strip() for p in result.stdout.strip().split('\n') if p.strip()]
+
+                if active_projects:
+                    self.logger.info(f"   Found {len(active_projects)} active project(s):")
+                    for proj in active_projects:
+                        self.logger.info(f"   • {proj}")
+                    self.logger.info("")
+
+                    if self.no_prompt:
+                        # Auto-select first project
+                        self.project_id = active_projects[0]
+                        self.logger.info(f"   ✓ Auto-selected: {self.project_id}")
+                        self.logger.info("")
+                    else:
+                        from cloud.utils import confirm
+                        if confirm(f"Deploy to existing project '{active_projects[0]}'?", default=True):
+                            self.project_id = active_projects[0]
+                            self.logger.info(f"   ✓ Using: {self.project_id}")
+                            self.logger.info("")
+                        else:
+                            raise QuotaExceededError("User declined to reuse existing project")
+
+                    # Set as active project
+                    await run_command(
+                        ["gcloud", "config", "set", "project", self.project_id],
+                        logger=self.logger
+                    )
+                else:
+                    raise QuotaExceededError("No active projects available to reuse")
+            else:
+                # Create GCP project (quota available)
+                await create_project(self.logger, self.project_id, self.project_id, self.billing_account)
 
         # Collect user configuration (Slack webhook, schedule, etc.)
         self._collect_configuration()
@@ -547,6 +600,19 @@ budget_alert_threshold_percent = 0.9
         self.logger.info("")
         return terraform_outputs
 
+    def _try_clipboard_webhook(self) -> str | None:
+        """Try to get Slack webhook URL from clipboard."""
+        try:
+            import pyperclip
+            clip = pyperclip.paste().strip()
+            if clip.startswith("https://hooks.slack.com/services/") and len(clip) > 40:
+                return clip
+        except ImportError:
+            pass  # pyperclip not installed
+        except Exception:
+            pass  # Clipboard access failed
+        return None
+
     def _collect_resume_preferences(self) -> Optional[Dict]:
         """
         Optional: Parse user's resume to auto-populate preferences.
@@ -687,6 +753,49 @@ budget_alert_threshold_percent = 0.9
         self.logger.info("Slack webhooks allow the job scraper to send you job alerts.")
         self.logger.info("Setting up a FREE Slack workspace takes about 5 minutes.")
         self.logger.info("")
+
+        # Check clipboard for webhook URL first
+        webhook_from_clipboard = self._try_clipboard_webhook()
+        if webhook_from_clipboard:
+            self.logger.info("✓ Found valid webhook URL in clipboard!")
+            if self.no_prompt or confirm("Use this webhook?"):
+                self.env_values["SLACK_WEBHOOK_URL"] = webhook_from_clipboard
+                self.logger.info("✓ Using webhook from clipboard")
+                # Skip to configuration collection
+                for line in env_template.read_text(encoding="utf-8").splitlines():
+                    stripped = line.strip()
+                    if stripped and "SLACK_WEBHOOK_URL" not in stripped:
+                        # Process other env vars normally
+                        pass
+                return
+
+        # Offer manifest-based quick setup
+        manifest_path = self.project_root / "config" / "slack_app_manifest.json"
+        if manifest_path.exists() and not self.no_prompt:
+            if confirm("Use quick setup with pre-configured app manifest? (Recommended)"):
+                self.logger.info("")
+                self.logger.info("=" * 70)
+                self.logger.info("QUICK SETUP WITH MANIFEST")
+                self.logger.info("=" * 70)
+                self.logger.info("")
+                self.logger.info("Copy the JSON below and follow these steps:")
+                self.logger.info("")
+                self.logger.info("1. Go to: https://api.slack.com/apps?new_app=1")
+                self.logger.info("2. Click 'From an app manifest'")
+                self.logger.info("3. Select your workspace (or create one)")
+                self.logger.info("4. Paste the JSON below")
+                self.logger.info("5. Click 'Next' → 'Create'")
+                self.logger.info("6. Left sidebar: 'Incoming Webhooks' → Activate")
+                self.logger.info("7. Click 'Add New Webhook to Workspace'")
+                self.logger.info("8. Select channel → 'Allow' → Copy webhook URL")
+                self.logger.info("")
+                self.logger.info("-" * 70)
+                self.logger.info(manifest_path.read_text(encoding="utf-8"))
+                self.logger.info("-" * 70)
+                self.logger.info("")
+                input("Press Enter after you've copied the webhook URL...")
+                self.logger.info("")
+
         self.logger.info("DETAILED STEP-BY-STEP GUIDE:")
         self.logger.info("")
         self.logger.info("STEP 1: Create a FREE Slack workspace")

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import os
 import logging
 import itertools
@@ -264,3 +265,81 @@ def resolve_project_root() -> Path:
     """Return the repository root (assumed to be two levels above modules)."""
 
     return Path(__file__).resolve().parent.parent
+
+
+def verify_file_checksum(file_path: Path | str, expected_sha256: str) -> bool:
+    """
+    Verify file integrity using SHA256 checksum.
+
+    Args:
+        file_path: Path to file to verify
+        expected_sha256: Expected SHA256 hash (hex string)
+
+    Returns:
+        True if checksum matches, False otherwise
+
+    Example:
+        >>> verify_file_checksum("installer.exe", "abc123...")
+        True
+    """
+    file_path = Path(file_path)
+
+    if not file_path.exists():
+        return False
+
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            sha256_hash.update(chunk)
+
+    actual_hash = sha256_hash.hexdigest().lower()
+    expected_hash = expected_sha256.lower()
+
+    return actual_hash == expected_hash
+
+
+async def download_and_verify(
+    url: str,
+    destination: Path | str,
+    expected_sha256: str,
+    logger: logging.Logger | None = None,
+) -> bool:
+    """
+    Download file and verify checksum.
+
+    Args:
+        url: URL to download from
+        destination: Where to save file
+        expected_sha256: Expected SHA256 hash
+        logger: Optional logger for progress
+
+    Returns:
+        True if download and verification succeeded
+
+    Raises:
+        RuntimeError: If download fails or checksum mismatch
+    """
+    destination = Path(destination)
+    log = logger or logging.getLogger(__name__)
+
+    # Download using curl (cross-platform, already used in codebase)
+    try:
+        await run_command(
+            ["curl", "-fsSL", "-o", str(destination), url],
+            logger=log,
+        )
+    except Exception as e:
+        raise RuntimeError(f"Download failed: {e}") from e
+
+    # Verify checksum
+    if not verify_file_checksum(destination, expected_sha256):
+        actual = hashlib.sha256(destination.read_bytes()).hexdigest()
+        raise RuntimeError(
+            f"Checksum mismatch!\n"
+            f"Expected: {expected_sha256}\n"
+            f"Actual:   {actual}\n"
+            f"File may be corrupted or compromised."
+        )
+
+    log.info(f"✓ Verified {destination.name} (SHA256 match)")
+    return True

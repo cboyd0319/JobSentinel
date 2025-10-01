@@ -31,6 +31,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import logging
+import os
 import sys
 import tomllib
 from pathlib import Path
@@ -40,6 +41,9 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 from utils.logging import get_logger
+from rich.console import Console
+from rich.panel import Panel
+from cloud.style import RICH_COLORS, SYMBOL, WIDTH
 
 
 def get_version() -> str:
@@ -109,9 +113,11 @@ For more information, see: terraform/gcp/README.md
     return parser.parse_args()
 
 
-async def deploy_gcp(logger, no_prompt: bool = False):
+async def deploy_gcp(logger, no_prompt: bool = False, console=None):
     """Deploy to Google Cloud Platform."""
     from cloud.providers.gcp.gcp import GCPBootstrap
+    from cloud.exceptions import QuotaExceededError
+    from cloud.receipt import print_receipt, save_receipt
 
     logger.info("Starting GCP deployment...")
     bootstrap = GCPBootstrap(logger, no_prompt=no_prompt)
@@ -119,10 +125,44 @@ async def deploy_gcp(logger, no_prompt: bool = False):
     try:
         await bootstrap.run()
         logger.info("✅ GCP deployment completed successfully!")
+
+        # Generate and display receipt
+        if console and hasattr(bootstrap, 'project_id'):
+            print_receipt(
+                console=console,
+                project_id=bootstrap.project_id,
+                region=getattr(bootstrap, 'region', 'us-central1'),
+                service_url=getattr(bootstrap, 'service_url', None),
+                terraform_version='1.10.3',
+            )
+
+            # Save receipt to file
+            receipt_path = save_receipt(
+                project_id=bootstrap.project_id,
+                region=getattr(bootstrap, 'region', 'us-central1'),
+                service_url=getattr(bootstrap, 'service_url', None),
+            )
+            logger.info(f"📄 Receipt saved to: {receipt_path}")
+
         return 0
     except KeyboardInterrupt:
         logger.warning("Deployment cancelled by user")
         return 130
+    except QuotaExceededError as e:
+        logger.error("")
+        logger.error("=" * 70)
+        logger.error("❌ GOOGLE CLOUD PROJECT QUOTA EXCEEDED")
+        logger.error("=" * 70)
+        logger.error("")
+        logger.info("📋 MANUAL FIX (2 minutes):")
+        logger.info("")
+        logger.info("1. Open: https://console.cloud.google.com/cloud-resource-manager")
+        logger.info("2. Delete old projects you no longer need")
+        logger.info("3. Re-run this script")
+        logger.info("")
+        logger.info("💡 Deleted projects count against quota for 30 days")
+        logger.info("")
+        return 1
     except Exception as e:
         logger.error(f"Deployment failed: {e}", exc_info=True)
         return 1
@@ -151,22 +191,33 @@ async def main():
     logger = get_logger("cloud_bootstrap")
     logger.setLevel(log_level)
 
+    # Set up Rich console (respects NO_COLOR env var)
+    console = Console(
+        width=WIDTH,
+        highlight=False,
+        force_terminal=None,  # Auto-detect
+        no_color=os.getenv("NO_COLOR") is not None,
+    )
+
     # Print banner
     version = get_version()
-    version_text = f"Job Scraper Cloud Bootstrap v{version}"
-    padding = (46 - len(version_text)) // 2
-    print("╔══════════════════════════════════════════════╗")
-    print(f"║{' ' * padding}{version_text}{' ' * (46 - padding - len(version_text))}║")
-    print("║         Terraform-First Architecture         ║")
-    print("╚══════════════════════════════════════════════╝")
-    print()
+    banner_text = f"[bold]{SYMBOL['arrow']} Job Scraper Cloud Bootstrap[/bold]\n"
+    banner_text += f"[{RICH_COLORS['muted']}]v{version} • Terraform-First Architecture[/]"
+
+    console.print()
+    console.print(Panel(
+        banner_text,
+        border_style=RICH_COLORS["primary"],
+        width=WIDTH,
+    ))
+    console.print()
 
     # Merge --yes into --no-prompt for backward compatibility
     no_prompt = args.no_prompt or args.yes
 
     # Route to appropriate cloud provider
     if args.provider == "gcp":
-        return await deploy_gcp(logger, no_prompt=no_prompt)
+        return await deploy_gcp(logger, no_prompt=no_prompt, console=console)
     elif args.provider == "aws":
         return await deploy_aws(logger, no_prompt=no_prompt)
     elif args.provider == "azure":
