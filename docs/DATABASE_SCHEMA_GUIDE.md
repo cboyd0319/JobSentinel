@@ -1,6 +1,6 @@
-# Database notes
+# Database Schema & Storage
 
-The project still uses SQLite. Most folks stick with the original schema in `src/database.py`, but I’ve been iterating on a richer table in case we want more metadata later.
+The project uses SQLite for local storage. All data stays on your machine unless you deploy to cloud (where it uses Cloud Storage for backups).
 
 ## Current table (`src/database.py`)
 
@@ -44,4 +44,28 @@ save_unified_job(job_data, score)
 
 JSON-ish fields are stored as strings because SQLite doesn’t have a native array type. Convert to and from `json.dumps`/`json.loads` at the edges.
 
-Questions about migrations or data retention? Open an issue and I’m happy to walk through it.
+---
+
+## User Profile Storage
+
+User preferences and profile data are stored in two places:
+
+- **Primary:** `data/jobs_unified.sqlite` in the `UserProfile` table (SQLModel/SQLite)
+- **Backup:** `config/user_profile.json` for version control and manual editing
+
+```python
+profile = load_user_profile()      # reads from SQLite
+dump_user_profile(profile)         # writes JSON backup
+```
+
+The SQLite table stores: name, email, skills, seniority, salary range, work preferences, and notification thresholds. JSON mirrors these fields for easy editing.
+
+**Why two copies?**
+- SQLite: Fast lookups for the matcher
+- JSON: Human-readable, easy to backup/sync
+
+**Privacy:** Everything stays local. No cloud sync. Delete both files anytime for a fresh start.
+
+---
+
+Questions about migrations or data retention? Open an issue.

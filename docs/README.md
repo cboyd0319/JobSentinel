@@ -45,8 +45,6 @@ Complete guide to setting up, deploying, and maintaining the job scraper.
 
 ## Reference
 
-- **[Agents Guide](AGENTS.md)** - Using specialized agents
-- **[User Data Storage](USER_DATA_STORAGE.md)** - Where data lives
 - **[Changelog](CHANGELOG.md)** - Version history
 - **[TODO](TODO.md)** - Planned features
 
@@ -70,6 +68,6 @@ Older docs moved to [`archive/`](archive/):
 
 ---
 
-**Total docs:** 20 core + 8 archived = 28 (down from 35)
+**Total docs:** 19 core + 8 archived = 27 (down from 35)
 
 **Need help?** Check [Troubleshooting](TROUBLESHOOTING.md) or open an issue.
