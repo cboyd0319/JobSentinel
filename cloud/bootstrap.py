@@ -105,6 +105,12 @@ For more information, see: terraform/gcp/README.md
     )
 
     parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Perform a dry run, showing planned changes without applying them.",
+    )
+
+    parser.add_argument(
         "--version",
         action="version",
         version=f"Job Scraper Cloud Bootstrap {get_version()}",
@@ -113,17 +119,21 @@ For more information, see: terraform/gcp/README.md
     return parser.parse_args()
 
 
-async def deploy_gcp(logger, no_prompt: bool = False, console=None):
+async def deploy_gcp(logger, no_prompt: bool = False, console=None, dry_run: bool = False):
     """Deploy to Google Cloud Platform."""
     from cloud.providers.gcp.gcp import GCPBootstrap
     from cloud.exceptions import QuotaExceededError
     from cloud.receipt import print_receipt, save_receipt
 
     logger.info("Starting GCP deployment...")
-    bootstrap = GCPBootstrap(logger, no_prompt=no_prompt)
+    bootstrap = GCPBootstrap(logger, no_prompt=no_prompt, dry_run=dry_run, env_file=env_file)
 
     try:
         await bootstrap.run()
+        if dry_run:
+            logger.info("✅ Dry run completed successfully. No changes were applied.")
+            return 0
+        
         logger.info("✅ GCP deployment completed successfully!")
 
         # Generate and display receipt
@@ -217,7 +227,7 @@ async def main():
 
     # Route to appropriate cloud provider
     if args.provider == "gcp":
-        return await deploy_gcp(logger, no_prompt=no_prompt, console=console)
+        return await deploy_gcp(logger, no_prompt=no_prompt, console=console, dry_run=args.dry_run)
     elif args.provider == "aws":
         return await deploy_aws(logger, no_prompt=no_prompt)
     elif args.provider == "azure":

@@ -67,9 +67,10 @@ class GCPBootstrap:
 
     name = "Google Cloud Platform"
 
-    def __init__(self, logger, no_prompt: bool = False) -> None:
+    def __init__(self, logger, no_prompt: bool = False, dry_run: bool = False) -> None:
         self.logger = logger
         self.no_prompt = no_prompt
+        self.dry_run = dry_run
         self.project_id: str | None = None
         self.project_number: str | None = None
         self.project_name: str | None = None
@@ -193,11 +194,18 @@ class GCPBootstrap:
         # Collect user configuration (Slack webhook, schedule, etc.)
         self._collect_configuration()
 
+        # Create or update the remote state backend
+        await self._provision_backend()
+
         # Write terraform.tfvars with collected configuration
         await self._write_terraform_vars()
 
         # Run Terraform to provision infrastructure
         terraform_outputs = await self._run_terraform_apply()
+
+        # If dry run, terraform_outputs will be empty, so we exit.
+        if not terraform_outputs:
+            return
 
         # Extract Terraform outputs
         self.artifact_repo = terraform_outputs["artifact_registry_repo_name"]["value"]
@@ -576,6 +584,15 @@ budget_alert_threshold_percent = 0.9
             show_spinner=True,
         )
 
+        if self.dry_run:
+            self.logger.info("Dry run requested. Showing plan and exiting.")
+            await run_command(
+                ["terraform", "show", "tfplan"],
+                logger=self.logger,
+                cwd=str(self.terraform_dir),
+            )
+            return {}
+
         # Apply Terraform changes
         self.logger.info("Applying Terraform changes (this may take 5-10 minutes)...")
         await run_command(
@@ -599,6 +616,50 @@ budget_alert_threshold_percent = 0.9
         self.logger.info("✓ Terraform infrastructure provisioned successfully")
         self.logger.info("")
         return terraform_outputs
+
+    async def _provision_backend(self) -> None:
+        """Provisions the GCS bucket for remote Terraform state and configures the backend."""
+        self.logger.info("Configuring secure remote state for Terraform...")
+        backend_tf_dir = self.project_root / "terraform" / "gcp_backend"
+        if not backend_tf_dir.is_dir():
+            raise FileNotFoundError(f"Terraform backend config not found at {backend_tf_dir}")
+
+        # Bucket names must be globally unique. We create a unique but deterministic name.
+        state_bucket_name = f"tf-state-{self.project_id}-jpsf"
+
+        self.logger.info(f"Ensuring Terraform state bucket '{state_bucket_name}' exists...")
+
+        # 1. Provision the backend bucket itself
+        try:
+            await run_command(["terraform", "init"], logger=self.logger, cwd=str(backend_tf_dir))
+            await run_command(
+                ["terraform", "apply", "-auto-approve", f"-var=project_id={self.project_id}", f"-var=state_bucket_name={state_bucket_name}"],
+                logger=self.logger,
+                cwd=str(backend_tf_dir),
+                show_spinner=True,
+            )
+        except Exception as e:
+            self.logger.error(f"CRITICAL: Failed to provision Terraform backend bucket: {e}")
+            raise
+
+        # 2. Dynamically create the backend.tf file for the main configuration
+        backend_tf_template_path = self.project_root / "terraform" / "gcp" / "backend.tf"
+        main_tf_dir = self.terraform_dir # This is the per-project state directory
+        final_backend_tf_path = main_tf_dir / "backend.tf"
+
+        template_content = backend_tf_template_path.read_text(encoding="utf-8")
+        final_content = template_content.replace("__TF_STATE_BUCKET_NAME__", state_bucket_name)
+        final_backend_tf_path.write_text(final_content, encoding="utf-8")
+        self.logger.info("✓ Configured main Terraform backend.")
+
+        # 3. Re-initialize the main terraform module to migrate state to the new GCS backend
+        self.logger.info("Initializing main Terraform configuration to use GCS backend...")
+        await run_command(
+            ["terraform", "init", "-reconfigure"],
+            logger=self.logger,
+            cwd=str(main_tf_dir),
+        )
+        self.logger.info("✓ Terraform re-initialized successfully.")
 
     def _try_clipboard_webhook(self) -> str | None:
         """Try to get Slack webhook URL from clipboard."""
@@ -723,247 +784,33 @@ budget_alert_threshold_percent = 0.9
                     return None
 
     def _collect_configuration(self) -> None:
-        """Collect user configuration for deployment."""
-        self.logger.info("")
-        self.logger.info("=" * 70)
-        self.logger.info("CONFIGURATION COLLECTION")
-        self.logger.info("=" * 70)
-        self.logger.info("")
+        """Collect user configuration for deployment from environment variables."""
+        self.logger.info("""
+        [bold blue]Configuration Collection[/bold blue]
+        Reading configuration from environment...
+        """)
 
-        # Optional: Parse resume for auto-config
-        resume_prefs = self._collect_resume_preferences()
+        # Attempt to get Slack Webhook URL from environment
+        slack_webhook_url = os.getenv("SLACK_WEBHOOK_URL")
+        if not slack_webhook_url or "hooks.slack.com" not in slack_webhook_url:
+            self.logger.error("SLACK_WEBHOOK_URL not found or invalid in environment.")
+            raise ConfigurationException("Missing SLACK_WEBHOOK_URL")
+        self.env_values["SLACK_WEBHOOK_URL"] = slack_webhook_url
+        self.logger.info("✓ Slack Webhook URL found.")
 
-        # Collect alert email
-        if not self.no_prompt:
-            self.logger.info("Enter an email address for monitoring alerts (budget, failures, etc.):")
-            while True:
-                email_input = input("Email address: ").strip()
-                if "@" in email_input and "." in email_input:
-                    self.alert_email = email_input
-                    break
-                self.logger.error("Invalid email format. Please try again.")
-        else:
-            self.alert_email = "noreply@example.com"  # Placeholder for no-prompt mode
+        # Get alert email from environment or use a placeholder
+        self.alert_email = os.getenv("ALERT_EMAIL_ADDRESS", "noreply@example.com")
+        self.logger.info(f"✓ Alert email set to: {self.alert_email}")
 
-        self.logger.info("")
-        self.logger.info("=" * 70)
-        self.logger.info("SLACK WEBHOOK SETUP (REQUIRED FOR NOTIFICATIONS)")
-        self.logger.info("=" * 70)
-        self.logger.info("")
-        self.logger.info("Slack webhooks allow the job scraper to send you job alerts.")
-        self.logger.info("Setting up a FREE Slack workspace takes about 5 minutes.")
-        self.logger.info("")
+        # Load user preferences from the standard config file path
+        prefs_template = self.project_root / "config/user_prefs.example.json"
+        self.user_prefs_payload = prefs_template.read_text(encoding="utf-8")
+        self.logger.info("✓ User preferences template loaded.")
 
-        # Check clipboard for webhook URL first
-        webhook_from_clipboard = self._try_clipboard_webhook()
-        if webhook_from_clipboard:
-            self.logger.info("✓ Found valid webhook URL in clipboard!")
-            if self.no_prompt or confirm("Use this webhook?"):
-                self.env_values["SLACK_WEBHOOK_URL"] = webhook_from_clipboard
-                self.logger.info("✓ Using webhook from clipboard")
-                # Skip to configuration collection
-                for line in env_template.read_text(encoding="utf-8").splitlines():
-                    stripped = line.strip()
-                    if stripped and "SLACK_WEBHOOK_URL" not in stripped:
-                        # Process other env vars normally
-                        pass
-                return
-
-        # Offer manifest-based quick setup
-        manifest_path = self.project_root / "config" / "slack_app_manifest.json"
-        if manifest_path.exists() and not self.no_prompt:
-            if confirm("Use quick setup with pre-configured app manifest? (Recommended)"):
-                self.logger.info("")
-                self.logger.info("=" * 70)
-                self.logger.info("QUICK SETUP WITH MANIFEST")
-                self.logger.info("=" * 70)
-                self.logger.info("")
-                self.logger.info("Copy the JSON below and follow these steps:")
-                self.logger.info("")
-                self.logger.info("1. Go to: https://api.slack.com/apps?new_app=1")
-                self.logger.info("2. Click 'From an app manifest'")
-                self.logger.info("3. Select your workspace (or create one)")
-                self.logger.info("4. Paste the JSON below")
-                self.logger.info("5. Click 'Next' → 'Create'")
-                self.logger.info("6. Left sidebar: 'Incoming Webhooks' → Activate")
-                self.logger.info("7. Click 'Add New Webhook to Workspace'")
-                self.logger.info("8. Select channel → 'Allow' → Copy webhook URL")
-                self.logger.info("")
-                self.logger.info("-" * 70)
-                self.logger.info(manifest_path.read_text(encoding="utf-8"))
-                self.logger.info("-" * 70)
-                self.logger.info("")
-                input("Press Enter after you've copied the webhook URL...")
-                self.logger.info("")
-
-        self.logger.info("DETAILED STEP-BY-STEP GUIDE:")
-        self.logger.info("")
-        self.logger.info("STEP 1: Create a FREE Slack workspace")
-        self.logger.info("  1. Open: https://slack.com/create")
-        self.logger.info("  2. Enter your email address")
-        self.logger.info("  3. Click 'Continue'")
-        self.logger.info("  4. Check your email and copy the 6-digit confirmation code")
-        self.logger.info("  5. Enter the code on the Slack page")
-        self.logger.info("  6. When asked 'What's your company or team working on?'")
-        self.logger.info("     Type something like: 'Job Alerts' or 'Personal'")
-        self.logger.info("  7. When asked 'What's your team's name?'")
-        self.logger.info("     Use the same name or 'Job Search'")
-        self.logger.info("  8. Skip inviting teammates - click 'Skip this step'")
-        self.logger.info("  9. You'll land in your new Slack workspace (#general channel)")
-        self.logger.info("")
-        self.logger.info("STEP 2: Create an Incoming Webhook")
-        self.logger.info("  1. Open a new browser tab and go to: https://api.slack.com/apps")
-        self.logger.info("  2. Click the green 'Create New App' button")
-        self.logger.info("  3. Choose 'From scratch'")
-        self.logger.info("  4. App Name: Type 'Job Scraper' (or any name you like)")
-        self.logger.info("  5. Pick a workspace: Select the workspace you just created")
-        self.logger.info("  6. Click 'Create App'")
-        self.logger.info("")
-        self.logger.info("STEP 3: Activate Incoming Webhooks")
-        self.logger.info("  1. You'll see a menu on the left side")
-        self.logger.info("  2. Click 'Incoming Webhooks' (under 'Features')")
-        self.logger.info("  3. Toggle the switch at the top from 'Off' to 'On'")
-        self.logger.info("     (The page will reload)")
-        self.logger.info("  4. Scroll down to 'Webhook URLs for Your Workspace'")
-        self.logger.info("  5. Click 'Add New Webhook to Workspace'")
-        self.logger.info("  6. Choose a channel: Select '#general' (or create a new channel)")
-        self.logger.info("  7. Click the green 'Allow' button")
-        self.logger.info("")
-        self.logger.info("STEP 4: Copy the Webhook URL")
-        self.logger.info("  1. You'll be back at the 'Incoming Webhooks' page")
-        self.logger.info("  2. Scroll down to 'Webhook URLs for Your Workspace'")
-        self.logger.info("  3. You'll see a URL that looks like:")
-        self.logger.info("     https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX")
-        self.logger.info("  4. Click the 'Copy' button next to the URL")
-        self.logger.info("  5. Keep this tab open so you can paste it below!")
-        self.logger.info("")
-        self.logger.info("=" * 70)
-        self.logger.info("")
-        self.logger.info("NOTE: For email notifications, you'll need to configure those")
-        self.logger.info("   separately after deployment. For now, we'll focus on Slack.")
-        self.logger.info("")
-
-        env_template = self.project_root / ".env.example"
-        if not env_template.exists():
-            raise FileNotFoundError(".env.example missing from repository root")
-
-        default_tz = get_localzone_name()
-
-        self.logger.info(
-            "Provide values for each setting. Press Enter to accept the default shown. "
-            "Type 'skip' to leave a value empty if email is not configured yet."
-        )
-
-        for line in env_template.read_text(encoding="utf-8").splitlines():
-            stripped = line.strip()
-            if not stripped or stripped.startswith("#") or "=" not in stripped:
-                continue
-
-            key, default = stripped.split("=", 1)
-            default = default.strip()
-            default_value = default.split("#", 1)[0].strip()
-
-            if key == "TZ":
-                default_value = default_tz
-
-            if self.no_prompt:
-                # In no-prompt mode, skip all configuration collection
-                candidate = ""
-            else:
-                prompt = f"{key} [{default_value or 'blank'}]: "
-                while True:
-                    user_input = input(prompt).strip()
-                    if user_input.lower() == "skip":
-                        candidate = ""
-                        break
-
-                    candidate = user_input or default_value
-                    candidate = candidate.split("#", 1)[0].strip()
-
-                    # Special validation for SLACK_WEBHOOK_URL - it's required
-                    if key == "SLACK_WEBHOOK_URL":
-                        if not candidate or candidate == "":
-                            self.logger.error("❌ Slack webhook URL is REQUIRED for job notifications!")
-                            self.logger.error("   Please follow the instructions above to create one.")
-                            continue
-                        if not candidate.startswith("https://hooks.slack.com/"):
-                            self.logger.error("❌ Invalid webhook URL format!")
-                            self.logger.error("   It should start with: https://hooks.slack.com/services/")
-                            continue
-                        if self._looks_like_placeholder(candidate, default_value):
-                            self.logger.error("❌ That looks like a placeholder URL, not a real one!")
-                            self.logger.error("   Please paste the actual webhook URL from Slack.")
-                            continue
-                        self.logger.info("✓ Valid Slack webhook URL!")
-                        # Do not add to env_values, it will be handled by _update_secret_values
-                        self.env_values[key] = candidate  # Temporarily store for _update_secret_values
-                        break
-
-                    # For non-required fields, allow empty/skip
-                    if candidate == "" and default_value:
-                        self.logger.warning("Value cannot be empty. Enter a real value or type 'skip' to leave blank.")
-                        continue
-
-                    if self._looks_like_placeholder(candidate, default_value):
-                        self.logger.warning(
-                            "Placeholder value detected. Enter a real value or type 'skip' to leave blank."
-                        )
-                        continue
-                    break
-
-            if key != "SLACK_WEBHOOK_URL":  # Only add non-Slack webhook values to env_values
-                self.env_values[key] = candidate
-
-        # Use resume-based prefs if available, otherwise use template
-        if resume_prefs:
-            self.user_prefs_payload = json.dumps(resume_prefs, indent=2)
-            self.logger.info("")
-            self.logger.info("✓ User preferences configured from resume")
-            self.logger.info("  You can update these preferences after deployment in Secret Manager")
-        else:
-            prefs_template = self.project_root / "config/user_prefs.example.json"
-            self.user_prefs_payload = prefs_template.read_text(encoding="utf-8")
-            self.logger.info(
-                "A default config/user_prefs.json template has been scheduled for upload to"
-                " Secret Manager. Update it after deployment if you need different companies."
-            )
-
-        mode_options = {
-            "poll": "(Default) Full scrape and alert mode. Use for most scheduled jobs.",
-            "digest": "Send a daily digest of all new jobs found in the last 24 hours.",
-            "health": "Run an interactive health check of the system.",
-        }
-        mode_choice = choose(
-            "Select default Cloud Run job mode:", [f"{k} - {v}" for k, v in mode_options.items()], self.no_prompt
-        )
-        self.job_mode = mode_choice.split(" - ")[0]
-
-        self.logger.info("\nScheduling Configuration:")
-        self.logger.info("More frequent runs will incur higher costs. The default is optimized for minimal cost.")
-        self.logger.info("Please choose a frequency that balances your alerting needs with your budget.")
-        self.logger.info("Default is business hours only for maximum cost savings.")
-        schedule_options = [
-            "0 6-18 * * 1-5",  # Business hours 6AM-6PM Mon-Fri every hour (lowest cost - default)
-            "0 6,8,10,12,14,16,18 * * 1-5",  # Business hours every 2 hours
-            "0 */4 * * *",  # Every 4 hours 24/7
-            "0 */2 * * *",  # Every 2 hours 24/7
-            "0 */1 * * *",  # Every hour 24/7
-            "*/30 * * * *",  # Every 30 minutes 24/7
-            "*/15 * * * *",  # Every 15 minutes 24/7
-        ]
-        schedule_descriptions = [
-            "Business hours 6AM-6PM Mon-Fri every hour (lowest cost - recommended)",
-            "Business hours 6AM-6PM Mon-Fri every 2hrs (very low cost)",
-            "Every 4 hours 24/7 (low cost)",
-            "Every 2 hours 24/7 (moderate cost)",
-            "Every hour 24/7 (higher cost)",
-            "Every 30 minutes 24/7 (much higher cost)",
-            "Every 15 minutes 24/7 (highest cost)",
-        ]
-        schedule_choices = [f"{desc} - {sched}" for desc, sched in zip(schedule_descriptions, schedule_options)]
-        schedule_choice = choose("Select execution frequency:", schedule_choices, self.no_prompt)
-        selected_index = schedule_choices.index(schedule_choice)
-        self.schedule_frequency = schedule_options[selected_index]
+        # Set default job mode and schedule
+        self.job_mode = os.getenv("JOB_MODE", "poll")
+        self.schedule_frequency = os.getenv("SCHEDULE_FREQUENCY", "0 6-18 * * 1-5")
+        self.logger.info(f"✓ Job mode: {self.job_mode}, Schedule: {self.schedule_frequency}")
 
     # Service accounts and IAM bindings are now created by Terraform
     # This method is no longer needed but kept as a comment for reference

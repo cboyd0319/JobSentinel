@@ -18,14 +18,28 @@ Polls job boards on your schedule → Scores matches with custom rules → Sends
 
 ---
 
-## ⚡ Quickstart
+## ⚡ Quick Start
+
+### Windows
+
+Open PowerShell and run this command:
+
+```powershell
+irm https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/deploy/windows/bootstrap.ps1 -o bootstrap.ps1; ./bootstrap.ps1
+```
+
+### macOS / Linux
+
+Open a terminal and run these commands:
 
 ```bash
-# Local setup (5 minutes)
-python3 scripts/setup_wizard.py
+# Clone the repository (only needed once)
+# git clone https://github.com/cboyd0319/job-private-scraper-filter.git
+# cd job-private-scraper-filter
 
-# Cloud deployment (GCP, one command)
-python3 -m cloud.bootstrap --yes
+# Navigate to the installer directory and run it
+cd deploy/macos  # or `linux`
+sh install.sh
 ```
 
 > **Privacy-first:** Runs locally by default. Your data stays on your machine unless you opt into cloud deployment.
@@ -62,62 +76,9 @@ python3 -m cloud.bootstrap --yes
 - Workday (a lot of large companies)
 - Generic JS-heavy career pages via Playwright
 
-## Quick start
 
-To get started quickly, use the interactive setup wizard. It will guide you through setting up your local environment, configuring your preferences, and optionally deploying to the cloud.
 
-### Interactive Setup Wizard (Recommended)
 
-```bash
-python3 scripts/setup_wizard.py
-```
-
-This wizard will:
-*   Guide you through setting up your Python virtual environment.
-*   Help you configure your job boards, filters, and notification preferences.
-*   Optionally, prepare your project for cloud deployment.
-
-### Local Install (Manual Steps)
-
-If you prefer a manual setup or need to troubleshoot, follow these steps:
-
-1.  **Ensure Python 3.12.10 is installed:** For optimal compatibility, especially on Windows, Python 3.12.10 is recommended. You can download it from [python.org](https://www.python.org/downloads/).
-2.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/cboyd0319/job-private-scraper-filter.git
-    cd job-private-scraper-filter
-    ```
-3.  **Set up a Python Virtual Environment (Highly Recommended):**
-    This isolates project dependencies from your system Python and other projects.
-    *   **Using `direnv` (Recommended):** If you have `direnv` installed, simply run `direnv allow` in the project root. This will automatically create and activate a virtual environment.
-    *   **Manual `venv`:**
-        ```bash
-        python3 -m venv .venv
-        source .venv/bin/activate # Windows: .venv\Scripts\activate
-        ```
-4.  **Update pip to the latest version:**
-    ```bash
-    python3 -m pip install --upgrade pip
-    ```
-5.  **Install Dependencies:**
-    ```bash
-    pip install -r requirements.txt
-    python3 -m playwright install chromium
-    ```
-6.  **Configure:**
-    ```bash
-    cp .env.example .env
-    cp config/user_prefs.example.json config/user_prefs.json
-    # Edit .env and config/user_prefs.json with your filters and alerts
-    ```
-
-### Windows Quick Setup
-
-```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; irm "https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/scripts/setup_windows.ps1" | iex
-```
-
-Prefer a slower walkthrough? Check `docs/WINDOWS_SETUP_GUIDE.md` for detailed instructions on `gcloud` CLI and Python installation, PATH configuration, and when elevated privileges (Run as Administrator) might be required.
 
 ## Configuration
 
@@ -162,42 +123,9 @@ OPENAI_API_KEY=sk-your-api-key-here
 
 ## Cloud Deployment
 
-Cloud deployment is managed via Terraform for Google Cloud Platform (GCP), ensuring a robust, repeatable, and cost-optimized infrastructure. The `scripts/deploy-cloud.sh` orchestrates the deployment.
+Cloud deployment to Google Cloud Platform (GCP) is the recommended way to run the application automatically. This process is handled by the user-friendly installers in the `deploy/` directory.
 
-### Google Cloud Platform (GCP)
-
-To deploy to GCP, ensure you have the `gcloud` CLI and `terraform` installed and authenticated. Then, set the required environment variables and run the deployment script:
-
-```bash
-export GCP_PROJECT_ID="your-gcp-project-id"
-export GCP_REGION="us-central1" # Or your preferred region
-export GCP_SOURCE_REPO="your-github-username/job-private-scraper-filter" # e.g., cboyd0319/job-private-scraper-filter
-
-scripts/deploy-cloud.sh gcp
-```
-
-This command will:
-
-*   Validate your environment and permissions.
-*   Initialize and apply Terraform configurations in `terraform/gcp/`.
-*   Set up Cloud Run, Artifact Registry, Cloud Build (including triggers), VPC networking, and IAM roles.
-*   Configure Cloud Monitoring alerts for job failures and budget thresholds.
-
-For more details, refer to `docs/CLOUD_DEPLOYMENT_GUIDE.md` and `docs/CLOUD_COSTS.md`.
-
-### Other Cloud Providers (AWS, Azure)
-
-Legacy installers still exist for AWS and Azure, but these will be transitioned to Terraform in future updates.
-
-```bash
-# AWS Lambda
-scripts/deploy-cloud.sh aws
-
-# Azure Container Instances
-scripts/deploy-cloud.sh azure
-```
-
-Cost guardrails include spending alerts, strict resource limits, and an emergency stop if spending spikes. Details live in `docs/CLOUD_COSTS.md`.
+For a complete overview of the cloud architecture, costs, and security, please see the [Cloud Deployment Guide](docs/CLOUD.md).
 
 ## Usage
 
@@ -224,17 +152,14 @@ python3 -m src.agent --mode cleanup
 ## Project layout
 
 ```text
-├── src/           # core app code (agent, database, web_ui)
-├── sources/       # job board scrapers
-├── matchers/      # scoring and filter helpers
-├── notify/        # outbound notifications
-├── utils/         # shared helpers
-├── scripts/       # install, deployment, security tooling
-├── cloud/         # Cloud deployment logic (Terraform orchestration) and remaining provider-specific Python modules
-├── config/        # sample configs and linter settings
-├── templates/     # optional web UI templates
-├── docs/          # extra guides
-└── data/          # local fixtures (optional)
+├── deploy/        # User-facing installers for Windows, macOS, and Linux.
+├── src/           # Core application code (agent, database, web_ui).
+├── cloud/         # Python logic for cloud provider interactions.
+├── terraform/     # Terraform infrastructure-as-code for GCP, AWS, etc.
+├── scripts/       # Developer tools (security scanning, testing, etc.).
+├── docs/          # Project documentation and guides.
+├── config/        # Example configuration files.
+└── ...            # Other project files.
 ```
 
 ## Security & privacy

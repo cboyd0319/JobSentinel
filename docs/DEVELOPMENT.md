@@ -45,13 +45,14 @@ I normally keep the virtual environment in place and reuse it between sessions. 
 ## Project map
 
 ```text
+├── deploy/         # User-facing installers (Windows, macOS, Linux)
 ├── src/            # CLI entry points and application logic
 ├── sources/        # Job board adapters
 ├── matchers/       # Scoring helpers
 ├── notify/         # Email and Slack integrations
 ├── utils/          # Shared helpers (config, logging, health checks)
-├── scripts/        # Installers, deployment flows, and security checks
-├── cloud/          # Cloud deployment logic
+├── scripts/        # Developer & security tooling
+├── cloud/          # Cloud deployment logic (Python)
 ├── config/         # Sample config files and linter settings
 ├── templates/      # Web UI templates
 └── docs/           # Extra guides like this one
@@ -98,12 +99,24 @@ pytest tests/ --cov=src --cov-report=term-missing
 
 When adding new matchers or scrapers, please include unit tests where it makes sense. For web automation pieces, even a simple smoke test that hits a fixture helps.
 
-## Cloud-specific helpers
+## Cloud Deployment & Helpers
+
+Cloud deployments are now handled by the OS-specific installers in the `deploy/` directory. These installers are the recommended way to deploy the application to GCP.
+
+- **Windows:** `deploy/windows/install.ps1` (GUI Installer)
+- **macOS/Linux:** `deploy/macos/install.sh` or `deploy/linux/install.sh`
+
+For developers, the underlying engine scripts can be called directly for more control:
+
+```powershell
+# On Windows, using the PowerShell engine
+cd deploy/windows
+.\engine\Deploy-GCP.ps1 deploy -WhatIf
+```
 
 ```bash
-scripts/validate-cloud-config.sh gcp
-scripts/deploy-cloud.sh --dry-run gcp
-scripts/enhanced-cost-monitor.py --provider gcp --check
+# On macOS/Linux, using the Python bootstrap
+python3 cloud/bootstrap.py --dry-run
 ```
 
 These commands make sure IAM bindings, secrets, and schedules line up before an actual deployment. They’re safe to run repeatedly.

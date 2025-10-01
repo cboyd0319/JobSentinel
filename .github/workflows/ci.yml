@@ -247,30 +247,4 @@ jobs:
       - name: Run Mypy
         run: mypy src/ utils/ sources/ notify/ matchers/ --ignore-missing-imports --no-strict-optional
 
-  powershell-validation:
-    needs: changes
-    if: >-
-      needs.changes.outputs.windows-specific == 'true' ||
-      needs.changes.outputs.platform-scripts == 'true'
-    name: PowerShell Script Validation
-    runs-on: windows-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-        with:
-          persist-credentials: false
 
-      - name: Test PowerShell script syntax
-        run: |
-          Get-Content scripts/setup_windows.ps1 | ForEach-Object {
-            $null = [System.Management.Automation.PSParser]::Tokenize(
-              $_, [ref]$null)
-          }
-          Write-Host "PowerShell syntax is valid"
-
-      - name: Test PowerShell script execution (dry run)
-        run: |
-          # Test script can be loaded without execution
-          $scriptContent = Get-Content scripts/setup_windows.ps1 -Raw
-          $null = [scriptblock]::Create($scriptContent)
-          Write-Host "PowerShell script can be executed"
