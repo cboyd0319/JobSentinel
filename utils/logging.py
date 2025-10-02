@@ -25,7 +25,6 @@ def setup_logging(log_level: str = "INFO") -> logging.Logger:
         show_time=True,
         show_level=True,
         show_path=False,
-        enable_colors=True,
         markup=True,
     )
     logger.addHandler(rich_handler)
