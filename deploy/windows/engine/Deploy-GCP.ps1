@@ -1,9 +1,8 @@
-#<#
+<#
 .SYNOPSIS
     A robust, non-interactive deployment engine for provisioning the Job Scraper to GCP.
 #>
 
-[CmdletBinding(SupportsShouldProcess=$true)]
 param()
 
 Set-StrictMode -Version Latest

@@ -45,14 +45,9 @@ try {
     $window = [System.Windows.Markup.XamlReader]::Load($reader)
 
     # --- UI Elements ---
-    <# Suppressing false positive warnings. These variables are used in event handlers and dispatcher calls. #>
-    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'choicePanel')]
     $choicePanel = $window.FindName("ChoicePanel")
-    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'statusGrid')]
     $statusGrid = $window.FindName("StatusGrid")
-    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'statusBlock')]
     $statusBlock = $window.FindName("StatusBlock")
-    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'actionButton')]
     $actionButton = $window.FindName("ActionButton")
     $cloudButton = $window.FindName("CloudButton")
     $localButton = $window.FindName("LocalButton")
@@ -71,10 +66,9 @@ try {
         return $null
     }
 
-    <# Suppressing false positive: params are used to build the state object. #>
-    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'errorMessage')]
     function Set-InstallerState {
         [CmdletBinding(SupportsShouldProcess=$true)]
+        [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'errorMessage')]
         param([string]$stepName, [string]$errorMessage = $null)
         if ($PSCmdlet.ShouldProcess($stateFile, "Update Installer State")) {
             $currentState = Get-InstallerState
@@ -82,7 +76,7 @@ try {
                 $currentState = @{ lastCompletedStep = "Start"; errorCount = 0 }
             }
             if ($errorMessage) {
-                $currentState.errorCount = ($currentState.errorCount | Get-OrElse 0) + 1
+                $currentState.errorCount = ([int]$currentState.errorCount) + 1
                 $currentState.lastErrorMessage = $errorMessage
             } else {
                 $currentState.lastCompletedStep = $script:State.CurrentStep
@@ -109,14 +103,11 @@ try {
         $trimmed = $Message.TrimStart()
         $decoratedMessage = if ($prefix -and -not $trimmed.StartsWith($prefix.Trim())) { "$prefix$Message" } else { $Message }
 
-        $window.Dispatcher.Invoke(
-            [Action[string]]{
-                param($UpdateText)
-                $statusBlock.Text += "`n→ $UpdateText"
-                $statusScrollViewer.ScrollToBottom()
-            },
-            $decoratedMessage
-        )
+        $messageToAppend = $decoratedMessage
+        $window.Dispatcher.Invoke([Action]{
+            $statusBlock.Text += "`n→ $messageToAppend"
+            $statusScrollViewer.ScrollToBottom()
+        })
     }
 
     function Show-StatusView {
@@ -478,6 +469,11 @@ try {
     Set-Content -Path $errorLogPath -Value $errorDetails -Encoding UTF8
     
     # Also try to show a message box, which might work even if the main window failed.
-    try { Add-Type -AssemblyName System.Windows.Forms } catch { # This empty catch block is intentional. }
-    [System.Windows.Forms.MessageBox]::Show("A critical error occurred during setup. A file named 'installer-crash.log' has been created with the details. Please send this file to the developer for help.", "Setup Failed", 0, [System.Windows.Forms.MessageBoxIcon]::Error)
+    try {
+        Add-Type -AssemblyName System.Windows.Forms
+        [System.Windows.Forms.MessageBox]::Show("A critical error occurred during setup. A file named 'installer-crash.log' has been created with the details. Please send this file to the developer for help.", "Setup Failed", 0, [System.Windows.Forms.MessageBoxIcon]::Error)
+    } catch {
+        # Silently fail if we can't show the message box - the error is already logged
+        $null = $_
+    }
 }
