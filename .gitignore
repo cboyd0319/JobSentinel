@@ -145,3 +145,12 @@ cloud/reports/
 .deployment-state.json
 snapshots/
 deployment-receipt.md
+
+# Windows installer artifacts (cleanup 2025-10-01)
+inno_temp/
+innosetup-*.exe
+deploy/windows_v2/
+install-receipt.md
+installer-state.json
+installer-crash.log
+diagnostics-*.zip
