@@ -3,8 +3,7 @@
 # This script runs updates without bypassing execution policy
 
 param(
-    [string]$InstallPath = (Join-Path $env:USERPROFILE "job-scraper"),
-    [switch]$Quiet
+    [string]$InstallPath = (Join-Path $env:USERPROFILE "job-scraper")
 )
 
 # Enable strict error handling
@@ -15,11 +14,9 @@ function Write-SecureLog {
     param($Message, $Level = "INFO")
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     $logEntry = "$timestamp [$Level] $Message"
-    
-    if (!$Quiet) {
-        Write-Host $logEntry
-    }
-    
+
+    Write-Output $logEntry
+
     # Log to file
     $logDir = Join-Path $InstallPath "data" | Join-Path -ChildPath "logs"
     if (!(Test-Path $logDir)) {
@@ -53,6 +50,9 @@ function Test-GitRepositorySecurity {
 }
 
 function Update-JobScraperSecure {
+    [CmdletBinding(SupportsShouldProcess)]
+    param()
+
     Write-SecureLog "Starting secure update process..." "INFO"
     
     try {
@@ -198,7 +198,7 @@ function Update-JobScraperSecure {
             
             # Validate installation
             Write-SecureLog "Validating updated installation..." "INFO"
-            $testResult = & $pythonPath -c "
+            & $pythonPath -c "
 import sys, os
 sys.path.insert(0, os.getcwd())
 try:
