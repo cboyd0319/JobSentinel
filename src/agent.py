@@ -4,31 +4,21 @@ import json
 import asyncio
 from dotenv import load_dotenv
 
-from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn, TimeRemainingColumn
-from rich.text import Text
 
 from utils.logging import setup_logging, get_logger, console
 from utils.config import config_manager
-from utils.errors import ConfigurationException, ScrapingException
+from utils.errors import ConfigurationException
 from utils.health import health_monitor
-from utils.resilience import (
-    run_startup_checks,
-    db_resilience,
-    network_resilience,
-    process_resilience,
-)
 
 from src.database import (
-    get_job_by_hash,
     add_job,
     get_jobs_for_digest,
     mark_jobs_digest_sent,
     mark_job_alert_sent,
     cleanup_old_jobs,
 )
-from cloud.providers.gcp.cloud_database import init_cloud_db, sync_cloud_db, get_cloud_db_stats
-from sources import job_scraper
+from src.unified_database import init_unified_db
 from sources.concurrent_scraper import scrape_multiple_async_fast  # Import the async scraper
 from matchers.rules import score_job
 from notify import slack, emailer
@@ -315,6 +305,18 @@ def health_check():
         console.print(f"\n[green]System is healthy. No critical issues found.[/green]")
 
     return report
+
+
+def parse_args():
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(description="Job Scraper Agent")
+    parser.add_argument(
+        '--mode',
+        choices=['poll', 'digest', 'health', 'test', 'cleanup'],
+        default='poll',
+        help='Run mode (default: poll)'
+    )
+    return parser.parse_args()
 
 
 async def main():

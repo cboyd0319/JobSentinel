@@ -60,6 +60,7 @@ from cloud.providers.gcp.project_detection import (
 )
 from cloud.providers.common.terraform_installer import ensure_terraform
 from cloud.exceptions import QuotaExceededError
+from utils.errors import ConfigurationException
 
 
 class GCPBootstrap:

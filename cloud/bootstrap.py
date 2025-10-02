@@ -126,7 +126,7 @@ async def deploy_gcp(logger, no_prompt: bool = False, console=None, dry_run: boo
     from cloud.receipt import print_receipt, save_receipt
 
     logger.info("Starting GCP deployment...")
-    bootstrap = GCPBootstrap(logger, no_prompt=no_prompt, dry_run=dry_run, env_file=env_file)
+    bootstrap = GCPBootstrap(logger, no_prompt=no_prompt, dry_run=dry_run)
 
     try:
         await bootstrap.run()

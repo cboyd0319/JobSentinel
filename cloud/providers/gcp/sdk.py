@@ -3,9 +3,11 @@
 import hashlib
 import os
 import subprocess
+import sys
+import tarfile
 import tempfile
-import time
 import urllib.parse
+import zipfile
 from pathlib import Path
 
 from cloud.utils import ensure_directory, prepend_path, run_command, which, current_os

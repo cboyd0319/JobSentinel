@@ -1,6 +1,6 @@
 from sqlmodel import Field, SQLModel, create_async_engine, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Optional
 from utils.logging import get_logger
 from utils.errors import DatabaseException
