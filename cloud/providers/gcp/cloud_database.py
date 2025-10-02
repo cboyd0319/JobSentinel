@@ -93,7 +93,7 @@ class CloudDatabase:
 
     async def sync_on_startup(self) -> None:
         """Initialize database - download from cloud, then ensure local tables exist."""
-        logger.info("🔄 Syncing database on startup...")
+        logger.info("Syncing database on startup...")
 
         # Download latest from cloud storage
         await self.download_database()
@@ -101,13 +101,13 @@ class CloudDatabase:
         # Initialize local database (creates tables if needed)
         await init_db()
 
-        logger.info("✅ Database sync completed")
+        logger.info("Database sync completed")
 
     async def sync_on_shutdown(self) -> None:
         """Upload database changes to cloud storage."""
-        logger.info("🔄 Syncing database on shutdown...")
+        logger.info("Syncing database on shutdown...")
         await self.upload_database(create_backup=True)
-        logger.info("✅ Database sync completed")
+        logger.info("Database sync completed")
 
 
 # Global instance

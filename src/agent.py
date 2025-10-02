@@ -136,9 +136,9 @@ async def send_digest():
     try:
         notification_config = config_manager.get_notification_config()
 
-        if not notification_config.validate_email():
-            main_logger.warning("[yellow]Email not configured, skipping digest[/yellow]")
-            return
+        # Email removed - skip digest functionality
+        main_logger.warning("[yellow]Email functionality removed, skipping digest[/yellow]")
+        return
 
         # Get jobs for digest, using the new preference
         filter_config = config_manager.get_filter_config()
@@ -211,21 +211,14 @@ def test_notifications():
     if notification_config.validate_slack():
         try:
             slack.send_slack_alert(test_job)
-            main_logger.info("[green]✅ Slack test message sent successfully[/green]")
+            main_logger.info("[green]Slack test message sent successfully[/green]")
         except Exception as e:
-            main_logger.error(f"[bold red]❌ Slack test failed:[/bold red] {e}")
+            main_logger.error(f"[bold red]Slack test failed:[/bold red] {e}")
     else:
-        main_logger.warning("[yellow]❌ Slack not configured or invalid webhook URL[/yellow]")
+        main_logger.warning("[yellow]Slack not configured or invalid webhook URL[/yellow]")
 
-    # Test Email
-    if notification_config.validate_email():
-        try:
-            emailer.send_digest_email(test_job)
-            main_logger.info("[green]✅ Email test message sent successfully[/green]")
-        except Exception as e:
-            main_logger.error(f"[bold red]❌ Email test failed:[/bold red] {e}")
-    else:
-        main_logger.warning("[yellow]❌ Email not configured or missing required settings[/yellow]")
+    # Email removed - skip email test
+    main_logger.warning("[yellow]Email functionality removed - skipping email test[/yellow]")
 
     main_logger.info("Notification testing completed")
 
@@ -260,7 +253,7 @@ def health_check():
         status_text = status_colors.get(m["status"], m["status"].upper())
         console.print(f"  - {m['name']:<20} | Status: {status_text:<25} | {m['message']}")
 
-    console.print("\n[bold blue]--- 🏥 Job Scraper Health Report ---[/bold blue]")
+    console.print("\n[bold blue]--- Job Scraper Health Report ---[/bold blue]")
     console.print(f"Overall Status: [bold]{report['overall_status'].upper()}[/bold]")
     console.print("-" * 35)
 

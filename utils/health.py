@@ -112,7 +112,25 @@ class HealthMonitor:
         metrics = []
 
         try:
-            stats = get_database_stats()
+            # get_database_stats is async - skip if event loop is running
+            import asyncio
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                # Can't call async function from sync context when loop is running
+                # Return metrics indicating database check was skipped
+                metrics.append(
+                    HealthMetric(
+                        name="database_status",
+                        value=0,
+                        unit="",
+                        status="warning",
+                        message="Database health check skipped (async context)",
+                    )
+                )
+                return metrics
+
+            # Event loop not running, safe to use asyncio.run
+            stats = asyncio.run(get_database_stats())
 
             # Total jobs
             total_jobs = stats.get("total_jobs", 0)
@@ -283,16 +301,17 @@ class HealthMonitor:
                 )
             )
 
-            email_status = "ok" if notification_config.validate_email() else "warning"
-            metrics.append(
-                HealthMetric(
-                    name="email_config",
-                    value=1 if notification_config.validate_email() else 0,
-                    unit="status",
-                    status=email_status,
-                    message=("Email configured" if notification_config.validate_email() else "Email not configured"),
-                )
-            )
+            # Email notifications removed - skipping email config check
+            # email_status = "ok" if notification_config.validate_email() else "warning"
+            # metrics.append(
+            #     HealthMetric(
+            #         name="email_config",
+            #         value=1 if notification_config.validate_email() else 0,
+            #         unit="status",
+            #         status=email_status,
+            #         message=("Email configured" if notification_config.validate_email() else "Email not configured"),
+            #     )
+            # )
 
         except Exception as e:
             logger.error(f"Configuration check failed: {e}")
