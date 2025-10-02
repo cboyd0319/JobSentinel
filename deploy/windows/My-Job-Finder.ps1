@@ -73,7 +73,7 @@ function Get-JobData {
         $jsonOutput = python $queryScriptPath
         return $jsonOutput | ConvertFrom-Json
     } catch {
-        Update-Status "Error: Could not retrieve job data from the database. Is Python installed and in your PATH?" -Type Error
+        Write-Warning "Error: Could not retrieve job data from the database. Is Python installed and in your PATH?"
         return @()
     }
 }

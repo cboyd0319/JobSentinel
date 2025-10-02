@@ -15,7 +15,7 @@ Write-Output "It will be placed in a new folder on your Desktop called 'Job-Find
 Write-Output ""
 
 $confirmation = Read-Host "Is that okay? (Press Y to continue, N to cancel)"
-if ($confirmation -ne 'y') {
+if ($confirmation -ne 'Y' -and $confirmation -ne 'y') {
     Write-Warning "Setup cancelled. No files were downloaded."
     Start-Sleep -Seconds 3
     return

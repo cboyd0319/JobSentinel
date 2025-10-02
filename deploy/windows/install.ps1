@@ -13,7 +13,7 @@ try {
     # --- GUI DEFINITION (WPF) ---
     Add-Type -AssemblyName PresentationFramework, System.Windows.Forms
 
-    $brand = @{ Primary = '#4C8BF5'; Secondary = '#6c757d'; Accent = '#22C55E'; Text = '#333333'; BG = '#fdfdfd'; BtnText = '#ffffff'; Error = '#EF4444' }
+    $brand = @{ Primary = '#4C8BF5'; Secondary = '#6c757d'; Muted = '#6c757d'; Accent = '#22C55E'; Text = '#333333'; BG = '#fdfdfd'; BtnText = '#ffffff'; Error = '#EF4444' }
 
     [xml]$xaml = @"
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
