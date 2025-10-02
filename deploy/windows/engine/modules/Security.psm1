@@ -18,18 +18,18 @@ function Protect-SecretString {
         [Parameter(Mandatory, ValueFromPipeline)]
         [string]$PlainText
     )
-
-    try {
-        $bytes = [System.Text.Encoding]::UTF8.GetBytes($PlainText)
-        # The optional entropy parameter is set to null, which is acceptable for CurrentUser scope.
-        $protected = [System.Security.Cryptography.ProtectedData]::Protect(
-            $bytes,
-            $null,
-            [System.Security.Cryptography.DataProtectionScope]::CurrentUser
-        )
-        return [Convert]::ToBase64String($protected)
-    } catch {
-        throw "Failed to encrypt secret: $_"
+    process {
+        try {
+            $bytes = [System.Text.Encoding]::UTF8.GetBytes($PlainText)
+            $protected = [System.Security.Cryptography.ProtectedData]::Protect(
+                $bytes,
+                $null,
+                [System.Security.Cryptography.DataProtectionScope]::CurrentUser
+            )
+            return [Convert]::ToBase64String($protected)
+        } catch {
+            throw "Failed to encrypt secret: $_"
+        }
     }
 }
 
@@ -44,17 +44,18 @@ function Unprotect-SecretString {
         [Parameter(Mandatory, ValueFromPipeline)]
         [string]$EncryptedBase64
     )
-
-    try {
-        $bytes = [Convert]::FromBase64String($EncryptedBase64)
-        $unprotected = [System.Security.Cryptography.ProtectedData]::Unprotect(
-            $bytes,
-            $null,
-            [System.Security.Cryptography.DataProtectionScope]::CurrentUser
-        )
-        return [System.Text.Encoding]::UTF8.GetString($unprotected)
-    } catch {
-        throw "Failed to decrypt secret. It may have been encrypted by a different user or on a different machine. Error: $_"
+    process {
+        try {
+            $bytes = [Convert]::FromBase64String($EncryptedBase64)
+            $unprotected = [System.Security.Cryptography.ProtectedData]::Unprotect(
+                $bytes,
+                $null,
+                [System.Security.Cryptography.DataProtectionScope]::CurrentUser
+            )
+            return [System.Text.Encoding]::UTF8.GetString($unprotected)
+        } catch {
+            throw "Failed to decrypt secret. It may have been encrypted by a different user or on a different machine. Error: $_"
+        }
     }
 }
 

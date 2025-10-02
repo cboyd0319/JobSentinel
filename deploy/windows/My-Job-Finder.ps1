@@ -78,9 +78,14 @@ function Get-JobData {
     }
 }
 
-function Refresh-JobsList {
-    $jobsList.ItemsSource = Get-JobData
-    $statusText.Text = "Last checked: $(Get-Date -Format g)"
+function Update-JobsList {
+    [CmdletBinding(SupportsShouldProcess=$true)]
+    param()
+
+    if ($PSCmdlet.ShouldProcess("Jobs List", "Update")) {
+        $jobsList.ItemsSource = Get-JobData
+        $statusText.Text = "Last checked: $(Get-Date -Format g)"
+    }
 }
 
 # --- Button Click Handlers ---
@@ -98,7 +103,7 @@ $runButton.add_Click({
     Register-ObjectEvent -InputObject $job -EventName StateChanged -Action {
         if ($job.State -eq 'Completed') {
             $window.Dispatcher.Invoke([Action]{
-                Refresh-JobsList
+                Update-JobsList
                 $runButton.IsEnabled = $true
                 $runButton.Content = "Check for New Jobs Now"
                 $statusText.Text = "Finished checking at $(Get-Date -Format g)"
@@ -191,7 +196,7 @@ $settingsButton.add_Click({
 })
 
 # --- Initial Load ---
-Refresh-JobsList
+Update-JobsList
 
 # --- Show the Window ---
 $window.ShowDialog() | Out-Null
