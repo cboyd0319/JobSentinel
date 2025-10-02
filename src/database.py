@@ -167,6 +167,31 @@ async def mark_job_alert_sent(job_id: int):
         raise DatabaseException("mark_job_alert_sent", str(e), e)
 
 
+async def mark_jobs_alert_sent_batch(job_ids: list[int]):
+    """Mark multiple jobs as having sent immediate alerts in a single transaction."""
+    if not job_ids:
+        return
+
+    try:
+        async with AsyncSession(async_engine) as session:
+            # Bulk update using SQLAlchemy update statement
+            from sqlalchemy import update
+            stmt = (
+                update(Job)
+                .where(Job.id.in_(job_ids))
+                .values(
+                    immediate_alert_sent=True,
+                    alert_sent_at=datetime.now(timezone.utc)
+                )
+            )
+            await session.execute(stmt)
+            await session.commit()
+            logger.debug(f"Batch marked {len(job_ids)} jobs as alert sent")
+    except Exception as e:
+        logger.error(f"Failed to batch mark jobs alert sent: {e}")
+        raise DatabaseException("mark_jobs_alert_sent_batch", str(e), e)
+
+
 async def get_database_stats() -> dict:
     """Get database statistics for monitoring."""
     try:

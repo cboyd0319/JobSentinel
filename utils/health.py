@@ -107,30 +107,12 @@ class HealthMonitor:
 
         return metrics
 
-    def check_database_health(self) -> List[HealthMetric]:
-        """Check database health and statistics."""
+    async def check_database_health_async(self) -> List[HealthMetric]:
+        """Check database health and statistics (async version)."""
         metrics = []
 
         try:
-            # get_database_stats is async - skip if event loop is running
-            import asyncio
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                # Can't call async function from sync context when loop is running
-                # Return metrics indicating database check was skipped
-                metrics.append(
-                    HealthMetric(
-                        name="database_status",
-                        value=0,
-                        unit="",
-                        status="warning",
-                        message="Database health check skipped (async context)",
-                    )
-                )
-                return metrics
-
-            # Event loop not running, safe to use asyncio.run
-            stats = asyncio.run(get_database_stats())
+            stats = await get_database_stats()
 
             # Total jobs
             total_jobs = stats.get("total_jobs", 0)
@@ -327,13 +309,91 @@ class HealthMonitor:
 
         return metrics
 
-    def generate_health_report(self) -> Dict:
-        """Generate comprehensive health report."""
+    async def generate_health_report_async(self) -> Dict:
+        """Generate comprehensive health report (async version)."""
         logger.info("Generating health report...")
 
         all_metrics = []
         all_metrics.extend(self.check_system_resources())
-        all_metrics.extend(self.check_database_health())
+        all_metrics.extend(await self.check_database_health_async())
+        all_metrics.extend(self.check_log_files())
+        all_metrics.extend(self.check_configuration())
+
+        # Calculate overall status
+        critical_count = len([m for m in all_metrics if m.status == "critical"])
+        warning_count = len([m for m in all_metrics if m.status == "warning"])
+
+        if critical_count > 0:
+            overall_status = "critical"
+        elif warning_count > 0:
+            overall_status = "warning"
+        else:
+            overall_status = "ok"
+
+        uptime = time.time() - self.start_time
+        uptime_hours = uptime / 3600
+
+        report = {
+            "timestamp": datetime.now().isoformat(),
+            "overall_status": overall_status,
+            "uptime_hours": uptime_hours,
+            "system_info": {
+                "platform": platform.platform(),
+                "python_version": platform.python_version(),
+                "hostname": platform.node(),
+            },
+            "metrics": [
+                {
+                    "name": m.name,
+                    "value": m.value,
+                    "unit": m.unit,
+                    "status": m.status,
+                    "message": m.message,
+                    "threshold_warning": m.threshold_warning,
+                    "threshold_critical": m.threshold_critical,
+                }
+                for m in all_metrics
+            ],
+            "summary": {
+                "total_metrics": len(all_metrics),
+                "ok_count": len([m for m in all_metrics if m.status == "ok"]),
+                "warning_count": warning_count,
+                "critical_count": critical_count,
+            },
+        }
+
+        self.last_check = datetime.now()
+        logger.info(
+            f"Health report generated: {overall_status} status with {warning_count} warnings, "
+            f"{critical_count} critical issues"
+        )
+
+        return report
+
+    def generate_health_report(self) -> Dict:
+        """Generate comprehensive health report (sync wrapper)."""
+        import asyncio
+        try:
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                # In async context, use async version
+                logger.warning("Sync health report called in async context - using limited checks")
+                all_metrics = []
+                all_metrics.extend(self.check_system_resources())
+                all_metrics.extend(self.check_log_files())
+                all_metrics.extend(self.check_configuration())
+            else:
+                # Not in async context, safe to run async version
+                return asyncio.run(self.generate_health_report_async())
+        except RuntimeError:
+            # No event loop, create one
+            return asyncio.run(self.generate_health_report_async())
+
+        # Fallback for sync-only context
+        logger.info("Generating health report...")
+
+        all_metrics = []
+        all_metrics.extend(self.check_system_resources())
         all_metrics.extend(self.check_log_files())
         all_metrics.extend(self.check_configuration())
 

@@ -27,11 +27,51 @@ MANIFEST
 
 # Virtualenv
 .venv/
+.venv*/
 venv/
+venv*/
+env/
+env*/
 ENV/
+__pypackages__/
+.pdm.toml
+.pdm-python
+.direnv/
 
-# Secrets
+# Secrets and credentials
 .env
+.env.local
+.env.development
+.env.production
+.env.test
+*.env
+.envrc.local
+
+# Cloud provider credentials
+*-key.json
+*_key.json
+service-account*.json
+*credentials*.json
+gcp-key*.json
+auth.json
+secrets.json
+*.secret
+*.secrets
+
+# Cloud CLI credential directories
+.aws/
+.azure/
+.gcloud/
+
+# Certificates and keys
+*.p12
+*.pfx
+*.key
+*.pem
+*.crt
+*.csr
+id_rsa*
+*.ppk
 
 # Data and Logs
 data/
@@ -47,7 +87,14 @@ data/
 *.tfplan
 *.tfstate
 *.tfstate.backup
+.terraform.tfstate.lock.info
 terraform.tfvars  # User-specific config (use terraform.tfvars.example as template)
+*.tfvars
+!*.tfvars.example
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
 
 # User configuration files (should be created from examples)
 user_prefs.json
@@ -57,7 +104,12 @@ config/user_profile.json
 # Runtime files and logs
 *.log
 *.sqlite
+*.sqlite3
 *.db
+*.db3
+*.sqlite-journal
+*.db-shm
+*.db-wal
 
 # Backup files
 *_backup_*
@@ -67,6 +119,11 @@ config/user_profile.json
 *.tmp
 *.temp
 .cache/
+.tox/
+.hypothesis/
+.benchmarks/
+pip-log.txt
+pip-delete-this-directory.txt
 
 # OS-specific files
 .DS_Store
@@ -81,9 +138,16 @@ $PROFILE
 # Security reports and artifacts (generated locally, not project files)
 .security-reports/
 *.security-report.*
+*.sarif
+*.sarif.json
+.scannerwork/
 bandit-report.*
+bandit-results.*
 safety-report.*
 safety-results.*
+pip-audit-report.*
+semgrep-results.*
+prowler-output/
 google-cloud-sdk-download/
 
 # Linting caches

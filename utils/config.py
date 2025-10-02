@@ -35,6 +35,14 @@ class CompanyConfig:
             parsed = urlparse(self.url)
             if not parsed.scheme or not parsed.netloc:
                 raise ConfigurationException(f"Invalid URL for company {self.id}: {self.url}")
+
+            # Security: Only allow HTTPS URLs (or HTTP for localhost/testing)
+            if parsed.scheme not in ('https', 'http'):
+                raise ConfigurationException(f"URL must use HTTP or HTTPS protocol for company {self.id}: {self.url}")
+
+            if parsed.scheme == 'http' and not parsed.netloc.startswith('localhost'):
+                logger.warning(f"Company {self.id} uses insecure HTTP (not HTTPS): {self.url}")
+
         except Exception as e:
             raise ConfigurationException(f"Invalid URL for company {self.id}: {e}")
 
@@ -61,6 +69,17 @@ class ScrapingConfig:
     respect_robots_txt: bool = True
     user_agent: str = "Mozilla/5.0 (compatible; JobScraper/1.0)"
 
+    def __post_init__(self):
+        """Validate scraping configuration."""
+        if self.max_companies_per_run < 1:
+            raise ConfigurationException("max_companies_per_run must be at least 1")
+
+        if self.timeout_seconds < 1:
+            raise ConfigurationException("timeout_seconds must be at least 1")
+
+        if self.max_retries < 0:
+            raise ConfigurationException("max_retries must be at least 0")
+
 
 @dataclass
 class FilterConfig:
@@ -83,6 +102,15 @@ class FilterConfig:
 
         if not 0 <= self.immediate_alert_threshold <= 1:
             raise ConfigurationException("immediate_alert_threshold must be between 0 and 1")
+
+        if not 0 <= self.digest_min_score <= 1:
+            raise ConfigurationException("digest_min_score must be between 0 and 1")
+
+        if self.immediate_alert_threshold <= self.digest_min_score:
+            raise ConfigurationException(
+                f"immediate_alert_threshold ({self.immediate_alert_threshold}) must be greater than "
+                f"digest_min_score ({self.digest_min_score})"
+            )
 
         if self.max_matches_per_run < 1:
             raise ConfigurationException("max_matches_per_run must be at least 1")

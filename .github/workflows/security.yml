@@ -3,10 +3,22 @@ name: Security & Vulnerability Scanning
 "on":
   push:
     branches: [main, develop]
+    paths:
+      - '**/*.py'
+      - 'requirements.txt'
+      - '.github/workflows/security.yml'
+      - 'Dockerfile'
+      - 'pyproject.toml'
   pull_request:
     branches: [main, develop]
+    paths:
+      - '**/*.py'
+      - 'requirements.txt'
+      - '.github/workflows/security.yml'
+      - 'Dockerfile'
+      - 'pyproject.toml'
   schedule:
-    - cron: '0 2 * * *'
+    - cron: '0 2 * * 1'  # Weekly on Monday instead of daily (cost optimization)
   workflow_dispatch:
     inputs:
       scan_type:
@@ -48,7 +60,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12.10'
+          python-version: '3.13'  # Latest stable (Windows local uses 3.12.10)
           cache: 'pip'
           cache-dependency-path: 'requirements.txt'
 
@@ -88,6 +100,8 @@ jobs:
       image: semgrep/semgrep
     steps:
       - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
       - run: semgrep scan --config auto --sarif --output semgrep-results.sarif .
       - name: Upload Semgrep SARIF
         if: always()
@@ -159,7 +173,7 @@ jobs:
         if: steps.token_check.outputs.enabled == 'true'
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12.10'
+          python-version: '3.13'
           cache: 'pip'
 
       - name: Install Prowler
@@ -189,19 +203,19 @@ jobs:
 
           if [ -n "$json_file" ]; then
             echo "Found Prowler JSON-OCSF file: $json_file"
-            python3.12 scripts/convert_prowler_json_to_sarif.py \
+            python3 scripts/convert_prowler_json_to_sarif.py \
               "$json_file" "$sarif_path"
             echo "sarif_file=$sarif_path" >> "$GITHUB_OUTPUT"
 
             # Debug: Show conversion results
             if [ -f "$sarif_path" ]; then
               echo "SARIF file created successfully"
-              python3.12 -c \
+              python3 -c \
                 "import os; print(f'Size: {os.path.getsize(\"$sarif_path\")}')"
             fi
           elif [ -n "$csv_file" ]; then
             echo "Fallback: Found Prowler CSV file: $csv_file"
-            python3.12 scripts/convert_prowler_csv_to_sarif.py \
+            python3 scripts/convert_prowler_csv_to_sarif.py \
               "$csv_file" "$sarif_path"
             echo "sarif_file=$sarif_path" >> "$GITHUB_OUTPUT"
           else
@@ -280,7 +294,7 @@ jobs:
           PROWLER_RESULT: ${{ needs.prowler-github.result }}
           YAMLLINT_RESULT: ${{ needs.yamllint.result }}
           TRUFFLEHOG_RESULT: ${{ needs.trufflehog.result }}
-        run: ./scripts/generate-security-summary.sh
+        run: bash ./scripts/generate-security-summary.sh
 
       - name: Comment on PR with Security Summary
         if: github.event_name == 'pull_request'

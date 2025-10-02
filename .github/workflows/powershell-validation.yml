@@ -19,6 +19,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
+        with:
+          persist-credentials: false
       - name: Get PowerShell Files
         id: get_ps_files
         shell: pwsh
@@ -34,9 +36,11 @@ jobs:
           Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser
       - name: Run PSScriptAnalyzer
         shell: pwsh
+        env:
+          PS_FILES_JSON: ${{ steps.get_ps_files.outputs.ps_files }}
         run: |
           Write-Host "Running PowerShell Script Analysis..."
-          $psFiles = ConvertFrom-Json '${{ steps.get_ps_files.outputs.ps_files }}'
+          $psFiles = ConvertFrom-Json $env:PS_FILES_JSON
           $issues = @()
           foreach ($file in $psFiles) {
               Write-Host "Analyzing: $($file)"
@@ -76,11 +80,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
+        with:
+          persist-credentials: false
       - name: Test PowerShell Syntax
         shell: pwsh
+        env:
+          PS_FILES_JSON: ${{ needs.powershell-analysis.outputs.ps_files }}
         run: |
           Write-Host "Testing PowerShell Syntax..."
-          $psFiles = ConvertFrom-Json '${{ needs.powershell-analysis.outputs.ps_files }}'
+          $psFiles = ConvertFrom-Json $env:PS_FILES_JSON
           $syntaxErrors = @()
           foreach ($file in $psFiles) {
               Write-Host "Testing syntax: $(Split-Path -Leaf $file)"
@@ -122,6 +130,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
+        with:
+          persist-credentials: false
       - name: PowerShell Security Analysis
         shell: pwsh
         run: |

@@ -10,12 +10,14 @@ from utils.logging import setup_logging, get_logger, console
 from utils.config import config_manager
 from utils.errors import ConfigurationException
 from utils.health import health_monitor
+from utils.cache import job_cache
 
 from src.database import (
     add_job,
     get_jobs_for_digest,
     mark_jobs_digest_sent,
     mark_job_alert_sent,
+    mark_jobs_alert_sent_batch,
     cleanup_old_jobs,
 )
 from src.unified_database import init_unified_db
@@ -51,31 +53,32 @@ def load_user_prefs():
 
 
 async def process_jobs(jobs, prefs):
-    """Scores and alerts for new jobs."""
+    """Scores and alerts for new jobs with parallel processing."""
     immediate_alerts = []
     digest_jobs = []
     processed_count = 0
+    job_db_ids = {}  # Track job to db_id mapping
 
     filter_config = config_manager.get_filter_config()
     notification_config = config_manager.get_notification_config()
 
-    main_logger.info(f"Processing {len(jobs)} jobs...")
+    main_logger.info(f"Processing {len(jobs)} jobs in parallel...")
 
-    with Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        BarColumn(),
-        TaskProgressColumn(),
-        TimeRemainingColumn(),
-        console=console,
-        transient=True,
-    ) as progress:
-        processing_task = progress.add_task("[cyan]Processing jobs...", total=len(jobs))
+    # Control concurrency to avoid overwhelming system
+    max_concurrent = int(os.getenv("MAX_CONCURRENT_JOBS", "50"))
+    semaphore = asyncio.Semaphore(max_concurrent)
 
-        for job in jobs:
+    async def process_single_job(job, job_index):
+        """Process a single job with scoring and classification."""
+        async with semaphore:
             try:
-                # Get enhanced scoring with metadata
-                result = score_job(job, prefs)
+                # Check cache for duplicates (fast in-memory check)
+                if job_cache.is_duplicate(job):
+                    main_logger.debug(f"Skipping duplicate job (cached): {job.get('title', 'Unknown')}")
+                    return {"job": job, "success": False, "duplicate": True, "index": job_index}
+
+                # Score job in thread pool (CPU-bound operation)
+                result = await asyncio.to_thread(score_job, job, prefs)
 
                 # Handle both old and new scoring formats
                 if len(result) == 3:
@@ -92,14 +95,6 @@ async def process_jobs(jobs, prefs):
                 if score > 0:
                     # Add to database
                     db_job = await add_job(job)
-                    processed_count += 1
-
-                    if score >= filter_config.immediate_alert_threshold:
-                        immediate_alerts.append(job)
-                        # Mark as alert sent
-                        await mark_job_alert_sent(db_job.id)
-                    else:
-                        digest_jobs.append(job)
 
                     # Enhanced logging with metadata
                     method = job["score_metadata"].get("scoring_method", "unknown")
@@ -109,12 +104,61 @@ async def process_jobs(jobs, prefs):
                         log_msg += f", tokens: {tokens}"
                     log_msg += ")"
                     main_logger.debug(log_msg)
+
+                    return {
+                        "job": job,
+                        "db_job": db_job,
+                        "score": score,
+                        "category": "alert" if score >= filter_config.immediate_alert_threshold else "digest",
+                        "index": job_index,
+                        "success": True
+                    }
                 else:
                     main_logger.debug(f"Filtered out job: {job['title']} (score: {score:.2f})")
+                    return {"job": job, "score": score, "success": False, "index": job_index}
 
             except Exception as e:
                 main_logger.error(f"[bold red]Error processing job {job.get('title', 'Unknown')}:[/bold red] {e}")
+                return {"job": job, "error": str(e), "success": False, "index": job_index}
+
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(),
+        TaskProgressColumn(),
+        TimeRemainingColumn(),
+        console=console,
+        transient=True,
+    ) as progress:
+        processing_task = progress.add_task("[cyan]Processing jobs...", total=len(jobs))
+
+        # Process all jobs concurrently
+        tasks = [process_single_job(job, i) for i, job in enumerate(jobs)]
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+
+        # Collect results
+        alert_job_ids = []
+        for result in results:
+            if isinstance(result, Exception):
+                main_logger.error(f"Job processing failed with exception: {result}")
+                continue
+
+            if result.get("success"):
+                processed_count += 1
+                if result["category"] == "alert":
+                    immediate_alerts.append(result["job"])
+                    alert_job_ids.append(result["db_job"].id)
+                else:
+                    digest_jobs.append(result["job"])
+
             progress.update(processing_task, advance=1)
+
+    # Batch mark jobs as alert sent
+    if alert_job_ids:
+        try:
+            await mark_jobs_alert_sent_batch(alert_job_ids)
+        except Exception as e:
+            main_logger.error(f"Failed to batch mark alerts: {e}")
 
     # Send immediate Slack alerts
     if immediate_alerts and notification_config.validate_slack():
@@ -229,9 +273,34 @@ async def cleanup():
 
     try:
         # Clean up old jobs (configurable, default 90 days)
-        cleanup_days = int(os.getenv("CLEANUP_DAYS", "90"))
+        cleanup_days_str = os.getenv("CLEANUP_DAYS", "90")
+        try:
+            cleanup_days = int(cleanup_days_str)
+            if cleanup_days < 1:
+                main_logger.warning(f"Invalid CLEANUP_DAYS value: {cleanup_days}, using default 90")
+                cleanup_days = 90
+        except ValueError:
+            main_logger.warning(f"Invalid CLEANUP_DAYS value: {cleanup_days_str}, using default 90")
+            cleanup_days = 90
+
         deleted_count = await cleanup_old_jobs(cleanup_days)
         main_logger.info(f"Cleanup completed: removed {deleted_count} old jobs")
+
+        # Clean up old cloud backups (configurable, default 30 days)
+        backup_retention_str = os.getenv("BACKUP_RETENTION_DAYS", "30")
+        try:
+            backup_retention = int(backup_retention_str)
+            if backup_retention < 1:
+                main_logger.warning(f"Invalid BACKUP_RETENTION_DAYS value: {backup_retention}, using default 30")
+                backup_retention = 30
+        except ValueError:
+            main_logger.warning(f"Invalid BACKUP_RETENTION_DAYS value: {backup_retention_str}, using default 30")
+            backup_retention = 30
+
+        from cloud.providers.gcp.cloud_database import cleanup_old_backups
+        backup_deleted = await cleanup_old_backups(backup_retention)
+        main_logger.info(f"Backup cleanup completed: removed {backup_deleted} old backups")
+
     except Exception as e:
         main_logger.error(f"[bold red]Cleanup failed:[/bold red] {e}")
 
@@ -316,6 +385,17 @@ async def main():
     args = parse_args()
     console.print(f"[bold blue]Starting job scraper in {args.mode} mode...[/bold blue]")
 
+    # Run self-healing checks before starting
+    enable_self_healing = os.getenv("ENABLE_SELF_HEALING", "true").lower() == "true"
+    if enable_self_healing:
+        try:
+            from utils.self_healing import run_self_healing_check
+            healing_results = await run_self_healing_check()
+            if healing_results["actions_taken"]:
+                main_logger.info(f"Self-healing actions taken: {len(healing_results['actions_taken'])}")
+        except Exception as e:
+            main_logger.warning(f"Self-healing check failed: {e}")
+
     # Initialize unified database (local and cloud)
     await init_unified_db()
 
@@ -337,7 +417,17 @@ async def main():
         ) as progress:
             scraping_task = progress.add_task("[cyan]Scraping job boards...", total=len(urls))
 
-            results = await scrape_multiple_async_fast(urls, fetch_descriptions=True)
+            # Add timeout to scraping operations (5 minutes per company)
+            timeout_seconds = int(os.getenv("SCRAPER_TIMEOUT", "300"))
+            try:
+                results = await asyncio.wait_for(
+                    scrape_multiple_async_fast(urls, fetch_descriptions=True),
+                    timeout=timeout_seconds
+                )
+            except asyncio.TimeoutError:
+                main_logger.error(f"[bold red]Scraping timed out after {timeout_seconds} seconds[/bold red]")
+                console.print(f"[bold red]Scraping operation timed out after {timeout_seconds}s[/bold red]")
+                return
 
             all_jobs = []
             for result in results:
@@ -353,7 +443,8 @@ async def main():
                     progress.update(scraping_task, advance=1, description=f"[red]Failed {result.url}[/red]")
 
             console.print(f"[bold green]Found {len(all_jobs)} total jobs.[/bold green]")
-            await process_jobs(all_jobs)
+            prefs = load_user_prefs()
+            await process_jobs(all_jobs, prefs)
 
     elif args.mode == "digest":
         console.print("[cyan]Generating daily digest...[/cyan]")

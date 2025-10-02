@@ -16,9 +16,6 @@ cachetools==6.2.0
 certifi==2025.8.3
 charset-normalizer==3.4.3
 click==8.1.8
-click-option-group==0.5.7
-Deprecated==1.2.18
-dotty-dict==1.3.1
 flake8==7.3.0
 Flask==3.1.2
 gitdb==4.0.12
@@ -91,3 +88,10 @@ python-docx==1.1.2
 
 # Clipboard integration (optional - for Slack webhook auto-detection)
 pyperclip==1.9.0
+
+# AWS cost monitoring (optional - for scripts/enhanced-cost-monitor.py)
+# boto3>=1.35.0
+# botocore>=1.35.0
+
+# LLM features (optional - requires OPENAI_API_KEY environment variable)
+# openai>=1.54.0
