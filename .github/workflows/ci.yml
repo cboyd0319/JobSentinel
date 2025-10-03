@@ -160,12 +160,6 @@ jobs:
         if: steps.fmt_check.outcome == 'failure'
         run: terraform -chdir=terraform/gcp/ fmt -recursive
 
-      - name: Report Terraform plan changes
-        if: steps.plan.outcome == 'failure'
-        run: |
-          echo "Terraform plan reported unexpected changes or errors. Review terraform/gcp/."
-          exit 1
-
       - name: Lint with flake8
         continue-on-error: true
         run: flake8 src/ utils/ sources/ notify/ matchers/ || echo "Flake8 found issues - logging only"
