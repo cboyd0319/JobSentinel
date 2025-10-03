@@ -7,9 +7,9 @@ on:
         description: "The final health status (ok, warning, or critical)"
         value: ${{ jobs.health-monitor.outputs.status }}
 
+# Default permissions for the reusable workflow
 permissions:
   contents: read
-  issues: write
 
 jobs:
   health-monitor:
