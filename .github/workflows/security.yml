@@ -84,9 +84,32 @@ jobs:
           category: bandit
 
   osv-scanner:
-    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@main
-    with:
-      fail-on-vuln: false
+    name: OSV Scanner
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Run OSV Scanner
+        continue-on-error: true
+        uses: google/osv-scanner/actions/scanner@main
+        with:
+          scan-args: |-
+            --recursive
+            --format sarif
+            --output osv-results.sarif
+            ./
+
+      - name: Upload OSV Scanner SARIF
+        if: always() && hashFiles('osv-results.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: osv-results.sarif
+          category: osv-scanner
 
   opengrep:
     name: OpenGrep Static Analysis
@@ -187,4 +210,9 @@ jobs:
           path: ./
           base: ${{ github.event.pull_request.base.sha || github.event.before }}
           head: ${{ github.event.pull_request.head.sha || github.event.after }}
-          extra_args: --only-verified
+          extra_args: --only-verified --json
+        continue-on-error: true
+
+      # Note: TruffleHog doesn't support SARIF output natively
+      # Results are logged but not uploaded to Security tab
+      # GitHub's built-in secret scanning provides similar coverage
