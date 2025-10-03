@@ -247,16 +247,38 @@ function Invoke-PythonBootstrap {
 
     Write-Log "Command: python $($pythonArgs -join ' ')" -Level Debug
 
+    # Create timestamped log files for Python output
+    $pythonLogPath = Join-Path $script:LogDirectory "python-bootstrap-$script:TraceId.log"
+    $pythonErrorPath = Join-Path $script:LogDirectory "python-bootstrap-$script:TraceId-error.log"
+
     try {
+        # Run with output capture instead of -NoNewWindow which swallows everything
         $process = Start-Process `
             -FilePath 'python' `
             -ArgumentList $pythonArgs `
             -WorkingDirectory $script:ProjectRoot `
-            -NoNewWindow `
+            -RedirectStandardOutput $pythonLogPath `
+            -RedirectStandardError $pythonErrorPath `
             -Wait `
-            -PassThru
+            -PassThru `
+            -NoNewWindow
 
         $exitCode = $process.ExitCode
+
+        # Log the Python output
+        if (Test-Path $pythonLogPath) {
+            $stdout = Get-Content $pythonLogPath -Raw -ErrorAction SilentlyContinue
+            if ($stdout) {
+                Write-Log "Python stdout: $stdout" -Level Debug
+            }
+        }
+
+        if (Test-Path $pythonErrorPath) {
+            $stderr = Get-Content $pythonErrorPath -Raw -ErrorAction SilentlyContinue
+            if ($stderr) {
+                Write-Log "Python stderr: $stderr" -Level Debug
+            }
+        }
 
         if ($exitCode -eq 0) {
             Write-Log "Python bootstrap completed successfully" -Level Success
@@ -402,14 +424,34 @@ function Invoke-Teardown {
         }
     }
 
+    $teardownLogPath = Join-Path $script:LogDirectory "python-teardown-$script:TraceId.log"
+    $teardownErrorPath = Join-Path $script:LogDirectory "python-teardown-$script:TraceId-error.log"
+
     try {
         $process = Start-Process `
             -FilePath 'python' `
             -ArgumentList @('-m', 'cloud.teardown') `
             -WorkingDirectory $script:ProjectRoot `
-            -NoNewWindow `
+            -RedirectStandardOutput $teardownLogPath `
+            -RedirectStandardError $teardownErrorPath `
             -Wait `
-            -PassThru
+            -PassThru `
+            -NoNewWindow
+
+        # Log output
+        if (Test-Path $teardownLogPath) {
+            $stdout = Get-Content $teardownLogPath -Raw -ErrorAction SilentlyContinue
+            if ($stdout) {
+                Write-Log "Teardown stdout: $stdout" -Level Debug
+            }
+        }
+
+        if (Test-Path $teardownErrorPath) {
+            $stderr = Get-Content $teardownErrorPath -Raw -ErrorAction SilentlyContinue
+            if ($stderr) {
+                Write-Log "Teardown stderr: $stderr" -Level Debug
+            }
+        }
 
         if ($process.ExitCode -eq 0) {
             Write-Log "Teardown completed" -Level Success
@@ -428,7 +470,7 @@ try {
         'deploy' {
             $success = Invoke-Deployment
             if ($success) {
-                Write-Panel "🎉 Deployment Complete!" @(
+                Write-Panel "Deployment Complete!" @(
                     "Your Job Scraper is now running in GCP",
                     "Logs: $script:LogPath",
                     "Trace ID: $script:TraceId"
@@ -444,12 +486,15 @@ try {
         }
         'rollback' {
             Invoke-Rollback
+            exit 0
         }
         'status' {
             Invoke-Status
+            exit 0
         }
         'teardown' {
             Invoke-Teardown
+            exit 0
         }
     }
 } catch {

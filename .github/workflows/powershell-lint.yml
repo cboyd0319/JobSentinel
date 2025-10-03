@@ -1,0 +1,89 @@
+name: PowerShell Quality
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - '**.ps1'
+      - '**.psm1'
+      - '**.psd1'
+      - 'PSScriptAnalyzerSettings.psd1'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '**.ps1'
+      - '**.psm1'
+      - '**.psd1'
+
+jobs:
+  lint:
+    name: PSScriptAnalyzer
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install PSScriptAnalyzer
+        shell: pwsh
+        run: |
+          Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser -Repository PSGallery
+          Import-Module PSScriptAnalyzer
+
+      - name: Run PSScriptAnalyzer
+        shell: pwsh
+        run: |
+          $results = Invoke-ScriptAnalyzer -Path . -Recurse -Settings PSScriptAnalyzerSettings.psd1 -Severity Error,Warning
+
+          if ($results) {
+            Write-Host "PSScriptAnalyzer found issues:" -ForegroundColor Red
+            $results | Format-Table -AutoSize File, Line, Severity, RuleName, Message
+            exit 1
+          } else {
+            Write-Host "No PSScriptAnalyzer issues found!" -ForegroundColor Green
+          }
+
+      - name: Validate syntax
+        shell: pwsh
+        run: |
+          powershell -NoProfile -ExecutionPolicy Bypass -File validate-syntax.ps1
+
+  test:
+    name: Pester Tests
+    runs-on: windows-latest
+    needs: lint
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Pester
+        shell: pwsh
+        run: |
+          Install-Module -Name Pester -Force -Scope CurrentUser -MinimumVersion 5.5.0 -Repository PSGallery
+          Import-Module Pester
+
+      - name: Run Pester tests
+        shell: pwsh
+        run: |
+          $config = New-PesterConfiguration
+          $config.Run.Path = './tests'
+          $config.Run.Exit = $true
+          $config.CodeCoverage.Enabled = $true
+          $config.TestResult.Enabled = $true
+          $config.TestResult.OutputPath = 'test-results.xml'
+
+          Invoke-Pester -Configuration $config
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: test-results.xml
+
+      - name: Publish test results
+        uses: EnricoMi/publish-unit-test-result-action/windows@v2
+        if: always()
+        with:
+          files: test-results.xml

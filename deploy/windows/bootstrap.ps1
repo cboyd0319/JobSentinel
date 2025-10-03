@@ -1,6 +1,10 @@
 ﻿# Job Finder Bootstrapper
 # Safely downloads and launches the main installer.
 
+# --- INITIAL SETUP ---
+Set-StrictMode -Version Latest
+$ErrorActionPreference = 'Stop'
+
 # --- Configuration ---
 $RepoUrl = "https://github.com/cboyd0319/job-private-scraper-filter/archive/refs/heads/main.zip"
 $DesktopPath = [System.Environment]::GetFolderPath('Desktop')
@@ -9,55 +13,132 @@ $ZipPath = Join-Path $InstallDir "project.zip"
 
 # --- Friendly Introduction ---
 Clear-Host
-Write-Output "Hello!"
-Write-Output "I'm going to download the Personal Job Finder for you."
-Write-Output "It will be placed in a new folder on your Desktop called 'Job-Finder-Setup'."
-Write-Output ""
+Write-Host ""
+Write-Host "====================================" -ForegroundColor Cyan
+Write-Host "   Personal Job Finder Setup" -ForegroundColor Cyan
+Write-Host "====================================" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "Hello!" -ForegroundColor Green
+Write-Host ""
+Write-Host "This tool helps you find job postings that match what you're looking for."
+Write-Host "It checks company websites automatically and shows you the best matches."
+Write-Host ""
+Write-Host "I'm going to help you install it on your computer."
+Write-Host ""
+Write-Host "Here's what will happen:" -ForegroundColor Yellow
+Write-Host "  1. Download the Job Finder (takes about 30 seconds)"
+Write-Host "  2. Put it in a folder on your Desktop called 'Job-Finder-Setup'"
+Write-Host "  3. Open the main setup window for you"
+Write-Host ""
 
-$confirmation = Read-Host "Is that okay? (Press Y to continue, N to cancel)"
+$confirmation = Read-Host "Ready to begin? Type Y and press Enter (or N to cancel)"
 if ($confirmation -ne 'Y' -and $confirmation -ne 'y') {
-    Write-Warning "Setup cancelled. No files were downloaded."
-    Start-Sleep -Seconds 3
-    return
+    Write-Host ""
+    Write-Host "No problem! Setup cancelled." -ForegroundColor Yellow
+    Write-Host "No files were downloaded or changed." -ForegroundColor Green
+    Write-Host ""
+    Write-Host "Press any key to close this window..."
+    $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
+    exit 0
 }
 
 # --- Safe Download and Unzip ---
 try {
-    Write-Output "`nDownloading... (this may take a minute)"
+    Write-Host ""
+    Write-Host "Step 1: Downloading the Job Finder..." -ForegroundColor Cyan
+    Write-Host "(This takes about 30 seconds on fast internet)" -ForegroundColor Gray
     New-Item -ItemType Directory -Path $InstallDir -Force | Out-Null
-    Invoke-WebRequest -Uri $RepoUrl -OutFile $ZipPath -UseBasicParsing
+    Invoke-WebRequest -Uri $RepoUrl -OutFile $ZipPath -UseBasicParsing -TimeoutSec 300
 
-    Write-Output "Unpacking the files..."
-    Expand-Archive -Path $ZipPath -DestinationPath $InstallDir -Force
-
-    $ExtractedFolderName = (Get-ChildItem -Path $InstallDir -Directory | Where-Object { $_.Name -like 'job-private-scraper-filter-*' }).Name
-    $InstallerPath = Join-Path $InstallDir "$ExtractedFolderName\deploy\windows\install.ps1"
-
-    if (-not (Test-Path $InstallerPath)) {
-        throw "Installer file not found after download. Something went wrong."
+    # SECURITY: Validate we actually downloaded a ZIP file
+    if ((Get-Item $ZipPath).Length -lt 1KB) {
+        throw "Downloaded file is too small - may be corrupt or incomplete"
     }
 
-    Write-Output "✓ Download complete!"
-    Write-Output "`nNow, I'll start the main setup window for you..."
+    Write-Host "✓ Download complete!" -ForegroundColor Green
+    Write-Host ""
+    Write-Host "Step 2: Unpacking the files..." -ForegroundColor Cyan
+    Expand-Archive -Path $ZipPath -DestinationPath $InstallDir -Force
+
+    # ROBUSTNESS: Find the extracted folder more reliably
+    $ExtractedFolders = Get-ChildItem -Path $InstallDir -Directory | Where-Object {
+        $_.Name -match '^job-private-scraper-filter'
+    }
+
+    if ($ExtractedFolders.Count -eq 0) {
+        throw "Could not find extracted project folder. Archive may be corrupt."
+    }
+
+    if ($ExtractedFolders.Count -gt 1) {
+        # Use the most recently created folder
+        $ExtractedFolder = $ExtractedFolders | Sort-Object CreationTime -Descending | Select-Object -First 1
+    } else {
+        $ExtractedFolder = $ExtractedFolders[0]
+    }
+
+    $InstallerPath = Join-Path $ExtractedFolder.FullName "deploy\windows\install.ps1"
+
+    if (-not (Test-Path $InstallerPath)) {
+        throw "Installer file not found at: $InstallerPath"
+    }
+
+    Write-Host "✓ Files unpacked successfully!" -ForegroundColor Green
+    Write-Host ""
+    Write-Host "Step 3: Opening the main setup window..." -ForegroundColor Cyan
+    Write-Host "(A new window will pop up in a moment)" -ForegroundColor Gray
     Start-Sleep -Seconds 2
 
     # --- Launch Main Installer ---
-    Start-Process powershell.exe -ArgumentList "-NoExit -ExecutionPolicy Bypass -File `"$InstallerPath`"" -WorkingDirectory (Split-Path $InstallerPath -Parent) -Wait
+    $workingDir = Split-Path $InstallerPath -Parent
+    Start-Process powershell.exe `
+        -ArgumentList "-ExecutionPolicy Bypass -File `"$InstallerPath`"" `
+        -WorkingDirectory $workingDir `
+        -Wait
 
 } catch {
-    Write-Error "`nOh dear, something went wrong during the download."
+    Write-Host ""
+    Write-Host "========================================" -ForegroundColor Red
+    Write-Host "   Oops! Something Went Wrong" -ForegroundColor Red
+    Write-Host "========================================" -ForegroundColor Red
+    Write-Host ""
+
     if ($_.Exception -is [System.Net.WebException]) {
-        Write-Warning "This might be due to a network issue or a firewall blocking the download."
-        Write-Warning "You can try again, or download the project manually:"
-        Write-Output "1. Go to: https://github.com/cboyd0319/job-private-scraper-filter"
-        Write-Output "2. Click the green 'Code' button, then 'Download ZIP'."
-        Write-Output "3. Unzip the file to your Desktop and run the 'install.ps1' file inside the 'deploy/windows' folder."
+        Write-Host "The download didn't work. This usually means:" -ForegroundColor Yellow
+        Write-Host "  • Your internet connection is slow or interrupted" -ForegroundColor Gray
+        Write-Host "  • A firewall is blocking the download" -ForegroundColor Gray
+        Write-Host "  • The website is temporarily down" -ForegroundColor Gray
+        Write-Host ""
+        Write-Host "What to try:" -ForegroundColor Cyan
+        Write-Host "  1. Check your internet is working (try opening a website)"
+        Write-Host "  2. Wait a minute and run this installer again"
+        Write-Host "  3. Or download manually from:"
+        Write-Host "     https://github.com/cboyd0319/job-private-scraper-filter" -ForegroundColor White
+        Write-Host "     (Click the green 'Code' button, then 'Download ZIP')"
+    } elseif ($_.Exception -is [System.IO.IOException]) {
+        Write-Host "Couldn't save files to your Desktop." -ForegroundColor Yellow
+        Write-Host ""
+        Write-Host "This might be because:" -ForegroundColor Cyan
+        Write-Host "  • Another program is using the folder"
+        Write-Host "  • You don't have permission to save there"
+        Write-Host ""
+        Write-Host "What to try:" -ForegroundColor Cyan
+        Write-Host "  1. Close other programs"
+        Write-Host "  2. Right-click this installer and choose 'Run as administrator'"
+        Write-Host "  3. Try again"
     } else {
-        Write-Error "Error: $($_.Exception.Message)"
+        Write-Host "An unexpected error occurred." -ForegroundColor Yellow
+        Write-Host ""
+        Write-Host "Technical details (for troubleshooting):" -ForegroundColor Gray
+        Write-Host "  Error type: $($_.Exception.GetType().Name)" -ForegroundColor Gray
+        Write-Host "  Message: $($_.Exception.Message)" -ForegroundColor Gray
     }
-    Write-Warning "Please check your internet connection and try again."
-    Start-Sleep -Seconds 15
+
+    Write-Host ""
+    Write-Host "Press any key to close this window..." -ForegroundColor Cyan
+    $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
+    exit 1
 } finally {
+    # Clean up the ZIP file
     if (Test-Path $ZipPath) {
         Remove-Item $ZipPath -Force -ErrorAction SilentlyContinue
     }

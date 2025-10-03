@@ -134,6 +134,10 @@ desktop.ini
 *.ps1xml
 $PROFILE
 *.psm1-backup
+*.ps1.bak
+analyze-all.ps1
+analysis-*.json
+deploy-state-*.json
 
 # Security reports and artifacts (generated locally, not project files)
 .security-reports/

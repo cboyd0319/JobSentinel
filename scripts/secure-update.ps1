@@ -59,7 +59,7 @@ function Update-JobScraperSecure {
         Push-Location $InstallPath
         
         # Backup user configuration files
-        $configBackup = "$env:TEMP\\job-scraper-secure-backup-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+        $configBackup = Join-Path $env:TEMP "job-scraper-secure-backup-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
         New-Item -ItemType Directory -Path $configBackup -Force | Out-Null
         
         $configFiles = @(".env", "config/user_prefs.json")
@@ -96,9 +96,9 @@ function Update-JobScraperSecure {
             }
         } else {
             Write-SecureLog "No Git repository - using secure download method..." "INFO"
-            
+
             # Secure download method
-            $tempDir = "$env:TEMP\\job-scraper-secure-update-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+            $tempDir = Join-Path $env:TEMP "job-scraper-secure-update-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
             
             # Use git clone with specific security parameters
             $cloneResult = git clone --depth 1 --single-branch --branch main https://github.com/cboyd0319/job-private-scraper-filter.git $tempDir 2>&1
@@ -116,26 +116,30 @@ function Update-JobScraperSecure {
             if (Test-Path "VERSION") {
                 $currentVersion = Get-Content "VERSION" -Raw -ErrorAction SilentlyContinue
             }
-            
-            if (Test-Path "$tempDir\\VERSION") {
-                $newVersion = Get-Content "$tempDir\\VERSION" -Raw -ErrorAction SilentlyContinue
+
+            $tempVersionPath = Join-Path $tempDir "VERSION"
+            if (Test-Path $tempVersionPath) {
+                $newVersion = Get-Content $tempVersionPath -Raw -ErrorAction SilentlyContinue
             }
             
             if ($currentVersion -ne $newVersion -or $Force) {
                 Write-SecureLog "Updating from version '$currentVersion' to '$newVersion'..." "INFO"
-                
+
                 # Secure file copy with validation
-                $excludePatterns = @(".env", "config/user_prefs.json", "data\\*", ".venv\\*", ".git\\*")
-                
+                $excludePatterns = @(".env", "config/user_prefs.json", "data\*", ".venv\*", ".git\*")
+
+                # Resolve install path once for comparison
+                $resolvedInstallPath = (Resolve-Path $InstallPath).Path
+
                 Get-ChildItem $tempDir -Recurse | ForEach-Object {
                     $relativePath = $_.FullName.Substring($tempDir.Length + 1)
-                    
-                    # Security: Prevent directory traversal
-                    if ($relativePath -match "\\.\\.|\\\\\\.\\.") {
+
+                    # SECURITY: Prevent directory traversal - properly handle both / and \
+                    if ($relativePath -match '\.\.[/\\]' -or $relativePath -match '[/\\]\.\.[/\\]') {
                         Write-SecureLog "Blocked potential directory traversal: $relativePath" "SECURITY"
                         return
                     }
-                    
+
                     $shouldExclude = $false
                     foreach ($pattern in $excludePatterns) {
                         if ($relativePath -like $pattern) {
@@ -143,21 +147,22 @@ function Update-JobScraperSecure {
                             break
                         }
                     }
-                    
+
                     if (!$shouldExclude -and !$_.PSIsContainer) {
                         $targetPath = Join-Path $InstallPath $relativePath
-                        $targetDir = Split-Path $targetPath -Parent
-                        
-                        # Security: Validate target path is within installation directory
-                        if (!$targetPath.StartsWith($InstallPath)) {
+
+                        # SECURITY: Validate target path is within installation directory (case-insensitive)
+                        $resolvedTargetPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($targetPath)
+                        if (-not $resolvedTargetPath.StartsWith($resolvedInstallPath, [StringComparison]::OrdinalIgnoreCase)) {
                             Write-SecureLog "Blocked file outside install directory: $targetPath" "SECURITY"
                             return
                         }
-                        
+
+                        $targetDir = Split-Path $targetPath -Parent
                         if (!(Test-Path $targetDir)) {
                             New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
                         }
-                        
+
                         Copy-Item $_.FullName $targetPath -Force
                     }
                 }
@@ -176,22 +181,30 @@ function Update-JobScraperSecure {
             # Update Python dependencies securely
             Write-SecureLog "Updating Python dependencies..." "INFO"
             
-            $pythonPath = ".\.venv\Scripts\python.exe"
+            $pythonPath = Join-Path "." ".venv\Scripts\python.exe"
             if (!(Test-Path $pythonPath)) {
-                throw "Virtual environment not found"
+                throw "Virtual environment not found at: $pythonPath"
             }
-            
+
             & $pythonPath -m pip install --upgrade pip --quiet
+            if ($LASTEXITCODE -ne 0) {
+                Write-SecureLog "Warning: pip upgrade returned exit code $LASTEXITCODE" "WARN"
+            }
+
             & $pythonPath -m pip install -r requirements.txt --upgrade --quiet
-            
+            if ($LASTEXITCODE -ne 0) {
+                throw "Failed to install Python dependencies (exit code: $LASTEXITCODE)"
+            }
+
             # Restore user configuration files
             foreach ($file in $configFiles) {
-                if (Test-Path "$configBackup\\$file") {
+                $backupFile = Join-Path $configBackup $file
+                if (Test-Path $backupFile) {
                     $destDir = Split-Path $file
                     if ($destDir -and !(Test-Path $destDir)) {
                         New-Item -ItemType Directory -Path $destDir -Force | Out-Null
                     }
-                    Copy-Item "$configBackup\\$file" $file -Force
+                    Copy-Item $backupFile $file -Force
                     Write-SecureLog "Restored $file" "SECURITY"
                 }
             }
@@ -231,12 +244,13 @@ except Exception as e:
         # Restore configuration from backup if it exists
         if (Test-Path $configBackup) {
             foreach ($file in $configFiles) {
-                if (Test-Path "$configBackup\\$file") {
+                $backupFile = Join-Path $configBackup $file
+                if (Test-Path $backupFile) {
                     $destDir = Split-Path $file
                     if ($destDir -and !(Test-Path $destDir)) {
                         New-Item -ItemType Directory -Path $destDir -Force | Out-Null
                     }
-                    Copy-Item "$configBackup\\$file" $file -Force
+                    Copy-Item $backupFile $file -Force
                     Write-SecureLog "Restored $file from backup" "SECURITY"
                 }
             }
