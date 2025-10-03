@@ -48,37 +48,108 @@ This document outlines cost-effective AI integrations to enhance job matching, r
 
 ### 1.2 Job Search MCP Servers ✨ **HIGH VALUE**
 
-**JobsWithGPT MCP Server** 🌟 **RECOMMENDED**
+**JobsWithGPT MCP Server** 🌟 **RECOMMENDED** - ✅ ALREADY INTEGRATED
 - **Source:** [GitHub](https://github.com/jobswithgpt/mcp)
 - **Coverage:** 500,000+ public job listings (continuously refreshed)
 - **Use Case:** Real-time job search aggregation across multiple boards
 - **Cost:** FREE (public access)
-- **API Endpoint:** `https://jobswithgpt.com/mcp/`
+- **Status:** ✅ Fully integrated via `sources/jobswithgpt_scraper.py`
 - **Integration:** Can be used as MCP server or direct API
 - **Benefits:**
   - Massive job coverage (500k+ jobs)
   - Continuously refreshed data
   - No manual scraper maintenance needed
   - Works with Claude Desktop and OpenAI Responses API
-- **Example Usage:**
-  ```python
-  # Via MCP client
-  client.responses.create(
-      model="gpt-4.1-mini",
-      tools=[{
-          "type": "mcp",
-          "server_label": "jobswithgpt",
-          "server_url": "https://jobswithgpt.com/mcp/"
-      }],
-      input="find jobs for python devs in sf"
-  )
+- **See:** `docs/JOBSWITHGPT_INTEGRATION.md` for complete usage guide
+
+**LinkedIn MCP Server (stickerdaniel)** 🔥 **HEAVYWEIGHT**
+- **Source:** [GitHub](https://github.com/stickerdaniel/linkedin-mcp-server)
+- **Coverage:** All LinkedIn jobs (most comprehensive single source)
+- **Cost:** FREE (open-source, uses your LinkedIn cookie)
+- **Status:** ⏸️ Not yet integrated
+- **Features:**
+  - Search jobs with advanced filters
+  - Get recommended jobs based on profile
+  - Pull detailed job descriptions
+  - Access company profiles
+  - Actively maintained (latest release Aug 2025)
+- **Installation:** Docker or uvx one-liner
+- **ToS Warning:** Uses LinkedIn session cookie (`li_at`) - this is scraping. Use at your own risk. LinkedIn may throttle/block accounts.
+- **Best Practices:**
+  - Use a separate/burner LinkedIn account
+  - Throttle requests (don't run 24/7)
+  - Follow LinkedIn's ToS and use personally
+- **Claude Desktop Config:**
+  ```json
+  {
+    "mcpServers": {
+      "linkedin": {
+        "command": "docker",
+        "args": ["run","--rm","-i","-e","LINKEDIN_COOKIE","stickerdaniel/linkedin-mcp-server:latest"],
+        "env": { "LINKEDIN_COOKIE": "li_at=YOUR_COOKIE" }
+      }
+    }
+  }
   ```
 
-**Reed Jobs MCP Server** (UK-focused)
+**JobSpy MCP Server (borgius)** 📊 **MULTI-SITE AGGREGATOR**
+- **Source:** [GitHub](https://github.com/borgius/jobspy-mcp-server)
+- **Coverage:** Multiple boards in one call
+- **Supported Sites:** Indeed, LinkedIn, ZipRecruiter, Glassdoor, Google Jobs, etc.
+- **Cost:** FREE (open-source)
+- **Status:** ⏸️ Not yet integrated
+- **Features:**
+  - Query multiple job boards simultaneously
+  - Filter by recency, site, count
+  - Returns JSON/CSV output
+  - Stdio + SSE transports
+- **Benefits:**
+  - Fan out to multiple sources with one API call
+  - Great for wide-funnel searches
+  - Single integration, many data sources
+- **ToS Warning:** Aggregates scrapers = same ToS risks as each underlying site. Some targets are brittle.
+- **Claude Desktop Config:**
+  ```json
+  {
+    "mcpServers": {
+      "jobspy": {
+        "command": "node",
+        "args": ["/path/to/jobspy-mcp-server/src/index.js"],
+        "env": { "ENABLE_SSE": "0" }
+      }
+    }
+  }
+  ```
+
+**Job Searchoor (0xDAEF0F)** 🎯 **MINIMAL & FAST**
+- **Source:** [GitHub](https://github.com/0xDAEF0F/job-searchoor)
+- **Coverage:** Targeted job search with simple filters
+- **Cost:** FREE (open-source)
+- **Status:** ⏸️ Not yet integrated
+- **Features:**
+  - Single `get_jobs` tool with sensible filters
+  - `sinceWhen` parameter for freshness
+  - Keywords include/exclude
+  - Remote work filtering
+- **Benefits:**
+  - Dead-simple integration (npx one-liner)
+  - Minimal, fast, focused
+  - Good for custom post-filtering pipelines
+- **Claude Desktop Config:**
+  ```json
+  {
+    "mcpServers": {
+      "job-search": { "command": "npx", "args": ["-y","job-searchoor"] }
+    }
+  }
+  ```
+
+**Reed Jobs MCP Server** 🇬🇧 **UK-FOCUSED**
 - **Source:** [GitHub](https://github.com/kld3v/reed_jobs_mcp)
 - **API:** Reed.co.uk Jobs API (UK's #1 job site)
 - **Cost:** FREE API key required (from Reed Developer Portal)
 - **Use Case:** UK job market, advanced filtering
+- **Status:** ⏸️ Not yet integrated
 - **Language:** TypeScript/Node.js
 - **Features:**
   - Search with keywords, location, salary, contract type
@@ -359,9 +430,9 @@ JobsWithGPT provides **500,000+ jobs** with zero scraper maintenance!
 
 ---
 
-## 6. Privacy & Security Considerations
+## 6. Privacy, Security & Legal Considerations
 
-### Local-First AI (Ollama)
+### 6.1 Local-First AI (Ollama)
 ✅ **Pros:**
 - No data leaves user's device
 - No API keys needed
@@ -373,7 +444,7 @@ JobsWithGPT provides **500,000+ jobs** with zero scraper maintenance!
 - Slightly slower than cloud APIs
 - Model quality varies
 
-### MCP Servers
+### 6.2 MCP Servers - General
 ✅ **Pros:**
 - Structured APIs (no HTML scraping)
 - Rate limiting handled by provider
@@ -382,6 +453,125 @@ JobsWithGPT provides **500,000+ jobs** with zero scraper maintenance!
 ⚠️ **Caution:**
 - Resume data should NEVER be sent to MCP servers
 - Use MCP for job data only, Ollama for resume analysis
+
+### 6.3 Terms of Service & Legal Risk by MCP Server
+
+**⚠️ CRITICAL: Read this before integrating any MCP server**
+
+#### JobsWithGPT ✅ **LOWEST RISK** (Already Integrated)
+**Risk Level:** 🟢 **LOW**
+- **Status:** Public API, designed for programmatic access
+- **Account Risk:** None (no login required)
+- **Rate Limits:** Unknown (likely exists, but no documentation)
+- **ToS Compliance:** Appears intended for public use
+- **Recommendation:** ✅ Safe to use as primary data source
+
+#### LinkedIn MCP (stickerdaniel) ⚠️ **HIGH RISK**
+**Risk Level:** 🔴 **HIGH**
+- **Status:** Uses session cookie scraping (`li_at`)
+- **Account Risk:** High - LinkedIn actively blocks/bans scraping accounts
+- **ToS Violation:** YES - LinkedIn's ToS explicitly prohibits scraping
+- **Legal Risk:** LinkedIn has sued scraping companies (e.g., hiQ Labs case)
+- **Throttling:** Aggressive rate limiting and bot detection
+- **Best Practices:**
+  - ✅ Use a separate/burner LinkedIn account
+  - ✅ Throttle requests (max 1 request per 5-10 seconds)
+  - ✅ Run manually, not 24/7 automated
+  - ✅ Comply with LinkedIn's ToS (personal use only)
+  - ❌ Don't use your primary LinkedIn account
+  - ❌ Don't run on shared/cloud IPs
+  - ❌ Don't scrape more than 50-100 jobs per day
+- **Recommendation:** ⚠️ Use with caution, understand the risks, user accepts liability
+
+#### JobSpy MCP ⚠️ **MEDIUM-HIGH RISK**
+**Risk Level:** 🟡 **MEDIUM-HIGH**
+- **Status:** Aggregates scrapers for Indeed, LinkedIn, ZipRecruiter, etc.
+- **Account Risk:** Varies by target site
+- **ToS Violation:** Likely YES for most targets (Indeed, LinkedIn)
+- **Brittleness:** High - scrapers break when sites redesign
+- **Best Practices:**
+  - ✅ Use for broad searches, not targeted scraping
+  - ✅ Throttle requests across all sites
+  - ✅ Monitor for failures and fallback to compliant sources
+  - ❌ Don't rely on this as sole data source
+- **Recommendation:** ⚠️ Use as supplementary source, accept fragility
+
+#### Job Searchoor 🟢 **MEDIUM RISK**
+**Risk Level:** 🟡 **MEDIUM**
+- **Status:** Smaller scope, simpler implementation
+- **Account Risk:** Unknown (depends on underlying data source)
+- **ToS Compliance:** Unknown (check source)
+- **Recommendation:** ⚠️ Verify data source before use
+
+#### Reed Jobs MCP 🟢 **LOWEST RISK**
+**Risk Level:** 🟢 **LOW**
+- **Status:** Uses official Reed.co.uk API
+- **Account Risk:** None (API key-based)
+- **ToS Compliance:** YES - designed for programmatic access
+- **Rate Limits:** Yes (documented in API)
+- **Recommendation:** ✅ Safe to use, follow API rate limits
+
+#### ATS Career Sites (Greenhouse/Lever/Ashby) 🟢 **LOW RISK**
+**Risk Level:** 🟢 **LOW-MEDIUM**
+- **Status:** Public career pages with JSON endpoints
+- **Account Risk:** None (no login required)
+- **ToS Compliance:** Generally allowed (public data)
+- **Best Practices:**
+  - ✅ Respect robots.txt
+  - ✅ Use reasonable rate limits (1-2 requests/second max)
+  - ✅ Identify your user-agent
+  - ❌ Don't hammer servers (causes IP bans)
+- **Recommendation:** ✅ Preferred for compliance-focused deployments
+
+### 6.4 Recommended Integration Strategy by Risk Tolerance
+
+#### Conservative (Enterprise/Production)
+**Priority:**
+1. JobsWithGPT (500k+ jobs, public API) ✅
+2. Reed Jobs API (UK jobs, official API) ✅
+3. ATS Career Sites (Greenhouse/Lever/Ashby) ✅
+4. Fallback: Manual user-configured company sites only
+
+**Avoid:** LinkedIn MCP, JobSpy MCP
+
+#### Balanced (Personal/Small Team)
+**Priority:**
+1. JobsWithGPT (primary source) ✅
+2. ATS Career Sites (supplement) ✅
+3. LinkedIn MCP (use sparingly, burner account, user accepts risk) ⚠️
+4. JobSpy MCP (supplement, expect failures) ⚠️
+
+**Note:** User must explicitly opt-in to high-risk sources
+
+#### Aggressive (Power User/Research)
+**Priority:**
+1. JobsWithGPT ✅
+2. LinkedIn MCP (with throttling and monitoring) ⚠️
+3. JobSpy MCP (all sources enabled) ⚠️
+4. ATS Career Sites ✅
+5. Custom scrapers for high-value targets ⚠️
+
+**Note:** Full awareness of legal risks, accepts liability
+
+### 6.5 Liability & Disclaimer
+
+**⚠️ IMPORTANT:**
+- This project is designed to HELP people find jobs
+- Always comply with applicable Terms of Service
+- Scraping may violate ToS of some platforms
+- Users accept full legal liability for their usage
+- Developers are not responsible for ToS violations
+- Use at your own risk
+
+**Recommended User Agreement:**
+```
+By using [MCP Server Name], you acknowledge:
+1. You have read and understand the Terms of Service of the target platform
+2. You accept full legal liability for any ToS violations
+3. You will not use this tool for commercial data harvesting
+4. You will throttle requests to avoid overloading servers
+5. You will use this tool for personal job search only
+```
 
 ---
 
