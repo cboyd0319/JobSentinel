@@ -81,6 +81,7 @@ jobs:
           category: bandit
 
   osv-scanner:
+    if: vars.RUN_OSV_SCANNER == 'true'
     uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@90b209d0ea55cea1da9fc0c4e65782cc6acb6e2e
 
   semgrep-scan:
@@ -88,6 +89,7 @@ jobs:
     runs-on: ubuntu-latest
     if: >-
       github.actor != 'dependabot[bot]' &&
+      secrets.SEMGREP_APP_TOKEN != '' &&
       (
         github.event_name != 'workflow_dispatch' ||
         github.event.inputs.scan_type != 'dependencies-only'
@@ -254,75 +256,3 @@ jobs:
           base: ${{ github.event.pull_request.base.sha || github.event.before }}
           head: ${{ github.event.pull_request.head.sha || github.event.after }}
           extra_args: --only-verified
-
-  security-summary:
-    name: Security Analysis Summary
-    runs-on: ubuntu-latest
-    needs:
-      - python-security
-      - osv-scanner
-      - semgrep-scan
-      - codeql-analysis
-      - prowler-github
-      - yamllint
-      - trufflehog
-    if: always()
-    permissions:
-      contents: read
-      issues: write
-      pull-requests: write
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
-        with:
-          persist-credentials: false
-
-      - name: Generate security summary
-        env:
-          BANDIT_STATUS: ${{ needs.python-security.outputs.bandit_status }}
-          OSV_RESULT: ${{ needs.osv-scanner.result }}
-          SEMGREP_RESULT: ${{ needs.semgrep-scan.result }}
-          CODEQL_RESULT: ${{ needs.codeql-analysis.result }}
-          PROWLER_ENABLED: ${{ needs.prowler-github.outputs.enabled }}
-          PROWLER_RESULT: ${{ needs.prowler-github.outputs.result }}
-          YAMLLINT_RESULT: ${{ needs.yamllint.result }}
-          TRUFFLEHOG_RESULT: ${{ needs.trufflehog.result }}
-        run: bash ./scripts/generate-security-summary.sh
-
-      - name: Comment on pull request with summary
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea
-        with:
-          script: |
-            const fs = require('fs');
-            const summary = fs.readFileSync('security-summary.md', 'utf8');
-            const comments = await github.rest.issues.listComments({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo
-            });
-            const marker = 'Security Analysis Summary';
-            const botComment = comments.data.find(comment =>
-              comment.user.type === 'Bot' && comment.body.includes(marker)
-            );
-            if (botComment) {
-              await github.rest.issues.updateComment({
-                comment_id: botComment.id,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: summary
-              });
-            } else {
-              await github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: summary
-              });
-            }
-
-      - name: Upload summary artifact
-        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874
-        with:
-          name: security-summary
-          path: security-summary.md

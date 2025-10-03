@@ -40,9 +40,11 @@ jobs:
         if: github.ref_name == 'main'
         uses: python-semantic-release/python-semantic-release@8b1ced9dfd29704d6d781541a224c5abc06cc4e4
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.SEMANTIC_RELEASE_TOKEN != '' &&
+            secrets.SEMANTIC_RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.SEMANTIC_RELEASE_TOKEN != '' &&
+            secrets.SEMANTIC_RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Attest build provenance
         if: steps.release.outputs.released == 'true'

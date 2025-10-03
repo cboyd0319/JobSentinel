@@ -12,6 +12,7 @@ This project uses `python-semantic-release` to automate version bumping, changel
 ## How it Works
 
 1.  **Conventional Commits:** All commit messages should follow the [Conventional Commits specification](https://www.conventionalcommits.org/en/v1.0.0/). This allows `semantic-release` to automatically determine the next version number and generate the changelog.
+2.  **Release Token:** Create a personal access token with `repo` scope, store it as `SEMANTIC_RELEASE_TOKEN`, and keep `GITHUB_TOKEN` as a fallback only.
     *   `fix:` for bug fixes (bumps PATCH version).
     *   `feat:` for new features (bumps MINOR version).
     *   `BREAKING CHANGE:` in commit body for breaking changes (bumps MAJOR version).
