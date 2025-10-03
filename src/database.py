@@ -203,18 +203,18 @@ async def get_database_stats() -> dict:
         async with AsyncSession(async_engine) as session:
             from sqlalchemy import func
 
-            total_jobs = (await session.exec(select(func.count(Job.id)))).scalar_one()
+            total_jobs = (await session.exec(select(func.count(Job.id)))).one()
 
             # Jobs added in last 24 hours
             yesterday = datetime.now(timezone.utc) - timedelta(hours=24)
             recent_jobs = (await session.exec(
                 select(func.count(Job.id)).where(Job.created_at >= yesterday)
-            )).scalar_one()
+            )).one()
 
             # High score jobs (>= 0.8)
             high_score_jobs = (await session.exec(
                 select(func.count(Job.id)).where(Job.score >= 0.8)
-            )).scalar_one()
+            )).one()
 
             return {
                 "total_jobs": total_jobs,

@@ -1,6 +1,14 @@
 name: Security & Vulnerability Scanning
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - '**/*.py'
+      - 'requirements.txt'
+      - '.github/workflows/security.yml'
+      - 'Dockerfile'
+      - 'pyproject.toml'
   pull_request:
     branches: [main, develop]
     paths:

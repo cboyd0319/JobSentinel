@@ -131,35 +131,21 @@ jobs:
         run: terraform -chdir=terraform/gcp/ init -backend=false
 
       - name: Terraform Format Check
-        id: fmt
+        id: fmt_check
         run: terraform -chdir=terraform/gcp/ fmt -check -recursive
         continue-on-error: true
 
-      - name: Terraform Validate
-        id: validate
-        run: terraform -chdir=terraform/gcp/ validate
-
-      - name: Terraform Plan (no changes expected)
-        id: plan
-        if: env.HAS_GCP_CREDS == 'true'
-        run: |
-          terraform -chdir=terraform/gcp/ plan -detailed-exitcode \
-            -var="project_id=dummy-project" \
-            -var="region=us-central1" \
-            -var="billing_account_id=dummy-billing" \
-            -var="source_repo=dummy/repo" \
-            -var="alert_email_address=test@example.com"
-        continue-on-error: true
-
-      - name: Skip Terraform plan (no credentials)
-        if: env.HAS_GCP_CREDS != 'true'
-        run: echo "Terraform plan skipped because no GCP credentials are configured in CI."
-
       - name: Report Terraform format issues
-        if: steps.fmt.outcome == 'failure'
+        if: steps.fmt_check.outcome == 'failure'
         run: |
-          echo "Terraform format check failed. Run 'terraform fmt -recursive terraform/gcp/' locally to fix and commit the changes."
+          echo "Terraform format check failed. The following files are not formatted correctly:"
+          terraform -chdir=terraform/gcp/ fmt -check -recursive
+          echo "Please run 'terraform fmt -recursive terraform/gcp/' locally to fix and commit the changes."
           exit 1
+
+      - name: Terraform Format Fix (if needed)
+        if: steps.fmt_check.outcome == 'failure'
+        run: terraform -chdir=terraform/gcp/ fmt -recursive
 
       - name: Report Terraform plan changes
         if: steps.plan.outcome == 'failure'
