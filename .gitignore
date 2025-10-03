@@ -169,6 +169,14 @@ google-cloud-sdk-download/
 claude_code_generated/
 .claude_context/
 
+# MCP and audit logs
+logs/audit.jsonl
+logs/*.jsonl
+.mcp_disabled
+
+# Docker volumes and caches
+jobspy-cache/
+
 # Additional IDE and editor files
 *.swp
 *.swo

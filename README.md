@@ -50,19 +50,26 @@ When you first run the installer on Windows, you will likely see a blue "Windows
 
 ## Documentation
 
-For detailed guides on installation, configuration, development, and more, please see the [full documentation](./docs/README.md).
+- **[Getting Started](./docs/GETTING_STARTED.md)** - Installation and first run
+- **[User Guide](./docs/USER_GUIDE.md)** - Daily usage and configuration
+- **[MCP Guide](./docs/MCP_GUIDE.md)** - Access 500k+ jobs via MCP aggregators
+- **[Security Guide](./docs/SECURITY_GUIDE.md)** - Security best practices
+- **[Developer Guide](./docs/DEVELOPER_GUIDE.md)** - Contributing and development
+- **[Quick Reference](./docs/QUICK_REFERENCE.md)** - Common commands cheat sheet
+- **[Roadmap](./docs/ROADMAP.md)** - Planned features
 
 ## Contributing
 
-Pull requests are welcome. Please see the [Contributing Guide](./docs/CONTRIBUTING.md) for details on how to contribute.
+Pull requests are welcome! See [Contributing Guide](./CONTRIBUTING.md) for details.
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
+MIT License - See [LICENSE](./LICENSE) file for details.
 
 ## Need Help?
 
-*   Check the [Troubleshooting Guide](./docs/TROUBLESHOOTING.md).
-*   Open an issue on [GitHub](https://github.com/cboyd0319/job-private-scraper-filter/issues).
+- **Troubleshooting:** See [User Guide - Troubleshooting](./docs/USER_GUIDE.md#troubleshooting)
+- **Issues:** [GitHub Issues](https://github.com/cboyd0319/job-private-scraper-filter/issues)
+- **Security:** [Security Policy](./SECURITY.md)
 
 Made with care. Hope it helps you find a great gig.

@@ -1,0 +1,16 @@
+# Minimal dependencies for MCP server isolation
+# Install only what's needed to reduce attack surface
+
+# MCP Protocol
+mcp==1.2.0
+
+# HTTP clients
+httpx==0.28.1
+requests==2.32.3
+
+# Job scrapers (lightweight)
+jobspy==1.1.82
+
+# Utilities
+pydantic==2.10.5
+python-dotenv==1.0.1

@@ -28,7 +28,22 @@ report_success() {
     echo -e "${GREEN}✅ $1${NC}"
 }
 
-# 1. Bandit Security Scan
+# 1. TruffleHog Secrets Scan (reuse existing CI tool)
+echo "Running TruffleHog secrets scan..."
+if ! command -v trufflehog &> /dev/null; then
+    report_warning "TruffleHog not installed - run: curl -sSfL https://github.com/trufflesecurity/trufflehog/releases/download/v3.90.8/trufflehog_3.90.8_$(uname -s | tr '[:upper:]' '[:lower:]')_amd64.tar.gz | tar -xz && sudo mv trufflehog /usr/local/bin/"
+    echo "Skipping TruffleHog scan..."
+else
+    echo "Scanning git history for secrets..."
+    if trufflehog git file://. --only-verified --fail --json > /dev/null 2>&1; then
+        report_success "TruffleHog scan passed - no verified secrets found"
+    else
+        report_issue "TruffleHog found verified secrets in repository"
+        echo "Run: trufflehog git file://. --only-verified to see details"
+    fi
+fi
+
+# 2. Bandit Security Scan
 echo "Running Bandit security scan..."
 if ! command -v bandit &> /dev/null; then
     report_warning "Bandit not installed - run: pip install bandit"
@@ -56,23 +71,7 @@ else
 fi
 
 
-echo "Checking for hardcoded secrets..."
-SECRET_PATTERNS=(
-    "password\s*=\s*['\"][^'\"]+['\"]"
-    "api_key\s*=\s*['\"][^'\"]+['\"]"
-    "secret\s*=\s*['\"][^'\"]+['\"]"
-    "token\s*=\s*['\"][^'\"]+['\"]"
-    "AKIA[0-9A-Z]{16}"  # AWS Access Key
-    "sk-[a-zA-Z0-9]{48}" # OpenAI API Key
-)
-
-for pattern in "${SECRET_PATTERNS[@]}"; do
-    if grep -r -E "$pattern" --include="*.py" --include="*.yaml" --include="*.yml" --exclude-dir=.venv . 2>/dev/null; then
-        report_issue "Potential hardcoded secret found matching pattern: $pattern"
-    fi
-done
-
-# 4. URL Substring Sanitization Check
+# 3. URL Substring Sanitization Check
 echo "Checking for URL substring sanitization issues..."
 URL_ISSUES=$(python3 -c "
 import re
@@ -120,25 +119,25 @@ if [ "$URL_ISSUES" != "0" ]; then
     done
 fi
 
-# 5. Check for subprocess security issues
+# 4. Check for subprocess security issues
 echo "Checking for subprocess security issues..."
 if grep -r "shell=True" --include="*.py" --exclude-dir=.venv . 2>/dev/null; then
     report_warning "Found subprocess calls with shell=True - review for security"
 fi
 
-# 6. Check .env files are not tracked
+# 5. Check .env files are not tracked
 echo "Checking for accidentally tracked .env files..."
 if git ls-files | grep -E "\.(env|key|pem)$" 2>/dev/null; then
     report_issue "Found potentially sensitive files tracked in git"
 fi
 
-# 7. Python syntax check
+# 6. Python syntax check
 echo "Running Python syntax validation..."
 find . -name "*.py" -not -path "./.venv/*" -exec python3 -m py_compile {} \; 2>/dev/null || {
     report_issue "Python syntax errors found"
 }
 
-# 8. Check for SQL injection patterns
+# 7. Check for SQL injection patterns
 echo "Checking for potential SQL injection..."
 if grep -r -E "(execute|query)\s*\(\s*['\"].*%.*['\"]" --include="*.py" --exclude-dir=.venv . 2>/dev/null; then
     report_warning "Found potential SQL injection patterns - review string formatting in queries"
