@@ -34,10 +34,10 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Set up Python 3.12
-        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+      - name: Prepare Python
+        uses: ./.github/actions/python-env
         with:
-          python-version: '3.12.10'
+          install-deps: 'false'
 
       - name: Check for security updates
         id: audit
@@ -90,13 +90,6 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
         with:
           persist-credentials: false
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
-        with:
-          python-version: '3.12.10'
-          cache: pip
-          cache-dependency-path: requirements.txt
 
       - name: Install tooling
         run: |
@@ -183,22 +176,12 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Set up Python 3.12
-        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+      - name: Prepare Python environment
+        uses: ./.github/actions/python-env
         with:
-          python-version: '3.12.10'
-          cache: pip
+          install-deps: 'true'
+          prepare-config: 'true'
           cache-dependency-path: requirements.txt
-
-      - name: Install dependencies
-        run: python -m pip install -r requirements.txt
-
-      - name: Prepare configuration
-        run: |
-          cp .env.example .env
-          mkdir -p config data
-          cp config/user_prefs.example.json config/user_prefs.json
-          chmod 600 .env || true
 
       - name: Run health check
         id: health

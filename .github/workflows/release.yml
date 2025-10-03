@@ -27,10 +27,10 @@ jobs:
           ref: ${{ github.sha }}
           persist-credentials: false
 
-      - name: Set up Python 3.12
-        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+      - name: Prepare Python
+        uses: ./.github/actions/python-env
         with:
-          python-version: '3.12.10'
+          install-deps: 'false'
 
       - name: Checkout commit for release
         run: git checkout -B ${{ github.ref_name }} ${{ github.sha }}

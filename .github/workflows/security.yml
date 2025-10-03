@@ -57,11 +57,10 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
 
-      - name: Set up Python 3.12
-        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+      - name: Prepare Python
+        uses: ./.github/actions/python-env
         with:
-          python-version: '3.12.10'
-          cache: pip
+          install-deps: 'false'
           cache-dependency-path: requirements.txt
 
       - name: Install security tooling
@@ -172,11 +171,11 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Set up Python 3.12
+      - name: Prepare Python
         if: steps.token_check.outputs.enabled == 'true'
-        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        uses: ./.github/actions/python-env
         with:
-          python-version: '3.12.10'
+          install-deps: 'false'
 
       - name: Install Prowler
         if: steps.token_check.outputs.enabled == 'true'

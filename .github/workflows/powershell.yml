@@ -14,12 +14,13 @@ on:
       - '**.ps1'
       - '**.psm1'
       - '**.psd1'
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  lint:
+  analysis:
     name: PSScriptAnalyzer
     runs-on: windows-latest
     steps:
@@ -33,6 +34,7 @@ jobs:
           Import-Module PSScriptAnalyzer
 
       - name: Run PSScriptAnalyzer
+        id: analyzer
         shell: pwsh
         run: |
           $psFiles = Get-ChildItem -Path . -Include *.ps1,*.psm1 -Recurse |
@@ -56,14 +58,61 @@ jobs:
 
           Write-Host "No PSScriptAnalyzer issues found!" -ForegroundColor Green
 
-      - name: Validate syntax
-        shell: pwsh
-        run: powershell -NoProfile -ExecutionPolicy Bypass -File validate-syntax.ps1
+  syntax:
+    name: Syntax Validation
+    runs-on: windows-latest
+    needs: analysis
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
 
-  test:
+      - name: Parse scripts with PowerShell AST
+        shell: pwsh
+        run: |
+          $psFiles = Get-ChildItem -Path . -Include *.ps1,*.psm1 -Recurse |
+            Select-Object -ExpandProperty FullName
+
+          if (-not $psFiles) {
+            Write-Host "No PowerShell files found for syntax validation." -ForegroundColor Yellow
+            return
+          }
+
+          $syntaxErrors = @()
+          foreach ($file in $psFiles) {
+              try {
+                  $tokens = $null
+                  $parseErrors = $null
+                  [void][System.Management.Automation.Language.Parser]::ParseFile(
+                      $file,
+                      [ref]$tokens,
+                      [ref]$parseErrors
+                  )
+                  if ($parseErrors) {
+                      $syntaxErrors += $parseErrors
+                      Write-Host "Syntax errors in $(Split-Path -Leaf $file):" -ForegroundColor Red
+                      foreach ($error in $parseErrors) {
+                          Write-Host "  Line $($error.Extent.StartLineNumber): $($error.Message)" -ForegroundColor Red
+                      }
+                  } else {
+                      Write-Host "Syntax OK: $(Split-Path -Leaf $file)" -ForegroundColor Green
+                  }
+              } catch {
+                  Write-Host "Failed to parse $($file): $($_.Exception.Message)" -ForegroundColor Red
+                  $syntaxErrors += $_.Exception.Message
+              }
+          }
+
+          if ($syntaxErrors.Count -gt 0) {
+              Write-Host "Syntax test failed" -ForegroundColor Red
+              exit 1
+          }
+
+          Write-Host "All PowerShell files have valid syntax" -ForegroundColor Green
+
+  tests:
     name: Pester Tests
     runs-on: windows-latest
-    needs: lint
+    needs: analysis
     steps:
       - name: Checkout code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
