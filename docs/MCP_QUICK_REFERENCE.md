@@ -35,24 +35,59 @@ Fast decision guide for choosing the right MCP server for your needs.
 | MCP Server | Coverage | Risk | Status | Best For |
 |------------|----------|------|--------|----------|
 | **JobsWithGPT** | 500k+ jobs | 🟢 LOW | ✅ Integrated | Everyone |
+| **Reed Jobs** | UK jobs | 🟢 LOW | ✅ Integrated | UK job seekers |
+| **JobSpy MCP** | Indeed, LinkedIn, ZipRecruiter, etc. | 🟡 MEDIUM-HIGH | ✅ Integrated | Wide-funnel searches |
 | **LinkedIn MCP** | All LinkedIn | 🔴 HIGH | ⏸️ Not integrated | Power users with burner account |
-| **JobSpy MCP** | Indeed, LinkedIn, ZipRecruiter, etc. | 🟡 MEDIUM-HIGH | ⏸️ Not integrated | Wide-funnel searches |
 | **Job Searchoor** | Targeted search | 🟡 MEDIUM | ⏸️ Not integrated | Simple filtering |
-| **Reed Jobs** | UK jobs | 🟢 LOW | ⏸️ Not integrated | UK job seekers |
 | **ATS Scrapers** | Company career sites | 🟢 LOW | ✅ Integrated | Compliance-focused |
 
 ---
 
 ## Installation Commands
 
-### JobsWithGPT (Already Done ✅)
+### JobsWithGPT (✅ Integrated)
 ```bash
 # Already installed in requirements.txt
 pip install mcp==1.16.0 httpx-sse==0.4.1
 
 # Usage:
-from sources.jobswithgpt_scraper import search_jobs
-jobs = await search_jobs(keywords=["python"], locations=[{"city": "Denver"}])
+from sources.job_scraper import search_jobs_by_keywords
+jobs = await search_jobs_by_keywords(
+    keywords=["python"],
+    locations=[{"city": "Denver", "state": "CO"}]
+)
+```
+
+### Reed Jobs (✅ Integrated)
+```bash
+# 1. Get free API key from https://www.reed.co.uk/developers
+# 2. Set environment variable:
+export REED_API_KEY=your_api_key_here
+
+# 3. Usage:
+from sources.job_scraper import search_reed_jobs
+jobs = await search_reed_jobs(
+    keywords="python developer",
+    location="London",
+    minimum_salary=50000
+)
+```
+
+### JobSpy MCP (✅ Integrated)
+```bash
+# 1. Install JobSpy MCP server
+git clone https://github.com/borgius/jobspy-mcp-server.git
+cd jobspy-mcp-server
+npm install
+
+# 2. Usage:
+from sources.job_scraper import search_multi_site_jobs
+jobs = await search_multi_site_jobs(
+    keywords=["python", "devops"],
+    location="Denver, CO",
+    sites=["indeed", "zip_recruiter"],  # Exclude LinkedIn to reduce risk
+    results_per_site=25
+)
 ```
 
 ### LinkedIn MCP (High Risk ⚠️)

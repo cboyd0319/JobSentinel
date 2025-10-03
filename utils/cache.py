@@ -93,13 +93,81 @@ class JobCache:
         logger.info(f"Initialized JobCache with max_size={max_size}")
 
     def get_job_hash(self, job: dict) -> str:
-        """Generate unique hash for a job."""
-        # Use URL + title + company + first 255 chars of description for uniqueness
-        description = job.get('description', '')[:255]
-        unique_str = (
-            f"{job.get('url', '')}{job.get('title', '')}{job.get('company', '')}{description}"
+        """
+        Generate unique hash for a job with robust deduplication.
+
+        Uses multiple strategies to catch duplicates from aggregators:
+        1. Primary: Normalized URL (cleaned of tracking params)
+        2. Secondary: Company + Title + Description fingerprint
+        3. Tertiary: External job IDs if available
+        """
+        # Strategy 1: Normalize URL (remove tracking parameters)
+        url = job.get('url', '')
+        if url:
+            # Remove common tracking parameters
+            url_normalized = self._normalize_url(url)
+        else:
+            url_normalized = ''
+
+        # Strategy 2: Content-based fingerprint
+        company = job.get('company', '').lower().strip()
+        title = job.get('title', '').lower().strip()
+        description = job.get('description', '')[:255].lower().strip()
+
+        # Strategy 3: Use external IDs if available (Greenhouse, Lever, etc.)
+        external_id = (
+            job.get('external_job_id', '') or
+            job.get('id', '') or
+            job.get('greenhouseId', '') or
+            job.get('jobId', '')
         )
+
+        # Create composite hash
+        unique_str = f"{url_normalized}|{company}|{title}|{description}|{external_id}"
         return hashlib.md5(unique_str.encode()).hexdigest()
+
+    def _normalize_url(self, url: str) -> str:
+        """
+        Normalize URL for better duplicate detection across aggregators.
+
+        Removes tracking parameters and normalizes format.
+        """
+        from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
+
+        try:
+            parsed = urlparse(url.lower())
+
+            # Remove common tracking parameters
+            tracking_params = {
+                'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content',
+                'ref', 'source', 'affiliate', 'clickid', 'sid', 'tracking',
+                'fbclid', 'gclid', 'msclkid',  # Ad tracking
+                'mc_cid', 'mc_eid',  # Email tracking
+            }
+
+            # Parse query params and remove tracking
+            query_params = parse_qs(parsed.query)
+            clean_params = {
+                k: v for k, v in query_params.items()
+                if k.lower() not in tracking_params
+            }
+
+            # Rebuild URL without tracking
+            clean_query = urlencode(clean_params, doseq=True)
+            normalized = urlunparse((
+                parsed.scheme,
+                parsed.netloc,
+                parsed.path.rstrip('/'),  # Remove trailing slash
+                '',  # params (rarely used)
+                clean_query,
+                ''   # fragment (often tracking)
+            ))
+
+            return normalized
+
+        except Exception as e:
+            logger.debug(f"URL normalization failed for {url}: {e}")
+            return url.lower().rstrip('/')
 
     def is_duplicate(self, job: dict) -> bool:
         """
