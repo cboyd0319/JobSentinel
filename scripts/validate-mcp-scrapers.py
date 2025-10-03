@@ -751,46 +751,82 @@ async def test_integration(result: ValidationResult):
                     "Function not callable"
                 )
 
-        # Test 3: Cross-scraper deduplication
+        # Test 3: Cross-scraper deduplication with external IDs
         job_cache.clear()
 
-        # Simulate jobs from different sources with same content
-        test_jobs = [
+        # Simulate same job from different aggregators (with external_job_id)
+        test_jobs_with_id = [
             {
-                "url": "https://example.com/job/999",
+                "url": "https://boards.greenhouse.io/company/jobs/12345",
                 "title": "Test Engineer",
                 "company": "TestCo",
                 "description": "Test job for validation",
-                "job_board": "jobswithgpt"
+                "job_board": "greenhouse",
+                "external_job_id": "greenhouse_12345"
             },
             {
-                "url": "https://example.com/job/999?utm_source=reed",
+                "url": "https://jobswithgpt.com/job/abc",
                 "title": "Test Engineer",
                 "company": "TestCo",
                 "description": "Test job for validation",
-                "job_board": "reed_mcp"
+                "job_board": "jobswithgpt",
+                "external_job_id": "greenhouse_12345"  # Same external ID
             },
             {
-                "url": "https://indeed.com/job/999",
+                "url": "https://indeed.com/job/xyz",
                 "title": "Test Engineer",
                 "company": "TestCo",
                 "description": "Test job for validation",
-                "job_board": "jobspy_indeed"
+                "job_board": "jobspy_indeed",
+                "external_job_id": "greenhouse_12345"  # Same external ID
             }
         ]
 
         duplicates_caught = 0
-        for job in test_jobs:
+        for job in test_jobs_with_id:
             if job_cache.is_duplicate(job):
                 duplicates_caught += 1
 
-        # First job is unique, next 2 should be caught
+        # First job is unique, next 2 should be caught (same external_job_id)
         if duplicates_caught == 2:
-            result.add_pass("Cross-scraper deduplication")
+            result.add_pass("Cross-scraper deduplication (external ID)")
+        else:
+            result.add_fail(
+                "Cross-scraper deduplication (external ID)",
+                f"Expected 2 duplicates caught, got {duplicates_caught}"
+            )
+
+        # Test 3b: URL-based deduplication (tracking params)
+        job_cache.clear()
+
+        test_jobs_url = [
+            {
+                "url": "https://example.com/job/999",
+                "title": "Software Engineer",
+                "company": "TechCorp",
+                "description": "Different job",
+                "job_board": "direct"
+            },
+            {
+                "url": "https://example.com/job/999?utm_source=reed&utm_campaign=test",
+                "title": "Software Engineer",
+                "company": "TechCorp",
+                "description": "Different job",
+                "job_board": "reed_mcp"
+            },
+        ]
+
+        url_duplicates = 0
+        for job in test_jobs_url:
+            if job_cache.is_duplicate(job):
+                url_duplicates += 1
+
+        if url_duplicates == 1:
+            result.add_pass("Cross-scraper deduplication (URL normalization)")
         else:
             result.add_warning(
-                "Cross-scraper deduplication",
-                f"Expected 2 duplicates caught, got {duplicates_caught}"
+                "Cross-scraper deduplication (URL)",
+                f"Expected 1 duplicate caught, got {url_duplicates}"
             )
 
     except ImportError as e:

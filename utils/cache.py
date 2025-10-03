@@ -98,23 +98,12 @@ class JobCache:
 
         Uses multiple strategies to catch duplicates from aggregators:
         1. Primary: Normalized URL (cleaned of tracking params)
-        2. Secondary: Company + Title + Description fingerprint
-        3. Tertiary: External job IDs if available
+        2. Secondary: External job IDs (Greenhouse, Lever, etc.)
+        3. Tertiary: Company + Title + Description fingerprint
+
+        Returns the FIRST matching strategy to maximize duplicate detection.
         """
-        # Strategy 1: Normalize URL (remove tracking parameters)
-        url = job.get('url', '')
-        if url:
-            # Remove common tracking parameters
-            url_normalized = self._normalize_url(url)
-        else:
-            url_normalized = ''
-
-        # Strategy 2: Content-based fingerprint
-        company = job.get('company', '').lower().strip()
-        title = job.get('title', '').lower().strip()
-        description = job.get('description', '')[:255].lower().strip()
-
-        # Strategy 3: Use external IDs if available (Greenhouse, Lever, etc.)
+        # Strategy 1: External ID (highest confidence for cross-aggregator matching)
         external_id = (
             job.get('external_job_id', '') or
             job.get('id', '') or
@@ -122,8 +111,24 @@ class JobCache:
             job.get('jobId', '')
         )
 
-        # Create composite hash
-        unique_str = f"{url_normalized}|{company}|{title}|{description}|{external_id}"
+        if external_id:
+            # If we have an external ID, use it as primary hash
+            # This catches same job from different aggregators
+            return hashlib.md5(f"external_id:{external_id}".encode()).hexdigest()
+
+        # Strategy 2: Normalized URL (good for same-source duplicates)
+        url = job.get('url', '')
+        if url:
+            url_normalized = self._normalize_url(url)
+            if url_normalized:
+                return hashlib.md5(f"url:{url_normalized}".encode()).hexdigest()
+
+        # Strategy 3: Content-based fingerprint (fallback)
+        company = job.get('company', '').lower().strip()
+        title = job.get('title', '').lower().strip()
+        description = job.get('description', '')[:255].lower().strip()
+
+        unique_str = f"content:{company}|{title}|{description}"
         return hashlib.md5(unique_str.encode()).hexdigest()
 
     def _normalize_url(self, url: str) -> str:
