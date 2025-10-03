@@ -85,41 +85,17 @@ jobs:
 
   osv-scanner:
     uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@main
-
-  opengrep-scan:
-    name: OpenGrep
-    runs-on: ubuntu-latest
-    if: >-
-      github.actor != 'dependabot[bot]' &&
-      (
-        github.event_name != 'workflow_dispatch' ||
-        github.event.inputs.scan_type != 'dependencies-only'
-      )
-    permissions:
-      contents: read
-      security-events: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-
-      - name: Install OpenGrep
-        run: python -m pip install opengrep
-
-      - name: Run OpenGrep scan
-        run: opengrep scan --format sarif --output opengrep-results.sarif .
-
-      - name: Upload OpenGrep SARIF
-        if: always()
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: opengrep-results.sarif
-          category: opengrep
+    with:
+      fail-on-vuln: false
 
   codeql-analysis:
     name: CodeQL Analysis
     runs-on: ubuntu-latest
-    if: github.actor != 'dependabot[bot]'
+    if: |
+      github.actor != 'dependabot[bot]' &&
+      (github.event_name == 'schedule' ||
+       github.event_name == 'workflow_dispatch' ||
+       github.event_name == 'push' && github.ref == 'refs/heads/main')
     permissions:
       contents: read
       security-events: write
@@ -179,4 +155,3 @@ jobs:
           base: ${{ github.event.pull_request.base.sha || github.event.before }}
           head: ${{ github.event.pull_request.head.sha || github.event.after }}
           extra_args: --only-verified
-

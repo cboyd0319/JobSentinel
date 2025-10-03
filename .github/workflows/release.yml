@@ -59,4 +59,3 @@ jobs:
         uses: actions/attest-build-provenance@v1
         with:
           subject-path: 'dist/*'
-

@@ -137,6 +137,7 @@ jobs:
         with:
           name: test-results
           path: test-results.xml
+          retention-days: 7
 
       - name: Publish test results
         if: always()
@@ -144,4 +145,3 @@ jobs:
           EnricoMi/publish-unit-test-result-action/windows@v2
         with:
           files: test-results.xml
-

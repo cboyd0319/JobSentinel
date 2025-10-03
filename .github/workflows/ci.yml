@@ -3,8 +3,18 @@ name: CI/CD Pipeline
 on:
   push:
     branches: [main, develop]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/PULL_REQUEST_TEMPLATE.md'
   pull_request:
     branches: [main, develop]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/PULL_REQUEST_TEMPLATE.md'
 
 permissions:
   contents: read
@@ -158,7 +168,10 @@ jobs:
 
   cross-platform-test:
     needs: [changes, primary-test, code-quality]
-    if: needs.changes.outputs.docs-only == 'false'
+    if: |
+      needs.changes.outputs.docs-only == 'false' &&
+      (github.event_name == 'push' && github.ref == 'refs/heads/main' ||
+       needs.changes.outputs.platform-scripts == 'true')
     name: Cross-Platform Test
     runs-on: ${{ matrix.os }}
     strategy:

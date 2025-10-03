@@ -2,7 +2,7 @@
 
 terraform {
   backend "gcs" {
-    bucket  = "__TF_STATE_BUCKET_NAME__" # Placeholder replaced by the script
-    prefix  = "terraform/state"
+    bucket = "__TF_STATE_BUCKET_NAME__" # Placeholder replaced by the script
+    prefix = "terraform/state"
   }
 }

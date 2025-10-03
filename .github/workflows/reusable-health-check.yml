@@ -58,3 +58,4 @@ jobs:
         with:
           name: health-report-${{ github.run_number }}
           path: health-report.txt
+          retention-days: 3
