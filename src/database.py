@@ -71,10 +71,8 @@ async def add_job(job_data: dict) -> Job:
     try:
         async with AsyncSession(async_engine) as session:
             # Check if job already exists
-            existing_job = await session.exec(
-                select(Job).where(Job.hash == job_data["hash"])
-            )
-            existing_job = existing_job.first()
+            result = await session.exec(select(Job).where(Job.hash == job_data["hash"]))
+            existing_job = result.first()
 
             if existing_job:
                 # Update existing job
