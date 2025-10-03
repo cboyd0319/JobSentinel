@@ -150,8 +150,8 @@ jobs:
               'Invoke-Expression with user input' = 'Invoke-Expression.*\$.*'
               'Unrestricted execution policy' = 'Set-ExecutionPolicy.*Unrestricted'
               'Download without verification' = 'DownloadString.*http[^s]'
-              'Hardcoded credentials' = "(password|secret|key)\s*=\s*['\"]{1}[^'\"]{8,}['\"]{1}"
-              'Unsafe web requests' = 'System\\.Net\\.WebClient.*Download'
+              'Hardcoded credentials' = '(password|secret|key)\s*=\s*(["''][^"'']{8,}["''])'
+              'Unsafe web requests' = 'System\.Net\.WebClient.*Download'
           }
           foreach ($file in $psFiles) {
               Write-Host "Security scan: $(Split-Path -Leaf $file)"
