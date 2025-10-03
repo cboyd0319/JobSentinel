@@ -5,6 +5,19 @@ All notable changes to Job Private Scraper Filter will be documented in this fil
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.5] - 2025-10-02
+
+### Changed
+- Reset project baseline to the stable `v0.4.5` release series.
+- Updated automation to target Python 3.12 and refreshed GitHub Actions pins.
+- Regenerated version metadata (`pyproject.toml`, `VERSION`, PowerShell modules, tests).
+
+### Fixed
+- Release pipeline now provisions Python 3.12 before running `semantic-release`.
+- `semantic-release` now updates the plain-text `VERSION` file alongside `pyproject.toml`.
+
+---
+
 ## [1.0.0] - 2025-10-02
 
 ### Added
@@ -68,4 +81,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+[0.4.5]: https://github.com/cboyd0319/job-private-scraper-filter/releases/tag/v0.4.5
 [1.0.0]: https://github.com/cboyd0319/job-private-scraper-filter/releases/tag/v1.0.0

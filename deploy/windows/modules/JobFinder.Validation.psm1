@@ -183,7 +183,7 @@ function Test-ValidVersion {
     .OUTPUTS
         Boolean indicating if version is valid
     .EXAMPLE
-        Test-ValidVersion "1.0.0"
+        Test-ValidVersion "0.4.5"
     #>
     [CmdletBinding()]
     [OutputType([bool])]

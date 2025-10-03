@@ -142,10 +142,7 @@ python3 -m src.agent --mode test
 # health check
 python3 -m src.agent --mode health
 
-# clean old rows
-python3 -m src.agent --mode cleanup
-
-# clean old rows
+# clean up old rows
 python3 -m src.agent --mode cleanup
 ```
 

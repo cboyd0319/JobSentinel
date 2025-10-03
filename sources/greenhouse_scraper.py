@@ -21,7 +21,9 @@ class GreenhouseScraper(JobBoardScraper):
     """Scraper for Greenhouse-powered job boards."""
 
     def __init__(self):
-        super().__init__(name="Greenhouse", base_domains=["greenhouse.io", "boards.greenhouse.io"])
+        super().__init__(
+            name="Greenhouse", base_domains=["greenhouse.io", "boards.greenhouse.io"]
+        )
 
     async def can_handle(self, url: str) -> bool:
         """Enhanced detection for Greenhouse boards."""
@@ -45,7 +47,9 @@ class GreenhouseScraper(JobBoardScraper):
 
         return False
 
-    async def scrape(self, board_url: str, fetch_descriptions: bool = True) -> List[Dict]:
+    async def scrape(
+        self, board_url: str, fetch_descriptions: bool = True
+    ) -> List[Dict]:
         """Scrape jobs from Greenhouse board."""
         logger.info(f"Starting Greenhouse scrape for {board_url}")
         company_name = extract_company_from_url(board_url)
@@ -58,7 +62,9 @@ class GreenhouseScraper(JobBoardScraper):
         ]
 
         jobs_data = None
-        responses = await asyncio.gather(*[fetch_url(url) for url in api_urls], return_exceptions=True)
+        responses = await asyncio.gather(
+            *[fetch_url(url) for url in api_urls], return_exceptions=True
+        )
 
         for i, response in enumerate(responses):
             api_url = api_urls[i]
@@ -70,7 +76,11 @@ class GreenhouseScraper(JobBoardScraper):
                 if response.status_code == 200:
                     data = response.json()
                     # Check if we got HTML content instead of JSON
-                    if isinstance(data, dict) and "content" in data and "<html" in str(data.get("content", "")):
+                    if (
+                        isinstance(data, dict)
+                        and "content" in data
+                        and "<html" in str(data.get("content", ""))
+                    ):
                         logger.debug(f"Got HTML content from {api_url}, skipping")
                         continue
 
@@ -98,7 +108,9 @@ class GreenhouseScraper(JobBoardScraper):
             if job_id_match:
                 job_id = job_id_match.group(1)
                 logger.info(f"🔄 Trying individual job API for job {job_id}")
-                individual_job = await self._try_individual_job_api(job_id, company_name)
+                individual_job = await self._try_individual_job_api(
+                    job_id, company_name
+                )
                 if individual_job:
                     jobs_data = [individual_job]
                     logger.info(f"✅ Individual job API succeeded for {job_id}")
@@ -122,11 +134,15 @@ class GreenhouseScraper(JobBoardScraper):
                 job_description = job.get("content", "")
                 if fetch_descriptions and job.get("absolute_url"):
                     try:
-                        full_description = await fetch_job_description(job["absolute_url"], ".content")
+                        full_description = await fetch_job_description(
+                            job["absolute_url"], ".content"
+                        )
                         if full_description:
                             job_description = full_description
                     except Exception as e:
-                        logger.warning(f"Failed to fetch description for {job.get('title')}: {e}")
+                        logger.warning(
+                            f"Failed to fetch description for {job.get('title')}: {e}"
+                        )
 
                 # Create raw job data for normalization
                 raw_job = {
@@ -142,7 +158,9 @@ class GreenhouseScraper(JobBoardScraper):
                 raw_job.update(enhanced_fields)
 
                 # Normalize to standard format
-                normalized_job = extractor.normalize_job_data(raw_job, company_name, "greenhouse", board_url)
+                normalized_job = extractor.normalize_job_data(
+                    raw_job, company_name, "greenhouse", board_url
+                )
 
                 scraped_jobs.append(normalized_job)
 
@@ -150,7 +168,9 @@ class GreenhouseScraper(JobBoardScraper):
                 logger.warning(f"Error processing Greenhouse job: {e}")
                 continue
 
-        logger.info(f"Successfully scraped {len(scraped_jobs)} jobs from {company_name}")
+        logger.info(
+            f"Successfully scraped {len(scraped_jobs)} jobs from {company_name}"
+        )
         return scraped_jobs
 
     async def _try_individual_job_api(self, job_id: str, company: str) -> dict:
@@ -161,7 +181,9 @@ class GreenhouseScraper(JobBoardScraper):
                 f"https://boards-api.greenhouse.io/v1/boards/{company}/jobs/{job_id}",
             ]
 
-            responses = await asyncio.gather(*[fetch_url(url) for url in api_urls], return_exceptions=True)
+            responses = await asyncio.gather(
+                *[fetch_url(url) for url in api_urls], return_exceptions=True
+            )
 
             for response in responses:
                 if isinstance(response, Exception):

@@ -2,43 +2,58 @@ name: Automated Monitoring & Health Checks
 
 on:
   schedule:
-    # Run twice daily instead of every 6 hours (cost optimization)
     - cron: '0 0,12 * * *'
   workflow_dispatch:
 
 permissions:
   contents: read
-  issues: write
 
 jobs:
   health-monitor:
     name: System Health Monitor
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
         with:
           persist-credentials: false
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Set up Python 3.12
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
         with:
-          python-version: '3.13'  # Latest stable
-          cache: 'pip'
-          cache-dependency-path: 'requirements.txt'
+          python-version: '3.12.10'
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Prepare configuration
+        run: |
+          cp .env.example .env
+          mkdir -p config data
+          cp config/user_prefs.example.json config/user_prefs.json
+          chmod 600 .env || true
 
       - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
+        run: python -m pip install -r requirements.txt
 
       - name: Run health check
         id: health
+        continue-on-error: true
         run: |
-          python -m src.agent --mode health > health-report.txt 2>&1 || true
-          cat health-report.txt
+          set -euo pipefail
+          python -m src.agent --mode health | tee health-report.txt
 
-          # Parse health status
-          if grep -q "CRITICAL" health-report.txt; then
+      - name: Derive health status
+        id: status
+        env:
+          STEP_OUTCOME: ${{ steps.health.outcome }}
+        run: |
+          set -euo pipefail
+          if [ "$STEP_OUTCOME" = "failure" ]; then
+            echo "status=critical" >> "$GITHUB_OUTPUT"
+          elif grep -q "CRITICAL" health-report.txt; then
             echo "status=critical" >> "$GITHUB_OUTPUT"
           elif grep -q "WARNING" health-report.txt; then
             echo "status=warning" >> "$GITHUB_OUTPUT"
@@ -47,101 +62,34 @@ jobs:
           fi
 
       - name: Upload health report
-        uses: actions/upload-artifact@v4
+        if: always()
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874
         with:
           name: health-report-${{ github.run_number }}
           path: health-report.txt
 
       - name: Create issue for critical status
-        if: steps.health.outputs.status == 'critical'
-        uses: actions/github-script@v7
+        if: steps.status.outputs.status == 'critical'
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea
         with:
           script: |
             const fs = require('fs');
             const report = fs.readFileSync('health-report.txt', 'utf8');
-
             await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: '🚨 CRITICAL: System Health Check Failed',
+              title: 'CRITICAL: System health check failed',
               body: `## Critical Health Check Failure
 
               **Time**: ${new Date().toISOString()}
-              **Run**: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+              **Workflow Run**: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
               ### Health Report
               \`\`\`
               ${report}
               \`\`\`
-
-              ### Recommended Actions
-              1. Check database connectivity
-              2. Verify cloud storage access
-              3. Review recent deployments
-              4. Check resource availability
-
-              **This issue was automatically created by GitHub Actions**`,
+              `,
               labels: ['critical', 'health-check', 'automated'],
-              assignees: [context.repo.owner]
-            });
-
-  dependency-audit:
-    name: Dependency Security Audit
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-        with:
-          persist-credentials: false
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'  # Latest stable
-
-      - name: Run pip-audit check
-        id: pip_audit
-        run: |
-          pip install pip-audit
-          pip-audit --format json > pip-audit-report.json || true
-
-          # pip-audit uses 'dependencies' array with 'vulns' sub-array
-          VULN_COUNT=$(jq '[.dependencies[] | select(.vulns | length > 0)] | length' pip-audit-report.json 2>/dev/null || echo 0)
-          echo "vuln_count=$VULN_COUNT" >> "$GITHUB_OUTPUT"
-
-      - name: Create issue for vulnerabilities
-        if: steps.pip_audit.outputs.vuln_count > 0
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const auditReport = JSON.parse(fs.readFileSync('pip-audit-report.json', 'utf8'));
-
-            const vulns = auditReport.dependencies
-              .filter(dep => dep.vulns && dep.vulns.length > 0)
-              .flatMap(dep => dep.vulns.map(v =>
-                `- **${dep.name}** (${dep.version}): ${v.id} - ${v.description || 'No description'}`
-              ))
-              .join('\n');
-
-            await github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: '⚠️ Security: Vulnerable Dependencies Detected',
-              body: `## Vulnerable Dependencies Found
-
-              **Count**: ${{ steps.pip_audit.outputs.vuln_count }}
-              **Scan Time**: ${new Date().toISOString()}
-              **Scanner**: pip-audit (OSV Database)
-
-              ### Vulnerabilities
-              ${vulns}
-
-              ### Action Required
-              Run automated dependency update workflow or update manually.
-
-              **Auto-generated by security monitoring**`,
-              labels: ['security', 'dependencies', 'automated'],
               assignees: [context.repo.owner]
             });
 
@@ -149,86 +97,74 @@ jobs:
     name: Verify Database Backups
     runs-on: ubuntu-latest
     if: github.event_name == 'schedule'
+    permissions:
+      contents: read
+      issues: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
         with:
           persist-credentials: false
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Set up Python 3.12
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
         with:
-          python-version: '3.13'  # Latest stable
+          python-version: '3.12.10'
 
       - name: Install dependencies
-        run: pip install google-cloud-storage
+        run: python -m pip install google-cloud-storage
 
       - name: Check backup recency
         env:
           STORAGE_BUCKET: ${{ secrets.GCP_STORAGE_BUCKET }}
           GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GCP_SA_KEY }}
         run: |
-          python << 'EOF'
+          python <<'PY'
           import os
           import json
           from datetime import datetime, timezone, timedelta
           from google.cloud import storage
           from google.oauth2 import service_account
 
-          # Skip if not configured
-          if not os.getenv('STORAGE_BUCKET'):
-              print("Cloud storage not configured - skipping")
-              exit(0)
-
-          # Load credentials
+          bucket_name = os.getenv('STORAGE_BUCKET')
           creds_json = os.getenv('GOOGLE_APPLICATION_CREDENTIALS_JSON')
-          credentials = service_account.Credentials.from_service_account_info(
-              json.loads(creds_json)
-          )
 
+          if not bucket_name or not creds_json:
+              print('Cloud storage not configured - skipping backup recency check')
+              raise SystemExit(0)
+
+          credentials = service_account.Credentials.from_service_account_info(json.loads(creds_json))
           client = storage.Client(credentials=credentials)
-          bucket = client.bucket(os.getenv('STORAGE_BUCKET'))
+          bucket = client.bucket(bucket_name)
 
-          # Check for recent backups
           cutoff = datetime.now(timezone.utc) - timedelta(hours=48)
-          recent_backups = []
+          recent = [blob.name for blob in bucket.list_blobs(prefix='backup/') if blob.updated and blob.updated > cutoff]
 
-          for blob in bucket.list_blobs(prefix='backup/'):
-              if blob.updated and blob.updated > cutoff:
-                  recent_backups.append(blob.name)
+          if not recent:
+              print('ERROR: No recent backups found in last 48 hours!')
+              raise SystemExit(1)
 
-          if not recent_backups:
-              print("ERROR: No recent backups found in last 48 hours!")
-              with open('backup-status.txt', 'w') as f:
-                  f.write('failed')
-              exit(1)
-          else:
-              print(f"OK: Found {len(recent_backups)} recent backups")
-              with open('backup-status.txt', 'w') as f:
-                  f.write('ok')
-          EOF
+          print(f'OK: Found {len(recent)} recent backups')
+          PY
 
       - name: Create issue if backups are stale
         if: failure()
-        uses: actions/github-script@v7
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea
         with:
           script: |
             await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: '⚠️ Database Backups Are Stale',
-              body: `## Database Backup Alert
-
-              No recent database backups found in the last 48 hours.
+              title: 'Database backups are stale',
+              body: `No recent database backups were found in the last 48 hours.
 
               **Check Time**: ${new Date().toISOString()}
 
-              ### Action Required
-              1. Verify Cloud Scheduler is running
-              2. Check database sync logs
-              3. Manually trigger backup if needed
-
-              **Auto-generated by monitoring**`,
+              ### Next steps
+              1. Verify Cloud Scheduler is running.
+              2. Check database sync logs.
+              3. Manually trigger backup if required.
+              `,
               labels: ['database', 'backup', 'automated'],
               assignees: [context.repo.owner]
             });
@@ -236,34 +172,39 @@ jobs:
   performance-metrics:
     name: Track Performance Metrics
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
         with:
           persist-credentials: false
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Set up Python 3.12
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
         with:
-          python-version: '3.13'  # Latest stable
-          cache: 'pip'
-          cache-dependency-path: 'requirements.txt'
+          python-version: '3.12.10'
+          cache: pip
+          cache-dependency-path: requirements.txt
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: python -m pip install -r requirements.txt
 
       - name: Run performance benchmark
+        continue-on-error: true
         run: |
-          python scripts/performance_benchmark.py > perf-report.txt 2>&1 || true
+          set -euo pipefail
+          python scripts/performance_benchmark.py | tee perf-report.txt
 
       - name: Upload performance report
-        uses: actions/upload-artifact@v4
+        if: always()
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874
         with:
           name: performance-report-${{ github.run_number }}
           path: perf-report.txt
 
-      - name: Check for performance degradation
+      - name: Surface performance warnings
+        if: failure()
         run: |
-          # TODO: Compare with baseline metrics
-          # For now, just log the results
-          cat perf-report.txt
+          echo 'Performance benchmark reported a failure. Review perf-report.txt for details.'
+          exit 1

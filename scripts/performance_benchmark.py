@@ -6,7 +6,7 @@ Demonstrates performance improvements from concurrent execution and database opt
 
 import time
 
-from sources.job_scraper import scrape_jobs
+from sources.job_scraper import scrape_jobs_sync
 from sources.concurrent_scraper import (
     ConcurrentJobScraper,
     scrape_multiple_fast,
@@ -42,7 +42,7 @@ def benchmark_sequential_vs_concurrent():
     for i, url in enumerate(SMALL_TEST_URLS, 1):
         print(f"  {i}/{len(SMALL_TEST_URLS)} Scraping {url}")
         try:
-            jobs = scrape_jobs(url, fetch_descriptions=False)
+            jobs = scrape_jobs_sync(url, fetch_descriptions=False)
             sequential_jobs.extend(jobs)
         except Exception as e:
             logger.error(f"Sequential scraping failed for {url}: {e}")

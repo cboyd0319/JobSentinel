@@ -16,6 +16,7 @@ logger = get_logger("self_healing")
 @dataclass
 class RecoveryAction:
     """Represents a recovery action that can be taken."""
+
     name: str
     condition: Callable[[], bool]
     action: Callable[[], Any]
@@ -35,31 +36,37 @@ class SelfHealingMonitor:
     def _register_default_actions(self):
         """Register default recovery actions."""
         # Database connection recovery
-        self.register_action(RecoveryAction(
-            name="database_reconnect",
-            condition=self._check_database_connection,
-            action=self._recover_database_connection,
-            max_retries=3,
-            cooldown_seconds=300
-        ))
+        self.register_action(
+            RecoveryAction(
+                name="database_reconnect",
+                condition=self._check_database_connection,
+                action=self._recover_database_connection,
+                max_retries=3,
+                cooldown_seconds=300,
+            )
+        )
 
         # Cloud storage reconnection
-        self.register_action(RecoveryAction(
-            name="cloud_storage_reconnect",
-            condition=self._check_cloud_storage,
-            action=self._recover_cloud_storage,
-            max_retries=3,
-            cooldown_seconds=300
-        ))
+        self.register_action(
+            RecoveryAction(
+                name="cloud_storage_reconnect",
+                condition=self._check_cloud_storage,
+                action=self._recover_cloud_storage,
+                max_retries=3,
+                cooldown_seconds=300,
+            )
+        )
 
         # Cache cleanup for memory issues
-        self.register_action(RecoveryAction(
-            name="cache_cleanup",
-            condition=self._check_memory_pressure,
-            action=self._cleanup_cache,
-            max_retries=1,
-            cooldown_seconds=600
-        ))
+        self.register_action(
+            RecoveryAction(
+                name="cache_cleanup",
+                condition=self._check_memory_pressure,
+                action=self._cleanup_cache,
+                max_retries=1,
+                cooldown_seconds=600,
+            )
+        )
 
     def register_action(self, action: RecoveryAction):
         """Register a new recovery action."""
@@ -71,7 +78,7 @@ class SelfHealingMonitor:
         results = {
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "actions_taken": [],
-            "failures": []
+            "failures": [],
         }
 
         for action in self.recovery_actions:
@@ -93,11 +100,13 @@ class SelfHealingMonitor:
                     logger.warning(
                         f"Recovery action {action.name} exceeded max retries ({action.max_retries})"
                     )
-                    results["failures"].append({
-                        "action": action.name,
-                        "reason": "max_retries_exceeded",
-                        "count": count
-                    })
+                    results["failures"].append(
+                        {
+                            "action": action.name,
+                            "reason": "max_retries_exceeded",
+                            "count": count,
+                        }
+                    )
                     continue
 
                 # Execute recovery action
@@ -110,20 +119,19 @@ class SelfHealingMonitor:
                 self.last_recovery_time[action.name] = time.time()
                 self.recovery_count[action.name] = count + 1
 
-                results["actions_taken"].append({
-                    "action": action.name,
-                    "result": result,
-                    "retry_count": self.recovery_count[action.name]
-                })
+                results["actions_taken"].append(
+                    {
+                        "action": action.name,
+                        "result": result,
+                        "retry_count": self.recovery_count[action.name],
+                    }
+                )
 
                 logger.info(f"Recovery action completed: {action.name}")
 
             except Exception as e:
                 logger.error(f"Recovery action failed: {action.name} - {e}")
-                results["failures"].append({
-                    "action": action.name,
-                    "error": str(e)
-                })
+                results["failures"].append({"action": action.name, "error": str(e)})
 
         return results
 
@@ -145,7 +153,7 @@ class SelfHealingMonitor:
                     # Can't test in running loop
                     return False
                 return not asyncio.run(test_connection())
-            except:
+            except Exception:
                 return True
 
         except Exception as e:
@@ -174,6 +182,7 @@ class SelfHealingMonitor:
 
         try:
             from google.cloud import storage
+
             client = storage.Client()
             bucket = client.bucket(storage_bucket)
             # Try to list blobs (lightweight operation)
@@ -206,6 +215,7 @@ class SelfHealingMonitor:
         """Check if system is under memory pressure."""
         try:
             import psutil
+
             memory = psutil.virtual_memory()
 
             # Trigger cleanup if memory usage > 85%

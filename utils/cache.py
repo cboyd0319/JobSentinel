@@ -53,10 +53,7 @@ class LRUCache:
         if len(self.cache) >= self.max_size:
             self.cache.popitem(last=False)
 
-        self.cache[key] = {
-            "value": value,
-            "timestamp": time.time()
-        }
+        self.cache[key] = {"value": value, "timestamp": time.time()}
         self.cache.move_to_end(key)
 
     def clear(self):
@@ -76,7 +73,7 @@ class LRUCache:
             "hits": self._hits,
             "misses": self._misses,
             "hit_rate": hit_rate,
-            "ttl_seconds": self.ttl_seconds
+            "ttl_seconds": self.ttl_seconds,
         }
 
 
@@ -98,7 +95,9 @@ class JobCache:
     def get_job_hash(self, job: dict) -> str:
         """Generate unique hash for a job."""
         # Use URL + title + company for uniqueness
-        unique_str = f"{job.get('url', '')}{job.get('title', '')}{job.get('company', '')}"
+        unique_str = (
+            f"{job.get('url', '')}{job.get('title', '')}{job.get('company', '')}"
+        )
         return hashlib.md5(unique_str.encode()).hexdigest()
 
     def is_duplicate(self, job: dict) -> bool:
@@ -145,7 +144,7 @@ class JobCache:
         return {
             "job_hashes_count": len(self.job_hashes),
             "max_size": self.max_size,
-            "url_cache": self.url_cache.get_stats()
+            "url_cache": self.url_cache.get_stats(),
         }
 
 

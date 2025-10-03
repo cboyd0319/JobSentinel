@@ -4,7 +4,14 @@ import json
 import asyncio
 from dotenv import load_dotenv
 
-from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn, TimeRemainingColumn
+from rich.progress import (
+    Progress,
+    SpinnerColumn,
+    TextColumn,
+    BarColumn,
+    TaskProgressColumn,
+    TimeRemainingColumn,
+)
 
 from utils.logging import setup_logging, get_logger, console
 from utils.config import config_manager
@@ -16,12 +23,13 @@ from src.database import (
     add_job,
     get_jobs_for_digest,
     mark_jobs_digest_sent,
-    mark_job_alert_sent,
     mark_jobs_alert_sent_batch,
     cleanup_old_jobs,
 )
 from src.unified_database import init_unified_db
-from sources.concurrent_scraper import scrape_multiple_async_fast  # Import the async scraper
+from sources.concurrent_scraper import (
+    scrape_multiple_async_fast,
+)  # Import the async scraper
 from matchers.rules import score_job
 from notify import slack, emailer
 
@@ -57,8 +65,6 @@ async def process_jobs(jobs, prefs):
     immediate_alerts = []
     digest_jobs = []
     processed_count = 0
-    job_db_ids = {}  # Track job to db_id mapping
-
     filter_config = config_manager.get_filter_config()
     notification_config = config_manager.get_notification_config()
 
@@ -74,8 +80,15 @@ async def process_jobs(jobs, prefs):
             try:
                 # Check cache for duplicates (fast in-memory check)
                 if job_cache.is_duplicate(job):
-                    main_logger.debug(f"Skipping duplicate job (cached): {job.get('title', 'Unknown')}")
-                    return {"job": job, "success": False, "duplicate": True, "index": job_index}
+                    main_logger.debug(
+                        f"Skipping duplicate job (cached): {job.get('title', 'Unknown')}"
+                    )
+                    return {
+                        "job": job,
+                        "success": False,
+                        "duplicate": True,
+                        "index": job_index,
+                    }
 
                 # Score job in thread pool (CPU-bound operation)
                 result = await asyncio.to_thread(score_job, job, prefs)
@@ -109,17 +122,35 @@ async def process_jobs(jobs, prefs):
                         "job": job,
                         "db_job": db_job,
                         "score": score,
-                        "category": "alert" if score >= filter_config.immediate_alert_threshold else "digest",
+                        "category": (
+                            "alert"
+                            if score >= filter_config.immediate_alert_threshold
+                            else "digest"
+                        ),
                         "index": job_index,
-                        "success": True
+                        "success": True,
                     }
                 else:
-                    main_logger.debug(f"Filtered out job: {job['title']} (score: {score:.2f})")
-                    return {"job": job, "score": score, "success": False, "index": job_index}
+                    main_logger.debug(
+                        f"Filtered out job: {job['title']} (score: {score:.2f})"
+                    )
+                    return {
+                        "job": job,
+                        "score": score,
+                        "success": False,
+                        "index": job_index,
+                    }
 
             except Exception as e:
-                main_logger.error(f"[bold red]Error processing job {job.get('title', 'Unknown')}:[/bold red] {e}")
-                return {"job": job, "error": str(e), "success": False, "index": job_index}
+                main_logger.error(
+                    f"[bold red]Error processing job {job.get('title', 'Unknown')}:[/bold red] {e}"
+                )
+                return {
+                    "job": job,
+                    "error": str(e),
+                    "success": False,
+                    "index": job_index,
+                }
 
     with Progress(
         SpinnerColumn(),
@@ -163,14 +194,20 @@ async def process_jobs(jobs, prefs):
     # Send immediate Slack alerts
     if immediate_alerts and notification_config.validate_slack():
         try:
-            main_logger.info(f"Sending {len(immediate_alerts)} immediate alerts to Slack")
+            main_logger.info(
+                f"Sending {len(immediate_alerts)} immediate alerts to Slack"
+            )
             slack.send_slack_alert(immediate_alerts)
         except Exception as e:
             main_logger.error(f"[bold red]Failed to send Slack alerts:[/bold red] {e}")
     elif immediate_alerts:
-        main_logger.warning(f"[yellow]Have {len(immediate_alerts)} high-score jobs but Slack not configured[/yellow]")
+        main_logger.warning(
+            f"[yellow]Have {len(immediate_alerts)} high-score jobs but Slack not configured[/yellow]"
+        )
 
-    main_logger.info(f"Job processing completed: {processed_count} jobs added to database")
+    main_logger.info(
+        f"Job processing completed: {processed_count} jobs added to database"
+    )
 
 
 async def send_digest():
@@ -178,15 +215,19 @@ async def send_digest():
     main_logger.info("Starting digest generation...")
 
     try:
-        notification_config = config_manager.get_notification_config()
+        config_manager.get_notification_config()
 
         # Email removed - skip digest functionality
-        main_logger.warning("[yellow]Email functionality removed, skipping digest[/yellow]")
+        main_logger.warning(
+            "[yellow]Email functionality removed, skipping digest[/yellow]"
+        )
         return
 
         # Get jobs for digest, using the new preference
         filter_config = config_manager.get_filter_config()
-        min_score = getattr(filter_config, "digest_min_score", 0.0)  # Safely get the new attribute
+        min_score = getattr(
+            filter_config, "digest_min_score", 0.0
+        )  # Safely get the new attribute
         digest_jobs = await get_jobs_for_digest(min_score=min_score, hours_back=24)
 
         if not digest_jobs:
@@ -198,7 +239,9 @@ async def send_digest():
         for job in digest_jobs:
             # Safely parse score_reasons JSON instead of using eval()
             try:
-                score_reasons = json.loads(job.score_reasons) if job.score_reasons else []
+                score_reasons = (
+                    json.loads(job.score_reasons) if job.score_reasons else []
+                )
             except (json.JSONDecodeError, TypeError):
                 score_reasons = []
                 main_logger.warning(
@@ -259,10 +302,14 @@ def test_notifications():
         except Exception as e:
             main_logger.error(f"[bold red]Slack test failed:[/bold red] {e}")
     else:
-        main_logger.warning("[yellow]Slack not configured or invalid webhook URL[/yellow]")
+        main_logger.warning(
+            "[yellow]Slack not configured or invalid webhook URL[/yellow]"
+        )
 
     # Email removed - skip email test
-    main_logger.warning("[yellow]Email functionality removed - skipping email test[/yellow]")
+    main_logger.warning(
+        "[yellow]Email functionality removed - skipping email test[/yellow]"
+    )
 
     main_logger.info("Notification testing completed")
 
@@ -277,10 +324,14 @@ async def cleanup():
         try:
             cleanup_days = int(cleanup_days_str)
             if cleanup_days < 1:
-                main_logger.warning(f"Invalid CLEANUP_DAYS value: {cleanup_days}, using default 90")
+                main_logger.warning(
+                    f"Invalid CLEANUP_DAYS value: {cleanup_days}, using default 90"
+                )
                 cleanup_days = 90
         except ValueError:
-            main_logger.warning(f"Invalid CLEANUP_DAYS value: {cleanup_days_str}, using default 90")
+            main_logger.warning(
+                f"Invalid CLEANUP_DAYS value: {cleanup_days_str}, using default 90"
+            )
             cleanup_days = 90
 
         deleted_count = await cleanup_old_jobs(cleanup_days)
@@ -291,15 +342,22 @@ async def cleanup():
         try:
             backup_retention = int(backup_retention_str)
             if backup_retention < 1:
-                main_logger.warning(f"Invalid BACKUP_RETENTION_DAYS value: {backup_retention}, using default 30")
+                main_logger.warning(
+                    f"Invalid BACKUP_RETENTION_DAYS value: {backup_retention}, using default 30"
+                )
                 backup_retention = 30
         except ValueError:
-            main_logger.warning(f"Invalid BACKUP_RETENTION_DAYS value: {backup_retention_str}, using default 30")
+            main_logger.warning(
+                f"Invalid BACKUP_RETENTION_DAYS value: {backup_retention_str}, using default 30"
+            )
             backup_retention = 30
 
         from cloud.providers.gcp.cloud_database import cleanup_old_backups
+
         backup_deleted = await cleanup_old_backups(backup_retention)
-        main_logger.info(f"Backup cleanup completed: removed {backup_deleted} old backups")
+        main_logger.info(
+            f"Backup cleanup completed: removed {backup_deleted} old backups"
+        )
 
     except Exception as e:
         main_logger.error(f"[bold red]Cleanup failed:[/bold red] {e}")
@@ -320,7 +378,9 @@ def health_check():
             "critical": "[bold red]CRITICAL[/bold red]",
         }
         status_text = status_colors.get(m["status"], m["status"].upper())
-        console.print(f"  - {m['name']:<20} | Status: {status_text:<25} | {m['message']}")
+        console.print(
+            f"  - {m['name']:<20} | Status: {status_text:<25} | {m['message']}"
+        )
 
     console.print("\n[bold blue]--- Job Scraper Health Report ---[/bold blue]")
     console.print(f"Overall Status: [bold]{report['overall_status'].upper()}[/bold]")
@@ -334,11 +394,12 @@ def health_check():
     # --- Interactive Actions for Critical Issues ---
     critical_metrics = [m for m in report["metrics"] if m["status"] == "critical"]
     if critical_metrics:
-        console.print(f"\n[bold red]CRITICAL ISSUES DETECTED:[/bold red]")
+        console.print("\n[bold red]CRITICAL ISSUES DETECTED:[/bold red]")
 
         # Check for database corruption issue
         db_integrity_issue = any(
-            m["name"] == "database_status" and "Integrity check failed" in m["message"] for m in critical_metrics
+            m["name"] == "database_status" and "Integrity check failed" in m["message"]
+            for m in critical_metrics
         )
 
         if db_integrity_issue:
@@ -346,7 +407,9 @@ def health_check():
 
             latest_backup = db_resilience._get_latest_backup()
             if latest_backup:
-                console.print("Database integrity check failed. A recent backup is available:")
+                console.print(
+                    "Database integrity check failed. A recent backup is available:"
+                )
                 console.print(f"  -> [cyan]{latest_backup.name}[/cyan]")
 
                 try:
@@ -356,15 +419,19 @@ def health_check():
                     if response == "y":
                         console.print("Restoring database...")
                         if db_resilience.restore_from_backup(latest_backup):
-                            console.print(f"[green]Database restored successfully.[/green]")
+                            console.print(
+                                "[green]Database restored successfully.[/green]"
+                            )
                         else:
-                            console.print(f"[bold red]Database restore failed. Check logs for details.[/bold red]")
+                            console.print(
+                                "[bold red]Database restore failed. Check logs for details.[/bold red]"
+                            )
                     else:
                         console.print("Skipping database restore.")
                 except KeyboardInterrupt:
                     console.print("\nOperation cancelled.")
     else:
-        console.print(f"\n[green]System is healthy. No critical issues found.[/green]")
+        console.print("\n[green]System is healthy. No critical issues found.[/green]")
 
     return report
 
@@ -373,10 +440,10 @@ def parse_args():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description="Job Scraper Agent")
     parser.add_argument(
-        '--mode',
-        choices=['poll', 'digest', 'health', 'test', 'cleanup'],
-        default='poll',
-        help='Run mode (default: poll)'
+        "--mode",
+        choices=["poll", "digest", "health", "test", "cleanup"],
+        default="poll",
+        help="Run mode (default: poll)",
     )
     return parser.parse_args()
 
@@ -390,9 +457,12 @@ async def main():
     if enable_self_healing:
         try:
             from utils.self_healing import run_self_healing_check
+
             healing_results = await run_self_healing_check()
             if healing_results["actions_taken"]:
-                main_logger.info(f"Self-healing actions taken: {len(healing_results['actions_taken'])}")
+                main_logger.info(
+                    f"Self-healing actions taken: {len(healing_results['actions_taken'])}"
+                )
         except Exception as e:
             main_logger.warning(f"Self-healing check failed: {e}")
 
@@ -415,18 +485,24 @@ async def main():
             console=console,
             transient=True,
         ) as progress:
-            scraping_task = progress.add_task("[cyan]Scraping job boards...", total=len(urls))
+            scraping_task = progress.add_task(
+                "[cyan]Scraping job boards...", total=len(urls)
+            )
 
             # Add timeout to scraping operations (5 minutes per company)
             timeout_seconds = int(os.getenv("SCRAPER_TIMEOUT", "300"))
             try:
                 results = await asyncio.wait_for(
                     scrape_multiple_async_fast(urls, fetch_descriptions=True),
-                    timeout=timeout_seconds
+                    timeout=timeout_seconds,
                 )
             except asyncio.TimeoutError:
-                main_logger.error(f"[bold red]Scraping timed out after {timeout_seconds} seconds[/bold red]")
-                console.print(f"[bold red]Scraping operation timed out after {timeout_seconds}s[/bold red]")
+                main_logger.error(
+                    f"[bold red]Scraping timed out after {timeout_seconds} seconds[/bold red]"
+                )
+                console.print(
+                    f"[bold red]Scraping operation timed out after {timeout_seconds}s[/bold red]"
+                )
                 return
 
             all_jobs = []
@@ -439,8 +515,14 @@ async def main():
                         description=f"[green]Scraped {result.url} - {len(result.jobs)} jobs[/green]",
                     )
                 else:
-                    main_logger.error(f"[bold red]Scraping failed for {result.url}:[/bold red] {result.error}")
-                    progress.update(scraping_task, advance=1, description=f"[red]Failed {result.url}[/red]")
+                    main_logger.error(
+                        f"[bold red]Scraping failed for {result.url}:[/bold red] {result.error}"
+                    )
+                    progress.update(
+                        scraping_task,
+                        advance=1,
+                        description=f"[red]Failed {result.url}[/red]",
+                    )
 
             console.print(f"[bold green]Found {len(all_jobs)} total jobs.[/bold green]")
             prefs = load_user_prefs()

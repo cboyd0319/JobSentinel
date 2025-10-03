@@ -3,12 +3,14 @@ Unified database schema for the enhanced job scraper.
 Supports data from all job board types (Greenhouse, Microsoft, SpaceX, etc.)
 """
 
-from sqlmodel import Field, Session, SQLModel, create_engine, select
-from datetime import datetime, timezone
-from typing import Optional, List, Dict, Any
 import json
+from datetime import datetime, timezone
+from typing import Any, Dict, List, Optional
+
+from cloud.providers.gcp.cloud_database import init_cloud_db
+from sqlmodel import Field, Session, SQLModel, create_engine, select
 from utils.logging import get_logger
-from utils.errors import DatabaseException
+from src.database import init_db
 
 logger = get_logger("unified_database")
 
@@ -178,13 +180,6 @@ UNIFIED_DB_FILE = "data/jobs_unified.sqlite"
 unified_engine = create_engine(f"sqlite:///{UNIFIED_DB_FILE}", echo=False)
 
 
-from src.database import init_db
-from cloud.providers.gcp.cloud_database import init_cloud_db
-from utils.logging import get_logger
-
-logger = get_logger("unified_database")
-
-
 async def init_unified_db():
     """Initializes both local and cloud databases."""
     logger.info("Initializing unified database...")
@@ -206,7 +201,9 @@ def save_unified_job(job_data: dict, score: float = 0.0) -> Optional[UnifiedJob]
                 return None
 
             # Check if job already exists
-            existing_job = session.exec(select(UnifiedJob).where(UnifiedJob.hash == job_hash)).first()
+            existing_job = session.exec(
+                select(UnifiedJob).where(UnifiedJob.hash == job_hash)
+            ).first()
 
             if existing_job:
                 # Update existing job
@@ -243,7 +240,9 @@ def get_jobs_by_board(job_board: str, limit: int = 100) -> list[UnifiedJob]:
     """Get jobs by job board type."""
     try:
         with Session(unified_engine) as session:
-            jobs = session.exec(select(UnifiedJob).where(UnifiedJob.job_board == job_board).limit(limit)).all()
+            jobs = session.exec(
+                select(UnifiedJob).where(UnifiedJob.job_board == job_board).limit(limit)
+            ).all()
             return list(jobs)
     except Exception as e:
         logger.error(f"Failed to get jobs by board: {e}")
@@ -412,7 +411,9 @@ class UserProfile(SQLModel, table=True):
 
     def get_preferred_departments(self) -> List[str]:
         """Get preferred departments as a list."""
-        return json.loads(self.preferred_departments) if self.preferred_departments else []
+        return (
+            json.loads(self.preferred_departments) if self.preferred_departments else []
+        )
 
     def set_custom_job_boards(self, urls: List[str]):
         """Set custom job board URLs from a list."""
@@ -506,7 +507,10 @@ def calculate_job_match_score(job: UnifiedJob, user_profile: UserProfile) -> flo
             skill_matches = 0
             for job_skill in job_skills:
                 for user_skill in user_skills:
-                    if job_skill.lower() in user_skill.lower() or user_skill.lower() in job_skill.lower():
+                    if (
+                        job_skill.lower() in user_skill.lower()
+                        or user_skill.lower() in job_skill.lower()
+                    ):
                         skill_matches += 1
                         break
 
@@ -523,7 +527,9 @@ def calculate_job_match_score(job: UnifiedJob, user_profile: UserProfile) -> flo
                 else 2
             )
             job_level_idx = (
-                seniority_levels.index(job.seniority_level) if job.seniority_level in seniority_levels else 2
+                seniority_levels.index(job.seniority_level)
+                if job.seniority_level in seniority_levels
+                else 2
             )
 
             # Perfect match or one level up is ideal
@@ -538,15 +544,26 @@ def calculate_job_match_score(job: UnifiedJob, user_profile: UserProfile) -> flo
         location_match = False
         if user_profile.work_arrangement_preference == "Any":
             location_match = True
-        elif user_profile.work_arrangement_preference == "Remote" and job.work_arrangement in ["Remote", "Hybrid"]:
+        elif (
+            user_profile.work_arrangement_preference == "Remote"
+            and job.work_arrangement in ["Remote", "Hybrid"]
+        ):
             location_match = True
-        elif user_profile.work_arrangement_preference == "Hybrid" and job.work_arrangement in [
-            "Remote",
-            "Hybrid",
-            "On-site",
-        ]:
+        elif (
+            user_profile.work_arrangement_preference == "Hybrid"
+            and job.work_arrangement
+            in [
+                "Remote",
+                "Hybrid",
+                "On-site",
+            ]
+        ):
             location_match = True
-        elif user_profile.location and job.location and user_profile.location.lower() in job.location.lower():
+        elif (
+            user_profile.location
+            and job.location
+            and user_profile.location.lower() in job.location.lower()
+        ):
             location_match = True
 
         if location_match:
@@ -574,7 +591,9 @@ def calculate_job_match_score(job: UnifiedJob, user_profile: UserProfile) -> flo
         return 0.0
 
 
-def get_personalized_job_matches(limit: int = 50, min_score: float = 60.0) -> List[Dict[str, Any]]:
+def get_personalized_job_matches(
+    limit: int = 50, min_score: float = 60.0
+) -> List[Dict[str, Any]]:
     """
     Get jobs that match the user's profile above the minimum score.
 
@@ -592,7 +611,9 @@ def get_personalized_job_matches(limit: int = 50, min_score: float = 60.0) -> Li
             return []
 
         with Session(unified_engine) as session:
-            jobs = session.exec(select(UnifiedJob).limit(limit * 2)).all()  # Get more to filter
+            jobs = session.exec(
+                select(UnifiedJob).limit(limit * 2)
+            ).all()  # Get more to filter
 
             job_matches = []
             for job in jobs:
@@ -603,7 +624,9 @@ def get_personalized_job_matches(limit: int = 50, min_score: float = 60.0) -> Li
                         {
                             "job": job,
                             "match_score": match_score,
-                            "match_reasons": _get_match_reasons(job, user_profile, match_score),
+                            "match_reasons": _get_match_reasons(
+                                job, user_profile, match_score
+                            ),
                         }
                     )
 
@@ -616,7 +639,9 @@ def get_personalized_job_matches(limit: int = 50, min_score: float = 60.0) -> Li
         return []
 
 
-def _get_match_reasons(job: UnifiedJob, user_profile: UserProfile, score: float) -> List[str]:
+def _get_match_reasons(
+    job: UnifiedJob, user_profile: UserProfile, score: float
+) -> List[str]:
     """Generate human-readable reasons for job match."""
     reasons = []
 
@@ -627,7 +652,10 @@ def _get_match_reasons(job: UnifiedJob, user_profile: UserProfile, score: float)
         matching_skills = []
         for job_skill in job_skills:
             for user_skill in user_skills:
-                if job_skill.lower() in user_skill.lower() or user_skill.lower() in job_skill.lower():
+                if (
+                    job_skill.lower() in user_skill.lower()
+                    or user_skill.lower() in job_skill.lower()
+                ):
                     matching_skills.append(job_skill)
                     break
 
@@ -639,11 +667,18 @@ def _get_match_reasons(job: UnifiedJob, user_profile: UserProfile, score: float)
         reasons.append(f"Perfect seniority match: {job.seniority_level}")
 
     # Location match
-    if job.work_arrangement == "Remote" and user_profile.work_arrangement_preference in ["Remote", "Any"]:
+    if (
+        job.work_arrangement == "Remote"
+        and user_profile.work_arrangement_preference in ["Remote", "Any"]
+    ):
         reasons.append("Remote work available")
 
     # Salary match
-    if user_profile.salary_min and job.salary_min and job.salary_min >= user_profile.salary_min:
+    if (
+        user_profile.salary_min
+        and job.salary_min
+        and job.salary_min >= user_profile.salary_min
+    ):
         reasons.append(f"Salary meets expectations (${job.salary_min:,}+)")
 
     if score >= 90:

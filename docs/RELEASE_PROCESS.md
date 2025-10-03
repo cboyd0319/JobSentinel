@@ -21,7 +21,7 @@ This project uses `python-semantic-release` to automate version bumping, changel
     *   Analyzes commit history to determine the next semantic version.
     *   Updates the version in `pyproject.toml`.
     *   Generates or updates `CHANGELOG.md`.
-    *   Creates a Git tag (e.g., `v1.0.0`).
+    *   Creates a Git tag (e.g., `v0.4.5`).
     *   Creates a GitHub Release with the generated changelog.
     *   Pushes the new version commit and tag back to the `main` branch.
 

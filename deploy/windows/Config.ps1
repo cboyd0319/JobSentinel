@@ -9,7 +9,7 @@ Set-StrictMode -Version Latest
 
 # === Version Information ===
 $script:Config = @{
-    Version = '1.0.0'
+    Version = '0.4.5'
     ProductName = 'Job Finder'
     Author = 'cboyd0319'
 

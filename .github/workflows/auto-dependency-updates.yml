@@ -2,14 +2,13 @@ name: Automated Dependency Updates & Security Patching
 
 on:
   schedule:
-    # Run weekly on Monday at 3 AM UTC (cost optimization)
     - cron: '0 3 * * 1'
   workflow_dispatch:
     inputs:
       update_type:
-        description: 'Update type'
+        description: 'Select dependency update policy'
         required: true
-        default: 'security'
+        default: security
         type: choice
         options:
           - security
@@ -17,130 +16,152 @@ on:
           - all
 
 permissions:
-  contents: write
-  pull-requests: write
-  issues: write
+  contents: read
 
 jobs:
   check-security-updates:
     name: Check for Security Updates
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     outputs:
-      has_updates: ${{ steps.check.outputs.has_updates }}
-      update_count: ${{ steps.check.outputs.update_count }}
+      has_updates: ${{ steps.audit.outputs.has_updates }}
+      update_count: ${{ steps.audit.outputs.update_count }}
+      vulnerable_packages: ${{ steps.audit.outputs.vulnerable_packages }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
         with:
           persist-credentials: false
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Set up Python 3.12
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
         with:
-          python-version: '3.13'  # Latest stable
+          python-version: '3.12.10'
 
       - name: Check for security updates
-        id: check
+        id: audit
         run: |
-          pip install --upgrade pip pip-audit
+          set -euo pipefail
+          python -m pip install --upgrade pip pip-audit
+          python -m pip-audit --format json --output pip-audit-report.json || true
 
-          # Check for known vulnerabilities using pip-audit (uses OSV database)
-          pip-audit --format json --output pip-audit-report.json || true
-
-          # Parse results - pip-audit uses 'dependencies' array
-          VULN_COUNT=$(jq '[.dependencies[] | select(.vulns | length > 0)] | length' pip-audit-report.json 2>/dev/null || echo 0)
-
+          VULN_COUNT=$( \
+            jq '[.dependencies[] | select(.vulns | length > 0)] | length' \
+              pip-audit-report.json 2>/dev/null || echo 0 \
+          )
+          echo "update_count=${VULN_COUNT}" >> "$GITHUB_OUTPUT"
           if [ "$VULN_COUNT" -gt 0 ]; then
             echo "has_updates=true" >> "$GITHUB_OUTPUT"
-            echo "update_count=$VULN_COUNT" >> "$GITHUB_OUTPUT"
+            filter='.dependencies[] | select(.vulns | length > 0) | .name'
+            jq -r "$filter" pip-audit-report.json | sort -u > vulnerable-packages.txt
+            {
+              echo 'vulnerable_packages<<EOF'
+              cat vulnerable-packages.txt
+              echo 'EOF'
+            } >> "$GITHUB_OUTPUT"
           else
             echo "has_updates=false" >> "$GITHUB_OUTPUT"
-            echo "update_count=0" >> "$GITHUB_OUTPUT"
+            echo "vulnerable_packages=" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Upload security reports
-        uses: actions/upload-artifact@v4
+        if: always()
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874
         with:
           name: security-reports
-          path: pip-audit-report.json
+          path: |
+            pip-audit-report.json
+            vulnerable-packages.txt
+          if-no-files-found: ignore
 
   auto-update-python:
     name: Auto-Update Python Dependencies
     runs-on: ubuntu-latest
     needs: check-security-updates
-    if: needs.check-security-updates.outputs.has_updates == 'true'
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      needs.check-security-updates.outputs.has_updates == 'true'
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: false
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Set up Python 3.12
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
         with:
-          python-version: '3.13'  # Latest stable
+          python-version: '3.12.10'
+          cache: pip
+          cache-dependency-path: requirements.txt
 
-      - name: Install pur (pip update requirements)
-        run: pip install pur
-
-      - name: Update security patches only
-        if: github.event.inputs.update_type == 'security' || github.event_name == 'schedule'
+      - name: Install tooling
         run: |
-          # Get vulnerable packages from pip-audit (uses OSV database)
-          pip install pip-audit
-          VULN_PACKAGES=$(pip-audit --format json | jq -r '.dependencies[] | select(.vulns | length > 0) | .name' | sort -u)
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install pur
 
-          # Update only vulnerable packages
-          for pkg in $VULN_PACKAGES; do
+      - name: Update vulnerable packages
+        if: >-
+          github.event_name != 'workflow_dispatch' ||
+          github.event.inputs.update_type == 'security'
+        env:
+          VULNERABLE_PACKAGES: ${{ needs.check-security-updates.outputs.vulnerable_packages }}
+        run: |
+          set -euo pipefail
+          if [ -z "$VULNERABLE_PACKAGES" ]; then
+            echo "No vulnerable packages reported by pip-audit."
+            exit 0
+          fi
+          while IFS= read -r pkg; do
+            [ -z "$pkg" ] && continue
+            echo "Updating $pkg"
             pur -r requirements.txt --only "$pkg" --force
-          done
+          done <<< "$VULNERABLE_PACKAGES"
 
       - name: Update minor versions
-        if: github.event.inputs.update_type == 'minor'
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.update_type == 'minor'
         run: pur -r requirements.txt --minor
 
       - name: Update all packages
-        if: github.event.inputs.update_type == 'all'
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.update_type == 'all'
         run: pur -r requirements.txt
 
       - name: Install updated requirements
-        run: |
-          pip install -r requirements.txt
+        run: python -m pip install -r requirements.txt
 
-      - name: Run tests
+      - name: Smoke tests
         run: |
-          # Basic smoke tests
           python -c "from src import agent; print('✓ agent imports')"
           python -c "from src import database; print('✓ database imports')"
           python -c "from utils import cache; print('✓ cache imports')"
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e
+        env:
+          UPDATE_MODE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.update_type || 'security' }}
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "deps(security): auto-update vulnerable dependencies"
-          title: "🔒 Security: Auto-update vulnerable dependencies"
+          title: "Security: Auto-update vulnerable dependencies"
           body: |
-            ## Automated Security Update
+            ## Automated Dependency Update
 
-            This PR was automatically created to update vulnerable dependencies.
+            | Metric | Value |
+            | --- | --- |
+            | Vulnerabilities found | ${{ needs.check-security-updates.outputs.update_count }} |
+            | Update mode | ${{ env.UPDATE_MODE }} |
 
-            **Vulnerabilities Found**: ${{ needs.check-security-updates.outputs.update_count }}
+            ### Follow-up
+            1. Review the changes in `requirements.txt`.
+            2. Run the full test suite locally if needed.
+            3. Merge after validation.
 
-            ### Changes
-            - Updated vulnerable packages to latest secure versions
-            - All smoke tests passed
-
-            ### Security Reports
-            See attached artifacts for detailed vulnerability reports.
-
-            ### Next Steps
-            1. Review changes in `requirements.txt`
-            2. Run full test suite locally
-            3. Merge if all checks pass
-
-            **Auto-generated by GitHub Actions**
-          branch: auto-deps-security-${{ github.run_number }}
+            _Auto-generated by GitHub Actions_
+          branch: auto-deps-${{ github.run_number }}
           labels: |
             dependencies
             security
@@ -152,37 +173,66 @@ jobs:
     name: Post-Update Health Check
     runs-on: ubuntu-latest
     needs: auto-update-python
+    if: needs.auto-update-python.result == 'success'
+    permissions:
+      contents: read
+      issues: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
         with:
           persist-credentials: false
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Set up Python 3.12
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
         with:
-          python-version: '3.13'  # Latest stable
+          python-version: '3.12.10'
+          cache: pip
+          cache-dependency-path: requirements.txt
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: python -m pip install -r requirements.txt
+
+      - name: Prepare configuration
+        run: |
+          cp .env.example .env
+          mkdir -p config data
+          cp config/user_prefs.example.json config/user_prefs.json
+          chmod 600 .env || true
 
       - name: Run health check
+        id: health
+        continue-on-error: true
         run: |
-          python -m src.agent --mode health || true
+          set -euo pipefail
+          python -m src.agent --mode health | tee health-report.txt
+
+      - name: Upload health report
+        if: always()
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874
+        with:
+          name: health-report-${{ github.run_number }}
+          path: health-report.txt
 
       - name: Create issue if health check fails
-        if: failure()
-        uses: actions/github-script@v7
+        if: steps.health.outcome == 'failure'
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea
         with:
           script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('health-report.txt', 'utf8');
             await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: '⚠️ Health Check Failed After Dependency Update',
-              body: `Health check failed after automated dependency update.
+              title: 'Health check failed after dependency update',
+              body: `The post-update health check failed.
 
               **Workflow Run**: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
-              Please review the logs and revert changes if necessary.`,
+              ### Health Report
+              \`\`\`
+              ${report}
+              \`\`\`
+              `,
               labels: ['bug', 'automated', 'health-check']
             });

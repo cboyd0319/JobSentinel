@@ -7,7 +7,12 @@ import asyncio
 from typing import List, Dict
 from urllib.parse import urlparse, urlunparse
 from playwright.async_api import async_playwright
-from .job_scraper_base import JobBoardScraper, APIDiscoveryMixin, GenericJobExtractor, fetch_url
+from .job_scraper_base import (
+    JobBoardScraper,
+    APIDiscoveryMixin,
+    GenericJobExtractor,
+    fetch_url,
+)
 from utils.logging import get_logger
 
 logger = get_logger("sources.playwright_scraper")
@@ -19,25 +24,33 @@ class PlaywrightScraper(JobBoardScraper, APIDiscoveryMixin):
     """
 
     def __init__(self):
-        super().__init__(name="Playwright Dynamic", base_domains=[])  # Can handle any domain as fallback
+        super().__init__(
+            name="Playwright Dynamic", base_domains=[]
+        )  # Can handle any domain as fallback
 
     def can_handle(self, url: str) -> bool:
         """This is a fallback scraper, so it can attempt any URL."""
         return True
 
-    async def scrape(self, board_url: str, fetch_descriptions: bool = True) -> List[Dict]:
+    async def scrape(
+        self, board_url: str, fetch_descriptions: bool = True
+    ) -> List[Dict]:
         """
         Scrape using Playwright with API discovery and enhanced selectors.
         """
         logger.info(f"🎭 Using Playwright scraper for {board_url}")
 
         # Try API discovery first
-        discovered_jobs = await self.scrape_with_api_discovery(board_url, fetch_descriptions)
+        discovered_jobs = await self.scrape_with_api_discovery(
+            board_url, fetch_descriptions
+        )
         if discovered_jobs:
             return discovered_jobs
 
         # Fall back to enhanced content extraction
-        content_jobs = await self.scrape_with_enhanced_selectors(board_url, fetch_descriptions)
+        content_jobs = await self.scrape_with_enhanced_selectors(
+            board_url, fetch_descriptions
+        )
         if content_jobs:
             return content_jobs
 
@@ -45,7 +58,9 @@ class PlaywrightScraper(JobBoardScraper, APIDiscoveryMixin):
         logger.warning(f"All Playwright methods failed for {board_url}")
         return []
 
-    async def scrape_with_api_discovery(self, board_url: str, fetch_descriptions: bool = True) -> List[Dict]:
+    async def scrape_with_api_discovery(
+        self, board_url: str, fetch_descriptions: bool = True
+    ) -> List[Dict]:
         """Scrape using API discovery."""
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=True)
@@ -121,7 +136,9 @@ class PlaywrightScraper(JobBoardScraper, APIDiscoveryMixin):
 
         return hostname == expected or hostname.endswith(f".{expected}")
 
-    async def scrape_with_enhanced_selectors(self, board_url: str, fetch_descriptions: bool = True) -> List[Dict]:
+    async def scrape_with_enhanced_selectors(
+        self, board_url: str, fetch_descriptions: bool = True
+    ) -> List[Dict]:
         """Scrape using enhanced content selectors."""
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=True)
@@ -144,7 +161,9 @@ class PlaywrightScraper(JobBoardScraper, APIDiscoveryMixin):
                 elif self._host_matches(safe_board_url, "google.com"):
                     jobs = await self._extract_google_jobs(page, company_name)
                 else:
-                    jobs = await self._extract_generic_jobs(page, company_name, safe_board_url)
+                    jobs = await self._extract_generic_jobs(
+                        page, company_name, safe_board_url
+                    )
 
                 await browser.close()
 
@@ -158,7 +177,9 @@ class PlaywrightScraper(JobBoardScraper, APIDiscoveryMixin):
 
             return []
 
-    def _extract_from_discovered_apis(self, working_apis: List[Dict], board_url: str) -> List[Dict]:
+    def _extract_from_discovered_apis(
+        self, working_apis: List[Dict], board_url: str
+    ) -> List[Dict]:
         """Extract job data from discovered working APIs."""
         all_jobs = []
 
@@ -166,7 +187,9 @@ class PlaywrightScraper(JobBoardScraper, APIDiscoveryMixin):
             try:
                 data = api_info["data"]
                 company_name = self.extract_company_name(board_url)
-                jobs = self._extract_jobs_from_api_response(data, company_name, api_info["url"])
+                jobs = self._extract_jobs_from_api_response(
+                    data, company_name, api_info["url"]
+                )
                 all_jobs.extend(jobs)
                 logger.info(f"Extracted {len(jobs)} jobs from API: {api_info['url']}")
             except Exception as e:
@@ -174,7 +197,9 @@ class PlaywrightScraper(JobBoardScraper, APIDiscoveryMixin):
 
         return all_jobs
 
-    def _extract_jobs_from_api_response(self, data, company_name: str, api_url: str) -> List[Dict]:
+    def _extract_jobs_from_api_response(
+        self, data, company_name: str, api_url: str
+    ) -> List[Dict]:
         """Extract job data from various API response formats."""
         jobs = []
         extractor = GenericJobExtractor()
@@ -189,14 +214,19 @@ class PlaywrightScraper(JobBoardScraper, APIDiscoveryMixin):
                 # Look for job arrays in common structures
                 for key, value in data.items():
                     if isinstance(value, list) and len(value) > 0:
-                        if any(job_key in str(value[0]).lower() for job_key in ["title", "job", "position"]):
+                        if any(
+                            job_key in str(value[0]).lower()
+                            for job_key in ["title", "job", "position"]
+                        ):
                             job_list = value
                             break
 
             # Process job list
             for item in job_list[:50]:  # Limit to 50 jobs
                 if isinstance(item, dict):
-                    normalized_job = extractor.normalize_job_data(item, company_name, "discovered_api", api_url)
+                    normalized_job = extractor.normalize_job_data(
+                        item, company_name, "discovered_api", api_url
+                    )
                     jobs.append(normalized_job)
 
         except Exception as e:
@@ -220,19 +250,36 @@ class PlaywrightScraper(JobBoardScraper, APIDiscoveryMixin):
             try:
                 elements = await page.query_selector_all(selector)
                 if elements:
-                    logger.info(f"Spectrum: Found {len(elements)} elements with {selector}")
+                    logger.info(
+                        f"Spectrum: Found {len(elements)} elements with {selector}"
+                    )
 
                     for element in elements[:20]:
                         try:
                             text = await element.text_content()
                             if text and len(text.strip()) > 10:
-                                lines = [line.strip() for line in text.split("\n") if line.strip()]
+                                lines = [
+                                    line.strip()
+                                    for line in text.split("\n")
+                                    if line.strip()
+                                ]
                                 if len(lines) >= 1:
                                     title = lines[0]
-                                    location = lines[1] if len(lines) > 1 else "See Description"
+                                    location = (
+                                        lines[1]
+                                        if len(lines) > 1
+                                        else "See Description"
+                                    )
 
                                     # Skip category headers
-                                    if any(word in title.lower() for word in ["full time", "part time", "category"]):
+                                    if any(
+                                        word in title.lower()
+                                        for word in [
+                                            "full time",
+                                            "part time",
+                                            "category",
+                                        ]
+                                    ):
                                         continue
 
                                     raw_job = {
@@ -249,13 +296,17 @@ class PlaywrightScraper(JobBoardScraper, APIDiscoveryMixin):
                                     )
                                     jobs.append(normalized_job)
 
-                        except Exception:  # nosec B110 - broad exception needed for scraper resilience
+                        except (
+                            Exception
+                        ):  # nosec B110 - broad exception needed for scraper resilience
                             continue
 
                     if jobs:
                         break
 
-            except Exception:  # nosec B110 - broad exception needed for scraper resilience
+            except (
+                Exception
+            ):  # nosec B110 - broad exception needed for scraper resilience
                 continue
 
         return jobs
@@ -268,7 +319,9 @@ class PlaywrightScraper(JobBoardScraper, APIDiscoveryMixin):
 
         # Try to wait for job listings
         try:
-            await page.wait_for_selector('[data-automation-id="jobTitle"]', timeout=5000)
+            await page.wait_for_selector(
+                '[data-automation-id="jobTitle"]', timeout=5000
+            )
         except BaseException:
             pass
 
@@ -276,7 +329,9 @@ class PlaywrightScraper(JobBoardScraper, APIDiscoveryMixin):
             try:
                 elements = await page.query_selector_all(selector)
                 if elements:
-                    logger.info(f"Google: Found {len(elements)} elements with {selector}")
+                    logger.info(
+                        f"Google: Found {len(elements)} elements with {selector}"
+                    )
 
                     for element in elements[:15]:
                         try:
@@ -286,14 +341,27 @@ class PlaywrightScraper(JobBoardScraper, APIDiscoveryMixin):
 
                                 # Skip navigation elements
                                 if any(
-                                    word in title.lower() for word in ["apply", "filter", "sort", "search", "sign in"]
+                                    word in title.lower()
+                                    for word in [
+                                        "apply",
+                                        "filter",
+                                        "sort",
+                                        "search",
+                                        "sign in",
+                                    ]
                                 ):
                                     continue
 
                                 # Check if it looks like a job title
                                 if any(
                                     word in title.lower()
-                                    for word in ["engineer", "manager", "analyst", "developer", "specialist"]
+                                    for word in [
+                                        "engineer",
+                                        "manager",
+                                        "analyst",
+                                        "developer",
+                                        "specialist",
+                                    ]
                                 ):
                                     raw_job = {
                                         "title": title,
@@ -302,22 +370,31 @@ class PlaywrightScraper(JobBoardScraper, APIDiscoveryMixin):
                                     }
 
                                     normalized_job = extractor.normalize_job_data(
-                                        raw_job, company_name, "google_enhanced", page.url
+                                        raw_job,
+                                        company_name,
+                                        "google_enhanced",
+                                        page.url,
                                     )
                                     jobs.append(normalized_job)
 
-                        except Exception:  # nosec B110 - broad exception needed for scraper resilience
+                        except (
+                            Exception
+                        ):  # nosec B110 - broad exception needed for scraper resilience
                             continue
 
                     if jobs:
                         break
 
-            except Exception:  # nosec B110 - broad exception needed for scraper resilience
+            except (
+                Exception
+            ):  # nosec B110 - broad exception needed for scraper resilience
                 continue
 
         return jobs
 
-    async def _extract_generic_jobs(self, page, company_name: str, board_url: str) -> List[Dict]:
+    async def _extract_generic_jobs(
+        self, page, company_name: str, board_url: str
+    ) -> List[Dict]:
         """Generic job extraction for unknown sites."""
         jobs = []
         extractor = GenericJobExtractor()
@@ -347,17 +424,24 @@ class PlaywrightScraper(JobBoardScraper, APIDiscoveryMixin):
                                     }
 
                                     normalized_job = extractor.normalize_job_data(
-                                        raw_job, company_name, "generic_enhanced", board_url
+                                        raw_job,
+                                        company_name,
+                                        "generic_enhanced",
+                                        board_url,
                                     )
                                     jobs.append(normalized_job)
 
-                        except Exception:  # nosec B110 - broad exception needed for scraper resilience
+                        except (
+                            Exception
+                        ):  # nosec B110 - broad exception needed for scraper resilience
                             continue
 
                     if jobs:
                         break
 
-            except Exception:  # nosec B110 - broad exception needed for scraper resilience
+            except (
+                Exception
+            ):  # nosec B110 - broad exception needed for scraper resilience
                 continue
 
         return jobs

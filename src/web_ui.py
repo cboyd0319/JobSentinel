@@ -46,7 +46,10 @@ def read_logs(lines=100):
     """Reads the last N lines from the log file."""
     try:
         log_file = max(
-            [p for p in (config_manager.config_path.parent / "data/logs").glob("*.log")],
+            [
+                p
+                for p in (config_manager.config_path.parent / "data/logs").glob("*.log")
+            ],
             key=os.path.getctime,
         )
         with open(log_file, "r", encoding="utf-8") as f:
@@ -64,8 +67,12 @@ def index():
         prefs = config_manager.load_config()
         db_stats = get_database_stats()
         with Session(engine) as session:
-            recent_jobs = session.exec(select(Job).order_by(Job.created_at.desc()).limit(10)).all()
-        return render_template("index.html", prefs=prefs, stats=db_stats, jobs=recent_jobs)
+            recent_jobs = session.exec(
+                select(Job).order_by(Job.created_at.desc()).limit(10)
+            ).all()
+        return render_template(
+            "index.html", prefs=prefs, stats=db_stats, jobs=recent_jobs
+        )
     except Exception as e:
         flash(f"Error loading dashboard: {e}", "danger")
         return render_template("index.html", prefs={}, stats={}, jobs=[])

@@ -4,7 +4,7 @@ Notes about this project — short and practical. I keep a simple changelog here
 
 ## [Unreleased]
 
-### Added in 1.0.0
+### Added in 0.4.5
 
 - Release and versioning helpers
 - CI tweaks to make releases smoother
@@ -16,7 +16,7 @@ Notes about this project — short and practical. I keep a simple changelog here
 
 ---
 
-## [1.0.0] - 2025-01-26
+## [0.4.5] - 2025-01-26
 
 ### Added
 

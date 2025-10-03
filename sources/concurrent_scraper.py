@@ -120,14 +120,18 @@ class ConcurrentJobScraper:
         return results
 
     def _scrape_with_threads(
-        self, tasks: List[ScrapeTask], progress_callback: Optional[Callable[[str, int, int], None]] = None
+        self,
+        tasks: List[ScrapeTask],
+        progress_callback: Optional[Callable[[str, int, int], None]] = None,
     ) -> List[ScrapeResult]:
         """Scrape using thread-based concurrency."""
         results = []
 
         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
             # Submit all tasks
-            future_to_task = {executor.submit(self._scrape_single_task, task): task for task in tasks}
+            future_to_task = {
+                executor.submit(self._scrape_single_task, task): task for task in tasks
+            }
 
             # Process completed tasks
             for future in as_completed(future_to_task):
@@ -141,19 +145,31 @@ class ConcurrentJobScraper:
 
                 except Exception as e:
                     logger.error(f"Task failed for {task.url}: {e}")
-                    results.append(ScrapeResult(url=task.url, jobs=[], duration=0.0, success=False, error=str(e)))
+                    results.append(
+                        ScrapeResult(
+                            url=task.url,
+                            jobs=[],
+                            duration=0.0,
+                            success=False,
+                            error=str(e),
+                        )
+                    )
 
         return results
 
     def _scrape_with_processes(
-        self, tasks: List[ScrapeTask], progress_callback: Optional[Callable[[str, int, int], None]] = None
+        self,
+        tasks: List[ScrapeTask],
+        progress_callback: Optional[Callable[[str, int, int], None]] = None,
     ) -> List[ScrapeResult]:
         """Scrape using process-based concurrency."""
         results = []
 
         with ProcessPoolExecutor(max_workers=self.max_workers) as executor:
             # Submit all tasks
-            future_to_task = {executor.submit(_scrape_task_worker, task): task for task in tasks}
+            future_to_task = {
+                executor.submit(_scrape_task_worker, task): task for task in tasks
+            }
 
             # Process completed tasks
             for future in as_completed(future_to_task):
@@ -167,7 +183,15 @@ class ConcurrentJobScraper:
 
                 except Exception as e:
                     logger.error(f"Process task failed for {task.url}: {e}")
-                    results.append(ScrapeResult(url=task.url, jobs=[], duration=0.0, success=False, error=str(e)))
+                    results.append(
+                        ScrapeResult(
+                            url=task.url,
+                            jobs=[],
+                            duration=0.0,
+                            success=False,
+                            error=str(e),
+                        )
+                    )
 
         return results
 
@@ -183,14 +207,20 @@ class ConcurrentJobScraper:
             jobs_per_second = len(jobs) / duration if duration > 0 else 0
 
             return ScrapeResult(
-                url=task.url, jobs=jobs, duration=duration, success=True, jobs_per_second=jobs_per_second
+                url=task.url,
+                jobs=jobs,
+                duration=duration,
+                success=True,
+                jobs_per_second=jobs_per_second,
             )
 
         except Exception as e:
             duration = time.time() - start_time
             logger.error(f"Scraping failed for {task.url}: {e}")
 
-            return ScrapeResult(url=task.url, jobs=[], duration=duration, success=False, error=str(e))
+            return ScrapeResult(
+                url=task.url, jobs=[], duration=duration, success=False, error=str(e)
+            )
 
     async def scrape_multiple_async(
         self, urls: List[str], fetch_descriptions: bool = True, max_concurrent: int = 10
@@ -215,7 +245,15 @@ class ConcurrentJobScraper:
         final_results = []
         for i, result in enumerate(results):
             if isinstance(result, Exception):
-                final_results.append(ScrapeResult(url=urls[i], jobs=[], duration=0.0, success=False, error=str(result)))
+                final_results.append(
+                    ScrapeResult(
+                        url=urls[i],
+                        jobs=[],
+                        duration=0.0,
+                        success=False,
+                        error=str(result),
+                    )
+                )
             else:
                 final_results.append(result)
 
@@ -230,7 +268,9 @@ class ConcurrentJobScraper:
 
         return final_results
 
-    async def _scrape_single_async(self, url: str, fetch_descriptions: bool) -> ScrapeResult:
+    async def _scrape_single_async(
+        self, url: str, fetch_descriptions: bool
+    ) -> ScrapeResult:
         """Scrape a single URL asynchronously."""
         start_time = time.time()
 
@@ -241,11 +281,19 @@ class ConcurrentJobScraper:
             duration = time.time() - start_time
             jobs_per_second = len(jobs) / duration if duration > 0 else 0
 
-            return ScrapeResult(url=url, jobs=jobs, duration=duration, success=True, jobs_per_second=jobs_per_second)
+            return ScrapeResult(
+                url=url,
+                jobs=jobs,
+                duration=duration,
+                success=True,
+                jobs_per_second=jobs_per_second,
+            )
 
         except Exception as e:
             duration = time.time() - start_time
-            return ScrapeResult(url=url, jobs=[], duration=duration, success=False, error=str(e))
+            return ScrapeResult(
+                url=url, jobs=[], duration=duration, success=False, error=str(e)
+            )
 
 
 def _scrape_task_worker(task: ScrapeTask) -> ScrapeResult:
@@ -261,11 +309,19 @@ def _scrape_task_worker(task: ScrapeTask) -> ScrapeResult:
         duration = time.time() - start_time
         jobs_per_second = len(jobs) / duration if duration > 0 else 0
 
-        return ScrapeResult(url=task.url, jobs=jobs, duration=duration, success=True, jobs_per_second=jobs_per_second)
+        return ScrapeResult(
+            url=task.url,
+            jobs=jobs,
+            duration=duration,
+            success=True,
+            jobs_per_second=jobs_per_second,
+        )
 
     except Exception as e:
         duration = time.time() - start_time
-        return ScrapeResult(url=task.url, jobs=[], duration=duration, success=False, error=str(e))
+        return ScrapeResult(
+            url=task.url, jobs=[], duration=duration, success=False, error=str(e)
+        )
 
 
 # Convenience functions for easy usage
@@ -307,20 +363,29 @@ def benchmark_scraper_performance(urls: List[str]) -> Dict:
             sequential_jobs.extend(jobs)
         except BaseException:
             pass
-    results["sequential"] = {"time": time.time() - start_time, "jobs": len(sequential_jobs)}
+    results["sequential"] = {
+        "time": time.time() - start_time,
+        "jobs": len(sequential_jobs),
+    }
 
     # Concurrent threads benchmark
     start_time = time.time()
     scraper = ConcurrentJobScraper(use_processes=False)
     thread_results = scraper.scrape_multiple_concurrent(urls, fetch_descriptions=False)
     concurrent_jobs = sum(len(r.jobs) for r in thread_results if r.success)
-    results["concurrent_threads"] = {"time": time.time() - start_time, "jobs": concurrent_jobs}
+    results["concurrent_threads"] = {
+        "time": time.time() - start_time,
+        "jobs": concurrent_jobs,
+    }
 
     # Concurrent processes benchmark
     start_time = time.time()
     scraper = ConcurrentJobScraper(use_processes=True)
     process_results = scraper.scrape_multiple_concurrent(urls, fetch_descriptions=False)
     process_jobs = sum(len(r.jobs) for r in process_results if r.success)
-    results["concurrent_processes"] = {"time": time.time() - start_time, "jobs": process_jobs}
+    results["concurrent_processes"] = {
+        "time": time.time() - start_time,
+        "jobs": process_jobs,
+    }
 
     return results

@@ -28,20 +28,28 @@ class CompanyConfig:
     def __post_init__(self):
         """Validate company configuration."""
         if not self.id or not self.board_type or not self.url:
-            raise ConfigurationException("Invalid company config: missing required fields")
+            raise ConfigurationException(
+                "Invalid company config: missing required fields"
+            )
 
         # Validate URL
         try:
             parsed = urlparse(self.url)
             if not parsed.scheme or not parsed.netloc:
-                raise ConfigurationException(f"Invalid URL for company {self.id}: {self.url}")
+                raise ConfigurationException(
+                    f"Invalid URL for company {self.id}: {self.url}"
+                )
 
             # Security: Only allow HTTPS URLs (or HTTP for localhost/testing)
-            if parsed.scheme not in ('https', 'http'):
-                raise ConfigurationException(f"URL must use HTTP or HTTPS protocol for company {self.id}: {self.url}")
+            if parsed.scheme not in ("https", "http"):
+                raise ConfigurationException(
+                    f"URL must use HTTP or HTTPS protocol for company {self.id}: {self.url}"
+                )
 
-            if parsed.scheme == 'http' and not parsed.netloc.startswith('localhost'):
-                logger.warning(f"Company {self.id} uses insecure HTTP (not HTTPS): {self.url}")
+            if parsed.scheme == "http" and not parsed.netloc.startswith("localhost"):
+                logger.warning(
+                    f"Company {self.id} uses insecure HTTP (not HTTPS): {self.url}"
+                )
 
         except Exception as e:
             raise ConfigurationException(f"Invalid URL for company {self.id}: {e}")
@@ -55,7 +63,9 @@ class CompanyConfig:
             "smartrecruiters",
         ]
         if self.board_type not in supported_boards:
-            logger.warning(f"Board type '{self.board_type}' for {self.id} may not be fully supported")
+            logger.warning(
+                f"Board type '{self.board_type}' for {self.id} may not be fully supported"
+            )
 
 
 @dataclass
@@ -101,7 +111,9 @@ class FilterConfig:
             raise ConfigurationException("title_allowlist cannot be empty")
 
         if not 0 <= self.immediate_alert_threshold <= 1:
-            raise ConfigurationException("immediate_alert_threshold must be between 0 and 1")
+            raise ConfigurationException(
+                "immediate_alert_threshold must be between 0 and 1"
+            )
 
         if not 0 <= self.digest_min_score <= 1:
             raise ConfigurationException("digest_min_score must be between 0 and 1")
@@ -124,7 +136,10 @@ class NotificationConfig:
 
     def validate_slack(self) -> bool:
         """Check if Slack notifications are properly configured."""
-        return bool(self.slack_webhook_url and self.slack_webhook_url.startswith("https://hooks.slack.com/"))
+        return bool(
+            self.slack_webhook_url
+            and self.slack_webhook_url.startswith("https://hooks.slack.com/")
+        )
 
 
 class ConfigManager:
@@ -142,10 +157,14 @@ class ConfigManager:
         candidates.extend(Path(p) for p in fallback_paths)
 
         self._candidate_paths = candidates
-        self.config_path = next((p for p in candidates if p.exists()), Path(config_path))
+        self.config_path = next(
+            (p for p in candidates if p.exists()), Path(config_path)
+        )
         self.env_path = Path(env_path)
         self._config_data: Optional[Dict[str, Any]] = None
-        self.database_url: str = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///data/jobs.sqlite")
+        self.database_url: str = os.getenv(
+            "DATABASE_URL", "sqlite+aiosqlite:///data/jobs.sqlite"
+        )
 
     def load_config(self) -> Dict[str, Any]:
         """Load and validate complete configuration."""
@@ -192,7 +211,9 @@ class ConfigManager:
             try:
                 CompanyConfig(**company_data)
             except Exception as e:
-                raise ConfigurationException(f"Invalid company config at index {i}: {e}")
+                raise ConfigurationException(
+                    f"Invalid company config at index {i}: {e}"
+                )
 
         # Validate filters
         try:
@@ -215,7 +236,9 @@ class ConfigManager:
         )
 
         if not notification_config.validate_slack():
-            logger.warning("No notification methods configured. You will not receive alerts.")
+            logger.warning(
+                "No notification methods configured. You will not receive alerts."
+            )
 
         # Security validation
         self._validate_security()
@@ -279,7 +302,9 @@ class ConfigManager:
             keywords_exclude=self._config_data.get("keywords_exclude", []),
             location_constraints=self._config_data.get("location_constraints", []),
             salary_floor_usd=self._config_data.get("salary_floor_usd"),
-            immediate_alert_threshold=self._config_data.get("immediate_alert_threshold", 0.9),
+            immediate_alert_threshold=self._config_data.get(
+                "immediate_alert_threshold", 0.9
+            ),
             max_matches_per_run=self._config_data.get("max_matches_per_run", 50),
         )
 

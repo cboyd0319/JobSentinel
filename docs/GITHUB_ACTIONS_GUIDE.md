@@ -25,13 +25,13 @@ This document outlines the enhanced GitHub Actions workflows that provide compre
 **Triggers**: Push/PR to `main` or `develop`, manual dispatch with scan type selection
 
 **Security Tools**:
-- **CodeQL**: GitHub's semantic code analysis
-- **Bandit**: Python-specific security linting
-- **Safety**: Known vulnerability scanning
-- **Semgrep**: Pattern-based security analysis
-- **Prowler**: CIS benchmark compliance for GitHub
-- **TruffleHog**: Secret detection
-- **YAML Lint**: Configuration validation
+- **CodeQL** – Semantic code analysis for Python
+- **Bandit** – Python security linting with SARIF upload
+- **OSV Scanner** – Open source vulnerability auditing (JSON/SARIF)
+- **Semgrep** – Pattern-based security analysis (containerized)
+- **Prowler** – GitHub CIS benchmark (optional via secret)
+- **TruffleHog** – Verified secret detection
+- **YAML Lint** – Workflow/config validation
 
 **Security Enhancements**:
 - `persist-credentials: false` on all checkouts
@@ -53,11 +53,12 @@ This document outlines the enhanced GitHub Actions workflows that provide compre
 
 ### ⚡ Caching Strategy
 ```yaml
-# Python dependency caching
-- uses: actions/setup-python@v5
+# Python dependency caching (pinned to Python 3.12.10)
+- uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
   with:
-    cache: 'pip'
-    cache-dependency-path: 'requirements.txt'
+    python-version: '3.12.10'
+    cache: pip
+    cache-dependency-path: requirements.txt
 ```
 
 ### 🚀 Parallel Execution
@@ -68,10 +69,9 @@ This document outlines the enhanced GitHub Actions workflows that provide compre
 
 ### 📦 Optimized Dependencies
 ```bash
-# Install security tools without dependencies first
-pip install --no-deps bandit[toml] safety
-# Then install project dependencies
-pip install -r requirements.txt
+python -m pip install --upgrade pip
+python -m pip install --no-deps bandit[toml] bandit-sarif-formatter
+python -m pip install -r requirements.txt
 ```
 
 ## Security Best Practices

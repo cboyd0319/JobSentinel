@@ -155,7 +155,7 @@ function Test-UpdateAvailable {
     .OUTPUTS
         Boolean indicating if update is available
     .EXAMPLE
-        if (Test-UpdateAvailable -CurrentVersion "1.0.0") { ... }
+        if (Test-UpdateAvailable -CurrentVersion "0.4.5") { ... }
     #>
     [CmdletBinding()]
     [OutputType([bool])]

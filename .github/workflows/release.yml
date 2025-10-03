@@ -5,7 +5,6 @@ on:
     branches:
       - main
 
-# default: least privileged permissions across all jobs
 permissions:
   contents: read
 
@@ -15,34 +14,38 @@ jobs:
     concurrency:
       group: ${{ github.workflow }}-release-${{ github.ref_name }}
       cancel-in-progress: false
-
     permissions:
+      contents: write
       id-token: write
       attestations: write
-      contents: write
       pull-requests: write
       issues: write
-
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
         with:
           fetch-depth: 0
           ref: ${{ github.sha }}
           persist-credentials: false
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12.10'
+
       - name: Checkout commit for release
-        run: |
-          git checkout -B ${{ github.ref_name }} ${{ github.sha }}
-      # On main branch: actual PSR + upload to GitHub
+        run: git checkout -B ${{ github.ref_name }} ${{ github.sha }}
+
       - name: Release
-        uses: python-semantic-release/python-semantic-release@v10.4.1
         id: release
         if: github.ref_name == 'main'
+        uses: python-semantic-release/python-semantic-release@8b1ced9dfd29704d6d781541a224c5abc06cc4e4
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Attest build provenance
-        uses: actions/attest-build-provenance@v2
         if: steps.release.outputs.released == 'true'
+        uses: actions/attest-build-provenance@bdd51370e0416ac948727f861e03c2f05d32d78e
         with:
-          subject-path: "dist/*"
+          subject-path: 'dist/*'

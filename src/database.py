@@ -70,7 +70,9 @@ async def add_job(job_data: dict) -> Job:
     try:
         async with AsyncSession(async_engine) as session:
             # Check if job already exists
-            existing_job = await session.exec(select(Job).where(Job.hash == job_data["hash"]))
+            existing_job = await session.exec(
+                select(Job).where(Job.hash == job_data["hash"])
+            )
             existing_job = existing_job.first()
 
             if existing_job:
@@ -103,11 +105,15 @@ async def add_job(job_data: dict) -> Job:
                 logger.debug(f"Added new job: {job.title}")
                 return job
     except Exception as e:
-        logger.error(f"Failed to add/update job {job_data.get('title', 'Unknown')}: {e}")
+        logger.error(
+            f"Failed to add/update job {job_data.get('title', 'Unknown')}: {e}"
+        )
         raise DatabaseException("add_job", str(e), e)
 
 
-async def get_jobs_for_digest(min_score: float = 0.0, hours_back: int = 24) -> list[Job]:
+async def get_jobs_for_digest(
+    min_score: float = 0.0, hours_back: int = 24
+) -> list[Job]:
     """Get jobs that should be included in digest, with a minimum score."""
     try:
         async with AsyncSession(async_engine) as session:
@@ -176,12 +182,12 @@ async def mark_jobs_alert_sent_batch(job_ids: list[int]):
         async with AsyncSession(async_engine) as session:
             # Bulk update using SQLAlchemy update statement
             from sqlalchemy import update
+
             stmt = (
                 update(Job)
                 .where(Job.id.in_(job_ids))
                 .values(
-                    immediate_alert_sent=True,
-                    alert_sent_at=datetime.now(timezone.utc)
+                    immediate_alert_sent=True, alert_sent_at=datetime.now(timezone.utc)
                 )
             )
             await session.execute(stmt)
@@ -202,10 +208,14 @@ async def get_database_stats() -> dict:
 
             # Jobs added in last 24 hours
             yesterday = datetime.now(timezone.utc) - timedelta(hours=24)
-            recent_jobs = await session.exec(select(func.count(Job.id)).where(Job.created_at >= yesterday)).scalar_one()
+            recent_jobs = await session.exec(
+                select(func.count(Job.id)).where(Job.created_at >= yesterday)
+            ).scalar_one()
 
             # High score jobs (>= 0.8)
-            high_score_jobs = await session.exec(select(func.count(Job.id)).where(Job.score >= 0.8)).scalar_one()
+            high_score_jobs = await session.exec(
+                select(func.count(Job.id)).where(Job.score >= 0.8)
+            ).scalar_one()
 
             return {
                 "total_jobs": total_jobs,

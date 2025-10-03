@@ -1,6 +1,6 @@
-name: CI/CD Pipeline (Optimized)
+name: CI/CD Pipeline
 
-'on':
+on:
   push:
     branches: [main, develop]
   pull_request:
@@ -8,7 +8,6 @@ name: CI/CD Pipeline (Optimized)
 
 permissions:
   contents: read
-  actions: read
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -24,10 +23,11 @@ jobs:
       docs-only: ${{ steps.changes.outputs.docs-only }}
       workflows: ${{ steps.changes.outputs.workflows }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
         with:
           persist-credentials: false
-      - uses: dorny/paths-filter@v3
+
+      - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36
         id: changes
         with:
           filters: |
@@ -71,50 +71,120 @@ jobs:
         needs.changes.outputs.core-python == 'true' ||
         needs.changes.outputs.workflows == 'true'
       )
-    name: Fast Primary Test (Ubuntu + Python 3.13)
+    name: Fast Primary Test (Ubuntu, Python 3.12)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
         with:
           persist-credentials: false
 
-      - name: Set up Python 3.13
-        uses: actions/setup-python@v5
+      - name: Set up Python 3.12
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
         with:
-          python-version: '3.13'
-          cache: 'pip'
-          cache-dependency-path: 'requirements.txt'
+          python-version: '3.12.10'
+          cache: pip
+          cache-dependency-path: requirements.txt
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          python -m pip install -r requirements.txt
 
       - name: Run basic syntax check
         run: |
           find . -name "*.py" -not -path "./.venv/*" -not -path "./build/*" \
-            -exec python3 -m py_compile {} +
+            -exec python -m py_compile {} +
 
       - name: Test database functionality
         run: |
           cp .env.example .env
-          mkdir -p data
-          mkdir -p config
+          mkdir -p data config
           cp config/user_prefs.example.json config/user_prefs.json
           chmod 600 .env || true
-          python3 -c "
-          import os
+          python - <<'PY'
           import asyncio
-          os.environ['CI'] = 'true'
           from src.database import init_db, get_database_stats
+
           async def test_db():
               await init_db()
               stats = await get_database_stats()
               print('Database initialization and stats check passed')
               print(f'Database stats: {stats}')
+
           asyncio.run(test_db())
-          "
+          PY
+
+  code-quality:
+    needs: changes
+    if: needs.changes.outputs.core-python == 'true'
+    name: Code Quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+        with:
+          persist-credentials: false
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+        with:
+          python-version: '3.12.10'
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@a1502cd9e758c50496cc9ac5308c4843bcd56d36
+        with:
+          terraform_version: 1.6.6
+
+      - name: Terraform Init
+        run: terraform -chdir=terraform/gcp/ init -backend=false
+
+      - name: Terraform Format Check
+        id: fmt
+        run: terraform -chdir=terraform/gcp/ fmt -check -recursive
+        continue-on-error: true
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform -chdir=terraform/gcp/ validate
+
+      - name: Terraform Plan (no changes expected)
+        id: plan
+        if: ${{ secrets.GCP_SA_KEY != '' || secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON != '' }}
+        run: |
+          terraform -chdir=terraform/gcp/ plan -detailed-exitcode \
+            -var="project_id=dummy-project" \
+            -var="region=us-central1" \
+            -var="billing_account_id=dummy-billing" \
+            -var="source_repo=dummy/repo" \
+            -var="alert_email_address=test@example.com"
+        continue-on-error: true
+
+      - name: Skip Terraform plan (no credentials)
+        if: ${{ !(secrets.GCP_SA_KEY != '' || secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON != '') }}
+        run: echo "Terraform plan skipped because no GCP credentials are configured in CI."
+
+      - name: Report Terraform format issues
+        if: steps.fmt.outcome == 'failure'
+        run: |
+          echo "Terraform format check failed. Run 'terraform fmt -recursive terraform/gcp/' locally to fix."
+          exit 1
+
+      - name: Report Terraform plan changes
+        if: steps.plan.outcome == 'failure'
+        run: |
+          echo "Terraform plan reported unexpected changes or errors. Review terraform/gcp/."
+          exit 1
+
+      - name: Lint with flake8
+        run: flake8 src/ utils/ sources/ notify/ matchers/
 
   cross-platform-test:
     needs: [changes, primary-test, code-quality]
@@ -125,116 +195,69 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ['3.13']
+        python-version: ['3.12.10']
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
         with:
           persist-credentials: false
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+      - name: Set up Python
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
         with:
           python-version: ${{ matrix.python-version }}
-          cache: 'pip'
-          cache-dependency-path: 'requirements.txt'
 
       - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Prepare configuration
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          python - <<'PY'
+          from pathlib import Path
+          import shutil
+
+          repo = Path.cwd()
+          env_src = repo / '.env.example'
+          env_dst = repo / '.env'
+          config_dir = repo / 'config'
+          data_dir = repo / 'data'
+          prefs_src = config_dir / 'user_prefs.example.json'
+          prefs_dst = config_dir / 'user_prefs.json'
+
+          if env_src.exists():
+              shutil.copyfile(env_src, env_dst)
+              try:
+                  env_dst.chmod(0o600)
+              except OSError:
+                  pass
+
+          config_dir.mkdir(parents=True, exist_ok=True)
+          data_dir.mkdir(parents=True, exist_ok=True)
+
+          if prefs_src.exists():
+              shutil.copyfile(prefs_src, prefs_dst)
+          PY
 
       - name: Test core functionality
-        run: |
-          python -m src.agent --mode health
-
-  code-quality:
-    needs: changes
-    if: needs.changes.outputs.core-python == 'true'
-    name: Code Quality
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-        with:
-          persist-credentials: false
-
-      - name: Set up Python 3.13
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'
-          cache: 'pip'
-          cache-dependency-path: 'requirements.txt'
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: 1.x
-
-      - name: Terraform Init
-        run: terraform init -backend=false terraform/gcp/
-
-      - name: Terraform Format Check
-        id: fmt
-        run: terraform fmt -check -recursive terraform/gcp/
-        continue-on-error: true
-
-      - name: Terraform Validate
-        id: validate
-        run: terraform validate terraform/gcp/
-
-      - name: Terraform Plan (no changes expected)
-        id: plan
-        run: |
-          terraform plan -detailed-exitcode \
-            -var="project_id=dummy-project" \
-            -var="region=us-central1" \
-            -var="billing_account_id=dummy-billing" \
-            -var="source_repo=dummy/repo" \
-            -var="alert_email_address=test@example.com" \
-            terraform/gcp/
-        continue-on-error: true
-
-      - name: Report Terraform Format Issues
-        if: steps.fmt.outcome == 'failure'
-        run: |
-          echo "Terraform format check failed. Run 'terraform fmt -recursive terraform/gcp/' to fix."
-          exit 1
-
-      - name: Report Terraform Plan Changes
-        if: steps.plan.outcome == 'failure'
-        run: |
-          echo "Terraform plan detected changes. Ensure your Terraform configuration is up-to-date."
-          exit 1
-
-      - name: Lint with flake8
-        run: flake8 src/ utils/ sources/ notify/ matchers/
-
-      # Note: pytest removed - no tests/ directory exists yet
-      # TODO: Add unit tests and re-enable pytest
+        run: python -m src.agent --mode health
 
   type-check:
     needs: [changes, code-quality]
     if: needs.changes.outputs.core-python == 'true'
-    name: Type Check (Mypy)
+    name: Type Check (mypy)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
         with:
           persist-credentials: false
 
-      - name: Set up Python 3.13
-        uses: actions/setup-python@v5
+      - name: Set up Python 3.12
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
         with:
-          python-version: '3.13'
-          cache: 'pip'
-          cache-dependency-path: 'requirements.txt'
+          python-version: '3.12.10'
+          cache: pip
+          cache-dependency-path: requirements.txt
 
       - name: Install dependencies
         run: |
@@ -242,7 +265,5 @@ jobs:
           python -m pip install -r requirements.txt
           python -m pip install mypy types-requests types-setuptools
 
-      - name: Run Mypy
+      - name: Run mypy
         run: mypy src/ utils/ sources/ notify/ matchers/ --ignore-missing-imports --no-strict-optional
-
-

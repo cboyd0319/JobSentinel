@@ -8,7 +8,7 @@ from pathlib import Path
 
 
 # Version management
-__version__ = "1.0.0"
+__version__ = "0.4.5"
 
 
 def get_version():

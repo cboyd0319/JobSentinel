@@ -20,12 +20,14 @@ import logging
 # Optional dependencies - will check at runtime
 try:
     import pdfplumber
+
     HAS_PDF = True
 except ImportError:
     HAS_PDF = False
 
 try:
     from docx import Document
+
     HAS_DOCX = True
 except ImportError:
     HAS_DOCX = False
@@ -37,49 +39,152 @@ logger = logging.getLogger(__name__)
 # Common tech skills/keywords to look for
 COMMON_SKILLS = {
     # Programming Languages
-    "python", "javascript", "java", "go", "golang", "rust", "c++", "c#", "ruby",
-    "typescript", "php", "swift", "kotlin", "scala", "r", "shell", "bash",
-
+    "python",
+    "javascript",
+    "java",
+    "go",
+    "golang",
+    "rust",
+    "c++",
+    "c#",
+    "ruby",
+    "typescript",
+    "php",
+    "swift",
+    "kotlin",
+    "scala",
+    "r",
+    "shell",
+    "bash",
     # Cloud & Infrastructure
-    "aws", "azure", "gcp", "google cloud", "kubernetes", "k8s", "docker",
-    "terraform", "ansible", "jenkins", "circleci", "github actions",
-    "cloudformation", "helm", "istio", "prometheus", "grafana",
-
+    "aws",
+    "azure",
+    "gcp",
+    "google cloud",
+    "kubernetes",
+    "k8s",
+    "docker",
+    "terraform",
+    "ansible",
+    "jenkins",
+    "circleci",
+    "github actions",
+    "cloudformation",
+    "helm",
+    "istio",
+    "prometheus",
+    "grafana",
     # Security
-    "security", "infosec", "appsec", "devsecops", "penetration testing",
-    "vulnerability", "owasp", "siem", "soc", "iam", "zero trust",
-    "encryption", "cryptography", "oauth", "saml", "ssl/tls",
-
+    "security",
+    "infosec",
+    "appsec",
+    "devsecops",
+    "penetration testing",
+    "vulnerability",
+    "owasp",
+    "siem",
+    "soc",
+    "iam",
+    "zero trust",
+    "encryption",
+    "cryptography",
+    "oauth",
+    "saml",
+    "ssl/tls",
     # Databases
-    "postgresql", "postgres", "mysql", "mongodb", "redis", "elasticsearch",
-    "dynamodb", "cassandra", "sql", "nosql", "database",
-
+    "postgresql",
+    "postgres",
+    "mysql",
+    "mongodb",
+    "redis",
+    "elasticsearch",
+    "dynamodb",
+    "cassandra",
+    "sql",
+    "nosql",
+    "database",
     # Web & API
-    "rest", "api", "graphql", "http", "microservices", "grpc",
-    "fastapi", "flask", "django", "react", "vue", "angular", "node.js",
-
+    "rest",
+    "api",
+    "graphql",
+    "http",
+    "microservices",
+    "grpc",
+    "fastapi",
+    "flask",
+    "django",
+    "react",
+    "vue",
+    "angular",
+    "node.js",
     # DevOps & Tools
-    "ci/cd", "git", "linux", "unix", "monitoring", "logging",
-    "observability", "agile", "scrum", "jira", "confluence",
-
+    "ci/cd",
+    "git",
+    "linux",
+    "unix",
+    "monitoring",
+    "logging",
+    "observability",
+    "agile",
+    "scrum",
+    "jira",
+    "confluence",
     # Data & ML
-    "machine learning", "ml", "ai", "data science", "pandas", "numpy",
-    "pytorch", "tensorflow", "scikit-learn", "spark", "hadoop",
+    "machine learning",
+    "ml",
+    "ai",
+    "data science",
+    "pandas",
+    "numpy",
+    "pytorch",
+    "tensorflow",
+    "scikit-learn",
+    "spark",
+    "hadoop",
 }
 
 # Common job title keywords
 TITLE_KEYWORDS = {
-    "engineer", "developer", "architect", "lead", "senior", "staff",
-    "principal", "manager", "director", "devops", "sre", "security",
-    "software", "backend", "frontend", "full stack", "fullstack",
-    "data", "ml", "platform", "infrastructure", "cloud", "qa", "test",
+    "engineer",
+    "developer",
+    "architect",
+    "lead",
+    "senior",
+    "staff",
+    "principal",
+    "manager",
+    "director",
+    "devops",
+    "sre",
+    "security",
+    "software",
+    "backend",
+    "frontend",
+    "full stack",
+    "fullstack",
+    "data",
+    "ml",
+    "platform",
+    "infrastructure",
+    "cloud",
+    "qa",
+    "test",
 }
 
 # Seniority blocklist terms
 SENIORITY_BLOCKLIST = {
-    "intern", "internship", "junior", "entry level", "contract",
-    "contractor", "consultant", "temporary", "temp", "part time",
-    "part-time", "freelance",
+    "intern",
+    "internship",
+    "junior",
+    "entry level",
+    "contract",
+    "contractor",
+    "consultant",
+    "temporary",
+    "temp",
+    "part time",
+    "part-time",
+    "freelance",
 }
 
 
@@ -174,7 +279,7 @@ class ResumeParser:
         # Find all matching skills
         for skill in COMMON_SKILLS:
             # Use word boundaries to avoid partial matches
-            pattern = r'\b' + re.escape(skill.lower()) + r'\b'
+            pattern = r"\b" + re.escape(skill.lower()) + r"\b"
             if re.search(pattern, text_lower):
                 # Store in original case from COMMON_SKILLS
                 self.skills.add(skill.title() if len(skill) > 3 else skill.upper())
@@ -184,9 +289,13 @@ class ResumeParser:
         # Look for common title patterns
         # Pattern: (Title) at (Company) or (Title) - (Company)
         title_patterns = [
-            r'(?i)(senior|staff|principal|lead)?\s*(software|security|devops|platform|backend|frontend|data|ml)\s*(engineer|developer|architect)',
-            r'(?i)(senior|staff|principal|lead)?\s*(site reliability engineer|sre)',
-            r'(?i)(technical lead|tech lead|team lead)',
+            (
+                r"(?i)(senior|staff|principal|lead)?\s*"
+                r"(software|security|devops|platform|backend|frontend|data|ml)\s*"
+                r"(engineer|developer|architect)"
+            ),
+            r"(?i)(senior|staff|principal|lead)?\s*(site reliability engineer|sre)",
+            r"(?i)(technical lead|tech lead|team lead)",
         ]
 
         for pattern in title_patterns:
@@ -208,8 +317,10 @@ class ResumeParser:
         """Extract company names from resume text."""
         # Look for patterns like "at Company" or "@ Company"
         company_patterns = [
-            r'(?:at|@)\s+([A-Z][A-Za-z0-9\s&]+?)(?:\s+[-•|]|\s*\n|,\s)',
-            r'([A-Z][A-Za-z0-9\s&]+?)(?:\s+[-•|]\s+(?:' + '|'.join(TITLE_KEYWORDS) + '))',
+            r"(?:at|@)\s+([A-Z][A-Za-z0-9\s&]+?)(?:\s+[-•|]|\s*\n|,\s)",
+            r"([A-Z][A-Za-z0-9\s&]+?)(?:\s+[-•|]\s+(?:"
+            + "|".join(TITLE_KEYWORDS)
+            + "))",
         ]
 
         for pattern in company_patterns:
@@ -217,8 +328,11 @@ class ResumeParser:
             for match in matches:
                 company = match.strip()
                 # Filter out common false positives
-                if (len(company) > 2 and len(company) < 50
-                    and company.lower() not in TITLE_KEYWORDS):
+                if (
+                    len(company) > 2
+                    and len(company) < 50
+                    and company.lower() not in TITLE_KEYWORDS
+                ):
                     self.companies.append(company)
 
         # Deduplicate
@@ -229,9 +343,9 @@ class ResumeParser:
         """Extract education information."""
         # Look for degree keywords
         degree_patterns = [
-            r'(?i)(bachelor|b\.s\.|bs|ba|b\.a\.)\s+(?:of\s+)?(?:science\s+)?(?:in\s+)?([A-Za-z\s]+)',
-            r'(?i)(master|m\.s\.|ms|ma|m\.a\.|mba)\s+(?:of\s+)?(?:science\s+)?(?:in\s+)?([A-Za-z\s]+)',
-            r'(?i)(phd|ph\.d\.|doctorate)\s+(?:in\s+)?([A-Za-z\s]+)',
+            r"(?i)(bachelor|b\.s\.|bs|ba|b\.a\.)\s+(?:of\s+)?(?:science\s+)?(?:in\s+)?([A-Za-z\s]+)",
+            r"(?i)(master|m\.s\.|ms|ma|m\.a\.|mba)\s+(?:of\s+)?(?:science\s+)?(?:in\s+)?([A-Za-z\s]+)",
+            r"(?i)(phd|ph\.d\.|doctorate)\s+(?:in\s+)?([A-Za-z\s]+)",
         ]
 
         for pattern in degree_patterns:
@@ -252,7 +366,7 @@ class ResumeParser:
         """Estimate years of experience from dates."""
         # Look for date ranges (e.g., "2020 - 2023", "Jan 2020 - Present")
         date_patterns = [
-            r'(19|20)\d{2}\s*[-–—]\s*(?:(19|20)\d{2}|present|current)',
+            r"(19|20)\d{2}\s*[-–—]\s*(?:(19|20)\d{2}|present|current)",
         ]
 
         years = set()
@@ -266,6 +380,7 @@ class ResumeParser:
         if years:
             # Rough estimate: current year - earliest year
             import datetime
+
             current_year = datetime.datetime.now().year
             self.years_experience = current_year - min(years)
 
@@ -296,20 +411,24 @@ class ResumeParser:
             Dictionary in user_prefs.json format
         """
         # Start with existing prefs or defaults
-        prefs = existing_prefs.copy() if existing_prefs else {
-            "companies": [],
-            "title_allowlist": [],
-            "title_blocklist": [],
-            "keywords_boost": [],
-            "keywords_exclude": [],
-            "location_constraints": ["Remote", "US", "United States"],
-            "immediate_alert_threshold": 0.9,
-            "digest_min_score": 0.7,
-            "max_companies_per_run": 15,
-            "fetch_descriptions": True,
-            "use_llm": False,
-            "llm_weight": 0.5,
-        }
+        prefs = (
+            existing_prefs.copy()
+            if existing_prefs
+            else {
+                "companies": [],
+                "title_allowlist": [],
+                "title_blocklist": [],
+                "keywords_boost": [],
+                "keywords_exclude": [],
+                "location_constraints": ["Remote", "US", "United States"],
+                "immediate_alert_threshold": 0.9,
+                "digest_min_score": 0.7,
+                "max_companies_per_run": 15,
+                "fetch_descriptions": True,
+                "use_llm": False,
+                "llm_weight": 0.5,
+            }
+        )
 
         # Add extracted titles to allowlist
         if self.titles:
@@ -321,10 +440,14 @@ class ResumeParser:
             prefs["title_allowlist"] = sorted(list(existing_titles))
 
         # Add common seniority blocklist
-        prefs["title_blocklist"] = sorted(list(set(
-            prefs.get("title_blocklist", []) +
-            ["Intern", "Junior", "Manager", "Director", "VP", "Contract"]
-        )))
+        prefs["title_blocklist"] = sorted(
+            list(
+                set(
+                    prefs.get("title_blocklist", [])
+                    + ["Intern", "Junior", "Manager", "Director", "VP", "Contract"]
+                )
+            )
+        )
 
         # Add extracted skills to boost keywords
         if self.skills:
@@ -337,8 +460,7 @@ class ResumeParser:
             # Rough estimate: $50k base + $20k per year experience
             # Capped at reasonable ranges
             salary_floor = min(
-                50000 + (self.years_experience * 20000),
-                300000  # Cap at $300k
+                50000 + (self.years_experience * 20000), 300000  # Cap at $300k
             )
 
         if salary_floor:

@@ -40,7 +40,12 @@ class RateLimiter:
 class WebScraper:
     """Handles web scraping operations with rate limiting and Playwright support."""
 
-    def __init__(self, headless: bool = True, rate_limit_calls: int = 1, rate_limit_period: float = 1.0):
+    def __init__(
+        self,
+        headless: bool = True,
+        rate_limit_calls: int = 1,
+        rate_limit_period: float = 1.0,
+    ):
         self.headless = headless
         self.rate_limiter = RateLimiter(rate_limit_calls, rate_limit_period)
         self.browser = None
@@ -75,7 +80,9 @@ class WebScraper:
             response.raise_for_status()  # Raise an exception for 4xx/5xx responses
             return response
 
-    async def fetch_with_playwright(self, url: str, wait_for_selector: Optional[str] = None) -> str:
+    async def fetch_with_playwright(
+        self, url: str, wait_for_selector: Optional[str] = None
+    ) -> str:
         """Fetches content from a URL using Playwright, handling JavaScript rendering."""
         async with self.rate_limiter:
             logger.debug(f"Fetching URL with Playwright: {url}")

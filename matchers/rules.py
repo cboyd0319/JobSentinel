@@ -1,4 +1,6 @@
-def score_job(job: dict, prefs: dict, use_llm: bool = None) -> tuple[float, list[str], dict]:
+def score_job(
+    job: dict, prefs: dict, use_llm: bool = None
+) -> tuple[float, list[str], dict]:
     """
     Applies rule-based scoring to a job, with optional LLM enhancement.
 
@@ -96,7 +98,9 @@ def score_job_rules_only(job: dict, prefs: dict) -> tuple[float, list[str]]:
         salary_found = _extract_salary(full_text)
         if salary_found:
             if salary_found < salary_floor:
-                return 0.0, [f"Rejected: Salary ${salary_found:,} below floor ${salary_floor:,}"]
+                return 0.0, [
+                    f"Rejected: Salary ${salary_found:,} below floor ${salary_floor:,}"
+                ]
             else:
                 score += 0.1
                 reasons.append(f"Salary ${salary_found:,} meets requirements")

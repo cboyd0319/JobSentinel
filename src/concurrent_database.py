@@ -93,7 +93,11 @@ class ConcurrentJobDatabase:
     """
 
     def __init__(
-        self, batch_size: int = 50, batch_timeout: float = 5.0, max_connections: int = 10, enable_batching: bool = True
+        self,
+        batch_size: int = 50,
+        batch_timeout: float = 5.0,
+        max_connections: int = 10,
+        enable_batching: bool = True,
     ):
         """
         Initialize the concurrent database handler.
@@ -120,13 +124,22 @@ class ConcurrentJobDatabase:
         self.connection_pool = DatabaseConnectionPool(max_connections)
 
         # Statistics
-        self._stats = {"jobs_saved": 0, "jobs_updated": 0, "batch_operations": 0, "total_time": 0.0}
+        self._stats = {
+            "jobs_saved": 0,
+            "jobs_updated": 0,
+            "batch_operations": 0,
+            "total_time": 0.0,
+        }
 
         # Background batch processor
         if enable_batching:
-            self._batch_thread = threading.Thread(target=self._batch_processor, daemon=True)
+            self._batch_thread = threading.Thread(
+                target=self._batch_processor, daemon=True
+            )
             self._batch_thread.start()
-            logger.info(f"Started batch processor: {batch_size} jobs, {batch_timeout}s timeout")
+            logger.info(
+                f"Started batch processor: {batch_size} jobs, {batch_timeout}s timeout"
+            )
 
     def save_job_concurrent(self, job_data: Dict, score: float = 0.0) -> bool:
         """
@@ -144,7 +157,9 @@ class ConcurrentJobDatabase:
         else:
             return self._save_job_immediate(job_data, score)
 
-    def save_jobs_batch(self, jobs_data: List[Dict], scores: Optional[List[float]] = None) -> int:
+    def save_jobs_batch(
+        self, jobs_data: List[Dict], scores: Optional[List[float]] = None
+    ) -> int:
         """
         Save multiple jobs in an optimized batch operation.
 
@@ -174,11 +189,15 @@ class ConcurrentJobDatabase:
                                 continue
 
                             # Check if job exists
-                            existing_job = session.exec(select(UnifiedJob).where(UnifiedJob.hash == job_hash)).first()
+                            existing_job = session.exec(
+                                select(UnifiedJob).where(UnifiedJob.hash == job_hash)
+                            ).first()
 
                             if existing_job:
                                 # Update existing job
-                                self._update_existing_job(existing_job, job_data, session)
+                                self._update_existing_job(
+                                    existing_job, job_data, session
+                                )
                                 saved_count += 1
                             else:
                                 # Create new job
@@ -204,17 +223,22 @@ class ConcurrentJobDatabase:
             self._stats["batch_operations"] += 1
             self._stats["total_time"] += duration
 
-        logger.info(f"Batch saved {saved_count}/{len(jobs_data)} jobs in {duration:.2f}s")
+        logger.info(
+            f"Batch saved {saved_count}/{len(jobs_data)} jobs in {duration:.2f}s"
+        )
         return saved_count
 
     def _add_to_batch(self, job_data: Dict, score: float) -> bool:
         """Add job to batch queue for later processing."""
         with self._batch_lock:
-            self._batch_queue.append(BatchJobData(job_data=job_data, score=score, timestamp=time.time()))
+            self._batch_queue.append(
+                BatchJobData(job_data=job_data, score=score, timestamp=time.time())
+            )
 
             # Check if we should flush the batch
             should_flush = (
-                len(self._batch_queue) >= self.batch_size or (time.time() - self._last_batch_time) >= self.batch_timeout
+                len(self._batch_queue) >= self.batch_size
+                or (time.time() - self._last_batch_time) >= self.batch_timeout
             )
 
             if should_flush:
@@ -244,7 +268,10 @@ class ConcurrentJobDatabase:
                 time.sleep(1)  # Check every second
 
                 with self._batch_lock:
-                    if self._batch_queue and (time.time() - self._last_batch_time) >= self.batch_timeout:
+                    if (
+                        self._batch_queue
+                        and (time.time() - self._last_batch_time) >= self.batch_timeout
+                    ):
                         self._flush_batch()
 
             except Exception as e:
@@ -266,7 +293,9 @@ class ConcurrentJobDatabase:
             logger.error(f"Immediate save failed: {e}")
             return False
 
-    def _update_existing_job(self, existing_job: UnifiedJob, job_data: Dict, session: Session):
+    def _update_existing_job(
+        self, existing_job: UnifiedJob, job_data: Dict, session: Session
+    ):
         """Update an existing job with new data."""
         from datetime import datetime, timezone
 
@@ -326,7 +355,9 @@ def get_concurrent_database() -> ConcurrentJobDatabase:
     return _global_db_handler
 
 
-def save_jobs_concurrent(jobs_data: List[Dict], scores: Optional[List[float]] = None) -> int:
+def save_jobs_concurrent(
+    jobs_data: List[Dict], scores: Optional[List[float]] = None
+) -> int:
     """
     Convenience function to save multiple jobs concurrently.
 

@@ -79,7 +79,7 @@ Describe 'Test-ValidEmailAddress' {
 
 Describe 'Test-ValidVersion' {
     It 'Returns true for valid semantic version' {
-        Test-ValidVersion '1.0.0' | Should -Be $true
+        Test-ValidVersion '0.4.5' | Should -Be $true
     }
 
     It 'Returns true for version with build number' {

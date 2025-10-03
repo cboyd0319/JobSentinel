@@ -2,27 +2,29 @@ name: PowerShell Quality
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
     paths:
       - '**.ps1'
       - '**.psm1'
       - '**.psd1'
       - 'PSScriptAnalyzerSettings.psd1'
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths:
       - '**.ps1'
       - '**.psm1'
       - '**.psd1'
 
+permissions:
+  contents: read
+
 jobs:
   lint:
     name: PSScriptAnalyzer
     runs-on: windows-latest
-
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
 
       - name: Install PSScriptAnalyzer
         shell: pwsh
@@ -33,29 +35,29 @@ jobs:
       - name: Run PSScriptAnalyzer
         shell: pwsh
         run: |
-          $results = Invoke-ScriptAnalyzer -Path . -Recurse -Settings PSScriptAnalyzerSettings.psd1 -Severity Error,Warning
-
+          $results = Invoke-ScriptAnalyzer `
+            -Path . `
+            -Recurse `
+            -Settings PSScriptAnalyzerSettings.psd1 `
+            -Severity Error,Warning
           if ($results) {
             Write-Host "PSScriptAnalyzer found issues:" -ForegroundColor Red
             $results | Format-Table -AutoSize File, Line, Severity, RuleName, Message
             exit 1
-          } else {
-            Write-Host "No PSScriptAnalyzer issues found!" -ForegroundColor Green
           }
+          Write-Host "No PSScriptAnalyzer issues found!" -ForegroundColor Green
 
       - name: Validate syntax
         shell: pwsh
-        run: |
-          powershell -NoProfile -ExecutionPolicy Bypass -File validate-syntax.ps1
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File validate-syntax.ps1
 
   test:
     name: Pester Tests
     runs-on: windows-latest
     needs: lint
-
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
 
       - name: Install Pester
         shell: pwsh
@@ -72,18 +74,17 @@ jobs:
           $config.CodeCoverage.Enabled = $true
           $config.TestResult.Enabled = $true
           $config.TestResult.OutputPath = 'test-results.xml'
-
           Invoke-Pester -Configuration $config
 
       - name: Upload test results
-        uses: actions/upload-artifact@v4
         if: always()
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874
         with:
           name: test-results
           path: test-results.xml
 
       - name: Publish test results
-        uses: EnricoMi/publish-unit-test-result-action/windows@v2
         if: always()
+        uses: EnricoMi/publish-unit-test-result-action/windows@3a74b2957438d0b6e2e61d67b05318aa25c9e6c6
         with:
           files: test-results.xml

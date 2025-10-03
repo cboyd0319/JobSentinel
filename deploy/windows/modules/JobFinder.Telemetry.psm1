@@ -65,7 +65,7 @@ function Write-TelemetryEvent {
         $entry = [ordered]@{
             timestamp = (Get-Date).ToUniversalTime().ToString('o')
             event = $Event
-            version = '1.0.0'
+            version = '0.4.5'
             os = [System.Environment]::OSVersion.VersionString
             ps_version = $PSVersionTable.PSVersion.ToString()
         }

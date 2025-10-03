@@ -1,6 +1,6 @@
 name: Security & Vulnerability Scanning
 
-"on":
+on:
   push:
     branches: [main, develop]
     paths:
@@ -18,13 +18,13 @@ name: Security & Vulnerability Scanning
       - 'Dockerfile'
       - 'pyproject.toml'
   schedule:
-    - cron: '0 2 * * 1'  # Weekly on Monday instead of daily (cost optimization)
+    - cron: '0 2 * * 1'
   workflow_dispatch:
     inputs:
       scan_type:
-        description: 'Security Scans'
+        description: 'Security scans to execute'
         required: true
-        default: 'full'
+        default: full
         type: choice
         options:
           - full
@@ -33,11 +33,8 @@ name: Security & Vulnerability Scanning
 
 permissions:
   contents: read
-  security-events: write
   actions: read
-  issues: write
-  pull-requests: write
-  id-token: write  # Required for secure OIDC token access
+  security-events: write
 
 concurrency:
   group: security-${{ github.ref }}
@@ -48,64 +45,71 @@ jobs:
     name: Python Security Bundle
     runs-on: ubuntu-latest
     if: github.actor != 'dependabot[bot]'
+    permissions:
+      contents: read
+      security-events: write
     outputs:
-      bandit: ${{ steps.bandit.outcome }}
+      bandit_status: ${{ steps.bandit.outcome }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
         with:
           persist-credentials: false
           fetch-depth: 0
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Set up Python 3.12
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
         with:
-          python-version: '3.13'  # Latest stable (Windows local uses 3.12.10)
-          cache: 'pip'
-          cache-dependency-path: 'requirements.txt'
+          python-version: '3.12.10'
+          cache: pip
+          cache-dependency-path: requirements.txt
 
       - name: Install security tooling
         run: |
           python -m pip install --upgrade pip
-          pip install --no-deps bandit[toml] bandit-sarif-formatter
-          pip install -r requirements.txt
+          python -m pip install --no-deps bandit[toml] bandit-sarif-formatter
+          python -m pip install -r requirements.txt
 
-      - name: Run Bandit Security Scan
+      - name: Run Bandit security scan
         id: bandit
         run: bandit -r . -x ./.venv -f sarif -o bandit-results.sarif || true
 
       - name: Upload Bandit SARIF
         if: always() && hashFiles('bandit-results.sarif') != ''
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@80cb6b56b93de3e779c7d476d9100d06fb87c877
         with:
           sarif_file: bandit-results.sarif
           category: bandit
 
   osv-scanner:
-    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.2.2
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@90b209d0ea55cea1da9fc0c4e65782cc6acb6e2e
 
   semgrep-scan:
-    name: semgrep/ci
+    name: Semgrep
     runs-on: ubuntu-latest
     if: >-
-      (github.actor != 'dependabot[bot]') &&
-      (github.event.inputs.scan_type == 'full' ||
-       !github.event.inputs.scan_type)
+      github.actor != 'dependabot[bot]' &&
+      (
+        github.event_name != 'workflow_dispatch' ||
+        github.event.inputs.scan_type != 'dependencies-only'
+      )
     permissions:
       contents: read
       security-events: write
     env:
       SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
     container:
-      image: semgrep/semgrep
+      image: semgrep/semgrep:1.72.0
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
         with:
           persist-credentials: false
+
       - run: semgrep scan --config auto --sarif --output semgrep-results.sarif .
+
       - name: Upload Semgrep SARIF
         if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@80cb6b56b93de3e779c7d476d9100d06fb87c877
         with:
           sarif_file: semgrep-results.sarif
           category: semgrep
@@ -115,7 +119,6 @@ jobs:
     runs-on: ubuntu-latest
     if: github.actor != 'dependabot[bot]'
     permissions:
-      actions: read
       contents: read
       security-events: write
     strategy:
@@ -124,22 +127,22 @@ jobs:
         language: ['python']
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
         with:
           persist-credentials: false
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@80cb6b56b93de3e779c7d476d9100d06fb87c877
         with:
           languages: ${{ matrix.language }}
 
       - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
+        uses: github/codeql-action/autobuild@80cb6b56b93de3e779c7d476d9100d06fb87c877
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@80cb6b56b93de3e779c7d476d9100d06fb87c877
         with:
-          category: "/language:${{matrix.language}}"
+          category: "/language:${{ matrix.language }}"
 
   prowler-github:
     name: GitHub CIS Benchmark
@@ -149,14 +152,14 @@ jobs:
       security-events: write
     outputs:
       enabled: ${{ steps.token_check.outputs.enabled }}
+      result: ${{ steps.prowler.outcome }}
     steps:
       - name: Check for Prowler token
         id: token_check
         run: |
           if [ -z "${PROWLER_GITHUB_TOKEN}" ]; then
             echo "enabled=false" >> "$GITHUB_OUTPUT"
-            echo "Skipping GitHub CIS scan:" \
-              "configure PROWLER_GITHUB_TOKEN secret to enable."
+            echo "Skipping GitHub CIS scan: configure PROWLER_GITHUB_TOKEN to enable."
           else
             echo "enabled=true" >> "$GITHUB_OUTPUT"
           fi
@@ -165,22 +168,21 @@ jobs:
 
       - name: Checkout repository
         if: steps.token_check.outputs.enabled == 'true'
-        uses: actions/checkout@v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
         with:
           persist-credentials: false
 
-      - name: Set up Python
+      - name: Set up Python 3.12
         if: steps.token_check.outputs.enabled == 'true'
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
         with:
-          python-version: '3.13'
-          cache: 'pip'
+          python-version: '3.12.10'
 
       - name: Install Prowler
         if: steps.token_check.outputs.enabled == 'true'
         run: |
           python -m pip install --upgrade pip
-          pip install --no-cache-dir --timeout 300 prowler
+          python -m pip install --no-cache-dir --timeout 300 prowler
 
       - name: Run Prowler GitHub CIS benchmark
         id: prowler
@@ -196,32 +198,19 @@ jobs:
             --output-directory prowler-output \
             --ignore-exit-code-3
 
-          json_file=$(find prowler-output -type f \
-            -name '*.ocsf.json' | head -n 1)
+          json_file=$(find prowler-output -type f -name '*.ocsf.json' | head -n 1)
           csv_file=$(find prowler-output -type f -name '*.csv' | head -n 1)
           sarif_path="prowler-output/prowler-results.sarif"
 
           if [ -n "$json_file" ]; then
-            echo "Found Prowler JSON-OCSF file: $json_file"
-            python3 scripts/convert_prowler_json_to_sarif.py \
-              "$json_file" "$sarif_path"
+            python3 scripts/convert_prowler_json_to_sarif.py "$json_file" "$sarif_path"
             echo "sarif_file=$sarif_path" >> "$GITHUB_OUTPUT"
-
-            # Debug: Show conversion results
-            if [ -f "$sarif_path" ]; then
-              echo "SARIF file created successfully"
-              python3 -c \
-                "import os; print(f'Size: {os.path.getsize(\"$sarif_path\")}')"
-            fi
           elif [ -n "$csv_file" ]; then
-            echo "Fallback: Found Prowler CSV file: $csv_file"
-            python3 scripts/convert_prowler_csv_to_sarif.py \
-              "$csv_file" "$sarif_path"
+            python3 scripts/convert_prowler_csv_to_sarif.py "$csv_file" "$sarif_path"
             echo "sarif_file=$sarif_path" >> "$GITHUB_OUTPUT"
           else
             echo "sarif_file=" >> "$GITHUB_OUTPUT"
             echo "Prowler output not found" >&2
-            echo "Available files in prowler-output:"
             ls -la prowler-output/
           fi
 
@@ -229,22 +218,22 @@ jobs:
         if: >-
           steps.token_check.outputs.enabled == 'true' &&
           steps.prowler.outputs.sarif_file != ''
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@80cb6b56b93de3e779c7d476d9100d06fb87c877
         with:
           sarif_file: ${{ steps.prowler.outputs.sarif_file }}
           category: prowler-github
-
 
   yamllint:
     name: YAML Lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
         with:
           persist-credentials: false
-      - name: Yaml-lint
-        uses: ibiqlik/action-yamllint@v3
+
+      - name: Run yamllint
+        uses: ibiqlik/action-yamllint@2576378a8e339169678f9939646ee3ee325e845c
         with:
           config_file: config/.yamllint.yml
 
@@ -254,12 +243,13 @@ jobs:
     if: github.event_name != 'pull_request' || github.actor != 'dependabot[bot]'
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
         with:
           persist-credentials: false
           fetch-depth: 0
-      - name: TruffleHog
-        uses: trufflesecurity/trufflehog@v3.90.8
+
+      - name: Run Trufflehog
+        uses: trufflesecurity/trufflehog@466da5b0bb161144f6afca9afe5d57975828c410
         with:
           path: ./
           base: ${{ github.event.pull_request.base.sha || github.event.before }}
@@ -269,10 +259,14 @@ jobs:
   security-summary:
     name: Security Analysis Summary
     runs-on: ubuntu-latest
-    needs: [
-      python-security, osv-scanner, semgrep-scan, codeql-analysis,
-      prowler-github, yamllint, trufflehog
-    ]
+    needs:
+      - python-security
+      - osv-scanner
+      - semgrep-scan
+      - codeql-analysis
+      - prowler-github
+      - yamllint
+      - trufflehog
     if: always()
     permissions:
       contents: read
@@ -280,25 +274,25 @@ jobs:
       pull-requests: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
         with:
           persist-credentials: false
 
-      - name: Generate Security Summary
+      - name: Generate security summary
         env:
-          BANDIT_STATUS: ${{ needs.python-security.outputs.bandit }}
+          BANDIT_STATUS: ${{ needs.python-security.outputs.bandit_status }}
           OSV_RESULT: ${{ needs.osv-scanner.result }}
           SEMGREP_RESULT: ${{ needs.semgrep-scan.result }}
           CODEQL_RESULT: ${{ needs.codeql-analysis.result }}
           PROWLER_ENABLED: ${{ needs.prowler-github.outputs.enabled }}
-          PROWLER_RESULT: ${{ needs.prowler-github.result }}
+          PROWLER_RESULT: ${{ needs.prowler-github.outputs.result }}
           YAMLLINT_RESULT: ${{ needs.yamllint.result }}
           TRUFFLEHOG_RESULT: ${{ needs.trufflehog.result }}
         run: bash ./scripts/generate-security-summary.sh
 
-      - name: Comment on PR with Security Summary
+      - name: Comment on pull request with summary
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea
         with:
           script: |
             const fs = require('fs');
@@ -306,7 +300,7 @@ jobs:
             const comments = await github.rest.issues.listComments({
               issue_number: context.issue.number,
               owner: context.repo.owner,
-              repo: context.repo.repo,
+              repo: context.repo.repo
             });
             const marker = 'Security Analysis Summary';
             const botComment = comments.data.find(comment =>
@@ -329,7 +323,7 @@ jobs:
             }
 
       - name: Upload summary artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874
         with:
           name: security-summary
           path: security-summary.md

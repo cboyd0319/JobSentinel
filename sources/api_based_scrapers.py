@@ -4,8 +4,7 @@ For sites with discoverable or known APIs (Microsoft, SpaceX, etc.)
 """
 
 import asyncio
-import json
-from typing import List, Dict
+from typing import Dict, List
 from .job_scraper_base import JobBoardScraper, fetch_url, GenericJobExtractor
 from utils.logging import get_logger
 
@@ -19,7 +18,9 @@ class APIBasedScraper(JobBoardScraper):
         super().__init__(name, base_domains)
         self.api_endpoints = api_endpoints
 
-    async def scrape(self, board_url: str, fetch_descriptions: bool = True) -> List[Dict]:
+    async def scrape(
+        self, board_url: str, fetch_descriptions: bool = True
+    ) -> List[Dict]:
         logger.info(f"Scraping {self.name} API endpoints: {self.api_endpoints}")
         all_jobs = []
 
@@ -33,7 +34,9 @@ class APIBasedScraper(JobBoardScraper):
                     elif isinstance(jobs_data, dict) and "results" in jobs_data:
                         jobs_data = jobs_data["results"]
                     elif not isinstance(jobs_data, list):
-                        logger.warning(f"Unexpected API response format from {endpoint}")
+                        logger.warning(
+                            f"Unexpected API response format from {endpoint}"
+                        )
                         return []
 
                     company_name = self.extract_company_name(board_url)
@@ -45,7 +48,9 @@ class APIBasedScraper(JobBoardScraper):
                         extracted_jobs.append(normalized_job)
                     return extracted_jobs
                 else:
-                    logger.error(f"Failed to fetch {endpoint}: Status {response_data.status_code}")
+                    logger.error(
+                        f"Failed to fetch {endpoint}: Status {response_data.status_code}"
+                    )
             except Exception as e:
                 logger.error(f"Error processing API endpoint {endpoint}: {e}")
             return []
@@ -64,7 +69,9 @@ class MicrosoftCareersScraper(JobBoardScraper):
     """Scraper for Microsoft careers using their discovered API."""
 
     def __init__(self):
-        super().__init__(name="Microsoft Careers", base_domains=["jobs.careers.microsoft.com"])
+        super().__init__(
+            name="Microsoft Careers", base_domains=["jobs.careers.microsoft.com"]
+        )
 
     def scrape(self, board_url: str, fetch_descriptions: bool = True) -> List[Dict]:
         """Scrape jobs from Microsoft careers API."""
@@ -113,7 +120,9 @@ class MicrosoftCareersScraper(JobBoardScraper):
                         "id": job.get("jobId", ""),
                     }
 
-                    normalized_job = extractor.normalize_job_data(raw_job, "microsoft", "microsoft_api", api_url)
+                    normalized_job = extractor.normalize_job_data(
+                        raw_job, "microsoft", "microsoft_api", api_url
+                    )
 
                     jobs.append(normalized_job)
 
@@ -159,7 +168,9 @@ class SpaceXCareersScraper(JobBoardScraper):
                 if isinstance(job_data, dict):
                     greenhouse_id = job_data.get("greenhouseId", "")
                     job_url = (
-                        f"https://boards.greenhouse.io/spacex/jobs/{greenhouse_id}" if greenhouse_id else board_url
+                        f"https://boards.greenhouse.io/spacex/jobs/{greenhouse_id}"
+                        if greenhouse_id
+                        else board_url
                     )
 
                     raw_job = {
@@ -172,7 +183,9 @@ class SpaceXCareersScraper(JobBoardScraper):
                         "programs": job_data.get("programs", []),
                     }
 
-                    normalized_job = extractor.normalize_job_data(raw_job, "spacex", "spacex_api", board_url)
+                    normalized_job = extractor.normalize_job_data(
+                        raw_job, "spacex", "spacex_api", board_url
+                    )
 
                     jobs.append(normalized_job)
 
@@ -207,7 +220,9 @@ class GenericAPIScraper(JobBoardScraper):
             from .playwright_scraper import PlaywrightScraper
 
             playwright_scraper = PlaywrightScraper()
-            return playwright_scraper.scrape_with_api_discovery(board_url, fetch_descriptions)
+            return playwright_scraper.scrape_with_api_discovery(
+                board_url, fetch_descriptions
+            )
 
         except Exception as e:
             logger.warning(f"Generic API scraping failed: {e}")

@@ -28,8 +28,17 @@ class JsonFormatter(logging.Formatter):
             log_data["exception"] = self.formatException(record.exc_info)
 
         # Add extra fields if present (for structured logging)
-        for key in ["company", "jobs_found", "new_jobs", "errors", "operation", "duration_ms",
-                    "notification_type", "recipient", "job_count"]:
+        for key in [
+            "company",
+            "jobs_found",
+            "new_jobs",
+            "errors",
+            "operation",
+            "duration_ms",
+            "notification_type",
+            "recipient",
+            "job_count",
+        ]:
             if hasattr(record, key):
                 log_data[key] = getattr(record, key)
 
@@ -78,7 +87,9 @@ def setup_logging(log_level: str = "INFO") -> logging.Logger:
     else:
         # Plain text log files locally
         file_handler = logging.FileHandler(os.path.join(log_dir, "application.log"))
-        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
         file_handler.setFormatter(formatter)
 
     file_handler.setLevel(logging.DEBUG)
@@ -97,7 +108,9 @@ def log_exception(logger: logging.Logger, message: str = "An error occurred"):
     logger.exception(message)
 
 
-def log_performance(logger: logging.Logger, operation: str, duration: float, extra_info: dict = None):
+def log_performance(
+    logger: logging.Logger, operation: str, duration: float, extra_info: dict = None
+):
     """Log performance metrics for operations."""
     info = {"operation": operation, "duration_ms": round(duration * 1000, 2)}
     if extra_info:
@@ -125,7 +138,9 @@ def log_scrape_result(
     )
 
 
-def log_notification_sent(logger: logging.Logger, notification_type: str, recipient: str, job_count: int):
+def log_notification_sent(
+    logger: logging.Logger, notification_type: str, recipient: str, job_count: int
+):
     """Log notification events."""
     logger.info(
         f"Notification sent: {notification_type} to {recipient} with {job_count} jobs",

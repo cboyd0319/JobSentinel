@@ -193,13 +193,13 @@ python -c "from utils.cache import job_cache; print(job_cache.get_stats())"
 
 ### GitHub Actions / Docker / GCP
 ```yaml
-# All CI/CD workflows now using Python 3.13 (latest stable)
-python-version: '3.13'
+# All CI/CD workflows are pinned to Python 3.12.10 for compatibility
+python-version: '3.12.10'
 ```
 
 ### Update Dockerfile
 ```dockerfile
-FROM python:3.13-slim  # Latest stable
+FROM python:3.12-slim
 ```
 
 ---
@@ -210,7 +210,7 @@ FROM python:3.13-slim  # Latest stable
 
 **Changes**:
 - Removed duplicate security scans from ci.yml (Bandit, Safety)
-- Updated all workflows to Python 3.13 consistently
+- Updated all workflows to Python 3.12.10 consistently
 - Validated all workflow YAML syntax
 
 **Results**:

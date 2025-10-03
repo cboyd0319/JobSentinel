@@ -208,7 +208,7 @@ This document tracks planned features, improvements, and technical debt for the 
 
 ## Version History
 
-- **v1.0.0** (2025-01-30): Initial GCP deployment with Terraform
+- **v0.4.5** (2025-01-30): Initial GCP deployment with Terraform
 - **v0.9.0** (2025-01-28): Pre-release with Python-only deployment
 - **v0.1.0** (2024-12-15): Initial prototype
 
