@@ -158,7 +158,7 @@ jobs:
       - name: Report Terraform format issues
         if: steps.fmt.outcome == 'failure'
         run: |
-          echo "Terraform format check failed. Run 'terraform fmt -recursive terraform/gcp/' locally to fix."
+          echo "Terraform format check failed. Run 'terraform fmt -recursive terraform/gcp/' locally to fix and commit the changes."
           exit 1
 
       - name: Report Terraform plan changes

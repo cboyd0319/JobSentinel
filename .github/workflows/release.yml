@@ -40,10 +40,14 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+      - name: Configure git remote
+        run: |
+          git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
+
       - name: Release
         id: release
         if: github.ref_name == 'main'
-        uses: python-semantic-release/python-semantic-release@v8
+        uses: python-semantic-release/python-semantic-release@v9.8.8
         env:
           GH_TOKEN: ${{ secrets.SEMANTIC_RELEASE_TOKEN != '' &&
             secrets.SEMANTIC_RELEASE_TOKEN || secrets.GITHUB_TOKEN }}

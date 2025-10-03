@@ -59,7 +59,7 @@ async def get_job_by_hash(job_hash: str) -> Optional[Job]:
     try:
         async with AsyncSession(async_engine) as session:
             statement = select(Job).where(Job.hash == job_hash)
-            result = await session.exec(statement)
+            result = (await session.exec(statement))
             return result.first()
     except Exception as e:
         logger.error(f"Failed to get job by hash {job_hash}: {e}")
@@ -71,7 +71,7 @@ async def add_job(job_data: dict) -> Job:
     try:
         async with AsyncSession(async_engine) as session:
             # Check if job already exists
-            result = await session.exec(select(Job).where(Job.hash == job_data["hash"]))
+            result = (await session.exec(select(Job).where(Job.hash == job_data["hash"])))
             existing_job = result.first()
 
             if existing_job:
@@ -130,7 +130,7 @@ async def get_jobs_for_digest(
                 .order_by(Job.score.desc(), Job.created_at.desc())
             )
 
-            result = await session.exec(statement)
+            result = (await session.exec(statement))
             return list(result.all())
     except Exception as e:
         logger.error(f"Failed to get jobs for digest: {e}")
@@ -142,7 +142,7 @@ async def mark_jobs_digest_sent(job_ids: list[int]):
     try:
         async with AsyncSession(async_engine) as session:
             statement = select(Job).where(Job.id.in_(job_ids))
-            result = await session.exec(statement)
+            result = (await session.exec(statement))
             jobs = result.all()
 
             for job in jobs:
@@ -203,18 +203,18 @@ async def get_database_stats() -> dict:
         async with AsyncSession(async_engine) as session:
             from sqlalchemy import func
 
-            total_jobs = await session.exec(select(func.count(Job.id))).scalar_one()
+            total_jobs = (await session.exec(select(func.count(Job.id)))).scalar_one()
 
             # Jobs added in last 24 hours
             yesterday = datetime.now(timezone.utc) - timedelta(hours=24)
-            recent_jobs = await session.exec(
+            recent_jobs = (await session.exec(
                 select(func.count(Job.id)).where(Job.created_at >= yesterday)
-            ).scalar_one()
+            )).scalar_one()
 
             # High score jobs (>= 0.8)
-            high_score_jobs = await session.exec(
+            high_score_jobs = (await session.exec(
                 select(func.count(Job.id)).where(Job.score >= 0.8)
-            ).scalar_one()
+            )).scalar_one()
 
             return {
                 "total_jobs": total_jobs,
@@ -236,7 +236,7 @@ async def cleanup_old_jobs(days_to_keep: int = 90):
 
         async with AsyncSession(async_engine) as session:
             statement = select(Job).where(Job.created_at < cutoff_date)
-            result = await session.exec(statement)
+            result = (await session.exec(statement))
             old_jobs = result.all()
 
             count = len(old_jobs)

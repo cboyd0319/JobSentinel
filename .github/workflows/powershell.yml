@@ -45,10 +45,7 @@ jobs:
             return
           }
 
-          $results = Invoke-ScriptAnalyzer `
-            -Path $psFiles `
-            -Settings PSScriptAnalyzerSettings.psd1 `
-            -Severity Error,Warning
+          $results = Invoke-ScriptAnalyzer -Path $psFiles -Settings PSScriptAnalyzerSettings.psd1 -Severity Error,Warning
 
           if ($results) {
             Write-Host "PSScriptAnalyzer found issues:" -ForegroundColor Red
