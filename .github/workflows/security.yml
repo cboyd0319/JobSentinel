@@ -183,6 +183,7 @@ jobs:
       contents: read
       id-token: write
       actions: read
+      security-events: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -190,14 +191,109 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
 
-      - name: Run TruffleHog OSS Action
-        uses: trufflesecurity/trufflehog@v3.90.8
-        with:
-          path: ./
-          base: ${{ github.event.pull_request.base.sha || github.event.before }}
-          head: ${{ github.event.pull_request.head.sha || github.event.after }}
-          extra_args: --only-verified --results=verified
+      - name: Run TruffleHog scan
+        continue-on-error: true
+        id: trufflehog
+        run: |
+          # Download and run TruffleHog with JSON output
+          curl -sSfL https://github.com/trufflesecurity/trufflehog/releases/download/v3.90.8/trufflehog_3.90.8_linux_amd64.tar.gz | tar -xz
+          ./trufflehog git file://. --json --only-verified > trufflehog-results.json || true
 
-      # Note: TruffleHog OSS action doesn't support SARIF upload
-      # It fails the workflow if secrets are found (good for security)
-      # GitHub's built-in secret scanning also provides coverage
+      - name: Convert TruffleHog JSON to SARIF
+        if: always() && hashFiles('trufflehog-results.json') != ''
+        run: |
+          python3 << 'PYTHON_SCRIPT'
+          import json
+          import os
+          from datetime import datetime
+
+          # Read TruffleHog JSON results
+          results = []
+          try:
+              with open('trufflehog-results.json', 'r') as f:
+                  for line in f:
+                      line = line.strip()
+                      if line:
+                          results.append(json.loads(line))
+          except Exception as e:
+              print(f"No results to convert: {e}")
+              results = []
+
+          # Create SARIF structure
+          sarif = {
+              "version": "2.1.0",
+              "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+              "runs": [{
+                  "tool": {
+                      "driver": {
+                          "name": "TruffleHog",
+                          "version": "3.90.8",
+                          "informationUri": "https://github.com/trufflesecurity/trufflehog",
+                          "rules": []
+                      }
+                  },
+                  "results": []
+              }]
+          }
+
+          # Convert each finding
+          rule_ids = set()
+          for finding in results:
+              detector_name = finding.get('DetectorName', 'Unknown')
+              rule_id = f"trufflehog/{detector_name}"
+
+              # Add rule if not seen before
+              if rule_id not in rule_ids:
+                  rule_ids.add(rule_id)
+                  sarif["runs"][0]["tool"]["driver"]["rules"].append({
+                      "id": rule_id,
+                      "name": detector_name,
+                      "shortDescription": {
+                          "text": f"Detected {detector_name} secret"
+                      },
+                      "fullDescription": {
+                          "text": f"TruffleHog detected a {detector_name} secret in the repository"
+                      },
+                      "help": {
+                          "text": "Remove or rotate this secret immediately."
+                      },
+                      "defaultConfiguration": {
+                          "level": "error"
+                      },
+                      "properties": {
+                          "tags": ["security", "secret"]
+                      }
+                  })
+
+              # Add result
+              source_metadata = finding.get('SourceMetadata', {})
+              file_path = source_metadata.get('Data', {}).get('Filesystem', {}).get('file', 'unknown')
+
+              sarif["runs"][0]["results"].append({
+                  "ruleId": rule_id,
+                  "message": {
+                      "text": f"Detected {detector_name} secret"
+                  },
+                  "level": "error",
+                  "locations": [{
+                      "physicalLocation": {
+                          "artifactLocation": {
+                              "uri": file_path
+                          }
+                      }
+                  }]
+              })
+
+          # Write SARIF file
+          with open('trufflehog-results.sarif', 'w') as f:
+              json.dump(sarif, f, indent=2)
+
+          print(f"Converted {len(results)} TruffleHog findings to SARIF")
+          PYTHON_SCRIPT
+
+      - name: Upload TruffleHog SARIF
+        if: always() && hashFiles('trufflehog-results.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trufflehog-results.sarif
+          category: trufflehog
