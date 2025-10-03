@@ -126,17 +126,14 @@ async def run_command(
             if attempt < retries:
                 logger.warning(
                     f"Command failed (attempt {attempt + 1}/{retries + 1}): {redacted_full_command}. "
-                    f"Retrying in {delay:.1f} seconds... Error: {e.stderr.strip() or e.stdout.strip() or e}"
+                    f"Retrying in {delay:.1f} seconds... Exit code: {e.returncode}"
                 )
                 await asyncio.sleep(delay)
                 delay *= backoff_factor
             else:
                 error_message = f"Command failed after {retries + 1} attempts: {redacted_full_command}"
-                if e.stderr:
-                    error_message += f"\nStderr: {e.stderr.strip()}"
-                if e.stdout:
-                    error_message += f"\nStdout: {e.stdout.strip()}"
                 error_message += f"\nExit Code: {e.returncode}"
+                # Do not log stderr/stdout as they may contain sensitive information
                 logger.error(error_message)
                 raise RuntimeError(error_message) from e
     # This part should ideally not be reached, but for type hinting
