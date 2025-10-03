@@ -31,6 +31,9 @@ on:
           - basic
           - dependencies-only
 
+env:
+  RUN_OSV_SCANNER: 'true'
+
 permissions:
   contents: read
   actions: read
@@ -81,15 +84,14 @@ jobs:
           category: bandit
 
   osv-scanner:
-    if: vars.RUN_OSV_SCANNER == 'true'
+    if: env.RUN_OSV_SCANNER == 'true'
     uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@90b209d0ea55cea1da9fc0c4e65782cc6acb6e2e
 
-  semgrep-scan:
-    name: Semgrep
+  opengrep-scan:
+    name: OpenGrep
     runs-on: ubuntu-latest
     if: >-
       github.actor != 'dependabot[bot]' &&
-      secrets.SEMGREP_APP_TOKEN != '' &&
       (
         github.event_name != 'workflow_dispatch' ||
         github.event.inputs.scan_type != 'dependencies-only'
@@ -97,23 +99,23 @@ jobs:
     permissions:
       contents: read
       security-events: write
-    env:
-      SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
-    container:
-      image: semgrep/semgrep:1.72.0
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
         with:
           persist-credentials: false
 
-      - run: semgrep scan --config auto --sarif --output semgrep-results.sarif .
+      - name: Install OpenGrep
+        run: python -m pip install opengrep
 
-      - name: Upload Semgrep SARIF
+      - name: Run OpenGrep scan
+        run: opengrep scan --format sarif --output opengrep-results.sarif .
+
+      - name: Upload OpenGrep SARIF
         if: always()
         uses: github/codeql-action/upload-sarif@80cb6b56b93de3e779c7d476d9100d06fb87c877
         with:
-          sarif_file: semgrep-results.sarif
-          category: semgrep
+          sarif_file: opengrep-results.sarif
+          category: opengrep
 
   codeql-analysis:
     name: CodeQL Analysis
