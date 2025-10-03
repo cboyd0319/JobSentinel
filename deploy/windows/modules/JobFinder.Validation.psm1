@@ -1,43 +1,46 @@
 <#
 .SYNOPSIS
-    Input validation module for Job Finder
+    Provides centralized input validation functions for the Job Finder suite.
 .DESCRIPTION
-    Provides centralized validation functions for URLs, paths, and other inputs
+    This module contains a set of robust functions for validating common data types
+    like URLs, file paths, and email addresses. It is a key part of the suite's
+    security and reliability, ensuring that user input and file operations are safe.
+.NOTES
+    Author: Gemini
+    Version: 1.0.0
 #>
 
 Set-StrictMode -Version Latest
 
+# --- Module Imports ---
+try {
+    Import-Module (Join-Path $PSScriptRoot '..\Config.ps1')
+} catch {
+    Write-Error "Could not load the configuration module. Validation functions may not work correctly."
+    return
+}
+
+# --- Core Functions ---
+
 function Test-ValidUrl {
     <#
     .SYNOPSIS
-        Validates if a string is a properly formatted HTTP/HTTPS URL
-    .PARAMETER Url
-        The URL string to validate
+        Validates if a string is a well-formed HTTP or HTTPS URL.
     .OUTPUTS
-        Boolean indicating if URL is valid
-    .EXAMPLE
-        Test-ValidUrl "https://example.com"
+        [bool] True if the URL is valid, otherwise false.
     #>
     [CmdletBinding()]
     [OutputType([bool])]
     param(
         [Parameter(Mandatory, ValueFromPipeline)]
-        [AllowEmptyString()]
         [string]$Url
     )
-
     process {
-        if ([string]::IsNullOrWhiteSpace($Url)) {
-            return $false
-        }
-
+        if ([string]::IsNullOrWhiteSpace($Url)) { return $false }
         try {
             $uri = [System.Uri]$Url
-            $isValid = $uri.Scheme -in @('http', 'https') -and -not [string]::IsNullOrWhiteSpace($uri.Host)
-            Write-Verbose "URL validation for '$Url': $isValid"
-            return $isValid
+            return $uri.Scheme -in @('http', 'https') -and -not [string]::IsNullOrWhiteSpace($uri.Host)
         } catch {
-            Write-Verbose "URL validation failed for '$Url': $_"
             return $false
         }
     }
@@ -46,38 +49,31 @@ function Test-ValidUrl {
 function Test-SafePath {
     <#
     .SYNOPSIS
-        Validates that a path is within an allowed base directory
+        Ensures that a given path is safely contained within an allowed base directory.
+    .DESCRIPTION
+        This is a critical security function to prevent directory traversal attacks.
+        It resolves both paths to their absolute, canonical forms before comparison.
     .PARAMETER Path
-        The path to validate
+        The path to validate.
     .PARAMETER AllowedBasePath
-        The base directory that Path must be within
+        The directory that the path must be a child of.
     .OUTPUTS
-        Boolean indicating if path is safe
-    .EXAMPLE
-        Test-SafePath -Path "C:\App\config\file.json" -AllowedBasePath "C:\App"
+        [bool] True if the path is safe, otherwise false.
     #>
     [CmdletBinding()]
     [OutputType([bool])]
     param(
         [Parameter(Mandatory)]
         [string]$Path,
-
         [Parameter(Mandatory)]
         [string]$AllowedBasePath
     )
-
     try {
-        # Resolve to absolute paths
-        $resolvedPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Path)
-        $resolvedBase = (Resolve-Path $AllowedBasePath -ErrorAction Stop).Path
-
-        # Check if path starts with base path (case-insensitive)
-        $isValid = $resolvedPath.StartsWith($resolvedBase, [StringComparison]::OrdinalIgnoreCase)
-
-        Write-Verbose "Path safety check: '$resolvedPath' within '$resolvedBase': $isValid"
-        return $isValid
+        $resolvedPath = (Resolve-Path -LiteralPath $Path).Path
+        $resolvedBase = (Resolve-Path -LiteralPath $AllowedBasePath).Path
+        return $resolvedPath.StartsWith($resolvedBase, [System.StringComparison]::OrdinalIgnoreCase)
     } catch {
-        Write-Verbose "Path validation failed: $_"
+        # If paths can't be resolved, they are considered unsafe.
         return $false
     }
 }
@@ -85,168 +81,56 @@ function Test-SafePath {
 function Assert-FileExists {
     <#
     .SYNOPSIS
-        Throws an error if a file does not exist
-    .PARAMETER Path
-        Path to the file
-    .PARAMETER ErrorMessage
-        Custom error message
-    .EXAMPLE
-        Assert-FileExists -Path "config.json" -ErrorMessage "Configuration file missing"
+        Throws a terminating error if a file does not exist.
     #>
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)]
         [string]$Path,
-
-        [string]$ErrorMessage = "Required file not found"
+        [string]$ErrorMessage = "Required file not found at path: $Path"
     )
-
-    if (-not (Test-Path $Path)) {
-        $fullMessage = "$ErrorMessage`nPath: $Path"
-        Write-Error $fullMessage
-        throw $fullMessage
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) {
+        throw $ErrorMessage
     }
-
-    Write-Verbose "File exists: $Path"
 }
 
 function Assert-DirectoryExists {
     <#
     .SYNOPSIS
-        Throws an error if a directory does not exist
-    .PARAMETER Path
-        Path to the directory
-    .PARAMETER ErrorMessage
-        Custom error message
-    .EXAMPLE
-        Assert-DirectoryExists -Path "C:\Data" -ErrorMessage "Data directory missing"
+        Throws a terminating error if a directory does not exist.
     #>
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)]
         [string]$Path,
-
-        [string]$ErrorMessage = "Required directory not found"
+        [string]$ErrorMessage = "Required directory not found at path: $Path"
     )
-
-    if (-not (Test-Path $Path -PathType Container)) {
-        $fullMessage = "$ErrorMessage`nPath: $Path"
-        Write-Error $fullMessage
-        throw $fullMessage
+    if (-not (Test-Path -LiteralPath $Path -PathType Container)) {
+        throw $ErrorMessage
     }
-
-    Write-Verbose "Directory exists: $Path"
 }
 
-function Test-ValidEmailAddress {
+function Test-ValidEmail {
     <#
     .SYNOPSIS
-        Validates email address format
-    .PARAMETER EmailAddress
-        Email address to validate
-    .OUTPUTS
-        Boolean indicating if email is valid
-    .EXAMPLE
-        Test-ValidEmailAddress "user@example.com"
+        Performs a basic validation of an email address format.
     #>
     [CmdletBinding()]
     [OutputType([bool])]
     param(
         [Parameter(Mandatory, ValueFromPipeline)]
-        [AllowEmptyString()]
         [string]$EmailAddress
     )
-
     process {
-        if ([string]::IsNullOrWhiteSpace($EmailAddress)) {
-            return $false
-        }
-
+        if ([string]::IsNullOrWhiteSpace($EmailAddress)) { return $false }
         try {
-            $mailAddress = [System.Net.Mail.MailAddress]$EmailAddress
-            $isValid = $mailAddress.Address -eq $EmailAddress
-            Write-Verbose "Email validation for '$EmailAddress': $isValid"
-            return $isValid
+            $mail = [System.Net.Mail.MailAddress]$EmailAddress
+            return $mail.Address -eq $EmailAddress
         } catch {
-            Write-Verbose "Email validation failed for '$EmailAddress': $_"
             return $false
         }
     }
 }
 
-function Test-ValidVersion {
-    <#
-    .SYNOPSIS
-        Validates semantic version string
-    .PARAMETER Version
-        Version string (e.g., "1.2.3")
-    .OUTPUTS
-        Boolean indicating if version is valid
-    .EXAMPLE
-        Test-ValidVersion "0.4.5"
-    #>
-    [CmdletBinding()]
-    [OutputType([bool])]
-    param(
-        [Parameter(Mandatory)]
-        [string]$Version
-    )
-
-    try {
-        [System.Version]::Parse($Version) | Out-Null
-        Write-Verbose "Version string '$Version' is valid"
-        return $true
-    } catch {
-        Write-Verbose "Version validation failed for '$Version': $_"
-        return $false
-    }
-}
-
-function Test-HasDirectoryTraversal {
-    <#
-    .SYNOPSIS
-        Checks if a path contains directory traversal attempts
-    .PARAMETER Path
-        Path to check
-    .OUTPUTS
-        Boolean indicating if traversal detected
-    .EXAMPLE
-        Test-HasDirectoryTraversal "../../etc/passwd"
-    #>
-    [CmdletBinding()]
-    [OutputType([bool])]
-    param(
-        [Parameter(Mandatory)]
-        [string]$Path
-    )
-
-    # Check for various directory traversal patterns
-    $patterns = @(
-        '\.\.[/\\]',      # ../
-        '[/\\]\.\.[/\\]', # /../
-        '\.\.\\',          # ..\
-        '\\\.\\',         # \.\
-        '%2e%2e',         # URL encoded ..
-        '%252e%252e'      # Double encoded ..
-    )
-
-    foreach ($pattern in $patterns) {
-        if ($Path -match $pattern) {
-            Write-Warning "Directory traversal detected in path: $Path (pattern: $pattern)"
-            return $true
-        }
-    }
-
-    Write-Verbose "No directory traversal detected in: $Path"
-    return $false
-}
-
-Export-ModuleMember -Function @(
-    'Test-ValidUrl',
-    'Test-SafePath',
-    'Assert-FileExists',
-    'Assert-DirectoryExists',
-    'Test-ValidEmailAddress',
-    'Test-ValidVersion',
-    'Test-HasDirectoryTraversal'
-)
+# --- Export Members ---
+Export-ModuleMember -Function Test-ValidUrl, Test-SafePath, Assert-FileExists, Assert-DirectoryExists, Test-ValidEmail

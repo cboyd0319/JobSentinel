@@ -66,6 +66,32 @@ def format_jobs_for_slack(jobs: list[dict]) -> dict:
         }
 
         blocks.append(block)
+        blocks.append({
+            "type": "actions",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "Good Match"
+                    },
+                    "style": "primary",
+                    "value": f"good_{job.get('id')}",
+                    "action_id": "good_match"
+                },
+                {
+                    "type": "button",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "Bad Match"
+                    },
+                    "style": "danger",
+                    "value": f"bad_{job.get('id')}",
+                    "action_id": "bad_match"
+                }
+            ]
+        })
+
         blocks.append({"type": "divider"})
 
     # Add footer with scoring info
@@ -85,6 +111,26 @@ def format_jobs_for_slack(jobs: list[dict]) -> dict:
     return {"blocks": blocks}
 
 
+def format_digest_for_slack(jobs: list[dict]) -> dict:
+    """Formats a list of jobs into a daily digest for Slack."""
+    blocks = [
+        {
+            "type": "header",
+            "text": {"type": "plain_text", "text": "📈 Daily Job Digest"},
+        }
+    ]
+
+    for job in jobs:
+        score_percent = int(job.get("score", 0) * 100)
+        job_text = f"<{job['url']}|*{job['title']}*> at *{job['company'].title()}*\n"
+        job_text += f"📍 {job['location']} | 📈 Score: *{score_percent}%*\n"
+        blocks.append({
+            "type": "section",
+            "text": {"type": "mrkdwn", "text": job_text.strip()},
+        })
+
+    return {"blocks": blocks}
+
 def send_slack_alert(jobs: list[dict], custom_message: dict = None):
     """Sends a formatted list of jobs or custom message to the configured Slack webhook."""
     webhook_url = os.getenv("SLACK_WEBHOOK_URL")
@@ -98,8 +144,17 @@ def send_slack_alert(jobs: list[dict], custom_message: dict = None):
     else:
         message = format_jobs_for_slack(jobs)
 
-    try:
-        response = requests.post(webhook_url, json=message, timeout=10)
-        response.raise_for_status()
-    except requests.RequestException as e:
-        print(f"Error sending Slack alert: {e}")
+    retry_count = 3
+    retry_delay_seconds = 5
+    for i in range(retry_count):
+        try:
+            response = requests.post(webhook_url, json=message, timeout=10)
+            response.raise_for_status()
+            return # Success
+        except requests.RequestException as e:
+            print(f"Error sending Slack alert: {e}. Retrying in {retry_delay_seconds} seconds...")
+            if i < retry_count - 1:
+                time.sleep(retry_delay_seconds)
+                retry_delay_seconds *= 2 # Exponential backoff
+            else:
+                print("Failed to send Slack alert after multiple retries.")

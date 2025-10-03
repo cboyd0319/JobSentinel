@@ -1,249 +1,127 @@
 <#
 .SYNOPSIS
-    Prerequisites checking module for Job Finder
+    Provides functions for detecting and validating required dependencies.
 .DESCRIPTION
-    Detects and validates required dependencies (Python, gcloud, etc.)
+    This module is responsible for checking for the presence and version of
+    external tools required by the Job Finder suite, such as Python, gcloud, and Git.
+
+    It is used by the installer and deployment scripts to ensure the environment is correctly set up.
+.NOTES
+    Author: Gemini
+    Version: 1.0.0
 #>
 
 Set-StrictMode -Version Latest
 
-function Test-PythonInstalled {
-    <#
-    .SYNOPSIS
-        Check if Python is installed and accessible
-    .OUTPUTS
-        Boolean indicating if Python is available
-    .EXAMPLE
-        if (Test-PythonInstalled) { ... }
-    #>
-    [CmdletBinding()]
-    [OutputType([bool])]
-    param()
-
-    try {
-        $pythonCmd = Get-Command python -ErrorAction Stop
-        Write-Verbose "Python found at: $($pythonCmd.Source)"
-        return $true
-    } catch {
-        Write-Verbose "Python not found in PATH"
-        return $false
-    }
+# --- Module Imports ---
+try {
+    Import-Module (Join-Path $PSScriptRoot '..\Config.ps1')
+} catch {
+    Write-Error "Could not load the configuration module. Prerequisite checks may not work correctly."
+    return
 }
 
+# --- Detection Functions ---
+
+function Test-CommandExists {
+    [CmdletBinding()]
+    [OutputType([bool])]
+    param([string]$CommandName)
+    return $null -ne (Get-Command $CommandName -ErrorAction SilentlyContinue)
+}
+
+# --- Python Functions ---
+
 function Get-PythonVersion {
-    <#
-    .SYNOPSIS
-        Get installed Python version
-    .OUTPUTS
-        Version object or $null if not found
-    .EXAMPLE
-        $ver = Get-PythonVersion
-    #>
     [CmdletBinding()]
     [OutputType([version])]
     param()
 
-    if (-not (Test-PythonInstalled)) {
-        return $null
-    }
+    if (-not (Test-CommandExists -CommandName 'python')) { return $null }
 
     try {
         $versionOutput = & python --version 2>&1
         if ($versionOutput -match 'Python (\d+\.\d+\.\d+)') {
-            $version = [version]$matches[1]
-            Write-Verbose "Python version: $version"
-            return $version
+            return [version]$matches[1]
         }
     } catch {
-        Write-Verbose "Failed to get Python version: $_"
+        Write-Verbose "Failed to parse Python version. Error: $($_.Exception.Message)"
     }
-
     return $null
 }
 
 function Test-PythonVersion {
-    <#
-    .SYNOPSIS
-        Check if Python version meets minimum requirement
-    .PARAMETER MinVersion
-        Minimum required version (e.g., "3.12.0")
-    .OUTPUTS
-        Boolean indicating if version requirement is met
-    .EXAMPLE
-        Test-PythonVersion -MinVersion "3.12.0"
-    #>
     [CmdletBinding()]
     [OutputType([bool])]
     param(
         [Parameter(Mandatory)]
         [version]$MinVersion
     )
-
     $installedVersion = Get-PythonVersion
-    if ($null -eq $installedVersion) {
-        Write-Verbose "Python not installed"
-        return $false
-    }
-
-    $meets = $installedVersion -ge $MinVersion
-    Write-Verbose "Python $installedVersion $(if ($meets) {'meets'} else {'does not meet'}) minimum $MinVersion"
-    return $meets
+    if (-not $installedVersion) { return $false }
+    return $installedVersion -ge $MinVersion
 }
 
-function Test-GcloudInstalled {
-    <#
-    .SYNOPSIS
-        Check if Google Cloud SDK is installed
-    .OUTPUTS
-        Boolean indicating if gcloud is available
-    .EXAMPLE
-        if (Test-GcloudInstalled) { ... }
-    #>
-    [CmdletBinding()]
-    [OutputType([bool])]
-    param()
-
-    try {
-        $gcloudCmd = Get-Command gcloud -ErrorAction Stop
-        Write-Verbose "gcloud found at: $($gcloudCmd.Source)"
-        return $true
-    } catch {
-        Write-Verbose "gcloud not found in PATH"
-        return $false
-    }
-}
+# --- Gcloud Functions ---
 
 function Get-GcloudVersion {
-    <#
-    .SYNOPSIS
-        Get installed gcloud version
-    .OUTPUTS
-        Version string or $null if not found
-    .EXAMPLE
-        $ver = Get-GcloudVersion
-    #>
     [CmdletBinding()]
-    [OutputType([string])]
+    [OutputType([version])]
     param()
 
-    if (-not (Test-GcloudInstalled)) {
-        return $null
-    }
+    if (-not (Test-CommandExists -CommandName 'gcloud')) { return $null }
 
     try {
-        $versionOutput = & gcloud version --format="value(core-version)" 2>&1 | Select-Object -First 1
-        Write-Verbose "gcloud version: $versionOutput"
-        return $versionOutput.Trim()
+        $versionOutput = & gcloud version --format="value(core.version)" 2>&1 | Select-Object -First 1
+        return [version]$versionOutput.Trim()
     } catch {
-        Write-Verbose "Failed to get gcloud version: $_"
-        return $null
+        Write-Verbose "Failed to parse gcloud version. Error: $($_.Exception.Message)"
     }
+    return $null
 }
 
-function Test-GitInstalled {
-    <#
-    .SYNOPSIS
-        Check if Git is installed
-    .OUTPUTS
-        Boolean indicating if Git is available
-    .EXAMPLE
-        if (Test-GitInstalled) { ... }
-    #>
-    [CmdletBinding()]
-    [OutputType([bool])]
-    param()
-
-    try {
-        $gitCmd = Get-Command git -ErrorAction Stop
-        Write-Verbose "Git found at: $($gitCmd.Source)"
-        return $true
-    } catch {
-        Write-Verbose "Git not found in PATH"
-        return $false
-    }
-}
-
-function Get-PrerequisitesSummary {
-    <#
-    .SYNOPSIS
-        Get summary of all prerequisites
-    .OUTPUTS
-        Hashtable with prerequisite status
-    .EXAMPLE
-        $summary = Get-PrerequisitesSummary
-    #>
-    [CmdletBinding()]
-    [OutputType([hashtable])]
-    param()
-
-    $summary = @{
-        Python = @{
-            Installed = Test-PythonInstalled
-            Version = Get-PythonVersion
-        }
-        Gcloud = @{
-            Installed = Test-GcloudInstalled
-            Version = Get-GcloudVersion
-        }
-        Git = @{
-            Installed = Test-GitInstalled
-        }
-    }
-
-    return $summary
-}
+# --- Assertion Functions ---
 
 function Assert-Prerequisites {
     <#
     .SYNOPSIS
-        Assert that all required prerequisites are met
+        Checks for required prerequisites and throws a terminating error if they are not met.
     .PARAMETER RequirePython
-        Require Python to be installed
+        If set, the function will fail if Python is not installed.
     .PARAMETER RequireGcloud
-        Require gcloud to be installed
+        If set, the function will fail if the Google Cloud SDK is not installed.
     .PARAMETER MinPythonVersion
-        Minimum Python version required
-    .EXAMPLE
-        Assert-Prerequisites -RequirePython -MinPythonVersion "3.12.0"
+        Specifies the minimum required version of Python.
     #>
     [CmdletBinding()]
     param(
         [switch]$RequirePython,
         [switch]$RequireGcloud,
-        [version]$MinPythonVersion = "3.12.0"
+        [version]$MinPythonVersion = (Get-JobFinderConfig -Path "Dependencies.Python.MinVersion")
     )
 
-    $missing = @()
+    $missingItems = [System.Collections.Generic.List[string]]::new()
 
     if ($RequirePython) {
-        if (-not (Test-PythonInstalled)) {
-            $missing += "Python $MinPythonVersion or higher"
+        if (-not (Test-CommandExists -CommandName 'python')) {
+            $missingItems.Add("Python $($MinPythonVersion) or higher")
         } elseif (-not (Test-PythonVersion -MinVersion $MinPythonVersion)) {
-            $installedVer = Get-PythonVersion
-            $missing += "Python $MinPythonVersion or higher (found: $installedVer)"
+            $installed = Get-PythonVersion
+            $missingItems.Add("Python version $($MinPythonVersion) or higher (found: $installed)")
         }
     }
 
-    if ($RequireGcloud -and -not (Test-GcloudInstalled)) {
-        $missing += "Google Cloud SDK (gcloud)"
+    if ($RequireGcloud -and -not (Test-CommandExists -CommandName 'gcloud')) {
+        $missingItems.Add("Google Cloud SDK (gcloud)")
     }
 
-    if ($missing.Count -gt 0) {
-        $errorMessage = "Missing required prerequisites:`n" + ($missing | ForEach-Object { "  - $_" } | Out-String)
-        Write-Error $errorMessage
+    if ($missingItems.Count -gt 0) {
+        $errorMessage = "Missing required prerequisites:`n" + ($missingItems | ForEach-Object { "  - $_" } | Out-String)
         throw $errorMessage
     }
 
-    Write-Verbose "All required prerequisites are satisfied"
+    Write-Verbose "All required prerequisites are satisfied."
 }
 
-Export-ModuleMember -Function @(
-    'Test-PythonInstalled',
-    'Get-PythonVersion',
-    'Test-PythonVersion',
-    'Test-GcloudInstalled',
-    'Get-GcloudVersion',
-    'Test-GitInstalled',
-    'Get-PrerequisitesSummary',
-    'Assert-Prerequisites'
-)
+# --- Export Members ---
+Export-ModuleMember -Function Test-CommandExists, Get-PythonVersion, Test-PythonVersion, Get-GcloudVersion, Assert-Prerequisites

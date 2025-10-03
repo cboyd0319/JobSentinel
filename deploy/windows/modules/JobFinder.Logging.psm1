@@ -1,231 +1,130 @@
 <#
 .SYNOPSIS
-    Structured logging module for Job Finder
+    Provides a structured, dual-stream logging system for the Job Finder suite.
 .DESCRIPTION
-    Provides consistent logging across all components with support for
-    multiple output formats and log levels
+    This module offers a centralized way to handle logging. It writes structured
+    JSONL logs to a file for detailed diagnostics and simultaneously provides
+    color-coded, human-readable output to the console.
+
+    It is designed to be initialized once and then used throughout the application.
+.NOTES
+    Author: Gemini
+    Version: 1.0.0
 #>
 
 Set-StrictMode -Version Latest
 
-# Module-level variables
-$script:LogDirectory = $null
+# --- Module-level State ---
+$script:LogInitialized = $false
 $script:CurrentLogFile = $null
 $script:TraceId = (New-Guid).Guid.Substring(0, 8)
+$script:UI = $null
+
+# --- Core Functions ---
 
 function Initialize-Logging {
     <#
     .SYNOPSIS
-        Initialize logging subsystem
-    .PARAMETER LogDirectory
-        Directory where log files will be stored
-    .PARAMETER Component
-        Component name for log file naming
-    .EXAMPLE
-        Initialize-Logging -LogDirectory "C:\App\logs" -Component "installer"
+        Initializes the logging system for a component.
+    .PARAMETER ComponentName
+        The name of the component, used in the log file name (e.g., "installer", "uninstaller").
     #>
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)]
-        [string]$LogDirectory,
-
-        [Parameter(Mandatory)]
-        [string]$Component
+        [string]$ComponentName
     )
 
-    $script:LogDirectory = $LogDirectory
-    $script:TraceId = (New-Guid).Guid.Substring(0, 8)
-
-    # Ensure log directory exists
-    if (-not (Test-Path $LogDirectory)) {
-        New-Item -ItemType Directory -Path $LogDirectory -Force | Out-Null
+    if ($script:LogInitialized) {
+        Write-Verbose "Logging already initialized."
+        return
     }
 
-    # Create log file with timestamp
-    $timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
-    $script:CurrentLogFile = Join-Path $LogDirectory "$Component-$timestamp-$script:TraceId.log"
+    try {
+        Import-Module (Join-Path $PSScriptRoot '..\Config.ps1') -ErrorAction Stop
+        $script:UI = Get-JobFinderConfig -Path "UI"
+    } catch {
+        Write-Error "Could not load Config.ps1. Logging will be written to console only."
+    }
 
-    Write-LogEntry -Message "Logging initialized" -Level Info -Extra @{
-        component = $Component
-        trace_id = $script:TraceId
-        log_file = $script:CurrentLogFile
+    try {
+        $logDir = Get-ProjectPath -RelativePath (Get-JobFinderConfig -Path "Paths.LogsDirectory")
+        if (-not (Test-Path $logDir)) {
+            New-Item -ItemType Directory -Path $logDir -Force | Out-Null
+        }
+        $timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
+        $script:CurrentLogFile = Join-Path $logDir "$ComponentName-$timestamp-$script:TraceId.jsonl"
+        $script:LogInitialized = $true
+        Write-LogInfo -Message "Logging initialized for component '$ComponentName'." -Extra @{ log_file = $script:CurrentLogFile }
+    } catch {
+        Write-Error "Failed to initialize file logging. Logs will be written to console only. Error: $($_.Exception.Message)"
     }
 }
 
 function Write-LogEntry {
     <#
     .SYNOPSIS
-        Write a structured log entry
-    .PARAMETER Message
-        Log message
-    .PARAMETER Level
-        Log level (Debug, Info, Warn, Error)
-    .PARAMETER Extra
-        Additional structured data
-    .EXAMPLE
-        Write-LogEntry -Message "Operation started" -Level Info -Extra @{duration=10}
+        The core function for writing a log entry to all streams.
     #>
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)]
         [string]$Message,
-
-        [ValidateSet('Debug', 'Info', 'Warn', 'Error')]
+        [ValidateSet('Debug', 'Info', 'Warn', 'Error', 'Success')]
         [string]$Level = 'Info',
-
-        [hashtable]$Extra = @{}
-    )
-
-    # Structured log entry
-    $entry = [ordered]@{
-        timestamp = (Get-Date).ToUniversalTime().ToString('o')
-        trace_id = $script:TraceId
-        level = $Level.ToLower()
-        message = $Message
-    }
-
-    # Add extra fields
-    foreach ($key in $Extra.Keys) {
-        $entry[$key] = $Extra[$key]
-    }
-
-    # Write to file (JSON Lines format)
-    if ($script:CurrentLogFile) {
-        try {
-            ($entry | ConvertTo-Json -Compress) | Add-Content -Path $script:CurrentLogFile -Encoding UTF8 -ErrorAction SilentlyContinue
-        } catch {
-            Write-Warning "Failed to write to log file: $_"
-        }
-    }
-
-    # Console output
-    $color = switch ($Level) {
-        'Debug' { 'Gray' }
-        'Info'  { 'White' }
-        'Warn'  { 'Yellow' }
-        'Error' { 'Red' }
-        default { 'White' }
-    }
-
-    $prefix = switch ($Level) {
-        'Debug' { '[DEBUG]' }
-        'Info'  { '[INFO] ' }
-        'Warn'  { '[WARN] ' }
-        'Error' { '[ERROR]' }
-    }
-
-    Write-Host "$prefix $Message" -ForegroundColor $color
-}
-
-function Write-LogDebug {
-    <#
-    .SYNOPSIS
-        Write debug-level log entry
-    #>
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)]
-        [string]$Message,
-
-        [hashtable]$Extra = @{}
-    )
-
-    if ($VerbosePreference -ne 'SilentlyContinue' -or $DebugPreference -ne 'SilentlyContinue') {
-        Write-LogEntry -Message $Message -Level Debug -Extra $Extra
-    }
-}
-
-function Write-LogInfo {
-    <#
-    .SYNOPSIS
-        Write info-level log entry
-    #>
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)]
-        [string]$Message,
-
-        [hashtable]$Extra = @{}
-    )
-
-    Write-LogEntry -Message $Message -Level Info -Extra $Extra
-}
-
-function Write-LogWarn {
-    <#
-    .SYNOPSIS
-        Write warning-level log entry
-    #>
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)]
-        [string]$Message,
-
-        [hashtable]$Extra = @{}
-    )
-
-    Write-LogEntry -Message $Message -Level Warn -Extra $Extra
-}
-
-function Write-LogError {
-    <#
-    .SYNOPSIS
-        Write error-level log entry
-    #>
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)]
-        [string]$Message,
-
         [hashtable]$Extra = @{},
-
         [System.Management.Automation.ErrorRecord]$ErrorRecord
     )
 
-    if ($ErrorRecord) {
-        $Extra['error_message'] = $ErrorRecord.Exception.Message
-        $Extra['error_type'] = $ErrorRecord.Exception.GetType().FullName
-        $Extra['stack_trace'] = $ErrorRecord.ScriptStackTrace
+    # 1. Console Output
+    $useColor = ($null -eq $env:NO_COLOR) -and $Host.UI.SupportsVirtualTerminal
+    if ($script:UI -and $useColor) {
+        $symbol = $script:UI.Symbols[$Level]
+        $colorCode = $script:UI.Colors[$Level]
+        $formattedMessage = "`e[1;${colorCode}m$symbol $Message`e[0m"
+    } else {
+        $formattedMessage = "[$Level] $Message"
+    }
+    Write-Host $formattedMessage
+
+    # 2. File Output (JSONL)
+    if (-not $script:LogInitialized) { return }
+
+    $logEntry = [ordered]@{
+        timestamp = (Get-Date).ToUniversalTime().ToString('o')
+        trace_id  = $script:TraceId
+        level     = $Level.ToLower()
+        message   = $Message
     }
 
-    Write-LogEntry -Message $Message -Level Error -Extra $Extra
+    if ($ErrorRecord) {
+        $Extra.error_message = $ErrorRecord.Exception.Message
+        $Extra.error_type = $ErrorRecord.Exception.GetType().FullName
+        $Extra.stack_trace = $ErrorRecord.ScriptStackTrace
+    }
+
+    foreach ($key in $Extra.Keys) {
+        $logEntry[$key] = $Extra[$key]
+    }
+
+    try {
+        ($logEntry | ConvertTo-Json -Compress -Depth 5) | Add-Content -Path $script:CurrentLogFile -Encoding UTF8
+    } catch {
+        Write-Warning "Failed to write to log file '$script:CurrentLogFile'. Error: $($_.Exception.Message)"
+        $script:LogInitialized = $false # Stop trying to write to a broken file
+    }
 }
 
-function Get-CurrentTraceId {
-    <#
-    .SYNOPSIS
-        Get the current trace ID for correlation
-    .OUTPUTS
-        String containing the trace ID
-    #>
-    [CmdletBinding()]
-    [OutputType([string])]
-    param()
+# --- Public Helper Functions ---
 
-    return $script:TraceId
-}
+function Write-LogDebug { [CmdletBinding()] param([string]$Message, [hashtable]$Extra = @{}) { if ($VerbosePreference -ne 'SilentlyContinue' -or $DebugPreference -ne 'SilentlyContinue') { Write-LogEntry -Level Debug -Message $Message -Extra $Extra } } }
+function Write-LogInfo { [CmdletBinding()] param([string]$Message, [hashtable]$Extra = @{}) { Write-LogEntry -Level Info -Message $Message -Extra $Extra } }
+function Write-LogSuccess { [CmdletBinding()] param([string]$Message, [hashtable]$Extra = @{}) { Write-LogEntry -Level Success -Message $Message -Extra $Extra } }
+function Write-LogWarn { [CmdletBinding()] param([string]$Message, [hashtable]$Extra = @{}) { Write-LogEntry -Level Warn -Message $Message -Extra $Extra } }
+function Write-LogError { [CmdletBinding()] param([string]$Message, [hashtable]$Extra = @{}, [System.Management.Automation.ErrorRecord]$ErrorRecord) { Write-LogEntry -Level Error -Message $Message -Extra $Extra -ErrorRecord $ErrorRecord } }
 
-function Get-CurrentLogFile {
-    <#
-    .SYNOPSIS
-        Get the current log file path
-    .OUTPUTS
-        String containing the log file path
-    #>
-    [CmdletBinding()]
-    [OutputType([string])]
-    param()
+function Get-CurrentTraceId { [CmdletBinding()] [OutputType([string])] param() { return $script:TraceId } }
+function Get-CurrentLogFile { [CmdletBinding()] [OutputType([string])] param() { return $script:CurrentLogFile } }
 
-    return $script:CurrentLogFile
-}
-
-Export-ModuleMember -Function @(
-    'Initialize-Logging',
-    'Write-LogEntry',
-    'Write-LogDebug',
-    'Write-LogInfo',
-    'Write-LogWarn',
-    'Write-LogError',
-    'Get-CurrentTraceId',
-    'Get-CurrentLogFile'
-)
+# --- Export Members ---
+Export-ModuleMember -Function Initialize-Logging, Write-LogDebug, Write-LogInfo, Write-LogSuccess, Write-LogWarn, Write-LogError, Get-CurrentTraceId, Get-CurrentLogFile

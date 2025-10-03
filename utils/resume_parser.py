@@ -191,7 +191,9 @@ SENIORITY_BLOCKLIST = {
 class ResumeParser:
     """Parse resumes and extract structured information."""
 
-    def __init__(self):
+    def __init__(self, cache_dir: str = "data/cache"):
+        self.cache_dir = Path(cache_dir)
+        self.cache_dir.mkdir(parents=True, exist_ok=True)
         self.text: str = ""
         self.skills: Set[str] = set()
         self.titles: List[str] = []
@@ -217,6 +219,14 @@ class ResumeParser:
 
         if not file_path.exists():
             raise FileNotFoundError(f"Resume file not found: {file_path}")
+
+        # Check cache first
+        file_hash = self._get_file_hash(file_path)
+        cache_file = self.cache_dir / f"{file_hash}.json"
+        if cache_file.exists():
+            logger.info(f"Loading parsed resume from cache: {cache_file}")
+            with open(cache_file, "r") as f:
+                return json.load(f)
 
         # Extract text based on file type
         if file_path.suffix.lower() == ".pdf":
@@ -244,7 +254,24 @@ class ResumeParser:
         self._extract_education()
         self._extract_experience()
 
-        return self.to_dict()
+        # Save to cache
+        result = self.to_dict()
+        with open(cache_file, "w") as f:
+            json.dump(result, f)
+
+        return result
+
+    def _get_file_hash(self, file_path: Path) -> str:
+        """Get SHA256 hash of a file."""
+        import hashlib
+        h = hashlib.sha256()
+        with open(file_path, "rb") as f:
+            while True:
+                chunk = f.read(8192)
+                if not chunk:
+                    break
+                h.update(chunk)
+        return h.hexdigest()
 
     def _extract_pdf(self, file_path: Path) -> str:
         """Extract text from PDF file."""
@@ -272,17 +299,45 @@ class ResumeParser:
             logger.error(f"Failed to parse DOCX: {e}")
             raise ValueError(f"Failed to parse DOCX: {e}")
 
-    def _extract_skills(self):
-        """Extract technical skills from resume text."""
-        text_lower = self.text.lower()
+try:
+    import spacy
+    # Download the model if it doesn't exist
+    try:
+        nlp = spacy.load("en_core_web_sm")
+    except OSError:
+        print("Downloading spaCy model...")
+        from spacy.cli import download
+        download("en_core_web_sm")
+        nlp = spacy.load("en_core_web_sm")
+    HAS_SPACY = True
+except ImportError:
+    HAS_SPACY = False
 
-        # Find all matching skills
+def _extract_skills(self):
+    """Extract technical skills from resume text using spaCy NER."""
+    if not HAS_SPACY:
+        logger.warning("spaCy not installed. Falling back to keyword-based skill extraction.")
+        # Keep the old keyword-based extraction as a fallback
+        text_lower = self.text.lower()
         for skill in COMMON_SKILLS:
-            # Use word boundaries to avoid partial matches
             pattern = r"\b" + re.escape(skill.lower()) + r"\b"
             if re.search(pattern, text_lower):
-                # Store in original case from COMMON_SKILLS
                 self.skills.add(skill.title() if len(skill) > 3 else skill.upper())
+        return
+
+    doc = nlp(self.text)
+    # Using entity labels for skills, e.g., ORG, PRODUCT, and custom patterns
+    for ent in doc.ents:
+        if ent.label_ in ["ORG", "PRODUCT"]:
+            self.skills.add(ent.text.strip())
+
+    # Add custom patterns for skills that NER might miss
+    # This is a placeholder for a more robust pattern matching system
+    custom_skill_patterns = [r'[Pp]ython', r'[Jj]ava[Ss]cript', r'[Rr]eact', r'[Nn]ode.js', r'[Aa]ws', r'[Gg]cp', r'[Aa]zure', r'[Dd]ocker', r'[Kk]ubernetes']
+    for pattern in custom_skill_patterns:
+        matches = re.findall(pattern, self.text)
+        for match in matches:
+            self.skills.add(match.strip())
 
     def _extract_titles(self):
         """Extract job titles from resume text."""
@@ -399,6 +454,8 @@ class ResumeParser:
         self,
         existing_prefs: Optional[Dict] = None,
         salary_floor: Optional[int] = None,
+        add_skills: Optional[List[str]] = None,
+        remove_skills: Optional[List[str]] = None,
     ) -> Dict:
         """
         Convert extracted info to user_prefs.json format.
@@ -406,6 +463,8 @@ class ResumeParser:
         Args:
             existing_prefs: Existing preferences to merge with
             salary_floor: Override salary floor (calculated from experience if None)
+            add_skills: List of skills to add to the extracted skills
+            remove_skills: List of skills to remove from the extracted skills
 
         Returns:
             Dictionary in user_prefs.json format
@@ -451,8 +510,11 @@ class ResumeParser:
 
         # Add extracted skills to boost keywords
         if self.skills:
-            existing_keywords = set(prefs.get("keywords_boost", []))
-            existing_keywords.update(self.skills)
+            existing_keywords = set(self.skills)
+            if add_skills:
+                existing_keywords.update(add_skills)
+            if remove_skills:
+                existing_keywords.difference_update(remove_skills)
             prefs["keywords_boost"] = sorted(list(existing_keywords))
 
         # Calculate salary floor from experience
@@ -482,6 +544,49 @@ def parse_resume(file_path: str | Path) -> Dict:
     parser = ResumeParser()
     return parser.parse_file(file_path)
 
+
+def interactive_skill_editor(extracted_skills: List[str]) -> Tuple[List[str], List[str]]:
+    """
+    A simple command-line interface for editing a list of skills.
+
+    Args:
+        extracted_skills: A list of skills extracted from the resume.
+
+    Returns:
+        A tuple containing two lists: added_skills and removed_skills.
+    """
+    print("\n--- Skill Editor ---")
+    print("The following skills were extracted from your resume:")
+    print(", ".join(extracted_skills))
+
+    added_skills = []
+    removed_skills = []
+
+    while True:
+        print("\nOptions:")
+        print("  (a)dd a skill")
+        print("  (r)emove a skill")
+        print("  (d)one")
+        choice = input("Enter your choice: ").lower()
+
+        if choice == 'a':
+            skill_to_add = input("Enter the skill to add: ").strip()
+            if skill_to_add:
+                added_skills.append(skill_to_add)
+                print(f"Added '{skill_to_add}'.")
+        elif choice == 'r':
+            skill_to_remove = input("Enter the skill to remove: ".strip())
+            if skill_to_remove in extracted_skills:
+                removed_skills.append(skill_to_remove)
+                print(f"Removed '{skill_to_remove}'.")
+            else:
+                print(f"'{skill_to_remove}' not found in the list.")
+        elif choice == 'd':
+            break
+        else:
+            print("Invalid choice. Please try again.")
+
+    return added_skills, removed_skills
 
 def check_dependencies() -> tuple[bool, List[str]]:
     """

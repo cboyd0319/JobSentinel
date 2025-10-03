@@ -94,9 +94,10 @@ class JobCache:
 
     def get_job_hash(self, job: dict) -> str:
         """Generate unique hash for a job."""
-        # Use URL + title + company for uniqueness
+        # Use URL + title + company + first 255 chars of description for uniqueness
+        description = job.get('description', '')[:255]
         unique_str = (
-            f"{job.get('url', '')}{job.get('title', '')}{job.get('company', '')}"
+            f"{job.get('url', '')}{job.get('title', '')}{job.get('company', '')}{description}"
         )
         return hashlib.md5(unique_str.encode()).hexdigest()
 

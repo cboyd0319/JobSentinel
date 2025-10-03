@@ -95,3 +95,7 @@ pyperclip==1.9.0
 
 # LLM features (optional - requires OPENAI_API_KEY environment variable)
 # openai>=1.54.0
+
+# NLP-based skill extraction (optional - for enhanced resume parsing)
+spacy==3.7.2
+en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1.tar.gz

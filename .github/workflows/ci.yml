@@ -23,11 +23,11 @@ jobs:
       docs-only: ${{ steps.changes.outputs.docs-only }}
       workflows: ${{ steps.changes.outputs.workflows }}
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+      - uses: actions/checkout@v4
         with:
           persist-credentials: false
 
-      - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36
+      - uses: dorny/paths-filter@v3
         id: changes
         with:
           filters: |
@@ -66,16 +66,12 @@ jobs:
 
   primary-test:
     needs: changes
-    if: >-
-      needs.changes.outputs.docs-only != 'true' && (
-        needs.changes.outputs.core-python == 'true' ||
-        needs.changes.outputs.workflows == 'true'
-      )
+    if: needs.changes.outputs.docs-only == 'false'
     name: Fast Primary Test (Ubuntu, Python 3.12)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
 
@@ -108,14 +104,14 @@ jobs:
 
   code-quality:
     needs: changes
-    if: needs.changes.outputs.core-python == 'true'
+    if: needs.changes.outputs.docs-only == 'false'
     name: Code Quality
     runs-on: ubuntu-latest
     env:
       HAS_GCP_CREDS: ${{ secrets.GCP_SA_KEY != '' || secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON != '' }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
 
@@ -127,7 +123,7 @@ jobs:
           cache-dependency-path: requirements.txt
 
       - name: Set up Terraform
-        uses: hashicorp/setup-terraform@a1502cd9e758c50496cc9ac5308c4843bcd56d36
+        uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.6.6
 
@@ -176,7 +172,7 @@ jobs:
 
   cross-platform-test:
     needs: [changes, primary-test, code-quality]
-    if: needs.changes.outputs.core-python == 'true'
+    if: needs.changes.outputs.docs-only == 'false'
     name: Cross-Platform Test
     runs-on: ${{ matrix.os }}
     strategy:
@@ -186,7 +182,7 @@ jobs:
         python-version: ['3.12.10']
     steps:
       - name: Checkout code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
 
@@ -202,12 +198,12 @@ jobs:
 
   type-check:
     needs: [changes, code-quality]
-    if: needs.changes.outputs.core-python == 'true'
+    if: needs.changes.outputs.docs-only == 'false'
     name: Type Check (mypy)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
 

@@ -211,19 +211,13 @@ async def process_jobs(jobs, prefs):
 
 
 async def send_digest():
-    """Sends the daily email digest."""
+    """Sends the daily digest."""
     main_logger.info("Starting digest generation...")
 
     try:
-        config_manager.get_notification_config()
+        notification_config = config_manager.get_notification_config()
 
-        # Email removed - skip digest functionality
-        main_logger.warning(
-            "[yellow]Email functionality removed, skipping digest[/yellow]"
-        )
-        return
-
-        # Get jobs for digest, using the new preference
+        # Get jobs for digest
         filter_config = config_manager.get_filter_config()
         min_score = getattr(
             filter_config, "digest_min_score", 0.0
@@ -234,10 +228,8 @@ async def send_digest():
             main_logger.info("No jobs to include in digest")
             return
 
-        # Convert to dict format expected by emailer
         jobs_data = []
         for job in digest_jobs:
-            # Safely parse score_reasons JSON instead of using eval()
             try:
                 score_reasons = (
                     json.loads(job.score_reasons) if job.score_reasons else []
@@ -250,6 +242,7 @@ async def send_digest():
 
             jobs_data.append(
                 {
+                    "id": job.id,
                     "title": job.title,
                     "url": job.url,
                     "company": job.company,
@@ -259,14 +252,19 @@ async def send_digest():
                 }
             )
 
-        # Send digest email
-        emailer.send_digest_email(jobs_data)
+        # Send digest to Slack
+        if notification_config.validate_slack():
+            try:
+                main_logger.info(f"Sending digest with {len(jobs_data)} jobs to Slack")
+                slack.send_slack_alert(jobs_data, custom_message=slack.format_digest_for_slack(jobs_data))
+            except Exception as e:
+                main_logger.error(f"[bold red]Failed to send Slack digest:[/bold red] {e}")
 
         # Mark jobs as digest sent
         job_ids = [job.id for job in digest_jobs]
         await mark_jobs_digest_sent(job_ids)
 
-        main_logger.info(f"Digest sent successfully with {len(digest_jobs)} jobs")
+        main_logger.info(f"Digest processed successfully with {len(digest_jobs)} jobs")
 
     except Exception as e:
         main_logger.error(f"[bold red]Failed to send digest:[/bold red] {e}")
@@ -452,6 +450,10 @@ async def main():
     args = parse_args()
     console.print(f"[bold blue]Starting job scraper in {args.mode} mode...[/bold blue]")
 
+    # Self-healing state
+    scraper_failures = {}
+    FAILURE_THRESHOLD = 3
+
     # Run self-healing checks before starting
     enable_self_healing = os.getenv("ENABLE_SELF_HEALING", "true").lower() == "true"
     if enable_self_healing:
@@ -509,6 +511,7 @@ async def main():
             for result in results:
                 if result.success:
                     all_jobs.extend(result.jobs)
+                    scraper_failures[result.url] = 0 # Reset failure count on success
                     progress.update(
                         scraping_task,
                         advance=1,
@@ -518,11 +521,26 @@ async def main():
                     main_logger.error(
                         f"[bold red]Scraping failed for {result.url}:[/bold red] {result.error}"
                     )
+                    scraper_failures[result.url] = scraper_failures.get(result.url, 0) + 1
                     progress.update(
                         scraping_task,
                         advance=1,
                         description=f"[red]Failed {result.url}[/red]",
                     )
+                    # Self-healing: if a scraper fails too many times, try the PlaywrightScraper
+                    if scraper_failures.get(result.url, 0) >= FAILURE_THRESHOLD:
+                        main_logger.warning(f"Scraper for {result.url} has failed {scraper_failures[result.url]} times. Attempting fallback...")
+                        try:
+                            from sources.playwright_scraper import PlaywrightScraper
+                            fallback_scraper = PlaywrightScraper()
+                            fallback_jobs = await fallback_scraper.scrape(result.url)
+                            if fallback_jobs:
+                                all_jobs.extend(fallback_jobs)
+                                main_logger.info(f"Fallback scraper succeeded for {result.url}")
+                                scraper_failures[result.url] = 0 # Reset failure count on fallback success
+                        except Exception as e:
+                            main_logger.error(f"Fallback scraper failed for {result.url}: {e}")
+
 
             console.print(f"[bold green]Found {len(all_jobs)} total jobs.[/bold green]")
             prefs = load_user_prefs()

@@ -59,6 +59,29 @@ def score_job_rules_only(job: dict, prefs: dict) -> tuple[float, list[str]]:
 
     title = job.get("title", "").lower()
 
+    # --- GHOST JOB FILTER ---
+    # Penalize old jobs
+    created_at = job.get("created_at")
+    if created_at:
+        from datetime import datetime, timedelta
+        try:
+            post_date = datetime.fromisoformat(created_at)
+            age = datetime.now() - post_date
+            if age > timedelta(days=30):
+                score -= 0.2
+                reasons.append(f"Job is over 30 days old")
+            elif age > timedelta(days=14):
+                score -= 0.1
+                reasons.append(f"Job is over 14 days old")
+        except (ValueError, TypeError):
+            pass # Ignore parsing errors
+
+    # Penalize jobs that have been seen many times without changes
+    times_seen = job.get("times_seen", 0)
+    if times_seen > 5:
+        score -= 0.1 * (min(times_seen, 10) - 5) # Penalize up to 0.5 for 10+ sightings
+        reasons.append(f"Job has been seen {times_seen} times")
+
     # --- BLOCKLIST FILTER (IMMEDIATE REJECTION) ---
     for blocked_word in prefs.get("title_blocklist", []):
         if blocked_word.lower() in title:
@@ -77,11 +100,32 @@ def score_job_rules_only(job: dict, prefs: dict) -> tuple[float, list[str]]:
 
     # --- LOCATION SCORING ---
     location = job.get("location", "").lower()
-    for loc_pref in prefs.get("location_constraints", []):
-        if loc_pref.lower() in location:
-            score += 0.2
-            reasons.append(f"Location matched '{loc_pref}'")
-            break  # Only add points for the first location match
+    loc_prefs = prefs.get("location_preferences", {})
+    location_score = 0
+    location_reasons = []
+
+    if loc_prefs.get("allow_remote") and "remote" in location:
+        location_score = 0.2
+        location_reasons.append("Remote work allowed")
+    else:
+        for city in loc_prefs.get("cities", []):
+            if city.lower() in location:
+                location_score = 0.3
+                location_reasons.append(f"City matched '{city}'")
+                break
+        if location_score == 0:
+            for state in loc_prefs.get("states", []):
+                if state.lower() in location:
+                    location_score = 0.2
+                    location_reasons.append(f"State matched '{state}'")
+                    break
+        if location_score == 0 and loc_prefs.get("country"): 
+            if loc_prefs.get("country").lower() in location:
+                location_score = 0.1
+                location_reasons.append(f"Country matched '{loc_prefs.get("country")}'")
+
+    score += location_score
+    reasons.extend(location_reasons)
 
     # --- KEYWORD BOOSTS ---
     description = job.get("description", "").lower()

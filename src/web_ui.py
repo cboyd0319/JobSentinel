@@ -119,6 +119,85 @@ def logs():
     log_content = read_logs(lines=500)
     return render_template("logs.html", log_content=log_content)
 
+@app.route("/skills", methods=["GET"])
+def skills():
+    """Displays the skill editor page."""
+    prefs = config_manager.load_config()
+    skills = prefs.get("keywords_boost", [])
+    return render_template("skills.html", skills=skills)
+
+@app.route("/save_skills", methods=["POST"])
+def save_skills():
+    """Saves the updated skills."""
+    try:
+        form_token = request.form.get("csrf_token")
+        session_token = session.get("_csrf_token")
+        if not form_token or not session_token or form_token != session_token:
+            flash("Invalid submission token. Please try again.", "danger")
+            return redirect(url_for("skills"))
+
+        skills_str = request.form.get("skills")
+        skills_list = [s.strip() for s in skills_str.split('\n') if s.strip()]
+
+        prefs = config_manager.load_config()
+        prefs["keywords_boost"] = skills_list
+
+        with open(config_manager.config_path, "w", encoding="utf-8") as f:
+            json.dump(prefs, f, indent=2)
+
+        flash("Skills saved successfully!", "success")
+        session.pop("_csrf_token", None)
+    except Exception as e:
+        flash(f"Error saving skills: {e}", "danger")
+
+    return redirect(url_for("skills"))
+
+@app.route("/review")
+def review():
+    """Displays the job review page."""
+    try:
+        with Session(engine) as session:
+            jobs_to_review = session.exec(
+                select(Job).order_by(Job.created_at.desc()).limit(20)
+            ).all()
+        return render_template("review.html", jobs=jobs_to_review)
+    except Exception as e:
+        flash(f"Error loading jobs for review: {e}", "danger")
+        return render_template("review.html", jobs=[])
+
+@app.route("/review_feedback/<int:job_id>/<string:feedback>")
+def review_feedback(job_id, feedback):
+    """Handles feedback on job matches."""
+    try:
+        with Session(engine) as session:
+            job = session.get(Job, job_id)
+            if job:
+                # Here you would add logic to adjust the scoring rules based on the feedback
+                # For now, we'll just flash a message
+                flash(f"Thank you for your feedback on '{job.title}'!", "success")
+    except Exception as e:
+        flash(f"Error processing feedback: {e}", "danger")
+
+    return redirect(url_for("review"))
+
+@app.route("/slack/interactive", methods=["POST"])
+def slack_interactive():
+    """Handles interactive components from Slack."""
+    payload = json.loads(request.form.get("payload"))
+    action = payload["actions"][0]
+    action_id = action["action_id"]
+    job_id = int(action["value"].split("_")[1])
+
+    if action_id == "good_match":
+        # Add logic to handle good match
+        flash(f"Marked job {job_id} as a good match.", "success")
+    elif action_id == "bad_match":
+        # Add logic to handle bad match
+        flash(f"Marked job {job_id} as a bad match.", "danger")
+
+    return "", 200
+
+
 
 if __name__ == "__main__":
     print("🚀 Starting Job Scraper Web UI...")

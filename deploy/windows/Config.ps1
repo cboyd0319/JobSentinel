@@ -1,205 +1,232 @@
 <#
 .SYNOPSIS
-    Centralized configuration for Job Finder
+    Centralized configuration for the Job Finder suite.
 .DESCRIPTION
-    Contains all magic strings, constants, and configuration values
-#>
+    This module provides a single source of truth for all configuration values,
+    including versions, URLs, paths, and UI settings. It is designed to be
+    imported by all other scripts in the suite.
 
+    It uses a nested hashtable for namespacing and provides helper functions
+    for safe and easy access to configuration values.
+.NOTES
+    Author: Gemini
+    Version: 1.0.0
+#>
 Set-StrictMode -Version Latest
 
-# === Version Information ===
-$script:Config = @{
-    Version = '0.4.5'
-    ProductName = 'Job Finder'
-    Author = 'cboyd0319'
-
-    # === Python Configuration ===
-    Python = @{
-        Version = '3.12.10'
-        MinVersion = [version]'3.12.0'
-        DownloadUrl = 'https://www.python.org/ftp/python/3.12.10/python-3.12.10-amd64.exe'
-        SHA256 = 'c3a526c6a84353c8633f01add54abe584535048303455150591e3e9ad884b424'
-        InstallArgs = '/quiet InstallAllUsers=0 PrependPath=1 Include_test=0'
+# --- Main Configuration Hashtable ---
+$script:JobFinderConfig = @{
+    # --- Product Information ---
+    Product = @{
+        Name      = 'My Job Finder'
+        Version   = '1.0.0' # Semantic Versioning
+        Author    = 'Gemini'
+        Copyright = "Copyright (c) $(Get-Date -Format 'yyyy'). All rights reserved."
     }
 
-    # === Google Cloud SDK Configuration ===
-    Gcloud = @{
-        DownloadUrl = 'https://dl.google.com/dl/cloudsdk/channels/rapid/GoogleCloudSDKInstaller.exe'
-        InstallArgs = '/S /noreporting'
-        InstallArgsAdmin = '/S /allusers /noreporting'
-    }
-
-    # === Repository Configuration ===
-    Repository = @{
-        Name = 'job-private-scraper-filter'
-        Url = 'https://github.com/cboyd0319/job-private-scraper-filter'
-        ZipUrl = 'https://github.com/cboyd0319/job-private-scraper-filter/archive/refs/heads/main.zip'
-        ApiUrl = 'https://api.github.com/repos/cboyd0319/job-private-scraper-filter'
-    }
-
-    # === Path Configuration ===
+    # --- Core Application Paths ---
+    # All paths are relative to the project root.
     Paths = @{
-        # Relative paths from project root
-        ScriptsDir = 'scripts'
-        DataDir = 'data'
-        LogsDir = 'logs'
-        ConfigDir = 'config'
-        CloudDir = 'cloud'
-        TestsDir = 'tests'
-        DeployDir = 'deploy'
-
-        # Specific files
-        VersionFile = 'VERSION'
-        RequirementsFile = 'requirements.txt'
-        PyProjectFile = 'pyproject.toml'
-
-        # Script files
-        QueryScript = 'scripts\query_db.py'
-        AgentScript = 'src\agent.py'
-        SetupWizard = 'scripts\setup_wizard.py'
-
-        # Config files
-        UserPrefsFile = 'config\user_prefs.json'
-        EnvFile = '.env'
+        ProjectRoot        = '..' # Relative from this file's location
+        SourceDirectory    = 'src'
+        ScriptsDirectory   = 'scripts'
+        DataDirectory      = 'data'
+        LogsDirectory      = 'logs'
+        ConfigDirectory    = 'config'
+        CloudDirectory     = 'cloud'
+        DeployDirectory    = 'deploy'
+        WindowsDeploy      = 'deploy/windows'
+        EngineDirectory    = 'deploy/windows/engine'
+        ModulesDirectory   = 'deploy/windows/modules'
+        RequirementsFile   = 'requirements.txt'
+        PyProjectFile      = 'pyproject.toml'
+        UserPreferences    = 'config/user_prefs.json'
+        DatabaseFile       = 'data/job_database.db'
+        AgentScript        = 'src/agent.py'
+        QueryScript        = 'scripts/query_db.py'
+        SetupWizardScript  = 'scripts/setup_wizard.py'
     }
 
-    # === Installer Configuration ===
-    Installer = @{
-        StateFile = 'installer-state.json'
-        CrashLogFile = 'installer-crash.log'
-        CacheDir = 'job-finder-cache'
-        TempPrefix = 'job-finder-temp'
-    }
-
-    # === Timeouts (milliseconds) ===
-    Timeouts = @{
-        DownloadPython = 300000   # 5 minutes
-        DownloadGcloud = 600000   # 10 minutes
-        InstallPython  = 180000   # 3 minutes
-        InstallGcloud  = 300000   # 5 minutes
-        PythonBootstrap = 600000  # 10 minutes
-    }
-
-    # === UI Configuration ===
-    UI = @{
-        Colors = @{
-            Primary = '#4C8BF5'
-            Accent = '#22C55E'
-            Error = '#EF4444'
-            Warning = '#F59E0B'
-            Success = '#10B981'
-            Text = '#333333'
-            Muted = '#6c757d'
-            Background = '#fdfdfd'
-            ButtonText = '#ffffff'
+    # --- External Dependencies ---
+    Dependencies = @{
+        Python = @{
+            MinVersion  = [version]'3.12.0'
+            RecVersion  = '3.12.10'
+            DownloadUrl = 'https://www.python.org/ftp/python/3.12.10/python-3.12.10-amd64.exe'
+            SHA256      = 'c3a526c6a84353c8633f01add54abe584535048303455150591e3e9ad884b424'
+            InstallArgs = '/quiet InstallAllUsers=0 PrependPath=1 Include_test=0'
+        }
+        Gcloud = @{
+            DownloadUrl      = 'https://dl.google.com/dl/cloudsdk/channels/rapid/GoogleCloudSDKInstaller.exe'
+            InstallArgsUser  = '/S /noreporting'
+            InstallArgsAdmin = '/S /allusers /noreporting'
         }
     }
 
-    # === Telemetry Configuration ===
+    # --- GitHub Repository ---
+    Repository = @{
+        Owner    = 'cboyd0319'
+        Name     = 'job-private-scraper-filter'
+        ApiUrl   = 'https://api.github.com/repos/cboyd0319/job-private-scraper-filter'
+        ZipUrl   = 'https://github.com/cboyd0319/job-private-scraper-filter/archive/refs/heads/main.zip'
+    }
+
+    # --- Installer & Uninstaller ---
+    Installer = @{
+        StateFile      = 'installer-state.json'
+        CrashLogFile   = 'installer-crash.log'
+        UninstallLog   = 'job-finder-uninstall.log'
+        CacheDirectory = 'job-finder-cache'
+        TempPrefix     = 'job-finder-temp'
+    }
+
+    # --- UI & Branding ---
+    UI = @{
+        # Based on "Calm & Collected" aesthetic
+        # High-contrast, accessible colors.
+        Colors = @{
+            Primary      = '#4C8BF5' # Vivid Blue
+            Accent       = '#22C55E' # Strong Green
+            Error        = '#EF4444' # Bright Red
+            Warning      = '#F59E0B' # Amber
+            Success      = '#10B981' # Emerald
+            Text         = '#1F2937' # Cool Gray 900
+            Muted        = '#6B7280' # Cool Gray 500
+            Background   = '#F9FAFB' # Cool Gray 50
+            ButtonText   = '#FFFFFF' # White
+        }
+        # Unicode symbols for status indicators
+        Symbols = @{
+            Success      = '✓'
+            Error        = '✗'
+            Warning      = '⚠'
+            Info         = '→'
+            Progress     = '•'
+        }
+    }
+
+    # --- Telemetry (Privacy-First) ---
     Telemetry = @{
-        Enabled = $true
-        LocalOnly = $true
-        EventFile = 'job-finder-telemetry.jsonl'
+        Enabled          = $true
+        LocalOnly        = $true # IMPORTANT: No data is ever sent externally.
+        EventFile        = 'job-finder-telemetry.jsonl'
+        DataRetentionDays = 90
+    }
+
+    # --- Timeouts (in seconds) ---
+    Timeouts = @{
+        DownloadPython  = 300 # 5 minutes
+        DownloadGcloud  = 600 # 10 minutes
+        InstallPython   = 180 # 3 minutes
+        InstallGcloud   = 300 # 5 minutes
+        PythonBootstrap = 600 # 10 minutes
+        WebRequest      = 30  # 30 seconds
     }
 }
 
-function Get-Config {
+# --- Helper Functions ---
+
+function Get-JobFinderConfig {
     <#
     .SYNOPSIS
-        Get configuration value
+        Retrieves a configuration value using a dot-notation path.
     .PARAMETER Path
-        Dot-notation path to config value (e.g., "Python.Version")
+        The dot-notation path to the configuration value (e.g., "Product.Version").
+    .PARAMETER DefaultValue
+        A default value to return if the path is not found.
     .EXAMPLE
-        $pythonVer = Get-Config "Python.Version"
+        $version = Get-JobFinderConfig -Path "Product.Version"
+    .EXAMPLE
+        $timeout = Get-JobFinderConfig -Path "Timeouts.NonExistent" -DefaultValue 60
     #>
     [CmdletBinding()]
+    [OutputType([object])]
     param(
         [Parameter(Mandatory)]
-        [string]$Path
+        [string]$Path,
+        [object]$DefaultValue = $null
     )
-
     $parts = $Path -split '\.'
-    $current = $script:Config
+    $current = $script:JobFinderConfig
 
     foreach ($part in $parts) {
         if ($current -is [hashtable] -and $current.ContainsKey($part)) {
             $current = $current[$part]
-        } else {
-            Write-Error "Configuration path not found: $Path"
+        }
+        else {
+            if ($PSBoundParameters.ContainsKey('DefaultValue')) {
+                return $DefaultValue
+            }
+            Write-Error "Configuration path not found: '$Path'. No default value was provided."
             return $null
         }
     }
-
     return $current
 }
+
+function Get-ProjectRoot {
+    <#
+    .SYNOPSIS
+        Gets the absolute path to the project root directory.
+    .DESCRIPTION
+        This function reliably finds the project root by traversing up from the
+        current script's location until it finds a directory containing the
+        'pyproject.toml' file. This makes other path lookups robust.
+    .OUTPUTS
+        [string] The absolute path to the project root.
+    #>
+    [CmdletBinding()]
+    [OutputType([string])]
+    param()
+
+    # Memoization for performance: store the result in a script-level variable.
+    if ($script:ProjectRootPath) {
+        return $script:ProjectRootPath
+    }
+
+    $currentDir = $PSScriptRoot
+    while ($currentDir -and (Split-Path -Path $currentDir -Parent) -ne $currentDir) {
+        if (Test-Path -Path (Join-Path -Path $currentDir -ChildPath 'pyproject.toml') -PathType Leaf) {
+            $script:ProjectRootPath = $currentDir
+            return $currentDir
+        }
+        if (Test-Path -Path (Join-Path -Path $currentDir -ChildPath '.git') -PathType Container) {
+            $script:ProjectRootPath = $currentDir
+            return $currentDir
+        }
+        $currentDir = Split-Path -Path $currentDir -Parent
+    }
+
+    throw "Could not determine the project root. The 'pyproject.toml' file was not found in any parent directory."
+}
+
 
 function Get-ProjectPath {
     <#
     .SYNOPSIS
-        Get absolute path to project file/directory
+        Constructs an absolute path to a file or directory within the project.
     .PARAMETER RelativePath
-        Relative path from project root
-    .PARAMETER ProjectRoot
-        Project root directory (defaults to script location)
+        The path relative to the project root (e.g., "src/agent.py").
     .EXAMPLE
-        $logsDir = Get-ProjectPath "logs"
+        $logDir = Get-ProjectPath -RelativePath (Get-JobFinderConfig -Path "Paths.LogsDirectory")
     #>
     [CmdletBinding()]
     [OutputType([string])]
     param(
         [Parameter(Mandatory)]
-        [string]$RelativePath,
-
-        [string]$ProjectRoot = $PSScriptRoot
+        [string]$RelativePath
     )
-
-    # Navigate up to project root if we're in deploy/windows
-    if ($ProjectRoot -like '*\deploy\windows*') {
-        $ProjectRoot = (Resolve-Path (Join-Path $ProjectRoot "..\..")).Path
+    try {
+        $projectRoot = Get-ProjectRoot
+        $fullPath = Join-Path -Path $projectRoot -ChildPath $RelativePath
+        return (Resolve-Path -Path $fullPath -ErrorAction Stop).Path
     }
-
-    $fullPath = Join-Path $ProjectRoot $RelativePath
-    return $fullPath
-}
-
-function Initialize-ProjectDirectories {
-    <#
-    .SYNOPSIS
-        Ensure all required project directories exist
-    .PARAMETER ProjectRoot
-        Project root directory
-    .EXAMPLE
-        Initialize-ProjectDirectories -ProjectRoot "C:\App"
-    #>
-    [CmdletBinding()]
-    param(
-        [string]$ProjectRoot = $PSScriptRoot
-    )
-
-    # Navigate up to project root if we're in deploy/windows
-    if ($ProjectRoot -like '*\deploy\windows*') {
-        $ProjectRoot = (Resolve-Path (Join-Path $ProjectRoot "..\..")).Path
-    }
-
-    $directories = @(
-        $script:Config.Paths.LogsDir,
-        $script:Config.Paths.DataDir,
-        $script:Config.Paths.ConfigDir
-    )
-
-    foreach ($dir in $directories) {
-        $fullPath = Join-Path $ProjectRoot $dir
-        if (-not (Test-Path $fullPath)) {
-            New-Item -ItemType Directory -Path $fullPath -Force | Out-Null
-            Write-Verbose "Created directory: $fullPath"
-        }
+    catch {
+        Write-Error "Could not resolve project path for '$RelativePath'. Error: $($_.Exception.Message)"
+        return $null
     }
 }
 
-# Export the configuration
-Export-ModuleMember -Variable Config
-Export-ModuleMember -Function @(
-    'Get-Config',
-    'Get-ProjectPath',
-    'Initialize-ProjectDirectories'
-)
+# --- Export Members ---
+Export-ModuleMember -Variable JobFinderConfig
+Export-ModuleMember -Function Get-JobFinderConfig, Get-ProjectRoot, Get-ProjectPath

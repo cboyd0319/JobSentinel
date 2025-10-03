@@ -56,11 +56,14 @@
     "sales",
     "marketing"
   ],
-  "location_constraints": [
-    "Remote",
-    "US",
-    "United States"
-  ],
+  "location_preferences": {
+    "allow_remote": true,
+    "allow_hybrid": true,
+    "allow_onsite": true,
+    "cities": [],
+    "states": ["Colorado"],
+    "country": "US"
+  },
   "salary_floor_usd": 150000,
   "immediate_alert_threshold": 0.9,
   "digest_min_score": 0.7,

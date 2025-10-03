@@ -2,9 +2,11 @@
 
 This guide outlines the recommended installation process for the Job Scraper application on different operating systems.
 
-## Installation on Windows
+## Windows Installation
 
-**Recommended Method: Graphical Installer**
+**Important**: When you first run the installer, Windows will likely show a security screen that says "Windows protected your PC". This is expected. Click **More info** and then **Run anyway** to proceed.
+
+The recommended method for Windows is the guided PowerShell installer.
 
 The simplest way to get started on Windows is to use the graphical installer.
 

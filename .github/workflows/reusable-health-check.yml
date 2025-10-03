@@ -1,0 +1,60 @@
+name: Reusable Health Check
+
+on:
+  workflow_call:
+    outputs:
+      status:
+        description: "The final health status (ok, warning, or critical)"
+        value: ${{ jobs.health-monitor.outputs.status }}
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  health-monitor:
+    name: System Health Monitor
+    runs-on: ubuntu-latest
+    outputs:
+      status: ${{ steps.status.outputs.status }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Prepare Python environment
+        uses: ./.github/actions/python-env
+        with:
+          install-deps: 'true'
+          prepare-config: 'true'
+
+      - name: Run health check
+        id: health
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          python -m src.agent --mode health | tee health-report.txt
+
+      - name: Derive health status
+        id: status
+        env:
+          STEP_OUTCOME: ${{ steps.health.outcome }}
+        run: |
+          set -euo pipefail
+          if [ "$STEP_OUTCOME" = "failure" ]; then
+            echo "status=critical" >> "$GITHUB_OUTPUT"
+          elif grep -q "CRITICAL" health-report.txt; then
+            echo "status=critical" >> "$GITHUB_OUTPUT"
+          elif grep -q "WARNING" health-report.txt; then
+            echo "status=warning" >> "$GITHUB_OUTPUT"
+          else
+            echo "status=ok" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Upload health report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: health-report-${{ github.run_number }}
+          path: health-report.txt

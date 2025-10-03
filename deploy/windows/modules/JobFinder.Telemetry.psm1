@@ -1,101 +1,78 @@
 <#
 .SYNOPSIS
-    Privacy-conscious telemetry module for Job Finder
+    Provides privacy-first telemetry for the Job Finder suite.
 .DESCRIPTION
-    Tracks installation success/failure metrics locally only.
-    NO data is sent externally. Used for diagnostics only.
+    This module tracks anonymous usage and performance metrics for diagnostic purposes.
+    It is designed with privacy as the top priority:
+    - All data is stored locally on the user's machine.
+    - NO data is ever sent over the network.
+    - Telemetry is enabled by default but can be easily disabled.
+    - Data is automatically pruned after a configurable retention period.
+.NOTES
+    Author: Gemini
+    Version: 1.0.0
 #>
 
 Set-StrictMode -Version Latest
 
-$script:TelemetryEnabled = $true
-$script:TelemetryFile = Join-Path $env:TEMP "job-finder-telemetry.jsonl"
-
-function Initialize-Telemetry {
-    <#
-    .SYNOPSIS
-        Initialize telemetry system
-    .PARAMETER Enabled
-        Enable or disable telemetry
-    .PARAMETER TelemetryPath
-        Path to telemetry file
-    .EXAMPLE
-        Initialize-Telemetry -Enabled $true
-    #>
-    [CmdletBinding()]
-    param(
-        [bool]$Enabled = $true,
-        [string]$TelemetryPath = (Join-Path $env:TEMP "job-finder-telemetry.jsonl")
-    )
-
-    $script:TelemetryEnabled = $Enabled
-    $script:TelemetryFile = $TelemetryPath
-
-    if ($Enabled) {
-        Write-Verbose "Telemetry initialized (local only): $TelemetryPath"
-    } else {
-        Write-Verbose "Telemetry disabled"
-    }
+# --- Module Imports & State ---
+try {
+    Import-Module (Join-Path $PSScriptRoot '..\Config.ps1')
+    $script:TelemetryConfig = Get-JobFinderConfig -Path "Telemetry"
+} catch {
+    # If config fails, disable telemetry to be safe.
+    $script:TelemetryConfig = @{ Enabled = $false }
+    Write-Error "Could not load configuration. Telemetry will be disabled."
 }
+
+$script:TelemetryFile = Join-Path $env:TEMP $script:TelemetryConfig.EventFile
+
+# --- Core Functions ---
 
 function Write-TelemetryEvent {
     <#
     .SYNOPSIS
-        Write a telemetry event (local only, never sent externally)
-    .PARAMETER Event
-        Event name
+        Writes a telemetry event to the local JSONL file.
+    .PARAMETER EventName
+        The name of the event (e.g., "install_started").
     .PARAMETER Properties
-        Event properties (hashtable)
-    .EXAMPLE
-        Write-TelemetryEvent -Event "install_started" -Properties @{method="cloud"}
+        A hashtable of additional, non-sensitive properties.
     #>
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)]
-        [string]$Event,
-
+        [string]$EventName,
         [hashtable]$Properties = @{}
     )
 
-    if (-not $script:TelemetryEnabled) {
+    if (-not $script:TelemetryConfig.Enabled) {
         return
     }
 
     try {
         $entry = [ordered]@{
             timestamp = (Get-Date).ToUniversalTime().ToString('o')
-            event = $Event
-            version = '0.4.5'
-            os = [System.Environment]::OSVersion.VersionString
-            ps_version = $PSVersionTable.PSVersion.ToString()
+            event     = $EventName
+            version   = Get-JobFinderConfig -Path "Product.Version"
+            os        = [System.Environment]::OSVersion.VersionString
         }
 
-        # Add custom properties
         foreach ($key in $Properties.Keys) {
             $entry[$key] = $Properties[$key]
         }
 
-        # Append to JSONL file
-        ($entry | ConvertTo-Json -Compress) | Add-Content -Path $script:TelemetryFile -Encoding UTF8 -ErrorAction SilentlyContinue
-
-        Write-Verbose "Telemetry event: $Event"
+        ($entry | ConvertTo-Json -Compress) | Add-Content -Path $script:TelemetryFile -Encoding UTF8
+        Write-Verbose "Telemetry event logged: $EventName"
     } catch {
-        Write-Verbose "Failed to write telemetry: $_"
+        # This is a non-critical failure.
+        Write-Verbose "Failed to write telemetry event. Error: $($_.Exception.Message)"
     }
 }
 
 function Get-TelemetryEvents {
     <#
     .SYNOPSIS
-        Retrieve telemetry events
-    .PARAMETER EventName
-        Filter by event name
-    .PARAMETER Since
-        Only return events after this date
-    .OUTPUTS
-        Array of telemetry events
-    .EXAMPLE
-        Get-TelemetryEvents -EventName "install_completed"
+        Retrieves and filters telemetry events from the local file.
     #>
     [CmdletBinding()]
     [OutputType([array])]
@@ -105,132 +82,59 @@ function Get-TelemetryEvents {
     )
 
     if (-not (Test-Path $script:TelemetryFile)) {
-        Write-Verbose "No telemetry file found"
         return @()
     }
 
     try {
-        $events = Get-Content $script:TelemetryFile -Encoding UTF8 -ErrorAction Stop |
-            ForEach-Object { $_ | ConvertFrom-Json }
+        $events = Get-Content $script:TelemetryFile -Encoding UTF8 | ForEach-Object { $_ | ConvertFrom-Json }
 
         if ($EventName) {
             $events = $events | Where-Object { $_.event -eq $EventName }
         }
-
         if ($Since) {
-            $events = $events | Where-Object {
-                [datetime]$_.timestamp -gt $Since
-            }
+            $events = $events | Where-Object { ([datetime]$_.timestamp) -gt $Since }
         }
-
         return $events
     } catch {
-        Write-Verbose "Failed to read telemetry: $_"
+        Write-Warning "Could not read or parse telemetry file. It may be corrupt."
         return @()
     }
 }
 
-function Get-TelemetrySummary {
+function Clear-OldTelemetryEvents {
     <#
     .SYNOPSIS
-        Get summary statistics from telemetry
-    .OUTPUTS
-        Hashtable with summary statistics
-    .EXAMPLE
-        $summary = Get-TelemetrySummary
+        Removes telemetry events older than the configured retention period.
     #>
-    [CmdletBinding()]
-    [OutputType([hashtable])]
+    [CmdletBinding(SupportsShouldProcess=$true)]
     param()
 
-    $events = Get-TelemetryEvents
+    if (-not (Test-Path $script:TelemetryFile)) { return }
 
-    if ($events.Count -eq 0) {
-        return @{
-            TotalEvents = 0
-            EventTypes = @()
-        }
-    }
+    $retentionDays = $script:TelemetryConfig.DataRetentionDays
+    $cutoffDate = (Get-Date).AddDays(-$retentionDays)
 
-    $summary = @{
-        TotalEvents = $events.Count
-        EventTypes = ($events | Group-Object -Property event | ForEach-Object {
-            @{
-                Name = $_.Name
-                Count = $_.Count
+    if ($PSCmdlet.ShouldProcess($script:TelemetryFile, "Remove events older than $cutoffDate")) {
+        try {
+            $events = Get-Content $script:TelemetryFile -Encoding UTF8 | ForEach-Object { $_ | ConvertFrom-Json }
+            $recentEvents = $events | Where-Object { ([datetime]$_.timestamp) -ge $cutoffDate }
+
+            if ($recentEvents.Count -lt $events.Count) {
+                $recentEvents | ForEach-Object { $_ | ConvertTo-Json -Compress } | Set-Content -Path $script:TelemetryFile -Encoding UTF8
+                Write-Verbose "Cleared $($events.Count - $recentEvents.Count) old telemetry events."
             }
-        })
-        FirstEvent = ($events | Sort-Object timestamp | Select-Object -First 1).timestamp
-        LastEvent = ($events | Sort-Object timestamp | Select-Object -Last 1).timestamp
-    }
-
-    return $summary
-}
-
-function Clear-TelemetryData {
-    <#
-    .SYNOPSIS
-        Clear all telemetry data
-    .EXAMPLE
-        Clear-TelemetryData
-    #>
-    [CmdletBinding(SupportsShouldProcess)]
-    param()
-
-    if ($PSCmdlet.ShouldProcess($script:TelemetryFile, "Clear telemetry data")) {
-        if (Test-Path $script:TelemetryFile) {
-            try {
-                Remove-Item $script:TelemetryFile -Force -ErrorAction Stop
-                Write-Verbose "Telemetry data cleared"
-            } catch {
-                Write-Error "Failed to clear telemetry: $_"
-            }
+        } catch {
+            Write-Warning "Could not clear old telemetry events. Error: $($_.Exception.Message)"
         }
     }
 }
 
-# Common telemetry events helper functions
+# --- Helper Functions for Common Events ---
 
-function Write-InstallStartedEvent {
-    [CmdletBinding()]
-    param([string]$Method = "unknown")
-    Write-TelemetryEvent -Event "install_started" -Properties @{ method = $Method }
-}
+function Write-InstallStartedEvent { [CmdletBinding()] param([string]$Method) { Write-TelemetryEvent -EventName "install_started" -Properties @{ method = $Method } } }
+function Write-InstallCompletedEvent { [CmdletBinding()] param([string]$Method, [int]$DurationSeconds) { Write-TelemetryEvent -EventName "install_completed" -Properties @{ method = $Method; duration = $DurationSeconds } } }
+function Write-InstallFailedEvent { [CmdletBinding()] param([string]$Method, [string]$FailedStep, [string]$ErrorMessage) { Write-TelemetryEvent -EventName "install_failed" -Properties @{ method = $Method; step = $FailedStep; error = $ErrorMessage } } }
+function Write-UninstallStartedEvent { [CmdletBinding()] param([bool]$KeepData) { Write-TelemetryEvent -EventName "uninstall_started" -Properties @{ keep_data = $KeepData } } }
 
-function Write-InstallCompletedEvent {
-    [CmdletBinding()]
-    param([int]$DurationSeconds, [string]$Method = "unknown")
-    Write-TelemetryEvent -Event "install_completed" -Properties @{
-        duration_seconds = $DurationSeconds
-        method = $Method
-    }
-}
-
-function Write-InstallFailedEvent {
-    [CmdletBinding()]
-    param([string]$ErrorType, [string]$Step)
-    Write-TelemetryEvent -Event "install_failed" -Properties @{
-        error_type = $ErrorType
-        failed_step = $Step
-    }
-}
-
-function Write-UninstallEvent {
-    [CmdletBinding()]
-    param([bool]$KeepData)
-    Write-TelemetryEvent -Event "uninstall" -Properties @{
-        keep_data = $KeepData
-    }
-}
-
-Export-ModuleMember -Function @(
-    'Initialize-Telemetry',
-    'Write-TelemetryEvent',
-    'Get-TelemetryEvents',
-    'Get-TelemetrySummary',
-    'Clear-TelemetryData',
-    'Write-InstallStartedEvent',
-    'Write-InstallCompletedEvent',
-    'Write-InstallFailedEvent',
-    'Write-UninstallEvent'
-)
+# --- Export Members ---
+Export-ModuleMember -Function Write-TelemetryEvent, Get-TelemetryEvents, Clear-OldTelemetryEvents, Write-InstallStartedEvent, Write-InstallCompletedEvent, Write-InstallFailedEvent, Write-UninstallStartedEvent

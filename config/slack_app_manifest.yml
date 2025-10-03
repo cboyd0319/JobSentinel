@@ -16,6 +16,9 @@ oauth_config:
     bot:
       - incoming-webhook
 settings:
+  interactivity:
+    is_enabled: true
+    request_url: https://example.com/slack/interactive # This will be replaced by the user with their ngrok URL or deployed URL
   org_deploy_enabled: false
   socket_mode_enabled: false
   token_rotation_enabled: false

@@ -1,51 +1,59 @@
 <#
 .SYNOPSIS
-    Helper utilities for Job Finder
+    Provides common helper and utility functions for the Job Finder suite.
 .DESCRIPTION
-    Common utility functions used across components
+    This module contains a collection of reusable functions for tasks such as
+    creating desktop shortcuts, checking for updates, and managing a local cache
+    for installers. It is designed to be used by various components of the suite.
+.NOTES
+    Author: Gemini
+    Version: 1.0.0
 #>
 
 Set-StrictMode -Version Latest
 
+# --- Module Imports ---
+try {
+    Import-Module (Join-Path $PSScriptRoot '..\Config.ps1')
+} catch {
+    Write-Error "Could not load the configuration module. Helper functions may not work correctly."
+    return
+}
+
+# --- Core Functions ---
+
 function New-DesktopShortcut {
     <#
     .SYNOPSIS
-        Create a desktop shortcut
+        Creates or updates a desktop shortcut for the application.
     .PARAMETER Name
-        Shortcut name (without .lnk extension)
+        The name of the shortcut file (e.g., "My Job Finder").
     .PARAMETER TargetPath
-        Path to the target file
-    .PARAMETER WorkingDirectory
-        Working directory for the shortcut
+        The absolute path to the executable or script the shortcut should open.
+    .PARAMETER Arguments
+        Optional arguments to pass to the target.
     .PARAMETER IconLocation
-        Icon file path
+        Optional path to an icon file (.ico) or a resource DLL.
     .EXAMPLE
-        New-DesktopShortcut -Name "My Job Finder" -TargetPath "C:\App\run.ps1"
+        New-DesktopShortcut -Name "My Job Finder" -TargetPath "C:\Path\To\My-Job-Finder.ps1"
     #>
-    [CmdletBinding(SupportsShouldProcess)]
+    [CmdletBinding(SupportsShouldProcess=$true)]
     param(
         [Parameter(Mandatory)]
         [string]$Name,
-
         [Parameter(Mandatory)]
         [string]$TargetPath,
-
-        [string]$WorkingDirectory = (Split-Path $TargetPath -Parent),
-
-        [string]$IconLocation = "shell32.dll,21",
-
-        [string]$Arguments = ""
+        [string]$Arguments = "",
+        [string]$IconLocation = "shell32.dll,21" # Default PowerShell icon
     )
 
-    if ($PSCmdlet.ShouldProcess($Name, "Create desktop shortcut")) {
+    $shortcutPath = Join-Path ([System.Environment]::GetFolderPath('Desktop')) "$Name.lnk"
+    if ($PSCmdlet.ShouldProcess($shortcutPath, "Create shortcut to '$TargetPath'")) {
         try {
-            $desktopPath = [Environment]::GetFolderPath('Desktop')
-            $shortcutPath = Join-Path $desktopPath "$Name.lnk"
-
             $shell = New-Object -ComObject WScript.Shell
             $shortcut = $shell.CreateShortcut($shortcutPath)
 
-            # For PowerShell scripts, target powershell.exe
+            # If the target is a PowerShell script, the actual target is powershell.exe
             if ($TargetPath -like '*.ps1') {
                 $shortcut.TargetPath = "powershell.exe"
                 $shortcut.Arguments = "-ExecutionPolicy Bypass -NoProfile -File `"$TargetPath`" $Arguments"
@@ -54,146 +62,66 @@ function New-DesktopShortcut {
                 $shortcut.Arguments = $Arguments
             }
 
-            $shortcut.WorkingDirectory = $WorkingDirectory
+            $shortcut.WorkingDirectory = Split-Path $TargetPath -Parent
             $shortcut.IconLocation = $IconLocation
-            $shortcut.Description = $Name
+            $shortcut.Description = "Launches $Name"
             $shortcut.Save()
 
-            Write-Verbose "Created shortcut: $shortcutPath"
+            Write-Verbose "Successfully created shortcut at $shortcutPath"
             return $shortcutPath
         } catch {
-            Write-Error "Failed to create shortcut: $_"
+            Write-Error "Failed to create shortcut. Error: $($_.Exception.Message)"
             return $null
         } finally {
             if ($shell) {
-                [System.Runtime.Interopservices.Marshal]::ReleaseComObject($shell) | Out-Null
+                [System.Runtime.InteropServices.Marshal]::ReleaseComObject($shell) | Out-Null
             }
         }
-    }
-}
-
-function Start-ProcessWithProgress {
-    <#
-    .SYNOPSIS
-        Start a process with animated progress indicator
-    .PARAMETER FilePath
-        Path to executable
-    .PARAMETER ArgumentList
-        Arguments to pass
-    .PARAMETER Description
-        Description shown during progress
-    .OUTPUTS
-        Exit code of the process
-    .EXAMPLE
-        $exitCode = Start-ProcessWithProgress -FilePath "installer.exe" -ArgumentList "/S" -Description "Installing"
-    #>
-    [CmdletBinding()]
-    [OutputType([int])]
-    param(
-        [Parameter(Mandatory)]
-        [string]$FilePath,
-
-        [string[]]$ArgumentList = @(),
-
-        [string]$Description = "Processing",
-
-        [int]$TimeoutSeconds = 300
-    )
-
-    try {
-        $job = Start-Job -ScriptBlock {
-            param($File, $Args)
-            $process = Start-Process -FilePath $File -ArgumentList $Args -Wait -PassThru -NoNewWindow
-            return $process.ExitCode
-        } -ArgumentList $FilePath, $ArgumentList
-
-        $elapsed = 0
-        $dots = 0
-
-        while ($job.State -eq 'Running' -and $elapsed -lt $TimeoutSeconds) {
-            $dots = ($dots + 1) % 4
-            $animation = "." * $dots + " " * (3 - $dots)
-            Write-Host "`r$Description$animation [$elapsed s]" -NoNewline -ForegroundColor Cyan
-
-            Start-Sleep -Seconds 1
-            $elapsed++
-        }
-
-        Write-Host "" # New line after progress
-
-        if ($job.State -eq 'Running') {
-            Stop-Job $job
-            Remove-Job $job -Force
-            Write-Error "Process timed out after $TimeoutSeconds seconds"
-            return -1
-        }
-
-        $exitCode = Receive-Job $job
-        Remove-Job $job -Force
-
-        if ($exitCode -eq 0) {
-            Write-Host "$Description completed successfully" -ForegroundColor Green
-        } else {
-            Write-Host "$Description exited with code $exitCode" -ForegroundColor Yellow
-        }
-
-        return $exitCode
-    } catch {
-        Write-Error "Process execution failed: $_"
-        return -1
     }
 }
 
 function Test-UpdateAvailable {
     <#
     .SYNOPSIS
-        Check if a newer version is available on GitHub
-    .PARAMETER CurrentVersion
-        Current installed version
-    .PARAMETER RepositoryUrl
-        GitHub repository URL
+        Checks GitHub for a newer release of the application.
+    .DESCRIPTION
+        Compares the current version (from config) with the tag of the latest
+        release on GitHub. It has a short timeout to avoid delaying startup.
     .OUTPUTS
-        Boolean indicating if update is available
-    .EXAMPLE
-        if (Test-UpdateAvailable -CurrentVersion "0.4.5") { ... }
+        [bool] True if a newer version is available, otherwise false.
     #>
     [CmdletBinding()]
     [OutputType([bool])]
-    param(
-        [Parameter(Mandatory)]
-        [version]$CurrentVersion,
-
-        [string]$RepositoryUrl = "cboyd0319/job-private-scraper-filter"
-    )
+    param()
 
     try {
-        $apiUrl = "https://api.github.com/repos/$RepositoryUrl/releases/latest"
-        $release = Invoke-RestMethod -Uri $apiUrl -ErrorAction Stop -TimeoutSec 10
+        $repo = Get-JobFinderConfig -Path "Repository"
+        $currentVersion = [version](Get-JobFinderConfig -Path "Product.Version")
+        $apiUrl = "https://api.github.com/repos/$($repo.Owner)/$($repo.Name)/releases/latest"
+        
+        $release = Invoke-RestMethod -Uri $apiUrl -TimeoutSec (Get-JobFinderConfig -Path "Timeouts.WebRequest")
 
-        if ($release.tag_name -match '^v?(\d+\.\d+\.\d+)') {
+        if ($release.tag_name -match 'v?(\d+\.\d+\.\d+)') {
             $latestVersion = [version]$matches[1]
-            $updateAvailable = $latestVersion -gt $CurrentVersion
-
-            Write-Verbose "Current: $CurrentVersion, Latest: $latestVersion, Update available: $updateAvailable"
+            $updateAvailable = $latestVersion -gt $currentVersion
+            Write-Verbose "Current version: $currentVersion, Latest GitHub release: $latestVersion. Update available: $updateAvailable"
             return $updateAvailable
         }
     } catch {
-        Write-Verbose "Failed to check for updates: $_"
+        # This is not a critical failure; network issues are common.
+        Write-Verbose "Could not check for updates. Error: $($_.Exception.Message)"
     }
-
     return $false
 }
 
-function Get-InstallerCache {
+function Get-InstallerCachePath {
     <#
     .SYNOPSIS
-        Get path to installer cache directory
+        Gets the path to the installer cache directory and optionally creates it.
     .PARAMETER Create
-        Create directory if it doesn't exist
+        If set, the directory will be created if it does not exist.
     .OUTPUTS
-        Path to cache directory
-    .EXAMPLE
-        $cacheDir = Get-InstallerCache -Create
+        [string] The absolute path to the cache directory.
     #>
     [CmdletBinding()]
     [OutputType([string])]
@@ -201,99 +129,79 @@ function Get-InstallerCache {
         [switch]$Create
     )
 
-    $cacheDir = Join-Path $env:TEMP "job-finder-cache"
-
+    $cacheDir = Join-Path $env:TEMP (Get-JobFinderConfig -Path "Installer.CacheDirectory")
     if ($Create -and -not (Test-Path $cacheDir)) {
         New-Item -ItemType Directory -Path $cacheDir -Force | Out-Null
-        Write-Verbose "Created cache directory: $cacheDir"
+        Write-Verbose "Created installer cache directory: $cacheDir"
     }
-
     return $cacheDir
 }
 
 function Get-CachedInstaller {
     <#
     .SYNOPSIS
-        Get cached installer if it exists and hash matches
+        Finds a cached installer and verifies its integrity via SHA256 hash.
     .PARAMETER Name
-        Installer name (e.g., "python-3.12.10.exe")
+        The filename of the installer (e.g., "python-3.12.10.exe").
     .PARAMETER ExpectedHash
-        Expected SHA256 hash
+        The expected SHA256 hash of the file.
     .OUTPUTS
-        Path to cached installer or $null
-    .EXAMPLE
-        $installer = Get-CachedInstaller -Name "python.exe" -ExpectedHash $hash
+        [string] The path to the valid cached file, or $null if not found or invalid.
     #>
     [CmdletBinding()]
     [OutputType([string])]
     param(
         [Parameter(Mandatory)]
         [string]$Name,
-
         [Parameter(Mandatory)]
         [string]$ExpectedHash
     )
 
-    $cacheDir = Get-InstallerCache
-    $cachedFile = Join-Path $cacheDir $Name
-
+    $cachedFile = Join-Path (Get-InstallerCachePath) $Name
     if (Test-Path $cachedFile) {
-        try {
-            $actualHash = (Get-FileHash $cachedFile -Algorithm SHA256).Hash
-
-            if ($actualHash -eq $ExpectedHash) {
-                Write-Host "Using cached installer: $Name" -ForegroundColor Green
-                return $cachedFile
-            } else {
-                Write-Verbose "Cached file hash mismatch, will re-download"
-                Remove-Item $cachedFile -Force -ErrorAction SilentlyContinue
-            }
-        } catch {
-            Write-Verbose "Failed to verify cached file: $_"
+        Write-Verbose "Found cached file: $cachedFile. Verifying hash..."
+        $actualHash = (Get-FileHash $cachedFile -Algorithm SHA256).Hash
+        if ($actualHash -eq $ExpectedHash) {
+            Write-Host "Using valid cached installer for '$Name'." -ForegroundColor Green
+            return $cachedFile
+        } else {
+            Write-Warning "Cached file '$Name' has an invalid hash. It will be re-downloaded."
+            Remove-Item $cachedFile -Force -ErrorAction SilentlyContinue
         }
     }
-
     return $null
 }
 
-function Set-CachedInstaller {
+function Add-ToInstallerCache {
     <#
     .SYNOPSIS
-        Copy installer to cache
+        Adds a file to the installer cache.
     .PARAMETER SourcePath
-        Source installer path
-    .PARAMETER Name
-        Name for cached file
-    .EXAMPLE
-        Set-CachedInstaller -SourcePath "C:\Temp\python.exe" -Name "python-3.12.10.exe"
+        The path to the file to be cached.
+    .PARAMETER TargetName
+        The name to give the file in the cache.
     #>
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess=$true)]
     param(
         [Parameter(Mandatory)]
         [string]$SourcePath,
-
         [Parameter(Mandatory)]
-        [string]$Name
+        [string]$TargetName
     )
 
-    try {
-        $cacheDir = Get-InstallerCache -Create
-        $cachedPath = Join-Path $cacheDir $Name
-
-        Copy-Item $SourcePath $cachedPath -Force -ErrorAction Stop
-        Write-Verbose "Cached installer: $cachedPath"
-        return $cachedPath
-    } catch {
-        Write-Verbose "Failed to cache installer: $_"
-        return $null
+    $cacheDir = Get-InstallerCachePath -Create
+    $destination = Join-Path $cacheDir $TargetName
+    if ($PSCmdlet.ShouldProcess($destination, "Cache file '$SourcePath'")) {
+        try {
+            Copy-Item -Path $SourcePath -Destination $destination -Force
+            Write-Verbose "Successfully cached '$TargetName'."
+            return $destination
+        } catch {
+            Write-Warning "Could not cache file '$TargetName'. Error: $($_.Exception.Message)"
+        }
     }
+    return $null
 }
 
-Export-ModuleMember -Function @(
-    'New-DesktopShortcut',
-    'Start-ProcessWithProgress',
-    'Test-UpdateAvailable',
-    'Get-InstallerCache',
-    'Get-CachedInstaller',
-    'Set-CachedInstaller'
-)
+# --- Export Members ---
+Export-ModuleMember -Function New-DesktopShortcut, Test-UpdateAvailable, Get-InstallerCachePath, Get-CachedInstaller, Add-ToInstallerCache

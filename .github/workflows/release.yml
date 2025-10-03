@@ -21,7 +21,7 @@ jobs:
       pull-requests: write
       issues: write
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ github.sha }}
@@ -42,8 +42,8 @@ jobs:
 
       - name: Release
         id: release
-        if: github.ref_name == 'main' && secrets.SEMANTIC_RELEASE_TOKEN != ''
-        uses: python-semantic-release/python-semantic-release@8b1ced9dfd29704d6d781541a224c5abc06cc4e4
+        if: github.ref_name == 'main'
+        uses: python-semantic-release/python-semantic-release@v8
         env:
           GH_TOKEN: ${{ secrets.SEMANTIC_RELEASE_TOKEN != '' &&
             secrets.SEMANTIC_RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
@@ -53,6 +53,6 @@ jobs:
 
       - name: Attest build provenance
         if: steps.release.outputs.released == 'true'
-        uses: actions/attest-build-provenance@bdd51370e0416ac948727f861e03c2f05d32d78e
+        uses: actions/attest-build-provenance@v1
         with:
           subject-path: 'dist/*'

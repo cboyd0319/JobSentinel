@@ -327,6 +327,17 @@ function Save-State {
 
 # --- Region: Deployment Workflow ---
 
+function Set-InitialBudget {
+    Write-Log -Message "Setting initial GCP budget to $5..." -Level Info
+    try {
+        $billingAccount = (gcloud billing projects describe (gcloud config get-value project) --format="value(billingAccountName)").Split("/")[1]
+        gcloud billing budgets create --billing-account=$billingAccount --display-name="Job Finder Budget" --budget-amount=5
+        Write-Log -Message "Initial GCP budget set successfully." -Level Success
+    } catch {
+        throw "Failed to set initial GCP budget: $($_.Exception.Message)"
+    }
+}
+
 function Invoke-Deployment {
     <#
     .SYNOPSIS
@@ -365,6 +376,16 @@ function Invoke-Deployment {
         Save-State -Step "python_bootstrap" -Status "completed"
     } catch {
         Save-State -Step "python_bootstrap" -Status "failed"
+        throw
+    }
+
+    # Step 3: Set Initial Budget
+    Save-State -Step "set_initial_budget" -Status "started"
+    try {
+        Set-InitialBudget
+        Save-State -Step "set_initial_budget" -Status "completed"
+    } catch {
+        Save-State -Step "set_initial_budget" -Status "failed"
         throw
     }
 
@@ -465,6 +486,44 @@ function Invoke-Teardown {
 
 # --- Region: Main Execution ---
 
+[CmdletBinding(SupportsShouldProcess=$true)]
+param(
+    [ValidateSet('deploy','rollback','status','teardown', 'update-budget')]
+    [string]$Action = 'deploy',
+    [switch]$DryRun,
+    [int]$NewBudgetAmount = 0
+)
+
+# ... (rest of the script) ...
+
+function Update-GcpBudget {
+    param([int]$Amount)
+
+    if ($Amount -le 0) {
+        throw "Budget amount must be greater than zero."
+    }
+    if ($Amount -gt 50) {
+        Write-Log -Message "Budget amount exceeds the $50 hard cap. Setting budget to $50." -Level Warn
+        $Amount = 50
+    }
+
+    Write-Log -Message "Updating GCP budget to `$$Amount`..." -Level Info
+    try {
+        $budgets = gcloud billing budgets list --format="value(name)"
+        if (-not $budgets) {
+            throw "No budgets found for the current billing account."
+        }
+        $budgetName = $budgets.Split("`n")[0]
+
+        gcloud billing budgets update $budgetName --amount "$Amount"
+        Write-Log -Message "GCP budget updated successfully." -Level Success
+    } catch {
+        throw "Failed to update GCP budget: $($_.Exception.Message)"
+    }
+}
+
+# ... (rest of the script) ...
+
 try {
     switch ($Action) {
         'deploy' {
@@ -494,6 +553,10 @@ try {
         }
         'teardown' {
             Invoke-Teardown
+            exit 0
+        }
+        'update-budget' {
+            Update-GcpBudget -Amount $NewBudgetAmount
             exit 0
         }
     }

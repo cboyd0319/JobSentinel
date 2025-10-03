@@ -98,26 +98,48 @@ class SetupWizard:
                 "name": "experience_years",
             },
             {
-                "type": "input",
-                "message": "📍 Current location (city, state):",
-                "validate": EmptyInput("Location cannot be empty"),
-                "default": self.user_profile.get("location", ""),
-                "name": "location",
+                "type": "checkbox",
+                "message": "🌍 Select your preferred work arrangements:",
+                "choices": [
+                    {"name": "Remote", "value": "allow_remote", "enabled": True},
+                    {"name": "Hybrid", "value": "allow_hybrid", "enabled": True},
+                    {"name": "On-site", "value": "allow_onsite", "enabled": True},
+                ],
+                "name": "work_arrangements",
             },
             {
-                "type": "list",
-                "message": "🌍 Work arrangement preferences:",
-                "choices": [
-                    {"name": "On-site only", "value": "On-site"},
-                    {"name": "Remote only", "value": "Remote"},
-                    {"name": "Hybrid (mix of on-site and remote)", "value": "Hybrid"},
-                    {"name": "Open to all arrangements", "value": "Any"},
-                ],
-                "default": self.user_profile.get("work_arrangement_preference", "Any"),
-                "name": "work_arrangement_preference",
+                "type": "input",
+                "message": "📍 Enter preferred cities (comma-separated), or leave blank:",
+                "name": "cities",
+            },
+            {
+                "type": "input",
+                "message": "📍 Enter preferred states (comma-separated), or leave blank:",
+                "name": "states",
+            },
+            {
+                "type": "input",
+                "message": "📍 Enter preferred country (e.g., US), or leave blank:",
+                "default": "US",
+                "name": "country",
             },
         ]
         answers = prompt(questions=questions)
+        
+        location_preferences = {
+            "allow_remote": "allow_remote" in answers["work_arrangements"],
+            "allow_hybrid": "allow_hybrid" in answers["work_arrangements"],
+            "allow_onsite": "allow_onsite" in answers["work_arrangements"],
+            "cities": [c.strip() for c in answers["cities"].split(",") if c.strip()],
+            "states": [s.strip() for s in answers["states"].split(",") if s.strip()],
+            "country": answers["country"],
+        }
+        self.user_profile["location_preferences"] = location_preferences
+
+        del answers["work_arrangements"]
+        del answers["cities"]
+        del answers["states"]
+        del answers["country"]
         self.user_profile.update(answers)
         console.print()
 
@@ -130,66 +152,38 @@ class SetupWizard:
             {
                 "type": "confirm",
                 "message": "📄 Do you have a resume you'd like to analyze?",
-                "default": False,
+                "default": True,
                 "name": "has_resume",
             }
         )["has_resume"]
 
         if has_resume:
-            console.print("\nYou can provide your resume in two ways:")
-            console.print("1. Paste resume text directly")
-            console.print("2. Provide path to resume file (PDF/TXT)")
-
-            method = prompt(
+            file_path = prompt(
                 {
-                    "type": "list",
-                    "message": "Choose method:",
-                    "choices": [{"name": "Paste text", "value": "paste"}, {"name": "File path", "value": "file"}],
-                    "name": "method",
+                    "type": "input",
+                    "message": "📁 Enter path to your resume file (PDF or DOCX):",
+                    "validate": PathValidator(is_file=True, message="Invalid file path"),
+                    "name": "file_path",
                 }
-            )["method"]
+            )["file_path"]
 
-            resume_text = ""
+            try:
+                from utils.resume_parser import ResumeParser, interactive_skill_editor
+                parser = ResumeParser()
+                parsed_data = parser.parse_file(file_path)
+                
+                console.print(f"[green]✅ Resume analyzed successfully! Found {len(parsed_data['skills'])} skills.[/green]")
 
-            if method == "paste":
-                console.print("\n[bold yellow]📝 Please paste your resume text below.[/bold yellow]")
-                console.print("[bold yellow]When finished, type 'DONE' on a new line and press Enter:[/bold yellow]")
+                add_skills, remove_skills = interactive_skill_editor(parsed_data['skills'])
 
-                lines = []
-                while True:
-                    line = input()
-                    if line.strip().upper() == "DONE":
-                        break
-                    lines.append(line)
-                resume_text = "\n".join(lines)
+                self.user_profile.update(parser.to_user_prefs(
+                    existing_prefs=self.user_profile, 
+                    add_skills=add_skills, 
+                    remove_skills=remove_skills
+                ))
 
-            elif method == "file":
-                file_path = prompt(
-                    {
-                        "type": "input",
-                        "message": "📁 Enter path to resume file:",
-                        "validate": PathValidator(is_file=True, message="Invalid file path"),
-                        "name": "file_path",
-                    }
-                )["file_path"]
-                try:
-                    if file_path.endswith(".pdf"):
-                        console.print(
-                            "[yellow]📄 PDF analysis requires additional setup. For now, please copy/paste the text.[/yellow]"
-                        )
-                        return self.analyze_resume()
-                    else:
-                        with open(file_path, "r", encoding="utf-8") as f:
-                            resume_text = f.read()
-                except Exception as e:
-                    console.print(f"[bold red]❌ Error reading file:[/bold red] {e}")
-                    return self.analyze_resume()
-
-            if resume_text:
-                console.print("\n[cyan]🔍 Analyzing your resume...[/cyan]")
-                self._extract_skills_from_resume(resume_text)
-            else:
-                console.print("[yellow]⚠️ No resume text provided, skipping automatic analysis.[/yellow]")
+            except Exception as e:
+                console.print(f"[bold red]❌ Error analyzing resume:[/bold red] {e}")
                 self._manual_skills_entry()
         else:
             console.print("[green]📝 No problem! Let's manually configure your skills and preferences.[/green]")
