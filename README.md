@@ -28,9 +28,25 @@ This tool polls job boards on your schedule, scores matches with your rules, and
 1.  **Download the installer**: Right-click [this link](https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/deploy/windows/Install-Job-Finder.ps1) and choose "Save Link As..." to save `Install-Job-Finder.ps1` to your Desktop.
 2.  **Run the installer**: Double-click the `Install-Job-Finder.ps1` file on your Desktop and follow the on-screen instructions.
 
-### macOS / Linux (Planned)
+### macOS / Linux
 
-We're working on making the setup just as smooth for macOS and Linux users. For now, you can follow the [development setup guide](./docs/DEVELOPMENT.md) to get started.
+```bash
+# Clone repository
+git clone https://github.com/cboyd0319/job-private-scraper-filter.git
+cd job-private-scraper-filter
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Configure preferences
+cp config/user_prefs.example.json config/user_prefs.json
+nano config/user_prefs.json
+
+# Run first scrape
+python -m src.agent --mode scrape
+```
+
+See [Getting Started Guide](./docs/GETTING_STARTED.md) for detailed instructions.
 
 > **Privacy-first**: This tool runs locally by default. Your data stays on your machine unless you choose to deploy to the cloud.
 

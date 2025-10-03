@@ -71,7 +71,9 @@ ls data/jobs/*.json
 
 ## ☁️ Quick Start (Cloud)
 
-Deploy to Google Cloud Run for automated daily scraping:
+Deploy to Google Cloud Run for automated daily scraping.
+
+### Option 1: Automated Bootstrap (Recommended)
 
 ```bash
 # Run cloud bootstrap
@@ -86,6 +88,39 @@ python -m cloud.bootstrap
 
 # Job will run daily at 9 AM
 ```
+
+### Option 2: Platform-Specific Installers
+
+**Windows:**
+```powershell
+cd deploy/windows
+.\install.ps1  # Opens GUI installer
+```
+
+**macOS/Linux:**
+```bash
+cd deploy/macos  # or deploy/linux
+./install.sh
+```
+
+The installer handles:
+- Tool checks (gcloud, terraform)
+- Google Cloud authentication
+- Infrastructure setup (Cloud Run, Artifact Registry, Secret Manager)
+- Automated deployment
+- Budget alerts configuration
+
+### What Gets Deployed
+
+Your Google Cloud project will include:
+- **Cloud Run Job** - Serverless container (runs on schedule)
+- **Artifact Registry** - Private container storage
+- **Secret Manager** - Secure credential vault
+- **Cloud Scheduler** - Automated triggers
+- **VPC Network** - Private networking
+- **Budget Alerts** - Cost monitoring ($10/month default)
+
+All infrastructure is defined in `terraform/gcp/` for repeatability.
 
 **Cost:** ~$0-5/month (mostly free tier)
 

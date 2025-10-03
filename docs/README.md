@@ -77,7 +77,6 @@ Welcome to the Job Finder documentation!
 
 - **[Roadmap](ROADMAP.md)** - Planned features and improvements
 - **[Changelog](../CHANGELOG.md)** - Version history
-- **[Cloud Deployment](CLOUD.md)** - GCP-specific deployment details
 - **[Security Policy](../SECURITY.md)** - Vulnerability reporting
 
 ---
@@ -119,7 +118,7 @@ Historical documentation (for reference):
 → [Developer Guide](DEVELOPER_GUIDE.md)
 
 **"I want to deploy to Google Cloud"**
-→ [Getting Started - Cloud](GETTING_STARTED.md#quick-start-cloud)
+→ [Getting Started - Cloud Deployment](GETTING_STARTED.md#%EF%B8%8F-quick-start-cloud)
 
 ---
 
