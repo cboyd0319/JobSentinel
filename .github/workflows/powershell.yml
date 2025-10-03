@@ -19,6 +19,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: powershell-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   analysis:
     name: PSScriptAnalyzer
@@ -58,7 +62,6 @@ jobs:
   syntax:
     name: Syntax Validation
     runs-on: windows-latest
-    needs: analysis
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -109,7 +112,6 @@ jobs:
   tests:
     name: Pester Tests
     runs-on: windows-latest
-    needs: analysis
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -137,7 +139,7 @@ jobs:
         with:
           name: test-results
           path: test-results.xml
-          retention-days: 7
+          retention-days: 2
 
       - name: Publish test results
         if: always()

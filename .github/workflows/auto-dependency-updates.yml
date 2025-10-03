@@ -18,6 +18,10 @@ permissions:
   contents: write
   pull-requests: write
 
+concurrency:
+  group: auto-deps-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   auto-update-python:
     name: Auto-Update Python Dependencies

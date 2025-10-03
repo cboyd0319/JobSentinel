@@ -170,20 +170,11 @@ jobs:
         continue-on-error: true
         run: flake8 src/ utils/ sources/ notify/ matchers/ || echo "Flake8 found issues - logging only"
 
-  cross-platform-test:
+  cross-platform-ubuntu:
     needs: [changes, primary-test, code-quality]
-    if: |
-      needs.changes.outputs.docs-only == 'false' &&
-      (github.event_name == 'schedule' ||
-       github.event_name == 'workflow_dispatch' ||
-       needs.changes.outputs.platform-scripts == 'true')
-    name: Cross-Platform Test
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ['3.12.10']
+    if: needs.changes.outputs.docs-only == 'false'
+    name: Test Ubuntu
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -193,7 +184,56 @@ jobs:
       - name: Prepare Python environment
         uses: ./.github/actions/python-env
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: '3.12.10'
+          install-deps: 'true'
+          prepare-config: 'true'
+
+      - name: Test core functionality
+        run: python -m src.agent --mode health
+
+  cross-platform-windows:
+    needs: [changes, primary-test, code-quality]
+    if: |
+      needs.changes.outputs.docs-only == 'false' &&
+      (needs.changes.outputs.windows-specific == 'true' ||
+       github.event_name == 'schedule' ||
+       github.event_name == 'workflow_dispatch')
+    name: Test Windows
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Prepare Python environment
+        uses: ./.github/actions/python-env
+        with:
+          python-version: '3.12.10'
+          install-deps: 'true'
+          prepare-config: 'true'
+
+      - name: Test core functionality
+        run: python -m src.agent --mode health
+
+  cross-platform-macos:
+    needs: [changes, primary-test, code-quality]
+    if: |
+      needs.changes.outputs.docs-only == 'false' &&
+      (github.event_name == 'schedule' ||
+       github.event_name == 'workflow_dispatch')
+    name: Test macOS
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Prepare Python environment
+        uses: ./.github/actions/python-env
+        with:
+          python-version: '3.12.10'
           install-deps: 'true'
           prepare-config: 'true'
 

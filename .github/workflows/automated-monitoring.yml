@@ -8,6 +8,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: monitoring-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   health-check:
     uses: ./.github/workflows/reusable-health-check.yml
@@ -141,7 +145,7 @@ jobs:
         with:
           name: performance-report-${{ github.run_number }}
           path: perf-report.txt
-          retention-days: 7
+          retention-days: 1
 
       - name: Surface performance warnings
         if: failure()
