@@ -161,8 +161,17 @@ jobs:
         run: terraform -chdir=terraform/gcp/ fmt -recursive
 
       - name: Lint with flake8
+        id: flake8
         continue-on-error: true
-        run: flake8 src/ utils/ sources/ notify/ matchers/ || echo "Flake8 found issues - logging only"
+        run: flake8 src/ utils/ sources/ notify/ matchers/
+
+      - name: Auto-fix with Black
+        if: steps.flake8.outcome == 'failure'
+        run: |
+          python -m pip install black
+          black src/ utils/ sources/ notify/ matchers/
+          echo "Black auto-formatted code. Review changes and commit if needed."
+          git diff --stat
 
   cross-platform-ubuntu:
     needs: [changes, primary-test, code-quality]
