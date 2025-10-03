@@ -7,6 +7,7 @@
     <p class="lead">Add or remove skills to improve job matching.</p>
 
     <form action="{{ url_for('save_skills') }}" method="post">
+        {# nosemgrep: python.django.security.django-no-csrf-token.django-no-csrf-token #}
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <div class="mb-3">
             <label for="skills" class="form-label">Your Skills</label>
