@@ -96,6 +96,13 @@ pyperclip==1.9.0
 # LLM features (optional - requires OPENAI_API_KEY environment variable)
 # openai>=1.54.0
 
+# MCP (Model Context Protocol) for JobsWithGPT integration
+mcp==1.16.0
+httpx-sse==0.4.1
+jsonschema==4.25.1
+pydantic-settings==2.11.0
+sse-starlette==3.0.2
+
 # NLP-based skill extraction (optional - for enhanced resume parsing)
 spacy==3.7.2
 en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1.tar.gz
