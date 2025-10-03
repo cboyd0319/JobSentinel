@@ -16,6 +16,7 @@ from .api_based_scrapers import (
     SpaceXCareersScraper,
 )
 from .greenhouse_scraper import GreenhouseScraper
+from .lever_scraper import LeverScraper
 from .job_scraper_base import JobBoardRegistry
 from .playwright_scraper import PlaywrightScraper
 
@@ -32,6 +33,7 @@ def _ensure_registry() -> JobBoardRegistry:
 
     registry = JobBoardRegistry()
     registry.register(GreenhouseScraper())
+    registry.register(LeverScraper())
     registry.register(MicrosoftCareersScraper())
     registry.register(SpaceXCareersScraper())
     registry.register(PlaywrightScraper())  # Generic fallback
