@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "job-private-scraper-filter"
-version = "1.3.0" # This will be updated by semantic-release
+version = "1.0.0" # This will be updated by semantic-release
 
 description = "A private job scraper and filter"
 authors = [{name = "Your Name", email = "your.email@example.com"}]
