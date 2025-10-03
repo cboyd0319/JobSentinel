@@ -42,11 +42,67 @@ When you first run the installer on Windows, you will likely see a blue "Windows
 
 ## What It Does
 
-*   **Polls job boards**: Checks your favorite job sites on a schedule you set.
-*   **Filters and scores**: Uses your custom rules to find the best matches.
-*   **Sends alerts**: Notifies you via Slack when a great opportunity comes up.
-*   **Auto-configures**: Can analyze your resume (PDF/DOCX) to set up your preferences.
-*   **Local-first**: Your data stays on your machine. Cloud deployment is optional.
+### Core Features
+
+**Automated Job Discovery**
+- Scrapes multiple job boards on your schedule (daily, hourly, or on-demand)
+- Access 500k+ jobs through MCP aggregators (JobsWithGPT, Reed, JobSpy)
+- Direct scrapers for Greenhouse, Lever, Microsoft, SpaceX, and custom job boards
+- Smart deduplication removes duplicate listings across sources
+
+**Intelligent Filtering**
+- Keywords (skills, tech stack, certifications)
+- Job titles (exact match or fuzzy)
+- Locations (city, state, remote, radius-based)
+- Salary requirements (minimum/maximum)
+- Experience level (junior, mid, senior)
+- Company blocklist (avoid specific employers)
+- Work authorization requirements
+
+**Match Scoring**
+- Weighted keyword matching (prioritize what matters most)
+- Location preference scoring
+- Salary fit calculation
+- Experience level alignment
+- Overall match score (0.0-1.0 scale)
+
+**Notifications**
+- Slack webhooks for high-match jobs (configurable threshold)
+- Desktop notifications (local mode)
+- Email alerts (planned for v3.0)
+
+**Resume Analysis** (v2.2.0+)
+- Upload PDF or DOCX resume
+- Auto-extract skills, job titles, companies, education
+- Pre-populate config file with detected preferences
+- Manual review and editing before saving
+
+**Deployment Options**
+- **Local-first**: Runs on your machine (Windows, macOS, Linux)
+- **Cloud-optional**: Deploy to Google Cloud Run for hands-off automation
+- **Cost**: ~$0-5/month on GCP (mostly free tier)
+- **Privacy**: Your data stays local unless you choose cloud deployment
+
+### Security Features (FREE - $0/month)
+
+All security controls are free and open-source:
+
+- **Secrets scanning** (TruffleHog) - Blocks credential leaks in commits
+- **Input validation** (Pydantic) - Prevents SQL injection, XSS, command injection
+- **Rate limiting** - Per-server request throttling (100-300 req/hour)
+- **Audit logging** - JSONL logs with anomaly detection
+- **Docker isolation** - Sandboxed MCP servers (read-only FS, network restrictions)
+- **Panic button** - Emergency disable for compromised servers
+
+**Annual Savings vs. Commercial Security Tools: $2,388 - $9,200+**
+
+### Data & Privacy
+
+- **Local storage**: Jobs saved as JSON files in `data/jobs/`
+- **No tracking**: Zero telemetry, analytics, or phone-home
+- **Open source**: Full transparency - review the code yourself
+- **Self-hosted**: You control where data lives (local or your own cloud)
+- **GDPR compliant**: Right to access, erasure, and portability built-in
 
 ## Documentation
 
