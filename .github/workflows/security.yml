@@ -103,18 +103,16 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
       - name: Install OpenGrep
-        run: pip install opengrep-pyo3
+        run: curl -fsSL https://raw.githubusercontent.com/opengrep/opengrep/main/install.sh | bash
+
+      - name: Add OpenGrep to PATH
+        run: echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Run OpenGrep scan
         continue-on-error: true
         run: |
-          opengrep --sarif --output opengrep-results.sarif --config auto . || echo "OpenGrep scan completed with findings"
+          $HOME/.local/bin/opengrep --sarif --output opengrep-results.sarif --config auto . || echo "OpenGrep scan completed with findings"
 
       - name: Upload OpenGrep SARIF
         if: always() && hashFiles('opengrep-results.sarif') != ''
