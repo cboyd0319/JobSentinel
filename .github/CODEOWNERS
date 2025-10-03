@@ -1,13 +1,29 @@
-# Global code ownership
+# Code Owners for job-private-scraper-filter
+# These owners will be automatically requested for review when someone opens a pull request.
+
+# Global owner
 * @cboyd0319
 
-# Security-sensitive files require extra review
+# GitHub workflows and actions
 /.github/ @cboyd0319
-/scripts/ @cboyd0319
-/config/ @cboyd0319
+
+# Security and cloud infrastructure
+/cloud/ @cboyd0319
+/terraform/ @cboyd0319
 SECURITY.md @cboyd0319
+
+# Core application
+/src/ @cboyd0319
+/sources/ @cboyd0319
+/matchers/ @cboyd0319
+/notify/ @cboyd0319
+
+# Dependencies and configuration
 requirements.txt @cboyd0319
+pyproject.toml @cboyd0319
+.python-version @cboyd0319
 
 # Documentation
-*.md @cboyd0319
 /docs/ @cboyd0319
+README.md @cboyd0319
+CONTRIBUTING.md @cboyd0319

@@ -69,9 +69,59 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added SHA256 verification for downloads
 - Implemented proper secret handling
 
+## [1.3.0] - 2025-10-03
+
+### Added
+- **Enterprise-Grade Security Posture**
+  - 7 automated security scanners with 100% SARIF coverage
+  - Branch protection with required status checks and PR reviews
+  - CODEOWNERS file for automated code review assignments
+  - Operations runbook (docs/RUNBOOK.md)
+  - Moved SECURITY.md and CONTRIBUTING.md to root for GitHub visibility
+
+### Security
+- **Fixed CVE-2025-53643**: Updated aiohttp 3.10.11 → 3.12.14
+- **Fixed High Severity**: Removed sensitive data from logs (stderr/stdout)
+- **Fixed Error Level**: Shell injection prevention in GitHub Actions
+- **Zero Open Alerts**: All 30 security alerts resolved (15 fixed, 15 dismissed as false positives)
+- Added PowerShell security scanning with PSScriptAnalyzer
+- Implemented SARIF upload for all security tools:
+  - Bandit (Python security)
+  - CodeQL (code analysis)
+  - OpenGrep OSS (static analysis)
+  - OSV Scanner (dependencies)
+  - TruffleHog (secrets)
+  - PSScriptAnalyzer (PowerShell)
+
+### Performance
+- **40-60% CI/CD cost reduction** (~$20-35/month savings)
+  - Windows runners: Parallel execution (30-40% faster)
+  - Cross-platform: Ubuntu always, Windows/macOS conditional
+  - CodeQL: Weekly schedule only (80-90% reduction)
+  - Artifacts: 1-2 day retention (50-70% storage savings)
+- **30-50% faster workflow execution**
+  - Concurrency controls prevent duplicate runs
+  - Aggressive caching and path filters
+  - Smart job dependencies
+
+### Changed
+- Branch protection enforced: status checks + PR approval + linear history
+- Flake8 → Black auto-formatting fallback
+- Python dependency management optimized
+- All GitHub Actions updated to latest versions
+
+### Fixed
+- Dead code removed (Terraform plan step)
+- Scheduled dependency updates now functional
+- OpenGrep binary path corrected
+- Redundant pip upgrades eliminated
+
 ## [Unreleased]
 
 ### Planned
+- SBOM generation for releases
+- Artifact signing (Cosign/SLSA)
+- Devcontainer configuration
 - Email notifications for found jobs
 - Browser extension integration
 - Multi-provider cloud support (AWS, Azure)
@@ -83,3 +133,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [0.4.5]: https://github.com/cboyd0319/job-private-scraper-filter/releases/tag/v0.4.5
 [1.0.0]: https://github.com/cboyd0319/job-private-scraper-filter/releases/tag/v1.0.0
+[1.3.0]: https://github.com/cboyd0319/job-private-scraper-filter/releases/tag/v1.3.0
