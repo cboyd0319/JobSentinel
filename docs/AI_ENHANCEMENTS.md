@@ -46,7 +46,54 @@ This document outlines cost-effective AI integrations to enhance job matching, r
   - Single API for Workday, Greenhouse, Ashby, Lever, etc.
   - Massive coverage increase without custom scrapers
 
-### 1.2 Resume Analysis MCP Servers
+### 1.2 Job Search MCP Servers ✨ **HIGH VALUE**
+
+**JobsWithGPT MCP Server** 🌟 **RECOMMENDED**
+- **Source:** [GitHub](https://github.com/jobswithgpt/mcp)
+- **Coverage:** 500,000+ public job listings (continuously refreshed)
+- **Use Case:** Real-time job search aggregation across multiple boards
+- **Cost:** FREE (public access)
+- **API Endpoint:** `https://jobswithgpt.com/mcp/`
+- **Integration:** Can be used as MCP server or direct API
+- **Benefits:**
+  - Massive job coverage (500k+ jobs)
+  - Continuously refreshed data
+  - No manual scraper maintenance needed
+  - Works with Claude Desktop and OpenAI Responses API
+- **Example Usage:**
+  ```python
+  # Via MCP client
+  client.responses.create(
+      model="gpt-4.1-mini",
+      tools=[{
+          "type": "mcp",
+          "server_label": "jobswithgpt",
+          "server_url": "https://jobswithgpt.com/mcp/"
+      }],
+      input="find jobs for python devs in sf"
+  )
+  ```
+
+**Reed Jobs MCP Server** (UK-focused)
+- **Source:** [GitHub](https://github.com/kld3v/reed_jobs_mcp)
+- **API:** Reed.co.uk Jobs API (UK's #1 job site)
+- **Cost:** FREE API key required (from Reed Developer Portal)
+- **Use Case:** UK job market, advanced filtering
+- **Language:** TypeScript/Node.js
+- **Features:**
+  - Search with keywords, location, salary, contract type
+  - Detailed job information retrieval
+  - Remote work filtering
+  - Location-based searches
+- **Functions:**
+  - `mcp_reed_jobs_search_jobs()`: Search with filters
+  - `mcp_reed_jobs_get_job_details()`: Get job details by ID
+- **Requirements:**
+  - Node.js v16+
+  - Reed API key (free registration)
+  - Configuration in `mcp.json`
+
+### 1.3 Resume Analysis MCP Servers
 
 **Resume Analysis MCP (@sms03/resume-mcp)**
 - **Source:** [GitHub](https://github.com/sms03/resume-mcp)
@@ -217,13 +264,31 @@ response = client.chat(model='qwen2.5:7b', messages=[
 
 ## 4. Implementation Roadmap
 
-### Phase 1: MCP Server Integration (Week 1)
-**Effort:** Low
-**Impact:** High
+### Phase 0: JobsWithGPT Integration (Week 0) 🌟 **HIGHEST PRIORITY**
+**Effort:** Very Low
+**Impact:** Extreme
 **Cost:** $0
 
-- [ ] Add Career Site Job Listing API MCP to config
-- [ ] Replace custom Greenhouse/Lever scrapers with MCP calls
+JobsWithGPT provides **500,000+ jobs** with zero scraper maintenance!
+
+- [ ] Integrate JobsWithGPT MCP server client
+- [ ] Create adapter to convert JobsWithGPT results to our schema
+- [ ] Test job coverage vs current scrapers
+- [ ] **If coverage is good, deprecate 90% of custom scrapers!**
+
+**Expected Outcome:**
+- Replace dozens of custom scrapers with one API call
+- 500k+ job coverage vs current ~1-2k
+- Zero maintenance burden
+- Real-time job updates
+
+### Phase 1: MCP Server Integration (Week 1)
+**Effort:** Low
+**Impact:** High (if JobsWithGPT doesn't cover everything)
+**Cost:** $0
+
+- [ ] Add Career Site Job Listing API MCP to config (if needed as backup)
+- [ ] Keep Greenhouse/Lever scrapers as fallback
 - [ ] Test coverage increase (target: 105k+ companies)
 - [ ] Measure scraping reliability improvement
 
