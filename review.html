@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Review Job Matches{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mt-5">Review Job Matches</h1>
+    <p class="lead">Help improve the matching algorithm by providing feedback on your recent job matches.</p>
+
+    {% for job in jobs %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">{{ job.title }}</h5>
+            <h6 class="card-subtitle mb-2 text-muted">{{ job.company }} - {{ job.location }}</h6>
+            <p class="card-text">Score: {{ "%.2f"|format(job.score) }}</p>
+            <a href="{{ job.url }}" class="btn btn-secondary btn-sm" target="_blank">View Job</a>
+            <a href="{{ url_for('review_feedback', job_id=job.id, feedback='good') }}" class="btn btn-success btn-sm">Good Match</a>
+            <a href="{{ url_for('review_feedback', job_id=job.id, feedback='bad') }}" class="btn btn-danger btn-sm">Bad Match</a>
+        </div>
+    </div>
+    {% endfor %}
+
+</div>
+{% endblock %}
