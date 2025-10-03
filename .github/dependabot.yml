@@ -36,8 +36,6 @@ updates:
           - "flake8*"
           - "mypy*"
           - "bandit*"
-          - "safety"
-          - "pre-commit"
           - "semgrep"
 
   # Enable version updates for GitHub Actions

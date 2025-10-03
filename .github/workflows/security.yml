@@ -84,7 +84,7 @@ jobs:
           category: bandit
 
   osv-scanner:
-    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@main
 
   opengrep-scan:
     name: OpenGrep
@@ -179,3 +179,4 @@ jobs:
           base: ${{ github.event.pull_request.base.sha || github.event.before }}
           head: ${{ github.event.pull_request.head.sha || github.event.after }}
           extra_args: --only-verified
+

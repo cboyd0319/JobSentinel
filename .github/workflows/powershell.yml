@@ -140,6 +140,8 @@ jobs:
 
       - name: Publish test results
         if: always()
-        uses: EnricoMi/publish-unit-test-result-action/windows@v2
+        uses: >-
+          EnricoMi/publish-unit-test-result-action/windows@v2
         with:
           files: test-results.xml
+

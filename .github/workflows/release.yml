@@ -14,19 +14,15 @@ jobs:
     concurrency:
       group: ${{ github.workflow }}-release-${{ github.ref_name }}
       cancel-in-progress: false
-    permissions:
-      contents: write
-      id-token: write
-      attestations: write
-      pull-requests: write
-      issues: write
-      releases: write
+    permissions: write-all
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ github.sha }}
-          token: ${{ secrets.SEMANTIC_RELEASE_TOKEN != '' && secrets.SEMANTIC_RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
+          token: >-
+            ${{ secrets.SEMANTIC_RELEASE_TOKEN != '' &&
+            secrets.SEMANTIC_RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Prepare Python
         uses: ./.github/actions/python-env
@@ -50,10 +46,12 @@ jobs:
         if: github.ref_name == 'main'
         uses: python-semantic-release/python-semantic-release@v9.8.8
         env:
-          GH_TOKEN: ${{ secrets.SEMANTIC_RELEASE_TOKEN != '' &&
+          GH_TOKEN: >-
+            ${{ secrets.SEMANTIC_RELEASE_TOKEN != '' &&
             secrets.SEMANTIC_RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
         with:
-          github_token: ${{ secrets.SEMANTIC_RELEASE_TOKEN != '' &&
+          github_token: >-
+            ${{ secrets.SEMANTIC_RELEASE_TOKEN != '' &&
             secrets.SEMANTIC_RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Attest build provenance
@@ -61,3 +59,4 @@ jobs:
         uses: actions/attest-build-provenance@v1
         with:
           subject-path: 'dist/*'
+
