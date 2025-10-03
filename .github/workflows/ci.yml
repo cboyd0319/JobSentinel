@@ -202,7 +202,11 @@ jobs:
 
   type-check:
     needs: [changes, code-quality]
-    if: needs.changes.outputs.docs-only == 'false'
+    if: |
+      needs.changes.outputs.docs-only == 'false' &&
+      (github.event_name == 'schedule' ||
+       github.event_name == 'workflow_dispatch' ||
+       github.event_name == 'pull_request')
     name: Type Check (mypy)
     runs-on: ubuntu-latest
     steps:

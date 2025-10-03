@@ -96,13 +96,10 @@ jobs:
 
       - name: Run OSV Scanner
         continue-on-error: true
-        uses: google/osv-scanner/actions/scanner@main
+        uses: google/osv-scanner-action/osv-scanner-action@main
         with:
-          scan-args: |-
-            --recursive
-            --format sarif
-            --output osv-results.sarif
-            ./
+          to-sarif: true
+          output-file: osv-results.sarif
 
       - name: Upload OSV Scanner SARIF
         if: always() && hashFiles('osv-results.sarif') != ''
