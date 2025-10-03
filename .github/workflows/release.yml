@@ -10,7 +10,6 @@ permissions:
 
 jobs:
   release:
-    if: secrets.SEMANTIC_RELEASE_TOKEN != ''
     runs-on: ubuntu-latest
     concurrency:
       group: ${{ github.workflow }}-release-${{ github.ref_name }}
@@ -43,7 +42,7 @@ jobs:
 
       - name: Release
         id: release
-        if: github.ref_name == 'main'
+        if: github.ref_name == 'main' && secrets.SEMANTIC_RELEASE_TOKEN != ''
         uses: python-semantic-release/python-semantic-release@8b1ced9dfd29704d6d781541a224c5abc06cc4e4
         env:
           GH_TOKEN: ${{ secrets.SEMANTIC_RELEASE_TOKEN != '' &&
