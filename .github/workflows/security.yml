@@ -111,13 +111,16 @@ jobs:
       - name: Install OpenGrep
         run: curl -fsSL https://raw.githubusercontent.com/opengrep/opengrep/main/install.sh | bash
 
-      - name: Add OpenGrep to PATH
-        run: echo "$HOME/.local/bin" >> $GITHUB_PATH
-
       - name: Run OpenGrep scan
         continue-on-error: true
         run: |
-          $HOME/.local/bin/opengrep --sarif --output opengrep-results.sarif --config auto . || echo "OpenGrep scan completed with findings"
+          # OpenGrep installs to ~/.opengrep/cli/version/opengrep
+          OPENGREP_BIN=$(find ~/.opengrep -name opengrep -type f 2>/dev/null | head -1)
+          if [ -z "$OPENGREP_BIN" ]; then
+            echo "OpenGrep binary not found, skipping"
+            exit 0
+          fi
+          $OPENGREP_BIN --sarif --output opengrep-results.sarif --config auto . || echo "OpenGrep scan completed with findings"
 
       - name: Upload OpenGrep SARIF
         if: always() && hashFiles('opengrep-results.sarif') != ''
