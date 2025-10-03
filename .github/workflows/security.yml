@@ -88,6 +88,41 @@ jobs:
     with:
       fail-on-vuln: false
 
+  opengrep:
+    name: OpenGrep Static Analysis
+    runs-on: ubuntu-latest
+    if: |
+      github.actor != 'dependabot[bot]' &&
+      (github.event_name != 'workflow_dispatch' ||
+       github.event.inputs.scan_type != 'dependencies-only')
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install OpenGrep
+        run: pip install opengrep-pyo3
+
+      - name: Run OpenGrep scan
+        continue-on-error: true
+        run: |
+          opengrep --sarif --output opengrep-results.sarif --config auto . || echo "OpenGrep scan completed with findings"
+
+      - name: Upload OpenGrep SARIF
+        if: always() && hashFiles('opengrep-results.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: opengrep-results.sarif
+          category: opengrep
+
   codeql-analysis:
     name: CodeQL Analysis
     runs-on: ubuntu-latest
