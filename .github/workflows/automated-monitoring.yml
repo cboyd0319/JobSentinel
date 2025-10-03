@@ -35,10 +35,17 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: 'CRITICAL: System health check failed',
-              body: `## Critical Health Check Failure\n\n**Time**: ${new Date().toISOString()}\n**Workflow Run**: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n\n### Health Report\n\
-${report}
-\
-`,
+              body: |-
+                ## Critical Health Check Failure
+
+                **Time**: ${new Date().toISOString()}
+                **Workflow Run**: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+                ### Health Report
+                ```
+                ${report}
+                ```
+              ,
               labels: ['critical', 'health-check', 'automated'],
               assignees: [context.repo.owner]
             });
@@ -79,7 +86,16 @@ ${report}
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: 'Database backups are stale',
-              body: `No recent database backups were found in the last 48 hours.\n\n**Check Time**: ${new Date().toISOString()}\n\n### Next steps\n1. Verify Cloud Scheduler is running.\n2. Check database sync logs.\n3. Manually trigger backup if required.\n`,
+              body: |-
+                No recent database backups were found in the last 48 hours.
+
+                **Check Time**: ${new Date().toISOString()}
+
+                ### Next steps
+                1. Verify Cloud Scheduler is running.
+                2. Check database sync logs.
+                3. Manually trigger backup if required.
+              ,
               labels: ['database', 'backup', 'automated'],
               assignees: [context.repo.owner]
             });

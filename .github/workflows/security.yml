@@ -84,7 +84,7 @@ jobs:
           category: bandit
 
   osv-scanner:
-    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v1
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2
 
   opengrep-scan:
     name: OpenGrep

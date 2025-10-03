@@ -20,6 +20,7 @@ jobs:
       attestations: write
       pull-requests: write
       issues: write
+      releases: write
     steps:
       - uses: actions/checkout@v4
         with:
