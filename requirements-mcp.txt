@@ -6,7 +6,7 @@ mcp==1.2.0
 
 # HTTP clients
 httpx==0.28.1
-requests==2.32.3
+requests==2.32.4
 
 # Job scrapers (lightweight)
 jobspy==1.1.82
