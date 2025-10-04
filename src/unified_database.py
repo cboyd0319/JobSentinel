@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional
 from cloud.providers.gcp.cloud_database import init_cloud_db
 from sqlmodel import Field, Session, SQLModel, create_engine, select
 from utils.logging import get_logger
-from src.database import init_db
+from src.database import init_db, Job, get_sync_session
 
 logger = get_logger("unified_database")
 
@@ -276,9 +276,7 @@ def migrate_legacy_jobs():
     """
     try:
         # Import legacy database
-        from src.database import Job, engine as legacy_engine
-
-        with Session(legacy_engine) as legacy_session:
+        with get_sync_session() as legacy_session:
             legacy_jobs = legacy_session.exec(select(Job)).all()
 
         migrated_count = 0

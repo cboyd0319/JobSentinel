@@ -1,175 +1,54 @@
-"""
-Resume Parser for Auto-Configuration
-
-Extracts relevant information from resumes (PDF/DOCX) to automatically
-populate user preferences for job matching.
-
-Supports:
-- PDF files (via pdfplumber)
-- DOCX files (via python-docx)
-- Extraction of: skills, titles, companies, experience, education
-"""
-
-from __future__ import annotations
-
 import re
 from pathlib import Path
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional, Set, Tuple
 import logging
+import json
 
 # Optional dependencies - will check at runtime
 try:
     import pdfplumber
-
     HAS_PDF = True
 except ImportError:
     HAS_PDF = False
 
 try:
     from docx import Document
-
     HAS_DOCX = True
 except ImportError:
     HAS_DOCX = False
+
+try:
+    import spacy
+    from spacy.cli import download
+    # Download the model if it doesn't exist
+    try:
+        nlp = spacy.load("en_core_web_sm")
+    except OSError:
+        print("Downloading spaCy model...")
+        download("en_core_web_sm")
+        nlp = spacy.load("en_core_web_sm")
+    HAS_SPACY = True
+except ImportError:
+    HAS_SPACY = False
 
 
 logger = logging.getLogger(__name__)
 
 
-# Common tech skills/keywords to look for
-COMMON_SKILLS = {
-    # Programming Languages
-    "python",
-    "javascript",
-    "java",
-    "go",
-    "golang",
-    "rust",
-    "c++",
-    "c#",
-    "ruby",
-    "typescript",
-    "php",
-    "swift",
-    "kotlin",
-    "scala",
+with open(
+    Path(__file__).parent.parent / "config" / "resume_parser.json",
     "r",
-    "shell",
-    "bash",
-    # Cloud & Infrastructure
-    "aws",
-    "azure",
-    "gcp",
-    "google cloud",
-    "kubernetes",
-    "k8s",
-    "docker",
-    "terraform",
-    "ansible",
-    "jenkins",
-    "circleci",
-    "github actions",
-    "cloudformation",
-    "helm",
-    "istio",
-    "prometheus",
-    "grafana",
-    # Security
-    "security",
-    "infosec",
-    "appsec",
-    "devsecops",
-    "penetration testing",
-    "vulnerability",
-    "owasp",
-    "siem",
-    "soc",
-    "iam",
-    "zero trust",
-    "encryption",
-    "cryptography",
-    "oauth",
-    "saml",
-    "ssl/tls",
-    # Databases
-    "postgresql",
-    "postgres",
-    "mysql",
-    "mongodb",
-    "redis",
-    "elasticsearch",
-    "dynamodb",
-    "cassandra",
-    "sql",
-    "nosql",
-    "database",
-    # Web & API
-    "rest",
-    "api",
-    "graphql",
-    "http",
-    "microservices",
-    "grpc",
-    "fastapi",
-    "flask",
-    "django",
-    "react",
-    "vue",
-    "angular",
-    "node.js",
-    # DevOps & Tools
-    "ci/cd",
-    "git",
-    "linux",
-    "unix",
-    "monitoring",
-    "logging",
-    "observability",
-    "agile",
-    "scrum",
-    "jira",
-    "confluence",
-    # Data & ML
-    "machine learning",
-    "ml",
-    "ai",
-    "data science",
-    "pandas",
-    "numpy",
-    "pytorch",
-    "tensorflow",
-    "scikit-learn",
-    "spark",
-    "hadoop",
-}
+    encoding="utf-8",
+) as f:
+    config = json.load(f)
+    COMMON_SKILLS = set(config["common_skills"])
+    TITLE_KEYWORDS = set(config["title_keywords"])
 
-# Common job title keywords
-TITLE_KEYWORDS = {
-    "engineer",
-    "developer",
-    "architect",
-    "lead",
-    "senior",
-    "staff",
-    "principal",
-    "manager",
-    "director",
-    "devops",
-    "sre",
-    "security",
-    "software",
-    "backend",
-    "frontend",
-    "full stack",
-    "fullstack",
-    "data",
-    "ml",
-    "platform",
-    "infrastructure",
-    "cloud",
-    "qa",
-    "test",
-}
+# Pre-build reusable regex fragments so complex patterns stay readable and
+# syntactically correct when combining many keywords.
+TITLE_KEYWORD_PATTERN = "|".join(
+    re.escape(keyword) for keyword in sorted(TITLE_KEYWORDS) if keyword
+)
 
 # Seniority blocklist terms
 SENIORITY_BLOCKLIST = {
@@ -225,7 +104,7 @@ class ResumeParser:
         cache_file = self.cache_dir / f"{file_hash}.json"
         if cache_file.exists():
             logger.info(f"Loading parsed resume from cache: {cache_file}")
-            with open(cache_file, "r") as f:
+            with open(cache_file, "r", encoding="utf-8") as f:
                 return json.load(f)
 
         # Extract text based on file type
@@ -256,7 +135,7 @@ class ResumeParser:
 
         # Save to cache
         result = self.to_dict()
-        with open(cache_file, "w") as f:
+        with open(cache_file, "w", encoding="utf-8") as f:
             json.dump(result, f)
 
         return result
@@ -279,13 +158,24 @@ class ResumeParser:
 
         try:
             with pdfplumber.open(file_path) as pdf:
+                if not pdf.pages:
+                    raise ValueError("PDF file has no pages")
+
                 for page in pdf.pages:
-                    page_text = page.extract_text()
-                    if page_text:
-                        text_parts.append(page_text)
+                    try:
+                        page_text = page.extract_text()
+                        if page_text and page_text.strip():
+                            text_parts.append(page_text)
+                    except Exception as page_error:
+                        logger.warning(f"Failed to extract text from page: {page_error}")
+                        continue
+
+                if not text_parts:
+                    raise ValueError("No text could be extracted from PDF. It may be image-based or corrupted.")
+
         except Exception as e:
             logger.error(f"Failed to parse PDF: {e}")
-            raise ValueError(f"Failed to parse PDF: {e}")
+            raise ValueError(f"Failed to parse PDF: {e}") from e
 
         return "\n".join(text_parts)
 
@@ -294,50 +184,49 @@ class ResumeParser:
         try:
             doc = Document(file_path)
             paragraphs = [para.text for para in doc.paragraphs if para.text.strip()]
+
+            if not paragraphs:
+                raise ValueError("No text could be extracted from DOCX file. It may be empty or corrupted.")
+
             return "\n".join(paragraphs)
         except Exception as e:
             logger.error(f"Failed to parse DOCX: {e}")
-            raise ValueError(f"Failed to parse DOCX: {e}")
+            raise ValueError(f"Failed to parse DOCX: {e}") from e
 
-try:
-    import spacy
-    # Download the model if it doesn't exist
-    try:
-        nlp = spacy.load("en_core_web_sm")
-    except OSError:
-        print("Downloading spaCy model...")
-        from spacy.cli import download
-        download("en_core_web_sm")
-        nlp = spacy.load("en_core_web_sm")
-    HAS_SPACY = True
-except ImportError:
-    HAS_SPACY = False
+    def _extract_skills(self):
+        """Extract technical skills from resume text using spaCy NER and pattern matching."""
+        if not self.text or not self.text.strip():
+            logger.warning("Resume text is empty, cannot extract skills")
+            return
 
-def _extract_skills(self):
-    """Extract technical skills from resume text using spaCy NER."""
-    if not HAS_SPACY:
-        logger.warning("spaCy not installed. Falling back to keyword-based skill extraction.")
-        # Keep the old keyword-based extraction as a fallback
+        # Always use keyword-based extraction as it's more reliable for technical skills
         text_lower = self.text.lower()
         for skill in COMMON_SKILLS:
+            if not skill or len(skill) < 2:
+                continue
             pattern = r"\b" + re.escape(skill.lower()) + r"\b"
             if re.search(pattern, text_lower):
+                # Preserve original casing for acronyms, title case for others
                 self.skills.add(skill.title() if len(skill) > 3 else skill.upper())
-        return
 
-    doc = nlp(self.text)
-    # Using entity labels for skills, e.g., ORG, PRODUCT, and custom patterns
-    for ent in doc.ents:
-        if ent.label_ in ["ORG", "PRODUCT"]:
-            self.skills.add(ent.text.strip())
+        # Optionally enhance with spaCy NER if available
+        if HAS_SPACY:
+            try:
+                # Limit text length for spaCy processing (to avoid memory issues)
+                text_to_process = self.text[:100000] if len(self.text) > 100000 else self.text
+                doc = nlp(text_to_process)
 
-    # Add custom patterns for skills that NER might miss
-    # This is a placeholder for a more robust pattern matching system
-    custom_skill_patterns = [r'[Pp]ython', r'[Jj]ava[Ss]cript', r'[Rr]eact', r'[Nn]ode.js', r'[Aa]ws', r'[Gg]cp', r'[Aa]zure', r'[Dd]ocker', r'[Kk]ubernetes']
-    for pattern in custom_skill_patterns:
-        matches = re.findall(pattern, self.text)
-        for match in matches:
-            self.skills.add(match.strip())
+                # Using entity labels for skills, e.g., ORG, PRODUCT
+                for ent in doc.ents:
+                    if ent.label_ in ["ORG", "PRODUCT"] and len(ent.text.strip()) > 2:
+                        # Only add if it looks like a technical term
+                        if ent.text.strip().lower() in text_lower:
+                            self.skills.add(ent.text.strip())
+            except Exception as e:
+                logger.warning(f"spaCy NER failed, continuing with keyword extraction: {e}")
+
+        # Remove any empty strings or None values
+        self.skills = {s for s in self.skills if s and s.strip()}
 
     def _extract_titles(self):
         """Extract job titles from resume text."""
@@ -370,13 +259,15 @@ def _extract_skills(self):
 
     def _extract_companies(self):
         """Extract company names from resume text."""
-        # Look for patterns like "at Company" or "@ Company"
+        # Look for patterns like "at Company" or "Company - Role"
         company_patterns = [
-            r"(?:at|@)\s+([A-Z][A-Za-z0-9\s&]+?)(?:\s+[-•|]|\s*\n|,\s)",
-            r"([A-Z][A-Za-z0-9\s&]+?)(?:\s+[-•|]\s+(?:"
-            + "|".join(TITLE_KEYWORDS)
-            + "))",
+            r"(?:at|@)\s+([A-Z][A-Za-z0-9\s&/-]+?)(?=\s+(?:[-•|]|$)|\s*\n|,\s)",
         ]
+
+        if TITLE_KEYWORD_PATTERN:
+            company_patterns.append(
+                rf"([A-Z][A-Za-z0-9\s&/-]+?)(?=\s+[-•|]\s+(?:{TITLE_KEYWORD_PATTERN}))"
+            )
 
         for pattern in company_patterns:
             matches = re.findall(pattern, self.text)
@@ -575,7 +466,7 @@ def interactive_skill_editor(extracted_skills: List[str]) -> Tuple[List[str], Li
                 added_skills.append(skill_to_add)
                 print(f"Added '{skill_to_add}'.")
         elif choice == 'r':
-            skill_to_remove = input("Enter the skill to remove: ".strip())
+            skill_to_remove = input("Enter the skill to remove: ").strip()
             if skill_to_remove in extracted_skills:
                 removed_skills.append(skill_to_remove)
                 print(f"Removed '{skill_to_remove}'.")
@@ -604,3 +495,32 @@ def check_dependencies() -> tuple[bool, List[str]]:
         missing.append("python-docx")
 
     return (len(missing) == 0, missing)
+
+
+def get_ats_scanner(resume_path: str | Path):
+    """
+    Get an ATS scanner instance for a resume.
+
+    This is a convenience wrapper around the ATSScanner class.
+    For full ATS analysis, use: python -m utils.ats_scanner
+
+    Args:
+        resume_path: Path to resume file
+
+    Returns:
+        ATSScanner instance
+
+    Example:
+        >>> from utils.resume_parser import get_ats_scanner
+        >>> scanner = get_ats_scanner("my_resume.pdf")
+        >>> score = scanner.calculate_ats_score()
+        >>> print(f"ATS Score: {score.overall_score}/100")
+    """
+    try:
+        from utils.ats_scanner import ATSScanner
+        return ATSScanner(resume_path)
+    except ImportError:
+        raise ImportError(
+            "ATS scanner requires additional dependencies. "
+            "Install with: pip install pdfminer.six pytesseract Pillow python-Levenshtein"
+        )

@@ -37,10 +37,10 @@ function Get-PythonVersion {
     [OutputType([version])]
     param()
 
-    if (-not (Test-CommandExists -CommandName 'python')) { return $null }
+    if (-not (Test-CommandExists -CommandName 'python3')) { return $null }
 
     try {
-        $versionOutput = & python --version 2>&1
+        $versionOutput = & python3 --version 2>&1
         if ($versionOutput -match 'Python (\d+\.\d+\.\d+)') {
             return [version]$matches[1]
         }

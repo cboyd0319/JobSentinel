@@ -1,8 +1,10 @@
 # Pester tests for JobFinder.Validation module
 
+Import-Module /Users/chadboyd/Documents/GitHub/job-private-scraper-filter/deploy/windows/modules/JobFinder.Validation.psm1 -Force
+
 BeforeAll {
-    $modulePath = "$PSScriptRoot/../deploy/windows/modules/JobFinder.Validation.psm1"
-    Import-Module $modulePath -Force
+    $tempDir = Join-Path $env:TEMP "pester-test-$(New-Guid)"
+    New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
 }
 
 Describe 'Test-ValidUrl' {
@@ -32,11 +34,6 @@ Describe 'Test-ValidUrl' {
 }
 
 Describe 'Test-SafePath' {
-    BeforeAll {
-        $tempDir = Join-Path $env:TEMP "pester-test-$(New-Guid)"
-        New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
-    }
-
     AfterAll {
         if (Test-Path $tempDir) {
             Remove-Item $tempDir -Recurse -Force

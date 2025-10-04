@@ -1,6 +1,89 @@
 import os
 import requests
+import time
 
+
+def _create_job_block(job: dict) -> dict:
+    """Creates a Slack block for a single job."""
+    score_percent = int(job.get("score", 0) * 100)
+    metadata = job.get("score_metadata", {})
+    llm_used = metadata.get("llm_used", False)
+
+    job_text = f"<{job['url']}|*{job['title']}*> at *{job['company'].title()}*\n"
+    job_text += f"📍 {job['location']}\n"
+
+    if llm_used:
+        rules_score = metadata.get("rules_score", 0)
+        llm_score = metadata.get("llm_score", 0)
+        job_text += f"📈 Score: *{score_percent}%* (Rules: {int(rules_score*100)}% • AI: {int(llm_score*100)}%)\n"
+        llm_summary = metadata.get("llm_summary", "")
+        if llm_summary:
+            job_text += f"🤖 *AI Summary:* {llm_summary}\n"
+    else:
+        job_text += f"📈 Match Score: *{score_percent}%*\n"
+
+    reasons = job.get("score_reasons", [])
+    if reasons:
+        rules_reasons = [r for r in reasons if r.startswith("Rules:")]
+        ai_reasons = [r for r in reasons if r.startswith("AI:")]
+        other_reasons = [r for r in reasons if not r.startswith(("Rules:", "AI:", "Summary:"))]
+
+        if rules_reasons or other_reasons:
+            matched_items = [r.replace("Rules: ", "") for r in rules_reasons] + other_reasons
+            job_text += f"✅ *Matched:* {', '.join(matched_items)}\n"
+
+        if ai_reasons:
+            job_text += f"🧠 *AI Insights:* {', '.join([r.replace('AI: ', '') for r in ai_reasons])}\n"
+
+    return {
+        "type": "section",
+        "text": {"type": "mrkdwn", "text": job_text.strip()},
+        "accessory": {
+            "type": "button",
+            "text": {"type": "plain_text", "text": "View Job"},
+            "url": job["url"],
+            "action_id": "view_job",
+        },
+    }
+
+def _create_action_block(job: dict) -> dict:
+    """Creates a Slack block for job actions."""
+    return {
+        "type": "actions",
+        "elements": [
+            {
+                "type": "button",
+                "text": {
+                    "type": "plain_text",
+                    "text": "Good Match"
+                },
+                "style": "primary",
+                "value": f"good_{job.get('id')}",
+                "action_id": "good_match"
+            },
+            {
+                "type": "button",
+                "text": {
+                    "type": "plain_text",
+                    "text": "Bad Match"
+                },
+                "style": "danger",
+                "value": f"bad_{job.get('id')}",
+                "action_id": "bad_match"
+            }
+        ]
+    }
+
+def _create_footer_block(jobs: list[dict]) -> dict:
+    """Creates a Slack block for the footer."""
+    total_jobs = len(jobs)
+    llm_jobs = len([j for j in jobs if j.get("score_metadata", {}).get("llm_used", False)])
+
+    footer_text = f"Found {total_jobs} high-scoring job{'s' if total_jobs != 1 else ''}"
+    if llm_jobs > 0:
+        footer_text += f" • {llm_jobs} enhanced with AI analysis"
+
+    return {"type": "context", "elements": [{"type": "mrkdwn", "text": footer_text}]}
 
 def format_jobs_for_slack(jobs: list[dict]) -> dict:
     """Formats a list of jobs into a Slack message block with enhanced AI insights."""
@@ -12,101 +95,11 @@ def format_jobs_for_slack(jobs: list[dict]) -> dict:
     ]
 
     for job in jobs:
-        score_percent = int(job.get("score", 0) * 100)
-
-        # Get scoring metadata for enhanced display
-        metadata = job.get("score_metadata", {})
-        llm_used = metadata.get("llm_used", False)
-
-        # Build the main job info
-        job_text = f"<{job['url']}|*{job['title']}*> at *{job['company'].title()}*\n"
-        job_text += f"📍 {job['location']}\n"
-
-        # Enhanced scoring display
-        if llm_used:
-            rules_score = metadata.get("rules_score", 0)
-            llm_score = metadata.get("llm_score", 0)
-            job_text += f"📈 Score: *{score_percent}%* (Rules: {int(rules_score*100)}% • AI: {int(llm_score*100)}%)\n"
-
-            # Add AI summary if available
-            llm_summary = metadata.get("llm_summary", "")
-            if llm_summary:
-                job_text += f"🤖 *AI Summary:* {llm_summary}\n"
-        else:
-            job_text += f"📈 Match Score: *{score_percent}%*\n"
-
-        # Organize reasons by source
-        reasons = job.get("score_reasons", [])
-        if reasons:
-            rules_reasons = [r for r in reasons if r.startswith("Rules:")]
-            ai_reasons = [r for r in reasons if r.startswith("AI:")]
-            other_reasons = [
-                r for r in reasons if not r.startswith(("Rules:", "AI:", "Summary:"))
-            ]
-
-            if rules_reasons or other_reasons:
-                matched_items = [
-                    r.replace("Rules: ", "") for r in rules_reasons
-                ] + other_reasons
-                job_text += f"✅ *Matched:* {', '.join(matched_items)}\n"
-
-            if ai_reasons:
-                job_text += f"🧠 *AI Insights:* {', '.join([r.replace('AI: ', '') for r in ai_reasons])}\n"
-
-        # Add action buttons
-        block = {
-            "type": "section",
-            "text": {"type": "mrkdwn", "text": job_text.strip()},
-            "accessory": {
-                "type": "button",
-                "text": {"type": "plain_text", "text": "View Job"},
-                "url": job["url"],
-                "action_id": "view_job",
-            },
-        }
-
-        blocks.append(block)
-        blocks.append({
-            "type": "actions",
-            "elements": [
-                {
-                    "type": "button",
-                    "text": {
-                        "type": "plain_text",
-                        "text": "Good Match"
-                    },
-                    "style": "primary",
-                    "value": f"good_{job.get('id')}",
-                    "action_id": "good_match"
-                },
-                {
-                    "type": "button",
-                    "text": {
-                        "type": "plain_text",
-                        "text": "Bad Match"
-                    },
-                    "style": "danger",
-                    "value": f"bad_{job.get('id')}",
-                    "action_id": "bad_match"
-                }
-            ]
-        })
-
+        blocks.append(_create_job_block(job))
+        blocks.append(_create_action_block(job))
         blocks.append({"type": "divider"})
 
-    # Add footer with scoring info
-    total_jobs = len(jobs)
-    llm_jobs = len(
-        [j for j in jobs if j.get("score_metadata", {}).get("llm_used", False)]
-    )
-
-    footer_text = f"Found {total_jobs} high-scoring job{'s' if total_jobs != 1 else ''}"
-    if llm_jobs > 0:
-        footer_text += f" • {llm_jobs} enhanced with AI analysis"
-
-    blocks.append(
-        {"type": "context", "elements": [{"type": "mrkdwn", "text": footer_text}]}
-    )
+    blocks.append(_create_footer_block(jobs))
 
     return {"blocks": blocks}
 
@@ -150,11 +143,23 @@ def send_slack_alert(jobs: list[dict], custom_message: dict = None):
         try:
             response = requests.post(webhook_url, json=message, timeout=10)
             response.raise_for_status()
-            return # Success
-        except requests.RequestException as e:
-            print(f"Error sending Slack alert: {e}. Retrying in {retry_delay_seconds} seconds...")
-            if i < retry_count - 1:
+            return  # Success
+        except requests.exceptions.HTTPError as e:
+            print(f"Error sending Slack alert: {e}. Status code: {e.response.status_code}")
+            if e.response.status_code == 429:  # Rate limited
+                print("Rate limited. Retrying in 60 seconds...")
+                time.sleep(60)
+            elif i < retry_count - 1:
+                print(f"Retrying in {retry_delay_seconds} seconds...")
                 time.sleep(retry_delay_seconds)
-                retry_delay_seconds *= 2 # Exponential backoff
+                retry_delay_seconds *= 2  # Exponential backoff
+            else:
+                print("Failed to send Slack alert after multiple retries.")
+        except requests.exceptions.RequestException as e:
+            print(f"Error sending Slack alert: {e}.")
+            if i < retry_count - 1:
+                print(f"Retrying in {retry_delay_seconds} seconds...")
+                time.sleep(retry_delay_seconds)
+                retry_delay_seconds *= 2  # Exponential backoff
             else:
                 print("Failed to send Slack alert after multiple retries.")

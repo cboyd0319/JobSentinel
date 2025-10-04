@@ -131,6 +131,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[0.4.5]: https://github.com/cboyd0319/job-private-scraper-filter/releases/tag/v0.4.5
-[1.0.0]: https://github.com/cboyd0319/job-private-scraper-filter/releases/tag/v1.0.0
-[1.3.0]: https://github.com/cboyd0319/job-private-scraper-filter/releases/tag/v1.3.0
+[0.4.5]: https://github.com/cboyd0319/job-search-automation/releases/tag/v0.4.5
+[1.0.0]: https://github.com/cboyd0319/job-search-automation/releases/tag/v1.0.0
+[1.3.0]: https://github.com/cboyd0319/job-search-automation/releases/tag/v1.3.0

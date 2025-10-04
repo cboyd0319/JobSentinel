@@ -18,8 +18,8 @@
 
 ```bash
 # Clone repository
-git clone https://github.com/cboyd0319/job-private-scraper-filter.git
-cd job-private-scraper-filter
+git clone https://github.com/cboyd0319/job-search-automation.git
+cd job-search-automation
 
 # Install dependencies
 pip install -r requirements.txt

@@ -185,7 +185,7 @@ Windows users can use the interactive installer:
 
 ```powershell
 # Download and run bootstrap
-irm https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/deploy/windows/bootstrap.ps1 | iex
+irm https://raw.githubusercontent.com/cboyd0319/job-search-automation/main/deploy/windows/bootstrap.ps1 | iex
 ```
 
 **Features:**
@@ -217,7 +217,7 @@ Set up daily automated runs:
 4. Actions → New → Start Program
    - Program: `python.exe`
    - Arguments: `-m src.agent --mode scrape`
-   - Start in: `C:\Users\YourName\Desktop\job-private-scraper-filter`
+   - Start in: `C:\Users\YourName\Desktop\job-search-automation`
 5. Save
 
 ### Checking Windows Status
@@ -481,7 +481,7 @@ LOCATION_RADIUS_MILES = 50
 ## Getting Help
 
 - **Documentation:** Check other guides in `docs/`
-- **Issues:** https://github.com/cboyd0319/job-private-scraper-filter/issues
+- **Issues:** https://github.com/cboyd0319/job-search-automation/issues
 - **Logs:** Always include logs when reporting issues
   ```bash
   tail -100 data/logs/application.log > error_log.txt

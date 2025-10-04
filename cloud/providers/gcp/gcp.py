@@ -671,8 +671,8 @@ budget_alert_threshold_percent = 0.9
                 return clip
         except ImportError:
             pass  # pyperclip not installed
-        except Exception:
-            pass  # Clipboard access failed
+        except Exception as e:
+            self.logger.debug(f"Could not get clipboard contents: {e}")
         return None
 
     def _collect_resume_preferences(self) -> Optional[Dict]:

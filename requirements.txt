@@ -1,108 +1,46 @@
-# Python Job Scraper Requirements
+# Job Private Scraper Filter dependencies
 #
-# Recommended Python Version: 3.12.10 (for optimal compatibility, especially on Windows)
-# Ensure your pip is up-to-date: python -m pip install --upgrade pip
-#
-# Compatibility: Tested with Python 3.12.x
+# Canonical dependency definitions live in pyproject.toml.
+# This requirements file mirrors those constraints for users who prefer
+# `pip install -r requirements.txt`. Dependencies are grouped by feature
+# so unused capabilities can be skipped to save cost and install time.
 
-aiofiles==24.1.0
-aiohttp==3.12.14
-aiosqlite==0.21.0
-annotated-types==0.7.0
-beautifulsoup4==4.14.2
-black==25.9.0
-blinker==1.9.0
-cachetools==6.2.0
-certifi==2025.8.3
-charset-normalizer==3.4.3
-click==8.1.8
-flake8==7.3.0
-Flask==3.1.2
-gitdb==4.0.12
-GitPython==3.1.45
-google-api-core==2.25.1
-google-auth==2.41.0
-google-cloud-core==2.4.3
-google-cloud-scheduler==2.16.1
-google-cloud-storage==3.4.0
-google-crc32c==1.7.1
-google-resumable-media==2.7.2
-googleapis-common-protos==1.70.0
-greenlet==3.2.4
-httpx==0.28.1
-idna==3.10
-importlib_resources==6.5.2
-inquirerpy==0.3.4
-isort==6.0.1
-itsdangerous==2.2.0
-Jinja2==3.1.6
-lxml==6.0.2
-markdown-it-py==4.0.0
-MarkupSafe==3.0.3
-mccabe==0.7.0
-mdurl==0.1.2
-mypy_extensions==1.1.0
-packaging==25.0
-pathspec==0.12.1
-pfzy==0.3.4
-platformdirs==4.4.0
-playwright==1.55.0
-prompt_toolkit==3.0.52
-proto-plus==1.26.1
-protobuf==6.32.1
-psutil==7.1.0
-pyasn1==0.6.1
-pyasn1_modules==0.4.2
-pycodestyle==2.14.0
-pydantic==2.11.9
-pydantic_core==2.33.2
-pyee==13.0.0
-pyflakes==3.4.0
-Pygments==2.19.2
-python-dotenv==1.1.1
-python-gitlab==6.4.0
-python-semantic-release==10.4.1
-pytokens==0.1.10
-requests==2.32.4
-requests-toolbelt==1.0.0
-rich==14.1.0
-rsa==4.9.1
-shellingham==1.5.4
-smmap==5.0.2
-soupsieve==2.8
-SQLAlchemy==2.0.43
-sqlmodel==0.0.25
-tenacity==9.1.2
-tomlkit==0.13.3
-typing-inspection==0.4.1
-typing_extensions==4.15.0
-tzlocal==5.3.1
-urllib3==2.5.0
-wcwidth==0.2.14
-Werkzeug==3.1.3
-wrapt==1.17.3
+# --- Core runtime ---
+aiofiles>=23,<24
+aiohttp>=3.9,<4
+aiosqlite>=0.20,<0.21
+beautifulsoup4>=4.12,<5
+cryptography>=42,<43
+Flask>=3.0,<3.1
+google-api-core>=2.14,<3
+google-auth>=2.23,<3
+google-cloud-scheduler>=2.13,<3
+google-cloud-storage>=2.16,<3
+httpx>=0.26,<0.29
+lxml>=4.9,<6
+playwright>=1.44,<1.56
+psutil>=5.9,<6
+pydantic>=2.6,<2.11
+python-dotenv>=1.0,<2
+requests>=2.31,<3
+rich>=13.7,<14
+sqlalchemy>=2.0,<2.1
+sqlmodel>=0.0.14,<0.0.17
+tenacity>=9.0,<9.2
 
-# Resume parsing (optional - for auto-configuration feature)
-pdfplumber==0.11.4
-python-docx==1.1.2
+# --- Optional: resume parsing assistants ---
+pdfplumber>=0.10,<0.11
+python-docx>=1.0,<1.1
+spacy>=3.7,<3.9
+pdfminer.six>=20221105
+pytesseract>=0.3.10
+Pillow>=10.0.0
+python-Levenshtein>=0.21.0
+regex>=2023.0.0
 
-# Clipboard integration (optional - for Slack webhook auto-detection)
-pyperclip==1.9.0
+# --- Optional: MCP integrations ---
+mcp>=1.2,<2
+httpx-sse>=0.4,<0.5
+jsonschema>=4.20,<5
+pydantic-settings>=2.2,<2.3
 
-# AWS cost monitoring (optional - for scripts/enhanced-cost-monitor.py)
-# boto3>=1.35.0
-# botocore>=1.35.0
-
-# LLM features (optional - requires OPENAI_API_KEY environment variable)
-# openai>=1.54.0
-
-# MCP (Model Context Protocol) for JobsWithGPT integration
-mcp==1.16.0
-httpx-sse==0.4.1
-jsonschema==4.25.1
-pydantic-settings==2.11.0
-sse-starlette==3.0.2
-
-# NLP-based skill extraction (optional - for enhanced resume parsing)
-spacy==3.7.2
-en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1.tar.gz

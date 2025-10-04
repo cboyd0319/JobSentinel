@@ -523,7 +523,7 @@ class GenericJobExtractor:
 
         # Build normalized job data
         normalized = {
-            "hash": extractor.create_job_hash(company_name, title, description[:250]),
+            "hash": create_job_hash(company_name, title, description[:250]),
             "title": title,
             "url": job_url,
             "company": company_name,

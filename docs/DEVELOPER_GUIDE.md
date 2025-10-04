@@ -29,8 +29,8 @@
 
 ```bash
 # Clone repository
-git clone https://github.com/cboyd0319/job-private-scraper-filter.git
-cd job-private-scraper-filter
+git clone https://github.com/cboyd0319/job-search-automation.git
+cd job-search-automation
 
 # Create virtual environment
 python -m venv .venv
@@ -86,7 +86,7 @@ bandit -r . -x ./.venv
 ### Project Structure
 
 ```
-job-private-scraper-filter/
+job-search-automation/
 ├── src/                    # Core application
 │   ├── agent.py           # Main entry point
 │   ├── matcher.py         # Job matching logic
@@ -678,8 +678,8 @@ job_cache.clear()
 
 ## Resources
 
-- **GitHub Repository:** https://github.com/cboyd0319/job-private-scraper-filter
-- **Issue Tracker:** https://github.com/cboyd0319/job-private-scraper-filter/issues
+- **GitHub Repository:** https://github.com/cboyd0319/job-search-automation
+- **Issue Tracker:** https://github.com/cboyd0319/job-search-automation/issues
 - **Python Style Guide:** https://pep8.org
 - **Semantic Versioning:** https://semver.org
 - **Semantic Commit Messages:** https://www.conventionalcommits.org

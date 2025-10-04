@@ -14,7 +14,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 # --- Configuration ---
-$InstallerUrl = "https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/deploy/windows/Install-Job-Finder.ps1"
+$InstallerUrl = "https://raw.githubusercontent.com/cboyd0319/job-search-automation/main/deploy/windows/Install-Job-Finder.ps1"
 $InstallerPath = Join-Path $env:TEMP "Install-Job-Finder.ps1"
 
 # --- Main Execution ---

@@ -24,8 +24,8 @@ For the quickest local setup, use the [Interactive Setup Wizard](#interactive-se
 If you prefer a manual setup:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/job-private-scraper-filter.git
-cd job-private-scraper-filter
+git clone https://github.com/YOUR_USERNAME/job-search-automation.git
+cd job-search-automation
 python3 -m venv .venv
 source .venv/bin/activate  # macOS/Linux
 # .venv\Scripts\activate   # Windows PowerShell

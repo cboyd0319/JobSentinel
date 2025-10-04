@@ -31,13 +31,13 @@
 
 ### Windows (Recommended)
 ```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; irm "https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/setup_windows.ps1" | iex
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; irm "https://raw.githubusercontent.com/cboyd0319/job-search-automation/main/setup_windows.ps1" | iex
 ```
 
 ### macOS/Linux
 ```bash
-git clone https://github.com/cboyd0319/job-private-scraper-filter.git
-cd job-private-scraper-filter
+git clone https://github.com/cboyd0319/job-search-automation.git
+cd job-search-automation
 git checkout v{VERSION}
 chmod +x setup.sh && ./setup.sh
 ```
@@ -49,7 +49,7 @@ Download the source code archive below and follow the [installation guide](docs/
 
 ### From Previous Versions
 ```bash
-cd job-private-scraper-filter
+cd job-search-automation
 git fetch origin
 git checkout v{VERSION}
 pip install -r requirements.txt --upgrade
@@ -84,10 +84,10 @@ Thanks to everyone who tried things out and sent fixes or ideas.
 
 ## 🆘 Support
 
-- 🐛 [Report Issues](https://github.com/cboyd0319/job-private-scraper-filter/issues)
-- 💬 [Discussions](https://github.com/cboyd0319/job-private-scraper-filter/discussions)
+- 🐛 [Report Issues](https://github.com/cboyd0319/job-search-automation/issues)
+- 💬 [Discussions](https://github.com/cboyd0319/job-search-automation/discussions)
 - 📧 [Security Reports](SECURITY.md#reporting-a-vulnerability)
 
 ---
 
-**Full Changelog**: https://github.com/cboyd0319/job-private-scraper-filter/compare/v{PREVIOUS_VERSION}...v{VERSION}
+**Full Changelog**: https://github.com/cboyd0319/job-search-automation/compare/v{PREVIOUS_VERSION}...v{VERSION}

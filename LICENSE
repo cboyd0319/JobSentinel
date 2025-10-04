@@ -19,3 +19,34 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+================================================================================
+ALPHA SOFTWARE DISCLAIMER
+================================================================================
+
+This software is in ALPHA development stage. By using this software, you
+acknowledge and agree that:
+
+1. This software may contain bugs, errors, and incomplete features
+2. The software may change significantly without notice
+3. Data loss, corruption, or unexpected behavior may occur
+4. Cloud deployments may incur costs - you are responsible for monitoring
+   and managing your cloud spending
+5. The author assumes NO liability for any damages, costs, data loss, or
+   issues arising from use of this software
+6. This software is provided for educational and personal use only
+7. You use this software entirely at your own risk
+
+NO WARRANTY: This software comes with absolutely no warranty of any kind.
+
+COST RESPONSIBILITY: You are solely responsible for any cloud computing costs,
+API fees, or other expenses incurred while using this software.
+
+DATA SAFETY: Always back up your data. The author is not responsible for any
+data loss or corruption.
+
+SECURITY: While security best practices are followed, no software is 100%
+secure. You are responsible for securing your deployment and protecting your
+sensitive information.
+
+By using this software, you accept these terms and assume all risks.

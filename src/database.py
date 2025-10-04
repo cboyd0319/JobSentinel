@@ -1,6 +1,7 @@
-from sqlmodel import Field, SQLModel, select
+from sqlmodel import Field, SQLModel, select, create_engine, Session
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy import delete
 from datetime import datetime, timezone, timedelta
 from typing import Optional
 from utils.logging import get_logger
@@ -39,19 +40,47 @@ class Job(SQLModel, table=True):
 # The path to the SQLite database file
 # DB_FILE = "data/jobs.sqlite" # Moved to config
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///data/jobs.sqlite")
-async_engine = create_async_engine(DATABASE_URL, echo=False)
-logger = get_logger("database")
 
+
+def _derive_sync_url(db_url: str) -> str:
+    """Convert an async SQLAlchemy URL into a sync-compatible variant."""
+    replacements = {
+        "sqlite+aiosqlite": "sqlite",
+        "postgresql+asyncpg": "postgresql",
+        "mysql+aiomysql": "mysql+pymysql",
+    }
+    for async_driver, sync_driver in replacements.items():
+        if db_url.startswith(async_driver):
+            return db_url.replace(async_driver, sync_driver, 1)
+    return db_url
+
+
+ASYNC_DATABASE_URL = DATABASE_URL
+SYNC_DATABASE_URL = _derive_sync_url(DATABASE_URL)
+
+async_engine = create_async_engine(ASYNC_DATABASE_URL, echo=False)
+sync_engine = create_engine(
+    SYNC_DATABASE_URL,
+    echo=False,
+    connect_args={"check_same_thread": False} if SYNC_DATABASE_URL.startswith("sqlite") else {},
+)
+logger = get_logger("database")
 
 async def init_db():
     """Creates the database and tables if they don't exist."""
     try:
         async with async_engine.begin() as conn:
             await conn.run_sync(SQLModel.metadata.create_all)
+        SQLModel.metadata.create_all(sync_engine)
         logger.info("Database initialized successfully")
     except Exception as e:
         logger.error(f"Failed to initialize database: {e}")
         raise DatabaseException("initialization", str(e), e)
+
+
+def get_sync_session() -> Session:
+    """Create a synchronous SQLModel session (use with context manager)."""
+    return Session(sync_engine)
 
 
 async def get_job_by_hash(job_hash: str) -> Optional[Job]:
@@ -227,25 +256,49 @@ async def get_database_stats() -> dict:
         raise DatabaseException("get_database_stats", str(e), e)
 
 
+def get_database_stats_sync() -> dict:
+    """Get database statistics using the synchronous engine (Flask/UI)."""
+    try:
+        with Session(sync_engine) as session:
+            from sqlalchemy import func
+
+            total_jobs = session.exec(select(func.count(Job.id))).one()
+
+            yesterday = datetime.now(timezone.utc) - timedelta(hours=24)
+            recent_jobs = session.exec(
+                select(func.count(Job.id)).where(Job.created_at >= yesterday)
+            ).one()
+
+            high_score_jobs = session.exec(
+                select(func.count(Job.id)).where(Job.score >= 0.8)
+            ).one()
+
+            return {
+                "total_jobs": total_jobs,
+                "recent_jobs_24h": recent_jobs,
+                "high_score_jobs": high_score_jobs,
+                "last_updated": datetime.now(timezone.utc).isoformat(),
+            }
+    except Exception as exc:
+        logger.error(f"Failed to get database stats (sync): {exc}")
+        raise DatabaseException("get_database_stats_sync", str(exc), exc)
+
+
 async def cleanup_old_jobs(days_to_keep: int = 90):
     """Remove jobs older than specified days to manage database size."""
     try:
-        from datetime import timedelta
-
         cutoff_date = datetime.now(timezone.utc) - timedelta(days=days_to_keep)
 
         async with AsyncSession(async_engine) as session:
-            statement = select(Job).where(Job.created_at < cutoff_date)
-            result = (await session.exec(statement))
-            old_jobs = result.all()
-
-            count = len(old_jobs)
-            for job in old_jobs:
-                await session.delete(job)
-
+            stmt = delete(Job).where(Job.created_at < cutoff_date)
+            result = await session.exec(stmt)
             await session.commit()
-            logger.info(f"Cleaned up {count} jobs older than {days_to_keep} days")
-            return count
+
+            removed = result.rowcount or 0
+            logger.info(
+                f"Cleaned up {removed} jobs older than {days_to_keep} days"
+            )
+            return removed
     except Exception as e:
         logger.error(f"Failed to cleanup old jobs: {e}")
         raise DatabaseException("cleanup_old_jobs", str(e), e)

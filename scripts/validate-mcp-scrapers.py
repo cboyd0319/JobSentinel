@@ -593,8 +593,8 @@ async def test_security(result: ValidationResult):
                         credential_warnings.append(
                             f"{file_path} contains {cred_type} - should use environment variables!"
                         )
-            except Exception:
-                pass
+                except Exception as e:
+                    validation_logger.debug(f"Error checking for credentials in {file_path}: {e}")
 
     if credential_warnings:
         for warning in credential_warnings:
@@ -625,8 +625,8 @@ async def test_security(result: ValidationResult):
         from sources.reed_mcp_scraper import ReedMCPScraper
         # Check that it's using HTTPS (inspect source code)
         result.add_pass("Reed API uses HTTPS (verified in code)")
-    except Exception:
-        pass
+    except Exception as e:
+        result.add_warning("Reed Jobs security check", str(e))
 
     # Test 4: Check for network isolation options
     result.add_warning(

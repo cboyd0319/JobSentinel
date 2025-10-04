@@ -5,8 +5,8 @@ WORKDIR /app
 # Install system dependencies
 # Set DEBIAN_FRONTEND=noninteractive to suppress debconf warnings
 RUN export DEBIAN_FRONTEND=noninteractive && \
-    apt-get update && apt-get install -y \
-    curl \
+    apt-get update && apt-get install -y --no-install-recommends \
+    curl=8.14.1-2 \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user for security
@@ -18,20 +18,7 @@ COPY requirements.txt .
 # Install requirements with better error handling
 # Using --root-user-action=ignore to suppress pip warnings in container build
 RUN pip install --no-cache-dir --upgrade pip --root-user-action=ignore && \
-    pip install --no-cache-dir --root-user-action=ignore \
-        python-dotenv>=1.1.0 \
-        requests>=2.32.0 \
-        beautifulsoup4>=4.12.0 \
-        lxml>=6.0.0 \
-        pydantic>=2.11.0 \
-        sqlmodel>=0.0.25 \
-        tenacity>=9.0.0 \
-        aiofiles>=24.1.0 \
-        psutil>=7.0.0 \
-        tzlocal>=5.2 \
-        google-cloud-storage>=2.18.0 \
-        Flask>=3.1.0 \
-        playwright>=1.49.0
+    pip install --no-cache-dir -r requirements.txt --root-user-action=ignore
 
 # Install playwright browsers (still as root since it needs system deps)
 # Set DEBIAN_FRONTEND for playwright deps install

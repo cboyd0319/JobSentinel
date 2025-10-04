@@ -1,147 +1,267 @@
 # Job Finder
 
-```
-╔══════════════════════════════════════════════╗
-║       Smart Job Search, Running Quietly      ║
-║         Local-First • Cloud-Optional         ║
-╚══════════════════════════════════════════════╝
-```
-
-**Find your next role. Filtered, scored, and delivered.**
-
-This tool polls job boards on your schedule, scores matches with your rules, and sends alerts when opportunities cross your threshold. It runs locally by default, but you can deploy it to the cloud for a hands-off setup.
-
-![Python 3.12.10](https://img.shields.io/badge/python-3.12.10-blue.svg)
-![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
-![Security: 0 Open Alerts](https://img.shields.io/badge/security-0%20open%20alerts-brightgreen.svg)
-[![CI/CD Pipeline](https://github.com/cboyd0319/job-private-scraper-filter/actions/workflows/ci.yml/badge.svg)](https://github.com/cboyd0319/job-private-scraper-filter/actions/workflows/ci.yml)
-[![Security Scan](https://github.com/cboyd0319/job-private-scraper-filter/actions/workflows/security.yml/badge.svg)](https://github.com/cboyd0319/job-private-scraper-filter/actions/workflows/security.yml)
-
-> **Enterprise-Grade Security** • 7 automated security scanners • 100% SARIF coverage • Branch protection enforced
+> ⚠️ **ALPHA SOFTWARE - Use with Caution**
+>
+> This project is in early development (Alpha stage). It works, but expect bugs, breaking changes, and rough edges.
+> - Test locally before deploying to cloud
+> - Review [SECURITY.md](SECURITY.md) and [COST.md](COST.md) before cloud deployment
+> - Don't rely on this as your only job search tool
+> - Back up your data regularly
+>
+> **Recommended:** Start with local deployment ($0 cost) and test thoroughly before moving to cloud.
 
 ---
 
-## Quick Start
+I built this to keep my job search honest, fast, and private. It scrapes targeted job boards, scores each role against my rules, drops matches into SQLite, and pings Slack when something good shows up. Everything runs locally first, cost stays near zero, and every cloud deployment is optional and auditable.
 
-### Windows
+## What You Get
 
-1.  **Download the installer**: Right-click [this link](https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/deploy/windows/Install-Job-Finder.ps1) and choose "Save Link As..." to save `Install-Job-Finder.ps1` to your Desktop.
-2.  **Run the installer**: Double-click the `Install-Job-Finder.ps1` file on your Desktop and follow the on-screen instructions.
+- **Speed** – Concurrent scrapers, async scoring, and cached duplicates keep a full polling run under a few minutes
+- **Security** – No secrets in the repo, SQLite stays encrypted-at-rest in cloud, Slack webhooks live only in `.env`
+- **Cost Control** – Local by default ($0), GCP deployment caps resources, no always-on VM costs
+- **Future Proofing** – Works on Windows → macOS → Linux. GCP works today, AWS and Azure stubs ready for infrastructure
 
-### macOS / Linux
+**Cost:** $0 locally, ~$4-12/month on GCP (see [COST.md](COST.md) for full breakdown)
+
+## System Requirements
+
+| Platform | Status |
+| --- | --- |
+| Windows 11/10 + PowerShell 7 | ✅ Fully scripted installer |
+| macOS 13+ | ✅ Shell installer + Python 3.11+ |
+| Ubuntu/Debian/RHEL | ✅ Shell installer + Python 3.11+ |
+| GCP Cloud Run (Cloud SQL Lite sync) | ✅ Terraform driven |
+| AWS Fargate / Azure Container Apps | 🚧 placeholders ready for IaC |
+
+Python 3.11 or 3.12 works best. Node.js is not required. Network access is only needed for scraping targets and, optionally, Slack.
+
+## TL;DR Setup
+
+**New here?** See [QUICK_START.md](QUICK_START.md) for step-by-step instructions.
+
+### 1. Clone the repo
 
 ```bash
-# Clone repository
-git clone https://github.com/cboyd0319/job-private-scraper-filter.git
-cd job-private-scraper-filter
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Configure preferences
-cp config/user_prefs.example.json config/user_prefs.json
-nano config/user_prefs.json
-
-# Run first scrape
-python -m src.agent --mode scrape
+git clone https://github.com/cboyd0319/job-search-automation.git
+cd job-search-automation
 ```
 
-See [Getting Started Guide](./docs/GETTING_STARTED.md) for detailed instructions.
+### 2. Install dependencies
 
-> **Privacy-first**: This tool runs locally by default. Your data stays on your machine unless you choose to deploy to the cloud.
+```bash
+python3 -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
 
-### ⚠️ A Note on Windows Security
+### 3. Configure secrets
 
-When you first run the installer on Windows, you will likely see a blue "Windows protected your PC" screen. This is expected because the script is not code-signed. To proceed, click **More info** and then **Run anyway**.
+```bash
+cp config/user_prefs.example.json config/user_prefs.json
+python scripts/slack_bootstrap.py
+```
+
+`scripts/slack_bootstrap.py` walks you through Slack workspace creation, imports the manifest, stores the webhook in `.env`, and sends a test message to confirm it works.
+
+**New to Slack?** The wizard is designed for zero technical knowledge. Just follow the prompts!
+
+### 4. Run the agent
+
+```bash
+python -m src.agent --mode poll
+```
+
+The agent pulls configured job boards, scores the results, and emits high-score alerts to Slack. `--mode digest` compiles a daily summary, `--mode cleanup` purges stale rows and cloud backups.
+
+## Windows Installer
+
+```powershell
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+irm https://raw.githubusercontent.com/cboyd0319/job-search-automation/main/deploy/windows/Install-Job-Finder.ps1 | iex
+```
+
+The script installs Python, creates the virtual environment, restores dependencies, drops a Start Menu shortcut, and opens the Slack helper when the webhook is missing.
+
+## macOS / Linux Installer
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-search-automation/main/deploy/macos/install.sh | bash
+# or
+curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-search-automation/main/deploy/linux/install.sh | bash
+```
+
+Both installers create `~/.config/job-finder`, place user preferences, and hook a systemd timer or launchd plist so the poller runs on schedule.
+
+## Configuration
+
+- `config/user_prefs.json` – Companies, keywords, thresholds (git-ignored, contains your preferences)
+- `config/resume_parser.json` – Skill and title dictionaries used by the resume parser
+- `.env` – Runtime secrets like `SLACK_WEBHOOK_URL`, database URLs, optional cloud overrides
+
+**Pro tip:** Run `python -m utils.resume_parser <path-to-resume>` to auto-extract skills/titles from your resume, then edit the JSON to refine your preferences.
+
+**New:** ATS-level resume scanner! Check your resume's compatibility with Applicant Tracking Systems:
+```bash
+python -m utils.ats_scanner <path-to-resume> [job-description.txt] [industry]
+```
+
+See [docs/RESUME_RESOURCES.md](docs/RESUME_RESOURCES.md) for templates, guides, and best practices.
+
+## Database & Storage
+
+- Local data lives in `data/jobs.sqlite` (async) and `data/jobs_unified.sqlite` (enriched view).
+- `src/database.py` exposes async helpers and a sync session for the Flask UI (`python -m src.web_ui`).
+- `cloud/providers/gcp/cloud_database.py` keeps a Cloud Storage backup in sync, guarded by a distributed lock and checksum verification.
+
+Backups older than `BACKUP_RETENTION_DAYS` are removed automatically during the `cleanup` mode.
+
+## Slack Notifications
+
+Run the interactive setup wizard:
+
+```bash
+python scripts/slack_bootstrap.py
+```
+
+The wizard walks you through:
+1. Creating a free Slack workspace (or using an existing one)
+2. Creating a Slack app with the provided manifest
+3. Getting your webhook URL
+4. Testing the connection
+
+The webhook URL is saved to `.env` (never committed to git).
+
+**Detailed guide:** See [docs/SLACK_SETUP.md](docs/SLACK_SETUP.md) for step-by-step screenshots and troubleshooting.
+
+## Email Notifications (Optional)
+
+Want job digests in your inbox? Configure email notifications:
+
+```bash
+# Add to .env
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your.email@gmail.com
+SMTP_PASS=your_app_password
+DIGEST_TO=recipient@example.com
+
+# Test configuration
+python -c "from notify.emailer import test_email_config; test_email_config()"
+```
+
+**Full guide:** [docs/EMAIL_SETUP.md](docs/EMAIL_SETUP.md) - Gmail, Outlook, Yahoo setup with troubleshooting
+
+## Cloud Deployments
+
+⚠️ **Review [COST.md](COST.md) and [SECURITY.md](SECURITY.md) before deploying to cloud.**
+
+### Google Cloud Platform (GCP)
+
+**Cost:** ~$4-12/month | **Status:** ✅ Fully working
+
+```bash
+python -m cloud.bootstrap --provider gcp --log-level info
+```
+
+What this does:
+- Installs Terraform (checksum verified from HashiCorp)
+- Provisions Cloud Run + Artifact Registry + Cloud Scheduler
+- Sets up budget alerts ($5, $10, $15)
+- Uploads SQLite snapshot
+- Prints a cost receipt with estimates
+
+**Teardown:** `python -m cloud.teardown --provider gcp` (removes everything, stops all costs)
+
+### AWS (Future)
+
+**Cost:** ~$10-20/month (est.) | **Status:** 🚧 Planned
+
+Infrastructure placeholders ready in `cloud/providers/aws`. Terraform modules pending.
+
+### Azure (Future)
+
+**Cost:** ~$10-15/month (est.) | **Status:** 🚧 Planned
+
+Infrastructure placeholders ready in `cloud/providers/azure`. Terraform modules pending.
+
+## Maintenance
+
+| Command | What it does |
+| --- | --- |
+| `python -m src.agent --mode health` | Runs the health monitor and prints remediation hints. |
+| `python -m src.agent --mode cleanup` | Purges old jobs and trims cloud backups. |
+| `python scripts/slack_bootstrap.py` | Re-key the Slack webhook on demand. |
+| `python -m compileall src utils sources cloud` | Quick syntax sanity check (used during CI). |
+
+Logs land in `data/logs/`. The Flask UI (`python -m src.web_ui`) exposes the latest matches, lets me edit keywords, and surfaces log output in the browser.
+
+## Testing & QA
+
+- **Syntax** – `python3 -m compileall src utils sources cloud`.
+- **Static analysis** – `python run_pylint.py` (optional target, honors `.pylintrc`).
+- **Smoke run** – `python -m src.agent --mode poll` against example config; Slack test message confirms connectivity.
+- **Terraform** – `python -m cloud.bootstrap --provider gcp --dry-run` ensures IaC plans cleanly.
+
+## Troubleshooting
+
+| Symptom | Fix |
+| --- | --- |
+| Slack test fails | Re-run `scripts/slack_bootstrap.py`, confirm the webhook URL, and ensure the channel exists. |
+| SQLite locked | The agent was interrupted mid-write. Wait a few seconds or rerun with `--mode cleanup`. |
+| Playwright timeout | Set `SCRAPER_TIMEOUT=600` in `.env` or add a site-specific scraper in `sources/`. |
+| Too many duplicates | Flush the in-memory cache via `utils/cache.job_cache.clear()` or bump `MAX_JOB_CACHE` in `.env`. |
+
+## Security
+
+**Key protections:**
+- All secrets stay in `.env` (never committed to git)
+- Terraform downloads are checksum-verified against HashiCorp manifests
+- Slack manifests live under `config/` for scope auditing before install
+- Database uses parameterized queries (no SQL injection)
+- Cloud deployments use minimal IAM permissions
+
+**Full details:** [SECURITY.md](SECURITY.md)
+
+## Roadmap
+
+1. Add Terraform modules for AWS Fargate and Azure Container Apps.
+2. Expand MCP integrations for wider job coverage.
+3. Push structured metrics (OpenTelemetry) into the cloud deploy.
 
 ---
-
-## What It Does
-
-### Core Features
-
-**Automated Job Discovery**
-- Scrapes multiple job boards on your schedule (daily, hourly, or on-demand)
-- Access 500k+ jobs through MCP aggregators (JobsWithGPT, Reed, JobSpy)
-- Direct scrapers for Greenhouse, Lever, Microsoft, SpaceX, and custom job boards
-- Smart deduplication removes duplicate listings across sources
-
-**Intelligent Filtering**
-- Keywords (skills, tech stack, certifications)
-- Job titles (exact match or fuzzy)
-- Locations (city, state, remote, radius-based)
-- Salary requirements (minimum/maximum)
-- Experience level (junior, mid, senior)
-- Company blocklist (avoid specific employers)
-- Work authorization requirements
-
-**Match Scoring**
-- Weighted keyword matching (prioritize what matters most)
-- Location preference scoring
-- Salary fit calculation
-- Experience level alignment
-- Overall match score (0.0-1.0 scale)
-
-**Notifications**
-- Slack webhooks for high-match jobs (configurable threshold)
-- Desktop notifications (local mode)
-- Email alerts (planned for v3.0)
-
-**Resume Analysis** (v2.2.0+)
-- Upload PDF or DOCX resume
-- Auto-extract skills, job titles, companies, education
-- Pre-populate config file with detected preferences
-- Manual review and editing before saving
-
-**Deployment Options**
-- **Local-first**: Runs on your machine (Windows, macOS, Linux)
-- **Cloud-optional**: Deploy to Google Cloud Run for hands-off automation
-- **Cost**: ~$0-5/month on GCP (mostly free tier)
-- **Privacy**: Your data stays local unless you choose cloud deployment
-
-### Security Features (FREE - $0/month)
-
-All security controls are free and open-source:
-
-- **Secrets scanning** (TruffleHog) - Blocks credential leaks in commits
-- **Input validation** (Pydantic) - Prevents SQL injection, XSS, command injection
-- **Rate limiting** - Per-server request throttling (100-300 req/hour)
-- **Audit logging** - JSONL logs with anomaly detection
-- **Docker isolation** - Sandboxed MCP servers (read-only FS, network restrictions)
-- **Panic button** - Emergency disable for compromised servers
-
-**Annual Savings vs. Commercial Security Tools: $2,388 - $9,200+**
-
-### Data & Privacy
-
-- **Local storage**: Jobs saved as JSON files in `data/jobs/`
-- **No tracking**: Zero telemetry, analytics, or phone-home
-- **Open source**: Full transparency - review the code yourself
-- **Self-hosted**: You control where data lives (local or your own cloud)
-- **GDPR compliant**: Right to access, erasure, and portability built-in
 
 ## Documentation
 
-- **[Getting Started](./docs/GETTING_STARTED.md)** - Installation and first run
-- **[User Guide](./docs/USER_GUIDE.md)** - Daily usage and configuration
-- **[MCP Guide](./docs/MCP_GUIDE.md)** - Access 500k+ jobs via MCP aggregators
-- **[Security Guide](./docs/SECURITY_GUIDE.md)** - Security best practices
-- **[Developer Guide](./docs/DEVELOPER_GUIDE.md)** - Contributing and development
-- **[Quick Reference](./docs/QUICK_REFERENCE.md)** - Common commands cheat sheet
-- **[Roadmap](./docs/ROADMAP.md)** - Planned features
+### Getting Started
+- **[QUICK_START.md](QUICK_START.md)** ⭐ – Fast onboarding (5 minutes)
+- **[Getting Started](docs/GETTING_STARTED.md)** – Comprehensive first-time setup
 
-## Contributing
+### Essential Guides
+- **[Slack Setup](docs/SLACK_SETUP.md)** – Zero-knowledge Slack configuration
+- **[Email Setup](docs/EMAIL_SETUP.md)** – Email digest configuration (Gmail, Outlook, Yahoo)
+- **[Resume Resources](docs/RESUME_RESOURCES.md)** – ATS scanner, templates, optimization
+- **[Cost Transparency](COST.md)** – Real costs, calculator, shutdown procedures
+- **[Security Guide](SECURITY.md)** – Security practices, incident response
 
-Pull requests are welcome! See [Contributing Guide](./CONTRIBUTING.md) for details.
+### Reference
+- **[User Guide](docs/USER_GUIDE.md)** – Feature documentation
+- **[Developer Guide](docs/DEVELOPER_GUIDE.md)** – Contributing and development
+- **[Project Improvements](PROJECT_IMPROVEMENTS.md)** – Detailed changelog
+- **[Final Summary](FINAL_SUMMARY.md)** – Executive summary of recent updates
 
-## License
+---
 
-MIT License - See [LICENSE](./LICENSE) file for details.
+## Questions or Issues?
 
-## Need Help?
+If something breaks or you need help:
 
-- **Troubleshooting:** See [User Guide - Troubleshooting](./docs/USER_GUIDE.md#troubleshooting)
-- **Issues:** [GitHub Issues](https://github.com/cboyd0319/job-private-scraper-filter/issues)
-- **Security:** [Security Policy](./SECURITY.md)
+1. Check the troubleshooting section above
+2. Review the [docs/](docs/) directory
+3. Open an issue on GitHub with:
+   - What you tried to do
+   - What happened instead
+   - Relevant log output (from `data/logs/`)
 
-Made with care. Hope it helps you find a great gig.
+---
+
+**Project Status:** Alpha (expect bugs and breaking changes)

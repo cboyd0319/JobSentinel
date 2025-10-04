@@ -6,7 +6,7 @@ import json
 import os
 from pathlib import Path
 from typing import Dict, List, Optional, Any
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from urllib.parse import urlparse
 
 from utils.logging import get_logger
@@ -96,10 +96,11 @@ class FilterConfig:
     """Configuration for job filtering and scoring."""
 
     title_allowlist: List[str]
-    title_blocklist: List[str] = None
-    keywords_boost: List[str] = None
-    keywords_exclude: List[str] = None
-    location_constraints: List[str] = None
+    title_blocklist: List[str] = field(default_factory=list)
+    keywords_boost: List[str] = field(default_factory=list)
+    keywords_exclude: List[str] = field(default_factory=list)
+    location_constraints: List[str] = field(default_factory=list)
+    location_preferences: Dict[str, Any] = field(default_factory=dict)
     salary_floor_usd: Optional[int] = None
     immediate_alert_threshold: float = 0.9
     digest_min_score: float = 0.0
@@ -127,6 +128,8 @@ class FilterConfig:
         if self.max_matches_per_run < 1:
             raise ConfigurationException("max_matches_per_run must be at least 1")
 
+        if not isinstance(self.location_preferences, dict):
+            raise ConfigurationException("location_preferences must be an object")
 
 @dataclass
 class NotificationConfig:
@@ -223,8 +226,10 @@ class ConfigManager:
                 keywords_boost=config.get("keywords_boost", []),
                 keywords_exclude=config.get("keywords_exclude", []),
                 location_constraints=config.get("location_constraints", []),
+                location_preferences=config.get("location_preferences", {}),
                 salary_floor_usd=config.get("salary_floor_usd"),
                 immediate_alert_threshold=config.get("immediate_alert_threshold", 0.9),
+                digest_min_score=config.get("digest_min_score", 0.0),
                 max_matches_per_run=config.get("max_matches_per_run", 50),
             )
         except Exception as e:
@@ -301,10 +306,12 @@ class ConfigManager:
             keywords_boost=self._config_data.get("keywords_boost", []),
             keywords_exclude=self._config_data.get("keywords_exclude", []),
             location_constraints=self._config_data.get("location_constraints", []),
+            location_preferences=self._config_data.get("location_preferences", {}),
             salary_floor_usd=self._config_data.get("salary_floor_usd"),
             immediate_alert_threshold=self._config_data.get(
                 "immediate_alert_threshold", 0.9
             ),
+            digest_min_score=self._config_data.get("digest_min_score", 0.0),
             max_matches_per_run=self._config_data.get("max_matches_per_run", 50),
         )
 

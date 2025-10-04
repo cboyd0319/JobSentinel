@@ -45,7 +45,7 @@ try {
 
     # --- Download & Extraction Logic ---
     $RepoOwner = 'cboyd0319'
-    $RepoName = 'job-private-scraper-filter'
+    $RepoName = 'job-search-automation'
     $ZipUrl = "https://github.com/${RepoOwner}/${RepoName}/archive/refs/heads/main.zip"
     $InstallDir = Join-Path ([System.Environment]::GetFolderPath('Desktop')) "Job-Finder-Setup"
     $ZipPath = Join-Path $InstallDir "project.zip"

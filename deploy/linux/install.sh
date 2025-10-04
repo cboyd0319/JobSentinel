@@ -2,7 +2,7 @@
 
 # Job Scraper Universal Installer
 # Supports: macOS, Ubuntu/Debian, Windows (via WSL), and cloud deployments
-# Usage: curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-private-scraper-filter/main/install.sh | bash -s -- [OPTIONS]
+# Usage: curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-search-automation/main/install.sh | bash -s -- [OPTIONS]
 
 set -e
 
@@ -17,7 +17,7 @@ NC='\033[0m' # No Color
 
 # Default configuration
 INSTALL_DIR="$HOME/job-scraper"
-REPO_URL="https://github.com/cboyd0319/job-private-scraper-filter.git"
+REPO_URL="https://github.com/cboyd0319/job-search-automation.git"
 BRANCH="main"
 MODE="local-only"
 PLATFORM=""

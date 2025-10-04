@@ -57,8 +57,9 @@ check_prerequisites() {
         if command -v "$tool" >/dev/null 2>&1; then
             log_success "$tool is installed"
         else
-    log_error "$tool is required but not installed"
-}
+            log_error "$tool is required but not installed"
+        fi
+    done
 
 # Validate GCP environment variables
 check_gcp_env_vars() {

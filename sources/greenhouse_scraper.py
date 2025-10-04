@@ -42,8 +42,8 @@ class GreenhouseScraper(JobBoardScraper):
                 if test_data and isinstance(test_data, dict) and "jobs" in test_data:
                     logger.info(f"Detected Greenhouse board for {company_name}")
                     return True
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Failed to detect Greenhouse board for {company_name}: {e}")
 
         return False
 
@@ -193,7 +193,8 @@ class GreenhouseScraper(JobBoardScraper):
                         job_data = response.json()
                         if job_data:
                             return job_data
-                except Exception:
+                except Exception as e:
+                    logger.debug(f"Error processing response from {api_url}: {e}")
                     continue
 
             return None

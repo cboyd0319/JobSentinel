@@ -114,14 +114,14 @@ class JobCache:
         if external_id:
             # If we have an external ID, use it as primary hash
             # This catches same job from different aggregators
-            return hashlib.md5(f"external_id:{external_id}".encode()).hexdigest()
+            return hashlib.sha256(f"external_id:{external_id}".encode()).hexdigest()
 
         # Strategy 2: Normalized URL (good for same-source duplicates)
         url = job.get('url', '')
         if url:
             url_normalized = self._normalize_url(url)
             if url_normalized:
-                return hashlib.md5(f"url:{url_normalized}".encode()).hexdigest()
+                return hashlib.sha256(f"url:{url_normalized}".encode()).hexdigest()
 
         # Strategy 3: Content-based fingerprint (fallback)
         company = job.get('company', '').lower().strip()
@@ -129,7 +129,7 @@ class JobCache:
         description = job.get('description', '')[:255].lower().strip()
 
         unique_str = f"content:{company}|{title}|{description}"
-        return hashlib.md5(unique_str.encode()).hexdigest()
+        return hashlib.sha256(unique_str.encode()).hexdigest()
 
     def _normalize_url(self, url: str) -> str:
         """

@@ -5,7 +5,7 @@ Handles JavaScript-heavy sites and provides fallback for unknown platforms.
 
 import asyncio
 from typing import List, Dict
-from urllib.parse import urlparse, urlunparse
+from urllib.parse import urljoin, urlparse, urlunparse
 from playwright.async_api import async_playwright
 from .job_scraper_base import (
     JobBoardScraper,
@@ -236,7 +236,8 @@ class PlaywrightScraper(JobBoardScraper, APIDiscoveryMixin):
 
     async def _extract_spectrum_jobs(self, page, company_name: str) -> List[Dict]:
         """Extract jobs from Spectrum careers using optimized selectors."""
-        jobs = []
+        jobs: List[Dict] = []
+        seen_hashes = set()
         extractor = GenericJobExtractor()
         selectors = [
             '[class*="job"]',
@@ -249,75 +250,77 @@ class PlaywrightScraper(JobBoardScraper, APIDiscoveryMixin):
         for selector in selectors:
             try:
                 elements = await page.query_selector_all(selector)
-                if elements:
-                    logger.info(
-                        f"Spectrum: Found {len(elements)} elements with {selector}"
-                    )
+                if not elements:
+                    continue
 
-                    for element in elements[:20]:
-                        try:
-                            text = await element.text_content()
-                            if text and len(text.strip()) > 10:
-                                lines = [
-                                    line.strip()
-                                    for line in text.split("\n")
-                                    if line.strip()
-                                ]
-                                if len(lines) >= 1:
-                                    title = lines[0]
-                                    location = (
-                                        lines[1]
-                                        if len(lines) > 1
-                                        else "See Description"
-                                    )
+                logger.debug(
+                    "Spectrum fallback matched %s elements for selector %s",
+                    len(elements),
+                    selector,
+                )
 
-                                    # Skip category headers
-                                    if any(
-                                        word in title.lower()
-                                        for word in [
-                                            "full time",
-                                            "part time",
-                                            "category",
-                                        ]
-                                    ):
-                                        continue
-
-                                    raw_job = {
-                                        "title": title,
-                                        "location": location,
-                                        "description": text,
-                                    }
-
-                                    normalized_job = extractor.normalize_job_data(
-                                        raw_job,
-                                        company_name,
-                                        "spectrum_enhanced",
-                                        "https://jobs.spectrum.com/search-jobs/",
-                                    )
-                                    jobs.append(normalized_job)
-
-                        except (
-                            Exception
-                        ):  # nosec B110 - broad exception needed for scraper resilience
+                for element in elements[:25]:
+                    try:
+                        text_content = (await element.text_content()) or ""
+                        text_content = text_content.strip()
+                        if len(text_content) < 5:
                             continue
 
-                    if jobs:
-                        break
+                        title = text_content.split("\n")[0].strip()
+                        if len(title) < 4:
+                            continue
 
-            except (
-                Exception
-            ):  # nosec B110 - broad exception needed for scraper resilience
+                        link = await element.get_attribute("href")
+                        if not link:
+                            anchor = await element.query_selector("a[href]")
+                            if anchor:
+                                link = await anchor.get_attribute("href")
+
+                        location = (
+                            await element.get_attribute("data-location")
+                            or "See Description"
+                        )
+
+                        raw_job = {
+                            "title": title,
+                            "description": text_content,
+                            "url": urljoin(page.url, link) if link else page.url,
+                            "location": location,
+                        }
+
+                        normalized = extractor.normalize_job_data(
+                            raw_job,
+                            company_name,
+                            "spectrum_dynamic",
+                            page.url,
+                        )
+
+                        job_hash = normalized.get("hash") or normalized.get("url")
+                        if job_hash in seen_hashes:
+                            continue
+                        seen_hashes.add(job_hash)
+                        jobs.append(normalized)
+
+                    except Exception as exc:  # nosec B110 (scraper resilience)
+                        logger.debug(f"Spectrum selector parse error: {exc}")
+                        continue
+
+                if jobs:
+                    break
+            except Exception as error:  # nosec B110 - scraper resilience
+                logger.debug(f"Error processing selector: {error}")
                 continue
 
         return jobs
 
+
     async def _extract_google_jobs(self, page, company_name: str) -> List[Dict]:
         """Extract jobs from Google careers using optimized selectors."""
-        jobs = []
+        jobs: List[Dict] = []
+        seen_hashes = set()
         extractor = GenericJobExtractor()
         selectors = ['[data-automation-id="jobTitle"]', ".job-card", '[role="button"]']
 
-        # Try to wait for job listings
         try:
             await page.wait_for_selector(
                 '[data-automation-id="jobTitle"]', timeout=5000
@@ -328,69 +331,78 @@ class PlaywrightScraper(JobBoardScraper, APIDiscoveryMixin):
         for selector in selectors:
             try:
                 elements = await page.query_selector_all(selector)
-                if elements:
-                    logger.info(
-                        f"Google: Found {len(elements)} elements with {selector}"
-                    )
+                if not elements:
+                    continue
 
-                    for element in elements[:15]:
-                        try:
-                            text = await element.text_content()
-                            if text and len(text.strip()) > 5:
-                                title = text.strip()
+                logger.debug(
+                    "Google careers matched %s elements for selector %s",
+                    len(elements),
+                    selector,
+                )
 
-                                # Skip navigation elements
-                                if any(
-                                    word in title.lower()
-                                    for word in [
-                                        "apply",
-                                        "filter",
-                                        "sort",
-                                        "search",
-                                        "sign in",
-                                    ]
-                                ):
-                                    continue
-
-                                # Check if it looks like a job title
-                                if any(
-                                    word in title.lower()
-                                    for word in [
-                                        "engineer",
-                                        "manager",
-                                        "analyst",
-                                        "developer",
-                                        "specialist",
-                                    ]
-                                ):
-                                    raw_job = {
-                                        "title": title,
-                                        "location": "Colorado, USA",
-                                        "description": f"Google career opportunity: {title}",
-                                    }
-
-                                    normalized_job = extractor.normalize_job_data(
-                                        raw_job,
-                                        company_name,
-                                        "google_enhanced",
-                                        page.url,
-                                    )
-                                    jobs.append(normalized_job)
-
-                        except (
-                            Exception
-                        ):  # nosec B110 - broad exception needed for scraper resilience
+                for element in elements[:20]:
+                    try:
+                        text_content = (await element.text_content()) or ""
+                        text_content = text_content.strip()
+                        if len(text_content) < 5:
                             continue
 
-                    if jobs:
-                        break
+                        title = text_content.split("\n")[0].strip()
+                        if not title:
+                            continue
 
-            except (
-                Exception
-            ):  # nosec B110 - broad exception needed for scraper resilience
+                        if any(
+                            forbidden in title.lower()
+                            for forbidden in [
+                                "apply",
+                                "filter",
+                                "sort",
+                                "search",
+                                "sign in",
+                            ]
+                        ):
+                            continue
+
+                        link = await element.get_attribute("href")
+                        if not link:
+                            anchor = await element.query_selector("a[href]")
+                            if anchor:
+                                link = await anchor.get_attribute("href")
+
+                        raw_job = {
+                            "title": title,
+                            "description": text_content,
+                        }
+
+                        if link:
+                            raw_job["url"] = urljoin(page.url, link)
+
+                        normalized = extractor.normalize_job_data(
+                            raw_job,
+                            company_name,
+                            "google_dynamic",
+                            page.url,
+                        )
+
+                        job_hash = normalized.get("hash") or normalized.get("url")
+                        if job_hash in seen_hashes:
+                            continue
+
+                        seen_hashes.add(job_hash)
+                        jobs.append(normalized)
+
+                    except Exception as exc:  # nosec B110 - scraper resilience
+                        logger.debug(f"Error processing element: {exc}")
+                        continue
+
+                if jobs:
+                    break
+            except Exception as error:  # nosec B110 - scraper resilience
+                logger.debug(f"Google selector error: {error}")
                 continue
 
         return jobs
+
 
     async def _extract_generic_jobs(
         self, page, company_name: str, board_url: str
@@ -431,9 +443,8 @@ class PlaywrightScraper(JobBoardScraper, APIDiscoveryMixin):
                                     )
                                     jobs.append(normalized_job)
 
-                        except (
-                            Exception
-                        ):  # nosec B110 - broad exception needed for scraper resilience
+                        except Exception as e:  # nosec B110 - broad exception needed for scraper resilience
+                            logger.debug(f"Error processing element: {e}")
                             continue
 
                     if jobs:

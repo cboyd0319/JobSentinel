@@ -124,8 +124,8 @@ Historical documentation (for reference):
 
 ## Support
 
-- **Questions:** [GitHub Discussions](https://github.com/cboyd0319/job-private-scraper-filter/discussions)
-- **Bug Reports:** [GitHub Issues](https://github.com/cboyd0319/job-private-scraper-filter/issues)
+- **Questions:** [GitHub Discussions](https://github.com/cboyd0319/job-search-automation/discussions)
+- **Bug Reports:** [GitHub Issues](https://github.com/cboyd0319/job-search-automation/issues)
 - **Security Issues:** See [Security Policy](../SECURITY.md)
 
 ---

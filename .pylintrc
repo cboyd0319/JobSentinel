@@ -29,14 +29,8 @@ disable=
 # Set the output format
 output-format=text
 
-# Include message's id in output
-include-ids=no
-
 # Template used to display messages
 msg-template={path}:{line}: [{msg_id}({symbol}), {obj}] {msg}
-
-# Set the cache size for astng objects
-cache-size=500
 
 [REFACTORING]
 # Maximum number of nested blocks for function / method body
@@ -91,9 +85,6 @@ ignore-long-lines=^\s*(# )?<?https?://\S+>?$
 
 # Allow the body of an if to be on the same line as the test if there is no else
 single-line-if-stmt=no
-
-# List of optional constructs for which whitespace checking is disabled
-no-space-check=trailing-comma,dict-separator
 
 # Maximum number of lines in a module
 max-module-lines=1000
@@ -156,9 +147,6 @@ dummy-variables-rgx=_$|dummy
 additional-builtins=
 
 [CLASSES]
-# List of interface methods to ignore, separated by a comma
-ignore-iface-methods=isImplementedBy,deferred,extends,names,namesAndDescriptions,queryDescriptionFor,getBases,getDescriptionFor,getDoc,getName,getTaggedValue,getTaggedValueTags,isEqualOrExtendedBy,setTaggedValue,isImplementedByInstancesOf,adaptWith,is_implemented_by
-
 # List of method names used to declare (i.e. assign) instance attributes
 defining-attr-methods=__init__,__new__,setUp
 

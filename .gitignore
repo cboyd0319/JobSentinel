@@ -230,3 +230,4 @@ install-receipt.md
 installer-state.json
 installer-crash.log
 diagnostics-*.zip
+*.pyc

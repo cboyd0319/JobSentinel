@@ -1,15 +1,32 @@
 import os
 import json
+from pathlib import Path
 from urllib.parse import urlparse, urlunparse
 import secrets
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from utils.config import config_manager
-from src.database import get_database_stats, engine, Job
-from sqlmodel import Session, select
+from src.database import get_database_stats_sync, get_sync_session, Job
+from sqlmodel import select
 
 # --- Flask App Initialization ---
 app = Flask(__name__)
-app.secret_key = os.urandom(24)
+
+# Use a persistent secret key from environment or generate one
+SECRET_KEY_FILE = Path("data/.flask_secret")
+if os.getenv("FLASK_SECRET_KEY"):
+    app.secret_key = os.getenv("FLASK_SECRET_KEY")
+else:
+    if SECRET_KEY_FILE.exists():
+        with open(SECRET_KEY_FILE, "rb") as f:
+            app.secret_key = f.read()
+    else:
+        SECRET_KEY_FILE.parent.mkdir(parents=True, exist_ok=True)
+        app.secret_key = secrets.token_bytes(32)
+        with open(SECRET_KEY_FILE, "wb") as f:
+            f.write(app.secret_key)
+        # Secure the file (Unix-like systems only)
+        if os.name != 'nt':
+            os.chmod(SECRET_KEY_FILE, 0o600)
 
 
 def _generate_csrf_token() -> str:
@@ -45,11 +62,11 @@ def safe_external_url(value: str) -> str:
 def read_logs(lines=100):
     """Reads the last N lines from the log file."""
     try:
+        log_dir = Path("data/logs")
+        if not log_dir.exists():
+            return "No log file found."
         log_file = max(
-            [
-                p
-                for p in (config_manager.config_path.parent / "data/logs").glob("*.log")
-            ],
+            [p for p in log_dir.glob("*.log")],
             key=os.path.getctime,
         )
         with open(log_file, "r", encoding="utf-8") as f:
@@ -65,8 +82,8 @@ def index():
     """Main dashboard page."""
     try:
         prefs = config_manager.load_config()
-        db_stats = get_database_stats()
-        with Session(engine) as session:
+        db_stats = get_database_stats_sync()
+        with get_sync_session() as session:
             recent_jobs = session.exec(
                 select(Job).order_by(Job.created_at.desc()).limit(10)
             ).all()
@@ -156,7 +173,7 @@ def save_skills():
 def review():
     """Displays the job review page."""
     try:
-        with Session(engine) as session:
+        with get_sync_session() as session:
             jobs_to_review = session.exec(
                 select(Job).order_by(Job.created_at.desc()).limit(20)
             ).all()
@@ -169,7 +186,7 @@ def review():
 def review_feedback(job_id, feedback):
     """Handles feedback on job matches."""
     try:
-        with Session(engine) as session:
+        with get_sync_session() as session:
             job = session.get(Job, job_id)
             if job:
                 # Here you would add logic to adjust the scoring rules based on the feedback

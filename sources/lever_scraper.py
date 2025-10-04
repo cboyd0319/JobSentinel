@@ -42,8 +42,8 @@ class LeverScraper(JobBoardScraper):
                 if test_data and isinstance(test_data, list):
                     logger.info(f"Detected Lever board for {company_name}")
                     return True
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Failed to detect Lever board for {company_name}: {e}")
 
         return False
 

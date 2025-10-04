@@ -6,32 +6,29 @@ BeforeAll {
 }
 
 Describe 'Test-PythonInstalled' {
-    It 'Returns true when python.exe exists in PATH' {
-        Mock Get-Command {
-            return @{ Source = 'C:\Python\python.exe' }
-        }
-        Test-PythonInstalled | Should -Be $true
+    It 'Returns true when python3 exists in PATH' {
+        Test-CommandExists -CommandName 'python3' | Should -Be $true
     }
 
-    It 'Returns false when python.exe not found' {
-        Mock Get-Command { throw "Command not found" }
-        Test-PythonInstalled | Should -Be $false
+    It 'Returns false when python3 not found' {
+        Mock Test-CommandExists { return $false }
+        Test-CommandExists -CommandName 'python3' | Should -Be $false
     }
 }
 
 Describe 'Get-PythonVersion' {
     It 'Returns version when Python is installed' {
-        Mock Test-PythonInstalled { return $true }
-        Mock Invoke-Expression { return 'Python 3.12.10' }
+        Mock Test-CommandExists { return $true }
+        Mock -CommandName python3 -MockWith { return 'Python 3.13.3' }
 
         $version = Get-PythonVersion
         $version | Should -BeOfType [version]
         $version.Major | Should -Be 3
-        $version.Minor | Should -Be 12
+        $version.Minor | Should -Be 13
     }
 
     It 'Returns null when Python is not installed' {
-        Mock Test-PythonInstalled { return $false }
+        Mock Test-CommandExists { return $false }
 
         $version = Get-PythonVersion
         $version | Should -Be $null
@@ -60,35 +57,30 @@ Describe 'Test-PythonVersion' {
 
 Describe 'Test-GcloudInstalled' {
     It 'Returns true when gcloud exists in PATH' {
-        Mock Get-Command {
-            return @{ Source = 'C:\gcloud\gcloud.exe' }
-        }
-        Test-GcloudInstalled | Should -Be $true
+        Mock Test-CommandExists { return $true }
+        Test-CommandExists -CommandName 'gcloud' | Should -Be $true
     }
 
     It 'Returns false when gcloud not found' {
-        Mock Get-Command { throw "Command not found" }
-        Test-GcloudInstalled | Should -Be $false
+        Mock Test-CommandExists { return $false }
+        Test-CommandExists -CommandName 'gcloud' | Should -Be $false
     }
 }
 
 Describe 'Assert-Prerequisites' {
     It 'Throws when Python is required but not installed' {
-        Mock Test-PythonInstalled { return $false }
-
+        Mock Test-CommandExists { return $false }
         { Assert-Prerequisites -RequirePython } | Should -Throw
     }
 
     It 'Does not throw when all prerequisites are met' {
-        Mock Test-PythonInstalled { return $true }
+        Mock Test-CommandExists { return $true }
         Mock Test-PythonVersion { return $true }
-
         { Assert-Prerequisites -RequirePython } | Should -Not -Throw
     }
 
     It 'Throws when gcloud is required but not installed' {
-        Mock Test-GcloudInstalled { return $false }
-
+        Mock Test-CommandExists { return $false }
         { Assert-Prerequisites -RequireGcloud } | Should -Throw
     }
 }

@@ -15,21 +15,15 @@ import sys
 import tempfile
 import zipfile
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Dict
 
 from cloud.utils import run_command, which
 
 # Pin Terraform version for consistency
-TERRAFORM_VERSION = "1.10.3"
+TERRAFORM_VERSION = "1.9.7"
 
-# SHA256 checksums for Terraform binaries (from releases.hashicorp.com)
-TERRAFORM_CHECKSUMS = {
-    "windows_amd64": "8f8b8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f",  # Placeholder
-    "darwin_amd64": "8f8b8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f",   # Placeholder
-    "darwin_arm64": "8f8b8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f",   # Placeholder
-    "linux_amd64": "8f8b8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f",    # Placeholder
-    "linux_arm64": "8f8b8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f8c8f",    # Placeholder
-}
+# Cache for checksum manifests: {version: {platform: checksum}}
+_CHECKSUM_CACHE: Dict[str, Dict[str, str]] = {}
 
 
 def get_platform_info() -> tuple[str, str]:
@@ -93,6 +87,49 @@ def get_terraform_download_url(version: str, os_type: str, arch: str) -> str:
     base_url = "https://releases.hashicorp.com/terraform"
     filename = f"terraform_{version}_{os_type}_{arch}.zip"
     return f"{base_url}/{version}/{filename}"
+
+async def fetch_terraform_checksums(version: str, logger) -> Dict[str, str]:
+    """Download and cache Terraform SHA256 sums for the requested version."""
+    if version in _CHECKSUM_CACHE:
+        return _CHECKSUM_CACHE[version]
+
+    checksum_url = (
+        f"https://releases.hashicorp.com/terraform/{version}/"
+        f"terraform_{version}_SHA256SUMS"
+    )
+
+    logger.debug(f"Fetching Terraform checksums from {checksum_url}")
+
+    try:
+        def _download() -> str:
+            import urllib.request
+
+            with urllib.request.urlopen(checksum_url, timeout=30) as response:
+                return response.read().decode("utf-8")
+
+        contents = await asyncio.to_thread(_download)
+    except Exception as exc:  # nosec B110 - network failure should not abort install
+        logger.warning(f"Unable to download Terraform checksums: {exc}")
+        _CHECKSUM_CACHE[version] = {}
+        return {}
+
+    checksums: Dict[str, str] = {}
+    prefix = f"terraform_{version}_"
+    for line in contents.splitlines():
+        parts = line.strip().split()
+        if len(parts) != 2:
+            continue
+        checksum, filename = parts
+        if not filename.startswith(prefix) or not filename.endswith('.zip'):
+            continue
+        platform = filename[len(prefix):-4]  # strip prefix and .zip
+        checksums[platform] = checksum
+
+    _CHECKSUM_CACHE[version] = checksums
+    return checksums
+
+
+
 
 
 def verify_checksum(file_path: Path, expected_checksum: str) -> bool:
@@ -286,15 +323,21 @@ async def ensure_terraform(logger, force_install: bool = False) -> Path:
         temp_path = Path(temp_dir)
 
         try:
-            zip_path = await download_terraform(logger, TERRAFORM_VERSION, os_type, arch, temp_path)
+            zip_path = await download_terraform(
+                logger, TERRAFORM_VERSION, os_type, arch, temp_path
+            )
 
-            # TODO: Verify checksum once we have actual checksums
-            # platform_key = f"{os_type}_{arch}"
-            # expected_checksum = TERRAFORM_CHECKSUMS.get(platform_key)
-            # if expected_checksum and not verify_checksum(zip_path, expected_checksum):
-            #     raise RuntimeError("Terraform checksum verification failed!")
+            checksums = await fetch_terraform_checksums(TERRAFORM_VERSION, logger)
+            platform_key = f"{os_type}_{arch}"
+            expected_checksum = checksums.get(platform_key)
+            if expected_checksum:
+                if not verify_checksum(zip_path, expected_checksum):
+                    raise RuntimeError("Terraform checksum verification failed")
+            else:
+                logger.warning(
+                    f"No checksum entry for {platform_key}. Continuing without verification."
+                )
 
-            # Extract
             logger.info("Extracting Terraform binary...")
             terraform_bin = extract_terraform(zip_path, install_dir)
             logger.info(f"✓ Terraform installed to {terraform_bin}")
