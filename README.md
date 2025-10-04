@@ -41,9 +41,23 @@ It scrapes job boards, scores jobs against your criteria, dumps everything into 
 
 Python 3.11 or 3.12 works best. Node.js is not required. Network access is only needed for scraping targets and, optionally, Slack.
 
-## TL;DR Setup
+## Quick Start
 
-## Quick Start\n\n**Completely new to this?** Use the zero-knowledge startup script:\n\n```bash\ngit clone https://github.com/cboyd0319/job-search-automation.git\ncd job-search-automation\npython scripts/zero_knowledge_startup.py\n```\n\nThis script assumes you know nothing about Python or job scrapers. It explains everything.\n\n**Already familiar with Python?** Use the advanced setup wizard:\n\n```bash\npython scripts/setup_wizard.py\n```
+**Completely new to this?** Use the zero-knowledge startup script:
+
+```bash
+git clone https://github.com/cboyd0319/job-search-automation.git
+cd job-search-automation
+python scripts/zero_knowledge_startup.py
+```
+
+This script assumes you know nothing about Python or job scrapers. It explains everything.
+
+**Already familiar with Python?** Use the advanced setup wizard:
+
+```bash
+python scripts/setup_wizard.py
+```
 
 **Manual setup:**
 
