@@ -365,6 +365,7 @@ class PlaywrightScraper(JobBoardScraper, APIDiscoveryMixin):
 							continue
 				if jobs:
 					break
-			except Exception:  # nosec B110
+			except (TimeoutError, ConnectionError) as scrape_exc:
+				logger.debug(f"Scraping attempt failed: {scrape_exc}")
 				continue
 		return jobs

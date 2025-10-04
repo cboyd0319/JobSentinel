@@ -140,14 +140,15 @@ def validate_webhook(url: str | None) -> bool:
             return False
         # path parts like ['', 'services', 'AAA', 'BBB', 'CCC']
         return len(p.path.split('/')) >= 5
-    except Exception:
+    except (ValueError, AttributeError) as parse_exc:
+        print(f"Invalid webhook URL format: {parse_exc}")
         return False
 
 
 def test_webhook(url: str, quiet: bool = False) -> bool:
     try:
         import requests  # local dependency, optional runtime
-    except Exception:
+    except ImportError:
         if not quiet:
             console.print("[yellow]requests not installed; skipping webhook test.[/yellow]")
         return True

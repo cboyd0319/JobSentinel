@@ -40,12 +40,12 @@ warnings.warn(
     stacklevel=2,
 )
 
-import re
-from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple
 import logging
+import re
 from dataclasses import dataclass, field
 from enum import Enum
+from pathlib import Path
+from typing import Dict, List, Optional, Set, Tuple
 
 logger = logging.getLogger(__name__)
 

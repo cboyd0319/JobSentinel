@@ -193,7 +193,8 @@ class GreenhouseScraper(JobBoardScraper):
 						job_data = response.json()
 						if job_data:
 							return job_data
-				except Exception:
+				except (ValueError, TypeError) as parse_exc:
+					logger.debug(f"JSON parsing failed for Greenhouse job data: {parse_exc}")
 					continue
 
 			return None

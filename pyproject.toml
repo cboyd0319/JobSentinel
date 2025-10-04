@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0", "build>=0.5.1"]
+requires = ["setuptools>=78.1.1", "build>=0.5.1"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -16,7 +16,7 @@ dependencies = [
     "aiohttp>=3.9,<4",
     "aiosqlite>=0.20,<0.21",
     "beautifulsoup4>=4.12,<5",
-    "cryptography>=42,<43",
+    "cryptography>=44.0.1,<47",
     "Flask>=3.0,<3.1",
     "google-api-core>=2.14,<3",
     "google-auth>=2.23,<3",
@@ -25,7 +25,7 @@ dependencies = [
     "httpx>=0.26,<0.29",
     "lxml>=4.9,<6",
     "playwright>=1.44,<1.56",
-    "psutil>=5.9,<6",
+    "psutil>=5.9,<8",
     "pydantic>=2.6,<2.11",
     "python-dotenv>=1.0,<2",
     "requests>=2.31,<3",
@@ -48,6 +48,7 @@ resume = [
     "python-Levenshtein>=0.21.0",
     "regex>=2023.0.0",
     "rapidfuzz>=3.0,<4",
+    "textstat>=0.7.3,<0.8",
 ]
 mcp = [
     "mcp>=1.2,<2",
@@ -88,14 +89,26 @@ combine-as-imports = true
 
 [tool.mypy]
 python_version = "3.11"
-ignore_missing_imports = true
-allow_untyped_defs = true
-allow_untyped_calls = true
+# Meticulous Programmer Standards - Strict Type Safety
+strict = true
+warn_redundant_casts = true
 warn_unused_ignores = true
-strict_optional = true
+warn_return_any = true
+warn_unreachable = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+
+# Controlled exclusions
+ignore_missing_imports = false
+allow_untyped_defs = false
+allow_untyped_calls = false
+
 exclude = [
     "tests/",
     "examples/",
+    "utils/ats_scanner.py",  # Legacy deprecated module
 ]
 
 

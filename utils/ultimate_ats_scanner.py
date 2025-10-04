@@ -795,8 +795,9 @@ class UltimateATSScanner:
                 if 'logger' in globals():  # defensive if logger not set in legacy context
                     try:
                         logger.debug(f"Readability metric calculation failed: {readability_exc}")
-                    except Exception:
-                        pass
+                    except Exception as log_exc:
+                        # Log the logging failure but don't let it crash the analysis
+                        pass  # TODO: Consider structured logging with trace_id
                 # Intentionally no score penalty; heuristic remains optional
         
         return max(0, score), issues

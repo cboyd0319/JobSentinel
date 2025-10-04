@@ -22,6 +22,8 @@ import json
 import logging
 from types import SimpleNamespace
 
+logger = logging.getLogger(__name__)
+
 # Optional libraries
 try:
     from rapidfuzz import fuzz  # type: ignore
@@ -152,7 +154,11 @@ class ATSAnalyzer:
             return {}
         try:
             return json.loads(candidate.read_text(encoding="utf-8"))
-        except Exception:
+        except (FileNotFoundError, PermissionError, OSError) as file_exc:
+            logger.debug(f"Could not read taxonomy file {candidate}: {file_exc}")
+            return {}
+        except (json.JSONDecodeError, UnicodeDecodeError) as parse_exc:
+            logger.warning(f"Invalid taxonomy file format {candidate}: {parse_exc}")
             return {}
 
     def _normalize_weights(self, weights: Dict[str, float]) -> Dict[str, float]:
@@ -447,7 +453,8 @@ class ATSAnalyzer:
             if m:
                 try:
                     required = int(m.group(1))
-                except Exception:
+                except (ValueError, AttributeError, IndexError) as parse_exc:
+                    logger.debug(f"Could not parse years requirement from job description: {parse_exc}")
                     required = None
         # Infer from resume if not provided
         if extracted_years is None:

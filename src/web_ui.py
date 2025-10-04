@@ -47,7 +47,8 @@ def safe_external_url(value: str) -> str:
 
     try:
         parsed = urlparse(value)
-    except Exception:
+    except (ValueError, TypeError) as exc:
+        # Log malformed URL but continue safely
         return "#"
 
     if parsed.scheme not in {"http", "https"}:
@@ -72,8 +73,8 @@ def read_logs(lines=100):
         with open(log_file, "r", encoding="utf-8") as f:
             log_lines = f.readlines()
             return "".join(log_lines[-lines:])
-    except Exception:
-        return "No log file found."
+    except (FileNotFoundError, IOError, OSError) as exc:
+        return f"Log file access error: {type(exc).__name__}"
 
 
 # --- App Routes ---
