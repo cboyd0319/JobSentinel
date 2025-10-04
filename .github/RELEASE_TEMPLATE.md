@@ -2,7 +2,9 @@
 
 <!-- Short note about what's in this release -->
 
-### ✨ What's New
+### ✨ What's ---
+
+**Full changelog:** <https://github.com/cboyd0319/job-search-automation/compare/v{PREVIOUS_VERSION}...v{VERSION}>
 
 <!-- Highlight major new features -->
 -
@@ -30,11 +32,13 @@
 ## Install
 
 ### Windows (Recommended)
+
 ```powershell
 Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; irm "https://raw.githubusercontent.com/cboyd0319/job-search-automation/main/setup_windows.ps1" | iex
 ```
 
 ### macOS/Linux (Future Enhancement)
+
 ```bash
 # Not supported yet - Windows only for now
 # Manual Python setup required

@@ -3,6 +3,7 @@
 > ⚠️ **ALPHA SOFTWARE - BUYER BEWARE**
 >
 > This software is rough. I use it daily, but it breaks sometimes.
+>
 > - It will crash. Plan for it.
 > - It will find false positives. Review everything.
 > - Cloud deployment costs real money. Read [COST.md](COST.md) first.

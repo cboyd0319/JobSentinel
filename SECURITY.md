@@ -21,15 +21,18 @@ Before you run this:
 ## What Gets Stored and Where
 
 **Local storage (your computer):**
+
 - Job postings (title, company, URL, description)
 - Your job preferences (keywords, salary targets)
 - Resume skills (if you use the parser)
 - Logs (when it runs, what it finds)
 
 **Sent to Slack:**
+
 - Job matches only (title, company, URL, score)
 
 **Cloud storage (if you deploy):**
+
 - Everything from local storage
 - Encrypted SQLite backups
 
@@ -289,7 +292,7 @@ Similar security controls will be implemented:
 
 ## Common Security Mistakes to Avoid
 
-### ❌ Don't:
+### ❌ Don't
 
 1. **Commit `.env` to git**
    - Your secrets will be public on GitHub
@@ -311,7 +314,7 @@ Similar security controls will be implemented:
    - If the scraper is compromised, attackers get full system access
    - Fix: Run as a regular user account
 
-### ✅ Do:
+### ✅ Do
 
 1. **Keep dependencies updated**
    - Run `pip install -U -r requirements.txt` monthly
@@ -335,6 +338,7 @@ Similar security controls will be implemented:
 ### If You Think Your Secrets Were Exposed
 
 1. **Immediately rotate (change) all secrets:**
+
    ```bash
    # Slack webhook: Delete old webhook, create new one via scripts/slack_bootstrap.py
    python scripts/slack_bootstrap.py
