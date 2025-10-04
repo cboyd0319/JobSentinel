@@ -1,111 +1,111 @@
-# Job Finder
+# Job Search Automation
 
-> ⚠️ **ALPHA SOFTWARE - Use with Caution**
+> ⚠️ **ALPHA SOFTWARE - BUYER BEWARE**
 >
-> This project is in early development (Alpha stage). It works, but expect bugs, breaking changes, and rough edges.
-> - Test locally before deploying to cloud
-> - Review [SECURITY.md](SECURITY.md) and [COST.md](COST.md) before cloud deployment
-> - Don't rely on this as your only job search tool
-> - Back up your data regularly
+> This software is rough. I use it daily, but it breaks sometimes.
+> - It will crash. Plan for it.
+> - It will find false positives. Review everything.
+> - Cloud deployment costs real money. Read [COST.md](COST.md) first.
+> - Security isn't perfect. Read [SECURITY.md](SECURITY.md).
 >
-> **Recommended:** Start with local deployment ($0 cost) and test thoroughly before moving to cloud.
+> **No warranty. Use at your own risk.** Test locally for weeks before considering cloud.
 
 ---
 
-I built this to keep my job search honest, fast, and private. It scrapes targeted job boards, scores each role against my rules, drops matches into SQLite, and pings Slack when something good shows up. Everything runs locally first, cost stays near zero, and every cloud deployment is optional and auditable.
+I built this because job searching sucks and I wanted it to suck less.
+
+It scrapes job boards, scores jobs against your criteria, dumps everything into SQLite, and pings Slack when something good shows up. Runs locally first (free), cloud optional (costs money).
+
+**It works. Could be better. Ship first, polish later.**
 
 ## What You Get
 
-- **Speed** – Concurrent scrapers, async scoring, and cached duplicates keep a full polling run under a few minutes
-- **Security** – No secrets in the repo, SQLite stays encrypted-at-rest in cloud, Slack webhooks live only in `.env`
-- **Cost Control** – Local by default ($0), GCP deployment caps resources, no always-on VM costs
-- **Future Proofing** – Works on Windows → macOS → Linux. GCP works today, AWS and Azure stubs ready for infrastructure
+- **Fast scraping** – Hits multiple job boards in parallel, finishes in 2-5 minutes
+- **Smart filtering** – Only shows jobs that match your criteria
+- **Instant alerts** – Slack notifications when good jobs appear
+- **Privacy first** – Everything runs on your computer, no data sent to third parties
+- **Cost control** – Free locally, known costs in cloud (~$5-15/month)
 
-**Cost:** $0 locally, ~$4-12/month on GCP (see [COST.md](COST.md) for full breakdown)
+**Bottom line:** Automates the boring parts of job searching so you can focus on applying.
 
 ## System Requirements
 
-| Platform | Status |
-| --- | --- |
-| Windows 11/10 + PowerShell 7 | ✅ Fully scripted installer |
-| macOS 13+ | ✅ Shell installer + Python 3.11+ |
-| Ubuntu/Debian/RHEL | ✅ Shell installer + Python 3.11+ |
-| GCP Cloud Run (Cloud SQL Lite sync) | ✅ Terraform driven |
-| AWS Fargate / Azure Container Apps | 🚧 placeholders ready for IaC |
+| Platform | Status | Notes |
+| --- | --- | --- |
+| Windows 11/10 + PowerShell 7 | ✅ Fully supported | Complete installer and automation |
+| macOS 13+ | 🚧 Future enhancement | Manual Python setup required for now |
+| Ubuntu/Debian/RHEL | 🚧 Future enhancement | Manual Python setup required for now |
+| GCP Cloud Run | ✅ Fully supported | **COSTS MONEY** - Read COST.md first |
+| AWS Fargate / Azure | 🚧 Future enhancement | Infrastructure ready, not implemented |
 
 Python 3.11 or 3.12 works best. Node.js is not required. Network access is only needed for scraping targets and, optionally, Slack.
 
 ## TL;DR Setup
 
-**New here?** See [QUICK_START.md](QUICK_START.md) for step-by-step instructions.
+## Quick Start\n\n**Completely new to this?** Use the zero-knowledge startup script:\n\n```bash\ngit clone https://github.com/cboyd0319/job-search-automation.git\ncd job-search-automation\npython scripts/zero_knowledge_startup.py\n```\n\nThis script assumes you know nothing about Python or job scrapers. It explains everything.\n\n**Already familiar with Python?** Use the advanced setup wizard:\n\n```bash\npython scripts/setup_wizard.py\n```
 
-### 1. Clone the repo
-
-```bash
-git clone https://github.com/cboyd0319/job-search-automation.git
-cd job-search-automation
-```
-
-### 2. Install dependencies
+**Manual setup:**
 
 ```bash
+# 1. Python environment
 python3 -m venv .venv
 source .venv/bin/activate  # Windows: .venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-```
 
-### 3. Configure secrets
-
-```bash
+# 2. Configuration
 cp config/user_prefs.example.json config/user_prefs.json
-python scripts/slack_bootstrap.py
-```
+python scripts/slack_bootstrap.py  # Sets up Slack notifications
 
-`scripts/slack_bootstrap.py` walks you through Slack workspace creation, imports the manifest, stores the webhook in `.env`, and sends a test message to confirm it works.
-
-**New to Slack?** The wizard is designed for zero technical knowledge. Just follow the prompts!
-
-### 4. Run the agent
-
-```bash
+# 3. Test run
 python -m src.agent --mode poll
 ```
 
-The agent pulls configured job boards, scores the results, and emits high-score alerts to Slack. `--mode digest` compiles a daily summary, `--mode cleanup` purges stale rows and cloud backups.
+If it works, you'll see jobs in your terminal and (maybe) Slack notifications.
 
-## Windows Installer
+## Windows One-Click Install
 
 ```powershell
 Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 irm https://raw.githubusercontent.com/cboyd0319/job-search-automation/main/deploy/windows/Install-Job-Finder.ps1 | iex
 ```
 
-The script installs Python, creates the virtual environment, restores dependencies, drops a Start Menu shortcut, and opens the Slack helper when the webhook is missing.
+⚠️ **This downloads and runs code from the internet.** Review the script first if you're paranoid (you should be).
 
-## macOS / Linux Installer
+Installs Python, sets up everything, adds a Start Menu shortcut.
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-search-automation/main/deploy/macos/install.sh | bash
-# or
-curl -fsSL https://raw.githubusercontent.com/cboyd0319/job-search-automation/main/deploy/linux/install.sh | bash
-```
+## macOS / Linux Installation (Future Enhancement)
 
-Both installers create `~/.config/job-finder`, place user preferences, and hook a systemd timer or launchd plist so the poller runs on schedule.
+⚠️ **Currently Windows-only.** macOS and Linux installers are planned but not yet implemented.
+
+For now on macOS/Linux:
+1. Install Python 3.11+
+2. Clone this repo
+3. Run: `python scripts/zero_knowledge_startup.py`
+4. Manual scheduling setup required
 
 ## Configuration
 
-- `config/user_prefs.json` – Companies, keywords, thresholds (git-ignored, contains your preferences)
-- `config/resume_parser.json` – Skill and title dictionaries used by the resume parser
-- `.env` – Runtime secrets like `SLACK_WEBHOOK_URL`, database URLs, optional cloud overrides
+**Three files control everything:**
 
-**Pro tip:** Run `python -m utils.resume_parser <path-to-resume>` to auto-extract skills/titles from your resume, then edit the JSON to refine your preferences.
+1. `config/user_prefs.json` – What jobs you want (copy from `user_prefs.example.json`)
+2. `.env` – Your secrets (Slack webhook, email passwords)
+3. `config/resume_parser.json` – Skills dictionary (optional)
 
-**New:** ATS-level resume scanner! Check your resume's compatibility with Applicant Tracking Systems:
+**Pro tip:** Let the resume parser do the work:
+
 ```bash
-python -m utils.ats_scanner <path-to-resume> [job-description.txt] [industry]
+python -m utils.resume_parser your-resume.pdf
 ```
 
-See [docs/RESUME_RESOURCES.md](docs/RESUME_RESOURCES.md) for templates, guides, and best practices.
+Extracts your skills automatically. Saves 20+ minutes of manual typing.
+
+**Bonus:** Check if your resume passes ATS filters:
+
+```bash
+python -m utils.ats_scanner your-resume.pdf
+```
+
+Shows what applicant tracking systems see. Most resumes fail this.
 
 ## Database & Storage
 
@@ -115,23 +115,17 @@ See [docs/RESUME_RESOURCES.md](docs/RESUME_RESOURCES.md) for templates, guides, 
 
 Backups older than `BACKUP_RETENTION_DAYS` are removed automatically during the `cleanup` mode.
 
-## Slack Notifications
-
-Run the interactive setup wizard:
+## Slack Setup
 
 ```bash
 python scripts/slack_bootstrap.py
 ```
 
-The wizard walks you through:
-1. Creating a free Slack workspace (or using an existing one)
-2. Creating a Slack app with the provided manifest
-3. Getting your webhook URL
-4. Testing the connection
+The script walks you through creating a Slack app and getting a webhook URL. Takes 5 minutes if you follow directions.
 
-The webhook URL is saved to `.env` (never committed to git).
+Stuck? Check [docs/SLACK_SETUP.md](docs/SLACK_SETUP.md) for screenshots.
 
-**Detailed guide:** See [docs/SLACK_SETUP.md](docs/SLACK_SETUP.md) for step-by-step screenshots and troubleshooting.
+**Skip Slack?** Fine. You'll get results in the terminal and web UI instead.
 
 ## Email Notifications (Optional)
 
@@ -151,49 +145,62 @@ python -c "from notify.emailer import test_email_config; test_email_config()"
 
 **Full guide:** [docs/EMAIL_SETUP.md](docs/EMAIL_SETUP.md) - Gmail, Outlook, Yahoo setup with troubleshooting
 
-## Cloud Deployments
+## Cloud Deployment (GCP Only)
 
-⚠️ **Review [COST.md](COST.md) and [SECURITY.md](SECURITY.md) before deploying to cloud.**
+⚠️ **This costs real money.** Read [COST.md](COST.md) first. Seriously.
 
-### Google Cloud Platform (GCP)
-
-**Cost:** ~$4-12/month | **Status:** ✅ Fully working
+**GCP deployment** (~$5-15/month):
 
 ```bash
 python -m cloud.bootstrap --provider gcp --log-level info
 ```
 
-What this does:
-- Installs Terraform (checksum verified from HashiCorp)
-- Provisions Cloud Run + Artifact Registry + Cloud Scheduler
-- Sets up budget alerts ($5, $10, $15)
-- Uploads SQLite snapshot
-- Prints a cost receipt with estimates
+This:
+- Installs Terraform
+- Provisions Cloud Run, storage, scheduler
+- Sets budget alerts (you're welcome)
+- Uploads your data
 
-**Teardown:** `python -m cloud.teardown --provider gcp` (removes everything, stops all costs)
+**To shut down and stop costs:**
 
-### AWS (Future)
+```bash
+python -m cloud.teardown --provider gcp
+```
 
-**Cost:** ~$10-20/month (est.) | **Status:** 🚧 Planned
+**AWS/Azure:** Future enhancements only. Windows + GCP is the current focus.
 
-Infrastructure placeholders ready in `cloud/providers/aws`. Terraform modules pending.
+### AWS (Future Enhancement)
 
-### Azure (Future)
+**Status:** 🚧 Not implemented - placeholder code only
 
-**Cost:** ~$10-15/month (est.) | **Status:** 🚧 Planned
+No working deployment available yet.
 
-Infrastructure placeholders ready in `cloud/providers/azure`. Terraform modules pending.
+### Azure (Future Enhancement)
 
-## Maintenance
+**Status:** 🚧 Not implemented - placeholder code only
 
-| Command | What it does |
-| --- | --- |
-| `python -m src.agent --mode health` | Runs the health monitor and prints remediation hints. |
-| `python -m src.agent --mode cleanup` | Purges old jobs and trims cloud backups. |
-| `python scripts/slack_bootstrap.py` | Re-key the Slack webhook on demand. |
-| `python -m compileall src utils sources cloud` | Quick syntax sanity check (used during CI). |
+No working deployment available yet.
 
-Logs land in `data/logs/`. The Flask UI (`python -m src.web_ui`) exposes the latest matches, lets me edit keywords, and surfaces log output in the browser.
+## Daily Commands
+
+```bash
+# Search for jobs now
+python -m src.agent --mode poll
+
+# View results in browser
+python -m src.web_ui  # then open http://localhost:5000
+
+# Clean up old data
+python -m src.agent --mode cleanup
+
+# Fix Slack notifications
+python scripts/slack_bootstrap.py
+
+# Check system health
+python -m src.agent --mode health
+```
+
+**Logs:** Check `data/logs/` when things go wrong.
 
 ## Testing & QA
 
@@ -202,14 +209,28 @@ Logs land in `data/logs/`. The Flask UI (`python -m src.web_ui`) exposes the lat
 - **Smoke run** – `python -m src.agent --mode poll` against example config; Slack test message confirms connectivity.
 - **Terraform** – `python -m cloud.bootstrap --provider gcp --dry-run` ensures IaC plans cleanly.
 
-## Troubleshooting
+## When Things Break
 
-| Symptom | Fix |
-| --- | --- |
-| Slack test fails | Re-run `scripts/slack_bootstrap.py`, confirm the webhook URL, and ensure the channel exists. |
-| SQLite locked | The agent was interrupted mid-write. Wait a few seconds or rerun with `--mode cleanup`. |
-| Playwright timeout | Set `SCRAPER_TIMEOUT=600` in `.env` or add a site-specific scraper in `sources/`. |
-| Too many duplicates | Flush the in-memory cache via `utils/cache.job_cache.clear()` or bump `MAX_JOB_CACHE` in `.env`. |
+**Common fixes:**
+
+```bash
+# Slack stopped working
+python scripts/slack_bootstrap.py
+
+# Database errors
+python -m src.agent --mode cleanup
+
+# Scraper timeouts (add to .env)
+echo "SCRAPER_TIMEOUT=600" >> .env
+
+# Check what went wrong
+ls data/logs/
+```
+
+**Still broken?** 
+1. Check the error logs in `data/logs/`
+2. Try the zero-knowledge startup script: `python scripts/zero_knowledge_startup.py`
+3. Open a GitHub issue with the error message
 
 ## Security
 
@@ -224,7 +245,7 @@ Logs land in `data/logs/`. The Flask UI (`python -m src.web_ui`) exposes the lat
 
 ## Roadmap
 
-1. Add Terraform modules for AWS Fargate and Azure Container Apps.
+1. Add Terraform modules for AWS Fargate and Azure Container Apps (future enhancement).
 2. Expand MCP integrations for wider job coverage.
 3. Push structured metrics (OpenTelemetry) into the cloud deploy.
 

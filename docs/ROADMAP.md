@@ -4,8 +4,9 @@ This document outlines the future plans for the Job Finder project.
 
 ## Up Next
 
+*   **Add macOS and Linux support**: Currently Windows-only. We plan to add native installers for macOS and Linux.
 *   **Bring the Cloud Run bootstrapper experience to AWS and Azure**: The current cloud deployment is focused on GCP. We plan to add support for AWS Lambda and Azure Functions.
-*   **Improve the Windows setup script**: Continue to refine the Windows installer to make it as smooth as the macOS and Linux experience.
+*   **Improve the Windows setup script**: Continue to refine the Windows installer to make it even more user-friendly.
 *   **Expand CI to cover more scraping edge cases**: Add more tests to the CI/CD pipeline to cover a wider range of scraping scenarios.
 
 ## Future Enhancements

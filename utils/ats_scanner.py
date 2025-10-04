@@ -124,25 +124,50 @@ class ATSScanner:
     # Industry-specific keyword dictionaries
     INDUSTRY_KEYWORDS = {
         "software_engineering": {
-            "python", "java", "javascript", "react", "node.js", "aws", "docker",
-            "kubernetes", "ci/cd", "agile", "scrum", "git", "api", "rest",
-            "microservices", "cloud", "devops", "sql", "nosql", "testing"
+            "python", "java", "javascript", "typescript", "react", "vue", "angular", "node.js", 
+            "aws", "azure", "gcp", "docker", "kubernetes", "ci/cd", "agile", "scrum", "git", 
+            "api", "rest", "graphql", "microservices", "cloud", "devops", "sql", "nosql", 
+            "testing", "tdd", "bdd", "oauth", "jwt", "redis", "mongodb", "postgresql",
+            "nginx", "apache", "linux", "bash", "shell scripting", "monitoring", "elk stack"
         },
         "data_science": {
-            "python", "r", "sql", "machine learning", "deep learning", "tensorflow",
-            "pytorch", "scikit-learn", "pandas", "numpy", "visualization", "statistics",
-            "data analysis", "big data", "spark", "hadoop", "a/b testing"
+            "python", "r", "sql", "machine learning", "deep learning", "ai", "artificial intelligence",
+            "tensorflow", "pytorch", "keras", "scikit-learn", "pandas", "numpy", "matplotlib",
+            "seaborn", "plotly", "jupyter", "visualization", "statistics", "data analysis", 
+            "big data", "spark", "hadoop", "a/b testing", "hypothesis testing", "regression",
+            "classification", "clustering", "nlp", "computer vision", "feature engineering",
+            "model deployment", "mlops", "data pipeline", "etl", "aws sagemaker", "azure ml"
         },
         "cybersecurity": {
-            "penetration testing", "vulnerability assessment", "siem", "firewall",
-            "ids/ips", "encryption", "compliance", "incident response", "threat analysis",
-            "security audit", "cissp", "ceh", "oscp", "soc", "malware analysis"
+            "penetration testing", "ethical hacking", "vulnerability assessment", "siem", "firewall",
+            "ids/ips", "encryption", "compliance", "incident response", "threat analysis", "threat hunting",
+            "security audit", "cissp", "ceh", "oscp", "cism", "cisa", "soc", "malware analysis",
+            "digital forensics", "network security", "application security", "cloud security",
+            "zero trust", "identity management", "access control", "risk assessment", "gdpr",
+            "hipaa", "pci dss", "iso 27001", "nist", "owasp", "splunk", "qradar", "wireshark"
         },
         "cloud_engineering": {
-            "aws", "azure", "gcp", "terraform", "cloudformation", "kubernetes",
-            "docker", "ci/cd", "infrastructure as code", "serverless", "lambda",
-            "s3", "ec2", "cloud security", "cost optimization", "monitoring"
+            "aws", "azure", "gcp", "terraform", "cloudformation", "kubernetes", "docker", "helm",
+            "ci/cd", "infrastructure as code", "iac", "serverless", "lambda", "azure functions",
+            "s3", "ec2", "rds", "vpc", "iam", "cloud security", "cost optimization", "monitoring",
+            "cloudwatch", "prometheus", "grafana", "elk stack", "microservices", "api gateway",
+            "load balancer", "auto scaling", "backup", "disaster recovery", "multi-cloud",
+            "hybrid cloud", "devops", "site reliability engineering", "sre", "observability"
         },
+        "product_management": {
+            "product strategy", "product roadmap", "user stories", "agile", "scrum", "kanban",
+            "product lifecycle", "market research", "competitive analysis", "user research",
+            "ux/ui", "wireframing", "prototyping", "a/b testing", "analytics", "kpis", "okrs",
+            "stakeholder management", "cross-functional collaboration", "go-to-market",
+            "pricing strategy", "feature prioritization", "backlog management", "jira", "confluence"
+        },
+        "marketing": {
+            "digital marketing", "content marketing", "social media marketing", "email marketing",
+            "seo", "sem", "ppc", "google ads", "facebook ads", "linkedin ads", "marketing automation",
+            "crm", "salesforce", "hubspot", "marketo", "analytics", "google analytics", "conversion rate",
+            "lead generation", "brand management", "campaign management", "market research",
+            "copywriting", "graphic design", "video marketing", "influencer marketing"
+        }
     }
 
     def __init__(self, resume_path: str | Path):

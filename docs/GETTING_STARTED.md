@@ -1,14 +1,14 @@
 # Getting Started
 
-**Quick start guide to get your Job Finder running in 5 minutes.**
+**How to get this job scraper running. Takes 10-15 minutes if you follow directions.**
 
 ---
 
-## 📋 Prerequisites
+## What You Need
 
-- **Python 3.11+** (3.12 or 3.13 recommended)
-- **Git** (for cloning the repo)
-- **Google Cloud account** (optional - only for cloud deployment)
+- **Python 3.8+** (3.11 or newer is better)
+- **Internet connection** (obviously)
+- **Google Cloud account** (only if you want cloud deployment - costs money)
 
 ---
 
@@ -97,10 +97,10 @@ cd deploy/windows
 .\install.ps1  # Opens GUI installer
 ```
 
-**macOS/Linux:**
+**macOS/Linux (Future Enhancement):**
 ```bash
-cd deploy/macos  # or deploy/linux
-./install.sh
+# Not implemented yet - Windows only for now
+# Manual Python setup required on macOS/Linux
 ```
 
 The installer handles:

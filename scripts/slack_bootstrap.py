@@ -64,18 +64,21 @@ def explain_prerequisites() -> None:
     """Print a high-level overview of what the script will do."""
     welcome = dedent(
         """
-        [bold magenta]Welcome to the Slack Setup Wizard![/bold magenta]
+        [bold magenta]🚀 Slack Setup Wizard[/bold magenta]
 
-        This wizard will walk you through setting up Slack notifications for job alerts.
-        [yellow]No technical knowledge required![/yellow] Just follow the steps below.
+        This wizard will automate your Slack setup for job alerts.
+        [yellow]✅ Zero technical knowledge required![/yellow] I'll guide you through each step.
 
-        [bold]What you'll do:[/bold]
-        1. Create a FREE Slack workspace (or use an existing one)
-        2. Create a Slack App using a pre-made configuration file
-        3. Enable webhooks so the job scraper can send you alerts
-        4. Test everything to make sure it works
+        [bold cyan]What happens next:[/bold cyan]
+        1. 🆓 Create a FREE Slack workspace (or use existing)
+        2. 📱 Install a pre-configured Slack app (1-click setup)
+        3. 🔗 Enable webhooks for instant job notifications
+        4. ✅ Test everything to ensure it works perfectly
 
-        [dim]Estimated time: 5-10 minutes[/dim]
+        [bold green]💰 Cost: Completely FREE (no credit card required)[/bold green]
+        [dim]⏱️  Time needed: 5-10 minutes[/dim]
+        
+        [bold red]⚠️  Important:[/bold red] This is ALPHA software. Test thoroughly before relying on it.
         """
     ).strip()
 

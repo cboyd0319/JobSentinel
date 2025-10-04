@@ -1,6 +1,6 @@
 # Documentation
 
-Welcome to the Job Finder documentation!
+All the guides to get this job scraper working.
 
 ---
 

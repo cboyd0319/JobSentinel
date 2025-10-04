@@ -13,7 +13,7 @@ from pathlib import Path
 from urllib.parse import urlparse, urlunparse
 
 from InquirerPy import prompt
-from InquirerPy.validator import EmptyInput, PathValidator, NumberValidator
+from InquirerPy.validator import EmptyInputValidator, PathValidator, NumberValidator
 
 # Add project root to path
 sys.path.append(str(Path(__file__).parent.parent))
@@ -79,14 +79,14 @@ class SetupWizard:
             {
                 "type": "input",
                 "message": "📝 Your name:",
-                "validate": EmptyInput("Name cannot be empty"),
+                "validate": EmptyInputValidator("Name cannot be empty"),
                 "default": self.user_profile.get("name", ""),
                 "name": "name",
             },
             {
                 "type": "input",
                 "message": "👔 Current job title:",
-                "validate": EmptyInput("Job title cannot be empty"),
+                "validate": EmptyInputValidator("Job title cannot be empty"),
                 "default": self.user_profile.get("current_title", ""),
                 "name": "current_title",
             },

@@ -34,12 +34,13 @@
 Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; irm "https://raw.githubusercontent.com/cboyd0319/job-search-automation/main/setup_windows.ps1" | iex
 ```
 
-### macOS/Linux
+### macOS/Linux (Future Enhancement)
 ```bash
+# Not supported yet - Windows only for now
+# Manual Python setup required
 git clone https://github.com/cboyd0319/job-search-automation.git
 cd job-search-automation
-git checkout v{VERSION}
-chmod +x setup.sh && ./setup.sh
+python scripts/zero_knowledge_startup.py
 ```
 
 ### Manual
@@ -63,8 +64,9 @@ python -m playwright install chromium
 ## Testing
 
 Tested on:
-- Python 3.12–3.13
-- Windows, macOS, Ubuntu
+- Python 3.11–3.12
+- Windows 11/10 (full support)
+- macOS/Ubuntu (manual setup only - future enhancement)
 
 ## Notes
 

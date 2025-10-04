@@ -47,6 +47,10 @@ __pypackages__/
 *.env
 .envrc.local
 
+# Personal agent configurations
+agents/
+agents/**
+
 # Cloud provider credentials
 *-key.json
 *_key.json

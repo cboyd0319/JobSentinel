@@ -593,8 +593,8 @@ async def test_security(result: ValidationResult):
                         credential_warnings.append(
                             f"{file_path} contains {cred_type} - should use environment variables!"
                         )
-                except Exception as e:
-                    validation_logger.debug(f"Error checking for credentials in {file_path}: {e}")
+            except Exception as e:
+                validation_logger.debug(f"Error checking for credentials in {file_path}: {e}")
 
     if credential_warnings:
         for warning in credential_warnings:

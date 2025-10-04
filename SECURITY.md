@@ -1,53 +1,51 @@
 # Security Guide
 
-This document explains how this project keeps your data safe and what you need to know about security. **No technical knowledge required.**
+This software handles your personal data. Here's what you need to know.
 
-⚠️ **Alpha Software Warning:** This project is in early development. Review this guide carefully before deploying to the cloud.
+⚠️ **Alpha software = alpha security.** I do my best, but expect gaps.
 
----
+## Security Checklist
 
-## Quick Security Checklist
+Before you run this:
 
-Before running this project, make sure:
+- ✅ Check that `.env` is in `.gitignore` (it is, but verify)
+- ✅ Don't share your Slack webhook URL with anyone
+- ✅ Keep resume files local (this software never uploads them)
+- ✅ Set cloud budget alerts if deploying to cloud
+- ✅ Update dependencies: `pip install -U -r requirements.txt`
 
-- ✅ `.env` file is NOT committed to git (it contains secrets)
-- ✅ Slack webhook URL is kept private (don't share it publicly)
-- ✅ Resume files are stored locally (not uploaded anywhere)
-- ✅ Cloud budget alerts are enabled (prevents surprise bills)
-- ✅ Python dependencies are up to date (run `pip install -U -r requirements.txt`)
-
----
-
-## What Data This Project Collects
-
-### Stored Locally (on Your Computer)
-
-- **Job postings:** Title, company, location, URL, description
-- **Your preferences:** Keywords, companies you're interested in, salary floor
-- **Resume data (if parsed):** Skills and job titles extracted from your resume
-- **Logs:** When the scraper runs and what it finds
-
-### Sent to Slack (if enabled)
-
-- Job title, company, location, URL, and match score
-
-### Sent to Cloud (if deployed to GCP/AWS/Azure)
-
-- Same as "Stored Locally" above
-- Encrypted SQLite database backups
-
-### What is NEVER collected or sent:
-
-- ❌ Your actual resume file
-- ❌ Personal identifying information (name, address, phone, email)
-- ❌ Browsing history or passwords
-- ❌ Social security number or financial info
+**Skip the cloud if you're paranoid.** Local-only is completely safe.
 
 ---
 
-## Secrets Management (Keeping Your Data Safe)
+## What Gets Stored and Where
 
-### What are "secrets"?
+**Local storage (your computer):**
+- Job postings (title, company, URL, description)
+- Your job preferences (keywords, salary targets)
+- Resume skills (if you use the parser)
+- Logs (when it runs, what it finds)
+
+**Sent to Slack:**
+- Job matches only (title, company, URL, score)
+
+**Cloud storage (if you deploy):**
+- Everything from local storage
+- Encrypted SQLite backups
+
+**Never stored or sent:**
+- Your actual resume file
+- Personal info (name, address, phone)
+- Browsing history
+- Financial data
+
+**Bottom line:** If you don't trust the cloud, run local-only. It works fine.
+
+---
+
+## Secrets (API Keys, Passwords, etc.)
+
+**What counts as a secret:**
 
 Secrets are sensitive pieces of information like passwords, API keys, and webhook URLs. If someone gets these, they could:
 
@@ -117,7 +115,7 @@ chmod 600 .env
 ### Cloud Deployment
 
 **Additional connections:**
-- Cloud provider APIs (GCP, AWS, Azure)
+- Cloud provider APIs (GCP currently, AWS/Azure planned)
 - Cloud storage (for database backups)
 
 **Protections:**
@@ -129,7 +127,7 @@ chmod 600 .env
 
 ## Container Security (for Cloud Deployments)
 
-If you deploy to GCP/AWS/Azure, the scraper runs in a "container" (a isolated, secure environment).
+If you deploy to GCP (AWS/Azure are future enhancements), the scraper runs in a "container" (a isolated, secure environment).
 
 ### What I Did to Secure the Container
 
@@ -163,7 +161,7 @@ docker run --rm job-scraper:latest whoami
 
 **Cloud:**
 - All data is encrypted by cloud provider (AES-256)
-- Encryption keys are managed by Google/AWS/Azure
+- Encryption keys are managed by Google (AWS/Azure support planned)
 - Backups are also encrypted
 
 ### In Transit (Data Being Sent)
