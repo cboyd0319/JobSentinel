@@ -55,7 +55,8 @@ def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description='Unified Slack setup for job-search-automation')
     p.add_argument('--webhook', help='Provide a Slack Incoming Webhook URL directly')
     p.add_argument('--channel', default=DEFAULT_CHANNEL, help='Preferred channel name to create/select')
-    p.add_argument('--test-only', action='store_true', help='Only test existing webhook; do not modify .env')
+    # Using underscore form to avoid attribute access issues (args.test_only)
+    p.add_argument('--test-only', dest='test_only', action='store_true', help='Only test existing webhook; do not modify .env')
     p.add_argument('--non-interactive', action='store_true', help='Fail instead of prompting when info missing')
     p.add_argument('--print-manifest', action='store_true', help='Print manifest path (create if missing) and exit')
     p.add_argument('--force', action='store_true', help='Overwrite existing SLACK_WEBHOOK_URL without prompting')
@@ -218,7 +219,7 @@ def main() -> int:
 
     existing = env.get('SLACK_WEBHOOK_URL')
 
-    if args.test-only:
+    if args.test_only:
         if not existing:
             console.print('[red]No existing SLACK_WEBHOOK_URL to test.[/red]')
             return 2

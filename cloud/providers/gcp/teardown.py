@@ -382,5 +382,5 @@ class GCPTeardown:
         )
 
     def _print_summary(self) -> None:
-        logger.info(f"Teardown Summary")
+        logger.info("Teardown Summary")
         logger.info(f"All resources for project {self.project_id} have been scheduled for deletion.")

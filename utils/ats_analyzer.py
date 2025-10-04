@@ -408,11 +408,11 @@ class ATSAnalyzer:
             issues.append(Issue(level="warning", category="formatting", message="High non-ASCII character usage", suggestion="Replace decorative symbols"))
 
         # Line length variance heuristic
-        lines = [l.strip() for l in text.splitlines() if l.strip()]
-        lengths = [len(l) for l in lines]
+        lines = [line.strip() for line in text.splitlines() if line.strip()]
+        lengths = [len(line) for line in lines]
         if lengths:
             avg = sum(lengths) / len(lengths)
-            variance = sum((l - avg) ** 2 for l in lengths) / len(lengths)
+            variance = sum((length_val - avg) ** 2 for length_val in lengths) / len(lengths)
             if variance > 600:
                 score -= 10
                 issues.append(Issue(level="warning", category="formatting", message="High line length variance", suggestion="Avoid multi-column or table layouts"))
@@ -540,19 +540,20 @@ def register_default_plugins(force: bool = False) -> None:
     leadership_terms = {"led", "managed", "mentored", "spearheaded", "coordinated", "supervised", "directed"}
 
     def _achievements_plugin(text: str, ctx: Dict[str, Any]):
-        lines = [l.strip() for l in text.splitlines() if l.strip()]
+        # Use 'line' instead of single-letter to satisfy readability/lint (E741)
+        lines = [line.strip() for line in text.splitlines() if line.strip()]
         pattern = re.compile(r"^(?:[-*•]\s*)?(?=.*\b\d+(?:%|k|m)?\b).{0,140}$", re.IGNORECASE)
         action_hits = 0
         quantified = 0
         samples: List[str] = []
-        for l in lines:
-            low = l.lower()
+        for line in lines:
+            low = line.lower()
             if any(v in low for v in ACTION_VERBS):
                 action_hits += 1
-            if pattern.search(l):
+            if pattern.search(line):
                 quantified += 1
                 if len(samples) < 5:
-                    samples.append(l[:160])
+                    samples.append(line[:160])
         if not lines:
             return 0.0, [], {"reason": "no_lines"}
         ratio = quantified / len(lines)
@@ -583,12 +584,12 @@ def register_default_plugins(force: bool = False) -> None:
         return score, issues, meta
 
     def _action_density_plugin(text: str, ctx: Dict[str, Any]):
-        lines = [l.strip() for l in text.splitlines() if l.strip()]
+        lines = [line.strip() for line in text.splitlines() if line.strip()]
         if not lines:
             return 0.0, [], {"reason": "no_lines"}
         starts = 0
-        for l in lines:
-            first = l.split(" ", 1)[0].lower().strip("-*•")
+        for line in lines:
+            first = line.split(" ", 1)[0].lower().strip("-*•")
             if first in ACTION_VERBS:
                 starts += 1
         ratio = starts / len(lines)

@@ -13,7 +13,11 @@ Usage:
   python scripts/diagnostics.py --json
 """
 from __future__ import annotations
-import sys, json, importlib, platform, shutil
+import sys
+import json
+import importlib
+import platform
+import shutil
 from pathlib import Path
 from dataclasses import dataclass, asdict
 from typing import List, Dict, Any
@@ -102,8 +106,11 @@ def gather() -> List[Section]:
             dir_details[d] = f'error: {e}'
         finally:
             if test_file.exists():
-                try: test_file.unlink()
-                except Exception: pass
+                try:
+                    test_file.unlink()
+                except Exception:
+                    # Safe to ignore cleanup errors
+                    pass
     sections.append(Section(
         name='storage_permissions',
         status='ok' if all(v == 'writable' for v in dir_details.values()) else 'partial',

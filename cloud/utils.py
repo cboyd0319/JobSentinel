@@ -187,10 +187,10 @@ def ensure_python_version(min_version: tuple[int, int]) -> None:
     current_version = sys.version_info[:2]
     if current_version < min_version:
         print(f"[WARNING] Python {min_version[0]}.{min_version[1]}+ required, but {current_version[0]}.{current_version[1]} detected.")
-        print(f"\nHow to fix:")
+        print("\nHow to fix:")
         print(f"1. Install Python {min_version[0]}.{min_version[1]} or newer")
-        print(f"2. Download from: https://www.python.org/downloads/")
-        print(f"3. Re-run this script with the updated Python version")
+        print("2. Download from: https://www.python.org/downloads/")
+        print("3. Re-run this script with the updated Python version")
         sys.exit(1)
 
 

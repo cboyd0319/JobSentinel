@@ -227,7 +227,7 @@ class UltimateATSScanner:
             "malware analysis": 2.6,
             
             # Compliance (weight: 2.8)
-            "cissp": 2.9, "ceh": 2.7, "oscp": 2.8, "cissp": 2.9,
+            "cissp": 2.9, "ceh": 2.7, "oscp": 2.8,
             "compliance": 2.6, "gdpr": 2.4, "hipaa": 2.5,
             
             # Tools (weight: 2.6)
@@ -790,8 +790,14 @@ class UltimateATSScanner:
                         affected_systems=[],
                         fix_priority=5
                     ))
-            except:
-                pass  # Skip if readability calculation fails
+            except Exception as readability_exc:  # Narrowed from bare except for clarity
+                # Skip failure but record debug context for diagnostics
+                if 'logger' in globals():  # defensive if logger not set in legacy context
+                    try:
+                        logger.debug(f"Readability metric calculation failed: {readability_exc}")
+                    except Exception:
+                        pass
+                # Intentionally no score penalty; heuristic remains optional
         
         return max(0, score), issues
     
@@ -1009,7 +1015,7 @@ def create_detailed_report(score: ATSCompatibilityScore, output_path: Optional[s
         """
     
     # Add recommendations
-    html_template += f"""
+    html_template += """
     <div class="recommendations">
         <h2>💡 Recommendations</h2>
         <ul>
@@ -1119,11 +1125,11 @@ def main():
                 print(report)
         else:
             # Text output
-            print(f"\\n🎯 ATS COMPATIBILITY ANALYSIS")
-            print(f"{'='*50}")
+            print("\n🎯 ATS COMPATIBILITY ANALYSIS")
+            print("="*50)
             print(f"Overall Score: {results.overall_score}%")
             print(f"Market Percentile: {results.market_percentile or 'N/A'}%")
-            print(f"\\nComponent Scores:")
+            print("\nComponent Scores:")
             print(f"  Parsing: {results.parsing_score}%")
             print(f"  Keywords: {results.keyword_score}%") 
             print(f"  Formatting: {results.formatting_score}%")
@@ -1136,7 +1142,7 @@ def main():
                 print(f"  {issue.level.value.upper()}: {issue.title}")
                 print(f"    Fix: {issue.fix_suggestion}")
             
-            print(f"\\n💡 RECOMMENDATIONS:")
+            print("\n💡 RECOMMENDATIONS:")
             for rec in results.recommendations[:5]:  # Show top 5
                 print(f"  • {rec}")
                 

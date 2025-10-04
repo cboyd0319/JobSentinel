@@ -1011,8 +1011,8 @@ def main():
             print("🔍 Analyzing resume...")
             analysis = enhancer.analyze_resume(args.resume_path, args.job_description)
             
-            print(f"\\n📊 RESUME ANALYSIS RESULTS")
-            print(f"{'='*50}")
+            print("\n📊 RESUME ANALYSIS RESULTS")
+            print("=" * 50)
             print(f"Current Score: {analysis.current_score:.1f}%")
             print(f"Potential Score: {analysis.potential_score:.1f}%")
             print(f"Improvement Potential: +{analysis.potential_score - analysis.current_score:.1f} points")
@@ -1053,8 +1053,8 @@ def main():
                 current_content, job_desc, args.industry
             )
             
-            print(f"\\n🚀 OPTIMIZATION SUGGESTIONS")
-            print(f"{'='*50}")
+            print("\n🚀 OPTIMIZATION SUGGESTIONS")
+            print("="*50)
             
             for section, suggestions in optimizations.items():
                 print(f"\\n{section.title()} Section:")

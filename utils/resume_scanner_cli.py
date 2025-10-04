@@ -50,9 +50,9 @@ def scan_resume(args):
         results = scanner.scan_comprehensive()
         
         # Display results
-        print(f"\\n{'='*60}")
-        print(f"🎯 ATS COMPATIBILITY REPORT")
-        print(f"{'='*60}")
+        print("\n" + "="*60)
+        print("🎯 ATS COMPATIBILITY REPORT")
+        print("="*60)
         
         # Overall score with visual indicator
         score = results.overall_score
@@ -74,7 +74,7 @@ def scan_resume(args):
         print(f"Improvement Potential: +{results.improvement_potential:.1f} points")
         
         # Component scores
-        print(f"\\n📊 Component Breakdown:")
+        print("\\n📊 Component Breakdown:")
         print(f"  • Parsing Compatibility: {results.parsing_score:.1f}%")
         print(f"  • Keyword Optimization: {results.keyword_score:.1f}%")
         print(f"  • Format Compatibility: {results.formatting_score:.1f}%")
@@ -101,13 +101,13 @@ def scan_resume(args):
                 print()
         
         # Top recommendations
-        print(f"\\n💡 TOP RECOMMENDATIONS:")
+        print("\\n💡 TOP RECOMMENDATIONS:")
         for i, rec in enumerate(results.recommendations[:5], 1):
             print(f"  {i}. {rec}")
         
         # Missing sections
         if results.missing_sections:
-            print(f"\\n📝 Missing Sections:")
+            print("\\n📝 Missing Sections:")
             for section in results.missing_sections:
                 print(f"  • {section.title()}")
         
@@ -115,7 +115,7 @@ def scan_resume(args):
         if results.keyword_analysis:
             found_keywords = len([k for k in results.keyword_analysis.values() if k.found_count > 0])
             total_keywords = len(results.keyword_analysis)
-            print(f"\\n🔍 Keyword Analysis:")
+            print("\\n🔍 Keyword Analysis:")
             print(f"  • Found: {found_keywords}/{total_keywords} target keywords")
             
             # Show missing high-value keywords
@@ -128,14 +128,14 @@ def scan_resume(args):
         
         # ATS system compatibility
         if results.system_compatibility:
-            print(f"\\n🏢 ATS System Compatibility:")
+            print("\\n🏢 ATS System Compatibility:")
             for system, compat in results.system_compatibility.items():
                 status = "✅" if compat >= 80 else "⚠️" if compat >= 60 else "❌"
                 print(f"  {status} {system.value.title()}: {compat:.1f}%")
         
         # Generate detailed report if requested
         if args.output:
-            print(f"\\n📄 Generating detailed HTML report...")
+            print("\\n📄 Generating detailed HTML report...")
             create_detailed_report(results, args.output)
             print(f"✅ Detailed report saved to: {args.output}")
         
@@ -176,11 +176,11 @@ def enhance_resume(args):
             with open(args.job_description, 'r', encoding='utf-8') as f:
                 job_description = f.read()
         
-        print(f"🚀 Analyzing resume for enhancement opportunities...")
+        print("🚀 Analyzing resume for enhancement opportunities...")
         analysis = enhancer.analyze_resume(args.resume_path, job_description)
         
         print(f"\\n{'='*60}")
-        print(f"📈 RESUME ENHANCEMENT ANALYSIS")
+        print("📈 RESUME ENHANCEMENT ANALYSIS")
         print(f"{'='*60}")
         
         print(f"\\nCurrent Score: {analysis.current_score:.1f}%")
@@ -191,7 +191,7 @@ def enhance_resume(args):
             print(f"\\nDetected Industry: {analysis.industry_match.replace('_', ' ').title()}")
         print(f"Recommended Template: {analysis.recommended_template.value.replace('_', ' ').title()}")
         
-        print(f"\\n🎯 ENHANCEMENT SUGGESTIONS:")
+        print("\\n🎯 ENHANCEMENT SUGGESTIONS:")
         for i, suggestion in enumerate(analysis.suggestions[:10], 1):
             priority_icon = "🔥" if suggestion.priority == 1 else "⚡" if suggestion.priority == 2 else "💡"
             print(f"  {priority_icon} {suggestion.content}")
@@ -199,12 +199,12 @@ def enhance_resume(args):
             print()
         
         if analysis.strong_sections:
-            print(f"\\n✅ Strong Sections:")
+            print("\\n✅ Strong Sections:")
             for section in analysis.strong_sections:
                 print(f"  • {section.replace('_', ' ').title()}")
         
         if analysis.weak_sections:
-            print(f"\\n⚠️ Sections Needing Improvement:")
+            print("\\n⚠️ Sections Needing Improvement:")
             for section in analysis.weak_sections:
                 print(f"  • {section.replace('_', ' ').title()}")
         
@@ -250,10 +250,10 @@ def generate_template(args):
         else:
             print(template_content)
         
-        print(f"\\n💡 Next Steps:")
-        print(f"  1. Fill in your personal information and experience")
-        print(f"  2. Customize content for target job/industry") 
-        print(f"  3. Run 'scan' command to check ATS compatibility")
+        print("\\n💡 Next Steps:")
+        print("  1. Fill in your personal information and experience")
+        print("  2. Customize content for target job/industry") 
+        print("  3. Run 'scan' command to check ATS compatibility")
         
     except Exception as e:
         print(f"❌ Error: {e}")

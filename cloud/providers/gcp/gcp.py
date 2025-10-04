@@ -125,7 +125,7 @@ class GCPBootstrap:
             if existing_config:
                 self.region = existing_config.get('region')
                 self.billing_account = existing_config.get('billing_account')
-                self.logger.info(f"Loaded configuration from previous deployment")
+                self.logger.info("Loaded configuration from previous deployment")
             else:
                 # Config not found, collect fresh
                 self.region = await select_region(self.logger, self.no_prompt)
@@ -517,7 +517,6 @@ class GCPBootstrap:
         terraform_work_dir.mkdir(parents=True, exist_ok=True)
 
         # Copy Terraform files to state directory
-        import shutil
         for item in self.terraform_dir.iterdir():
             if item.is_file() or (item.is_dir() and item.name == "modules"):
                 dest = terraform_work_dir / item.name
@@ -753,7 +752,7 @@ budget_alert_threshold_percent = 0.9
                         self.logger.info(f"  ... and {len(result['skills']) - 15} more")
 
                 if result.get("titles"):
-                    self.logger.info(f"\n💼 Job Titles Found:")
+                    self.logger.info("\n💼 Job Titles Found:")
                     for title in result["titles"][:5]:
                         self.logger.info(f"  • {title}")
 
@@ -832,7 +831,7 @@ budget_alert_threshold_percent = 0.9
                 function_name,
                 f"--project={self.project_id}",
                 f"--region={self.region}",
-                f"--runtime=python312",
+                "--runtime=python312",
                 f"--source={function_source_dir}",
                 "--entry-point=budget_alert_handler",
                 f"--trigger-topic={budget_topic_name}",

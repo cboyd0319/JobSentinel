@@ -297,7 +297,7 @@ async def ensure_terraform(logger, force_install: bool = False) -> Path:
     logger.info("")
     logger.info("Installation details:")
     logger.info(f"  • Version: {TERRAFORM_VERSION}")
-    logger.info(f"  • Source: https://releases.hashicorp.com")
+    logger.info("  • Source: https://releases.hashicorp.com")
 
     # Detect platform
     os_type, arch = get_platform_info()

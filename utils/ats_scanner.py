@@ -29,6 +29,8 @@ Rationale:
 If you require a feature only present here, open an issue describing the gap so
 it can be modularized into the new analyzer.
 """
+from __future__ import annotations
+
 import warnings
 
 warnings.filterwarnings("default", category=DeprecationWarning)
@@ -37,8 +39,6 @@ warnings.warn(
     DeprecationWarning,
     stacklevel=2,
 )
-
-from __future__ import annotations
 
 import re
 from pathlib import Path
@@ -387,7 +387,7 @@ class ATSScanner:
         line_lengths = [len(line.strip()) for line in self.lines if line.strip()]
         if line_lengths:
             avg_length = sum(line_lengths) / len(line_lengths)
-            variance = sum((l - avg_length) ** 2 for l in line_lengths) / len(line_lengths)
+            variance = sum((length_val - avg_length) ** 2 for length_val in line_lengths) / len(line_lengths)
 
             if variance > 500:  # High variance suggests formatting issues
                 score -= 10

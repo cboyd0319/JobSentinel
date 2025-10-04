@@ -69,14 +69,17 @@ dev = [
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-select = ["E", "F"]  # Start lightweight; can expand later (e.g., B, I, UP, S)
+exclude = []
+
+[tool.ruff.lint]
+select = ["E", "F"]  # Can expand later (B, I, UP, S, etc.)
 ignore = [
-        "E501",  # line length handled by formatter/editor
-        "F401",  # allow unused imports during iterative refactors
-        "F841",  # allow assigned-but-unused (often placeholder variables)
+    "E501",  # line length handled by editor/formatter
+    "F401",  # allow unused imports during iterative refactors
+    "F841",  # allow assigned-but-unused placeholders
 ]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
 
 [tool.ruff.lint.isort]

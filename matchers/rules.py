@@ -69,10 +69,10 @@ def score_job_rules_only(job: dict, prefs: dict) -> tuple[float, list[str]]:
             age = datetime.now() - post_date
             if age > timedelta(days=30):
                 score -= 0.2
-                reasons.append(f"Job is over 30 days old")
+                reasons.append("Job is over 30 days old")
             elif age > timedelta(days=14):
                 score -= 0.1
-                reasons.append(f"Job is over 14 days old")
+                reasons.append("Job is over 14 days old")
         except (ValueError, TypeError):
             pass # Ignore parsing errors
 
@@ -120,9 +120,11 @@ def score_job_rules_only(job: dict, prefs: dict) -> tuple[float, list[str]]:
                     location_reasons.append(f"State matched '{state}'")
                     break
         if location_score == 0 and loc_prefs.get("country"): 
-            if loc_prefs.get("country").lower() in location:
+            country_pref = loc_prefs.get("country")
+            if country_pref and country_pref.lower() in location:
                 location_score = 0.1
-                location_reasons.append(f"Country matched '{loc_prefs.get("country")}'")
+                # Use variable in f-string to avoid nested quote parsing issues on <3.12
+                location_reasons.append(f"Country matched '{country_pref}'")
 
     score += location_score
     reasons.extend(location_reasons)
