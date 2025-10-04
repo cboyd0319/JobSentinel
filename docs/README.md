@@ -132,4 +132,4 @@ Historical documentation (for reference):
 
 **Documentation Structure Changed?**
 
-We recently consolidated 26+ documentation files into 5 focused guides for better clarity. If you're looking for old docs, check the [archive](archive/) directory.
+This documentation was recently consolidated from 26+ files into focused guides for better clarity. Old documentation has been archived in the [archive](archive/) directory.

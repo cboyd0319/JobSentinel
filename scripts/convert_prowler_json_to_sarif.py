@@ -87,7 +87,7 @@ def build_sarif_from_json(json_data: Dict[str, Any]) -> Dict[str, Any]:
         # Check OCSF Detection Finding status
         # In OCSF Detection Finding format:
         # - status: 'new' + status_id: '1' = newly discovered security finding
-        # - These ARE the security issues we want to report
+        # - These ARE the security issues to report
         # - activity_name: 'create' means the finding was created/detected
         activity_name = finding.get("activity_name", "").lower()
 

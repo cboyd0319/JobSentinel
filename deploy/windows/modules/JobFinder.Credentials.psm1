@@ -155,7 +155,7 @@ function Remove-GcpCredential {
             Write-Verbose "Successfully removed stored GCP credential."
             return $true
         } catch {
-            # It's common for this to fail if the credential doesn't exist, so we don't throw.
+            # It's common for this to fail if the credential doesn't exist, so don't throw.
             Write-Verbose "Could not remove credential (it may not exist). Error: $($_.Exception.Message)"
             return $false
         }

@@ -42,5 +42,6 @@ regex>=2023.0.0
 mcp>=1.2,<2
 httpx-sse>=0.4,<0.5
 jsonschema>=4.20,<5
-pydantic-settings>=2.2,<2.3
+# Relaxed to align with mcp (>=1.2) which now requires >=2.6.1
+pydantic-settings>=2.6,<3
 

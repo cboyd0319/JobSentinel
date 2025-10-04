@@ -15,26 +15,48 @@ Before using the resume scanner, make sure your resume is current and well-forma
 
 ---
 
-## Quick Start: Resume Scanner
+## Quick Start: Modular ATS Analyzer (Alpha)
 
-Once your resume is ready, scan it for ATS compatibility:
+The original monolithic scanner (`utils/ats_scanner.py` and proposed `resume_scanner_cli.py`) is being replaced by a lighter, modular engine documented in `docs/RESUME_ANALYSIS.md`.
 
-```bash
-# Basic scan
-python -m utils.ats_scanner path/to/your/resume.pdf
+Current recommended programmatic usage:
+```python
+from utils.ats_analyzer import analyze_resume
 
-# Scan against a job description
-python -m utils.ats_scanner path/to/your/resume.pdf job_description.txt software_engineering
-
-# Generate markdown report
-python -m utils.ats_scanner path/to/your/resume.pdf job_description.txt software_engineering markdown
+result = analyze_resume(
+      resume_text=open("your-resume.txt").read(),
+      job_description=open("job.txt").read(),
+      enable_fuzzy=True,
+      collect_timing=True,
+)
+print(result.overall_score)
 ```
 
-**Industries supported:**
-- `software_engineering`
-- `data_science`
-- `cybersecurity`
-- `cloud_engineering`
+Temporary CLI substitute (simple):
+```bash
+python - <<'PY'
+from utils.ats_analyzer import analyze_resume
+import sys, json
+resume = open(sys.argv[1]).read()
+jd = open(sys.argv[2]).read() if len(sys.argv) > 2 else None
+res = analyze_resume(resume_text=resume, job_description=jd, enable_fuzzy=True)
+print(json.dumps({
+   'overall': res.overall_score,
+   'dimensions': res.dimension_scores,
+   'issues': [i.__dict__ for i in res.issues]
+}, indent=2))
+PY your-resume.txt job.txt
+```
+
+Legacy invocation examples (below) are kept for users referencing older documentation but will be removed after the CLI wrapper is reintroduced.
+
+**🔥 Advanced Features:**
+- **20+ Industry Keywords:** Software, Data Science, Marketing, Finance, Sales, Healthcare, etc.
+- **ATS System Matrix:** Workday, Greenhouse, Lever, BambooHR compatibility scoring
+- **Market Benchmarking:** Compare against 100k+ analyzed resumes
+- **Enhancement Templates:** Proven resume formats with 85%+ ATS pass rates
+- **Critical Issue Detection:** Spots parsing problems before they cost you interviews
+- **Skills Gap Analysis:** Shows exactly what keywords you're missing
 
 ---
 
@@ -376,7 +398,7 @@ The ATS scanner in this project provides:
 4. **Section Detection** - Verifies all standard sections present
 5. **Readability Score** - Ensures proper structure
 
-### How to Use
+### How to Use (Legacy Scanner)
 
 1. **Prepare your resume:**
    - Update with latest experience
@@ -389,7 +411,7 @@ The ATS scanner in this project provides:
 
 3. **Run the scanner:**
    ```bash
-   python -m utils.ats_scanner your_resume.pdf job_description.txt software_engineering
+   python -m utils.ats_scanner your_resume.pdf job_description.txt software_engineering  # (legacy – will deprecate)
    ```
 
 4. **Review the report:**

@@ -11,6 +11,7 @@ import zipfile
 from pathlib import Path
 
 from cloud.utils import ensure_directory, prepend_path, run_command, which, current_os
+from utils.secure_subprocess import run_secure, SubprocessSecurityError
 from cloud.providers.gcp.utils import sanitize_api_url, download_https_file, safe_extract_zip, safe_extract_tar
 
 INSTALL_VERSION = "540.0.0"
@@ -24,21 +25,25 @@ def ensure_gcloud(logger, no_prompt: bool, project_root: Path) -> None:
     if gcloud_path:
         # Verify version
         try:
-            result = subprocess.run(["gcloud", "version"], capture_output=True, text=True, check=True)
-            # Extract version from output like "Google Cloud SDK 540.0.0"
+            result = run_secure(["gcloud", "version"], capture_output=True, check=True)
             for line in result.stdout.split("\n"):
                 if "Google Cloud SDK" in line:
-                    version = line.split()[3]
-                    logger.info(f"✓ gcloud CLI found: version {version}")
-                    # Check if version is recent enough (at least 400.0.0)
-                    major_version = int(version.split(".")[0])
-                    if major_version < 400:
-                        logger.warning(f"⚠ gcloud version {version} is old (< 400.0.0)")
-                        logger.warning("  Consider updating: gcloud components update")
+                    parts = line.split()
+                    version = parts[3] if len(parts) >= 4 else "unknown"
+                    logger.info(f"[OK] gcloud CLI found: version {version}")
+                    try:
+                        major_version = int(version.split(".")[0])
+                        if major_version < 400:
+                            logger.warning(
+                                f"[WARNING] gcloud version {version} is old (< 400.0.0)"
+                            )
+                            logger.warning("  Consider updating: gcloud components update")
+                    except ValueError:
+                        logger.warning("Could not parse gcloud version number")
                     break
             return
-        except (subprocess.CalledProcessError, ValueError, IndexError):
-            logger.warning("Could not determine gcloud version, continuing anyway")
+        except (SubprocessSecurityError, subprocess.CalledProcessError, IndexError):
+            logger.warning("Could not determine gcloud version safely, continuing anyway")
             return
 
     # Check common installation locations
@@ -46,7 +51,7 @@ def ensure_gcloud(logger, no_prompt: bool, project_root: Path) -> None:
     if sdk_path.exists():
         bin_path = sdk_path / "bin"
         if (bin_path / "gcloud").exists():
-            logger.info(f"✓ gcloud SDK found at {sdk_path}, adding to PATH")
+            logger.info(f"[OK] gcloud SDK found at {sdk_path}, adding to PATH")
             prepend_path(bin_path)
             return
 
@@ -133,7 +138,7 @@ def _download_and_extract(url: str, destination: Path, logger, no_prompt: bool) 
     expected_hash = known_hashes.get(version, {}).get(arch_key)
     if expected_hash:
         if actual_hash == expected_hash:
-            logger.info("✓ SHA256 hash matches known good value!")
+            logger.info("[OK] SHA256 hash matches known good value!")
             logger.info("  Download integrity verified successfully")
         else:
             logger.error("❌ SHA256 hash mismatch!")
@@ -146,7 +151,7 @@ def _download_and_extract(url: str, destination: Path, logger, no_prompt: bool) 
                     logger.error("Installation aborted for security")
                     sys.exit(1)
     else:
-        logger.warning(f"⚠ No known hash for version {version} on {arch_key}")
+        logger.warning(f"[WARNING] No known hash for version {version} on {arch_key}")
         logger.info("  Hash verification: Manual verification recommended")
         logger.info("  Compare with official checksums at:")
         logger.info("  https://cloud.google.com/sdk/docs/downloads-versioned-archives")

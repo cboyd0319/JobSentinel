@@ -6,6 +6,7 @@ Terraform is installed to a local directory and added to PATH for the session.
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import os
 import platform
@@ -181,7 +182,7 @@ async def download_terraform(logger, version: str, os_type: str, arch: str, dest
     if not zip_path.exists() or zip_path.stat().st_size == 0:
         raise RuntimeError("Terraform download failed or file is empty")
 
-    logger.info(f"✓ Downloaded Terraform to {zip_path}")
+    logger.info(f"[OK] Downloaded Terraform to {zip_path}")
     return zip_path
 
 
@@ -255,7 +256,7 @@ async def check_terraform_installed(logger) -> Optional[Path]:
             version_info = json.loads(result.stdout)
             version = version_info.get("terraform_version", "unknown")
 
-            logger.info(f"✓ Terraform {version} found at {terraform_path}")
+            logger.info(f"[OK] Terraform {version} found at {terraform_path}")
             return Path(terraform_path)
         except Exception as e:
             logger.debug(f"Error checking terraform version: {e}")
@@ -314,7 +315,7 @@ async def ensure_terraform(logger, force_install: bool = False) -> Path:
         terraform_bin = install_dir / "terraform"
 
     if terraform_bin.exists() and not force_install:
-        logger.info(f"✓ Terraform binary found at {terraform_bin}")
+        logger.info(f"[OK] Terraform binary found at {terraform_bin}")
         add_to_path(install_dir)
         return terraform_bin
 
@@ -340,7 +341,7 @@ async def ensure_terraform(logger, force_install: bool = False) -> Path:
 
             logger.info("Extracting Terraform binary...")
             terraform_bin = extract_terraform(zip_path, install_dir)
-            logger.info(f"✓ Terraform installed to {terraform_bin}")
+            logger.info(f"[OK] Terraform installed to {terraform_bin}")
 
         except Exception as e:
             logger.error(f"Failed to install Terraform: {e}")
@@ -360,7 +361,7 @@ async def ensure_terraform(logger, force_install: bool = False) -> Path:
             text=True,
             logger=logger,
         )
-        logger.info(f"✓ {result.stdout.strip()}")
+        logger.info(f"[OK] {result.stdout.strip()}")
     except Exception as e:
         logger.error(f"Terraform verification failed: {e}")
         raise RuntimeError("Terraform installation verification failed")

@@ -9,6 +9,7 @@ from cloud.utils import (
     run_command,
     _redact_command_for_logging,
 )
+from utils.secure_subprocess import run_secure, SubprocessSecurityError
 from utils.logging import get_logger
 
 logger = get_logger("gcp_teardown")
@@ -23,23 +24,39 @@ class GCPTeardown:
         self.region = self._get_project_region()
         self.scheduler_region = self._get_scheduler_location()
 
-    async def _get_project_region(self) -> str:
-        result = await run_command(
-            ["gcloud", "config", "get-value", "run/region", f"--project={self.project_id}"],
-            capture_output=True,
-            check=False,
-            logger=logger,
-        )
-        return result.stdout.strip()
+    def _get_project_region(self) -> str:
+        try:
+            result = run_secure(
+                [
+                    "gcloud",
+                    "config",
+                    "get-value",
+                    "run/region",
+                    f"--project={self.project_id}",
+                ],
+                capture_output=True,
+                check=False,
+            )
+            return (result.stdout or "").strip()
+        except (SubprocessSecurityError, subprocess.CalledProcessError):  # noqa: BLE001
+            return ""
 
-    async def _get_scheduler_location(self) -> str:
-        result = await run_command(
-            ["gcloud", "config", "get-value", "scheduler/location", f"--project={self.project_id}"],
-            capture_output=True,
-            check=False,
-            logger=logger,
-        )
-        return result.stdout.strip()
+    def _get_scheduler_location(self) -> str:
+        try:
+            result = run_secure(
+                [
+                    "gcloud",
+                    "config",
+                    "get-value",
+                    "scheduler/location",
+                    f"--project={self.project_id}",
+                ],
+                capture_output=True,
+                check=False,
+            )
+            return (result.stdout or "").strip()
+        except (SubprocessSecurityError, subprocess.CalledProcessError):  # noqa: BLE001
+            return ""
 
     async def _execute_gcloud_command(self, command: list[str], description: str) -> None:
         if self.dry_run:

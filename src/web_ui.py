@@ -190,7 +190,7 @@ def review_feedback(job_id, feedback):
             job = session.get(Job, job_id)
             if job:
                 # Here you would add logic to adjust the scoring rules based on the feedback
-                # For now, we'll just flash a message
+                # For now, just flash a message
                 flash(f"Thank you for your feedback on '{job.title}'!", "success")
     except Exception as e:
         flash(f"Error processing feedback: {e}", "danger")

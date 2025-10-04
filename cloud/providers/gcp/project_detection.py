@@ -125,7 +125,7 @@ async def detect_existing_deployment(logger, no_prompt: bool = False) -> Optiona
         logger.info(f"   Created: {project['created_time']}")
         logger.info(f"   Status: {project['state']}")
         if project['has_local_state']:
-            logger.info(f"   Local state: ✓ {project['state_path']}")
+            logger.info(f"   Local state: [OK] {project['state_path']}")
         else:
             logger.info("   Local state: ✗ (no local Terraform state found)")
         logger.info("")
@@ -162,7 +162,7 @@ async def detect_existing_deployment(logger, no_prompt: bool = False) -> Optiona
                         # Warn if no local state
                         if not selected_project['has_local_state']:
                             logger.warning("")
-                            logger.warning("⚠️  WARNING: No local Terraform state found for this project!")
+                            logger.warning("[WARNING] WARNING: No local Terraform state found for this project!")
                             logger.warning("   Updating without state may cause resource conflicts.")
                             logger.warning("   Consider creating a new deployment instead.")
                             logger.warning("")
@@ -171,7 +171,7 @@ async def detect_existing_deployment(logger, no_prompt: bool = False) -> Optiona
                                 logger.info("Update cancelled. Creating new deployment instead.")
                                 return None
 
-                        logger.info(f"✓ Selected project: {project_id}")
+                        logger.info(f"[OK] Selected project: {project_id}")
                         return project_id
                     else:
                         logger.error(f"Invalid choice. Enter 1-{len(projects)}")

@@ -1,20 +1,34 @@
-# Slack Setup Guide
+# Slack Setup (Unified)
 
-This guide walks you through setting up Slack notifications for your job alerts. **No technical knowledge required!**
+Zero‑knowledge friendly. This project can push job matches directly into Slack using an **Incoming Webhook**.
 
-## Quick Setup (5-10 minutes)
+**ALPHA Disclaimer:** This automation is ALPHA. Validate behavior before relying on it. No warranty.
 
-The easiest way to set up Slack is to run the interactive setup wizard:
+## 🚀 Fastest Path (Recommended)
+
+Run the unified setup script:
 
 ```bash
-python scripts/slack_bootstrap.py
+python scripts/slack_setup.py
 ```
 
-The wizard will guide you through every step. Just follow the prompts!
+It will: (1) help you create (or reuse) a workspace, (2) guide manifest-based app creation, (3) enable a webhook, (4) store `SLACK_WEBHOOK_URL` in `.env`, and (5) send a test message.
+
+Already have a webhook? Set it non‑interactively:
+
+```bash
+python scripts/slack_setup.py --webhook https://hooks.slack.com/services/AAA/BBB/CCC --no-test
+```
+
+Test existing config only:
+
+```bash
+python scripts/slack_setup.py --test-only
+```
 
 ---
 
-## Manual Setup Guide
+## Manual Setup (If You Prefer Click-Through)
 
 If you prefer to set up Slack manually, follow these detailed steps:
 
@@ -39,7 +53,7 @@ If you don't already have a Slack workspace:
 1. Open [https://api.slack.com/apps?new_app=1](https://api.slack.com/apps?new_app=1) in your browser
 2. Click the **"From an app manifest"** tab
 3. Select your workspace from the dropdown menu
-4. Open the file `config/slack_app_manifest.yml` in this project
+4. Open `config/slack_app_manifest.yml` (auto-created if missing after one run of `slack_setup.py`)
 5. **Copy the entire contents** of that file
 6. **Paste** it into the text box on the Slack page
 7. Click **Next**
@@ -68,32 +82,31 @@ If you don't already have a Slack workspace:
 
 ---
 
-### Step 4: Add the Webhook to Your Configuration
+### Step 4: Add the Webhook to Configuration
 
-1. Open the file `.env` in the project directory (if it doesn't exist, copy `.env.example` to `.env`)
-2. Find the line that says `SLACK_WEBHOOK_URL=`
-3. Paste your webhook URL after the `=` sign:
+Skip this section if you used `slack_setup.py` (it already wrote `.env`).
+
+1. Create `.env` if needed.
+2. Add:
    ```bash
-   SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR_WORKSPACE_ID/YOUR_CHANNEL_ID/YOUR_SECRET_TOKEN
+   SLACK_WEBHOOK_URL=https://hooks.slack.com/services/WORKSPACE/CHANNEL/TOKEN
    ```
-4. Save the file
+3. Save.
 
 ---
 
 ### Step 5: Test Your Setup
 
-Run the setup wizard to test your webhook:
+Use the unified script:
 
 ```bash
-python scripts/slack_bootstrap.py
+python scripts/slack_setup.py --test-only
 ```
 
-When prompted, choose to test your existing webhook. You should see a test message appear in your Slack channel within seconds!
-
-Alternatively, you can send a test notification manually:
+If you need to skip network test (offline):
 
 ```bash
-python -c "from notify.slack import send_slack_message; send_slack_message('Test from job scraper!')"
+python scripts/slack_setup.py --webhook https://hooks.slack.com/services/AAA/BBB/CCC --no-test
 ```
 
 ---
@@ -113,11 +126,13 @@ python -c "from notify.slack import send_slack_message; send_slack_message('Test
 
 ### "No module named 'requests'"
 
-**Problem:** Missing Python dependency.
-
-**Fix:**
+The test step is optional. Either install it:
 ```bash
 pip install requests
+```
+Or skip test:
+```bash
+python scripts/slack_setup.py --no-test
 ```
 
 ### "I don't see the test message in Slack"
@@ -195,13 +210,13 @@ You can create multiple webhooks for different channels (e.g., `#high-priority-j
 
 ### Slack App Permissions
 
-The app manifest (`config/slack_app_manifest.yml`) only requests the minimum permission needed: `incoming-webhook`. This means the app can ONLY send messages, nothing else.
+Manifest requests only `incoming-webhook` (send‑only). No reading channels, no user data.
 
 ---
 
 ## Need Help?
 
-1. Run the interactive wizard: `python scripts/slack_bootstrap.py`
+1. Run the interactive wizard: `python scripts/slack_setup.py`
 2. Check the troubleshooting section above
 3. Review Slack's webhook documentation: [https://api.slack.com/messaging/webhooks](https://api.slack.com/messaging/webhooks)
 4. Open an issue on GitHub
@@ -212,7 +227,12 @@ The app manifest (`config/slack_app_manifest.yml`) only requests the minimum per
 
 | Task | Command |
 |------|---------|
-| Run setup wizard | `python scripts/slack_bootstrap.py` |
-| Test webhook | `python -c "from notify.slack import send_slack_message; send_slack_message('Test')"` |
+| Run setup wizard | `python scripts/slack_setup.py` |
+| Non-interactive set | `python scripts/slack_setup.py --webhook https://hooks.slack.com/services/AAA/BBB/CCC` |
+| Test existing | `python scripts/slack_setup.py --test-only` |
 | View webhook URL | `cat .env \| grep SLACK_WEBHOOK` |
 | Delete webhook | Revoke it in Slack app settings → Incoming Webhooks |
+
+---
+
+Legacy scripts (`slack_bootstrap.py`, `slack_one_click_setup.py`) now forward to `slack_setup.py` and will be removed in a future cleanup.

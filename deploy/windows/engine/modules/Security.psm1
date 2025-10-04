@@ -45,7 +45,7 @@ function Protect-SecretString {
         try {
             $bytes = [System.Text.Encoding]::UTF8.GetBytes($PlainText)
             # The entropy parameter (optional 3rd arg) could be used for added security,
-            # but makes key management more complex. For now, we rely on the user scope.
+            # but makes key management more complex. For now, relying on the user scope.
             $protectedBytes = [System.Security.Cryptography.ProtectedData]::Protect(
                 $bytes,
                 $null, # Optional entropy

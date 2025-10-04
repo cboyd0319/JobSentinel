@@ -1,0 +1,13 @@
+{
+  "core": ["python", "java", "javascript", "sql", "api", "cloud", "docker", "kubernetes", "linux"],
+  "cloud": {
+    "aws": ["ec2", "s3", "iam", "lambda", "cloudwatch", "rds"],
+    "gcp": ["gcs", "bigquery", "pubsub", "gke"],
+    "azure": ["blob storage", "functions", "aks", "aad"]
+  },
+  "security": ["owasp", "zero trust", "encryption", "siem", "soc", "threat modeling"],
+  "data": ["pandas", "numpy", "spark", "etl", "pipeline", "ml", "machine learning"],
+  "devops": ["terraform", "ansible", "ci/cd", "github actions", "monitoring", "observability"],
+  "frontend": ["react", "vue", "typescript", "css", "html", "accessibility"],
+  "soft": ["leadership", "collaboration", "mentoring", "communication"]
+}

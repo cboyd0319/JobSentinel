@@ -50,7 +50,7 @@ def verify_deployment(
     for check_name, check_func in checks:
         try:
             if check_func():
-                logger.info(f"✓ {check_name} verified")
+                logger.info(f"[OK] {check_name} verified")
             else:
                 logger.warning(f"✗ {check_name} verification failed")
                 verification_passed = False
@@ -122,10 +122,8 @@ def send_slack_notification(
             {
                 "type": "section",
                 "text": {
-                    {
-                        "type": "mrkdwn",
-                        "text": f"""Execute manually:\n```gcloud run jobs execute {job_name} --region {region}```""",
-                    }
+                    "type": "mrkdwn",
+                    "text": f"""Execute manually:\n```gcloud run jobs execute {job_name} --region {region}```""",
                 },
             },
         ],

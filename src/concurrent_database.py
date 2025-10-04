@@ -235,7 +235,7 @@ class ConcurrentJobDatabase:
                 BatchJobData(job_data=job_data, score=score, timestamp=time.time())
             )
 
-            # Check if we should flush the batch
+            # Check if batch should be flushed
             should_flush = (
                 len(self._batch_queue) >= self.batch_size
                 or (time.time() - self._last_batch_time) >= self.batch_timeout

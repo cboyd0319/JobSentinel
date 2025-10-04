@@ -4,7 +4,7 @@ import os
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from typing import List, Dict, Optional
+from typing import List, Dict
 from utils.logging import get_logger
 
 logger = get_logger("emailer")
@@ -62,7 +62,7 @@ def send_digest_email(jobs: List[Dict]) -> bool:
             server.login(smtp_user, smtp_pass)
             server.send_message(msg)
 
-        logger.info(f"Successfully sent digest email with {len(jobs)} jobs to {digest_to}")
+        logger.info("Digest email sent", extra={"job_count": len(jobs), "recipient": digest_to})
         return True
 
     except smtplib.SMTPAuthenticationError:
@@ -71,10 +71,10 @@ def send_digest_email(jobs: List[Dict]) -> bool:
         )
         return False
     except smtplib.SMTPException as e:
-        logger.error(f"SMTP error sending digest email: {e}")
+        logger.error("SMTP error sending digest email: %s", e)
         return False
-    except Exception as e:
-        logger.error(f"Unexpected error sending digest email: {e}")
+    except Exception as e:  # noqa: BLE001 broadened intentionally for user setup resilience
+        logger.error("Unexpected error sending digest email: %s", e)
         return False
 
 
@@ -88,30 +88,31 @@ def _create_html_digest(jobs: List[Dict]) -> str:
     Returns:
         HTML string
     """
-    html = """
+    count = len(jobs)
+    html = f"""
     <!DOCTYPE html>
     <html>
     <head>
         <style>
-            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { background: #4CAF50; color: white; padding: 20px; text-align: center; }
-            .job { border: 1px solid #ddd; margin: 15px 0; padding: 15px; border-radius: 5px; }
-            .job-title { font-size: 18px; font-weight: bold; color: #2196F3; margin-bottom: 5px; }
-            .job-company { color: #666; font-size: 14px; margin-bottom: 10px; }
-            .job-details { font-size: 14px; color: #555; }
-            .score { background: #4CAF50; color: white; padding: 5px 10px; border-radius: 3px; display: inline-block; }
-            .footer { text-align: center; margin-top: 30px; color: #999; font-size: 12px; }
-            a { color: #2196F3; text-decoration: none; }
+            body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+            .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+            .header {{ background: #4CAF50; color: white; padding: 20px; text-align: center; }}
+            .job {{ border: 1px solid #ddd; margin: 15px 0; padding: 15px; border-radius: 5px; }}
+            .job-title {{ font-size: 18px; font-weight: bold; color: #2196F3; margin-bottom: 5px; }}
+            .job-company {{ color: #666; font-size: 14px; margin-bottom: 10px; }}
+            .job-details {{ font-size: 14px; color: #555; }}
+            .score {{ background: #4CAF50; color: white; padding: 5px 10px; border-radius: 3px; display: inline-block; }}
+            .footer {{ text-align: center; margin-top: 30px; color: #999; font-size: 12px; }}
+            a {{ color: #2196F3; text-decoration: none; }}
         </style>
     </head>
     <body>
         <div class="container">
             <div class="header">
-                <h1>🔔 Job Digest</h1>
+                <h1>Job Digest</h1>
                 <p>Found {count} new opportunities matching your criteria</p>
             </div>
-    """.format(count=len(jobs))
+    """
 
     # Add each job
     for job in jobs:

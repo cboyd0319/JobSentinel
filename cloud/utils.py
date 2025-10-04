@@ -16,6 +16,8 @@ import time
 from pathlib import Path
 from typing import Iterable, Sequence
 
+from utils.cost_tracker import tracker
+
 
 class Spinner:
     """A simple spinner for long-running operations."""
@@ -97,7 +99,7 @@ async def run_command(
                 loop = asyncio.get_event_loop()
                 result = await loop.run_in_executor(
                     None,
-                    lambda: subprocess.run(
+                    lambda: subprocess.run(  # nosec B603 safe: command list, no shell
                         command,
                         capture_output=capture_output,
                         text=text,
@@ -107,8 +109,9 @@ async def run_command(
                         input=input_data,
                     ),
                 )
+                tracker.incr_subprocess()
             else:
-                result = await asyncio.create_subprocess_exec(
+                proc = await asyncio.create_subprocess_exec(
                     *command,
                     stdout=subprocess.PIPE if capture_output else None,
                     stderr=subprocess.PIPE if capture_output else None,
@@ -116,11 +119,19 @@ async def run_command(
                     env=env,
                     stdin=subprocess.PIPE if input_data else None,
                 )
-                stdout, stderr = await result.communicate(input=input_data)
-                result.stdout = stdout.decode() if stdout else ""
-                result.stderr = stderr.decode() if stderr else ""
-                if check and result.returncode != 0:
-                    raise subprocess.CalledProcessError(result.returncode, command, result.stdout, result.stderr)
+                stdout, stderr = await proc.communicate(input=input_data)
+                tracker.incr_subprocess()
+                stdout_str = stdout.decode() if stdout else ""
+                stderr_str = stderr.decode() if stderr else ""
+                if check and proc.returncode != 0:
+                    raise subprocess.CalledProcessError(proc.returncode, command, stdout_str, stderr_str)
+                # Create a proper CompletedProcess object
+                result = subprocess.CompletedProcess(
+                    args=command,
+                    returncode=proc.returncode,
+                    stdout=stdout_str if text else stdout,
+                    stderr=stderr_str if text else stderr,
+                )
             return result
         except subprocess.CalledProcessError as e:
             if attempt < retries:
@@ -162,6 +173,25 @@ def current_os() -> str:
     if system == "darwin":
         return "mac"
     return "linux"
+
+
+def ensure_python_version(min_version: tuple[int, int]) -> None:
+    """Ensure Python version meets minimum requirements.
+
+    Args:
+        min_version: Tuple of (major, minor) version numbers
+
+    Raises:
+        SystemExit: If Python version is too old
+    """
+    current_version = sys.version_info[:2]
+    if current_version < min_version:
+        print(f"[WARNING] Python {min_version[0]}.{min_version[1]}+ required, but {current_version[0]}.{current_version[1]} detected.")
+        print(f"\nHow to fix:")
+        print(f"1. Install Python {min_version[0]}.{min_version[1]} or newer")
+        print(f"2. Download from: https://www.python.org/downloads/")
+        print(f"3. Re-run this script with the updated Python version")
+        sys.exit(1)
 
 
 def print_header(title: str) -> None:
@@ -338,5 +368,5 @@ async def download_and_verify(
             f"File may be corrupted or compromised."
         )
 
-    log.info(f"✓ Verified {destination.name} (SHA256 match)")
+    log.info(f"[OK] Verified {destination.name} (SHA256 match)")
     return True

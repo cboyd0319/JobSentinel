@@ -170,13 +170,13 @@ class GCPBootstrap:
                     if self.no_prompt:
                         # Auto-select first project
                         self.project_id = active_projects[0]
-                        self.logger.info(f"   ✓ Auto-selected: {self.project_id}")
+                        self.logger.info(f"   [OK] Auto-selected: {self.project_id}")
                         self.logger.info("")
                     else:
                         from cloud.utils import confirm
                         if confirm(f"Deploy to existing project '{active_projects[0]}'?", default=True):
                             self.project_id = active_projects[0]
-                            self.logger.info(f"   ✓ Using: {self.project_id}")
+                            self.logger.info(f"   [OK] Using: {self.project_id}")
                             self.logger.info("")
                         else:
                             raise QuotaExceededError("User declined to reuse existing project")
@@ -300,13 +300,13 @@ class GCPBootstrap:
         # Update user preferences secret
         if self.user_prefs_payload and self.prefs_secret_name:
             await create_or_update_secret(self.project_id, self.prefs_secret_name, self.user_prefs_payload)
-            self.logger.info(f"✓ User preferences secret '{self.prefs_secret_name}' updated.")
+            self.logger.info(f"[OK] User preferences secret '{self.prefs_secret_name}' updated.")
 
         # Update Slack webhook secret
         slack_webhook_url = self.env_values.get("SLACK_WEBHOOK_URL")
         if slack_webhook_url and self.slack_webhook_secret_name:
             await create_or_update_secret(self.project_id, self.slack_webhook_secret_name, slack_webhook_url)
-            self.logger.info(f"✓ Slack webhook secret '{self.slack_webhook_secret_name}' updated.")
+            self.logger.info(f"[OK] Slack webhook secret '{self.slack_webhook_secret_name}' updated.")
 
         self.logger.info("Secret Manager secret values updated successfully.")
 
@@ -401,7 +401,7 @@ class GCPBootstrap:
                 logger=self.logger,
             )
             pip_version = pip_result.stdout.strip()
-            self.logger.info(f"✓ pip installed: {pip_version.split()[1]}")
+            self.logger.info(f"[OK] pip installed: {pip_version.split()[1]}")
         except RuntimeError:  # run_command raises RuntimeError on failure
             self.logger.error("❌ pip is not installed!")
             self.logger.error("   Install pip: https://pip.pypa.io/en/stable/installation/")
@@ -413,12 +413,12 @@ class GCPBootstrap:
         for package in required_packages:
             try:
                 __import__(package.replace("-", "_"))
-                self.logger.info(f"✓ {package} installed")
+                self.logger.info(f"[OK] {package} installed")
             except ImportError:
                 missing_packages.append(package)
 
         if missing_packages:
-            self.logger.warning(f"⚠ Missing packages: {', '.join(missing_packages)}")
+            self.logger.warning(f"[WARNING] Missing packages: {', '.join(missing_packages)}")
             self.logger.info("")
             self.logger.info("SECURITY NOTE: Package Installation")
             self.logger.info("   Packages will be installed from PyPI (Python Package Index)")
@@ -472,7 +472,7 @@ class GCPBootstrap:
                     elif "sha256" in line.lower() or "hash" in line.lower():
                         self.logger.debug(f"   {line.strip()}")
 
-                self.logger.info("✓ Required packages installed and verified")
+                self.logger.info("[OK] Required packages installed and verified")
             except RuntimeError as e:  # run_command raises RuntimeError on failure
                 self.logger.error("❌ Failed to install required packages")
                 self.logger.error(f"   Error: {e}")
@@ -558,7 +558,7 @@ budget_alert_threshold_percent = 0.9
         with open(tfvars_path, 'w') as f:
             f.write(tfvars_content)
 
-        self.logger.info(f"✓ Terraform configuration written to {tfvars_path}")
+        self.logger.info(f"[OK] Terraform configuration written to {tfvars_path}")
 
     async def _run_terraform_apply(self) -> dict:
         """Run terraform init/plan/apply and return outputs."""
@@ -614,7 +614,7 @@ budget_alert_threshold_percent = 0.9
         )
         terraform_outputs = json.loads(output_result.stdout)
 
-        self.logger.info("✓ Terraform infrastructure provisioned successfully")
+        self.logger.info("[OK] Terraform infrastructure provisioned successfully")
         self.logger.info("")
         return terraform_outputs
 
@@ -651,7 +651,7 @@ budget_alert_threshold_percent = 0.9
         template_content = backend_tf_template_path.read_text(encoding="utf-8")
         final_content = template_content.replace("__TF_STATE_BUCKET_NAME__", state_bucket_name)
         final_backend_tf_path.write_text(final_content, encoding="utf-8")
-        self.logger.info("✓ Configured main Terraform backend.")
+        self.logger.info("[OK] Configured main Terraform backend.")
 
         # 3. Re-initialize the main terraform module to migrate state to the new GCS backend
         self.logger.info("Initializing main Terraform configuration to use GCS backend...")
@@ -660,7 +660,7 @@ budget_alert_threshold_percent = 0.9
             logger=self.logger,
             cwd=str(main_tf_dir),
         )
-        self.logger.info("✓ Terraform re-initialized successfully.")
+        self.logger.info("[OK] Terraform re-initialized successfully.")
 
     def _try_clipboard_webhook(self) -> str | None:
         """Try to get Slack webhook URL from clipboard."""
@@ -770,7 +770,7 @@ budget_alert_threshold_percent = 0.9
                     if use_it in ["y", "yes"]:
                         # Convert to user_prefs format
                         user_prefs = parser.to_user_prefs()
-                        self.logger.info("✓ Resume information will be used for configuration")
+                        self.logger.info("[OK] Resume information will be used for configuration")
                         return user_prefs
                     elif use_it in ["n", "no"]:
                         self.logger.info("Resume information discarded.")
@@ -797,21 +797,21 @@ budget_alert_threshold_percent = 0.9
             self.logger.error("SLACK_WEBHOOK_URL not found or invalid in environment.")
             raise ConfigurationException("Missing SLACK_WEBHOOK_URL")
         self.env_values["SLACK_WEBHOOK_URL"] = slack_webhook_url
-        self.logger.info("✓ Slack Webhook URL found.")
+        self.logger.info("[OK] Slack Webhook URL found.")
 
         # Get alert email from environment or use a placeholder
         self.alert_email = os.getenv("ALERT_EMAIL_ADDRESS", "noreply@example.com")
-        self.logger.info(f"✓ Alert email set to: {self.alert_email}")
+        self.logger.info(f"[OK] Alert email set to: {self.alert_email}")
 
         # Load user preferences from the standard config file path
         prefs_template = self.project_root / "config/user_prefs.example.json"
         self.user_prefs_payload = prefs_template.read_text(encoding="utf-8")
-        self.logger.info("✓ User preferences template loaded.")
+        self.logger.info("[OK] User preferences template loaded.")
 
         # Set default job mode and schedule
         self.job_mode = os.getenv("JOB_MODE", "poll")
         self.schedule_frequency = os.getenv("SCHEDULE_FREQUENCY", "0 6-18 * * 1-5")
-        self.logger.info(f"✓ Job mode: {self.job_mode}, Schedule: {self.schedule_frequency}")
+        self.logger.info(f"[OK] Job mode: {self.job_mode}, Schedule: {self.schedule_frequency}")
 
     # Service accounts and IAM bindings are now created by Terraform
     # This method is no longer needed but kept as a comment for reference
@@ -849,7 +849,7 @@ budget_alert_threshold_percent = 0.9
         )
 
         if result.returncode == 0:
-            self.logger.info("✓ Budget alert function deployed")
+            self.logger.info("[OK] Budget alert function deployed")
         else:
             self.logger.warning(f"Budget alert function deployment failed (non-critical, exit {result.returncode})")
             if result.stderr:

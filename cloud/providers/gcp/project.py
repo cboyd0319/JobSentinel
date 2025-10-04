@@ -39,7 +39,7 @@ async def create_project(logger, project_id: str, project_name: str, billing_acc
         logger=logger
     )
 
-    logger.info(f"✓ Project {project_id} created and configured")
+    logger.info(f"[OK] Project {project_id} created and configured")
 
 
 async def choose_billing_account(logger, no_prompt: bool) -> str:

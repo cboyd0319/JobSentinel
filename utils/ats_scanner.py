@@ -1,17 +1,42 @@
 #!/usr/bin/env python3
 """
-Ultimate ATS-Level Resume Scanner and Optimizer
+Ultimate ATS-Level Resume Scanner and Optimizer (LEGACY / DEPRECATED)
 
-This module provides comprehensive ATS (Applicant Tracking System) analysis
-for resumes, including keyword optimization, formatting checks, and compatibility
-scoring.
+DEPRECATION NOTICE (2025-10-04):
+--------------------------------
+This legacy module is superseded by the modular analyzer in
+`utils/ats_analyzer.py` which provides:
+    * Structured dimension scores
+    * Extensible weighting & taxonomy
+    * Fuzzy (optional) keyword alignment
+    * Performance & memory guardrails
 
-Priority Features:
-1. ATS Compatibility Scoring (most beneficial)
-2. Keyword Optimization Suggestions
-3. Formatting Analysis (ATS-friendly formatting)
-4. Skills Gap Analysis (comparing resume to job descriptions)
+Migration Timeline:
+    * Now – 2025-11-01: This file remains functional but unmaintained.
+    * 2025-11-01 – 2025-12-01: A runtime DeprecationWarning will be raised on import.
+    * After 2025-12-01: File may be removed or moved to `docs/archive/`.
+
+Recommended Action:
+    Replace any imports of `ATSScanner` with calls to:
+        from utils.ats_analyzer import analyze_resume
+
+    See `docs/RESUME_ANALYSIS.md` for full interface and scoring details.
+
+Rationale:
+    This monolithic design is harder to extend, mixes parsing with scoring,
+    and lacks consistent metadata + issue structuring now provided by the new engine.
+
+If you require a feature only present here, open an issue describing the gap so
+it can be modularized into the new analyzer.
 """
+import warnings
+
+warnings.filterwarnings("default", category=DeprecationWarning)
+warnings.warn(
+    "utils.ats_scanner is deprecated; migrate to utils.ats_analyzer.analyze_resume (see docs/RESUME_ANALYSIS.md)",
+    DeprecationWarning,
+    stacklevel=2,
+)
 
 from __future__ import annotations
 

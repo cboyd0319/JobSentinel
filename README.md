@@ -1,33 +1,49 @@
-# Job Search Automation
+# Job Search Automation – Automated Job Discovery, Resume Scoring & Slack Alerts
 
-> ⚠️ **ALPHA SOFTWARE - BUYER BEWARE**
+> 🚨 **ALPHA SOFTWARE - NO LIABILITY WARNING** 🚨
 >
-> This software is rough. I use it daily, but it breaks sometimes.
+> **This project is in active development and WILL have bugs.** I use it personally, but:
+> 
+> - **No Warranty:** This software is provided "as-is" without any warranties
+> - **Your Risk:** I accept no liability for costs, lost opportunities, or system issues
+> - **Test First:** Run locally for weeks before considering cloud deployment
+> - **Review Everything:** False positives are common - manually verify all matches
+> - **Real Money:** Cloud deployment costs $5-15/month - read [COST.md](COST.md) first
+> - **Security Gaps:** Read [SECURITY.md](SECURITY.md) before deploying anywhere
 >
-> - It will crash. Plan for it.
-> - It will find false positives. Review everything.
-> - Cloud deployment costs real money. Read [COST.md](COST.md) first.
-> - Security isn't perfect. Read [SECURITY.md](SECURITY.md).
->
-> **No warranty. Use at your own risk.** Test locally for weeks before considering cloud.
+> **By using this software, you acknowledge these risks and agree to use it at your own discretion.**
 
 ---
 
-I built this because job searching sucks and I wanted it to suck less.
+I built this because manual job searching is slow and repetitive. This platform scrapes multiple job sources, scores roles against your preferences (and resume), stores results locally, and pings only the high-signal jobs to Slack. Local-first, privacy-focused, and cost-transparent.
 
-It scrapes job boards, scores jobs against your criteria, dumps everything into SQLite, and pings Slack when something good shows up. Runs locally first (free), cloud optional (costs money).
+**Status:** Alpha. Local scraping + matching are usable; cloud + advanced resume analytics are evolving.
 
-**It works. Could be better. Ship first, polish later.**
+## Core Features
 
-## What You Get
+### 🔥 Automated Job Discovery
+- **Multi-site scraping** – Searches Indeed, LinkedIn Jobs, Greenhouse, and 500k+ positions via MCP integrations
+- **Parallel processing** – Completes full job board sweeps in 2-5 minutes
+- **Intelligent deduplication** – Eliminates duplicate postings across platforms
 
-- **Fast scraping** – Hits multiple job boards in parallel, finishes in 2-5 minutes
-- **Smart filtering** – Only shows jobs that match your criteria
-- **Instant alerts** – Slack notifications when good jobs appear
-- **Privacy first** – Everything runs on your computer, no data sent to third parties
-- **Cost control** – Free locally, known costs in cloud (~$5-15/month)
+### 🎯 Smart Job Matching  
+- **Keyword scoring** – Weights matches based on your skill preferences
+- **Location filtering** – Supports remote, hybrid, and geographic targeting
+- **Salary analysis** – Filters by compensation requirements
+- **Company exclusions** – Automatically skips blacklisted employers
 
-**Bottom line:** Automates the boring parts of job searching so you can focus on applying.
+### 🔔 Real-time Notifications
+- **Slack integration** – Instant alerts (unified setup: `python scripts/slack_setup.py`)
+- **Email digests** – Optional summaries
+- **Job block details** – Includes rule score + AI score (if enabled)
+
+### 🔒 Privacy & Control
+- **Local-first** – All data stays on your computer by default
+- **No tracking** – No analytics, telemetry, or data collection
+- **Open source** – Full transparency, audit the code yourself
+- **Cost transparency** – Free locally, ~$5-15/month for cloud deployment
+
+**Bottom line:** Let automation hunt; you evaluate and apply.
 
 ## System Requirements
 
@@ -69,7 +85,7 @@ pip install -r requirements.txt
 
 # 2. Configuration
 cp config/user_prefs.example.json config/user_prefs.json
-python scripts/slack_bootstrap.py  # Sets up Slack notifications
+python scripts/slack_setup.py  # Unified Slack setup (wizard + test)
 
 # 3. Test run
 python -m src.agent --mode poll
@@ -114,13 +130,31 @@ python -m utils.resume_parser your-resume.pdf
 
 Extracts your skills automatically. Saves 20+ minutes of manual typing.
 
-**Bonus:** Check if your resume passes ATS filters:
+## 🎯 Resume & ATS Analysis
 
+Two layers currently:
+
+1. **Parsing (`utils/resume_parser.py`)** – Extracts skills, titles, experience heuristic, education.
+2. **Modular ATS Analyzer (`utils/ats_analyzer.py`)** – Scores resume (+ optional job description) across:
+   - Keyword & fuzzy overlap
+   - Taxonomy breadth / industry coverage
+   - Section coverage
+   - Formatting hygiene
+   - Readability & action verbs
+   - Experience alignment (required vs inferred)
+   - Recency signals (latest years)
+
+Quick programmatic usage:
 ```bash
-python -m utils.ats_scanner your-resume.pdf
+python -c "from utils.ats_analyzer import analyze_resume; print(analyze_resume(resume_text=open('resume.txt','r',encoding='utf-8').read()).overall_score)"
 ```
 
-Shows what applicant tracking systems see. Most resumes fail this.
+Legacy monolithic scanner (`utils/ats_scanner.py`) still exists; new improvements target the modular analyzer.
+
+Optional extras (OCR, fuzzy, spaCy):
+```bash
+pip install .[resume]
+```
 
 ## Database & Storage
 
@@ -130,17 +164,17 @@ Shows what applicant tracking systems see. Most resumes fail this.
 
 Backups older than `BACKUP_RETENTION_DAYS` are removed automatically during the `cleanup` mode.
 
-## Slack Setup
+## Slack Setup (Unified)
 
 ```bash
-python scripts/slack_bootstrap.py
+python scripts/slack_setup.py
 ```
 
-The script walks you through creating a Slack app and getting a webhook URL. Takes 5 minutes if you follow directions.
-
-Stuck? Check [docs/SLACK_SETUP.md](docs/SLACK_SETUP.md) for screenshots.
-
-**Skip Slack?** Fine. You'll get results in the terminal and web UI instead.
+Wizard flow: workspace → manifest import → enable incoming webhook → test → `.env` write. Non-interactive option:
+```bash
+python scripts/slack_setup.py --webhook https://hooks.slack.com/services/AAA/BBB/CCC --no-test
+```
+Docs: [docs/SLACK_SETUP.md](docs/SLACK_SETUP.md)
 
 ## Email Notifications (Optional)
 
@@ -208,8 +242,8 @@ python -m src.web_ui  # then open http://localhost:5000
 # Clean up old data
 python -m src.agent --mode cleanup
 
-# Fix Slack notifications
-python scripts/slack_bootstrap.py
+# Re-run Slack test / reconfigure
+python scripts/slack_setup.py --test-only
 
 # Check system health
 python -m src.agent --mode health
@@ -230,7 +264,7 @@ python -m src.agent --mode health
 
 ```bash
 # Slack stopped working
-python scripts/slack_bootstrap.py
+python scripts/slack_setup.py --test-only
 
 # Database errors
 python -m src.agent --mode cleanup
@@ -258,15 +292,18 @@ ls data/logs/
 
 **Full details:** [SECURITY.md](SECURITY.md)
 
-## Roadmap
+## Roadmap (High-Level)
 
-1. Add Terraform modules for AWS Fargate and Azure Container Apps (future enhancement).
-2. Expand MCP integrations for wider job coverage.
-3. Push structured metrics (OpenTelemetry) into the cloud deploy.
+- AWS & Azure deployment support (beyond GCP)
+- Expanded skill taxonomy + weighting presets
+- Lightweight semantic similarity (optional) for skill inference
+- Web UI filtering & shortlisting
+- Export formats (CSV / JSONL / Markdown digest)
+- Improved PDF layout heuristics & language detection
 
 ---
 
-## Documentation
+## Documentation Map
 
 ### Getting Started
 - **[QUICK_START.md](QUICK_START.md)** ⭐ – Fast onboarding (5 minutes)
@@ -300,4 +337,4 @@ If something breaks or you need help:
 
 ---
 
-**Project Status:** Alpha (expect bugs and breaking changes)
+**Project Status:** Alpha (expect breaking changes; pin a commit if stability matters)

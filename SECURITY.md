@@ -433,3 +433,44 @@ I'll respond within 48 hours and work with you to fix it.
 - **Python Security Guide:** [https://python.readthedocs.io/en/latest/library/security_warnings.html](https://python.readthedocs.io/en/latest/library/security_warnings.html)
 - **NIST Cybersecurity Framework:** [https://www.nist.gov/cyberframework](https://www.nist.gov/cyberframework)
 
+---
+
+## Threat Model (Alpha Draft)
+
+| Asset | Threat | Risk (Low/Med/High) | Mitigation |
+|-------|--------|---------------------|------------|
+| Slack Webhook URL | Disclosure -> Spam/Fake Alerts | Medium | Stored only in `.env`; never logged; easy to rotate. |
+| Local SQLite DB | Unauthorized local access | Medium | Encourage full-disk encryption; optional future DB encryption. |
+| Cloud Credentials (gcloud) | Privilege abuse / lateral movement | High | Least-privilege service accounts; secure subprocess allowlist; user 2FA. |
+| Resume Text (parsed) | Leakage via logs/cache | Low | Cache contains derived JSON only (skills/titles); no raw resume file stored. |
+| Subprocess Invocation | Command injection / binary spoof | Medium | Central secure allowlist wrapper; no `shell=True`; path verification. |
+| PDF/DOCX Parsing | Malicious document exploits | Medium | Uses maintained libs (pdfplumber, python-docx); advise scanning suspicious resumes; future sandbox. |
+| External Downloads (spaCy model, gcloud SDK) | Supply-chain tampering | Medium | HTTPS + host allowlist + hash verification (SDK) + explicit consent prompts. |
+| Excessive Scraping | IP blocking / legal friction | Medium | Respect rate limits; configurable concurrency; user warning in README. |
+
+### Trust Boundaries
+1. Local runtime (user machine) – high trust; all sensitive processing stays here.
+2. Slack Webhook – outbound only; restricts data to job summaries.
+3. Cloud APIs (optional) – network boundary; restrict permissions; rotate credentials.
+
+### Attack Surfaces
+* File parsing for resumes.
+* Network HTTP scraping.
+* Subprocess calls to `gcloud` and system utilities.
+* Dependency supply chain.
+
+### Planned Hardening (Roadmap)
+1. Async secure subprocess wrapper (parity with cloud `run_command`).
+2. Optional PDF sandbox (qpdf or isolated container) for untrusted resumes.
+3. JSON Schema validation for `user_prefs.json` and resume taxonomy.
+4. CLI flag `--offline` disabling all outbound downloads (except target job boards).
+5. Hash pinning for spaCy model wheel (if feasible) and additional SDK versions.
+
+### User Guidance (Practical)
+* Run locally first; only enable cloud when comfortable with cost & IAM.
+* Treat webhook URLs like passwords—rotate if posted publicly.
+* Keep dependencies updated monthly; stale libs increase exploit risk.
+* If suspicious resume behavior (parsing crash), delete the file and re-run with verbose logs.
+
+> Alpha status: Security controls are evolving. Review this section after each update.
+

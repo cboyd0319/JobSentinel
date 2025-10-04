@@ -17,19 +17,46 @@ try:
 except ImportError:
     HAS_DOCX = False
 
-try:
-    import spacy
-    from spacy.cli import download
-    # Download the model if it doesn't exist
-    try:
-        nlp = spacy.load("en_core_web_sm")
-    except OSError:
-        print("Downloading spaCy model...")
-        download("en_core_web_sm")
-        nlp = spacy.load("en_core_web_sm")
+try:  # Defer heavy model load until explicitly requested
+    import spacy  # type: ignore
+    from spacy.cli import download  # type: ignore
     HAS_SPACY = True
-except ImportError:
+except ImportError:  # pragma: no cover - environment without optional dep
+    spacy = None  # type: ignore
+    download = None  # type: ignore
     HAS_SPACY = False
+
+_NLP = None  # Lazy-loaded model singleton
+
+def ensure_spacy_model(interactive: bool = True):
+    """Ensure spaCy English model is available (with user consent).
+
+    Args:
+        interactive: if True, prompt before downloading model.
+    """
+    global _NLP
+    if _NLP is not None:
+        return _NLP
+    if not HAS_SPACY:
+        raise RuntimeError(
+            "spaCy not installed. Install optional resume extras: pip install '.[resume]'"
+        )
+    try:
+        _NLP = spacy.load("en_core_web_sm")  # type: ignore
+        return _NLP
+    except OSError:
+        if interactive:
+            consent = input(
+                "spaCy language model 'en_core_web_sm' not found. Download (~15MB)? [y/N]: "
+            ).strip().lower()
+            if consent != "y":
+                raise RuntimeError("spaCy model required for advanced resume analysis.")
+        if download is None:  # Should not happen if HAS_SPACY True
+            raise RuntimeError("spaCy download utilities unavailable.")
+        print("Downloading spaCy model 'en_core_web_sm' ...")
+        download("en_core_web_sm")  # type: ignore
+        _NLP = spacy.load("en_core_web_sm")  # type: ignore
+        return _NLP
 
 
 logger = logging.getLogger(__name__)
@@ -212,18 +239,19 @@ class ResumeParser:
         # Optionally enhance with spaCy NER if available
         if HAS_SPACY:
             try:
+                nlp_model = ensure_spacy_model(interactive=False)
                 # Limit text length for spaCy processing (to avoid memory issues)
                 text_to_process = self.text[:100000] if len(self.text) > 100000 else self.text
-                doc = nlp(text_to_process)
-
-                # Using entity labels for skills, e.g., ORG, PRODUCT
+                doc = nlp_model(text_to_process)
                 for ent in doc.ents:
                     if ent.label_ in ["ORG", "PRODUCT"] and len(ent.text.strip()) > 2:
-                        # Only add if it looks like a technical term
                         if ent.text.strip().lower() in text_lower:
                             self.skills.add(ent.text.strip())
-            except Exception as e:
-                logger.warning(f"spaCy NER failed, continuing with keyword extraction: {e}")
+            except Exception as e:  # noqa: BLE001
+                logger.warning(
+                    "spaCy NER failed (will continue with keyword-only extraction): %s",
+                    e,
+                )
 
         # Remove any empty strings or None values
         self.skills = {s for s in self.skills if s and s.strip()}

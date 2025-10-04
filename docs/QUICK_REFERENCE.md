@@ -44,6 +44,29 @@ python -m src.agent --mode test
 python -m src.agent --mode cleanup
 ```
 
+### Lint & Type Checking
+```bash
+./scripts/run_lint_typecheck.sh
+```
+Tools:
+- Ruff (rules: E,F baseline; ignores F401/F841 for iterative refactors)
+- mypy (permissive: ignores missing imports, allows untyped defs; tighten gradually)
+
+Improve quality over time:
+- Remove unused-import ignore once modules stabilize
+- Add stricter Ruff rule sets (B, UP, I, SIM, S) as issues are fixed
+- Enable typed public APIs by removing `allow_untyped_defs` incrementally
+
+Autofix style issues:
+```bash
+python -m ruff check . --fix
+```
+
+Mypy stricter pass (example future goal):
+```bash
+python -m mypy --warn-return-any --disallow-incomplete-defs .
+```
+
 ### Check Automation Status
 ```bash
 # Recent automated actions
@@ -217,6 +240,54 @@ FROM python:3.12-slim
 - 15-20% faster PR feedback (12-17 min instead of 15-20 min)
 - No duplicate scan results in PR checks
 - 200-300 GitHub Actions minutes saved per month
+
+---
+
+## 🌐 MCP Scrapers Overview
+
+| Scraper | Purpose | Risk Level | Requirements | Tested Paths |
+|---------|---------|-----------|--------------|--------------|
+| JobsWithGPT | 500k+ aggregated job DB | Medium (external API availability) | `httpx` | Search + normalization (mocked) |
+| Reed MCP | Official UK jobs API | Low | `REED_API_KEY`, `httpx` | Success, missing key, non-200, malformed JSON |
+| JobSpy MCP | Multi-site aggregation (Indeed, ZipRecruiter, etc.) | Medium/High (ToS brittleness) | Node.js, JobSpy MCP server | Success, missing server, non-zero exit, filters, timeout, node missing, empty keywords |
+
+### What’s Covered by Tests
+Implemented unit-style tests that mock external calls:
+- Ensures normalization schema stability (company, source/job_board, salary fields).
+- Verifies graceful degradation on common failure modes (missing API key, subprocess error, timeout, malformed JSON, HTTP 500).
+- Confirms request payload enrichment (JobSpy `is_remote`, `job_type`).
+
+### Not Covered (By Design / Future Work)
+- Live end-to-end MCP server execution (network + external services).
+- Rate limiting / backoff behaviors (future enhancement).
+- Performance benchmarking across large result sets.
+
+### Enabling Real MCP Integration
+```
+export REED_API_KEY=your_api_key
+git clone https://github.com/borgius/jobspy-mcp-server ~/jobspy-mcp-server
+cd ~/jobspy-mcp-server && npm install
+node src/index.js   # (run in separate terminal)
+```
+Then invoke multi-site search:
+```python
+from sources.jobspy_mcp_scraper import search_multi_site_jobs
+jobs = await search_multi_site_jobs(keywords=["python", "remote"], location="Remote")
+```
+
+### Safety & Cost Notes
+- JobSpy aggregation can trigger multiple site requests: prefer targeted keywords.
+- Reed API is rate limited—cache results if polling frequently.
+- JobsWithGPT heavy pages: avoid large repeated distance/page sweeps without delay.
+
+### Troubleshooting
+| Symptom | Likely Cause | Fix |
+|---------|--------------|-----|
+| Empty JobSpy results | Server path not detected | Confirm install path matches one of the probed locations or pass `mcp_server_path` manually |
+| Reed returns 401 | Invalid/missing API key | Regenerate key and re-export `REED_API_KEY` |
+| JobsWithGPT empty | API change / transient outage | Retry with backoff; check logs for status code |
+| Timeout on JobSpy | Large multi-site query | Reduce sites or results_wanted; increase timeout if safe |
+
 
 See: `WORKFLOW_OPTIMIZATION_PHASE1_COMPLETE.md` for details
 
