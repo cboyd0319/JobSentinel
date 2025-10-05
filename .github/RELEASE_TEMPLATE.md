@@ -44,7 +44,7 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 # Manual Python setup required
 git clone https://github.com/cboyd0319/job-search-automation.git
 cd job-search-automation
-python scripts/zero_knowledge_startup.py
+python scripts/emergency/zero_knowledge_startup.py
 ```
 
 ### Manual

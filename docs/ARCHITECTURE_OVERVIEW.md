@@ -35,10 +35,12 @@ Extracts structured content from PDF / DOCX (skills, titles, companies, educatio
 - Design emphasis: deterministic formatting, avoid spam; future: digest grouping logic.
 
 ### 5. Orchestration & Scripts (`scripts/`)
-Utility entrypoints for setup, validation, diagnostics.
-- `slack_setup.py`: unified Slack bootstrap (manifest printing, test-send, non-interactive flags).
-- `ats_cli.py`: lightweight human + JSON summary for modular analyzer.
-- `diagnostics.py` (planned): environment introspection (Python version, key optional deps, config presence).
+Categorized utility scripts for setup, validation, monitoring, and emergency operations.
+- `scripts/setup/slack/slack_setup.py`: unified Slack bootstrap and testing.
+- `scripts/monitoring/diagnostics.py`: environment introspection and health checks.
+- `scripts/validation/`: deployment validation, code quality checks, scraper validation.
+- `scripts/emergency/`: panic buttons and secure emergency procedures.
+- `ats_cli.py`: lightweight CLI for resume analysis.
 
 ### 6. Configuration (`config/`)
 - `resume_parser.json`: Skill & title keyword lists for parser heuristics.

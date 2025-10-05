@@ -1,49 +1,43 @@
-# Job Search Automation – Automated Job Discovery, Resume Scoring & Slack Alerts
+# Job Search Automation
 
-> 🚨 **ALPHA SOFTWARE - NO LIABILITY WARNING** 🚨
->
-> **This project is in active development and WILL have bugs.** I use it personally, but:
-> 
-> - **No Warranty:** This software is provided "as-is" without any warranties
-> - **Your Risk:** I accept no liability for costs, lost opportunities, or system issues
-> - **Test First:** Run locally for weeks before considering cloud deployment
-> - **Review Everything:** False positives are common - manually verify all matches
-> - **Real Money:** Cloud deployment costs $5-15/month - read [COST.md](COST.md) first
-> - **Security Gaps:** Read [SECURITY.md](SECURITY.md) before deploying anywhere
->
-> **By using this software, you acknowledge these risks and agree to use it at your own discretion.**
+**TL;DR:** Scrapes jobs, scores them against your preferences, sends the good ones to Slack.
 
----
+⚠️ **Alpha software.** It works but has bugs. I use it daily. Test locally first.
 
-I built this because manual job searching is slow and repetitive. This platform scrapes multiple job sources, scores roles against your preferences (and resume), stores results locally, and pings only the high-signal jobs to Slack. Local-first, privacy-focused, and cost-transparent.
+## What It Does
 
-**Status:** Alpha. Local scraping + matching are usable; cloud + advanced resume analytics are evolving.
+I built this because hunting jobs manually is slow. This scrapes multiple sites, scores each role against your skills, and alerts you to matches worth checking.
 
-## Core Features
+**The Process:**
+- Scrapes Indeed, LinkedIn, Greenhouse (500k+ jobs)
+- Scores each job against your preferences
+- Sends high-scoring matches to Slack
+- Stores everything locally (your data stays yours)
 
-### 🔥 Automated Job Discovery
-- **Multi-site scraping** – Searches Indeed, LinkedIn Jobs, Greenhouse, and 500k+ positions via MCP integrations
-- **Parallel processing** – Completes full job board sweeps in 2-5 minutes
-- **Intelligent deduplication** – Eliminates duplicate postings across platforms
+**Status:** Local mode works well. Cloud deployment works but costs $5-15/month.
 
-### 🎯 Smart Job Matching  
-- **Keyword scoring** – Weights matches based on your skill preferences
-- **Location filtering** – Supports remote, hybrid, and geographic targeting
-- **Salary analysis** – Filters by compensation requirements
-- **Company exclusions** – Automatically skips blacklisted employers
+## Features
 
-### 🔔 Real-time Notifications
-- **Slack integration** – Instant alerts (unified setup: `python scripts/slack_setup.py`)
-- **Email digests** – Optional summaries
-- **Job block details** – Includes rule score + AI score (if enabled)
+**Job Discovery:**
+- Multi-site scraping (parallel processing, 2-5 min sweeps)
+- Smart deduplication across platforms
+- Geographic and remote filtering
 
-### 🔒 Privacy & Control
-- **Local-first** – All data stays on your computer by default
-- **No tracking** – No analytics, telemetry, or data collection
-- **Open source** – Full transparency, audit the code yourself
-- **Cost transparency** – Free locally, ~$5-15/month for cloud deployment
+**Matching:**
+- Keyword scoring weighted by your preferences  
+- Salary filtering
+- Company blacklists
+- Rule-based + AI scoring
 
-**Bottom line:** Let automation hunt; you evaluate and apply.
+**Alerts:**
+- Slack integration (`python scripts/setup/slack/slack_setup.py`)
+- Email digests
+- Score breakdowns included
+
+**Privacy:**
+- Local-first (no tracking, no telemetry)
+- Open source (audit the code)
+- Your data never leaves your machine (unless you deploy to cloud)
 
 ## System Requirements
 
@@ -53,56 +47,47 @@ I built this because manual job searching is slow and repetitive. This platform 
 | macOS 13+ | 🚧 Future enhancement | Manual Python setup required for now |
 | Ubuntu/Debian/RHEL | 🚧 Future enhancement | Manual Python setup required for now |
 | GCP Cloud Run | ✅ Fully supported | **COSTS MONEY** - Read COST.md first |
-| AWS Fargate / Azure | 🚧 Future enhancement | Infrastructure ready, not implemented |
+## Requirements
 
-Python 3.11 or 3.12 works best. Node.js is not required. Network access is only needed for scraping targets and, optionally, Slack.
+- Python 3.11+ (3.12 recommended)
+- Internet access for scraping
+- Slack workspace (optional, for alerts)
 
 ## Quick Start
 
-**Completely new to this?** Use the zero-knowledge startup script:
-
+**New to Python?**
 ```bash
 git clone https://github.com/cboyd0319/job-search-automation.git
 cd job-search-automation
-python scripts/zero_knowledge_startup.py
+python scripts/emergency/zero_knowledge_startup.py
 ```
 
-This script assumes you know nothing about Python or job scrapers. It explains everything.
-
-**Already familiar with Python?** Use the advanced setup wizard:
-
+**Know Python already?**
 ```bash
-python scripts/setup_wizard.py
+python scripts/setup/dev/setup_wizard.py
 ```
 
 **Manual setup:**
-
 ```bash
-# 1. Python environment
+# Environment
 python3 -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\Activate.ps1
+source .venv/bin/activate
 pip install -r requirements.txt
 
-# 2. Configuration
+# Config
 cp config/user_prefs.example.json config/user_prefs.json
-python scripts/slack_setup.py  # Unified Slack setup (wizard + test)
+python scripts/setup/slack/slack_setup.py
 
-# 3. Test run
+# Test
 python -m src.agent --mode poll
 ```
 
-If it works, you'll see jobs in your terminal and (maybe) Slack notifications.
-
-## Windows One-Click Install
-
+**Windows one-click:**
 ```powershell
-Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 irm https://raw.githubusercontent.com/cboyd0319/job-search-automation/main/deploy/windows/Install-Job-Finder.ps1 | iex
 ```
 
-⚠️ **This downloads and runs code from the internet.** Review the script first if you're paranoid (you should be).
-
-Installs Python, sets up everything, adds a Start Menu shortcut.
+⚠️ **This downloads and runs code.** Review the script first.
 
 ## macOS / Linux Installation (Future Enhancement)
 
@@ -111,7 +96,7 @@ Installs Python, sets up everything, adds a Start Menu shortcut.
 For now on macOS/Linux:
 1. Install Python 3.11+
 2. Clone this repo
-3. Run: `python scripts/zero_knowledge_startup.py`
+3. Run: `python scripts/emergency/zero_knowledge_startup.py`
 4. Manual scheduling setup required
 
 ## Configuration
@@ -172,7 +157,7 @@ python scripts/slack_setup.py
 
 Wizard flow: workspace → manifest import → enable incoming webhook → test → `.env` write. Non-interactive option:
 ```bash
-python scripts/slack_setup.py --webhook https://hooks.slack.com/services/AAA/BBB/CCC --no-test
+python scripts/setup/slack/slack_setup.py --webhook https://hooks.slack.com/services/AAA/BBB/CCC --no-test
 ```
 Docs: [docs/SLACK_SETUP.md](docs/SLACK_SETUP.md)
 

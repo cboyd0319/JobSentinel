@@ -1,32 +1,23 @@
 # Getting Started
 
-**How to get this job scraper running. Takes 10-15 minutes if you follow directions.**
-
----
+**TL;DR:** Install Python, run setup script, configure preferences, test locally.
 
 ## What You Need
 
-- **Python 3.8+** (3.11 or newer is better)
-- **Internet connection** (obviously)
-- **Google Cloud account** (only if you want cloud deployment - costs money)
+- Python 3.11+
+- Internet access
+- Slack workspace (for alerts)
 
----
+## Setup
 
-## 🚀 Quick Start (Local)
-
-### 1. Clone and Install
-
+**Step 1: Install**
 ```bash
-# Clone repository
 git clone https://github.com/cboyd0319/job-search-automation.git
 cd job-search-automation
-
-# Install dependencies
 pip install -r requirements.txt
 ```
 
-### 2. Configure Your Preferences
-
+**Step 2: Configure**
 ```bash
 # Copy example config
 cp config/user_prefs.example.json config/user_prefs.json
@@ -180,8 +171,8 @@ See [Slack Setup Guide](USER_GUIDE.md#slack-notifications) for details.
 ## 📚 Next Steps
 
 - **[User Guide](USER_GUIDE.md)** - Daily usage, troubleshooting, notifications
-- **[MCP Guide](MCP_GUIDE.md)** - Enable 500k+ jobs from JobsWithGPT
-- **[Security Guide](SECURITY_GUIDE.md)** - Secure your deployment
+- **[Setup Guide](SETUP_GUIDE.md)** - Configure job sources and external APIs
+- **[Security Policy](../SECURITY.md)** - Security best practices
 - **[Developer Guide](DEVELOPER_GUIDE.md)** - Contribute to the project
 
 ---

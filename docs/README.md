@@ -1,22 +1,33 @@
-# Documentation
+# Documentation Index
 
-All the guides to get this job scraper working.
+**TL;DR:** Quick links to all docs.
 
----
+## Start Here
 
-## Getting Started
+**New user?** → [GETTING_STARTED.md](GETTING_STARTED.md)  
+**Daily usage?** → [USER_GUIDE.md](USER_GUIDE.md)  
+**Setup issues?** → [SETUP_GUIDE.md](SETUP_GUIDE.md)
 
-**New users start here:**
+## All Docs
 
-- **[Getting Started](GETTING_STARTED.md)** - Quick installation and first run (5 minutes)
-  - Prerequisites
-  - Local setup
-  - Cloud deployment
-  - Common issues
+**User Docs:**
+- [GETTING_STARTED.md](GETTING_STARTED.md) - Install and first run
+- [USER_GUIDE.md](USER_GUIDE.md) - Daily usage and troubleshooting  
+- [SETUP_GUIDE.md](SETUP_GUIDE.md) - Slack, email, job sources
+- [QUICK_REFERENCE.md](QUICK_REFERENCE.md) - Command cheat sheet
 
----
+**Technical Docs:**
+- [DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md) - Contributing and testing
+- [ARCHITECTURE_OVERVIEW.md](ARCHITECTURE_OVERVIEW.md) - System design
+- [RESUME_ANALYSIS.md](RESUME_ANALYSIS.md) - ATS scoring features
 
-## User Guides
+**Reference:**
+- [RESUME_RESOURCES.md](RESUME_RESOURCES.md) - External resume tools
+- [ROADMAP.md](ROADMAP.md) - Future features
+- [CI_PIPELINE_TEMPLATE.md](CI_PIPELINE_TEMPLATE.md) - GitHub Actions
+
+**Archive:**
+- [archive/](archive/) - Old reports and cleanup docs
 
 **For daily usage:**
 
@@ -27,7 +38,7 @@ All the guides to get this job scraper working.
   - Windows-specific instructions
   - Troubleshooting
 
-- **[MCP Guide](MCP_GUIDE.md)** - Model Context Protocol integration
+- **[Setup Guide](SETUP_GUIDE.md)** - Job sources and integrations
   - Access 500k+ jobs from JobsWithGPT
   - Reed Jobs (UK market)
   - JobSpy multi-site aggregator
@@ -41,7 +52,7 @@ All the guides to get this job scraper working.
 
 **Keep your deployment secure:**
 
-- **[Security Guide](SECURITY_GUIDE.md)** - Security best practices
+- **[Security Policy](../SECURITY.md)** - Security and vulnerability reporting
   - FREE security controls ($0/month)
   - Secrets scanning
   - Input validation
@@ -103,13 +114,13 @@ Historical documentation (for reference):
 → [User Guide - Configuration](USER_GUIDE.md#configuration)
 
 **"How do I get 500k+ jobs from aggregators?"**
-→ [MCP Guide](MCP_GUIDE.md)
+→ [Setup Guide](SETUP_GUIDE.md)
 
 **"How do I set up Slack notifications?"**
 → [User Guide - Slack](USER_GUIDE.md#slack-notifications)
 
 **"Is this secure?"**
-→ [Security Guide](SECURITY_GUIDE.md)
+→ [Security Policy](../SECURITY.md)
 
 **"It's not working, help!"**
 → [User Guide - Troubleshooting](USER_GUIDE.md#troubleshooting)

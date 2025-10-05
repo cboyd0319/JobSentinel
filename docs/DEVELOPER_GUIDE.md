@@ -1,32 +1,14 @@
 # Developer Guide
 
-**Complete guide for contributors and developers.**
+**TL;DR:** How to modify, test, and contribute to the job scraper.
 
----
+## Setup
 
-## Table of Contents
-
-- [Development Setup](#development-setup)
-- [Architecture](#architecture)
-- [Contributing](#contributing)
-- [Adding Scrapers](#adding-scrapers)
-- [Testing](#testing)
-- [GitHub Actions](#github-actions)
-- [Release Process](#release-process)
-
----
-
-## Development Setup
-
-### Prerequisites
-
-- Python 3.11+ (3.12 or 3.13 recommended)
+**Requirements:**
+- Python 3.11+
 - Git
-- Docker (optional - for testing containers)
-- Node.js 18+ (optional - for MCP servers)
 
-### Clone and Install
-
+**Install:**
 ```bash
 # Clone repository
 git clone https://github.com/cboyd0319/job-search-automation.git
@@ -376,7 +358,7 @@ async def test_pagination():
 
 ### 4. Add Documentation
 
-Update `docs/USER_GUIDE.md` and `docs/MCP_GUIDE.md` if applicable.
+Update `docs/USER_GUIDE.md` and `docs/SETUP_GUIDE.md` if applicable.
 
 ---
 

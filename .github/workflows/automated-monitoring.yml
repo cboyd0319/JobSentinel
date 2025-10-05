@@ -131,13 +131,9 @@ jobs:
       - name: Run performance benchmark
         continue-on-error: true
         run: |
-          if [ -f "scripts/performance_benchmark.py" ]; then
-            set -euo pipefail
-            python scripts/performance_benchmark.py | tee perf-report.txt
-          else
-            echo "Performance benchmark script not found, skipping"
-            echo "No benchmark available" > perf-report.txt
-          fi
+          if [ -f "scripts/monitoring/performance_benchmark.py" ]; then
+            echo "Running performance benchmark..."
+            python scripts/monitoring/performance_benchmark.py | tee perf-report.txt
 
       - name: Upload performance report
         if: always()

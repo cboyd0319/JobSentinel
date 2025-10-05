@@ -1,52 +1,54 @@
-# User Guide
+# User Documentation
 
-**Complete guide for daily usage, troubleshooting, and advanced features.**
+**TL;DR:** How to run, configure, and troubleshoot the job scraper.
 
----
+## Basic Usage
 
-## Table of Contents
-
-- [Daily Usage](#daily-usage)
-- [Configuration](#configuration)
-- [Notifications](#notifications)
-- [Windows Users](#windows-users)
-- [Troubleshooting](#troubleshooting)
-- [Advanced Features](#advanced-features)
-
----
-
-## Daily Usage
-
-### Checking for New Jobs
-
-**Local:**
+**Run locally:**
 ```bash
-# Run scraper
-python -m src.agent --mode scrape
-
-# View results
-ls data/jobs/*.json
+python -m src.agent --mode poll
 ```
 
-**Cloud:**
+**Check what it found:**
 ```bash
-# Trigger manual run
-gcloud run jobs execute job-scraper --region=us-central1
-
-# Check logs
-gcloud logging read "resource.type=cloud_run_job" --limit 50
+ls data/jobs/
+cat data/jobs/latest.json | jq
 ```
 
-### Viewing Jobs
-
-Jobs are saved as JSON files in `data/jobs/`:
+**View in web UI:**
 ```bash
-# List all jobs
-ls -lh data/jobs/
-
-# View a specific job
-cat data/jobs/job_12345.json | jq
+python src/web_ui.py
+# Open http://localhost:5000
 ```
+
+## Configuration
+
+**Key files:**
+- `config/user_prefs.json` - Your job preferences
+- `config/slack_app_manifest.json` - Slack integration
+
+**Essential settings:**
+```json
+{
+  "keywords": ["python", "devops", "remote"],
+  "locations": ["Remote", "San Francisco"],
+  "min_salary": 100000,
+  "excluded_companies": ["Meta", "Uber"]
+}
+```
+
+## Slack Setup
+
+**Quick setup:**
+```bash
+python scripts/setup/slack/slack_setup.py
+```
+
+**Manual setup:**
+1. Create Slack app at api.slack.com
+2. Add bot token to config
+3. Invite bot to channel
+4. Test with: `python notify/slack.py test`
 
 **Job file format:**
 ```json
@@ -287,7 +289,7 @@ Start-ScheduledTask -TaskName "Job Finder Daily"
 
    **"Rate limit exceeded"**
    - Wait 1 hour and try again
-   - MCP servers have rate limits (see [MCP Guide](MCP_GUIDE.md))
+   - MCP servers have rate limits (see [SETUP_GUIDE.md](SETUP_GUIDE.md))
 
    **"Connection timeout"**
    - Check internet connection
@@ -489,4 +491,4 @@ LOCATION_RADIUS_MILES = 50
 
 ---
 
-**Next:** [MCP Guide](MCP_GUIDE.md) - Enable 500k+ jobs from aggregators
+**Next:** [Setup Guide](SETUP_GUIDE.md) - Configure job sources and integrations
