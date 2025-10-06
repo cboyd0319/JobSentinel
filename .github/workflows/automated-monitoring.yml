@@ -30,7 +30,7 @@ jobs:
           name: health-report-${{ github.run_number }}
 
       - name: Create Issue
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const fs = require('fs');
@@ -90,7 +90,7 @@ jobs:
 
       - name: Create issue if backups are stale
         if: failure()
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             await github.rest.issues.create({
