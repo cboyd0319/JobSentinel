@@ -1,26 +1,19 @@
-name: 🔒 Bandit + Safety (latest) → SARIF
+---
+name: Bandit and Safety to SARIF
 
-on:
+"on":
   push:
-    branches: [main]
-    paths:
-      - '**/*.py'
-      - 'requirements*.txt'
-      - '.github/workflows/**'
+    branches:
+      - main
   pull_request:
-    branches: [main, develop]
+    branches:
+      - main
+      - develop
   workflow_dispatch: {}
 
 permissions:
   contents: read
   security-events: write
-
-concurrency:
-  group: sec-${{ github.ref }}
-  cancel-in-progress: true
-
-env:
-  FORCE_COLOR: 1
 
 jobs:
   security:
@@ -28,152 +21,150 @@ jobs:
     timeout-minutes: 20
 
     steps:
-      - name: 🛎️ Checkout
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
-      - name: 🐍 Setup Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
-          cache: 'pip'
+          python-version: "3.12"
+          cache: pip
 
-      - name: 📦 Install Bandit (with SARIF) + Safety (latest)
+      - name: Install Bandit (SARIF) and Safety (latest)
         run: |
           set -euo pipefail
           python -m pip install --upgrade pip
-          # Latest everything; Bandit has a built-in SARIF formatter since 1.7.8
           pip install "bandit[sarif]" safety
 
-      # ---------- Bandit ----------
-      - name: 🔍 Bandit → SARIF
-        id: bandit
+      - name: Bandit to SARIF
         run: |
           set -euo pipefail
-          TARGETS=$(git ls-files '*.py' | xargs -r -n1 dirname | sort -u | tr '\n' ' ')
-          if [ -z "$TARGETS" ]; then TARGETS=.; fi
-          bandit -r $TARGETS -f sarif -o bandit.sarif || echo '{"version":"2.1.0","runs":[]}' > bandit.sarif
+          TARGETS="$(git ls-files '*.py' \
+            | xargs -r -n1 dirname \
+            | sort -u \
+            | tr '\n' ' ')"
+          if [ -z "${TARGETS}" ]; then
+            TARGETS="."
+          fi
+          if ! bandit -r "${TARGETS}" -f sarif -o bandit.sarif; then
+            printf '%s\n' '{"version":"2.1.0","runs":[]}' > bandit.sarif
+          fi
 
-      - name: 📤 Upload Bandit SARIF
+      - name: Upload Bandit SARIF
         uses: github/codeql-action/upload-sarif@v3
-        if: always()
         with:
           sarif_file: bandit.sarif
           category: bandit
 
-      # ---------- Safety (scan-only with API key) ----------
-      - name: 🔐 Safety auth (required)
+      - name: Safety auth (required)
         env:
           SAFETY_API_KEY: ${{ secrets.SAFETY_API_KEY }}
         run: |
           set -euo pipefail
-          test -n "${SAFETY_API_KEY:-}" || { echo "::error::SAFETY_API_KEY not set"; exit 2; }
-          safety auth --api-key "$SAFETY_API_KEY"
+          test -n "${SAFETY_API_KEY:-}" \
+            || { echo "::error::SAFETY_API_KEY not set"; exit 2; }
+          safety auth --api-key "${SAFETY_API_KEY}"
 
-      - name: 🧪 Safety scan → JSON
+      - name: Safety scan to JSON
         run: |
           set -euo pipefail
-          # Run repo-wide. If you prefer policy-based targeting, add a .safety-policy.yml later.
           safety scan --output json > safety.json || true
 
-      - name: 🔄 Convert Safety JSON → SARIF
+      - name: Convert Safety JSON to SARIF
         run: |
-          python - << 'PY'
-import json, sys, hashlib
-def normalize(data):
-    if isinstance(data, dict):
-        items = data.get("findings") or data.get("vulnerabilities") or []
-    elif isinstance(data, list):
-        items = data
-    else:
-        items = []
-    norm=[]
-    for v in items:
-        pkg = v.get("package_name") or v.get("package") or v.get("name") or "unknown"
-        ver = v.get("affected_versions") or v.get("installed_version") or v.get("version") or "unknown"
-        sev = (v.get("severity") or v.get("cvss_severity") or "").lower()
-        cve = None
-        for k in ("cve", "cve_ids", "cve_id", "identifiers"):
-            if k in v and v[k]:
-                cve = v[k][0] if isinstance(v[k], list) else v[k]
-                break
-        advisory = (v.get("advisory") or v.get("description") or v.get("message") or "").strip()
-        vuln_id = v.get("vuln_id") or v.get("id") or cve or f"SAFETY-{hashlib.sha1((pkg+str(ver)+advisory).encode()).hexdigest()[:8]}"
-        refs=[]
-        for rkey in ("references","urls","more_info_url","advisory_url"):
-            r=v.get(rkey)
-            if isinstance(r,list): refs+=r
-            elif isinstance(r,str): refs.append(r)
-        norm.append({
-            "ruleId": str(vuln_id),
-            "package": pkg, "version": str(ver),
-            "severity": sev or "warning",
-            "message": advisory or f"Vulnerability in {pkg} {ver}",
-            "cve": cve, "refs": refs
-        })
-    return norm
+          set -euo pipefail
+          cat > safety_to_sarif.py <<'PY'
+          import hashlib
+          import json
+          import sys
 
-with open("safety.json","r") as f:
-    data=json.load(f)
-items = normalize(data)
+          def load_items():
+              try:
+                  with open("safety.json", "r", encoding="utf-8") as f:
+                      data = json.load(f)
+              except Exception:
+                  return []
+              if isinstance(data, dict):
+                  return (data.get("findings")
+                          or data.get("vulnerabilities") or [])
+              if isinstance(data, list):
+                  return data
+              return []
 
-sarif = {
-  "version": "2.1.0",
-  "runs": [{
-    "tool": {"driver": {
-      "name": "Safety",
-      "informationUri": "https://docs.safetycli.com/",
-      "rules": []
-    }},
-    "results": []
-  }]
-}
+          def sev_to_level(sev):
+              s = (sev or "").lower()
+              if s in ("critical", "high"):
+                  return "error"
+              if s in ("medium", "moderate"):
+                  return "warning"
+              return "note"
 
-def sev_to_level(s):
-    s=s.lower()
-    if s in ("critical","high"): return "error"
-    if s in ("medium","moderate"): return "warning"
-    return "note"
+          items = load_items()
+          rules = {}
+          results = []
 
-rules={}
-for it in items:
-    rid = str(it["ruleId"])
-    if rid not in rules:
-        rules[rid] = {
-          "id": rid,
-          "name": it.get("cve") or rid,
-          "shortDescription": {"text": f"{it['package']} {it['version']}"},
-          "helpUri": it["refs"][0] if it["refs"] else "https://docs.safetycli.com/",
-          "properties": {"tags": ["dependency","security"]}
-        }
-    sarif["runs"][0]["results"].append({
-      "ruleId": rid,
-      "level": sev_to_level(it.get("severity","")),
-      "message": {"text": it["message"]},
-      "locations": [{
-        "physicalLocation": {
-          "artifactLocation": {"uri": "requirements.txt"}
-        }
-      }]
-    })
+          for v in items:
+              pkg = (v.get("package_name") or v.get("package")
+                     or v.get("name") or "unknown")
+              ver = (v.get("affected_versions")
+                     or v.get("installed_version")
+                     or v.get("version") or "unknown")
+              msg = (v.get("advisory") or v.get("description")
+                     or v.get("message")
+                     or f"Vulnerability in {pkg} {ver}").strip()
+              cve = None
+              for k in ("cve", "cve_ids", "cve_id", "identifiers"):
+                  val = v.get(k)
+                  if val:
+                      cve = val[0] if isinstance(val, list) else val
+                      break
+              rid = (v.get("vuln_id") or v.get("id") or cve
+                     or "SAFETY-"
+                     + hashlib.sha1(
+                         (pkg + str(ver) + msg).encode("utf-8")
+                       ).hexdigest()[:8])
 
-sarif["runs"][0]["tool"]["driver"]["rules"] = list(rules.values())
-with open("safety.sarif","w") as f:
-    json.dump(sarif, f)
-print(f"Wrote safety.sarif with %d findings" % len(items), file=sys.stderr)
-PY
+              if rid not in rules:
+                  rules[rid] = {
+                      "id": str(rid),
+                      "name": cve or str(rid),
+                      "shortDescription": {"text": f"{pkg} {ver}"},
+                      "properties": {"tags": ["dependency", "security"]},
+                  }
 
-      - name: 📤 Upload Safety SARIF
+              results.append({
+                  "ruleId": str(rid),
+                  "level": sev_to_level(v.get("severity")),
+                  "message": {"text": msg},
+                  "locations": [{
+                      "physicalLocation": {
+                          "artifactLocation": {"uri": "requirements.txt"}
+                      }
+                  }],
+              })
+
+          sarif = {
+              "version": "2.1.0",
+              "runs": [{
+                  "tool": {"driver": {
+                      "name": "Safety",
+                      "rules": list(rules.values())
+                  }},
+                  "results": results,
+              }],
+          }
+
+          with open("safety.sarif", "w", encoding="utf-8") as f:
+              json.dump(sarif, f)
+          print(f"Wrote safety.sarif with {len(results)} findings",
+                file=sys.stderr)
+          PY
+          python safety_to_sarif.py
+
+      - name: Upload Safety SARIF
         uses: github/codeql-action/upload-sarif@v3
-        if: always()
         with:
           sarif_file: safety.sarif
           category: safety
-
-      - name: 📋 Summary
-        if: always()
-        run: |
-          echo "## Code Scanning uploads" >> $GITHUB_STEP_SUMMARY
-          echo "- Bandit: ${{ steps.bandit.outcome || 'n/a' }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Safety: scan via API key" >> $GITHUB_STEP_SUMMARY
