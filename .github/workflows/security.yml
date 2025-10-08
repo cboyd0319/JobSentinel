@@ -58,14 +58,15 @@ jobs:
           sarif_file: bandit.sarif
           category: bandit
 
-      - name: Safety auth (required)
+      - name: Safety scan → JSON (API key)
         env:
           SAFETY_API_KEY: ${{ secrets.SAFETY_API_KEY }}
         run: |
           set -euo pipefail
           test -n "${SAFETY_API_KEY:-}" \
             || { echo "::error::SAFETY_API_KEY not set"; exit 2; }
-          safety auth --api-key "${SAFETY_API_KEY}"
+          safety --key "${SAFETY_API_KEY}" scan --output json > safety.json || true
+
 
       - name: Safety scan to JSON
         run: |
