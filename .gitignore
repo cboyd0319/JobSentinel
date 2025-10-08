@@ -1,146 +1,280 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
+# Python# Python
 
-# C extensions
-*.so
+__pycache__/__pycache__/
 
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
+*.py[cod]*.py[cod]
 
-# Virtualenv
-.venv/
-.venv*/
-venv/
-venv*/
-env/
-env*/
-ENV/
-__pypackages__/
-.pdm.toml
-.pdm-python
-.direnv/
+*$py.class*$py.class
 
-# Secrets and credentials
-.env
-.env.local
-.env.development
-.env.production
-.env.test
-*.env
-.envrc.local
+*.so*.so
 
-# Personal agent configurations
-agents/
-agents/**
+build/build/
 
-# Cloud provider credentials
-*-key.json
-*_key.json
+develop-eggs/develop-eggs/
+
+dist/dist/
+
+downloads/downloads/
+
+eggs/eggs/
+
+.eggs/.eggs/
+
+lib/lib/
+
+lib64/lib64/
+
+parts/parts/
+
+sdist/sdist/
+
+var/var/
+
+wheels/wheels/
+
+*.egg-info/*.egg-info/
+
+.installed.cfg.installed.cfg
+
+*.egg*.egg
+
+MANIFESTMANIFEST
+
+
+
+# Virtual environments# Virtual environments
+
+.venv/.venv/
+
+venv/venv/
+
+env/env/
+
+ENV/ENV/
+
+__pypackages__/__pypackages__/
+
+
+
+# Environment and secrets# Environment and secrets
+
+.env.env
+
+.env.*.env.*
+
+*.env*.env
+
+.envrc.envrc
+
+
+
+# User configuration (created from examples)# Cloud credentials
+
+config/user_prefs.json*-key.json
+
+config/user_profile.json*_key.json
+
 service-account*.json
-*credentials*.json
-gcp-key*.json
-auth.json
-secrets.json
-*.secret
-*.secrets
 
-# Cloud CLI credential directories
-.aws/
-.azure/
+# Data and runtime files*credentials*.json
+
+data/gcp-key*.json
+
+*.logauth.json
+
+*.sqlitesecrets.json
+
+*.sqlite3*.secret
+
+*.db*.secrets
+
+*.db3
+
+*.sqlite-journal# Cloud CLI directories
+
+*.db-shm.aws/
+
+*.db-wal.azure/
+
 .gcloud/
 
-# Certificates and keys
-*.p12
-*.pfx
-*.key
-*.pem
-*.crt
-*.csr
-id_rsa*
-*.ppk
+# Cloud credentials
 
-# Data and Logs
-data/
-!data/logs/.gitkeep
+*-key.json# Certificates and keys
 
-# IDE files
-.vscode/
-.idea/
+*_key.json*.p12
 
-# Terraform
-.terraform/
-.terraform.lock.hcl
-*.tfplan
-*.tfstate
-*.tfstate.backup
-.terraform.tfstate.lock.info
-terraform.tfvars  # User-specific config (use terraform.tfvars.example as template)
-*.tfvars
-!*.tfvars.example
-override.tf
-override.tf.json
-*_override.tf
+service-account*.json*.pfx
+
+*credentials*.json*.key
+
+gcp-key*.json*.pem
+
+auth.json*.crt
+
+secrets.json*.csr
+
+*.secretid_rsa*
+
+*.secrets*.ppk
+
+
+
+# Cloud CLI directories# User configuration (created from examples)
+
+.aws/config/user_prefs.json
+
+.azure/config/user_profile.json
+
+.gcloud/
+
+# Data and runtime files
+
+# Certificates and keysdata/
+
+*.p12*.log
+
+*.pfx*.sqlite
+
+*.key*.sqlite3
+
+*.pem*.db
+
+*.crt*.db3
+
+*.csr*.sqlite-journal
+
+id_rsa**.db-shm
+
+*.ppk*.db-wal
+
+
+
+# IDE and editor files# IDE and editor files
+
+.vscode/.vscode/
+
+.idea/.idea/
+
+*.swp*.swp
+
+*.swo*.swo
+
+*~*~
+
+
+
+# Terraform# Terraform
+
+.terraform/.terraform/
+
+.terraform.lock.hcl.terraform.lock.hcl
+
+*.tfplan*.tfplan
+
+*.tfstate*.tfstate
+
+*.tfstate.backup*.tfstate.backup
+
+terraform.tfvars.terraform.tfstate.lock.info
+
+*.tfvarsterraform.tfvars  # User-specific config (use terraform.tfvars.example as template)
+
+!*.tfvars.example*.tfvars
+
+override.tf!*.tfvars.example
+
+override.tf.jsonoverride.tf
+
+*_override.tfoverride.tf.json
+
+*_override.tf.json*_override.tf
+
 *_override.tf.json
 
-# User configuration files (should be created from examples)
-user_prefs.json
-config/user_prefs.json
-config/user_profile.json
+# Temporary and backup files
+
+*.tmp# User configuration files (should be created from examples)
+
+*.tempuser_prefs.json
+
+*.bakconfig/user_prefs.json
+
+*_backup_*config/user_profile.json
+
+.cache/
 
 # Runtime files and logs
-*.log
-*.sqlite
-*.sqlite3
-*.db
+
+# OS files*.log
+
+.DS_Store*.sqlite
+
+Thumbs.db*.sqlite3
+
+desktop.ini*.db
+
 *.db3
-*.sqlite-journal
-*.db-shm
-*.db-wal
 
-# Backup files
-*_backup_*
-*.bak
+# Testing and quality tools*.sqlite-journal
 
-# Temporary files
+.pytest_cache/*.db-shm
+
+.mypy_cache/*.db-wal
+
+.ruff_cache/
+
+htmlcov/# Backup files
+
+.coverage*_backup_*
+
+.coverage.**.bak
+
+coverage.xml
+
+*.cover# Temporary files
+
 *.tmp
-*.temp
-.cache/
-.tox/
-.hypothesis/
+
+# PowerShell QA system*.temp
+
+psqa-*.log.cache/
+
+psqa-*.json.tox/
+
+analysis-*.json.hypothesis/
+
 .benchmarks/
-pip-log.txt
-pip-delete-this-directory.txt
 
-# OS-specific files
-.DS_Store
+# Security reports (generated)pip-log.txt
+
+*.sarifpip-delete-this-directory.txt
+
+*.sarif.json
+
+bandit-report.*# OS-specific files
+
+safety-report.*.DS_Store
+
 Thumbs.db
-desktop.ini
 
-# PowerShell specific
-*.ps1xml
-$PROFILE
+# Cloud deployment artifactsdesktop.ini
+
+.deployment-state.json
+
+snapshots/# PowerShell specific
+
+deployment-receipt.md*.ps1xml
+
+cloud/reports/$PROFILE
+
 *.psm1-backup
-*.ps1.bak
-analyze-all.ps1
-analysis-*.json
+
+# Logs (keep structure, ignore content)*.ps1.bak
+
+logs/*.jsonlanalyze-all.ps1
+
+!logs/.gitkeepanalysis-*.json
 deploy-state-*.json
 
 # Security reports and artifacts (generated locally, not project files)

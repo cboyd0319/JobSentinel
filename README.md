@@ -2,230 +2,391 @@
 
 
 
-**TL;DR:** Scrapes jobs, scores them, sends matches to Slack. Works locally. Use daily.**TL;DR:** Scrapes jobs, scores them, sends good matches to Slack.
+⚠️ **Alpha software.** It works but has bugs. I use it daily. Test locally first.⚠️ **Alpha software.** It works but has bugs. I use it daily. Test locally first.
 
 
 
-**Status:** Alpha but stable. I run it daily. Test first, report bugs.⚠️ **Alpha software.** It works but has bugs. I use it daily. Test locally first.
+## What It Does## What It Does
 
 
 
-## What This Does## What It Does
+I built this because hunting jobs manually sucks. This scrapes multiple sites, scores each role against your skills, alerts you to matches worth checking.I built this because hunting jobs manually sucks. This scrapes multiple sites, scores each role against your skills, alerts you to matches worth checking.
 
 
 
-I built this because job hunting sucks. Manual searching is slow, inconsistent, wastes time.I built this because hunting jobs manually sucks. This scrapes multiple sites, scores each role against your skills, alerts you to matches worth checking.
-
-
-
-**The flow:****The Process:**
+**The Process:****The Process:**
 
 - Scrapes Indeed, LinkedIn, Greenhouse (500k+ jobs)- Scrapes Indeed, LinkedIn, Greenhouse (500k+ jobs)
 
-- Scores against your skills/preferences- Scores each job against your preferences
+- Scores each job against your preferences- Scores each job against your preferences
 
-- Sends high matches to Slack with reasoning- Sends high-scoring matches to Slack  
+- Sends high-scoring matches to Slack  - Sends high-scoring matches to Slack  
 
-- Your data stays local- Stores everything locally (your data stays yours)
-
-
-
-**Cost:** Free locally. Cloud deployment runs $5-15/month.**Status:** Local mode works. Cloud costs $5-15/month.
+- Stores everything locally (your data stays yours)- Stores everything locally (your data stays yours)
 
 
 
-## Quick Start## Quick Start
+**Status:** Local mode works. Cloud costs $5-15/month.**Status:** Local mode works. Cloud costs $5-15/month.
 
 
 
-**Windows:** Run `deploy/windows/My-Job-Finder.ps1` (handles everything)**Windows:** Run `deploy/windows/My-Job-Finder.ps1`  
-
-**Others:** See [SETUP.md](SETUP.md)
-
-**macOS/Linux:**
-
-```bash```bash
-
-git clone https://github.com/cboyd0319/job-search-automation# Basic flow
-
-cd job-search-automationgit clone https://github.com/cboyd0319/job-search-automation
-
-python3.12 -m venv .venv && source .venv/bin/activatecd job-search-automation
-
-pip install -r requirements.txtpython -m pip install -r requirements.txt
-
-cp config/user_prefs.example.json config/user_prefs.jsoncp config/user_prefs.example.json config/user_prefs.json
-
-# Edit config with your details# Edit config with your details  
-
-python src/agent.py --dry-run  # testpython src/agent.py --dry-run  # test
-
-python src/agent.py            # runpython src/agent.py           # run
-
-``````
+## Quick Start
 
 
 
-## Configuration## Features
+**Windows:** Run `deploy/windows/My-Job-Finder.ps1`  ## Quick Start## Quick Start
 
 
 
-Edit `config/user_prefs.json`:- **Multi-site scraping** - Indeed, LinkedIn, Greenhouse (500k+ jobs)
+**macOS/Linux:****Windows:** Run `deploy/windows/My-Job-Finder.ps1`  
+
+```bash
+
+git clone https://github.com/cboyd0319/job-search-automation**macOS/Linux:**
+
+cd job-search-automation```bash
+
+python -m pip install -r requirements.txtgit clone https://github.com/cboyd0319/job-search-automation
+
+cp config/user_prefs.example.json config/user_prefs.jsoncd job-search-automation
+
+# Edit config with your details  python -m pip install -r requirements.txt
+
+python src/agent.py --dry-run  # testcp config/user_prefs.example.json config/user_prefs.json
+
+python src/agent.py           # run# Edit config with your details  
+
+```python src/agent.py --dry-run  # test
+
+python src/agent.py           # run
+
+## Features```
+
+
+
+- **Multi-site scraping** - Indeed, LinkedIn, Greenhouse (500k+ jobs)
 
 - **Smart scoring** - Keyword matching, salary filtering, company blacklists
 
-```json- **Slack alerts** - High-scoring matches with score breakdowns
+- **Slack alerts** - High-scoring matches with score breakdowns## Configuration## Features
 
-{- **Local-first** - Your data stays on your machine
+- **Local-first** - Your data stays on your machine
 
-  "keywords": ["python", "backend", "remote"],- **Cloud option** - Auto-runs every 2 hours ($5-15/month)
+- **Cloud option** - Auto-runs every 2 hours ($5-15/month)
 
-  "locations": ["San Francisco", "Remote"],
 
-  "salary_min": 120000,## System Requirements
 
-  "blacklisted_companies": ["Meta", "Amazon"],
+## System RequirementsEdit `config/user_prefs.json`:- **Multi-site scraping** - Indeed, LinkedIn, Greenhouse (500k+ jobs)
 
-  "job_sources": {| Platform | Status | Notes |
 
-    "jobswithgpt": {"enabled": true},| --- | --- | --- |
 
-    "reed": {"enabled": true, "api_key": "your_reed_key"}| Windows 10/11 + PowerShell 5.1+ | ✅ Supported | Zero-knowledge installer |
+| Platform | Status | Notes |- **Smart scoring** - Keyword matching, salary filtering, company blacklists
 
-  },| macOS 13+ | 🚧 Manual setup | Python 3.12+ required |
+| --- | --- | --- |
 
-  "slack": {| Ubuntu/Linux | 🚧 Manual setup | Python 3.12+ required |
+| Windows 10/11 + PowerShell 5.1+ | ✅ Supported | Zero-knowledge installer |```json- **Slack alerts** - High-scoring matches with score breakdowns
 
-    "webhook_url": "your_slack_webhook",
+| macOS 13+ | 🚧 Manual setup | Python 3.12+ required |
 
-    "channel": "#job-alerts"## Configuration
+| Ubuntu/Linux | 🚧 Manual setup | Python 3.12+ required |{- **Local-first** - Your data stays on your machine
+
+
+
+## Configuration  "keywords": ["python", "backend", "remote"],- **Cloud option** - Auto-runs every 2 hours ($5-15/month)
+
+
+
+Edit `config/user_prefs.json`:  "locations": ["San Francisco", "Remote"],
+
+
+
+```json  "salary_min": 120000,## System Requirements
+
+{
+
+  "keywords": ["python", "backend", "api"],  "blacklisted_companies": ["Meta", "Amazon"],
+
+  "locations": ["San Francisco, CA", "Remote"],
+
+  "salary_min": 120000,  "job_sources": {| Platform | Status | Notes |
+
+  "blacklisted_companies": ["Meta"],
+
+  "resume": {    "jobswithgpt": {"enabled": true},| --- | --- | --- |
+
+    "enabled": true,
+
+    "file_path": "/path/to/resume.pdf"    "reed": {"enabled": true, "api_key": "your_reed_key"}| Windows 10/11 + PowerShell 5.1+ | ✅ Supported | Zero-knowledge installer |
 
   }
 
-}Edit `config/user_prefs.json`:
+}  },| macOS 13+ | 🚧 Manual setup | Python 3.12+ required |
 
 ```
 
-```json
+  "slack": {| Ubuntu/Linux | 🚧 Manual setup | Python 3.12+ required |
 
-**Get API keys:**{
+**Get API keys:**
+
+- Reed: [reed.co.uk/developers](https://reed.co.uk/developers)      "webhook_url": "your_slack_webhook",
+
+- Slack webhook: Workspace settings > Apps > Incoming Webhooks  
+
+    "channel": "#job-alerts"## Configuration
+
+## Commands
+
+  }
+
+```bash
+
+# Test without running}Edit `config/user_prefs.json`:
+
+python src/agent.py --dry-run  
+
+```
+
+# Run once
+
+python src/agent.py```json
+
+
+
+# Background mode (Linux/macOS)**Get API keys:**{
+
+nohup python src/agent.py --daemon &
 
 - Reed: [reed.co.uk/developers](https://reed.co.uk/developers)  "keywords": ["python", "backend", "api"],
 
-- Slack webhook: Workspace settings > Apps > Incoming Webhooks  "locations": ["San Francisco, CA", "Remote"],
+# Check what's happening
 
-  "salary_min": 120000,
-
-## Commands  "blacklisted_companies": ["Meta"],
-
-  "resume": {
-
-```bash    "enabled": true,
-
-# Test without running    "file_path": "/path/to/resume.pdf"
-
-python src/agent.py --dry-run  }
-
-}
-
-# Run once```
-
-python src/agent.py
-
-## Documentation
-
-# Background mode (Linux/macOS)
-
-nohup python src/agent.py --daemon &- **[SETUP.md](SETUP.md)** - Setup guide for all platforms
-
-- **[QA.md](QA.md)** - PowerShell quality assurance system
-
-# Check what's happening- **[SECURITY.md](SECURITY.md)** - Security practices and cloud costs
-
-tail -f logs/agent.log- **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** - Common issues and fixes
+tail -f logs/agent.log- Slack webhook: Workspace settings > Apps > Incoming Webhooks  "locations": ["San Francisco, CA", "Remote"],
 
 ```
 
-## Cloud Deployment (Optional)
+  "salary_min": 120000,
 
 ## Cloud Deployment (Optional)
+
+## Commands  "blacklisted_companies": ["Meta"],
 
 ⚠️ **Costs $5-15/month.** Read [SECURITY.md](SECURITY.md) first.
 
-**GCP (recommended):**
-
-```bash```bash
-
-# Deploy to Cloud Runpython cloud/bootstrap.py --deploy
-
-cd terraform/gcp```
-
-terraform init
-
-terraform planAuto-runs every 2 hours. Shutdown: `python cloud/bootstrap.py --destroy`
-
-terraform apply
-
-```## PowerShell QA System
-
-
-
-**Costs ~$5-15/month.** Runs every 2 hours. Auto-scales to zero between runs.Built-in quality assurance for Windows components:
-
-
-
-⚠️ **Security:** Your API keys go to GCP. Use separate keys for cloud vs local.```bash
-
-./psqa.ps1 -Mode health     # system check
-
-## Troubleshooting./psqa.ps1 -Mode analyze    # check quality  
-
-./psqa.ps1 -Mode fix        # auto-fix issues
-
-**No jobs found:**```
+  "resume": {
 
 ```bash
 
-# Check logsSee [QA.md](QA.md) for details.
+python cloud/bootstrap.py --deploy```bash    "enabled": true,
 
-tail logs/scraper.log
+```
+
+# Test without running    "file_path": "/path/to/resume.pdf"
+
+Auto-runs every 2 hours. Shutdown: `python cloud/bootstrap.py --destroy`
+
+python src/agent.py --dry-run  }
+
+## PowerShell QA System
+
+}
+
+Built-in quality assurance for Windows components:
+
+# Run once```
+
+```bash
+
+./psqa.ps1 -Mode health     # system checkpython src/agent.py
+
+./psqa.ps1 -Mode analyze    # check quality  
+
+./psqa.ps1 -Mode fix        # auto-fix issues## Documentation
+
+```
+
+# Background mode (Linux/macOS)
 
 ## Troubleshooting
 
-# Test individual scrapers  
+nohup python src/agent.py --daemon &- **[SETUP.md](SETUP.md)** - Setup guide for all platforms
 
-python sources/jobswithgpt_scraper.py --test**No jobs found:** Check `logs/scraper.log`  
+**No jobs found:** Check `logs/scraper.log`  
 
-```**Slack not working:** Run `python scripts/setup/slack/slack_setup.py --test-only`  
+**Slack not working:** Run `python scripts/setup/slack/slack_setup.py --test-only`  - **[QA.md](QA.md)** - PowerShell quality assurance system
 
 **Import errors:** Check Python version (need 3.12+), reinstall requirements  
 
-**Slack not working:****Permission issues (Windows):** Run PowerShell as Administrator
+**Permission issues (Windows):** Run PowerShell as Administrator# Check what's happening- **[SECURITY.md](SECURITY.md)** - Security practices and cloud costs
+
+
+
+## Architecturetail -f logs/agent.log- **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** - Common issues and fixes
+
+
+
+``````
+
+src/
+
+├── agent.py          # Main orchestrator  ## Cloud Deployment (Optional)
+
+├── database.py       # SQLite storage
+
+├── web_ui.py         # Local dashboard## Cloud Deployment (Optional)
+
+sources/
+
+├── jobswithgpt_scraper.py  # GPT-powered scraper⚠️ **Costs $5-15/month.** Read [SECURITY.md](SECURITY.md) first.
+
+├── reed_mcp_scraper.py     # Reed.co.uk API
+
+└── greenhouse_scraper.py   # Greenhouse jobs**GCP (recommended):**
+
+notify/
+
+├── slack.py          # Slack notifications```bash```bash
+
+└── emailer.py        # Email alerts (optional)
+
+```# Deploy to Cloud Runpython cloud/bootstrap.py --deploy
+
+
+
+**Key files:**cd terraform/gcp```
+
+- `config/user_prefs.json` - Your settings
+
+- `logs/agent.log` - Main log file  terraform init
+
+- `data/jobs.db` - Job database (SQLite)
+
+- `psqa.ps1` - PowerShell quality checkerterraform planAuto-runs every 2 hours. Shutdown: `python cloud/bootstrap.py --destroy`
+
+
+
+## Developmentterraform apply
+
+
+
+**Code quality:**```## PowerShell QA System
 
 ```bash
 
-# Test webhookFull guide: [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
+# Check everything
+
+./psqa.ps1
+
+**Costs ~$5-15/month.** Runs every 2 hours. Auto-scales to zero between runs.Built-in quality assurance for Windows components:
+
+# Python only  
+
+flake8 src/ && mypy src/
+
+
+
+# Security scan⚠️ **Security:** Your API keys go to GCP. Use separate keys for cloud vs local.```bash
+
+python -m bandit -r src/
+
+```./psqa.ps1 -Mode health     # system check
+
+
+
+**Add new job source:**## Troubleshooting./psqa.ps1 -Mode analyze    # check quality  
+
+1. Create scraper in `sources/`
+
+2. Inherit from `JobScraperBase`./psqa.ps1 -Mode fix        # auto-fix issues
+
+3. Add to `config/user_prefs.json`
+
+4. Test with `--dry-run`**No jobs found:**```
+
+
+
+**PowerShell quality:** Zero tolerance. Fix before commit.```bash
+
+
+
+## Security Notes# Check logsSee [QA.md](QA.md) for details.
+
+
+
+- API keys in config files (not commits)  tail logs/scraper.log
+
+- Local SQLite database (not cloud by default)
+
+- Scrapers respect robots.txt## Troubleshooting
+
+- Rate limiting built-in
+
+- No personal data stored beyond job matches# Test individual scrapers  
+
+
+
+⚠️ **Cloud security:** Separate API keys for local vs cloud deployment.python sources/jobswithgpt_scraper.py --test**No jobs found:** Check `logs/scraper.log`  
+
+
+
+## FAQ```**Slack not working:** Run `python scripts/setup/slack/slack_setup.py --test-only`  
+
+
+
+**Q: How often should I run this?**  **Import errors:** Check Python version (need 3.12+), reinstall requirements  
+
+A: Daily or every few hours. More frequent = higher rate limit risk.
+
+**Slack not working:****Permission issues (Windows):** Run PowerShell as Administrator
+
+**Q: What if a site blocks me?**  
+
+A: Increase delays, use VPN, or disable that source temporarily.```bash
+
+
+
+**Q: Can I customize scoring?**  # Test webhookFull guide: [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
+
+A: Yes. Edit `matchers/rules.py` for keyword weights and scoring logic.
 
 curl -X POST -H 'Content-type: application/json' \
 
-  --data '{"text":"Test"}' YOUR_WEBHOOK_URL## Contributing
+**Q: Where's my data stored?**  
+
+A: Locally in `data/jobs.db`. Cloud deployments use separate databases.  --data '{"text":"Test"}' YOUR_WEBHOOK_URL## Contributing
 
 
+
+**Q: Why not use job boards' APIs?**  
+
+A: Most don't have APIs. The ones that do are limited/expensive.
 
 # Check config**Bug reports:** Open GitHub issue with logs and system info  
 
+## Contributing
+
 grep SLACK_WEBHOOK_URL config/user_prefs.json**Code:** Fork, create feature branch, follow code style, add tests, submit PR  
 
-```**Security issues:** Email maintainer directly
+**Bug reports:** Open GitHub issue with logs and system info  
+
+**Code:** Fork, create feature branch, follow code style, add tests, submit PR  ```**Security issues:** Email maintainer directly
+
+**Security issues:** Email maintainer directly
 
 
+
+## License
 
 **Import errors:**## License
 
+MIT License. Alpha software - use at your own risk. I use it daily but it has bugs.
+
 ```bash
+
+---
 
 # Check Python (need 3.12+)MIT License. Alpha software - use at your own risk. I use it daily but it has bugs.
 
+**Questions?** Open GitHub issue.
 python --version
 
 ---
