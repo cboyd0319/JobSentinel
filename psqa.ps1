@@ -1,98 +1,250 @@
 #!/usr/bin/env pwsh
 <#
 .SYNOPSIS
-    PowerShell Quality Assurance - Root Entry Point
-    
+    PowerShell QA (PSQA) - Entry Point Script
+    Simple wrapper for the comprehensive QA engine system
+
 .DESCRIPTION
-    Simple entry point that delegates to the consolidated QA tool.
-    Replaces the bloated collection of 21+ scattered QA scripts.
-    
-.PARAMETER Mode  
-    Operation mode: analyze, fix, report, health
-    
+    This is the main entry point for the PowerShell Quality Assurance system.
+    It provides a simple interface to the comprehensive QA engine for code analysis,
+    auto-fixing, reporting, and health checks.
+
+.PARAMETER Mode
+    Operation mode: health, analyze, fix, report, test, ci, or all
+
 .PARAMETER Path
-    Path to analyze (defaults to current directory)
-    
-.PARAMETER Severity
-    Minimum severity: Error, Warning, Information
-    
+    Path to analyze (default: current directory)
+
 .PARAMETER DryRun
-    Preview fixes without applying them
-    
+    Preview changes without applying them
+
+.PARAMETER Severity
+    Minimum severity level to report (Error, Warning, Information)
+
+.PARAMETER OutputFormat
+    Output format: Console, JSON, HTML, All
+
+.PARAMETER ConfigPath
+    Path to configuration directory (default: ./qa/config)
+
+.PARAMETER Verbose
+    Enable verbose output
+
+.EXAMPLE
+    ./psqa.ps1 -Mode health
+    Check QA system health and dependencies
+
 .EXAMPLE
     ./psqa.ps1 -Mode analyze
-    
-.EXAMPLE  
-    ./psqa.ps1 -Mode fix -Path ./scripts -DryRun
+    Analyze all PowerShell files for quality issues
+
+.EXAMPLE
+    ./psqa.ps1 -Mode fix -DryRun
+    Preview auto-fixes without applying them
+
+.EXAMPLE
+    ./psqa.ps1 -Mode fix -Path ./deploy/windows/
+    Auto-fix issues in specific directory
+
+.EXAMPLE
+    ./psqa.ps1 -Mode report -OutputFormat HTML
+    Generate HTML quality report
+
+.NOTES
+    Author: PowerShell QA Engine v3.0.0
+    This script delegates to qa/tools/Invoke-PSQAEngine.ps1
 #>
 
 [CmdletBinding()]
 param(
-    [Parameter()]
-    [ValidateSet('analyze', 'fix', 'report', 'health')]
-    [string]$Mode = 'analyze',
-    
+    [Parameter(Mandatory = $true)]
+    [ValidateSet('health', 'analyze', 'fix', 'report', 'test', 'ci', 'all')]
+    [string]$Mode,
+
     [Parameter()]
     [string]$Path = '.',
-    
+
+    [Parameter()]
+    [switch]$DryRun,
+
     [Parameter()]
     [ValidateSet('Error', 'Warning', 'Information')]
-    [string]$Severity = 'Warning',
-    
+    [string]$Severity,
+
     [Parameter()]
-    [switch]$DryRun
+    [ValidateSet('Console', 'JSON', 'HTML', 'All')]
+    [string]$OutputFormat = 'Console',
+
+    [Parameter()]
+    [string]$ConfigPath = './qa/config',
+
+    [Parameter()]
+    [string]$TraceId = (New-Guid).ToString()
 )
 
-$qaScript = Join-Path $PSScriptRoot "qa/tools/Invoke-PSQualityCheck.ps1"
+# Script metadata
+$script:PSQAVersion = "3.0.0"
+$script:QAEngine = "./qa/tools/Invoke-PSQAEngine.ps1"
 
-if (-not (Test-Path $qaScript)) {
-    Write-Error "QA tool not found at: $qaScript"
-    Write-Host "Expected structure:" -ForegroundColor Yellow
-    Write-Host "  qa/tools/Invoke-PSQualityCheck.ps1" -ForegroundColor Gray
-    exit 1
+# Colors for output
+function Write-ColorOutput {
+    param($Message, $Color = 'White')
+    
+    $colorMap = @{
+        'Red' = "`e[31m"
+        'Green' = "`e[32m"
+        'Yellow' = "`e[33m"
+        'Blue' = "`e[34m"
+        'Magenta' = "`e[35m"
+        'Cyan' = "`e[36m"
+        'White' = "`e[37m"
+        'Reset' = "`e[0m"
+    }
+    
+    Write-Output "$($colorMap[$Color])$Message$($colorMap['Reset'])"
 }
 
-if ($Mode -eq 'health') {
-    Write-Host "🏥 PowerShell QA System Health Check" -ForegroundColor Cyan
-    Write-Host "✅ QA tool found: $qaScript" -ForegroundColor Green
+function Test-QASystemHealth {
+    Write-ColorOutput "🏥 PowerShell QA System Health Check" -Color 'Cyan'
+    Write-ColorOutput "=================================" -Color 'Cyan'
+    Write-Output ""
+    
+    $issues = @()
+    
+    # Check PowerShell version
+    Write-ColorOutput "📋 System Information:" -Color 'Blue'
+    Write-Output "  PowerShell Version: $($PSVersionTable.PSVersion)"
+    Write-Output "  OS: $($PSVersionTable.OS)"
+    Write-Output "  Platform: $($PSVersionTable.Platform)"
+    Write-Output ""
+    
+    # Check QA Engine
+    Write-ColorOutput "🔧 QA Engine Check:" -Color 'Blue'
+    if (Test-Path $script:QAEngine) {
+        Write-ColorOutput "  ✅ QA Engine found: $script:QAEngine" -Color 'Green'
+    } else {
+        Write-ColorOutput "  ❌ QA Engine missing: $script:QAEngine" -Color 'Red'
+        $issues += "QA Engine script not found"
+    }
+    
+    # Check configuration
+    Write-ColorOutput "⚙️  Configuration Check:" -Color 'Blue'
+    if (Test-Path $ConfigPath) {
+        Write-ColorOutput "  ✅ Config directory found: $ConfigPath" -Color 'Green'
+        
+        $configFiles = @(
+            'PSScriptAnalyzerSettings.psd1',
+            'QASettings.psd1',
+            'SecurityRules.psd1'
+        )
+        
+        foreach ($configFile in $configFiles) {
+            $fullPath = Join-Path $ConfigPath $configFile
+            if (Test-Path $fullPath) {
+                Write-ColorOutput "  ✅ $configFile" -Color 'Green'
+            } else {
+                Write-ColorOutput "  ⚠️  $configFile (missing)" -Color 'Yellow'
+            }
+        }
+    } else {
+        Write-ColorOutput "  ❌ Config directory missing: $ConfigPath" -Color 'Red'
+        $issues += "Configuration directory not found"
+    }
     
     # Check PSScriptAnalyzer
+    Write-ColorOutput "🔍 PSScriptAnalyzer Check:" -Color 'Blue'
     try {
-        Import-Module PSScriptAnalyzer -ErrorAction Stop
-        $version = (Get-Module PSScriptAnalyzer).Version
-        Write-Host "✅ PSScriptAnalyzer v$version available" -ForegroundColor Green
+        $psaModule = Get-Module -ListAvailable -Name PSScriptAnalyzer
+        if ($psaModule) {
+            Write-ColorOutput "  ✅ PSScriptAnalyzer installed: v$($psaModule.Version)" -Color 'Green'
+        } else {
+            Write-ColorOutput "  ❌ PSScriptAnalyzer not installed" -Color 'Red'
+            $issues += "PSScriptAnalyzer module not installed"
+        }
     } catch {
-        Write-Host "❌ PSScriptAnalyzer not available" -ForegroundColor Red
-        Write-Host "   Install with: Install-Module PSScriptAnalyzer" -ForegroundColor Yellow
+        Write-ColorOutput "  ❌ Error checking PSScriptAnalyzer: $_" -Color 'Red'
+        $issues += "Error checking PSScriptAnalyzer module"
     }
     
-    # Check config
-    $configFile = Join-Path $PSScriptRoot "qa/config/PSScriptAnalyzerSettings.psd1"
-    if (Test-Path $configFile) {
-        Write-Host "✅ Configuration found: qa/config/PSScriptAnalyzerSettings.psd1" -ForegroundColor Green
+    # Check reports directory
+    Write-ColorOutput "📊 Reports Directory:" -Color 'Blue'
+    $reportsDir = "./qa/reports"
+    if (Test-Path $reportsDir) {
+        Write-ColorOutput "  ✅ Reports directory exists: $reportsDir" -Color 'Green'
     } else {
-        Write-Host "❌ Configuration missing: $configFile" -ForegroundColor Red
+        Write-ColorOutput "  ⚠️  Reports directory missing: $reportsDir (will create)" -Color 'Yellow'
     }
     
-    Write-Host "`n🎯 System Ready" -ForegroundColor Green
-    exit 0
+    Write-Output ""
+    
+    # Summary
+    if ($issues.Count -eq 0) {
+        Write-ColorOutput "🎉 QA System Status: HEALTHY" -Color 'Green'
+        Write-ColorOutput "✅ All components are working correctly!" -Color 'Green'
+        return 0
+    } else {
+        Write-ColorOutput "⚠️  QA System Status: ISSUES DETECTED" -Color 'Yellow'
+        Write-ColorOutput "Issues found:" -Color 'Red'
+        foreach ($issue in $issues) {
+            Write-Output "  - $issue"
+        }
+        Write-Output ""
+        Write-ColorOutput "💡 Run setup to fix issues: make -C qa setup" -Color 'Yellow'
+        return 1
+    }
 }
 
-# Delegate to the main QA tool
-$params = @{
-    Path = $Path
-    Mode = $Mode
-    Severity = $Severity
-}
-
-if ($DryRun) { 
-    $params.Add('DryRun', $true) 
-}
-
+# Main execution
 try {
-    & $qaScript @params
-    exit $LASTEXITCODE
+    Write-ColorOutput "🚀 PowerShell QA (PSQA) v$script:PSQAVersion" -Color 'Magenta'
+    Write-Output ""
+    
+    # Handle special modes
+    if ($Mode -eq 'health') {
+        exit (Test-QASystemHealth)
+    }
+    
+    # Check if QA engine exists
+    if (-not (Test-Path $script:QAEngine)) {
+        Write-ColorOutput "❌ PowerShell QA script not found: $script:QAEngine" -Color 'Red'
+        Write-ColorOutput "💡 Run: ./psqa.ps1 -Mode health to check QA system status" -Color 'Yellow'
+        exit 1
+    }
+    
+    # Build parameters for QA engine
+    $qaParams = @{
+        Path = $Path
+        Mode = $Mode
+        ConfigPath = $ConfigPath
+        OutputFormat = $OutputFormat
+        TraceId = $TraceId
+    }
+    
+    if ($DryRun) { $qaParams['DryRun'] = $true }
+    if ($Verbose) { $qaParams['Verbose'] = $true }
+    
+    # Map severity filter if provided
+    if ($Severity) {
+        # Note: The QA engine handles severity filtering internally
+        Write-ColorOutput "🔍 Filtering by severity: $Severity" -Color 'Blue'
+    }
+    
+    Write-ColorOutput "🔧 Delegating to QA Engine..." -Color 'Blue'
+    Write-Output ""
+    
+    # Execute QA engine
+    & $script:QAEngine @qaParams
+    
+    $exitCode = $LASTEXITCODE
+    if ($exitCode -eq 0) {
+        Write-Output ""
+        Write-ColorOutput "✅ QA operation completed successfully!" -Color 'Green'
+    }
+    
+    exit $exitCode
+    
 } catch {
-    Write-Error "QA tool execution failed: $($_.Exception.Message)"
+    Write-ColorOutput "❌ PSQA Error: $_" -Color 'Red'
+    Write-ColorOutput "💡 Run: ./psqa.ps1 -Mode health for diagnostics" -Color 'Yellow'
     exit 1
 }

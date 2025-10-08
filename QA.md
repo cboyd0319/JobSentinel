@@ -69,7 +69,7 @@ qa/
 ├── config/
 │   └── PSScriptAnalyzerSettings.psd1    # Master config
 ├── tools/  
-│   └── Invoke-PSQualityCheck.ps1        # Main QA engine
+│   └── Invoke-PSQAEngine.ps1            # Main QA engine
 └── reports/                             # Generated reports
 
 psqa.ps1                                 # Entry point script
@@ -122,4 +122,4 @@ pwsh ./psqa.ps1 -Mode analyze -Path . -Severity Error
 
 ---
 
-**Problems?** Check `qa/tools/Invoke-PSQualityCheck.ps1` logs or run health check.
+**Problems?** Check `qa/tools/Invoke-PSQAEngine.ps1` logs or run health check.

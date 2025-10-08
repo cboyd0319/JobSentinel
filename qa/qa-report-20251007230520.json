@@ -1,0 +1,115 @@
+{
+  "Results": [
+    {
+      "FilePath": "/Users/chadboyd/Documents/GitHub/job-search-automation/scripts/ats_cli.ps1",
+      "TraceId": "cf7b1cfa-0544-4e34-8c8c-563afe619f77",
+      "Timestamp": "2025-10-07T23:05:19.828235-06:00",
+      "AnalysisResults": [
+        {
+          "RuleName": "PSUseConsistentWhitespace",
+          "Severity": "Warning",
+          "Message": "Use space after a comma.",
+          "Line": 11,
+          "Column": 72,
+          "Source": "PSScriptAnalyzer"
+        },
+        {
+          "RuleName": "ValidateModuleImports",
+          "Severity": "Information",
+          "Message": "Monitor dynamic module imports",
+          "Line": 30,
+          "Column": 1186,
+          "Source": "SecurityAnalyzer"
+        },
+        {
+          "RuleName": "ValidateModuleImports",
+          "Severity": "Information",
+          "Message": "Monitor dynamic module imports",
+          "Line": 30,
+          "Column": 1186,
+          "Source": "SecurityAnalyzer"
+        },
+        {
+          "RuleName": "RequireParameterValidation",
+          "Severity": "Information",
+          "Message": "Parameters should have validation attributes",
+          "Line": 11,
+          "Column": 420,
+          "Source": "SecurityAnalyzer"
+        },
+        {
+          "RuleName": "RequireParameterValidation",
+          "Severity": "Information",
+          "Message": "Parameters should have validation attributes",
+          "Line": 12,
+          "Column": 516,
+          "Source": "SecurityAnalyzer"
+        },
+        {
+          "RuleName": "RequireParameterValidation",
+          "Severity": "Information",
+          "Message": "Parameters should have validation attributes",
+          "Line": 13,
+          "Column": 574,
+          "Source": "SecurityAnalyzer"
+        },
+        {
+          "RuleName": "RequireParameterValidation",
+          "Severity": "Information",
+          "Message": "Parameters should have validation attributes",
+          "Line": 15,
+          "Column": 686,
+          "Source": "SecurityAnalyzer"
+        },
+        {
+          "RuleName": "RequireParameterValidation",
+          "Severity": "Information",
+          "Message": "Parameters should have validation attributes",
+          "Line": 18,
+          "Column": 815,
+          "Source": "SecurityAnalyzer"
+        }
+      ],
+      "FixResults": [],
+      "Metrics": {
+        "LineCount": 31,
+        "VariableCount": 17,
+        "CharacterCount": 1263,
+        "FileSize": 1266,
+        "CommentLines": 2,
+        "EmptyLines": 3,
+        "FunctionCount": 0
+      }
+    }
+  ],
+  "Metadata": {
+    "TraceId": "cf7b1cfa-0544-4e34-8c8c-563afe619f77",
+    "Timestamp": "2025-10-07T23:05:20.1575010-06:00",
+    "Engine": "PowerShell QA Engine v3.0.0"
+  },
+  "Summary": {
+    "TotalFiles": 1,
+    "WarningCount": 1.0,
+    "TotalIssues": 8.0,
+    "ExecutionTime": {
+      "Ticks": 3966170,
+      "Days": 0,
+      "Hours": 0,
+      "Milliseconds": 396,
+      "Microseconds": 617,
+      "Nanoseconds": 0,
+      "Minutes": 0,
+      "Seconds": 0,
+      "TotalDays": 4.590474537037037E-06,
+      "TotalHours": 0.00011017138888888889,
+      "TotalMilliseconds": 396.617,
+      "TotalMicroseconds": 396617.0,
+      "TotalNanoseconds": 396617000.0,
+      "TotalMinutes": 0.006610283333333333,
+      "TotalSeconds": 0.396617
+    },
+    "FixesApplied": 0.0,
+    "InfoCount": 7.0,
+    "ErrorCount": 0.0
+  }
+}

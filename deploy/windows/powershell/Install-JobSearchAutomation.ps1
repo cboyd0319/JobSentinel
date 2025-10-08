@@ -1,4 +1,4 @@
-# requires -Version 5.1
+﻿# requires -Version 5.1
 <#
 .SYNOPSIS
 Bootstraps PowerShell prerequisites for the Job Search Automation toolkit.

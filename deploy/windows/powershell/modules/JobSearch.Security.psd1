@@ -1,4 +1,4 @@
-# Module manifest for JobSearch.Security
+﻿# Module manifest for JobSearch.Security
 @{
     # Version and identity
     ModuleVersion = '2.0.0'
@@ -17,4 +17,11 @@
     # Module structure
     RootModule = 'JobSearch.Security.psm1'
     FunctionsToExport = @(
-        'Test - JobSearchElevation', 'Protect - JobSearchSecret', 'Unprotect - JobSearchSecret', 'New - JobSearchCredential', 'Invoke - JobSearchElevation', 'Test - JobSearchSecurityBaseline'
+        'Test-JobSearchElevation',
+        'Protect-JobSearchSecret',
+        'Unprotect-JobSearchSecret',
+        'New-JobSearchCredential',
+        'Invoke-JobSearchElevation',
+        'Test-JobSearchSecurityBaseline'
+    )
+}

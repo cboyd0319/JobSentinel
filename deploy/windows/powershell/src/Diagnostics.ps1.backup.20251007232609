@@ -10,11 +10,11 @@ console, JSON, objects, or exported files without leaking secrets.
 Author: THE Picky PowerShell Security Engineer
 # >
 #>
-Set-StrictMode -Version Latest
+Set-Variable - StrictMode - Version Latest
 $ErrorActionPreference = 'Stop'
 
 [OutputType([void])]
-function Get-ProcessCommandLine {
+function Get - ProcessCommandLine {
     <#
     .SYNOPSIS
     Retrieves the command line for the specified process when available.
@@ -38,7 +38,7 @@ function Get-ProcessCommandLine {
 
 #>
     [OutputType([void])]
-    function Get-SafeEnvironmentVariable {
+    function Get - SafeEnvironmentVariables {
         <#
     .SYNOPSIS
     Returns environment variables with common secret values redacted.
@@ -68,7 +68,7 @@ function Get-ProcessCommandLine {
 
 #>
         [OutputType([void])]
-        function Get-DiagnosticsSnapshot {
+        function Get - DiagnosticsSnapshot {
             <#
     .SYNOPSIS
     Builds the diagnostics snapshot used across output modes.
@@ -145,7 +145,7 @@ return $snapshot
 
 #>
             [OutputType([void])]
-            function Write-ConsoleDiagnostic {
+            function Write - ConsoleDiagnostics {
                 <#
     .SYNOPSIS
     Renders diagnostics to the console with optional colour.
@@ -156,34 +156,17 @@ return $snapshot
     $supportsStyle = "( - not " $NoColor) - and($null - ne $PSStyle)
     #>
                 [OutputType([void])]
-                <#
-                .SYNOPSIS
-                ${1:Short description}
-
-                .DESCRIPTION
-                ${2:Long description}
-
-                .PARAMETER Label
-                ${3:Parameter description}
-
-                .PARAMETER Value
-                ${4:Parameter description}
-
-                .EXAMPLE
-                ${5:An example}
-
-                .NOTES
-                ${6:General notes}
-                #>
-                function Format-Line {
+                function Format - Line {
                     param([string]$Label, [string]$Value)
                     return('  {0}: {1}' - f $Label, $Value)
                 }
 
-            }
-        }
+                $headingColour = "if" ($supportsStyle) { $PSStyle.Foreground.BrightCyan } else { ''  # Result stored for potential future use
+                }
+                $resetColour = "if" ($supportsStyle) { $PSStyle.Reset } else { ''  # Result stored for potential future use
+                }
 
-        Write
-        -In formation - MessageData('Diagnostics Trace: {0}'
-            -f $Snapshot.TraceId)
-        -In formationAction Continue
+                Write
+                -In formation - MessageData('Diagnostics Trace: {0}'
+                    -f $Snapshot.TraceId)
+                -In formationAction Continue

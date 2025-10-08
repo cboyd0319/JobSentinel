@@ -1,4 +1,4 @@
-# IndentationRemediation.Utils.psm1
+﻿# IndentationRemediation.Utils.psm1
 <#
 .SYNOPSIS
 Utility functions for PowerShell indentation remediation operations.

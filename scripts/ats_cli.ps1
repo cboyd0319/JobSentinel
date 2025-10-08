@@ -1,4 +1,4 @@
-#requires -Version 5.1
+﻿#requires -Version 5.1
 <##
 .SYNOPSIS
 Operator-facing wrapper around Invoke-ATSAnalysis.
@@ -8,7 +8,7 @@ providing a simple entry point for technicians.
 #>
 [CmdletBinding(DefaultParameterSetName = 'Run', SupportsShouldProcess = $true, ConfirmImpact = 'Low')]
 param(
-    [Parameter(ParameterSetName = 'Run', Mandatory)][ValidateSet('scan','json')][string]$Command,
+    [Parameter(ParameterSetName = 'Run', Mandatory)][ValidateSet('scan', 'json')][string]$Command,
     [Parameter(ParameterSetName = 'Run', Mandatory)][ValidateNotNullOrEmpty()][string]$Resume,
     [Parameter(ParameterSetName = 'Run')][string]$Job,
     [Parameter(ParameterSetName = 'Run')][switch]$Fuzzy,

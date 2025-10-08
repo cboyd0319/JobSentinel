@@ -44,30 +44,44 @@ clean:
 	rm -rf .mypy_cache .pytest_cache build dist *.egg-info
 	find . -name '__pycache__' -type d -prune -exec rm -rf {} +
 
-# PowerShell Quality Assurance (Permanent Installation)
-.PHONY: pwsh-check pwsh-fix pwsh-report pwsh-validate
+# PowerShell Quality Assurance - Use dedicated QA system
+# Run: make -C qa help (for QA commands)
+.PHONY: qa-help qa-analyze qa-fix qa-report qa-setup
 
-pwsh-check:
-	@echo "🔍 Running PowerShell quality check..."
-	@pwsh ./psqa.ps1 -Mode analyze
+qa-help:
+	@echo "PowerShell QA System - Use dedicated commands:"
+	@echo "  make -C qa setup     - Setup QA system"
+	@echo "  make -C qa analyze   - Analyze PowerShell code"
+	@echo "  make -C qa fix       - Auto-fix issues"
+	@echo "  make -C qa report    - Generate reports"
+	@echo "  make -C qa all       - Complete QA pipeline"
+	@echo "  make -C qa help      - Full QA command list"
 
-pwsh-fix:
-	@echo "🛠️  Fixing PowerShell quality issues..."
-	@pwsh ./psqa.ps1 -Mode fix
+qa-analyze:
+	@make -C qa analyze
 
-pwsh-report:
-	@echo "📊 Generating PowerShell quality report..."
-	@pwsh ./psqa.ps1 -Mode report
+qa-fix:
+	@make -C qa fix
 
-pwsh-validate:
-	@echo "✅ Validating PowerShell code quality..."
-	@pwsh ./psqa.ps1 -Mode analyze
+qa-report:
+	@make -C qa report
 
-pwsh-setup:
-	@echo "⚙️  Setting up PowerShell QA system..."
-	@pwsh ./psqa.ps1 -Mode health
+qa-setup:
+	@make -C qa setup
 
-pwsh-test:
-	@echo "🧪 Running PowerShell QA system tests..."
-	@pwsh ./psqa.ps1 -Mode health
+# Pre-commit integration
+.PHONY: precommit-install precommit-run precommit-powershell
+
+precommit-install:
+	@echo "Installing pre-commit hooks..."
+	pre-commit install
+	@echo "Pre-commit hooks installed!"
+
+precommit-run:
+	@echo "Running all pre-commit hooks..."
+	pre-commit run --all-files
+
+precommit-powershell:
+	@echo "Running PowerShell QA pre-commit hook..."
+	./scripts/precommit-powershell-qa.sh
 
