@@ -63,27 +63,29 @@ jobs:
         id: bandit
         run: |
           echo "🔍 Running Bandit security scan..."
-          bandit -r src/ utils/ sources/ notify/ matchers/ -f json -o bandit-report.json || true
+          bandit -r src/ utils/ sources/ notify/ matchers/ -f sarif -o bandit-report.sarif || true
           bandit -r src/ utils/ sources/ notify/ matchers/ -f txt
         continue-on-error: true
-      
+
       - name: 🔒 Check for Known Vulnerabilities
         id: safety
         run: |
           echo "🔒 Checking for known vulnerabilities in dependencies..."
-          safety check --json --output safety-report.json || true
+          safety check --output safety-report.sarif --format sarif || true
           safety check
         continue-on-error: true
-      
-      - name: 📤 Upload Security Reports
-        uses: actions/upload-artifact@v4
+
+      - name: 📤 Upload Bandit SARIF to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
-          name: security-reports-lean
-          path: |
-            bandit-report.json
-            safety-report.json
-          retention-days: 14  # 💰 Shorter retention for personal project
+          sarif_file: bandit-report.sarif
+
+      - name: 📤 Upload Safety SARIF to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: safety-report.sarif
 
   # 🛡️ DEPENDENCY: Simple dependency check (essential for any project)  
   dependency-check-basic:
