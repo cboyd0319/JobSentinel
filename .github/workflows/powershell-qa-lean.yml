@@ -279,7 +279,7 @@ jobs:
           }
 
       - name: 📤 Create PR
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "🤖 PowerShell: Auto-fix quality issues"
