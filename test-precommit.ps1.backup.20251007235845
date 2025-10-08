@@ -1,8 +1,0 @@
-# Test PowerShell file with intentional issues for pre-commit testing
-function test-function{
-    Write-Host "This should be Write-Output"    
-    $unused_param = "not used"
-    return "test"
-}
-
-test-function

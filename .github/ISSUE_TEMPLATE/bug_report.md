@@ -1,45 +1,38 @@
 ---
 name: Bug report
-about: Create a report to help us improve
+about: Something broke
 title: '[BUG] '
 labels: bug
 assignees: ''
-
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+**What broke:**
+Brief description of the issue.
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Run command '...'
-2. Configure setting '...'
-3. See error
-
-**Expected behavior**
-A clear and concise description of what you expected to happen.
-
-**Error logs**
-If applicable, add error messages from logs (remove any sensitive information):
-```
-Error message here
+**How to reproduce:**
+```bash
+# Commands that trigger the bug
+python src/agent.py --dry-run
 ```
 
-**Environment (please complete the following information):**
-- OS: [e.g. Windows 11, macOS Sonoma, Ubuntu 22.04]
-- Python version: [e.g. 3.12.10]
-- Installation method: [e.g. Windows setup script, manual installation]
+**Expected vs actual:**
+Expected: Jobs found and scored  
+Actual: Crashes with TypeError
 
-**Configuration**
-- Job boards configured: [e.g. Greenhouse, Lever]
-- Notification methods: [e.g. Slack, Email]
-- ChatGPT enabled: [Yes/No]
+**Environment:**
+- OS: macOS 14.1  
+- Python: 3.12.0
+- Install method: Manual
 
-**Additional context**
-Add any other context about the problem here.
-
-**Health check output**
-If possible, run `python3 -m src.agent --mode health` and include relevant output:
+**Logs:**
 ```
-Health check output here
+# Paste relevant error logs here
+```
+
+**Config (remove API keys):**
+```json
+{
+  "keywords": ["python"],
+  "job_sources": {"jobswithgpt": {"enabled": true}}
+}
 ```

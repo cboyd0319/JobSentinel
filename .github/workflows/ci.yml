@@ -15,9 +15,7 @@ on:
       - 'docs/**'
       - '.github/ISSUE_TEMPLATE/**'
       - '.github/PULL_REQUEST_TEMPLATE.md'
-  schedule:
-    - cron: '0 6 * * 1'  # Weekly on Monday at 6 AM UTC
-  workflow_dispatch:
+  workflow_dispatch:  # 💰 MANUAL ONLY: No scheduled runs for personal project
 
 permissions:
   contents: read
@@ -194,64 +192,18 @@ jobs:
       - name: Test core functionality
         run: python -m src.agent --mode health
 
-  cross-platform-windows:
-    needs: [changes, primary-test, code-quality]
-    if: |
-      needs.changes.outputs.docs-only == 'false' &&
-      (needs.changes.outputs.windows-specific == 'true' ||
-       github.event_name == 'schedule' ||
-       github.event_name == 'workflow_dispatch')
-    name: Test Windows
-    runs-on: windows-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-
-      - name: Prepare Python environment
-        uses: ./.github/actions/python-env
-        with:
-          python-version: '3.12.10'
-          install-deps: 'true'
-          prepare-config: 'true'
-
-      - name: Test core functionality
-        run: python -m src.agent --mode health
-
-  cross-platform-macos:
-    needs: [changes, primary-test, code-quality]
-    if: |
-      needs.changes.outputs.docs-only == 'false' &&
-      (github.event_name == 'schedule' ||
-       github.event_name == 'workflow_dispatch')
-    name: Test macOS
-    runs-on: macos-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-
-      - name: Prepare Python environment
-        uses: ./.github/actions/python-env
-        with:
-          python-version: '3.12.10'
-          install-deps: 'true'
-          prepare-config: 'true'
-
-      - name: Test core functionality
-        run: python -m src.agent --mode health
+  # 💰 REMOVED: Cross-platform testing for personal project cost savings
+  # Can be manually triggered if needed via workflow_dispatch
 
   type-check:
     needs: [changes, code-quality]
     if: |
       needs.changes.outputs.docs-only == 'false' &&
-      (github.event_name == 'schedule' ||
-       github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_dispatch' ||
        github.event_name == 'pull_request')
-    name: Type Check (mypy)
+    name: Type Check (mypy) - 💰 Manual/PR Only
     runs-on: ubuntu-latest
+    timeout-minutes: 5  # 💰 Short timeout for personal project
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

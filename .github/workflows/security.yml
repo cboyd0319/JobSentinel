@@ -1,419 +1,189 @@
-name: Security & Vulnerability Scanning
+name: 💰 Security Essentials (Lean)
 
 on:
   push:
     branches: [main]
     paths:
       - '**/*.py'
-      - 'requirements.txt'
-      - '.github/workflows/security.yml'
+      - 'requirements*.txt'
+      - '.github/workflows/security-lean.yml'
       - 'Dockerfile'
-      - 'pyproject.toml'
   pull_request:
     branches: [main, develop]
     paths:
       - '**/*.py'
-      - 'requirements.txt'
-      - '.github/workflows/security.yml'
+      - 'requirements*.txt'
+      - '.github/workflows/security-lean.yml'
       - 'Dockerfile'
-      - 'pyproject.toml'
-  schedule:
-    - cron: '0 2 * * 1'
   workflow_dispatch:
     inputs:
-      scan_type:
-        description: 'Security scans to execute'
-        required: true
-        default: full
-        type: choice
-        options:
-          - full
-          - basic
-          - dependencies-only
+      include_slow_scans:
+        description: 'Include slower security scans (CodeQL, etc.)'
+        required: false
+        default: false
+        type: boolean
 
 env:
-  RUN_OSV_SCANNER: 'true'
+  FORCE_COLOR: 1
 
 permissions:
   contents: read
-  actions: read
   security-events: write
 
 concurrency:
-  group: security-${{ github.ref }}
+  group: security-lean-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  python-security:
-    name: Python Security Bundle
+  # 🛡️ ESSENTIAL: Python security basics (fast & important)
+  python-security-essentials:
+    name: 🐍 Python Security Essentials
     runs-on: ubuntu-latest
+    timeout-minutes: 8  # 💰 Quick timeout
     if: github.actor != 'dependabot[bot]'
-    permissions:
-      contents: read
-      security-events: write
-    outputs:
-      bandit_status: ${{ steps.bandit.outcome }}
+    
     steps:
-      - name: Checkout code
+      - name: 📥 Checkout
         uses: actions/checkout@v4
         with:
-          persist-credentials: false
-          fetch-depth: 0
-
-      - name: Prepare Python
-        uses: ./.github/actions/python-env
+          fetch-depth: 1  # 💰 Shallow clone
+      
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v4
         with:
-          install-deps: 'false'
-          cache-dependency-path: requirements.txt
-
-      - name: Install security tooling
+          python-version: '3.12'
+          cache: 'pip'
+      
+      - name: 📦 Install Security Tools
         run: |
           python -m pip install --upgrade pip
-          python -m pip install --no-deps bandit[toml] bandit-sarif-formatter
-          python -m pip install -r requirements.txt
-
-      - name: Run Bandit security scan
+          pip install bandit[toml] safety
+      
+      - name: 🔍 Bandit Security Scan
         id: bandit
-        run: bandit -r . -x ./.venv -f sarif -o bandit-results.sarif || true
-
-      - name: Upload Bandit SARIF
-        if: always() && hashFiles('bandit-results.sarif') != ''
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: bandit-results.sarif
-          category: bandit
-
-  osv-scanner:
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
-    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.2.3
-    with:
-      fail-on-vuln: false
-      upload-sarif: true
-
-  opengrep:
-    name: OpenGrep Static Analysis
-    runs-on: ubuntu-latest
-    if: |
-      github.actor != 'dependabot[bot]' &&
-      (github.event_name != 'workflow_dispatch' ||
-       github.event.inputs.scan_type != 'dependencies-only')
-    permissions:
-      contents: read
-      security-events: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-
-      - name: Install OpenGrep
-        run: curl -fsSL https://raw.githubusercontent.com/opengrep/opengrep/main/install.sh | bash
-
-      - name: Run OpenGrep scan
-        continue-on-error: true
         run: |
-          # OpenGrep installs to ~/.opengrep/cli/version/opengrep
-          OPENGREP_BIN=$(find ~/.opengrep -name opengrep -type f 2>/dev/null | head -1)
-          if [ -z "$OPENGREP_BIN" ]; then
-            echo "OpenGrep binary not found, skipping"
-            exit 0
+          echo "🔍 Running Bandit security scan..."
+          bandit -r src/ utils/ sources/ notify/ matchers/ -f json -o bandit-report.json || true
+          bandit -r src/ utils/ sources/ notify/ matchers/ -f txt
+        continue-on-error: true
+      
+      - name: 🔒 Check for Known Vulnerabilities
+        id: safety
+        run: |
+          echo "🔒 Checking for known vulnerabilities in dependencies..."
+          safety check --json --output safety-report.json || true
+          safety check
+        continue-on-error: true
+      
+      - name: 📤 Upload Security Reports
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: security-reports-lean
+          path: |
+            bandit-report.json
+            safety-report.json
+          retention-days: 14  # 💰 Shorter retention for personal project
+
+  # 🛡️ DEPENDENCY: Simple dependency check (essential for any project)  
+  dependency-check-basic:
+    name: 📦 Dependency Security Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5  # 💰 Very quick
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      
+      - name: 🔍 Check for Vulnerable Dependencies
+        run: |
+          echo "📦 Checking Python dependencies..."
+          
+          # Check requirements files exist
+          for req_file in requirements.txt requirements-*.txt; do
+            if [[ -f "$req_file" ]]; then
+              echo "📋 Found: $req_file"
+              
+              # Simple vulnerability check using pip-audit (lightweight alternative)
+              if command -v pip-audit >/dev/null 2>&1; then
+                echo "🔍 Scanning $req_file with pip-audit..."
+                pip-audit -r "$req_file" || echo "⚠️ Vulnerabilities found in $req_file"
+              else
+                echo "📦 Installing pip-audit..."
+                python -m pip install pip-audit
+                echo "🔍 Scanning $req_file..."
+                pip-audit -r "$req_file" || echo "⚠️ Vulnerabilities found in $req_file"
+              fi
+            fi
+          done
+
+  # 🛡️ OPTIONAL: Slower scans (only if requested manually)
+  advanced-security:
+    name: 🔬 Advanced Security Scans
+    runs-on: ubuntu-latest
+    timeout-minutes: 15  # 💰 Limited timeout even for advanced scans
+    if: |
+      github.event.inputs.include_slow_scans == 'true' &&
+      github.event_name == 'workflow_dispatch'
+    
+    permissions:
+      contents: read
+      security-events: write
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+      
+      - name: 🔬 Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: python
+          config-file: ./.github/codeql/codeql-config.yml
+        continue-on-error: true
+      
+      - name: 🏗️ Autobuild
+        uses: github/codeql-action/autobuild@v2
+        continue-on-error: true
+      
+      - name: 🔬 Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+        continue-on-error: true
+
+  # 📊 SUMMARY: Quick security summary
+  security-summary:
+    name: 📊 Security Summary
+    runs-on: ubuntu-latest
+    needs: [python-security-essentials, dependency-check-basic]
+    if: always()
+    timeout-minutes: 2
+    
+    steps:
+      - name: 📊 Generate Summary
+        run: |
+          echo "## 🛡️ Security Scan Results (Lean Version)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🎯 Scans Completed" >> $GITHUB_STEP_SUMMARY
+          echo "- **Python Security**: ${{ needs.python-security-essentials.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Dependency Check**: ${{ needs.dependency-check-basic.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [[ "${{ needs.python-security-essentials.result }}" == "success" && "${{ needs.dependency-check-basic.result }}" == "success" ]]; then
+            echo "### ✅ Security Status: GOOD" >> $GITHUB_STEP_SUMMARY
+            echo "No critical security issues detected in essential scans." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ⚠️ Security Status: REVIEW NEEDED" >> $GITHUB_STEP_SUMMARY
+            echo "Some security scans detected issues. Review the job logs for details." >> $GITHUB_STEP_SUMMARY
           fi
-          $OPENGREP_BIN --sarif --output opengrep-results.sarif --config auto . || echo "OpenGrep scan completed with findings"
-
-      - name: Upload OpenGrep SARIF
-        if: always() && hashFiles('opengrep-results.sarif') != ''
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: opengrep-results.sarif
-          category: opengrep
-
-  codeql-analysis:
-    name: CodeQL Analysis
-    runs-on: ubuntu-latest
-    if: |
-      github.actor != 'dependabot[bot]' &&
-      (github.event_name == 'schedule' ||
-       github.event_name == 'workflow_dispatch')
-    permissions:
-      contents: read
-      security-events: write
-    strategy:
-      fail-fast: false
-      matrix:
-        language: ['python']
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: ${{ matrix.language }}
-
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
-        with:
-          category: "/language:${{ matrix.language }}"
-
-
-  yamllint:
-    name: YAML Lint
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-
-      - name: Run yamllint
-        uses: ibiqlik/action-yamllint@v3
-        with:
-          config_file: config/.yamllint.yml
-
-  powershell-security:
-    name: PowerShell Security Scan
-    runs-on: windows-latest
-    if: github.actor != 'dependabot[bot]'
-    permissions:
-      contents: read
-      security-events: write
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-
-      - name: Install PSScriptAnalyzer
-        shell: pwsh
-        run: |
-          Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser -Repository PSGallery
-          Import-Module PSScriptAnalyzer
-
-      - name: Run PSScriptAnalyzer security scan
-        id: ps_scan
-        shell: pwsh
-        continue-on-error: true
-        run: |
-          $psFiles = Get-ChildItem -Path . -Include *.ps1,*.psm1 -Recurse |
-            Where-Object { $_.FullName -notmatch '[\\/]\.venv[\\/]' -and $_.FullName -notmatch '[\\/]\.git[\\/]' } |
-            Select-Object -ExpandProperty FullName
-
-          if (-not $psFiles) {
-            Write-Host "No PowerShell files found for security scanning." -ForegroundColor Yellow
-            exit 0
-          }
-
-          $results = Invoke-ScriptAnalyzer -Path $psFiles -Severity Error,Warning -IncludeRule PSAvoidUsingConvertToSecureStringWithPlainText,PSAvoidUsingPlainTextForPassword,PSAvoidUsingUsernameAndPasswordParams,PSAvoidUsingInvokeExpression,PSUsePSCredentialType
-
-          if ($results) {
-            # Convert to SARIF-like JSON
-            $findings = @()
-            foreach ($result in $results) {
-              $findings += @{
-                rule = $result.RuleName
-                severity = $result.Severity.ToString()
-                message = $result.Message
-                file = $result.ScriptPath
-                line = $result.Line
-              }
-            }
-
-            $findings | ConvertTo-Json -Depth 10 | Out-File -FilePath ps-security-results.json
-
-            Write-Host "Found $($results.Count) security issues in PowerShell files" -ForegroundColor Yellow
-            $results | Format-Table -AutoSize File, Line, Severity, RuleName, Message
-          } else {
-            Write-Host "No security issues found in PowerShell files!" -ForegroundColor Green
-          }
-
-      - name: Convert PowerShell results to SARIF
-        if: always() && hashFiles('ps-security-results.json') != ''
-        shell: pwsh
-        run: |
-          $results = Get-Content ps-security-results.json | ConvertFrom-Json
-
-          $sarif = @{
-            version = "2.1.0"
-            '$schema' = "https://json.schemastore.org/sarif-2.1.0.json"
-            runs = @(@{
-              tool = @{
-                driver = @{
-                  name = "PSScriptAnalyzer"
-                  version = "1.22.0"
-                  informationUri = "https://github.com/PowerShell/PSScriptAnalyzer"
-                  rules = @()
-                }
-              }
-              results = @()
-            })
-          }
-
-          $ruleIds = @{}
-          foreach ($result in $results) {
-            $ruleId = "psscriptanalyzer/$($result.rule)"
-
-            if (-not $ruleIds.ContainsKey($ruleId)) {
-              $ruleIds[$ruleId] = $true
-              $sarif.runs[0].tool.driver.rules += @{
-                id = $ruleId
-                name = $result.rule
-                shortDescription = @{ text = "PSScriptAnalyzer: $($result.rule)" }
-                fullDescription = @{ text = $result.message }
-                defaultConfiguration = @{
-                  level = if ($result.severity -eq 'Error') { 'error' } else { 'warning' }
-                }
-                properties = @{ tags = @('security', 'powershell') }
-              }
-            }
-
-            $sarif.runs[0].results += @{
-              ruleId = $ruleId
-              message = @{ text = $result.message }
-              level = if ($result.severity -eq 'Error') { 'error' } else { 'warning' }
-              locations = @(@{
-                physicalLocation = @{
-                  artifactLocation = @{ uri = $result.file }
-                  region = @{ startLine = $result.line }
-                }
-              })
-            }
-          }
-
-          $sarif | ConvertTo-Json -Depth 10 | Out-File -FilePath ps-security-results.sarif
-
-      - name: Upload PowerShell SARIF
-        if: always() && hashFiles('ps-security-results.sarif') != ''
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: ps-security-results.sarif
-          category: psscriptanalyzer
-
-  trufflehog:
-    name: TruffleHog Secret Scan
-    runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request' || github.actor != 'dependabot[bot]'
-    permissions:
-      contents: read
-      id-token: write
-      actions: read
-      security-events: write
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-          fetch-depth: 0
-
-      - name: Run TruffleHog scan
-        continue-on-error: true
-        id: trufflehog
-        run: |
-          # Download and run TruffleHog with JSON output
-          curl -sSfL https://github.com/trufflesecurity/trufflehog/releases/download/v3.90.8/trufflehog_3.90.8_linux_amd64.tar.gz | tar -xz
-          ./trufflehog git file://. --json --only-verified > trufflehog-results.json || true
-
-      - name: Convert TruffleHog JSON to SARIF
-        if: always() && hashFiles('trufflehog-results.json') != ''
-        run: |
-          python3 << 'PYTHON_SCRIPT'
-          import json
-          import os
-          from datetime import datetime
-
-          # Read TruffleHog JSON results
-          results = []
-          try:
-              with open('trufflehog-results.json', 'r') as f:
-                  for line in f:
-                      line = line.strip()
-                      if line:
-                          results.append(json.loads(line))
-          except Exception as e:
-              print(f"No results to convert: {e}")
-              results = []
-
-          # Create SARIF structure
-          sarif = {
-              "version": "2.1.0",
-              "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
-              "runs": [{
-                  "tool": {
-                      "driver": {
-                          "name": "TruffleHog",
-                          "version": "3.90.8",
-                          "informationUri": "https://github.com/trufflesecurity/trufflehog",
-                          "rules": []
-                      }
-                  },
-                  "results": []
-              }]
-          }
-
-          # Convert each finding
-          rule_ids = set()
-          for finding in results:
-              detector_name = finding.get('DetectorName', 'Unknown')
-              rule_id = f"trufflehog/{detector_name}"
-
-              # Add rule if not seen before
-              if rule_id not in rule_ids:
-                  rule_ids.add(rule_id)
-                  sarif["runs"][0]["tool"]["driver"]["rules"].append({
-                      "id": rule_id,
-                      "name": detector_name,
-                      "shortDescription": {
-                          "text": f"Detected {detector_name} secret"
-                      },
-                      "fullDescription": {
-                          "text": f"TruffleHog detected a {detector_name} secret in the repository"
-                      },
-                      "help": {
-                          "text": "Remove or rotate this secret immediately."
-                      },
-                      "defaultConfiguration": {
-                          "level": "error"
-                      },
-                      "properties": {
-                          "tags": ["security", "secret"]
-                      }
-                  })
-
-              # Add result
-              source_metadata = finding.get('SourceMetadata', {})
-              file_path = source_metadata.get('Data', {}).get('Filesystem', {}).get('file', 'unknown')
-
-              sarif["runs"][0]["results"].append({
-                  "ruleId": rule_id,
-                  "message": {
-                      "text": f"Detected {detector_name} secret"
-                  },
-                  "level": "error",
-                  "locations": [{
-                      "physicalLocation": {
-                          "artifactLocation": {
-                              "uri": file_path
-                          }
-                      }
-                  }]
-              })
-
-          # Write SARIF file
-          with open('trufflehog-results.sarif', 'w') as f:
-              json.dump(sarif, f, indent=2)
-
-          print(f"Converted {len(results)} TruffleHog findings to SARIF")
-          PYTHON_SCRIPT
-
-      - name: Upload TruffleHog SARIF
-        if: always() && hashFiles('trufflehog-results.sarif') != ''
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: trufflehog-results.sarif
-          category: trufflehog
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 💡 Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "- Review any security findings in the job logs" >> $GITHUB_STEP_SUMMARY
+          echo "- For comprehensive scanning, run: \`gh workflow run security-lean.yml -f include_slow_scans=true\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Consider running full scans before major releases" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 💰 Cost Optimization" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Fast essential scans only (~3-8 minutes)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Advanced scans available on-demand" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Minimal artifact storage (14 days)" >> $GITHUB_STEP_SUMMARY

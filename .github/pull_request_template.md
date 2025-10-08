@@ -1,13 +1,13 @@
-## What’s in this PR
+**What this changes:**
+Brief description of the change.
 
-A short summary of your change and why it helps.
+**Why:**
+Problem this fixes or value it adds.
 
-Fixes # (link the issue if there is one)
+**Testing:**
+- [ ] Ran `./psqa.ps1` (PowerShell quality check)
+- [ ] Tested with `--dry-run`
+- [ ] No secrets in commits
 
-## Testing
-
-How you verified it works (commands, boards tested, etc.).
-
-## Notes
-
-Anything reviewers should know (breaking changes, follow-ups, screenshots if UI).
+**Breaking changes:**
+None / List any breaking changes
