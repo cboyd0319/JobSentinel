@@ -115,7 +115,7 @@ jobs:
 
 
   cross-platform-ubuntu:
-    needs: [changes, primary-test, code-quality]
+    needs: [changes, primary-test]
     if: needs.changes.outputs.docs-only == 'false'
     name: Test Ubuntu
     runs-on: ubuntu-latest
