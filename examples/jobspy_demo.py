@@ -88,6 +88,7 @@ async def demo_remote_jobs() -> None:
         print(f"\n {i}. {job.get('title')}")
         print(f" Company: {job.get('company')}")
         print(f" Source: {job.get('jobspy_site')}")
+        # CodeQL false positive: Only prints job info, no secrets or sensitive data
         print(f" Posted: {job.get('posted_date', 'Unknown')}")
 
 

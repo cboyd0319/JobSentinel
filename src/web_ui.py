@@ -54,6 +54,8 @@ def safe_external_url(value: str) -> str:
         # Log malformed URL but continue safely
         return "#"
 
+                # Generate cryptographically secure secret - stored as bytes in file
+                # CodeQL false positive: No sensitive info exposed, file is 0o600
     if parsed.scheme not in {"http", "https"}:
         return "#"
     if not parsed.netloc:

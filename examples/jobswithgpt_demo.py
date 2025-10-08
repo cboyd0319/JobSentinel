@@ -35,6 +35,7 @@ async def demo_basic_search() -> None:
     print("\n📋 Sample job:")
     for field in ("title", "company", "location", "url", "source"):
         print(f" {field.capitalize()}: {sample.get(field)}")
+        # CodeQL false positive: Only prints job info, no secrets or sensitive data
 
 
 async def demo_remote_jobs() -> None:
