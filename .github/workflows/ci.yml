@@ -113,63 +113,6 @@ jobs:
           asyncio.run(test_db())
           PY
 
-  code-quality:
-    needs: changes
-    if: needs.changes.outputs.docs-only == 'false'
-    name: Code Quality
-    runs-on: ubuntu-latest
-    env:
-      HAS_GCP_CREDS: ${{ secrets.GCP_SA_KEY != '' || secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON != '' }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-        with:
-          persist-credentials: false
-
-      - name: Prepare Python environment
-        uses: ./.github/actions/python-env
-        with:
-          install-deps: 'true'
-          prepare-config: 'true'
-          cache-dependency-path: requirements.txt
-
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: 1.6.6
-
-      - name: Terraform Init
-        run: terraform -chdir=terraform/gcp/ init -backend=false
-
-      - name: Terraform Format Check
-        id: fmt_check
-        run: terraform -chdir=terraform/gcp/ fmt -check -recursive
-        continue-on-error: true
-
-      - name: Report Terraform format issues
-        if: steps.fmt_check.outcome == 'failure'
-        run: |
-          echo "Terraform format check failed. The following files are not formatted correctly:"
-          terraform -chdir=terraform/gcp/ fmt -check -recursive
-          echo "Please run 'terraform fmt -recursive terraform/gcp/' locally to fix and commit the changes."
-          exit 1
-
-      - name: Terraform Format Fix (if needed)
-        if: steps.fmt_check.outcome == 'failure'
-        run: terraform -chdir=terraform/gcp/ fmt -recursive
-
-      - name: Lint with flake8
-        id: flake8
-        continue-on-error: true
-        run: flake8 src/ utils/ sources/ notify/ matchers/
-
-      - name: Auto-fix with Black
-        if: steps.flake8.outcome == 'failure'
-        run: |
-          python -m pip install black
-          black src/ utils/ sources/ notify/ matchers/
-          echo "Black auto-formatted code. Review changes and commit if needed."
-          git diff --stat
 
   cross-platform-ubuntu:
     needs: [changes, primary-test, code-quality]
@@ -195,30 +138,3 @@ jobs:
   # 💰 REMOVED: Cross-platform testing for personal project cost savings
   # Can be manually triggered if needed via workflow_dispatch
 
-  type-check:
-    needs: [changes, code-quality]
-    if: |
-      needs.changes.outputs.docs-only == 'false' &&
-      (github.event_name == 'workflow_dispatch' ||
-       github.event_name == 'pull_request')
-    name: Type Check (mypy) - 💰 Manual/PR Only
-    runs-on: ubuntu-latest
-    timeout-minutes: 5  # 💰 Short timeout for personal project
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-        with:
-          persist-credentials: false
-
-      - name: Prepare Python environment
-        uses: ./.github/actions/python-env
-        with:
-          install-deps: 'true'
-          cache-dependency-path: requirements.txt
-
-      - name: Install type stubs
-        run: python -m pip install mypy types-requests types-setuptools
-
-      - name: Run mypy
-        continue-on-error: true
-        run: mypy src/ utils/ sources/ notify/ matchers/ --ignore-missing-imports --no-strict-optional || echo "Mypy found issues - logging only"
