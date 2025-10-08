@@ -378,3 +378,6 @@ diagnostics-*.zip
 psqa-*.log
 psqa-*.json
 psqa-*.html
+
+# macOS files
+.DS_Store
