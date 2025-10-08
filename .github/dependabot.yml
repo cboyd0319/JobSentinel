@@ -8,35 +8,22 @@ updates:
       day: "monday"
       time: "09:00"
     open-pull-requests-limit: 5
-    target-branch: "develop"
     reviewers:
       - "cboyd0319"
     assignees:
       - "cboyd0319"
     labels:
       - "dependencies"
-      - "security"
     commit-message:
       prefix: "deps"
-      prefix-development: "deps-dev"
       include: "scope"
-    # Disable automerge for security - manual review required
-    automerge: false
-    # Group security updates for priority handling
     groups:
-      security-updates:
+      python-dependencies:
         patterns:
           - "*"
         update-types:
-          - "security-update"
-      development-dependencies:
-        patterns:
-          - "pytest*"
-          - "black"
-          - "flake8*"
-          - "mypy*"
-          - "bandit*"
-          - "semgrep"
+          - "minor"
+          - "patch"
 
   # Enable version updates for GitHub Actions
   - package-ecosystem: "github-actions"
@@ -46,50 +33,15 @@ updates:
       day: "monday"
       time: "09:00"
     open-pull-requests-limit: 3
-    target-branch: "develop"
     reviewers:
       - "cboyd0319"
     assignees:
       - "cboyd0319"
     labels:
-      - "github-actions"
+      - "github_actions"
       - "dependencies"
-      - "security"
     commit-message:
       prefix: "ci"
       include: "scope"
-    # Disable automerge for manual security review
-    automerge: false
 
-  # Enable version updates for Docker/Container images
-  - package-ecosystem: "docker"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "sunday"
-      time: "10:00"
-    open-pull-requests-limit: 2
-    target-branch: "develop"
-    reviewers:
-      - "cboyd0319"
-    assignees:
-      - "cboyd0319"
-    labels:
-      - "docker"
-      - "dependencies"
-      - "security"
-    commit-message:
-      prefix: "docker"
-      include: "scope"
-    # Disable automerge for security review of base images
-    automerge: false
-    # Group base image updates
-    groups:
-      base-images:
-        patterns:
-          - "gcr.io/distroless/*"
-          - "python:*"
-        update-types:
-          - "major"
-          - "minor"
-          - "patch"
+
