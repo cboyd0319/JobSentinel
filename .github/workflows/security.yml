@@ -6,14 +6,14 @@ on:
     paths:
       - '**/*.py'
       - 'requirements*.txt'
-      - '.github/workflows/security-lean.yml'
+      - '.github/workflows/security.yml'
       - 'Dockerfile'
   pull_request:
     branches: [main, develop]
     paths:
       - '**/*.py'
       - 'requirements*.txt'
-      - '.github/workflows/security-lean.yml'
+      - '.github/workflows/security.yml'
       - 'Dockerfile'
   workflow_dispatch:
     inputs:
@@ -76,7 +76,7 @@ jobs:
         continue-on-error: true
       
       - name: 📤 Upload Security Reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: security-reports-lean
@@ -119,37 +119,6 @@ jobs:
             fi
           done
 
-  # 🛡️ OPTIONAL: Slower scans (only if requested manually)
-  advanced-security:
-    name: 🔬 Advanced Security Scans
-    runs-on: ubuntu-latest
-    timeout-minutes: 15  # 💰 Limited timeout even for advanced scans
-    if: |
-      github.event.inputs.include_slow_scans == 'true' &&
-      github.event_name == 'workflow_dispatch'
-    
-    permissions:
-      contents: read
-      security-events: write
-    
-    steps:
-      - name: 📥 Checkout
-        uses: actions/checkout@v5
-      
-      - name: 🔬 Initialize CodeQL
-        uses: github/codeql-action/init@v4
-        with:
-          languages: python
-          config-file: ./.github/codeql/codeql-config.yml
-        continue-on-error: true
-      
-      - name: 🏗️ Autobuild
-        uses: github/codeql-action/autobuild@v4
-        continue-on-error: true
-      
-      - name: 🔬 Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v4
-        continue-on-error: true
 
   # 📊 SUMMARY: Quick security summary
   security-summary:
@@ -180,10 +149,14 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 💡 Next Steps" >> $GITHUB_STEP_SUMMARY
           echo "- Review any security findings in the job logs" >> $GITHUB_STEP_SUMMARY
-          echo "- For comprehensive scanning, run: \`gh workflow run security-lean.yml -f include_slow_scans=true\`" >> $GITHUB_STEP_SUMMARY
+          echo "- For comprehensive scanning, run: \`gh workflow run security.yml -f include_slow_scans=true\`" >> $GITHUB_STEP_SUMMARY
           echo "- Consider running full scans before major releases" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🛡️ Available Security Tools" >> $GITHUB_STEP_SUMMARY
+          echo "**Always Running (Fast):** Bandit, Safety, pip-audit" >> $GITHUB_STEP_SUMMARY
+          echo "**On-Demand Only:** CodeQL, Semgrep, OSV Scanner, TruffleHog, Prowler" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 💰 Cost Optimization" >> $GITHUB_STEP_SUMMARY
           echo "- ✅ Fast essential scans only (~3-8 minutes)" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Advanced scans available on-demand" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Minimal artifact storage (14 days)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Advanced scans available on-demand (~15-20 minutes)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Minimal artifact storage (14-30 days)" >> $GITHUB_STEP_SUMMARY
