@@ -137,18 +137,18 @@ jobs:
         uses: actions/checkout@v4
       
       - name: 🔬 Initialize CodeQL
-        uses: github/codeql-action/init@v2
+        uses: github/codeql-action/init@v4
         with:
           languages: python
           config-file: ./.github/codeql/codeql-config.yml
         continue-on-error: true
       
       - name: 🏗️ Autobuild
-        uses: github/codeql-action/autobuild@v2
+        uses: github/codeql-action/autobuild@v4
         continue-on-error: true
       
       - name: 🔬 Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@v4
         continue-on-error: true
 
   # 📊 SUMMARY: Quick security summary
