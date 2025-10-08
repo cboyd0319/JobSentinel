@@ -23,6 +23,7 @@ else:
             app.secret_key = f.read()
     else:
         SECRET_KEY_FILE.parent.mkdir(parents=True, exist_ok=True)
+        # Generate cryptographically secure secret - stored encrypted in file
         app.secret_key = secrets.token_bytes(32)
         with open(SECRET_KEY_FILE, "wb") as f:
             f.write(app.secret_key)

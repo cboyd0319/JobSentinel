@@ -1,7 +1,7 @@
 # Minimal dependencies for MCP server isolation
 # Install only what's needed to reduce attack surface
 
-# MCP Protocol
+# MCP Protocol - Updated to fix CVE-2025-53365 & CVE-2025-53366
 mcp==1.16.0
 
 # HTTP clients
