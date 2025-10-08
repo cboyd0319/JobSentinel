@@ -43,3 +43,31 @@ analyze:
 clean:
 	rm -rf .mypy_cache .pytest_cache build dist *.egg-info
 	find . -name '__pycache__' -type d -prune -exec rm -rf {} +
+
+# PowerShell Quality Assurance (Permanent Installation)
+.PHONY: pwsh-check pwsh-fix pwsh-report pwsh-validate
+
+pwsh-check:
+	@echo "🔍 Running PowerShell quality check..."
+	@pwsh ./psqa.ps1 -Mode analyze
+
+pwsh-fix:
+	@echo "🛠️  Fixing PowerShell quality issues..."
+	@pwsh ./psqa.ps1 -Mode fix
+
+pwsh-report:
+	@echo "📊 Generating PowerShell quality report..."
+	@pwsh ./psqa.ps1 -Mode report
+
+pwsh-validate:
+	@echo "✅ Validating PowerShell code quality..."
+	@pwsh ./psqa.ps1 -Mode analyze
+
+pwsh-setup:
+	@echo "⚙️  Setting up PowerShell QA system..."
+	@pwsh ./psqa.ps1 -Mode health
+
+pwsh-test:
+	@echo "🧪 Running PowerShell QA system tests..."
+	@pwsh ./psqa.ps1 -Mode health
+

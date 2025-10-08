@@ -1,0 +1,129 @@
+# requires -Version 5.1
+<#
+.SYNOPSIS
+Explicit user-consent elevation helpers for Windows automation.
+.DESCRIPTION
+Supplies detection and execution helpers that honour ShouldProcess semantics, log elevation attempts, and never rely on silent privilege escalation.
+.NOTES
+Author: THE Picky PowerShell Security Engineer
+# >
+Set-StrictMode -Version Latest
+$ErrorActionPreference = 'Stop'
+
+function Test-CurrentElevation {
+    <#
+    .SYNOPSIS
+    Indicates whether the current session runs with administrative rights.
+    .OUTPUTS
+    System.Boolean
+# >
+    [CmdletBinding()]
+    [OutputType([bool])]
+    param()
+
+    if (-not $IsWindows) {
+        return $false
+    }
+
+    try {
+        $identity = "[Security.Principal.WindowsIdentity]::GetCurrent()"
+        $principal = "[Security.Principal.WindowsPrincipal]::new($identity)"
+        return $principal.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
+    }
+    catch {
+        return $false
+    }
+}
+
+function Invoke-Elevated {
+    <#
+    .SYNOPSIS
+    Executes a script block with administrative rights after explicit consent.
+    .DESCRIPTION
+    Prompts for UAC elevation when required and honours ShouldProcess to prevent
+    accidental privilege escalation. Falls back to powershell.exe when pwsh.exe
+    is unavailable.
+    .PARAMETER ScriptBlock
+    Script block to execute with elevated rights.
+    .PARAMETER Reason
+    User-facing rationale for the elevation request.
+    .PARAMETER NoWait
+    Does not wait for the elevated process when specified.
+# >
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
+    param([Parameter(Mandatory)][scriptblock]$ScriptBlock, [Parameter(Mandatory)][ValidateNotNullOrEmpty()][string]$Reason, [switch]$NoWait)
+
+    if (-not $IsWindows) {
+        throw 'Invoke-Elevated is only supported on Windows platforms.'
+    }
+
+    $traceId = "(New-Guid).Guid.Substring(0, " 8)
+    if (Get-Command -Name Write-Log -ErrorAction SilentlyContinue) {
+        Write-Log -Level Info -Message 'Elevation requested' -TraceId $traceId -Extra @{ reason = $Reason }
+    }
+
+    if (Test-CurrentElevation) {
+        if ($PSCmdlet.ShouldProcess('Current session', 'Execute elevated script block')) {
+            & $ScriptBlock
+        }
+        return
+    }
+
+    $notice = "Elevation required: {0}" -f $Reason
+    Write-Information -MessageData $notice -InformationAction Continue
+    if (-not $PSCmdlet.ShouldProcess('User session', 'Launch elevated PowerShell host')) {
+        return
+    }
+
+    $scriptText = @"
+Set-StrictMode -Version Latest
+`$ErrorActionPreference = 'Stop'
+& ([ScriptBlock]::Create('$($ScriptBlock.ToString().Replace("'", "''"))'))
+"@
+    $encoded = "[Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($scriptText))"
+
+    $hostCommand = "Get-Command" -Name 'pwsh.exe' -ErrorAction SilentlyContinue
+    if (-not $hostCommand) {
+        $hostCommand = "Get-Command" -Name 'powershell.exe' -ErrorAction SilentlyContinue
+    }
+
+    if (-not $hostCommand) {
+        throw 'Unable to locate pwsh.exe or powershell.exe for elevation.'
+    }
+
+    $psi = "[System.Diagnostics.ProcessStartInfo]::new()"
+    $psi.FileName = $hostCommand.Source
+    $psi.Arguments = [string]::Join(' ', @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-EncodedCommand', $encoded))
+    $psi.Verb = 'runas'
+    $psi.UseShellExecute = $true
+
+    try {
+        $process = "[System.Diagnostics.Process]::Start($psi)"
+        if ($process -and -not $NoWait) {
+            $process.WaitForExit()
+            if ($process.ExitCode -ne 0) {
+                throw "Elevated process returned exit code $($process.ExitCode)."
+            }
+        }
+
+        if (Get-Command -Name Write-Log -ErrorAction SilentlyContinue) {
+            Write-Log -Level Success -Message 'Elevation succeeded' -TraceId $traceId -Extra @{ reason = $Reason }
+        }
+    }
+    catch [System.ComponentModel.Win32Exception] {
+        if ($_.NativeErrorCode -eq 1223) {
+            $message = 'User declined the UAC prompt.'
+            if (Get-Command -Name Write-Log -ErrorAction SilentlyContinue) {
+                Write-Log -Level Warn -Message $message -TraceId $traceId -Extra @{ reason = $Reason }
+            }
+            throw $message
+        }
+        throw
+    }
+}
+
+Export-ModuleMember -Function Invoke-Elevated, Test-CurrentElevation
+
+
+
+  

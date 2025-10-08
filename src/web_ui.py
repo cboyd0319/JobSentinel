@@ -1,12 +1,14 @@
-import os
 import json
+import os
+import secrets
 from pathlib import Path
 from urllib.parse import urlparse, urlunparse
-import secrets
-from flask import Flask, render_template, request, redirect, url_for, flash, session
-from utils.config import config_manager
-from src.database import get_database_stats_sync, get_sync_session, Job
+
+from flask import Flask, flash, redirect, render_template, request, session, url_for
 from sqlmodel import select
+
+from src.database import Job, get_database_stats_sync, get_sync_session
+from utils.config import config_manager
 
 # --- Flask App Initialization ---
 app = Flask(__name__)
@@ -25,7 +27,7 @@ else:
         with open(SECRET_KEY_FILE, "wb") as f:
             f.write(app.secret_key)
         # Secure the file (Unix-like systems only)
-        if os.name != 'nt':
+        if os.name != "nt":
             os.chmod(SECRET_KEY_FILE, 0o600)
 
 
@@ -47,7 +49,7 @@ def safe_external_url(value: str) -> str:
 
     try:
         parsed = urlparse(value)
-    except (ValueError, TypeError) as exc:
+    except (ValueError, TypeError):
         # Log malformed URL but continue safely
         return "#"
 
@@ -85,12 +87,8 @@ def index():
         prefs = config_manager.load_config()
         db_stats = get_database_stats_sync()
         with get_sync_session() as session:
-            recent_jobs = session.exec(
-                select(Job).order_by(Job.created_at.desc()).limit(10)
-            ).all()
-        return render_template(
-            "index.html", prefs=prefs, stats=db_stats, jobs=recent_jobs
-        )
+            recent_jobs = session.exec(select(Job).order_by(Job.created_at.desc()).limit(10)).all()
+        return render_template("index.html", prefs=prefs, stats=db_stats, jobs=recent_jobs)
     except Exception as e:
         flash(f"Error loading dashboard: {e}", "danger")
         return render_template("index.html", prefs={}, stats={}, jobs=[])
@@ -137,12 +135,14 @@ def logs():
     log_content = read_logs(lines=500)
     return render_template("logs.html", log_content=log_content)
 
+
 @app.route("/skills", methods=["GET"])
 def skills():
     """Displays the skill editor page."""
     prefs = config_manager.load_config()
     skills = prefs.get("keywords_boost", [])
     return render_template("skills.html", skills=skills)
+
 
 @app.route("/save_skills", methods=["POST"])
 def save_skills():
@@ -155,7 +155,7 @@ def save_skills():
             return redirect(url_for("skills"))
 
         skills_str = request.form.get("skills")
-        skills_list = [s.strip() for s in skills_str.split('\n') if s.strip()]
+        skills_list = [s.strip() for s in skills_str.split("\n") if s.strip()]
 
         prefs = config_manager.load_config()
         prefs["keywords_boost"] = skills_list
@@ -170,6 +170,7 @@ def save_skills():
 
     return redirect(url_for("skills"))
 
+
 @app.route("/review")
 def review():
     """Displays the job review page."""
@@ -182,6 +183,7 @@ def review():
     except Exception as e:
         flash(f"Error loading jobs for review: {e}", "danger")
         return render_template("review.html", jobs=[])
+
 
 @app.route("/review_feedback/<int:job_id>/<string:feedback>")
 def review_feedback(job_id, feedback):
@@ -197,6 +199,7 @@ def review_feedback(job_id, feedback):
         flash(f"Error processing feedback: {e}", "danger")
 
     return redirect(url_for("review"))
+
 
 @app.route("/slack/interactive", methods=["POST"])
 def slack_interactive():
@@ -214,7 +217,6 @@ def slack_interactive():
         flash(f"Marked job {job_id} as a bad match.", "danger")
 
     return "", 200
-
 
 
 if __name__ == "__main__":

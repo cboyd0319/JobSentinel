@@ -13,26 +13,27 @@ Design constraints:
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Set, Tuple, Any
-from pathlib import Path
-import re
-import time
 import json
 import logging
-from types import SimpleNamespace
+import re
+import time
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Set
 
 logger = logging.getLogger(__name__)
 
 # Optional libraries
 try:
     from rapidfuzz import fuzz  # type: ignore
+
     HAS_RAPIDFUZZ = True
 except ImportError:  # pragma: no cover
     HAS_RAPIDFUZZ = False
 
 try:
     import spacy  # type: ignore
+
     HAS_SPACY = True
 except ImportError:  # pragma: no cover
     HAS_SPACY = False
@@ -52,6 +53,7 @@ DEFAULT_WEIGHTS = {
 # Plugin registry: name -> plugin spec
 # A plugin spec is a dict: { 'weight': float, 'fn': callable }
 _ANALYZER_PLUGINS: Dict[str, Dict[str, Any]] = {}
+
 
 def register_analyzer_plugin(name: str, weight: float, fn):
     """Register a custom analyzer plugin.
@@ -73,25 +75,91 @@ def register_analyzer_plugin(name: str, weight: float, fn):
         raise ValueError(f"Plugin name '{name}' collides with built-in dimension")
     _ANALYZER_PLUGINS[name] = {"weight": weight, "fn": fn}
 
+
 ACTION_VERBS = {
-    "achieved", "managed", "led", "developed", "created", "improved",
-    "increased", "decreased", "implemented", "designed", "built",
-    "analyzed", "coordinated", "executed", "established", "streamlined"
+    "achieved",
+    "managed",
+    "led",
+    "developed",
+    "created",
+    "improved",
+    "increased",
+    "decreased",
+    "implemented",
+    "designed",
+    "built",
+    "analyzed",
+    "coordinated",
+    "executed",
+    "established",
+    "streamlined",
 }
 
 EXPECTED_SECTIONS = {
-    "contact", "summary", "experience", "education", "skills", "projects", "certifications"
+    "contact",
+    "summary",
+    "experience",
+    "education",
+    "skills",
+    "projects",
+    "certifications",
 }
 
 STOP_WORDS = {
-    "the", "a", "an", "and", "or", "but", "in", "on", "at", "to", "for", "of", "with", "by", "from",
-    "is", "are", "was", "were", "be", "been", "being", "have", "has", "had", "do", "does", "did",
-    "will", "would", "could", "should", "may", "might", "must", "can", "about", "this", "that", "these",
-    "those", "i", "you", "he", "she", "it", "we", "they"
+    "the",
+    "a",
+    "an",
+    "and",
+    "or",
+    "but",
+    "in",
+    "on",
+    "at",
+    "to",
+    "for",
+    "of",
+    "with",
+    "by",
+    "from",
+    "is",
+    "are",
+    "was",
+    "were",
+    "be",
+    "been",
+    "being",
+    "have",
+    "has",
+    "had",
+    "do",
+    "does",
+    "did",
+    "will",
+    "would",
+    "could",
+    "should",
+    "may",
+    "might",
+    "must",
+    "can",
+    "about",
+    "this",
+    "that",
+    "these",
+    "those",
+    "i",
+    "you",
+    "he",
+    "she",
+    "it",
+    "we",
+    "they",
 }
 
 RECENCY_PATTERN = re.compile(r"\b(20\d{2})\b")
-EXPERIENCE_REQ_PATTERN = re.compile(r"(?:(?:at\s+least|minimum|\bmin\b|\b~?)(?:\s+of)?)\s*(\d{1,2})\+?\s+years", re.IGNORECASE)
+EXPERIENCE_REQ_PATTERN = re.compile(
+    r"(?:(?:at\s+least|minimum|\bmin\b|\b~?)(?:\s+of)?)\s*(\d{1,2})\+?\s+years", re.IGNORECASE
+)
 YEARS_ONLY_PATTERN = re.compile(r"(\d{1,2})\+?\s+years", re.IGNORECASE)
 
 
@@ -178,7 +246,6 @@ class ATSAnalyzer:
         industry: Optional[str] = None,
         extracted_years_experience: Optional[int] = None,
     ) -> ATSAnalysisResult:
-        t0 = time.time()
         issues: List[Issue] = []
         timings: Dict[str, int] = {}
 
@@ -187,14 +254,19 @@ class ATSAnalyzer:
         if resume_text is None and resume_path:
             # If parser enabled and file is PDF/DOCX, reuse structured parser
             suffix = str(resume_path).lower()
-            if self.use_parser and (suffix.endswith('.pdf') or suffix.endswith('.docx')):
+            if self.use_parser and (suffix.endswith(".pdf") or suffix.endswith(".docx")):
                 try:
-                    from utils.resume_parser import ResumeParser  # local import to avoid heavy deps if unused
+                    from utils.resume_parser import (  # local import to avoid heavy deps if unused
+                        ResumeParser,
+                    )
+
                     parser = ResumeParser()
                     parsed = parser.parse_file(str(resume_path))
-                    text = parsed.get('text') or parser.text  # parser stores raw text
-                    if parsed.get('years_experience') is not None:
-                        extracted_years_experience = extracted_years_experience or parsed.get('years_experience')
+                    text = parsed.get("text") or parser.text  # parser stores raw text
+                    if parsed.get("years_experience") is not None:
+                        extracted_years_experience = extracted_years_experience or parsed.get(
+                            "years_experience"
+                        )
                 except Exception as e:  # fallback gracefully
                     self._logger.warning(f"ResumeParser failed ({e}); falling back to raw read")
                     text = self._read_file(resume_path)
@@ -206,7 +278,14 @@ class ATSAnalyzer:
             raise ValueError("Either resume_text or resume_path must be provided")
 
         if len(text) > MAX_TEXT_CHARS:
-            issues.append(Issue(level="warning", category="truncation", message="Resume truncated for analysis", suggestion="Reduce file length"))
+            issues.append(
+                Issue(
+                    level="warning",
+                    category="truncation",
+                    message="Resume truncated for analysis",
+                    suggestion="Reduce file length",
+                )
+            )
             text = text[:MAX_TEXT_CHARS]
 
         # Keyword extraction
@@ -236,7 +315,9 @@ class ATSAnalyzer:
 
         # Experience alignment
         exp_start = time.time()
-        experience_alignment = self._experience_alignment(text, job_description, extracted_years_experience)
+        experience_alignment = self._experience_alignment(
+            text, job_description, extracted_years_experience
+        )
         timings["experience"] = int((time.time() - exp_start) * 1000)
 
         # Recency
@@ -263,7 +344,7 @@ class ATSAnalyzer:
                 "metadata": {
                     "fuzzy": self.enable_fuzzy,
                     "spacy_entities": self.enable_spacy_entities,
-                }
+                },
             }
             collected_plugin_meta: Dict[str, Dict[str, Any]] = {}
             for pname, pspec in _ANALYZER_PLUGINS.items():
@@ -273,7 +354,11 @@ class ATSAnalyzer:
                     p_score = max(0.0, min(100.0, float(p_score)))
                 except Exception as e:  # pragma: no cover
                     self._logger.error(f"Plugin '{pname}' failed: {e}")
-                    p_score, p_issues, p_meta = 0.0, [Issue(level="warning", category=pname, message=f"Plugin error: {e}")], {"error": str(e)}
+                    p_score, p_issues, p_meta = (
+                        0.0,
+                        [Issue(level="warning", category=pname, message=f"Plugin error: {e}")],
+                        {"error": str(e)},
+                    )
                 component_scores[pname] = p_score
                 issues.extend(p_issues)
                 timings[pname] = int((time.time() - p_start) * 1000)
@@ -287,7 +372,14 @@ class ATSAnalyzer:
         overall = sum(component_scores[k] * self.weights.get(k, 0) for k in component_scores)
 
         # Recommendations synthesis
-        recommendations = self._recommendations(component_scores, keyword_data, experience_alignment, section_cov, readability, formatting)
+        recommendations = self._recommendations(
+            component_scores,
+            keyword_data,
+            experience_alignment,
+            section_cov,
+            readability,
+            formatting,
+        )
 
         result = ATSAnalysisResult(
             overall_score=round(overall, 2),
@@ -317,7 +409,14 @@ class ATSAnalyzer:
 
     def _keyword_overlap(self, resume_text: str, job_description: Optional[str]) -> Dict[str, Any]:
         if not job_description:
-            return {"score": 75.0, "found": set(), "missing": set(), "partial": set(), "density": {}, "note": "No job description provided"}
+            return {
+                "score": 75.0,
+                "found": set(),
+                "missing": set(),
+                "partial": set(),
+                "density": {},
+                "note": "No job description provided",
+            }
 
         jd_tokens = set(t for t in self._tokenize(job_description) if t not in STOP_WORDS)
         resume_tokens = set(self._tokenize(resume_text))
@@ -359,16 +458,28 @@ class ATSAnalyzer:
 
         for key, value in self.taxonomy.items():
             if isinstance(value, list):
-                matches = sum(1 for v in value if v.lower().replace(" ", "") in {t.replace(" ", "") for t in tokens})
+                matches = sum(
+                    1
+                    for v in value
+                    if v.lower().replace(" ", "") in {t.replace(" ", "") for t in tokens}
+                )
                 taxonomy_hits[key] = matches
             elif isinstance(value, dict):
                 for sub, items in value.items():
-                    matches = sum(1 for v in items if v.lower().replace(" ", "") in {t.replace(" ", "") for t in tokens})
+                    matches = sum(
+                        1
+                        for v in items
+                        if v.lower().replace(" ", "") in {t.replace(" ", "") for t in tokens}
+                    )
                     taxonomy_hits[f"{key}.{sub}"] = matches
 
         if industry:
             # Derive crude industry score: proportion of non-zero taxonomy buckets in related domain
-            related = [k for k in taxonomy_hits if industry.lower() in k.lower() or k.startswith(industry.lower())]
+            related = [
+                k
+                for k in taxonomy_hits
+                if industry.lower() in k.lower() or k.startswith(industry.lower())
+            ]
             if related:
                 non_zero = sum(1 for k in related if taxonomy_hits[k] > 0)
                 industry_score = (non_zero / len(related)) * 100
@@ -393,25 +504,45 @@ class ATSAnalyzer:
 
     def _formatting(self, text: str, issues: List[Issue]) -> Dict[str, Any]:
         score = 100.0
-        lower = text.lower()
 
         # Overuse of special symbols
         special = re.findall(r"[^\w\s\-.,;:()/&@#+]", text)
         if len(set(special)) > 5:
             score -= 10
-            issues.append(Issue(level="warning", category="formatting", message="Many unique symbols", suggestion="Use simple ASCII-friendly bullets"))
+            issues.append(
+                Issue(
+                    level="warning",
+                    category="formatting",
+                    message="Many unique symbols",
+                    suggestion="Use simple ASCII-friendly bullets",
+                )
+            )
 
         # Excessive blank lines
         blanks = re.findall(r"\n{3,}", text)
         if blanks:
             score -= 5
-            issues.append(Issue(level="info", category="formatting", message="Excess blank lines", suggestion="Condense spacing"))
+            issues.append(
+                Issue(
+                    level="info",
+                    category="formatting",
+                    message="Excess blank lines",
+                    suggestion="Condense spacing",
+                )
+            )
 
         # Non-ASCII ratio
         non_ascii = sum(1 for c in text if ord(c) > 126)
         if non_ascii / max(1, len(text)) > 0.02:
             score -= 10
-            issues.append(Issue(level="warning", category="formatting", message="High non-ASCII character usage", suggestion="Replace decorative symbols"))
+            issues.append(
+                Issue(
+                    level="warning",
+                    category="formatting",
+                    message="High non-ASCII character usage",
+                    suggestion="Replace decorative symbols",
+                )
+            )
 
         # Line length variance heuristic
         lines = [line.strip() for line in text.splitlines() if line.strip()]
@@ -421,7 +552,14 @@ class ATSAnalyzer:
             variance = sum((length_val - avg) ** 2 for length_val in lengths) / len(lengths)
             if variance > 600:
                 score -= 10
-                issues.append(Issue(level="warning", category="formatting", message="High line length variance", suggestion="Avoid multi-column or table layouts"))
+                issues.append(
+                    Issue(
+                        level="warning",
+                        category="formatting",
+                        message="High line length variance",
+                        suggestion="Avoid multi-column or table layouts",
+                    )
+                )
 
         return {"score": max(0.0, round(score, 2))}
 
@@ -441,9 +579,15 @@ class ATSAnalyzer:
         action_count = sum(1 for v in ACTION_VERBS if v in text_lower)
         if action_count < 3:
             score -= 10
-        return {"score": max(0.0, round(score, 2)), "bullets": bullets, "action_verbs_found": action_count}
+        return {
+            "score": max(0.0, round(score, 2)),
+            "bullets": bullets,
+            "action_verbs_found": action_count,
+        }
 
-    def _experience_alignment(self, text: str, jd: Optional[str], extracted_years: Optional[int]) -> Dict[str, Any]:
+    def _experience_alignment(
+        self, text: str, jd: Optional[str], extracted_years: Optional[int]
+    ) -> Dict[str, Any]:
         # Extract years of experience requirement from JD if present
         required = None
         if jd:
@@ -454,7 +598,9 @@ class ATSAnalyzer:
                 try:
                     required = int(m.group(1))
                 except (ValueError, AttributeError, IndexError) as parse_exc:
-                    logger.debug(f"Could not parse years requirement from job description: {parse_exc}")
+                    logger.debug(
+                        f"Could not parse years requirement from job description: {parse_exc}"
+                    )
                     required = None
         # Infer from resume if not provided
         if extracted_years is None:
@@ -478,7 +624,12 @@ class ATSAnalyzer:
                 score -= 5  # Potential overqualification slight deduction
         if extracted_years == 0:
             score -= 20
-        return {"score": max(0.0, round(score, 2)), "required": required, "extracted": extracted_years, "gap": gap}
+        return {
+            "score": max(0.0, round(score, 2)),
+            "required": required,
+            "extracted": extracted_years,
+            "gap": gap,
+        }
 
     def _recency(self, text: str) -> Dict[str, Any]:
         years = sorted({int(y) for y in RECENCY_PATTERN.findall(text) if 1990 <= int(y) <= 2100})
@@ -497,14 +648,24 @@ class ATSAnalyzer:
             score = 30.0
         return {"score": round(score, 2), "years_detected": years[-10:]}
 
-    def _recommendations(self, comps: Dict[str, float], kw: Dict[str, Any], exp: Dict[str, Any], sect: Dict[str, Any], read: Dict[str, Any], fmt: Dict[str, Any]) -> List[str]:
+    def _recommendations(
+        self,
+        comps: Dict[str, float],
+        kw: Dict[str, Any],
+        exp: Dict[str, Any],
+        sect: Dict[str, Any],
+        read: Dict[str, Any],
+        fmt: Dict[str, Any],
+    ) -> List[str]:
         recs: List[str] = []
         if comps["keywords"] < 60:
             recs.append("Increase keyword alignment with job description (add missing terms).")
         if kw.get("missing"):
             recs.append("Add missing high-impact keywords: " + ", ".join(kw["missing"][:8]))
         if comps["sections"] < 80:
-            recs.append("Add or complete missing sections: " + ", ".join(sect.get("missing", [])[:5]))
+            recs.append(
+                "Add or complete missing sections: " + ", ".join(sect.get("missing", [])[:5])
+            )
         if comps["experience"] < 70 and exp.get("required"):
             recs.append("Highlight experience depth matching stated requirement.")
         if comps["formatting"] < 80:
@@ -539,12 +700,20 @@ def register_default_plugins(force: bool = False) -> None:
     Weights are modest so as not to overwhelm core dimensions.
     """
     # Avoid duplicate registration unless force specified
-    if not force and all(p in _ANALYZER_PLUGINS for p in [
-        "achievements", "leadership_signal", "action_verb_density"
-    ]):
+    if not force and all(
+        p in _ANALYZER_PLUGINS for p in ["achievements", "leadership_signal", "action_verb_density"]
+    ):
         return
 
-    leadership_terms = {"led", "managed", "mentored", "spearheaded", "coordinated", "supervised", "directed"}
+    leadership_terms = {
+        "led",
+        "managed",
+        "mentored",
+        "spearheaded",
+        "coordinated",
+        "supervised",
+        "directed",
+    }
 
     def _achievements_plugin(text: str, ctx: Dict[str, Any]):
         # Use 'line' instead of single-letter to satisfy readability/lint (E741)
@@ -575,7 +744,14 @@ def register_default_plugins(force: bool = False) -> None:
         }
         issues: List[Issue] = []
         if ratio < 0.03:
-            issues.append(Issue(level="info", category="achievements", message="Few quantified achievements", suggestion="Add metrics (%, $, time saved) to bullet points"))
+            issues.append(
+                Issue(
+                    level="info",
+                    category="achievements",
+                    message="Few quantified achievements",
+                    suggestion="Add metrics (%, $, time saved) to bullet points",
+                )
+            )
         return score, issues, meta
 
     def _leadership_plugin(text: str, ctx: Dict[str, Any]):
@@ -587,7 +763,14 @@ def register_default_plugins(force: bool = False) -> None:
         meta = {"counts": counts, "unique_terms": unique, "total_mentions": total}
         issues: List[Issue] = []
         if unique == 0:
-            issues.append(Issue(level="info", category="leadership", message="No leadership verbs detected", suggestion="Highlight leadership or mentoring examples"))
+            issues.append(
+                Issue(
+                    level="info",
+                    category="leadership",
+                    message="No leadership verbs detected",
+                    suggestion="Highlight leadership or mentoring examples",
+                )
+            )
         return score, issues, meta
 
     def _action_density_plugin(text: str, ctx: Dict[str, Any]):
@@ -604,7 +787,14 @@ def register_default_plugins(force: bool = False) -> None:
         meta = {"action_start_lines": starts, "total_lines": len(lines), "ratio": round(ratio, 3)}
         issues: List[Issue] = []
         if ratio < 0.1:
-            issues.append(Issue(level="info", category="action_verb_density", message="Few bullet points start with action verbs", suggestion="Lead bullet points with strong verbs"))
+            issues.append(
+                Issue(
+                    level="info",
+                    category="action_verb_density",
+                    message="Few bullet points start with action verbs",
+                    suggestion="Lead bullet points with strong verbs",
+                )
+            )
         return score, issues, meta
 
     # (Re)register plugins with chosen weights
@@ -613,9 +803,9 @@ def register_default_plugins(force: bool = False) -> None:
     register_analyzer_plugin("action_verb_density", 0.03, _action_density_plugin)
 
 
-
 if __name__ == "__main__":  # Basic CLI smoke
     import argparse as _arg
+
     cli = _arg.ArgumentParser(description="ATS Analyzer")
     cli.add_argument("resume", help="Path to resume text or markdown file")
     cli.add_argument("--jd", help="Path to job description text", default=None)
@@ -623,7 +813,9 @@ if __name__ == "__main__":  # Basic CLI smoke
     args = cli.parse_args()
     resume_text = Path(args.resume).read_text(encoding="utf-8", errors="ignore")
     jd_text = Path(args.jd).read_text(encoding="utf-8", errors="ignore") if args.jd else None
-    result = analyze_resume(resume_text=resume_text, job_description=jd_text, industry=args.industry)
+    result = analyze_resume(
+        resume_text=resume_text, job_description=jd_text, industry=args.industry
+    )
     print("Overall Score:", result.overall_score)
     print("Component Scores:", result.component_scores)
     print("Recommendations:", *result.recommendations, sep="\n - ")

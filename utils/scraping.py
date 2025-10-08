@@ -80,9 +80,7 @@ class WebScraper:
             response.raise_for_status()  # Raise an exception for 4xx/5xx responses
             return response
 
-    async def fetch_with_playwright(
-        self, url: str, wait_for_selector: Optional[str] = None
-    ) -> str:
+    async def fetch_with_playwright(self, url: str, wait_for_selector: Optional[str] = None) -> str:
         """Fetches content from a URL using Playwright, handling JavaScript rendering."""
         async with self.rate_limiter:
             logger.debug(f"Fetching URL with Playwright: {url}")

@@ -1,0 +1,373 @@
+# JobSearch.Core.psm1
+<#
+.SYNOPSIS
+Hardened environment, validation, and filesystem helpers for Job Search Automation.
+.DESCRIPTION
+Supplies primitives for diagnostics, prerequisite validation, and safe path
+handling. All functions are analyzer-clean, security-focused, and consistent
+with PowerShell 7.4+ best practices.
+.NOTES
+Author: Job Search Automation
+Version: 2.0.0
+# >
+
+Set-StrictMode -Version Latest
+\$ErrorActionPreference = 'Stop'
+
+\$isWindowsVar = "Get-Variable" -Name IsWindows -Scope Global -ErrorAction SilentlyContinue
+if (-not $isWindowsVar -or $null -eq $isWindowsVar.Value) {
+    \$isWin = "[System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform("
+        [System.Runtime.InteropServices.OSPlatform]::Windows)
+    Set-Variable -Name IsWindows -Scope Global -Value $isWin -Force
+}
+function Get-JobSearchEnvironment {
+    <#
+    .SYNOPSIS
+    Returns structured, log-friendly environment metadata.
+    .DESCRIPTION
+    Captures PowerShell version, operating system, locale, and privilege
+    context, ensuring the output contains only non-sensitive information.
+    .OUTPUTS
+    PSCustomObject
+    .EXAMPLE
+    Get-JobSearchEnvironment
+# >
+    [CmdletBinding()]
+    [OutputType([pscustomobject])]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '')]
+    param()
+
+    \$isElevated = $false
+    try {
+        \$identity = "[Security.Principal.WindowsIdentity]::GetCurrent()"
+        \$principal = "[Security.Principal.WindowsPrincipal]::new($identity)"
+        \$isElevated = $principal.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
+    }
+    catch {
+        \$isElevated = $false
+    }
+    \$envInfo = "[ordered]@" {
+        PowerShellVersion = $PSVersionTable.PSVersion.ToString()
+        PowerShellEdition = $PSVersionTable.PSEdition
+        OSDescription = "[System.Runtime.InteropServices.RuntimeInformation]::OSDescription"
+        OSArchitecture = "[System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString()"
+        ProcessArchitecture = "[System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture.ToString()"
+        UserName = "[System.Environment]::UserName"
+        MachineName = "[System.Environment]::MachineName"
+        Culture = "[System.Globalization.CultureInfo]::CurrentCulture.Name"
+        UICulture = "[System.Globalization.CultureInfo]::CurrentUICulture.Name"
+        TimeZone = "(Get-TimeZone).Id"
+        WorkingDirectory = "(Get-Location).ProviderPath"
+        IsElevated = $isElevated
+    }
+    return [pscustomobject]$envInfo
+}
+function Test-JobSearchPrerequisite {
+    <#
+    .SYNOPSIS
+    Validates the local PowerShell host before automation runs.
+    .DESCRIPTION
+    Executes a battery of prerequisite checks such as PowerShell version, execution policy, filesystem access, and optional outbound HTTPS reachability.
+    .PARAMETER IncludeNetwork
+    Performs an outbound HTTPS HEAD request to verify network egress.
+    .PARAMETER MinimumVersion
+    Overrides the default required PowerShell version (5.1).
+    .PARAMETER TestPath
+    Directory used for read/write probe operations.
+    .OUTPUTS
+    PSCustomObject summarising the validation outcome.
+    .EXAMPLE
+    Test-JobSearchPrerequisite
+    .EXAMPLE
+    Test-JobSearchPrerequisite -IncludeNetwork -MinimumVersion '7.4'
+# >
+    [CmdletBinding()]
+    [OutputType([pscustomobject])]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '')]
+    param([switch]$IncludeNetwork, [Version]$MinimumVersion = [Version]'5.1', [string]$TestPath = "([System.IO.Path]::GetTempPath())")
+
+    \$checks = "@()"
+
+    \$psVersion = $PSVersionTable.PSVersion
+    $checks + = [pscustomobject]@ {
+        Name = 'PowerShellVersion'
+        Passed = $psVersion -ge $MinimumVersion
+        Detail = $psVersion.ToString()
+        Required = $true
+    }
+    \$executionPolicy = "Get-ExecutionPolicy" -Scope CurrentUser
+    $checks + = [pscustomobject]@ {
+        Name = 'ExecutionPolicy'
+        Passed = $executionPolicy -notin @('Restricted', 'Undefined')
+        Detail = $executionPolicy.ToString()
+        Required = $true
+    }
+    \$fsPassed = $false
+    \$fsDetail = 'Probe not attempted'
+    try {
+        \$resolved = "Resolve-JobSearchPath" -Path $TestPath -AllowNonExisting
+        \$probeFile = "Join-Path" -Path $resolved -ChildPath ('jobsearch-probe- {0} .tmp' -f (New-Guid))
+        'probe' | Set-Content -Path $probeFile -Encoding UTF8 -Force
+        Remove-Item -Path $probeFile -Force
+        \$fsPassed = $true
+        \$fsDetail = 'Read/write check succeeded'
+    }
+    catch {
+        \$fsDetail = $_.Exception.Message
+    }
+    $checks + = [pscustomobject]@ {
+        Name = 'FileSystemWriteAccess'
+        Passed = $fsPassed
+        Detail = $fsDetail
+        Required = $true
+    }
+    if ($IncludeNetwork) {
+        \$networkCheck = "[pscustomobject]@" {
+            Name = 'OutboundHttps'
+            Passed = $false
+            Detail = 'Probe not attempted'
+            Required = $false
+        }
+        try {
+            \$uri = [System.Uri]'https: //www.microsoft.com/'
+            \$request = "[System.Net.HttpWebRequest]::Create($uri)"
+            $request.Method = 'HEAD'
+            $request.Timeout = "5000"
+            \$response = $null
+            try {
+                \$response = $request.GetResponse()
+                \$statusCode = $response.StatusCode
+                $networkCheck.Passed = $statusCode -eq [System.Net.HttpStatusCode]::OK
+                $networkCheck.Detail = "HTTP $statusCode"
+            }
+            finally {
+                if ($response) {
+                    $response.Dispose()
+                }
+            }
+        }
+        catch {
+            $networkCheck.Detail = $_.Exception.Message
+        }
+        $checks + = $networkCheck
+    }
+    \$failed = "@($checks" | Where-Object { $_.Required -and -not $_.Passed })
+
+    return [pscustomobject]@ {
+        AllRequiredPassed = "($failed.Count" -eq 0)
+        Checks = $checks
+        Timestamp = "Get-Date"
+    }
+}
+function Resolve-JobSearchPath {
+    <#
+    .SYNOPSIS
+    Resolves a path to its absolute, normalised form.
+    .DESCRIPTION
+    Expands environment variables, handles ~, and resolves relative segments
+    against a provided base directory while preventing directory traversal.
+    .PARAMETER Path
+    Input path that may be relative or contain environment variables.
+    .PARAMETER BasePath
+    Base directory used to resolve relative paths. Defaults to the current directory.
+    .PARAMETER AllowNonExisting
+    Allows returning paths that do not currently exist.
+    .OUTPUTS
+    System.String representing the absolute path.
+    .EXAMPLE
+    Resolve-JobSearchPath -Path '..\\logs'
+# >
+    [CmdletBinding()]
+    [OutputType([string])]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '')]
+    param([Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = "`"
+                $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Path, # Unused parameter: [string]$BasePath = "(Get-Location).ProviderPath, " [switch]$AllowNonExisting)
+
+    process {
+        \$expanded = "[System.Environment]::ExpandEnvironmentVariables($Path)"
+        if ($expanded.StartsWith('~')) {
+            \$homePath = [System.Environment]::GetFolderPath('UserProfile')
+            \$trimmed = $expanded.Substring(1).TrimStart([char][System.IO.Path]::DirectorySeparatorChar, [char][System.IO.Path]::AltDirectorySeparatorChar)
+            if ([string]::IsNullOrWhiteSpace($trimmed)) {
+                \$expanded = $homePath
+            }
+            else {
+                \$expanded = "Join-Path" -Path $homePath -ChildPath $trimmed
+            }
+        }
+        \$baseResolved = "if" ([System.IO.Path]::IsPathRooted($expanded)) {
+            ''
+        }
+        else {
+            [System.IO.Path]::GetFullPath($BasePath)
+        }
+        \$candidate = "if" ($baseResolved) {
+            Join-Path -Path $baseResolved -ChildPath $expanded
+        }
+        else {
+            $expanded
+        }
+        \$full = "[System.IO.Path]::GetFullPath($candidate)"
+        if ($full.Length -gt 1) {
+            \$full = $full.TrimEnd([System.IO.Path]::DirectorySeparatorChar, `
+                    [System.IO.Path]::AltDirectorySeparatorChar)
+        }
+        if (-not $AllowNonExisting -and -not (Test-Path -LiteralPath $full)) {
+            throw "Resolved path '$full' does not exist."
+        }
+        return $full
+    }
+}
+function Assert-JobSearchPath {
+    <#
+    .SYNOPSIS
+    Validates that a path exists and matches the expected kind.
+    .DESCRIPTION
+    Ensures paths exist, optionally creating directories, and verifies whether
+    the path represents a file or directory depending on the supplied intent.
+    .PARAMETER Path
+    Path to validate or create.
+    .PARAMETER PathType
+    Expected type (File, Directory, Any).
+    .PARAMETER CreateIfMissing
+    Creates the directory if it does not exist (files are never created).
+    .OUTPUTS
+    System.String representing the validated absolute path.
+    .EXAMPLE
+    Assert-JobSearchPath -Path '.\\logs' -PathType Directory -CreateIfMissing
+# >
+    [CmdletBinding(SupportsShouldProcess = $true)]
+    [OutputType([string])]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '')]
+    param([Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Path, [Parameter(Mandatory)]
+        [ValidateSet('File', 'Directory', 'Any')]
+        [string]$PathType, [switch]$CreateIfMissing)
+
+    \$resolved = "Resolve-JobSearchPath" -Path $Path -AllowNonExisting: $CreateIfMissing
+
+    if (-not (Test-Path -LiteralPath $resolved)) {
+        if ($CreateIfMissing -and $PathType -ne 'File') {
+            if ($PSCmdlet.ShouldProcess($resolved, 'Create directory')) {
+                \$null = "New-Item" -Path $resolved -ItemType Directory -Force
+            }
+        }
+        else {
+            throw "Path '$resolved' does not exist."
+        }
+    }
+    if ($PathType -ne 'Any') {
+        \$item = "Get-Item" -LiteralPath $resolved
+        \$isDirectory = $item.PSIsContainer
+        if ($PathType -eq 'File' -and $isDirectory) {
+            throw "Expected a file but '$resolved' is a directory."
+        }
+        if ($PathType -eq 'Directory' -and -not $isDirectory) {
+            throw "Expected a directory but '$resolved' is a file."
+        }
+    }
+    return $resolved
+}
+function Show-JobSearchDiagnostic {
+    <#
+    .SYNOPSIS
+    Presents a diagnostic snapshot and optionally logs the event.
+    .DESCRIPTION
+    Gathers environment metadata and prerequisite results, then renders them
+    in table, list, or JSON format. Integrates with the logging module when available.
+    .PARAMETER Format
+    Output format: Table (default), List, or Json.
+    .PARAMETER IncludeNetwork
+    Includes network prerequisite checks in the report.
+    .PARAMETER TraceId
+    Optional correlation identifier for external log consumers.
+    .EXAMPLE
+    Show-JobSearchDiagnostic
+    .EXAMPLE
+    Show-JobSearchDiagnostic -Format Json -IncludeNetwork
+# >
+    [CmdletBinding()]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '')]
+    param([ValidateSet('Table', 'List', 'Json')]
+        [string]$Format = 'Table', [switch]$IncludeNetwork
+# [string]$TraceId (optional trace id accepted externally))
+
+    \$trace = $TraceId
+    if (-not $trace) {
+        \$traceCommand = "Get-Command" -Name 'New-JobSearchTraceId' -ErrorAction  `
+            SilentlyContinue
+        if ($traceCommand) {
+            \$trace = "&" $traceCommand
+        }
+        else {
+            \$trace = "(New-Guid).Guid.Substring(0, " 8)
+        }
+    }
+    \$environment = "Get-JobSearchEnvironment"
+    \$prereq = "Test-JobSearchPrerequisite" -IncludeNetwork: $IncludeNetwork
+
+    \$payload = "[pscustomobject]@" {
+        TraceId = $trace
+        Environment = $environment
+        Prerequisites = $prereq
+        Timestamp = "Get-Date"
+    }
+    switch ($Format) {
+        'Json' {
+            $payload | ConvertTo-Json -Depth 6 | Write-Output
+        }
+        'List' {
+            $payload | Format-List
+        }
+        default {
+            Write-Information -MessageData "TraceId: $trace" -InformationAction  `
+                Continue
+            \$envTable = $environment | Format-Table -AutoSize | Out-String
+            Write-Information -MessageData 'Environment: ' -InformationAction  `
+                Continue
+            Write-Information -MessageData $envTable -InformationAction Continue
+            \$checkTable = $prereq.Checks | Format-Table -AutoSize | Out-String
+            Write-Information -MessageData 'Prerequisite Checks: ' `
+                -InformationActionContinue
+            Write-Information -MessageData $checkTable -InformationAction Continue
+        }
+    }
+    \$logger = "Get-Command" -Name 'Write-JobSearchLog' -ErrorAction SilentlyContinue
+    if ($logger) {
+        \$null = "&" $logger -Level Info -Message 'Diagnostics snapshot generated.' `
+            -TraceId$trace -Extra @ {
+            includeNetwork = $IncludeNetwork.IsPresent
+            requiredPassed = $prereq.AllRequiredPassed
+        }
+    }
+    if ($Format -ne 'Json') {
+        return $payload
+    }
+}
+# Requires -Version 5.1
+# Requires -Modules JobSearch.Logging, JobSearch.Security, JobSearch.Utils
+
+<#
+.SYNOPSIS
+Core module for the Job Search Automation project.
+.DESCRIPTION
+This module provides the core functionalities for the Job Search Automation
+project, including functions for installation, validation, and other
+essential operations. It serves as the root module that brings together
+other specialized modules.
+.NOTES
+Author: GitHub Copilot
+License: MIT
+.COMPONENT
+JobSearch.Core
+# >
+# Import nested modules to make their functions available.
+. "$PSScriptRoot\JobSearch.Security.psm1"
+. "$PSScriptRoot\JobSearch.Utils.psm1"
+# Export all functions from the nested modules.
+Export-ModuleMember -Function (Get-Command -Module JobSearch.Security).Name
+Export-ModuleMember -Function (Get-Command -Module JobSearch.Utils).Name
+

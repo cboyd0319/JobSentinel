@@ -1,37 +1,36 @@
-import os
 import argparse
-import json
 import asyncio
-from dotenv import load_dotenv
+import json
+import os
 
+from dotenv import load_dotenv
 from rich.progress import (
+    BarColumn,
     Progress,
     SpinnerColumn,
-    TextColumn,
-    BarColumn,
     TaskProgressColumn,
+    TextColumn,
     TimeRemainingColumn,
 )
 
-from utils.logging import setup_logging, get_logger, console
+from matchers.rules import score_job
+from notify import slack
+from sources.concurrent_scraper import (  # Import the async scraper
+    scrape_multiple_async_fast,
+)
+from src.database import (
+    add_job,
+    cleanup_old_jobs,
+    get_jobs_for_digest,
+    mark_jobs_alert_sent_batch,
+    mark_jobs_digest_sent,
+)
+from src.unified_database import init_unified_db
+from utils.cache import job_cache
 from utils.config import config_manager
 from utils.errors import ConfigurationException
 from utils.health import health_monitor
-from utils.cache import job_cache
-
-from src.database import (
-    add_job,
-    get_jobs_for_digest,
-    mark_jobs_digest_sent,
-    mark_jobs_alert_sent_batch,
-    cleanup_old_jobs,
-)
-from src.unified_database import init_unified_db
-from sources.concurrent_scraper import (
-    scrape_multiple_async_fast,
-)  # Import the async scraper
-from matchers.rules import score_job
-from notify import slack, emailer
+from utils.logging import console, get_logger, setup_logging
 
 # Load environment variables
 load_dotenv()
@@ -131,9 +130,7 @@ async def process_jobs(jobs, prefs):
                         "success": True,
                     }
                 else:
-                    main_logger.debug(
-                        f"Filtered out job: {job['title']} (score: {score:.2f})"
-                    )
+                    main_logger.debug(f"Filtered out job: {job['title']} (score: {score:.2f})")
                     return {
                         "job": job,
                         "score": score,
@@ -194,9 +191,7 @@ async def process_jobs(jobs, prefs):
     # Send immediate Slack alerts
     if immediate_alerts and notification_config.validate_slack():
         try:
-            main_logger.info(
-                f"Sending {len(immediate_alerts)} immediate alerts to Slack"
-            )
+            main_logger.info(f"Sending {len(immediate_alerts)} immediate alerts to Slack")
             slack.send_slack_alert(immediate_alerts)
         except Exception as e:
             main_logger.error(f"[bold red]Failed to send Slack alerts:[/bold red] {e}")
@@ -205,9 +200,7 @@ async def process_jobs(jobs, prefs):
             f"[yellow]Have {len(immediate_alerts)} high-score jobs but Slack not configured[/yellow]"
         )
 
-    main_logger.info(
-        f"Job processing completed: {processed_count} jobs added to database"
-    )
+    main_logger.info(f"Job processing completed: {processed_count} jobs added to database")
 
 
 async def send_digest():
@@ -219,9 +212,7 @@ async def send_digest():
 
         # Get jobs for digest
         filter_config = config_manager.get_filter_config()
-        min_score = getattr(
-            filter_config, "digest_min_score", 0.0
-        )  # Safely get the new attribute
+        min_score = getattr(filter_config, "digest_min_score", 0.0)  # Safely get the new attribute
         digest_jobs = await get_jobs_for_digest(min_score=min_score, hours_back=24)
 
         if not digest_jobs:
@@ -231,9 +222,7 @@ async def send_digest():
         jobs_data = []
         for job in digest_jobs:
             try:
-                score_reasons = (
-                    json.loads(job.score_reasons) if job.score_reasons else []
-                )
+                score_reasons = json.loads(job.score_reasons) if job.score_reasons else []
             except (json.JSONDecodeError, TypeError):
                 score_reasons = []
                 main_logger.warning(
@@ -256,7 +245,9 @@ async def send_digest():
         if notification_config.validate_slack():
             try:
                 main_logger.info(f"Sending digest with {len(jobs_data)} jobs to Slack")
-                slack.send_slack_alert(jobs_data, custom_message=slack.format_digest_for_slack(jobs_data))
+                slack.send_slack_alert(
+                    jobs_data, custom_message=slack.format_digest_for_slack(jobs_data)
+                )
             except Exception as e:
                 main_logger.error(f"[bold red]Failed to send Slack digest:[/bold red] {e}")
 
@@ -300,14 +291,10 @@ def test_notifications():
         except Exception as e:
             main_logger.error(f"[bold red]Slack test failed:[/bold red] {e}")
     else:
-        main_logger.warning(
-            "[yellow]Slack not configured or invalid webhook URL[/yellow]"
-        )
+        main_logger.warning("[yellow]Slack not configured or invalid webhook URL[/yellow]")
 
     # Email removed - skip email test
-    main_logger.warning(
-        "[yellow]Email functionality removed - skipping email test[/yellow]"
-    )
+    main_logger.warning("[yellow]Email functionality removed - skipping email test[/yellow]")
 
     main_logger.info("Notification testing completed")
 
@@ -322,14 +309,10 @@ async def cleanup():
         try:
             cleanup_days = int(cleanup_days_str)
             if cleanup_days < 1:
-                main_logger.warning(
-                    f"Invalid CLEANUP_DAYS value: {cleanup_days}, using default 90"
-                )
+                main_logger.warning(f"Invalid CLEANUP_DAYS value: {cleanup_days}, using default 90")
                 cleanup_days = 90
         except ValueError:
-            main_logger.warning(
-                f"Invalid CLEANUP_DAYS value: {cleanup_days_str}, using default 90"
-            )
+            main_logger.warning(f"Invalid CLEANUP_DAYS value: {cleanup_days_str}, using default 90")
             cleanup_days = 90
 
         deleted_count = await cleanup_old_jobs(cleanup_days)
@@ -353,9 +336,7 @@ async def cleanup():
         from cloud.providers.gcp.cloud_database import cleanup_old_backups
 
         backup_deleted = await cleanup_old_backups(backup_retention)
-        main_logger.info(
-            f"Backup cleanup completed: removed {backup_deleted} old backups"
-        )
+        main_logger.info(f"Backup cleanup completed: removed {backup_deleted} old backups")
 
     except Exception as e:
         main_logger.error(f"[bold red]Cleanup failed:[/bold red] {e}")
@@ -376,9 +357,7 @@ def health_check():
             "critical": "[bold red]CRITICAL[/bold red]",
         }
         status_text = status_colors.get(m["status"], m["status"].upper())
-        console.print(
-            f"  - {m['name']:<20} | Status: {status_text:<25} | {m['message']}"
-        )
+        console.print(f"  - {m['name']:<20} | Status: {status_text:<25} | {m['message']}")
 
     console.print("\n[bold blue]--- Job Scraper Health Report ---[/bold blue]")
     console.print(f"Overall Status: [bold]{report['overall_status'].upper()}[/bold]")
@@ -405,9 +384,7 @@ def health_check():
 
             latest_backup = db_resilience._get_latest_backup()
             if latest_backup:
-                console.print(
-                    "Database integrity check failed. A recent backup is available:"
-                )
+                console.print("Database integrity check failed. A recent backup is available:")
                 console.print(f"  -> [cyan]{latest_backup.name}[/cyan]")
 
                 try:
@@ -417,9 +394,7 @@ def health_check():
                     if response == "y":
                         console.print("Restoring database...")
                         if db_resilience.restore_from_backup(latest_backup):
-                            console.print(
-                                "[green]Database restored successfully.[/green]"
-                            )
+                            console.print("[green]Database restored successfully.[/green]")
                         else:
                             console.print(
                                 "[bold red]Database restore failed. Check logs for details.[/bold red]"
@@ -487,9 +462,7 @@ async def main():
             console=console,
             transient=True,
         ) as progress:
-            scraping_task = progress.add_task(
-                "[cyan]Scraping job boards...", total=len(urls)
-            )
+            scraping_task = progress.add_task("[cyan]Scraping job boards...", total=len(urls))
 
             # Add timeout to scraping operations (5 minutes per company)
             timeout_seconds = int(os.getenv("SCRAPER_TIMEOUT", "300"))
@@ -511,7 +484,7 @@ async def main():
             for result in results:
                 if result.success:
                     all_jobs.extend(result.jobs)
-                    scraper_failures[result.url] = 0 # Reset failure count on success
+                    scraper_failures[result.url] = 0  # Reset failure count on success
                     progress.update(
                         scraping_task,
                         advance=1,
@@ -529,18 +502,22 @@ async def main():
                     )
                     # Self-healing: if a scraper fails too many times, try the PlaywrightScraper
                     if scraper_failures.get(result.url, 0) >= FAILURE_THRESHOLD:
-                        main_logger.warning(f"Scraper for {result.url} has failed {scraper_failures[result.url]} times. Attempting fallback...")
+                        main_logger.warning(
+                            f"Scraper for {result.url} has failed {scraper_failures[result.url]} times. Attempting fallback..."
+                        )
                         try:
                             from sources.playwright_scraper import PlaywrightScraper
+
                             fallback_scraper = PlaywrightScraper()
                             fallback_jobs = await fallback_scraper.scrape(result.url)
                             if fallback_jobs:
                                 all_jobs.extend(fallback_jobs)
                                 main_logger.info(f"Fallback scraper succeeded for {result.url}")
-                                scraper_failures[result.url] = 0 # Reset failure count on fallback success
+                                scraper_failures[result.url] = (
+                                    0  # Reset failure count on fallback success
+                                )
                         except Exception as e:
                             main_logger.error(f"Fallback scraper failed for {result.url}: {e}")
-
 
             console.print(f"[bold green]Found {len(all_jobs)} total jobs.[/bold green]")
             prefs = load_user_prefs()

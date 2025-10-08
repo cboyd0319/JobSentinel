@@ -1,0 +1,145 @@
+# Quality Pipeline for Job Search Automation Windows Installer
+
+name: PowerShell Quality Pipeline
+on: [push, pull_request]
+
+jobs:
+  quality-gates:
+    runs-on: windows-latest 
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        
+      - name: Install PowerShell Modules
+        shell: pwsh
+        run: |
+          Install-Module Pester -Scope CurrentUser -Force -MinimumVersion 5.5.0
+          Install-Module PSScriptAnalyzer -Scope CurrentUser -Force
+          
+      - name: Lint Analysis (Zero Tolerance)
+        shell: pwsh
+        run: |
+          $results = Invoke-ScriptAnalyzer -Path deploy/windows/*.ps1 -Settings deploy/windows/PSScriptAnalyzerSettings.psd1 -Recurse -Severity Error,Warning
+          if ($results) {
+            $results | Format-Table -AutoSize
+            throw "PSScriptAnalyzer found $($results.Count) issues. Zero tolerance policy violated."
+          }
+          Write-Host "✅ Lint Analysis: PASSED (Zero issues)" -ForegroundColor Green
+          
+      - name: Unit Tests with Coverage
+        shell: pwsh
+        run: |
+          $config = New-PesterConfiguration
+          $config.Run.Path = 'tests'
+          $config.CodeCoverage.Enabled = $true
+          $config.CodeCoverage.Path = 'deploy/windows/*.ps1'
+          $config.CodeCoverage.Threshold = 85
+          $config.TestResult.Enabled = $true
+          $config.TestResult.OutputFormat = 'JUnitXml'
+          $config.TestResult.OutputPath = 'test-results.xml'
+          
+          $result = Invoke-Pester -Configuration $config
+          
+          if ($result.FailedCount -gt 0) {
+            throw "Tests failed: $($result.FailedCount) failures"
+          }
+          
+          if ($result.CodeCoverage.CommandsAnalyzedCount -gt 0) {
+            $coverage = ($result.CodeCoverage.CommandsExecutedCount / $result.CodeCoverage.CommandsAnalyzedCount) * 100
+            Write-Host "📊 Code Coverage: $([math]::Round($coverage, 1))%" -ForegroundColor Cyan
+            
+            if ($coverage -lt 85) {
+              throw "Code coverage $([math]::Round($coverage, 1))% below threshold (85%)"
+            }
+          }
+          
+      - name: Security Scan
+        shell: pwsh
+        run: |
+          # Check for hardcoded secrets
+          $secretPatterns = @(
+            'password\s*=\s*["\'][^"\']*["\']'
+            'token\s*=\s*["\'][^"\']*["\']'
+            'key\s*=\s*["\'][^"\']*["\']'
+            'secret\s*=\s*["\'][^"\']*["\']'
+          )
+          
+          $violations = @()
+          Get-ChildItem deploy/windows/*.ps1 | ForEach-Object {
+            $content = Get-Content $_.FullName -Raw
+            foreach ($pattern in $secretPatterns) {
+              if ($content -match $pattern) {
+                $violations += "Potential secret in $($_.Name): $($matches[0])"
+              }
+            }
+          }
+          
+          if ($violations) {
+            $violations | ForEach-Object { Write-Host $_ -ForegroundColor Red }
+            throw "Security violations found"
+          }
+          
+          Write-Host "🔒 Security Scan: PASSED" -ForegroundColor Green
+          
+      - name: Performance Validation
+        shell: pwsh
+        run: |
+          # Test installer performance in WhatIf mode
+          $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+          
+          try {
+            ./deploy/windows/Install-JobSearchAutomation.ps1 -WhatIf -InstallPath "$env:TEMP\PerfTest" -InformationAction SilentlyContinue
+          }
+          catch {
+            # Expected for WhatIf mode
+          }
+          
+          $stopwatch.Stop()
+          $elapsed = $stopwatch.ElapsedMilliseconds
+          
+          Write-Host "⚡ Performance: ${elapsed}ms" -ForegroundColor Cyan
+          
+          if ($elapsed -gt 10000) {  # 10 second threshold
+            throw "Performance test failed: ${elapsed}ms (max 10000ms)"
+          }
+          
+      - name: Package Validation
+        shell: pwsh
+        run: |
+          # Verify all required files exist
+          $requiredFiles = @(
+            'deploy/windows/Install-JobSearchAutomation.ps1'
+            'deploy/windows/Bootstrap-Install.ps1'
+            'tests/Install-JobSearchAutomation-New.Tests.ps1'
+          )
+          
+          foreach ($file in $requiredFiles) {
+            if (-not (Test-Path $file)) {
+              throw "Required file missing: $file"
+            }
+          }
+          
+          Write-Host "📦 Package Validation: PASSED" -ForegroundColor Green
+          
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: test-results.xml
+          
+      - name: Quality Report
+        if: success()
+        shell: pwsh
+        run: |
+          Write-Host ""
+          Write-Host "🎉 ALL QUALITY GATES PASSED" -ForegroundColor Green
+          Write-Host "✅ Lint Analysis: Zero violations" -ForegroundColor Green  
+          Write-Host "✅ Unit Tests: All passing" -ForegroundColor Green
+          Write-Host "✅ Code Coverage: 85%+ threshold met" -ForegroundColor Green
+          Write-Host "✅ Security Scan: No secrets detected" -ForegroundColor Green
+          Write-Host "✅ Performance: Under 10s threshold" -ForegroundColor Green
+          Write-Host "✅ Package: All files present" -ForegroundColor Green
+          Write-Host ""
+          Write-Host "Production deployment approved! 🚀" -ForegroundColor Cyan

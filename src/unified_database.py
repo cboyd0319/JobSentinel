@@ -6,169 +6,170 @@ import json
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
-from cloud.providers.gcp.cloud_database import init_cloud_db
 from sqlmodel import Field, Session, SQLModel, create_engine, select
+
+from cloud.providers.gcp.cloud_database import init_cloud_db
+from src.database import Job, get_sync_session, init_db
 from utils.logging import get_logger
-from src.database import init_db, Job, get_sync_session
 
 logger = get_logger("unified_database")
 
 
 class UnifiedJob(SQLModel, table=True):
-	"""Unified job model supporting all job board types (backward compatible)."""
+    """Unified job model supporting all job board types (backward compatible)."""
 
-	# Core identification fields
-	id: Optional[int] = Field(default=None, primary_key=True)
-	hash: str = Field(index=True, unique=True)
-	title: str
-	url: str
-	company: str
-	location: str
-	description: Optional[str] = None
+    # Core identification fields
+    id: Optional[int] = Field(default=None, primary_key=True)
+    hash: str = Field(index=True, unique=True)
+    title: str
+    url: str
+    company: str
+    location: str
+    description: Optional[str] = None
 
-	# Scoring and analysis (existing fields)
-	score: float = Field(default=0.0)
-	score_reasons: Optional[str] = None  # JSON string of reasons
+    # Scoring and analysis (existing fields)
+    score: float = Field(default=0.0)
+    score_reasons: Optional[str] = None  # JSON string of reasons
 
-	# Timestamp tracking (existing fields)
-	created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-	updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-	last_seen: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-	times_seen: int = Field(default=1)
+    # Timestamp tracking (existing fields)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    last_seen: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    times_seen: int = Field(default=1)
 
-	# Notification tracking (existing fields)
-	included_in_digest: bool = Field(default=False)
-	digest_sent_at: Optional[datetime] = None
-	immediate_alert_sent: bool = Field(default=False)
-	alert_sent_at: Optional[datetime] = None
+    # Notification tracking (existing fields)
+    included_in_digest: bool = Field(default=False)
+    digest_sent_at: Optional[datetime] = None
+    immediate_alert_sent: bool = Field(default=False)
+    alert_sent_at: Optional[datetime] = None
 
-	# NEW UNIFIED FIELDS (all optional for maximum compatibility)
+    # NEW UNIFIED FIELDS (all optional for maximum compatibility)
 
-	# Job board identification and metadata
-	# "greenhouse", "microsoft_api", "spacex_api", etc.
-	job_board: Optional[str] = None
-	external_job_id: Optional[str] = None  # Job ID from source system
-	requisition_id: Optional[str] = None  # Requisition/posting ID
+    # Job board identification and metadata
+    # "greenhouse", "microsoft_api", "spacex_api", etc.
+    job_board: Optional[str] = None
+    external_job_id: Optional[str] = None  # Job ID from source system
+    requisition_id: Optional[str] = None  # Requisition/posting ID
 
-	# Job categorization and hierarchy
-	# "Engineering", "Sales", "Marketing"
-	department: Optional[str] = None
-	# More specific team within department
-	team: Optional[str] = None
-	# "Junior", "Mid-level", "Senior", "Staff", "Principal"
-	seniority_level: Optional[str] = None
+    # Job categorization and hierarchy
+    # "Engineering", "Sales", "Marketing"
+    department: Optional[str] = None
+    # More specific team within department
+    team: Optional[str] = None
+    # "Junior", "Mid-level", "Senior", "Staff", "Principal"
+    seniority_level: Optional[str] = None
 
-	# Employment details
-	# "Full-time", "Part-time", "Contract", "Intern"
-	employment_type: Optional[str] = None
-	# "Remote", "Hybrid", "On-site"
-	work_arrangement: Optional[str] = None
-	# "2-5 years", "5+ years", etc.
-	experience_required: Optional[str] = None
+    # Employment details
+    # "Full-time", "Part-time", "Contract", "Intern"
+    employment_type: Optional[str] = None
+    # "Remote", "Hybrid", "On-site"
+    work_arrangement: Optional[str] = None
+    # "2-5 years", "5+ years", etc.
+    experience_required: Optional[str] = None
 
-	# Compensation information
-	# Minimum salary in base currency
-	salary_min: Optional[int] = None
-	# Maximum salary in base currency
-	salary_max: Optional[int] = None
-	salary_currency: Optional[str] = None  # "USD", "EUR", "GBP", etc.
-	# "yearly", "monthly", "hourly"
-	salary_frequency: Optional[str] = None
-	# Whether equity/stock options offered
-	equity_offered: Optional[bool] = None
-	benefits_summary: Optional[str] = None  # JSON string of benefits
+    # Compensation information
+    # Minimum salary in base currency
+    salary_min: Optional[int] = None
+    # Maximum salary in base currency
+    salary_max: Optional[int] = None
+    salary_currency: Optional[str] = None  # "USD", "EUR", "GBP", etc.
+    # "yearly", "monthly", "hourly"
+    salary_frequency: Optional[str] = None
+    # Whether equity/stock options offered
+    equity_offered: Optional[bool] = None
+    benefits_summary: Optional[str] = None  # JSON string of benefits
 
-	# Technical requirements and skills
-	# JSON array of required skills
-	required_skills: Optional[str] = None
-	# JSON array of preferred skills
-	preferred_skills: Optional[str] = None
-	# JSON array of technologies mentioned
-	technologies: Optional[str] = None
-	education_required: Optional[str] = None  # Education requirements
-	certifications: Optional[str] = None  # Required certifications
+    # Technical requirements and skills
+    # JSON array of required skills
+    required_skills: Optional[str] = None
+    # JSON array of preferred skills
+    preferred_skills: Optional[str] = None
+    # JSON array of technologies mentioned
+    technologies: Optional[str] = None
+    education_required: Optional[str] = None  # Education requirements
+    certifications: Optional[str] = None  # Required certifications
 
-	# Source metadata and tracking
-	# When job was originally posted
-	posting_date: Optional[datetime] = None
-	last_updated_source: Optional[datetime] = None  # Last updated at source
-	application_deadline: Optional[datetime] = None
-	# Whether it's a featured/sponsored listing
-	is_featured: Optional[bool] = None
+    # Source metadata and tracking
+    # When job was originally posted
+    posting_date: Optional[datetime] = None
+    last_updated_source: Optional[datetime] = None  # Last updated at source
+    application_deadline: Optional[datetime] = None
+    # Whether it's a featured/sponsored listing
+    is_featured: Optional[bool] = None
 
-	# Application process
-	application_url: Optional[str] = None  # Direct application link
-	requires_cover_letter: Optional[bool] = None
-	requires_portfolio: Optional[bool] = None
-	# Description of application process
-	application_process: Optional[str] = None
-	# Hiring manager/recruiter contact
-	contact_email: Optional[str] = None
+    # Application process
+    application_url: Optional[str] = None  # Direct application link
+    requires_cover_letter: Optional[bool] = None
+    requires_portfolio: Optional[bool] = None
+    # Description of application process
+    application_process: Optional[str] = None
+    # Hiring manager/recruiter contact
+    contact_email: Optional[str] = None
 
-	def to_legacy_job(self):
-		"""Convert to legacy Job format for backward compatibility."""
-		return {
-			"id": self.id,
-			"hash": self.hash,
-			"title": self.title,
-			"url": self.url,
-			"company": self.company,
-			"location": self.location,
-			"description": self.description,
-			"score": self.score,
-			"score_reasons": self.score_reasons,
-			"created_at": self.created_at,
-			"updated_at": self.updated_at,
-			"last_seen": self.last_seen,
-			"times_seen": self.times_seen,
-			"included_in_digest": self.included_in_digest,
-			"digest_sent_at": self.digest_sent_at,
-			"immediate_alert_sent": self.immediate_alert_sent,
-			"alert_sent_at": self.alert_sent_at,
-		}
+    def to_legacy_job(self):
+        """Convert to legacy Job format for backward compatibility."""
+        return {
+            "id": self.id,
+            "hash": self.hash,
+            "title": self.title,
+            "url": self.url,
+            "company": self.company,
+            "location": self.location,
+            "description": self.description,
+            "score": self.score,
+            "score_reasons": self.score_reasons,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at,
+            "last_seen": self.last_seen,
+            "times_seen": self.times_seen,
+            "included_in_digest": self.included_in_digest,
+            "digest_sent_at": self.digest_sent_at,
+            "immediate_alert_sent": self.immediate_alert_sent,
+            "alert_sent_at": self.alert_sent_at,
+        }
 
-	@classmethod
-	def from_scraped_data(cls, job_data: dict, score: float = 0.0):
-		"""Create UnifiedJob from scraped job data."""
-		return cls(
-			hash=job_data.get("hash", ""),
-			title=job_data.get("title", ""),
-			url=job_data.get("url", ""),
-			company=job_data.get("company", ""),
-			location=job_data.get("location", ""),
-			description=job_data.get("description", ""),
-			score=score,
-			# Enhanced fields
-			job_board=job_data.get("job_board"),
-			external_job_id=job_data.get("external_job_id"),
-			requisition_id=job_data.get("requisition_id"),
-			department=job_data.get("department"),
-			team=job_data.get("team"),
-			seniority_level=job_data.get("seniority_level"),
-			employment_type=job_data.get("employment_type"),
-			work_arrangement=job_data.get("work_arrangement"),
-			experience_required=job_data.get("experience_required"),
-			salary_min=job_data.get("salary_min"),
-			salary_max=job_data.get("salary_max"),
-			salary_currency=job_data.get("salary_currency"),
-			salary_frequency=job_data.get("salary_frequency"),
-			equity_offered=job_data.get("equity_offered"),
-			benefits_summary=job_data.get("benefits_summary"),
-			required_skills=job_data.get("required_skills"),
-			preferred_skills=job_data.get("preferred_skills"),
-			technologies=job_data.get("technologies"),
-			education_required=job_data.get("education_required"),
-			certifications=job_data.get("certifications"),
-			posting_date=job_data.get("posting_date"),
-			last_updated_source=job_data.get("last_updated_source"),
-			application_deadline=job_data.get("application_deadline"),
-			is_featured=job_data.get("is_featured"),
-			application_url=job_data.get("application_url"),
-			requires_cover_letter=job_data.get("requires_cover_letter"),
-			requires_portfolio=job_data.get("requires_portfolio"),
-			application_process=job_data.get("application_process"),
-			contact_email=job_data.get("contact_email"),
-		)
+    @classmethod
+    def from_scraped_data(cls, job_data: dict, score: float = 0.0):
+        """Create UnifiedJob from scraped job data."""
+        return cls(
+            hash=job_data.get("hash", ""),
+            title=job_data.get("title", ""),
+            url=job_data.get("url", ""),
+            company=job_data.get("company", ""),
+            location=job_data.get("location", ""),
+            description=job_data.get("description", ""),
+            score=score,
+            # Enhanced fields
+            job_board=job_data.get("job_board"),
+            external_job_id=job_data.get("external_job_id"),
+            requisition_id=job_data.get("requisition_id"),
+            department=job_data.get("department"),
+            team=job_data.get("team"),
+            seniority_level=job_data.get("seniority_level"),
+            employment_type=job_data.get("employment_type"),
+            work_arrangement=job_data.get("work_arrangement"),
+            experience_required=job_data.get("experience_required"),
+            salary_min=job_data.get("salary_min"),
+            salary_max=job_data.get("salary_max"),
+            salary_currency=job_data.get("salary_currency"),
+            salary_frequency=job_data.get("salary_frequency"),
+            equity_offered=job_data.get("equity_offered"),
+            benefits_summary=job_data.get("benefits_summary"),
+            required_skills=job_data.get("required_skills"),
+            preferred_skills=job_data.get("preferred_skills"),
+            technologies=job_data.get("technologies"),
+            education_required=job_data.get("education_required"),
+            certifications=job_data.get("certifications"),
+            posting_date=job_data.get("posting_date"),
+            last_updated_source=job_data.get("last_updated_source"),
+            application_deadline=job_data.get("application_deadline"),
+            is_featured=job_data.get("is_featured"),
+            application_url=job_data.get("application_url"),
+            requires_cover_letter=job_data.get("requires_cover_letter"),
+            requires_portfolio=job_data.get("requires_portfolio"),
+            application_process=job_data.get("application_process"),
+            contact_email=job_data.get("contact_email"),
+        )
 
 
 # Database configuration
@@ -177,11 +178,11 @@ unified_engine = create_engine(f"sqlite:///{UNIFIED_DB_FILE}", echo=False)
 
 
 async def init_unified_db():
-	"""Initializes both local and cloud databases."""
-	logger.info("Initializing unified database...")
-	await init_db()
-	await init_cloud_db()  # This is now async
-	logger.info("Unified database initialization complete.")
+    """Initializes both local and cloud databases."""
+    logger.info("Initializing unified database...")
+    await init_db()
+    await init_cloud_db()  # This is now async
+    logger.info("Unified database initialization complete.")
 
 
 def save_unified_job(job_data: dict, score: float = 0.0) -> Optional[UnifiedJob]:
@@ -284,106 +285,106 @@ def migrate_legacy_jobs() -> int:
 
 
 class UserProfile(SQLModel, table=True):
-	"""User profile for personalized job matching."""
+    """User profile for personalized job matching."""
 
-	# Core identification
-	id: Optional[int] = Field(default=None, primary_key=True)
-	name: Optional[str] = None
-	email: Optional[str] = None
+    # Core identification
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: Optional[str] = None
+    email: Optional[str] = None
 
-	# Current position and experience
-	current_title: Optional[str] = None
-	experience_years: Optional[int] = None
-	# Junior, Mid-level, Senior, Staff, Principal
-	seniority_level: Optional[str] = None
+    # Current position and experience
+    current_title: Optional[str] = None
+    experience_years: Optional[int] = None
+    # Junior, Mid-level, Senior, Staff, Principal
+    seniority_level: Optional[str] = None
 
-	# Location and work preferences
-	location: Optional[str] = None
-	# Remote, On-site, Hybrid, Any
-	work_arrangement_preference: Optional[str] = None
-	willing_to_relocate: bool = Field(default=False)
+    # Location and work preferences
+    location: Optional[str] = None
+    # Remote, On-site, Hybrid, Any
+    work_arrangement_preference: Optional[str] = None
+    willing_to_relocate: bool = Field(default=False)
 
-	# Skills and expertise (JSON arrays)
-	skills: Optional[str] = None  # JSON array of all skills
-	# JSON array of technical skills
-	technical_skills: Optional[str] = None
-	# JSON array of marketing skills
-	marketing_skills: Optional[str] = None
-	# JSON array of skills they want to use more
-	preferred_skills: Optional[str] = None
+    # Skills and expertise (JSON arrays)
+    skills: Optional[str] = None  # JSON array of all skills
+    # JSON array of technical skills
+    technical_skills: Optional[str] = None
+    # JSON array of marketing skills
+    marketing_skills: Optional[str] = None
+    # JSON array of skills they want to use more
+    preferred_skills: Optional[str] = None
 
-	# Career goals and compensation
-	# lateral, promotion, leadership, open
-	career_goal: Optional[str] = None
-	target_seniority: Optional[str] = None  # Desired seniority level
-	salary_min: Optional[int] = None  # Minimum desired salary
-	salary_max: Optional[int] = None  # Maximum desired salary
-	salary_currency: str = Field(default="USD")  # Currency preference
+    # Career goals and compensation
+    # lateral, promotion, leadership, open
+    career_goal: Optional[str] = None
+    target_seniority: Optional[str] = None  # Desired seniority level
+    salary_min: Optional[int] = None  # Minimum desired salary
+    salary_max: Optional[int] = None  # Maximum desired salary
+    salary_currency: str = Field(default="USD")  # Currency preference
 
-	# Job preferences
-	preferred_departments: Optional[str] = None  # JSON array of departments
-	# JSON array of company names
-	preferred_companies: Optional[str] = None
-	# JSON array of companies to avoid
-	excluded_companies: Optional[str] = None
-	custom_job_boards: Optional[str] = None  # JSON array of custom URLs
+    # Job preferences
+    preferred_departments: Optional[str] = None  # JSON array of departments
+    # JSON array of company names
+    preferred_companies: Optional[str] = None
+    # JSON array of companies to avoid
+    excluded_companies: Optional[str] = None
+    custom_job_boards: Optional[str] = None  # JSON array of custom URLs
 
-	# Notification preferences
-	# Minimum match % for notifications
-	notification_threshold: int = Field(default=75)
-	notification_frequency: str = Field(default="daily")  # realtime, daily, weekly
-	email_notifications: bool = Field(default=True)
-	slack_notifications: bool = Field(default=False)
+    # Notification preferences
+    # Minimum match % for notifications
+    notification_threshold: int = Field(default=75)
+    notification_frequency: str = Field(default="daily")  # realtime, daily, weekly
+    email_notifications: bool = Field(default=True)
+    slack_notifications: bool = Field(default=False)
 
-	# Timestamps
-	created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-	updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-	last_active: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    # Timestamps
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    last_active: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
-	def set_skills(self, skills_list: List[str]):
-		"""Set skills from a list."""
-		self.skills = json.dumps(skills_list) if skills_list else None
+    def set_skills(self, skills_list: List[str]):
+        """Set skills from a list."""
+        self.skills = json.dumps(skills_list) if skills_list else None
 
-	def get_skills(self) -> List[str]:
-		"""Get skills as a list."""
-		return json.loads(self.skills) if self.skills else []
+    def get_skills(self) -> List[str]:
+        """Get skills as a list."""
+        return json.loads(self.skills) if self.skills else []
 
-	def set_technical_skills(self, skills_list: List[str]):
-		"""Set technical skills from a list."""
-		self.technical_skills = json.dumps(skills_list) if skills_list else None
+    def set_technical_skills(self, skills_list: List[str]):
+        """Set technical skills from a list."""
+        self.technical_skills = json.dumps(skills_list) if skills_list else None
 
-	def get_technical_skills(self) -> List[str]:
-		"""Get technical skills as a list."""
-		return json.loads(self.technical_skills) if self.technical_skills else []
+    def get_technical_skills(self) -> List[str]:
+        """Get technical skills as a list."""
+        return json.loads(self.technical_skills) if self.technical_skills else []
 
-	def set_marketing_skills(self, skills_list: List[str]):
-		"""Set marketing skills from a list."""
-		self.marketing_skills = json.dumps(skills_list) if skills_list else None
+    def set_marketing_skills(self, skills_list: List[str]):
+        """Set marketing skills from a list."""
+        self.marketing_skills = json.dumps(skills_list) if skills_list else None
 
-	def get_marketing_skills(self) -> List[str]:
-		"""Get marketing skills as a list."""
-		return json.loads(self.marketing_skills) if self.marketing_skills else []
+    def get_marketing_skills(self) -> List[str]:
+        """Get marketing skills as a list."""
+        return json.loads(self.marketing_skills) if self.marketing_skills else []
 
-	def set_preferred_departments(self, departments: List[str]):
-		"""Set preferred departments from a list."""
-		self.preferred_departments = json.dumps(departments) if departments else None
+    def set_preferred_departments(self, departments: List[str]):
+        """Set preferred departments from a list."""
+        self.preferred_departments = json.dumps(departments) if departments else None
 
-	def get_preferred_departments(self) -> List[str]:
-		"""Get preferred departments as a list."""
-		return json.loads(self.preferred_departments) if self.preferred_departments else []
+    def get_preferred_departments(self) -> List[str]:
+        """Get preferred departments as a list."""
+        return json.loads(self.preferred_departments) if self.preferred_departments else []
 
-	def set_custom_job_boards(self, urls: List[str]):
-		"""Set custom job board URLs from a list."""
-		self.custom_job_boards = json.dumps(urls) if urls else None
+    def set_custom_job_boards(self, urls: List[str]):
+        """Set custom job board URLs from a list."""
+        self.custom_job_boards = json.dumps(urls) if urls else None
 
-	def get_custom_job_boards(self) -> List[str]:
-		"""Get custom job board URLs as a list."""
-		return json.loads(self.custom_job_boards) if self.custom_job_boards else []
+    def get_custom_job_boards(self) -> List[str]:
+        """Get custom job board URLs as a list."""
+        return json.loads(self.custom_job_boards) if self.custom_job_boards else []
 
-	def update_activity(self):
-		"""Update last activity timestamp."""
-		self.last_active = datetime.now(timezone.utc)
-		self.updated_at = datetime.now(timezone.utc)
+    def update_activity(self):
+        """Update last activity timestamp."""
+        self.last_active = datetime.now(timezone.utc)
+        self.updated_at = datetime.now(timezone.utc)
 
 
 def save_user_profile(profile_data: Dict[str, Any]) -> Optional[UserProfile]:
@@ -463,15 +464,16 @@ def calculate_job_match_score(job: UnifiedJob, user_profile: UserProfile) -> flo
         location_match = False
         if user_profile.work_arrangement_preference == "Any":
             location_match = True
-        elif (
-            user_profile.work_arrangement_preference == "Remote"
-            and job.work_arrangement in ["Remote", "Hybrid"]
-        ):
+        elif user_profile.work_arrangement_preference == "Remote" and job.work_arrangement in [
+            "Remote",
+            "Hybrid",
+        ]:
             location_match = True
-        elif (
-            user_profile.work_arrangement_preference == "Hybrid"
-            and job.work_arrangement in ["Remote", "Hybrid", "On-site"]
-        ):
+        elif user_profile.work_arrangement_preference == "Hybrid" and job.work_arrangement in [
+            "Remote",
+            "Hybrid",
+            "On-site",
+        ]:
             location_match = True
         elif (
             user_profile.location
@@ -498,9 +500,7 @@ def calculate_job_match_score(job: UnifiedJob, user_profile: UserProfile) -> flo
         return 0.0
 
 
-def get_personalized_job_matches(
-    limit: int = 50, min_score: float = 60.0
-) -> List[Dict[str, Any]]:
+def get_personalized_job_matches(limit: int = 50, min_score: float = 60.0) -> List[Dict[str, Any]]:
     """Return jobs matching profile with score >= min_score (sorted)."""
     try:
         user_profile = get_user_profile()
@@ -546,16 +546,12 @@ def _get_match_reasons(job: UnifiedJob, user_profile: UserProfile, score: float)
             reasons.append(f"Skills match: {', '.join(matching_skills[:3])}")
     if user_profile.seniority_level == job.seniority_level:
         reasons.append(f"Perfect seniority match: {job.seniority_level}")
-    if (
-        job.work_arrangement == "Remote"
-        and user_profile.work_arrangement_preference in ["Remote", "Any"]
-    ):
+    if job.work_arrangement == "Remote" and user_profile.work_arrangement_preference in [
+        "Remote",
+        "Any",
+    ]:
         reasons.append("Remote work available")
-    if (
-        user_profile.salary_min
-        and job.salary_min
-        and job.salary_min >= user_profile.salary_min
-    ):
+    if user_profile.salary_min and job.salary_min and job.salary_min >= user_profile.salary_min:
         reasons.append(f"Salary meets expectations (${job.salary_min:,}+)")
     if score >= 90:
         reasons.insert(0, "Excellent match!")

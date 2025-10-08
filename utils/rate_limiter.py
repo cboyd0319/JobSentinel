@@ -7,9 +7,10 @@ Impact: HIGH (prevents service disruption)
 """
 
 import time
-from typing import Dict, Optional
 from collections import deque
 from threading import Lock
+from typing import Dict, Optional
+
 from utils.logging import get_logger
 
 logger = get_logger("rate_limiter")
@@ -19,10 +20,7 @@ class RateLimiter:
     """Token bucket rate limiter for API requests."""
 
     def __init__(
-        self,
-        max_requests: int,
-        time_window_seconds: int,
-        burst_size: Optional[int] = None
+        self, max_requests: int, time_window_seconds: int, burst_size: Optional[int] = None
     ):
         """
         Initialize rate limiter.
@@ -138,11 +136,11 @@ class MCPRateLimitRegistry:
         # Default limits per server (conservative)
         self.default_limits = {
             "jobswithgpt": {"max_requests": 100, "time_window": 3600},  # 100/hour
-            "reed": {"max_requests": 300, "time_window": 3600},         # 300/hour (official API)
-            "jobspy": {"max_requests": 50, "time_window": 3600},        # 50/hour (aggressive scraper)
-            "greenhouse": {"max_requests": 200, "time_window": 3600},   # 200/hour
-            "lever": {"max_requests": 200, "time_window": 3600},        # 200/hour
-            "linkedin": {"max_requests": 20, "time_window": 3600},      # 20/hour (high risk)
+            "reed": {"max_requests": 300, "time_window": 3600},  # 300/hour (official API)
+            "jobspy": {"max_requests": 50, "time_window": 3600},  # 50/hour (aggressive scraper)
+            "greenhouse": {"max_requests": 200, "time_window": 3600},  # 200/hour
+            "lever": {"max_requests": 200, "time_window": 3600},  # 200/hour
+            "linkedin": {"max_requests": 20, "time_window": 3600},  # 20/hour (high risk)
         }
 
         logger.info("Initialized MCPRateLimitRegistry")
@@ -153,13 +151,11 @@ class MCPRateLimitRegistry:
             if server_name not in self.limiters:
                 # Get limits from config or use defaults
                 limits = self.default_limits.get(
-                    server_name.lower(),
-                    {"max_requests": 100, "time_window": 3600}  # Fallback
+                    server_name.lower(), {"max_requests": 100, "time_window": 3600}  # Fallback
                 )
 
                 self.limiters[server_name] = RateLimiter(
-                    max_requests=limits["max_requests"],
-                    time_window_seconds=limits["time_window"]
+                    max_requests=limits["max_requests"], time_window_seconds=limits["time_window"]
                 )
 
                 logger.info(
@@ -182,32 +178,20 @@ class MCPRateLimitRegistry:
 
         return allowed
 
-    def wait_if_needed(
-        self,
-        server_name: str,
-        tokens: int = 1,
-        timeout: Optional[float] = None
-    ):
+    def wait_if_needed(self, server_name: str, tokens: int = 1, timeout: Optional[float] = None):
         """Block until request allowed for server."""
         limiter = self.get_limiter(server_name)
         limiter.wait_if_needed(tokens, timeout)
 
-    def set_limits(
-        self,
-        server_name: str,
-        max_requests: int,
-        time_window_seconds: int
-    ):
+    def set_limits(self, server_name: str, max_requests: int, time_window_seconds: int):
         """Set custom rate limits for server."""
         with self.lock:
             self.limiters[server_name] = RateLimiter(
-                max_requests=max_requests,
-                time_window_seconds=time_window_seconds
+                max_requests=max_requests, time_window_seconds=time_window_seconds
             )
 
             logger.info(
-                f"Set custom limits for '{server_name}': "
-                f"{max_requests}/{time_window_seconds}s"
+                f"Set custom limits for '{server_name}': " f"{max_requests}/{time_window_seconds}s"
             )
 
     def reset(self, server_name: Optional[str] = None):
@@ -225,10 +209,7 @@ class MCPRateLimitRegistry:
     def get_all_stats(self) -> Dict[str, dict]:
         """Get statistics for all rate limiters."""
         with self.lock:
-            return {
-                name: limiter.get_stats()
-                for name, limiter in self.limiters.items()
-            }
+            return {name: limiter.get_stats() for name, limiter in self.limiters.items()}
 
 
 # Global registry instance
@@ -251,6 +232,7 @@ def rate_limited(server_name: str, tokens: int = 1, timeout: Optional[float] = 3
             # This function is rate limited
             pass
     """
+
     def decorator(func):
         async def async_wrapper(*args, **kwargs):
             # Wait for rate limit
@@ -264,6 +246,7 @@ def rate_limited(server_name: str, tokens: int = 1, timeout: Optional[float] = 3
 
         # Return appropriate wrapper
         import inspect
+
         if inspect.iscoroutinefunction(func):
             return async_wrapper
         else:

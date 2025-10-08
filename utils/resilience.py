@@ -5,12 +5,12 @@ Handles various failure scenarios and automatic recovery.
 
 import os
 import shutil
-import time
 import sqlite3
+import time
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Optional, Dict, Any
-from dataclasses import dataclass
+from typing import Any, Dict, Optional
 
 from utils.logging import get_logger
 
@@ -105,9 +105,7 @@ class DatabaseResilience:
                 # Check integrity
                 integrity_check = conn.execute("PRAGMA integrity_check").fetchone()
                 if integrity_check[0] != "ok":
-                    result["errors"].append(
-                        f"Integrity check failed: {integrity_check[0]}"
-                    )
+                    result["errors"].append(f"Integrity check failed: {integrity_check[0]}")
 
                 # Count tables
                 tables = conn.execute(
@@ -141,9 +139,7 @@ class DatabaseResilience:
             return True
 
         # Check if backup is needed based on interval
-        backup_age = datetime.now() - datetime.fromtimestamp(
-            latest_backup.stat().st_mtime
-        )
+        backup_age = datetime.now() - datetime.fromtimestamp(latest_backup.stat().st_mtime)
         if backup_age > timedelta(hours=self.config.backup_interval_hours):
             self.create_backup("scheduled")
             return True
@@ -195,9 +191,7 @@ class NetworkResilience:
         delay = min(300, 30 * (2 ** min(failures - 1, 4)))  # Max 5 minutes
         self.backoff_delays[domain] = time.time() + delay
 
-        logger.warning(
-            f"Network failure #{failures} for {domain}, backing off {delay}s"
-        )
+        logger.warning(f"Network failure #{failures} for {domain}, backing off {delay}s")
 
     def record_success(self, domain: str):
         """Record a successful connection for a domain."""

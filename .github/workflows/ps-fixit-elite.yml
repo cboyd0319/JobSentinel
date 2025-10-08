@@ -1,0 +1,390 @@
+name: PS-Fixit Elite Quality Assurance
+
+on:
+  push:
+    branches: [ main, develop, feature/*, release/* ]
+    paths:
+      - '**/*.ps1'
+      - '**/*.psm1' 
+      - '**/*.psd1'
+      - 'tools/powershell-qa/**'
+      - '.github/workflows/ps-fixit-elite.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - '**/*.ps1'
+      - '**/*.psm1'
+      - '**/*.psd1'
+      - 'tools/powershell-qa/**'
+  workflow_dispatch:
+    inputs:
+      security_mode:
+        description: 'Enable enhanced security analysis'
+        required: false
+        default: 'true'
+        type: boolean
+      failure_threshold:
+        description: 'Quality threshold (0-100)'
+        required: false
+        default: '80'
+        type: number
+
+env:
+  POWERSHELL_TELEMETRY_OPTOUT: 1
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+  PSFIXIT_TRACE_ID: ${{ github.run_id }}
+  
+jobs:
+  ps-fixit-elite-analysis:
+    name: 🚀 PS-Fixit Elite Analysis
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        powershell-version: ['7.4', '7.2']
+        include:
+          - os: windows-latest
+            powershell-version: '5.1'
+    
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: 🐍 Setup PowerShell ${{ matrix.powershell-version }}
+        uses: actions/setup-powershell@v2
+        with:
+          powershell-version: ${{ matrix.powershell-version }}
+          
+      - name: 📦 Install Required Modules
+        shell: pwsh
+        run: |
+          Write-Host "🔧 Installing PS-Fixit dependencies..." -ForegroundColor Cyan
+          
+          if ($IsWindows) {
+            Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
+          }
+          
+          $modules = @(
+            @{ Name = 'PSScriptAnalyzer'; Version = '1.21.0' }
+            @{ Name = 'Pester'; Version = '5.4.0' }
+          )
+          
+          foreach ($module in $modules) {
+            Install-Module -Name $module.Name -MinimumVersion $module.Version -Scope CurrentUser -Force -AllowClobber
+            Write-Host "✅ $($module.Name) installed" -ForegroundColor Green
+          }
+          
+      - name: 🔍 Validate PS-Fixit System
+        shell: pwsh
+        run: |
+          Write-Host "🧪 Validating PS-Fixit Elite system..." -ForegroundColor Cyan
+          
+          # Test system components
+          $psFixitFiles = @(
+            'tools/powershell-qa/Invoke-PSFixitElite.ps1',
+            'tools/powershell-qa/Invoke-PSFixitCI.ps1',
+            'tools/powershell-qa/config/PSQASettings.Enhanced.psd1'
+          )
+          
+          foreach ($file in $psFixitFiles) {
+            if (-not (Test-Path $file)) {
+              Write-Error "❌ Missing critical file: $file"
+              exit 1
+            }
+            Write-Host "✅ Found: $file" -ForegroundColor Green
+          }
+          
+          # Test syntax of main scripts
+          try {
+            $null = [System.Management.Automation.Language.Parser]::ParseFile('tools/powershell-qa/Invoke-PSFixitElite.ps1', [ref]$null, [ref]$errors)
+            if ($errors) {
+              Write-Error "❌ Syntax errors in PS-Fixit Elite: $($errors.Count)"
+              exit 1
+            }
+            Write-Host "✅ PS-Fixit Elite syntax validated" -ForegroundColor Green
+          } catch {
+            Write-Error "❌ Failed to validate PS-Fixit syntax: $($_.Exception.Message)"
+            exit 1
+          }
+          
+      - name: 🚀 Run PS-Fixit Elite Analysis
+        id: analysis
+        shell: pwsh
+        run: |
+          Write-Host "🔬 Starting PS-Fixit Elite analysis..." -ForegroundColor Cyan
+          
+          # Configure analysis parameters
+          $params = @{
+            SourcePath = '.'
+            OutputPath = 'ps-fixit-reports'
+            Format = @('Console', 'JSON', 'XML', 'SARIF')
+            FailureThreshold = ${{ github.event.inputs.failure_threshold || 85 }}
+            SecurityMode = $${{ github.event.inputs.security_mode || 'true' }}
+            Parallel = $true
+            TimeoutMinutes = 20
+            ExcludePatterns = @(
+              '*.Tests.ps1',
+              'test/**',
+              'tests/**', 
+              '.git/**',
+              'archive/**',
+              'backups/**',
+              'vendor/**'
+            )
+          }
+          
+          # Add baseline for main branch builds
+          if ($env:GITHUB_REF -eq 'refs/heads/main') {
+            $params.GenerateBaseline = $true
+          }
+          
+          try {
+            # Execute PS-Fixit Elite CI system
+            & 'tools/powershell-qa/Invoke-PSFixitCI.ps1' @params
+            
+            $exitCode = $LASTEXITCODE
+            Write-Host "PS-Fixit completed with exit code: $exitCode" -ForegroundColor $(if ($exitCode -eq 0) { 'Green' } else { 'Red' })
+            
+            # Extract results for GitHub outputs
+            if (Test-Path 'ps-fixit-reports/quality-report.json') {
+              $report = Get-Content 'ps-fixit-reports/quality-report.json' | ConvertFrom-Json
+              echo "quality-score=$($report.statistics.QualityScore)" >> $env:GITHUB_OUTPUT
+              echo "total-issues=$($report.statistics.TotalIssues)" >> $env:GITHUB_OUTPUT
+              echo "security-issues=$($report.statistics.SecurityIssues)" >> $env:GITHUB_OUTPUT
+            }
+            
+            exit $exitCode
+            
+          } catch {
+            Write-Error "❌ PS-Fixit execution failed: $($_.Exception.Message)"
+            exit 1
+          }
+          
+      - name: 📊 Upload Quality Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ps-fixit-reports-${{ matrix.os }}-ps${{ matrix.powershell-version }}
+          path: ps-fixit-reports/
+          retention-days: 30
+          
+      - name: 📋 Upload SARIF to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always() && hashFiles('ps-fixit-reports/quality-report.sarif') != ''
+        with:
+          sarif_file: ps-fixit-reports/quality-report.sarif
+          category: ps-fixit-quality-${{ matrix.os }}
+
+  comprehensive-tests:
+    name: 🧪 Comprehensive Test Suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: 🐍 Setup PowerShell 7.4
+        uses: actions/setup-powershell@v2
+        with:
+          powershell-version: 7.4
+          
+      - name: 📦 Install Test Dependencies
+        shell: pwsh
+        run: |
+          Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser
+          Install-Module -Name Pester -Force -Scope CurrentUser -MinimumVersion 5.4.0
+          
+      - name: 🧪 Run PS-Fixit Test Suite
+        shell: pwsh
+        run: |
+          Write-Host "🧪 Running comprehensive PS-Fixit test suite..." -ForegroundColor Cyan
+          
+          $testFile = 'tools/powershell-qa/tests/PSFixitElite.Comprehensive.Tests.ps1'
+          
+          if (Test-Path $testFile) {
+            $testResults = Invoke-Pester -Path $testFile -Output Detailed -PassThru -CI
+            
+            Write-Host "📊 Test Results Summary:" -ForegroundColor Cyan
+            Write-Host "  Total Tests: $($testResults.TotalCount)" -ForegroundColor White
+            Write-Host "  Passed: $($testResults.PassedCount)" -ForegroundColor Green
+            Write-Host "  Failed: $($testResults.FailedCount)" -ForegroundColor Red
+            Write-Host "  Skipped: $($testResults.SkippedCount)" -ForegroundColor Yellow
+            
+            if ($testResults.FailedCount -gt 0) {
+              Write-Error "❌ Test failures detected"
+              exit 1
+            }
+            
+            Write-Host "✅ All tests passed!" -ForegroundColor Green
+          } else {
+            Write-Warning "Test file not found: $testFile"
+            Write-Host "Running basic validation instead..."
+            
+            # Basic validation test
+            & 'tools/powershell-qa/Invoke-PSFixitElite.ps1' -Path 'tools/powershell-qa' -Mode validate -OutputFormat JSON
+          }
+
+  quality-gate-summary:
+    name: 🚪 Final Quality Gate
+    runs-on: ubuntu-latest
+    needs: [ps-fixit-elite-analysis, comprehensive-tests]
+    if: always()
+    
+    steps:
+      - name: 📥 Download All Reports
+        uses: actions/download-artifact@v4
+        with:
+          pattern: "ps-fixit-reports-*"
+          merge-multiple: true
+          path: combined-reports/
+          
+      - name: 🚪 Evaluate Quality Gates
+        shell: pwsh
+        run: |
+          Write-Host "🚪 Evaluating final quality gates..." -ForegroundColor Cyan
+          
+          $allReports = Get-ChildItem 'combined-reports' -Filter '*.json' -Recurse | Where-Object Name -like '*quality-report*'
+          
+          if ($allReports.Count -eq 0) {
+            Write-Error "❌ No quality reports found!"
+            exit 1
+          }
+          
+          $overallPassed = $true
+          $summary = @{
+            totalReports = $allReports.Count
+            passedReports = 0
+            averageQuality = 0
+            totalIssues = 0
+            criticalIssues = 0
+            securityIssues = 0
+          }
+          
+          foreach ($report in $allReports) {
+            try {
+              $data = Get-Content $report.FullName | ConvertFrom-Json
+              $stats = $data.statistics
+              
+              $summary.totalIssues += $stats.TotalIssues
+              $summary.criticalIssues += $stats.CriticalIssues  
+              $summary.securityIssues += $stats.SecurityIssues
+              $summary.averageQuality += $stats.QualityScore
+              
+              # Check if this report passes quality gates
+              $reportPassed = $stats.QualityScore -ge 80 -and $stats.CriticalIssues -eq 0
+              
+              if ($reportPassed) {
+                $summary.passedReports++
+              } else {
+                $overallPassed = $false
+              }
+              
+              Write-Host "📊 $($report.Name): Quality=$($stats.QualityScore)%, Critical=$($stats.CriticalIssues), Security=$($stats.SecurityIssues)" -ForegroundColor $(if ($reportPassed) { 'Green' } else { 'Red' })
+              
+            } catch {
+              Write-Warning "Failed to process $($report.FullName): $($_.Exception.Message)"
+              $overallPassed = $false
+            }
+          }
+          
+          $summary.averageQuality = [math]::Round($summary.averageQuality / $allReports.Count, 1)
+          
+          Write-Host "`n🏁 FINAL QUALITY GATE SUMMARY:" -ForegroundColor Cyan
+          Write-Host "  📊 Reports Analyzed: $($summary.totalReports)" -ForegroundColor White
+          Write-Host "  ✅ Reports Passed: $($summary.passedReports)" -ForegroundColor Green
+          Write-Host "  📈 Average Quality: $($summary.averageQuality)%" -ForegroundColor Cyan
+          Write-Host "  ⚠️  Total Issues: $($summary.totalIssues)" -ForegroundColor Yellow
+          Write-Host "  ❌ Critical Issues: $($summary.criticalIssues)" -ForegroundColor Red
+          Write-Host "  🚨 Security Issues: $($summary.securityIssues)" -ForegroundColor Red
+          
+          if ($overallPassed -and $summary.criticalIssues -eq 0 -and $summary.securityIssues -eq 0) {
+            Write-Host "`n✅ ALL QUALITY GATES PASSED!" -ForegroundColor Green
+            Write-Host "🚀 Code is ready for production deployment!" -ForegroundColor Green
+          } else {
+            Write-Host "`n❌ QUALITY GATES FAILED!" -ForegroundColor Red
+            Write-Host "🛑 Please address issues before merging!" -ForegroundColor Red
+            exit 1
+          }
+          
+      - name: 💬 Update PR with Results
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        with:
+          script: |
+            const fs = require('fs');
+            
+            // Find the main quality report
+            const reportPath = 'combined-reports/quality-report.json';
+            if (!fs.existsSync(reportPath)) {
+              console.log('No main quality report found');
+              return;
+            }
+            
+            const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+            const stats = report.statistics;
+            
+            // Determine overall status
+            const qualityPassed = stats.QualityScore >= 80;
+            const securityPassed = stats.SecurityIssues === 0;
+            const criticalPassed = stats.CriticalIssues === 0;
+            const overallPassed = qualityPassed && securityPassed && criticalPassed;
+            
+            // Create status emoji and color
+            const statusEmoji = overallPassed ? '✅' : '❌';
+            const qualityColor = stats.QualityScore >= 90 ? 'brightgreen' :
+                               stats.QualityScore >= 80 ? 'green' :
+                               stats.QualityScore >= 60 ? 'yellow' : 'red';
+            
+            const comment = `## ${statusEmoji} PS-Fixit Elite Quality Analysis
+            
+            | 🎯 Quality Gate | Status | Details |
+            |----------------|--------|---------|
+            | **Overall Quality** | ${overallPassed ? '✅ PASS' : '❌ FAIL'} | ![Quality](https://img.shields.io/badge/Score-${stats.QualityScore}%25-${qualityColor}) |
+            | **Security Check** | ${securityPassed ? '✅ PASS' : '🚨 FAIL'} | ${stats.SecurityIssues} security issues |
+            | **Critical Issues** | ${criticalPassed ? '✅ PASS' : '❌ FAIL'} | ${stats.CriticalIssues} critical issues |
+            | **Files Analyzed** | ℹ️ INFO | ${stats.FilesAnalyzed} PowerShell files |
+            | **Total Issues** | ℹ️ INFO | ${stats.TotalIssues} total issues |
+            
+            ### 📊 Analysis Summary
+            - **Commit**: \`${context.sha.substring(0, 7)}\`
+            - **Duration**: ${stats.Duration}s
+            - **Quality Threshold**: 80%
+            - **Security Mode**: Enhanced
+            
+            ${overallPassed ? 
+              '🎉 **Excellent work!** Your code meets all quality standards and is ready for review.' :
+              '⚠️ **Action Required:** Please address the issues above before merging.'
+            }
+            
+            ---
+            
+            <details>
+            <summary>📋 View Detailed Report</summary>
+            
+            ### Quality Metrics Breakdown
+            - **Error Issues**: ${report.results.filter(r => r.severity === 'Error').length}
+            - **Warning Issues**: ${report.results.filter(r => r.severity === 'Warning').length}
+            - **Information Issues**: ${report.results.filter(r => r.severity === 'Information').length}
+            
+            ### Top Issue Categories
+            ${Object.entries(
+              report.results.reduce((acc, r) => {
+                acc[r.rule] = (acc[r.rule] || 0) + 1;
+                return acc;
+              }, {})
+            ).slice(0, 5).map(([rule, count]) => `- **${rule}**: ${count} occurrences`).join('\n')}
+            
+            </details>
+            
+            *Powered by PS-Fixit Elite v3.0.0 🚀*
+            `;
+            
+            // Post the comment
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });

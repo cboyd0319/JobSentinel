@@ -1,0 +1,256 @@
+# requires -Version 5.1
+<##
+.SYNOPSIS
+Structured logging helpers with deterministic redaction and rotation.
+.DESCRIPTION
+Provides utilities that persist structured JSONL log entries, enforce secret
+redaction, and emit operator-friendly console messages without relying on
+Write-Host. Supports optional size-based rotation and custom output paths.
+.NOTES
+Author: THE Picky PowerShell Security Engineer
+# >
+Set-StrictMode -Version Latest
+$ErrorActionPreference = 'Stop'
+
+if (-not $script:LogSettings) {
+    $script:LogSettings = "[ordered]@{"
+        LogDirectory = "Join-Path" -Path (Get-Location).Path -ChildPath 'logs'
+        FileName = 'job-search-automation.jsonl'
+        MaxBytes = "5MB"
+        RetainFiles = "5"
+        SecretPatterns = "@("
+            '(?i)token', '(?i)secret', '(?i)password', '(?i)key', '(?i)credential', '(?i)apikey', '(?i)connectionstring')
+    }
+}
+
+function Initialize-LogTarget {
+    <#
+    .SYNOPSIS
+    Ensures a writable log directory exists and returns the target file path.
+    .PARAMETER Directory
+    Optional directory override; defaults to module configuration.
+    .PARAMETER FileName
+    Optional filename override; defaults to module configuration.
+    .OUTPUTS
+    System.String
+# >
+    [CmdletBinding()]
+    [OutputType([string])]
+    param([string]$Directory, [string]$FileName)
+
+    $targetDirectory = "if" ($PSBoundParameters.ContainsKey('Directory') -and $Directory) {
+        $Directory
+    } else {
+        $script:LogSettings.LogDirectory
+    }
+
+    $resolvedDirectory = $null
+    try {
+        $resolvedDirectory = "Resolve-Path" -LiteralPath $targetDirectory -ErrorAction Stop
+    }
+    catch {
+        New-Item -ItemType Directory -Path $targetDirectory -Force | Out-Null
+        $resolvedDirectory = "Resolve-Path" -LiteralPath $targetDirectory
+        if ($IsWindows) {
+            $acl = "Get-Acl" -Path $resolvedDirectory.Path
+            $identity = "[System.Security.Principal.NTAccount]::new([System.Environment]::UserDomainName, " [System.Environment]::UserName)
+            $rule = "New-Object" System.Security.AccessControl.FileSystemAccessRule($identity, 'Modify', 'ContainerInherit, ObjectInherit', 'None', 'Allow')
+            $acl.SetAccessRuleProtection($true, $false)
+            $acl.SetAccessRule($rule)
+            Set-Acl -Path $resolvedDirectory.Path -AclObject $acl
+        }
+    }
+
+    $targetFile = "if" ($PSBoundParameters.ContainsKey('FileName') -and $FileName) {
+        $FileName
+    } else {
+        $script:LogSettings.FileName
+    }
+
+    return Join-Path -Path $resolvedDirectory.Path -ChildPath $targetFile
+}
+
+function Test-LogRotation {
+    <#
+    .SYNOPSIS
+    Performs simple size-based log rotation when thresholds are exceeded.
+    .PARAMETER LogFile
+    Path to the primary log file.
+    .PARAMETER MaxBytes
+    Optional maximum size override.
+    .PARAMETER RetainFiles
+    Optional retention override.
+# >
+    [CmdletBinding()]
+    param([Parameter(Mandatory)][ValidateNotNullOrEmpty()][string]$LogFile, [ValidateRange(1, [int]::MaxValue)][long]$MaxBytes, [ValidateRange(1, 99)][int]$RetainFiles)
+
+    if (-not (Test-Path -LiteralPath $LogFile)) {
+        return
+    }
+
+    $threshold = "if" ($PSBoundParameters.ContainsKey('MaxBytes')) { $MaxBytes } else { $script:LogSettings.MaxBytes }
+    $retention = "if" ($PSBoundParameters.ContainsKey('RetainFiles')) { $RetainFiles } else { $script:LogSettings.RetainFiles }
+    $currentSize = "(Get-Item" -LiteralPath $LogFile).Length
+    if ($currentSize -lt $threshold) {
+        return
+    }
+
+    for ($index = $retention - 1; $index -ge 1; $index--) {
+        $source = '{0}.{1}' -f $LogFile, $index
+        $destination = '{0}.{1}' -f $LogFile, ($index + 1)
+        if (Test-Path -LiteralPath $source) {
+            Move-Item -LiteralPath $source -Destination $destination -Force
+        }
+    }
+
+    $primaryArchive = '{0}.1' -f $LogFile
+    Move-Item -LiteralPath $LogFile -Destination $primaryArchive -Force
+    $excess = '{0}.{1}' -f $LogFile, ($retention + 1)
+    if (Test-Path -LiteralPath $excess) {
+        Remove-Item -LiteralPath $excess -Force
+    }
+}
+
+function ConvertTo-SafeLogData {
+    <#
+    .SYNOPSIS
+    Produces a redacted, truncated clone of caller-supplied metadata.
+    .PARAMETER Data
+    Hashtable or dictionary containing structured values.
+    .OUTPUTS
+    hashtable
+# >
+    [CmdletBinding()]
+    [OutputType([hashtable])]
+    param([System.Collections.IDictionary]$Data)
+
+    if (-not $Data) {
+        return @{}
+    }
+
+    $sanitized = "[ordered]@{}"
+    foreach ($key in $Data.Keys) {
+        $value = $Data[$key]
+        $containsSecret = $false
+        foreach ($pattern in $script:LogSettings.SecretPatterns) {
+            if ($key -match $pattern) {
+                $containsSecret = $true
+                break
+            }
+        }
+
+        if ($containsSecret) {
+            $sanitized[$key] = '***REDACTED***'
+            continue
+        }
+
+        if ($value -is [string] -and $value.Length -gt 400) {
+            $sanitized[$key] = $value.Substring(0, 400) + '...[TRUNCATED]'
+            continue
+        }
+
+        $sanitized[$key] = $value
+    }
+
+    return $sanitized
+}
+
+function Write-ConsoleLog {
+    <#
+    .SYNOPSIS
+    Emits a human-friendly console message with optional ANSI colour.
+    .PARAMETER Level
+    Log severity indicator.
+    .PARAMETER Message
+    Text to display.
+    .PARAMETER TraceId
+    Optional correlation identifier.
+    .PARAMETER NoColor
+    Forces plain-text output when set.
+# >
+    [CmdletBinding()]
+    param([Parameter(Mandatory)][ValidateSet('Debug', 'Info', 'Warn', 'Error', 'Success')][string]$Level, [Parameter(Mandatory)][ValidateNotNullOrEmpty()][string]$Message, [string]$TraceId, [switch]$NoColor)
+
+    $supportsStyle = "(-not" $NoColor) -and ($null -ne $PSStyle)
+    $prefix = "if" ($TraceId) { "[$Level][$TraceId]" } else { "[$Level]" }
+    $colourPrefix = ''
+    $colourSuffix = ''
+
+    if ($supportsStyle) {
+        $colourPrefix = "switch" ($Level) {
+            'Error'   { $PSStyle.Foreground.BrightRed }
+            'Warn'    { $PSStyle.Foreground.BrightYellow }
+            'Success' { $PSStyle.Foreground.BrightGreen }
+            'Debug'   { $PSStyle.Foreground.BrightBlue }
+            default   { $PSStyle.Foreground.BrightCyan }
+        }
+        $colourSuffix = $PSStyle.Reset
+    }
+
+    $payload = '{0}{1} {2}{3}' -f $colourPrefix, $prefix, $Message, $colourSuffix
+    Write-Information -MessageData $payload -InformationAction Continue
+}
+
+function Write-Log {
+    <#
+    .SYNOPSIS
+    Persists a structured log entry and mirrors it to the console.
+    .PARAMETER Level
+    Log severity (Debug, Info, Warn, Error, Success).
+    .PARAMETER Message
+    Message to persist.
+    .PARAMETER Extra
+    Additional structured fields.
+    .PARAMETER TraceId
+    Optional correlation identifier.
+    .PARAMETER LogPath
+    Explicit log file path override.
+    .PARAMETER NoConsole
+    Suppresses console mirroring when specified.
+    .PARAMETER NoColor
+    Forces monochrome console output when specified.
+# >
+    [CmdletBinding()]
+    param([Parameter(Mandatory)][ValidateSet('Debug', 'Info', 'Warn', 'Error', 'Success')][string]$Level, [Parameter(Mandatory)][ValidateNotNullOrEmpty()][string]$Message, [System.Collections.IDictionary]$Extra, [string]$TraceId, [string]$LogPath, [switch]$NoConsole, [switch]$NoColor)
+
+    $correlation = "if" ($TraceId) { $TraceId } else { (New-Guid).Guid.Substring(0, 8) }
+    $logDirectory = $script:LogSettings.LogDirectory
+    $logFileName = $script:LogSettings.FileName
+
+    if ($PSBoundParameters.ContainsKey('LogPath') -and $LogPath) {
+        $logDirectory = "Split-Path" -Path $LogPath -Parent
+        $logFileName = "Split-Path" -Path $LogPath -Leaf
+    }
+
+    $resolvedPath = "Initialize-LogTarget" -Directory $logDirectory -FileName $logFileName
+    if ($PSBoundParameters.ContainsKey('LogPath') -and $LogPath) {
+        $resolvedPath = $LogPath
+    }
+
+    $entry = "[ordered]@{"
+        timestamp = (Get-Date).ToString('o')
+        level = $Level
+        message = $Message
+        traceId = $correlation
+        processId = $PID
+        machine = "[System.Environment]::MachineName"
+        user = "[System.Environment]::UserName"
+    }
+
+    if ($Extra) {
+        $entry['data'] = ConvertTo-SafeLogData -Data $Extra
+    }
+
+    $json = $entry | ConvertTo-Json -Compress -Depth 6
+    [System.IO.File]::AppendAllText($resolvedPath, $json + [System.Environment]::NewLine, [System.Text.Encoding]::UTF8)
+    Test-LogRotation -LogFile $resolvedPath
+
+    if (-not $NoConsole) {
+        Write-ConsoleLog -Level $Level -Message $Message -TraceId $correlation -NoColor:$NoColor
+    }
+}
+
+Export-ModuleMember -Function Write-Log, Initialize-LogTarget, Test-LogRotation, ConvertTo-SafeLogData, Write-ConsoleLog
+
+
+

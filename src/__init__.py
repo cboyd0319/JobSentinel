@@ -6,7 +6,6 @@ A robust, private job monitoring service that runs on your own machine.
 
 from pathlib import Path
 
-
 # Version management
 __version__ = "0.4.5"
 

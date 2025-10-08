@@ -9,7 +9,7 @@ httpx==0.28.1
 requests==2.32.4
 
 # Job scrapers (lightweight)
-jobspy==1.1.82
+jobspy==0.31.0
 
 # Utilities
 pydantic==2.10.5

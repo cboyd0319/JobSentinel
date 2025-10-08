@@ -5,9 +5,10 @@ Self-healing mechanisms for automated recovery from common failures.
 import asyncio
 import os
 import time
-from datetime import datetime, timezone
-from typing import Optional, Callable, Any
 from dataclasses import dataclass
+from datetime import datetime, timezone
+from typing import Any, Callable, Optional
+
 from utils.logging import get_logger
 
 logger = get_logger("self_healing")
@@ -139,6 +140,7 @@ class SelfHealingMonitor:
         """Check if database connection needs recovery."""
         try:
             import asyncio
+
             from src.database import async_engine
 
             # Try a simple query
@@ -237,9 +239,7 @@ class SelfHealingMonitor:
             job_cache.clear()
 
             # Log results
-            logger.info(
-                f"Cache cleared: {stats_before['job_hashes_count']} entries removed"
-            )
+            logger.info(f"Cache cleared: {stats_before['job_hashes_count']} entries removed")
             return f"cleared_{stats_before['job_hashes_count']}_entries"
 
         except Exception as e:

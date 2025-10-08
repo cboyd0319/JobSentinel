@@ -3,17 +3,18 @@ Health monitoring and system status reporting for the job scraper.
 """
 
 import os
-import time
 import platform
-import psutil
+import time
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
-from dataclasses import dataclass
 
-from utils.logging import get_logger
-from utils.config import config_manager
-from src.database import get_database_stats
+import psutil
+
 from notify import slack
+from src.database import get_database_stats
+from utils.config import config_manager
+from utils.logging import get_logger
 
 logger = get_logger("health")
 
@@ -386,9 +387,7 @@ class HealthMonitor:
             loop = asyncio.get_event_loop()
             if loop.is_running():
                 # In async context, use async version
-                logger.warning(
-                    "Sync health report called in async context - using limited checks"
-                )
+                logger.warning("Sync health report called in async context - using limited checks")
                 all_metrics = []
                 all_metrics.extend(self.check_system_resources())
                 all_metrics.extend(self.check_log_files())
@@ -466,9 +465,7 @@ class HealthMonitor:
                 notification_config = config_manager.get_notification_config()
 
                 if notification_config.validate_slack():
-                    critical_metrics = [
-                        m for m in report["metrics"] if m["status"] == "critical"
-                    ]
+                    critical_metrics = [m for m in report["metrics"] if m["status"] == "critical"]
 
                     alert_message = {
                         "blocks": [
@@ -485,9 +482,7 @@ class HealthMonitor:
                                     "type": "mrkdwn",
                                     "text": f"*Critical issues detected on {report['system_info']['hostname']}*\n\n"
                                     f"*Issues:*\n"
-                                    + "\n".join(
-                                        [f"• {m['message']}" for m in critical_metrics]
-                                    ),
+                                    + "\n".join([f"• {m['message']}" for m in critical_metrics]),
                                 },
                             },
                             {

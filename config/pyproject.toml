@@ -1,0 +1,124 @@
+[build-system]
+requires = ["setuptools>=78.1.1", "build>=0.5.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "job-search-automation"
+version = "1.0.0" # This will be updated by semantic-release
+
+description = "Automated job search tool with web scraping, resume matching, ATS compatibility scanner, and Slack/email notifications. Self-hosted Python job board aggregator."
+authors = [{name = "Project Author", email = "noreply@users.noreply.github.com"}]
+license = "MIT"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "aiofiles>=23,<24",
+    "aiohttp>=3.9,<4",
+    "aiosqlite>=0.20,<0.21",
+    "beautifulsoup4>=4.12,<5",
+    "cryptography>=44.0.1,<47",
+    "Flask>=3.0,<3.1",
+    "google-api-core>=2.14,<3",
+    "google-auth>=2.23,<3",
+    "google-cloud-scheduler>=2.13,<3",
+    "google-cloud-storage>=2.16,<3",
+    "httpx>=0.26,<0.29",
+    "lxml>=4.9,<6",
+    "playwright>=1.44,<1.56",
+    "psutil>=5.9,<8",
+    "pydantic>=2.6,<2.11",
+    "python-dotenv>=1.0,<2",
+    "requests>=2.31,<3",
+    "rich>=13.7,<14",
+    "sqlalchemy>=2.0,<2.1",
+    "sqlmodel>=0.0.14,<0.0.17",
+    "tenacity>=9.0,<9.2",
+
+]
+
+
+[project.optional-dependencies]
+resume = [
+    "pdfplumber>=0.10,<0.11",
+    "python-docx>=1.0,<1.1",
+    "spacy>=3.7,<3.9",
+    "pdfminer.six>=20221105",
+    "pytesseract>=0.3.10",
+    "Pillow>=10.0.0",
+    "python-Levenshtein>=0.21.0",
+    "regex>=2023.0.0",
+    "rapidfuzz>=3.0,<4",
+    "textstat>=0.7.3,<0.8",
+]
+mcp = [
+    "mcp>=1.2,<2",
+    "httpx-sse>=0.4,<0.5",
+    "jsonschema>=4.20,<5",
+    # Relaxed constraint: mcp >=1.2 requires pydantic-settings >=2.6.1
+    "pydantic-settings>=2.6,<3",
+]
+dev = [
+    "pytest>=8.0,<9",
+    "pytest-cov>=5.0,<6",
+    "ruff>=0.6.0,<0.8.0",
+    "mypy>=1.9,<1.11",
+    "types-requests",
+    "types-python-dateutil",
+    "pytest-asyncio>=0.23,<0.26",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+exclude = []
+
+[tool.ruff.lint]
+select = ["E", "F"]  # Can expand later (B, I, UP, S, etc.)
+ignore = [
+    "E501",  # line length handled by editor/formatter
+    "F401",  # allow unused imports during iterative refactors
+    "F841",  # allow assigned-but-unused placeholders
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["sources", "notify", "cloud", "scripts", "matchers"]
+combine-as-imports = true
+
+[tool.mypy]
+python_version = "3.11"
+# Meticulous Programmer Standards - Strict Type Safety
+strict = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_return_any = true
+warn_unreachable = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+
+# Controlled exclusions
+ignore_missing_imports = false
+allow_untyped_defs = false
+allow_untyped_calls = false
+
+exclude = [
+    "tests/",
+    "examples/",
+]
+
+
+[tool.semantic_release]
+branch = "main"
+changelog_file = "CHANGELOG.md"
+commit_message = "chore(release): {version} [skip ci]"
+version_toml = ["pyproject.toml:project.version"]
+version_files = ["VERSION"]
+
+build_command = "python -m pip install build && python -m build"
+upload_to_pypi = false
+upload_to_release = true
+remote = { type = "github", token = "GH_TOKEN" }

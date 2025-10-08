@@ -4,15 +4,12 @@
 class JobScraperException(Exception):
     """Base exception for job scraper errors."""
 
-    pass
 
 
 class ScrapingException(JobScraperException):
     """Exception raised during job scraping operations."""
 
-    def __init__(
-        self, company: str, url: str, message: str, original_error: Exception = None
-    ):
+    def __init__(self, company: str, url: str, message: str, original_error: Exception = None):
         self.company = company
         self.url = url
         self.original_error = original_error
@@ -22,9 +19,7 @@ class ScrapingException(JobScraperException):
 class NotificationException(JobScraperException):
     """Exception raised during notification sending."""
 
-    def __init__(
-        self, notification_type: str, message: str, original_error: Exception = None
-    ):
+    def __init__(self, notification_type: str, message: str, original_error: Exception = None):
         self.notification_type = notification_type
         self.original_error = original_error
         super().__init__(f"Failed to send {notification_type} notification: {message}")
@@ -33,7 +28,6 @@ class NotificationException(JobScraperException):
 class ConfigurationException(JobScraperException):
     """Exception raised for configuration errors."""
 
-    pass
 
 
 class DatabaseException(JobScraperException):

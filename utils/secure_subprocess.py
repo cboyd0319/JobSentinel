@@ -17,9 +17,8 @@ from __future__ import annotations
 import os
 import shutil
 import subprocess
-import threading
 from pathlib import Path
-from typing import List, Sequence, Optional
+from typing import List, Optional, Sequence
 
 from utils.cost_tracker import tracker
 

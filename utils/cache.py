@@ -4,8 +4,9 @@ In-memory caching for performance optimization.
 
 import hashlib
 import time
-from typing import Optional, Dict, Any
 from collections import OrderedDict
+from typing import Any, Dict, Optional
+
 from utils.logging import get_logger
 
 logger = get_logger("cache")
@@ -105,10 +106,10 @@ class JobCache:
         """
         # Strategy 1: External ID (highest confidence for cross-aggregator matching)
         external_id = (
-            job.get('external_job_id', '') or
-            job.get('id', '') or
-            job.get('greenhouseId', '') or
-            job.get('jobId', '')
+            job.get("external_job_id", "")
+            or job.get("id", "")
+            or job.get("greenhouseId", "")
+            or job.get("jobId", "")
         )
 
         if external_id:
@@ -117,16 +118,16 @@ class JobCache:
             return hashlib.sha256(f"external_id:{external_id}".encode()).hexdigest()
 
         # Strategy 2: Normalized URL (good for same-source duplicates)
-        url = job.get('url', '')
+        url = job.get("url", "")
         if url:
             url_normalized = self._normalize_url(url)
             if url_normalized:
                 return hashlib.sha256(f"url:{url_normalized}".encode()).hexdigest()
 
         # Strategy 3: Content-based fingerprint (fallback)
-        company = job.get('company', '').lower().strip()
-        title = job.get('title', '').lower().strip()
-        description = job.get('description', '')[:255].lower().strip()
+        company = job.get("company", "").lower().strip()
+        title = job.get("title", "").lower().strip()
+        description = job.get("description", "")[:255].lower().strip()
 
         unique_str = f"content:{company}|{title}|{description}"
         return hashlib.sha256(unique_str.encode()).hexdigest()
@@ -137,42 +138,55 @@ class JobCache:
 
         Removes tracking parameters and normalizes format.
         """
-        from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
+        from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
         try:
             parsed = urlparse(url.lower())
 
             # Remove common tracking parameters
             tracking_params = {
-                'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content',
-                'ref', 'source', 'affiliate', 'clickid', 'sid', 'tracking',
-                'fbclid', 'gclid', 'msclkid',  # Ad tracking
-                'mc_cid', 'mc_eid',  # Email tracking
+                "utm_source",
+                "utm_medium",
+                "utm_campaign",
+                "utm_term",
+                "utm_content",
+                "ref",
+                "source",
+                "affiliate",
+                "clickid",
+                "sid",
+                "tracking",
+                "fbclid",
+                "gclid",
+                "msclkid",  # Ad tracking
+                "mc_cid",
+                "mc_eid",  # Email tracking
             }
 
             # Parse query params and remove tracking
             query_params = parse_qs(parsed.query)
             clean_params = {
-                k: v for k, v in query_params.items()
-                if k.lower() not in tracking_params
+                k: v for k, v in query_params.items() if k.lower() not in tracking_params
             }
 
             # Rebuild URL without tracking
             clean_query = urlencode(clean_params, doseq=True)
-            normalized = urlunparse((
-                parsed.scheme,
-                parsed.netloc,
-                parsed.path.rstrip('/'),  # Remove trailing slash
-                '',  # params (rarely used)
-                clean_query,
-                ''   # fragment (often tracking)
-            ))
+            normalized = urlunparse(
+                (
+                    parsed.scheme,
+                    parsed.netloc,
+                    parsed.path.rstrip("/"),  # Remove trailing slash
+                    "",  # params (rarely used)
+                    clean_query,
+                    "",  # fragment (often tracking)
+                )
+            )
 
             return normalized
 
         except Exception as e:
             logger.debug(f"URL normalization failed for {url}: {e}")
-            return url.lower().rstrip('/')
+            return url.lower().rstrip("/")
 
     def is_duplicate(self, job: dict) -> bool:
         """

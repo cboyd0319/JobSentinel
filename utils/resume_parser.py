@@ -1,18 +1,20 @@
+import json
+import logging
 import re
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple
-import logging
-import json
 
 # Optional dependencies - will check at runtime
 try:
     import pdfplumber
+
     HAS_PDF = True
 except ImportError:
     HAS_PDF = False
 
 try:
     from docx import Document
+
     HAS_DOCX = True
 except ImportError:
     HAS_DOCX = False
@@ -20,6 +22,7 @@ except ImportError:
 try:  # Defer heavy model load until explicitly requested
     import spacy  # type: ignore
     from spacy.cli import download  # type: ignore
+
     HAS_SPACY = True
 except ImportError:  # pragma: no cover - environment without optional dep
     spacy = None  # type: ignore
@@ -27,6 +30,7 @@ except ImportError:  # pragma: no cover - environment without optional dep
     HAS_SPACY = False
 
 _NLP = None  # Lazy-loaded model singleton
+
 
 def ensure_spacy_model(interactive: bool = True):
     """Ensure spaCy English model is available (with user consent).
@@ -46,9 +50,11 @@ def ensure_spacy_model(interactive: bool = True):
         return _NLP
     except OSError:
         if interactive:
-            consent = input(
-                "spaCy language model 'en_core_web_sm' not found. Download (~15MB)? [y/N]: "
-            ).strip().lower()
+            consent = (
+                input("spaCy language model 'en_core_web_sm' not found. Download (~15MB)? [y/N]: ")
+                .strip()
+                .lower()
+            )
             if consent != "y":
                 raise RuntimeError("spaCy model required for advanced resume analysis.")
         if download is None:  # Should not happen if HAS_SPACY True
@@ -149,8 +155,7 @@ class ResumeParser:
             self.text = self._extract_docx(file_path)
         else:
             raise ValueError(
-                f"Unsupported file type: {file_path.suffix}. "
-                "Supported types: .pdf, .docx"
+                f"Unsupported file type: {file_path.suffix}. " "Supported types: .pdf, .docx"
             )
 
         # Extract structured information
@@ -170,6 +175,7 @@ class ResumeParser:
     def _get_file_hash(self, file_path: Path) -> str:
         """Get SHA256 hash of a file."""
         import hashlib
+
         h = hashlib.sha256()
         with open(file_path, "rb") as f:
             while True:
@@ -198,7 +204,9 @@ class ResumeParser:
                         continue
 
                 if not text_parts:
-                    raise ValueError("No text could be extracted from PDF. It may be image-based or corrupted.")
+                    raise ValueError(
+                        "No text could be extracted from PDF. It may be image-based or corrupted."
+                    )
 
         except Exception as e:
             logger.error(f"Failed to parse PDF: {e}")
@@ -213,7 +221,9 @@ class ResumeParser:
             paragraphs = [para.text for para in doc.paragraphs if para.text.strip()]
 
             if not paragraphs:
-                raise ValueError("No text could be extracted from DOCX file. It may be empty or corrupted.")
+                raise ValueError(
+                    "No text could be extracted from DOCX file. It may be empty or corrupted."
+                )
 
             return "\n".join(paragraphs)
         except Exception as e:
@@ -302,11 +312,7 @@ class ResumeParser:
             for match in matches:
                 company = match.strip()
                 # Filter out common false positives
-                if (
-                    len(company) > 2
-                    and len(company) < 50
-                    and company.lower() not in TITLE_KEYWORDS
-                ):
+                if len(company) > 2 and len(company) < 50 and company.lower() not in TITLE_KEYWORDS:
                     self.companies.append(company)
 
         # Deduplicate
@@ -440,9 +446,7 @@ class ResumeParser:
         if salary_floor is None and self.years_experience:
             # Rough estimate: $50k base + $20k per year experience
             # Capped at reasonable ranges
-            salary_floor = min(
-                50000 + (self.years_experience * 20000), 300000  # Cap at $300k
-            )
+            salary_floor = min(50000 + (self.years_experience * 20000), 300000)  # Cap at $300k
 
         if salary_floor:
             prefs["salary_floor_usd"] = salary_floor
@@ -488,24 +492,25 @@ def interactive_skill_editor(extracted_skills: List[str]) -> Tuple[List[str], Li
         print("  (d)one")
         choice = input("Enter your choice: ").lower()
 
-        if choice == 'a':
+        if choice == "a":
             skill_to_add = input("Enter the skill to add: ").strip()
             if skill_to_add:
                 added_skills.append(skill_to_add)
                 print(f"Added '{skill_to_add}'.")
-        elif choice == 'r':
+        elif choice == "r":
             skill_to_remove = input("Enter the skill to remove: ").strip()
             if skill_to_remove in extracted_skills:
                 removed_skills.append(skill_to_remove)
                 print(f"Removed '{skill_to_remove}'.")
             else:
                 print(f"'{skill_to_remove}' not found in the list.")
-        elif choice == 'd':
+        elif choice == "d":
             break
         else:
             print("Invalid choice. Please try again.")
 
     return added_skills, removed_skills
+
 
 def check_dependencies() -> tuple[bool, List[str]]:
     """
@@ -525,30 +530,44 @@ def check_dependencies() -> tuple[bool, List[str]]:
     return (len(missing) == 0, missing)
 
 
-def get_ats_scanner(resume_path: str | Path):
+def get_ats_analyzer(resume_path: str):
     """
-    Get an ATS scanner instance for a resume.
+    Get an ATS analyzer service for a resume.
 
-    This is a convenience wrapper around the ATSScanner class.
-    For full ATS analysis, use: python -m utils.ats_scanner
+    This is a convenience wrapper around the new ATSAnalysisService.
+    For full ATS analysis, use: python -m src.domains.ats.cli
 
     Args:
         resume_path: Path to resume file
 
     Returns:
-        ATSScanner instance
+        ATSAnalysisService instance
 
     Example:
-        >>> from utils.resume_parser import get_ats_scanner
-        >>> scanner = get_ats_scanner("my_resume.pdf")
-        >>> score = scanner.calculate_ats_score()
+        >>> from utils.resume_parser import get_ats_analyzer
+        >>> service = get_ats_analyzer("my_resume.pdf")
+        >>> score = service.analyze_resume("my_resume.pdf")
         >>> print(f"ATS Score: {score.overall_score}/100")
     """
     try:
-        from utils.ats_scanner import ATSScanner
-        return ATSScanner(resume_path)
+        from src.domains.ats import ATSAnalysisService
+
+        return ATSAnalysisService()
     except ImportError:
         raise ImportError(
-            "ATS scanner requires additional dependencies. "
-            "Install with: pip install pdfminer.six pytesseract Pillow python-Levenshtein"
+            "ATS analyzer requires additional dependencies. "
+            "Install with: pip install pdfminer.six python-docx Pillow"
         )
+
+
+# Legacy compatibility alias (deprecated)
+def get_ats_scanner(resume_path: str):
+    """DEPRECATED: Use get_ats_analyzer() instead."""
+    import warnings
+
+    warnings.warn(
+        "get_ats_scanner() is deprecated. Use get_ats_analyzer() instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return get_ats_analyzer(resume_path)

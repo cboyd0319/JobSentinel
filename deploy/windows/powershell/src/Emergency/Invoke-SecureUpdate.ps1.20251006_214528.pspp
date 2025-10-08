@@ -1,0 +1,201 @@
+# requires -Version 5.1
+<##
+.SYNOPSIS
+Securely updates a Job Search Automation deployment from a trusted Git remote.
+.DESCRIPTION
+Validates repository origin, performs a safe fast-forward update (or initial clone), preserves operator-defined files, emits structured logs, and provides rollback-ready
+backups. Designed for operational use on Windows with strict least-privilege rules.
+.NOTES
+Author: THE Picky PowerShell Security Engineer
+# >
+[CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
+param([Parameter()][ValidateNotNullOrEmpty()][string]$InstallPath = "(Join-Path" -Path $env:USERPROFILE -ChildPath 'job-search-automation'), [Parameter()][ValidatePattern('^https://github.com/.+/.+\.git$')][string]$RemoteUrl = 'https://github.com/cboyd0319/job-search-automation.git', [Parameter()][ValidateNotNullOrEmpty()][string]$Branch = 'main', [Parameter()][string[]]$PreservePath = @('config/user.json', '.env', 'logs/*.jsonl'), [switch]$Force, [switch]$Diagnostics, [switch]$NoColor, [switch]$DebugLog)
+
+Set-StrictMode -Version Latest
+$ErrorActionPreference = 'Stop'
+$ProgressPreference = 'SilentlyContinue'
+
+$moduleRoot = "Split-Path" -Path $PSScriptRoot -Parent
+Import-Module (Join-Path -Path $moduleRoot -ChildPath 'Logging.ps1') -Force
+Import-Module (Join-Path -Path $moduleRoot -ChildPath 'Diagnostics.ps1') -Force
+
+if ($PSVersionTable.PSVersion.Major -ge 7 -and -not $NoColor -and $PSStyle) {
+    $PSStyle.OutputRendering = 'Ansi'
+}
+elseif ($PSStyle) {
+    $PSStyle.OutputRendering = 'PlainText'
+}
+
+$traceId = "(New-Guid).Guid.Substring(0, " 8)
+if ($DebugLog) {
+    $DebugPreference = 'Continue'
+    Write-Debug "Secure update trace $traceId"
+}
+
+if ($Diagnostics) {
+    Show-Diagnostics -TraceId $traceId -IncludeModules -IncludeEnvironment -OutputFormat Console -NoColor:$NoColor
+    return
+}
+
+function Resolve-SafePath {
+    <#
+    .SYNOPSIS
+    Resolves a path and enforces optional base directory constraints.
+# >
+    param([string]$Path, [string]$Base)
+
+    $full = "[System.IO.Path]::GetFullPath($Path)"
+    if ($Base) {
+        $baseFull = "[System.IO.Path]::GetFullPath($Base)"
+        if (-not $baseFull.EndsWith([System.IO.Path]::DirectorySeparatorChar)) {
+            $baseFull + = [System.IO.Path]::DirectorySeparatorChar
+        }
+        if (-not $full.StartsWith($baseFull, [System.StringComparison]::OrdinalIgnoreCase)) {
+            throw "Path '$Path' escapes base directory '$Base'."
+        }
+    }
+
+    return $full
+}
+
+function Get-RelativePath {
+    <#
+    .SYNOPSIS
+    Produces a relative path from a base path to a target.
+# >
+    param([Parameter(Mandatory)][string]$BasePath, [Parameter(Mandatory)][string]$FullPath)
+
+    $baseResolved = "Resolve-SafePath" -Path $BasePath
+    if (-not $baseResolved.EndsWith([System.IO.Path]::DirectorySeparatorChar)) {
+        $baseResolved + = [System.IO.Path]::DirectorySeparatorChar
+    }
+
+    $baseUri = "New-Object" System.Uri($baseResolved)
+    $targetUri = "New-Object" System.Uri((Resolve-SafePath -Path $FullPath))
+    $relative = $baseUri.MakeRelativeUri($targetUri).ToString()
+    return [Uri]::UnescapeDataString($relative.Replace('/', [System.IO.Path]::DirectorySeparatorChar))
+}
+
+function Invoke-Git {
+    <#
+    .SYNOPSIS
+    Executes git with optional working-directory scoping.
+# >
+    param([string[]]$Arguments, [string]$WorkingDirectory)
+
+    $git = "Get-Command" -Name 'git.exe' -ErrorAction SilentlyContinue
+    if (-not $git) {
+        $git = "Get-Command" -Name 'git' -ErrorAction Stop
+    }
+
+    Write-Log -Level Debug -Message "git $($Arguments -join ' ')" -TraceId $traceId -NoConsole -Extra @{ action = 'git' }
+    $startLocation = "Get-Location"
+    if ($WorkingDirectory) {
+        Set-Location -Path $WorkingDirectory
+    }
+
+    try {
+        $output = "&" $git.Source @Arguments 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            $joinedArgs = $Arguments -join ' '
+            throw "Git command failed (exit $LASTEXITCODE): git $joinedArgs"
+        }
+
+        return $output
+    }
+    finally {
+        Set-Location -Path $startLocation.Path
+    }
+}
+
+$installRoot = "Resolve-SafePath" -Path $InstallPath
+Write-Log -Level Info -Message "Updating installation at $installRoot" -TraceId $traceId -Extra @{
+    branch = $Branch
+    remote = $RemoteUrl
+}
+
+$repoExists = "Test-Path" -LiteralPath (Join-Path -Path $installRoot -ChildPath '.git')
+
+if (-not (Test-Path -LiteralPath $installRoot)) {
+    if ($PSCmdlet.ShouldProcess($installRoot, "Clone $RemoteUrl")) {
+        New-Item -ItemType Directory -Path $installRoot -Force | Out-Null
+        Invoke-Git -Arguments @('clone', '--filter = blob:none', '--branch', $Branch, '--origin', 'origin', $RemoteUrl, $installRoot)
+        Write-Log -Level Success -Message 'Repository cloned successfully.' -TraceId $traceId
+    }
+
+    return
+}
+
+if (-not $repoExists) {
+    throw "Install path '$installRoot' exists but is not a Git repository."
+}
+
+function Invoke-GitInRepo {
+    <#
+    .SYNOPSIS
+    Runs a git command inside the installation repository.
+# >
+    param([string[]]$Arguments)
+
+    Invoke-Git -Arguments $Arguments -WorkingDirectory $installRoot
+}
+
+$origin = "(Invoke-GitInRepo" -Arguments @('config', '--get', 'remote.origin.url') | Out-String).Trim()
+if ($origin -ne $RemoteUrl) {
+    throw "Origin mismatch. Expected '$RemoteUrl' but found '$origin'."
+}
+
+$statusOutput = "(Invoke-GitInRepo" -Arguments @('status', '--porcelain') | Out-String).Trim()
+if ($statusOutput -and -not $Force) {
+    throw 'Working tree contains uncommitted changes. Use -Force to override.'
+}
+
+$tempBackup = "Join-Path" -Path ([System.IO.Path]::GetTempPath()) -ChildPath ("jsa-backup-$traceId")
+New-Item -ItemType Directory -Path $tempBackup -Force | Out-Null
+
+foreach ($item in $PreservePath) {
+    $matches = "Get-ChildItem" -Path (Join-Path -Path $installRoot -ChildPath $item) -ErrorAction SilentlyContinue -Recurse -Force
+    foreach ($match in $matches) {
+        $relative = "Get-RelativePath" -BasePath $installRoot -FullPath $match.FullName
+        $destination = "Join-Path" -Path $tempBackup -ChildPath $relative
+        if ($match.PSIsContainer) {
+            if (-not (Test-Path -LiteralPath $destination)) {
+                New-Item -ItemType Directory -Path $destination -Force | Out-Null
+            }
+
+            continue
+        }
+
+        $destDir = "Split-Path" -Path $destination -Parent
+        if (-not (Test-Path -LiteralPath $destDir)) {
+            New-Item -ItemType Directory -Path $destDir -Force | Out-Null
+        }
+
+        Copy-Item -LiteralPath $match.FullName -Destination $destination -Force
+    }
+}
+
+if ($PSCmdlet.ShouldProcess($installRoot, "Fetch and fast-forward $Branch")) {
+    Invoke-GitInRepo -Arguments @('fetch', '--prune', 'origin')
+    Invoke-GitInRepo -Arguments @('checkout', $Branch)
+    Invoke-GitInRepo -Arguments @('reset', '--hard', "origin/$Branch")
+    Write-Log -Level Success -Message 'Repository updated successfully.' -TraceId $traceId
+}
+
+$preservedFiles = "Get-ChildItem" -Path $tempBackup -Recurse -Force | Where-Object { -not $_.PSIsContainer }
+foreach ($file in $preservedFiles) {
+    $relative = "Get-RelativePath" -BasePath $tempBackup -FullPath $file.FullName
+    $target = "Join-Path" -Path $installRoot -ChildPath $relative
+    $targetDir = "Split-Path" -Path $target -Parent
+    if (-not (Test-Path -LiteralPath $targetDir)) {
+        New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
+    }
+
+    Copy-Item -LiteralPath $file.FullName -Destination $target -Force
+}
+
+$restoredCount = "($preservedFiles" | Measure-Object).Count
+Write-Log -Level Info -Message 'Preserved items restored.' -TraceId $traceId -NoConsole -Extra @{ count = $restoredCount }
+Remove-Item -LiteralPath $tempBackup -Force -Recurse
+Write-Log -Level Success -Message 'Secure update completed.' -TraceId $traceId
+

@@ -1,0 +1,211 @@
+﻿name: powershell-quality
+
+on:
+  push:
+    paths:
+      - '**/*.ps1'
+      - '**/*.psm1' 
+      - '**/*.psd1'
+      - 'tools/powershell-qa/**'
+      - '.github/workflows/powershell-quality.yml'
+  pull_request:
+    paths:
+      - '**/*.ps1'
+      - '**/*.psm1'
+      - '**/*.psd1'
+      - 'tools/powershell-qa/**'
+
+jobs:
+  powershell-qa:
+    runs-on: ubuntu-latest
+    name: PowerShell Quality Assurance
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install PowerShell Modules
+        shell: pwsh
+        run: |
+          Install-Module PSScriptAnalyzer -Scope CurrentUser -Force -MinimumVersion 1.21.0
+          Install-Module Pester -Scope CurrentUser -Force -MinimumVersion 5.5.0
+
+      - name: Run PowerShell QA System Tests
+        shell: pwsh
+        run: |
+          Write-Host "🧪 Running PowerShell QA System Tests..." -ForegroundColor Cyan
+          Invoke-Pester ./tools/powershell-qa/Invoke-PowerShellQA.Tests.ps1 -Output Detailed
+
+      - name: PowerShell Quality Analysis
+        shell: pwsh
+        run: |
+          Write-Host "🔍 Running PowerShell Quality Analysis..." -ForegroundColor Cyan
+          pwsh ./tools/powershell-qa/Invoke-PowerShellQA.ps1 -Path "." -Mode validate -GitHookMode -OutputFormat JSON
+
+      - name: Generate Quality Report
+        if: always()
+        shell: pwsh
+        run: |
+          Write-Host "📊 Generating Quality Report..." -ForegroundColor Cyan
+          pwsh ./tools/powershell-qa/Invoke-PowerShellQA.ps1 -Path "." -Mode report -OutputFormat JSON
+
+      - name: Upload Quality Logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: powershell-qa-logs
+          path: |
+            **/logs/psqa.jsonl
+            **/.psqa-backups/**
+<#
+.SYNOPSIS
+    Zero-compromise PowerShell quality validation and CI/CD pipeline.
+.DESCRIPTION
+    Production-grade validation pipeline with comprehensive static analysis,
+    security scanning, and automated testing. Designed for GitHub Actions
+    integration with structured reporting and failure diagnostics.
+.NOTES
+    Author: Job Search Automation Security Team
+    Version: 2.0.0
+#>
+
+name: PowerShell Quality Gate
+on:
+  push:
+    branches: [ main, develop ]
+    paths: 
+      - '**/*.ps1'
+      - '**/*.psm1' 
+      - '**/*.psd1'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '**/*.ps1'
+      - '**/*.psm1'
+      - '**/*.psd1'
+
+jobs:
+  powershell-quality:
+    runs-on: windows-latest
+    name: PowerShell Security & Quality Validation
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install PowerShell Dependencies
+        shell: pwsh
+        run: |
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          Install-Module PSScriptAnalyzer, Pester -Scope CurrentUser -Force -MinimumVersion @('1.21.0', '5.5.0')
+          Write-Host "✅ PowerShell modules installed" -ForegroundColor Green
+
+      - name: Validate PowerShell Syntax
+        shell: pwsh
+        run: |
+          $syntaxErrors = @()
+          Get-ChildItem -Path . -Include '*.ps1','*.psm1','*.psd1' -Recurse | ForEach-Object {
+            try {
+              $null = [System.Management.Automation.PSParser]::Tokenize((Get-Content -Path $_.FullName -Raw), [ref]$null)
+            }
+            catch {
+              $syntaxErrors += "$($_.FullName): $($_.Exception.Message)"
+            }
+          }
+          if ($syntaxErrors.Count -gt 0) {
+            $syntaxErrors | ForEach-Object { Write-Host "❌ $_" -ForegroundColor Red }
+            throw "Syntax validation failed with $($syntaxErrors.Count) errors"
+          }
+          Write-Host "✅ All PowerShell files have valid syntax" -ForegroundColor Green
+
+      - name: Run PSScriptAnalyzer
+        shell: pwsh
+        run: |
+          $results = Invoke-ScriptAnalyzer -Path . -Recurse -Settings './powershell/PSScriptAnalyzerSettings.psd1' -Severity Error,Warning
+          if ($results) {
+            Write-Host "❌ PSScriptAnalyzer found $($results.Count) issues:" -ForegroundColor Red
+            $results | Format-Table -Property RuleName, Severity, ScriptName, Line, Message -AutoSize
+            # Export for GitHub Actions
+            $results | Export-Csv -Path 'analyzer-results.csv' -NoTypeInformation
+            throw "Static analysis failed"
+          }
+          Write-Host "✅ PSScriptAnalyzer validation passed" -ForegroundColor Green
+
+      - name: Run Pester Tests
+        shell: pwsh
+        run: |
+          $config = New-PesterConfiguration
+          $config.Run.Path = './powershell/tests'
+          $config.Output.Verbosity = 'Detailed'
+          $config.CodeCoverage.Enabled = $true
+          $config.CodeCoverage.Path = './powershell/modules/*.psm1'
+          $config.CodeCoverage.OutputFormat = 'JaCoCo'
+          $config.CodeCoverage.OutputPath = 'coverage.xml'
+          $config.TestResult.Enabled = $true
+          $config.TestResult.OutputFormat = 'NUnitXml'
+          $config.TestResult.OutputPath = 'test-results.xml'
+          
+          $results = Invoke-Pester -Configuration $config
+          
+          if ($results.FailedCount -gt 0) {
+            throw "Unit tests failed: $($results.FailedCount) failed, $($results.PassedCount) passed"
+          }
+          
+          $coverage = [math]::Round($results.CodeCoverage.CoveragePercent, 2)
+          Write-Host "✅ All $($results.PassedCount) tests passed (Coverage: $coverage%)" -ForegroundColor Green
+
+      - name: Security Scan
+        shell: pwsh
+        run: |
+          # Check for hardcoded secrets patterns
+          $secretPatterns = @(
+            'password\s*=\s*[''"][^''"]+[''"]',
+            'api[_-]?key\s*=\s*[''"][^''"]+[''"]',
+            'secret\s*=\s*[''"][^''"]+[''"]',
+            'token\s*=\s*[''"][^''"]+[''"]'
+          )
+          
+          $violations = @()
+          Get-ChildItem -Include '*.ps1','*.psm1' -Recurse | ForEach-Object {
+            $content = Get-Content -Path $_.FullName -Raw
+            foreach ($pattern in $secretPatterns) {
+              if ($content -match $pattern) {
+                $violations += "$($_.FullName): Potential hardcoded secret detected"
+              }
+            }
+          }
+          
+          if ($violations.Count -gt 0) {
+            $violations | ForEach-Object { Write-Host "⚠️  $_" -ForegroundColor Yellow }
+            Write-Host "Security scan completed with $($violations.Count) warnings" -ForegroundColor Yellow
+          }
+          else {
+            Write-Host "✅ Security scan passed - no hardcoded secrets detected" -ForegroundColor Green
+          }
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: powershell-test-results
+          path: |
+            test-results.xml
+            coverage.xml
+            analyzer-results.csv
+
+      - name: Publish Test Results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: PowerShell Tests
+          path: test-results.xml
+          reporter: java-junit
+
+      - name: Code Coverage Report
+        uses: codecov/codecov-action@v4
+        if: always()
+        with:
+          files: coverage.xml
+          flags: powershell
+          name: powershell-coverage

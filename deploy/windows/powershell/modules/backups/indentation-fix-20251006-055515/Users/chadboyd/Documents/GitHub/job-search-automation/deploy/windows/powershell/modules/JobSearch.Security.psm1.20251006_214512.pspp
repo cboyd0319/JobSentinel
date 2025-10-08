@@ -1,0 +1,324 @@
+# JobSearch.Security.psm1
+<#
+.SYNOPSIS
+Security helpers for secrets protection, credentials, and controlled elevation.
+.DESCRIPTION
+Delivers DPAPI-backed secret storage, secure credential construction, elevation
+orchestration with explicit consent, and a security baseline assessment for
+Job Search Automation scripts.
+.NOTES
+Author: Job Search Automation
+Version: 2.0.0
+# >
+
+Set-StrictMode -Version Latest
+$ErrorActionPreference = 'Stop'
+
+function Test-JobSearchElevation {
+    <#
+    .SYNOPSIS
+    Indicates whether the current process has administrative privileges.
+    .OUTPUTS
+    System.Boolean
+    .EXAMPLE
+    Test-JobSearchElevation
+# >
+    [CmdletBinding()]
+    [OutputType([bool])]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '')]
+    param()
+
+    if (-not [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Windows)) {
+        return $false
+    }
+
+    try {
+        $identity = "[System.Security.Principal.WindowsIdentity]::GetCurrent()"
+        $principal = "[System.Security.Principal.WindowsPrincipal]::new($identity)"
+        return $principal.IsInRole([System.Security.Principal.WindowsBuiltinRole]::Administrator)
+    }
+    catch {
+        return $false
+    }
+}
+
+function Protect-JobSearchSecret {
+    <#
+    .SYNOPSIS
+    Protects plaintext secrets using Windows DPAPI (CurrentUser scope).
+    .DESCRIPTION
+    Converts plaintext into a Base64-encoded blob that can only be decrypted
+    by the same user on the same machine using the provided description as entropy.
+    .PARAMETER PlainText
+    Secret value to encrypt.
+    .PARAMETER Description
+    Optional entropy string, stored separately from the ciphertext.
+    .OUTPUTS
+    System.String
+    .EXAMPLE
+    Protect-JobSearchSecret -PlainText 'abc123' -Description 'GitHubToken'
+# >
+    [CmdletBinding()]
+    [OutputType([string])]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '')]
+    param([Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]$PlainText, [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Description)
+
+    if (-not [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Windows)) {
+        throw 'Protect-JobSearchSecret is only supported on Windows.'
+    }
+
+    $plainBytes = "[System.Text.Encoding]::UTF8.GetBytes($PlainText)"
+    $entropy = "[System.Text.Encoding]::UTF8.GetBytes($Description)"
+    try {
+        $cipher = "[System.Security.Cryptography.ProtectedData]::Protect("
+            $plainBytes, $entropy, [System.Security.Cryptography.DataProtectionScope]::CurrentUser)
+        return [Convert]::ToBase64String($cipher)
+    }
+    finally {
+        [Array]::Clear($plainBytes, 0, $plainBytes.Length)
+        [Array]::Clear($entropy, 0, $entropy.Length)
+    }
+}
+
+function Unprotect-JobSearchSecret {
+    <#
+    .SYNOPSIS
+    Reverses Protect-JobSearchSecret for the current user and entropy.
+    .PARAMETER EncryptedData
+    Base64-encoded DPAPI blob to decrypt.
+    .PARAMETER Description
+    Entropy string used during encryption.
+    .OUTPUTS
+    System.String
+    .EXAMPLE
+    Unprotect-JobSearchSecret -EncryptedData $cipher -Description 'GitHubToken'
+# >
+    [CmdletBinding()]
+    [OutputType([string])]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '')]
+    param([Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]$EncryptedData, [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Description)
+
+    if (-not [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Windows)) {
+        throw 'Unprotect-JobSearchSecret is only supported on Windows.'
+    }
+
+    $entropy = "[System.Text.Encoding]::UTF8.GetBytes($Description)"
+    $cipherBytes = "[Convert]::FromBase64String($EncryptedData)"
+    try {
+        $plainBytes = "[System.Security.Cryptography.ProtectedData]::Unprotect("
+            $cipherBytes, $entropy, [System.Security.Cryptography.DataProtectionScope]::CurrentUser)
+        return [System.Text.Encoding]::UTF8.GetString($plainBytes)
+    }
+    finally {
+        if ($plainBytes) {
+            [Array]::Clear($plainBytes, 0, $plainBytes.Length)
+        }
+        [Array]::Clear($cipherBytes, 0, $cipherBytes.Length)
+        [Array]::Clear($entropy, 0, $entropy.Length)
+    }
+}
+
+function New-JobSearchCredential {
+    <#
+    .SYNOPSIS
+    Creates a PSCredential object from DPAPI-protected secret material.
+    .PARAMETER UserName
+    Account name for the credential.
+    .PARAMETER EncryptedPassword
+    Base64-encoded DPAPI blob created by Protect-JobSearchSecret.
+    .PARAMETER Description
+    Entropy string used during encryption (must match).
+    .OUTPUTS
+    System.Management.Automation.PSCredential
+    .EXAMPLE
+# >
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Low')]
+    [OutputType([System.Management.Automation.PSCredential])]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '')]
+    param([Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]$UserName, [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [Alias('EncryptedPassword')]
+        [string]$SecretCiphertext, [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Description)
+
+    if (-not [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Windows)) {
+        throw 'New-JobSearchCredential is only supported on Windows.'
+    }
+
+    if (-not $PSCmdlet.ShouldProcess($UserName, 'Create secure credential from DPAPI `
+    secret')) {
+        return $null
+    }
+
+    $plain = "Unprotect-JobSearchSecret" -EncryptedData $SecretCiphertext -Description  `
+        $Description
+    $chars = $plain.ToCharArray()
+    $secure = "[System.Security.SecureString]::new()"
+    foreach ($char in $chars) {
+        $secure.AppendChar($char)
+    }
+    $secure.MakeReadOnly()
+    try {
+        return [System.Management.Automation.PSCredential]::new($UserName, $secure)
+    }
+    finally {
+        [Array]::Clear($chars, 0, $chars.Length)
+        $plain = $null
+    }
+}
+
+function Invoke-JobSearchElevation {
+    <#
+    .SYNOPSIS
+    Executes a script block with administrative privileges when required.
+    .DESCRIPTION
+    Runs the supplied script block in-process if already elevated; otherwise
+    prompts the user with a clear reason, launching a new elevated pwsh.exe
+    session that executes the script with the provided arguments.
+    .PARAMETER ScriptBlock
+    Script block to execute. Should be self-contained and idempotent.
+    .PARAMETER Reason
+    Human-readable justification presented to the user prior to UAC consent.
+    .PARAMETER ArgumentList
+    Optional arguments forwarded to the elevated script block.
+    .OUTPUTS
+    The result of the script block execution when invoked in-process. The
+    elevated branch returns $true on success.
+    .EXAMPLE
+    Invoke-JobSearchElevation -Reason 'Install service' -ScriptBlock { New-Service ... }
+# >
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '')]
+    param([Parameter(Mandatory = $true)]
+        [scriptblock]$ScriptBlock, [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Reason, [object[]]$ArgumentList = "@()")
+
+    if (-not [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Windows)) {
+        throw 'Invoke-JobSearchElevation is only supported on Windows.'
+    }
+
+    if (Test-JobSearchElevation) {
+        if ($PSCmdlet.ShouldProcess($env:COMPUTERNAME, "Run elevated action: `
+        $Reason")) {
+            return & $ScriptBlock @ArgumentList
+        }
+        return $null
+    }
+
+    Write-Information -MessageData "Elevation requested: $Reason" `
+        -InformationActionContinue
+    if (-not $PSCmdlet.ShouldProcess('pwsh.exe', "Start elevated session for: `
+    $Reason")) {
+        throw 'User cancelled elevation request.'
+    }
+
+    $tempScript = "Join-Path" -Path ([IO.Path]::GetTempPath()) -ChildPath  `
+    ('jobsearch-elevated- {0} .ps1' -f (New-Guid))
+    $scriptTemplate = @"
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSReviewUnusedParameter", "")]
+    param([Parameter(ValueFromRemainingArguments = "`$true)]"
+        [object[]]`$ArgumentList)
+    Set-StrictMode -Version Latest
+    `$ErrorActionPreference = 'Stop'
+
+    & ([scriptblock]::Create(@'
+    __JOBSEARCH_ELEVATED_SCRIPT__
+    '@)) @ArgumentList
+    "@
+    $scriptContent = $scriptTemplate.Replace('__JOBSEARCH_ELEVATED_SCRIPT__', `
+    $ScriptBlock.ToString())
+    Set-Content -Path $tempScript -Value $scriptContent -Encoding UTF8 -Force
+
+    try {
+        $arguments = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', `
+        "$tempScript")
+        if ($ArgumentList) {
+            $arguments + = $ArgumentList
+        }
+
+        $process = "Start-Process" -FilePath 'pwsh.exe' -ArgumentList $arguments `
+        -VerbRunAs `
+        -WindowStyleNormal -PassThru
+        $process.WaitForExit()
+        if ($process.ExitCode -ne 0) {
+            throw "Elevated process exited with code $($process.ExitCode)."
+        }
+        return $true
+    } catch [System.ComponentModel.Win32Exception] {
+        if ($_.Exception.NativeErrorCode -eq 1223) {
+            throw 'User declined UAC elevation.'
+        }
+        throw
+    } finally {
+        Remove-Item -Path $tempScript -Force -ErrorAction SilentlyContinue
+    }
+}
+
+function Test-JobSearchSecurityBaseline {
+    <#
+    .SYNOPSIS
+    Evaluates the current session against key security expectations.
+    .DESCRIPTION
+    Checks execution policy, Constrained Language Mode, AMSI availability, and
+    whether the session is elevated, returning guidance for remediation.
+    .OUTPUTS
+    PSCustomObject
+    .EXAMPLE
+    Test-JobSearchSecurityBaseline
+# >
+    [CmdletBinding()]
+    [OutputType([pscustomobject])]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSReviewUnusedParameter", "")]
+    param()
+
+    $issues = "@()"
+    $warnings = "@()"
+
+    $executionPolicy = "Get-ExecutionPolicy" -Scope CurrentUser
+    if ($executionPolicy -eq 'Unrestricted') {
+        $warnings + = 'Execution policy is Unrestricted; prefer `
+        RemoteSigned.'
+    }
+
+    if ($PSVersionTable.PSEdition -eq 'Desktop' -and  `
+    $PSVersionTable.PSVersion.Major -lt 7) {
+        $warnings + = 'Consider upgrading to PowerShell 7.4+ for improved `
+        security.'
+    }
+
+    if ($ExecutionContext.SessionState.LanguageMode -ne 'FullLanguage') {
+        $issues + = 'Session is not running in FullLanguage mode.'
+    }
+
+    try {
+        $null = "Get-Command" -Name 'Get-MpPreference' -ErrorAction Stop
+    } catch {
+        $warnings + = 'Windows Defender cmdlets unavailable; AMSI status `
+        unknown.'
+    }
+
+    return [pscustomobject]@ {
+        ExecutionPolicy = $executionPolicy
+        LanguageMode = $ExecutionContext.SessionState.LanguageMode
+        IsElevated = "Test-JobSearchElevation"
+        Issues = $issues
+        Warnings = $warnings
+        Timestamp = "Get-Date"
+    }
+}
+
+Export-ModuleMember -Function @('Test-JobSearchElevation', 'Protect-JobSearchSecret', 'Unprotect-JobSearchSecret', 'New-JobSearchCredential', 'Invoke-JobSearchElevation', 'Test-JobSearchSecurityBaseline')
+
+  

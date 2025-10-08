@@ -1,476 +1,149 @@
-# Security Guide
+# Security & Costs
 
-This software handles your personal data. Here's what you need to know.
+**TL;DR:** Local mode is free and private. Cloud costs $5-15/month. Your data stays yours.
 
-⚠️ **Alpha software = alpha security.** I do my best, but expect gaps.
+## Privacy & Data
 
-## Security Checklist
+**What I collect:** Nothing. This runs locally.
 
-Before you run this:
+**What stays on your machine:**
+- Job postings (SQLite database)
+- Your preferences (config files)
+- Scraping logs (auto-rotated)
+- Resume analysis (if enabled)
 
-- ✅ Check that `.env` is in `.gitignore` (it is, but verify)
-- ✅ Don't share your Slack webhook URL with anyone
-- ✅ Keep resume files local (this software never uploads them)
-- ✅ Set cloud budget alerts if deploying to cloud
-- ✅ Update dependencies: `pip install -U -r requirements.txt`
+**What goes to third parties:**
+- HTTP requests to job sites (normal browsing)
+- Slack notifications (if you set it up)
+- Cloud deployment data (if you use GCP)
 
-**Skip the cloud if you're paranoid.** Local-only is completely safe.
+⚠️ **Risk:** If you deploy to cloud, job data lives on your GCP project. Use least privilege service accounts.
 
----
+## Cloud Costs (Optional)
 
-## What Gets Stored and Where
+**Monthly estimate:** $5-15 depending on usage
 
-**Local storage (your computer):**
+**Breakdown:**
+- Cloud Run: $5-10 (depends on frequency)  
+- Cloud Storage: $1-2 (job data)
+- Networking: $1-3 (API calls)
 
-- Job postings (title, company, URL, description)
-- Your job preferences (keywords, salary targets)
-- Resume skills (if you use the parser)
-- Logs (when it runs, what it finds)
-
-**Sent to Slack:**
-
-- Job matches only (title, company, URL, score)
-
-**Cloud storage (if you deploy):**
-
-- Everything from local storage
-- Encrypted SQLite backups
-
-**Never stored or sent:**
-- Your actual resume file
-- Personal info (name, address, phone)
-- Browsing history
-- Financial data
-
-**Bottom line:** If you don't trust the cloud, run local-only. It works fine.
-
----
-
-## Secrets (API Keys, Passwords, etc.)
-
-**What counts as a secret:**
-
-Secrets are sensitive pieces of information like passwords, API keys, and webhook URLs. If someone gets these, they could:
-
-- Post fake job alerts to your Slack
-- Access your cloud resources
-- Rack up charges on your account
-
-### How This Project Protects Secrets
-
-**Local Deployment:**
-
-1. **`.env` file:** Contains your secrets (Slack webhook, database URL, etc.)
-   - This file is automatically ignored by git (won't be uploaded to GitHub)
-   - File permissions are set to 600 (only you can read it)
-   - Check: Run `cat .gitignore | grep .env` to confirm
-
-2. **`config/user_prefs.json`:** Contains your preferences
-   - Should also be git-ignored (contains salary expectations, companies)
-   - Check: Run `git status` - you should NOT see this file listed
-
-**Cloud Deployment (GCP):**
-
-1. **GCP Secret Manager:** Stores secrets encrypted
-   - Only the Cloud Run service can access them
-   - Secrets are encrypted at rest and in transit
-   - You can rotate (change) secrets without redeploying
-
-2. **Service Accounts:** Limited permission identities
-   - The scraper runs as a service account with minimal permissions
-   - It can only read secrets, write logs, and store data
-   - It cannot create new resources or access billing
-
-### How to Check Your Secrets are Safe
-
+**Cost calculator:**
 ```bash
-# Make sure .env is NOT tracked by git
-git ls-files | grep .env
+# Check current spend
+gcloud billing budgets list
 
-# If .env shows up, remove it:
-git rm --cached .env
-git commit -m "Remove .env from git"
-
-# Check file permissions (Unix/macOS/Linux)
-ls -l .env
-# Should show: -rw------- (only you can read/write)
-
-# If not, fix it:
-chmod 600 .env
+# Set spending alert
+gcloud billing budgets create \
+  --billing-account=YOUR-ACCOUNT \
+  --display-name="Job Scraper Budget" \
+  --budget-amount=15 \
+  --threshold-rule=percent:80
 ```
 
----
-
-## Network Security
-
-### Local Deployment
-
-**What the scraper connects to:**
-- Job boards (to scrape listings)
-- Slack API (to send notifications)
-- Nothing else
-
-**What it doesn't connect to:**
-- No analytics or tracking servers
-- No ads networks
-- No third-party data collectors
-
-### Cloud Deployment
-
-**Additional connections:**
-- Cloud provider APIs (GCP currently, AWS/Azure planned)
-- Cloud storage (for database backups)
-
-**Protections:**
-- All traffic is encrypted (HTTPS/TLS)
-- Cloud Run uses private networking (not exposed to internet)
-- Only the scheduler can trigger the scraper (URL is authenticated)
-
----
-
-## Container Security (for Cloud Deployments)
-
-If you deploy to GCP (AWS/Azure are future enhancements), the scraper runs in a "container" (a isolated, secure environment).
-
-### What I Did to Secure the Container
-
-1. **Minimal base image:** Uses `python:3.12-slim` (smallest, fewest vulnerabilities)
-2. **Non-root user:** Runs as user `scraper`, not `root` (limits damage if compromised)
-3. **No unnecessary tools:** Doesn't include shells, editors, or debugging tools
-4. **Vulnerability scanning:** GCP Artifact Registry scans for known issues
-5. **Binary authorization:** Only signed, trusted images can deploy
-
-### How You Can Verify
-
+**Shutdown procedure:**
 ```bash
-# Check what's in the Docker image
-docker run --rm job-scraper:latest ls -la /
+# Destroy everything
+python cloud/bootstrap.py --destroy
 
-# Verify it runs as non-root user
-docker run --rm job-scraper:latest whoami
-# Should output: scraper
+# Verify deletion
+gcloud run services list
+gcloud storage buckets list
 ```
 
----
+## Security Practices
 
-## Data Encryption
+**API keys:** Store in `.env` file (gitignored)
 
-### At Rest (Stored Data)
-
-**Local:**
-- SQLite database is NOT encrypted by default
-- **Risk:** If someone gains access to your computer, they can read `data/jobs.sqlite`
-- **Mitigation:** Use full-disk encryption (FileVault on macOS, BitLocker on Windows, LUKS on Linux)
-
-**Cloud:**
-- All data is encrypted by cloud provider (AES-256)
-- Encryption keys are managed by Google (AWS/Azure support planned)
-- Backups are also encrypted
-
-### In Transit (Data Being Sent)
-
-- All network traffic uses TLS 1.2+ encryption
-- Slack webhooks use HTTPS
-- Cloud API calls use HTTPS
-- No data is sent in plain text
-
----
-
-## Logging and Monitoring
-
-### What Gets Logged
-
-**Locally:**
-- When the scraper runs
-- How many jobs were found
-- Errors and warnings
-- Stored in: `data/logs/`
-
-**In the Cloud:**
-- Same as local, plus:
-- Who triggered the scraper (scheduler or manual)
-- Resource usage (memory, CPU)
-- Stored in: Google Cloud Logging
-
-### What is NOT Logged
-
-- ❌ Secrets (passwords, API keys, webhook URLs)
-- ❌ Personal information
-- ❌ Full job descriptions (only title/company/URL)
-
-### How to Review Logs
-
+**Service accounts:** Use least privilege
 ```bash
-# Local logs
-tail -f data/logs/job_scraper_*.log
+# Check current permissions
+gcloud projects get-iam-policy YOUR-PROJECT-ID
 
-# Cloud logs (GCP)
-gcloud logging read "resource.type=cloud_run_revision" --limit 50
+# Remove overprivileged roles
+gcloud projects remove-iam-policy-binding YOUR-PROJECT-ID \
+  --member="serviceAccount:scraper@project.iam.gserviceaccount.com" \
+  --role="roles/owner"
 ```
 
----
+**Local database:** Enable disk encryption on your machine
 
-## Vulnerability Scanning
+**Resume data:** Processed locally only, never uploaded
 
-This project includes automated security checks:
+## Threat Model
 
-### Pre-Commit Hooks (Run Before Every Git Commit)
+| Asset | Risk | Impact | Mitigation |
+|-------|------|--------|------------|
+| Slack webhook | Spam notifications | Low | Easy to rotate, stored in .env only |
+| Job database | Local access | Medium | Use disk encryption |
+| Cloud credentials | Lateral movement | High | Least privilege, 2FA required |
+| Resume text | Data leak | Medium | Processed locally, not stored in cloud |
 
-1. **Bandit:** Scans Python code for security issues
-2. **Safety:** Checks dependencies for known vulnerabilities
-3. **Detect-secrets:** Prevents committing API keys or passwords
+## Incident Response
 
-To run manually:
-
+**If webhook compromised:**
 ```bash
-# Install pre-commit hooks
-pip install pre-commit
-pre-commit install
-
-# Run all checks
-pre-commit run --all-files
+# Rotate immediately
+python scripts/setup/slack/slack_setup.py --force
 ```
 
-### Dependency Updates
-
-Check for vulnerable dependencies:
-
+**If cloud account compromised:**
 ```bash
-# Install safety
-pip install safety
-
-# Scan for vulnerabilities
-safety check --file requirements.txt
+# Emergency shutdown
+python cloud/bootstrap.py --destroy
+gcloud auth revoke --all
 ```
 
-Update vulnerable packages:
-
+**If local machine compromised:**
 ```bash
-# Update all dependencies
-pip install -U -r requirements.txt
-
-# Or update specific package
-pip install -U <package-name>
+# Change all API keys
+rm .env
+python scripts/setup/slack/slack_setup.py
+# Regenerate Reed API key at reed.co.uk
 ```
 
----
+## Supply Chain Security
 
-## Cloud-Specific Security
+**Dependencies:** Pinned in requirements.txt, but I don't audit everything
 
-### Google Cloud Platform (GCP)
+⚠️ **Risk:** Malicious packages could access your data. Review `requirements.txt` if paranoid.
 
-**What I configured:**
+**Sandboxing:** Consider running in Docker:
+```bash
+# Build container
+docker build -t job-scraper .
 
-1. **Budget Alerts:** You'll get emails at $5, $10, and $15 spending
-2. **IAM Roles:** Service account has minimal permissions
-3. **VPC Network:** Private networking (not internet-exposed)
-4. **Secret Manager:** Encrypted secret storage
-5. **Cloud Armor (optional):** DDoS protection
+# Run isolated
+docker run --rm -v $(pwd)/config:/app/config job-scraper
+```
 
-**What you should do:**
+## Compliance Notes
 
-1. Enable 2-Factor Authentication on your Google account
-2. Review IAM permissions: `gcloud projects get-iam-policy PROJECT_ID`
-3. Check security findings: Visit Security Command Center in GCP Console
+**GDPR:** You're the controller of scraped job data. Delete it when done.
 
-### AWS (Future)
+**Terms of Service:** Respect robots.txt and rate limits. Don't spam job sites.
 
-Similar security controls will be implemented:
-- IAM roles with least privilege
-- KMS for encryption
-- VPC for network isolation
-- CloudWatch for monitoring
+**Employment law:** Using this doesn't guarantee anything. Still apply properly.
 
-### Azure (Future)
+## Audit Checklist
 
-- Azure AD for authentication
-- Key Vault for secrets
-- Virtual Network for isolation
-- Security Center for monitoring
+**Local setup:**
+- [ ] `.env` file not in git
+- [ ] Disk encryption enabled  
+- [ ] No hardcoded secrets in config
+- [ ] Log retention set (auto-rotates after 30 days)
 
----
+**Cloud setup:**
+- [ ] Service account has minimal permissions
+- [ ] Billing alerts configured
+- [ ] VPC firewall rules restrictive  
+- [ ] No public database access
 
-## Common Security Mistakes to Avoid
-
-### ❌ Don't
-
-1. **Commit `.env` to git**
-   - Your secrets will be public on GitHub
-   - Fix: Run `git rm --cached .env` if you already did this
-
-2. **Share your Slack webhook URL**
-   - Anyone can send fake job alerts to your channel
-   - Fix: Revoke the old webhook, create a new one
-
-3. **Use the same password everywhere**
-   - If one account is compromised, all are at risk
-   - Fix: Use a password manager (1Password, Bitwarden, LastPass)
-
-4. **Ignore budget alerts**
-   - You could rack up unexpected cloud bills
-   - Fix: Set up billing alerts and check spending weekly
-
-5. **Run as root/admin**
-   - If the scraper is compromised, attackers get full system access
-   - Fix: Run as a regular user account
-
-### ✅ Do
-
-1. **Keep dependencies updated**
-   - Run `pip install -U -r requirements.txt` monthly
-
-2. **Review logs regularly**
-   - Check for errors or unusual activity
-
-3. **Enable 2FA on cloud accounts**
-   - Prevents unauthorized access even if password is stolen
-
-4. **Back up your data**
-   - Export SQLite database occasionally: `cp data/jobs.sqlite backups/`
-
-5. **Test your backups**
-   - Make sure you can restore from a backup if needed
+**Ongoing:**
+- [ ] Monitor cloud costs monthly
+- [ ] Rotate API keys quarterly
+- [ ] Review access logs if suspicious activity
 
 ---
 
-## Incident Response (What to Do If Something Goes Wrong)
-
-### If You Think Your Secrets Were Exposed
-
-1. **Immediately rotate (change) all secrets:**
-
-   ```bash
-   # Slack webhook: Delete old webhook, create new one via scripts/slack_bootstrap.py
-   python scripts/slack_bootstrap.py
-
-   # GCP: Rotate service account key
-   gcloud iam service-accounts keys create new-key.json --iam-account=...
-   ```
-
-2. **Check for unauthorized access:**
-   ```bash
-   # GCP audit logs
-   gcloud logging read "protoPayload.authenticationInfo.principalEmail!='YOUR_EMAIL'" --limit 100
-   ```
-
-3. **Review recent activity:**
-   - Check Slack for fake messages
-   - Check cloud billing for unexpected charges
-   - Check database for unusual jobs
-
-### If You See Unexpected Cloud Charges
-
-1. **Immediately pause the scheduler:**
-   ```bash
-   gcloud scheduler jobs pause job-scraper-trigger --location=us-central1
-   ```
-
-2. **Check what's running:**
-   ```bash
-   gcloud run services list
-   gcloud compute instances list
-   ```
-
-3. **If you don't recognize a resource, delete it:**
-   ```bash
-   python -m cloud.teardown --provider gcp
-   ```
-
-### If the Scraper Stops Working
-
-1. **Check logs for errors:**
-   ```bash
-   tail -f data/logs/*.log
-   ```
-
-2. **Test connectivity:**
-   ```bash
-   python -c "import requests; print(requests.get('https://google.com').status_code)"
-   ```
-
-3. **Verify secrets are still valid:**
-   ```bash
-   python scripts/slack_bootstrap.py  # Test Slack webhook
-   ```
-
----
-
-## Security Audit Checklist
-
-Run this checklist monthly:
-
-- [ ] Update Python dependencies: `pip install -U -r requirements.txt`
-- [ ] Run vulnerability scan: `safety check --file requirements.txt`
-- [ ] Review cloud spending (if deployed)
-- [ ] Check for unusual log entries
-- [ ] Verify `.env` is not in git: `git ls-files | grep .env` (should be empty)
-- [ ] Test Slack webhook still works
-- [ ] Check that backups are being created (cloud deployment)
-- [ ] Review IAM permissions (cloud deployment)
-
----
-
-## Reporting Security Issues
-
-If you find a security vulnerability in this project:
-
-1. **Do NOT open a public GitHub issue** (that would expose the vulnerability)
-2. Email the maintainer directly (check README for contact info)
-3. Include:
-   - Description of the vulnerability
-   - Steps to reproduce
-   - Potential impact
-   - Suggested fix (if you have one)
-
-I'll respond within 48 hours and work with you to fix it.
-
----
-
-## Additional Resources
-
-- **OWASP Top 10:** [https://owasp.org/www-project-top-ten/](https://owasp.org/www-project-top-ten/)
-- **GCP Security Best Practices:** [https://cloud.google.com/security/best-practices](https://cloud.google.com/security/best-practices)
-- **Python Security Guide:** [https://python.readthedocs.io/en/latest/library/security_warnings.html](https://python.readthedocs.io/en/latest/library/security_warnings.html)
-- **NIST Cybersecurity Framework:** [https://www.nist.gov/cyberframework](https://www.nist.gov/cyberframework)
-
----
-
-## Threat Model (Alpha Draft)
-
-| Asset | Threat | Risk (Low/Med/High) | Mitigation |
-|-------|--------|---------------------|------------|
-| Slack Webhook URL | Disclosure -> Spam/Fake Alerts | Medium | Stored only in `.env`; never logged; easy to rotate. |
-| Local SQLite DB | Unauthorized local access | Medium | Encourage full-disk encryption; optional future DB encryption. |
-| Cloud Credentials (gcloud) | Privilege abuse / lateral movement | High | Least-privilege service accounts; secure subprocess allowlist; user 2FA. |
-| Resume Text (parsed) | Leakage via logs/cache | Low | Cache contains derived JSON only (skills/titles); no raw resume file stored. |
-| Subprocess Invocation | Command injection / binary spoof | Medium | Central secure allowlist wrapper; no `shell=True`; path verification. |
-| PDF/DOCX Parsing | Malicious document exploits | Medium | Uses maintained libs (pdfplumber, python-docx); advise scanning suspicious resumes; future sandbox. |
-| External Downloads (spaCy model, gcloud SDK) | Supply-chain tampering | Medium | HTTPS + host allowlist + hash verification (SDK) + explicit consent prompts. |
-| Excessive Scraping | IP blocking / legal friction | Medium | Respect rate limits; configurable concurrency; user warning in README. |
-
-### Trust Boundaries
-1. Local runtime (user machine) – high trust; all sensitive processing stays here.
-2. Slack Webhook – outbound only; restricts data to job summaries.
-3. Cloud APIs (optional) – network boundary; restrict permissions; rotate credentials.
-
-### Attack Surfaces
-* File parsing for resumes.
-* Network HTTP scraping.
-* Subprocess calls to `gcloud` and system utilities.
-* Dependency supply chain.
-
-### Planned Hardening (Roadmap)
-1. Async secure subprocess wrapper (parity with cloud `run_command`).
-2. Optional PDF sandbox (qpdf or isolated container) for untrusted resumes.
-3. JSON Schema validation for `user_prefs.json` and resume taxonomy.
-4. CLI flag `--offline` disabling all outbound downloads (except target job boards).
-5. Hash pinning for spaCy model wheel (if feasible) and additional SDK versions.
-
-### User Guidance (Practical)
-* Run locally first; only enable cloud when comfortable with cost & IAM.
-* Treat webhook URLs like passwords—rotate if posted publicly.
-* Keep dependencies updated monthly; stale libs increase exploit risk.
-* If suspicious resume behavior (parsing crash), delete the file and re-run with verbose logs.
-
-> Alpha status: Security controls are evolving. Review this section after each update.
-
+**Questions?** Check logs first, then open GitHub issue. Security issues: email directly.

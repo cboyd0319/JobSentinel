@@ -1,7 +1,8 @@
+import json
 import logging
 import os
-import json
 from datetime import datetime
+
 from rich.console import Console
 from rich.logging import RichHandler
 
@@ -87,9 +88,7 @@ def setup_logging(log_level: str = "INFO") -> logging.Logger:
     else:
         # Plain text log files locally
         file_handler = logging.FileHandler(os.path.join(log_dir, "application.log"))
-        formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        )
+        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
         file_handler.setFormatter(formatter)
 
     file_handler.setLevel(logging.DEBUG)

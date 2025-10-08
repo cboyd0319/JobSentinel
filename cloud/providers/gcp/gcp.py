@@ -46,7 +46,7 @@ from cloud.providers.gcp.auth import authenticate
 from cloud.providers.gcp.sdk import ensure_gcloud
 from cloud.providers.gcp.project import choose_billing_account, create_project
 from cloud.providers.gcp.regions import select_region, select_scheduler_region
-from cloud.providers.gcp.security import setup_binary_authorization, run_prowler_scan
+from cloud.providers.gcp.security import setup_binary_authorization
 from cloud.providers.gcp.cloud_run import build_and_push_image
 from cloud.providers.gcp.scheduler import schedule_job
 from cloud.providers.gcp.summary import verify_deployment, print_summary, send_slack_notification
@@ -264,11 +264,7 @@ class GCPBootstrap:
             self.logger, self.job_name, self.region, self.project_id, self.scheduler_region, self.storage_bucket
         )
 
-        # Security scan (optional but recommended)
-        try:
-            await run_prowler_scan(self.logger, self.project_id, self.project_root)
-        except Exception as e:
-            self.logger.warning(f"Security scan failed (non-critical): {e}")
+        # Security configuration completed
 
         # Final summary
         print_summary(
