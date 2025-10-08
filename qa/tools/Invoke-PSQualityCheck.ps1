@@ -111,6 +111,9 @@ if (Test-Path $Path -PathType Leaf) {
     }
 }
 
+# Ensure $files is always treated as an array
+$files = @($files)
+
 if ($files.Count -eq 0) {
     Write-Warning "No PowerShell files found in: $Path"
     exit 0
@@ -182,21 +185,56 @@ if ($Mode -eq 'fix' -and $allIssues.Count -gt 0) {
         Write-Host "   DRY RUN - No changes will be made" -ForegroundColor Yellow
     }
     
-    $fixableIssues = $allIssues | Where-Object { $_.SuggestedCorrections }
+    $fixableIssues = @($allIssues | Where-Object { $_.SuggestedCorrections })
     Write-Host "   Fixable issues: $($fixableIssues.Count) of $($allIssues.Count)" -ForegroundColor Gray
     
-    if (-not $DryRun -and $fixableIssues.Count -gt 0) {
+    if (-not $DryRun -and $allIssues.Count -gt 0) {
         # Group by file for efficient processing
-        $fileGroups = $fixableIssues | Group-Object ScriptPath
+        $fileGroups = $allIssues | Group-Object ScriptPath
         foreach ($fileGroup in $fileGroups) {
             $filePath = $fileGroup.Name
             Write-Host "   Fixing: $(Split-Path $filePath -Leaf)" -ForegroundColor Yellow
             
-            try {
-                Invoke-Formatter -ScriptDefinition (Get-Content $filePath -Raw) | Set-Content $filePath -Encoding UTF8
-                Write-Host "     ✅ Fixed" -ForegroundColor Green
-            } catch {
-                Write-Warning "     Failed to fix: $($_.Exception.Message)"
+            $content = Get-Content $filePath -Raw
+            $originalContent = $content
+            $fixedCount = 0
+            
+            # Apply custom fixes for common issues
+            foreach ($issue in $fileGroup.Group) {
+                switch ($issue.RuleName) {
+                    'PSAvoidUsingWriteHost' {
+                        # Convert Write-Host to Write-Output (remove color parameters)
+                        $content = $content -replace 'Write-Host\s+([^-]+?)(?:\s+-\w+\s+\w+)*\s*$', 'Write-Output $1'
+                        $content = $content -replace 'Write-Host\s+([^-]+?)(?:\s+-\w+\s+\w+)+', 'Write-Output $1'
+                        $fixedCount++
+                    }
+                    'PSUseDeclaredVarsMoreThanAssignments' {
+                        # This requires manual intervention - skip
+                    }
+                    default {
+                        # Try PSScriptAnalyzer's built-in fixes if available
+                        if ($issue.SuggestedCorrections) {
+                            try {
+                                $content = Invoke-Formatter -ScriptDefinition $content
+                                $fixedCount++
+                            } catch {
+                                # Silent fail for formatter issues
+                            }
+                        }
+                    }
+                }
+            }
+            
+            # Save if changes were made
+            if ($content -ne $originalContent) {
+                try {
+                    Set-Content $filePath -Value $content -Encoding UTF8 -NoNewline
+                    Write-Host "     ✅ Fixed $fixedCount issues" -ForegroundColor Green
+                } catch {
+                    Write-Warning "     Failed to save fixes: $($_.Exception.Message)"
+                }
+            } else {
+                Write-Host "     ⚠️  No automatic fixes available" -ForegroundColor Yellow
             }
         }
     }
