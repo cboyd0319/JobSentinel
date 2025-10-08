@@ -6,7 +6,7 @@
 # so unused capabilities can be skipped to save cost and install time.
 
 # --- Core runtime ---
-aiofiles>=23,<24
+aiofiles>=23,<25
 aiohttp>=3.9,<4
 aiosqlite>=0.20,<0.22
 beautifulsoup4>=4.12,<5
