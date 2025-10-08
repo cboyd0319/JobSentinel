@@ -8,7 +8,7 @@
 # --- Core runtime ---
 aiofiles>=23,<24
 aiohttp>=3.9,<4
-aiosqlite>=0.20,<0.21
+aiosqlite>=0.20,<0.22
 beautifulsoup4>=4.12,<5
 cryptography>=44.0.1,<47
 Flask>=3.0,<3.1
