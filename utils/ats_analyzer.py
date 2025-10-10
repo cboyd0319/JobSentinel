@@ -55,7 +55,7 @@ DEFAULT_WEIGHTS = {
 _ANALYZER_PLUGINS: dict[str, dict[str, Any]] = {}
 
 
-def register_analyzer_plugin(name: str, weight: float, fn):
+def register_analyzer_plugin(name: str, weight: float, fn) -> None:
     """Register a custom analyzer plugin.
 
     Plugin callable signature:

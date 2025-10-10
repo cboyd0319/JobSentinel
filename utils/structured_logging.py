@@ -21,7 +21,7 @@ from contextlib import contextmanager
 from contextvars import ContextVar
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Generator
 
 # Thread-safe context variable for trace_id propagation
 trace_context: ContextVar[str | None] = ContextVar("trace_context", default=None)
@@ -248,7 +248,7 @@ class StructuredLogger:
 
 
 @contextmanager
-def trace_context_manager(trace_id: str | None = None, operation: str | None = None):
+def trace_context_manager(trace_id: str | None = None, operation: str | None = None) -> Generator[str, None, None]:
     """Context manager for trace_id propagation."""
     # Generate trace_id if not provided
     if trace_id is None:

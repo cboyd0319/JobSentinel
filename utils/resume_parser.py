@@ -31,11 +31,14 @@ except ImportError:  # pragma: no cover - environment without optional dep
 _NLP = None  # Lazy-loaded model singleton
 
 
-def ensure_spacy_model(interactive: bool = True):
+def ensure_spacy_model(interactive: bool = True) -> Any:
     """Ensure spaCy English model is available (with user consent).
 
     Args:
         interactive: if True, prompt before downloading model.
+    
+    Returns:
+        The spaCy NLP model instance.
     """
     global _NLP
     if _NLP is not None:
@@ -528,7 +531,7 @@ def check_dependencies() -> tuple[bool, list[str]]:
     return (len(missing) == 0, missing)
 
 
-def get_ats_analyzer(resume_path: str):
+def get_ats_analyzer(resume_path: str) -> Any:
     """
     Get an ATS analyzer service for a resume.
 
@@ -559,7 +562,7 @@ def get_ats_analyzer(resume_path: str):
 
 
 # Legacy compatibility alias (deprecated)
-def get_ats_scanner(resume_path: str):
+def get_ats_scanner(resume_path: str) -> Any:
     """DEPRECATED: Use get_ats_analyzer() instead."""
     import warnings
 

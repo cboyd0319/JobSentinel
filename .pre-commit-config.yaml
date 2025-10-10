@@ -1,0 +1,100 @@
+# Pre-commit hooks for code quality enforcement
+# Install: pip install pre-commit && pre-commit install
+# Run manually: pre-commit run --all-files
+# See: https://pre-commit.com
+
+repos:
+  # Ruff - Fast Python linter and formatter
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.9
+    hooks:
+      # Lint and auto-fix common issues
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+      # Format code
+      - id: ruff-format
+
+  # Standard pre-commit hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      # Remove trailing whitespace
+      - id: trailing-whitespace
+        exclude: \.md$
+      # Ensure files end with newline
+      - id: end-of-file-fixer
+      # Check YAML syntax
+      - id: check-yaml
+        args: [--unsafe]  # Allow custom tags
+      # Check JSON syntax
+      - id: check-json
+      # Check TOML syntax
+      - id: check-toml
+      # Prevent large files (>500KB)
+      - id: check-added-large-files
+        args: [--maxkb=500]
+      # Check for merge conflict markers
+      - id: check-merge-conflict
+      # Detect private keys
+      - id: detect-private-key
+      # Check for files that would conflict on case-insensitive filesystems
+      - id: check-case-conflict
+      # Ensure Python files are valid syntax
+      - id: check-ast
+      # Check for debugger imports
+      - id: debug-statements
+      # Fix mixed line endings
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      # Check requirements.txt syntax
+      - id: requirements-txt-fixer
+
+  # MyPy - Static type checking
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.11.0
+    hooks:
+      - id: mypy
+        additional_dependencies:
+          - types-requests
+          - types-python-dateutil
+        args: [--ignore-missing-imports, --no-strict-optional]
+        exclude: ^(tests/|scripts/|examples/)
+
+  # Bandit - Security linting
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.5
+    hooks:
+      - id: bandit
+        args: [-c, pyproject.toml]
+        additional_dependencies: ["bandit[toml]"]
+        exclude: ^tests/
+
+  # Check for common security issues
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        args: [--baseline, .secrets.baseline]
+        exclude: package.lock.json
+
+  # Markdown linting
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.37.0
+    hooks:
+      - id: markdownlint
+        args: [--fix]
+        exclude: ^docs/improvements/
+
+  # Shell script linting
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.9.0.6
+    hooks:
+      - id: shellcheck
+        exclude: ^deploy/
+
+# Configuration for pre-commit.ci (if using)
+ci:
+  autofix_prs: true
+  autofix_commit_msg: '🤖 Auto-fix by pre-commit hooks'
+  autoupdate_schedule: weekly
+  skip: [mypy]  # Skip slow checks on CI

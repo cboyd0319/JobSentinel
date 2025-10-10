@@ -2,7 +2,7 @@
 **Self-hosted job intelligence system — private, automated, and free to run locally.**
 
 JobSentinel scrapes multiple job sites, scores each role against your preferences, and alerts you only to high-value matches — automatically.  
-It’s built for *anyone* who’s tired of endless scrolling, fake postings, and recruiter spam.
+It's built for *anyone* who's tired of endless scrolling, fake postings, and recruiter spam.
 
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Docker](https://img.shields.io/badge/Run%20with-Docker-blue.svg)](https://www.docker.com/)
@@ -290,18 +290,25 @@ Local usage is optional; CI runs automatically on PRs and pushes to `main`.
 
 ## Contributing
 
-1) Setup venv and install dev dependencies (see Quick Start).  
+We welcome contributions! Please see **[docs/CONTRIBUTING.md](docs/CONTRIBUTING.md)** for complete guidelines.
+
+**Quick Start:**
+
+1) Setup venv and install dev dependencies (see Quick Start above)
 2) Enable pre-commit hooks:
 
 ```bash
+pip install pre-commit
 pre-commit install
 pre-commit run --all-files
 ```
 
 3) Before opening a PR:
-- make fmt && make lint && make type && make test-core
-- Ensure no secrets are committed; read SECURITY.md
+- Run all quality checks: `pre-commit run --all-files`
+- Ensure tests pass: `pytest`
+- Review [Code Standards](docs/improvements/code-standards-compliance.md)
 - Keep changes small and focused; add/adjust tests
+- No secrets committed; read [docs/SECURITY.md](docs/SECURITY.md)
 
 
 **Key files:**
@@ -366,12 +373,21 @@ Most don’t have public APIs; available ones are limited or expensive.
 
 ---
 
+## Documentation
+
+- **[docs/](docs/)** - Complete documentation including architecture, security policy, and code analysis
+- **[CHANGELOG.md](CHANGELOG.md)** - Version history and recent improvements
+- **[CONTRIBUTING.md](docs/CONTRIBUTING.md)** - Contribution guidelines
+- **[SECURITY.md](docs/SECURITY.md)** - Security policy and vulnerability reporting
+
+---
+
 ## License
 
-MIT License.
+MIT License. See [LICENSE](LICENSE) for details.
 
-**Alpha software—use at your own risk.** I use it daily, but it has bugs.  
-**Questions?** Check `TROUBLESHOOTING.md` or open a GitHub issue.
+**Alpha software—use at your own risk.** This is an active project with ongoing improvements.  
+**Questions?** Open a GitHub issue or check the [documentation](docs/).
 Health endpoint:
 
 - GET `/healthz` returns `{ ok: bool, stats: { total_jobs, high_score_jobs } }`

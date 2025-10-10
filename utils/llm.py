@@ -332,7 +332,7 @@ def get_token_usage_stats() -> dict:
     }
 
 
-def reset_daily_usage():
+def reset_daily_usage() -> None:
     """Reset daily token usage (for testing)."""
     token_tracker.daily_tokens = 0
     token_tracker.last_reset = datetime.now()
