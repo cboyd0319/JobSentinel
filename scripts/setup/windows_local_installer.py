@@ -6,18 +6,17 @@ A comprehensive, zero-knowledge user installation script for Windows.
 Handles all dependencies, configuration, and setup with extensive error handling.
 """
 
-import os
-import sys
 import json
-import subprocess
-import urllib.request
-import tempfile
-from pathlib import Path
-from typing import List, Optional, Tuple
 import logging
-import time
+import os
 import platform
+import subprocess
+import sys
+import tempfile
+import time
+import urllib.request
 from dataclasses import dataclass
+from pathlib import Path
 
 # Configure logging for user feedback
 logging.basicConfig(
@@ -31,11 +30,11 @@ class InstallationState:
     """Track installation progress and state."""
 
     step: str = "start"
-    completed_steps: List[str] = None
-    python_path: Optional[str] = None
-    venv_path: Optional[str] = None
+    completed_steps: list[str] = None
+    python_path: str | None = None
+    venv_path: str | None = None
     config_created: bool = False
-    errors: List[str] = None
+    errors: list[str] = None
 
     def __post_init__(self):
         if self.completed_steps is None:
@@ -66,7 +65,7 @@ class WindowsLocalInstaller:
         """Load previous installation state if it exists."""
         if self.state_file.exists():
             try:
-                with open(self.state_file, "r") as f:
+                with open(self.state_file) as f:
                     data = json.load(f)
                 return InstallationState(**data)
             except Exception as e:
@@ -84,22 +83,22 @@ class WindowsLocalInstaller:
     def print_banner(self):
         """Print installation banner."""
         print("\n" + "=" * 70)
-        print("🚀 JOB SEARCH AUTOMATION - WINDOWS LOCAL INSTALLER")
+        print("JOB SEARCH AUTOMATION - WINDOWS LOCAL INSTALLER")
         print("=" * 70)
-        print("✅ Zero technical knowledge required")
-        print("✅ Complete automated setup")
-        print("✅ Secure local-only installation")
-        print("✅ Resume ATS scanning included")
+        print("Zero technical knowledge required")
+        print("Complete automated setup")
+        print("Secure local-only installation")
+        print("Resume ATS scanning included")
         print("=" * 70 + "\n")
 
         if self.state.completed_steps:
-            print("📋 Resuming from previous installation...")
+            print("Resuming from previous installation...")
             print(f"   Last completed: {self.state.completed_steps[-1]}")
             print()
 
     def check_windows_compatibility(self) -> bool:
         """Check Windows version compatibility."""
-        logger.info("🔍 Checking Windows compatibility...")
+        logger.info("Checking Windows compatibility...")
 
         try:
             # Check Windows version
@@ -113,36 +112,36 @@ class WindowsLocalInstaller:
 
             # Check PowerShell availability
             try:
-                result = subprocess.run(
-                    ["powershell", "-Command", "Get-Host | Select-Object Version"],
+                result = subprocess.run(  # noqa: S603 - hardcoded command
+                    ["powershell", "-Command", "Get-Host | Select-Object Version"],  # noqa: S607 - from PATH
                     capture_output=True,
                     text=True,
                     timeout=10,
                 )
                 if result.returncode != 0:
-                    logger.error("❌ PowerShell is not available or not working properly")
+                    logger.error("PowerShell is not available or not working properly")
                     return False
             except Exception as e:
-                logger.error(f"❌ PowerShell check failed: {e}")
+                logger.error(f"PowerShell check failed: {e}")
                 return False
 
             logger.info("✅ Windows compatibility check passed")
             return True
 
         except Exception as e:
-            logger.error(f"❌ Windows compatibility check failed: {e}")
+            logger.error(f"Windows compatibility check failed: {e}")
             return False
 
-    def check_python_installation(self) -> Tuple[bool, Optional[str]]:
+    def check_python_installation(self) -> tuple[bool, str | None]:
         """Check if Python is properly installed."""
-        logger.info("🐍 Checking Python installation...")
+        logger.info("Checking Python installation...")
 
         # Try different Python commands
         python_commands = ["python", "python3", "py"]
 
         for cmd in python_commands:
             try:
-                result = subprocess.run(
+                result = subprocess.run(  # noqa: S603 - checking system python version
                     [cmd, "--version"], capture_output=True, text=True, timeout=10
                 )
                 if result.returncode == 0:
@@ -157,8 +156,9 @@ class WindowsLocalInstaller:
                         major, minor = map(int, version_match.groups())
                         if (major, minor) >= self.required_python_version:
                             # Get full path
-                            path_result = subprocess.run(
-                                ["where", cmd], capture_output=True, text=True
+                            path_result = subprocess.run(  # noqa: S603 - finding path
+                                ["where", cmd],  # noqa: S607 - system command from PATH
+                                capture_output=True, text=True
                             )
                             python_path = (
                                 path_result.stdout.strip().split("\n")[0]
@@ -166,25 +166,25 @@ class WindowsLocalInstaller:
                                 else cmd
                             )
 
-                            logger.info(f"✅ Python {major}.{minor} is compatible")
+                            logger.info(f"Python {major}.{minor} is compatible")
                             return True, python_path
                         else:
                             logger.warning(
-                                f"⚠️  Python {major}.{minor} is too old (need {self.required_python_version[0]}.{self.required_python_version[1]}+)"
+                                f"Python {major}.{minor} is too old (need {self.required_python_version[0]}.{self.required_python_version[1]}+)"
                             )
 
             except Exception as e:
                 logger.debug(f"Python command '{cmd}' failed: {e}")
                 continue
 
-        logger.error("❌ No compatible Python installation found")
+        logger.error("No compatible Python installation found")
         return False, None
 
     def install_python(self) -> bool:
         """Guide user through Python installation."""
-        logger.info("📥 Python installation required...")
+        logger.info("Python installation required...")
 
-        print("\n🔧 PYTHON INSTALLATION REQUIRED")
+        print("\nPYTHON INSTALLATION REQUIRED")
         print("=" * 50)
         print("Python is required to run this application.")
         print("I'll help you install it automatically.\n")
@@ -196,52 +196,61 @@ class WindowsLocalInstaller:
 
         try:
             # Download Python installer
-            logger.info("📥 Downloading Python 3.11...")
+            logger.info("Downloading Python 3.11...")
             python_url = "https://www.python.org/ftp/python/3.11.9/python-3.11.9-amd64.exe"
 
+            # Validate URL is from official python.org (security check)
+            from urllib.parse import urlparse
+            parsed = urlparse(python_url)
+            if parsed.scheme != "https" or not parsed.netloc.endswith("python.org"):
+                logger.error("Invalid Python download URL")
+                return False
+
             with tempfile.NamedTemporaryFile(suffix=".exe", delete=False) as tmp_file:
-                urllib.request.urlretrieve(python_url, tmp_file.name)
+                urllib.request.urlretrieve(python_url, tmp_file.name)  # noqa: S310 - validated python.org URL
                 installer_path = tmp_file.name
 
-            logger.info("🚀 Launching Python installer...")
-            print("\n📝 IMPORTANT INSTALLATION NOTES:")
-            print("1. ✅ Check 'Add Python to PATH'")
-            print("2. ✅ Choose 'Install Now' (recommended)")
-            print("3. ⏳ Wait for installation to complete")
-            print("4. 🔄 This installer will continue automatically\n")
+            logger.info("Launching Python installer...")
+            print("\nIMPORTANT INSTALLATION NOTES:")
+            print("1. Check 'Add Python to PATH'")
+            print("2. Choose 'Install Now' (recommended)")
+            print("3. Wait for installation to complete")
+            print("4. This installer will continue automatically\n")
 
             # Launch installer
-            subprocess.run([installer_path, "/quiet", "InstallAllUsers=1", "PrependPath=1"])
+            subprocess.run(  # noqa: S603 - running downloaded python installer
+                [installer_path, "/quiet", "InstallAllUsers=1", "PrependPath=1"]
+            )
 
             # Wait and verify
-            logger.info("⏳ Waiting for Python installation...")
+            logger.info("Waiting for Python installation...")
             time.sleep(10)
 
             # Clean up installer
             try:
                 os.unlink(installer_path)
-            except:
+            except Exception:  # nosec B110  # noqa: S110 - cleanup failure is non-critical
                 pass
 
             # Verify installation
             is_installed, python_path = self.check_python_installation()
             if is_installed:
-                logger.info("✅ Python installation successful!")
+                logger.info("Python installation successful")
                 self.state.python_path = python_path
                 return True
             else:
-                logger.error("❌ Python installation verification failed")
+                logger.error("Python installation verification failed")
                 logger.error("   Please install Python manually from https://python.org")
                 return False
 
         except Exception as e:
-            logger.error(f"❌ Python installation failed: {e}")
+            logger.error(f"Python installation failed: {e}")
             logger.error("   Please install Python manually from https://python.org")
             return False
 
     def create_virtual_environment(self) -> bool:
         """Create a virtual environment for the project."""
-        logger.info("📦 Setting up virtual environment...")
+        logger.info("Setting up virtual environment...")
 
         venv_path = self.project_root / "venv"
 
@@ -249,24 +258,24 @@ class WindowsLocalInstaller:
             if venv_path.exists():
                 logger.info("   Virtual environment already exists")
             else:
-                subprocess.run(
+                subprocess.run(  # noqa: S603 - creating venv with system python
                     [self.state.python_path or "python", "-m", "venv", str(venv_path)], check=True
                 )
-                logger.info("✅ Virtual environment created")
+                logger.info("Virtual environment created")
 
             self.state.venv_path = str(venv_path)
             return True
 
         except subprocess.CalledProcessError as e:
-            logger.error(f"❌ Failed to create virtual environment: {e}")
+            logger.error(f"Failed to create virtual environment: {e}")
             return False
         except Exception as e:
-            logger.error(f"❌ Unexpected error creating virtual environment: {e}")
+            logger.error(f"Unexpected error creating virtual environment: {e}")
             return False
 
     def install_dependencies(self) -> bool:
         """Install all required dependencies."""
-        logger.info("📚 Installing dependencies...")
+        logger.info("Installing dependencies...")
 
         venv_python = Path(self.state.venv_path) / "Scripts" / "python.exe"
         venv_pip = Path(self.state.venv_path) / "Scripts" / "pip.exe"
@@ -278,33 +287,37 @@ class WindowsLocalInstaller:
         try:
             # Upgrade pip first
             logger.info("   Upgrading pip...")
-            subprocess.run([str(venv_pip), "install", "--upgrade", "pip"], check=True)
+            subprocess.run(  # noqa: S603 - upgrading pip in venv
+                [str(venv_pip), "install", "--upgrade", "pip"], check=True
+            )
 
             # Install main requirements
             requirements_file = self.project_root / "requirements.txt"
             if requirements_file.exists():
                 logger.info("   Installing main dependencies...")
-                subprocess.run([str(venv_pip), "install", "-r", str(requirements_file)], check=True)
+                subprocess.run(  # noqa: S603 - installing from requirements.txt
+                    [str(venv_pip), "install", "-r", str(requirements_file)], check=True
+                )
 
             # Install Playwright browsers
             logger.info("   Installing browser automation...")
-            subprocess.run(
+            subprocess.run(  # noqa: S603 - installing playwright browsers
                 [str(venv_python), "-m", "playwright", "install", "chromium"], check=True
             )
 
-            logger.info("✅ Dependencies installed successfully")
+            logger.info("Dependencies installed successfully")
             return True
 
         except subprocess.CalledProcessError as e:
-            logger.error(f"❌ Dependency installation failed: {e}")
+            logger.error(f"Dependency installation failed: {e}")
             return False
         except Exception as e:
-            logger.error(f"❌ Unexpected error installing dependencies: {e}")
+            logger.error(f"Unexpected error installing dependencies: {e}")
             return False
 
     def create_configuration(self) -> bool:
         """Create user configuration with guided setup."""
-        logger.info("⚙️  Setting up configuration...")
+        logger.info("Setting up configuration...")
 
         config_dir = self.project_root / "config"
         user_config_path = config_dir / "user_prefs.json"
@@ -322,10 +335,10 @@ class WindowsLocalInstaller:
             return False
 
         try:
-            with open(example_config_path, "r") as f:
+            with open(example_config_path) as f:
                 config = json.load(f)
 
-            print("\n🔧 CONFIGURATION SETUP")
+            print("\nCONFIGURATION SETUP")
             print("=" * 30)
             print("Let's customize this for your job search.\n")
 
@@ -375,7 +388,7 @@ class WindowsLocalInstaller:
             with open(user_config_path, "w") as f:
                 json.dump(config, f, indent=2)
 
-            logger.info("✅ Configuration created successfully")
+            logger.info("Configuration created successfully")
             self.state.config_created = True
             return True
 
@@ -385,7 +398,7 @@ class WindowsLocalInstaller:
 
     def create_shortcuts(self) -> bool:
         """Create desktop shortcuts for easy access."""
-        logger.info("🖥️  Creating desktop shortcuts...")
+        logger.info("Creating desktop shortcuts...")
 
         try:
             venv_python = Path(self.state.venv_path) / "Scripts" / "python.exe"
@@ -416,7 +429,10 @@ $Shortcut.Save()
 
             # Execute PowerShell scripts
             for script in [shortcut_script, resume_shortcut_script]:
-                subprocess.run(["powershell", "-Command", script], check=True)
+                subprocess.run(  # noqa: S603 - hardcoded command
+                    ["powershell", "-Command", script],  # noqa: S607 - from PATH
+                    check=True
+                )
 
             logger.info("✅ Desktop shortcuts created")
             return True
@@ -427,13 +443,13 @@ $Shortcut.Save()
 
     def run_initial_test(self) -> bool:
         """Run an initial test to verify everything works."""
-        logger.info("🧪 Running initial system test...")
+        logger.info("Running initial system test...")
 
         venv_python = Path(self.state.venv_path) / "Scripts" / "python.exe"
 
         try:
             # Test basic import
-            result = subprocess.run(
+            result = subprocess.run(  # noqa: S603 - testing venv installation
                 [
                     str(venv_python),
                     "-c",
@@ -522,8 +538,8 @@ $Shortcut.Save()
                 f.write(task_xml)
 
             # Import task
-            subprocess.run(
-                ["schtasks", "/create", "/tn", "JobSearchAutomation", "/xml", str(task_file), "/f"],
+            subprocess.run(  # noqa: S603 - hardcoded command
+                ["schtasks", "/create", "/tn", "JobSearchAutomation", "/xml", str(task_file), "/f"],  # noqa: S607 - from PATH
                 check=True,
             )
 
@@ -542,7 +558,7 @@ $Shortcut.Save()
         try:
             if self.state_file.exists():
                 self.state_file.unlink()
-        except:
+        except Exception:  # nosec B110  # noqa: S110 - cleanup failure is non-critical
             pass
 
     def install(self) -> bool:
@@ -574,7 +590,7 @@ $Shortcut.Save()
                 continue
 
             self.state.step = step_id
-            logger.info(f"▶️  {step_name}...")
+            logger.info(f"{step_name}...")
 
             try:
                 # Handle Python installation logic
@@ -593,41 +609,41 @@ $Shortcut.Save()
                     self._save_state()
                 else:
                     failed_steps.append(step_name)
-                    logger.error(f"❌ {step_name} failed")
+                    logger.error(f"{step_name} failed")
 
             except Exception as e:
                 failed_steps.append(step_name)
-                logger.error(f"❌ {step_name} failed: {e}")
+                logger.error(f"{step_name} failed: {e}")
                 self.state.errors.append(f"{step_name}: {str(e)}")
                 self._save_state()
 
         # Installation summary
         print("\n" + "=" * 70)
         if not failed_steps:
-            print("🎉 INSTALLATION COMPLETED SUCCESSFULLY!")
+            print("INSTALLATION COMPLETED SUCCESSFULLY!")
             print("=" * 70)
             print("✅ All components installed and configured")
             print("✅ Desktop shortcuts created")
             print("✅ Resume ATS scanner ready")
             print("✅ Daily automation configured")
-            print("\n💡 WHAT'S NEXT:")
+            print("\nNEXT STEPS:")
             print("   1. Double-click 'Job Search Automation' on your desktop")
             print("   2. Or run: python -m src.agent")
             print("   3. Check your configuration in config/user_prefs.json")
             print("   4. Set up Slack notifications (optional)")
-            print("\n📋 RESUME SCANNING:")
+            print("\nRESUME SCANNING:")
             print("   • Use 'Resume ATS Scanner' shortcut")
             print("   • Or run: python -m scripts.ats_cli scan your_resume.pdf")
 
             self.cleanup_installation()
             return True
         else:
-            print("⚠️  INSTALLATION COMPLETED WITH ISSUES")
+            print("INSTALLATION COMPLETED WITH ISSUES")
             print("=" * 70)
             print("Some components failed to install:")
             for step in failed_steps:
-                print(f"   ❌ {step}")
-            print("\n🔧 MANUAL FIXES NEEDED:")
+                print(f"   FAILED: {step}")
+            print("\nMANUAL FIXES NEEDED:")
             print("   1. Check the error messages above")
             print("   2. Re-run this installer to retry failed steps")
             print("   3. Seek help if issues persist")
@@ -641,19 +657,19 @@ def main():
         success = installer.install()
 
         if success:
-            print("\n🎯 Ready to find your next job!")
+            print("\nReady to find your next job!")
             input("Press Enter to exit...")
         else:
-            print("\n🆘 Installation needs attention. Please review the errors above.")
+            print("\nInstallation needs attention. Please review the errors above.")
             input("Press Enter to exit...")
 
         return 0 if success else 1
 
     except KeyboardInterrupt:
-        print("\n\n❌ Installation cancelled by user")
+        print("\n\nInstallation cancelled by user")
         return 1
     except Exception as e:
-        print(f"\n❌ Fatal installation error: {e}")
+        print(f"\nFatal installation error: {e}")
         return 1
 
 

@@ -2,10 +2,9 @@
 
 import json
 import urllib.request
-from typing import Dict
 
-from cloud.utils import run_command
 from cloud.providers.gcp.utils import looks_like_placeholder
+from cloud.utils import run_command
 
 
 def verify_deployment(
@@ -92,12 +91,19 @@ def send_slack_notification(
     schedule_frequency: str,
     storage_bucket: str,
     image_uri: str,
-    env_values: Dict[str, str],
+    env_values: dict[str, str],
 ) -> None:
     """Send deployment summary to Slack webhook if configured."""
     webhook_url = env_values.get("SLACK_WEBHOOK_URL")
     if not webhook_url or looks_like_placeholder(webhook_url, ""):
         logger.info("Slack webhook not configured, skipping notification")
+        return
+
+    # Validate URL scheme for security
+    from urllib.parse import urlparse
+    parsed = urlparse(webhook_url)
+    if parsed.scheme not in ("https", "http"):
+        logger.warning(f"Invalid webhook URL scheme: {parsed.scheme}. Skipping notification.")
         return
 
     logger.info("Sending deployment summary to Slack")
@@ -130,13 +136,13 @@ def send_slack_notification(
     }
 
     try:
-        req = urllib.request.Request(
+        req = urllib.request.Request(  # noqa: S310 - URL scheme validated above
             webhook_url,
             data=json.dumps(message).encode("utf-8"),
             headers={"Content-Type": "application/json"},
             method="POST",
         )
-        with urllib.request.urlopen(req, timeout=10) as response:  # nosec B310
+        with urllib.request.urlopen(req, timeout=10) as response:  # nosec B310  # noqa: S310
             if response.status == 200:
                 logger.info("Slack notification sent successfully")
             else:

@@ -4,15 +4,16 @@ Provides massive speed improvements through concurrent execution.
 """
 
 import asyncio
+import multiprocessing as mp
 import time
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
-from typing import List, Dict, Optional, Callable
+from collections.abc import Callable
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from threading import Lock
-import multiprocessing as mp
+
+from utils.logging import get_logger
 
 from .job_scraper import scrape_jobs
-from utils.logging import get_logger
 
 logger = get_logger("sources.concurrent_scraper")
 
@@ -36,10 +37,10 @@ class ScrapeResult:
     """Result of a job scraping operation."""
 
     url: str
-    jobs: List[Dict]
+    jobs: list[dict]
     duration: float
     success: bool
-    error: Optional[str] = None
+    error: str | None = None
     jobs_per_second: float = 0.0
 
 
@@ -51,7 +52,7 @@ class ConcurrentJobScraper:
 
     def __init__(
         self,
-        max_workers: Optional[int] = None,
+        max_workers: int | None = None,
         use_processes: bool = False,
         enable_database_batching: bool = True,
         batch_size: int = 50,
@@ -77,10 +78,10 @@ class ConcurrentJobScraper:
 
     def scrape_multiple_concurrent(
         self,
-        urls: List[str],
+        urls: list[str],
         fetch_descriptions: bool = True,
-        progress_callback: Optional[Callable[[str, int, int], None]] = None,
-    ) -> List[ScrapeResult]:
+        progress_callback: Callable[[str, int, int], None] | None = None,
+    ) -> list[ScrapeResult]:
         """
         Scrape multiple URLs concurrently.
 
@@ -121,9 +122,9 @@ class ConcurrentJobScraper:
 
     def _scrape_with_threads(
         self,
-        tasks: List[ScrapeTask],
-        progress_callback: Optional[Callable[[str, int, int], None]] = None,
-    ) -> List[ScrapeResult]:
+        tasks: list[ScrapeTask],
+        progress_callback: Callable[[str, int, int], None] | None = None,
+    ) -> list[ScrapeResult]:
         """Scrape using thread-based concurrency."""
         results = []
 
@@ -159,9 +160,9 @@ class ConcurrentJobScraper:
 
     def _scrape_with_processes(
         self,
-        tasks: List[ScrapeTask],
-        progress_callback: Optional[Callable[[str, int, int], None]] = None,
-    ) -> List[ScrapeResult]:
+        tasks: list[ScrapeTask],
+        progress_callback: Callable[[str, int, int], None] | None = None,
+    ) -> list[ScrapeResult]:
         """Scrape using process-based concurrency."""
         results = []
 
@@ -223,8 +224,8 @@ class ConcurrentJobScraper:
             )
 
     async def scrape_multiple_async(
-        self, urls: List[str], fetch_descriptions: bool = True, max_concurrent: int = 10
-    ) -> List[ScrapeResult]:
+        self, urls: list[str], fetch_descriptions: bool = True, max_concurrent: int = 10
+    ) -> list[ScrapeResult]:
         """
         Scrape multiple URLs using asyncio for I/O-bound operations.
         Best for sites that support async operations.
@@ -326,8 +327,8 @@ def _scrape_task_worker(task: ScrapeTask) -> ScrapeResult:
 
 # Convenience functions for easy usage
 def scrape_multiple_fast(
-    urls: List[str], fetch_descriptions: bool = True, max_workers: Optional[int] = None
-) -> List[ScrapeResult]:
+    urls: list[str], fetch_descriptions: bool = True, max_workers: int | None = None
+) -> list[ScrapeResult]:
     """
     Quick function to scrape multiple URLs concurrently.
     Uses optimal settings for most use cases.
@@ -337,8 +338,8 @@ def scrape_multiple_fast(
 
 
 async def scrape_multiple_async_fast(
-    urls: List[str], fetch_descriptions: bool = True, max_concurrent: int = 10
-) -> List[ScrapeResult]:
+    urls: list[str], fetch_descriptions: bool = True, max_concurrent: int = 10
+) -> list[ScrapeResult]:
     """
     Quick async function to scrape multiple URLs.
     Best for I/O-bound operations.
@@ -347,7 +348,7 @@ async def scrape_multiple_async_fast(
     return await scraper.scrape_multiple_async(urls, fetch_descriptions, max_concurrent)
 
 
-def benchmark_scraper_performance(urls: List[str]) -> Dict:
+def benchmark_scraper_performance(urls: list[str]) -> dict:
     """
     Benchmark different scraping approaches.
     Returns performance comparison data.
@@ -361,7 +362,7 @@ def benchmark_scraper_performance(urls: List[str]) -> Dict:
         try:
             jobs = asyncio.run(scrape_jobs(url, fetch_descriptions=False))
             sequential_jobs.extend(jobs)
-        except BaseException:
+        except BaseException:  # noqa: S110 - benchmark continues on failure
             pass
     results["sequential"] = {
         "time": time.time() - start_time,

@@ -6,8 +6,9 @@ Cost: FREE (uses existing Pydantic dependency)
 Impact: HIGH (blocks injection attacks)
 """
 
+from __future__ import annotations
+
 import re
-from typing import Dict, List, Optional
 
 from pydantic import BaseModel, Field, constr, validator
 
@@ -15,15 +16,15 @@ from pydantic import BaseModel, Field, constr, validator
 class JobSearchRequest(BaseModel):
     """Validated request for job search operations."""
 
-    keywords: List[constr(min_length=1, max_length=100)] = Field(
+    keywords: list[constr(min_length=1, max_length=100)] = Field(
         default_factory=list, description="Search keywords (max 100 chars each)"
     )
 
-    locations: Optional[List[Dict[str, str]]] = Field(default=None, description="Location filters")
+    locations: list[dict[str, str]] | None = Field(default=None, description="Location filters")
 
     page: int = Field(default=1, ge=1, le=100, description="Page number (1-100)")
 
-    distance: Optional[int] = Field(
+    distance: int | None = Field(
         default=50000, ge=1000, le=200000, description="Search radius in meters (1km - 200km)"
     )
 
@@ -88,19 +89,19 @@ class JobSearchRequest(BaseModel):
 class ReedJobSearchRequest(BaseModel):
     """Validated request for Reed.co.uk API."""
 
-    keywords: Optional[constr(min_length=1, max_length=200)] = None
+    keywords: constr(min_length=1, max_length=200) | None = None
 
-    location: Optional[constr(min_length=1, max_length=100)] = None
+    location: constr(min_length=1, max_length=100) | None = None
 
     distance_miles: int = Field(
         default=10, ge=1, le=100, description="Search radius in miles (1-100)"
     )
 
-    minimum_salary: Optional[int] = Field(
+    minimum_salary: int | None = Field(
         default=None, ge=0, le=1000000, description="Minimum salary in GBP (0-1M)"
     )
 
-    maximum_salary: Optional[int] = Field(
+    maximum_salary: int | None = Field(
         default=None, ge=0, le=1000000, description="Maximum salary in GBP (0-1M)"
     )
 
@@ -144,13 +145,13 @@ class ReedJobSearchRequest(BaseModel):
 class JobSpySearchRequest(BaseModel):
     """Validated request for JobSpy MCP."""
 
-    keywords: List[constr(min_length=1, max_length=100)] = Field(
+    keywords: list[constr(min_length=1, max_length=100)] = Field(
         default_factory=list, description="Search keywords"
     )
 
-    location: Optional[constr(min_length=1, max_length=200)] = None
+    location: constr(min_length=1, max_length=200) | None = None
 
-    site_names: Optional[List[str]] = Field(default=None, description="Sites to search")
+    site_names: list[str] | None = Field(default=None, description="Sites to search")
 
     results_wanted: int = Field(default=50, ge=1, le=100, description="Results per site (1-100)")
 
@@ -195,9 +196,9 @@ class MCPServerConfig(BaseModel):
 
     enabled: bool = False
 
-    server_path: Optional[str] = Field(default=None, description="Path to MCP server executable")
+    server_path: str | None = Field(default=None, description="Path to MCP server executable")
 
-    allowed_networks: List[str] = Field(
+    allowed_networks: list[str] = Field(
         default_factory=list, description="Allowed network destinations (URLs or IPs)"
     )
 
@@ -245,8 +246,8 @@ class MCPServerConfig(BaseModel):
 
 # Convenience function for safe job search
 def validate_job_search(
-    keywords: List[str],
-    locations: Optional[List[Dict]] = None,
+    keywords: list[str],
+    locations: list[dict] | None = None,
     page: int = 1,
     distance: int = 50000,
 ) -> JobSearchRequest:
@@ -271,7 +272,7 @@ def validate_job_search(
 
 # Convenience function for Reed API
 def validate_reed_search(
-    keywords: Optional[str] = None, location: Optional[str] = None, **kwargs
+    keywords: str | None = None, location: str | None = None, **kwargs
 ) -> ReedJobSearchRequest:
     """Validate Reed API search parameters."""
     return ReedJobSearchRequest(keywords=keywords, location=location, **kwargs)
@@ -279,7 +280,7 @@ def validate_reed_search(
 
 # Convenience function for JobSpy
 def validate_jobspy_search(
-    keywords: List[str], location: Optional[str] = None, **kwargs
+    keywords: list[str], location: str | None = None, **kwargs
 ) -> JobSpySearchRequest:
     """Validate JobSpy search parameters."""
     return JobSpySearchRequest(keywords=keywords, location=location, **kwargs)

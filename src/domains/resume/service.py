@@ -5,7 +5,6 @@ Main service that coordinates resume parsing, analysis, and enhancement.
 """
 
 import logging
-from typing import Dict, List, Optional
 
 from .analyzers.content_analyzer import ContentAnalyzer
 from .models import (
@@ -56,8 +55,8 @@ class ResumeEnhancementService:
     def analyze_resume_text(
         self,
         resume_text: str,
-        target_industry: Optional[str] = None,
-        job_description: Optional[str] = None,
+        target_industry: str | None = None,
+        job_description: str | None = None,
     ) -> ResumeAnalysis:
         """
         Perform comprehensive analysis of resume text.
@@ -117,11 +116,11 @@ class ResumeEnhancementService:
         )
         return analysis
 
-    def get_industry_profiles(self) -> Dict[str, IndustryProfile]:
+    def get_industry_profiles(self) -> dict[str, IndustryProfile]:
         """Get available industry profiles."""
         return self.suggestion_engine.INDUSTRY_PROFILES.copy()
 
-    def get_template_recommendations(self, industry: Optional[str] = None) -> ResumeTemplate:
+    def get_template_recommendations(self, industry: str | None = None) -> ResumeTemplate:
         """Get template recommendation for industry."""
         if not industry:
             return ResumeTemplate.ATS_OPTIMIZED
@@ -137,7 +136,7 @@ class ResumeEnhancementService:
         return template_map.get(industry, ResumeTemplate.ATS_OPTIMIZED)
 
     def _calculate_current_score(
-        self, resume_content: ResumeContent, content_analysis: Dict
+        self, resume_content: ResumeContent, content_analysis: dict
     ) -> float:
         """Calculate current resume quality score."""
         score = 50.0  # Base score
@@ -186,7 +185,7 @@ class ResumeEnhancementService:
         return round(total_score, 1)
 
     def _calculate_potential_score(
-        self, current_score: float, suggestions: List[ResumeSuggestion]
+        self, current_score: float, suggestions: list[ResumeSuggestion]
     ) -> float:
         """Calculate potential score after implementing suggestions."""
         potential_improvement = sum(s.impact_score for s in suggestions if s.priority <= 2)
@@ -194,8 +193,8 @@ class ResumeEnhancementService:
         return round(potential_score, 1)
 
     def _categorize_sections(
-        self, resume_content: ResumeContent, suggestions: List[ResumeSuggestion]
-    ) -> tuple[List[str], List[str], List[str]]:
+        self, resume_content: ResumeContent, suggestions: list[ResumeSuggestion]
+    ) -> tuple[list[str], list[str], list[str]]:
         """Categorize sections into strong, weak, and missing."""
 
         all_sections = set(section_type.value for section_type in SectionType)
@@ -219,7 +218,7 @@ class ResumeEnhancementService:
 
         return strong_sections, weak_sections, missing_sections
 
-    def _detect_industry(self, resume_content: ResumeContent) -> Optional[str]:
+    def _detect_industry(self, resume_content: ResumeContent) -> str | None:
         """Attempt to detect industry from resume content."""
 
         # Combine all resume text
@@ -282,7 +281,7 @@ class ResumeEnhancementService:
         return None
 
     def _recommend_template(
-        self, resume_content: ResumeContent, industry: Optional[str]
+        self, resume_content: ResumeContent, industry: str | None
     ) -> ResumeTemplate:
         """Recommend appropriate template based on content and industry."""
 

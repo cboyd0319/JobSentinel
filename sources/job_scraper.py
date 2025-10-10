@@ -6,26 +6,25 @@ Discovers the best scraper for a given careers URL and delegates the work to it.
 from __future__ import annotations
 
 import asyncio
-from typing import Dict, List, Optional
 
 from utils.logging import get_logger
 
 from .api_based_scrapers import (
-    APIBasedScraper,
-    MicrosoftCareersScraper,
-    SpaceXCareersScraper,
+	APIBasedScraper,
+	MicrosoftCareersScraper,
+	SpaceXCareersScraper,
 )
 from .greenhouse_scraper import GreenhouseScraper
-from .lever_scraper import LeverScraper
-from .jobswithgpt_scraper import JobsWithGPTScraper
-from .reed_mcp_scraper import ReedMCPScraper
-from .jobspy_mcp_scraper import JobSpyMCPScraper
 from .job_scraper_base import JobBoardRegistry
+from .jobspy_mcp_scraper import JobSpyMCPScraper
+from .jobswithgpt_scraper import JobsWithGPTScraper
+from .lever_scraper import LeverScraper
 from .playwright_scraper import PlaywrightScraper
+from .reed_mcp_scraper import ReedMCPScraper
 
 logger = get_logger("sources.job_scraper")
 
-_REGISTRY: Optional[JobBoardRegistry] = None
+_REGISTRY: JobBoardRegistry | None = None
 
 
 def _ensure_registry() -> JobBoardRegistry:
@@ -78,7 +77,7 @@ def _ensure_registry() -> JobBoardRegistry:
 	return registry
 
 
-async def scrape_jobs(board_url: str, fetch_descriptions: bool = True) -> List[Dict]:
+async def scrape_jobs(board_url: str, fetch_descriptions: bool = True) -> list[dict]:
 	"""Scrape a careers page, selecting the most appropriate scraper."""
 	registry = _ensure_registry()
 	scraper = registry.get_scraper(board_url)
@@ -90,12 +89,12 @@ async def scrape_jobs(board_url: str, fetch_descriptions: bool = True) -> List[D
 	return await scraper.scrape(board_url, fetch_descriptions)
 
 
-def scrape_jobs_sync(board_url: str, fetch_descriptions: bool = True) -> List[Dict]:
+def scrape_jobs_sync(board_url: str, fetch_descriptions: bool = True) -> list[dict]:
 	"""Synchronous helper for scripts that are not async-aware."""
 	return asyncio.run(scrape_jobs(board_url, fetch_descriptions))
 
 
-def list_supported_platforms() -> List[str]:
+def list_supported_platforms() -> list[str]:
 	"""Return all platform identifiers currently registered."""
 	return _ensure_registry().list_supported_platforms()
 
@@ -107,18 +106,18 @@ def add_custom_scraper(scraper) -> None:
 	logger.info("Registered custom scraper %s", scraper.name)
 
 
-def scrape(board_url: str, fetch_descriptions: bool = True) -> List[Dict]:
+def scrape(board_url: str, fetch_descriptions: bool = True) -> list[dict]:
 	"""Backward-compatible shim that keeps the legacy signature working."""
 	return asyncio.run(scrape_jobs(board_url, fetch_descriptions))
 
 
 async def search_jobs_by_keywords(
-	keywords: List[str],
-	locations: List[Dict] = None,
-	titles: List[str] = None,
+	keywords: list[str],
+	locations: list[dict] = None,
+	titles: list[str] = None,
 	distance: int = 50000,
 	page: int = 1
-) -> List[Dict]:
+) -> list[dict]:
 	"""Search JobsWithGPT aggregated database (500k+ jobs)."""
 	registry = _ensure_registry()
 	jobswithgpt_scraper = None
@@ -139,10 +138,10 @@ async def search_jobs_by_keywords(
 
 
 async def search_reed_jobs(
-	keywords: Optional[str] = None,
-	location: Optional[str] = None,
+	keywords: str | None = None,
+	location: str | None = None,
 	**kwargs
-) -> List[Dict]:
+) -> list[dict]:
 	"""Search Reed.co.uk jobs (requires REED_API_KEY)."""
 	registry = _ensure_registry()
 	reed_scraper = None
@@ -157,12 +156,12 @@ async def search_reed_jobs(
 
 
 async def search_multi_site_jobs(
-    keywords: List[str],
-    location: Optional[str] = None,
-    sites: Optional[List[str]] = None,
+    keywords: list[str],
+    location: str | None = None,
+    sites: list[str] | None = None,
     results_per_site: int = 50,
     hours_old: int = 72
-) -> List[Dict]:
+) -> list[dict]:
     """Search multiple boards via JobSpy MCP (multi-site aggregator)."""
     registry = _ensure_registry()
     jobspy_scraper = None

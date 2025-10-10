@@ -7,17 +7,15 @@ with zero technical knowledge. Provides enterprise-grade ATS compatibility
 analysis with actionable recommendations.
 """
 
-import sys
 import json
-from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any, Union
-from dataclasses import dataclass, asdict
-from enum import Enum
 import logging
 import re
-import tempfile
+import sys
 import webbrowser
+from dataclasses import asdict, dataclass
 from datetime import datetime
+from enum import Enum
+from pathlib import Path
 
 # Configure logging for user-friendly output
 logging.basicConfig(level=logging.WARNING)  # Suppress debug messages
@@ -50,11 +48,11 @@ class ATSIssue:
 @dataclass
 class KeywordAnalysis:
     """Keyword analysis results."""
-    found_keywords: List[str]
-    missing_keywords: List[str]
+    found_keywords: list[str]
+    missing_keywords: list[str]
     keyword_density: float
     industry_match_score: float
-    recommendations: List[str]
+    recommendations: list[str]
 
 @dataclass
 class ResumeSection:
@@ -63,7 +61,7 @@ class ResumeSection:
     present: bool
     quality_score: float
     word_count: int
-    issues: List[str]
+    issues: list[str]
 
 @dataclass
 class ATSCompatibilityReport:
@@ -81,10 +79,10 @@ class ATSCompatibilityReport:
     readability_score: float
     
     # Detailed analysis
-    sections: Dict[str, ResumeSection]
+    sections: dict[str, ResumeSection]
     keyword_analysis: KeywordAnalysis
-    issues: List[ATSIssue]
-    recommendations: List[str]
+    issues: list[ATSIssue]
+    recommendations: list[str]
     
     # File metadata
     file_path: str
@@ -154,9 +152,9 @@ class UltimateResumeScanner:
         
     def scan_resume(
         self, 
-        resume_path: Union[str, Path],
-        job_description: Optional[str] = None,
-        industry: Optional[str] = None
+        resume_path: str | Path,
+        job_description: str | None = None,
+        industry: str | None = None
     ) -> ATSCompatibilityReport:
         """
         Perform comprehensive ATS compatibility scan.
@@ -441,7 +439,7 @@ class UltimateResumeScanner:
         
         # Check for clear section headers
         section_headers = 0
-        for section_name, keywords in {**self.REQUIRED_SECTIONS, **self.OPTIONAL_SECTIONS}.items():
+        for _section_name, keywords in {**self.REQUIRED_SECTIONS, **self.OPTIONAL_SECTIONS}.items():
             for keyword in keywords:
                 if re.search(rf'\b{keyword}\b', self.resume_text, re.IGNORECASE):
                     section_headers += 1
@@ -528,7 +526,7 @@ class UltimateResumeScanner:
         
         return max(0, score)
     
-    def _analyze_keywords(self, job_description: Optional[str], industry: Optional[str]) -> KeywordAnalysis:
+    def _analyze_keywords(self, job_description: str | None, industry: str | None) -> KeywordAnalysis:
         """Analyze keyword optimization."""
         found_keywords = []
         missing_keywords = []
@@ -574,7 +572,7 @@ class UltimateResumeScanner:
             recommendations=recommendations
         )
     
-    def _analyze_sections(self) -> Dict[str, ResumeSection]:
+    def _analyze_sections(self) -> dict[str, ResumeSection]:
         """Analyze resume sections."""
         sections = {}
         
@@ -616,7 +614,7 @@ class UltimateResumeScanner:
         
         return sections
     
-    def _extract_job_keywords(self, job_description: str) -> List[str]:
+    def _extract_job_keywords(self, job_description: str) -> list[str]:
         """Extract important keywords from job description."""
         # This is a simplified keyword extraction
         # In practice, you'd use more sophisticated NLP
@@ -634,12 +632,12 @@ class UltimateResumeScanner:
             keywords.update(match.lower() for match in matches if len(match) > 2)
         
         # Remove common words
-        stop_words = {'the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'had', 'her', 'will', 'one', 'our', 'out', 'day', 'get', 'use', 'her', 'him', 'his', 'how', 'man', 'new', 'now', 'old', 'see', 'two', 'way', 'who', 'boy', 'did', 'its', 'let', 'put', 'say', 'she', 'too', 'use'}
+        stop_words = {'the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'had', 'her', 'will', 'one', 'our', 'out', 'day', 'get', 'use', 'him', 'his', 'how', 'man', 'new', 'now', 'old', 'see', 'two', 'way', 'who', 'boy', 'did', 'its', 'let', 'put', 'say', 'she', 'too'}
         keywords = [kw for kw in keywords if kw not in stop_words and len(kw) > 2]
         
         return list(keywords)[:20]  # Return top 20 keywords
     
-    def _get_industry_keywords(self, industry: str) -> List[str]:
+    def _get_industry_keywords(self, industry: str) -> list[str]:
         """Get common keywords for specific industries."""
         industry_keywords = {
             'software': ['python', 'java', 'javascript', 'react', 'angular', 'api', 'database', 'git', 'agile', 'scrum'],
@@ -677,7 +675,7 @@ class UltimateResumeScanner:
         }
         return suggestions.get(pattern_name, 'Simplify formatting for better ATS compatibility')
     
-    def _generate_final_recommendations(self, overall_score: float, sections: Dict[str, ResumeSection], keyword_analysis: KeywordAnalysis):
+    def _generate_final_recommendations(self, overall_score: float, sections: dict[str, ResumeSection], keyword_analysis: KeywordAnalysis):
         """Generate final improvement recommendations."""
         # Priority recommendations based on score
         if overall_score < 70:
@@ -704,7 +702,7 @@ class UltimateResumeScanner:
 def print_report(report: ATSCompatibilityReport, show_details: bool = True):
     """Print a user-friendly report."""
     print("\n" + "="*80)
-    print("🎯 RESUME ATS COMPATIBILITY REPORT")
+    print("RESUME ATS COMPATIBILITY REPORT")
     print("="*80)
     
     # Overall score with visual indicator
@@ -712,10 +710,10 @@ def print_report(report: ATSCompatibilityReport, show_details: bool = True):
     level = report.compatibility_level
     
     level_indicators = {
-        ATSCompatibilityLevel.EXCELLENT: "🟢 EXCELLENT",
-        ATSCompatibilityLevel.GOOD: "🟡 GOOD", 
-        ATSCompatibilityLevel.FAIR: "🟠 FAIR",
-        ATSCompatibilityLevel.POOR: "🔴 POOR",
+        ATSCompatibilityLevel.EXCELLENT: "EXCELLENT",
+        ATSCompatibilityLevel.GOOD: "GOOD", 
+        ATSCompatibilityLevel.FAIR: "FAIR",
+        ATSCompatibilityLevel.POOR: "POOR",
         ATSCompatibilityLevel.CRITICAL: "⚫ CRITICAL"
     }
     
@@ -724,7 +722,7 @@ def print_report(report: ATSCompatibilityReport, show_details: bool = True):
     print(f"Improvement Potential: +{report.improvement_potential:.1f} points")
     
     # Component breakdown
-    print("\n📊 Component Breakdown:")
+    print("\nComponent Breakdown:")
     print(f"  • Parsing Compatibility: {report.parsing_score:.1f}%")
     print(f"  • Keyword Optimization: {report.keyword_score:.1f}%")
     print(f"  • Formatting: {report.formatting_score:.1f}%")
@@ -736,48 +734,48 @@ def print_report(report: ATSCompatibilityReport, show_details: bool = True):
         critical_issues = [i for i in report.issues if i.level == IssueLevel.CRITICAL]
         warning_issues = [i for i in report.issues if i.level == IssueLevel.WARNING]
         
-        print(f"\n🚨 Issues Found: {len(report.issues)} total")
+        print(f"\nIssues Found: {len(report.issues)} total")
         if critical_issues:
             print(f"  • Critical: {len(critical_issues)}")
         if warning_issues:
             print(f"  • Warnings: {len(warning_issues)}")
         
         if show_details and critical_issues:
-            print("\n🔴 Critical Issues (Fix These First):")
+            print("\nCritical Issues (Fix These First):")
             for issue in critical_issues[:3]:  # Show top 3
                 print(f"  • {issue.title}")
                 print(f"    Fix: {issue.fix_suggestion}")
     
     # Top recommendations
     if report.recommendations:
-        print("\n💡 TOP RECOMMENDATIONS:")
+        print("\nTOP RECOMMENDATIONS:")
         for i, rec in enumerate(report.recommendations[:5], 1):
             print(f"  {i}. {rec}")
     
     # Section analysis
-    print("\n📝 Section Analysis:")
+    print("\nSection Analysis:")
     for name, section in report.sections.items():
         status = "✅" if section.present else "❌"
         print(f"  {status} {name.title()}: {'Present' if section.present else 'Missing'}")
     
     # Keywords
     if report.keyword_analysis.found_keywords:
-        print(f"\n🔍 Keywords Found: {len(report.keyword_analysis.found_keywords)}")
+        print(f"\nKeywords Found: {len(report.keyword_analysis.found_keywords)}")
         if report.keyword_analysis.missing_keywords:
             print(f"Missing Keywords: {', '.join(report.keyword_analysis.missing_keywords[:5])}")
     
     # Final assessment
     print(f"\n{'='*80}")
     if score >= 85:
-        print("🎉 Great job! Your resume is well-optimized for ATS systems.")
+        print("Great job! Your resume is well-optimized for ATS systems.")
     elif score >= 70:
-        print("👍 Your resume is decent but has room for improvement.")
+        print("Your resume is decent but has room for improvement.")
     elif score >= 50:
         print("⚠️ Your resume needs significant improvements to pass ATS screening.")
     else:
-        print("🚨 Your resume requires major revisions before submitting to jobs.")
+        print("Your resume requires major revisions before submitting to jobs.")
     
-    print("\n💡 Next Steps:")
+    print("\nNext Steps:")
     print("1. Address critical issues first")
     print("2. Add missing sections and keywords")
     print("3. Test with different job descriptions")
@@ -905,13 +903,13 @@ Examples:
         if args.job_description:
             try:
                 job_description = Path(args.job_description).read_text(encoding='utf-8')
-                print(f"📋 Loaded job description from {args.job_description}")
+                print(f"Loaded job description from {args.job_description}")
             except Exception as e:
                 print(f"⚠️ Warning: Could not read job description: {e}")
         
-        print(f"🔍 Scanning resume: {args.resume_path}")
+        print(f"Scanning resume: {args.resume_path}")
         if args.industry:
-            print(f"🏢 Industry context: {args.industry}")
+            print(f"Industry context: {args.industry}")
         
         # Initialize scanner and perform analysis
         scanner = UltimateResumeScanner()
@@ -935,7 +933,7 @@ Examples:
             # Open in browser
             try:
                 webbrowser.open(f"file://{Path(args.output).absolute()}")
-            except:
+            except Exception:  # nosec B110  # noqa: S110 - browser opening is optional
                 pass
         
         # Return appropriate exit code based on score
@@ -951,7 +949,7 @@ Examples:
         return 1
     except Exception as e:
         print(f"❌ Unexpected error: {e}")
-        print("\n🔧 Troubleshooting:")
+        print("\nTroubleshooting:")
         print("  • Ensure your resume is a text-based PDF or DOCX file")
         print("  • Try converting scanned PDFs to text-based format")
         print("  • Check that all required dependencies are installed")

@@ -6,13 +6,12 @@ best practices and ATS optimization guidelines.
 """
 
 import logging
-from typing import List, Optional
 
 from ..models import (
     IndustryProfile,
     ResumeContent,
-    ResumeSuggestion,
     ResumeSection,
+    ResumeSuggestion,
     SectionType,
     SuggestionType,
 )
@@ -161,9 +160,9 @@ class SuggestionEngine:
     def generate_suggestions(
         self,
         resume_content: ResumeContent,
-        target_industry: Optional[str] = None,
-        job_description: Optional[str] = None,
-    ) -> List[ResumeSuggestion]:
+        target_industry: str | None = None,
+        job_description: str | None = None,
+    ) -> list[ResumeSuggestion]:
         """Generate comprehensive improvement suggestions."""
 
         suggestions = []
@@ -199,8 +198,8 @@ class SuggestionEngine:
         return suggestions
 
     def _suggest_missing_sections(
-        self, resume_content: ResumeContent, industry_profile: Optional[IndustryProfile]
-    ) -> List[ResumeSuggestion]:
+        self, resume_content: ResumeContent, industry_profile: IndustryProfile | None
+    ) -> list[ResumeSuggestion]:
         """Suggest missing critical sections."""
         suggestions = []
 
@@ -233,8 +232,8 @@ class SuggestionEngine:
         return suggestions
 
     def _suggest_section_improvements(
-        self, resume_content: ResumeContent, industry_profile: Optional[IndustryProfile]
-    ) -> List[ResumeSuggestion]:
+        self, resume_content: ResumeContent, industry_profile: IndustryProfile | None
+    ) -> list[ResumeSuggestion]:
         """Suggest improvements to existing sections."""
         suggestions = []
 
@@ -265,7 +264,7 @@ class SuggestionEngine:
 
     def _suggest_content_improvements(
         self, resume_content: ResumeContent
-    ) -> List[ResumeSuggestion]:
+    ) -> list[ResumeSuggestion]:
         """Suggest general content improvements."""
         suggestions = []
 
@@ -301,7 +300,7 @@ class SuggestionEngine:
 
     def _suggest_summary_improvements(
         self, summary_section: ResumeSection
-    ) -> List[ResumeSuggestion]:
+    ) -> list[ResumeSuggestion]:
         """Suggest improvements to professional summary."""
         suggestions = []
 
@@ -338,7 +337,7 @@ class SuggestionEngine:
 
     def _suggest_experience_improvements(
         self, experience_section: ResumeSection
-    ) -> List[ResumeSuggestion]:
+    ) -> list[ResumeSuggestion]:
         """Suggest improvements to work experience."""
         suggestions = []
 
@@ -377,8 +376,8 @@ class SuggestionEngine:
         return suggestions
 
     def _suggest_skills_improvements(
-        self, skills_section: ResumeSection, industry_profile: Optional[IndustryProfile]
-    ) -> List[ResumeSuggestion]:
+        self, skills_section: ResumeSection, industry_profile: IndustryProfile | None
+    ) -> list[ResumeSuggestion]:
         """Suggest improvements to skills section."""
         suggestions = []
 
@@ -408,7 +407,7 @@ class SuggestionEngine:
 
     def _suggest_industry_optimizations(
         self, resume_content: ResumeContent, industry_profile: IndustryProfile
-    ) -> List[ResumeSuggestion]:
+    ) -> list[ResumeSuggestion]:
         """Suggest industry-specific optimizations."""
         suggestions = []
 
@@ -431,7 +430,7 @@ class SuggestionEngine:
 
     def _suggest_job_matching_improvements(
         self, resume_content: ResumeContent, job_description: str
-    ) -> List[ResumeSuggestion]:
+    ) -> list[ResumeSuggestion]:
         """Suggest improvements based on specific job description."""
         suggestions = []
 

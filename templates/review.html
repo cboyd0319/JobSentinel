@@ -12,9 +12,9 @@
             <h5 class="card-title">{{ job.title }}</h5>
             <h6 class="card-subtitle mb-2 text-muted">{{ job.company }} - {{ job.location }}</h6>
             <p class="card-text">Score: {{ "%.2f"|format(job.score) }}</p>
-            <a href="{{ job.url }}" class="btn btn-secondary btn-sm" target="_blank">View Job</a>
-            <a href="{{ url_for('review_feedback', job_id=job.id, feedback='good') }}" class="btn btn-success btn-sm">Good Match</a>
-            <a href="{{ url_for('review_feedback', job_id=job.id, feedback='bad') }}" class="btn btn-danger btn-sm">Bad Match</a>
+            <a href="{{ job.url | safe_external_url }}" class="btn btn-secondary btn-sm" target="_blank" rel="noopener noreferrer">View Job</a>
+            <a href="{{ url_for('review.review_feedback', job_id=job.id, feedback='good') }}" class="btn btn-success btn-sm">Good Match</a>
+            <a href="{{ url_for('review.review_feedback', job_id=job.id, feedback='bad') }}" class="btn btn-danger btn-sm">Bad Match</a>
         </div>
     </div>
     {% endfor %}

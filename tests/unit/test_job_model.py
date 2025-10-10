@@ -20,7 +20,8 @@ def test_job_model_basic_hash():
 
 
 def test_job_model_validation():
-    with pytest.raises(Exception):
+    from pydantic import ValidationError
+    with pytest.raises(ValidationError):
         JobModel(title=" ", company="X", url="https://example.com")
-    with pytest.raises(Exception):
+    with pytest.raises(ValidationError):
         JobModel(title="Good", company=" ", url="https://example.com")

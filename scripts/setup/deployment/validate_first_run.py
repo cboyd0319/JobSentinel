@@ -6,12 +6,12 @@ This simulates a completely fresh installation to identify potential problems.
 """
 
 import sys
-import os
 from pathlib import Path
+
 
 def check_first_run_experience() -> bool:
 	"""Simulate first-run experience and check for issues."""
-	print("🔍 Simulating First-Run Experience")
+	print("Simulating First-Run Experience")
 	print("=" * 50)
 
 	issues: list[str] = []
@@ -105,7 +105,7 @@ def check_first_run_experience() -> bool:
 		print("[ERROR] ISSUES FOUND:")
 		for issue in issues:
 			print(f" {issue}")
-		print(f"\n🔧 Fix these {len(issues)} issues before proceeding")
+		print(f"\nFix these {len(issues)} issues before proceeding")
 		return False
 	print("[OK] ALL CHECKS PASSED")
 	print(" System ready for first run!")

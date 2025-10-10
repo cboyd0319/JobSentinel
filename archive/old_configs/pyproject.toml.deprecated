@@ -1,3 +1,7 @@
+# NOTE: Legacy file — deprecated in favor of root-level pyproject.toml.
+# This file remains to avoid breaking older tooling references but is not
+# used for packaging. Keep settings synchronized only if still referenced
+# by external scripts. New development should use the root pyproject.
 [build-system]
 requires = ["setuptools>=78.1.1", "build>=0.5.1"]
 build-backend = "setuptools.build_meta"

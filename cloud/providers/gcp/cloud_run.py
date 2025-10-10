@@ -1,8 +1,6 @@
 """GCP Cloud Run Job management functions."""
 
-import asyncio
 from pathlib import Path
-from typing import Dict
 
 from cloud.utils import run_command
 

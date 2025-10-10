@@ -8,7 +8,7 @@ I built this because hunting jobs manually sucks. This scrapes multiple sites, s
 
 **The Process:**
 
-- Scrapes Indeed, LinkedIn, and Greenhouse (~500k+ jobs)
+- Scrapes Greenhouse, Lever, JobsWithGPT, Reed, and JobSpy multi‑site aggregation (~500k+ jobs)
 - Scores each job against your preferences
 - Sends high‑scoring matches to Slack
 - Stores everything locally (your data stays yours)
@@ -20,10 +20,10 @@ I built this because hunting jobs manually sucks. This scrapes multiple sites, s
 ## Quick Start
 
 ### Windows
-Run the PowerShell helper:
+Use the guided installer:
 
 ```powershell
-deploy\windows\My-Job-Finder.ps1
+python scripts\setup\windows_local_installer.py
 ```
 
 ### macOS / Linux
@@ -32,23 +32,23 @@ deploy\windows\My-Job-Finder.ps1
 git clone https://github.com/cboyd0319/job-search-automation
 cd job-search-automation
 
+python3 -m venv .venv
+source .venv/bin/activate
 python -m pip install -r requirements.txt
+python -m pip install -e .[dev]
 
 # Copy and edit your user preferences
 cp config/user_prefs.example.json config/user_prefs.json
 
-# Dry run (no side effects)
-python src/agent.py --dry-run
-
-# Actual run
-python src/agent.py
+# Run web UI (new CLI)
+jsa web --port 5000
 ```
 
 ---
 
 ## Features
 
-- **Multi-site scraping** – Indeed, LinkedIn, Greenhouse
+- **Multi-site scraping** – Greenhouse, Lever, JobsWithGPT, Reed, JobSpy aggregation
 - **Smart scoring** – Keyword matching, salary filtering, company blacklists
 - **Slack alerts** – High‑scoring matches with score breakdowns
 - **Local‑first** – Your data stays on your machine
@@ -60,9 +60,9 @@ python src/agent.py
 
 | Platform                         | Status        | Notes                         |
 |----------------------------------|---------------|-------------------------------|
-| Windows 10/11 + PowerShell 5.1+ | ✅ Supported  | Zero‑knowledge installer      |
-| macOS 13+                        | ⚠️ Manual     | Python 3.12+ required         |
-| Ubuntu/Linux                     | ⚠️ Manual     | Python 3.12+ required         |
+| Windows 10/11 + PowerShell 5.1+ | ✅ Supported  | Guided installer available    |
+| macOS 13+                        | ⚠️ Manual     | Python 3.11+ required         |
+| Ubuntu/Linux                     | ⚠️ Manual     | Python 3.11+ required         |
 
 ---
 
@@ -99,18 +99,23 @@ Edit `config/user_prefs.json` and set your preferences. Example:
 
 ## Commands
 
+### New CLI (modularized core)
+
+After `pip install -e .`, use the typed CLI:
+
 ```bash
-# Test without running
+jsa web --port 5000           # run local web UI
+jsa config-validate --path config/user_prefs.json
+jsa health                    # print quick health summary
+```
+
+### Legacy commands
+
+```bash
 python src/agent.py --dry-run
-
-# Run once
 python src/agent.py
-
-# Background mode (Linux/macOS)
 nohup python src/agent.py --daemon &
-
-# Check logs
-tail -f logs/agent.log
+tail -f data/logs/*.log
 ```
 
 ---
@@ -157,15 +162,15 @@ Built‑in quality assurance for Windows components.
 ./psqa.ps1 -Mode fix
 ```
 
-See **QA.md** for details. PowerShell quality is **zero‑tolerance**—fix before commit.
+PowerShell quality is **zero‑tolerance**—fix before commit.
 
 ---
 
 ## Troubleshooting
 
-- **No jobs found:** Check `logs/scraper.log`
+- **No jobs found:** Check `data/logs/*.log`
 - **Slack not working:** `python scripts/setup/slack/slack_setup.py --test-only`
-- **Import errors:** Verify Python **3.12+**, then reinstall `requirements.txt`
+- **Import errors:** Verify Python **3.11+**, then reinstall `requirements.txt`
 - **Permission issues (Windows):** Run PowerShell **as Administrator**
 
 Test a single scraper:
@@ -195,23 +200,79 @@ Rate limiting (example):
 
 ```text
 src/
-├── agent.py               # Main orchestrator
-├── database.py            # SQLite storage
-├── web_ui.py              # Local dashboard
+├── agent.py                  # Main orchestrator
+├── database.py               # SQLite storage
+├── web_ui.py                 # Legacy shim; new web lives in jsa.web
+jsa/                         # New typed core package (under src/jsa)
+├── web/app.py               # Flask app factory: create_app()
+├── web/blueprints/*.py      # Split routes: main, skills, review, slack
+├── http/sanitization.py     # Safe URL utilities
+├── config.py                # Typed config facade
+└── logging.py               # Structured logging wrapper
 sources/
-├── jobswithgpt_scraper.py # GPT-powered scraper
-├── reed_mcp_scraper.py    # Reed.co.uk API
-└── greenhouse_scraper.py  # Greenhouse jobs
+├── jobswithgpt_scraper.py    # JobsWithGPT API integration
+├── reed_mcp_scraper.py       # Reed.co.uk API
+├── jobspy_mcp_scraper.py     # JobSpy MCP multi‑site aggregation
+├── greenhouse_scraper.py     # Greenhouse
+└── lever_scraper.py          # Lever
 notify/
-├── slack.py               # Slack notifications
-└── emailer.py             # Email alerts (optional)
+├── slack.py                  # Slack notifications
+└── emailer.py                # Email alerts (optional)
 ```
+
+See also: docs/ARCHITECTURE.md for refactor overview.
+
+---
+
+## Quality Pipeline
+
+Recommended dev workflow (inside a venv):
+
+```bash
+make fmt        # format
+make lint       # ruff
+make type       # mypy (strict on src/jsa)
+make test-core  # tests for new core
+make cov        # coverage for src/jsa
+```
+
+Optional: mutation tests
+
+```bash
+make mut  # requires: pip install mutmut
+```
+
+Legacy config files in config/ are retained for compatibility, but the root-level pyproject.toml is authoritative for packaging and tooling.
+
+### MegaLinter (CI)
+
+This repo includes a MegaLinter workflow that validates the full codebase with fast, pragmatic linters (Markdown, YAML, JSON, Shell, PowerShell, Dockerfile, secrets) and runs Python linters only on the new typed core and its tests. Reports are uploaded as CI artifacts under “mega-linter-reports”.
+
+Local usage is optional; CI runs automatically on PRs and pushes to `main`.
+
+---
+
+## Contributing
+
+1) Setup venv and install dev dependencies (see Quick Start).  
+2) Enable pre-commit hooks:
+
+```bash
+pre-commit install
+pre-commit run --all-files
+```
+
+3) Before opening a PR:
+- make fmt && make lint && make type && make test-core
+- Ensure no secrets are committed; read SECURITY.md
+- Keep changes small and focused; add/adjust tests
+
 
 **Key files:**
 
 - `config/user_prefs.json` – Your settings  
 - `logs/agent.log` – Main log file  
-- `data/jobs.db` – Job database (SQLite)  
+- `data/jobs.sqlite` – Job database (SQLite)  
 - `psqa.ps1` – PowerShell quality checker
 
 ---
@@ -222,11 +283,11 @@ notify/
 # PowerShell quality (Windows)
 ./psqa.ps1
 
-# Python only
-flake8 src/ && mypy src/
+# Python quality (new core)
+make fmt && make lint && make type && make test-core
 
-# Security scan
-python -m bandit -r src/
+# Security scan (core)
+python -m bandit -r src/jsa
 ```
 
 **Add a new job source:**
@@ -262,24 +323,10 @@ Increase delays, use a VPN, or disable that source temporarily.
 Yes—see `matchers/rules.py` for keyword weights and scoring logic.
 
 **Where is my data stored?**  
-Locally in `data/jobs.db`. Cloud deployments use separate databases.
+Locally in `data/jobs.sqlite`. Cloud deployments use separate databases.
 
 **Why not use job boards' APIs?**  
 Most don’t have public APIs; available ones are limited or expensive.
-
----
-
-## Contributing
-
-- **Before submitting:**  
-  1) Run `./psqa.ps1`  
-  2) Test with `--dry-run`  
-  3) Ensure no secrets are committed  
-  4) Keep changes simple
-
-- **Bug reports:** Open a GitHub issue with logs and system info  
-- **Code:** Fork → feature branch → PR with tests and style compliance  
-- **Security issues:** Email the maintainer directly
 
 ---
 
@@ -289,3 +336,6 @@ MIT License.
 
 **Alpha software—use at your own risk.** I use it daily, but it has bugs.  
 **Questions?** Check `TROUBLESHOOTING.md` or open a GitHub issue.
+Health endpoint:
+
+- GET `/healthz` returns `{ ok: bool, stats: { total_jobs, high_score_jobs } }`

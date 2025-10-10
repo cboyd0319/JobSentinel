@@ -5,7 +5,6 @@ Calculates overall ATS compatibility scores based on analysis results.
 """
 
 import logging
-from typing import Dict, List
 
 from ..models import (
     ATSCompatibilityScore,
@@ -43,10 +42,10 @@ class CompatibilityScorer:
 
     def calculate_compatibility_score(
         self,
-        issues: List[ATSIssue],
-        keyword_matches: List[KeywordMatch],
+        issues: list[ATSIssue],
+        keyword_matches: list[KeywordMatch],
         resume_text: str,
-        job_keywords: List[str] = None,
+        job_keywords: list[str] = None,
     ) -> ATSCompatibilityScore:
         """Calculate comprehensive ATS compatibility score."""
 
@@ -87,7 +86,7 @@ class CompatibilityScorer:
             quick_wins=quick_wins,
         )
 
-    def _calculate_formatting_score(self, issues: List[ATSIssue]) -> float:
+    def _calculate_formatting_score(self, issues: list[ATSIssue]) -> float:
         """Calculate formatting compatibility score."""
         formatting_issues = [i for i in issues if i.category == "formatting"]
 
@@ -110,7 +109,7 @@ class CompatibilityScorer:
         return round(score, 1)
 
     def _calculate_keyword_score(
-        self, keyword_matches: List[KeywordMatch], job_keywords: List[str] = None
+        self, keyword_matches: list[KeywordMatch], job_keywords: list[str] = None
     ) -> float:
         """Calculate keyword relevance score."""
         if not keyword_matches:
@@ -134,7 +133,7 @@ class CompatibilityScorer:
         final_score = base_score + quality_bonus + skill_bonus
         return round(min(100, final_score), 1)
 
-    def _calculate_readability_score(self, issues: List[ATSIssue], resume_text: str) -> float:
+    def _calculate_readability_score(self, issues: list[ATSIssue], resume_text: str) -> float:
         """Calculate readability score."""
         readability_issues = [i for i in issues if i.category == "readability"]
 
@@ -161,7 +160,7 @@ class CompatibilityScorer:
 
         return round(max(0, base_score), 1)
 
-    def _calculate_structure_score(self, issues: List[ATSIssue]) -> float:
+    def _calculate_structure_score(self, issues: list[ATSIssue]) -> float:
         """Calculate structure and organization score."""
         structure_issues = [i for i in issues if i.category == "structure"]
 
@@ -180,8 +179,8 @@ class CompatibilityScorer:
         return round(max(0, base_score), 1)
 
     def _calculate_system_scores(
-        self, issues: List[ATSIssue], overall_score: float
-    ) -> Dict[ATSSystem, float]:
+        self, issues: list[ATSIssue], overall_score: float
+    ) -> dict[ATSSystem, float]:
         """Calculate compatibility scores for specific ATS systems."""
         system_scores = {}
 
@@ -218,7 +217,7 @@ class CompatibilityScorer:
 
         return system_scores
 
-    def _generate_priority_recommendations(self, issues: List[ATSIssue]) -> List[str]:
+    def _generate_priority_recommendations(self, issues: list[ATSIssue]) -> list[str]:
         """Generate prioritized recommendations based on issues."""
         recommendations = []
 
@@ -235,8 +234,8 @@ class CompatibilityScorer:
         return recommendations[:5]  # Limit to 5 total
 
     def _generate_quick_wins(
-        self, issues: List[ATSIssue], keyword_matches: List[KeywordMatch]
-    ) -> List[str]:
+        self, issues: list[ATSIssue], keyword_matches: list[KeywordMatch]
+    ) -> list[str]:
         """Generate quick win recommendations."""
         quick_wins = []
 
@@ -257,7 +256,7 @@ class CompatibilityScorer:
 
         return quick_wins[:4]  # Limit to 4 quick wins
 
-    def _identify_sections(self, text: str) -> List[str]:
+    def _identify_sections(self, text: str) -> list[str]:
         """Identify sections present in the resume."""
         # This is a simplified version - could be enhanced
         sections = []

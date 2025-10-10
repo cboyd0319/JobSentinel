@@ -6,7 +6,6 @@ Handles parsing and analysis of plain text resumes.
 
 import logging
 import re
-from typing import List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -31,19 +30,19 @@ class TextParser:
         """Check if this parser can handle the given file."""
         return file_path.lower().endswith((".txt", ".text"))
 
-    def extract_text(self, file_path: str) -> Optional[str]:
+    def extract_text(self, file_path: str) -> str | None:
         """Extract text content from text file."""
         if not self.can_parse(file_path):
             return None
 
         try:
-            with open(file_path, "r", encoding="utf-8") as file:
+            with open(file_path, encoding="utf-8") as file:
                 return file.read()
         except UnicodeDecodeError:
             # Try with different encodings
             for encoding in ["latin1", "cp1252"]:
                 try:
-                    with open(file_path, "r", encoding=encoding) as file:
+                    with open(file_path, encoding=encoding) as file:
                         return file.read()
                 except UnicodeDecodeError:
                     continue
@@ -53,7 +52,7 @@ class TextParser:
             logger.error(f"Failed to read text file {file_path}: {e}")
             return None
 
-    def identify_sections(self, text: str) -> List[str]:
+    def identify_sections(self, text: str) -> list[str]:
         """Identify resume sections in the text."""
         sections_found = []
 

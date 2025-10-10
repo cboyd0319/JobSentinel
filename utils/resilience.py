@@ -10,7 +10,7 @@ import time
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 from utils.logging import get_logger
 
@@ -37,7 +37,7 @@ class DatabaseResilience:
         self.backup_dir = Path(self.config.backup_dir)
         self.backup_dir.mkdir(parents=True, exist_ok=True)
 
-    def create_backup(self, reason: str = "manual") -> Optional[Path]:
+    def create_backup(self, reason: str = "manual") -> Path | None:
         """Create a database backup."""
         if not self.config.enabled or not self.db_path.exists():
             return None
@@ -83,7 +83,7 @@ class DatabaseResilience:
             logger.error(f"Failed to restore database from {backup_path}: {e}")
             return False
 
-    def check_database_integrity(self) -> Dict[str, Any]:
+    def check_database_integrity(self) -> dict[str, Any]:
         """Check database for corruption and integrity issues."""
         result = {
             "healthy": False,
@@ -146,7 +146,7 @@ class DatabaseResilience:
 
         return False
 
-    def _get_latest_backup(self) -> Optional[Path]:
+    def _get_latest_backup(self) -> Path | None:
         """Get the most recent backup file."""
         if not self.backup_dir.exists():
             return None
@@ -225,7 +225,7 @@ class ProcessResilience:
         try:
             if self.lockfile_path.exists():
                 # Check if process is still running
-                with open(self.lockfile_path, "r") as f:
+                with open(self.lockfile_path) as f:
                     old_pid = int(f.read().strip())
 
                 if self._is_process_running(old_pid):
@@ -270,7 +270,7 @@ class ProcessResilience:
                 return False
 
 
-def run_startup_checks() -> Dict[str, Any]:
+def run_startup_checks() -> dict[str, Any]:
     """Run comprehensive startup checks and recovery."""
     logger.info("Running startup resilience checks...")
 

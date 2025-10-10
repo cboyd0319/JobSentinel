@@ -30,11 +30,8 @@ relying on notifications for critical workflows.
 from __future__ import annotations
 
 import argparse
-import os
-import sys
 import time
 from pathlib import Path
-from typing import Dict
 from urllib.parse import urlparse
 
 from rich.console import Console
@@ -65,8 +62,8 @@ def parse_args() -> argparse.Namespace:
     return p.parse_args()
 
 
-def load_env() -> Dict[str, str]:
-    data: Dict[str, str] = {}
+def load_env() -> dict[str, str]:
+    data: dict[str, str] = {}
     if not ENV_PATH.exists():
         return data
     try:
@@ -81,7 +78,7 @@ def load_env() -> Dict[str, str]:
     return data
 
 
-def save_env(env: Dict[str, str], quiet: bool = False) -> None:
+def save_env(env: dict[str, str], quiet: bool = False) -> None:
     lines = [
         '# Environment variables for job-search-automation',
         f"# Updated {time.strftime('%Y-%m-%d %H:%M:%S')}",
@@ -154,11 +151,11 @@ def test_webhook(url: str, quiet: bool = False) -> bool:
         return True
 
     payload = {
-        'text': '🎉 Slack integration verified!',
+        'text': 'Slack integration verified',
         'blocks': [
             {
                 'type': 'section',
-                'text': {'type': 'mrkdwn', 'text': '✅ *Slack setup complete!* Job alerts will appear here.'},
+                'text': {'type': 'mrkdwn', 'text': '*Slack setup complete.* Job alerts will appear here.'},
             },
             {
                 'type': 'context',
@@ -263,4 +260,4 @@ if __name__ == '__main__':  # pragma: no cover
         raise SystemExit(main())
     except KeyboardInterrupt:
         console.print('\n[yellow]Cancelled by user.[/yellow]')
-        raise SystemExit(130)
+        raise SystemExit(130) from None

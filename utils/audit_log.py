@@ -12,7 +12,7 @@ import threading
 from collections import defaultdict
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from utils.logging import get_logger
 
@@ -55,13 +55,13 @@ class AuditLogger:
         self,
         event_type: str,
         server_name: str,
-        tool_name: Optional[str] = None,
-        arguments: Optional[Dict[str, Any]] = None,
-        result: Optional[str] = None,
-        error: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None,
+        tool_name: str | None = None,
+        arguments: dict[str, Any] | None = None,
+        result: str | None = None,
+        error: str | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> None:
-        event: Dict[str, Any] = {
+        event: dict[str, Any] = {
             "timestamp": datetime.utcnow().isoformat() + "Z",
             "event_type": event_type,
             "server_name": server_name,
@@ -85,12 +85,12 @@ class AuditLogger:
         self,
         server_name: str,
         tool_name: str,
-        arguments: Dict[str, Any],
+        arguments: dict[str, Any],
         result: str = "success",
-        error: Optional[str] = None,
-        duration_ms: Optional[float] = None,
+        error: str | None = None,
+        duration_ms: float | None = None,
     ) -> None:
-        metadata: Dict[str, Any] = {}
+        metadata: dict[str, Any] = {}
         if duration_ms is not None:
             metadata["duration_ms"] = duration_ms
         self.log_event(
@@ -103,7 +103,7 @@ class AuditLogger:
             metadata=metadata,
         )
 
-    def log_rate_limit(self, server_name: str, tool_name: Optional[str] = None) -> None:
+    def log_rate_limit(self, server_name: str, tool_name: str | None = None) -> None:
         self.log_event(
             event_type="rate_limit",
             server_name=server_name,
@@ -126,7 +126,7 @@ class AuditLogger:
         server_name: str,
         severity: str,
         description: str,
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> None:
         meta = metadata or {}
         meta["severity"] = severity
@@ -139,10 +139,10 @@ class AuditLogger:
         )
 
     # Internal helpers -----------------------------------------------------
-    def _redact_sensitive(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    def _redact_sensitive(self, data: dict[str, Any]) -> dict[str, Any]:
         if not isinstance(data, dict):
             return data
-        redacted: Dict[str, Any] = {}
+        redacted: dict[str, Any] = {}
         sensitive_patterns = [
             "password",
             "token",
@@ -169,13 +169,13 @@ class AuditLogger:
     def get_recent_events(
         self,
         hours: int = 24,
-        event_type: Optional[str] = None,
-        server_name: Optional[str] = None,
-    ) -> List[Dict[str, Any]]:
+        event_type: str | None = None,
+        server_name: str | None = None,
+    ) -> list[dict[str, Any]]:
         cutoff = datetime.utcnow() - timedelta(hours=hours)
-        events: List[Dict[str, Any]] = []
+        events: list[dict[str, Any]] = []
         try:
-            with open(self.log_file, "r", encoding="utf-8") as f:
+            with open(self.log_file, encoding="utf-8") as f:
                 for line in f:
                     try:
                         event = json.loads(line.strip())
@@ -195,11 +195,11 @@ class AuditLogger:
             return []
         return events
 
-    def get_stats(self, hours: int = 24) -> Dict[str, Any]:
+    def get_stats(self, hours: int = 24) -> dict[str, Any]:
         events = self.get_recent_events(hours=hours)
-        server_counts: Dict[str, int] = defaultdict(int)
-        tool_counts: Dict[str, int] = defaultdict(int)
-        event_type_counts: Dict[str, int] = defaultdict(int)
+        server_counts: dict[str, int] = defaultdict(int)
+        tool_counts: dict[str, int] = defaultdict(int)
+        event_type_counts: dict[str, int] = defaultdict(int)
         error_count = 0
         for event in events:
             server_counts[event["server_name"]] += 1
@@ -237,8 +237,8 @@ class AnomalyDetector:
     def __init__(self, audit_logger: AuditLogger):
         self.audit_logger = audit_logger
 
-    def detect_anomalies(self, hours: int = 1) -> List[Dict[str, Any]]:
-        anomalies: List[Dict[str, Any]] = []
+    def detect_anomalies(self, hours: int = 1) -> list[dict[str, Any]]:
+        anomalies: list[dict[str, Any]] = []
         events = self.audit_logger.get_recent_events(hours=hours)
         if not events:
             return anomalies
@@ -292,7 +292,7 @@ class AnomalyDetector:
                 }
             )
         # 5. Unusual server activity (>3x average and >50 total events)
-        server_counts: Dict[str, int] = defaultdict(int)
+        server_counts: dict[str, int] = defaultdict(int)
         for ev in events:
             server_counts[ev["server_name"]] += 1
         avg_count = sum(server_counts.values()) / len(server_counts) if server_counts else 0
@@ -363,7 +363,7 @@ def _safe_rename(src: Path, dst: Path) -> None:
 
 def _read_jsonl(path: Path):  # Iterable[Dict[str, Any]] but generator; dynamic
     try:
-        with open(path, "r", encoding="utf-8") as fh:
+        with open(path, encoding="utf-8") as fh:
             for line in fh:
                 line = line.strip()
                 if not line:

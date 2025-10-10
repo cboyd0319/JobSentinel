@@ -21,10 +21,10 @@ from contextlib import contextmanager
 from contextvars import ContextVar
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 # Thread-safe context variable for trace_id propagation
-trace_context: ContextVar[Optional[str]] = ContextVar("trace_context", default=None)
+trace_context: ContextVar[str | None] = ContextVar("trace_context", default=None)
 
 
 @dataclass
@@ -33,12 +33,12 @@ class LogContext:
 
     trace_id: str
     component: str
-    operation: Optional[str] = None
-    user_id: Optional[str] = None
-    request_id: Optional[str] = None
-    session_id: Optional[str] = None
+    operation: str | None = None
+    user_id: str | None = None
+    request_id: str | None = None
+    session_id: str | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
         return {k: v for k, v in asdict(self).items() if v is not None}
 
@@ -69,7 +69,7 @@ class PIIRedactor:
         return redacted
 
     @classmethod
-    def redact_dict(cls, data: Dict[str, Any]) -> Dict[str, Any]:
+    def redact_dict(cls, data: dict[str, Any]) -> dict[str, Any]:
         """Recursively redact PII from dictionary values."""
         redacted = {}
 
@@ -182,8 +182,8 @@ class StructuredLogger:
         self,
         level: int,
         message: str,
-        trace_id: Optional[str] = None,
-        operation: Optional[str] = None,
+        trace_id: str | None = None,
+        operation: str | None = None,
         **kwargs,
     ) -> None:
         """Log with structured context."""
@@ -248,7 +248,7 @@ class StructuredLogger:
 
 
 @contextmanager
-def trace_context_manager(trace_id: Optional[str] = None, operation: Optional[str] = None):
+def trace_context_manager(trace_id: str | None = None, operation: str | None = None):
     """Context manager for trace_id propagation."""
     # Generate trace_id if not provided
     if trace_id is None:
@@ -268,7 +268,7 @@ def trace_context_manager(trace_id: Optional[str] = None, operation: Optional[st
 def performance_logger(
     logger: StructuredLogger,
     operation: str,
-    trace_id: Optional[str] = None,
+    trace_id: str | None = None,
     log_start: bool = True,
     **context_kwargs,
 ):
@@ -303,7 +303,7 @@ def performance_logger(
 
 def setup_structured_logging(
     log_level: str = "INFO",
-    log_file: Optional[Path] = None,
+    log_file: Path | None = None,
     include_console: bool = True,
     include_pii_redaction: bool = True,
 ) -> None:

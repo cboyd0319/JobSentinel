@@ -6,17 +6,20 @@ Provides:
   - Stable batch id derived from contained job hashes (order-insensitive)
 """
 from __future__ import annotations
-from pydantic import BaseModel, field_validator
-from typing import List, Set
-from .job import JobModel
+
 import hashlib
 
+from pydantic import BaseModel, field_validator
+
+from .job import JobModel
+
+
 class JobBatch(BaseModel):
-    jobs: List[JobModel]
+    jobs: list[JobModel]
 
     @field_validator("jobs")
     @classmethod
-    def non_empty(cls, v: List[JobModel]):  # type: ignore
+    def non_empty(cls, v: list[JobModel]):  # type: ignore
         if not v:
             raise ValueError("jobs list cannot be empty")
         return v
@@ -24,7 +27,7 @@ class JobBatch(BaseModel):
     def count(self) -> int:
         return len(self.jobs)
 
-    def sources(self) -> Set[str]:
+    def sources(self) -> set[str]:
         return {j.source or "unknown" for j in self.jobs}
 
     def batch_id(self) -> str:

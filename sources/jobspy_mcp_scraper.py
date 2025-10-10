@@ -7,13 +7,12 @@ Risk Level: MEDIUM-HIGH (aggregates scrapers, expect failures)
 
 from __future__ import annotations
 
-import asyncio
 import json
 import subprocess
-from typing import Dict, List, Optional
 
 from utils.logging import get_logger
-from sources.job_scraper_base import JobBoardScraper, GenericJobExtractor
+
+from sources.job_scraper_base import GenericJobExtractor, JobBoardScraper
 
 logger = get_logger("sources.jobspy_mcp_scraper")
 
@@ -25,7 +24,7 @@ class JobSpyMCPScraper(JobBoardScraper):
 	Risk: Medium/High (aggregation brittleness, potential ToS concerns).
 	"""
 
-	def __init__(self, mcp_server_path: Optional[str] = None):
+	def __init__(self, mcp_server_path: str | None = None):
 		super().__init__(name="JobSpy MCP", base_domains=[])
 		self.extractor = GenericJobExtractor()
 		self.mcp_server_path = mcp_server_path or self._find_jobspy_server()
@@ -34,7 +33,7 @@ class JobSpyMCPScraper(JobBoardScraper):
 		"""JobSpy is keyword-based, not URL-based."""
 		return False
 
-	def _find_jobspy_server(self) -> Optional[str]:
+	def _find_jobspy_server(self) -> str | None:
 		"""Try to locate JobSpy MCP server installation."""
 		import os
 
@@ -54,22 +53,22 @@ class JobSpyMCPScraper(JobBoardScraper):
 
 	async def scrape(
 		self, board_url: str, fetch_descriptions: bool = True  # noqa: D401
-	) -> List[Dict]:
+	) -> list[dict]:
 		"""Not used - use search() instead."""
 		logger.warning("JobSpy MCP doesn't scrape URLs. Use search() instead.")
 		return []
 
 	async def search(
 		self,
-		keywords: Optional[List[str]] = None,
-		location: Optional[str] = None,
-		site_names: Optional[List[str]] = None,
+		keywords: list[str] | None = None,
+		location: str | None = None,
+		site_names: list[str] | None = None,
 		results_wanted: int = 50,
 		hours_old: int = 72,
 		country: str = "USA",
-		is_remote: Optional[bool] = None,
-		job_type: Optional[str] = None,
-	) -> List[Dict]:
+		is_remote: bool | None = None,
+		job_type: str | None = None,
+	) -> list[dict]:
 		"""Search multiple job boards via JobSpy MCP."""
 		if not self.mcp_server_path:
 			logger.error("JobSpy MCP server not found. Cannot search.")
@@ -104,8 +103,8 @@ class JobSpyMCPScraper(JobBoardScraper):
 			if job_type:
 				mcp_request["params"]["arguments"]["job_type"] = job_type
 
-			result = subprocess.run(
-				["node", self.mcp_server_path],
+			result = subprocess.run(  # noqa: S603 - trusted MCP server
+				["node", self.mcp_server_path],  # noqa: S607 - node from PATH
 				input=json.dumps(mcp_request).encode(),
 				capture_output=True,
 				timeout=120,
@@ -137,9 +136,9 @@ class JobSpyMCPScraper(JobBoardScraper):
 			logger.error(f"JobSpy MCP search failed: {e}")
 			return []
 
-	async def _process_results(self, jobs_data: List[Dict]) -> List[Dict]:
+	async def _process_results(self, jobs_data: list[dict]) -> list[dict]:
 		"""Convert JobSpy results to normalized schema."""
-		normalized_jobs: List[Dict] = []
+		normalized_jobs: list[dict] = []
 		for job in jobs_data:
 			raw_job = {
 				"title": job.get("title", "N/A"),
@@ -182,7 +181,7 @@ class JobSpyMCPScraper(JobBoardScraper):
 			normalized_jobs.append(normalized_job)
 		return normalized_jobs
 
-	def _format_salary(self, job: Dict) -> str:
+	def _format_salary(self, job: dict) -> str:
 		"""Format salary from JobSpy compensation data."""
 		comp = job.get("compensation")
 		if not comp:
@@ -208,12 +207,12 @@ class JobSpyMCPScraper(JobBoardScraper):
 
 # Convenience function
 async def search_multi_site_jobs(
-	keywords: List[str],
-	location: Optional[str] = None,
-	sites: Optional[List[str]] = None,
+	keywords: list[str],
+	location: str | None = None,
+	sites: list[str] | None = None,
 	results_per_site: int = 50,
 	hours_old: int = 72,
-) -> List[Dict]:
+) -> list[dict]:
 	"""Convenience wrapper to perform a multi-site JobSpy search."""
 	if sites is None:
 		sites = ["indeed", "zip_recruiter", "glassdoor", "google"]

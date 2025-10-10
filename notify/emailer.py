@@ -2,15 +2,15 @@
 
 import os
 import smtplib
-from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from typing import List, Dict
+from email.mime.text import MIMEText
+
 from utils.logging import get_logger
 
 logger = get_logger("emailer")
 
 
-def send_digest_email(jobs: List[Dict]) -> bool:
+def send_digest_email(jobs: list[dict]) -> bool:
     """
     Send digest email with job listings.
 
@@ -78,7 +78,7 @@ def send_digest_email(jobs: List[Dict]) -> bool:
         return False
 
 
-def _create_html_digest(jobs: List[Dict]) -> str:
+def _create_html_digest(jobs: list[dict]) -> str:
     """
     Create HTML email content for job digest.
 

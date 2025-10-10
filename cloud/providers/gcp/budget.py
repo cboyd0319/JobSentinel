@@ -1,8 +1,8 @@
 """GCP budget management functions."""
 
-from cloud.utils import run_command
-from cloud.providers.gcp.utils import build_google_api_url
 from pathlib import Path
+
+from cloud.utils import run_command
 
 
 async def setup_budget_alerts(

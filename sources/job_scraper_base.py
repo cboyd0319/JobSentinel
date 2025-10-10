@@ -4,15 +4,15 @@ Provides a foundation for scraping any job board platform.
 """
 
 import asyncio
-import re
 import hashlib
+import re
 from abc import ABC, abstractmethod
-from typing import List, Dict, Optional
 from urllib.parse import urlparse
+
 import httpx  # Added httpx import
+from utils.errors import ScrapingException
 from utils.logging import get_logger
 from utils.scraping import web_scraper
-from utils.errors import ScrapingException
 
 logger = get_logger("sources.job_scraper_base")
 
@@ -26,7 +26,7 @@ def create_job_hash(company: str, title: str, description: str) -> str:
     # Use only the first 250 chars of the description for stability
     norm_desc = "".join(description.lower().split())[:250]
 
-    hash_input = f"{norm_company}{norm_title}{norm_desc}".encode("utf-8")
+    hash_input = f"{norm_company}{norm_title}{norm_desc}".encode()
     return hashlib.sha256(hash_input).hexdigest()
 
 
@@ -43,7 +43,7 @@ async def fetch_url(url: str) -> dict:
 
     except Exception as e:
         logger.error(f"Failed to fetch {url}: {e}")
-        raise ScrapingException("", url, str(e), e)
+        raise ScrapingException("", url, str(e), e) from e
 
 
 async def fetch_job_description(job_url: str, selector: str = None) -> str:
@@ -116,7 +116,7 @@ class JobBoardScraper(ABC):
     Provides common interface and utilities.
     """
 
-    def __init__(self, name: str, base_domains: List[str]):
+    def __init__(self, name: str, base_domains: list[str]):
         self.name = name
         self.base_domains = base_domains
 
@@ -127,7 +127,7 @@ class JobBoardScraper(ABC):
         return any(base_domain in domain for base_domain in self.base_domains)
 
     @abstractmethod
-    def scrape(self, board_url: str, fetch_descriptions: bool = True) -> List[Dict]:
+    def scrape(self, board_url: str, fetch_descriptions: bool = True) -> list[dict]:
         """Scrape jobs from the board URL."""
         pass
 
@@ -148,7 +148,7 @@ class APIDiscoveryMixin:
     Can be used by any scraper that supports JavaScript-heavy sites.
     """
 
-    async def discover_job_apis(self, page, board_url: str) -> List[Dict]:
+    async def discover_job_apis(self, page, board_url: str) -> list[dict]:
         """
         Discover API endpoints by monitoring network traffic.
         Returns potential API URLs that could contain job data.
@@ -176,7 +176,7 @@ class APIDiscoveryMixin:
                                 "board_url": board_url,
                             }
                         )
-                        logger.info(f"🔍 Discovered API: {url}")
+                        logger.info(f"Discovered API endpoint: {url}")
             except Exception as e:
                 logger.debug(f"API discovery error: {e}")
 
@@ -249,7 +249,7 @@ class GenericJobExtractor:
             return "Mid-level"
 
     @staticmethod
-    def extract_skills_from_description(description: str) -> Dict[str, List[str]]:
+    def extract_skills_from_description(description: str) -> dict[str, list[str]]:
         """Extract technical skills from job description."""
         if not description:
             return {"required_skills": [], "preferred_skills": [], "technologies": []}
@@ -424,7 +424,7 @@ class GenericJobExtractor:
         }
 
     @staticmethod
-    def extract_salary_from_description(description: str) -> Dict[str, any]:
+    def extract_salary_from_description(description: str) -> dict[str, any]:
         """Extract salary information from job description."""
         if not description:
             return {}
@@ -478,8 +478,8 @@ class GenericJobExtractor:
 
     @staticmethod
     def normalize_job_data(
-        raw_job: Dict, company_name: str, job_board: str, board_url: str
-    ) -> Dict:
+        raw_job: dict, company_name: str, job_board: str, board_url: str
+    ) -> dict:
         """
         Normalize job data to standard format.
         Handles various input formats and ensures consistent output.
@@ -584,14 +584,14 @@ class JobBoardRegistry:
     """
 
     def __init__(self):
-        self.scrapers: List[JobBoardScraper] = []
+        self.scrapers: list[JobBoardScraper] = []
 
     def register(self, scraper: JobBoardScraper):
         """Register a new job board scraper."""
         self.scrapers.append(scraper)
         logger.info(f"Registered scraper: {scraper.name}")
 
-    def get_scraper(self, url: str) -> Optional[JobBoardScraper]:
+    def get_scraper(self, url: str) -> JobBoardScraper | None:
         """Get the appropriate scraper for a URL."""
         for scraper in self.scrapers:
             if scraper.can_handle(url):
@@ -601,6 +601,6 @@ class JobBoardRegistry:
         logger.warning(f"No specific scraper found for {url}, will use fallback")
         return None
 
-    def list_supported_platforms(self) -> List[str]:
+    def list_supported_platforms(self) -> list[str]:
         """List all supported job board platforms."""
         return [scraper.name for scraper in self.scrapers]

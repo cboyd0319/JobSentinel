@@ -4,15 +4,16 @@ Handles Greenhouse-powered job boards (like Fivetran, Klaviyo, etc.)
 """
 
 import asyncio
-from typing import List, Dict
-from .job_scraper_base import (
- JobBoardScraper,
- GenericJobExtractor,
- fetch_url,
- extract_company_from_url,
- fetch_job_description,
-)
+
 from utils.logging import get_logger
+
+from .job_scraper_base import (
+	GenericJobExtractor,
+	JobBoardScraper,
+	extract_company_from_url,
+	fetch_job_description,
+	fetch_url,
+)
 
 logger = get_logger("sources.greenhouse_scraper")
 
@@ -49,7 +50,7 @@ class GreenhouseScraper(JobBoardScraper):
 
 	async def scrape(
 		self, board_url: str, fetch_descriptions: bool = True
-	) -> List[Dict]:
+	) -> list[dict]:
 		"""Scrape jobs from Greenhouse board."""
 		logger.info(f"Starting Greenhouse scrape for {board_url}")
 		company_name = extract_company_from_url(board_url)

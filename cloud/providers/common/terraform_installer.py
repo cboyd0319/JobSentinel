@@ -10,13 +10,11 @@ import asyncio
 import hashlib
 import os
 import platform
-import shutil
 import stat
 import sys
 import tempfile
 import zipfile
 from pathlib import Path
-from typing import Optional, Dict
 
 from cloud.utils import run_command, which
 
@@ -24,7 +22,7 @@ from cloud.utils import run_command, which
 TERRAFORM_VERSION = "1.9.7"
 
 # Cache for checksum manifests: {version: {platform: checksum}}
-_CHECKSUM_CACHE: Dict[str, Dict[str, str]] = {}
+_CHECKSUM_CACHE: dict[str, dict[str, str]] = {}
 
 
 def get_platform_info() -> tuple[str, str]:
@@ -89,7 +87,7 @@ def get_terraform_download_url(version: str, os_type: str, arch: str) -> str:
     filename = f"terraform_{version}_{os_type}_{arch}.zip"
     return f"{base_url}/{version}/{filename}"
 
-async def fetch_terraform_checksums(version: str, logger) -> Dict[str, str]:
+async def fetch_terraform_checksums(version: str, logger) -> dict[str, str]:
     """Download and cache Terraform SHA256 sums for the requested version."""
     if version in _CHECKSUM_CACHE:
         return _CHECKSUM_CACHE[version]
@@ -99,13 +97,19 @@ async def fetch_terraform_checksums(version: str, logger) -> Dict[str, str]:
         f"terraform_{version}_SHA256SUMS"
     )
 
+    # Security: enforce https scheme explicitly to satisfy S310
+    if not checksum_url.startswith("https://"):
+        logger.error("Refusing to download checksums over non-HTTPS")
+        _CHECKSUM_CACHE[version] = {}
+        return {}
+
     logger.debug(f"Fetching Terraform checksums from {checksum_url}")
 
     try:
         def _download() -> str:
             import urllib.request
 
-            with urllib.request.urlopen(checksum_url, timeout=30) as response:
+            with urllib.request.urlopen(checksum_url, timeout=30) as response:  # noqa: S310
                 return response.read().decode("utf-8")
 
         contents = await asyncio.to_thread(_download)
@@ -114,7 +118,7 @@ async def fetch_terraform_checksums(version: str, logger) -> Dict[str, str]:
         _CHECKSUM_CACHE[version] = {}
         return {}
 
-    checksums: Dict[str, str] = {}
+    checksums: dict[str, str] = {}
     prefix = f"terraform_{version}_"
     for line in contents.splitlines():
         parts = line.strip().split()
@@ -232,7 +236,7 @@ def add_to_path(directory: Path) -> None:
     os.environ["PATH"] = f"{dir_str}{os.pathsep}{current_path}"
 
 
-async def check_terraform_installed(logger) -> Optional[Path]:
+async def check_terraform_installed(logger) -> Path | None:
     """Check if Terraform is already installed.
 
     Args:
@@ -346,7 +350,7 @@ async def ensure_terraform(logger, force_install: bool = False) -> Path:
         except Exception as e:
             logger.error(f"Failed to install Terraform: {e}")
             logger.error("Please install Terraform manually: https://developer.hashicorp.com/terraform/install")
-            raise RuntimeError(f"Terraform installation failed: {e}")
+            raise RuntimeError(f"Terraform installation failed: {e}") from e
 
     # Add to PATH
     add_to_path(install_dir)
@@ -364,7 +368,7 @@ async def ensure_terraform(logger, force_install: bool = False) -> Path:
         logger.info(f"[OK] {result.stdout.strip()}")
     except Exception as e:
         logger.error(f"Terraform verification failed: {e}")
-        raise RuntimeError("Terraform installation verification failed")
+        raise RuntimeError("Terraform installation verification failed") from e
 
     logger.info("")
     logger.info("=" * 70)

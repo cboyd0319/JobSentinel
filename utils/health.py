@@ -7,12 +7,11 @@ import platform
 import time
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional
 
 import psutil
-
 from notify import slack
 from src.database import get_database_stats
+
 from utils.config import config_manager
 from utils.logging import get_logger
 
@@ -27,9 +26,9 @@ class HealthMetric:
     value: float
     unit: str
     status: str  # "ok", "warning", "critical"
-    threshold_warning: Optional[float] = None
-    threshold_critical: Optional[float] = None
-    message: Optional[str] = None
+    threshold_warning: float | None = None
+    threshold_critical: float | None = None
+    message: str | None = None
 
 
 class HealthMonitor:
@@ -39,7 +38,7 @@ class HealthMonitor:
         self.start_time = time.time()
         self.last_check = None
 
-    def check_system_resources(self) -> List[HealthMetric]:
+    def check_system_resources(self) -> list[HealthMetric]:
         """Check system resources (CPU, memory, disk)."""
         metrics = []
 
@@ -108,7 +107,7 @@ class HealthMonitor:
 
         return metrics
 
-    async def check_database_health_async(self) -> List[HealthMetric]:
+    async def check_database_health_async(self) -> list[HealthMetric]:
         """Check database health and statistics (async version)."""
         metrics = []
 
@@ -172,7 +171,7 @@ class HealthMonitor:
 
         return metrics
 
-    def check_log_files(self) -> List[HealthMetric]:
+    def check_log_files(self) -> list[HealthMetric]:
         """Check log file sizes and recent activity."""
         metrics = []
 
@@ -257,7 +256,7 @@ class HealthMonitor:
 
         return metrics
 
-    def check_configuration(self) -> List[HealthMetric]:
+    def check_configuration(self) -> list[HealthMetric]:
         """Check configuration validity and notification setup."""
         metrics = []
 
@@ -318,7 +317,7 @@ class HealthMonitor:
 
         return metrics
 
-    async def generate_health_report_async(self) -> Dict:
+    async def generate_health_report_async(self) -> dict:
         """Generate comprehensive health report (async version)."""
         logger.info("Generating health report...")
 
@@ -379,7 +378,7 @@ class HealthMonitor:
 
         return report
 
-    def generate_health_report(self) -> Dict:
+    def generate_health_report(self) -> dict:
         """Generate comprehensive health report (sync wrapper)."""
         import asyncio
 
@@ -458,7 +457,7 @@ class HealthMonitor:
 
         return report
 
-    def send_health_alert(self, report: Dict):
+    def send_health_alert(self, report: dict):
         """Send health alert if there are critical issues."""
         if report["overall_status"] == "critical":
             try:
@@ -473,7 +472,7 @@ class HealthMonitor:
                                 "type": "header",
                                 "text": {
                                     "type": "plain_text",
-                                    "text": "🚨 Job Scraper Health Alert",
+                                    "text": "Job Scraper Health Alert",
                                 },
                             },
                             {

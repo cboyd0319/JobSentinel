@@ -4,15 +4,15 @@ Handles Lever-powered job boards using the official Postings API.
 API Documentation: https://github.com/lever/postings-api
 """
 
-import asyncio
-from typing import List, Dict, Optional
-from .job_scraper_base import (
-    JobBoardScraper,
-    GenericJobExtractor,
-    fetch_url,
-    extract_company_from_url,
-)
+
 from utils.logging import get_logger
+
+from .job_scraper_base import (
+    GenericJobExtractor,
+    JobBoardScraper,
+    extract_company_from_url,
+    fetch_url,
+)
 
 logger = get_logger("sources.lever_scraper")
 
@@ -73,7 +73,7 @@ class LeverScraper(JobBoardScraper):
 
     async def scrape(
         self, board_url: str, fetch_descriptions: bool = True
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """
         Scrape jobs from Lever board using official Postings API.
 
@@ -182,7 +182,7 @@ class LeverScraper(JobBoardScraper):
         )
         return scraped_jobs
 
-    def _extract_location(self, job: Dict) -> str:
+    def _extract_location(self, job: dict) -> str:
         """Extract location from Lever job data."""
         # Lever stores location in categories
         categories = job.get("categories", {})
@@ -199,7 +199,7 @@ class LeverScraper(JobBoardScraper):
 
         return "Not Specified"
 
-    def _extract_lever_fields(self, job: Dict) -> Dict:
+    def _extract_lever_fields(self, job: dict) -> dict:
         """Extract Lever-specific enhanced fields."""
         categories = job.get("categories", {})
 

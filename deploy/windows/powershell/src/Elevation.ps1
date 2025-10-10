@@ -1,4 +1,4 @@
-﻿# requires -Version 5.1
+# requires -Version 5.1
 <#
 .SYNOPSIS
 Explicit user - consent elevation helpers for Windows automation.

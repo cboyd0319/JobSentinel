@@ -1,19 +1,12 @@
 """Utility functions for GCP provisioning."""
 
-import hashlib
-import json
-import os
 import shutil
 import tarfile
-import tempfile
 import urllib.error
 import urllib.parse
 import urllib.request
 import zipfile
 from pathlib import Path
-from typing import Any
-
-from cloud.utils import current_os
 
 
 def sanitize_api_url(raw_url: str) -> str:
@@ -96,7 +89,7 @@ def download_https_file(
         raise RuntimeError("Unexpected download host")
     # The URL is validated against allowed_host, mitigating dynamic urllib use risk.
     # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected
-    with urllib.request.urlopen(url, timeout=timeout) as response:  # nosec B310
+    with urllib.request.urlopen(url, timeout=timeout) as response:  # nosec B310  # noqa: S310
         total_size = int(response.headers.get("Content-Length", 0))
 
         with destination.open("wb") as fh:
@@ -133,7 +126,7 @@ def download_https_text(url: str, *, allowed_host: str, timeout: int = 30) -> st
         raise RuntimeError("Unexpected download host")
     # The URL is validated against allowed_host, mitigating dynamic urllib use risk.
     # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected
-    with urllib.request.urlopen(url, timeout=timeout) as response:  # nosec B310
+    with urllib.request.urlopen(url, timeout=timeout) as response:  # nosec B310  # noqa: S310
         return response.read().decode("utf-8").strip()
 
 

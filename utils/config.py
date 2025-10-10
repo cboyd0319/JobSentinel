@@ -6,7 +6,7 @@ import json
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 from urllib.parse import urlparse
 
 from utils.errors import ConfigurationException
@@ -23,7 +23,7 @@ class CompanyConfig:
     board_type: str
     url: str
     fetch_descriptions: bool = True
-    custom_selectors: Optional[Dict[str, str]] = None
+    custom_selectors: dict[str, str] | None = None
 
     def __post_init__(self):
         """Validate company configuration."""
@@ -46,7 +46,7 @@ class CompanyConfig:
                 logger.warning(f"Company {self.id} uses insecure HTTP (not HTTPS): {self.url}")
 
         except Exception as e:
-            raise ConfigurationException(f"Invalid URL for company {self.id}: {e}")
+            raise ConfigurationException(f"Invalid URL for company {self.id}: {e}") from e
 
         # Validate board type
         supported_boards = [
@@ -89,13 +89,13 @@ class ScrapingConfig:
 class FilterConfig:
     """Configuration for job filtering and scoring."""
 
-    title_allowlist: List[str]
-    title_blocklist: List[str] = field(default_factory=list)
-    keywords_boost: List[str] = field(default_factory=list)
-    keywords_exclude: List[str] = field(default_factory=list)
-    location_constraints: List[str] = field(default_factory=list)
-    location_preferences: Dict[str, Any] = field(default_factory=dict)
-    salary_floor_usd: Optional[int] = None
+    title_allowlist: list[str]
+    title_blocklist: list[str] = field(default_factory=list)
+    keywords_boost: list[str] = field(default_factory=list)
+    keywords_exclude: list[str] = field(default_factory=list)
+    location_constraints: list[str] = field(default_factory=list)
+    location_preferences: dict[str, Any] = field(default_factory=dict)
+    salary_floor_usd: int | None = None
     immediate_alert_threshold: float = 0.9
     digest_min_score: float = 0.0
     max_matches_per_run: int = 50
@@ -128,7 +128,7 @@ class FilterConfig:
 class NotificationConfig:
     """Configuration for notifications."""
 
-    slack_webhook_url: Optional[str] = None
+    slack_webhook_url: str | None = None
 
     def validate_slack(self) -> bool:
         """Check if Slack notifications are properly configured."""
@@ -144,7 +144,7 @@ class ConfigManager:
         self,
         config_path: str = "config/user_prefs.json",
         env_path: str = ".env",
-        fallback_paths: Optional[List[str]] = None,
+        fallback_paths: list[str] | None = None,
     ):
         candidates = [Path(config_path)]
         if fallback_paths is None:
@@ -154,10 +154,10 @@ class ConfigManager:
         self._candidate_paths = candidates
         self.config_path = next((p for p in candidates if p.exists()), Path(config_path))
         self.env_path = Path(env_path)
-        self._config_data: Optional[Dict[str, Any]] = None
+        self._config_data: dict[str, Any] | None = None
         self.database_url: str = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///data/jobs.sqlite")
 
-    def load_config(self) -> Dict[str, Any]:
+    def load_config(self) -> dict[str, Any]:
         """Load and validate complete configuration."""
         logger.info("Loading configuration...")
 
@@ -169,12 +169,12 @@ class ConfigManager:
             )
 
         try:
-            with open(self.config_path, "r", encoding="utf-8") as f:
+            with open(self.config_path, encoding="utf-8") as f:
                 config_data = json.load(f)
         except json.JSONDecodeError as e:
-            raise ConfigurationException(f"Invalid JSON in {self.config_path}: {e}")
+            raise ConfigurationException(f"Invalid JSON in {self.config_path}: {e}") from e
         except Exception as e:
-            raise ConfigurationException(f"Failed to read {self.config_path}: {e}")
+            raise ConfigurationException(f"Failed to read {self.config_path}: {e}") from e
 
         # Load environment variables
         if self.env_path.exists():
@@ -189,7 +189,7 @@ class ConfigManager:
         logger.info("Configuration loaded and validated successfully")
         return config_data
 
-    def _validate_config(self, config: Dict[str, Any]):
+    def _validate_config(self, config: dict[str, Any]):
         """Validate the complete configuration."""
         logger.debug("Validating configuration...")
 
@@ -202,7 +202,7 @@ class ConfigManager:
             try:
                 CompanyConfig(**company_data)
             except Exception as e:
-                raise ConfigurationException(f"Invalid company config at index {i}: {e}")
+                raise ConfigurationException(f"Invalid company config at index {i}: {e}") from e
 
         # Validate filters
         try:
@@ -219,7 +219,7 @@ class ConfigManager:
                 max_matches_per_run=config.get("max_matches_per_run", 50),
             )
         except Exception as e:
-            raise ConfigurationException(f"Invalid filter configuration: {e}")
+            raise ConfigurationException(f"Invalid filter configuration: {e}") from e
 
         # Validate notifications
         notification_config = NotificationConfig(
@@ -268,7 +268,7 @@ class ConfigManager:
         except Exception as e:
             logger.warning(f"Could not check file permissions: {e}")
 
-    def get_companies(self) -> List[CompanyConfig]:
+    def get_companies(self) -> list[CompanyConfig]:
         """Get validated company configurations."""
         if not self._config_data:
             self.load_config()

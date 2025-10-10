@@ -21,30 +21,29 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional
 
 # Add project root to path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))  # noqa: E402
 
-from utils.logging import get_logger  # noqa: E402
 from cloud.utils import run_command  # noqa: E402
+from utils.logging import get_logger  # noqa: E402
 
 
 class DeploymentValidator:
 	"""Validate GCP deployment health and configuration."""
 
-	def __init__(self, project_id: Optional[str] = None, logger=None, log_level=logging.INFO):
+	def __init__(self, project_id: str | None = None, logger=None, log_level=logging.INFO):
 		self.project_id = project_id
 		if logger:
 			self.logger = logger
 		else:
 			self.logger = get_logger("deployment_validator")
 		self.logger.setLevel(log_level)
-		self.errors: List[str] = []
-		self.warnings: List[str] = []
-		self.successes: List[str] = []
-		self.state_dir: Optional[Path] = None
+		self.errors: list[str] = []
+		self.warnings: list[str] = []
+		self.successes: list[str] = []
+		self.state_dir: Path | None = None
 
 	async def validate(self) -> bool:
 		"""Run all validation checks and emit a summary."""
@@ -77,7 +76,7 @@ class DeploymentValidator:
 		]
 
 		for check_name, check_func in checks:
-			self.logger.info(f"🔍 Checking: {check_name}...")
+			self.logger.info(f"Checking: {check_name}...")
 			try:
 				await check_func()
 			except Exception as exc:  # noqa: BLE001
@@ -114,7 +113,7 @@ class DeploymentValidator:
 		self.logger.info("")
 		return True
 
-	async def _find_recent_deployment(self) -> Optional[str]:
+	async def _find_recent_deployment(self) -> str | None:
 		"""Find the most recent deployment directory name."""
 		home = Path.home()
 		job_scraper_dir = home / ".job-scraper"
@@ -162,7 +161,7 @@ class DeploymentValidator:
 		state_file = terraform_dir / "terraform.tfstate"
 		if not state_file.exists():
 			raise ValueError("Terraform state file not found")
-		with open(state_file, "r", encoding="utf-8") as fh:
+		with open(state_file, encoding="utf-8") as fh:
 			state = json.load(fh)
 		resources = state.get("resources", [])
 		if not resources:
@@ -320,7 +319,7 @@ async def list_deployments() -> None:
 	for proj_dir in sorted(project_dirs, reverse=True):
 		config_file = proj_dir / "deployment_config.json"
 		if config_file.exists():
-			with open(config_file, "r", encoding="utf-8") as fh:
+			with open(config_file, encoding="utf-8") as fh:
 				config = json.load(fh)
 			region = config.get("region", "unknown")
 			print(f" • {proj_dir.name} (region: {region})")

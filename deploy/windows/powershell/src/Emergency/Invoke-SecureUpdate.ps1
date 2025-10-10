@@ -1,4 +1,4 @@
-﻿# requires -Version 5.1
+# requires -Version 5.1
 <#
 .SYNOPSIS
 Securely updates a Job Search Automation deployment from a trusted Git remote.

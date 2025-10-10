@@ -1,22 +1,20 @@
 from __future__ import annotations
 
+import asyncio
 import os
+import platform
 import shutil
 import tempfile
-import platform
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Optional
-from datetime import datetime, timezone, timedelta
-import asyncio
 
-from google.cloud import storage
 from google.api_core import exceptions as gcp_exceptions
-
-from utils.logging import get_logger
-from utils.errors import DatabaseException
+from google.cloud import storage
 
 # Import the existing database module
-from src.database import init_db, get_database_stats  # Import specific functions
+from src.database import get_database_stats, init_db  # Import specific functions
+from utils.errors import DatabaseException
+from utils.logging import get_logger
 
 logger = get_logger("gcp_cloud_database")
 
@@ -30,7 +28,9 @@ class CloudDatabase:
         self.cloud_db_path = "jobs.sqlite"
         # Add hostname to backup path to avoid collisions from multiple instances
         hostname = platform.node().replace(".", "-")
-        self.backup_path = f"backup/jobs-{hostname}-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}.sqlite"
+        self.backup_path = (
+            f"backup/jobs-{hostname}-{datetime.now(UTC).strftime('%Y%m%d-%H%M%S')}.sqlite"
+        )
         self.lock_path = "jobs.sqlite.lock"  # Distributed lock file
 
         if not self.bucket_name:
@@ -64,7 +64,7 @@ class CloudDatabase:
                 # Try to create lock file with precondition (must not exist)
                 await asyncio.to_thread(
                     lock_blob.upload_from_string,
-                    f"{platform.node()}:{os.getpid()}:{datetime.now(timezone.utc).isoformat()}",
+                    f"{platform.node()}:{os.getpid()}:{datetime.now(UTC).isoformat()}",
                     if_generation_match=0  # Only succeeds if blob doesn't exist
                 )
                 logger.info("Acquired distributed lock for database sync")
@@ -75,7 +75,7 @@ class CloudDatabase:
                     # Check if lock is stale (older than 5 minutes)
                     try:
                         await asyncio.to_thread(lock_blob.reload)
-                        lock_age = (datetime.now(timezone.utc) - lock_blob.updated).total_seconds()
+                        lock_age = (datetime.now(UTC) - lock_blob.updated).total_seconds()
                         if lock_age > 300:  # 5 minutes
                             logger.warning(f"Breaking stale lock (age: {lock_age:.0f}s)")
                             await asyncio.to_thread(lock_blob.delete)
@@ -169,7 +169,7 @@ class CloudDatabase:
 
         except Exception as e:
             logger.error(f"Failed to upload database: {e}")
-            raise DatabaseException("cloud_upload", str(e), e)
+            raise DatabaseException("cloud_upload", str(e), e) from e
         finally:
             await self._release_lock()
 
@@ -221,7 +221,7 @@ async def cleanup_old_backups(retention_days: int = 30) -> int:
 
     try:
         deleted_count = 0
-        cutoff_time = datetime.now(timezone.utc) - timedelta(days=retention_days)
+        cutoff_time = datetime.now(UTC) - timedelta(days=retention_days)
 
         # List all backup files
         prefix = "backup/"
@@ -229,7 +229,9 @@ async def cleanup_old_backups(retention_days: int = 30) -> int:
 
         for blob in blobs:
             if blob.updated and blob.updated < cutoff_time:
-                logger.info(f"Deleting old backup: {blob.name} (age: {(datetime.now(timezone.utc) - blob.updated).days} days)")
+                logger.info(
+                    f"Deleting old backup: {blob.name} (age: {(datetime.now(UTC) - blob.updated).days} days)"
+                )
                 await asyncio.to_thread(blob.delete)
                 deleted_count += 1
 

@@ -1,3 +1,6 @@
+# NOTE: Legacy mypy config. Root-level pyproject.toml is authoritative for
+# new modules under src/jsa. This file remains for backward compatibility with
+# scripts referencing config/mypy.ini.
 [mypy]
 python_version = 3.11
 # Meticulous Programmer Standards - Strict Type Safety

@@ -6,7 +6,6 @@ Analyzes resume content for quality, readability, and effectiveness.
 
 import logging
 import re
-from typing import Dict, List
 
 from ..models import ResumeContent, SectionType
 
@@ -106,7 +105,7 @@ class ContentAnalyzer:
         },
     }
 
-    def analyze_content(self, resume_content: ResumeContent) -> Dict:
+    def analyze_content(self, resume_content: ResumeContent) -> dict:
         """Perform comprehensive content analysis."""
 
         logger.info("Starting content analysis")
@@ -207,7 +206,7 @@ class ContentAnalyzer:
         score = max(0, min(100, strong_ratio * 10 - weak_penalty))
         return round(score, 1)
 
-    def _calculate_keyword_density(self, text: str) -> Dict[str, float]:
+    def _calculate_keyword_density(self, text: str) -> dict[str, float]:
         """Calculate keyword density for different industries."""
         words = re.findall(r"\b\w+\b", text.lower())
         total_words = len(words)
@@ -224,7 +223,7 @@ class ContentAnalyzer:
 
         return keyword_density
 
-    def _analyze_sections(self, resume_content: ResumeContent) -> Dict:
+    def _analyze_sections(self, resume_content: ResumeContent) -> dict:
         """Analyze individual sections."""
         section_analysis = {}
 
@@ -409,7 +408,7 @@ class ContentAnalyzer:
         else:
             return 20.0
 
-    def _find_weakness_indicators(self, text: str) -> List[str]:
+    def _find_weakness_indicators(self, text: str) -> list[str]:
         """Find indicators of weak resume content."""
         indicators = []
         text_lower = text.lower()

@@ -14,14 +14,14 @@ class DummyCompleted:
 
 @pytest.mark.asyncio
 async def test_jobspy_empty_keywords():
-    scraper = JobSpyMCPScraper(mcp_server_path="/tmp/fake.js")
+    scraper = JobSpyMCPScraper(mcp_server_path="/tmp/fake.js")  # noqa: S108 - test fixture
     jobs = await scraper.search(keywords=[], location="Remote")
     assert jobs == []
 
 
 @pytest.mark.asyncio
 async def test_jobspy_filters_is_remote_and_job_type(monkeypatch):
-    scraper = JobSpyMCPScraper(mcp_server_path="/tmp/fake.js")
+    scraper = JobSpyMCPScraper(mcp_server_path="/tmp/fake.js")  # noqa: S108 - test fixture
     captured_request = {}
 
     def fake_run(cmd, input, capture_output, timeout):  # noqa: D401
@@ -41,7 +41,7 @@ async def test_jobspy_filters_is_remote_and_job_type(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_jobspy_timeout(monkeypatch):
-    scraper = JobSpyMCPScraper(mcp_server_path="/tmp/fake.js")
+    scraper = JobSpyMCPScraper(mcp_server_path="/tmp/fake.js")  # noqa: S108 - test fixture
 
     def fake_run_timeout(cmd, input, capture_output, timeout):  # noqa: D401
         raise subprocess.TimeoutExpired(cmd="node", timeout=timeout)
@@ -55,7 +55,7 @@ async def test_jobspy_timeout(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_jobspy_node_not_found(monkeypatch):
-    scraper = JobSpyMCPScraper(mcp_server_path="/tmp/fake.js")
+    scraper = JobSpyMCPScraper(mcp_server_path="/tmp/fake.js")  # noqa: S108 - test fixture
 
     def fake_run_not_found(cmd, input, capture_output, timeout):  # noqa: D401
         raise FileNotFoundError("node")

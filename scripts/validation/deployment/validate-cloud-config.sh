@@ -17,20 +17,20 @@ WARNINGS=0
 ERRORS=0
 
 log_info() {
-    echo -e "${BLUE}ℹ️  $1${NC}"
+    echo -e "${BLUE}INFO: $1${NC}"
 }
 
 log_success() {
-    echo -e "${GREEN}✅ $1${NC}"
+    echo -e "${GREEN}OK: $1${NC}"
 }
 
 log_warning() {
-    echo -e "${YELLOW}⚠️  $1${NC}"
+    echo -e "${YELLOW}WARNING: $1${NC}"
     ((WARNINGS++))
 }
 
 log_error() {
-    echo -e "${RED}❌ $1${NC}"
+    echo -e "${RED}ERROR: $1${NC}"
     ((ERRORS++))
     VALIDATION_PASSED=false
 }
@@ -367,9 +367,9 @@ generate_report() {
 
     if [[ "$VALIDATION_PASSED" == "true" ]]; then
         if [[ $WARNINGS -eq 0 ]]; then
-            log_success "🎉 All checks passed! Ready for cloud deployment."
+            log_success "All checks passed! Ready for cloud deployment."
         else
-            log_warning "⚠️  Validation passed with $WARNINGS warnings. Review warnings before deploying."
+            log_warning "Validation passed with $WARNINGS warnings. Review warnings before deploying."
         fi
         echo
         echo "Next steps:"
@@ -379,7 +379,7 @@ generate_report() {
         echo
         return 0
     else
-        log_error "❌ Validation failed with $ERRORS errors. Fix errors before deploying."
+        log_error "Validation failed with $ERRORS errors. Fix errors before deploying."
         echo
         echo "Required actions:"
         echo "1. Address all error messages above"
@@ -392,7 +392,7 @@ generate_report() {
 
 # Main execution
 main() {
-    echo "🔍 Cloud Deployment Configuration Validator"
+    echo "Cloud Deployment Configuration Validator"
     echo "==========================================="
     echo
 

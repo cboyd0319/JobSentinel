@@ -2,65 +2,40 @@
 
 from __future__ import annotations
 
-import hashlib
 import json
 import os
-import secrets
-import re
 import shutil
-import string
 import sys
-import tarfile
-import tempfile
 import textwrap
-import time
-import urllib.error
-import urllib.parse
-import urllib.request
-import zipfile
 from pathlib import Path
-from typing import Dict, Optional
-from datetime import datetime
-from tzlocal import get_localzone_name
-import asyncio
-import aiohttp
 
 from cloud.utils import (
-    choose,
     confirm,
     create_or_update_secret,
-    current_os,
-    ensure_directory,
-    prepend_path,
     resolve_project_root,
     run_command,
-    which,
 )
 
 INSTALL_VERSION = "540.0.0"
 
-from cloud.providers.gcp.utils import (
-    build_google_api_url,
-)
+from utils.errors import ConfigurationException
+
+from cloud.exceptions import QuotaExceededError
+from cloud.providers.common.terraform_installer import ensure_terraform
 from cloud.providers.gcp.auth import authenticate
-from cloud.providers.gcp.sdk import ensure_gcloud
-from cloud.providers.gcp.project import choose_billing_account, create_project
-from cloud.providers.gcp.regions import select_region, select_scheduler_region
-from cloud.providers.gcp.security import setup_binary_authorization
 from cloud.providers.gcp.cloud_run import build_and_push_image
-from cloud.providers.gcp.scheduler import schedule_job
-from cloud.providers.gcp.summary import verify_deployment, print_summary, send_slack_notification
+from cloud.providers.gcp.project import choose_billing_account, create_project
 from cloud.providers.gcp.project_detection import (
     detect_existing_deployment,
     generate_project_id,
     get_state_directory,
-    get_terraform_state_path,
-    save_deployment_config,
     load_deployment_config,
+    save_deployment_config,
 )
-from cloud.providers.common.terraform_installer import ensure_terraform
-from cloud.exceptions import QuotaExceededError
-from utils.errors import ConfigurationException
+from cloud.providers.gcp.regions import select_region, select_scheduler_region
+from cloud.providers.gcp.scheduler import schedule_job
+from cloud.providers.gcp.sdk import ensure_gcloud
+from cloud.providers.gcp.summary import print_summary, send_slack_notification, verify_deployment
 
 
 class GCPBootstrap:
@@ -84,8 +59,8 @@ class GCPBootstrap:
         self.scheduler_sa: str | None = None
         self.scheduler_region: str | None = None
         self.user_prefs_payload: str = ""
-        self.env_values: Dict[str, str] = {}
-        self.env_secret_bindings: Dict[str, str] = {}
+        self.env_values: dict[str, str] = {}
+        self.env_secret_bindings: dict[str, str] = {}
         self.project_root = resolve_project_root()
         self.terraform_dir = self.project_root / "terraform" / "gcp"
         self.job_mode: str = "poll"
@@ -670,7 +645,7 @@ budget_alert_threshold_percent = 0.9
             self.logger.debug(f"Could not get clipboard contents: {e}")
         return None
 
-    def _collect_resume_preferences(self) -> Optional[Dict]:
+    def _collect_resume_preferences(self) -> dict | None:
         """
         Optional: Parse user's resume to auto-populate preferences.
 
@@ -703,7 +678,7 @@ budget_alert_threshold_percent = 0.9
 
         # Check dependencies
         try:
-            from utils.resume_parser import check_dependencies, ResumeParser
+            from utils.resume_parser import ResumeParser, check_dependencies
         except ImportError:
             self.logger.error("Resume parser module not found. Please ensure utils/resume_parser.py exists.")
             return None
@@ -742,18 +717,18 @@ budget_alert_threshold_percent = 0.9
                 self.logger.info("=" * 70)
 
                 if result.get("skills"):
-                    self.logger.info(f"\n📚 Skills Found ({len(result['skills'])}):")
+                    self.logger.info(f"\nSkills Found ({len(result['skills'])}):")
                     self.logger.info("  " + ", ".join(result["skills"][:15]))
                     if len(result["skills"]) > 15:
                         self.logger.info(f"  ... and {len(result['skills']) - 15} more")
 
                 if result.get("titles"):
-                    self.logger.info("\n💼 Job Titles Found:")
+                    self.logger.info("\nJob Titles Found:")
                     for title in result["titles"][:5]:
                         self.logger.info(f"  • {title}")
 
                 if result.get("years_experience"):
-                    self.logger.info(f"\n📅 Estimated Experience: {result['years_experience']} years")
+                    self.logger.info(f"\nEstimated Experience: {result['years_experience']} years")
 
                 self.logger.info("")
                 self.logger.info("=" * 70)

@@ -40,8 +40,8 @@ async def demo_basic_search() -> None:
     print(f"\n[OK] Found {len(jobs)} Python developer jobs in London")
     if jobs:
         sample = jobs[0]
-        print("\n📋 Sample job:")
-            # CodeQL false positive: Only prints job info, no secrets or sensitive data
+        print("\nSample job:")
+        # CodeQL false positive: Only prints job info, no secrets or sensitive data
         for field in ("title", "company", "location", "salary", "url"):
             print(f" {field.capitalize()}: {sample.get(field, 'N/A')}")
 

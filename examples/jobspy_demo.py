@@ -28,7 +28,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from sources.jobspy_mcp_scraper import search_multi_site_jobs  # noqa: E402
 from utils.logging import setup_logging  # noqa: E402
 
-
 logger = setup_logging(log_level="INFO")
 
 
@@ -58,7 +57,7 @@ async def demo_basic_search() -> None:
     for site, count in site_counts.items():
         print(f" - {site}: {count} jobs")
 
-    print("\n📋 Sample job:")
+    print("\nSample job:")
     sample = jobs[0]
     print(f" Title: {sample.get('title')}")
     print(f" Company: {sample.get('company')}")
@@ -83,7 +82,7 @@ async def demo_remote_jobs() -> None:
     if not jobs:
         return
 
-    print("\n📋 Recent remote opportunities:")
+    print("\nRecent remote opportunities:")
     for i, job in enumerate(jobs[:5], 1):
         print(f"\n {i}. {job.get('title')}")
         print(f" Company: {job.get('company')}")
@@ -108,7 +107,7 @@ async def demo_salary_data() -> None:
     print(f" {len(jobs_with_salary)} jobs have salary information")
     if not jobs_with_salary:
         return
-    print("\n💰 Salary breakdown:")
+    print("\nSalary breakdown:")
     for i, job in enumerate(jobs_with_salary[:5], 1):
         print(f" {i}. {job.get('title')} at {job.get('company')} — {job.get('salary')}")
 
@@ -158,7 +157,7 @@ async def demo_freshness() -> None:
     )
     print(f"[OK] Found {len(week_jobs)} jobs posted in last 7 days")
     if recent_jobs:
-        print("\n📋 Fresh jobs (last 24h):")
+        print("\nFresh jobs (last 24h):")
         for i, job in enumerate(recent_jobs[:3], 1):
             print(f" {i}. {job.get('title')} at {job.get('company')}")
 

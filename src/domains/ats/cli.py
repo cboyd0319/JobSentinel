@@ -9,7 +9,6 @@ import argparse
 import logging
 import sys
 from pathlib import Path
-from typing import List, Optional
 
 from ..service import ATSAnalysisService
 
@@ -69,7 +68,7 @@ def setup_logging(verbose: bool = False, quiet: bool = False):
     logging.basicConfig(level=level, format="%(levelname)s: %(message)s", stream=sys.stderr)
 
 
-def parse_keywords(keywords_str: Optional[str]) -> Optional[List[str]]:
+def parse_keywords(keywords_str: str | None) -> list[str] | None:
     """Parse comma-separated keywords string."""
     if not keywords_str:
         return None
@@ -143,7 +142,7 @@ def print_detailed_results(score):
     print()
 
 
-def main(args: Optional[List[str]] = None) -> int:
+def main(args: list[str] | None = None) -> int:
     """Main CLI entry point."""
     parser = create_parser()
     parsed_args = parser.parse_args(args)

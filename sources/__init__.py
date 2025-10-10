@@ -9,12 +9,12 @@ Supported boards:
 """
 
 from . import (
-    job_scraper,
-    greenhouse_scraper,
     api_based_scrapers,
-    playwright_scraper,
     concurrent_scraper,
+    greenhouse_scraper,
+    job_scraper,
     job_scraper_base,
+    playwright_scraper,
 )
 
 __all__ = [

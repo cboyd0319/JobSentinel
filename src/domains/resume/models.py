@@ -8,7 +8,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, List, Optional
 
 
 class ResumeTemplate(Enum):
@@ -52,7 +51,7 @@ class ResumeSection:
     """Represents a resume section with content and formatting."""
 
     title: str
-    content: List[str]
+    content: list[str]
     section_type: SectionType
     order: int
     required: bool = True
@@ -78,14 +77,14 @@ class IndustryProfile:
     """Industry-specific resume requirements and best practices."""
 
     name: str
-    required_sections: List[SectionType]
-    optional_sections: List[SectionType]
-    key_skills: List[str]
+    required_sections: list[SectionType]
+    optional_sections: list[SectionType]
+    key_skills: list[str]
     experience_format: str
     recommended_length: tuple[int, int]  # min, max pages
-    emphasis: List[str]
-    common_keywords: List[str] = field(default_factory=list)
-    ats_considerations: List[str] = field(default_factory=list)
+    emphasis: list[str]
+    common_keywords: list[str] = field(default_factory=list)
+    ats_considerations: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -94,24 +93,24 @@ class ResumeAnalysis:
 
     current_score: float
     potential_score: float
-    suggestions: List[ResumeSuggestion]
-    missing_sections: List[str]
-    weak_sections: List[str]
-    strong_sections: List[str]
-    industry_match: Optional[str]
+    suggestions: list[ResumeSuggestion]
+    missing_sections: list[str]
+    weak_sections: list[str]
+    strong_sections: list[str]
+    industry_match: str | None
     recommended_template: ResumeTemplate
 
     # Analysis metadata
     word_count: int = 0
     estimated_pages: float = 0.0
-    keyword_density: Dict[str, float] = field(default_factory=dict)
+    keyword_density: dict[str, float] = field(default_factory=dict)
     readability_score: float = 0.0
 
-    def get_high_priority_suggestions(self) -> List[ResumeSuggestion]:
+    def get_high_priority_suggestions(self) -> list[ResumeSuggestion]:
         """Get suggestions with priority 1-2."""
         return [s for s in self.suggestions if s.priority <= 2]
 
-    def get_quick_wins(self) -> List[ResumeSuggestion]:
+    def get_quick_wins(self) -> list[ResumeSuggestion]:
         """Get high-impact, low-effort suggestions."""
         return [s for s in self.suggestions if s.impact_score > 5 and s.effort_level <= 2]
 
@@ -120,11 +119,11 @@ class ResumeAnalysis:
 class ResumeContent:
     """Structured representation of resume content."""
 
-    sections: Dict[SectionType, ResumeSection] = field(default_factory=dict)
-    metadata: Dict[str, str] = field(default_factory=dict)
-    format_info: Dict[str, str] = field(default_factory=dict)
+    sections: dict[SectionType, ResumeSection] = field(default_factory=dict)
+    metadata: dict[str, str] = field(default_factory=dict)
+    format_info: dict[str, str] = field(default_factory=dict)
 
-    def get_section(self, section_type: SectionType) -> Optional[ResumeSection]:
+    def get_section(self, section_type: SectionType) -> ResumeSection | None:
         """Get a specific section by type."""
         return self.sections.get(section_type)
 

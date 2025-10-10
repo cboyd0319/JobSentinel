@@ -50,10 +50,7 @@ warnings.warn(
 )
 
 # Import compatibility wrappers
-from src.domains.ats.legacy_compatibility import (
-    UltimateATSScanner,
-    analyze_resume
-)
+from src.domains.ats.legacy_compatibility import UltimateATSScanner, analyze_resume
 
 # Re-export for legacy compatibility
 __all__ = ["UltimateATSScanner", "analyze_resume"]

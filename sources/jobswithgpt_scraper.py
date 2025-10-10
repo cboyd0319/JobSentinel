@@ -5,11 +5,10 @@ Uses the JobsWithGPT MCP server to access 500,000+ job listings.
 This provides massive coverage without maintaining custom scrapers!
 """
 
-import asyncio
-import json
-from typing import List, Dict, Optional
-from .job_scraper_base import JobBoardScraper, GenericJobExtractor
+
 from utils.logging import get_logger
+
+from .job_scraper_base import GenericJobExtractor, JobBoardScraper
 
 logger = get_logger("sources.jobswithgpt_scraper")
 
@@ -49,13 +48,13 @@ class JobsWithGPTScraper(JobBoardScraper):
 
     async def search(
         self,
-        keywords: Optional[List[str]] = None,
-        locations: Optional[List[Dict]] = None,
-        titles: Optional[List[str]] = None,
+        keywords: list[str] | None = None,
+        locations: list[dict] | None = None,
+        titles: list[str] | None = None,
         distance: int = 50000,  # 50km default
         page: int = 1,
         fetch_descriptions: bool = True
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """
         Search for jobs using JobsWithGPT's database.
 
@@ -128,7 +127,7 @@ class JobsWithGPTScraper(JobBoardScraper):
 
     async def scrape(
         self, board_url: str, fetch_descriptions: bool = True
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """
         Scrape a specific company's jobs by searching for the company name.
 
@@ -146,8 +145,8 @@ class JobsWithGPTScraper(JobBoardScraper):
         )
 
     async def _process_results(
-        self, results: Dict, fetch_descriptions: bool
-    ) -> List[Dict]:
+        self, results: dict, fetch_descriptions: bool
+    ) -> list[dict]:
         """
         Process JobsWithGPT API results and convert to our normalized schema.
 
@@ -231,12 +230,12 @@ class JobsWithGPTScraper(JobBoardScraper):
 
 # Convenience function for searching jobs
 async def search_jobs(
-    keywords: Optional[List[str]] = None,
-    locations: Optional[List[Dict]] = None,
-    titles: Optional[List[str]] = None,
+    keywords: list[str] | None = None,
+    locations: list[dict] | None = None,
+    titles: list[str] | None = None,
     distance: int = 50000,
     page: int = 1
-) -> List[Dict]:
+) -> list[dict]:
     """
     Convenience function to search JobsWithGPT database.
 

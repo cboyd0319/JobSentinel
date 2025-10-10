@@ -2,20 +2,20 @@
 
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Optional
+
 from rich.console import Console
 from rich.panel import Panel
-from rich.table import Table
+
 from cloud.style import RICH_COLORS, SYMBOL, WIDTH
 
 
 def generate_receipt_content(
     project_id: str,
     region: str,
-    service_url: Optional[str] = None,
-    artifact_digest: Optional[str] = None,
+    service_url: str | None = None,
+    artifact_digest: str | None = None,
     terraform_version: str = "1.10.3",
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """Generate receipt content for terminal and markdown output."""
 
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S %Z")
@@ -97,8 +97,8 @@ def print_receipt(
     console: Console,
     project_id: str,
     region: str,
-    service_url: Optional[str] = None,
-    artifact_digest: Optional[str] = None,
+    service_url: str | None = None,
+    artifact_digest: str | None = None,
     terraform_version: str = "1.10.3",
 ) -> None:
     """Print formatted receipt to terminal."""
@@ -124,9 +124,9 @@ def print_receipt(
 def save_receipt(
     project_id: str,
     region: str,
-    output_path: Optional[Path] = None,
-    service_url: Optional[str] = None,
-    artifact_digest: Optional[str] = None,
+    output_path: Path | None = None,
+    service_url: str | None = None,
+    artifact_digest: str | None = None,
     terraform_version: str = "1.10.3",
 ) -> Path:
     """Save markdown receipt to file."""

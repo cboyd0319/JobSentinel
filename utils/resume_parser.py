@@ -2,7 +2,6 @@ import json
 import logging
 import re
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple
 
 # Optional dependencies - will check at runtime
 try:
@@ -56,9 +55,9 @@ def ensure_spacy_model(interactive: bool = True):
                 .lower()
             )
             if consent != "y":
-                raise RuntimeError("spaCy model required for advanced resume analysis.")
+                raise RuntimeError("spaCy model required for advanced resume analysis.") from None
         if download is None:  # Should not happen if HAS_SPACY True
-            raise RuntimeError("spaCy download utilities unavailable.")
+            raise RuntimeError("spaCy download utilities unavailable.") from None
         print("Downloading spaCy model 'en_core_web_sm' ...")
         download("en_core_web_sm")  # type: ignore
         _NLP = spacy.load("en_core_web_sm")  # type: ignore
@@ -70,7 +69,6 @@ logger = logging.getLogger(__name__)
 
 with open(
     Path(__file__).parent.parent / "config" / "resume_parser.json",
-    "r",
     encoding="utf-8",
 ) as f:
     config = json.load(f)
@@ -107,13 +105,13 @@ class ResumeParser:
         self.cache_dir = Path(cache_dir)
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         self.text: str = ""
-        self.skills: Set[str] = set()
-        self.titles: List[str] = []
-        self.companies: List[str] = []
-        self.education: List[str] = []
-        self.years_experience: Optional[int] = None
+        self.skills: set[str] = set()
+        self.titles: list[str] = []
+        self.companies: list[str] = []
+        self.education: list[str] = []
+        self.years_experience: int | None = None
 
-    def parse_file(self, file_path: str | Path) -> Dict:
+    def parse_file(self, file_path: str | Path) -> dict:
         """
         Parse a resume file and extract information.
 
@@ -137,7 +135,7 @@ class ResumeParser:
         cache_file = self.cache_dir / f"{file_hash}.json"
         if cache_file.exists():
             logger.info(f"Loading parsed resume from cache: {cache_file}")
-            with open(cache_file, "r", encoding="utf-8") as f:
+            with open(cache_file, encoding="utf-8") as f:
                 return json.load(f)
 
         # Extract text based on file type
@@ -364,7 +362,7 @@ class ResumeParser:
             current_year = datetime.datetime.now().year
             self.years_experience = current_year - min(years)
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """Convert extracted information to dictionary."""
         return {
             "skills": sorted(list(self.skills)),
@@ -377,11 +375,11 @@ class ResumeParser:
 
     def to_user_prefs(
         self,
-        existing_prefs: Optional[Dict] = None,
-        salary_floor: Optional[int] = None,
-        add_skills: Optional[List[str]] = None,
-        remove_skills: Optional[List[str]] = None,
-    ) -> Dict:
+        existing_prefs: dict | None = None,
+        salary_floor: int | None = None,
+        add_skills: list[str] | None = None,
+        remove_skills: list[str] | None = None,
+    ) -> dict:
         """
         Convert extracted info to user_prefs.json format.
 
@@ -454,7 +452,7 @@ class ResumeParser:
         return prefs
 
 
-def parse_resume(file_path: str | Path) -> Dict:
+def parse_resume(file_path: str | Path) -> dict:
     """
     Convenience function to parse a resume file.
 
@@ -468,7 +466,7 @@ def parse_resume(file_path: str | Path) -> Dict:
     return parser.parse_file(file_path)
 
 
-def interactive_skill_editor(extracted_skills: List[str]) -> Tuple[List[str], List[str]]:
+def interactive_skill_editor(extracted_skills: list[str]) -> tuple[list[str], list[str]]:
     """
     A simple command-line interface for editing a list of skills.
 
@@ -512,7 +510,7 @@ def interactive_skill_editor(extracted_skills: List[str]) -> Tuple[List[str], Li
     return added_skills, removed_skills
 
 
-def check_dependencies() -> tuple[bool, List[str]]:
+def check_dependencies() -> tuple[bool, list[str]]:
     """
     Check if required dependencies are installed.
 
@@ -553,11 +551,11 @@ def get_ats_analyzer(resume_path: str):
         from src.domains.ats import ATSAnalysisService
 
         return ATSAnalysisService()
-    except ImportError:
+    except ImportError as e:
         raise ImportError(
             "ATS analyzer requires additional dependencies. "
             "Install with: pip install pdfminer.six python-docx Pillow"
-        )
+        ) from e
 
 
 # Legacy compatibility alias (deprecated)

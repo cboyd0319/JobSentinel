@@ -10,11 +10,17 @@ Shows:
 """
 from __future__ import annotations
 
+import argparse
 import json
 from pathlib import Path
-import argparse
 
-from utils.ats_analyzer import ATSAnalyzer, register_default_plugins, register_analyzer_plugin, ATSAnalysisResult, Issue
+from utils.ats_analyzer import (
+    ATSAnalysisResult,
+    ATSAnalyzer,
+    Issue,
+    register_analyzer_plugin,
+    register_default_plugins,
+)
 
 # Register default plugins (idempotent)
 register_default_plugins()

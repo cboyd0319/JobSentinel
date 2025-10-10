@@ -7,7 +7,6 @@ Generates detailed reports from ATS compatibility analysis results.
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 from ..models import ATSCompatibilityScore, ATSIssueLevel
 
@@ -169,7 +168,7 @@ class ReportGenerator:
         return html
 
     def save_report(
-        self, score: ATSCompatibilityScore, output_path: Optional[str] = None, format: str = "text"
+        self, score: ATSCompatibilityScore, output_path: str | None = None, format: str = "text"
     ) -> str:
         """Save report to file and return the file path."""
 

@@ -26,18 +26,18 @@ cleanup() {
 }
 trap cleanup EXIT
 
-echo -e "${BLUE}🔍 PowerShell QA Pre-commit Hook${NC}"
+echo -e "${BLUE}PowerShell QA Pre-commit Hook${NC}"
 echo "================================="
 
 # Check if PowerShell is available
 if ! command -v pwsh >/dev/null 2>&1; then
-    echo -e "${RED}❌ PowerShell (pwsh) not found. Please install PowerShell Core.${NC}"
+    echo -e "${RED}ERROR: PowerShell (pwsh) not found. Please install PowerShell Core.${NC}"
     exit 2
 fi
 
 # Check if PSScriptAnalyzer is available
 if ! pwsh -c "Get-Module -ListAvailable PSScriptAnalyzer" >/dev/null 2>&1; then
-    echo -e "${RED}❌ PSScriptAnalyzer module not found. Installing...${NC}"
+    echo -e "${RED}PSScriptAnalyzer module not found. Installing...${NC}"
     pwsh -c "Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser"
 fi
 
@@ -49,12 +49,12 @@ if [[ -z "$STAGED_PS_FILES" ]]; then
     exit 0
 fi
 
-echo -e "${YELLOW}📁 Found PowerShell files to analyze:${NC}"
+echo -e "${YELLOW}Found PowerShell files to analyze:${NC}"
 echo "$STAGED_PS_FILES" | sed 's/^/  - /'
 echo
 
 # Create temp copies of staged files for analysis
-echo -e "${BLUE}🔧 Running PowerShell QA Auto-Fix...${NC}"
+echo -e "${BLUE}Running PowerShell QA Auto-Fix...${NC}"
 FILES_PROCESSED=0
 FILES_FIXED=0
 TOTAL_ISSUES_BEFORE=0
@@ -84,7 +84,7 @@ while IFS= read -r file; do
         AUTOFIX_RESULT=$(cd "$REPO_ROOT" && make -C qa fix TARGET="../$file" 2>&1)
         
         if [[ "$AUTOFIX_RESULT" == *"ERROR:"* ]]; then
-            echo -e "    ${RED}❌ Auto-fix failed: $AUTOFIX_RESULT${NC}"
+        echo -e "    ${RED}Auto-fix failed: $AUTOFIX_RESULT${NC}"
             EXIT_CODE=1
             continue
         fi
@@ -102,11 +102,11 @@ while IFS= read -r file; do
         TOTAL_ISSUES_AFTER=$((TOTAL_ISSUES_AFTER + ISSUES_AFTER))
         
         if [[ "$ISSUES_AFTER" -eq 0 ]]; then
-            echo -e "    ${GREEN}✅ All issues fixed! Re-staging file...${NC}"
+            echo -e "    ${GREEN}All issues fixed! Re-staging file...${NC}"
             git add "$file"
             FILES_FIXED=$((FILES_FIXED + 1))
         else
-            echo -e "    ${RED}❌ $ISSUES_AFTER issues remain after auto-fix${NC}"
+            echo -e "    ${RED}$ISSUES_AFTER issues remain after auto-fix${NC}"
             # Show remaining issues
             pwsh -c "
                 Invoke-ScriptAnalyzer -Path '$REPO_ROOT/$file' -Settings '$QA_CONFIG/PSScriptAnalyzerSettings.psd1' | 
@@ -115,14 +115,14 @@ while IFS= read -r file; do
             EXIT_CODE=1
         fi
     else
-        echo -e "    ${GREEN}✅ No issues found${NC}"
+        echo -e "    ${GREEN}No issues found${NC}"
     fi
     
     FILES_PROCESSED=$((FILES_PROCESSED + 1))
 done <<< "$STAGED_PS_FILES"
 
 echo
-echo -e "${BLUE}📊 PowerShell QA Summary${NC}"
+echo -e "${BLUE}PowerShell QA Summary${NC}"
 echo "========================="
 echo -e "Files processed: ${FILES_PROCESSED}"
 echo -e "Files auto-fixed: ${FILES_FIXED}"
@@ -131,14 +131,14 @@ echo -e "Issues after: ${TOTAL_ISSUES_AFTER}"
 
 if [[ $EXIT_CODE -eq 0 ]]; then
     if [[ $FILES_FIXED -gt 0 ]]; then
-        echo -e "${GREEN}🎉 All PowerShell files automatically fixed and re-staged!${NC}"
-        echo -e "${YELLOW}💡 Please review the auto-fixes before committing.${NC}"
+        echo -e "${GREEN}All PowerShell files automatically fixed and re-staged!${NC}"
+        echo -e "${YELLOW}Please review the auto-fixes before committing.${NC}"
     else
-        echo -e "${GREEN}✅ All PowerShell files pass quality checks!${NC}"
+        echo -e "${GREEN}All PowerShell files pass quality checks!${NC}"
     fi
 else
-    echo -e "${RED}❌ Some PowerShell files have unfixable quality issues.${NC}"
-    echo -e "${YELLOW}💡 Please review and fix manually, then re-commit.${NC}"
+    echo -e "${RED}Some PowerShell files have unfixable quality issues.${NC}"
+    echo -e "${YELLOW}Please review and fix manually, then re-commit.${NC}"
 fi
 
 exit $EXIT_CODE

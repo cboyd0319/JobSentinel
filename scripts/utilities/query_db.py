@@ -7,8 +7,9 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from sqlmodel import Session, select, create_engine
+from sqlmodel import Session, create_engine, select
 from src.unified_database import UnifiedJob
+
 
 def get_recent_jobs(limit: int = 15):
     """Queries the unified database and returns recent jobs as a JSON string."""

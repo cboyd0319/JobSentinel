@@ -1,0 +1,43 @@
+# MegaLinter configuration focused on quality without over-engineering.
+# Keep scope pragmatic: lint everything lightweight; restrict heavy Python
+# linters to the new typed core to avoid noise from legacy modules.
+
+APPLY_FIXES: none
+PRINT_ALPACA: false
+FLAVOR_SUGGESTIONS: false
+LOG_LEVEL: INFO
+
+EXCLUDED_DIRECTORIES:
+  - .git
+  - .venv
+  - build
+  - dist
+  - data
+  - logs
+  - .github/actions
+
+# Enable a curated set of linters
+ENABLE:
+  - PYTHON_RUFF
+  - PYTHON_MYPY
+  - MARKDOWN_MARKDOWNLINT
+  - YAML_YAMLLINT
+  - JSON_JSONLINT
+  - BASH_SHELLCHECK
+  - POWERSHELL_PSSA
+  - DOCKERFILE_HADOLINT
+  - REPOSITORY_GITLEAKS
+
+# Limit Python linters to typed core + its tests to avoid legacy noise.
+PYTHON_MYPY_FILTER_REGEX_INCLUDE: "^(src/jsa/|tests/unit_jsa/)"
+PYTHON_RUFF_FILTER_REGEX_INCLUDE: "^(src/jsa/|tests/unit_jsa/)"
+
+# Use project config files when present
+PYTHON_RUFF_CONFIG_FILE: pyproject.toml
+PYTHON_MYPY_CONFIG_FILE: pyproject.toml
+YAML_YAMLLINT_CONFIG_FILE: .yamllint.yml
+
+# Secrets scanning tuned to fail only on confirmed findings
+REPOSITORY_GITLEAKS_DISABLE_ERRORS: false
+REPOSITORY_GITLEAKS_CONFIG_FILE: ""
+

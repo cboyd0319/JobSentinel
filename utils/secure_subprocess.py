@@ -17,8 +17,8 @@ from __future__ import annotations
 import os
 import shutil
 import subprocess
+from collections.abc import Sequence
 from pathlib import Path
-from typing import List, Optional, Sequence
 
 from utils.cost_tracker import tracker
 
@@ -44,7 +44,7 @@ def _which(binary: str) -> Path | None:
 
 
 def _redact(args: Sequence[str]) -> str:
-    redacted: List[str] = []
+    redacted: list[str] = []
     skip_next = False
     for i, arg in enumerate(args):
         if skip_next:
@@ -68,9 +68,9 @@ def _redact(args: Sequence[str]) -> str:
 def run_secure(
     args: Sequence[str],
     *,
-    cwd: Optional[Path] = None,
-    env: Optional[dict] = None,
-    timeout: Optional[float] = 300,
+    cwd: Path | None = None,
+    env: dict | None = None,
+    timeout: float | None = 300,
     capture_output: bool = True,
     check: bool = True,
 ) -> subprocess.CompletedProcess:
@@ -93,7 +93,7 @@ def run_secure(
     tracker.incr_subprocess()
 
     try:
-        proc = subprocess.run(  # nosec B603 / safe usage: no shell, allowlist enforced
+        proc = subprocess.run(  # nosec B603  # noqa: S603 - safe usage: no shell, allowlist enforced
             list(args),
             cwd=str(cwd) if cwd else None,
             env=env,

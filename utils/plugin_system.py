@@ -18,7 +18,7 @@ import pkgutil
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Protocol, Set, Type
+from typing import Any, Protocol
 
 from utils.dependency_injection import ILogger
 
@@ -43,9 +43,9 @@ class PluginMetadata:
     description: str
     author: str
     priority: int = 100
-    dependencies: List[str] = field(default_factory=list)
-    tags: Set[str] = field(default_factory=set)
-    config_schema: Optional[Dict[str, Any]] = None
+    dependencies: list[str] = field(default_factory=list)
+    tags: set[str] = field(default_factory=set)
+    config_schema: dict[str, Any] | None = None
 
 
 class IPlugin(Protocol):
@@ -54,29 +54,29 @@ class IPlugin(Protocol):
     @property
     def metadata(self) -> PluginMetadata: ...
 
-    def initialize(self, config: Dict[str, Any]) -> None: ...
+    def initialize(self, config: dict[str, Any]) -> None: ...
     def shutdown(self) -> None: ...
 
 
 class IErrorHandlerPlugin(IPlugin):
     """Interface for error handler plugins."""
 
-    def can_handle(self, error: Exception, context: Dict[str, Any]) -> bool: ...
-    def handle_error(self, error: Exception, context: Dict[str, Any]) -> bool: ...
+    def can_handle(self, error: Exception, context: dict[str, Any]) -> bool: ...
+    def handle_error(self, error: Exception, context: dict[str, Any]) -> bool: ...
     def get_priority(self) -> int: ...
 
 
 class IErrorTypePlugin(IPlugin):
     """Interface for custom error type plugins."""
 
-    def get_error_classes(self) -> List[Type[Exception]]: ...
+    def get_error_classes(self) -> list[type[Exception]]: ...
     def create_error(self, error_code: str, message: str, **kwargs) -> Exception: ...
 
 
 class IErrorProcessorPlugin(IPlugin):
     """Interface for error processing pipeline plugins."""
 
-    def process_error(self, error: Exception, context: Dict[str, Any]) -> Dict[str, Any]: ...
+    def process_error(self, error: Exception, context: dict[str, Any]) -> dict[str, Any]: ...
     def get_processing_stage(self) -> str: ...  # "pre", "main", "post"
 
 
@@ -85,34 +85,34 @@ class PluginDescriptor:
     """Complete plugin descriptor with metadata and runtime info."""
 
     metadata: PluginMetadata
-    plugin_class: Type[IPlugin]
-    instance: Optional[IPlugin] = None
+    plugin_class: type[IPlugin]
+    instance: IPlugin | None = None
     lifecycle: PluginLifecycle = PluginLifecycle.DISCOVERED
-    error_message: Optional[str] = None
-    config: Dict[str, Any] = field(default_factory=dict)
+    error_message: str | None = None
+    config: dict[str, Any] = field(default_factory=dict)
 
 
 class PluginRegistry:
     """Central registry for plugin discovery, loading, and management."""
 
-    def __init__(self, logger: Optional[ILogger] = None):
+    def __init__(self, logger: ILogger | None = None):
         self.logger = logger or logging.getLogger(__name__)
-        self._plugins: Dict[str, PluginDescriptor] = {}
-        self._error_handlers: List[IErrorHandlerPlugin] = []
-        self._error_types: Dict[str, IErrorTypePlugin] = {}
-        self._processors: Dict[str, List[IErrorProcessorPlugin]] = {
+        self._plugins: dict[str, PluginDescriptor] = {}
+        self._error_handlers: list[IErrorHandlerPlugin] = []
+        self._error_types: dict[str, IErrorTypePlugin] = {}
+        self._processors: dict[str, list[IErrorProcessorPlugin]] = {
             "pre": [],
             "main": [],
             "post": [],
         }
-        self._plugin_paths: List[Path] = []
+        self._plugin_paths: list[Path] = []
 
     def add_plugin_path(self, path: Path) -> None:
         """Add a directory to search for plugins."""
         if path.exists() and path.is_dir():
             self._plugin_paths.append(path)
 
-    def discover_plugins(self, package_name: Optional[str] = None) -> int:
+    def discover_plugins(self, package_name: str | None = None) -> int:
         """
         Discover plugins from configured paths or specified package.
 
@@ -179,7 +179,7 @@ class PluginRegistry:
         for name, obj in inspect.getmembers(module, inspect.isclass):
             if (
                 obj != IPlugin
-                and issubclass(obj, (IErrorHandlerPlugin, IErrorTypePlugin, IErrorProcessorPlugin))
+                and issubclass(obj, IErrorHandlerPlugin | IErrorTypePlugin | IErrorProcessorPlugin)
                 and hasattr(obj, "metadata")
             ):
 
@@ -202,7 +202,7 @@ class PluginRegistry:
 
         return discovered
 
-    def load_plugin(self, plugin_name: str, config: Optional[Dict[str, Any]] = None) -> bool:
+    def load_plugin(self, plugin_name: str, config: dict[str, Any] | None = None) -> bool:
         """Load and initialize a specific plugin."""
         if plugin_name not in self._plugins:
             self.logger.error(f"Plugin {plugin_name} not found")
@@ -272,7 +272,7 @@ class PluginRegistry:
                 self._processors[stage].append(plugin)
                 self._processors[stage].sort(key=lambda p: p.metadata.priority, reverse=True)
 
-    def load_all_plugins(self, config: Optional[Dict[str, Dict[str, Any]]] = None) -> int:
+    def load_all_plugins(self, config: dict[str, dict[str, Any]] | None = None) -> int:
         """Load all discovered plugins with optional per-plugin configuration."""
         loaded_count = 0
         config = config or {}
@@ -288,7 +288,7 @@ class PluginRegistry:
         self.logger.info(f"Loaded {loaded_count} plugins")
         return loaded_count
 
-    def _topological_sort(self) -> List[str]:
+    def _topological_sort(self) -> list[str]:
         """Sort plugins by dependencies using topological sort."""
         # Simplified implementation - in production would use proper topological sort
         plugin_names = list(self._plugins.keys())
@@ -298,19 +298,19 @@ class PluginRegistry:
 
         return plugin_names
 
-    def get_error_handlers(self) -> List[IErrorHandlerPlugin]:
+    def get_error_handlers(self) -> list[IErrorHandlerPlugin]:
         """Get all loaded error handler plugins."""
         return self._error_handlers.copy()
 
-    def get_error_types(self) -> Dict[str, IErrorTypePlugin]:
+    def get_error_types(self) -> dict[str, IErrorTypePlugin]:
         """Get all loaded error type plugins."""
         return self._error_types.copy()
 
-    def get_processors(self, stage: str) -> List[IErrorProcessorPlugin]:
+    def get_processors(self, stage: str) -> list[IErrorProcessorPlugin]:
         """Get all processors for a specific stage."""
         return self._processors.get(stage, []).copy()
 
-    def get_plugin_status(self) -> Dict[str, Dict[str, Any]]:
+    def get_plugin_status(self) -> dict[str, dict[str, Any]]:
         """Get status of all plugins."""
         return {
             name: {
@@ -336,11 +336,11 @@ class PluginRegistry:
 class ErrorProcessingPipeline:
     """Configurable error processing pipeline using plugins."""
 
-    def __init__(self, registry: PluginRegistry, logger: Optional[ILogger] = None):
+    def __init__(self, registry: PluginRegistry, logger: ILogger | None = None):
         self.registry = registry
         self.logger = logger or logging.getLogger(__name__)
 
-    def process_error(self, error: Exception, context: Dict[str, Any]) -> bool:
+    def process_error(self, error: Exception, context: dict[str, Any]) -> bool:
         """
         Process error through the plugin pipeline.
 

@@ -4,6 +4,8 @@ import json
 import os
 
 from dotenv import load_dotenv
+from matchers.rules import score_job
+from notify import slack
 from rich.progress import (
     BarColumn,
     Progress,
@@ -12,12 +14,15 @@ from rich.progress import (
     TextColumn,
     TimeRemainingColumn,
 )
-
-from matchers.rules import score_job
-from notify import slack
 from sources.concurrent_scraper import (  # Import the async scraper
     scrape_multiple_async_fast,
 )
+from utils.cache import job_cache
+from utils.config import config_manager
+from utils.errors import ConfigurationException
+from utils.health import health_monitor
+from utils.logging import console, get_logger, setup_logging
+
 from src.database import (
     add_job,
     cleanup_old_jobs,
@@ -26,11 +31,6 @@ from src.database import (
     mark_jobs_digest_sent,
 )
 from src.unified_database import init_unified_db
-from utils.cache import job_cache
-from utils.config import config_manager
-from utils.errors import ConfigurationException
-from utils.health import health_monitor
-from utils.logging import console, get_logger, setup_logging
 
 # Load environment variables
 load_dotenv()
@@ -471,7 +471,7 @@ async def main():
                     scrape_multiple_async_fast(urls, fetch_descriptions=True),
                     timeout=timeout_seconds,
                 )
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 main_logger.error(
                     f"[bold red]Scraping timed out after {timeout_seconds} seconds[/bold red]"
                 )

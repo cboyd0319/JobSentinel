@@ -7,7 +7,6 @@ import json
 import os
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple
 
 from utils.logging import get_logger
 
@@ -23,7 +22,7 @@ class LLMConfig:
     """Configuration for LLM integration."""
 
     enabled: bool = False
-    api_key: Optional[str] = None
+    api_key: str | None = None
     model: str = "gpt-4o-mini"
     temperature: float = 0.0
     max_tokens: int = 500
@@ -37,7 +36,7 @@ class LLMResult:
     """Result from LLM scoring."""
 
     score: float
-    reasons: List[str]
+    reasons: list[str]
     summary: str
     tokens_used: int
     model_used: str
@@ -152,7 +151,7 @@ def get_llm_config() -> LLMConfig:
     )
 
 
-def create_scoring_prompt(job: Dict, preferences: Dict) -> str:
+def create_scoring_prompt(job: dict, preferences: dict) -> str:
     """Create a prompt for job scoring."""
 
     # Extract preferences
@@ -199,7 +198,7 @@ Return JSON format:
     return prompt
 
 
-def score_job_with_llm(job: Dict, preferences: Dict) -> Optional[LLMResult]:
+def score_job_with_llm(job: dict, preferences: dict) -> LLMResult | None:
     """Score a job using ChatGPT API."""
     if not LLM_ENABLED or not openai_client:
         return None
@@ -260,10 +259,10 @@ def score_job_with_llm(job: Dict, preferences: Dict) -> Optional[LLMResult]:
 
 def create_hybrid_score(
     rules_score: float,
-    rules_reasons: List[str],
-    llm_result: Optional[LLMResult],
+    rules_reasons: list[str],
+    llm_result: LLMResult | None,
     rules_weight: float = 0.5,
-) -> Tuple[float, List[str], Dict]:
+) -> tuple[float, list[str], dict]:
     """
     Create hybrid score combining rules and LLM results.
 
@@ -321,7 +320,7 @@ def create_hybrid_score(
     return final_score, combined_reasons, metadata
 
 
-def get_token_usage_stats() -> Dict:
+def get_token_usage_stats() -> dict:
     """Get current token usage statistics."""
     return {
         "daily_tokens_used": token_tracker.daily_tokens,

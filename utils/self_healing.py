@@ -5,9 +5,10 @@ Self-healing mechanisms for automated recovery from common failures.
 import asyncio
 import os
 import time
+from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import datetime, timezone
-from typing import Any, Callable, Optional
+from datetime import UTC, datetime
+from typing import Any
 
 from utils.logging import get_logger
 
@@ -77,7 +78,7 @@ class SelfHealingMonitor:
     async def check_and_heal(self) -> dict:
         """Check system health and execute recovery actions if needed."""
         results = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "actions_taken": [],
             "failures": [],
         }
@@ -155,7 +156,7 @@ class SelfHealingMonitor:
                     # Can't test in running loop
                     return False
                 return not asyncio.run(test_connection())
-            except (asyncio.TimeoutError, ConnectionError, OSError) as conn_exc:
+            except (TimeoutError, ConnectionError, OSError) as conn_exc:
                 logger.debug(f"Connection test failed: {conn_exc}")
                 return True
 
@@ -246,7 +247,7 @@ class SelfHealingMonitor:
             logger.error(f"Cache cleanup failed: {e}")
             return f"failed: {e}"
 
-    def reset_recovery_counts(self, action_name: Optional[str] = None):
+    def reset_recovery_counts(self, action_name: str | None = None):
         """Reset recovery counts (useful after successful operation)."""
         if action_name:
             self.recovery_count[action_name] = 0

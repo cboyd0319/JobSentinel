@@ -4,9 +4,10 @@ For sites with discoverable or known APIs (Microsoft, SpaceX, etc.)
 """
 
 import asyncio
-from typing import Dict, List
-from .job_scraper_base import JobBoardScraper, fetch_url, GenericJobExtractor
+
 from utils.logging import get_logger
+
+from .job_scraper_base import GenericJobExtractor, JobBoardScraper, fetch_url
 
 logger = get_logger("sources.api_based_scrapers")
 
@@ -14,13 +15,13 @@ logger = get_logger("sources.api_based_scrapers")
 class APIBasedScraper(JobBoardScraper):
     """Scrapes job listings from API-driven job boards."""
 
-    def __init__(self, name: str, base_domains: List[str], api_endpoints: List[str]):
+    def __init__(self, name: str, base_domains: list[str], api_endpoints: list[str]):
         super().__init__(name, base_domains)
         self.api_endpoints = api_endpoints
 
     async def scrape(
         self, board_url: str, fetch_descriptions: bool = True
-    ) -> List[Dict]:
+    ) -> list[dict]:
         logger.info(f"Scraping {self.name} API endpoints: {self.api_endpoints}")
         all_jobs = []
 
@@ -73,9 +74,9 @@ class MicrosoftCareersScraper(JobBoardScraper):
             name="Microsoft Careers", base_domains=["jobs.careers.microsoft.com"]
         )
 
-    def scrape(self, board_url: str, fetch_descriptions: bool = True) -> List[Dict]:
+    def scrape(self, board_url: str, fetch_descriptions: bool = True) -> list[dict]:
         """Scrape jobs from Microsoft careers API."""
-        logger.info(f"🏢 Using Microsoft API scraper for {board_url}")
+        logger.info(f"Using Microsoft API scraper for {board_url}")
 
         # Microsoft API endpoint discovered through API discovery
         api_base = "https://gcsservices.careers.microsoft.com/search/api/v1/search"
@@ -92,7 +93,7 @@ class MicrosoftCareersScraper(JobBoardScraper):
             data = fetch_url(api_url)
             if data and "operationResult" in data:
                 jobs = self._extract_microsoft_jobs(data, api_url)
-                logger.info(f"✅ Microsoft API returned {len(jobs)} jobs")
+                logger.info(f"Microsoft API returned {len(jobs)} jobs")
                 return jobs
             else:
                 logger.warning("Microsoft API returned unexpected data format")
@@ -101,7 +102,7 @@ class MicrosoftCareersScraper(JobBoardScraper):
             logger.warning(f"Microsoft API scraping failed: {e}")
             return []
 
-    def _extract_microsoft_jobs(self, data: dict, api_url: str) -> List[Dict]:
+    def _extract_microsoft_jobs(self, data: dict, api_url: str) -> list[dict]:
         """Extract jobs from Microsoft API response."""
         jobs = []
         extractor = GenericJobExtractor()
@@ -138,9 +139,9 @@ class SpaceXCareersScraper(JobBoardScraper):
     def __init__(self):
         super().__init__(name="SpaceX Careers", base_domains=["spacex.com"])
 
-    def scrape(self, board_url: str, fetch_descriptions: bool = True) -> List[Dict]:
+    def scrape(self, board_url: str, fetch_descriptions: bool = True) -> list[dict]:
         """Scrape jobs from SpaceX careers API."""
-        logger.info(f"🚀 Using SpaceX API scraper for {board_url}")
+        logger.info(f"Using SpaceX API scraper for {board_url}")
 
         # SpaceX API endpoint discovered through API discovery
         api_url = "https://sxcontent9668.azureedge.us/cms-assets/job_posts.json"
@@ -149,7 +150,7 @@ class SpaceXCareersScraper(JobBoardScraper):
             data = fetch_url(api_url)
             if data and isinstance(data, list):
                 jobs = self._extract_spacex_jobs(data, board_url)
-                logger.info(f"✅ SpaceX API returned {len(jobs)} jobs")
+                logger.info(f"SpaceX API returned {len(jobs)} jobs")
                 return jobs
             else:
                 logger.warning("SpaceX API returned unexpected data format")
@@ -158,7 +159,7 @@ class SpaceXCareersScraper(JobBoardScraper):
             logger.warning(f"SpaceX API scraping failed: {e}")
             return []
 
-    def _extract_spacex_jobs(self, data: list, board_url: str) -> List[Dict]:
+    def _extract_spacex_jobs(self, data: list, board_url: str) -> list[dict]:
         """Extract jobs from SpaceX API response."""
         jobs = []
         extractor = GenericJobExtractor()
@@ -208,12 +209,12 @@ class GenericAPIScraper(JobBoardScraper):
         """This is a fallback scraper, so it can attempt any URL."""
         return True
 
-    def scrape(self, board_url: str, fetch_descriptions: bool = True) -> List[Dict]:
+    def scrape(self, board_url: str, fetch_descriptions: bool = True) -> list[dict]:
         """
         Attempt to scrape using API discovery.
         This is the most generic approach for unknown sites.
         """
-        logger.info(f"🔍 Using generic API discovery for {board_url}")
+        logger.info(f"Using generic API discovery for {board_url}")
 
         try:
             # This would use the API discovery framework

@@ -3,14 +3,14 @@ Supports data from all job board types (Greenhouse, Microsoft, SpaceX, etc.)
 """
 
 import json
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
-
-from sqlmodel import Field, Session, SQLModel, create_engine, select
+from datetime import UTC, datetime
+from typing import Any
 
 from cloud.providers.gcp.cloud_database import init_cloud_db
-from src.database import Job, get_sync_session, init_db
+from sqlmodel import Field, Session, SQLModel, create_engine, select
 from utils.logging import get_logger
+
+from src.database import Job, get_sync_session, init_db
 
 logger = get_logger("unified_database")
 
@@ -19,92 +19,92 @@ class UnifiedJob(SQLModel, table=True):
     """Unified job model supporting all job board types (backward compatible)."""
 
     # Core identification fields
-    id: Optional[int] = Field(default=None, primary_key=True)
+    id: int | None = Field(default=None, primary_key=True)
     hash: str = Field(index=True, unique=True)
     title: str
     url: str
     company: str
     location: str
-    description: Optional[str] = None
+    description: str | None = None
 
     # Scoring and analysis (existing fields)
     score: float = Field(default=0.0)
-    score_reasons: Optional[str] = None  # JSON string of reasons
+    score_reasons: str | None = None  # JSON string of reasons
 
     # Timestamp tracking (existing fields)
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    last_seen: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    last_seen: datetime = Field(default_factory=lambda: datetime.now(UTC))
     times_seen: int = Field(default=1)
 
     # Notification tracking (existing fields)
     included_in_digest: bool = Field(default=False)
-    digest_sent_at: Optional[datetime] = None
+    digest_sent_at: datetime | None = None
     immediate_alert_sent: bool = Field(default=False)
-    alert_sent_at: Optional[datetime] = None
+    alert_sent_at: datetime | None = None
 
     # NEW UNIFIED FIELDS (all optional for maximum compatibility)
 
     # Job board identification and metadata
     # "greenhouse", "microsoft_api", "spacex_api", etc.
-    job_board: Optional[str] = None
-    external_job_id: Optional[str] = None  # Job ID from source system
-    requisition_id: Optional[str] = None  # Requisition/posting ID
+    job_board: str | None = None
+    external_job_id: str | None = None  # Job ID from source system
+    requisition_id: str | None = None  # Requisition/posting ID
 
     # Job categorization and hierarchy
     # "Engineering", "Sales", "Marketing"
-    department: Optional[str] = None
+    department: str | None = None
     # More specific team within department
-    team: Optional[str] = None
+    team: str | None = None
     # "Junior", "Mid-level", "Senior", "Staff", "Principal"
-    seniority_level: Optional[str] = None
+    seniority_level: str | None = None
 
     # Employment details
     # "Full-time", "Part-time", "Contract", "Intern"
-    employment_type: Optional[str] = None
+    employment_type: str | None = None
     # "Remote", "Hybrid", "On-site"
-    work_arrangement: Optional[str] = None
+    work_arrangement: str | None = None
     # "2-5 years", "5+ years", etc.
-    experience_required: Optional[str] = None
+    experience_required: str | None = None
 
     # Compensation information
     # Minimum salary in base currency
-    salary_min: Optional[int] = None
+    salary_min: int | None = None
     # Maximum salary in base currency
-    salary_max: Optional[int] = None
-    salary_currency: Optional[str] = None  # "USD", "EUR", "GBP", etc.
+    salary_max: int | None = None
+    salary_currency: str | None = None  # "USD", "EUR", "GBP", etc.
     # "yearly", "monthly", "hourly"
-    salary_frequency: Optional[str] = None
+    salary_frequency: str | None = None
     # Whether equity/stock options offered
-    equity_offered: Optional[bool] = None
-    benefits_summary: Optional[str] = None  # JSON string of benefits
+    equity_offered: bool | None = None
+    benefits_summary: str | None = None  # JSON string of benefits
 
     # Technical requirements and skills
     # JSON array of required skills
-    required_skills: Optional[str] = None
+    required_skills: str | None = None
     # JSON array of preferred skills
-    preferred_skills: Optional[str] = None
+    preferred_skills: str | None = None
     # JSON array of technologies mentioned
-    technologies: Optional[str] = None
-    education_required: Optional[str] = None  # Education requirements
-    certifications: Optional[str] = None  # Required certifications
+    technologies: str | None = None
+    education_required: str | None = None  # Education requirements
+    certifications: str | None = None  # Required certifications
 
     # Source metadata and tracking
     # When job was originally posted
-    posting_date: Optional[datetime] = None
-    last_updated_source: Optional[datetime] = None  # Last updated at source
-    application_deadline: Optional[datetime] = None
+    posting_date: datetime | None = None
+    last_updated_source: datetime | None = None  # Last updated at source
+    application_deadline: datetime | None = None
     # Whether it's a featured/sponsored listing
-    is_featured: Optional[bool] = None
+    is_featured: bool | None = None
 
     # Application process
-    application_url: Optional[str] = None  # Direct application link
-    requires_cover_letter: Optional[bool] = None
-    requires_portfolio: Optional[bool] = None
+    application_url: str | None = None  # Direct application link
+    requires_cover_letter: bool | None = None
+    requires_portfolio: bool | None = None
     # Description of application process
-    application_process: Optional[str] = None
+    application_process: str | None = None
     # Hiring manager/recruiter contact
-    contact_email: Optional[str] = None
+    contact_email: str | None = None
 
     def to_legacy_job(self):
         """Convert to legacy Job format for backward compatibility."""
@@ -185,7 +185,7 @@ async def init_unified_db():
     logger.info("Unified database initialization complete.")
 
 
-def save_unified_job(job_data: dict, score: float = 0.0) -> Optional[UnifiedJob]:
+def save_unified_job(job_data: dict, score: float = 0.0) -> UnifiedJob | None:
     """Save or update a job in the unified database (deduplicates on hash)."""
     try:
         with Session(unified_engine) as session:
@@ -197,9 +197,9 @@ def save_unified_job(job_data: dict, score: float = 0.0) -> Optional[UnifiedJob]
                 select(UnifiedJob).where(UnifiedJob.hash == job_hash)
             ).first()
             if existing_job:
-                existing_job.last_seen = datetime.now(timezone.utc)
+                existing_job.last_seen = datetime.now(UTC)
                 existing_job.times_seen += 1
-                existing_job.updated_at = datetime.now(timezone.utc)
+                existing_job.updated_at = datetime.now(UTC)
                 for key, value in job_data.items():
                     if hasattr(existing_job, key) and value is not None:
                         setattr(existing_job, key, value)
@@ -237,7 +237,7 @@ def get_job_board_stats() -> dict:
     try:
         with Session(unified_engine) as session:
             jobs = session.exec(select(UnifiedJob)).all()
-            stats: Dict[str, int] = {}
+            stats: dict[str, int] = {}
             for job in jobs:
                 board = job.job_board or "unknown"
                 stats[board] = stats.get(board, 0) + 1
@@ -288,46 +288,46 @@ class UserProfile(SQLModel, table=True):
     """User profile for personalized job matching."""
 
     # Core identification
-    id: Optional[int] = Field(default=None, primary_key=True)
-    name: Optional[str] = None
-    email: Optional[str] = None
+    id: int | None = Field(default=None, primary_key=True)
+    name: str | None = None
+    email: str | None = None
 
     # Current position and experience
-    current_title: Optional[str] = None
-    experience_years: Optional[int] = None
+    current_title: str | None = None
+    experience_years: int | None = None
     # Junior, Mid-level, Senior, Staff, Principal
-    seniority_level: Optional[str] = None
+    seniority_level: str | None = None
 
     # Location and work preferences
-    location: Optional[str] = None
+    location: str | None = None
     # Remote, On-site, Hybrid, Any
-    work_arrangement_preference: Optional[str] = None
+    work_arrangement_preference: str | None = None
     willing_to_relocate: bool = Field(default=False)
 
     # Skills and expertise (JSON arrays)
-    skills: Optional[str] = None  # JSON array of all skills
+    skills: str | None = None  # JSON array of all skills
     # JSON array of technical skills
-    technical_skills: Optional[str] = None
+    technical_skills: str | None = None
     # JSON array of marketing skills
-    marketing_skills: Optional[str] = None
+    marketing_skills: str | None = None
     # JSON array of skills they want to use more
-    preferred_skills: Optional[str] = None
+    preferred_skills: str | None = None
 
     # Career goals and compensation
     # lateral, promotion, leadership, open
-    career_goal: Optional[str] = None
-    target_seniority: Optional[str] = None  # Desired seniority level
-    salary_min: Optional[int] = None  # Minimum desired salary
-    salary_max: Optional[int] = None  # Maximum desired salary
+    career_goal: str | None = None
+    target_seniority: str | None = None  # Desired seniority level
+    salary_min: int | None = None  # Minimum desired salary
+    salary_max: int | None = None  # Maximum desired salary
     salary_currency: str = Field(default="USD")  # Currency preference
 
     # Job preferences
-    preferred_departments: Optional[str] = None  # JSON array of departments
+    preferred_departments: str | None = None  # JSON array of departments
     # JSON array of company names
-    preferred_companies: Optional[str] = None
+    preferred_companies: str | None = None
     # JSON array of companies to avoid
-    excluded_companies: Optional[str] = None
-    custom_job_boards: Optional[str] = None  # JSON array of custom URLs
+    excluded_companies: str | None = None
+    custom_job_boards: str | None = None  # JSON array of custom URLs
 
     # Notification preferences
     # Minimum match % for notifications
@@ -337,57 +337,57 @@ class UserProfile(SQLModel, table=True):
     slack_notifications: bool = Field(default=False)
 
     # Timestamps
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    last_active: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    last_active: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
-    def set_skills(self, skills_list: List[str]):
+    def set_skills(self, skills_list: list[str]):
         """Set skills from a list."""
         self.skills = json.dumps(skills_list) if skills_list else None
 
-    def get_skills(self) -> List[str]:
+    def get_skills(self) -> list[str]:
         """Get skills as a list."""
         return json.loads(self.skills) if self.skills else []
 
-    def set_technical_skills(self, skills_list: List[str]):
+    def set_technical_skills(self, skills_list: list[str]):
         """Set technical skills from a list."""
         self.technical_skills = json.dumps(skills_list) if skills_list else None
 
-    def get_technical_skills(self) -> List[str]:
+    def get_technical_skills(self) -> list[str]:
         """Get technical skills as a list."""
         return json.loads(self.technical_skills) if self.technical_skills else []
 
-    def set_marketing_skills(self, skills_list: List[str]):
+    def set_marketing_skills(self, skills_list: list[str]):
         """Set marketing skills from a list."""
         self.marketing_skills = json.dumps(skills_list) if skills_list else None
 
-    def get_marketing_skills(self) -> List[str]:
+    def get_marketing_skills(self) -> list[str]:
         """Get marketing skills as a list."""
         return json.loads(self.marketing_skills) if self.marketing_skills else []
 
-    def set_preferred_departments(self, departments: List[str]):
+    def set_preferred_departments(self, departments: list[str]):
         """Set preferred departments from a list."""
         self.preferred_departments = json.dumps(departments) if departments else None
 
-    def get_preferred_departments(self) -> List[str]:
+    def get_preferred_departments(self) -> list[str]:
         """Get preferred departments as a list."""
         return json.loads(self.preferred_departments) if self.preferred_departments else []
 
-    def set_custom_job_boards(self, urls: List[str]):
+    def set_custom_job_boards(self, urls: list[str]):
         """Set custom job board URLs from a list."""
         self.custom_job_boards = json.dumps(urls) if urls else None
 
-    def get_custom_job_boards(self) -> List[str]:
+    def get_custom_job_boards(self) -> list[str]:
         """Get custom job board URLs as a list."""
         return json.loads(self.custom_job_boards) if self.custom_job_boards else []
 
     def update_activity(self):
         """Update last activity timestamp."""
-        self.last_active = datetime.now(timezone.utc)
-        self.updated_at = datetime.now(timezone.utc)
+        self.last_active = datetime.now(UTC)
+        self.updated_at = datetime.now(UTC)
 
 
-def save_user_profile(profile_data: Dict[str, Any]) -> Optional[UserProfile]:
+def save_user_profile(profile_data: dict[str, Any]) -> UserProfile | None:
     """Create or update a single user profile (one profile assumption)."""
     try:
         with Session(unified_engine) as session:
@@ -413,7 +413,7 @@ def save_user_profile(profile_data: Dict[str, Any]) -> Optional[UserProfile]:
         return None
 
 
-def get_user_profile() -> Optional[UserProfile]:
+def get_user_profile() -> UserProfile | None:
     """Return the single user profile if it exists."""
     try:
         with Session(unified_engine) as session:
@@ -500,7 +500,7 @@ def calculate_job_match_score(job: UnifiedJob, user_profile: UserProfile) -> flo
         return 0.0
 
 
-def get_personalized_job_matches(limit: int = 50, min_score: float = 60.0) -> List[Dict[str, Any]]:
+def get_personalized_job_matches(limit: int = 50, min_score: float = 60.0) -> list[dict[str, Any]]:
     """Return jobs matching profile with score >= min_score (sorted)."""
     try:
         user_profile = get_user_profile()
@@ -509,7 +509,7 @@ def get_personalized_job_matches(limit: int = 50, min_score: float = 60.0) -> Li
             return []
         with Session(unified_engine) as session:
             jobs = session.exec(select(UnifiedJob).limit(limit * 2)).all()
-        job_matches: List[Dict[str, Any]] = []
+        job_matches: list[dict[str, Any]] = []
         for job in jobs:
             match_score = calculate_job_match_score(job, user_profile)
             if match_score >= min_score:
@@ -527,13 +527,13 @@ def get_personalized_job_matches(limit: int = 50, min_score: float = 60.0) -> Li
         return []
 
 
-def _get_match_reasons(job: UnifiedJob, user_profile: UserProfile, score: float) -> List[str]:
+def _get_match_reasons(job: UnifiedJob, user_profile: UserProfile, score: float) -> list[str]:
     """Generate reasons contributing to a job match score."""
-    reasons: List[str] = []
+    reasons: list[str] = []
     user_skills = user_profile.get_skills()
     if user_skills and job.required_skills:
         job_skills = json.loads(job.required_skills) if job.required_skills else []
-        matching_skills: List[str] = []
+        matching_skills: list[str] = []
         for job_skill in job_skills:
             for user_skill in user_skills:
                 if (

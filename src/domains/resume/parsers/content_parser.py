@@ -6,7 +6,6 @@ Parses resume content into structured format for analysis and enhancement.
 
 import logging
 import re
-from typing import Dict, List, Optional
 
 from .models import ResumeContent, ResumeSection, SectionType
 
@@ -101,7 +100,7 @@ class ResumeContentParser:
         logger.info(f"Parsed resume with {len(sections)} sections")
         return resume_content
 
-    def _identify_sections(self, lines: List[str]) -> Dict[SectionType, List[str]]:
+    def _identify_sections(self, lines: list[str]) -> dict[SectionType, list[str]]:
         """Identify resume sections from lines."""
         sections = {}
         current_section = None
@@ -135,7 +134,7 @@ class ResumeContentParser:
 
         return sections
 
-    def _detect_section_header(self, line: str) -> Optional[SectionType]:
+    def _detect_section_header(self, line: str) -> SectionType | None:
         """Detect if a line is a section header."""
         line_clean = line.strip()
 
@@ -151,7 +150,7 @@ class ResumeContentParser:
 
         return None
 
-    def _extract_contact_info(self, text: str) -> Dict[str, str]:
+    def _extract_contact_info(self, text: str) -> dict[str, str]:
         """Extract contact information from resume text."""
         contact_info = {}
 

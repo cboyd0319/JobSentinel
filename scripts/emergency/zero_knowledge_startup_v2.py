@@ -14,18 +14,13 @@ Features:
 - Windows-specific optimizations
 """
 
-import sys
-import os
 import json
-import subprocess
-import shutil
-import urllib.request
-import webbrowser
-import tempfile
-from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
+import os
 import platform
-import time
+import subprocess
+import sys
+from pathlib import Path
+
 
 class Colors:
     """Console colors for better UX."""
@@ -49,7 +44,7 @@ def colored_print(message: str, color: str = Colors.END) -> None:
     else:
         print(f"{color}{message}{Colors.END}")
 
-def get_system_info() -> Dict[str, str]:
+def get_system_info() -> dict[str, str]:
     """Get comprehensive system information."""
     info = {
         'os': platform.system(),
@@ -64,13 +59,13 @@ def print_banner() -> None:
     """Print comprehensive banner with current status."""
     colored_print("""
 ╔══════════════════════════════════════════════════════════════════════════════╗
-║                    🚀 JOB SEARCH AUTOMATION STARTUP                          ║
+║                        JOB SEARCH AUTOMATION STARTUP                         ║
 ║                                                                              ║
-║  ✅ Zero technical knowledge required                                        ║
-║  ✅ Complete system validation                                               ║
-║  ✅ Automated setup and configuration                                        ║
-║  ✅ Professional resume ATS scanning                                         ║
-║  ✅ Step-by-step guidance                                                    ║
+║  Zero technical knowledge required                                          ║
+║  Complete system validation                                                 ║
+║  Automated setup and configuration                                          ║
+║  Professional resume ATS scanning                                           ║
+║  Step-by-step guidance                                                      ║
 ║                                                                              ║
 ║  [ALPHA SOFTWARE] - Experimental but functional                             ║
 ║  Test locally first. Community support available.                           ║
@@ -79,14 +74,14 @@ def print_banner() -> None:
     
     # Show current system info
     system_info = get_system_info()
-    print(f"🖥️  System: {system_info['os']} {system_info['architecture']}")
-    print(f"🐍 Python: {system_info['python']}")
-    print(f"📂 Location: {Path.cwd()}")
+    print(f"System: {system_info['os']} {system_info['architecture']}")
+    print(f"Python: {system_info['python']}")
+    print(f"Location: {Path.cwd()}")
     print("=" * 80 + "\n")
 
 def check_platform_compatibility() -> bool:
     """Check if current platform is supported."""
-    colored_print("🔍 Checking platform compatibility...", Colors.YELLOW)
+    colored_print("Checking platform compatibility...", Colors.YELLOW)
     
     system = platform.system()
     
@@ -99,14 +94,14 @@ def check_platform_compatibility() -> bool:
                 colored_print("✅ Windows 10+ detected - Fully supported", Colors.GREEN)
                 
                 # Suggest Windows installer for better experience
-                print("\n💡 RECOMMENDATION:")
+                print("\nRECOMMENDATION:")
                 print("   For the best Windows experience, use our dedicated installer:")
                 print("   Run this in PowerShell:")
                 colored_print("   irm https://raw.githubusercontent.com/cboyd0319/job-search-automation/main/deploy/windows/bootstrap.ps1 | iex", Colors.BOLD)
                 
                 response = input("\n   Continue with manual setup anyway? (y/N): ").lower().strip()
                 if response not in ['y', 'yes']:
-                    print("\n🚀 Opening PowerShell command instructions...")
+                    print("\nOpening PowerShell command instructions...")
                     print("   Copy and paste the command above into PowerShell")
                     return False
                 
@@ -114,17 +109,17 @@ def check_platform_compatibility() -> bool:
             else:
                 colored_print(f"❌ Windows {major_version} is not supported. Upgrade to Windows 10+", Colors.RED)
                 return False
-        except:
+        except Exception:  # nosec B110 - intentionally broad for version detection fallback
             colored_print("⚠️  Could not determine Windows version, proceeding anyway", Colors.YELLOW)
             return True
             
     elif system == "Darwin":  # macOS
-        colored_print("🍎 macOS detected - Manual setup required", Colors.YELLOW)
+        colored_print("macOS detected - Manual setup required", Colors.YELLOW)
         print("   Note: macOS support is experimental")
         return True
         
     elif system == "Linux":
-        colored_print("🐧 Linux detected - Manual setup required", Colors.YELLOW)
+        colored_print("Linux detected - Manual setup required", Colors.YELLOW)
         print("   Note: Linux support is experimental")
         return True
         
@@ -134,7 +129,7 @@ def check_platform_compatibility() -> bool:
 
 def check_python_version() -> bool:
     """Check if Python version is adequate with enhanced feedback."""
-    colored_print("🐍 Checking Python installation...", Colors.YELLOW)
+    colored_print("Checking Python installation...", Colors.YELLOW)
     
     python_version = sys.version_info
     min_version = (3, 8)
@@ -145,7 +140,7 @@ def check_python_version() -> bool:
         print(f"   Minimum required: Python {min_version[0]}.{min_version[1]}")
         print(f"   Recommended: Python {recommended_version[0]}.{recommended_version[1]}")
         
-        print("\n🔧 HOW TO FIX:")
+        print("\nHOW TO FIX:")
         print("   1. Visit https://python.org/downloads/")
         print("   2. Download Python 3.11 or newer")
         print("   3. During installation, check 'Add Python to PATH'")
@@ -153,23 +148,23 @@ def check_python_version() -> bool:
         print("   5. Run this script again")
         
         if platform.system() == "Windows":
-            print("\n💡 Windows users can also use the automated installer:")
+            print("\nWindows users can also use the automated installer:")
             print("   It will install Python automatically!")
         
         return False
         
     elif python_version < recommended_version:
-        colored_print(f"⚠️  Python {python_version.major}.{python_version.minor}.{python_version.micro} works but is not optimal", Colors.YELLOW)
+        colored_print(f"Python {python_version.major}.{python_version.minor}.{python_version.micro} works but is not optimal", Colors.YELLOW)
         print(f"   Recommended: Python {recommended_version[0]}.{recommended_version[1]}+ for best performance")
         print("   Your version will work, continuing...")
     else:
-        colored_print(f"✅ Python {python_version.major}.{python_version.minor}.{python_version.micro} is excellent", Colors.GREEN)
+        colored_print(f"Python {python_version.major}.{python_version.minor}.{python_version.micro} is excellent", Colors.GREEN)
     
     return True
 
 def check_required_files() -> bool:
     """Check if essential project files exist."""
-    colored_print("📁 Checking project files...", Colors.YELLOW)
+    colored_print("Checking project files...", Colors.YELLOW)
     
     essential_files = [
         "src/__init__.py",
@@ -188,7 +183,7 @@ def check_required_files() -> bool:
         for file in missing_files:
             print(f"   • {file}")
         
-        print("\n🔧 HOW TO FIX:")
+        print("\nHOW TO FIX:")
         print("   1. Ensure you're in the correct project directory")
         print("   2. If files are missing, re-download the project:")
         print("      https://github.com/cboyd0319/job-search-automation/archive/refs/heads/main.zip")
@@ -201,7 +196,7 @@ def check_required_files() -> bool:
 
 def check_and_install_dependencies() -> bool:
     """Check and install Python dependencies with user guidance."""
-    colored_print("📦 Checking Python dependencies...", Colors.YELLOW)
+    colored_print("Checking Python dependencies...", Colors.YELLOW)
     
     requirements_file = Path("requirements.txt")
     if not requirements_file.exists():
@@ -214,13 +209,17 @@ def check_and_install_dependencies() -> bool:
     try:
         # Upgrade pip first
         print("   • Upgrading pip...")
-        subprocess.run([sys.executable, "-m", "pip", "install", "--upgrade", "pip"], 
-                      check=True, capture_output=True)
+        subprocess.run(  # noqa: S603 - upgrading pip
+            [sys.executable, "-m", "pip", "install", "--upgrade", "pip"],
+            check=True, capture_output=True
+        )
         
         # Install requirements
         print("   • Installing project dependencies...")
-        result = subprocess.run([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"], 
-                              check=True, capture_output=True, text=True)
+        result = subprocess.run(  # noqa: S603 - installing from requirements.txt
+            [sys.executable, "-m", "pip", "install", "-r", "requirements.txt"],
+            check=True, capture_output=True, text=True
+        )
         
         # Install optional but recommended packages
         optional_packages = [
@@ -232,8 +231,10 @@ def check_and_install_dependencies() -> bool:
         print("   • Installing optional enhancements...")
         for package in optional_packages:
             try:
-                subprocess.run([sys.executable, "-m", "pip", "install", package], 
-                             check=True, capture_output=True)
+                subprocess.run(  # noqa: S603 - installing optional packages
+                    [sys.executable, "-m", "pip", "install", package],
+                    check=True, capture_output=True
+                )
                 print(f"     ✅ {package}")
             except subprocess.CalledProcessError:
                 print(f"     ⚠️  {package} (optional, skipped)")
@@ -245,7 +246,7 @@ def check_and_install_dependencies() -> bool:
         colored_print("❌ Dependency installation failed", Colors.RED)
         print(f"   Error: {e}")
         
-        print("\n🔧 TROUBLESHOOTING:")
+        print("\nTROUBLESHOOTING:")
         print("   1. Check your internet connection")
         print("   2. Try running as administrator/sudo")
         print("   3. Update Python to a newer version")
@@ -274,13 +275,13 @@ def setup_configuration() -> bool:
     
     # Load example configuration
     try:
-        with open(example_config_path, 'r') as f:
+        with open(example_config_path) as f:
             config = json.load(f)
     except Exception as e:
         colored_print(f"❌ Could not load example configuration: {e}", Colors.RED)
         return False
     
-    print("\n🔧 CONFIGURATION WIZARD")
+    print("\nCONFIGURATION WIZARD")
     print("=" * 50)
     print("Let's personalize this for your job search.")
     print("Press Enter to skip any question and use defaults.\n")
@@ -338,7 +339,7 @@ def setup_configuration() -> bool:
         with open(user_config_path, 'w') as f:
             json.dump(config, f, indent=2)
         colored_print("✅ Configuration saved successfully", Colors.GREEN)
-        print(f"   📁 Saved to: {user_config_path}")
+        print(f"   Saved to: {user_config_path}")
         return True
     except Exception as e:
         colored_print(f"❌ Could not save configuration: {e}", Colors.RED)
@@ -346,15 +347,17 @@ def setup_configuration() -> bool:
 
 def run_initial_test() -> bool:
     """Run comprehensive system test."""
-    colored_print("🧪 Running system test...", Colors.YELLOW)
+    colored_print("Running system test...", Colors.YELLOW)
     
     try:
         # Test basic imports
         print("   • Testing core modules...")
-        result = subprocess.run([
-            sys.executable, "-c", 
-            "import src; import src.agent; print('Core modules: OK')"
-        ], capture_output=True, text=True, timeout=30)
+        result = subprocess.run(  # noqa: S603 - testing python imports
+            [
+                sys.executable, "-c",
+                "import src; import src.agent; print('Core modules: OK')"
+            ], capture_output=True, text=True, timeout=30
+        )
         
         if result.returncode != 0:
             colored_print("❌ Core module test failed", Colors.RED)
@@ -371,13 +374,15 @@ def run_initial_test() -> bool:
         
         for test_name, test_code in optional_tests:
             try:
-                result = subprocess.run([sys.executable, "-c", test_code], 
-                                      capture_output=True, text=True, timeout=10)
+                result = subprocess.run(  # noqa: S603 - testing optional imports
+                    [sys.executable, "-c", test_code],
+                    capture_output=True, text=True, timeout=10
+                )
                 if result.returncode == 0:
                     print(f"     ✅ {test_name}")
                 else:
                     print(f"     ⚠️  {test_name} (optional)")
-            except:
+            except Exception:  # nosec B110 - intentionally broad for optional test fallback
                 print(f"     ⚠️  {test_name} (optional)")
         
         colored_print("✅ System test passed", Colors.GREEN)
@@ -389,7 +394,7 @@ def run_initial_test() -> bool:
 
 def setup_resume_scanner() -> bool:
     """Set up resume scanning capabilities."""
-    colored_print("📝 Setting up resume scanner...", Colors.YELLOW)
+    colored_print("Setting up resume scanner...", Colors.YELLOW)
     
     # Check if resume scanner script exists
     scanner_path = Path("scripts/resume_ats_scanner.py")
@@ -404,9 +409,10 @@ def setup_resume_scanner() -> bool:
     
     # Test if we can create a sample report
     try:
-        result = subprocess.run([
-            sys.executable, str(scanner_path), "--help"
-        ], capture_output=True, text=True, timeout=10)
+        result = subprocess.run(  # noqa: S603 - testing resume scanner
+            [sys.executable, str(scanner_path), "--help"],
+            capture_output=True, text=True, timeout=10
+        )
         
         if result.returncode == 0:
             colored_print("✅ Resume scanner is ready", Colors.GREEN)
@@ -420,11 +426,11 @@ def setup_resume_scanner() -> bool:
 
 def create_shortcuts() -> bool:
     """Create helpful shortcuts and quick access."""
-    colored_print("🔗 Creating shortcuts...", Colors.YELLOW)
+    colored_print("Creating shortcuts...", Colors.YELLOW)
     
     try:
         # Create a launch script
-        launch_script_content = f"""#!/usr/bin/env python3
+        launch_script_content = """#!/usr/bin/env python3
 # Quick launcher for Job Search Automation
 import sys
 import subprocess
@@ -444,10 +450,10 @@ subprocess.run([sys.executable, "-m", "src.agent"])
         
         # Make it executable on Unix systems
         if platform.system() != "Windows":
-            os.chmod(launch_script, 0o755)
+            os.chmod(launch_script, 0o755)  # noqa: S103 - executable script needs exec permissions
         
         colored_print("✅ Quick launcher created", Colors.GREEN)
-        print(f"   📁 {launch_script.absolute()}")
+        print(f"   {launch_script.absolute()}")
         
         return True
         
@@ -457,10 +463,10 @@ subprocess.run([sys.executable, "-m", "src.agent"])
 
 def show_next_steps() -> None:
     """Show comprehensive next steps guide."""
-    colored_print("\n🎉 SETUP COMPLETE!", Colors.GREEN)
+    colored_print("\nSETUP COMPLETE!", Colors.GREEN)
     print("=" * 80)
     
-    print("\n💡 WHAT TO DO NEXT:")
+    print("\nWHAT TO DO NEXT:")
     print()
     
     print("1️⃣  TEST THE SYSTEM:")
@@ -476,18 +482,18 @@ def show_next_steps() -> None:
     print("   This analyzes your resume for ATS compatibility")
     
     print("\n4️⃣  CUSTOMIZE YOUR SETTINGS:")
-    print("   📁 Edit: config/user_prefs.json")
+    print("   Edit: config/user_prefs.json")
     print("   Add more job titles, keywords, or change preferences")
     
     print("\n5️⃣  SET UP NOTIFICATIONS (OPTIONAL):")
     print("   • Slack: python scripts/setup/slack/slack_setup.py")
     print("   • Email: Follow EMAIL_SETUP.md guide")
     
-    print("\n📚 HELPFUL RESOURCES:")
-    print("   • 📖 User Guide: docs/USER_GUIDE.md")
-    print("   • 🔧 Troubleshooting: docs/USER_GUIDE.md#troubleshooting")
-    print("   • 📝 Resume Tips: docs/RESUME_RESOURCES.md")
-    print("   • 💼 Job Search Best Practices: docs/GETTING_STARTED.md")
+    print("\nHELPFUL RESOURCES:")
+    print("   • User Guide: docs/USER_GUIDE.md")
+    print("   • Troubleshooting: docs/USER_GUIDE.md#troubleshooting")
+    print("   • Resume Tips: docs/RESUME_RESOURCES.md")
+    print("   • Job Search Best Practices: docs/GETTING_STARTED.md")
     
     print("\n🆘 NEED HELP?")
     print("   • Check logs in: logs/application.log")
@@ -495,7 +501,7 @@ def show_next_steps() -> None:
     print("   • Documentation: docs/README.md")
     
     print("\n" + "=" * 80)
-    colored_print("Ready to find your next job! 🎯", Colors.GREEN)
+    colored_print("Ready to find your next job!", Colors.GREEN)
 
 def main() -> int:
     """Main startup process with comprehensive error handling."""
@@ -537,7 +543,7 @@ def main() -> int:
             for step in failed_steps:
                 print(f"   • {step}")
             
-            print("\n🔧 RECOMMENDED ACTIONS:")
+            print("\nRECOMMENDED ACTIONS:")
             print("   1. Review the error messages above")
             print("   2. Fix the issues and re-run this script")
             print("   3. Try manual installation if problems persist")
@@ -556,7 +562,7 @@ def main() -> int:
         return 1
     except Exception as e:
         colored_print(f"\n❌ Unexpected error: {e}", Colors.RED)
-        print("\n🔧 TROUBLESHOOTING:")
+        print("\nTROUBLESHOOTING:")
         print("   1. Ensure you're in the correct project directory")
         print("   2. Check that Python is properly installed")
         print("   3. Try running with administrator privileges")

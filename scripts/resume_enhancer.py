@@ -6,11 +6,11 @@ A comprehensive tool for helping users create ATS-optimized resumes
 with templates, guidance, and best practices.
 """
 
-from pathlib import Path
-from typing import Dict, List, Optional, Any
-from datetime import datetime
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
+from pathlib import Path
+from typing import Any
 
 
 class ResumeTemplate(Enum):
@@ -57,8 +57,8 @@ class ResumeTemplateConfig:
     description: str
     industry: IndustryType
     experience_level: ExperienceLevel
-    sections: List[str]
-    keywords: List[str]
+    sections: list[str]
+    keywords: list[str]
     template_content: str
 
 
@@ -84,7 +84,7 @@ class ResumeEnhancer:
         template_type: ResumeTemplate,
         industry: IndustryType = IndustryType.GENERAL,
         experience_level: ExperienceLevel = ExperienceLevel.MID,
-        custom_sections: Optional[List[str]] = None,
+        custom_sections: list[str] | None = None,
     ) -> str:
         """
         Generate a customized resume template.
@@ -122,18 +122,18 @@ class ResumeEnhancer:
         self,
         industry: IndustryType,
         experience_level: ExperienceLevel,
-        keywords: List[str],
-        custom_sections: Optional[List[str]] = None,
+        keywords: list[str],
+        custom_sections: list[str] | None = None,
     ) -> str:
         """Generate ATS-optimized resume template."""
 
         template = f"""# [YOUR FULL NAME]
 
-**📧 Email:** your.email@example.com  
-**📱 Phone:** (555) 123-4567  
-**🌐 LinkedIn:** linkedin.com/in/yourname  
-**📍 Location:** City, State  
-**💼 Portfolio:** yourportfolio.com *(if applicable)*
+**Email:** your.email@example.com  
+**Phone:** (555) 123-4567  
+**LinkedIn:** linkedin.com/in/yourname  
+**Location:** City, State  
+**Portfolio:** yourportfolio.com *(if applicable)*
 
 ---
 
@@ -208,24 +208,24 @@ class ResumeEnhancer:
 
 ---
 
-## 💡 RESUME OPTIMIZATION CHECKLIST
+## RESUME OPTIMIZATION CHECKLIST
 
 Before submitting your resume, ensure you have:
 
-✅ **Customized for each job** - Tailored keywords and content  
-✅ **Quantified achievements** - Numbers, percentages, and metrics  
-✅ **Used action verbs** - Strong, specific verbs to start bullet points  
-✅ **Maintained consistency** - Formatting, dates, and style  
-✅ **Kept it concise** - 1-2 pages maximum, relevant content only  
-✅ **Proofread thoroughly** - No typos, grammatical errors, or formatting issues  
-✅ **Saved as PDF** - Maintains formatting across systems  
-✅ **Used ATS-friendly format** - Simple formatting, standard fonts  
-✅ **Included contact information** - All methods clearly visible  
-✅ **Matched job requirements** - 70%+ of key requirements addressed  
+- Customized for each job — tailored keywords and content  
+- Quantified achievements — numbers, percentages, and metrics  
+- Use action verbs — strong, specific verbs to start bullet points  
+- Maintain consistency — formatting, dates, and style  
+- Keep it concise — 1-2 pages maximum, relevant content only  
+- Proofread thoroughly — no typos, grammatical errors, or formatting issues  
+- Save as PDF — maintains formatting across systems  
+- Use ATS-friendly format — simple formatting, standard fonts  
+- Include contact information — all methods clearly visible  
+- Match job requirements — 70%+ of key requirements addressed  
 
 ---
 
-## 📝 CUSTOMIZATION INSTRUCTIONS
+## CUSTOMIZATION INSTRUCTIONS
 
 1. **Replace all bracketed placeholders** with your actual information
 2. **Customize the Professional Summary** for each job application
@@ -245,17 +245,17 @@ Before submitting your resume, ensure you have:
         self,
         industry: IndustryType,
         experience_level: ExperienceLevel,
-        keywords: List[str],
-        custom_sections: Optional[List[str]] = None,
+        keywords: list[str],
+        custom_sections: list[str] | None = None,
     ) -> str:
         """Generate technical specialist resume template."""
 
         template = f"""# [YOUR FULL NAME]
 ## {industry.value.replace('_', ' ').title()} Engineer
 
-**📧 Email:** your.email@example.com | **📱 Phone:** (555) 123-4567  
-**🌐 LinkedIn:** linkedin.com/in/yourname | **💻 GitHub:** github.com/yourusername  
-**🌍 Portfolio:** yourportfolio.dev | **📍 Location:** City, State
+**Email:** your.email@example.com | **Phone:** (555) 123-4567  
+**LinkedIn:** linkedin.com/in/yourname | **GitHub:** github.com/yourusername  
+**Portfolio:** yourportfolio.dev | **Location:** City, State
 
 ---
 
@@ -348,17 +348,17 @@ Brief description of the project and its purpose.
     def _generate_entry_level_template(
         self,
         industry: IndustryType,
-        keywords: List[str],
-        custom_sections: Optional[List[str]] = None,
+        keywords: list[str],
+        custom_sections: list[str] | None = None,
     ) -> str:
         """Generate entry-level resume template."""
 
         template = f"""# [YOUR FULL NAME]
 
-**📧 Email:** your.email@example.com  
-**📱 Phone:** (555) 123-4567  
-**🌐 LinkedIn:** linkedin.com/in/yourname  
-**📍 Location:** City, State
+**Email:** your.email@example.com  
+**Phone:** (555) 123-4567  
+**LinkedIn:** linkedin.com/in/yourname  
+**Location:** City, State
 
 ---
 
@@ -438,7 +438,7 @@ Recent [degree] graduate seeking an entry-level position in {industry.value.repl
 
 ---
 
-## 🎯 ENTRY-LEVEL JOB SEARCH TIPS
+## ENTRY-LEVEL JOB SEARCH TIPS
 
 **Before Applying:**
 1. **Research the company** - Understand their mission, values, and recent news
@@ -448,11 +448,11 @@ Recent [degree] graduate seeking an entry-level position in {industry.value.repl
 5. **Network actively** - Connect with professionals in your field
 
 **What Employers Look For:**
-✅ **Willingness to learn** - Show curiosity and adaptability  
-✅ **Technical foundation** - Demonstrate core skills through projects  
-✅ **Communication skills** - Write clearly and professionally  
-✅ **Problem-solving ability** - Show how you approach challenges  
-✅ **Cultural fit** - Research company values and align your presentation
+• Willingness to learn — show curiosity and adaptability  
+• Technical foundation — demonstrate core skills through projects  
+• Communication skills — write clearly and professionally  
+• Problem-solving ability — show how you approach challenges  
+• Cultural fit — research company values and align your presentation
 
 ---
 
@@ -465,8 +465,8 @@ Recent [degree] graduate seeking an entry-level position in {industry.value.repl
         template_type: ResumeTemplate,
         industry: IndustryType,
         experience_level: ExperienceLevel,
-        keywords: List[str],
-        custom_sections: Optional[List[str]] = None,
+        keywords: list[str],
+        custom_sections: list[str] | None = None,
     ) -> str:
         """Generate standard professional resume template."""
 
@@ -474,7 +474,7 @@ Recent [degree] graduate seeking an entry-level position in {industry.value.repl
 ## {industry.value.replace('_', ' ').title()} Professional
 
 **Contact Information**  
-📧 your.email@example.com | 📱 (555) 123-4567 | 🌐 linkedin.com/in/yourname | 📍 City, State
+your.email@example.com | (555) 123-4567 | linkedin.com/in/yourname | City, State
 
 ---
 
@@ -530,7 +530,7 @@ Recent [degree] graduate seeking an entry-level position in {industry.value.repl
 """
         return template
 
-    def _get_industry_keywords(self, industry: IndustryType) -> List[str]:
+    def _get_industry_keywords(self, industry: IndustryType) -> list[str]:
         """Get relevant keywords for specific industry."""
 
         keyword_map = {
@@ -615,7 +615,7 @@ Recent [degree] graduate seeking an entry-level position in {industry.value.repl
 
         return keyword_map.get(industry, keyword_map[IndustryType.GENERAL])
 
-    def _get_experience_guidance(self, experience_level: ExperienceLevel) -> Dict[str, Any]:
+    def _get_experience_guidance(self, experience_level: ExperienceLevel) -> dict[str, Any]:
         """Get guidance specific to experience level."""
 
         guidance_map = {
@@ -653,7 +653,7 @@ Recent [degree] graduate seeking an entry-level position in {industry.value.repl
 
         guide = """# Complete Resume Optimization Guide
 
-## 📚 Table of Contents
+## Table of Contents
 1. [ATS Optimization Basics](#ats-optimization-basics)
 2. [Resume Structure](#resume-structure)
 3. [Writing Effective Content](#writing-effective-content)
@@ -664,14 +664,14 @@ Recent [degree] graduate seeking an entry-level position in {industry.value.repl
 
 ---
 
-## 🎯 ATS Optimization Basics
+## ATS Optimization Basics
 
 ### What is an ATS?
 An Applicant Tracking System (ATS) is software that scans and ranks resumes before human recruiters see them. 75% of resumes never reach human eyes due to ATS filtering.
 
 ### ATS-Friendly Formatting Rules
 
-**✅ DO:**
+**DO:**
 - Use standard fonts (Arial, Calibri, Times New Roman)
 - Save as PDF (unless otherwise specified)
 - Use standard section headers
@@ -680,7 +680,7 @@ An Applicant Tracking System (ATS) is software that scans and ranks resumes befo
 - Keep formatting simple and clean
 - Use standard date formats (MM/YYYY)
 
-**❌ DON'T:**
+**DON'T:**
 - Use tables, text boxes, or columns
 - Include images, graphics, or charts
 - Use fancy fonts or excessive formatting
@@ -690,7 +690,7 @@ An Applicant Tracking System (ATS) is software that scans and ranks resumes befo
 
 ---
 
-## 📋 Resume Structure
+## Resume Structure
 
 ### Essential Sections (Required)
 1. **Contact Information** - Name, phone, email, LinkedIn, location
@@ -709,7 +709,7 @@ An Applicant Tracking System (ATS) is software that scans and ranks resumes befo
 
 ---
 
-## ✍️ Writing Effective Content
+## Writing Effective Content
 
 ### Professional Summary Formula
 **Template:** [Experience Level] + [Job Title] + [Years of Experience] + [Key Skills] + [Major Achievement] + [Value Proposition]
@@ -727,8 +727,8 @@ An Applicant Tracking System (ATS) is software that scans and ranks resumes befo
 **Formula:** [Action Verb] + [What You Did] + [How/Tools Used] + [Quantified Result]
 
 **Examples:**
-- ❌ "Responsible for managing social media accounts"
-- ✅ "Managed 5 social media accounts, creating 20+ posts weekly, resulting in 150% increase in engagement and 50 new leads monthly"
+- "Responsible for managing social media accounts" (weak)
+- "Managed 5 social media accounts, creating 20+ posts weekly, resulting in 150% increase in engagement and 50 new leads monthly" (strong)
 
 ### Power Action Verbs by Category
 
@@ -740,7 +740,7 @@ An Applicant Tracking System (ATS) is software that scans and ranks resumes befo
 
 ---
 
-## 🏢 Industry-Specific Tips
+## Industry-Specific Tips
 
 ### Technology/Engineering
 - **Emphasize:** Programming languages, frameworks, methodologies
@@ -769,7 +769,7 @@ An Applicant Tracking System (ATS) is software that scans and ranks resumes befo
 
 ---
 
-## 🚫 Common Mistakes to Avoid
+## Common Mistakes to Avoid
 
 ### Content Mistakes
 - **Generic objectives** - Use specific, value-focused summaries instead
@@ -796,7 +796,7 @@ An Applicant Tracking System (ATS) is software that scans and ranks resumes befo
 
 ---
 
-## 🛠️ Tools and Resources
+## Tools and Resources
 
 ### Resume Building Tools
 - **Canva** - Templates and design tools
@@ -828,7 +828,7 @@ An Applicant Tracking System (ATS) is software that scans and ranks resumes befo
 
 ---
 
-## 📈 Action Plan
+## Action Plan
 
 ### Phase 1: Analysis (Week 1)
 1. **Audit current resume** using ATS scanner
@@ -860,7 +860,7 @@ An Applicant Tracking System (ATS) is software that scans and ranks resumes befo
 
 ---
 
-## 📞 Getting Help
+## Getting Help
 
 ### When to Consider Professional Help
 - Consistent rejection without interviews
@@ -878,7 +878,7 @@ An Applicant Tracking System (ATS) is software that scans and ranks resumes befo
 
 ---
 
-## 🎯 Success Metrics
+## Success Metrics
 
 Track these metrics to measure resume effectiveness:
 
@@ -953,7 +953,7 @@ Examples:
     template_parser.add_argument(
         "--level",
         "-l",
-        choices=[l.value for l in ExperienceLevel],
+        choices=[level.value for level in ExperienceLevel],
         default="mid",
         help="Experience level",
     )
@@ -970,7 +970,7 @@ Examples:
     args = parser.parse_args()
 
     if not args.command:
-        print("🎯 Resume Enhancement Tool")
+        print("Resume Enhancement Tool")
         print("=" * 40)
         print()
         print("Commands:")
@@ -992,7 +992,7 @@ Examples:
             industry = IndustryType(args.industry)
             experience_level = ExperienceLevel(args.level)
 
-            print(f"📝 Generating {template_type.value.replace('_', ' ').title()} template...")
+            print(f"Generating {template_type.value.replace('_', ' ').title()} template...")
             print(f"   Industry: {industry.value.replace('_', ' ').title()}")
             print(f"   Level: {experience_level.value.title()}")
 
@@ -1008,14 +1008,14 @@ Examples:
                 print("\n" + "=" * 80)
                 print(template_content)
 
-            print("\n💡 Next Steps:")
+            print("\nNext Steps:")
             print("  1. Replace all [PLACEHOLDER] text with your information")
             print("  2. Customize content for your target job/industry")
             print("  3. Use the Resume ATS Scanner to check optimization")
             print("  4. Tailor keywords for each job application")
 
         elif args.command == "resources":
-            print("📚 Generating comprehensive resume resources guide...")
+            print("Generating comprehensive resume resources guide...")
 
             guide_content = enhancer.create_resume_resources_guide()
 

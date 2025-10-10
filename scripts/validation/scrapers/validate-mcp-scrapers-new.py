@@ -11,13 +11,13 @@ import os
 import subprocess
 import sys
 from pathlib import Path
-from typing import Dict, List, Tuple
+from shutil import which
 
 # Ensure project root on path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from utils.logging import setup_logging, get_logger  # noqa: E402
 from utils.cache import job_cache  # noqa: E402
+from utils.logging import get_logger, setup_logging  # noqa: E402
 
 logger = setup_logging(log_level="INFO")
 validation_logger = get_logger("validation")
@@ -30,9 +30,9 @@ class ValidationResult:
         self.tests_run = 0
         self.tests_passed = 0
         self.tests_failed = 0
-        self.warnings: List[str] = []
-        self.errors: List[str] = []
-        self.scraper_results: Dict[str, Dict] = {}
+        self.warnings: list[str] = []
+        self.errors: list[str] = []
+        self.scraper_results: dict[str, dict] = {}
 
     def add_pass(self, test_name: str) -> None:
         self.tests_run += 1
@@ -49,7 +49,7 @@ class ValidationResult:
         self.warnings.append(f"{test_name}: {message}")
         print(f" [WARNING] {test_name}\n  Warning: {message}")
 
-    def add_scraper_result(self, scraper_name: str, data: Dict) -> None:
+    def add_scraper_result(self, scraper_name: str, data: dict) -> None:
         self.scraper_results[scraper_name] = data
 
     def print_summary(self) -> None:
@@ -62,7 +62,7 @@ class ValidationResult:
         print(f"Warnings: {len(self.warnings)} [WARNING]")
 
         if self.errors:
-            print("\n🚫 ERRORS:")
+            print("\nERRORS:")
             for err in self.errors:
                 print(f" - {err}")
         if self.warnings:
@@ -112,13 +112,10 @@ def check_prerequisites(result: ValidationResult) -> None:
         except ImportError as e:  # noqa: BLE001
             result.add_fail(f"Package missing: {label}", str(e))
 
-    try:
-        node_proc = subprocess.run(["node", "--version"], capture_output=True, timeout=5)
-        if node_proc.returncode == 0:
-            result.add_pass(f"Node.js installed ({node_proc.stdout.decode().strip()})")
-        else:
-            result.add_warning("Node.js check", "Node.js not found - JobSpy MCP will not work")
-    except (FileNotFoundError, subprocess.TimeoutExpired):
+    node_path = which("node")
+    if node_path:
+        result.add_pass(f"Node.js installed (path: {node_path})")
+    else:
         result.add_warning("Node.js check", "Node.js not found - JobSpy MCP will not work")
 
     if os.environ.get("REED_API_KEY"):
@@ -333,7 +330,7 @@ async def test_jobspy(result: ValidationResult) -> None:
                     result.add_pass("JobSpy site tracking (jobspy_site)")
                 else:
                     result.add_warning("JobSpy site tracking", "jobspy_site field missing")
-                site_counts: Dict[str, int] = {}
+                site_counts: dict[str, int] = {}
                 for j in jobs:
                     site = j.get("jobspy_site", "unknown")
                     site_counts[site] = site_counts.get(site, 0) + 1
@@ -409,14 +406,14 @@ async def test_security(result: ValidationResult) -> None:
         "config/user_prefs.json",
         ".config/claude/claude_desktop_config.json",
     ]
-    patterns: List[Tuple[str, str]] = [
+    patterns: list[tuple[str, str]] = [
         (r'COOKIE\s*=\s*["\']?[A-Za-z0-9+/=]{20,}', "session cookie"),
         (r'API[_-]?KEY\s*[=:]\s*["\']?[A-Za-z0-9]{20,}', "API key"),
         (r'li_at\s*[=:]\s*["\']?[A-Za-z0-9]{20,}', "LinkedIn cookie"),
     ]
     import re
 
-    creds_found: List[str] = []
+    creds_found: list[str] = []
     for rel in dangerous_files:
         full = Path(__file__).parent.parent / rel
         if full.exists():
@@ -462,8 +459,9 @@ async def test_security(result: ValidationResult) -> None:
     )
 
     try:
-        from sources import jobspy_mcp_scraper  # type: ignore
         import inspect
+
+        from sources import jobspy_mcp_scraper  # type: ignore
 
         source = inspect.getsource(jobspy_mcp_scraper)
         if "shell=True" in source:
@@ -515,10 +513,10 @@ async def test_integration(result: ValidationResult) -> None:
     print("=" * 80 + "\n")
     try:
         from sources.job_scraper import (  # type: ignore
-            search_jobs_by_keywords,
-            search_reed_jobs,
-            search_multi_site_jobs,
             _ensure_registry,
+            search_jobs_by_keywords,
+            search_multi_site_jobs,
+            search_reed_jobs,
         )
         registry = _ensure_registry()
         count = len(registry.scrapers)

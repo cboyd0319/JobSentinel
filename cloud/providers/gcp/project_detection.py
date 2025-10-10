@@ -5,7 +5,6 @@ from __future__ import annotations
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 from cloud.utils import run_command
 
@@ -94,7 +93,7 @@ async def list_job_scraper_projects(logger) -> list[dict]:
         return []
 
 
-async def detect_existing_deployment(logger, no_prompt: bool = False) -> Optional[str]:
+async def detect_existing_deployment(logger, no_prompt: bool = False) -> str | None:
     """Detect if user has existing job-scraper deployment.
 
     Args:
@@ -205,7 +204,7 @@ def save_deployment_config(project_id: str, config: dict) -> None:
         json.dump(config, f, indent=2)
 
 
-def load_deployment_config(project_id: str) -> Optional[dict]:
+def load_deployment_config(project_id: str) -> dict | None:
     """Load deployment configuration from disk.
 
     Args:
@@ -220,7 +219,7 @@ def load_deployment_config(project_id: str) -> Optional[dict]:
         return None
 
     try:
-        with open(config_path, 'r') as f:
+        with open(config_path) as f:
             return json.load(f)
     except Exception:
         return None

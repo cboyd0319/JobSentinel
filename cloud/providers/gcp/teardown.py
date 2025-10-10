@@ -4,13 +4,14 @@ from __future__ import annotations
 
 import subprocess  # nosec B404
 
+from utils.logging import get_logger
+from utils.secure_subprocess import SubprocessSecurityError, run_secure
+
 from cloud.utils import (
+    _redact_command_for_logging,
     confirm,
     run_command,
-    _redact_command_for_logging,
 )
-from utils.secure_subprocess import run_secure, SubprocessSecurityError
-from utils.logging import get_logger
 
 logger = get_logger("gcp_teardown")
 

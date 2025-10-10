@@ -5,14 +5,14 @@ Handles database concurrency issues and provides batching for optimal performanc
 
 import threading
 import time
+from collections.abc import Generator
 from contextlib import contextmanager
 from dataclasses import dataclass
+from datetime import UTC
 from queue import Empty, Queue
 from threading import Lock, RLock
-from typing import Dict, Generator, List, Optional
 
 from sqlmodel import Session, select
-
 from utils.logging import get_logger
 
 from .unified_database import UnifiedJob, save_unified_job
@@ -24,7 +24,7 @@ logger = get_logger("src.concurrent_database")
 class BatchJobData:
     """Represents a job to be saved in a batch operation."""
 
-    job_data: Dict
+    job_data: dict
     score: float = 0.0
     timestamp: float = 0.0
 
@@ -120,7 +120,7 @@ class ConcurrentJobDatabase:
         self._stats_lock = Lock()
 
         # Batching
-        self._batch_queue: List[BatchJobData] = []
+        self._batch_queue: list[BatchJobData] = []
         self._last_batch_time = time.time()
 
         # Connection pool
@@ -140,7 +140,7 @@ class ConcurrentJobDatabase:
             self._batch_thread.start()
             logger.info(f"Started batch processor: {batch_size} jobs, {batch_timeout}s timeout")
 
-    def save_job_concurrent(self, job_data: Dict, score: float = 0.0) -> bool:
+    def save_job_concurrent(self, job_data: dict, score: float = 0.0) -> bool:
         """
         Save a job with thread safety and optimal performance.
 
@@ -156,7 +156,7 @@ class ConcurrentJobDatabase:
         else:
             return self._save_job_immediate(job_data, score)
 
-    def save_jobs_batch(self, jobs_data: List[Dict], scores: Optional[List[float]] = None) -> int:
+    def save_jobs_batch(self, jobs_data: list[dict], scores: list[float] | None = None) -> int:
         """
         Save multiple jobs in an optimized batch operation.
 
@@ -179,7 +179,7 @@ class ConcurrentJobDatabase:
         try:
             with self.connection_pool.get_connection() as engine:
                 with Session(engine) as session:
-                    for job_data, score in zip(jobs_data, scores):
+                    for job_data, score in zip(jobs_data, scores, strict=False):
                         try:
                             job_hash = job_data.get("hash")
                             if not job_hash:
@@ -221,7 +221,7 @@ class ConcurrentJobDatabase:
         logger.info(f"Batch saved {saved_count}/{len(jobs_data)} jobs in {duration:.2f}s")
         return saved_count
 
-    def _add_to_batch(self, job_data: Dict, score: float) -> bool:
+    def _add_to_batch(self, job_data: dict, score: float) -> bool:
         """Add job to batch queue for later processing."""
         with self._batch_lock:
             self._batch_queue.append(
@@ -270,7 +270,7 @@ class ConcurrentJobDatabase:
             except Exception as e:
                 logger.error(f"Batch processor error: {e}")
 
-    def _save_job_immediate(self, job_data: Dict, score: float) -> bool:
+    def _save_job_immediate(self, job_data: dict, score: float) -> bool:
         """Save job immediately (no batching)."""
         try:
             with self.connection_pool.get_connection():
@@ -286,13 +286,13 @@ class ConcurrentJobDatabase:
             logger.error(f"Immediate save failed: {e}")
             return False
 
-    def _update_existing_job(self, existing_job: UnifiedJob, job_data: Dict, session: Session):
+    def _update_existing_job(self, existing_job: UnifiedJob, job_data: dict, session: Session):
         """Update an existing job with new data."""
-        from datetime import datetime, timezone
+        from datetime import datetime
 
-        existing_job.last_seen = datetime.now(timezone.utc)
+        existing_job.last_seen = datetime.now(UTC)
         existing_job.times_seen += 1
-        existing_job.updated_at = datetime.now(timezone.utc)
+        existing_job.updated_at = datetime.now(UTC)
 
         # Update fields with new data
         for key, value in job_data.items():
@@ -307,7 +307,7 @@ class ConcurrentJobDatabase:
             if self._batch_queue:
                 self._flush_batch()
 
-    def get_stats(self) -> Dict:
+    def get_stats(self) -> dict:
         """Get database operation statistics."""
         with self._stats_lock:
             return self._stats.copy()
@@ -346,7 +346,7 @@ def get_concurrent_database() -> ConcurrentJobDatabase:
     return _global_db_handler
 
 
-def save_jobs_concurrent(jobs_data: List[Dict], scores: Optional[List[float]] = None) -> int:
+def save_jobs_concurrent(jobs_data: list[dict], scores: list[float] | None = None) -> int:
     """
     Convenience function to save multiple jobs concurrently.
 
@@ -361,7 +361,7 @@ def save_jobs_concurrent(jobs_data: List[Dict], scores: Optional[List[float]] = 
     return db_handler.save_jobs_batch(jobs_data, scores)
 
 
-def save_job_concurrent(job_data: Dict, score: float = 0.0) -> bool:
+def save_job_concurrent(job_data: dict, score: float = 0.0) -> bool:
     """
     Convenience function to save a single job concurrently.
 
@@ -380,7 +380,7 @@ class DatabaseBenchmark:
     """Benchmark database performance under different concurrency scenarios."""
 
     @staticmethod
-    def benchmark_save_performance(jobs_data: List[Dict], workers: int = 4) -> Dict:
+    def benchmark_save_performance(jobs_data: list[dict], workers: int = 4) -> dict:
         """Benchmark database save performance."""
         results = {}
 

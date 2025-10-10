@@ -11,20 +11,22 @@ Conversion guideline:
     db_payload = job.to_db_dict()  # safe for add_job()
 """
 from __future__ import annotations
-from pydantic import BaseModel, HttpUrl, field_validator
-from typing import Optional, List
+
 import hashlib
+
+from pydantic import BaseModel, HttpUrl, field_validator
+
 
 class JobModel(BaseModel):
     title: str
     company: str
     url: HttpUrl
-    location: Optional[str] = None
-    description: Optional[str] = None
-    source: Optional[str] = None  # which scraper
-    tags: List[str] = []
-    score: Optional[float] = None
-    score_reasons: List[str] = []
+    location: str | None = None
+    description: str | None = None
+    source: str | None = None  # which scraper
+    tags: list[str] = []
+    score: float | None = None
+    score_reasons: list[str] = []
 
     @field_validator("title", "company")
     @classmethod

@@ -23,11 +23,12 @@ try:
 except ImportError:
     HAS_YAML = False
 import logging
+from collections.abc import Callable
 from contextlib import contextmanager
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
 from utils.dependency_injection import IConfigurationProvider
 
@@ -52,7 +53,7 @@ class ConfigurationSource:
     priority: int = 100
     readonly: bool = False
     format: str = "json"  # json, yaml, env, etc.
-    refresh_interval: Optional[int] = None  # seconds
+    refresh_interval: int | None = None  # seconds
 
 
 class ConfigurationException(Exception):
@@ -64,11 +65,11 @@ class IConfigurationSource(ABC):
     """Abstract interface for configuration sources."""
 
     @abstractmethod
-    def load(self) -> Dict[str, Any]:
+    def load(self) -> dict[str, Any]:
         """Load configuration from the source."""
 
     @abstractmethod
-    def save(self, config: Dict[str, Any]) -> None:
+    def save(self, config: dict[str, Any]) -> None:
         """Save configuration to the source."""
 
     @abstractmethod
@@ -86,15 +87,15 @@ class FileConfigurationSource(IConfigurationSource):
     def __init__(self, source: ConfigurationSource):
         self.source = source
         self.path = Path(source.location)
-        self._last_modified: Optional[float] = None
+        self._last_modified: float | None = None
 
-    def load(self) -> Dict[str, Any]:
+    def load(self) -> dict[str, Any]:
         """Load configuration from file."""
         if not self.path.exists():
             return {}
 
         try:
-            with open(self.path, "r", encoding="utf-8") as f:
+            with open(self.path, encoding="utf-8") as f:
                 if self.source.format.lower() in ("yaml", "yml"):
                     if not HAS_YAML:
                         raise ConfigurationException("YAML support requires 'pyyaml' package")
@@ -102,11 +103,11 @@ class FileConfigurationSource(IConfigurationSource):
                 else:
                     return json.load(f) or {}
         except (json.JSONDecodeError, yaml.YAMLError) as e:
-            raise ConfigurationException(f"Error parsing {self.path}: {e}")
+            raise ConfigurationException(f"Error parsing {self.path}: {e}") from e
         except Exception as e:
-            raise ConfigurationException(f"Error reading {self.path}: {e}")
+            raise ConfigurationException(f"Error reading {self.path}: {e}") from e
 
-    def save(self, config: Dict[str, Any]) -> None:
+    def save(self, config: dict[str, Any]) -> None:
         """Save configuration to file."""
         if self.source.readonly:
             raise ConfigurationException(f"Configuration source {self.source.name} is readonly")
@@ -123,7 +124,7 @@ class FileConfigurationSource(IConfigurationSource):
                 else:
                     json.dump(config, f, indent=2, ensure_ascii=False)
         except Exception as e:
-            raise ConfigurationException(f"Error writing {self.path}: {e}")
+            raise ConfigurationException(f"Error writing {self.path}: {e}") from e
 
     def can_save(self) -> bool:
         """Check if file source can be saved to."""
@@ -149,7 +150,7 @@ class EnvironmentConfigurationSource(IConfigurationSource):
         self.source = source
         self.prefix = source.location  # Use location as environment prefix
 
-    def load(self) -> Dict[str, Any]:
+    def load(self) -> dict[str, Any]:
         """Load configuration from environment variables."""
         config = {}
 
@@ -174,7 +175,7 @@ class EnvironmentConfigurationSource(IConfigurationSource):
 
         return config
 
-    def save(self, config: Dict[str, Any]) -> None:
+    def save(self, config: dict[str, Any]) -> None:
         """Environment variables cannot be persisted."""
         raise ConfigurationException("Environment configuration source is readonly")
 
@@ -191,16 +192,16 @@ class MemoryConfigurationSource(IConfigurationSource):
     """In-memory configuration source for runtime overrides."""
 
     def __init__(
-        self, source: ConfigurationSource, initial_config: Optional[Dict[str, Any]] = None
+        self, source: ConfigurationSource, initial_config: dict[str, Any] | None = None
     ):
         self.source = source
         self._config = initial_config or {}
 
-    def load(self) -> Dict[str, Any]:
+    def load(self) -> dict[str, Any]:
         """Return in-memory configuration."""
         return self._config.copy()
 
-    def save(self, config: Dict[str, Any]) -> None:
+    def save(self, config: dict[str, Any]) -> None:
         """Update in-memory configuration."""
         self._config = config.copy()
 
@@ -216,10 +217,10 @@ class MemoryConfigurationSource(IConfigurationSource):
 class SchemaValidator:
     """Configuration schema validation."""
 
-    def __init__(self, schema: Dict[str, Any]):
+    def __init__(self, schema: dict[str, Any]):
         self.schema = schema
 
-    def validate(self, config: Dict[str, Any]) -> List[str]:
+    def validate(self, config: dict[str, Any]) -> list[str]:
         """
         Validate configuration against schema.
 
@@ -229,7 +230,7 @@ class SchemaValidator:
         self._validate_recursive(config, self.schema, "", errors)
         return errors
 
-    def _validate_recursive(self, config: Any, schema: Any, path: str, errors: List[str]) -> None:
+    def _validate_recursive(self, config: Any, schema: Any, path: str, errors: list[str]) -> None:
         """Recursively validate configuration."""
         if isinstance(schema, dict):
             if "type" in schema:
@@ -275,15 +276,15 @@ class ConfigurationManager(IConfigurationProvider):
     schema validation, and runtime updates.
     """
 
-    def __init__(self, logger: Optional[logging.Logger] = None):
+    def __init__(self, logger: logging.Logger | None = None):
         self.logger = logger or logging.getLogger(__name__)
-        self._sources: List[IConfigurationSource] = []
-        self._source_metadata: List[ConfigurationSource] = []
-        self._merged_config: Dict[str, Any] = {}
-        self._schema_validator: Optional[SchemaValidator] = None
-        self._change_listeners: List[Callable[[Dict[str, Any]], None]] = []
+        self._sources: list[IConfigurationSource] = []
+        self._source_metadata: list[ConfigurationSource] = []
+        self._merged_config: dict[str, Any] = {}
+        self._schema_validator: SchemaValidator | None = None
+        self._change_listeners: list[Callable[[dict[str, Any]], None]] = []
 
-    def add_source(self, source: ConfigurationSource) -> "ConfigurationManager":
+    def add_source(self, source: ConfigurationSource) -> ConfigurationManager:
         """Add a configuration source."""
         # Create appropriate source implementation
         if source.source_type == ConfigurationSourceType.FILE:
@@ -300,22 +301,22 @@ class ConfigurationManager(IConfigurationProvider):
 
         # Sort by priority (higher priority first)
         sorted_pairs = sorted(
-            zip(self._sources, self._source_metadata), key=lambda x: x[1].priority, reverse=True
+            zip(self._sources, self._source_metadata, strict=False), key=lambda x: x[1].priority, reverse=True
         )
-        self._sources, self._source_metadata = zip(*sorted_pairs)
+        self._sources, self._source_metadata = zip(*sorted_pairs, strict=False)
         self._sources = list(self._sources)
         self._source_metadata = list(self._source_metadata)
 
         return self
 
-    def set_schema(self, schema: Dict[str, Any]) -> "ConfigurationManager":
+    def set_schema(self, schema: dict[str, Any]) -> ConfigurationManager:
         """Set configuration validation schema."""
         self._schema_validator = SchemaValidator(schema)
         return self
 
     def add_change_listener(
-        self, listener: Callable[[Dict[str, Any]], None]
-    ) -> "ConfigurationManager":
+        self, listener: Callable[[dict[str, Any]], None]
+    ) -> ConfigurationManager:
         """Add listener for configuration changes."""
         self._change_listeners.append(listener)
         return self
@@ -325,7 +326,7 @@ class ConfigurationManager(IConfigurationProvider):
         merged_config = {}
 
         # Load from sources in reverse priority order (lower priority first)
-        for source_impl, source_meta in reversed(list(zip(self._sources, self._source_metadata))):
+        for source_impl, source_meta in reversed(list(zip(self._sources, self._source_metadata, strict=False))):
             try:
                 source_config = source_impl.load()
                 merged_config = self._deep_merge(merged_config, source_config)
@@ -368,13 +369,13 @@ class ConfigurationManager(IConfigurationProvider):
 
         return current
 
-    def get_section(self, section: str) -> Dict[str, Any]:
+    def get_section(self, section: str) -> dict[str, Any]:
         """Get entire configuration section."""
         return self.get(section, {})
 
     def set(self, key: str, value: Any) -> None:
         """Set configuration value (saves to first writable source)."""
-        for source_impl, source_meta in zip(self._sources, self._source_metadata):
+        for source_impl, _source_meta in zip(self._sources, self._source_metadata, strict=False):
             if source_impl.can_save():
                 # Load current config from this source
                 current_config = source_impl.load()
@@ -395,7 +396,7 @@ class ConfigurationManager(IConfigurationProvider):
 
         raise ConfigurationException("No writable configuration source available")
 
-    def _deep_merge(self, base: Dict[str, Any], update: Dict[str, Any]) -> Dict[str, Any]:
+    def _deep_merge(self, base: dict[str, Any], update: dict[str, Any]) -> dict[str, Any]:
         """Deep merge two dictionaries."""
         result = base.copy()
 
@@ -407,12 +408,12 @@ class ConfigurationManager(IConfigurationProvider):
 
         return result
 
-    def get_all(self) -> Dict[str, Any]:
+    def get_all(self) -> dict[str, Any]:
         """Get complete merged configuration."""
         return self._merged_config.copy()
 
     @contextmanager
-    def configuration_context(self, overrides: Dict[str, Any]):
+    def configuration_context(self, overrides: dict[str, Any]):
         """Context manager for temporary configuration overrides."""
         # Create temporary memory source with highest priority
         temp_source = ConfigurationSource(
@@ -441,7 +442,7 @@ class ConfigurationManager(IConfigurationProvider):
 
 # Factory function for common configuration setups
 def create_configuration_manager(
-    config_files: List[str], env_prefix: Optional[str] = None, schema_file: Optional[str] = None
+    config_files: list[str], env_prefix: str | None = None, schema_file: str | None = None
 ) -> ConfigurationManager:
     """Create a configuration manager with common sources."""
     manager = ConfigurationManager()
@@ -472,7 +473,7 @@ def create_configuration_manager(
 
     # Load schema if provided
     if schema_file and Path(schema_file).exists():
-        with open(schema_file, "r", encoding="utf-8") as f:
+        with open(schema_file, encoding="utf-8") as f:
             schema = json.load(f)
         manager.set_schema(schema)
 

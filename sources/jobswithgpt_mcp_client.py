@@ -12,9 +12,8 @@ import asyncio
 import json
 import subprocess
 import tempfile
-from pathlib import Path
-from typing import List, Dict, Optional
 from contextlib import AsyncExitStack
+from pathlib import Path
 
 from utils.logging import get_logger
 
@@ -29,7 +28,7 @@ class JobsWithGPTMCPClient:
     Cloudflare protection or maintaining custom scrapers.
     """
 
-    def __init__(self, server_script_path: Optional[str] = None):
+    def __init__(self, server_script_path: str | None = None):
         """
         Initialize MCP client.
 
@@ -100,12 +99,12 @@ class JobsWithGPTMCPClient:
 
     async def search_jobs(
         self,
-        keywords: Optional[List[str]] = None,
-        locations: Optional[List[Dict]] = None,
-        titles: Optional[List[str]] = None,
+        keywords: list[str] | None = None,
+        locations: list[dict] | None = None,
+        titles: list[str] | None = None,
         distance: int = 50000,
         page: int = 1
-    ) -> Dict:
+    ) -> dict:
         """
         Search for jobs via MCP server.
 
@@ -194,12 +193,12 @@ async def download_mcp_server():
 
 # Convenience function for one-off searches
 async def search_jobs_mcp(
-    keywords: Optional[List[str]] = None,
-    locations: Optional[List[Dict]] = None,
-    titles: Optional[List[str]] = None,
+    keywords: list[str] | None = None,
+    locations: list[dict] | None = None,
+    titles: list[str] | None = None,
     distance: int = 50000,
     page: int = 1
-) -> Dict:
+) -> dict:
     """
     Convenience function to search jobs via MCP client.
 

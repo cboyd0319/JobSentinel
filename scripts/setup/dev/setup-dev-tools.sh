@@ -27,13 +27,13 @@ if command -v gh &> /dev/null; then
 fi
 
 echo ""
-echo "✅ Development tools setup complete!"
+echo "Development tools setup complete!"
 echo ""
 echo "Available commands:"
 echo "=================="
 echo "Security & Quality:"
-echo "  scripts/precommit-security-scan.sh   # ⚡ Pre-commit security scan (Bandit)"
-echo "  pre-commit run --all-files           # 🧹 All pre-commit checks"
+echo "  scripts/precommit-security-scan.sh   # Pre-commit security scan (Bandit)"
+echo "  pre-commit run --all-files           # All pre-commit checks"
 echo ""
 echo "Individual Tools:"
 echo "  bandit -r . -x ./.venv               # Security vulnerabilities"

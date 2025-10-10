@@ -23,7 +23,7 @@ async def test_jobspy_missing_server(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_jobspy_parses_jobs(monkeypatch):
-    scraper = JobSpyMCPScraper(mcp_server_path="/tmp/fake.js")
+    scraper = JobSpyMCPScraper(mcp_server_path="/tmp/fake.js")  # noqa: S108 - test fixture
 
     fake_jobs = [
         {
@@ -54,7 +54,7 @@ async def test_jobspy_parses_jobs(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_jobspy_subprocess_error(monkeypatch):
-    scraper = JobSpyMCPScraper(mcp_server_path="/tmp/fake.js")
+    scraper = JobSpyMCPScraper(mcp_server_path="/tmp/fake.js")  # noqa: S108 - test fixture
 
     def fake_run_fail(cmd, input, capture_output, timeout):
         return DummyCompleted(1, stdout=b"", stderr=b"boom")

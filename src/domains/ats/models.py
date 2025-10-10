@@ -7,9 +7,8 @@ Core data models and enums for ATS compatibility analysis.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
-from typing import Dict, List, Optional
 
 
 class ATSIssueLevel(Enum):
@@ -42,9 +41,9 @@ class ATSIssue:
     level: ATSIssueLevel
     category: str
     description: str
-    location: Optional[str] = None
-    affected_systems: List[ATSSystem] = field(default_factory=list)
-    recommendations: List[str] = field(default_factory=list)
+    location: str | None = None
+    affected_systems: list[ATSSystem] = field(default_factory=list)
+    recommendations: list[str] = field(default_factory=list)
     impact_score: float = 0.0  # 0-100 scale
 
 
@@ -55,7 +54,7 @@ class KeywordMatch:
     keyword: str
     matches: int
     relevance_score: float  # 0-1 scale
-    context: List[str] = field(default_factory=list)
+    context: list[str] = field(default_factory=list)
     is_skill: bool = False
     is_required: bool = False
 
@@ -65,33 +64,33 @@ class ATSCompatibilityScore:
     """Comprehensive ATS compatibility assessment."""
 
     overall_score: float  # 0-100 weighted score
-    component_scores: Dict[str, float] = field(default_factory=dict)
+    component_scores: dict[str, float] = field(default_factory=dict)
 
     # Individual analysis results
-    issues: List[ATSIssue] = field(default_factory=list)
-    keyword_matches: List[KeywordMatch] = field(default_factory=list)
+    issues: list[ATSIssue] = field(default_factory=list)
+    keyword_matches: list[KeywordMatch] = field(default_factory=list)
 
     # System-specific compatibility
-    system_scores: Dict[ATSSystem, float] = field(default_factory=dict)
+    system_scores: dict[ATSSystem, float] = field(default_factory=dict)
 
     # Analysis metadata
-    analysis_timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    analysis_timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
     resume_word_count: int = 0
-    resume_sections: List[str] = field(default_factory=list)
+    resume_sections: list[str] = field(default_factory=list)
 
     # Recommendations
-    priority_recommendations: List[str] = field(default_factory=list)
-    quick_wins: List[str] = field(default_factory=list)
+    priority_recommendations: list[str] = field(default_factory=list)
+    quick_wins: list[str] = field(default_factory=list)
 
-    def get_issues_by_level(self, level: ATSIssueLevel) -> List[ATSIssue]:
+    def get_issues_by_level(self, level: ATSIssueLevel) -> list[ATSIssue]:
         """Get all issues of a specific severity level."""
         return [issue for issue in self.issues if issue.level == level]
 
-    def get_critical_issues(self) -> List[ATSIssue]:
+    def get_critical_issues(self) -> list[ATSIssue]:
         """Get all critical issues that require immediate attention."""
         return self.get_issues_by_level(ATSIssueLevel.CRITICAL)
 
-    def get_high_priority_issues(self) -> List[ATSIssue]:
+    def get_high_priority_issues(self) -> list[ATSIssue]:
         """Get critical and high priority issues."""
         return self.get_issues_by_level(ATSIssueLevel.CRITICAL) + self.get_issues_by_level(
             ATSIssueLevel.HIGH

@@ -10,9 +10,15 @@ import urllib.parse
 import zipfile
 from pathlib import Path
 
-from cloud.utils import ensure_directory, prepend_path, run_command, which, current_os
-from utils.secure_subprocess import run_secure, SubprocessSecurityError
-from cloud.providers.gcp.utils import sanitize_api_url, download_https_file, safe_extract_zip, safe_extract_tar
+from utils.secure_subprocess import SubprocessSecurityError, run_secure
+
+from cloud.providers.gcp.utils import (
+    download_https_file,
+    safe_extract_tar,
+    safe_extract_zip,
+    sanitize_api_url,
+)
+from cloud.utils import current_os, ensure_directory, prepend_path, run_command, which
 
 INSTALL_VERSION = "540.0.0"
 

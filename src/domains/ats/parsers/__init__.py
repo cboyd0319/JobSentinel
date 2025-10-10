@@ -6,7 +6,7 @@ Provides unified interface for all resume parsers.
 
 import logging
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 from .docx_parser import DOCXParser
 from .pdf_parser import PDFParser
@@ -28,7 +28,7 @@ class ResumeParserFactory:
                 return parser
         return None
 
-    def parse_resume(self, file_path: str) -> Optional[Dict[str, Any]]:
+    def parse_resume(self, file_path: str) -> dict[str, Any] | None:
         """Parse resume and return extracted content and metadata."""
         parser = self.get_parser(file_path)
         if not parser:

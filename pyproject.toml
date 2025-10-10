@@ -1,0 +1,169 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "job-search-automation"
+version = "0.1.0"
+description = "Modular job search automation with typed core and quality gates"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [{ name = "Project Author", email = "noreply@users.noreply.github.com" }]
+dependencies = [
+  "aiofiles>=23,<25",
+  "aiohttp>=3.9,<4",
+  "aiosqlite>=0.20,<0.22",
+  "beautifulsoup4>=4.12,<5",
+  "cryptography>=44.0.1,<47",
+  "Flask>=3.0,<3.1",
+  "google-api-core>=2.14,<3",
+  "google-auth>=2.23,<3",
+  "google-cloud-scheduler>=2.13,<3",
+  "google-cloud-storage>=2.16,<4",
+  "httpx>=0.26,<0.29",
+  "lxml>=4.9,<7",
+  "playwright>=1.44,<1.56",
+  "psutil>=5.9,<8",
+  "pydantic>=2.6,<2.13",
+  "python-dotenv>=1.0,<2",
+  "requests>=2.31,<3",
+  "rich>=13.7,<15",
+  "sqlalchemy>=2.0,<2.1",
+  "sqlmodel>=0.0.14,<0.0.26",
+  "tenacity>=9.0,<9.2",
+]
+
+[project.optional-dependencies]
+resume = [
+  "pdfplumber>=0.10,<0.11",
+  "python-docx>=1.0,<1.1",
+  "spacy>=3.7,<3.9",
+  "pdfminer.six>=20221105",
+  "pytesseract>=0.3.10",
+  "Pillow>=10.0.0",
+  "python-Levenshtein>=0.21.0",
+  "regex>=2023.0.0",
+  "rapidfuzz>=3.0,<4",
+  "textstat>=0.7.3,<0.8",
+]
+mcp = [
+  "mcp>=1.2,<2",
+  "httpx-sse>=0.4,<0.5",
+  "jsonschema>=4.20,<5",
+  "pydantic-settings>=2.6,<3",
+]
+dev = [
+  "black>=24.8,<25",
+  "pytest>=8,<9",
+  "pytest-cov>=5,<6",
+  "pytest-asyncio>=0.23,<0.26",
+  "hypothesis>=6,<7",
+  "ruff>=0.6.9,<0.7",
+  "mypy>=1.11,<1.12",
+  "types-requests",
+  "types-python-dateutil",
+  "bandit[toml]>=1.7,<2",
+  "mutmut>=2.4,<3",
+]
+
+[project.scripts]
+jsa = "jsa.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = [
+  "jsa*",
+  "domains*",
+]
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src"]
+
+[tool.ruff.lint]
+select = ["E", "F", "B", "I", "UP", "S"]
+ignore = [
+  "E501",  # long lines handled by formatter/editor
+  "E402",  # allow module docstrings before imports and lazy test skipping patterns
+  "F401",  # unused imports allowed during iterative refactors in legacy
+  "F841",  # assigned-but-unused placeholders
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+"tests/**" = ["S101", "E402", "I001"]
+"src/jsa/db.py" = ["I001"]
+"src/jsa/web/blueprints/skills.py" = ["I001"]
+"src/jsa/cli.py" = ["I001"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_return_any = true
+warn_unreachable = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+ignore_missing_imports = true
+allow_untyped_defs = false
+allow_untyped_calls = false
+files = ["src/jsa"]
+
+[[tool.mypy.overrides]]
+module = ["utils.*"]
+ignore_errors = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = [
+  # Third-party deprecations (Click 9.0 parser split_arg_string)
+  "ignore:Importing 'parser.split_arg_string' is deprecated:DeprecationWarning:click",
+  "ignore:Importing 'parser.split_arg_string' is deprecated:DeprecationWarning:weasel",
+  "ignore:Importing 'parser.split_arg_string' is deprecated:DeprecationWarning:spacy",
+  # Pydantic v1 typing deprecation noise on ForwardRef evaluation under Py3.13+
+  "ignore:Failing to pass a value to the 'type_params' parameter of 'typing.ForwardRef._evaluate':DeprecationWarning:pydantic",
+]
+
+[tool.bandit]
+targets = ["src/jsa", "src/domains"]
+exclude_dirs = ["tests", ".venv", "build"]
+skips = ["B101"]  # assert_used - acceptable in test code
+
+[tool.bandit.assert_used]
+skips = ["*_test.py", "test_*.py"]
+
+[tool.coverage.run]
+source = ["src/jsa", "src/domains"]
+omit = [
+  "*/tests/*",
+  "*/__pycache__/*",
+  "*/migrations/*",
+]
+
+[tool.coverage.report]
+precision = 2
+fail_under = 85
+show_missing = true
+skip_covered = false
+exclude_lines = [
+  "pragma: no cover",
+  "def __repr__",
+  "raise AssertionError",
+  "raise NotImplementedError",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+  "@(abc\\.)?abstractmethod",
+]

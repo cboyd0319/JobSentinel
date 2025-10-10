@@ -52,7 +52,7 @@ show_status() {
     echo -e "${GREEN}=== MCP Server Status ===${NC}\n"
 
     if [ -f "$DISABLE_FLAG" ]; then
-        echo -e "${RED}🚨 PANIC MODE ACTIVE${NC}"
+        echo -e "${RED}PANIC MODE ACTIVE${NC}"
         echo "All MCP servers are DISABLED"
         echo "Flag file: $DISABLE_FLAG"
         echo ""
@@ -99,7 +99,7 @@ except Exception as e:
 }
 
 disable_all_servers() {
-    echo -e "${RED}🚨 INITIATING PANIC MODE${NC}"
+    echo -e "${RED}INITIATING PANIC MODE${NC}"
     echo ""
     echo "This will:"
     echo "  1. Create config backup"
@@ -161,7 +161,7 @@ PYTHON_SCRIPT
     echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) - PANIC BUTTON: Disabled all MCP servers" >> logs/audit.jsonl
 
     echo ""
-    echo -e "${RED}🚨 PANIC MODE ACTIVE${NC}"
+    echo -e "${RED}PANIC MODE ACTIVE${NC}"
     echo "All MCP servers are now DISABLED"
     echo ""
     echo "To restore: $0 --restore"

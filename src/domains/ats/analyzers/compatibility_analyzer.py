@@ -6,7 +6,6 @@ Core analyzer for evaluating ATS compatibility of resumes.
 
 import logging
 import re
-from typing import List
 
 from ..models import ATSIssue, ATSIssueLevel, ATSSystem, KeywordMatch
 
@@ -128,7 +127,7 @@ class CompatibilityAnalyzer:
         for category_skills in self.TECHNICAL_SKILLS.values():
             self.all_skills.extend(category_skills)
 
-    def analyze_formatting(self, text: str) -> List[ATSIssue]:
+    def analyze_formatting(self, text: str) -> list[ATSIssue]:
         """Analyze text for ATS-problematic formatting."""
         issues = []
 
@@ -150,7 +149,7 @@ class CompatibilityAnalyzer:
 
         return issues
 
-    def analyze_keywords(self, text: str, job_keywords: List[str] = None) -> List[KeywordMatch]:
+    def analyze_keywords(self, text: str, job_keywords: list[str] = None) -> list[KeywordMatch]:
         """Analyze keyword matches and relevance."""
         if not job_keywords:
             job_keywords = self.all_skills
@@ -181,7 +180,7 @@ class CompatibilityAnalyzer:
 
         return sorted(keyword_matches, key=lambda x: x.relevance_score, reverse=True)
 
-    def analyze_readability(self, text: str) -> List[ATSIssue]:
+    def analyze_readability(self, text: str) -> list[ATSIssue]:
         """Analyze text readability for ATS systems."""
         issues = []
 
@@ -210,7 +209,7 @@ class CompatibilityAnalyzer:
 
         return issues
 
-    def analyze_structure(self, text: str) -> List[ATSIssue]:
+    def analyze_structure(self, text: str) -> list[ATSIssue]:
         """Analyze resume structure and organization."""
         issues = []
 
@@ -250,7 +249,7 @@ class CompatibilityAnalyzer:
         }
         return severity_map.get(issue_type, ATSIssueLevel.MEDIUM)
 
-    def _get_affected_systems(self, issue_type: str) -> List[ATSSystem]:
+    def _get_affected_systems(self, issue_type: str) -> list[ATSSystem]:
         """Get ATS systems affected by specific formatting issues."""
         system_map = {
             "tables": [ATSSystem.TALEO, ATSSystem.ICIMS, ATSSystem.GENERIC],
@@ -261,7 +260,7 @@ class CompatibilityAnalyzer:
         }
         return system_map.get(issue_type, [ATSSystem.GENERIC])
 
-    def _get_formatting_recommendations(self, issue_type: str) -> List[str]:
+    def _get_formatting_recommendations(self, issue_type: str) -> list[str]:
         """Get recommendations for fixing formatting issues."""
         recommendations = {
             "tables": [
@@ -303,7 +302,7 @@ class CompatibilityAnalyzer:
         }
         return min(100, base_scores[severity] * count)
 
-    def _extract_keyword_context(self, text: str, keyword: str) -> List[str]:
+    def _extract_keyword_context(self, text: str, keyword: str) -> list[str]:
         """Extract context around keyword matches."""
         contexts = []
         pattern = r".{0,30}\b" + re.escape(keyword.lower()) + r"\b.{0,30}"
@@ -316,7 +315,7 @@ class CompatibilityAnalyzer:
 
         return contexts[:3]  # Limit to 3 contexts
 
-    def _analyze_with_nlp(self, text: str) -> List[ATSIssue]:
+    def _analyze_with_nlp(self, text: str) -> list[ATSIssue]:
         """Perform NLP-based analysis if spaCy is available."""
         if not HAS_SPACY:
             return []

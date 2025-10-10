@@ -6,7 +6,7 @@ Utility to help migrate from legacy ATS modules to the new domain architecture.
 
 import logging
 import warnings
-from typing import Any, Dict, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -34,8 +34,8 @@ class LegacyATSWrapper:
         )
 
     def analyze_resume(
-        self, resume_path: str, job_keywords: Optional[list] = None
-    ) -> Dict[str, Any]:
+        self, resume_path: str, job_keywords: list | None = None
+    ) -> dict[str, Any]:
         """Legacy compatibility method."""
         try:
             # Use new service
@@ -48,7 +48,7 @@ class LegacyATSWrapper:
             logger.error(f"Analysis failed: {e}")
             raise
 
-    def _convert_to_legacy_format(self, score) -> Dict[str, Any]:
+    def _convert_to_legacy_format(self, score) -> dict[str, Any]:
         """Convert new format to legacy format for backward compatibility."""
         return {
             "overall_score": score.overall_score,
@@ -76,7 +76,7 @@ class LegacyATSWrapper:
 
 
 # Legacy compatibility functions
-def analyze_resume(resume_path: str, job_keywords: Optional[list] = None) -> Dict[str, Any]:
+def analyze_resume(resume_path: str, job_keywords: list | None = None) -> dict[str, Any]:
     """
     Legacy compatibility function.
 
@@ -98,7 +98,7 @@ class UltimateATSScanner:
         )
         self._wrapper = LegacyATSWrapper()
 
-    def analyze_resume(self, resume_path: str, job_keywords: Optional[list] = None):
+    def analyze_resume(self, resume_path: str, job_keywords: list | None = None):
         """Legacy method."""
         return self._wrapper.analyze_resume(resume_path, job_keywords)
 
@@ -114,7 +114,7 @@ class ATSScanner:
         )
         self._wrapper = LegacyATSWrapper()
 
-    def scan_resume(self, resume_path: str, job_description: Optional[str] = None):
+    def scan_resume(self, resume_path: str, job_description: str | None = None):
         """Legacy method."""
         job_keywords = None
         if job_description:

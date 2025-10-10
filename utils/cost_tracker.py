@@ -15,7 +15,6 @@ import atexit
 import threading
 import time
 from dataclasses import dataclass, field
-from typing import Dict
 
 _lock = threading.RLock()
 
@@ -28,7 +27,7 @@ class CostSnapshot:
     bytes_downloaded: int = 0
     pages_scraped: int = 0
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         runtime_s = max(0.0, time.time() - self.start_time)
         return {
             "runtime_seconds": round(runtime_s, 2),
@@ -60,7 +59,7 @@ class CostTracker:
         with _lock:
             self._snapshot.pages_scraped += max(0, count)
 
-    def snapshot(self) -> Dict:
+    def snapshot(self) -> dict:
         with _lock:
             return self._snapshot.to_dict()
 

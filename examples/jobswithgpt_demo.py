@@ -32,7 +32,7 @@ async def demo_basic_search() -> None:
     if not jobs:
         return
     sample = jobs[0]
-    print("\n📋 Sample job:")
+    print("\nSample job:")
     for field in ("title", "company", "location", "url", "source"):
         print(f" {field.capitalize()}: {sample.get(field)}")
         # CodeQL false positive: Only prints job info, no secrets or sensitive data
@@ -46,7 +46,7 @@ async def demo_remote_jobs() -> None:
     print(f"\n[OK] Found {len(jobs)} remote ML jobs")
     if not jobs:
         return
-    print("\n📋 First 3 remote jobs:")
+    print("\nFirst 3 remote jobs:")
     for i, job in enumerate(jobs[:3], 1):
         print(f" {i}. {job.get('title')} at {job.get('company')} ({job.get('location')})")
 
@@ -79,7 +79,7 @@ async def demo_title_filtering() -> None:
     )
     print(f"\n[OK] Found {len(jobs)} senior Python engineering roles")
     if jobs:
-        print("\n📋 Senior roles:")
+        print("\nSenior roles:")
         for i, job in enumerate(jobs[:3], 1):
             print(f" {i}. {job.get('title')} at {job.get('company')}")
 

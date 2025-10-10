@@ -5,7 +5,6 @@ Handles extraction and parsing of PDF resumes using pdfplumber.
 """
 
 import logging
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +25,7 @@ class PDFParser:
         """Check if this parser can handle the given file."""
         return HAS_PDFPLUMBER and file_path.lower().endswith(".pdf")
 
-    def extract_text(self, file_path: str) -> Optional[str]:
+    def extract_text(self, file_path: str) -> str | None:
         """Extract text content from PDF resume."""
         if not self.can_parse(file_path):
             return None

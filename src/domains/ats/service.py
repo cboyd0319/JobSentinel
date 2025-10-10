@@ -6,7 +6,7 @@ This replaces the monolithic UltimateATSScanner with a clean, modular architectu
 """
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from .analyzers.compatibility_analyzer import CompatibilityAnalyzer
 from .models import ATSCompatibilityScore
@@ -52,8 +52,8 @@ class ATSAnalysisService:
     def analyze_resume(
         self,
         resume_path: str,
-        job_keywords: Optional[List[str]] = None,
-        output_path: Optional[str] = None,
+        job_keywords: list[str] | None = None,
+        output_path: str | None = None,
         format: str = "text",
     ) -> ATSCompatibilityScore:
         """
@@ -124,7 +124,7 @@ class ATSAnalysisService:
         return compatibility_score
 
     def analyze_text(
-        self, resume_text: str, job_keywords: Optional[List[str]] = None
+        self, resume_text: str, job_keywords: list[str] | None = None
     ) -> ATSCompatibilityScore:
         """
         Perform ATS analysis on resume text directly.
@@ -161,7 +161,7 @@ class ATSAnalysisService:
         return compatibility_score
 
     def generate_report(
-        self, score: ATSCompatibilityScore, output_path: Optional[str] = None, format: str = "text"
+        self, score: ATSCompatibilityScore, output_path: str | None = None, format: str = "text"
     ) -> str:
         """
         Generate and save a report from existing analysis results.
@@ -177,7 +177,7 @@ class ATSAnalysisService:
 
         return self.report_generator.save_report(score, output_path, format)
 
-    def get_analysis_summary(self, score: ATSCompatibilityScore) -> Dict[str, Any]:
+    def get_analysis_summary(self, score: ATSCompatibilityScore) -> dict[str, Any]:
         """
         Get a concise summary of the analysis results.
 
@@ -223,7 +223,7 @@ class ATSAnalysisService:
 
 
 # Legacy compatibility function for existing code
-def analyze_resume(resume_path: str, job_keywords: List[str] = None) -> ATSCompatibilityScore:
+def analyze_resume(resume_path: str, job_keywords: list[str] = None) -> ATSCompatibilityScore:
     """
     Legacy compatibility function for existing code.
 

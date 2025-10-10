@@ -5,7 +5,6 @@ Handles extraction and parsing of DOCX resumes using python-docx.
 """
 
 import logging
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +25,7 @@ class DOCXParser:
         """Check if this parser can handle the given file."""
         return HAS_DOCX and file_path.lower().endswith(".docx")
 
-    def extract_text(self, file_path: str) -> Optional[str]:
+    def extract_text(self, file_path: str) -> str | None:
         """Extract text content from DOCX resume."""
         if not self.can_parse(file_path):
             return None

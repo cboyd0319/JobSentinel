@@ -6,11 +6,11 @@ Demonstrates performance improvements from concurrent execution and database opt
 
 import time
 
-from sources.job_scraper import scrape_jobs_sync
 from sources.concurrent_scraper import (
 	ConcurrentJobScraper,
 	scrape_multiple_fast,
 )
+from sources.job_scraper import scrape_jobs_sync
 from src.concurrent_database import save_jobs_concurrent
 from utils.logging import get_logger
 
@@ -163,7 +163,7 @@ def run_comprehensive_benchmark():
 		results["scraping"] = benchmark_sequential_vs_concurrent()
 		results["database"] = benchmark_database_operations()
 		results["pipeline"] = benchmark_full_pipeline()
-		print("📋 PERFORMANCE SUMMARY")
+		print("PERFORMANCE SUMMARY")
 		print("=" * 30)
 		scraping = results.get("scraping", {})
 		if "concurrent" in scraping:

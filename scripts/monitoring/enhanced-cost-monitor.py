@@ -4,16 +4,15 @@ Enhanced Cloud Cost Monitoring for Job Scraper
 Provides real-time cost tracking, alerts, and automatic cost protection
 """
 
-import os
-import sys
 import json
 import logging
-import subprocess # nosec B404 - subprocess used for secure cloud CLI calls with hardcoded commands
-from datetime import datetime, timedelta
-from dataclasses import dataclass
-from typing import Dict, List, Optional
-import requests
+import os
 import shutil
+import subprocess  # nosec B404 - subprocess used for secure cloud CLI calls with hardcoded commands
+from dataclasses import dataclass
+from datetime import datetime, timedelta
+
+import requests
 
 # Configure logging
 logging.basicConfig(
@@ -45,7 +44,7 @@ class CostData:
  period: str = "month"
 
 
-def _safe_subprocess_run(cmd_list: List[str], **kwargs) -> subprocess.CompletedProcess:
+def _safe_subprocess_run(cmd_list: list[str], **kwargs) -> subprocess.CompletedProcess:
 	"""Secure subprocess wrapper that validates commands and uses full paths.
 
 	Only allows predefined, safe cloud CLI commands.
@@ -78,10 +77,10 @@ def _safe_subprocess_run(cmd_list: List[str], **kwargs) -> subprocess.CompletedP
 		if any(char in str(arg) for char in forbidden):
 			raise ValueError(f"Potential shell injection detected in argument: {arg}")
 
-	return subprocess.run(safe_cmd, **kwargs)  # nosec B603 - validated input
+	return subprocess.run(safe_cmd, **kwargs)  # nosec B603  # noqa: S603 - validated input
 
 
-def _safe_subprocess_check_output(cmd_list: List[str], **kwargs) -> str:
+def _safe_subprocess_check_output(cmd_list: list[str], **kwargs) -> str:
 	"""Secure wrapper for subprocess.check_output."""
 	return _safe_subprocess_run(
 		cmd_list, check=True, capture_output=True, text=True, **kwargs
@@ -96,7 +95,7 @@ class CloudCostMonitor:
 		self.config = self._load_config()
 		self.alerts = self._setup_alerts()
 
-	def _load_config(self) -> Dict:
+	def _load_config(self) -> dict:
 		"""Load configuration from environment and files."""
 		return {
 			"max_monthly_spend": float(os.getenv("MAX_MONTHLY_SPEND", "10.0")),
@@ -107,7 +106,7 @@ class CloudCostMonitor:
 			"auto_stop_enabled": os.getenv("AUTO_STOP_ENABLED", "true").lower() == "true",
 		}
 
-	def _setup_alerts(self) -> List[CostAlert]:
+	def _setup_alerts(self) -> list[CostAlert]:
 		"""Setup cost alert thresholds."""
 		max_spend = self.config["max_monthly_spend"]
 		return [
@@ -261,7 +260,7 @@ class CloudCostMonitor:
 	def send_notification(self, alert: CostAlert, cost_data: CostData, message: str) -> None:
 		"""Send cost alert notification."""
 		notification = {
-			"text": f"💰 Cost Alert: Job Scraper ({self.provider.upper()})",
+			"text": f"Cost Alert: Job Scraper ({self.provider.upper()})",
 			"attachments": [
 				{
 					"color": "warning" if alert.alert_type == "warning" else "danger",
@@ -420,19 +419,19 @@ class CloudCostMonitor:
 					self.send_notification(
 						alert,
 						cost_data,
-						message + "\n\n🔧 Throttling services to reduce costs...",
+						message + "\n\nThrottling services to reduce costs...",
 					)
 					self.throttle_services()
 				elif alert.action == "stop" and self.config.get("auto_stop_enabled"):
 					self.send_notification(
 						alert,
 						cost_data,
-						message + "\n\n🛑 Executing emergency stop...",
+						message + "\n\nExecuting emergency stop...",
 					)
 					self.emergency_stop()
 				break
 
-	def generate_cost_report(self) -> Dict:
+	def generate_cost_report(self) -> dict:
 		"""Generate detailed cost report."""
 		cost_data = self.get_current_costs()
 		return {

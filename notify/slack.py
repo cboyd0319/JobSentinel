@@ -1,6 +1,5 @@
 import os
 import time
-from typing import List, Dict, Optional
 
 import requests
 from utils.cost_tracker import tracker
@@ -15,7 +14,7 @@ def _truncate(text: str, limit: int = MAX_FIELD_CHARS) -> str:
     return text[: limit - 3] + "..."
 
 
-def _create_job_block(job: Dict) -> Dict:
+def _create_job_block(job: dict) -> dict:
     """Create a Slack block for a single job with defensive formatting."""
     url = job.get("url", "")
     title = job.get("title", "(No Title)")
@@ -66,7 +65,7 @@ def _create_job_block(job: Dict) -> Dict:
         },
     }
 
-def _create_action_block(job: Dict) -> Dict:
+def _create_action_block(job: dict) -> dict:
     """Create an action block for match feedback (future interactive use)."""
     job_id = job.get("id", "unknown")
     return {
@@ -89,7 +88,7 @@ def _create_action_block(job: Dict) -> Dict:
         ],
     }
 
-def _create_footer_block(jobs: List[Dict]) -> Dict:
+def _create_footer_block(jobs: list[dict]) -> dict:
     """Create a footer summarizing results."""
     total_jobs = len(jobs)
     llm_jobs = sum(1 for j in jobs if (j.get("score_metadata") or {}).get("llm_used"))
@@ -98,7 +97,7 @@ def _create_footer_block(jobs: List[Dict]) -> Dict:
         footer_text += f" • {llm_jobs} AI-analyzed"
     return {"type": "context", "elements": [{"type": "mrkdwn", "text": footer_text}]}
 
-def format_jobs_for_slack(jobs: List[Dict], critical: bool = True) -> Dict:
+def format_jobs_for_slack(jobs: list[dict], critical: bool = True) -> dict:
     """Format jobs into Slack Block Kit structure.
 
     Args:
@@ -106,7 +105,7 @@ def format_jobs_for_slack(jobs: List[Dict], critical: bool = True) -> Dict:
         critical: whether to use urgent header labeling
     """
     header_text = "[CRITICAL] New High-Match Jobs Found!" if critical else "Job Matches"
-    blocks: List[Dict] = [
+    blocks: list[dict] = [
         {"type": "header", "text": {"type": "plain_text", "text": header_text}},
     ]
     for job in jobs:
@@ -117,9 +116,9 @@ def format_jobs_for_slack(jobs: List[Dict], critical: bool = True) -> Dict:
     return {"blocks": blocks}
 
 
-def format_digest_for_slack(jobs: List[Dict]) -> Dict:
+def format_digest_for_slack(jobs: list[dict]) -> dict:
     """Format a digest (less verbose)."""
-    blocks: List[Dict] = [
+    blocks: list[dict] = [
         {"type": "header", "text": {"type": "plain_text", "text": "Daily Job Digest"}},
     ]
     for job in jobs:
@@ -132,7 +131,7 @@ def format_digest_for_slack(jobs: List[Dict]) -> Dict:
         blocks.append({"type": "section", "text": {"type": "mrkdwn", "text": job_text.strip()}})
     return {"blocks": blocks}
 
-def send_slack_alert(jobs: List[Dict], custom_message: Optional[Dict] = None, critical: bool = True) -> bool:
+def send_slack_alert(jobs: list[dict], custom_message: dict | None = None, critical: bool = True) -> bool:
     """Send formatted list of jobs or custom message to Slack incoming webhook.
 
     Returns True on success, False otherwise.

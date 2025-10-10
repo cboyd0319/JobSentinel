@@ -4,17 +4,16 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
-import os
 import logging
-import itertools
+import os
 import platform
 import shutil
 import subprocess  # nosec B404
 import sys
 import threading
 import time
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable, Sequence
 
 from utils.cost_tracker import tracker
 
@@ -99,7 +98,7 @@ async def run_command(
                 loop = asyncio.get_event_loop()
                 result = await loop.run_in_executor(
                     None,
-                    lambda: subprocess.run(  # nosec B603 safe: command list, no shell
+                    lambda: subprocess.run(  # nosec B603  # noqa: S603 - safe: command list, no shell
                         command,
                         capture_output=capture_output,
                         text=text,

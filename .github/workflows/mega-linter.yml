@@ -1,0 +1,41 @@
+name: MegaLinter
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  mega-linter:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install project (runtime + dev) for typed core
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install -e .[dev]
+
+      - name: MegaLinter
+        uses: oxsecurity/megalinter@v7
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VALIDATE_ALL_CODEBASE: true
+          MEGALINTER_CONFIG: .mega-linter.yml
+
+      - name: Upload MegaLinter reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mega-linter-reports
+          path: megalinter-reports
+

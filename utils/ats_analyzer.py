@@ -19,7 +19,7 @@ import re
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +52,7 @@ DEFAULT_WEIGHTS = {
 
 # Plugin registry: name -> plugin spec
 # A plugin spec is a dict: { 'weight': float, 'fn': callable }
-_ANALYZER_PLUGINS: Dict[str, Dict[str, Any]] = {}
+_ANALYZER_PLUGINS: dict[str, dict[str, Any]] = {}
 
 
 def register_analyzer_plugin(name: str, weight: float, fn):
@@ -168,33 +168,33 @@ class Issue:
     level: str  # 'critical' | 'warning' | 'info'
     category: str
     message: str
-    suggestion: Optional[str] = None
+    suggestion: str | None = None
 
 
 @dataclass
 class ATSAnalysisResult:
     overall_score: float
-    component_scores: Dict[str, float]
-    keyword_overlap: Dict[str, Any]
-    skills_alignment: Dict[str, Any]
-    experience_alignment: Dict[str, Any]
-    section_coverage: Dict[str, Any]
-    readability: Dict[str, Any]
-    formatting: Dict[str, Any]
-    recency: Dict[str, Any]
-    issues: List[Issue] = field(default_factory=list)
-    recommendations: List[str] = field(default_factory=list)
-    timing_ms: Dict[str, int] = field(default_factory=dict)
-    metadata: Dict[str, str] = field(default_factory=dict)
+    component_scores: dict[str, float]
+    keyword_overlap: dict[str, Any]
+    skills_alignment: dict[str, Any]
+    experience_alignment: dict[str, Any]
+    section_coverage: dict[str, Any]
+    readability: dict[str, Any]
+    formatting: dict[str, Any]
+    recency: dict[str, Any]
+    issues: list[Issue] = field(default_factory=list)
+    recommendations: list[str] = field(default_factory=list)
+    timing_ms: dict[str, int] = field(default_factory=dict)
+    metadata: dict[str, str] = field(default_factory=dict)
     # New: detailed per-plugin metadata (plugin_name -> metadata dict)
-    plugin_metadata: Dict[str, Dict[str, Any]] = field(default_factory=dict)
+    plugin_metadata: dict[str, dict[str, Any]] = field(default_factory=dict)
 
 
 class ATSAnalyzer:
     def __init__(
         self,
         taxonomy_path: Path | str = Path("config/skills_taxonomy.json"),
-        weights: Optional[Dict[str, float]] = None,
+        weights: dict[str, float] | None = None,
         enable_fuzzy: bool = True,
         enable_spacy_entities: bool = False,
         use_parser: bool = True,
@@ -214,7 +214,7 @@ class ATSAnalyzer:
         self._nlp = None
         self._logger = logging.getLogger(__name__)
 
-    def _load_taxonomy(self) -> Dict[str, Any]:
+    def _load_taxonomy(self) -> dict[str, Any]:
         # Prefer versioned taxonomy if available
         versioned = Path("config/skills_taxonomy_v1.json")
         candidate = versioned if versioned.exists() else self.taxonomy_path
@@ -229,7 +229,7 @@ class ATSAnalyzer:
             logger.warning(f"Invalid taxonomy file format {candidate}: {parse_exc}")
             return {}
 
-    def _normalize_weights(self, weights: Dict[str, float]) -> Dict[str, float]:
+    def _normalize_weights(self, weights: dict[str, float]) -> dict[str, float]:
         total = sum(v for v in weights.values() if v > 0)
         if total <= 0:
             # fallback: equal distribution
@@ -240,14 +240,14 @@ class ATSAnalyzer:
     # ---------------------- Public API ----------------------
     def analyze(
         self,
-        resume_text: Optional[str] = None,
-        job_description: Optional[str] = None,
-        resume_path: Optional[str | Path] = None,
-        industry: Optional[str] = None,
-        extracted_years_experience: Optional[int] = None,
+        resume_text: str | None = None,
+        job_description: str | None = None,
+        resume_path: str | Path | None = None,
+        industry: str | None = None,
+        extracted_years_experience: int | None = None,
     ) -> ATSAnalysisResult:
-        issues: List[Issue] = []
-        timings: Dict[str, int] = {}
+        issues: list[Issue] = []
+        timings: dict[str, int] = {}
 
         # Acquire resume text
         # Accept explicit empty string as valid (analyze blank resume) but require one of the inputs
@@ -346,7 +346,7 @@ class ATSAnalyzer:
                     "spacy_entities": self.enable_spacy_entities,
                 },
             }
-            collected_plugin_meta: Dict[str, Dict[str, Any]] = {}
+            collected_plugin_meta: dict[str, dict[str, Any]] = {}
             for pname, pspec in _ANALYZER_PLUGINS.items():
                 p_start = time.time()
                 try:
@@ -404,10 +404,10 @@ class ATSAnalyzer:
         return result
 
     # ---------------------- Internal scoring helpers ----------------------
-    def _tokenize(self, text: str) -> List[str]:
+    def _tokenize(self, text: str) -> list[str]:
         return re.findall(r"\b[a-zA-Z][a-zA-Z0-9+#/.]{2,}\b", text.lower())
 
-    def _keyword_overlap(self, resume_text: str, job_description: Optional[str]) -> Dict[str, Any]:
+    def _keyword_overlap(self, resume_text: str, job_description: str | None) -> dict[str, Any]:
         if not job_description:
             return {
                 "score": 75.0,
@@ -423,7 +423,7 @@ class ATSAnalyzer:
 
         found = jd_tokens & resume_tokens
         missing = jd_tokens - found
-        partial: Set[str] = set()
+        partial: set[str] = set()
 
         if self.enable_fuzzy and missing:
             # Limit comparisons for performance
@@ -451,9 +451,9 @@ class ATSAnalyzer:
             "coverage_ratio": round(coverage_ratio, 3),
         }
 
-    def _skills_alignment(self, text: str, industry: Optional[str]) -> Dict[str, Any]:
+    def _skills_alignment(self, text: str, industry: str | None) -> dict[str, Any]:
         tokens = set(self._tokenize(text))
-        taxonomy_hits: Dict[str, int] = {}
+        taxonomy_hits: dict[str, int] = {}
         industry_score = 0.0
 
         for key, value in self.taxonomy.items():
@@ -494,7 +494,7 @@ class ATSAnalyzer:
             "industry_score": round(industry_score or breadth_score * 0.6, 2),
         }
 
-    def _section_coverage(self, text: str) -> Dict[str, Any]:
+    def _section_coverage(self, text: str) -> dict[str, Any]:
         lower = text.lower()
         detected = {s for s in EXPECTED_SECTIONS if re.search(rf"\b{s}\b", lower)}
         missing = EXPECTED_SECTIONS - detected
@@ -502,7 +502,7 @@ class ATSAnalyzer:
         score = round(coverage * 100, 2)
         return {"score": score, "detected": sorted(detected), "missing": sorted(missing)}
 
-    def _formatting(self, text: str, issues: List[Issue]) -> Dict[str, Any]:
+    def _formatting(self, text: str, issues: list[Issue]) -> dict[str, Any]:
         score = 100.0
 
         # Overuse of special symbols
@@ -563,7 +563,7 @@ class ATSAnalyzer:
 
         return {"score": max(0.0, round(score, 2))}
 
-    def _readability(self, text: str) -> Dict[str, Any]:
+    def _readability(self, text: str) -> dict[str, Any]:
         score = 100.0
         bullets = len(re.findall(r"^\s*[•\-*]", text, re.MULTILINE))
         if bullets < 5:
@@ -586,8 +586,8 @@ class ATSAnalyzer:
         }
 
     def _experience_alignment(
-        self, text: str, jd: Optional[str], extracted_years: Optional[int]
-    ) -> Dict[str, Any]:
+        self, text: str, jd: str | None, extracted_years: int | None
+    ) -> dict[str, Any]:
         # Extract years of experience requirement from JD if present
         required = None
         if jd:
@@ -631,7 +631,7 @@ class ATSAnalyzer:
             "gap": gap,
         }
 
-    def _recency(self, text: str) -> Dict[str, Any]:
+    def _recency(self, text: str) -> dict[str, Any]:
         years = sorted({int(y) for y in RECENCY_PATTERN.findall(text) if 1990 <= int(y) <= 2100})
         score = 50.0
         recent_bonus = 0.0
@@ -650,14 +650,14 @@ class ATSAnalyzer:
 
     def _recommendations(
         self,
-        comps: Dict[str, float],
-        kw: Dict[str, Any],
-        exp: Dict[str, Any],
-        sect: Dict[str, Any],
-        read: Dict[str, Any],
-        fmt: Dict[str, Any],
-    ) -> List[str]:
-        recs: List[str] = []
+        comps: dict[str, float],
+        kw: dict[str, Any],
+        exp: dict[str, Any],
+        sect: dict[str, Any],
+        read: dict[str, Any],
+        fmt: dict[str, Any],
+    ) -> list[str]:
+        recs: list[str] = []
         if comps["keywords"] < 60:
             recs.append("Increase keyword alignment with job description (add missing terms).")
         if kw.get("missing"):
@@ -715,13 +715,13 @@ def register_default_plugins(force: bool = False) -> None:
         "directed",
     }
 
-    def _achievements_plugin(text: str, ctx: Dict[str, Any]):
+    def _achievements_plugin(text: str, ctx: dict[str, Any]):
         # Use 'line' instead of single-letter to satisfy readability/lint (E741)
         lines = [line.strip() for line in text.splitlines() if line.strip()]
         pattern = re.compile(r"^(?:[-*•]\s*)?(?=.*\b\d+(?:%|k|m)?\b).{0,140}$", re.IGNORECASE)
         action_hits = 0
         quantified = 0
-        samples: List[str] = []
+        samples: list[str] = []
         for line in lines:
             low = line.lower()
             if any(v in low for v in ACTION_VERBS):
@@ -742,7 +742,7 @@ def register_default_plugins(force: bool = False) -> None:
             "ratio": round(ratio, 3),
             "action_ratio": round(action_ratio, 3),
         }
-        issues: List[Issue] = []
+        issues: list[Issue] = []
         if ratio < 0.03:
             issues.append(
                 Issue(
@@ -754,14 +754,14 @@ def register_default_plugins(force: bool = False) -> None:
             )
         return score, issues, meta
 
-    def _leadership_plugin(text: str, ctx: Dict[str, Any]):
+    def _leadership_plugin(text: str, ctx: dict[str, Any]):
         lower = text.lower()
         counts = {t: lower.count(t) for t in leadership_terms}
         total = sum(counts.values())
         unique = sum(1 for c in counts.values() if c > 0)
         score = min(100.0, (unique * 12) + min(40, total * 6))
         meta = {"counts": counts, "unique_terms": unique, "total_mentions": total}
-        issues: List[Issue] = []
+        issues: list[Issue] = []
         if unique == 0:
             issues.append(
                 Issue(
@@ -773,7 +773,7 @@ def register_default_plugins(force: bool = False) -> None:
             )
         return score, issues, meta
 
-    def _action_density_plugin(text: str, ctx: Dict[str, Any]):
+    def _action_density_plugin(text: str, ctx: dict[str, Any]):
         lines = [line.strip() for line in text.splitlines() if line.strip()]
         if not lines:
             return 0.0, [], {"reason": "no_lines"}
@@ -785,7 +785,7 @@ def register_default_plugins(force: bool = False) -> None:
         ratio = starts / len(lines)
         score = min(100.0, ratio * 120)
         meta = {"action_start_lines": starts, "total_lines": len(lines), "ratio": round(ratio, 3)}
-        issues: List[Issue] = []
+        issues: list[Issue] = []
         if ratio < 0.1:
             issues.append(
                 Issue(

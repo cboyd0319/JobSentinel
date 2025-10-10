@@ -5,7 +5,7 @@ In-memory caching for performance optimization.
 import hashlib
 import time
 from collections import OrderedDict
-from typing import Any, Dict, Optional
+from typing import Any
 
 from utils.logging import get_logger
 
@@ -25,11 +25,11 @@ class LRUCache:
         """
         self.max_size = max_size
         self.ttl_seconds = ttl_seconds
-        self.cache: OrderedDict[str, Dict[str, Any]] = OrderedDict()
+        self.cache: OrderedDict[str, dict[str, Any]] = OrderedDict()
         self._hits = 0
         self._misses = 0
 
-    def get(self, key: str) -> Optional[Any]:
+    def get(self, key: str) -> Any | None:
         """Get value from cache."""
         if key not in self.cache:
             self._misses += 1

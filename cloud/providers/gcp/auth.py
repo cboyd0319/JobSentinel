@@ -1,6 +1,5 @@
 """GCP authentication related functions."""
 
-import subprocess
 
 from cloud.utils import run_command
 

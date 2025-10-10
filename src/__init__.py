@@ -17,7 +17,7 @@ def get_version():
         version_file = Path(__file__).parent.parent / "VERSION"
         if version_file.exists():
             return version_file.read_text().strip()
-    except (OSError, IOError) as e:
+    except OSError as e:
         # Log specific file read errors
         import logging
 

@@ -9,7 +9,6 @@ Impact: HIGH (prevents service disruption)
 import time
 from collections import deque
 from threading import Lock
-from typing import Dict, Optional
 
 from utils.logging import get_logger
 
@@ -20,7 +19,7 @@ class RateLimiter:
     """Token bucket rate limiter for API requests."""
 
     def __init__(
-        self, max_requests: int, time_window_seconds: int, burst_size: Optional[int] = None
+        self, max_requests: int, time_window_seconds: int, burst_size: int | None = None
     ):
         """
         Initialize rate limiter.
@@ -68,7 +67,7 @@ class RateLimiter:
 
             return False
 
-    def wait_if_needed(self, tokens: int = 1, timeout: Optional[float] = None):
+    def wait_if_needed(self, tokens: int = 1, timeout: float | None = None):
         """
         Block until request is allowed (with optional timeout).
 
@@ -130,7 +129,7 @@ class MCPRateLimitRegistry:
     """Registry of rate limiters for MCP servers."""
 
     def __init__(self):
-        self.limiters: Dict[str, RateLimiter] = {}
+        self.limiters: dict[str, RateLimiter] = {}
         self.lock = Lock()
 
         # Default limits per server (conservative)
@@ -178,7 +177,7 @@ class MCPRateLimitRegistry:
 
         return allowed
 
-    def wait_if_needed(self, server_name: str, tokens: int = 1, timeout: Optional[float] = None):
+    def wait_if_needed(self, server_name: str, tokens: int = 1, timeout: float | None = None):
         """Block until request allowed for server."""
         limiter = self.get_limiter(server_name)
         limiter.wait_if_needed(tokens, timeout)
@@ -194,7 +193,7 @@ class MCPRateLimitRegistry:
                 f"Set custom limits for '{server_name}': " f"{max_requests}/{time_window_seconds}s"
             )
 
-    def reset(self, server_name: Optional[str] = None):
+    def reset(self, server_name: str | None = None):
         """Reset rate limiter(s)."""
         with self.lock:
             if server_name:
@@ -206,7 +205,7 @@ class MCPRateLimitRegistry:
                     limiter.reset()
                 logger.info("Reset all rate limiters")
 
-    def get_all_stats(self) -> Dict[str, dict]:
+    def get_all_stats(self) -> dict[str, dict]:
         """Get statistics for all rate limiters."""
         with self.lock:
             return {name: limiter.get_stats() for name, limiter in self.limiters.items()}
@@ -217,7 +216,7 @@ mcp_rate_limits = MCPRateLimitRegistry()
 
 
 # Decorator for rate-limited functions
-def rate_limited(server_name: str, tokens: int = 1, timeout: Optional[float] = 30.0):
+def rate_limited(server_name: str, tokens: int = 1, timeout: float | None = 30.0):
     """
     Decorator to enforce rate limits on functions.
 

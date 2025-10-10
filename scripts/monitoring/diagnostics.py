@@ -13,14 +13,14 @@ Usage:
   python scripts/diagnostics.py --json
 """
 from __future__ import annotations
-import sys
-import json
+
 import importlib
+import json
 import platform
-import shutil
+import sys
+from dataclasses import asdict, dataclass
 from pathlib import Path
-from dataclasses import dataclass, asdict
-from typing import List, Dict, Any
+from typing import Any
 
 CORE_MODULES = [
     'aiohttp', 'requests', 'sqlmodel', 'pydantic', 'playwright'
@@ -41,7 +41,7 @@ WRITE_DIRS = [
 class Section:
     name: str
     status: str
-    details: Dict[str, Any]
+    details: dict[str, Any]
 
 
 def _probe_module(name: str) -> bool:
@@ -52,8 +52,8 @@ def _probe_module(name: str) -> bool:
         return False
 
 
-def gather() -> List[Section]:
-    sections: List[Section] = []
+def gather() -> list[Section]:
+    sections: list[Section] = []
 
     # Runtime
     sections.append(Section(
@@ -108,7 +108,7 @@ def gather() -> List[Section]:
             if test_file.exists():
                 try:
                     test_file.unlink()
-                except Exception:
+                except Exception:  # noqa: S110 - cleanup failure is non-critical
                     # Safe to ignore cleanup errors
                     pass
     sections.append(Section(

@@ -20,7 +20,7 @@ import logging
 import uuid
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, Optional
+from typing import Any
 
 
 class ErrorCategory(Enum):
@@ -41,13 +41,13 @@ class ErrorContext:
     """Immutable error context for structured logging and debugging."""
 
     trace_id: str = field(default_factory=lambda: str(uuid.uuid4())[:8])
-    operation: Optional[str] = None
-    component: Optional[str] = None
-    user_id: Optional[str] = None
-    request_id: Optional[str] = None
-    additional_data: Dict[str, Any] = field(default_factory=dict)
+    operation: str | None = None
+    component: str | None = None
+    user_id: str | None = None
+    request_id: str | None = None
+    additional_data: dict[str, Any] = field(default_factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for structured logging."""
         return {
             "trace_id": self.trace_id,
@@ -73,11 +73,11 @@ class JobSearchError(Exception):
         self,
         error_code: str,
         message: str,
-        hint: Optional[str] = None,
-        action: Optional[str] = None,
-        category: Optional[ErrorCategory] = None,
-        context: Optional[ErrorContext] = None,
-        cause: Optional[Exception] = None,
+        hint: str | None = None,
+        action: str | None = None,
+        category: ErrorCategory | None = None,
+        context: ErrorContext | None = None,
+        cause: Exception | None = None,
     ) -> None:
         self.error_code = error_code
         self.message = message
@@ -97,7 +97,7 @@ class JobSearchError(Exception):
 
         super().__init__(full_message)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert exception to structured dictionary for logging."""
         return {
             "error_code": self.error_code,
@@ -134,10 +134,10 @@ class UserError(JobSearchError):
         self,
         error_code: str,
         message: str,
-        hint: Optional[str] = None,
-        action: Optional[str] = None,
-        context: Optional[ErrorContext] = None,
-        cause: Optional[Exception] = None,
+        hint: str | None = None,
+        action: str | None = None,
+        context: ErrorContext | None = None,
+        cause: Exception | None = None,
     ) -> None:
         # Default to user-friendly action if not specified
         default_action = action or "Review input parameters and configuration"
@@ -177,11 +177,11 @@ class TransientError(JobSearchError):
         self,
         error_code: str,
         message: str,
-        hint: Optional[str] = None,
-        action: Optional[str] = None,
-        retry_after: Optional[int] = None,
-        context: Optional[ErrorContext] = None,
-        cause: Optional[Exception] = None,
+        hint: str | None = None,
+        action: str | None = None,
+        retry_after: int | None = None,
+        context: ErrorContext | None = None,
+        cause: Exception | None = None,
     ) -> None:
         # Default to retry-friendly action
         default_action = (
@@ -207,7 +207,7 @@ class TransientError(JobSearchError):
             cause=cause,
         )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Include retry information in structured output."""
         base_dict = super().to_dict()
         base_dict["retry_after"] = self.retry_after
@@ -233,11 +233,11 @@ class SystemError(JobSearchError):
         self,
         error_code: str,
         message: str,
-        hint: Optional[str] = None,
-        action: Optional[str] = None,
+        hint: str | None = None,
+        action: str | None = None,
         severity: str = "high",
-        context: Optional[ErrorContext] = None,
-        cause: Optional[Exception] = None,
+        context: ErrorContext | None = None,
+        cause: Exception | None = None,
     ) -> None:
         # Default to developer-focused action
         default_action = action or "Check system logs and escalate to development team"
@@ -261,7 +261,7 @@ class SystemError(JobSearchError):
             cause=cause,
         )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Include severity in structured output."""
         base_dict = super().to_dict()
         base_dict["severity"] = self.severity
@@ -269,7 +269,7 @@ class SystemError(JobSearchError):
 
 
 # Convenience functions for common error patterns
-def user_error(code: str, message: str, hint: Optional[str] = None, **kwargs) -> UserError:
+def user_error(code: str, message: str, hint: str | None = None, **kwargs) -> UserError:
     """Create UserError with standard formatting."""
     return UserError(error_code=code, message=message, hint=hint, **kwargs)
 
@@ -292,7 +292,7 @@ class ErrorContextManager:
         self,
         operation: str,
         component: str,
-        logger: Optional[logging.Logger] = None,
+        logger: logging.Logger | None = None,
         **context_kwargs,
     ):
         self.operation = operation
@@ -317,14 +317,14 @@ class ErrorContextManager:
             # Convert generic exceptions to structured ones if not already
             if not isinstance(exc_val, JobSearchError):
                 # Try to categorize the exception
-                if isinstance(exc_val, (ValueError, TypeError, KeyError)):
+                if isinstance(exc_val, ValueError | TypeError | KeyError):
                     structured_exc = user_error(
                         code="INVALID_INPUT",
                         message=str(exc_val),
                         context=self.context,
                         cause=exc_val,
                     )
-                elif isinstance(exc_val, (ConnectionError, TimeoutError)):
+                elif isinstance(exc_val, ConnectionError | TimeoutError):
                     structured_exc = transient_error(
                         code="NETWORK_ERROR",
                         message=str(exc_val),

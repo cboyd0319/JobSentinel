@@ -7,13 +7,11 @@ Low risk - designed for programmatic access.
 
 from __future__ import annotations
 
-import asyncio
-import json
 import os
-from typing import Dict, List, Optional
 
 from utils.logging import get_logger
-from sources.job_scraper_base import JobBoardScraper, GenericJobExtractor
+
+from sources.job_scraper_base import GenericJobExtractor, JobBoardScraper
 
 logger = get_logger("sources.reed_mcp_scraper")
 
@@ -22,8 +20,8 @@ class ReedMCPScraper(JobBoardScraper):
     """
     Scraper for Reed.co.uk jobs via MCP server.
 
-    🇬🇧 UK-focused job board with official API.
-    Risk Level: 🟢 LOW (official API, designed for programmatic access)
+    UK-focused job board with official API.
+    Risk Level: LOW (official API, designed for programmatic access)
     """
 
     def __init__(self):
@@ -48,25 +46,25 @@ class ReedMCPScraper(JobBoardScraper):
         self,
         board_url: str,
         fetch_descriptions: bool = True
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """Not used - use search() instead."""
         logger.warning("Reed MCP doesn't scrape URLs. Use search() instead.")
         return []
 
     async def search(
         self,
-        keywords: Optional[str] = None,
-        location: Optional[str] = None,
+        keywords: str | None = None,
+        location: str | None = None,
         distance_miles: int = 10,
-        permanent: Optional[bool] = None,
-        contract: Optional[bool] = None,
-        temp: Optional[bool] = None,
-        part_time: Optional[bool] = None,
-        full_time: Optional[bool] = None,
-        minimum_salary: Optional[int] = None,
-        maximum_salary: Optional[int] = None,
+        permanent: bool | None = None,
+        contract: bool | None = None,
+        temp: bool | None = None,
+        part_time: bool | None = None,
+        full_time: bool | None = None,
+        minimum_salary: int | None = None,
+        maximum_salary: int | None = None,
         results_to_take: int = 100
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """
         Search Reed.co.uk jobs via MCP server.
 
@@ -156,7 +154,7 @@ class ReedMCPScraper(JobBoardScraper):
             logger.error(f"Reed API search failed: {e}")
             return []
 
-    async def get_job_details(self, job_id: str) -> Optional[Dict]:
+    async def get_job_details(self, job_id: str) -> dict | None:
         """
         Get detailed job information by ID.
 
@@ -194,7 +192,7 @@ class ReedMCPScraper(JobBoardScraper):
             logger.error(f"Failed to get job details for {job_id}: {e}")
             return None
 
-    async def _process_results(self, jobs_data: List[Dict]) -> List[Dict]:
+    async def _process_results(self, jobs_data: list[dict]) -> list[dict]:
         """Convert Reed API results to normalized schema."""
         normalized_jobs = []
 
@@ -241,7 +239,7 @@ class ReedMCPScraper(JobBoardScraper):
 
         return normalized_jobs
 
-    def _format_salary(self, min_sal: Optional[int], max_sal: Optional[int]) -> str:
+    def _format_salary(self, min_sal: int | None, max_sal: int | None) -> str:
         """Format salary range as human-readable string."""
         if not min_sal and not max_sal:
             return ""
@@ -255,7 +253,7 @@ class ReedMCPScraper(JobBoardScraper):
 
         return ""
 
-    def _get_employment_type(self, job: Dict) -> str:
+    def _get_employment_type(self, job: dict) -> str:
         """Determine employment type from Reed job flags."""
         types = []
         if job.get("contractType"):
@@ -280,10 +278,10 @@ class ReedMCPScraper(JobBoardScraper):
 
 # Convenience function
 async def search_reed_jobs(
-    keywords: Optional[str] = None,
-    location: Optional[str] = None,
+    keywords: str | None = None,
+    location: str | None = None,
     **kwargs
-) -> List[Dict]:
+) -> list[dict]:
     """
     Search Reed.co.uk jobs via API.
 

@@ -1,283 +1,180 @@
-# Python# Python
+# ==========================================
+# Python Build & Runtime
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+pip-log.txt
+pip-delete-this-directory.txt
 
-__pycache__/__pycache__/
+# ==========================================
+# Virtual Environments
+# ==========================================
+.venv/
+venv/
+env/
+ENV/
+__pypackages__/
 
-*.py[cod]*.py[cod]
+# ==========================================
+# Testing & Quality Tools
+# ==========================================
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+.tox/
+.cache/
+.benchmarks/
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+*.py,cover
+nosetests.xml
+testResults.xml
 
-*$py.class*$py.class
+# ==========================================
+# Environment & Secrets
+# ==========================================
+.env
+.env.*
+*.env
+.envrc
 
-*.so*.so
-
-build/build/
-
-develop-eggs/develop-eggs/
-
-dist/dist/
-
-downloads/downloads/
-
-eggs/eggs/
-
-.eggs/.eggs/
-
-lib/lib/
-
-lib64/lib64/
-
-parts/parts/
-
-sdist/sdist/
-
-var/var/
-
-wheels/wheels/
-
-*.egg-info/*.egg-info/
-
-.installed.cfg.installed.cfg
-
-*.egg*.egg
-
-MANIFESTMANIFEST
-
-
-
-# Virtual environments# Virtual environments
-
-.venv/.venv/
-
-venv/venv/
-
-env/env/
-
-ENV/ENV/
-
-__pypackages__/__pypackages__/
-
-
-
-# Environment and secrets# Environment and secrets
-
-.env.env
-
-.env.*.env.*
-
-*.env*.env
-
-.envrc.envrc
-
-
-
-# User configuration (created from examples)# Cloud credentials
-
-config/user_prefs.json*-key.json
-
-config/user_profile.json*_key.json
-
+# Credentials and keys
+*-key.json
+*_key.json
 service-account*.json
+*credentials*.json
+gcp-key*.json
+auth.json
+secrets.json
+*.secret
+*.secrets
+*.p12
+*.pfx
+*.key
+*.pem
+*.crt
+*.csr
+id_rsa*
+*.ppk
 
-# Data and runtime files*credentials*.json
+# Cloud CLI directories
+.aws/
+.azure/
+.gcloud/
 
-data/gcp-key*.json
+# ==========================================
+# User Configuration
+# ==========================================
+# Keep examples, ignore actual user configs
+config/user_prefs.json
+config/user_profile.json
+user_prefs.json
+!config/user_prefs.example.json
 
-*.logauth.json
-
-*.sqlitesecrets.json
-
-*.sqlite3*.secret
-
-*.db*.secrets
-
+# ==========================================
+# Data & Runtime Files
+# ==========================================
+data/
+*.log
+*.sqlite
+*.sqlite3
+*.db
 *.db3
+*.sqlite-journal
+*.db-shm
+*.db-wal
+logs/*.jsonl
+logs/*.log
+!logs/.gitkeep
 
-*.sqlite-journal# Cloud CLI directories
+# ==========================================
+# IDE & Editor Files
+# ==========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.vimrc.local
+.lvimrc
 
-*.db-shm.aws/
+# ==========================================
+# OS-Specific Files
+# ==========================================
+# macOS
+.DS_Store
+._*
 
-*.db-wal.azure/
+# Windows
+Thumbs.db
+desktop.ini
+ehthumbs.db
 
-.gcloud/
+# Linux
+*~
 
-# Cloud credentials
-
-*-key.json# Certificates and keys
-
-*_key.json*.p12
-
-service-account*.json*.pfx
-
-*credentials*.json*.key
-
-gcp-key*.json*.pem
-
-auth.json*.crt
-
-secrets.json*.csr
-
-*.secretid_rsa*
-
-*.secrets*.ppk
-
-
-
-# Cloud CLI directories# User configuration (created from examples)
-
-.aws/config/user_prefs.json
-
-.azure/config/user_profile.json
-
-.gcloud/
-
-# Data and runtime files
-
-# Certificates and keysdata/
-
-*.p12*.log
-
-*.pfx*.sqlite
-
-*.key*.sqlite3
-
-*.pem*.db
-
-*.crt*.db3
-
-*.csr*.sqlite-journal
-
-id_rsa**.db-shm
-
-*.ppk*.db-wal
-
-
-
-# IDE and editor files# IDE and editor files
-
-.vscode/.vscode/
-
-.idea/.idea/
-
-*.swp*.swp
-
-*.swo*.swo
-
-*~*~
-
-
-
-# Terraform# Terraform
-
-.terraform/.terraform/
-
-.terraform.lock.hcl.terraform.lock.hcl
-
-*.tfplan*.tfplan
-
-*.tfstate*.tfstate
-
-*.tfstate.backup*.tfstate.backup
-
-terraform.tfvars.terraform.tfstate.lock.info
-
-*.tfvarsterraform.tfvars  # User-specific config (use terraform.tfvars.example as template)
-
-!*.tfvars.example*.tfvars
-
-override.tf!*.tfvars.example
-
-override.tf.jsonoverride.tf
-
-*_override.tfoverride.tf.json
-
-*_override.tf.json*_override.tf
-
+# ==========================================
+# Terraform
+# ==========================================
+.terraform/
+.terraform.lock.hcl
+*.tfplan
+*.tfstate
+*.tfstate.backup
+terraform.tfstate.lock.info
+terraform.tfvars
+*.tfvars
+!*.tfvars.example
+override.tf
+override.tf.json
+*_override.tf
 *_override.tf.json
 
-# Temporary and backup files
-
-*.tmp# User configuration files (should be created from examples)
-
-*.tempuser_prefs.json
-
-*.bakconfig/user_prefs.json
-
-*_backup_*config/user_profile.json
-
-.cache/
-
-# Runtime files and logs
-
-# OS files*.log
-
-.DS_Store*.sqlite
-
-Thumbs.db*.sqlite3
-
-desktop.ini*.db
-
-*.db3
-
-# Testing and quality tools*.sqlite-journal
-
-.pytest_cache/*.db-shm
-
-.mypy_cache/*.db-wal
-
-.ruff_cache/
-
-htmlcov/# Backup files
-
-.coverage*_backup_*
-
-.coverage.**.bak
-
-coverage.xml
-
-*.cover# Temporary files
-
-*.tmp
-
-# PowerShell QA system*.temp
-
-psqa-*.log.cache/
-
-psqa-*.json.tox/
-
-analysis-*.json.hypothesis/
-
-.benchmarks/
-
-# Security reports (generated)pip-log.txt
-
-*.sarifpip-delete-this-directory.txt
-
-*.sarif.json
-
-bandit-report.*# OS-specific files
-
-safety-report.*.DS_Store
-
-Thumbs.db
-
-# Cloud deployment artifactsdesktop.ini
-
-.deployment-state.json
-
-snapshots/# PowerShell specific
-
-deployment-receipt.md*.ps1xml
-
-cloud/reports/$PROFILE
-
+# ==========================================
+# PowerShell
+# ==========================================
+*.ps1xml
+$PROFILE
 *.psm1-backup
-
-# Logs (keep structure, ignore content)*.ps1.bak
-
-logs/*.jsonlanalyze-all.ps1
-
-!logs/.gitkeepanalysis-*.json
+*.ps1.bak
+analyze-all.ps1
+analysis-*.json
 deploy-state-*.json
+.psqa/backups/
+.psqa/logs/
+.psqa/reports/
+**/.psqa-backups/
+psqa-*.log
+psqa-*.json
+psqa-*.html
 
-# Security reports and artifacts (generated locally, not project files)
+# ==========================================
+# Security Reports (Generated)
+# ==========================================
 .security-reports/
 *.security-report.*
 *.sarif
@@ -290,39 +187,18 @@ safety-results.*
 pip-audit-report.*
 semgrep-results.*
 
+# ==========================================
+# Cloud Deployment Artifacts
+# ==========================================
+.deployment-state.json
+snapshots/
+deployment-receipt.md
+cloud/reports/
 google-cloud-sdk-download/
 
-# Linting caches
-.ruff_cache/
-
-# Playwright browsers (downloaded by setup scripts)
-~/.cache/ms-playwright/
-
-# Project organization
-# Keep structure documentation updated
-/old_structure/
-
-# Claude Code files and directories
-.claude/
-claude_code_generated/
-.claude_context/
-
-# MCP and audit logs
-logs/audit.jsonl
-logs/*.jsonl
-.mcp_disabled
-
-# Docker volumes and caches
-jobspy-cache/
-
-# Additional IDE and editor files
-*.swp
-*.swo
-*~
-.vimrc.local
-.lvimrc
-
-# Node.js/npm (if used for any tooling)
+# ==========================================
+# Node.js/npm (if used for tooling)
+# ==========================================
 node_modules/
 npm-debug.log*
 yarn-debug.log*
@@ -330,37 +206,34 @@ yarn-error.log*
 package-lock.json
 yarn.lock
 
-# Pytest cache
-.pytest_cache/
-
-# Coverage reports
-htmlcov/
-.coverage
-.coverage.*
-coverage.xml
-*.cover
-*.py,cover
-
-# mypy type checker
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Jupyter Notebook checkpoints
+# ==========================================
+# Jupyter Notebook
+# ==========================================
 .ipynb_checkpoints
 
-# pyenv version files
+# ==========================================
+# Python Version Management
+# ==========================================
 .python-version
 
+# ==========================================
+# Claude Code & MCP
+# ==========================================
+.claude/
+claude_code_generated/
+.claude_context/
+logs/audit.jsonl
+.mcp_disabled
 
-cloud/reports/
+# ==========================================
+# Docker
+# ==========================================
+jobspy-cache/
 
-# Deployment state and snapshots (generated by Deploy-Windows-to-GCP.ps1)
-.deployment-state.json
-snapshots/
-deployment-receipt.md
-
-# Windows installer artifacts (cleanup 2025-10-01)
+# ==========================================
+# Project-Specific
+# ==========================================
+/old_structure/
 inno_temp/
 innosetup-*.exe
 deploy/windows_v2/
@@ -368,16 +241,12 @@ install-receipt.md
 installer-state.json
 installer-crash.log
 diagnostics-*.zip
-*.pyc
 
-# PowerShell Quality Assurance System
-.psqa/backups/
-.psqa/logs/
-.psqa/reports/
-**/.psqa-backups/
-psqa-*.log
-psqa-*.json
-psqa-*.html
+# Playwright browsers (downloaded by setup scripts)
+~/.cache/ms-playwright/
 
-# macOS files
-.DS_Store
+# Backup files
+*_backup_*
+*.bak
+*.tmp
+*.temp

@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 import json
 import logging
 import os
 from datetime import datetime
+from typing import Any
 
 from rich.console import Console
 from rich.logging import RichHandler
@@ -13,8 +16,8 @@ console = Console()
 class JsonFormatter(logging.Formatter):
     """JSON formatter for structured logging in cloud environments."""
 
-    def format(self, record):
-        log_data = {
+    def format(self, record: logging.LogRecord) -> str:  # type: ignore[override]
+        log_data: dict[str, Any] = {
             "timestamp": datetime.utcnow().isoformat() + "Z",
             "severity": record.levelname,
             "logger": record.name,
@@ -47,7 +50,10 @@ class JsonFormatter(logging.Formatter):
 
 
 def setup_logging(log_level: str = "INFO") -> logging.Logger:
-    """Configures logging for the application, using Rich for console output."""
+    """Configure logging using Rich for console; JSON in cloud.
+
+    Returns the configured root logger.
+    """
     level = getattr(logging, log_level.upper(), logging.INFO)
 
     # Create a root logger
@@ -98,23 +104,25 @@ def setup_logging(log_level: str = "INFO") -> logging.Logger:
 
 
 def get_logger(name: str) -> logging.Logger:
-    """Returns a logger instance for a given name."""
+    """Return a logger instance for a given name."""
     return logging.getLogger(name)
 
 
-def log_exception(logger: logging.Logger, message: str = "An error occurred"):
+def log_exception(logger: logging.Logger, message: str = "An error occurred") -> None:
     """Log an exception with full traceback."""
     logger.exception(message)
 
 
 def log_performance(
-    logger: logging.Logger, operation: str, duration: float, extra_info: dict = None
-):
+    logger: logging.Logger,
+    operation: str,
+    duration: float,
+    extra_info: dict[str, Any] | None = None,
+) -> None:
     """Log performance metrics for operations."""
-    info = {"operation": operation, "duration_ms": round(duration * 1000, 2)}
+    info: dict[str, Any] = {"operation": operation, "duration_ms": round(duration * 1000, 2)}
     if extra_info:
         info.update(extra_info)
-
     logger.info(f"Performance: {operation} completed in {duration:.3f}s", extra=info)
 
 
@@ -124,7 +132,7 @@ def log_scrape_result(
     jobs_found: int,
     new_jobs: int,
     errors: int = 0,
-):
+) -> None:
     """Log scraping results in a standardized format."""
     logger.info(
         f"Scrape completed for {company}: {jobs_found} total jobs, {new_jobs} new, {errors} errors",
@@ -139,7 +147,7 @@ def log_scrape_result(
 
 def log_notification_sent(
     logger: logging.Logger, notification_type: str, recipient: str, job_count: int
-):
+) -> None:
     """Log notification events."""
     logger.info(
         f"Notification sent: {notification_type} to {recipient} with {job_count} jobs",

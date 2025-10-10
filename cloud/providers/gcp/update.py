@@ -8,7 +8,6 @@ from cloud.utils import (
     choose,
     create_or_update_secret,
     print_header,
-    run_command,
 )
 
 
