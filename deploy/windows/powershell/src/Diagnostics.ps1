@@ -1,4 +1,4 @@
-﻿# requires -Version 5.1
+# requires -Version 5.1
 <#
 .SYNOPSIS
 Collects a privacy - safe diagnostics snapshot for troubleshooting and audit.
@@ -123,7 +123,6 @@ MachineName = "[System.Environment]::MachineName"
 OSVersion = "[System.Environment]::OSVersion.VersionString"
 Processor = [System.Environment]::GetEnvironmentVariable('PROCESSOR_IDENTIFIER')
 Architecture = "[System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture.ToString()"
-}
 }
 
 if($IncludeModules) {

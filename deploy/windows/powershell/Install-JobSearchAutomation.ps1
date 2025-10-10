@@ -13,4 +13,4 @@ Author: THE Picky PowerShell Security Engineer
 param()
 
 # TODO: Implement installation logic
-Write-Output "Job Search Automation installer - Implementation pending"
+Write-Output 'Job Search Automation installer - Implementation pending'

@@ -48,7 +48,6 @@ finally {
         [Array]::Clear($entropyBytes, 0, $entropyBytes.Length)
     }
 }
-}
 
 #>
     [OutputType([void])]
@@ -85,7 +84,6 @@ finally {
     if($entropyBytes) {
         [Array]::Clear($entropyBytes, 0, $entropyBytes.Length)
     }
-}
 }
 
 Export - ModuleMember - Function Protect - SecretValue, Unprotect - SecretValue
