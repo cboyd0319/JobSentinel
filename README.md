@@ -1,24 +1,22 @@
-⚠️ **Alpha software.** It works, but there are bugs. I use it daily. Test locally first.
+> ⚠️ **Alpha software.** It works, but there are bugs. I use it daily. Test locally first.
 
-# 🛰️ JobSentinel  
-**Self-hosted (PRIVATE/FREE) job intelligence system — private, automated, and free to run locally.**
-
-JobSentinel scrapes multiple job sites, scores each role against your preferences, and alerts you only to high-value matches — automatically.  
-It's built for *anyone* who's tired of endless scrolling, fake postings, and recruiter spam.
+# 🛰️ JobSentinel
+**Self-hosted job search automation.** Scrape → de-dupe → score → alert. **Private by default.** Free locally; ~\$5/mo in your own cloud.
 
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Docker](https://img.shields.io/badge/Run%20with-Docker-blue.svg)](https://www.docker.com/)
 [![Slack Alerts](https://img.shields.io/badge/Alerts-Slack-4A154B.svg?logo=slack)](https://slack.com/)
-[![Privacy](https://img.shields.io/badge/Privacy-Local%20First-black.svg)](#)
-[![Status](https://img.shields.io/badge/Status-Active-success.svg)](#)
+[![Privacy](https://img.shields.io/badge/Privacy-Local-first-black.svg)](#)
+[![Status](https://img.shields.io/badge/Status-Alpha-yellow.svg)](#)
 
 ---
 
-🔒 **Why JobSentinel?**
-Because job boards are full of noise, paywalls, fake listings, and ghost jobs.  
-JobSentinel gives you the power to automate your search, stay private, and never waste time chasing ghosts again.  
-Free if you run it locally. Always yours. Always private.
-Around $5/mo if you choose the cloud option. Still always yours. Still always private.
+### 🔒 Why JobSentinel?
+Job boards are noisy—paywalls, spam, and ghost listings waste your time.  
+**JobSentinel automates the grind** and keeps your data **yours**:
+- Scrapes multiple sources, filters junk, and **scores to your preferences**
+- **Local-first + private** by design (no third-party SaaS siphoning your searches)
+- **Free on your machine**; or run it in your own cloud for about **\$5/mo**
 
 ---
 
