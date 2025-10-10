@@ -115,20 +115,20 @@ Hooks check:
 # ✅ GOOD: Type hints, docstring, descriptive names
 def fetch_jobs(url: str, max_results: int = 10) -> list[dict]:
     """Fetch job listings from a URL.
-    
+
     Args:
         url: The URL to scrape
         max_results: Maximum number of jobs to return
-        
+
     Returns:
         List of job dictionaries with title, company, location
-        
+
     Raises:
         ValueError: If URL is invalid
     """
     if not url.startswith(("http://", "https://")):
         raise ValueError(f"Invalid URL: {url}")
-    
+
     # Implementation...
     return jobs
 
@@ -251,7 +251,7 @@ from sources.job_scraper import fetch_jobs
 def test_fetch_jobs_success():
     """Test successful job fetching."""
     jobs = fetch_jobs("https://example.com/jobs")
-    
+
     assert len(jobs) > 0
     assert "title" in jobs[0]
     assert "company" in jobs[0]

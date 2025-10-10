@@ -32,7 +32,7 @@ def print_banner():
     print(f"{Colors.BLUE}")
     print("╔══════════════════════════════════════════════════════════════════════════════╗")
     print("║                        JOB SEARCH AUTOMATION STARTUP                         ║")
-    print("║                         [EMERGENCY VERSION]                                 ║") 
+    print("║                         [EMERGENCY VERSION]                                 ║")
     print("║                                                                              ║")
     print("║  This is the simplified emergency startup script.                           ║")
     print("║  For full features, use: zero_knowledge_startup_v2.py                       ║")
@@ -42,7 +42,7 @@ def print_banner():
     print("║  Support: Community help available                                         ║")
     print("╚══════════════════════════════════════════════════════════════════════════════╝")
     print(f"{Colors.END}")
-    
+
     # Show current system info
     print(f"System: {platform.system()}")
     print(f"Python: {sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}")
@@ -53,7 +53,7 @@ def check_python_version() -> bool:
     """Check if Python version is adequate."""
     python_version = sys.version_info
     min_version = (3, 8)
-    
+
     if python_version < min_version:
         print(f"{Colors.RED}ERROR: Python {python_version.major}.{python_version.minor} is too old{Colors.END}")
         print(f"   Minimum required: Python {min_version[0]}.{min_version[1]}")
@@ -64,26 +64,26 @@ def check_python_version() -> bool:
         print("   4. Restart your computer")
         print("   5. Run this script again")
         return False
-    
+
     print(f"{Colors.GREEN}OK: Python {python_version.major}.{python_version.minor}.{python_version.micro} is good{Colors.END}")
     return True
 
 def check_basic_setup() -> bool:
     """Check essential files exist."""
     print(f"\n{Colors.YELLOW}Checking project files...{Colors.END}")
-    
+
     essential_files = [
         "src/__init__.py",
-        "src/agent.py", 
+        "src/agent.py",
         "requirements.txt",
         "config/user_prefs.example.json"
     ]
-    
+
     missing_files = []
     for file_path in essential_files:
         if not Path(file_path).exists():
             missing_files.append(file_path)
-    
+
     if missing_files:
         print(f"{Colors.RED}ERROR: Missing essential files:{Colors.END}")
         for file in missing_files:
@@ -91,14 +91,14 @@ def check_basic_setup() -> bool:
         print("\nHOW TO FIX:")
         print("   You might be in the wrong directory or have incomplete files")
         return False
-    
+
     print(f"{Colors.GREEN}OK: All essential files found{Colors.END}")
     return True
 
 def check_dependencies() -> bool:
     """Check if Python dependencies are installed."""
     print(f"\n{Colors.YELLOW}Checking Python packages...{Colors.END}")
-    
+
     try:
         # Check core imports
         import sys
@@ -108,13 +108,13 @@ def check_dependencies() -> bool:
                 "import requests; import json; import os; print('Basic imports OK')"
             ], capture_output=True, text=True, timeout=10
         )
-        
+
         if result.returncode == 0:
             print(f"{Colors.GREEN}OK: Core packages installed{Colors.END}")
             return True
         else:
             raise ImportError("Basic imports failed")
-            
+
     except Exception as e:
         print(f"{Colors.RED}ERROR: Missing Python packages{Colors.END}")
         print("\nHOW TO FIX:")
@@ -127,18 +127,18 @@ def check_dependencies() -> bool:
 def setup_config() -> bool:
     """Simple config setup."""
     print(f"\n{Colors.YELLOW}⚙️  Setting up configuration...{Colors.END}")
-    
+
     example_config = Path("config/user_prefs.example.json")
     user_config = Path("config/user_prefs.json")
-    
+
     if not example_config.exists():
         print(f"{Colors.RED}ERROR: Example configuration file not found{Colors.END}")
         return False
-    
+
     if user_config.exists():
         print(f"{Colors.GREEN}OK: Configuration already exists{Colors.END}")
         return True
-    
+
     print("   Creating starter configuration...")
     try:
         shutil.copy2(example_config, user_config)
@@ -154,21 +154,21 @@ def show_next_steps() -> None:
     """Show what user should do next."""
     print(f"\n{Colors.GREEN}BASIC SETUP COMPLETE!{Colors.END}")
     print("=" * 50)
-    
+
     print("\nWHAT TO DO NEXT:")
-    
+
     print("\n1) USE THE FULL VERSION:")
     print(f"{Colors.BOLD}   python scripts/emergency/zero_knowledge_startup_v2.py{Colors.END}")
     print("   This gives you comprehensive setup with all features")
-    
+
     print("\n2) QUICK TEST:")
     print(f"{Colors.BOLD}   python -m src.agent --help{Colors.END}")
     print("   This shows if the system is working")
-    
+
     print("\n3) EDIT YOUR SETTINGS:")
     print("   config/user_prefs.json")
     print("   Add your target companies and job preferences")
-    
+
     print("\nNEED HELP?")
     print("   • Use the full version script for complete setup")
     print("   • Check docs/USER_GUIDE.md for detailed instructions")
@@ -178,7 +178,7 @@ def main() -> int:
     """Simple main startup flow."""
     try:
         print_banner()
-        
+
         if not check_python_version():
             return 1
         if not check_basic_setup():
@@ -187,10 +187,10 @@ def main() -> int:
             return 1
         if not setup_config():
             return 1
-        
+
         show_next_steps()
         return 0
-        
+
     except KeyboardInterrupt:
         print(f"\n{Colors.RED}Setup cancelled by user{Colors.END}")
         return 1

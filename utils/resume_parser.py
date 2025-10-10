@@ -36,7 +36,7 @@ def ensure_spacy_model(interactive: bool = True) -> Any:
 
     Args:
         interactive: if True, prompt before downloading model.
-    
+
     Returns:
         The spaCy NLP model instance.
     """

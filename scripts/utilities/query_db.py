@@ -19,11 +19,11 @@ def get_recent_jobs(limit: int = 15):
         return
 
     engine = create_engine(f"sqlite:///{db_path}")
-    
+
     with Session(engine) as session:
         statement = select(UnifiedJob).order_by(UnifiedJob.created_at.desc()).limit(limit)
         results = session.exec(statement).all()
-        
+
         # Convert SQLModel objects to dictionaries for JSON serialization
         jobs_list = [
             {

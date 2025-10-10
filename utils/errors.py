@@ -6,6 +6,15 @@ without changing runtime behavior.
 
 from __future__ import annotations
 
+__all__ = [
+    "JobScraperException",
+    "ScrapingException",
+    "NotificationException",
+    "ConfigurationException",
+    "DatabaseException",
+    "RateLimitException",
+]
+
 
 class JobScraperException(Exception):
     """Base exception for job scraper errors."""

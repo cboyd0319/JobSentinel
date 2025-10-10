@@ -29,10 +29,10 @@ Analysis of the remaining directories in JobSentinel reveals a mixed approach to
 class ConfigurationManager:
     def __init__(self):
         self.schema_validator = self._load_schemas()
-    
+
     def validate_config(self, config_type: str, data: dict) -> ValidationResult:
         """Validate configuration against schema"""
-        
+
     def merge_configs(self, *configs) -> dict:
         """Safely merge configuration sources"""
 ```
@@ -120,7 +120,7 @@ import logging.handlers
 
 # Proper log rotation
 handler = logging.handlers.RotatingFileHandler(
-    "logs/app.log", 
+    "logs/app.log",
     maxBytes=10*1024*1024,  # 10MB
     backupCount=5
 )
@@ -169,10 +169,10 @@ def _create_job_block(job: dict) -> dict:
 class SecureNotificationService:
     def sanitize_content(self, content: str) -> str:
         """Remove sensitive information from notifications"""
-        
+
     def send_with_retry(self, message: dict) -> bool:
         """Send with exponential backoff retry"""
-        
+
     def validate_webhook_url(self, url: str) -> bool:
         """Validate webhook URL format and accessibility"""
 ```
@@ -216,9 +216,9 @@ class ATSCompatibilityReport:
 
 **Immediate Fix Required**:
 ```html
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" 
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
       rel="stylesheet"
-      integrity="sha384-..." 
+      integrity="sha384-..."
       crossorigin="anonymous">
 ```
 
@@ -242,7 +242,7 @@ class ATSCompatibilityReport:
 resource "google_security_scanner_scan_config" "scanner" {
   display_name = "JobSentinel Security Scan"
   starting_urls = [var.app_url]
-  
+
   authentication {
     google_account {
       username = var.scanner_account
@@ -363,7 +363,7 @@ resource "google_security_scanner_scan_config" "scanner" {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; script-src 'self' https://cdn.jsdelivr.net">
     <title>{% block title %}{% endblock %} - Job Finder</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" 
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
           rel="stylesheet"
           integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
           crossorigin="anonymous">
@@ -383,19 +383,19 @@ class ConfigurationManager:
         self.config_dir = config_dir
         self.schemas = self._load_schemas()
         self._cache = {}
-    
+
     def load_config(self, name: str, validate: bool = True) -> Dict[str, Any]:
         """Load and validate configuration file"""
         if name in self._cache:
             return self._cache[name]
-            
+
         config_path = self.config_dir / f"{name}.json"
         with open(config_path) as f:
             config = json.load(f)
-            
+
         if validate and name in self.schemas:
             jsonschema.validate(config, self.schemas[name])
-            
+
         self._cache[name] = config
         return config
 ```
@@ -411,13 +411,13 @@ class SecureNotificationService:
         r'password[:\s]*\S+',
         r'secret[:\s]*\S+',
     ]
-    
+
     def sanitize_content(self, content: str) -> str:
         """Remove sensitive information from content"""
         for pattern in self.SENSITIVE_PATTERNS:
             content = re.sub(pattern, '[REDACTED]', content, flags=re.IGNORECASE)
         return content
-    
+
     def create_safe_message(self, job: Dict[str, Any]) -> Dict[str, Any]:
         """Create notification message with sanitized content"""
         return {

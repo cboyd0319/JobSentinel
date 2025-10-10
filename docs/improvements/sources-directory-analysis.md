@@ -1,7 +1,7 @@
 # Sources Directory - Deep Analysis & Improvement Suggestions
 
-**Analysis Date:** October 9, 2025  
-**Analyzed Path:** `/sources/`  
+**Analysis Date:** October 9, 2025
+**Analyzed Path:** `/sources/`
 **Analysis Scope:** Job scraping architecture, scrapers implementation, performance patterns, and scalability issues
 
 ## Executive Summary
@@ -132,7 +132,7 @@ The sources directory contains the core job scraping functionality with multiple
        required_skills.append(skill)
    ```
    - Simple substring matching misses context
-   - "Java" matches "JavaScript" in many cases  
+   - "Java" matches "JavaScript" in many cases
    - No semantic understanding of skill relationships
    - False positives from company names, locations
 
@@ -214,7 +214,7 @@ The sources directory contains the core job scraping functionality with multiple
    except Exception as e:
        logger.error(f"Failed: {e}")
        return []
-   
+
    # Other places:
    except Exception as e:
        logger.warning(f"Failed: {e}")

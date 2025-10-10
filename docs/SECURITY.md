@@ -24,7 +24,7 @@
 **Monthly estimate:** $5-15 depending on usage
 
 **Breakdown:**
-- Cloud Run: $5-10 (depends on frequency)  
+- Cloud Run: $5-10 (depends on frequency)
 - Cloud Storage: $1-2 (job data)
 - Networking: $1-3 (API calls)
 
@@ -129,14 +129,14 @@ docker run --rm -v $(pwd)/config:/app/config job-scraper
 
 **Local setup:**
 - [ ] `.env` file not in git
-- [ ] Disk encryption enabled  
+- [ ] Disk encryption enabled
 - [ ] No hardcoded secrets in config
 - [ ] Log retention set (auto-rotates after 30 days)
 
 **Cloud setup:**
 - [ ] Service account has minimal permissions
 - [ ] Billing alerts configured
-- [ ] VPC firewall rules restrictive  
+- [ ] VPC firewall rules restrictive
 - [ ] No public database access
 
 **Ongoing:**

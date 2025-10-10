@@ -25,7 +25,7 @@ def migrate_legacy_jobs() -> int:
 
 **Security Risk**: Data inconsistency could lead to duplicate notifications and security confusion.
 
-**Impact**: 
+**Impact**:
 - Data integrity issues
 - Unpredictable behavior
 - Development confusion
@@ -37,7 +37,7 @@ def migrate_legacy_jobs() -> int:
 class DatabaseMigrationService:
     async def validate_schemas(self) -> MigrationPlan:
         """Analyze current state and create migration plan"""
-    
+
     async def migrate_safely(self, plan: MigrationPlan) -> MigrationResult:
         """Execute migration with rollback capability"""
 
@@ -85,7 +85,7 @@ The job scoring system spans multiple modules with unclear boundaries:
 # matchers/rules.py
 def score_job(job: dict, prefs: dict, use_llm: bool = None):
     """Complex hybrid scoring with optional LLM"""
-    
+
 # utils/llm.py (referenced but not examined)
 def score_job_with_llm(job, prefs):
     """LLM-based scoring"""
@@ -169,7 +169,7 @@ class Job(SQLModel, table=True):
     hash: str = Field(index=True, unique=True)
     # Basic fields
 
-# Stage 2: Enhanced schema (unified_database.py)  
+# Stage 2: Enhanced schema (unified_database.py)
 class UnifiedJob(SQLModel, table=True):
     # All basic fields plus:
     job_board: str | None = None
@@ -346,10 +346,10 @@ class MigrationPlan:
 class DatabaseMigrationService:
     async def analyze_current_state(self) -> dict:
         """Analyze current database state and schema versions"""
-        
+
     async def create_migration_plan(self) -> MigrationPlan:
         """Create step-by-step migration plan"""
-        
+
     async def execute_migration(self, plan: MigrationPlan) -> bool:
         """Execute migration with proper rollback on failure"""
 ```
@@ -364,17 +364,17 @@ class ResourceLimits:
     max_memory_mb: int
     max_concurrent_jobs: int
     max_db_connections: int
-    
+
 class ResourceManager:
     def __init__(self, limits: ResourceLimits):
         self.limits = limits
         self._semaphore = asyncio.Semaphore(limits.max_concurrent_jobs)
-        
+
     async def check_resources(self) -> bool:
         """Check if system has resources available"""
         memory_usage = psutil.virtual_memory().percent
         return memory_usage < (self.limits.max_memory_mb / 1024) * 100
-        
+
     async def acquire_job_slot(self):
         """Acquire slot for job processing with resource checking"""
         if not await self.check_resources():
@@ -394,7 +394,7 @@ class ScoringStrategy(Protocol):
 class RuleBasedScoring(ScoringStrategy):
     async def score(self, job: JobModel, preferences: UserPreferences) -> ScoringResult:
         # Rule-based logic
-        
+
 class LLMScoring(ScoringStrategy):
     async def score(self, job: JobModel, preferences: UserPreferences) -> ScoringResult:
         # LLM-based logic
@@ -403,7 +403,7 @@ class HybridScoringService:
     def __init__(self, strategies: list[ScoringStrategy], weights: dict[str, float]):
         self.strategies = strategies
         self.weights = weights
-        
+
     async def score_job(self, job: JobModel, preferences: UserPreferences) -> ScoringResult:
         results = []
         for strategy in self.strategies:
@@ -412,7 +412,7 @@ class HybridScoringService:
                 results.append(result)
             except Exception as e:
                 logger.warning(f"Scoring strategy failed: {e}")
-                
+
         return self._combine_results(results)
 ```
 

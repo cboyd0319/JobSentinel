@@ -385,18 +385,29 @@ class HealthMonitor:
         try:
             loop = asyncio.get_event_loop()
             if loop.is_running():
-                # In async context, use async version
+                # In async context, use limited sync checks
                 logger.warning("Sync health report called in async context - using limited checks")
                 all_metrics = []
                 all_metrics.extend(self.check_system_resources())
                 all_metrics.extend(self.check_log_files())
                 all_metrics.extend(self.check_configuration())
             else:
-                # Not in async context, safe to run async version
-                return asyncio.run(self.generate_health_report_async())
+                # Create a new event loop for the async version
+                new_loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(new_loop)
+                try:
+                    return new_loop.run_until_complete(self.generate_health_report_async())
+                finally:
+                    new_loop.close()
+                    asyncio.set_event_loop(loop)
         except RuntimeError:
-            # No event loop, create one
-            return asyncio.run(self.generate_health_report_async())
+            # No event loop exists, create one
+            new_loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(new_loop)
+            try:
+                return new_loop.run_until_complete(self.generate_health_report_async())
+            finally:
+                new_loop.close()
 
         # Fallback for sync-only context
         logger.info("Generating health report...")

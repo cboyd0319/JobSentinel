@@ -1,6 +1,6 @@
 # 📚 Documentation Index
 
-**Last Updated:** October 9, 2025  
+**Last Updated:** October 9, 2025
 **Repository:** JobSentinel
 
 ---

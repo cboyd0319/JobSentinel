@@ -1,7 +1,7 @@
 # Code Standards & Compliance Report
 
-**Date:** October 9, 2025  
-**Purpose:** Track compliance with Python and security best practices  
+**Date:** October 9, 2025
+**Purpose:** Track compliance with Python and security best practices
 **Status:** 🟢 Good baseline with room for improvement
 
 ---
@@ -383,7 +383,7 @@ repos:
       - id: ruff
         args: [--fix]
       - id: ruff-format
-  
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
@@ -392,7 +392,7 @@ repos:
       - id: check-yaml
       - id: check-added-large-files
       - id: check-merge-conflict
-  
+
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.11.0
     hooks:
@@ -417,23 +417,23 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      
+
       - name: Install dependencies
         run: |
           pip install -e .[dev]
-      
+
       - name: Run ruff
         run: ruff check .
-      
+
       - name: Run black
         run: black --check .
-      
+
       - name: Run mypy
         run: mypy src/
-      
+
       - name: Run tests
         run: pytest --cov=src --cov-report=xml
-      
+
       - name: Upload coverage
         uses: codecov/codecov-action@v4
 EOF
@@ -472,11 +472,11 @@ JobSentinel demonstrates **strong foundational compliance** with Python and secu
 3. Increase test coverage to 80%
 4. Enable automated formatting and type checking
 
-**Grade: B+ (78/100)**  
+**Grade: B+ (78/100)**
 With recommended improvements: **A- (90/100)**
 
 ---
 
-**Last Updated:** October 9, 2025  
-**Review Frequency:** Monthly  
+**Last Updated:** October 9, 2025
+**Review Frequency:** Monthly
 **Owner:** Development Team

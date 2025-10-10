@@ -125,7 +125,7 @@ class ReportGenerator:
             <h1>ATS Compatibility Analysis Report</h1>
             <p class="timestamp">Generated: {score.analysis_timestamp.strftime('%Y-%m-%d %H:%M:%S UTC')}</p>
         </header>
-        
+
         <section class="score-summary">
             <div class="overall-score">
                 <h2>Overall Score</h2>
@@ -136,30 +136,30 @@ class ReportGenerator:
                 <p class="score-rating">{self._get_score_rating(score.overall_score)}</p>
             </div>
         </section>
-        
+
         <section class="component-scores">
             <h2>Component Breakdown</h2>
             <div class="component-grid">
                 {self._generate_component_html(score.component_scores)}
             </div>
         </section>
-        
+
         <section class="system-scores">
             <h2>ATS System Compatibility</h2>
             <div class="system-grid">
                 {self._generate_system_html(score.system_scores)}
             </div>
         </section>
-        
+
         <section class="issues">
             <h2>Issues & Recommendations</h2>
             {self._generate_issues_html(score)}
         </section>
-        
+
         {self._generate_recommendations_html(score)}
-        
+
         {self._generate_keywords_html(score)}
-        
+
     </div>
 </body>
 </html>
@@ -226,7 +226,7 @@ class ReportGenerator:
             padding: 0;
             background-color: #f5f5f5;
         }
-        
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -234,22 +234,22 @@ class ReportGenerator:
             background-color: white;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
-        
+
         header {
             text-align: center;
             border-bottom: 2px solid #e0e0e0;
             padding-bottom: 20px;
             margin-bottom: 30px;
         }
-        
+
         h1 { color: #2c3e50; margin-bottom: 10px; }
         h2 { color: #34495e; border-bottom: 1px solid #bdc3c7; padding-bottom: 5px; }
-        
+
         .score-summary {
             text-align: center;
             margin: 30px 0;
         }
-        
+
         .score-circle {
             display: inline-block;
             width: 120px;
@@ -259,11 +259,11 @@ class ReportGenerator:
             position: relative;
             margin: 20px;
         }
-        
+
         .score-good { border-color: #27ae60; }
         .score-fair { border-color: #f39c12; }
         .score-poor { border-color: #e74c3c; }
-        
+
         .score-number {
             position: absolute;
             top: 50%;
@@ -273,7 +273,7 @@ class ReportGenerator:
             font-weight: bold;
             color: #2c3e50;
         }
-        
+
         .score-total {
             position: absolute;
             top: 70%;
@@ -282,33 +282,33 @@ class ReportGenerator:
             font-size: 1em;
             color: #7f8c8d;
         }
-        
+
         .component-grid, .system-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
             margin: 20px 0;
         }
-        
+
         .component-item, .system-item {
             background: #ecf0f1;
             padding: 15px;
             border-radius: 5px;
             text-align: center;
         }
-        
+
         .issue-critical { color: #e74c3c; font-weight: bold; }
         .issue-high { color: #e67e22; font-weight: bold; }
         .issue-medium { color: #f39c12; }
         .issue-low { color: #3498db; }
-        
+
         .recommendations {
             background: #d5f4e6;
             padding: 20px;
             border-radius: 5px;
             margin: 20px 0;
         }
-        
+
         .keyword-match {
             display: inline-block;
             background: #3498db;

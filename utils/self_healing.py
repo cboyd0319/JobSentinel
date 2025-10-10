@@ -155,7 +155,17 @@ class SelfHealingMonitor:
                 if loop.is_running():
                     # Can't test in running loop
                     return False
-                return not asyncio.run(test_connection())
+
+                # Create a new event loop for testing
+                test_loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(test_loop)
+                try:
+                    connection_ok = test_loop.run_until_complete(test_connection())
+                    return not connection_ok  # Return True if recovery needed
+                finally:
+                    test_loop.close()
+                    asyncio.set_event_loop(loop)
+
             except (TimeoutError, ConnectionError, OSError) as conn_exc:
                 logger.debug(f"Connection test failed: {conn_exc}")
                 return True

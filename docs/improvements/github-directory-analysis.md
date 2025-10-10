@@ -11,7 +11,7 @@ The `.github/` directory contains the CI/CD pipeline, security automation, and p
 
 **Strengths**:
 - Automated Bandit security scanning
-- Safety dependency vulnerability checks  
+- Safety dependency vulnerability checks
 - SARIF output for GitHub Security tab integration
 - Proper permissions model (`security-events: write`)
 
@@ -64,7 +64,7 @@ paths-ignore:
 2. **Add SAST Tools**: Only Bandit, missing broader SAST coverage
 3. **Add License Compliance**: No license scanning for dependencies
 
-### CI Pipeline (`ci.yml`) 
+### CI Pipeline (`ci.yml`)
 
 **Good Practices**:
 ```yaml
@@ -170,7 +170,7 @@ updates:
     allow:
       - dependency-type: "direct"
         update-type: "security"
-      - dependency-type: "indirect" 
+      - dependency-type: "indirect"
         update-type: "security"
     ignore:
       - dependency-name: "*"
@@ -213,7 +213,7 @@ strategy:
 
 **Gaps**:
 - No secret scanning
-- Limited SAST coverage  
+- Limited SAST coverage
 - Container vulnerabilities not checked
 - Dependabot auto-merge risk
 
@@ -291,23 +291,23 @@ jobs:
       security-events: write
     steps:
       - uses: actions/checkout@v4
-      
+
       # Secret scanning
       - name: Run GitLeaks
         uses: trufflesecurity/trufflehog@main
-        
+
       # SAST scanning
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2
         with:
           languages: python
-          
+
       # Container scanning
       - name: Build and scan container
         run: |
           docker build -t app:${{ github.sha }} .
           trivy image --format sarif --output trivy.sarif app:${{ github.sha }}
-          
+
       # Upload results
       - name: Upload security results
         uses: github/codeql-action/upload-sarif@v2
@@ -331,7 +331,7 @@ jobs:
         run: |
           pip install -r requirements.txt
           python -m pytest --cov=src --cov-report=xml
-          
+
   deploy:
     needs: [security-scan, test]
     if: github.ref == 'refs/heads/main'

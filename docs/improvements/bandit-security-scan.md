@@ -1,8 +1,8 @@
 # Bandit Security Scan Report
 
-**Date:** October 9, 2025  
-**Tool:** Bandit v1.8.6  
-**Python Version:** 3.13.7  
+**Date:** October 9, 2025
+**Tool:** Bandit v1.8.6
+**Python Version:** 3.13.7
 **Lines Scanned:** 16,827
 
 ---
@@ -222,17 +222,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      
+
       - name: Install Bandit
         run: pip install bandit[toml]
-      
+
       - name: Run Bandit
         run: bandit -r . -f json -o bandit-report.json -ll
-      
+
       - name: Upload report
         uses: actions/upload-artifact@v4
         with:
@@ -297,6 +297,6 @@ bandit -r . -f txt --exclude ./venv,./tests,./scripts -ll
 
 ---
 
-**Report Generated:** October 9, 2025  
-**Next Scan:** Automated via pre-commit hooks + CI/CD  
+**Report Generated:** October 9, 2025
+**Next Scan:** Automated via pre-commit hooks + CI/CD
 **Status:** ✅ PASS - No action required

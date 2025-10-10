@@ -129,10 +129,10 @@ class ResumeEnhancer:
 
         template = f"""# [YOUR FULL NAME]
 
-**Email:** your.email@example.com  
-**Phone:** (555) 123-4567  
-**LinkedIn:** linkedin.com/in/yourname  
-**Location:** City, State  
+**Email:** your.email@example.com
+**Phone:** (555) 123-4567
+**LinkedIn:** linkedin.com/in/yourname
+**Location:** City, State
 **Portfolio:** yourportfolio.com *(if applicable)*
 
 ---
@@ -202,8 +202,8 @@ class ResumeEnhancer:
 
 ## ADDITIONAL INFORMATION
 
-**Languages:** [Language] (Proficiency Level)  
-**Volunteer Work:** [Organization] - [Role] ([Dates])  
+**Languages:** [Language] (Proficiency Level)
+**Volunteer Work:** [Organization] - [Role] ([Dates])
 **Professional Associations:** [Relevant memberships]
 
 ---
@@ -212,16 +212,16 @@ class ResumeEnhancer:
 
 Before submitting your resume, ensure you have:
 
-- Customized for each job — tailored keywords and content  
-- Quantified achievements — numbers, percentages, and metrics  
-- Use action verbs — strong, specific verbs to start bullet points  
-- Maintain consistency — formatting, dates, and style  
-- Keep it concise — 1-2 pages maximum, relevant content only  
-- Proofread thoroughly — no typos, grammatical errors, or formatting issues  
-- Save as PDF — maintains formatting across systems  
-- Use ATS-friendly format — simple formatting, standard fonts  
-- Include contact information — all methods clearly visible  
-- Match job requirements — 70%+ of key requirements addressed  
+- Customized for each job — tailored keywords and content
+- Quantified achievements — numbers, percentages, and metrics
+- Use action verbs — strong, specific verbs to start bullet points
+- Maintain consistency — formatting, dates, and style
+- Keep it concise — 1-2 pages maximum, relevant content only
+- Proofread thoroughly — no typos, grammatical errors, or formatting issues
+- Save as PDF — maintains formatting across systems
+- Use ATS-friendly format — simple formatting, standard fonts
+- Include contact information — all methods clearly visible
+- Match job requirements — 70%+ of key requirements addressed
 
 ---
 
@@ -253,8 +253,8 @@ Before submitting your resume, ensure you have:
         template = f"""# [YOUR FULL NAME]
 ## {industry.value.replace('_', ' ').title()} Engineer
 
-**Email:** your.email@example.com | **Phone:** (555) 123-4567  
-**LinkedIn:** linkedin.com/in/yourname | **GitHub:** github.com/yourusername  
+**Email:** your.email@example.com | **Phone:** (555) 123-4567
+**LinkedIn:** linkedin.com/in/yourname | **GitHub:** github.com/yourusername
 **Portfolio:** yourportfolio.dev | **Location:** City, State
 
 ---
@@ -270,18 +270,18 @@ Before submitting your resume, ensure you have:
 ## TECHNICAL SKILLS
 
 ### Programming Languages
-**Primary:** {keywords[0] if keywords else '[Language 1]'}, {keywords[1] if len(keywords) > 1 else '[Language 2]'}  
+**Primary:** {keywords[0] if keywords else '[Language 1]'}, {keywords[1] if len(keywords) > 1 else '[Language 2]'}
 **Secondary:** [Language 3], [Language 4], [Language 5]
 
 ### Frameworks & Technologies
-**Web:** [Framework 1], [Framework 2], [Framework 3]  
-**Data:** [Database 1], [Database 2], [Analytics Tools]  
+**Web:** [Framework 1], [Framework 2], [Framework 3]
+**Data:** [Database 1], [Database 2], [Analytics Tools]
 **Cloud:** [Cloud Platform], [DevOps Tools], [Infrastructure]
 
 ### Development Tools
-**Version Control:** Git, GitHub/GitLab  
-**IDEs:** [Your preferred IDEs]  
-**Testing:** [Testing Frameworks]  
+**Version Control:** Git, GitHub/GitLab
+**IDEs:** [Your preferred IDEs]
+**Testing:** [Testing Frameworks]
 **CI/CD:** [Pipeline Tools]
 
 ---
@@ -355,9 +355,9 @@ Brief description of the project and its purpose.
 
         template = f"""# [YOUR FULL NAME]
 
-**Email:** your.email@example.com  
-**Phone:** (555) 123-4567  
-**LinkedIn:** linkedin.com/in/yourname  
+**Email:** your.email@example.com
+**Phone:** (555) 123-4567
+**LinkedIn:** linkedin.com/in/yourname
 **Location:** City, State
 
 ---
@@ -373,7 +373,7 @@ Recent [degree] graduate seeking an entry-level position in {industry.value.repl
 ## EDUCATION
 
 ### [Degree Type] in [Field of Study]
-**[University Name]** | [Location] | [Graduation Month/Year]  
+**[University Name]** | [Location] | [Graduation Month/Year]
 **GPA:** [If 3.5 or higher] | **Dean's List:** [If applicable]
 
 **Relevant Coursework:**
@@ -388,9 +388,9 @@ Recent [degree] graduate seeking an entry-level position in {industry.value.repl
 
 ## TECHNICAL SKILLS
 
-**Programming:** {', '.join(keywords[:4]) if keywords else '[Languages/Technologies]'}  
-**Tools & Software:** [Software relevant to your field]  
-**Operating Systems:** [OS experience]  
+**Programming:** {', '.join(keywords[:4]) if keywords else '[Languages/Technologies]'}
+**Tools & Software:** [Software relevant to your field]
+**Operating Systems:** [OS experience]
 **Databases:** [Database technologies]
 
 ---
@@ -431,9 +431,9 @@ Recent [degree] graduate seeking an entry-level position in {industry.value.repl
 
 ## ADDITIONAL QUALIFICATIONS
 
-**Certifications:** [Any relevant certifications, online courses completed]  
-**Languages:** [Languages spoken and proficiency level]  
-**Volunteer Work:** [Relevant volunteer experience]  
+**Certifications:** [Any relevant certifications, online courses completed]
+**Languages:** [Languages spoken and proficiency level]
+**Volunteer Work:** [Relevant volunteer experience]
 **Leadership:** [School organizations, team captain, etc.]
 
 ---
@@ -448,10 +448,10 @@ Recent [degree] graduate seeking an entry-level position in {industry.value.repl
 5. **Network actively** - Connect with professionals in your field
 
 **What Employers Look For:**
-• Willingness to learn — show curiosity and adaptability  
-• Technical foundation — demonstrate core skills through projects  
-• Communication skills — write clearly and professionally  
-• Problem-solving ability — show how you approach challenges  
+• Willingness to learn — show curiosity and adaptability
+• Technical foundation — demonstrate core skills through projects
+• Communication skills — write clearly and professionally
+• Problem-solving ability — show how you approach challenges
 • Cultural fit — research company values and align your presentation
 
 ---
@@ -473,7 +473,7 @@ Recent [degree] graduate seeking an entry-level position in {industry.value.repl
         template = f"""# [YOUR FULL NAME]
 ## {industry.value.replace('_', ' ').title()} Professional
 
-**Contact Information**  
+**Contact Information**
 your.email@example.com | (555) 123-4567 | linkedin.com/in/yourname | City, State
 
 ---
@@ -919,10 +919,10 @@ def main():
 Examples:
   # Generate ATS-optimized template for software engineering
   python resume_enhancer.py template --type ats_optimized --industry software_engineering --level mid
-  
+
   # Generate entry-level template
   python resume_enhancer.py template --type entry_level --industry general
-  
+
   # Create comprehensive resources guide
   python resume_enhancer.py resources --output resume_guide.md
         """,

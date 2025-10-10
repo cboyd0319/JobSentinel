@@ -70,20 +70,20 @@ class ATSCompatibilityReport:
     compatibility_level: ATSCompatibilityLevel
     market_percentile: float
     improvement_potential: float
-    
+
     # Component scores
     parsing_score: float
     keyword_score: float
     formatting_score: float
     structure_score: float
     readability_score: float
-    
+
     # Detailed analysis
     sections: dict[str, ResumeSection]
     keyword_analysis: KeywordAnalysis
     issues: list[ATSIssue]
     recommendations: list[str]
-    
+
     # File metadata
     file_path: str
     file_size: int
@@ -93,17 +93,17 @@ class ATSCompatibilityReport:
 class UltimateResumeScanner:
     """
     Enterprise-grade resume ATS scanner.
-    
+
     Designed for users with zero technical knowledge.
     Provides comprehensive analysis and actionable recommendations.
     """
-    
+
     # ATS-friendly fonts
     ATS_SAFE_FONTS = {
         'Arial', 'Calibri', 'Cambria', 'Georgia', 'Helvetica',
         'Times New Roman', 'Trebuchet MS', 'Verdana'
     }
-    
+
     # Expected resume sections
     REQUIRED_SECTIONS = {
         'contact': ['contact', 'personal', 'info'],
@@ -112,7 +112,7 @@ class UltimateResumeScanner:
         'education': ['education', 'academic', 'degree'],
         'skills': ['skills', 'technical', 'competencies'],
     }
-    
+
     OPTIONAL_SECTIONS = {
         'projects': ['projects', 'portfolio'],
         'certifications': ['certifications', 'certificates', 'licenses'],
@@ -121,7 +121,7 @@ class UltimateResumeScanner:
         'languages': ['languages'],
         'volunteer': ['volunteer', 'community', 'service']
     }
-    
+
     # ATS problematic elements
     PROBLEMATIC_PATTERNS = {
         'tables': r'<table|<tr|<td|\|.*\|',
@@ -132,7 +132,7 @@ class UltimateResumeScanner:
         'columns': r'column|multi[-_]?column',
         'special_chars': r'[★☆♦♠♣♥▪▫◦•▲►◆■□▼◄]',
     }
-    
+
     # Action verbs for impact assessment
     ACTION_VERBS = {
         'achieved', 'managed', 'led', 'developed', 'created', 'improved',
@@ -140,7 +140,7 @@ class UltimateResumeScanner:
         'analyzed', 'coordinated', 'executed', 'established', 'streamlined',
         'optimized', 'delivered', 'launched', 'transformed', 'innovated'
     }
-    
+
     def __init__(self):
         """Initialize the scanner."""
         self.resume_text = ""
@@ -149,53 +149,53 @@ class UltimateResumeScanner:
         self.word_count = 0
         self.issues = []
         self.recommendations = []
-        
+
     def scan_resume(
-        self, 
+        self,
         resume_path: str | Path,
         job_description: str | None = None,
         industry: str | None = None
     ) -> ATSCompatibilityReport:
         """
         Perform comprehensive ATS compatibility scan.
-        
+
         Args:
             resume_path: Path to resume file (PDF, DOCX, or TXT)
             job_description: Optional job description for targeted analysis
             industry: Optional industry context
-            
+
         Returns:
             ATSCompatibilityReport with detailed analysis
         """
         resume_path = Path(resume_path)
         self.file_path = str(resume_path)
-        
+
         if not resume_path.exists():
             raise FileNotFoundError(f"Resume file not found: {resume_path}")
-        
+
         self.file_size = resume_path.stat().st_size
-        
+
         # Extract text from resume
         self.resume_text = self._extract_text(resume_path)
         self.word_count = len(self.resume_text.split())
-        
+
         # Reset analysis state
         self.issues = []
         self.recommendations = []
-        
+
         # Perform analysis
         parsing_score = self._analyze_parsing_compatibility()
         formatting_score = self._analyze_formatting()
         structure_score = self._analyze_structure()
         readability_score = self._analyze_readability()
-        
+
         # Keyword analysis
         keyword_analysis = self._analyze_keywords(job_description, industry)
         keyword_score = keyword_analysis.industry_match_score
-        
+
         # Section analysis
         sections = self._analyze_sections()
-        
+
         # Calculate overall score
         component_scores = {
             'parsing': parsing_score,
@@ -204,7 +204,7 @@ class UltimateResumeScanner:
             'structure': structure_score,
             'readability': readability_score
         }
-        
+
         # Weighted average (parsing and keywords are most important for ATS)
         weights = {
             'parsing': 0.30,
@@ -213,22 +213,22 @@ class UltimateResumeScanner:
             'structure': 0.15,
             'readability': 0.10
         }
-        
-        overall_score = sum(score * weights[component] 
+
+        overall_score = sum(score * weights[component]
                           for component, score in component_scores.items())
-        
+
         # Determine compatibility level
         compatibility_level = self._get_compatibility_level(overall_score)
-        
+
         # Calculate market percentile (approximate)
         market_percentile = min(95, max(5, overall_score - 5))
-        
+
         # Calculate improvement potential
         improvement_potential = min(100 - overall_score, 30)
-        
+
         # Generate final recommendations
         self._generate_final_recommendations(overall_score, sections, keyword_analysis)
-        
+
         # Create report
         report = ATSCompatibilityReport(
             overall_score=overall_score,
@@ -249,13 +249,13 @@ class UltimateResumeScanner:
             word_count=self.word_count,
             analysis_date=datetime.now().isoformat()
         )
-        
+
         return report
-    
+
     def _extract_text(self, file_path: Path) -> str:
         """Extract text from resume file."""
         suffix = file_path.suffix.lower()
-        
+
         try:
             if suffix == '.txt':
                 return file_path.read_text(encoding='utf-8')
@@ -275,7 +275,7 @@ class UltimateResumeScanner:
                 impact_score=10
             ))
             return ""
-    
+
     def _extract_pdf_text(self, file_path: Path) -> str:
         """Extract text from PDF file."""
         try:
@@ -290,14 +290,14 @@ class UltimateResumeScanner:
             return text
         except ImportError:
             pass
-        
+
         try:
             # Fall back to pdfminer
             from pdfminer.high_level import extract_text
             return extract_text(str(file_path))
         except ImportError:
             pass
-        
+
         # If all else fails, suggest manual conversion
         self.issues.append(ATSIssue(
             level=IssueLevel.CRITICAL,
@@ -308,7 +308,7 @@ class UltimateResumeScanner:
             impact_score=10
         ))
         return ""
-    
+
     def _extract_docx_text(self, file_path: Path) -> str:
         """Extract text from DOCX file."""
         try:
@@ -328,18 +328,18 @@ class UltimateResumeScanner:
                 impact_score=10
             ))
             return ""
-    
+
     def _analyze_parsing_compatibility(self) -> float:
         """Analyze how well ATS systems can parse this resume."""
         score = 100.0
-        
+
         # Check for problematic elements
         for pattern_name, pattern in self.PROBLEMATIC_PATTERNS.items():
             matches = re.findall(pattern, self.resume_text, re.IGNORECASE)
             if matches:
                 penalty = len(matches) * 5
                 score -= penalty
-                
+
                 self.issues.append(ATSIssue(
                     level=IssueLevel.WARNING if penalty < 15 else IssueLevel.CRITICAL,
                     category="parsing",
@@ -348,7 +348,7 @@ class UltimateResumeScanner:
                     fix_suggestion=self._get_parsing_fix_suggestion(pattern_name),
                     impact_score=min(penalty // 5, 8)
                 ))
-        
+
         # Check file size (too large files may be rejected)
         if self.file_size > 1024 * 1024:  # 1MB
             score -= 20
@@ -360,7 +360,7 @@ class UltimateResumeScanner:
                 fix_suggestion="Keep resume files under 1MB for better ATS compatibility",
                 impact_score=5
             ))
-        
+
         # Check for reasonable text length
         if self.word_count < 200:
             score -= 25
@@ -382,16 +382,16 @@ class UltimateResumeScanner:
                 fix_suggestion="Consider condensing content. Most resumes should be 300-800 words",
                 impact_score=3
             ))
-        
+
         return max(0, score)
-    
+
     def _analyze_formatting(self) -> float:
         """Analyze formatting for ATS compatibility."""
         score = 100.0
-        
+
         # Check for consistent formatting patterns
         lines = self.resume_text.split('\n')
-        
+
         # Check for bullet points (good for ATS)
         bullet_lines = [line for line in lines if re.match(r'^\s*[•\-\*\+▪]', line)]
         if len(bullet_lines) < 3:
@@ -404,7 +404,7 @@ class UltimateResumeScanner:
                 fix_suggestion="Use bullet points to list achievements and responsibilities",
                 impact_score=4
             ))
-        
+
         # Check for excessive special characters
         special_char_count = len(re.findall(r'[^\w\s\-\.\,\(\)\:\/]', self.resume_text))
         if special_char_count > 50:
@@ -417,7 +417,7 @@ class UltimateResumeScanner:
                 fix_suggestion="Remove decorative characters and use simple formatting",
                 impact_score=5
             ))
-        
+
         # Check for reasonable line lengths
         long_lines = [line for line in lines if len(line) > 100]
         if len(long_lines) > len(lines) * 0.3:
@@ -430,13 +430,13 @@ class UltimateResumeScanner:
                 fix_suggestion="Break long lines for better readability",
                 impact_score=2
             ))
-        
+
         return max(0, score)
-    
+
     def _analyze_structure(self) -> float:
         """Analyze resume structure and organization."""
         score = 100.0
-        
+
         # Check for clear section headers
         section_headers = 0
         for _section_name, keywords in {**self.REQUIRED_SECTIONS, **self.OPTIONAL_SECTIONS}.items():
@@ -444,7 +444,7 @@ class UltimateResumeScanner:
                 if re.search(rf'\b{keyword}\b', self.resume_text, re.IGNORECASE):
                     section_headers += 1
                     break
-        
+
         if section_headers < 4:
             score -= 25
             self.issues.append(ATSIssue(
@@ -455,18 +455,18 @@ class UltimateResumeScanner:
                 fix_suggestion="Add clear section headers like 'Experience', 'Education', 'Skills'",
                 impact_score=6
             ))
-        
+
         # Check for dates in experience section
         date_patterns = [
             r'\b\d{4}\s*[-–]\s*\d{4}\b',  # 2020-2023
             r'\b\d{4}\s*[-–]\s*present\b',  # 2020-present
             r'\b(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\w*\s+\d{4}\b'  # Month Year
         ]
-        
+
         date_matches = 0
         for pattern in date_patterns:
             date_matches += len(re.findall(pattern, self.resume_text, re.IGNORECASE))
-        
+
         if date_matches < 2:
             score -= 20
             self.issues.append(ATSIssue(
@@ -477,19 +477,19 @@ class UltimateResumeScanner:
                 fix_suggestion="Include employment dates for all positions (e.g., 'Jan 2020 - Present')",
                 impact_score=5
             ))
-        
+
         return max(0, score)
-    
+
     def _analyze_readability(self) -> float:
         """Analyze readability for both ATS and human reviewers."""
         score = 100.0
-        
+
         # Check for action verbs
         found_action_verbs = set()
         for verb in self.ACTION_VERBS:
             if re.search(rf'\b{verb}\b', self.resume_text, re.IGNORECASE):
                 found_action_verbs.add(verb)
-        
+
         action_verb_ratio = len(found_action_verbs) / len(self.ACTION_VERBS)
         if action_verb_ratio < 0.1:
             score -= 20
@@ -501,18 +501,18 @@ class UltimateResumeScanner:
                 fix_suggestion="Use more action verbs: achieved, managed, developed, etc.",
                 impact_score=5
             ))
-        
+
         # Check for quantified achievements
         number_patterns = [
             r'\b\d+%\b',  # percentages
             r'\$\d+[kmb]?\b',  # money
             r'\b\d+[kmb]?\+?\s*(?:users|customers|clients|projects|people)\b',  # quantities
         ]
-        
+
         quantified_achievements = 0
         for pattern in number_patterns:
             quantified_achievements += len(re.findall(pattern, self.resume_text, re.IGNORECASE))
-        
+
         if quantified_achievements < 3:
             score -= 15
             self.issues.append(ATSIssue(
@@ -523,28 +523,28 @@ class UltimateResumeScanner:
                 fix_suggestion="Add numbers to achievements: '50% increase', '$2M revenue', '100+ users'",
                 impact_score=4
             ))
-        
+
         return max(0, score)
-    
+
     def _analyze_keywords(self, job_description: str | None, industry: str | None) -> KeywordAnalysis:
         """Analyze keyword optimization."""
         found_keywords = []
         missing_keywords = []
         recommendations = []
-        
+
         if job_description:
             # Extract keywords from job description
             jd_keywords = self._extract_job_keywords(job_description)
-            
+
             for keyword in jd_keywords:
                 if re.search(rf'\b{re.escape(keyword)}\b', self.resume_text, re.IGNORECASE):
                     found_keywords.append(keyword)
                 else:
                     missing_keywords.append(keyword)
-            
+
             if missing_keywords:
                 recommendations.append(f"Add missing keywords: {', '.join(missing_keywords[:5])}")
-        
+
         # Industry-specific keyword analysis
         industry_score = 75.0  # Default score
         if industry:
@@ -553,17 +553,17 @@ class UltimateResumeScanner:
             for keyword in industry_keywords:
                 if re.search(rf'\b{re.escape(keyword)}\b', self.resume_text, re.IGNORECASE):
                     industry_matches += 1
-            
+
             industry_score = min(95, (industry_matches / len(industry_keywords)) * 100)
-            
+
             if industry_score < 60:
                 recommendations.append(f"Add more {industry} keywords to improve relevance")
-        
+
         # Calculate keyword density
         total_words = len(self.resume_text.split())
         keyword_count = len(found_keywords)
         keyword_density = (keyword_count / total_words) * 100 if total_words > 0 else 0
-        
+
         return KeywordAnalysis(
             found_keywords=found_keywords,
             missing_keywords=missing_keywords,
@@ -571,23 +571,23 @@ class UltimateResumeScanner:
             industry_match_score=industry_score,
             recommendations=recommendations
         )
-    
+
     def _analyze_sections(self) -> dict[str, ResumeSection]:
         """Analyze resume sections."""
         sections = {}
-        
+
         for section_name, keywords in self.REQUIRED_SECTIONS.items():
             present = False
             quality_score = 0.0
             word_count = 0
             issues = []
-            
+
             # Check if section is present
             for keyword in keywords:
                 if re.search(rf'\b{keyword}\b', self.resume_text, re.IGNORECASE):
                     present = True
                     break
-            
+
             if present:
                 # Estimate section quality and word count
                 # This is a simplified analysis - could be enhanced
@@ -603,7 +603,7 @@ class UltimateResumeScanner:
                     fix_suggestion=f"Add a clearly labeled {section_name.title()} section",
                     impact_score=6
                 ))
-            
+
             sections[section_name] = ResumeSection(
                 name=section_name,
                 present=present,
@@ -611,32 +611,32 @@ class UltimateResumeScanner:
                 word_count=word_count,
                 issues=issues
             )
-        
+
         return sections
-    
+
     def _extract_job_keywords(self, job_description: str) -> list[str]:
         """Extract important keywords from job description."""
         # This is a simplified keyword extraction
         # In practice, you'd use more sophisticated NLP
-        
+
         # Common technical keywords patterns
         patterns = [
             r'\b[A-Z]{2,}[a-z]*\b',  # Acronyms like API, SQL
             r'\b\w+(?:\.\w+)+\b',    # Technologies like React.js
             r'\b\w+(?:-\w+)+\b',     # Hyphenated terms
         ]
-        
+
         keywords = set()
         for pattern in patterns:
             matches = re.findall(pattern, job_description)
             keywords.update(match.lower() for match in matches if len(match) > 2)
-        
+
         # Remove common words
         stop_words = {'the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'had', 'her', 'will', 'one', 'our', 'out', 'day', 'get', 'use', 'him', 'his', 'how', 'man', 'new', 'now', 'old', 'see', 'two', 'way', 'who', 'boy', 'did', 'its', 'let', 'put', 'say', 'she', 'too'}
         keywords = [kw for kw in keywords if kw not in stop_words and len(kw) > 2]
-        
+
         return list(keywords)[:20]  # Return top 20 keywords
-    
+
     def _get_industry_keywords(self, industry: str) -> list[str]:
         """Get common keywords for specific industries."""
         industry_keywords = {
@@ -646,9 +646,9 @@ class UltimateResumeScanner:
             'finance': ['excel', 'financial analysis', 'accounting', 'budget', 'forecasting', 'risk management'],
             'healthcare': ['patient care', 'medical', 'clinical', 'healthcare', 'treatment', 'diagnosis'],
         }
-        
+
         return industry_keywords.get(industry.lower(), [])
-    
+
     def _get_compatibility_level(self, score: float) -> ATSCompatibilityLevel:
         """Determine compatibility level from score."""
         if score >= 90:
@@ -661,7 +661,7 @@ class UltimateResumeScanner:
             return ATSCompatibilityLevel.POOR
         else:
             return ATSCompatibilityLevel.CRITICAL
-    
+
     def _get_parsing_fix_suggestion(self, pattern_name: str) -> str:
         """Get fix suggestion for parsing issues."""
         suggestions = {
@@ -674,21 +674,21 @@ class UltimateResumeScanner:
             'special_chars': 'Replace special characters with standard text formatting',
         }
         return suggestions.get(pattern_name, 'Simplify formatting for better ATS compatibility')
-    
+
     def _generate_final_recommendations(self, overall_score: float, sections: dict[str, ResumeSection], keyword_analysis: KeywordAnalysis):
         """Generate final improvement recommendations."""
         # Priority recommendations based on score
         if overall_score < 70:
             self.recommendations.insert(0, "URGENT: Your resume needs significant improvements to pass ATS screening")
-        
+
         # Section-specific recommendations
         missing_sections = [name for name, section in sections.items() if not section.present]
         if missing_sections:
             self.recommendations.append(f"Add missing sections: {', '.join(missing_sections)}")
-        
+
         # Keyword recommendations
         self.recommendations.extend(keyword_analysis.recommendations)
-        
+
         # General recommendations
         if overall_score < 85:
             self.recommendations.extend([
@@ -704,23 +704,23 @@ def print_report(report: ATSCompatibilityReport, show_details: bool = True):
     print("\n" + "="*80)
     print("RESUME ATS COMPATIBILITY REPORT")
     print("="*80)
-    
+
     # Overall score with visual indicator
     score = report.overall_score
     level = report.compatibility_level
-    
+
     level_indicators = {
         ATSCompatibilityLevel.EXCELLENT: "EXCELLENT",
-        ATSCompatibilityLevel.GOOD: "GOOD", 
+        ATSCompatibilityLevel.GOOD: "GOOD",
         ATSCompatibilityLevel.FAIR: "FAIR",
         ATSCompatibilityLevel.POOR: "POOR",
         ATSCompatibilityLevel.CRITICAL: "⚫ CRITICAL"
     }
-    
+
     print(f"\nOverall ATS Score: {score:.1f}% {level_indicators[level]}")
     print(f"Market Percentile: {report.market_percentile:.1f}%")
     print(f"Improvement Potential: +{report.improvement_potential:.1f} points")
-    
+
     # Component breakdown
     print("\nComponent Breakdown:")
     print(f"  • Parsing Compatibility: {report.parsing_score:.1f}%")
@@ -728,42 +728,42 @@ def print_report(report: ATSCompatibilityReport, show_details: bool = True):
     print(f"  • Formatting: {report.formatting_score:.1f}%")
     print(f"  • Structure: {report.structure_score:.1f}%")
     print(f"  • Readability: {report.readability_score:.1f}%")
-    
+
     # Issues summary
     if report.issues:
         critical_issues = [i for i in report.issues if i.level == IssueLevel.CRITICAL]
         warning_issues = [i for i in report.issues if i.level == IssueLevel.WARNING]
-        
+
         print(f"\nIssues Found: {len(report.issues)} total")
         if critical_issues:
             print(f"  • Critical: {len(critical_issues)}")
         if warning_issues:
             print(f"  • Warnings: {len(warning_issues)}")
-        
+
         if show_details and critical_issues:
             print("\nCritical Issues (Fix These First):")
             for issue in critical_issues[:3]:  # Show top 3
                 print(f"  • {issue.title}")
                 print(f"    Fix: {issue.fix_suggestion}")
-    
+
     # Top recommendations
     if report.recommendations:
         print("\nTOP RECOMMENDATIONS:")
         for i, rec in enumerate(report.recommendations[:5], 1):
             print(f"  {i}. {rec}")
-    
+
     # Section analysis
     print("\nSection Analysis:")
     for name, section in report.sections.items():
         status = "✅" if section.present else "❌"
         print(f"  {status} {name.title()}: {'Present' if section.present else 'Missing'}")
-    
+
     # Keywords
     if report.keyword_analysis.found_keywords:
         print(f"\nKeywords Found: {len(report.keyword_analysis.found_keywords)}")
         if report.keyword_analysis.missing_keywords:
             print(f"Missing Keywords: {', '.join(report.keyword_analysis.missing_keywords[:5])}")
-    
+
     # Final assessment
     print(f"\n{'='*80}")
     if score >= 85:
@@ -774,7 +774,7 @@ def print_report(report: ATSCompatibilityReport, show_details: bool = True):
         print("⚠️ Your resume needs significant improvements to pass ATS screening.")
     else:
         print("Your resume requires major revisions before submitting to jobs.")
-    
+
     print("\nNext Steps:")
     print("1. Address critical issues first")
     print("2. Add missing sections and keywords")
@@ -810,11 +810,11 @@ def create_html_report(report: ATSCompatibilityReport, output_path: str):
             <p>File: {report.file_path}</p>
             <p>Analysis Date: {report.analysis_date}</p>
         </div>
-        
+
         <div class="score {report.compatibility_level.value}">
             {report.overall_score:.1f}% - {report.compatibility_level.value.upper()}
         </div>
-        
+
         <div class="section">
             <h2>Component Scores</h2>
             <ul>
@@ -825,17 +825,17 @@ def create_html_report(report: ATSCompatibilityReport, output_path: str):
                 <li>Readability: {report.readability_score:.1f}%</li>
             </ul>
         </div>
-        
+
         <div class="section">
             <h2>Issues Found</h2>
             {"".join(f'<div class="issue {issue.level.value}"><strong>{issue.title}</strong><br>{issue.description}<br><em>Fix: {issue.fix_suggestion}</em></div>' for issue in report.issues)}
         </div>
-        
+
         <div class="section">
             <h2>Recommendations</h2>
             {"".join(f'<div class="recommendation">• {rec}</div>' for rec in report.recommendations)}
         </div>
-        
+
         <div class="section">
             <h2>Section Analysis</h2>
             <ul>
@@ -845,14 +845,14 @@ def create_html_report(report: ATSCompatibilityReport, output_path: str):
     </body>
     </html>
     """
-    
+
     Path(output_path).write_text(html_content, encoding='utf-8')
     print(f"✅ Detailed HTML report saved to: {output_path}")
 
 def main():
     """Main entry point for the resume scanner."""
     import argparse
-    
+
     parser = argparse.ArgumentParser(
         description="Ultimate Resume ATS Scanner & Optimizer",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -860,20 +860,20 @@ def main():
 Examples:
   # Scan a resume
   python ultimate_resume_scanner.py resume.pdf
-  
+
   # Scan with job description for targeted analysis
   python ultimate_resume_scanner.py resume.pdf --job-description job.txt
-  
+
   # Generate detailed HTML report
   python ultimate_resume_scanner.py resume.pdf --output report.html
-  
+
   # Specify industry for better keyword analysis
   python ultimate_resume_scanner.py resume.pdf --industry software
         """
     )
-    
+
     parser.add_argument(
-        "resume_path", 
+        "resume_path",
         help="Path to resume file (PDF, DOCX, or TXT)"
     )
     parser.add_argument(
@@ -890,13 +890,13 @@ Examples:
         help="Path to save detailed HTML report"
     )
     parser.add_argument(
-        "--json", 
+        "--json",
         action="store_true",
         help="Output results as JSON"
     )
-    
+
     args = parser.parse_args()
-    
+
     try:
         # Load job description if provided
         job_description = None
@@ -906,15 +906,15 @@ Examples:
                 print(f"Loaded job description from {args.job_description}")
             except Exception as e:
                 print(f"⚠️ Warning: Could not read job description: {e}")
-        
+
         print(f"Scanning resume: {args.resume_path}")
         if args.industry:
             print(f"Industry context: {args.industry}")
-        
+
         # Initialize scanner and perform analysis
         scanner = UltimateResumeScanner()
         report = scanner.scan_resume(args.resume_path, job_description, args.industry)
-        
+
         # Output results
         if args.json:
             # Convert to JSON (excluding complex objects)
@@ -926,7 +926,7 @@ Examples:
             print(json.dumps(report_dict, indent=2))
         else:
             print_report(report)
-        
+
         # Generate HTML report if requested
         if args.output:
             create_html_report(report, args.output)
@@ -935,7 +935,7 @@ Examples:
                 webbrowser.open(f"file://{Path(args.output).absolute()}")
             except Exception:  # nosec B110  # noqa: S110 - browser opening is optional
                 pass
-        
+
         # Return appropriate exit code based on score
         if report.overall_score >= 70:
             return 0
@@ -943,7 +943,7 @@ Examples:
             return 1
         else:
             return 2
-            
+
     except FileNotFoundError as e:
         print(f"❌ Error: {e}")
         return 1

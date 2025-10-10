@@ -16,11 +16,11 @@ python src/agent.py --dry-run
 ```
 
 **Expected vs actual:**
-Expected: Jobs found and scored  
+Expected: Jobs found and scored
 Actual: Crashes with TypeError
 
 **Environment:**
-- OS: macOS 14.1  
+- OS: macOS 14.1
 - Python: 3.12.0
 - Install method: Manual
 

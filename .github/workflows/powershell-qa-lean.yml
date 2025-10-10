@@ -5,21 +5,21 @@ on:
   push:
     paths:
       - '**/*.ps1'
-      - '**/*.psm1' 
+      - '**/*.psm1'
       - '**/*.psd1'
       - 'qa/**'
       - '.github/workflows/powershell-qa-lean.yml'
     branches: [main, develop]
-  
+
   pull_request:
     paths:
       - '**/*.ps1'
       - '**/*.psm1'
-      - '**/*.psd1' 
+      - '**/*.psd1'
       - 'qa/**'
       - '.github/workflows/powershell-qa-lean.yml'
     types: [opened, synchronize, reopened]
-  
+
   workflow_dispatch:
     inputs:
       full_scan:
@@ -27,7 +27,7 @@ on:
         required: false
         default: false
         type: boolean
-      
+
       auto_fix:
         description: 'Apply automatic fixes'
         required: false
@@ -44,10 +44,10 @@ jobs:
     name: 🔍 PowerShell Quality Check
     runs-on: ubuntu-latest  # 💰 Cheapest runner
     timeout-minutes: 8      # 💰 Short timeout to prevent runaway costs
-    
+
     # 💰 Skip if no PowerShell files changed (unless manual full scan)
     if: |
-      github.event.inputs.full_scan == 'true' || 
+      github.event.inputs.full_scan == 'true' ||
       contains(join(github.event.commits.*.modified, ' '), '.ps1') ||
       contains(join(github.event.commits.*.modified, ' '), '.psm1') ||
       contains(join(github.event.commits.*.modified, ' '), '.psd1') ||
@@ -56,18 +56,18 @@ jobs:
       contains(join(github.event.commits.*.added, ' '), '.psd1') ||
       github.event_name == 'pull_request' ||
       github.event_name == 'workflow_dispatch'
-    
+
     outputs:
       issues-found: ${{ steps.analysis.outputs.issues }}
       files-scanned: ${{ steps.analysis.outputs.files }}
       needs-attention: ${{ steps.analysis.outputs.needs-attention }}
-    
+
     steps:
       - name: 📥 Checkout (Shallow)
         uses: actions/checkout@v5
         with:
           fetch-depth: 1  # 💰 Shallow clone for speed
-      
+
       - name: 🔧 Setup PowerShell (Cached)
         shell: pwsh
         run: |
@@ -83,13 +83,13 @@ jobs:
         shell: pwsh
         run: |
           Write-Output "🏥 Quick health check..."
-          
+
           # Check if QA system exists
           if (-not (Test-Path "psqa.ps1")) {
             Write-Output "❌ QA system not found - using direct analysis"
             exit 0
           }
-          
+
           # Quick validation
           try {
             & "./psqa.ps1" -Mode validate -Path "qa" -Timeout 30
@@ -103,15 +103,15 @@ jobs:
         shell: pwsh
         run: |
           Write-Output "🎯 Running cost-optimized PowerShell analysis..."
-          
+
           # 💰 Find only changed PowerShell files if not full scan
           if ("${{ github.event.inputs.full_scan }}" -eq "true") {
             Write-Output "🔍 Full scan requested"
-            $filesToScan = Get-ChildItem -Recurse -Include "*.ps1","*.psm1","*.psd1" | 
+            $filesToScan = Get-ChildItem -Recurse -Include "*.ps1","*.psm1","*.psd1" |
               Where-Object { $_.FullName -notlike "*/.venv/*" -and $_.FullName -notlike "*/node_modules/*" }
           } else {
             Write-Output "🎯 Scanning changed files only"
-            
+
             # Get changed files from git (cost-optimized approach)
             $changedFiles = @()
             try {
@@ -124,16 +124,16 @@ jobs:
             } catch {
               # Fallback: scan all if git fails
               Write-Output "⚠️ Git diff failed, scanning all files"
-              $changedFiles = Get-ChildItem -Recurse -Include "*.ps1","*.psm1","*.psd1" | 
+              $changedFiles = Get-ChildItem -Recurse -Include "*.ps1","*.psm1","*.psd1" |
                 Where-Object { $_.FullName -notlike "*/.venv/*" }
             }
-            
+
             $filesToScan = $changedFiles
           }
-          
+
           $fileCount = ($filesToScan | Measure-Object).Count
           Write-Output "📁 Found $fileCount PowerShell files to scan"
-          
+
           if ($fileCount -eq 0) {
             Write-Output "✅ No PowerShell files to scan"
             Write-Output "issues=0" >> $env:GITHUB_OUTPUT
@@ -141,17 +141,17 @@ jobs:
             Write-Output "needs-attention=false" >> $env:GITHUB_OUTPUT
             exit 0
           }
-          
+
           # 💰 Use QA system if available, otherwise direct analysis
           $issues = @()
           $useQASystem = Test-Path "psqa.ps1"
-          
+
           if ($useQASystem) {
             try {
               Write-Output "🔧 Using QA system for analysis..."
               $result = & "./psqa.ps1" -Mode analyze -Path ($filesToScan[0].Directory.FullName) 2>&1
               Write-Output $result
-              
+
               # Count issues from QA system output
               $issueLines = $result | Where-Object { $_ -match "Issues found|violations|errors" }
               $issueCount = 0
@@ -164,7 +164,7 @@ jobs:
               $useQASystem = $false
             }
           }
-          
+
           if (-not $useQASystem) {
             Write-Output "🔍 Using direct PSScriptAnalyzer..."
             $issues = $filesToScan | ForEach-Object {
@@ -177,11 +177,11 @@ jobs:
             }
             $issueCount = ($issues | Measure-Object).Count
           }
-          
+
           Write-Output "📊 Analysis Results:"
           Write-Output "  Files Scanned: $fileCount"
           Write-Output "  Issues Found: $issueCount"
-          
+
           # 💰 Only create detailed reports if issues found
           if ($issueCount -gt 0) {
             Write-Output "📋 Issue Summary:"
@@ -191,7 +191,7 @@ jobs:
               }
             }
           }
-          
+
           # Set outputs
           Write-Output "issues=$issueCount" >> $env:GITHUB_OUTPUT
           Write-Output "files=$fileCount" >> $env:GITHUB_OUTPUT
@@ -199,13 +199,13 @@ jobs:
 
       - name: 🛠️ Auto-Fix (Optional)
         if: |
-          steps.analysis.outputs.needs-attention == 'true' && 
+          steps.analysis.outputs.needs-attention == 'true' &&
           github.event.inputs.auto_fix == 'true' &&
           github.event_name == 'workflow_dispatch'
         shell: pwsh
         run: |
           Write-Output "🛠️ Applying automatic fixes..."
-          
+
           if (Test-Path "psqa.ps1") {
             try {
               & "./psqa.ps1" -Mode fix -Path "."
@@ -228,7 +228,7 @@ jobs:
           echo "- **Runner**: ubuntu-latest (cheapest)" >> $GITHUB_STEP_SUMMARY
           echo "- **Duration**: ~$(date -u +'%M:%S') minutes" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           if [[ "${{ steps.analysis.outputs.needs-attention }}" == "true" ]]; then
             echo "### ⚠️ Action Required" >> $GITHUB_STEP_SUMMARY
             echo "PowerShell quality issues detected. Consider running:" >> $GITHUB_STEP_SUMMARY
@@ -239,7 +239,7 @@ jobs:
             echo "### ✅ All Clear" >> $GITHUB_STEP_SUMMARY
             echo "No PowerShell quality issues detected! 🎉" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 💰 Cost Optimizations Applied" >> $GITHUB_STEP_SUMMARY
           echo "- ✅ Path filters (only runs when PS files change)" >> $GITHUB_STEP_SUMMARY
@@ -259,13 +259,13 @@ jobs:
       github.event.inputs.auto_fix == 'true' &&
       github.event_name == 'workflow_dispatch'
     timeout-minutes: 5
-    
+
     steps:
       - name: 📥 Checkout
         uses: actions/checkout@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: 🔧 Setup PowerShell
         shell: pwsh
         run: |
@@ -286,12 +286,12 @@ jobs:
           title: "🤖 Auto-fix PowerShell Quality Issues"
           body: |
             ## 🤖 Automated PowerShell Fixes
-            
+
             This PR contains automatic fixes for PowerShell quality issues.
-            
+
             **Files affected**: ${{ needs.powershell-qa.outputs.files }}
             **Issues fixed**: ${{ needs.powershell-qa.outputs.issues }}
-            
+
             All fixes are safe and maintain existing functionality.
           branch: auto-fix/powershell-${{ github.run_number }}
           labels: automated, powershell, quality

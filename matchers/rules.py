@@ -119,7 +119,7 @@ def score_job_rules_only(job: dict, prefs: dict) -> tuple[float, list[str]]:
                     location_score = 0.2
                     location_reasons.append(f"State matched '{state}'")
                     break
-        if location_score == 0 and loc_prefs.get("country"): 
+        if location_score == 0 and loc_prefs.get("country"):
             country_pref = loc_prefs.get("country")
             if country_pref and country_pref.lower() in location:
                 location_score = 0.1

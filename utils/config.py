@@ -12,6 +12,14 @@ from urllib.parse import urlparse
 from utils.errors import ConfigurationException
 from utils.logging import get_logger
 
+__all__ = [
+    "CompanyConfig",
+    "ScrapingConfig",
+    "FilterConfig",
+    "NotificationConfig",
+    "ConfigManager",
+]
+
 logger = get_logger("config")
 
 

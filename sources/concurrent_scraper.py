@@ -348,7 +348,7 @@ async def scrape_multiple_async_fast(
     return await scraper.scrape_multiple_async(urls, fetch_descriptions, max_concurrent)
 
 
-def benchmark_scraper_performance(urls: list[str]) -> dict:
+async def benchmark_scraper_performance(urls: list[str]) -> dict:
     """
     Benchmark different scraping approaches.
     Returns performance comparison data.
@@ -360,7 +360,7 @@ def benchmark_scraper_performance(urls: list[str]) -> dict:
     sequential_jobs = []
     for url in urls:
         try:
-            jobs = asyncio.run(scrape_jobs(url, fetch_descriptions=False))
+            jobs = await scrape_jobs(url, fetch_descriptions=False)
             sequential_jobs.extend(jobs)
         except BaseException:  # noqa: S110 - benchmark continues on failure
             pass
@@ -372,7 +372,11 @@ def benchmark_scraper_performance(urls: list[str]) -> dict:
     # Concurrent threads benchmark
     start_time = time.time()
     scraper = ConcurrentJobScraper(use_processes=False)
-    thread_results = scraper.scrape_multiple_concurrent(urls, fetch_descriptions=False)
+    # Run in executor to avoid blocking async event loop
+    loop = asyncio.get_event_loop()
+    thread_results = await loop.run_in_executor(
+        None, lambda: scraper.scrape_multiple_concurrent(urls, fetch_descriptions=False)
+    )
     concurrent_jobs = sum(len(r.jobs) for r in thread_results if r.success)
     results["concurrent_threads"] = {
         "time": time.time() - start_time,
@@ -382,7 +386,10 @@ def benchmark_scraper_performance(urls: list[str]) -> dict:
     # Concurrent processes benchmark
     start_time = time.time()
     scraper = ConcurrentJobScraper(use_processes=True)
-    process_results = scraper.scrape_multiple_concurrent(urls, fetch_descriptions=False)
+    # Run in executor to avoid blocking async event loop
+    process_results = await loop.run_in_executor(
+        None, lambda: scraper.scrape_multiple_concurrent(urls, fetch_descriptions=False)
+    )
     process_jobs = sum(len(r.jobs) for r in process_results if r.success)
     results["concurrent_processes"] = {
         "time": time.time() - start_time,

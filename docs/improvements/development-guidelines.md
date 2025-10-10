@@ -1,7 +1,7 @@
 # Development Guidelines & Common Anti-Patterns to Avoid
 
-**Date Created:** October 9, 2025  
-**Purpose:** Quick reference guide based on analysis of existing codebase issues  
+**Date Created:** October 9, 2025
+**Purpose:** Quick reference guide based on analysis of existing codebase issues
 **Target Audience:** All developers working on JobSentinel
 
 ## 🚨 CRITICAL ANTI-PATTERNS (Never Do These)
@@ -19,7 +19,7 @@ def some_function():
 async def some_function():
     # Use await in async context
     result = await async_function()
-    
+
 # Or use asyncio.create_task() for fire-and-forget
 task = asyncio.create_task(async_function())
 ```
@@ -72,7 +72,7 @@ async def fetch_job_description(url):
 class BrowserPool:
     def __init__(self):
         self._browser = None
-    
+
     async def get_browser(self):
         if not self._browser:
             p = await async_playwright().start()
@@ -164,7 +164,7 @@ deploy/macos/install.sh    # macOS-specific logic
 ❌ **SCATTERED:**
 ```
 config.json          # Some config
-.env                 # More config  
+.env                 # More config
 settings.yaml        # Even more config
 hardcoded_values.py  # Config in code
 ```
@@ -250,12 +250,12 @@ def sync_wrapper():
 class BrowserManager:
     _instance = None
     _browser = None
-    
+
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
         return cls._instance
-    
+
     async def get_page(self):
         if not self._browser:
             p = await async_playwright().start()
@@ -273,14 +273,14 @@ class Config:
         self.config_dir = Path(config_dir)
         self._config = {}
         self._load_config()
-    
+
     def _load_config(self):
         # Load base config
         base_config = self.config_dir / "base.yaml"
         if base_config.exists():
             with open(base_config) as f:
                 self._config = yaml.safe_load(f)
-        
+
         # Override with environment-specific config
         env = os.getenv("ENVIRONMENT", "development")
         env_config = self.config_dir / f"{env}.yaml"

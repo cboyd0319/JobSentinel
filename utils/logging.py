@@ -9,6 +9,17 @@ from typing import Any
 from rich.console import Console
 from rich.logging import RichHandler
 
+__all__ = [
+    "JsonFormatter",
+    "setup_logging",
+    "get_logger",
+    "log_exception",
+    "log_performance",
+    "log_scrape_result",
+    "log_notification_sent",
+    "console",
+]
+
 # Initialize Rich Console for direct output
 console = Console()
 

@@ -12,6 +12,16 @@ import re
 
 from pydantic import BaseModel, Field, constr, validator
 
+__all__ = [
+    "JobSearchRequest",
+    "ReedJobSearchRequest",
+    "JobSpySearchRequest",
+    "MCPServerConfig",
+    "validate_job_search",
+    "validate_reed_search",
+    "validate_jobspy_search",
+]
+
 
 class JobSearchRequest(BaseModel):
     """Validated request for job search operations."""

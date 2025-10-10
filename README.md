@@ -2,7 +2,7 @@
 
 > ⚠️ **Alpha software.** It works, but there are bugs. I use it daily. Test locally first.
 
-**Self-hosted job search automation** — scrape → de‑dupe → score → alert.  
+**Self-hosted job search automation** — scrape → de‑dupe → score → alert.
 **Private by default.** **$0 locally**, ~**$5–15/mo** in *your* cloud.
 
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -15,7 +15,7 @@
 ---
 
 ## Why JobSentinel
-Job boards are noisy—paywalls, spam, and ghost listings waste your time.  
+Job boards are noisy—paywalls, spam, and ghost listings waste your time.
 **JobSentinel automates the grind** and keeps your data **yours**:
 
 - **Multi‑source scraping** with junk filters and **scoring to your preferences**.
@@ -157,7 +157,7 @@ python -m jobsentinel.web --port 5000
 ---
 
 ## Contributing
-Issues and PRs welcome. Please see **`CONTRIBUTING.md`** and **`CODE_OF_CONDUCT.md`** (if present).  
+Issues and PRs welcome. Please see **`CONTRIBUTING.md`** and **`CODE_OF_CONDUCT.md`** (if present).
 Tag issues with `good first issue` and `help wanted` to encourage community fixes.
 
 ---
