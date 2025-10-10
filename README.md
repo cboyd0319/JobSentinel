@@ -1,5 +1,7 @@
+⚠️ **Alpha software.** It works, but there are bugs. I use it daily. Test locally first.
+
 # 🛰️ JobSentinel  
-**Self-hosted job intelligence system — private, automated, and free to run locally.**
+**Self-hosted (PRIVATE/FREE) job intelligence system — private, automated, and free to run locally.**
 
 JobSentinel scrapes multiple job sites, scores each role against your preferences, and alerts you only to high-value matches — automatically.  
 It's built for *anyone* who's tired of endless scrolling, fake postings, and recruiter spam.
@@ -13,9 +15,10 @@ It's built for *anyone* who's tired of endless scrolling, fake postings, and rec
 ---
 
 🔒 **Why JobSentinel?**
-Because job boards are full of noise, paywalls, and fake listings.  
+Because job boards are full of noise, paywalls, fake listings, and ghost jobs.  
 JobSentinel gives you the power to automate your search, stay private, and never waste time chasing ghosts again.  
 Free if you run it locally. Always yours. Always private.
+Around $5/mo if you choose the cloud option. Still always yours. Still always private.
 
 ---
 
@@ -28,8 +31,6 @@ Free if you run it locally. Always yours. Always private.
 ---
 # Job Search Automation
 
-⚠️ **Alpha software.** It works, but there are bugs. I use it daily. Test locally first.
-
 ## What It Does
 
 I built this because hunting jobs manually sucks. This scrapes multiple sites, scores each role against your skills, and alerts you to matches worth checking.
@@ -38,8 +39,8 @@ I built this because hunting jobs manually sucks. This scrapes multiple sites, s
 
 - Scrapes Greenhouse, Lever, JobsWithGPT, Reed, and JobSpy multi‑site aggregation (~500k+ jobs)
 - Scores each job against your preferences
-- Sends high‑scoring matches to Slack
-- Stores everything locally (your data stays yours)
+- Sends only high‑scoring matches to personal Slack
+- Stores everything locally (your data ALWAYS stays yours)
 
 **Status:** Local mode works today. Cloud deployment typically costs **$5–15/month**.
 
