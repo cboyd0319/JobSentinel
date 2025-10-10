@@ -1,3 +1,31 @@
+# 🛰️ JobSentinel  
+**Self-hosted job intelligence system — private, automated, and free to run locally.**
+
+JobSentinel scrapes multiple job sites, scores each role against your preferences, and alerts you only to high-value matches — automatically.  
+It’s built for *anyone* who’s tired of endless scrolling, fake postings, and recruiter spam.
+
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Docker](https://img.shields.io/badge/Run%20with-Docker-blue.svg)](https://www.docker.com/)
+[![Slack Alerts](https://img.shields.io/badge/Alerts-Slack-4A154B.svg?logo=slack)](https://slack.com/)
+[![Privacy](https://img.shields.io/badge/Privacy-Local%20First-black.svg)](#)
+[![Status](https://img.shields.io/badge/Status-Active-success.svg)](#)
+
+---
+
+🔒 **Why JobSentinel?**
+Because job boards are full of noise, paywalls, and fake listings.  
+JobSentinel gives you the power to automate your search, stay private, and never waste time chasing ghosts again.  
+Free if you run it locally. Always yours. Always private.
+
+---
+
+🧠 **Coming Soon**
+- More source integrations (Lever, Workable, ZipRecruiter)
+- Ghost-job detection scoring
+- Optional notifications via Discord, Telegram, or email
+- Web dashboard and quick setup UI
+
+---
 # Job Search Automation
 
 ⚠️ **Alpha software.** It works, but there are bugs. I use it daily. Test locally first.
@@ -29,8 +57,8 @@ python scripts\setup\windows_local_installer.py
 ### macOS / Linux
 
 ```bash
-git clone https://github.com/cboyd0319/job-search-automation
-cd job-search-automation
+git clone https://github.com/cboyd0319/JobSentinel
+cd JobSentinel
 
 python3 -m venv .venv
 source .venv/bin/activate
@@ -109,55 +137,63 @@ jsa config-validate --path config/user_prefs.json
 jsa health                    # print quick health summary
 ```
 
-### Legacy commands
 
-```bash
-python src/agent.py --dry-run
-python src/agent.py
-nohup python src/agent.py --daemon &
-tail -f data/logs/*.log
-```
+# 🛰️ JobSentinel  
+**Self-hosted job intelligence system — private, automated, and free to run locally.**
 
----
+JobSentinel scrapes multiple job sites, scores each role against your preferences, and alerts you only to high-value matches — automatically.  
+It’s built for *anyone* who’s tired of endless scrolling, fake postings, and recruiter spam.
 
-## Cloud Deployment (Optional)
-
-⚠️ **Costs ~$5–15/month.** Read **SECURITY.md** first.
-
-### One‑shot helper
-```bash
-python cloud/bootstrap.py --deploy
-# ...
-# To destroy:
-python cloud/bootstrap.py --destroy
-```
-
-### GCP via Terraform (recommended)
-
-```bash
-cd terraform/gcp
-
-terraform init
-terraform plan
-terraform apply
-```
-
-- Auto-runs every **2 hours**
-- Scales to zero between runs
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Docker](https://img.shields.io/badge/Run%20with-Docker-blue.svg)](https://www.docker.com/)
+[![Slack Alerts](https://img.shields.io/badge/Alerts-Slack-4A154B.svg?logo=slack)](https://slack.com/)
+[![Privacy](https://img.shields.io/badge/Privacy-Local%20First-black.svg)](#)
+[![Status](https://img.shields.io/badge/Status-Active-success.svg)](#)
 
 ---
 
-## PowerShell QA System
+### 🧩 What It Does
 
-Built‑in quality assurance for Windows components.
+I built this because hunting jobs manually sucks.  
+This scrapes multiple sites, scores each role against your skills, and alerts you to matches worth checking.
 
-```powershell
-# System check
-./psqa.ps1 -Mode health
+**The Process:**
+- Scrapes Indeed, LinkedIn, and Greenhouse (~500k+ jobs)
+- Scores each job against your preferences
+- Sends high-scoring matches to Slack
+- Stores everything locally (your data stays yours)
 
-# Analyze quality
+**Status:**  
+✅ Local mode works today  
+☁️ Cloud deployment typically costs **$5–15/month**
+
+---
+
+### ⚙️ Features
+
+- 🌐 **Multi-site scraping** – Indeed, LinkedIn, Greenhouse  
+- 🧠 **Smart scoring** – Keyword matching, salary filtering, company blacklists  
+- 💬 **Slack alerts** – High-scoring matches with score breakdowns  
+- 💾 **Local-first** – Your data stays on your machine  
+- ☁️ **Cloud option** – Auto-runs every 2 hours (~$5–15/month)
+
+---
+
+### 🚀 Quick Start
+
+```bash
+# Clone the repo
 ./psqa.ps1 -Mode analyze
+cd JobSentinel
 
+# Run locally
+
+
+# Or deploy to your own private cloud (GCP, AWS, Azure)
+# Costs around $5–15/month for continuous operation
+```
+
+---
 # Auto‑fix issues
 ./psqa.ps1 -Mode fix
 ```

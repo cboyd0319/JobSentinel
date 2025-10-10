@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Modular ATS analysis engine (enhanced) for job-search-automation.
+"""Modular ATS analysis engine (enhanced) for JobSentinel.
 
 Provides structured, explainable scoring of a resume (and optional job description)
 across multiple dimensions: keywords, skills taxonomy coverage, experience alignment,

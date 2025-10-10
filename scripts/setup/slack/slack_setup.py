@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Unified Slack setup script for job-search-automation.
+"""Unified Slack setup script for JobSentinel.
 
 Zero-knowledge friendly. Safely provisions (or reuses) a Slack Incoming Webhook
 for job alerts and writes SLACK_WEBHOOK_URL into .env.
@@ -49,7 +49,7 @@ class SlackSetupError(Exception):
 
 
 def parse_args() -> argparse.Namespace:
-    p = argparse.ArgumentParser(description='Unified Slack setup for job-search-automation')
+    p = argparse.ArgumentParser(description='Unified Slack setup for JobSentinel')
     p.add_argument('--webhook', help='Provide a Slack Incoming Webhook URL directly')
     p.add_argument('--channel', default=DEFAULT_CHANNEL, help='Preferred channel name to create/select')
     # Using underscore form to avoid attribute access issues (args.test_only)
@@ -80,7 +80,7 @@ def load_env() -> dict[str, str]:
 
 def save_env(env: dict[str, str], quiet: bool = False) -> None:
     lines = [
-        '# Environment variables for job-search-automation',
+    '# Environment variables for JobSentinel',
         f"# Updated {time.strftime('%Y-%m-%d %H:%M:%S')}",
     ]
     for k in sorted(env):

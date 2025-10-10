@@ -97,7 +97,7 @@ def check_platform_compatibility() -> bool:
                 print("\nRECOMMENDATION:")
                 print("   For the best Windows experience, use our dedicated installer:")
                 print("   Run this in PowerShell:")
-                colored_print("   irm https://raw.githubusercontent.com/cboyd0319/job-search-automation/main/deploy/windows/bootstrap.ps1 | iex", Colors.BOLD)
+                colored_print("   irm https://raw.githubusercontent.com/cboyd0319/JobSentinel/main/deploy/windows/bootstrap.ps1 | iex", Colors.BOLD)
                 
                 response = input("\n   Continue with manual setup anyway? (y/N): ").lower().strip()
                 if response not in ['y', 'yes']:
@@ -186,7 +186,7 @@ def check_required_files() -> bool:
         print("\nHOW TO FIX:")
         print("   1. Ensure you're in the correct project directory")
         print("   2. If files are missing, re-download the project:")
-        print("      https://github.com/cboyd0319/job-search-automation/archive/refs/heads/main.zip")
+    print("      https://github.com/cboyd0319/JobSentinel/archive/refs/heads/main.zip")
         print("   3. Extract all files and run this script from the main directory")
         
         return False
@@ -497,7 +497,7 @@ def show_next_steps() -> None:
     
     print("\n🆘 NEED HELP?")
     print("   • Check logs in: logs/application.log")
-    print("   • GitHub Issues: https://github.com/cboyd0319/job-search-automation/issues")
+    print("   • GitHub Issues: https://github.com/cboyd0319/JobSentinel/issues")
     print("   • Documentation: docs/README.md")
     
     print("\n" + "=" * 80)
