@@ -1,7 +1,8 @@
 # 📚 Documentation Index
 
-**Last Updated:** October 9, 2025
-**Repository:** JobSentinel
+**Last Updated:** October 11, 2025
+**Repository:** JobSentinel v0.5.0
+**Platform:** Python 3.13+ (Universal: Windows 11+, macOS 15+, Ubuntu 22.04+)
 
 ---
 
@@ -10,32 +11,31 @@
 New to JobSentinel? Start here:
 
 1. **[README.md](../README.md)** - Project overview and setup
-2. **[CONTRIBUTING.md](CONTRIBUTING.md)** - How to contribute
-3. **[RECENT_IMPROVEMENTS.md](RECENT_IMPROVEMENTS.md)** - Latest changes (Oct 9, 2025)
+2. **[Quickstart Guide](quickstart.md)** - Step-by-step getting started
+3. **[CONTRIBUTING.md](governance/CONTRIBUTING.md)** - How to contribute
 
 ---
 
 ## 📊 Code Quality & Standards
 
-### Current Status (October 9, 2025)
-- **Overall Compliance:** 78/100 → Target: 90/100
-- **Security Score:** 85/100 (EXCELLENT - validated by Bandit)
-- **PEP 8 Compliance:** 80/100
-- **Type Hints Coverage:** 75/100
+### Current Status (v0.5.0 - October 11, 2025)
+- **Platform:** Universal Python 3.13+ deployment
+- **Architecture:** Clean Python-only codebase (PowerShell legacy removed)
+- **Testing:** Comprehensive test suite with pytest
+- **Security:** Environment-based secrets management
 
-### Reports
-- **[Code Standards & Compliance](improvements/code-standards-compliance.md)** - Comprehensive compliance report
-- **[Bandit Security Scan](improvements/bandit-security-scan.md)** - Security validation (0 critical/high issues)
-- **[Quick Wins Completed](improvements/quick-wins-completed.md)** - Recent improvements changelog
-- **[Session Summary](improvements/SESSION_SUMMARY.md)** - Complete overview of Oct 9 work
+### Development Resources
+- **[Development Tools](development/)** - Makefile, pre-commit hooks, editor config
+- **[Docker Deployment](../docker/)** - Container deployment guides
+- **[Architecture](ARCHITECTURE.md)** - System design documentation
 
 ---
 
 ## 🔒 Security
 
-- **[SECURITY.md](SECURITY.md)** - Security policy and reporting
-- **[Bandit Security Scan](improvements/bandit-security-scan.md)** - Latest security scan results
+- **[SECURITY.md](governance/SECURITY.md)** - Security policy and reporting
 - **.env.example** - Environment variable template (no secrets!)
+- **Secrets Management** - See governance documentation for best practices
 
 ---
 
@@ -47,23 +47,20 @@ New to JobSentinel? Start here:
 
 ---
 
-## 📋 Code Analysis & Improvements
+## 📋 Project Structure
 
-### Master Index
-- **[Improvements Directory](improvements/README.md)** - Complete analysis index
+### Core Components
+- **[src/](../src/)** - Main application code (JSA CLI, scrapers, scoring)
+- **[tests/](../tests/)** - Comprehensive test suite
+- **[config/](../config/)** - Configuration files and examples
+- **[scripts/](../scripts/)** - Installation and utility scripts
 
-### Individual Analyses
-- **[Deploy Directory](improvements/deploy-directory-analysis.md)** - Deployment scripts analysis
-- **[Sources Directory](improvements/sources-directory-analysis.md)** - Job scrapers analysis
-- **[Utils Directory](improvements/utils-directory-analysis.md)** - Utility modules analysis
-- **[Src Directory](improvements/src-analysis.md)** - Core application analysis
-- **[GitHub CI/CD](improvements/github-directory-analysis.md)** - GitHub Actions analysis
-- **[Cloud Infrastructure](improvements/cloud-directory-analysis.md)** - Multi-cloud setup analysis
-- **[Other Directories](improvements/remaining-directories-analysis.md)** - Config, scripts, templates, etc.
-
-### Guidelines
-- **[Development Guidelines](improvements/development-guidelines.md)** - Anti-patterns and best practices
-- **[Suggested Improvements](suggested_improvements.md)** - Legacy improvement suggestions
+### Supporting Components
+- **[sources/](../sources/)** - Job source scrapers
+- **[matchers/](../matchers/)** - Job matching algorithms
+- **[notify/](../notify/)** - Notification integrations (Slack, email)
+- **[utils/](../utils/)** - Shared utility modules
+- **[templates/](../templates/)** - Web UI templates
 
 ---
 
@@ -72,50 +69,54 @@ New to JobSentinel? Start here:
 ### Setup
 1. Clone repository
 2. Follow **[README.md](../README.md)** Quick Start
-3. Read **[CONTRIBUTING.md](CONTRIBUTING.md)**
-4. Install pre-commit hooks: `pre-commit install`
+3. Run installer: `python3 scripts/install.py`
+4. Read **[CONTRIBUTING.md](governance/CONTRIBUTING.md)**
 
-### Code Quality Tools
-- **Ruff** - Linting and formatting (configured in `pyproject.toml`)
-- **MyPy** - Type checking
-- **Bandit** - Security scanning
-- **Pytest** - Testing framework
-- **Pre-commit** - Automated quality checks (`.pre-commit-config.yaml`)
+### Development Tools
+See **[development/](development/)** directory for:
+- **Makefile** - Common development tasks
+- **Pre-commit hooks** - Automated quality checks
+- **Editor configuration** - Consistent code style
 
-### Before Committing
+### Quick Commands
 ```bash
-# Run all checks
-pre-commit run --all-files
+# Install dev environment
+make dev
 
-# Or individually
-ruff check .
-black .
-mypy src/
-pytest
+# Run tests
+make test
+
+# Run linters
+make lint
+
+# Format code
+make fmt
 ```
 
 ---
 
-## 📈 Project Planning
+## 📈 Project Governance
 
-- **[CRITICAL_FIXES_PLAN.md](CRITICAL_FIXES_PLAN.md)** - Priority fixes roadmap
-- **[QUALITY_STATUS.md](QUALITY_STATUS.md)** - Current quality metrics
-- **[Enhancement Opportunities](improvements/enhancement-opportunities.md)** - Future improvements
+- **[Code of Conduct](governance/CODE_OF_CONDUCT.md)** - Community standards
+- **[Contributing Guide](governance/CONTRIBUTING.md)** - Contribution process
+- **[Security Policy](governance/SECURITY.md)** - Vulnerability reporting
+- **[Changelog](../CHANGELOG.md)** - Version history
 
 ---
 
 ## 🗂️ Configuration
 
-### Key Files
-- **pyproject.toml** - Python project configuration
-- **.editorconfig** - Editor settings (cross-platform consistency)
-- **.pre-commit-config.yaml** - Pre-commit hooks configuration
-- **.gitignore** - Git ignore patterns
-- **Makefile** - Build and task automation
+### Project Files
+- **[pyproject.toml](../pyproject.toml)** - Python project configuration
+- **[requirements.txt](../requirements.txt)** - Production dependencies
+- **[.gitignore](../.gitignore)** - Git ignore patterns
 
 ### User Configuration
-- **config/user_prefs.example.json** - User preferences template
-- **.env.example** - Environment variables template
+- **[config/user_prefs.example.json](../config/user_prefs.example.json)** - User preferences template
+- **[.env.example](../.env.example)** - Environment variables template
+
+### Development Configuration
+- **[development/](development/)** - Editor config, pre-commit hooks, Makefile
 
 ---
 
@@ -125,31 +126,46 @@ pytest
 JobSentinel/
 ├── README.md                    # Main project documentation
 ├── LICENSE                      # MIT License
+├── CHANGELOG.md                 # Version history
+├── pyproject.toml               # Python project configuration
+├── requirements.txt             # Production dependencies
+├── .env.example                 # Environment variables template
 │
 ├── docs/                        # All documentation
 │   ├── DOCUMENTATION_INDEX.md   # This file (navigation hub)
-│   ├── CONTRIBUTING.md          # Contribution guidelines
-│   ├── RECENT_IMPROVEMENTS.md   # Latest changes (Oct 9, 2025)
-│   ├── SECURITY.md              # Security policy
+│   ├── quickstart.md            # Getting started guide
+│   ├── troubleshooting.md       # Common issues and solutions
 │   ├── ARCHITECTURE.md          # System architecture
-│   ├── QUALITY_STATUS.md        # Quality metrics
-│   ├── CRITICAL_FIXES_PLAN.md   # Priority roadmap
-│   └── improvements/            # Code analysis reports
-│       ├── README.md            # Analysis index
-│       ├── code-standards-compliance.md
-│       ├── bandit-security-scan.md
-│       ├── quick-wins-completed.md
-│       ├── SESSION_SUMMARY.md
-│       └── [9 more analysis files]
+│   ├── README.md                # Docs overview
+│   ├── governance/              # Project governance
+│   │   ├── CODE_OF_CONDUCT.md
+│   │   ├── CONTRIBUTING.md
+│   │   ├── SECURITY.md
+│   │   └── README.md
+│   ├── development/             # Development resources
+│   │   ├── Makefile
+│   │   ├── .editorconfig
+│   │   ├── .pre-commit-config.yaml
+│   │   └── README.md
+│   └── adr/                     # Architecture decision records
 │
-├── config/                      # Configuration files
-├── sources/                     # Job scrapers
-├── utils/                       # Utility modules
+├── docker/                      # Docker deployment
+│   ├── Dockerfile               # Production container
+│   ├── docker-compose.mcp.yml   # MCP development
+│   └── README.md
+│
 ├── src/                         # Core application
-├── cloud/                       # Cloud deployment
-├── scripts/                     # Helper scripts
+│   └── jsa/                     # JobSentinel Application
 ├── tests/                       # Test suite
-└── templates/                   # Web UI templates
+├── config/                      # Configuration files
+├── sources/                     # Job source scrapers
+├── matchers/                    # Matching algorithms
+├── notify/                      # Notifications
+├── utils/                       # Utilities
+├── scripts/                     # Helper scripts
+├── templates/                   # Web UI templates
+├── cloud/                       # Cloud deployment configs
+└── terraform/                   # Infrastructure as code
 ```
 
 ---
@@ -157,45 +173,49 @@ JobSentinel/
 ## 🎯 Quick Reference by Role
 
 ### For Contributors
-1. Read [CONTRIBUTING.md](CONTRIBUTING.md)
-2. Review [Development Guidelines](improvements/development-guidelines.md)
-3. Check [Code Standards](improvements/code-standards-compliance.md)
+1. Read [CONTRIBUTING.md](governance/CONTRIBUTING.md)
+2. Review [Development Resources](development/)
+3. Check [Quickstart Guide](quickstart.md)
 
 ### For Security Reviewers
-1. Read [SECURITY.md](SECURITY.md)
-2. Review [Bandit Scan Results](improvements/bandit-security-scan.md)
-3. Check [Security Standards](improvements/code-standards-compliance.md#security-standards)
+1. Read [SECURITY.md](governance/SECURITY.md)
+2. Review security configuration in `.env.example`
+3. Check authentication and secrets management
 
-### For Project Managers
-1. Review [Recent Improvements](RECENT_IMPROVEMENTS.md)
-2. Check [Quality Status](QUALITY_STATUS.md)
-3. See [Critical Fixes Plan](CRITICAL_FIXES_PLAN.md)
+### For Deployers
+1. Review [Quickstart Guide](quickstart.md)
+2. Check [Docker Documentation](../docker/)
+3. See [Architecture](ARCHITECTURE.md) for system design
 
 ### For Architects
 1. Read [ARCHITECTURE.md](ARCHITECTURE.md)
-2. Review [Restructure Roadmap](RESTRUCTURE_ROADMAP.md)
-3. Check [Code Analysis Reports](improvements/README.md)
+2. Review [ADR Directory](adr/)
+3. Check project structure and dependencies
 
 ---
 
-## 📊 Metrics Dashboard
+## 📊 Project Status
 
-### Code Quality (October 9, 2025)
+### Version: 0.5.0 (October 11, 2025)
 
-| Metric | Score | Target | Trend |
-|--------|-------|--------|-------|
-| Overall Compliance | 78/100 | 90/100 | ⬆️ +12% |
-| Security | 85/100 | 95/100 | ⬆️ +25% |
-| PEP 8 | 80/100 | 95/100 | ⬆️ +5% |
-| Type Hints | 75/100 | 90/100 | ⬆️ +5% |
-| Testing | 60/100 | 80/100 | → |
-| Documentation | 70/100 | 85/100 | ⬆️ +5% |
+**Recent Changes:**
+- ✅ Universal Python 3.13+ deployment (Windows, macOS, Linux)
+- ✅ PowerShell legacy code removed
+- ✅ Documentation restructured and organized
+- ✅ Docker deployment streamlined
+- ✅ Development tools consolidated
 
-### Security Scan (Bandit)
-- ✅ 0 Critical Issues
-- ✅ 0 High Severity Issues
-- ✅ 1 Medium (acknowledged)
-- ✅ 6 Low (acknowledged)
+**Platform Support:**
+- Windows 11+ with Python 3.13+
+- macOS 15+ with Python 3.13+
+- Ubuntu 22.04+ with Python 3.13+
+
+**Key Features:**
+- Privacy-first job search automation
+- Multiple job board support
+- Intelligent matching and scoring
+- Slack notifications
+- Docker deployment ready
 
 ---
 
@@ -209,27 +229,14 @@ JobSentinel/
 
 ## 📞 Getting Help
 
-1. Check this index for relevant documentation
-2. Search existing issues on GitHub
-3. Read [CONTRIBUTING.md](CONTRIBUTING.md) for contribution process
-4. Open a new issue with detailed information
+1. Check [Troubleshooting Guide](troubleshooting.md)
+2. Review [Quickstart Guide](quickstart.md)
+3. Search existing issues on GitHub
+4. Read [CONTRIBUTING.md](governance/CONTRIBUTING.md) for contribution process
+5. Open a new issue with detailed information
 
 ---
 
-## 🆕 What's New (October 9, 2025)
-
-Recent improvements completed tonight:
-- ✅ CDN Integrity Checks (SRI protection)
-- ✅ Content Security Policy headers
-- ✅ PEP 8 compliance fixes
-- ✅ Type hints added (4 functions)
-- ✅ Module documentation improved
-- ✅ Pre-commit hooks configured
-- ✅ Security validated (Bandit scan)
-- ✅ 700+ lines of documentation added
-
-See [RECENT_IMPROVEMENTS.md](RECENT_IMPROVEMENTS.md) for details.
-
 ---
 
-**This index is maintained as part of the project documentation. Last updated: October 9, 2025**
+**This index is maintained as part of the project documentation. Last updated: October 11, 2025 (v0.5.0)**

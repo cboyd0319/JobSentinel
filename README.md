@@ -142,7 +142,7 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for details.
 
 **Supply chain:** Dependencies pinned in `pyproject.toml`. Playwright browsers from official CDN. No executable scripts in dependencies.
 
-**Disclosure:** Report vulnerabilities via [SECURITY.md](SECURITY.md). Contact: [security@yourdomain.tld](mailto:security@yourdomain.tld). Response time: 3 business days.
+**Disclosure:** Report vulnerabilities via [SECURITY.md](docs/governance/SECURITY.md). Contact: [security@yourdomain.tld](mailto:security@yourdomain.tld). Response time: 3 business days.
 
 ## Performance
 
@@ -160,7 +160,7 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for details.
 | `No jobs found` | Enable sources in config, verify API keys, run with `--verbose` |
 | `SSL certificate verify failed` | Update certifi: `pip install --upgrade certifi`. macOS: run `/Applications/Python 3.13/Install Certificates.command` |
 
-See [docs/troubleshooting.md](docs/troubleshooting.md) for more.
+See [docs/troubleshooting.md](docs/troubleshooting.md) for complete troubleshooting guide.
 
 ## Cost
 
@@ -182,7 +182,16 @@ See [GitHub Issues](https://github.com/cboyd0319/JobSentinel/issues).
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for dev setup, testing, commit style, and PR checklist.
+See [CONTRIBUTING.md](docs/governance/CONTRIBUTING.md) for dev setup, testing, commit style, and PR checklist.
+
+## Documentation
+
+- **[Quickstart Guide](docs/quickstart.md)** - Getting started with JobSentinel
+- **[Architecture](docs/ARCHITECTURE.md)** - System design and technical details
+- **[Troubleshooting](docs/troubleshooting.md)** - Common issues and solutions
+- **[Development](docs/development/)** - Build tools and development resources
+- **[Docker Deployment](docker/)** - Container deployment guides
+- **[Governance](docs/governance/)** - Code of conduct, contributing, security
 
 ## License
 
