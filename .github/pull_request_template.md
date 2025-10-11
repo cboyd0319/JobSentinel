@@ -5,7 +5,8 @@ Brief description of the change.
 Problem this fixes or value it adds.
 
 **Testing:**
-- [ ] Ran `./psqa.ps1` (PowerShell quality check)
+- [ ] Ran `make test` (unit + integration tests)
+- [ ] Ran `make lint` (code quality checks)
 - [ ] Tested with `--dry-run`
 - [ ] No secrets in commits
 

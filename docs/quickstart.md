@@ -155,7 +155,7 @@ ls data/*.db  # Should see jobs.db
 ### Schedule Automatic Runs
 
 **Windows (Task Scheduler):**
-```powershell
+```bash
 # The installer already configured this
 schtasks /query /tn "JobSentinel"
 ```

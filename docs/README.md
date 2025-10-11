@@ -42,7 +42,6 @@ docs/
 ├── scrapers.md                # How to add new job sources
 ├── scoring.md                 # Scoring algorithm details
 ├── adr/                       # Architecture Decision Records
-│   └── 001-python-313-powershell-removal.md
 └── improvements/              # Analysis and enhancement docs
     ├── README.md
     ├── code-standards-compliance.md
