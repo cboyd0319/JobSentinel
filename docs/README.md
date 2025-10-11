@@ -38,5 +38,5 @@ The `improvements/` directory contains detailed analysis reports for different p
 
 **Quick Links:**
 - [README](../README.md) - Main project documentation
-- [CHANGELOG](../CHANGELOG.md) - Version history and changes
+- [CHANGELOG](CHANGELOG.md) - Version history and changes
 - [LICENSE](../LICENSE) - MIT License
