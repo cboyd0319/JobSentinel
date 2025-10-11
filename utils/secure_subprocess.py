@@ -27,8 +27,6 @@ ALLOWED_BINARIES = {
     "python",
     "python3",
     "cmd",
-    "powershell",
-    "pwsh",
 }
 
 SENSITIVE_ARG_KEYWORDS = {"token", "password", "secret", "key", "passwd", "webhook"}

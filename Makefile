@@ -64,33 +64,8 @@ clean:
 	rm -rf .mypy_cache .pytest_cache build dist *.egg-info
 	find . -name '__pycache__' -type d -prune -exec rm -rf {} +
 
-# PowerShell Quality Assurance - Use dedicated QA system
-# Run: make -C qa help (for QA commands)
-.PHONY: qa-help qa-analyze qa-fix qa-report qa-setup
-
-qa-help:
-	@echo "PowerShell QA System - Use dedicated commands:"
-	@echo "  make -C qa setup     - Setup QA system"
-	@echo "  make -C qa analyze   - Analyze PowerShell code"
-	@echo "  make -C qa fix       - Auto-fix issues"
-	@echo "  make -C qa report    - Generate reports"
-	@echo "  make -C qa all       - Complete QA pipeline"
-	@echo "  make -C qa help      - Full QA command list"
-
-qa-analyze:
-	@make -C qa analyze
-
-qa-fix:
-	@make -C qa fix
-
-qa-report:
-	@make -C qa report
-
-qa-setup:
-	@make -C qa setup
-
 # Pre-commit integration
-.PHONY: precommit-install precommit-run precommit-powershell
+.PHONY: precommit-install precommit-run
 
 precommit-install:
 	@echo "Installing pre-commit hooks..."
@@ -100,7 +75,3 @@ precommit-install:
 precommit-run:
 	@echo "Running all pre-commit hooks..."
 	pre-commit run --all-files
-
-precommit-powershell:
-	@echo "Running PowerShell QA pre-commit hook..."
-	./scripts/precommit-powershell-qa.sh

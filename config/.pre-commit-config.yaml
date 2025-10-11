@@ -58,15 +58,6 @@ repos:
 
   - repo: local
     hooks:
-      - id: powershell-qa-autofix
-        name: PowerShell QA Auto-Fix
-        entry: scripts/precommit-powershell-qa.sh
-        language: script
-        files: \.(ps1|psm1|psd1)$
-        pass_filenames: false
-        always_run: false
-        stages: [commit]
-
       - id: precommit-security-scan
         name: Pre-commit Security Scan
         entry: scripts/precommit-security-scan.sh

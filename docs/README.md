@@ -1,42 +1,143 @@
-# 📚 Documentation
+# JobSentinel Documentation
 
-All JobSentinel documentation is organized in this directory.
+Complete documentation for JobSentinel, a self-hosted job search automation tool.
+
+## Quick Links
+
+| Document | Purpose | Audience |
+|----------|---------|----------|
+| [README.md](../README.md) | Project overview, quickstart | Everyone |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | System design, data flow | Developers |
+| [CONTRIBUTING.md](../CONTRIBUTING.md) | Dev setup, PR guidelines | Contributors |
+| [SECURITY.md](../SECURITY.md) | Security policy, disclosure | Security researchers |
+| [CHANGELOG.md](CHANGELOG.md) | Version history, changes | Everyone |
 
 ## Getting Started
 
-- **[CONTRIBUTING.md](CONTRIBUTING.md)** - How to contribute to the project
-- **[SECURITY.md](SECURITY.md)** - Security policy and vulnerability reporting
+### New Users
+1. Read the [README](../README.md) for project overview
+2. Follow the [Quickstart Guide](quickstart.md) for installation
+3. Configure your preferences in `config/user_prefs.json`
+4. Run your first scrape: `python -m jsa.cli run-once`
 
-## Architecture & Planning
+### Contributors
+1. Read [CONTRIBUTING.md](../CONTRIBUTING.md) for dev setup
+2. Review [ARCHITECTURE.md](ARCHITECTURE.md) to understand system design
+3. Check [ADRs](adr/) for architectural decisions
+4. Run tests: `make test`
 
-- **[ARCHITECTURE.md](ARCHITECTURE.md)** - System architecture and design decisions
-- **[CRITICAL_FIXES_PLAN.md](CRITICAL_FIXES_PLAN.md)** - Priority fixes and technical debt
-- **[QUALITY_STATUS.md](QUALITY_STATUS.md)** - Code quality metrics and status
-- **[RESTRUCTURE_ROADMAP.md](RESTRUCTURE_ROADMAP.md)** - Planned refactoring and improvements
-- **[RESTRUCTURE_ANALYSIS.md](RESTRUCTURE_ANALYSIS.md)** - Detailed architectural analysis
+## Documentation Structure
 
-## Code Analysis
+```
+docs/
+├── README.md                  # This file (documentation index)
+├── ARCHITECTURE.md            # System architecture and design
+├── CHANGELOG.md               # Version history
+├── CONTRIBUTING.md            # Contribution guidelines (symlink to root)
+├── SECURITY.md                # Security policy (symlink to root)
+├── quickstart.md              # Step-by-step installation guide
+├── troubleshooting.md         # Common issues and fixes
+├── cloud-deployment.md        # Cloud deployment guide (GCP, AWS)
+├── configuration.md           # Detailed configuration reference
+├── scrapers.md                # How to add new job sources
+├── scoring.md                 # Scoring algorithm details
+├── adr/                       # Architecture Decision Records
+│   └── 001-python-313-powershell-removal.md
+└── improvements/              # Analysis and enhancement docs
+    ├── README.md
+    ├── code-standards-compliance.md
+    ├── development-guidelines.md
+    └── enhancement-opportunities.md
+```
 
-The `improvements/` directory contains detailed analysis reports for different parts of the codebase:
+## Core Documentation
 
-- **[code-standards-compliance.md](improvements/code-standards-compliance.md)** - Overall code quality metrics (78/100)
-- **[bandit-security-scan.md](improvements/bandit-security-scan.md)** - Security vulnerability scan results
-- **[development-guidelines.md](improvements/development-guidelines.md)** - Best practices and anti-patterns to avoid
-- **[quick-wins-completed.md](improvements/quick-wins-completed.md)** - Recently completed improvements
+### [Architecture](ARCHITECTURE.md)
+System design, module structure, data flow, and trust boundaries.
 
-### Directory-Specific Analyses
+### [Quickstart](quickstart.md)
+Step-by-step installation for Windows, macOS, and Linux.
 
-- [cloud-directory-analysis.md](improvements/cloud-directory-analysis.md) - Multi-cloud infrastructure
-- [deploy-directory-analysis.md](improvements/deploy-directory-analysis.md) - Deployment scripts
-- [github-directory-analysis.md](improvements/github-directory-analysis.md) - CI/CD workflows
-- [remaining-directories-analysis.md](improvements/remaining-directories-analysis.md) - Config, scripts, templates
-- [sources-directory-analysis.md](improvements/sources-directory-analysis.md) - Job scraping modules
-- [src-analysis.md](improvements/src-analysis.md) - Core application code
-- [utils-directory-analysis.md](improvements/utils-directory-analysis.md) - Utility modules
+### [Configuration](configuration.md)
+Complete reference for `config/user_prefs.json` and `.env` files.
 
----
+### [Troubleshooting](troubleshooting.md)
+Common errors and solutions.
 
-**Quick Links:**
-- [README](../README.md) - Main project documentation
-- [CHANGELOG](CHANGELOG.md) - Version history and changes
-- [LICENSE](../LICENSE) - MIT License
+## Advanced Topics
+
+### [Cloud Deployment](cloud-deployment.md)
+Deploy to GCP Cloud Run or AWS Fargate. Includes cost estimates and automation setup.
+
+### [Scrapers](scrapers.md)
+How job scrapers work and how to add new sources.
+
+### [Scoring](scoring.md)
+Deep dive into the job scoring algorithm.
+
+## Development
+
+### [Architecture Decision Records (ADRs)](adr/)
+Document significant architectural decisions with context and consequences.
+
+### [Quality Status](QUALITY_STATUS.md)
+Current code quality metrics, test coverage, and technical debt.
+
+### [Improvement Docs](improvements/)
+Detailed analysis of code quality, security scans, and enhancement opportunities.
+
+## API Reference
+
+**CLI Commands:**
+```bash
+python -m jsa.cli --help          # Show all commands
+python -m jsa.cli run-once        # Run single scrape
+python -m jsa.cli config-validate # Validate configuration
+python -m jsa.cli web             # Start web UI
+python -m jsa.cli cloud           # Cloud deployment commands
+```
+
+**Python API:**
+```python
+from jsa.config import load_config
+from jsa.db import get_db
+from sources.jobswithgpt import scrape_jobswithgpt
+
+config = load_config("config/user_prefs.json")
+jobs = scrape_jobswithgpt(config)
+```
+
+## FAQ
+
+**Q: Does JobSentinel support LinkedIn?**  
+A: Not yet. LinkedIn requires authentication and has strict scraping policies. It's on the roadmap.
+
+**Q: Can I run this on Raspberry Pi?**  
+A: Technically yes, but Playwright (Chromium) is resource-intensive. Recommended: 2GB+ RAM.
+
+**Q: How do I add a new job source?**  
+A: See [scrapers.md](scrapers.md) for a tutorial. TL;DR: Create a new scraper in `sources/`, implement the scraper interface, add to config.
+
+**Q: Is this legal?**  
+A: Web scraping legality varies by jurisdiction. JobSentinel respects `robots.txt` and includes rate limiting. Use responsibly and review terms of service for each job board.
+
+**Q: Can I use this for commercial purposes?**  
+A: Yes, under the MIT license. See [LICENSE](../LICENSE) for details.
+
+## Support
+
+**Issues:** https://github.com/cboyd0319/JobSentinel/issues  
+**Discussions:** https://github.com/cboyd0319/JobSentinel/discussions  
+**Security:** security@yourdomain.tld (see [SECURITY.md](../SECURITY.md))
+
+## Contributing
+
+We welcome contributions! See [CONTRIBUTING.md](../CONTRIBUTING.md) for:
+- Dev setup
+- Code style
+- Testing guidelines
+- PR checklist
+
+## License
+
+MIT License - see [LICENSE](../LICENSE) for full text.

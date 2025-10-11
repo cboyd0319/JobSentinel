@@ -1,166 +1,189 @@
-# 🛰️ JobSentinel
-
-> ⚠️ **Alpha software.** It works, but there are bugs. I use it daily. Test locally first.
-
-**Self-hosted job search automation** — scrape → de‑dupe → score → alert.
-**Private by default.** **$0 locally**, ~**$5–15/mo** in *your* cloud.
+# JobSentinel — Self-Hosted Job Search Automation
 
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Privacy](https://img.shields.io/badge/Privacy-Local‑first-black.svg)](#security--privacy)
-[![Slack Alerts](https://img.shields.io/badge/Alerts-Slack-4A154B.svg?logo=slack)](https://slack.com/)
-[![Docker](https://img.shields.io/badge/Run%20with-Docker-blue.svg)](https://www.docker.com/)
-![Status](https://img.shields.io/badge/Status-Alpha-yellow.svg)
-![Cost](https://img.shields.io/badge/Cloud%20cost-%7E$5–15%2Fmo-informational)
+[![Python](https://img.shields.io/badge/Python-3.13%2B-blue.svg)](https://www.python.org/)
+[![Version](https://img.shields.io/badge/Version-0.5.0-brightgreen.svg)](#)
+[![Privacy](https://img.shields.io/badge/Privacy-Local‑first-black.svg)](#security)
+[![Cost](https://img.shields.io/badge/Local%20cost-$0-informational)](#cost)
 
----
+**TL;DR**: Privacy-focused job hunting automation. Scrape multiple job boards, score matches against your preferences, get Slack alerts for top picks. Runs locally ($0) or in your cloud (~$5-15/mo).
 
-## Why JobSentinel
-Job boards are noisy—paywalls, spam, and ghost listings waste your time.
-**JobSentinel automates the grind** and keeps your data **yours**:
-
-- **Multi‑source scraping** with junk filters and **scoring to your preferences**.
-- **Local‑first + private** by design (no third‑party SaaS siphoning your searches).
-- **$0 on your machine**; or run continuously in **your** cloud for about **$5–15/mo**.
-- **Slack alerts** for only the high‑value matches.
-
----
-
-## Security & Privacy
-- **Local‑first architecture:** jobs and preferences are stored on your machine (SQLite by default).
-- **No account, no tracking, no rented SaaS.** You own the runtime and the data.
-- **Secrets stay with you:** keep API keys in local config or environment variables; never commit them.
-- **Isolated cloud:** for cloud use, keep a **separate DB and keys** in your own account (VPS/managed container).
-- **Rate‑limit friendly:** built‑in delays/retries; scrapers are written to respect `robots.txt`.
-
-> See **`SECURITY.md`** for reporting, scope, and hardening tips.
-
-### Data‑Flow (local)
-```
-[ Job Sites ]  -->  [ Scrapers ]  -->  [ Scoring Engine ]  -->  [ Alerts (Slack) ]
-                          |                   |
-                      [ Config ]          [ SQLite DB ]
-                              (All stored locally; no third parties)
-```
-
----
-
-## Cost
-- **Local:** **$0** (runs on your laptop/desktop; you trigger it when you want).
-- **Cloud (optional):** ~**$5–15/mo** for a tiny VM/container + a scheduler (e.g., cron/Actions). You keep full control.
-
-**Local vs Cloud**
-
-| Aspect          | Local (Default) | Cloud (Optional)            |
-|-----------------|------------------|-----------------------------|
-| Cost            | **$0**           | **~$5–15/mo**               |
-| Privacy         | **Maximum**      | High (your account)         |
-| Uptime          | Manual runs      | Scheduled/always‑on         |
-| Secrets/DB      | Local files      | Separate, per‑env           |
-
----
-
-## What it does (at a glance)
-- **Scrapes** multiple sources (e.g., Greenhouse, Lever, JobsWithGPT, Reed, JobSpy aggregation).
-- **Scores** jobs against your preferences (keywords, salary floor, company blacklist).
-- **Notifies** you in Slack with a score breakdown and links.
-- **Stores locally** by default; cloud uses separate storage and keys.
-
----
-
-## Quick start
-
-> **Prereqs:** Python 3.11+, Git. For cloud, a tiny VPS or container host.
-
-### Windows (guided)
-```powershell
-python scripts\setup\windows_local_installer.py
-```
-*(Creates venv, installs deps, and sets up a local run.)*
-
-### macOS / Linux
 ```bash
-git clone https://github.com/cboyd0319/JobSentinel
-cd JobSentinel
-
-python3 -m venv .venv
-source .venv/bin/activate
-
-python -m pip install -r requirements.txt
-python -m pip install -e .[dev]
-
-# Copy and edit your user preferences
-cp config/user_prefs.example.json config/user_prefs.json
+# Quickstart (Windows/macOS/Linux)
+git clone https://github.com/cboyd0319/JobSentinel && cd JobSentinel
+python3 scripts/install.py
+# Edit config/user_prefs.json with your preferences
+python -m jsa.cli run-once
 ```
 
-### Minimal config (example)
+## Prereqs
+
+| Item | Version | Why |
+|------|---------|-----|
+| Python | >=3.13 | Runtime |
+| Git | Any | Clone repo |
+| OS | Windows 11+, macOS 15+, Ubuntu 22.04+ | Platform support |
+
+Optional: Slack webhook URL, job board API keys (Reed, etc.)
+
+## Install
+
+**Automated (recommended):**
+```bash
+python3 scripts/install.py
+```
+Installer detects your platform, installs Python 3.13 if needed, creates venv, installs dependencies, and configures automation.
+
+**Preview changes first:**
+```bash
+python3 scripts/install.py --dry-run
+```
+
+**Manual:**
+```bash
+python3.13 -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+pip install -e .[dev,resume]
+playwright install chromium
+cp config/user_prefs.example.json config/user_prefs.json
+cp .env.example .env
+```
+
+## Usage
+
+### Basic
+```bash
+# Validate configuration
+python -m jsa.cli config-validate --path config/user_prefs.json
+
+# Run single scrape session
+python -m jsa.cli run-once
+
+# Start web UI (optional)
+python -m jsa.cli web --port 5000
+```
+
+### Advanced
+```bash
+# Dry-run mode (preview only)
+python -m jsa.cli run-once --dry-run
+
+# Custom config file
+python -m jsa.cli run-once --config /path/to/custom.json
+
+# Verbose logging
+python -m jsa.cli run-once --verbose
+
+# Cloud deployment
+python -m jsa.cli cloud bootstrap --provider gcp
+```
+
+## Configuration
+
+| Name | Type | Default | Example | Notes |
+|------|------|---------|---------|-------|
+| keywords | list[str] | [] | ["python", "backend"] | Job title/description matches |
+| locations | list[str] | [] | ["Remote", "San Francisco"] | Location filters |
+| salary_min | int | 0 | 120000 | Minimum salary (USD) |
+| blacklisted_companies | list[str] | [] | ["Meta", "Amazon"] | Companies to exclude |
+| job_sources.*.enabled | bool | false | true | Enable/disable source |
+| job_sources.*.api_key | str | "" | "reed_abc123" | API key if required |
+| slack.webhook_url | str | "" | "https://hooks.slack.com/..." | Slack incoming webhook |
+| slack.channel | str | "#job-alerts" | "#engineering-jobs" | Target channel |
+
+See `config/user_prefs.example.json` for full structure.
+
+**Example minimal config:**
 ```json
 {
   "keywords": ["python", "backend", "api"],
-  "locations": ["Remote", "San Francisco, CA"],
-  "salary_min": 120000,
-  "blacklisted_companies": ["Meta"],
+  "locations": ["Remote"],
+  "salary_min": 100000,
   "job_sources": {
     "jobswithgpt": { "enabled": true },
-    "reed":       { "enabled": true, "api_key": "your_reed_key" }
+    "reed": { "enabled": true, "api_key": "YOUR_KEY_HERE" }
   },
   "slack": {
-    "webhook_url": "your_slack_webhook",
+    "webhook_url": "YOUR_WEBHOOK_URL",
     "channel": "#job-alerts"
   }
 }
 ```
 
-> **Notes**
-> - Obtain required API keys where applicable (e.g., Reed API; Slack **Incoming Webhooks**).
-> - Never commit secrets. Use `.env` or OS keychains if preferred.
+## Architecture
 
----
-
-## Typical usage
-```bash
-# Validate config
-python -m jobsentinel.cli config-validate --path config/user_prefs.json
-
-# Run a local scrape
-python -m jobsentinel.cli run-once
-
-# (Optional) Start the local web UI (if enabled in your build)
-python -m jobsentinel.web --port 5000
 ```
-> Command names can vary by release; use your repo’s CLI entry points if different.
+┌─────────────┐     ┌──────────┐     ┌─────────────┐     ┌──────────┐
+│  Job Sites  │────▶│ Scrapers │────▶│   Scoring   │────▶│  Alerts  │
+│ (External)  │     │ (Python) │     │   Engine    │     │ (Slack)  │
+└─────────────┘     └──────────┘     └─────────────┘     └──────────┘
+                          │                  │
+                          ▼                  ▼
+                    ┌──────────┐      ┌──────────┐
+                    │  Config  │      │ SQLite   │
+                    │  (JSON)  │      │   DB     │
+                    └──────────┘      └──────────┘
+                    (Local storage only; no third parties)
+```
 
----
+**Flow:** Scrapers fetch jobs from configured sources → Scoring engine applies filters → High-scoring matches trigger Slack alerts
 
-## Features
-- **Multi‑site scraping**
-- **Smart scoring:** keywords, salary filters, company blacklists
-- **Slack alerts:** score breakdowns for only the good stuff
-- **Local‑first:** your data stays on your machine; cloud is optional
-- **Cloud cadence:** typical every 2 hours on a micro instance (~$5–15/mo)
+**Data:** Input: Job site HTML/JSON → Scrapers | Output: Scored jobs → SQLite + Slack
 
----
+**Trust boundaries:** All data stored locally (SQLite), API keys in `.env` only, no telemetry, Slack webhooks outbound-only
 
-## System requirements
-| Platform                  | Status       | Notes                         |
-|--------------------------|--------------|-------------------------------|
-| Windows 10/11 + PS 5.1+  | ✅ Supported | Guided installer available    |
-| macOS 13+                | ⚠️ Manual    | Python 3.11+ required         |
-| Ubuntu/Linux             | ⚠️ Manual    | Python 3.11+ required         |
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for details.
 
----
+## Security
 
-## Security notes (TL;DR)
-- **Never commit secrets.** Keep keys in local config or environment; rotate regularly.
-- **Separate keys & DB** for cloud deployments.
-- **Respect sites:** rate limit, back off, and follow `robots.txt`.
+**Secrets:** Use `.env` or environment variables; never commit. Required: `SLACK_WEBHOOK_URL`. Optional: `OPENAI_API_KEY`, Reed API key, SMTP credentials.
 
----
+**Least privilege:** Scrapers = read-only access to job sites. Slack webhook = `incoming-webhook` scope only. SQLite = file-system permissions only.
+
+**Supply chain:** Dependencies pinned in `pyproject.toml`. Playwright browsers from official CDN. No executable scripts in dependencies.
+
+**Disclosure:** Report vulnerabilities via [SECURITY.md](SECURITY.md). Contact: [security@yourdomain.tld](mailto:security@yourdomain.tld). Response time: 3 business days.
+
+## Performance
+
+**Local (single run):** 10-50 jobs/minute, ~200-500 MB memory, SQLite grows ~1-5 MB per 1000 jobs
+
+**Cloud (continuous):** 2-hour intervals on micro instance. GCP Cloud Run: ~$8/mo (1vCPU, 512MB). AWS Fargate Spot: ~$5/mo (0.25vCPU, 512MB).
+
+## Troubleshooting
+
+| Error | Fix |
+|-------|-----|
+| `ModuleNotFoundError: No module named 'jsa'` | Activate venv: `source .venv/bin/activate`, then `pip install -e .` |
+| `Playwright executable not found` | Install browsers: `playwright install chromium` |
+| `AuthError: Invalid Slack webhook` | Check webhook in `.env` or config. Test: `curl -X POST -H 'Content-type: application/json' --data '{"text":"test"}' YOUR_URL` |
+| `No jobs found` | Enable sources in config, verify API keys, run with `--verbose` |
+| `SSL certificate verify failed` | Update certifi: `pip install --upgrade certifi`. macOS: run `/Applications/Python 3.13/Install Certificates.command` |
+
+See [docs/troubleshooting.md](docs/troubleshooting.md) for more.
+
+## Cost
+
+| Deployment | Cost | Privacy | Uptime |
+|------------|------|---------|--------|
+| Local | $0 | Maximum | Manual runs |
+| Cloud (GCP) | ~$8/mo | High (your account) | Scheduled |
+| Cloud (AWS) | ~$5/mo | High (your account) | Scheduled |
+
+## Roadmap
+
+- [ ] Resume parser integration (auto-match skills)
+- [ ] LinkedIn scraper (requires auth)
+- [ ] Email digest (daily summary)
+- [ ] Mobile app (React Native)
+- [ ] Browser extension (one-click apply)
+
+See [GitHub Issues](https://github.com/cboyd0319/JobSentinel/issues).
 
 ## Contributing
-Issues and PRs welcome. Please see **`CONTRIBUTING.md`** and **`CODE_OF_CONDUCT.md`** (if present).
-Tag issues with `good first issue` and `help wanted` to encourage community fixes.
 
----
+See [CONTRIBUTING.md](CONTRIBUTING.md) for dev setup, testing, commit style, and PR checklist.
 
 ## License
-MIT — see **`LICENSE`**.
+
+MIT — see [LICENSE](LICENSE). Use freely, keep attribution.
