@@ -110,6 +110,40 @@ See `config/user_prefs.example.json` for full structure.
 }
 ```
 
+## Development
+
+**Quick Commands:**
+```bash
+# Install development dependencies
+make dev
+
+# Run tests
+make test
+
+# Run linters
+make lint
+
+# Format code
+make fmt
+
+# Type checking
+make type
+```
+
+**Docker Build:**
+```bash
+# Build container
+docker build -f docker/Dockerfile -t jobsentinel:latest .
+
+# Run container
+docker run -d \
+  -v $(pwd)/config:/app/config:ro \
+  -v $(pwd)/data:/app/data \
+  jobsentinel:latest
+```
+
+See [docs/development/](docs/development/) for complete development guide.
+
 ## Architecture
 
 ```
