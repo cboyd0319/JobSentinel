@@ -37,6 +37,12 @@
 🚀 **5-25x Faster** - Sub-200ms response times vs 1-5 seconds for competitors  
 💰 **$0 Cost** - Completely free, open source, saves $1,000+ per year vs commercial tools
 
+### Modern Web Interface **NEW**
+🎨 **Professional UI** - Beautiful, modern design with gradient effects and smooth animations  
+♿ **WCAG 2.2 AA Compliant** - Full keyboard navigation, screen reader support, 4.5:1 contrast ratios  
+📱 **Fully Responsive** - Perfect on desktop, tablet, and mobile devices  
+⚡ **Fast & Accessible** - Progressive enhancement, works without JavaScript, zero assumptions about user technical knowledge
+
 ```bash
 # Quickstart (Windows/macOS/Linux)
 git clone https://github.com/cboyd0319/JobSentinel && cd JobSentinel
@@ -90,8 +96,9 @@ python -m jsa.cli config-validate --path config/user_prefs.json
 # Run single scrape session
 python -m jsa.cli run-once
 
-# Start web UI (optional)
+# Start web UI (optional) - NEW: Modern, accessible interface!
 python -m jsa.cli web --port 5000
+# Visit http://localhost:5000 - Beautiful UI with WCAG 2.2 Level AA accessibility
 ```
 
 ### Advanced
