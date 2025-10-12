@@ -78,8 +78,9 @@ jobs:
   primary-test:
     needs: changes
     if: needs.changes.outputs.docs-only == 'false'
-    name: Fast Primary Test (Ubuntu, Python 3.12)
+    name: Fast Primary Test (Ubuntu, Python 3.13)
     runs-on: ubuntu-latest
+    timeout-minutes: 15  # 💰 Prevent runaway costs
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -89,6 +90,7 @@ jobs:
       - name: Prepare Python environment
         uses: ./.github/actions/python-env
         with:
+          python-version: '3.13'
           install-deps: 'true'
           prepare-config: 'true'
           cache-dependency-path: requirements.txt
@@ -139,6 +141,7 @@ jobs:
     if: needs.changes.outputs.docs-only == 'false'
     name: Test Ubuntu
     runs-on: ubuntu-latest
+    timeout-minutes: 10  # 💰 Quick health check timeout
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -148,7 +151,7 @@ jobs:
       - name: Prepare Python environment
         uses: ./.github/actions/python-env
         with:
-          python-version: '3.12.10'
+          python-version: '3.13'
           install-deps: 'true'
           prepare-config: 'true'
 
@@ -158,11 +161,14 @@ jobs:
   # 💰 REMOVED: Cross-platform testing for personal project cost savings
   # Can be manually triggered if needed via workflow_dispatch
 
+  # Compatibility matrix: Ensures code works across Python versions
+  # Primary target is 3.13, but this validates backward compatibility
   core-quality-matrix:
     needs: [changes]
     if: needs.changes.outputs.docs-only == 'false'
     name: Core Quality (Python ${{ matrix.py }})
     runs-on: ubuntu-latest
+    timeout-minutes: 20  # 💰 Allow time for full quality checks
     strategy:
       fail-fast: false
       matrix:

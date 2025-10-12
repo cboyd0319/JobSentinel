@@ -71,6 +71,8 @@ Before submitting:
 - [ ] All links valid, CI passing
 - [ ] Ran `make fmt lint type test` locally
 
+**Note:** See [.github/workflows/README.md](../../.github/workflows/README.md) for details on CI/CD workflows and local testing.
+
 ## Testing guidelines
 
 **Unit tests:** Test business logic in isolation. Mock external dependencies.

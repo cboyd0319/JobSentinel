@@ -4,7 +4,7 @@ author: "cboyd0319"
 inputs:
   python-version:
     description: "Python version to install"
-    default: "3.12.10"
+    default: "3.13"
   cache-dependency-path:
     description: "Paths for pip cache key"
     default: "requirements.txt"
@@ -22,7 +22,7 @@ runs:
   using: "composite"
   steps:
     - name: Set up Python
-      uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ inputs.python-version }}
         cache: pip

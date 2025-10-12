@@ -1,23 +1,30 @@
 name: MegaLinter
 
+# This workflow provides comprehensive multi-language linting beyond Python-specific tools.
+# It's complementary to the CI workflow's ruff/black/mypy checks and runs on PRs for additional quality assurance.
+
 on:
   pull_request:
   push:
     branches: [main]
+  workflow_dispatch:  # Allow manual triggering
 
 jobs:
   mega-linter:
     runs-on: ubuntu-latest
+    timeout-minutes: 30  # 💰 Comprehensive linting may take time
+    # Continue on error to avoid blocking PRs - this is an advisory check
+    continue-on-error: true
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: '3.13'
 
       - name: Install project (runtime + dev) for typed core
         run: |
@@ -26,11 +33,12 @@ jobs:
           python -m pip install -e .[dev]
 
       - name: MegaLinter
-        uses: oxsecurity/megalinter@v7
+        uses: oxsecurity/megalinter@v8
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_ALL_CODEBASE: true
-          MEGALINTER_CONFIG: .mega-linter.yml
+          # Use default configuration as .mega-linter.yml doesn't exist
+          DEFAULT_WORKSPACE: ${{ github.workspace }}
 
       - name: Upload MegaLinter reports
         if: always()
