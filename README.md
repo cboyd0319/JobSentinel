@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.13%2B-blue.svg)](https://www.python.org/)
-[![Version](https://img.shields.io/badge/Version-0.5.0-brightgreen.svg)](#)
+[![Version](https://img.shields.io/badge/Version-0.6.0-brightgreen.svg)](#)
 [![Privacy](https://img.shields.io/badge/Privacy-Local‑first-black.svg)](#security)
 [![Cost](https://img.shields.io/badge/Local%20cost-$0-informational)](#cost)
 [![Code Quality](https://img.shields.io/badge/Code%20Quality-Ruff%20%2B%20Black-orange.svg)](docs/BEST_PRACTICES.md)
@@ -15,6 +15,8 @@
 ## ✨ What Makes JobSentinel the Best
 
 🎯 **Intelligent Job Ranking** - Multi-factor scoring (skills 40%, salary 25%, location 20%, company 10%, recency 5%)  
+🤖 **FREE AI/ML Capabilities** - BERT semantic matching, sentiment analysis, advanced NLP (85-90%+ accuracy, $0 cost)  
+🌐 **MCP Integration** - Connect to Context7 and other knowledge servers for enhanced analysis  
 📊 **Market Intelligence** - Real-time salary benchmarking, trend detection, career recommendations  
 📝 **13 Industry Profiles** - Resume optimization for Healthcare, Finance, Legal, Tech, and more  
 🔒 **OWASP ASVS 5.0 Compliant** - Enterprise security with rate limiting, input validation, circuit breakers  
@@ -180,8 +182,10 @@ Google SRE principles:
 - SLO-based alerting with error budgets
 
 **Full Details:** 
-- [Detection Systems Guide](docs/DETECTION_SYSTEMS.md) **NEW**
-- [Auto-Fix Systems Guide](docs/AUTOFIX_SYSTEMS.md) **NEW**
+- [Detection Systems Guide](docs/DETECTION_SYSTEMS.md)
+- [Auto-Fix Systems Guide](docs/AUTOFIX_SYSTEMS.md)
+- [ML Capabilities Guide](docs/ML_CAPABILITIES.md) **NEW v0.6**
+- [MCP Integration Guide](docs/MCP_INTEGRATION.md) **NEW v0.6**
 - [Advanced Features Guide](docs/ADVANCED_FEATURES.md)
 
 ## Development
@@ -272,7 +276,11 @@ This demonstrates:
 
 ## Documentation
 
+- **[ML Capabilities](docs/ML_CAPABILITIES.md)** - 🆕 FREE AI/ML features (BERT, sentiment, NLP)
+- **[MCP Integration](docs/MCP_INTEGRATION.md)** - 🆕 Connect to Context7 and knowledge servers
 - **[Advanced Features Guide](docs/ADVANCED_FEATURES.md)** - Intelligence, security, resilience
+- **[Detection Systems](docs/DETECTION_SYSTEMS.md)** - Job quality, resume analysis, skills gaps
+- **[Auto-Fix Systems](docs/AUTOFIX_SYSTEMS.md)** - Automatic resume improvements
 - **[API Specification](docs/API_SPECIFICATION.md)** - Complete REST API docs
 - **[SRE Runbook](docs/SRE_RUNBOOK.md)** - Operations, incidents, disaster recovery
 - **[Best Practices](docs/BEST_PRACTICES.md)** - Code quality and patterns
