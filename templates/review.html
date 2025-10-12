@@ -13,7 +13,7 @@
     <div class="col-12">
         {% if jobs %}
             {% for job in jobs %}
-            <div class="card job-card mb-3">
+            <div class="card job-card mb-3 reveal reveal-stagger-{{ loop.index % 4 }} gpu-accelerated">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start mb-3">
                         <div class="flex-grow-1">

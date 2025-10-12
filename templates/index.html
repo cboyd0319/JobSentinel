@@ -2,16 +2,25 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<div class="row mb-4">
-    <div class="col-12">
-        <h1>Dashboard</h1>
-        <p class="lead">Welcome to JobSentinel - Your AI-Powered Job Search Assistant</p>
+<!-- Hero Section with Gradient Background -->
+<div class="hero-section mb-5 reveal">
+    <div class="parallax-layer"></div>
+    <div class="container text-center py-5">
+        <h1 class="hero-title mb-4">
+            Welcome to JobSentinel
+        </h1>
+        <p class="hero-subtitle mb-4">
+            Your AI-Powered Job Search Assistant
+        </p>
+        <p class="lead text-muted">
+            Automate your job search with intelligent matching and insights
+        </p>
     </div>
 </div>
 
 <div class="row">
     <div class="col-lg-8 col-md-7">
-        <div class="card">
+        <div class="card reveal reveal-stagger-1 gpu-accelerated">
             <div class="card-header">
                 <h4>⚙️ Configuration</h4>
             </div>
@@ -34,7 +43,7 @@
     </div>
 
     <div class="col-lg-4 col-md-5">
-        <div class="card">
+        <div class="card reveal reveal-stagger-2 gpu-accelerated">
             <div class="card-header">
                 <h4>📊 Database Stats</h4>
             </div>
@@ -54,7 +63,7 @@
             </div>
         </div>
         
-        <div class="card">
+        <div class="card reveal reveal-stagger-3 gpu-accelerated">
             <div class="card-header">
                 <h4>🎯 Recent Jobs</h4>
             </div>
