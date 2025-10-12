@@ -6,11 +6,15 @@
 
 ---
 
-## 🆕 Latest Additions (v0.6.1 - October 2025)
+## 🆕 Latest Additions (v0.6.1+ - October 2025)
 
 **World-Class Enhancements:**
-- **[Authoritative Standards](AUTHORITATIVE_STANDARDS.md)** - 🔥 30+ industry standards with full citations
+- **[Authoritative Standards](AUTHORITATIVE_STANDARDS.md)** - 🔥 39+ industry standards with full citations (expanded!)
+- **[AI/ML Roadmap](AI_ML_ROADMAP.md)** - 🆕 Complete AI/ML vision from v0.6 to v1.0
+- **[Accessibility Guide](ACCESSIBILITY.md)** - 🆕 WCAG 2.1 Level AA compliance documentation
 - **[Visual Architecture](VISUAL_ARCHITECTURE.md)** - 🔥 12 comprehensive visual diagrams
+- **[Property-Based Testing](../tests/unit_jsa/test_properties.py)** - 🆕 Hypothesis generative tests
+- **[MCP Integration](MCP_INTEGRATION.md)** - Enhanced with 6+ server options
 - **Confidence Scoring** - 🔥 Multi-factor ML confidence with calibration
 - **Adaptive Learning** - 🔥 Self-improving system with drift detection
 - **Validation Framework** - 🔥 Pre-flight checks with auto-fix
@@ -71,16 +75,24 @@ New to JobSentinel? Start here:
 ## 📜 Standards & Compliance
 
 **World-Class Engineering:**
-- **[Authoritative Standards](AUTHORITATIVE_STANDARDS.md)** - 🔥 NEW: 30+ standards with citations
-  - OWASP ASVS 5.0 (17 controls mapped)
+- **[Authoritative Standards](AUTHORITATIVE_STANDARDS.md)** - 🔥 EXPANDED: 39+ standards with citations
+  - OWASP ASVS 5.0 Level 2 (17 controls mapped)
+  - ISO/IEC 25010:2023 (software quality model)
+  - NIST AI Risk Management Framework (AI safety)
+  - WCAG 2.1 Level AA (web accessibility)
+  - IEEE 730-2014 (software quality assurance)
   - NIST CSF, NIST 800-63B (authentication)
   - SWEBOK v4.0a, Google SRE principles
   - REST (Fielding), OpenAPI 3.0
   - GDPR/CCPA compliance (privacy-first)
-  - ML/AI research (BERT, VADER, TF-IDF)
-  - Industry standards (BLS, FBI IC3)
-  - MCP ecosystem documentation
+  - ML/AI research (BERT, Sentence-BERT, VADER, Cross-Encoders)
+  - Industry standards (BLS OEWS, FBI IC3, LinkedIn, Indeed, Glassdoor)
+  - MCP ecosystem (6+ server options)
+  - Accessibility (Section 508, ARIA)
+  - Testing (Property-based with Hypothesis)
   - Competitive analysis (AIHawk, Jobscan, TopResume)
+- **[AI/ML Roadmap](AI_ML_ROADMAP.md)** - 🆕 Complete AI/ML evolution plan
+- **[Accessibility Guide](ACCESSIBILITY.md)** - 🆕 WCAG 2.1 Level AA compliance
 - **[Standards Compliance](STANDARDS_COMPLIANCE.md)** - Detailed compliance mapping
 - **[Standards Reference](STANDARDS_REFERENCE.md)** - Engineering best practices
 
