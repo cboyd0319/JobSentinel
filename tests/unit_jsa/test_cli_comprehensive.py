@@ -39,16 +39,17 @@ class TestRunOnceCommand:
 
     def test_run_once_basic(self, monkeypatch):
         """Test basic run-once execution."""
-        # Mock agent.main as async coroutine
-        async def mock_agent_main():
-            return None
+        # Mock asyncio.run to avoid actual async execution
+        mock_run = Mock(return_value=None)
         
-        with patch('src.agent.main', return_value=mock_agent_main()):
-            args = argparse.Namespace()
-            result = _cmd_run_once(args)
-            
-            # Should return 0 on success
-            assert result == 0
+        with patch('asyncio.run', mock_run):
+            with patch('src.agent.main'):
+                args = argparse.Namespace()
+                result = _cmd_run_once(args)
+                
+                # Should return 0 on success
+                assert result == 0
+                assert mock_run.called
 
     def test_run_once_with_error(self, monkeypatch):
         """Test run-once handles errors gracefully."""
@@ -94,15 +95,16 @@ class TestDigestCommand:
 
     def test_digest_basic(self):
         """Test basic digest execution."""
-        async def mock_agent_main():
-            return None
+        mock_run = Mock(return_value=None)
         
-        with patch('src.agent.main', return_value=mock_agent_main()):
-            args = argparse.Namespace()
-            result = _cmd_digest(args)
-            
-            # Should return 0 on success
-            assert result == 0
+        with patch('asyncio.run', mock_run):
+            with patch('src.agent.main'):
+                args = argparse.Namespace()
+                result = _cmd_digest(args)
+                
+                # Should return 0 on success
+                assert result == 0
+                assert mock_run.called
 
     def test_digest_passes_correct_mode(self, capsys):
         """Test digest passes correct mode to agent."""
@@ -121,15 +123,16 @@ class TestNotificationsCommand:
 
     def test_notifications_basic(self):
         """Test notification command executes."""
-        async def mock_agent_main():
-            return None
+        mock_run = Mock(return_value=None)
         
-        with patch('src.agent.main', return_value=mock_agent_main()):
-            args = argparse.Namespace()
-            result = _cmd_test_notifications(args)
-            
-            # Should return 0 on success
-            assert result == 0
+        with patch('asyncio.run', mock_run):
+            with patch('src.agent.main'):
+                args = argparse.Namespace()
+                result = _cmd_test_notifications(args)
+                
+                # Should return 0 on success
+                assert result == 0
+                assert mock_run.called
 
     def test_notifications_with_error(self):
         """Test handles notification errors gracefully."""
@@ -146,15 +149,16 @@ class TestCleanupCommand:
 
     def test_cleanup_basic(self):
         """Test basic database cleanup."""
-        async def mock_agent_main():
-            return None
+        mock_run = Mock(return_value=None)
         
-        with patch('src.agent.main', return_value=mock_agent_main()):
-            args = argparse.Namespace()
-            result = _cmd_cleanup(args)
-            
-            # Should return 0 on success
-            assert result == 0
+        with patch('asyncio.run', mock_run):
+            with patch('src.agent.main'):
+                args = argparse.Namespace()
+                result = _cmd_cleanup(args)
+                
+                # Should return 0 on success
+                assert result == 0
+                assert mock_run.called
 
     def test_cleanup_with_error(self):
         """Test cleanup handles errors."""
