@@ -242,6 +242,11 @@ See [CONTRIBUTING.md](docs/governance/CONTRIBUTING.md) for dev setup, testing, c
 - **[Contributing Guide](docs/governance/CONTRIBUTING.md)** - How to contribute to JobSentinel
 - **[Code of Conduct](docs/governance/CODE_OF_CONDUCT.md)** - Community standards and expectations
 
+### Additional Resources
+- **[Quick Reference](docs/QUICK_REFERENCE.md)** - 🆕 Command cheat sheet and common tasks
+- **[Comparison Guide](docs/COMPARISON.md)** - 🆕 JobSentinel vs other job automation tools
+- **[Changelog](CHANGELOG.md)** - Version history and release notes
+
 ## License
 
 MIT — see [LICENSE](LICENSE). Use freely, keep attribution.

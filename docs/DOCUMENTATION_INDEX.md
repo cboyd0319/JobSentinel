@@ -12,7 +12,8 @@ New to JobSentinel? Start here:
 
 1. **[README.md](../README.md)** - Project overview and setup
 2. **[Quickstart Guide](quickstart.md)** - Step-by-step getting started
-3. **[CONTRIBUTING.md](governance/CONTRIBUTING.md)** - How to contribute
+3. **[Quick Reference](QUICK_REFERENCE.md)** - 🆕 Command cheat sheet and common tasks
+4. **[CONTRIBUTING.md](governance/CONTRIBUTING.md)** - How to contribute
 
 ---
 
@@ -45,6 +46,8 @@ New to JobSentinel? Start here:
 - **[BEST_PRACTICES.md](BEST_PRACTICES.md)** - 🆕 Production-grade coding standards and patterns
 - **[API_INTEGRATION_GUIDE.md](API_INTEGRATION_GUIDE.md)** - 🆕 Complete guide for adding new job boards
 - **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** - 🆕 Production deployment, monitoring, and operations
+- **[COMPARISON.md](COMPARISON.md)** - 🆕 JobSentinel vs other job automation tools
+- **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)** - 🆕 Command cheat sheet and quick lookup
 - **[RESTRUCTURE_ROADMAP.md](RESTRUCTURE_ROADMAP.md)** - Planned architectural changes
 - **[RESTRUCTURE_ANALYSIS.md](RESTRUCTURE_ANALYSIS.md)** - Detailed restructuring analysis
 
