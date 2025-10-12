@@ -13,10 +13,11 @@ This directory contains automated CI/CD workflows for JobSentinel.
 - **changes:** Detects which files changed to optimize workflow execution
 - **primary-test:** Fast smoke test on Ubuntu with Python 3.13
   - Syntax validation
+  - Package installation (dev extras)
   - Database functionality test
   - Core quality gates (lint, type check, coverage ≥85%)
   - Security scans (bandit, pip-audit)
-- **cross-platform-ubuntu:** Extended Ubuntu testing
+- **cross-platform-ubuntu:** Extended Ubuntu testing with package installation
 - **core-quality-matrix:** Matrix testing across Python 3.11, 3.12, 3.13
 
 **Cost Optimizations:**
@@ -141,6 +142,10 @@ make test    # Full test suite
 - Focus on CI workflow's `make lint` for Python-specific issues
 - MegaLinter provides additional insights but is not required for merge
 
+## Recent Fixes
+
+See [FIXES.md](FIXES.md) for details on recent workflow error fixes and improvements.
+
 ## Contributing
 
 When adding new workflows:
@@ -149,5 +154,6 @@ When adding new workflows:
 3. Include path filters for efficiency
 4. Document purpose and triggers in this README
 5. Test locally with `act` when possible
+6. Ensure package installation before module imports
 
 See [CONTRIBUTING.md](../../docs/governance/CONTRIBUTING.md) for full guidelines.

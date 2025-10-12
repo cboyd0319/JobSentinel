@@ -106,7 +106,7 @@ ignore = [
 "src/jsa/cli.py" = ["I001"]
 
 [tool.mypy]
-python_version = "3.12"
+python_version = "3.13"
 strict = true
 warn_redundant_casts = true
 warn_unused_ignores = true
