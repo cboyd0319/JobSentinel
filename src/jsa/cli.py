@@ -29,18 +29,34 @@ def _cmd_config_validate(args: argparse.Namespace) -> int:
 
 
 def _cmd_health(_: argparse.Namespace) -> int:
-    """Print app health summary."""
-    try:
-        stats = get_stats_sync()
-        print(
-            "HEALTH ok total_jobs={} high_score_jobs={}".format(
-                stats.get("total_jobs"), stats.get("high_score_jobs")
-            )
+    """Print app health summary and run comprehensive diagnostics."""
+    # Run the standalone health check tool
+    import subprocess
+    import sys
+    from pathlib import Path
+    
+    health_check_script = Path(__file__).parent.parent.parent / 'scripts' / 'health_check.py'
+    
+    if health_check_script.exists():
+        # Run the comprehensive health check
+        result = subprocess.run(
+            [sys.executable, str(health_check_script), '--verbose'],
+            cwd=Path(__file__).parent.parent.parent
         )
-        return 0
-    except Exception as e:
-        print(f"HEALTH degraded: {e}")
-        return 1
+        return result.returncode
+    else:
+        # Fallback to simple health check
+        try:
+            stats = get_stats_sync()
+            print(
+                "HEALTH ok total_jobs={} high_score_jobs={}".format(
+                    stats.get("total_jobs"), stats.get("high_score_jobs")
+                )
+            )
+            return 0
+        except Exception as e:
+            print(f"HEALTH degraded: {e}")
+            return 1
 
 
 def _cmd_run_once(args: argparse.Namespace) -> int:
