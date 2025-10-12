@@ -340,20 +340,31 @@ See [CONTRIBUTING.md](docs/governance/CONTRIBUTING.md) for dev setup, testing, c
 
 ## Documentation
 
-### Getting Started
+### Getting Started (Zero Technical Knowledge Required!)
 - **[Complete Beginner's Guide](docs/BEGINNER_GUIDE.md)** - 🆕 Never used a terminal? Start here!
+- **[60-Second Start](docs/GETTING_STARTED_60_SECONDS.md)** - 🆕 Fastest path to your first job alert
 - **[Quickstart Guide](docs/quickstart.md)** - Getting started with JobSentinel in 5 minutes
 - **[Troubleshooting](docs/troubleshooting.md)** - Common issues and solutions
 - **[Documentation Index](docs/DOCUMENTATION_INDEX.md)** - Complete documentation navigation
 
+### Core Capabilities
+- **[ML Capabilities](docs/ML_CAPABILITIES.md)** - 🆕 FREE AI/ML features (BERT, sentiment, NLP)
+- **[MCP Integration](docs/MCP_INTEGRATION.md)** - 🆕 Connect to Context7 and knowledge servers
+- **[Detection Systems](docs/DETECTION_SYSTEMS.md)** - Job quality, resume analysis, skills gaps
+- **[Auto-Fix Systems](docs/AUTOFIX_SYSTEMS.md)** - Automatic resume improvements
+- **[Advanced Features](docs/ADVANCED_FEATURES.md)** - Intelligence, security, resilience
+
 ### For Developers
-- **[Best Practices Guide](docs/BEST_PRACTICES.md)** - 🆕 Production-grade coding standards and patterns
-- **[API Integration Guide](docs/API_INTEGRATION_GUIDE.md)** - 🆕 Add new job board integrations
+- **[Best Practices Guide](docs/BEST_PRACTICES.md)** - Production-grade coding standards and patterns
+- **[API Integration Guide](docs/API_INTEGRATION_GUIDE.md)** - Add new job board integrations
 - **[Architecture](docs/ARCHITECTURE.md)** - System design and technical details
 - **[Development](docs/development/)** - Build tools and development resources
+- **[Authoritative Standards](docs/AUTHORITATIVE_STANDARDS.md)** - 🆕 30+ standards & references
 
 ### For Production
-- **[Deployment Guide](docs/DEPLOYMENT_GUIDE.md)** - 🆕 Cloud deployment, monitoring, and operations
+- **[Deployment Guide](docs/DEPLOYMENT_GUIDE.md)** - Cloud deployment, monitoring, and operations
+- **[SRE Runbook](docs/SRE_RUNBOOK.md)** - Operations, incidents, disaster recovery
+- **[Standards Compliance](docs/STANDARDS_COMPLIANCE.md)** - OWASP ASVS 5.0, NIST, GDPR
 - **[Docker Deployment](docker/)** - Container deployment guides
 - **[Security Policy](docs/governance/SECURITY.md)** - Security best practices and vulnerability reporting
 
@@ -362,8 +373,10 @@ See [CONTRIBUTING.md](docs/governance/CONTRIBUTING.md) for dev setup, testing, c
 - **[Code of Conduct](docs/governance/CODE_OF_CONDUCT.md)** - Community standards and expectations
 
 ### Additional Resources
-- **[Quick Reference](docs/QUICK_REFERENCE.md)** - 🆕 Command cheat sheet and common tasks
-- **[Comparison Guide](docs/COMPARISON.md)** - 🆕 JobSentinel vs other job automation tools
+- **[Quick Reference](docs/QUICK_REFERENCE.md)** - Command cheat sheet and common tasks
+- **[Comparison Guide](docs/COMPARISON.md)** - JobSentinel vs other job automation tools
+- **[Competitive Analysis](docs/COMPETITIVE_ANALYSIS.md)** - 🆕 Detailed comparison with market leaders
+- **[World-Class Capabilities](WORLD_CLASS_CAPABILITIES.md)** - 🆕 Why JobSentinel is THE BEST
 - **[Changelog](CHANGELOG.md)** - Version history and release notes
 
 ## License

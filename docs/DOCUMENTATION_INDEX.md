@@ -1,20 +1,31 @@
 # 📚 Documentation Index
 
-**Last Updated:** October 11, 2025
-**Repository:** JobSentinel v0.5.0
+**Last Updated:** October 12, 2025
+**Repository:** JobSentinel v0.6.1 (Enhanced)
 **Platform:** Python 3.13+ (Universal: Windows 11+, macOS 15+, Ubuntu 22.04+)
 
 ---
+
+## 🆕 Latest Additions (v0.6.1 - October 2025)
+
+**World-Class Enhancements:**
+- **[Authoritative Standards](AUTHORITATIVE_STANDARDS.md)** - 🔥 30+ industry standards with full citations
+- **[Visual Architecture](VISUAL_ARCHITECTURE.md)** - 🔥 12 comprehensive visual diagrams
+- **Confidence Scoring** - 🔥 Multi-factor ML confidence with calibration
+- **Adaptive Learning** - 🔥 Self-improving system with drift detection
+- **Validation Framework** - 🔥 Pre-flight checks with auto-fix
+- **Self-Healing** - 🔥 Automatic error recovery and resilience
 
 ## 🚀 Quick Start
 
 New to JobSentinel? Start here:
 
-1. **[Complete Beginner's Guide](BEGINNER_GUIDE.md)** - 🆕 Never used a terminal? Start here! Zero technical knowledge needed.
-2. **[README.md](../README.md)** - Project overview and setup
-3. **[Quickstart Guide](quickstart.md)** - Step-by-step getting started
-4. **[Quick Reference](QUICK_REFERENCE.md)** - 🆕 Command cheat sheet and common tasks
-5. **[CONTRIBUTING.md](governance/CONTRIBUTING.md)** - How to contribute
+1. **[Complete Beginner's Guide](BEGINNER_GUIDE.md)** - Never used a terminal? Start here! Zero technical knowledge needed.
+2. **[60-Second Start](GETTING_STARTED_60_SECONDS.md)** - Fastest path to your first job alert
+3. **[README.md](../README.md)** - Project overview and setup
+4. **[Quickstart Guide](quickstart.md)** - Step-by-step getting started
+5. **[Quick Reference](QUICK_REFERENCE.md)** - Command cheat sheet and common tasks
+6. **[CONTRIBUTING.md](governance/CONTRIBUTING.md)** - How to contribute
 
 ---
 
@@ -44,10 +55,11 @@ New to JobSentinel? Start here:
 ## 🏗️ Architecture & Design
 
 - **[ARCHITECTURE.md](ARCHITECTURE.md)** - System architecture overview
-- **[DETECTION_SYSTEMS.md](DETECTION_SYSTEMS.md)** - 🆕 World-class job & resume analysis
-- **[AUTOFIX_SYSTEMS.md](AUTOFIX_SYSTEMS.md)** - 🆕 Automatic resume optimization
-- **[BEST_PRACTICES.md](BEST_PRACTICES.md)** - 🆕 Production-grade coding standards and patterns
-- **[API_INTEGRATION_GUIDE.md](API_INTEGRATION_GUIDE.md)** - 🆕 Complete guide for adding new job boards
+- **[VISUAL_ARCHITECTURE.md](VISUAL_ARCHITECTURE.md)** - 🔥 NEW: 12 visual diagrams (data flows, security, ML)
+- **[DETECTION_SYSTEMS.md](DETECTION_SYSTEMS.md)** - World-class job & resume analysis
+- **[AUTOFIX_SYSTEMS.md](AUTOFIX_SYSTEMS.md)** - Automatic resume optimization
+- **[BEST_PRACTICES.md](BEST_PRACTICES.md)** - Production-grade coding standards and patterns
+- **[API_INTEGRATION_GUIDE.md](API_INTEGRATION_GUIDE.md)** - Complete guide for adding new job boards
 - **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** - 🆕 Production deployment, monitoring, and operations
 - **[COMPARISON.md](COMPARISON.md)** - 🆕 JobSentinel vs other job automation tools
 - **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)** - 🆕 Command cheat sheet and quick lookup
@@ -55,6 +67,22 @@ New to JobSentinel? Start here:
 - **[RESTRUCTURE_ANALYSIS.md](RESTRUCTURE_ANALYSIS.md)** - Detailed restructuring analysis
 
 ---
+
+## 📜 Standards & Compliance
+
+**World-Class Engineering:**
+- **[Authoritative Standards](AUTHORITATIVE_STANDARDS.md)** - 🔥 NEW: 30+ standards with citations
+  - OWASP ASVS 5.0 (17 controls mapped)
+  - NIST CSF, NIST 800-63B (authentication)
+  - SWEBOK v4.0a, Google SRE principles
+  - REST (Fielding), OpenAPI 3.0
+  - GDPR/CCPA compliance (privacy-first)
+  - ML/AI research (BERT, VADER, TF-IDF)
+  - Industry standards (BLS, FBI IC3)
+  - MCP ecosystem documentation
+  - Competitive analysis (AIHawk, Jobscan, TopResume)
+- **[Standards Compliance](STANDARDS_COMPLIANCE.md)** - Detailed compliance mapping
+- **[Standards Reference](STANDARDS_REFERENCE.md)** - Engineering best practices
 
 ## 📋 Project Structure
 
