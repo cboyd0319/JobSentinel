@@ -59,13 +59,99 @@ All integrations follow security best practices with OWASP ASVS 5.0 compliance.
 - Pro: $29/month for 1,000 queries
 - Enterprise: Custom pricing
 
-### 2. Custom MCP Servers
+### 2. BLS OEWS MCP Server (Built-in)
+
+**Purpose:** Official U.S. Bureau of Labor Statistics salary and employment data
+
+**Capabilities:**
+- Real-time salary data by occupation and location
+- Employment projections and trends
+- Industry-specific statistics
+- Wage percentiles (10th, 25th, 50th, 75th, 90th)
+
+**Cost:** FREE (government data)
+
+**Evidence:** `src/domains/mcp_integration/bls_mcp_server.py`
+
+### 3. LinkedIn Skills Graph (Planned v0.7)
+
+**Purpose:** Official LinkedIn skills taxonomy and relationships
+
+**Capabilities:**
+- Skills adjacency mapping (related skills)
+- Learning paths and skill progression
+- Demand trends and hiring data
+- Salary correlation by skill
+
+**Cost:** API pricing TBD (LinkedIn Developer Program)
+
+**Status:** Under development, pending LinkedIn API access
+
+### 4. OpenRouter LLM Gateway (Planned v0.7)
+
+**Purpose:** Access multiple LLMs through single API with cost optimization
+
+**Capabilities:**
+- GPT-4, Claude, Gemini, and 20+ models
+- Automatic failover and load balancing
+- Cost optimization (cheapest model first)
+- Usage analytics and monitoring
+
+**Cost:** Pay-per-use, starts at $0.002 per 1K tokens
+
+**Benefits:**
+- Single API for multiple providers
+- Automatic cost optimization
+- Fallback to cheaper models
+- No vendor lock-in
+
+### 5. Anthropic Official MCP Servers (Available Now)
+
+**Purpose:** Pre-built MCP servers from Anthropic
+
+**Available Servers:**
+- **Filesystem:** Local file operations (read/write)
+- **PostgreSQL:** Database queries and operations
+- **Slack:** Slack workspace integration
+- **GitHub:** Repository data and operations
+- **Google Drive:** Document access
+- **Web Search:** Brave Search integration
+
+**Repository:** https://github.com/modelcontextprotocol/servers
+
+**Installation:**
+```bash
+# Install desired server
+npx @modelcontextprotocol/server-github
+
+# Or build from source
+git clone https://github.com/modelcontextprotocol/servers
+cd servers/src/filesystem
+npm install && npm run build
+```
+
+### 6. Custom MCP Servers
 
 You can connect to any MCP-compliant server:
 - Company knowledge bases
 - Market intelligence platforms
 - Industry-specific data sources
 - Internal tools and systems
+
+**Creating Your Own:**
+```python
+# See examples/custom_mcp_server.py for template
+from domains.mcp_integration import BaseMCPServer
+
+class MyCompanyServer(BaseMCPServer):
+    def list_tools(self):
+        return ["get_company_info", "check_employee_status"]
+    
+    async def call_tool(self, tool_name, arguments):
+        if tool_name == "get_company_info":
+            return self._get_company_info(arguments)
+        # ... implement tools
+```
 
 ---
 

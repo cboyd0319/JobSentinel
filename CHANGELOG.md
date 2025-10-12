@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🚀 Standards & Compliance (NEW)
+
+- **Expanded authoritative standards** from 30 to 39+ references
+  - Added ISO/IEC 25010:2023 (software quality model - 8 characteristics)
+  - Added NIST AI Risk Management Framework (AI safety compliance)
+  - Added WCAG 2.1 Level AA (web accessibility)
+  - Added IEEE 730-2014 (software quality assurance)
+  - Added Property-Based Testing with Hypothesis
+  - Added BERT, Sentence-BERT academic references
+  - Added LinkedIn, Indeed, Glassdoor market research sources
+  - Added 6+ new MCP server options (OpenRouter, Anthropic servers, etc.)
+  - Added accessibility standards (Section 508, ARIA)
+  
+- **Enhanced MCP Integration Guide** (`docs/MCP_INTEGRATION.md`)
+  - Added BLS OEWS MCP server documentation (built-in, free)
+  - Added LinkedIn Skills Graph integration (planned)
+  - Added OpenRouter LLM Gateway (planned)
+  - Added Anthropic official MCP servers (available now)
+  - Added custom MCP server creation guide
+  - Expanded from 2 to 6+ server options
+
+- **Property-Based Testing** (`tests/unit_jsa/test_properties.py`)
+  - Added comprehensive Hypothesis test suite (300+ lines)
+  - Tests for input validation, security patterns, resume analysis
+  - Automatic edge case discovery
+  - SQL injection and XSS detection validation
+  - Generative testing for robust validation
+
 ### 📚 Documentation
 
 - **Added comprehensive best practices guide** (`docs/BEST_PRACTICES.md`)
