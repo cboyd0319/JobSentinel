@@ -7,6 +7,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 🚀 Phase 0: Foundation Stabilization (v0.6.0-dev)
+
+**Target:** Fix critical CLI command mismatch, improve documentation, add health check tools
+
+#### ✨ Added (2025-01-12)
+
+- **CLI Commands Implementation** (Issue #001 Resolution):
+  - `run-once` - Run single scrape session (main command)
+  - `search` - User-friendly alias for run-once
+  - `digest` - Generate and send job digest
+  - `test-notifications` - Test Slack and other notification channels
+  - `cleanup` - Clean up old jobs and backups
+  - `logs` - View application logs with filters (--tail, --filter)
+  - `cloud` - Cloud deployment management (bootstrap, status, update, teardown subcommands)
+  - `ai-setup` - Interactive AI configuration wizard (Phase 1 implementation)
+
+- **Documentation**:
+  - `docs/MASTER_IMPLEMENTATION_PLAN.md` - Comprehensive 4,131-line implementation roadmap
+  - `docs/EXECUTION_LOG.md` - Real-time development tracking and decision log
+
+#### 🔧 Changed
+
+- Enhanced CLI help messages with clear descriptions
+- Added proper error handling for all CLI commands
+- Improved argument parsing with typed subcommands
+
+#### 📝 Documentation Improvements
+
+- CLI now shows all available commands in help output
+- Each command has detailed help text accessible via `--help`
+- Added epilog with usage instructions
+
+#### 🐛 Fixed
+
+- **Issue #001 (CRITICAL)**: CLI command mismatch - README documented commands that didn't exist
+  - All commands from README now work as documented
+  - Status: ✅ RESOLVED
+
+#### 🎯 Phase 0 Progress
+
+- [x] CLI Commands Implementation (Day 1)
+  - [x] run-once command
+  - [x] search alias
+  - [x] digest command
+  - [x] test-notifications command
+  - [x] cleanup command
+  - [x] logs command with filtering
+  - [x] cloud command structure (Phase 4 implementation pending)
+  - [x] ai-setup wizard structure (Phase 1 implementation pending)
+  
+- [ ] Zero-Knowledge Installation Guide (Days 2-4)
+- [ ] Installation Health Check Tool (Days 5-7)
+- [ ] Testing & Validation (Days 8-10)
+
 ---
 
 ## [0.5.0] - 2025-10-11
