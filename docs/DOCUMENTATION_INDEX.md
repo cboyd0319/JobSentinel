@@ -43,6 +43,8 @@ New to JobSentinel? Start here:
 ## 🏗️ Architecture & Design
 
 - **[ARCHITECTURE.md](ARCHITECTURE.md)** - System architecture overview
+- **[DETECTION_SYSTEMS.md](DETECTION_SYSTEMS.md)** - 🆕 World-class job & resume analysis
+- **[AUTOFIX_SYSTEMS.md](AUTOFIX_SYSTEMS.md)** - 🆕 Automatic resume optimization
 - **[BEST_PRACTICES.md](BEST_PRACTICES.md)** - 🆕 Production-grade coding standards and patterns
 - **[API_INTEGRATION_GUIDE.md](API_INTEGRATION_GUIDE.md)** - 🆕 Complete guide for adding new job boards
 - **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** - 🆕 Production deployment, monitoring, and operations
