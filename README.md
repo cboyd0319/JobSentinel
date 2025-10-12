@@ -26,10 +26,12 @@
 ```bash
 # Quickstart (Windows/macOS/Linux)
 git clone https://github.com/cboyd0319/JobSentinel && cd JobSentinel
-python3 scripts/install.py
-# Edit config/user_prefs.json with your preferences
+python3 scripts/setup_wizard.py  # Interactive setup - zero technical knowledge needed!
+# Or use the traditional installer: python3 scripts/install.py
 python -m jsa.cli run-once
 ```
+
+**👋 Never used a terminal before?** See our [Complete Beginner's Guide](docs/BEGINNER_GUIDE.md) - assumes zero technical knowledge!
 
 ## Prereqs
 
@@ -339,6 +341,7 @@ See [CONTRIBUTING.md](docs/governance/CONTRIBUTING.md) for dev setup, testing, c
 ## Documentation
 
 ### Getting Started
+- **[Complete Beginner's Guide](docs/BEGINNER_GUIDE.md)** - 🆕 Never used a terminal? Start here!
 - **[Quickstart Guide](docs/quickstart.md)** - Getting started with JobSentinel in 5 minutes
 - **[Troubleshooting](docs/troubleshooting.md)** - Common issues and solutions
 - **[Documentation Index](docs/DOCUMENTATION_INDEX.md)** - Complete documentation navigation

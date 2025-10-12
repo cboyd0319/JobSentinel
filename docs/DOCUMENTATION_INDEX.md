@@ -10,10 +10,11 @@
 
 New to JobSentinel? Start here:
 
-1. **[README.md](../README.md)** - Project overview and setup
-2. **[Quickstart Guide](quickstart.md)** - Step-by-step getting started
-3. **[Quick Reference](QUICK_REFERENCE.md)** - 🆕 Command cheat sheet and common tasks
-4. **[CONTRIBUTING.md](governance/CONTRIBUTING.md)** - How to contribute
+1. **[Complete Beginner's Guide](BEGINNER_GUIDE.md)** - 🆕 Never used a terminal? Start here! Zero technical knowledge needed.
+2. **[README.md](../README.md)** - Project overview and setup
+3. **[Quickstart Guide](quickstart.md)** - Step-by-step getting started
+4. **[Quick Reference](QUICK_REFERENCE.md)** - 🆕 Command cheat sheet and common tasks
+5. **[CONTRIBUTING.md](governance/CONTRIBUTING.md)** - How to contribute
 
 ---
 

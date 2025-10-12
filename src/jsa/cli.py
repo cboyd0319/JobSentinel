@@ -25,7 +25,14 @@ def _cmd_config_validate(args: argparse.Namespace) -> int:
     return 0
 
 
-def _cmd_health(_: argparse.Namespace) -> int:
+def _cmd_health(args: argparse.Namespace) -> int:
+    """Run comprehensive health check."""
+    from jsa.health_check import run_health_check
+    return run_health_check(verbose=args.verbose)
+
+
+def _cmd_health_legacy(_: argparse.Namespace) -> int:
+    """Legacy health check (database only)."""
     try:
         stats = get_stats_sync()
         print(
@@ -52,7 +59,8 @@ def build_parser() -> argparse.ArgumentParser:
     p_cfg.add_argument("--path", type=str, default="config/user_prefs.json")
     p_cfg.set_defaults(func=_cmd_config_validate)
 
-    p_health = sub.add_parser("health", help="Print app health summary")
+    p_health = sub.add_parser("health", help="Run comprehensive system health check")
+    p_health.add_argument("--verbose", "-v", action="store_true", help="Show detailed information")
     p_health.set_defaults(func=_cmd_health)
 
     return p
