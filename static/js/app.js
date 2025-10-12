@@ -28,6 +28,48 @@
         initMagneticCards();
         initParallax();
         detectMotionPreference();
+        initNavbarToggle();
+    }
+    
+    /**
+     * Initialize navbar toggle functionality (Bootstrap replacement)
+     */
+    function initNavbarToggle() {
+        const toggler = document.querySelector('.navbar-toggler');
+        const collapse = document.querySelector('.navbar-collapse');
+        
+        if (!toggler || !collapse) return;
+        
+        toggler.addEventListener('click', function() {
+            const isExpanded = this.getAttribute('aria-expanded') === 'true';
+            
+            if (isExpanded) {
+                collapse.classList.remove('show');
+                this.setAttribute('aria-expanded', 'false');
+            } else {
+                collapse.classList.add('show');
+                this.setAttribute('aria-expanded', 'true');
+            }
+        });
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!toggler.contains(e.target) && !collapse.contains(e.target)) {
+                if (collapse.classList.contains('show')) {
+                    collapse.classList.remove('show');
+                    toggler.setAttribute('aria-expanded', 'false');
+                }
+            }
+        });
+        
+        // Close menu on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && collapse.classList.contains('show')) {
+                collapse.classList.remove('show');
+                toggler.setAttribute('aria-expanded', 'false');
+                toggler.focus();
+            }
+        });
     }
 
     /**
@@ -88,10 +130,31 @@
         
         alerts.forEach(alert => {
             setTimeout(() => {
-                const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
-                bsAlert.close();
+                closeAlert(alert);
             }, 5000);
         });
+        
+        // Handle manual close buttons
+        const closeButtons = document.querySelectorAll('.alert .btn-close');
+        closeButtons.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const alert = this.closest('.alert');
+                if (alert) {
+                    closeAlert(alert);
+                }
+            });
+        });
+    }
+    
+    /**
+     * Close alert with fade effect
+     */
+    function closeAlert(alert) {
+        alert.classList.remove('show');
+        setTimeout(() => {
+            alert.remove();
+        }, 150);
     }
 
     /**
