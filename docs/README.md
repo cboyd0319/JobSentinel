@@ -7,10 +7,14 @@ Complete documentation for JobSentinel, a self-hosted job search automation tool
 | Document | Purpose | Audience |
 |----------|---------|----------|
 | [README.md](../README.md) | Project overview, quickstart | Everyone |
+| [DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md) | Complete documentation navigation | Everyone |
+| [BEST_PRACTICES.md](BEST_PRACTICES.md) | 🆕 Production-grade coding standards | Developers |
+| [API_INTEGRATION_GUIDE.md](API_INTEGRATION_GUIDE.md) | 🆕 Add new job board integrations | Integration Developers |
+| [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) | 🆕 Production deployment & operations | DevOps/SRE |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | System design, data flow | Developers |
-| [CONTRIBUTING.md](../CONTRIBUTING.md) | Dev setup, PR guidelines | Contributors |
-| [SECURITY.md](../SECURITY.md) | Security policy, disclosure | Security researchers |
-| [CHANGELOG.md](CHANGELOG.md) | Version history, changes | Everyone |
+| [CONTRIBUTING.md](governance/CONTRIBUTING.md) | Dev setup, PR guidelines | Contributors |
+| [SECURITY.md](governance/SECURITY.md) | Security policy, disclosure | Security researchers |
+| [CHANGELOG.md](../CHANGELOG.md) | Version history, changes | Everyone |
 
 ## Getting Started
 
@@ -51,14 +55,38 @@ docs/
 
 ## Core Documentation
 
+### [Documentation Index](DOCUMENTATION_INDEX.md)
+Central hub for all documentation with role-based navigation.
+
 ### [Architecture](ARCHITECTURE.md)
 System design, module structure, data flow, and trust boundaries.
 
+### [Best Practices](BEST_PRACTICES.md) 🆕
+Production-grade coding standards covering:
+- Architecture principles and patterns
+- Security best practices (secrets, validation, rate limiting)
+- Testing standards with coverage targets
+- Observability & monitoring
+- Performance optimization
+- Configuration and deployment
+
+### [API Integration Guide](API_INTEGRATION_GUIDE.md) 🆕
+Complete guide for adding new job board integrations:
+- Quick start for integration developers
+- REST API, HTML scraping, and MCP patterns
+- Code templates with error handling
+- Testing strategies and checklist
+
+### [Deployment Guide](DEPLOYMENT_GUIDE.md) 🆕
+Production deployment and operations:
+- Docker production setup
+- Cloud deployment (AWS, GCP, Azure)
+- Monitoring & observability
+- Backup & disaster recovery
+- Scaling and cost optimization
+
 ### [Quickstart](quickstart.md)
 Step-by-step installation for Windows, macOS, and Linux.
-
-### [Configuration](configuration.md)
-Complete reference for `config/user_prefs.json` and `.env` files.
 
 ### [Troubleshooting](troubleshooting.md)
 Common errors and solutions.
