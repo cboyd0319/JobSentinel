@@ -13,10 +13,11 @@ This directory contains automated CI/CD workflows for JobSentinel.
 - **changes:** Detects which files changed to optimize workflow execution
 - **primary-test:** Fast smoke test on Ubuntu with Python 3.13
   - Syntax validation
+  - Package installation (dev extras)
   - Database functionality test
   - Core quality gates (lint, type check, coverage ≥85%)
   - Security scans (bandit, pip-audit)
-- **cross-platform-ubuntu:** Extended Ubuntu testing
+- **cross-platform-ubuntu:** Extended Ubuntu testing with package installation
 - **core-quality-matrix:** Matrix testing across Python 3.11, 3.12, 3.13
 
 **Cost Optimizations:**
