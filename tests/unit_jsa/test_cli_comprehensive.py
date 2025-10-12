@@ -133,10 +133,7 @@ class TestNotificationsCommand:
 
     def test_notifications_with_error(self):
         """Test handles notification errors gracefully."""
-        async def mock_error():
-            raise Exception("Notification error")
-        
-        with patch('src.agent.main', return_value=mock_error()):
+        with patch('src.agent.main', side_effect=Exception("Notification error")):
             args = argparse.Namespace()
             result = _cmd_test_notifications(args)
             
@@ -161,10 +158,7 @@ class TestCleanupCommand:
 
     def test_cleanup_with_error(self):
         """Test cleanup handles errors."""
-        async def mock_error():
-            raise Exception("Cleanup error")
-        
-        with patch('src.agent.main', return_value=mock_error()):
+        with patch('src.agent.main', side_effect=Exception("Cleanup error")):
             args = argparse.Namespace()
             result = _cmd_cleanup(args)
             
