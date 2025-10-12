@@ -100,6 +100,10 @@ jobs:
           find . -name "*.py" -not -path "./.venv/*" -not -path "./build/*" \
             -exec python -m py_compile {} +
 
+      - name: Install dev extras for core checks
+        run: |
+          python -m pip install -e .[dev]
+
       - name: Test database functionality
         run: |
           python - <<'PY'
@@ -114,10 +118,6 @@ jobs:
 
           asyncio.run(test_db())
           PY
-
-      - name: Install dev extras for core checks
-        run: |
-          python -m pip install -e .[dev]
 
       - name: Core quality gates (lint/type/cov)
         run: |
@@ -155,8 +155,11 @@ jobs:
           install-deps: 'true'
           prepare-config: 'true'
 
+      - name: Install package in editable mode
+        run: python -m pip install -e .
+
       - name: Test core functionality
-        run: python -m src.agent --mode health
+        run: python src/agent.py --mode health
 
   # 💰 REMOVED: Cross-platform testing for personal project cost savings
   # Can be manually triggered if needed via workflow_dispatch
