@@ -126,6 +126,17 @@ JobSentinel/
 
 **README:** Keep under 5 minutes to read. Offload deep dives to `docs/`.
 
+**Essential Guides:**
+- [BEST_PRACTICES.md](../BEST_PRACTICES.md) - Production-grade coding standards (architecture, security, testing, observability)
+- [API_INTEGRATION_GUIDE.md](../API_INTEGRATION_GUIDE.md) - Complete guide for adding new job board integrations
+- [DEPLOYMENT_GUIDE.md](../DEPLOYMENT_GUIDE.md) - Production deployment, monitoring, and operations
+
+**Documentation Updates Required:**
+- Update relevant docs when adding features or changing behavior
+- Add code examples to `examples/` directory for new integrations
+- Update CHANGELOG.md with all user-facing changes
+- Keep inline documentation up-to-date
+
 **Docstrings:** Follow Google style:
 ```python
 def scrape_jobs(source: str, config: dict[str, Any]) -> list[Job]:
