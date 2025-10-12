@@ -1,13 +1,20 @@
 name: MegaLinter
 
+# This workflow provides comprehensive multi-language linting beyond Python-specific tools.
+# It's complementary to the CI workflow's ruff/black/mypy checks and runs on PRs for additional quality assurance.
+
 on:
   pull_request:
   push:
     branches: [main]
+  workflow_dispatch:  # Allow manual triggering
 
 jobs:
   mega-linter:
     runs-on: ubuntu-latest
+    timeout-minutes: 30  # 💰 Comprehensive linting may take time
+    # Continue on error to avoid blocking PRs - this is an advisory check
+    continue-on-error: true
     steps:
       - name: Checkout
         uses: actions/checkout@v5
