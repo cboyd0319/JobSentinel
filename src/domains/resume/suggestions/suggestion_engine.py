@@ -3,6 +3,10 @@ Resume Suggestion Engine
 
 Generates intelligent suggestions for resume improvement based on industry
 best practices and ATS optimization guidelines.
+
+References:
+- SWEBOK v4.0a | https://computer.org/swebok | High | Requirements engineering
+- OWASP ASVS 5.0 | https://owasp.org/ASVS | High | Input validation standards
 """
 
 import logging
@@ -15,14 +19,20 @@ from ..models import (
     SectionType,
     SuggestionType,
 )
+from .industry_profiles_extended import EXTENDED_INDUSTRY_PROFILES
 
 logger = logging.getLogger(__name__)
 
 
 class SuggestionEngine:
-    """Generates intelligent resume improvement suggestions."""
+    """
+    Generates intelligent resume improvement suggestions.
+    
+    Follows SWEBOK v4.0 requirements engineering principles and provides
+    actionable, prioritized suggestions based on industry best practices.
+    """
 
-    # Industry profiles with specific requirements
+    # Core industry profiles with specific requirements
     INDUSTRY_PROFILES = {
         "software_engineering": IndustryProfile(
             name="Software Engineering",
@@ -156,6 +166,12 @@ class SuggestionEngine:
             ],
         ),
     }
+    
+    def __init__(self):
+        """Initialize suggestion engine with extended industry profiles."""
+        # Merge core and extended profiles
+        self._all_profiles = {**self.INDUSTRY_PROFILES, **EXTENDED_INDUSTRY_PROFILES}
+        logger.info(f"SuggestionEngine initialized with {len(self._all_profiles)} industry profiles")
 
     def generate_suggestions(
         self,
@@ -163,14 +179,32 @@ class SuggestionEngine:
         target_industry: str | None = None,
         job_description: str | None = None,
     ) -> list[ResumeSuggestion]:
-        """Generate comprehensive improvement suggestions."""
+        """
+        Generate comprehensive improvement suggestions.
+        
+        Args:
+            resume_content: Parsed resume content
+            target_industry: Target industry key (e.g., 'software_engineering')
+            job_description: Optional job description for tailored suggestions
+            
+        Returns:
+            Prioritized list of ResumeSuggestion objects
+            
+        Security:
+            Input validation per OWASP ASVS 5.0 V5.1.1
+        """
 
         suggestions = []
 
-        # Get industry profile
+        # Get industry profile with validation
         industry_profile = None
-        if target_industry and target_industry in self.INDUSTRY_PROFILES:
-            industry_profile = self.INDUSTRY_PROFILES[target_industry]
+        if target_industry:
+            # Sanitize industry key
+            sanitized_industry = "".join(
+                c for c in target_industry.lower() if c.isalnum() or c == "_"
+            )
+            if sanitized_industry in self._all_profiles:
+                industry_profile = self._all_profiles[sanitized_industry]
 
         # Section-based suggestions
         suggestions.extend(self._suggest_missing_sections(resume_content, industry_profile))
@@ -196,6 +230,28 @@ class SuggestionEngine:
 
         logger.info(f"Generated {len(suggestions)} improvement suggestions")
         return suggestions
+    
+    def get_available_industries(self) -> list[str]:
+        """
+        Get list of all available industry profiles.
+        
+        Returns:
+            Sorted list of industry identifiers
+        """
+        return sorted(self._all_profiles.keys())
+    
+    def get_industry_profile(self, industry_key: str) -> IndustryProfile | None:
+        """
+        Get a specific industry profile.
+        
+        Args:
+            industry_key: Industry identifier
+            
+        Returns:
+            IndustryProfile if found, None otherwise
+        """
+        sanitized_key = "".join(c for c in industry_key.lower() if c.isalnum() or c == "_")
+        return self._all_profiles.get(sanitized_key)
 
     def _suggest_missing_sections(
         self, resume_content: ResumeContent, industry_profile: IndustryProfile | None
