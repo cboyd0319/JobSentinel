@@ -78,7 +78,7 @@ jobs:
   primary-test:
     needs: changes
     if: needs.changes.outputs.docs-only == 'false'
-    name: Fast Primary Test (Ubuntu, Python 3.12)
+    name: Fast Primary Test (Ubuntu, Python 3.13)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -89,6 +89,7 @@ jobs:
       - name: Prepare Python environment
         uses: ./.github/actions/python-env
         with:
+          python-version: '3.13'
           install-deps: 'true'
           prepare-config: 'true'
           cache-dependency-path: requirements.txt
@@ -148,7 +149,7 @@ jobs:
       - name: Prepare Python environment
         uses: ./.github/actions/python-env
         with:
-          python-version: '3.12.10'
+          python-version: '3.13'
           install-deps: 'true'
           prepare-config: 'true'
 
