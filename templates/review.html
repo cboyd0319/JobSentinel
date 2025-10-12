@@ -2,22 +2,63 @@
 {% block title %}Review Job Matches{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1 class="mt-5">Review Job Matches</h1>
-    <p class="lead">Help improve the matching algorithm by providing feedback on your recent job matches.</p>
-
-    {% for job in jobs %}
-    <div class="card mb-3">
-        <div class="card-body">
-            <h5 class="card-title">{{ job.title }}</h5>
-            <h6 class="card-subtitle mb-2 text-muted">{{ job.company }} - {{ job.location }}</h6>
-            <p class="card-text">Score: {{ "%.2f"|format(job.score) }}</p>
-            <a href="{{ job.url | safe_external_url }}" class="btn btn-secondary btn-sm" target="_blank" rel="noopener noreferrer">View Job</a>
-            <a href="{{ url_for('review.review_feedback', job_id=job.id, feedback='good') }}" class="btn btn-success btn-sm">Good Match</a>
-            <a href="{{ url_for('review.review_feedback', job_id=job.id, feedback='bad') }}" class="btn btn-danger btn-sm">Bad Match</a>
-        </div>
+<div class="row mb-4">
+    <div class="col-12">
+        <h1>👀 Review Job Matches</h1>
+        <p class="lead">Help improve the matching algorithm by providing feedback on your recent job matches.</p>
     </div>
-    {% endfor %}
+</div>
 
+<div class="row">
+    <div class="col-12">
+        {% if jobs %}
+            {% for job in jobs %}
+            <div class="card job-card mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div class="flex-grow-1">
+                            <h5 class="card-title mb-2">{{ job.title | e }}</h5>
+                            <h6 class="card-subtitle text-muted mb-2">
+                                <span class="me-3">🏢 {{ job.company | e }}</span>
+                                {% if job.location %}
+                                <span>📍 {{ job.location | e }}</span>
+                                {% endif %}
+                            </h6>
+                        </div>
+                        <span class="job-score">{{ "%.1f"|format(job.score) }}</span>
+                    </div>
+                    
+                    <div class="d-flex gap-2 flex-wrap">
+                        <!-- nosemgrep: generic.html-templates.security.var-in-href.var-in-href -->
+                        <a href="{{ job.url | safe_external_url }}" class="btn btn-secondary btn-sm" target="_blank" rel="noopener noreferrer" aria-label="View job details on external site">
+                            🔗 View Job
+                        </a>
+                        <a href="{{ url_for('review.review_feedback', job_id=job.id, feedback='good') }}" class="btn btn-success btn-sm" aria-label="Mark as good match">
+                            👍 Good Match
+                        </a>
+                        <a href="{{ url_for('review.review_feedback', job_id=job.id, feedback='bad') }}" class="btn btn-danger btn-sm" aria-label="Mark as bad match">
+                            👎 Bad Match
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="card">
+                <div class="card-body">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <div class="empty-state-title">No Jobs to Review</div>
+                        <div class="empty-state-text">
+                            There are no job matches to review at this time. Check back after the scraper runs to provide feedback on new matches.
+                        </div>
+                        <a href="{{ url_for('main.index') }}" class="btn btn-primary mt-3">
+                            🏠 Back to Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}

@@ -55,9 +55,10 @@ def create_app() -> Flask:
     setup_logging(level=os.getenv("LOG_LEVEL", "INFO"))
     logger = get_logger("web", component="web_ui")
 
-    # Point templates at project-level templates directory
+    # Point templates and static at project-level directories
     templates_path = Path(__file__).resolve().parents[3] / "templates"
-    app = Flask(__name__, template_folder=str(templates_path))
+    static_path = Path(__file__).resolve().parents[3] / "static"
+    app = Flask(__name__, template_folder=str(templates_path), static_folder=str(static_path))
 
     # Secret key
     secret_env = os.getenv("FLASK_SECRET_KEY")
