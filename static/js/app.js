@@ -23,6 +23,11 @@
         enhanceCards();
         initTooltips();
         logPerformanceMetrics();
+        initScrollReveal();
+        initStickyNav();
+        initMagneticCards();
+        initParallax();
+        detectMotionPreference();
     }
 
     /**
@@ -290,5 +295,237 @@
 
         wrapper.insertBefore(copyBtn, block.parentNode);
     });
+
+    /**
+     * Scroll-based reveal animations
+     */
+    function initScrollReveal() {
+        const revealElements = document.querySelectorAll('.reveal');
+        
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('revealed');
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
+        
+        revealElements.forEach(el => revealObserver.observe(el));
+    }
+
+    /**
+     * Sticky navigation with scroll effects
+     */
+    function initStickyNav() {
+        const navbar = document.querySelector('.navbar');
+        if (!navbar) return;
+        
+        let lastScroll = 0;
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+            
+            if (!prefersReducedMotion) {
+                if (currentScroll > 100) {
+                    navbar.style.backdropFilter = 'blur(12px) saturate(180%)';
+                    navbar.style.background = 'rgba(33, 37, 41, 0.9)';
+                    navbar.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+                    navbar.style.padding = '0.5rem 0';
+                } else {
+                    navbar.style.backdropFilter = 'none';
+                    navbar.style.background = '';
+                    navbar.style.boxShadow = 'none';
+                    navbar.style.padding = '';
+                }
+                
+                // Hide nav on scroll down, show on scroll up
+                if (currentScroll > lastScroll && currentScroll > 500) {
+                    navbar.style.transform = 'translateY(-100%)';
+                } else {
+                    navbar.style.transform = 'translateY(0)';
+                }
+            }
+            
+            lastScroll = currentScroll;
+        }, { passive: true });
+        
+        navbar.style.transition = 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)';
+    }
+
+    /**
+     * Magnetic hover effect for cards
+     */
+    function initMagneticCards() {
+        const cards = document.querySelectorAll('.card');
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        
+        if (prefersReducedMotion) return;
+        
+        cards.forEach(card => {
+            card.classList.add('magnetic');
+            
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = (y - centerY) / 20;
+                const rotateY = (centerX - x) / 20;
+                
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(10px)`;
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = '';
+            });
+        });
+    }
+
+    /**
+     * Parallax effect for hero sections
+     */
+    function initParallax() {
+        const parallaxLayers = document.querySelectorAll('.parallax-layer');
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        
+        if (prefersReducedMotion || parallaxLayers.length === 0) return;
+        
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            
+            parallaxLayers.forEach((layer, index) => {
+                const speed = (index + 1) * 0.3;
+                const yPos = -(scrolled * speed);
+                layer.style.transform = `translate3d(0, ${yPos}px, 0)`;
+            });
+        }, { passive: true });
+    }
+
+    /**
+     * Detect and respect motion preferences
+     */
+    function detectMotionPreference() {
+        const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+        
+        function handleMotionPreference(e) {
+            if (e.matches) {
+                document.body.classList.add('reduce-motion');
+                console.log('Motion preference: Reduced motion enabled');
+            } else {
+                document.body.classList.remove('reduce-motion');
+                console.log('Motion preference: Full motion enabled');
+            }
+        }
+        
+        handleMotionPreference(mediaQuery);
+        mediaQuery.addEventListener('change', handleMotionPreference);
+    }
+
+    /**
+     * Confetti animation for success states
+     */
+    window.showConfetti = function() {
+        const colors = ['#0f8a4f', '#0056b3', '#0073e6', '#1a8cff'];
+        const confettiCount = 30;
+        
+        for (let i = 0; i < confettiCount; i++) {
+            setTimeout(() => {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                confetti.style.transform = `scale(${Math.random() * 0.5 + 0.5})`;
+                
+                document.body.appendChild(confetti);
+                
+                setTimeout(() => {
+                    confetti.remove();
+                }, 3000);
+            }, i * 30);
+        }
+    };
+
+    /**
+     * Smooth scroll to section
+     */
+    window.smoothScrollTo = function(target) {
+        const element = document.querySelector(target);
+        if (!element) return;
+        
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        element.scrollIntoView({ 
+            behavior: prefersReducedMotion ? 'auto' : 'smooth',
+            block: 'start' 
+        });
+    };
+
+    /**
+     * Dynamic theme switching
+     */
+    window.toggleTheme = function() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        
+        // Announce to screen readers
+        const announcement = document.createElement('div');
+        announcement.setAttribute('role', 'status');
+        announcement.setAttribute('aria-live', 'polite');
+        announcement.className = 'sr-only';
+        announcement.textContent = `Theme switched to ${newTheme} mode`;
+        document.body.appendChild(announcement);
+        
+        setTimeout(() => announcement.remove(), 1000);
+    };
+
+    /**
+     * Initialize theme from localStorage
+     */
+    (function initTheme() {
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+    })();
+
+    /**
+     * Add visual feedback for copy operations
+     */
+    window.copyToClipboard = async function(text, button) {
+        try {
+            await navigator.clipboard.writeText(text);
+            const originalText = button.textContent;
+            button.textContent = '✅ Copied!';
+            button.classList.add('success');
+            
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.classList.remove('success');
+            }, 2000);
+            
+            return true;
+        } catch (err) {
+            console.error('Copy failed:', err);
+            button.textContent = '❌ Failed';
+            
+            setTimeout(() => {
+                button.textContent = originalText;
+            }, 2000);
+            
+            return false;
+        }
+    };
 
 })();
