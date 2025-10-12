@@ -509,18 +509,36 @@ main.container {
 
 /* ==================== CARDS ==================== */
 .card {
-  border: none;
+  border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
   margin-bottom: var(--spacing-lg);
   transition: all var(--transition-base);
   background: var(--bg-primary);
   overflow: hidden;
+  position: relative;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-500), var(--primary-700));
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+.card:hover::before {
+  opacity: 1;
 }
 
 .card:hover {
   box-shadow: var(--shadow-xl);
   transform: translateY(-4px);
+  border-color: var(--primary-200);
 }
 
 .card-header {
@@ -1480,17 +1498,11 @@ body::before {
   font-size: clamp(2rem, 5vw, 4rem);
   font-weight: var(--font-extrabold);
   line-height: var(--leading-tight);
-  background: linear-gradient(135deg, 
-    var(--primary-600) 0%, 
-    var(--primary-800) 50%, 
-    var(--success-600) 100%
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--primary-700);
   animation: text-reveal 1s ease-out;
   position: relative;
   z-index: 1;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 @keyframes text-reveal {
@@ -1679,13 +1691,8 @@ body::before {
 
 /* Gradient Text Utility */
 .gradient-text {
-  background: linear-gradient(135deg, 
-    var(--primary-600) 0%, 
-    var(--success-600) 100%
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--primary-400);
+  font-weight: var(--font-bold);
 }
 
 /* Pulse Animation for Badges */
