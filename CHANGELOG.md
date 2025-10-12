@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### 🚀 Standards & Compliance (NEW)
+### 🚀 Standards & Compliance (NEW v0.6.1+)
 
 - **Expanded authoritative standards** from 30 to 39+ references
   - Added ISO/IEC 25010:2023 (software quality model - 8 characteristics)
@@ -34,6 +34,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Automatic edge case discovery
   - SQL injection and XSS detection validation
   - Generative testing for robust validation
+
+### 📘 New Comprehensive Guides (NEW)
+
+- **AI/ML Roadmap** (`docs/AI_ML_ROADMAP.md`) - 14KB comprehensive document
+  - Complete evolution plan from v0.6 → v1.0
+  - Current capabilities (BERT, spaCy, VADER, TF-IDF)
+  - v0.7 enhancements (cross-encoder, GPT-4, bias detection)
+  - v1.0 vision (personalized recommendations, career optimization)
+  - Model zoo documentation (15+ models)
+  - Performance targets and cost projections
+  - AI safety & ethics (NIST AI RMF compliance)
+  - Research areas (few-shot learning, federated learning, XAI)
+
+- **Accessibility Guide** (`docs/ACCESSIBILITY.md`) - 17KB WCAG 2.1 Level AA
+  - Complete WCAG 2.1 Level AA compliance documentation
+  - All 4 principles: Perceivable, Operable, Understandable, Robust
+  - Assistive technology support (NVDA, JAWS, VoiceOver, etc.)
+  - Keyboard navigation patterns and focus management
+  - Color contrast guidelines (4.5:1 minimum)
+  - Content accessibility (8th grade reading level)
+  - Form accessibility patterns with ARIA
+  - Testing checklist and validation tools
+  - Accessibility statement and reporting
+
+- **Enhanced Security Module** (`src/domains/security_enhanced.py`) - 20KB Level 3
+  - OWASP ASVS Level 3 controls for enterprise deployments
+  - Advanced audit logging with HMAC-SHA256 tamper detection
+  - Content Security Policy (CSP) generator with nonce support
+  - Subresource Integrity (SRI) for external resources
+  - Secure session management (256-bit session IDs)
+  - PII redaction for GDPR/CCPA compliance
+  - Automatic session timeout and invalidation
+  - Multi-session management per user
+
+### 🎯 Ultimate Enhancements Summary (NEW)
+
+- **Ultimate Enhancements Document** (`ULTIMATE_ENHANCEMENTS_v0.6.1_FINAL.md`)
+  - Complete catalog of all v0.6.1+ enhancements
+  - Before/after comparisons with quantified metrics
+  - Competitive positioning analysis
+  - Technical metrics and standards compliance matrix
+  - User impact for job seekers, developers, enterprises
+  - Implementation summary with files changed
+  - Quality assurance checklist
+  - Roadmap forward (v0.7 → v0.8 → v1.0)
+  - Lessons learned and acknowledgments
 
 ### 📚 Documentation
 

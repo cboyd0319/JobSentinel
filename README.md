@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.13%2B-blue.svg)](https://www.python.org/)
-[![Version](https://img.shields.io/badge/Version-0.6.0-brightgreen.svg)](#)
+[![Version](https://img.shields.io/badge/Version-0.6.1+-brightgreen.svg)](#)
 [![Privacy](https://img.shields.io/badge/Privacy-Local‑first-black.svg)](#security)
 [![Cost](https://img.shields.io/badge/Local%20cost-$0-informational)](#cost)
 [![Code Quality](https://img.shields.io/badge/Code%20Quality-Ruff%20%2B%20Black-orange.svg)](docs/BEST_PRACTICES.md)
