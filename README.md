@@ -1,4 +1,4 @@
-# JobSentinel — Self-Hosted Job Search Automation
+# JobSentinel — The World's Best Job Search Automation
 
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.13%2B-blue.svg)](https://www.python.org/)
@@ -7,8 +7,19 @@
 [![Cost](https://img.shields.io/badge/Local%20cost-$0-informational)](#cost)
 [![Code Quality](https://img.shields.io/badge/Code%20Quality-Ruff%20%2B%20Black-orange.svg)](docs/BEST_PRACTICES.md)
 [![Documentation](https://img.shields.io/badge/Documentation-Complete-blue.svg)](docs/DOCUMENTATION_INDEX.md)
+[![Security](https://img.shields.io/badge/Security-OWASP%20ASVS%205.0-red.svg)](docs/ADVANCED_FEATURES.md#security--compliance)
+[![SRE](https://img.shields.io/badge/SRE-Google%20Principles-blue.svg)](docs/SRE_RUNBOOK.md)
 
-**TL;DR**: Privacy-focused job hunting automation. Scrape multiple job boards, score matches against your preferences, get Slack alerts for top picks. Runs locally ($0) or in your cloud (~$5-15/mo).
+**TL;DR**: Enterprise-grade, privacy-focused job hunting automation with AI-powered intelligence. Scrape multiple job boards, analyze resumes across 13 industries, get smart rankings with salary insights, and receive instant Slack alerts. Runs locally ($0) or in your cloud (~$5-15/mo).
+
+## ✨ What Makes JobSentinel the Best
+
+🎯 **Intelligent Job Ranking** - Multi-factor scoring (skills 40%, salary 25%, location 20%, company 10%, recency 5%)  
+📊 **Market Intelligence** - Real-time salary benchmarking, trend detection, career recommendations  
+📝 **13 Industry Profiles** - Resume optimization for Healthcare, Finance, Legal, Tech, and more  
+🔒 **OWASP ASVS 5.0 Compliant** - Enterprise security with rate limiting, input validation, circuit breakers  
+⚡ **Production Ready** - SLO-based monitoring, zero-downtime deployment, disaster recovery  
+🌐 **REST API** - Complete API following Fielding's constraints and Apigee best practices
 
 ```bash
 # Quickstart (Windows/macOS/Linux)
@@ -112,6 +123,48 @@ See `config/user_prefs.example.json` for full structure.
 }
 ```
 
+## Advanced Features
+
+JobSentinel includes enterprise-grade capabilities:
+
+### 📊 Market Intelligence
+- Real-time salary benchmarking with negotiation ranges
+- Skill trend detection with growth rates
+- Career path recommendations based on market data
+- Job market heat scoring (0-100)
+
+### 🎯 Intelligent Ranking
+Multi-factor job scoring algorithm:
+- Skills match (40%) - Alignment with your technical skills
+- Salary alignment (25%) - Meets compensation requirements
+- Location match (20%) - Preferred locations
+- Company reputation (10%) - Company size and standing
+- Recency (5%) - How recently posted
+
+### 📝 Resume Optimization
+13 industry-specific profiles:
+- Software Engineering, Data Science, DevOps, Cybersecurity
+- Healthcare, Finance, Legal, Education
+- Marketing, Sales, Product Management, Design, Executive
+
+Each with ATS-optimized keywords, required sections, and best practices.
+
+### 🔒 Enterprise Security
+OWASP ASVS 5.0 compliant:
+- Input validation on all boundaries (V5.1)
+- Rate limiting - 100 req/min default (V4.2.1)
+- SQL injection/XSS detection (V5.3.4)
+- Secret management with secure hashing (V2.3)
+
+### ⚡ Production Reliability
+Google SRE principles:
+- Circuit breakers prevent cascading failures
+- Exponential backoff retry strategies
+- Health monitoring with auto-degradation
+- SLO-based alerting with error budgets
+
+**Full Details:** [Advanced Features Guide](docs/ADVANCED_FEATURES.md)
+
 ## Development
 
 **Quick Commands:**
@@ -169,6 +222,29 @@ See [docs/development/](docs/development/) for complete development guide.
 **Trust boundaries:** All data stored locally (SQLite), API keys in `.env` only, no telemetry, Slack webhooks outbound-only
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for details.
+
+## Quick Demo
+
+Try the advanced features:
+```bash
+python examples/advanced_features_demo.py
+```
+
+This demonstrates:
+- 13 industry profiles for resume optimization
+- Intelligent job ranking with multi-factor scoring
+- Market intelligence and salary benchmarking
+- Security controls (OWASP ASVS 5.0)
+- Circuit breakers and resilience patterns
+- Observability with SLO tracking
+
+## Documentation
+
+- **[Advanced Features Guide](docs/ADVANCED_FEATURES.md)** - Intelligence, security, resilience
+- **[API Specification](docs/API_SPECIFICATION.md)** - Complete REST API docs
+- **[SRE Runbook](docs/SRE_RUNBOOK.md)** - Operations, incidents, disaster recovery
+- **[Best Practices](docs/BEST_PRACTICES.md)** - Code quality and patterns
+- **[Architecture](docs/ARCHITECTURE.md)** - System design and components
 
 ## Security
 
