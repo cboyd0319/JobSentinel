@@ -5,6 +5,8 @@
 [![Version](https://img.shields.io/badge/Version-0.5.0-brightgreen.svg)](#)
 [![Privacy](https://img.shields.io/badge/Privacy-Local‑first-black.svg)](#security)
 [![Cost](https://img.shields.io/badge/Local%20cost-$0-informational)](#cost)
+[![Code Quality](https://img.shields.io/badge/Code%20Quality-Ruff%20%2B%20Black-orange.svg)](docs/BEST_PRACTICES.md)
+[![Documentation](https://img.shields.io/badge/Documentation-Complete-blue.svg)](docs/DOCUMENTATION_INDEX.md)
 
 **TL;DR**: Privacy-focused job hunting automation. Scrape multiple job boards, score matches against your preferences, get Slack alerts for top picks. Runs locally ($0) or in your cloud (~$5-15/mo).
 
@@ -220,12 +222,25 @@ See [CONTRIBUTING.md](docs/governance/CONTRIBUTING.md) for dev setup, testing, c
 
 ## Documentation
 
-- **[Quickstart Guide](docs/quickstart.md)** - Getting started with JobSentinel
-- **[Architecture](docs/ARCHITECTURE.md)** - System design and technical details
+### Getting Started
+- **[Quickstart Guide](docs/quickstart.md)** - Getting started with JobSentinel in 5 minutes
 - **[Troubleshooting](docs/troubleshooting.md)** - Common issues and solutions
+- **[Documentation Index](docs/DOCUMENTATION_INDEX.md)** - Complete documentation navigation
+
+### For Developers
+- **[Best Practices Guide](docs/BEST_PRACTICES.md)** - 🆕 Production-grade coding standards and patterns
+- **[API Integration Guide](docs/API_INTEGRATION_GUIDE.md)** - 🆕 Add new job board integrations
+- **[Architecture](docs/ARCHITECTURE.md)** - System design and technical details
 - **[Development](docs/development/)** - Build tools and development resources
+
+### For Production
+- **[Deployment Guide](docs/DEPLOYMENT_GUIDE.md)** - 🆕 Cloud deployment, monitoring, and operations
 - **[Docker Deployment](docker/)** - Container deployment guides
-- **[Governance](docs/governance/)** - Code of conduct, contributing, security
+- **[Security Policy](docs/governance/SECURITY.md)** - Security best practices and vulnerability reporting
+
+### For Contributors
+- **[Contributing Guide](docs/governance/CONTRIBUTING.md)** - How to contribute to JobSentinel
+- **[Code of Conduct](docs/governance/CODE_OF_CONDUCT.md)** - Community standards and expectations
 
 ## License
 

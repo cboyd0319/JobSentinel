@@ -42,6 +42,9 @@ New to JobSentinel? Start here:
 ## 🏗️ Architecture & Design
 
 - **[ARCHITECTURE.md](ARCHITECTURE.md)** - System architecture overview
+- **[BEST_PRACTICES.md](BEST_PRACTICES.md)** - 🆕 Production-grade coding standards and patterns
+- **[API_INTEGRATION_GUIDE.md](API_INTEGRATION_GUIDE.md)** - 🆕 Complete guide for adding new job boards
+- **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** - 🆕 Production deployment, monitoring, and operations
 - **[RESTRUCTURE_ROADMAP.md](RESTRUCTURE_ROADMAP.md)** - Planned architectural changes
 - **[RESTRUCTURE_ANALYSIS.md](RESTRUCTURE_ANALYSIS.md)** - Detailed restructuring analysis
 
@@ -174,23 +177,33 @@ JobSentinel/
 
 ### For Contributors
 1. Read [CONTRIBUTING.md](governance/CONTRIBUTING.md)
-2. Review [Development Resources](development/)
-3. Check [Quickstart Guide](quickstart.md)
+2. Study [BEST_PRACTICES.md](BEST_PRACTICES.md) - Coding standards and patterns
+3. Review [Development Resources](development/)
+4. Check [Quickstart Guide](quickstart.md)
+
+### For Integration Developers
+1. Read [API_INTEGRATION_GUIDE.md](API_INTEGRATION_GUIDE.md) - Complete integration guide
+2. Review existing scrapers in `sources/` directory
+3. Study [BEST_PRACTICES.md](BEST_PRACTICES.md) - Rate limiting and error handling
+4. Check test examples in `tests/unit/`
 
 ### For Security Reviewers
 1. Read [SECURITY.md](governance/SECURITY.md)
 2. Review security configuration in `.env.example`
-3. Check authentication and secrets management
+3. Check [BEST_PRACTICES.md](BEST_PRACTICES.md) - Security section
+4. Verify secrets management patterns
 
-### For Deployers
-1. Review [Quickstart Guide](quickstart.md)
-2. Check [Docker Documentation](../docker/)
-3. See [Architecture](ARCHITECTURE.md) for system design
+### For Production Deployers
+1. Review [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) - Complete deployment guide
+2. Check [Quickstart Guide](quickstart.md)
+3. Read [Docker Documentation](../docker/)
+4. Study [BEST_PRACTICES.md](BEST_PRACTICES.md) - Observability and monitoring
 
 ### For Architects
 1. Read [ARCHITECTURE.md](ARCHITECTURE.md)
-2. Review [ADR Directory](adr/)
-3. Check project structure and dependencies
+2. Study [BEST_PRACTICES.md](BEST_PRACTICES.md) - Architecture principles
+3. Review [ADR Directory](adr/)
+4. Check project structure and dependencies
 
 ---
 
