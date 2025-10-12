@@ -142,6 +142,10 @@ make test    # Full test suite
 - Focus on CI workflow's `make lint` for Python-specific issues
 - MegaLinter provides additional insights but is not required for merge
 
+## Recent Fixes
+
+See [FIXES.md](FIXES.md) for details on recent workflow error fixes and improvements.
+
 ## Contributing
 
 When adding new workflows:
@@ -150,5 +154,6 @@ When adding new workflows:
 3. Include path filters for efficiency
 4. Document purpose and triggers in this README
 5. Test locally with `act` when possible
+6. Ensure package installation before module imports
 
 See [CONTRIBUTING.md](../../docs/governance/CONTRIBUTING.md) for full guidelines.
