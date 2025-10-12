@@ -2,21 +2,81 @@
 
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.13%2B-blue.svg)](https://www.python.org/)
-[![Version](https://img.shields.io/badge/Version-0.5.0-brightgreen.svg)](#)
+[![Version](https://img.shields.io/badge/Version-0.6.0--dev-orange.svg)](#)
 [![Privacy](https://img.shields.io/badge/Privacy-Local‑first-black.svg)](#security)
 [![Cost](https://img.shields.io/badge/Local%20cost-$0-informational)](#cost)
 
 **TL;DR**: Privacy-focused job hunting automation. Scrape multiple job boards, score matches against your preferences, get Slack alerts for top picks. Runs locally ($0) or in your cloud (~$5-15/mo).
 
+---
+
+## 🎯 For Complete Beginners
+
+**Never used a "command line" before? No problem!**
+
+JobSentinel is designed to be accessible to everyone - even if you've never written code or used Terminal. Here's everything you need:
+
+### What You Need
+- ✅ A computer (Windows 11+, Mac 15+, or Linux)
+- ✅ 15 minutes of time
+- ✅ Internet connection
+- ✅ Ability to copy and paste text
+
+**That's it!** No programming experience required.
+
+### Quick Start for Beginners
+
+**Step 1: Download JobSentinel**
+1. Click the green **"Code"** button above
+2. Click **"Download ZIP"**
+3. Extract the ZIP file (right-click → Extract All)
+
+**Step 2: Install (Automated)**
+1. Open the `JobSentinel` folder
+2. Open the `scripts` folder
+3. Double-click `install.py`
+4. Wait 10-15 minutes (installer does everything automatically!)
+
+**Step 3: Tell it what jobs you want**
+The installer will ask you simple questions:
+- What job titles are you looking for? (e.g., "Accountant")
+- Where? (e.g., "Remote" or "New York, NY")
+- Minimum salary? (e.g., "50000" or leave blank)
+
+**Step 4: Find jobs!**
+Open Terminal/Command Prompt and type:
 ```bash
-# Quickstart (Windows/macOS/Linux)
-git clone https://github.com/cboyd0319/JobSentinel && cd JobSentinel
-python3 scripts/install.py
-# Edit config/user_prefs.json with your preferences
 python -m jsa.cli run-once
 ```
 
-## Prereqs
+**That's it!** JobSentinel will search job boards and show you matches.
+
+### 📚 Beginner-Friendly Guides
+
+- **[Installation Guide](docs/INSTALLATION_GUIDE.md)** - Step-by-step with screenshots
+- **[FAQ for Non-Technical Users](docs/FAQ.md)** - Common questions answered simply
+- **[Error Recovery Guide](docs/ERROR_RECOVERY_GUIDE.md)** - Every error + how to fix it
+
+**Need help?** Ask in [GitHub Discussions](https://github.com/cboyd0319/JobSentinel/discussions)
+
+---
+
+## ⚡ Quick Start (For Technical Users)
+
+```bash
+# Clone and install
+git clone https://github.com/cboyd0319/JobSentinel && cd JobSentinel
+python3 scripts/install.py
+
+# Configure
+cp config/user_prefs.example.json config/user_prefs.json
+# Edit config/user_prefs.json with your preferences
+
+# Run
+python -m jsa.cli run-once
+```
+
+---
 
 | Item | Version | Why |
 |------|---------|-----|
