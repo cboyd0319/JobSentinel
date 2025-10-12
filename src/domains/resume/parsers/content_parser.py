@@ -7,7 +7,7 @@ Parses resume content into structured format for analysis and enhancement.
 import logging
 import re
 
-from .models import ResumeContent, ResumeSection, SectionType
+from ..models import ResumeContent, ResumeSection, SectionType
 
 logger = logging.getLogger(__name__)
 

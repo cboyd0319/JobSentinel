@@ -23,7 +23,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Callable
 
-from pydantic import BaseModel, Field, ValidationError, validator
+from pydantic import BaseModel, Field, ValidationError, field_validator
 
 logger = logging.getLogger(__name__)
 
@@ -153,14 +153,15 @@ class ValidationReport:
 class ScrapingConfig(BaseModel):
     """Validated scraping configuration."""
 
-    keywords: list[str] = Field(..., min_items=1, max_items=50)
-    locations: list[str] = Field(default_factory=list, max_items=20)
-    sources: list[str] = Field(..., min_items=1)
+    keywords: list[str] = Field(..., min_length=1, max_length=50)
+    locations: list[str] = Field(default_factory=list, max_length=20)
+    sources: list[str] = Field(..., min_length=1)
     max_pages: int = Field(default=10, ge=1, le=100)
     timeout: int = Field(default=30, ge=10, le=300)
     rate_limit: int = Field(default=100, ge=1, le=1000)
 
-    @validator("keywords")
+    @field_validator("keywords")
+    @classmethod
     def validate_keywords(cls, v: list[str]) -> list[str]:
         """Validate keywords are non-empty and reasonable length."""
         for kw in v:
@@ -168,7 +169,8 @@ class ScrapingConfig(BaseModel):
                 raise ValueError(f"Invalid keyword: {kw}")
         return v
 
-    @validator("sources")
+    @field_validator("sources")
+    @classmethod
     def validate_sources(cls, v: list[str]) -> list[str]:
         """Validate sources are known."""
         valid_sources = {"indeed", "linkedin", "glassdoor", "reed", "jobswithgpt"}
