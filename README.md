@@ -111,64 +111,261 @@ cp .env.example .env
 
 ## Usage
 
-### Basic
+### 🎯 For Complete Beginners
+
+**After installation, here's your first job search:**
+
 ```bash
-# Validate configuration
-python -m jsa.cli config-validate --path config/user_prefs.json
+# Step 1: Go to JobSentinel folder
+cd ~/JobSentinel  # Mac/Linux
+cd %USERPROFILE%\JobSentinel  # Windows
 
-# Run single scrape session
+# Step 2: Activate the environment (shows (.venv) in your prompt)
+source .venv/bin/activate  # Mac/Linux
+.venv\Scripts\activate     # Windows
+
+# Step 3: Run your first search!
 python -m jsa.cli run-once
-
-# Start web UI (optional)
-python -m jsa.cli web --port 5000
 ```
 
-### Advanced
+**What happens?**
+- Scrapes configured job boards
+- Filters by your preferences
+- Scores each job (0-100%)
+- Shows top matches
+- Saves to database
+
+**Example output:**
+```
+🔍 JobSentinel - Starting job search...
+🌐 Scraping: Indeed, LinkedIn, Glassdoor
+📊 Found: 89 jobs (12 duplicates removed)
+✨ Top Matches:
+
+#1. Senior Python Engineer @ Stripe
+    📍 Remote (US) | 💰 $160k-$220k | ⭐ 94% match
+    
+#2. Backend Engineer @ Cloudflare  
+    📍 San Francisco | 💰 $180k-$240k | ⭐ 91% match
+
+✅ Complete! Found 77 unique jobs, 12 high matches (>85%)
+```
+
+### 📋 Essential Commands
+
 ```bash
-# Dry-run mode (preview only)
-python -m jsa.cli run-once --dry-run
+# Run a job search (main command)
+python -m jsa.cli run-once
 
-# Custom config file
-python -m jsa.cli run-once --config /path/to/custom.json
+# Shorter alias
+python -m jsa.cli search
 
-# Verbose logging
-python -m jsa.cli run-once --verbose
+# Check system health
+python -m jsa.cli health
 
-# Cloud deployment
+# View recent logs
+python -m jsa.cli logs --tail 50
+
+# Test Slack/email notifications
+python -m jsa.cli test-notifications
+
+# Clean old jobs (older than 30 days)
+python -m jsa.cli cleanup
+
+# Generate digest email
+python -m jsa.cli digest
+
+# Start web UI to browse jobs
+python -m jsa.cli web
+```
+
+### 🎨 Web UI (Visual Interface)
+
+**Start the web interface:**
+```bash
+python -m jsa.cli web
+```
+
+Then open: **http://localhost:5000**
+
+**Features:**
+- 📊 Dashboard with job statistics
+- 🔍 Search and filter jobs
+- ⭐ Mark as: Applied, Interested, Rejected
+- 📈 Track application progress
+- 💾 Export to CSV
+
+### 🔧 Advanced Usage
+
+```bash
+# Validate config before running
+python -m jsa.cli config-validate
+
+# View all available commands
+python -m jsa.cli --help
+
+# Get help for specific command
+python -m jsa.cli run-once --help
+
+# Cloud deployment (Phase 4)
 python -m jsa.cli cloud bootstrap --provider gcp
+python -m jsa.cli cloud status
+python -m jsa.cli cloud teardown
+
+# AI setup wizard (Phase 5)
+python -m jsa.cli ai-setup
 ```
 
 ## Configuration
 
-| Name | Type | Default | Example | Notes |
-|------|------|---------|---------|-------|
-| keywords | list[str] | [] | ["python", "backend"] | Job title/description matches |
-| locations | list[str] | [] | ["Remote", "San Francisco"] | Location filters |
-| salary_min | int | 0 | 120000 | Minimum salary (USD) |
-| blacklisted_companies | list[str] | [] | ["Meta", "Amazon"] | Companies to exclude |
-| job_sources.*.enabled | bool | false | true | Enable/disable source |
-| job_sources.*.api_key | str | "" | "reed_abc123" | API key if required |
-| slack.webhook_url | str | "" | "https://hooks.slack.com/..." | Slack incoming webhook |
-| slack.channel | str | "#job-alerts" | "#engineering-jobs" | Target channel |
+### 🔧 Quick Setup
 
-See `config/user_prefs.example.json` for full structure.
+**1. Copy example config:**
+```bash
+cp config/user_prefs.example.json config/user_prefs.json
+```
 
-**Example minimal config:**
+**2. Edit your preferences:**
+```bash
+nano config/user_prefs.json  # or use any text editor
+```
+
+**3. Set environment variables (optional):**
+```bash
+cp .env.example .env
+nano .env
+```
+
+### 📝 Configuration Options
+
+**Basic Settings:**
+
+| Setting | What it does | Example |
+|---------|-------------|---------|
+| `keywords` | Job titles you want | `["Software Engineer", "Backend Developer"]` |
+| `locations` | Where you want to work | `["Remote", "San Francisco, CA"]` |
+| `salary_min` | Minimum salary (USD/year) | `120000` |
+| `title_allowlist` | ONLY show these titles | `["Senior Engineer", "Staff Engineer"]` |
+| `title_blocklist` | NEVER show these titles | `["Manager", "Intern", "Contract"]` |
+| `blacklisted_companies` | Companies to skip | `["Meta", "Amazon"]` |
+
+**Job Sources:**
+
+| Source | Requires API Key? | How to get key |
+|--------|-------------------|----------------|
+| Indeed | ❌ No | N/A (web scraping) |
+| LinkedIn | ❌ No | N/A (web scraping) |
+| Glassdoor | ❌ No | N/A (web scraping) |
+| Reed (UK) | ✅ Yes | https://www.reed.co.uk/developers |
+| JobsWithGPT | ❌ No | N/A |
+
+**Notifications:**
+
+| Type | Setup Guide | Cost |
+|------|-------------|------|
+| Slack | [Slack Setup](docs/SLACK_SETUP.md) | Free |
+| Email | [Email Setup](docs/EMAIL_SETUP.md) | Free |
+
+### 📋 Example Configurations
+
+**Example 1: Entry-Level Remote Jobs**
 ```json
 {
-  "keywords": ["python", "backend", "api"],
+  "keywords": ["Junior Developer", "Software Engineer", "Python Developer"],
   "locations": ["Remote"],
-  "salary_min": 100000,
+  "salary_min": 60000,
+  "companies": [
+    {
+      "id": "stripe",
+      "board_type": "lever",
+      "url": "https://jobs.lever.co/stripe"
+    }
+  ],
   "job_sources": {
-    "jobswithgpt": { "enabled": true },
-    "reed": { "enabled": true, "api_key": "YOUR_KEY_HERE" }
-  },
-  "slack": {
-    "webhook_url": "YOUR_WEBHOOK_URL",
-    "channel": "#job-alerts"
+    "indeed": { "enabled": true },
+    "linkedin": { "enabled": true }
   }
 }
 ```
+
+**Example 2: Senior Roles in Tech Hubs**
+```json
+{
+  "title_allowlist": ["Senior Engineer", "Staff Engineer", "Principal Engineer"],
+  "keywords": ["Backend", "Infrastructure", "Platform"],
+  "locations": ["San Francisco, CA", "New York, NY", "Remote"],
+  "salary_min": 180000,
+  "blacklisted_companies": ["Meta", "Amazon"],
+  "keywords_boost": ["Kubernetes", "AWS", "Golang", "Rust"],
+  "job_sources": {
+    "linkedin": { "enabled": true },
+    "glassdoor": { "enabled": true }
+  },
+  "slack": {
+    "webhook_url": "https://hooks.slack.com/services/YOUR/WEBHOOK",
+    "channel": "#senior-jobs"
+  }
+}
+```
+
+**Example 3: Security Engineer (Specific Companies)**
+```json
+{
+  "title_allowlist": ["Security Engineer", "AppSec", "Product Security"],
+  "keywords": ["Zero Trust", "Penetration Testing", "Cloud Security"],
+  "locations": ["Remote", "US"],
+  "salary_min": 150000,
+  "companies": [
+    {
+      "id": "cloudflare",
+      "board_type": "greenhouse",
+      "url": "https://boards.greenhouse.io/cloudflare"
+    },
+    {
+      "id": "stripe",
+      "board_type": "lever", 
+      "url": "https://jobs.lever.co/stripe"
+    }
+  ],
+  "keywords_boost": ["Bug Bounty", "Red Team", "SIEM", "SOC"],
+  "digest_min_score": 80
+}
+```
+
+### 🎯 Configuration Tips
+
+**Best Practices:**
+- ✅ Start broad, narrow down later
+- ✅ Use `title_allowlist` for specific roles
+- ✅ Add 3-5 keywords max (more = less focused)
+- ✅ Include "Remote" if you're flexible on location
+- ✅ Set realistic `salary_min` for your experience level
+
+**Common Mistakes:**
+- ❌ Too many keywords (returns nothing)
+- ❌ Salary too high for experience level
+- ❌ Forgetting to enable job sources
+- ❌ Using wrong location format (use "City, State" or "Remote")
+
+### 🔒 Secrets Management
+
+**Never put secrets in config files!** Use `.env` file:
+
+```bash
+# .env file (never commit this!)
+SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/WEBHOOK
+OPENAI_API_KEY=sk-...
+REED_API_KEY=...
+
+# For email notifications
+EMAIL_SMTP_SERVER=smtp.gmail.com
+EMAIL_SMTP_PORT=587
+EMAIL_FROM=your-email@gmail.com
+EMAIL_PASSWORD=your-app-password
+EMAIL_TO=your-email@gmail.com
+```
+
+**Security:** Add `.env` to `.gitignore` (already done). Use environment-specific `.env` files for different deployments.
 
 ## Development
 
