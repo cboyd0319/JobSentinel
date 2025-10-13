@@ -7,14 +7,14 @@ on:
       - '**.md'
       - 'docs/**'
       - '.github/ISSUE_TEMPLATE/**'
-      - '.github/PULL_REQUEST_TEMPLATE.md'
+      - '.github/pull_request_template.md'
   pull_request:
     branches: [main, develop]
     paths-ignore:
       - '**.md'
       - 'docs/**'
       - '.github/ISSUE_TEMPLATE/**'
-      - '.github/PULL_REQUEST_TEMPLATE.md'
+      - '.github/pull_request_template.md'
   workflow_dispatch:  # 💰 MANUAL ONLY: No scheduled runs for personal project
 
 permissions:

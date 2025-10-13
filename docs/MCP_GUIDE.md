@@ -152,7 +152,7 @@ Open VS Code or GitHub Codespaces:
 {
   "fetch": {
     "command": "npx",
-    "args": ["-y", "@modelcontextprotocol/server-fetch"]
+    "args": ["-y", "@modelcontextprotocol/server-fetch@latest"]
   }
 }
 ```
@@ -173,7 +173,7 @@ Open VS Code or GitHub Codespaces:
 {
   "playwright": {
     "command": "npx",
-    "args": ["-y", "@modelcontextprotocol/server-playwright"]
+    "args": ["-y", "@modelcontextprotocol/server-playwright@latest"]
   }
 }
 ```
@@ -194,9 +194,9 @@ Open VS Code or GitHub Codespaces:
 ```json
 {
   "context7": {
-    "url": "https://api.context7.com/v1/mcp",
+    "url": "https://mcp.context7.com/mcp",
     "headers": {
-      "Authorization": "Bearer ${COPILOT_MCP_CONTEXT7_API_KEY}"
+      "CONTEXT7_API_KEY": "${COPILOT_MCP_CONTEXT7_API_KEY}"
     }
   }
 }
@@ -223,7 +223,7 @@ Open VS Code or GitHub Codespaces:
 {
   "openai-websearch": {
     "command": "uvx",
-    "args": ["mcp-server-openai-websearch"],
+    "args": ["--from", "openai-websearch-mcp", "openai-websearch-mcp"],
     "env": {
       "OPENAI_API_KEY": "${COPILOT_MCP_OPENAI_API_KEY}"
     }

@@ -1,0 +1,111 @@
+---
+name: 🐛 Bug Report
+description: Report a bug or unexpected behavior
+title: "[BUG] "
+labels: ["bug"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out the sections below to help us fix the issue.
+
+  - type: textarea
+    id: what-broke
+    attributes:
+      label: What broke?
+      description: A clear description of what went wrong.
+      placeholder: "Example: The scraper crashed when trying to fetch jobs from Greenhouse."
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Commands or steps to reproduce the issue.
+      placeholder: |
+        1. Run: python -m jsa.cli run-once
+        2. Wait for scraper to run
+        3. See error
+      value: |
+        ```bash
+        python -m jsa.cli run-once
+        ```
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-actual
+    attributes:
+      label: Expected vs Actual behavior
+      description: What did you expect to happen, and what actually happened?
+      placeholder: |
+        Expected: Jobs found and scored successfully
+        Actual: Crashes with TypeError
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating System
+      description: What OS are you running?
+      placeholder: "e.g., macOS 14.1, Ubuntu 22.04, Windows 11"
+    validations:
+      required: true
+
+  - type: input
+    id: python-version
+    attributes:
+      label: Python Version
+      description: What version of Python are you using?
+      placeholder: "e.g., 3.13.0"
+    validations:
+      required: true
+
+  - type: input
+    id: app-version
+    attributes:
+      label: JobSentinel Version
+      description: What version of JobSentinel are you running?
+      placeholder: "e.g., 0.6.0"
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error Logs
+      description: Paste relevant error logs here.
+      render: shell
+      placeholder: Paste error logs here
+    validations:
+      required: false
+
+  - type: textarea
+    id: config
+    attributes:
+      label: Configuration (remove secrets!)
+      description: Paste your config (remove any API keys or sensitive data).
+      render: json
+      placeholder: |
+        {
+          "keywords": ["python"],
+          "job_sources": {"jobswithgpt": {"enabled": true}}
+        }
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Pre-submission checklist
+      description: Please confirm the following before submitting
+      options:
+        - label: I have searched existing issues to avoid duplicates
+          required: true
+        - label: I have removed all secrets/API keys from the information above
+          required: true
+        - label: I am using a supported Python version (3.11+)
+          required: true

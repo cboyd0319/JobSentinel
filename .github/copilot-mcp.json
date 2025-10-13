@@ -15,7 +15,7 @@
       "description": "Enables web search capabilities through OpenAI. Use for finding current information about job boards, scraping techniques, Python libraries, security best practices, and emerging trends in job automation.",
       "type": "local",
       "command": "uvx",
-      "args": ["openai-websearch-mcp"],
+      "args": ["--from", "openai-websearch-mcp", "openai-websearch-mcp"],
       "env": {
         "OPENAI_API_KEY": "$COPILOT_MCP_OPENAI_API_KEY"
       },
@@ -25,14 +25,14 @@
       "description": "Fetches web content for analysis. Useful for inspecting job board HTML structures, checking robots.txt files, and analyzing scraping targets before implementing scrapers.",
       "type": "local",
       "command": "npx",
-      "args": ["-y", "mcp-fetch-server@latest"],
+      "args": ["-y", "@modelcontextprotocol/server-fetch@latest"],
       "tools": ["*"]
     },
     "playwright": {
       "description": "Browser automation capabilities for testing and development. Use for interactive debugging of scrapers, testing JavaScript-heavy job boards, and validating web UI functionality.",
       "type": "local",
       "command": "npx",
-      "args": ["-y", "@playwright/mcp@latest"],
+      "args": ["-y", "@modelcontextprotocol/server-playwright@latest"],
       "tools": ["*"]
     }
   }
