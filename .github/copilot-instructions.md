@@ -36,6 +36,48 @@ make security      # Security scan
 make fmt && make lint && make type && make test
 ```
 
+## Repository Standards & Configuration
+
+### Workflow & Automation Standards
+- **Dependabot:** Weekly schedule (Mondays 09:00 UTC), commit prefix `chore(deps):`, grouped updates
+- **Auto-merge:** Automatic approval for all Dependabot PRs, auto-merge for patch/minor versions only
+- **CI/CD:** GitHub Actions workflows in `.github/workflows/` (see `python-qa.yml`, `dependabot-auto-merge.yml`)
+- **Quality Gates:** All PRs must pass linting, type checking, tests (85% coverage), security scans before merge
+
+### File Organization Standards
+- **`.github/` directory:** Contains only GitHub-specific configs (workflows, templates, Copilot instructions)
+  - Templates: `pull_request_template.md`, `ISSUE_TEMPLATE/*.yml` (lowercase naming)
+  - Ownership: `CODEOWNERS` defines code review requirements
+  - Actions: Custom actions in `.github/actions/`
+- **Documentation:** All docs in `/docs`, never in `.github/`
+- **Scripts:** Development/deployment scripts in `/scripts`, never in `.github/`
+- **Templates:** User-facing templates in `/templates/` (Slack messages, emails)
+
+### Inclusive Terminology Standards
+- **Required replacements:**
+  - Use "allowlist" instead of "whitelist"
+  - Use "denylist" instead of "blacklist"
+  - Use "main" branch instead of "master" branch
+  - Use "primary/replica" instead of "master/slave" in architecture discussions
+  - Use "denied_companies" config field (not "blacklisted_companies")
+- **Code review:** All PRs checked for outdated terminology
+- **Exceptions:** Academic/historical references, third-party API field names (document clearly)
+
+### Configuration Management
+- **User preferences:** `config/user_prefs.json` with schema validation (`user_prefs.schema.json`)
+- **Secrets:** Environment variables or `.env` files (never commit `.env`)
+- **Skills taxonomy:** `config/skills_taxonomy_v1.json` for job matching
+- **Resume parser:** `config/resume_parser.json` for ML configuration
+- **MCP integration:** `copilot-mcp.json` for Model Context Protocol servers
+
+### GitHub Configuration Files
+- **Dependabot:** `.github/dependabot.yml` — Standardized across all repos
+- **Workflows:** `.github/workflows/*.yml` — GitHub Actions automation
+- **Templates:** `.github/pull_request_template.md`, `.github/ISSUE_TEMPLATE/*.yml`
+- **Copilot:** `.github/copilot-instructions.md` (this file), `.github/copilot-mcp.json`
+- **Ownership:** `.github/CODEOWNERS` — Code review assignments (@cboyd0319)
+- **Funding:** `.github/FUNDING.yml` — Sponsorship information
+
 ## Guardrails (read carefully)
 - **Respect robots.txt + rate limits.** Default to polite concurrency and exponential backoff. Never DOS a source.
 - **No login-required scraping.** Public endpoints only; no captchas, no fake headers that imply authenticated sessions.
@@ -109,6 +151,11 @@ make fmt && make lint && make type && make test
   - All public functions must have type hints
   - Use Pydantic BaseModel for data validation
   - Runtime type checking with Pydantic where appropriate
+- **Inclusive Terminology:** Use modern, inclusive language
+  - Use "allowlist" instead of "whitelist"
+  - Use "denylist" instead of "blacklist"
+  - Use "main" branch instead of "master" branch
+  - Use "primary/replica" instead of "master/slave" in architecture discussions
 - **Logging:** Structured logging via `jsa.logging`
   - Use appropriate levels: DEBUG (dev details), INFO (user actions), WARNING (degraded), ERROR (failures)
   - No secrets in logs (use sanitizers)

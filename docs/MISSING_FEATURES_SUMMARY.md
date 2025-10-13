@@ -215,7 +215,7 @@ Error: Config validation failed: 'keywords_boost' is a required property
    - A/B testing (which version gets more responses?)
    - **Why:** Power users love this
 
-3. **Company Blacklist Intelligence**
+3. **Company Denylist Intelligence**
    - Crowdsourced bad employer database
    - Red flags: unpaid trials, "exposure" pay, MLM
    - **Why:** Social good + viral growth

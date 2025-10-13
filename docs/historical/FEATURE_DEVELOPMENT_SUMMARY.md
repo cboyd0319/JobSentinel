@@ -284,7 +284,7 @@ extension/
 ### Long-Term (v1.0.0)
 - [ ] Native mobile apps (iOS, Android)
 - [ ] Zapier integration
-- [ ] Company blacklist intelligence (crowdsourced)
+- [ ] Company Denylist intelligence (crowdsourced)
 - [ ] Resume version control (Git-like)
 - [ ] Interview preparation tools
 - [ ] Career path recommendations

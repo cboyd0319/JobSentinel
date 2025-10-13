@@ -163,7 +163,7 @@
 | Skill Matching | ✅ | ✅ | Some | Manual |
 | Salary Filtering | ✅ | ✅ | ✅ | Manual |
 | Location Filtering | ✅ | ✅ | ✅ | Manual |
-| Company Blacklist | ✅ | ❌ | Some | Manual |
+| Company Denylist | ✅ | ❌ | Some | Manual |
 | Resume Parsing | ✅ | ✅ | ✅ | ❌ |
 | **Privacy & Control** |
 | Local Data Storage | ✅ | ✅ | ❌ | ✅ |

@@ -206,7 +206,7 @@ JobSentinel is built on **rock-solid foundations** from the world's leading stan
 - CWE-79 (XSS): Output encoding, HTML escaping
 - CWE-89 (SQL Injection): Parameterized queries, ORM usage
 - CWE-20 (Input Validation): Comprehensive validation framework
-- CWE-78 (OS Command Injection): No shell execution, whitelist validation
+- CWE-78 (OS Command Injection): No shell execution, allowlist validation
 - CWE-352 (CSRF): Token-based protection (if web forms used)
 - CWE-434 (File Upload): Type validation, size limits
 - CWE-862 (Missing Authorization): Access control checks

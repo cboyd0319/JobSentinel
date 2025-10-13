@@ -84,7 +84,7 @@ python -m jsa.cli web --port 5000
 | keywords | list[str] | [] | ["python", "backend"] | Match job title/description |
 | locations | list[str] | [] | ["Remote", "San Francisco"] | Location filters |
 | salary_min | int | 0 | 120000 | Min salary USD |
-| blacklisted_companies | list[str] | [] | ["Meta", "Amazon"] | Exclude companies |
+| denied_companies | list[str] | [] | ["Meta", "Amazon"] | Exclude companies |
 | job_sources.*.enabled | bool | false | true | Enable source |
 | job_sources.*.api_key | str | "" | "reed_abc123" | API key if needed |
 | slack.webhook_url | str | "" | "https://hooks.slack.com/..." | Slack webhook |

@@ -9,14 +9,15 @@
 ## 🆕 Latest Additions (v0.6.1+ - October 2025)
 
 **World-Class Enhancements:**
-- **[Deep Analysis 2025](DEEP_ANALYSIS_2025.md)** - 🆕 Comprehensive competitive analysis and roadmap
+- **[Deep Analysis 2025](historical/DEEP_ANALYSIS_2025.md)** - 🆕 Comprehensive competitive analysis and roadmap
 - **[Missing Features Summary](MISSING_FEATURES_SUMMARY.md)** - 🆕 Quick wins and feature gaps vs competitors
 - **[Authoritative Standards](AUTHORITATIVE_STANDARDS.md)** - 🔥 39+ industry standards with full citations (expanded!)
 - **[AI/ML Roadmap](AI_ML_ROADMAP.md)** - 🆕 Complete AI/ML vision from v0.6 to v1.0
 - **[Accessibility Guide](ACCESSIBILITY.md)** - 🆕 WCAG 2.1 Level AA compliance documentation
 - **[Visual Architecture](VISUAL_ARCHITECTURE.md)** - 🔥 12 comprehensive visual diagrams
 - **[Property-Based Testing](../tests/unit_jsa/test_properties.py)** - 🆕 Hypothesis generative tests
-- **[MCP Integration](MCP_INTEGRATION.md)** - Enhanced with 6+ server options
+- **[MCP Integration Guide](MCP_GUIDE.md)** - ✨ **CONSOLIDATED:** Complete MCP server configuration and troubleshooting
+- **[Dependabot Guide](DEPENDABOT.md)** - ✨ **CONSOLIDATED:** Dependency management and auto-merge workflows
 - **Confidence Scoring** - 🔥 Multi-factor ML confidence with calibration
 - **Adaptive Learning** - 🔥 Self-improving system with drift detection
 - **Validation Framework** - 🔥 Pre-flight checks with auto-fix
@@ -27,11 +28,10 @@
 New to JobSentinel? Start here:
 
 1. **[Complete Beginner's Guide](BEGINNER_GUIDE.md)** - Never used a terminal? Start here! Zero technical knowledge needed.
-2. **[60-Second Start](GETTING_STARTED_60_SECONDS.md)** - Fastest path to your first job alert
-3. **[README.md](../README.md)** - Project overview and setup
-4. **[Quickstart Guide](quickstart.md)** - Step-by-step getting started
-5. **[Quick Reference](QUICK_REFERENCE.md)** - Command cheat sheet and common tasks
-6. **[CONTRIBUTING.md](governance/CONTRIBUTING.md)** - How to contribute
+2. **[README.md](../README.md)** - Project overview and setup
+3. **[Quickstart Guide](quickstart.md)** - Step-by-step getting started
+4. **[Quick Reference](QUICK_REFERENCE.md)** - Command cheat sheet and common tasks
+5. **[CONTRIBUTING.md](../CONTRIBUTING.md)** - How to contribute (moved to repo root)
 
 ---
 
@@ -52,9 +52,10 @@ New to JobSentinel? Start here:
 
 ## 🔒 Security
 
-- **[SECURITY.md](governance/SECURITY.md)** - Security policy and reporting
+- **[SECURITY.md](../SECURITY.md)** - Security policy and reporting (moved to repo root)
+- **[CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md)** - Community guidelines (moved to repo root)
 - **.env.example** - Environment variable template (no secrets!)
-- **Secrets Management** - See governance documentation for best practices
+- **Secrets Management** - Environment variables only, no hardcoded credentials
 
 ---
 

@@ -1,12 +1,12 @@
 # Docker Compose for isolated MCP servers
 # Usage: docker-compose -f docker/docker-compose.mcp.yml up
 #
-# Security features:
-# - Read-only root filesystem
-# - No network access (except whitelisted servers)
+# Sandboxed Python environment for running MCP servers
+# Includes:
+# - Restricted user (non-root)
+# - Read-only filesystem where possible
+# - No network access (except allowed servers)
 # - Resource limits (CPU, memory)
-# - Non-root user
-# - Minimal capabilities
 
 version: '3.8'
 

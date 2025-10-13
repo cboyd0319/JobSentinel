@@ -239,7 +239,7 @@ class JobSearchWorkflow:
             "keywords": self.config.get("keywords", []),
             "required_skills": self.config.get("required_skills", []),
             "preferred_skills": self.config.get("preferred_skills", []),
-            "blacklisted_companies": self.config.get("blacklisted_companies", []),
+            "denied_companies": self.config.get("denied_companies", []),
             "min_salary": self.config.get("salary_min", 0),
             "locations": self.config.get("locations", []),
         }

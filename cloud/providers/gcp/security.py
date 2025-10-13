@@ -17,7 +17,7 @@ async def setup_binary_authorization(logger, project_id: str, region: str) -> No
             "enforcementMode": "ENFORCED_BLOCK_AND_AUDIT_LOG",
         },
         "clusterAdmissionRules": {},
-        "admissionWhitelistPatterns": [{"namePattern": f"{region}-docker.pkg.dev/{project_id}/*"}],
+        "admissionAllowlistPatterns": [{"namePattern": f"{region}-docker.pkg.dev/{project_id}/*"}],
     }
 
     with tempfile.NamedTemporaryFile(mode="w", suffix=".json") as temp_policy_file:

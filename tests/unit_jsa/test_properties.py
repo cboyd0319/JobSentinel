@@ -195,7 +195,7 @@ class TestJobMatchingProperties:
 
     @given(
         keywords=st.lists(
-            st.text(min_size=1, max_size=20, alphabet=st.characters(whitelist_categories=("L",))),
+            st.text(min_size=1, max_size=20, alphabet=st.characters(allowlist_categories=("L",))),
             min_size=1,
             max_size=10,
         )

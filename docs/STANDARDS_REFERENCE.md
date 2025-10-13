@@ -68,7 +68,7 @@ Each reference includes:
 - V2.2.1: Anti-automation (rate limiting)
 - V2.3.1: Password storage (PBKDF2-HMAC-SHA256)
 - V4.2.1: Rate limiting (token bucket)
-- V5.1.1: Input validation (whitelist-based)
+- V5.1.1: Input validation (allowlist-based)
 - V5.3.4: SQL injection prevention (parameterized queries)
 - V8.1.1: Data classification (documented)
 - V14.4.1: HTTP Security Headers (CSP, HSTS)

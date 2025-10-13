@@ -333,7 +333,7 @@ def main() -> int:
         "keywords": [],
         "locations": [],
         "salary_min": 0,
-        "blacklisted_companies": [],
+        "denied_companies": [],
         "job_sources": {},
         "slack": {},
         "resume": {},
@@ -359,9 +359,9 @@ def main() -> int:
     except ValueError:
         config["salary_min"] = 0
 
-    blacklist_input = ask_input("Companies to exclude (comma-separated, optional)", "")
-    if blacklist_input:
-        config["blacklisted_companies"] = [c.strip() for c in blacklist_input.split(",")]
+    denylist_input = ask_input("Companies to exclude (comma-separated, optional)", "")
+    if denylist_input:
+        config["denied_companies"] = [c.strip() for c in denylist_input.split(",")]
 
     # Job sources
     print("\n" + "=" * 70)

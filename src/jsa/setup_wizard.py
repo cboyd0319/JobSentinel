@@ -250,7 +250,7 @@ def run_wizard() -> None:
         "keywords": keywords,
         "locations": locations,
         "salary_min": salary_min,
-        "blacklisted_companies": [],
+        "denied_companies": [],
         "keywords_boost": keywords[:3],  # Use top 3 keywords as boost
         "job_sources": job_sources,
         "slack": slack_config,

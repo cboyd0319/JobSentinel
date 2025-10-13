@@ -79,7 +79,7 @@ docker run -d --name jobsentinel \
   "salary_min": 120000,
   "required_skills": ["python", "docker", "aws"],
   "preferred_skills": ["kubernetes", "terraform"],
-  "blacklisted_companies": ["Meta", "Amazon"],
+  "Denylisted_companies": ["Meta", "Amazon"],
   "min_score": 0.75,
   "job_sources": {
     "jobswithgpt": { "enabled": true },
@@ -125,7 +125,7 @@ Jobs are scored 0.0-1.0 based on:
 | Required skills | 30% | Must have Docker, AWS |
 | Location match | 15% | Remote or San Francisco |
 | Salary range | 10% | ≥ $120,000 |
-| Company blacklist | 5% | Not in blacklisted companies |
+| Company Denylist | 5% | Not in Denylisted companies |
 
 **Default threshold:** 0.7 (70% match or higher)
 
@@ -306,7 +306,7 @@ python -m jsa.cli health-check
 ### Optimize Search Results
 - Use specific keywords (e.g., "Senior Python Engineer" vs "Python")
 - Start with fewer keywords, add more if too many results
-- Use `blacklisted_companies` to filter out unwanted employers
+- Use `Denylisted_companies` to filter out unwanted employers
 - Adjust `min_score` threshold (0.7 = 70% match)
 
 ### Reduce API Costs

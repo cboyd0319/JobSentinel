@@ -1,22 +1,29 @@
+# Standardized Dependabot Configuration
+# Documentation: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+# Last updated: October 2025
+
 version: 2
 updates:
-  # Enable version updates for Python dependencies
+  # Python dependencies
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"
       time: "09:00"
-    open-pull-requests-limit: 5
+      timezone: "UTC"
+    open-pull-requests-limit: 10
     reviewers:
       - "cboyd0319"
     assignees:
       - "cboyd0319"
     labels:
       - "dependencies"
+      - "python"
     commit-message:
       prefix: "deps"
       include: "scope"
+    # Group minor and patch updates to reduce PR noise
     groups:
       python-dependencies:
         patterns:
@@ -25,21 +32,22 @@ updates:
           - "minor"
           - "patch"
 
-  # Enable version updates for GitHub Actions
+  # GitHub Actions dependencies
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"
       time: "09:00"
-    open-pull-requests-limit: 3
+      timezone: "UTC"
+    open-pull-requests-limit: 5
     reviewers:
       - "cboyd0319"
     assignees:
       - "cboyd0319"
     labels:
-      - "github_actions"
       - "dependencies"
+      - "github-actions"
     commit-message:
       prefix: "ci"
       include: "scope"
