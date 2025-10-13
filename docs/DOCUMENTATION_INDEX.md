@@ -9,6 +9,8 @@
 ## 🆕 Latest Additions (v0.6.1+ - October 2025)
 
 **World-Class Enhancements:**
+- **[Deep Analysis 2025](DEEP_ANALYSIS_2025.md)** - 🆕 Comprehensive competitive analysis and roadmap
+- **[Missing Features Summary](MISSING_FEATURES_SUMMARY.md)** - 🆕 Quick wins and feature gaps vs competitors
 - **[Authoritative Standards](AUTHORITATIVE_STANDARDS.md)** - 🔥 39+ industry standards with full citations (expanded!)
 - **[AI/ML Roadmap](AI_ML_ROADMAP.md)** - 🆕 Complete AI/ML vision from v0.6 to v1.0
 - **[Accessibility Guide](ACCESSIBILITY.md)** - 🆕 WCAG 2.1 Level AA compliance documentation
@@ -69,6 +71,13 @@ New to JobSentinel? Start here:
 - **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)** - 🆕 Command cheat sheet and quick lookup
 - **[RESTRUCTURE_ROADMAP.md](RESTRUCTURE_ROADMAP.md)** - Planned architectural changes
 - **[RESTRUCTURE_ANALYSIS.md](RESTRUCTURE_ANALYSIS.md)** - Detailed restructuring analysis
+
+## 🎯 Strategic Planning & Roadmap
+
+- **[DEEP_ANALYSIS_2025.md](DEEP_ANALYSIS_2025.md)** - 🆕 Comprehensive competitive analysis with MCP research
+- **[MISSING_FEATURES_SUMMARY.md](MISSING_FEATURES_SUMMARY.md)** - 🆕 Feature gaps and quick wins (90-day plan)
+- **[AI_ML_ROADMAP.md](AI_ML_ROADMAP.md)** - AI/ML evolution from v0.6 to v1.0
+- **[COMPARISON.md](COMPARISON.md)** - Market positioning vs Teal, Huntr, AIHawk
 
 ---
 
