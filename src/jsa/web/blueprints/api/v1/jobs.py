@@ -50,11 +50,16 @@ def list_jobs() -> tuple[dict, int]:
 
         jobs = session.exec(statement).all()
 
-        return jsonify({
-            "jobs": [job.dict() for job in jobs],
-            "page": page,
-            "per_page": per_page,
-        }), 200
+        return (
+            jsonify(
+                {
+                    "jobs": [job.dict() for job in jobs],
+                    "page": page,
+                    "per_page": per_page,
+                }
+            ),
+            200,
+        )
 
 
 @jobs_api_bp.route("/<int:job_id>", methods=["GET"])

@@ -143,7 +143,13 @@ def build_parser() -> argparse.ArgumentParser:
     p_api.add_argument("--host", type=str, default="127.0.0.1", help="Host to bind to")
     p_api.add_argument("--port", type=int, default=8000, help="Port to bind to")
     p_api.add_argument("--reload", action="store_true", help="Enable auto-reload on code changes")
-    p_api.add_argument("--log-level", type=str, default="INFO", choices=["DEBUG", "INFO", "WARNING", "ERROR"], help="Log level")
+    p_api.add_argument(
+        "--log-level",
+        type=str,
+        default="INFO",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR"],
+        help="Log level",
+    )
     p_api.set_defaults(func=_cmd_api)
 
     p_cfg = sub.add_parser("config-validate", help="Validate configuration file")

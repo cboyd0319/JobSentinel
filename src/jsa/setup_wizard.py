@@ -62,7 +62,7 @@ def get_keywords() -> list[str]:
 def get_locations() -> list[str]:
     """Prompt for preferred locations."""
     console.print("[bold]Step 2: Preferred Locations[/bold]")
-    console.print('Enter locations (e.g., Remote, San Francisco, New York)')
+    console.print("Enter locations (e.g., Remote, San Francisco, New York)")
     console.print('Tip: "Remote" is highly recommended!\n')
 
     locations_input = Prompt.ask(
@@ -103,7 +103,11 @@ def configure_job_sources() -> dict[str, Any]:
         "jobswithgpt": {"enabled": False, "description": "JobsWithGPT (10K+ remote jobs)"},
         "greenhouse": {"enabled": False, "description": "Greenhouse boards (tech companies)"},
         "lever": {"enabled": False, "description": "Lever boards (startups)"},
-        "reed": {"enabled": False, "api_key": "", "description": "Reed.co.uk (UK jobs, API key required)"},
+        "reed": {
+            "enabled": False,
+            "api_key": "",
+            "description": "Reed.co.uk (UK jobs, API key required)",
+        },
     }
 
     # Quick option: Enable all free sources

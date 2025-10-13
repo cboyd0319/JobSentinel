@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import secrets
 from collections.abc import Callable
-from datetime import datetime
+from datetime import UTC, datetime
 from functools import wraps
 from typing import Optional
 
@@ -24,7 +24,7 @@ class APIKey(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     key: str = Field(unique=True, index=True)
     name: str
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     last_used_at: datetime | None = None
     is_active: bool = True
 
@@ -79,7 +79,7 @@ def verify_api_key(session: Session, key_str: str) -> APIKey | None:
 
     if key_obj:
         # Update last used timestamp
-        key_obj.last_used_at = datetime.utcnow()
+        key_obj.last_used_at = datetime.now(UTC)
         session.commit()
 
     return key_obj

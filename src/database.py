@@ -70,6 +70,10 @@ logger = get_logger("database")
 async def init_db():
     """Creates the database and tables if they don't exist."""
     try:
+        # Import all models to ensure they're registered with SQLModel metadata
+        from jsa.tracker.models import Activity, Contact, Document, TrackedJob  # noqa: F401
+        from jsa.web.blueprints.api.auth import APIKey  # noqa: F401
+
         async with async_engine.begin() as conn:
             await conn.run_sync(SQLModel.metadata.create_all)
         SQLModel.metadata.create_all(sync_engine)

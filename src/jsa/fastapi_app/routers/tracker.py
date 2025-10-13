@@ -9,8 +9,8 @@ from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
 from sqlmodel import select
 
-from jsa.tracker.models import TrackedJob, JobStatus
 from jsa.db import get_session_context
+from jsa.tracker.models import JobStatus, TrackedJob
 
 router = APIRouter()
 
@@ -22,18 +22,18 @@ class ApplicationCreate(BaseModel):
     status: JobStatus = Field(default=JobStatus.BOOKMARKED)
     notes: str = Field(default="", max_length=10000)
     priority: int = Field(default=3, ge=0, le=5)
-    applied_at: Optional[datetime] = None
-    interview_at: Optional[datetime] = None
+    applied_at: datetime | None = None
+    interview_at: datetime | None = None
 
 
 class ApplicationUpdate(BaseModel):
     """Application update request."""
 
-    status: Optional[JobStatus] = None
-    notes: Optional[str] = Field(None, max_length=10000)
-    priority: Optional[int] = Field(None, ge=0, le=5)
-    applied_at: Optional[datetime] = None
-    interview_at: Optional[datetime] = None
+    status: JobStatus | None = None
+    notes: str | None = Field(None, max_length=10000)
+    priority: int | None = Field(None, ge=0, le=5)
+    applied_at: datetime | None = None
+    interview_at: datetime | None = None
 
 
 class ApplicationResponse(BaseModel):
@@ -44,15 +44,15 @@ class ApplicationResponse(BaseModel):
     status: JobStatus
     notes: str
     priority: int
-    applied_at: Optional[datetime]
-    interview_at: Optional[datetime]
+    applied_at: datetime | None
+    interview_at: datetime | None
     added_at: datetime
     updated_at: datetime
 
 
 @router.get("/tracker/applications", response_model=list[ApplicationResponse])
 async def list_applications(
-    status: Optional[JobStatus] = Query(None, description="Filter by status"),
+    status: JobStatus | None = Query(None, description="Filter by status"),
     limit: int = Query(100, ge=1, le=500, description="Maximum results"),
 ) -> list[ApplicationResponse]:
     """List job applications with optional status filter."""

@@ -14,7 +14,7 @@ class ResumeAnalysisRequest(BaseModel):
     """Resume analysis request."""
 
     resume_text: str = Field(..., min_length=10, max_length=50000)
-    industry: Optional[str] = Field(None, description="Target industry (e.g., Tech, Healthcare)")
+    industry: str | None = Field(None, description="Target industry (e.g., Tech, Healthcare)")
 
 
 class ResumeAnalysisResponse(BaseModel):

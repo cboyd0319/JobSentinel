@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import APIRouter
 from pydantic import BaseModel
@@ -33,7 +33,7 @@ async def health_check() -> HealthResponse:
         stats = get_stats_sync()
         return HealthResponse(
             status="healthy",
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             total_jobs=stats.get("total_jobs", 0),
             high_score_jobs=stats.get("high_score_jobs", 0),
             recent_jobs_24h=stats.get("recent_jobs_24h", 0),
@@ -41,7 +41,7 @@ async def health_check() -> HealthResponse:
     except Exception as e:
         return HealthResponse(
             status="degraded",
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             total_jobs=0,
             high_score_jobs=0,
             recent_jobs_24h=0,

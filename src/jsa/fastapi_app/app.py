@@ -17,9 +17,9 @@ Privacy:
 from __future__ import annotations
 
 import os
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import AsyncGenerator
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -86,7 +86,7 @@ def create_app() -> FastAPI:
     app.add_middleware(GZipMiddleware, minimum_size=1000)
 
     # Import and register routers
-    from jsa.fastapi_app.routers import health, jobs, ml, resume, tracker, llm
+    from jsa.fastapi_app.routers import health, jobs, llm, ml, resume, tracker
 
     app.include_router(health.router, prefix="/api/v1", tags=["health"])
     app.include_router(jobs.router, prefix="/api/v1", tags=["jobs"])

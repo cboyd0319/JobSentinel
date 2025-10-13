@@ -33,17 +33,22 @@ def get_job_score(job_id: int) -> tuple[dict, int]:
             return jsonify({"error": "Job not found"}), 404
 
         # Return score information
-        return jsonify({
-            "job_id": job.id,
-            "overall_score": getattr(job, "score", 0.0),
-            "factors": {
-                "skills": getattr(job, "skills_score", 0.0),
-                "salary": getattr(job, "salary_score", 0.0),
-                "location": getattr(job, "location_score", 0.0),
-                "company": getattr(job, "company_score", 0.0),
-                "recency": getattr(job, "recency_score", 0.0),
-            }
-        }), 200
+        return (
+            jsonify(
+                {
+                    "job_id": job.id,
+                    "overall_score": getattr(job, "score", 0.0),
+                    "factors": {
+                        "skills": getattr(job, "skills_score", 0.0),
+                        "salary": getattr(job, "salary_score", 0.0),
+                        "location": getattr(job, "location_score", 0.0),
+                        "company": getattr(job, "company_score", 0.0),
+                        "recency": getattr(job, "recency_score", 0.0),
+                    },
+                }
+            ),
+            200,
+        )
 
 
 @scores_api_bp.route("/calculate", methods=["POST"])
@@ -85,8 +90,7 @@ def calculate_score() -> tuple[dict, int]:
     skills_score = 0.0
     if keywords:
         matched_keywords = sum(
-            1 for keyword in keywords
-            if keyword.lower() in title or keyword.lower() in description
+            1 for keyword in keywords if keyword.lower() in title or keyword.lower() in description
         )
         skills_score = min(matched_keywords / len(keywords), 1.0)
 
@@ -120,17 +124,22 @@ def calculate_score() -> tuple[dict, int]:
         + recency_score * weights["recency"]
     )
 
-    return jsonify({
-        "overall_score": round(overall_score, 2),
-        "factors": {
-            "skills": round(skills_score, 2),
-            "salary": round(salary_score, 2),
-            "location": round(location_score, 2),
-            "company": round(company_score, 2),
-            "recency": round(recency_score, 2),
-        },
-        "weights": weights,
-    }), 200
+    return (
+        jsonify(
+            {
+                "overall_score": round(overall_score, 2),
+                "factors": {
+                    "skills": round(skills_score, 2),
+                    "salary": round(salary_score, 2),
+                    "location": round(location_score, 2),
+                    "company": round(company_score, 2),
+                    "recency": round(recency_score, 2),
+                },
+                "weights": weights,
+            }
+        ),
+        200,
+    )
 
 
 @scores_api_bp.route("/top", methods=["GET"])
@@ -153,24 +162,26 @@ def get_top_jobs() -> tuple[dict, int]:
         from sqlmodel import select
 
         statement = (
-            select(Job)
-            .where(Job.score >= min_score)
-            .order_by(Job.score.desc())
-            .limit(limit)
+            select(Job).where(Job.score >= min_score).order_by(Job.score.desc()).limit(limit)
         )
 
         jobs = session.exec(statement).all()
 
-        return jsonify({
-            "jobs": [
+        return (
+            jsonify(
                 {
-                    "id": job.id,
-                    "title": job.title,
-                    "company": job.company,
-                    "score": getattr(job, "score", 0.0),
+                    "jobs": [
+                        {
+                            "id": job.id,
+                            "title": job.title,
+                            "company": job.company,
+                            "score": getattr(job, "score", 0.0),
+                        }
+                        for job in jobs
+                    ],
+                    "count": len(jobs),
+                    "min_score": min_score,
                 }
-                for job in jobs
-            ],
-            "count": len(jobs),
-            "min_score": min_score,
-        }), 200
+            ),
+            200,
+        )
