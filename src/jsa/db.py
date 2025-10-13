@@ -72,7 +72,7 @@ def override_database_url_for_testing(db_url: str) -> None:
     point to the same store, e.g., sqlite+aiosqlite:///tmp/test.sqlite
     """
     from sqlmodel import SQLModel
-    
+
     async_url = db_url
     sync_url = _derive_sync_url(db_url)
 
@@ -80,11 +80,11 @@ def override_database_url_for_testing(db_url: str) -> None:
     legacy_db.async_engine = create_async_engine(async_url, echo=False)
     connect_args = {"check_same_thread": False} if sync_url.startswith("sqlite") else {}
     legacy_db.sync_engine = create_engine(sync_url, echo=False, connect_args=connect_args)
-    
+
     # Import all models to ensure they're registered with SQLModel metadata
     from jsa.tracker.models import Activity, Contact, Document, TrackedJob  # noqa: F401
     from jsa.web.blueprints.api.auth import APIKey  # noqa: F401
-    
+
     # Create all tables in the test database
     SQLModel.metadata.create_all(legacy_db.sync_engine)
 

@@ -42,12 +42,20 @@ export interface TrackedJob {
   updated_at: string
 }
 
+export interface ComponentStatus {
+  name: string
+  status: string
+  message?: string
+}
+
 export interface HealthResponse {
   status: string
   timestamp: string
+  version: string
   total_jobs: number
   high_score_jobs: number
   recent_jobs_24h: number
+  components: ComponentStatus[]
 }
 
 export interface ResumeAnalysis {
