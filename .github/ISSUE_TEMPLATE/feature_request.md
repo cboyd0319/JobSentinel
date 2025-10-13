@@ -6,11 +6,11 @@ labels: enhancement
 assignees: ''
 ---
 
-**Feature request:**
+## Request
 What you want added/changed.
 
-**Why:**
+## Why
 Problem this solves or value it adds.
 
-**Rough implementation:**
-How you'd approach building this (optional).
+## Implementation (optional)
+How you'd build this.

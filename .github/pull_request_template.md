@@ -1,14 +1,19 @@
-**What this changes:**
-Brief description of the change.
+## Intent
+What problem does this solve?
 
-**Why:**
-Problem this fixes or value it adds.
+## Changes
+What did you modify? (keep brief)
 
-**Testing:**
-- [ ] Ran `make test` (unit + integration tests)
-- [ ] Ran `make lint` (code quality checks)
-- [ ] Tested with `--dry-run`
-- [ ] No secrets in commits
+## Risk
+What could break? (migrations, config changes, API changes, etc.)
 
-**Breaking changes:**
+## Test coverage
+- [ ] Tests pass (`make test`)
+- [ ] Lint passes (`make lint`)
+- [ ] Type check passes (`make type`)
+- [ ] Coverage ≥85% (`make cov`)
+- [ ] No secrets committed
+- [ ] Config changes documented with defaults
+
+## Breaking changes
 None / List any breaking changes
