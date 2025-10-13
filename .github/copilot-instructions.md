@@ -12,6 +12,30 @@
 - Config: `config/user_prefs.json` (see example file in repo). Keep schema stable; add new keys behind sensible defaults.
 - **New in v0.6:** AI/ML capabilities (BERT semantic matching, resume analysis), scam detection, accessibility improvements, MCP integration.
 
+## Quick Reference (Most Common Commands)
+```bash
+# Development setup
+make dev                    # Install with dev dependencies
+playwright install chromium # Install browser for scraping
+
+# Running the app
+python -m jsa.cli run-once              # Run job scrape once
+python -m jsa.cli run-once --dry-run    # Test without sending alerts
+python -m jsa.cli web --port 5000       # Start web UI
+python -m jsa.cli health                # Health check
+
+# Quality checks (run before every commit)
+make test          # Run all tests
+make lint          # Ruff linter
+make fmt           # Black formatter
+make type          # mypy type check
+make cov           # Coverage report (≥85%)
+make security      # Security scan
+
+# Quick test cycle
+make fmt && make lint && make type && make test
+```
+
 ## Guardrails (read carefully)
 - **Respect robots.txt + rate limits.** Default to polite concurrency and exponential backoff. Never DOS a source.
 - **No login-required scraping.** Public endpoints only; no captchas, no fake headers that imply authenticated sessions.
@@ -252,8 +276,24 @@ When helping with code changes, reference these docs for context.
 - **Mutation Testing:** mutmut to verify test quality
 - **Integration Tests:** Docker-based test containers where needed
 - **CI/CD:** GitHub Actions workflows in `.github/workflows/`
+  - `ci.yml` — Main CI pipeline (lint, test, type check, security scan)
+  - `security.yml` — Security scanning (Bandit, PyGuard, dependency checks)
+  - `mega-linter.yml` — Comprehensive linting across all file types
+  - `dependabot-automerge.yml` — Auto-merge safe dependency updates
 
 Run tests before submitting PRs: `make test && make lint && make type && make cov`
+
+## CI/CD Pipeline
+Automated checks on every PR and push to main/develop:
+1. **Path-based filtering:** Skips unnecessary checks for docs-only changes
+2. **Linting:** Ruff + Black (formatting), MegaLinter (comprehensive)
+3. **Type checking:** mypy strict mode on src/jsa
+4. **Testing:** Full pytest suite with 85% coverage minimum
+5. **Security:** Bandit + PyGuard scans, dependency vulnerability checks
+6. **Build validation:** Ensure package builds correctly
+7. **Concurrency control:** Cancel outdated runs automatically
+
+All checks must pass before merge. See `.github/workflows/` for details.
 
 ## Review checklist (pull requests)
 - [ ] No secrets committed; `.env`/env-vars only.
@@ -268,6 +308,49 @@ Run tests before submitting PRs: `make test && make lint && make type && make co
 - [ ] Security scan clean (`make security`).
 - [ ] Documentation updated if API/config changes.
 - [ ] Conventional commit messages (feat:, fix:, docs:, etc.).
+
+## Common Pitfalls & Gotchas
+1. **Python Version:** Requires 3.13+ (uses pattern matching, walrus operator)
+   - Check with `python3 --version` or `python --version`
+   - CI uses Python 3.13 specifically
+
+2. **Virtual Environment:** Always activate before development
+   - Symptom: `ModuleNotFoundError: No module named 'jsa'`
+   - Fix: `source .venv/bin/activate` (Linux/Mac) or `.venv\Scripts\activate` (Windows)
+
+3. **Playwright Browsers:** Must be installed separately
+   - Symptom: `Playwright executable not found`
+   - Fix: `playwright install chromium`
+
+4. **Config Files:** Must exist before running
+   - Copy: `cp config/user_prefs.example.json config/user_prefs.json`
+   - Edit with your preferences before first run
+
+5. **Import Paths:** Use absolute imports from package roots
+   - ✅ GOOD: `from jsa.config import load_config`
+   - ❌ AVOID: `from ..config import load_config`
+
+6. **Type Hints:** Required for mypy strict mode in src/jsa
+   - All public functions need type hints
+   - Use `# type: ignore[<code>]` sparingly with justification
+
+7. **Test Isolation:** Tests must not depend on external services
+   - Mock all HTTP calls
+   - Use fixtures for test data
+   - No live scraping in tests
+
+8. **Secrets:** Never commit .env or files containing secrets
+   - .gitignore already handles this
+   - CI fails if secrets detected in code
+
+9. **Database Migrations:** If you change models, provide migration
+   - Document in PR description
+   - Maintain backward compatibility where possible
+
+10. **Documentation Updates:** Update docs when changing APIs or config
+    - README.md for user-facing changes
+    - CONTRIBUTING.md for dev process changes
+    - CHANGELOG.md for version changes
 
 ---
 **Absolute rules:**
