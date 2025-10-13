@@ -116,6 +116,8 @@ logs/*.log
 # ==========================================
 .vscode/
 .idea/
+.cursor/
+.claude/
 *.swp
 *.swo
 *~
