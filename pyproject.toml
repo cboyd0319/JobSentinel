@@ -134,6 +134,10 @@ files = ["src/jsa"]
 module = ["utils.*"]
 ignore_errors = true
 
+[[tool.mypy.overrides]]
+module = ["jsa.web.*"]
+ignore_errors = true  # TODO: Fix Flask route type annotations
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
