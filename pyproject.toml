@@ -72,7 +72,7 @@ dev = [
   "types-python-dateutil",
   "bandit[toml]>=1.7,<2",
   "mutmut>=2.4,<3",
-  "pyguard",
+  # "pyguard",  # Disabled temporarily - has Python 3.11+ compatibility issues with setup.py
 ]
 
 [project.scripts]
