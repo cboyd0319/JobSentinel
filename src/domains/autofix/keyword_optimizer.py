@@ -117,9 +117,7 @@ class KeywordOptimizer:
                 locations = self._find_keyword_locations(resume_text, keyword)
 
                 # Determine importance
-                importance = self._calculate_keyword_importance(
-                    keyword, job_description
-                )
+                importance = self._calculate_keyword_importance(keyword, job_description)
 
                 matched_keywords.append(
                     KeywordMatch(
@@ -169,10 +167,45 @@ class KeywordOptimizer:
         """Extract important keywords from text."""
         # Remove common stop words
         stop_words = {
-            "the", "a", "an", "and", "or", "but", "in", "on", "at", "to", "for",
-            "of", "with", "by", "from", "up", "about", "into", "through", "during",
-            "is", "are", "was", "were", "be", "been", "being", "have", "has", "had",
-            "do", "does", "did", "will", "would", "could", "should", "may", "might",
+            "the",
+            "a",
+            "an",
+            "and",
+            "or",
+            "but",
+            "in",
+            "on",
+            "at",
+            "to",
+            "for",
+            "of",
+            "with",
+            "by",
+            "from",
+            "up",
+            "about",
+            "into",
+            "through",
+            "during",
+            "is",
+            "are",
+            "was",
+            "were",
+            "be",
+            "been",
+            "being",
+            "have",
+            "has",
+            "had",
+            "do",
+            "does",
+            "did",
+            "will",
+            "would",
+            "could",
+            "should",
+            "may",
+            "might",
         }
 
         # Extract words
@@ -220,7 +253,7 @@ class KeywordOptimizer:
         # Find keyword positions
         for section_name, pattern in sections.items():
             section_match = re.search(pattern, text)
-            if section_match and keyword_lower in text_lower[section_match.start():]:
+            if section_match and keyword_lower in text_lower[section_match.start() :]:
                 locations.append(section_name)
 
         return locations if locations else ["body"]
@@ -233,7 +266,11 @@ class KeywordOptimizer:
         count = jd_lower.count(keyword.lower())
 
         # Check if in requirements/qualifications section (higher weight)
-        req_section = re.search(r"(?i)(requirements|qualifications|must have)(.*?)(?=\n\n|\Z)", job_description, re.DOTALL)
+        req_section = re.search(
+            r"(?i)(requirements|qualifications|must have)(.*?)(?=\n\n|\Z)",
+            job_description,
+            re.DOTALL,
+        )
 
         if req_section and keyword.lower() in req_section.group(0).lower():
             base_importance = 1.0
@@ -262,7 +299,9 @@ class KeywordOptimizer:
         match_score = (total_importance / max_importance * 100) if max_importance > 0 else 0
 
         # Penalty for missing critical keywords
-        critical_missing = len([k for k in missing if len(k) > 5])  # Longer keywords are likely more important
+        critical_missing = len(
+            [k for k in missing if len(k) > 5]
+        )  # Longer keywords are likely more important
         penalty = min(30, critical_missing * 3)
 
         final_score = max(0, match_score - penalty)
@@ -282,9 +321,7 @@ class KeywordOptimizer:
         # Priority 1: Add missing critical keywords
         if missing:
             top_missing = missing[:5]  # Top 5 missing
-            recommendations.append(
-                f"Add these missing keywords: {', '.join(top_missing)}"
-            )
+            recommendations.append(f"Add these missing keywords: {', '.join(top_missing)}")
 
         # Priority 2: Address over-optimization
         if over_optimized:
@@ -299,9 +336,7 @@ class KeywordOptimizer:
                 section_coverage[location] = section_coverage.get(location, 0) + 1
 
         if "skills" not in section_coverage and missing:
-            recommendations.append(
-                "Add a Skills section to showcase technical competencies"
-            )
+            recommendations.append("Add a Skills section to showcase technical competencies")
 
         # Priority 4: Natural language
         if not over_optimized and matched:

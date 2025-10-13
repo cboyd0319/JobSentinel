@@ -3,7 +3,7 @@
 Private job search automation that runs on your machine.
 
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/Python-3.13%2B-blue.svg)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/Python-3.11%2B-blue.svg)](https://www.python.org/)
 [![Version](https://img.shields.io/badge/Version-0.6.0-brightgreen.svg)](#)
 
 **TL;DR**: Scrape job boards, score against your preferences, get Slack alerts. Runs locally for $0 or cloud-scheduled for ~$5-15/mo.
@@ -22,7 +22,7 @@ Finding relevant jobs across multiple boards is manual and time-consuming. Comme
 
 ```bash
 git clone https://github.com/cboyd0319/JobSentinel && cd JobSentinel
-python3.13 -m venv .venv && source .venv/bin/activate  # Windows: .venv\Scripts\activate
+python3.11 -m venv .venv && source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -e .
 playwright install chromium
 cp config/user_prefs.example.json config/user_prefs.json
@@ -36,7 +36,7 @@ python -m jsa.cli run-once
 
 | Item | Version | Why |
 |------|---------|-----|
-| Python | 3.13+ | Runtime |
+| Python | 3.11+ | Runtime |
 | Git | Any | Clone repo |
 | Slack webhook | - | Alerts (optional) |
 | Reed API key | - | Reed jobs (optional) |
@@ -50,7 +50,7 @@ python3 scripts/install.py
 
 **Manual:**
 ```bash
-python3.13 -m venv .venv
+python3.11 -m venv .venv
 source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -e .
 playwright install chromium
@@ -176,7 +176,7 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 | `Playwright executable not found` | `playwright install chromium` |
 | `AuthError: Invalid Slack webhook` | Test webhook: `curl -X POST -H 'Content-type: application/json' --data '{"text":"test"}' YOUR_WEBHOOK_URL` |
 | `No jobs found` | Enable sources in config, verify API keys, use `--verbose` |
-| `SSL certificate verify failed` | `pip install --upgrade certifi`. macOS: run `/Applications/Python 3.13/Install Certificates.command` |
+| `SSL certificate verify failed` | `pip install --upgrade certifi`. macOS: run `/Applications/Python 3.11/Install Certificates.command` |
 
 See [docs/troubleshooting.md](docs/troubleshooting.md).
 

@@ -40,7 +40,7 @@ logger = logging.getLogger(__name__)
 
 class ScamType(Enum):
     """Types of job scams."""
-    
+
     EMPLOYMENT_SCAM = "employment_scam"
     FAKE_RECRUITER = "fake_recruiter"
     PHISHING_ATTEMPT = "phishing_attempt"
@@ -56,7 +56,7 @@ class ScamType(Enum):
 
 class ConfidenceLevel(Enum):
     """Confidence in scam detection."""
-    
+
     VERY_HIGH = "very_high"  # 99%+
     HIGH = "high"  # 95-99%
     MEDIUM = "medium"  # 85-95%
@@ -66,7 +66,7 @@ class ConfidenceLevel(Enum):
 @dataclass
 class ScamIndicator:
     """Individual scam indicator."""
-    
+
     pattern: str
     pattern_type: ScamType
     severity: int  # 1-10
@@ -79,7 +79,7 @@ class ScamIndicator:
 @dataclass
 class ScamDetectionResult:
     """Comprehensive scam detection result."""
-    
+
     is_scam: bool
     scam_probability: float  # 0.0-1.0
     scam_type: ScamType
@@ -95,7 +95,7 @@ class ScamDetectionResult:
 class EnhancedScamDetector:
     """
     Enhanced scam detection with 99.9%+ accuracy.
-    
+
     Features:
     - FBI IC3 2025 patterns (updated annually)
     - FTC fraud alerts integration
@@ -105,7 +105,7 @@ class EnhancedScamDetector:
     - Explainable AI (SHAP-like explanations)
     - Active learning from false positives
     """
-    
+
     # FBI IC3 2024-2025 Scam Patterns (Updated)
     FBI_IC3_PATTERNS = {
         # Work-from-home scams
@@ -157,7 +157,7 @@ class EnhancedScamDetector:
             "source": "FBI IC3 2025",
         },
     }
-    
+
     # FTC Fraud Alert Patterns (2025)
     FTC_PATTERNS = {
         # Fake job board listings
@@ -185,7 +185,7 @@ class EnhancedScamDetector:
             "source": "FTC 2025",
         },
     }
-    
+
     # MLM/Pyramid Scheme Patterns
     MLM_PATTERNS = {
         r"(?i)unlimited\s+(earning|income)\s+potential": {
@@ -209,7 +209,7 @@ class EnhancedScamDetector:
             "source": "FTC MLM",
         },
     }
-    
+
     # Phishing Patterns (2025)
     PHISHING_PATTERNS = {
         r"(?i)verify\s+your\s+(account|identity|information)": {
@@ -228,7 +228,7 @@ class EnhancedScamDetector:
             "source": "OWASP",
         },
     }
-    
+
     # Legitimate signals (positive indicators)
     LEGITIMATE_SIGNALS = [
         r"(?i)(benefits|401k|health\s+insurance|PTO|vacation)",
@@ -241,18 +241,18 @@ class EnhancedScamDetector:
         r"(?i)(collaborate|team|stakeholders)",
         r"(?i)(office|remote|hybrid)\s+position",
     ]
-    
+
     def __init__(self, enable_ml: bool = True):
         """
         Initialize enhanced scam detector.
-        
+
         Args:
             enable_ml: Enable ML classifiers (requires models)
         """
         self.enable_ml = enable_ml
         self._ml_classifiers = []
         logger.info("EnhancedScamDetector initialized")
-    
+
     def detect_scam(
         self,
         job_title: str,
@@ -262,94 +262,94 @@ class EnhancedScamDetector:
     ) -> ScamDetectionResult:
         """
         Detect scams using ensemble methods.
-        
+
         Args:
             job_title: Job title
             job_description: Full job description
             company_name: Company name (optional)
             email_domain: Email domain for verification (optional)
-        
+
         Returns:
             ScamDetectionResult with detailed analysis
         """
         # Input validation (OWASP ASVS V5.1.1)
         if not job_title or not job_description:
             raise ValueError("Job title and description required")
-        
+
         if len(job_description) > 50000:  # 50KB limit
             raise ValueError("Job description too long (max 50KB)")
-        
+
         # Combine classifiers
         indicators: list[ScamIndicator] = []
         legitimate_signals: list[str] = []
         classifier_votes: dict[str, bool] = {}
-        
+
         # Classifier 1: FBI IC3 patterns
         fbi_indicators = self._check_fbi_patterns(job_description)
         indicators.extend(fbi_indicators)
         classifier_votes["fbi_ic3"] = len(fbi_indicators) > 0
-        
+
         # Classifier 2: FTC patterns
         ftc_indicators = self._check_ftc_patterns(job_description)
         indicators.extend(ftc_indicators)
         classifier_votes["ftc"] = len(ftc_indicators) > 0
-        
+
         # Classifier 3: MLM patterns
         mlm_indicators = self._check_mlm_patterns(job_description)
         indicators.extend(mlm_indicators)
         classifier_votes["mlm"] = len(mlm_indicators) > 0
-        
+
         # Classifier 4: Phishing patterns
         phishing_indicators = self._check_phishing_patterns(job_description)
         indicators.extend(phishing_indicators)
         classifier_votes["phishing"] = len(phishing_indicators) > 0
-        
+
         # Classifier 5: Legitimate signals (negative votes for scam)
         legitimate_signals = self._check_legitimate_signals(job_description)
         classifier_votes["legitimate_check"] = len(legitimate_signals) < 3
-        
+
         # Ensemble voting with weighted scores
         # Weight indicators by severity
         total_severity = sum(i.severity for i in indicators)
         max_severity = max([i.severity for i in indicators]) if indicators else 0
-        
+
         # Base probability from classifier votes
         scam_votes = sum(1 for v in classifier_votes.values() if v)
         total_votes = len(classifier_votes)
         vote_probability = scam_votes / total_votes if total_votes > 0 else 0.0
-        
+
         # Weight by severity (high severity = higher probability)
         if indicators:
             severity_weight = min(1.0, total_severity / (len(indicators) * 5))  # Normalize
             scam_probability = (vote_probability * 0.5) + (severity_weight * 0.5)
         else:
             scam_probability = vote_probability
-        
+
         # Boost probability for high-severity indicators
         if max_severity >= 9:
             scam_probability = max(scam_probability, 0.9)
         elif max_severity >= 8:
             scam_probability = max(scam_probability, 0.8)
-        
+
         # Adjust for legitimate signals
         if len(legitimate_signals) >= 5:
             scam_probability *= 0.5  # Strong legitimate signals reduce probability
         elif len(legitimate_signals) >= 3:
             scam_probability *= 0.7
-        
+
         # Determine scam type and confidence
         scam_type = self._determine_scam_type(indicators)
         is_scam = scam_probability >= 0.5
         confidence_level = self._calculate_confidence(scam_probability, len(indicators))
-        
+
         # Generate explanation
         explanation = self._generate_explanation(
             is_scam, scam_probability, indicators, legitimate_signals
         )
-        
+
         # Generate recommendations
         recommendations = self._generate_recommendations(is_scam, scam_type, indicators)
-        
+
         return ScamDetectionResult(
             is_scam=is_scam,
             scam_probability=scam_probability,
@@ -367,7 +367,7 @@ class EnhancedScamDetector:
                 "legitimate_signals": len(legitimate_signals),
             },
         )
-    
+
     def _check_fbi_patterns(self, text: str) -> list[ScamIndicator]:
         """Check FBI IC3 patterns."""
         indicators = []
@@ -385,7 +385,7 @@ class EnhancedScamDetector:
                     )
                 )
         return indicators
-    
+
     def _check_ftc_patterns(self, text: str) -> list[ScamIndicator]:
         """Check FTC fraud patterns."""
         indicators = []
@@ -403,7 +403,7 @@ class EnhancedScamDetector:
                     )
                 )
         return indicators
-    
+
     def _check_mlm_patterns(self, text: str) -> list[ScamIndicator]:
         """Check MLM/pyramid scheme patterns."""
         indicators = []
@@ -421,7 +421,7 @@ class EnhancedScamDetector:
                     )
                 )
         return indicators
-    
+
     def _check_phishing_patterns(self, text: str) -> list[ScamIndicator]:
         """Check phishing patterns."""
         indicators = []
@@ -439,7 +439,7 @@ class EnhancedScamDetector:
                     )
                 )
         return indicators
-    
+
     def _check_legitimate_signals(self, text: str) -> list[str]:
         """Check for legitimate job signals."""
         signals = []
@@ -447,20 +447,20 @@ class EnhancedScamDetector:
             if re.search(pattern, text):
                 signals.append(pattern)
         return signals
-    
+
     def _determine_scam_type(self, indicators: list[ScamIndicator]) -> ScamType:
         """Determine primary scam type."""
         if not indicators:
             return ScamType.LEGITIMATE
-        
+
         # Count by type
         type_counts: dict[ScamType, int] = {}
         for indicator in indicators:
             type_counts[indicator.pattern_type] = type_counts.get(indicator.pattern_type, 0) + 1
-        
+
         # Return most common type
         return max(type_counts, key=type_counts.get) if type_counts else ScamType.EMPLOYMENT_SCAM
-    
+
     def _calculate_confidence(self, probability: float, indicator_count: int) -> ConfidenceLevel:
         """Calculate confidence level."""
         if probability >= 0.9 and indicator_count >= 3:
@@ -471,7 +471,7 @@ class EnhancedScamDetector:
             return ConfidenceLevel.MEDIUM
         else:
             return ConfidenceLevel.LOW
-    
+
     def _generate_explanation(
         self,
         is_scam: bool,
@@ -483,34 +483,34 @@ class EnhancedScamDetector:
         if is_scam:
             severity = max(i.severity for i in indicators) if indicators else 0
             sources = {i.source for i in indicators}
-            
+
             explanation = (
                 f"This job posting has a {probability*100:.1f}% probability of being a scam. "
                 f"Detected {len(indicators)} scam indicators from {', '.join(sources)}. "
                 f"Highest severity: {severity}/10. "
             )
-            
+
             if len(signals) > 0:
                 explanation += (
                     f"However, {len(signals)} legitimate signals were also found, "
                     f"which may indicate a mixed or unclear situation."
                 )
-            
+
             return explanation
         else:
             explanation = (
                 f"This job posting appears legitimate ({(1-probability)*100:.1f}% confidence). "
                 f"Found {len(signals)} legitimate signals. "
             )
-            
+
             if len(indicators) > 0:
                 explanation += (
                     f"Note: {len(indicators)} potential concerns detected - "
                     f"always verify before proceeding."
                 )
-            
+
             return explanation
-    
+
     def _generate_recommendations(
         self,
         is_scam: bool,
@@ -519,12 +519,12 @@ class EnhancedScamDetector:
     ) -> list[str]:
         """Generate actionable recommendations."""
         recommendations = []
-        
+
         if is_scam:
             recommendations.append("⚠️ DO NOT PROCEED with this job posting")
             recommendations.append("Report to FBI IC3: https://www.ic3.gov/")
             recommendations.append("Report to FTC: https://reportfraud.ftc.gov/")
-            
+
             if scam_type == ScamType.ADVANCE_FEE_FRAUD:
                 recommendations.append("Never pay upfront fees for job opportunities")
             elif scam_type == ScamType.IDENTITY_THEFT:
@@ -536,10 +536,10 @@ class EnhancedScamDetector:
             recommendations.append("Research company on Glassdoor, LinkedIn, BBB")
             recommendations.append("Never provide sensitive info until after official offer")
             recommendations.append("Be wary of any upfront payment requests")
-        
+
         # Add indicator-specific recommendations
         for indicator in indicators[:3]:  # Top 3
             if indicator.recommendation and indicator.recommendation not in recommendations:
                 recommendations.append(indicator.recommendation)
-        
+
         return recommendations

@@ -201,7 +201,7 @@ docker run -d \
 
 ```dockerfile
 # docker/Dockerfile (production-ready)
-FROM python:3.13-slim AS base
+FROM python:3.11-slim AS base
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -350,7 +350,7 @@ EventBridge (Cron) → Lambda Function → DynamoDB (or RDS)
    ```bash
    aws lambda create-function \
      --function-name jobsentinel \
-     --runtime python3.13 \
+     --runtime python311 \
      --handler jsa.cli.lambda_handler \
      --zip-file fileb://jobsentinel.zip \
      --role arn:aws:iam::ACCOUNT_ID:role/lambda-execution-role \

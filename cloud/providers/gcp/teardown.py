@@ -61,7 +61,9 @@ class GCPTeardown:
 
     async def _execute_gcloud_command(self, command: list[str], description: str) -> None:
         if self.dry_run:
-            logger.info(f"DRY RUN: Would execute: {_redact_command_for_logging(command)} ({description})")
+            logger.info(
+                f"DRY RUN: Would execute: {_redact_command_for_logging(command)} ({description})"
+            )
         else:
             logger.info(f"Executing: {_redact_command_for_logging(command)} ({description})")
             await run_command(command, check=False, logger=logger)
@@ -212,7 +214,14 @@ class GCPTeardown:
         if secret_names:
             for secret_name in secret_names:
                 await self._execute_gcloud_command(
-                    ["gcloud", "secrets", "delete", secret_name, f"--project={self.project_id}", "--quiet"],
+                    [
+                        "gcloud",
+                        "secrets",
+                        "delete",
+                        secret_name,
+                        f"--project={self.project_id}",
+                        "--quiet",
+                    ],
                     f"Delete Secret {secret_name}",
                 )
         else:
@@ -238,7 +247,16 @@ class GCPTeardown:
         if image_names:
             for image_name in image_names:
                 await self._execute_gcloud_command(
-                    ["gcloud", "artifacts", "docker", "images", "delete", image_name, "--delete-tags", "--quiet"],
+                    [
+                        "gcloud",
+                        "artifacts",
+                        "docker",
+                        "images",
+                        "delete",
+                        image_name,
+                        "--delete-tags",
+                        "--quiet",
+                    ],
                     f"Delete Container Image {image_name}",
                 )
         else:
@@ -370,7 +388,15 @@ class GCPTeardown:
         if bucket_urls:
             for bucket_url in bucket_urls:
                 await self._execute_gcloud_command(
-                    ["gcloud", "storage", "buckets", "delete", bucket_url, "--project={self.project_id}", "--quiet"],
+                    [
+                        "gcloud",
+                        "storage",
+                        "buckets",
+                        "delete",
+                        bucket_url,
+                        "--project={self.project_id}",
+                        "--quiet",
+                    ],
                     f"Delete Storage Bucket {bucket_url}",
                 )
         else:
@@ -384,4 +410,6 @@ class GCPTeardown:
 
     def _print_summary(self) -> None:
         logger.info("Teardown Summary")
-        logger.info(f"All resources for project {self.project_id} have been scheduled for deletion.")
+        logger.info(
+            f"All resources for project {self.project_id} have been scheduled for deletion."
+        )

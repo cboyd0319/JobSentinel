@@ -522,10 +522,10 @@ EXTENDED_INDUSTRY_PROFILES = {
 def get_all_industry_profiles() -> dict[str, IndustryProfile]:
     """
     Get comprehensive dictionary of all industry profiles.
-    
+
     Returns:
         Dictionary mapping industry keys to IndustryProfile objects
-        
+
     Note:
         Profiles are research-based and regularly updated to reflect
         market trends and ATS requirements per SWEBOK v4.0 guidelines.
@@ -536,29 +536,29 @@ def get_all_industry_profiles() -> dict[str, IndustryProfile]:
 def get_industry_profile(industry_key: str) -> IndustryProfile | None:
     """
     Get a specific industry profile by key.
-    
+
     Args:
         industry_key: Industry identifier (e.g., 'healthcare', 'finance')
-        
+
     Returns:
         IndustryProfile if found, None otherwise
-        
+
     Security:
         Input validation per OWASP ASVS 5.0 V5.1.1 - sanitized key lookup
     """
     if not isinstance(industry_key, str) or not industry_key:
         return None
-    
+
     # Sanitize input - alphanumeric and underscore only
     sanitized_key = "".join(c for c in industry_key.lower() if c.isalnum() or c == "_")
-    
+
     return EXTENDED_INDUSTRY_PROFILES.get(sanitized_key)
 
 
 def list_available_industries() -> list[str]:
     """
     Get list of all available industry profile keys.
-    
+
     Returns:
         Sorted list of industry identifiers
     """

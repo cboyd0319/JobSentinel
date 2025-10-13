@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 class SuggestionEngine:
     """
     Generates intelligent resume improvement suggestions.
-    
+
     Follows SWEBOK v4.0 requirements engineering principles and provides
     actionable, prioritized suggestions based on industry best practices.
     """
@@ -166,12 +166,14 @@ class SuggestionEngine:
             ],
         ),
     }
-    
+
     def __init__(self):
         """Initialize suggestion engine with extended industry profiles."""
         # Merge core and extended profiles
         self._all_profiles = {**self.INDUSTRY_PROFILES, **EXTENDED_INDUSTRY_PROFILES}
-        logger.info(f"SuggestionEngine initialized with {len(self._all_profiles)} industry profiles")
+        logger.info(
+            f"SuggestionEngine initialized with {len(self._all_profiles)} industry profiles"
+        )
 
     def generate_suggestions(
         self,
@@ -181,15 +183,15 @@ class SuggestionEngine:
     ) -> list[ResumeSuggestion]:
         """
         Generate comprehensive improvement suggestions.
-        
+
         Args:
             resume_content: Parsed resume content
             target_industry: Target industry key (e.g., 'software_engineering')
             job_description: Optional job description for tailored suggestions
-            
+
         Returns:
             Prioritized list of ResumeSuggestion objects
-            
+
         Security:
             Input validation per OWASP ASVS 5.0 V5.1.1
         """
@@ -230,23 +232,23 @@ class SuggestionEngine:
 
         logger.info(f"Generated {len(suggestions)} improvement suggestions")
         return suggestions
-    
+
     def get_available_industries(self) -> list[str]:
         """
         Get list of all available industry profiles.
-        
+
         Returns:
             Sorted list of industry identifiers
         """
         return sorted(self._all_profiles.keys())
-    
+
     def get_industry_profile(self, industry_key: str) -> IndustryProfile | None:
         """
         Get a specific industry profile.
-        
+
         Args:
             industry_key: Industry identifier
-            
+
         Returns:
             IndustryProfile if found, None otherwise
         """

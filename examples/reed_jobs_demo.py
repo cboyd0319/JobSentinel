@@ -36,7 +36,9 @@ async def demo_basic_search() -> None:
     print("=" * 80)
     if not _require_api_key():
         return
-    jobs = await search_reed_jobs(keywords="python developer", location="London", results_to_take=10)
+    jobs = await search_reed_jobs(
+        keywords="python developer", location="London", results_to_take=10
+    )
     print(f"\n[OK] Found {len(jobs)} Python developer jobs in London")
     if jobs:
         sample = jobs[0]
@@ -79,7 +81,9 @@ async def demo_contract_types() -> None:
     )
     print(f"\n[OK] Found {len(jobs)} DevOps contract roles in Manchester area")
     for i, job in enumerate(jobs[:3], 1):
-        print(f" {i}. {job.get('title')} at {job.get('company')} ({job.get('employment_type','N/A')})")
+        print(
+            f" {i}. {job.get('title')} at {job.get('company')} ({job.get('employment_type','N/A')})"
+        )
 
 
 async def demo_remote_jobs() -> None:

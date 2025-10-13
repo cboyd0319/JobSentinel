@@ -5,7 +5,9 @@ from pathlib import Path
 from cloud.utils import run_command
 
 
-async def build_and_push_image(logger, project_root: Path, project_id: str, region: str, artifact_repo: str) -> str:
+async def build_and_push_image(
+    logger, project_root: Path, project_id: str, region: str, artifact_repo: str
+) -> str:
     logger.info("Building container image via Cloud Build")
 
     # Check if Dockerfile exists

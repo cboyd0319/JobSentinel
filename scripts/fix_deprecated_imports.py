@@ -10,27 +10,28 @@ from pathlib import Path
 
 # Map of deprecated types to modern equivalents
 DEPRECATED_TYPES = {
-    'Dict': 'dict',
-    'List': 'list',
-    'Set': 'set',
-    'Tuple': 'tuple',
-    'Type': 'type',
+    "Dict": "dict",
+    "List": "list",
+    "Set": "set",
+    "Tuple": "tuple",
+    "Type": "type",
 }
+
 
 def fix_file(file_path: Path) -> bool:
     """Fix deprecated imports in a single file."""
-    content = file_path.read_text(encoding='utf-8')
+    content = file_path.read_text(encoding="utf-8")
     original_content = content
 
     # Find the typing import line
-    import_pattern = r'^from typing import (.+)$'
+    import_pattern = r"^from typing import (.+)$"
 
     for match in re.finditer(import_pattern, content, re.MULTILINE):
         import_line = match.group(0)
         imports = match.group(1)
 
         # Split imports, preserving Any, Protocol, etc.
-        import_list = [i.strip() for i in imports.split(',')]
+        import_list = [i.strip() for i in imports.split(",")]
 
         # Filter out deprecated types
         kept_imports = []
@@ -54,29 +55,39 @@ def fix_file(file_path: Path) -> bool:
             content = content.replace(import_line, new_import_line)
         else:
             # Remove the line entirely (including newline)
-            content = content.replace(import_line + '\n', '')
+            content = content.replace(import_line + "\n", "")
 
     # Only write if changed
     if content != original_content:
-        file_path.write_text(content, encoding='utf-8')
+        file_path.write_text(content, encoding="utf-8")
         return True
     return False
+
 
 def main():
     """Fix all Python files with UP035 violations."""
     # Get list of files from ruff
     import subprocess
+
     result = subprocess.run(  # noqa: S603 - running ruff linter
-        ['.venv/bin/python', '-m', 'ruff', 'check', '.', '--select=UP035', '--output-format=concise'],
+        [
+            ".venv/bin/python",
+            "-m",
+            "ruff",
+            "check",
+            ".",
+            "--select=UP035",
+            "--output-format=concise",
+        ],
         capture_output=True,
-        text=True
+        text=True,
     )
 
     # Parse file paths
     files = set()
-    for line in result.stderr.split('\n'):
-        if ':' in line:
-            file_path = line.split(':')[0]
+    for line in result.stderr.split("\n"):
+        if ":" in line:
+            file_path = line.split(":")[0]
             if file_path:
                 files.add(Path(file_path))
 
@@ -91,5 +102,6 @@ def main():
 
     print(f"\nFixed {fixed_count} files")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

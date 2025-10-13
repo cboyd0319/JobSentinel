@@ -4,7 +4,7 @@
 
 ## Project overview
 - **Version:** 0.6.0+ (October 2025)
-- **Python:** 3.13+ (uses modern type hints, walrus operator, pattern matching)
+- **Python:** 3.11+ (uses modern type hints, walrus operator)
 - Core loop: **Scrape → Normalize → Score → Alert → Persist**.
 - Sources (public only): Greenhouse, Lever, JobsWithGPT, Reed, JobSpy aggregator. Do **not** log in to sites or bypass paywalls.
 - Alerts: Slack Incoming Webhook (channel configured by user).
@@ -101,7 +101,7 @@ make fmt && make lint && make type && make test
 > If a command here appears missing, prefer adding a small, well-documented CLI subcommand to `jsa.cli` rather than inventing new scripts.
 
 ## Coding standards
-- **Language:** Python 3.13+ (modern type hints, pattern matching, walrus operator)
+- **Language:** Python 3.11+ (modern type hints, walrus operator)
 - **Style:** PEP 8/PEP 257 via Black (line-length=100) + Ruff linter
   - Ruff rules: E (pycodestyle errors), F (pyflakes), B (bugbear), I (isort), UP (pyupgrade), S (bandit security)
   - Exceptions documented in pyproject.toml per-file-ignores
@@ -310,9 +310,9 @@ All checks must pass before merge. See `.github/workflows/` for details.
 - [ ] Conventional commit messages (feat:, fix:, docs:, etc.).
 
 ## Common Pitfalls & Gotchas
-1. **Python Version:** Requires 3.13+ (uses pattern matching, walrus operator)
+1. **Python Version:** Requires 3.11+ (uses walrus operator, modern type hints)
    - Check with `python3 --version` or `python --version`
-   - CI uses Python 3.13 specifically
+   - CI tests on Python 3.11, 3.12, and 3.13
 
 2. **Virtual Environment:** Always activate before development
    - Symptom: `ModuleNotFoundError: No module named 'jsa'`

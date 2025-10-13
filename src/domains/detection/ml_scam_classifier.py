@@ -40,12 +40,12 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ScamFeatures:
     """Extracted features for scam detection."""
-    
+
     # Text statistics
     word_count: int
     sentence_count: int
     avg_word_length: float
-    
+
     # Pattern flags (0 or 1)
     has_urgent_language: int
     has_money_requests: int
@@ -53,23 +53,23 @@ class ScamFeatures:
     has_suspicious_links: int
     has_poor_grammar: int
     has_all_caps: int
-    
+
     # Financial patterns
     mentions_wire_transfer: int
     mentions_bitcoin: int
     mentions_upfront_fee: int
     mentions_guaranteed_income: int
-    
+
     # Job-specific
     salary_to_requirement_ratio: float  # High salary vs low requirements = suspicious
     experience_mentioned: int
     company_info_complete: int
-    
+
     # Contact patterns
     has_professional_email: int
     has_company_website: int
     uses_free_email: int  # gmail, yahoo, etc.
-    
+
     def to_feature_vector(self) -> list[float]:
         """Convert to ML feature vector."""
         return [
@@ -98,7 +98,7 @@ class ScamFeatures:
 @dataclass
 class MLScamResult:
     """ML-based scam detection result."""
-    
+
     is_scam: bool
     confidence: float  # 0-1
     scam_probability: float  # 0-1 from ML model
@@ -111,66 +111,72 @@ class MLScamResult:
 class MLScamClassifier:
     """
     ML-based scam classifier with fallback to rule-based detection.
-    
+
     Uses lightweight models (logistic regression, random forest) that
     can be trained on public scam datasets and run entirely locally.
-    
+
     If ML models aren't available, falls back to rule-based scoring.
     """
-    
+
     # Scam indicator patterns (from FBI IC3)
     URGENT_PATTERNS = [
-        r'(?i)\bact\s+now\b',
-        r'(?i)\bimmediately\b',
-        r'(?i)\blimited\s+time\b',
-        r'(?i)\bonly\s+\d+\s+spots?\b',
-        r'(?i)\bdon\'t\s+miss\b',
-        r'(?i)\bexpires?\s+(soon|today)\b',
+        r"(?i)\bact\s+now\b",
+        r"(?i)\bimmediately\b",
+        r"(?i)\blimited\s+time\b",
+        r"(?i)\bonly\s+\d+\s+spots?\b",
+        r"(?i)\bdon\'t\s+miss\b",
+        r"(?i)\bexpires?\s+(soon|today)\b",
     ]
-    
+
     MONEY_REQUEST_PATTERNS = [
-        r'(?i)\bsend\s+money\b',
-        r'(?i)\bwire\s+transfer\b',
-        r'(?i)\bwestern\s+union\b',
-        r'(?i)\bbitcoin\b',
-        r'(?i)\bcryptocurrency\b',
-        r'(?i)\bprocessing\s+fee\b',
-        r'(?i)\bupfront\s+(fee|cost|payment)\b',
-        r'(?i)\bbank\s+account\s+(number|details)\b',
+        r"(?i)\bsend\s+money\b",
+        r"(?i)\bwire\s+transfer\b",
+        r"(?i)\bwestern\s+union\b",
+        r"(?i)\bbitcoin\b",
+        r"(?i)\bcryptocurrency\b",
+        r"(?i)\bprocessing\s+fee\b",
+        r"(?i)\bupfront\s+(fee|cost|payment)\b",
+        r"(?i)\bbank\s+account\s+(number|details)\b",
     ]
-    
+
     GUARANTEED_INCOME_PATTERNS = [
-        r'(?i)\bguaranteed\s+(income|earnings|salary)\b',
-        r'(?i)\bearn\s+\$?\d+[k,]+\s+(per|a)\s+(day|week|month)\b',
-        r'(?i)\bmake\s+\$?\d+k?\+?\s+(per|a)\s+(day|week)\b',
-        r'(?i)\beasy\s+money\b',
-        r'(?i)\bno\s+experience\s+(required|necessary)\b.*\$\d+k',
+        r"(?i)\bguaranteed\s+(income|earnings|salary)\b",
+        r"(?i)\bearn\s+\$?\d+[k,]+\s+(per|a)\s+(day|week|month)\b",
+        r"(?i)\bmake\s+\$?\d+k?\+?\s+(per|a)\s+(day|week)\b",
+        r"(?i)\beasy\s+money\b",
+        r"(?i)\bno\s+experience\s+(required|necessary)\b.*\$\d+k",
     ]
-    
+
     PERSONAL_INFO_PATTERNS = [
-        r'(?i)\bsocial\s+security\s+number\b',
-        r'(?i)\bssn\b',
-        r'(?i)\bcredit\s+card\s+number\b',
-        r'(?i)\bpassword\b',
+        r"(?i)\bsocial\s+security\s+number\b",
+        r"(?i)\bssn\b",
+        r"(?i)\bcredit\s+card\s+number\b",
+        r"(?i)\bpassword\b",
     ]
-    
+
     FREE_EMAIL_DOMAINS = [
-        'gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com',
-        'aol.com', 'icloud.com', 'mail.com', 'protonmail.com'
+        "gmail.com",
+        "yahoo.com",
+        "hotmail.com",
+        "outlook.com",
+        "aol.com",
+        "icloud.com",
+        "mail.com",
+        "protonmail.com",
     ]
-    
+
     def __init__(self):
         """Initialize classifier."""
         self._model = None
         self._model_available = False
         self._try_load_model()
-    
+
     def _try_load_model(self) -> None:
         """Try to load pre-trained ML model."""
         try:
             # Try to import sklearn
             from sklearn.ensemble import RandomForestClassifier
-            
+
             # In a real implementation, we would load a pre-trained model here
             # For now, we'll use rule-based scoring as the fallback
             logger.info("ML models available (sklearn detected)")
@@ -178,81 +184,83 @@ class MLScamClassifier:
         except ImportError:
             logger.info("ML models not available, using rule-based detection")
             self._model_available = False
-    
+
     def _extract_features(
         self,
         title: str,
         description: str,
         company: str,
-        salary_range: tuple[float, float] | None = None
+        salary_range: tuple[float, float] | None = None,
     ) -> ScamFeatures:
         """Extract features from job posting."""
-        
+
         full_text = f"{title} {description}".lower()
-        
+
         # Text statistics
-        words = re.findall(r'\b\w+\b', full_text)
-        sentences = re.split(r'[.!?]+', full_text)
-        
+        words = re.findall(r"\b\w+\b", full_text)
+        sentences = re.split(r"[.!?]+", full_text)
+
         word_count = len(words)
         sentence_count = len([s for s in sentences if s.strip()])
         avg_word_length = sum(len(w) for w in words) / len(words) if words else 0
-        
+
         # Pattern detection
         has_urgent = any(re.search(p, full_text) for p in self.URGENT_PATTERNS)
         has_money_req = any(re.search(p, full_text) for p in self.MONEY_REQUEST_PATTERNS)
         has_personal_info = any(re.search(p, full_text) for p in self.PERSONAL_INFO_PATTERNS)
         has_guaranteed = any(re.search(p, full_text) for p in self.GUARANTEED_INCOME_PATTERNS)
-        
+
         # Check for suspicious links (non-company domains)
-        suspicious_links = len(re.findall(r'(?i)\b(bit\.ly|tinyurl|goo\.gl)\b', full_text))
-        
+        suspicious_links = len(re.findall(r"(?i)\b(bit\.ly|tinyurl|goo\.gl)\b", full_text))
+
         # Grammar check (very basic)
         has_poor_grammar = (
-            full_text.count('!!!') > 0 or
-            full_text.count('???') > 0 or
-            len(re.findall(r'[A-Z]{5,}', description)) > 2  # Excessive caps
+            full_text.count("!!!") > 0
+            or full_text.count("???") > 0
+            or len(re.findall(r"[A-Z]{5,}", description)) > 2  # Excessive caps
         )
-        
+
         # All caps check
-        has_all_caps = len(re.findall(r'\b[A-Z]{4,}\b', description)) > 5
-        
+        has_all_caps = len(re.findall(r"\b[A-Z]{4,}\b", description)) > 5
+
         # Financial patterns
-        mentions_wire = bool(re.search(r'(?i)\bwire\s+transfer\b', full_text))
-        mentions_bitcoin = bool(re.search(r'(?i)\b(bitcoin|crypto)\b', full_text))
-        mentions_upfront = bool(re.search(r'(?i)\bupfront\s+fee\b', full_text))
-        
+        mentions_wire = bool(re.search(r"(?i)\bwire\s+transfer\b", full_text))
+        mentions_bitcoin = bool(re.search(r"(?i)\b(bitcoin|crypto)\b", full_text))
+        mentions_upfront = bool(re.search(r"(?i)\bupfront\s+fee\b", full_text))
+
         # Salary to requirement ratio
         # High salary with "no experience" is suspicious
         salary_req_ratio = 0.0
         if salary_range and salary_range[0] > 100000:  # High salary
-            if re.search(r'(?i)\bno\s+experience\b', full_text):
+            if re.search(r"(?i)\bno\s+experience\b", full_text):
                 salary_req_ratio = 1.0  # Very suspicious
-            elif not re.search(r'(?i)\b\d+\+?\s+years?\s+experience\b', full_text):
+            elif not re.search(r"(?i)\b\d+\+?\s+years?\s+experience\b", full_text):
                 salary_req_ratio = 0.7  # Somewhat suspicious
-        
+
         # Experience mentioned
-        experience_mentioned = bool(re.search(r'(?i)\b\d+\+?\s+years?\s+experience\b', full_text))
-        
+        experience_mentioned = bool(re.search(r"(?i)\b\d+\+?\s+years?\s+experience\b", full_text))
+
         # Company info completeness
         company_info_complete = bool(company and len(company) > 5)
-        
+
         # Email patterns
-        email_match = re.search(r'\b[A-Za-z0-9._%+-]+@([A-Za-z0-9.-]+\.[A-Z|a-z]{2,})\b', description)
+        email_match = re.search(
+            r"\b[A-Za-z0-9._%+-]+@([A-Za-z0-9.-]+\.[A-Z|a-z]{2,})\b", description
+        )
         uses_free_email = False
         has_professional_email = False
-        
+
         if email_match:
             domain = email_match.group(1).lower()
             uses_free_email = domain in self.FREE_EMAIL_DOMAINS
             has_professional_email = not uses_free_email
-        
+
         # Company website check (basic)
         has_company_website = bool(
-            re.search(r'(?i)\b(www\.|https?://)[a-z0-9-]+\.com\b', description) and
-            not re.search(r'(?i)\b(bit\.ly|tinyurl|goo\.gl)\b', description)
+            re.search(r"(?i)\b(www\.|https?://)[a-z0-9-]+\.com\b", description)
+            and not re.search(r"(?i)\b(bit\.ly|tinyurl|goo\.gl)\b", description)
         )
-        
+
         return ScamFeatures(
             word_count=word_count,
             sentence_count=sentence_count,
@@ -274,104 +282,104 @@ class MLScamClassifier:
             has_company_website=int(has_company_website),
             uses_free_email=int(uses_free_email),
         )
-    
+
     def _rule_based_score(self, features: ScamFeatures) -> float:
         """Calculate rule-based scam score (0-1)."""
-        
+
         # Weight different features
         score = 0.0
         max_score = 0.0
-        
+
         # Critical indicators (high weight)
         if features.has_money_requests:
             score += 30
         max_score += 30
-        
+
         if features.has_personal_info_requests:
             score += 25
         max_score += 25
-        
+
         if features.mentions_guaranteed_income:
             score += 20
         max_score += 20
-        
+
         # High indicators (medium weight)
         if features.mentions_upfront_fee:
             score += 15
         max_score += 15
-        
+
         if features.mentions_wire_transfer or features.mentions_bitcoin:
             score += 15
         max_score += 15
-        
+
         if features.uses_free_email:
             score += 10
         max_score += 10
-        
+
         # Medium indicators
         if features.has_urgent_language:
             score += 8
         max_score += 8
-        
+
         if features.has_poor_grammar:
             score += 7
         max_score += 7
-        
+
         if features.has_all_caps:
             score += 6
         max_score += 6
-        
+
         if features.has_suspicious_links:
             score += 6
         max_score += 6
-        
+
         if features.salary_to_requirement_ratio > 0.5:
             score += 10 * features.salary_to_requirement_ratio
         max_score += 10
-        
+
         # Positive indicators (reduce score)
         if features.company_info_complete:
             score -= 5
-        
+
         if features.experience_mentioned:
             score -= 3
-        
+
         if features.has_professional_email:
             score -= 4
-        
+
         if features.has_company_website:
             score -= 4
-        
+
         # Normalize to 0-1
         score = max(0, score)
         return min(score / max_score, 1.0) if max_score > 0 else 0.0
-    
+
     def classify(
         self,
         title: str,
         description: str,
         company: str = "",
-        salary_range: tuple[float, float] | None = None
+        salary_range: tuple[float, float] | None = None,
     ) -> MLScamResult:
         """
         Classify job posting as scam or legitimate.
-        
+
         Args:
             title: Job title
             description: Job description
             company: Company name
             salary_range: (min_salary, max_salary) tuple
-        
+
         Returns:
             MLScamResult with classification and explanation
         """
-        
+
         # Extract features
         features = self._extract_features(title, description, company, salary_range)
-        
+
         # Get rule-based score
         rule_score = self._rule_based_score(features)
-        
+
         # If ML model available, use it
         if self._model_available and self._model:
             # In real implementation, would use: scam_prob = self._model.predict_proba([features.to_feature_vector()])[0][1]
@@ -381,11 +389,11 @@ class MLScamClassifier:
         else:
             scam_prob = rule_score
             method = "rules"
-        
+
         # Determine if scam (threshold: 0.5)
         is_scam = scam_prob >= 0.5
         confidence = abs(scam_prob - 0.5) * 2  # Scale confidence based on distance from threshold
-        
+
         # Build explanation
         explanation_parts = []
         if features.has_money_requests:
@@ -402,12 +410,12 @@ class MLScamClassifier:
             explanation_parts.append("uses urgent/pressure language")
         if features.salary_to_requirement_ratio > 0.5:
             explanation_parts.append("high salary with low requirements")
-        
+
         if not explanation_parts:
             explanation = "No significant scam indicators detected"
         else:
             explanation = "Scam indicators: " + ", ".join(explanation_parts)
-        
+
         # Feature importance (simplified - top contributing features)
         importance = {
             "money_requests": features.has_money_requests * 0.30,
@@ -416,7 +424,7 @@ class MLScamClassifier:
             "upfront_fee": features.mentions_upfront_fee * 0.15,
             "free_email": features.uses_free_email * 0.10,
         }
-        
+
         return MLScamResult(
             is_scam=is_scam,
             confidence=confidence,
@@ -424,9 +432,9 @@ class MLScamClassifier:
             rule_score=rule_score,
             feature_importance=importance,
             explanation=explanation,
-            method_used=method
+            method_used=method,
         )
-    
+
     def get_model_info(self) -> dict[str, Any]:
         """Get information about the classifier."""
         return {
@@ -435,5 +443,5 @@ class MLScamClassifier:
             "accuracy_target": "95%+",
             "processing_time": "<100ms",
             "features_used": 19,
-            "method": "ensemble" if self._model_available else "rules"
+            "method": "ensemble" if self._model_available else "rules",
         }

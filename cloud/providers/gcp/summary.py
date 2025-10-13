@@ -17,7 +17,15 @@ def verify_deployment(
         (
             "Cloud Run Job",
             lambda: run_command(
-                ["gcloud", "run", "jobs", "describe", job_name, f"--region={region}", f"--project={project_id}"],
+                [
+                    "gcloud",
+                    "run",
+                    "jobs",
+                    "describe",
+                    job_name,
+                    f"--region={region}",
+                    f"--project={project_id}",
+                ],
                 capture_output=True,
                 check=False,
                 logger=logger,
@@ -27,7 +35,14 @@ def verify_deployment(
         (
             "Cloud Scheduler",
             lambda: run_command(
-                ["gcloud", "scheduler", "jobs", "describe", f"{job_name}-schedule", f"--location={scheduler_region}"],
+                [
+                    "gcloud",
+                    "scheduler",
+                    "jobs",
+                    "describe",
+                    f"{job_name}-schedule",
+                    f"--location={scheduler_region}",
+                ],
                 capture_output=True,
                 check=False,
                 logger=logger,
@@ -37,7 +52,14 @@ def verify_deployment(
         (
             "Storage Bucket",
             lambda: run_command(
-                ["gcloud", "storage", "buckets", "describe", f"gs://{storage_bucket}", f"--project={project_id}"],
+                [
+                    "gcloud",
+                    "storage",
+                    "buckets",
+                    "describe",
+                    f"gs://{storage_bucket}",
+                    f"--project={project_id}",
+                ],
                 capture_output=True,
                 check=False,
                 logger=logger,
@@ -80,7 +102,9 @@ def print_summary(
     logger.info(f"Cloud Run Job: {job_name}")
     logger.info(f"Scheduler Job: {job_name}-schedule")
     logger.info(f"Storage Bucket: gs://{storage_bucket}")
-    logger.info("Run an ad-hoc scrape with: " f"gcloud run jobs execute {job_name} --region {region}")
+    logger.info(
+        "Run an ad-hoc scrape with: " f"gcloud run jobs execute {job_name} --region {region}"
+    )
 
 
 def send_slack_notification(
@@ -101,6 +125,7 @@ def send_slack_notification(
 
     # Validate URL scheme for security
     from urllib.parse import urlparse
+
     parsed = urlparse(webhook_url)
     if parsed.scheme not in ("https", "http"):
         logger.warning(f"Invalid webhook URL scheme: {parsed.scheme}. Skipping notification.")
@@ -111,7 +136,10 @@ def send_slack_notification(
     message = {
         "text": "GCP Job Scraper Deployment Complete",
         "blocks": [
-            {"type": "header", "text": {"type": "plain_text", "text": "GCP Job Scraper Deployed Successfully"}},
+            {
+                "type": "header",
+                "text": {"type": "plain_text", "text": "GCP Job Scraper Deployed Successfully"},
+            },
             {
                 "type": "section",
                 "fields": [
@@ -123,7 +151,10 @@ def send_slack_notification(
             },
             {
                 "type": "section",
-                "text": {"type": "mrkdwn", "text": f"""*Storage:* `gs://{storage_bucket}`\n*Image:* `{image_uri}`"""},
+                "text": {
+                    "type": "mrkdwn",
+                    "text": f"""*Storage:* `gs://{storage_bucket}`\n*Image:* `{image_uri}`""",
+                },
             },
             {
                 "type": "section",

@@ -17,6 +17,7 @@ def review() -> ResponseReturnValue:
     try:
         with get_sync_session() as session:
             from typing import Any
+
             created_col: Any = Job.created_at
             jobs_to_review = session.exec(select(Job).order_by(desc(created_col)).limit(20)).all()
         return render_template("review.html", jobs=jobs_to_review)

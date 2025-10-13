@@ -69,9 +69,7 @@ class TestPlatformDetection:
             return_value=MagicMock(
                 __enter__=MagicMock(
                     return_value=MagicMock(
-                        __iter__=lambda self: iter(
-                            ['ID="ubuntu"', 'VERSION_ID="22.04"']
-                        )
+                        __iter__=lambda self: iter(['ID="ubuntu"', 'VERSION_ID="22.04"'])
                     )
                 ),
                 __exit__=MagicMock(),
@@ -93,9 +91,7 @@ class TestPlatformDetection:
             return_value=MagicMock(
                 __enter__=MagicMock(
                     return_value=MagicMock(
-                        __iter__=lambda self: iter(
-                            ['ID="ubuntu"', 'VERSION_ID="20.04"']
-                        )
+                        __iter__=lambda self: iter(['ID="ubuntu"', 'VERSION_ID="20.04"'])
                     )
                 ),
                 __exit__=MagicMock(),

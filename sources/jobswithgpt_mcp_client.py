@@ -75,7 +75,7 @@ class JobsWithGPTMCPClient:
                 self.server_script_path,
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE
+                stderr=subprocess.PIPE,
             )
 
             logger.info("MCP server process started")
@@ -103,7 +103,7 @@ class JobsWithGPTMCPClient:
         locations: list[dict] | None = None,
         titles: list[str] | None = None,
         distance: int = 50000,
-        page: int = 1
+        page: int = 1,
     ) -> dict:
         """
         Search for jobs via MCP server.
@@ -134,9 +134,9 @@ class JobsWithGPTMCPClient:
                         "locations": locations or [],
                         "titles": titles or [],
                         "distance": distance,
-                        "page": page
-                    }
-                }
+                        "page": page,
+                    },
+                },
             }
 
             # Send request to MCP server
@@ -197,7 +197,7 @@ async def search_jobs_mcp(
     locations: list[dict] | None = None,
     titles: list[str] | None = None,
     distance: int = 50000,
-    page: int = 1
+    page: int = 1,
 ) -> dict:
     """
     Convenience function to search jobs via MCP client.
@@ -210,11 +210,7 @@ async def search_jobs_mcp(
     if server_path:
         async with JobsWithGPTMCPClient(server_path) as client:
             return await client.search_jobs(
-                keywords=keywords,
-                locations=locations,
-                titles=titles,
-                distance=distance,
-                page=page
+                keywords=keywords, locations=locations, titles=titles, distance=distance, page=page
             )
     else:
         logger.warning("Could not initialize MCP client")

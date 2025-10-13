@@ -68,20 +68,56 @@ class ResumeQualityDetector:
 
     # Strong action verbs for achievements
     STRONG_ACTION_VERBS = {
-        "achieved", "accelerated", "accomplished", "advanced", "analyzed",
-        "architected", "automated", "built", "championed", "consolidated",
-        "created", "decreased", "delivered", "designed", "developed",
-        "drove", "engineered", "enhanced", "established", "exceeded",
-        "expanded", "generated", "implemented", "improved", "increased",
-        "launched", "led", "managed", "optimized", "orchestrated",
-        "pioneered", "reduced", "resolved", "spearheaded", "streamlined",
-        "strengthened", "transformed", "upgraded",
+        "achieved",
+        "accelerated",
+        "accomplished",
+        "advanced",
+        "analyzed",
+        "architected",
+        "automated",
+        "built",
+        "championed",
+        "consolidated",
+        "created",
+        "decreased",
+        "delivered",
+        "designed",
+        "developed",
+        "drove",
+        "engineered",
+        "enhanced",
+        "established",
+        "exceeded",
+        "expanded",
+        "generated",
+        "implemented",
+        "improved",
+        "increased",
+        "launched",
+        "led",
+        "managed",
+        "optimized",
+        "orchestrated",
+        "pioneered",
+        "reduced",
+        "resolved",
+        "spearheaded",
+        "streamlined",
+        "strengthened",
+        "transformed",
+        "upgraded",
     }
 
     # Weak or passive words to avoid
     WEAK_WORDS = {
-        "responsible for", "duties included", "worked on", "helped",
-        "assisted", "involved in", "participated in", "contributed to",
+        "responsible for",
+        "duties included",
+        "worked on",
+        "helped",
+        "assisted",
+        "involved in",
+        "participated in",
+        "contributed to",
     }
 
     # Quantification patterns
@@ -230,7 +266,9 @@ class ResumeQualityDetector:
             score -= 15
 
         # Bonus for specific technical details
-        tech_indicators = len(re.findall(r"(?i)\b(implemented|designed|architected|built)\s+\w+", text))
+        tech_indicators = len(
+            re.findall(r"(?i)\b(implemented|designed|architected|built)\s+\w+", text)
+        )
         if tech_indicators >= 5:
             score += 15
 

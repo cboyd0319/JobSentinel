@@ -2,9 +2,9 @@
 
 | Error | Fix |
 |-------|-----|
-| `python3: command not found` | Install Python 3.13 from [python.org/downloads](https://www.python.org/downloads/). Windows: check "Add to PATH" |
-| `Python 3.12.x found, but 3.13+ required` | Install Python 3.13+. macOS: `brew install python@3.13`. Linux: `sudo apt install python3.13` |
-| `.venv/bin/activate: No such file` | Recreate venv: `rm -rf .venv && python3.13 -m venv .venv && source .venv/bin/activate && pip install -e .` |
+| `python3: command not found` | Install Python 3.11+ from [python.org/downloads](https://www.python.org/downloads/). Windows: check "Add to PATH" |
+| `Python 3.10.x found, but 3.11+ required` | Install Python 3.11+. macOS: `brew install python@3.11`. Linux: `sudo apt install python3.11` |
+| `.venv/bin/activate: No such file` | Recreate venv: `rm -rf .venv && python3.11 -m venv .venv && source .venv/bin/activate && pip install -e .` |
 | `ModuleNotFoundError: No module named 'jsa'` | Activate venv: `source .venv/bin/activate`, run `pip install -e .` |
 | `Playwright executable not found` | `playwright install chromium`. Ubuntu needs deps: `sudo apt-get install libnss3 libnspr4 libatk1.0-0 ...` |
 | `Permission denied: './scripts/install.py'` | `chmod +x scripts/install.py` or `python3 scripts/install.py` |
@@ -13,7 +13,7 @@
 | `AuthenticationError: Invalid Reed API key` | Verify key at [reed.co.uk/developers](https://www.reed.co.uk/developers). Test: `curl -H "Authorization: Basic YOUR_KEY" "https://www.reed.co.uk/api/1.0/search?keywords=python"` |
 | `Found 0 jobs` | Check sources enabled in config, verify API keys, run with `--verbose` |
 | `HTTP 429: Too Many Requests` | Rate limited. Wait 60s, reduce scrape frequency in config |
-| `SSL certificate verify failed` | `pip install --upgrade certifi`. macOS: run `/Applications/Python 3.13/Install Certificates.command` |
+| `SSL certificate verify failed` | `pip install --upgrade certifi`. macOS: run `/Applications/Python 3.11/Install Certificates.command` |
 | `Database locked` | Close other processes using `data/jobs.db`, or wait 30s |
 | Web UI shows blank page | Check logs: `python -m jsa.cli web --port 5000 --verbose`. Clear browser cache |
 
@@ -21,7 +21,7 @@
 
 ```bash
 # Verify install
-python --version  # Should be 3.13.x
+python --version  # Should be 3.11.x or higher
 python -c "import jsa"  # No error = installed
 python -m jsa.cli config-validate  # Check config
 

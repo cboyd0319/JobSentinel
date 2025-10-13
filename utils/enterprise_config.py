@@ -60,7 +60,6 @@ class ConfigurationException(Exception):
     """Configuration-related exceptions."""
 
 
-
 class IConfigurationSource(ABC):
     """Abstract interface for configuration sources."""
 
@@ -191,9 +190,7 @@ class EnvironmentConfigurationSource(IConfigurationSource):
 class MemoryConfigurationSource(IConfigurationSource):
     """In-memory configuration source for runtime overrides."""
 
-    def __init__(
-        self, source: ConfigurationSource, initial_config: dict[str, Any] | None = None
-    ):
+    def __init__(self, source: ConfigurationSource, initial_config: dict[str, Any] | None = None):
         self.source = source
         self._config = initial_config or {}
 
@@ -301,7 +298,9 @@ class ConfigurationManager(IConfigurationProvider):
 
         # Sort by priority (higher priority first)
         sorted_pairs = sorted(
-            zip(self._sources, self._source_metadata, strict=False), key=lambda x: x[1].priority, reverse=True
+            zip(self._sources, self._source_metadata, strict=False),
+            key=lambda x: x[1].priority,
+            reverse=True,
         )
         self._sources, self._source_metadata = zip(*sorted_pairs, strict=False)
         self._sources = list(self._sources)
@@ -326,7 +325,9 @@ class ConfigurationManager(IConfigurationProvider):
         merged_config = {}
 
         # Load from sources in reverse priority order (lower priority first)
-        for source_impl, source_meta in reversed(list(zip(self._sources, self._source_metadata, strict=False))):
+        for source_impl, source_meta in reversed(
+            list(zip(self._sources, self._source_metadata, strict=False))
+        ):
             try:
                 source_config = source_impl.load()
                 merged_config = self._deep_merge(merged_config, source_config)

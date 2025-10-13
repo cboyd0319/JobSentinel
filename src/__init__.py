@@ -10,7 +10,7 @@ from pathlib import Path
 
 def get_version() -> str:
     """Get the current version from pyproject.toml (single source of truth).
-    
+
     Returns:
         Version string from pyproject.toml, or 'unknown' on error.
     """

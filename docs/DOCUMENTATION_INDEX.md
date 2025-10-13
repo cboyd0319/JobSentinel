@@ -2,7 +2,7 @@
 
 **Last Updated:** October 12, 2025
 **Repository:** JobSentinel v0.6.1 (Enhanced)
-**Platform:** Python 3.13+ (Universal: Windows 11+, macOS 15+, Ubuntu 22.04+)
+**Platform:** Python 3.11+ (Universal: Windows 11+, macOS 14+, Ubuntu 22.04+)
 
 ---
 
@@ -38,7 +38,7 @@ New to JobSentinel? Start here:
 ## 📊 Code Quality & Standards
 
 ### Current Status (v0.5.0 - October 11, 2025)
-- **Platform:** Universal Python 3.13+ deployment
+- **Platform:** Universal Python 3.11+ deployment
 - **Architecture:** Clean Python-only codebase (PowerShell legacy removed)
 - **Testing:** Comprehensive test suite with pytest
 - **Security:** Environment-based secrets management
@@ -274,9 +274,9 @@ JobSentinel/
 - ✅ Comprehensive AI/ML roadmap and accessibility guide
 
 **Platform Support:**
-- Windows 11+ with Python 3.13+
-- macOS 15+ with Python 3.13+
-- Ubuntu 22.04+ with Python 3.13+
+- Windows 11+ with Python 3.11+
+- macOS 14+ with Python 3.11+
+- Ubuntu 22.04+ with Python 3.11+
 
 **Key Features:**
 - Privacy-first job search automation

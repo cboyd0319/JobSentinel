@@ -18,9 +18,9 @@ def print_header(title: str):
 def demo_scam_detection():
     """Demonstrate enhanced scam detection."""
     print_header("Enhanced Scam Detection Demo - 99.9%+ Accuracy")
-    
+
     detector = EnhancedScamDetector()
-    
+
     # Test case 1: Obvious scam
     print("TEST 1: Work-from-Home Scam")
     print("-" * 70)
@@ -29,7 +29,7 @@ def demo_scam_detection():
         job_description="Work from home guaranteed! Make $5000 per week! No experience required! Training fee only $299.",
         company_name="Quick Cash LLC",
     )
-    
+
     print(f"Is Scam: {result.is_scam}")
     print(f"Probability: {result.scam_probability*100:.1f}%")
     print(f"Scam Type: {result.scam_type.value}")
@@ -38,12 +38,12 @@ def demo_scam_detection():
     for i, indicator in enumerate(result.indicators[:3], 1):
         print(f"  {i}. {indicator.description} (severity: {indicator.severity}/10)")
         print(f"     Source: {indicator.source}")
-    
+
     print(f"\nExplanation: {result.explanation}")
     print(f"\nRecommendations:")
     for rec in result.recommendations[:3]:
         print(f"  • {rec}")
-    
+
     # Test case 2: Legitimate job
     print("\n" + "=" * 70)
     print("TEST 2: Legitimate Job Posting")
@@ -73,7 +73,7 @@ def demo_scam_detection():
         """,
         company_name="TechCorp Inc",
     )
-    
+
     print(f"Is Scam: {result.is_scam}")
     print(f"Probability: {result.scam_probability*100:.1f}%")
     print(f"Legitimate Signals Found: {len(result.legitimate_signals)}")
@@ -81,7 +81,7 @@ def demo_scam_detection():
     print(f"\nRecommendations:")
     for rec in result.recommendations[:3]:
         print(f"  • {rec}")
-    
+
     # Test case 3: MLM/Pyramid Scheme
     print("\n" + "=" * 70)
     print("TEST 3: MLM/Pyramid Scheme")
@@ -91,14 +91,14 @@ def demo_scam_detection():
         job_description="Unlimited earning potential! Be your own boss! Recruit others and build your downline. Multi-level marketing opportunity.",
         company_name="Dream Team LLC",
     )
-    
+
     print(f"Is Scam: {result.is_scam}")
     print(f"Probability: {result.scam_probability*100:.1f}%")
     print(f"Scam Type: {result.scam_type.value}")
     print(f"\nClassifier Votes:")
     for classifier, vote in result.classifier_votes.items():
         print(f"  {classifier}: {'🚨 SCAM' if vote else '✓ OK'}")
-    
+
     # Test case 4: Identity theft
     print("\n" + "=" * 70)
     print("TEST 4: Identity Theft Attempt")
@@ -108,16 +108,19 @@ def demo_scam_detection():
         job_description="Quick hire! Provide SSN and bank account to process payroll. Start today!",
         company_name="Quick Hire Inc",
     )
-    
+
     print(f"Is Scam: {result.is_scam}")
     print(f"Probability: {result.scam_probability*100:.1f}%")
     print(f"Scam Type: {result.scam_type.value}")
-    print(f"Highest Severity: {max(i.severity for i in result.indicators) if result.indicators else 0}/10")
-    
+    print(
+        f"Highest Severity: {max(i.severity for i in result.indicators) if result.indicators else 0}/10"
+    )
+
     print("\n" + "=" * 70)
     print("SUMMARY: Enhanced Detection System")
     print("=" * 70)
-    print("""
+    print(
+        """
 ✅ 99.9%+ Accuracy (up from 95%)
 ✅ FBI IC3 2025 Patterns Integrated
 ✅ FTC Fraud Alerts Included
@@ -127,7 +130,8 @@ def demo_scam_detection():
 ✅ Real-time Detection (<100ms)
 
 ONLY JobSentinel has this level of scam protection!
-    """)
+    """
+    )
 
 
 if __name__ == "__main__":

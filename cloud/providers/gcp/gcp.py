@@ -98,8 +98,8 @@ class GCPBootstrap:
             # Load existing config
             existing_config = load_deployment_config(self.project_id)
             if existing_config:
-                self.region = existing_config.get('region')
-                self.billing_account = existing_config.get('billing_account')
+                self.region = existing_config.get("region")
+                self.billing_account = existing_config.get("billing_account")
                 self.logger.info("Loaded configuration from previous deployment")
             else:
                 # Config not found, collect fresh
@@ -116,25 +116,35 @@ class GCPBootstrap:
             result = await run_command(
                 ["gcloud", "projects", "list", "--format=value(lifecycleState)"],
                 capture_output=True,
-                logger=self.logger
+                logger=self.logger,
             )
-            project_states = [s.strip() for s in result.stdout.strip().split('\n') if s.strip()]
+            project_states = [s.strip() for s in result.stdout.strip().split("\n") if s.strip()]
             total_projects = len(project_states)
             self.logger.info(f"Total active projects: {total_projects}")
 
             # If projects exist, offer to reuse (avoids quota issues)
             if total_projects >= 1:
                 self.logger.info("")
-                self.logger.info(f"⚠ Found {total_projects} projects (limit: ~12). Checking for reusable projects...")
+                self.logger.info(
+                    f"⚠ Found {total_projects} projects (limit: ~12). Checking for reusable projects..."
+                )
                 self.logger.info("")
 
                 # Get active projects
                 result = await run_command(
-                    ["gcloud", "projects", "list", "--filter=lifecycleState:ACTIVE", "--format=value(projectId)"],
+                    [
+                        "gcloud",
+                        "projects",
+                        "list",
+                        "--filter=lifecycleState:ACTIVE",
+                        "--format=value(projectId)",
+                    ],
                     capture_output=True,
-                    logger=self.logger
+                    logger=self.logger,
                 )
-                active_projects = [p.strip() for p in result.stdout.strip().split('\n') if p.strip()]
+                active_projects = [
+                    p.strip() for p in result.stdout.strip().split("\n") if p.strip()
+                ]
 
                 if active_projects:
                     self.logger.info(f"   Found {len(active_projects)} active project(s):")
@@ -149,7 +159,10 @@ class GCPBootstrap:
                         self.logger.info("")
                     else:
                         from cloud.utils import confirm
-                        if confirm(f"Deploy to existing project '{active_projects[0]}'?", default=True):
+
+                        if confirm(
+                            f"Deploy to existing project '{active_projects[0]}'?", default=True
+                        ):
                             self.project_id = active_projects[0]
                             self.logger.info(f"   [OK] Using: {self.project_id}")
                             self.logger.info("")
@@ -158,14 +171,15 @@ class GCPBootstrap:
 
                     # Set as active project
                     await run_command(
-                        ["gcloud", "config", "set", "project", self.project_id],
-                        logger=self.logger
+                        ["gcloud", "config", "set", "project", self.project_id], logger=self.logger
                     )
                 else:
                     raise QuotaExceededError("No active projects available to reuse")
             else:
                 # Create GCP project (quota available)
-                await create_project(self.logger, self.project_id, self.project_id, self.billing_account)
+                await create_project(
+                    self.logger, self.project_id, self.project_id, self.billing_account
+                )
 
         # Collect user configuration (Slack webhook, schedule, etc.)
         self._collect_configuration()
@@ -199,23 +213,30 @@ class GCPBootstrap:
         self.project_number = terraform_outputs["project_number"]["value"]
 
         # Save deployment configuration for future updates
-        save_deployment_config(self.project_id, {
-            'project_id': self.project_id,
-            'region': self.region,
-            'billing_account': self.billing_account,
-            'job_name': self.job_name,
-            'terraform_version': '1.10.3',
-        })
+        save_deployment_config(
+            self.project_id,
+            {
+                "project_id": self.project_id,
+                "region": self.region,
+                "billing_account": self.billing_account,
+                "job_name": self.job_name,
+                "terraform_version": "1.10.3",
+            },
+        )
 
         # Update secret values (secrets are created by Terraform, we just set the values)
         await self._update_secret_values()
 
         # Select scheduler region
-        self.scheduler_region = await select_scheduler_region(self.logger, self.no_prompt, self.region)
+        self.scheduler_region = await select_scheduler_region(
+            self.logger, self.no_prompt, self.region
+        )
 
         # Build and push Docker image (one-time build)
         self.logger.info("Building and pushing Docker image...")
-        await build_and_push_image(self.logger, self.project_root, self.project_id, self.region, self.artifact_repo)
+        await build_and_push_image(
+            self.logger, self.project_root, self.project_id, self.region, self.artifact_repo
+        )
 
         # Schedule the job (Cloud Run Job already created by Terraform, just need scheduler)
         await schedule_job(
@@ -236,7 +257,12 @@ class GCPBootstrap:
 
         # Verification and reporting
         await verify_deployment(
-            self.logger, self.job_name, self.region, self.project_id, self.scheduler_region, self.storage_bucket
+            self.logger,
+            self.job_name,
+            self.region,
+            self.project_id,
+            self.scheduler_region,
+            self.storage_bucket,
         )
 
         # Security configuration completed
@@ -270,14 +296,20 @@ class GCPBootstrap:
 
         # Update user preferences secret
         if self.user_prefs_payload and self.prefs_secret_name:
-            await create_or_update_secret(self.project_id, self.prefs_secret_name, self.user_prefs_payload)
+            await create_or_update_secret(
+                self.project_id, self.prefs_secret_name, self.user_prefs_payload
+            )
             self.logger.info(f"[OK] User preferences secret '{self.prefs_secret_name}' updated.")
 
         # Update Slack webhook secret
         slack_webhook_url = self.env_values.get("SLACK_WEBHOOK_URL")
         if slack_webhook_url and self.slack_webhook_secret_name:
-            await create_or_update_secret(self.project_id, self.slack_webhook_secret_name, slack_webhook_url)
-            self.logger.info(f"[OK] Slack webhook secret '{self.slack_webhook_secret_name}' updated.")
+            await create_or_update_secret(
+                self.project_id, self.slack_webhook_secret_name, slack_webhook_url
+            )
+            self.logger.info(
+                f"[OK] Slack webhook secret '{self.slack_webhook_secret_name}' updated."
+            )
 
         self.logger.info("Secret Manager secret values updated successfully.")
 
@@ -354,10 +386,14 @@ class GCPBootstrap:
         # Check Python version
         python_version = sys.version_info
         required_python = (3, 11)
-        self.logger.info(f"Python version: {python_version.major}.{python_version.minor}.{python_version.micro}")
+        self.logger.info(
+            f"Python version: {python_version.major}.{python_version.minor}.{python_version.micro}"
+        )
         if python_version < required_python:
             self.logger.error(f"❌ Python {required_python[0]}.{required_python[1]}+ is required!")
-            self.logger.error(f"   You have: {python_version.major}.{python_version.minor}.{python_version.micro}")
+            self.logger.error(
+                f"   You have: {python_version.major}.{python_version.minor}.{python_version.micro}"
+            )
             self.logger.error("   Please upgrade Python: https://www.python.org/downloads/")
             sys.exit(1)
         self.logger.info(f"✓ Python {required_python[0]}.{required_python[1]}+ detected")
@@ -525,7 +561,7 @@ budget_amount_usd              = 5.0
 budget_alert_threshold_percent = 0.9
 """
 
-        with open(tfvars_path, 'w') as f:
+        with open(tfvars_path, "w") as f:
             f.write(tfvars_content)
 
         self.logger.info(f"[OK] Terraform configuration written to {tfvars_path}")
@@ -604,7 +640,13 @@ budget_alert_threshold_percent = 0.9
         try:
             await run_command(["terraform", "init"], logger=self.logger, cwd=str(backend_tf_dir))
             await run_command(
-                ["terraform", "apply", "-auto-approve", f"-var=project_id={self.project_id}", f"-var=state_bucket_name={state_bucket_name}"],
+                [
+                    "terraform",
+                    "apply",
+                    "-auto-approve",
+                    f"-var=project_id={self.project_id}",
+                    f"-var=state_bucket_name={state_bucket_name}",
+                ],
                 logger=self.logger,
                 cwd=str(backend_tf_dir),
                 show_spinner=True,
@@ -615,7 +657,7 @@ budget_alert_threshold_percent = 0.9
 
         # 2. Dynamically create the backend.tf file for the main configuration
         backend_tf_template_path = self.project_root / "terraform" / "gcp" / "backend.tf"
-        main_tf_dir = self.terraform_dir # This is the per-project state directory
+        main_tf_dir = self.terraform_dir  # This is the per-project state directory
         final_backend_tf_path = main_tf_dir / "backend.tf"
 
         template_content = backend_tf_template_path.read_text(encoding="utf-8")
@@ -636,6 +678,7 @@ budget_alert_threshold_percent = 0.9
         """Try to get Slack webhook URL from clipboard."""
         try:
             import pyperclip
+
             clip = pyperclip.paste().strip()
             if clip.startswith("https://hooks.slack.com/services/") and len(clip) > 40:
                 return clip
@@ -671,7 +714,9 @@ budget_alert_threshold_percent = 0.9
             if response in ["y", "yes"]:
                 break
             elif response in ["n", "no"]:
-                self.logger.info("Skipping resume upload. You can manually configure preferences later.")
+                self.logger.info(
+                    "Skipping resume upload. You can manually configure preferences later."
+                )
                 return None
             else:
                 self.logger.error("Please enter 'y' or 'n'")
@@ -680,7 +725,9 @@ budget_alert_threshold_percent = 0.9
         try:
             from utils.resume_parser import ResumeParser, check_dependencies
         except ImportError:
-            self.logger.error("Resume parser module not found. Please ensure utils/resume_parser.py exists.")
+            self.logger.error(
+                "Resume parser module not found. Please ensure utils/resume_parser.py exists."
+            )
             return None
 
         has_deps, missing = check_dependencies()
@@ -756,10 +803,12 @@ budget_alert_threshold_percent = 0.9
 
     def _collect_configuration(self) -> None:
         """Collect user configuration for deployment from environment variables."""
-        self.logger.info("""
+        self.logger.info(
+            """
         [bold blue]Configuration Collection[/bold blue]
         Reading configuration from environment...
-        """)
+        """
+        )
 
         # Attempt to get Slack Webhook URL from environment
         slack_webhook_url = os.getenv("SLACK_WEBHOOK_URL")
@@ -791,7 +840,9 @@ budget_alert_threshold_percent = 0.9
         self.logger.info("Deploying Cloud Function for automatic shutdown at 90% budget...")
 
         function_name = "job-scraper-budget-alerter"
-        budget_topic_name = self.budget_topic_name.split("/")[-1]  # Extract topic name from full resource name
+        budget_topic_name = self.budget_topic_name.split("/")[
+            -1
+        ]  # Extract topic name from full resource name
         function_source_dir = str(self.project_root / "cloud" / "functions")
 
         result = await run_command(
@@ -821,11 +872,15 @@ budget_alert_threshold_percent = 0.9
         if result.returncode == 0:
             self.logger.info("[OK] Budget alert function deployed")
         else:
-            self.logger.warning(f"Budget alert function deployment failed (non-critical, exit {result.returncode})")
+            self.logger.warning(
+                f"Budget alert function deployment failed (non-critical, exit {result.returncode})"
+            )
             if result.stderr:
                 self.logger.debug(f"Cloud Functions error: {result.stderr}")
             self.logger.info("   • Budget alerts will not auto-pause the scheduler at 90% spend")
-            self.logger.info("   • Manual setup: https://cloud.google.com/billing/docs/how-to/budgets")
+            self.logger.info(
+                "   • Manual setup: https://cloud.google.com/billing/docs/how-to/budgets"
+            )
 
 
 def get_bootstrap(logger, no_prompt: bool = False) -> GCPBootstrap:

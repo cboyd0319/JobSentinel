@@ -65,7 +65,7 @@ class CloudDatabase:
                 await asyncio.to_thread(
                     lock_blob.upload_from_string,
                     f"{platform.node()}:{os.getpid()}:{datetime.now(UTC).isoformat()}",
-                    if_generation_match=0  # Only succeeds if blob doesn't exist
+                    if_generation_match=0,  # Only succeeds if blob doesn't exist
                 )
                 logger.info("Acquired distributed lock for database sync")
                 return True
@@ -118,7 +118,9 @@ class CloudDatabase:
         try:
             blob = self.bucket.blob(self.cloud_db_path)
             if blob.exists():
-                logger.info(f"Downloading database from gs://{self.bucket_name}/{self.cloud_db_path}")
+                logger.info(
+                    f"Downloading database from gs://{self.bucket_name}/{self.cloud_db_path}"
+                )
                 # Use a temporary file for download to avoid corruption during download
                 with tempfile.NamedTemporaryFile(delete=False) as temp_file:
                     await asyncio.to_thread(blob.download_to_filename, temp_file.name)
@@ -155,12 +157,13 @@ class CloudDatabase:
                     backup_blob = self.bucket.blob(self.backup_path)
                     # Download existing to memory, then upload to backup path
                     await asyncio.to_thread(
-                        backup_blob.upload_from_string, await asyncio.to_thread(existing_blob.download_as_bytes)
+                        backup_blob.upload_from_string,
+                        await asyncio.to_thread(existing_blob.download_as_bytes),
                     )
                     logger.info(f"Backup created: gs://{self.bucket_name}/{self.backup_path}")
 
             # Upload current database using tempfile to prevent corruption
-            with tempfile.NamedTemporaryFile(delete=False, suffix='.sqlite') as temp_file:
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".sqlite") as temp_file:
                 await asyncio.to_thread(shutil.copy2, self.local_db_path, temp_file.name)
                 blob = self.bucket.blob(self.cloud_db_path)
                 await asyncio.to_thread(blob.upload_from_filename, temp_file.name)

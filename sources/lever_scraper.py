@@ -4,7 +4,6 @@ Handles Lever-powered job boards using the official Postings API.
 API Documentation: https://github.com/lever/postings-api
 """
 
-
 from utils.logging import get_logger
 
 from .job_scraper_base import (
@@ -21,9 +20,7 @@ class LeverScraper(JobBoardScraper):
     """Scraper for Lever-powered job boards using official API."""
 
     def __init__(self):
-        super().__init__(
-            name="Lever", base_domains=["lever.co", "jobs.lever.co"]
-        )
+        super().__init__(name="Lever", base_domains=["lever.co", "jobs.lever.co"])
 
     async def can_handle(self, url: str) -> bool:
         """Enhanced detection for Lever boards."""
@@ -71,9 +68,7 @@ class LeverScraper(JobBoardScraper):
         # Fallback to generic extraction
         return extract_company_from_url(url)
 
-    async def scrape(
-        self, board_url: str, fetch_descriptions: bool = True
-    ) -> list[dict]:
+    async def scrape(self, board_url: str, fetch_descriptions: bool = True) -> list[dict]:
         """
         Scrape jobs from Lever board using official Postings API.
 
@@ -89,10 +84,7 @@ class LeverScraper(JobBoardScraper):
         # API supports filtering by location, commitment, team, department
         # For now, fetch all jobs (can add filters later based on user prefs)
         # Note: Lever API returns JSON by default, no "mode" parameter needed
-        params = {
-            "limit": 100,    # Max results per page
-            "skip": 0        # Pagination offset
-        }
+        params = {"limit": 100, "skip": 0}  # Max results per page  # Pagination offset
 
         all_jobs_data = []
 
@@ -109,7 +101,9 @@ class LeverScraper(JobBoardScraper):
                 if response.status_code != 200:
                     if params["skip"] == 0:
                         # First request failed
-                        logger.warning(f"Lever API failed for {company_name}: Status {response.status_code}")
+                        logger.warning(
+                            f"Lever API failed for {company_name}: Status {response.status_code}"
+                        )
                         return []
                     else:
                         # Pagination exhausted
@@ -159,7 +153,9 @@ class LeverScraper(JobBoardScraper):
                     "title": job.get("text", "N/A"),  # Lever uses "text" for job title
                     "url": job.get("hostedUrl", job.get("applyUrl", "#")),
                     "location": self._extract_location(job),
-                    "description": job.get("description", "") + "\n" + job.get("descriptionPlain", ""),
+                    "description": job.get("description", "")
+                    + "\n"
+                    + job.get("descriptionPlain", ""),
                     "id": job.get("id", ""),
                 }
 
@@ -177,9 +173,7 @@ class LeverScraper(JobBoardScraper):
                 logger.warning(f"Error processing Lever job: {e}")
                 continue
 
-        logger.info(
-            f"Successfully scraped {len(scraped_jobs)} jobs from {company_name}"
-        )
+        logger.info(f"Successfully scraped {len(scraped_jobs)} jobs from {company_name}")
         return scraped_jobs
 
     def _extract_location(self, job: dict) -> str:

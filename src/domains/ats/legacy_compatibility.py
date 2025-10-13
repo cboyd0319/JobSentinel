@@ -33,9 +33,7 @@ class LegacyATSWrapper:
             stacklevel=2,
         )
 
-    def analyze_resume(
-        self, resume_path: str, job_keywords: list | None = None
-    ) -> dict[str, Any]:
+    def analyze_resume(self, resume_path: str, job_keywords: list | None = None) -> dict[str, Any]:
         """Legacy compatibility method."""
         try:
             # Use new service

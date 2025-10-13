@@ -113,7 +113,11 @@ def download_https_file(
                     total_mb = total_size / (1024 * 1024)
 
                     # Print progress bar (carriage return to overwrite)
-                    print(f"\r   |{bar}| {percent:3d}% ({downloaded_mb:.1f}/{total_mb:.1f} MB)", end="", flush=True)
+                    print(
+                        f"\r   |{bar}| {percent:3d}% ({downloaded_mb:.1f}/{total_mb:.1f} MB)",
+                        end="",
+                        flush=True,
+                    )
                 print()  # New line after completion
             else:
                 # Download without progress bar for small files

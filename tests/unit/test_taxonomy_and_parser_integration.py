@@ -1,4 +1,3 @@
-
 from utils.ats_analyzer import ATSAnalyzer
 
 # These tests focus on:

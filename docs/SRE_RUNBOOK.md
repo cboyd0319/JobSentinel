@@ -102,7 +102,7 @@ This runbook provides operational procedures for running JobSentinel in producti
 ```
 
 **Critical Dependencies:**
-- Python 3.13+ runtime
+- Python 3.11+ runtime
 - SQLite/PostgreSQL database
 - Playwright browser automation
 - Network access to job boards

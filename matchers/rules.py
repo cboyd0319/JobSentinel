@@ -1,6 +1,4 @@
-def score_job(
-    job: dict, prefs: dict, use_llm: bool = None
-) -> tuple[float, list[str], dict]:
+def score_job(job: dict, prefs: dict, use_llm: bool = None) -> tuple[float, list[str], dict]:
     """
     Applies rule-based scoring to a job, with optional LLM enhancement.
 
@@ -64,6 +62,7 @@ def score_job_rules_only(job: dict, prefs: dict) -> tuple[float, list[str]]:
     created_at = job.get("created_at")
     if created_at:
         from datetime import datetime, timedelta
+
         try:
             post_date = datetime.fromisoformat(created_at)
             age = datetime.now() - post_date
@@ -74,12 +73,12 @@ def score_job_rules_only(job: dict, prefs: dict) -> tuple[float, list[str]]:
                 score -= 0.1
                 reasons.append("Job is over 14 days old")
         except (ValueError, TypeError):
-            pass # Ignore parsing errors
+            pass  # Ignore parsing errors
 
     # Penalize jobs that have been seen many times without changes
     times_seen = job.get("times_seen", 0)
     if times_seen > 5:
-        score -= 0.1 * (min(times_seen, 10) - 5) # Penalize up to 0.5 for 10+ sightings
+        score -= 0.1 * (min(times_seen, 10) - 5)  # Penalize up to 0.5 for 10+ sightings
         reasons.append(f"Job has been seen {times_seen} times")
 
     # --- BLOCKLIST FILTER (IMMEDIATE REJECTION) ---
@@ -144,9 +143,7 @@ def score_job_rules_only(job: dict, prefs: dict) -> tuple[float, list[str]]:
         salary_found = _extract_salary(full_text)
         if salary_found:
             if salary_found < salary_floor:
-                return 0.0, [
-                    f"Rejected: Salary ${salary_found:,} below floor ${salary_floor:,}"
-                ]
+                return 0.0, [f"Rejected: Salary ${salary_found:,} below floor ${salary_floor:,}"]
             else:
                 score += 0.1
                 reasons.append(f"Salary ${salary_found:,} meets requirements")

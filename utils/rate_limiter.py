@@ -18,9 +18,7 @@ logger = get_logger("rate_limiter")
 class RateLimiter:
     """Token bucket rate limiter for API requests."""
 
-    def __init__(
-        self, max_requests: int, time_window_seconds: int, burst_size: int | None = None
-    ):
+    def __init__(self, max_requests: int, time_window_seconds: int, burst_size: int | None = None):
         """
         Initialize rate limiter.
 

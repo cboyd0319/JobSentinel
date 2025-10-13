@@ -38,7 +38,9 @@ def get_logger(name: str, component: str) -> StructuredLogger:
     return get_structured_logger(name=name, component=component)
 
 
-def setup_logging(level: str = "INFO", file: Path | None = None, include_console: bool = True) -> None:
+def setup_logging(
+    level: str = "INFO", file: Path | None = None, include_console: bool = True
+) -> None:
     """Configure structured logging once at application start.
 
     Contract:

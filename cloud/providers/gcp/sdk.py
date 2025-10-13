@@ -40,9 +40,7 @@ def ensure_gcloud(logger, no_prompt: bool, project_root: Path) -> None:
                     try:
                         major_version = int(version.split(".")[0])
                         if major_version < 400:
-                            logger.warning(
-                                f"[WARNING] gcloud version {version} is old (< 400.0.0)"
-                            )
+                            logger.warning(f"[WARNING] gcloud version {version} is old (< 400.0.0)")
                             logger.warning("  Consider updating: gcloud components update")
                     except ValueError:
                         logger.warning("Could not parse gcloud version number")
@@ -90,7 +88,10 @@ def ensure_gcloud(logger, no_prompt: bool, project_root: Path) -> None:
     else:
         installer = extracted / "install.sh"
         run_command(
-            [str(installer), "--quiet"], env={"CLOUDSDK_CORE_DISABLE_PROMPTS": "1"}, logger=logger, show_spinner=True
+            [str(installer), "--quiet"],
+            env={"CLOUDSDK_CORE_DISABLE_PROMPTS": "1"},
+            logger=logger,
+            show_spinner=True,
         )
         prepend_path(extracted / "bin")
 
@@ -118,7 +119,9 @@ def _download_and_extract(url: str, destination: Path, logger, no_prompt: bool) 
 
     logger.info(f"Downloading {sanitized_url}")
     logger.info("This will take 2-5 minutes depending on your connection speed...")
-    download_https_file(sanitized_url, download_path, allowed_host="dl.google.com", show_progress=True)
+    download_https_file(
+        sanitized_url, download_path, allowed_host="dl.google.com", show_progress=True
+    )
 
     actual_hash = hashlib.sha256(download_path.read_bytes()).hexdigest()
     logger.info("")

@@ -252,9 +252,13 @@ class SkillsGapAnalyzer:
 
         # Calculate overall match score
         total_required = sum(
-            len(skills) for category_skills in industry_skills.values() for skills in category_skills.values()
+            len(skills)
+            for category_skills in industry_skills.values()
+            for skills in category_skills.values()
         )
-        overall_match_score = (len(matched_skills) / total_required * 100) if total_required > 0 else 0
+        overall_match_score = (
+            (len(matched_skills) / total_required * 100) if total_required > 0 else 0
+        )
 
         # Generate career path suggestions
         career_paths = self._generate_career_paths(
@@ -317,8 +321,16 @@ class SkillsGapAnalyzer:
         """Estimate market demand for a skill (0-100)."""
         # Simplified demand estimation based on skill popularity
         high_demand = {
-            "python", "javascript", "java", "aws", "kubernetes", "docker",
-            "react", "node.js", "tensorflow", "sql"
+            "python",
+            "javascript",
+            "java",
+            "aws",
+            "kubernetes",
+            "docker",
+            "react",
+            "node.js",
+            "tensorflow",
+            "sql",
         }
 
         skill_lower = skill.lower()
@@ -386,7 +398,11 @@ class SkillsGapAnalyzer:
                     CareerPathSuggestion(
                         path_name="Technical Lead",
                         description="Lead technical decisions and team architecture",
-                        required_skills=["System Design", "Team Leadership", "Architecture Patterns"],
+                        required_skills=[
+                            "System Design",
+                            "Team Leadership",
+                            "Architecture Patterns",
+                        ],
                         timeline="18-24 months",
                         potential_salary_increase="30-40%",
                         market_growth="Excellent - Growing demand for tech leads",

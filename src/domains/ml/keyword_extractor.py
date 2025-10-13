@@ -276,10 +276,7 @@ class AdvancedKeywordExtractor:
             avg_scores = tfidf_matrix.mean(axis=0).A1
 
             # Create keyword-score pairs
-            keywords = [
-                (feature_names[i], float(avg_scores[i]))
-                for i in range(len(feature_names))
-            ]
+            keywords = [(feature_names[i], float(avg_scores[i])) for i in range(len(feature_names))]
 
             # Sort by score
             keywords.sort(key=lambda x: x[1], reverse=True)

@@ -5,7 +5,6 @@ Uses the JobsWithGPT MCP server to access 500,000+ job listings.
 This provides massive coverage without maintaining custom scrapers!
 """
 
-
 from utils.logging import get_logger
 
 from .job_scraper_base import GenericJobExtractor, JobBoardScraper
@@ -23,8 +22,7 @@ class JobsWithGPTScraper(JobBoardScraper):
 
     def __init__(self):
         super().__init__(
-            name="JobsWithGPT",
-            base_domains=[]  # This is a meta-scraper that handles ALL domains
+            name="JobsWithGPT", base_domains=[]  # This is a meta-scraper that handles ALL domains
         )
         self.mcp_server_available = self._check_mcp_availability()
 
@@ -32,6 +30,7 @@ class JobsWithGPTScraper(JobBoardScraper):
         """Check if we can access the JobsWithGPT MCP server."""
         try:
             import httpx
+
             return True
         except ImportError:
             logger.warning("httpx not installed - JobsWithGPT scraper unavailable")
@@ -53,7 +52,7 @@ class JobsWithGPTScraper(JobBoardScraper):
         titles: list[str] | None = None,
         distance: int = 50000,  # 50km default
         page: int = 1,
-        fetch_descriptions: bool = True
+        fetch_descriptions: bool = True,
     ) -> list[dict]:
         """
         Search for jobs using JobsWithGPT's database.
@@ -73,16 +72,15 @@ class JobsWithGPTScraper(JobBoardScraper):
             logger.error("JobsWithGPT scraper not available - missing dependencies")
             return []
 
-        logger.info(f"Searching JobsWithGPT: keywords={keywords}, locations={locations}, page={page}")
+        logger.info(
+            f"Searching JobsWithGPT: keywords={keywords}, locations={locations}, page={page}"
+        )
 
         try:
             import httpx
 
             # Build request payload
-            payload = {
-                "page": page,
-                "distance": distance
-            }
+            payload = {"page": page, "distance": distance}
 
             if keywords:
                 payload["keywords"] = keywords
@@ -103,8 +101,8 @@ class JobsWithGPTScraper(JobBoardScraper):
                         json=payload,
                         headers={
                             "Content-Type": "application/json",
-                            "User-Agent": "JobScraper/1.0"
-                        }
+                            "User-Agent": "JobScraper/1.0",
+                        },
                     )
 
                     if response.status_code == 200:
@@ -125,9 +123,7 @@ class JobsWithGPTScraper(JobBoardScraper):
             logger.error(f"JobsWithGPT search failed: {e}")
             return []
 
-    async def scrape(
-        self, board_url: str, fetch_descriptions: bool = True
-    ) -> list[dict]:
+    async def scrape(self, board_url: str, fetch_descriptions: bool = True) -> list[dict]:
         """
         Scrape a specific company's jobs by searching for the company name.
 
@@ -139,14 +135,9 @@ class JobsWithGPTScraper(JobBoardScraper):
         logger.info(f"Searching JobsWithGPT for company: {company_name}")
 
         # Search using company name as keyword
-        return await self.search(
-            keywords=[company_name],
-            fetch_descriptions=fetch_descriptions
-        )
+        return await self.search(keywords=[company_name], fetch_descriptions=fetch_descriptions)
 
-    async def _process_results(
-        self, results: dict, fetch_descriptions: bool
-    ) -> list[dict]:
+    async def _process_results(self, results: dict, fetch_descriptions: bool) -> list[dict]:
         """
         Process JobsWithGPT API results and convert to our normalized schema.
 
@@ -222,9 +213,7 @@ class JobsWithGPTScraper(JobBoardScraper):
                 logger.warning(f"Error processing JobsWithGPT job: {e}")
                 continue
 
-        logger.info(
-            f"Successfully processed {len(scraped_jobs)} jobs from JobsWithGPT"
-        )
+        logger.info(f"Successfully processed {len(scraped_jobs)} jobs from JobsWithGPT")
         return scraped_jobs
 
 
@@ -234,7 +223,7 @@ async def search_jobs(
     locations: list[dict] | None = None,
     titles: list[str] | None = None,
     distance: int = 50000,
-    page: int = 1
+    page: int = 1,
 ) -> list[dict]:
     """
     Convenience function to search JobsWithGPT database.
@@ -248,9 +237,5 @@ async def search_jobs(
     """
     scraper = JobsWithGPTScraper()
     return await scraper.search(
-        keywords=keywords,
-        locations=locations,
-        titles=titles,
-        distance=distance,
-        page=page
+        keywords=keywords, locations=locations, titles=titles, distance=distance, page=page
     )

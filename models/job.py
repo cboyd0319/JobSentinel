@@ -10,6 +10,7 @@ Conversion guideline:
     job = JobModel(**raw_dict)
     db_payload = job.to_db_dict()  # safe for add_job()
 """
+
 from __future__ import annotations
 
 import hashlib

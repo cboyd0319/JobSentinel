@@ -93,7 +93,7 @@ def demo_job_quality_detection():
         print(f"    • {rec}")
 
     # Example 2: Suspicious job
-    print("\n" + "-"*80)
+    print("\n" + "-" * 80)
 
     suspicious_job = """
     Make $5000 per week from home! No experience required!
@@ -179,9 +179,7 @@ def demo_skills_gap_analysis():
 
     analyzer = SkillsGapAnalyzer()
 
-    current_skills = [
-        "Python", "Django", "SQL", "Git", "Linux", "REST APIs"
-    ]
+    current_skills = ["Python", "Django", "SQL", "Git", "Linux", "REST APIs"]
 
     result = analyzer.analyze(
         current_skills=current_skills,
@@ -334,10 +332,10 @@ def demo_keyword_optimization():
 
 def main():
     """Run all demos."""
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("  JOBSENTINEL: WORLD-CLASS DETECTION & AUTO-FIX DEMO")
     print("  Making JobSentinel the #1 job search automation tool")
-    print("="*80)
+    print("=" * 80)
 
     try:
         demo_job_quality_detection()
@@ -347,14 +345,15 @@ def main():
         demo_bullet_enhancement()
         demo_keyword_optimization()
 
-        print("\n" + "="*80)
+        print("\n" + "=" * 80)
         print("  ✓ Demo Complete!")
         print("  All systems operational and ready for production use.")
-        print("="*80 + "\n")
+        print("=" * 80 + "\n")
 
     except Exception as e:
         print(f"\n✗ Error running demo: {e}")
         import traceback
+
         traceback.print_exc()
         return 1
 

@@ -138,8 +138,7 @@ class SentimentAnalyzer:
                 logger.info("Sentiment pipeline loaded successfully")
             except ImportError:
                 logger.warning(
-                    "transformers not installed. Install with: "
-                    "pip install transformers torch"
+                    "transformers not installed. Install with: " "pip install transformers torch"
                 )
                 self._pipeline = "vader_fallback"
             except Exception as e:
@@ -393,9 +392,7 @@ class SentimentAnalyzer:
         text_lower = text.lower()
 
         # Check for aggressive language
-        aggressive_count = sum(
-            1 for phrase in self.AGGRESSIVE_PHRASES if phrase in text_lower
-        )
+        aggressive_count = sum(1 for phrase in self.AGGRESSIVE_PHRASES if phrase in text_lower)
         if aggressive_count >= 3:
             tone.append("Aggressive/demanding tone")
 

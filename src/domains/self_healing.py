@@ -132,7 +132,7 @@ class ComponentHealth:
 class ErrorClassifier:
     """
     Classifies errors and determines recovery strategies.
-    
+
     Uses error patterns to categorize issues and recommend appropriate
     recovery strategies.
     """
@@ -194,11 +194,11 @@ class ErrorClassifier:
     def classify(error: Exception, operation: str = "") -> ErrorContext:
         """
         Classify an error and determine recovery strategy.
-        
+
         Args:
             error: Exception to classify
             operation: Operation that failed
-            
+
         Returns:
             ErrorContext with classification and strategy
         """
@@ -211,9 +211,7 @@ class ErrorClassifier:
             retryable = True
             strategy = RecoveryStrategy.RETRY
 
-        elif any(
-            pattern in error_msg for pattern in ErrorClassifier.RATE_LIMIT_PATTERNS
-        ):
+        elif any(pattern in error_msg for pattern in ErrorClassifier.RATE_LIMIT_PATTERNS):
             category = ErrorCategory.RATE_LIMIT
             retryable = True
             strategy = RecoveryStrategy.CIRCUIT_BREAK
@@ -228,16 +226,12 @@ class ErrorClassifier:
             retryable = False
             strategy = RecoveryStrategy.FAIL_FAST
 
-        elif any(
-            pattern in error_msg for pattern in ErrorClassifier.VALIDATION_PATTERNS
-        ):
+        elif any(pattern in error_msg for pattern in ErrorClassifier.VALIDATION_PATTERNS):
             category = ErrorCategory.VALIDATION
             retryable = False
             strategy = RecoveryStrategy.FAIL_FAST
 
-        elif any(
-            pattern in error_msg for pattern in ErrorClassifier.RESOURCE_PATTERNS
-        ):
+        elif any(pattern in error_msg for pattern in ErrorClassifier.RESOURCE_PATTERNS):
             category = ErrorCategory.RESOURCE
             retryable = False
             strategy = RecoveryStrategy.DEGRADE
@@ -266,7 +260,7 @@ class ErrorClassifier:
 class RetryHandler:
     """
     Retry handler with exponential backoff.
-    
+
     Implements retry logic with configurable backoff, jitter, and max attempts.
     """
 
@@ -280,7 +274,7 @@ class RetryHandler:
     ):
         """
         Initialize retry handler.
-        
+
         Args:
             max_attempts: Maximum retry attempts
             base_delay: Base delay in seconds
@@ -319,16 +313,16 @@ class RetryHandler:
     ) -> T:
         """
         Execute function with retry logic.
-        
+
         Args:
             func: Function to execute
             *args: Positional arguments
             operation: Operation name for logging
             **kwargs: Keyword arguments
-            
+
         Returns:
             Function result
-            
+
         Raises:
             Last exception if all retries fail
         """
@@ -338,9 +332,7 @@ class RetryHandler:
             try:
                 result = func(*args, **kwargs)
                 if attempt > 1:
-                    logger.info(
-                        f"{operation} succeeded on attempt {attempt}/{self.max_attempts}"
-                    )
+                    logger.info(f"{operation} succeeded on attempt {attempt}/{self.max_attempts}")
                 return result
 
             except Exception as e:
@@ -348,9 +340,7 @@ class RetryHandler:
                 error_ctx = ErrorClassifier.classify(e, operation)
 
                 if not error_ctx.retryable or attempt >= self.max_attempts:
-                    logger.error(
-                        f"{operation} failed (non-retryable or max attempts): {e}"
-                    )
+                    logger.error(f"{operation} failed (non-retryable or max attempts): {e}")
                     raise
 
                 delay = self.calculate_delay(attempt)
@@ -379,9 +369,7 @@ class RetryHandler:
             try:
                 result = await func(*args, **kwargs)
                 if attempt > 1:
-                    logger.info(
-                        f"{operation} succeeded on attempt {attempt}/{self.max_attempts}"
-                    )
+                    logger.info(f"{operation} succeeded on attempt {attempt}/{self.max_attempts}")
                 return result
 
             except Exception as e:
@@ -389,9 +377,7 @@ class RetryHandler:
                 error_ctx = ErrorClassifier.classify(e, operation)
 
                 if not error_ctx.retryable or attempt >= self.max_attempts:
-                    logger.error(
-                        f"{operation} failed (non-retryable or max attempts): {e}"
-                    )
+                    logger.error(f"{operation} failed (non-retryable or max attempts): {e}")
                     raise
 
                 delay = self.calculate_delay(attempt)
@@ -418,7 +404,7 @@ def with_retry(
 ) -> Callable[[Callable[..., T]], Callable[..., T]]:
     """
     Decorator to add retry logic to a function.
-    
+
     Example:
         @with_retry(max_attempts=3, base_delay=1.0, operation="fetch_jobs")
         def fetch_jobs():
@@ -466,7 +452,7 @@ def with_retry_async(
 class HealthMonitor:
     """
     System health monitor with component tracking.
-    
+
     Monitors health of individual components and provides overall system status.
     """
 
@@ -515,8 +501,7 @@ class HealthMonitor:
             comp.status = HealthStatus.DEGRADED
 
         logger.warning(
-            f"Component {component} failure: {error} "
-            f"(success rate: {comp.success_rate:.1%})"
+            f"Component {component} failure: {error} " f"(success rate: {comp.success_rate:.1%})"
         )
 
     def get_component_health(self, component: str) -> ComponentHealth | None:
@@ -525,15 +510,9 @@ class HealthMonitor:
 
     def get_system_health(self) -> dict[str, Any]:
         """Get overall system health."""
-        healthy = sum(
-            1 for c in self.components.values() if c.status == HealthStatus.HEALTHY
-        )
-        degraded = sum(
-            1 for c in self.components.values() if c.status == HealthStatus.DEGRADED
-        )
-        unhealthy = sum(
-            1 for c in self.components.values() if c.status == HealthStatus.UNHEALTHY
-        )
+        healthy = sum(1 for c in self.components.values() if c.status == HealthStatus.HEALTHY)
+        degraded = sum(1 for c in self.components.values() if c.status == HealthStatus.DEGRADED)
+        unhealthy = sum(1 for c in self.components.values() if c.status == HealthStatus.UNHEALTHY)
         total = len(self.components)
 
         overall_status = HealthStatus.HEALTHY
@@ -577,9 +556,7 @@ health_monitor = HealthMonitor()
 
 if __name__ == "__main__":
     # Configure logging
-    logging.basicConfig(
-        level=logging.INFO, format="%(asctime)s - %(name)s - %(message)s"
-    )
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(message)s")
 
     # Example 1: Basic retry
     print("\n=== Example 1: Basic Retry ===")

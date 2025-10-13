@@ -14,9 +14,10 @@ __all__ = [
     "__version__",
 ]
 
+
 def _get_version() -> str:
     """Read version from pyproject.toml (single source of truth).
-    
+
     Returns:
         Version string from pyproject.toml, or 'unknown' on error.
     """
@@ -28,5 +29,5 @@ def _get_version() -> str:
     except Exception:  # pragma: no cover - defensive fallback
         return "unknown"
 
-__version__ = _get_version()
 
+__version__ = _get_version()

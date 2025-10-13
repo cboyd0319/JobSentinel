@@ -49,23 +49,50 @@ class BulletEnhancer:
 
     # Power words for different contexts
     LEADERSHIP_VERBS = {
-        "led", "directed", "managed", "coordinated", "spearheaded",
-        "championed", "orchestrated", "supervised", "mentored"
+        "led",
+        "directed",
+        "managed",
+        "coordinated",
+        "spearheaded",
+        "championed",
+        "orchestrated",
+        "supervised",
+        "mentored",
     }
 
     CREATION_VERBS = {
-        "developed", "created", "designed", "built", "engineered",
-        "architected", "established", "launched", "implemented"
+        "developed",
+        "created",
+        "designed",
+        "built",
+        "engineered",
+        "architected",
+        "established",
+        "launched",
+        "implemented",
     }
 
     IMPROVEMENT_VERBS = {
-        "improved", "enhanced", "optimized", "streamlined", "accelerated",
-        "increased", "boosted", "elevated", "strengthened"
+        "improved",
+        "enhanced",
+        "optimized",
+        "streamlined",
+        "accelerated",
+        "increased",
+        "boosted",
+        "elevated",
+        "strengthened",
     }
 
     ACHIEVEMENT_VERBS = {
-        "achieved", "delivered", "exceeded", "accomplished", "attained",
-        "secured", "generated", "produced"
+        "achieved",
+        "delivered",
+        "exceeded",
+        "accomplished",
+        "attained",
+        "secured",
+        "generated",
+        "produced",
     }
 
     # Quantification templates
@@ -177,7 +204,9 @@ class BulletEnhancer:
         }
 
         if first_word in upgrades:
-            words[0] = upgrades[first_word].capitalize() if words[0][0].isupper() else upgrades[first_word]
+            words[0] = (
+                upgrades[first_word].capitalize() if words[0][0].isupper() else upgrades[first_word]
+            )
             return " ".join(words), True
 
         return text, False
@@ -221,9 +250,8 @@ class BulletEnhancer:
         text_lower = text.lower()
 
         # Check if context is missing
-        lacks_context = (
-            len(text.split()) < 8
-            and not any(tech in text_lower for tech in ["python", "java", "aws", "react", "docker"])
+        lacks_context = len(text.split()) < 8 and not any(
+            tech in text_lower for tech in ["python", "java", "aws", "react", "docker"]
         )
 
         if lacks_context and any(word in text_lower for word in ["developed", "created", "built"]):

@@ -19,9 +19,7 @@ class APIBasedScraper(JobBoardScraper):
         super().__init__(name, base_domains)
         self.api_endpoints = api_endpoints
 
-    async def scrape(
-        self, board_url: str, fetch_descriptions: bool = True
-    ) -> list[dict]:
+    async def scrape(self, board_url: str, fetch_descriptions: bool = True) -> list[dict]:
         logger.info(f"Scraping {self.name} API endpoints: {self.api_endpoints}")
         all_jobs = []
 
@@ -35,9 +33,7 @@ class APIBasedScraper(JobBoardScraper):
                     elif isinstance(jobs_data, dict) and "results" in jobs_data:
                         jobs_data = jobs_data["results"]
                     elif not isinstance(jobs_data, list):
-                        logger.warning(
-                            f"Unexpected API response format from {endpoint}"
-                        )
+                        logger.warning(f"Unexpected API response format from {endpoint}")
                         return []
 
                     company_name = self.extract_company_name(board_url)
@@ -49,9 +45,7 @@ class APIBasedScraper(JobBoardScraper):
                         extracted_jobs.append(normalized_job)
                     return extracted_jobs
                 else:
-                    logger.error(
-                        f"Failed to fetch {endpoint}: Status {response_data.status_code}"
-                    )
+                    logger.error(f"Failed to fetch {endpoint}: Status {response_data.status_code}")
             except Exception as e:
                 logger.error(f"Error processing API endpoint {endpoint}: {e}")
             return []
@@ -70,9 +64,7 @@ class MicrosoftCareersScraper(JobBoardScraper):
     """Scraper for Microsoft careers using their discovered API."""
 
     def __init__(self):
-        super().__init__(
-            name="Microsoft Careers", base_domains=["jobs.careers.microsoft.com"]
-        )
+        super().__init__(name="Microsoft Careers", base_domains=["jobs.careers.microsoft.com"])
 
     def scrape(self, board_url: str, fetch_descriptions: bool = True) -> list[dict]:
         """Scrape jobs from Microsoft careers API."""
@@ -221,9 +213,7 @@ class GenericAPIScraper(JobBoardScraper):
             from .playwright_scraper import PlaywrightScraper
 
             playwright_scraper = PlaywrightScraper()
-            return playwright_scraper.scrape_with_api_discovery(
-                board_url, fetch_descriptions
-            )
+            return playwright_scraper.scrape_with_api_discovery(board_url, fetch_descriptions)
 
         except Exception as e:
             logger.warning(f"Generic API scraping failed: {e}")

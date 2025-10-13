@@ -57,9 +57,15 @@ def main(argv: list[str]) -> int:
     sub = parser.add_subparsers(dest="command", required=True)
 
     scan_p = sub.add_parser("scan", help="Run analysis and print human summary")
-    scan_p.add_argument("--resume", required=True, help="Path to plain-text resume (use external tool to extract from PDF)")
+    scan_p.add_argument(
+        "--resume",
+        required=True,
+        help="Path to plain-text resume (use external tool to extract from PDF)",
+    )
     scan_p.add_argument("--job", help="Path to job description text file")
-    scan_p.add_argument("--fuzzy", action="store_true", help="Enable fuzzy term matching (needs rapidfuzz)")
+    scan_p.add_argument(
+        "--fuzzy", action="store_true", help="Enable fuzzy term matching (needs rapidfuzz)"
+    )
 
     json_p = sub.add_parser("json", help="Run analysis and emit JSON")
     json_p.add_argument("--resume", required=True)
