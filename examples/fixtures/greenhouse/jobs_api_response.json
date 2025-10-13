@@ -1,0 +1,56 @@
+{
+  "_comment": "Sample Greenhouse API response - captured 2024-01-15",
+  "jobs": [
+    {
+      "id": 123456,
+      "title": "Senior Software Engineer",
+      "location": {
+        "name": "San Francisco, CA"
+      },
+      "absolute_url": "https://boards.greenhouse.io/example/jobs/123456",
+      "metadata": [
+        {
+          "id": 1,
+          "name": "Employment Type",
+          "value": "Full-time"
+        },
+        {
+          "id": 2,
+          "name": "Remote",
+          "value": "Remote possible"
+        }
+      ],
+      "updated_at": "2024-01-15T10:30:00Z",
+      "content": "<p>We are looking for an experienced Software Engineer to join our team.</p><p>Requirements: Python, AWS, Kubernetes</p>",
+      "departments": [
+        {
+          "id": 1,
+          "name": "Engineering"
+        }
+      ]
+    },
+    {
+      "id": 123457,
+      "title": "Backend Engineer",
+      "location": {
+        "name": "Remote"
+      },
+      "absolute_url": "https://boards.greenhouse.io/example/jobs/123457",
+      "metadata": [
+        {
+          "id": 1,
+          "name": "Employment Type",
+          "value": "Full-time"
+        }
+      ],
+      "updated_at": "2024-01-14T14:20:00Z",
+      "content": "<p>Join our backend team building scalable services.</p><p>Tech stack: Python, PostgreSQL, Docker</p>",
+      "departments": [
+        {
+          "id": 1,
+          "name": "Engineering"
+        }
+      ]
+    }
+  ]
+}
