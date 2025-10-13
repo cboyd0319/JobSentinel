@@ -299,7 +299,7 @@ JobSentinel integrates with MCP servers for enhanced AI capabilities:
 
 **Config:** `.github/copilot-mcp.json` (HTTP and local command servers)  
 **Validation:** `python3 scripts/validate_mcp_config.py`  
-**Docs:** `.github/MCP_CONFIG_README.md` and `docs/MCP_INTEGRATION.md`
+**Docs:** `docs/MCP_GUIDE.md` — Complete MCP integration guide
 
 **Important:** GitHub MCP tools are built-in to Copilot. Do NOT add GitHub server to copilot-mcp.json. Personal Access Tokens (PAT) are NOT supported for GitHub MCP - it uses OAuth automatically.
 
