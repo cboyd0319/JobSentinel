@@ -2,7 +2,8 @@
 
 This document describes how to manage Dependabot PRs in the JobSentinel repository.
 
-> **Quick Start:** For a quick reference guide, see [Dependabot Quick Start](DEPENDABOT_QUICK_START.md)
+> **Quick Start:** For a quick reference guide, see [Dependabot Quick Start](DEPENDABOT_QUICK_START.md)  
+> **Having Issues?** Check the [Troubleshooting Guide](DEPENDABOT_TROUBLESHOOTING.md) for detailed solutions
 
 ## Overview
 
@@ -154,6 +155,40 @@ Found 3 Dependabot PRs
 
 ## Troubleshooting
 
+### Workflow Not Working / PRs Not Being Approved
+
+**Common Issues:**
+
+1. **Branch Protection Rules**
+   - Check if your repository has branch protection rules that require specific approvals
+   - The workflow uses `GITHUB_TOKEN` which might not satisfy "Required reviewers" rules
+   - Solution: Temporarily adjust branch protection settings or use a Personal Access Token (PAT) with appropriate permissions
+
+2. **Repository Settings**
+   - Verify that "Allow auto-merge" is enabled in repository settings
+   - Go to Settings → General → Pull Requests → Check "Allow auto-merge"
+
+3. **Workflow Permissions**
+   - The workflow needs `contents: write` and `pull-requests: write` permissions
+   - These are set in the workflow file and should work with default `GITHUB_TOKEN`
+   - If issues persist, check repository settings → Actions → General → Workflow permissions
+
+4. **PR Already Approved**
+   - The workflow may show "already approved" if another workflow or user already approved
+   - This is normal and expected behavior
+
+5. **CI Checks Not Passing**
+   - The workflow will skip PRs with failing CI checks (by design)
+   - Check the PR's status checks to ensure they're passing
+   - The workflow will enable auto-merge for PRs with pending checks
+
+**Debugging Steps:**
+
+1. Run the workflow with `dry_run: true` to see what would happen
+2. Check the workflow logs in Actions tab for specific error messages
+3. Verify that Dependabot PRs exist and are open
+4. Ensure CI checks are configured and running
+
 ### "Personal Access Tokens are not supported for this endpoint"
 
 This error occurs when trying to use certain GitHub API endpoints with a Personal Access Token (PAT). Solutions:
@@ -189,6 +224,15 @@ If auto-merge fails, the script will attempt direct merge. Common reasons:
 - Branch protection rules require specific checks
 - PR is not mergeable (conflicts)
 - Insufficient permissions
+- Auto-merge not enabled in repository settings
+
+### "Could not merge PR" Errors
+
+Check for:
+- Merge conflicts in the PR
+- Required status checks not passing
+- Required reviews not met (branch protection)
+- Auto-merge not enabled in repository settings
 
 ## Related Files
 

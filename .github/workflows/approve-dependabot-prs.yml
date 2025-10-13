@@ -23,142 +23,108 @@ jobs:
         uses: actions/checkout@v4
 
       - name: List and process Dependabot PRs
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const dryRun = ${{ inputs.dry_run }};
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          set -e
+          
+          echo "🔍 Fetching open Dependabot PRs..."
+          
+          # Get all open PRs authored by Dependabot
+          prs=$(gh pr list --author "app/dependabot" --state open --json number,title,url,mergeable,statusCheckRollup)
+          pr_count=$(echo "$prs" | jq '. | length')
+          
+          echo "Found $pr_count Dependabot PRs"
+          
+          if [ "$pr_count" -eq 0 ]; then
+            echo "No Dependabot PRs to process"
+            exit 0
+          fi
+          
+          # Initialize counters
+          approved_count=0
+          merged_count=0
+          failed_count=0
+          
+          # Process each PR
+          echo "$prs" | jq -c '.[]' | while read -r pr; do
+            pr_number=$(echo "$pr" | jq -r '.number')
+            pr_title=$(echo "$pr" | jq -r '.title')
+            pr_url=$(echo "$pr" | jq -r '.url')
             
-            // Get all open PRs authored by Dependabot
-            const { data: pullRequests } = await github.rest.pulls.list({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open',
-            });
+            echo ""
+            echo "📦 Processing PR #$pr_number: $pr_title"
+            echo "   URL: $pr_url"
             
-            const dependabotPRs = pullRequests.filter(pr => 
-              pr.user.login === 'dependabot[bot]'
-            );
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "   [DRY RUN] Would approve and merge this PR"
+              continue
+            fi
             
-            console.log(`Found ${dependabotPRs.length} Dependabot PRs`);
+            # Check CI status
+            status_checks=$(echo "$pr" | jq -r '.statusCheckRollup // [] | length')
+            failed_checks=$(echo "$pr" | jq -r '[.statusCheckRollup[] | select(.conclusion == "FAILURE")] | length')
+            pending_checks=$(echo "$pr" | jq -r '[.statusCheckRollup[] | select(.status == "IN_PROGRESS" or .status == "QUEUED" or .status == "PENDING")] | length')
             
-            if (dependabotPRs.length === 0) {
-              console.log('No Dependabot PRs to process');
-              return;
-            }
+            if [ "$failed_checks" -gt 0 ]; then
+              echo "   ⚠️  PR has $failed_checks failing checks, skipping"
+              failed_count=$((failed_count + 1))
+              continue
+            fi
             
-            for (const pr of dependabotPRs) {
-              console.log(`\nProcessing PR #${pr.number}: ${pr.title}`);
-              console.log(`URL: ${pr.html_url}`);
-              
-              if (dryRun) {
-                console.log('Dry run mode - would approve and merge this PR');
-                continue;
-              }
-              
-              try {
-                // Check if PR is already approved
-                const { data: reviews } = await github.rest.pulls.listReviews({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  pull_number: pr.number,
-                });
-                
-                const alreadyApproved = reviews.some(review => 
-                  review.state === 'APPROVED'
-                );
-                
-                if (!alreadyApproved) {
-                  // Approve the PR
-                  await github.rest.pulls.createReview({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    pull_number: pr.number,
-                    event: 'APPROVE',
-                    body: '🤖 Auto-approved by workflow',
-                  });
-                  console.log(`✅ Approved PR #${pr.number}`);
-                } else {
-                  console.log(`ℹ️ PR #${pr.number} already approved`);
-                }
-                
-                // Check CI status
-                const { data: checks } = await github.rest.checks.listForRef({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  ref: pr.head.sha,
-                });
-                
-                const failedChecks = checks.check_runs.filter(check => 
-                  check.conclusion === 'failure'
-                );
-                
-                if (failedChecks.length > 0) {
-                  console.log(`⚠️ PR #${pr.number} has failing checks, skipping merge`);
-                  continue;
-                }
-                
-                // Enable auto-merge
-                try {
-                  await github.graphql(`
-                    mutation($prId: ID!) {
-                      enablePullRequestAutoMerge(input: {
-                        pullRequestId: $prId,
-                        mergeMethod: SQUASH
-                      }) {
-                        pullRequest {
-                          autoMergeRequest {
-                            enabledAt
-                          }
-                        }
-                      }
-                    }
-                  `, {
-                    prId: pr.node_id
-                  });
-                  console.log(`✅ Enabled auto-merge for PR #${pr.number}`);
-                } catch (error) {
-                  console.log(`⚠️ Could not enable auto-merge for PR #${pr.number}: ${error.message}`);
-                  
-                  // Try direct merge if auto-merge fails and checks pass
-                  const { data: combinedStatus } = await github.rest.repos.getCombinedStatusForRef({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    ref: pr.head.sha,
-                  });
-                  
-                  if (combinedStatus.state === 'success' || combinedStatus.state === 'pending') {
-                    console.log(`Attempting direct merge for PR #${pr.number}`);
-                    // Wait a moment for any pending checks
-                    await new Promise(resolve => setTimeout(resolve, 5000));
-                    
-                    try {
-                      await github.rest.pulls.merge({
-                        owner: context.repo.owner,
-                        repo: context.repo.repo,
-                        pull_number: pr.number,
-                        merge_method: 'squash',
-                      });
-                      console.log(`✅ Merged PR #${pr.number}`);
-                    } catch (mergeError) {
-                      console.log(`⚠️ Could not merge PR #${pr.number}: ${mergeError.message}`);
-                    }
-                  }
-                }
-                
-                // Add a comment
-                await github.rest.issues.createComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: pr.number,
-                  body: '🤖 This Dependabot PR has been auto-approved and will merge when CI passes.',
-                });
-                
-              } catch (error) {
-                console.error(`Error processing PR #${pr.number}:`, error.message);
-              }
-            }
+            if [ "$pending_checks" -gt 0 ]; then
+              echo "   ⏳ PR has $pending_checks pending checks"
+            else
+              echo "   ✅ All checks passed"
+            fi
             
-            console.log('\n✨ Finished processing all Dependabot PRs');
+            # Approve the PR using gh CLI
+            echo "   Approving PR..."
+            if gh pr review "$pr_number" --approve --body "🤖 Auto-approved by workflow" 2>&1; then
+              echo "   ✅ Approved PR #$pr_number"
+              approved_count=$((approved_count + 1))
+            else
+              echo "   ℹ️  PR #$pr_number may already be approved or approval failed"
+              approved_count=$((approved_count + 1))
+            fi
+            
+            # Enable auto-merge or merge directly
+            if [ "$pending_checks" -eq 0 ] && [ "$status_checks" -gt 0 ]; then
+              echo "   Attempting to merge PR..."
+              if gh pr merge "$pr_number" --auto --squash 2>&1; then
+                echo "   ✅ Enabled auto-merge for PR #$pr_number"
+                merged_count=$((merged_count + 1))
+              elif gh pr merge "$pr_number" --squash 2>&1; then
+                echo "   ✅ Merged PR #$pr_number"
+                merged_count=$((merged_count + 1))
+              else
+                echo "   ⚠️  Could not merge PR #$pr_number"
+                failed_count=$((failed_count + 1))
+              fi
+            else
+              echo "   ⏳ Enabling auto-merge for when checks complete..."
+              if gh pr merge "$pr_number" --auto --squash 2>&1; then
+                echo "   ✅ Enabled auto-merge for PR #$pr_number"
+                merged_count=$((merged_count + 1))
+              else
+                echo "   ⚠️  Could not enable auto-merge for PR #$pr_number"
+                failed_count=$((failed_count + 1))
+              fi
+            fi
+            
+            # Add a comment
+            gh pr comment "$pr_number" --body "🤖 This Dependabot PR has been auto-approved and will merge when CI passes." || true
+          done
+          
+          echo ""
+          echo "============================================================"
+          echo "📊 Summary:"
+          echo "   Total PRs processed: $pr_count"
+          echo "   ✅ Approved: $approved_count"
+          echo "   🔀 Merged/Auto-merge enabled: $merged_count"
+          echo "   ❌ Skipped/Failed: $failed_count"
+          echo "============================================================"
 
       - name: Summary
         run: |
