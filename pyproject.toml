@@ -112,6 +112,7 @@ ignore = [
 "src/jsa/db.py" = ["I001"]
 "src/jsa/web/blueprints/skills.py" = ["I001"]
 "src/jsa/cli.py" = ["I001"]
+"src/jsa/setup_wizard.py" = ["S603"]  # subprocess with trusted input (our own CLI)
 
 [tool.mypy]
 python_version = "3.11"

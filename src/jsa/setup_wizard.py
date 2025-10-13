@@ -5,7 +5,7 @@ Guides new users through first-time configuration with a friendly CLI experience
 """
 
 import json
-import os
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any
@@ -277,7 +277,7 @@ def run_wizard() -> None:
     # Offer to run first scrape
     if run_first_scrape():
         console.print("\n[cyan]Starting first job search...[/cyan]\n")
-        os.system("python -m jsa.cli run-once")
+        subprocess.run([sys.executable, "-m", "jsa.cli", "run-once"], check=False)
     else:
         console.print("\n[bold green]Setup complete! 🎉[/bold green]")
         console.print("\nTo start your job search, run:")
