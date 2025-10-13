@@ -2,6 +2,8 @@
 
 This document describes how to manage Dependabot PRs in the JobSentinel repository.
 
+> **Quick Start:** For a quick reference guide, see [Dependabot Quick Start](DEPENDABOT_QUICK_START.md)
+
 ## Overview
 
 JobSentinel uses Dependabot to automatically create PRs for dependency updates. We have two mechanisms to handle these PRs:

@@ -176,6 +176,7 @@ make fmt
 ### Development Configuration
 - **[development/](development/)** - Editor config, pre-commit hooks, Makefile
 - **[Dependabot Management](DEPENDABOT_MANAGEMENT.md)** - 🆕 Auto-approve and merge Dependabot PRs
+- **[Dependabot Quick Start](DEPENDABOT_QUICK_START.md)** - 🆕 Quick reference for Dependabot PR management
 
 ---
 
