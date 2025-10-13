@@ -11,7 +11,7 @@ requires-python = ">=3.11"
 license = {text = "MIT"}
 authors = [{ name = "Project Author", email = "noreply@users.noreply.github.com" }]
 dependencies = [
-  "aiofiles>=23,<25",
+  "aiofiles>=23,<26",
   "aiohttp>=3.9,<4",
   "aiosqlite>=0.20,<0.22",
   "beautifulsoup4>=4.12,<5",
