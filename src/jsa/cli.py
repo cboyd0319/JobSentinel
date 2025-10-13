@@ -106,6 +106,27 @@ def _cmd_setup(_: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_api(args: argparse.Namespace) -> int:
+    """Run FastAPI server (modern REST API)."""
+    try:
+        import uvicorn
+    except ImportError:
+        print("Error: uvicorn not installed. Install with: pip install -e .")
+        return 1
+
+    from jsa.fastapi_app import create_app
+
+    app = create_app()
+    uvicorn.run(
+        app,
+        host=args.host,
+        port=args.port,
+        log_level=args.log_level.lower(),
+        reload=args.reload,
+    )
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="jsa", description="Job Search Automation CLI")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -113,10 +134,17 @@ def build_parser() -> argparse.ArgumentParser:
     p_setup = sub.add_parser("setup", help="Interactive setup wizard for first-time configuration")
     p_setup.set_defaults(func=_cmd_setup)
 
-    p_web = sub.add_parser("web", help="Run local web UI")
+    p_web = sub.add_parser("web", help="Run local web UI (Flask)")
     p_web.add_argument("--port", type=int, default=5000)
     p_web.add_argument("--debug", action="store_true")
     p_web.set_defaults(func=_cmd_web)
+
+    p_api = sub.add_parser("api", help="Run FastAPI server (modern REST API)")
+    p_api.add_argument("--host", type=str, default="127.0.0.1", help="Host to bind to")
+    p_api.add_argument("--port", type=int, default=8000, help="Port to bind to")
+    p_api.add_argument("--reload", action="store_true", help="Enable auto-reload on code changes")
+    p_api.add_argument("--log-level", type=str, default="INFO", choices=["DEBUG", "INFO", "WARNING", "ERROR"], help="Log level")
+    p_api.set_defaults(func=_cmd_api)
 
     p_cfg = sub.add_parser("config-validate", help="Validate configuration file")
     p_cfg.add_argument("--path", type=str, default="config/user_prefs.json")
