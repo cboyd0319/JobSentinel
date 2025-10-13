@@ -6,30 +6,29 @@ labels: bug
 assignees: ''
 ---
 
-**What broke:**
-Brief description of the issue.
+## What broke
+Brief description.
 
-**How to reproduce:**
+## Reproduce
 ```bash
-# Commands that trigger the bug
-python src/agent.py --dry-run
+python -m jsa.cli run-once
 ```
 
-**Expected vs actual:**
+## Expected vs actual
 Expected: Jobs found and scored
 Actual: Crashes with TypeError
 
-**Environment:**
+## Environment
 - OS: macOS 14.1
-- Python: 3.12.0
-- Install method: Manual
+- Python: 3.13.0
+- Version: 0.6.0
 
-**Logs:**
+## Logs
 ```
-# Paste relevant error logs here
+Paste error logs here
 ```
 
-**Config (remove API keys):**
+## Config (remove secrets)
 ```json
 {
   "keywords": ["python"],

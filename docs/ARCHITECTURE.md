@@ -1,29 +1,64 @@
-# Architecture (Post-Refactor Skeleton)
+# Architecture
 
-This refactor introduces a typed core package under `src/jsa` with a Flask app factory, blueprints, and a minimal CLI.
+```
+Job Sites → Scrapers → Scoring → Alerts
+     ↓         ↓         ↓         ↓
+           SQLite    Config    Logs
+```
 
-Key modules:
-- `jsa.web.app` — `create_app()` factory; registers blueprints and sets secrets/CSRF
-- `jsa.web.blueprints.*` — `main`, `skills`, `review`, `slack` routes split by concern
-- `jsa.config` — typed facade in front of legacy `utils.config`
-- `jsa.logging` — typed wrappers around `utils.structured_logging`
-- `jsa.http.sanitization` — safe URL utilities
-- `jsa.db` — typed facade over legacy database, with test override helper
+**Flow:** Scrapers fetch from public job boards → scoring engine filters by keywords/salary/location → high matches trigger Slack webhooks
 
-Compatibility:
-- `src/web_ui.py` remains as a thin shim importing the new app factory
-- Legacy modules are left intact; new code depends on typed facades
+**Data in/out:** HTML/JSON from job sites → normalized jobs in SQLite → Slack webhook POST
 
-Quality Gates:
-- Root `pyproject.toml` configures ruff, mypy (strict for `src/jsa`), pytest
-- `Makefile` adds `fmt`, `lint`, `type`, `cov`, and `mut` targets
-- CI installs use `constraints/core.txt` for reproducible versions of core tools
+**Trust boundaries:** API keys in `.env`, no telemetry, all storage local, scrapers read-only
 
-Observability:
-- Structured JSON logs via `jsa.logging.setup_logging()`
-- Optional file logging with `JSA_LOG_FILE` env var (example: `JSA_LOG_FILE=data/logs/app.jsonl`)
+## Components
 
-Simplicity and Scope
-- This refactor intentionally keeps the new core small and focused (app factory, a few facades, CLI).
-- Legacy code remains intact. We avoid sweeping rewrites to keep iteration fast for a solo maintainer.
-- New work should prefer `jsa.*` modules for typed correctness while preserving existing behavior elsewhere.
+**Scrapers** (`sources/`)
+- Greenhouse, Lever, Reed, JobsWithGPT, JobSpy
+- Respect robots.txt, rate limits (exponential backoff)
+- Return normalized job objects (source, title, company, location, salary, URL, posted_at)
+
+**Scoring** (`matchers/`)
+- Multi-factor: skills 40%, salary 25%, location 20%, company 10%, recency 5%
+- Configurable weights in `config/user_prefs.json`
+- Scam detection: FBI IC3 + FTC + BBB patterns
+
+**Alerts** (`notify/`)
+- Slack incoming webhook (POST with job details)
+- Rate limiting to avoid hitting Slack limits
+
+**Storage** (`models/`, SQLite)
+- Jobs table: dedupe on (source, source_job_id)
+- Scores table: job_id foreign key, factor breakdown
+- ~1-5 MB per 1k jobs
+
+**Web UI** (`src/jsa/web/`, Flask)
+- Optional interface for config, job review, manual triggers
+- WCAG 2.2 AA compliant
+- Runs on `python -m jsa.cli web --port 5000`
+
+**CLI** (`src/jsa/cli.py`)
+- `run-once` — single scrape session
+- `config-validate` — check config syntax
+- `web` — start Flask dev server
+
+## Code structure
+
+**Typed core** (`src/jsa/`)
+- `jsa.web.app` — Flask app factory
+- `jsa.config` — typed config facade
+- `jsa.logging` — structured JSON logs
+- `jsa.db` — typed database facade
+
+**Legacy** (top-level dirs)
+- `sources/`, `matchers/`, `notify/`, `models/`, `utils/`
+- Gradually migrating to `src/jsa/`
+
+## Quality gates
+
+- `make fmt` — Black format
+- `make lint` — Ruff check
+- `make type` — mypy strict on `src/jsa/`
+- `make test` — pytest
+- `make cov` — 85% minimum coverage
