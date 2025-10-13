@@ -4,30 +4,25 @@ Private Job Scraper & Filter
 A robust, private job monitoring service that runs on your own machine.
 """
 
+import tomllib
 from pathlib import Path
 
-# Version management
-__version__ = "0.4.5"
 
-
-def get_version():
-    """Get the current version from VERSION file or fallback to __version__."""
+def get_version() -> str:
+    """Get the current version from pyproject.toml (single source of truth).
+    
+    Returns:
+        Version string from pyproject.toml, or 'unknown' on error.
+    """
     try:
-        # Look for VERSION file in project root
-        version_file = Path(__file__).parent.parent / "VERSION"
-        if version_file.exists():
-            return version_file.read_text().strip()
-    except OSError as e:
-        # Log specific file read errors
-        import logging
-
-        logging.getLogger(__name__).debug(f"Could not read VERSION file: {e}")
-    except Exception as e:
-        # Log unexpected errors but continue
-        import logging
-
-        logging.getLogger(__name__).warning(f"Unexpected error reading VERSION: {e}")
-    return __version__
+        # Read from pyproject.toml in project root
+        pyproject_path = Path(__file__).parent.parent / "pyproject.toml"
+        with open(pyproject_path, "rb") as f:
+            data = tomllib.load(f)
+        return data["project"]["version"]
+    except Exception:  # pragma: no cover - defensive fallback
+        return "unknown"
 
 
+# Version management
 __version__ = get_version()

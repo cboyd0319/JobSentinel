@@ -189,5 +189,5 @@ JobSentinel/
 ---
 
 **Status:** ✅ Complete
-**Version:** 0.5.0
+**Version:** 0.6.0
 **Date:** October 11, 2025

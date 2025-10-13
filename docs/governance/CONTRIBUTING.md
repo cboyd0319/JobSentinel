@@ -164,11 +164,50 @@ def scrape_jobs(source: str, config: dict[str, Any]) -> list[Job]:
 ## Releasing
 
 Maintainers only:
-1. Update `CHANGELOG.md` with release notes
-2. Bump version in `pyproject.toml`
-3. Tag with SemVer: `git tag v0.2.0 && git push --tags`
-4. GitHub Actions will build and publish artifacts
-5. Create GitHub Release with changelog excerpt
+
+### Version Management
+This project follows [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html):
+- **MAJOR** (X.0.0): Breaking API changes
+- **MINOR** (0.X.0): New features, backward compatible
+- **PATCH** (0.0.X): Bug fixes, backward compatible
+
+**Single Source of Truth:** Version is defined in `pyproject.toml` only. All code reads from this file via `tomllib`.
+
+### Release Process
+1. **Update CHANGELOG.md** with release notes:
+   - Move items from `[Unreleased]` to new `[X.Y.Z] - YYYY-MM-DD` section
+   - Add new empty `[Unreleased]` section at top
+   - Update comparison links at bottom
+   
+2. **Bump version in `pyproject.toml`**:
+   ```toml
+   version = "X.Y.Z"
+   ```
+
+3. **Commit version changes**:
+   ```bash
+   git add pyproject.toml CHANGELOG.md
+   git commit -m "chore: release version X.Y.Z"
+   ```
+
+4. **Create and push annotated tag** (SemVer format):
+   ```bash
+   git tag -a vX.Y.Z -m "Release version X.Y.Z"
+   git push origin main --tags
+   ```
+
+5. **Create GitHub Release**:
+   - Go to GitHub Releases page
+   - Click "Draft a new release"
+   - Select the tag you just created
+   - Title: "vX.Y.Z - Brief Description"
+   - Copy relevant section from CHANGELOG.md
+   - Publish release
+
+6. **Verify**:
+   - GitHub Actions will build and publish artifacts
+   - Check that version is correct in deployed artifacts
+   - Verify Docker images are tagged correctly
 
 ## Security
 

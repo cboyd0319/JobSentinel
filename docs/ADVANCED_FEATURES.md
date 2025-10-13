@@ -1,7 +1,7 @@
 # Advanced Features Guide
 
-**Version:** 0.5.0  
-**Last Updated:** October 12, 2025
+**Version:** 0.6.0  
+**Last Updated:** October 13, 2025
 
 This guide covers JobSentinel's advanced capabilities that make it the world's best job search automation tool.
 

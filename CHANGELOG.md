@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### 🚀 Standards & Compliance (NEW v0.6.1+)
+## [0.6.0] - 2025-10-13
+
+### 🚀 Standards & Compliance
 
 - **Expanded authoritative standards** from 30 to 39+ references
   - Added ISO/IEC 25010:2023 (software quality model - 8 characteristics)
@@ -228,8 +230,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Release Schedule
 
-- **v0.6.0** - Q1 2026 (Enhanced AI integration, GPT-4 cover letter generation)
-- **v0.7.0** - Q2 2026 (LinkedIn scraper, email digest)
+- **v0.7.0** - Q1 2026 (LinkedIn scraper, email digest, enhanced AI integration)
+- **v0.8.0** - Q2 2026 (GPT-4 cover letter generation, advanced analytics)
 - **v1.0.0** - Q3 2026 (Production ready, stable API, mobile app)
 
 ---
@@ -240,5 +242,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Discussions:** https://github.com/cboyd0319/JobSentinel/discussions
 - **Security:** See SECURITY.md for vulnerability reporting
 
-[Unreleased]: https://github.com/cboyd0319/JobSentinel/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/cboyd0319/JobSentinel/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/cboyd0319/JobSentinel/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/cboyd0319/JobSentinel/releases/tag/v0.5.0

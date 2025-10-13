@@ -1,7 +1,7 @@
 # Authoritative Standards & References
 
-**Version:** 0.6.1  
-**Date:** October 12, 2025  
+**Version:** 0.6.0  
+**Date:** October 13, 2025  
 **Purpose:** Comprehensive mapping of industry standards, specifications, and authoritative sources
 
 ---
@@ -1570,8 +1570,8 @@ JobSentinel is built on **45+ authoritative standards** from world-leading organ
 
 ---
 
-**Last Updated:** October 12, 2025  
-**Version:** 0.6.1+  
+**Last Updated:** October 13, 2025  
+**Version:** 0.6.0  
 **Next Review:** January 2026  
 **Standard Count:** 45+ (and growing)
 

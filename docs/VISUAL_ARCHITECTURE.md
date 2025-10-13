@@ -1,7 +1,7 @@
 # Visual Architecture Guide
 
-**Version:** 0.6.1  
-**Date:** October 12, 2025  
+**Version:** 0.6.0  
+**Date:** October 13, 2025  
 **Purpose:** Visual documentation of JobSentinel architecture and workflows
 
 ---
