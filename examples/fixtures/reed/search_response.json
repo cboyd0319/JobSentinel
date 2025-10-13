@@ -1,0 +1,34 @@
+{
+  "_comment": "Sample Reed.co.uk API response - captured 2024-01-15",
+  "results": [
+    {
+      "jobId": 54321098,
+      "employerId": 1001,
+      "employerName": "Tech Corp Ltd",
+      "jobTitle": "Python Developer",
+      "locationName": "London",
+      "minimumSalary": 60000,
+      "maximumSalary": 80000,
+      "currency": "GBP",
+      "expirationDate": "2024-02-15T00:00:00Z",
+      "date": "2024-01-10T09:00:00Z",
+      "jobDescription": "Exciting opportunity for a Python Developer to join our growing team. You'll work on backend services using Python, Django, and PostgreSQL.",
+      "jobUrl": "https://www.reed.co.uk/jobs/python-developer/54321098"
+    },
+    {
+      "jobId": 54321099,
+      "employerId": 1002,
+      "employerName": "FinTech Solutions",
+      "jobTitle": "Full Stack Engineer",
+      "locationName": "Manchester",
+      "minimumSalary": 55000,
+      "maximumSalary": 75000,
+      "currency": "GBP",
+      "expirationDate": "2024-02-20T00:00:00Z",
+      "date": "2024-01-12T14:30:00Z",
+      "jobDescription": "Join our FinTech team as a Full Stack Engineer. Work with React, Node.js, and AWS to build innovative financial products.",
+      "jobUrl": "https://www.reed.co.uk/jobs/full-stack-engineer/54321099"
+    }
+  ],
+  "totalResults": 2
+}

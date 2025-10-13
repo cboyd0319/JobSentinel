@@ -19,10 +19,58 @@ def _cmd_web(args: argparse.Namespace) -> int:
 
 
 def _cmd_config_validate(args: argparse.Namespace) -> int:
-    svc = ConfigService(config_path=Path(args.path))
-    prefs = svc.user_preferences()
-    print(f"Config OK. keywords_boost={len(prefs.keywords_boost)} digest_min_score={prefs.digest_min_score}")
-    return 0
+    import json
+    
+    config_path = Path(args.path)
+    schema_path = Path("config/user_prefs.schema.json")
+    
+    # Load and parse config file
+    try:
+        with open(config_path, encoding='utf-8') as f:
+            config_data = json.load(f)
+    except FileNotFoundError:
+        print(f"Error: Config file not found: {config_path}")
+        return 1
+    except json.JSONDecodeError as e:
+        print(f"Error: Invalid JSON in config file: {e}")
+        return 1
+    
+    # Validate against JSON schema if available
+    if schema_path.exists():
+        try:
+            import jsonschema
+            with open(schema_path, encoding='utf-8') as f:
+                schema = json.load(f)
+            
+            jsonschema.validate(instance=config_data, schema=schema)
+            print("✓ JSON Schema validation passed")
+        except ImportError:
+            print("Warning: jsonschema not installed, skipping schema validation")
+            print("Install with: pip install jsonschema")
+        except jsonschema.ValidationError as e:
+            print("Error: Schema validation failed")
+            print(f"  {e.message}")
+            if e.path:
+                print(f"  At: {'.'.join(str(p) for p in e.path)}")
+            return 1
+        except Exception as e:
+            print(f"Warning: Schema validation error: {e}")
+    else:
+        print(f"Warning: Schema file not found: {schema_path}")
+    
+    # Validate with ConfigService
+    try:
+        svc = ConfigService(config_path=config_path)
+        prefs = svc.user_preferences()
+        print("✓ Config loaded successfully")
+        print(f"  - Keywords boost: {len(prefs.keywords_boost)}")
+        print(f"  - Digest min score: {prefs.digest_min_score}")
+        print(f"  - Companies: {len(config_data.get('companies', []))}")
+        print(f"  - Title allowlist: {len(config_data.get('title_allowlist', []))}")
+        return 0
+    except Exception as e:
+        print(f"Error: Config validation failed: {e}")
+        return 1
 
 
 def _cmd_health(args: argparse.Namespace) -> int:
