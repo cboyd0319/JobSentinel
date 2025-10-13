@@ -200,6 +200,11 @@ See [issues](https://github.com/cboyd0319/JobSentinel/issues).
 - [ARCHITECTURE.md](docs/ARCHITECTURE.md) — System design
 - [API_SPECIFICATION.md](docs/API_SPECIFICATION.md) — REST API
 
+**Strategic Planning:**
+- [CAPABILITIES_GAP_ANALYSIS.md](docs/CAPABILITIES_GAP_ANALYSIS.md) — Roadmap to world's best job search tool
+- [EXECUTIVE_SUMMARY_GAP_ANALYSIS.md](docs/EXECUTIVE_SUMMARY_GAP_ANALYSIS.md) — Executive summary (2-page)
+- [COMPARISON.md](docs/COMPARISON.md) — vs AIHawk, Teal, Huntr, JobScan
+
 **Operations:**
 - [DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md) — Cloud setup
 - [SRE_RUNBOOK.md](docs/SRE_RUNBOOK.md) — Incident response

@@ -9,6 +9,7 @@
 ## 🆕 Latest Additions (v0.6.1+ - October 2025)
 
 **World-Class Enhancements:**
+- **[Capabilities Gap Analysis](CAPABILITIES_GAP_ANALYSIS.md)** - 🔥 **NEW:** 200+ feature evaluation vs 20+ competitors, roadmap to market leadership
 - **[Deep Analysis 2025](historical/DEEP_ANALYSIS_2025.md)** - 🆕 Comprehensive competitive analysis and roadmap
 - **[Missing Features Summary](MISSING_FEATURES_SUMMARY.md)** - 🆕 Quick wins and feature gaps vs competitors
 - **[Authoritative Standards](AUTHORITATIVE_STANDARDS.md)** - 🔥 39+ industry standards with full citations (expanded!)
@@ -75,6 +76,7 @@ New to JobSentinel? Start here:
 
 ## 🎯 Strategic Planning & Roadmap
 
+- **[CAPABILITIES_GAP_ANALYSIS.md](CAPABILITIES_GAP_ANALYSIS.md)** - 🔥 **NEW:** Comprehensive competitive analysis to make JobSentinel THE BEST job search tool
 - **[DEEP_ANALYSIS_2025.md](DEEP_ANALYSIS_2025.md)** - 🆕 Comprehensive competitive analysis with MCP research
 - **[MISSING_FEATURES_SUMMARY.md](MISSING_FEATURES_SUMMARY.md)** - 🆕 Feature gaps and quick wins (90-day plan)
 - **[AI_ML_ROADMAP.md](AI_ML_ROADMAP.md)** - AI/ML evolution from v0.6 to v1.0
