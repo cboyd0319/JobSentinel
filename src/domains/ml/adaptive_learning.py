@@ -204,7 +204,7 @@ class FeedbackCollector:
             return []
 
         feedback_list = []
-        with open(self.storage_path, "r") as f:
+        with open(self.storage_path) as f:
             for line in f:
                 data = json.loads(line.strip())
 
@@ -279,7 +279,7 @@ class PerformanceTracker:
         if not self.storage_path.exists():
             return
 
-        with open(self.storage_path, "r") as f:
+        with open(self.storage_path) as f:
             data = json.load(f)
 
         for version, metrics_data in data.items():

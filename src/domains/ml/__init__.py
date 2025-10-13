@@ -14,9 +14,9 @@ References:
 - Scikit-learn | https://scikit-learn.org | High | Classical ML algorithms
 """
 
+from .keyword_extractor import AdvancedKeywordExtractor, KeywordExtractionResult
 from .semantic_matcher import SemanticMatcher, SemanticMatchResult
 from .sentiment_analyzer import SentimentAnalyzer, SentimentResult
-from .keyword_extractor import AdvancedKeywordExtractor, KeywordExtractionResult
 
 __all__ = [
     "SemanticMatcher",
