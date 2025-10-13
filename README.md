@@ -22,7 +22,7 @@ Finding relevant jobs across multiple boards is manual and time-consuming. Comme
 
 ```bash
 git clone https://github.com/cboyd0319/JobSentinel && cd JobSentinel
-python3.11 -m venv .venv && source .venv/bin/activate  # Windows: .venv\Scripts\activate
+python3 -m venv .venv && source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -e .
 playwright install chromium
 cp config/user_prefs.example.json config/user_prefs.json
@@ -50,7 +50,7 @@ python3 scripts/install.py
 
 **Manual:**
 ```bash
-python3.11 -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -e .
 playwright install chromium
