@@ -6,7 +6,17 @@
 
 ---
 
-## 📚 Document Suite (4 Documents)
+## 📚 Document Suite (5 Documents)
+
+### 0. Overall Summary (START HERE)
+**File:** [CAPABILITIES_GAP_ANALYSIS_SUMMARY.md](CAPABILITIES_GAP_ANALYSIS_SUMMARY.md)  
+**Length:** <1 page (2 min read)  
+**Audience:** Everyone  
+**Purpose:** Project overview - what was done, key findings, next steps
+
+---
+
+## 📋 Detailed Documents (4 Documents)
 
 ### 1. Quick Reference (START HERE)
 **File:** [GAP_ANALYSIS_QUICK_REFERENCE.md](GAP_ANALYSIS_QUICK_REFERENCE.md)  
