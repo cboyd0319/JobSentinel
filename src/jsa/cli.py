@@ -26,7 +26,7 @@ def _cmd_config_validate(args: argparse.Namespace) -> int:
     
     # Load and parse config file
     try:
-        with open(config_path, 'r', encoding='utf-8') as f:
+        with open(config_path, encoding='utf-8') as f:
             config_data = json.load(f)
     except FileNotFoundError:
         print(f"Error: Config file not found: {config_path}")
@@ -39,16 +39,16 @@ def _cmd_config_validate(args: argparse.Namespace) -> int:
     if schema_path.exists():
         try:
             import jsonschema
-            with open(schema_path, 'r', encoding='utf-8') as f:
+            with open(schema_path, encoding='utf-8') as f:
                 schema = json.load(f)
             
             jsonschema.validate(instance=config_data, schema=schema)
-            print(f"✓ JSON Schema validation passed")
+            print("✓ JSON Schema validation passed")
         except ImportError:
             print("Warning: jsonschema not installed, skipping schema validation")
             print("Install with: pip install jsonschema")
         except jsonschema.ValidationError as e:
-            print(f"Error: Schema validation failed")
+            print("Error: Schema validation failed")
             print(f"  {e.message}")
             if e.path:
                 print(f"  At: {'.'.join(str(p) for p in e.path)}")
@@ -62,7 +62,7 @@ def _cmd_config_validate(args: argparse.Namespace) -> int:
     try:
         svc = ConfigService(config_path=config_path)
         prefs = svc.user_preferences()
-        print(f"✓ Config loaded successfully")
+        print("✓ Config loaded successfully")
         print(f"  - Keywords boost: {len(prefs.keywords_boost)}")
         print(f"  - Digest min score: {prefs.digest_min_score}")
         print(f"  - Companies: {len(config_data.get('companies', []))}")
