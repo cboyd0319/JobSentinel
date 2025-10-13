@@ -58,12 +58,48 @@ def _derive_sync_url(db_url: str) -> str:
 ASYNC_DATABASE_URL = DATABASE_URL
 SYNC_DATABASE_URL = _derive_sync_url(DATABASE_URL)
 
-async_engine = create_async_engine(ASYNC_DATABASE_URL, echo=False)
-sync_engine = create_engine(
-    SYNC_DATABASE_URL,
-    echo=False,
-    connect_args={"check_same_thread": False} if SYNC_DATABASE_URL.startswith("sqlite") else {},
-)
+# Connection pooling configuration (optimized for PostgreSQL, safe for SQLite)
+from sqlalchemy.pool import NullPool, QueuePool
+
+is_sqlite = ASYNC_DATABASE_URL.startswith("sqlite")
+
+# For PostgreSQL, enable connection pooling
+if not is_sqlite:
+    pool_size = int(os.getenv("DB_POOL_SIZE", "20"))
+    max_overflow = int(os.getenv("DB_POOL_MAX_OVERFLOW", "10"))
+    pool_pre_ping = os.getenv("DB_POOL_PRE_PING", "true").lower() == "true"
+
+    async_engine = create_async_engine(
+        ASYNC_DATABASE_URL,
+        echo=False,
+        poolclass=QueuePool,
+        pool_size=pool_size,
+        max_overflow=max_overflow,
+        pool_pre_ping=pool_pre_ping,
+    )
+
+    sync_engine = create_engine(
+        SYNC_DATABASE_URL,
+        echo=False,
+        poolclass=QueuePool,
+        pool_size=pool_size,
+        max_overflow=max_overflow,
+        pool_pre_ping=pool_pre_ping,
+    )
+else:
+    # For SQLite, use NullPool to avoid issues
+    async_engine = create_async_engine(
+        ASYNC_DATABASE_URL,
+        echo=False,
+        poolclass=NullPool,
+    )
+
+    sync_engine = create_engine(
+        SYNC_DATABASE_URL,
+        echo=False,
+        connect_args={"check_same_thread": False},
+        poolclass=NullPool,
+    )
 logger = get_logger("database")
 
 
