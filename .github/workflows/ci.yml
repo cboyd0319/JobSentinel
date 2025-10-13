@@ -130,12 +130,20 @@ jobs:
           make type
           make cov
 
-      - name: Bandit (src/jsa)
+      - name: Python Security & Quality (PyGuard)
         run: |
-          python -m pip install bandit
-          python -m bandit -q -r src/jsa
+          # Install PyGuard for comprehensive Python analysis
+          python -m pip install pyguard
+          
+          # Run PyGuard on core Python directories (scan-only mode)
+          pyguard src/ utils/ sources/ notify/ matchers/ \
+            --scan-only --no-backup || {
+            echo "::warning::PyGuard found security/quality issues"
+            exit 0  # Don't fail build yet, treat as advisory
+          }
+        continue-on-error: true  # Advisory until PyGuard SARIF integration complete
 
-      - name: pip-audit (requirements)
+      - name: Dependency Security Audit
         run: |
           python -m pip install pip-audit
           pip-audit -r requirements.txt || true

@@ -1,5 +1,5 @@
 ---
-name: Bandit and Safety to SARIF
+name: Security Scanning (PyGuard + Safety)
 
 "on":
   push:
@@ -32,13 +32,24 @@ jobs:
           python-version: "3.13"
           cache: pip
 
-      - name: Install Bandit (SARIF) and Safety (latest)
+      - name: Install Security Tools
         run: |
           set -euo pipefail
           python -m pip install --upgrade pip
-          pip install "bandit[sarif]" safety
+          pip install pyguard "bandit[sarif]" safety
 
-      - name: Bandit to SARIF
+      - name: PyGuard Security Analysis
+        run: |
+          set -euo pipefail
+          # Run PyGuard in security-only mode
+          pyguard src/ utils/ sources/ notify/ matchers/ \
+            --security-only --scan-only --no-backup || {
+            echo "::warning::PyGuard found security issues"
+            exit 0
+          }
+        continue-on-error: true
+
+      - name: Bandit SARIF (Backup)
         run: |
           set -euo pipefail
           TARGETS="$(git ls-files '*.py' \

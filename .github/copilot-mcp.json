@@ -15,7 +15,7 @@
       "description": "Enables web search capabilities through OpenAI. Use for finding current information about job boards, scraping techniques, Python libraries, security best practices, and emerging trends in job automation.",
       "type": "local",
       "command": "uvx",
-      "args": ["--from", "openai-websearch-mcp", "openai-websearch-mcp"],
+      "args": ["openai-websearch-mcp"],
       "env": {
         "OPENAI_API_KEY": "$COPILOT_MCP_OPENAI_API_KEY"
       },

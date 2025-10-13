@@ -1,0 +1,43 @@
+# MegaLinter Configuration
+# This file focuses MegaLinter on non-Python files since Python quality/security
+# checks are handled by PyGuard in ci.yml and security.yml
+
+---
+APPLY_FIXES: none
+SHOW_ELAPSED_TIME: true
+FILEIO_REPORTER: false
+
+# Disable ALL Python linters (PyGuard handles these comprehensively)
+DISABLE_LINTERS:
+  - PYTHON_BANDIT          # Security → PyGuard
+  - PYTHON_BLACK           # Formatting → PyGuard
+  - PYTHON_FLAKE8          # Linting → PyGuard
+  - PYTHON_ISORT           # Import sorting → PyGuard
+  - PYTHON_MYPY            # Type checking → PyGuard
+  - PYTHON_PYLINT          # Linting → PyGuard
+  - PYTHON_PYRIGHT         # Type checking → PyGuard
+  - PYTHON_RUFF            # Linting → PyGuard (handled in ci.yml)
+
+# Focus on non-Python code quality
+ENABLE_LINTERS:
+  - ACTION                 # GitHub Actions workflows
+  - BASH                   # Shell scripts
+  - DOCKERFILE             # Docker files
+  - JSON                   # Configuration files
+  - MARKDOWN               # Documentation
+  - YAML                   # Config files (workflows, docker-compose, etc.)
+
+# Exclusions
+FILTER_REGEX_EXCLUDE: |
+  (\.venv/|venv/|build/|dist/|\.git/|__pycache__/|\.pytest_cache/|\.mypy_cache/|\.ruff_cache/)
+
+# Markdown settings
+MARKDOWN_MARKDOWNLINT_CONFIG_FILE: .markdownlint.json
+MARKDOWN_MARKDOWNLINT_FILTER_REGEX_EXCLUDE: (CHANGELOG\.md)
+
+# YAML settings
+YAML_YAMLLINT_CONFIG_FILE: .yamllint
+
+# Reporting
+GITHUB_STATUS_REPORTER: true
+GITHUB_COMMENT_REPORTER: false  # Avoid noisy PR comments

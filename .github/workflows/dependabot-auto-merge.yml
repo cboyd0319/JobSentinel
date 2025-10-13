@@ -1,7 +1,7 @@
-name: Dependabot Auto-Approve and Merge
+name: Dependabot Auto-Merge
 
 on:
-  pull_request:
+  pull_request:  # Correct event for Dependabot automation (per official docs)
     types: [opened, synchronize, reopened]
 
 permissions:
@@ -16,25 +16,20 @@ jobs:
     steps:
       - name: Dependabot metadata
         id: metadata
-        uses: dependabot/fetch-metadata@v2
+        uses: dependabot/fetch-metadata@dbb049abf0d677abbd7f7eee0375145b417fdd34 # v2.2.0
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
 
-      - name: Auto-approve Dependabot PR
-        run: gh pr review --approve "$PR_URL"
-        env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Enable auto-merge for patch and minor updates
         # Auto-merge for patch and minor updates only
+        # Note: Approval handled by branch protection or repository settings
         if: |
           steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
           steps.metadata.outputs.update-type == 'version-update:semver-minor'
         run: gh pr merge --auto --squash "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Comment on major updates
         # Comment on major updates that require manual review
@@ -43,4 +38,4 @@ jobs:
           gh pr comment "$PR_URL" --body "⚠️ This is a **major version update** and requires manual review before merging."
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
