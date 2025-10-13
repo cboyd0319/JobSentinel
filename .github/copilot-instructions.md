@@ -87,31 +87,44 @@ make fmt && make lint && make type && make test
 
 ## Repo map (detailed structure)
 - `src/jsa/` — Core application code (v0.6+ refactored architecture)
-  - `cli.py` — Command-line interface with subcommands (run-once, web, config-validate)
-  - `config.py` — Configuration loading and validation
-  - `db.py` — Database abstraction layer
+  - `cli.py` — Command-line interface with subcommands (run-once, web, config-validate, health)
+  - `config.py` — Typed configuration facade wrapping legacy utils.config
+  - `db.py` — Database abstraction layer with typed facades
   - `health_check.py` — System health monitoring and diagnostics
-  - `logging.py` — Structured logging configuration
-  - `errors.py` — Custom exception classes
-  - `web/` — Flask-based web UI with blueprints
-  - `http/` — HTTP client utilities with rate limiting
-- `src/domains/` — Legacy domain models (being migrated to src/jsa)
-- `sources/` — Job board scrapers (Greenhouse, Lever, Reed, JobSpy, etc.)
+  - `logging.py` — Structured logging configuration (JSON format)
+  - `errors.py` — Custom exception classes with proper inheritance
+  - `tracker/` — Job tracking CRM with SQLModel (models.py, service.py, api.py)
+  - `web/` — Flask-based web UI with blueprints and WCAG 2.1 AA compliance
+  - `http/` — HTTP client utilities with rate limiting and circuit breakers
+- `src/domains/` — Domain-driven design modules (some legacy, some new)
+  - `ml/` — ML/AI capabilities (BERT, sentiment, semantic matching)
+  - `mcp_integration/` — Model Context Protocol clients (Context7, knowledge enhancement)
+  - `detection/` — Scam/ghost job detection with FBI IC3 patterns
+  - `ats/` — Applicant Tracking System parsing and optimization
+  - `autofix/` — Automated resume improvement suggestions
+  - `security.py` — Security utilities (OWASP ASVS compliant)
+  - `observability.py` — Metrics and monitoring
+- `sources/` — Job board scrapers with common base classes
+  - `job_scraper_base.py` — Abstract base with rate limiting, error handling
+  - `*_scraper.py` — Individual scrapers (Greenhouse, Lever, Reed, JobSpy, JobsWithGPT)
+  - `*_mcp_scraper.py` — MCP-based scrapers using subprocess communication
 - `matchers/` — Scoring algorithms and matching logic
-- `notify/` — Alert systems (Slack, email)
-- `models/` — Data models and schemas
-- `utils/` — Shared utilities and helpers
-- `config/` — User preferences, validation schemas, example configs
-- `templates/` — Slack/email message templates
-- `docker/` — Container images and compose files
-- `terraform/` — Infrastructure as code (GCP, AWS)
-- `examples/` — Runnable demos, fixtures, and integration tests
-- `tests/` — Comprehensive test suite
-  - `tests/unit_jsa/` — Tests for new core (src/jsa)
-  - `tests/integration/` — Integration tests
-  - Property-based tests with Hypothesis
-- `docs/` — Extensive documentation (40+ guides)
-- `scripts/` — Development and deployment utilities
+- `notify/` — Alert systems (Slack, email) with rate limiting
+- `models/` — Pydantic data models and SQLModel schemas
+- `utils/` — Shared utilities (config, logging, scraping, errors)
+- `extension/` — Browser extension for one-click job saving (Chrome/Firefox)
+- `config/` — User preferences, JSON schemas, skills taxonomy, resume parser config
+- `templates/` — Slack/email message templates + web UI Jinja2 templates
+- `docker/` — Multi-stage production containers with security scanning
+- `terraform/` — Infrastructure as code (GCP, AWS) with MCP server deployment
+- `examples/` — Runnable demos showcasing ML, MCP, detection, and autofix features
+- `tests/` — Comprehensive test suite (85%+ coverage)
+  - `tests/unit_jsa/` — Tests for new core (src/jsa) with strict typing
+  - `tests/unit/` — Legacy tests being migrated
+  - `tests/smoke/` — Quick smoke tests for CI
+  - Property-based tests with Hypothesis in test_properties.py
+- `docs/` — Extensive documentation (45+ guides, WCAG compliant)
+- `scripts/` — Development utilities (setup wizard, MCP validation, security scans)
 
 ## Tooling & commands
 - **CLI (jsa.cli):**
@@ -130,7 +143,14 @@ make fmt && make lint && make type && make test
   - `make cov` — Coverage report (85% minimum threshold)
   - `make security` — PyGuard security scan
   - `make mut` — Mutation testing (mutmut)
+  - `make analyze` — Run sample ATS analysis (examples/sample_resume.txt)
   - `make clean` — Remove caches and build artifacts
+  
+- **Scripts & Utilities:**
+  - `python scripts/setup_wizard.py` — Interactive setup for new users
+  - `python scripts/validate_mcp_config.py` — Validate MCP server configuration
+  - `python scripts/ats_cli.py scan --resume PATH` — Analyze resume ATS compatibility
+  - `python scripts/security_scan.py` — Enhanced security scanning
   
 - **Pre-commit hooks:**
   - `make precommit-install` — Install git hooks
@@ -139,6 +159,7 @@ make fmt && make lint && make type && make test
 - **Docker:**
   - `docker/` contains production-ready container images
   - Multi-stage builds with security scanning
+  - MCP development environment in `docker-compose.mcp.yml`
 
 > If a command here appears missing, prefer adding a small, well-documented CLI subcommand to `jsa.cli` rather than inventing new scripts.
 
@@ -283,15 +304,27 @@ JobSentinel integrates with MCP servers for enhanced AI capabilities:
 **Important:** GitHub MCP tools are built-in to Copilot. Do NOT add GitHub server to copilot-mcp.json. Personal Access Tokens (PAT) are NOT supported for GitHub MCP - it uses OAuth automatically.
 
 ## Good first tasks for Copilot Agent
-- Add a new public scraper (e.g., Workable) behind a feature flag.
-- Implement `ghost_job_score()` + unit tests and wire into the scoring pipeline.
-- Add `--dry-run` paths that emit what would be sent to Slack without posting.
-- Improve config validation with schema checking and helpful error messages.
-- Write golden-file tests for an existing scraper (recorded fixtures).
-- Add new industry profile to resume parser (see config/resume_parser.json).
-- Enhance scam detection with additional patterns.
-- Add new job board to sources/ following the scraper pattern.
-- Improve accessibility (WCAG 2.1 Level AA compliance for web UI).
+- Add a new public scraper (e.g., Workable) following `sources/job_scraper_base.py` pattern
+- Implement `ghost_job_score()` + unit tests in `src/domains/detection/` and wire into scoring pipeline
+- Add `--dry-run` paths that emit what would be sent to Slack without posting
+- Enhance the job tracker CRM (`src/jsa/tracker/`) with new status transitions or export formats
+- Add new industry profile to resume parser (see `config/resume_parser.json`)
+- Extend ML capabilities in `src/domains/ml/` (new semantic models, confidence scoring)
+- Enhance browser extension (`extension/`) with new job board support
+- Add new MCP server integration in `src/domains/mcp_integration/`
+- Improve accessibility (WCAG 2.1 AA compliance) in web UI templates
+- Write property-based tests using Hypothesis for core business logic
+- Add new autofix rules in `src/domains/autofix/` for resume optimization
+- Enhance security scanning in `scripts/security_scan.py` with new vulnerability patterns
+
+## Browser Extension Integration
+- **Location:** `extension/` directory
+- **Purpose:** One-click job saving from LinkedIn, Indeed, Glassdoor, Greenhouse, Lever
+- **Architecture:** Content scripts inject job extraction logic, popup communicates with local API
+- **API Integration:** Connects to `http://localhost:5000` (JobSentinel web UI/API)
+- **Permissions:** `activeTab`, `storage` only - minimal privacy footprint
+- **Manifest V3:** Modern Chrome/Firefox compatible extension format
+- **Installation:** Load unpacked from `extension/` directory in Chrome Developer Mode
 
 ## Documentation Resources
 Comprehensive documentation in `docs/`:
@@ -322,6 +355,44 @@ When helping with code changes, reference these docs for context.
   - Secrets in .env, never in code or logs
   - SQL injection prevention (SQLAlchemy ORM)
 
+## Key Architectural Patterns
+
+### Typed Facades Pattern (`src/jsa/`)
+New modules provide typed interfaces over legacy utilities:
+- `jsa.config.ConfigService` wraps `utils.config.ConfigManager` 
+- `jsa.db` provides typed database operations
+- `jsa.logging` standardizes structured logging
+- Pattern: Maintain backward compatibility while adding type safety
+
+### Domain-Driven Design (`src/domains/`)
+Organized by business capabilities, not technical layers:
+- `ml/` — Machine learning and AI features
+- `detection/` — Scam and quality detection
+- `mcp_integration/` — Model Context Protocol servers
+- `ats/` — Applicant Tracking System optimization
+- Each domain is self-contained with its own models and services
+
+### MCP Integration Pattern
+Model Context Protocol servers for external capabilities:
+- Use subprocess communication for isolation
+- Validate all MCP configs with `scripts/validate_mcp_config.py`
+- Standard client interface in `src/domains/mcp_integration/mcp_client.py`
+- Built-in GitHub MCP (no config needed), external servers in `.github/copilot-mcp.json`
+
+### Scraper Inheritance Hierarchy
+- `job_scraper_base.JobScraperBase` — Abstract base with common functionality
+- `api_based_scrapers.APIBasedScraper` — For REST APIs
+- `playwright_scraper.PlaywrightScraper` — For JS-heavy sites
+- MCP scrapers inherit from base but use subprocess communication
+- Always implement: `fetch_jobs()`, respect rate limits, handle errors gracefully
+
+### Testing Strategy
+- `tests/unit_jsa/` — Strictly typed tests for new core (`src/jsa`)
+- `tests/unit/` — Legacy tests being gradually migrated  
+- `tests/smoke/` — Fast integration tests for CI
+- Property-based testing with Hypothesis in `test_properties.py`
+- Mock all external services; use fixtures in `examples/fixtures/`
+
 ## Test Infrastructure
 - **Framework:** pytest with asyncio support
 - **Coverage:** 85% minimum (enforced in CI)
@@ -349,6 +420,14 @@ Automated checks on every PR and push to main/develop:
 7. **Concurrency control:** Cancel outdated runs automatically
 
 All checks must pass before merge. See `.github/workflows/` for details.
+
+### CI/CD Workflow Details
+- **Main CI:** `.github/workflows/python-qa.yml` - Comprehensive quality checks
+- **Dependabot Auto-merge:** `.github/workflows/dependabot-auto-merge.yml` - Auto-approve/merge safe dependency updates
+- **MegaLinter:** `.github/workflows/mega-linter.yml` - Multi-language linting
+- **Security:** Bandit, PyGuard, and dependency scanning with automated failure on critical issues
+- **Test Matrix:** Python 3.11, 3.12, 3.13 across Ubuntu/Windows/macOS
+- **Coverage Enforcement:** 85% minimum with fail-under threshold
 
 ## Review checklist (pull requests)
 - [ ] No secrets committed; `.env`/env-vars only.
