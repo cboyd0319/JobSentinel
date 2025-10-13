@@ -6,11 +6,11 @@ from __future__ import annotations
 
 import time
 from collections import defaultdict
+from collections.abc import Callable
 from functools import wraps
-from typing import Any, Callable
+from typing import Any
 
 from flask import Flask, jsonify, request
-
 
 # Simple in-memory rate limiting storage
 # For production, use Redis or similar distributed cache

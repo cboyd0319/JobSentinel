@@ -7,9 +7,10 @@ Provides API key-based authentication for REST endpoints.
 from __future__ import annotations
 
 import secrets
+from collections.abc import Callable
 from datetime import datetime
 from functools import wraps
-from typing import Callable, Optional
+from typing import Optional
 
 from flask import jsonify, request
 from sqlmodel import Field, Session, SQLModel, select
@@ -20,11 +21,11 @@ class APIKey(SQLModel, table=True):
 
     __tablename__ = "api_keys"
 
-    id: Optional[int] = Field(default=None, primary_key=True)
+    id: int | None = Field(default=None, primary_key=True)
     key: str = Field(unique=True, index=True)
     name: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
-    last_used_at: Optional[datetime] = None
+    last_used_at: datetime | None = None
     is_active: bool = True
 
 
@@ -59,7 +60,7 @@ def create_api_key(session: Session, name: str) -> APIKey:
     return key
 
 
-def verify_api_key(session: Session, key_str: str) -> Optional[APIKey]:
+def verify_api_key(session: Session, key_str: str) -> APIKey | None:
     """
     Verify an API key is valid and active.
 

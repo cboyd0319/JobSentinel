@@ -196,7 +196,7 @@ class TrackerService:
         statement = select(TrackedJob).order_by(TrackedJob.updated_at.desc())
         return list(self.session.exec(statement))
 
-    def get_by_id(self, tracked_job_id: int) -> Optional[TrackedJob]:
+    def get_by_id(self, tracked_job_id: int) -> TrackedJob | None:
         """
         Get a tracked job by ID.
 
@@ -212,10 +212,10 @@ class TrackerService:
         self,
         job_id: int,
         name: str,
-        email: Optional[str] = None,
-        phone: Optional[str] = None,
+        email: str | None = None,
+        phone: str | None = None,
         role: str = "recruiter",
-        linkedin_url: Optional[str] = None,
+        linkedin_url: str | None = None,
         notes: str = "",
     ) -> Contact:
         """

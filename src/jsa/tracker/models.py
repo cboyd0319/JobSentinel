@@ -33,7 +33,7 @@ class TrackedJob(SQLModel, table=True):
 
     __tablename__ = "tracked_jobs"
 
-    id: Optional[int] = Field(default=None, primary_key=True)
+    id: int | None = Field(default=None, primary_key=True)
     job_id: int = Field(index=True)  # References jobs.id but FK constraint optional for flexibility
     status: JobStatus = Field(default=JobStatus.BOOKMARKED, index=True)
     priority: int = Field(default=3, ge=0, le=5)  # 0-5 stars (0=none, 5=critical)
@@ -42,8 +42,8 @@ class TrackedJob(SQLModel, table=True):
     # Metadata
     added_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
-    applied_at: Optional[datetime] = None
-    interview_at: Optional[datetime] = None
+    applied_at: datetime | None = None
+    interview_at: datetime | None = None
 
 
 class Contact(SQLModel, table=True):
@@ -53,14 +53,14 @@ class Contact(SQLModel, table=True):
 
     __tablename__ = "contacts"
 
-    id: Optional[int] = Field(default=None, primary_key=True)
+    id: int | None = Field(default=None, primary_key=True)
     job_id: int = Field(foreign_key="tracked_jobs.id", index=True)
 
     name: str
-    email: Optional[str] = None
-    phone: Optional[str] = None
+    email: str | None = None
+    phone: str | None = None
     role: str = Field(default="recruiter")  # recruiter, hiring_manager, employee, other
-    linkedin_url: Optional[str] = None
+    linkedin_url: str | None = None
     notes: str = Field(default="")
 
     created_at: datetime = Field(default_factory=datetime.utcnow)
@@ -73,7 +73,7 @@ class Document(SQLModel, table=True):
 
     __tablename__ = "documents"
 
-    id: Optional[int] = Field(default=None, primary_key=True)
+    id: int | None = Field(default=None, primary_key=True)
     job_id: int = Field(foreign_key="tracked_jobs.id", index=True)
 
     filename: str
@@ -91,7 +91,7 @@ class Activity(SQLModel, table=True):
 
     __tablename__ = "activities"
 
-    id: Optional[int] = Field(default=None, primary_key=True)
+    id: int | None = Field(default=None, primary_key=True)
     job_id: int = Field(foreign_key="tracked_jobs.id", index=True)
 
     activity_type: str  # email_sent, interview_scheduled, offer_received, status_changed, etc.
