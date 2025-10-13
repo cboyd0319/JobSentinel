@@ -17,6 +17,8 @@ from pathlib import Path
 from flask import Flask, session
 
 from jsa.logging import get_logger, setup_logging
+from jsa.web.blueprints.api.v1.jobs import jobs_api_bp
+from jsa.web.blueprints.api.v1.tracker import tracker_api_bp
 from jsa.web.blueprints.main import bp as main_bp
 from jsa.web.blueprints.review import bp as review_bp
 from jsa.web.blueprints.skills import bp as skills_bp
@@ -77,6 +79,10 @@ def create_app() -> Flask:
     app.register_blueprint(skills_bp)
     app.register_blueprint(review_bp)
     app.register_blueprint(slack_bp)
+
+    # API Blueprints (v1)
+    app.register_blueprint(jobs_api_bp)
+    app.register_blueprint(tracker_api_bp)
 
     logger.info("Flask app created", component="web_ui")
     return app
