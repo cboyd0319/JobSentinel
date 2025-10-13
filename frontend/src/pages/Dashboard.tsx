@@ -110,7 +110,14 @@ function FeatureStatus({ name, available }: { name: string; available?: boolean 
   )
 }
 
-function LLMProviderStatus({ name, data }: { name: string; data?: any }) {
+interface LLMProviderData {
+  available: boolean
+  cost: string
+  privacy: string
+  setup?: string
+}
+
+function LLMProviderStatus({ name, data }: { name: string; data?: LLMProviderData }) {
   return (
     <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded">
       <div className="flex items-center justify-between mb-1">

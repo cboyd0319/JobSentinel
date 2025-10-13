@@ -338,7 +338,8 @@ async def llm_status() -> dict:
 
         client = OllamaClient(LLMConfig(provider=LLMProvider.OLLAMA))
         status["ollama"]["available"] = client.is_available()
-    except Exception:
+    except Exception:  # noqa: S110
+        # Ollama not available, status remains False
         pass
 
     return status
