@@ -118,6 +118,8 @@ const Toast: React.FC<ToastProps> = ({
   )
 }
 
+export default Toast
+
 export interface ToastContainerProps {
   toasts: Array<Omit<ToastProps, 'onClose'>>
   onClose: (id: string) => void
@@ -137,32 +139,4 @@ export const ToastContainer: React.FC<ToastContainerProps> = ({ toasts, onClose 
       ))}
     </div>
   )
-}
-
-// Hook for managing toasts
-export const useToast = () => {
-  const [toasts, setToasts] = useState<Array<Omit<ToastProps, 'onClose'>>>([])
-
-  const addToast = (
-    type: ToastType,
-    message: string,
-    duration?: number
-  ) => {
-    const id = `toast-${Date.now()}-${Math.random()}`
-    setToasts((prev) => [...prev, { id, type, message, duration }])
-  }
-
-  const removeToast = (id: string) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id))
-  }
-
-  return {
-    toasts,
-    addToast,
-    removeToast,
-    success: (message: string, duration?: number) => addToast('success', message, duration),
-    error: (message: string, duration?: number) => addToast('error', message, duration),
-    warning: (message: string, duration?: number) => addToast('warning', message, duration),
-    info: (message: string, duration?: number) => addToast('info', message, duration),
-  }
 }
