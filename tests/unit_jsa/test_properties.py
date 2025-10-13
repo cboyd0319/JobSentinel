@@ -228,7 +228,7 @@ class TestJobMatchingProperties:
         score = calculate_match_score(keywords)
         
         assert 0 <= score <= 100, f"Score {score} out of bounds"
-        assert isinstance(score, (int, float))
+        assert isinstance(score, int | float)
 
     @given(salary=st.integers(min_value=0, max_value=1000000))
     def test_salary_validation_non_negative(self, salary: int) -> None:

@@ -15,8 +15,8 @@ import re
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import Any, Optional
 from statistics import mean, median, stdev
+from typing import Any, Optional
 
 
 @dataclass
@@ -110,7 +110,7 @@ class JobInsight:
     top_skills: list[tuple[str, int]]
     top_companies: list[tuple[str, int]]
     location_distribution: dict[str, int]
-    salary_insights: Optional[SalaryInsight] = None
+    salary_insights: SalaryInsight | None = None
     trending_skills: list[MarketTrend] = field(default_factory=list)
     market_heat: float = 0.0
 
@@ -386,7 +386,7 @@ class JobIntelligenceEngine:
         
         return dict(skills_count)
     
-    def _extract_salary(self, job: dict) -> Optional[float]:
+    def _extract_salary(self, job: dict) -> float | None:
         """Extract salary from job posting."""
         # Try explicit fields first
         if "salary_min" in job and job["salary_min"]:

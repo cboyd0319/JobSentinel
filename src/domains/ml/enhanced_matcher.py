@@ -252,7 +252,7 @@ class EnhancedMatcher:
                 
                 # Find aligned terms (high in both)
                 aligned_terms = []
-                for i, (r_score, j_score) in enumerate(zip(resume_vec, job_vec)):
+                for i, (r_score, j_score) in enumerate(zip(resume_vec, job_vec, strict=False)):
                     if r_score > 0 and j_score > 0:
                         aligned_terms.append((feature_names[i], min(r_score, j_score)))
                 
@@ -261,7 +261,7 @@ class EnhancedMatcher:
                 
                 # Find gaps (high in job, low in resume)
                 gap_terms = []
-                for i, (r_score, j_score) in enumerate(zip(resume_vec, job_vec)):
+                for i, (r_score, j_score) in enumerate(zip(resume_vec, job_vec, strict=False)):
                     if j_score > 0.1 and r_score < 0.01:
                         gap_terms.append((feature_names[i], j_score))
                 

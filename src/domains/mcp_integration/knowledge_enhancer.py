@@ -286,7 +286,7 @@ class KnowledgeEnhancer:
                 metadata={"response_count": len(valid_responses)},
             )
 
-        except asyncio.TimeoutError:
+        except TimeoutError:
             logger.error(f"Query timeout after {request.max_wait}s")
             return None
         except Exception as e:

@@ -49,7 +49,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import List, Literal, Optional, Tuple
+from typing import Literal
 from urllib.parse import urlparse
 
 # ============================================================================
@@ -87,11 +87,11 @@ logger = logging.getLogger(__name__)
 # Helper Functions
 # ============================================================================
 
-def setup_logging(log_dir: Optional[Path] = None, verbose: bool = False) -> None:
+def setup_logging(log_dir: Path | None = None, verbose: bool = False) -> None:
     """Configure logging to both console and file."""
     level = logging.DEBUG if verbose else logging.INFO
     
-    handlers: List[logging.Handler] = [logging.StreamHandler(sys.stdout)]
+    handlers: list[logging.Handler] = [logging.StreamHandler(sys.stdout)]
     
     if log_dir:
         log_dir.mkdir(parents=True, exist_ok=True)
@@ -199,7 +199,7 @@ def setup_proxy() -> None:
 def download_with_verification(
     url: str,
     dest: Path,
-    expected_hash: Optional[str] = None,
+    expected_hash: str | None = None,
     retries: int = MAX_DOWNLOAD_RETRIES,
 ) -> bool:
     """Download file with SSL, retry logic, and optional checksum verification."""
@@ -228,9 +228,9 @@ def download_with_verification(
             context.verify_mode = ssl.CERT_REQUIRED
 
             # Download with timeout
-            req = urllib.request.Request(url, headers={"User-Agent": "JobSentinel-Installer/1.0"})
+            req = urllib.request.Request(url, headers={"User-Agent": "JobSentinel-Installer/1.0"})  # noqa: S310
 
-            with urllib.request.urlopen(req, timeout=DOWNLOAD_TIMEOUT, context=context) as response:
+            with urllib.request.urlopen(req, timeout=DOWNLOAD_TIMEOUT, context=context) as response:  # noqa: S310
                 data = response.read()
 
             # Verify checksum if provided
@@ -255,7 +255,7 @@ def download_with_verification(
             logger.info(f"✅ Downloaded {len(data) / (1024*1024):.1f}MB")
             return True
 
-        except (urllib.error.URLError, urllib.error.HTTPError, socket.timeout) as e:
+        except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError) as e:
             logger.warning(f"Download attempt {attempt + 1} failed: {e}")
             if attempt < retries - 1:
                 time.sleep(2**attempt)
@@ -295,21 +295,21 @@ def install_lock(lock_file: Path):
 
             try:
                 msvcrt.locking(fd.fileno(), msvcrt.LK_NBLCK, 1)
-            except OSError:
+            except OSError as e:
                 raise RuntimeError(
                     "Another installation is already running.\n"
                     f"If no other installation is active, delete: {lock_file}"
-                )
+                ) from e
         else:
             import fcntl
 
             try:
                 fcntl.flock(fd.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
-            except OSError:
+            except OSError as e:
                 raise RuntimeError(
                     "Another installation is already running.\n"
                     f"If no other installation is active, delete: {lock_file}"
-                )
+                ) from e
 
         yield
 
@@ -319,8 +319,8 @@ def install_lock(lock_file: Path):
         if lock_file.exists():
             try:
                 lock_file.unlink()
-            except Exception:
-                pass  # Best effort cleanup
+            except Exception as e:
+                logger.debug(f"Failed to remove lock file: {e}")  # Best effort cleanup
 
 
 # ============================================================================
@@ -337,7 +337,7 @@ class PlatformInfo:
     arch: str
     python_cmd: str = "python3"
     is_compatible: bool = False
-    issues: List[str] = field(default_factory=list)
+    issues: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -347,8 +347,8 @@ class InstallConfig:
     project_root: Path
     venv_path: Path
     mode: Literal["local", "ai-enhanced", "cloud"] = "local"
-    ai_provider: Optional[str] = None
-    cloud_provider: Optional[str] = None
+    ai_provider: str | None = None
+    cloud_provider: str | None = None
     skip_deps: bool = False
     dry_run: bool = False
     verbose: bool = False
@@ -359,8 +359,8 @@ class InstallationState:
     """Track installation state for rollback capability."""
 
     state_file: Path
-    completed_steps: List[str] = field(default_factory=list)
-    created_paths: List[Path] = field(default_factory=list)
+    completed_steps: list[str] = field(default_factory=list)
+    created_paths: list[Path] = field(default_factory=list)
 
     def mark_complete(self, step: str) -> None:
         """Mark a step as completed."""
@@ -398,8 +398,8 @@ class InstallationState:
         if not dry_run and self.state_file.exists():
             try:
                 self.state_file.unlink()
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(f"Failed to remove state file: {e}")
 
         logger.info("✅ Rollback complete")
 
@@ -444,7 +444,7 @@ class InstallationState:
 class UniversalInstaller:
     """Cross-platform Python installer for JobSentinel - Hardened Version."""
 
-    def __init__(self, project_root: Optional[Path] = None, config: Optional[InstallConfig] = None):
+    def __init__(self, project_root: Path | None = None, config: InstallConfig | None = None):
         self.project_root = project_root or Path(__file__).parent.parent
         self.platform = self._detect_platform()
         
@@ -580,7 +580,7 @@ class UniversalInstaller:
             for issue in self.platform.issues:
                 logger.warning(issue)
 
-    def check_python(self) -> Tuple[bool, Optional[Path]]:
+    def check_python(self) -> tuple[bool, Path | None]:
         """Check if Python 3.13+ is installed."""
         logger.info("🔍 Checking Python installation...")
 
@@ -593,7 +593,7 @@ class UniversalInstaller:
 
         for cmd in python_commands:
             try:
-                result = subprocess.run(
+                result = subprocess.run(  # noqa: S603
                     [*cmd.split(), "--version"],
                     capture_output=True,
                     text=True,
@@ -610,7 +610,7 @@ class UniversalInstaller:
                         if (major, minor) >= REQUIRED_PYTHON:
                             # Get full path
                             which_cmd = "where" if self.platform.os_name == "windows" else "which"
-                            path_result = subprocess.run(
+                            path_result = subprocess.run(  # noqa: S603
                                 [which_cmd, cmd.split()[0]],
                                 capture_output=True,
                                 text=True,
@@ -669,7 +669,7 @@ class UniversalInstaller:
             logger.info("IMPORTANT: Ensure 'Add Python to PATH' is checked!")
 
             # Run installer silently with default settings
-            subprocess.run(
+            subprocess.run(  # noqa: S603
                 [
                     str(installer_path),
                     "/quiet",
@@ -697,11 +697,11 @@ class UniversalInstaller:
 
         except subprocess.CalledProcessError as e:
             logger.error(f"Python installation failed: {e}")
-            logger.error(f"Please install manually from https://www.python.org/downloads/")
+            logger.error("Please install manually from https://www.python.org/downloads/")
             return False
-        except (OSError, IOError, urllib.error.URLError) as e:
+        except (OSError, urllib.error.URLError) as e:
             logger.error(f"Python installation failed: {e}")
-            logger.error(f"Please install manually from https://www.python.org/downloads/")
+            logger.error("Please install manually from https://www.python.org/downloads/")
             return False
         except KeyboardInterrupt:
             logger.info("\nInstallation cancelled by user")
@@ -943,7 +943,7 @@ class UniversalInstaller:
             self.state.mark_complete("configuration")
             return True
 
-        except (OSError, IOError) as e:
+        except OSError as e:
             logger.error(f"Configuration setup failed: {e}")
             return False
         except KeyboardInterrupt:
@@ -1043,7 +1043,7 @@ class UniversalInstaller:
             logger.warning(f"Could not set up Task Scheduler: {e}")
             logger.info("You can run manually: python -m jsa.cli")
             return True  # Non-critical
-        except (OSError, IOError) as e:
+        except OSError as e:
             logger.warning(f"Could not set up Task Scheduler: {e}")
             return True  # Non-critical
         except KeyboardInterrupt:
@@ -1128,10 +1128,10 @@ class UniversalInstaller:
             logger.warning(f"Could not set up launchd: {e}")
             logger.info("This may be due to System Integrity Protection.")
             logger.info("To enable manually:")
-            logger.info(f"1. Copy plist to ~/Library/LaunchAgents/")
-            logger.info(f"2. Run: launchctl load ~/Library/LaunchAgents/com.jobsentinel.automation.plist")
+            logger.info("1. Copy plist to ~/Library/LaunchAgents/")
+            logger.info("2. Run: launchctl load ~/Library/LaunchAgents/com.jobsentinel.automation.plist")
             return True  # Non-critical
-        except (OSError, IOError) as e:
+        except OSError as e:
             logger.warning(f"Could not set up launchd: {e}")
             return True  # Non-critical
         except KeyboardInterrupt:
@@ -1211,8 +1211,8 @@ class UniversalInstaller:
         logger.warning("⚠️  UNINSTALL MODE")
         logger.warning("This will remove:")
         logger.warning(f"  - Virtual environment: {self.config.venv_path}")
-        logger.warning(f"  - Automation tasks")
-        logger.warning(f"  - Installation state")
+        logger.warning("  - Automation tasks")
+        logger.warning("  - Installation state")
         logger.warning("\nYour configuration and data will be preserved.")
 
         if not confirm("\nContinue with uninstall?", default=False):

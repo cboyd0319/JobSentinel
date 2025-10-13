@@ -1,7 +1,7 @@
 # Convenience Makefile (Alpha)
 # Targets assume virtual environment is already active (or rely on `python` on PATH).
 
-.PHONY: help install dev test test-core test-fast test-all lint type analyze clean fmt cov mut
+.PHONY: help install dev test test-core test-fast test-all lint type analyze clean fmt cov mut security
 
 help:
 	@echo 'Common targets:'
@@ -16,6 +16,7 @@ help:
 	@echo '  make fmt         - Run black formatter'
 	@echo '  make cov         - Coverage for src/jsa (fail-under=85)'
 	@echo '  make mut         - Run mutation tests (if mutmut installed)'
+	@echo '  make security    - Run PyGuard security & quality checks'
 	@echo '  make analyze     - Run sample ATS analysis (examples/sample_resume.txt)' 
 	@echo '  make clean       - Remove caches/build artifacts'
 
@@ -55,6 +56,17 @@ mut:
 	  mutmut run --paths-to-mutate src/jsa --tests-dir tests; \
 	else \
 	  echo 'mutmut not installed; install with: pip install mutmut'; \
+	fi
+
+security:
+	@echo "Running PyGuard security scan..."
+	@if command -v pyguard >/dev/null 2>&1; then \
+	  for file in src/jsa/*.py; do \
+	    echo "Scanning $$file..."; \
+	    pyguard "$$file" --scan-only 2>&1 | grep -E "(Perfect|issues found|Security issues)" || true; \
+	  done; \
+	else \
+	  echo 'PyGuard not installed; install with: pip install pyguard'; \
 	fi
 
 analyze:

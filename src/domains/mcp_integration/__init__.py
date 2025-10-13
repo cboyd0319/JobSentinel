@@ -20,9 +20,9 @@ Security:
 - Rate limiting per server
 """
 
-from .mcp_client import MCPClient, MCPServerConfig, MCPTransport
 from .context7_client import Context7Client, Context7Query, Context7Response
 from .knowledge_enhancer import KnowledgeEnhancer, KnowledgeRequest, KnowledgeResponse
+from .mcp_client import MCPClient, MCPServerConfig, MCPTransport
 
 __all__ = [
     "MCPClient",
