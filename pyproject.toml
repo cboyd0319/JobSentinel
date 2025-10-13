@@ -16,7 +16,7 @@ dependencies = [
   "aiosqlite>=0.20,<0.22",
   "beautifulsoup4>=4.12,<5",
   "cryptography>=44.0.1,<47",
-  "Flask>=3.0,<3.1",
+  "Flask>=3.0,<3.2",
   "google-api-core>=2.14,<3",
   "google-auth>=2.23,<3",
   "google-cloud-scheduler>=2.13,<3",
@@ -30,7 +30,7 @@ dependencies = [
   "requests>=2.31,<3",
   "rich>=13.7,<15",
   "sqlalchemy>=2.0,<2.1",
-  "sqlmodel>=0.0.14,<0.0.26",
+  "sqlmodel>=0.0.14,<0.0.28",
   "tenacity>=9.0,<9.2",
 ]
 
@@ -66,8 +66,8 @@ dev = [
   "pytest-cov>=5,<6",
   "pytest-asyncio>=0.23,<0.26",
   "hypothesis>=6,<7",
-  "ruff>=0.6.9,<0.7",
-  "mypy>=1.11,<1.12",
+  "ruff>=0.6.9,<0.15",
+  "mypy>=1.11,<1.19",
   "types-requests",
   "types-python-dateutil",
   "bandit[toml]>=1.7,<2",
