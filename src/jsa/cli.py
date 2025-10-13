@@ -98,9 +98,20 @@ def _cmd_health_legacy(_: argparse.Namespace) -> int:
         return 1
 
 
+def _cmd_setup(_: argparse.Namespace) -> int:
+    """Run interactive setup wizard."""
+    from jsa.setup_wizard import run_wizard
+
+    run_wizard()
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="jsa", description="Job Search Automation CLI")
     sub = p.add_subparsers(dest="cmd", required=True)
+
+    p_setup = sub.add_parser("setup", help="Interactive setup wizard for first-time configuration")
+    p_setup.set_defaults(func=_cmd_setup)
 
     p_web = sub.add_parser("web", help="Run local web UI")
     p_web.add_argument("--port", type=int, default=5000)

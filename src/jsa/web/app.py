@@ -17,10 +17,20 @@ from pathlib import Path
 from flask import Flask, session
 
 from jsa.logging import get_logger, setup_logging
+
+try:
+    from flask_cors import CORS
+    HAS_CORS = True
+except ImportError:
+    HAS_CORS = False
+from jsa.web.blueprints.api.v1.jobs import jobs_api_bp
+from jsa.web.blueprints.api.v1.scores import scores_api_bp
+from jsa.web.blueprints.api.v1.tracker import tracker_api_bp
 from jsa.web.blueprints.main import bp as main_bp
 from jsa.web.blueprints.review import bp as review_bp
 from jsa.web.blueprints.skills import bp as skills_bp
 from jsa.web.blueprints.slack import bp as slack_bp
+from jsa.web.blueprints.tracker import tracker_bp
 
 
 def _load_or_create_secret(path: Path) -> bytes:
@@ -70,11 +80,32 @@ def create_app() -> Flask:
     # Jinja helpers
     app.jinja_env.globals["csrf_token"] = _generate_csrf_token
 
+    # CORS configuration for API endpoints (optional)
+    if HAS_CORS and os.getenv("ENABLE_CORS", "true").lower() == "true":
+        CORS(app, resources={
+            r"/api/*": {
+                "origins": os.getenv("CORS_ORIGINS", "http://localhost:*").split(","),
+                "methods": ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+                "allow_headers": ["Content-Type", "X-API-Key"],
+            }
+        })
+        logger.info("CORS enabled for API endpoints", component="web_ui")
+
+    # Rate limiting (simple implementation)
+    from jsa.web.middleware import setup_rate_limiting
+    setup_rate_limiting(app)
+
     # Blueprints
     app.register_blueprint(main_bp)
+    app.register_blueprint(tracker_bp)
     app.register_blueprint(skills_bp)
     app.register_blueprint(review_bp)
     app.register_blueprint(slack_bp)
+
+    # API Blueprints (v1)
+    app.register_blueprint(jobs_api_bp)
+    app.register_blueprint(tracker_api_bp)
+    app.register_blueprint(scores_api_bp)
 
     logger.info("Flask app created", component="web_ui")
     return app

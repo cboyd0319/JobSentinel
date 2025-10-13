@@ -1,0 +1,272 @@
+{% extends "base.html" %}
+
+{% block title %}Job Tracker{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+  <div class="col-12">
+    <h1 class="gradient-text">Job Tracker</h1>
+    <p class="text-muted">Manage your job applications with a Kanban-style board</p>
+  </div>
+</div>
+
+<div class="kanban-board" id="kanban-board">
+  {% for status in statuses %}
+    {% if status.value not in ['rejected', 'withdrawn'] %}
+      <div class="kanban-column" data-status="{{ status.value }}">
+        <div class="kanban-header">
+          <h5>{{ status.value.title() }}</h5>
+          <span class="badge bg-secondary">{{ jobs_by_status[status]|length }}</span>
+        </div>
+        
+        <div class="kanban-cards" 
+             ondrop="dropJob(event)" 
+             ondragover="allowDrop(event)"
+             data-status="{{ status.value }}">
+          
+          {% for job in jobs_by_status[status] %}
+            <div class="kanban-card" 
+                 draggable="true"
+                 ondragstart="dragStart(event)"
+                 data-job-id="{{ job.id }}">
+              
+              <div class="card-header d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                  <h6 class="card-title mb-1">{{ job.job.title if job.job else 'Unknown Title' }}</h6>
+                  <p class="card-subtitle text-muted mb-0">
+                    {{ job.job.company if job.job else 'Unknown Company' }}
+                  </p>
+                </div>
+                <div class="priority-stars">
+                  {% for i in range(5) %}
+                    <span class="star {% if i < job.priority %}active{% endif %}">★</span>
+                  {% endfor %}
+                </div>
+              </div>
+              
+              <div class="card-body">
+                {% if job.job and job.job.location %}
+                  <p class="card-text text-muted small">
+                    📍 {{ job.job.location }}
+                  </p>
+                {% endif %}
+                
+                {% if job.notes %}
+                  <p class="card-text small">
+                    {{ job.notes[:80] }}{% if job.notes|length > 80 %}...{% endif %}
+                  </p>
+                {% endif %}
+                
+                <div class="card-meta">
+                  <span class="text-muted small">
+                    Updated {{ job.updated_at.strftime('%b %d, %Y') }}
+                  </span>
+                </div>
+              </div>
+              
+              <div class="card-footer">
+                <a href="{{ url_for('tracker.job_detail', job_id=job.id) }}" 
+                   class="btn btn-sm btn-outline-primary">
+                  View Details →
+                </a>
+              </div>
+            </div>
+          {% else %}
+            <div class="empty-column text-center text-muted">
+              <p>No jobs in this stage</p>
+            </div>
+          {% endfor %}
+          
+        </div>
+      </div>
+    {% endif %}
+  {% endfor %}
+</div>
+
+<style>
+.kanban-board {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.kanban-column {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 1rem;
+  min-height: 500px;
+}
+
+.kanban-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.kanban-header h5 {
+  margin: 0;
+  font-weight: 600;
+}
+
+.kanban-cards {
+  min-height: 400px;
+}
+
+.kanban-card {
+  background-color: white;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  margin-bottom: 1rem;
+  cursor: move;
+  transition: all 0.2s;
+}
+
+.kanban-card:hover {
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+
+.kanban-card.dragging {
+  opacity: 0.5;
+}
+
+.card-header, .card-body, .card-footer {
+  padding: 0.75rem;
+}
+
+.card-header {
+  border-bottom: 1px solid #e9ecef;
+}
+
+.card-footer {
+  border-top: 1px solid #e9ecef;
+  background-color: #f8f9fa;
+}
+
+.card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #212529;
+}
+
+.card-subtitle {
+  font-size: 0.875rem;
+}
+
+.priority-stars {
+  display: flex;
+  gap: 2px;
+}
+
+.priority-stars .star {
+  color: #ddd;
+  font-size: 1rem;
+}
+
+.priority-stars .star.active {
+  color: #ffc107;
+}
+
+.empty-column {
+  padding: 3rem 1rem;
+  color: #6c757d;
+}
+
+@media (max-width: 768px) {
+  .kanban-board {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+
+<script>
+let draggedElement = null;
+
+function dragStart(event) {
+  draggedElement = event.target;
+  event.target.classList.add('dragging');
+  event.dataTransfer.effectAllowed = 'move';
+  event.dataTransfer.setData('text/html', event.target.innerHTML);
+}
+
+function allowDrop(event) {
+  event.preventDefault();
+  event.dataTransfer.dropEffect = 'move';
+}
+
+async function dropJob(event) {
+  event.preventDefault();
+  
+  if (!draggedElement) return;
+  
+  const jobId = draggedElement.getAttribute('data-job-id');
+  const targetColumn = event.target.closest('.kanban-cards');
+  
+  if (!targetColumn) return;
+  
+  const newStatus = targetColumn.getAttribute('data-status');
+  
+  draggedElement.classList.remove('dragging');
+  
+  try {
+    // Update status via API
+    const response = await fetch(`/tracker/api/job/${jobId}/status`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ status: newStatus })
+    });
+    
+    if (response.ok) {
+      // Move card to new column
+      targetColumn.appendChild(draggedElement);
+      
+      // Update column counts
+      updateColumnCounts();
+      
+      // Show success message
+      showToast('Job status updated successfully', 'success');
+    } else {
+      const error = await response.json();
+      showToast(`Failed to update: ${error.error}`, 'danger');
+    }
+  } catch (error) {
+    console.error('Error updating job status:', error);
+    showToast('Error updating job status', 'danger');
+  }
+  
+  draggedElement = null;
+}
+
+function updateColumnCounts() {
+  document.querySelectorAll('.kanban-column').forEach(column => {
+    const count = column.querySelectorAll('.kanban-card').length;
+    const badge = column.querySelector('.badge');
+    if (badge) {
+      badge.textContent = count;
+    }
+  });
+}
+
+function showToast(message, type = 'info') {
+  const toast = document.createElement('div');
+  toast.className = `alert alert-${type} alert-dismissible fade show`;
+  toast.setAttribute('role', 'alert');
+  toast.innerHTML = `
+    ${message}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  `;
+  
+  document.querySelector('main').insertBefore(toast, document.querySelector('main').firstChild);
+  
+  setTimeout(() => {
+    toast.remove();
+  }, 5000);
+}
+</script>
+{% endblock %}
