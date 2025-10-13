@@ -63,8 +63,18 @@ def create_app() -> FastAPI:
     )
 
     # Security middleware
+    from jsa.fastapi_app.middleware.input_validation import InputValidationMiddleware
     from jsa.fastapi_app.middleware.rate_limit import RateLimitMiddleware
+    from jsa.fastapi_app.middleware.request_id import RequestIDMiddleware
     from jsa.fastapi_app.middleware.security import SecurityHeadersMiddleware
+
+    # Request ID tracking (first, so it's available to all other middleware)
+    app.add_middleware(RequestIDMiddleware)
+
+    # Input validation (before processing requests)
+    input_validation_enabled = os.getenv("INPUT_VALIDATION_ENABLED", "true").lower() == "true"
+    app.add_middleware(InputValidationMiddleware, enabled=input_validation_enabled)
+    logger.info("Input validation enabled", enabled=input_validation_enabled, component="fastapi_app")
 
     # Add security headers
     app.add_middleware(SecurityHeadersMiddleware)

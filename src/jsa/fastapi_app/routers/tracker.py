@@ -52,8 +52,8 @@ class ApplicationResponse(BaseModel):
 
 @router.get("/tracker/applications", response_model=list[ApplicationResponse])
 async def list_applications(
-    status: JobStatus | None = Query(None, description="Filter by status"),
-    limit: int = Query(100, ge=1, le=500, description="Maximum results"),
+    status: JobStatus | None = Query(None, description="Filter by status"),  # noqa: B008
+    limit: int = Query(100, ge=1, le=500, description="Maximum results"),  # noqa: B008
 ) -> list[ApplicationResponse]:
     """List job applications with optional status filter."""
     with get_session_context() as session:

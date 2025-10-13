@@ -11,7 +11,6 @@ from typing import Any
 from fastapi import HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from pydantic import ValidationError
 
 from jsa.logging import get_logger
 
@@ -67,7 +66,7 @@ class ResourceNotFoundError(JobSentinelAPIError):
         )
 
 
-class ValidationError(JobSentinelAPIError):
+class InputValidationError(JobSentinelAPIError):
     """Request validation failed."""
 
     def __init__(self, detail: str, errors: list[dict[str, Any]] | None = None):
