@@ -21,6 +21,7 @@ from jsa.web.blueprints.main import bp as main_bp
 from jsa.web.blueprints.review import bp as review_bp
 from jsa.web.blueprints.skills import bp as skills_bp
 from jsa.web.blueprints.slack import bp as slack_bp
+from jsa.web.blueprints.tracker import tracker_bp
 
 
 def _load_or_create_secret(path: Path) -> bytes:
@@ -72,6 +73,7 @@ def create_app() -> Flask:
 
     # Blueprints
     app.register_blueprint(main_bp)
+    app.register_blueprint(tracker_bp)
     app.register_blueprint(skills_bp)
     app.register_blueprint(review_bp)
     app.register_blueprint(slack_bp)

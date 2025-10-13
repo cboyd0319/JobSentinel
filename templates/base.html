@@ -24,6 +24,9 @@
               <a class="nav-link" href="{{ url_for('main.index') }}">Dashboard</a>
             </li>
             <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('tracker.board') }}">Job Tracker</a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link" href="{{ url_for('skills.skills') }}">Skills</a>
             </li>
             <li class="nav-item">
@@ -69,6 +72,9 @@
             <ul class="list-unstyled">
               <li class="mb-2">
                 <a href="{{ url_for('main.index') }}" class="text-muted text-decoration-none">Dashboard</a>
+              </li>
+              <li class="mb-2">
+                <a href="{{ url_for('tracker.board') }}" class="text-muted text-decoration-none">Job Tracker</a>
               </li>
               <li class="mb-2">
                 <a href="{{ url_for('skills.skills') }}" class="text-muted text-decoration-none">Skills</a>

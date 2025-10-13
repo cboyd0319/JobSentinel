@@ -61,6 +61,10 @@ def open_session() -> Iterator[Session]:
         yield session
 
 
+# Alias for compatibility with tracker blueprint
+get_session_context = open_session
+
+
 def override_database_url_for_testing(db_url: str) -> None:
     """Override the legacy module's engines for test isolation.
 
@@ -81,5 +85,6 @@ __all__ = [
     "init_database",
     "get_stats_sync",
     "open_session",
+    "get_session_context",
     "override_database_url_for_testing",
 ]
