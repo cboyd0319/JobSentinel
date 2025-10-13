@@ -1,5 +1,14 @@
 ---
-name: Security Scanning (PyGuard + Safety)
+name: Security Scanning (PyGuard)
+
+# PyGuard replaced Bandit and Safety for unified security scanning
+# - Detects 20+ vulnerability categories (vs Bandit's ~10)
+# - Includes dependency scanning via Safety integration
+# - Generates SARIF output for GitHub Security tab
+# - Single tool = faster CI/CD and easier maintenance
+#
+# NOTE: This is the AUTHORITATIVE PyGuard scan with SARIF output
+# Do not add PyGuard to other workflows - it creates duplication
 
 "on":
   push:
@@ -18,7 +27,7 @@ permissions:
 jobs:
   security:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
 
     steps:
       - name: Checkout
@@ -32,150 +41,26 @@ jobs:
           python-version: "3.13"
           cache: pip
 
-      - name: Install Security Tools
+      - name: Install PyGuard
         run: |
           set -euo pipefail
           python -m pip install --upgrade pip
-          pip install pyguard "bandit[sarif]" safety
+          pip install pyguard
 
-      - name: PyGuard Security Analysis
+      - name: PyGuard Comprehensive Security Analysis
         run: |
           set -euo pipefail
-          # Run PyGuard in security-only mode
+          # Run PyGuard with SARIF output for GitHub Security tab
           pyguard src/ utils/ sources/ notify/ matchers/ \
-            --security-only --scan-only --no-backup || {
-            echo "::warning::PyGuard found security issues"
-            exit 0
-          }
-        continue-on-error: true
+            --security-only \
+            --scan-only \
+            --no-backup \
+            --sarif \
+            --no-html
 
-      - name: Bandit SARIF (Backup)
-        run: |
-          set -euo pipefail
-          TARGETS="$(git ls-files '*.py' \
-            | xargs -r -n1 dirname \
-            | sort -u \
-            | tr '\n' ' ')"
-          if [ -z "${TARGETS}" ]; then
-            TARGETS="."
-          fi
-          if ! bandit -r "${TARGETS}" -f sarif -o bandit.sarif; then
-            printf '%s\n' '{"version":"2.1.0","runs":[]}' > bandit.sarif
-          fi
-
-      - name: Upload Bandit SARIF
+      - name: Upload Security Results to GitHub
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: bandit.sarif
-          category: bandit
-
-      - name: Safety scan to JSON
-        run: |
-          set -euo pipefail
-          # Try with API key first if available, otherwise use free scan
-          if [ -n "${SAFETY_API_KEY:-}" ]; then
-            echo "Running Safety scan with API key"
-            safety --key "${SAFETY_API_KEY}" scan --output json > safety.json || true
-          else
-            echo "Running Safety scan without API key"
-            safety scan --output json > safety.json || true
-          fi
-        env:
-          SAFETY_API_KEY: ${{ secrets.SAFETY_API_KEY }}
-
-      - name: Convert Safety JSON to SARIF
-        run: |
-          set -euo pipefail
-          cat > safety_to_sarif.py <<'PY'
-          import hashlib
-          import json
-          import sys
-
-          def load_items():
-              try:
-                  with open("safety.json", "r", encoding="utf-8") as f:
-                      data = json.load(f)
-              except Exception:
-                  return []
-              if isinstance(data, dict):
-                  return (data.get("findings")
-                          or data.get("vulnerabilities") or [])
-              if isinstance(data, list):
-                  return data
-              return []
-
-          def sev_to_level(sev):
-              s = (sev or "").lower()
-              if s in ("critical", "high"):
-                  return "error"
-              if s in ("medium", "moderate"):
-                  return "warning"
-              return "note"
-
-          items = load_items()
-          rules = {}
-          results = []
-
-          for v in items:
-              pkg = (v.get("package_name") or v.get("package")
-                     or v.get("name") or "unknown")
-              ver = (v.get("affected_versions")
-                     or v.get("installed_version")
-                     or v.get("version") or "unknown")
-              msg = (v.get("advisory") or v.get("description")
-                     or v.get("message")
-                     or f"Vulnerability in {pkg} {ver}").strip()
-              cve = None
-              for k in ("cve", "cve_ids", "cve_id", "identifiers"):
-                  val = v.get(k)
-                  if val:
-                      cve = val[0] if isinstance(val, list) else val
-                      break
-              rid = (v.get("vuln_id") or v.get("id") or cve
-                     or "SAFETY-"
-                     + hashlib.sha1(
-                         (pkg + str(ver) + msg).encode("utf-8")
-                       ).hexdigest()[:8])
-
-              if rid not in rules:
-                  rules[rid] = {
-                      "id": str(rid),
-                      "name": cve or str(rid),
-                      "shortDescription": {"text": f"{pkg} {ver}"},
-                      "properties": {"tags": ["dependency", "security"]},
-                  }
-
-              results.append({
-                  "ruleId": str(rid),
-                  "level": sev_to_level(v.get("severity")),
-                  "message": {"text": msg},
-                  "locations": [{
-                      "physicalLocation": {
-                          "artifactLocation": {"uri": "requirements.txt"}
-                      }
-                  }],
-              })
-
-          sarif = {
-              "version": "2.1.0",
-              "runs": [{
-                  "tool": {"driver": {
-                      "name": "Safety",
-                      "rules": list(rules.values())
-                  }},
-                  "results": results,
-              }],
-          }
-
-          with open("safety.sarif", "w", encoding="utf-8") as f:
-              json.dump(sarif, f)
-          print(f"Wrote safety.sarif with {len(results)} findings",
-                file=sys.stderr)
-          PY
-          python safety_to_sarif.py
-
-      - name: Upload Safety SARIF
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: safety.sarif
-          category: safety
+          sarif_file: pyguard-report.sarif
+          category: pyguard
+        if: always()

@@ -1,7 +1,8 @@
 name: MegaLinter
 
 # This workflow provides comprehensive multi-language linting beyond Python-specific tools.
-# It's complementary to the CI workflow's ruff/black/mypy checks and runs on PRs for additional quality assurance.
+# It's complementary to CI workflow's ruff/mypy checks and security.yml's PyGuard scanning
+# Focuses on non-Python files: Bash, YAML, JSON, Markdown, GitHub Actions, Dockerfiles
 
 on:
   pull_request:

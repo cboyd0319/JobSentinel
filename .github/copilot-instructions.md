@@ -295,17 +295,17 @@ JobSentinel integrates with MCP servers for enhanced AI capabilities:
 
 ## Documentation Resources
 Comprehensive documentation in `docs/`:
-- **[DOCUMENTATION_INDEX.md](docs/DOCUMENTATION_INDEX.md)** — Central hub for all docs
-- **[BEST_PRACTICES.md](docs/BEST_PRACTICES.md)** — Production-grade coding patterns
-- **[API_INTEGRATION_GUIDE.md](docs/API_INTEGRATION_GUIDE.md)** — Add new job board integrations
-- **[DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md)** — Production deployment (AWS, GCP, Azure)
-- **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** — System design and data flow
-- **[AUTHORITATIVE_STANDARDS.md](docs/AUTHORITATIVE_STANDARDS.md)** — 39+ industry standards
-- **[AI_ML_ROADMAP.md](docs/AI_ML_ROADMAP.md)** — AI/ML vision (v0.6 to v1.0)
-- **[ACCESSIBILITY.md](docs/ACCESSIBILITY.md)** — WCAG 2.1 Level AA compliance
-- **[BEGINNER_GUIDE.md](docs/BEGINNER_GUIDE.md)** — Zero-knowledge terminal guide
-- **[SRE_RUNBOOK.md](docs/SRE_RUNBOOK.md)** — Incident response and operations
-- **[CONTRIBUTING.md](CONTRIBUTING.md)** — Dev setup and PR guidelines
+- **[DOCUMENTATION_INDEX.md](../docs/DOCUMENTATION_INDEX.md)** — Central hub for all docs
+- **[BEST_PRACTICES.md](../docs/BEST_PRACTICES.md)** — Production-grade coding patterns
+- **[API_INTEGRATION_GUIDE.md](../docs/API_INTEGRATION_GUIDE.md)** — Add new job board integrations
+- **[DEPLOYMENT_GUIDE.md](../docs/DEPLOYMENT_GUIDE.md)** — Production deployment (AWS, GCP, Azure)
+- **[ARCHITECTURE.md](../docs/ARCHITECTURE.md)** — System design and data flow
+- **[AUTHORITATIVE_STANDARDS.md](../docs/AUTHORITATIVE_STANDARDS.md)** — 39+ industry standards
+- **[AI_ML_ROADMAP.md](../docs/AI_ML_ROADMAP.md)** — AI/ML vision (v0.6 to v1.0)
+- **[ACCESSIBILITY.md](../docs/ACCESSIBILITY.md)** — WCAG 2.1 Level AA compliance
+- **[BEGINNER_GUIDE.md](../docs/BEGINNER_GUIDE.md)** — Zero-knowledge terminal guide
+- **[SRE_RUNBOOK.md](../docs/SRE_RUNBOOK.md)** — Incident response and operations
+- **[CONTRIBUTING.md](../CONTRIBUTING.md)** — Dev setup and PR guidelines
 
 When helping with code changes, reference these docs for context.
 

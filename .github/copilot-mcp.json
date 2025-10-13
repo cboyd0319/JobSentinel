@@ -1,5 +1,4 @@
 {
-  "$schema": "https://modelcontextprotocol.io/schema/copilot-mcp.json",
   "$comment": "NOTE: GitHub MCP server tools (repo operations, issues, PRs) are built-in to Copilot and do not need configuration here. The COPILOT_MCP_GITHUB_PERSONAL_ACCESS_TOKEN secret is NOT used for MCP - it's reserved for other GitHub API integrations. GitHub MCP uses OAuth through Copilot's built-in authentication.",
   "mcpServers": {
     "context7": {

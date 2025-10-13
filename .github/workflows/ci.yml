@@ -130,18 +130,9 @@ jobs:
           make type
           make cov
 
-      - name: Python Security & Quality (PyGuard)
-        run: |
-          # Install PyGuard for comprehensive Python analysis
-          python -m pip install pyguard
-          
-          # Run PyGuard on core Python directories (scan-only mode)
-          pyguard src/ utils/ sources/ notify/ matchers/ \
-            --scan-only --no-backup || {
-            echo "::warning::PyGuard found security/quality issues"
-            exit 0  # Don't fail build yet, treat as advisory
-          }
-        continue-on-error: true  # Advisory until PyGuard SARIF integration complete
+      # NOTE: PyGuard security scanning moved to security.yml workflow
+      # This eliminates duplication and provides SARIF output to GitHub Security tab
+      # See: .github/workflows/security.yml for comprehensive PyGuard analysis
 
       - name: Dependency Security Audit
         run: |
