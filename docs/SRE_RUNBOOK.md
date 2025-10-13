@@ -1,7 +1,7 @@
 # JobSentinel SRE Runbook
 
-**Version:** 0.5.0  
-**Last Updated:** October 12, 2025  
+**Version:** 0.6.0  
+**Last Updated:** October 13, 2025  
 **Audience:** Site Reliability Engineers, DevOps, On-call Engineers
 
 ---

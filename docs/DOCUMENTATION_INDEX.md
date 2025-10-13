@@ -255,14 +255,14 @@ JobSentinel/
 
 ## 📊 Project Status
 
-### Version: 0.5.0 (October 11, 2025)
+### Version: 0.6.0 (October 13, 2025)
 
 **Recent Changes:**
-- ✅ Universal Python 3.13+ deployment (Windows, macOS, Linux)
-- ✅ PowerShell legacy code removed
-- ✅ Documentation restructured and organized
-- ✅ Docker deployment streamlined
-- ✅ Development tools consolidated
+- ✅ Semantic versioning with single source of truth (pyproject.toml)
+- ✅ Git tags for v0.5.0 and v0.6.0 releases
+- ✅ Standards & Compliance documentation (39+ authoritative references)
+- ✅ Enhanced security features (OWASP ASVS Level 3)
+- ✅ Comprehensive AI/ML roadmap and accessibility guide
 
 **Platform Support:**
 - Windows 11+ with Python 3.13+

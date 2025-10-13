@@ -1,7 +1,7 @@
 # JobSentinel API Specification
 
-**Version:** 0.5.0  
-**Last Updated:** October 12, 2025
+**Version:** 0.6.0  
+**Last Updated:** October 13, 2025
 
 ## Overview
 
