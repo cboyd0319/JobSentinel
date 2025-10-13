@@ -255,9 +255,7 @@ def demo_keyword_extraction() -> None:
         # Extract from job description
         print_subsection("Extracting Keywords from Job Posting")
 
-        result = extractor.extract_keywords(
-            text=SAMPLE_JOB_GOOD, top_n=15, include_phrases=True
-        )
+        result = extractor.extract_keywords(text=SAMPLE_JOB_GOOD, top_n=15, include_phrases=True)
 
         print(f"📊 Top Keywords ({len(result.keywords)} total):")
         for keyword, score in result.keywords[:10]:
@@ -496,7 +494,9 @@ def demo_combined_analysis() -> None:
 
         print(f"\n💡 Recommendations:")
         if len(match.gaps) > 0:
-            print(f"   - Address skill gaps: {', '.join(g.split(': ')[1] if ': ' in g else g for g in match.gaps[:3])}")
+            print(
+                f"   - Address skill gaps: {', '.join(g.split(': ')[1] if ': ' in g else g for g in match.gaps[:3])}"
+            )
         if match.match_percentage < 70:
             print(f"   - Consider upskilling in identified gap areas")
         if len(tone.red_flags) == 0:

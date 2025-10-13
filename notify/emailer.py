@@ -66,9 +66,7 @@ def send_digest_email(jobs: list[dict]) -> bool:
         return True
 
     except smtplib.SMTPAuthenticationError:
-        logger.error(
-            "SMTP authentication failed - check SMTP_USER and SMTP_PASS credentials"
-        )
+        logger.error("SMTP authentication failed - check SMTP_USER and SMTP_PASS credentials")
         return False
     except smtplib.SMTPException as e:
         logger.error("SMTP error sending digest email: %s", e)
@@ -152,7 +150,7 @@ def test_email_config() -> bool:
         "company": "Test Company",
         "location": "Remote",
         "url": "https://example.com",
-        "score": 0.95
+        "score": 0.95,
     }
 
     logger.info("Sending test email...")

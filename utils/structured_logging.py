@@ -248,7 +248,9 @@ class StructuredLogger:
 
 
 @contextmanager
-def trace_context_manager(trace_id: str | None = None, operation: str | None = None) -> Generator[str, None, None]:
+def trace_context_manager(
+    trace_id: str | None = None, operation: str | None = None
+) -> Generator[str, None, None]:
     """Context manager for trace_id propagation."""
     # Generate trace_id if not provided
     if trace_id is None:

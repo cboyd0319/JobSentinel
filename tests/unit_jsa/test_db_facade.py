@@ -17,5 +17,6 @@ def test_db_facade_init_and_stats(tmp_path: Path):
 
     # Fetch stats; keys should exist with integer-like values
     stats = get_stats_sync()
-    assert set(["total_jobs", "recent_jobs_24h", "high_score_jobs", "last_updated"]).issubset(stats.keys())
-
+    assert set(["total_jobs", "recent_jobs_24h", "high_score_jobs", "last_updated"]).issubset(
+        stats.keys()
+    )

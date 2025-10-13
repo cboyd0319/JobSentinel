@@ -87,14 +87,14 @@ def get_terraform_download_url(version: str, os_type: str, arch: str) -> str:
     filename = f"terraform_{version}_{os_type}_{arch}.zip"
     return f"{base_url}/{version}/{filename}"
 
+
 async def fetch_terraform_checksums(version: str, logger) -> dict[str, str]:
     """Download and cache Terraform SHA256 sums for the requested version."""
     if version in _CHECKSUM_CACHE:
         return _CHECKSUM_CACHE[version]
 
     checksum_url = (
-        f"https://releases.hashicorp.com/terraform/{version}/"
-        f"terraform_{version}_SHA256SUMS"
+        f"https://releases.hashicorp.com/terraform/{version}/" f"terraform_{version}_SHA256SUMS"
     )
 
     # Security: enforce https scheme explicitly to satisfy S310
@@ -106,6 +106,7 @@ async def fetch_terraform_checksums(version: str, logger) -> dict[str, str]:
     logger.debug(f"Fetching Terraform checksums from {checksum_url}")
 
     try:
+
         def _download() -> str:
             import urllib.request
 
@@ -125,16 +126,13 @@ async def fetch_terraform_checksums(version: str, logger) -> dict[str, str]:
         if len(parts) != 2:
             continue
         checksum, filename = parts
-        if not filename.startswith(prefix) or not filename.endswith('.zip'):
+        if not filename.startswith(prefix) or not filename.endswith(".zip"):
             continue
-        platform = filename[len(prefix):-4]  # strip prefix and .zip
+        platform = filename[len(prefix) : -4]  # strip prefix and .zip
         checksums[platform] = checksum
 
     _CHECKSUM_CACHE[version] = checksums
     return checksums
-
-
-
 
 
 def verify_checksum(file_path: Path, expected_checksum: str) -> bool:
@@ -200,7 +198,7 @@ def extract_terraform(zip_path: Path, install_dir: Path) -> Path:
     Returns:
         Path to extracted terraform binary.
     """
-    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+    with zipfile.ZipFile(zip_path, "r") as zip_ref:
         zip_ref.extractall(install_dir)
 
     # Find terraform binary
@@ -214,7 +212,9 @@ def extract_terraform(zip_path: Path, install_dir: Path) -> Path:
 
     # Make executable on Unix
     if sys.platform != "win32":
-        terraform_bin.chmod(terraform_bin.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+        terraform_bin.chmod(
+            terraform_bin.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
+        )
 
     return terraform_bin
 
@@ -257,6 +257,7 @@ async def check_terraform_installed(logger) -> Path | None:
             )
 
             import json
+
             version_info = json.loads(result.stdout)
             version = version_info.get("terraform_version", "unknown")
 
@@ -328,9 +329,7 @@ async def ensure_terraform(logger, force_install: bool = False) -> Path:
         temp_path = Path(temp_dir)
 
         try:
-            zip_path = await download_terraform(
-                logger, TERRAFORM_VERSION, os_type, arch, temp_path
-            )
+            zip_path = await download_terraform(logger, TERRAFORM_VERSION, os_type, arch, temp_path)
 
             checksums = await fetch_terraform_checksums(TERRAFORM_VERSION, logger)
             platform_key = f"{os_type}_{arch}"
@@ -349,7 +348,9 @@ async def ensure_terraform(logger, force_install: bool = False) -> Path:
 
         except Exception as e:
             logger.error(f"Failed to install Terraform: {e}")
-            logger.error("Please install Terraform manually: https://developer.hashicorp.com/terraform/install")
+            logger.error(
+                "Please install Terraform manually: https://developer.hashicorp.com/terraform/install"
+            )
             raise RuntimeError(f"Terraform installation failed: {e}") from e
 
     # Add to PATH

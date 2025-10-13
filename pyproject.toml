@@ -7,7 +7,7 @@ name = "JobSentinel"
 version = "0.6.0"
 description = "The World's Best Job Search Automation with AI/ML and MCP Integration"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.11"
 license = {text = "MIT"}
 authors = [{ name = "Project Author", email = "noreply@users.noreply.github.com" }]
 dependencies = [
@@ -90,11 +90,11 @@ include = [
 
 [tool.black]
 line-length = 100
-target-version = ["py313"]
+target-version = ["py311"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py313"
+target-version = "py311"
 src = ["src"]
 
 [tool.ruff.lint]
@@ -114,7 +114,7 @@ ignore = [
 "src/jsa/cli.py" = ["I001"]
 
 [tool.mypy]
-python_version = "3.13"
+python_version = "3.11"
 strict = true
 warn_redundant_casts = true
 warn_unused_ignores = true

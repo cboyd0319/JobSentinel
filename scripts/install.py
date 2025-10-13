@@ -6,7 +6,7 @@ Cross-platform installation for Windows 11, macOS 15+, Ubuntu 22.04+
 Security Features:
 - SSL verification with certificate checking
 - SHA256 checksum validation for downloads
-- XML injection prevention  
+- XML injection prevention
 - Subprocess security (no shell=True)
 - Input validation
 
@@ -58,13 +58,13 @@ from urllib.parse import urlparse
 
 REQUIRED_PYTHON = (3, 13)
 PYTHON_VERSION = "3.13.8"
-PYTHON_WINDOWS_URL = f"https://www.python.org/ftp/python/{PYTHON_VERSION}/python-{PYTHON_VERSION}-amd64.exe"
+PYTHON_WINDOWS_URL = (
+    f"https://www.python.org/ftp/python/{PYTHON_VERSION}/python-{PYTHON_VERSION}-amd64.exe"
+)
 
 # Python installer SHA256 checksums
 # TODO: Get actual checksums from https://www.python.org/downloads/release/python-3138/
-PYTHON_CHECKSUMS = {
-    "3.13.8-amd64": None  # Set to None to skip verification (will warn user)
-}
+PYTHON_CHECKSUMS = {"3.13.8-amd64": None}  # Set to None to skip verification (will warn user)
 
 # Timeouts (configurable via environment)
 DEFAULT_TIMEOUT = int(os.environ.get("INSTALL_TIMEOUT_CMD", "10"))
@@ -87,24 +87,23 @@ logger = logging.getLogger(__name__)
 # Helper Functions
 # ============================================================================
 
+
 def setup_logging(log_dir: Path | None = None, verbose: bool = False) -> None:
     """Configure logging to both console and file."""
     level = logging.DEBUG if verbose else logging.INFO
-    
+
     handlers: list[logging.Handler] = [logging.StreamHandler(sys.stdout)]
-    
+
     if log_dir:
         log_dir.mkdir(parents=True, exist_ok=True)
         log_file = log_dir / f"install_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
         handlers.append(logging.FileHandler(log_file))
         print(f"📝 Logging to: {log_file}")
-    
+
     logging.basicConfig(
         level=level,
         format=(
-            "%(asctime)s - %(levelname)s - %(message)s"
-            if log_dir
-            else "%(levelname)s: %(message)s"
+            "%(asctime)s - %(levelname)s - %(message)s" if log_dir else "%(levelname)s: %(message)s"
         ),
         handlers=handlers,
         force=True,
@@ -228,9 +227,13 @@ def download_with_verification(
             context.verify_mode = ssl.CERT_REQUIRED
 
             # Download with timeout
-            req = urllib.request.Request(url, headers={"User-Agent": "JobSentinel-Installer/1.0"})  # noqa: S310
+            req = urllib.request.Request(
+                url, headers={"User-Agent": "JobSentinel-Installer/1.0"}
+            )  # noqa: S310
 
-            with urllib.request.urlopen(req, timeout=DOWNLOAD_TIMEOUT, context=context) as response:  # noqa: S310
+            with urllib.request.urlopen(
+                req, timeout=DOWNLOAD_TIMEOUT, context=context
+            ) as response:  # noqa: S310
                 data = response.read()
 
             # Verify checksum if provided
@@ -447,14 +450,14 @@ class UniversalInstaller:
     def __init__(self, project_root: Path | None = None, config: InstallConfig | None = None):
         self.project_root = project_root or Path(__file__).parent.parent
         self.platform = self._detect_platform()
-        
+
         if config:
             self.config = config
         else:
             self.config = InstallConfig(
                 project_root=self.project_root, venv_path=self.project_root / ".venv"
             )
-        
+
         self.state = InstallationState.load(self.project_root / ".install_state.json")
 
     def _detect_platform(self) -> PlatformInfo:
@@ -471,7 +474,7 @@ class UniversalInstaller:
                 major = int(parts[0])
                 minor = int(parts[1]) if len(parts) > 1 else 0
                 build = int(parts[2]) if len(parts) > 2 else 0
-                
+
                 is_win11 = major >= 10 and build >= WINDOWS_MIN_BUILD
                 is_compatible = is_win11
                 issues = [] if is_win11 else [f"Windows 11 (build {WINDOWS_MIN_BUILD}+) required"]
@@ -485,11 +488,7 @@ class UniversalInstaller:
             try:
                 darwin_major = int(version.split(".")[0])
                 is_compatible = darwin_major >= MACOS_MIN_DARWIN
-                issues = (
-                    []
-                    if is_compatible
-                    else ["macOS 15 (Sequoia) or later required"]
-                )
+                issues = [] if is_compatible else ["macOS 15 (Sequoia) or later required"]
             except (ValueError, IndexError):
                 is_compatible = False
                 issues = ["Could not detect macOS version"]
@@ -513,7 +512,7 @@ class UniversalInstaller:
                         parts = version_id.split(".")
                         major = int(parts[0])
                         minor = int(parts[1]) if len(parts) > 1 else 0
-                        
+
                         # Ubuntu 22.04 or later
                         is_compatible = major > UBUNTU_MIN_VERSION[0] or (
                             major == UBUNTU_MIN_VERSION[0] and minor >= UBUNTU_MIN_VERSION[1]
@@ -521,7 +520,9 @@ class UniversalInstaller:
                         issues = (
                             []
                             if is_compatible
-                            else [f"Ubuntu {UBUNTU_MIN_VERSION[0]}.{UBUNTU_MIN_VERSION[1]:02d}+ required (found {version_id})"]
+                            else [
+                                f"Ubuntu {UBUNTU_MIN_VERSION[0]}.{UBUNTU_MIN_VERSION[1]:02d}+ required (found {version_id})"
+                            ]
                         )
                     except (ValueError, IndexError):
                         is_compatible = False
@@ -635,11 +636,11 @@ class UniversalInstaller:
     def install_python_windows(self) -> bool:
         """Install Python on Windows with security."""
         logger.info(f"Python {PYTHON_VERSION} installation required for Windows...")
-        
+
         if self.config.dry_run:
             logger.info(f"[DRY RUN] Would download and install Python {PYTHON_VERSION}")
             return True
-        
+
         if not confirm(f"Download and install Python {PYTHON_VERSION}?", default=False):
             logger.info("Installation cancelled by user")
             return False
@@ -710,7 +711,7 @@ class UniversalInstaller:
     def install_python_macos(self) -> bool:
         """Install Python on macOS via Homebrew."""
         logger.info("Python 3.13+ installation required for macOS...")
-        
+
         if self.config.dry_run:
             logger.info("[DRY RUN] Would install Python 3.13 via Homebrew")
             return True
@@ -725,9 +726,7 @@ class UniversalInstaller:
 
         logger.info("Installing Python 3.13 via Homebrew...")
         try:
-            subprocess.run(
-                ["brew", "install", "python@3.13"], check=True, timeout=DOWNLOAD_TIMEOUT
-            )
+            subprocess.run(["brew", "install", "python@3.13"], check=True, timeout=DOWNLOAD_TIMEOUT)
             logger.info("✅ Python 3.13 installed via Homebrew")
             return True
         except subprocess.CalledProcessError as e:
@@ -743,11 +742,11 @@ class UniversalInstaller:
     def install_python_linux(self) -> bool:
         """Install Python on Linux via package manager."""
         logger.info("Python 3.13+ installation required for Linux...")
-        
+
         if self.config.dry_run:
             logger.info("[DRY RUN] Would install Python 3.13 via apt")
             return True
-        
+
         logger.info("Installing via apt (Ubuntu/Debian)...")
 
         try:
@@ -802,7 +801,7 @@ class UniversalInstaller:
     def create_venv(self, python_path: Path) -> bool:
         """Create virtual environment."""
         logger.info("📦 Creating virtual environment...")
-        
+
         if self.config.dry_run:
             logger.info(f"[DRY RUN] Would create venv at: {self.config.venv_path}")
             return True
@@ -817,7 +816,7 @@ class UniversalInstaller:
                 check=True,
                 timeout=DOWNLOAD_TIMEOUT,
             )
-            
+
             self.state.add_created_path(self.config.venv_path)
             logger.info("✅ Virtual environment created")
             return True
@@ -842,7 +841,7 @@ class UniversalInstaller:
     def install_dependencies(self) -> bool:
         """Install Python dependencies."""
         logger.info("📚 Installing dependencies...")
-        
+
         if self.config.dry_run:
             logger.info("[DRY RUN] Would install dependencies from pyproject.toml")
             return True
@@ -896,7 +895,7 @@ class UniversalInstaller:
     def setup_config(self) -> bool:
         """Set up configuration files."""
         logger.info("⚙️  Setting up configuration...")
-        
+
         if self.config.dry_run:
             logger.info("[DRY RUN] Would set up configuration files")
             return True
@@ -932,10 +931,10 @@ class UniversalInstaller:
             # Create data directories
             log_dir = self.project_root / "data" / "logs"
             backup_dir = self.project_root / "data" / "backups"
-            
+
             log_dir.mkdir(parents=True, exist_ok=True)
             backup_dir.mkdir(parents=True, exist_ok=True)
-            
+
             if not (self.project_root / "data").exists():
                 self.state.add_created_path(self.project_root / "data")
 
@@ -953,14 +952,14 @@ class UniversalInstaller:
     def setup_automation_windows(self) -> bool:
         """Set up Windows Task Scheduler automation with XML escaping."""
         logger.info("📅 Setting up Windows Task Scheduler...")
-        
+
         if self.config.dry_run:
             logger.info("[DRY RUN] Would create Windows Task Scheduler task")
             return True
 
         venv_python = self.get_venv_python()
         script_path = self.project_root / "src" / "agent.py"
-        
+
         # Validate script exists
         if not script_path.exists():
             logger.warning(f"Script not found: {script_path}")
@@ -1053,14 +1052,14 @@ class UniversalInstaller:
     def setup_automation_macos(self) -> bool:
         """Set up macOS launchd automation with SIP awareness."""
         logger.info("📅 Setting up macOS launchd automation...")
-        
+
         if self.config.dry_run:
             logger.info("[DRY RUN] Would create launchd plist")
             return True
 
         venv_python = self.get_venv_python()
         script_path = self.project_root / "src" / "agent.py"
-        
+
         # Validate script exists
         if not script_path.exists():
             logger.warning(f"Script not found: {script_path}")
@@ -1129,7 +1128,9 @@ class UniversalInstaller:
             logger.info("This may be due to System Integrity Protection.")
             logger.info("To enable manually:")
             logger.info("1. Copy plist to ~/Library/LaunchAgents/")
-            logger.info("2. Run: launchctl load ~/Library/LaunchAgents/com.jobsentinel.automation.plist")
+            logger.info(
+                "2. Run: launchctl load ~/Library/LaunchAgents/com.jobsentinel.automation.plist"
+            )
             return True  # Non-critical
         except OSError as e:
             logger.warning(f"Could not set up launchd: {e}")
@@ -1145,7 +1146,7 @@ class UniversalInstaller:
         venv_python = self.get_venv_python()
         script_path = self.project_root / "src" / "agent.py"
         log_dir = self.project_root / "data" / "logs"
-        
+
         # Validate script exists
         if not script_path.exists():
             logger.warning(f"Script not found: {script_path}")
@@ -1166,7 +1167,7 @@ class UniversalInstaller:
     def run_tests(self) -> bool:
         """Run basic tests to verify installation."""
         logger.info("🧪 Running installation verification tests...")
-        
+
         if self.config.dry_run:
             logger.info("[DRY RUN] Would run verification tests")
             return True
@@ -1279,7 +1280,7 @@ class UniversalInstaller:
             logger.info("=" * 70)
             logger.info("Step 1/6: Python Installation")
             logger.info("=" * 70)
-            
+
             python_found, python_path = self.check_python()
 
             if not python_found:
@@ -1308,7 +1309,7 @@ class UniversalInstaller:
             logger.info("\n" + "=" * 70)
             logger.info("Step 2/6: Virtual Environment")
             logger.info("=" * 70)
-            
+
             if not self.create_venv(python_path):
                 return False
 
@@ -1317,7 +1318,7 @@ class UniversalInstaller:
                 logger.info("\n" + "=" * 70)
                 logger.info("Step 3/6: Dependencies")
                 logger.info("=" * 70)
-                
+
                 if not self.install_dependencies():
                     return False
             else:
@@ -1327,7 +1328,7 @@ class UniversalInstaller:
             logger.info("\n" + "=" * 70)
             logger.info("Step 4/6: Configuration")
             logger.info("=" * 70)
-            
+
             if not self.setup_config():
                 return False
 
@@ -1335,7 +1336,7 @@ class UniversalInstaller:
             logger.info("\n" + "=" * 70)
             logger.info("Step 5/6: Automation")
             logger.info("=" * 70)
-            
+
             if self.platform.os_name == "windows":
                 self.setup_automation_windows()
             elif self.platform.os_name == "macos":
@@ -1347,7 +1348,7 @@ class UniversalInstaller:
             logger.info("\n" + "=" * 70)
             logger.info("Step 6/6: Verification")
             logger.info("=" * 70)
-            
+
             if not self.run_tests():
                 logger.warning("⚠️  Some verification tests failed, but installation may be usable")
 
@@ -1408,7 +1409,7 @@ Examples:
   %(prog)s --skip-deps              # Skip dependency installation
         """,
     )
-    
+
     parser.add_argument(
         "--venv-path",
         type=Path,
@@ -1435,7 +1436,7 @@ Examples:
         action="store_true",
         help="Enable verbose logging to file",
     )
-    
+
     args = parser.parse_args()
 
     # Setup logging
@@ -1455,10 +1456,10 @@ Examples:
             dry_run=args.dry_run,
             verbose=args.verbose,
         )
-        
+
         # Use installation lock to prevent concurrent runs
         lock_file = project_root / ".install.lock"
-        
+
         with install_lock(lock_file):
             installer = UniversalInstaller(project_root=project_root, config=config)
 

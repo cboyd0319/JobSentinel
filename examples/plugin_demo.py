@@ -25,19 +25,28 @@ from utils.ats_analyzer import (
 # Register default plugins (idempotent)
 register_default_plugins()
 
+
 # Example of adding a quick custom plugin inline (for illustration)
 def custom_focus_plugin(text: str, ctx: dict):
     """Scores how often 'cloud' appears relative to length (toy example)."""
     lower = text.lower()
-    count = lower.count('cloud')
+    count = lower.count("cloud")
     length = max(1, len(text.split()))
     ratio = count / length
     score = min(100.0, ratio * 4000)  # generous scaling
     meta = {"cloud_mentions": count, "words": length, "ratio": round(ratio, 4)}
     issues = []
     if count == 0:
-        issues.append(Issue(level="info", category="cloud_focus", message="No 'cloud' mentions detected", suggestion="Reference relevant cloud technologies if appropriate"))
+        issues.append(
+            Issue(
+                level="info",
+                category="cloud_focus",
+                message="No 'cloud' mentions detected",
+                suggestion="Reference relevant cloud technologies if appropriate",
+            )
+        )
     return score, issues, meta
+
 
 register_analyzer_plugin("cloud_focus", 0.02, custom_focus_plugin)
 
@@ -48,8 +57,8 @@ def main():
     ap.add_argument("--jd", help="Optional job description path")
     args = ap.parse_args()
 
-    resume_text = Path(args.resume).read_text(encoding='utf-8', errors='ignore')
-    jd_text = Path(args.jd).read_text(encoding='utf-8', errors='ignore') if args.jd else None
+    resume_text = Path(args.resume).read_text(encoding="utf-8", errors="ignore")
+    jd_text = Path(args.jd).read_text(encoding="utf-8", errors="ignore") if args.jd else None
 
     analyzer = ATSAnalyzer()
     result: ATSAnalysisResult = analyzer.analyze(resume_text=resume_text, job_description=jd_text)

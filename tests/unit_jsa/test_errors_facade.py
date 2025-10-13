@@ -21,4 +21,3 @@ def test_facade_exports_exist():
     assert isinstance(e2, TransientError)
     e3 = system_error(code="UNEXPECTED_ERROR", message="bug", context=ctx)
     assert isinstance(e3, SystemError)
-

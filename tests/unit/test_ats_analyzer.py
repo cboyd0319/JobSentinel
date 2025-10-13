@@ -1,4 +1,3 @@
-
 from utils.ats_analyzer import ATSAnalyzer, analyze_resume
 
 SAMPLE_RESUME = """John Doe\nEmail: john@example.com\nPhone: 555-123-4567\n\nExperience\nSenior Software Engineer at ExampleCorp 2021 - Present\nBuilt scalable Python microservices on AWS (EC2, S3, Lambda) using Docker and Kubernetes.\nImplemented CI/CD pipelines with Terraform and GitHub Actions improving deployment speed.\n\nEducation\nB.S. Computer Science\n\nSkills\nPython, AWS, Docker, Kubernetes, Terraform, Git, SQL, Linux, Leadership\n"""

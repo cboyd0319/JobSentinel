@@ -33,6 +33,7 @@ def _read_logs(lines: int = 100) -> str:
 @bp.app_template_filter("safe_external_url")
 def safe_external_url_filter(value: str) -> str:
     from jsa.http.sanitization import safe_external_url as _safe
+
     res: str = _safe(value)
     return res
 
@@ -44,6 +45,7 @@ def index() -> ResponseReturnValue:
         db_stats = get_database_stats_sync()
         with get_sync_session() as session:
             from typing import Any
+
             created_col: Any = Job.created_at
             recent_jobs = session.exec(select(Job).order_by(desc(created_col)).limit(10)).all()
     except Exception:

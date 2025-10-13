@@ -37,7 +37,7 @@
 
 **Cons:**
 - ❌ **No Auto-Apply** - Alerts only, you still apply manually (by design)
-- ❌ **Setup Required** - Needs Python 3.13+, basic CLI knowledge
+- ❌ **Setup Required** - Needs Python 3.11+, basic CLI knowledge
 - ❌ **LinkedIn Not Supported** - Requires auth, violates ToS
 - ❌ **Self-Hosted** - You manage infrastructure (or use cloud at $5-15/month)
 

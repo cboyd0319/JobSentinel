@@ -645,7 +645,7 @@ pip-audit --fix
 
 ```dockerfile
 # docker/Dockerfile
-FROM python:3.13-slim
+FROM python:3.11-slim
 
 # Security: Run as non-root user
 RUN useradd -m -u 1000 jobsentinel

@@ -81,9 +81,7 @@ class KnowledgeEnhancer:
         self._cache_ttl = timedelta(hours=1)
         logger.info("KnowledgeEnhancer initialized")
 
-    def register_server(
-        self, name: str, client: MCPClient | Context7Client
-    ) -> None:
+    def register_server(self, name: str, client: MCPClient | Context7Client) -> None:
         """
         Register an MCP server.
 
@@ -145,9 +143,7 @@ class KnowledgeEnhancer:
                 "industry_insights": response.data.get("industry", {}),
                 "role_requirements": response.data.get("requirements", {}),
                 "salary_benchmarks": response.data.get("salary", {}),
-                "red_flags": self._identify_red_flags(
-                    job_description, response.data
-                ),
+                "red_flags": self._identify_red_flags(job_description, response.data),
                 "confidence": response.confidence,
                 "sources": response.sources,
             }
@@ -210,9 +206,7 @@ class KnowledgeEnhancer:
             "sources": [],
         }
 
-    async def query_knowledge(
-        self, request: KnowledgeRequest
-    ) -> KnowledgeResponse | None:
+    async def query_knowledge(self, request: KnowledgeRequest) -> KnowledgeResponse | None:
         """
         Query multiple MCP servers for knowledge.
 
@@ -293,9 +287,7 @@ class KnowledgeEnhancer:
             logger.error(f"Error querying knowledge: {e}")
             return None
 
-    async def _query_server(
-        self, server_name: str, request: KnowledgeRequest
-    ) -> dict[str, Any]:
+    async def _query_server(self, server_name: str, request: KnowledgeRequest) -> dict[str, Any]:
         """Query a single MCP server."""
         try:
             server = self._servers[server_name]
@@ -335,9 +327,7 @@ class KnowledgeEnhancer:
             logger.error(f"Error querying {server_name}: {e}")
             return {"source": server_name, "data": {}, "confidence": 0.0}
 
-    def _aggregate_responses(
-        self, responses: list[dict[str, Any]]
-    ) -> dict[str, Any]:
+    def _aggregate_responses(self, responses: list[dict[str, Any]]) -> dict[str, Any]:
         """Aggregate multiple server responses."""
         aggregated: dict[str, Any] = {}
 

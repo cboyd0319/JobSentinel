@@ -42,11 +42,7 @@ class ReedMCPScraper(JobBoardScraper):
             )
         return api_key
 
-    async def scrape(
-        self,
-        board_url: str,
-        fetch_descriptions: bool = True
-    ) -> list[dict]:
+    async def scrape(self, board_url: str, fetch_descriptions: bool = True) -> list[dict]:
         """Not used - use search() instead."""
         logger.warning("Reed MCP doesn't scrape URLs. Use search() instead.")
         return []
@@ -63,7 +59,7 @@ class ReedMCPScraper(JobBoardScraper):
         full_time: bool | None = None,
         minimum_salary: int | None = None,
         maximum_salary: int | None = None,
-        results_to_take: int = 100
+        results_to_take: int = 100,
     ) -> list[dict]:
         """
         Search Reed.co.uk jobs via MCP server.
@@ -98,9 +94,7 @@ class ReedMCPScraper(JobBoardScraper):
             import httpx
 
             # Build request parameters
-            params = {
-                "resultsToTake": min(results_to_take, 100)  # API limit
-            }
+            params = {"resultsToTake": min(results_to_take, 100)}  # API limit
 
             if keywords:
                 params["keywords"] = keywords
@@ -131,13 +125,11 @@ class ReedMCPScraper(JobBoardScraper):
                     "https://www.reed.co.uk/api/1.0/search",
                     params=params,
                     auth=auth,
-                    headers={"User-Agent": "Job-Scraper/1.0"}
+                    headers={"User-Agent": "Job-Scraper/1.0"},
                 )
 
                 if response.status_code != 200:
-                    logger.error(
-                        f"Reed API error: {response.status_code} - {response.text}"
-                    )
+                    logger.error(f"Reed API error: {response.status_code} - {response.text}")
                     return []
 
                 data = response.json()
@@ -177,7 +169,7 @@ class ReedMCPScraper(JobBoardScraper):
                 response = await client.get(
                     f"https://www.reed.co.uk/api/1.0/jobs/{job_id}",
                     auth=auth,
-                    headers={"User-Agent": "Job-Scraper/1.0"}
+                    headers={"User-Agent": "Job-Scraper/1.0"},
                 )
 
                 if response.status_code != 200:
@@ -206,10 +198,7 @@ class ReedMCPScraper(JobBoardScraper):
                 "description": job.get("jobDescription", ""),
                 "id": str(job.get("jobId", "")),
                 "posted_date": job.get("date", ""),
-                "salary": self._format_salary(
-                    job.get("minimumSalary"),
-                    job.get("maximumSalary")
-                ),
+                "salary": self._format_salary(job.get("minimumSalary"), job.get("maximumSalary")),
                 "employment_type": self._get_employment_type(job),
                 "external_job_id": str(job.get("jobId", "")),
             }
@@ -222,10 +211,7 @@ class ReedMCPScraper(JobBoardScraper):
                 raw_job["application_count"] = job["applications"]
 
             normalized_job = self.extractor.normalize_job_data(
-                raw_job,
-                raw_job["company"],
-                "reed_mcp",
-                raw_job["url"]
+                raw_job, raw_job["company"], "reed_mcp", raw_job["url"]
             )
 
             # Add GBP salary info if available
@@ -278,9 +264,7 @@ class ReedMCPScraper(JobBoardScraper):
 
 # Convenience function
 async def search_reed_jobs(
-    keywords: str | None = None,
-    location: str | None = None,
-    **kwargs
+    keywords: str | None = None, location: str | None = None, **kwargs
 ) -> list[dict]:
     """
     Search Reed.co.uk jobs via API.

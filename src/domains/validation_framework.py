@@ -200,7 +200,7 @@ class ValidationEngine:
     """
     Comprehensive validation engine with pre-flight checks, runtime validation,
     and self-healing capabilities.
-    
+
     Supports:
     - Pre-execution validation
     - Runtime monitoring
@@ -246,27 +246,21 @@ class ValidationEngine:
             ValidationCheck(
                 name="rate_limit_safe",
                 description="Verify rate limits are reasonable",
-                check_function=lambda config: 1
-                <= config.get("rate_limit", 100)
-                <= 1000,
+                check_function=lambda config: 1 <= config.get("rate_limit", 100) <= 1000,
                 severity="high",
                 remediation="Set rate_limit between 1 and 1000 requests/minute",
             ),
             ValidationCheck(
                 name="timeout_reasonable",
                 description="Verify timeout is appropriate",
-                check_function=lambda config: 10
-                <= config.get("timeout", 30)
-                <= 300,
+                check_function=lambda config: 10 <= config.get("timeout", 30) <= 300,
                 severity="medium",
                 remediation="Set timeout between 10 and 300 seconds",
             ),
             ValidationCheck(
                 name="max_pages_bounded",
                 description="Verify max pages is bounded",
-                check_function=lambda config: 1
-                <= config.get("max_pages", 10)
-                <= 100,
+                check_function=lambda config: 1 <= config.get("max_pages", 10) <= 100,
                 severity="medium",
                 remediation="Set max_pages between 1 and 100",
             ),
@@ -278,18 +272,14 @@ class ValidationEngine:
             ValidationCheck(
                 name="resume_text_present",
                 description="Verify resume text provided",
-                check_function=lambda data: bool(
-                    data.get("resume_text", "").strip()
-                ),
+                check_function=lambda data: bool(data.get("resume_text", "").strip()),
                 severity="critical",
                 remediation="Provide resume text for analysis",
             ),
             ValidationCheck(
                 name="resume_length_valid",
                 description="Verify resume length is reasonable",
-                check_function=lambda data: 100
-                <= len(data.get("resume_text", ""))
-                <= 50000,
+                check_function=lambda data: 100 <= len(data.get("resume_text", "")) <= 50000,
                 severity="high",
                 remediation="Resume should be 100-50000 characters",
             ),
@@ -342,17 +332,14 @@ class ValidationEngine:
                 description="Verify database path is writable",
                 check_function=lambda config: Path(
                     config.get("db_path", "data/jobs.db")
-                )
-                .parent.exists(),
+                ).parent.exists(),
                 severity="critical",
                 remediation="Ensure database directory exists and is writable",
             ),
             ValidationCheck(
                 name="connection_pool_size",
                 description="Verify connection pool is reasonable",
-                check_function=lambda config: 1
-                <= config.get("pool_size", 5)
-                <= 20,
+                check_function=lambda config: 1 <= config.get("pool_size", 5) <= 20,
                 severity="medium",
                 remediation="Set pool_size between 1 and 20",
             ),
@@ -364,9 +351,7 @@ class ValidationEngine:
             ValidationCheck(
                 name="url_format_valid",
                 description="Verify URL format",
-                check_function=lambda data: bool(
-                    re.match(r"https?://", data.get("url", ""))
-                ),
+                check_function=lambda data: bool(re.match(r"https?://", data.get("url", ""))),
                 severity="critical",
                 remediation="Provide valid HTTP/HTTPS URL",
             ),
@@ -404,9 +389,7 @@ class ValidationEngine:
             ValidationCheck(
                 name="required_fields_present",
                 description="Verify required fields are present",
-                check_function=lambda config: all(
-                    k in config for k in ["keywords", "job_sources"]
-                ),
+                check_function=lambda config: all(k in config for k in ["keywords", "job_sources"]),
                 severity="critical",
                 remediation="Provide keywords and job_sources in config",
             ),
@@ -421,12 +404,12 @@ class ValidationEngine:
     ) -> ValidationReport:
         """
         Run validation checks for an operation.
-        
+
         Args:
             operation: Type of operation to validate
             data: Data/configuration to validate
             auto_fix: Apply automatic fixes if available
-            
+
         Returns:
             ValidationReport with results
         """
@@ -436,9 +419,7 @@ class ValidationEngine:
         results: list[ValidationResult] = []
         passed = warned = failed = skipped = errors = auto_fixes = 0
 
-        logger.info(
-            f"Running {len(checks)} validation checks for {operation.value}"
-        )
+        logger.info(f"Running {len(checks)} validation checks for {operation.value}")
 
         for check in checks:
             result = self._run_check(check, data, auto_fix)
@@ -555,12 +536,10 @@ class ValidationEngine:
     # Pre-flight Validation
     # ========================================================================
 
-    def pre_flight_check(
-        self, operation: OperationType, data: dict[str, Any]
-    ) -> ValidationReport:
+    def pre_flight_check(self, operation: OperationType, data: dict[str, Any]) -> ValidationReport:
         """
         Run pre-flight validation before executing operation.
-        
+
         This catches issues early before potentially expensive operations.
         """
         logger.info(f"Running pre-flight check for {operation.value}")
@@ -573,7 +552,7 @@ class ValidationEngine:
     def validate_scraping_config(self, config: dict[str, Any]) -> ScrapingConfig:
         """
         Validate scraping configuration with Pydantic.
-        
+
         Raises:
             ValidationError: If configuration is invalid
         """
@@ -582,7 +561,7 @@ class ValidationEngine:
     def validate_analysis_config(self, config: dict[str, Any]) -> AnalysisConfig:
         """
         Validate analysis configuration with Pydantic.
-        
+
         Raises:
             ValidationError: If configuration is invalid
         """
@@ -706,9 +685,7 @@ if __name__ == "__main__":
         "rate_limit": 100,
     }
 
-    report = engine.validate(
-        OperationType.SCRAPING, scraping_config, auto_fix=True
-    )
+    report = engine.validate(OperationType.SCRAPING, scraping_config, auto_fix=True)
     print(f"Status: {report.overall_status}")
     print(f"Checks: {report.passed} passed, {report.failed} failed")
 

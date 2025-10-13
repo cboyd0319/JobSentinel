@@ -1,4 +1,3 @@
-
 from utils.ats_analyzer import (
     ATSAnalyzer,
     register_analyzer_plugin,

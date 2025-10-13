@@ -6,7 +6,7 @@ Get JobSentinel running in 5 minutes.
 
 | Item | Check | Install |
 |------|-------|---------|
-| Python 3.13+ | `python3 --version` | [python.org/downloads](https://www.python.org/downloads/) |
+| Python 3.11+ | `python3 --version` | [python.org/downloads](https://www.python.org/downloads/) |
 | Git | `git --version` | [git-scm.com](https://git-scm.com/) |
 
 ## Install (Automated)
@@ -68,7 +68,7 @@ Output:
 
 ```bash
 git clone https://github.com/cboyd0319/JobSentinel && cd JobSentinel
-python3.13 -m venv .venv
+python3.11 -m venv .venv
 source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -e .
 playwright install chromium
@@ -80,7 +80,7 @@ python -m jsa.cli run-once
 ## Verify
 
 ```bash
-python --version  # 3.13.x
+python --version  # 3.11.x or higher
 python -c "import jsa"  # No error = installed
 python -m jsa.cli config-validate  # Should pass
 ```
@@ -123,7 +123,7 @@ Reed API key: [reed.co.uk/developers](https://www.reed.co.uk/developers)
 
 | Issue | Fix |
 |-------|-----|
-| "Python 3.13 not found" | Install from [python.org/downloads](https://www.python.org/downloads/). Windows: check "Add to PATH" |
+| "Python 3.11+ not found" | Install from [python.org/downloads](https://www.python.org/downloads/). Windows: check "Add to PATH" |
 | "Module not found" | `source .venv/bin/activate && pip install -e .` |
 | "No jobs found" | Enable sources in config, run with `--verbose` |
 | "Slack webhook failed" | Test: `curl -X POST -H 'Content-type: application/json' --data '{"text":"test"}' YOUR_WEBHOOK_URL` |

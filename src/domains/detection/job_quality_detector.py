@@ -70,9 +70,7 @@ class JobQualityScore:
 
     def is_recommended(self) -> bool:
         """Check if job meets minimum quality standards."""
-        return self.overall_score >= 70 and not any(
-            flag.severity >= 8 for flag in self.red_flags
-        )
+        return self.overall_score >= 70 and not any(flag.severity >= 8 for flag in self.red_flags)
 
 
 class JobQualityDetector:
@@ -180,9 +178,7 @@ class JobQualityDetector:
         component_scores = {}
 
         # 1. Legitimacy detection (30%)
-        legitimacy_score, legitimacy_flags = self._check_legitimacy(
-            job_description, company_name
-        )
+        legitimacy_score, legitimacy_flags = self._check_legitimacy(job_description, company_name)
         component_scores["legitimacy"] = legitimacy_score
         red_flags.extend(legitimacy_flags)
 
@@ -225,17 +221,13 @@ class JobQualityDetector:
             "company_information": 0.10,
         }
 
-        overall_score = sum(
-            component_scores[k] * weights[k] for k in component_scores.keys()
-        )
+        overall_score = sum(component_scores[k] * weights[k] for k in component_scores.keys())
 
         # Determine quality level
         quality_level = self._determine_quality_level(overall_score, red_flags)
 
         # Generate recommendations
-        recommendations = self._generate_recommendations(
-            component_scores, red_flags, weaknesses
-        )
+        recommendations = self._generate_recommendations(component_scores, red_flags, weaknesses)
 
         logger.info(
             f"Job quality analysis complete: {quality_level.value} ({overall_score:.1f}/100)"
@@ -264,9 +256,7 @@ class JobQualityDetector:
         # Truncate very long inputs
         return text[:50000].strip()
 
-    def _check_legitimacy(
-        self, description: str, company_name: str
-    ) -> tuple[float, list[RedFlag]]:
+    def _check_legitimacy(self, description: str, company_name: str) -> tuple[float, list[RedFlag]]:
         """Check for scam indicators and legitimacy issues."""
         flags = []
         score = 100.0
@@ -456,7 +446,9 @@ class JobQualityDetector:
                 score -= 15
 
         # Count number of required skills/technologies
-        skill_indicators = len(re.findall(r"(?i)\b(proficient|expert|experience with)\b", description))
+        skill_indicators = len(
+            re.findall(r"(?i)\b(proficient|expert|experience with)\b", description)
+        )
         if skill_indicators > 15:
             flags.append(
                 RedFlag(
@@ -487,9 +479,7 @@ class JobQualityDetector:
 
         return min(100, score)
 
-    def _determine_quality_level(
-        self, score: float, red_flags: list[RedFlag]
-    ) -> QualityLevel:
+    def _determine_quality_level(self, score: float, red_flags: list[RedFlag]) -> QualityLevel:
         """Determine quality level based on score and red flags."""
         # Critical red flags override score
         has_critical = any(flag.severity >= 8 for flag in red_flags)
@@ -529,9 +519,7 @@ class JobQualityDetector:
 
         # Description issues
         if component_scores.get("description_quality", 100) < 60:
-            recommendations.append(
-                "Request more details about the role during initial contact"
-            )
+            recommendations.append("Request more details about the role during initial contact")
 
         # Salary concerns
         if component_scores.get("salary_alignment", 100) < 60:

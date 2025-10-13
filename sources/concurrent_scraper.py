@@ -168,9 +168,7 @@ class ConcurrentJobScraper:
 
         with ProcessPoolExecutor(max_workers=self.max_workers) as executor:
             # Submit all tasks
-            future_to_task = {
-                executor.submit(_scrape_task_worker, task): task for task in tasks
-            }
+            future_to_task = {executor.submit(_scrape_task_worker, task): task for task in tasks}
 
             # Process completed tasks
             for future in as_completed(future_to_task):
@@ -269,9 +267,7 @@ class ConcurrentJobScraper:
 
         return final_results
 
-    async def _scrape_single_async(
-        self, url: str, fetch_descriptions: bool
-    ) -> ScrapeResult:
+    async def _scrape_single_async(self, url: str, fetch_descriptions: bool) -> ScrapeResult:
         """Scrape a single URL asynchronously."""
         start_time = time.time()
 
@@ -292,9 +288,7 @@ class ConcurrentJobScraper:
 
         except Exception as e:
             duration = time.time() - start_time
-            return ScrapeResult(
-                url=url, jobs=[], duration=duration, success=False, error=str(e)
-            )
+            return ScrapeResult(url=url, jobs=[], duration=duration, success=False, error=str(e))
 
 
 def _scrape_task_worker(task: ScrapeTask) -> ScrapeResult:
@@ -320,9 +314,7 @@ def _scrape_task_worker(task: ScrapeTask) -> ScrapeResult:
 
     except Exception as e:
         duration = time.time() - start_time
-        return ScrapeResult(
-            url=task.url, jobs=[], duration=duration, success=False, error=str(e)
-        )
+        return ScrapeResult(url=task.url, jobs=[], duration=duration, success=False, error=str(e))
 
 
 # Convenience functions for easy usage

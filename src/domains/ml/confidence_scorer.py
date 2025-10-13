@@ -69,8 +69,7 @@ class ConfidenceFactors:
         for field_name, value in self.__dict__.items():
             if not 0 <= value <= 1:
                 logger.warning(
-                    f"Confidence factor {field_name} = {value} out of range [0, 1], "
-                    f"clipping"
+                    f"Confidence factor {field_name} = {value} out of range [0, 1], " f"clipping"
                 )
                 setattr(self, field_name, max(0, min(1, value)))
 
@@ -123,7 +122,7 @@ class ConfidenceScore:
 class ConfidenceCalculator:
     """
     Calculate confidence scores for ML predictions.
-    
+
     Uses multiple factors to compute calibrated confidence scores:
     - Model's internal confidence (from softmax, predict_proba, etc.)
     - Data quality (completeness, validity)
@@ -140,7 +139,7 @@ class ConfidenceCalculator:
     ):
         """
         Initialize confidence calculator.
-        
+
         Args:
             weights: Custom weights for factors (default: equal weights)
             calibration: Apply temperature scaling calibration
@@ -170,13 +169,13 @@ class ConfidenceCalculator:
     ) -> ConfidenceScore:
         """
         Calculate confidence score for a prediction.
-        
+
         Args:
             prediction: The prediction value
             factors: Confidence factors
             prediction_type: Type of prediction
             threshold: Minimum confidence threshold
-            
+
         Returns:
             ConfidenceScore with overall confidence and explanation
         """
@@ -228,7 +227,7 @@ class ConfidenceCalculator:
     ) -> float:
         """
         Apply temperature scaling calibration.
-        
+
         Helps correct overconfident predictions by scaling with temperature.
         Based on "Calibration of Neural Networks" (Guo et al., 2017).
         """
@@ -287,10 +286,7 @@ class ConfidenceCalculator:
         if level == ConfidenceLevel.VERY_HIGH:
             return f"Very high confidence ({confidence:.1%}). All factors strong."
         elif level == ConfidenceLevel.HIGH:
-            return (
-                f"High confidence ({confidence:.1%}). "
-                f"Reliable for most use cases."
-            )
+            return f"High confidence ({confidence:.1%}). " f"Reliable for most use cases."
         elif level == ConfidenceLevel.MEDIUM:
             return (
                 f"Medium confidence ({confidence:.1%}). "
@@ -329,13 +325,13 @@ class BatchConfidenceScorer:
     ) -> list[ConfidenceScore]:
         """
         Score confidence for multiple predictions.
-        
+
         Args:
             predictions: List of predictions
             factors_list: List of confidence factors (one per prediction)
             prediction_type: Type of predictions
             threshold: Confidence threshold
-            
+
         Returns:
             List of ConfidenceScore objects
         """
@@ -367,9 +363,7 @@ class BatchConfidenceScorer:
 
         level_counts = {}
         for level in ConfidenceLevel:
-            level_counts[level.value] = sum(
-                1 for s in scores if s.confidence_level == level
-            )
+            level_counts[level.value] = sum(1 for s in scores if s.confidence_level == level)
 
         return {
             "total_predictions": len(scores),
@@ -386,9 +380,7 @@ class BatchConfidenceScorer:
             },
             "reliability": {
                 "reliable_count": sum(1 for s in scores if s.is_reliable),
-                "reliable_percent": sum(1 for s in scores if s.is_reliable)
-                / len(scores)
-                * 100,
+                "reliable_percent": sum(1 for s in scores if s.is_reliable) / len(scores) * 100,
             },
             "level_distribution": level_counts,
         }

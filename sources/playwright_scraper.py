@@ -31,19 +31,13 @@ class PlaywrightScraper(JobBoardScraper, APIDiscoveryMixin):
         """This is a fallback scraper, so it can attempt any URL."""
         return True
 
-    async def scrape(
-        self, board_url: str, fetch_descriptions: bool = True
-    ) -> list[dict]:
+    async def scrape(self, board_url: str, fetch_descriptions: bool = True) -> list[dict]:
         """Scrape using Playwright with API discovery and enhanced selectors."""
         logger.info(f" Using Playwright scraper for {board_url}")
-        discovered_jobs = await self.scrape_with_api_discovery(
-            board_url, fetch_descriptions
-        )
+        discovered_jobs = await self.scrape_with_api_discovery(board_url, fetch_descriptions)
         if discovered_jobs:
             return discovered_jobs
-        content_jobs = await self.scrape_with_enhanced_selectors(
-            board_url, fetch_descriptions
-        )
+        content_jobs = await self.scrape_with_enhanced_selectors(board_url, fetch_descriptions)
         if content_jobs:
             return content_jobs
         logger.warning(f"All Playwright methods failed for {board_url}")
@@ -128,9 +122,7 @@ class PlaywrightScraper(JobBoardScraper, APIDiscoveryMixin):
                 elif self._host_matches(safe_board_url, "google.com"):
                     jobs = await self._extract_google_jobs(page, company_name)
                 else:
-                    jobs = await self._extract_generic_jobs(
-                        page, company_name, safe_board_url
-                    )
+                    jobs = await self._extract_generic_jobs(page, company_name, safe_board_url)
                 await browser.close()
                 if jobs:
                     logger.info(f"[OK] Enhanced extraction found {len(jobs)} jobs")
@@ -140,27 +132,21 @@ class PlaywrightScraper(JobBoardScraper, APIDiscoveryMixin):
                 await browser.close()
             return []
 
-    def _extract_from_discovered_apis(
-        self, working_apis: list[dict], board_url: str
-    ) -> list[dict]:
+    def _extract_from_discovered_apis(self, working_apis: list[dict], board_url: str) -> list[dict]:
         """Extract job data from discovered working APIs."""
         all_jobs: list[dict] = []
         for api_info in working_apis:
             try:
                 data = api_info["data"]
                 company_name = self.extract_company_name(board_url)
-                jobs = self._extract_jobs_from_api_response(
-                    data, company_name, api_info["url"]
-                )
+                jobs = self._extract_jobs_from_api_response(data, company_name, api_info["url"])
                 all_jobs.extend(jobs)
                 logger.info(f"Extracted {len(jobs)} jobs from API: {api_info['url']}")
             except Exception as e:  # nosec B110
                 logger.warning(f"Failed to extract jobs from API: {e}")
         return all_jobs
 
-    def _extract_jobs_from_api_response(
-        self, data, company_name: str, api_url: str
-    ) -> list[dict]:
+    def _extract_jobs_from_api_response(self, data, company_name: str, api_url: str) -> list[dict]:
         """Extract job data from various API response formats."""
         jobs: list[dict] = []
         extractor = GenericJobExtractor()
@@ -223,10 +209,7 @@ class PlaywrightScraper(JobBoardScraper, APIDiscoveryMixin):
                             anchor = await element.query_selector("a[href]")
                             if anchor:
                                 link = await anchor.get_attribute("href")
-                        location = (
-                            await element.get_attribute("data-location")
-                            or "See Description"
-                        )
+                        location = await element.get_attribute("data-location") or "See Description"
                         raw_job = {
                             "title": title,
                             "description": text_content,
@@ -253,7 +236,6 @@ class PlaywrightScraper(JobBoardScraper, APIDiscoveryMixin):
                 logger.debug(f"Error processing selector: {error}")
                 continue
         return jobs
-
 
     async def _extract_google_jobs(self, page, company_name: str) -> list[dict]:
         """Extract jobs from Google careers using optimized selectors."""
@@ -324,10 +306,7 @@ class PlaywrightScraper(JobBoardScraper, APIDiscoveryMixin):
                 continue
         return jobs
 
-
-    async def _extract_generic_jobs(
-        self, page, company_name: str, board_url: str
-    ) -> list[dict]:
+    async def _extract_generic_jobs(self, page, company_name: str, board_url: str) -> list[dict]:
         """Generic job extraction for unknown sites."""
         jobs: list[dict] = []
         extractor = GenericJobExtractor()

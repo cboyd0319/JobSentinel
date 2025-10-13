@@ -1,6 +1,5 @@
 """GCP authentication related functions."""
 
-
 from cloud.utils import run_command
 
 

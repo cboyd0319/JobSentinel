@@ -45,6 +45,7 @@ def _derive_sync_url(db_url: str) -> str:
 async def init_database() -> None:
     """Initialize database tables using legacy async path."""
     from typing import Any, cast
+
     await cast(Any, legacy_db).init_db()
 
 

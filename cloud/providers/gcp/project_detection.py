@@ -77,14 +77,16 @@ async def list_job_scraper_projects(logger) -> list[dict]:
             state_path = get_terraform_state_path(project_id)
             has_local_state = state_path.exists()
 
-            project_list.append({
-                "project_id": project_id,
-                "name": name,
-                "created_time": create_time,
-                "state": lifecycle_state,
-                "has_local_state": has_local_state,
-                "state_path": str(state_path) if has_local_state else None,
-            })
+            project_list.append(
+                {
+                    "project_id": project_id,
+                    "name": name,
+                    "created_time": create_time,
+                    "state": lifecycle_state,
+                    "has_local_state": has_local_state,
+                    "state_path": str(state_path) if has_local_state else None,
+                }
+            )
 
         return project_list
 
@@ -123,7 +125,7 @@ async def detect_existing_deployment(logger, no_prompt: bool = False) -> str | N
         logger.info(f"{idx}. {project['project_id']}")
         logger.info(f"   Created: {project['created_time']}")
         logger.info(f"   Status: {project['state']}")
-        if project['has_local_state']:
+        if project["has_local_state"]:
             logger.info(f"   Local state: [OK] {project['state_path']}")
         else:
             logger.info("   Local state: ✗ (no local Terraform state found)")
@@ -156,13 +158,17 @@ async def detect_existing_deployment(logger, no_prompt: bool = False) -> str | N
                     project_idx = int(project_choice) - 1
                     if 0 <= project_idx < len(projects):
                         selected_project = projects[project_idx]
-                        project_id = selected_project['project_id']
+                        project_id = selected_project["project_id"]
 
                         # Warn if no local state
-                        if not selected_project['has_local_state']:
+                        if not selected_project["has_local_state"]:
                             logger.warning("")
-                            logger.warning("[WARNING] WARNING: No local Terraform state found for this project!")
-                            logger.warning("   Updating without state may cause resource conflicts.")
+                            logger.warning(
+                                "[WARNING] WARNING: No local Terraform state found for this project!"
+                            )
+                            logger.warning(
+                                "   Updating without state may cause resource conflicts."
+                            )
                             logger.warning("   Consider creating a new deployment instead.")
                             logger.warning("")
                             confirm = input("Continue anyway? (yes/no): ").strip().lower()
@@ -184,6 +190,7 @@ async def detect_existing_deployment(logger, no_prompt: bool = False) -> str | N
         elif choice == "3":
             logger.info("Exiting...")
             import sys
+
             sys.exit(0)
 
         else:
@@ -198,9 +205,9 @@ def save_deployment_config(project_id: str, config: dict) -> None:
         config: Configuration dictionary to save
     """
     config_path = get_config_path(project_id)
-    config['last_updated'] = datetime.utcnow().isoformat()
+    config["last_updated"] = datetime.utcnow().isoformat()
 
-    with open(config_path, 'w') as f:
+    with open(config_path, "w") as f:
         json.dump(config, f, indent=2)
 
 

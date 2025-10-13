@@ -91,14 +91,16 @@ def run_secure(
     tracker.incr_subprocess()
 
     try:
-        proc = subprocess.run(  # nosec B603  # noqa: S603 - safe usage: no shell, allowlist enforced
-            list(args),
-            cwd=str(cwd) if cwd else None,
-            env=env,
-            capture_output=capture_output,
-            text=True,
-            timeout=timeout,
-            check=check,
+        proc = (
+            subprocess.run(  # nosec B603  # noqa: S603 - safe usage: no shell, allowlist enforced
+                list(args),
+                cwd=str(cwd) if cwd else None,
+                env=env,
+                capture_output=capture_output,
+                text=True,
+                timeout=timeout,
+                check=check,
+            )
         )
         return proc
     except subprocess.TimeoutExpired as e:

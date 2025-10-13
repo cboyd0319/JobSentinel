@@ -57,14 +57,16 @@ def _redact_command_for_logging(command: list[str]) -> str:
         if skip_next:
             skip_next = False
             continue
-        if arg.startswith("--") and ("token" in arg or "password" in arg or "key" in arg or "secret" in arg):
+        if arg.startswith("--") and (
+            "token" in arg or "password" in arg or "key" in arg or "secret" in arg
+        ):
             redacted_command.append(arg)
             if "=" in arg:  # e.g., --token=abc
                 redacted_command[-1] = f"{arg.split('=')[0]}=***REDACTED***"
             elif i + 1 < len(command):  # e.g., --token abc
                 redacted_command.append("***REDACTED***")
                 skip_next = True
-            else: # e.g., --token at the end of the command
+            else:  # e.g., --token at the end of the command
                 redacted_command[-1] = f"{arg}=***REDACTED***"
         else:
             redacted_command.append(arg)
@@ -123,7 +125,9 @@ async def run_command(
                 stdout_str = stdout.decode() if stdout else ""
                 stderr_str = stderr.decode() if stderr else ""
                 if check and proc.returncode != 0:
-                    raise subprocess.CalledProcessError(proc.returncode, command, stdout_str, stderr_str)
+                    raise subprocess.CalledProcessError(
+                        proc.returncode, command, stdout_str, stderr_str
+                    )
                 # Create a proper CompletedProcess object
                 result = subprocess.CompletedProcess(
                     args=command,
@@ -141,7 +145,9 @@ async def run_command(
                 await asyncio.sleep(delay)
                 delay *= backoff_factor
             else:
-                error_message = f"Command failed after {retries + 1} attempts: {redacted_full_command}"
+                error_message = (
+                    f"Command failed after {retries + 1} attempts: {redacted_full_command}"
+                )
                 error_message += f"\nExit Code: {e.returncode}"
                 # Do not log stderr/stdout as they may contain sensitive information
                 logger.error(error_message)
@@ -185,7 +191,9 @@ def ensure_python_version(min_version: tuple[int, int]) -> None:
     """
     current_version = sys.version_info[:2]
     if current_version < min_version:
-        print(f"[WARNING] Python {min_version[0]}.{min_version[1]}+ required, but {current_version[0]}.{current_version[1]} detected.")
+        print(
+            f"[WARNING] Python {min_version[0]}.{min_version[1]}+ required, but {current_version[0]}.{current_version[1]} detected."
+        )
         print("\nHow to fix:")
         print(f"1. Install Python {min_version[0]}.{min_version[1]} or newer")
         print("2. Download from: https://www.python.org/downloads/")

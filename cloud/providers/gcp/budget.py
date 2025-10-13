@@ -40,7 +40,9 @@ async def setup_budget_alerts(
     if result.returncode == 0:
         logger.info("[OK] Budget alert function deployed")
     else:
-        logger.warning(f"Budget alert function deployment failed (non-critical, exit {result.returncode})")
+        logger.warning(
+            f"Budget alert function deployment failed (non-critical, exit {result.returncode})"
+        )
         if result.stderr:
             logger.debug(f"Cloud Functions error: {result.stderr}")
         logger.info("   • Budget alerts will not auto-pause the scheduler at 90% spend")

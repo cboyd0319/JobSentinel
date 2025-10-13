@@ -28,4 +28,3 @@ def safe_external_url(value: str) -> str:
         return "#"
     sanitized = parsed._replace(fragment="")
     return urlunparse(sanitized)
-

@@ -29,7 +29,7 @@ JOBSENTINEL_LOG_LEVEL=INFO
 ## Security
 
 - Runs as non-root (`appuser`, UID 1001)
-- Base: python:3.13.8-slim
+- Base: python:3.11.10-slim
 - Mount secrets via env vars, not baked in image
 - Config mount read-only
 

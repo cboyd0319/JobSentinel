@@ -156,9 +156,7 @@ class SemanticMatcher:
 
         try:
             # Encode texts to embeddings
-            embeddings = model.encode(
-                [resume_text, job_description], convert_to_tensor=True
-            )
+            embeddings = model.encode([resume_text, job_description], convert_to_tensor=True)
 
             # Calculate cosine similarity
             from torch.nn.functional import cosine_similarity
@@ -172,17 +170,13 @@ class SemanticMatcher:
             match_percentage = int(similarity_score * 100)
 
             # Analyze key alignments and gaps
-            key_alignments = self._extract_alignments(
-                resume_text, job_description, required_skills
-            )
+            key_alignments = self._extract_alignments(resume_text, job_description, required_skills)
             gaps = self._extract_gaps(resume_text, job_description, required_skills)
 
             # Calculate confidence based on text lengths and quality
             confidence = self._calculate_confidence(resume_text, job_description)
 
-            logger.info(
-                f"Semantic match: {match_percentage}% (confidence: {confidence:.2f})"
-            )
+            logger.info(f"Semantic match: {match_percentage}% (confidence: {confidence:.2f})")
 
             return SemanticMatchResult(
                 similarity_score=similarity_score,

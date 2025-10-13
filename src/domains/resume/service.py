@@ -119,19 +119,19 @@ class ResumeEnhancementService:
     def get_industry_profiles(self) -> dict[str, IndustryProfile]:
         """
         Get available industry profiles.
-        
+
         Returns:
             Dictionary mapping industry keys to IndustryProfile objects
-            
+
         Note:
             Includes both core and extended industry profiles
         """
         return self.suggestion_engine._all_profiles.copy()
-    
+
     def list_available_industries(self) -> list[str]:
         """
         Get list of all available industry profile keys.
-        
+
         Returns:
             Sorted list of industry identifiers
         """

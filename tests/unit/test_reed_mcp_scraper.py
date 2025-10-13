@@ -1,4 +1,3 @@
-
 import pytest
 
 from sources.reed_mcp_scraper import ReedMCPScraper

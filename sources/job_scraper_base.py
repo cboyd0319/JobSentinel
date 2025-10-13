@@ -50,9 +50,7 @@ async def fetch_job_description(job_url: str, selector: str = None) -> str:
     """Fetch full job description using Playwright for JS-heavy sites."""
     try:
         async with web_scraper as scraper:
-            content = await scraper.fetch_with_playwright(
-                job_url, wait_for_selector=selector
-            )
+            content = await scraper.fetch_with_playwright(job_url, wait_for_selector=selector)
 
             # Extract text content from HTML
             from bs4 import BeautifulSoup
@@ -71,9 +69,7 @@ async def fetch_job_description(job_url: str, selector: str = None) -> str:
             chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
             description = "\n".join(chunk for chunk in chunks if chunk)
 
-            logger.debug(
-                f"Fetched job description from {job_url} ({len(description)} chars)"
-            )
+            logger.debug(f"Fetched job description from {job_url} ({len(description)} chars)")
             return description[:5000]  # Limit to 5000 characters
 
     except Exception as e:
@@ -102,9 +98,7 @@ def extract_company_from_url(url: str) -> str:
 
     # Workday boards - exact domain match
     if len(domain_parts) >= 2 and domain_parts[-2:] == ["workday", "com"]:
-        return (
-            parsed.path.split("/")[1] if len(parsed.path.split("/")) > 1 else "unknown"
-        )
+        return parsed.path.split("/")[1] if len(parsed.path.split("/")) > 1 else "unknown"
 
     # Default fallback
     return parsed.netloc.replace("www.", "").split(".")[0]
@@ -161,9 +155,7 @@ class APIDiscoveryMixin:
                 content_type = response.headers.get("content-type", "").lower()
 
                 # Look for JSON APIs related to jobs/careers
-                if (
-                    "api" in url.lower() or "graphql" in url.lower()
-                ) and "json" in content_type:
+                if ("api" in url.lower() or "graphql" in url.lower()) and "json" in content_type:
                     if any(
                         keyword in url.lower()
                         for keyword in ["job", "career", "search", "position"]
@@ -240,10 +232,7 @@ class GenericJobExtractor:
             return "Senior"
         elif "manager" in title_lower or "supervisor" in title_lower:
             return "Senior"  # Managers are typically senior level
-        elif any(
-            word in title_lower
-            for word in ["junior", "jr", "associate", "entry", "intern"]
-        ):
+        elif any(word in title_lower for word in ["junior", "jr", "associate", "entry", "intern"]):
             return "Junior"
         else:
             return "Mid-level"
@@ -445,9 +434,7 @@ class GenericJobExtractor:
                 try:
                     if isinstance(match, tuple) and len(match) >= 2:
                         min_sal = int(match[0].replace(",", ""))
-                        max_sal = (
-                            int(match[1].replace(",", "")) if match[1] else min_sal
-                        )
+                        max_sal = int(match[1].replace(",", "")) if match[1] else min_sal
 
                         # Handle k notation (e.g., "150k")
                         if "k" in description.lower():
@@ -486,16 +473,10 @@ class GenericJobExtractor:
         """
         # Extract basic fields with fallbacks
         title = str(
-            raw_job.get("title")
-            or raw_job.get("name")
-            or raw_job.get("position")
-            or "Job Title"
+            raw_job.get("title") or raw_job.get("name") or raw_job.get("position") or "Job Title"
         )
         description = str(
-            raw_job.get("description")
-            or raw_job.get("summary")
-            or raw_job.get("content")
-            or ""
+            raw_job.get("description") or raw_job.get("summary") or raw_job.get("content") or ""
         )
         location = str(
             raw_job.get("location")
@@ -510,10 +491,7 @@ class GenericJobExtractor:
 
         # Create job URL
         job_url = str(
-            raw_job.get("url")
-            or raw_job.get("link")
-            or raw_job.get("absolute_url")
-            or board_url
+            raw_job.get("url") or raw_job.get("link") or raw_job.get("absolute_url") or board_url
         )
 
         # Extract enhanced fields
@@ -533,30 +511,18 @@ class GenericJobExtractor:
             "seniority_level": extractor.extract_seniority_from_title(title),
             # Enhanced fields
             "external_job_id": str(
-                raw_job.get("id")
-                or raw_job.get("jobId")
-                or raw_job.get("external_id")
-                or ""
+                raw_job.get("id") or raw_job.get("jobId") or raw_job.get("external_id") or ""
             ),
             "department": str(
-                raw_job.get("department")
-                or raw_job.get("discipline")
-                or raw_job.get("team")
-                or ""
+                raw_job.get("department") or raw_job.get("discipline") or raw_job.get("team") or ""
             ),
-            "employment_type": str(
-                raw_job.get("employment_type") or raw_job.get("type") or ""
-            ),
+            "employment_type": str(raw_job.get("employment_type") or raw_job.get("type") or ""),
             # Skills and technologies (as JSON strings for database storage)
             "required_skills": (
-                str(skills_info["required_skills"])
-                if skills_info["required_skills"]
-                else ""
+                str(skills_info["required_skills"]) if skills_info["required_skills"] else ""
             ),
             "preferred_skills": (
-                str(skills_info["preferred_skills"])
-                if skills_info["preferred_skills"]
-                else ""
+                str(skills_info["preferred_skills"]) if skills_info["preferred_skills"] else ""
             ),
             "technologies": (
                 str(skills_info["technologies"]) if skills_info["technologies"] else ""

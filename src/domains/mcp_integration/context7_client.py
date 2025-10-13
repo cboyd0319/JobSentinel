@@ -115,9 +115,7 @@ class Context7Client:
             logger.info("Connected to Context7")
         return success
 
-    async def query_industry_knowledge(
-        self, query: Context7Query
-    ) -> Context7Response | None:
+    async def query_industry_knowledge(self, query: Context7Query) -> Context7Response | None:
         """
         Query Context7 for industry knowledge.
 
@@ -177,9 +175,7 @@ class Context7Client:
             logger.error(f"Error querying Context7: {e}")
             return None
 
-    async def get_role_requirements(
-        self, industry: str, role: str
-    ) -> dict[str, Any] | None:
+    async def get_role_requirements(self, industry: str, role: str) -> dict[str, Any] | None:
         """
         Get comprehensive role requirements.
 
@@ -195,9 +191,7 @@ class Context7Client:
             - education: Education requirements
             - certifications: Relevant certifications
         """
-        query = Context7Query(
-            query_type="role", industry=industry, role=role
-        )
+        query = Context7Query(query_type="role", industry=industry, role=role)
 
         response = await self.query_industry_knowledge(query)
 
@@ -224,9 +218,7 @@ class Context7Client:
             - percentiles: P25, P50, P75 percentiles
             - currency: Currency code
         """
-        query = Context7Query(
-            query_type="salary", industry=industry, role=role, location=location
-        )
+        query = Context7Query(query_type="salary", industry=industry, role=role, location=location)
 
         response = await self.query_industry_knowledge(query)
 

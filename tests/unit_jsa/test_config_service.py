@@ -15,7 +15,12 @@ def write_config(tmp: Path, data: dict) -> Path:
 
 
 def test_user_preferences_happy(tmp_path: Path):
-    cfg = {"keywords_boost": ["python"], "digest_min_score": 0.5, "companies": [{"id":"x","board_type":"greenhouse","url":"https://example.com"}], "title_allowlist":["engineer"]}
+    cfg = {
+        "keywords_boost": ["python"],
+        "digest_min_score": 0.5,
+        "companies": [{"id": "x", "board_type": "greenhouse", "url": "https://example.com"}],
+        "title_allowlist": ["engineer"],
+    }
     path = write_config(tmp_path, cfg)
     svc = ConfigService(config_path=path)
     prefs = svc.user_preferences()

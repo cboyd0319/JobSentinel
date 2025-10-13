@@ -95,16 +95,12 @@ class MCPClient:
         """
         # Validate name
         if not config.name or not re.match(r"^[a-zA-Z0-9_-]+$", config.name):
-            raise ValueError(
-                "Invalid server name. Must be alphanumeric with dashes/underscores."
-            )
+            raise ValueError("Invalid server name. Must be alphanumeric with dashes/underscores.")
 
         # Validate endpoint
         if config.transport in (MCPTransport.HTTP, MCPTransport.HTTPS):
             # Must be valid URL
-            if not re.match(
-                r"^https?://[\w\-\.]+(:\d+)?(/[\w\-\.]*)*$", config.endpoint
-            ):
+            if not re.match(r"^https?://[\w\-\.]+(:\d+)?(/[\w\-\.]*)*$", config.endpoint):
                 raise ValueError(f"Invalid {config.transport.value} endpoint URL")
 
         # Validate timeout
@@ -159,17 +155,13 @@ class MCPClient:
             if self.config.api_key:
                 headers["Authorization"] = f"Bearer {self.config.api_key}"
 
-            response = await self._session.get(
-                f"{self.config.endpoint}/health", headers=headers
-            )
+            response = await self._session.get(f"{self.config.endpoint}/health", headers=headers)
 
             if response.status_code == 200:
                 logger.info(f"Connected to {self.config.name} via HTTP")
                 return True
             else:
-                logger.warning(
-                    f"Health check failed: {response.status_code}"
-                )
+                logger.warning(f"Health check failed: {response.status_code}")
                 return False
 
         except Exception as e:
@@ -217,9 +209,7 @@ class MCPClient:
             logger.error(f"Error listing tools: {e}")
             return []
 
-    async def call_tool(
-        self, tool_name: str, arguments: dict[str, Any]
-    ) -> dict[str, Any] | None:
+    async def call_tool(self, tool_name: str, arguments: dict[str, Any]) -> dict[str, Any] | None:
         """
         Invoke a tool on the MCP server.
 
@@ -280,9 +270,7 @@ class MCPClient:
             logger.error(f"Error fetching resource {resource_uri}: {e}")
             return None
 
-    async def _send_request(
-        self, method: str, params: dict[str, Any]
-    ) -> dict[str, Any] | None:
+    async def _send_request(self, method: str, params: dict[str, Any]) -> dict[str, Any] | None:
         """
         Send JSON-RPC 2.0 request to MCP server.
 

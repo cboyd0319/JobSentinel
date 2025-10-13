@@ -71,7 +71,7 @@ def _ensure_registry() -> JobBoardRegistry:
 
     logger.info(
         "Registered %s job scrapers (JobsWithGPT: 500k+, Reed: UK, JobSpy: multi-site)",
-        len(registry.scrapers)
+        len(registry.scrapers),
     )
     _REGISTRY = registry
     return registry
@@ -116,7 +116,7 @@ async def search_jobs_by_keywords(
     locations: list[dict] = None,
     titles: list[str] = None,
     distance: int = 50000,
-    page: int = 1
+    page: int = 1,
 ) -> list[dict]:
     """Search JobsWithGPT aggregated database (500k+ jobs)."""
     registry = _ensure_registry()
@@ -129,18 +129,12 @@ async def search_jobs_by_keywords(
         logger.error("JobsWithGPT scraper not registered!")
         return []
     return await jobswithgpt_scraper.search(
-        keywords=keywords,
-        locations=locations,
-        titles=titles,
-        distance=distance,
-        page=page
+        keywords=keywords, locations=locations, titles=titles, distance=distance, page=page
     )
 
 
 async def search_reed_jobs(
-    keywords: str | None = None,
-    location: str | None = None,
-    **kwargs
+    keywords: str | None = None, location: str | None = None, **kwargs
 ) -> list[dict]:
     """Search Reed.co.uk jobs (requires REED_API_KEY)."""
     registry = _ensure_registry()
@@ -160,7 +154,7 @@ async def search_multi_site_jobs(
     location: str | None = None,
     sites: list[str] | None = None,
     results_per_site: int = 50,
-    hours_old: int = 72
+    hours_old: int = 72,
 ) -> list[dict]:
     """Search multiple boards via JobSpy MCP (multi-site aggregator)."""
     registry = _ensure_registry()
@@ -181,5 +175,5 @@ async def search_multi_site_jobs(
         location=location,
         site_names=sites,
         results_wanted=results_per_site,
-        hours_old=hours_old
+        hours_old=hours_old,
     )

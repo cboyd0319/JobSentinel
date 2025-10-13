@@ -42,9 +42,7 @@ def _create_job_block(job: dict) -> dict:
     if reasons:
         rules_reasons = [r for r in reasons if r.startswith("Rules:")]
         ai_reasons = [r for r in reasons if r.startswith("AI:")]
-        other_reasons = [
-            r for r in reasons if not r.startswith(("Rules:", "AI:", "Summary:"))
-        ]
+        other_reasons = [r for r in reasons if not r.startswith(("Rules:", "AI:", "Summary:"))]
 
         if rules_reasons or other_reasons:
             matched_items = [r.replace("Rules: ", "") for r in rules_reasons] + other_reasons
@@ -64,6 +62,7 @@ def _create_job_block(job: dict) -> dict:
             "action_id": "view_job",
         },
     }
+
 
 def _create_action_block(job: dict) -> dict:
     """Create an action block for match feedback (future interactive use)."""
@@ -88,6 +87,7 @@ def _create_action_block(job: dict) -> dict:
         ],
     }
 
+
 def _create_footer_block(jobs: list[dict]) -> dict:
     """Create a footer summarizing results."""
     total_jobs = len(jobs)
@@ -96,6 +96,7 @@ def _create_footer_block(jobs: list[dict]) -> dict:
     if llm_jobs:
         footer_text += f" • {llm_jobs} AI-analyzed"
     return {"type": "context", "elements": [{"type": "mrkdwn", "text": footer_text}]}
+
 
 def format_jobs_for_slack(jobs: list[dict], critical: bool = True) -> dict:
     """Format jobs into Slack Block Kit structure.
@@ -131,7 +132,10 @@ def format_digest_for_slack(jobs: list[dict]) -> dict:
         blocks.append({"type": "section", "text": {"type": "mrkdwn", "text": job_text.strip()}})
     return {"blocks": blocks}
 
-def send_slack_alert(jobs: list[dict], custom_message: dict | None = None, critical: bool = True) -> bool:
+
+def send_slack_alert(
+    jobs: list[dict], custom_message: dict | None = None, critical: bool = True
+) -> bool:
     """Send formatted list of jobs or custom message to Slack incoming webhook.
 
     Returns True on success, False otherwise.

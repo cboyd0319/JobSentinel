@@ -155,9 +155,7 @@ class ResumeAutoFixer:
         fixes_applied.extend(section_fixes)
 
         # Calculate improvement score
-        improvement_score = self._calculate_improvement(
-            original_text, current_text, fixes_applied
-        )
+        improvement_score = self._calculate_improvement(original_text, current_text, fixes_applied)
 
         logger.info(
             f"Auto-fix complete: {len(fixes_applied)} fixes applied, "
@@ -292,9 +290,7 @@ class ResumeAutoFixer:
         fixed_text = "\n".join(updated_lines)
         return fixed_text, fixes
 
-    def _inject_keywords(
-        self, text: str, keywords: list[str]
-    ) -> tuple[str, list[Fix]]:
+    def _inject_keywords(self, text: str, keywords: list[str]) -> tuple[str, list[Fix]]:
         """Inject missing keywords into appropriate sections."""
         fixes = []
         fixed_text = text
@@ -308,9 +304,7 @@ class ResumeAutoFixer:
         if skills_match:
             # Get existing skills
             text_lower = text.lower()
-            missing_keywords = [
-                kw for kw in keywords if kw.lower() not in text_lower
-            ]
+            missing_keywords = [kw for kw in keywords if kw.lower() not in text_lower]
 
             if missing_keywords and len(missing_keywords) <= 5:
                 # Add up to 5 missing keywords
@@ -375,9 +369,7 @@ class ResumeAutoFixer:
 
         return text, fixes
 
-    def _calculate_improvement(
-        self, original: str, fixed: str, fixes: list[Fix]
-    ) -> float:
+    def _calculate_improvement(self, original: str, fixed: str, fixes: list[Fix]) -> float:
         """Calculate improvement score based on fixes applied."""
         if not fixes:
             return 0.0

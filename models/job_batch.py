@@ -5,6 +5,7 @@ Provides:
   - Aggregate helpers (count, sources, hash summary)
   - Stable batch id derived from contained job hashes (order-insensitive)
 """
+
 from __future__ import annotations
 
 import hashlib

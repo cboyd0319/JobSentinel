@@ -122,9 +122,7 @@ class PerformanceMetrics:
 
             # F1 Score: 2 * (P * R) / (P + R)
             if self.precision + self.recall > 0:
-                self.f1_score = (
-                    2 * self.precision * self.recall / (self.precision + self.recall)
-                )
+                self.f1_score = 2 * self.precision * self.recall / (self.precision + self.recall)
 
 
 @dataclass
@@ -146,7 +144,7 @@ class DriftReport:
 class FeedbackCollector:
     """
     Collect and store user feedback.
-    
+
     Stores feedback locally and provides APIs for querying and analysis.
     """
 
@@ -262,7 +260,7 @@ class FeedbackCollector:
 class PerformanceTracker:
     """
     Track model performance over time.
-    
+
     Monitors accuracy, precision, recall, and other metrics to detect
     performance degradation.
     """
@@ -318,9 +316,7 @@ class PerformanceTracker:
     def update(self, model_version: str, feedback: UserFeedback) -> None:
         """Update metrics with new feedback."""
         if model_version not in self.metrics:
-            self.metrics[model_version] = PerformanceMetrics(
-                model_version=model_version
-            )
+            self.metrics[model_version] = PerformanceMetrics(model_version=model_version)
 
         self.metrics[model_version].update(feedback)
         self.save_metrics()
@@ -348,9 +344,7 @@ class PerformanceTracker:
             "precision_diff": metrics_b.precision - metrics_a.precision,
             "recall_diff": metrics_b.recall - metrics_a.recall,
             "f1_diff": metrics_b.f1_score - metrics_a.f1_score,
-            "winner": version_b
-            if metrics_b.f1_score > metrics_a.f1_score
-            else version_a,
+            "winner": version_b if metrics_b.f1_score > metrics_a.f1_score else version_a,
         }
 
 
@@ -362,7 +356,7 @@ class PerformanceTracker:
 class DriftDetector:
     """
     Detect data drift to trigger retraining.
-    
+
     Monitors prediction distributions and performance to detect when
     the model needs retraining.
     """
@@ -374,7 +368,7 @@ class DriftDetector:
     ):
         """
         Initialize drift detector.
-        
+
         Args:
             gradual_threshold: Threshold for gradual drift detection
             sudden_threshold: Threshold for sudden drift detection
@@ -390,11 +384,11 @@ class DriftDetector:
     ) -> DriftReport:
         """
         Detect drift by comparing current vs baseline metrics.
-        
+
         Args:
             current_metrics: Current model metrics
             baseline_metrics: Baseline model metrics
-            
+
         Returns:
             DriftReport with drift analysis
         """
@@ -448,7 +442,7 @@ class DriftDetector:
 class AdaptiveLearningManager:
     """
     Main manager for adaptive learning system.
-    
+
     Coordinates feedback collection, performance tracking, drift detection,
     and retraining triggers.
     """

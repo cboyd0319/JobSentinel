@@ -12,7 +12,10 @@ async def setup_binary_authorization(logger, project_id: str, region: str) -> No
 
     # Create a policy that requires all images to be from our Artifact Registry
     policy = {
-        "defaultAdmissionRule": {"evaluationMode": "ALWAYS_DENY", "enforcementMode": "ENFORCED_BLOCK_AND_AUDIT_LOG"},
+        "defaultAdmissionRule": {
+            "evaluationMode": "ALWAYS_DENY",
+            "enforcementMode": "ENFORCED_BLOCK_AND_AUDIT_LOG",
+        },
         "clusterAdmissionRules": {},
         "admissionWhitelistPatterns": [{"namePattern": f"{region}-docker.pkg.dev/{project_id}/*"}],
     }
@@ -21,7 +24,15 @@ async def setup_binary_authorization(logger, project_id: str, region: str) -> No
         json.dump(policy, temp_policy_file)
         temp_policy_file.flush()
         await run_command(
-            ["gcloud", "container", "binauthz", "policy", "import", temp_policy_file.name, f"--project={project_id}"],
+            [
+                "gcloud",
+                "container",
+                "binauthz",
+                "policy",
+                "import",
+                temp_policy_file.name,
+                f"--project={project_id}",
+            ],
             check=False,
             logger=logger,
             retries=3,
@@ -29,6 +40,3 @@ async def setup_binary_authorization(logger, project_id: str, region: str) -> No
         )
 
     logger.info("Binary Authorization configured to allow only trusted images")
-
-
-

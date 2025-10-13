@@ -17,7 +17,9 @@ async def select_region(logger, no_prompt: bool) -> str:
         "asia-southeast1",  # Singapore
         "australia-southeast1",  # Sydney
     ]
-    region = choose("Choose the region (us-central1 recommended for lowest cost):", regions, no_prompt)
+    region = choose(
+        "Choose the region (us-central1 recommended for lowest cost):", regions, no_prompt
+    )
     await run_command(["gcloud", "config", "set", "run/region", region], logger=logger)
     return region
 

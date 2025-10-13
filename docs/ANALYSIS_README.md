@@ -74,7 +74,7 @@ Code-level guide:
 
 ### Technical Debt
 - **Where to look:** DEEP_ANALYSIS_2025.md → Section 4 (Technical Debt)
-- **Key insight:** Python 3.13 requirement limits adoption (10x users if lowered to 3.11)
+- **Key insight:** Python 3.13 requirement has been lowered to 3.11 (10x larger user base)
 - **Effort:** 1 day fix, high impact
 
 ### Implementation Details
