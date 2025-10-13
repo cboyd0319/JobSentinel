@@ -39,6 +39,29 @@ All integrations follow security best practices with OWASP ASVS 5.0 compliance.
 
 ---
 
+## MCP Server Types
+
+### Built-in Servers (GitHub Copilot)
+When using GitHub Copilot, these MCP servers are **automatically available** and require **no configuration**:
+
+- **GitHub MCP Server**: Repository operations, issues, PRs, code search
+  - Uses OAuth 2.0 (automatic authentication)
+  - Endpoint: `https://api.githubcopilot.com/mcp/`
+  - ⚠️ Do NOT use Personal Access Tokens (PATs) - not supported
+  - ⚠️ Do NOT add to `.github/copilot-mcp.json`
+
+### External Servers (Configured in `.github/copilot-mcp.json`)
+These servers require explicit configuration:
+
+- **HTTP Servers**: Remote MCP servers accessed over HTTPS (e.g., context7)
+- **Local Command Servers**: MCP servers run as local commands (e.g., openai-websearch, fetch, playwright)
+
+**Configuration File:** `.github/copilot-mcp.json`  
+**Validation Script:** `scripts/validate_mcp_config.py`  
+**Documentation:** `.github/MCP_CONFIG_README.md`
+
+---
+
 ## Supported MCP Servers
 
 ### 1. Context7 (Recommended)
@@ -105,24 +128,47 @@ All integrations follow security best practices with OWASP ASVS 5.0 compliance.
 - Fallback to cheaper models
 - No vendor lock-in
 
-### 5. Anthropic Official MCP Servers (Available Now)
+### 5. GitHub MCP Server (Built-in with Copilot)
 
-**Purpose:** Pre-built MCP servers from Anthropic
+**Purpose:** Repository data, issues, pull requests, and GitHub operations
+
+**Status:** ✅ Built-in to GitHub Copilot (no configuration needed)
+
+**Authentication:** OAuth 2.0 through Copilot (automatic)
+
+**Important Notes:**
+- ⚠️ **Do NOT use Personal Access Tokens (PAT)** - they are not supported by GitHub MCP server
+- ⚠️ **Do NOT add to `.github/copilot-mcp.json`** - GitHub tools work automatically through Copilot
+- ✅ GitHub MCP endpoint: `https://api.githubcopilot.com/mcp/` (handled by Copilot internally)
+
+**Available Tools:**
+- Repository information and file operations
+- Issue and pull request management
+- Code search and navigation
+- Commit and branch operations
+- CI/CD workflow status
+
+**Reference:** [GitHub MCP Server Guide](https://github.blog/ai-and-ml/generative-ai/a-practical-guide-on-how-to-use-the-github-mcp-server/)
+
+### 6. Anthropic Official MCP Servers (Optional, Self-Hosted)
+
+**Purpose:** Pre-built MCP servers from Anthropic for local/self-hosted use
 
 **Available Servers:**
 - **Filesystem:** Local file operations (read/write)
 - **PostgreSQL:** Database queries and operations
 - **Slack:** Slack workspace integration
-- **GitHub:** Repository data and operations
 - **Google Drive:** Document access
 - **Web Search:** Brave Search integration
+
+**Note:** These are self-hosted alternatives, not the built-in GitHub Copilot servers.
 
 **Repository:** https://github.com/modelcontextprotocol/servers
 
 **Installation:**
 ```bash
-# Install desired server
-npx @modelcontextprotocol/server-github
+# Install desired server (for self-hosted use)
+npx @modelcontextprotocol/server-filesystem
 
 # Or build from source
 git clone https://github.com/modelcontextprotocol/servers

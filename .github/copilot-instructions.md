@@ -219,12 +219,21 @@ See `docs/AI_ML_ROADMAP.md` and `docs/ML_CAPABILITIES.md` for details.
 
 ## MCP Integration (Model Context Protocol)
 JobSentinel integrates with MCP servers for enhanced AI capabilities:
-- **context7:** Version-specific documentation lookup
-- **openai-websearch:** Web search via OpenAI
-- **fetch:** Web content fetching
-- **playwright:** Browser automation
 
-Config: `.github/copilot-mcp.json` (supports both HTTP and local command servers)
+### Built-in (GitHub Copilot)
+- **github-mcp:** Repository operations, issues, PRs (OAuth, automatic - no config needed)
+
+### External (Configured)
+- **context7:** Version-specific documentation lookup (HTTP, needs API key)
+- **openai-websearch:** Web search via OpenAI (local/uvx, needs API key)
+- **fetch:** Web content fetching (local/npx, ready)
+- **playwright:** Browser automation (local/npx, ready)
+
+**Config:** `.github/copilot-mcp.json` (HTTP and local command servers)  
+**Validation:** `python3 scripts/validate_mcp_config.py`  
+**Docs:** `.github/MCP_CONFIG_README.md` and `docs/MCP_INTEGRATION.md`
+
+**Important:** GitHub MCP tools are built-in to Copilot. Do NOT add GitHub server to copilot-mcp.json. Personal Access Tokens (PAT) are NOT supported for GitHub MCP - it uses OAuth automatically.
 
 ## Good first tasks for Copilot Agent
 - Add a new public scraper (e.g., Workable) behind a feature flag.
