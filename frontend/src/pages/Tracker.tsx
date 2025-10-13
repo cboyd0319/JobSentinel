@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { api } from '../api/client'
-import type { TrackedJob, JobStatus } from '../types'
+import type { TrackedJob } from '../types'
+import { JobStatus } from '../types'
 
 const statusColumns: { status: JobStatus; label: string; color: string }[] = [
   { status: JobStatus.BOOKMARKED, label: '📑 Bookmarked', color: 'bg-gray-100 dark:bg-gray-800' },

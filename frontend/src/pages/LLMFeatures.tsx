@@ -146,11 +146,13 @@ function CoverLetterModal({ provider, onClose, toast }: { provider: LLMProvider;
   })
 
   const mutation = useMutation({
-    mutationFn: (data: typeof formData) =>
-      api.post('/llm/cover-letter', {
+    mutationFn: async (data: typeof formData) => {
+      const response = await api.post('/llm/cover-letter', {
         ...data,
         llm_config: { provider },
-      }),
+      })
+      return response.data as LLMResponse
+    },
     onSuccess: (_data: LLMResponse) => {
       toast.success('Cover letter generated successfully!')
     },

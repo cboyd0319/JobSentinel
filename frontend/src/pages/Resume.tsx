@@ -10,7 +10,10 @@ export function Resume() {
   const toast = useToast()
 
   const analyzeMutation = useMutation({
-    mutationFn: (text: string) => api.post('/resume/analyze', { resume_text: text }),
+    mutationFn: async (text: string) => {
+      const response = await api.post('/resume/analyze', { resume_text: text })
+      return response.data as ResumeAnalysis
+    },
     onSuccess: (_data: ResumeAnalysis) => {
       toast.success('Resume analyzed successfully!')
     },
