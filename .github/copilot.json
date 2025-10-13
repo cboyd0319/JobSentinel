@@ -1,0 +1,33 @@
+{
+  "mcpServers": {
+    "context7": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {
+        "CONTEXT7_API_KEY": "$COPILOT_MCP_CONTEXT7_API_KEY"
+      },
+      "tools": ["*"]
+    },
+    "openai-websearch": {
+      "type": "local",
+      "command": "uvx",
+      "args": ["openai-websearch-mcp"],
+      "env": {
+        "OPENAI_API_KEY": "COPILOT_MCP_OPENAI_API_KEY"
+      },
+      "tools": ["openai_web_search"]
+    },
+    "fetch": {
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "mcp-fetch-server@latest"],
+      "tools": ["*"]
+    },
+    "playwright": {
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest"],
+      "tools": ["*"]
+    }
+  }
+}
