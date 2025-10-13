@@ -7,10 +7,11 @@ Prevents common injection attacks and malicious input.
 from __future__ import annotations
 
 import re
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
 
 from fastapi import HTTPException, Request, Response, status
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.types import ASGIApp
 
 from jsa.logging import get_logger
 
@@ -72,7 +73,7 @@ class InputValidationMiddleware(BaseHTTPMiddleware):
         r"\|\|",
     ]
 
-    def __init__(self, app, enabled: bool = True):
+    def __init__(self, app: ASGIApp, enabled: bool = True):
         """
         Initialize input validation middleware.
 
@@ -89,7 +90,9 @@ class InputValidationMiddleware(BaseHTTPMiddleware):
         self.path_patterns = [re.compile(p, re.IGNORECASE) for p in self.PATH_TRAVERSAL_PATTERNS]
         self.cmd_patterns = [re.compile(p, re.IGNORECASE) for p in self.COMMAND_INJECTION_PATTERNS]
 
-    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
         """Validate request input."""
         if not self.enabled:
             return await call_next(request)

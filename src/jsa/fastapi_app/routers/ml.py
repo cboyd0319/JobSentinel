@@ -28,7 +28,7 @@ class SentimentAnalysisResponse(BaseModel):
 class SkillsGapRequest(BaseModel):
     """Skills gap analysis request."""
 
-    current_skills: list[str] = Field(..., min_items=1)
+    current_skills: list[str] = Field(..., min_length=1)
     target_role: str = Field(..., min_length=1, max_length=200)
     industry: str | None = Field(None, max_length=100)
 

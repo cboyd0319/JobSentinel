@@ -9,10 +9,12 @@ from __future__ import annotations
 
 import time
 from collections import defaultdict
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
+from typing import Any
 
 from fastapi import HTTPException, Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.types import ASGIApp
 
 from jsa.logging import get_logger
 
@@ -36,7 +38,7 @@ class TokenBucket:
         """
         self.capacity = capacity
         self.refill_rate = refill_rate
-        self.tokens = capacity
+        self.tokens: float = float(capacity)
         self.last_refill = time.time()
 
     def consume(self, tokens: int = 1) -> bool:
@@ -61,7 +63,7 @@ class TokenBucket:
         now = time.time()
         elapsed = now - self.last_refill
         tokens_to_add = elapsed * self.refill_rate
-        self.tokens = min(self.capacity, self.tokens + tokens_to_add)
+        self.tokens = min(float(self.capacity), self.tokens + tokens_to_add)
         self.last_refill = now
 
 
@@ -76,7 +78,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
     def __init__(
         self,
-        app,
+        app: ASGIApp,
         requests_per_minute: int = 100,
         requests_per_hour: int = 1000,
         enabled: bool = True,
@@ -107,7 +109,9 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self.last_cleanup = time.time()
         self.cleanup_interval = 3600  # 1 hour
 
-    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
         """Apply rate limiting to request."""
         if not self.enabled:
             return await call_next(request)
