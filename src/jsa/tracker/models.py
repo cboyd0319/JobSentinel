@@ -34,7 +34,7 @@ class TrackedJob(SQLModel, table=True):
     __tablename__ = "tracked_jobs"
 
     id: Optional[int] = Field(default=None, primary_key=True)
-    job_id: int = Field(foreign_key="jobs.id", index=True)
+    job_id: int = Field(index=True)  # References jobs.id but FK constraint optional for flexibility
     status: JobStatus = Field(default=JobStatus.BOOKMARKED, index=True)
     priority: int = Field(default=3, ge=0, le=5)  # 0-5 stars (0=none, 5=critical)
     notes: str = Field(default="")
@@ -44,11 +44,6 @@ class TrackedJob(SQLModel, table=True):
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     applied_at: Optional[datetime] = None
     interview_at: Optional[datetime] = None
-
-    # Relationships
-    contacts: list["Contact"] = Relationship(back_populates="job")
-    documents: list["Document"] = Relationship(back_populates="job")
-    activities: list["Activity"] = Relationship(back_populates="job")
 
 
 class Contact(SQLModel, table=True):
@@ -70,9 +65,6 @@ class Contact(SQLModel, table=True):
 
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
-    # Relationships
-    job: TrackedJob = Relationship(back_populates="contacts")
-
 
 class Document(SQLModel, table=True):
     """
@@ -91,9 +83,6 @@ class Document(SQLModel, table=True):
 
     uploaded_at: datetime = Field(default_factory=datetime.utcnow)
 
-    # Relationships
-    job: TrackedJob = Relationship(back_populates="documents")
-
 
 class Activity(SQLModel, table=True):
     """
@@ -107,9 +96,6 @@ class Activity(SQLModel, table=True):
 
     activity_type: str  # email_sent, interview_scheduled, offer_received, status_changed, etc.
     description: str
-    metadata: str = Field(default="{}")  # JSON metadata for extensibility
+    extra_data: str = Field(default="{}")  # JSON metadata for extensibility
 
     created_at: datetime = Field(default_factory=datetime.utcnow, index=True)
-
-    # Relationships
-    job: TrackedJob = Relationship(back_populates="activities")

@@ -6,7 +6,10 @@ Handles CRUD operations, status transitions, and activity logging.
 
 from __future__ import annotations
 
+import csv
+import json
 from datetime import datetime
+from io import StringIO
 from typing import Optional
 
 from sqlmodel import Session, select
@@ -317,7 +320,7 @@ class TrackerService:
         job_id: int,
         activity_type: str,
         description: str,
-        metadata: str = "{}",
+        extra_data: str = "{}",
     ) -> Activity:
         """
         Internal method to log an activity.
@@ -326,7 +329,7 @@ class TrackerService:
             job_id: ID of the tracked job
             activity_type: Type of activity
             description: Activity description
-            metadata: JSON metadata
+            extra_data: JSON metadata
 
         Returns:
             Created Activity instance
@@ -335,10 +338,75 @@ class TrackerService:
             job_id=job_id,
             activity_type=activity_type,
             description=description,
-            metadata=metadata,
+            extra_data=extra_data,
         )
 
         self.session.add(activity)
         self.session.commit()
 
         return activity
+
+    def export_to_csv(self) -> str:
+        """
+        Export all tracked jobs to CSV format.
+
+        Returns:
+            CSV string with all tracked jobs
+        """
+        jobs = self.get_all()
+        output = StringIO()
+        writer = csv.writer(output)
+
+        # Header
+        writer.writerow([
+            "ID",
+            "Job ID",
+            "Status",
+            "Priority",
+            "Notes",
+            "Added At",
+            "Updated At",
+            "Applied At",
+            "Interview At",
+        ])
+
+        # Data rows
+        for job in jobs:
+            writer.writerow([
+                job.id,
+                job.job_id,
+                job.status.value,
+                job.priority,
+                job.notes,
+                job.added_at.isoformat(),
+                job.updated_at.isoformat(),
+                job.applied_at.isoformat() if job.applied_at else "",
+                job.interview_at.isoformat() if job.interview_at else "",
+            ])
+
+        return output.getvalue()
+
+    def export_to_json(self) -> str:
+        """
+        Export all tracked jobs to JSON format.
+
+        Returns:
+            JSON string with all tracked jobs
+        """
+        jobs = self.get_all()
+        data = []
+
+        for job in jobs:
+            data.append({
+                "id": job.id,
+                "job_id": job.job_id,
+                "status": job.status.value,
+                "priority": job.priority,
+                "notes": job.notes,
+                "added_at": job.added_at.isoformat(),
+                "updated_at": job.updated_at.isoformat(),
+                "applied_at": job.applied_at.isoformat() if job.applied_at else None,
+                "interview_at": job.interview_at.isoformat() if job.interview_at else None,
+            })
+
+        return json.dumps(data, indent=2)

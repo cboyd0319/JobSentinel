@@ -6,7 +6,7 @@ Provides Kanban board and job detail views.
 
 from __future__ import annotations
 
-from flask import Blueprint, jsonify, redirect, render_template, request, url_for
+from flask import Blueprint, Response, jsonify, redirect, render_template, request, url_for
 from sqlmodel import Session
 
 from jsa.db import get_session_context
@@ -211,3 +211,41 @@ def add_contact(job_id: int) -> tuple[dict[str, str | int], int]:
             }), 201
     except Exception as e:
         return jsonify({"error": "Internal server error"}), 500
+
+
+@tracker_bp.route("/export/csv")
+def export_csv() -> Response:
+    """
+    Export tracked jobs to CSV format.
+
+    Returns:
+        CSV file download response
+    """
+    with get_session_context() as session:
+        service = TrackerService(session)
+        csv_data = service.export_to_csv()
+
+        return Response(
+            csv_data,
+            mimetype="text/csv",
+            headers={"Content-Disposition": "attachment;filename=tracked_jobs.csv"}
+        )
+
+
+@tracker_bp.route("/export/json")
+def export_json() -> Response:
+    """
+    Export tracked jobs to JSON format.
+
+    Returns:
+        JSON file download response
+    """
+    with get_session_context() as session:
+        service = TrackerService(session)
+        json_data = service.export_to_json()
+
+        return Response(
+            json_data,
+            mimetype="application/json",
+            headers={"Content-Disposition": "attachment;filename=tracked_jobs.json"}
+        )
