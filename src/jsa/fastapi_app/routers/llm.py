@@ -13,15 +13,15 @@ from __future__ import annotations
 import os
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException, Header
+from fastapi import APIRouter, Header, HTTPException
 from pydantic import BaseModel, Field
 
 from domains.llm.client import LLMConfig, LLMProvider
 from domains.llm.features import (
-    LLMFeatures,
     CoverLetterRequest,
     InterviewPrepRequest,
     JobAnalysisRequest,
+    LLMFeatures,
 )
 
 router = APIRouter()
@@ -33,7 +33,7 @@ class LLMConfigRequest(BaseModel):
     provider: LLMProvider = Field(
         default=LLMProvider.OLLAMA, description="LLM provider (ollama, openai, anthropic)"
     )
-    model: Optional[str] = Field(None, description="Provider-specific model")
+    model: str | None = Field(None, description="Provider-specific model")
     temperature: float = Field(default=0.7, ge=0.0, le=2.0)
     max_tokens: int = Field(default=2000, ge=100, le=8000)
 
@@ -47,7 +47,7 @@ class CoverLetterAPIRequest(BaseModel):
     resume_text: str = Field(..., min_length=10, max_length=10000)
     tone: str = Field(default="professional", pattern="^(professional|enthusiastic|formal)$")
     max_length: int = Field(default=500, ge=100, le=1000)
-    llm_config: Optional[LLMConfigRequest] = None
+    llm_config: LLMConfigRequest | None = None
 
 
 class InterviewPrepAPIRequest(BaseModel):
@@ -58,7 +58,7 @@ class InterviewPrepAPIRequest(BaseModel):
     job_description: str = Field(..., min_length=10, max_length=10000)
     resume_text: str = Field(..., min_length=10, max_length=10000)
     num_questions: int = Field(default=10, ge=3, le=20)
-    llm_config: Optional[LLMConfigRequest] = None
+    llm_config: LLMConfigRequest | None = None
 
 
 class JobAnalysisAPIRequest(BaseModel):
@@ -68,7 +68,7 @@ class JobAnalysisAPIRequest(BaseModel):
     analyze_culture: bool = Field(default=True)
     analyze_requirements: bool = Field(default=True)
     analyze_compensation: bool = Field(default=True)
-    llm_config: Optional[LLMConfigRequest] = None
+    llm_config: LLMConfigRequest | None = None
 
 
 class SkillTranslationRequest(BaseModel):
@@ -76,7 +76,7 @@ class SkillTranslationRequest(BaseModel):
 
     resume_skills: list[str] = Field(..., min_items=1, max_items=50)
     job_requirements: list[str] = Field(..., min_items=1, max_items=50)
-    llm_config: Optional[LLMConfigRequest] = None
+    llm_config: LLMConfigRequest | None = None
 
 
 class ResumeSectionRequest(BaseModel):
@@ -84,7 +84,7 @@ class ResumeSectionRequest(BaseModel):
 
     section_text: str = Field(..., min_length=10, max_length=5000)
     job_description: str = Field(..., min_length=10, max_length=10000)
-    llm_config: Optional[LLMConfigRequest] = None
+    llm_config: LLMConfigRequest | None = None
 
 
 class LLMResponse(BaseModel):
@@ -98,7 +98,7 @@ class LLMResponse(BaseModel):
     privacy_note: str
 
 
-def _create_config(req_config: Optional[LLMConfigRequest]) -> LLMConfig:
+def _create_config(req_config: LLMConfigRequest | None) -> LLMConfig:
     """Create LLM config from request."""
     if req_config is None:
         # Default to Ollama (privacy-first)
@@ -333,8 +333,8 @@ async def llm_status() -> dict:
 
     # Check if Ollama is running
     try:
-        from domains.llm.providers import OllamaClient
         from domains.llm.client import LLMConfig, LLMProvider
+        from domains.llm.providers import OllamaClient
 
         client = OllamaClient(LLMConfig(provider=LLMProvider.OLLAMA))
         status["ollama"]["available"] = client.is_available()

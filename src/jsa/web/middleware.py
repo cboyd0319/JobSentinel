@@ -43,18 +43,21 @@ def setup_rate_limiting(app: Flask) -> None:
         cutoff_time = current_time - window_seconds
 
         _rate_limit_storage[client_id] = [
-            req_time
-            for req_time in _rate_limit_storage[client_id]
-            if req_time > cutoff_time
+            req_time for req_time in _rate_limit_storage[client_id] if req_time > cutoff_time
         ]
 
         # Check if rate limit exceeded
         if len(_rate_limit_storage[client_id]) >= max_requests:
-            return jsonify({
-                "error": "Rate limit exceeded",
-                "message": f"Maximum {max_requests} requests per {window_seconds} seconds",
-                "retry_after": int(window_seconds),
-            }), 429
+            return (
+                jsonify(
+                    {
+                        "error": "Rate limit exceeded",
+                        "message": f"Maximum {max_requests} requests per {window_seconds} seconds",
+                        "retry_after": int(window_seconds),
+                    }
+                ),
+                429,
+            )
 
         # Record this request
         _rate_limit_storage[client_id].append(current_time)
@@ -90,18 +93,21 @@ def rate_limit(max_requests: int = 100, window_seconds: int = 60) -> Callable:
 
             # Clean up old requests
             _rate_limit_storage[key] = [
-                req_time
-                for req_time in _rate_limit_storage[key]
-                if req_time > cutoff_time
+                req_time for req_time in _rate_limit_storage[key] if req_time > cutoff_time
             ]
 
             # Check limit
             if len(_rate_limit_storage[key]) >= max_requests:
-                return jsonify({
-                    "error": "Rate limit exceeded",
-                    "message": f"Maximum {max_requests} requests per {window_seconds} seconds",
-                    "retry_after": int(window_seconds),
-                }), 429
+                return (
+                    jsonify(
+                        {
+                            "error": "Rate limit exceeded",
+                            "message": f"Maximum {max_requests} requests per {window_seconds} seconds",
+                            "retry_after": int(window_seconds),
+                        }
+                    ),
+                    429,
+                )
 
             # Record request
             _rate_limit_storage[key].append(current_time)

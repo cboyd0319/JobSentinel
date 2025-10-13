@@ -9,4 +9,4 @@ from __future__ import annotations
 
 __all__ = ["create_app", "app"]
 
-from jsa.fastapi_app.app import create_app, app
+from jsa.fastapi_app.app import app, create_app

@@ -6,7 +6,7 @@ Supports Kanban-style workflow management with contacts, documents, and activity
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Optional
 
@@ -40,8 +40,8 @@ class TrackedJob(SQLModel, table=True):
     notes: str = Field(default="")
 
     # Metadata
-    added_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    added_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     applied_at: datetime | None = None
     interview_at: datetime | None = None
 
@@ -63,7 +63,7 @@ class Contact(SQLModel, table=True):
     linkedin_url: str | None = None
     notes: str = Field(default="")
 
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class Document(SQLModel, table=True):
@@ -81,7 +81,7 @@ class Document(SQLModel, table=True):
     file_path: str  # Relative path in user's data directory
     file_size: int = Field(default=0)  # Size in bytes
 
-    uploaded_at: datetime = Field(default_factory=datetime.utcnow)
+    uploaded_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class Activity(SQLModel, table=True):
@@ -97,5 +97,7 @@ class Activity(SQLModel, table=True):
     activity_type: str  # email_sent, interview_scheduled, offer_received, status_changed, etc.
     description: str
     extra_data: str = Field(default="{}")  # JSON metadata for extensibility
+
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     created_at: datetime = Field(default_factory=datetime.utcnow, index=True)

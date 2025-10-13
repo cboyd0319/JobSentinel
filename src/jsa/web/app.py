@@ -20,6 +20,7 @@ from jsa.logging import get_logger, setup_logging
 
 try:
     from flask_cors import CORS
+
     HAS_CORS = True
 except ImportError:
     HAS_CORS = False
@@ -82,17 +83,21 @@ def create_app() -> Flask:
 
     # CORS configuration for API endpoints (optional)
     if HAS_CORS and os.getenv("ENABLE_CORS", "true").lower() == "true":
-        CORS(app, resources={
-            r"/api/*": {
-                "origins": os.getenv("CORS_ORIGINS", "http://localhost:*").split(","),
-                "methods": ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
-                "allow_headers": ["Content-Type", "X-API-Key"],
-            }
-        })
+        CORS(
+            app,
+            resources={
+                r"/api/*": {
+                    "origins": os.getenv("CORS_ORIGINS", "http://localhost:*").split(","),
+                    "methods": ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+                    "allow_headers": ["Content-Type", "X-API-Key"],
+                }
+            },
+        )
         logger.info("CORS enabled for API endpoints", component="web_ui")
 
     # Rate limiting (simple implementation)
     from jsa.web.middleware import setup_rate_limiting
+
     setup_rate_limiting(app)
 
     # Blueprints

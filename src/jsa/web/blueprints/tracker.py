@@ -28,9 +28,7 @@ def board() -> str:
         service = TrackerService(session)
 
         # Group jobs by status
-        jobs_by_status = {
-            status: service.get_by_status(status) for status in JobStatus
-        }
+        jobs_by_status = {status: service.get_by_status(status) for status in JobStatus}
 
         return render_template(
             "tracker/board.html",
@@ -92,11 +90,16 @@ def update_status(job_id: int) -> tuple[dict[str, str | int], int]:
             service = TrackerService(session)
             job = service.update_status(job_id, new_status)
 
-            return jsonify({
-                "id": job.id,
-                "status": job.status.value,
-                "updated_at": job.updated_at.isoformat(),
-            }), 200
+            return (
+                jsonify(
+                    {
+                        "id": job.id,
+                        "status": job.status.value,
+                        "updated_at": job.updated_at.isoformat(),
+                    }
+                ),
+                200,
+            )
     except ValueError as e:
         return jsonify({"error": str(e)}), 404
     except Exception as e:
@@ -130,11 +133,16 @@ def update_priority(job_id: int) -> tuple[dict[str, str | int], int]:
             service = TrackerService(session)
             job = service.update_priority(job_id, priority)
 
-            return jsonify({
-                "id": job.id,
-                "priority": job.priority,
-                "updated_at": job.updated_at.isoformat(),
-            }), 200
+            return (
+                jsonify(
+                    {
+                        "id": job.id,
+                        "priority": job.priority,
+                        "updated_at": job.updated_at.isoformat(),
+                    }
+                ),
+                200,
+            )
     except ValueError as e:
         return jsonify({"error": str(e)}), 404
     except Exception as e:
@@ -163,11 +171,16 @@ def update_notes(job_id: int) -> tuple[dict[str, str | int], int]:
             service = TrackerService(session)
             job = service.update_notes(job_id, notes)
 
-            return jsonify({
-                "id": job.id,
-                "notes": job.notes,
-                "updated_at": job.updated_at.isoformat(),
-            }), 200
+            return (
+                jsonify(
+                    {
+                        "id": job.id,
+                        "notes": job.notes,
+                        "updated_at": job.updated_at.isoformat(),
+                    }
+                ),
+                200,
+            )
     except ValueError as e:
         return jsonify({"error": str(e)}), 404
     except Exception as e:
@@ -203,12 +216,17 @@ def add_contact(job_id: int) -> tuple[dict[str, str | int], int]:
                 notes=data.get("notes", ""),
             )
 
-            return jsonify({
-                "id": contact.id,
-                "name": contact.name,
-                "email": contact.email,
-                "role": contact.role,
-            }), 201
+            return (
+                jsonify(
+                    {
+                        "id": contact.id,
+                        "name": contact.name,
+                        "email": contact.email,
+                        "role": contact.role,
+                    }
+                ),
+                201,
+            )
     except Exception as e:
         return jsonify({"error": "Internal server error"}), 500
 
@@ -228,7 +246,7 @@ def export_csv() -> Response:
         return Response(
             csv_data,
             mimetype="text/csv",
-            headers={"Content-Disposition": "attachment;filename=tracked_jobs.csv"}
+            headers={"Content-Disposition": "attachment;filename=tracked_jobs.csv"},
         )
 
 
@@ -247,5 +265,5 @@ def export_json() -> Response:
         return Response(
             json_data,
             mimetype="application/json",
-            headers={"Content-Disposition": "attachment;filename=tracked_jobs.json"}
+            headers={"Content-Disposition": "attachment;filename=tracked_jobs.json"},
         )

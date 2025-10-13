@@ -30,7 +30,7 @@ class SkillsGapRequest(BaseModel):
 
     current_skills: list[str] = Field(..., min_items=1)
     target_role: str = Field(..., min_length=1, max_length=200)
-    industry: Optional[str] = Field(None, max_length=100)
+    industry: str | None = Field(None, max_length=100)
 
 
 class SkillsGapResponse(BaseModel):
@@ -40,7 +40,7 @@ class SkillsGapResponse(BaseModel):
     adjacent_skills: list[str]
     learning_paths: list[dict[str, str]]
     estimated_time_months: int
-    salary_potential: Optional[dict[str, int]] = None
+    salary_potential: dict[str, int] | None = None
 
 
 @router.post("/ml/sentiment", response_model=SentimentAnalysisResponse)

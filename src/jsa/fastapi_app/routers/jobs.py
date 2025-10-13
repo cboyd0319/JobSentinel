@@ -24,8 +24,8 @@ class JobCreate(BaseModel):
     source: str = Field(default="manual", max_length=50)
     score: float = Field(default=0.0, ge=0.0, le=100.0)
     remote: bool = Field(default=False)
-    salary_min: Optional[int] = Field(default=None, ge=0)
-    salary_max: Optional[int] = Field(default=None, ge=0)
+    salary_min: int | None = Field(default=None, ge=0)
+    salary_max: int | None = Field(default=None, ge=0)
     currency: str = Field(default="USD", max_length=3)
 
 
@@ -41,8 +41,8 @@ class JobResponse(BaseModel):
     source: str
     score: float
     remote: bool
-    salary_min: Optional[int] = None
-    salary_max: Optional[int] = None
+    salary_min: int | None = None
+    salary_max: int | None = None
     currency: str
 
 
@@ -60,9 +60,9 @@ class JobListResponse(BaseModel):
 async def list_jobs(
     page: int = Query(1, ge=1, description="Page number"),
     per_page: int = Query(50, ge=1, le=100, description="Results per page"),
-    source: Optional[str] = Query(None, description="Filter by job source"),
-    min_score: Optional[float] = Query(None, ge=0.0, le=100.0, description="Minimum score"),
-    remote: Optional[bool] = Query(None, description="Filter by remote jobs"),
+    source: str | None = Query(None, description="Filter by job source"),
+    min_score: float | None = Query(None, ge=0.0, le=100.0, description="Minimum score"),
+    remote: bool | None = Query(None, description="Filter by remote jobs"),
 ) -> JobListResponse:
     """
     List jobs with pagination and filtering.

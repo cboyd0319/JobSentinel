@@ -42,22 +42,29 @@ def list_tracked_jobs() -> tuple[dict, int]:
         else:
             jobs = service.get_all()
 
-        return jsonify({
-            "jobs": [
+        return (
+            jsonify(
                 {
-                    "id": job.id,
-                    "job_id": job.job_id,
-                    "status": job.status.value,
-                    "priority": job.priority,
-                    "notes": job.notes,
-                    "added_at": job.added_at.isoformat(),
-                    "updated_at": job.updated_at.isoformat(),
-                    "applied_at": job.applied_at.isoformat() if job.applied_at else None,
-                    "interview_at": job.interview_at.isoformat() if job.interview_at else None,
+                    "jobs": [
+                        {
+                            "id": job.id,
+                            "job_id": job.job_id,
+                            "status": job.status.value,
+                            "priority": job.priority,
+                            "notes": job.notes,
+                            "added_at": job.added_at.isoformat(),
+                            "updated_at": job.updated_at.isoformat(),
+                            "applied_at": job.applied_at.isoformat() if job.applied_at else None,
+                            "interview_at": (
+                                job.interview_at.isoformat() if job.interview_at else None
+                            ),
+                        }
+                        for job in jobs
+                    ]
                 }
-                for job in jobs
-            ]
-        }), 200
+            ),
+            200,
+        )
 
 
 @tracker_api_bp.route("/jobs", methods=["POST"])
@@ -103,14 +110,19 @@ def add_tracked_job() -> tuple[dict, int]:
                 notes=notes,
             )
 
-            return jsonify({
-                "id": tracked_job.id,
-                "job_id": tracked_job.job_id,
-                "status": tracked_job.status.value,
-                "priority": tracked_job.priority,
-                "notes": tracked_job.notes,
-                "added_at": tracked_job.added_at.isoformat(),
-            }), 201
+            return (
+                jsonify(
+                    {
+                        "id": tracked_job.id,
+                        "job_id": tracked_job.job_id,
+                        "status": tracked_job.status.value,
+                        "priority": tracked_job.priority,
+                        "notes": tracked_job.notes,
+                        "added_at": tracked_job.added_at.isoformat(),
+                    }
+                ),
+                201,
+            )
     except Exception as e:
         return jsonify({"error": f"Failed to add job: {str(e)}"}), 500
 
@@ -134,17 +146,22 @@ def get_tracked_job(tracked_job_id: int) -> tuple[dict, int]:
         if not job:
             return jsonify({"error": "Tracked job not found"}), 404
 
-        return jsonify({
-            "id": job.id,
-            "job_id": job.job_id,
-            "status": job.status.value,
-            "priority": job.priority,
-            "notes": job.notes,
-            "added_at": job.added_at.isoformat(),
-            "updated_at": job.updated_at.isoformat(),
-            "applied_at": job.applied_at.isoformat() if job.applied_at else None,
-            "interview_at": job.interview_at.isoformat() if job.interview_at else None,
-        }), 200
+        return (
+            jsonify(
+                {
+                    "id": job.id,
+                    "job_id": job.job_id,
+                    "status": job.status.value,
+                    "priority": job.priority,
+                    "notes": job.notes,
+                    "added_at": job.added_at.isoformat(),
+                    "updated_at": job.updated_at.isoformat(),
+                    "applied_at": job.applied_at.isoformat() if job.applied_at else None,
+                    "interview_at": job.interview_at.isoformat() if job.interview_at else None,
+                }
+            ),
+            200,
+        )
 
 
 @tracker_api_bp.route("/jobs/<int:tracked_job_id>/status", methods=["PATCH"])
@@ -177,11 +194,16 @@ def update_tracked_job_status(tracked_job_id: int) -> tuple[dict, int]:
             service = TrackerService(session)
             job = service.update_status(tracked_job_id, status)
 
-            return jsonify({
-                "id": job.id,
-                "status": job.status.value,
-                "updated_at": job.updated_at.isoformat(),
-            }), 200
+            return (
+                jsonify(
+                    {
+                        "id": job.id,
+                        "status": job.status.value,
+                        "updated_at": job.updated_at.isoformat(),
+                    }
+                ),
+                200,
+            )
     except ValueError as e:
         return jsonify({"error": str(e)}), 404
     except Exception as e:

@@ -17,9 +17,9 @@ Privacy:
 from __future__ import annotations
 
 import os
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import AsyncGenerator
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -63,6 +63,22 @@ def create_app() -> FastAPI:
     )
 
     # Security middleware
+    from jsa.fastapi_app.middleware.rate_limit import RateLimitMiddleware
+    from jsa.fastapi_app.middleware.security import SecurityHeadersMiddleware
+
+    # Add security headers
+    app.add_middleware(SecurityHeadersMiddleware)
+
+    # Rate limiting (100 req/min, 1000 req/hour per IP)
+    rate_limit_enabled = os.getenv("RATE_LIMIT_ENABLED", "true").lower() == "true"
+    app.add_middleware(
+        RateLimitMiddleware,
+        requests_per_minute=int(os.getenv("RATE_LIMIT_PER_MINUTE", "100")),
+        requests_per_hour=int(os.getenv("RATE_LIMIT_PER_HOUR", "1000")),
+        enabled=rate_limit_enabled,
+    )
+    logger.info("Rate limiting enabled", enabled=rate_limit_enabled, component="fastapi_app")
+
     # Trusted Host protection
     allowed_hosts = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])  # Relax for local dev
@@ -86,7 +102,7 @@ def create_app() -> FastAPI:
     app.add_middleware(GZipMiddleware, minimum_size=1000)
 
     # Import and register routers
-    from jsa.fastapi_app.routers import health, jobs, ml, resume, tracker, llm
+    from jsa.fastapi_app.routers import health, jobs, llm, ml, resume, tracker
 
     app.include_router(health.router, prefix="/api/v1", tags=["health"])
     app.include_router(jobs.router, prefix="/api/v1", tags=["jobs"])
@@ -106,20 +122,19 @@ def create_app() -> FastAPI:
             "privacy": "100% local-first",
         }
 
-    # Custom exception handlers
-    @app.exception_handler(Exception)
-    async def global_exception_handler(request, exc):
-        """Global exception handler."""
-        logger.error(
-            "Unhandled exception",
-            error=str(exc),
-            path=request.url.path,
-            component="fastapi_app",
-        )
-        return JSONResponse(
-            status_code=500,
-            content={"detail": "Internal server error", "type": "internal_error"},
-        )
+    # Register error handlers
+    from fastapi.exceptions import RequestValidationError
+
+    from jsa.fastapi_app.errors import (
+        JobSentinelAPIError,
+        generic_exception_handler,
+        jobsentinel_exception_handler,
+        validation_exception_handler,
+    )
+
+    app.add_exception_handler(RequestValidationError, validation_exception_handler)
+    app.add_exception_handler(JobSentinelAPIError, jobsentinel_exception_handler)
+    app.add_exception_handler(Exception, generic_exception_handler)
 
     logger.info("FastAPI app created", component="fastapi_app")
     return app
