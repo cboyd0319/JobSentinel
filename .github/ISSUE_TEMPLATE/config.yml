@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Documentation
+    url: https://github.com/cboyd0319/JobSentinel/tree/main/docs
+    about: Check the comprehensive documentation before opening an issue
+  - name: Security Issues
+    url: https://github.com/cboyd0319/JobSentinel/security/advisories
+    about: Report security vulnerabilities privately

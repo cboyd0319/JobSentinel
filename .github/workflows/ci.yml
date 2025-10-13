@@ -1,5 +1,10 @@
 name: CI/CD Pipeline
 
+# Security Note: Actions are pinned to major versions (v5, v4, etc.) with Dependabot
+# tracking updates. For maximum security in production environments, consider pinning
+# to full commit SHAs. Current approach balances security with maintainability for
+# personal project. See: https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions
+
 on:
   push:
     branches: [main, develop]
@@ -7,14 +12,14 @@ on:
       - '**.md'
       - 'docs/**'
       - '.github/ISSUE_TEMPLATE/**'
-      - '.github/PULL_REQUEST_TEMPLATE.md'
+      - '.github/pull_request_template.md'
   pull_request:
     branches: [main, develop]
     paths-ignore:
       - '**.md'
       - 'docs/**'
       - '.github/ISSUE_TEMPLATE/**'
-      - '.github/PULL_REQUEST_TEMPLATE.md'
+      - '.github/pull_request_template.md'
   workflow_dispatch:  # 💰 MANUAL ONLY: No scheduled runs for personal project
 
 permissions:
