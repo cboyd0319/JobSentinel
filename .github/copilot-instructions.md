@@ -300,7 +300,6 @@ Comprehensive documentation in `docs/`:
 - **[API_INTEGRATION_GUIDE.md](docs/API_INTEGRATION_GUIDE.md)** — Add new job board integrations
 - **[DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md)** — Production deployment (AWS, GCP, Azure)
 - **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** — System design and data flow
-- **[VISUAL_ARCHITECTURE.md](docs/VISUAL_ARCHITECTURE.md)** — 12 architecture diagrams
 - **[AUTHORITATIVE_STANDARDS.md](docs/AUTHORITATIVE_STANDARDS.md)** — 39+ industry standards
 - **[AI_ML_ROADMAP.md](docs/AI_ML_ROADMAP.md)** — AI/ML vision (v0.6 to v1.0)
 - **[ACCESSIBILITY.md](docs/ACCESSIBILITY.md)** — WCAG 2.1 Level AA compliance
