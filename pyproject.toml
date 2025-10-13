@@ -129,14 +129,11 @@ ignore_missing_imports = true
 allow_untyped_defs = false
 allow_untyped_calls = false
 files = ["src/jsa"]
+exclude = ["src/jsa/web/"]  # TODO: Fix Flask route type annotations
 
 [[tool.mypy.overrides]]
 module = ["utils.*"]
 ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = ["jsa.web.*"]
-ignore_errors = true  # TODO: Fix Flask route type annotations
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
