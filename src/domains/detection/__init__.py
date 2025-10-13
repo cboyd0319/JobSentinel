@@ -7,7 +7,7 @@ and ATS compatibility.
 
 from .job_quality_detector import JobQualityDetector, JobQualityScore
 from .resume_quality_detector import ResumeQualityDetector, ResumeQualityScore
-from .skills_gap_analyzer import SkillsGapAnalyzer, SkillsGap
+from .skills_gap_analyzer import SkillsGap, SkillsGapAnalyzer
 
 __all__ = [
     "JobQualityDetector",

@@ -14,10 +14,11 @@ import asyncio
 import logging
 import time
 from collections import defaultdict, deque
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Callable, Optional
+from typing import Any, Optional
 
 
 class CircuitState(Enum):
@@ -108,8 +109,8 @@ class HealthStatus:
     is_healthy: bool
     success_rate: float
     avg_latency_ms: float
-    last_success: Optional[datetime] = None
-    last_failure: Optional[datetime] = None
+    last_success: datetime | None = None
+    last_failure: datetime | None = None
     consecutive_failures: int = 0
     metadata: dict[str, Any] = field(default_factory=dict)
 
@@ -128,7 +129,7 @@ class CircuitBreaker:
         self.state = CircuitState.CLOSED
         self.failure_count = 0
         self.success_count = 0
-        self.last_failure_time: Optional[float] = None
+        self.last_failure_time: float | None = None
         self.failures: deque[float] = deque(maxlen=100)
         self.logger = logging.getLogger(__name__)
     
@@ -268,8 +269,8 @@ class ResilientScraper:
     def __init__(
         self,
         name: str,
-        retry_config: Optional[RetryConfig] = None,
-        circuit_config: Optional[CircuitBreakerConfig] = None,
+        retry_config: RetryConfig | None = None,
+        circuit_config: CircuitBreakerConfig | None = None,
     ):
         self.name = name
         self.retry_config = retry_config or RetryConfig()
@@ -368,7 +369,7 @@ class ScraperHealthMonitor:
         scraper_name: str,
         success: bool,
         latency_ms: float,
-        error: Optional[str] = None
+        error: str | None = None
     ):
         """
         Record scraping attempt.

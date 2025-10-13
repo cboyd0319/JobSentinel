@@ -196,7 +196,7 @@ class AuditLogger:
         action: str,
         resource: str,
         result: str,
-        details: Optional[dict[str, Any]] = None
+        details: dict[str, Any] | None = None
     ) -> AuditEvent:
         """
         Log audit event with tamper detection.
@@ -258,7 +258,7 @@ class AuditLogger:
         tampered = []
         
         try:
-            with open(self.log_file, "r") as f:
+            with open(self.log_file) as f:
                 for line in f:
                     total += 1
                     try:
@@ -324,7 +324,7 @@ class ContentSecurityPolicy:
     """
     
     @staticmethod
-    def generate_csp(nonce: Optional[str] = None) -> str:
+    def generate_csp(nonce: str | None = None) -> str:
         """
         Generate Content-Security-Policy header value.
         
@@ -437,7 +437,7 @@ class SessionManager:
         self.user_sessions: dict[str, list[str]] = {}
         self.logger = logging.getLogger(__name__)
     
-    def create_session(self, user_id: str, metadata: Optional[dict[str, Any]] = None) -> str:
+    def create_session(self, user_id: str, metadata: dict[str, Any] | None = None) -> str:
         """
         Create new session with secure session ID.
         
@@ -479,7 +479,7 @@ class SessionManager:
         
         return session_id
     
-    def validate_session(self, session_id: str) -> tuple[bool, Optional[str]]:
+    def validate_session(self, session_id: str) -> tuple[bool, str | None]:
         """
         Validate session and check for timeout.
         
@@ -564,7 +564,7 @@ class SessionManager:
 
 
 # Global instances for easy access
-_audit_logger: Optional[AuditLogger] = None
+_audit_logger: AuditLogger | None = None
 
 
 def get_audit_logger() -> AuditLogger:
@@ -588,7 +588,7 @@ def log_security_event(
     result: str,
     user_id: str = "anonymous",
     source_ip: str = "127.0.0.1",
-    details: Optional[dict[str, Any]] = None
+    details: dict[str, Any] | None = None
 ) -> AuditEvent:
     """
     Convenience function to log security event.

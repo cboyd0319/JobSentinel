@@ -189,7 +189,7 @@ class ResumeQualityDetector:
         issues = []
         score = 60.0  # Start at passing
 
-        lines = [l.strip() for l in text.split("\n") if l.strip()]
+        lines = [line.strip() for line in text.split("\n") if line.strip()]
 
         # Check for shallow bullet points
         shallow_count = 0

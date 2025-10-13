@@ -346,7 +346,7 @@ class BatchConfidenceScorer:
             )
 
         scores = []
-        for pred, factors in zip(predictions, factors_list):
+        for pred, factors in zip(predictions, factors_list, strict=False):
             score = self.calculator.calculate(
                 prediction=pred,
                 factors=factors,

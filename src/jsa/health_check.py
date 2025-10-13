@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import logging
 import os
 import platform
 import shutil
@@ -27,6 +28,8 @@ import urllib.request
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -151,7 +154,7 @@ class HealthChecker:
         config_path = Path("config/user_prefs.json")
         if config_path.exists():
             try:
-                with open(config_path, 'r') as f:
+                with open(config_path) as f:
                     config = json.load(f)
                 
                 # Validate structure
@@ -299,7 +302,7 @@ class HealthChecker:
         config_path = Path("config/user_prefs.json")
         if config_path.exists():
             try:
-                with open(config_path, 'r') as f:
+                with open(config_path) as f:
                     config = json.load(f)
                     slack_url = config.get("slack", {}).get("webhook_url")
                     
@@ -386,8 +389,8 @@ class HealthChecker:
                     message=f"Only {free_gb:.1f} GB available",
                     recommendations=["Close unnecessary applications"]
                 ))
-        except Exception:
-            pass  # psutil already checked above
+        except Exception as e:
+            logger.debug(f"Memory check failed: {e}")  # psutil already checked above
         
         return results
     

@@ -28,7 +28,8 @@ def _cmd_config_validate(args: argparse.Namespace) -> int:
 def _cmd_health(args: argparse.Namespace) -> int:
     """Run comprehensive health check."""
     from jsa.health_check import run_health_check
-    return run_health_check(verbose=args.verbose)
+    result = run_health_check(verbose=args.verbose)
+    return int(result)
 
 
 def _cmd_health_legacy(_: argparse.Namespace) -> int:
