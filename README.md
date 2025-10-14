@@ -327,21 +327,13 @@ See [issues](https://github.com/cboyd0319/JobSentinel/issues).
 
 ## Documentation
 
-**Essential guides:**
-- [BEGINNER_GUIDE.md](docs/BEGINNER_GUIDE.md) — Zero-knowledge terminal guide
-- [troubleshooting.md](docs/troubleshooting.md) — Common issues & solutions
-- [CONTRIBUTING.md](CONTRIBUTING.md) — Development setup
+**→ [Complete Documentation Index](docs/DOCUMENTATION_INDEX.md)** — Organized by audience and task
 
-**Technical references:**
-- [ARCHITECTURE.md](docs/ARCHITECTURE.md) — System design & data flow
-- [API_INTEGRATION_GUIDE.md](docs/API_INTEGRATION_GUIDE.md) — Add new job boards
-- [BEST_PRACTICES.md](docs/BEST_PRACTICES.md) — Coding standards
-- [AUTHORITATIVE_STANDARDS.md](docs/AUTHORITATIVE_STANDARDS.md) — 39+ industry standards
-
-**Operations:**
-- [DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md) — Production deployment (AWS, GCP, Azure)
-- [SRE_RUNBOOK.md](docs/SRE_RUNBOOK.md) — Incident response & monitoring
-- [AI_ML_ROADMAP.md](docs/AI_ML_ROADMAP.md) — AI/ML features & roadmap
+**Quick links:**
+- **New users:** [BEGINNER_GUIDE.md](docs/BEGINNER_GUIDE.md) • [WINDOWS_QUICK_START.md](docs/WINDOWS_QUICK_START.md)
+- **Developers:** [BEST_PRACTICES.md](docs/BEST_PRACTICES.md) • [API_INTEGRATION_GUIDE.md](docs/API_INTEGRATION_GUIDE.md) • [ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- **DevOps:** [DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md) • [SRE_RUNBOOK.md](docs/SRE_RUNBOOK.md)
+- **Troubleshooting:** [troubleshooting.md](docs/troubleshooting.md) • [WINDOWS_TROUBLESHOOTING.md](docs/WINDOWS_TROUBLESHOOTING.md)
 
 ## Contributing
 
