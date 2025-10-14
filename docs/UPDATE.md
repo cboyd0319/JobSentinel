@@ -6,6 +6,53 @@
 
 ---
 
+## ⚡ INSTANT REFERENCE (CRITICAL INFO)
+
+### 🗄️ Database Schema (Session 8 - FIXED)
+**USE THESE MODELS:**
+- ✅ **Primary:** `src.database.Job` (18 fields, PostgreSQL)
+- ✅ **Tracking:** `jsa.tracker.models.TrackedJob` (Kanban/CRM)
+- ❌ **DEPRECATED:** `src.unified_database.UnifiedJob` (don't use)
+
+**KEY FIELDS IN JOB MODEL:**
+```python
+# Core fields
+id, hash, title, company, location, url, description, score
+
+# New fields (added Session 8)
+source, remote, salary_min, salary_max, currency
+
+# Timestamps
+created_at, updated_at, last_seen, times_seen
+
+# Notifications
+included_in_digest, immediate_alert_sent
+```
+
+**DOCUMENTATION:** See `docs/DATABASE_SCHEMA.md` for complete reference
+
+### ✅ Current Quality Status
+```
+Tests: 151 passed, 11 skipped, 0 failures (100% pass rate)
+Linting: 0 errors (Ruff)
+Type Check: 0 errors (mypy strict, 33 files)
+Coverage: 27% overall, 85%+ core modules
+```
+
+### 🔧 Essential Commands
+```bash
+# Before making changes
+make lint && make type && make test
+
+# After making changes  
+make fmt && make lint && make type && make test
+
+# Run specific tests
+python -m pytest tests/unit_jsa/test_fastapi_jobs.py -v
+```
+
+---
+
 ## 🎯 QUICK START FOR AI AGENTS (READ THIS FIRST!)
 
 ### Session 8 Database Schema Fixes (October 14, 2025) ✅ COMPLETE
