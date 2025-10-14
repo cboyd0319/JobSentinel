@@ -192,9 +192,7 @@ class CrossEncoderReranker:
                 reranked = reranked[:top_k]
 
             # Calculate precision improvement (if initial scores available)
-            precision_improvement = self._calculate_precision_improvement(
-                candidates, reranked
-            )
+            precision_improvement = self._calculate_precision_improvement(candidates, reranked)
 
             elapsed_ms = (time.time() - start_time) * 1000
 

@@ -47,7 +47,7 @@ class BackupMetadata:
     version: str = "1.0.0"
     created_at: str = ""
     hostname: str = ""
-    jobsentinel_version: str = "0.6.0"
+    jobsentinel_version: str = "0.9.0"
     backup_type: str = "full"  # "full" or "incremental"
     files: list[dict[str, Any]] = None  # type: ignore[assignment]
     checksums: dict[str, str] = None  # type: ignore[assignment]

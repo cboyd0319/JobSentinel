@@ -146,7 +146,7 @@ async def websocket_jobs_endpoint(websocket: WebSocket) -> None:
                 "timestamp": datetime.now(UTC).isoformat(),
                 "data": {
                     "message": "Connected to JobSentinel WebSocket",
-                    "version": "0.6.0",
+                    "version": "0.9.0",
                 },
             },
             websocket,

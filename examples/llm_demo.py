@@ -4,7 +4,7 @@ Demo script showing LLM features in action.
 
 This script demonstrates all 5 LLM features:
 1. GPT-4 Integration
-2. GPT-3.5 Integration  
+2. GPT-3.5 Integration
 3. Local LLaMA (Ollama)
 4. LLM Cost Controls
 5. Automatic Fallback

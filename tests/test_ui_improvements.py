@@ -55,12 +55,8 @@ class TestGUIColorScheme:
             gui = launcher_gui.JobSentinelGUI(mock_root)
 
             # Verify hover effect methods exist
-            assert hasattr(
-                gui, "_add_button_hover_effects"
-            ), "Should have hover effects method"
-            assert hasattr(
-                gui, "_apply_hover_recursive"
-            ), "Should have recursive hover application"
+            assert hasattr(gui, "_add_button_hover_effects"), "Should have hover effects method"
+            assert hasattr(gui, "_apply_hover_recursive"), "Should have recursive hover application"
 
     @pytest.mark.skipif(not TKINTER_AVAILABLE, reason="tkinter not available")
     def test_gui_initialization_completes(self):
@@ -95,8 +91,9 @@ class TestCSSImprovements:
             content = f.read()
 
         # Check for card hover improvements
-        assert "transform: translateY(-2px) scale(1.005)" in content or "scale(1.00" in content, \
-            "Should have card scale effect"
+        assert (
+            "transform: translateY(-2px) scale(1.005)" in content or "scale(1.00" in content
+        ), "Should have card scale effect"
         assert "backdrop-filter" in content, "Should have backdrop-filter"
 
     def test_css_has_button_shine_effect(self):
@@ -107,8 +104,9 @@ class TestCSSImprovements:
 
         # Check for button shine effect
         assert ".btn-primary::before" in content, "Should have button shine pseudo-element"
-        assert "rgba(255, 255, 255, 0.2)" in content or "rgba(255,255,255,0.2)" in content, \
-            "Should have shine gradient"
+        assert (
+            "rgba(255, 255, 255, 0.2)" in content or "rgba(255,255,255,0.2)" in content
+        ), "Should have shine gradient"
 
     def test_css_has_empty_state_enhancements(self):
         """Test that CSS includes enhanced empty state animations."""
@@ -118,8 +116,9 @@ class TestCSSImprovements:
 
         # Check for empty state improvements
         assert "@keyframes float" in content, "Should have float animation"
-        assert "scale(" in content or "drop-shadow" in content, \
-            "Should have scale or drop-shadow in animations"
+        assert (
+            "scale(" in content or "drop-shadow" in content
+        ), "Should have scale or drop-shadow in animations"
 
     def test_css_syntax_valid(self):
         """Test that CSS file has valid syntax (no unclosed braces)."""
@@ -131,8 +130,9 @@ class TestCSSImprovements:
         open_braces = content.count("{")
         close_braces = content.count("}")
 
-        assert open_braces == close_braces, \
-            f"CSS should have matching braces (found {open_braces} {{ and {close_braces} }})"
+        assert (
+            open_braces == close_braces
+        ), f"CSS should have matching braces (found {open_braces} {{ and {close_braces} }})"
 
 
 class TestAccessibility:
@@ -163,10 +163,12 @@ class TestAccessibility:
 
         # Check for accessibility features
         assert "prefers-reduced-motion" in content, "Should support reduced motion"
-        assert "prefers-contrast" in content or "focus" in content, \
-            "Should have focus or contrast support"
-        assert "aria-" in content or "role=" in content or "sr-only" in content, \
-            "Should have accessibility markup support"
+        assert (
+            "prefers-contrast" in content or "focus" in content
+        ), "Should have focus or contrast support"
+        assert (
+            "aria-" in content or "role=" in content or "sr-only" in content
+        ), "Should have accessibility markup support"
 
 
 class TestDocumentation:
@@ -191,9 +193,7 @@ class TestDocumentation:
         assert (
             "UI/UX Improvements" in content or "UI Improvements" in content
         ), "CHANGELOG should mention UI improvements"
-        assert (
-            "hover effects" in content.lower()
-        ), "CHANGELOG should mention hover effects"
+        assert "hover effects" in content.lower(), "CHANGELOG should mention hover effects"
 
     def test_ui_improvements_doc_has_content(self):
         """Test that UI improvements doc has substantial content."""
@@ -205,8 +205,7 @@ class TestDocumentation:
         assert "Color Palette" in content, "Should document color changes"
         assert "Typography" in content, "Should document typography changes"
         assert "Button" in content, "Should document button improvements"
-        assert "Accessibility" in content or "WCAG" in content, \
-            "Should document accessibility"
+        assert "Accessibility" in content or "WCAG" in content, "Should document accessibility"
         assert len(content) > 5000, "Should have substantial documentation"
 
 

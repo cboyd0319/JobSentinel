@@ -48,20 +48,20 @@ class Job(SQLModel, table=True):
 
 
 # Database architecture for privacy-first, zero-admin deployment
-# 
+#
 # SQLITE (Default - Recommended for Personal Use):
 # - Zero setup, single file database
 # - No separate database server needed
 # - Perfect for individual users
 # - Privacy-first: all data stays in one file
 # - Automatic backups are simple file copies
-# 
+#
 # POSTGRESQL (Optional - For Multi-User/Cloud):
 # - Requires PostgreSQL server setup
 # - Better for multiple users or cloud deployments
 # - Advanced features: full-text search, JSON queries
 # - Requires connection management and maintenance
-# 
+#
 # To use PostgreSQL, set DATABASE_URL environment variable:
 # postgresql+asyncpg://user:pass@host:5432/dbname
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///data/jobs.sqlite")
@@ -99,7 +99,7 @@ if DB_TYPE == "postgresql":
         max_overflow=20,
         pool_pre_ping=True,  # Verify connections before using
     )
-    
+
     sync_engine = create_engine(
         SYNC_DATABASE_URL,
         echo=False,
@@ -116,7 +116,7 @@ else:
         ASYNC_DATABASE_URL,
         echo=False,
     )
-    
+
     sync_engine = create_engine(
         SYNC_DATABASE_URL,
         echo=False,

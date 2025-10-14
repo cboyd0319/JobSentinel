@@ -582,9 +582,7 @@ class FineTuningTrainer:
 
         # Restore metrics history
         if "metrics_history" in checkpoint:
-            self.metrics_history = [
-                TrainingMetrics(**m) for m in checkpoint["metrics_history"]
-            ]
+            self.metrics_history = [TrainingMetrics(**m) for m in checkpoint["metrics_history"]]
 
         epoch = checkpoint["epoch"]
         logger.info(f"Checkpoint loaded from epoch {epoch}")
@@ -694,11 +692,13 @@ class ModelManager:
         """List all registered models."""
         models = []
         for version, info in self.registry["models"].items():
-            models.append({
-                "version": version,
-                "is_current": version == self.registry["current_version"],
-                **info,
-            })
+            models.append(
+                {
+                    "version": version,
+                    "is_current": version == self.registry["current_version"],
+                    **info,
+                }
+            )
 
         return sorted(models, key=lambda m: m["registered_at"], reverse=True)
 
@@ -718,17 +718,21 @@ if __name__ == "__main__":
     train_examples = []
     for i in range(100):
         # Synthetic job descriptions with labels
-        train_examples.append({
-            "text": f"Job description {i} with various requirements.",
-            "label": i % 5,  # 5 categories
-        })
+        train_examples.append(
+            {
+                "text": f"Job description {i} with various requirements.",
+                "label": i % 5,  # 5 categories
+            }
+        )
 
     val_examples = []
     for i in range(20):
-        val_examples.append({
-            "text": f"Validation job {i}.",
-            "label": i % 5,
-        })
+        val_examples.append(
+            {
+                "text": f"Validation job {i}.",
+                "label": i % 5,
+            }
+        )
 
     # Setup configuration
     print("\n=== Setting Up Fine-Tuning ===")

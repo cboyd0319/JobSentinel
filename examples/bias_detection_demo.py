@@ -31,7 +31,9 @@ def analyze_job_posting(detector, title, description, context=""):
     if result.has_bias:
         print(f"⚠️  BIAS DETECTED!")
         print(f"Bias Score: {result.overall_bias_score:.2f}/1.00")
-        print(f"Bias Types: {', '.join(bt.value.replace('_', ' ').title() for bt in result.bias_types)}")
+        print(
+            f"Bias Types: {', '.join(bt.value.replace('_', ' ').title() for bt in result.bias_types)}"
+        )
         print(f"\n{result.explanation}")
 
         print("\n🔍 Detailed Indicators:")
