@@ -13,7 +13,7 @@ from jsa.db import get_stats_sync
 def _cmd_web(args: argparse.Namespace) -> int:
     # Lazy import to avoid hard dependency during CLI parsing/tests
     from jsa.web.app import create_app
-    
+
     try:
         app = create_app()
         print(f"✓ Starting JobSentinel Web UI on http://localhost:{args.port}")

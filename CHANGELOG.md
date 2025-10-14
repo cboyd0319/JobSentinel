@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Fixed PostgreSQL installer type checking errors (bytes vs str confusion)
+- Fixed Settings page to correctly mention PostgreSQL instead of SQLite
+- Added missing aiosqlite dependency for async test support
+
+### Enhanced
+- **Setup Wizard Improvements**
+  - Added Slack webhook testing with real POST requests
+  - Added PostgreSQL connection testing before saving config
+  - Added URL format validation for Slack webhooks
+  - Improved final success screen with comprehensive next steps panel
+  - Added documentation links and helpful guidance
+  - Maintains zero-knowledge user focus throughout
+  
+- **Web UI Improvements**
+  - Updated privacy information to reflect PostgreSQL usage
+  - Clarified that all data stays local on user's machine
+  - Verified all components build without errors (React 19 + Vite 7)
+  - Build time: ~2s, 0 linting errors, 0 vulnerabilities
+
+### Quality Assurance
+- ✅ Zero mypy type checking errors (strict mode)
+- ✅ Zero Ruff linting errors
+- ✅ All pytest tests passing (115 passed, 11 skipped)
+- ✅ Zero ESLint errors in TypeScript/React code
+- ✅ Zero npm security vulnerabilities
+
+### Documentation
+- Created comprehensive UPDATE.md roadmap in docs/ folder
+- Documented all enhancements and implementation status
+- Updated CHANGELOG with v0.6.0+ changes
+
 ## [0.6.0] - 2025-10-13
 
 ### 🚀 Standards & Compliance

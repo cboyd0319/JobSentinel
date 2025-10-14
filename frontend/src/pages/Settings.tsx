@@ -142,7 +142,7 @@ export function Settings() {
         </div>
         <div className="space-y-3">
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            • All job data stored locally in SQLite
+            • All job data stored locally in PostgreSQL (on your machine)
           </p>
           <p className="text-sm text-gray-600 dark:text-gray-400">
             • No external analytics or tracking
@@ -152,6 +152,9 @@ export function Settings() {
           </p>
           <p className="text-sm text-gray-600 dark:text-gray-400">
             • Optional external LLM services (Ollama local by default)
+          </p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            • Zero telemetry, zero data collection, 100% private
           </p>
         </div>
       </div>

@@ -74,7 +74,9 @@ def create_app() -> FastAPI:
     # Input validation (before processing requests)
     input_validation_enabled = os.getenv("INPUT_VALIDATION_ENABLED", "true").lower() == "true"
     app.add_middleware(InputValidationMiddleware, enabled=input_validation_enabled)
-    logger.info("Input validation enabled", enabled=input_validation_enabled, component="fastapi_app")
+    logger.info(
+        "Input validation enabled", enabled=input_validation_enabled, component="fastapi_app"
+    )
 
     # Add security headers
     app.add_middleware(SecurityHeadersMiddleware)

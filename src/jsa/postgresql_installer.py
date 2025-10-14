@@ -162,12 +162,12 @@ class PostgreSQLInstaller:
                     'https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
                 )
                 console.print("[dim]Running: Homebrew installation script[/dim]")
-                result = subprocess.run(
+                brew_install_result = subprocess.run(
                     install_cmd,
                     shell=True,
                     timeout=300,
                 )
-                if result.returncode != 0:
+                if brew_install_result.returncode != 0:
                     console.print("[red]✗ Homebrew installation failed[/red]")
                     return False
                 console.print("[green]✓ Homebrew installed[/green]\n")
@@ -191,7 +191,7 @@ class PostgreSQLInstaller:
                     timeout=600,
                 )
 
-                if result.returncode != 0 and "already installed" not in result.stderr:
+                if result.returncode != 0 and "already installed" not in str(result.stderr):
                     console.print(f"[red]✗ Installation failed: {result.stderr}[/red]")
                     return False
 

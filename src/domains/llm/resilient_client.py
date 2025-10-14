@@ -120,7 +120,10 @@ class BudgetTracker:
             )
 
         # Check if approaching limits
-        if self._daily_cost + estimated_cost > self.config.max_cost_per_day * self.config.warn_threshold:
+        if (
+            self._daily_cost + estimated_cost
+            > self.config.max_cost_per_day * self.config.warn_threshold
+        ):
             logger.warning(
                 "Approaching daily budget limit",
                 current=self._daily_cost,
@@ -184,9 +187,7 @@ class ResilientLLMClient:
 
         # Create clients
         self.primary_client = self._create_client(primary_config)
-        self.fallback_clients = [
-            self._create_client(config) for config in self.fallback_configs
-        ]
+        self.fallback_clients = [self._create_client(config) for config in self.fallback_configs]
 
         # Caching and budget
         self.cache = ResponseCache(ttl_seconds=cache_ttl) if enable_cache else None
@@ -319,8 +320,7 @@ class ResilientLLMClient:
     def is_offline(self) -> bool:
         """Check if all providers are offline."""
         return not any(
-            client.is_available()
-            for client in [self.primary_client] + self.fallback_clients
+            client.is_available() for client in [self.primary_client] + self.fallback_clients
         )
 
     def get_status(self) -> dict[str, bool]:
