@@ -70,10 +70,13 @@ Start here if you've never used a terminal or don't know Python.
 15. **[AUTHORITATIVE_STANDARDS.md](AUTHORITATIVE_STANDARDS.md)** — 39+ industry standards  
     Topics: IEEE, NIST, OWASP, compliance frameworks
 
-16. **[UI_QUICK_REFERENCE.md](UI_QUICK_REFERENCE.md)** — UI component reference  
+16. **[AUTO_UPDATE_SECURITY.md](AUTO_UPDATE_SECURITY.md)** — Auto-update security guide  
+    Platform: Windows (primary) | Topics: Security updates, rollback, scheduled tasks
+
+17. **[UI_QUICK_REFERENCE.md](UI_QUICK_REFERENCE.md)** — UI component reference  
     Topics: FastAPI endpoints, React components, WebSocket
 
-17. **[troubleshooting.md](troubleshooting.md)** — General troubleshooting  
+18. **[troubleshooting.md](troubleshooting.md)** — General troubleshooting  
     Platform: All | Topics: Common errors, debug steps
 
 ---
@@ -88,12 +91,14 @@ Start here if you've never used a terminal or don't know Python.
 | First-time any platform | [BEGINNER_GUIDE.md](BEGINNER_GUIDE.md) | 30 min |
 | Production deployment | [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) | 2-4 hours |
 | Dev environment | [development/README.md](development/README.md) | 15 min |
+| Auto-update setup | [AUTO_UPDATE_SECURITY.md](AUTO_UPDATE_SECURITY.md) | 5 min |
 
 ### Troubleshooting
 
 | Issue | Document | Platform |
 |-------|----------|----------|
 | Windows-specific errors | [WINDOWS_TROUBLESHOOTING.md](WINDOWS_TROUBLESHOOTING.md) | Windows 11+ |
+| Auto-update issues | [AUTO_UPDATE_SECURITY.md](AUTO_UPDATE_SECURITY.md) | Windows 11+ |
 | General errors | [troubleshooting.md](troubleshooting.md) | All |
 | Production incidents | [SRE_RUNBOOK.md](SRE_RUNBOOK.md) | Cloud/server |
 
