@@ -1,13 +1,13 @@
 # Database Schema Documentation
 
-**Last Updated:** October 14, 2025 - Session 8  
-**Database:** PostgreSQL 14+ (asyncpg + psycopg2-binary drivers)
+**Last Updated:** October 14, 2025 - Session 11  
+**Database:** SQLite (aiosqlite driver)
 
 ---
 
 ## Overview
 
-JobSentinel uses PostgreSQL as the primary database for all job data and tracking. The schema is designed for:
+JobSentinel uses SQLite as the only database for all job data and tracking. The schema is designed for:
 
 - **Privacy:** All data stored locally on user's machine
 - **Performance:** Optimized indexes for common queries
@@ -206,7 +206,7 @@ This ensures SQLModel metadata includes all tables.
 ### Async Engine (Primary)
 
 **Driver:** `asyncpg`  
-**URL Format:** `postgresql+asyncpg://user:pass@host:port/dbname`  
+**URL Format:** `sqliteql+asyncpg://user:pass@host:port/dbname`  
 **Usage:** All async operations (scrapers, jobs commands)
 
 ```python
@@ -220,7 +220,7 @@ async with AsyncSession(async_engine) as session:
 ### Sync Engine (Secondary)
 
 **Driver:** `psycopg2-binary`  
-**URL Format:** `postgresql://user:pass@host:port/dbname`  
+**URL Format:** `sqliteql://user:pass@host:port/dbname`  
 **Usage:** Flask web UI, API endpoints
 
 ```python
@@ -254,13 +254,13 @@ Optimized for single-user local deployment.
 
 ## Migration Notes
 
-### From SQLite to PostgreSQL
+### From SQLite to SQLite
 
 If migrating from SQLite:
 
 1. Export data: `sqlite3 old.db .dump > data.sql`
-2. Convert syntax (SQLite → PostgreSQL)
-3. Import: `psql -U jobsentinel -d jobsentinel < data.sql`
+2. Convert syntax (SQLite → SQLite)
+3. Import: `sqlite3 -U jobsentinel -d jobsentinel < data.sql`
 
 ### Schema Migrations
 
@@ -303,7 +303,7 @@ This function:
 **Issues:**
 - UnifiedJob has 30+ fields (too many)
 - Caused schema confusion with multiple Job models
-- Uses SQLite instead of PostgreSQL
+- Uses SQLite instead of SQLite
 
 **Migration:**
 - Use `src.database.Job` instead
@@ -356,7 +356,7 @@ await cleanup_old_jobs(days_to_keep=90)
 ### Version History
 
 - **v0.5.0:** SQLite with basic Job model (13 fields)
-- **v0.6.0:** PostgreSQL with extended Job model (18 fields)
+- **v0.6.0:** SQLite with extended Job model (18 fields)
   - Added: source, remote, salary_min, salary_max, currency
   - Added: TrackedJob, Contact, Document, Activity models
   - Added: Foreign key constraints for referential integrity
@@ -379,9 +379,9 @@ Planned for v0.7.0+:
 
 ### Connection Issues
 
-1. Check PostgreSQL is running: `pg_isready`
+1. Check SQLite is running: `pg_isready`
 2. Verify credentials in `.env`
-3. Test connection: `psql -U jobsentinel -d jobsentinel`
+3. Test connection: `sqlite3 -U jobsentinel -d jobsentinel`
 
 ### Foreign Key Violations
 

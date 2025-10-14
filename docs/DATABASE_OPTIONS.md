@@ -1,29 +1,23 @@
 # Database Architecture & Configuration
 
-**Version:** 0.6.0+  
-**Last Updated:** October 14, 2025  
-**Purpose:** SQLite-first database strategy for privacy and zero-admin deployments
+**Version:** 0.7.0+  
+**Last Updated:** October 14, 2025 - Session 11  
+**Purpose:** SQLite-only database strategy for privacy and zero-admin deployments
 
 ---
 
 ## Executive Summary
 
-JobSentinel uses **SQLite as the default database** for maximum privacy, zero setup, and no admin rights requirements. PostgreSQL is available as an optional enhancement for advanced use cases (teams, cloud, multi-user).
+JobSentinel uses **SQLite as the ONLY database** for maximum privacy, zero setup, and no admin rights requirements. This is a deliberate architectural decision prioritizing personal use, privacy, and simplicity.
 
 ---
 
-## Database Options
+## Why SQLite Only?
 
-### SQLite (Default) 🚀 RECOMMENDED for Personal Use
+### Perfect for Personal Job Search
 
-**Use Cases:**
-- Personal use (primary use case - 99% of users)
-- Single-user local deployments
-- Privacy-first applications
-- Portable installations
-- Zero-admin Windows deployments
+JobSentinel is designed for **individual job seekers** managing their own job search. SQLite is perfect for this use case:
 
-**Pros:**
 - ✅ **ZERO SETUP** - No installation or configuration required
 - ✅ **NO ADMIN RIGHTS** - Works for all users on Windows/Mac/Linux
 - ✅ **100% PRIVATE** - Single file, no network service, no exposure
@@ -33,71 +27,50 @@ JobSentinel uses **SQLite as the default database** for maximum privacy, zero se
 - ✅ **LIGHTWEIGHT** - ~2-10 MB disk space (scales with job count)
 - ✅ **ZERO DEPENDENCIES** - Built into Python, always available
 - ✅ **PRIVACY-FIRST** - No service to secure, no ports to configure
+- ✅ **MAINTAINABLE** - One database system = simpler codebase
 
-**Cons:**
-- ⚠️  Single-writer limitation (fine for personal use)
-- ⚠️  Limited advanced features vs PostgreSQL (no full-text search indexes)
-- ⚠️  Less suitable for multi-user scenarios
+### SQLite Capabilities
 
 **Performance Characteristics:**
-- Read: ~50K ops/sec (on SSD)
-- Write: ~10K ops/sec (single-writer)
+- Read: ~50K operations/sec (on SSD)
+- Write: ~10K operations/sec (single-writer)
 - Storage: ~1-5 MB per 1,000 jobs
 - Scalability: Excellent up to 1M jobs (tested)
+- Concurrent readers: Unlimited
+- Concurrent writers: 1 (perfect for personal use)
 
-### PostgreSQL (Optional) 🔧 For Advanced Use Cases
-
-**Use Cases:**
-- Multi-user/team deployments
-- Cloud deployments (AWS, GCP, Azure)
-- High-concurrency scenarios
-- Advanced database features (full-text search, JSON operations)
-- Horizontal scaling needs
-
-**Pros:**
-- ✅ Multi-user concurrent access
-- ✅ Advanced indexing and query optimization
-- ✅ Built-in replication capabilities
-- ✅ JSON support for flexible schemas
-- ✅ Full-text search capabilities
-- ✅ Industry standard with excellent tooling
-- ✅ Excellent for teams and cloud
-
-**Cons:**
-- ⚠️  Requires installation (one-time setup)
-- ⚠️  May require admin rights on Windows
-- ⚠️  ~50-100MB disk space for server
-- ⚠️  More memory usage (~100-200MB) vs SQLite
-- ⚠️  Network service to secure and configure
-
-**Performance Characteristics:**
-- Read: ~50K ops/sec (single instance)
-- Write: ~20K ops/sec (MVCC)
-- Storage: ~1-5 MB per 1,000 jobs
-- Scalability: Horizontal via replication/sharding
+**Features:**
+- Full ACID compliance (Atomicity, Consistency, Isolation, Durability)
+- Transactions with rollback support
+- Indexes for fast queries
+- Foreign keys and constraints
+- Triggers and views
+- JSON support (via json1 extension)
+- Full-text search (via FTS5 extension)
+- Built-in encryption (via SEE or SQLCipher if needed)
 
 ---
 
 ## Configuration
 
-### SQLite Configuration (Default)
+### Installation
 
-**Installation:**
-
-SQLite support is included in the core installation:
+SQLite support is included in Python - no separate installation needed!
 
 ```bash
-# Standard installation includes SQLite (default)
+# Standard installation includes everything
 pip install -e .
 
 # This includes:
-# - aiosqlite (async SQLite driver)
-# - SQLite is built into Python, no separate installation needed
+# - aiosqlite (async SQLite driver for performance)
+# - SQLite is built into Python
+# - No database server installation required
 ```
 
-**Connection String:**
+### Connection String
+
+**In .env file (default):**
 ```bash
-# In .env file (default)
 DATABASE_URL="sqlite+aiosqlite:///data/jobs.sqlite"
 
 # Absolute path (recommended for production)
@@ -119,372 +92,297 @@ DATABASE_URL="sqlite+aiosqlite://"
 - ✅ No admin rights required
 - ✅ Works immediately on all platforms
 
-### PostgreSQL Configuration (Optional)
-
-**Installation:**
-
-PostgreSQL requires optional dependencies:
-
-```bash
-# Install with PostgreSQL support
-pip install -e '.[postgres]'
-
-# This includes:
-# - asyncpg (async PostgreSQL driver)
-# - psycopg2-binary (sync PostgreSQL driver)
-```
-
-**PostgreSQL Server Installation:**
-
-See [POSTGRESQL_SETUP.md](POSTGRESQL_SETUP.md) for detailed installation instructions for:
-- macOS (Homebrew or Postgres.app)
-- Linux (apt, dnf, or source)
-- Windows (official installer or Chocolatey)
-
-**Connection String:**
-```bash
-# In .env file
-DATABASE_URL="postgresql+asyncpg://user:password@localhost:5432/jobsentinel"
-
-# For cloud managed services (RDS, Cloud SQL, etc.)
-DATABASE_URL="postgresql+asyncpg://user:password@host.region.rds.amazonaws.com:5432/jobsentinel"
-```
-
-**PostgreSQL Server Setup:**
-
-**Option 1: Local Installation**
-```bash
-# macOS (Homebrew)
-brew install postgresql@15
-brew services start postgresql@15
-
-# Ubuntu/Debian
-sudo apt update
-sudo apt install postgresql-17
-
-# Windows
-# Download from: https://www.postgresql.org/download/windows/
-```
-
-**Option 2: Docker**
-```bash
-docker run -d \
-  --name jobsentinel-db \
-  -e POSTGRES_DB=jobsentinel \
-  -e POSTGRES_USER=jobsentinel_app \
-  -e POSTGRES_PASSWORD=your_secure_password \
-  -p 5432:5432 \
-  postgres:15
-
-# Connection string:
-# DATABASE_URL=postgresql+asyncpg://jobsentinel_app:your_secure_password@localhost:5432/jobsentinel
-```
-
-**Option 3: Managed Services**
-- **AWS RDS:** [Setup Guide](https://aws.amazon.com/rds/postgresql/)
-- **GCP Cloud SQL:** [Setup Guide](https://cloud.google.com/sql/docs/postgres)
-- **Azure Database:** [Setup Guide](https://azure.microsoft.com/en-us/products/postgresql/)
-
-**Database Setup (SQL):**
-```sql
--- Connect to PostgreSQL as admin
-psql -U postgres
-
--- Create database
-CREATE DATABASE jobsentinel;
-
--- Create application user
-CREATE USER jobsentinel_app WITH PASSWORD 'your_secure_password';
-
--- Grant permissions
-GRANT ALL PRIVILEGES ON DATABASE jobsentinel TO jobsentinel_app;
-
--- Connect to the new database
-\c jobsentinel
-
--- Grant schema permissions (PostgreSQL 17+)
-GRANT ALL ON SCHEMA public TO jobsentinel_app;
-GRANT ALL ON ALL TABLES IN SCHEMA public TO jobsentinel_app;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO jobsentinel_app;
-
--- Optional: Enable extensions for better performance
-CREATE EXTENSION IF NOT EXISTS pg_trgm;    -- Fuzzy text search
-CREATE EXTENSION IF NOT EXISTS btree_gin;   -- Better indexing
-```
-
-**Using Setup Wizard:**
-```bash
-# Run interactive setup wizard
-python -m jsa.cli setup
-
-# When prompted:
-# 1. Choose "sqlite" (default) for instant zero-setup start
-# 2. Or choose "postgresql" for advanced features
-# Wizard guides you through configuration
-# Automatically creates .env file with DATABASE_URL
-```
-
-**Optimization Settings:**
-```sql
--- Connection pooling (recommended)
-max_connections = 100
-shared_buffers = 256MB
-effective_cache_size = 1GB
-maintenance_work_mem = 64MB
-work_mem = 16MB
-
--- Performance tuning
-random_page_cost = 1.1  # SSD optimization
-effective_io_concurrency = 200
-```
-
 ---
 
 ## Quick Start
 
-### New Installation (Recommended: SQLite)
+### Installation
 
 ```bash
-# 1. Install JobSentinel (no database setup needed!)
+# 1. Install JobSentinel (SQLite included automatically)
 pip install -e .
 
-# 2. Run setup wizard
+# 2. Run setup wizard (database configured automatically)
 python -m jsa.cli setup
-
-# When asked about database:
-# - Choose "sqlite" (default) - Ready instantly!
-# - Or choose "postgresql" for advanced features
 
 # 3. Start using JobSentinel
 python -m jsa.cli run-once
 ```
 
-### Advanced Installation (PostgreSQL)
-
-```bash
-# 1. Install PostgreSQL (see POSTGRESQL_SETUP.md)
-# macOS: brew install postgresql@17
-# Ubuntu: sudo apt install postgresql-17
-# Windows: Download from postgresql.org
-
-# 2. Install PostgreSQL drivers
-pip install -e '.[postgres]'
-
-# 3. Run setup wizard
-python -m jsa.cli setup
-
-# Choose "postgresql" when prompted
-# Wizard will guide you through:
-# - PostgreSQL installation check
-# - Database and user creation
-# - Connection testing
-# - Configuration save
-```
-
 ### Manual Configuration
 
-If you prefer manual setup or have an existing PostgreSQL installation:
+If you prefer manual setup:
 
 ```bash
-# 1. Create database and user
-psql -U postgres
-CREATE DATABASE jobsentinel;
-CREATE USER jobsentinel WITH PASSWORD 'your_password';
-GRANT ALL PRIVILEGES ON DATABASE jobsentinel TO jobsentinel;
+# 1. Copy example environment file
+cp .env.example .env
 
-# 2. Update .env file
-echo "DATABASE_URL=postgresql+asyncpg://jobsentinel:your_password@localhost:5432/jobsentinel" >> .env
+# 2. Edit .env (DATABASE_URL already set to SQLite)
+# DATABASE_URL=sqlite+aiosqlite:///data/jobs.sqlite
 
-# 3. Test connection
-python -m jsa.cli health
+# 3. Copy example config
+cp config/user_prefs.example.json config/user_prefs.json
+
+# 4. Edit config/user_prefs.json with your preferences
+
+# 5. Run application
+python -m jsa.cli run-once
 ```
 
 ---
 
 ## Performance Tuning
 
-### PostgreSQL Optimization (Local Single-User)
+### For Optimal SQLite Performance
 
-**1. Proper Indexing**
-```sql
--- Indexes for common queries
-CREATE INDEX idx_jobs_score ON jobs(score DESC);
-CREATE INDEX idx_jobs_created_at ON jobs(created_at DESC);
-CREATE INDEX idx_jobs_company ON jobs(company);
-CREATE INDEX idx_jobs_location ON jobs(location);
-
--- Full-text search index
-CREATE INDEX idx_jobs_description_fts ON jobs USING GIN(to_tsvector('english', description));
+**1. Use WAL Mode (Write-Ahead Logging):**
+```python
+# Automatically enabled in JobSentinel
+# Allows concurrent reads during writes
 ```
 
-**2. Connection Pooling**
-```python
-from sqlalchemy.pool import NullPool, QueuePool
-
-# Development (no pooling)
-engine = create_async_engine(DATABASE_URL, poolclass=NullPool)
-
-# Production (pooling)
-engine = create_async_engine(
-    DATABASE_URL,
-    poolclass=QueuePool,
-    pool_size=20,
-    max_overflow=10,
-    pool_pre_ping=True,  # Verify connections before use
-)
+**2. Optimize Disk I/O:**
+```bash
+# Use SSD for database file
+# Avoid network drives (SMB, NFS)
+# Keep database file on local disk
 ```
 
-**3. Query Optimization**
-```python
-# Use indexes
-session.query(Job).filter(Job.score > 0.8).order_by(Job.score.desc())
+**3. Database Maintenance:**
+```bash
+# Periodically vacuum to reclaim space
+sqlite3 data/jobs.sqlite "VACUUM;"
 
-# Avoid N+1 queries
-session.query(Job).options(joinedload(Job.activities)).all()
+# Analyze for query optimization
+sqlite3 data/jobs.sqlite "ANALYZE;"
+```
+
+**4. Backup Strategy:**
+```bash
+# Simple file copy (database must be idle)
+cp data/jobs.sqlite data/backup/jobs-$(date +%Y%m%d).sqlite
+
+# Or use SQLite backup API (safer during use)
+sqlite3 data/jobs.sqlite ".backup 'backup/jobs.sqlite'"
 ```
 
 ---
 
 ## Production Recommendations
 
-### Local Deployments (Primary Use Case)
-**Use PostgreSQL** with these settings:
-- Local installation (not cloud/managed)
-- Connection pooling (10 connections, 5 overflow)
-- Regular backups with `pg_dump`
-- SSD storage for best performance
+### For Personal Use (Recommended)
 
-### Cloud Deployments (Single User)
-**Use PostgreSQL** with:
-- Persistent volume (EBS, Persistent Disk)
-- Automated backups to S3/GCS
-- Same connection pooling as local
+1. **Backup Regularly:**
+   - Copy `data/jobs.sqlite` to backup location daily
+   - Keep 7 days of backups
+   - Test restore procedure
 
-### Cloud Deployments (Multi-User/Team)
-**Use PostgreSQL** with:
-- Managed service (RDS, Cloud SQL) optional
-- Increased connection pooling (20+ connections)
-- Read replicas for scaling (optional)
-- Point-in-time recovery enabled
+2. **Monitor Disk Space:**
+   - Database grows ~1-5 MB per 1,000 jobs
+   - Run VACUUM monthly to reclaim space
 
----
+3. **Security:**
+   - Restrict file permissions (chmod 600 on Linux/Mac)
+   - Keep database file in user directory
+   - Never commit database file to git
 
-## Deployment Matrix
+### For Advanced Users
 
-| Scenario | SQLite | PostgreSQL | Recommendation |
-|----------|--------|------------|----------------|
-| Personal use | ✅ Perfect | ✅ Good | **SQLite** - Zero setup |
-| Team (2-5 users) | ❌ No | ✅ Yes | PostgreSQL - Multi-user support |
-| Team (5+ users) | ❌ No | ✅ Yes | PostgreSQL - Managed service |
-| Cloud deployment (single user) | ✅ Good | ✅ Good | **SQLite** - Simpler |
-| Cloud deployment (multi-user) | ❌ No | ✅ Yes | PostgreSQL - Managed service |
-| < 100K jobs | ✅ Excellent | ✅ Excellent | **SQLite** - Simpler |
-| 100K-1M jobs | ✅ Good | ✅ Excellent | Either works well |
-| 1M+ jobs | ⚠️ Slower | ✅ Excellent | PostgreSQL - Better scaling |
-| Privacy-first | ✅ Perfect | ✅ Good | **SQLite** - Single file |
-| Zero-admin Windows | ✅ Perfect | ❌ Needs admin | **SQLite** - No admin rights |
-| Cross-platform | ✅ Perfect | ✅ Good | Both work identically |
+If you need multi-user or cloud deployments:
+
+1. **Multiple Instances:** Each user runs their own JobSentinel instance
+2. **Shared Storage:** Use file sync (Dropbox, Google Drive) to share data
+3. **Consider Alternatives:** Enterprise job search tools designed for teams
 
 ---
 
-## Cost Analysis
+## Database Schema
 
-### SQLite (Default)
-- **Infrastructure:** $0 (single file on your disk)
-- **Management:** $0 (zero setup)
-- **Backup:** $0 (copy file)
-- **Admin Rights:** NONE required
-- **Total:** **$0/month, $0 setup**
+The SQLite database uses the following main tables:
 
-### PostgreSQL Local Installation
-- **Infrastructure:** $0 (runs on your machine)
-- **Management:** $0 (one-time setup)
-- **Backup:** $0 (local backup scripts)
-- **Admin Rights:** May be required (Windows)
-- **Total:** **$0/month**
+### Job Table
+- `id` - Primary key
+- `hash` - Unique job identifier
+- `title` - Job title
+- `company` - Company name
+- `location` - Job location
+- `url` - Job posting URL
+- `description` - Job description
+- `score` - Match score (0.0-1.0)
+- `source` - Job board source
+- `remote` - Remote work flag
+- `salary_min`, `salary_max`, `currency` - Salary information
+- `created_at`, `updated_at`, `last_seen` - Timestamps
+- `times_seen` - Number of times seen
+- `included_in_digest`, `immediate_alert_sent` - Notification flags
 
-### PostgreSQL Managed Services (Optional)
-Only needed for team/cloud deployments:
-- **AWS RDS (db.t4g.micro):** $15-20/month
-- **GCP Cloud SQL (db-f1-micro):** $10-15/month
-- **Azure Database (B1ms):** $15-20/month
-- **Backup:** Included in managed services
-- **Total:** $10-20/month
+### TrackedJob Table (CRM features)
+- Kanban-style job tracking
+- Custom stages and statuses
+- Notes and follow-up dates
+- Links to original job record
 
-**Recommendation:** Use SQLite for personal use (instant, zero cost, zero admin)
+See [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md) for complete schema details.
 
 ---
 
 ## Security Considerations
 
-### PostgreSQL Local Installation
-- User permissions: Dedicated `jobsentinel` user with limited privileges
-- Local-only connections: PostgreSQL bound to localhost (127.0.0.1)
-- Strong passwords: Use password manager or generate secure passwords
-- Encryption at rest: Use filesystem encryption (LUKS, BitLocker, FileVault)
-- Encryption in transit: N/A (local connections use Unix sockets)
+### Data Protection
 
-### PostgreSQL Cloud/Managed Service
-- SSL/TLS required for all connections
-- Strong passwords (16+ characters)
-- Network firewall (allow only application IPs)
-- Encryption at rest (managed service default)
-- Regular security patches
-
----
-
-## Monitoring & Health Checks
-
-### JobSentinel Health Check
+**File Permissions:**
 ```bash
-# Check database connection and status
-python -m jsa.cli health
+# Linux/Mac: Restrict to owner only
+chmod 600 data/jobs.sqlite
 
-# Should output:
-# ✓ Database: Connected (PostgreSQL 17.x)
-# ✓ Connection pool: Active
-# ✓ Jobs in database: 1,234
+# Windows: Use NTFS permissions
+# Right-click → Properties → Security → Edit
 ```
 
-### PostgreSQL Status
-```sql
--- Check database size
-SELECT pg_size_pretty(pg_database_size('jobsentinel'));
+**Encryption (Optional):**
+```bash
+# Use SQLCipher for encryption at rest
+pip install sqlcipher3
 
--- Check active connections
-SELECT count(*) FROM pg_stat_activity WHERE datname = 'jobsentinel';
+# Configure encrypted database
+DATABASE_URL="sqlite+pysqlcipher:///data/jobs.sqlite?cipher=aes-256-cbc&key=your-secret-key"
+```
 
--- Check slow queries
-SELECT * FROM pg_stat_statements ORDER BY mean_exec_time DESC LIMIT 10;
+**Backup Security:**
+- Encrypt backups before cloud storage
+- Use encrypted file systems
+- Never commit database to git
 
--- Check table sizes
-SELECT schemaname, tablename, 
-       pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) AS size
-FROM pg_tables
-ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC;
+---
+
+## Troubleshooting
+
+### Database Locked
+
+**Symptom:** "database is locked" error
+
+**Solution:**
+```bash
+# Check for other processes accessing the database
+lsof data/jobs.sqlite  # Linux/Mac
+tasklist | findstr python  # Windows
+
+# Close all JobSentinel instances
+# Try again
+```
+
+### Database Corruption
+
+**Symptom:** "database disk image is malformed"
+
+**Solution:**
+```bash
+# Attempt recovery
+sqlite3 data/jobs.sqlite ".recover" | sqlite3 recovered.sqlite
+
+# If recovery fails, restore from backup
+cp backup/jobs-backup.sqlite data/jobs.sqlite
+```
+
+### Slow Performance
+
+**Symptom:** Queries taking >1 second
+
+**Solution:**
+```bash
+# Analyze database
+sqlite3 data/jobs.sqlite "ANALYZE;"
+
+# Vacuum to optimize
+sqlite3 data/jobs.sqlite "VACUUM;"
+
+# Check indexes
+sqlite3 data/jobs.sqlite ".indexes"
 ```
 
 ---
 
-## Conclusion
+## Frequently Asked Questions
 
-**For personal use (99% of users):** SQLite is the recommended default. It provides:
-- ✅ **ZERO SETUP** - Instant start, no installation
-- ✅ **NO ADMIN RIGHTS** - Works for all users on all platforms
-- ✅ **100% PRIVATE** - Single file, no network service
-- ✅ **PORTABLE** - Copy file anywhere, instant backup
-- ✅ **FAST** - Excellent performance for personal use
+### Q: Can I use PostgreSQL instead?
 
-**For teams and advanced use:** PostgreSQL is available as an optional enhancement:
-- ✅ Multi-user support
-- ✅ Advanced database features
-- ✅ Better scalability (1M+ jobs)
-- ✅ Cloud deployment ready
+**A:** No, PostgreSQL has been completely removed from JobSentinel as of v0.7.0. SQLite is the only supported database. This decision prioritizes:
+- Simplicity (one database = less code)
+- Privacy (no network service)
+- Zero-admin deployment (no installation)
 
-**Getting Started:**
-1. Install JobSentinel: `pip install -e .`
-2. Run setup wizard: `python -m jsa.cli setup`
-3. Choose SQLite (default) for instant zero-setup start
-4. Start using JobSentinel!
+### Q: What about multi-user scenarios?
 
-**Remember:** SQLite is 100% local and private. All data stays on your computer in a single file.
+**A:** JobSentinel is designed for personal use (single user). For multi-user scenarios:
+- Run separate instances per user
+- Use shared file storage for collaboration
+- Consider enterprise job search tools
+
+### Q: Is SQLite fast enough?
+
+**A:** Yes! SQLite handles 50K reads/sec and 10K writes/sec - far more than needed for personal job search. Tested with 1M+ jobs without issues.
+
+### Q: How do I back up my data?
+
+**A:** Simply copy the `data/jobs.sqlite` file:
+```bash
+cp data/jobs.sqlite backup/jobs-$(date +%Y%m%d).sqlite
+```
+
+### Q: Can I move my database to another computer?
+
+**A:** Yes! SQLite is portable:
+1. Copy `data/jobs.sqlite` to new computer
+2. Update DATABASE_URL in .env if path changed
+3. Database works identically on all platforms
+
+---
+
+## Migration from PostgreSQL (v0.6.0 → v0.7.0)
+
+If you were using PostgreSQL in v0.6.0, here's how to migrate:
+
+### Export Data from PostgreSQL
+
+```bash
+# Export job data to JSON
+pg_dump -U jobsentinel -d jobsentinel --table=job --data-only --inserts > jobs.sql
+
+# Convert to SQLite-compatible format (manual process)
+# Or use pgloader tool
+```
+
+### Import to SQLite
+
+```python
+# Use Python script to import data
+import json
+import sqlite3
+from pathlib import Path
+
+# Connect to new SQLite database
+conn = sqlite3.connect('data/jobs.sqlite')
+cursor = conn.cursor()
+
+# Import your data here
+# (specific script depends on your data format)
+
+conn.commit()
+conn.close()
+```
+
+**Note:** Most users should start fresh with SQLite rather than migrating PostgreSQL data.
+
+---
+
+## Additional Resources
+
+- [Database Schema Documentation](DATABASE_SCHEMA.md)
+- [SQLite Official Documentation](https://www.sqlite.org/docs.html)
+- [Python SQLite Tutorial](https://docs.python.org/3/library/sqlite3.html)
+- [aiosqlite Documentation](https://aiosqlite.omnilib.dev/)
+
+---
+
+**Last Updated:** October 14, 2025 - Session 11  
+**Questions?** Open an issue on GitHub

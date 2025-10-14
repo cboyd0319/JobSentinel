@@ -116,8 +116,8 @@ python -m jsa.cli setup
 
 6. **Database Issues**
    - **SQLite (default):** No issues! Works instantly, no setup
-   - **PostgreSQL (optional):** Requires installation and may need admin rights
-   - Recommendation: Use SQLite unless you need PostgreSQL features
+   - **SQLite (optional):** Requires installation and may need admin rights
+   - Recommendation: Use SQLite unless you need SQLite features
 
 #### Option 2: WSL2 (Recommended)
 
@@ -291,20 +291,20 @@ sudo apt install python3.11 python3.11-venv python3.11-distutils
 
 **Windows (PowerShell):**
 ```powershell
-$env:DATABASE_URL = "postgresql+asyncpg://jobsentinel:jobsentinel@localhost:5432/jobsentinel"
+$env:DATABASE_URL = "sqliteql+asyncpg://jobsentinel:jobsentinel@localhost:5432/jobsentinel"
 $env:LOG_LEVEL = "INFO"
 ```
 
 **macOS/Linux (Bash/Zsh):**
 ```bash
-export DATABASE_URL="postgresql+asyncpg://jobsentinel:jobsentinel@localhost:5432/jobsentinel"
+export DATABASE_URL="sqliteql+asyncpg://jobsentinel:jobsentinel@localhost:5432/jobsentinel"
 export LOG_LEVEL="INFO"
 ```
 
 **All Platforms (.env file):**
 ```bash
 # Create .env file (recommended)
-echo "DATABASE_URL=postgresql+asyncpg://jobsentinel:jobsentinel@localhost:5432/jobsentinel" >> .env
+echo "DATABASE_URL=sqliteql+asyncpg://jobsentinel:jobsentinel@localhost:5432/jobsentinel" >> .env
 echo "LOG_LEVEL=INFO" >> .env
 ```
 
@@ -335,7 +335,7 @@ echo "LOG_LEVEL=INFO" >> .env
 - No platform-specific configuration needed
 - Performance: Similar across all platforms (SSD-dependent)
 
-### PostgreSQL (Optional)
+### SQLite (Optional)
 
 **All Platforms:** ✅ Identical behavior
 - Use connection string in .env file

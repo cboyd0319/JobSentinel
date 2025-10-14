@@ -37,10 +37,6 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-postgres = [
-  "asyncpg>=0.30,<0.31",  # PostgreSQL async driver (optional)
-  "psycopg2-binary>=2.9,<3",  # PostgreSQL sync driver (optional)
-]
 resume = [
   "pdfplumber>=0.10,<0.11",
   "python-docx>=1.0,<1.1",
@@ -123,7 +119,7 @@ ignore = [
 "src/jsa/db.py" = ["I001"]
 "src/jsa/web/blueprints/skills.py" = ["I001"]
 "src/jsa/cli.py" = ["I001"]
-"src/jsa/setup_wizard.py" = ["S603", "S607"]  # subprocess with trusted input (PostgreSQL setup)
+"src/jsa/setup_wizard.py" = ["S603", "S607"]  # subprocess with trusted input (setup wizard)
 "src/jsa/fastapi_app/routers/*.py" = ["B904"]  # Intentional exception conversion to HTTPException
 
 [tool.mypy]

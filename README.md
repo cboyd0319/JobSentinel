@@ -15,12 +15,12 @@ Private job search automation that runs on your machine.
 JobSentinel scrapes public job boards (Greenhouse, Lever, Reed, JobsWithGPT, JobSpy), normalizes the data, scores jobs against your preferences (keywords, salary, location), and sends real-time alerts via Slack or WebSocket. All data stays local in SQLite (privacy-first, single-user, zero setup). Modern React 19 UI with live updates. No login-required scraping, no telemetry.
 
 ### ✨ What's New (v0.6.0+)
-- **SQLite Default** - Zero setup, zero admin rights, instant start
+- **SQLite Only** - Zero setup, zero admin rights, instant start
 - **React 19, Vite 7, Tailwind CSS 4** - Latest frontend stack
 - **WebSocket Support** - Real-time job updates in the browser
-- **PostgreSQL Optional** - Available for advanced use (teams, cloud)
-- **Enhanced Setup Wizard** - Database choice with clear comparison
+- **Enhanced Setup Wizard** - Automatic database configuration
 - **Cross-Platform** - Works seamlessly on macOS, Linux, and Windows
+- **100% Privacy** - All data local, no cloud services required
 
 ## Why it exists
 
@@ -51,25 +51,23 @@ python -m jsa.cli run-once
 | Git | Any | Clone repo |
 | Slack webhook | - | Alerts (optional) |
 | Reed API key | - | Reed jobs (optional) |
-| PostgreSQL | 15+ | Optional (for teams/advanced use) |
 
 ## Install
 
 **Quick Start (Recommended - Zero Setup):**
 ```bash
-# Interactive setup wizard (SQLite default - no database installation needed!)
+# Interactive setup wizard (SQLite automatic - no database installation needed!)
 python -m jsa.cli setup
 
 # Guides you through:
-# - Database choice (SQLite default or PostgreSQL optional)
 # - Keywords and preferences
 # - Job sources
 # - Slack notifications
 
-# SQLite chosen by default:
+# SQLite database configured automatically:
 # ✅ ZERO setup - Instant start
 # ✅ NO admin rights needed (Windows-friendly!)
-# ✅ 100% private - Single file database
+# ✅ 100% private - Single file database (data/jobs.sqlite)
 ```
 
 **Manual Installation:**
@@ -90,12 +88,9 @@ cd ..
 cp config/user_prefs.example.json config/user_prefs.json
 # Edit with your preferences
 
-# 4. Optional: PostgreSQL (for teams/advanced use)
-# pip install -e '.[postgres]'
-# Then install PostgreSQL 15+:
-# macOS: brew install postgresql@15 && brew services start postgresql@15
-# Ubuntu/Debian: sudo apt install postgresql-15 && sudo systemctl start postgresql
-# Windows: Download from https://www.postgresql.org/download/windows/
+# 4. Database
+# SQLite is configured automatically - nothing to install!
+# Database file created at: data/jobs.sqlite
 ```
 
 ## Usage
@@ -204,7 +199,7 @@ Job Sites → Scrapers → Scoring → Slack Alerts
 
 **Flow:** Scrape public job boards → score against prefs → alert high matches
 
-**Data in:** Job site HTML/JSON. **Data out:** Slack webhooks, SQLite/PostgreSQL (local)
+**Data in:** Job site HTML/JSON. **Data out:** Slack webhooks, SQLite (local)
 
 **Trust boundaries:** API keys in `.env`, no telemetry, all storage local
 

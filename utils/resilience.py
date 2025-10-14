@@ -1,6 +1,9 @@
 """
 Resilience and failure recovery utilities for the job scraper.
-Handles various failure scenarios and automatic recovery for PostgreSQL.
+Handles various failure scenarios and automatic recovery for SQLite.
+
+NOTE: This module was originally designed for PostgreSQL but has been updated
+to work with SQLite, which is now the only supported database.
 """
 
 import os
@@ -30,18 +33,18 @@ class BackupConfig:
 
 
 class DatabaseResilience:
-    """Handles database backup, recovery, and integrity checking for PostgreSQL."""
+    """Handles database backup, recovery, and integrity checking for SQLite."""
 
     def __init__(self, db_url: str = None, config: BackupConfig = None):
-        """Initialize database resilience for PostgreSQL.
+        """Initialize database resilience for SQLite.
 
         Args:
-            db_url: PostgreSQL connection URL (e.g., postgresql://user:pass@host:port/db)
+            db_url: SQLite connection URL (e.g., sqlite+aiosqlite:///data/jobs.sqlite)
             config: Backup configuration
         """
         self.db_url = db_url or os.getenv(
             "DATABASE_URL",
-            "postgresql+asyncpg://jobsentinel:jobsentinel@localhost:5432/jobsentinel",
+            "sqlite+aiosqlite:///data/jobs.sqlite",
         )
         self.config = config or BackupConfig()
         self.backup_dir = Path(self.config.backup_dir)
@@ -51,76 +54,54 @@ class DatabaseResilience:
         self._parse_db_url()
 
     def _parse_db_url(self) -> None:
-        """Parse PostgreSQL URL to extract connection parameters."""
+        """Parse SQLite URL to extract file path."""
         # Remove SQLAlchemy dialect prefix if present
-        url = self.db_url.replace("postgresql+asyncpg://", "postgresql://")
-        url = url.replace("postgresql+psycopg2://", "postgresql://")
-
-        parsed = urlparse(url)
-        self.db_host = parsed.hostname or "localhost"
-        self.db_port = parsed.port or 5432
-        self.db_name = parsed.path.lstrip("/") or "jobsentinel"
-        self.db_user = parsed.username or "jobsentinel"
-        self.db_password = parsed.password or "jobsentinel"
+        url = self.db_url.replace("sqlite+aiosqlite://", "")
+        url = url.replace("sqlite://", "")
+        
+        # For relative paths, resolve from current directory
+        if url.startswith("/"):
+            self.db_path = Path(url)
+        else:
+            # Remove leading slashes (e.g., ///data/jobs.sqlite -> data/jobs.sqlite)
+            url = url.lstrip("/")
+            self.db_path = Path(url)
+        
+        # Legacy fields for backward compatibility (not used for SQLite)
+        self.db_host = "localhost"
+        self.db_port = 0
+        self.db_name = "jobs"
+        self.db_user = "local"
+        self.db_password = ""
 
     def create_backup(self, reason: str = "manual") -> Path | None:
-        """Create a PostgreSQL database backup using pg_dump."""
+        """Create a SQLite database backup by copying the file."""
         if not self.config.enabled:
             return None
 
         try:
+            # Check if source database file exists
+            if not self.db_path.exists():
+                logger.warning(f"Database file not found: {self.db_path}")
+                return None
+
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            backup_name = f"jobs_backup_{timestamp}_{reason}.sql"
+            backup_name = f"jobs_backup_{timestamp}_{reason}.sqlite"
             backup_path = self.backup_dir / backup_name
 
-            # Set environment for pg_dump
-            env = os.environ.copy()
-            env["PGPASSWORD"] = self.db_password
-
-            # Create backup using pg_dump
-            cmd = [
-                "pg_dump",
-                "-h",
-                self.db_host,
-                "-p",
-                str(self.db_port),
-                "-U",
-                self.db_user,
-                "-F",
-                "c",  # Custom format (compressed)
-                "-f",
-                str(backup_path),
-                self.db_name,
-            ]
-
-            result = subprocess.run(
-                cmd,
-                env=env,
-                capture_output=True,
-                text=True,
-                timeout=300,
-            )
-
-            if result.returncode != 0:
-                logger.error(f"pg_dump failed: {result.stderr}")
-                return None
+            # For SQLite, simply copy the file
+            shutil.copy2(self.db_path, backup_path)
 
             logger.info(f"Database backup created: {backup_path}")
             self._cleanup_old_backups()
             return backup_path
 
-        except subprocess.TimeoutExpired:
-            logger.error("Database backup timed out after 5 minutes")
-            return None
-        except FileNotFoundError:
-            logger.error("pg_dump command not found. Ensure PostgreSQL client tools are installed.")
-            return None
         except Exception as e:
             logger.error(f"Failed to create database backup: {e}")
             return None
 
     def restore_from_backup(self, backup_path: Path = None) -> bool:
-        """Restore database from backup using pg_restore."""
+        """Restore SQLite database from backup by copying the file."""
         if backup_path is None:
             backup_path = self._get_latest_backup()
 
@@ -129,57 +110,21 @@ class DatabaseResilience:
             return False
 
         try:
-            # Create a backup before restore
+            # Create a backup before restore (safety)
             self.create_backup("pre_restore")
 
-            # Set environment for pg_restore
-            env = os.environ.copy()
-            env["PGPASSWORD"] = self.db_password
-
-            # Restore using pg_restore
-            cmd = [
-                "pg_restore",
-                "-h",
-                self.db_host,
-                "-p",
-                str(self.db_port),
-                "-U",
-                self.db_user,
-                "-d",
-                self.db_name,
-                "-c",  # Clean (drop) database objects before recreating
-                str(backup_path),
-            ]
-
-            result = subprocess.run(
-                cmd,
-                env=env,
-                capture_output=True,
-                text=True,
-                timeout=300,
-            )
-
-            if result.returncode != 0:
-                logger.error(f"pg_restore failed: {result.stderr}")
-                return False
+            # For SQLite, simply copy the backup file over the current database
+            shutil.copy2(backup_path, self.db_path)
 
             logger.info(f"Database restored from {backup_path}")
             return True
 
-        except subprocess.TimeoutExpired:
-            logger.error("Database restore timed out after 5 minutes")
-            return False
-        except FileNotFoundError:
-            logger.error(
-                "pg_restore command not found. Ensure PostgreSQL client tools are installed."
-            )
-            return False
         except Exception as e:
             logger.error(f"Failed to restore database from {backup_path}: {e}")
             return False
 
     def check_database_integrity(self) -> dict[str, Any]:
-        """Check PostgreSQL database connectivity and basic health."""
+        """Check SQLite database file integrity and basic health."""
         result = {
             "healthy": False,
             "readable": False,
@@ -189,34 +134,20 @@ class DatabaseResilience:
         }
 
         try:
-            # Set environment for psql
-            env = os.environ.copy()
-            env["PGPASSWORD"] = self.db_password
+            # Check if database file exists
+            if not self.db_path.exists():
+                result["errors"].append(f"Database file not found: {self.db_path}")
+                return result
 
+            # Try to connect and query using sqlite3
+            import sqlite3
+            
+            conn = sqlite3.connect(str(self.db_path), timeout=10)
+            cursor = conn.cursor()
+            
             # Test basic connectivity
-            cmd = [
-                "psql",
-                "-h",
-                self.db_host,
-                "-p",
-                str(self.db_port),
-                "-U",
-                self.db_user,
-                "-d",
-                self.db_name,
-                "-c",
-                "SELECT 1;",
-            ]
-
-            result_check = subprocess.run(
-                cmd,
-                env=env,
-                capture_output=True,
-                text=True,
-                timeout=10,
-            )
-
-            if result_check.returncode == 0:
+            cursor.execute("SELECT 1;")
+            if cursor.fetchone()[0] == 1:
                 result["readable"] = True
                 result["healthy"] = True
             else:
@@ -247,46 +178,27 @@ class DatabaseResilience:
                 timeout=10,
             )
 
-            if table_result.returncode == 0:
+                result["readable"] = True
+                result["healthy"] = True
+                
+                # Count tables
+                cursor.execute(
+                    "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';"
+                )
+                result["table_count"] = cursor.fetchone()[0]
+                
+                # Count jobs
                 try:
-                    result["table_count"] = int(table_result.stdout.strip())
-                except ValueError:
-                    result["table_count"] = 0
-
-            # Count jobs
-            cmd_jobs = [
-                "psql",
-                "-h",
-                self.db_host,
-                "-p",
-                str(self.db_port),
-                "-U",
-                self.db_user,
-                "-d",
-                self.db_name,
-                "-t",
-                "-c",
-                "SELECT COUNT(*) FROM job;",
-            ]
-
-            jobs_result = subprocess.run(
-                cmd_jobs,
-                env=env,
-                capture_output=True,
-                text=True,
-                timeout=10,
-            )
-
-            if jobs_result.returncode == 0:
-                try:
-                    result["job_count"] = int(jobs_result.stdout.strip())
-                except ValueError:
+                    cursor.execute("SELECT COUNT(*) FROM job;")
+                    result["job_count"] = cursor.fetchone()[0]
+                except sqlite3.OperationalError:
+                    # Table might not exist yet
                     result["job_count"] = 0
+                    
+            conn.close()
 
-        except subprocess.TimeoutExpired:
-            result["errors"].append("Database query timed out")
-        except FileNotFoundError:
-            result["errors"].append("psql command not found")
+        except sqlite3.OperationalError as e:
+            result["errors"].append(f"SQLite operational error: {e}")
         except Exception as e:
             result["errors"].append(f"Database check failed: {e}")
 
