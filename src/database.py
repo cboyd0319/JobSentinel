@@ -23,7 +23,7 @@ class Job(SQLModel, table=True):
     # Job metadata
     source: str = Field(default="unknown", max_length=50, index=True)
     remote: bool = Field(default=False, index=True)
-    
+
     # Salary information
     salary_min: int | None = Field(default=None)
     salary_max: int | None = Field(default=None)
@@ -49,9 +49,7 @@ class Job(SQLModel, table=True):
 # SQLite-only architecture for privacy-first, zero-admin deployment
 # Perfect for personal job search automation
 # Database file created automatically at: data/jobs.sqlite
-DATABASE_URL = os.getenv(
-    "DATABASE_URL", "sqlite+aiosqlite:///data/jobs.sqlite"
-)
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///data/jobs.sqlite")
 
 
 def _derive_sync_url(db_url: str) -> str:

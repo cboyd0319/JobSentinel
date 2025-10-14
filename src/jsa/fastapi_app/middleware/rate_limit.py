@@ -145,11 +145,11 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         # Add rate limit headers for transparency
         response.headers["X-RateLimit-Limit-Minute"] = str(self.requests_per_minute)
         response.headers["X-RateLimit-Limit-Hour"] = str(self.requests_per_hour)
-        
+
         # Add remaining tokens info
         minute_bucket = self.minute_buckets.get(client_ip)
         hour_bucket = self.hour_buckets.get(client_ip)
-        
+
         if minute_bucket:
             response.headers["X-RateLimit-Remaining-Minute"] = str(int(minute_bucket.tokens))
         if hour_bucket:

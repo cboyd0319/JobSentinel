@@ -73,12 +73,7 @@ class InputValidationMiddleware(BaseHTTPMiddleware):
         r"\|\|",
     ]
 
-    def __init__(
-        self, 
-        app: ASGIApp, 
-        enabled: bool = True,
-        exempt_paths: list[str] | None = None
-    ):
+    def __init__(self, app: ASGIApp, enabled: bool = True, exempt_paths: list[str] | None = None):
         """
         Initialize input validation middleware.
 
@@ -103,7 +98,7 @@ class InputValidationMiddleware(BaseHTTPMiddleware):
         """Validate request input."""
         if not self.enabled:
             return await call_next(request)
-        
+
         # Skip validation for exempt paths (documentation, etc.)
         if request.url.path in self.exempt_paths:
             return await call_next(request)

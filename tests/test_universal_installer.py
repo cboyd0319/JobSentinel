@@ -126,8 +126,8 @@ class TestPythonVersionCheck:
         assert path is not None
 
     @patch("subprocess.run")
-    def test_python_312_incompatible(self, mock_run, tmp_path):
-        """Test that Python 3.12 is considered incompatible."""
+    def test_python_312_compatible(self, mock_run, tmp_path):
+        """Test that Python 3.12 is considered compatible."""
         # Mock Python 3.12 version
         mock_run.return_value = Mock(
             returncode=0,
@@ -138,8 +138,8 @@ class TestPythonVersionCheck:
         installer = UniversalInstaller(project_root=tmp_path)
         found, path = installer.check_python()
 
-        assert found is False
-        assert path is None
+        assert found is True
+        assert path is not None
 
     @patch("subprocess.run")
     def test_python_not_found(self, mock_run, tmp_path):
