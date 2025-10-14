@@ -113,9 +113,7 @@ class DatabaseResilience:
             logger.error("Database backup timed out after 5 minutes")
             return None
         except FileNotFoundError:
-            logger.error(
-                "pg_dump command not found. Ensure PostgreSQL client tools are installed."
-            )
+            logger.error("pg_dump command not found. Ensure PostgreSQL client tools are installed.")
             return None
         except Exception as e:
             logger.error(f"Failed to create database backup: {e}")

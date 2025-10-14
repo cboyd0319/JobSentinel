@@ -10,10 +10,16 @@ This module ensures:
 - 100% privacy and local-first approach
 - Cross-platform compatibility
 
+Security Note:
+This module uses subprocess calls with system package managers and PostgreSQL tools.
+All commands use trusted input. S603/S607/S602 warnings are acceptable for setup automation.
+
 References:
 - PostgreSQL Documentation | https://www.postgresql.org/docs/15/ | High | Installation guide
 - SWEBOK v4.0a | https://computer.org/swebok | High | Software installation standards
 """
+
+# ruff: noqa: S603, S607, S602
 
 import os
 import platform
@@ -22,13 +28,15 @@ import subprocess
 import sys
 import time
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
+from utils.logging import get_logger
 
 console = Console()
+logger = get_logger("postgresql_installer")
 
 
 class PostgreSQLInstaller:
@@ -40,7 +48,7 @@ class PostgreSQLInstaller:
         self.arch = platform.machine()
         self.version = "15"  # PostgreSQL 15 (stable)
 
-    def check_if_installed(self) -> tuple[bool, Optional[str]]:
+    def check_if_installed(self) -> tuple[bool, str | None]:
         """Check if PostgreSQL is already installed.
 
         Returns:
@@ -364,12 +372,8 @@ class PostgreSQLInstaller:
         # Start and enable service
         console.print("[bold]Starting PostgreSQL service...[/bold]")
         try:
-            subprocess.run(
-                ["sudo", "systemctl", "start", "postgresql-15"], check=True, timeout=30
-            )
-            subprocess.run(
-                ["sudo", "systemctl", "enable", "postgresql-15"], check=True, timeout=30
-            )
+            subprocess.run(["sudo", "systemctl", "start", "postgresql-15"], check=True, timeout=30)
+            subprocess.run(["sudo", "systemctl", "enable", "postgresql-15"], check=True, timeout=30)
             console.print("[green]✓ PostgreSQL service started and enabled[/green]\n")
 
             time.sleep(3)
@@ -391,7 +395,9 @@ class PostgreSQLInstaller:
             console.print("[cyan]Chocolatey detected. Using automated installation...[/cyan]\n")
             return self._install_windows_choco()
         else:
-            console.print("[yellow]Automated installation on Windows requires Chocolatey[/yellow]\n")
+            console.print(
+                "[yellow]Automated installation on Windows requires Chocolatey[/yellow]\n"
+            )
             console.print("[bold]Manual Installation Steps:[/bold]\n")
             console.print("1. Download PostgreSQL 15 installer from:")
             console.print("   https://www.postgresql.org/download/windows/\n")
@@ -445,7 +451,7 @@ class PostgreSQLInstaller:
         self,
         database: str = "jobsentinel",
         user: str = "jobsentinel",
-        password: str = "jobsentinel",
+        password: str = "jobsentinel",  # noqa: S107 - Default password for local setup
     ) -> tuple[bool, str]:
         """Set up database and user automatically.
 
@@ -508,8 +514,8 @@ class PostgreSQLInstaller:
                     text=True,
                     timeout=10,
                 )
-            except Exception:
-                pass  # These are nice-to-have, not critical
+            except Exception as e:
+                logger.debug(f"Schema permission setup: {e}")
 
         console.print()
 
@@ -521,9 +527,9 @@ class PostgreSQLInstaller:
         else:
             console.print("[yellow]⚠️  Database setup had some issues[/yellow]\n")
             console.print("[dim]You may need to run these commands manually:[/dim]")
-            console.print(f"[dim]  psql -U postgres -c \"{sql_commands[0]}\"[/dim]")
-            console.print(f"[dim]  psql -U postgres -c \"{sql_commands[1]}\"[/dim]")
-            console.print(f"[dim]  psql -U postgres -c \"{sql_commands[2]}\"[/dim]\n")
+            console.print(f'[dim]  psql -U postgres -c "{sql_commands[0]}"[/dim]')
+            console.print(f'[dim]  psql -U postgres -c "{sql_commands[1]}"[/dim]')
+            console.print(f'[dim]  psql -U postgres -c "{sql_commands[2]}"[/dim]\n')
 
         return success, db_url
 
@@ -554,7 +560,7 @@ class PostgreSQLInstaller:
         return is_installed
 
 
-def install_postgresql_automated() -> tuple[bool, Optional[str]]:
+def install_postgresql_automated() -> tuple[bool, str | None]:
     """
     Fully automated PostgreSQL installation for zero-knowledge users.
 

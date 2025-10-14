@@ -125,7 +125,9 @@ def configure_database() -> dict[str, Any]:
             }
         else:
             console.print("[yellow]⚠️  Automatic installation failed[/yellow]\n")
-            console.print("[cyan]Please install PostgreSQL manually and run this wizard again[/cyan]\n")
+            console.print(
+                "[cyan]Please install PostgreSQL manually and run this wizard again[/cyan]\n"
+            )
             return {
                 "type": "postgresql",
                 "url": "postgresql+asyncpg://jobsentinel:jobsentinel@localhost:5432/jobsentinel",
@@ -271,7 +273,7 @@ def review_config(config: dict[str, Any]) -> None:
     table.add_row("Keywords", ", ".join(config["keywords"]))
     table.add_row("Locations", ", ".join(config["locations"]))
     table.add_row("Min Salary", f"${config['salary_min']:,}")
-    
+
     # Database info
     db_type = config.get("database", {}).get("type", "sqlite")
     table.add_row("Database", db_type.upper())
@@ -354,24 +356,24 @@ def run_wizard() -> None:
     config_path = config_dir / "user_prefs.json"
 
     save_config(config, config_path)
-    
+
     # Save DATABASE_URL to .env file if PostgreSQL is configured
     if config.get("database", {}).get("type") == "postgresql":
         env_path = Path(__file__).parent.parent.parent / ".env"
         db_url = config["database"]["url"]
-        
+
         # Read existing .env or create new
         env_lines = []
         if env_path.exists():
             with open(env_path) as f:
                 env_lines = [line for line in f.readlines() if not line.startswith("DATABASE_URL=")]
-        
+
         # Append DATABASE_URL
         env_lines.append(f"DATABASE_URL={db_url}\n")
-        
+
         with open(env_path, "w") as f:
             f.writelines(env_lines)
-        
+
         console.print("[green]✓[/green] Database URL saved to .env\n")
 
     # Offer to run first scrape
