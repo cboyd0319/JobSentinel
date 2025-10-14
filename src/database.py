@@ -20,6 +20,15 @@ class Job(SQLModel, table=True):
     score: float
     score_reasons: str | None = None  # JSON string of reasons
 
+    # Job metadata
+    source: str = Field(default="unknown", max_length=50, index=True)
+    remote: bool = Field(default=False, index=True)
+    
+    # Salary information
+    salary_min: int | None = Field(default=None)
+    salary_max: int | None = Field(default=None)
+    currency: str = Field(default="USD", max_length=3)
+
     # Timestamps
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))

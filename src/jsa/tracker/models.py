@@ -29,12 +29,13 @@ class TrackedJob(SQLModel, table=True):
     Job in user's tracker.
 
     Links to existing jobs table and adds tracking metadata.
+    Enforces referential integrity via foreign key constraint.
     """
 
     __tablename__ = "tracked_jobs"
 
     id: int | None = Field(default=None, primary_key=True)
-    job_id: int = Field(index=True)  # References jobs.id but FK constraint optional for flexibility
+    job_id: int = Field(foreign_key="job.id", index=True)  # FK to jobs table for referential integrity
     status: JobStatus = Field(default=JobStatus.BOOKMARKED, index=True)
     priority: int = Field(default=3, ge=0, le=5)  # 0-5 stars (0=none, 5=critical)
     notes: str = Field(default="")

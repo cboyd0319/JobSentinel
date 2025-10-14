@@ -98,7 +98,7 @@ class PostgreSQLInstaller:
         try:
             # Read existing config
             if config_file.exists():
-                with open(config_file, "r", encoding="utf-8") as f:
+                with open(config_file, encoding="utf-8") as f:
                     content = f.read()
                 
                 # Check if PATH is already configured
@@ -688,7 +688,7 @@ class PostgreSQLInstaller:
                 
                 # Read existing .env if present
                 if env_path.exists():
-                    with open(env_path, "r", encoding="utf-8") as f:
+                    with open(env_path, encoding="utf-8") as f:
                         env_content = f.read()
                 
                 # Update or add DATABASE_URL

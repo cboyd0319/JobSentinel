@@ -1,10 +1,27 @@
 """LEGACY: Unified database schema for the enhanced job scraper.
 
-DEPRECATION NOTICE: This module uses SQLite and is being phased out.
-JobSentinel now uses PostgreSQL as the primary database.
-This module is maintained for backward compatibility only.
+⚠️ DEPRECATED - DO NOT USE FOR NEW CODE ⚠️
 
-Supports data from all job board types (Greenhouse, Microsoft, SpaceX, etc.)
+This module is DEPRECATED and maintained for backward compatibility only.
+
+**Migration Path:**
+- Use `src.database.Job` as the authoritative model (with PostgreSQL)
+- The Job model now includes: source, remote, salary_min, salary_max, currency
+- TrackedJob model provides CRM/Kanban tracking features
+- UnifiedJob has 30+ fields but causes schema confusion
+
+**Why deprecated:**
+- Multiple competing Job models caused schema mismatches
+- PostgreSQL is now the primary database (not SQLite)
+- Extended fields should be in separate related tables (TrackedJob, etc.)
+
+**For new code:**
+```python
+from src.database import Job  # Use this
+from jsa.tracker.models import TrackedJob  # For CRM features
+```
+
+DO NOT import UnifiedJob for new features.
 """
 
 import json

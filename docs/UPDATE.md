@@ -1,8 +1,52 @@
 # JobSentinel Development Roadmap & Status Tracker
 
-**Last Updated:** October 14, 2025 - Session 7  
+**Last Updated:** October 14, 2025 - Session 8  
 **Version:** 0.6.0 → 0.7.0  
 **Mission:** Make JobSentinel THE BEST and MOST COMPLETE job search tool in the world!
+
+---
+
+## 🎯 QUICK START FOR AI AGENTS (READ THIS FIRST!)
+
+### Session 8 Database Schema Fixes (October 14, 2025) ✅ COMPLETE
+
+**WHAT WAS FIXED:**
+All major database schema mismatches and test failures have been resolved.
+
+**CHANGES MADE:**
+1. ✅ Created missing `src/jsa/fastapi_app/dependencies.py` module
+2. ✅ Added missing fields to Job model: `source`, `remote`, `salary_min`, `salary_max`, `currency`
+3. ✅ Fixed TrackedJob foreign key constraint (now properly references `job.id`)
+4. ✅ Fixed test database override to auto-convert SQLite URLs to async drivers
+5. ✅ Added comprehensive database schema documentation (`docs/DATABASE_SCHEMA.md`)
+6. ✅ Deprecated `src/unified_database.py` with clear migration path
+
+**CURRENT STATUS:**
+- ✅ Tests: 151 passed, 11 skipped, 0 failures (100% pass rate)
+- ✅ Linting: 0 errors (Ruff)
+- ✅ Type checking: 0 errors (mypy strict, 33 source files)
+- ✅ All FastAPI job endpoint tests now passing (22 tests fixed)
+
+**SCHEMA CONSOLIDATION:**
+- **Primary Model:** `src.database.Job` (18 fields, PostgreSQL)
+- **Deprecated:** `src.unified_database.UnifiedJob` (30+ fields, confusing)
+- **For Tracking:** `jsa.tracker.models.TrackedJob` (CRM features)
+
+**FILES CHANGED:**
+- `src/jsa/fastapi_app/dependencies.py` (NEW - dependency injection)
+- `src/jsa/fastapi_app/__init__.py` (export dependencies)
+- `src/jsa/db.py` (improved test override function)
+- `src/database.py` (added 5 fields to Job model)
+- `src/jsa/tracker/models.py` (fixed FK constraint)
+- `src/unified_database.py` (added deprecation warnings)
+- `docs/DATABASE_SCHEMA.md` (NEW - comprehensive schema docs)
+- `docs/UPDATE.md` (this file - Session 8 added)
+
+**FOR FUTURE WORK:**
+- Use `src.database.Job` for all new code (authoritative model)
+- Don't use `unified_database.py` (deprecated)
+- See `docs/DATABASE_SCHEMA.md` for complete schema reference
+- All tests must pass before committing (zero-error standard)
 
 ---
 
