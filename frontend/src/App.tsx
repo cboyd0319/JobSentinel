@@ -7,6 +7,7 @@ import { Jobs } from './pages/Jobs'
 import { Tracker } from './pages/Tracker'
 import { Resume } from './pages/Resume'
 import { LLMFeatures } from './pages/LLMFeatures'
+import { SkillsTaxonomy } from './pages/SkillsTaxonomy'
 import { Settings } from './pages/Settings'
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
           <Route path="tracker" element={<Tracker />} />
           <Route path="resume" element={<Resume />} />
           <Route path="llm" element={<LLMFeatures />} />
+          <Route path="skills" element={<SkillsTaxonomy />} />
           <Route path="settings" element={<Settings />} />
         </Route>
       </Routes>
