@@ -17,6 +17,7 @@
       "url": "https://jobs.lever.co/stripe"
     },
     {
+      "_comment": "generic_js board type is experimental and may not work reliably",
       "id": "ashby-example",
       "board_type": "generic_js",
       "url": "https://jobs.ashbyhq.com/ashby"

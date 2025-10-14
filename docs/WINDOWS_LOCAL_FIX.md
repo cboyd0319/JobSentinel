@@ -254,7 +254,89 @@ Choose one standard and update all files consistently:
 
 ## ✅ Fixes Applied
 
-_(No fixes yet - starting analysis)_
+### Fix #1: Python Version Requirement Standardization
+**Issue:** #1 (HIGH)  
+**Date:** October 14, 2025  
+**Status:** ✅ FIXED
+
+**Changes Made:**
+1. Updated `pyproject.toml`:
+   - `requires-python = ">=3.12"` (was 3.11)
+   - `black.target-version = ["py312"]` (was py311)
+   - `ruff.target-version = "py312"` (was py311)
+   - `mypy.python_version = "3.12"` (was 3.11)
+
+2. Updated test expectations:
+   - `tests/test_windows_deployment.py`: Now expects 3.12+ only (removed 3.11 check)
+
+**Files Modified:**
+- `pyproject.toml` (4 changes)
+- `tests/test_windows_deployment.py` (1 change)
+
+**Verification:**
+- All Windows deployment scripts already checked for 3.12+
+- Documentation already specified 3.12+
+- Tests now match actual requirements
+- Test suite: 22 passed, 4 skipped ✅
+
+---
+
+### Fix #2: PostgreSQL Documentation Clarification
+**Issue:** #2 (HIGH)  
+**Date:** October 14, 2025  
+**Status:** ✅ FIXED
+
+**Changes Made:**
+1. Added clarity section at top of WINDOWS_TROUBLESHOOTING.md:
+   - "SQLite is the default database - No database server installation needed!"
+   - "Zero admin rights required"
+   - "PostgreSQL is optional - Only for advanced enterprise scenarios"
+
+2. Updated Quick Reference table:
+   - Removed "PostgreSQL Won't Start" entry
+   - Added "Database Errors" with SQLite-specific fix
+   - Added "Port In Use" for web UI issues
+
+3. Replaced PostgreSQL installation section with:
+   - "Database Not Created" troubleshooting (SQLite)
+   - Automatic database creation instructions
+   - Database reset procedures
+
+4. Replaced PostgreSQL service section with:
+   - Web UI troubleshooting
+   - API server troubleshooting
+   - Port conflict resolution
+
+5. Replaced PostgreSQL connection section with:
+   - SQLite database errors (locked, corrupted)
+   - Database file permissions
+   - Backup and restore procedures
+
+6. Moved PostgreSQL to optional "Advanced" section:
+   - Clear note that it's NOT required
+   - Brief installation steps for enterprise users
+   - Reference to PostgreSQL docs for details
+
+7. Updated Chocolatey section:
+   - Clarified it's NOT required
+   - Made it optional for other software
+
+8. Updated installation checklists:
+   - Before: Removed "Firewall won't block PostgreSQL"
+   - Before: Added "Python 3.12+" requirement
+   - Before: Reduced disk space from 2GB to 1GB
+   - After: Removed "PostgreSQL service is running"
+   - After: Added "SQLite database created"
+   - After: Added API server and dry-run checks
+
+**Files Modified:**
+- `docs/WINDOWS_TROUBLESHOOTING.md` (40+ PostgreSQL mentions → 2 mentions in optional section)
+
+**Verification:**
+- SQLite confirmed as default in `.env.example`
+- No PostgreSQL in `pyproject.toml` dependencies
+- All core functionality works with SQLite only
+- Zero admin rights requirement maintained ✅
 
 ---
 
