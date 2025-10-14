@@ -2,7 +2,7 @@
 # Install only what's needed to reduce attack surface
 
 # MCP Protocol - Updated to fix CVE-2025-53365 & CVE-2025-53366
-mcp==1.16.0
+mcp==1.17.0
 
 # HTTP clients
 httpx==0.28.1
@@ -12,5 +12,5 @@ requests==2.32.5
 jobspy==0.31.0
 
 # Utilities
-pydantic==2.12.0
+pydantic==2.12.2
 python-dotenv==1.1.1
