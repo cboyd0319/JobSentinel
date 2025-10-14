@@ -105,12 +105,24 @@ JobSentinel will:
      - Click "More info"
      - Click "Run anyway"
 
-3. **Follow the Setup Wizard:**
-   - The setup will:
-     ✅ Check your system
+3. **System Compatibility Check:**
+   - The setup will first check your system:
+     ✅ Windows 11 (build 22000+)
+     ✅ Python 3.12+
+     ✅ Disk space (1GB+)
+     ✅ Internet connection
+     ✅ Write permissions
+     ✅ Available memory
+     ✅ Port availability
+   - If any checks fail, you'll see clear instructions on how to fix them
+   - Don't worry - the setup won't let you proceed until everything is ready!
+
+4. **Follow the Setup Wizard:**
+   - After checks pass, the setup will:
      ✅ Install required software
      ✅ Ask you a few simple questions
      ✅ Set everything up automatically
+     ✅ Create desktop shortcuts for easy access
 
 4. **Answer the Setup Questions:**
    
@@ -149,6 +161,11 @@ JobSentinel will:
 
 6. **Setup Complete!**
    - You'll see "Setup Complete! 🎉"
+   - Desktop shortcuts will be created automatically:
+     • "Run JobSentinel" - Search for jobs
+     • "JobSentinel Dashboard" - View jobs in browser
+     • "Configure JobSentinel" - Change settings
+     • "JobSentinel Health Check" - Check system status
    - Press any key to close
 
 ---
@@ -158,6 +175,14 @@ JobSentinel will:
 ### First Test Run (No Alerts)
 
 Let's test it without sending Slack messages:
+
+**Option A: Using Desktop Shortcut (Easiest)**
+
+1. Double-click the "Run JobSentinel" shortcut on your Desktop
+2. Wait 2-5 minutes for the search to complete
+3. Check the results in the terminal window
+
+**Option B: Using Command Line**
 
 1. Open Command Prompt:
    - Press `Windows + R`
@@ -199,7 +224,14 @@ This will:
 
 ### View Jobs in Web Browser
 
-Start the web interface:
+**Option A: Using Desktop Shortcut (Easiest)**
+
+1. Double-click "JobSentinel Dashboard" on your Desktop
+2. Your browser will open automatically
+3. If not, go to: http://localhost:5000
+4. To stop: Close the terminal window or press `Ctrl + C`
+
+**Option B: Using Command Line**
 
 1. Run:
    ```cmd
@@ -243,6 +275,10 @@ For a more modern interface:
 
 ### Check System Status
 
+**Option A: Using Desktop Shortcut**
+- Double-click "JobSentinel Health Check" on your Desktop
+
+**Option B: Using Command Line**
 ```cmd
 python -m jsa.cli health
 ```
@@ -257,6 +293,11 @@ Shows:
 
 ### Change Settings
 
+**Option A: Using Desktop Shortcut**
+- Double-click "Configure JobSentinel" on your Desktop
+- Follow the interactive wizard
+
+**Option B: Manual Editing**
 1. Open `config/user_prefs.json` in Notepad
 2. Edit your preferences:
    - `keywords`: Job keywords to search for
@@ -265,7 +306,7 @@ Shows:
    - `job_sources`: Which sites to search
 3. Save and close
 
-Or run the setup wizard again:
+**Option C: Setup Wizard (Command Line)**
 ```cmd
 python -m jsa.cli setup
 ```

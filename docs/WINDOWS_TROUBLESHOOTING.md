@@ -31,6 +31,216 @@
 | Database Errors | SQLite errors | Delete data/jobs.sqlite and restart |
 | Port In Use | Web UI won't start | Use different port: `--port 5001` |
 | Module Not Found | Import errors | Reinstall: `pip install -e .` |
+| Shortcuts Missing | No desktop icons | Re-run setup or see "Desktop Shortcuts" section |
+| Pre-Check Fails | Setup won't start | See "System Pre-Check Errors" section |
+
+---
+
+## System Pre-Check Errors
+
+The Windows setup script runs comprehensive system checks before installation. If any check fails, you'll see clear error messages with instructions.
+
+### Issue: Windows Version Check Failed
+
+**Symptom:**
+```
+❌ Windows Version: Windows 11 required. Detected: Windows 10
+```
+
+**Solution:**
+1. Upgrade to Windows 11
+   - Go to Settings → Update & Security → Windows Update
+   - Click "Check for updates"
+   - Follow upgrade instructions
+
+2. Or use a different installation method:
+   - Manual installation (see CONTRIBUTING.md)
+   - Run on a different computer with Windows 11
+
+**Learn More:** https://www.microsoft.com/windows/windows-11
+
+### Issue: Python Version Check Failed
+
+**Symptom:**
+```
+❌ Python Version: Python 3.12+ required. Found: 3.10.0
+```
+
+**Solution:**
+1. Install Python 3.12+:
+   - Go to https://www.python.org/downloads/
+   - Download Python 3.12.7 or newer
+   - Run installer with "Add Python to PATH" checked
+
+2. Verify installation:
+   ```powershell
+   python --version
+   ```
+
+3. If old version still shows:
+   - Uninstall old Python versions
+   - Reinstall Python 3.12+
+   - Restart terminal
+
+### Issue: Disk Space Check Failed
+
+**Symptom:**
+```
+❌ Disk Space: Only 0.5 GB free. Need at least 1 GB.
+```
+
+**Solution:**
+1. Free up disk space:
+   - Empty Recycle Bin
+   - Delete temporary files (Windows + R → `temp`)
+   - Uninstall unused programs
+   - Run Disk Cleanup (search in Start menu)
+
+2. Move to a different drive:
+   - Extract JobSentinel to D: or E: drive
+   - Run setup from there
+
+### Issue: Internet Connection Check Failed
+
+**Symptom:**
+```
+❌ Internet Connection: No internet connection detected
+```
+
+**Solution:**
+1. Connect to the internet:
+   - Check Wi-Fi or Ethernet connection
+   - Restart router if needed
+   - Disable VPN temporarily
+
+2. Test connection:
+   ```powershell
+   ping google.com
+   ```
+
+3. If connection works but check fails:
+   - Check firewall settings
+   - Try different network (e.g., mobile hotspot)
+
+### Issue: Write Permissions Check Failed
+
+**Symptom:**
+```
+❌ Write Permissions: Cannot write to directory
+```
+
+**Solution:**
+1. Run from a different location:
+   - Extract JobSentinel to Desktop or Documents
+   - Avoid Program Files or System folders
+
+2. Check folder permissions:
+   - Right-click folder → Properties → Security
+   - Ensure your user has "Full Control"
+
+3. If on network drive:
+   - Copy to local drive (C:, Desktop)
+   - Run from there
+
+### Issue: Port Availability Check Failed
+
+**Symptom:**
+```
+⚠️  Port Availability: Ports 5000, 8000 already in use
+```
+
+**Solution:**
+This is a WARNING, not an error. You can proceed with installation.
+
+1. To find what's using the port:
+   ```powershell
+   netstat -ano | findstr :5000
+   netstat -ano | findstr :8000
+   ```
+
+2. To use different ports:
+   ```powershell
+   python -m jsa.cli web --port 5001
+   python -m jsa.cli api --port 8001
+   ```
+
+### Issue: Memory Check Failed
+
+**Symptom:**
+```
+⚠️  Memory: Only 512 MB available. Need at least 1024 MB.
+```
+
+**Solution:**
+This is a WARNING, not an error. You can proceed, but close some programs:
+
+1. Close unnecessary applications
+2. Close browser tabs
+3. Restart your computer
+4. Try again
+
+---
+
+## Desktop Shortcuts Issues
+
+### Issue: Shortcuts Not Created
+
+**Symptom:**
+- No desktop icons after setup
+- Or icons created but don't work
+
+**Solutions:**
+
+1. **Shortcut creation failed (non-critical):**
+   ```
+   ⚠️  Could not create shortcuts (non-critical)
+   ```
+   
+   This is OK! You can still use JobSentinel via command line:
+   ```cmd
+   cd Desktop\JobSentinel
+   python -m jsa.cli run-once
+   ```
+
+2. **Manually create shortcuts:**
+   - Right-click Desktop → New → Shortcut
+   - Target: `python.exe -m jsa.cli run-once`
+   - Start in: `C:\Users\YourName\Desktop\JobSentinel`
+   - Name: "Run JobSentinel"
+
+3. **Install pywin32 for better shortcut support:**
+   ```powershell
+   pip install pywin32
+   ```
+   
+   Then re-run setup or create shortcuts manually:
+   ```powershell
+   python -m jsa.windows_shortcuts
+   ```
+
+### Issue: Shortcuts Work But Don't Show Results
+
+**Symptom:**
+- Double-click shortcut
+- Terminal window flashes and closes
+- Can't see results
+
+**Solution:**
+
+1. **Add pause to see results:**
+   - Right-click shortcut → Properties
+   - Change target to:
+     ```
+     cmd /k "cd /d C:\Users\YourName\Desktop\JobSentinel && python -m jsa.cli run-once && pause"
+     ```
+   - `/k` keeps window open
+   - `pause` waits for keypress
+
+2. **Or run from Command Prompt:**
+   ```cmd
+   cd Desktop\JobSentinel
+   python -m jsa.cli run-once
+   ```
 
 ---
 

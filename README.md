@@ -60,10 +60,12 @@ python -m jsa.cli run-once
 | Item | Version | Why |
 |------|---------|-----|
 | Python | 3.11+ (3.12+ for Windows) | Backend runtime (includes SQLite) |
-| Node.js | 20+ | Frontend build (React 19) |
-| Git | Any | Clone repo |
+| Node.js | 20+ | Frontend build (React 19) - optional |
+| Git | Any | Clone repo - optional (can download ZIP) |
 | Slack webhook | - | Alerts (optional) |
 | Reed API key | - | Reed jobs (optional) |
+
+**Windows users:** The automated installer checks all requirements and provides clear instructions if anything is missing.
 
 ## Install
 
@@ -76,7 +78,10 @@ python -m jsa.cli run-once
 3. **Run:** Double-click `setup-windows.bat`
 4. **Done!** Follow the 5-minute wizard
 
-**Includes:**
+**✨ New Features:**
+- ✅ Comprehensive system pre-check (catches issues before installation)
+- ✅ Desktop shortcuts (one-click access, no command line needed)
+- ✅ Enhanced error messages (clear fixes for every problem)
 - ✅ Automated dependency installation
 - ✅ Interactive configuration wizard
 - ✅ SQLite database (zero setup, no admin rights)
