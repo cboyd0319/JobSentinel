@@ -256,3 +256,4 @@ diagnostics-*.zip
 # PyGuard reports
 pyguard-report.html
 pyguard-*.html
+.venv-test/
