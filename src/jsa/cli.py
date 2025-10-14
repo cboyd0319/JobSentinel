@@ -41,93 +41,96 @@ def _cmd_web(args: argparse.Namespace) -> int:
 
 def _cmd_preflight(args: argparse.Namespace) -> int:
     """Run pre-flight system checks.
-    
+
     Args:
         args: Command arguments (fix flag)
-        
+
     Returns:
         Exit code (0 for success, 1 for failures)
     """
     try:
         from jsa.preflight_check import PreflightChecker
-        
+
         checker = PreflightChecker()
         all_passed, _ = checker.run_all_checks()
         checker.print_results()
-        
+
         if args.fix and not all_passed:
             print("\n🔧 Attempting to auto-fix issues...")
             print("(This feature is experimental)")
             # TODO: Implement auto-fix logic
             print("Auto-fix not yet implemented. Please fix issues manually.")
-        
+
         return 0 if all_passed else 1
-        
+
     except Exception as e:
         print(f"Error running pre-flight checks: {e}")
         import traceback
+
         traceback.print_exc()
         return 1
 
 
 def _cmd_db_optimize(args: argparse.Namespace) -> int:
     """Optimize SQLite database.
-    
+
     Args:
         args: Command arguments (db path)
-        
+
     Returns:
         Exit code (0 for success, 1 for failures)
     """
     try:
         from pathlib import Path
         from jsa.db_optimize import DatabaseOptimizer
-        
+
         db_path = Path(args.db)
-        
+
         if not db_path.exists():
             print(f"Error: Database not found: {db_path}")
             print("\nCreate database first by running:")
             print("  python -m jsa.cli run-once")
             return 1
-        
+
         print(f"Optimizing database: {db_path}\n")
-        
+
         optimizer = DatabaseOptimizer(db_path)
         results = optimizer.optimize_all()
         optimizer.print_results(results)
-        
+
         # Return 0 if all operations succeeded
         return 0 if all(r.success for r in results) else 1
-        
+
     except Exception as e:
         print(f"Error optimizing database: {e}")
         import traceback
+
         traceback.print_exc()
         return 1
 
 
 def _cmd_diagnostic(args: argparse.Namespace) -> int:
     """Run system diagnostics and show results.
-    
+
     Args:
         args: Command arguments (verbose flag)
-        
+
     Returns:
         Exit code (0 for success, 1 for failures)
     """
     try:
         from jsa.diagnostic import run_diagnostics
-        
+
         results = run_diagnostics(verbose=args.verbose)
-        
+
         # Return non-zero if there are failures
         failures = [r for r in results if r.status == "fail"]
         return 1 if failures else 0
-        
+
     except Exception as e:
         print(f"Error running diagnostics: {e}")
         import traceback
+
         traceback.print_exc()
         return 1
 
@@ -268,6 +271,20 @@ def _cmd_api(args: argparse.Namespace) -> int:
         return 1
 
 
+def _cmd_fix(_: argparse.Namespace) -> int:
+    """Run auto-fix diagnostic and repair system."""
+    try:
+        # Import auto-fix script
+        import scripts.auto_fix as auto_fix_module
+
+        return auto_fix_module.main()
+    except Exception as e:
+        print(f"Error running auto-fix: {e}")
+        print("\nTry running manually:")
+        print("  python scripts/auto_fix.py")
+        return 1
+
+
 def _cmd_update(args: argparse.Namespace) -> int:
     """Check for and install updates."""
     try:
@@ -276,9 +293,7 @@ def _cmd_update(args: argparse.Namespace) -> int:
         updater = AutoUpdater()
 
         if args.check_only:
-            release = updater.check_for_updates(
-                include_prereleases=args.include_prereleases
-            )
+            release = updater.check_for_updates(include_prereleases=args.include_prereleases)
             if release:
                 updater.display_update_info(release)
                 print()
@@ -701,6 +716,16 @@ def build_parser() -> argparse.ArgumentParser:
         help="Skip checksum verification",
     )
     p_backup_restore.set_defaults(func=_cmd_backup_restore)
+
+    # Auto-Fix (NEW - Self-Healing System)
+    p_fix = sub.add_parser(
+        "fix",
+        help="Auto-fix common issues",
+        description="Automatically diagnose and fix common issues. "
+        "Self-healing system that checks configuration, dependencies, "
+        "database, and more. Perfect for troubleshooting!",
+    )
+    p_fix.set_defaults(func=_cmd_fix)
 
     return p
 
