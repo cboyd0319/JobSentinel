@@ -56,12 +56,12 @@ python -m jsa.cli run-once
 
 **Quick Start (Recommended):**
 ```bash
-# Interactive setup wizard
+# Interactive setup wizard (with automatic PostgreSQL installation)
 python -m jsa.cli setup
 
 # Guides you through:
+# - Automatic PostgreSQL installation and configuration
 # - Keywords and preferences
-# - Database selection (SQLite/PostgreSQL)
 # - Job sources
 # - Slack notifications
 ```
