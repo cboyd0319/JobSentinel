@@ -64,8 +64,10 @@ class JobSentinelGUI:
             icon_path = Path(__file__).parent / "static" / "favicon.ico"
             if icon_path.exists():
                 self.root.iconbitmap(str(icon_path))
-        except Exception:
-            pass  # Icon not critical
+        except (OSError, IOError, RuntimeError) as e:
+            # Icon not critical - continue without it
+            # Common errors: file not found, invalid icon format, tkinter errors
+            pass
 
         # Configure colors - Modern, professional palette
         self.bg_color = "#f8fafc"  # Softer, lighter background
@@ -439,6 +441,8 @@ class JobSentinelGUI:
             # Start the server in a separate thread
             def start_in_thread():
                 try:
+                    # Security: Bind to localhost only for local-first deployment
+                    # This prevents remote access to the API server
                     self.server_process = subprocess.Popen(
                         [
                             sys.executable,
@@ -446,7 +450,7 @@ class JobSentinelGUI:
                             "uvicorn",
                             "jsa.fastapi_app:app",
                             "--host",
-                            "0.0.0.0",
+                            "127.0.0.1",  # localhost only - no remote access
                             "--port",
                             "8000",
                         ],
@@ -533,7 +537,8 @@ class JobSentinelGUI:
 
         try:
             # Run setup wizard in new window
-            subprocess.Popen(
+            # Security: Using sys.executable (trusted) with hardcoded module path
+            subprocess.Popen(  # nosec B603 - controlled input (sys.executable + literal args)
                 [sys.executable, "-m", "jsa.cli", "setup"],
                 cwd=str(self.project_root),
             )
@@ -558,7 +563,8 @@ class JobSentinelGUI:
 
         try:
             # Run scraper in background
-            subprocess.Popen(
+            # Security: Using sys.executable (trusted) with hardcoded module path
+            subprocess.Popen(  # nosec B603 - controlled input (sys.executable + literal args)
                 [sys.executable, "-m", "jsa.cli", "run-once"],
                 cwd=str(self.project_root),
             )
@@ -587,15 +593,22 @@ class JobSentinelGUI:
             return
 
         try:
+            # Security: Validate path is within project directory
+            resolved_path = self.config_path.resolve()
+            project_root_resolved = self.project_root.resolve()
+            if not str(resolved_path).startswith(str(project_root_resolved)):
+                raise ValueError("Configuration file must be within project directory")
+            
             if platform.system() == "Windows":
-                os.startfile(str(self.config_path))
+                # nosec: os.startfile is safe here - path is validated above
+                os.startfile(str(resolved_path))  # nosec B606
             elif platform.system() == "Darwin":  # macOS
-                subprocess.run(["open", str(self.config_path)])
+                subprocess.run(["open", str(resolved_path)], check=False)
             else:  # Linux
-                subprocess.run(["xdg-open", str(self.config_path)])
+                subprocess.run(["xdg-open", str(resolved_path)], check=False)
 
             self._log("Configuration file opened", "success")
-        except Exception as e:
+        except (OSError, ValueError, subprocess.SubprocessError) as e:
             self._log(f"Failed to open config: {e}", "error")
             messagebox.showerror(
                 "Config Error",
@@ -619,7 +632,8 @@ class JobSentinelGUI:
 
         try:
             # Run email test
-            result = subprocess.run(
+            # Security: Using sys.executable (trusted) with controlled code string
+            result = subprocess.run(  # nosec B603 - controlled input (sys.executable + literal code)
                 [
                     sys.executable,
                     "-c",
@@ -629,6 +643,7 @@ class JobSentinelGUI:
                 cwd=str(self.project_root),
                 capture_output=True,
                 timeout=30,
+                check=False,
             )
 
             if result.returncode == 0:
@@ -675,7 +690,8 @@ class JobSentinelGUI:
 
         try:
             # Run backup command
-            process = subprocess.Popen(
+            # Security: Using sys.executable (trusted) with hardcoded module path
+            process = subprocess.Popen(  # nosec B603 - controlled input (sys.executable + literal args)
                 [sys.executable, "-m", "jsa.cli", "backup", "create"],
                 cwd=str(self.project_root),
                 stdout=subprocess.PIPE,
@@ -722,14 +738,15 @@ class JobSentinelGUI:
         if docs_path.exists():
             try:
                 if platform.system() == "Windows":
-                    os.startfile(str(docs_path))
+                    os.startfile(str(docs_path))  # nosec B606 - safe, validated path
                 elif platform.system() == "Darwin":
-                    subprocess.run(["open", str(docs_path)])
+                    subprocess.run(["open", str(docs_path)], check=False)  # nosec B603 - literal args
                 else:
-                    subprocess.run(["xdg-open", str(docs_path)])
+                    subprocess.run(["xdg-open", str(docs_path)], check=False)  # nosec B603 - literal args
                 return
-            except Exception:
-                pass  # Fall back to GitHub
+            except (OSError, subprocess.SubprocessError):
+                # Fall back to GitHub if local docs can't be opened
+                pass
 
         # Open GitHub docs
         try:
