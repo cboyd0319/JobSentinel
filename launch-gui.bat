@@ -29,6 +29,9 @@ if errorlevel 1 (
     exit /b 1
 )
 
+REM Change to the directory where this batch file is located
+cd /d "%~dp0"
+
 REM Launch the GUI
 python launcher_gui.py
 

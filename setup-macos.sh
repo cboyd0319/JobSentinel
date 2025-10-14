@@ -160,6 +160,15 @@ case "$response" in
         ;;
 esac
 
+# Get the directory where this script is located
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Change to the repository root directory
+cd "$SCRIPT_DIR" || {
+    echo -e "${RED}✗ Failed to change to script directory${NC}"
+    exit 1
+}
+
 # Run Python setup script
 echo -e "${CYAN}Starting setup wizard...${NC}"
 echo ""
