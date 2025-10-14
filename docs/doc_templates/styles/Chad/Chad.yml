@@ -1,0 +1,15 @@
+# Chad style: bans hype and vague language; favors clarity and scannability
+extends: existence
+message: "Avoid hype or vague term: '%s'. Use a concrete, testable alternative."
+level: warning
+ignorecase: true
+tokens:
+  - leverage
+  - utilize
+  - seamlessly
+  - cutting-edge
+  - game-changing
+  - robustly
+  - world-class
+  - simple but powerful
+  - enterprise-grade

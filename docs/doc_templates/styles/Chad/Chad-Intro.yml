@@ -1,0 +1,9 @@
+# Require answer-first phrasing in intros (soft rule via warning)
+extends: occurrence
+message: "Lead with the actionable command/TL;DR in intros. Consider moving rationale down."
+level: suggestion
+scope: paragraph
+# crude heuristic: if first paragraph doesn't contain code or imperative verbs
+# Vale can't parse grammar deeply; use presence of '```' or verbs as heuristic
+tokens:
+  - '^(?!.*```)(?!.*\b(run|install|curl|pip|npm|make|docker)\b).{40,}$'
