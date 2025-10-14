@@ -18,7 +18,14 @@ Complete documentation for JobSentinel, a self-hosted job search automation tool
 
 ## Getting Started
 
-### New Users
+### 🪟 Windows 11 Users (Recommended Path)
+1. Read the [README](../README.md) for project overview
+2. Follow the [Windows Quick Start](WINDOWS_QUICK_START.md) - 2-minute setup
+3. Run `.\bootstrap.ps1` for one-click installation
+4. Run `.\run.ps1` to start JobSentinel
+5. Access the UI at http://localhost:8000
+
+### 🐧 macOS/Linux Users
 1. Read the [README](../README.md) for project overview
 2. Follow the [Quickstart Guide](quickstart.md) for installation
 3. Configure your preferences in `config/user_prefs.json`
@@ -54,6 +61,13 @@ docs/
 ```
 
 ## Core Documentation
+
+### Windows-Local Edition 🆕
+JobSentinel is now optimized for Windows 11+ with zero admin rights:
+- **[Windows Local Better](WINDOWS_LOCAL_BETTER.md)** - Master tracker for Windows enhancements
+- **[Windows Quick Start](WINDOWS_QUICK_START.md)** - 2-minute installation guide
+- **[Windows Troubleshooting](WINDOWS_TROUBLESHOOTING.md)** - Common Windows issues
+- **[Windows Setup Validation](WINDOWS_SETUP_VALIDATION.md)** - Validation checklist
 
 ### [Documentation Index](DOCUMENTATION_INDEX.md)
 Central hub for all documentation with role-based navigation.

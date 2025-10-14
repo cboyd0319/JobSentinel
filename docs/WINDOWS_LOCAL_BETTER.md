@@ -4,22 +4,57 @@
 > Always read this FIRST to understand progress and avoid re-testing.
 
 **Created:** October 14, 2025  
-**Version:** 0.6.0+  
+**Updated:** October 14, 2025 (Major Transformation Session)  
+**Version:** 0.6.0+ → 1.0.0 (Windows-Local Edition)  
 **Target:** Windows 11+ (build 22000+)  
 **Python:** 3.12.10 preferred (3.12+ minimum)  
 **Goal:** ZERO errors, 100% automated, ZERO technical knowledge required, ZERO admin rights
 
 ---
 
+## 🎯 CURRENT SESSION: WINDOWS-LOCAL TRANSFORMATION
+
+### Mission Statement
+Transform JobSentinel into the **WORLD'S BEST** Windows-local, zero-admin, privacy-first job hunting tool.
+
+### Key Principles (Non-Negotiables)
+1. **Local-First, Private-By-Default** - No cloud, no telemetry, no data exfiltration
+2. **Zero Admin Rights** - Everything under standard user account
+3. **Windows 11+ Focus** - PowerShell first-class, robust error handling
+4. **Python 3.12.10** - Repo-local venv, locked dependencies
+5. **UI Stack** - React 19, Vite 7, Tailwind 4, WebSocket
+6. **Database** - SQLite (bundled, file-based, encrypted optional)
+7. **Job Intake** - Official APIs, MCP servers, pluggable adapters
+8. **AI/ML (Local)** - On-disk models, optional cloud (user-consented)
+9. **Zero Warnings** - Strict tests, warnings = errors
+10. **Docs Hygiene** - Single source of truth, no contradictions
+
+### Critical Files & Locations
+- **This file:** `docs/WINDOWS_LOCAL_BETTER.md` - Master progress tracker
+- **Bootstrap:** `bootstrap.ps1` - One-click Windows setup (NEW)
+- **Runner:** `run.ps1` - One-click app launcher (NEW)
+- **Setup scripts:**
+  - `setup-windows.bat` - Batch launcher (existing)
+  - `setup-windows.ps1` - PowerShell installer (existing)
+  - `scripts/windows_setup.py` - Main Python setup (existing)
+- **Tools:** `.tools/` - Portable Node, caches (NEW)
+- **Data:** `data/` - SQLite DB, user data (existing)
+- **Config:** `config/` - User prefs, schemas (existing)
+- **Frontend:** `frontend/` - React 19 + Vite 7 + Tailwind 4 (existing)
+
+---
+
 ## 🚀 Quick Context for AI Agents
 
 ### What This Session Is About
-This is the **ENHANCEMENT SESSION** - all critical bugs are fixed, now we focus on making Windows setup:
-- **EASY** - One-click installation, zero configuration
-- **BEAUTIFUL** - Modern UI, clear feedback, professional polish
+This is the **MAJOR TRANSFORMATION SESSION** - converting JobSentinel to:
+- **WORLD-CLASS** - Best Windows-local job hunting tool
+- **EASY** - One-click bootstrap, zero configuration
+- **BEAUTIFUL** - Modern UI (React 19), clear feedback, professional polish
 - **FLAWLESS** - No errors, no warnings, no confusion
 - **AUTOMATED** - Everything happens automatically
 - **USER-FRIENDLY** - Assumes ZERO technical knowledge
+- **PRIVACY-FIRST** - All data local, no external dependencies
 
 ### Previous Work (Already Complete ✅)
 - ✅ Python 3.12+ requirement standardized

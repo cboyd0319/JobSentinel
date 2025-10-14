@@ -244,6 +244,9 @@ installer-state.json
 installer-crash.log
 diagnostics-*.zip
 
+# Windows-Local Edition - Portable tools
+.tools/
+
 # Playwright browsers (downloaded by setup scripts)
 ~/.cache/ms-playwright/
 
