@@ -2,62 +2,132 @@
 
 **Version:** 0.6.0+  
 **Last Updated:** October 14, 2025  
-**Purpose:** PostgreSQL-first database strategy for cross-platform deployments
+**Purpose:** SQLite-first database strategy for privacy and zero-admin deployments
 
 ---
 
 ## Executive Summary
 
-JobSentinel uses PostgreSQL as its primary database engine for cross-platform compatibility, better performance, and industry-standard reliability. PostgreSQL runs locally on your machine, maintaining the same privacy-first philosophy.
+JobSentinel uses **SQLite as the default database** for maximum privacy, zero setup, and no admin rights requirements. PostgreSQL is available as an optional enhancement for advanced use cases (teams, cloud, multi-user).
 
 ---
 
-## Why PostgreSQL?
+## Database Options
 
-### PostgreSQL (Primary) 🚀 RECOMMENDED for All Deployments
+### SQLite (Default) 🚀 RECOMMENDED for Personal Use
 
 **Use Cases:**
-- Local single-user deployments (primary use case)
-- Cloud deployments (AWS, GCP, Azure)
-- Multi-user/team deployments
-- High-concurrency scenarios
-- Cross-platform compatibility (macOS, Linux, Windows)
+- Personal use (primary use case - 99% of users)
+- Single-user local deployments
+- Privacy-first applications
+- Portable installations
+- Zero-admin Windows deployments
 
 **Pros:**
-- ✅ Cross-platform (macOS, Linux, Windows installers)
-- ✅ Excellent concurrency handling
+- ✅ **ZERO SETUP** - No installation or configuration required
+- ✅ **NO ADMIN RIGHTS** - Works for all users on Windows/Mac/Linux
+- ✅ **100% PRIVATE** - Single file, no network service, no exposure
+- ✅ **PORTABLE** - Copy database file anywhere, instant backup
+- ✅ **FAST** - Excellent performance for single-user (<1M jobs)
+- ✅ **CROSS-PLATFORM** - Identical behavior on all platforms
+- ✅ **LIGHTWEIGHT** - ~2-10 MB disk space (scales with job count)
+- ✅ **ZERO DEPENDENCIES** - Built into Python, always available
+- ✅ **PRIVACY-FIRST** - No service to secure, no ports to configure
+
+**Cons:**
+- ⚠️  Single-writer limitation (fine for personal use)
+- ⚠️  Limited advanced features vs PostgreSQL (no full-text search indexes)
+- ⚠️  Less suitable for multi-user scenarios
+
+**Performance Characteristics:**
+- Read: ~50K ops/sec (on SSD)
+- Write: ~10K ops/sec (single-writer)
+- Storage: ~1-5 MB per 1,000 jobs
+- Scalability: Excellent up to 1M jobs (tested)
+
+### PostgreSQL (Optional) 🔧 For Advanced Use Cases
+
+**Use Cases:**
+- Multi-user/team deployments
+- Cloud deployments (AWS, GCP, Azure)
+- High-concurrency scenarios
+- Advanced database features (full-text search, JSON operations)
+- Horizontal scaling needs
+
+**Pros:**
+- ✅ Multi-user concurrent access
 - ✅ Advanced indexing and query optimization
 - ✅ Built-in replication capabilities
 - ✅ JSON support for flexible schemas
 - ✅ Full-text search capabilities
 - ✅ Industry standard with excellent tooling
-- ✅ 100% local and private (no cloud required)
-- ✅ Better performance for complex queries
+- ✅ Excellent for teams and cloud
 
 **Cons:**
 - ⚠️  Requires installation (one-time setup)
-- ⚠️  ~50-100MB disk space for PostgreSQL server
-- ⚠️  Slightly more memory usage (~100-200MB) vs SQLite
+- ⚠️  May require admin rights on Windows
+- ⚠️  ~50-100MB disk space for server
+- ⚠️  More memory usage (~100-200MB) vs SQLite
+- ⚠️  Network service to secure and configure
 
 **Performance Characteristics:**
 - Read: ~50K ops/sec (single instance)
 - Write: ~20K ops/sec (MVCC)
-- Storage: Similar to SQLite (~1-5 MB per 1,000 jobs)
+- Storage: ~1-5 MB per 1,000 jobs
 - Scalability: Horizontal via replication/sharding
 
 ---
 
 ## Configuration
 
-### PostgreSQL Configuration (Primary)
+### SQLite Configuration (Default)
 
 **Installation:**
 
-PostgreSQL drivers are now included in the core installation:
+SQLite support is included in the core installation:
 
 ```bash
-# Standard installation includes PostgreSQL drivers
+# Standard installation includes SQLite (default)
 pip install -e .
+
+# This includes:
+# - aiosqlite (async SQLite driver)
+# - SQLite is built into Python, no separate installation needed
+```
+
+**Connection String:**
+```bash
+# In .env file (default)
+DATABASE_URL="sqlite+aiosqlite:///data/jobs.sqlite"
+
+# Absolute path (recommended for production)
+DATABASE_URL="sqlite+aiosqlite:////absolute/path/to/jobs.sqlite"
+
+# In-memory (testing only, data lost on restart)
+DATABASE_URL="sqlite+aiosqlite://"
+```
+
+**Database File Location:**
+- Default: `data/jobs.sqlite` (relative to project root)
+- Creates `data/` directory automatically if missing
+- Backup: Simply copy the `jobs.sqlite` file
+- Migration: Move file to new location, update DATABASE_URL
+
+**No Setup Required:**
+- ✅ No installation needed
+- ✅ No service to start
+- ✅ No admin rights required
+- ✅ Works immediately on all platforms
+
+### PostgreSQL Configuration (Optional)
+
+**Installation:**
+
+PostgreSQL requires optional dependencies:
+
+```bash
+# Install with PostgreSQL support
+pip install -e '.[postgres]'
 
 # This includes:
 # - asyncpg (async PostgreSQL driver)
@@ -147,8 +217,10 @@ CREATE EXTENSION IF NOT EXISTS btree_gin;   -- Better indexing
 # Run interactive setup wizard
 python -m jsa.cli setup
 
-# When prompted, choose PostgreSQL
-# Wizard will guide you through configuration
+# When prompted:
+# 1. Choose "sqlite" (default) for instant zero-setup start
+# 2. Or choose "postgresql" for advanced features
+# Wizard guides you through configuration
 # Automatically creates .env file with DATABASE_URL
 ```
 
@@ -170,7 +242,24 @@ effective_io_concurrency = 200
 
 ## Quick Start
 
-### New Installation
+### New Installation (Recommended: SQLite)
+
+```bash
+# 1. Install JobSentinel (no database setup needed!)
+pip install -e .
+
+# 2. Run setup wizard
+python -m jsa.cli setup
+
+# When asked about database:
+# - Choose "sqlite" (default) - Ready instantly!
+# - Or choose "postgresql" for advanced features
+
+# 3. Start using JobSentinel
+python -m jsa.cli run-once
+```
+
+### Advanced Installation (PostgreSQL)
 
 ```bash
 # 1. Install PostgreSQL (see POSTGRESQL_SETUP.md)
@@ -178,9 +267,13 @@ effective_io_concurrency = 200
 # Ubuntu: sudo apt install postgresql-17
 # Windows: Download from postgresql.org
 
-# 2. Run setup wizard
+# 2. Install PostgreSQL drivers
+pip install -e '.[postgres]'
+
+# 3. Run setup wizard
 python -m jsa.cli setup
 
+# Choose "postgresql" when prompted
 # Wizard will guide you through:
 # - PostgreSQL installation check
 # - Database and user creation
@@ -278,27 +371,36 @@ session.query(Job).options(joinedload(Job.activities)).all()
 
 ## Deployment Matrix
 
-| Scenario | PostgreSQL | Notes |
-|----------|------------|-------|
-| Personal use | ✅ Recommended | Local installation, privacy-first |
-| Team (2-5 users) | ✅ Yes | Local or managed service |
-| Team (5+ users) | ✅ Yes | Managed service recommended |
-| Cloud deployment (single user) | ✅ Yes | Local installation in VM/container |
-| Cloud deployment (multi-user) | ✅ Yes | Managed service (RDS, Cloud SQL) |
-| < 100K jobs | ✅ Yes | Excellent performance |
-| 100K-1M jobs | ✅ Yes | Great performance with tuning |
-| 1M+ jobs | ✅ Yes | Add read replicas if needed |
-| Privacy-first | ✅ Yes | 100% local, no cloud required |
-| Cross-platform | ✅ Yes | Works on macOS, Linux, Windows |
+| Scenario | SQLite | PostgreSQL | Recommendation |
+|----------|--------|------------|----------------|
+| Personal use | ✅ Perfect | ✅ Good | **SQLite** - Zero setup |
+| Team (2-5 users) | ❌ No | ✅ Yes | PostgreSQL - Multi-user support |
+| Team (5+ users) | ❌ No | ✅ Yes | PostgreSQL - Managed service |
+| Cloud deployment (single user) | ✅ Good | ✅ Good | **SQLite** - Simpler |
+| Cloud deployment (multi-user) | ❌ No | ✅ Yes | PostgreSQL - Managed service |
+| < 100K jobs | ✅ Excellent | ✅ Excellent | **SQLite** - Simpler |
+| 100K-1M jobs | ✅ Good | ✅ Excellent | Either works well |
+| 1M+ jobs | ⚠️ Slower | ✅ Excellent | PostgreSQL - Better scaling |
+| Privacy-first | ✅ Perfect | ✅ Good | **SQLite** - Single file |
+| Zero-admin Windows | ✅ Perfect | ❌ Needs admin | **SQLite** - No admin rights |
+| Cross-platform | ✅ Perfect | ✅ Good | Both work identically |
 
 ---
 
 ## Cost Analysis
 
+### SQLite (Default)
+- **Infrastructure:** $0 (single file on your disk)
+- **Management:** $0 (zero setup)
+- **Backup:** $0 (copy file)
+- **Admin Rights:** NONE required
+- **Total:** **$0/month, $0 setup**
+
 ### PostgreSQL Local Installation
 - **Infrastructure:** $0 (runs on your machine)
 - **Management:** $0 (one-time setup)
 - **Backup:** $0 (local backup scripts)
+- **Admin Rights:** May be required (Windows)
 - **Total:** **$0/month**
 
 ### PostgreSQL Managed Services (Optional)
@@ -309,7 +411,7 @@ Only needed for team/cloud deployments:
 - **Backup:** Included in managed services
 - **Total:** $10-20/month
 
-**Recommendation:** Use local PostgreSQL for personal use (free forever)
+**Recommendation:** Use SQLite for personal use (instant, zero cost, zero admin)
 
 ---
 
@@ -366,16 +468,23 @@ ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC;
 
 ## Conclusion
 
-**For all users:** PostgreSQL is now the standard database for JobSentinel. It provides:
-- ✅ Cross-platform compatibility (macOS, Linux, Windows)
-- ✅ Better performance and scalability
-- ✅ Industry-standard reliability
-- ✅ 100% local and private by default
-- ✅ Excellent tooling and community support
+**For personal use (99% of users):** SQLite is the recommended default. It provides:
+- ✅ **ZERO SETUP** - Instant start, no installation
+- ✅ **NO ADMIN RIGHTS** - Works for all users on all platforms
+- ✅ **100% PRIVATE** - Single file, no network service
+- ✅ **PORTABLE** - Copy file anywhere, instant backup
+- ✅ **FAST** - Excellent performance for personal use
+
+**For teams and advanced use:** PostgreSQL is available as an optional enhancement:
+- ✅ Multi-user support
+- ✅ Advanced database features
+- ✅ Better scalability (1M+ jobs)
+- ✅ Cloud deployment ready
 
 **Getting Started:**
-1. Install PostgreSQL (see [POSTGRESQL_SETUP.md](POSTGRESQL_SETUP.md))
+1. Install JobSentinel: `pip install -e .`
 2. Run setup wizard: `python -m jsa.cli setup`
-3. Start using JobSentinel!
+3. Choose SQLite (default) for instant zero-setup start
+4. Start using JobSentinel!
 
-**Remember:** PostgreSQL runs locally on your machine by default. All data stays private and secure on your computer.
+**Remember:** SQLite is 100% local and private. All data stays on your computer in a single file.

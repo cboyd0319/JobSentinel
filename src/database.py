@@ -50,7 +50,7 @@ class Job(SQLModel, table=True):
 # Default to local PostgreSQL (single-user setup)
 # PostgreSQL has installers for macOS, Linux, and Windows
 DATABASE_URL = os.getenv(
-    "DATABASE_URL", "postgresql+asyncpg://jobsentinel:jobsentinel@localhost:5432/jobsentinel"
+    "DATABASE_URL", "sqlite+aiosqlite:///data/jobs.sqlite"
 )
 
 

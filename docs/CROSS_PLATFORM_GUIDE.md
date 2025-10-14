@@ -27,19 +27,22 @@ JobSentinel is designed to work identically across all major platforms. This gui
 
 ### Windows 11
 
+**✅ ZERO ADMIN RIGHTS REQUIRED** with SQLite default database!
+
 **⚠️ IMPORTANT: Python Version**
 - ✅ Use Python 3.11 or 3.12 ONLY
 - ❌ Python 3.13 is NOT supported (dependency build failures)
 - Recommended: Python 3.12.7
 
-#### Option 1: Native Windows (PowerShell)
+#### Option 1: Native Windows (PowerShell) - NO ADMIN RIGHTS
 
 **Prerequisites:**
 ```powershell
 # Install Python 3.12 from python.org or Microsoft Store
+# NOTE: May require admin rights for installation, but NOT for JobSentinel
 winget install Python.Python.3.12
 
-# Install Node.js
+# Install Node.js (for frontend development)
 winget install OpenJS.NodeJS.LTS
 
 # Verify installations
@@ -47,37 +50,40 @@ python --version  # Should be 3.11+
 node --version    # Should be 20+
 ```
 
-**Installation:**
+**Installation (NO ADMIN RIGHTS NEEDED):**
 ```powershell
 # Clone repository
 git clone https://github.com/cboyd0319/JobSentinel
 cd JobSentinel
 
-# Create virtual environment
+# Create virtual environment (NO ADMIN)
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 
-# Install dependencies
-pip install -e .[dev,resume,ml,llm]
+# Install dependencies (NO ADMIN)
+pip install -e .
+# Optional: Add extras if needed
+# pip install -e .[dev,resume,ml,llm]
+
+# Playwright browser install (NO ADMIN if in user profile)
 playwright install chromium
 
-# Install frontend
+# Install frontend (NO ADMIN)
 cd frontend
 npm install
 cd ..
 
-# Copy config
-copy config\user_prefs.example.json config\user_prefs.json
-
-# Edit config with your preferences
-notepad config\user_prefs.json
+# Run setup wizard (NO ADMIN)
+python -m jsa.cli setup
+# Choose SQLite (default) when prompted - ZERO SETUP!
 ```
 
 **Common Issues:**
 
-1. **Admin Rights Required**
-   - Some operations (PostgreSQL install, Playwright browsers) may need admin rights
-   - If installation fails, right-click PowerShell → "Run as Administrator"
+1. **Admin Rights for Python Install**
+   - Python installation itself may require admin rights (one-time)
+   - But JobSentinel with SQLite requires NO admin rights after Python installed
+   - Alternative: Install Python to user directory (no admin needed)
 
 2. **Long Path Issues** 
    - Enable long paths in Windows (recommended):
@@ -99,17 +105,19 @@ notepad config\user_prefs.json
      ```
 
 5. **Playwright Errors** 
-   - Run as administrator:
+   - Try installing to user profile (no admin):
+     ```powershell
+     playwright install chromium
+     ```
+   - If that fails, run as administrator:
      ```powershell
      playwright install --with-deps chromium
      ```
 
-6. **PostgreSQL Service Won't Start**
-   - Check Windows Firewall (port 5432 may be blocked)
-   - Manually start service:
-     ```powershell
-     net start postgresql-x64-17
-     ```
+6. **Database Issues**
+   - **SQLite (default):** No issues! Works instantly, no setup
+   - **PostgreSQL (optional):** Requires installation and may need admin rights
+   - Recommendation: Use SQLite unless you need PostgreSQL features
 
 #### Option 2: WSL2 (Recommended)
 

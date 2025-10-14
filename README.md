@@ -12,13 +12,14 @@ Private job search automation that runs on your machine.
 
 ## What it is
 
-JobSentinel scrapes public job boards (Greenhouse, Lever, Reed, JobsWithGPT, JobSpy), normalizes the data, scores jobs against your preferences (keywords, salary, location), and sends real-time alerts via Slack or WebSocket. All data stays local in PostgreSQL (privacy-first, single-user). Modern React 19 UI with live updates. No login-required scraping, no telemetry.
+JobSentinel scrapes public job boards (Greenhouse, Lever, Reed, JobsWithGPT, JobSpy), normalizes the data, scores jobs against your preferences (keywords, salary, location), and sends real-time alerts via Slack or WebSocket. All data stays local in SQLite (privacy-first, single-user, zero setup). Modern React 19 UI with live updates. No login-required scraping, no telemetry.
 
 ### ✨ What's New (v0.6.0+)
+- **SQLite Default** - Zero setup, zero admin rights, instant start
 - **React 19, Vite 7, Tailwind CSS 4** - Latest frontend stack
 - **WebSocket Support** - Real-time job updates in the browser
-- **PostgreSQL-First** - Local PostgreSQL for cross-platform deployment
-- **Enhanced Setup Wizard** - Automated PostgreSQL setup assistance
+- **PostgreSQL Optional** - Available for advanced use (teams, cloud)
+- **Enhanced Setup Wizard** - Database choice with clear comparison
 - **Cross-Platform** - Works seamlessly on macOS, Linux, and Windows
 
 ## Why it exists
@@ -45,49 +46,56 @@ python -m jsa.cli run-once
 
 | Item | Version | Why |
 |------|---------|-----|
-| Python | 3.11+ | Backend runtime |
-| PostgreSQL | 15+ | Local database (required) |
+| Python | 3.11+ | Backend runtime (includes SQLite) |
 | Node.js | 20+ | Frontend build (React 19) |
 | Git | Any | Clone repo |
 | Slack webhook | - | Alerts (optional) |
 | Reed API key | - | Reed jobs (optional) |
+| PostgreSQL | 15+ | Optional (for teams/advanced use) |
 
 ## Install
 
-**Quick Start (Recommended):**
+**Quick Start (Recommended - Zero Setup):**
 ```bash
-# Interactive setup wizard (with automatic PostgreSQL installation)
+# Interactive setup wizard (SQLite default - no database installation needed!)
 python -m jsa.cli setup
 
 # Guides you through:
-# - Automatic PostgreSQL installation and configuration
+# - Database choice (SQLite default or PostgreSQL optional)
 # - Keywords and preferences
 # - Job sources
 # - Slack notifications
+
+# SQLite chosen by default:
+# ✅ ZERO setup - Instant start
+# ✅ NO admin rights needed (Windows-friendly!)
+# ✅ 100% private - Single file database
 ```
 
 **Manual Installation:**
 ```bash
-# 1. Install PostgreSQL 15+ (if not already installed)
-# macOS: brew install postgresql@15 && brew services start postgresql@15
-# Ubuntu/Debian: sudo apt install postgresql-15 && sudo systemctl start postgresql
-# Windows: Download from https://www.postgresql.org/download/windows/
-
-# 2. Backend setup
+# 1. Backend setup (SQLite included, no database installation!)
 python3 -m venv .venv
 source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -e .
 playwright install chromium
 
-# 3. Frontend (for Web UI)
+# 2. Frontend (for Web UI)
 cd frontend
 npm install
 npm run build
 cd ..
 
-# 4. Configuration
+# 3. Configuration
 cp config/user_prefs.example.json config/user_prefs.json
 # Edit with your preferences
+
+# 4. Optional: PostgreSQL (for teams/advanced use)
+# pip install -e '.[postgres]'
+# Then install PostgreSQL 15+:
+# macOS: brew install postgresql@15 && brew services start postgresql@15
+# Ubuntu/Debian: sudo apt install postgresql-15 && sudo systemctl start postgresql
+# Windows: Download from https://www.postgresql.org/download/windows/
 ```
 
 ## Usage
@@ -196,7 +204,7 @@ Job Sites → Scrapers → Scoring → Slack Alerts
 
 **Flow:** Scrape public job boards → score against prefs → alert high matches
 
-**Data in:** Job site HTML/JSON. **Data out:** Slack webhooks, PostgreSQL (local)
+**Data in:** Job site HTML/JSON. **Data out:** Slack webhooks, SQLite/PostgreSQL (local)
 
 **Trust boundaries:** API keys in `.env`, no telemetry, all storage local
 
@@ -208,7 +216,7 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 **Secrets:** `.env` or env vars; never commit. Required: `SLACK_WEBHOOK_URL`. Optional: `OPENAI_API_KEY`, Reed API key
 
-**Least privilege:** Scrapers read-only, Slack webhook `incoming-webhook` scope, PostgreSQL user permissions
+**Least privilege:** Scrapers read-only, Slack webhook `incoming-webhook` scope, database file permissions
 
 **Supply chain:** Dependencies pinned in `pyproject.toml`, Playwright from official CDN
 
@@ -216,7 +224,7 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Performance
 
-**Local:** 10-50 jobs/min, ~200-500 MB RAM, PostgreSQL ~1-5 MB per 1k jobs
+**Local:** 10-50 jobs/min, ~200-500 MB RAM, SQLite ~1-5 MB per 1k jobs (single file)
 
 **Cloud:** 2hr intervals. GCP Cloud Run: ~$8/mo (1vCPU, 512MB). AWS Fargate Spot: ~$5/mo (0.25vCPU, 512MB)
 

@@ -165,7 +165,7 @@ class ConfigManager:
         self._config_data: dict[str, Any] | None = None
         self.database_url: str = os.getenv(
             "DATABASE_URL",
-            "postgresql+asyncpg://jobsentinel:jobsentinel@localhost:5432/jobsentinel",
+            "sqlite+aiosqlite:///data/jobs.sqlite",
         )
 
     def load_config(self) -> dict[str, Any]:
