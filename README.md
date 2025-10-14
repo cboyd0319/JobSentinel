@@ -59,7 +59,7 @@ python -m jsa.cli run-once
 
 | Item | Version | Why |
 |------|---------|-----|
-| Python | 3.11+ | Backend runtime (includes SQLite) |
+| Python | 3.11+ (3.12+ for Windows) | Backend runtime (includes SQLite) |
 | Node.js | 20+ | Frontend build (React 19) |
 | Git | Any | Clone repo |
 | Slack webhook | - | Alerts (optional) |

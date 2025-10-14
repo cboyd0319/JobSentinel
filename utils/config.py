@@ -224,7 +224,12 @@ class ConfigManager:
             # Validate companies in old format
             for i, company_data in enumerate(companies):
                 try:
-                    CompanyConfig(**company_data)
+                    # Filter out comment fields (keys starting with underscore)
+                    filtered_data = {
+                        k: v for k, v in company_data.items() 
+                        if not k.startswith("_")
+                    }
+                    CompanyConfig(**filtered_data)
                 except Exception as e:
                     raise ConfigurationException(f"Invalid company config at index {i}: {e}") from e
 
