@@ -414,11 +414,15 @@ function Step-ConfigureEnvironment {
 function Step-InitializeDatabase {
     Write-Step "Initializing SQLite database"
     
-    # Database will be created automatically on first run
-    # Just ensure data directory exists (already created)
+    Write-Info "Creating database and tables..."
+    & python scripts\init_database.py
     
-    Write-Success "Database directory ready at: $DATA_DIR"
-    Write-Info "Database will be created automatically on first run"
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "Database initialization failed"
+        throw "Database initialization failed"
+    }
+    
+    Write-Success "Database initialized successfully"
 }
 
 function Step-BuildFrontend {

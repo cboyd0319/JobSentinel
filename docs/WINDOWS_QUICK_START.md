@@ -39,65 +39,91 @@ JobSentinel will:
 
 ---
 
-## 🚀 Installation (Three Easy Steps)
+## 🚀 New Installation (Two Simple Steps)
 
-### Step 1: Install Python
+### Step 1: Install Python 3.12+
 
 1. **Download Python:**
    - Go to: https://www.python.org/downloads/
-   - Click the big yellow "Download Python" button
+   - Click the big yellow "Download Python 3.12.x" button
    - Save the file to your Downloads folder
 
 2. **Run the Python Installer:**
    - Double-click the downloaded file
-   - ⚠️ **IMPORTANT**: Check the box "Add Python to PATH"
+   - ⚠️ **CRITICAL**: Check the box "Add Python to PATH" at the bottom
    - Click "Install Now"
    - Wait 2-5 minutes for installation
    - Click "Close" when done
 
-3. **Verify Python is Installed:**
+3. **Verify Python Works:**
    - Press `Windows + R`
    - Type `cmd` and press Enter
    - Type `python --version` and press Enter
-   - You should see "Python 3.12.x" or newer
+   - You should see "Python 3.12.x"
    - Type `exit` and press Enter
 
-### Step 2: Download JobSentinel
+### Step 2: Download and Bootstrap JobSentinel
 
-**Option A: Using Git (Recommended)**
+**Option A: Download ZIP (Easiest)**
 
-1. **Install Git (if not already installed):**
+1. Download: https://github.com/cboyd0319/JobSentinel/archive/refs/heads/main.zip
+2. Extract to Desktop (right-click → "Extract All")
+3. Open the `JobSentinel-main` folder
+4. Right-click `bootstrap.ps1`
+5. Click "Run with PowerShell"
+6. Wait 2-5 minutes while it installs everything
+
+**Option B: Using Git (Advanced)**
+
+1. **Install Git** (if not already installed):
    - Go to: https://git-scm.com/download/win
-   - Download the installer
-   - Run it and click "Next" for all options
-   - Click "Finish"
+   - Download and run the installer
+   - Click "Next" for all options
 
-2. **Download JobSentinel:**
-   - Press `Windows + R`
-   - Type `cmd` and press Enter
-   - Type the following (press Enter after each line):
+2. **Clone and Bootstrap:**
+   - Press `Windows + R`, type `cmd`, press Enter
+   - Run these commands:
    ```cmd
    cd Desktop
    git clone https://github.com/cboyd0319/JobSentinel
    cd JobSentinel
+   powershell -ExecutionPolicy Bypass -File bootstrap.ps1
    ```
 
-**Option B: Download ZIP**
+**What bootstrap.ps1 does:**
+- ✅ Checks your system meets requirements
+- ✅ Downloads portable Node.js (no admin needed)
+- ✅ Creates Python virtual environment
+- ✅ Installs all dependencies
+- ✅ Creates database
+- ✅ Builds frontend UI
+- ✅ Runs health check
 
-1. Go to: https://github.com/cboyd0319/JobSentinel
-2. Click the green "Code" button
-3. Click "Download ZIP"
-4. Open Downloads folder
-5. Right-click "JobSentinel-main.zip"
-6. Click "Extract All"
-7. Click "Extract"
-8. Open the extracted folder
+**Total time: 2-5 minutes** depending on your internet speed.
 
-### Step 3: Run Setup Wizard
+### Step 3: Configure and Run
 
-1. **Open the JobSentinel folder:**
-   - If you used Git: The folder is on your Desktop
-   - If you used ZIP: The folder is in your Downloads
+1. **Edit Configuration:**
+   - Open `config/user_prefs.json` in Notepad
+   - Add your job search keywords, location, salary preferences
+   - Save the file
+
+2. **Edit Environment (Optional):**
+   - Open `.env` in Notepad
+   - Add your Slack webhook URL if you want notifications
+   - Save the file
+
+3. **Start JobSentinel:**
+   - Right-click `run.ps1`
+   - Click "Run with PowerShell"
+   - OR open PowerShell in the folder and type: `.\run.ps1`
+
+4. **Access the UI:**
+   - Open your browser
+   - Go to: http://localhost:8000
+   - You'll see the JobSentinel dashboard
+
+**That's it! You're running JobSentinel!**
 
 2. **Run the Setup:**
    - Double-click `setup-windows.bat`
