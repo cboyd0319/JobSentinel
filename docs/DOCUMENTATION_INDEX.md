@@ -37,6 +37,24 @@ New to JobSentinel? Start here:
 
 ---
 
+## 💻 Platform-Specific Guides
+
+### Cross-Platform Support
+- **[Cross-Platform Guide](CROSS_PLATFORM_GUIDE.md)** - Installation and usage across Windows, macOS, and Linux
+
+### Windows 11
+- **[Windows Troubleshooting](WINDOWS_TROUBLESHOOTING.md)** - 🔥 **NEW:** Complete Windows 11 troubleshooting guide
+  - Installation issues (Python, PostgreSQL, Chocolatey)
+  - Permission and admin rights
+  - Path and execution policy problems
+  - Service and network issues
+  - Performance optimization
+
+### All Platforms
+- **[Beginner Guide](BEGINNER_GUIDE.md)** - Zero-knowledge terminal guide for all platforms
+
+---
+
 ## 📊 Code Quality & Standards
 
 ### Current Status (v0.5.0 - October 11, 2025)
