@@ -46,8 +46,8 @@ class TestWindowsDeploymentSimulation:
         
         # Documentation
         assert (repo_root / "README.md").exists(), "README.md missing"
-        assert (repo_root / "docs" / "WINDOWS_QUICK_START.md").exists(), "Quick start guide missing"
         assert (repo_root / "docs" / "BEGINNER_GUIDE.md").exists(), "Beginner guide missing"
+        assert (repo_root / "docs" / "troubleshooting.md").exists(), "Troubleshooting guide missing"
         
         # Example config
         assert (repo_root / "config" / "user_prefs.example.json").exists(), "Example config missing"
@@ -271,10 +271,9 @@ class TestWindowsDeploymentSimulation:
         # Essential docs
         essential_docs = [
             "BEGINNER_GUIDE.md",
-            "WINDOWS_QUICK_START.md",
-            "WINDOWS_TROUBLESHOOTING.md",
+            "troubleshooting.md",
             "ARCHITECTURE.md",
-            "API_SPECIFICATION.md",
+            "API_INTEGRATION_GUIDE.md",
         ]
         
         for doc in essential_docs:

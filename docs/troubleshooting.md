@@ -1,5 +1,10 @@
 # Troubleshooting
 
+**Platform:** Windows 11+, macOS 14+, Ubuntu 22.04+  
+**Database:** SQLite (built-in, zero setup)
+
+## Common Issues
+
 | Error | Fix |
 |-------|-----|
 | `python3: command not found` | Install Python 3.11+ from [python.org/downloads](https://www.python.org/downloads/). Windows: check "Add to PATH" |
@@ -16,6 +21,16 @@
 | `SSL certificate verify failed` | `pip install --upgrade certifi`. macOS: run `/Applications/Python 3.11/Install Certificates.command` |
 | `Database locked` | Close other processes using `data/jobs.db`, or wait 30s |
 | Web UI shows blank page | Check logs: `python -m jsa.cli web --port 5000 --verbose`. Clear browser cache |
+
+## Windows-Specific Issues
+
+| Error | Fix |
+|-------|-----|
+| Execution Policy error | Run PowerShell as admin: `Set-ExecutionPolicy RemoteSigned` |
+| Path too long errors | Enable long paths: Settings → System → About → Advanced system settings → Computer Name → Advanced → Environment Variables |
+| Port already in use | Use different port: `python -m jsa.cli web --port 5001` |
+| Shortcuts missing | Re-run `setup-windows.bat` |
+| Disk space error | Free up 1GB+ space, or extract to different drive |
 
 ## Quick checks
 

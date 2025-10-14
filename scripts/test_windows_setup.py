@@ -271,10 +271,9 @@ def test_documentation_exists() -> bool:
     """Test that all required documentation exists."""
     project_root = Path(__file__).parent.parent
     docs = [
-        "docs/WINDOWS_QUICK_START.md",
-        "docs/WINDOWS_TROUBLESHOOTING.md",
-        "docs/WINDOWS_LOCAL_FIX.md",
         "docs/BEGINNER_GUIDE.md",
+        "docs/troubleshooting.md",
+        "README.md",
     ]
     
     all_exist = True

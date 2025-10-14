@@ -58,7 +58,7 @@ Finding relevant jobs across multiple boards is manual and time-consuming. Comme
 - Anyone who values privacy and data ownership
 - Users on corporate computers (no admin needed)
 
-**See the guide:** [Zero Knowledge Guide](docs/ZERO_KNOWLEDGE_GUIDE.md) - Complete walkthrough with screenshots!
+**New to terminals?** See [BEGINNER_GUIDE.md](docs/BEGINNER_GUIDE.md) - Complete zero-knowledge walkthrough!
 
 ### 🐧 macOS / Linux (Command Line)
 
@@ -107,7 +107,7 @@ python -m jsa.cli run-once
 - ✅ Health check validation
 - ✅ First-run verification
 
-See [WINDOWS_QUICK_START.md](docs/WINDOWS_QUICK_START.md) for detailed guide.
+See [BEGINNER_GUIDE.md](docs/BEGINNER_GUIDE.md) for detailed Windows setup.
 
 ### 🐧 All Platforms - Interactive Setup Wizard
 
@@ -226,17 +226,17 @@ python -m jsa.cli web --port 5000
 
 ### 🏆 World-Class Features (UNIQUE to JobSentinel)
 
-**Privacy Dashboard** — Complete data transparency. See every byte stored, verify zero telemetry, export for compliance. [Guide](docs/PRIVACY_DASHBOARD_GUIDE.md)
+**Privacy Dashboard** — Complete data transparency. See every byte stored, verify zero telemetry, export for compliance.
 ```bash
 python -m jsa.cli privacy
 ```
 
-**Backup & Restore** — One-click data portability. Standard tar.gz format, SHA-256 checksums, cross-platform. [Guide](docs/BACKUP_RESTORE_GUIDE.md)
+**Backup & Restore** — One-click data portability. Standard tar.gz format, SHA-256 checksums, cross-platform.
 ```bash
 python -m jsa.cli backup create
 ```
 
-**Auto-Update** — Zero-admin updates. Automatic backup, health verification, rollback support. Windows-friendly! [Guide](docs/WHY_JOBSENTINEL_IS_THE_BEST.md)
+**Auto-Update** — Zero-admin updates. Automatic backup, health verification, rollback support. Windows-friendly!
 ```bash
 python -m jsa.cli update
 ```
@@ -257,7 +257,7 @@ python -m jsa.cli update
 
 **Reliability** — Circuit breakers, exponential backoff, health checks
 
-See [docs/ADVANCED_FEATURES.md](docs/ADVANCED_FEATURES.md) and [docs/WHY_JOBSENTINEL_IS_THE_BEST.md](docs/WHY_JOBSENTINEL_IS_THE_BEST.md) for details.
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for technical details.
 
 ## Development
 
@@ -327,24 +327,21 @@ See [issues](https://github.com/cboyd0319/JobSentinel/issues).
 
 ## Documentation
 
-**Getting started:**
-- [BEGINNER_GUIDE.md](docs/BEGINNER_GUIDE.md) — New to terminals
-- [quickstart.md](docs/quickstart.md) — 5-minute setup
-- [troubleshooting.md](docs/troubleshooting.md) — Common errors
+**Essential guides:**
+- [BEGINNER_GUIDE.md](docs/BEGINNER_GUIDE.md) — Zero-knowledge terminal guide
+- [troubleshooting.md](docs/troubleshooting.md) — Common issues & solutions
+- [CONTRIBUTING.md](CONTRIBUTING.md) — Development setup
 
-**Features:**
-- [ADVANCED_FEATURES.md](docs/ADVANCED_FEATURES.md) — ML, security, reliability
-- [ARCHITECTURE.md](docs/ARCHITECTURE.md) — System design
-- [API_SPECIFICATION.md](docs/API_SPECIFICATION.md) — REST API
-
-**Strategic Planning:**
-- [CAPABILITIES_GAP_ANALYSIS.md](docs/CAPABILITIES_GAP_ANALYSIS.md) — Roadmap to world's best job search tool
-- [EXECUTIVE_SUMMARY_GAP_ANALYSIS.md](docs/EXECUTIVE_SUMMARY_GAP_ANALYSIS.md) — Executive summary (2-page)
-- [COMPARISON.md](docs/COMPARISON.md) — vs AIHawk, Teal, Huntr, JobScan
+**Technical references:**
+- [ARCHITECTURE.md](docs/ARCHITECTURE.md) — System design & data flow
+- [API_INTEGRATION_GUIDE.md](docs/API_INTEGRATION_GUIDE.md) — Add new job boards
+- [BEST_PRACTICES.md](docs/BEST_PRACTICES.md) — Coding standards
+- [AUTHORITATIVE_STANDARDS.md](docs/AUTHORITATIVE_STANDARDS.md) — 39+ industry standards
 
 **Operations:**
-- [DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md) — Cloud setup
-- [SRE_RUNBOOK.md](docs/SRE_RUNBOOK.md) — Incident response
+- [DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md) — Production deployment (AWS, GCP, Azure)
+- [SRE_RUNBOOK.md](docs/SRE_RUNBOOK.md) — Incident response & monitoring
+- [AI_ML_ROADMAP.md](docs/AI_ML_ROADMAP.md) — AI/ML features & roadmap
 
 ## Contributing
 
