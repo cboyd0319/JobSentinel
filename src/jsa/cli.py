@@ -516,8 +516,11 @@ def build_parser() -> argparse.ArgumentParser:
     p_setup = sub.add_parser(
         "setup",
         help="Interactive setup wizard for first-time configuration",
-        description="Run the interactive setup wizard to configure JobSentinel for first-time use. "
-        "This will guide you through configuring keywords, locations, job sources, database, and Slack notifications.",
+        description=(
+            "Run the interactive setup wizard to configure JobSentinel for first-time use. "
+            "This will guide you through configuring keywords, locations, job sources, "
+            "database, and Slack notifications."
+        ),
     )
     p_setup.set_defaults(func=_cmd_setup)
 
@@ -570,9 +573,11 @@ def build_parser() -> argparse.ArgumentParser:
     p_preflight = sub.add_parser(
         "preflight",
         help="Run pre-flight system checks before installation",
-        description="Comprehensive validation of system requirements, resources, and configuration. "
-        "Provides actionable feedback for any issues found. Run this before installation or "
-        "when troubleshooting.",
+        description=(
+            "Comprehensive validation of system requirements, resources, and configuration. "
+            "Provides actionable feedback for any issues found. Run this before installation "
+            "or when troubleshooting."
+        ),
     )
     p_preflight.add_argument(
         "--fix",

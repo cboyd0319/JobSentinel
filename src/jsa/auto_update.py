@@ -28,16 +28,12 @@ Security:
 - No arbitrary code execution
 """
 
-import hashlib
 import json
-import os
 import subprocess
 import sys
-import tempfile
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any
 
 import requests
 from rich.console import Console
@@ -328,7 +324,7 @@ class AutoUpdater:
             info_table.add_row("Type", "✅ Stable release")
         
         if release.checksum_sha256:
-            info_table.add_row("Checksum", f"✓ SHA256 available")
+            info_table.add_row("Checksum", "✓ SHA256 available")
 
         console.print(info_table)
         console.print()
@@ -370,7 +366,6 @@ class AutoUpdater:
         console.print()
 
         backup_file = None
-        update_failed = False
 
         try:
             # Step 1: Backup (mandatory for safety)
@@ -401,8 +396,7 @@ class AutoUpdater:
 
             if result.returncode != 0:
                 console.print(f"[red]✗ Update failed: {result.stderr}[/red]")
-                update_failed = True
-                raise RuntimeError(f"pip install failed: {result.stderr}")
+                raise RuntimeError(f"pip install failed: {result.stderr}") from None
 
             console.print("[green]✓ Update completed[/green]")
 
@@ -418,8 +412,7 @@ class AutoUpdater:
 
             if verify_result.returncode != 0:
                 console.print("[red]✗ Health check failed after update[/red]")
-                update_failed = True
-                raise RuntimeError("Health check failed after update")
+                raise RuntimeError("Health check failed after update") from None
 
             console.print("[green]✓ Installation verified[/green]")
 
@@ -502,7 +495,7 @@ class AutoUpdater:
                 
         except Exception as e:
             # Don't fail update for scan issues, just warn
-            raise RuntimeError(f"Security scan error: {e}")
+            raise RuntimeError(f"Security scan error: {e}") from e
 
     def check_and_prompt(
         self, auto_update: bool = False, security_only: bool = False
