@@ -398,18 +398,32 @@ class PostgreSQLInstaller:
             console.print(
                 "[yellow]Automated installation on Windows requires Chocolatey[/yellow]\n"
             )
-            console.print("[bold]Manual Installation Steps:[/bold]\n")
-            console.print("1. Download PostgreSQL 15 installer from:")
-            console.print("   https://www.postgresql.org/download/windows/\n")
-            console.print("2. Run the installer (postgresql-15.x-windows-x64.exe)")
-            console.print("3. Use default settings during installation")
-            console.print("4. Set a password for the 'postgres' user (remember it!)")
-            console.print("5. After installation, run this setup wizard again\n")
-
+            console.print("[bold]Option 1: Install Chocolatey (Recommended)[/bold]\n")
+            console.print("1. Open PowerShell as Administrator")
+            console.print("2. Run:")
             console.print(
-                "[cyan]Alternative: Install Chocolatey for automatic setup[/cyan]\n"
-                "Visit: https://chocolatey.org/install\n"
+                "   [cyan]Set-ExecutionPolicy Bypass -Scope Process -Force; "
+                "[System.Net.ServicePointManager]::SecurityProtocol = "
+                "[System.Net.ServicePointManager]::SecurityProtocol -bor 3072; "
+                "iex ((New-Object System.Net.WebClient).DownloadString("
+                "'https://community.chocolatey.org/install.ps1'))[/cyan]"
             )
+            console.print("3. Close and reopen this terminal")
+            console.print("4. Run this setup wizard again\n")
+            
+            console.print("[bold]Option 2: Manual Installation[/bold]\n")
+            console.print("1. Download PostgreSQL 15 installer from:")
+            console.print("   [cyan]https://www.postgresql.org/download/windows/[/cyan]\n")
+            console.print("2. Run the installer (postgresql-15.x-windows-x64.exe)")
+            console.print("3. During installation:")
+            console.print("   • Keep default installation directory")
+            console.print("   • Install all components (Server, pgAdmin, Command Line Tools)")
+            console.print("   • Set a strong password for the 'postgres' user (remember it!)")
+            console.print("   • Keep default port (5432)")
+            console.print("   • Use default locale")
+            console.print("4. After installation, run this setup wizard again\n")
+            
+            console.print("[bold cyan]📝 Pro Tip:[/bold cyan] Write down your postgres password!\n")
 
             return False
 
@@ -532,6 +546,60 @@ class PostgreSQLInstaller:
             console.print(f'[dim]  psql -U postgres -c "{sql_commands[2]}"[/dim]\n')
 
         return success, db_url
+
+    def rollback_installation(self) -> bool:
+        """Attempt to rollback/cleanup a failed installation.
+
+        Returns:
+            bool: True if rollback succeeded, False otherwise
+        """
+        console.print("\n[yellow]Attempting to cleanup failed installation...[/yellow]\n")
+        
+        success = True
+        if self.os_type == "Darwin":
+            try:
+                subprocess.run(
+                    ["brew", "services", "stop", f"postgresql@{self.version}"],
+                    capture_output=True,
+                    timeout=30,
+                )
+                subprocess.run(
+                    ["brew", "uninstall", f"postgresql@{self.version}"],
+                    capture_output=True,
+                    timeout=60,
+                )
+                console.print("[green]✓ Cleanup complete[/green]")
+            except Exception as e:
+                console.print(f"[yellow]⚠️  Cleanup had issues: {e}[/yellow]")
+                success = False
+                
+        elif self.os_type == "Linux":
+            distro = self._detect_linux_distro()
+            try:
+                if distro in ["ubuntu", "debian"]:
+                    subprocess.run(
+                        ["sudo", "apt", "remove", "-y", "postgresql-15", "postgresql-contrib"],
+                        capture_output=True,
+                        timeout=60,
+                    )
+                elif distro in ["fedora", "rhel", "centos"]:
+                    subprocess.run(
+                        ["sudo", "dnf", "remove", "-y", "postgresql15-server"],
+                        capture_output=True,
+                        timeout=60,
+                    )
+                console.print("[green]✓ Cleanup complete[/green]")
+            except Exception as e:
+                console.print(f"[yellow]⚠️  Cleanup had issues: {e}[/yellow]")
+                success = False
+                
+        elif self.os_type == "Windows":
+            console.print("[yellow]⚠️  Manual cleanup required on Windows[/yellow]")
+            console.print("   Run: choco uninstall postgresql15 -y")
+            success = False
+            
+        console.print()
+        return success
 
     def verify_installation(self) -> bool:
         """Verify PostgreSQL installation and configuration.

@@ -27,37 +27,43 @@ export function Jobs() {
       </div>
 
       {/* Filters */}
-      <div className="card">
+      <div className="card" role="search" aria-label="Job filters">
         <h2 className="text-lg font-semibold mb-4">Filters</h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-2">Search</label>
+            <label htmlFor="job-search" className="block text-sm font-medium mb-2">Search</label>
             <input
+              id="job-search"
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Job title, company..."
+              aria-label="Search jobs by title or company"
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">Min Score</label>
+            <label htmlFor="min-score" className="block text-sm font-medium mb-2">Min Score</label>
             <input
+              id="min-score"
               type="number"
               value={minScore}
               onChange={(e) => setMinScore(Number(e.target.value))}
               min="0"
               max="100"
+              aria-label="Minimum job match score (0-100)"
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             />
           </div>
           <div className="flex items-end">
             <label className="flex items-center space-x-2">
               <input
+                id="remote-only"
                 type="checkbox"
                 checked={remoteOnly}
                 onChange={(e) => setRemoteOnly(e.target.checked)}
                 className="rounded"
+                aria-label="Show only remote jobs"
               />
               <span>Remote Only</span>
             </label>
@@ -70,6 +76,7 @@ export function Jobs() {
                 setRemoteOnly(false)
               }}
               className="btn btn-secondary w-full"
+              aria-label="Clear all filters"
             >
               Clear Filters
             </button>
@@ -78,16 +85,16 @@ export function Jobs() {
       </div>
 
       {/* Results */}
-      <div className="card">
+      <div className="card" role="region" aria-label="Job search results">
         {isLoading && (
-          <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+          <div className="text-center py-8" role="status" aria-live="polite">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto" aria-hidden="true"></div>
             <p className="mt-4 text-gray-600 dark:text-gray-400">Loading jobs...</p>
           </div>
         )}
 
         {error && (
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4" role="alert" aria-live="assertive">
             <p className="text-red-800 dark:text-red-200">
               Failed to load jobs. Please try again.
             </p>
@@ -95,7 +102,7 @@ export function Jobs() {
         )}
 
         {data && data.jobs.length === 0 && (
-          <div className="text-center py-8">
+          <div className="text-center py-8" role="status">
             <p className="text-gray-600 dark:text-gray-400">
               No jobs found. Try adjusting your filters.
             </p>
@@ -116,25 +123,29 @@ export function Jobs() {
 
             {/* Pagination */}
             {data.pages > 1 && (
-              <div className="flex justify-center items-center gap-2 mt-6">
+              <nav className="flex justify-center items-center gap-2 mt-6" aria-label="Job list pagination">
                 <button
                   onClick={() => setPage(page - 1)}
                   disabled={page === 1}
                   className="btn btn-secondary disabled:opacity-50"
+                  aria-label="Go to previous page"
+                  aria-disabled={page === 1}
                 >
                   Previous
                 </button>
-                <span className="text-sm">
+                <span className="text-sm" aria-current="page" aria-label={`Page ${page} of ${data.pages}`}>
                   Page {page} of {data.pages}
                 </span>
                 <button
                   onClick={() => setPage(page + 1)}
                   disabled={page === data.pages}
                   className="btn btn-secondary disabled:opacity-50"
+                  aria-label="Go to next page"
+                  aria-disabled={page === data.pages}
                 >
                   Next
                 </button>
-              </div>
+              </nav>
             )}
           </div>
         )}

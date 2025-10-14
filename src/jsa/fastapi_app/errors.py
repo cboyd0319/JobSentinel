@@ -2,6 +2,10 @@
 Enhanced error handling for FastAPI.
 
 Provides structured error responses with proper HTTP status codes.
+Follows RFC 7807 (Problem Details for HTTP APIs) specification.
+
+References:
+- RFC 7807 | https://tools.ietf.org/html/rfc7807 | High | Problem Details for HTTP APIs
 """
 
 from __future__ import annotations
@@ -95,6 +99,8 @@ async def validation_exception_handler(
 ) -> JSONResponse:
     """
     Handle Pydantic validation errors.
+    
+    Follows RFC 7807 Problem Details specification.
 
     Returns:
         JSONResponse with structured error details
@@ -119,16 +125,25 @@ async def validation_exception_handler(
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         content={
-            "detail": "Request validation failed",
+            # RFC 7807 fields
+            "type": "https://jobsentinel.local/errors/validation-error",
+            "title": "Request Validation Failed",
+            "status": status.HTTP_422_UNPROCESSABLE_ENTITY,
+            "detail": "One or more fields failed validation. See 'errors' for details.",
+            "instance": str(request.url.path),
+            # Additional context
             "error_code": "validation_error",
             "errors": errors,
         },
+        headers={"Content-Type": "application/problem+json"},
     )
 
 
 async def jobsentinel_exception_handler(request: Request, exc: JobSentinelAPIError) -> JSONResponse:
     """
     Handle JobSentinel API errors.
+    
+    Follows RFC 7807 Problem Details specification.
 
     Returns:
         JSONResponse with structured error details
@@ -142,8 +157,22 @@ async def jobsentinel_exception_handler(request: Request, exc: JobSentinelAPIErr
         component="fastapi_errors",
     )
 
+    # Map error codes to titles
+    error_titles = {
+        "database_error": "Database Error",
+        "resource_not_found": "Resource Not Found",
+        "validation_error": "Validation Error",
+        "rate_limit_exceeded": "Rate Limit Exceeded",
+    }
+
     content = {
+        # RFC 7807 fields
+        "type": f"https://jobsentinel.local/errors/{exc.error_code.replace('_', '-')}",
+        "title": error_titles.get(exc.error_code, "API Error"),
+        "status": exc.status_code,
         "detail": exc.detail,
+        "instance": str(request.url.path),
+        # Additional context
         "error_code": exc.error_code,
     }
 
@@ -151,12 +180,18 @@ async def jobsentinel_exception_handler(request: Request, exc: JobSentinelAPIErr
     if exc.extra:
         content.update(exc.extra)
 
-    return JSONResponse(status_code=exc.status_code, content=content)
+    return JSONResponse(
+        status_code=exc.status_code,
+        content=content,
+        headers={"Content-Type": "application/problem+json"},
+    )
 
 
 async def generic_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     """
     Handle unexpected exceptions.
+    
+    Follows RFC 7807 Problem Details specification.
 
     Returns:
         JSONResponse with generic error message (no sensitive details)
@@ -172,7 +207,14 @@ async def generic_exception_handler(request: Request, exc: Exception) -> JSONRes
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={
+            # RFC 7807 fields
+            "type": "https://jobsentinel.local/errors/internal-server-error",
+            "title": "Internal Server Error",
+            "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
             "detail": "An internal error occurred. Please try again later.",
+            "instance": str(request.url.path),
+            # Additional context
             "error_code": "internal_server_error",
         },
+        headers={"Content-Type": "application/problem+json"},
     )

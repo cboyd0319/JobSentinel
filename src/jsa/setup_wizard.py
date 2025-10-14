@@ -416,17 +416,97 @@ def run_first_scrape() -> bool:
     return run_now
 
 
+def check_existing_config() -> dict[str, Any] | None:
+    """Check if configuration already exists and offer to import it.
+    
+    Returns:
+        Existing configuration dict if user wants to import, None otherwise
+    """
+    config_dir = Path(__file__).parent.parent.parent / "config"
+    config_path = config_dir / "user_prefs.json"
+    
+    if not config_path.exists():
+        return None
+        
+    console.print("\n[cyan]Existing configuration detected![/cyan]\n")
+    
+    import_config = Confirm.ask(
+        "Would you like to import your existing configuration?",
+        default=True,
+    )
+    
+    if not import_config:
+        console.print("[yellow]Starting fresh setup...[/yellow]\n")
+        return None
+        
+    try:
+        with open(config_path) as f:
+            existing_config: dict[str, Any] = json.load(f)
+        console.print("[green]✓ Configuration loaded successfully[/green]\n")
+        
+        # Show summary
+        console.print("[bold]Current Configuration:[/bold]")
+        console.print(f"• Keywords: {', '.join(existing_config.get('keywords', []))}")
+        console.print(f"• Locations: {', '.join(existing_config.get('locations', []))}")
+        console.print(f"• Min Salary: ${existing_config.get('salary_min', 0):,}")
+        db_type = existing_config.get('database', {}).get('type', 'sqlite')
+        console.print(f"• Database: {db_type.upper()}")
+        enabled_sources = [
+            name for name, info in existing_config.get('job_sources', {}).items() 
+            if info.get('enabled', False)
+        ]
+        console.print(f"• Job Sources: {', '.join(enabled_sources) if enabled_sources else 'None'}")
+        slack_enabled = existing_config.get('slack', {}).get('enabled', False)
+        console.print(f"• Slack: {'Enabled' if slack_enabled else 'Disabled'}\n")
+        
+        use_existing = Confirm.ask("Use this configuration?", default=True)
+        if use_existing:
+            return existing_config
+        else:
+            console.print("[yellow]Starting fresh setup...[/yellow]\n")
+            return None
+            
+    except (json.JSONDecodeError, KeyError) as e:
+        console.print(f"[red]✗ Error loading configuration: {e}[/red]")
+        console.print("[yellow]Starting fresh setup...[/yellow]\n")
+        return None
+
+
 def run_wizard() -> None:
     """Run the interactive setup wizard."""
     welcome_screen()
-
-    # Collect configuration
-    keywords = get_keywords()
-    locations = get_locations()
-    salary_min = get_salary_min()
-    database_config = configure_database()
-    job_sources = configure_job_sources()
-    slack_config = configure_slack()
+    
+    # Check for existing configuration
+    existing_config = check_existing_config()
+    
+    if existing_config:
+        # Ask which parts to reconfigure
+        console.print("[bold]What would you like to update?[/bold]\n")
+        reconfigure = {
+            'keywords': Confirm.ask("Update keywords?", default=False),
+            'locations': Confirm.ask("Update locations?", default=False),
+            'salary': Confirm.ask("Update salary?", default=False),
+            'database': Confirm.ask("Update database?", default=False),
+            'sources': Confirm.ask("Update job sources?", default=False),
+            'slack': Confirm.ask("Update Slack?", default=False),
+        }
+        console.print()
+        
+        # Use existing or reconfigure each section
+        keywords = get_keywords() if reconfigure['keywords'] else existing_config.get('keywords', [])
+        locations = get_locations() if reconfigure['locations'] else existing_config.get('locations', [])
+        salary_min = get_salary_min() if reconfigure['salary'] else existing_config.get('salary_min', 0)
+        database_config = configure_database() if reconfigure['database'] else existing_config.get('database', {})
+        job_sources = configure_job_sources() if reconfigure['sources'] else existing_config.get('job_sources', {})
+        slack_config = configure_slack() if reconfigure['slack'] else existing_config.get('slack', {})
+    else:
+        # Collect configuration from scratch
+        keywords = get_keywords()
+        locations = get_locations()
+        salary_min = get_salary_min()
+        database_config = configure_database()
+        job_sources = configure_job_sources()
+        slack_config = configure_slack()
 
     # Build full config
     config: dict[str, Any] = {
