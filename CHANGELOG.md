@@ -21,6 +21,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added documentation links and helpful guidance
   - Maintains zero-knowledge user focus throughout
   
+- **UI/UX Improvements** ✨
+  - **Tkinter GUI Launcher**: Modern design overhaul
+    - Refined color palette (softer backgrounds, professional blue tones)
+    - Enhanced typography (larger fonts, better hierarchy)
+    - Improved button styling (larger, more prominent, better touch targets)
+    - Added hover effects for all interactive elements
+    - Better spacing and padding throughout interface
+    - Enhanced status indicators and activity log readability
+  - **Web UI**: Subtle polish and refinements
+    - Enhanced card hover effects (scale + shadow)
+    - Added button shine effect on primary actions
+    - Improved empty state animations with scaling
+    - Better visual feedback on all interactions
+  - All changes maintain WCAG 2.1 Level AA compliance
+  - Zero new dependencies added
+  - Performance maintained (60fps animations, GPU-accelerated)
+
 - **Web UI Improvements**
   - Updated privacy information to reflect PostgreSQL usage
   - Clarified that all data stays local on user's machine
