@@ -23,7 +23,7 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import Optional
 
 
 @dataclass
@@ -34,8 +34,8 @@ class CheckResult:
     passed: bool
     message: str
     severity: str  # "critical", "warning", "info"
-    help_text: Optional[str] = None
-    help_url: Optional[str] = None
+    help_text: str | None = None
+    help_url: str | None = None
 
 
 class WindowsPreCheck:
@@ -56,7 +56,7 @@ class WindowsPreCheck:
             verbose: If True, show detailed check progress
         """
         self.verbose = verbose
-        self.results: List[CheckResult] = []
+        self.results: list[CheckResult] = []
 
     def check_windows_version(self) -> CheckResult:
         """Check if running on Windows 11+."""
@@ -288,7 +288,7 @@ class WindowsPreCheck:
                 ),
             )
 
-    def run_all_checks(self) -> List[CheckResult]:
+    def run_all_checks(self) -> list[CheckResult]:
         """
         Run all pre-checks and return results.
 

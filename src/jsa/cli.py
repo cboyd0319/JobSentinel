@@ -175,6 +175,123 @@ def _cmd_api(args: argparse.Namespace) -> int:
         return 1
 
 
+def _cmd_privacy(args: argparse.Namespace) -> int:
+    """Display privacy dashboard with complete data transparency."""
+    try:
+        from jsa.privacy_dashboard import PrivacyDashboard
+
+        dashboard = PrivacyDashboard()
+
+        if args.export:
+            report = dashboard.generate_privacy_report()
+            import json
+            from datetime import datetime
+
+            output_file = f"privacy_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+            with open(output_file, "w") as f:
+                # Convert report to dict for JSON serialization
+                report_dict = {
+                    "total_items": report.total_items,
+                    "total_size_bytes": report.total_size_bytes,
+                    "data_categories": report.data_categories,
+                    "pii_items": report.pii_items,
+                    "oldest_data": report.oldest_data,
+                    "newest_data": report.newest_data,
+                    "telemetry_status": report.telemetry_status,
+                    "external_connections": report.external_connections,
+                    "inventory": [
+                        {
+                            "category": item.category,
+                            "item_type": item.item_type,
+                            "location": item.location,
+                            "size_bytes": item.size_bytes,
+                            "count": item.count,
+                            "created_at": item.created_at,
+                            "last_modified": item.last_modified,
+                            "purpose": item.purpose,
+                            "contains_pii": item.contains_pii,
+                        }
+                        for item in report.inventory
+                    ],
+                }
+                json.dump(report_dict, f, indent=2)
+            print(f"✓ Privacy report exported to: {output_file}")
+            return 0
+        else:
+            dashboard.display_privacy_dashboard()
+            return 0
+
+    except ImportError as e:
+        print(f"Error: Missing required dependencies: {e}")
+        print("Install with: pip install -e '.[dev]'")
+        return 1
+    except Exception as e:
+        print(f"Error: {e}")
+        return 1
+
+
+def _cmd_backup_create(args: argparse.Namespace) -> int:
+    """Create a new backup."""
+    try:
+        from jsa.backup_restore import BackupManager
+
+        manager = BackupManager()
+        backup_file = manager.create_backup(
+            backup_name=args.name,
+            include_logs=args.include_logs,
+            compress=not args.no_compress,
+        )
+        print(f"✓ Backup stored at: {backup_file}")
+        return 0
+
+    except ImportError as e:
+        print(f"Error: Missing required dependencies: {e}")
+        print("Install with: pip install -e '.[dev]'")
+        return 1
+    except Exception as e:
+        print(f"Error: {e}")
+        return 1
+
+
+def _cmd_backup_list(args: argparse.Namespace) -> int:
+    """List available backups."""
+    try:
+        from jsa.backup_restore import BackupManager
+
+        manager = BackupManager()
+        manager.display_backups()
+        return 0
+
+    except ImportError as e:
+        print(f"Error: Missing required dependencies: {e}")
+        print("Install with: pip install -e '.[dev]'")
+        return 1
+    except Exception as e:
+        print(f"Error: {e}")
+        return 1
+
+
+def _cmd_backup_restore(args: argparse.Namespace) -> int:
+    """Restore from a backup."""
+    try:
+        from jsa.backup_restore import BackupManager
+
+        manager = BackupManager()
+        success = manager.restore_backup(
+            backup_path=args.backup_file,
+            verify=not args.no_verify,
+        )
+        return 0 if success else 1
+
+    except ImportError as e:
+        print(f"Error: Missing required dependencies: {e}")
+        print("Install with: pip install -e '.[dev]'")
+        return 1
+    except Exception as e:
+        print(f"Error: {e}")
+        return 1
+
+
 def _cmd_run_once(args: argparse.Namespace) -> int:
     """Run job scraping once (single execution)."""
     import os
@@ -323,6 +440,74 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p_health.add_argument("--verbose", "-v", action="store_true", help="Show detailed information")
     p_health.set_defaults(func=_cmd_health)
+
+    # Privacy Dashboard (NEW - World's Best Feature)
+    p_privacy = sub.add_parser(
+        "privacy",
+        help="Privacy dashboard - complete data transparency",
+        description="View complete inventory of all data stored by JobSentinel. "
+        "See exactly what data exists, where it's stored, and tools to manage it. "
+        "100% privacy-first with zero telemetry verification.",
+    )
+    p_privacy.add_argument(
+        "--export",
+        action="store_true",
+        help="Export complete privacy report to JSON",
+    )
+    p_privacy.set_defaults(func=_cmd_privacy)
+
+    # Backup & Restore (NEW - World's Best Feature)
+    p_backup = sub.add_parser(
+        "backup",
+        help="One-click backup and restore",
+        description="Create and restore backups of all JobSentinel data. "
+        "Includes database, configuration, and optionally logs. "
+        "Perfect for data portability and disaster recovery.",
+    )
+    backup_sub = p_backup.add_subparsers(dest="backup_cmd", required=True)
+
+    p_backup_create = backup_sub.add_parser(
+        "create",
+        help="Create a new backup",
+    )
+    p_backup_create.add_argument(
+        "--name",
+        type=str,
+        help="Custom backup name (default: timestamp)",
+    )
+    p_backup_create.add_argument(
+        "--include-logs",
+        action="store_true",
+        help="Include log files in backup",
+    )
+    p_backup_create.add_argument(
+        "--no-compress",
+        action="store_true",
+        help="Disable compression",
+    )
+    p_backup_create.set_defaults(func=_cmd_backup_create)
+
+    p_backup_list = backup_sub.add_parser(
+        "list",
+        help="List available backups",
+    )
+    p_backup_list.set_defaults(func=_cmd_backup_list)
+
+    p_backup_restore = backup_sub.add_parser(
+        "restore",
+        help="Restore from a backup",
+    )
+    p_backup_restore.add_argument(
+        "backup_file",
+        type=str,
+        help="Path to backup file",
+    )
+    p_backup_restore.add_argument(
+        "--no-verify",
+        action="store_true",
+        help="Skip checksum verification",
+    )
+    p_backup_restore.set_defaults(func=_cmd_backup_restore)
 
     return p
 
