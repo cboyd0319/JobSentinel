@@ -2,6 +2,9 @@
 """
 Demo script for advanced job board scrapers.
 Shows how to use the new scrapers: LinkedIn, AngelList, WeWorkRemotely, RemoteOK, HackerNews, and CompanyCareer.
+
+SECURITY NOTE: This is a demonstration script that prints job data including salaries.
+In production code, sensitive data should be logged securely or not at all.
 """
 
 import asyncio

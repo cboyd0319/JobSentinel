@@ -222,7 +222,12 @@ def create_config_file(config_path: Path, config: dict[str, Any]) -> bool:
 
 
 def create_env_file(env_path: Path, env_vars: dict[str, str]) -> bool:
-    """Create .env file."""
+    """Create .env file.
+    
+    Note: This intentionally writes secrets to .env file, which is the standard
+    practice for local environment configuration. The .env file is excluded from
+    git via .gitignore and should be protected by filesystem permissions.
+    """
     try:
         with open(env_path, "w", encoding="utf-8") as f:
             for key, value in env_vars.items():

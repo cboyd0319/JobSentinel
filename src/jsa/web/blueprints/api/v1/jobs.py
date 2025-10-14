@@ -6,11 +6,15 @@ Provides CRUD operations for jobs.
 
 from __future__ import annotations
 
+import logging
+
 from flask import Blueprint, jsonify, request
 from sqlmodel import select
 
 from jsa.db import Job, get_session_context
 from jsa.web.blueprints.api.auth import require_api_key
+
+logger = logging.getLogger(__name__)
 
 jobs_api_bp = Blueprint("jobs_api_v1", __name__, url_prefix="/api/v1/jobs")
 
@@ -129,4 +133,5 @@ def create_job() -> tuple[dict, int]:
 
             return jsonify(job.dict()), 201
     except Exception as e:
-        return jsonify({"error": f"Failed to create job: {str(e)}"}), 500
+        logger.error(f"Failed to create job: {e}", exc_info=True)
+        return jsonify({"error": "Failed to create job"}), 500

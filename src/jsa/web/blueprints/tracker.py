@@ -6,12 +6,16 @@ Provides Kanban board and job detail views.
 
 from __future__ import annotations
 
+import logging
+
 from flask import Blueprint, Response, jsonify, redirect, render_template, request, url_for
 from sqlmodel import Session
 
 from jsa.db import get_session_context
 from jsa.tracker.models import JobStatus
 from jsa.tracker.service import TrackerService
+
+logger = logging.getLogger(__name__)
 
 tracker_bp = Blueprint("tracker", __name__, url_prefix="/tracker")
 
@@ -101,8 +105,10 @@ def update_status(job_id: int) -> tuple[dict[str, str | int], int]:
                 200,
             )
     except ValueError as e:
-        return jsonify({"error": str(e)}), 404
+        logger.warning(f"Job not found or invalid request for job_id={job_id}: {e}")
+        return jsonify({"error": "Job not found"}), 404
     except Exception as e:
+        logger.error(f"Unexpected error updating job status for job_id={job_id}: {e}", exc_info=True)
         return jsonify({"error": "Internal server error"}), 500
 
 
@@ -144,8 +150,10 @@ def update_priority(job_id: int) -> tuple[dict[str, str | int], int]:
                 200,
             )
     except ValueError as e:
-        return jsonify({"error": str(e)}), 404
+        logger.warning(f"Job not found or invalid request for job_id={job_id}: {e}")
+        return jsonify({"error": "Job not found"}), 404
     except Exception as e:
+        logger.error(f"Unexpected error updating job priority for job_id={job_id}: {e}", exc_info=True)
         return jsonify({"error": "Internal server error"}), 500
 
 
@@ -182,8 +190,10 @@ def update_notes(job_id: int) -> tuple[dict[str, str | int], int]:
                 200,
             )
     except ValueError as e:
-        return jsonify({"error": str(e)}), 404
+        logger.warning(f"Job not found or invalid request for job_id={job_id}: {e}")
+        return jsonify({"error": "Job not found"}), 404
     except Exception as e:
+        logger.error(f"Unexpected error updating job notes for job_id={job_id}: {e}", exc_info=True)
         return jsonify({"error": "Internal server error"}), 500
 
 

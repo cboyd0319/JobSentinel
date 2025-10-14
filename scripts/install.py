@@ -267,8 +267,8 @@ def download_with_verification(
     """Download file with SSL, retry logic, and optional checksum verification."""
     parsed_url = urlparse(url)
 
-    # Security: Only allow HTTPS for python.org
-    if "python.org" in parsed_url.netloc and parsed_url.scheme != "https":
+    # Security: Only allow HTTPS for python.org and its subdomains
+    if parsed_url.netloc.endswith("python.org") and parsed_url.scheme != "https":
         raise ValueError("Refusing to download Python installer over insecure connection")
 
     for attempt in range(retries):
@@ -309,7 +309,7 @@ def download_with_verification(
                         f"Got:      {actual_hash}"
                     )
                 logger.info("✅ Checksum verified")
-            elif "python.org" in parsed_url.netloc:
+            elif parsed_url.netloc.endswith("python.org"):
                 actual_hash = hashlib.sha256(data).hexdigest()
                 verify_url = (
                     f"https://www.python.org/downloads/release/"
