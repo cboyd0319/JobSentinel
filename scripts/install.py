@@ -56,7 +56,7 @@ from urllib.parse import urlparse
 # Constants
 # ============================================================================
 
-REQUIRED_PYTHON = (3, 12)
+REQUIRED_PYTHON = (3, 11)
 PYTHON_VERSION = "3.12.7"
 PYTHON_WINDOWS_URL = (
     f"https://www.python.org/ftp/python/{PYTHON_VERSION}/python-{PYTHON_VERSION}-amd64.exe"
@@ -143,9 +143,10 @@ def is_admin_windows() -> bool:
     """Check if running with administrator privileges on Windows."""
     if sys.platform != "win32":
         return False
-    
+
     try:
         import ctypes
+
         return ctypes.windll.shell32.IsUserAnAdmin() != 0
     except Exception:
         return False
@@ -154,16 +155,14 @@ def is_admin_windows() -> bool:
 def check_windows_requirements() -> list[str]:
     """Check Windows-specific requirements and return list of warnings."""
     warnings = []
-    
+
     if sys.platform != "win32":
         return warnings
-    
+
     # Check admin rights (helpful but not always required)
     if not is_admin_windows():
-        warnings.append(
-            "Not running as Administrator. Some operations may require elevation."
-        )
-    
+        warnings.append("Not running as Administrator. Some operations may require elevation.")
+
     # Check execution policy (PowerShell)
     try:
         result = subprocess.run(
@@ -179,7 +178,7 @@ def check_windows_requirements() -> list[str]:
             )
     except Exception:
         pass
-    
+
     # Check for long path support (informational note)
     # Long paths (>259 chars) require registry key on Windows
     warnings.append(
@@ -187,7 +186,7 @@ def check_windows_requirements() -> list[str]:
         "  New-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\FileSystem' "
         "-Name 'LongPathsEnabled' -Value 1 -PropertyType DWORD -Force"
     )
-    
+
     return warnings
 
 
@@ -214,12 +213,12 @@ def check_disk_space(path: Path, required_mb: int = MIN_DISK_SPACE_MB) -> bool:
                 result = ctypes.windll.kernel32.GetDiskFreeSpaceExW(
                     str(path), None, None, ctypes.pointer(free_bytes)
                 )
-                
+
                 if result == 0:
                     # GetDiskFreeSpaceExW failed
                     logger.warning("Could not query disk space via Windows API")
                     return True  # Proceed anyway
-                
+
                 available_mb = free_bytes.value / (1024 * 1024)
             except (OSError, AttributeError) as e:
                 logger.warning(f"Windows disk space check failed: {e}")
@@ -1025,7 +1024,7 @@ class UniversalInstaller:
             return True
 
         venv_python = self.get_venv_python()
-        
+
         # Use CLI module command instead of non-existent agent.py script
         # The task will run: python -m jsa.cli run-once
 
@@ -1035,6 +1034,7 @@ class UniversalInstaller:
 
         # Generate dynamic start time (tomorrow at 9 AM)
         from datetime import datetime, timedelta
+
         tomorrow = datetime.now() + timedelta(days=1)
         start_time = tomorrow.replace(hour=9, minute=0, second=0, microsecond=0).isoformat()
 

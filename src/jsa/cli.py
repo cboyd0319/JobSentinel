@@ -178,7 +178,7 @@ def _cmd_api(args: argparse.Namespace) -> int:
 def _cmd_run_once(args: argparse.Namespace) -> int:
     """Run job scraping once (single execution)."""
     import os
-    
+
     # Check if config exists
     config_path = Path("config/user_prefs.json")
     if not config_path.exists():
@@ -188,21 +188,21 @@ def _cmd_run_once(args: argparse.Namespace) -> int:
         print("  python -m jsa.cli setup")
         print()
         return 1
-    
+
     # Inform user about what's happening
     print("🔍 Starting job search...")
     print("✓ Configuration loaded from config/user_prefs.json")
     print()
-    
+
     if args.dry_run:
         print("🧪 DRY RUN MODE: Jobs will be collected but no alerts will be sent")
         print()
-    
+
     try:
         # Run the agent script
         agent_path = Path(__file__).parent.parent / "agent.py"
         cmd = [sys.executable, str(agent_path)]
-        
+
         if args.dry_run:
             # Set environment variable for dry run mode
             env = os.environ.copy()
@@ -210,7 +210,7 @@ def _cmd_run_once(args: argparse.Namespace) -> int:
             result = subprocess.run(cmd, env=env)  # noqa: S603 - Trusted script execution
         else:
             result = subprocess.run(cmd)  # noqa: S603 - Trusted script execution
-        
+
         if result.returncode == 0:
             print()
             print("✅ Job search completed successfully!")
@@ -219,9 +219,9 @@ def _cmd_run_once(args: argparse.Namespace) -> int:
             print("  • View jobs: python -m jsa.cli api")
             print("  • Check health: python -m jsa.cli health")
             print()
-        
+
         return result.returncode
-        
+
     except FileNotFoundError:
         print("❌ Error: Job scraping script not found")
         print("   This might be a development environment issue")
@@ -285,9 +285,13 @@ def build_parser() -> argparse.ArgumentParser:
         description="Start the FastAPI server with modern REST API. "
         "Includes interactive documentation at /api/docs and serves the React frontend.",
     )
-    p_api.add_argument("--host", type=str, default="127.0.0.1", help="Host to bind to (default: 127.0.0.1)")
+    p_api.add_argument(
+        "--host", type=str, default="127.0.0.1", help="Host to bind to (default: 127.0.0.1)"
+    )
     p_api.add_argument("--port", type=int, default=8000, help="Port to bind to (default: 8000)")
-    p_api.add_argument("--reload", action="store_true", help="Enable auto-reload on code changes (development)")
+    p_api.add_argument(
+        "--reload", action="store_true", help="Enable auto-reload on code changes (development)"
+    )
     p_api.add_argument(
         "--log-level",
         type=str,

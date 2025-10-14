@@ -36,28 +36,28 @@ class TestHealthEndpoint:
         """Test health check with healthy system."""
         with patch("jsa.fastapi_app.routers.health.get_stats_sync", return_value=mock_db_stats):
             response = client.get("/api/v1/health")
-            
+
             assert response.status_code == 200
             data = response.json()
-            
+
             # Check top-level fields
             assert data["status"] == "healthy"
             assert data["version"] == "0.6.0"
             assert "timestamp" in data
-            
+
             # Check database stats
             assert data["total_jobs"] == 150
             assert data["high_score_jobs"] == 25
             assert data["recent_jobs_24h"] == 10
-            
+
             # Check components
             assert len(data["components"]) == 2
-            
+
             # Database component
             db_component = next(c for c in data["components"] if c["name"] == "database")
             assert db_component["status"] == "healthy"
             assert "accessible" in db_component["message"].lower()
-            
+
             # Filesystem component
             fs_component = next(c for c in data["components"] if c["name"] == "filesystem")
             assert fs_component["status"] in ["healthy", "degraded"]
@@ -69,15 +69,15 @@ class TestHealthEndpoint:
             side_effect=Exception("Database connection failed"),
         ):
             response = client.get("/api/v1/health")
-            
+
             assert response.status_code == 200  # Health endpoint should always return 200
             data = response.json()
-            
+
             assert data["status"] == "unhealthy"
             assert data["total_jobs"] == 0
             assert data["high_score_jobs"] == 0
             assert data["recent_jobs_24h"] == 0
-            
+
             # Check database component
             db_component = next(c for c in data["components"] if c["name"] == "database")
             assert db_component["status"] == "unhealthy"
@@ -90,13 +90,13 @@ class TestHealthEndpoint:
             patch("os.access", return_value=False),
         ):
             response = client.get("/api/v1/health")
-            
+
             assert response.status_code == 200
             data = response.json()
-            
+
             # Should be degraded, not unhealthy
             assert data["status"] == "degraded"
-            
+
             # Filesystem component should be degraded
             fs_component = next(c for c in data["components"] if c["name"] == "filesystem")
             assert fs_component["status"] == "degraded"
@@ -115,7 +115,7 @@ class TestHealthEndpoint:
                 ComponentStatus(name="filesystem", status="healthy", message="OK"),
             ],
         )
-        
+
         assert response.status == "healthy"
         assert response.version == "0.6.0"
         assert response.total_jobs == 100
@@ -128,7 +128,7 @@ class TestPingEndpoint:
     def test_ping_success(self, client: TestClient):
         """Test ping endpoint returns pong."""
         response = client.get("/api/v1/ping")
-        
+
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "pong"
@@ -137,7 +137,7 @@ class TestPingEndpoint:
         """Test ping works even if database is down."""
         # Ping should not touch database at all
         response = client.get("/api/v1/ping")
-        
+
         assert response.status_code == 200
         assert response.json() == {"status": "pong"}
 
@@ -152,7 +152,7 @@ class TestComponentStatus:
             status="healthy",
             message="Database is accessible",
         )
-        
+
         assert component.name == "database"
         assert component.status == "healthy"
         assert component.message == "Database is accessible"
@@ -160,7 +160,7 @@ class TestComponentStatus:
     def test_component_status_optional_message(self):
         """Test ComponentStatus with optional message."""
         component = ComponentStatus(name="cache", status="healthy")
-        
+
         assert component.name == "cache"
         assert component.status == "healthy"
         assert component.message is None
@@ -172,7 +172,7 @@ class TestComponentStatus:
             status="degraded",
             message="High latency",
         )
-        
+
         data = component.model_dump()
         assert data == {
             "name": "database",

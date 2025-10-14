@@ -99,7 +99,7 @@ async def validation_exception_handler(
 ) -> JSONResponse:
     """
     Handle Pydantic validation errors.
-    
+
     Follows RFC 7807 Problem Details specification.
 
     Returns:
@@ -142,7 +142,7 @@ async def validation_exception_handler(
 async def jobsentinel_exception_handler(request: Request, exc: JobSentinelAPIError) -> JSONResponse:
     """
     Handle JobSentinel API errors.
-    
+
     Follows RFC 7807 Problem Details specification.
 
     Returns:
@@ -190,7 +190,7 @@ async def jobsentinel_exception_handler(request: Request, exc: JobSentinelAPIErr
 async def generic_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     """
     Handle unexpected exceptions.
-    
+
     Follows RFC 7807 Problem Details specification.
 
     Returns:

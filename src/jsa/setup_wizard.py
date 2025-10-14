@@ -160,7 +160,7 @@ def configure_database() -> dict[str, Any]:
     """Configure database - SQLite only (automatic, no setup required)."""
     console.print("[bold]Step 3.5: Database Setup[/bold]")
     console.print()
-    
+
     console.print(
         Panel.fit(
             "[bold green]SQLite Database (Automatic)[/bold green]\n\n"
@@ -174,10 +174,10 @@ def configure_database() -> dict[str, Any]:
         )
     )
     console.print()
-    
+
     console.print("[green]✓[/green] SQLite configured automatically")
     console.print("[dim]No further setup required - ready to use![/dim]\n")
-    
+
     return {
         "type": "sqlite",
         "url": "sqlite+aiosqlite:///data/jobs.sqlite",
@@ -282,7 +282,9 @@ def configure_slack() -> dict[str, Any]:
     )
 
     if not enable_slack:
-        console.print("[yellow]⏭️  Skipping Slack setup (you can add it later in config/user_prefs.json)[/yellow]\n")
+        console.print(
+            "[yellow]⏭️  Skipping Slack setup (you can add it later in config/user_prefs.json)[/yellow]\n"
+        )
         return {"webhook_url": "", "channel": "#job-alerts", "enabled": False}
 
     console.print()
@@ -311,12 +313,16 @@ def configure_slack() -> dict[str, Any]:
 
     # Test webhook if provided and user wants
     if webhook_url:
-        test_webhook = Confirm.ask("🧪 Test Slack webhook now? (sends a test message)", default=True)
+        test_webhook = Confirm.ask(
+            "🧪 Test Slack webhook now? (sends a test message)", default=True
+        )
         if test_webhook:
             console.print("[dim]Sending test message...[/dim]")
             test_result = test_slack_webhook(webhook_url)
             if test_result:
-                console.print("[green]✓ Slack webhook test successful! Check your Slack channel.[/green]\n")
+                console.print(
+                    "[green]✓ Slack webhook test successful! Check your Slack channel.[/green]\n"
+                )
             else:
                 console.print("[red]✗ Slack webhook test failed[/red]")
                 console.print("[dim]Troubleshooting:[/dim]")
@@ -324,7 +330,9 @@ def configure_slack() -> dict[str, Any]:
                 console.print("[dim]  • Verify Slack app permissions[/dim]")
                 console.print("[dim]  • Make sure the webhook is active[/dim]\n")
                 if not Confirm.ask("Continue with this webhook anyway?", default=False):
-                    console.print("[yellow]⏭️  Skipping Slack setup (you can add it later)[/yellow]\n")
+                    console.print(
+                        "[yellow]⏭️  Skipping Slack setup (you can add it later)[/yellow]\n"
+                    )
                     return {"webhook_url": "", "channel": "#job-alerts", "enabled": False}
 
     channel = Prompt.ask(
@@ -399,54 +407,55 @@ def run_first_scrape() -> bool:
 
 def check_existing_config() -> dict[str, Any] | None:
     """Check if configuration already exists and offer to import it.
-    
+
     Returns:
         Existing configuration dict if user wants to import, None otherwise
     """
     config_dir = Path(__file__).parent.parent.parent / "config"
     config_path = config_dir / "user_prefs.json"
-    
+
     if not config_path.exists():
         return None
-        
+
     console.print("\n[cyan]Existing configuration detected![/cyan]\n")
-    
+
     import_config = Confirm.ask(
         "Would you like to import your existing configuration?",
         default=True,
     )
-    
+
     if not import_config:
         console.print("[yellow]Starting fresh setup...[/yellow]\n")
         return None
-        
+
     try:
         with open(config_path) as f:
             existing_config: dict[str, Any] = json.load(f)
         console.print("[green]✓ Configuration loaded successfully[/green]\n")
-        
+
         # Show summary
         console.print("[bold]Current Configuration:[/bold]")
         console.print(f"• Keywords: {', '.join(existing_config.get('keywords', []))}")
         console.print(f"• Locations: {', '.join(existing_config.get('locations', []))}")
         console.print(f"• Min Salary: ${existing_config.get('salary_min', 0):,}")
-        db_type = existing_config.get('database', {}).get('type', 'sqlite')
+        db_type = existing_config.get("database", {}).get("type", "sqlite")
         console.print(f"• Database: {db_type.upper()}")
         enabled_sources = [
-            name for name, info in existing_config.get('job_sources', {}).items() 
-            if info.get('enabled', False)
+            name
+            for name, info in existing_config.get("job_sources", {}).items()
+            if info.get("enabled", False)
         ]
         console.print(f"• Job Sources: {', '.join(enabled_sources) if enabled_sources else 'None'}")
-        slack_enabled = existing_config.get('slack', {}).get('enabled', False)
+        slack_enabled = existing_config.get("slack", {}).get("enabled", False)
         console.print(f"• Slack: {'Enabled' if slack_enabled else 'Disabled'}\n")
-        
+
         use_existing = Confirm.ask("Use this configuration?", default=True)
         if use_existing:
             return existing_config
         else:
             console.print("[yellow]Starting fresh setup...[/yellow]\n")
             return None
-            
+
     except (json.JSONDecodeError, KeyError) as e:
         console.print(f"[red]✗ Error loading configuration: {e}[/red]")
         console.print("[yellow]Starting fresh setup...[/yellow]\n")
@@ -456,30 +465,44 @@ def check_existing_config() -> dict[str, Any] | None:
 def run_wizard() -> None:
     """Run the interactive setup wizard."""
     welcome_screen()
-    
+
     # Check for existing configuration
     existing_config = check_existing_config()
-    
+
     if existing_config:
         # Ask which parts to reconfigure
         console.print("[bold]What would you like to update?[/bold]\n")
         reconfigure = {
-            'keywords': Confirm.ask("Update keywords?", default=False),
-            'locations': Confirm.ask("Update locations?", default=False),
-            'salary': Confirm.ask("Update salary?", default=False),
-            'database': Confirm.ask("Update database?", default=False),
-            'sources': Confirm.ask("Update job sources?", default=False),
-            'slack': Confirm.ask("Update Slack?", default=False),
+            "keywords": Confirm.ask("Update keywords?", default=False),
+            "locations": Confirm.ask("Update locations?", default=False),
+            "salary": Confirm.ask("Update salary?", default=False),
+            "database": Confirm.ask("Update database?", default=False),
+            "sources": Confirm.ask("Update job sources?", default=False),
+            "slack": Confirm.ask("Update Slack?", default=False),
         }
         console.print()
-        
+
         # Use existing or reconfigure each section
-        keywords = get_keywords() if reconfigure['keywords'] else existing_config.get('keywords', [])
-        locations = get_locations() if reconfigure['locations'] else existing_config.get('locations', [])
-        salary_min = get_salary_min() if reconfigure['salary'] else existing_config.get('salary_min', 0)
-        database_config = configure_database() if reconfigure['database'] else existing_config.get('database', {})
-        job_sources = configure_job_sources() if reconfigure['sources'] else existing_config.get('job_sources', {})
-        slack_config = configure_slack() if reconfigure['slack'] else existing_config.get('slack', {})
+        keywords = (
+            get_keywords() if reconfigure["keywords"] else existing_config.get("keywords", [])
+        )
+        locations = (
+            get_locations() if reconfigure["locations"] else existing_config.get("locations", [])
+        )
+        salary_min = (
+            get_salary_min() if reconfigure["salary"] else existing_config.get("salary_min", 0)
+        )
+        database_config = (
+            configure_database() if reconfigure["database"] else existing_config.get("database", {})
+        )
+        job_sources = (
+            configure_job_sources()
+            if reconfigure["sources"]
+            else existing_config.get("job_sources", {})
+        )
+        slack_config = (
+            configure_slack() if reconfigure["slack"] else existing_config.get("slack", {})
+        )
     else:
         # Collect configuration from scratch
         keywords = get_keywords()

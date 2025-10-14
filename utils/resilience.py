@@ -58,7 +58,7 @@ class DatabaseResilience:
         # Remove SQLAlchemy dialect prefix if present
         url = self.db_url.replace("sqlite+aiosqlite://", "")
         url = url.replace("sqlite://", "")
-        
+
         # For relative paths, resolve from current directory
         if url.startswith("/"):
             self.db_path = Path(url)
@@ -66,7 +66,7 @@ class DatabaseResilience:
             # Remove leading slashes (e.g., ///data/jobs.sqlite -> data/jobs.sqlite)
             url = url.lstrip("/")
             self.db_path = Path(url)
-        
+
         # Legacy fields for backward compatibility (not used for SQLite)
         self.db_host = "localhost"
         self.db_port = 0
@@ -141,60 +141,34 @@ class DatabaseResilience:
 
             # Try to connect and query using sqlite3
             import sqlite3
-            
+
             conn = sqlite3.connect(str(self.db_path), timeout=10)
             cursor = conn.cursor()
-            
+
             # Test basic connectivity
             cursor.execute("SELECT 1;")
             if cursor.fetchone()[0] == 1:
                 result["readable"] = True
                 result["healthy"] = True
             else:
-                result["errors"].append(f"Database connection failed: {result_check.stderr}")
+                result["errors"].append("Database connection test failed")
+                conn.close()
                 return result
 
-            # Count tables using information_schema
-            cmd_tables = [
-                "psql",
-                "-h",
-                self.db_host,
-                "-p",
-                str(self.db_port),
-                "-U",
-                self.db_user,
-                "-d",
-                self.db_name,
-                "-t",  # Tuples only (no headers)
-                "-c",
-                "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';",
-            ]
-
-            table_result = subprocess.run(
-                cmd_tables,
-                env=env,
-                capture_output=True,
-                text=True,
-                timeout=10,
+            # Count tables
+            cursor.execute(
+                "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';"
             )
+            result["table_count"] = cursor.fetchone()[0]
 
-                result["readable"] = True
-                result["healthy"] = True
-                
-                # Count tables
-                cursor.execute(
-                    "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';"
-                )
-                result["table_count"] = cursor.fetchone()[0]
-                
-                # Count jobs
-                try:
-                    cursor.execute("SELECT COUNT(*) FROM job;")
-                    result["job_count"] = cursor.fetchone()[0]
-                except sqlite3.OperationalError:
-                    # Table might not exist yet
-                    result["job_count"] = 0
-                    
+            # Count jobs
+            try:
+                cursor.execute("SELECT COUNT(*) FROM job;")
+                result["job_count"] = cursor.fetchone()[0]
+            except sqlite3.OperationalError:
+                # Table might not exist yet
+                result["job_count"] = 0
+
             conn.close()
 
         except sqlite3.OperationalError as e:

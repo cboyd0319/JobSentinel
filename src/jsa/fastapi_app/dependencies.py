@@ -20,10 +20,10 @@ from jsa.db import open_session
 def get_session_context() -> Iterator[Session]:
     """
     Provide database session as FastAPI dependency.
-    
+
     Yields:
         Database session for the request lifecycle
-        
+
     Usage:
         @router.get("/endpoint")
         def my_endpoint(session: Session = Depends(get_session_context)):
