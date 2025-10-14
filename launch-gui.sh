@@ -90,6 +90,15 @@ if ! check_python; then
     exit 1
 fi
 
+# Get the directory where this script is located
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Change to the repository root directory
+cd "$SCRIPT_DIR" || {
+    print_error "Failed to change to script directory"
+    exit 1
+}
+
 echo ""
 echo -e "${YELLOW}Launching JobSentinel GUI...${NC}"
 echo ""

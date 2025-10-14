@@ -141,6 +141,10 @@ if ($response -ne "y" -and $response -ne "yes") {
 
 Write-Host ""
 
+# Change to the directory where this script is located
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+Set-Location $scriptDir
+
 # Run Python setup script
 Write-Host "Starting setup wizard..." -ForegroundColor Cyan
 Write-Host ""

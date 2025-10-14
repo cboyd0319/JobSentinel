@@ -96,6 +96,10 @@ Write-Host ""
 Write-Host "Launching JobSentinel GUI..." -ForegroundColor Yellow
 Write-Host ""
 
+# Change to the directory where this script is located
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+Set-Location $scriptDir
+
 try {
     # Launch the GUI
     python launcher_gui.py
