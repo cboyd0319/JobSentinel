@@ -4,13 +4,22 @@ Private job search automation that runs on your machine.
 
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.11%2B-blue.svg)](https://www.python.org/)
-[![Version](https://img.shields.io/badge/Version-0.6.0-brightgreen.svg)](#)
+[![Version](https://img.shields.io/badge/Version-0.6.0+-brightgreen.svg)](#)
+[![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-7-646cff.svg)](https://vitejs.dev/)
 
-**TL;DR**: Scrape job boards, score against your preferences, get Slack alerts. Runs locally for $0 or cloud-scheduled for ~$5-15/mo.
+**TL;DR**: Scrape job boards, score against your preferences, get real-time alerts. Runs locally for $0 or cloud-scheduled for ~$5-15/mo. **NEW:** React 19, Vite 7, Tailwind 4, WebSocket support!
 
 ## What it is
 
-JobSentinel scrapes public job boards (Greenhouse, Lever, Reed, JobsWithGPT, JobSpy), normalizes the data, scores jobs against your preferences (keywords, salary, location), and sends Slack alerts for high matches. All data stays local in SQLite. No login-required scraping, no telemetry.
+JobSentinel scrapes public job boards (Greenhouse, Lever, Reed, JobsWithGPT, JobSpy), normalizes the data, scores jobs against your preferences (keywords, salary, location), and sends real-time alerts via Slack or WebSocket. All data stays local in SQLite (or optional PostgreSQL for teams). Modern React 19 UI with live updates. No login-required scraping, no telemetry.
+
+### ✨ What's New (v0.6.0+)
+- **React 19, Vite 7, Tailwind CSS 4** - Latest frontend stack
+- **WebSocket Support** - Real-time job updates in the browser
+- **PostgreSQL Option** - For multi-user/team deployments
+- **Enhanced Setup Wizard** - Database selection, better UX
+- **Zero Breaking Changes** - Fully backward compatible
 
 ## Why it exists
 
@@ -36,25 +45,47 @@ python -m jsa.cli run-once
 
 | Item | Version | Why |
 |------|---------|-----|
-| Python | 3.11+ | Runtime |
+| Python | 3.11+ | Backend runtime |
+| Node.js | 20+ | Frontend build (React 19) |
 | Git | Any | Clone repo |
 | Slack webhook | - | Alerts (optional) |
 | Reed API key | - | Reed jobs (optional) |
+| PostgreSQL | 15+ | Team deployments (optional) |
 
 ## Install
 
-**Automated:**
+**Quick Start (Recommended):**
 ```bash
-python3 scripts/install.py
+# Interactive setup wizard
+python -m jsa.cli setup
+
+# Guides you through:
+# - Keywords and preferences
+# - Database selection (SQLite/PostgreSQL)
+# - Job sources
+# - Slack notifications
 ```
 
-**Manual:**
+**Manual Installation:**
 ```bash
+# Backend
 python3 -m venv .venv
 source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -e .
 playwright install chromium
+
+# Frontend (for Web UI)
+cd frontend
+npm install
+npm run build
+cd ..
+
+# Optional: PostgreSQL support
+pip install -e ".[postgres]"
+
+# Configuration
 cp config/user_prefs.example.json config/user_prefs.json
+# Edit with your preferences
 ```
 
 ## Usage
@@ -64,7 +95,24 @@ cp config/user_prefs.example.json config/user_prefs.json
 python -m jsa.cli run-once
 ```
 
-### Advanced
+### Modern Web UI (React 19 + WebSocket)
+```bash
+# Start FastAPI backend
+python -m jsa.cli api --port 8000
+
+# In another terminal, start React frontend
+cd frontend && npm run dev
+# Visit http://localhost:3000
+
+# Features:
+# - Real-time job updates via WebSocket
+# - Dashboard with statistics
+# - Job search and filters
+# - Application tracker
+# - Resume analyzer
+```
+
+### Advanced CLI
 ```bash
 # Dry-run (no Slack alerts)
 python -m jsa.cli run-once --dry-run
@@ -72,9 +120,11 @@ python -m jsa.cli run-once --dry-run
 # Custom config
 python -m jsa.cli run-once --config /path/to/custom.json
 
-# Web UI
+# Health check
+python -m jsa.cli health
+
+# Legacy Flask UI (still available)
 python -m jsa.cli web --port 5000
-# Visit http://localhost:5000
 ```
 
 ## Configuration

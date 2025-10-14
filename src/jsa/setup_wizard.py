@@ -94,6 +94,62 @@ def get_salary_min() -> int:
         return 100000
 
 
+def configure_database() -> dict[str, Any]:
+    """Configure database backend."""
+    console.print("[bold]Step 3.5: Database Configuration[/bold]")
+    console.print("Choose your database backend:\n")
+    
+    console.print("[cyan]SQLite (Recommended)[/cyan]")
+    console.print("  • Zero configuration required")
+    console.print("  • Perfect for personal use")
+    console.print("  • 100% privacy (local file)")
+    console.print("  • Free forever")
+    console.print()
+    console.print("[cyan]PostgreSQL (Advanced)[/cyan]")
+    console.print("  • Better for multi-user deployments")
+    console.print("  • Requires PostgreSQL server")
+    console.print("  • Recommended for cloud/team use")
+    console.print("  • Optional: Free for local, ~$10-20/month for managed services")
+    console.print()
+    
+    use_postgres = Confirm.ask(
+        "Use PostgreSQL instead of SQLite?",
+        default=False,
+    )
+    
+    if not use_postgres:
+        console.print("[green]✓[/green] Using SQLite (default)\n")
+        return {
+            "type": "sqlite",
+            "url": "sqlite+aiosqlite:///data/jobs.sqlite",
+            "configured": True,
+        }
+    
+    # PostgreSQL configuration
+    console.print("\n[bold]PostgreSQL Setup[/bold]")
+    console.print("You'll need a PostgreSQL server running.")
+    console.print("Local: Install PostgreSQL from https://www.postgresql.org/download/")
+    console.print("Cloud: Use AWS RDS, GCP Cloud SQL, or Azure Database\n")
+    
+    host = Prompt.ask("PostgreSQL host", default="localhost")
+    port = Prompt.ask("PostgreSQL port", default="5432")
+    database = Prompt.ask("Database name", default="jobsentinel")
+    user = Prompt.ask("PostgreSQL user", default="jobsentinel_app")
+    password = Prompt.ask("PostgreSQL password", password=True)
+    
+    db_url = f"postgresql+asyncpg://{user}:{password}@{host}:{port}/{database}"
+    
+    console.print("[green]✓[/green] PostgreSQL configured\n")
+    console.print("[yellow]Note:[/yellow] Make sure to install PostgreSQL drivers:")
+    console.print("  [cyan]pip install -e \".[postgres]\"[/cyan]\n")
+    
+    return {
+        "type": "postgresql",
+        "url": db_url,
+        "configured": True,
+    }
+
+
 def configure_job_sources() -> dict[str, Any]:
     """Configure which job sources to enable."""
     console.print("[bold]Step 4: Job Sources[/bold]")
@@ -200,6 +256,10 @@ def review_config(config: dict[str, Any]) -> None:
     table.add_row("Keywords", ", ".join(config["keywords"]))
     table.add_row("Locations", ", ".join(config["locations"]))
     table.add_row("Min Salary", f"${config['salary_min']:,}")
+    
+    # Database info
+    db_type = config.get("database", {}).get("type", "sqlite")
+    table.add_row("Database", db_type.upper())
 
     enabled_sources = [
         name for name, info in config["job_sources"].items() if info.get("enabled", False)
@@ -245,6 +305,7 @@ def run_wizard() -> None:
     keywords = get_keywords()
     locations = get_locations()
     salary_min = get_salary_min()
+    database_config = configure_database()
     job_sources = configure_job_sources()
     slack_config = configure_slack()
 
@@ -255,6 +316,7 @@ def run_wizard() -> None:
         "salary_min": salary_min,
         "denied_companies": [],
         "keywords_boost": keywords[:3],  # Use top 3 keywords as boost
+        "database": database_config,
         "job_sources": job_sources,
         "slack": slack_config,
         "scoring_weights": {
@@ -277,6 +339,25 @@ def run_wizard() -> None:
     config_path = config_dir / "user_prefs.json"
 
     save_config(config, config_path)
+    
+    # Save DATABASE_URL to .env file if PostgreSQL is configured
+    if config.get("database", {}).get("type") == "postgresql":
+        env_path = Path(__file__).parent.parent.parent / ".env"
+        db_url = config["database"]["url"]
+        
+        # Read existing .env or create new
+        env_lines = []
+        if env_path.exists():
+            with open(env_path) as f:
+                env_lines = [line for line in f.readlines() if not line.startswith("DATABASE_URL=")]
+        
+        # Append DATABASE_URL
+        env_lines.append(f"DATABASE_URL={db_url}\n")
+        
+        with open(env_path, "w") as f:
+            f.writelines(env_lines)
+        
+        console.print("[green]✓[/green] Database URL saved to .env\n")
 
     # Offer to run first scrape
     if run_first_scrape():

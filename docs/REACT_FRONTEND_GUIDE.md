@@ -20,15 +20,16 @@ open http://localhost:3000
 
 ### Tech Stack
 
-- **React 18** - Modern React with hooks and concurrent features
-- **TypeScript** - Type-safe development
-- **Vite** - Lightning-fast dev server and build tool
-- **TailwindCSS** - Utility-first CSS framework
-- **React Query** - Server state management and caching
-- **Zustand** - Lightweight client state management
-- **React Router** - Client-side routing
-- **Recharts** - Data visualization
-- **Axios** - HTTP client with interceptors
+- **React 19** - Latest React with improved performance and concurrent features ✨ NEW
+- **TypeScript 5.7** - Type-safe development with latest features
+- **Vite 7** - Lightning-fast dev server and build tool ✨ NEW
+- **Tailwind CSS 4** - Modern utility-first CSS framework with @theme directive ✨ NEW
+- **React Query 5** - Server state management and caching
+- **Zustand 5** - Lightweight client state management
+- **React Router 7** - Client-side routing with improved APIs
+- **Recharts 2** - Data visualization
+- **Axios 1.7** - HTTP client with interceptors
+- **WebSocket Support** - Real-time job updates ✨ NEW
 
 ### Project Structure
 
@@ -184,22 +185,44 @@ Other pages are ready for implementation:
 
 ## Styling
 
-### TailwindCSS
+### Tailwind CSS 4 ✨ NEW
 
-Utility-first CSS with custom theme:
+**Major Changes from v3:**
+- CSS-based theme configuration using `@theme` directive
+- Simplified `tailwind.config.js`
+- Better performance and smaller bundle sizes
+- Native CSS imports instead of PostCSS directives
 
-```typescript
+**Configuration:**
+
+```css
+/* src/index.css */
+@import "tailwindcss";
+
+@theme {
+  /* Custom Colors */
+  --color-primary-500: #0ea5e9;
+  --color-primary-600: #0284c7;
+  --color-primary-700: #0369a1;
+
+  /* Custom Animations */
+  --animate-fade-in: fadeIn 0.3s ease-in-out;
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+```
+
+**Simplified Config:**
+```javascript
 // tailwind.config.js
-theme: {
-  extend: {
-    colors: {
-      primary: {
-        500: '#0ea5e9',
-        600: '#0284c7',
-        700: '#0369a1',
-      },
-    },
-  },
+export default {
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  darkMode: 'class',
+  // Theme configuration moved to @theme in index.css
+  plugins: [],
 }
 ```
 
@@ -418,11 +441,17 @@ curl http://localhost:8000/api/v1/health
 - [ ] Resume analyzer UI
 - [ ] LLM features UI
 
-### Phase 3 (Future)
-- [ ] Real-time updates (WebSocket)
+### Phase 3 (Completed ✅)
+- [x] Real-time updates (WebSocket) ✨ NEW
 - [ ] Advanced visualizations
 - [ ] Offline support (PWA)
 - [ ] Mobile app (React Native)
+
+### Phase 4 (Future)
+- [ ] WebSocket integration in all pages
+- [ ] Real-time job notifications
+- [ ] Live scraper status updates
+- [ ] Interactive charts with real-time data
 
 ## Resources
 
