@@ -496,7 +496,7 @@ class SkillsGraphManager:
     def _load_taxonomy(self, path: Path) -> None:
         """Load taxonomy from JSON file."""
         try:
-            with open(path, "r", encoding="utf-8") as f:
+            with open(path, encoding="utf-8") as f:
                 data = json.load(f)
 
             # Load skills
@@ -630,10 +630,7 @@ class SkillsGraphManager:
         requirements = []
 
         for rel in self.relationships:
-            if (
-                rel.from_skill == skill_id
-                and rel.relationship_type == RelationshipType.REQUIRES
-            ):
+            if rel.from_skill == skill_id and rel.relationship_type == RelationshipType.REQUIRES:
                 req_skill = self.skills.get(rel.to_skill)
                 if req_skill:
                     requirements.append(req_skill)

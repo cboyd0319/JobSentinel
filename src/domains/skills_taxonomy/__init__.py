@@ -11,32 +11,32 @@ This module provides:
 - Salary Correlation: Skills impact on compensation
 """
 
-from .skills_graph import (
-    Skill,
-    SkillRelationship,
-    RelationshipType,
-    SkillLevel,
-    SkillsGraphManager,
+from .demand_trends import (
+    DemandLevel,
+    DemandTrend,
+    DemandTrendsAnalyzer,
+    TrendDirection,
 )
 from .learning_paths import (
+    CareerLevel,
     LearningPath,
     LearningPathManager,
     PathNode,
     PathStep,
-    CareerLevel,
-)
-from .demand_trends import (
-    DemandTrend,
-    DemandTrendsAnalyzer,
-    TrendDirection,
-    DemandLevel,
 )
 from .salary_correlation import (
+    ExperienceLevel,
     SalaryCorrelation,
     SalaryCorrelationAnalyzer,
     SalaryImpact,
-    ExperienceLevel,
     SalaryRange,
+)
+from .skills_graph import (
+    RelationshipType,
+    Skill,
+    SkillLevel,
+    SkillRelationship,
+    SkillsGraphManager,
 )
 
 __all__ = [

@@ -310,9 +310,7 @@ class LearningPathManager:
                     resources=["Python for Data Science", "Kaggle Learn"],
                 ),
                 PathStep(
-                    skill=Skill(
-                        id="statistics", name="Statistics", category="data_science"
-                    ),
+                    skill=Skill(id="statistics", name="Statistics", category="data_science"),
                     level=SkillLevel.INTERMEDIATE,
                     estimated_time="4-6 months",
                     priority="critical",
@@ -616,9 +614,7 @@ class LearningPathManager:
                 return path
         return None
 
-    def get_next_level(
-        self, path_name: str, current_level: CareerLevel
-    ) -> PathNode | None:
+    def get_next_level(self, path_name: str, current_level: CareerLevel) -> PathNode | None:
         """Get the next career level in a path."""
         path = self.get_path(path_name)
         if not path:

@@ -324,14 +324,10 @@ class DemandTrendsAnalyzer:
 
         # Trend insights
         if trend == TrendDirection.RISING:
-            insights.append(
-                f"Demand is rising at {abs(growth_rate)*100:.0f}% year-over-year"
-            )
+            insights.append(f"Demand is rising at {abs(growth_rate)*100:.0f}% year-over-year")
             insights.append("Great time to learn this skill")
         elif trend == TrendDirection.DECLINING:
-            insights.append(
-                f"Demand is declining at {abs(growth_rate)*100:.0f}% year-over-year"
-            )
+            insights.append(f"Demand is declining at {abs(growth_rate)*100:.0f}% year-over-year")
             insights.append("Consider focusing on alternative skills")
         elif trend == TrendDirection.EMERGING:
             insights.append("Emerging technology with high growth potential")
@@ -429,10 +425,10 @@ class DemandTrendsAnalyzer:
         stable = []
 
         for skill_id, data in self.DEMAND_DATA.items():
-            if (
-                data["trend"] == TrendDirection.STABLE
-                and data["demand_level"] in [DemandLevel.CRITICAL, DemandLevel.HIGH]
-            ):
+            if data["trend"] == TrendDirection.STABLE and data["demand_level"] in [
+                DemandLevel.CRITICAL,
+                DemandLevel.HIGH,
+            ]:
                 trend = self.get_skill_demand(skill_id)
                 stable.append(trend)
 

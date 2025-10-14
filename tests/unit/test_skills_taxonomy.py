@@ -225,9 +225,7 @@ class TestLearningPaths:
         path_manager = LearningPathManager(skills_manager)
 
         # Next level after junior should be mid
-        next_node = path_manager.get_next_level(
-            "software_engineering", CareerLevel.JUNIOR
-        )
+        next_node = path_manager.get_next_level("software_engineering", CareerLevel.JUNIOR)
         assert next_node is not None
         assert next_node.level == CareerLevel.MID
 
@@ -410,15 +408,9 @@ class TestSalaryCorrelation:
         analyzer = SalaryCorrelationAnalyzer()
 
         # Entry level should have lower salaries
-        entry = analyzer.get_skill_salary_impact(
-            "python", experience_level=ExperienceLevel.ENTRY
-        )
-        mid = analyzer.get_skill_salary_impact(
-            "python", experience_level=ExperienceLevel.MID
-        )
-        senior = analyzer.get_skill_salary_impact(
-            "python", experience_level=ExperienceLevel.SENIOR
-        )
+        entry = analyzer.get_skill_salary_impact("python", experience_level=ExperienceLevel.ENTRY)
+        mid = analyzer.get_skill_salary_impact("python", experience_level=ExperienceLevel.MID)
+        senior = analyzer.get_skill_salary_impact("python", experience_level=ExperienceLevel.SENIOR)
 
         # Salaries should increase with experience
         assert entry.base_salary.median < mid.base_salary.median
@@ -542,9 +534,7 @@ class TestIntegration:
         assert se_path is not None
 
         # Get junior level requirements
-        junior_node = next(
-            node for node in se_path.nodes if node.level == CareerLevel.JUNIOR
-        )
+        junior_node = next(node for node in se_path.nodes if node.level == CareerLevel.JUNIOR)
 
         # Analyze each required skill
         for step in junior_node.required_skills[:3]:  # Test first 3 skills

@@ -10,7 +10,7 @@ Provides REST API access to skills taxonomy features:
 """
 
 import logging
-from typing import Any
+from typing import Annotated, Any
 
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
@@ -280,9 +280,9 @@ async def get_skill(skill_id: str):
 @router.get("/adjacency/{skill_id}", response_model=list[AdjacentSkillResponse])
 async def get_adjacent_skills(
     skill_id: str,
-    relationship_types: list[str] | None = Query(
-        None, description="Filter by relationship types"
-    ),
+    relationship_types: Annotated[
+        list[str] | None, Query(description="Filter by relationship types")
+    ] = None,
 ):
     """
     Get skills adjacent to a specific skill (related/connected skills).
@@ -303,9 +303,7 @@ async def get_adjacent_skills(
             try:
                 rel_types = [RelationshipType(rt) for rt in relationship_types]
             except ValueError as e:
-                raise HTTPException(
-                    status_code=400, detail=f"Invalid relationship type: {e}"
-                )
+                raise HTTPException(status_code=400, detail=f"Invalid relationship type: {e}")
 
         adjacent = manager.get_adjacent_skills(skill_id, relationship_types=rel_types)
 
@@ -611,9 +609,7 @@ async def get_top_paying_skills(
 
 
 @router.post("/salary-correlation/combination", response_model=SkillCombinationResponse)
-async def analyze_skill_combination(
-    skill_ids: list[str], experience_level: str = Query("mid")
-):
+async def analyze_skill_combination(skill_ids: list[str], experience_level: str = Query("mid")):
     """
     Analyze salary impact of a skill combination.
 

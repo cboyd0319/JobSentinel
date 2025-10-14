@@ -469,7 +469,7 @@ class SalaryCorrelationAnalyzer:
             # Diminishing returns: each additional skill contributes less
             premium = 0.0
             for i, p in enumerate(sorted(individual_premiums, reverse=True)):
-                discount = 0.7 ** i  # 100%, 70%, 49%, ...
+                discount = 0.7**i  # 100%, 70%, 49%, ...
                 premium += p * discount
 
             synergy = 0.0
@@ -522,9 +522,7 @@ class SalaryCorrelationAnalyzer:
             # Assume learning cost = $200/month for resources + opportunity cost
             learning_cost = learning_months * 200
 
-            annual_increase = (
-                correlation.with_skill_salary.median - correlation.base_salary.median
-            )
+            annual_increase = correlation.with_skill_salary.median - correlation.base_salary.median
             lifetime_value = annual_increase * 5  # 5-year projection
 
             roi = (lifetime_value - learning_cost) / learning_cost if learning_cost > 0 else 0
@@ -539,9 +537,11 @@ class SalaryCorrelationAnalyzer:
                     "learning_cost": learning_cost,
                     "lifetime_value_5y": lifetime_value,
                     "roi": roi,
-                    "payback_months": learning_cost / (annual_increase / 12)
-                    if annual_increase > 0
-                    else float("inf"),
+                    "payback_months": (
+                        learning_cost / (annual_increase / 12)
+                        if annual_increase > 0
+                        else float("inf")
+                    ),
                 }
             )
 
