@@ -4,7 +4,7 @@ Private job search automation that runs on your machine.
 
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.11%2B-blue.svg)](https://www.python.org/)
-[![Version](https://img.shields.io/badge/Version-0.6.0+-brightgreen.svg)](#)
+[![Version](https://img.shields.io/badge/Version-0.6.1-brightgreen.svg)](#)
 [![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-7-646cff.svg)](https://vitejs.dev/)
 
@@ -14,12 +14,13 @@ Private job search automation that runs on your machine.
 
 JobSentinel scrapes public job boards (Greenhouse, Lever, Reed, JobsWithGPT, JobSpy), normalizes the data, scores jobs against your preferences (keywords, salary, location), and sends real-time alerts via Slack or WebSocket. All data stays local in SQLite (privacy-first, single-user, zero setup). Modern React 19 UI with live updates. No login-required scraping, no telemetry.
 
-### ✨ What's New (v0.6.0+)
+### ✨ What's New (v0.6.1)
+- **🔒 Privacy Dashboard** - Complete data transparency (UNIQUE in market!)
+- **📦 Backup & Restore** - One-click data portability with checksums
+- **🚀 Auto-Update** - Zero-admin updates for Windows (UNIQUE!)
 - **SQLite Only** - Zero setup, zero admin rights, instant start
 - **React 19, Vite 7, Tailwind CSS 4** - Latest frontend stack
 - **WebSocket Support** - Real-time job updates in the browser
-- **Enhanced Setup Wizard** - Automatic database configuration
-- **Cross-Platform** - Works seamlessly on macOS, Linux, and Windows
 - **100% Privacy** - All data local, no cloud services required
 
 ## Why it exists
@@ -215,6 +216,25 @@ python -m jsa.cli web --port 5000
 
 ## Features
 
+### 🏆 World-Class Features (UNIQUE to JobSentinel)
+
+**Privacy Dashboard** — Complete data transparency. See every byte stored, verify zero telemetry, export for compliance. [Guide](docs/PRIVACY_DASHBOARD_GUIDE.md)
+```bash
+python -m jsa.cli privacy
+```
+
+**Backup & Restore** — One-click data portability. Standard tar.gz format, SHA-256 checksums, cross-platform. [Guide](docs/BACKUP_RESTORE_GUIDE.md)
+```bash
+python -m jsa.cli backup create
+```
+
+**Auto-Update** — Zero-admin updates. Automatic backup, health verification, rollback support. Windows-friendly! [Guide](docs/WHY_JOBSENTINEL_IS_THE_BEST.md)
+```bash
+python -m jsa.cli update
+```
+
+### 🚀 Core Features
+
 **Windows 11 Ready** — Zero admin rights needed! Automated installer, SQLite database, 100% local setup
 
 **Job scoring** — Multi-factor algorithm: skills 40%, salary 25%, location 20%, company 10%, recency 5%
@@ -229,7 +249,7 @@ python -m jsa.cli web --port 5000
 
 **Reliability** — Circuit breakers, exponential backoff, health checks
 
-See [docs/ADVANCED_FEATURES.md](docs/ADVANCED_FEATURES.md) for details.
+See [docs/ADVANCED_FEATURES.md](docs/ADVANCED_FEATURES.md) and [docs/WHY_JOBSENTINEL_IS_THE_BEST.md](docs/WHY_JOBSENTINEL_IS_THE_BEST.md) for details.
 
 ## Development
 
