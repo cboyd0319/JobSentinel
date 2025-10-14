@@ -56,15 +56,17 @@ from urllib.parse import urlparse
 # Constants
 # ============================================================================
 
-REQUIRED_PYTHON = (3, 13)
-PYTHON_VERSION = "3.13.8"
+REQUIRED_PYTHON = (3, 12)
+PYTHON_VERSION = "3.12.7"
 PYTHON_WINDOWS_URL = (
     f"https://www.python.org/ftp/python/{PYTHON_VERSION}/python-{PYTHON_VERSION}-amd64.exe"
 )
 
 # Python installer SHA256 checksums
-# TODO: Get actual checksums from https://www.python.org/downloads/release/python-3138/
-PYTHON_CHECKSUMS = {"3.13.8-amd64": None}  # Set to None to skip verification (will warn user)
+# NOTE: Set to None to skip verification (installer will warn user to verify manually)
+# Get checksums from: https://www.python.org/downloads/release/python-3127/
+# SECURITY: In production, always set real checksums!
+PYTHON_CHECKSUMS = {"3.12.7-amd64": None}  # TODO: Add actual checksum for security
 
 # Timeouts (configurable via environment)
 DEFAULT_TIMEOUT = int(os.environ.get("INSTALL_TIMEOUT_CMD", "10"))
@@ -137,6 +139,58 @@ def check_network(host: str = "8.8.8.8", port: int = 53, timeout: int = 3) -> bo
         return False
 
 
+def is_admin_windows() -> bool:
+    """Check if running with administrator privileges on Windows."""
+    if sys.platform != "win32":
+        return False
+    
+    try:
+        import ctypes
+        return ctypes.windll.shell32.IsUserAnAdmin() != 0
+    except Exception:
+        return False
+
+
+def check_windows_requirements() -> list[str]:
+    """Check Windows-specific requirements and return list of warnings."""
+    warnings = []
+    
+    if sys.platform != "win32":
+        return warnings
+    
+    # Check admin rights (helpful but not always required)
+    if not is_admin_windows():
+        warnings.append(
+            "Not running as Administrator. Some operations may require elevation."
+        )
+    
+    # Check execution policy (PowerShell)
+    try:
+        result = subprocess.run(
+            ["powershell", "-Command", "Get-ExecutionPolicy"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        if result.returncode == 0 and "Restricted" in result.stdout:
+            warnings.append(
+                "PowerShell execution policy is Restricted. "
+                "May need to run: Set-ExecutionPolicy RemoteSigned"
+            )
+    except Exception:
+        pass
+    
+    # Check for long path support (informational note)
+    # Long paths (>259 chars) require registry key on Windows
+    warnings.append(
+        "Note: If you experience path-related errors, enable long paths:\n"
+        "  New-ItemProperty -Path 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\FileSystem' "
+        "-Name 'LongPathsEnabled' -Value 1 -PropertyType DWORD -Force"
+    )
+    
+    return warnings
+
+
 def escape_xml(text: str) -> str:
     """Escape XML special characters to prevent injection."""
     return (
@@ -153,13 +207,23 @@ def check_disk_space(path: Path, required_mb: int = MIN_DISK_SPACE_MB) -> bool:
     """Check if sufficient disk space is available."""
     try:
         if sys.platform == "win32":
-            import ctypes
+            try:
+                import ctypes
 
-            free_bytes = ctypes.c_ulonglong(0)
-            ctypes.windll.kernel32.GetDiskFreeSpaceExW(
-                str(path), None, None, ctypes.pointer(free_bytes)
-            )
-            available_mb = free_bytes.value / (1024 * 1024)
+                free_bytes = ctypes.c_ulonglong(0)
+                result = ctypes.windll.kernel32.GetDiskFreeSpaceExW(
+                    str(path), None, None, ctypes.pointer(free_bytes)
+                )
+                
+                if result == 0:
+                    # GetDiskFreeSpaceExW failed
+                    logger.warning("Could not query disk space via Windows API")
+                    return True  # Proceed anyway
+                
+                available_mb = free_bytes.value / (1024 * 1024)
+            except (OSError, AttributeError) as e:
+                logger.warning(f"Windows disk space check failed: {e}")
+                return True  # Proceed anyway
         else:
             stat = os.statvfs(path)
             available_mb = (stat.f_bavail * stat.f_frsize) / (1024 * 1024)
@@ -248,9 +312,13 @@ def download_with_verification(
                 logger.info("✅ Checksum verified")
             elif "python.org" in parsed_url.netloc:
                 actual_hash = hashlib.sha256(data).hexdigest()
+                verify_url = (
+                    f"https://www.python.org/downloads/release/"
+                    f"python-{PYTHON_VERSION.replace('.', '')}/"
+                )
                 logger.warning(
                     f"⚠️  No checksum verification (hash: {actual_hash[:16]}...)\n"
-                    f"   Verify manually: https://www.python.org/downloads/release/python-{PYTHON_VERSION.replace('.', '')}/"
+                    f"   Verify manually: {verify_url}"
                 )
 
             # Write to file
@@ -517,12 +585,11 @@ class UniversalInstaller:
                         is_compatible = major > UBUNTU_MIN_VERSION[0] or (
                             major == UBUNTU_MIN_VERSION[0] and minor >= UBUNTU_MIN_VERSION[1]
                         )
+                        required_ver = f"{UBUNTU_MIN_VERSION[0]}.{UBUNTU_MIN_VERSION[1]:02d}"
                         issues = (
                             []
                             if is_compatible
-                            else [
-                                f"Ubuntu {UBUNTU_MIN_VERSION[0]}.{UBUNTU_MIN_VERSION[1]:02d}+ required (found {version_id})"
-                            ]
+                            else [f"Ubuntu {required_ver}+ required (found {version_id})"]
                         )
                     except (ValueError, IndexError):
                         is_compatible = False
@@ -958,28 +1025,29 @@ class UniversalInstaller:
             return True
 
         venv_python = self.get_venv_python()
-        script_path = self.project_root / "src" / "agent.py"
-
-        # Validate script exists
-        if not script_path.exists():
-            logger.warning(f"Script not found: {script_path}")
-            logger.warning("Skipping automation setup. Set up manually later.")
-            return True
+        
+        # Use CLI module command instead of non-existent agent.py script
+        # The task will run: python -m jsa.cli run-once
 
         # Escape paths for XML
         escaped_python = escape_xml(str(venv_python))
-        escaped_script = escape_xml(str(script_path))
         escaped_workdir = escape_xml(str(self.project_root))
 
+        # Generate dynamic start time (tomorrow at 9 AM)
+        from datetime import datetime, timedelta
+        tomorrow = datetime.now() + timedelta(days=1)
+        start_time = tomorrow.replace(hour=9, minute=0, second=0, microsecond=0).isoformat()
+
         # Create task XML with proper escaping
+        # Uses "python -m jsa.cli run-once" instead of non-existent agent.py
         task_xml = f"""<?xml version="1.0" encoding="UTF-16"?>
 <Task version="1.4" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
   <RegistrationInfo>
-    <Description>JobSentinel automated job search</Description>
+    <Description>JobSentinel automated job search (daily at 9:00 AM)</Description>
   </RegistrationInfo>
   <Triggers>
     <CalendarTrigger>
-      <StartBoundary>2025-01-01T09:00:00</StartBoundary>
+      <StartBoundary>{start_time}</StartBoundary>
       <Enabled>true</Enabled>
       <ScheduleByDay>
         <DaysInterval>1</DaysInterval>
@@ -1004,7 +1072,7 @@ class UniversalInstaller:
   <Actions>
     <Exec>
       <Command>{escaped_python}</Command>
-      <Arguments>&quot;{escaped_script}&quot; --mode poll</Arguments>
+      <Arguments>-m jsa.cli run-once</Arguments>
       <WorkingDirectory>{escaped_workdir}</WorkingDirectory>
     </Exec>
   </Actions>
@@ -1153,7 +1221,10 @@ class UniversalInstaller:
             logger.warning("Skipping automation setup. Set up manually later.")
             return True
 
-        cron_entry = f"0 9 * * * cd {self.project_root} && {venv_python} {script_path} --mode poll >> {log_dir}/cron.log 2>&1\n"
+        cron_entry = (
+            f"0 9 * * * cd {self.project_root} && {venv_python} {script_path} "
+            f"--mode poll >> {log_dir}/cron.log 2>&1\n"
+        )
 
         logger.info("\n📋 To enable automated job searches, add this to your crontab:")
         logger.info("Run: crontab -e")
@@ -1284,9 +1355,8 @@ class UniversalInstaller:
             python_found, python_path = self.check_python()
 
             if not python_found:
-                logger.info(
-                    f"\nPython {REQUIRED_PYTHON[0]}.{REQUIRED_PYTHON[1]}+ is required but not found."
-                )
+                req_ver = f"{REQUIRED_PYTHON[0]}.{REQUIRED_PYTHON[1]}+"
+                logger.info(f"\nPython {req_ver} is required but not found.")
 
                 if self.platform.os_name == "windows":
                     if not self.install_python_windows():
