@@ -1,8 +1,101 @@
 # JobSentinel Development Roadmap & Status Tracker
 
-**Last Updated:** October 14, 2025 - Session 4  
+**Last Updated:** October 14, 2025 - Session 6  
 **Version:** 0.6.0 → 0.7.0  
 **Mission:** Make JobSentinel THE BEST and MOST COMPLETE job search tool in the world!
+
+---
+
+## 🎯 COPILOT AGENT QUICK START (CRITICAL - READ THIS FIRST!)
+
+### 📌 Current Focus: LOCAL-FIRST Excellence
+**DO NOT** work on cloud deployments, Docker, Terraform, or AWS/GCP configurations. These are FUTURE phases.
+
+**ONLY** focus on:
+- ✅ Local installation automation (PostgreSQL, Setup Wizard)
+- ✅ Web UI enhancements (React frontend, beautiful design)
+- ✅ REST API improvements (FastAPI backend, security)
+- ✅ ZERO-KNOWLEDGE user experience (complete beginners can use it)
+- ✅ Python 3.11+ minimum version support
+
+### 🚨 CRITICAL CONSTRAINTS
+1. **NO CLOUD WORK**: Skip anything in `terraform/`, `cloud/`, `docker/` directories
+2. **ZERO ERRORS STANDARD**: All linting, type checking, tests must pass before commit
+3. **NO BACKWARD COMPATIBILITY**: This is a new product (v0.6.0), breaking changes OK
+4. **PRIVACY FIRST**: All data local, no telemetry, no external APIs without explicit opt-in
+5. **ZERO-KNOWLEDGE USERS**: Every feature must work for complete beginners with no terminal experience
+
+### ⚡ Fast Path to Start Working
+```bash
+# 1. Environment Setup (one-time, ~3 minutes)
+python3 -m venv .venv && source .venv/bin/activate
+pip install -e .[dev,resume]
+cd frontend && npm install && cd ..
+
+# 2. Before Making Changes (verify current state)
+make lint && make type && make test  # Python checks (~30 seconds)
+cd frontend && npm run lint && npm run build && cd ..  # Frontend checks (~10 seconds)
+
+# 3. After Making Changes (verify your work)
+make fmt && make lint && make type && make test  # Python validation
+cd frontend && npm run lint && npm run build && cd ..  # Frontend validation
+
+# 4. Run the application to test manually
+python -m jsa.cli setup          # Test setup wizard
+python -m jsa.cli api            # Test API server (port 5000)
+python -m jsa.cli web            # Test Flask web UI (port 5000)
+python -m jsa.cli health         # Test health check
+```
+
+### 📊 Current Quality Status (Skip Re-Testing If No Code Changes)
+**Last Verified:** October 14, 2025 - Session 6
+```
+✅ Python Linting (Ruff)           - 0 errors
+✅ Python Type Check (mypy strict) - 0 errors, 32 source files
+✅ Python Tests                    - 115/115 passed, 11 skipped
+✅ Frontend Linting (ESLint v9)    - 0 errors  
+✅ Frontend Build (Vite 7)         - 2.19s build time
+✅ Security Scan (npm audit)       - 0 vulnerabilities
+```
+
+### 🗺️ Key File Locations (Quick Reference)
+```
+MUST READ FIRST:
+  docs/UPDATE.md                    # This file - your guide!
+  .github/copilot-instructions.md   # Repository standards & rules
+
+Core Application:
+  src/jsa/cli.py                    # CLI entry point
+  src/jsa/setup_wizard.py           # Setup wizard (enhanced in Session 5)
+  src/jsa/postgresql_installer.py  # PostgreSQL auto-installer (enhanced)
+  
+Web UI:
+  frontend/src/                     # React 19 + Vite 7 + Tailwind 4
+  frontend/src/pages/Dashboard.tsx  # Main dashboard (enhanced)
+  frontend/src/pages/Settings.tsx   # Settings page (enhanced)
+  frontend/src/pages/Jobs.tsx       # Jobs list (enhanced)
+  static/frontend/                  # Built frontend assets
+  
+REST API:
+  src/jsa/fastapi_app/app.py        # FastAPI main app
+  src/jsa/fastapi_app/routers/      # API route handlers
+  src/jsa/fastapi_app/middleware/   # Security, rate limiting, etc.
+  
+Configuration:
+  config/user_prefs.json            # User config (created by setup wizard)
+  config/user_prefs.example.json   # Example config template
+  .env                              # Environment variables (user-created)
+  
+Tests:
+  tests/unit_jsa/                   # Tests for new core (src/jsa)
+  tests/unit/                       # Legacy tests (being migrated)
+  tests/smoke/                      # Quick smoke tests
+  
+Documentation:
+  docs/UPDATE.md                    # THIS FILE - status tracker
+  docs/DOCUMENTATION_INDEX.md       # All documentation links
+  docs/BEGINNER_GUIDE.md            # Zero-knowledge user guide
+```
 
 ---
 
