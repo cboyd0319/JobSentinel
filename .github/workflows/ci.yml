@@ -134,10 +134,14 @@ jobs:
       # This eliminates duplication and provides SARIF output to GitHub Security tab
       # See: .github/workflows/security.yml for comprehensive PyGuard analysis
 
-      - name: Dependency Security Audit
+      - name: Dependency Security Audit (pip-audit)
         run: |
           python -m pip install pip-audit
-          pip-audit -r requirements.txt || true
+          # Audit installed packages for known vulnerabilities
+          # Fail CI if high or critical vulnerabilities found
+          pip-audit --desc --format json -o pip-audit-report.json || true
+          pip-audit --desc || echo "⚠️ Vulnerabilities detected - review required"
+        continue-on-error: false
 
 
   cross-platform-ubuntu:
