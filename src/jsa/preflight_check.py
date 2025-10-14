@@ -79,9 +79,7 @@ class PreflightChecker:
         # Database checks
         self._check_data_directory()
 
-        all_passed = all(
-            r.passed or r.severity != "error" for r in self.results
-        )
+        all_passed = all(r.passed or r.severity != "error" for r in self.results)
         return all_passed, self.results
 
     def _check_os(self) -> None:
@@ -217,7 +215,7 @@ class PreflightChecker:
         else:
             fix = (
                 "Add Python to your PATH in ~/.bashrc or ~/.zshrc:\n"
-                "export PATH=\"$HOME/.local/bin:$PATH\""
+                'export PATH="$HOME/.local/bin:$PATH"'
             )
 
         self.results.append(

@@ -19,6 +19,31 @@ cp config/user_prefs.example.json config/user_prefs.json
 cp .env.example .env
 ```
 
+## Repository structure
+
+All application code lives in `src/`:
+- `src/jsa/` - Core application (CLI, web UI, database)
+- `src/domains/` - Domain logic (ATS, ML, LLM, resume analysis)
+- `src/sources/` - Job board scrapers
+- `src/utils/` - Shared utilities
+- `src/notify/` - Alert systems (Slack, email)
+- `src/models/` - Data models
+- `src/matchers/` - Job scoring logic
+
+When adding new code:
+```bash
+# New scraper
+touch src/sources/your_scraper.py
+
+# New utility
+touch src/utils/your_utility.py
+
+# Tests
+touch tests/unit/test_your_feature.py
+```
+
+See `docs/REORGANIZATION_NOTES.md` for migration details.
+
 ## Lint & test
 
 ```bash

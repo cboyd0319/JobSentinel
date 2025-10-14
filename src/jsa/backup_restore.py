@@ -141,9 +141,7 @@ class BackupManager:
                 {
                     "path": str(rel_path),
                     "size": env_file.stat().st_size,
-                    "modified": datetime.fromtimestamp(
-                        env_file.stat().st_mtime
-                    ).isoformat(),
+                    "modified": datetime.fromtimestamp(env_file.stat().st_mtime).isoformat(),
                 }
             )
 
@@ -372,7 +370,9 @@ class BackupManager:
                         tar.extract(file_info["path"], path=self.root)
                         progress.advance(task)
                     except Exception as e:
-                        console.print(f"[yellow]Warning: Could not extract {file_info['path']}: {e}[/yellow]")
+                        console.print(
+                            f"[yellow]Warning: Could not extract {file_info['path']}: {e}[/yellow]"
+                        )
 
         # Verify checksums if requested
         if verify and metadata.get("checksums"):
@@ -384,9 +384,7 @@ class BackupManager:
                 if file_path.exists():
                     actual_checksum = self.calculate_checksum(file_path)
                     if actual_checksum != expected_checksum:
-                        console.print(
-                            f"[red]✗ Checksum mismatch: {file_path_str}[/red]"
-                        )
+                        console.print(f"[red]✗ Checksum mismatch: {file_path_str}[/red]")
                         return False
                 else:
                     console.print(f"[yellow]⚠ File missing after restore: {file_path_str}[/yellow]")

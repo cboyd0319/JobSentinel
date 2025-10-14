@@ -150,9 +150,7 @@ class AutoUpdater:
         self.root = Path(project_root).resolve()
         self.current_version = Version.parse(self.CURRENT_VERSION)
 
-    def check_for_updates(
-        self, include_prereleases: bool = False
-    ) -> ReleaseInfo | None:
+    def check_for_updates(self, include_prereleases: bool = False) -> ReleaseInfo | None:
         """Check for available updates.
 
         Args:
@@ -230,9 +228,9 @@ class AutoUpdater:
         info_table.add_row("Version", str(release.version))
         info_table.add_row(
             "Published",
-            datetime.fromisoformat(
-                release.published_at.replace("Z", "+00:00")
-            ).strftime("%Y-%m-%d %H:%M UTC"),
+            datetime.fromisoformat(release.published_at.replace("Z", "+00:00")).strftime(
+                "%Y-%m-%d %H:%M UTC"
+            ),
         )
         if release.prerelease:
             info_table.add_row("Type", "⚠️  Pre-release (beta/alpha)")
@@ -250,9 +248,7 @@ class AutoUpdater:
                 console.print(f"[dim]... (see {release.html_url} for full changelog)[/dim]")
         console.print()
 
-    def update(
-        self, release: ReleaseInfo, backup: bool = True, verify: bool = True
-    ) -> bool:
+    def update(self, release: ReleaseInfo, backup: bool = True, verify: bool = True) -> bool:
         """Perform update.
 
         Args:
@@ -291,9 +287,7 @@ class AutoUpdater:
             console.print("[cyan]→ Updating via pip...[/cyan]")
 
             # Update from GitHub
-            pip_url = (
-                f"git+https://github.com/{self.GITHUB_REPO}.git@{release.tag_name}"
-            )
+            pip_url = f"git+https://github.com/{self.GITHUB_REPO}.git@{release.tag_name}"
             cmd = [sys.executable, "-m", "pip", "install", "--upgrade", pip_url]
 
             result = subprocess.run(  # noqa: S603 - Trusted pip command

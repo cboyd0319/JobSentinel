@@ -8,8 +8,8 @@ from flask.typing import ResponseReturnValue
 from sqlalchemy import desc
 from sqlmodel import select
 
-from jsa.logging import get_logger
 from database import Job, get_database_stats_sync, get_sync_session
+from jsa.logging import get_logger
 
 bp = Blueprint("main", __name__)
 logger = get_logger("web.main", component="web_ui")

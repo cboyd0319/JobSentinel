@@ -15,13 +15,14 @@ import pytest
 # Check if tkinter is available
 try:
     import tkinter
+
     TKINTER_AVAILABLE = True
 except ImportError:
     TKINTER_AVAILABLE = False
 
 pytestmark = pytest.mark.skipif(
     not TKINTER_AVAILABLE and not Path("launcher_gui.py").exists(),
-    reason="tkinter not available in CI environment"
+    reason="tkinter not available in CI environment",
 )
 
 
@@ -38,7 +39,7 @@ class TestGUILauncherImport:
         launcher_path = Path("launcher_gui.py")
         with open(launcher_path, encoding="utf-8") as f:
             first_line = f.readline()
-        
+
         assert first_line.startswith("#!"), "launcher_gui.py should have shebang"
         assert "python" in first_line.lower(), "Shebang should reference python"
 
@@ -47,6 +48,7 @@ class TestGUILauncherImport:
         """Test that launcher can be imported (validates syntax)."""
         # This will fail if there are syntax errors
         import launcher_gui
+
         assert hasattr(launcher_gui, "JobSentinelGUI")
         assert hasattr(launcher_gui, "main")
 
@@ -129,7 +131,7 @@ class TestGUILauncherMocked:
 
         # Should not raise
         gui = JobSentinelGUI(mock_root)
-        
+
         assert gui.root == mock_root
         assert gui.config_path == Path("config/user_prefs.json")
         assert gui.project_root == Path("launcher_gui.py").parent
@@ -140,11 +142,11 @@ class TestGUILauncherMocked:
         from launcher_gui import JobSentinelGUI
 
         mock_root = mock.MagicMock()
-        
+
         with mock.patch.object(JobSentinelGUI, "_setup_ui"):
             with mock.patch.object(JobSentinelGUI, "_check_status"):
                 gui = JobSentinelGUI(mock_root)
-                
+
                 # Should have status_labels dict
                 assert hasattr(gui, "status_labels")
 
@@ -155,16 +157,16 @@ class TestGUILauncherMocked:
         from launcher_gui import JobSentinelGUI
 
         mock_root = mock.MagicMock()
-        
+
         with mock.patch.object(JobSentinelGUI, "_setup_ui"):
             with mock.patch.object(JobSentinelGUI, "_check_status"):
                 gui = JobSentinelGUI(mock_root)
                 gui.config_path = Path("nonexistent_config.json")
-                
+
                 # Should not start server without config
                 with mock.patch("tkinter.messagebox.askyesno", return_value=False):
                     gui._start_server()
-                
+
                 mock_popen.assert_not_called()
 
     @mock.patch("webbrowser.open")
@@ -174,12 +176,12 @@ class TestGUILauncherMocked:
         from launcher_gui import JobSentinelGUI
 
         mock_root = mock.MagicMock()
-        
+
         with mock.patch.object(JobSentinelGUI, "_setup_ui"):
             with mock.patch.object(JobSentinelGUI, "_check_status"):
                 gui = JobSentinelGUI(mock_root)
                 gui._open_browser()
-                
+
                 mock_browser.assert_called_once_with("http://localhost:8000")
 
     @mock.patch("subprocess.Popen")
@@ -189,12 +191,12 @@ class TestGUILauncherMocked:
         from launcher_gui import JobSentinelGUI
 
         mock_root = mock.MagicMock()
-        
+
         with mock.patch.object(JobSentinelGUI, "_setup_ui"):
             with mock.patch.object(JobSentinelGUI, "_check_status"):
                 gui = JobSentinelGUI(mock_root)
                 gui._run_setup()
-                
+
                 # Should launch setup wizard
                 mock_popen.assert_called_once()
                 args = mock_popen.call_args[0][0]

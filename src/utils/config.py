@@ -209,13 +209,15 @@ class ConfigManager:
         # COMPATIBILITY: Support both old (companies) and new (job_sources) config formats
         companies = config.get("companies", [])
         job_sources = config.get("job_sources", {})
-        
+
         # If using new job_sources format, we can skip strict company validation
         if job_sources and not companies:
             logger.info("Using new job_sources format (setup wizard style)")
             # Create minimal companies list to satisfy old code that depends on it
             # This is temporary until all code is migrated to new format
-            enabled_sources = [name for name, info in job_sources.items() if info.get("enabled", False)]
+            enabled_sources = [
+                name for name, info in job_sources.items() if info.get("enabled", False)
+            ]
             if not enabled_sources:
                 logger.warning("No job sources enabled - job searches will return no results")
         elif not companies and not job_sources:
@@ -225,10 +227,7 @@ class ConfigManager:
             for i, company_data in enumerate(companies):
                 try:
                     # Filter out comment fields (keys starting with underscore)
-                    filtered_data = {
-                        k: v for k, v in company_data.items() 
-                        if not k.startswith("_")
-                    }
+                    filtered_data = {k: v for k, v in company_data.items() if not k.startswith("_")}
                     CompanyConfig(**filtered_data)
                 except Exception as e:
                     raise ConfigurationException(f"Invalid company config at index {i}: {e}") from e
@@ -237,12 +236,12 @@ class ConfigManager:
         # COMPATIBILITY: Make title_allowlist optional if keywords are provided (wizard style)
         title_allowlist = config.get("title_allowlist", [])
         keywords = config.get("keywords", [])
-        
+
         # If no title_allowlist but has keywords, use keywords as a basic filter
         if not title_allowlist and keywords:
             title_allowlist = keywords
             logger.info("Using keywords as title allowlist (setup wizard compatibility)")
-        
+
         try:
             FilterConfig(
                 title_allowlist=title_allowlist,

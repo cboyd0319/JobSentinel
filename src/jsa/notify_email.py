@@ -191,53 +191,55 @@ class EmailNotifier:
             HTML email body
         """
         html_parts = [
-            '<!DOCTYPE html>',
-            '<html>',
-            '<head>',
+            "<!DOCTYPE html>",
+            "<html>",
+            "<head>",
             '<meta charset="utf-8">',
-            '<style>',
+            "<style>",
             'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5; }',
-            '.container { max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }',
-            '.header { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 30px 20px; text-align: center; }',
-            '.header h1 { margin: 0; font-size: 28px; }',
-            '.header p { margin: 10px 0 0 0; font-size: 16px; opacity: 0.9; }',
-            '.job-card { padding: 20px; border-bottom: 1px solid #e5e7eb; }',
-            '.job-card:last-child { border-bottom: none; }',
-            '.job-title { font-size: 20px; font-weight: bold; color: #1f2937; margin: 0 0 8px 0; }',
-            '.job-company { font-size: 16px; color: #3b82f6; margin: 0 0 12px 0; }',
-            '.job-details { display: flex; gap: 15px; flex-wrap: wrap; margin: 12px 0; }',
-            '.job-detail { font-size: 14px; color: #6b7280; }',
-            '.job-detail strong { color: #374151; }',
-            '.job-score { display: inline-block; background: #22c55e; color: white; padding: 4px 12px; border-radius: 12px; font-size: 14px; font-weight: bold; }',
-            '.job-link { display: inline-block; background: #3b82f6; color: white; text-decoration: none; padding: 10px 20px; border-radius: 6px; margin-top: 12px; }',
-            '.job-link:hover { background: #2563eb; }',
-            '.footer { text-align: center; padding: 20px; color: #6b7280; font-size: 14px; background-color: #f9fafb; }',
-            '.footer a { color: #3b82f6; text-decoration: none; }',
-            '</style>',
-            '</head>',
-            '<body>',
+            ".container { max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }",
+            ".header { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 30px 20px; text-align: center; }",
+            ".header h1 { margin: 0; font-size: 28px; }",
+            ".header p { margin: 10px 0 0 0; font-size: 16px; opacity: 0.9; }",
+            ".job-card { padding: 20px; border-bottom: 1px solid #e5e7eb; }",
+            ".job-card:last-child { border-bottom: none; }",
+            ".job-title { font-size: 20px; font-weight: bold; color: #1f2937; margin: 0 0 8px 0; }",
+            ".job-company { font-size: 16px; color: #3b82f6; margin: 0 0 12px 0; }",
+            ".job-details { display: flex; gap: 15px; flex-wrap: wrap; margin: 12px 0; }",
+            ".job-detail { font-size: 14px; color: #6b7280; }",
+            ".job-detail strong { color: #374151; }",
+            ".job-score { display: inline-block; background: #22c55e; color: white; padding: 4px 12px; border-radius: 12px; font-size: 14px; font-weight: bold; }",
+            ".job-link { display: inline-block; background: #3b82f6; color: white; text-decoration: none; padding: 10px 20px; border-radius: 6px; margin-top: 12px; }",
+            ".job-link:hover { background: #2563eb; }",
+            ".footer { text-align: center; padding: 20px; color: #6b7280; font-size: 14px; background-color: #f9fafb; }",
+            ".footer a { color: #3b82f6; text-decoration: none; }",
+            "</style>",
+            "</head>",
+            "<body>",
             '<div class="container">',
             '<div class="header">',
-            '<h1>🎯 JobSentinel</h1>',
+            "<h1>🎯 JobSentinel</h1>",
         ]
 
         if digest:
-            html_parts.append(f'<p>You have {len(jobs)} new job matches!</p>')
+            html_parts.append(f"<p>You have {len(jobs)} new job matches!</p>")
         else:
-            html_parts.append('<p>New job match found!</p>')
+            html_parts.append("<p>New job match found!</p>")
 
-        html_parts.append('</div>')
+        html_parts.append("</div>")
 
         # Add job cards
         for job in jobs:
             score = job.get("score", {}).get("overall", 0) * 100
-            html_parts.extend([
-                '<div class="job-card">',
-                f'<h2 class="job-title">{job.get("title", "Unknown Position")}</h2>',
-                f'<p class="job-company">📍 {job.get("company", "Unknown Company")}</p>',
-                '<div class="job-details">',
-                f'<span class="job-detail"><strong>Location:</strong> {job.get("location", "Not specified")}</span>',
-            ])
+            html_parts.extend(
+                [
+                    '<div class="job-card">',
+                    f'<h2 class="job-title">{job.get("title", "Unknown Position")}</h2>',
+                    f'<p class="job-company">📍 {job.get("company", "Unknown Company")}</p>',
+                    '<div class="job-details">',
+                    f'<span class="job-detail"><strong>Location:</strong> {job.get("location", "Not specified")}</span>',
+                ]
+            )
 
             if job.get("remote"):
                 html_parts.append('<span class="job-detail"><strong>🏠 Remote</strong></span>')
@@ -247,25 +249,29 @@ class EmailNotifier:
                     f'<span class="job-detail"><strong>Salary:</strong> ${job["salary_min"]:,} - ${job["salary_max"]:,}</span>'
                 )
 
-            html_parts.extend([
-                '</div>',
-                f'<span class="job-score">Match: {score:.0f}%</span>',
-                f'<br><a href="{job.get("url", "#")}" class="job-link">View Job →</a>',
-                '</div>',
-            ])
+            html_parts.extend(
+                [
+                    "</div>",
+                    f'<span class="job-score">Match: {score:.0f}%</span>',
+                    f'<br><a href="{job.get("url", "#")}" class="job-link">View Job →</a>',
+                    "</div>",
+                ]
+            )
 
         # Footer
-        html_parts.extend([
-            '<div class="footer">',
-            '<p>Sent by <a href="https://github.com/cboyd0319/JobSentinel">JobSentinel</a></p>',
-            '<p>100% Local • 100% Private • 100% Free</p>',
-            '</div>',
-            '</div>',
-            '</body>',
-            '</html>',
-        ])
+        html_parts.extend(
+            [
+                '<div class="footer">',
+                '<p>Sent by <a href="https://github.com/cboyd0319/JobSentinel">JobSentinel</a></p>',
+                "<p>100% Local • 100% Private • 100% Free</p>",
+                "</div>",
+                "</div>",
+                "</body>",
+                "</html>",
+            ]
+        )
 
-        return '\n'.join(html_parts)
+        return "\n".join(html_parts)
 
     def _generate_text_email(self, jobs: list[dict[str, Any]], digest: bool) -> str:
         """Generate plain text email body.
@@ -293,15 +299,17 @@ class EmailNotifier:
 
         for i, job in enumerate(jobs, 1):
             score = job.get("score", {}).get("overall", 0) * 100
-            
-            lines.extend([
-                "-" * 70,
-                f"Job {i} of {len(jobs)}",
-                "-" * 70,
-                f"Title: {job.get('title', 'Unknown Position')}",
-                f"Company: {job.get('company', 'Unknown Company')}",
-                f"Location: {job.get('location', 'Not specified')}",
-            ])
+
+            lines.extend(
+                [
+                    "-" * 70,
+                    f"Job {i} of {len(jobs)}",
+                    "-" * 70,
+                    f"Title: {job.get('title', 'Unknown Position')}",
+                    f"Company: {job.get('company', 'Unknown Company')}",
+                    f"Location: {job.get('location', 'Not specified')}",
+                ]
+            )
 
             if job.get("remote"):
                 lines.append("Remote: Yes 🏠")
@@ -309,21 +317,25 @@ class EmailNotifier:
             if job.get("salary_min") and job.get("salary_max"):
                 lines.append(f"Salary: ${job['salary_min']:,} - ${job['salary_max']:,}")
 
-            lines.extend([
-                f"Match Score: {score:.0f}%",
-                f"Link: {job.get('url', 'Not available')}",
-                "",
-            ])
+            lines.extend(
+                [
+                    f"Match Score: {score:.0f}%",
+                    f"Link: {job.get('url', 'Not available')}",
+                    "",
+                ]
+            )
 
-        lines.extend([
-            "=" * 70,
-            "Sent by JobSentinel",
-            "100% Local • 100% Private • 100% Free",
-            "https://github.com/cboyd0319/JobSentinel",
-            "=" * 70,
-        ])
+        lines.extend(
+            [
+                "=" * 70,
+                "Sent by JobSentinel",
+                "100% Local • 100% Private • 100% Free",
+                "https://github.com/cboyd0319/JobSentinel",
+                "=" * 70,
+            ]
+        )
 
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
     def _send_email(self, subject: str, html_body: str, text_body: str) -> bool:
         """Send email via SMTP.
@@ -350,18 +362,18 @@ class EmailNotifier:
 
             # Send email
             logger.debug(f"Connecting to SMTP server {self.smtp_host}:{self.smtp_port}")
-            
+
             with smtplib.SMTP(self.smtp_host, self.smtp_port) as server:
                 if self.use_tls:
                     server.starttls()
                     logger.debug("TLS enabled")
-                
+
                 server.login(self.smtp_user, self.smtp_password)
                 logger.debug("SMTP authentication successful")
-                
+
                 server.send_message(msg)
                 logger.info(f"Email sent successfully to {self.to_email}")
-                
+
             return True
 
         except smtplib.SMTPAuthenticationError as e:
@@ -389,15 +401,15 @@ class EmailNotifier:
         """
         try:
             logger.info(f"Testing SMTP connection to {self.smtp_host}:{self.smtp_port}")
-            
+
             with smtplib.SMTP(self.smtp_host, self.smtp_port, timeout=10) as server:
                 if self.use_tls:
                     server.starttls()
                     logger.debug("TLS enabled")
-                
+
                 server.login(self.smtp_user, self.smtp_password)
                 logger.info("✓ SMTP connection test successful")
-                
+
             return True
 
         except smtplib.SMTPAuthenticationError:

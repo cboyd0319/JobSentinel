@@ -92,7 +92,7 @@ def test_core_imports() -> bool:
         "sqlalchemy",
         "pydantic",
     ]
-    
+
     all_passed = True
     for module in critical_modules:
         try:
@@ -101,10 +101,12 @@ def test_core_imports() -> bool:
         except ImportError as e:
             print_test(f"Import {module}", False, str(e))
             all_passed = False
-    
+
     # Note about legacy modules
-    print(f"  {YELLOW}Note: Some legacy module import warnings are expected and non-critical{RESET}")
-    
+    print(
+        f"  {YELLOW}Note: Some legacy module import warnings are expected and non-critical{RESET}"
+    )
+
     return all_passed
 
 
@@ -128,16 +130,17 @@ def test_health_check() -> bool:
 def test_config_validation() -> bool:
     """Test config validation."""
     config_path = Path(__file__).parent.parent / "config" / "user_prefs.json"
-    
+
     if not config_path.exists():
-        print_test("Config File Exists", False, "config/user_prefs.json not found (run setup first)")
+        print_test(
+            "Config File Exists", False, "config/user_prefs.json not found (run setup first)"
+        )
         return False
-    
-    success, output = run_command([
-        sys.executable, "-m", "jsa.cli", "config-validate",
-        "--path", str(config_path)
-    ])
-    
+
+    success, output = run_command(
+        [sys.executable, "-m", "jsa.cli", "config-validate", "--path", str(config_path)]
+    )
+
     passed = success or "validation passed" in output.lower()
     print_test("Config Validation", passed)
     return passed
@@ -147,11 +150,11 @@ def test_database_creation() -> bool:
     """Test that database can be created."""
     import tempfile
     from sqlalchemy import create_engine, text
-    
+
     with tempfile.TemporaryDirectory() as tmpdir:
         db_path = Path(tmpdir) / "test.sqlite"
         db_url = f"sqlite:///{db_path}"
-        
+
         try:
             engine = create_engine(db_url)
             with engine.connect() as conn:
@@ -181,7 +184,7 @@ def test_web_ui_startup() -> bool:
     # Just verify the command exists and doesn't crash immediately
     import signal
     import time
-    
+
     try:
         # Start the server
         proc = subprocess.Popen(
@@ -190,10 +193,10 @@ def test_web_ui_startup() -> bool:
             stderr=subprocess.PIPE,
             cwd=Path(__file__).parent.parent,
         )
-        
+
         # Give it a moment to start
         time.sleep(2)
-        
+
         # Check if still running
         if proc.poll() is None:
             # Server is running, kill it
@@ -206,7 +209,7 @@ def test_web_ui_startup() -> bool:
             stdout, stderr = proc.communicate()
             print_test("Web UI Startup", False, f"Server crashed: {stderr.decode()}")
             return False
-            
+
     except Exception as e:
         print_test("Web UI Startup", False, str(e))
         return False
@@ -216,7 +219,7 @@ def test_api_server_startup() -> bool:
     """Test that API server can start (doesn't actually start server)."""
     import signal
     import time
-    
+
     try:
         # Start the server
         proc = subprocess.Popen(
@@ -225,10 +228,10 @@ def test_api_server_startup() -> bool:
             stderr=subprocess.PIPE,
             cwd=Path(__file__).parent.parent,
         )
-        
+
         # Give it a moment to start
         time.sleep(2)
-        
+
         # Check if still running
         if proc.poll() is None:
             # Server is running, kill it
@@ -241,7 +244,7 @@ def test_api_server_startup() -> bool:
             stdout, stderr = proc.communicate()
             print_test("API Server Startup", False, f"Server crashed: {stderr.decode()}")
             return False
-            
+
     except Exception as e:
         print_test("API Server Startup", False, str(e))
         return False
@@ -255,7 +258,7 @@ def test_setup_scripts_exist() -> bool:
         "setup-windows.ps1",
         "scripts/windows_setup.py",
     ]
-    
+
     all_exist = True
     for script in scripts:
         path = project_root / script
@@ -263,7 +266,7 @@ def test_setup_scripts_exist() -> bool:
         print_test(f"Setup Script: {script}", exists)
         if not exists:
             all_exist = False
-    
+
     return all_exist
 
 
@@ -275,7 +278,7 @@ def test_documentation_exists() -> bool:
         "docs/troubleshooting.md",
         "README.md",
     ]
-    
+
     all_exist = True
     for doc in docs:
         path = project_root / doc
@@ -283,7 +286,7 @@ def test_documentation_exists() -> bool:
         print_test(f"Documentation: {doc}", exists)
         if not exists:
             all_exist = False
-    
+
     return all_exist
 
 
@@ -301,47 +304,47 @@ def main() -> int:
     print("  • Zero admin rights needed")
     print("  • 100% automated")
     print()
-    
+
     results = {}
-    
+
     # Core System Tests
     print_header("1. Core System Requirements")
     results["python_version"] = test_python_version()
     results["core_imports"] = test_core_imports()
-    
+
     # CLI Tests
     print_header("2. Command Line Interface")
     results["cli_help"] = test_cli_help()
     results["health_check"] = test_health_check()
     results["config_validation"] = test_config_validation()
-    
+
     # Database Tests
     print_header("3. Database System")
     results["database"] = test_database_creation()
-    
+
     # Web Services Tests
     print_header("4. Web Services")
     results["playwright"] = test_playwright_available()
     results["web_ui"] = test_web_ui_startup()
     results["api_server"] = test_api_server_startup()
-    
+
     # Setup System Tests
     print_header("5. Setup System")
     results["setup_scripts"] = test_setup_scripts_exist()
     results["documentation"] = test_documentation_exists()
-    
+
     # Summary
     print_header("Test Summary")
-    
+
     total = len(results)
     passed = sum(1 for v in results.values() if v)
     failed = total - passed
-    
+
     print(f"Total Tests: {total}")
     print(f"{GREEN}Passed: {passed}{RESET}")
     print(f"{RED}Failed: {failed}{RESET}")
     print()
-    
+
     if failed == 0:
         print(f"{GREEN}✓ ALL TESTS PASSED! Windows deployment is ready.{RESET}")
         print()
