@@ -1,7 +1,7 @@
 # Repository Reorganization Notes
 
 **Date:** October 14, 2025  
-**Version:** 0.6.0+  
+**Version:** 0.9.0  
 **Status:** Complete
 
 ## Summary

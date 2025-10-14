@@ -1,7 +1,7 @@
 # Production Deployment Guide
 
-**Version:** 0.6.0  
-**Last Updated:** October 13, 2025  
+**Version:** 0.9.0  
+**Last Updated:** October 14, 2025  
 **Audience:** DevOps engineers, site reliability engineers, production deployers
 
 ---

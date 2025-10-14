@@ -510,7 +510,7 @@ def main() -> None:
     """Run all demonstrations."""
     print("\n" + "=" * 80)
     print("  JobSentinel ML & MCP Integration Demo")
-    print("  Version 0.6.0 - October 2025")
+    print("  Version 0.9.0 - October 2025")
     print("=" * 80)
 
     print("\n📋 This demo showcases:")

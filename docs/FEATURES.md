@@ -1,6 +1,6 @@
 # JobSentinel Features
 
-**Version:** 0.6.1  
+**Version:** 0.9.0  
 **Last Updated:** October 14, 2025
 
 Complete catalog of all features—implemented, beta, and planned.

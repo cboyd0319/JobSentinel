@@ -1,7 +1,7 @@
 # API Integration Guide
 
-**Version:** 0.6.0  
-**Last Updated:** October 13, 2025  
+**Version:** 0.9.0  
+**Last Updated:** October 14, 2025  
 **Audience:** Developers adding new job board integrations
 
 ---
