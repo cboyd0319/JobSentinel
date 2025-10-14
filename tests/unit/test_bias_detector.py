@@ -86,7 +86,9 @@ class TestBiasDetector:
         assert result.has_bias is True
         assert BiasType.GENDER_BIAS in result.bias_types
         # Should detect multiple masculine-coded adjectives
-        gender_indicators = [ind for ind in result.indicators if ind.bias_type == BiasType.GENDER_BIAS]
+        gender_indicators = [
+            ind for ind in result.indicators if ind.bias_type == BiasType.GENDER_BIAS
+        ]
         assert len(gender_indicators) >= 2
 
     def test_gender_bias_feminine_coded_language(self):
@@ -98,7 +100,9 @@ class TestBiasDetector:
 
         assert result.has_bias is True
         assert BiasType.GENDER_BIAS in result.bias_types
-        gender_indicators = [ind for ind in result.indicators if ind.bias_type == BiasType.GENDER_BIAS]
+        gender_indicators = [
+            ind for ind in result.indicators if ind.bias_type == BiasType.GENDER_BIAS
+        ]
         assert len(gender_indicators) >= 2
 
     def test_age_bias_direct_age_requirement(self):
@@ -111,7 +115,9 @@ class TestBiasDetector:
         assert result.has_bias is True
         assert BiasType.AGE_BIAS in result.bias_types
         assert any(ind.severity == BiasSeverity.CRITICAL for ind in result.indicators)
-        assert "ADEA" in result.explanation or any("ADEA" in ind.explanation for ind in result.indicators)
+        assert "ADEA" in result.explanation or any(
+            "ADEA" in ind.explanation for ind in result.indicators
+        )
 
     def test_age_bias_age_range(self):
         """Test detection of age range requirements."""
@@ -181,7 +187,9 @@ class TestBiasDetector:
         assert result.has_bias is True
         assert BiasType.SALARY_BIAS in result.bias_types
         # 100% spread should be flagged
-        salary_indicators = [ind for ind in result.indicators if ind.bias_type == BiasType.SALARY_BIAS]
+        salary_indicators = [
+            ind for ind in result.indicators if ind.bias_type == BiasType.SALARY_BIAS
+        ]
         assert len(salary_indicators) >= 1
 
     def test_salary_no_bias_narrow_range(self):
@@ -219,7 +227,9 @@ class TestBiasDetector:
 
         assert result.has_bias is True
         assert BiasType.LOCATION_BIAS in result.bias_types
-        location_indicators = [ind for ind in result.indicators if ind.bias_type == BiasType.LOCATION_BIAS]
+        location_indicators = [
+            ind for ind in result.indicators if ind.bias_type == BiasType.LOCATION_BIAS
+        ]
         assert len(location_indicators) >= 2
 
     def test_location_bias_no_remote(self):

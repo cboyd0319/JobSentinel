@@ -503,7 +503,9 @@ class BiasDetector:
                 suggestions.append(
                     "CRITICAL: Remove age requirements to comply with ADEA (Age Discrimination in Employment Act)"
                 )
-            suggestions.append("Focus on required experience and skills, not age or generational terms")
+            suggestions.append(
+                "Focus on required experience and skills, not age or generational terms"
+            )
 
         if BiasType.SALARY_BIAS in by_type:
             suggestions.append("Disclose salary range to promote pay equity and transparency")
