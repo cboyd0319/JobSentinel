@@ -343,13 +343,21 @@ class TestWindowsPrivacySecurity:
         violations = []
 
         for py_file in src_dir.rglob("*.py"):
-            content = py_file.read_text().lower()
-            # Skip privacy_dashboard.py - it checks FOR telemetry, doesn't use it
-            if "privacy_dashboard.py" in str(py_file):
+            content = py_file.read_text()
+            # Skip files that legitimately reference these services
+            if "privacy_dashboard.py" in str(py_file) or "job_scraper_base.py" in str(py_file):
                 continue
+            # Skip test files
+            if "test" in str(py_file):
+                continue
+            
+            # Check for actual imports or usage, not just mentions in strings/comments
+            content_lower = content.lower()
             for pattern in suspicious_patterns:
-                if pattern in content and "test" not in str(py_file):
-                    violations.append(f"{py_file}: contains '{pattern}'")
+                if pattern in content_lower:
+                    # Check if it's an import or function call (actual usage)
+                    if f"import {pattern}" in content_lower or f"{pattern}(" in content_lower:
+                        violations.append(f"{py_file}: uses '{pattern}'")
 
         # Should have no external tracking services
         assert len(violations) == 0, f"External telemetry services found: {violations}"

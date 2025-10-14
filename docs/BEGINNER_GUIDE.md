@@ -253,7 +253,9 @@ Choose your industry from the list.
 
 ---
 
-## Running Your First Job Search
+## How to Start JobSentinel
+
+Now that JobSentinel is installed, let's run your first job search!
 
 ### Method 1: One-Time Search (Recommended for first try)
 
