@@ -157,18 +157,71 @@ def get_salary_min() -> int:
 
 
 def configure_database() -> dict[str, Any]:
-    """Configure PostgreSQL database with fully automated installation."""
+    """Configure database - choose between SQLite (default) or PostgreSQL (optional)."""
+    console.print("[bold]Step 3.5: Database Setup[/bold]")
+    console.print()
+    
+    # Display database comparison table
+    table = Table(title="Database Options", show_header=True, header_style="bold cyan")
+    table.add_column("Feature", style="cyan", no_wrap=True)
+    table.add_column("SQLite (Default)", style="green")
+    table.add_column("PostgreSQL (Optional)", style="yellow")
+    
+    table.add_row("Setup Required", "✓ NONE - Ready instantly!", "Requires installation")
+    table.add_row("Admin Rights", "✓ NONE - Works for all users", "May require admin (Windows)")
+    table.add_row("Privacy", "✓ Single file, 100% local", "✓ Local service, 100% private")
+    table.add_row("Performance", "✓ Excellent for <1M jobs", "✓ Excellent, scales to 10M+")
+    table.add_row("Use Case", "✓ Perfect for personal use", "Multi-user, teams, cloud")
+    table.add_row("Portability", "✓ Copy file anywhere", "Requires PostgreSQL install")
+    
+    console.print(table)
+    console.print()
+    
+    console.print("[bold green]Recommendation:[/bold green] Use SQLite (default) for personal use")
+    console.print("[dim]  • Zero setup, zero admin rights, instant start")
+    console.print("[dim]  • Perfect for 99% of users")
+    console.print()
+    
+    db_choice = Prompt.ask(
+        "Choose database",
+        choices=["sqlite", "postgresql"],
+        default="sqlite"
+    )
+    
+    if db_choice == "sqlite":
+        console.print("[green]✓[/green] Using SQLite (default)")
+        console.print("[dim]Database file: data/jobs.sqlite[/dim]\n")
+        return {
+            "type": "sqlite",
+            "url": "sqlite+aiosqlite:///data/jobs.sqlite",
+            "configured": True,
+        }
+    
+    # PostgreSQL configuration
     from jsa.postgresql_installer import install_postgresql_automated
 
-    console.print("[bold]Step 3.5: PostgreSQL Database Setup[/bold]")
-    console.print("[cyan]JobSentinel uses PostgreSQL for cross-platform compatibility[/cyan]\n")
+    console.print("\n[bold cyan]PostgreSQL Setup[/bold cyan]")
+    console.print("[yellow]Note:[/yellow] PostgreSQL requires installation and may need admin rights on Windows\n")
 
     console.print("[bold]Benefits:[/bold]")
-    console.print("  ✓ Works on macOS, Linux, and Windows")
-    console.print("  ✓ Better performance and scalability")
-    console.print("  ✓ 100% local and private")
-    console.print("  ✓ Industry-standard database")
+    console.print("  ✓ Multi-user support")
+    console.print("  ✓ Advanced features (full-text search, JSON ops)")
+    console.print("  ✓ Better for teams and cloud deployments")
     console.print()
+
+    # Check if PostgreSQL optional dependencies are installed
+    try:
+        import asyncpg  # noqa: F401
+        import psycopg2  # noqa: F401
+    except ImportError:
+        console.print("[red]✗ PostgreSQL drivers not installed[/red]")
+        console.print("[yellow]   Please run: pip install -e '.[postgres]'[/yellow]\n")
+        console.print("[cyan]Falling back to SQLite for now...[/cyan]\n")
+        return {
+            "type": "sqlite",
+            "url": "sqlite+aiosqlite:///data/jobs.sqlite",
+            "configured": True,
+        }
 
     # Use fully automated installation
     use_auto_install = Confirm.ask(
@@ -187,17 +240,30 @@ def configure_database() -> dict[str, Any]:
             }
         else:
             console.print("[yellow]⚠️  Automatic installation failed[/yellow]\n")
-            console.print(
-                "[cyan]Please install PostgreSQL manually and run this wizard again[/cyan]\n"
-            )
+            console.print("[cyan]Falling back to SQLite...[/cyan]\n")
             return {
-                "type": "postgresql",
-                "url": "postgresql+asyncpg://jobsentinel:jobsentinel@localhost:5432/jobsentinel",
-                "configured": False,
+                "type": "sqlite",
+                "url": "sqlite+aiosqlite:///data/jobs.sqlite",
+                "configured": True,
             }
     else:
-        # Manual configuration
+        # Manual configuration or fallback to SQLite
         console.print("[yellow]Manual configuration selected[/yellow]\n")
+        
+        fallback_to_sqlite = Confirm.ask(
+            "Would you prefer to use SQLite instead? (No installation needed)",
+            default=True
+        )
+        
+        if fallback_to_sqlite:
+            console.print("[green]✓[/green] Using SQLite (default)")
+            console.print("[dim]Database file: data/jobs.sqlite[/dim]\n")
+            return {
+                "type": "sqlite",
+                "url": "sqlite+aiosqlite:///data/jobs.sqlite",
+                "configured": True,
+            }
+        
         console.print(
             Panel.fit(
                 "[bold]PostgreSQL Configuration[/bold]\n\n"
