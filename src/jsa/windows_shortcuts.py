@@ -21,8 +21,8 @@ def create_desktop_shortcut(
     target: str,
     arguments: str = "",
     description: str = "",
-    icon: Optional[str] = None,
-    working_dir: Optional[str] = None,
+    icon: str | None = None,
+    working_dir: str | None = None,
 ) -> bool:
     """
     Create a Windows desktop shortcut (.lnk file).
@@ -76,7 +76,7 @@ def _create_batch_shortcut(
     name: str,
     target: str,
     arguments: str = "",
-    working_dir: Optional[str] = None,
+    working_dir: str | None = None,
 ) -> bool:
     """
     Fallback: Create a .bat file instead of .lnk when win32com unavailable.
