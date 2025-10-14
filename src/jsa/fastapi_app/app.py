@@ -112,7 +112,7 @@ def create_app() -> FastAPI:
     app.add_middleware(GZipMiddleware, minimum_size=1000)
 
     # Import and register routers
-    from jsa.fastapi_app.routers import health, jobs, llm, ml, resume, tracker
+    from jsa.fastapi_app.routers import health, jobs, llm, ml, resume, tracker, websocket
 
     app.include_router(health.router, prefix="/api/v1", tags=["health"])
     app.include_router(jobs.router, prefix="/api/v1", tags=["jobs"])
@@ -120,6 +120,7 @@ def create_app() -> FastAPI:
     app.include_router(resume.router, prefix="/api/v1", tags=["resume"])
     app.include_router(ml.router, prefix="/api/v1", tags=["ml"])
     app.include_router(llm.router, prefix="/api/v1", tags=["llm"])
+    app.include_router(websocket.router, prefix="/api/v1", tags=["websocket"])
 
     # Root endpoint
     @app.get("/")
