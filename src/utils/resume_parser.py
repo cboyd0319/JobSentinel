@@ -71,10 +71,14 @@ def ensure_spacy_model(interactive: bool = True) -> Any:
 logger = logging.getLogger(__name__)
 
 
-with open(
-    Path(__file__).parent.parent / "config" / "resume_parser.json",
-    encoding="utf-8",
-) as f:
+# Find config directory (handles both installed and development modes)
+_config_paths = [
+    Path(__file__).parent.parent.parent / "config" / "resume_parser.json",  # Development
+    Path(__file__).parent.parent / "config" / "resume_parser.json",  # Alt location
+]
+_config_path = next((p for p in _config_paths if p.exists()), _config_paths[0])
+
+with open(_config_path, encoding="utf-8") as f:
     config = json.load(f)
     COMMON_SKILLS = set(config["common_skills"])
     TITLE_KEYWORDS = set(config["title_keywords"])
