@@ -167,7 +167,7 @@ docker run -d \
   python -m jsa.cli db-init
   ```
 
-- [ ] Storage provisioned (5-10GB for SQLite)
+- [ ] Storage provisioned (5-10GB for PostgreSQL data)
   ```bash
   df -h data/
   ```
@@ -619,18 +619,20 @@ def check_slack_webhook():
 # backup.sh
 
 BACKUP_DIR="/backups"
-DB_FILE="/app/data/jobs.db"
+DB_NAME="jobsentinel"
+DB_USER="jobsentinel"
+DB_HOST="localhost"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-BACKUP_FILE="$BACKUP_DIR/jobs_$TIMESTAMP.db"
+BACKUP_FILE="$BACKUP_DIR/jobs_$TIMESTAMP.sql"
 
-# Create backup
-sqlite3 "$DB_FILE" ".backup '$BACKUP_FILE'"
+# Create backup using pg_dump
+pg_dump -h "$DB_HOST" -U "$DB_USER" -F c -f "$BACKUP_FILE" "$DB_NAME"
 
-# Compress
+# Compress (pg_dump custom format is already compressed, but can add gzip for extra compression)
 gzip "$BACKUP_FILE"
 
 # Keep only last 7 days
-find "$BACKUP_DIR" -name "jobs_*.db.gz" -mtime +7 -delete
+find "$BACKUP_DIR" -name "jobs_*.sql.gz" -mtime +7 -delete
 
 echo "Backup completed: $BACKUP_FILE.gz"
 ```

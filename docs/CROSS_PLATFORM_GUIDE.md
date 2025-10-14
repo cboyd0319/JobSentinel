@@ -255,20 +255,20 @@ sudo apt install python3.11 python3.11-venv python3.11-distutils
 
 **Windows (PowerShell):**
 ```powershell
-$env:DATABASE_URL = "sqlite+aiosqlite:///data/jobs.sqlite"
+$env:DATABASE_URL = "postgresql+asyncpg://jobsentinel:jobsentinel@localhost:5432/jobsentinel"
 $env:LOG_LEVEL = "INFO"
 ```
 
 **macOS/Linux (Bash/Zsh):**
 ```bash
-export DATABASE_URL="sqlite+aiosqlite:///data/jobs.sqlite"
+export DATABASE_URL="postgresql+asyncpg://jobsentinel:jobsentinel@localhost:5432/jobsentinel"
 export LOG_LEVEL="INFO"
 ```
 
 **All Platforms (.env file):**
 ```bash
 # Create .env file (recommended)
-echo "DATABASE_URL=sqlite+aiosqlite:///data/jobs.sqlite" >> .env
+echo "DATABASE_URL=postgresql+asyncpg://jobsentinel:jobsentinel@localhost:5432/jobsentinel" >> .env
 echo "LOG_LEVEL=INFO" >> .env
 ```
 

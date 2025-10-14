@@ -1,4 +1,9 @@
-"""Unified database schema for the enhanced job scraper.
+"""LEGACY: Unified database schema for the enhanced job scraper.
+
+DEPRECATION NOTICE: This module uses SQLite and is being phased out.
+JobSentinel now uses PostgreSQL as the primary database.
+This module is maintained for backward compatibility only.
+
 Supports data from all job board types (Greenhouse, Microsoft, SpaceX, etc.)
 """
 

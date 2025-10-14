@@ -95,196 +95,76 @@ def get_salary_min() -> int:
 
 
 def configure_database() -> dict[str, Any]:
-    """Configure PostgreSQL database (local, single-user, privacy-first)."""
+    """Configure PostgreSQL database with fully automated installation."""
+    from jsa.postgresql_installer import install_postgresql_automated
+
     console.print("[bold]Step 3.5: PostgreSQL Database Setup[/bold]")
     console.print("[cyan]JobSentinel uses PostgreSQL for cross-platform compatibility[/cyan]\n")
-    
+
     console.print("[bold]Benefits:[/bold]")
     console.print("  ✓ Works on macOS, Linux, and Windows")
     console.print("  ✓ Better performance and scalability")
     console.print("  ✓ 100% local and private")
     console.print("  ✓ Industry-standard database")
     console.print()
-    
-    # Check if PostgreSQL is already installed
-    console.print("[bold]Checking PostgreSQL installation...[/bold]")
-    try:
-        result = subprocess.run(
-            ["psql", "--version"],
-            capture_output=True,
-            text=True,
-            timeout=5,
-        )
-        if result.returncode == 0:
-            version = result.stdout.strip()
-            console.print(f"[green]✓[/green] PostgreSQL found: {version}\n")
-            pg_installed = True
+
+    # Use fully automated installation
+    use_auto_install = Confirm.ask(
+        "Install and configure PostgreSQL automatically?",
+        default=True,
+    )
+
+    if use_auto_install:
+        success, db_url = install_postgresql_automated()
+
+        if success and db_url:
+            return {
+                "type": "postgresql",
+                "url": db_url,
+                "configured": True,
+            }
         else:
-            pg_installed = False
-    except (FileNotFoundError, subprocess.TimeoutExpired):
-        pg_installed = False
-    
-    if not pg_installed:
-        console.print("[yellow]PostgreSQL not found on your system[/yellow]\n")
-        console.print("[bold]Installation Instructions:[/bold]\n")
-        
-        # Detect OS and provide specific instructions
-        import platform
-        os_type = platform.system()
-        
-        if os_type == "Darwin":  # macOS
-            console.print("[cyan]macOS:[/cyan]")
-            console.print("  1. Install Homebrew (if not installed): /bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\"")
-            console.print("  2. Install PostgreSQL: brew install postgresql@15")
-            console.print("  3. Start PostgreSQL: brew services start postgresql@15")
-        elif os_type == "Linux":
-            console.print("[cyan]Linux (Ubuntu/Debian):[/cyan]")
-            console.print("  1. Update package list: sudo apt update")
-            console.print("  2. Install PostgreSQL: sudo apt install postgresql-15")
-            console.print("  3. Start PostgreSQL: sudo systemctl start postgresql")
-        elif os_type == "Windows":
-            console.print("[cyan]Windows:[/cyan]")
-            console.print("  1. Download installer from: https://www.postgresql.org/download/windows/")
-            console.print("  2. Run the installer (PostgreSQL 15 or later)")
-            console.print("  3. Use default settings during installation")
-        
-        console.print()
-        console.print("[yellow]After installing PostgreSQL, run this setup wizard again.[/yellow]\n")
-        
-        skip_db_config = Confirm.ask(
-            "Skip database configuration for now?",
-            default=True,
-        )
-        
-        if skip_db_config:
-            console.print("[yellow]⚠️  Database not configured. You'll need to set it up before running JobSentinel.[/yellow]\n")
+            console.print("[yellow]⚠️  Automatic installation failed[/yellow]\n")
+            console.print(
+                "[cyan]Please install PostgreSQL manually and run this wizard again[/cyan]\n"
+            )
             return {
                 "type": "postgresql",
                 "url": "postgresql+asyncpg://jobsentinel:jobsentinel@localhost:5432/jobsentinel",
                 "configured": False,
             }
-    
-    # PostgreSQL is installed, proceed with configuration
-    console.print("[bold]PostgreSQL Configuration[/bold]\n")
-    
-    use_defaults = Confirm.ask(
-        "Use recommended defaults? (database: jobsentinel, user: jobsentinel, host: localhost)",
-        default=True,
-    )
-    
-    if use_defaults:
-        host = "localhost"
-        port = "5432"
-        database = "jobsentinel"
-        user = "jobsentinel"
-        password = Prompt.ask("Set a password for the jobsentinel user", password=True, default="jobsentinel")
     else:
-        host = Prompt.ask("PostgreSQL host", default="localhost")
-        port = Prompt.ask("PostgreSQL port", default="5432")
-        database = Prompt.ask("Database name", default="jobsentinel")
-        user = Prompt.ask("PostgreSQL user", default="jobsentinel")
-        password = Prompt.ask("PostgreSQL password", password=True)
-    
-    db_url = f"postgresql+asyncpg://{user}:{password}@{host}:{port}/{database}"
-    
-    console.print("\n[bold]Creating database and user...[/bold]")
-    console.print("[dim]This will create the database and user if they don't exist[/dim]\n")
-    
-    # Attempt to create database and user
-    try:
-        # Create SQL commands
-        sql_commands = f"""
--- Connect as postgres user to create database and user
-CREATE DATABASE {database};
-CREATE USER {user} WITH PASSWORD '{password}';
-GRANT ALL PRIVILEGES ON DATABASE {database} TO {user};
--- Connect to the database and grant schema permissions
-\\c {database}
-GRANT ALL ON SCHEMA public TO {user};
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO {user};
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO {user};
-"""
-        
-        console.print("[dim]SQL commands to run:[/dim]")
-        console.print(f"[dim]{sql_commands}[/dim]\n")
-        
-        auto_setup = Confirm.ask(
-            "Attempt automatic database setup? (requires postgres superuser access)",
-            default=False,
+        # Manual configuration
+        console.print("[yellow]Manual configuration selected[/yellow]\n")
+        console.print("[bold]PostgreSQL Configuration[/bold]\n")
+
+        use_defaults = Confirm.ask(
+            "Use recommended defaults? (database: jobsentinel, user: jobsentinel)",
+            default=True,
         )
-        
-        if auto_setup:
-            # Try to create database automatically
-            console.print("[yellow]Attempting automatic setup...[/yellow]")
-            console.print("[dim]You may be prompted for the postgres superuser password[/dim]\n")
-            
-            try:
-                # Create database
-                result = subprocess.run(
-                    ["psql", "-U", "postgres", "-c", f"CREATE DATABASE {database};"],
-                    capture_output=True,
-                    text=True,
-                    timeout=10,
-                )
-                
-                if "already exists" in result.stderr or result.returncode == 0:
-                    console.print(f"[green]✓[/green] Database '{database}' ready")
-                
-                # Create user
-                result = subprocess.run(
-                    ["psql", "-U", "postgres", "-c", f"CREATE USER {user} WITH PASSWORD '{password}';"],
-                    capture_output=True,
-                    text=True,
-                    timeout=10,
-                )
-                
-                if "already exists" in result.stderr or result.returncode == 0:
-                    console.print(f"[green]✓[/green] User '{user}' ready")
-                
-                # Grant privileges
-                subprocess.run(
-                    ["psql", "-U", "postgres", "-c", f"GRANT ALL PRIVILEGES ON DATABASE {database} TO {user};"],
-                    capture_output=True,
-                    text=True,
-                    timeout=10,
-                )
-                
-                # Grant schema permissions
-                subprocess.run(
-                    ["psql", "-U", "postgres", "-d", database, "-c", f"GRANT ALL ON SCHEMA public TO {user};"],
-                    capture_output=True,
-                    text=True,
-                    timeout=10,
-                )
-                
-                subprocess.run(
-                    ["psql", "-U", "postgres", "-d", database, "-c", f"ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO {user};"],
-                    capture_output=True,
-                    text=True,
-                    timeout=10,
-                )
-                
-                console.print("[green]✓[/green] Database setup complete!\n")
-                
-            except (subprocess.TimeoutExpired, FileNotFoundError) as e:
-                console.print(f"[yellow]⚠️  Automatic setup failed: {e}[/yellow]")
-                console.print("[yellow]Please run the SQL commands manually[/yellow]\n")
+
+        if use_defaults:
+            database = "jobsentinel"
+            user = "jobsentinel"
+            password = Prompt.ask(
+                "Set a password for the jobsentinel user", password=True, default="jobsentinel"
+            )
         else:
-            console.print("[yellow]Please run the SQL commands manually using psql or a database GUI[/yellow]")
-            console.print("[cyan]Command:[/cyan] psql -U postgres\n")
-    
-    except Exception as e:
-        console.print(f"[yellow]⚠️  Setup warning: {e}[/yellow]\n")
-    
-    console.print("[green]✓[/green] PostgreSQL configured\n")
-    console.print("[bold]Connection string:[/bold]")
-    console.print(f"[dim]{db_url.replace(password, '***')}[/dim]\n")
-    
-    return {
-        "type": "postgresql",
-        "url": db_url,
-        "configured": True,
-    }
+            database = Prompt.ask("Database name", default="jobsentinel")
+            user = Prompt.ask("PostgreSQL user", default="jobsentinel")
+            password = Prompt.ask("PostgreSQL password", password=True)
+
+        db_url = f"postgresql+asyncpg://{user}:{password}@localhost:5432/{database}"
+
+        console.print("[green]✓[/green] PostgreSQL configured\n")
+        console.print("[bold]Connection string:[/bold]")
+        console.print(f"[dim]{db_url.replace(password, '***')}[/dim]\n")
+
+        return {
+            "type": "postgresql",
+            "url": db_url,
+            "configured": True,
+        }
 
 
 def configure_job_sources() -> dict[str, Any]:
@@ -393,7 +273,7 @@ def review_config(config: dict[str, Any]) -> None:
     table.add_row("Keywords", ", ".join(config["keywords"]))
     table.add_row("Locations", ", ".join(config["locations"]))
     table.add_row("Min Salary", f"${config['salary_min']:,}")
-    
+
     # Database info
     db_type = config.get("database", {}).get("type", "sqlite")
     table.add_row("Database", db_type.upper())
@@ -476,24 +356,24 @@ def run_wizard() -> None:
     config_path = config_dir / "user_prefs.json"
 
     save_config(config, config_path)
-    
+
     # Save DATABASE_URL to .env file if PostgreSQL is configured
     if config.get("database", {}).get("type") == "postgresql":
         env_path = Path(__file__).parent.parent.parent / ".env"
         db_url = config["database"]["url"]
-        
+
         # Read existing .env or create new
         env_lines = []
         if env_path.exists():
             with open(env_path) as f:
                 env_lines = [line for line in f.readlines() if not line.startswith("DATABASE_URL=")]
-        
+
         # Append DATABASE_URL
         env_lines.append(f"DATABASE_URL={db_url}\n")
-        
+
         with open(env_path, "w") as f:
             f.writelines(env_lines)
-        
+
         console.print("[green]✓[/green] Database URL saved to .env\n")
 
     # Offer to run first scrape

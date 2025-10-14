@@ -163,7 +163,10 @@ class ConfigManager:
         self.config_path = next((p for p in candidates if p.exists()), Path(config_path))
         self.env_path = Path(env_path)
         self._config_data: dict[str, Any] | None = None
-        self.database_url: str = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///data/jobs.sqlite")
+        self.database_url: str = os.getenv(
+            "DATABASE_URL",
+            "postgresql+asyncpg://jobsentinel:jobsentinel@localhost:5432/jobsentinel",
+        )
 
     def load_config(self) -> dict[str, Any]:
         """Load and validate complete configuration."""
