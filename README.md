@@ -60,11 +60,32 @@ Finding relevant jobs across multiple boards is manual and time-consuming. Comme
 
 **New to terminals?** See [BEGINNER_GUIDE.md](docs/BEGINNER_GUIDE.md) - Complete zero-knowledge walkthrough!
 
-### 🐧 macOS / Linux (Command Line)
+### 🍎 macOS 15+ (Sequoia) - Automated Installer
+
+**NEW! Just as easy as Windows - 3 simple steps:**
+
+1. **Download:** https://github.com/cboyd0319/JobSentinel/archive/refs/heads/main.zip
+2. **Extract** to Desktop (double-click ZIP)
+3. **Double-click:** `setup-macos.sh` (Right-click → Open if Gatekeeper blocks)
+
+**That's it! The installer handles everything automatically!**
+
+**✨ macOS Features:**
+- 🖱️ **Graphical Interface** - Same beautiful GUI as Windows
+- ⚡ **Zero Setup** - Automatic dependency installation
+- 🔒 **100% Private** - All data stays on YOUR Mac
+- 💰 **FREE Forever** - No subscription fees
+- 🚫 **Zero Admin Rights** - Works without sudo
+- 📧 **Email Alerts** - Gmail, iCloud, Outlook, etc.
+- 🍎 **Native Experience** - .command files, shell aliases, Dock integration
+
+**New to Terminal?** See [MACOS_QUICK_START.md](docs/MACOS_QUICK_START.md) for a complete walkthrough!
+
+### 🐧 Linux (Command Line)
 
 ```bash
 git clone https://github.com/cboyd0319/JobSentinel && cd JobSentinel
-python3 -m venv .venv && source .venv/bin/activate  # Windows: .venv\Scripts\activate
+python3 -m venv .venv && source .venv/bin/activate
 pip install -e .
 playwright install chromium
 cp config/user_prefs.example.json config/user_prefs.json
@@ -78,38 +99,59 @@ python -m jsa.cli run-once
 
 | Item | Version | Why |
 |------|---------|-----|
-| Python | 3.11+ (3.12+ for Windows) | Backend runtime (includes SQLite) |
+| Python | 3.11+ (3.12+ for Windows/macOS) | Backend runtime (includes SQLite) |
 | Node.js | 20+ | Frontend build (React 19) - optional |
 | Git | Any | Clone repo - optional (can download ZIP) |
 | Slack webhook | - | Alerts (optional) |
 | Reed API key | - | Reed jobs (optional) |
 
-**Windows users:** The automated installer checks all requirements and provides clear instructions if anything is missing.
+**Windows/macOS users:** The automated installer checks all requirements and provides clear instructions if anything is missing.
+
+**macOS users:** Homebrew is recommended but not required: `brew install python@3.12`
 
 ## Install
 
-### 🪟 Windows 11 - Automated Installer (Recommended)
+### 🪟 Windows 11 - Automated Installer
 
-**The easiest way - perfect for non-technical users:**
+**Perfect for non-technical users:**
 
 1. **Download:** Get the ZIP from [GitHub](https://github.com/cboyd0319/JobSentinel/archive/refs/heads/main.zip)
 2. **Extract:** Unzip to your Desktop
 3. **Run:** Double-click `setup-windows.bat`
 4. **Done!** Follow the 5-minute wizard
 
-**✨ New Features:**
-- ✅ Comprehensive system pre-check (catches issues before installation)
-- ✅ Desktop shortcuts (one-click access, no command line needed)
-- ✅ Enhanced error messages (clear fixes for every problem)
+**Features:**
+- ✅ Comprehensive system pre-check
+- ✅ Desktop shortcuts (no command line needed)
+- ✅ Enhanced error messages
 - ✅ Automated dependency installation
 - ✅ Interactive configuration wizard
 - ✅ SQLite database (zero setup, no admin rights)
 - ✅ Health check validation
-- ✅ First-run verification
 
-See [BEGINNER_GUIDE.md](docs/BEGINNER_GUIDE.md) for detailed Windows setup.
+See [WINDOWS_QUICK_START.md](docs/WINDOWS_QUICK_START.md) for detailed setup.
 
-### 🐧 All Platforms - Interactive Setup Wizard
+### 🍎 macOS 15+ - Automated Installer
+
+**Just as easy as Windows:**
+
+1. **Download:** Get the ZIP from [GitHub](https://github.com/cboyd0319/JobSentinel/archive/refs/heads/main.zip)
+2. **Extract:** Double-click ZIP on Desktop
+3. **Run:** Double-click `setup-macos.sh` (Right-click → Open first time)
+4. **Done!** Follow the 5-minute wizard
+
+**Features:**
+- ✅ Comprehensive system pre-check
+- ✅ Desktop .command files (double-click to run)
+- ✅ Shell aliases (jobsentinel-run, jobsentinel-web, etc.)
+- ✅ Gatekeeper-friendly installation
+- ✅ Apple Silicon (M1/M2/M3) native support
+- ✅ Homebrew integration (optional)
+- ✅ Zero admin rights required
+
+See [MACOS_QUICK_START.md](docs/MACOS_QUICK_START.md) for detailed setup.
+
+### 🐧 Linux - Interactive Setup Wizard
 
 **For users comfortable with command line:**
 
