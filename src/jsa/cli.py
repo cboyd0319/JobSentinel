@@ -13,10 +13,29 @@ from jsa.db import get_stats_sync
 def _cmd_web(args: argparse.Namespace) -> int:
     # Lazy import to avoid hard dependency during CLI parsing/tests
     from jsa.web.app import create_app
-
-    app = create_app()
-    app.run(debug=args.debug, port=args.port)
-    return 0
+    
+    try:
+        app = create_app()
+        print(f"✓ Starting JobSentinel Web UI on http://localhost:{args.port}")
+        print(f"✓ Press Ctrl+C to stop the server")
+        print()
+        app.run(debug=args.debug, port=args.port)
+        return 0
+    except ImportError as e:
+        print(f"Error: Missing required dependencies: {e}")
+        print("Install with: pip install -e '.[dev]'")
+        return 1
+    except OSError as e:
+        if "Address already in use" in str(e):
+            print(f"Error: Port {args.port} is already in use")
+            print(f"Try a different port: python -m jsa.cli web --port {args.port + 1}")
+        else:
+            print(f"Error: {e}")
+        return 1
+    except Exception as e:
+        print(f"Error starting web server: {e}")
+        print("Run 'python -m jsa.cli health' to diagnose issues")
+        return 1
 
 
 def _cmd_config_validate(args: argparse.Namespace) -> int:
@@ -31,9 +50,16 @@ def _cmd_config_validate(args: argparse.Namespace) -> int:
             config_data = json.load(f)
     except FileNotFoundError:
         print(f"Error: Config file not found: {config_path}")
+        print("Create one from the example:")
+        print(f"  cp config/user_prefs.example.json {config_path}")
+        print("Or run the setup wizard:")
+        print("  python -m jsa.cli setup")
         return 1
     except json.JSONDecodeError as e:
-        print(f"Error: Invalid JSON in config file: {e}")
+        print(f"Error: Invalid JSON in config file")
+        print(f"  {e}")
+        print("Tip: Check for missing commas, quotes, or brackets")
+        print("Validate JSON online: https://jsonlint.com/")
         return 1
 
     # Validate against JSON schema if available
@@ -111,20 +137,41 @@ def _cmd_api(args: argparse.Namespace) -> int:
     try:
         import uvicorn
     except ImportError:
-        print("Error: uvicorn not installed. Install with: pip install -e .")
+        print("Error: uvicorn not installed")
+        print("Install with: pip install -e .")
         return 1
 
-    from jsa.fastapi_app import create_app
+    try:
+        from jsa.fastapi_app import create_app
 
-    app = create_app()
-    uvicorn.run(
-        app,
-        host=args.host,
-        port=args.port,
-        log_level=args.log_level.lower(),
-        reload=args.reload,
-    )
-    return 0
+        app = create_app()
+        print(f"✓ Starting JobSentinel API server on http://{args.host}:{args.port}")
+        print(f"✓ API docs available at http://{args.host}:{args.port}/api/docs")
+        print(f"✓ Press Ctrl+C to stop the server")
+        print()
+        uvicorn.run(
+            app,
+            host=args.host,
+            port=args.port,
+            log_level=args.log_level.lower(),
+            reload=args.reload,
+        )
+        return 0
+    except ImportError as e:
+        print(f"Error: Missing required dependencies: {e}")
+        print("Install with: pip install -e '.[dev]'")
+        return 1
+    except OSError as e:
+        if "Address already in use" in str(e):
+            print(f"Error: Port {args.port} is already in use")
+            print(f"Try a different port: python -m jsa.cli api --port {args.port + 1}")
+        else:
+            print(f"Error: {e}")
+        return 1
+    except Exception as e:
+        print(f"Error starting API server: {e}")
+        print("Run 'python -m jsa.cli health' to diagnose issues")
+        return 1
 
 
 def build_parser() -> argparse.ArgumentParser:
