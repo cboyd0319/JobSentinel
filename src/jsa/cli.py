@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import subprocess
 import sys
 from pathlib import Path
 from collections.abc import Callable
@@ -174,36 +175,148 @@ def _cmd_api(args: argparse.Namespace) -> int:
         return 1
 
 
-def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(prog="jsa", description="Job Search Automation CLI")
-    sub = p.add_subparsers(dest="cmd", required=True)
+def _cmd_run_once(args: argparse.Namespace) -> int:
+    """Run job scraping once (single execution)."""
+    import os
+    
+    # Check if config exists
+    config_path = Path("config/user_prefs.json")
+    if not config_path.exists():
+        print("❌ Configuration not found!")
+        print()
+        print("Please run the setup wizard first:")
+        print("  python -m jsa.cli setup")
+        print()
+        return 1
+    
+    # Inform user about what's happening
+    print("🔍 Starting job search...")
+    print("✓ Configuration loaded from config/user_prefs.json")
+    print()
+    
+    if args.dry_run:
+        print("🧪 DRY RUN MODE: Jobs will be collected but no alerts will be sent")
+        print()
+    
+    try:
+        # Run the agent script
+        agent_path = Path(__file__).parent.parent / "agent.py"
+        cmd = [sys.executable, str(agent_path)]
+        
+        if args.dry_run:
+            # Set environment variable for dry run mode
+            env = os.environ.copy()
+            env["DRY_RUN"] = "1"
+            result = subprocess.run(cmd, env=env)  # noqa: S603 - Trusted script execution
+        else:
+            result = subprocess.run(cmd)  # noqa: S603 - Trusted script execution
+        
+        if result.returncode == 0:
+            print()
+            print("✅ Job search completed successfully!")
+            print()
+            print("Next steps:")
+            print("  • View jobs: python -m jsa.cli api")
+            print("  • Check health: python -m jsa.cli health")
+            print()
+        
+        return result.returncode
+        
+    except FileNotFoundError:
+        print("❌ Error: Job scraping script not found")
+        print("   This might be a development environment issue")
+        print()
+        print("Try running the FastAPI server instead:")
+        print("  python -m jsa.cli api")
+        print()
+        return 1
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        print()
+        print("For help, visit:")
+        print("  • Troubleshooting: docs/troubleshooting.md")
+        print("  • Health check: python -m jsa.cli health")
+        print()
+        return 1
 
-    p_setup = sub.add_parser("setup", help="Interactive setup wizard for first-time configuration")
+
+def build_parser() -> argparse.ArgumentParser:
+    p = argparse.ArgumentParser(
+        prog="jsa",
+        description="JobSentinel - The World's Best Job Search Automation CLI",
+        epilog="For more information, visit: docs/DOCUMENTATION_INDEX.md",
+    )
+    sub = p.add_subparsers(dest="cmd", required=True, help="Available commands")
+
+    p_setup = sub.add_parser(
+        "setup",
+        help="Interactive setup wizard for first-time configuration",
+        description="Run the interactive setup wizard to configure JobSentinel for first-time use. "
+        "This will guide you through configuring keywords, locations, job sources, database, and Slack notifications.",
+    )
     p_setup.set_defaults(func=_cmd_setup)
 
-    p_web = sub.add_parser("web", help="Run local web UI (Flask)")
-    p_web.add_argument("--port", type=int, default=5000)
-    p_web.add_argument("--debug", action="store_true")
+    p_run = sub.add_parser(
+        "run-once",
+        help="Run job scraping once (single execution)",
+        description="Execute a single job search run. This will scrape configured job sources, "
+        "score matches against your preferences, and send alerts for high-quality jobs.",
+    )
+    p_run.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Test mode: collect jobs but don't send alerts",
+    )
+    p_run.set_defaults(func=_cmd_run_once)
+
+    p_web = sub.add_parser(
+        "web",
+        help="Run local web UI (Flask)",
+        description="Start the Flask-based web UI for JobSentinel. "
+        "Provides a simple interface to view jobs and manage settings.",
+    )
+    p_web.add_argument("--port", type=int, default=5000, help="Port to bind to (default: 5000)")
+    p_web.add_argument("--debug", action="store_true", help="Enable debug mode")
     p_web.set_defaults(func=_cmd_web)
 
-    p_api = sub.add_parser("api", help="Run FastAPI server (modern REST API)")
-    p_api.add_argument("--host", type=str, default="127.0.0.1", help="Host to bind to")
-    p_api.add_argument("--port", type=int, default=8000, help="Port to bind to")
-    p_api.add_argument("--reload", action="store_true", help="Enable auto-reload on code changes")
+    p_api = sub.add_parser(
+        "api",
+        help="Run FastAPI server (modern REST API)",
+        description="Start the FastAPI server with modern REST API. "
+        "Includes interactive documentation at /api/docs and serves the React frontend.",
+    )
+    p_api.add_argument("--host", type=str, default="127.0.0.1", help="Host to bind to (default: 127.0.0.1)")
+    p_api.add_argument("--port", type=int, default=8000, help="Port to bind to (default: 8000)")
+    p_api.add_argument("--reload", action="store_true", help="Enable auto-reload on code changes (development)")
     p_api.add_argument(
         "--log-level",
         type=str,
         default="INFO",
         choices=["DEBUG", "INFO", "WARNING", "ERROR"],
-        help="Log level",
+        help="Log level (default: INFO)",
     )
     p_api.set_defaults(func=_cmd_api)
 
-    p_cfg = sub.add_parser("config-validate", help="Validate configuration file")
-    p_cfg.add_argument("--path", type=str, default="config/user_prefs.json")
+    p_cfg = sub.add_parser(
+        "config-validate",
+        help="Validate configuration file",
+        description="Validate your user preferences configuration file. "
+        "Checks JSON syntax, schema compliance, and configuration integrity.",
+    )
+    p_cfg.add_argument(
+        "--path",
+        type=str,
+        default="config/user_prefs.json",
+        help="Path to configuration file (default: config/user_prefs.json)",
+    )
     p_cfg.set_defaults(func=_cmd_config_validate)
 
-    p_health = sub.add_parser("health", help="Run comprehensive system health check")
+    p_health = sub.add_parser(
+        "health",
+        help="Run comprehensive system health check",
+        description="Run a comprehensive health check of JobSentinel. "
+        "Checks database connectivity, configuration, dependencies, and system status.",
+    )
     p_health.add_argument("--verbose", "-v", action="store_true", help="Show detailed information")
     p_health.set_defaults(func=_cmd_health)
 
