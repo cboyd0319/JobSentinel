@@ -73,16 +73,23 @@ class InputValidationMiddleware(BaseHTTPMiddleware):
         r"\|\|",
     ]
 
-    def __init__(self, app: ASGIApp, enabled: bool = True):
+    def __init__(
+        self, 
+        app: ASGIApp, 
+        enabled: bool = True,
+        exempt_paths: list[str] | None = None
+    ):
         """
         Initialize input validation middleware.
 
         Args:
             app: FastAPI application
             enabled: Whether validation is enabled
+            exempt_paths: List of paths to exempt from validation (e.g., ["/api/docs"])
         """
         super().__init__(app)
         self.enabled = enabled
+        self.exempt_paths = exempt_paths or ["/api/docs", "/api/redoc", "/api/openapi.json"]
 
         # Compile patterns for performance
         self.sql_patterns = [re.compile(p, re.IGNORECASE) for p in self.SQL_INJECTION_PATTERNS]
@@ -95,6 +102,10 @@ class InputValidationMiddleware(BaseHTTPMiddleware):
     ) -> Response:
         """Validate request input."""
         if not self.enabled:
+            return await call_next(request)
+        
+        # Skip validation for exempt paths (documentation, etc.)
+        if request.url.path in self.exempt_paths:
             return await call_next(request)
 
         # Check query parameters

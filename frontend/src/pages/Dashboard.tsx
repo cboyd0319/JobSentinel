@@ -48,29 +48,45 @@ export function Dashboard() {
   return (
     <div className="space-y-6">
       {/* Hero Section */}
-      <div className="card text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to JobSentinel</h1>
-        <p className="text-xl text-gray-600 dark:text-gray-400">
+      <div className="card text-center bg-gradient-to-r from-primary-50 to-blue-50 dark:from-primary-900/20 dark:to-blue-900/20 border-primary-200 dark:border-primary-800">
+        <div className="inline-block mb-4 text-6xl">🎯</div>
+        <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary-600 to-blue-600 bg-clip-text text-transparent">
+          Welcome to JobSentinel
+        </h1>
+        <p className="text-xl text-gray-700 dark:text-gray-300 font-medium">
           Your AI-Powered Job Search Assistant
         </p>
-        <p className="mt-2 text-sm text-gray-500">
-          Automate your job search with intelligent matching and insights
+        <p className="mt-3 text-sm text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+          Automate your job search with intelligent matching, semantic analysis, and real-time alerts.
+          100% local, 100% private, 100% free. 🔒
         </p>
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="card">
-          <h3 className="text-lg font-semibold mb-2">Total Jobs</h3>
-          <p className="text-4xl font-bold text-primary-600">{health?.total_jobs || 0}</p>
+        <div className="card hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-primary-500">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">Total Jobs</h3>
+            <span className="text-3xl">💼</span>
+          </div>
+          <p className="text-4xl font-bold text-primary-600 dark:text-primary-400">{health?.total_jobs || 0}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">Jobs in database</p>
         </div>
-        <div className="card">
-          <h3 className="text-lg font-semibold mb-2">High Score Jobs</h3>
-          <p className="text-4xl font-bold text-green-600">{health?.high_score_jobs || 0}</p>
+        <div className="card hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-green-500">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">High Score Jobs</h3>
+            <span className="text-3xl">⭐</span>
+          </div>
+          <p className="text-4xl font-bold text-green-600 dark:text-green-400">{health?.high_score_jobs || 0}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">Matches 70%+ score</p>
         </div>
-        <div className="card">
-          <h3 className="text-lg font-semibold mb-2">New in 24 Hours</h3>
-          <p className="text-4xl font-bold text-blue-600">{health?.recent_jobs_24h || 0}</p>
+        <div className="card hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-blue-500">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">New in 24 Hours</h3>
+            <span className="text-3xl">🆕</span>
+          </div>
+          <p className="text-4xl font-bold text-blue-600 dark:text-blue-400">{health?.recent_jobs_24h || 0}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">Recently collected</p>
         </div>
       </div>
 
@@ -123,11 +139,25 @@ export function Dashboard() {
 
       {/* Quick Actions */}
       <div className="card">
-        <h2 className="text-2xl font-bold mb-4">Quick Actions</h2>
+        <h2 className="text-2xl font-bold mb-4">⚡ Quick Actions</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button className="btn btn-primary">🔍 Search Jobs</button>
-          <button className="btn btn-primary">📄 Analyze Resume</button>
-          <button className="btn btn-primary">✍️ Generate Cover Letter</button>
+          <a href="/jobs" className="btn btn-primary flex items-center justify-center gap-2 hover:scale-105 transition-transform">
+            <span className="text-xl">🔍</span>
+            <span>Search Jobs</span>
+          </a>
+          <a href="/resume" className="btn btn-primary flex items-center justify-center gap-2 hover:scale-105 transition-transform">
+            <span className="text-xl">📄</span>
+            <span>Analyze Resume</span>
+          </a>
+          <a href="/tracker" className="btn btn-primary flex items-center justify-center gap-2 hover:scale-105 transition-transform">
+            <span className="text-xl">📊</span>
+            <span>Track Applications</span>
+          </a>
+        </div>
+        <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+          <p className="text-sm text-blue-800 dark:text-blue-200">
+            <strong>💡 Pro Tip:</strong> Start by analyzing your resume to see how well it matches available jobs!
+          </p>
         </div>
       </div>
     </div>
