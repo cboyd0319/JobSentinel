@@ -184,7 +184,7 @@ async def create_job(job_data: JobCreate) -> JobResponse:
 
 
 @router.delete("/jobs/{job_id}", status_code=204)
-async def delete_job(job_id: int):
+async def delete_job(job_id: int) -> None:
     """Delete a job by ID."""
     with get_session_context() as session:
         job = session.get(Job, job_id)

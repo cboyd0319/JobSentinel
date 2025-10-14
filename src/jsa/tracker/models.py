@@ -98,6 +98,4 @@ class Activity(SQLModel, table=True):
     description: str
     extra_data: str = Field(default="{}")  # JSON metadata for extensibility
 
-    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
-
-    created_at: datetime = Field(default_factory=datetime.utcnow, index=True)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC), index=True)

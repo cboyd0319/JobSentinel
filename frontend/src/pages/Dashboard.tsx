@@ -1,22 +1,49 @@
 import { useQuery } from '@tanstack/react-query'
 import { api } from '../api/client'
 import type { HealthResponse, MLStatus, LLMStatus } from '../types'
+import { DashboardSkeleton } from '../components/LoadingSkeleton'
+import { InlineSpinner } from '../components/Spinner'
 
 export function Dashboard() {
-  const { data: health } = useQuery<HealthResponse>({
+  const { data: health, isLoading: healthLoading, error: healthError } = useQuery<HealthResponse>({
     queryKey: ['health'],
     queryFn: () => api.get('/health'),
+    refetchInterval: 30000, // Refresh every 30 seconds
   })
 
-  const { data: mlStatus } = useQuery<MLStatus>({
+  const { data: mlStatus, isLoading: mlLoading } = useQuery<MLStatus>({
     queryKey: ['ml-status'],
     queryFn: () => api.get('/ml/status'),
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   })
 
-  const { data: llmStatus } = useQuery<LLMStatus>({
+  const { data: llmStatus, isLoading: llmLoading } = useQuery<LLMStatus>({
     queryKey: ['llm-status'],
     queryFn: () => api.get('/llm/status'),
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   })
+
+  // Show loading skeleton on initial load
+  if (healthLoading && !health) {
+    return <DashboardSkeleton />
+  }
+
+  // Show error state
+  if (healthError) {
+    return (
+      <div className="card bg-red-50 border-red-200">
+        <div className="flex items-center gap-3 text-red-700">
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div>
+            <h3 className="font-semibold">Failed to load dashboard</h3>
+            <p className="text-sm">Make sure the JobSentinel API is running on http://localhost:5000</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -52,34 +79,42 @@ export function Dashboard() {
         {/* ML Features */}
         <div className="card">
           <h2 className="text-2xl font-bold mb-4">🧠 ML Features</h2>
-          <div className="space-y-2">
-            <FeatureStatus
-              name="Semantic Matching"
-              available={mlStatus?.semantic_matching}
-            />
-            <FeatureStatus
-              name="Sentiment Analysis"
-              available={mlStatus?.sentiment_analysis}
-            />
-            <FeatureStatus
-              name="Resume Analysis"
-              available={mlStatus?.resume_analysis}
-            />
-            <FeatureStatus
-              name="Skills Gap Analysis"
-              available={mlStatus?.skills_gap_analysis}
-            />
-          </div>
+          {mlLoading ? (
+            <InlineSpinner text="Checking ML features..." />
+          ) : (
+            <div className="space-y-2">
+              <FeatureStatus
+                name="Semantic Matching"
+                available={mlStatus?.semantic_matching}
+              />
+              <FeatureStatus
+                name="Sentiment Analysis"
+                available={mlStatus?.sentiment_analysis}
+              />
+              <FeatureStatus
+                name="Resume Analysis"
+                available={mlStatus?.resume_analysis}
+              />
+              <FeatureStatus
+                name="Skills Gap Analysis"
+                available={mlStatus?.skills_gap_analysis}
+              />
+            </div>
+          )}
         </div>
 
         {/* LLM Features */}
         <div className="card">
           <h2 className="text-2xl font-bold mb-4">🤖 LLM Features</h2>
-          <div className="space-y-3">
-            <LLMProviderStatus name="Ollama (Local)" data={llmStatus?.ollama} />
-            <LLMProviderStatus name="OpenAI" data={llmStatus?.openai} />
-            <LLMProviderStatus name="Anthropic" data={llmStatus?.anthropic} />
-          </div>
+          {llmLoading ? (
+            <InlineSpinner text="Checking LLM providers..." />
+          ) : (
+            <div className="space-y-3">
+              <LLMProviderStatus name="Ollama (Local)" data={llmStatus?.ollama} />
+              <LLMProviderStatus name="OpenAI" data={llmStatus?.openai} />
+              <LLMProviderStatus name="Anthropic" data={llmStatus?.anthropic} />
+            </div>
+          )}
           <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
             💡 Ollama is recommended for 100% privacy
           </p>

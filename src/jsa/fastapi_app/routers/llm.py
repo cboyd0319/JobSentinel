@@ -11,7 +11,7 @@ Privacy-first design:
 from __future__ import annotations
 
 import os
-from typing import Optional
+from typing import Any, Optional
 
 from fastapi import APIRouter, Header, HTTPException
 from pydantic import BaseModel, Field
@@ -74,8 +74,8 @@ class JobAnalysisAPIRequest(BaseModel):
 class SkillTranslationRequest(BaseModel):
     """Skill translation request."""
 
-    resume_skills: list[str] = Field(..., min_items=1, max_items=50)
-    job_requirements: list[str] = Field(..., min_items=1, max_items=50)
+    resume_skills: list[str] = Field(..., min_length=1, max_length=50)
+    job_requirements: list[str] = Field(..., min_length=1, max_length=50)
     llm_config: LLMConfigRequest | None = None
 
 
@@ -130,7 +130,7 @@ def _create_config(req_config: LLMConfigRequest | None) -> LLMConfig:
     )
 
 
-def _create_response(llm_response) -> LLMResponse:
+def _create_response(llm_response: Any) -> LLMResponse:
     """Create API response from LLM response."""
     privacy_notes = {
         LLMProvider.OLLAMA: "✅ Processed locally. No data sent to external services.",
@@ -304,7 +304,7 @@ async def improve_resume_section(request: ResumeSectionRequest) -> LLMResponse:
 
 
 @router.get("/llm/status")
-async def llm_status() -> dict:
+async def llm_status() -> dict[str, Any]:
     """
     Check LLM provider availability and estimated costs.
 

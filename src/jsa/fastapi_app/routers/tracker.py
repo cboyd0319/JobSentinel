@@ -177,7 +177,7 @@ async def update_application(app_id: int, app_data: ApplicationUpdate) -> Applic
 
 
 @router.delete("/tracker/applications/{app_id}", status_code=204)
-async def delete_application(app_id: int):
+async def delete_application(app_id: int) -> None:
     """Delete an application by ID."""
     with get_session_context() as session:
         app = session.get(TrackedJob, app_id)
