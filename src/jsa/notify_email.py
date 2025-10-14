@@ -38,7 +38,7 @@ from typing import Any, Optional
 
 from jsa.logging import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger(__name__, "notify_email")
 
 
 class EmailNotifier:

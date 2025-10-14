@@ -39,7 +39,33 @@ JobSentinel will:
 
 ---
 
-## 🚀 New Installation (Two Simple Steps)
+## 🚀 New Installation (The EASIEST Way Ever!)
+
+### 🎯 Method 1: Graphical Launcher (ZERO Technical Knowledge Required!)
+
+**This is the absolute easiest way - NO command line, NO typing!**
+
+1. **Download:** https://github.com/cboyd0319/JobSentinel/archive/refs/heads/main.zip
+2. **Extract:** Right-click the ZIP → "Extract All" → Choose Desktop
+3. **Open** the `JobSentinel-main` folder on your Desktop
+4. **Double-click:** `launch-gui.bat`
+5. **Done!** A nice window opens with buttons you can click
+
+**That's literally it!** The graphical interface will guide you through everything else.
+
+**What you'll see:**
+- 🖱️ Big friendly buttons (Start, Stop, Setup, Help)
+- 📊 Status indicators showing what's working
+- 📝 Activity log so you know what's happening
+- ⚙️ One-click access to settings and help
+
+**First time?** Click the **"Setup Wizard"** button and answer a few questions about what jobs you want!
+
+---
+
+### 📝 Method 2: Bootstrap Script (Traditional - Still Easy!)
+
+**Use this if you prefer the automated installer:**
 
 ### Step 1: Install Python 3.12+
 
