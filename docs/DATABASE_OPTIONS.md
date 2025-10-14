@@ -77,16 +77,24 @@ JobSentinel uses SQLite by default for its local-first philosophy, but supports 
 
 ## Configuration
 
-### SQLite Configuration (Default)
+### SQLite Configuration (Default) ✅ RECOMMENDED
 
 **Connection String:**
-```python
-# Local file (default)
-DATABASE_URL = "sqlite+aiosqlite:///data/jobs.sqlite"
+```bash
+# In .env file (or use default)
+# DATABASE_URL=sqlite+aiosqlite:///data/jobs.sqlite
+
+# Or explicitly set
+DATABASE_URL="sqlite+aiosqlite:///data/jobs.sqlite"
 
 # In-memory (testing only)
-DATABASE_URL = "sqlite+aiosqlite:///:memory:"
+DATABASE_URL="sqlite+aiosqlite:///:memory:"
 ```
+
+**Setup:**
+1. No installation required (built into Python)
+2. No configuration needed (works out of the box)
+3. Database file created automatically in `data/` directory
 
 **Optimization Settings:**
 ```python
@@ -106,31 +114,97 @@ sqlite3 data/jobs.sqlite ".backup data/jobs.backup.sqlite"
 sqlite3 data/jobs.sqlite .dump > backup.sql
 ```
 
-### PostgreSQL Configuration
+### PostgreSQL Configuration (Optional)
 
-**Connection String:**
-```python
-# Local PostgreSQL
-DATABASE_URL = "postgresql+asyncpg://user:pass@localhost:5432/jobsentinel"
+**Installation:**
+```bash
+# Install PostgreSQL drivers
+pip install -e ".[postgres]"
 
-# Cloud managed (RDS, Cloud SQL, etc.)
-DATABASE_URL = "postgresql+asyncpg://user:pass@host.region.rds.amazonaws.com:5432/jobsentinel"
+# This installs:
+# - asyncpg (async PostgreSQL driver)
+# - psycopg2-binary (sync PostgreSQL driver)
 ```
 
-**Required Setup:**
+**Connection String:**
+```bash
+# In .env file
+DATABASE_URL="postgresql+asyncpg://user:password@localhost:5432/jobsentinel"
+
+# For cloud managed services (RDS, Cloud SQL, etc.)
+DATABASE_URL="postgresql+asyncpg://user:password@host.region.rds.amazonaws.com:5432/jobsentinel"
+```
+
+**PostgreSQL Server Setup:**
+
+**Option 1: Local Installation**
+```bash
+# macOS (Homebrew)
+brew install postgresql@15
+brew services start postgresql@15
+
+# Ubuntu/Debian
+sudo apt update
+sudo apt install postgresql-15
+
+# Windows
+# Download from: https://www.postgresql.org/download/windows/
+```
+
+**Option 2: Docker**
+```bash
+docker run -d \
+  --name jobsentinel-db \
+  -e POSTGRES_DB=jobsentinel \
+  -e POSTGRES_USER=jobsentinel_app \
+  -e POSTGRES_PASSWORD=your_secure_password \
+  -p 5432:5432 \
+  postgres:15
+
+# Connection string:
+# DATABASE_URL=postgresql+asyncpg://jobsentinel_app:your_secure_password@localhost:5432/jobsentinel
+```
+
+**Option 3: Managed Services**
+- **AWS RDS:** [Setup Guide](https://aws.amazon.com/rds/postgresql/)
+- **GCP Cloud SQL:** [Setup Guide](https://cloud.google.com/sql/docs/postgres)
+- **Azure Database:** [Setup Guide](https://azure.microsoft.com/en-us/products/postgresql/)
+
+**Database Setup (SQL):**
 ```sql
+-- Connect to PostgreSQL as admin
+psql -U postgres
+
 -- Create database
 CREATE DATABASE jobsentinel;
 
--- Create user
-CREATE USER jobsentinel_app WITH PASSWORD 'secure_password';
+-- Create application user
+CREATE USER jobsentinel_app WITH PASSWORD 'your_secure_password';
 
 -- Grant permissions
 GRANT ALL PRIVILEGES ON DATABASE jobsentinel TO jobsentinel_app;
 
--- Enable extensions (optional)
-CREATE EXTENSION IF NOT EXISTS pg_trgm;  -- For fuzzy text search
-CREATE EXTENSION IF NOT EXISTS btree_gin;  -- For better indexing
+-- Connect to the new database
+\c jobsentinel
+
+-- Grant schema permissions (PostgreSQL 15+)
+GRANT ALL ON SCHEMA public TO jobsentinel_app;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO jobsentinel_app;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO jobsentinel_app;
+
+-- Optional: Enable extensions for better performance
+CREATE EXTENSION IF NOT EXISTS pg_trgm;    -- Fuzzy text search
+CREATE EXTENSION IF NOT EXISTS btree_gin;   -- Better indexing
+```
+
+**Using Setup Wizard:**
+```bash
+# Run interactive setup wizard
+python -m jsa.cli setup
+
+# When prompted, choose PostgreSQL
+# Wizard will guide you through configuration
+# Automatically creates .env file with DATABASE_URL
 ```
 
 **Optimization Settings:**
