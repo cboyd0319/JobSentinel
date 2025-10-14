@@ -17,7 +17,7 @@ This module is DEPRECATED and maintained for backward compatibility only.
 
 **For new code:**
 ```python
-from src.database import Job  # Use this
+from database import Job  # Use this
 from jsa.tracker.models import TrackedJob  # For CRM features
 ```
 
@@ -30,9 +30,9 @@ from typing import Any
 
 from cloud.providers.gcp.cloud_database import init_cloud_db
 from sqlmodel import Field, Session, SQLModel, create_engine, select
-from utils.logging import get_logger
 
-from src.database import Job, get_sync_session, init_db
+from database import Job, get_sync_session, init_db
+from utils.logging import get_logger
 
 logger = get_logger("unified_database")
 

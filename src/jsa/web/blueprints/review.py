@@ -6,7 +6,7 @@ from sqlalchemy import desc
 from sqlmodel import select
 
 from jsa.logging import get_logger
-from src.database import Job, get_sync_session
+from database import Job, get_sync_session
 
 bp = Blueprint("review", __name__)
 logger = get_logger("web.review", component="web_ui")

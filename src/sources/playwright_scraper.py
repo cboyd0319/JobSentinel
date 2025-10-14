@@ -7,6 +7,7 @@ import asyncio
 from urllib.parse import urljoin, urlparse, urlunparse
 
 from playwright.async_api import async_playwright
+
 from utils.logging import get_logger
 
 from .job_scraper_base import (

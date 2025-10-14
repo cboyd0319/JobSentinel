@@ -9,9 +9,8 @@ from __future__ import annotations
 
 import os
 
-from utils.logging import get_logger
-
 from sources.job_scraper_base import GenericJobExtractor, JobBoardScraper
+from utils.logging import get_logger
 
 logger = get_logger("sources.reed_mcp_scraper")
 

@@ -96,6 +96,11 @@ where = ["src"]
 include = [
   "jsa*",
   "domains*",
+  "matchers*",
+  "models*",
+  "notify*",
+  "sources*",
+  "utils*",
 ]
 
 [tool.black]

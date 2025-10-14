@@ -10,6 +10,7 @@ from abc import ABC, abstractmethod
 from urllib.parse import urlparse
 
 import httpx  # Added httpx import
+
 from utils.errors import ScrapingException
 from utils.logging import get_logger
 from utils.scraping import web_scraper
