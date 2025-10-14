@@ -50,9 +50,7 @@ class TestLLMFeatures:
             max_length=500,
         )
 
-        with patch.object(
-            llm_features.client, "generate", new_callable=AsyncMock
-        ) as mock_gen:
+        with patch.object(llm_features.client, "generate", new_callable=AsyncMock) as mock_gen:
             mock_gen.return_value = mock_response
 
             response = await llm_features.generate_cover_letter(request)
@@ -77,9 +75,7 @@ class TestLLMFeatures:
             num_questions=10,
         )
 
-        with patch.object(
-            llm_features.client, "generate", new_callable=AsyncMock
-        ) as mock_gen:
+        with patch.object(llm_features.client, "generate", new_callable=AsyncMock) as mock_gen:
             mock_gen.return_value = mock_response
 
             response = await llm_features.prepare_interview_questions(request)
@@ -102,9 +98,7 @@ class TestLLMFeatures:
             analyze_compensation=True,
         )
 
-        with patch.object(
-            llm_features.client, "generate", new_callable=AsyncMock
-        ) as mock_gen:
+        with patch.object(llm_features.client, "generate", new_callable=AsyncMock) as mock_gen:
             mock_gen.return_value = mock_response
 
             response = await llm_features.analyze_job_description(request)
@@ -124,9 +118,7 @@ class TestLLMFeatures:
         resume_skills = ["Python", "Machine Learning", "TensorFlow"]
         job_requirements = ["AI Development", "Deep Learning", "PyTorch"]
 
-        with patch.object(
-            llm_features.client, "generate", new_callable=AsyncMock
-        ) as mock_gen:
+        with patch.object(llm_features.client, "generate", new_callable=AsyncMock) as mock_gen:
             mock_gen.return_value = mock_response
 
             response = await llm_features.translate_skills(resume_skills, job_requirements)
@@ -147,14 +139,10 @@ class TestLLMFeatures:
         section_text = "Worked on Python projects. Made things better."
         job_description = "Senior Python Developer needed..."
 
-        with patch.object(
-            llm_features.client, "generate", new_callable=AsyncMock
-        ) as mock_gen:
+        with patch.object(llm_features.client, "generate", new_callable=AsyncMock) as mock_gen:
             mock_gen.return_value = mock_response
 
-            response = await llm_features.improve_resume_section(
-                section_text, job_description
-            )
+            response = await llm_features.improve_resume_section(section_text, job_description)
 
             assert response.content == "Mock LLM response"
 
@@ -204,9 +192,7 @@ class TestLLMFeatures:
                 tone=tone,
             )
 
-            with patch.object(
-                llm_features.client, "generate", new_callable=AsyncMock
-            ) as mock_gen:
+            with patch.object(llm_features.client, "generate", new_callable=AsyncMock) as mock_gen:
                 mock_gen.return_value = mock_response
 
                 # Should not raise error

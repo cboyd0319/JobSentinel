@@ -268,12 +268,8 @@ class TestResilientLLMClient:
                 cost_usd=0.02,
             )
 
-            with patch.object(
-                client.fallback_clients[0], "is_available", return_value=True
-            ):
-                with patch.object(
-                    client.fallback_clients[0], "estimate_cost", return_value=0.02
-                ):
+            with patch.object(client.fallback_clients[0], "is_available", return_value=True):
+                with patch.object(client.fallback_clients[0], "estimate_cost", return_value=0.02):
                     with patch.object(
                         client.fallback_clients[0], "generate", new_callable=AsyncMock
                     ) as mock_gen:
@@ -423,12 +419,8 @@ class TestDefaultResilientClient:
 
             assert client.primary_client.config.provider == LLMProvider.OLLAMA
             assert len(client.fallback_clients) == 2
-            assert any(
-                c.config.provider == LLMProvider.OPENAI for c in client.fallback_clients
-            )
-            assert any(
-                c.config.provider == LLMProvider.ANTHROPIC for c in client.fallback_clients
-            )
+            assert any(c.config.provider == LLMProvider.OPENAI for c in client.fallback_clients)
+            assert any(c.config.provider == LLMProvider.ANTHROPIC for c in client.fallback_clients)
 
     def test_create_default_client_custom_budget(self):
         """Test creating client with custom budget."""
