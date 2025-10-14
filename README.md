@@ -3,7 +3,7 @@
 Private job search automation that runs on your machine.
 
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/Python-3.11%2B-blue.svg)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/Python-3.12%2B-blue.svg)](https://www.python.org/)
 [![Version](https://img.shields.io/badge/Version-0.6.0+-brightgreen.svg)](#)
 [![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-7-646cff.svg)](https://vitejs.dev/)
@@ -59,7 +59,7 @@ python -m jsa.cli run-once
 
 | Item | Version | Why |
 |------|---------|-----|
-| Python | 3.11+ | Backend runtime (includes SQLite) |
+| Python | 3.12+ | Backend runtime (includes SQLite) |
 | Node.js | 20+ | Frontend build (React 19) |
 | Git | Any | Clone repo |
 | Slack webhook | - | Alerts (optional) |
