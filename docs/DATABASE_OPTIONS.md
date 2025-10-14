@@ -90,7 +90,7 @@ brew services start postgresql@15
 
 # Ubuntu/Debian
 sudo apt update
-sudo apt install postgresql-15
+sudo apt install postgresql-17
 
 # Windows
 # Download from: https://www.postgresql.org/download/windows/
@@ -132,7 +132,7 @@ GRANT ALL PRIVILEGES ON DATABASE jobsentinel TO jobsentinel_app;
 -- Connect to the new database
 \c jobsentinel
 
--- Grant schema permissions (PostgreSQL 15+)
+-- Grant schema permissions (PostgreSQL 17+)
 GRANT ALL ON SCHEMA public TO jobsentinel_app;
 GRANT ALL ON ALL TABLES IN SCHEMA public TO jobsentinel_app;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO jobsentinel_app;
@@ -174,8 +174,8 @@ effective_io_concurrency = 200
 
 ```bash
 # 1. Install PostgreSQL (see POSTGRESQL_SETUP.md)
-# macOS: brew install postgresql@15
-# Ubuntu: sudo apt install postgresql-15
+# macOS: brew install postgresql@17
+# Ubuntu: sudo apt install postgresql-17
 # Windows: Download from postgresql.org
 
 # 2. Run setup wizard
@@ -339,7 +339,7 @@ Only needed for team/cloud deployments:
 python -m jsa.cli health
 
 # Should output:
-# ✓ Database: Connected (PostgreSQL 15.x)
+# ✓ Database: Connected (PostgreSQL 17.x)
 # ✓ Connection pool: Active
 # ✓ Jobs in database: 1,234
 ```

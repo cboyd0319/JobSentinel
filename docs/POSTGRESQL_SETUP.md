@@ -46,15 +46,15 @@ The wizard will:
 # 1. Install Homebrew (if not already installed)
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-# 2. Install PostgreSQL 15
-brew install postgresql@15
+# 2. Install PostgreSQL 17 (latest stable)
+brew install postgresql@17
 
 # 3. Start PostgreSQL service
-brew services start postgresql@15
+brew services start postgresql@17
 
 # 4. Verify installation
 psql --version
-# Should output: psql (PostgreSQL) 15.x
+# Should output: psql (PostgreSQL) 17.x
 ```
 
 #### Option 2: Postgres.app (GUI)
@@ -74,8 +74,8 @@ psql --version
 # 1. Update package list
 sudo apt update
 
-# 2. Install PostgreSQL 15
-sudo apt install postgresql-15 postgresql-contrib
+# 2. Install PostgreSQL 17 (latest stable)
+sudo apt install postgresql-17 postgresql-contrib
 
 # 3. Start PostgreSQL service
 sudo systemctl start postgresql
@@ -83,7 +83,7 @@ sudo systemctl enable postgresql  # Start on boot
 
 # 4. Verify installation
 psql --version
-# Should output: psql (PostgreSQL) 15.x
+# Should output: psql (PostgreSQL) 17.x
 ```
 
 ### Linux (Fedora/RHEL/CentOS)
@@ -92,15 +92,15 @@ psql --version
 # 1. Install PostgreSQL repository
 sudo dnf install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-9-x86_64/pgdg-redhat-repo-latest.noarch.rpm
 
-# 2. Install PostgreSQL 15
-sudo dnf install -y postgresql15-server
+# 2. Install PostgreSQL 17 (latest stable)
+sudo dnf install -y postgresql17-server
 
 # 3. Initialize database
-sudo /usr/pgsql-15/bin/postgresql-15-setup initdb
+sudo /usr/pgsql-17/bin/postgresql-17-setup initdb
 
 # 4. Start PostgreSQL service
-sudo systemctl start postgresql-15
-sudo systemctl enable postgresql-15  # Start on boot
+sudo systemctl start postgresql-17
+sudo systemctl enable postgresql-17  # Start on boot
 
 # 5. Verify installation
 psql --version
@@ -110,10 +110,10 @@ psql --version
 
 #### Option 1: Official Installer (Recommended)
 
-1. Download PostgreSQL 15 installer from: https://www.postgresql.org/download/windows/
-2. Run the installer (`postgresql-15.x-windows-x64.exe`)
+1. Download PostgreSQL 17 installer from: https://www.postgresql.org/download/windows/
+2. Run the installer (`postgresql-17.x-windows-x64.exe`)
 3. Follow the installation wizard:
-   - Installation directory: Default (`C:\Program Files\PostgreSQL\15`)
+   - Installation directory: Default (`C:\Program Files\PostgreSQL\17`)
    - Components: Select all (PostgreSQL Server, pgAdmin 4, Stack Builder, Command Line Tools)
    - Data directory: Default
    - **Password:** Set a strong password for the postgres superuser (remember this!)
@@ -124,7 +124,7 @@ psql --version
    ```powershell
    # Open PowerShell or Command Prompt
    psql --version
-   # Should output: psql (PostgreSQL) 15.x
+   # Should output: psql (PostgreSQL) 17.x
    ```
 
 #### Option 2: Chocolatey (Package Manager)
@@ -137,7 +137,7 @@ Set-ExecutionPolicy Bypass -Scope Process -Force
 iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 
 # 2. Install PostgreSQL
-choco install postgresql15
+choco install postgresql17
 
 # 3. PostgreSQL service starts automatically
 ```
@@ -195,7 +195,7 @@ GRANT ALL PRIVILEGES ON DATABASE jobsentinel TO jobsentinel;
 -- Connect to the database
 \c jobsentinel
 
--- Grant schema permissions (PostgreSQL 15+)
+-- Grant schema permissions (PostgreSQL 17+)
 GRANT ALL ON SCHEMA public TO jobsentinel;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO jobsentinel;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO jobsentinel;
@@ -504,18 +504,18 @@ rm -rf /usr/local/var/postgresql@15
 sudo systemctl stop postgresql
 
 # Remove PostgreSQL
-sudo apt remove --purge postgresql-15
+sudo apt remove --purge postgresql-17
 
 # Remove data directory (optional)
-sudo rm -rf /var/lib/postgresql/15
+sudo rm -rf /var/lib/postgresql/17
 ```
 
 ### Windows
 
 1. Open Control Panel → Programs → Uninstall a program
-2. Select "PostgreSQL 15"
+2. Select "PostgreSQL 17"
 3. Click "Uninstall"
-4. Delete data directory (optional): `C:\Program Files\PostgreSQL\15\data`
+4. Delete data directory (optional): `C:\Program Files\PostgreSQL\17\data`
 
 ---
 
@@ -544,9 +544,9 @@ After setting up PostgreSQL:
 If you encounter issues not covered in this guide:
 
 1. **Check Logs:**
-   - macOS: `/usr/local/var/log/postgresql@15.log`
-   - Linux: `/var/log/postgresql/postgresql-15-main.log`
-   - Windows: `C:\Program Files\PostgreSQL\15\data\log\`
+   - macOS: `/usr/local/var/log/postgresql@17.log`
+   - Linux: `/var/log/postgresql/postgresql-17-main.log`
+   - Windows: `C:\Program Files\PostgreSQL\17\data\log\`
 
 2. **PostgreSQL Status:**
    ```bash

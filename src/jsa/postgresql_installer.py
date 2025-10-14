@@ -46,7 +46,7 @@ class PostgreSQLInstaller:
         """Initialize installer."""
         self.os_type = platform.system()
         self.arch = platform.machine()
-        self.version = "15"  # PostgreSQL 15 (stable)
+        self.version = "17"  # PostgreSQL 17 (latest stable, Sep 2024)
 
     @staticmethod
     def validate_password_strength(password: str) -> tuple[bool, str]:
@@ -74,12 +74,66 @@ class PostgreSQLInstaller:
         
         return True, "Password strength: Good"
 
+    def _update_shell_path_macos(self) -> bool:
+        """Update shell configuration to include PostgreSQL in PATH.
+
+        Returns:
+            bool: True if PATH was updated successfully
+        """
+        pg_bin_path = f"/usr/local/opt/postgresql@{self.version}/bin"
+        
+        # Determine which shell config file to use
+        shell = os.environ.get("SHELL", "/bin/zsh")
+        if "zsh" in shell:
+            config_file = Path.home() / ".zshrc"
+        elif "bash" in shell:
+            config_file = Path.home() / ".bash_profile"
+        else:
+            # Default to .zshrc for modern macOS
+            config_file = Path.home() / ".zshrc"
+        
+        # Check if PATH already contains PostgreSQL
+        path_export = f'export PATH="{pg_bin_path}:$PATH"'
+        
+        try:
+            # Read existing config
+            if config_file.exists():
+                with open(config_file, "r", encoding="utf-8") as f:
+                    content = f.read()
+                
+                # Check if PATH is already configured
+                if pg_bin_path in content:
+                    console.print(f"[dim]PATH already configured in {config_file}[/dim]")
+                    return True
+            else:
+                content = ""
+            
+            # Add PATH export to config file
+            with open(config_file, "a", encoding="utf-8") as f:
+                f.write(f"\n# PostgreSQL {self.version} (added by JobSentinel)\n")
+                f.write(f"{path_export}\n")
+            
+            console.print(f"[green]✓ Updated PATH in {config_file}[/green]")
+            
+            # Update current process PATH for immediate use
+            os.environ["PATH"] = f"{pg_bin_path}:{os.environ.get('PATH', '')}"
+            
+            return True
+            
+        except Exception as e:
+            logger.error(f"Failed to update PATH: {e}")
+            console.print(f"[yellow]⚠️  Could not update PATH automatically: {e}[/yellow]")
+            console.print(f"[yellow]   Please add this to your {config_file}:[/yellow]")
+            console.print(f"[yellow]   {path_export}[/yellow]\n")
+            return False
+
     def check_if_installed(self) -> tuple[bool, str | None]:
         """Check if PostgreSQL is already installed.
 
         Returns:
             tuple: (is_installed, version_string)
         """
+        # Try psql in PATH first
         try:
             result = subprocess.run(
                 ["psql", "--version"],
@@ -89,9 +143,29 @@ class PostgreSQLInstaller:
             )
             if result.returncode == 0:
                 return True, result.stdout.strip()
-            return False, None
         except (FileNotFoundError, subprocess.TimeoutExpired):
-            return False, None
+            pass
+        
+        # On macOS, try direct path to Homebrew installation
+        if self.os_type == "Darwin":
+            try:
+                pg_bin = f"/usr/local/opt/postgresql@{self.version}/bin/psql"
+                if Path(pg_bin).exists():
+                    result = subprocess.run(
+                        [pg_bin, "--version"],
+                        capture_output=True,
+                        text=True,
+                        timeout=5,
+                    )
+                    if result.returncode == 0:
+                        # Update PATH for current process
+                        pg_bin_dir = f"/usr/local/opt/postgresql@{self.version}/bin"
+                        os.environ["PATH"] = f"{pg_bin_dir}:{os.environ.get('PATH', '')}"
+                        return True, result.stdout.strip()
+            except (FileNotFoundError, subprocess.TimeoutExpired):
+                pass
+        
+        return False, None
 
     def check_if_running(self) -> bool:
         """Check if PostgreSQL service is running.
@@ -155,7 +229,7 @@ class PostgreSQLInstaller:
         console.print(
             Panel.fit(
                 "[bold cyan]PostgreSQL Installation[/bold cyan]\n\n"
-                "JobSentinel requires PostgreSQL 15+ for data storage.\n"
+                f"JobSentinel requires PostgreSQL {self.version}+ for data storage.\n"
                 "This will automatically install PostgreSQL on your system.\n\n"
                 "[yellow]Installation will take 2-5 minutes[/yellow]",
                 title="Database Setup",
@@ -207,7 +281,7 @@ class PostgreSQLInstaller:
             TextColumn("[progress.description]{task.description}"),
             console=console,
         ) as progress:
-            task = progress.add_task("Installing PostgreSQL 15...", total=None)
+            task = progress.add_task(f"Installing PostgreSQL {self.version}...", total=None)
 
             try:
                 result = subprocess.run(
@@ -222,11 +296,16 @@ class PostgreSQLInstaller:
                     return False
 
                 progress.update(task, completed=True)
-                console.print("[green]✓ PostgreSQL 15 installed[/green]\n")
+                console.print(f"[green]✓ PostgreSQL {self.version} installed[/green]\n")
 
             except subprocess.TimeoutExpired:
                 console.print("[red]✗ Installation timed out[/red]")
                 return False
+
+        # Update PATH for immediate use
+        console.print("[bold]Updating PATH configuration...[/bold]")
+        self._update_shell_path_macos()
+        console.print()
 
         # Start PostgreSQL service
         console.print("[bold]Starting PostgreSQL service...[/bold]")
@@ -301,10 +380,10 @@ class PostgreSQLInstaller:
                 console.print("[yellow]⚠️  Package list update had issues[/yellow]")
 
             # Install PostgreSQL
-            task = progress.add_task("Installing PostgreSQL 15...", total=None)
+            task = progress.add_task("Installing PostgreSQL 17...", total=None)
             try:
                 result = subprocess.run(
-                    ["sudo", "apt", "install", "-y", "postgresql-15", "postgresql-contrib"],
+                    ["sudo", "apt", "install", "-y", "postgresql-17", "postgresql-contrib"],
                     capture_output=True,
                     text=True,
                     timeout=600,
@@ -315,7 +394,7 @@ class PostgreSQLInstaller:
                     return False
 
                 progress.update(task, completed=True)
-                console.print("[green]✓ PostgreSQL 15 installed[/green]\n")
+                console.print(f"[green]✓ PostgreSQL {self.version} installed[/green]\n")
 
             except subprocess.TimeoutExpired:
                 console.print("[red]✗ Installation timed out[/red]")
@@ -363,10 +442,10 @@ class PostgreSQLInstaller:
                 console.print("[yellow]⚠️  Repository installation had issues[/yellow]")
 
             # Install PostgreSQL
-            task = progress.add_task("Installing PostgreSQL 15...", total=None)
+            task = progress.add_task(f"Installing PostgreSQL {self.version}...", total=None)
             try:
                 result = subprocess.run(
-                    ["sudo", "dnf", "install", "-y", "postgresql15-server"],
+                    ["sudo", "dnf", "install", "-y", f"postgresql{self.version}-server"],
                     capture_output=True,
                     text=True,
                     timeout=600,
@@ -377,7 +456,7 @@ class PostgreSQLInstaller:
                     return False
 
                 progress.update(task, completed=True)
-                console.print("[green]✓ PostgreSQL 15 installed[/green]\n")
+                console.print(f"[green]✓ PostgreSQL {self.version} installed[/green]\n")
 
             except subprocess.TimeoutExpired:
                 console.print("[red]✗ Installation timed out[/red]")
@@ -387,7 +466,7 @@ class PostgreSQLInstaller:
         console.print("[bold]Initializing database...[/bold]")
         try:
             subprocess.run(
-                ["sudo", "/usr/pgsql-15/bin/postgresql-15-setup", "initdb"],
+                ["sudo", "/usr/pgsql-17/bin/postgresql-17-setup", "initdb"],
                 check=True,
                 timeout=60,
             )
@@ -398,8 +477,8 @@ class PostgreSQLInstaller:
         # Start and enable service
         console.print("[bold]Starting PostgreSQL service...[/bold]")
         try:
-            subprocess.run(["sudo", "systemctl", "start", "postgresql-15"], check=True, timeout=30)
-            subprocess.run(["sudo", "systemctl", "enable", "postgresql-15"], check=True, timeout=30)
+            subprocess.run(["sudo", "systemctl", "start", "postgresql-17"], check=True, timeout=30)
+            subprocess.run(["sudo", "systemctl", "enable", "postgresql-17"], check=True, timeout=30)
             console.print("[green]✓ PostgreSQL service started and enabled[/green]\n")
 
             time.sleep(3)
@@ -438,9 +517,9 @@ class PostgreSQLInstaller:
             console.print("4. Run this setup wizard again\n")
             
             console.print("[bold]Option 2: Manual Installation[/bold]\n")
-            console.print("1. Download PostgreSQL 15 installer from:")
+            console.print("1. Download PostgreSQL 17 installer from:")
             console.print("   [cyan]https://www.postgresql.org/download/windows/[/cyan]\n")
-            console.print("2. Run the installer (postgresql-15.x-windows-x64.exe)")
+            console.print("2. Run the installer (postgresql-17.x-windows-x64.exe)")
             console.print("3. During installation:")
             console.print("   • Keep default installation directory")
             console.print("   • Install all components (Server, pgAdmin, Command Line Tools)")
@@ -460,11 +539,11 @@ class PostgreSQLInstaller:
             TextColumn("[progress.description]{task.description}"),
             console=console,
         ) as progress:
-            task = progress.add_task("Installing PostgreSQL 15...", total=None)
+            task = progress.add_task(f"Installing PostgreSQL {self.version}...", total=None)
 
             try:
                 result = subprocess.run(
-                    ["choco", "install", "postgresql15", "-y"],
+                    ["choco", "install", f"postgresql{self.version}", "-y"],
                     capture_output=True,
                     text=True,
                     timeout=600,
@@ -475,7 +554,7 @@ class PostgreSQLInstaller:
                     return False
 
                 progress.update(task, completed=True)
-                console.print("[green]✓ PostgreSQL 15 installed[/green]\n")
+                console.print(f"[green]✓ PostgreSQL {self.version} installed[/green]\n")
 
                 # Wait for service to start
                 time.sleep(5)
@@ -532,12 +611,21 @@ class PostgreSQLInstaller:
             f"ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO {user};",
         ]
 
+        # Determine which PostgreSQL superuser to use
+        # Homebrew PostgreSQL uses macOS username instead of 'postgres'
+        postgres_user = "postgres"
+        if self.os_type == "Darwin":
+            import getpass
+            postgres_user = getpass.getuser()
+            console.print(f"[dim]Using macOS user '{postgres_user}' for database administration[/dim]\n")
+        
         # Try to create database and user with better error handling
         success = True
         for sql in sql_commands:
             try:
+                # Connect to 'postgres' database for administrative tasks
                 result = subprocess.run(
-                    ["psql", "-U", "postgres", "-c", sql],
+                    ["psql", "-U", postgres_user, "-d", "postgres", "-c", sql],
                     capture_output=True,
                     text=True,
                     timeout=10,
@@ -554,10 +642,10 @@ class PostgreSQLInstaller:
                     error_msg = result.stderr.strip()
                     if "could not connect" in error_msg.lower():
                         console.print("[red]✗ Cannot connect to PostgreSQL. Is it running?[/red]")
-                        console.print("[yellow]   Try: brew services start postgresql@15 (macOS)[/yellow]")
+                        console.print(f"[yellow]   Try: brew services start postgresql@{self.version} (macOS)[/yellow]")
                         console.print("[yellow]   Try: sudo systemctl start postgresql (Linux)[/yellow]")
                     elif "authentication failed" in error_msg.lower():
-                        console.print("[red]✗ Authentication failed. Check postgres user permissions.[/red]")
+                        console.print(f"[red]✗ Authentication failed. Check {postgres_user} user permissions.[/red]")
                     else:
                         console.print(f"[yellow]⚠️  {sql}: {error_msg}[/yellow]")
                     success = False
@@ -579,7 +667,7 @@ class PostgreSQLInstaller:
             for sql in schema_commands:
                 try:
                     subprocess.run(
-                        ["psql", "-U", "postgres", "-d", database, "-c", sql],
+                        ["psql", "-U", postgres_user, "-d", database, "-c", sql],
                         capture_output=True,
                         text=True,
                         timeout=10,
@@ -592,15 +680,52 @@ class PostgreSQLInstaller:
         # Build database URL
         db_url = f"postgresql+asyncpg://{user}:{password}@localhost:5432/{database}"
 
+        # Create/update .env file with DATABASE_URL
+        if success:
+            try:
+                env_path = Path(".env")
+                env_content = ""
+                
+                # Read existing .env if present
+                if env_path.exists():
+                    with open(env_path, "r", encoding="utf-8") as f:
+                        env_content = f.read()
+                
+                # Update or add DATABASE_URL
+                if "DATABASE_URL=" in env_content:
+                    # Replace existing DATABASE_URL
+                    lines = env_content.split("\n")
+                    updated_lines = []
+                    for line in lines:
+                        if line.startswith("DATABASE_URL="):
+                            updated_lines.append(f"DATABASE_URL={db_url}")
+                        else:
+                            updated_lines.append(line)
+                    env_content = "\n".join(updated_lines)
+                else:
+                    # Add DATABASE_URL
+                    if env_content and not env_content.endswith("\n"):
+                        env_content += "\n"
+                    env_content += f"\n# PostgreSQL connection (added by installer)\nDATABASE_URL={db_url}\n"
+                
+                # Write updated .env
+                with open(env_path, "w", encoding="utf-8") as f:
+                    f.write(env_content)
+                
+                console.print(f"[green]✓ Database URL saved to {env_path}[/green]")
+            except Exception as e:
+                console.print(f"[yellow]⚠️  Could not save to .env: {e}[/yellow]")
+                console.print(f"[dim]Please add manually: DATABASE_URL={db_url}[/dim]")
+
         if success:
             console.print("[green]✓ Database setup complete[/green]\n")
         else:
             console.print("[yellow]⚠️  Database setup had some issues[/yellow]\n")
             console.print("[bold]Manual setup instructions:[/bold]")
             console.print('  1. Ensure PostgreSQL is running')
-            console.print(f'  2. Run: psql -U postgres -c "{sql_commands[0]}"')
-            console.print(f'  3. Run: psql -U postgres -c "{sql_commands[1]}"')
-            console.print(f'  4. Run: psql -U postgres -c "{sql_commands[2]}"')
+            console.print(f'  2. Run: psql -U {postgres_user} -c "{sql_commands[0]}"')
+            console.print(f'  3. Run: psql -U {postgres_user} -c "{sql_commands[1]}"')
+            console.print(f'  4. Run: psql -U {postgres_user} -c "{sql_commands[2]}"')
             console.print('  5. Or visit: docs/POSTGRESQL_SETUP.md for detailed help\n')
 
         return success, db_url
@@ -636,13 +761,13 @@ class PostgreSQLInstaller:
             try:
                 if distro in ["ubuntu", "debian"]:
                     subprocess.run(
-                        ["sudo", "apt", "remove", "-y", "postgresql-15", "postgresql-contrib"],
+                        ["sudo", "apt", "remove", "-y", "postgresql-17", "postgresql-contrib"],
                         capture_output=True,
                         timeout=60,
                     )
                 elif distro in ["fedora", "rhel", "centos"]:
                     subprocess.run(
-                        ["sudo", "dnf", "remove", "-y", "postgresql15-server"],
+                        ["sudo", "dnf", "remove", "-y", "postgresql17-server"],
                         capture_output=True,
                         timeout=60,
                     )
@@ -653,7 +778,7 @@ class PostgreSQLInstaller:
                 
         elif self.os_type == "Windows":
             console.print("[yellow]⚠️  Manual cleanup required on Windows[/yellow]")
-            console.print("   Run: choco uninstall postgresql15 -y")
+            console.print(f"   Run: choco uninstall postgresql{self.version} -y")
             success = False
             
         console.print()

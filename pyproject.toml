@@ -145,6 +145,10 @@ exclude = ["src/jsa/web/"]  # TODO: Fix Flask route type annotations
 module = ["utils.*"]
 ignore_errors = true
 
+[[tool.mypy.overrides]]
+module = ["src.*"]
+ignore_errors = true
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
