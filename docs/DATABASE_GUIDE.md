@@ -33,9 +33,9 @@
 
 ### Limitations
 
-- Single writer at a time (fine for personal use)
+- Single writer at a time (not an issue for personal use)
 - No network access (data is local only)
-- Max database size ~280TB (not a practical limit)
+- Max database size: 280TB (you won't hit this)
 
 ### Setup
 

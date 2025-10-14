@@ -71,49 +71,38 @@ def test_looks_like_job_data_with_invalid_data():
 def test_is_job_object_valid():
     """Test job object validation with valid data."""
     scraper = GenericJSScraper()
-    
+
     # Valid job with title and location
-    assert scraper._is_job_object({
-        "title": "Software Engineer",
-        "location": "Remote"
-    })
-    
+    assert scraper._is_job_object({"title": "Software Engineer", "location": "Remote"})
+
     # Valid job with title and company
-    assert scraper._is_job_object({
-        "title": "Product Manager",
-        "company": "Acme Corp"
-    })
+    assert scraper._is_job_object({"title": "Product Manager", "company": "Acme Corp"})
 
 
 def test_is_job_object_invalid():
     """Test job object validation rejects invalid data."""
     scraper = GenericJSScraper()
-    
+
     # Missing title
-    assert not scraper._is_job_object({
-        "location": "Remote",
-        "company": "Acme Corp"
-    })
-    
+    assert not scraper._is_job_object({"location": "Remote", "company": "Acme Corp"})
+
     # Has title but no location or company
-    assert not scraper._is_job_object({
-        "title": "Engineer"
-    })
+    assert not scraper._is_job_object({"title": "Engineer"})
 
 
 def test_normalize_job_object():
     """Test job object normalization."""
     scraper = GenericJSScraper()
-    
+
     obj = {
         "title": "Senior Engineer",
         "location": "San Francisco",
         "url": "/jobs/123",
-        "description": "Great opportunity"
+        "description": "Great opportunity",
     }
-    
+
     job = scraper._normalize_job_object(obj, "Acme Corp", "https://acme.com")
-    
+
     assert job is not None
     assert job["title"] == "Senior Engineer"
     assert job["company"] == "Acme Corp"
@@ -126,14 +115,14 @@ def test_normalize_job_object():
 def test_normalize_job_object_with_dict_location():
     """Test normalization handles location as dictionary."""
     scraper = GenericJSScraper()
-    
+
     obj = {
         "title": "Engineer",
         "location": {"name": "New York", "country": "USA"},
     }
-    
+
     job = scraper._normalize_job_object(obj, "Acme", "https://acme.com")
-    
+
     assert job is not None
     assert "New York" in job["location"]
 
@@ -141,11 +130,11 @@ def test_normalize_job_object_with_dict_location():
 def test_normalize_job_object_missing_title():
     """Test normalization returns None without title."""
     scraper = GenericJSScraper()
-    
+
     obj = {"location": "Remote", "description": "Great job"}
-    
+
     job = scraper._normalize_job_object(obj, "Acme", "https://acme.com")
-    
+
     assert job is None
 
 
@@ -167,19 +156,15 @@ def test_detect_remote_not_remote():
 def test_extract_jobs_from_json_simple():
     """Test extracting jobs from simple JSON structure."""
     scraper = GenericJSScraper()
-    
+
     data = {
         "jobs": [
-            {
-                "title": "Software Engineer",
-                "location": "Remote",
-                "url": "https://example.com/job/1"
-            }
+            {"title": "Software Engineer", "location": "Remote", "url": "https://example.com/job/1"}
         ]
     }
-    
+
     jobs = scraper._extract_jobs_from_json(data, "https://example.com")
-    
+
     # Note: _extract_jobs_from_json recursively searches, so might not find
     # jobs in simple array. This is expected behavior.
     assert isinstance(jobs, list)
@@ -188,22 +173,18 @@ def test_extract_jobs_from_json_simple():
 def test_extract_jobs_from_json_nested():
     """Test extracting jobs from nested JSON structure."""
     scraper = GenericJSScraper()
-    
+
     data = {
         "data": {
             "company": {
                 "positions": [
-                    {
-                        "title": "Backend Engineer",
-                        "location": "NYC",
-                        "company": "Acme Inc"
-                    }
+                    {"title": "Backend Engineer", "location": "NYC", "company": "Acme Inc"}
                 ]
             }
         }
     }
-    
+
     jobs = scraper._extract_jobs_from_json(data, "https://acme.com")
-    
+
     assert isinstance(jobs, list)
     # The function should find job-like objects in nested structures
