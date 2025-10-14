@@ -1,8 +1,99 @@
 # JobSentinel Development Roadmap & Status Tracker
 
-**Last Updated:** October 14, 2025 - Session 7  
+**Last Updated:** October 14, 2025 - Session 8  
 **Version:** 0.6.0 → 0.7.0  
 **Mission:** Make JobSentinel THE BEST and MOST COMPLETE job search tool in the world!
+
+---
+
+## ⚡ INSTANT REFERENCE (CRITICAL INFO)
+
+### 🗄️ Database Schema (Session 8 - FIXED)
+**USE THESE MODELS:**
+- ✅ **Primary:** `src.database.Job` (18 fields, PostgreSQL)
+- ✅ **Tracking:** `jsa.tracker.models.TrackedJob` (Kanban/CRM)
+- ❌ **DEPRECATED:** `src.unified_database.UnifiedJob` (don't use)
+
+**KEY FIELDS IN JOB MODEL:**
+```python
+# Core fields
+id, hash, title, company, location, url, description, score
+
+# New fields (added Session 8)
+source, remote, salary_min, salary_max, currency
+
+# Timestamps
+created_at, updated_at, last_seen, times_seen
+
+# Notifications
+included_in_digest, immediate_alert_sent
+```
+
+**DOCUMENTATION:** See `docs/DATABASE_SCHEMA.md` for complete reference
+
+### ✅ Current Quality Status
+```
+Tests: 151 passed, 11 skipped, 0 failures (100% pass rate)
+Linting: 0 errors (Ruff)
+Type Check: 0 errors (mypy strict, 33 files)
+Coverage: 27% overall, 85%+ core modules
+```
+
+### 🔧 Essential Commands
+```bash
+# Before making changes
+make lint && make type && make test
+
+# After making changes  
+make fmt && make lint && make type && make test
+
+# Run specific tests
+python -m pytest tests/unit_jsa/test_fastapi_jobs.py -v
+```
+
+---
+
+## 🎯 QUICK START FOR AI AGENTS (READ THIS FIRST!)
+
+### Session 8 Database Schema Fixes (October 14, 2025) ✅ COMPLETE
+
+**WHAT WAS FIXED:**
+All major database schema mismatches and test failures have been resolved.
+
+**CHANGES MADE:**
+1. ✅ Created missing `src/jsa/fastapi_app/dependencies.py` module
+2. ✅ Added missing fields to Job model: `source`, `remote`, `salary_min`, `salary_max`, `currency`
+3. ✅ Fixed TrackedJob foreign key constraint (now properly references `job.id`)
+4. ✅ Fixed test database override to auto-convert SQLite URLs to async drivers
+5. ✅ Added comprehensive database schema documentation (`docs/DATABASE_SCHEMA.md`)
+6. ✅ Deprecated `src/unified_database.py` with clear migration path
+
+**CURRENT STATUS:**
+- ✅ Tests: 151 passed, 11 skipped, 0 failures (100% pass rate)
+- ✅ Linting: 0 errors (Ruff)
+- ✅ Type checking: 0 errors (mypy strict, 33 source files)
+- ✅ All FastAPI job endpoint tests now passing (22 tests fixed)
+
+**SCHEMA CONSOLIDATION:**
+- **Primary Model:** `src.database.Job` (18 fields, PostgreSQL)
+- **Deprecated:** `src.unified_database.UnifiedJob` (30+ fields, confusing)
+- **For Tracking:** `jsa.tracker.models.TrackedJob` (CRM features)
+
+**FILES CHANGED:**
+- `src/jsa/fastapi_app/dependencies.py` (NEW - dependency injection)
+- `src/jsa/fastapi_app/__init__.py` (export dependencies)
+- `src/jsa/db.py` (improved test override function)
+- `src/database.py` (added 5 fields to Job model)
+- `src/jsa/tracker/models.py` (fixed FK constraint)
+- `src/unified_database.py` (added deprecation warnings)
+- `docs/DATABASE_SCHEMA.md` (NEW - comprehensive schema docs)
+- `docs/UPDATE.md` (this file - Session 8 added)
+
+**FOR FUTURE WORK:**
+- Use `src.database.Job` for all new code (authoritative model)
+- Don't use `unified_database.py` (deprecated)
+- See `docs/DATABASE_SCHEMA.md` for complete schema reference
+- All tests must pass before committing (zero-error standard)
 
 ---
 

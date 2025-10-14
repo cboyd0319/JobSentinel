@@ -70,16 +70,32 @@ def override_database_url_for_testing(db_url: str) -> None:
 
     Use a file-backed SQLite URL to ensure both async and sync engines
     point to the same store, e.g., sqlite+aiosqlite:///tmp/test.sqlite
+    
+    Args:
+        db_url: Database URL. If using SQLite without async driver,
+                will auto-convert to sqlite+aiosqlite://
     """
     from sqlmodel import SQLModel
+    from sqlmodel.pool import StaticPool
 
-    async_url = db_url
-    sync_url = _derive_sync_url(db_url)
+    # Auto-convert plain sqlite:// to sqlite+aiosqlite:// for testing
+    if db_url.startswith("sqlite://") and not db_url.startswith("sqlite+"):
+        async_url = db_url.replace("sqlite://", "sqlite+aiosqlite://", 1)
+    else:
+        async_url = db_url
+    
+    sync_url = _derive_sync_url(async_url)
 
-    # Rebind engines in legacy module
-    legacy_db.async_engine = create_async_engine(async_url, echo=False)
-    connect_args = {"check_same_thread": False} if sync_url.startswith("sqlite") else {}
-    legacy_db.sync_engine = create_engine(sync_url, echo=False, connect_args=connect_args)
+    # Rebind engines in legacy module with StaticPool for in-memory databases
+    connect_args = {"check_same_thread": False} if "sqlite" in async_url else {}
+    poolclass = StaticPool if ":memory:" in async_url else None
+    
+    legacy_db.async_engine = create_async_engine(
+        async_url, echo=False, connect_args=connect_args, poolclass=poolclass
+    )
+    legacy_db.sync_engine = create_engine(
+        sync_url, echo=False, connect_args=connect_args, poolclass=poolclass
+    )
 
     # Import all models to ensure they're registered with SQLModel metadata
     from jsa.tracker.models import Activity, Contact, Document, TrackedJob  # noqa: F401
