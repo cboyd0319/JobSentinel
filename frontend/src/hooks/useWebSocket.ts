@@ -74,8 +74,8 @@ export function useWebSocket(options: UseWebSocketOptions = {}): UseWebSocketRet
 
   const wsRef = useRef<WebSocket | null>(null)
   const reconnectAttemptsRef = useRef(0)
-  const heartbeatTimerRef = useRef<NodeJS.Timeout | null>(null)
-  const reconnectTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const heartbeatTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const shouldConnectRef = useRef(true)
 
   const updateState = useCallback(
