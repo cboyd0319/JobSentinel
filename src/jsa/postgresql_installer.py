@@ -28,7 +28,6 @@ import subprocess
 import sys
 import time
 from pathlib import Path
-from typing import Any
 
 from rich.console import Console
 from rich.panel import Panel
@@ -209,16 +208,28 @@ class PostgreSQLInstaller:
 
     def _check_running_windows(self) -> bool:
         """Check if PostgreSQL is running on Windows."""
-        try:
-            result = subprocess.run(
-                ["sc", "query", "postgresql-x64-15"],
-                capture_output=True,
-                text=True,
-                timeout=5,
-            )
-            return "RUNNING" in result.stdout
-        except (FileNotFoundError, subprocess.TimeoutExpired):
-            return False
+        # Try multiple possible service names (version-specific and generic)
+        service_names = [
+            f"postgresql-x64-{self.version}",  # PostgreSQL 17 format
+            "postgresql-x64-15",  # Older version fallback
+            "postgresql",  # Generic name
+        ]
+        
+        for service_name in service_names:
+            try:
+                result = subprocess.run(
+                    ["sc", "query", service_name],
+                    capture_output=True,
+                    text=True,
+                    timeout=5,
+                )
+                if result.returncode == 0 and "RUNNING" in result.stdout:
+                    logger.debug(f"Found running PostgreSQL service: {service_name}")
+                    return True
+            except (FileNotFoundError, subprocess.TimeoutExpired):
+                continue
+        
+        return False
 
     def install_postgresql(self) -> bool:
         """Automatically install PostgreSQL based on the platform.
@@ -494,6 +505,17 @@ class PostgreSQLInstaller:
         Note: Windows installation requires manual steps or uses Chocolatey.
         """
         console.print("[bold]Windows Installation[/bold]\n")
+        
+        # Check for admin rights
+        try:
+            import ctypes
+            is_admin = ctypes.windll.shell32.IsUserAnAdmin() != 0
+            if not is_admin:
+                console.print("[yellow]⚠️  Not running as Administrator.[/yellow]")
+                console.print("[yellow]   PostgreSQL installation may require admin rights.[/yellow]")
+                console.print("[yellow]   If installation fails, restart as Administrator.[/yellow]\n")
+        except Exception:
+            pass  # Can't determine admin status, proceed anyway
 
         # Check if Chocolatey is available
         if shutil.which("choco"):
@@ -542,29 +564,49 @@ class PostgreSQLInstaller:
             task = progress.add_task(f"Installing PostgreSQL {self.version}...", total=None)
 
             try:
-                result = subprocess.run(
-                    ["choco", "install", f"postgresql{self.version}", "-y"],
-                    capture_output=True,
-                    text=True,
-                    timeout=600,
-                )
+                # Try version-specific package first, fallback to generic
+                package_names = [f"postgresql{self.version}", "postgresql"]
+                
+                for package_name in package_names:
+                    result = subprocess.run(
+                        ["choco", "install", package_name, "-y", "--limit-output"],
+                        capture_output=True,
+                        text=True,
+                        timeout=600,
+                    )
 
-                if result.returncode != 0:
-                    console.print(f"[red]✗ Installation failed: {result.stderr}[/red]")
-                    return False
+                    if result.returncode == 0:
+                        progress.update(task, completed=True)
+                        console.print(f"[green]✓ PostgreSQL installed via package: {package_name}[/green]\n")
+                        
+                        # Wait for service to start
+                        console.print("[dim]Waiting for service to start...[/dim]")
+                        time.sleep(10)
+                        
+                        # Verify service is running
+                        if self._check_running_windows():
+                            console.print("[green]✓ PostgreSQL service started automatically[/green]\n")
+                            return True
+                        else:
+                            console.print("[yellow]⚠️  Service may need manual start[/yellow]")
+                            console.print("[dim]Try: net start postgresql-x64-17[/dim]\n")
+                            return True  # Consider it successful if install worked
+                    
+                    # If this package name failed, try next one
+                    logger.debug(f"Package {package_name} not found, trying alternatives...")
 
-                progress.update(task, completed=True)
-                console.print(f"[green]✓ PostgreSQL {self.version} installed[/green]\n")
-
-                # Wait for service to start
-                time.sleep(5)
-
-            except subprocess.TimeoutExpired:
-                console.print("[red]✗ Installation timed out[/red]")
+                # All package names failed
+                console.print(f"[red]✗ Installation failed. Tried: {', '.join(package_names)}[/red]")
+                console.print(f"[yellow]Error: {result.stderr}[/yellow]")
                 return False
 
-        console.print("[green]✓ PostgreSQL service started automatically[/green]\n")
-        return True
+            except subprocess.TimeoutExpired:
+                console.print("[red]✗ Installation timed out (10 minutes)[/red]")
+                console.print("[yellow]This may be due to slow download or system performance.[/yellow]")
+                return False
+            except Exception as e:
+                console.print(f"[red]✗ Unexpected error: {e}[/red]")
+                return False
 
     def setup_database(
         self,
@@ -777,9 +819,32 @@ class PostgreSQLInstaller:
                 success = False
                 
         elif self.os_type == "Windows":
-            console.print("[yellow]⚠️  Manual cleanup required on Windows[/yellow]")
-            console.print(f"   Run: choco uninstall postgresql{self.version} -y")
-            success = False
+            # Attempt automated rollback if Chocolatey is available
+            if shutil.which("choco"):
+                console.print("[yellow]Attempting automated cleanup via Chocolatey...[/yellow]")
+                try:
+                    # Try multiple package name variations
+                    for pkg_name in [f"postgresql{self.version}", "postgresql"]:
+                        result = subprocess.run(
+                            ["choco", "uninstall", pkg_name, "-y"],
+                            capture_output=True,
+                            timeout=120,
+                        )
+                        if result.returncode == 0:
+                            console.print(f"[green]✓ Removed package: {pkg_name}[/green]")
+                            success = True
+                            break
+                    
+                    if not success:
+                        console.print("[yellow]⚠️  Could not remove via Chocolatey[/yellow]")
+                        console.print(f"   Try manually: choco uninstall postgresql{self.version} -y")
+                except Exception as e:
+                    console.print(f"[yellow]⚠️  Cleanup error: {e}[/yellow]")
+                    success = False
+            else:
+                console.print("[yellow]⚠️  Manual cleanup required (Chocolatey not available)[/yellow]")
+                console.print("   Use Windows 'Add or Remove Programs' to uninstall PostgreSQL")
+                success = False
             
         console.print()
         return success
