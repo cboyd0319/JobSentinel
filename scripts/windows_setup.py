@@ -180,12 +180,14 @@ def install_dependencies(project_root: Path) -> bool:
 
     try:
         # Install in development mode with basic dependencies
-        result = subprocess.run(
+        # Security: Using sys.executable (trusted) with hardcoded pip command
+        result = subprocess.run(  # nosec B603 - controlled input (sys.executable + literal args)
             [sys.executable, "-m", "pip", "install", "-e", ".", "--quiet"],
             cwd=project_root,
             capture_output=True,
             text=True,
             timeout=300,
+            check=False,
         )
 
         if result.returncode != 0:
@@ -211,11 +213,13 @@ def install_playwright() -> bool:
     print()
 
     try:
-        result = subprocess.run(
+        # Security: Using sys.executable (trusted) with hardcoded playwright command
+        result = subprocess.run(  # nosec B603 - controlled input (sys.executable + literal args)
             [sys.executable, "-m", "playwright", "install", "chromium"],
             capture_output=True,
             text=True,
             timeout=300,
+            check=False,
         )
 
         if result.returncode != 0:
@@ -268,8 +272,12 @@ def run_setup_wizard(project_root: Path) -> bool:
     print()
 
     try:
-        result = subprocess.run(
-            [sys.executable, "-m", "jsa.cli", "setup"], cwd=project_root, timeout=300
+        # Security: Using sys.executable (trusted) with hardcoded module path
+        result = subprocess.run(  # nosec B603 - controlled input (sys.executable + literal args)
+            [sys.executable, "-m", "jsa.cli", "setup"], 
+            cwd=project_root, 
+            timeout=300,
+            check=False,
         )
 
         if result.returncode != 0:
@@ -296,8 +304,12 @@ def run_health_check(project_root: Path) -> bool:
     print()
 
     try:
-        result = subprocess.run(
-            [sys.executable, "-m", "jsa.cli", "health"], cwd=project_root, timeout=30
+        # Security: Using sys.executable (trusted) with hardcoded module path
+        result = subprocess.run(  # nosec B603 - controlled input (sys.executable + literal args)
+            [sys.executable, "-m", "jsa.cli", "health"], 
+            cwd=project_root, 
+            timeout=30,
+            check=False,
         )
 
         print()
@@ -412,6 +424,12 @@ def main():
     # Detect project root
     script_dir = Path(__file__).parent
     project_root = script_dir.parent
+
+    # Security: Validate we're in a reasonable project directory
+    if not (project_root / "pyproject.toml").exists():
+        print("❌ Error: Not running from JobSentinel project directory")
+        print(f"   Expected pyproject.toml in: {project_root}")
+        return 1
 
     print(f"📍 Project root: {project_root}\n")
 
