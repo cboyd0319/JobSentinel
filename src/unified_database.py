@@ -5,14 +5,14 @@
 This module is DEPRECATED and maintained for backward compatibility only.
 
 **Migration Path:**
-- Use `src.database.Job` as the authoritative model (with PostgreSQL)
+- Use `src.database.Job` as the authoritative model (with SQLite)
 - The Job model now includes: source, remote, salary_min, salary_max, currency
 - TrackedJob model provides CRM/Kanban tracking features
 - UnifiedJob has 30+ fields but causes schema confusion
 
 **Why deprecated:**
 - Multiple competing Job models caused schema mismatches
-- PostgreSQL is now the primary database (not SQLite)
+- SQLite is now the only database (simpler, no installation)
 - Extended fields should be in separate related tables (TrackedJob, etc.)
 
 **For new code:**
