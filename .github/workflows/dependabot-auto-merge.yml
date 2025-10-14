@@ -18,12 +18,26 @@ jobs:
         id: metadata
         uses: dependabot/fetch-metadata@dbb049abf0d677abbd7f7eee0375145b417fdd34 # v2.2.0
 
+      - name: Auto-approve and merge security updates
+        # Security updates are automatically merged regardless of semver
+        # This ensures vulnerable dependencies are updated ASAP
+        if: |
+          contains(steps.metadata.outputs.dependency-names, 'security') ||
+          steps.metadata.outputs.alert-state != ''
+        run: |
+          gh pr review --approve "$PR_URL" --body "🔒 **Security update** - auto-approved and auto-merging"
+          gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Enable auto-merge for patch and minor updates
-        # Auto-merge for patch and minor updates only
+        # Auto-merge for patch and minor updates only (non-security)
         # Note: Approval handled by branch protection or repository settings
         if: |
-          steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
-          steps.metadata.outputs.update-type == 'version-update:semver-minor'
+          (steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
+           steps.metadata.outputs.update-type == 'version-update:semver-minor') &&
+          steps.metadata.outputs.alert-state == ''
         run: gh pr merge --auto --squash "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
@@ -31,7 +45,9 @@ jobs:
 
       - name: Comment on major updates
         # Comment on major updates that require manual review
-        if: steps.metadata.outputs.update-type == 'version-update:semver-major'
+        if: |
+          steps.metadata.outputs.update-type == 'version-update:semver-major' &&
+          steps.metadata.outputs.alert-state == ''
         run: |
           gh pr comment "$PR_URL" --body "⚠️ This is a **major version update** and requires manual review before merging."
         env:

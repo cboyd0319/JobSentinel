@@ -2,60 +2,133 @@
 
 ## Supported Versions
 
-We support the latest minor version with security patches.
+Latest minor version only. Upgrade to stay secure.
 
-| Version | Supported |
-| ------- | --------- |
-| 0.6.x   | ✅        |
-| < 0.6   | ❌        |
+| Version | Support | Auto-Update |
+|---------|---------|-------------|
+| 0.6.x   | ✅ Active | ✅ Available |
+| < 0.6   | ❌ EOL | ⚠️ Manual upgrade |
 
-## Reporting a Vulnerability
+## Auto-Update Security (Windows)
 
-**Contact:** Report via GitHub at https://github.com/cboyd0319/JobSentinel/issues
+JobSentinel includes automatic security updates — zero admin rights required.
 
-**Response time:** 3 business days
+**Features:**
+- **Security detection** — Scans release notes for vulnerability keywords (CVE, exploit, critical)
+- **Auto-backup** — Creates restore point before every update (mandatory)
+- **Health verification** — Tests installation after update
+- **Auto-rollback** — Restores previous version if update fails
+- **SHA256 checksums** — Validates package integrity (when available in release)
+- **Security-only mode** — `python -m jsa.cli update --security-only` checks only for security updates
 
-**What to include:**
-- Description of the vulnerability
-- Steps to reproduce
-- Potential impact
-- Suggested fix (if any)
+**Usage:**
+```bash
+# Check for security updates only
+python -m jsa.cli update --security-only --check-only
 
-**Do NOT:**
-- Open a public GitHub issue for security vulnerabilities
-- Disclose publicly before we've addressed it
+# Auto-install security updates (recommended for scheduled tasks)
+python -m jsa.cli update --security-only --auto
 
-We follow responsible disclosure and credit reporters (unless anonymous preferred).
+# Check all updates with prompt
+python -m jsa.cli update
+```
 
-## Security
+**How it works:**
+1. Queries GitHub releases API (no telemetry)
+2. Parses release notes for security keywords
+3. Creates automatic backup to `backups/before_vX.Y.Z_update.tar.gz`
+4. Installs via pip from GitHub tag
+5. Runs health check (`jsa.cli health`)
+6. Auto-restores if health check fails
 
-**Secrets:** Use `.env` or environment variables; never commit. Required: `SLACK_WEBHOOK_URL` (if using Slack). Optional: `OPENAI_API_KEY`, Reed API key, SMTP credentials.
+**Risk:** Low. Updates use official GitHub releases via pip. Backup+rollback prevent data loss.
 
-**Least privilege:** Scrapers = read-only job sites. Slack webhook = `incoming-webhook` scope only. SQLite = file-system permissions.
+## Reporting Vulnerabilities
 
-**Supply chain:** Dependencies pinned in `pyproject.toml`. Playwright browsers from official CDN. No executable scripts in dependencies.
+**Contact:** GitHub issues at https://github.com/cboyd0319/JobSentinel/issues  
+**Response:** 3 business days  
+**Process:** Responsible disclosure, credit reporters (anonymous OK)
 
-**Disclosure:** Report via GitHub issues at https://github.com/cboyd0319/JobSentinel/issues. Response SLA: 3 business days.
+**Include:**
+- Vulnerability description
+- Reproduction steps
+- Impact assessment
+- Fix suggestion (optional)
+
+**Don't:**
+- Post publicly before patch
+- Disclose exploits in public issues
+
+## Security Architecture
+
+**Secrets:**
+- Store in `.env` file (gitignored) or environment variables
+- Required (if enabled): `SLACK_WEBHOOK_URL`, SMTP credentials
+- Optional: `OPENAI_API_KEY`, Reed API key
+- Never committed to git
+
+**Least privilege:**
+- Scrapers: read-only HTTP requests to public job sites
+- Slack: `incoming-webhook` scope only
+- Database: file-system permissions (SQLite)
+- No admin rights: runs in user directory on Windows
+
+**Supply chain:**
+- Dependencies pinned in `pyproject.toml`
+- Dependabot auto-merge for security updates (patch/minor)
+- Manual review for major version bumps
+- `pip-audit` in CI/CD (fails on high/critical CVEs)
+- PyGuard scans 20+ vulnerability categories weekly
+- Playwright browsers from official Mozilla CDN
+
+**Network access:**
+- Job board websites (scraping only)
+- SMTP servers (if email configured)
+- Slack webhook (if configured)
+- GitHub API (update checks only)
+- No telemetry, no analytics, no third-party tracking
 
 ## Security Best Practices
 
-### Local Deployment
-- SQLite database stored locally with file-system permissions
-- No telemetry or external data transmission (except configured alerts)
-- Scrapers respect `robots.txt` and include rate limiting
+### Local Deployment (default)
+- SQLite in user directory (no admin rights)
+- All data local (zero cloud services)
+- Scrapers respect `robots.txt` + rate limits
+- No external data transmission except configured alerts
 
-### Cloud Deployment
-- Use separate credentials for cloud environments
-- Store secrets in cloud provider's secret manager (GCP Secret Manager, AWS Secrets Manager)
-- Enable encryption at rest for databases
-- Use least-privilege IAM roles
-- Enable audit logging
+### Cloud Deployment (optional)
+- Secrets in cloud provider vault (GCP Secret Manager, AWS Secrets Manager)
+- Encrypt databases at rest
+- Least-privilege IAM roles
+- Enable audit logs
+- Network egress controls
 
-### Dependencies
-- Pin versions in `pyproject.toml`
-- Run `pip-audit` regularly for CVE checks
-- Update dependencies via Dependabot or manual review
+### Dependency Hygiene
+- Automated: Dependabot + GitHub Security Advisories
+- CI/CD: `pip-audit` + PyGuard on every PR
+- Manual: Review `CHANGELOG.md` for breaking changes
+- Rollback: `python -m jsa.cli backup restore` if issues
 
-## PGP Key
+### Windows-Specific
+- No PowerShell execution policy bypass
+- Desktop shortcuts via `pywin32` (no registry edits)
+- Portable Node.js (no system-wide install)
+- Python venv (isolated dependencies)
 
-Not yet configured. Update this section when available.
+## Disclosure Timeline
+
+1. **Report received** — 1 business day acknowledgement
+2. **Triage** — 3 business days assessment
+3. **Fix development** — 1-14 days (depends on severity)
+4. **Release** — Tagged GitHub release with security notes
+5. **Public disclosure** — After fix released (coordinated with reporter)
+
+## Hall of Fame
+
+Security researchers who responsibly disclosed vulnerabilities:
+
+*(None yet — be the first!)*
+
+---
+
+**Questions?** Open a discussion: https://github.com/cboyd0319/JobSentinel/discussions

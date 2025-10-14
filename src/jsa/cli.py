@@ -293,17 +293,25 @@ def _cmd_update(args: argparse.Namespace) -> int:
         updater = AutoUpdater()
 
         if args.check_only:
-            release = updater.check_for_updates(include_prereleases=args.include_prereleases)
+            release = updater.check_for_updates(
+                include_prereleases=args.include_prereleases,
+                security_only=args.security_only,
+            )
             if release:
                 updater.display_update_info(release)
                 print()
                 print("To install, run: python -m jsa.cli update")
                 return 0
             else:
-                print(f"✓ JobSentinel v{updater.current_version} is up to date")
+                if args.security_only:
+                    print(f"✓ No security updates available for v{updater.current_version}")
+                else:
+                    print(f"✓ JobSentinel v{updater.current_version} is up to date")
                 return 0
         else:
-            success = updater.check_and_prompt(auto_update=args.auto)
+            success = updater.check_and_prompt(
+                auto_update=args.auto, security_only=args.security_only
+            )
             return 0 if success or not args.auto else 1
 
     except ImportError as e:
@@ -508,8 +516,11 @@ def build_parser() -> argparse.ArgumentParser:
     p_setup = sub.add_parser(
         "setup",
         help="Interactive setup wizard for first-time configuration",
-        description="Run the interactive setup wizard to configure JobSentinel for first-time use. "
-        "This will guide you through configuring keywords, locations, job sources, database, and Slack notifications.",
+        description=(
+            "Run the interactive setup wizard to configure JobSentinel for first-time use. "
+            "This will guide you through configuring keywords, locations, job sources, "
+            "database, and Slack notifications."
+        ),
     )
     p_setup.set_defaults(func=_cmd_setup)
 
@@ -562,9 +573,11 @@ def build_parser() -> argparse.ArgumentParser:
     p_preflight = sub.add_parser(
         "preflight",
         help="Run pre-flight system checks before installation",
-        description="Comprehensive validation of system requirements, resources, and configuration. "
-        "Provides actionable feedback for any issues found. Run this before installation or "
-        "when troubleshooting.",
+        description=(
+            "Comprehensive validation of system requirements, resources, and configuration. "
+            "Provides actionable feedback for any issues found. Run this before installation "
+            "or when troubleshooting."
+        ),
     )
     p_preflight.add_argument(
         "--fix",
@@ -644,7 +657,8 @@ def build_parser() -> argparse.ArgumentParser:
         "update",
         help="Check for and install updates",
         description="Check for JobSentinel updates and install them. "
-        "Includes automatic backup before updating and verification after. "
+        "Includes automatic backup before updating, verification after, "
+        "and automatic rollback on failure. "
         "Zero admin rights required - Windows friendly!",
     )
     p_update.add_argument(
@@ -661,6 +675,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--include-prereleases",
         action="store_true",
         help="Include beta/alpha releases",
+    )
+    p_update.add_argument(
+        "--security-only",
+        action="store_true",
+        help="Only check for security updates (recommended for automated checks)",
     )
     p_update.set_defaults(func=_cmd_update)
 
