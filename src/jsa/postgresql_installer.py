@@ -512,8 +512,12 @@ class PostgreSQLInstaller:
             is_admin = ctypes.windll.shell32.IsUserAnAdmin() != 0
             if not is_admin:
                 console.print("[yellow]⚠️  Not running as Administrator.[/yellow]")
-                console.print("[yellow]   PostgreSQL installation may require admin rights.[/yellow]")
-                console.print("[yellow]   If installation fails, restart as Administrator.[/yellow]\n")
+                console.print(
+                    "[yellow]   PostgreSQL installation may require admin rights.[/yellow]"
+                )
+                console.print(
+                    "[yellow]   If installation fails, restart as Administrator.[/yellow]\n"
+                )
         except Exception:
             pass  # Can't determine admin status, proceed anyway
 
@@ -577,7 +581,10 @@ class PostgreSQLInstaller:
 
                     if result.returncode == 0:
                         progress.update(task, completed=True)
-                        console.print(f"[green]✓ PostgreSQL installed via package: {package_name}[/green]\n")
+                        console.print(
+                            f"[green]✓ PostgreSQL installed via package: "
+                            f"{package_name}[/green]\n"
+                        )
                         
                         # Wait for service to start
                         console.print("[dim]Waiting for service to start...[/dim]")
@@ -585,7 +592,9 @@ class PostgreSQLInstaller:
                         
                         # Verify service is running
                         if self._check_running_windows():
-                            console.print("[green]✓ PostgreSQL service started automatically[/green]\n")
+                            console.print(
+                                "[green]✓ PostgreSQL service started automatically[/green]\n"
+                            )
                             return True
                         else:
                             console.print("[yellow]⚠️  Service may need manual start[/yellow]")
@@ -596,13 +605,16 @@ class PostgreSQLInstaller:
                     logger.debug(f"Package {package_name} not found, trying alternatives...")
 
                 # All package names failed
-                console.print(f"[red]✗ Installation failed. Tried: {', '.join(package_names)}[/red]")
+                pkg_list = ', '.join(package_names)
+                console.print(f"[red]✗ Installation failed. Tried: {pkg_list}[/red]")
                 console.print(f"[yellow]Error: {result.stderr}[/yellow]")
                 return False
 
             except subprocess.TimeoutExpired:
                 console.print("[red]✗ Installation timed out (10 minutes)[/red]")
-                console.print("[yellow]This may be due to slow download or system performance.[/yellow]")
+                console.print(
+                    "[yellow]This may be due to slow download or system performance.[/yellow]"
+                )
                 return False
             except Exception as e:
                 console.print(f"[red]✗ Unexpected error: {e}[/red]")
@@ -629,16 +641,25 @@ class PostgreSQLInstaller:
         # Security: Validate database name and user (alphanumeric + underscore only)
         import re
         if not re.match(r'^[a-zA-Z0-9_]+$', database):
-            console.print("[red]✗ Invalid database name. Use only letters, numbers, and underscores.[/red]")
+            console.print(
+                "[red]✗ Invalid database name. "
+                "Use only letters, numbers, and underscores.[/red]"
+            )
             return False, ""
         if not re.match(r'^[a-zA-Z0-9_]+$', user):
-            console.print("[red]✗ Invalid username. Use only letters, numbers, and underscores.[/red]")
+            console.print(
+                "[red]✗ Invalid username. "
+                "Use only letters, numbers, and underscores.[/red]"
+            )
             return False, ""
         
         # Security: Warn if using default password
         # noqa: S105 - Checking against default value, not hardcoding password
         if password == "jobsentinel":  # noqa: S105
-            console.print("[yellow]⚠️  Using default password. Consider setting a strong password for production use.[/yellow]\n")
+            console.print(
+                "[yellow]⚠️  Using default password. "
+                "Consider setting a strong password for production use.[/yellow]\n"
+            )
 
         # Create SQL commands with proper escaping
         sql_commands = [
@@ -659,7 +680,10 @@ class PostgreSQLInstaller:
         if self.os_type == "Darwin":
             import getpass
             postgres_user = getpass.getuser()
-            console.print(f"[dim]Using macOS user '{postgres_user}' for database administration[/dim]\n")
+            console.print(
+                f"[dim]Using macOS user '{postgres_user}' "
+                f"for database administration[/dim]\n"
+            )
         
         # Try to create database and user with better error handling
         success = True
@@ -684,10 +708,18 @@ class PostgreSQLInstaller:
                     error_msg = result.stderr.strip()
                     if "could not connect" in error_msg.lower():
                         console.print("[red]✗ Cannot connect to PostgreSQL. Is it running?[/red]")
-                        console.print(f"[yellow]   Try: brew services start postgresql@{self.version} (macOS)[/yellow]")
-                        console.print("[yellow]   Try: sudo systemctl start postgresql (Linux)[/yellow]")
+                        console.print(
+                            f"[yellow]   Try: brew services start "
+                            f"postgresql@{self.version} (macOS)[/yellow]"
+                        )
+                        console.print(
+                            "[yellow]   Try: sudo systemctl start postgresql (Linux)[/yellow]"
+                        )
                     elif "authentication failed" in error_msg.lower():
-                        console.print(f"[red]✗ Authentication failed. Check {postgres_user} user permissions.[/red]")
+                        console.print(
+                            f"[red]✗ Authentication failed. "
+                            f"Check {postgres_user} user permissions.[/red]"
+                        )
                     else:
                         console.print(f"[yellow]⚠️  {sql}: {error_msg}[/yellow]")
                     success = False
@@ -697,7 +729,10 @@ class PostgreSQLInstaller:
                 console.print("[yellow]   Database server may be unresponsive[/yellow]")
                 success = False
             except FileNotFoundError:
-                console.print("[red]✗ 'psql' command not found. PostgreSQL may not be properly installed.[/red]")
+                console.print(
+                    "[red]✗ 'psql' command not found. "
+                    "PostgreSQL may not be properly installed.[/red]"
+                )
                 success = False
                 break
             except Exception as e:
@@ -748,7 +783,10 @@ class PostgreSQLInstaller:
                     # Add DATABASE_URL
                     if env_content and not env_content.endswith("\n"):
                         env_content += "\n"
-                    env_content += f"\n# PostgreSQL connection (added by installer)\nDATABASE_URL={db_url}\n"
+                    env_content += (
+                        f"\n# PostgreSQL connection (added by installer)\n"
+                        f"DATABASE_URL={db_url}\n"
+                    )
                 
                 # Write updated .env
                 with open(env_path, "w", encoding="utf-8") as f:
@@ -837,13 +875,19 @@ class PostgreSQLInstaller:
                     
                     if not success:
                         console.print("[yellow]⚠️  Could not remove via Chocolatey[/yellow]")
-                        console.print(f"   Try manually: choco uninstall postgresql{self.version} -y")
+                        console.print(
+                            f"   Try manually: choco uninstall postgresql{self.version} -y"
+                        )
                 except Exception as e:
                     console.print(f"[yellow]⚠️  Cleanup error: {e}[/yellow]")
                     success = False
             else:
-                console.print("[yellow]⚠️  Manual cleanup required (Chocolatey not available)[/yellow]")
-                console.print("   Use Windows 'Add or Remove Programs' to uninstall PostgreSQL")
+                console.print(
+                    "[yellow]⚠️  Manual cleanup required (Chocolatey not available)[/yellow]"
+                )
+                console.print(
+                    "   Use Windows 'Add or Remove Programs' to uninstall PostgreSQL"
+                )
                 success = False
             
         console.print()

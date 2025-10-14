@@ -1221,7 +1221,10 @@ class UniversalInstaller:
             logger.warning("Skipping automation setup. Set up manually later.")
             return True
 
-        cron_entry = f"0 9 * * * cd {self.project_root} && {venv_python} {script_path} --mode poll >> {log_dir}/cron.log 2>&1\n"
+        cron_entry = (
+            f"0 9 * * * cd {self.project_root} && {venv_python} {script_path} "
+            f"--mode poll >> {log_dir}/cron.log 2>&1\n"
+        )
 
         logger.info("\n📋 To enable automated job searches, add this to your crontab:")
         logger.info("Run: crontab -e")
@@ -1352,9 +1355,8 @@ class UniversalInstaller:
             python_found, python_path = self.check_python()
 
             if not python_found:
-                logger.info(
-                    f"\nPython {REQUIRED_PYTHON[0]}.{REQUIRED_PYTHON[1]}+ is required but not found."
-                )
+                req_ver = f"{REQUIRED_PYTHON[0]}.{REQUIRED_PYTHON[1]}+"
+                logger.info(f"\nPython {req_ver} is required but not found.")
 
                 if self.platform.os_name == "windows":
                     if not self.install_python_windows():

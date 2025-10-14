@@ -27,12 +27,17 @@ JobSentinel is designed to work identically across all major platforms. This gui
 
 ### Windows 11
 
+**⚠️ IMPORTANT: Python Version**
+- ✅ Use Python 3.11 or 3.12 ONLY
+- ❌ Python 3.13 is NOT supported (dependency build failures)
+- Recommended: Python 3.12.7
+
 #### Option 1: Native Windows (PowerShell)
 
 **Prerequisites:**
 ```powershell
-# Install Python 3.11+ from python.org or Microsoft Store
-winget install Python.Python.3.11
+# Install Python 3.12 from python.org or Microsoft Store
+winget install Python.Python.3.12
 
 # Install Node.js
 winget install OpenJS.NodeJS.LTS
@@ -69,19 +74,42 @@ notepad config\user_prefs.json
 ```
 
 **Common Issues:**
-- **Long Path Issues:** Enable long paths in Windows:
-  ```powershell
-  New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" `
-    -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force
-  ```
-- **SSL Errors:** Install certificates:
-  ```powershell
-  pip install --upgrade certifi
-  ```
-- **Playwright Errors:** Run as administrator:
-  ```powershell
-  playwright install --with-deps chromium
-  ```
+
+1. **Admin Rights Required**
+   - Some operations (PostgreSQL install, Playwright browsers) may need admin rights
+   - If installation fails, right-click PowerShell → "Run as Administrator"
+
+2. **Long Path Issues** 
+   - Enable long paths in Windows (recommended):
+     ```powershell
+     New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" `
+       -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force
+     ```
+
+3. **Execution Policy Restricted**
+   - If PowerShell blocks scripts, run:
+     ```powershell
+     Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+     ```
+
+4. **SSL Errors** 
+   - Install certificates:
+     ```powershell
+     pip install --upgrade certifi
+     ```
+
+5. **Playwright Errors** 
+   - Run as administrator:
+     ```powershell
+     playwright install --with-deps chromium
+     ```
+
+6. **PostgreSQL Service Won't Start**
+   - Check Windows Firewall (port 5432 may be blocked)
+   - Manually start service:
+     ```powershell
+     net start postgresql-x64-17
+     ```
 
 #### Option 2: WSL2 (Recommended)
 
