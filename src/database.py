@@ -37,9 +37,13 @@ class Job(SQLModel, table=True):
     alert_sent_at: datetime | None = None
 
 
-# The path to the SQLite database file
-# DB_FILE = "data/jobs.sqlite" # Moved to config
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///data/jobs.sqlite")
+# PostgreSQL-first architecture for cross-platform/cross-cloud deployments
+# Default to local PostgreSQL (single-user setup)
+# PostgreSQL has installers for macOS, Linux, and Windows
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "postgresql+asyncpg://jobsentinel:jobsentinel@localhost:5432/jobsentinel"
+)
 
 
 def _derive_sync_url(db_url: str) -> str:
@@ -58,48 +62,30 @@ def _derive_sync_url(db_url: str) -> str:
 ASYNC_DATABASE_URL = DATABASE_URL
 SYNC_DATABASE_URL = _derive_sync_url(DATABASE_URL)
 
-# Connection pooling configuration (optimized for PostgreSQL, safe for SQLite)
-from sqlalchemy.pool import NullPool, QueuePool
+# PostgreSQL connection pooling configuration (optimized for local single-user)
+from sqlalchemy.pool import QueuePool, AsyncAdaptedQueuePool
 
-is_sqlite = ASYNC_DATABASE_URL.startswith("sqlite")
+pool_size = int(os.getenv("DB_POOL_SIZE", "10"))  # Smaller pool for single-user
+max_overflow = int(os.getenv("DB_POOL_MAX_OVERFLOW", "5"))
+pool_pre_ping = os.getenv("DB_POOL_PRE_PING", "true").lower() == "true"
 
-# For PostgreSQL, enable connection pooling
-if not is_sqlite:
-    pool_size = int(os.getenv("DB_POOL_SIZE", "20"))
-    max_overflow = int(os.getenv("DB_POOL_MAX_OVERFLOW", "10"))
-    pool_pre_ping = os.getenv("DB_POOL_PRE_PING", "true").lower() == "true"
+async_engine = create_async_engine(
+    ASYNC_DATABASE_URL,
+    echo=False,
+    poolclass=AsyncAdaptedQueuePool,
+    pool_size=pool_size,
+    max_overflow=max_overflow,
+    pool_pre_ping=pool_pre_ping,
+)
 
-    async_engine = create_async_engine(
-        ASYNC_DATABASE_URL,
-        echo=False,
-        poolclass=QueuePool,
-        pool_size=pool_size,
-        max_overflow=max_overflow,
-        pool_pre_ping=pool_pre_ping,
-    )
-
-    sync_engine = create_engine(
-        SYNC_DATABASE_URL,
-        echo=False,
-        poolclass=QueuePool,
-        pool_size=pool_size,
-        max_overflow=max_overflow,
-        pool_pre_ping=pool_pre_ping,
-    )
-else:
-    # For SQLite, use NullPool to avoid issues
-    async_engine = create_async_engine(
-        ASYNC_DATABASE_URL,
-        echo=False,
-        poolclass=NullPool,
-    )
-
-    sync_engine = create_engine(
-        SYNC_DATABASE_URL,
-        echo=False,
-        connect_args={"check_same_thread": False},
-        poolclass=NullPool,
-    )
+sync_engine = create_engine(
+    SYNC_DATABASE_URL,
+    echo=False,
+    poolclass=QueuePool,
+    pool_size=pool_size,
+    max_overflow=max_overflow,
+    pool_pre_ping=pool_pre_ping,
+)
 logger = get_logger("database")
 
 

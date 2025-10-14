@@ -13,7 +13,7 @@ authors = [{ name = "Project Author", email = "noreply@users.noreply.github.com"
 dependencies = [
   "aiofiles>=25.0,<26",
   "aiohttp>=3.9,<4",
-  "aiosqlite>=0.20,<0.22",
+  "asyncpg>=0.30,<0.31",  # PostgreSQL async driver (core dependency)
   "beautifulsoup4>=4.12,<5",
   "cryptography>=44.0.1,<47",
   "fastapi>=0.119,<0.120",
@@ -26,6 +26,7 @@ dependencies = [
   "lxml>=4.9,<7",
   "playwright>=1.44,<1.56",
   "psutil>=5.9,<8",
+  "psycopg2-binary>=2.9,<3",  # PostgreSQL sync driver (core dependency)
   "pydantic>=2.6,<2.13",
   "python-dotenv>=1.0,<2",
   "requests>=2.31,<3",
@@ -37,10 +38,6 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-postgres = [
-  "asyncpg>=0.30,<0.31",
-  "psycopg2-binary>=2.9,<3",
-]
 resume = [
   "pdfplumber>=0.10,<0.11",
   "python-docx>=1.0,<1.1",
@@ -123,7 +120,7 @@ ignore = [
 "src/jsa/db.py" = ["I001"]
 "src/jsa/web/blueprints/skills.py" = ["I001"]
 "src/jsa/cli.py" = ["I001"]
-"src/jsa/setup_wizard.py" = ["S603"]  # subprocess with trusted input (our own CLI)
+"src/jsa/setup_wizard.py" = ["S603", "S607"]  # subprocess with trusted input (PostgreSQL setup)
 "src/jsa/fastapi_app/routers/*.py" = ["B904"]  # Intentional exception conversion to HTTPException
 
 [tool.mypy]
