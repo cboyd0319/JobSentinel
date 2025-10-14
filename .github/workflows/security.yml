@@ -35,28 +35,13 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - name: Run PyGuard Security Analysis
+        uses: cboyd0319/PyGuard@main
         with:
-          python-version: "3.13"
-          cache: pip
-
-      - name: Install PyGuard
-        run: |
-          set -euo pipefail
-          python -m pip install --upgrade pip
-          pip install pyguard
-
-      - name: PyGuard Comprehensive Security Analysis
-        run: |
-          set -euo pipefail
-          # Run PyGuard with SARIF output for GitHub Security tab
-          pyguard src/ utils/ sources/ notify/ matchers/ \
-            --security-only \
-            --scan-only \
-            --no-backup \
-            --sarif \
-            --no-html
+          target: 'src/ utils/ sources/ notify/ matchers/ scripts/'
+          security-only: true
+          sarif-output: true
+          fail-on-error: false
 
       - name: Upload Security Results to GitHub
         uses: github/codeql-action/upload-sarif@v3

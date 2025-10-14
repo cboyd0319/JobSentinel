@@ -6,12 +6,16 @@ Provides CRUD operations for tracked jobs.
 
 from __future__ import annotations
 
+import logging
+
 from flask import Blueprint, jsonify, request
 
 from jsa.db import get_session_context
 from jsa.tracker.models import JobStatus
 from jsa.tracker.service import TrackerService
 from jsa.web.blueprints.api.auth import require_api_key
+
+logger = logging.getLogger(__name__)
 
 tracker_api_bp = Blueprint("tracker_api_v1", __name__, url_prefix="/api/v1/tracker")
 
@@ -205,6 +209,8 @@ def update_tracked_job_status(tracked_job_id: int) -> tuple[dict, int]:
                 200,
             )
     except ValueError as e:
-        return jsonify({"error": str(e)}), 404
+        logger.warning(f"Job not found or invalid request for tracked_job_id={tracked_job_id}: {e}")
+        return jsonify({"error": "Job not found"}), 404
     except Exception as e:
+        logger.error(f"Unexpected error updating job status for tracked_job_id={tracked_job_id}: {e}", exc_info=True)
         return jsonify({"error": "Internal server error"}), 500
