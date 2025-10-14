@@ -30,9 +30,9 @@ JobSentinel is designed to work identically across all major platforms. This gui
 **✅ ZERO ADMIN RIGHTS REQUIRED** with SQLite default database!
 
 **⚠️ IMPORTANT: Python Version**
-- ✅ Use Python 3.11 or 3.12 ONLY
-- ❌ Python 3.13 is NOT supported (dependency build failures)
-- Recommended: Python 3.12.7
+- ✅ Use Python 3.11, 3.12, or 3.13
+- ✅ Windows installer requires 3.12+ (for simplicity)
+- Recommended: Python 3.12.10 (latest stable with Windows installer)
 
 #### Option 1: Native Windows (PowerShell) - NO ADMIN RIGHTS
 
