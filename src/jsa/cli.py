@@ -17,7 +17,7 @@ def _cmd_web(args: argparse.Namespace) -> int:
     try:
         app = create_app()
         print(f"✓ Starting JobSentinel Web UI on http://localhost:{args.port}")
-        print(f"✓ Press Ctrl+C to stop the server")
+        print("✓ Press Ctrl+C to stop the server")
         print()
         app.run(debug=args.debug, port=args.port)
         return 0
@@ -56,7 +56,7 @@ def _cmd_config_validate(args: argparse.Namespace) -> int:
         print("  python -m jsa.cli setup")
         return 1
     except json.JSONDecodeError as e:
-        print(f"Error: Invalid JSON in config file")
+        print("Error: Invalid JSON in config file")
         print(f"  {e}")
         print("Tip: Check for missing commas, quotes, or brackets")
         print("Validate JSON online: https://jsonlint.com/")
@@ -147,7 +147,7 @@ def _cmd_api(args: argparse.Namespace) -> int:
         app = create_app()
         print(f"✓ Starting JobSentinel API server on http://{args.host}:{args.port}")
         print(f"✓ API docs available at http://{args.host}:{args.port}/api/docs")
-        print(f"✓ Press Ctrl+C to stop the server")
+        print("✓ Press Ctrl+C to stop the server")
         print()
         uvicorn.run(
             app,

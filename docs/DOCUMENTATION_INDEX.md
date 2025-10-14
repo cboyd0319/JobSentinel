@@ -1,7 +1,7 @@
 # 📚 Documentation Index
 
-**Last Updated:** October 12, 2025
-**Repository:** JobSentinel v0.6.1 (Enhanced)
+**Last Updated:** October 14, 2025
+**Repository:** JobSentinel v0.6.0 (Production-Ready)
 **Platform:** Python 3.11+ (Universal: Windows 11+, macOS 14+, Ubuntu 22.04+)
 
 ---
@@ -14,6 +14,7 @@
 - **[Missing Features Summary](MISSING_FEATURES_SUMMARY.md)** - 🆕 Quick wins and feature gaps vs competitors
 - **[Authoritative Standards](AUTHORITATIVE_STANDARDS.md)** - 🔥 39+ industry standards with full citations (expanded!)
 - **[AI/ML Roadmap](AI_ML_ROADMAP.md)** - 🆕 Complete AI/ML vision from v0.6 to v1.0
+- **[LLM Resilience Guide](LLM_RESILIENCE.md)** - 🔥 **NEW:** Automatic failover, retry logic, caching, budget controls
 - **[Accessibility Guide](ACCESSIBILITY.md)** - 🆕 WCAG 2.1 Level AA compliance documentation
 - **[Visual Architecture](VISUAL_ARCHITECTURE.md)** - 🔥 12 comprehensive visual diagrams
 - **[Property-Based Testing](../tests/unit_jsa/test_properties.py)** - 🆕 Hypothesis generative tests
@@ -312,4 +313,4 @@ JobSentinel/
 
 ---
 
-**This index is maintained as part of the project documentation. Last updated: October 11, 2025 (v0.5.0)**
+**This index is maintained as part of the project documentation. Last updated: October 14, 2025 (v0.6.0)**
