@@ -8,6 +8,9 @@ Demonstrates the four newly implemented ML capabilities:
 4. Custom Fine-Tuning
 
 Run with: python examples/advanced_ml_demo.py
+
+SECURITY NOTE: This is a demonstration script that prints job data including salaries.
+In production code, sensitive data should be logged securely or not at all.
 """
 
 import logging

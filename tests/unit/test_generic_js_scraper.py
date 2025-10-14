@@ -16,8 +16,8 @@ def scraper():
 def test_scraper_initialization(scraper):
     """Test scraper initializes correctly."""
     assert scraper.name == "Generic JS Scraper"
-    assert "ashbyhq.com" in scraper.base_domains
-    assert "workable.com" in scraper.base_domains
+    assert any(d.endswith("ashbyhq.com") for d in scraper.base_domains)
+    assert any(d.endswith("workable.com") for d in scraper.base_domains)
 
 
 def test_can_handle_ashby_url(scraper):

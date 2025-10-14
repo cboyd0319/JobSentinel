@@ -72,7 +72,8 @@ def check_http_server(name: str, config: Dict) -> Tuple[bool, str]:
     except ImportError:
         return False, "httpx not installed (run: pip install httpx)"
     except Exception as e:
-        return False, f"Connection failed: {str(e)}"
+        # Don't expose full exception details which may contain credentials
+        return False, "Connection failed (check server URL and credentials)"
 
 
 def check_local_server(name: str, config: Dict) -> Tuple[bool, str]:
