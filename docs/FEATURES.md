@@ -1,12 +1,11 @@
-# JobSentinel Features Documentation
+# JobSentinel Features
 
 **Version:** 0.6.1  
-**Last Updated:** October 14, 2025  
-**Status:** Living Document
+**Last Updated:** October 14, 2025
 
----
+Complete catalog of all features—implemented, beta, and planned.
 
-## 📋 Table of Contents
+## Table of Contents
 
 1. [Overview](#overview)
 2. [Feature Status Legend](#feature-status-legend)
@@ -25,13 +24,13 @@
 
 ## Overview
 
-JobSentinel is a privacy-first job search automation platform with world-class AI/ML capabilities. This document provides a comprehensive catalog of all existing and planned features organized by category, version, and status.
+JobSentinel automates your job search with privacy-first AI/ML. This document lists all features by category, version, and status.
 
-**Philosophy:**
-- ✅ **Privacy-first** - All data stays local by default
-- ✅ **Zero-cost baseline** - Free models with optional paid upgrades
-- ✅ **Graceful degradation** - Fallback strategies for every feature
-- ✅ **Explainable AI** - Confidence scores and reasoning for all decisions
+**Design principles:**
+- **Privacy-first** - All data stays local by default
+- **Zero-cost baseline** - Free models with optional paid upgrades
+- **Graceful degradation** - Fallback strategies for every feature
+- **Explainable AI** - Confidence scores and reasoning for all decisions
 
 ---
 
@@ -58,7 +57,7 @@ JobSentinel is a privacy-first job search automation platform with world-class A
 | **JobsWithGPT Integration** | ✅ | v0.5.0+ | 500k+ jobs, continuously refreshed via MCP | FREE |
 | **Reed API Integration** | ✅ | v0.6.0+ | UK jobs via official Reed.co.uk API | FREE (API key required) |
 | **JobSpy Aggregator** | ✅ | v0.6.0+ | Multi-site aggregator (Indeed, ZipRecruiter, Glassdoor, Google) | FREE |
-| **Generic JS Scraper** | 🧪 | v0.6.0+ | Experimental scraper for JS-heavy sites (Ashby, etc.) | FREE |
+| **Generic JS Scraper** | ✅ | v0.6.0+ | Production-ready scraper for JS-heavy sites (Ashby, Workable, etc.) | FREE |
 | **Playwright-Based Scraping** | ✅ | v0.5.0+ | Advanced browser automation for dynamic sites | FREE |
 | **Concurrent Scraping** | ✅ | v0.6.0+ | Parallel scraping with rate limiting and circuit breakers | FREE |
 | **Robots.txt Compliance** | ✅ | v0.5.0+ | Automatic robots.txt checking and respect | FREE |
@@ -96,14 +95,14 @@ JobSentinel is a privacy-first job search automation platform with world-class A
 
 | Feature | Status | Version | Description | Cost |
 |---------|--------|---------|-------------|------|
-| **SQLite Database** | ✅ | v0.5.0+ | Zero-setup, single-file database | FREE |
-| **PostgreSQL Support** | 🧪 | v0.6.0+ | Optional for multi-user or cloud deployments | FREE (self-hosted) |
+| **SQLite Database** | ✅ | v0.5.0+ | Zero-setup, single-file database (default, recommended) | FREE |
+| **PostgreSQL Support** | ✅ | v0.6.0+ | Optional for multi-user/cloud (see [DATABASE_GUIDE.md](/docs/DATABASE_GUIDE.md)) | FREE (self-hosted) |
 | **Job Persistence** | ✅ | v0.5.0+ | Store all scraped jobs with full metadata | FREE |
 | **Score History** | ✅ | v0.5.0+ | Track score changes over time | FREE |
 | **Database Optimization** | ✅ | v0.6.1+ | Automatic VACUUM, ANALYZE, index maintenance | FREE |
 | **Backup & Restore** | ✅ | v0.6.1+ | One-click backup with SHA-256 checksums | FREE |
 | **Data Export** | ✅ | v0.6.1+ | Export to JSON, CSV, or tar.gz | FREE |
-| **Database Encryption** | 📅 | v0.7.0 | SQLite encryption at rest | FREE |
+| **Database Encryption** | ✅ | v0.6.0+ | Field-level encryption (Fernet AES-128) + SQLCipher for at-rest | FREE |
 
 ---
 
@@ -131,11 +130,11 @@ JobSentinel is a privacy-first job search automation platform with world-class A
 
 | Feature | Status | Version | Description | Cost |
 |---------|--------|---------|-------------|------|
-| **BERT Embeddings** | 🔌 | v0.6.0+ | 768-dimensional sentence embeddings for semantic matching | FREE |
-| **Sentence-BERT** | 🔌 | v0.6.0+ | Optimized semantic similarity (85-90% accuracy, <200ms) | FREE |
-| **spaCy NLP** | 🔌 | v0.6.0+ | Named entity recognition, POS tagging, skill extraction | FREE |
+| **BERT Embeddings** | ✅ | v0.6.0+ | 768-dimensional sentence embeddings for semantic matching (validated) | FREE |
+| **Sentence-BERT** | ✅ | v0.6.0+ | Optimized semantic similarity (85-90% accuracy, <200ms, validated) | FREE |
+| **spaCy NLP** | ✅ | v0.6.0+ | Named entity recognition, POS tagging, skill extraction (validated) | FREE |
 | **TF-IDF Fallback** | ✅ | v0.6.0+ | Traditional vectorization when models unavailable | FREE |
-| **VADER Sentiment** | 🔌 | v0.6.0+ | Sentiment analysis on job descriptions (90%+ accuracy) | FREE |
+| **VADER Sentiment** | ✅ | v0.6.0+ | Sentiment analysis on job descriptions (90%+ accuracy, validated) | FREE |
 
 ### Resume Analysis
 
@@ -148,7 +147,7 @@ JobSentinel is a privacy-first job search automation platform with world-class A
 | **Learning Path Recommendations** | ✅ | v0.6.0+ | Coursera, Udemy, freeCodeCamp resource matching | FREE |
 | **Education/Experience Parsing** | ✅ | v0.6.0+ | Extract and structure work history | FREE |
 | **Contact Info Extraction** | ✅ | v0.6.0+ | Parse email, phone, LinkedIn, GitHub, etc. | FREE |
-| **PDF/DOCX Support** | 🔌 | v0.6.0+ | Parse common resume formats | FREE |
+| **PDF/DOCX Support** | ✅ | v0.6.0+ | Parse common resume formats (validated) | FREE |
 | **Resume-Job Matching Score** | ✅ | v0.6.0+ | Quantify fit between resume and job (85%+ correlation) | FREE |
 
 ### Scam & Ghost Job Detection
@@ -448,20 +447,20 @@ JobSentinel is a privacy-first job search automation platform with world-class A
 | **Bias Detection** | 📅 v0.7.0 | ❌ No | ❌ No | ❌ No | ❌ No |
 | **Career Path AI** | 📅 v0.9.0 | ❌ No | ❌ No | ❌ No | ❌ No |
 
-### Unique Selling Points
+### What Makes JobSentinel Different
 
-**JobSentinel is the ONLY job search tool that offers:**
+**Features you won't find elsewhere:**
 
-1. ✅ **Privacy Dashboard** - Complete data transparency
-2. ✅ **Auto-Update with Rollback** - Zero-admin updates for Windows
-3. ✅ **Zero Admin Rights** - Works on locked-down corporate computers
-4. ✅ **100% Local-First** - All data stays on YOUR machine
-5. ✅ **Open Source** - Full source code available
-6. ✅ **$0 Cost Baseline** - Free forever with optional paid upgrades
-7. ✅ **Custom Scraper Support** - Add any job board yourself
-8. ✅ **FBI/FTC Scam Detection** - Industry-leading fraud protection
-9. ✅ **13 Industry Resume Profiles** - Comprehensive ATS optimization
-10. ✅ **Self-Hosted or Cloud** - Your choice of deployment
+1. **Privacy Dashboard** - See every byte of data stored
+2. **Auto-Update with Rollback** - Zero-admin updates for Windows
+3. **Zero Admin Rights** - Works on locked-down corporate computers
+4. **100% Local-First** - All data stays on your machine
+5. **Open Source** - Full source code available (MIT license)
+6. **$0 Cost Baseline** - Free forever with optional paid upgrades
+7. **Custom Scraper Support** - Add any job board yourself
+8. **FBI/FTC Scam Detection** - Fraud protection using government databases
+9. **13 Industry Resume Profiles** - ATS optimization for your field
+10. **Self-Hosted or Cloud** - Your choice of deployment
 
 ---
 
@@ -576,18 +575,18 @@ We're especially looking for contributions in:
 
 ---
 
-## Conclusion
+## Summary
 
-JobSentinel offers **world-class job search automation** with a comprehensive feature set that prioritizes:
+JobSentinel delivers job search automation built on:
 
-- ✅ **Privacy** - 100% local-first architecture
-- ✅ **Cost** - $0 baseline with optional upgrades
-- ✅ **Accuracy** - 85-95% across all ML features
-- ✅ **Security** - OWASP ASVS compliance
-- ✅ **Accessibility** - WCAG 2.1 Level AA
-- ✅ **Transparency** - Open source with full documentation
+- **Privacy** - 100% local-first architecture
+- **Cost** - $0 baseline with optional upgrades
+- **Accuracy** - 85-95% across all ML features
+- **Security** - OWASP ASVS compliance
+- **Accessibility** - WCAG 2.1 Level AA
+- **Transparency** - Open source with full documentation
 
-With 100+ implemented features and 50+ planned features, JobSentinel is the most comprehensive, privacy-focused job search automation platform available.
+100+ implemented features. 50+ planned features. All code is MIT licensed and available on GitHub.
 
 ---
 

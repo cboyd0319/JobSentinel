@@ -47,9 +47,23 @@ class Job(SQLModel, table=True):
     alert_sent_at: datetime | None = None
 
 
-# SQLite-only architecture for privacy-first, zero-admin deployment
-# Perfect for personal job search automation
-# Database file created automatically at: data/jobs.sqlite
+# Database architecture for privacy-first, zero-admin deployment
+# 
+# SQLITE (Default - Recommended for Personal Use):
+# - Zero setup, single file database
+# - No separate database server needed
+# - Perfect for individual users
+# - Privacy-first: all data stays in one file
+# - Automatic backups are simple file copies
+# 
+# POSTGRESQL (Optional - For Multi-User/Cloud):
+# - Requires PostgreSQL server setup
+# - Better for multiple users or cloud deployments
+# - Advanced features: full-text search, JSON queries
+# - Requires connection management and maintenance
+# 
+# To use PostgreSQL, set DATABASE_URL environment variable:
+# postgresql+asyncpg://user:pass@host:5432/dbname
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///data/jobs.sqlite")
 
 
@@ -58,24 +72,57 @@ def _derive_sync_url(db_url: str) -> str:
     # For SQLite, convert async driver to sync
     if db_url.startswith("sqlite+aiosqlite"):
         return db_url.replace("sqlite+aiosqlite", "sqlite", 1)
+    # For PostgreSQL, convert async driver to sync
+    elif db_url.startswith("postgresql+asyncpg"):
+        return db_url.replace("postgresql+asyncpg", "postgresql+psycopg2", 1)
     return db_url
+
+
+def _get_db_type(db_url: str) -> str:
+    """Determine database type from URL."""
+    if "postgresql" in db_url:
+        return "postgresql"
+    return "sqlite"
 
 
 ASYNC_DATABASE_URL = DATABASE_URL
 SYNC_DATABASE_URL = _derive_sync_url(DATABASE_URL)
+DB_TYPE = _get_db_type(DATABASE_URL)
 
-# SQLite connection configuration (simple, no pooling needed for single-user)
-# SQLite is embedded - no network latency, no connection overhead
-
-async_engine = create_async_engine(
-    ASYNC_DATABASE_URL,
-    echo=False,
-)
-
-sync_engine = create_engine(
-    SYNC_DATABASE_URL,
-    echo=False,
-)
+# Database-specific connection configuration
+if DB_TYPE == "postgresql":
+    # PostgreSQL requires connection pooling for performance
+    async_engine = create_async_engine(
+        ASYNC_DATABASE_URL,
+        echo=False,
+        pool_size=10,
+        max_overflow=20,
+        pool_pre_ping=True,  # Verify connections before using
+    )
+    
+    sync_engine = create_engine(
+        SYNC_DATABASE_URL,
+        echo=False,
+        pool_size=5,
+        max_overflow=10,
+        pool_pre_ping=True,
+    )
+    logger = get_logger("database")
+    logger.info("Using PostgreSQL database with connection pooling")
+else:
+    # SQLite configuration (simple, no pooling needed for single-user)
+    # SQLite is embedded - no network latency, no connection overhead
+    async_engine = create_async_engine(
+        ASYNC_DATABASE_URL,
+        echo=False,
+    )
+    
+    sync_engine = create_engine(
+        SYNC_DATABASE_URL,
+        echo=False,
+    )
+    logger = get_logger("database")
+    logger.info("Using SQLite database (privacy-first, zero-admin)")
 logger = get_logger("database")
 
 
