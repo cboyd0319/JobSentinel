@@ -39,6 +39,31 @@ def _cmd_web(args: argparse.Namespace) -> int:
         return 1
 
 
+def _cmd_diagnostic(args: argparse.Namespace) -> int:
+    """Run system diagnostics and show results.
+    
+    Args:
+        args: Command arguments (verbose flag)
+        
+    Returns:
+        Exit code (0 for success, 1 for failures)
+    """
+    try:
+        from jsa.diagnostic import run_diagnostics
+        
+        results = run_diagnostics(verbose=args.verbose)
+        
+        # Return non-zero if there are failures
+        failures = [r for r in results if r.status == "fail"]
+        return 1 if failures else 0
+        
+    except Exception as e:
+        print(f"Error running diagnostics: {e}")
+        import traceback
+        traceback.print_exc()
+        return 1
+
+
 def _cmd_config_validate(args: argparse.Namespace) -> int:
     import json
 
@@ -472,6 +497,19 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p_health.add_argument("--verbose", "-v", action="store_true", help="Show detailed information")
     p_health.set_defaults(func=_cmd_health)
+
+    # Diagnostic command (NEW - Zero-Knowledge Troubleshooting)
+    p_diagnostic = sub.add_parser(
+        "diagnostic",
+        aliases=["diag", "check"],
+        help="Run system diagnostics (troubleshooting)",
+        description="Run comprehensive system diagnostics to identify and fix issues. "
+        "Perfect for zero-knowledge users - provides actionable fixes for common problems.",
+    )
+    p_diagnostic.add_argument(
+        "--verbose", "-v", action="store_true", help="Show all checks including passing ones"
+    )
+    p_diagnostic.set_defaults(func=_cmd_diagnostic)
 
     # Privacy Dashboard (NEW - World's Best Feature)
     p_privacy = sub.add_parser(

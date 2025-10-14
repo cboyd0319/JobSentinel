@@ -31,26 +31,34 @@ Finding relevant jobs across multiple boards is manual and time-consuming. Comme
 
 ## Quickstart
 
-### 🪟 Windows 11+ (Recommended - Zero Technical Knowledge)
+### 🪟 Windows 11+ (Recommended - **ZERO** Technical Knowledge Required!)
 
-**World's easiest installation. Just 2 clicks:**
+**🎯 NEW! Graphical Launcher - No Command Line Needed!**
 
-1. Download ZIP: https://github.com/cboyd0319/JobSentinel/archive/refs/heads/main.zip
-2. Extract to Desktop
-3. Run `bootstrap.ps1` (right-click → "Run with PowerShell")
-4. Run `run.ps1` to start
+**World's easiest installation. Just 3 clicks:**
 
-**That's it! 2 minutes to a running job search automation tool.**
+1. **Download:** https://github.com/cboyd0319/JobSentinel/archive/refs/heads/main.zip
+2. **Extract** to Desktop (right-click → "Extract All")
+3. **Double-click:** `launch-gui.bat` in the folder
 
-Features:
-- ✅ Zero admin rights needed
-- ✅ 100% local and private (no cloud)
-- ✅ Portable Node.js included
-- ✅ SQLite database (auto-created)
-- ✅ Modern React 19 UI
-- ✅ One-click launch
+**That's it! A nice graphical window opens with buttons. No typing required!**
 
-See [WINDOWS_QUICK_START.md](docs/WINDOWS_QUICK_START.md) for screenshots and troubleshooting.
+**✨ What Makes This Special:**
+- 🖱️ **Graphical Interface** - Click buttons, no command line!
+- ⚡ **Zero Setup** - Everything installs automatically
+- 🔒 **100% Private** - All data stays on YOUR computer
+- 💰 **FREE Forever** - No subscription, no trials, no hidden costs
+- 🚫 **Zero Admin Rights** - Works on locked-down computers
+- 📧 **Email Alerts** - Gmail, Outlook, or any email provider
+- 🎨 **Modern UI** - Beautiful React 19 web interface
+
+**Perfect for:**
+- Job seekers with NO programming experience
+- People who avoid command lines
+- Anyone who values privacy and data ownership
+- Users on corporate computers (no admin needed)
+
+**See the guide:** [Zero Knowledge Guide](docs/ZERO_KNOWLEDGE_GUIDE.md) - Complete walkthrough with screenshots!
 
 ### 🐧 macOS / Linux (Command Line)
 
