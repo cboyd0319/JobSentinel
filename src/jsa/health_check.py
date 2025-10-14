@@ -81,6 +81,13 @@ class HealthChecker:
         """Check required Python packages."""
         results = []
 
+        # Map package names to their import names (some differ from pip package name)
+        package_import_mapping = {
+            "beautifulsoup4": "bs4",
+            "sentence_transformers": "sentence_transformers",
+            "sentence-transformers": "sentence_transformers",
+        }
+
         core_packages = [
             ("requests", "HTTP requests"),
             ("beautifulsoup4", "HTML parsing"),
@@ -99,7 +106,9 @@ class HealthChecker:
         # Check core packages
         missing_core = []
         for package, purpose in core_packages:
-            if importlib.util.find_spec(package.replace("-", "_")) is None:
+            # Get the actual import name (may differ from package name)
+            import_name = package_import_mapping.get(package, package.replace("-", "_"))
+            if importlib.util.find_spec(import_name) is None:
                 missing_core.append(f"{package} ({purpose})")
 
         if not missing_core:
@@ -120,7 +129,7 @@ class HealthChecker:
                     details={"missing": missing_core},
                     recommendations=[
                         "Install missing packages: pip install -e .",
-                        "Or run: python scripts/setup_wizard.py",
+                        "Or run: python -m jsa.cli setup",
                     ],
                 )
             )
@@ -128,7 +137,9 @@ class HealthChecker:
         # Check optional packages
         missing_optional = []
         for package, purpose in optional_packages:
-            if importlib.util.find_spec(package.replace("-", "_")) is None:
+            # Get the actual import name (may differ from package name)
+            import_name = package_import_mapping.get(package, package.replace("-", "_"))
+            if importlib.util.find_spec(import_name) is None:
                 missing_optional.append(f"{package} ({purpose})")
 
         if missing_optional:
@@ -205,7 +216,7 @@ class HealthChecker:
                             message="Configuration incomplete",
                             details={"warnings": warnings},
                             recommendations=[
-                                "Run: python scripts/setup_wizard.py",
+                                "Run: python -m jsa.cli setup",
                                 "Or edit: config/user_prefs.json",
                             ],
                         )
@@ -218,7 +229,7 @@ class HealthChecker:
                         message=f"Configuration invalid: {e}",
                         recommendations=[
                             "Check JSON syntax",
-                            "Run: python scripts/setup_wizard.py",
+                            "Run: python -m jsa.cli setup",
                         ],
                     )
                 )
@@ -230,7 +241,7 @@ class HealthChecker:
                     message="Configuration file missing",
                     details={"expected_path": str(config_path)},
                     recommendations=[
-                        "Run setup wizard: python scripts/setup_wizard.py",
+                        "Run setup wizard: python -m jsa.cli setup",
                         "Or copy example: cp config/user_prefs.example.json config/user_prefs.json",
                     ],
                 )
