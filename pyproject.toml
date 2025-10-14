@@ -123,6 +123,7 @@ ignore = [
 "src/jsa/web/blueprints/skills.py" = ["I001"]
 "src/jsa/cli.py" = ["I001"]
 "src/jsa/setup_wizard.py" = ["S603", "S607"]  # subprocess with trusted input (setup wizard)
+"src/jsa/preflight_check.py" = ["S603", "S110"]  # subprocess with trusted input, informational checks
 "src/jsa/fastapi_app/routers/*.py" = ["B904"]  # Intentional exception conversion to HTTPException
 
 [tool.mypy]
