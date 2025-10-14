@@ -10,12 +10,71 @@ import sys
 from pathlib import Path
 from typing import Any
 
+import requests
 from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Confirm, Prompt
 from rich.table import Table
 
 console = Console()
+
+
+def test_slack_webhook(webhook_url: str) -> bool:
+    """Test a Slack webhook by sending a test message.
+
+    Args:
+        webhook_url: The Slack webhook URL to test
+
+    Returns:
+        True if test successful, False otherwise
+    """
+    try:
+        response = requests.post(
+            webhook_url,
+            json={
+                "text": "🎯 JobSentinel Setup Test",
+                "blocks": [
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": "*JobSentinel Setup*\n\nThis is a test message from your JobSentinel setup wizard. If you see this, your Slack integration is working perfectly! ✅",
+                        },
+                    }
+                ],
+            },
+            timeout=10,
+        )
+        return response.status_code == 200
+    except Exception:
+        return False
+
+
+def test_database_connection(db_url: str) -> bool:
+    """Test database connection.
+
+    Args:
+        db_url: Database connection URL
+
+    Returns:
+        True if connection successful, False otherwise
+    """
+    try:
+        # Import here to avoid dependency issues
+        import sqlalchemy
+        from sqlalchemy import create_engine, text
+
+        # Convert asyncpg URL to psycopg2 for testing
+        sync_url = db_url.replace("postgresql+asyncpg://", "postgresql://")
+
+        # Create engine and test connection
+        engine = create_engine(sync_url, echo=False)
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        engine.dispose()
+        return True
+    except Exception:
+        return False
 
 
 def welcome_screen() -> None:
@@ -160,6 +219,24 @@ def configure_database() -> dict[str, Any]:
         console.print("[bold]Connection string:[/bold]")
         console.print(f"[dim]{db_url.replace(password, '***')}[/dim]\n")
 
+        # Test database connection
+        test_connection = Confirm.ask("Test database connection now?", default=True)
+        if test_connection:
+            console.print("[dim]Testing database connection...[/dim]")
+            if test_database_connection(db_url):
+                console.print("[green]✓ Database connection successful![/green]\n")
+            else:
+                console.print("[red]✗ Database connection failed[/red]")
+                console.print(
+                    "[yellow]   Make sure PostgreSQL is running and credentials are correct[/yellow]\n"
+                )
+                if not Confirm.ask("Continue anyway?", default=True):
+                    return {
+                        "type": "postgresql",
+                        "url": "postgresql+asyncpg://jobsentinel:jobsentinel@localhost:5432/jobsentinel",
+                        "configured": False,
+                    }
+
         return {
             "type": "postgresql",
             "url": db_url,
@@ -238,7 +315,7 @@ def configure_slack() -> dict[str, Any]:
         console.print("[yellow]Skipping Slack setup (you can add it later)[/yellow]\n")
         return {"webhook_url": "", "channel": "#job-alerts", "enabled": False}
 
-    console.print("\nTo get your Slack webhook URL:")
+    console.print("\n[cyan]To get your Slack webhook URL:[/cyan]")
     console.print("1. Go to https://api.slack.com/apps")
     console.print("2. Create a new app (or select existing)")
     console.print("3. Enable 'Incoming Webhooks'")
@@ -246,6 +323,31 @@ def configure_slack() -> dict[str, Any]:
     console.print("5. Copy the webhook URL\n")
 
     webhook_url = Prompt.ask("Slack webhook URL (starts with https://hooks.slack.com/)")
+
+    # Validate webhook URL format
+    if webhook_url and not webhook_url.startswith("https://hooks.slack.com/"):
+        console.print("[yellow]⚠️  Warning: Webhook URL doesn't look like a Slack webhook[/yellow]")
+        console.print("[yellow]   Expected format: https://hooks.slack.com/services/...[/yellow]\n")
+        if not Confirm.ask("Continue anyway?", default=False):
+            console.print("[yellow]Skipping Slack setup (you can add it later)[/yellow]\n")
+            return {"webhook_url": "", "channel": "#job-alerts", "enabled": False}
+
+    # Test webhook if provided and user wants
+    if webhook_url:
+        test_webhook = Confirm.ask("Test Slack webhook now? (sends a test message)", default=True)
+        if test_webhook:
+            console.print("[dim]Testing Slack webhook...[/dim]")
+            test_result = test_slack_webhook(webhook_url)
+            if test_result:
+                console.print("[green]✓ Slack webhook test successful![/green]\n")
+            else:
+                console.print("[red]✗ Slack webhook test failed[/red]")
+                console.print(
+                    "[yellow]   Check your webhook URL and Slack app permissions[/yellow]\n"
+                )
+                if not Confirm.ask("Continue with this webhook anyway?", default=False):
+                    console.print("[yellow]Skipping Slack setup (you can add it later)[/yellow]\n")
+                    return {"webhook_url": "", "channel": "#job-alerts", "enabled": False}
 
     channel = Prompt.ask(
         "Slack channel",
@@ -380,12 +482,32 @@ def run_wizard() -> None:
     if run_first_scrape():
         console.print("\n[cyan]Starting first job search...[/cyan]\n")
         subprocess.run([sys.executable, "-m", "jsa.cli", "run-once"], check=False)
+        console.print("\n[bold green]Setup complete! 🎉[/bold green]")
     else:
         console.print("\n[bold green]Setup complete! 🎉[/bold green]")
-        console.print("\nTo start your job search, run:")
-        console.print("  [cyan]python -m jsa.cli run-once[/cyan]\n")
-        console.print("For help:")
-        console.print("  [cyan]python -m jsa.cli --help[/cyan]\n")
+
+    # Show next steps
+    console.print(
+        Panel.fit(
+            "[bold]Next Steps:[/bold]\n\n"
+            "1. [cyan]Run your first job search:[/cyan]\n"
+            "   python -m jsa.cli run-once\n\n"
+            "2. [cyan]Start the modern web UI:[/cyan]\n"
+            "   python -m jsa.cli api\n"
+            "   Then visit: http://localhost:5000\n\n"
+            "3. [cyan]Check system health:[/cyan]\n"
+            "   python -m jsa.cli health\n\n"
+            "4. [cyan]View all commands:[/cyan]\n"
+            "   python -m jsa.cli --help\n\n"
+            "[bold]Documentation:[/bold]\n"
+            "• Beginner Guide: docs/BEGINNER_GUIDE.md\n"
+            "• Troubleshooting: docs/troubleshooting.md\n"
+            "• All Docs: docs/DOCUMENTATION_INDEX.md",
+            title="🎯 JobSentinel Ready!",
+            border_style="green",
+        )
+    )
+    console.print()
 
 
 if __name__ == "__main__":
