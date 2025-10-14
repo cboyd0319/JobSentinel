@@ -48,6 +48,32 @@ class PostgreSQLInstaller:
         self.arch = platform.machine()
         self.version = "15"  # PostgreSQL 15 (stable)
 
+    @staticmethod
+    def validate_password_strength(password: str) -> tuple[bool, str]:
+        """Validate password strength for security.
+
+        Args:
+            password: Password to validate
+
+        Returns:
+            tuple: (is_valid, message)
+        """
+        if len(password) < 8:
+            return False, "Password must be at least 8 characters long"
+        
+        # noqa: S105 - List of common weak passwords to reject
+        if password in ["password", "123456", "jobsentinel"]:  # noqa: S105
+            return False, "Password is too common. Choose a stronger password"
+        
+        # Check for at least one number or special character
+        has_number = any(c.isdigit() for c in password)
+        has_special = any(c in "!@#$%^&*()_+-=[]{}|;:,.<>?" for c in password)
+        
+        if not (has_number or has_special):
+            return False, "Password should contain at least one number or special character"
+        
+        return True, "Password strength: Good"
+
     def check_if_installed(self) -> tuple[bool, str | None]:
         """Check if PostgreSQL is already installed.
 
@@ -479,11 +505,25 @@ class PostgreSQLInstaller:
         """
         console.print("[bold]Setting up database and user...[/bold]\n")
 
-        # Create SQL commands
+        # Security: Validate database name and user (alphanumeric + underscore only)
+        import re
+        if not re.match(r'^[a-zA-Z0-9_]+$', database):
+            console.print("[red]✗ Invalid database name. Use only letters, numbers, and underscores.[/red]")
+            return False, ""
+        if not re.match(r'^[a-zA-Z0-9_]+$', user):
+            console.print("[red]✗ Invalid username. Use only letters, numbers, and underscores.[/red]")
+            return False, ""
+        
+        # Security: Warn if using default password
+        # noqa: S105 - Checking against default value, not hardcoding password
+        if password == "jobsentinel":  # noqa: S105
+            console.print("[yellow]⚠️  Using default password. Consider setting a strong password for production use.[/yellow]\n")
+
+        # Create SQL commands with proper escaping
         sql_commands = [
-            f"CREATE DATABASE {database};",
+            f'CREATE DATABASE "{database}";',
             f"CREATE USER {user} WITH PASSWORD '{password}';",
-            f"GRANT ALL PRIVILEGES ON DATABASE {database} TO {user};",
+            f'GRANT ALL PRIVILEGES ON DATABASE "{database}" TO {user};',
         ]
 
         schema_commands = [
@@ -492,7 +532,7 @@ class PostgreSQLInstaller:
             f"ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO {user};",
         ]
 
-        # Try to create database and user
+        # Try to create database and user with better error handling
         success = True
         for sql in sql_commands:
             try:
@@ -505,31 +545,47 @@ class PostgreSQLInstaller:
 
                 # Check if it succeeded or already exists
                 if "already exists" in result.stderr.lower():
-                    console.print(f"[dim]→ {sql.split(';')[0].split(' ')[1]} already exists[/dim]")
+                    entity_name = sql.split(';')[0].split(' ')[1].strip('"')
+                    console.print(f"[dim]→ {entity_name} already exists[/dim]")
                 elif result.returncode == 0:
                     console.print(f"[green]✓ {sql.split(';')[0]}[/green]")
                 else:
-                    console.print(f"[yellow]⚠️  {sql}: {result.stderr}[/yellow]")
+                    # Better error reporting
+                    error_msg = result.stderr.strip()
+                    if "could not connect" in error_msg.lower():
+                        console.print("[red]✗ Cannot connect to PostgreSQL. Is it running?[/red]")
+                        console.print("[yellow]   Try: brew services start postgresql@15 (macOS)[/yellow]")
+                        console.print("[yellow]   Try: sudo systemctl start postgresql (Linux)[/yellow]")
+                    elif "authentication failed" in error_msg.lower():
+                        console.print("[red]✗ Authentication failed. Check postgres user permissions.[/red]")
+                    else:
+                        console.print(f"[yellow]⚠️  {sql}: {error_msg}[/yellow]")
                     success = False
 
             except subprocess.TimeoutExpired:
                 console.print(f"[red]✗ Timeout executing: {sql}[/red]")
+                console.print("[yellow]   Database server may be unresponsive[/yellow]")
                 success = False
+            except FileNotFoundError:
+                console.print("[red]✗ 'psql' command not found. PostgreSQL may not be properly installed.[/red]")
+                success = False
+                break
             except Exception as e:
-                console.print(f"[red]✗ Error executing: {sql}: {e}[/red]")
+                console.print(f"[red]✗ Unexpected error: {e}[/red]")
                 success = False
 
         # Set schema permissions
-        for sql in schema_commands:
-            try:
-                subprocess.run(
-                    ["psql", "-U", "postgres", "-d", database, "-c", sql],
-                    capture_output=True,
-                    text=True,
-                    timeout=10,
-                )
-            except Exception as e:
-                logger.debug(f"Schema permission setup: {e}")
+        if success:
+            for sql in schema_commands:
+                try:
+                    subprocess.run(
+                        ["psql", "-U", "postgres", "-d", database, "-c", sql],
+                        capture_output=True,
+                        text=True,
+                        timeout=10,
+                    )
+                except Exception as e:
+                    logger.debug(f"Schema permission setup: {e}")
 
         console.print()
 
@@ -540,10 +596,12 @@ class PostgreSQLInstaller:
             console.print("[green]✓ Database setup complete[/green]\n")
         else:
             console.print("[yellow]⚠️  Database setup had some issues[/yellow]\n")
-            console.print("[dim]You may need to run these commands manually:[/dim]")
-            console.print(f'[dim]  psql -U postgres -c "{sql_commands[0]}"[/dim]')
-            console.print(f'[dim]  psql -U postgres -c "{sql_commands[1]}"[/dim]')
-            console.print(f'[dim]  psql -U postgres -c "{sql_commands[2]}"[/dim]\n')
+            console.print("[bold]Manual setup instructions:[/bold]")
+            console.print('  1. Ensure PostgreSQL is running')
+            console.print(f'  2. Run: psql -U postgres -c "{sql_commands[0]}"')
+            console.print(f'  3. Run: psql -U postgres -c "{sql_commands[1]}"')
+            console.print(f'  4. Run: psql -U postgres -c "{sql_commands[2]}"')
+            console.print('  5. Or visit: docs/POSTGRESQL_SETUP.md for detailed help\n')
 
         return success, db_url
 

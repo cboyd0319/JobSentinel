@@ -83,13 +83,16 @@ def welcome_screen() -> None:
     console.print(
         Panel.fit(
             "[bold cyan]Welcome to JobSentinel! 🎯[/bold cyan]\n\n"
-            "Let's get you set up in just a few minutes.\n"
-            "We'll help you configure:\n"
-            "  • Job search preferences (keywords, locations)\n"
-            "  • Job sources to scrape\n"
-            "  • Slack notifications (optional)\n"
-            "  • Scoring weights",
-            title="JobSentinel Setup",
+            "[bold]Your AI-Powered Job Search Assistant[/bold]\n\n"
+            "Let's get you set up in just a few minutes.\n\n"
+            "[cyan]We'll help you configure:[/cyan]\n"
+            "  • 🔍 Job search preferences (keywords, locations)\n"
+            "  • 🌐 Job sources to scrape\n"
+            "  • 💬 Slack notifications (optional)\n"
+            "  • 🗄️  Local PostgreSQL database\n"
+            "  • ⚖️  Scoring weights\n\n"
+            "[bold green]100% Local • 100% Private • 100% Free[/bold green]",
+            title="🚀 JobSentinel Setup Wizard",
             border_style="cyan",
         )
     )
@@ -195,23 +198,60 @@ def configure_database() -> dict[str, Any]:
     else:
         # Manual configuration
         console.print("[yellow]Manual configuration selected[/yellow]\n")
-        console.print("[bold]PostgreSQL Configuration[/bold]\n")
+        console.print(
+            Panel.fit(
+                "[bold]PostgreSQL Configuration[/bold]\n\n"
+                "Configure your local PostgreSQL database.\n"
+                "Make sure PostgreSQL is installed and running.",
+                border_style="cyan",
+            )
+        )
+        console.print()
 
         use_defaults = Confirm.ask(
             "Use recommended defaults? (database: jobsentinel, user: jobsentinel)",
             default=True,
         )
 
+        # Import for password validation
+        from jsa.postgresql_installer import PostgreSQLInstaller
+
         if use_defaults:
             database = "jobsentinel"
             user = "jobsentinel"
-            password = Prompt.ask(
-                "Set a password for the jobsentinel user", password=True, default="jobsentinel"
-            )
+            # Get password with validation
+            while True:
+                password = Prompt.ask(
+                    "Set a password for the jobsentinel user",
+                    password=True,
+                    default="jobsentinel"
+                )
+                is_valid, msg = PostgreSQLInstaller.validate_password_strength(password)
+                # noqa: S105 - Checking against default value, not hardcoding password
+                if is_valid or password == "jobsentinel":  # noqa: S105
+                    if password == "jobsentinel":  # noqa: S105
+                        console.print("[yellow]⚠️  Using default password (OK for local development)[/yellow]")
+                    else:
+                        console.print(f"[green]✓ {msg}[/green]")
+                    break
+                else:
+                    console.print(f"[red]✗ {msg}[/red]")
         else:
             database = Prompt.ask("Database name", default="jobsentinel")
             user = Prompt.ask("PostgreSQL user", default="jobsentinel")
-            password = Prompt.ask("PostgreSQL password", password=True)
+            # Get password with validation
+            while True:
+                password = Prompt.ask("PostgreSQL password", password=True)
+                if not password:
+                    console.print("[red]✗ Password cannot be empty[/red]")
+                    continue
+                is_valid, msg = PostgreSQLInstaller.validate_password_strength(password)
+                if is_valid:
+                    console.print(f"[green]✓ {msg}[/green]")
+                    break
+                else:
+                    console.print(f"[red]✗ {msg}[/red]")
+                    console.print("[dim]Hint: Use at least 8 characters with numbers or special chars[/dim]")
 
         db_url = f"postgresql+asyncpg://{user}:{password}@localhost:5432/{database}"
 
@@ -230,6 +270,11 @@ def configure_database() -> dict[str, Any]:
                 console.print(
                     "[yellow]   Make sure PostgreSQL is running and credentials are correct[/yellow]\n"
                 )
+                console.print("[dim]Troubleshooting:[/dim]")
+                console.print("[dim]  • Check if PostgreSQL is running[/dim]")
+                console.print("[dim]  • Verify database exists: psql -U postgres -l[/dim]")
+                console.print("[dim]  • Verify user exists: psql -U postgres -c '\\du'[/dim]")
+                console.print("[dim]  • See: docs/troubleshooting.md for more help[/dim]\n")
                 if not Confirm.ask("Continue anyway?", default=True):
                     return {
                         "type": "postgresql",
@@ -246,23 +291,31 @@ def configure_database() -> dict[str, Any]:
 
 def configure_job_sources() -> dict[str, Any]:
     """Configure which job sources to enable."""
-    console.print("[bold]Step 4: Job Sources[/bold]")
-    console.print("Select which job boards to scrape:\n")
+    console.print()
+    console.print(
+        Panel.fit(
+            "[bold cyan]Step 4: Job Sources[/bold cyan]\n\n"
+            "Select which job boards to scrape.\n"
+            "More sources = more opportunities! 🌟",
+            border_style="cyan",
+        )
+    )
+    console.print()
 
     sources = {
-        "jobswithgpt": {"enabled": False, "description": "JobsWithGPT (10K+ remote jobs)"},
-        "greenhouse": {"enabled": False, "description": "Greenhouse boards (tech companies)"},
-        "lever": {"enabled": False, "description": "Lever boards (startups)"},
+        "jobswithgpt": {"enabled": False, "description": "JobsWithGPT - 10K+ remote jobs"},
+        "greenhouse": {"enabled": False, "description": "Greenhouse - Tech companies"},
+        "lever": {"enabled": False, "description": "Lever - Startups & scale-ups"},
         "reed": {
             "enabled": False,
             "api_key": "",
-            "description": "Reed.co.uk (UK jobs, API key required)",
+            "description": "Reed.co.uk - UK jobs (API key required)",
         },
     }
 
     # Quick option: Enable all free sources
     enable_all = Confirm.ask(
-        "Enable all free sources (JobsWithGPT, Greenhouse, Lever)?",
+        "🚀 Enable all free sources? (JobsWithGPT, Greenhouse, Lever - Recommended)",
         default=True,
     )
 
@@ -270,14 +323,18 @@ def configure_job_sources() -> dict[str, Any]:
         sources["jobswithgpt"]["enabled"] = True
         sources["greenhouse"]["enabled"] = True
         sources["lever"]["enabled"] = True
-        console.print("[green]✓[/green] Enabled all free sources\n")
+        console.print("[green]✓ Enabled all free sources[/green]")
+        console.print("[dim]  • JobsWithGPT: 10K+ remote opportunities[/dim]")
+        console.print("[dim]  • Greenhouse: Top tech companies[/dim]")
+        console.print("[dim]  • Lever: Innovative startups[/dim]\n")
     else:
         # Individual selection
+        console.print("[bold]Select individual sources:[/bold]\n")
         for source_key, source_info in sources.items():
             if source_key == "reed":
                 continue  # Handle Reed separately
             enabled = Confirm.ask(
-                f"Enable {source_key}? ({source_info['description']})",
+                f"  Enable {source_key}? ({source_info['description']})",
                 default=True,
             )
             sources[source_key]["enabled"] = enabled
@@ -285,76 +342,104 @@ def configure_job_sources() -> dict[str, Any]:
         console.print()
 
     # Reed (requires API key)
+    console.print("[bold]Additional source (requires API key):[/bold]\n")
     enable_reed = Confirm.ask(
-        "Enable Reed.co.uk? (Requires free API key from https://www.reed.co.uk/developers)",
+        "Enable Reed.co.uk? (Free API key from https://www.reed.co.uk/developers)",
         default=False,
     )
 
     if enable_reed:
+        console.print("[cyan]Get your free API key at: https://www.reed.co.uk/developers[/cyan]")
         api_key = Prompt.ask("Reed API key", password=True)
-        sources["reed"]["enabled"] = True
-        sources["reed"]["api_key"] = api_key
-        console.print("[green]✓[/green] Reed enabled\n")
+        if api_key:
+            sources["reed"]["enabled"] = True
+            sources["reed"]["api_key"] = api_key
+            console.print("[green]✓ Reed enabled[/green]\n")
+        else:
+            console.print("[yellow]⚠️  Skipping Reed (no API key provided)[/yellow]\n")
     else:
         console.print()
+
+    # Show summary
+    enabled_count = sum(1 for s in sources.values() if s.get("enabled", False))
+    console.print(f"[green]✓ Configured {enabled_count} job source(s)[/green]\n")
 
     return sources
 
 
 def configure_slack() -> dict[str, Any]:
     """Configure Slack notifications."""
-    console.print("[bold]Step 5: Slack Notifications (Optional)[/bold]")
-    console.print("Get notified of high-quality job matches in Slack\n")
+    console.print()
+    console.print(
+        Panel.fit(
+            "[bold cyan]Step 5: Slack Notifications (Optional)[/bold cyan]\n\n"
+            "Get instant notifications of high-quality job matches! 💬\n"
+            "Never miss a great opportunity again.",
+            border_style="cyan",
+        )
+    )
+    console.print()
 
     enable_slack = Confirm.ask(
-        "Configure Slack notifications now?",
+        "🔔 Configure Slack notifications now?",
         default=True,
     )
 
     if not enable_slack:
-        console.print("[yellow]Skipping Slack setup (you can add it later)[/yellow]\n")
+        console.print("[yellow]⏭️  Skipping Slack setup (you can add it later in config/user_prefs.json)[/yellow]\n")
         return {"webhook_url": "", "channel": "#job-alerts", "enabled": False}
 
-    console.print("\n[cyan]To get your Slack webhook URL:[/cyan]")
-    console.print("1. Go to https://api.slack.com/apps")
-    console.print("2. Create a new app (or select existing)")
-    console.print("3. Enable 'Incoming Webhooks'")
-    console.print("4. Add webhook to workspace")
-    console.print("5. Copy the webhook URL\n")
+    console.print()
+    console.print(
+        Panel.fit(
+            "[bold]How to get your Slack webhook URL:[/bold]\n\n"
+            "1. Visit: [cyan]https://api.slack.com/apps[/cyan]\n"
+            "2. Click 'Create New App' (or select existing)\n"
+            "3. Enable 'Incoming Webhooks'\n"
+            "4. Click 'Add New Webhook to Workspace'\n"
+            "5. Select your channel and copy the webhook URL",
+            border_style="blue",
+        )
+    )
+    console.print()
 
-    webhook_url = Prompt.ask("Slack webhook URL (starts with https://hooks.slack.com/)")
+    webhook_url = Prompt.ask("📥 Slack webhook URL (starts with https://hooks.slack.com/)")
 
     # Validate webhook URL format
     if webhook_url and not webhook_url.startswith("https://hooks.slack.com/"):
         console.print("[yellow]⚠️  Warning: Webhook URL doesn't look like a Slack webhook[/yellow]")
         console.print("[yellow]   Expected format: https://hooks.slack.com/services/...[/yellow]\n")
         if not Confirm.ask("Continue anyway?", default=False):
-            console.print("[yellow]Skipping Slack setup (you can add it later)[/yellow]\n")
+            console.print("[yellow]⏭️  Skipping Slack setup (you can add it later)[/yellow]\n")
             return {"webhook_url": "", "channel": "#job-alerts", "enabled": False}
 
     # Test webhook if provided and user wants
     if webhook_url:
-        test_webhook = Confirm.ask("Test Slack webhook now? (sends a test message)", default=True)
+        test_webhook = Confirm.ask("🧪 Test Slack webhook now? (sends a test message)", default=True)
         if test_webhook:
-            console.print("[dim]Testing Slack webhook...[/dim]")
+            console.print("[dim]Sending test message...[/dim]")
             test_result = test_slack_webhook(webhook_url)
             if test_result:
-                console.print("[green]✓ Slack webhook test successful![/green]\n")
+                console.print("[green]✓ Slack webhook test successful! Check your Slack channel.[/green]\n")
             else:
                 console.print("[red]✗ Slack webhook test failed[/red]")
-                console.print(
-                    "[yellow]   Check your webhook URL and Slack app permissions[/yellow]\n"
-                )
+                console.print("[dim]Troubleshooting:[/dim]")
+                console.print("[dim]  • Check your webhook URL is correct[/dim]")
+                console.print("[dim]  • Verify Slack app permissions[/dim]")
+                console.print("[dim]  • Make sure the webhook is active[/dim]\n")
                 if not Confirm.ask("Continue with this webhook anyway?", default=False):
-                    console.print("[yellow]Skipping Slack setup (you can add it later)[/yellow]\n")
+                    console.print("[yellow]⏭️  Skipping Slack setup (you can add it later)[/yellow]\n")
                     return {"webhook_url": "", "channel": "#job-alerts", "enabled": False}
 
     channel = Prompt.ask(
-        "Slack channel",
+        "📢 Slack channel",
         default="#job-alerts",
     )
 
-    console.print("[green]✓[/green] Slack configured\n")
+    console.print("[green]✓ Slack configured successfully![/green]")
+    console.print("[dim]  • Webhook: " + webhook_url[:40] + "..." + "[/dim]")
+    console.print(f"[dim]  • Channel: {channel}[/dim]")
+    console.print("[dim]  • Minimum score for alerts: 0.7 (70% match)[/dim]\n")
 
     return {
         "webhook_url": webhook_url,
