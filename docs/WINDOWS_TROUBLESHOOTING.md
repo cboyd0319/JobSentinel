@@ -4,6 +4,19 @@
 **Last Updated:** October 14, 2025  
 **Platform:** Windows 11 (build 22000+)
 
+**Database:** SQLite (built-in, zero setup required)  
+**Admin Rights:** NOT required ✅  
+**Prerequisites:** Python 3.12+ only
+
+---
+
+## Important Notes
+
+- **SQLite is the default database** - No database server installation needed!
+- **Zero admin rights required** - Everything runs as regular user
+- **100% local** - All data stays on your computer
+- **PostgreSQL is optional** - Only for advanced enterprise scenarios
+
 ---
 
 ## Quick Reference
@@ -12,12 +25,12 @@
 
 | Issue | Symptom | Fix |
 |-------|---------|-----|
-| Admin Rights | "Access denied" errors | Run PowerShell as Administrator |
 | Execution Policy | Script won't run | `Set-ExecutionPolicy RemoteSigned` |
 | Long Paths | Path too long errors | Enable long paths (see below) |
-| PostgreSQL Won't Start | Service not running | Check firewall, manually start service |
 | Python Not Found | "python: command not found" | Add Python to PATH, restart terminal |
-| Chocolatey Issues | Package install fails | Verify Chocolatey installation |
+| Database Errors | SQLite errors | Delete data/jobs.sqlite and restart |
+| Port In Use | Web UI won't start | Use different port: `--port 5001` |
+| Module Not Found | Import errors | Reinstall: `pip install -e .` |
 
 ---
 
@@ -52,51 +65,77 @@
    ```
    - Requires at least 500 MB free space
 
-### Issue: PostgreSQL Installation Fails
+### Issue: Database Not Created
 
 **Symptoms:**
-- "Package not found" error
-- Installation timeout
-- Service won't start
+- "Database file not found" error
+- Can't save job data
 
 **Solutions:**
 
-1. **Verify Chocolatey Installation**
-   ```powershell
-   choco --version
-   ```
-   - If not installed, see Chocolatey setup below
+1. **Let System Create Database Automatically**
+   - SQLite database is created automatically on first run
+   - No manual setup needed!
+   - Default location: `data/jobs.sqlite`
 
-2. **Manual PostgreSQL Installation**
+2. **Verify Data Directory Exists**
    ```powershell
-   # Option 1: Download official installer
-   # Visit: https://www.postgresql.org/download/windows/
+   # Check if data directory exists
+   Test-Path .\data
    
-   # Option 2: Use winget
+   # Create if missing
+   New-Item -ItemType Directory -Path .\data -Force
+   ```
+
+3. **Check Database Permissions**
+   ```powershell
+   # Ensure you can write to data directory
+   New-Item -ItemType File -Path .\data\test.txt -Force
+   Remove-Item .\data\test.txt
+   ```
+
+4. **Reset Database (if corrupted)**
+   ```powershell
+   # Backup first (optional)
+   Copy-Item .\data\jobs.sqlite .\data\jobs.sqlite.backup
+   
+   # Delete and let system recreate
+   Remove-Item .\data\jobs.sqlite
+   
+   # Run health check to recreate
+   python -m jsa.cli health
+   ```
+
+---
+
+## Advanced: Using PostgreSQL (Optional)
+
+**Note:** PostgreSQL is NOT required. SQLite (default) works perfectly for most users with ZERO setup.
+
+If you need PostgreSQL for enterprise deployments or specific requirements:
+
+1. **Install PostgreSQL**
+   ```powershell
+   # Using winget (recommended)
    winget install PostgreSQL.PostgreSQL
    
-   # Option 3: Use Chocolatey manually
-   choco install postgresql17 -y
+   # Or download from: https://www.postgresql.org/download/windows/
    ```
 
-3. **Check Service Status**
-   ```powershell
-   Get-Service | Where-Object {$_.Name -like "*postgres*"}
+2. **Configure Database URL**
+   - Edit `.env` file
+   - Change `DATABASE_URL` from SQLite to PostgreSQL format:
+   ```
+   DATABASE_URL=postgresql://username:password@localhost:5432/jobsentinel
    ```
 
-4. **Start Service Manually**
+3. **Create Database**
    ```powershell
-   net start postgresql-x64-17
-   # OR
-   Start-Service postgresql-x64-17
+   # Using psql
+   createdb jobsentinel
    ```
 
-5. **Check Firewall**
-   ```powershell
-   # Allow PostgreSQL through firewall
-   New-NetFirewallRule -DisplayName "PostgreSQL" -Direction Inbound `
-     -LocalPort 5432 -Protocol TCP -Action Allow
-   ```
+For PostgreSQL troubleshooting, see PostgreSQL documentation.
 
 ---
 
@@ -213,67 +252,27 @@
 
 ---
 
-## Chocolatey Issues
+## Package Manager Issues (Optional)
 
-### Issue: Chocolatey Not Installed
+**Note:** Chocolatey is NOT required for JobSentinel. Python's pip handles all dependencies.
 
-**Symptoms:**
-- "choco: command not found"
-- Automated PostgreSQL install fails
+If you choose to use Chocolatey for other software:
 
-**Solutions:**
+### Installing Chocolatey (Optional)
 
-1. **Install Chocolatey**
-   ```powershell
-   # Run as Administrator
-   Set-ExecutionPolicy Bypass -Scope Process -Force
-   [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-   iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-   ```
+```powershell
+# Run as Administrator
+Set-ExecutionPolicy Bypass -Scope Process -Force
+[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+```
 
-2. **Verify Installation**
-   ```powershell
-   choco --version
-   refreshenv  # Refresh environment variables
-   ```
+### Verify Installation
 
-3. **Troubleshoot Chocolatey**
-   ```powershell
-   # Check Chocolatey configuration
-   choco config list
-   
-   # Test with simple package
-   choco install nano -y
-   ```
-
-### Issue: Chocolatey Package Installation Fails
-
-**Symptoms:**
-- Timeout errors
-- Download fails
-- Package conflicts
-
-**Solutions:**
-
-1. **Clear Chocolatey Cache**
-   ```powershell
-   choco cache remove
-   ```
-
-2. **Update Chocolatey**
-   ```powershell
-   choco upgrade chocolatey
-   ```
-
-3. **Check for Package Conflicts**
-   ```powershell
-   choco list --local-only
-   ```
-
-4. **Verbose Mode for Debugging**
-   ```powershell
-   choco install postgresql17 -y -v
-   ```
+```powershell
+choco --version
+refreshenv  # Refresh environment variables
+```
 
 ---
 
@@ -319,61 +318,53 @@
 
 ## Service Issues
 
-### Issue: PostgreSQL Service Won't Start
+### Issue: Web UI Won't Start
 
 **Symptoms:**
-- "Service failed to start"
-- Database connection refused
-- Port 5432 not listening
+- "Port already in use" error
+- "Address already in use"
+- Can't access http://localhost:5000
 
 **Solutions:**
 
-1. **Check Service Status**
+1. **Use Different Port**
    ```powershell
-   Get-Service | Where-Object {$_.Name -like "*postgres*"}
+   python -m jsa.cli web --port 5001
+   ```
+   Then visit: http://localhost:5001
+
+2. **Check What's Using Port 5000**
+   ```powershell
+   netstat -ano | findstr :5000
    ```
 
-2. **View Service Logs**
+3. **Kill Process Using Port**
    ```powershell
-   # Check Event Viewer
-   Get-EventLog -LogName Application -Source "PostgreSQL" -Newest 50
+   # Find process ID from netstat output
+   Stop-Process -Id <PID> -Force
    ```
 
-3. **Start Service Manually**
-   ```powershell
-   # Try different service names
-   net start postgresql-x64-17
-   # OR
-   net start postgresql
-   # OR
-   Start-Service -Name "postgresql*"
-   ```
+4. **Restart Computer**
+   - Sometimes port remains locked
+   - Clean restart resolves it
 
-4. **Check Port Availability**
-   ```powershell
-   # Check if port 5432 is in use
-   netstat -ano | findstr :5432
-   ```
+### Issue: API Server Won't Start
 
-5. **Verify PostgreSQL Installation**
-   ```powershell
-   # Find PostgreSQL directory
-   Get-ChildItem -Path "C:\Program Files\PostgreSQL" -ErrorAction SilentlyContinue
-   
-   # Check if postgres.exe exists
-   Test-Path "C:\Program Files\PostgreSQL\17\bin\postgres.exe"
-   ```
+**Symptoms:**
+- "Port 8000 already in use"
+- Can't access http://localhost:8000
 
-6. **Reinstall PostgreSQL**
+**Solutions:**
+
+1. **Use Different Port**
    ```powershell
-   # Uninstall
-   choco uninstall postgresql17 -y
-   
-   # Clean remaining files
-   Remove-Item -Path "C:\Program Files\PostgreSQL" -Recurse -Force -ErrorAction SilentlyContinue
-   
-   # Reinstall
-   choco install postgresql17 -y
+   python -m jsa.cli api --port 8001
+   ```
+   Then visit: http://localhost:8001/api/docs
+
+2. **Check Port Availability**
+   ```powershell
+   netstat -ano | findstr :8000
    ```
 
 ---
@@ -471,55 +462,75 @@
 
 ---
 
-## Database Connection Issues
+## Database Issues
 
-### Issue: Cannot Connect to PostgreSQL
+### Issue: SQLite Database Errors
 
 **Symptoms:**
-- "could not connect to server"
-- "Connection refused"
-- Authentication errors
+- "database is locked"
+- "unable to open database file"
+- Corrupted database errors
 
 **Solutions:**
 
-1. **Verify Service is Running**
+1. **Check Database File Permissions**
    ```powershell
-   Get-Service | Where-Object {$_.Name -like "*postgres*"} | Select-Object Status
+   # Check if file exists and is writable
+   Get-ChildItem .\data\jobs.sqlite
    ```
 
-2. **Check Connection String**
-   ```powershell
-   # View .env file
-   Get-Content .env | Where-Object {$_ -like "*DATABASE_URL*"}
-   ```
+2. **Close Other Connections**
+   - Make sure only one instance of JobSentinel is running
+   - Close any database viewers (DB Browser for SQLite, etc.)
 
-3. **Test Connection with psql**
+3. **Backup and Reset Database**
    ```powershell
-   # Add PostgreSQL bin to PATH temporarily
-   $env:Path += ";C:\Program Files\PostgreSQL\17\bin"
+   # Backup existing database
+   Copy-Item .\data\jobs.sqlite .\data\jobs.sqlite.backup
    
-   # Test connection
-   psql -U jobsentinel -d jobsentinel -h localhost
+   # Delete corrupted database
+   Remove-Item .\data\jobs.sqlite
+   
+   # Database will be recreated on next run
+   python -m jsa.cli health
    ```
 
-4. **Check pg_hba.conf**
+4. **Restore from Backup** (if you had one)
    ```powershell
-   # Location: C:\Program Files\PostgreSQL\17\data\pg_hba.conf
-   # Ensure these lines exist:
-   # host    all             all             127.0.0.1/32            md5
-   # host    all             all             ::1/128                 md5
+   # Copy backup back
+   Copy-Item .\data\jobs.sqlite.backup .\data\jobs.sqlite
    ```
 
-5. **Reset PostgreSQL Password**
+### Issue: Database Connection Errors
+
+**Symptoms:**
+- "could not connect to database"
+- "database does not exist"
+
+**Solutions:**
+
+1. **Verify .env Configuration**
    ```powershell
-   # Login as postgres superuser
-   psql -U postgres
+   # Check database URL in .env
+   Get-Content .env | Select-String "DATABASE_URL"
+   ```
+
+2. **Default SQLite Configuration**
+   - Should be: `DATABASE_URL=sqlite+aiosqlite:///data/jobs.sqlite`
+   - This creates a file-based database (no server needed)
+
+3. **Create Data Directory**
+   ```powershell
+   New-Item -ItemType Directory -Path .\data -Force
+   ```
+
+4. **Test Database Creation**
+   ```powershell
+   # Run health check to initialize database
+   python -m jsa.cli health
    
-   # In psql prompt:
-   ALTER USER jobsentinel WITH PASSWORD 'your_new_password';
-   \q
-   
-   # Update .env file with new password
+   # Verify database file was created
+   Test-Path .\data\jobs.sqlite
    ```
 
 ---
@@ -613,23 +624,23 @@ Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name
 ### Before Installation Checklist
 
 - [ ] Running Windows 11 (build 22000+)
-- [ ] At least 2 GB free disk space
+- [ ] At least 1 GB free disk space
 - [ ] Stable internet connection
-- [ ] Running PowerShell as Administrator (when needed)
-- [ ] Execution policy allows scripts
-- [ ] No conflicting Python installations
-- [ ] Antivirus allows downloads
-- [ ] Firewall won't block PostgreSQL
+- [ ] Python 3.12+ downloaded from python.org
+- [ ] "Add Python to PATH" checked during Python installation
+- [ ] Execution policy allows scripts (Set-ExecutionPolicy RemoteSigned)
+- [ ] Antivirus allows downloads (if issues occur)
 
 ### After Installation Checklist
 
-- [ ] Python `--version` shows 3.11 or 3.12
-- [ ] Virtual environment activates successfully
+- [ ] Python `--version` shows 3.12 or newer
+- [ ] Virtual environment activates successfully (if using venv)
 - [ ] `python -m jsa.cli health` passes all checks
-- [ ] PostgreSQL service is running
-- [ ] Database connection works
-- [ ] Task Scheduler task is created
+- [ ] SQLite database created (data/jobs.sqlite)
+- [ ] Configuration file exists (config/user_prefs.json)
 - [ ] Web UI loads (http://localhost:5000)
+- [ ] API server loads (http://localhost:8000/api/docs)
+- [ ] Test run completes: `python -m jsa.cli run-once --dry-run`
 
 ---
 
