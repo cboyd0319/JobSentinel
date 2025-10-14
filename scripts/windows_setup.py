@@ -5,10 +5,12 @@ Windows 11+ Zero-Knowledge Setup Script
 This script provides a completely automated setup experience for Windows users
 with ZERO technical knowledge. It handles everything:
 
+- System compatibility pre-check
 - Python environment validation
 - Dependency installation
 - Configuration setup (guided wizard)
 - Database initialization (SQLite - no admin needed)
+- Desktop shortcuts creation
 - Health checks
 - First-run verification
 
@@ -33,6 +35,15 @@ from typing import Any
 
 # Add src to path so we can import from project
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+
+# Import our enhanced Windows modules
+try:
+    from jsa.windows_precheck import WindowsPreCheck
+    from jsa.windows_shortcuts import create_jobsentinel_shortcuts
+    HAS_ENHANCED_MODULES = True
+except ImportError:
+    # Modules not available yet (before dependencies installed)
+    HAS_ENHANCED_MODULES = False
 
 
 def print_banner():
@@ -308,7 +319,41 @@ def run_health_check(project_root: Path) -> bool:
         return False
 
 
-def print_next_steps():
+def create_desktop_shortcuts(project_root: Path) -> bool:
+    """Create desktop shortcuts for easy access."""
+    print("🔗 Creating desktop shortcuts...")
+    
+    try:
+        # Import shortcuts module if available
+        if HAS_ENHANCED_MODULES:
+            results = create_jobsentinel_shortcuts(project_root)
+            
+            # Count successes
+            success_count = sum(1 for s in results.values() if s)
+            total_count = len(results)
+            
+            if success_count > 0:
+                print(f"   ✅ Created {success_count}/{total_count} desktop shortcuts")
+                print("   Look for them on your Desktop!")
+                print()
+                return True
+            else:
+                print("   ⚠️  Could not create shortcuts (non-critical)")
+                print("   You can still run JobSentinel from the command line.")
+                print()
+                return True  # Non-critical
+        else:
+            print("   ⚠️  Shortcut creation not available yet")
+            print()
+            return True  # Non-critical
+            
+    except Exception as e:
+        print(f"   ⚠️  Could not create shortcuts: {e} (non-critical)")
+        print()
+        return True  # Non-critical
+
+
+def print_next_steps(shortcuts_created: bool = False):
     """Print next steps for the user."""
     print()
     print("=" * 70)
@@ -317,37 +362,46 @@ def print_next_steps():
     print()
     print("JobSentinel is now installed and configured on your computer!")
     print()
-    print("📋 Next Steps:")
-    print()
-    print("1️⃣  Test your setup:")
+    
+    if shortcuts_created:
+        print("✨ Desktop shortcuts created! You can now:")
+        print("   • Double-click 'Run JobSentinel' to search for jobs")
+        print("   • Double-click 'JobSentinel Dashboard' to view jobs")
+        print("   • Double-click 'Configure JobSentinel' to change settings")
+        print()
+        print("Or use the command line:")
+        print()
+    else:
+        print("📋 How to use JobSentinel:")
+        print()
+    
+    print("1️⃣  Test your setup (no alerts sent):")
     print("     python -m jsa.cli run-once --dry-run")
-    print("     (This will search for jobs but won't send alerts)")
     print()
-    print("2️⃣  Start the Web UI:")
+    print("2️⃣  Run a real job search:")
+    print("     python -m jsa.cli run-once")
+    print()
+    print("3️⃣  View jobs in your browser:")
     print("     python -m jsa.cli web")
     print("     Then visit: http://localhost:5000")
     print()
-    print("3️⃣  Start the API server (for React frontend):")
-    print("     python -m jsa.cli api")
-    print("     Then visit: http://localhost:8000/api/docs")
-    print()
-    print("4️⃣  Run a real job search:")
-    print("     python -m jsa.cli run-once")
-    print("     (This will send Slack alerts if configured)")
+    print("4️⃣  Check system status anytime:")
+    print("     python -m jsa.cli health")
     print()
     print("📚 Documentation:")
-    print("   • README.md - Quick overview")
-    print("   • docs/BEGINNER_GUIDE.md - Complete beginner's guide")
-    print("   • docs/WINDOWS_TROUBLESHOOTING.md - Windows-specific help")
+    print("   • docs/WINDOWS_QUICK_START.md - Windows guide")
+    print("   • docs/WINDOWS_TROUBLESHOOTING.md - Problem solving")
+    print("   • docs/BEGINNER_GUIDE.md - Complete tutorial")
     print()
     print("💡 Pro Tips:")
-    print("   • Your data is stored in: data/jobs.sqlite")
-    print("   • Edit config/user_prefs.json to change settings")
-    print("   • Run 'python -m jsa.cli health' anytime to check system status")
+    print("   • Your data: data/jobs.sqlite (SQLite database)")
+    print("   • Your config: config/user_prefs.json")
+    print("   • 100% local - all data stays on your computer")
+    print("   • 100% private - no telemetry or tracking")
     print()
     print("❓ Need Help?")
-    print("   • Check docs/WINDOWS_TROUBLESHOOTING.md")
-    print("   • Open an issue: https://github.com/cboyd0319/JobSentinel/issues")
+    print("   • docs/WINDOWS_TROUBLESHOOTING.md")
+    print("   • https://github.com/cboyd0319/JobSentinel/issues")
     print()
     print("=" * 70)
     print()
@@ -367,9 +421,21 @@ def main():
     # Change to project root
     os.chdir(project_root)
     
-    # Run preflight checks
-    if not run_preflight_checks():
-        return 1
+    # Run enhanced preflight checks if available
+    if HAS_ENHANCED_MODULES:
+        print("🔍 Running comprehensive system check...\n")
+        checker = WindowsPreCheck(verbose=False)
+        checker.run_all_checks()
+        checker.print_results(show_help=True)
+        
+        if not checker.can_proceed():
+            print("❌ Cannot proceed with installation due to critical issues.")
+            print("   Please fix the issues above and try again.")
+            return 1
+    else:
+        # Fall back to basic checks
+        if not run_preflight_checks():
+            return 1
     
     # Confirm with user
     print("Ready to begin installation.")
@@ -400,7 +466,10 @@ def main():
         print("   python -m jsa.cli setup")
         return 1
     
-    # Step 5: Health check
+    # Step 5: Create desktop shortcuts
+    shortcuts_created = create_desktop_shortcuts(project_root)
+    
+    # Step 6: Health check
     if not run_health_check(project_root):
         print("❌ Setup completed but health check failed.")
         print()
@@ -409,7 +478,7 @@ def main():
         return 1
     
     # Success!
-    print_next_steps()
+    print_next_steps(shortcuts_created=shortcuts_created)
     
     return 0
 
