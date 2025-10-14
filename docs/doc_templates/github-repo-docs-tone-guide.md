@@ -67,7 +67,7 @@ Security
 - Secrets: use <manager>, never commit. Example: $ENV_VAR (required), path/to/cred.json (optional)
 - Least privilege: role X needs {perm:list}, role Y needs {perm:write}
 - Supply chain: releases are signed (cosign), SBOM (SPDX) published at /releases/tag/v*
-- Disclosure: email security@yourdomain.tld (PGP key in SECURITY.md)
+- Disclosure: report at https://github.com/cboyd0319 (see SECURITY.md)
 ```
 
 Why so terse? It’s the most actionable way to communicate risk without turning README into a policy doc.

@@ -297,7 +297,7 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 **Supply chain:** Dependencies pinned in `pyproject.toml`, Playwright from official CDN
 
-**Disclosure:** Email security@yourdomain.tld (see [SECURITY.md](SECURITY.md)). Response: 3 business days
+**Disclosure:** Report via GitHub at https://github.com/cboyd0319/JobSentinel/issues (see [SECURITY.md](SECURITY.md)). Response: 3 business days
 
 ## Performance
 

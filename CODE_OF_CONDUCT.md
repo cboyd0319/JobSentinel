@@ -27,7 +27,7 @@ Maintainers have the right to remove, edit, or reject comments, commits, code, w
 
 ## Reporting
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by contacting the project team at conduct@yourdomain.tld. All complaints will be reviewed and investigated promptly and fairly.
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by contacting the project team at https://github.com/cboyd0319. All complaints will be reviewed and investigated promptly and fairly.
 
 ## Attribution
 
