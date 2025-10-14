@@ -152,7 +152,7 @@ class SystemDiagnostic:
                         self.results.append(DiagnosticResult(
                             name="Operating System",
                             status="pass",
-                            message=f"Windows 11 detected (OK)",
+                            message="Windows 11 detected (OK)",
                         ))
                     else:
                         self.results.append(DiagnosticResult(
@@ -165,7 +165,7 @@ class SystemDiagnostic:
                     self.results.append(DiagnosticResult(
                         name="Operating System",
                         status="pass",
-                        message=f"Windows detected (OK)",
+                        message="Windows detected (OK)",
                     ))
             elif os_name in ("Linux", "Darwin"):
                 self.results.append(DiagnosticResult(

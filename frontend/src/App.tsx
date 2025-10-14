@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { Layout } from './components/Layout'
+import { Onboarding } from './components/Onboarding'
 import { Dashboard } from './pages/Dashboard'
 import { Jobs } from './pages/Jobs'
 import { Tracker } from './pages/Tracker'
@@ -11,6 +12,7 @@ import { Settings } from './pages/Settings'
 function App() {
   return (
     <ErrorBoundary>
+      <Onboarding />
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Dashboard />} />

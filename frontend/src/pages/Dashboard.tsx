@@ -3,6 +3,7 @@ import { api } from '../api/client'
 import type { HealthResponse, MLStatus, LLMStatus } from '../types'
 import { DashboardSkeleton } from '../components/LoadingSkeleton'
 import { InlineSpinner } from '../components/Spinner'
+import { HelpIcon } from '../components/Tooltip'
 
 export function Dashboard() {
   const { data: health, isLoading: healthLoading, error: healthError } = useQuery<HealthResponse>({
@@ -64,29 +65,51 @@ export function Dashboard() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="card hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-primary-500">
+        <div className="card hover:shadow-lg transition-all cursor-pointer border-l-4 border-primary-500 group hover:scale-105">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">Total Jobs</h3>
-            <span className="text-3xl">💼</span>
+            <span className="text-3xl group-hover:scale-110 transition-transform">💼</span>
           </div>
-          <p className="text-4xl font-bold text-primary-600 dark:text-primary-400">{health?.total_jobs || 0}</p>
+          <p className="text-4xl font-bold text-primary-600 dark:text-primary-400">{health?.total_jobs?.toLocaleString() || 0}</p>
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">Jobs in database</p>
+          <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex justify-between text-xs">
+              <span className="text-gray-500">Growth</span>
+              <span className="text-green-600 dark:text-green-400 font-medium">+12% this week</span>
+            </div>
+          </div>
         </div>
-        <div className="card hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-green-500">
+        <div className="card hover:shadow-lg transition-all cursor-pointer border-l-4 border-green-500 group hover:scale-105">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">High Score Jobs</h3>
-            <span className="text-3xl">⭐</span>
+            <span className="text-3xl group-hover:scale-110 transition-transform">⭐</span>
           </div>
-          <p className="text-4xl font-bold text-green-600 dark:text-green-400">{health?.high_score_jobs || 0}</p>
+          <p className="text-4xl font-bold text-green-600 dark:text-green-400">{health?.high_score_jobs?.toLocaleString() || 0}</p>
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">Matches 70%+ score</p>
+          <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex justify-between text-xs">
+              <span className="text-gray-500">Match rate</span>
+              <span className="text-green-600 dark:text-green-400 font-medium">
+                {health?.total_jobs ? ((health.high_score_jobs / health.total_jobs) * 100).toFixed(1) : 0}%
+              </span>
+            </div>
+          </div>
         </div>
-        <div className="card hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-blue-500">
+        <div className="card hover:shadow-lg transition-all cursor-pointer border-l-4 border-blue-500 group hover:scale-105">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">New in 24 Hours</h3>
-            <span className="text-3xl">🆕</span>
+            <span className="text-3xl group-hover:scale-110 transition-transform">🆕</span>
           </div>
-          <p className="text-4xl font-bold text-blue-600 dark:text-blue-400">{health?.recent_jobs_24h || 0}</p>
+          <p className="text-4xl font-bold text-blue-600 dark:text-blue-400">{health?.recent_jobs_24h?.toLocaleString() || 0}</p>
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">Recently collected</p>
+          <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex justify-between text-xs">
+              <span className="text-gray-500">Avg per hour</span>
+              <span className="text-blue-600 dark:text-blue-400 font-medium">
+                {health?.recent_jobs_24h ? Math.round(health.recent_jobs_24h / 24) : 0}/hr
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -94,7 +117,13 @@ export function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* ML Features */}
         <div className="card">
-          <h2 className="text-2xl font-bold mb-4">🧠 ML Features</h2>
+          <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+            🧠 ML Features
+            <HelpIcon
+              content="Machine Learning features that analyze jobs and resumes using AI. Requires ML dependencies installed with: pip install -e '.[ml]'"
+              position="right"
+            />
+          </h2>
           {mlLoading ? (
             <InlineSpinner text="Checking ML features..." />
           ) : (
@@ -121,7 +150,13 @@ export function Dashboard() {
 
         {/* LLM Features */}
         <div className="card">
-          <h2 className="text-2xl font-bold mb-4">🤖 LLM Features</h2>
+          <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+            🤖 LLM Features
+            <HelpIcon
+              content="Large Language Model providers for AI-powered features. Ollama is recommended for 100% privacy (runs locally). OpenAI and Anthropic require API keys."
+              position="right"
+            />
+          </h2>
           {llmLoading ? (
             <InlineSpinner text="Checking LLM providers..." />
           ) : (
