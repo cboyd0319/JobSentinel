@@ -223,23 +223,24 @@ class SystemDiagnostic:
 
     def check_required_packages(self) -> None:
         """Check required Python packages are installed."""
-        required = [
-            "aiofiles",
-            "aiohttp",
-            "aiosqlite",
-            "beautifulsoup4",
-            "fastapi",
-            "pydantic",
-            "requests",
-            "sqlmodel",
-        ]
+        # Map package names to import names (some differ)
+        required = {
+            "aiofiles": "aiofiles",
+            "aiohttp": "aiohttp",
+            "aiosqlite": "aiosqlite",
+            "beautifulsoup4": "bs4",  # Import name differs
+            "fastapi": "fastapi",
+            "pydantic": "pydantic",
+            "requests": "requests",
+            "sqlmodel": "sqlmodel",
+        }
         
         missing = []
-        for package in required:
+        for package_name, import_name in required.items():
             try:
-                __import__(package)
+                __import__(import_name)
             except ImportError:
-                missing.append(package)
+                missing.append(package_name)
         
         if not missing:
             self.results.append(DiagnosticResult(
