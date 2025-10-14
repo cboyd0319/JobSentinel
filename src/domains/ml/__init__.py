@@ -20,9 +20,21 @@ References:
 
 from .active_learning import ActiveLearningManager, QueryStrategy, Sample
 from .cross_encoder_reranking import Candidate, CrossEncoderReranker, HybridRanker
-from .custom_fine_tuning import FineTunedBERT, FineTuningConfig, FineTuningTrainer, ModelManager
+from .custom_fine_tuning import (
+    FineTunedBERT,
+    FineTuningConfig,
+    FineTuningTrainer,
+    JobMatchingDataset,
+    ModelManager,
+)
 from .keyword_extractor import AdvancedKeywordExtractor, KeywordExtractionResult
-from .multi_task_learning import MultiTaskBERT, MultiTaskPredictor, MultiTaskTrainer, Task
+from .multi_task_learning import (
+    MultiTaskBERT,
+    MultiTaskPredictor,
+    MultiTaskTrainer,
+    Task,
+    create_job_matching_model,
+)
 from .semantic_matcher import SemanticMatcher, SemanticMatchResult
 from .sentiment_analyzer import SentimentAnalyzer, SentimentResult
 
@@ -39,6 +51,7 @@ __all__ = [
     "MultiTaskPredictor",
     "MultiTaskTrainer",
     "Task",
+    "create_job_matching_model",
     # New exports - Active Learning
     "ActiveLearningManager",
     "QueryStrategy",
@@ -51,5 +64,6 @@ __all__ = [
     "FineTunedBERT",
     "FineTuningConfig",
     "FineTuningTrainer",
+    "JobMatchingDataset",
     "ModelManager",
 ]
