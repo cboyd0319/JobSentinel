@@ -30,6 +30,19 @@ Finding relevant jobs across multiple boards is manual and time-consuming. Comme
 
 ## Quickstart
 
+### 🪟 Windows 11 (Zero Technical Knowledge)
+
+**Just want it to work? Use our automated installer:**
+
+1. Download ZIP: https://github.com/cboyd0319/JobSentinel/archive/refs/heads/main.zip
+2. Extract to Desktop
+3. Double-click `setup-windows.bat`
+4. Follow the wizard (5-10 minutes)
+
+**That's it!** See [WINDOWS_QUICK_START.md](docs/WINDOWS_QUICK_START.md) for detailed guide.
+
+### 🐧 macOS / Linux (Command Line)
+
 ```bash
 git clone https://github.com/cboyd0319/JobSentinel && cd JobSentinel
 python3 -m venv .venv && source .venv/bin/activate  # Windows: .venv\Scripts\activate
@@ -54,7 +67,28 @@ python -m jsa.cli run-once
 
 ## Install
 
-**Quick Start (Recommended - Zero Setup):**
+### 🪟 Windows 11 - Automated Installer (Recommended)
+
+**The easiest way - perfect for non-technical users:**
+
+1. **Download:** Get the ZIP from [GitHub](https://github.com/cboyd0319/JobSentinel/archive/refs/heads/main.zip)
+2. **Extract:** Unzip to your Desktop
+3. **Run:** Double-click `setup-windows.bat`
+4. **Done!** Follow the 5-minute wizard
+
+**Includes:**
+- ✅ Automated dependency installation
+- ✅ Interactive configuration wizard
+- ✅ SQLite database (zero setup, no admin rights)
+- ✅ Health check validation
+- ✅ First-run verification
+
+See [WINDOWS_QUICK_START.md](docs/WINDOWS_QUICK_START.md) for detailed guide.
+
+### 🐧 All Platforms - Interactive Setup Wizard
+
+**For users comfortable with command line:**
+
 ```bash
 # Interactive setup wizard (SQLite automatic - no database installation needed!)
 python -m jsa.cli setup
@@ -70,7 +104,10 @@ python -m jsa.cli setup
 # ✅ 100% private - Single file database (data/jobs.sqlite)
 ```
 
-**Manual Installation:**
+### 🛠️ Manual Installation (Advanced)
+
+**For developers and power users:**
+
 ```bash
 # 1. Backend setup (SQLite included, no database installation!)
 python3 -m venv .venv
@@ -162,6 +199,8 @@ python -m jsa.cli web --port 5000
 ```
 
 ## Features
+
+**Windows 11 Ready** — Zero admin rights needed! Automated installer, SQLite database, 100% local setup
 
 **Job scoring** — Multi-factor algorithm: skills 40%, salary 25%, location 20%, company 10%, recency 5%
 

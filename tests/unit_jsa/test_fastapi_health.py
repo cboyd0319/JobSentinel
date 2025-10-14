@@ -34,7 +34,11 @@ class TestHealthEndpoint:
 
     def test_health_check_success(self, client: TestClient, mock_db_stats: dict):
         """Test health check with healthy system."""
-        with patch("jsa.fastapi_app.routers.health.get_stats_sync", return_value=mock_db_stats):
+        with (
+            patch("jsa.fastapi_app.routers.health.get_stats_sync", return_value=mock_db_stats),
+            patch("pathlib.Path.exists", return_value=True),
+            patch("os.access", return_value=True),
+        ):
             response = client.get("/api/v1/health")
 
             assert response.status_code == 200
