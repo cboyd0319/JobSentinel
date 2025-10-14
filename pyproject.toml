@@ -7,7 +7,7 @@ name = "JobSentinel"
 version = "0.6.0"
 description = "The World's Best Job Search Automation with AI/ML and MCP Integration"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 license = {text = "MIT"}
 authors = [{ name = "Project Author", email = "noreply@users.noreply.github.com" }]
 dependencies = [
@@ -97,11 +97,11 @@ include = [
 
 [tool.black]
 line-length = 100
-target-version = ["py311"]
+target-version = ["py312"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py311"
+target-version = "py312"
 src = ["src"]
 
 [tool.ruff.lint]
@@ -123,7 +123,7 @@ ignore = [
 "src/jsa/fastapi_app/routers/*.py" = ["B904"]  # Intentional exception conversion to HTTPException
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.12"
 strict = true
 warn_redundant_casts = true
 warn_unused_ignores = true
