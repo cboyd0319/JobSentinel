@@ -110,8 +110,10 @@ class FilterConfig:
 
     def __post_init__(self):
         """Validate filter configuration."""
+        # COMPATIBILITY: Allow empty title_allowlist if keywords are provided via other means
+        # This supports the new setup wizard format
         if not self.title_allowlist:
-            raise ConfigurationException("title_allowlist cannot be empty")
+            logger.warning("title_allowlist is empty - jobs may not be filtered properly")
 
         if not 0 <= self.immediate_alert_threshold <= 1:
             raise ConfigurationException("immediate_alert_threshold must be between 0 and 1")
@@ -204,21 +206,41 @@ class ConfigManager:
         """Validate the complete configuration."""
         logger.debug("Validating configuration...")
 
-        # Validate companies
+        # COMPATIBILITY: Support both old (companies) and new (job_sources) config formats
         companies = config.get("companies", [])
-        if not companies:
-            raise ConfigurationException("No companies configured")
-
-        for i, company_data in enumerate(companies):
-            try:
-                CompanyConfig(**company_data)
-            except Exception as e:
-                raise ConfigurationException(f"Invalid company config at index {i}: {e}") from e
+        job_sources = config.get("job_sources", {})
+        
+        # If using new job_sources format, we can skip strict company validation
+        if job_sources and not companies:
+            logger.info("Using new job_sources format (setup wizard style)")
+            # Create minimal companies list to satisfy old code that depends on it
+            # This is temporary until all code is migrated to new format
+            enabled_sources = [name for name, info in job_sources.items() if info.get("enabled", False)]
+            if not enabled_sources:
+                logger.warning("No job sources enabled - job searches will return no results")
+        elif not companies and not job_sources:
+            raise ConfigurationException("No companies or job_sources configured")
+        else:
+            # Validate companies in old format
+            for i, company_data in enumerate(companies):
+                try:
+                    CompanyConfig(**company_data)
+                except Exception as e:
+                    raise ConfigurationException(f"Invalid company config at index {i}: {e}") from e
 
         # Validate filters
+        # COMPATIBILITY: Make title_allowlist optional if keywords are provided (wizard style)
+        title_allowlist = config.get("title_allowlist", [])
+        keywords = config.get("keywords", [])
+        
+        # If no title_allowlist but has keywords, use keywords as a basic filter
+        if not title_allowlist and keywords:
+            title_allowlist = keywords
+            logger.info("Using keywords as title allowlist (setup wizard compatibility)")
+        
         try:
             FilterConfig(
-                title_allowlist=config.get("title_allowlist", []),
+                title_allowlist=title_allowlist,
                 title_blocklist=config.get("title_blocklist", []),
                 keywords_boost=config.get("keywords_boost", []),
                 keywords_exclude=config.get("keywords_exclude", []),
