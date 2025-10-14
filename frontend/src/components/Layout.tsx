@@ -1,7 +1,13 @@
 import { Outlet, Link, useLocation } from 'react-router-dom'
+import { useDarkMode } from '../hooks/useDarkMode'
+import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts'
 
 export function Layout() {
   const location = useLocation()
+  const { isDark, toggleDark } = useDarkMode()
+  
+  // Enable keyboard shortcuts
+  useKeyboardShortcuts()
 
   const isActive = (path: string) => location.pathname === path
 
@@ -67,6 +73,42 @@ export function Layout() {
                   🤖 LLM
                 </Link>
               </div>
+            </div>
+            <div className="flex items-center gap-4">
+              {/* Dark Mode Toggle */}
+              <button
+                onClick={toggleDark}
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                aria-label="Toggle dark mode"
+                title="Toggle dark mode"
+              >
+                {isDark ? (
+                  <span className="text-xl">🌞</span>
+                ) : (
+                  <span className="text-xl">🌙</span>
+                )}
+              </button>
+              {/* Keyboard Shortcuts Help */}
+              <button
+                onClick={() => {
+                  const event = new KeyboardEvent('keydown', { key: '?' })
+                  window.dispatchEvent(event)
+                }}
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                aria-label="Show keyboard shortcuts"
+                title="Keyboard shortcuts (Press ? for help)"
+              >
+                <span className="text-xl">⌨️</span>
+              </button>
+              {/* Settings Link */}
+              <Link
+                to="/settings"
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                aria-label="Settings"
+                title="Settings"
+              >
+                <span className="text-xl">⚙️</span>
+              </Link>
             </div>
           </div>
         </div>

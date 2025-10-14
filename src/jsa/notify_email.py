@@ -74,14 +74,14 @@ class EmailNotifier:
 
     def __init__(
         self,
-        smtp_host: Optional[str] = None,
-        smtp_port: Optional[int] = None,
-        smtp_user: Optional[str] = None,
-        smtp_password: Optional[str] = None,
-        from_email: Optional[str] = None,
-        to_email: Optional[str] = None,
+        smtp_host: str | None = None,
+        smtp_port: int | None = None,
+        smtp_user: str | None = None,
+        smtp_password: str | None = None,
+        from_email: str | None = None,
+        to_email: str | None = None,
         use_tls: bool = True,
-        provider: Optional[str] = None,
+        provider: str | None = None,
     ) -> None:
         """Initialize email notifier.
 
@@ -148,7 +148,7 @@ class EmailNotifier:
     def send_job_alert(
         self,
         jobs: list[dict[str, Any]],
-        subject: Optional[str] = None,
+        subject: str | None = None,
         digest: bool = False,
     ) -> bool:
         """Send email alert for job matches.
