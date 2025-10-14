@@ -27,9 +27,7 @@ def run_gh_command(args: List[str]) -> Dict[str, Any]:
     """Run a gh CLI command and return the JSON output."""
     cmd = ["gh"] + args
     try:
-        result = subprocess.run(
-            cmd, capture_output=True, text=True, check=True
-        )
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
         return json.loads(result.stdout) if result.stdout else {}
     except subprocess.CalledProcessError as e:
         print(f"Error running gh command: {e}", file=sys.stderr)
@@ -47,14 +45,19 @@ def get_dependabot_prs() -> List[Dict[str, Any]]:
         # Use gh CLI to list PRs
         result = subprocess.run(
             [
-                "gh", "pr", "list",
-                "--author", "app/dependabot",
-                "--state", "open",
-                "--json", "number,title,url,headRefName,mergeable,statusCheckRollup"
+                "gh",
+                "pr",
+                "list",
+                "--author",
+                "app/dependabot",
+                "--state",
+                "open",
+                "--json",
+                "number,title,url,headRefName,mergeable,statusCheckRollup",
             ],
             capture_output=True,
             text=True,
-            check=True
+            check=True,
         )
         prs = json.loads(result.stdout)
         print(f"Found {len(prs)} Dependabot PRs")
@@ -73,13 +76,13 @@ def approve_pr(pr_number: int, dry_run: bool = False) -> bool:
     if dry_run:
         print(f"  [DRY RUN] Would approve PR #{pr_number}")
         return True
-    
+
     try:
         subprocess.run(
             ["gh", "pr", "review", str(pr_number), "--approve", "--body", "🤖 Auto-approved"],
             capture_output=True,
             text=True,
-            check=True
+            check=True,
         )
         print(f"  ✅ Approved PR #{pr_number}")
         return True
@@ -97,13 +100,13 @@ def enable_automerge(pr_number: int, dry_run: bool = False) -> bool:
     if dry_run:
         print(f"  [DRY RUN] Would enable auto-merge for PR #{pr_number}")
         return True
-    
+
     try:
         subprocess.run(
             ["gh", "pr", "merge", str(pr_number), "--auto", "--squash"],
             capture_output=True,
             text=True,
-            check=True
+            check=True,
         )
         print(f"  ✅ Enabled auto-merge for PR #{pr_number}")
         return True
@@ -117,13 +120,13 @@ def merge_pr(pr_number: int, dry_run: bool = False) -> bool:
     if dry_run:
         print(f"  [DRY RUN] Would merge PR #{pr_number}")
         return True
-    
+
     try:
         subprocess.run(
             ["gh", "pr", "merge", str(pr_number), "--squash", "--delete-branch"],
             capture_output=True,
             text=True,
-            check=True
+            check=True,
         )
         print(f"  ✅ Merged PR #{pr_number}")
         return True
@@ -137,21 +140,19 @@ def check_ci_status(pr: Dict[str, Any]) -> str:
     status_rollup = pr.get("statusCheckRollup", [])
     if not status_rollup:
         return "unknown"
-    
+
     # Check if any checks are failing
     for check in status_rollup:
         if check.get("conclusion") == "FAILURE":
             return "failure"
         if check.get("state") == "PENDING":
             return "pending"
-    
+
     return "success"
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Approve and merge all waiting Dependabot PRs"
-    )
+    parser = argparse.ArgumentParser(description="Approve and merge all waiting Dependabot PRs")
     parser.add_argument(
         "--dry-run",
         action="store_true",
@@ -181,7 +182,7 @@ def main():
 
     # Get all Dependabot PRs
     prs = get_dependabot_prs()
-    
+
     if not prs:
         print("No Dependabot PRs found. Nothing to do.")
         return 0
@@ -195,21 +196,21 @@ def main():
         pr_number = pr["number"]
         title = pr["title"]
         url = pr["url"]
-        
+
         print(f"\n📦 Processing PR #{pr_number}: {title}")
         print(f"   URL: {url}")
-        
+
         # Check CI status
         ci_status = check_ci_status(pr)
         print(f"   CI Status: {ci_status}")
-        
+
         # Approve the PR
         if approve_pr(pr_number, args.dry_run):
             approved_count += 1
         else:
             failed_count += 1
             continue
-        
+
         # If CI is passing, try to merge or enable auto-merge
         if ci_status == "success":
             if enable_automerge(pr_number, args.dry_run):
@@ -236,7 +237,7 @@ def main():
     print(f"   🔀 Merged/Auto-merge enabled: {merged_count}")
     print(f"   ❌ Failed: {failed_count}")
     print("=" * 60)
-    
+
     return 0 if failed_count == 0 else 1
 
 

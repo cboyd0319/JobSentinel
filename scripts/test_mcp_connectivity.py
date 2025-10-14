@@ -30,7 +30,7 @@ def test_github_mcp():
     print("Type: Built-in OAuth")
     print("Description: Repository operations, issues, PRs, code search")
     print("-" * 70)
-    
+
     try:
         # This is a placeholder - actual GitHub MCP tools are available through Copilot
         print("✓ GitHub MCP tools are available through Copilot")
@@ -52,19 +52,14 @@ def test_fetch_server():
     print("Type: Local (npx)")
     print("Description: Web content fetching")
     print("-" * 70)
-    
+
     try:
         # Check if npx is available
-        result = subprocess.run(
-            ["which", "npx"],
-            capture_output=True,
-            text=True,
-            timeout=5
-        )
+        result = subprocess.run(["which", "npx"], capture_output=True, text=True, timeout=5)
         if result.returncode != 0:
             print("\nStatus: ✗ FAIL - npx command not found")
             return False
-        
+
         print(f"✓ Command available at: {result.stdout.strip()}")
         print("✓ No API keys required")
         print("✓ Can fetch web content")
@@ -83,19 +78,14 @@ def test_playwright_server():
     print("Type: Local (npx)")
     print("Description: Browser automation")
     print("-" * 70)
-    
+
     try:
         # Check if npx is available
-        result = subprocess.run(
-            ["which", "npx"],
-            capture_output=True,
-            text=True,
-            timeout=5
-        )
+        result = subprocess.run(["which", "npx"], capture_output=True, text=True, timeout=5)
         if result.returncode != 0:
             print("\nStatus: ✗ FAIL - npx command not found")
             return False
-        
+
         print(f"✓ Command available at: {result.stdout.strip()}")
         print("✓ No API keys required")
         print("✓ Can automate browsers")
@@ -114,7 +104,7 @@ def test_context7_server():
     print("Type: HTTP")
     print("Description: Documentation lookup")
     print("-" * 70)
-    
+
     api_key = os.environ.get("COPILOT_MCP_CONTEXT7_API_KEY")
     if not api_key:
         print("⚠ API key not set (COPILOT_MCP_CONTEXT7_API_KEY)")
@@ -123,13 +113,13 @@ def test_context7_server():
         print("ℹ To enable: Add API key to GitHub Secrets")
         print("\nStatus: ⚠ READY - Waiting for API key")
         return None  # Not a failure, just needs configuration
-    
+
     try:
         import httpx
+
         with httpx.Client(timeout=10.0) as client:
             response = client.get(
-                "https://mcp.context7.com/mcp",
-                headers={"CONTEXT7_API_KEY": api_key}
+                "https://mcp.context7.com/mcp", headers={"CONTEXT7_API_KEY": api_key}
             )
             if response.status_code < 500:
                 print(f"✓ Server reachable (HTTP {response.status_code})")
@@ -158,26 +148,21 @@ def test_openai_websearch_server():
     print("Type: Local (uvx)")
     print("Description: Web search via OpenAI")
     print("-" * 70)
-    
+
     # Check if uvx is available
     try:
-        result = subprocess.run(
-            ["which", "uvx"],
-            capture_output=True,
-            text=True,
-            timeout=5
-        )
+        result = subprocess.run(["which", "uvx"], capture_output=True, text=True, timeout=5)
         if result.returncode != 0:
             print("✗ uvx command not found")
             print("\nStatus: ✗ FAIL - Command not available")
             return False
-        
+
         print(f"✓ Command available at: {result.stdout.strip()}")
     except Exception as e:
         print(f"✗ Error checking uvx: {str(e)}")
         print("\nStatus: ✗ FAIL - Cannot check command")
         return False
-    
+
     # Check API key
     api_key = os.environ.get("COPILOT_MCP_OPENAI_API_KEY")
     if not api_key:
@@ -186,7 +171,7 @@ def test_openai_websearch_server():
         print("ℹ To enable: Add OpenAI API key to GitHub Secrets")
         print("\nStatus: ⚠ READY - Waiting for API key")
         return None  # Not a failure, just needs configuration
-    
+
     print("✓ API key configured")
     print("\nStatus: ✓ PASS - Ready to use")
     return True
@@ -197,21 +182,21 @@ def print_summary(results: Dict[str, bool]):
     print("\n" + "=" * 70)
     print("SUMMARY")
     print("=" * 70)
-    
+
     total = len(results)
     passed = sum(1 for v in results.values() if v is True)
     ready = sum(1 for v in results.values() if v is None)
     failed = sum(1 for v in results.values() if v is False)
-    
+
     print(f"Total servers: {total}")
     print(f"✓ Working: {passed}")
     print(f"⚠ Ready (needs API key): {ready}")
     print(f"✗ Failed: {failed}")
-    
+
     print("\n" + "-" * 70)
     print("SERVER STATUS")
     print("-" * 70)
-    
+
     for name, status in results.items():
         if status is True:
             icon = "✓"
@@ -222,9 +207,9 @@ def print_summary(results: Dict[str, bool]):
         else:
             icon = "✗"
             status_text = "FAILED"
-        
+
         print(f"{icon} {name:20s} - {status_text}")
-    
+
     print("\n" + "=" * 70)
     print("NOTES")
     print("=" * 70)
@@ -233,7 +218,7 @@ def print_summary(results: Dict[str, bool]):
     print("3. Failed servers need troubleshooting")
     print("4. GitHub MCP is built-in to Copilot (uses OAuth, not PAT)")
     print("5. To add API keys: Repository Settings → Secrets → Actions")
-    
+
     # Return success if no failures
     return failed == 0
 
@@ -244,7 +229,7 @@ def main():
     print("=" * 70)
     print("This script tests actual connections to all MCP servers")
     print("=" * 70)
-    
+
     results = {
         "github-mcp": test_github_mcp(),
         "fetch": test_fetch_server(),
@@ -252,9 +237,9 @@ def main():
         "context7": test_context7_server(),
         "openai-websearch": test_openai_websearch_server(),
     }
-    
+
     success = print_summary(results)
-    
+
     # Exit with 0 if no failures (ready status is OK)
     sys.exit(0 if success else 1)
 
