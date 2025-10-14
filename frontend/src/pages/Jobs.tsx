@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '../api/client'
 import type { JobListResponse, Job } from '../types'
+import { HelpIcon } from '../components/Tooltip'
 
 export function Jobs() {
   const [page, setPage] = useState(1)
@@ -83,8 +84,12 @@ export function Jobs() {
             {/* Search Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="job-search" className="block text-sm font-medium mb-2">
+                <label htmlFor="job-search" className="block text-sm font-medium mb-2 flex items-center gap-2">
                   🔎 Search Keywords
+                  <HelpIcon
+                    content="Search by job title, company name, or skills. Try 'python', 'remote', or 'senior engineer'."
+                    position="right"
+                  />
                 </label>
                 <input
                   id="job-search"
@@ -97,8 +102,12 @@ export function Jobs() {
                 />
               </div>
               <div>
-                <label htmlFor="source-filter" className="block text-sm font-medium mb-2">
+                <label htmlFor="source-filter" className="block text-sm font-medium mb-2 flex items-center gap-2">
                   📍 Job Source
+                  <HelpIcon
+                    content="Filter jobs by where they were found (Greenhouse, Lever, Reed, etc.). Leave empty to see all sources."
+                    position="right"
+                  />
                 </label>
                 <select
                   id="source-filter"
@@ -118,8 +127,12 @@ export function Jobs() {
             {/* Score and Sort Row */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label htmlFor="min-score" className="block text-sm font-medium mb-2">
+                <label htmlFor="min-score" className="block text-sm font-medium mb-2 flex items-center gap-2">
                   ⭐ Minimum Match Score: {minScore}%
+                  <HelpIcon
+                    content="AI-powered score (0-100%) based on your preferences. Higher scores mean better matches. Try 70%+ for top opportunities!"
+                    position="right"
+                  />
                 </label>
                 <input
                   id="min-score"
@@ -139,8 +152,12 @@ export function Jobs() {
                 </div>
               </div>
               <div>
-                <label htmlFor="sort-by" className="block text-sm font-medium mb-2">
+                <label htmlFor="sort-by" className="block text-sm font-medium mb-2 flex items-center gap-2">
                   📊 Sort By
+                  <HelpIcon
+                    content="Order jobs by match score (default), date posted (newest first), or salary range (highest first)."
+                    position="right"
+                  />
                 </label>
                 <select
                   id="sort-by"

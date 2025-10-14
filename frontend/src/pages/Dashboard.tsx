@@ -3,6 +3,7 @@ import { api } from '../api/client'
 import type { HealthResponse, MLStatus, LLMStatus } from '../types'
 import { DashboardSkeleton } from '../components/LoadingSkeleton'
 import { InlineSpinner } from '../components/Spinner'
+import { HelpIcon } from '../components/Tooltip'
 
 export function Dashboard() {
   const { data: health, isLoading: healthLoading, error: healthError } = useQuery<HealthResponse>({
@@ -116,7 +117,13 @@ export function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* ML Features */}
         <div className="card">
-          <h2 className="text-2xl font-bold mb-4">🧠 ML Features</h2>
+          <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+            🧠 ML Features
+            <HelpIcon
+              content="Machine Learning features that analyze jobs and resumes using AI. Requires ML dependencies installed with: pip install -e '.[ml]'"
+              position="right"
+            />
+          </h2>
           {mlLoading ? (
             <InlineSpinner text="Checking ML features..." />
           ) : (
@@ -143,7 +150,13 @@ export function Dashboard() {
 
         {/* LLM Features */}
         <div className="card">
-          <h2 className="text-2xl font-bold mb-4">🤖 LLM Features</h2>
+          <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+            🤖 LLM Features
+            <HelpIcon
+              content="Large Language Model providers for AI-powered features. Ollama is recommended for 100% privacy (runs locally). OpenAI and Anthropic require API keys."
+              position="right"
+            />
+          </h2>
           {llmLoading ? (
             <InlineSpinner text="Checking LLM providers..." />
           ) : (
