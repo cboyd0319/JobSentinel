@@ -223,7 +223,9 @@ class JobSentinelGUI:
         util_buttons = [
             ("⚙️ Setup Wizard", self._run_setup),
             ("📊 Run Job Scraper", self._run_scraper),
-            ("🔧 Configuration", self._edit_config),
+            ("🔧 Edit Configuration", self._edit_config),
+            ("📧 Test Email Alerts", self._test_email),
+            ("💾 Backup Data", self._backup_data),
             ("❓ Help & Docs", self._open_help),
         ]
 
@@ -233,18 +235,24 @@ class JobSentinelGUI:
             btn = Button(
                 util_frame,
                 text=text,
-                font=("Segoe UI", 10),
+                font=("Segoe UI", 9),
                 bg="white",
                 fg=self.primary_color,
                 activebackground="#f0f0f0",
                 relief="solid",
                 borderwidth=1,
-                padx=15,
-                pady=10,
+                padx=12,
+                pady=8,
                 cursor="hand2",
                 command=command,
             )
-            btn.grid(row=row, column=col, sticky="ew", padx=(0 if col == 0 else 5, 5 if col == 0 else 0), pady=5)
+            btn.grid(
+                row=row,
+                column=col,
+                sticky="ew",
+                padx=(0 if col == 0 else 5, 5 if col == 0 else 0),
+                pady=4,
+            )
 
         util_frame.columnconfigure(0, weight=1)
         util_frame.columnconfigure(1, weight=1)
@@ -295,11 +303,12 @@ class JobSentinelGUI:
             level: Log level (info, success, warning, error)
         """
         self.log_text.config(state="normal")
-        
+
         # Add timestamp
         from datetime import datetime
+
         timestamp = datetime.now().strftime("%H:%M:%S")
-        
+
         # Color code based on level
         prefix = {
             "info": "ℹ️",
@@ -307,7 +316,7 @@ class JobSentinelGUI:
             "warning": "⚠️",
             "error": "❌",
         }.get(level, "•")
-        
+
         self.log_text.insert("end", f"[{timestamp}] {prefix} {message}\n")
         self.log_text.see("end")
         self.log_text.config(state="disabled")
@@ -369,15 +378,24 @@ class JobSentinelGUI:
             def start_in_thread():
                 try:
                     self.server_process = subprocess.Popen(
-                        [sys.executable, "-m", "uvicorn", "jsa.fastapi_app:app", "--host", "0.0.0.0", "--port", "8000"],
+                        [
+                            sys.executable,
+                            "-m",
+                            "uvicorn",
+                            "jsa.fastapi_app:app",
+                            "--host",
+                            "0.0.0.0",
+                            "--port",
+                            "8000",
+                        ],
                         stdout=subprocess.PIPE,
                         stderr=subprocess.PIPE,
                         cwd=str(self.project_root),
                     )
-                    
+
                     # Update UI in main thread
                     self.root.after(0, self._on_server_started)
-                    
+
                 except Exception as e:
                     self.root.after(0, lambda: self._log(f"Failed to start server: {e}", "error"))
 
@@ -393,12 +411,12 @@ class JobSentinelGUI:
         self.status_labels["server"].config(text="✅", fg=self.success_color)
         self._log("JobSentinel API server started on http://localhost:8000", "success")
         self._log("You can now open the Web UI!", "success")
-        
+
         # Update buttons
         self.start_button.config(state="disabled")
         self.stop_button.config(state="normal")
         self.browser_button.config(state="normal")
-        
+
         # Ask if user wants to open browser
         result = messagebox.askyesno(
             "Server Started!",
@@ -419,15 +437,15 @@ class JobSentinelGUI:
             self.server_process.terminate()
             self.server_process.wait(timeout=5)
             self.server_process = None
-            
+
             self.status_labels["server"].config(text="⚫", fg="#999999")
             self._log("JobSentinel API server stopped", "success")
-            
+
             # Update buttons
             self.start_button.config(state="normal")
             self.stop_button.config(state="disabled")
             self.browser_button.config(state="disabled")
-            
+
         except subprocess.TimeoutExpired:
             self.server_process.kill()
             self.server_process = None
@@ -443,12 +461,14 @@ class JobSentinelGUI:
             self._log(f"Opening {url} in browser...", "info")
         except Exception as e:
             self._log(f"Failed to open browser: {e}", "error")
-            messagebox.showerror("Browser Error", f"Could not open browser.\n\nPlease manually navigate to:\n{url}")
+            messagebox.showerror(
+                "Browser Error", f"Could not open browser.\n\nPlease manually navigate to:\n{url}"
+            )
 
     def _run_setup(self) -> None:
         """Run the interactive setup wizard."""
         self._log("Launching setup wizard...", "info")
-        
+
         try:
             # Run setup wizard in new window
             subprocess.Popen(
@@ -463,17 +483,17 @@ class JobSentinelGUI:
     def _run_scraper(self) -> None:
         """Run the job scraper once."""
         self._log("Running job scraper...", "info")
-        
+
         result = messagebox.askyesno(
             "Run Job Scraper",
             "This will scrape jobs from configured sources.\n\n"
             "It may take several minutes depending on the number of sources.\n\n"
             "Continue?",
         )
-        
+
         if not result:
             return
-            
+
         try:
             # Run scraper in background
             subprocess.Popen(
@@ -493,7 +513,7 @@ class JobSentinelGUI:
     def _edit_config(self) -> None:
         """Open configuration file in default editor."""
         self._log("Opening configuration file...", "info")
-        
+
         if not self.config_path.exists():
             result = messagebox.askyesno(
                 "Configuration Not Found",
@@ -503,7 +523,7 @@ class JobSentinelGUI:
             if result:
                 self._run_setup()
             return
-            
+
         try:
             if platform.system() == "Windows":
                 os.startfile(str(self.config_path))
@@ -511,7 +531,7 @@ class JobSentinelGUI:
                 subprocess.run(["open", str(self.config_path)])
             else:  # Linux
                 subprocess.run(["xdg-open", str(self.config_path)])
-            
+
             self._log("Configuration file opened", "success")
         except Exception as e:
             self._log(f"Failed to open config: {e}", "error")
@@ -521,10 +541,120 @@ class JobSentinelGUI:
                 f"File location: {self.config_path}",
             )
 
+    def _test_email(self) -> None:
+        """Test email notification configuration."""
+        self._log("Testing email configuration...", "info")
+
+        # Check if .env exists
+        env_path = Path(".env")
+        if not env_path.exists():
+            messagebox.showinfo(
+                "Email Not Configured",
+                "Email alerts are not configured yet.\n\n"
+                "Run the Setup Wizard to configure email notifications.",
+            )
+            return
+
+        try:
+            # Run email test
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "-c",
+                    "from notify.emailer import test_email_config; "
+                    "import sys; sys.exit(0 if test_email_config() else 1)",
+                ],
+                cwd=str(self.project_root),
+                capture_output=True,
+                timeout=30,
+            )
+
+            if result.returncode == 0:
+                self._log("Email test successful! Check your inbox.", "success")
+                messagebox.showinfo(
+                    "Email Test Success!",
+                    "Test email sent successfully!\n\n"
+                    "Check your inbox to confirm email alerts are working.",
+                )
+            else:
+                self._log("Email test failed. Check configuration.", "error")
+                messagebox.showerror(
+                    "Email Test Failed",
+                    "Could not send test email.\n\n"
+                    "Check your email configuration in .env file.\n\n"
+                    "For Gmail users:\n"
+                    "- Enable 2-factor authentication\n"
+                    "- Generate App Password\n"
+                    "- Use App Password in SMTP_PASS",
+                )
+        except subprocess.TimeoutExpired:
+            self._log("Email test timed out", "error")
+            messagebox.showerror("Timeout", "Email test timed out after 30 seconds.")
+        except Exception as e:
+            self._log(f"Email test error: {e}", "error")
+            messagebox.showerror("Test Error", f"Could not test email:\n\n{e}")
+
+    def _backup_data(self) -> None:
+        """Create a backup of JobSentinel data."""
+        self._log("Creating backup...", "info")
+
+        result = messagebox.askyesno(
+            "Create Backup",
+            "This will create a backup of all JobSentinel data:\n"
+            "• Job database\n"
+            "• Configuration files\n"
+            "• Environment variables\n\n"
+            "The backup will be saved as a .tar.gz file.\n\n"
+            "Continue?",
+        )
+
+        if not result:
+            return
+
+        try:
+            # Run backup command
+            process = subprocess.Popen(
+                [sys.executable, "-m", "jsa.cli", "backup", "create"],
+                cwd=str(self.project_root),
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            )
+
+            stdout, stderr = process.communicate(timeout=60)
+
+            if process.returncode == 0:
+                self._log("Backup created successfully!", "success")
+                # Try to extract backup filename from output
+                backup_file = "backup file in backups/ directory"
+                for line in stdout.split("\n"):
+                    if "backup" in line.lower() and ".tar.gz" in line:
+                        backup_file = line.strip()
+                        break
+
+                messagebox.showinfo(
+                    "Backup Created!",
+                    f"Backup created successfully!\n\n"
+                    f"Location: {backup_file}\n\n"
+                    "Store this file in a safe location.",
+                )
+            else:
+                self._log(f"Backup failed: {stderr}", "error")
+                messagebox.showerror(
+                    "Backup Failed",
+                    f"Could not create backup.\n\n{stderr}",
+                )
+        except subprocess.TimeoutExpired:
+            self._log("Backup timed out", "error")
+            messagebox.showerror("Timeout", "Backup operation timed out after 60 seconds.")
+        except Exception as e:
+            self._log(f"Backup error: {e}", "error")
+            messagebox.showerror("Backup Error", f"Could not create backup:\n\n{e}")
+
     def _open_help(self) -> None:
         """Open help documentation."""
         self._log("Opening documentation...", "info")
-        
+
         # Try to open local docs first
         docs_path = Path("docs/README.md")
         if docs_path.exists():
@@ -538,7 +668,7 @@ class JobSentinelGUI:
                 return
             except Exception:
                 pass  # Fall back to GitHub
-        
+
         # Open GitHub docs
         try:
             webbrowser.open("https://github.com/cboyd0319/JobSentinel#readme")
@@ -552,8 +682,7 @@ class JobSentinelGUI:
         if self.server_process and self.server_process.poll() is None:
             result = messagebox.askyesno(
                 "Server Running",
-                "JobSentinel is still running.\n\n"
-                "Do you want to stop it and exit?",
+                "JobSentinel is still running.\n\n" "Do you want to stop it and exit?",
             )
             if result:
                 self._stop_server()
@@ -577,6 +706,7 @@ def main() -> int:
     except Exception as e:
         print(f"Fatal error: {e}", file=sys.stderr)
         import traceback
+
         traceback.print_exc()
         return 1
 
