@@ -175,6 +175,38 @@ def _cmd_api(args: argparse.Namespace) -> int:
         return 1
 
 
+def _cmd_update(args: argparse.Namespace) -> int:
+    """Check for and install updates."""
+    try:
+        from jsa.auto_update import AutoUpdater
+
+        updater = AutoUpdater()
+
+        if args.check_only:
+            release = updater.check_for_updates(
+                include_prereleases=args.include_prereleases
+            )
+            if release:
+                updater.display_update_info(release)
+                print()
+                print("To install, run: python -m jsa.cli update")
+                return 0
+            else:
+                print(f"✓ JobSentinel v{updater.current_version} is up to date")
+                return 0
+        else:
+            success = updater.check_and_prompt(auto_update=args.auto)
+            return 0 if success or not args.auto else 1
+
+    except ImportError as e:
+        print(f"Error: Missing required dependencies: {e}")
+        print("Install with: pip install -e '.[dev]'")
+        return 1
+    except Exception as e:
+        print(f"Error: {e}")
+        return 1
+
+
 def _cmd_privacy(args: argparse.Namespace) -> int:
     """Display privacy dashboard with complete data transparency."""
     try:
@@ -455,6 +487,31 @@ def build_parser() -> argparse.ArgumentParser:
         help="Export complete privacy report to JSON",
     )
     p_privacy.set_defaults(func=_cmd_privacy)
+
+    # Auto-Update (NEW - World's Best Feature)
+    p_update = sub.add_parser(
+        "update",
+        help="Check for and install updates",
+        description="Check for JobSentinel updates and install them. "
+        "Includes automatic backup before updating and verification after. "
+        "Zero admin rights required - Windows friendly!",
+    )
+    p_update.add_argument(
+        "--check-only",
+        action="store_true",
+        help="Only check for updates, don't install",
+    )
+    p_update.add_argument(
+        "--auto",
+        action="store_true",
+        help="Automatically install updates without prompting",
+    )
+    p_update.add_argument(
+        "--include-prereleases",
+        action="store_true",
+        help="Include beta/alpha releases",
+    )
+    p_update.set_defaults(func=_cmd_update)
 
     # Backup & Restore (NEW - World's Best Feature)
     p_backup = sub.add_parser(
