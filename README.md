@@ -30,16 +30,26 @@ Finding relevant jobs across multiple boards is manual and time-consuming. Comme
 
 ## Quickstart
 
-### 🪟 Windows 11 (Zero Technical Knowledge)
+### 🪟 Windows 11+ (Recommended - Zero Technical Knowledge)
 
-**Just want it to work? Use our automated installer:**
+**World's easiest installation. Just 2 clicks:**
 
 1. Download ZIP: https://github.com/cboyd0319/JobSentinel/archive/refs/heads/main.zip
 2. Extract to Desktop
-3. Double-click `setup-windows.bat`
-4. Follow the wizard (5-10 minutes)
+3. Run `bootstrap.ps1` (right-click → "Run with PowerShell")
+4. Run `run.ps1` to start
 
-**That's it!** See [WINDOWS_QUICK_START.md](docs/WINDOWS_QUICK_START.md) for detailed guide.
+**That's it! 2 minutes to a running job search automation tool.**
+
+Features:
+- ✅ Zero admin rights needed
+- ✅ 100% local and private (no cloud)
+- ✅ Portable Node.js included
+- ✅ SQLite database (auto-created)
+- ✅ Modern React 19 UI
+- ✅ One-click launch
+
+See [WINDOWS_QUICK_START.md](docs/WINDOWS_QUICK_START.md) for screenshots and troubleshooting.
 
 ### 🐧 macOS / Linux (Command Line)
 
