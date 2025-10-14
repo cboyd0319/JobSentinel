@@ -38,9 +38,9 @@ class LLMConfig:
     """LLM configuration."""
 
     provider: LLMProvider = LLMProvider.OLLAMA
-    model: Optional[str] = None  # Provider-specific model
-    api_key: Optional[str] = None
-    base_url: Optional[str] = None
+    model: str | None = None  # Provider-specific model
+    api_key: str | None = None
+    base_url: str | None = None
     temperature: float = 0.7
     max_tokens: int = 2000
     timeout: int = 60
@@ -67,9 +67,9 @@ class LLMClient(ABC):
     async def generate(
         self,
         prompt: str,
-        system_prompt: Optional[str] = None,
-        temperature: Optional[float] = None,
-        max_tokens: Optional[int] = None,
+        system_prompt: str | None = None,
+        temperature: float | None = None,
+        max_tokens: int | None = None,
     ) -> LLMResponse:
         """Generate text from prompt.
 

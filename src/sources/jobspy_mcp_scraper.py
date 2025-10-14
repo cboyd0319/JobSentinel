@@ -10,9 +10,8 @@ from __future__ import annotations
 import json
 import subprocess
 
-from utils.logging import get_logger
-
 from sources.job_scraper_base import GenericJobExtractor, JobBoardScraper
+from utils.logging import get_logger
 
 logger = get_logger("sources.jobspy_mcp_scraper")
 

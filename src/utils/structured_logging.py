@@ -17,11 +17,12 @@ import logging
 import logging.config
 import time
 import uuid
+from collections.abc import Generator
 from contextlib import contextmanager
 from contextvars import ContextVar
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any, Generator
+from typing import Any
 
 # Thread-safe context variable for trace_id propagation
 trace_context: ContextVar[str | None] = ContextVar("trace_context", default=None)

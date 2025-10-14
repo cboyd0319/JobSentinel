@@ -345,9 +345,7 @@ class DatabaseOptimizer:
             print(f"   Duration: {result.duration_ms:.2f}ms")
 
             if result.size_before_mb and result.size_after_mb:
-                print(
-                    f"   Size: {result.size_before_mb:.2f}MB → {result.size_after_mb:.2f}MB"
-                )
+                print(f"   Size: {result.size_before_mb:.2f}MB → {result.size_after_mb:.2f}MB")
 
             print()
 

@@ -13,6 +13,7 @@ from queue import Empty, Queue
 from threading import Lock, RLock
 
 from sqlmodel import Session, select
+
 from utils.logging import get_logger
 
 from .unified_database import UnifiedJob, save_unified_job

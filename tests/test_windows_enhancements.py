@@ -96,10 +96,10 @@ class TestWindowsPreCheck:
             except (FileNotFoundError, OSError):
                 # Already in a deleted directory, use /tmp
                 original_dir = Path("/tmp")
-            
+
             try:
                 os.chdir(tmpdir)
-                
+
                 checker = WindowsPreCheck()
                 result = checker.check_write_permissions()
 

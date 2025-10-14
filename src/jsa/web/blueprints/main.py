@@ -8,8 +8,8 @@ from flask.typing import ResponseReturnValue
 from sqlalchemy import desc
 from sqlmodel import select
 
+from database import Job, get_database_stats_sync, get_sync_session
 from jsa.logging import get_logger
-from src.database import Job, get_database_stats_sync, get_sync_session
 
 bp = Blueprint("main", __name__)
 logger = get_logger("web.main", component="web_ui")
@@ -67,6 +67,7 @@ def save_config() -> ResponseReturnValue:
     Security: requires CSRF token from session to match form token.
     """
     from flask import flash, redirect, request, session, url_for
+
     from utils.config import config_manager
 
     try:

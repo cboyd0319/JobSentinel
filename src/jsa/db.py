@@ -16,7 +16,7 @@ from contextlib import contextmanager
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlmodel import Session, create_engine
 
-import src.database as legacy_db
+import database as legacy_db
 
 
 # Re-export Job model for convenience (read-only usage in new code)

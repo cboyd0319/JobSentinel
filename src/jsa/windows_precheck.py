@@ -342,9 +342,7 @@ class WindowsPreCheck:
         print()
 
         # Count results
-        critical_failed = sum(
-            1 for r in self.results if not r.passed and r.severity == "critical"
-        )
+        critical_failed = sum(1 for r in self.results if not r.passed and r.severity == "critical")
         warnings = sum(1 for r in self.results if not r.passed and r.severity == "warning")
         passed = sum(1 for r in self.results if r.passed)
 
@@ -353,9 +351,7 @@ class WindowsPreCheck:
             if warnings == 0:
                 print(f"✅ All {len(self.results)} checks passed! Ready to install.")
             else:
-                print(
-                    f"⚠️  {passed}/{len(self.results)} checks passed with {warnings} warning(s)."
-                )
+                print(f"⚠️  {passed}/{len(self.results)} checks passed with {warnings} warning(s).")
                 print("   You can continue, but some features may not work optimally.")
         else:
             print(f"❌ {critical_failed} critical check(s) failed.")
@@ -387,9 +383,7 @@ class WindowsPreCheck:
         Returns:
             True if no critical checks failed, False otherwise
         """
-        return not any(
-            not r.passed and r.severity == "critical" for r in self.results
-        )
+        return not any(not r.passed and r.severity == "critical" for r in self.results)
 
 
 def main():

@@ -67,10 +67,14 @@ class TestEmailNotifier:
             EmailNotifier(smtp_host="smtp.test.com", smtp_password="pass", to_email="to@test.com")
 
         with pytest.raises(ValueError, match="SMTP password is required"):
-            EmailNotifier(smtp_host="smtp.test.com", smtp_user="test@test.com", to_email="to@test.com")
+            EmailNotifier(
+                smtp_host="smtp.test.com", smtp_user="test@test.com", to_email="to@test.com"
+            )
 
         with pytest.raises(ValueError, match="Recipient email is required"):
-            EmailNotifier(smtp_host="smtp.test.com", smtp_user="test@test.com", smtp_password="pass")
+            EmailNotifier(
+                smtp_host="smtp.test.com", smtp_user="test@test.com", smtp_password="pass"
+            )
 
     def test_generate_html_email_single_job(self):
         """Test HTML email generation for single job."""
@@ -209,7 +213,9 @@ class TestEmailNotifier:
 
         # Mock SMTP server to raise auth error
         mock_server = mock.MagicMock()
-        mock_server.login.side_effect = smtplib.SMTPAuthenticationError(535, b"Authentication failed")
+        mock_server.login.side_effect = smtplib.SMTPAuthenticationError(
+            535, b"Authentication failed"
+        )
         mock_smtp.return_value.__enter__.return_value = mock_server
 
         notifier = EmailNotifier(
@@ -219,7 +225,15 @@ class TestEmailNotifier:
             to_email="recipient@test.com",
         )
 
-        jobs = [{"title": "Test", "company": "Test", "location": "Test", "url": "http://test", "score": {"overall": 0.8}}]
+        jobs = [
+            {
+                "title": "Test",
+                "company": "Test",
+                "location": "Test",
+                "url": "http://test",
+                "score": {"overall": 0.8},
+            }
+        ]
 
         result = notifier.send_job_alert(jobs)
 
@@ -298,7 +312,15 @@ class TestEmailNotifier:
         mock_notifier.send_job_alert.return_value = True
         mock_notifier_class.return_value = mock_notifier
 
-        jobs = [{"title": "Test", "company": "Test", "location": "Test", "url": "http://test", "score": {"overall": 0.8}}]
+        jobs = [
+            {
+                "title": "Test",
+                "company": "Test",
+                "location": "Test",
+                "url": "http://test",
+                "score": {"overall": 0.8},
+            }
+        ]
 
         result = send_job_email(jobs, provider="gmail", digest=True)
 

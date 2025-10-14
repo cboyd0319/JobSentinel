@@ -34,9 +34,9 @@ class OllamaClient(LLMClient):
     async def generate(
         self,
         prompt: str,
-        system_prompt: Optional[str] = None,
-        temperature: Optional[float] = None,
-        max_tokens: Optional[int] = None,
+        system_prompt: str | None = None,
+        temperature: float | None = None,
+        max_tokens: int | None = None,
     ) -> LLMResponse:
         """Generate text using Ollama."""
         import httpx
@@ -109,9 +109,9 @@ class OpenAIClient(LLMClient):
     async def generate(
         self,
         prompt: str,
-        system_prompt: Optional[str] = None,
-        temperature: Optional[float] = None,
-        max_tokens: Optional[int] = None,
+        system_prompt: str | None = None,
+        temperature: float | None = None,
+        max_tokens: int | None = None,
     ) -> LLMResponse:
         """Generate text using OpenAI."""
         try:
@@ -200,9 +200,9 @@ class AnthropicClient(LLMClient):
     async def generate(
         self,
         prompt: str,
-        system_prompt: Optional[str] = None,
-        temperature: Optional[float] = None,
-        max_tokens: Optional[int] = None,
+        system_prompt: str | None = None,
+        temperature: float | None = None,
+        max_tokens: int | None = None,
     ) -> LLMResponse:
         """Generate text using Anthropic Claude."""
         try:

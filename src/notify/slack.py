@@ -2,6 +2,7 @@ import os
 import time
 
 import requests
+
 from utils.cost_tracker import tracker
 
 MAX_FIELD_CHARS = 2800  # Slack block text practical safe limit

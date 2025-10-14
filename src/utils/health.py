@@ -9,9 +9,9 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 
 import psutil
-from notify import slack
-from src.database import get_database_stats
 
+from notify import slack
+from database import get_database_stats
 from utils.config import config_manager
 from utils.logging import get_logger
 

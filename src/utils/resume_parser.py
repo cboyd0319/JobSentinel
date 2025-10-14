@@ -2,6 +2,7 @@ import json
 import logging
 import re
 from pathlib import Path
+from typing import Any
 
 # Optional dependencies - will check at runtime
 try:
@@ -551,7 +552,7 @@ def get_ats_analyzer(resume_path: str) -> Any:
         >>> print(f"ATS Score: {score.overall_score}/100")
     """
     try:
-        from src.domains.ats import ATSAnalysisService
+        from domains.ats import ATSAnalysisService
 
         return ATSAnalysisService()
     except ImportError as e:

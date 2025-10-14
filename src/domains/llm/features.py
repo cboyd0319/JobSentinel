@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 from domains.llm.client import LLMClient, LLMConfig, LLMProvider, LLMResponse
-from domains.llm.providers import OllamaClient, OpenAIClient, AnthropicClient
+from domains.llm.providers import AnthropicClient, OllamaClient, OpenAIClient
 
 
 @dataclass
@@ -53,7 +53,7 @@ class JobAnalysisRequest:
 class LLMFeatures:
     """LLM-powered job search features."""
 
-    def __init__(self, config: Optional[LLMConfig] = None):
+    def __init__(self, config: LLMConfig | None = None):
         """Initialize LLM features.
 
         Args:

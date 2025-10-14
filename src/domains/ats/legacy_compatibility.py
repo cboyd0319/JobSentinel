@@ -20,7 +20,7 @@ class LegacyATSWrapper:
 
     def __init__(self):
         # Import the new service
-        from src.domains.ats import ATSAnalysisService
+        from domains.ats import ATSAnalysisService
 
         self._service = ATSAnalysisService()
 

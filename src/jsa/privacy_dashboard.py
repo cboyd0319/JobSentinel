@@ -180,8 +180,7 @@ class PrivacyDashboard:
                 config = json.load(f)
                 # Check if contains potentially sensitive info
                 contains_pii = any(
-                    key in config
-                    for key in {"slack", "email", "phone", "api_keys", "webhooks"}
+                    key in config for key in {"slack", "email", "phone", "api_keys", "webhooks"}
                 )
         except Exception:
             contains_pii = True  # Assume PII if we can't parse
@@ -312,9 +311,7 @@ class PrivacyDashboard:
                 pii_items += 1
 
         # Find oldest/newest
-        dates = [
-            item.created_at for item in inventory if item.created_at is not None
-        ]
+        dates = [item.created_at for item in inventory if item.created_at is not None]
         oldest = min(dates) if dates else None
         newest = max(dates) if dates else None
 
@@ -358,9 +355,7 @@ class PrivacyDashboard:
         summary_table.add_column("Value", style="white")
 
         summary_table.add_row("Total Data Items", str(report.total_items))
-        summary_table.add_row(
-            "Total Size", f"{report.total_size_bytes / 1024 / 1024:.2f} MB"
-        )
+        summary_table.add_row("Total Size", f"{report.total_size_bytes / 1024 / 1024:.2f} MB")
         summary_table.add_row("Items with PII", f"{report.pii_items} items")
         summary_table.add_row("Telemetry Status", report.telemetry_status)
 
@@ -382,10 +377,7 @@ class PrivacyDashboard:
             for item in items:
                 pii_indicator = " 🔐" if item.contains_pii else ""
                 size_str = f"{item.size_bytes / 1024:.1f} KB"
-                item_str = (
-                    f"{item.item_type}{pii_indicator} "
-                    f"({item.count} records, {size_str})"
-                )
+                item_str = f"{item.item_type}{pii_indicator} " f"({item.count} records, {size_str})"
                 item_branch = category_branch.add(item_str)
                 item_branch.add(f"[dim]Location: {item.location}[/dim]")
                 item_branch.add(f"[dim]Purpose: {item.purpose}[/dim]")

@@ -142,7 +142,7 @@ class SelfHealingMonitor:
         try:
             import asyncio
 
-            from src.database import async_engine
+            from database import async_engine
 
             # Try a simple query
             async def test_connection():
@@ -177,7 +177,7 @@ class SelfHealingMonitor:
     async def _recover_database_connection(self) -> str:
         """Attempt to recover database connection."""
         try:
-            from src.database import init_db
+            from database import init_db
 
             # Reinitialize database
             await init_db()
