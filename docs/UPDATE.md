@@ -1,8 +1,73 @@
 # JobSentinel Development Roadmap & Status Tracker
 
-**Last Updated:** October 14, 2025 - Session 9 (Windows 11 Deployment Analysis)  
+**Last Updated:** October 14, 2025 - Session 10 (Windows Admin Rights Minimization)  
 **Version:** 0.6.0 → 0.7.0  
 **Mission:** Make JobSentinel THE BEST and MOST COMPLETE job search tool in the world!
+
+---
+
+## 🎯 ACTIVE SESSION: Windows Admin Rights Minimization (Session 10)
+
+### CRITICAL REQUIREMENT: NO ADMIN RIGHTS
+**Privacy & Security First:** JobSentinel must work on Windows WITHOUT requiring administrator rights.
+
+### ✅ DECISION: Switch to SQLite Default Database
+**Rationale:**
+- ✅ SQLite requires ZERO admin rights (no service installation)
+- ✅ SQLite is 100% privacy-first (single file, no network service)
+- ✅ SQLite is perfect for single-user personal use (primary use case)
+- ✅ SQLite works identically across all platforms
+- ✅ PostgreSQL becomes optional for advanced users only
+
+### 📋 Implementation Checklist
+- [ ] **Phase 1: Configuration Changes**
+  - [ ] Update pyproject.toml - Move PostgreSQL to optional `[postgres]` extra
+  - [ ] Update .env.example - Change default to SQLite
+  - [ ] Add aiosqlite to core dependencies (currently only in dev)
+  
+- [ ] **Phase 2: Code Changes**
+  - [ ] Update src/jsa/db.py - SQLite default connection handling
+  - [ ] Update src/jsa/setup_wizard.py - Add database choice prompt
+  - [ ] Update src/jsa/postgresql_installer.py - Make it optional/skippable
+  - [ ] Ensure backward compatibility for existing PostgreSQL users
+  
+- [ ] **Phase 3: Documentation Updates**
+  - [ ] Update docs/DATABASE_OPTIONS.md - SQLite-first strategy
+  - [ ] Update docs/CROSS_PLATFORM_GUIDE.md - Windows section (no admin needed)
+  - [ ] Update docs/WINDOWS_TROUBLESHOOTING.md - Remove PostgreSQL issues
+  - [ ] Update docs/BEGINNER_GUIDE.md - Emphasize zero-setup
+  - [ ] Update README.md - Reflect SQLite default
+  
+- [ ] **Phase 4: Testing & Verification**
+  - [ ] Test fresh install with SQLite (no admin rights)
+  - [ ] Test existing PostgreSQL setups (ensure no breakage)
+  - [ ] Test database migration (SQLite ↔ PostgreSQL)
+  - [ ] Verify all tests pass with SQLite
+  - [ ] Manual Windows 11 testing (non-admin user)
+
+### 🎁 Benefits of SQLite Default
+1. **NO ADMIN RIGHTS** - Works for all Windows users immediately
+2. **ZERO SETUP** - No external service installation required
+3. **100% PRIVATE** - Single file, no network exposure
+4. **FAST** - Excellent performance for single-user (<1M jobs)
+5. **PORTABLE** - Copy data file, move anywhere
+6. **CROSS-PLATFORM** - Identical behavior Windows/Mac/Linux
+
+### 🔧 PostgreSQL Still Available (Optional)
+PostgreSQL becomes an **optional enhancement** for users who want:
+- Multi-user/team scenarios
+- Advanced database features (full-text search, JSON operations)
+- Cloud deployments with managed databases
+- Horizontal scaling (replication, sharding)
+
+**Installation:** `pip install -e '.[postgres]'` (optional extra)
+
+### ⚠️ Migration Strategy
+For users who already have PostgreSQL:
+- ✅ Existing setups continue to work (backward compatible)
+- ✅ DATABASE_URL in .env takes precedence
+- ✅ No forced migration
+- ✅ Tools provided for SQLite ↔ PostgreSQL data migration
 
 ---
 
