@@ -179,8 +179,7 @@ def test_hybrid_ranker_basic():
 
     # Create pool of candidates
     candidates = [
-        Candidate(f"job_{i:03d}", f"Job description {i} with various skills")
-        for i in range(30)
+        Candidate(f"job_{i:03d}", f"Job description {i} with various skills") for i in range(30)
     ]
 
     query = "Python developer position"
@@ -202,9 +201,7 @@ def test_hybrid_ranker_skip_reranking():
     """Test hybrid ranking with reranking skipped."""
     ranker = HybridRanker(initial_top_k=10, final_top_k=5)
 
-    candidates = [
-        Candidate(f"job_{i:03d}", f"Job description {i}") for i in range(30)
-    ]
+    candidates = [Candidate(f"job_{i:03d}", f"Job description {i}") for i in range(30)]
 
     query = "Test query"
 

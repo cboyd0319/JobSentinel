@@ -190,13 +190,13 @@ class AutoUpdater:
             # Parse release info
             version = Version.parse(release_data["tag_name"])
             body = release_data.get("body", "")
-            
+
             # Check if security update
             is_security = self._is_security_update(body)
-            
+
             # Extract checksum if available
             checksum = self._extract_checksum(body)
-            
+
             release = ReleaseInfo(
                 version=version,
                 tag_name=release_data["tag_name"],
@@ -228,10 +228,10 @@ class AutoUpdater:
 
     def _is_security_update(self, body: str) -> bool:
         """Check if release is a security update.
-        
+
         Args:
             body: Release notes body
-            
+
         Returns:
             True if security update
         """
@@ -249,27 +249,27 @@ class AutoUpdater:
 
     def _extract_checksum(self, body: str) -> str | None:
         """Extract SHA256 checksum from release notes.
-        
+
         Args:
             body: Release notes body
-            
+
         Returns:
             SHA256 checksum if found
         """
         import re
-        
+
         # Look for SHA256 pattern (64 hex characters)
         patterns = [
             r"sha256[:\s]+([a-f0-9]{64})",
             r"checksum[:\s]+([a-f0-9]{64})",
             r"([a-f0-9]{64})",  # Just the hash
         ]
-        
+
         for pattern in patterns:
             match = re.search(pattern, body, re.IGNORECASE)
             if match:
                 return match.group(1)
-        
+
         return None
 
     def display_update_info(self, release: ReleaseInfo) -> None:
@@ -279,7 +279,7 @@ class AutoUpdater:
             release: Release information
         """
         console.print()
-        
+
         # Security update gets special treatment
         if release.is_security_update:
             console.print(
@@ -322,7 +322,7 @@ class AutoUpdater:
             info_table.add_row("Type", "🔒 Security Update")
         else:
             info_table.add_row("Type", "✅ Stable release")
-        
+
         if release.checksum_sha256:
             info_table.add_row("Checksum", "✓ SHA256 available")
 
@@ -444,14 +444,14 @@ class AutoUpdater:
 
         except Exception as e:
             console.print(f"[red]✗ Update failed: {e}[/red]")
-            
+
             # Auto-rollback if enabled
             if auto_rollback and backup_file:
                 console.print()
                 console.print("[yellow]→ Attempting automatic rollback...[/yellow]")
                 try:
                     from jsa.backup_restore import BackupManager
-                    
+
                     backup_mgr = BackupManager(self.root)
                     backup_mgr.restore_backup(backup_file)
                     console.print("[green]✓ Rollback successful[/green]")
@@ -465,13 +465,13 @@ class AutoUpdater:
                 console.print()
                 console.print("[yellow]You can restore from backup with:[/yellow]")
                 console.print(f"[cyan]python -m jsa.cli backup restore {backup_file}[/cyan]")
-            
+
             console.print()
             return False
 
     def _run_security_scan(self) -> None:
         """Run basic security scan after update.
-        
+
         Raises:
             RuntimeError: If security issues detected
         """
@@ -485,21 +485,19 @@ class AutoUpdater:
                 text=True,
                 check=True,
             )
-            
+
             packages = json.loads(result.stdout)
-            
+
             # Check if jsa package is present and valid
             jsa_found = any(pkg["name"].lower() == "jobsentinel" for pkg in packages)
             if not jsa_found:
                 raise RuntimeError("JobSentinel package not found after update")
-                
+
         except Exception as e:
             # Don't fail update for scan issues, just warn
             raise RuntimeError(f"Security scan error: {e}") from e
 
-    def check_and_prompt(
-        self, auto_update: bool = False, security_only: bool = False
-    ) -> bool:
+    def check_and_prompt(self, auto_update: bool = False, security_only: bool = False) -> bool:
         """Check for updates and prompt user.
 
         Args:
@@ -530,7 +528,7 @@ class AutoUpdater:
         else:
             # Prompt user
             console.print("[bold]Would you like to update now?[/bold]")
-            
+
             if release.is_security_update:
                 console.print(
                     "  • [red bold]yes[/red bold] - Update now "
@@ -538,7 +536,7 @@ class AutoUpdater:
                 )
             else:
                 console.print("  • [cyan]yes[/cyan] - Update now (recommended)")
-            
+
             console.print("  • [cyan]no[/cyan] - Skip this version")
             console.print("  • [cyan]later[/cyan] - Remind me next time")
             console.print()
@@ -556,7 +554,7 @@ class AutoUpdater:
                     if confirm not in {"yes", "y"}:
                         console.print("[cyan]Update cancelled - staying safe[/cyan]")
                         return self.update(release, backup=True, verify=True, auto_rollback=True)
-                
+
                 # Remember to skip this version
                 self._mark_version_skipped(release.version)
                 console.print("[yellow]Update skipped[/yellow]")

@@ -89,32 +89,33 @@ class JobSentinelGUI:
 
     def _add_button_hover_effects(self) -> None:
         """Add hover effects to buttons for better visual feedback."""
+
         def on_enter(e):
             widget = e.widget
-            if str(widget['state']) != 'disabled':
-                current_bg = widget['bg']
+            if str(widget["state"]) != "disabled":
+                current_bg = widget["bg"]
                 # Darken the button slightly on hover
                 if current_bg == self.success_color:
-                    widget['bg'] = '#059669'
+                    widget["bg"] = "#059669"
                 elif current_bg == self.error_color:
-                    widget['bg'] = '#dc2626'
+                    widget["bg"] = "#dc2626"
                 elif current_bg == self.primary_color:
-                    widget['bg'] = '#0056b3'
+                    widget["bg"] = "#0056b3"
                 elif current_bg == self.card_bg:
-                    widget['bg'] = '#f1f5f9'
+                    widget["bg"] = "#f1f5f9"
 
         def on_leave(e):
             widget = e.widget
-            if str(widget['state']) != 'disabled':
+            if str(widget["state"]) != "disabled":
                 # Restore original color
-                if 'Start' in widget['text']:
-                    widget['bg'] = self.success_color
-                elif 'Stop' in widget['text']:
-                    widget['bg'] = self.error_color
-                elif 'Web UI' in widget['text']:
-                    widget['bg'] = self.primary_color
+                if "Start" in widget["text"]:
+                    widget["bg"] = self.success_color
+                elif "Stop" in widget["text"]:
+                    widget["bg"] = self.error_color
+                elif "Web UI" in widget["text"]:
+                    widget["bg"] = self.primary_color
                 else:
-                    widget['bg'] = self.card_bg
+                    widget["bg"] = self.card_bg
 
         # Apply to all buttons
         for widget in self.root.winfo_children():
@@ -160,7 +161,14 @@ class JobSentinelGUI:
         subtitle_label.pack(pady=(5, 0))
 
         # Status section - Card style with subtle shadow effect
-        status_frame = Frame(main_frame, bg=self.card_bg, relief="flat", borderwidth=0, highlightthickness=1, highlightbackground="#e2e8f0")
+        status_frame = Frame(
+            main_frame,
+            bg=self.card_bg,
+            relief="flat",
+            borderwidth=0,
+            highlightthickness=1,
+            highlightbackground="#e2e8f0",
+        )
         status_frame.pack(fill="x", pady=(0, 20), ipady=20, ipadx=20)
 
         status_title = Label(

@@ -183,9 +183,7 @@ def test_fine_tuning_trainer_train_small_dataset():
     model = FineTunedBERT(config)
 
     # Create small training dataset
-    train_examples = [
-        {"text": f"Training sample {i}", "label": i % 3} for i in range(6)
-    ]
+    train_examples = [{"text": f"Training sample {i}", "label": i % 3} for i in range(6)]
 
     train_dataset = JobMatchingDataset(
         train_examples,

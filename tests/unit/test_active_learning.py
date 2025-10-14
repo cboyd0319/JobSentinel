@@ -326,9 +326,7 @@ def test_get_statistics():
     manager = ActiveLearningManager()
 
     # Perform some operations
-    candidates = [
-        Sample(sample_id=f"s{i}", text=f"text {i}", confidence=0.8) for i in range(20)
-    ]
+    candidates = [Sample(sample_id=f"s{i}", text=f"text {i}", confidence=0.8) for i in range(20)]
 
     manager.select_samples(candidates, num_samples=5)
 
@@ -355,9 +353,7 @@ def test_select_samples_all_labeled():
     """Test selection when all candidates are labeled."""
     manager = ActiveLearningManager()
 
-    candidates = [
-        Sample(sample_id=f"s{i}", text=f"text {i}", labeled=True) for i in range(20)
-    ]
+    candidates = [Sample(sample_id=f"s{i}", text=f"text {i}", labeled=True) for i in range(20)]
 
     result = manager.select_samples(candidates, num_samples=10)
 

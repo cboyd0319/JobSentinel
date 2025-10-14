@@ -350,7 +350,7 @@ class TestWindowsPrivacySecurity:
             # Skip test files
             if "test" in str(py_file):
                 continue
-            
+
             # Check for actual imports or usage, not just mentions in strings/comments
             content_lower = content.lower()
             for pattern in suspicious_patterns:

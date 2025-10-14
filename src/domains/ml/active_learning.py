@@ -550,8 +550,7 @@ class ActiveLearningManager:
 
             if accuracy_drop > trigger.min_accuracy_drop:
                 logger.warning(
-                    f"Accuracy dropped: {accuracy_drop:.3f} "
-                    f"> {trigger.min_accuracy_drop:.3f}"
+                    f"Accuracy dropped: {accuracy_drop:.3f} " f"> {trigger.min_accuracy_drop:.3f}"
                 )
                 return True
 

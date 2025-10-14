@@ -87,7 +87,7 @@ async def health_check() -> HealthResponse:
     return HealthResponse(
         status=overall_status,
         timestamp=datetime.now(UTC),
-        version="0.6.0",
+        version="0.9.0",
         total_jobs=db_stats.get("total_jobs", 0),
         high_score_jobs=db_stats.get("high_score_jobs", 0),
         recent_jobs_24h=db_stats.get("recent_jobs_24h", 0),

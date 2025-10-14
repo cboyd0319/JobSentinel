@@ -46,7 +46,7 @@ class TestHealthEndpoint:
 
             # Check top-level fields
             assert data["status"] == "healthy"
-            assert data["version"] == "0.6.0"
+            assert data["version"] == "0.9.0"
             assert "timestamp" in data
 
             # Check database stats
@@ -110,7 +110,7 @@ class TestHealthEndpoint:
         response = HealthResponse(
             status="healthy",
             timestamp=datetime.now(UTC),
-            version="0.6.0",
+            version="0.9.0",
             total_jobs=100,
             high_score_jobs=20,
             recent_jobs_24h=5,
@@ -121,7 +121,7 @@ class TestHealthEndpoint:
         )
 
         assert response.status == "healthy"
-        assert response.version == "0.6.0"
+        assert response.version == "0.9.0"
         assert response.total_jobs == 100
         assert len(response.components) == 2
 

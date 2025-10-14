@@ -3,14 +3,14 @@
 > Purpose: Private, local-first job-search automation. Scrape public job boards, score against user prefs, alert on high-value roles. Runs locally for $0; optional cloud schedule for low cost. Do not add features that compromise privacy or require third-party data brokers.
 
 ## Project overview
-- **Version:** 0.6.0+ (October 2025)
+- **Version:** 0.9.0 (October 2025)
 - **Python:** 3.11+ (uses modern type hints, walrus operator)
 - Core loop: **Scrape → Normalize → Score → Alert → Persist**.
 - Sources (public only): Greenhouse, Lever, JobsWithGPT, Reed, JobSpy aggregator. Do **not** log in to sites or bypass paywalls.
 - Alerts: Slack Incoming Webhook (channel configured by user).
 - Storage: Local files + SQLite (or equivalent). No telemetry. **Never** ship code that exfiltrates user data.
 - Config: `config/user_prefs.json` (see example file in repo). Keep schema stable; add new keys behind sensible defaults.
-- **New in v0.6:** AI/ML capabilities (BERT semantic matching, resume analysis), scam detection, accessibility improvements, MCP integration.
+- **Since v0.6:** AI/ML capabilities (BERT semantic matching, resume analysis), scam detection, accessibility improvements, MCP integration.
 
 ## Quick Reference (Most Common Commands)
 ```bash

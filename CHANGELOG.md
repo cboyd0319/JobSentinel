@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2025-10-14
+
+### Changed
+- **Version bump to 0.9.0** - Significant progress toward 1.0.0 milestone
+- Milestone 1.0.0 will be reached once fully tested on a real Windows machine
+
 ### Fixed
 - Fixed PostgreSQL installer type checking errors (bytes vs str confusion)
 - Fixed Settings page to correctly mention PostgreSQL instead of SQLite
@@ -291,6 +297,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Discussions:** https://github.com/cboyd0319/JobSentinel/discussions
 - **Security:** See SECURITY.md for vulnerability reporting
 
-[Unreleased]: https://github.com/cboyd0319/JobSentinel/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/cboyd0319/JobSentinel/compare/v0.9.0...HEAD
+[0.9.0]: https://github.com/cboyd0319/JobSentinel/compare/v0.6.0...v0.9.0
 [0.6.0]: https://github.com/cboyd0319/JobSentinel/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/cboyd0319/JobSentinel/releases/tag/v0.5.0

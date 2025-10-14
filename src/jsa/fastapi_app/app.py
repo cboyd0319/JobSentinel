@@ -55,7 +55,7 @@ def create_app() -> FastAPI:
             "All data processing happens on your machine. "
             "No telemetry, no tracking, 100% privacy."
         ),
-        version="0.6.0",
+        version="0.9.0",
         docs_url="/api/docs",
         redoc_url="/api/redoc",
         openapi_url="/api/openapi.json",
@@ -140,7 +140,7 @@ def create_app() -> FastAPI:
         """API root endpoint."""
         return {
             "message": "JobSentinel API",
-            "version": "0.6.0",
+            "version": "0.9.0",
             "docs": "/api/docs",
             "privacy": "100% local-first",
         }

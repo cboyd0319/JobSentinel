@@ -120,8 +120,7 @@ class MultiTaskBERT(nn.Module):
             self.task_heads[task_name] = self._create_task_head(task)
 
         logger.info(
-            f"MultiTaskBERT initialized with {len(tasks)} tasks: "
-            f"{list(self.tasks.keys())}"
+            f"MultiTaskBERT initialized with {len(tasks)} tasks: " f"{list(self.tasks.keys())}"
         )
 
     def _create_task_head(self, task: Task) -> nn.Module:
