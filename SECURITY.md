@@ -11,7 +11,7 @@ We support the latest minor version with security patches.
 
 ## Reporting a Vulnerability
 
-**Email:** security@yourdomain.tld (update this with your actual contact)
+**Contact:** Report via GitHub at https://github.com/cboyd0319/JobSentinel/issues
 
 **Response time:** 3 business days
 
@@ -35,7 +35,7 @@ We follow responsible disclosure and credit reporters (unless anonymous preferre
 
 **Supply chain:** Dependencies pinned in `pyproject.toml`. Playwright browsers from official CDN. No executable scripts in dependencies.
 
-**Disclosure:** Report via email above. Response SLA: 3 business days.
+**Disclosure:** Report via GitHub issues at https://github.com/cboyd0319/JobSentinel/issues. Response SLA: 3 business days.
 
 ## Security Best Practices
 

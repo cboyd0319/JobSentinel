@@ -602,7 +602,7 @@ systemctl start jobsentinel-worker-*
 - Primary On-Call: Use PagerDuty
 - Secondary: Escalate after 15 min
 - Infrastructure Team: #infrastructure-alerts
-- Security Team: security@example.com
+- Security Team: https://github.com/cboyd0319/JobSentinel/issues
 
 **Useful Commands:**
 ```bash
@@ -689,6 +689,5 @@ What we learned and how to prevent this in the future.
 - [Contributing Guide](governance/CONTRIBUTING.md)
 
 **Support Channels:**
-- GitHub Issues: Bug reports and feature requests
+- GitHub Issues: Bug reports and feature requests (https://github.com/cboyd0319/JobSentinel/issues)
 - Slack: #jobsentinel-support
-- Email: support@example.com

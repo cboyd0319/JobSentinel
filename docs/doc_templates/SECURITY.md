@@ -4,8 +4,7 @@
 We generally support the latest minor and security patches.
 
 ## Reporting a vulnerability
-Email: security@yourdomain.tld  
-PGP: see attached key block in this file or keyserver (optional).  
+Contact: https://github.com/cboyd0319  
 We aim to respond within **3 business days**.
 
 ## Handling of secrets
