@@ -84,22 +84,34 @@ class TestWindowsPreCheck:
     def test_write_permissions_check(self):
         """Test write permissions checking."""
         import os
+        import tempfile
+        from pathlib import Path
         from jsa.windows_precheck import WindowsPreCheck
 
-        # Change to a known writable directory for the test
-        original_dir = os.getcwd()
-        os.chdir("/tmp")
+        # Use a temporary directory for the test
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Save current dir as Path to handle deleted directories
+            try:
+                original_dir = Path.cwd()
+            except (FileNotFoundError, OSError):
+                # Already in a deleted directory, use /tmp
+                original_dir = Path("/tmp")
+            
+            try:
+                os.chdir(tmpdir)
+                
+                checker = WindowsPreCheck()
+                result = checker.check_write_permissions()
 
-        try:
-            checker = WindowsPreCheck()
-            result = checker.check_write_permissions()
-
-            assert result.name == "Write Permissions"
-            # Should be able to write in /tmp
-            assert result.passed is True
-        finally:
-            # Restore original directory
-            os.chdir(original_dir)
+                assert result.name == "Write Permissions"
+                # Should be able to write in temp directory
+                assert result.passed is True
+            finally:
+                # Restore original directory (or go to /tmp if it's gone)
+                try:
+                    os.chdir(str(original_dir))
+                except (FileNotFoundError, OSError):
+                    os.chdir("/tmp")
 
     def test_memory_check(self):
         """Test memory availability checking."""
