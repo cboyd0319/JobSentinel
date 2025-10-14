@@ -28,17 +28,10 @@ def _derive_sync_url(db_url: str) -> str:
 
     Examples:
       - sqlite+aiosqlite:///file.db -> sqlite:///file.db
-      - postgresql+asyncpg://... -> postgresql://...
-      - mysql+aiomysql://... -> mysql+pymysql://...
     """
-    replacements = {
-        "sqlite+aiosqlite": "sqlite",
-        "postgresql+asyncpg": "postgresql",
-        "mysql+aiomysql": "mysql+pymysql",
-    }
-    for async_driver, sync_driver in replacements.items():
-        if db_url.startswith(async_driver):
-            return db_url.replace(async_driver, sync_driver, 1)
+    # For SQLite, convert async driver to sync
+    if db_url.startswith("sqlite+aiosqlite"):
+        return db_url.replace("sqlite+aiosqlite", "sqlite", 1)
     return db_url
 
 

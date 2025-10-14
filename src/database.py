@@ -46,9 +46,9 @@ class Job(SQLModel, table=True):
     alert_sent_at: datetime | None = None
 
 
-# PostgreSQL-first architecture for cross-platform/cross-cloud deployments
-# Default to local PostgreSQL (single-user setup)
-# PostgreSQL has installers for macOS, Linux, and Windows
+# SQLite-only architecture for privacy-first, zero-admin deployment
+# Perfect for personal job search automation
+# Database file created automatically at: data/jobs.sqlite
 DATABASE_URL = os.getenv(
     "DATABASE_URL", "sqlite+aiosqlite:///data/jobs.sqlite"
 )
@@ -56,43 +56,26 @@ DATABASE_URL = os.getenv(
 
 def _derive_sync_url(db_url: str) -> str:
     """Convert an async SQLAlchemy URL into a sync-compatible variant."""
-    replacements = {
-        "sqlite+aiosqlite": "sqlite",
-        "postgresql+asyncpg": "postgresql",
-        "mysql+aiomysql": "mysql+pymysql",
-    }
-    for async_driver, sync_driver in replacements.items():
-        if db_url.startswith(async_driver):
-            return db_url.replace(async_driver, sync_driver, 1)
+    # For SQLite, convert async driver to sync
+    if db_url.startswith("sqlite+aiosqlite"):
+        return db_url.replace("sqlite+aiosqlite", "sqlite", 1)
     return db_url
 
 
 ASYNC_DATABASE_URL = DATABASE_URL
 SYNC_DATABASE_URL = _derive_sync_url(DATABASE_URL)
 
-# PostgreSQL connection pooling configuration (optimized for local single-user)
-from sqlalchemy.pool import QueuePool, AsyncAdaptedQueuePool
-
-pool_size = int(os.getenv("DB_POOL_SIZE", "10"))  # Smaller pool for single-user
-max_overflow = int(os.getenv("DB_POOL_MAX_OVERFLOW", "5"))
-pool_pre_ping = os.getenv("DB_POOL_PRE_PING", "true").lower() == "true"
+# SQLite connection configuration (simple, no pooling needed for single-user)
+# SQLite is embedded - no network latency, no connection overhead
 
 async_engine = create_async_engine(
     ASYNC_DATABASE_URL,
     echo=False,
-    poolclass=AsyncAdaptedQueuePool,
-    pool_size=pool_size,
-    max_overflow=max_overflow,
-    pool_pre_ping=pool_pre_ping,
 )
 
 sync_engine = create_engine(
     SYNC_DATABASE_URL,
     echo=False,
-    poolclass=QueuePool,
-    pool_size=pool_size,
-    max_overflow=max_overflow,
-    pool_pre_ping=pool_pre_ping,
 )
 logger = get_logger("database")
 

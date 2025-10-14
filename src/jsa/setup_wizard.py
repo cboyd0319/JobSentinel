@@ -64,8 +64,8 @@ def test_database_connection(db_url: str) -> bool:
         import sqlalchemy
         from sqlalchemy import create_engine, text
 
-        # Convert asyncpg URL to psycopg2 for testing
-        sync_url = db_url.replace("postgresql+asyncpg://", "postgresql://")
+        # For SQLite, use synchronous URL for testing
+        sync_url = db_url.replace("sqlite+aiosqlite://", "sqlite://")
 
         # Create engine and test connection
         engine = create_engine(sync_url, echo=False)
@@ -89,9 +89,9 @@ def welcome_screen() -> None:
             "  • 🔍 Job search preferences (keywords, locations)\n"
             "  • 🌐 Job sources to scrape\n"
             "  • 💬 Slack notifications (optional)\n"
-            "  • 🗄️  Local PostgreSQL database\n"
+            "  • 🗄️  Local SQLite database (automatic)\n"
             "  • ⚖️  Scoring weights\n\n"
-            "[bold green]100% Local • 100% Private • 100% Free[/bold green]",
+            "[bold green]100% Local • 100% Private • 100% Free • Zero Setup[/bold green]",
             title="🚀 JobSentinel Setup Wizard",
             border_style="cyan",
         )
@@ -157,202 +157,32 @@ def get_salary_min() -> int:
 
 
 def configure_database() -> dict[str, Any]:
-    """Configure database - choose between SQLite (default) or PostgreSQL (optional)."""
+    """Configure database - SQLite only (automatic, no setup required)."""
     console.print("[bold]Step 3.5: Database Setup[/bold]")
     console.print()
     
-    # Display database comparison table
-    table = Table(title="Database Options", show_header=True, header_style="bold cyan")
-    table.add_column("Feature", style="cyan", no_wrap=True)
-    table.add_column("SQLite (Default)", style="green")
-    table.add_column("PostgreSQL (Optional)", style="yellow")
-    
-    table.add_row("Setup Required", "✓ NONE - Ready instantly!", "Requires installation")
-    table.add_row("Admin Rights", "✓ NONE - Works for all users", "May require admin (Windows)")
-    table.add_row("Privacy", "✓ Single file, 100% local", "✓ Local service, 100% private")
-    table.add_row("Performance", "✓ Excellent for <1M jobs", "✓ Excellent, scales to 10M+")
-    table.add_row("Use Case", "✓ Perfect for personal use", "Multi-user, teams, cloud")
-    table.add_row("Portability", "✓ Copy file anywhere", "Requires PostgreSQL install")
-    
-    console.print(table)
-    console.print()
-    
-    console.print("[bold green]Recommendation:[/bold green] Use SQLite (default) for personal use")
-    console.print("[dim]  • Zero setup, zero admin rights, instant start")
-    console.print("[dim]  • Perfect for 99% of users")
-    console.print()
-    
-    db_choice = Prompt.ask(
-        "Choose database",
-        choices=["sqlite", "postgresql"],
-        default="sqlite"
+    console.print(
+        Panel.fit(
+            "[bold green]SQLite Database (Automatic)[/bold green]\n\n"
+            "✓ No installation required\n"
+            "✓ No admin rights needed\n"
+            "✓ 100% private (single file)\n"
+            "✓ Perfect for personal job search\n"
+            "✓ Portable - copy file anywhere\n\n"
+            "[cyan]Database file:[/cyan] data/jobs.sqlite",
+            border_style="green",
+        )
     )
-    
-    if db_choice == "sqlite":
-        console.print("[green]✓[/green] Using SQLite (default)")
-        console.print("[dim]Database file: data/jobs.sqlite[/dim]\n")
-        return {
-            "type": "sqlite",
-            "url": "sqlite+aiosqlite:///data/jobs.sqlite",
-            "configured": True,
-        }
-    
-    # PostgreSQL configuration
-    from jsa.postgresql_installer import install_postgresql_automated
-
-    console.print("\n[bold cyan]PostgreSQL Setup[/bold cyan]")
-    console.print("[yellow]Note:[/yellow] PostgreSQL requires installation and may need admin rights on Windows\n")
-
-    console.print("[bold]Benefits:[/bold]")
-    console.print("  ✓ Multi-user support")
-    console.print("  ✓ Advanced features (full-text search, JSON ops)")
-    console.print("  ✓ Better for teams and cloud deployments")
     console.print()
-
-    # Check if PostgreSQL optional dependencies are installed
-    try:
-        import asyncpg  # noqa: F401
-        import psycopg2  # noqa: F401
-    except ImportError:
-        console.print("[red]✗ PostgreSQL drivers not installed[/red]")
-        console.print("[yellow]   Please run: pip install -e '.[postgres]'[/yellow]\n")
-        console.print("[cyan]Falling back to SQLite for now...[/cyan]\n")
-        return {
-            "type": "sqlite",
-            "url": "sqlite+aiosqlite:///data/jobs.sqlite",
-            "configured": True,
-        }
-
-    # Use fully automated installation
-    use_auto_install = Confirm.ask(
-        "Install and configure PostgreSQL automatically?",
-        default=True,
-    )
-
-    if use_auto_install:
-        success, db_url = install_postgresql_automated()
-
-        if success and db_url:
-            return {
-                "type": "postgresql",
-                "url": db_url,
-                "configured": True,
-            }
-        else:
-            console.print("[yellow]⚠️  Automatic installation failed[/yellow]\n")
-            console.print("[cyan]Falling back to SQLite...[/cyan]\n")
-            return {
-                "type": "sqlite",
-                "url": "sqlite+aiosqlite:///data/jobs.sqlite",
-                "configured": True,
-            }
-    else:
-        # Manual configuration or fallback to SQLite
-        console.print("[yellow]Manual configuration selected[/yellow]\n")
-        
-        fallback_to_sqlite = Confirm.ask(
-            "Would you prefer to use SQLite instead? (No installation needed)",
-            default=True
-        )
-        
-        if fallback_to_sqlite:
-            console.print("[green]✓[/green] Using SQLite (default)")
-            console.print("[dim]Database file: data/jobs.sqlite[/dim]\n")
-            return {
-                "type": "sqlite",
-                "url": "sqlite+aiosqlite:///data/jobs.sqlite",
-                "configured": True,
-            }
-        
-        console.print(
-            Panel.fit(
-                "[bold]PostgreSQL Configuration[/bold]\n\n"
-                "Configure your local PostgreSQL database.\n"
-                "Make sure PostgreSQL is installed and running.",
-                border_style="cyan",
-            )
-        )
-        console.print()
-
-        use_defaults = Confirm.ask(
-            "Use recommended defaults? (database: jobsentinel, user: jobsentinel)",
-            default=True,
-        )
-
-        # Import for password validation
-        from jsa.postgresql_installer import PostgreSQLInstaller
-
-        if use_defaults:
-            database = "jobsentinel"
-            user = "jobsentinel"
-            # Get password with validation
-            while True:
-                password = Prompt.ask(
-                    "Set a password for the jobsentinel user",
-                    password=True,
-                    default="jobsentinel"
-                )
-                is_valid, msg = PostgreSQLInstaller.validate_password_strength(password)
-                # noqa: S105 - Checking against default value, not hardcoding password
-                if is_valid or password == "jobsentinel":  # noqa: S105
-                    if password == "jobsentinel":  # noqa: S105
-                        console.print("[yellow]⚠️  Using default password (OK for local development)[/yellow]")
-                    else:
-                        console.print(f"[green]✓ {msg}[/green]")
-                    break
-                else:
-                    console.print(f"[red]✗ {msg}[/red]")
-        else:
-            database = Prompt.ask("Database name", default="jobsentinel")
-            user = Prompt.ask("PostgreSQL user", default="jobsentinel")
-            # Get password with validation
-            while True:
-                password = Prompt.ask("PostgreSQL password", password=True)
-                if not password:
-                    console.print("[red]✗ Password cannot be empty[/red]")
-                    continue
-                is_valid, msg = PostgreSQLInstaller.validate_password_strength(password)
-                if is_valid:
-                    console.print(f"[green]✓ {msg}[/green]")
-                    break
-                else:
-                    console.print(f"[red]✗ {msg}[/red]")
-                    console.print("[dim]Hint: Use at least 8 characters with numbers or special chars[/dim]")
-
-        db_url = f"postgresql+asyncpg://{user}:{password}@localhost:5432/{database}"
-
-        console.print("[green]✓[/green] PostgreSQL configured\n")
-        console.print("[bold]Connection string:[/bold]")
-        console.print(f"[dim]{db_url.replace(password, '***')}[/dim]\n")
-
-        # Test database connection
-        test_connection = Confirm.ask("Test database connection now?", default=True)
-        if test_connection:
-            console.print("[dim]Testing database connection...[/dim]")
-            if test_database_connection(db_url):
-                console.print("[green]✓ Database connection successful![/green]\n")
-            else:
-                console.print("[red]✗ Database connection failed[/red]")
-                console.print(
-                    "[yellow]   Make sure PostgreSQL is running and credentials are correct[/yellow]\n"
-                )
-                console.print("[dim]Troubleshooting:[/dim]")
-                console.print("[dim]  • Check if PostgreSQL is running[/dim]")
-                console.print("[dim]  • Verify database exists: psql -U postgres -l[/dim]")
-                console.print("[dim]  • Verify user exists: psql -U postgres -c '\\du'[/dim]")
-                console.print("[dim]  • See: docs/troubleshooting.md for more help[/dim]\n")
-                if not Confirm.ask("Continue anyway?", default=True):
-                    return {
-                        "type": "postgresql",
-                        "url": "postgresql+asyncpg://jobsentinel:jobsentinel@localhost:5432/jobsentinel",
-                        "configured": False,
-                    }
-
-        return {
-            "type": "postgresql",
-            "url": db_url,
-            "configured": True,
-        }
+    
+    console.print("[green]✓[/green] SQLite configured automatically")
+    console.print("[dim]No further setup required - ready to use![/dim]\n")
+    
+    return {
+        "type": "sqlite",
+        "url": "sqlite+aiosqlite:///data/jobs.sqlite",
+        "configured": True,
+    }
 
 
 def configure_job_sources() -> dict[str, Any]:
@@ -690,24 +520,8 @@ def run_wizard() -> None:
 
     save_config(config, config_path)
 
-    # Save DATABASE_URL to .env file if PostgreSQL is configured
-    if config.get("database", {}).get("type") == "postgresql":
-        env_path = Path(__file__).parent.parent.parent / ".env"
-        db_url = config["database"]["url"]
-
-        # Read existing .env or create new
-        env_lines = []
-        if env_path.exists():
-            with open(env_path) as f:
-                env_lines = [line for line in f.readlines() if not line.startswith("DATABASE_URL=")]
-
-        # Append DATABASE_URL
-        env_lines.append(f"DATABASE_URL={db_url}\n")
-
-        with open(env_path, "w") as f:
-            f.writelines(env_lines)
-
-        console.print("[green]✓[/green] Database URL saved to .env\n")
+    # SQLite database URL is set in .env.example - no need to write to .env
+    # Database file will be created automatically at data/jobs.sqlite
 
     # Offer to run first scrape
     if run_first_scrape():
