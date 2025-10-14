@@ -1,0 +1,426 @@
+# Windows Quick Start Guide
+
+**Target Audience:** Windows 11 users with ZERO technical knowledge  
+**Time Required:** 10-15 minutes  
+**Admin Rights:** NOT required ✅
+
+---
+
+## 🎯 What You'll Get
+
+JobSentinel will:
+- ✅ Automatically search job boards for you
+- ✅ Score jobs based on your preferences
+- ✅ Send you Slack notifications for great matches
+- ✅ Keep all your data private and local
+- ✅ Run for $0 (completely free!)
+
+---
+
+## 📋 What You Need
+
+### Required:
+1. **Windows 11** (build 22000 or newer)
+   - Check: Press `Windows + R`, type `winver`, press Enter
+   - You should see "Version 22H2" or newer
+
+2. **Internet Connection**
+   - Needed to download software and search jobs
+   - Doesn't need to be super fast
+
+3. **1 GB Free Disk Space**
+   - Check: Open File Explorer, click "This PC"
+   - Look at free space on C: drive
+
+### Optional but Recommended:
+- **Slack Account** (free) - for job alerts
+  - Sign up at: https://slack.com
+  - You'll need to create an "Incoming Webhook"
+
+---
+
+## 🚀 Installation (Three Easy Steps)
+
+### Step 1: Install Python
+
+1. **Download Python:**
+   - Go to: https://www.python.org/downloads/
+   - Click the big yellow "Download Python" button
+   - Save the file to your Downloads folder
+
+2. **Run the Python Installer:**
+   - Double-click the downloaded file
+   - ⚠️ **IMPORTANT**: Check the box "Add Python to PATH"
+   - Click "Install Now"
+   - Wait 2-5 minutes for installation
+   - Click "Close" when done
+
+3. **Verify Python is Installed:**
+   - Press `Windows + R`
+   - Type `cmd` and press Enter
+   - Type `python --version` and press Enter
+   - You should see "Python 3.12.x" or newer
+   - Type `exit` and press Enter
+
+### Step 2: Download JobSentinel
+
+**Option A: Using Git (Recommended)**
+
+1. **Install Git (if not already installed):**
+   - Go to: https://git-scm.com/download/win
+   - Download the installer
+   - Run it and click "Next" for all options
+   - Click "Finish"
+
+2. **Download JobSentinel:**
+   - Press `Windows + R`
+   - Type `cmd` and press Enter
+   - Type the following (press Enter after each line):
+   ```cmd
+   cd Desktop
+   git clone https://github.com/cboyd0319/JobSentinel
+   cd JobSentinel
+   ```
+
+**Option B: Download ZIP**
+
+1. Go to: https://github.com/cboyd0319/JobSentinel
+2. Click the green "Code" button
+3. Click "Download ZIP"
+4. Open Downloads folder
+5. Right-click "JobSentinel-main.zip"
+6. Click "Extract All"
+7. Click "Extract"
+8. Open the extracted folder
+
+### Step 3: Run Setup Wizard
+
+1. **Open the JobSentinel folder:**
+   - If you used Git: The folder is on your Desktop
+   - If you used ZIP: The folder is in your Downloads
+
+2. **Run the Setup:**
+   - Double-click `setup-windows.bat`
+   - If you see "Windows protected your PC":
+     - Click "More info"
+     - Click "Run anyway"
+
+3. **Follow the Setup Wizard:**
+   - The setup will:
+     ✅ Check your system
+     ✅ Install required software
+     ✅ Ask you a few simple questions
+     ✅ Set everything up automatically
+
+4. **Answer the Setup Questions:**
+   
+   **Question 1: What kind of jobs are you looking for?**
+   - Enter keywords like: `python`, `data analyst`, `marketing manager`
+   - Separate with commas: `python, backend, remote`
+   - Press Enter when done
+
+   **Question 2: Where do you want to work?**
+   - Enter locations like: `Remote`, `New York`, `San Francisco`
+   - Or just enter: `Remote` for remote jobs only
+   - Press Enter when done
+
+   **Question 3: What job boards should we search?**
+   - Use arrow keys to select sources
+   - Press Space to enable/disable
+   - Press Enter when done
+   - **Tip**: Enable "JobsWithGPT" for best results (500k+ jobs)
+
+   **Question 4: Do you want Slack notifications?**
+   - If yes: Enter your Slack webhook URL
+   - If no: Press Enter to skip
+   - **How to get webhook URL:**
+     1. Go to: https://api.slack.com/apps
+     2. Click "Create New App" → "From scratch"
+     3. Name it "JobSentinel" and select your workspace
+     4. Click "Incoming Webhooks" → Enable
+     5. Click "Add New Webhook to Workspace"
+     6. Select a channel and click "Allow"
+     7. Copy the webhook URL
+
+5. **Wait for Setup to Complete:**
+   - This takes 5-10 minutes
+   - You'll see progress messages
+   - Don't close the window!
+
+6. **Setup Complete!**
+   - You'll see "Setup Complete! 🎉"
+   - Press any key to close
+
+---
+
+## 🎮 Using JobSentinel
+
+### First Test Run (No Alerts)
+
+Let's test it without sending Slack messages:
+
+1. Open Command Prompt:
+   - Press `Windows + R`
+   - Type `cmd` and press Enter
+
+2. Navigate to JobSentinel:
+   ```cmd
+   cd Desktop\JobSentinel
+   ```
+
+3. Run a test search:
+   ```cmd
+   python -m jsa.cli run-once --dry-run
+   ```
+
+4. **What Happens:**
+   - JobSentinel searches for jobs
+   - Shows you what it found
+   - Does NOT send Slack alerts (dry-run mode)
+   - Takes 2-5 minutes
+
+5. **Check Results:**
+   - You should see job listings in the terminal
+   - If you see errors, see Troubleshooting below
+
+### Real Run (With Alerts)
+
+Once the test works, do a real run:
+
+```cmd
+python -m jsa.cli run-once
+```
+
+This will:
+- Search for jobs
+- Score them against your preferences
+- Send Slack alerts for high matches
+- Save results to database
+
+### View Jobs in Web Browser
+
+Start the web interface:
+
+1. Run:
+   ```cmd
+   python -m jsa.cli web
+   ```
+
+2. Open your browser:
+   - Go to: http://localhost:5000
+
+3. **What You'll See:**
+   - Dashboard with job statistics
+   - List of all found jobs
+   - Search and filter options
+   - Job scores and details
+
+4. **Stop the Server:**
+   - Press `Ctrl + C` in the terminal
+
+### View Jobs in Modern UI (React)
+
+For a more modern interface:
+
+1. Start the API server:
+   ```cmd
+   python -m jsa.cli api
+   ```
+
+2. In another terminal, start the React frontend:
+   ```cmd
+   cd frontend
+   npm install
+   npm run dev
+   ```
+
+3. Open browser:
+   - Go to: http://localhost:3000
+
+---
+
+## 🔧 Common Tasks
+
+### Check System Status
+
+```cmd
+python -m jsa.cli health
+```
+
+Shows:
+- Python version ✓
+- Dependencies ✓
+- Configuration ✓
+- Database ✓
+- Disk space ✓
+- Internet connection ✓
+
+### Change Settings
+
+1. Open `config/user_prefs.json` in Notepad
+2. Edit your preferences:
+   - `keywords`: Job keywords to search for
+   - `locations`: Preferred locations
+   - `salary_min`: Minimum salary
+   - `job_sources`: Which sites to search
+3. Save and close
+
+Or run the setup wizard again:
+```cmd
+python -m jsa.cli setup
+```
+
+### View Your Data
+
+Your job database is at:
+- `data/jobs.sqlite`
+
+Open with any SQLite viewer, or use the web UI.
+
+### Automate Job Searches (Optional)
+
+To run searches automatically every day:
+
+1. Open Task Scheduler:
+   - Press Windows + R
+   - Type `taskschd.msc`
+   - Press Enter
+
+2. Create a new task:
+   - Click "Create Basic Task"
+   - Name: "JobSentinel Daily Search"
+   - Trigger: Daily at 9:00 AM
+   - Action: Start a program
+   - Program: `python`
+   - Arguments: `-m jsa.cli run-once`
+   - Start in: `C:\Users\YourName\Desktop\JobSentinel`
+
+3. Click Finish
+
+---
+
+## ❓ Troubleshooting
+
+### "Python is not recognized"
+
+**Problem:** Python not in PATH
+
+**Solution:**
+1. Uninstall Python
+2. Download fresh installer from python.org
+3. **Check "Add Python to PATH"** during installation
+4. Reinstall
+
+### "Module not found" errors
+
+**Problem:** Dependencies not installed
+
+**Solution:**
+```cmd
+cd Desktop\JobSentinel
+python -m pip install -e .
+```
+
+### "No jobs found"
+
+**Possible Causes:**
+1. **No sources enabled**
+   - Check `config/user_prefs.json`
+   - Make sure at least one source has `"enabled": true`
+
+2. **Keywords too specific**
+   - Try broader keywords
+   - Example: "engineer" instead of "senior backend engineer"
+
+3. **Internet connection**
+   - Check you're online
+   - Try: `ping google.com`
+
+### "Database error"
+
+**Solution:**
+1. Delete the database: `del data\jobs.sqlite`
+2. Run again: `python -m jsa.cli run-once`
+3. Database will be recreated automatically
+
+### "Port already in use"
+
+**Problem:** Another program using port 5000
+
+**Solution:**
+```cmd
+python -m jsa.cli web --port 5001
+```
+
+Then visit: http://localhost:5001
+
+---
+
+## 🔒 Privacy & Security
+
+### What Data is Collected?
+
+**Local Data (stored on your computer):**
+- Job listings from public job boards
+- Your search history
+- Your preferences (keywords, locations)
+
+**Never Collected or Shared:**
+- Your personal information
+- Your resume or application data
+- Your browsing history
+- Any data you don't explicitly configure
+
+### Where is Data Stored?
+
+- **Database:** `data/jobs.sqlite` (single file)
+- **Config:** `config/user_prefs.json`
+- **Logs:** `logs/` folder
+
+### How to Delete Everything?
+
+To completely remove JobSentinel:
+
+1. Delete the JobSentinel folder
+2. That's it! No registry entries or hidden files
+
+---
+
+## 📚 Learn More
+
+- **Full Documentation:** See `docs/` folder
+- **Beginner's Guide:** `docs/BEGINNER_GUIDE.md`
+- **Troubleshooting:** `docs/WINDOWS_TROUBLESHOOTING.md`
+- **Advanced Features:** `docs/ADVANCED_FEATURES.md`
+
+---
+
+## 💬 Get Help
+
+1. **Check Documentation:**
+   - `docs/WINDOWS_TROUBLESHOOTING.md`
+   - `docs/BEGINNER_GUIDE.md`
+
+2. **Run Health Check:**
+   ```cmd
+   python -m jsa.cli health
+   ```
+
+3. **Open an Issue:**
+   - Go to: https://github.com/cboyd0319/JobSentinel/issues
+   - Click "New Issue"
+   - Describe your problem
+
+---
+
+## 🎉 You're Done!
+
+Congratulations! JobSentinel is now running on your computer.
+
+It will:
+- ✅ Find jobs that match your preferences
+- ✅ Alert you via Slack for great matches
+- ✅ Keep all your data private and local
+- ✅ Cost you $0
+
+**Enjoy your automated job search!** 🚀
