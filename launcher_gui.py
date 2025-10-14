@@ -67,12 +67,15 @@ class JobSentinelGUI:
         except Exception:
             pass  # Icon not critical
 
-        # Configure colors
-        self.bg_color = "#f5f5f5"
-        self.primary_color = "#3b82f6"
-        self.success_color = "#22c55e"
+        # Configure colors - Modern, professional palette
+        self.bg_color = "#f8fafc"  # Softer, lighter background
+        self.card_bg = "#ffffff"
+        self.primary_color = "#0073e6"  # Professional blue
+        self.success_color = "#10b981"  # Modern green
         self.error_color = "#ef4444"
         self.warning_color = "#f59e0b"
+        self.text_primary = "#1e293b"  # Dark slate for text
+        self.text_secondary = "#64748b"  # Medium slate for secondary text
 
         # State
         self.server_process: Optional[subprocess.Popen] = None
@@ -81,7 +84,49 @@ class JobSentinelGUI:
 
         # Build UI
         self._setup_ui()
+        self._add_button_hover_effects()
         self._check_status()
+
+    def _add_button_hover_effects(self) -> None:
+        """Add hover effects to buttons for better visual feedback."""
+        def on_enter(e):
+            widget = e.widget
+            if str(widget['state']) != 'disabled':
+                current_bg = widget['bg']
+                # Darken the button slightly on hover
+                if current_bg == self.success_color:
+                    widget['bg'] = '#059669'
+                elif current_bg == self.error_color:
+                    widget['bg'] = '#dc2626'
+                elif current_bg == self.primary_color:
+                    widget['bg'] = '#0056b3'
+                elif current_bg == self.card_bg:
+                    widget['bg'] = '#f1f5f9'
+
+        def on_leave(e):
+            widget = e.widget
+            if str(widget['state']) != 'disabled':
+                # Restore original color
+                if 'Start' in widget['text']:
+                    widget['bg'] = self.success_color
+                elif 'Stop' in widget['text']:
+                    widget['bg'] = self.error_color
+                elif 'Web UI' in widget['text']:
+                    widget['bg'] = self.primary_color
+                else:
+                    widget['bg'] = self.card_bg
+
+        # Apply to all buttons
+        for widget in self.root.winfo_children():
+            self._apply_hover_recursive(widget, on_enter, on_leave)
+
+    def _apply_hover_recursive(self, widget, on_enter, on_leave):
+        """Recursively apply hover effects to all buttons."""
+        if isinstance(widget, Button):
+            widget.bind("<Enter>", on_enter)
+            widget.bind("<Leave>", on_leave)
+        for child in widget.winfo_children():
+            self._apply_hover_recursive(child, on_enter, on_leave)
 
     def _setup_ui(self) -> None:
         """Set up the user interface."""
@@ -99,32 +144,33 @@ class JobSentinelGUI:
         title_label = Label(
             header_frame,
             text="🎯 JobSentinel",
-            font=("Segoe UI", 24, "bold"),
+            font=("Segoe UI", 28, "bold"),
             bg=self.bg_color,
-            fg=self.primary_color,
+            fg=self.text_primary,
         )
         title_label.pack()
 
         subtitle_label = Label(
             header_frame,
             text="Your AI-Powered Job Search Assistant",
-            font=("Segoe UI", 12),
+            font=("Segoe UI", 13),
             bg=self.bg_color,
-            fg="#666666",
+            fg=self.text_secondary,
         )
-        subtitle_label.pack()
+        subtitle_label.pack(pady=(5, 0))
 
-        # Status section
-        status_frame = Frame(main_frame, bg="white", relief="solid", borderwidth=1)
-        status_frame.pack(fill="x", pady=(0, 20), ipady=15, ipadx=15)
+        # Status section - Card style with subtle shadow effect
+        status_frame = Frame(main_frame, bg=self.card_bg, relief="flat", borderwidth=0, highlightthickness=1, highlightbackground="#e2e8f0")
+        status_frame.pack(fill="x", pady=(0, 20), ipady=20, ipadx=20)
 
         status_title = Label(
             status_frame,
             text="System Status",
-            font=("Segoe UI", 14, "bold"),
-            bg="white",
+            font=("Segoe UI", 15, "bold"),
+            bg=self.card_bg,
+            fg=self.text_primary,
         )
-        status_title.pack(anchor="w", pady=(0, 10))
+        status_title.pack(anchor="w", pady=(0, 15))
 
         # Status indicators
         self.status_labels = {}
@@ -136,23 +182,24 @@ class JobSentinelGUI:
         ]
 
         for key, label_text in status_items:
-            item_frame = Frame(status_frame, bg="white")
-            item_frame.pack(fill="x", pady=2)
+            item_frame = Frame(status_frame, bg=self.card_bg)
+            item_frame.pack(fill="x", pady=4)
 
             status_indicator = Label(
                 item_frame,
                 text="⚫",
-                font=("Segoe UI", 12),
-                bg="white",
+                font=("Segoe UI", 14),
+                bg=self.card_bg,
                 width=2,
             )
-            status_indicator.pack(side="left")
+            status_indicator.pack(side="left", padx=(0, 8))
 
             status_label = Label(
                 item_frame,
                 text=label_text,
-                font=("Segoe UI", 10),
-                bg="white",
+                font=("Segoe UI", 11),
+                bg=self.card_bg,
+                fg=self.text_primary,
                 anchor="w",
             )
             status_label.pack(side="left", fill="x", expand=True)
@@ -163,58 +210,61 @@ class JobSentinelGUI:
         button_frame = Frame(main_frame, bg=self.bg_color)
         button_frame.pack(fill="x", pady=(0, 20))
 
-        # Start button
+        # Start button - Larger, more prominent
         self.start_button = Button(
             button_frame,
             text="🚀 Start JobSentinel",
-            font=("Segoe UI", 12, "bold"),
+            font=("Segoe UI", 14, "bold"),
             bg=self.success_color,
             fg="white",
-            activebackground="#16a34a",
+            activebackground="#059669",
             activeforeground="white",
             relief="flat",
-            padx=20,
-            pady=15,
+            padx=25,
+            pady=18,
             cursor="hand2",
             command=self._start_server,
+            borderwidth=0,
         )
-        self.start_button.pack(fill="x", pady=(0, 10))
+        self.start_button.pack(fill="x", pady=(0, 12))
 
         # Stop button
         self.stop_button = Button(
             button_frame,
             text="⏹️ Stop JobSentinel",
-            font=("Segoe UI", 12, "bold"),
+            font=("Segoe UI", 13, "bold"),
             bg=self.error_color,
             fg="white",
             activebackground="#dc2626",
             activeforeground="white",
             relief="flat",
-            padx=20,
-            pady=15,
+            padx=25,
+            pady=16,
             cursor="hand2",
             command=self._stop_server,
             state="disabled",
+            borderwidth=0,
         )
-        self.stop_button.pack(fill="x", pady=(0, 10))
+        self.stop_button.pack(fill="x", pady=(0, 12))
 
         # Open browser button
         self.browser_button = Button(
             button_frame,
             text="🌐 Open Web UI",
-            font=("Segoe UI", 12),
+            font=("Segoe UI", 13),
             bg=self.primary_color,
             fg="white",
-            activebackground="#2563eb",
+            activebackground="#0056b3",
             activeforeground="white",
             relief="flat",
-            padx=20,
-            pady=12,
+            padx=25,
+            pady=14,
             cursor="hand2",
             command=self._open_browser,
             state="disabled",
+            borderwidth=0,
         )
-        self.browser_button.pack(fill="x", pady=(0, 10))
+        self.browser_button.pack(fill="x", pady=(0, 20))
 
         # Utility buttons in a grid
         util_frame = Frame(button_frame, bg=self.bg_color)
@@ -235,16 +285,17 @@ class JobSentinelGUI:
             btn = Button(
                 util_frame,
                 text=text,
-                font=("Segoe UI", 9),
-                bg="white",
+                font=("Segoe UI", 10),
+                bg=self.card_bg,
                 fg=self.primary_color,
-                activebackground="#f0f0f0",
+                activebackground="#f1f5f9",
                 relief="solid",
                 borderwidth=1,
-                padx=12,
-                pady=8,
+                padx=14,
+                pady=10,
                 cursor="hand2",
                 command=command,
+                highlightthickness=0,
             )
             btn.grid(
                 row=row,
@@ -264,18 +315,21 @@ class JobSentinelGUI:
         log_title = Label(
             log_frame,
             text="Activity Log",
-            font=("Segoe UI", 12, "bold"),
+            font=("Segoe UI", 13, "bold"),
             bg=self.bg_color,
+            fg=self.text_primary,
         )
-        log_title.pack(anchor="w", pady=(0, 5))
+        log_title.pack(anchor="w", pady=(0, 8))
 
         self.log_text = scrolledtext.ScrolledText(
             log_frame,
-            font=("Consolas", 9),
-            bg="white",
-            fg="#333333",
-            relief="solid",
-            borderwidth=1,
+            font=("Consolas", 10),
+            bg=self.card_bg,
+            fg=self.text_primary,
+            relief="flat",
+            borderwidth=0,
+            highlightthickness=1,
+            highlightbackground="#e2e8f0",
             wrap="word",
             height=10,
         )
@@ -289,9 +343,9 @@ class JobSentinelGUI:
         footer_label = Label(
             footer_frame,
             text="JobSentinel v0.6.1 | 100% Local • 100% Private • 100% Free",
-            font=("Segoe UI", 8),
+            font=("Segoe UI", 9),
             bg=self.bg_color,
-            fg="#999999",
+            fg=self.text_secondary,
         )
         footer_label.pack()
 
