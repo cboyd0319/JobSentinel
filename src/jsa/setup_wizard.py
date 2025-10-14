@@ -137,9 +137,120 @@ def get_locations() -> list[str]:
     return locations
 
 
+def get_notification_preferences() -> dict[str, Any]:
+    """Prompt for notification preferences (Slack or Email).
+
+    Returns:
+        Dictionary with notification configuration
+    """
+    console.print("[bold]Step 3: Notification Preferences[/bold]")
+    console.print("How would you like to receive job alerts?\n")
+
+    console.print("[cyan]Options:[/cyan]")
+    console.print("  1. Email (Gmail, Outlook, etc.) - Recommended for beginners")
+    console.print("  2. Slack (team collaboration)")
+    console.print("  3. Both Email and Slack")
+    console.print("  4. Skip notifications (browse in web UI only)\n")
+
+    choice = Prompt.ask(
+        "Choose notification method",
+        choices=["1", "2", "3", "4"],
+        default="1",
+    )
+
+    config = {"use_email": False, "use_slack": False}
+
+    # Email configuration
+    if choice in ["1", "3"]:
+        console.print("\n[bold cyan]Email Configuration[/bold cyan]")
+        console.print("We'll help you set up email alerts.\n")
+
+        config["use_email"] = True
+        config["smtp_host"] = Prompt.ask(
+            "SMTP Server (e.g., smtp.gmail.com for Gmail)",
+            default="smtp.gmail.com",
+        )
+        config["smtp_port"] = Prompt.ask(
+            "SMTP Port (usually 587 for TLS)",
+            default="587",
+        )
+        config["smtp_user"] = Prompt.ask("Your email address")
+
+        console.print("\n[yellow]For Gmail users:[/yellow]")
+        console.print("  1. Enable 2-factor authentication in your Google account")
+        console.print("  2. Generate an App Password: https://myaccount.google.com/apppasswords")
+        console.print("  3. Use the App Password here (not your regular password)\n")
+
+        config["smtp_pass"] = Prompt.ask("Email password or App Password", password=True)
+        config["digest_to"] = Prompt.ask(
+            "Send alerts to email",
+            default=config.get("smtp_user", ""),
+        )
+
+        # Test email
+        test = Confirm.ask("Test email configuration now?", default=True)
+        if test:
+            console.print("\n[yellow]Testing email...[/yellow]")
+            if test_email_direct(config):
+                console.print("[green]✓ Email configuration successful![/green]\n")
+            else:
+                console.print("[red]✗ Email test failed. Check your settings.[/red]")
+                console.print("[yellow]You can reconfigure later in .env file[/yellow]\n")
+
+    # Slack configuration
+    if choice in ["2", "3"]:
+        console.print("\n[bold cyan]Slack Configuration[/bold cyan]")
+        console.print("Get your Slack webhook from: https://api.slack.com/messaging/webhooks\n")
+
+        config["use_slack"] = True
+        config["slack_webhook"] = Prompt.ask("Slack Webhook URL")
+
+        # Test Slack
+        test = Confirm.ask("Test Slack configuration now?", default=True)
+        if test:
+            console.print("\n[yellow]Testing Slack...[/yellow]")
+            if test_slack_webhook(config["slack_webhook"]):
+                console.print("[green]✓ Slack configuration successful![/green]\n")
+            else:
+                console.print("[red]✗ Slack test failed. Check your webhook URL.[/red]")
+                console.print("[yellow]You can reconfigure later in .env file[/yellow]\n")
+
+    return config
+
+
+def test_email_direct(email_config: dict[str, Any]) -> bool:
+    """Test email configuration by sending a test message.
+
+    Args:
+        email_config: Email configuration dictionary
+
+    Returns:
+        True if test successful, False otherwise
+    """
+    try:
+        import smtplib
+        from email.mime.text import MIMEText
+
+        msg = MIMEText(
+            "This is a test message from JobSentinel setup wizard. If you see this, email alerts are working! 🎉"
+        )
+        msg["Subject"] = "JobSentinel Email Test"
+        msg["From"] = email_config["smtp_user"]
+        msg["To"] = email_config["digest_to"]
+
+        with smtplib.SMTP(email_config["smtp_host"], int(email_config["smtp_port"])) as server:
+            server.starttls()
+            server.login(email_config["smtp_user"], email_config["smtp_pass"])
+            server.send_message(msg)
+
+        return True
+    except Exception:
+        return False
+
+
 def get_salary_min() -> int:
     """Prompt for minimum salary."""
-    console.print("[bold]Step 3: Salary Expectations[/bold]")
+    console.print("[bold]Step 4: Salary Expectations[/bold]")
     console.print("What's your minimum desired salary (USD)?\n")
 
     salary_str = Prompt.ask(
@@ -383,6 +494,45 @@ def review_config(config: dict[str, Any]) -> None:
     console.print()
 
 
+def save_email_to_env(email_config: dict[str, Any]) -> None:
+    """Save email configuration to .env file.
+
+    Args:
+        email_config: Email configuration dictionary
+    """
+    env_path = Path(__file__).parent.parent.parent / ".env"
+
+    # Read existing .env if it exists
+    env_lines = []
+    if env_path.exists():
+        with open(env_path) as f:
+            env_lines = f.readlines()
+
+    # Remove old email config lines
+    env_lines = [
+        line
+        for line in env_lines
+        if not any(
+            line.startswith(key)
+            for key in ["SMTP_HOST=", "SMTP_PORT=", "SMTP_USER=", "SMTP_PASS=", "DIGEST_TO="]
+        )
+    ]
+
+    # Add new email configuration
+    env_lines.append("\n# Email Configuration (Added by Setup Wizard)\n")
+    env_lines.append(f"SMTP_HOST={email_config['smtp_host']}\n")
+    env_lines.append(f"SMTP_PORT={email_config['smtp_port']}\n")
+    env_lines.append(f"SMTP_USER={email_config['smtp_user']}\n")
+    env_lines.append(f"SMTP_PASS={email_config['smtp_pass']}\n")
+    env_lines.append(f"DIGEST_TO={email_config['digest_to']}\n")
+
+    # Write back to .env
+    with open(env_path, "w") as f:
+        f.writelines(env_lines)
+
+    console.print("[green]✓[/green] Email configuration saved to .env file\n")
+
+
 def save_config(config: dict[str, Any], config_path: Path) -> None:
     """Save configuration to file."""
     config_path.parent.mkdir(parents=True, exist_ok=True)
@@ -507,10 +657,24 @@ def run_wizard() -> None:
         # Collect configuration from scratch
         keywords = get_keywords()
         locations = get_locations()
+        notifications = get_notification_preferences()
         salary_min = get_salary_min()
         database_config = configure_database()
         job_sources = configure_job_sources()
-        slack_config = configure_slack()
+
+        # Configure notifications based on user choice
+        if notifications.get("use_slack"):
+            # Keep the old Slack-specific wizard for additional options
+            slack_config = {
+                "webhook_url": notifications.get("slack_webhook", ""),
+                "channel": "#job-alerts",
+                "enabled": True,
+            }
+        else:
+            slack_config = {"webhook_url": "", "channel": "#job-alerts", "enabled": False}
+
+        # Store email configuration for .env file
+        email_config = notifications if notifications.get("use_email") else None
 
     # Build full config
     config: dict[str, Any] = {
@@ -542,6 +706,10 @@ def run_wizard() -> None:
     config_path = config_dir / "user_prefs.json"
 
     save_config(config, config_path)
+
+    # Save email configuration to .env if configured
+    if "email_config" in locals() and email_config and email_config.get("use_email"):
+        save_email_to_env(email_config)
 
     # SQLite database URL is set in .env.example - no need to write to .env
     # Database file will be created automatically at data/jobs.sqlite
