@@ -4,7 +4,7 @@ sqlmodel==0.0.16
 SQLAlchemy==2.0.43
 pytest==8.4.2
 pytest-cov==5.0.0
-pytest-asyncio==0.25.3
+pytest-asyncio==1.2.0
 hypothesis==6.140.3
 ruff==0.6.9
 mypy==1.11.2
