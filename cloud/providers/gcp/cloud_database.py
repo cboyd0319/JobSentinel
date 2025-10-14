@@ -20,7 +20,14 @@ logger = get_logger("gcp_cloud_database")
 
 
 class CloudDatabase:
-    """Database handler that syncs SQLite with Cloud Storage."""
+    """LEGACY: Database handler that syncs SQLite with Cloud Storage.
+    
+    Note: This module is deprecated. JobSentinel now uses PostgreSQL which
+    can be accessed remotely without file syncing. For cloud deployments,
+    use Cloud SQL (PostgreSQL) or managed PostgreSQL services instead.
+    
+    This module is maintained for backward compatibility only.
+    """
 
     def __init__(self):
         self.bucket_name = os.environ.get("STORAGE_BUCKET")

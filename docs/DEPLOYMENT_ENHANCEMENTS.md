@@ -292,7 +292,9 @@ services:
       - RATE_LIMIT_PER_MINUTE=100
       - RATE_LIMIT_PER_HOUR=1000
       - LOG_LEVEL=INFO
-      - DATABASE_URL=sqlite:///data/jobs.sqlite
+      - DATABASE_URL=postgresql+asyncpg://jobsentinel:jobsentinel@db:5432/jobsentinel
+    depends_on:
+      - db
     volumes:
       - ./data:/app/data
       - ./config:/app/config:ro
@@ -365,7 +367,7 @@ None! All have sensible defaults.
 
 ```bash
 # Database
-DATABASE_URL=sqlite:///data/jobs.sqlite
+DATABASE_URL=postgresql+asyncpg://jobsentinel:jobsentinel@localhost:5432/jobsentinel
 
 # Rate Limiting
 RATE_LIMIT_ENABLED=true
@@ -525,11 +527,14 @@ Integrate with monitoring tools:
 #### 1. Database Connection Failed
 
 ```bash
-# Check database file permissions
-ls -la /opt/jobsentinel/data/jobs.sqlite
+# Check PostgreSQL service status
+systemctl status postgresql
 
-# Verify database integrity
-sqlite3 /opt/jobsentinel/data/jobs.sqlite "PRAGMA integrity_check;"
+# Check database connectivity
+psql -U jobsentinel -d jobsentinel -c "SELECT 1;"
+
+# Check database tables
+psql -U jobsentinel -d jobsentinel -c "\dt"
 ```
 
 #### 2. Rate Limit Errors
@@ -588,17 +593,19 @@ sudo systemctl restart jobsentinel-api
 #!/bin/bash
 BACKUP_DIR="/backups/jobsentinel"
 DATE=$(date +%Y%m%d_%H%M%S)
+DB_NAME="jobsentinel"
+DB_USER="jobsentinel"
 
 mkdir -p "$BACKUP_DIR"
 
-# Backup database
-cp /opt/jobsentinel/data/jobs.sqlite "$BACKUP_DIR/jobs_$DATE.sqlite"
+# Backup database using pg_dump
+pg_dump -U "$DB_USER" -F c -f "$BACKUP_DIR/jobs_$DATE.sql" "$DB_NAME"
 
 # Backup config
 cp /opt/jobsentinel/config/user_prefs.json "$BACKUP_DIR/user_prefs_$DATE.json"
 
 # Keep only last 7 days
-find "$BACKUP_DIR" -name "*.sqlite" -mtime +7 -delete
+find "$BACKUP_DIR" -name "*.sql" -mtime +7 -delete
 find "$BACKUP_DIR" -name "*.json" -mtime +7 -delete
 ```
 

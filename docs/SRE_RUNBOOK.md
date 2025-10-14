@@ -278,11 +278,14 @@ python -m sources.greenhouse_scraper --test-url "https://boards.greenhouse.io/..
 # Check database size
 du -sh /var/lib/jobsentinel/data.db
 
-# Check slow queries
-sqlite3 /var/lib/jobsentinel/data.db "SELECT * FROM sqlite_master WHERE type='table';"
+# Check database tables
+psql -U jobsentinel -d jobsentinel -c "\dt"
 
-# Check indexes
-sqlite3 /var/lib/jobsentinel/data.db ".schema"
+# Check table schemas and indexes
+psql -U jobsentinel -d jobsentinel -c "\d+ job"
+
+# Check slow queries (if pg_stat_statements enabled)
+psql -U jobsentinel -d jobsentinel -c "SELECT query, calls, total_time, mean_time FROM pg_stat_statements ORDER BY mean_time DESC LIMIT 10;"
 ```
 
 **Resolution:**
@@ -496,8 +499,8 @@ groups:
 BACKUP_DIR="/backups/$(date +%Y%m%d)"
 mkdir -p "$BACKUP_DIR"
 
-# Backup database
-sqlite3 /var/lib/jobsentinel/data.db ".backup '$BACKUP_DIR/data.db'"
+# Backup PostgreSQL database
+pg_dump -U jobsentinel -F c -f "$BACKUP_DIR/jobsentinel.sql" jobsentinel
 
 # Backup config
 cp -r /etc/jobsentinel/config "$BACKUP_DIR/"
@@ -526,11 +529,14 @@ find /backups -type d -mtime +30 -exec rm -rf {} \;
 
 ```bash
 # Restore from backup
-aws s3 cp s3://jobsentinel-backups/latest/data.db /var/lib/jobsentinel/
+aws s3 cp s3://jobsentinel-backups/latest/jobsentinel.sql /tmp/
 aws s3 cp s3://jobsentinel-backups/latest/config /etc/jobsentinel/ --recursive
 
-# Verify integrity
-sqlite3 /var/lib/jobsentinel/data.db "PRAGMA integrity_check;"
+# Restore database
+pg_restore -U jobsentinel -d jobsentinel -c /tmp/jobsentinel.sql
+
+# Verify connectivity
+psql -U jobsentinel -d jobsentinel -c "SELECT COUNT(*) FROM job;"
 
 # Start services
 systemctl start jobsentinel-api
@@ -610,7 +616,7 @@ systemctl status jobsentinel-*
 systemctl restart jobsentinel-api
 
 # Check database
-sqlite3 /var/lib/jobsentinel/data.db "SELECT COUNT(*) FROM jobs;"
+psql -U jobsentinel -d jobsentinel -c "SELECT COUNT(*) FROM job;"
 
 # Test API
 curl http://localhost:5000/api/v1/health
