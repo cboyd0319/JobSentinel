@@ -167,7 +167,7 @@ docker run -d \
   python -m jsa.cli db-init
   ```
 
-- [ ] Storage provisioned (5-10GB for PostgreSQL data)
+- [ ] Storage provisioned (5-10GB for SQLite data)
   ```bash
   df -h data/
   ```

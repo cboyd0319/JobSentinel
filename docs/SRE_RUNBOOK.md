@@ -91,7 +91,7 @@ This runbook provides operational procedures for running JobSentinel in producti
                  │
     ┌────────────▼──────────────┐
     │     SQLite Database       │
-    │    (or PostgreSQL)        │
+    │     (local file)          │
     └───────────────────────────┘
                  │
     ┌────────────▼──────────────┐
@@ -103,7 +103,7 @@ This runbook provides operational procedures for running JobSentinel in producti
 
 **Critical Dependencies:**
 - Python 3.11+ runtime
-- SQLite/PostgreSQL database
+- SQLite database (embedded)
 - Playwright browser automation
 - Network access to job boards
 - Slack webhook endpoint (for alerts)
@@ -292,7 +292,7 @@ psql -U jobsentinel -d jobsentinel -c "SELECT query, calls, total_time, mean_tim
 1. Add missing indexes
 2. Archive old jobs (> 90 days)
 3. Vacuum database
-4. Consider PostgreSQL migration
+4. Optimize SQLite configuration
 
 **Prevention:**
 - Regular vacuum operations
@@ -469,7 +469,7 @@ groups:
 **Horizontal Scaling (10x+):**
 - Add worker nodes for scraping
 - Separate API and worker processes
-- Use PostgreSQL for shared state
+- Use file sync for shared SQLite database
 - Implement job queue (RabbitMQ/Redis)
 
 **Cost Optimization:**
@@ -499,8 +499,8 @@ groups:
 BACKUP_DIR="/backups/$(date +%Y%m%d)"
 mkdir -p "$BACKUP_DIR"
 
-# Backup PostgreSQL database
-pg_dump -U jobsentinel -F c -f "$BACKUP_DIR/jobsentinel.sql" jobsentinel
+# Backup SQLite database
+cp data/jobs.sqlite "$BACKUP_DIR/jobsentinel.sqlite"
 
 # Backup config
 cp -r /etc/jobsentinel/config "$BACKUP_DIR/"

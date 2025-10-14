@@ -33,18 +33,18 @@ class BackupConfig:
 
 
 class DatabaseResilience:
-    """Handles database backup, recovery, and integrity checking for PostgreSQL."""
+    """Handles database backup, recovery, and integrity checking for SQLite."""
 
     def __init__(self, db_url: str = None, config: BackupConfig = None):
-        """Initialize database resilience for PostgreSQL.
+        """Initialize database resilience for SQLite.
 
         Args:
-            db_url: PostgreSQL connection URL (e.g., postgresql://user:pass@host:port/db)
+            db_url: SQLite connection URL (e.g., sqlite+aiosqlite:///data/jobs.sqlite)
             config: Backup configuration
         """
         self.db_url = db_url or os.getenv(
             "DATABASE_URL",
-            "postgresql+asyncpg://jobsentinel:jobsentinel@localhost:5432/jobsentinel",
+            "sqlite+aiosqlite:///data/jobs.sqlite",
         )
         self.config = config or BackupConfig()
         self.backup_dir = Path(self.config.backup_dir)
