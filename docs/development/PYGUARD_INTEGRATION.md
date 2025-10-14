@@ -80,15 +80,35 @@ pyguard src/jsa/cli.py --formatting-only
 - `--best-practices-only`: Only run best practices fixes
 - `--exclude`: Patterns to exclude (e.g., 'venv/*' 'tests/*')
 
+## GitHub Actions Integration
+
+PyGuard is now the primary security scanner for JobSentinel via GitHub Actions:
+
+- **Workflow**: `.github/workflows/security.yml`
+- **Action**: `cboyd0319/PyGuard@main`
+- **Replaces**: CodeQL Python scanning
+- **Output**: SARIF format uploaded to GitHub Security tab
+
+The workflow runs on:
+- Push to `main` branch
+- Pull requests to `main` or `develop`
+- Manual workflow dispatch
+
+### Benefits over CodeQL
+
+1. **Better Python Coverage**: PyGuard is Python-specific with 55+ security checks vs CodeQL's generic patterns
+2. **Auto-Fix**: PyGuard can automatically fix issues, CodeQL only detects
+3. **Faster**: Python-native tool vs general-purpose CodeQL database generation
+4. **Simpler Configuration**: Single action with clear parameters vs multi-step CodeQL setup
+
 ## Integration with Existing Tools
 
 PyGuard **complements** the existing quality toolchain:
 
 1. **Ruff**: Fast linting and style checking
 2. **MyPy**: Static type checking
-3. **Bandit**: Security vulnerability scanning
-4. **Black**: Code formatting
-5. **PyGuard**: ⭐ **Comprehensive security + quality + compliance**
+3. **Black**: Code formatting
+4. **PyGuard**: ⭐ **Comprehensive security + quality + compliance** (replaces Bandit)
 
 PyGuard adds value by:
 - Providing 3X more security checks than Bandit
