@@ -67,7 +67,6 @@ def save_config() -> ResponseReturnValue:
     Security: requires CSRF token from session to match form token.
     """
     from flask import flash, redirect, request, session, url_for
-
     from utils.config import config_manager
 
     try:

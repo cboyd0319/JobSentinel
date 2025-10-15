@@ -130,9 +130,13 @@ ignore = [
 "deploy/common/tests/**" = ["S101", "E402", "I001"]
 "deploy/common/app/src/jsa/db.py" = ["I001"]
 "deploy/common/app/src/jsa/web/blueprints/skills.py" = ["I001"]
+"deploy/common/app/src/jsa/web/blueprints/main.py" = ["I001"]
 "deploy/common/app/src/jsa/cli.py" = ["I001"]
 "deploy/common/app/src/jsa/setup_wizard.py" = ["S603", "S607"]  # subprocess with trusted input (setup wizard)
 "deploy/common/app/src/jsa/preflight_check.py" = ["S603", "S110"]  # subprocess with trusted input, informational checks
+"deploy/common/app/src/jsa/gui_launcher.py" = ["S603", "S606", "S607", "F821"]  # subprocess with trusted input (GUI launcher), lambda closure
+"deploy/common/app/src/jsa/macos_precheck.py" = ["S607"]  # subprocess with trusted input (system checks)
+"deploy/common/app/src/jsa/macos_shortcuts.py" = ["S604", "UP035"]  # shell aliases with trusted input
 "deploy/common/app/src/jsa/fastapi_app/routers/*.py" = ["B904"]  # Intentional exception conversion to HTTPException
 
 [tool.mypy]

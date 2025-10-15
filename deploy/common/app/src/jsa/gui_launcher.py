@@ -64,7 +64,7 @@ class JobSentinelGUI:
             icon_path = Path(__file__).parent / "static" / "favicon.ico"
             if icon_path.exists():
                 self.root.iconbitmap(str(icon_path))
-        except (OSError, IOError, RuntimeError) as e:
+        except (OSError, RuntimeError) as e:
             # Icon not critical - continue without it
             # Common errors: file not found, invalid icon format, tkinter errors
             pass
@@ -80,7 +80,7 @@ class JobSentinelGUI:
         self.text_secondary = "#64748b"  # Medium slate for secondary text
 
         # State
-        self.server_process: Optional[subprocess.Popen] = None
+        self.server_process: subprocess.Popen | None = None
         self.config_path = Path("config/user_prefs.json")
         self.project_root = Path(__file__).parent
 
