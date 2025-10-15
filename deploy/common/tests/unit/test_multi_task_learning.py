@@ -3,6 +3,9 @@ Tests for Multi-Task Learning module.
 """
 
 import pytest
+
+pytest.importorskip("torch")
+
 import torch
 
 from domains.ml.multi_task_learning import (

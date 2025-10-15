@@ -94,6 +94,13 @@ jsa = "jsa.cli:main"
 
 [tool.setuptools]
 package-dir = {"" = "deploy/common/app/src", "models" = "deploy/common/app/models", "sources" = "deploy/common/app/sources", "utils" = "deploy/common/app/utils"}
+py-modules = [
+  "database",
+  "concurrent_database",
+  "unified_database",
+  "agent",
+  "web_ui",
+]
 
 [tool.setuptools.packages.find]
 where = ["deploy/common/app/src", "deploy/common/app"]

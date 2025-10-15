@@ -7,6 +7,8 @@ import time
 import numpy as np
 import pytest
 
+pytest.importorskip("torch")
+
 from domains.ml.active_learning import (
     ActiveLearningManager,
     DiversitySampler,

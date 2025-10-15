@@ -7,6 +7,9 @@ import tempfile
 from pathlib import Path
 
 import pytest
+
+pytest.importorskip("torch")
+
 import torch
 
 from domains.ml.custom_fine_tuning import (
