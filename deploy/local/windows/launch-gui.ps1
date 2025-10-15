@@ -102,7 +102,7 @@ Set-Location $scriptDir
 
 try {
     # Launch the GUI
-    python launcher_gui.py
+    python deploy\common\launcher_gui.py
     
     Write-Host ""
     Write-Success "JobSentinel GUI closed normally"

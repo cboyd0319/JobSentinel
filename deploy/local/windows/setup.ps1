@@ -150,7 +150,7 @@ Write-Host "Starting setup wizard..." -ForegroundColor Cyan
 Write-Host ""
 
 try {
-    & python scripts\windows_setup.py
+    & python deploy\common\scripts\windows_setup.py
     
     if ($LASTEXITCODE -ne 0) {
         Write-Host ""

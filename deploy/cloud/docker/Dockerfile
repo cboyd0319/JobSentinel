@@ -38,4 +38,4 @@ ENV PYTHONPATH=/app
 USER appuser
 
 # Run the job scraper
-CMD ["python3", "src/agent.py", "--mode", "poll"]
+CMD ["python3", "deploy/common/app/src/agent.py", "--mode", "poll"]

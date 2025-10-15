@@ -48,21 +48,20 @@ jobs:
         with:
           filters: |
             core-python:
-              - 'src/**/*.py'
-              - 'utils/**/*.py'
-              - 'sources/**/*.py'
-              - 'notify/**/*.py'
-              - 'matchers/**/*.py'
+              - 'deploy/common/app/src/**/*.py'
+              - 'deploy/common/app/utils/**/*.py'
+              - 'deploy/common/app/sources/**/*.py'
+              - 'deploy/common/app/notify/**/*.py'
+              - 'deploy/common/app/matchers/**/*.py'
               - 'requirements.txt'
             platform-scripts:
-              - 'scripts/**/*.py'
-              - 'scripts/**/*.sh'
-              - '*.sh'
-              - '*.py'
+              - 'deploy/common/scripts/**/*.py'
+              - 'deploy/common/scripts/**/*.sh'
+              - 'deploy/local/**/*.sh'
+              - 'deploy/local/**/*.ps1'
             windows-specific:
-              - 'scripts/**/*.ps1'
-              - '*.ps1'
-              - 'scripts/setup_windows*'
+              - 'deploy/local/windows/**/*.ps1'
+              - 'deploy/local/windows/**/*.bat'
             workflows:
               - '.github/workflows/**'
             markdown:
@@ -113,7 +112,11 @@ jobs:
         run: |
           python - <<'PY'
           import asyncio
-          from src.database import init_db, get_database_stats
+          import sys
+          import os
+          # Add the deploy/common/app/src to the path
+          sys.path.insert(0, os.path.join(os.getcwd(), 'deploy', 'common', 'app', 'src'))
+          from database import init_db, get_database_stats
 
           async def test_db():
               await init_db()
@@ -167,7 +170,7 @@ jobs:
         run: python -m pip install -e .
 
       - name: Test core functionality
-        run: python src/agent.py --mode health
+        run: python deploy/common/app/src/agent.py --mode health
 
   # 💰 REMOVED: Cross-platform testing for personal project cost savings
   # Can be manually triggered if needed via workflow_dispatch
@@ -201,8 +204,8 @@ jobs:
       - name: Install dependencies (runtime + dev, constrained)
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -c constraints/core.txt -r requirements.txt
-          python -m pip install -c constraints/core.txt -e .[dev]
+          python -m pip install -c deploy/common/constraints/core.txt -r requirements.txt
+          python -m pip install -c deploy/common/constraints/core.txt -e .[dev]
 
       - name: Lint, Type, Cov (core)
         run: |
@@ -212,4 +215,4 @@ jobs:
 
       - name: Unit tests (core only)
         run: |
-          python -m pytest -q tests/unit_jsa
+          python -m pytest -q deploy/common/tests/unit_jsa

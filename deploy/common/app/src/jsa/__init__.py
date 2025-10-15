@@ -22,7 +22,8 @@ def _get_version() -> str:
         Version string from pyproject.toml, or 'unknown' on error.
     """
     try:
-        pyproject_path = Path(__file__).parent.parent.parent / "pyproject.toml"
+        # Path: __init__.py -> jsa -> src -> app -> common -> deploy -> project_root
+        pyproject_path = Path(__file__).parent.parent.parent.parent.parent.parent / "pyproject.toml"
         with open(pyproject_path, "rb") as f:
             data = tomllib.load(f)
         version: str = data["project"]["version"]

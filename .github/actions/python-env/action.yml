@@ -41,7 +41,7 @@ runs:
       if: inputs.prepare-config == 'true'
       shell: bash
       run: |
-        cp .env.example .env
-        mkdir -p config data
-        cp config/user_prefs.example.json config/user_prefs.json
+        cp deploy/common/config/.env.example .env || echo "No .env.example found, skipping"
+        mkdir -p data
+        cp deploy/common/config/user_prefs.example.json deploy/common/config/user_prefs.json || echo "No user_prefs.example.json found, skipping"
         chmod 600 .env || true
