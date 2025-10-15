@@ -7,7 +7,8 @@ from pathlib import Path
 def test_version_consistency():
     """Verify that all version references read from pyproject.toml."""
     # Read the source of truth
-    project_root = Path(__file__).parent.parent.parent
+    # Path: test_version.py -> unit_jsa -> tests -> common -> deploy -> project_root
+    project_root = Path(__file__).parent.parent.parent.parent.parent
     pyproject_path = project_root / "pyproject.toml"
 
     with open(pyproject_path, "rb") as f:
@@ -17,7 +18,7 @@ def test_version_consistency():
     # Test jsa package version
     import sys
 
-    sys.path.insert(0, str(project_root / "src"))
+    sys.path.insert(0, str(project_root / "deploy" / "common" / "app" / "src"))
     import jsa
 
     assert (
@@ -27,7 +28,7 @@ def test_version_consistency():
     # Test legacy src package version
     import importlib.util
 
-    spec = importlib.util.spec_from_file_location("src_init", project_root / "src" / "__init__.py")
+    spec = importlib.util.spec_from_file_location("src_init", project_root / "deploy" / "common" / "app" / "src" / "__init__.py")
     src_module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(src_module)
     assert (
@@ -40,8 +41,9 @@ def test_version_format():
     import sys
     from pathlib import Path
 
-    project_root = Path(__file__).parent.parent.parent
-    sys.path.insert(0, str(project_root / "src"))
+    # Path: test_version.py -> unit_jsa -> tests -> common -> deploy -> project_root
+    project_root = Path(__file__).parent.parent.parent.parent.parent
+    sys.path.insert(0, str(project_root / "deploy" / "common" / "app" / "src"))
     import jsa
 
     # Basic semantic versioning regex: MAJOR.MINOR.PATCH
@@ -55,7 +57,8 @@ def test_version_format():
 
 def test_pyproject_toml_version_exists():
     """Verify that pyproject.toml contains a version field."""
-    project_root = Path(__file__).parent.parent.parent
+    # Path: test_version.py -> unit_jsa -> tests -> common -> deploy -> project_root
+    project_root = Path(__file__).parent.parent.parent.parent.parent
     pyproject_path = project_root / "pyproject.toml"
 
     with open(pyproject_path, "rb") as f:

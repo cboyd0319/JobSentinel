@@ -16,7 +16,8 @@ def get_version() -> str:
     """
     try:
         # Read from pyproject.toml in project root
-        pyproject_path = Path(__file__).parent.parent / "pyproject.toml"
+        # Path: __init__.py -> src -> app -> common -> deploy -> project_root
+        pyproject_path = Path(__file__).parent.parent.parent.parent.parent / "pyproject.toml"
         with open(pyproject_path, "rb") as f:
             data = tomllib.load(f)
         return data["project"]["version"]
