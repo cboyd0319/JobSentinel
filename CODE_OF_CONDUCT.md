@@ -2,7 +2,7 @@
 
 ## Our Pledge
 
-We pledge to make participation in JobSentinel harassment-free for everyone, regardless of age, body size, disability, ethnicity, gender identity, level of experience, nationality, personal appearance, race, religion, or sexual identity and orientation.
+I pledge to make participation in the JobSentinel project harassment-free for everyone, regardless of age, body size, disability, ethnicity, gender identity, level of experience, nationality, personal appearance, race, religion, or sexual identity and orientation.
 
 ## Our Standards
 

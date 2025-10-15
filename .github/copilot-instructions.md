@@ -2,6 +2,23 @@
 
 > Purpose: Private, local-first job-search automation. Scrape public job boards, score against user prefs, alert on high-value roles. Runs locally for $0; optional cloud schedule for low cost. Do not add features that compromise privacy or require third-party data brokers.
 
+## Quick Reference for Agents
+
+| Task | Path/Command | Notes |
+|------|--------------|-------|
+| **Core code** | `deploy/common/app/src/jsa/` | Main application code |
+| **Scrapers** | `deploy/common/app/sources/` | Job board integrations |
+| **Tests** | `deploy/common/tests/` | Unit, integration, property tests |
+| **Config** | `deploy/common/config/user_prefs.json` | User preferences (see example) |
+| **Run locally** | `python -m jsa.cli run-once` | Single scrape run |
+| **Web UI** | `python -m jsa.cli web --port 8000` | Start web interface |
+| **Test suite** | `make test` | Run all tests (85% coverage) |
+| **Type check** | `make type` | mypy strict on src/jsa |
+| **Lint** | `make lint` | Ruff linter |
+| **Docs** | `docs/DOCUMENTATION_INDEX.md` | Complete doc index |
+
+**Important:** All code is in `deploy/`, not project root. Never reference old paths like `src/` or `tests/` at root level.
+
 ## Project overview
 - **Version:** 0.9.0 (October 2025)
 - **Python:** 3.11+ (uses modern type hints, walrus operator)
@@ -9,7 +26,7 @@
 - Sources (public only): Greenhouse, Lever, JobsWithGPT, Reed, JobSpy aggregator. Do **not** log in to sites or bypass paywalls.
 - Alerts: Slack Incoming Webhook (channel configured by user).
 - Storage: Local files + SQLite (or equivalent). No telemetry. **Never** ship code that exfiltrates user data.
-- Config: `config/user_prefs.json` (see example file in repo). Keep schema stable; add new keys behind sensible defaults.
+- Config: `deploy/common/config/user_prefs.json` (see example file in repo). Keep schema stable; add new keys behind sensible defaults.
 - **Since v0.6:** AI/ML capabilities (BERT semantic matching, resume analysis), scam detection, accessibility improvements, MCP integration.
 
 ## Quick Reference (Most Common Commands)
@@ -44,14 +61,67 @@ make fmt && make lint && make type && make test
 - **CI/CD:** GitHub Actions workflows in `.github/workflows/` (see `python-qa.yml`, `dependabot-auto-merge.yml`)
 - **Quality Gates:** All PRs must pass linting, type checking, tests (85% coverage), security scans before merge
 
-### File Organization Standards
-- **`.github/` directory:** Contains only GitHub-specific configs (workflows, templates, Copilot instructions)
-  - Templates: `pull_request_template.md`, `ISSUE_TEMPLATE/*.yml` (lowercase naming)
-  - Ownership: `CODEOWNERS` defines code review requirements
-  - Actions: Custom actions in `.github/actions/`
-- **Documentation:** All docs in `/docs`, never in `.github/`
-- **Scripts:** Development/deployment scripts in `/scripts`, never in `.github/`
-- **Templates:** User-facing templates in `/templates/` (Slack messages, emails)
+### File Organization Standards - **CRITICAL REQUIREMENT**
+
+**⚠️ MANDATORY: Repository is deployment-centric as of October 2025**
+
+All code MUST follow this structure. Never reference old paths:
+
+#### Root Directory (12 essential items only)
+- **`.github/`** — GitHub configs (workflows, templates, Copilot instructions) ONLY
+- **`docs/`** — All documentation (never in `.github/`)
+- **`data/`** — Runtime data (SQLite, logs, user data)
+- **`deploy/`** — **ALL deployment and application code**
+- **Metadata files:** pyproject.toml, requirements.txt, LICENSE, README.md, CHANGELOG.md, etc.
+- **Dev tools:** Makefile, .editorconfig, .pre-commit-config.yaml, etc.
+
+#### Deploy Directory Structure (REQUIRED)
+```
+deploy/
+├── local/                    # Platform-specific deployments
+│   ├── windows/             # Windows scripts (setup.ps1, launch-gui.ps1, etc.)
+│   ├── macos/               # macOS scripts (setup.sh, launch-gui.sh, etc.)
+│   └── linux/               # Linux scripts
+├── cloud/                    # Cloud deployments
+│   ├── common/              # Shared cloud code (bootstrap.py, etc.)
+│   ├── docker/              # Docker containers
+│   ├── gcp/                 # Google Cloud Platform (Terraform)
+│   ├── aws/                 # Amazon Web Services
+│   └── azure/               # Microsoft Azure
+└── common/                   # **ALL SHARED APPLICATION CODE**
+    ├── app/                 # Core application
+    │   ├── src/            # Main source (jsa/, domains/, sources/, etc.)
+    │   ├── models/         # Data models
+    │   ├── sources/        # Job board scrapers
+    │   └── utils/          # Utilities
+    ├── web/                 # Web interface
+    │   ├── frontend/       # React/Vite UI
+    │   ├── static/         # CSS, JS, images
+    │   └── templates/      # Jinja2 templates
+    ├── config/              # Configuration files
+    ├── tests/               # Test suite
+    ├── scripts/             # Operational scripts
+    ├── examples/            # Demo code
+    ├── extensions/          # Browser extensions
+    └── constraints/         # Dependency constraints
+```
+
+#### Path Rules (STRICTLY ENFORCED)
+- ✅ **DO:** Use `deploy/common/app/src/jsa/` for core code
+- ✅ **DO:** Use `deploy/common/tests/` for tests
+- ✅ **DO:** Use `deploy/common/scripts/` for scripts
+- ✅ **DO:** Use `deploy/common/config/` for configs
+- ❌ **NEVER:** Reference old paths like `src/`, `tests/`, `scripts/`, `config/` at root
+- ❌ **NEVER:** Create files outside `deploy/` unless absolutely necessary (metadata only)
+
+#### When Adding New Code
+1. **Application code** → `deploy/common/app/src/`
+2. **Tests** → `deploy/common/tests/`
+3. **Scripts** → `deploy/common/scripts/`
+4. **Examples** → `deploy/common/examples/`
+5. **Web assets** → `deploy/common/web/`
+6. **Platform deployment** → `deploy/local/{platform}/` or `deploy/cloud/{provider}/`
+7. **Documentation** → `docs/`
 
 ### Inclusive Terminology Standards
 - **Required replacements:**
@@ -64,10 +134,10 @@ make fmt && make lint && make type && make test
 - **Exceptions:** Academic/historical references, third-party API field names (document clearly)
 
 ### Configuration Management
-- **User preferences:** `config/user_prefs.json` with schema validation (`user_prefs.schema.json`)
+- **User preferences:** `deploy/common/config/user_prefs.json` with schema validation (`user_prefs.schema.json`)
 - **Secrets:** Environment variables or `.env` files (never commit `.env`)
-- **Skills taxonomy:** `config/skills_taxonomy_v1.json` for job matching
-- **Resume parser:** `config/resume_parser.json` for ML configuration
+- **Skills taxonomy:** `deploy/common/config/skills_taxonomy_v1.json` for job matching
+- **Resume parser:** `deploy/common/config/resume_parser.json` for ML configuration
 - **MCP integration:** `copilot-mcp.json` for Model Context Protocol servers
 
 ### GitHub Configuration Files
@@ -85,8 +155,20 @@ make fmt && make lint && make type && make test
 - **Privacy by default.** Data stays local. No third-party APIs for resume content unless user explicitly enables them.
 - **Licensing/Attribution.** If pulling structured fields from public pages, store only the minimum necessary job metadata.
 
-## Repo map (detailed structure)
-- `src/jsa/` — Core application code (v0.6+ refactored architecture)
+## Repo map (detailed structure) - **UPDATED October 2025**
+
+**⚠️ CRITICAL: All paths below are CURRENT. Never use old paths.**
+
+### Root (Metadata Only)
+- `pyproject.toml` — Python package configuration
+- `requirements.txt` — Core dependencies
+- `Makefile` — Development tasks (updated for new structure)
+- `LICENSE`, `README.md`, `CHANGELOG.md`, etc. — Project metadata
+- `data/` — Runtime data (SQLite, logs)
+- `docs/` — Documentation (40+ guides)
+
+### Deploy Structure (ALL code lives here)
+- `deploy/common/app/src/jsa/` — Core application code (v0.6+ refactored)
   - `cli.py` — Command-line interface with subcommands (run-once, web, config-validate)
   - `config.py` — Configuration loading and validation
   - `db.py` — Database abstraction layer
@@ -95,36 +177,40 @@ make fmt && make lint && make type && make test
   - `errors.py` — Custom exception classes
   - `web/` — Flask-based web UI with blueprints
   - `http/` — HTTP client utilities with rate limiting
-- `src/domains/` — Legacy domain models (being migrated to src/jsa)
-- `sources/` — Job board scrapers (Greenhouse, Lever, Reed, JobSpy, etc.)
-- `matchers/` — Scoring algorithms and matching logic
-- `notify/` — Alert systems (Slack, email)
-- `models/` — Data models and schemas
-- `utils/` — Shared utilities and helpers
-- `config/` — User preferences, validation schemas, example configs
-- `templates/` — Slack/email message templates
-- `docker/` — Container images and compose files
-- `terraform/` — Infrastructure as code (GCP, AWS)
-- `examples/` — Runnable demos, fixtures, and integration tests
-- `tests/` — Comprehensive test suite
-  - `tests/unit_jsa/` — Tests for new core (src/jsa)
-  - `tests/integration/` — Integration tests
+- `deploy/common/app/src/domains/` — Domain models (ATS, ML, LLM, resume analysis)
+- `deploy/common/app/sources/` — Job board scrapers (Greenhouse, Lever, Reed, JobSpy, etc.)
+- `deploy/common/app/src/matchers/` — Scoring algorithms and matching logic
+- `deploy/common/app/src/notify/` — Alert systems (Slack, email)
+- `deploy/common/app/models/` — Data models and schemas
+- `deploy/common/app/utils/` — Shared utilities and helpers
+- `deploy/common/config/` — User preferences, validation schemas, example configs
+- `deploy/common/web/templates/` — Jinja2 templates (Slack/email messages)
+- `deploy/common/web/frontend/` — React/Vite UI
+- `deploy/common/web/static/` — CSS, JS, images
+- `deploy/cloud/docker/` — Container images and compose files
+- `deploy/cloud/gcp/` — Infrastructure as code (Terraform for GCP)
+- `deploy/common/examples/` — Runnable demos, fixtures, and integration tests
+- `deploy/common/tests/` — Comprehensive test suite
+  - `deploy/common/tests/unit_jsa/` — Tests for new core (src/jsa)
+  - `deploy/common/tests/integration/` — Integration tests
   - Property-based tests with Hypothesis
-- `docs/` — Extensive documentation (40+ guides)
-- `scripts/` — Development and deployment utilities
+- `deploy/common/scripts/` — Development and deployment utilities
+- `deploy/local/windows/` — Windows deployment scripts
+- `deploy/local/macos/` — macOS deployment scripts
+- `deploy/local/linux/` — Linux deployment scripts
 
 ## Tooling & commands
 - **CLI (jsa.cli):**
   - Local run: `python -m jsa.cli run-once [--dry-run] [--config PATH]`
   - Web UI: `python -m jsa.cli web --port 5000`
-  - Config validate: `python -m jsa.cli config-validate --path config/user_prefs.json`
+  - Config validate: `python -m jsa.cli config-validate --path deploy/common/config/user_prefs.json`
   - Health check: `python -m jsa.cli health`
   
 - **Development (make targets):**
   - `make dev` — Install dev dependencies (includes resume analysis extras)
   - `make test` — Run full test suite (pytest)
-  - `make test-core` — Run only src/jsa tests
-  - `make lint` — Ruff linter (src/jsa, tests/unit_jsa)
+  - `make test-core` — Run only deploy/common/app/src/jsa tests
+  - `make lint` — Ruff linter (deploy/common/app/src/jsa, deploy/common/tests/unit_jsa)
   - `make fmt` — Black formatter (line-length=100)
   - `make type` — mypy type checker (strict mode)
   - `make cov` — Coverage report (85% minimum threshold)
@@ -137,7 +223,7 @@ make fmt && make lint && make type && make test
   - `make precommit-run` — Run all hooks manually
   
 - **Docker:**
-  - `docker/` contains production-ready container images
+  - `deploy/cloud/docker/` contains production-ready container images
   - Multi-stage builds with security scanning
 
 > If a command here appears missing, prefer adding a small, well-documented CLI subcommand to `jsa.cli` rather than inventing new scripts.
@@ -147,7 +233,7 @@ make fmt && make lint && make type && make test
 - **Style:** PEP 8/PEP 257 via Black (line-length=100) + Ruff linter
   - Ruff rules: E (pycodestyle errors), F (pyflakes), B (bugbear), I (isort), UP (pyupgrade), S (bandit security)
   - Exceptions documented in pyproject.toml per-file-ignores
-- **Type Safety:** mypy strict mode enabled for src/jsa
+- **Type Safety:** mypy strict mode enabled for deploy/common/app/src/jsa
   - All public functions must have type hints
   - Use Pydantic BaseModel for data validation
   - Runtime type checking with Pydantic where appropriate
@@ -161,14 +247,14 @@ make fmt && make lint && make type && make test
   - No secrets in logs (use sanitizers)
   - Single-line JSON format for production parsing
 - **Testing:** Comprehensive pytest suite (85% coverage minimum)
-  - Unit tests: tests/unit_jsa/ (for src/jsa)
-  - Integration tests: tests/integration/
+  - Unit tests: deploy/common/tests/unit_jsa/ (for deploy/common/app/src/jsa)
+  - Integration tests: deploy/common/tests/integration/
   - Property-based tests: Hypothesis framework
-  - Fixtures in examples/fixtures/ for scrapers
+  - Fixtures in deploy/common/examples/fixtures/ for scrapers
   - Mock external APIs (no live calls in tests)
   - Test names: `test_<feature>_<scenario>` (e.g., test_scraper_respects_rate_limit)
 - **Security:** 
-  - Bandit security scanning (config in config/bandit.yaml)
+  - Bandit security scanning (config in deploy/common/config/bandit.yaml)
   - PyGuard for additional security checks
   - Secrets via .env only (never committed)
   - Input validation on all external data
@@ -227,7 +313,7 @@ make fmt && make lint && make type && make test
 - Post only high-value matches (threshold from config). Include title, company, location, score breakdown, and link.
 - Do not include full description bodies or any PII. Respect Slack rate limits and retries.
 
-## Source scrapers — pattern to follow
+## Source scrapers — pattern to follow (in deploy/common/app/sources/)
 1. **Capability probe** (robots.txt, lightweight HEAD/GET).
 2. **Fetch** with polite headers and backoff.
 3. **Parse** HTML/JSON → normalized Job record.
@@ -277,34 +363,35 @@ JobSentinel integrates with MCP servers for enhanced AI capabilities:
 - **playwright:** Browser automation (local/npx, ready)
 
 **Config:** `.github/copilot-mcp.json` (HTTP and local command servers)  
-**Validation:** `python3 scripts/validate_mcp_config.py`  
+**Validation:** `python3 deploy/common/scripts/validate_mcp_config.py`  
 **Docs:** `.github/MCP_CONFIG_README.md` and `docs/MCP_INTEGRATION.md`
 
 **Important:** GitHub MCP tools are built-in to Copilot. Do NOT add GitHub server to copilot-mcp.json. Personal Access Tokens (PAT) are NOT supported for GitHub MCP - it uses OAuth automatically.
 
 ## Good first tasks for Copilot Agent
-- Add a new public scraper (e.g., Workable) behind a feature flag.
+- Add a new public scraper (e.g., Workable) behind a feature flag in deploy/common/app/sources/.
 - Implement `ghost_job_score()` + unit tests and wire into the scoring pipeline.
 - Add `--dry-run` paths that emit what would be sent to Slack without posting.
 - Improve config validation with schema checking and helpful error messages.
-- Write golden-file tests for an existing scraper (recorded fixtures).
-- Add new industry profile to resume parser (see config/resume_parser.json).
+- Write golden-file tests for an existing scraper (recorded fixtures in deploy/common/examples/fixtures/).
+- Add new industry profile to resume parser (see deploy/common/config/resume_parser.json).
 - Enhance scam detection with additional patterns.
-- Add new job board to sources/ following the scraper pattern.
-- Improve accessibility (WCAG 2.1 Level AA compliance for web UI).
+- Add new job board to deploy/common/app/sources/ following the scraper pattern.
+- Improve accessibility (WCAG 2.1 Level AA compliance for web UI in deploy/common/web/).
 
 ## Documentation Resources
-Comprehensive documentation in `docs/`:
-- **[DOCUMENTATION_INDEX.md](../docs/DOCUMENTATION_INDEX.md)** — Central hub for all docs
+Comprehensive documentation in `docs/` (streamlined October 2025 - 28 → 13 files):
+- **[DOCUMENTATION_INDEX.md](../docs/DOCUMENTATION_INDEX.md)** — Central hub for all docs (START HERE)
+- **[QUICKSTART.md](../docs/QUICKSTART.md)** — Setup guide for all platforms (Windows/macOS/Linux)
+- **[TROUBLESHOOTING.md](../docs/TROUBLESHOOTING.md)** — Complete troubleshooting guide for all issues
+- **[UI.md](../docs/UI.md)** — GUI launcher and web interface documentation
 - **[BEST_PRACTICES.md](../docs/BEST_PRACTICES.md)** — Production-grade coding patterns
 - **[API_INTEGRATION_GUIDE.md](../docs/API_INTEGRATION_GUIDE.md)** — Add new job board integrations
-- **[DEPLOYMENT_GUIDE.md](../docs/DEPLOYMENT_GUIDE.md)** — Production deployment (AWS, GCP, Azure)
+- **[DEPLOYMENT_GUIDE.md](../docs/DEPLOYMENT_GUIDE.md)** — Cloud deployment (AWS, GCP, Azure)
 - **[ARCHITECTURE.md](../docs/ARCHITECTURE.md)** — System design and data flow
-- **[AUTHORITATIVE_STANDARDS.md](../docs/AUTHORITATIVE_STANDARDS.md)** — 39+ industry standards
+- **[AUTHORITATIVE_STANDARDS.md](../docs/AUTHORITATIVE_STANDARDS.md)** — 45+ industry standards
 - **[AI_ML_ROADMAP.md](../docs/AI_ML_ROADMAP.md)** — AI/ML vision (v0.6 to v1.0)
-- **[ACCESSIBILITY.md](../docs/ACCESSIBILITY.md)** — WCAG 2.1 Level AA compliance
-- **[BEGINNER_GUIDE.md](../docs/BEGINNER_GUIDE.md)** — Zero-knowledge terminal guide
-- **[SRE_RUNBOOK.md](../docs/SRE_RUNBOOK.md)** — Incident response and operations
+- **[DATABASE_GUIDE.md](../docs/DATABASE_GUIDE.md)** — Database operations and queries
 - **[CONTRIBUTING.md](../CONTRIBUTING.md)** — Dev setup and PR guidelines
 
 When helping with code changes, reference these docs for context.
@@ -325,7 +412,7 @@ When helping with code changes, reference these docs for context.
 ## Test Infrastructure
 - **Framework:** pytest with asyncio support
 - **Coverage:** 85% minimum (enforced in CI)
-- **Fixtures:** Reusable test data in `tests/fixtures/`
+- **Fixtures:** Reusable test data in `deploy/common/tests/fixtures/`
 - **Mocking:** unittest.mock + pytest-mock for external services
 - **Property Testing:** Hypothesis for generative tests
 - **Mutation Testing:** mutmut to verify test quality
@@ -342,7 +429,7 @@ Run tests before submitting PRs: `make test && make lint && make type && make co
 Automated checks on every PR and push to main/develop:
 1. **Path-based filtering:** Skips unnecessary checks for docs-only changes
 2. **Linting:** Ruff + Black (formatting), MegaLinter (comprehensive)
-3. **Type checking:** mypy strict mode on src/jsa
+3. **Type checking:** mypy strict mode on deploy/common/app/src/jsa
 4. **Testing:** Full pytest suite with 85% coverage minimum
 5. **Security:** Bandit + PyGuard scans, dependency vulnerability checks
 6. **Build validation:** Ensure package builds correctly
@@ -378,14 +465,14 @@ All checks must pass before merge. See `.github/workflows/` for details.
    - Fix: `playwright install chromium`
 
 4. **Config Files:** Must exist before running
-   - Copy: `cp config/user_prefs.example.json config/user_prefs.json`
+   - Copy: `cp deploy/common/config/user_prefs.example.json deploy/common/config/user_prefs.json`
    - Edit with your preferences before first run
 
 5. **Import Paths:** Use absolute imports from package roots
    - ✅ GOOD: `from jsa.config import load_config`
    - ❌ AVOID: `from ..config import load_config`
 
-6. **Type Hints:** Required for mypy strict mode in src/jsa
+6. **Type Hints:** Required for mypy strict mode in deploy/common/app/src/jsa
    - All public functions need type hints
    - Use `# type: ignore[<code>]` sparingly with justification
 
@@ -414,4 +501,5 @@ All checks must pass before merge. See `.github/workflows/` for details.
 - Do not post to Slack without a valid webhook URL and channel from config.
 - Do not commit secrets, API keys, or credentials (use .env only).
 - Do not compromise user privacy (all data stays local unless explicitly configured otherwise).
-- Do not violate robots.txt or rate limits (we are polite web citizens).
+- Do not violate robots.txt or rate limits (polite web citizens).
+- This is a single-developer personal project. Use direct, plainspoken language. No "we"/"our"/"us" - use "you" (for user) or direct imperative commands. Follow tone guide: `docs/doc_templates/github-repo-docs-tone-guide.md`.

@@ -1,111 +1,46 @@
-# Production Deployment Guide
+# Cloud Deployment Guide
+
+Deploy JobSentinel to production with AWS, GCP, or Azure.
 
 **Version:** 0.9.0  
 **Last Updated:** October 14, 2025  
-**Audience:** DevOps engineers, site reliability engineers, production deployers
+**Audience:** DevOps engineers, SREs
 
 ---
 
-## 🎯 Overview
+## TL;DR
 
-This guide covers production deployment patterns for JobSentinel, including cloud platforms, containerization, monitoring, and operational best practices.
-
----
-
-## 📋 Table of Contents
-
-1. [Deployment Options](#deployment-options)
-2. [Pre-Deployment Checklist](#pre-deployment-checklist)
-3. [Docker Deployment](#docker-deployment)
-4. [Cloud Deployment](#cloud-deployment)
-5. [Monitoring & Observability](#monitoring--observability)
-6. [Backup & Disaster Recovery](#backup--disaster-recovery)
-7. [Scaling Strategies](#scaling-strategies)
-8. [Security Hardening](#security-hardening)
-9. [Troubleshooting](#troubleshooting)
-10. [Cost Optimization](#cost-optimization)
+**Local setup?** → [QUICKSTART.md](QUICKSTART.md)  
+**Need cloud?** → Read below for AWS ($5/mo), GCP ($8/mo), or Azure ($10/mo)
 
 ---
 
-## 🚀 Deployment Options
+## Table of Contents
 
-### Option 1: Local Development (Free)
+1. [Pre-Deployment Checklist](#pre-deployment-checklist)
+2. [Docker Images](#docker-images)
+3. [AWS Lambda + EventBridge](#aws-lambda--eventbridge)
+4. [Google Cloud Run](#google-cloud-run)
+5. [Azure Container Instances](#azure-container-instances)
+6. [Monitoring & Observability](#monitoring--observability)
+7. [Backup & Disaster Recovery](#backup--disaster-recovery)
+8. [Scaling Strategies](#scaling-strategies)
+9. [Security Hardening](#security-hardening)
+10. [Troubleshooting](#troubleshooting)
+11. [Cost Optimization](#cost-optimization)
 
-**Best for:** Personal use, testing, development
+---
 
-```bash
-# Quick start
-git clone https://github.com/cboyd0319/JobSentinel
-cd JobSentinel
-python scripts/install.py
-python -m jsa.cli run-once
-```
+## Cloud Options
 
-**Pros:**
-- $0 cost
-- Maximum privacy
-- Full control
-- Instant updates
+| Provider | Service | Cost/month | Setup Time | Best For |
+|----------|---------|------------|------------|----------|
+| AWS | Lambda + EventBridge | $5-10 | 30 min | AWS shops, serverless |
+| GCP | Cloud Run | $8-15 | 20 min | Container-first, simple |
+| Azure | Container Instances | $10-20 | 30 min | Microsoft shops |
+| Any | Kubernetes | $50+ | 4+ hours | Enterprise, multi-tenant |
 
-**Cons:**
-- Manual execution
-- No uptime when computer is off
-- No high availability
-
-### Option 2: Docker Local (Free)
-
-**Best for:** Consistent environments, multiple users, local servers
-
-```bash
-docker build -f docker/Dockerfile -t jobsentinel:latest .
-docker run -d \
-  --name jobsentinel \
-  -v $(pwd)/config:/app/config:ro \
-  -v $(pwd)/data:/app/data \
-  --env-file .env \
-  --restart unless-stopped \
-  jobsentinel:latest
-```
-
-**Pros:**
-- Isolated environment
-- Consistent across machines
-- Easy updates
-- Can run on NAS/home server
-
-**Cons:**
-- Requires Docker knowledge
-- Still requires running hardware
-
-### Option 3: Cloud Serverless (~$5-15/month)
-
-**Best for:** Automated schedules, always-on availability, minimal maintenance
-
-**Providers:**
-- **AWS Lambda + EventBridge:** $5-10/month
-- **GCP Cloud Run:** $8-15/month
-- **Azure Container Instances:** $10-20/month
-
-**Pros:**
-- Automated scheduling
-- High availability
-- No server maintenance
-- Pay only for usage
-
-**Cons:**
-- Monthly costs
-- Vendor lock-in
-- Cold start latency
-
-### Option 4: Kubernetes (~$50+/month)
-
-**Best for:** Enterprise deployments, high availability, multi-tenant
-
-**Not recommended unless:**
-- Running multiple instances
-- Need multi-region deployment
-- Have dedicated DevOps team
-- Cost justifies complexity
+**Recommendation:** Start with GCP Cloud Run (easiest) or AWS Lambda (cheapest).
 
 ---
 

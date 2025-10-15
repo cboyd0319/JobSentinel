@@ -1,208 +1,153 @@
 # Documentation Index
 
-JobSentinel documentation organized by audience and task.
+Find what you need fast.
 
 ## Quick Links
 
-- **New user?** → [BEGINNER_GUIDE.md](BEGINNER_GUIDE.md) or [WINDOWS_QUICK_START.md](WINDOWS_QUICK_START.md)
-- **Setting up?** → [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)
-- **Issue?** → [WINDOWS_TROUBLESHOOTING.md](WINDOWS_TROUBLESHOOTING.md) or [troubleshooting.md](troubleshooting.md)
+- **New user?** → [QUICKSTART.md](QUICKSTART.md)
+- **Issue?** → [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
 - **Contributing?** → [../CONTRIBUTING.md](../CONTRIBUTING.md)
-- **Security?** → [../SECURITY.md](../SECURITY.md)
+- **Deploying to cloud?** → [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)
 
 ---
 
-## By Audience
+## Core Documentation (Start Here)
 
-### Non-Technical Users
-Start here if you've never used a terminal or don't know Python.
+### Getting Started
 
-1. **[BEGINNER_GUIDE.md](BEGINNER_GUIDE.md)** — Zero-knowledge walkthrough  
-   Platform: Windows, Mac, Linux | Time: 30 minutes | Prerequisites: None
+1. **[QUICKSTART.md](QUICKSTART.md)** — Get running in 5 minutes  
+   All platforms: Windows 11+, macOS 15+, Linux | Zero technical knowledge needed
 
-2. **[WINDOWS_QUICK_START.md](WINDOWS_QUICK_START.md)** — Windows-specific 10-minute setup  
-   Platform: Windows 11+ | Time: 10 minutes | Prerequisites: None
+2. **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** — Fix common issues  
+   Installation, config, scraping, alerts, database, performance, platform-specific
 
-3. **[WINDOWS_TROUBLESHOOTING.md](WINDOWS_TROUBLESHOOTING.md)** — Fix common Windows issues  
-   Platform: Windows 11+ | Covers: Email setup, shortcuts, errors
+3. **[UI.md](UI.md)** — GUI launcher and web interface  
+   Windows/macOS launcher, web UI features, keyboard shortcuts, accessibility
 
-### Developers
+### Development
 
 4. **[BEST_PRACTICES.md](BEST_PRACTICES.md)** — Production-grade patterns  
-   Topics: Security, performance, error handling, testing
+   Security, performance, error handling, testing, observability
 
 5. **[API_INTEGRATION_GUIDE.md](API_INTEGRATION_GUIDE.md)** — Add new job boards  
-   Topics: Scraper patterns, rate limiting, normalization
+   REST API, HTML scraping, MCP integration patterns, testing, rate limiting
 
-6. **[ARCHITECTURE.md](ARCHITECTURE.md)** — System design  
-   Topics: Data flow, components, dependencies
+6. **[DATABASE_GUIDE.md](DATABASE_GUIDE.md)** — Database operations  
+   SQLite schema, queries, migrations, backups
 
-7. **[DATABASE_GUIDE.md](DATABASE_GUIDE.md)** — Database schema and operations  
-   Topics: SQLite, schema, migrations, queries
+### Operations
 
-8. **[development/README.md](development/README.md)** — Dev environment setup  
-   Topics: Tooling, testing, linting, type checking
+7. **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** — Cloud deployment  
+   AWS Lambda, GCP Cloud Run, Azure Container Instances, Docker, Terraform, monitoring
 
-### DevOps/SREs
+8. **[ARCHITECTURE.md](ARCHITECTURE.md)** — System design  
+   Components, data flow, dependencies, trust boundaries
 
-9. **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** — Production deployment  
-   Platforms: AWS, GCP, Azure, local | Topics: Docker, Terraform, monitoring
+### Advanced
 
-10. **[SRE_RUNBOOK.md](SRE_RUNBOOK.md)** — Operations and incident response  
-    Topics: Health checks, logs, metrics, alerts, recovery
+9. **[AI_ML_ROADMAP.md](AI_ML_ROADMAP.md)** — AI/ML capabilities  
+   Semantic matching, resume analysis, scam detection, bias detection, GPT integration
 
-11. **[WINDOWS_DEPLOYMENT_CHECKLIST.md](WINDOWS_DEPLOYMENT_CHECKLIST.md)** — Validation checklist  
-    Platform: Windows 11+ | Topics: Pre-flight, testing, sign-off
-
-### Product/Planning
-
-12. **[FEATURES.md](FEATURES.md)** — Feature list and capabilities  
-    Topics: What JobSentinel can do
-
-13. **[AI_ML_ROADMAP.md](AI_ML_ROADMAP.md)** — AI/ML vision (v0.6 to v1.0)  
-    Topics: Semantic matching, resume analysis, scam detection
-
-14. **[UI_IMPROVEMENTS.md](UI_IMPROVEMENTS.md)** — UI/UX enhancements  
-    Topics: React 19, accessibility, design system
-
-### Reference
-
-15. **[AUTHORITATIVE_STANDARDS.md](AUTHORITATIVE_STANDARDS.md)** — 39+ industry standards  
-    Topics: IEEE, NIST, OWASP, compliance frameworks
-
-16. **[AUTO_UPDATE_SECURITY.md](AUTO_UPDATE_SECURITY.md)** — Auto-update security guide  
-    Platform: Windows (primary) | Topics: Security updates, rollback, scheduled tasks
-
-17. **[UI_QUICK_REFERENCE.md](UI_QUICK_REFERENCE.md)** — UI component reference  
-    Topics: FastAPI endpoints, React components, WebSocket
-
-18. **[troubleshooting.md](troubleshooting.md)** — General troubleshooting  
-    Platform: All | Topics: Common errors, debug steps
+10. **[AUTHORITATIVE_STANDARDS.md](AUTHORITATIVE_STANDARDS.md)** — Standards compliance  
+    OWASP ASVS, NIST CSF, SWEBOK, GDPR, WCAG 2.2, ISO 27001 (45+ standards)
 
 ---
 
 ## By Task
 
-### Setup & Installation
+### Setup (5-10 minutes)
 
 | Task | Document | Time |
 |------|----------|------|
-| First-time Windows setup | [WINDOWS_QUICK_START.md](WINDOWS_QUICK_START.md) | 10 min |
-| First-time any platform | [BEGINNER_GUIDE.md](BEGINNER_GUIDE.md) | 30 min |
-| Production deployment | [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) | 2-4 hours |
-| Dev environment | [development/README.md](development/README.md) | 15 min |
-| Auto-update setup | [AUTO_UPDATE_SECURITY.md](AUTO_UPDATE_SECURITY.md) | 5 min |
+| First-time setup (any platform) | [QUICKSTART.md](QUICKSTART.md) | 5 min |
+| Developer environment | [development/README.md](development/README.md) | 10 min |
+| Cloud deployment | [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) | 2-4 hours |
 
 ### Troubleshooting
 
-| Issue | Document | Platform |
-|-------|----------|----------|
-| Windows-specific errors | [WINDOWS_TROUBLESHOOTING.md](WINDOWS_TROUBLESHOOTING.md) | Windows 11+ |
-| Auto-update issues | [AUTO_UPDATE_SECURITY.md](AUTO_UPDATE_SECURITY.md) | Windows 11+ |
-| General errors | [troubleshooting.md](troubleshooting.md) | All |
-| Production incidents | [SRE_RUNBOOK.md](SRE_RUNBOOK.md) | Cloud/server |
+| Issue | Section in [TROUBLESHOOTING.md](TROUBLESHOOTING.md) |
+|-------|------------------------------------------------------|
+| Python not found | Installation issues |
+| Config errors | Configuration issues |
+| No jobs found | Scraping issues |
+| Slack alerts failing | Alert issues |
+| Database locked | Database issues |
+| Slow performance | Performance issues |
+| Windows Defender blocks | Windows-specific issues |
+| Gatekeeper blocks (macOS) | macOS-specific issues |
 
-### Development
+### Development Tasks
 
-| Task | Document | Audience |
-|------|----------|----------|
-| Add job board scraper | [API_INTEGRATION_GUIDE.md](API_INTEGRATION_GUIDE.md) | Developers |
-| Understand architecture | [ARCHITECTURE.md](ARCHITECTURE.md) | Developers |
-| Database operations | [DATABASE_GUIDE.md](DATABASE_GUIDE.md) | Developers |
-| Code quality | [BEST_PRACTICES.md](BEST_PRACTICES.md) | Developers |
-
-### Operations
-
-| Task | Document | Audience |
-|------|----------|----------|
-| Deploy to cloud | [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) | DevOps |
-| Monitor & respond | [SRE_RUNBOOK.md](SRE_RUNBOOK.md) | SREs |
-| Validate deployment | [WINDOWS_DEPLOYMENT_CHECKLIST.md](WINDOWS_DEPLOYMENT_CHECKLIST.md) | QA/DevOps |
+| Task | Document |
+|------|----------|
+| Add job board scraper | [API_INTEGRATION_GUIDE.md](API_INTEGRATION_GUIDE.md) |
+| Understand codebase | [ARCHITECTURE.md](ARCHITECTURE.md) |
+| Database operations | [DATABASE_GUIDE.md](DATABASE_GUIDE.md) |
+| Code quality standards | [BEST_PRACTICES.md](BEST_PRACTICES.md) |
+| Testing setup | [development/README.md](development/README.md) |
 
 ---
 
-## By Technology
+## By Audience
 
-### Python Backend
+### Users (Non-Technical)
+- [QUICKSTART.md](QUICKSTART.md) — 5-minute setup guide
+- [UI.md](UI.md) — GUI launcher and web interface
+- [TROUBLESHOOTING.md](TROUBLESHOOTING.md) — Fix issues yourself
 
-- [BEST_PRACTICES.md](BEST_PRACTICES.md) — Python patterns
-- [API_INTEGRATION_GUIDE.md](API_INTEGRATION_GUIDE.md) — Scraper patterns
-- [DATABASE_GUIDE.md](DATABASE_GUIDE.md) — SQLAlchemy ORM
-- [development/README.md](development/README.md) — Testing, linting
-
-### React Frontend
-
-- [UI_IMPROVEMENTS.md](UI_IMPROVEMENTS.md) — React 19 + Vite 7
-- [UI_QUICK_REFERENCE.md](UI_QUICK_REFERENCE.md) — Component reference
-- [UI_VISUAL_COMPARISON.md](UI_VISUAL_COMPARISON.md) — Before/after UI
-
-### AI/ML
-
-- [AI_ML_ROADMAP.md](AI_ML_ROADMAP.md) — ML capabilities roadmap
-- [BEST_PRACTICES.md](BEST_PRACTICES.md) — ML model guidelines
-
-### Infrastructure
-
-- [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) — Docker, Terraform, cloud
-- [SRE_RUNBOOK.md](SRE_RUNBOOK.md) — Operations playbook
+### Contributors (Developers)
+- [BEST_PRACTICES.md](BEST_PRACTICES.md) — Coding standards
+- [API_INTEGRATION_GUIDE.md](API_INTEGRATION_GUIDE.md) — Add features
 - [ARCHITECTURE.md](ARCHITECTURE.md) — System design
+- [DATABASE_GUIDE.md](DATABASE_GUIDE.md) — Data layer
+- [development/README.md](development/README.md) — Dev setup
 
-### Windows Deployment
+### Operators (DevOps/SRE)
+- [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) — Cloud deployment
+- [TROUBLESHOOTING.md](TROUBLESHOOTING.md) — Operations issues
+- [ARCHITECTURE.md](ARCHITECTURE.md) — System architecture
 
-- [WINDOWS_QUICK_START.md](WINDOWS_QUICK_START.md) — 10-minute setup
-- [WINDOWS_TROUBLESHOOTING.md](WINDOWS_TROUBLESHOOTING.md) — Fix issues
-- [WINDOWS_DEPLOYMENT_CHECKLIST.md](WINDOWS_DEPLOYMENT_CHECKLIST.md) — Validation
+### Planners (Product/Research)
+- [AI_ML_ROADMAP.md](AI_ML_ROADMAP.md) — ML capabilities and roadmap
+- [AUTHORITATIVE_STANDARDS.md](AUTHORITATIVE_STANDARDS.md) — Standards compliance
 
 ---
 
-## Root Documentation
+## Repository Root Files
 
-Files in repository root:
+Essential files in repository root:
 
-- **[README.md](../README.md)** — Project overview, quickstart, features
-- **[CONTRIBUTING.md](../CONTRIBUTING.md)** — Dev setup, PR process, style guide
-- **[SECURITY.md](../SECURITY.md)** — Vulnerability reporting, auto-update security
-- **[CHANGELOG.md](../CHANGELOG.md)** — Version history and release notes
-- **[CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md)** — Community standards
+- **[README.md](../README.md)** — Project overview and quickstart
+- **[CONTRIBUTING.md](../CONTRIBUTING.md)** — How to contribute
+- **[SECURITY.md](../SECURITY.md)** — Security policy and reporting
+- **[CHANGELOG.md](../CHANGELOG.md)** — Version history
 - **[LICENSE](../LICENSE)** — MIT license
-
----
-
-## Archive
-
-Historical documents (reference only, may be outdated):
-
-- **[archive/WINDOWS_DEPLOYMENT_ANALYSIS.md](archive/WINDOWS_DEPLOYMENT_ANALYSIS.md)** — Initial Windows deployment analysis (Oct 2025)
-- **[archive/IMPLEMENTATION_SUMMARY.md](archive/IMPLEMENTATION_SUMMARY.md)** — Advanced scraping features summary
-- **[archive/ML_FEATURES_IMPLEMENTATION.md](archive/ML_FEATURES_IMPLEMENTATION.md)** — ML features implementation details
-- **[archive/REORGANIZATION_SUMMARY.md](archive/REORGANIZATION_SUMMARY.md)** — Repository reorganization notes
-
-These are preserved for historical context but superseded by current docs.
 
 ---
 
 ## Templates
 
-Documentation templates in `doc_templates/`:
+Documentation templates (for other projects):
 
-- **[doc_templates/README_TEMPLATE.md](doc_templates/README_TEMPLATE.md)** — README structure
-- **[doc_templates/SECURITY.md](doc_templates/SECURITY.md)** — Security policy template
-- **[doc_templates/CONTRIBUTING.md](doc_templates/CONTRIBUTING.md)** — Contributing guide template
-- **[doc_templates/CODE_OF_CONDUCT.md](doc_templates/CODE_OF_CONDUCT.md)** — Code of conduct template
-- **[doc_templates/github-repo-docs-tone-guide.md](doc_templates/github-repo-docs-tone-guide.md)** — Tone and style guide
+- **[doc_templates/github-repo-docs-tone-guide.md](doc_templates/github-repo-docs-tone-guide.md)** — Writing style guide
+
+---
+
+## Documentation Stats
+
+- **Total docs:** 10 main guides + 2 development + 1 template
+- **Consolidated from:** 28 original docs (27 deleted, 3 new consolidated guides created)
+- **Lines reduced:** ~3,500 duplicate lines eliminated
+- **Setup guides:** Consolidated 3 platform-specific guides → 1 universal guide
+- **Troubleshooting:** Consolidated 4 docs → 1 comprehensive guide
+- **UI docs:** Consolidated 3 docs → 1 guide
 
 ---
 
 ## Maintenance
 
-**Last Updated:** October 2025  
-**Version:** 0.6.1  
+**Last Updated:** October 14, 2025  
+**Version:** 0.9.0  
 **Owner:** @cboyd0319
 
-**To update this index:**
-1. Add new documents to appropriate sections
-2. Update "Last Updated" date
-3. Keep sections alphabetized within each category
-4. Use relative links for portability
-
-**Missing documentation?** Open an issue: https://github.com/cboyd0319/JobSentinel/issues/new?labels=documentation
+**Need help?** Open an issue: https://github.com/cboyd0319/JobSentinel/issues/new?labels=documentation

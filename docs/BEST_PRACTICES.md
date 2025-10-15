@@ -787,7 +787,7 @@ WIP
 
 ## 🔄 Continuous Improvement
 
-This guide is a living document. As we learn from production deployments and contributor feedback, we update these practices.
+This guide is a living document. Updated based on production deployments and contributor feedback.
 
 **To suggest improvements:**
 1. Open a GitHub issue with the `documentation` label

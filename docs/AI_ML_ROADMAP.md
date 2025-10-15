@@ -445,7 +445,7 @@ Looking to partner with:
 
 Interested in contributing to JobSentinel's AI/ML capabilities?
 
-**What we need:**
+**Looking for:**
 - Research scientists (NLP, ML, fairness)
 - ML engineers (model deployment, optimization)
 - Data annotators (labeling job postings)
