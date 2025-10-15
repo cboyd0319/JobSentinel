@@ -130,7 +130,7 @@ def create_shell_alias(
         return False
 
 
-def create_jobsentinel_shortcuts(project_root: Path) -> Dict[str, bool]:
+def create_jobsentinel_shortcuts(project_root: Path) -> dict[str, bool]:
     """
     Create all JobSentinel shortcuts on macOS.
 
