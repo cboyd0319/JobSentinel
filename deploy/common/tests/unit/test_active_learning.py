@@ -7,7 +7,7 @@ import time
 import numpy as np
 import pytest
 
-from src.domains.ml.active_learning import (
+from domains.ml.active_learning import (
     ActiveLearningManager,
     DiversitySampler,
     QueryStrategy,

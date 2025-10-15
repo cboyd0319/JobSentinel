@@ -5,7 +5,7 @@ Tests for Multi-Task Learning module.
 import pytest
 import torch
 
-from src.domains.ml.multi_task_learning import (
+from domains.ml.multi_task_learning import (
     MultiTaskBERT,
     MultiTaskPredictor,
     MultiTaskTrainer,

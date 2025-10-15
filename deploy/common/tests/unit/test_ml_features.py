@@ -8,7 +8,7 @@ import pytest
 # Test semantic matching (BERT/Sentence-BERT)
 def test_semantic_matcher_initialization():
     """Test SemanticMatcher initializes correctly."""
-    from src.domains.ml.semantic_matcher import SemanticMatcher
+    from domains.ml.semantic_matcher import SemanticMatcher
 
     matcher = SemanticMatcher()
     assert matcher.model_name == "all-MiniLM-L6-v2"
@@ -17,7 +17,7 @@ def test_semantic_matcher_initialization():
 
 def test_semantic_matcher_sanitization():
     """Test input sanitization."""
-    from src.domains.ml.semantic_matcher import SemanticMatcher
+    from domains.ml.semantic_matcher import SemanticMatcher
 
     matcher = SemanticMatcher()
 
@@ -34,7 +34,7 @@ def test_semantic_matcher_sanitization():
 
 def test_semantic_matcher_result_structure():
     """Test SemanticMatchResult structure."""
-    from src.domains.ml.semantic_matcher import SemanticMatchResult
+    from domains.ml.semantic_matcher import SemanticMatchResult
 
     result = SemanticMatchResult(
         similarity_score=0.85,
@@ -55,7 +55,7 @@ def test_semantic_matcher_result_structure():
 # Test sentiment analysis (VADER)
 def test_sentiment_analyzer_initialization():
     """Test SentimentAnalyzer initializes correctly."""
-    from src.domains.ml.sentiment_analyzer import SentimentAnalyzer
+    from domains.ml.sentiment_analyzer import SentimentAnalyzer
 
     analyzer = SentimentAnalyzer()
     assert hasattr(analyzer, "SCAM_PHRASES")
@@ -65,7 +65,7 @@ def test_sentiment_analyzer_initialization():
 
 def test_sentiment_analyzer_scam_detection():
     """Test scam phrase detection."""
-    from src.domains.ml.sentiment_analyzer import SentimentAnalyzer
+    from domains.ml.sentiment_analyzer import SentimentAnalyzer
 
     # Test scam phrases are defined
     assert "guaranteed income" in SentimentAnalyzer.SCAM_PHRASES
@@ -75,7 +75,7 @@ def test_sentiment_analyzer_scam_detection():
 
 def test_sentiment_analyzer_pressure_detection():
     """Test pressure/urgency phrase detection."""
-    from src.domains.ml.sentiment_analyzer import SentimentAnalyzer
+    from domains.ml.sentiment_analyzer import SentimentAnalyzer
 
     # Test pressure phrases are defined
     assert "urgent" in SentimentAnalyzer.PRESSURE_PHRASES
@@ -85,7 +85,7 @@ def test_sentiment_analyzer_pressure_detection():
 
 def test_sentiment_result_structure():
     """Test SentimentResult structure."""
-    from src.domains.ml.sentiment_analyzer import SentimentResult, SentimentLabel
+    from domains.ml.sentiment_analyzer import SentimentResult, SentimentLabel
 
     result = SentimentResult(
         sentiment=SentimentLabel.POSITIVE,

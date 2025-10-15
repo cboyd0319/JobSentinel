@@ -93,10 +93,10 @@ dev = [
 jsa = "jsa.cli:main"
 
 [tool.setuptools]
-package-dir = {"" = "deploy/common/app/src"}
+package-dir = {"" = "deploy/common/app/src", "models" = "deploy/common/app/models", "sources" = "deploy/common/app/sources", "utils" = "deploy/common/app/utils"}
 
 [tool.setuptools.packages.find]
-where = ["deploy/common/app/src"]
+where = ["deploy/common/app/src", "deploy/common/app"]
 include = [
   "jsa*",
   "domains*",

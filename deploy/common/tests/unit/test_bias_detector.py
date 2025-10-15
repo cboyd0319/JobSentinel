@@ -5,7 +5,7 @@ Validates bias detection across gender, age, salary, and location dimensions.
 """
 
 import pytest
-from src.domains.detection.bias_detector import (
+from domains.detection.bias_detector import (
     BiasDetector,
     BiasType,
     BiasSeverity,

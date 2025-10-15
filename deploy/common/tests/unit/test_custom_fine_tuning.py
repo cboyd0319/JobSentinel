@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 import torch
 
-from src.domains.ml.custom_fine_tuning import (
+from domains.ml.custom_fine_tuning import (
     FineTunedBERT,
     FineTuningConfig,
     FineTuningTrainer,
@@ -415,7 +415,7 @@ def test_model_manager_registry_persistence():
 
 def test_training_metrics_structure():
     """Test TrainingMetrics dataclass."""
-    from src.domains.ml.custom_fine_tuning import TrainingMetrics
+    from domains.ml.custom_fine_tuning import TrainingMetrics
 
     metrics = TrainingMetrics(
         epoch=1,
