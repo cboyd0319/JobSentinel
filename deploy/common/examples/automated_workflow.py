@@ -29,9 +29,13 @@ License: MIT
 import asyncio
 import argparse
 import json
+import sys
 from pathlib import Path
 from typing import List, Dict
 from datetime import datetime
+
+# Add app/src to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / "app" / "src"))
 
 from utils.logging import get_logger
 from utils.config import load_config

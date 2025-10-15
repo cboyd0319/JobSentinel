@@ -14,7 +14,7 @@ import os
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent / "app" / "src"))
 
 from sources.reed_mcp_scraper import search_reed_jobs  # noqa: E402
 from utils.logging import setup_logging  # noqa: E402

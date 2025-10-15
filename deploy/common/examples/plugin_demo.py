@@ -12,7 +12,11 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
+
+# Add app/src to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / "app" / "src"))
 
 from utils.ats_analyzer import (
     ATSAnalysisResult,

@@ -5,6 +5,12 @@ Enhanced Detection Demo
 Demonstrates the new 99.9%+ accuracy scam detection system.
 """
 
+import sys
+from pathlib import Path
+
+# Add app/src to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / "app" / "src"))
+
 from domains.detection.enhanced_scam_detector import EnhancedScamDetector
 
 
