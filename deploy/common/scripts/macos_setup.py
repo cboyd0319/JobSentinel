@@ -25,13 +25,11 @@ Requirements:
     - Internet connection
 """
 
-import json
 import os
 import platform
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any
 
 # Add src to path so we can import from project
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
@@ -117,7 +115,9 @@ def check_python_version() -> tuple[bool, str]:
     if version >= (3, 12):
         return True, f"Python {version.major}.{version.minor}.{version.micro}"
     elif version >= (3, 11):
-        return True, f"Python {version.major}.{version.minor}.{version.micro} (3.12+ recommended for best compatibility)"
+        msg = f"Python {version.major}.{version.minor}.{version.micro}"
+        msg += " (3.12+ recommended for best compatibility)"
+        return True, msg
     else:
         return (
             False,
@@ -213,7 +213,7 @@ def install_dependencies(project_root: Path) -> bool:
         )
 
         if result.returncode != 0:
-            print(f"❌ Failed to install dependencies:")
+            print("❌ Failed to install dependencies:")
             print(result.stderr)
             return False
 
@@ -245,7 +245,7 @@ def install_playwright() -> bool:
         )
 
         if result.returncode != 0:
-            print(f"⚠️  Playwright installation had issues (non-critical):")
+            print("⚠️  Playwright installation had issues (non-critical):")
             print(result.stderr[:200] + "..." if len(result.stderr) > 200 else result.stderr)
             print("   You can continue - some scrapers may not work without it.")
             return True  # Non-critical
@@ -303,7 +303,7 @@ def run_setup_wizard(project_root: Path) -> bool:
         )
 
         if result.returncode != 0:
-            print(f"\n❌ Setup wizard failed.")
+            print("\n❌ Setup wizard failed.")
             return False
 
         print("\n✅ Configuration complete!\n")
@@ -448,8 +448,10 @@ def main():
     print_banner()
 
     # Detect project root
+    # Script is in deploy/common/scripts/macos_setup.py
+    # So we need to go up 3 levels: scripts -> common -> deploy -> repo root
     script_dir = Path(__file__).parent
-    project_root = script_dir.parent
+    project_root = script_dir.parent.parent.parent
 
     # Security: Validate we're in a reasonable project directory
     if not (project_root / "pyproject.toml").exists():
