@@ -16,24 +16,24 @@ import json
 from datetime import datetime, timedelta
 
 # Import new domain modules
-from src.domains.intelligence import get_intelligence_engine
-from src.domains.observability import (
+from domains.intelligence import get_intelligence_engine
+from domains.observability import (
     get_metrics_collector,
     track_performance,
     get_slos,
 )
-from src.domains.resume.service import ResumeEnhancementService
-from src.domains.resume.suggestions.industry_profiles_extended import (
+from domains.resume.service import ResumeEnhancementService
+from domains.resume.suggestions.industry_profiles_extended import (
     list_available_industries,
     get_industry_profile,
 )
-from src.domains.scraping_resilience import (
+from domains.scraping_resilience import (
     ResilientScraper,
     RetryConfig,
     CircuitBreakerConfig,
     get_health_monitor,
 )
-from src.domains.security import (
+from domains.security import (
     get_input_validator,
     get_rate_limiter,
     RateLimitConfig,

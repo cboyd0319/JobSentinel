@@ -5,7 +5,7 @@ Validates 99.9%+ accuracy target across various scam types.
 """
 
 import pytest
-from src.domains.detection.enhanced_scam_detector import (
+from domains.detection.enhanced_scam_detector import (
     EnhancedScamDetector,
     ScamType,
     ConfidenceLevel,

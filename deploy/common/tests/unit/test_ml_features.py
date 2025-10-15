@@ -8,7 +8,7 @@ import pytest
 # Test semantic matching (BERT/Sentence-BERT)
 def test_semantic_matcher_initialization():
     """Test SemanticMatcher initializes correctly."""
-    from src.domains.ml.semantic_matcher import SemanticMatcher
+    from domains.ml.semantic_matcher import SemanticMatcher
 
     matcher = SemanticMatcher()
     assert matcher.model_name == "all-MiniLM-L6-v2"
@@ -17,7 +17,7 @@ def test_semantic_matcher_initialization():
 
 def test_semantic_matcher_sanitization():
     """Test input sanitization."""
-    from src.domains.ml.semantic_matcher import SemanticMatcher
+    from domains.ml.semantic_matcher import SemanticMatcher
 
     matcher = SemanticMatcher()
 
@@ -34,7 +34,7 @@ def test_semantic_matcher_sanitization():
 
 def test_semantic_matcher_result_structure():
     """Test SemanticMatchResult structure."""
-    from src.domains.ml.semantic_matcher import SemanticMatchResult
+    from domains.ml.semantic_matcher import SemanticMatchResult
 
     result = SemanticMatchResult(
         similarity_score=0.85,
@@ -55,7 +55,7 @@ def test_semantic_matcher_result_structure():
 # Test sentiment analysis (VADER)
 def test_sentiment_analyzer_initialization():
     """Test SentimentAnalyzer initializes correctly."""
-    from src.domains.ml.sentiment_analyzer import SentimentAnalyzer
+    from domains.ml.sentiment_analyzer import SentimentAnalyzer
 
     analyzer = SentimentAnalyzer()
     assert hasattr(analyzer, "SCAM_PHRASES")
@@ -65,7 +65,7 @@ def test_sentiment_analyzer_initialization():
 
 def test_sentiment_analyzer_scam_detection():
     """Test scam phrase detection."""
-    from src.domains.ml.sentiment_analyzer import SentimentAnalyzer
+    from domains.ml.sentiment_analyzer import SentimentAnalyzer
 
     # Test scam phrases are defined
     assert "guaranteed income" in SentimentAnalyzer.SCAM_PHRASES
@@ -75,7 +75,7 @@ def test_sentiment_analyzer_scam_detection():
 
 def test_sentiment_analyzer_pressure_detection():
     """Test pressure/urgency phrase detection."""
-    from src.domains.ml.sentiment_analyzer import SentimentAnalyzer
+    from domains.ml.sentiment_analyzer import SentimentAnalyzer
 
     # Test pressure phrases are defined
     assert "urgent" in SentimentAnalyzer.PRESSURE_PHRASES
@@ -85,7 +85,7 @@ def test_sentiment_analyzer_pressure_detection():
 
 def test_sentiment_result_structure():
     """Test SentimentResult structure."""
-    from src.domains.ml.sentiment_analyzer import SentimentResult, SentimentLabel
+    from domains.ml.sentiment_analyzer import SentimentResult, SentimentLabel
 
     result = SentimentResult(
         sentiment=SentimentLabel.POSITIVE,
@@ -107,7 +107,7 @@ def test_sentiment_result_structure():
 # Test resume parsing (spaCy)
 def test_resume_parser_availability():
     """Test resume parser dependencies."""
-    from src.utils.resume_parser import HAS_SPACY, HAS_PDF, HAS_DOCX
+    from utils.resume_parser import HAS_SPACY, HAS_PDF, HAS_DOCX
 
     # These should be available since we installed [dev,resume,ml]
     assert HAS_SPACY is True
@@ -117,7 +117,7 @@ def test_resume_parser_availability():
 
 def test_resume_parser_config_loaded():
     """Test resume parser configuration loaded."""
-    from src.utils.resume_parser import COMMON_SKILLS, TITLE_KEYWORDS
+    from utils.resume_parser import COMMON_SKILLS, TITLE_KEYWORDS
 
     # Should have loaded skills and keywords
     assert len(COMMON_SKILLS) > 0
@@ -130,7 +130,7 @@ def test_resume_parser_config_loaded():
 
 def test_spacy_model_lazy_loading():
     """Test spaCy model is lazy loaded."""
-    from src.utils.resume_parser import _NLP
+    from utils.resume_parser import _NLP
 
     # Model should not be loaded yet
     assert _NLP is None
@@ -138,7 +138,7 @@ def test_spacy_model_lazy_loading():
 
 def test_resume_parser_seniority_blocklist():
     """Test seniority blocklist is defined."""
-    from src.utils.resume_parser import SENIORITY_BLOCKLIST
+    from utils.resume_parser import SENIORITY_BLOCKLIST
 
     assert "intern" in SENIORITY_BLOCKLIST
     assert "junior" in SENIORITY_BLOCKLIST
@@ -201,7 +201,7 @@ def test_sentence_bert_integration():
 # Test encryption utilities
 def test_encryption_key_generation():
     """Test encryption key generation."""
-    from src.utils.encryption import generate_key
+    from utils.encryption import generate_key
 
     key = generate_key()
     assert len(key) == 44  # Fernet keys are 44 bytes base64-encoded
@@ -209,7 +209,7 @@ def test_encryption_key_generation():
 
 def test_encryption_decrypt_cycle():
     """Test encryption and decryption."""
-    from src.utils.encryption import generate_key, encrypt_data, decrypt_data
+    from utils.encryption import generate_key, encrypt_data, decrypt_data
 
     key = generate_key()
     original = b"Sensitive job search data"
@@ -225,7 +225,7 @@ def test_encryption_decrypt_cycle():
 
 def test_string_encryption():
     """Test string encryption helpers."""
-    from src.utils.encryption import generate_key, encrypt_string, decrypt_string
+    from utils.encryption import generate_key, encrypt_string, decrypt_string
 
     key = generate_key()
     original = "Secret resume data"
@@ -242,7 +242,7 @@ def test_string_encryption():
 
 def test_database_encryption_utilities():
     """Test database encryption utilities."""
-    from src.utils.encryption import DatabaseEncryption
+    from utils.encryption import DatabaseEncryption
 
     # Test SQLCipher availability check
     is_available = DatabaseEncryption.is_sqlcipher_available()
@@ -255,7 +255,7 @@ def test_database_encryption_utilities():
 
 def test_key_rotation():
     """Test encryption key rotation."""
-    from src.utils.encryption import generate_key, encrypt_data, KeyRotation
+    from utils.encryption import generate_key, encrypt_data, KeyRotation
 
     old_key = generate_key()
     new_key = generate_key()
@@ -267,7 +267,7 @@ def test_key_rotation():
     encrypted_new = KeyRotation.rotate_field_encryption(old_key, new_key, encrypted_old)
 
     # Should decrypt with new key
-    from src.utils.encryption import decrypt_data
+    from utils.encryption import decrypt_data
 
     decrypted = decrypt_data(encrypted_new, new_key)
     assert decrypted == original

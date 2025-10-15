@@ -5,7 +5,7 @@ Enhanced Detection Demo
 Demonstrates the new 99.9%+ accuracy scam detection system.
 """
 
-from src.domains.detection.enhanced_scam_detector import EnhancedScamDetector
+from domains.detection.enhanced_scam_detector import EnhancedScamDetector
 
 
 def print_header(title: str):

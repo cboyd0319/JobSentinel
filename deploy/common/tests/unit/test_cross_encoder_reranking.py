@@ -5,7 +5,7 @@ Tests for Cross-Encoder Reranking module.
 import numpy as np
 import pytest
 
-from src.domains.ml.cross_encoder_reranking import (
+from domains.ml.cross_encoder_reranking import (
     Candidate,
     CrossEncoderReranker,
     HybridRanker,

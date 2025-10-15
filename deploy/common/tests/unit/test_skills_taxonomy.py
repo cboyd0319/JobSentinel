@@ -11,7 +11,7 @@ Tests all five features:
 
 import pytest
 
-from src.domains.skills_taxonomy import (
+from domains.skills_taxonomy import (
     CareerLevel,
     DemandLevel,
     DemandTrend,
@@ -477,7 +477,7 @@ class TestSalaryCorrelation:
 
     def test_salary_range_formatting(self):
         """Test salary range string formatting."""
-        from src.domains.skills_taxonomy.salary_correlation import SalaryRange
+        from domains.skills_taxonomy.salary_correlation import SalaryRange
 
         salary_range = SalaryRange(min=70000, max=100000, median=85000)
         formatted = str(salary_range)

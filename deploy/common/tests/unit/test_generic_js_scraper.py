@@ -4,7 +4,7 @@ Tests for Generic JS Scraper.
 
 import pytest
 
-from src.sources.generic_js_scraper import GenericJSScraper
+from sources.generic_js_scraper import GenericJSScraper
 
 
 @pytest.fixture
