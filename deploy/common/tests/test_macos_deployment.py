@@ -376,15 +376,15 @@ class TestMacOSFeatureParity:
 
     def test_has_precheck_module(self):
         """Test macOS has precheck module."""
-        assert Path("src/jsa/macos_precheck.py").exists()
+        assert Path("deploy/common/app/src/jsa/macos_precheck.py").exists()
         # Compare to Windows
-        assert Path("src/jsa/windows_precheck.py").exists()
+        assert Path("deploy/common/app/src/jsa/windows_precheck.py").exists()
 
     def test_has_shortcuts_module(self):
         """Test macOS has shortcuts module."""
-        assert Path("src/jsa/macos_shortcuts.py").exists()
+        assert Path("deploy/common/app/src/jsa/macos_shortcuts.py").exists()
         # Compare to Windows
-        assert Path("src/jsa/windows_shortcuts.py").exists()
+        assert Path("deploy/common/app/src/jsa/windows_shortcuts.py").exists()
 
     def test_has_setup_py(self):
         """Test macOS has Python setup script."""

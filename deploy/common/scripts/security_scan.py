@@ -53,7 +53,7 @@ class SecurityScanner:
         print("🔍 Running Bandit security scan...")
 
         success, stdout, stderr = self.run_command(
-            [sys.executable, "-m", "bandit", "-r", "src/", "-f", "json", "--quiet"]
+            [sys.executable, "-m", "bandit", "-r", "deploy/common/app/src/", "-f", "json", "--quiet"]
         )
 
         if success:
