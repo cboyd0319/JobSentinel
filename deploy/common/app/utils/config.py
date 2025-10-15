@@ -312,7 +312,9 @@ class ConfigManager:
 
         companies = []
         for company_data in self._config_data.get("companies", []):
-            companies.append(CompanyConfig(**company_data))
+            # Filter out comment fields (JSON schema allows them for documentation)
+            clean_data = {k: v for k, v in company_data.items() if not k.startswith("_")}
+            companies.append(CompanyConfig(**clean_data))
 
         return companies
 
@@ -354,4 +356,10 @@ class ConfigManager:
 
 
 # Global config manager instance
-config_manager = ConfigManager()
+config_manager = ConfigManager(
+    config_path="config/user_prefs.json",
+    fallback_paths=[
+        "user_prefs.json",
+        "deploy/common/config/user_prefs.json",  # Development/testing path
+    ],
+)

@@ -157,6 +157,7 @@ class TestOpenAIClient:
     @pytest.mark.asyncio
     async def test_openai_generate_success(self):
         """Test successful generation with OpenAI."""
+        pytest.importorskip("openai")
         config = LLMConfig(
             provider=LLMProvider.OPENAI,
             api_key="sk-test-key",
@@ -240,6 +241,7 @@ class TestAnthropicClient:
     @pytest.mark.asyncio
     async def test_anthropic_generate_success(self):
         """Test successful generation with Anthropic."""
+        pytest.importorskip("anthropic")
         config = LLMConfig(
             provider=LLMProvider.ANTHROPIC,
             api_key="sk-ant-test",

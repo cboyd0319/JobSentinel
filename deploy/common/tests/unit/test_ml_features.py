@@ -8,6 +8,7 @@ import pytest
 # Test semantic matching (BERT/Sentence-BERT)
 def test_semantic_matcher_initialization():
     """Test SemanticMatcher initializes correctly."""
+    pytest.importorskip("torch")
     from domains.ml.semantic_matcher import SemanticMatcher
 
     matcher = SemanticMatcher()
@@ -17,6 +18,7 @@ def test_semantic_matcher_initialization():
 
 def test_semantic_matcher_sanitization():
     """Test input sanitization."""
+    pytest.importorskip("torch")
     from domains.ml.semantic_matcher import SemanticMatcher
 
     matcher = SemanticMatcher()
@@ -34,6 +36,7 @@ def test_semantic_matcher_sanitization():
 
 def test_semantic_matcher_result_structure():
     """Test SemanticMatchResult structure."""
+    pytest.importorskip("torch")
     from domains.ml.semantic_matcher import SemanticMatchResult
 
     result = SemanticMatchResult(
@@ -55,6 +58,7 @@ def test_semantic_matcher_result_structure():
 # Test sentiment analysis (VADER)
 def test_sentiment_analyzer_initialization():
     """Test SentimentAnalyzer initializes correctly."""
+    pytest.importorskip("torch")
     from domains.ml.sentiment_analyzer import SentimentAnalyzer
 
     analyzer = SentimentAnalyzer()
@@ -65,6 +69,7 @@ def test_sentiment_analyzer_initialization():
 
 def test_sentiment_analyzer_scam_detection():
     """Test scam phrase detection."""
+    pytest.importorskip("torch")
     from domains.ml.sentiment_analyzer import SentimentAnalyzer
 
     # Test scam phrases are defined
@@ -75,6 +80,7 @@ def test_sentiment_analyzer_scam_detection():
 
 def test_sentiment_analyzer_pressure_detection():
     """Test pressure/urgency phrase detection."""
+    pytest.importorskip("torch")
     from domains.ml.sentiment_analyzer import SentimentAnalyzer
 
     # Test pressure phrases are defined
@@ -85,6 +91,7 @@ def test_sentiment_analyzer_pressure_detection():
 
 def test_sentiment_result_structure():
     """Test SentimentResult structure."""
+    pytest.importorskip("torch")
     from domains.ml.sentiment_analyzer import SentimentResult, SentimentLabel
 
     result = SentimentResult(

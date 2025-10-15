@@ -28,7 +28,12 @@ import json
 from datetime import UTC, datetime
 from typing import Any
 
-from cloud.providers.gcp.cloud_database import init_cloud_db
+try:
+    from cloud.providers.gcp.cloud_database import init_cloud_db
+except ImportError:
+    # Cloud module not available (expected in local-only installations)
+    init_cloud_db = None  # type: ignore[assignment]
+
 from sqlmodel import Field, Session, SQLModel, create_engine, select
 
 from database import Job, get_sync_session, init_db
@@ -203,7 +208,10 @@ async def init_unified_db():
     """Initializes both local and cloud databases."""
     logger.info("Initializing unified database...")
     await init_db()
-    await init_cloud_db()  # This is now async
+    if init_cloud_db is not None:
+        await init_cloud_db()  # This is now async
+    else:
+        logger.debug("Cloud database initialization skipped (cloud module not available)")
     logger.info("Unified database initialization complete.")
 
 

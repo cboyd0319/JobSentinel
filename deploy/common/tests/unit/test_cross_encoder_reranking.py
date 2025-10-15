@@ -5,6 +5,8 @@ Tests for Cross-Encoder Reranking module.
 import numpy as np
 import pytest
 
+pytest.importorskip("torch")
+
 from domains.ml.cross_encoder_reranking import (
     Candidate,
     CrossEncoderReranker,
