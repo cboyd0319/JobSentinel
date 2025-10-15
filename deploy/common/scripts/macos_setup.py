@@ -448,7 +448,8 @@ def main():
     print_banner()
 
     # Detect project root
-    # Script is in deploy/common/scripts/, so go up 3 levels to repo root
+    # Script is in deploy/common/scripts/macos_setup.py
+    # So we need to go up 3 levels: scripts -> common -> deploy -> repo root
     script_dir = Path(__file__).parent
     project_root = script_dir.parent.parent.parent
 

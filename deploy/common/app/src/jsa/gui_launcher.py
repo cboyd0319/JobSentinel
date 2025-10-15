@@ -81,8 +81,9 @@ class JobSentinelGUI:
 
         # State
         self.server_process: subprocess.Popen | None = None
-        # Calculate project root: this file is in deploy/common/app/src/jsa/
-        # So we need to go up 5 levels to reach the repository root
+        # Calculate project root: this file is in deploy/common/app/src/jsa/gui_launcher.py
+        # Path(__file__).parent gives us jsa/, then we need 5 more .parent calls:
+        # jsa -> src -> app -> common -> deploy -> root
         self.project_root = Path(__file__).parent.parent.parent.parent.parent.parent
         self.config_path = self.project_root / "deploy" / "common" / "config" / "user_prefs.json"
 
