@@ -19,8 +19,9 @@ python --version >nul 2>&1
 if errorlevel 1 (
     echo ERROR: Python not found!
     echo.
-    echo Please install Python 3.12 or newer from:
+    echo Please install Python 3.11 or newer from:
     echo https://www.python.org/downloads/
+    echo ^(Python 3.12+ recommended for best compatibility^)
     echo.
     echo IMPORTANT: When installing Python, check the box:
     echo "Add Python to PATH"
@@ -29,11 +30,15 @@ if errorlevel 1 (
     exit /b 1
 )
 
-REM Change to the directory where this batch file is located
+REM Change to the repository root (3 levels up from deploy\local\windows\)
 cd /d "%~dp0"
+cd ..\..\..\
+
+echo Repository root: %CD%
+echo.
 
 REM Launch the GUI
-python launcher_gui.py
+python deploy\common\launcher_gui.py
 
 REM If we get here, the GUI closed
 echo.

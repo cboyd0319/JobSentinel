@@ -6,7 +6,7 @@ REM Just double-click this file to start!
 REM
 REM Requirements:
 REM - Windows 11 (build 22000+)
-REM - Python 3.12+ installed and in PATH
+REM - Python 3.11+ installed and in PATH (3.12+ recommended)
 REM
 REM No admin rights needed!
 
@@ -23,8 +23,9 @@ python --version >nul 2>&1
 if errorlevel 1 (
     echo ERROR: Python not found!
     echo.
-    echo Please install Python 3.12 or newer from:
+    echo Please install Python 3.11 or newer from:
     echo https://www.python.org/downloads/
+    echo ^(Python 3.12+ recommended for best compatibility^)
     echo.
     echo IMPORTANT: When installing Python, check the box:
     echo "Add Python to PATH"
@@ -38,11 +39,15 @@ echo.
 echo Starting setup wizard...
 echo.
 
-REM Change to the directory where this batch file is located
+REM Change to the repository root (3 levels up from deploy\local\windows\)
 cd /d "%~dp0"
+cd ..\..\..\
+
+echo Repository root: %CD%
+echo.
 
 REM Run the Python setup script
-python scripts\windows_setup.py
+python deploy\common\scripts\windows_setup.py
 
 REM Check if setup succeeded
 if errorlevel 1 (
