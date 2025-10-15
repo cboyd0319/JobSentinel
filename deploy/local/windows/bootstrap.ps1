@@ -40,8 +40,9 @@ $MIN_DISK_SPACE_GB = 1
 $MIN_MEMORY_GB = 2
 $REQUIRED_PORTS = @(8000, 3000)
 
-# Paths
-$PROJECT_ROOT = $PSScriptRoot
+# Paths - Navigate to repository root (3 levels up from this script in deploy/local/windows/)
+$SCRIPT_DIR = $PSScriptRoot
+$PROJECT_ROOT = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $SCRIPT_DIR))
 $TOOLS_DIR = Join-Path $PROJECT_ROOT ".tools"
 $NODE_DIR = Join-Path $TOOLS_DIR "node"
 $VENV_DIR = Join-Path $PROJECT_ROOT ".venv"

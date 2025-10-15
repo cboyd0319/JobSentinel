@@ -50,13 +50,18 @@ macos_version=$(sw_vers -productVersion)
 macos_major=$(echo "$macos_version" | cut -d '.' -f 1)
 macos_minor=$(echo "$macos_version" | cut -d '.' -f 2)
 
-# macOS 15 = Sequoia (released 2024)
-if [[ $macos_major -ge 15 ]] || [[ $macos_major -eq 14 && $macos_minor -ge 0 ]]; then
+# macOS 12+ = Monterey and later (per README)
+# But we recommend macOS 14+ (Sonoma) for best compatibility
+if [[ $macos_major -ge 12 ]]; then
     echo -e "${GREEN}✓ macOS $macos_version detected${NC}"
+    if [[ $macos_major -lt 14 ]]; then
+        echo -e "${YELLOW}⚠  macOS 14+ (Sonoma) recommended for best compatibility${NC}"
+        echo -e "${YELLOW}   Your macOS $macos_version should work but is not heavily tested${NC}"
+    fi
 else
-    echo -e "${RED}✗ macOS 15+ required. Found: macOS $macos_version${NC}"
+    echo -e "${RED}✗ macOS 12+ required. Found: macOS $macos_version${NC}"
     echo ""
-    echo -e "${YELLOW}Please upgrade to macOS 15 (Sequoia) or later to use JobSentinel.${NC}"
+    echo -e "${YELLOW}Please upgrade to macOS 12 (Monterey) or later to use JobSentinel.${NC}"
     echo ""
     read -p "Press Enter to exit..."
     exit 1
@@ -163,11 +168,17 @@ esac
 # Get the directory where this script is located
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+# Navigate to repository root (3 levels up from deploy/local/macos/)
+REPO_ROOT="$( cd "$SCRIPT_DIR/../../.." && pwd )"
+
 # Change to the repository root directory
-cd "$SCRIPT_DIR" || {
-    echo -e "${RED}✗ Failed to change to script directory${NC}"
+cd "$REPO_ROOT" || {
+    echo -e "${RED}✗ Failed to change to repository root directory${NC}"
     exit 1
 }
+
+echo -e "${CYAN}Repository root: $REPO_ROOT${NC}"
+echo ""
 
 # Run Python setup script
 echo -e "${CYAN}Starting setup wizard...${NC}"

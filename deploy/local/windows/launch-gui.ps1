@@ -96,9 +96,13 @@ Write-Host ""
 Write-Host "Launching JobSentinel GUI..." -ForegroundColor Yellow
 Write-Host ""
 
-# Change to the directory where this script is located
+# Change to the repository root directory (3 levels up from this script)
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-Set-Location $scriptDir
+$repoRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $scriptDir))
+Set-Location $repoRoot
+
+Write-Host "Repository root: $repoRoot" -ForegroundColor Cyan
+Write-Host ""
 
 try {
     # Launch the GUI

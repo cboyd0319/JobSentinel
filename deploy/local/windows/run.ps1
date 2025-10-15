@@ -60,7 +60,9 @@ $ErrorActionPreference = "Stop"
 # ============================================================================
 
 $SCRIPT_VERSION = "1.0.0"
-$PROJECT_ROOT = $PSScriptRoot
+# Navigate to repository root (3 levels up from this script in deploy/local/windows/)
+$SCRIPT_DIR = $PSScriptRoot
+$PROJECT_ROOT = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $SCRIPT_DIR))
 $VENV_DIR = Join-Path $PROJECT_ROOT ".venv"
 $FRONTEND_DIR = Join-Path $PROJECT_ROOT "frontend"
 $NODE_DIR = Join-Path $PROJECT_ROOT ".tools\node"

@@ -93,11 +93,17 @@ fi
 # Get the directory where this script is located
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+# Navigate to repository root (3 levels up from deploy/local/macos/)
+REPO_ROOT="$( cd "$SCRIPT_DIR/../../.." && pwd )"
+
 # Change to the repository root directory
-cd "$SCRIPT_DIR" || {
-    print_error "Failed to change to script directory"
+cd "$REPO_ROOT" || {
+    print_error "Failed to change to repository root directory"
     exit 1
 }
+
+echo -e "${CYAN}Repository root: $REPO_ROOT${NC}"
+echo ""
 
 echo ""
 echo -e "${YELLOW}Launching JobSentinel GUI...${NC}"

@@ -69,7 +69,7 @@ def print_banner():
 
 
 def check_macos_version() -> tuple[bool, str]:
-    """Check if running on macOS 15+."""
+    """Check if running on macOS 12+ (Monterey or later)."""
     if platform.system() != "Darwin":
         return False, f"This script is for macOS only. Detected: {platform.system()}"
 
@@ -86,34 +86,42 @@ def check_macos_version() -> tuple[bool, str]:
         parts = version.split(".")
         major = int(parts[0]) if parts else 0
 
-        if major >= 15:
-            return True, f"macOS {version}"
+        if major >= 12:
+            msg = f"macOS {version}"
+            if major < 14:
+                msg += " (macOS 14+ recommended for best compatibility)"
+            return True, msg
         else:
-            return False, f"macOS 15+ required. Found: macOS {version}"
+            return False, f"macOS 12+ required. Found: macOS {version}"
 
     except (subprocess.SubprocessError, subprocess.TimeoutExpired, FileNotFoundError):
         # Fall back to platform.mac_ver()
         version = platform.mac_ver()[0]
         major = int(version.split(".")[0]) if version else 0
 
-        if major >= 15:
-            return True, f"macOS {version}"
+        if major >= 12:
+            msg = f"macOS {version}"
+            if major < 14:
+                msg += " (macOS 14+ recommended)"
+            return True, msg
         else:
-            return False, f"macOS 15+ required. Found: macOS {version}"
+            return False, f"macOS 12+ required. Found: macOS {version}"
 
     return False, "macOS version detection failed"
 
 
 def check_python_version() -> tuple[bool, str]:
-    """Check if Python 3.12+ is installed."""
+    """Check if Python 3.11+ is installed (3.12+ recommended)."""
     version = sys.version_info
 
     if version >= (3, 12):
         return True, f"Python {version.major}.{version.minor}.{version.micro}"
+    elif version >= (3, 11):
+        return True, f"Python {version.major}.{version.minor}.{version.micro} (3.12+ recommended for best compatibility)"
     else:
         return (
             False,
-            f"Python 3.12+ required. Found: {version.major}.{version.minor}.{version.micro}\n"
+            f"Python 3.11+ required. Found: {version.major}.{version.minor}.{version.micro}\n"
             f"    Install with: brew install python@3.12\n"
             f"    Or download from: https://www.python.org/downloads/",
         )

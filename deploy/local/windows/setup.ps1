@@ -141,9 +141,13 @@ if ($response -ne "y" -and $response -ne "yes") {
 
 Write-Host ""
 
-# Change to the directory where this script is located
+# Change to the repository root directory (3 levels up from this script)
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-Set-Location $scriptDir
+$repoRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $scriptDir))
+Set-Location $repoRoot
+
+Write-Host "Repository root: $repoRoot" -ForegroundColor Cyan
+Write-Host ""
 
 # Run Python setup script
 Write-Host "Starting setup wizard..." -ForegroundColor Cyan

@@ -92,15 +92,17 @@ def check_windows_version() -> tuple[bool, str]:
 
 
 def check_python_version() -> tuple[bool, str]:
-    """Check if Python 3.12+ is installed."""
+    """Check if Python 3.11+ is installed (3.12+ recommended)."""
     version = sys.version_info
 
     if version >= (3, 12):
         return True, f"Python {version.major}.{version.minor}.{version.micro}"
+    elif version >= (3, 11):
+        return True, f"Python {version.major}.{version.minor}.{version.micro} (3.12+ recommended for best compatibility)"
     else:
         return (
             False,
-            f"Python 3.12+ required. Found: {version.major}.{version.minor}.{version.micro}\n"
+            f"Python 3.11+ required. Found: {version.major}.{version.minor}.{version.micro}\n"
             f"    Download from: https://www.python.org/downloads/",
         )
 
