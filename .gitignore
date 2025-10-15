@@ -260,3 +260,7 @@ diagnostics-*.zip
 pyguard-report.html
 pyguard-*.html
 .venv-test/
+
+# Python caches
+__pycache__/
+*.py[cod]
