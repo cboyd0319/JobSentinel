@@ -18,6 +18,12 @@ from cloud.utils import (
 
 INSTALL_VERSION = "540.0.0"
 
+# Add the app directory to the path so we can import utils
+_repo_root = Path(__file__).resolve().parent.parent.parent.parent.parent.parent
+_app_src_dir = _repo_root / "deploy" / "common" / "app" / "src"
+if str(_app_src_dir) not in sys.path:
+    sys.path.insert(0, str(_app_src_dir))
+
 from utils.errors import ConfigurationException
 
 from cloud.exceptions import QuotaExceededError

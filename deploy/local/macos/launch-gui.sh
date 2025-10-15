@@ -113,7 +113,7 @@ echo -e "${YELLOW}Launching JobSentinel GUI...${NC}"
 echo ""
 
 # Launch the GUI
-if $PYTHON_CMD deploy/common/launcher_gui.py; then
+if $PYTHON_CMD -m jsa.gui_launcher; then
     echo ""
     print_success "JobSentinel GUI closed normally"
     echo ""

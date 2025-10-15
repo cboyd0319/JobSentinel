@@ -4,6 +4,7 @@ import asyncio
 import os
 import platform
 import shutil
+import sys
 import tempfile
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -11,8 +12,14 @@ from pathlib import Path
 from google.api_core import exceptions as gcp_exceptions
 from google.cloud import storage
 
+# Add the app directory to the path so we can import utils and database
+_repo_root = Path(__file__).resolve().parent.parent.parent.parent.parent.parent
+_app_src_dir = _repo_root / "deploy" / "common" / "app" / "src"
+if str(_app_src_dir) not in sys.path:
+    sys.path.insert(0, str(_app_src_dir))
+
 # Import the existing database module
-from src.database import get_database_stats, init_db  # Import specific functions
+from database import get_database_stats, init_db  # Import specific functions
 from utils.errors import DatabaseException
 from utils.logging import get_logger
 

@@ -38,7 +38,7 @@ echo Repository root: %CD%
 echo.
 
 REM Launch the GUI
-python deploy\common\launcher_gui.py
+python -m jsa.gui_launcher
 
 REM If we get here, the GUI closed
 echo.

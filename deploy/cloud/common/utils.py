@@ -15,6 +15,12 @@ import time
 from collections.abc import Iterable
 from pathlib import Path
 
+# Add the app directory to the path so we can import utils
+_repo_root = Path(__file__).resolve().parent.parent.parent.parent
+_app_src_dir = _repo_root / "deploy" / "common" / "app" / "src"
+if str(_app_src_dir) not in sys.path:
+    sys.path.insert(0, str(_app_src_dir))
+
 from utils.cost_tracker import tracker
 
 

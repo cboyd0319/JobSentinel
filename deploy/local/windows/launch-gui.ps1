@@ -110,7 +110,7 @@ Write-Host ""
 
 try {
     # Launch the GUI
-    python deploy\common\launcher_gui.py
+    python -m jsa.gui_launcher
     
     Write-Host ""
     Write-Success "JobSentinel GUI closed normally"
