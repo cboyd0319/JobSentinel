@@ -6,8 +6,8 @@ import argparse
 import asyncio
 import sys
 
-from cloud.providers.gcp.update import GCPUpdate
-from cloud.utils import ensure_python_version
+from deployments.common.cloud.providers.gcp.update import GCPUpdate
+from deployments.common.cloud.utils import ensure_python_version
 
 MIN_PYTHON = (3, 12)
 

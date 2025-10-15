@@ -9,7 +9,7 @@ import sys
 import textwrap
 from pathlib import Path
 
-from cloud.utils import (
+from deployments.common.cloud.utils import (
     confirm,
     create_or_update_secret,
     resolve_project_root,
@@ -20,22 +20,22 @@ INSTALL_VERSION = "540.0.0"
 
 from utils.errors import ConfigurationException
 
-from cloud.exceptions import QuotaExceededError
-from cloud.providers.common.terraform_installer import ensure_terraform
-from cloud.providers.gcp.auth import authenticate
-from cloud.providers.gcp.cloud_run import build_and_push_image
-from cloud.providers.gcp.project import choose_billing_account, create_project
-from cloud.providers.gcp.project_detection import (
+from deployments.common.cloud.exceptions import QuotaExceededError
+from deployments.common.cloud.providers.common.terraform_installer import ensure_terraform
+from deployments.common.cloud.providers.gcp.auth import authenticate
+from deployments.common.cloud.providers.gcp.cloud_run import build_and_push_image
+from deployments.common.cloud.providers.gcp.project import choose_billing_account, create_project
+from deployments.common.cloud.providers.gcp.project_detection import (
     detect_existing_deployment,
     generate_project_id,
     get_state_directory,
     load_deployment_config,
     save_deployment_config,
 )
-from cloud.providers.gcp.regions import select_region, select_scheduler_region
-from cloud.providers.gcp.scheduler import schedule_job
-from cloud.providers.gcp.sdk import ensure_gcloud
-from cloud.providers.gcp.summary import print_summary, send_slack_notification, verify_deployment
+from deployments.common.cloud.providers.gcp.regions import select_region, select_scheduler_region
+from deployments.common.cloud.providers.gcp.scheduler import schedule_job
+from deployments.common.cloud.providers.gcp.sdk import ensure_gcloud
+from deployments.common.cloud.providers.gcp.summary import print_summary, send_slack_notification, verify_deployment
 
 
 class GCPBootstrap:
@@ -158,7 +158,7 @@ class GCPBootstrap:
                         self.logger.info(f"   [OK] Auto-selected: {self.project_id}")
                         self.logger.info("")
                     else:
-                        from cloud.utils import confirm
+                        from deployments.common.cloud.utils import confirm
 
                         if confirm(
                             f"Deploy to existing project '{active_projects[0]}'?", default=True

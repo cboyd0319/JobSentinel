@@ -1,7 +1,7 @@
 """GCP Cloud Scheduler management functions."""
 
-from cloud.providers.gcp.utils import build_google_api_url
-from cloud.utils import run_command
+from deployments.common.cloud.providers.gcp.utils import build_google_api_url
+from deployments.common.cloud.utils import run_command
 
 
 async def schedule_job(

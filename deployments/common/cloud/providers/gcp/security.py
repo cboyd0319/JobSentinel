@@ -3,7 +3,7 @@
 import json
 import tempfile
 
-from cloud.utils import run_command
+from deployments.common.cloud.utils import run_command
 
 
 async def setup_binary_authorization(logger, project_id: str, region: str) -> None:

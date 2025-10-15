@@ -28,7 +28,7 @@ def load_provider(provider_key: str, logger, no_prompt: bool = False) -> Provide
     """
 
     if provider_key == "gcp":
-        from cloud.providers import gcp
+        from deployments.common.cloud.providers import gcp
 
         return gcp.get_bootstrap(logger, no_prompt)
 

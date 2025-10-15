@@ -333,7 +333,7 @@ async def cleanup():
             )
             backup_retention = 30
 
-        from cloud.providers.gcp.cloud_database import cleanup_old_backups
+        from deployments.common.cloud.providers.gcp.cloud_database import cleanup_old_backups
 
         backup_deleted = await cleanup_old_backups(backup_retention)
         main_logger.info(f"Backup cleanup completed: removed {backup_deleted} old backups")

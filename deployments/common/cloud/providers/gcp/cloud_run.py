@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from cloud.utils import run_command
+from deployments.common.cloud.utils import run_command
 
 
 async def build_and_push_image(

@@ -644,7 +644,7 @@ pip-audit --fix
 ### 1. **Docker Production Image**
 
 ```dockerfile
-# docker/Dockerfile
+# deployments/common/docker/Dockerfile
 FROM python:3.11-slim
 
 # Security: Run as non-root user

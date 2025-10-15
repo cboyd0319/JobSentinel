@@ -16,7 +16,7 @@ import tempfile
 import zipfile
 from pathlib import Path
 
-from cloud.utils import run_command, which
+from deployments.common.cloud.utils import run_command, which
 
 # Pin Terraform version for consistency
 TERRAFORM_VERSION = "1.9.7"

@@ -1,6 +1,6 @@
 """GCP authentication related functions."""
 
-from cloud.utils import run_command
+from deployments.common.cloud.utils import run_command
 
 
 async def authenticate(logger) -> None:

@@ -7,7 +7,7 @@ import subprocess  # nosec B404
 from utils.logging import get_logger
 from utils.secure_subprocess import SubprocessSecurityError, run_secure
 
-from cloud.utils import (
+from deployments.common.cloud.utils import (
     _redact_command_for_logging,
     confirm,
     run_command,

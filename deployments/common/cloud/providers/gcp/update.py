@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from cloud.utils import (
+from deployments.common.cloud.utils import (
     choose,
     create_or_update_secret,
     print_header,

@@ -6,7 +6,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from cloud.utils import run_command
+from deployments.common.cloud.utils import run_command
 
 
 def get_state_directory(project_id: str) -> Path:

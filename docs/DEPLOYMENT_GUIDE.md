@@ -57,7 +57,7 @@ python -m jsa.cli run-once
 **Best for:** Consistent environments, multiple users, local servers
 
 ```bash
-docker build -f docker/Dockerfile -t jobsentinel:latest .
+docker build -f deployments/common/docker/Dockerfile -t jobsentinel:latest .
 docker run -d \
   --name jobsentinel \
   -v $(pwd)/config:/app/config:ro \
@@ -200,7 +200,7 @@ docker run -d \
 ### Production Dockerfile
 
 ```dockerfile
-# docker/Dockerfile (production-ready)
+# deployments/common/docker/Dockerfile (production-ready)
 FROM python:3.11-slim AS base
 
 # Install system dependencies
@@ -248,7 +248,7 @@ services:
   jobsentinel:
     build:
       context: .
-      dockerfile: docker/Dockerfile
+      dockerfile: deployments/common/docker/Dockerfile
     container_name: jobsentinel
     restart: unless-stopped
     
@@ -398,7 +398,7 @@ Cloud Scheduler → Cloud Run Service → Cloud SQL (or Firestore)
    gcloud auth configure-docker
    
    # Build container
-   docker build -f docker/Dockerfile -t gcr.io/PROJECT_ID/jobsentinel:latest .
+   docker build -f deployments/common/docker/Dockerfile -t gcr.io/PROJECT_ID/jobsentinel:latest .
    
    # Push to GCR
    docker push gcr.io/PROJECT_ID/jobsentinel:latest

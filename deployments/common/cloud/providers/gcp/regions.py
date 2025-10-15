@@ -1,6 +1,6 @@
 """GCP region selection functions."""
 
-from cloud.utils import choose, run_command
+from deployments.common.cloud.utils import choose, run_command
 
 
 async def select_region(logger, no_prompt: bool) -> str:

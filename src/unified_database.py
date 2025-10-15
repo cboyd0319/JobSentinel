@@ -28,7 +28,7 @@ import json
 from datetime import UTC, datetime
 from typing import Any
 
-from cloud.providers.gcp.cloud_database import init_cloud_db
+from deployments.common.cloud.providers.gcp.cloud_database import init_cloud_db
 from sqlmodel import Field, Session, SQLModel, create_engine, select
 
 from database import Job, get_sync_session, init_db

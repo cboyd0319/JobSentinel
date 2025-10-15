@@ -6,7 +6,7 @@ from pathlib import Path
 from rich.console import Console
 from rich.panel import Panel
 
-from cloud.style import RICH_COLORS, SYMBOL, WIDTH
+from deployments.common.cloud.style import RICH_COLORS, SYMBOL, WIDTH
 
 
 def generate_receipt_content(

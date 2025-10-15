@@ -12,13 +12,13 @@ from pathlib import Path
 
 from utils.secure_subprocess import SubprocessSecurityError, run_secure
 
-from cloud.providers.gcp.utils import (
+from deployments.common.cloud.providers.gcp.utils import (
     download_https_file,
     safe_extract_tar,
     safe_extract_zip,
     sanitize_api_url,
 )
-from cloud.utils import current_os, ensure_directory, prepend_path, run_command, which
+from deployments.common.cloud.utils import current_os, ensure_directory, prepend_path, run_command, which
 
 INSTALL_VERSION = "540.0.0"
 

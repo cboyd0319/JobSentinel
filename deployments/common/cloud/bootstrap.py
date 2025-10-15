@@ -41,7 +41,7 @@ from rich.panel import Panel
 
 # Local imports deferred where needed to avoid path mutations at import time.
 # (Ruff E402 compliance; runtime safety maintained.)
-from cloud.style import RICH_COLORS, SYMBOL, WIDTH  # local style constants (no side effects)
+from deployments.common.cloud.style import RICH_COLORS, SYMBOL, WIDTH  # local style constants (no side effects)
 
 project_root = Path(__file__).parent.parent
 
@@ -127,9 +127,9 @@ async def deploy_gcp(logger, no_prompt: bool = False, console=None, dry_run: boo
 
     Returns 0 on success, non-zero error code otherwise.
     """
-    from cloud.exceptions import QuotaExceededError
-    from cloud.providers.gcp.gcp import GCPBootstrap
-    from cloud.receipt import print_receipt, save_receipt
+    from deployments.common.cloud.exceptions import QuotaExceededError
+    from deployments.common.cloud.providers.gcp.gcp import GCPBootstrap
+    from deployments.common.cloud.receipt import print_receipt, save_receipt
 
     logger.info("Starting GCP deployment...")
     bootstrap = GCPBootstrap(logger, no_prompt=no_prompt, dry_run=dry_run)

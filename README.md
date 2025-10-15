@@ -39,7 +39,7 @@ Finding relevant jobs across multiple boards is manual and time-consuming. Comme
 
 1. **Download:** https://github.com/cboyd0319/JobSentinel/archive/refs/heads/main.zip
 2. **Extract** to Desktop (right-click → "Extract All")
-3. **Double-click:** `launch-gui.bat` in the folder
+3. **Double-click:** `deployments/windows/local/launch-gui.bat` in the folder
 
 **That's it! A nice graphical window opens with buttons. No typing required!**
 
@@ -66,7 +66,7 @@ Finding relevant jobs across multiple boards is manual and time-consuming. Comme
 
 1. **Download:** https://github.com/cboyd0319/JobSentinel/archive/refs/heads/main.zip
 2. **Extract** to Desktop (double-click ZIP)
-3. **Double-click:** `setup-macos.sh` (Right-click → Open if Gatekeeper blocks)
+3. **Double-click:** `deployments/macOS/local/setup-macos.sh` (Right-click → Open if Gatekeeper blocks)
 
 **That's it! The installer handles everything automatically!**
 
@@ -117,7 +117,7 @@ python -m jsa.cli run-once
 
 1. **Download:** Get the ZIP from [GitHub](https://github.com/cboyd0319/JobSentinel/archive/refs/heads/main.zip)
 2. **Extract:** Unzip to your Desktop
-3. **Run:** Double-click `setup-windows.bat`
+3. **Run:** Double-click `deployments/windows/local/setup-windows.bat`
 4. **Done!** Follow the 5-minute wizard
 
 **Features:**
@@ -137,7 +137,7 @@ See [WINDOWS_QUICK_START.md](docs/WINDOWS_QUICK_START.md) for detailed setup.
 
 1. **Download:** Get the ZIP from [GitHub](https://github.com/cboyd0319/JobSentinel/archive/refs/heads/main.zip)
 2. **Extract:** Double-click ZIP on Desktop
-3. **Run:** Double-click `setup-macos.sh` (Right-click → Open first time)
+3. **Run:** Double-click `deployments/macOS/local/setup-macos.sh` (Right-click → Open first time)
 4. **Done!** Follow the 5-minute wizard
 
 **Features:**

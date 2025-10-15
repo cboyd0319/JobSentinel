@@ -3,8 +3,8 @@
 import json
 import urllib.request
 
-from cloud.providers.gcp.utils import looks_like_placeholder
-from cloud.utils import run_command
+from deployments.common.cloud.providers.gcp.utils import looks_like_placeholder
+from deployments.common.cloud.utils import run_command
 
 
 def verify_deployment(

@@ -3,7 +3,7 @@
 import json
 import sys
 
-from cloud.utils import choose, run_command
+from deployments.common.cloud.utils import choose, run_command
 
 
 async def create_project(logger, project_id: str, project_name: str, billing_account: str) -> None:
