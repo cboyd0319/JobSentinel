@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Dependency Updates** - Updated all software and dependency versions to latest stable releases
+  - Updated core Python dependencies (aiofiles, aiohttp, aiosqlite, cryptography, fastapi, Flask, etc.)
+  - Updated Google Cloud dependencies to latest versions
+  - Updated optional dependencies (resume analysis, ML, MCP, LLM integrations)
+  - Updated dev dependencies (black, pytest, ruff, mypy, bandit, etc.)
+  - Updated pre-commit hooks to latest versions
+  - Updated frontend dependencies (React, React Query, axios, recharts, etc.)
+  - Notable updates:
+    - MCP protocol to v1.17.0 (fixes CVE-2025-53365 & CVE-2025-53366)
+    - Recharts 2.x → 3.x (major version bump - test chart components)
+    - Google Cloud Storage 2.x → 3.x (major version bump)
+    - Sentence-transformers 2.x → 5.x (major version bump - for ML features)
+    - OpenAI SDK 1.x → 2.x (major version bump)
+
 ## [0.9.0] - 2025-10-14
 
 ### Changed
