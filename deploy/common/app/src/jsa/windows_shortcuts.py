@@ -179,8 +179,8 @@ def create_jobsentinel_shortcuts(project_root: Path) -> dict[str, bool]:
 
 def main():
     """CLI entry point for creating shortcuts."""
-    # Find project root (go up from this file)
-    project_root = Path(__file__).parent.parent.parent
+    # Find project root (go up from deploy/common/app/src/jsa to repo root - 6 levels)
+    project_root = Path(__file__).parent.parent.parent.parent.parent.parent
 
     print("Creating JobSentinel desktop shortcuts...")
     print(f"Project root: {project_root}")
