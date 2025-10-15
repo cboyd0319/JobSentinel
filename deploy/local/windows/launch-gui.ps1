@@ -9,7 +9,7 @@
 .NOTES
     Version: 1.0.0
     Target: Windows 10/11
-    Python: 3.12+ required
+    Python: 3.11+ required (3.12+ recommended)
     No admin rights needed!
 
 .EXAMPLE
@@ -56,8 +56,12 @@ function Test-PythonInstalled {
                 Write-Success "Python $major.$minor detected"
                 return $true
             }
+            elseif ($major -eq 3 -and $minor -eq 11) {
+                Write-Success "Python $major.$minor detected (3.12+ recommended)"
+                return $true
+            }
             else {
-                Write-Error-Message "Python $major.$minor is too old (need 3.12+)"
+                Write-Error-Message "Python $major.$minor is too old (need 3.11+)"
                 return $false
             }
         }
@@ -81,7 +85,7 @@ Write-Host ""
 
 if (-not (Test-PythonInstalled)) {
     Write-Host ""
-    Write-Host "Python 3.12+ is required but not found." -ForegroundColor Red
+    Write-Host "Python 3.11+ is required but not found." -ForegroundColor Red
     Write-Host ""
     Write-Host "Please install Python from:" -ForegroundColor Yellow
     Write-Host "https://www.python.org/downloads/" -ForegroundColor Cyan

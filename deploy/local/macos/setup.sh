@@ -5,8 +5,8 @@
 # It handles all installation steps with proper error handling and user feedback.
 #
 # Requirements:
-# - macOS 15+ (Sequoia or later)
-# - Python 3.12+ installed
+# - macOS 12+ (Monterey or later, 14+ recommended)
+# - Python 3.11+ installed (3.12+ recommended)
 # - Bash 3.2+ or Zsh 5.0+ (default on modern macOS)
 #
 # No admin rights needed!
@@ -101,10 +101,13 @@ python_minor=$(echo "$python_version" | cut -d '.' -f 2)
 
 if [[ $python_major -ge 3 ]] && [[ $python_minor -ge 12 ]]; then
     echo -e "${GREEN}✓ Python $python_version found${NC}"
+elif [[ $python_major -eq 3 ]] && [[ $python_minor -eq 11 ]]; then
+    echo -e "${GREEN}✓ Python $python_version found${NC}"
+    echo -e "${YELLOW}⚠  Python 3.12+ recommended for best compatibility${NC}"
 else
-    echo -e "${RED}✗ Python 3.12+ required. Found: Python $python_version${NC}"
+    echo -e "${RED}✗ Python 3.11+ required. Found: Python $python_version${NC}"
     echo ""
-    echo -e "${YELLOW}Please install Python 3.12 or newer:${NC}"
+    echo -e "${YELLOW}Please install Python 3.11 or newer:${NC}"
     echo "  brew install python@3.12"
     echo "  OR download from: https://www.python.org/downloads/"
     echo ""

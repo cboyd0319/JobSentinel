@@ -5,7 +5,7 @@
 #
 # Requirements:
 # - Windows 11 (build 22000+)
-# - Python 3.12+ installed
+# - Python 3.11+ installed (3.12+ recommended)
 # - PowerShell 5.1 or later
 #
 # No admin rights needed!
@@ -55,21 +55,24 @@ try {
     if ($LASTEXITCODE -eq 0) {
         Write-Host "✓ $pythonVersion found" -ForegroundColor Green
         
-        # Check if it's 3.12+
+        # Check if it's 3.11+
         if ($pythonVersion -match "Python (\d+)\.(\d+)") {
             $major = [int]$matches[1]
             $minor = [int]$matches[2]
             
-            if ($major -lt 3 -or ($major -eq 3 -and $minor -lt 12)) {
-                Write-Host "✗ Python 3.12+ required. Found: $major.$minor" -ForegroundColor Red
+            if ($major -lt 3 -or ($major -eq 3 -and $minor -lt 11)) {
+                Write-Host "✗ Python 3.11+ required. Found: $major.$minor" -ForegroundColor Red
                 Write-Host ""
-                Write-Host "Please install Python 3.12 or newer from:" -ForegroundColor Yellow
+                Write-Host "Please install Python 3.11 or newer from:" -ForegroundColor Yellow
                 Write-Host "https://www.python.org/downloads/" -ForegroundColor Cyan
                 Write-Host ""
                 Write-Host "IMPORTANT: When installing, check 'Add Python to PATH'" -ForegroundColor Yellow
                 Write-Host ""
                 Pause
                 exit 1
+            }
+            elseif ($major -eq 3 -and $minor -eq 11) {
+                Write-Host "⚠  Python 3.12+ recommended for best compatibility" -ForegroundColor Yellow
             }
         }
     }

@@ -15,7 +15,7 @@
 .NOTES
     Version: 1.0.0
     Target: Windows 11+ (build 22000+)
-    Python: 3.12.10 preferred (3.12+ minimum)
+    Python: 3.11+ minimum (3.12+ recommended)
     No admin rights needed!
 
 .EXAMPLE
@@ -35,7 +35,7 @@ $ProgressPreference = "SilentlyContinue"  # Speeds up downloads
 
 $SCRIPT_VERSION = "1.0.0"
 $MIN_PYTHON_MAJOR = 3
-$MIN_PYTHON_MINOR = 12
+$MIN_PYTHON_MINOR = 11  # 3.11+ required (3.12+ recommended)
 $MIN_DISK_SPACE_GB = 1
 $MIN_MEMORY_GB = 2
 $REQUIRED_PORTS = @(8000, 3000)
