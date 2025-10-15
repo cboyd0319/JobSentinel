@@ -68,7 +68,7 @@ To run JobSentinel from command line:
 
 ## Configuration
 
-Edit configuration at: `../../config/user_prefs.json`
+Edit configuration at: `../../common/config/user_prefs.json`
 
 Example:
 ```json
