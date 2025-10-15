@@ -38,7 +38,7 @@ from utils.config import load_config
 from sources.job_scraper import search_jobs_by_keywords
 from matchers.scoring import score_jobs
 from notify.slack import send_slack_alert
-from src.database import save_jobs, get_recent_jobs
+from database import save_jobs, get_recent_jobs
 
 logger = get_logger(__name__)
 
