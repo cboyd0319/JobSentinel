@@ -37,13 +37,13 @@ class TestMacOSDeploymentCore:
     """Core deployment tests that must pass for macOS deployment."""
 
     def test_python_version_check(self):
-        """Test that Python version meets macOS 15 requirements."""
+        """Test that Python version meets macOS requirements."""
         version = sys.version_info
-        # Python 3.12+ is required for macOS 15 deployment
+        # Python 3.11+ is required for macOS deployment (3.12+ recommended)
         assert version >= (
             3,
-            12,
-        ), f"Python {version.major}.{version.minor} < 3.12 (minimum required for macOS 15)"
+            11,
+        ), f"Python {version.major}.{version.minor} < 3.11 (minimum required for macOS)"
 
     def test_required_packages_installed(self):
         """Test that all required packages are installed."""

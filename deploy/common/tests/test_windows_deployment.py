@@ -37,12 +37,12 @@ class TestWindowsDeploymentCore:
     def test_python_version_check(self):
         """Test that Python version meets Windows 11 requirements."""
         version = sys.version_info
-        # Python 3.12+ is required for Windows 11 deployment (though 3.11+ works elsewhere)
-        # This test validates the Windows-specific requirement
+        # Python 3.11+ is required for Windows 11 deployment (3.12+ recommended)
+        # This test validates the Windows deployment requirement
         assert version >= (
             3,
-            12,
-        ), f"Python {version.major}.{version.minor} < 3.12 (minimum required for Windows 11)"
+            11,
+        ), f"Python {version.major}.{version.minor} < 3.11 (minimum required for Windows 11)"
 
     def test_required_packages_installed(self):
         """Test that all required packages are installed."""

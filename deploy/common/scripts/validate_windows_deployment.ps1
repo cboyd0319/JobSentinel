@@ -13,7 +13,7 @@
 .NOTES
     Version: 1.0.0
     Author: JobSentinel Team
-    Requires: Windows 11, Python 3.12+, PowerShell 5.1+
+    Requires: Windows 11, Python 3.11+ (3.12+ recommended), PowerShell 5.1+
 
 .EXAMPLE
     .\scripts\validate_windows_deployment.ps1

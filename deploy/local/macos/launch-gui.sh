@@ -6,8 +6,8 @@
 # This is the EASIEST way to use JobSentinel on macOS - just double-click!
 #
 # Version: 1.0.0
-# Target: macOS 10.15+ (Catalina and later)
-# Python: 3.12+ required
+# Target: macOS 12+ (Monterey and later, 14+ recommended)
+# Python: 3.11+ required (3.12+ recommended)
 # No admin rights needed!
 #
 # Usage:
@@ -62,8 +62,11 @@ check_python() {
     if [[ $python_major -ge 3 ]] && [[ $python_minor -ge 12 ]]; then
         print_success "Python $python_version detected"
         return 0
+    elif [[ $python_major -eq 3 ]] && [[ $python_minor -eq 11 ]]; then
+        print_success "Python $python_version detected (3.12+ recommended)"
+        return 0
     else
-        print_error "Python $python_version is too old (need 3.12+)"
+        print_error "Python $python_version is too old (need 3.11+)"
         return 1
     fi
 }
@@ -80,7 +83,7 @@ echo ""
 
 if ! check_python; then
     echo ""
-    echo -e "${RED}Python 3.12+ is required but not found.${NC}"
+    echo -e "${RED}Python 3.11+ is required but not found.${NC}"
     echo ""
     echo -e "${YELLOW}Please install Python from:${NC}"
     echo "  • Homebrew: brew install python@3.12"
@@ -93,11 +96,17 @@ fi
 # Get the directory where this script is located
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+# Navigate to repository root (3 levels up from deploy/local/macos/)
+REPO_ROOT="$( cd "$SCRIPT_DIR/../../.." && pwd )"
+
 # Change to the repository root directory
-cd "$SCRIPT_DIR" || {
-    print_error "Failed to change to script directory"
+cd "$REPO_ROOT" || {
+    print_error "Failed to change to repository root directory"
     exit 1
 }
+
+echo -e "${CYAN}Repository root: $REPO_ROOT${NC}"
+echo ""
 
 echo ""
 echo -e "${YELLOW}Launching JobSentinel GUI...${NC}"
