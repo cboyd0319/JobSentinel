@@ -11,7 +11,7 @@
 ### Issue: "Permission denied" when running setup-macos.sh
 
 **Symptoms:**
-- Error when trying to run `setup-macos.sh`
+- Error when trying to run `deployments/macOS/local/setup-macos.sh`
 - Message: "Permission denied" or "Operation not permitted"
 
 **Solution:**
@@ -35,10 +35,10 @@
 
 **Symptoms:**
 - macOS blocks script from running
-- Message: "setup-macos.sh can't be opened because it is from an unidentified developer"
+- Message: "deployments/macOS/local/setup-macos.sh can't be opened because it is from an unidentified developer"
 
 **Solution (Method 1):**
-1. Right-click `setup-macos.sh`
+1. Right-click `deployments/macOS/local/setup-macos.sh`
 2. Click "Open"
 3. Click "Open" again in the warning dialog
 4. Script will run
@@ -440,7 +440,7 @@ cd ~/Desktop/JobSentinel
 xattr -dr com.apple.quarantine .
 
 # Make scripts executable
-chmod +x setup-macos.sh launch-gui.sh
+chmod +x deployments/macOS/local/setup-macos.sh launch-gui.sh
 ```
 
 ---

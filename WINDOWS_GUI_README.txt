@@ -18,8 +18,8 @@ QUICK START (First Time Users)
 
 2. Run setup (CHOOSE ONE):
    
-   OPTION A: Double-click "setup-windows.bat"
-   OPTION B: Right-click "setup-windows.ps1" -> Run with PowerShell
+   OPTION A: Double-click "deployments/windows/local/setup-windows.bat"
+   OPTION B: Right-click "deployments/windows/local/setup-windows.ps1" -> Run with PowerShell
    
    This will:
    - Check your system (30 seconds)
@@ -30,7 +30,7 @@ QUICK START (First Time Users)
 
 3. Start using JobSentinel:
    
-   EASIEST: Double-click "launch-gui.bat" (graphical interface)
+   EASIEST: Double-click "deployments/windows/local/launch-gui.bat" (graphical interface)
    OR: Use desktop shortcuts created during setup
    OR: Use command line (see below)
 
@@ -38,7 +38,7 @@ QUICK START (First Time Users)
 USING THE GUI (Graphical Interface)
 ------------------------------------------------------------------------
 
-Double-click: "launch-gui.bat"
+Double-click: "deployments/windows/local/launch-gui.bat"
 
 The GUI window has these buttons:
 
@@ -93,9 +93,9 @@ DATABASE:
 IMPORTANT FILES & FOLDERS
 ------------------------------------------------------------------------
 
-launch-gui.bat              Your main launcher (double-click this!)
-setup-windows.bat           First-time setup (run once)
-config/user_prefs.json      Your job search preferences
+deployments/windows/local/launch-gui.bat     Your main launcher (double-click this!)
+deployments/windows/local/setup-windows.bat  First-time setup (run once)
+config/user_prefs.json                       Your job search preferences
 data/jobs.sqlite            Your job database (SQLite)
 .env                        Email/API credentials (create during setup)
 logs/jobsentinel.log        Activity log

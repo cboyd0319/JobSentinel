@@ -141,7 +141,7 @@ None currently - moving to final verification phase.
   - Run tests on macOS runner
 
 ### Phase 8: Manual Verification
-- [ ] Test setup-macos.sh on fresh macOS 15
+- [ ] Test deployments/macOS/local/setup-macos.sh on fresh macOS 15
 - [ ] Test all CLI commands
 - [ ] Test GUI launcher
 - [ ] Test job scraping (dry-run)

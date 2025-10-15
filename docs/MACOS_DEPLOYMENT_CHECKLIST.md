@@ -51,7 +51,7 @@
 
 2. **Run Setup Script**
    - [ ] Make executable: `chmod +x setup-macos.sh` (if needed)
-   - [ ] Double-click `setup-macos.sh` OR
+   - [ ] Double-click `deployments/macOS/local/setup-macos.sh` OR
    - [ ] Run in Terminal: `./setup-macos.sh`
    - [ ] Script starts without errors
    - [ ] Handle Gatekeeper warning (Right-click → Open)
@@ -100,12 +100,12 @@
       - JobSentinel Health Check.command
       - JobSentinel Dry Run.command
     - [ ] Shell aliases created in ~/.zshrc or ~/.bash_profile
-    - [ ] launch-gui.command created in project root
+    - [ ] deployments/macOS/local/launch-gui.command created in project root
 
 ### Method 2: GUI Launcher
 
 1. **Launch GUI**
-   - [ ] Double-click `launch-gui.command` or `launch-gui.sh`
+   - [ ] Double-click `deployments/macOS/local/launch-gui.command` or `deployments/macOS/local/launch-gui.sh`
    - [ ] Handle Gatekeeper if prompted
    - [ ] GUI window opens
    - [ ] No crash or error
@@ -262,7 +262,7 @@ python3 -m jsa.cli api --port 8000
 ### GUI Launcher (Full Flow)
 
 1. **Start via GUI**
-   - [ ] Double-click `launch-gui.command`
+   - [ ] Double-click `deployments/macOS/local/launch-gui.command`
    - [ ] Click "🚀 Start JobSentinel"
    - [ ] Status changes to ✅ API Server
    - [ ] Prompt to open web browser

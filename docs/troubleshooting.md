@@ -29,7 +29,7 @@
 | Execution Policy error | Run PowerShell as admin: `Set-ExecutionPolicy RemoteSigned` |
 | Path too long errors | Enable long paths: Settings → System → About → Advanced system settings → Computer Name → Advanced → Environment Variables |
 | Port already in use | Use different port: `python -m jsa.cli web --port 5001` |
-| Shortcuts missing | Re-run `setup-windows.bat` |
+| Shortcuts missing | Re-run `deployments/windows/local/setup-windows.bat` |
 | Disk space error | Free up 1GB+ space, or extract to different drive |
 
 ## Quick checks

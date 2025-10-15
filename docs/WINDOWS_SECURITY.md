@@ -53,7 +53,7 @@ JobSentinel's Windows deployment follows security best practices for local-first
 
 ### PowerShell Security
 
-**Strict Mode Enabled** (`bootstrap.ps1`, `setup-windows.ps1`, `run.ps1`, `launch-gui.ps1`):
+**Strict Mode Enabled** (`deployments/windows/local/bootstrap.ps1`, `deployments/windows/local/setup-windows.ps1`, `run.ps1`, `deployments/windows/local/launch-gui.ps1`):
 ```powershell
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
@@ -64,7 +64,7 @@ $ErrorActionPreference = "Stop"
 - Function calls must use proper syntax
 - All errors halt execution (fail-secure)
 
-**TLS Enforcement** (`bootstrap.ps1`):
+**TLS Enforcement** (`deployments/windows/local/bootstrap.ps1`):
 ```powershell
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 -bor [Net.SecurityProtocolType]::Tls13
 ```

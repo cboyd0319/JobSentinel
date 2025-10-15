@@ -42,8 +42,8 @@
    - [ ] Folder path has no spaces or special characters
 
 2. **Run Setup Script**
-   - [ ] Double-click `setup-windows.bat` OR
-   - [ ] Right-click `setup-windows.ps1` → Run with PowerShell
+   - [ ] Double-click `deployments/windows/local/setup-windows.bat` OR
+   - [ ] Right-click `deployments/windows/local/setup-windows.ps1` → Run with PowerShell
    - [ ] Script starts without errors
 
 3. **Pre-flight Checks Pass**
@@ -93,7 +93,7 @@
 ### Method 2: GUI Launcher
 
 1. **Launch GUI**
-   - [ ] Double-click `launch-gui.bat`
+   - [ ] Double-click `deployments/windows/local/launch-gui.bat`
    - [ ] GUI window opens
    - [ ] No crash or error
 
@@ -249,7 +249,7 @@ python -m jsa.cli api --port 8000
 ### GUI Launcher (Full Flow)
 
 1. **Start via GUI**
-   - [ ] Double-click `launch-gui.bat`
+   - [ ] Double-click `deployments/windows/local/launch-gui.bat`
    - [ ] Click "🚀 Start JobSentinel"
    - [ ] Status changes to ✅ API Server
    - [ ] Prompt to open web browser

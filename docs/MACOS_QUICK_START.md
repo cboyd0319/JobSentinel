@@ -16,12 +16,12 @@
 ### 2. Setup
 - Double-click ZIP file to extract
 - Open extracted folder
-- **Double-click:** `setup-macos.sh`
+- **Double-click:** `deployments/macOS/local/setup-macos.sh`
 - If it doesn't run, right-click → Open → Open
 - Follow the prompts (takes 5-10 minutes)
 
 ### 3. Run
-- **Double-click:** `launch-gui.command` on your Desktop
+- **Double-click:** `deployments/macOS/local/launch-gui.command` on your Desktop
 - Click "🚀 Start JobSentinel" button
 - Click "🌐 Open Web UI" button
 - View your personalized job matches!
@@ -99,7 +99,7 @@ cd JobSentinel
 ### Step 2: Run Setup
 
 1. Open JobSentinel folder
-2. Find `setup-macos.sh`
+2. Find `deployments/macOS/local/setup-macos.sh`
 3. **Right-click → Open → Open** (first time only)
    - macOS may warn about unidentified developer
    - Click "Open" to proceed
@@ -167,7 +167,7 @@ After setup completes, you have shortcuts on your Desktop:
 **Configure JobSentinel.command**
 - Double-click to change your preferences
 
-**launch-gui.command**
+**deployments/macOS/local/launch-gui.command**
 - Double-click for graphical interface
 
 **Or use Terminal:**
@@ -256,7 +256,7 @@ python3 -m jsa.cli web
 
 ### Using the GUI (Easiest)
 
-1. Double-click `launch-gui.command` (on Desktop or in JobSentinel folder)
+1. Double-click `deployments/macOS/local/launch-gui.command` (on Desktop or in JobSentinel folder)
 2. Window opens with big buttons:
    - 🚀 Start JobSentinel - Starts the system
    - ⏹️ Stop JobSentinel - Stops the system
@@ -310,7 +310,7 @@ jobsentinel-health   # Check system status
 ## 🆘 Something Not Working?
 
 ### "Permission denied" when running setup
-- Right-click `setup-macos.sh` → Get Info
+- Right-click `deployments/macOS/local/setup-macos.sh` → Get Info
 - Check "Locked" is unchecked
 - Or run in Terminal: `chmod +x setup-macos.sh`
 
@@ -425,7 +425,7 @@ Once comfortable:
 | `data/jobs.sqlite` | All found jobs |
 | `.env` | Email/API secrets |
 | `logs/jobsentinel.log` | Activity log |
-| `launch-gui.command` | Start GUI |
+| `deployments/macOS/local/launch-gui.command` | Start GUI |
 
 ### Keyboard Shortcuts (Terminal)
 | Keys | Action |

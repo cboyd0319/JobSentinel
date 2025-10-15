@@ -16,11 +16,11 @@
 ### 2. Setup
 - Right-click ZIP file → "Extract All" → Extract to Desktop
 - Open extracted folder
-- **Double-click:** `setup-windows.bat`
+- **Double-click:** `deployments/windows/local/setup-windows.bat`
 - Follow the prompts (takes 5-10 minutes)
 
 ### 3. Run
-- **Double-click:** `launch-gui.bat` on your Desktop
+- **Double-click:** `deployments/windows/local/launch-gui.bat` on your Desktop
 - Click "🚀 Start JobSentinel" button
 - Click "🌐 Open Web UI" button
 - View your personalized job matches!
@@ -85,14 +85,14 @@ cd JobSentinel
 
 **Option A: Batch File (Double-Click)**
 1. Open JobSentinel folder
-2. Find `setup-windows.bat`
+2. Find `deployments/windows/local/setup-windows.bat`
 3. Double-click it
 4. A black window opens - this is normal!
 5. Follow the prompts
 
 **Option B: PowerShell (Right-Click)**
 1. Open JobSentinel folder
-2. Find `setup-windows.ps1`
+2. Find `deployments/windows/local/setup-windows.ps1`
 3. Right-click → "Run with PowerShell"
 4. If asked about execution policy, click "Yes"
 5. Follow the prompts
@@ -155,7 +155,7 @@ After setup completes, you have shortcuts on your Desktop:
 - Double-click to change your preferences
 
 **Or use the GUI:**
-- Double-click `launch-gui.bat` in JobSentinel folder
+- Double-click `deployments/windows/local/launch-gui.bat` in JobSentinel folder
 - Click buttons to control everything
 
 ---
@@ -234,7 +234,7 @@ Method 2: Edit config/user_prefs.json with Notepad
 
 ### Using the GUI (Easiest)
 
-1. Double-click `launch-gui.bat` (in JobSentinel folder or Desktop)
+1. Double-click `deployments/windows/local/launch-gui.bat` (in JobSentinel folder or Desktop)
 2. Window opens with big buttons:
    - 🚀 Start JobSentinel - Starts the system
    - ⏹️ Stop JobSentinel - Stops the system
@@ -378,7 +378,7 @@ Once comfortable:
 | `data/jobs.sqlite` | All found jobs |
 | `.env` | Email/API secrets |
 | `logs/jobsentinel.log` | Activity log |
-| `launch-gui.bat` | Start GUI |
+| `deployments/windows/local/launch-gui.bat` | Start GUI |
 
 ### Keyboard Shortcuts
 | Keys | Action |

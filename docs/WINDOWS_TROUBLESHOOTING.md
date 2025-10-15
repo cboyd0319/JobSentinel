@@ -11,7 +11,7 @@
 ### Issue: "Python not found"
 
 **Symptoms:**
-- Error when double-clicking `setup-windows.bat` or `launch-gui.bat`
+- Error when double-clicking `deployments/windows/local/setup-windows.bat` or `deployments/windows/local/launch-gui.bat`
 - Message: "Python is not recognized as an internal or external command"
 
 **Solution:**
