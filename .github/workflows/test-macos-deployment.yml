@@ -7,7 +7,7 @@ on:
     paths:
       - 'deploy/local/macos/**'
       - 'deploy/common/scripts/macos_setup.py'
-      - 'deploy/common/launcher_gui.py'
+      - 'deploy/common/app/src/jsa/gui_launcher.py'
       - '.github/workflows/test-macos-deployment.yml'
 
 permissions:
@@ -51,7 +51,7 @@ jobs:
             "deploy/local/macos/setup.sh"
             "deploy/local/macos/launch-gui.sh"
             "deploy/common/scripts/macos_setup.py"
-            "deploy/common/launcher_gui.py"
+            "deploy/common/app/src/jsa/gui_launcher.py"
           )
           
           missing=0
@@ -79,7 +79,7 @@ jobs:
       - name: Validate Python scripts syntax
         run: |
           python3 -m py_compile deploy/common/scripts/macos_setup.py
-          python3 -m py_compile deploy/common/launcher_gui.py
+          python3 -m py_compile deploy/common/app/src/jsa/gui_launcher.py
           echo "✅ Python scripts syntax valid"
       
       - name: Test setup.sh path resolution

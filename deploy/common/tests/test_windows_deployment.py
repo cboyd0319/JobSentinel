@@ -113,7 +113,7 @@ class TestWindowsDeploymentCore:
 
     def test_config_directory_writable(self):
         """Test that config directory can be created without admin rights."""
-        config_dir = Path("config")
+        config_dir = Path("deploy/common/config")
         assert config_dir.exists(), "Config directory missing"
 
         # Test write access
@@ -141,7 +141,7 @@ class TestWindowsConfigurationSystem:
 
     def test_example_config_exists(self):
         """Test that example config exists and is valid JSON."""
-        example_config = Path("config/user_prefs.example.json")
+        example_config = Path("deploy/common/config/user_prefs.example.json")
         assert example_config.exists(), "Example config missing"
 
         # Validate JSON
@@ -254,8 +254,8 @@ class TestWindowsHealthCheck:
         assert config_result is not None
 
         # Without a config file, should warn or fail
-        # (unless config/user_prefs.json exists from previous tests)
-        if not Path("config/user_prefs.json").exists():
+        # (unless deploy/common/config/user_prefs.json exists from previous tests)
+        if not Path("deploy/common/config/user_prefs.json").exists():
             assert config_result.status in ["warn", "fail"]
         else:
             # If config exists, should pass or warn
@@ -397,7 +397,7 @@ class TestWindowsPrivacySecurity:
         from jsa.config import ConfigService
 
         # Use the example config which is known to be valid
-        example_config = Path("config/user_prefs.example.json")
+        example_config = Path("deploy/common/config/user_prefs.example.json")
         if not example_config.exists():
             pytest.skip("Example config not found")
 
@@ -496,7 +496,7 @@ class TestWindowsEndToEnd:
     """End-to-end integration tests for Windows deployment."""
 
     @pytest.mark.skipif(
-        not Path("config/user_prefs.json").exists(), reason="Requires config/user_prefs.json"
+        not Path("deploy/common/config/user_prefs.json").exists(), reason="Requires deploy/common/config/user_prefs.json"
     )
     def test_complete_deployment_flow(self):
         """Test complete deployment flow from start to finish."""
@@ -511,7 +511,7 @@ class TestWindowsEndToEnd:
         assert result.returncode in [0, 1]  # 0 = healthy, 1 = degraded/unhealthy but ran
 
         # 2. Config validation should pass
-        if Path("config/user_prefs.json").exists():
+        if Path("deploy/common/config/user_prefs.json").exists():
             result = subprocess.run(
                 [sys.executable, "-m", "jsa.cli", "config-validate"],
                 capture_output=True,

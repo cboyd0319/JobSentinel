@@ -7,7 +7,7 @@ on:
     paths:
       - 'deploy/local/windows/**'
       - 'deploy/common/scripts/windows_setup.py'
-      - 'deploy/common/launcher_gui.py'
+      - 'deploy/common/app/src/jsa/gui_launcher.py'
       - '.github/workflows/test-windows-deployment.yml'
 
 permissions:
@@ -54,7 +54,7 @@ jobs:
             "deploy\local\windows\launch-gui.ps1",
             "deploy\local\windows\run.ps1",
             "deploy\common\scripts\windows_setup.py",
-            "deploy\common\launcher_gui.py"
+            "deploy\common\app\src\jsa\gui_launcher.py"
           )
           
           $missing = @()
@@ -76,7 +76,7 @@ jobs:
       - name: Validate Python scripts syntax
         run: |
           python -m py_compile deploy/common/scripts/windows_setup.py
-          python -m py_compile deploy/common/launcher_gui.py
+          python -m py_compile deploy/common/app/src/jsa/gui_launcher.py
         shell: pwsh
       
       - name: Test setup.ps1 path resolution
