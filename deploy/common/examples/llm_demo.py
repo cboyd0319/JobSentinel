@@ -229,7 +229,7 @@ async def main():
     print("   4. ✅ LLM Cost Controls")
     print("   5. ✅ Automatic Fallback")
     print("\n   Test coverage: 61 tests (100% pass rate)")
-    print("   Documentation: Updated in docs/FEATURES.md")
+    print("   Documentation: Updated in docs/reference/FEATURES.md")
     print("\n   Status: PRODUCTION READY ✅")
     print("\n" + "=" * 70 + "\n")
 

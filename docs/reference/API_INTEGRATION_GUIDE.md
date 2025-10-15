@@ -840,11 +840,9 @@ Add your scraper to the main README.md:
 ```markdown
 ## Supported Job Boards
 
-| Source | Type | Auth Required | Rate Limit | Status |
-|--------|------|---------------|------------|--------|
-| JobsWithGPT | API | No | None | ✅ Active |
-| Reed | API | Yes (API key) | 5000/day | ✅ Active |
-| **YourAPI** | **API** | **Yes (API key)** | **1000/day** | ✅ **Active** |
+- JobsWithGPT — Type: API; Auth: No; Rate limit: None; Status: ✅ Active
+- Reed — Type: API; Auth: Yes (API key); Rate limit: 5000/day; Status: ✅ Active
+- YourAPI — Type: API; Auth: Yes (API key); Rate limit: 1000/day; Status: ✅ Active
 
 ### YourAPI Setup
 
@@ -878,6 +876,29 @@ Before submitting your integration:
 - [ ] All public methods have docstrings with examples
 - [ ] Type hints on all function signatures
 - [ ] Proper error handling with custom error types
+
+### Scraper Lifecycle (Mermaid)
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant U as User
+  participant CFG as Config
+  participant SCR as Scraper
+  participant RL as RateLimiter
+  participant HTTP as HTTP Client
+  participant NORM as Normalizer
+
+  U->>SCR: search(keywords, location, ...)
+  SCR->>CFG: load prefs & keys
+  SCR->>RL: check quota
+  RL-->>SCR: ok
+  SCR->>HTTP: GET /search
+  HTTP-->>SCR: results JSON
+  SCR->>NORM: normalize schema
+  NORM-->>SCR: list[job]
+  SCR-->>U: yield list[job]
+```
 - [ ] Structured logging with context
 
 ### Testing
@@ -983,6 +1004,10 @@ If a job board shuts down or changes drastically:
 **Version History:**
 - 1.0.0 (Oct 12, 2025): Initial release
 
-**Maintainers:** @cboyd0319
+**Maintainer:** Chad Boyd
 
 **License:** MIT
+
+---
+
+Last reviewed: October 15, 2025

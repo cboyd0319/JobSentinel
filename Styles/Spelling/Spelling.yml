@@ -1,0 +1,10 @@
+extends: substitution
+message: "Preferred spelling: '%s'."
+level: suggestion
+ignorecase: true
+swap:
+  colour: color
+  organisation: organization
+  behaviour: behavior
+  recognise: recognize
+

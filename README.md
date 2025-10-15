@@ -1,20 +1,21 @@
-# JobSentinel
+# JobSentinel — Private job alerts on your machine
 
-Private job search automation. Runs on your machine.
+Local‑first job search automation that finds high‑match roles and pings you fast.
 
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.12%2B-blue.svg)](https://www.python.org/)
 [![Version](https://img.shields.io/badge/Version-0.9.0-brightgreen.svg)](#)
 [![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev/)
+[![Docs](https://github.com/cboyd0319/JobSentinel/actions/workflows/docs-ci.yml/badge.svg)](https://github.com/cboyd0319/JobSentinel/actions/workflows/docs-ci.yml)
 
 ## TL;DR
 
-Scrape public job boards → score against your prefs → get alerts. Runs locally ($0). All data stays on your machine. No tracking, no subscriptions.
+Scrapes top job boards → scores against your preferences → sends alerts. 100% local. $0. No tracking. No subscriptions.
 
 ```bash
 # Windows: Double-click deploy/local/windows/launch-gui.bat
 # macOS: Double-click deploy/local/macos/launch-gui.sh
-# Linux: Coming Soon
+# Linux: See docs/QUICKSTART.md
 ```
 
 ## What it does
@@ -62,13 +63,11 @@ python -m jsa.cli run-once
 
 ## Prerequisites
 
-| Item | Version | Why |
-|------|---------|-----|
-| Python | 3.12+ | Runtime (includes SQLite) |
-| Git | Any | Clone repo (or download ZIP) |
-| Disk | 1GB | App + ML models |
+- Python: 3.12+ (includes SQLite)
+- Git: any version (optional—can download ZIP)
+- Disk space: 1GB (app + models)
 
-**Optional:**
+Optional
 - Slack webhook (for alerts)
 - Reed API key (UK jobs)
 - Email SMTP (for alerts)
@@ -154,20 +153,18 @@ Edit `deploy/common/config/user_prefs.json`:
 }
 ```
 
-### All Configuration Options
+### Key Configuration Options
 
-| Field | Type | Default | Example | Purpose |
-|-------|------|---------|---------|---------|
-| `keywords` | list[str] | [] | ["python", "backend"] | Match job title/description |
-| `locations` | list[str] | [] | ["Remote", "SF"] | Location filters |
-| `min_salary` | int | 0 | 120000 | Minimum annual salary (USD) |
-| `denied_companies` | list[str] | [] | ["Meta"] | Companies to exclude |
-| `job_sources.*.enabled` | bool | false | true | Enable job board |
-| `job_sources.*.api_key` | str | "" | "key_abc" | API key if required |
-| `alerts.slack.webhook_url` | str | "" | "https://..." | Slack webhook URL |
-| `alerts.email.smtp_host` | str | "" | "smtp.gmail.com" | SMTP server |
+- `keywords` (list[str], default `[]`): terms to match in title/description
+- `locations` (list[str], default `[]`): allowed locations (e.g., “Remote”, “SF”)
+- `min_salary` (int, default `0`): minimum annual salary (USD)
+- `denied_companies` (list[str], default `[]`): companies to exclude
+- `job_sources.*.enabled` (bool, default `false`): enable/disable a source
+- `job_sources.*.api_key` (str, default `""`): API key for sources that need it
+- `alerts.slack.webhook_url` (str, default `""`): Slack incoming webhook
+- `alerts.email.smtp_host` (str, default `""`): SMTP host (e.g., `smtp.gmail.com`)
 
-**Validate config:**
+Validate config
 ```bash
 python -m jsa.cli config-validate
 ```
@@ -257,14 +254,12 @@ kill <PID>  # Kill it
 
 ## Performance
 
-| Metric | Value | Notes |
-|--------|-------|-------|
-| Scrape time | 30-60s | Per source |
-| Scoring | <5s | Per 100 jobs |
-| Alert latency | <10s | Slack/email |
-| Memory | <500MB | Includes ML models |
-| Disk | ~50MB | Per 1000 jobs |
-| Database | SQLite | Single file, <100MB typical |
+- Scrape time: 30–60s per source
+- Scoring: <5s per 100 jobs
+- Alert latency: <10s (Slack/email)
+- Memory: <500MB (includes ML models)
+- Disk: ~50MB per 1000 jobs
+- Database: SQLite (<100MB typical)
 
 Tested with 10,000+ jobs in SQLite.
 
@@ -282,7 +277,7 @@ Tested with 10,000+ jobs in SQLite.
 - [ ] Browser extension
 - [ ] Mobile companion app
 
-See [docs/AI_ML_ROADMAP.md](docs/AI_ML_ROADMAP.md) for AI/ML features.
+See [docs/reference/AI_ML_ROADMAP.md](docs/reference/AI_ML_ROADMAP.md) for AI/ML features.
 
 ## Contributing
 
@@ -313,6 +308,11 @@ MIT License - see [LICENSE](LICENSE)
 - **Issues:** https://github.com/cboyd0319/JobSentinel/issues
 - **Discussions:** https://github.com/cboyd0319/JobSentinel/discussions
 - **Security:** [SECURITY.md](SECURITY.md)
+
+### Support Policy
+
+This is a single‑developer, personal project. Support is best‑effort with no SLAs.
+Security issues are prioritized; feature requests and questions are handled as time allows.
 
 ---
 

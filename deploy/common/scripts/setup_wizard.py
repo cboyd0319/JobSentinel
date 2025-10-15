@@ -498,7 +498,7 @@ def main() -> int:
     print("     https://github.com/cboyd0319/JobSentinel/blob/main/README.md")
 
     print("\n" + "=" * 70)
-    print("Need help? Check docs/troubleshooting.md or open an issue on GitHub.")
+    print("Need help? Check docs/TROUBLESHOOTING.md or open an issue on GitHub.")
     print("=" * 70 + "\n")
 
     return 0

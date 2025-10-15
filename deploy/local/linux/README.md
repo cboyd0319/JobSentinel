@@ -243,8 +243,8 @@ If you prefer containerization, see: [Docker Deployment](../../cloud/docker/READ
 
 ## Support
 
-- [Deployment Guide](../../../docs/DEPLOYMENT_GUIDE.md)
-- [Troubleshooting Guide](../../../docs/troubleshooting.md)
+- [Deployment Guide](../../../docs/reference/DEPLOYMENT_GUIDE.md)
+- [Troubleshooting Guide](../../../docs/TROUBLESHOOTING.md)
 - [GitHub Issues](https://github.com/cboyd0319/JobSentinel/issues)
 
 ---

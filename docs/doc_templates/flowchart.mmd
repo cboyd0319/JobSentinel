@@ -1,0 +1,8 @@
+flowchart TD
+  A[User Input] --> B[Validate Config]
+  B -->|valid| C[Run Task]
+  B -->|invalid| D[Show Error]
+  C --> E{Success?}
+  E -->|Yes| F[Output Results]
+  E -->|No| G[Rollback]
+  G --> F

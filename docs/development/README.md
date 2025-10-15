@@ -10,9 +10,7 @@ This directory contains development tools, configurations, and build resources f
   - Common: `make dev`, `make test`, `make lint`
 
 ### Editor Configuration
-- **.editorconfig** - Cross-editor code style settings
-  - Ensures consistent formatting across IDEs
-  - Covers indentation, line endings, charset
+- Recommended: enable format-on-save and lint-on-save in your editor
 
 ### Code Quality
 - **.pre-commit-config.yaml** - Pre-commit hooks configuration
@@ -42,5 +40,5 @@ make fmt
 ## Related Documentation
 
 - [Architecture](../ARCHITECTURE.md) - System design and structure
-- [Contributing](../governance/CONTRIBUTING.md) - Contribution guidelines
-- [Quickstart](../quickstart.md) - Getting started guide
+- [Contributing](../../CONTRIBUTING.md) - Contribution guidelines
+- [Quickstart](../QUICKSTART.md) - Getting started guide

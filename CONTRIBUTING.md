@@ -119,7 +119,7 @@ Example: `feat: add Reed API scraper with rate limiting`
 
 ## Docs ownership
 
-Maintainers review PRs within 3 business days. For urgent fixes, tag `@cboyd0319`.
+Maintainers review PRs within 3 business days. For urgent fixes, tag Chad Boyd.
 
 Docs-only PRs need one maintainer approval. Code PRs need passing CI + one maintainer.
 

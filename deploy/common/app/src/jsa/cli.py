@@ -499,7 +499,7 @@ def _cmd_run_once(args: argparse.Namespace) -> int:
         print(f"❌ Error: {e}")
         print()
         print("For help, visit:")
-        print("  • Troubleshooting: docs/troubleshooting.md")
+        print("  • Troubleshooting: docs/TROUBLESHOOTING.md")
         print("  • Health check: python -m jsa.cli health")
         print()
         return 1

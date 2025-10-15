@@ -4,16 +4,14 @@
 
 ---
 
-## Quick Decision Table
+## Quick Decision Summary
 
-| Use Case | Database | Reason |
-|----------|----------|--------|
-| Personal job search | **SQLite** | Zero setup, file-based, private |
-| Single user, local machine | **SQLite** | Simplest option, no server needed |
-| Multiple users | PostgreSQL | Concurrent access support |
-| Cloud deployment (AWS/GCP) | PostgreSQL | Better for networked environments |
-| Docker/K8s | Either | SQLite for single replica, PostgreSQL for multi-replica |
-| Shared team deployment | PostgreSQL | Multi-user access and permissions |
+- Personal job search — Database: SQLite; Reason: zero setup, file-based, private
+- Single user, local machine — Database: SQLite; Reason: simplest option, no server needed
+- Multiple users — Database: PostgreSQL; Reason: concurrent access support
+- Cloud deployment (AWS/GCP) — Database: PostgreSQL; Reason: better for networked environments
+- Docker/K8s — Database: SQLite for single replica, PostgreSQL for multi-replica
+- Shared team deployment — Database: PostgreSQL; Reason: multi-user access and permissions
 
 ---
 
@@ -179,25 +177,21 @@ Examples:
 
 ### SQLite
 
-| Metric | Value |
-|--------|-------|
-| Read queries | ~500/sec (local file) |
-| Write queries | ~200/sec (single writer) |
-| Concurrent readers | Unlimited |
-| Concurrent writers | 1 |
-| Latency | <1ms (local disk) |
-| Setup time | 0 seconds |
+- Read queries: ~500/sec (local file)
+- Write queries: ~200/sec (single writer)
+- Concurrent readers: unlimited
+- Concurrent writers: 1
+- Latency: <1ms (local disk)
+- Setup time: 0 seconds
 
 ### PostgreSQL
 
-| Metric | Value |
-|--------|-------|
-| Read queries | ~1000+/sec (depends on hardware) |
-| Write queries | ~500+/sec (concurrent) |
-| Concurrent readers | Unlimited |
-| Concurrent writers | Unlimited |
-| Latency | 1-10ms (network + query) |
-| Setup time | 15-30 minutes |
+- Read queries: ~1000+/sec (hardware dependent)
+- Write queries: ~500+/sec (concurrent)
+- Concurrent readers: unlimited
+- Concurrent writers: unlimited
+- Latency: 1–10ms (network + query)
+- Setup time: 15–30 minutes
 
 ---
 
@@ -363,7 +357,7 @@ If you're deploying for multiple users:
 
 ## Related Documentation
 
-- [DEPLOYMENT_GUIDE.md](/docs/DEPLOYMENT_GUIDE.md) - Production deployment
+- [DEPLOYMENT_GUIDE.md](/docs/reference/DEPLOYMENT_GUIDE.md) - Production deployment
 - [ARCHITECTURE.md](/docs/ARCHITECTURE.md) - System design
 - [SECURITY.md](/SECURITY.md) - Security best practices
 
@@ -372,3 +366,7 @@ If you're deploying for multiple users:
 **Last Updated**: October 14, 2025  
 **Maintainer**: JobSentinel Team  
 **License**: MIT
+
+---
+
+Last reviewed: October 15, 2025

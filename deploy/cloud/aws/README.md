@@ -368,7 +368,7 @@ aws iam list-attached-role-policies --role-name jobsentinel-lambda-role
 ## Support
 
 - [AWS Documentation](https://docs.aws.amazon.com/)
-- [Deployment Guide](../../../../docs/DEPLOYMENT_GUIDE.md)
+- [Deployment Guide](../../../../docs/reference/DEPLOYMENT_GUIDE.md)
 - [GitHub Issues](https://github.com/cboyd0319/JobSentinel/issues)
 
 ---

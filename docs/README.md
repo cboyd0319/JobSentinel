@@ -1,0 +1,4 @@
+# Docs
+
+Start here: [DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md)
+

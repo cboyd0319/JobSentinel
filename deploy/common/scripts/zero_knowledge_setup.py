@@ -469,7 +469,7 @@ def completion_screen() -> None:
     
     🆘 NEED HELP?
     
-    - Read the troubleshooting guide: docs/troubleshooting.md
+    - Read the troubleshooting guide: docs/TROUBLESHOOTING.md
     - Check examples: examples/ folder
     - Report issues: https://github.com/cboyd0319/JobSentinel/issues
     

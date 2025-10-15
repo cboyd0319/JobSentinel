@@ -1,0 +1,20 @@
+extends: existence
+message: "Avoid weasel word: '%s'."
+level: warning
+ignorecase: true
+tokens:
+  - possibly
+  - perhaps
+  - maybe
+  - somewhat
+  - several
+  - fairly
+  - very
+  - really
+  - basically
+  - simply
+  - obviously
+  - clearly
+  - just
+  - easy
+

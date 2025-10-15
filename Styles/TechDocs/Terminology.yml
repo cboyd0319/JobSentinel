@@ -1,0 +1,12 @@
+extends: substitution
+message: "Use '%s' instead of '%s'."
+level: warning
+ignorecase: true
+swap:
+  log in: log in
+  login: login
+  e-mail: email
+  E-mail: email
+  Github: GitHub
+  K8s: Kubernetes
+

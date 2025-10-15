@@ -50,12 +50,13 @@ Keep this order unless you have a very good reason to change it (you probably do
 
 ## Style rules (tighten yours with enforceable checks)
 - **Paragraphs ≤ 3 sentences. Bullets > walls of text.**  
+- **Prefer bullets over tables** for scanability. If a table is essential, keep lines ≤120 chars.  
 - **Code blocks are runnable.** Pin versions. Include expected output where helpful.  
 - **Define terms once.** Don’t alphabet-soup your readers.  
 - **Link real sources only.** No placeholder links.  
 - **Version your examples.** If the CLI changed in v1.4, show `since:1.4`.  
 - **Images:** use `.github/social-preview.png` for repo preview; keep diagrams in `docs/diagrams/`.  
-- **Tables for configs and matrices.** Faster to scan than prose.
+- **Line length:** docs lint at 120 columns (MD013). Wrap text accordingly.
 
 ---
 
@@ -202,6 +203,7 @@ These structures align with general README best practices while keeping the “a
 
 ## Repo-level docs strategy (when README isn’t enough)
 - **Use `/docs` for deep dives** (architecture, FAQs, ADRs, threat model), keep README lean.  
+- **Put reference guides under `docs/reference/`.** Keep short stubs at `docs/` for legacy paths if needed.  
 - **Templates live in `.github/`** (issues/PRs).  
 - **Social preview image** in `.github/social-preview.png` (helps link previews/SEO).
 

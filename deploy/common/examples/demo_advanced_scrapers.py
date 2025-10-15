@@ -196,7 +196,7 @@ async def main():
     print("  ✓ Hacker News Who's Hiring")
     print("  ✓ Company Career Pages (Generic)")
 
-    print("\nFor full usage, see docs/FEATURES.md")
+    print("\nFor full usage, see docs/reference/FEATURES.md")
     print("For configuration, see config/user_prefs.example.json")
 
 

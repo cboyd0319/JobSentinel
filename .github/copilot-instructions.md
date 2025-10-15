@@ -225,6 +225,25 @@ jobs:
 ## Documentation Hub
 See `docs/DOCUMENTATION_INDEX.md` for quick links to: Quickstart, Troubleshooting, UI, API Integrations, Deployment, Architecture, Standards, AI/ML Roadmap, Database Guide, Contributing.
 
+### Docs Structure & Style (enforced)
+- Reference guides live under `docs/reference/`. Keep `docs/` lean; use short stubs at old paths if needed.
+- Writing style: plainspoken, answer‑first, active voice. No “we/our/us.” Single‑developer voice (Chad Boyd) when attribution is required.
+- Prefer bullets over tables for scanability. If a table is essential, keep lines ≤120 chars (MD013).
+- Make commands runnable; pin versions; include expected output when useful.
+- Security notes are terse and actionable: secrets handling, least privilege, SBOM/signing, disclosure path.
+- Update cross‑links when moving docs; avoid broken anchors.
+
+### Docs CI (must pass on PR)
+- Markdownlint (`.github/workflows/docs-ci.yml`) — MD013 line length = 120, including tables.
+- Vale style lint (`.vale.ini` + `Styles/`) — no hedging, prefer active voice, consistent terminology.
+- Lychee link check (`.lycheeignore` for local/secret URLs).
+
+### When adding or editing docs
+- Put deep‑dives in `docs/reference/` and link from the index.
+- Use bullet lists for configuration, performance, and comparisons; avoid wide tables.
+- Use first person or name (Chad Boyd) only when necessary (e.g., SECURITY.md). Otherwise write neutrally.
+- Run: `markdownlint "**/*.md"` and `vale .` locally or via pre‑commit before pushing.
+
 ---
 
 **Absolute rules:**

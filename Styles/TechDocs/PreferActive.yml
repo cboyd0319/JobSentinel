@@ -1,0 +1,7 @@
+extends: existence
+message: "Prefer active voice; this looks passive."
+level: suggestion
+scope: sentence
+tokens:
+  - '\\b(is|are|was|were|be|been|being)\\b\\s+\\b(\\w+ed)\\b(\\s+by\\b)?'
+

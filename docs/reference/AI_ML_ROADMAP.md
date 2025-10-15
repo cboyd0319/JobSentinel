@@ -14,7 +14,7 @@ JobSentinel's vision is to provide **world-class AI/ML capabilities** while main
 - ✅ **Graceful degradation** (fallback strategies for every feature)
 - ✅ **Explainable AI** (confidence scores and reasoning for all decisions)
 
-This roadmap outlines our AI/ML evolution from v0.6 to v1.0.
+This roadmap outlines the AI/ML evolution from v0.6 to v1.0.
 
 ---
 
@@ -324,22 +324,18 @@ path = await graph.get_learning_path(
 
 ### Current Models (v0.6)
 
-| Model | Size | Purpose | Accuracy | Speed | Cost |
-|-------|------|---------|----------|-------|------|
-| BERT base | 110M params | Semantic matching | 87% | 50ms | FREE |
-| Sentence-BERT | 110M params | Fast embeddings | 85% | 20ms | FREE |
-| VADER | Rules | Sentiment | 90% | <1ms | FREE |
-| spaCy en_core_web_lg | 780MB | NER, POS | 95% | 10ms | FREE |
+- BERT base — 110M params; purpose: semantic matching; accuracy: 87%; speed: 50ms; cost: FREE
+- Sentence-BERT — 110M params; purpose: fast embeddings; accuracy: 85%; speed: 20ms; cost: FREE
+- VADER — rules-based; purpose: sentiment; accuracy: 90%; speed: <1ms; cost: FREE
+- spaCy en_core_web_lg — 780MB; purpose: NER/POS; accuracy: 95%; speed: 10ms; cost: FREE
 
 ### Planned Models (v0.7)
 
-| Model | Size | Purpose | Accuracy | Speed | Cost |
-|-------|------|---------|----------|-------|------|
-| Cross-Encoder | 80M params | Reranking | 92% | 100ms | FREE |
-| RoBERTa fine-tuned | 125M params | Classification | 93% | 60ms | FREE |
-| GPT-3.5 (optional) | Cloud | Generation | 95% | 2s | $0.0015/1K |
-| GPT-4 (optional) | Cloud | Generation | 98% | 5s | $0.03/1K |
-| Llama 2 7B (local) | 7B params | Generation | 85% | 500ms | FREE |
+- Cross-Encoder — 80M params; purpose: reranking; accuracy: 92%; speed: 100ms; cost: FREE
+- RoBERTa fine-tuned — 125M params; purpose: classification; accuracy: 93%; speed: 60ms; cost: FREE
+- GPT-3.5 (optional) — cloud; purpose: generation; accuracy: 95%; speed: 2s; cost: $0.0015/1K
+- GPT-4 (optional) — cloud; purpose: generation; accuracy: 98%; speed: 5s; cost: $0.03/1K
+- Llama 2 7B (local) — 7B params; purpose: generation; accuracy: 85%; speed: 500ms; cost: FREE
 
 ### Model Management
 
@@ -481,3 +477,7 @@ JobSentinel's AI/ML roadmap balances **cutting-edge capabilities** with **practi
 **Last Updated:** October 12, 2025  
 **Next Review:** January 2026  
 **Roadmap Status:** Active Development
+
+---
+
+Last reviewed: October 15, 2025

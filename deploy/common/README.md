@@ -239,8 +239,8 @@ Security-critical resources in this directory:
 For detailed information:
 
 - **Architecture:** `../../docs/ARCHITECTURE.md`
-- **API Integration:** `../../docs/API_INTEGRATION_GUIDE.md`
-- **Best Practices:** `../../docs/BEST_PRACTICES.md`
+- **API Integration:** `../../docs/reference/API_INTEGRATION_GUIDE.md`
+- **Best Practices:** `../../docs/reference/BEST_PRACTICES.md`
 - **Development:** `../../docs/development/README.md`
 
 ## 🤝 Contributing
@@ -288,6 +288,6 @@ When adding code to this directory:
 
 **Purpose:** Complete application codebase shared across all platforms  
 **Last Updated:** October 14, 2025  
-**Maintained By:** Core Team (@cboyd0319)
+**Maintained By:** Chad Boyd
 
 **Note:** This directory contains the **actual application**. The platform-specific directories (`deploy/local/*`, `deploy/cloud/*`) contain only deployment scripts that reference this code.

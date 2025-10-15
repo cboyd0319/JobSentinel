@@ -742,7 +742,7 @@ def run_wizard() -> None:
             "   python -m jsa.cli --help\n\n"
             "[bold]Documentation:[/bold]\n"
             "• Beginner Guide: docs/BEGINNER_GUIDE.md\n"
-            "• Troubleshooting: docs/troubleshooting.md\n"
+            "• Troubleshooting: docs/TROUBLESHOOTING.md\n"
             "• All Docs: docs/DOCUMENTATION_INDEX.md",
             title="🎯 JobSentinel Ready!",
             border_style="green",

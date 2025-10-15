@@ -109,7 +109,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 📘 New Comprehensive Guides (NEW)
 
-- **AI/ML Roadmap** (`docs/AI_ML_ROADMAP.md`) - 14KB comprehensive document
+- **AI/ML Roadmap** (`docs/reference/AI_ML_ROADMAP.md`) - 14KB comprehensive document
   - Complete evolution plan from v0.6 → v1.0
   - Current capabilities (BERT, spaCy, VADER, TF-IDF)
   - v0.7 enhancements (cross-encoder, GPT-4, bias detection)
@@ -155,7 +155,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 📚 Documentation
 
-- **Added comprehensive best practices guide** (`docs/BEST_PRACTICES.md`)
+- **Added comprehensive best practices guide** (`docs/reference/BEST_PRACTICES.md`)
   - Architecture principles (separation of concerns, typed interfaces, explicit errors)
   - Security best practices (secrets management, input validation, rate limiting)
   - Testing standards with coverage targets (≥85% for critical paths)
@@ -163,13 +163,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Performance optimization strategies (async/await, caching, database optimization)
   - Production deployment checklist
   
-- **Added complete API integration guide** (`docs/API_INTEGRATION_GUIDE.md`)
+- **Added complete API integration guide** (`docs/reference/API_INTEGRATION_GUIDE.md`)
   - Step-by-step instructions for adding new job board integrations
   - REST API, HTML scraping, and MCP protocol patterns
   - Complete code templates with error handling and retry logic
   - Testing strategies and integration checklist
   
-- **Added production deployment guide** (`docs/DEPLOYMENT_GUIDE.md`)
+- **Added production deployment guide** (`docs/reference/DEPLOYMENT_GUIDE.md`)
   - Docker production setup with compose files
   - Cloud deployment guides (AWS Lambda, GCP Cloud Run, Azure Container Instances)
   - Monitoring & observability setup

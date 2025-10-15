@@ -1,9 +1,13 @@
 # Architecture
 
-```
-Job Sites → Scrapers → Scoring → Alerts
-     ↓         ↓         ↓         ↓
-           SQLite    Config    Logs
+```mermaid
+flowchart TD
+  A[Job Sites] --> B[Scrapers]
+  B --> C[Scoring Engine]
+  C --> D[Alerts]
+  C --> E[(SQLite DB)]
+  B -->|Config| F[Local Config]
+  C -->|Logs| G[Local Logs]
 ```
 
 **Flow:** Scrapers fetch from public job boards → scoring engine filters by keywords/salary/location → high matches trigger Slack webhooks
@@ -42,6 +46,26 @@ Job Sites → Scrapers → Scoring → Alerts
 - `run-once` — single scrape session
 - `config-validate` — check config syntax
 - `web` — start Flask dev server
+
+## Sequence: run-once (Mermaid)
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant U as User
+  participant CLI as CLI
+  participant SCR as Scrapers
+  participant SCORE as Scoring
+  participant DB as SQLite
+  participant AL as Alerts
+
+  U->>CLI: python -m jsa.cli run-once
+  CLI->>SCR: fetch jobs
+  SCR-->>CLI: normalized jobs
+  CLI->>SCORE: score
+  SCORE->>DB: persist results
+  SCORE-->>AL: send alerts (if >= threshold)
+```
 
 ## Code structure
 

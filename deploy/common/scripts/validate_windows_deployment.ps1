@@ -369,7 +369,7 @@ $Docs = @(
     "docs/WINDOWS_TROUBLESHOOTING.md",
     "docs/WINDOWS_DEPLOYMENT_CHECKLIST.md",
     "docs/WINDOWS_QUICK_START.md",
-    "docs/DEPLOYMENT_GUIDE.md",
+    "docs/reference/DEPLOYMENT_GUIDE.md",
     "docs/DOCUMENTATION_INDEX.md"
 )
 

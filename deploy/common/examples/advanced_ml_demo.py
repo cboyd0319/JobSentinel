@@ -363,7 +363,7 @@ def main():
         print("  3. Cross-Encoder Reranking - Improved precision with joint attention")
         print("  4. Custom Fine-Tuning - Domain-specific model training")
         print("\nAll features are production-ready with comprehensive tests.")
-        print("See docs/FEATURES.md for detailed documentation.")
+        print("See docs/reference/FEATURES.md for detailed documentation.")
 
     except Exception as e:
         logger.error(f"Demo failed: {e}", exc_info=True)

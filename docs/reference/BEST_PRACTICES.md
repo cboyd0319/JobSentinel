@@ -769,19 +769,17 @@ WIP
 
 ### External References
 
-| Topic | Resource | Confidence |
-|-------|----------|------------|
-| Python Project Structure | [Hitchhiker's Guide to Python](https://docs.python-guide.org/writing/structure/) | High |
-| API Rate Limiting | [Rate Limit in Web Scraping](https://scrape.do/blog/web-scraping-rate-limit/) | High |
-| Error Handling Patterns | [Python Error Handling Best Practices](https://docs.python.org/3/tutorial/errors.html) | High |
-| Async Best Practices | [Real Python Async IO](https://realpython.com/async-io-python/) | High |
+- Python Project Structure — Hitchhiker's Guide to Python: https://docs.python-guide.org/writing/structure/ (High)
+- API Rate Limiting — Rate Limit in Web Scraping: https://scrape.do/blog/web-scraping-rate-limit/ (High)
+- Error Handling — Python Error Handling Best Practices: https://docs.python.org/3/tutorial/errors.html (High)
+- Async Best Practices — Real Python Async IO: https://realpython.com/async-io-python/ (High)
 
 ### Internal Documentation
 
 - [Architecture Overview](ARCHITECTURE.md)
 - [Contributing Guide](governance/CONTRIBUTING.md)
 - [Security Policy](governance/SECURITY.md)
-- [Troubleshooting Guide](troubleshooting.md)
+- [Troubleshooting Guide](../TROUBLESHOOTING.md)
 
 ---
 
@@ -802,6 +800,10 @@ This guide is a living document. Updated based on production deployments and con
 **Version History:**
 - 1.0.0 (Oct 12, 2025): Initial release
 
-**Maintainers:** @cboyd0319
+**Maintainer:** Chad Boyd
 
 **License:** MIT
+
+---
+
+Last reviewed: October 15, 2025

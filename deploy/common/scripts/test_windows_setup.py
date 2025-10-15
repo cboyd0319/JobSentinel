@@ -275,7 +275,7 @@ def test_documentation_exists() -> bool:
     project_root = Path(__file__).parent.parent
     docs = [
         "docs/BEGINNER_GUIDE.md",
-        "docs/troubleshooting.md",
+        "docs/TROUBLESHOOTING.md",
         "README.md",
     ]
 

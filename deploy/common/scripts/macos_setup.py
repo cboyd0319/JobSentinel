@@ -424,7 +424,7 @@ def print_next_steps(shortcuts_created: bool = False):
     print("📚 Documentation:")
     print("   • docs/BEGINNER_GUIDE.md - Zero-knowledge guide")
     print("   • docs/MACOS_QUICK_START.md - macOS-specific guide")
-    print("   • docs/troubleshooting.md - Problem solving")
+    print("   • docs/TROUBLESHOOTING.md - Problem solving")
     print("   • README.md - Project overview")
     print()
     print("💡 Pro Tips:")

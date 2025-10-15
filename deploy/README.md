@@ -63,14 +63,14 @@ JobSentinel follows the **12-Factor App** methodology:
 For detailed deployment guides, see:
 - [Windows Deployment Guide](../docs/WINDOWS_QUICK_START.md)
 - [macOS Deployment Guide](../docs/MACOS_QUICK_START.md)
-- [Cloud Deployment Guide](../docs/DEPLOYMENT_GUIDE.md)
+- [Cloud Deployment Guide](../docs/reference/DEPLOYMENT_GUIDE.md)
 - [Docker Guide](cloud/docker/README.md)
 
 ## Support
 
 For deployment issues:
 1. Check platform-specific README in the relevant directory
-2. Review [Troubleshooting Guide](../docs/troubleshooting.md)
+2. Review [Troubleshooting Guide](../docs/TROUBLESHOOTING.md)
 3. Open an issue: https://github.com/cboyd0319/JobSentinel/issues
 
 ---

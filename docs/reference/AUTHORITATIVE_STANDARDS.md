@@ -180,18 +180,16 @@ JobSentinel is built on **rock-solid foundations** from the world's leading stan
 
 **Mitigations:**
 
-| Risk | Mitigation | Evidence |
-|------|-----------|----------|
-| A01: Broken Access Control | Rate limiting, session management | `security.py:RateLimiter` |
-| A02: Cryptographic Failures | TLS 1.2+, AES-256 | All HTTP clients |
-| A03: Injection | Input validation, parameterized queries | `security.py:detect_injection` |
-| A04: Insecure Design | Threat modeling, secure defaults | Architecture reviews |
-| A05: Security Misconfiguration | Hardened configs, least privilege | `.env.example` |
-| A06: Vulnerable Components | Dependency pinning, Dependabot | `pyproject.toml` |
-| A07: Auth Failures | PBKDF2, rate limiting | `security.py:SecretManager` |
-| A08: Data Integrity Failures | Digital signatures, checksums | Update verification |
-| A09: Logging Failures | Structured logging, audit logs | `observability.py` |
-| A10: SSRF | URL validation, allow lists | `security.py:sanitize_url` |
+- A01 Broken Access Control — rate limiting; session management (evidence: `security.py:RateLimiter`)
+- A02 Cryptographic Failures — TLS 1.2+; AES-256 (evidence: HTTP clients)
+- A03 Injection — input validation; parameterized queries (evidence: `security.py:detect_injection`)
+- A04 Insecure Design — threat modeling; secure defaults (evidence: architecture reviews)
+- A05 Security Misconfiguration — hardened configs; least privilege (evidence: `.env.example`)
+- A06 Vulnerable Components — dependency pinning; Dependabot (evidence: `pyproject.toml`)
+- A07 Auth Failures — PBKDF2; rate limiting (evidence: `security.py:SecretManager`)
+- A08 Data Integrity Failures — digital signatures; checksums (evidence: update verification)
+- A09 Logging Failures — structured logging; audit logs (evidence: `observability.py`)
+- A10 SSRF — URL validation; allow lists (evidence: `security.py:sanitize_url`)
 
 ---
 
@@ -292,20 +290,18 @@ JobSentinel is built on **rock-solid foundations** from the world's leading stan
 
 **Factors Applied:**
 
-| Factor | Implementation | Evidence |
-|--------|---------------|----------|
-| I. Codebase | Git repository, single codebase | GitHub |
-| II. Dependencies | Explicit in `pyproject.toml` | Dependency management |
-| III. Config | Environment variables (`.env`) | `config/` |
-| IV. Backing Services | Attachable (SQLite, APIs) | Resource configuration |
-| V. Build/Release/Run | Separate stages in CI/CD | `.github/workflows/` |
-| VI. Processes | Stateless execution | No shared state |
-| VII. Port Binding | Self-contained (Flask) | `src/jsa/web/app.py` |
-| VIII. Concurrency | Process-based scaling | Docker, cloud deployment |
-| IX. Disposability | Fast startup/shutdown | Graceful termination |
-| X. Dev/Prod Parity | Same tools/config | Docker consistency |
-| XI. Logs | Treat as event streams | Structured logging |
-| XII. Admin | One-off tasks via CLI | `src/jsa/cli.py` |
+- I. Codebase — Git repository, single codebase (evidence: GitHub)
+- II. Dependencies — explicit in `pyproject.toml` (evidence: dependency management)
+- III. Config — environment variables (`.env`) (evidence: `config/`)
+- IV. Backing Services — attachable (SQLite, APIs) (evidence: resource configuration)
+- V. Build/Release/Run — separate stages in CI/CD (evidence: `.github/workflows/`)
+- VI. Processes — stateless execution (evidence: no shared state)
+- VII. Port Binding — self-contained (Flask) (evidence: `src/jsa/web/app.py`)
+- VIII. Concurrency — process-based scaling (evidence: Docker, cloud deployment)
+- IX. Disposability — fast startup/shutdown (evidence: graceful termination)
+- X. Dev/Prod Parity — same tools/config (evidence: Docker consistency)
+- XI. Logs — treat as event streams (evidence: structured logging)
+- XII. Admin — one-off tasks via CLI (evidence: `src/jsa/cli.py`)
 
 ---
 
@@ -821,20 +817,18 @@ JobSentinel is built on **rock-solid foundations** from the world's leading stan
 
 ---
 
-## Standards Compliance Matrix
+## Standards Compliance Summary
 
-| Standard | Version | Level | Status | Evidence |
-|----------|---------|-------|--------|----------|
-| OWASP ASVS | 5.0 | Level 2 | ✅ Compliant | [STANDARDS_COMPLIANCE.md](STANDARDS_COMPLIANCE.md) |
-| NIST CSF | 1.1 | Core | ✅ Aligned | Security implementation |
-| NIST 800-63B | Rev 3 | AAL1 | ✅ Compliant | Authentication |
-| SWEBOK | v4.0a | Core KAs | ✅ Aligned | Engineering practices |
-| GDPR | 2016/679 | Full | ✅ Compliant | Privacy-first design |
-| CCPA | 2018 | Full | ✅ Compliant | Local-only data |
-| REST | Fielding | Full | ✅ Compliant | API design |
-| OpenAPI | 3.0 | Full | ✅ Documented | API spec |
-| 12-Factor | N/A | Full | ✅ Compliant | App methodology |
-| SRE | Google | Core | ✅ Aligned | Reliability patterns |
+- OWASP ASVS (5.0, Level 2) — ✅ Compliant; evidence: STANDARDS_COMPLIANCE.md
+- NIST CSF (1.1, Core) — ✅ Aligned; evidence: security implementation
+- NIST 800-63B (Rev 3, AAL1) — ✅ Compliant; evidence: authentication
+- SWEBOK (v4.0a, Core KAs) — ✅ Aligned; evidence: engineering practices
+- GDPR (2016/679, Full) — ✅ Compliant; evidence: privacy-first design
+- CCPA (2018, Full) — ✅ Compliant; evidence: local-only data
+- REST (Fielding, Full) — ✅ Compliant; evidence: API design
+- OpenAPI (3.0, Full) — ✅ Documented; evidence: API spec
+- 12-Factor (N/A, Full) — ✅ Compliant; evidence: app methodology
+- SRE (Google, Core) — ✅ Aligned; evidence: reliability patterns
 
 ---
 
@@ -1098,7 +1092,7 @@ SWEBOK v4.0a | https://computer.org/swebok | High | Canonical SE knowledge areas
 - **Security Audits:** Quarterly reviews
 - **Performance Benchmarks:** Baseline tracked
 
-**Evidence:** `.github/workflows/`, `tests/`, `docs/BEST_PRACTICES.md`
+**Evidence:** `.github/workflows/`, `tests/`, `docs/reference/BEST_PRACTICES.md`
 
 ---
 
@@ -1581,3 +1575,7 @@ JobSentinel is built on **45+ authoritative standards** from world-leading organ
 - Accessibility: 98% WCAG 2.2 Level AA coverage
 - AI Safety: 100% NIST AI RMF core functions covered
 - Documentation: 100% feature-to-standard traceability
+
+---
+
+Last reviewed: October 15, 2025

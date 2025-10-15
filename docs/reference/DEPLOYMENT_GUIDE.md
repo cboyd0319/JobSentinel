@@ -33,12 +33,26 @@ Deploy JobSentinel to production with AWS, GCP, or Azure.
 
 ## Cloud Options
 
-| Provider | Service | Cost/month | Setup Time | Best For |
-|----------|---------|------------|------------|----------|
-| AWS | Lambda + EventBridge | $5-10 | 30 min | AWS shops, serverless |
-| GCP | Cloud Run | $8-15 | 20 min | Container-first, simple |
-| Azure | Container Instances | $10-20 | 30 min | Microsoft shops |
-| Any | Kubernetes | $50+ | 4+ hours | Enterprise, multi-tenant |
+- AWS — Service: Lambda + EventBridge; Cost: $5–10/mo; Setup: ~30 min; Best for: AWS shops, serverless
+- GCP — Service: Cloud Run; Cost: $8–15/mo; Setup: ~20 min; Best for: container-first, simple
+- Azure — Service: Container Instances; Cost: $10–20/mo; Setup: ~30 min; Best for: Microsoft shops
+- Any — Service: Kubernetes; Cost: $50+/mo; Setup: 4+ hours; Best for: enterprise, multi-tenant
+
+### Deployment Flow (Mermaid)
+
+```mermaid
+flowchart LR
+  Dev[Developer] -->|build| Img[Container Image]
+  Img -->|push| Reg[(Registry)]
+  Reg -->|deploy| CR[Cloud Run]
+  Reg -->|deploy| LBD[AWS Lambda]
+  Reg -->|deploy| ACI[Azure Container Instances]
+  Sched[Scheduler] -->|invoke| LBD
+  User[User] -->|configure| Secrets[(Secrets/.env)]
+  Secrets --> CR
+  Secrets --> LBD
+  Secrets --> ACI
+```
 
 **Recommendation:** Start with GCP Cloud Run (easiest) or AWS Lambda (cheapest).
 
@@ -408,13 +422,11 @@ Cloud Scheduler → Cloud Run Service → Cloud SQL (or Firestore)
 
 **Key Metrics to Track:**
 
-| Metric | Type | Threshold | Action |
-|--------|------|-----------|--------|
-| `jobs.scraped.count` | Counter | > 0 | Alert if 0 for 6 hours |
-| `scraper.error.rate` | Gauge | < 5% | Alert if > 10% |
-| `scraper.latency.p95` | Histogram | < 10s | Alert if > 30s |
-| `alerts.sent.count` | Counter | - | Track delivery |
-| `database.size.mb` | Gauge | < 1000MB | Alert if > 5000MB |
+- `jobs.scraped.count` — type: counter; threshold: > 0; action: alert if 0 for 6 hours
+- `scraper.error.rate` — type: gauge; threshold: < 5%; action: alert if > 10%
+- `scraper.latency.p95` — type: histogram; threshold: < 10s; action: alert if > 30s
+- `alerts.sent.count` — type: counter; track delivery
+- `database.size.mb` — type: gauge; threshold: < 1000MB; action: alert if > 5000MB
 
 ### Structured Logging
 
@@ -815,13 +827,11 @@ services:
 
 ### Common Issues
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| "No jobs found" | API keys invalid | Check `.env` and re-validate |
-| "Rate limit exceeded" | Too many requests | Increase `rate_limiter.time_window` |
-| "Database locked" | Concurrent writes | Use connection pooling |
-| "Out of memory" | Large result sets | Add pagination, increase container memory |
-| "Container keeps restarting" | Health check failing | Check logs: `docker logs jobsentinel` |
+- "No jobs found" — Cause: API keys invalid; Solution: check `.env` and re-validate
+- "Rate limit exceeded" — Cause: too many requests; Solution: increase `rate_limiter.time_window`
+- "Database locked" — Cause: concurrent writes; Solution: use connection pooling
+- "Out of memory" — Cause: large result sets; Solution: add pagination; increase container memory
+- "Container keeps restarting" — Cause: health check failing; Solution: check logs: `docker logs jobsentinel`
 
 ### Debug Mode
 
@@ -970,7 +980,7 @@ gcloud run services update-traffic jobsentinel --to-revisions=jobsentinel-00001-
 ## 📞 Support
 
 For deployment issues:
-1. Check [Troubleshooting Guide](troubleshooting.md)
+1. Check [Troubleshooting Guide](../TROUBLESHOOTING.md)
 2. Search [GitHub Issues](https://github.com/cboyd0319/JobSentinel/issues)
 3. Open new issue with `deployment` label
 
@@ -979,6 +989,10 @@ For deployment issues:
 **Version History:**
 - 1.0.0 (Oct 12, 2025): Initial release
 
-**Maintainers:** @cboyd0319
+**Maintainer:** Chad Boyd
 
 **License:** MIT
+
+---
+
+Last reviewed: October 15, 2025

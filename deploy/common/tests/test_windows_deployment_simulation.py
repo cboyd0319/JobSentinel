@@ -267,7 +267,7 @@ class TestWindowsDeploymentSimulation:
         # Essential docs
         essential_docs = [
             "BEGINNER_GUIDE.md",
-            "troubleshooting.md",
+            "TROUBLESHOOTING.md",
             "ARCHITECTURE.md",
             "API_INTEGRATION_GUIDE.md",
         ]

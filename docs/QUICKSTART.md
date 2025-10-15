@@ -4,13 +4,11 @@ Get JobSentinel running in 5 minutes.
 
 ## Prerequisites
 
-| Item | Version | Why |
-|------|---------|-----|
-| Python | 3.12+ | Runtime (includes SQLite) |
-| Git | Any | Clone repo (optional - can download ZIP) |
-| Disk space | 1GB | App + models |
+- Python: 3.12+ (includes SQLite)
+- Git: any version (optional—ZIP is fine)
+- Disk space: 1GB (app + models)
 
-**Optional:**
+Optional
 - Slack webhook (for alerts)
 - Reed API key (UK jobs)
 - Email SMTP (for alerts)
@@ -259,13 +257,11 @@ More troubleshooting: [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
 
 ## Performance
 
-| Metric | Value |
-|--------|-------|
-| Scrape time | 30-60s (per source) |
-| Scoring | <5s (per 100 jobs) |
-| Alert latency | <10s |
-| Memory | <500MB |
-| Disk | ~50MB per 1000 jobs |
+- Scrape time: 30–60s per source
+- Scoring: <5s per 100 jobs
+- Alert latency: <10s
+- Memory: <500MB
+- Disk: ~50MB per 1000 jobs
 
 Tested with 10,000+ jobs in SQLite.
 

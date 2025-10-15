@@ -429,7 +429,7 @@ az group delete --name jobsentinel-rg --yes --no-wait
 ## Support
 
 - [Azure Documentation](https://docs.microsoft.com/azure/)
-- [Deployment Guide](../../../../docs/DEPLOYMENT_GUIDE.md)
+- [Deployment Guide](../../../../docs/reference/DEPLOYMENT_GUIDE.md)
 - [GitHub Issues](https://github.com/cboyd0319/JobSentinel/issues)
 
 ---

@@ -9,7 +9,7 @@ Features:
 - Extends JobScraperBase for consistent interface
 - Implements rate limiting and error handling
 - Includes retry logic with exponential backoff
-- Follows best practices from docs/BEST_PRACTICES.md
+- Follows best practices from docs/reference/BEST_PRACTICES.md
 
 Requirements:
 - Python 3.13+

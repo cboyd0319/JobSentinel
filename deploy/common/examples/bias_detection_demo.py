@@ -162,7 +162,7 @@ def main():
     print("• Age Bias: Focus on experience, not age (ADEA compliance)")
     print("• Salary Bias: Disclose ranges for pay equity and transparency")
     print("• Location Bias: Consider remote options to increase diversity")
-    print("\nFor more information, see docs/FEATURES.md")
+    print("\nFor more information, see docs/reference/FEATURES.md")
 
 
 if __name__ == "__main__":

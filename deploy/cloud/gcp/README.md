@@ -300,7 +300,7 @@ gcloud builds log BUILD_ID
 ## Support
 
 - [GCP Documentation](https://cloud.google.com/docs)
-- [Deployment Guide](../../../../docs/DEPLOYMENT_GUIDE.md)
+- [Deployment Guide](../../../../docs/reference/DEPLOYMENT_GUIDE.md)
 - [GitHub Issues](https://github.com/cboyd0319/JobSentinel/issues)
 
 ---
