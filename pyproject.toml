@@ -93,10 +93,10 @@ dev = [
 jsa = "jsa.cli:main"
 
 [tool.setuptools]
-package-dir = {"" = "src"}
+package-dir = {"" = "deploy/common/app/src"}
 
 [tool.setuptools.packages.find]
-where = ["src"]
+where = ["deploy/common/app/src"]
 include = [
   "jsa*",
   "domains*",
@@ -114,7 +114,7 @@ target-version = ["py311"]
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-src = ["src"]
+src = ["deploy/common/app/src"]
 
 [tool.ruff.lint]
 select = ["E", "F", "B", "I", "UP", "S"]
@@ -127,13 +127,13 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
-"tests/**" = ["S101", "E402", "I001"]
-"src/jsa/db.py" = ["I001"]
-"src/jsa/web/blueprints/skills.py" = ["I001"]
-"src/jsa/cli.py" = ["I001"]
-"src/jsa/setup_wizard.py" = ["S603", "S607"]  # subprocess with trusted input (setup wizard)
-"src/jsa/preflight_check.py" = ["S603", "S110"]  # subprocess with trusted input, informational checks
-"src/jsa/fastapi_app/routers/*.py" = ["B904"]  # Intentional exception conversion to HTTPException
+"deploy/common/tests/**" = ["S101", "E402", "I001"]
+"deploy/common/app/src/jsa/db.py" = ["I001"]
+"deploy/common/app/src/jsa/web/blueprints/skills.py" = ["I001"]
+"deploy/common/app/src/jsa/cli.py" = ["I001"]
+"deploy/common/app/src/jsa/setup_wizard.py" = ["S603", "S607"]  # subprocess with trusted input (setup wizard)
+"deploy/common/app/src/jsa/preflight_check.py" = ["S603", "S110"]  # subprocess with trusted input, informational checks
+"deploy/common/app/src/jsa/fastapi_app/routers/*.py" = ["B904"]  # Intentional exception conversion to HTTPException
 
 [tool.mypy]
 python_version = "3.11"
@@ -149,19 +149,19 @@ disallow_untyped_decorators = true
 ignore_missing_imports = true
 allow_untyped_defs = false
 allow_untyped_calls = false
-files = ["src/jsa"]
-exclude = ["src/jsa/web/"]  # TODO: Fix Flask route type annotations
+files = ["deploy/common/app/src/jsa"]
+exclude = ["deploy/common/app/src/jsa/web/"]  # TODO: Fix Flask route type annotations
 
 [[tool.mypy.overrides]]
 module = ["utils.*"]
 ignore_errors = true
 
 [[tool.mypy.overrides]]
-module = ["src.*"]
+module = ["deploy.common.app.src.*"]
 ignore_errors = true
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["deploy/common/tests"]
 addopts = "-q"
 filterwarnings = [
   # Third-party deprecations (Click 9.0 parser split_arg_string)
@@ -173,15 +173,15 @@ filterwarnings = [
 ]
 
 [tool.bandit]
-targets = ["src/jsa", "src/domains"]
-exclude_dirs = ["tests", ".venv", "build"]
+targets = ["deploy/common/app/src/jsa", "deploy/common/app/src/domains"]
+exclude_dirs = ["deploy/common/tests", ".venv", "build"]
 skips = ["B101"]  # assert_used - acceptable in test code
 
 [tool.bandit.assert_used]
 skips = ["*_test.py", "test_*.py"]
 
 [tool.coverage.run]
-source = ["src/jsa", "src/domains"]
+source = ["deploy/common/app/src/jsa", "deploy/common/app/src/domains"]
 omit = [
   "*/tests/*",
   "*/__pycache__/*",

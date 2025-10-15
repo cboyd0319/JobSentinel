@@ -35,7 +35,7 @@ python examples/custom_scraper.py
 
 ```bash
 pip install -e .
-cp config/user_prefs.example.json config/user_prefs.json
+cp deploy/common/config/user_prefs.example.json deploy/common/config/user_prefs.json
 # Edit config as needed
 ```
 

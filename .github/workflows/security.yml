@@ -38,7 +38,7 @@ jobs:
       - name: Run PyGuard Security Analysis
         uses: cboyd0319/PyGuard@main
         with:
-          target: 'src/ utils/ sources/ notify/ matchers/ scripts/'
+          target: 'deploy/common/app/src/ deploy/common/scripts/'
           security-only: true
           sarif-output: true
           fail-on-error: false

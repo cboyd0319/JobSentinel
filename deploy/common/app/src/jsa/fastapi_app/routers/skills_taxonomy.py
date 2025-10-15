@@ -15,7 +15,7 @@ from typing import Annotated, Any
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
 
-from src.domains.skills_taxonomy import (
+from domains.skills_taxonomy import (
     CareerLevel,
     DemandTrendsAnalyzer,
     ExperienceLevel,

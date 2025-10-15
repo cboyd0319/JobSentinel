@@ -58,7 +58,7 @@ brew install python@3.12
 
 ## Configuration
 
-Edit configuration at: `../../config/user_prefs.json`
+Edit configuration at: `../../common/config/user_prefs.json`
 
 Example:
 ```json

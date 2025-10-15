@@ -452,7 +452,7 @@ def main() -> int:
     # Save configuration
     print_header("Saving Configuration")
 
-    config_path = Path("config/user_prefs.json")
+    config_path = Path("deploy/common/config/user_prefs.json")
     if create_config_file(config_path, config):
         print_success(f"Configuration saved to {config_path}")
     else:

@@ -139,7 +139,7 @@ def _cmd_config_validate(args: argparse.Namespace) -> int:
     import json
 
     config_path = Path(args.path)
-    schema_path = Path("config/user_prefs.schema.json")
+    schema_path = Path("deploy/common/config/user_prefs.schema.json")
 
     # Load and parse config file
     try:
@@ -148,7 +148,7 @@ def _cmd_config_validate(args: argparse.Namespace) -> int:
     except FileNotFoundError:
         print(f"Error: Config file not found: {config_path}")
         print("Create one from the example:")
-        print(f"  cp config/user_prefs.example.json {config_path}")
+        print(f"  cp deploy/common/config/user_prefs.example.json {config_path}")
         print("Or run the setup wizard:")
         print("  python -m jsa.cli setup")
         return 1
@@ -445,7 +445,7 @@ def _cmd_run_once(args: argparse.Namespace) -> int:
     import os
 
     # Check if config exists
-    config_path = Path("config/user_prefs.json")
+    config_path = Path("deploy/common/config/user_prefs.json")
     if not config_path.exists():
         print("❌ Configuration not found!")
         print()
@@ -456,7 +456,7 @@ def _cmd_run_once(args: argparse.Namespace) -> int:
 
     # Inform user about what's happening
     print("🔍 Starting job search...")
-    print("✓ Configuration loaded from config/user_prefs.json")
+    print("✓ Configuration loaded from deploy/common/config/user_prefs.json")
     print()
 
     if args.dry_run:
@@ -610,8 +610,8 @@ def build_parser() -> argparse.ArgumentParser:
     p_cfg.add_argument(
         "--path",
         type=str,
-        default="config/user_prefs.json",
-        help="Path to configuration file (default: config/user_prefs.json)",
+        default="deploy/common/config/user_prefs.json",
+        help="Path to configuration file (default: deploy/common/config/user_prefs.json)",
     )
     p_cfg.set_defaults(func=_cmd_config_validate)
 
