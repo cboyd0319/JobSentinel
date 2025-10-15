@@ -500,7 +500,8 @@ def save_email_to_env(email_config: dict[str, Any]) -> None:
     Args:
         email_config: Email configuration dictionary
     """
-    env_path = Path(__file__).parent.parent.parent / ".env"
+    # Navigate from deploy/common/app/src/jsa to repo root (6 levels up)
+    env_path = Path(__file__).parent.parent.parent.parent.parent.parent / ".env"
 
     # Read existing .env if it exists
     env_lines = []
@@ -561,7 +562,9 @@ def check_existing_config() -> dict[str, Any] | None:
     Returns:
         Existing configuration dict if user wants to import, None otherwise
     """
-    config_dir = Path(__file__).parent.parent.parent / "config"
+    # Navigate from deploy/common/app/src/jsa to repo root (6 levels up), then to config
+    repo_root = Path(__file__).parent.parent.parent.parent.parent.parent
+    config_dir = repo_root / "deploy" / "common" / "config"
     config_path = config_dir / "user_prefs.json"
 
     if not config_path.exists():
@@ -702,7 +705,9 @@ def run_wizard() -> None:
         console.print("[yellow]Setup cancelled[/yellow]")
         sys.exit(0)
 
-    config_dir = Path(__file__).parent.parent.parent / "config"
+    # Navigate from deploy/common/app/src/jsa to repo root (6 levels up), then to config
+    repo_root = Path(__file__).parent.parent.parent.parent.parent.parent
+    config_dir = repo_root / "deploy" / "common" / "config"
     config_path = config_dir / "user_prefs.json"
 
     save_config(config, config_path)

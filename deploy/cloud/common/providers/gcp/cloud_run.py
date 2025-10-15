@@ -61,11 +61,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
-# Set up proper Python path
-ENV PYTHONPATH=/app
+# Set up proper Python path to include the app source directory
+ENV PYTHONPATH=/app/deploy/common/app/src:/app
 
 # Run the job scraper
-CMD ["python3", "src/agent.py", "--mode", "poll"]
+CMD ["python3", "/app/deploy/common/app/src/agent.py", "--mode", "poll"]
 """
     dockerfile_path = project_root / "Dockerfile"
     with open(dockerfile_path, "w") as f:

@@ -23,11 +23,16 @@ License: MIT
 """
 
 import asyncio
+import sys
 from typing import List, Dict, Optional
 from datetime import datetime
+from pathlib import Path
 
 import httpx
 from tenacity import retry, stop_after_attempt, wait_exponential
+
+# Add app/src to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / "app" / "src"))
 
 # Import base classes and utilities
 from sources.job_scraper_base import JobScraperBase

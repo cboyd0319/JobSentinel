@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 
 # Add src to path
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent / "app" / "src"))
 
 from sources.angellist_scraper import AngelListScraper
 from sources.company_career_scraper import CompanyCareerScraper

@@ -49,9 +49,9 @@ class TestDeploymentPaths:
         assert "Split-Path -Parent (Split-Path -Parent (Split-Path -Parent" in content, \
             "launch-gui.ps1 should navigate 3 levels up to find repo root"
 
-        # Check that it references the correct launcher path
-        assert "deploy\\common\\launcher_gui.py" in content, \
-            "launch-gui.ps1 should reference deploy\\common\\launcher_gui.py"
+        # Check that it references the correct launcher module
+        assert "jsa.gui_launcher" in content, \
+            "launch-gui.ps1 should reference jsa.gui_launcher module"
 
     def test_windows_bootstrap_ps1_navigates_to_repo_root(self, repo_root):
         """Test that Windows bootstrap.ps1 navigates to repository root."""
@@ -101,9 +101,9 @@ class TestDeploymentPaths:
         assert "cd ..\\..\\..\\" in content, \
             "launch-gui.bat should navigate 3 levels up to find repo root"
 
-        # Check that it references the correct launcher path
-        assert "deploy\\common\\launcher_gui.py" in content, \
-            "launch-gui.bat should reference deploy\\common\\launcher_gui.py"
+        # Check that it references the correct launcher module
+        assert "jsa.gui_launcher" in content, \
+            "launch-gui.bat should reference jsa.gui_launcher module"
 
     def test_macos_setup_sh_navigates_to_repo_root(self, repo_root):
         """Test that macOS setup.sh navigates to repository root."""
@@ -131,16 +131,16 @@ class TestDeploymentPaths:
         assert 'REPO_ROOT="$( cd "$SCRIPT_DIR/../../.." && pwd )"' in content, \
             "launch-gui.sh should navigate to repo root using ../../.."
 
-        # Check that it references the correct launcher path
-        assert "deploy/common/launcher_gui.py" in content, \
-            "launch-gui.sh should reference deploy/common/launcher_gui.py"
+        # Check that it references the correct launcher module
+        assert "jsa.gui_launcher" in content, \
+            "launch-gui.sh should reference jsa.gui_launcher module"
 
     def test_referenced_files_exist(self, repo_root):
         """Test that all referenced Python files actually exist."""
         files_to_check = [
             repo_root / "deploy" / "common" / "scripts" / "windows_setup.py",
             repo_root / "deploy" / "common" / "scripts" / "macos_setup.py",
-            repo_root / "deploy" / "common" / "launcher_gui.py",
+            repo_root / "deploy" / "common" / "app" / "src" / "jsa" / "gui_launcher.py",
         ]
 
         for file_path in files_to_check:

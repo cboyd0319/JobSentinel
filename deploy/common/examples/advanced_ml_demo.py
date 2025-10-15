@@ -19,8 +19,8 @@ from pathlib import Path
 
 import numpy as np
 
-# Add src to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+# Add app/src to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / "app" / "src"))
 
 # Configure logging
 logging.basicConfig(

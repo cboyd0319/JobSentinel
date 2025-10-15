@@ -23,7 +23,7 @@ import sys
 from pathlib import Path
 
 # Add project root to path for direct script execution
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent / "app" / "src"))
 
 from sources.jobspy_mcp_scraper import search_multi_site_jobs  # noqa: E402
 from utils.logging import setup_logging  # noqa: E402

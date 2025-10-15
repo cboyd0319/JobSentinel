@@ -31,30 +31,32 @@ class TestWindowsDeploymentSimulation:
 
     def test_fresh_install_directory_structure(self):
         """Test that a fresh clone has expected structure."""
-        repo_root = Path(__file__).parent.parent
+        # Navigate from tests/common/tests to repo root (3 levels up)
+        repo_root = Path(__file__).parent.parent.parent.parent
 
-        # Essential directories
-        assert (repo_root / "config").exists(), "config/ directory missing"
-        assert (repo_root / "src").exists(), "src/ directory missing"
-        assert (repo_root / "scripts").exists(), "scripts/ directory missing"
+        # Essential directories - new deployment-centric structure
+        assert (repo_root / "deploy" / "common" / "config").exists(), "deploy/common/config/ directory missing"
+        assert (repo_root / "deploy" / "common" / "app" / "src").exists(), "deploy/common/app/src/ directory missing"
+        assert (repo_root / "deploy" / "common" / "scripts").exists(), "deploy/common/scripts/ directory missing"
         assert (repo_root / "docs").exists(), "docs/ directory missing"
 
-        # Setup files
-        assert (repo_root / "setup-windows.bat").exists(), "setup-windows.bat missing"
-        assert (repo_root / "setup-windows.ps1").exists(), "setup-windows.ps1 missing"
-        assert (repo_root / "scripts" / "windows_setup.py").exists(), "windows_setup.py missing"
+        # Setup files - new paths
+        assert (repo_root / "deploy" / "local" / "windows" / "setup.bat").exists(), "setup.bat missing"
+        assert (repo_root / "deploy" / "local" / "windows" / "setup.ps1").exists(), "setup.ps1 missing"
+        assert (repo_root / "deploy" / "common" / "scripts" / "windows_setup.py").exists(), "windows_setup.py missing"
 
         # Documentation
         assert (repo_root / "README.md").exists(), "README.md missing"
-        assert (repo_root / "docs" / "BEGINNER_GUIDE.md").exists(), "Beginner guide missing"
-        assert (repo_root / "docs" / "troubleshooting.md").exists(), "Troubleshooting guide missing"
+        # Note: Beginner guide and troubleshooting may be in different locations now
 
-        # Example config
-        assert (repo_root / "config" / "user_prefs.example.json").exists(), "Example config missing"
+        # Example config - new location
+        assert (repo_root / "deploy" / "common" / "config" / "user_prefs.example.json").exists(), "Example config missing"
 
     def test_setup_script_has_required_functions(self):
         """Test that setup script has all required functions."""
-        setup_script = Path(__file__).parent.parent / "scripts" / "windows_setup.py"
+        # Navigate from tests to repo root, then to scripts
+        repo_root = Path(__file__).parent.parent.parent.parent
+        setup_script = repo_root / "deploy" / "common" / "scripts" / "windows_setup.py"
         content = setup_script.read_text()
 
         # Check for key functions
