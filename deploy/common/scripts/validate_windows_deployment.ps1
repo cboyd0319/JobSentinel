@@ -157,13 +157,13 @@ Test-Check "Internet connectivity" -Optional {
 Write-Section "File Structure"
 
 $RequiredFiles = @(
-    "launcher_gui.py",
-    "launch-gui.bat",
-    "launch-gui.ps1",
-    "setup-windows.bat",
-    "setup-windows.ps1",
-    "bootstrap.ps1",
-    "run.ps1",
+    "deploy\common\app\src\jsa\gui_launcher.py",
+    "deploy\local\windows\launch-gui.bat",
+    "deploy\local\windows\launch-gui.ps1",
+    "deploy\local\windows\setup.bat",
+    "deploy\local\windows\setup.ps1",
+    "deploy\local\windows\bootstrap.ps1",
+    "deploy\local\windows\run.ps1",
     "pyproject.toml",
     "README.md"
 )
@@ -175,12 +175,12 @@ foreach ($file in $RequiredFiles) {
 }
 
 $RequiredDirs = @(
-    "src",
-    "src/jsa",
-    "config",
+    "deploy\common\app\src",
+    "deploy\common\app\src\jsa",
+    "deploy\common\config",
     "docs",
-    "scripts",
-    "tests"
+    "deploy\common\scripts",
+    "deploy\common\tests"
 )
 
 foreach ($dir in $RequiredDirs) {
@@ -244,21 +244,21 @@ if (-not $SkipDependencies) {
 Write-Section "Configuration"
 
 Test-Check "Config example exists" {
-    Test-Path "config/user_prefs.example.json"
+    Test-Path "deploy\common\config\user_prefs.example.json"
 }
 
 Test-Check "Config schema exists" {
-    Test-Path "config/user_prefs.schema.json"
+    Test-Path "deploy\common\config\user_prefs.schema.json"
 }
 
 Test-Check "User config exists" -Optional {
-    Test-Path "config/user_prefs.json"
+    Test-Path "deploy\common\config\user_prefs.json"
 }
 
-if (Test-Path "config/user_prefs.json") {
+if (Test-Path "deploy\common\config\user_prefs.json") {
     Test-Check "User config is valid JSON" {
         try {
-            $null = Get-Content "config/user_prefs.json" -Raw | ConvertFrom-Json
+            $null = Get-Content "deploy\common\config\user_prefs.json" -Raw | ConvertFrom-Json
             return $true
         } catch {
             return $false
@@ -386,15 +386,15 @@ foreach ($doc in $Docs) {
 Write-Section "Test Suite"
 
 Test-Check "GUI launcher tests exist" {
-    Test-Path "tests/test_gui_launcher.py"
+    Test-Path "deploy\common\tests\test_gui_launcher.py"
 }
 
 Test-Check "Windows deployment tests exist" {
-    Test-Path "tests/test_windows_deployment.py"
+    Test-Path "deploy\common\tests\test_windows_deployment.py"
 }
 
 Test-Check "Windows enhancements tests exist" {
-    Test-Path "tests/test_windows_enhancements.py"
+    Test-Path "deploy\common\tests\test_windows_enhancements.py"
 }
 
 # ═══════════════════════════════════════════════════════════════════
