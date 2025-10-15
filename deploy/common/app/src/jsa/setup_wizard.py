@@ -394,7 +394,7 @@ def configure_slack() -> dict[str, Any]:
 
     if not enable_slack:
         console.print(
-            "[yellow]⏭️  Skipping Slack setup (you can add it later in config/user_prefs.json)[/yellow]\n"
+            "[yellow]⏭️  Skipping Slack setup (you can add it later in deploy/common/config/user_prefs.json)[/yellow]\n"
         )
         return {"webhook_url": "", "channel": "#job-alerts", "enabled": False}
 

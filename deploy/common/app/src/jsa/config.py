@@ -42,7 +42,7 @@ class ConfigService:
       raise: ValueError when preferences are missing required fields
     """
 
-    def __init__(self, config_path: Path | str = "config/user_prefs.json"):
+    def __init__(self, config_path: Path | str = "deploy/common/config/user_prefs.json"):
         self._manager = _LegacyConfigManager(str(config_path))
 
     def raw(self) -> dict[str, Any]:

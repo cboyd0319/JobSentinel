@@ -296,7 +296,7 @@ catch {
     Write-Host ""
     Write-Host "Troubleshooting:" -ForegroundColor Yellow
     Write-Host "  1. Ensure bootstrap completed: .\bootstrap.ps1" -ForegroundColor White
-    Write-Host "  2. Check configuration: .env and config/user_prefs.json" -ForegroundColor White
+    Write-Host "  2. Check configuration: .env and deploy/common/config/user_prefs.json" -ForegroundColor White
     Write-Host "  3. Run health check: python -m jsa.cli health" -ForegroundColor White
     Write-Host "  4. See docs/WINDOWS_TROUBLESHOOTING.md" -ForegroundColor White
     Write-Host ""

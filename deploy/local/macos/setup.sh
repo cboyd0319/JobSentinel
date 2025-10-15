@@ -173,7 +173,7 @@ cd "$SCRIPT_DIR" || {
 echo -e "${CYAN}Starting setup wizard...${NC}"
 echo ""
 
-if $PYTHON_CMD scripts/macos_setup.py; then
+if $PYTHON_CMD deploy/common/scripts/macos_setup.py; then
     echo ""
     echo "========================================================================"
     echo -e "${GREEN}Setup completed successfully!${NC}"

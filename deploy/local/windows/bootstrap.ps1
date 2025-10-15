@@ -46,7 +46,7 @@ $TOOLS_DIR = Join-Path $PROJECT_ROOT ".tools"
 $NODE_DIR = Join-Path $TOOLS_DIR "node"
 $VENV_DIR = Join-Path $PROJECT_ROOT ".venv"
 $DATA_DIR = Join-Path $PROJECT_ROOT "data"
-$CONFIG_DIR = Join-Path $PROJECT_ROOT "config"
+$CONFIG_DIR = Join-Path $PROJECT_ROOT "deploy\common\config"
 $FRONTEND_DIR = Join-Path $PROJECT_ROOT "frontend"
 $ENV_FILE = Join-Path $PROJECT_ROOT ".env"
 $ENV_EXAMPLE = Join-Path $PROJECT_ROOT ".env.example"
@@ -423,7 +423,7 @@ function Step-ConfigureEnvironment {
         if (Test-Path $userPrefsExample) {
             Copy-Item $userPrefsExample $userPrefs
             Write-Success "Created user_prefs.json from example"
-            Write-Warning "Please edit config/user_prefs.json to set your preferences"
+            Write-Warning "Please edit deploy/common/config/user_prefs.json to set your preferences"
         }
     }
     else {
@@ -435,7 +435,7 @@ function Step-InitializeDatabase {
     Write-Step "Initializing SQLite database"
     
     Write-Info "Creating database and tables..."
-    & python scripts\init_database.py
+    & python deploy\common\scripts\init_database.py
     
     if ($LASTEXITCODE -ne 0) {
         Write-Error "Database initialization failed"
@@ -525,7 +525,7 @@ function Write-CompletionMessage {
     Write-Host ""
     Write-Host "  1. Edit configuration:" -ForegroundColor Yellow
     Write-Host "     - .env (Slack webhook, database settings)" -ForegroundColor White
-    Write-Host "     - config/user_prefs.json (keywords, locations, preferences)" -ForegroundColor White
+    Write-Host "     - deploy/common/config/user_prefs.json (keywords, locations, preferences)" -ForegroundColor White
     Write-Host ""
     Write-Host "  2. Start JobSentinel:" -ForegroundColor Yellow
     Write-Host "     .\run.ps1" -ForegroundColor White

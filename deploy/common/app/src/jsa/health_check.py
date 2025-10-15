@@ -173,7 +173,7 @@ class HealthChecker:
         results = []
 
         # Check config file
-        config_path = Path("config/user_prefs.json")
+        config_path = Path("deploy/common/config/user_prefs.json")
         if config_path.exists():
             try:
                 with open(config_path) as f:
@@ -217,7 +217,7 @@ class HealthChecker:
                             details={"warnings": warnings},
                             recommendations=[
                                 "Run: python -m jsa.cli setup",
-                                "Or edit: config/user_prefs.json",
+                                "Or edit: deploy/common/config/user_prefs.json",
                             ],
                         )
                     )
@@ -242,7 +242,7 @@ class HealthChecker:
                     details={"expected_path": str(config_path)},
                     recommendations=[
                         "Run setup wizard: python -m jsa.cli setup",
-                        "Or copy example: cp config/user_prefs.example.json config/user_prefs.json",
+                        "Or copy example: cp deploy/common/config/user_prefs.example.json deploy/common/config/user_prefs.json",
                     ],
                 )
             )
@@ -334,7 +334,7 @@ class HealthChecker:
             )
 
         # Test Slack webhook (if configured)
-        config_path = Path("config/user_prefs.json")
+        config_path = Path("deploy/common/config/user_prefs.json")
         if config_path.exists():
             try:
                 with open(config_path) as f:
