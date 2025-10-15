@@ -448,8 +448,9 @@ def main():
     print_banner()
 
     # Detect project root
+    # Script is in deploy/common/scripts/, so go up 3 levels to repo root
     script_dir = Path(__file__).parent
-    project_root = script_dir.parent
+    project_root = script_dir.parent.parent.parent
 
     # Security: Validate we're in a reasonable project directory
     if not (project_root / "pyproject.toml").exists():

@@ -81,8 +81,10 @@ class JobSentinelGUI:
 
         # State
         self.server_process: subprocess.Popen | None = None
-        self.config_path = Path("config/user_prefs.json")
-        self.project_root = Path(__file__).parent
+        # Calculate project root: this file is in deploy/common/app/src/jsa/
+        # So we need to go up 5 levels to reach the repository root
+        self.project_root = Path(__file__).parent.parent.parent.parent.parent.parent
+        self.config_path = self.project_root / "deploy" / "common" / "config" / "user_prefs.json"
 
         # Build UI
         self._setup_ui()
@@ -407,7 +409,7 @@ class JobSentinelGUI:
             self._log("Configuration file not found - run Setup Wizard", "warning")
 
         # Check database
-        db_path = Path("data/jobs.sqlite")
+        db_path = self.project_root / "data" / "jobs.sqlite"
         if db_path.parent.exists():
             self.status_labels["database"].config(text="✅", fg=self.success_color)
             self._log("Database directory ready", "success")
@@ -621,7 +623,7 @@ class JobSentinelGUI:
         self._log("Testing email configuration...", "info")
 
         # Check if .env exists
-        env_path = Path(".env")
+        env_path = self.project_root / ".env"
         if not env_path.exists():
             messagebox.showinfo(
                 "Email Not Configured",
@@ -734,7 +736,7 @@ class JobSentinelGUI:
         self._log("Opening documentation...", "info")
 
         # Try to open local docs first
-        docs_path = Path("docs/README.md")
+        docs_path = self.project_root / "docs" / "README.md"
         if docs_path.exists():
             try:
                 if platform.system() == "Windows":

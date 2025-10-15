@@ -267,9 +267,10 @@ def main():
     """CLI entry point for shortcut creation."""
     import sys
 
-    # Get project root (parent of src/jsa/)
+    # Get project root: this file is in deploy/common/app/src/jsa/
+    # So we need to go up 5 levels to reach the repository root
     current_file = Path(__file__).resolve()
-    project_root = current_file.parent.parent.parent
+    project_root = current_file.parent.parent.parent.parent.parent.parent
 
     print()
     print("JobSentinel macOS Shortcut Creator")
