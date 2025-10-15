@@ -22,7 +22,6 @@ Author: JobSentinel Team
 License: MIT
 """
 
-import json
 import os
 import platform
 import subprocess
@@ -37,9 +36,7 @@ from tkinter import (
     Tk,
     messagebox,
     scrolledtext,
-    ttk,
 )
-from typing import Optional
 
 # Version
 VERSION = "1.0.0"
@@ -64,7 +61,7 @@ class JobSentinelGUI:
             icon_path = Path(__file__).parent / "static" / "favicon.ico"
             if icon_path.exists():
                 self.root.iconbitmap(str(icon_path))
-        except (OSError, RuntimeError) as e:
+        except (OSError, RuntimeError):
             # Icon not critical - continue without it
             # Common errors: file not found, invalid icon format, tkinter errors
             pass
@@ -466,7 +463,10 @@ class JobSentinelGUI:
                     self.root.after(0, self._on_server_started)
 
                 except Exception as e:
-                    self.root.after(0, lambda: self._log(f"Failed to start server: {e}", "error"))
+                    error_msg = str(e)
+                    self.root.after(
+                        0, lambda: self._log(f"Failed to start server: {error_msg}", "error")
+                    )
 
             thread = threading.Thread(target=start_in_thread, daemon=True)
             thread.start()
@@ -601,7 +601,8 @@ class JobSentinelGUI:
             project_root_resolved = self.project_root.resolve()
             if not str(resolved_path).startswith(str(project_root_resolved)):
                 raise ValueError("Configuration file must be within project directory")
-            
+
+
             if platform.system() == "Windows":
                 # nosec: os.startfile is safe here - path is validated above
                 os.startfile(str(resolved_path))  # nosec B606
