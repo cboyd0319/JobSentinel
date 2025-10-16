@@ -291,7 +291,7 @@ def install_dependencies(project_root: Path) -> bool:
         # Install in development mode with basic dependencies
         # Security: Using sys.executable (trusted) with hardcoded pip command
         result = subprocess.run(  # nosec B603 - controlled input (sys.executable + literal args)
-            [_get_python_bin(), "-m", "pip", "install", "-e", "."],
+            [_get_python_bin(), "-m", "pip", "install", "--quiet", "-e", "."],
             cwd=project_root,
             capture_output=True,
             text=True,
