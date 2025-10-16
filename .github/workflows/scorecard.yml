@@ -54,21 +54,3 @@ jobs:
           path: results.sarif
           retention-days: 30
         if: always()
-
-      - name: Add scorecard summary
-        if: always()
-        shell: bash
-        run: |
-          {
-            echo "## 🏆 OSSF Scorecard Analysis Complete"
-            echo ""
-            echo "Security best practices assessment:"
-            echo "- Branch protection"
-            echo "- Code review practices"
-            echo "- Dependency management"
-            echo "- Security policy"
-            echo "- Vulnerability disclosure"
-            echo "- Token permissions"
-            echo ""
-            echo "View detailed results in the Security tab."
-          } >> "${GITHUB_STEP_SUMMARY}"
