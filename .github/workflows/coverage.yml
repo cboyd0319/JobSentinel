@@ -27,24 +27,30 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      uses: actions/checkout@v5
       with:
         fetch-depth: 1
+        persist-credentials: false
 
     - name: Setup Python and dependencies
-      uses: ./.github/actions/setup-python
+      uses: ./.github/actions/python-env
       with:
-        python-version: '3.13'
-        install-dev: 'true'
+        python-version: '3.12'
+        install-deps: 'true'
+        prepare-config: 'true'
+
+    - name: Install dev extras
+      run: |
+        python -m pip install -e .[dev]
 
     - name: Run tests with coverage
       shell: bash
       run: |
         set -euo pipefail
-        pytest --cov=pyguard --cov-report=xml --cov-report=html --cov-report=term | tee coverage-output.txt
+        pytest --cov=deploy/common/app/src/jsa --cov-report=xml --cov-report=html --cov-report=term | tee coverage-output.txt
 
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+      uses: codecov/codecov-action@v5
       with:
         files: ./coverage.xml
         flags: unittests
@@ -53,7 +59,7 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
 
     - name: Upload HTML coverage report
-      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      uses: actions/upload-artifact@v4
       with:
         name: coverage-report-html
         path: htmlcov/
