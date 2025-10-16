@@ -4,10 +4,12 @@ Tests for Active Learning module.
 
 import time
 
-import numpy as np
 import pytest
 
 pytest.importorskip("torch")
+pytest.importorskip("numpy")
+
+import numpy as np
 
 from domains.ml.active_learning import (
     ActiveLearningManager,
