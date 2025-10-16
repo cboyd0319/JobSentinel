@@ -27,12 +27,40 @@ Requirements:
 
 import os
 import platform
+import shlex
 import subprocess
 import sys
 from pathlib import Path
 
-# Add src to path so we can import from project
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+# Ensure project modules are importable before dependencies are installed.
+SCRIPT_PATH = Path(__file__).resolve()
+COMMON_DIR = SCRIPT_PATH.parent.parent
+APP_SRC_DIR = COMMON_DIR / "app" / "src"
+
+# We may not have dependencies installed yet, so only manipulate sys.path using
+# known, trusted locations inside the repository.
+if APP_SRC_DIR.exists():
+    sys.path.insert(0, str(APP_SRC_DIR))
+
+# The setup process prefers to run everything inside a dedicated virtual
+# environment. We keep track of the interpreter path globally so every
+# subsequent step (wizard, health check, shortcut creation) uses the same
+# interpreter.
+PYTHON_BIN = Path(sys.executable)
+
+
+def _set_python_bin(candidate: Path) -> None:
+    """Update the global Python interpreter reference."""
+
+    global PYTHON_BIN
+    if candidate.exists():
+        PYTHON_BIN = candidate
+
+
+def _get_python_bin() -> str:
+    """Return the Python interpreter that should be used for subprocesses."""
+
+    return str(PYTHON_BIN)
 
 # Import our enhanced macOS modules
 try:
@@ -194,6 +222,53 @@ def run_preflight_checks() -> bool:
     return True
 
 
+def create_virtualenv(project_root: Path) -> bool:
+    """Create or reuse a dedicated virtual environment."""
+
+    print("🐍 Preparing JobSentinel's private Python environment...")
+
+    venv_dir = project_root / ".venv"
+
+    try:
+        if venv_dir.exists():
+            print("   ℹ️  Existing virtual environment detected - reusing it.")
+        else:
+            print("   Creating virtual environment (this happens once)...")
+            result = subprocess.run(  # nosec B603 - controlled input
+                [sys.executable, "-m", "venv", str(venv_dir)],
+                capture_output=True,
+                text=True,
+                timeout=180,
+                check=False,
+            )
+
+            if result.returncode != 0:
+                print("❌ Could not create virtual environment:")
+                print(result.stderr)
+                return False
+
+        # macOS ships with python3 binary inside the venv's bin directory
+        venv_python = venv_dir / "bin" / "python3"
+        if not venv_python.exists():
+            venv_python = venv_dir / "bin" / "python"
+
+        if not venv_python.exists():
+            print("❌ Virtual environment created but python executable missing.")
+            return False
+
+        _set_python_bin(venv_python)
+        print(f"   ✅ Virtual environment ready: {venv_python}")
+        print()
+        return True
+
+    except subprocess.TimeoutExpired:
+        print("❌ Virtual environment creation timed out. Please try again.")
+        return False
+    except Exception as exc:  # pragma: no cover - defensive logging
+        print(f"❌ Unexpected error while creating virtual environment: {exc}")
+        return False
+
+
 def install_dependencies(project_root: Path) -> bool:
     """Install Python dependencies."""
     print("📦 Installing dependencies...")
@@ -201,10 +276,22 @@ def install_dependencies(project_root: Path) -> bool:
     print()
 
     try:
+        print("   • Making sure pip is up to date...")
+        upgrade = subprocess.run(
+            [_get_python_bin(), "-m", "pip", "install", "--upgrade", "pip", "setuptools", "wheel"],
+            capture_output=True,
+            text=True,
+            timeout=180,
+            check=False,
+        )
+
+        if upgrade.returncode != 0:
+            print("   ⚠️  Could not update pip (continuing with existing version)")
+
         # Install in development mode with basic dependencies
         # Security: Using sys.executable (trusted) with hardcoded pip command
         result = subprocess.run(  # nosec B603 - controlled input (sys.executable + literal args)
-            [sys.executable, "-m", "pip", "install", "-e", ".", "--quiet"],
+            [_get_python_bin(), "-m", "pip", "install", "-e", "."],
             cwd=project_root,
             capture_output=True,
             text=True,
@@ -237,7 +324,7 @@ def install_playwright() -> bool:
     try:
         # Security: Using sys.executable (trusted) with hardcoded playwright command
         result = subprocess.run(  # nosec B603 - controlled input (sys.executable + literal args)
-            [sys.executable, "-m", "playwright", "install", "chromium"],
+            [_get_python_bin(), "-m", "playwright", "install", "chromium"],
             capture_output=True,
             text=True,
             timeout=300,
@@ -296,7 +383,7 @@ def run_setup_wizard(project_root: Path) -> bool:
     try:
         # Security: Using sys.executable (trusted) with hardcoded module path
         result = subprocess.run(  # nosec B603 - controlled input (sys.executable + literal args)
-            [sys.executable, "-m", "jsa.cli", "setup"],
+            [_get_python_bin(), "-m", "jsa.cli", "setup"],
             cwd=project_root,
             timeout=300,
             check=False,
@@ -328,7 +415,7 @@ def run_health_check(project_root: Path) -> bool:
     try:
         # Security: Using sys.executable (trusted) with hardcoded module path
         result = subprocess.run(  # nosec B603 - controlled input (sys.executable + literal args)
-            [sys.executable, "-m", "jsa.cli", "health"],
+            [_get_python_bin(), "-m", "jsa.cli", "health"],
             cwd=project_root,
             timeout=30,
             check=False,
@@ -357,8 +444,9 @@ def create_desktop_shortcuts(project_root: Path) -> bool:
     try:
         # Import shortcuts module if available
         if HAS_ENHANCED_MODULES:
-            results = create_jobsentinel_shortcuts(project_root)
-            create_launcher_script(project_root)
+            python_cmd = _get_python_bin()
+            results = create_jobsentinel_shortcuts(project_root, python_cmd=python_cmd)
+            create_launcher_script(project_root, python_cmd=python_cmd)
 
             # Count successes
             success_count = sum(1 for s in results.values() if s)
@@ -395,12 +483,15 @@ def print_next_steps(shortcuts_created: bool = False):
     print("JobSentinel is now installed and configured on your Mac!")
     print()
 
+    python_cmd = Path(_get_python_bin())
+    python_display = shlex.quote(str(python_cmd))
+
     if shortcuts_created:
         print("✨ Desktop shortcuts created! You can now:")
         print("   • Double-click 'Run JobSentinel.command' to search for jobs")
         print("   • Double-click 'JobSentinel Dashboard.command' to view jobs")
         print("   • Double-click 'Configure JobSentinel.command' to change settings")
-        print("   • Double-click 'launch-gui.command' to open the GUI")
+        print("   • Double-click 'JobSentinel Launcher.command' to open the GUI")
         print()
         print("Or use the Terminal:")
         print()
@@ -409,17 +500,17 @@ def print_next_steps(shortcuts_created: bool = False):
         print()
 
     print("1️⃣  Test your setup (no alerts sent):")
-    print("     python3 -m jsa.cli run-once --dry-run")
+    print(f"     {python_display} -m jsa.cli run-once --dry-run")
     print()
     print("2️⃣  Run a real job search:")
-    print("     python3 -m jsa.cli run-once")
+    print(f"     {python_display} -m jsa.cli run-once")
     print()
     print("3️⃣  View jobs in your browser:")
-    print("     python3 -m jsa.cli web")
+    print(f"     {python_display} -m jsa.cli web")
     print("     Then visit: http://localhost:5000")
     print()
     print("4️⃣  Check system status anytime:")
-    print("     python3 -m jsa.cli health")
+    print(f"     {python_display} -m jsa.cli health")
     print()
     print("📚 Documentation:")
     print("   • docs/BEGINNER_GUIDE.md - Zero-knowledge guide")
@@ -487,6 +578,11 @@ def main():
         print("Setup cancelled by user.")
         return 0
     print()
+
+    # Step 0: Ensure virtual environment
+    if not create_virtualenv(project_root):
+        print("❌ Setup failed while preparing the virtual environment.")
+        return 1
 
     # Step 1: Install dependencies
     if not install_dependencies(project_root):
