@@ -12,6 +12,7 @@ Features:
 """
 
 import os
+import shlex
 import stat
 import sys
 from pathlib import Path
@@ -56,7 +57,7 @@ def create_command_file(
 
         # Change to working directory if specified
         if working_dir:
-            lines.append(f"cd '{working_dir}' || exit 1")
+            lines.append(f"cd {shlex.quote(working_dir)} || exit 1")
             lines.append("")
 
         # Add the command
@@ -129,7 +130,9 @@ def create_shell_alias(
         return False
 
 
-def create_jobsentinel_shortcuts(project_root: Path) -> dict[str, bool]:
+def create_jobsentinel_shortcuts(
+    project_root: Path, *, python_cmd: str | None = None
+) -> dict[str, bool]:
     """
     Create all JobSentinel shortcuts on macOS.
 
@@ -142,9 +145,16 @@ def create_jobsentinel_shortcuts(project_root: Path) -> dict[str, bool]:
     results = {}
 
     # Determine Python command (python3 is standard on macOS)
-    python_cmd = "python3"
-    if not os.path.exists("/usr/bin/python3"):
-        python_cmd = "python"
+    if python_cmd:
+        python_cmd_path = Path(python_cmd)
+        if python_cmd_path.exists():
+            python_cmd = shlex.quote(str(python_cmd_path))
+        else:
+            python_cmd = shlex.quote(python_cmd)
+    else:
+        python_cmd = "python3"
+        if not os.path.exists("/usr/bin/python3"):
+            python_cmd = "python"
 
     # Shortcut definitions
     shortcuts = {
@@ -213,7 +223,12 @@ def create_jobsentinel_shortcuts(project_root: Path) -> dict[str, bool]:
     return results
 
 
-def create_launcher_script(project_root: Path, script_name: str = "launch-gui.command") -> bool:
+def create_launcher_script(
+    project_root: Path,
+    script_name: str | None = None,
+    *,
+    python_cmd: str | None = None,
+) -> bool:
     """
     Create a launcher script for the GUI.
 
@@ -225,23 +240,37 @@ def create_launcher_script(project_root: Path, script_name: str = "launch-gui.co
         True if launcher created successfully, False otherwise
     """
     try:
-        launcher_path = project_root / script_name
+        if script_name is None:
+            desktop = Path.home() / "Desktop"
+            desktop.mkdir(parents=True, exist_ok=True)
+            launcher_path = desktop / "JobSentinel Launcher.command"
+        else:
+            launcher_path = Path(script_name)
+            if not launcher_path.is_absolute():
+                launcher_path = project_root / launcher_path
 
         # Determine Python command
-        python_cmd = "python3"
-        if not os.path.exists("/usr/bin/python3"):
-            python_cmd = "python"
+        if python_cmd:
+            python_path = Path(python_cmd)
+            if python_path.exists():
+                python_cmd = shlex.quote(str(python_path))
+            else:
+                python_cmd = shlex.quote(python_cmd)
+        else:
+            python_cmd = "python3"
+            if not os.path.exists("/usr/bin/python3"):
+                python_cmd = "python"
 
         content = f"""#!/usr/bin/env bash
 # JobSentinel GUI Launcher
 # Double-click this file to launch the JobSentinel GUI
 
-cd "{project_root}" || exit 1
+cd {shlex.quote(str(project_root))} || exit 1
 
 echo "Launching JobSentinel GUI..."
 echo ""
 
-{python_cmd} launcher_gui.py
+{python_cmd} -m jsa.gui_launcher
 
 echo ""
 echo "JobSentinel GUI closed."
@@ -254,7 +283,7 @@ read -p "Press Enter to close..."
         current_permissions = launcher_path.stat().st_mode
         launcher_path.chmod(current_permissions | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
-        print(f"✅ Created {script_name}")
+        print(f"✅ Created {launcher_path}")
         return True
 
     except Exception as e:
@@ -297,7 +326,7 @@ def main():
     print()
     print("Desktop shortcuts: ~/Desktop/*.command")
     print("Shell aliases: Check ~/.zshrc or ~/.bash_profile")
-    print("GUI launcher: launch-gui.command")
+    print("GUI launcher: ~/Desktop/JobSentinel Launcher.command")
     print()
 
     return 0 if success_count > 0 else 1
