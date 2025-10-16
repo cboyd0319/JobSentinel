@@ -12,28 +12,16 @@ import random
 import sys
 import tempfile
 from pathlib import Path
-from unittest.mock import MagicMock
 
 import pytest
 
 
+# Path setup for cloud modules is handled in the root conftest.py at repository root
+# This ensures paths are set up before pytest starts collecting test modules
+
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
-
-# Add deploy directory to path so cloud modules can be imported as "cloud.*"
-# and cloud/common modules can be imported directly (exceptions, receipt, style, etc.)
-DEPLOY_ROOT = PROJECT_ROOT.parent.parent
-CLOUD_COMMON_ROOT = DEPLOY_ROOT / "cloud" / "common"
-if str(DEPLOY_ROOT) not in sys.path:
-    sys.path.insert(0, str(DEPLOY_ROOT))
-if str(CLOUD_COMMON_ROOT) not in sys.path:
-    sys.path.insert(0, str(CLOUD_COMMON_ROOT))
-
-# Mock cost_tracker before any cloud modules try to import it
-if "utils.cost_tracker" not in sys.modules:
-    cost_tracker_mock = MagicMock()
-    sys.modules["utils.cost_tracker"] = cost_tracker_mock
 
 # Configure pytest-asyncio to auto-detect async tests
 pytest_plugins = ("pytest_asyncio",)
