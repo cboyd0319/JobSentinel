@@ -135,6 +135,15 @@ jobs:
           # Coverage check currently fails due to incomplete test coverage - non-blocking
           make cov || echo "⚠️ Coverage below 85% threshold - needs improvement"
 
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+
       # NOTE: PyGuard security scanning moved to security.yml workflow
       # This eliminates duplication and provides SARIF output to GitHub Security tab
       # See: .github/workflows/security.yml for comprehensive PyGuard analysis

@@ -7,6 +7,7 @@ Local‑first job search automation that finds high‑match roles and pings you 
 [![Version](https://img.shields.io/badge/Version-0.9.0-brightgreen.svg)](#)
 [![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev/)
 [![Docs](https://github.com/cboyd0319/JobSentinel/actions/workflows/docs-ci.yml/badge.svg)](https://github.com/cboyd0319/JobSentinel/actions/workflows/docs-ci.yml)
+[![codecov](https://codecov.io/github/cboyd0319/JobSentinel/graph/badge.svg?token=QHEYIFQL0E)](https://codecov.io/github/cboyd0319/JobSentinel)
 
 ## TL;DR
 

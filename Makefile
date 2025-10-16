@@ -49,7 +49,7 @@ fmt:
 	black .
 
 cov:
-	pytest --cov=deploy/common/app/src/jsa --cov-report=term-missing --cov-fail-under=85
+	pytest --cov=deploy/common/app/src/jsa --cov-report=term-missing --cov-report=xml --cov-fail-under=85
 
 mut:
 	@if command -v mutmut >/dev/null 2>&1; then \
