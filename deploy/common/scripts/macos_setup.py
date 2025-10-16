@@ -55,6 +55,8 @@ def _set_python_bin(candidate: Path) -> None:
     global PYTHON_BIN
     if candidate.exists():
         PYTHON_BIN = candidate
+    else:
+        print(f"Warning: Python interpreter path '{candidate}' does not exist. PYTHON_BIN not updated.", file=sys.stderr)
 
 
 def _get_python_bin() -> str:
