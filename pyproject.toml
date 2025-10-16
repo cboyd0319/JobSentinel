@@ -173,10 +173,17 @@ ignore_errors = true
 
 [tool.pytest.ini_options]
 testpaths = ["deploy/common/tests"]
-addopts = "-q"
+addopts = """
+  -q
+  --strict-config
+  --strict-markers
+  --tb=short
+  --cov-branch
+"""
 markers = [
   "integration: marks tests as integration tests (deselect with '-m \"not integration\"')",
   "windows_deployment: marks tests specific to Windows deployment",
+  "asyncio: mark test as asyncio",
 ]
 filterwarnings = [
   # Third-party deprecations (Click 9.0 parser split_arg_string)
@@ -186,6 +193,8 @@ filterwarnings = [
   # Pydantic v1 typing deprecation noise on ForwardRef evaluation under Py3.13+
   "ignore:Failing to pass a value to the 'type_params' parameter of 'typing.ForwardRef._evaluate':DeprecationWarning:pydantic",
 ]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
 
 [tool.bandit]
 targets = ["deploy/common/app/src/jsa", "deploy/common/app/src/domains"]
@@ -196,12 +205,17 @@ skips = ["B101"]  # assert_used - acceptable in test code
 skips = ["*_test.py", "test_*.py"]
 
 [tool.coverage.run]
-source = ["deploy/common/app/src/jsa", "deploy/common/app/src/domains"]
+source = [
+  "deploy/common/app/src/jsa",
+  "deploy/common/app/src/domains",
+  "deploy/cloud/common",
+]
 omit = [
   "*/tests/*",
   "*/__pycache__/*",
   "*/migrations/*",
 ]
+branch = true
 
 [tool.coverage.report]
 precision = 2
@@ -216,4 +230,11 @@ exclude_lines = [
   "if __name__ == .__main__.:",
   "if TYPE_CHECKING:",
   "@(abc\\.)?abstractmethod",
+]
+
+# Cloud module-specific coverage targets
+[tool.coverage.paths]
+source = [
+  "deploy/common/app/src/",
+  "deploy/cloud/common/",
 ]
