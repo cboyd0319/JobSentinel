@@ -290,7 +290,7 @@ class TestFetchTerraformChecksums:
         _CHECKSUM_CACHE.clear()
 
         # Patch to force non-HTTPS (this shouldn't happen in practice)
-        with patch("terraform_installer.fetch_terraform_checksums") as mock_fetch:
+        with patch("providers.common.terraform_installer.fetch_terraform_checksums") as mock_fetch:
             mock_fetch.return_value = {}
             
             result = await mock_fetch("1.9.7", logger)
@@ -427,7 +427,7 @@ class TestDownloadTerraform:
     async def test_download_terraform_success(self, tmp_path, mocker):
         """Download Terraform successfully."""
         logger = MagicMock()
-        mock_run_command = mocker.patch("terraform_installer.run_command", new=AsyncMock())
+        mock_run_command = mocker.patch("providers.common.terraform_installer.run_command", new=AsyncMock())
 
         # Create a fake downloaded file
         async def create_file(*args, **kwargs):
@@ -447,7 +447,7 @@ class TestDownloadTerraform:
     async def test_download_terraform_empty_file(self, tmp_path, mocker):
         """Download should fail if file is empty."""
         logger = MagicMock()
-        mock_run_command = mocker.patch("terraform_installer.run_command", new=AsyncMock())
+        mock_run_command = mocker.patch("providers.common.terraform_installer.run_command", new=AsyncMock())
 
         # Create an empty file
         async def create_empty_file(*args, **kwargs):
@@ -464,7 +464,7 @@ class TestDownloadTerraform:
     async def test_download_terraform_url_format(self, tmp_path, mocker):
         """Download should use correct URL format."""
         logger = MagicMock()
-        mock_run_command = mocker.patch("terraform_installer.run_command", new=AsyncMock())
+        mock_run_command = mocker.patch("providers.common.terraform_installer.run_command", new=AsyncMock())
         
         # Create a fake file
         async def create_file(*args, **kwargs):
@@ -489,10 +489,10 @@ class TestCheckTerraformInstalled:
     async def test_check_terraform_installed_found(self, mocker):
         """Check should return path if Terraform is installed."""
         logger = MagicMock()
-        mock_which = mocker.patch("terraform_installer.which")
+        mock_which = mocker.patch("providers.common.terraform_installer.which")
         mock_which.return_value = Path("/usr/bin/terraform")
 
-        mock_run_command = mocker.patch("terraform_installer.run_command", new=AsyncMock())
+        mock_run_command = mocker.patch("providers.common.terraform_installer.run_command", new=AsyncMock())
         version_output = json.dumps({"terraform_version": "1.9.7"})
         mock_run_command.return_value = MagicMock(stdout=version_output, returncode=0)
 
@@ -505,7 +505,7 @@ class TestCheckTerraformInstalled:
     async def test_check_terraform_installed_not_found(self, mocker):
         """Check should return None if Terraform is not found."""
         logger = MagicMock()
-        mock_which = mocker.patch("terraform_installer.which")
+        mock_which = mocker.patch("providers.common.terraform_installer.which")
         mock_which.return_value = None
 
         result = await check_terraform_installed(logger)
@@ -516,10 +516,10 @@ class TestCheckTerraformInstalled:
     async def test_check_terraform_installed_version_check_fails(self, mocker):
         """Check should return None if version check fails."""
         logger = MagicMock()
-        mock_which = mocker.patch("terraform_installer.which")
+        mock_which = mocker.patch("providers.common.terraform_installer.which")
         mock_which.return_value = Path("/usr/bin/terraform")
 
-        mock_run_command = mocker.patch("terraform_installer.run_command", new=AsyncMock())
+        mock_run_command = mocker.patch("providers.common.terraform_installer.run_command", new=AsyncMock())
         mock_run_command.side_effect = Exception("Version check failed")
 
         result = await check_terraform_installed(logger)
@@ -535,7 +535,7 @@ class TestEnsureTerraform:
         """Should use existing installation if available."""
         logger = MagicMock()
         
-        mock_check = mocker.patch("terraform_installer.check_terraform_installed", new=AsyncMock())
+        mock_check = mocker.patch("providers.common.terraform_installer.check_terraform_installed", new=AsyncMock())
         mock_check.return_value = Path("/usr/bin/terraform")
 
         result = await ensure_terraform(logger, force_install=False)
@@ -550,13 +550,13 @@ class TestEnsureTerraform:
         logger = MagicMock()
 
         # Mock all the functions
-        mock_check = mocker.patch("terraform_installer.check_terraform_installed", new=AsyncMock())
+        mock_check = mocker.patch("providers.common.terraform_installer.check_terraform_installed", new=AsyncMock())
         mock_check.return_value = Path("/usr/bin/terraform")
 
-        mock_platform = mocker.patch("terraform_installer.get_platform_info")
+        mock_platform = mocker.patch("providers.common.terraform_installer.get_platform_info")
         mock_platform.return_value = ("linux", "amd64")
 
-        mock_install_dir = mocker.patch("terraform_installer.get_terraform_install_dir")
+        mock_install_dir = mocker.patch("providers.common.terraform_installer.get_terraform_install_dir")
         mock_install_dir.return_value = tmp_path
 
         # Create a proper zip with terraform binary
@@ -565,17 +565,17 @@ class TestEnsureTerraform:
         with zipfile.ZipFile(zip_path, "w") as zf:
             zf.writestr("terraform", binary_content)
         
-        mock_download = mocker.patch("terraform_installer.download_terraform", new=AsyncMock())
+        mock_download = mocker.patch("providers.common.terraform_installer.download_terraform", new=AsyncMock())
         mock_download.return_value = zip_path
 
         # Create correct checksum for the zip file
         zip_checksum = hashlib.sha256(zip_path.read_bytes()).hexdigest()
-        mock_checksums = mocker.patch("terraform_installer.fetch_terraform_checksums", new=AsyncMock())
+        mock_checksums = mocker.patch("providers.common.terraform_installer.fetch_terraform_checksums", new=AsyncMock())
         mock_checksums.return_value = {"linux_amd64": zip_checksum}
 
-        mock_add_path = mocker.patch("terraform_installer.add_to_path")
+        mock_add_path = mocker.patch("providers.common.terraform_installer.add_to_path")
         
-        mock_verify_cmd = mocker.patch("terraform_installer.run_command", new=AsyncMock())
+        mock_verify_cmd = mocker.patch("providers.common.terraform_installer.run_command", new=AsyncMock())
         mock_verify_cmd.return_value = MagicMock(stdout="Terraform v1.9.7", returncode=0)
 
         with patch("sys.platform", "linux"):
