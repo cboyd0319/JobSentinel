@@ -21,8 +21,8 @@ Find what you need fast. Keep README lean; deep dives live here.
 - Features overview: [FEATURES.md](reference/FEATURES.md)
 - AI/ML roadmap: [AI_ML_ROADMAP.md](reference/AI_ML_ROADMAP.md)
 - Standards compliance: [AUTHORITATIVE_STANDARDS.md](reference/AUTHORITATIVE_STANDARDS.md)
- - Threat model: [THREAT_MODEL.md](THREAT_MODEL.md)
- - Glossary: [GLOSSARY.md](GLOSSARY.md)
+- Threat model: [THREAT_MODEL.md](THREAT_MODEL.md)
+- Glossary: [GLOSSARY.md](GLOSSARY.md)
 
 ## Root Files
 - [README.md](../README.md) — overview + quickstart
