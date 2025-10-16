@@ -12,10 +12,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false  # Don't cancel Dependabot merges in progress
 
-defaults:
-  run:
-    shell: bash
-
 jobs:
   dependabot:
     runs-on: ubuntu-latest
