@@ -265,3 +265,6 @@ pyguard-*.html
 __pycache__/
 *.py[cod]
 bin/actionlint
+
+# Actionlint binary
+actionlint
