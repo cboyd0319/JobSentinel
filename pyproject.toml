@@ -181,11 +181,14 @@ addopts = """
   --strict-markers
   --tb=short
   --cov-branch
+  --maxfail=1
+  --disable-warnings
 """
 markers = [
   "integration: marks tests as integration tests (deselect with '-m \"not integration\"')",
   "windows_deployment: marks tests specific to Windows deployment",
   "asyncio: mark test as asyncio",
+  "slow: marks tests as slow running (deselect with '-m \"not slow\"')",
 ]
 filterwarnings = [
   # Third-party deprecations (Click 9.0 parser split_arg_string)
@@ -194,9 +197,13 @@ filterwarnings = [
   "ignore:Importing 'parser.split_arg_string' is deprecated:DeprecationWarning:spacy",
   # Pydantic v1 typing deprecation noise on ForwardRef evaluation under Py3.13+
   "ignore:Failing to pass a value to the 'type_params' parameter of 'typing.ForwardRef._evaluate':DeprecationWarning:pydantic",
+  # Treat most warnings as errors (pytest architect best practice)
+  "error::DeprecationWarning",
+  "error::PendingDeprecationWarning",
 ]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
+xfail_strict = true
 
 [tool.bandit]
 targets = ["deploy/common/app/src/jsa", "deploy/common/app/src/domains"]
@@ -221,7 +228,7 @@ branch = true
 
 [tool.coverage.report]
 precision = 2
-fail_under = 33
+fail_under = 75
 show_missing = true
 skip_covered = false
 exclude_lines = [
