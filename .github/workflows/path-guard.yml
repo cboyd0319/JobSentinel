@@ -56,7 +56,7 @@ jobs:
           disallowed=$(echo "$changed" | \
             grep -E '^(src/|tests/|scripts/|config/|deploy/common/[^/]+\.(py|md|sh|ps1|bat)$|deploy/common/docs/)' || true)
           # Markdown files outside docs/ (allow root README.md)
-          md_outside=$(echo "$changed" | grep -E '\.md$' | grep -vE '^(docs/|README\.md$)' || true)
+          md_outside=$(echo "$changed" | grep -E '\.md$' | grep -vE '^(docs/|README\.md$|CODE_OF_CONDUCT\.md$|CONTRIBUTING\.md$|SECURITY\.md$)' || true)
           if [ -n "$md_outside" ]; then
             if [ -n "$disallowed" ]; then
               disallowed="${disallowed}"$'\n'"${md_outside}"

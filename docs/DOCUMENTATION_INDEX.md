@@ -26,7 +26,7 @@ Find what you need fast. Keep README lean; deep dives live here.
 
 ## Root Files
 - [README.md](../README.md) — overview + quickstart
-- [CHANGELOG.md](../CHANGELOG.md) — releases
+- [CHANGELOG.md](CHANGELOG.md) — releases
 - [LICENSE](../LICENSE) — MIT
 
 ## Style & Tone

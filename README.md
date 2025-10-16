@@ -14,6 +14,20 @@ Local‑first job search automation that finds high‑match roles and pings you 
 [![Scorecard](https://github.com/cboyd0319/JobSentinel/actions/workflows/scorecard.yml/badge.svg)](https://github.com/cboyd0319/JobSentinel/actions/workflows/scorecard.yml)
 [![Docs](https://github.com/cboyd0319/JobSentinel/actions/workflows/docs-ci.yml/badge.svg)](https://github.com/cboyd0319/JobSentinel/actions/workflows/docs-ci.yml)
 
+## GitHub Actions
+
+- CI: .github/workflows/ci.yml
+- Coverage: .github/workflows/coverage.yml
+- Docs CI: .github/workflows/docs-ci.yml
+- Code Scanning: .github/workflows/codeql.yml
+- Security: .github/workflows/security.yml
+- Scorecard: .github/workflows/scorecard.yml
+- Path Guard: .github/workflows/path-guard.yml
+- Deployment (Windows): .github/workflows/test-windows-deployment.yml
+- Deployment (macOS): .github/workflows/test-macos-deployment.yml
+
+Badges above reflect latest statuses.
+
 ## TL;DR
 
 Scrapes top job boards → scores against your preferences → sends alerts. 100% local. $0. No tracking. No subscriptions.
@@ -214,7 +228,7 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for details.
 - **Input validation:** All external data validated
 - **OWASP ASVS Level 2 compliant** (17 controls)
 
-Report vulnerabilities: [SECURITY.md](docs/SECURITY.md)
+Report vulnerabilities: [SECURITY.md](SECURITY.md)
 
 ## Troubleshooting
 
@@ -287,7 +301,7 @@ See [docs/reference/AI_ML_ROADMAP.md](docs/reference/AI_ML_ROADMAP.md) for AI/ML
 
 ## Contributing
 
-Contributions welcome. See [CONTRIBUTING.md](docs/CONTRIBUTING.md).
+Contributions welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 **Before submitting:**
 - [ ] Tests pass (`make test`)
@@ -313,7 +327,7 @@ MIT License - see [LICENSE](LICENSE)
 - **Documentation:** [docs/DOCUMENTATION_INDEX.md](docs/DOCUMENTATION_INDEX.md)
 - **Issues:** https://github.com/cboyd0319/JobSentinel/issues
 - **Discussions:** https://github.com/cboyd0319/JobSentinel/discussions
-- **Security:** [SECURITY.md](docs/SECURITY.md)
+- **Security:** [SECURITY.md](SECURITY.md)
 
 ### Support Policy
 
