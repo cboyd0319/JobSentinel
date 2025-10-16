@@ -62,7 +62,11 @@ jobs:
           # Markdown files outside docs/ (allow root README.md)
           md_outside=$(echo "$changed" | grep -E '\.md$' | grep -vE '^(docs/|README\.md$)' || true)
           if [ -n "$md_outside" ]; then
-            disallowed=$(printf "%s\n%s" "$disallowed" "$md_outside")
+            if [ -n "$disallowed" ]; then
+              disallowed=$(printf "%s\n%s" "$disallowed" "$md_outside")
+            else
+              disallowed="$md_outside"
+            fi
           fi
 
           if [ -n "$disallowed" ]; then
