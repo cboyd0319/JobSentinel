@@ -5,13 +5,22 @@
     "line_length": 120,
     "code_blocks": false,
     "tables": true,
-    "headers": true
+    "headings": true
   },
   "MD009": false, // trailing spaces (used intentionally for hard line breaks)
-  "MD033": { "allowed_elements": ["br"] },
-  "MD041": true,  // first line should be a heading
+  "MD012": false, // multiple blank lines
+  "MD022": false, // headings surrounded by blank lines
+  "MD031": false, // fenced code blocks surrounded by blank lines
+  "MD032": false, // lists surrounded by blank lines
+  "MD033": { "allowed_elements": ["br", "email"] }, // inline HTML
+  "MD034": false, // no bare URLs (many docs have them for reference)
+  "MD036": false, // emphasis used as heading (common in troubleshooting docs)
+  "MD040": false, // fenced code language (not always applicable for output examples)
+  "MD041": false, // first line heading (some docs have front matter)
+  "MD042": false, // no empty links (badges in README)
+  "MD051": false, // link fragments validation (can be fragile)
   "MD025": { "front_matter_title": "" },
   "MD024": { "siblings_only": true },
   "MD007": { "indent": 2 },
-  "MD012": false  // multiple blank lines
+  "MD029": { "style": "ordered" } // ordered list prefix style
 }

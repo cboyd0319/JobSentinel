@@ -81,7 +81,7 @@ jobs:
         with:
           args: >-
             --no-progress --exclude-file .lycheeignore --accept 200,206,403,429
-            --retry-wait-time 2 --max-concurrency 10 --timeout 20s
+            --retry-wait-time 2 --max-concurrency 10 --timeout 20
             **/*.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
