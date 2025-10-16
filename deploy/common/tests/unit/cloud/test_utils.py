@@ -22,8 +22,8 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 import pytest
 
 # Path setup and module mocking is handled in conftest.py
-# Import from cloud.utils which is aliased to the cloud/common/utils.py module
-from cloud.utils import (
+# Import from utils which is in the cloud/common/ directory
+from utils import (
     Spinner,
     _redact_command_for_logging,
     choose,

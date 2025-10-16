@@ -18,10 +18,8 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 import pytest
 
 # Module path is handled in conftest.py
-# Import from cloud.common.providers.common.terraform_installer
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / "cloud" / "common" / "providers" / "common"))
-
-from terraform_installer import (
+# Import from providers.common.terraform_installer
+from providers.common.terraform_installer import (
     TERRAFORM_VERSION,
     _CHECKSUM_CACHE,
     add_to_path,

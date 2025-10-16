@@ -9,13 +9,10 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 # Module path is handled in conftest.py
-import sys
-from pathlib import Path
-
-# Add the cloud/common path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent / "cloud" / "common"))
-
 # Mock the GCP update module before importing
+import sys
+from unittest.mock import MagicMock
+
 sys.modules["cloud.providers.gcp.update"] = MagicMock()
 
 from update import MIN_PYTHON, main, parse_args
