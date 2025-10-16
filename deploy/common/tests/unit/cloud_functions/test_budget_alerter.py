@@ -18,7 +18,9 @@ import pytest
 import sys
 from pathlib import Path
 
-CLOUD_COMMON_DIR = Path(__file__).resolve().parent.parent.parent.parent.parent.parent / "cloud" / "common"
+# Path from test file: deploy/common/tests/unit/cloud_functions/test_budget_alerter.py
+# Navigate up 5 levels to deploy/, then to deploy/cloud/common/functions
+CLOUD_COMMON_DIR = Path(__file__).resolve().parent.parent.parent.parent.parent / "cloud" / "common"
 sys.path.insert(0, str(CLOUD_COMMON_DIR / "functions"))
 
 from budget_alerter import _pause_scheduler_job, budget_alert_handler
