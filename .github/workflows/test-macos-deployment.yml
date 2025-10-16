@@ -13,6 +13,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test-macos-deployment:
     name: macOS Local Deployment Test
@@ -129,18 +133,18 @@ jobs:
       
       - name: Validate macOS setup script structure
         run: |
-          python3 -c "
-import sys
-from pathlib import Path
-sys.path.insert(0, 'deploy/common/app/src')
-
-# Import the setup script to check for syntax errors
-import importlib.util
-spec = importlib.util.spec_from_file_location('macos_setup', 'deploy/common/scripts/macos_setup.py')
-module = importlib.util.module_from_spec(spec)
-
-print('✅ macos_setup.py is valid Python')
-          "
+          python3 -c '
+          import sys
+          from pathlib import Path
+          sys.path.insert(0, "deploy/common/app/src")
+          
+          # Import the setup script to check for syntax errors
+          import importlib.util
+          spec = importlib.util.spec_from_file_location("macos_setup", "deploy/common/scripts/macos_setup.py")
+          module = importlib.util.module_from_spec(spec)
+          
+          print("✅ macos_setup.py is valid Python")
+          '
       
       - name: Test macOS version requirements
         run: |
@@ -177,22 +181,22 @@ print('✅ macos_setup.py is valid Python')
       
       - name: Test platform detection
         run: |
-          python3 -c "
-import platform
-import sys
-
-print(f'Platform: {platform.system()}')
-print(f'Release: {platform.release()}')
-print(f'Version: {platform.version()}')
-print(f'Machine: {platform.machine()}')
-print(f'Python: {sys.version}')
-
-if platform.system() == 'Darwin':
-    print('✅ Running on macOS')
-else:
-    print('❌ Not running on macOS')
-    sys.exit(1)
-          "
+          python3 -c '
+          import platform
+          import sys
+          
+          print(f"Platform: {platform.system()}")
+          print(f"Release: {platform.release()}")
+          print(f"Version: {platform.version()}")
+          print(f"Machine: {platform.machine()}")
+          print(f"Python: {sys.version}")
+          
+          if platform.system() == "Darwin":
+              print("✅ Running on macOS")
+          else:
+              print("❌ Not running on macOS")
+              sys.exit(1)
+          '
       
       - name: Summary
         if: always()
