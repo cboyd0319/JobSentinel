@@ -5,15 +5,7 @@ Tests all custom exception classes and their inheritance hierarchy.
 
 import pytest
 
-
-# Import the exceptions module
-import sys
-from pathlib import Path
-
-_cloud_common_path = Path(__file__).resolve().parent.parent.parent.parent.parent / "cloud" / "common"
-if str(_cloud_common_path) not in sys.path:
-    sys.path.insert(0, str(_cloud_common_path))
-
+# Module path is handled in conftest.py
 from exceptions import (
     AuthenticationError,
     ConfigurationError,

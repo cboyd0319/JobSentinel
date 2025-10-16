@@ -21,18 +21,7 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import pytest
 
-
-# Add cloud/common to path and mock the cost_tracker import
-_cloud_common_path = (
-    Path(__file__).resolve().parent.parent.parent.parent.parent / "cloud" / "common"
-)
-if str(_cloud_common_path) not in sys.path:
-    sys.path.insert(0, str(_cloud_common_path))
-
-# Mock the cost_tracker module that utils tries to import
-sys.modules["utils.cost_tracker"] = MagicMock()
-
-# Now we can import utils
+# Module mocking is handled in conftest.py
 from utils import (
     Spinner,
     _redact_command_for_logging,
