@@ -41,7 +41,7 @@ windows = [
   "pywin32>=306; platform_system=='Windows'",  # Desktop shortcut creation
 ]
 postgres = [
-  "asyncpg>=0.29,<0.30",  # Async PostgreSQL driver
+  "asyncpg>=0.29,<0.31",  # Async PostgreSQL driver
   "psycopg2-binary>=2.9,<3",  # Sync PostgreSQL driver
 ]
 resume = [
