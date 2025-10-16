@@ -7,7 +7,7 @@ Use this checklist when validating a JobSentinel install on a new Mac, an Apple 
 | ✅ macOS 12 Monterey or later (Sonoma/Sequoia preferred) | ☐ | Run `sw_vers -productVersion` |
 | ✅ Apple Silicon Rosetta (if running Intel-only tools) | ☐ | `softwareupdate --install-rosetta` |
 | ✅ Python 3.11/3.12 installed via python.org or Homebrew | ☐ | `python3 --version` |
-| ✅ JobSentinel repository cloned/unzipped to `/Users/<you>/JobSentinel` | ☐ | |
+| ✅ JobSentinel repository cloned/unzipped to `~/JobSentinel` | ☐ | |
 | ✅ `.venv` virtual environment created by `setup.command` | ☐ | Verify `.venv/bin/python3` exists |
 | ✅ Playwright Chromium installed | ☐ | `./.venv/bin/python -m playwright install --list` |
 | ✅ Desktop shortcuts present | ☐ | `Run JobSentinel.command`, `JobSentinel Launcher.command`, etc. |
