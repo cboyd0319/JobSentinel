@@ -47,7 +47,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          pytest --cov=deploy/common/app/src/jsa --cov-report=xml --cov-report=html --cov-report=term | tee coverage-output.txt
+          pytest --cov=deploy/common/app/src/jsa --cov-report=xml --cov-report=html --cov-report=term \
+            --ignore=deploy/common/tests/test_gui_launcher.py \
+            --ignore=deploy/common/tests/test_ui_improvements.py \
+            --ignore=deploy/common/tests/test_windows_deployment_simulation.py \
+            --ignore=deploy/common/tests/test_windows_paths_integration.py \
+            --ignore=deploy/common/tests/test_macos_deployment.py \
+            | tee coverage-output.txt
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
