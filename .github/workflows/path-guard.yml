@@ -43,7 +43,8 @@ jobs:
           fi
           
           # Fetch base branch for comparison
-          git fetch origin "${{ github.base_ref || 'main' }}"
+          ref="${{ github.base_ref || 'main' }}"
+          git fetch origin "$ref"
           
           echo "Checking for files in disallowed locations..."
           
@@ -57,8 +58,11 @@ jobs:
           # Markdown files outside docs/ (allow root README.md)
           md_outside=$(echo "$changed" | grep -E '\.md$' | grep -vE '^(docs/|README\.md$)' || true)
           if [ -n "$md_outside" ]; then
-            disallowed="$disallowed
-$md_outside"
+            if [ -n "$disallowed" ]; then
+              disallowed="${disallowed}"$'\n'"${md_outside}"
+            else
+              disallowed="$md_outside"
+            fi
           fi
           
           if [ -n "$disallowed" ]; then
@@ -78,9 +82,11 @@ $md_outside"
             echo "See docs/development/workflows/copilot-instructions.md Path Router section for complete mapping."
             
             # Set output for PR comment
-            echo "violations<<EOF" >> $GITHUB_OUTPUT
-            echo "$disallowed" >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
+            {
+              echo "violations<<EOF"
+              echo "$disallowed"
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
             
             exit 1
           fi
@@ -122,8 +128,9 @@ $md_outside"
       - name: Summary
         if: always()
         run: |
-          if [ "${{ steps.validate.outcome }}" = "success" ]; then
-            echo "✅ All file paths comply with repository structure guidelines" >> $GITHUB_STEP_SUMMARY
+          outcome="${{ steps.validate.outcome }}"
+          if [ "$outcome" = "success" ]; then
+            echo "✅ All file paths comply with repository structure guidelines" >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "❌ Path violations detected. See job output for details." >> $GITHUB_STEP_SUMMARY
+            echo "❌ Path violations detected. See job output for details." >> "$GITHUB_STEP_SUMMARY"
           fi

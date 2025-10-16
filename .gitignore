@@ -264,3 +264,4 @@ pyguard-*.html
 # Python caches
 __pycache__/
 *.py[cod]
+bin/actionlint

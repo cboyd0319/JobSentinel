@@ -5,6 +5,6 @@ SQLAlchemy==2.0.44
 pytest==8.4.2
 pytest-cov==7.0.0
 pytest-asyncio==1.2.0
-hypothesis==6.140.4
+hypothesis==6.141.0
 ruff==0.14.0
 mypy==1.18.2

@@ -49,7 +49,7 @@ jobs:
           #!/usr/bin/env python3
           """
           Performance benchmarks for JobSentinel.
-          
+
           Measures:
           - Job scraping performance
           - Filter/matcher performance
@@ -68,26 +68,26 @@ jobs:
           def benchmark_database():
               """Benchmark database initialization."""
               from database import init_db
-              
+
               start = time.perf_counter()
               asyncio.run(init_db())
               elapsed = time.perf_counter() - start
-              
+
               print(f"✓ Database init: {elapsed:.4f}s")
               return elapsed
 
           def benchmark_matcher():
               """Benchmark job matching logic."""
               from matchers import KeywordMatcher
-              
+
               matcher = KeywordMatcher(['python', 'senior', 'remote'])
               test_text = "Senior Python Developer - Remote Position" * 100
-              
+
               start = time.perf_counter()
               for _ in range(1000):
                   matcher.match(test_text)
               elapsed = time.perf_counter() - start
-              
+
               print(f"✓ Keyword matching (1000 iterations): {elapsed:.4f}s")
               print(f"  Average: {elapsed/1000*1000:.2f}ms per match")
               return elapsed
@@ -97,16 +97,16 @@ jobs:
               print("JobSentinel Performance Benchmarks")
               print("=" * 60)
               print()
-              
+
               total = 0.0
-              
+
               try:
                   total += benchmark_database()
                   total += benchmark_matcher()
               except Exception as e:
                   print(f"⚠️  Benchmark error: {e}")
                   print("   (This is expected if dependencies are missing)")
-              
+
               print()
               print("=" * 60)
               print(f"Total benchmark time: {total:.4f}s")

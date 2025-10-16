@@ -1,4 +1,3 @@
----
 name: Security Scanning (PyGuard)
 
 # PyGuard replaced Bandit and Safety for unified security scanning
