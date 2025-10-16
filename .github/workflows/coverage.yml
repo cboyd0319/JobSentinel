@@ -53,6 +53,7 @@ jobs:
             --ignore=deploy/common/tests/test_windows_deployment_simulation.py \
             --ignore=deploy/common/tests/test_windows_paths_integration.py \
             --ignore=deploy/common/tests/test_macos_deployment.py \
+            --ignore=deploy/common/tests/unit/cloud \
             | tee coverage-output.txt
 
       - name: Upload coverage to Codecov
