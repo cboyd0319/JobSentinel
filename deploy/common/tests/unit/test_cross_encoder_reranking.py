@@ -2,10 +2,12 @@
 Tests for Cross-Encoder Reranking module.
 """
 
-import numpy as np
 import pytest
 
 pytest.importorskip("torch")
+pytest.importorskip("numpy")
+
+import numpy as np
 
 from domains.ml.cross_encoder_reranking import (
     Candidate,

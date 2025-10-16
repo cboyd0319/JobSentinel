@@ -82,7 +82,7 @@ jobs:
   primary-test:
     needs: changes
     if: needs.changes.outputs.docs-only == 'false'
-    name: Fast Primary Test (Ubuntu, Python 3.13)
+    name: Fast Primary Test (Ubuntu, Python 3.12)
     runs-on: ubuntu-latest
     timeout-minutes: 15  # 💰 Prevent runaway costs
     steps:
@@ -94,7 +94,7 @@ jobs:
       - name: Prepare Python environment
         uses: ./.github/actions/python-env
         with:
-          python-version: '3.13'
+          python-version: '3.12'
           install-deps: 'true'
           prepare-config: 'true'
           cache-dependency-path: requirements.txt
@@ -162,7 +162,7 @@ jobs:
       - name: Prepare Python environment
         uses: ./.github/actions/python-env
         with:
-          python-version: '3.13'
+          python-version: '3.12'
           install-deps: 'true'
           prepare-config: 'true'
 
@@ -176,7 +176,8 @@ jobs:
   # Can be manually triggered if needed via workflow_dispatch
 
   # Compatibility matrix: Ensures code works across Python versions
-  # Primary target is 3.13, but this validates backward compatibility
+  # Primary target is 3.12, but this validates backward compatibility
+  # Note: Python 3.13 removed until it becomes more widely available in CI environments
   core-quality-matrix:
     needs: [changes]
     if: needs.changes.outputs.docs-only == 'false'
@@ -186,7 +187,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        py: ["3.11", "3.12", "3.13"]
+        py: ["3.11", "3.12"]
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
