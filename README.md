@@ -209,7 +209,7 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for details.
 - **Input validation:** All external data validated
 - **OWASP ASVS Level 2 compliant** (17 controls)
 
-Report vulnerabilities: [SECURITY.md](SECURITY.md)
+Report vulnerabilities: [SECURITY.md](docs/SECURITY.md)
 
 ## Troubleshooting
 
@@ -282,7 +282,7 @@ See [docs/reference/AI_ML_ROADMAP.md](docs/reference/AI_ML_ROADMAP.md) for AI/ML
 
 ## Contributing
 
-Contributions welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
+Contributions welcome. See [CONTRIBUTING.md](docs/CONTRIBUTING.md).
 
 **Before submitting:**
 - [ ] Tests pass (`make test`)
@@ -308,7 +308,7 @@ MIT License - see [LICENSE](LICENSE)
 - **Documentation:** [docs/DOCUMENTATION_INDEX.md](docs/DOCUMENTATION_INDEX.md)
 - **Issues:** https://github.com/cboyd0319/JobSentinel/issues
 - **Discussions:** https://github.com/cboyd0319/JobSentinel/discussions
-- **Security:** [SECURITY.md](SECURITY.md)
+- **Security:** [SECURITY.md](docs/SECURITY.md)
 
 ### Support Policy
 

@@ -1,6 +1,6 @@
 name: Path Guard
 
-# Enforces repository file structure per .github/copilot-instructions.md
+# Enforces repository file structure per docs/development/workflows/copilot-instructions.md
 # Prevents files from being placed in deprecated or incorrect locations
 
 on:
@@ -50,14 +50,21 @@ jobs:
           # 1. Deprecated root-level code directories (pre-v0.9)
           # 2. Files directly in deploy/common/ root (not in subdirectories)
           # 3. Docs under deploy/common/docs (should be in docs/)
-          disallowed=$(git diff --name-only "$base"... | \
+          changed=$(git diff --name-only "$base"... || true)
+          disallowed=$(echo "$changed" | \
             grep -E '^(src/|tests/|scripts/|config/|deploy/common/[^/]+\.(py|md|sh|ps1|bat)$|deploy/common/docs/)' || true)
+          # Markdown files outside docs/ (allow root README.md)
+          md_outside=$(echo "$changed" | grep -E '\.md$' | grep -vE '^(docs/|README\.md$)' || true)
+          if [ -n "$md_outside" ]; then
+            disallowed="$disallowed
+$md_outside"
+          fi
           
           if [ -n "$disallowed" ]; then
             echo "❌ DISALLOWED FILE LOCATIONS DETECTED:"
             echo "$disallowed"
             echo ""
-            echo "Files must be placed according to the Path Router in .github/copilot-instructions.md:"
+            echo "Files must be placed according to the Path Router in docs/development/workflows/copilot-instructions.md:"
             echo ""
             echo "Common violations:"
             echo "  • deploy/common/*.py → Should go in deploy/common/app/src/jsa/ or appropriate subdirectory"
@@ -67,7 +74,7 @@ jobs:
             echo "  • config/ → Deprecated; use deploy/common/config/"
             echo "  • deploy/common/docs/ → Should be in docs/"
             echo ""
-            echo "See .github/copilot-instructions.md Path Router section for complete mapping."
+            echo "See docs/development/workflows/copilot-instructions.md Path Router section for complete mapping."
             
             # Set output for PR comment
             echo "violations<<EOF" >> $GITHUB_OUTPUT
@@ -102,7 +109,7 @@ jobs:
             - Files in \`config/\` → Deprecated; use \`deploy/common/config/\`
             - Files in \`deploy/common/docs/\` → Should be in \`docs/\`
             
-            See [\`.github/copilot-instructions.md\`](.github/copilot-instructions.md) Path Router section for the complete mapping.`;
+            See [\`docs/development/workflows/copilot-instructions.md\`](docs/development/workflows/copilot-instructions.md) Path Router section for the complete mapping.`;
             
             github.rest.issues.createComment({
               issue_number: context.issue.number,
