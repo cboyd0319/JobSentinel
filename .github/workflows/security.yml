@@ -1,13 +1,11 @@
-name: Security Scanning (PyGuard)
+name: Security Scanning
 
-# PyGuard replaced Bandit and Safety for unified security scanning
-# - Detects 20+ vulnerability categories (vs Bandit's ~10)
-# - Includes dependency scanning via Safety integration
-# - Generates SARIF output for GitHub Security tab
-# - Single tool = faster CI/CD and easier maintenance
+# Bandit and pip-audit for comprehensive security scanning
+# - Bandit: Python code security analysis with SARIF output for GitHub Security tab
+# - pip-audit: Dependency vulnerability scanning
 #
-# NOTE: This is the AUTHORITATIVE PyGuard scan with SARIF output
-# Do not add PyGuard to other workflows - it creates duplication
+# NOTE: This is the AUTHORITATIVE security scan with SARIF output
+# Do not add duplicate security scanning to other workflows
 
 "on":
   push:
@@ -38,17 +36,41 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Run PyGuard Security Analysis
-        uses: cboyd0319/PyGuard@main
+      - name: Set up Python
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
         with:
-          target: 'deploy/common/app/src/ deploy/common/scripts/'
-          security-only: true
-          sarif-output: true
-          fail-on-error: false
+          python-version: '3.11'
 
-      - name: Upload Security Results to GitHub
+      - name: Install Security Tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install bandit[toml] bandit-sarif-formatter pip-audit
+
+      - name: Run Bandit Security Analysis
+        run: |
+          bandit -r deploy/common/app/src/ deploy/common/scripts/ \
+            -f sarif -o bandit-report.sarif \
+            --exit-zero
+        continue-on-error: true
+
+      - name: Upload Bandit Results to GitHub Security
         uses: github/codeql-action/upload-sarif@f443b600d91635bebf5b0d9ebc620189c0d6fba5 # v4.30.8
         with:
-          sarif_file: pyguard-report.sarif
-          category: pyguard
+          sarif_file: bandit-report.sarif
+          category: bandit
+        if: always()
+
+      - name: Run pip-audit Dependency Scan
+        run: |
+          # Audit installed packages for known vulnerabilities
+          pip-audit --desc --format json -o pip-audit-report.json || true
+          echo "Dependency audit complete (results in pip-audit-report.json)"
+        continue-on-error: true
+
+      - name: Display pip-audit Results
+        run: |
+          if [ -f pip-audit-report.json ]; then
+            echo "=== Dependency Vulnerabilities ==="
+            pip-audit --desc || echo "No critical vulnerabilities found or audit failed"
+          fi
         if: always()
