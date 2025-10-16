@@ -115,12 +115,13 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -e .
+          python -m pip install pytest
         shell: pwsh
 
       - name: Test windows_setup.py can be imported
         run: |
           $env:PYTHONPATH = "deploy\common\app\src"
-          python -c "import sys; sys.path.insert(0, 'deploy/common/app/src'); print('✅ Python path configured correctly')"
+          python -c "import sys; sys.path.insert(0, 'deploy/common/app/src'); print('Python path configured correctly')"
         shell: pwsh
 
       - name: Validate Windows setup script structure
@@ -135,7 +136,7 @@ jobs:
           spec = importlib.util.spec_from_file_location("windows_setup", "deploy/common/scripts/windows_setup.py")
           module = importlib.util.module_from_spec(spec)
 
-          print("✅ windows_setup.py is valid Python")
+          print("windows_setup.py is valid Python")
           '
         shell: pwsh
 
