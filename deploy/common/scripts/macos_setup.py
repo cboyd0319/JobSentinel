@@ -279,7 +279,7 @@ def install_dependencies(project_root: Path) -> bool:
 
     try:
         print("   • Making sure pip is up to date...")
-        upgrade = subprocess.run(
+        upgrade = subprocess.run(  # nosec B603 - controlled input
             [_get_python_bin(), "-m", "pip", "install", "--upgrade", "pip", "setuptools", "wheel"],
             capture_output=True,
             text=True,
