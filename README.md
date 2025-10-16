@@ -6,8 +6,13 @@ Local‑first job search automation that finds high‑match roles and pings you 
 [![Python](https://img.shields.io/badge/Python-3.12%2B-blue.svg)](https://www.python.org/)
 [![Version](https://img.shields.io/badge/Version-0.9.0-brightgreen.svg)](#)
 [![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev/)
-[![Docs](https://github.com/cboyd0319/JobSentinel/actions/workflows/docs-ci.yml/badge.svg)](https://github.com/cboyd0319/JobSentinel/actions/workflows/docs-ci.yml)
+
+[![CI/CD](https://github.com/cboyd0319/JobSentinel/actions/workflows/ci.yml/badge.svg)](https://github.com/cboyd0319/JobSentinel/actions/workflows/ci.yml)
+[![Coverage](https://github.com/cboyd0319/JobSentinel/actions/workflows/coverage.yml/badge.svg)](https://github.com/cboyd0319/JobSentinel/actions/workflows/coverage.yml)
 [![codecov](https://codecov.io/github/cboyd0319/JobSentinel/graph/badge.svg?token=QHEYIFQL0E)](https://codecov.io/github/cboyd0319/JobSentinel)
+[![CodeQL](https://github.com/cboyd0319/JobSentinel/actions/workflows/codeql.yml/badge.svg)](https://github.com/cboyd0319/JobSentinel/actions/workflows/codeql.yml)
+[![Scorecard](https://github.com/cboyd0319/JobSentinel/actions/workflows/scorecard.yml/badge.svg)](https://github.com/cboyd0319/JobSentinel/actions/workflows/scorecard.yml)
+[![Docs](https://github.com/cboyd0319/JobSentinel/actions/workflows/docs-ci.yml/badge.svg)](https://github.com/cboyd0319/JobSentinel/actions/workflows/docs-ci.yml)
 
 ## TL;DR
 

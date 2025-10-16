@@ -1,0 +1,64 @@
+name: Workflow Lint
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/**'
+      - '.github/actions/**'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/**'
+      - '.github/actions/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  actionlint:
+    name: Lint GitHub Actions Workflows
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          fetch-depth: 1
+
+      - name: Download actionlint
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -sSL https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash | bash -s -- latest ./bin
+          echo "${PWD}/bin" >> "${GITHUB_PATH}"
+
+      - name: Run actionlint
+        shell: bash
+        run: |
+          set -euo pipefail
+          actionlint -color -verbose
+
+      - name: Add lint summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## ✅ Workflow Lint (actionlint) Complete"
+            echo ""
+            if [ "${{ job.status }}" = "success" ]; then
+              echo "All GitHub Actions workflows are valid and follow best practices."
+            else
+              echo "❌ Workflow validation failed. Review actionlint output above."
+            fi
+          } >> "${GITHUB_STEP_SUMMARY}"

@@ -1,0 +1,78 @@
+# Configuration for PR auto-labeling
+# Labels are applied based on changed files
+
+'📝 documentation':
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'docs/**/*'
+      - '*.md'
+      - '.github/**/*.md'
+
+'⚙️ workflows':
+  - changed-files:
+    - any-glob-to-any-file:
+      - '.github/workflows/**'
+      - '.github/actions/**'
+
+'🧪 tests':
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'deploy/common/tests/**/*'
+      - 'deploy/common/app/tests/**/*'
+      - '**/test_*.py'
+      - 'pytest.ini'
+      - 'tox.ini'
+
+'💻 code':
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'deploy/common/app/**/*.py'
+      - '!deploy/common/app/**/__init__.py'
+      - '!deploy/common/tests/**'
+
+'🔧 config':
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'pyproject.toml'
+      - 'Makefile'
+      - 'codecov.yml'
+      - '.github/dependabot.yml'
+      - '.yamllint.yml'
+      - '.pre-commit-config.yaml'
+
+'🖥️ macos':
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'deploy/local/macos/**'
+      - 'docs/MACOS_*.md'
+
+'🪟 windows':
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'deploy/local/windows/**'
+      - 'docs/WINDOWS_*.md'
+
+'🔒 security':
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'SECURITY.md'
+      - 'docs/SECURITY.md'
+      - 'docs/THREAT_MODEL.md'
+      - '.github/workflows/security.yml'
+
+'📦 dependencies':
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'pyproject.toml'
+      - 'requirements*.txt'
+
+'🚀 release':
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'docs/CHANGELOG.md'
+      - '.github/workflows/release.yml'
+
+'☁️ cloud':
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'deploy/cloud/**'

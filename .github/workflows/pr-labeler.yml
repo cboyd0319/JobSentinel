@@ -1,0 +1,54 @@
+name: PR Labeler
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  label:
+    name: Auto-label PR
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          fetch-depth: 1
+
+      - name: Label PR based on files changed
+        uses: actions/labeler@634933edcd8ababfe52f92936142cc22ac488b1b # v6.0.1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          configuration-path: .github/labeler.yml
+          sync-labels: true
+
+      - name: Add labeling summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## 🏷️ PR Auto-Labeling Complete"
+            echo ""
+            echo "Labels applied based on changed files:"
+            echo "- Documentation changes → 📝 documentation"
+            echo "- Workflow changes → ⚙️ workflows"
+            echo "- Test changes → 🧪 tests"
+            echo "- Source code changes → 💻 code"
+            echo ""
+            echo "Labels help organize and track PR content."
+          } >> "${GITHUB_STEP_SUMMARY}"

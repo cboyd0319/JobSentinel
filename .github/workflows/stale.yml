@@ -1,0 +1,78 @@
+name: Stale Issues and PRs
+
+on:
+  schedule:
+    # Run daily at 00:00 UTC
+    - cron: '0 0 * * *'
+  workflow_dispatch:  # Allow manual trigger
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  stale:
+    name: Mark Stale Issues and PRs
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      issues: write
+      pull-requests: write
+
+    steps:
+      - name: Mark stale issues and PRs
+        uses: actions/stale@5f858e3efba33a5ca4407a664cc011ad407f2008 # v10.1.0
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          
+          # Issues
+          stale-issue-message: |
+            This issue has been automatically marked as stale because it has not had 
+            recent activity. It will be closed in 7 days if no further activity occurs. 
+            Thank you for your contributions.
+          close-issue-message: |
+            This issue was automatically closed due to inactivity. 
+            If you still need help with this, please reopen or create a new issue.
+          days-before-issue-stale: 60
+          days-before-issue-close: 7
+          stale-issue-label: 'stale'
+          exempt-issue-labels: 'pinned,security,bug'
+          
+          # Pull Requests
+          stale-pr-message: |
+            This PR has been automatically marked as stale because it has not had 
+            recent activity. It will be closed in 14 days if no further activity occurs.
+            Please rebase and resolve any conflicts if you'd like to continue with this PR.
+          close-pr-message: |
+            This PR was automatically closed due to inactivity. 
+            Please feel free to reopen if you'd like to continue working on this.
+          days-before-pr-stale: 45
+          days-before-pr-close: 14
+          stale-pr-label: 'stale'
+          exempt-pr-labels: 'pinned,security,in-progress'
+          
+          # General settings
+          operations-per-run: 100
+          remove-stale-when-updated: true
+          ascending: true
+
+      - name: Add stale summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## 🗑️ Stale Issue Management"
+            echo ""
+            echo "Processed issues and PRs for staleness:"
+            echo "- Issues marked stale after 60 days of inactivity"
+            echo "- PRs marked stale after 45 days of inactivity"
+            echo "- Auto-closed after additional waiting period"
+            echo "- Exempt: security, pinned, and in-progress items"
+          } >> "${GITHUB_STEP_SUMMARY}"

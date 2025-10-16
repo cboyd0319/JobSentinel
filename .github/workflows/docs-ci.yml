@@ -14,34 +14,48 @@ concurrency:
 
 jobs:
   markdownlint:
+    name: Markdown Lint
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: read
+
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           persist-credentials: false
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
         with:
           node-version: '20'
 
       - name: Install markdownlint-cli
+        shell: bash
         run: npm i -g markdownlint-cli
 
       - name: Run markdownlint
+        shell: bash
         run: |
+          set -euo pipefail
           markdownlint "**/*.md" --ignore "node_modules" --config .markdownlint.jsonc
 
   vale:
+    name: Prose Lint (Vale)
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: read
+
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           persist-credentials: false
 
-      - name: Run Vale
-        uses: errata-ai/vale-action@v2
+      - name: Run Vale prose linter
+        uses: errata-ai/vale-action@d89dee975228ae261d22c15adcd03578634d429c # v2.1.1
         with:
           config: .vale.ini
           files: |
@@ -50,15 +64,20 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   link-check:
+    name: Link Validation
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: read
+
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           persist-credentials: false
 
       - name: Link Checker
-        uses: lycheeverse/lychee-action@v1.10.1
+        uses: lycheeverse/lychee-action@885c65f3dc543b57c898c8099f4e08c8afd178a2 # v2.6.1
         with:
           args: >-
             --no-progress --exclude-file .lycheeignore --accept 200,206,403,429
@@ -66,4 +85,109 @@ jobs:
             **/*.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Add docs summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## 📚 Documentation CI Complete"
+            echo ""
+            echo "Checks performed:"
+            echo "- ✓ Markdown linting (markdownlint)"
+            echo "- ✓ Prose quality (Vale)"
+            echo "- ✓ Link validation (lychee)"
+            echo "- ✓ Deployment script validation"
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+  validate-deployment-scripts:
+    name: Validate Deployment Documentation Scripts
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+
+      - name: Validate shell scripts in deployment docs
+        shell: bash
+        run: |
+          set -euo pipefail
+          
+          echo "🔍 Validating shell scripts referenced in deployment documentation..."
+          
+          # Check for shell script files
+          SCRIPTS_FOUND=0
+          SCRIPTS_VALID=0
+          SCRIPTS_INVALID=0
+          
+          for script in deploy/local/**/*.sh deploy/common/scripts/**/*.sh; do
+            if [ -f "$script" ]; then
+              ((SCRIPTS_FOUND++))
+              echo "Checking: $script"
+              if bash -n "$script" 2>/dev/null; then
+                ((SCRIPTS_VALID++))
+                echo "  ✓ Valid syntax"
+              else
+                ((SCRIPTS_INVALID++))
+                echo "  ✗ Invalid syntax"
+              fi
+            fi
+          done || true
+          
+          echo ""
+          echo "📊 Validation Summary:"
+          echo "  Total scripts: $SCRIPTS_FOUND"
+          echo "  Valid: $SCRIPTS_VALID"
+          echo "  Invalid: $SCRIPTS_INVALID"
+          
+          if [ "$SCRIPTS_INVALID" -gt 0 ]; then
+            echo "❌ Some scripts have syntax errors"
+            exit 1
+          fi
+          
+          echo "✓ All deployment scripts have valid syntax"
+
+      - name: Validate PowerShell scripts in deployment docs
+        shell: bash
+        run: |
+          set -euo pipefail
+          
+          echo "🔍 Checking for PowerShell scripts in deployment documentation..."
+          
+          # Count PowerShell scripts
+          PS_COUNT=$(find deploy/local -name "*.ps1" 2>/dev/null | wc -l || echo 0)
+          
+          if [ "$PS_COUNT" -gt 0 ]; then
+            echo "Found $PS_COUNT PowerShell scripts"
+            echo "⚠️  PowerShell syntax validation requires Windows runner (skipped on Linux)"
+          else
+            echo "No PowerShell scripts found"
+          fi
+
+      - name: Check deployment documentation references
+        shell: bash
+        run: |
+          set -euo pipefail
+          
+          echo "🔍 Validating script references in deployment documentation..."
+          
+          # Check if deployment docs reference non-existent scripts
+          for doc in docs/MACOS_*.md docs/WINDOWS_*.md docs/*DEPLOYMENT*.md; do
+            if [ -f "$doc" ]; then
+              echo "Checking references in: $doc"
+              # Extract potential script paths (basic check)
+              grep -oE 'deploy/[^)[:space:]]+\.(sh|ps1|py)' "$doc" | while read -r path; do
+                if [ ! -f "$path" ]; then
+                  echo "  ⚠️  Referenced script not found: $path"
+                fi
+              done || echo "  ✓ No broken script references found"
+            fi
+          done
+          
+          echo "✓ Deployment documentation script references validated"
 

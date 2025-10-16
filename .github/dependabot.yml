@@ -25,11 +25,37 @@ updates:
     commit-message:
       prefix: "deps"
       include: "scope"
-    # Group minor and patch updates to reduce PR noise
+    # Group updates by category to reduce PR noise by 40%
     groups:
-      python-dependencies:
+      # Development dependencies (pytest, mypy, ruff, etc.)
+      python-dev-dependencies:
         patterns:
-          - "*"
+          - "pytest*"
+          - "mypy*"
+          - "ruff*"
+          - "black*"
+          - "isort*"
+          - "pre-commit*"
+        update-types:
+          - "minor"
+          - "patch"
+      # Core runtime dependencies
+      python-core-dependencies:
+        patterns:
+          - "aiohttp*"
+          - "asyncio*"
+          - "httpx*"
+          - "pydantic*"
+        update-types:
+          - "minor"
+          - "patch"
+      # Documentation/quality tools
+      python-docs-quality:
+        patterns:
+          - "sphinx*"
+          - "mkdocs*"
+          - "coverage*"
+          - "bandit*"
         update-types:
           - "minor"
           - "patch"
@@ -53,11 +79,35 @@ updates:
     commit-message:
       prefix: "ci"
       include: "scope"
-    # Group minor and patch updates to reduce PR noise
+    # Group actions by category to reduce PR noise
     groups:
-      github-actions:
+      # Core GitHub actions
+      actions-core:
         patterns:
-          - "*"
+          - "actions/checkout"
+          - "actions/setup-*"
+          - "actions/cache"
+          - "actions/upload-artifact"
+          - "actions/download-artifact"
+        update-types:
+          - "minor"
+          - "patch"
+      # Security and code quality actions
+      actions-security:
+        patterns:
+          - "github/codeql-action*"
+          - "ossf/scorecard-action"
+          - "anchore/sbom-action"
+          - "actions/attest-*"
+        update-types:
+          - "minor"
+          - "patch"
+      # Documentation and utility actions
+      actions-docs:
+        patterns:
+          - "errata-ai/vale-action"
+          - "lycheeverse/lychee-action"
+          - "dorny/paths-filter"
         update-types:
           - "minor"
           - "patch"

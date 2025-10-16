@@ -1,0 +1,54 @@
+name: Dependency Review
+
+on:
+  pull_request:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          fetch-depth: 1
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@5a2ce3f5b92ee19cbb1541a4984c76d921601d7c # v4.5.0
+        with:
+          fail-on-severity: moderate
+          comment-summary-in-pr: always
+          deny-licenses: GPL-3.0, AGPL-3.0
+          allow-dependencies-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC
+
+      - name: Add review summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## 🔍 Dependency Review Complete"
+            echo ""
+            echo "Checked for:"
+            echo "- Security vulnerabilities"
+            echo "- License compliance"
+            echo "- Dependency changes"
+            echo ""
+            echo "Severity threshold: **moderate** and above"
+          } >> "${GITHUB_STEP_SUMMARY}"

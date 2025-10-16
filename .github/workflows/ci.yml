@@ -1,9 +1,8 @@
 name: CI/CD Pipeline
 
-# Security Note: Actions are pinned to major versions (v5, v4, etc.) with Dependabot
-# tracking updates. For maximum security in production environments, consider pinning
-# to full commit SHAs. Current approach balances security with maintainability for
-# personal project. See: https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions
+# Security Note: Actions are now pinned to full commit SHAs for maximum security
+# per GitHub Security Hardening Best Practices. See ACTIONS_VERSIONS.md for details.
+# https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions
 
 on:
   push:
@@ -39,11 +38,11 @@ jobs:
       docs-only: ${{ steps.changes.outputs.docs-only }}
       workflows: ${{ steps.changes.outputs.workflows }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           persist-credentials: false
 
-      - uses: dorny/paths-filter@v3
+      - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
         id: changes
         with:
           filters: |
@@ -87,7 +86,7 @@ jobs:
     timeout-minutes: 15  # 💰 Prevent runaway costs
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           persist-credentials: false
 
@@ -136,7 +135,7 @@ jobs:
           make cov || echo "⚠️ Coverage below 85% threshold - needs improvement"
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
@@ -166,7 +165,7 @@ jobs:
     timeout-minutes: 10  # 💰 Quick health check timeout
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           persist-credentials: false
 
@@ -201,12 +200,12 @@ jobs:
         py: ["3.11", "3.12"]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           persist-credentials: false
 
       - name: Setup Python ${{ matrix.py }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
           python-version: ${{ matrix.py }}
           cache: pip

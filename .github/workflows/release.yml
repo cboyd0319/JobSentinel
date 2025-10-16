@@ -1,0 +1,199 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to release (e.g., v1.0.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  validate:
+    name: Validate Version
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      version: ${{ steps.version.outputs.VERSION }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          fetch-depth: 1
+
+      - name: Extract and validate version
+        id: version
+        run: |
+          set -euo pipefail
+
+          # Get version from tag or workflow input
+          if [[ -n "${{ inputs.tag }}" ]]; then
+            VERSION="${{ inputs.tag }}"
+            VERSION="${VERSION#v}"  # Remove 'v' prefix if present
+          else
+            VERSION="${GITHUB_REF#refs/tags/v}"
+          fi
+
+          echo "VERSION=${VERSION}" >> "$GITHUB_OUTPUT"
+
+          # Validate semver format
+          if ! [[ "${VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$ ]]; then
+            echo "::error::Invalid version format: ${VERSION}"
+            exit 1
+          fi
+
+          echo "✓ Valid version: ${VERSION}"
+
+          # Add to summary
+          {
+            echo "## Release Validation"
+            echo ""
+            echo "- **Version:** \`${VERSION}\`"
+            echo "- **Tag:** \`v${VERSION}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  release:
+    name: Create Release
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      attestations: write
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
+        with:
+          python-version: '3.12'
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build wheel
+
+      - name: Build distribution packages
+        run: |
+          python -m build
+
+      - name: Create release package
+        run: |
+          set -euo pipefail
+
+          VERSION="${{ needs.validate.outputs.version }}"
+          echo "📦 Creating release package for v${VERSION}..."
+
+          # Create comprehensive release archive
+          tar -czf "jobsentinel-${VERSION}.tar.gz" \
+            deploy/ \
+            docs/ \
+            Makefile \
+            README.md \
+            LICENSE \
+            pyproject.toml \
+            requirements.txt \
+            requirements-mcp.txt \
+            codecov.yml
+
+          # Create checksums
+          sha256sum "jobsentinel-${VERSION}.tar.gz" > "jobsentinel-${VERSION}.tar.gz.sha256"
+          sha256sum dist/*.whl > "jobsentinel-${VERSION}-wheels.sha256"
+          sha256sum dist/*.tar.gz >> "jobsentinel-${VERSION}-wheels.sha256"
+
+          echo "✓ Package created successfully"
+
+          # Add to summary
+          {
+            echo "## Release Package"
+            echo ""
+            echo "- **Source Archive:** \`jobsentinel-${VERSION}.tar.gz\`"
+            echo "- **Size:** $(du -h "jobsentinel-${VERSION}.tar.gz" | cut -f1)"
+            echo ""
+            echo "### Python Wheels"
+            ls -lh dist/
+            echo ""
+            echo "### SHA256 Checksums"
+            echo "\`\`\`"
+            cat "jobsentinel-${VERSION}.tar.gz.sha256"
+            cat "jobsentinel-${VERSION}-wheels.sha256"
+            echo "\`\`\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Generate SBOM
+        uses: anchore/sbom-action@d8a2c0130026bf585de5c176ab8f7ce62d75bf04 # v0.20.7
+        with:
+          artifact-name: jobsentinel-${{ needs.validate.outputs.version }}.spdx.json
+          output-file: jobsentinel-${{ needs.validate.outputs.version }}.spdx.json
+          format: spdx-json
+
+      - name: Attest build provenance for source archive
+        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3.0.0
+        with:
+          subject-path: jobsentinel-${{ needs.validate.outputs.version }}.tar.gz
+
+      - name: Attest build provenance for wheels
+        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3.0.0
+        with:
+          subject-path: dist/*
+
+      - name: Extract release notes
+        id: release_notes
+        run: |
+          set -euo pipefail
+
+          VERSION="${{ needs.validate.outputs.version }}"
+
+          echo "📝 Extracting release notes for v${VERSION}..."
+
+          # Try to extract version-specific notes from CHANGELOG
+          if grep -q "## \[${VERSION}\]" docs/CHANGELOG.md 2>/dev/null; then
+            awk "/## \[${VERSION}\]/,/## \[/{if (/## \[/ && !/## \[${VERSION}\]/) exit; print}" docs/CHANGELOG.md > release-notes.md
+            echo "✓ Extracted release notes from CHANGELOG"
+          else
+            # Fallback to generic notes
+            {
+              echo "Release v${VERSION}"
+              echo ""
+              echo "See [CHANGELOG](docs/CHANGELOG.md) for details."
+            } > release-notes.md
+            echo "⚠️ Using generic release notes (version not found in CHANGELOG)"
+          fi
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@6da8fa9354ddfdc4aeace5fc48d7f679b5214090 # v2.4.1
+        with:
+          files: |
+            jobsentinel-${{ needs.validate.outputs.version }}.tar.gz
+            jobsentinel-${{ needs.validate.outputs.version }}.tar.gz.sha256
+            jobsentinel-${{ needs.validate.outputs.version }}-wheels.sha256
+            jobsentinel-${{ needs.validate.outputs.version }}.spdx.json
+            dist/*.whl
+            dist/*.tar.gz
+          body_path: release-notes.md
+          draft: false
+          prerelease: ${{ contains(needs.validate.outputs.version, '-') }}
+          generate_release_notes: true
+          tag_name: v${{ needs.validate.outputs.version }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
