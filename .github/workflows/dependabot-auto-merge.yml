@@ -8,9 +8,14 @@ permissions:
   contents: write
   pull-requests: write
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false  # Don't cancel Dependabot merges in progress
+
 jobs:
   dependabot:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     # Only run for Dependabot PRs
     if: github.actor == 'dependabot[bot]'
     steps:

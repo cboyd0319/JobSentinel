@@ -13,6 +13,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test-windows-deployment:
     name: Windows Local Deployment Test
@@ -121,18 +125,18 @@ jobs:
       
       - name: Validate Windows setup script structure
         run: |
-          python -c "
-import sys
-from pathlib import Path
-sys.path.insert(0, 'deploy/common/app/src')
-
-# Import the setup script to check for syntax errors
-import importlib.util
-spec = importlib.util.spec_from_file_location('windows_setup', 'deploy/common/scripts/windows_setup.py')
-module = importlib.util.module_from_spec(spec)
-
-print('✅ windows_setup.py is valid Python')
-          "
+          python -c '
+          import sys
+          from pathlib import Path
+          sys.path.insert(0, "deploy/common/app/src")
+          
+          # Import the setup script to check for syntax errors
+          import importlib.util
+          spec = importlib.util.spec_from_file_location("windows_setup", "deploy/common/scripts/windows_setup.py")
+          module = importlib.util.module_from_spec(spec)
+          
+          print("✅ windows_setup.py is valid Python")
+          '
         shell: pwsh
       
       - name: Run unit tests for Windows deployment
