@@ -22,33 +22,33 @@ jobs:
     name: macOS Local Deployment Test
     runs-on: macos-latest
     timeout-minutes: 30
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           persist-credentials: false
-      
+
       - name: Setup Python 3.12
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
           python-version: '3.12'
           cache: 'pip'
-      
+
       - name: Display Python version
         run: python3 --version
-      
+
       - name: Display macOS version
         run: |
           sw_vers
           echo "macOS $(sw_vers -productVersion)"
           uname -a
-      
+
       - name: Check disk space
         run: |
           df -h .
           echo "Free space: $(df -h . | awk 'NR==2 {print $4}')"
-      
+
       - name: Validate macOS deployment scripts exist
         run: |
           scripts=(
@@ -57,7 +57,7 @@ jobs:
             "deploy/common/scripts/macos_setup.py"
             "deploy/common/app/src/jsa/gui_launcher.py"
           )
-          
+
           missing=0
           for script in "${scripts[@]}"; do
             if [ ! -f "$script" ]; then
@@ -67,102 +67,102 @@ jobs:
               echo "✅ Found: $script"
             fi
           done
-          
+
           if [ $missing -gt 0 ]; then
             echo ""
             echo "❌ Missing $missing required files"
             exit 1
           fi
-      
+
       - name: Validate shell scripts are executable
         run: |
           chmod +x deploy/local/macos/setup.sh
           chmod +x deploy/local/macos/launch-gui.sh
           echo "✅ Made scripts executable"
-      
+
       - name: Validate Python scripts syntax
         run: |
           python3 -m py_compile deploy/common/scripts/macos_setup.py
           python3 -m py_compile deploy/common/app/src/jsa/gui_launcher.py
           echo "✅ Python scripts syntax valid"
-      
+
       - name: Test setup.sh path resolution
         run: |
           # Test that the script can find the repository root
           script_path="deploy/local/macos/setup.sh"
-          
+
           # Check if script navigates to repo root properly
           if grep -q "SCRIPT_DIR=" "$script_path"; then
             echo "✅ setup.sh has SCRIPT_DIR defined"
           else
             echo "⚠️  setup.sh might have path resolution issues"
           fi
-          
+
           # Check if it changes to the right directory
           if grep -q "cd.*SCRIPT_DIR" "$script_path"; then
             echo "✅ setup.sh changes directory"
           fi
-      
+
       - name: Test launch-gui.sh path resolution
         run: |
           # Test that the script can find the repository root
           script_path="deploy/local/macos/launch-gui.sh"
-          
+
           # Check if script navigates to repo root properly
           if grep -q "SCRIPT_DIR=" "$script_path"; then
             echo "✅ launch-gui.sh has SCRIPT_DIR defined"
           else
             echo "⚠️  launch-gui.sh might have path resolution issues"
           fi
-      
+
       - name: Validate shell script syntax
         run: |
           bash -n deploy/local/macos/setup.sh
           bash -n deploy/local/macos/launch-gui.sh
           echo "✅ Shell scripts syntax valid"
-      
+
       - name: Install minimal dependencies
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install -e .
-      
+
       - name: Test macos_setup.py can be imported
         run: |
           export PYTHONPATH="deploy/common/app/src"
           python3 -c "import sys; sys.path.insert(0, 'deploy/common/app/src'); print('✅ Python path configured correctly')"
-      
+
       - name: Validate macOS setup script structure
         run: |
           python3 -c '
           import sys
           from pathlib import Path
           sys.path.insert(0, "deploy/common/app/src")
-          
+
           # Import the setup script to check for syntax errors
           import importlib.util
           spec = importlib.util.spec_from_file_location("macos_setup", "deploy/common/scripts/macos_setup.py")
           module = importlib.util.module_from_spec(spec)
-          
+
           print("✅ macos_setup.py is valid Python")
           '
-      
+
       - name: Test macOS version requirements
         run: |
           # The script requires macOS 15+, but that's too strict
           # macOS 12+ should work based on README
           macos_version=$(sw_vers -productVersion | cut -d '.' -f 1)
           echo "macOS major version: $macos_version"
-          
+
           if [ "$macos_version" -ge 12 ]; then
             echo "✅ macOS version $macos_version is supported (12+)"
           else
             echo "⚠️  macOS version $macos_version might not be supported"
           fi
-      
+
       - name: Run unit tests for macOS deployment
         run: |
           python3 -m pytest deploy/common/tests/test_macos_deployment.py -v -k "Core or test_python_version_check or test_required_packages"
-      
+
       - name: Test macOS deployment documentation
         run: |
           docs=(
@@ -170,7 +170,7 @@ jobs:
             "docs/MACOS_QUICK_START.md"
             "docs/MACOS_TROUBLESHOOTING.md"
           )
-          
+
           for doc in "${docs[@]}"; do
             if [ -f "$doc" ]; then
               echo "✅ Found: $doc"
@@ -178,26 +178,26 @@ jobs:
               echo "⚠️  Missing: $doc"
             fi
           done
-      
+
       - name: Test platform detection
         run: |
           python3 -c '
           import platform
           import sys
-          
+
           print(f"Platform: {platform.system()}")
           print(f"Release: {platform.release()}")
           print(f"Version: {platform.version()}")
           print(f"Machine: {platform.machine()}")
           print(f"Python: {sys.version}")
-          
+
           if platform.system() == "Darwin":
               print("✅ Running on macOS")
           else:
               print("❌ Not running on macOS")
               sys.exit(1)
           '
-      
+
       - name: Summary
         if: always()
         run: |

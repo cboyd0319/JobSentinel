@@ -22,34 +22,34 @@ jobs:
     name: Windows Local Deployment Test
     runs-on: windows-latest
     timeout-minutes: 30
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           persist-credentials: false
-      
+
       - name: Setup Python 3.12
         uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6.0.0
         with:
           python-version: '3.12'
           cache: 'pip'
-      
+
       - name: Display Python version
         run: python --version
-      
+
       - name: Display Windows version
         run: |
           systeminfo | findstr /B /C:"OS Name" /C:"OS Version"
           $version = [System.Environment]::OSVersion.Version
           Write-Host "Windows Build: $($version.Build)"
         shell: pwsh
-      
+
       - name: Check disk space
         run: |
           Get-PSDrive C | Select-Object Used,Free
         shell: pwsh
-      
+
       - name: Validate Windows deployment scripts exist
         run: |
           $scripts = @(
@@ -60,7 +60,7 @@ jobs:
             "deploy\common\scripts\windows_setup.py",
             "deploy\common\app\src\jsa\gui_launcher.py"
           )
-          
+
           $missing = @()
           foreach ($script in $scripts) {
             if (-not (Test-Path $script)) {
@@ -70,80 +70,80 @@ jobs:
               Write-Host "✅ Found: $script" -ForegroundColor Green
             }
           }
-          
+
           if ($missing.Count -gt 0) {
             Write-Host "`n❌ Missing $($missing.Count) required files" -ForegroundColor Red
             exit 1
           }
         shell: pwsh
-      
+
       - name: Validate Python scripts syntax
         run: |
           python -m py_compile deploy/common/scripts/windows_setup.py
           python -m py_compile deploy/common/app/src/jsa/gui_launcher.py
         shell: pwsh
-      
+
       - name: Test setup.ps1 path resolution
         run: |
           # Test that the script can find the repository root
           $scriptPath = "deploy\local\windows\setup.ps1"
           $content = Get-Content $scriptPath -Raw
-          
+
           # Check if script navigates to repo root properly
           if ($content -notmatch 'Set-Location.*\$scriptDir') {
             Write-Host "⚠️  setup.ps1 might have path resolution issues" -ForegroundColor Yellow
           }
-          
+
           Write-Host "✅ setup.ps1 syntax check passed" -ForegroundColor Green
         shell: pwsh
-      
+
       - name: Test launch-gui.ps1 path resolution
         run: |
           # Test that the script can find the repository root
           $scriptPath = "deploy\local\windows\launch-gui.ps1"
           $content = Get-Content $scriptPath -Raw
-          
+
           # Check if script navigates to repo root properly
           if ($content -notmatch 'Set-Location.*\$scriptDir') {
             Write-Host "⚠️  launch-gui.ps1 might have path resolution issues" -ForegroundColor Yellow
           }
-          
+
           Write-Host "✅ launch-gui.ps1 syntax check passed" -ForegroundColor Green
         shell: pwsh
-      
+
       - name: Install minimal dependencies
         run: |
           python -m pip install --upgrade pip
           python -m pip install -e .
         shell: pwsh
-      
+
       - name: Test windows_setup.py can be imported
         run: |
           $env:PYTHONPATH = "deploy\common\app\src"
           python -c "import sys; sys.path.insert(0, 'deploy/common/app/src'); print('✅ Python path configured correctly')"
         shell: pwsh
-      
+
       - name: Validate Windows setup script structure
         run: |
           python -c '
           import sys
           from pathlib import Path
           sys.path.insert(0, "deploy/common/app/src")
-          
+
           # Import the setup script to check for syntax errors
           import importlib.util
           spec = importlib.util.spec_from_file_location("windows_setup", "deploy/common/scripts/windows_setup.py")
           module = importlib.util.module_from_spec(spec)
-          
+
           print("✅ windows_setup.py is valid Python")
           '
         shell: pwsh
-      
+
       - name: Run unit tests for Windows deployment
         run: |
           python -m pytest deploy/common/tests/test_windows_deployment.py -v -k "Core or test_python_version_check or test_required_packages"
         shell: pwsh
-      
+
       - name: Test Windows deployment documentation
         run: |
           $docs = @(
@@ -151,7 +151,7 @@ jobs:
             "docs\WINDOWS_QUICK_START.md",
             "docs\WINDOWS_TROUBLESHOOTING.md"
           )
-          
+
           foreach ($doc in $docs) {
             if (Test-Path $doc) {
               Write-Host "✅ Found: $doc" -ForegroundColor Green
@@ -160,7 +160,7 @@ jobs:
             }
           }
         shell: pwsh
-      
+
       - name: Summary
         if: always()
         run: |

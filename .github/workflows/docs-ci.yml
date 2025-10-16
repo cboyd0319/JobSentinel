@@ -117,14 +117,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          
+
           echo "🔍 Validating shell scripts referenced in deployment documentation..."
-          
+
           # Check for shell script files
           SCRIPTS_FOUND=0
           SCRIPTS_VALID=0
           SCRIPTS_INVALID=0
-          
+
           for script in deploy/local/**/*.sh deploy/common/scripts/**/*.sh; do
             if [ -f "$script" ]; then
               ((SCRIPTS_FOUND++))
@@ -138,30 +138,30 @@ jobs:
               fi
             fi
           done || true
-          
+
           echo ""
           echo "📊 Validation Summary:"
           echo "  Total scripts: $SCRIPTS_FOUND"
           echo "  Valid: $SCRIPTS_VALID"
           echo "  Invalid: $SCRIPTS_INVALID"
-          
+
           if [ "$SCRIPTS_INVALID" -gt 0 ]; then
             echo "❌ Some scripts have syntax errors"
             exit 1
           fi
-          
+
           echo "✓ All deployment scripts have valid syntax"
 
       - name: Validate PowerShell scripts in deployment docs
         shell: bash
         run: |
           set -euo pipefail
-          
+
           echo "🔍 Checking for PowerShell scripts in deployment documentation..."
-          
+
           # Count PowerShell scripts
           PS_COUNT=$(find deploy/local -name "*.ps1" 2>/dev/null | wc -l || echo 0)
-          
+
           if [ "$PS_COUNT" -gt 0 ]; then
             echo "Found $PS_COUNT PowerShell scripts"
             echo "⚠️  PowerShell syntax validation requires Windows runner (skipped on Linux)"
@@ -173,9 +173,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          
+
           echo "🔍 Validating script references in deployment documentation..."
-          
+
           # Check if deployment docs reference non-existent scripts
           for doc in docs/MACOS_*.md docs/WINDOWS_*.md docs/*DEPLOYMENT*.md; do
             if [ -f "$doc" ]; then
@@ -188,6 +188,5 @@ jobs:
               done || echo "  ✓ No broken script references found"
             fi
           done
-          
-          echo "✓ Deployment documentation script references validated"
 
+          echo "✓ Deployment documentation script references validated"

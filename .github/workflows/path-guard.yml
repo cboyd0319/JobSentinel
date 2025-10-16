@@ -34,19 +34,20 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          
+
           # Get the base branch
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             base="origin/${{ github.base_ref }}"
           else
             base="origin/main"
           fi
-          
+
           # Fetch base branch for comparison
-          git fetch origin "${{ github.base_ref || 'main' }}"
-          
+          ref="${{ github.base_ref || 'main' }}"
+          git fetch origin "$ref"
+
           echo "Checking for files in disallowed locations..."
-          
+
           # Define disallowed patterns
           # 1. Deprecated root-level code directories (pre-v0.9)
           # 2. Files directly in deploy/common/ root (not in subdirectories)
@@ -57,10 +58,9 @@ jobs:
           # Markdown files outside docs/ (allow root README.md)
           md_outside=$(echo "$changed" | grep -E '\.md$' | grep -vE '^(docs/|README\.md$)' || true)
           if [ -n "$md_outside" ]; then
-            disallowed="$disallowed
-$md_outside"
+            disallowed=$(printf "%s\n%s" "$disallowed" "$md_outside")
           fi
-          
+
           if [ -n "$disallowed" ]; then
             echo "❌ DISALLOWED FILE LOCATIONS DETECTED:"
             echo "$disallowed"
@@ -76,15 +76,17 @@ $md_outside"
             echo "  • deploy/common/docs/ → Should be in docs/"
             echo ""
             echo "See docs/development/workflows/copilot-instructions.md Path Router section for complete mapping."
-            
+
             # Set output for PR comment
-            echo "violations<<EOF" >> $GITHUB_OUTPUT
-            echo "$disallowed" >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
-            
+            {
+              echo "violations<<EOF"
+              echo "$disallowed"
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
+
             exit 1
           fi
-          
+
           echo "✅ All file paths are valid!"
 
       - name: Comment on PR with violations
@@ -94,24 +96,25 @@ $md_outside"
           script: |
             const violations = `${{ steps.validate.outputs.violations }}`;
             const body = `## ❌ Path Guard: Invalid File Locations
-            
+
             The following files are in disallowed locations:
-            
+
             \`\`\`
             ${violations}
             \`\`\`
-            
+
             ### Common Fixes:
-            
+
             - Files in \`deploy/common/*.py\` → Move to \`deploy/common/app/src/jsa/\` or appropriate subdirectory
             - Files in \`src/\` → Deprecated; use \`deploy/common/app/src/jsa/\`
             - Files in \`tests/\` → Deprecated; use \`deploy/common/tests/\`
             - Files in \`scripts/\` → Deprecated; use \`deploy/common/scripts/\`
             - Files in \`config/\` → Deprecated; use \`deploy/common/config/\`
             - Files in \`deploy/common/docs/\` → Should be in \`docs/\`
-            
-            See [\`docs/development/workflows/copilot-instructions.md\`](docs/development/workflows/copilot-instructions.md) Path Router section for the complete mapping.`;
-            
+
+            See [\`docs/development/workflows/copilot-instructions.md\`](docs/development/workflows/copilot-instructions.md)
+            Path Router section for the complete mapping.`;
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
@@ -122,8 +125,9 @@ $md_outside"
       - name: Summary
         if: always()
         run: |
-          if [ "${{ steps.validate.outcome }}" = "success" ]; then
-            echo "✅ All file paths comply with repository structure guidelines" >> $GITHUB_STEP_SUMMARY
+          outcome="${{ steps.validate.outcome }}"
+          if [ "$outcome" = "success" ]; then
+            echo "✅ All file paths comply with repository structure guidelines" >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "❌ Path violations detected. See job output for details." >> $GITHUB_STEP_SUMMARY
+            echo "❌ Path violations detected. See job output for details." >> "$GITHUB_STEP_SUMMARY"
           fi
