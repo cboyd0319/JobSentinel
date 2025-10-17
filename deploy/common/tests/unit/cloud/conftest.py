@@ -32,9 +32,11 @@ cloud_module.__file__ = str(CLOUD_COMMON_DIR / "__init__.py")
 sys.modules["cloud"] = cloud_module
 
 # Mock utils.cost_tracker before any cloud modules are imported
-sys.modules["utils"] = MagicMock()
-sys.modules["utils.cost_tracker"] = MagicMock()
-sys.modules["utils.cost_tracker"].tracker = MagicMock()
+# We need to load the actual cloud/common/utils.py but mock its dependency on utils.cost_tracker
+# First, mock the cost_tracker module that cloud/common/utils.py tries to import
+cost_tracker_mock = MagicMock()
+cost_tracker_mock.tracker = MagicMock()
+sys.modules["utils.cost_tracker"] = cost_tracker_mock
 
 
 @pytest.fixture
