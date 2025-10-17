@@ -1,18 +1,7 @@
 {
-  "$comment": "NOTE: GitHub MCP server tools (repo operations, issues, PRs) are built-in to Copilot and do not need configuration here. The COPILOT_MCP_GITHUB_PERSONAL_ACCESS_TOKEN secret is NOT used for MCP - it's reserved for other GitHub API integrations. GitHub MCP uses OAuth through Copilot's built-in authentication.",
+  "$comment": "NOTE: GitHub MCP server tools (repo operations, issues, PRs) are built-in to Copilot and do not need configuration here. GitHub MCP uses OAuth through Copilot's built-in authentication.",
   "mcpServers": {
-    "claude": {
-      "description": "Anthropic's Claude MCP server for enhanced AI capabilities and integrations.",
-      "type": "local",
-      "command": "npx",
-      "args": ["-y", "@anthropic-ai/mcp-server-claude"],
-      "env": {
-        "ANTHROPIC_API_KEY": "$COPILOT_MCP_ANTHROPIC_API_KEY"
-      },
-      "tools": ["*"]
-    },
     "context7": {
-      "description": "Pulls up-to-date, version-specific documentation and code examples directly from the source. Provides accurate, relevant documentation with no hallucinations for better AI understanding of your stack. Useful for looking up Python 3.13+, Playwright, Flask, SQLAlchemy, Pydantic, pytest, and other framework documentation.",
       "type": "http",
       "url": "https://mcp.context7.com/mcp",
       "headers": {
@@ -20,8 +9,7 @@
       },
       "tools": ["*"]
     },
-    "openai-websearch": {
-      "description": "Enables web search capabilities through OpenAI. Use for finding current information about job boards, scraping techniques, Python libraries, security best practices, and emerging trends in job automation.",
+    "websearch-mcp": {
       "type": "local",
       "command": "uvx",
       "args": ["openai-websearch-mcp"],
@@ -30,15 +18,13 @@
       },
       "tools": ["openai_web_search"]
     },
-    "fetch": {
-      "description": "Fetches web content for analysis. Useful for inspecting job board HTML structures, checking robots.txt files, and analyzing scraping targets before implementing scrapers.",
+    "mcp-fetch-server": {
       "type": "local",
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-fetch@latest"],
       "tools": ["*"]
     },
-    "playwright": {
-      "description": "Browser automation capabilities for testing and development. Use for interactive debugging of scrapers, testing JavaScript-heavy job boards, and validating web UI functionality.",
+    "playwright-mcp": {
       "type": "local",
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-playwright@latest"],
