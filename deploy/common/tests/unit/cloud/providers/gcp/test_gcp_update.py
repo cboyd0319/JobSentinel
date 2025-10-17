@@ -57,30 +57,34 @@ class TestGCPUpdateRun:
     """Test suite for GCPUpdate.run() workflow."""
 
     @pytest.mark.asyncio
-    async def test_run_calls_print_welcome(self):
+    async def test_run_calls_print_welcome(self, mocker):
         """Test that run() calls _print_welcome."""
         # Arrange
         updater = GCPUpdate(project_id="test-project")
 
         with patch.object(updater, "_print_welcome") as mock_welcome:
-            with patch("cloud.providers.gcp.update.choose", return_value="User Preferences"):
-                with patch.object(
-                    updater, "_update_user_preferences", new_callable=AsyncMock
-                ) as mock_update:
-                    with patch.object(updater, "_print_summary"):
-                        # Act
-                        await updater.run()
+            # Mock stdin to avoid reading from terminal
+            mocker.patch("builtins.input", return_value="1")
+            with patch.object(
+                updater, "_update_user_preferences", new_callable=AsyncMock
+            ) as mock_update:
+                with patch.object(updater, "_print_summary"):
+                    # Act
+                    await updater.run()
 
         # Assert
         mock_welcome.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_run_prompts_for_selection(self):
+    async def test_run_prompts_for_selection(self, mocker):
         """Test that run() prompts user for update selection."""
         # Arrange
         updater = GCPUpdate(project_id="test-project")
 
         with patch.object(updater, "_print_welcome"):
+            # Mock stdin to provide selection
+            mocker.patch("builtins.input", return_value="1")
+            # Mock choose to capture calls
             with patch("cloud.providers.gcp.update.choose", return_value="User Preferences") as mock_choose:
                 with patch.object(
                     updater, "_update_user_preferences", new_callable=AsyncMock
