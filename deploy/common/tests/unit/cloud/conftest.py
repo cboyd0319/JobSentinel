@@ -38,6 +38,11 @@ cost_tracker_mock = MagicMock()
 cost_tracker_mock.tracker = MagicMock()
 sys.modules["utils.cost_tracker"] = cost_tracker_mock
 
+# Add deploy/common/app/utils to path so utils.secure_subprocess can be imported
+APP_UTILS_DIR = DEPLOY_DIR / "common" / "app" / "utils"
+if str(APP_UTILS_DIR) not in sys.path:
+    sys.path.insert(0, str(APP_UTILS_DIR.parent))  # Add parent so utils.X works
+
 
 @pytest.fixture
 def mock_gcp_credentials(monkeypatch):

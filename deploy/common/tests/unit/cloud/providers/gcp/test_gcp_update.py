@@ -57,75 +57,76 @@ class TestGCPUpdateRun:
     """Test suite for GCPUpdate.run() workflow."""
 
     @pytest.mark.asyncio
-    async def test_run_calls_print_welcome(self):
+    async def test_run_calls_print_welcome(self, mocker):
         """Test that run() calls _print_welcome."""
         # Arrange
         updater = GCPUpdate(project_id="test-project")
 
         with patch.object(updater, "_print_welcome") as mock_welcome:
-            with patch("cloud.providers.gcp.update.choose", return_value="User Preferences"):
-                with patch.object(
-                    updater, "_update_user_preferences", new_callable=AsyncMock
-                ) as mock_update:
-                    with patch.object(updater, "_print_summary"):
-                        # Act
-                        await updater.run()
+            # Mock stdin to avoid reading from terminal
+            mocker.patch("builtins.input", return_value="1")
+            with patch.object(
+                updater, "_update_user_preferences", new_callable=AsyncMock
+            ) as mock_update:
+                with patch.object(updater, "_print_summary"):
+                    # Act
+                    await updater.run()
 
         # Assert
         mock_welcome.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_run_prompts_for_selection(self):
+    async def test_run_prompts_for_selection(self, mocker):
         """Test that run() prompts user for update selection."""
         # Arrange
         updater = GCPUpdate(project_id="test-project")
 
         with patch.object(updater, "_print_welcome"):
-            with patch("cloud.providers.gcp.update.choose", return_value="User Preferences") as mock_choose:
-                with patch.object(
-                    updater, "_update_user_preferences", new_callable=AsyncMock
-                ):
-                    with patch.object(updater, "_print_summary"):
-                        # Act
-                        await updater.run()
+            # Mock stdin to provide selection
+            mock_input = mocker.patch("builtins.input", return_value="1")
+            with patch.object(
+                updater, "_update_user_preferences", new_callable=AsyncMock
+            ) as mock_update:
+                with patch.object(updater, "_print_summary"):
+                    # Act
+                    await updater.run()
 
-        # Assert
-        mock_choose.assert_called_once_with(
-            "What would you like to update?", ["User Preferences"]
-        )
+            # Assert - input was called for user selection
+            assert mock_input.called
+            mock_update.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_run_executes_selected_update_function(self):
+    async def test_run_executes_selected_update_function(self, mocker):
         """Test that run() executes the selected update function."""
         # Arrange
         updater = GCPUpdate(project_id="test-project")
 
         with patch.object(updater, "_print_welcome"):
-            with patch("cloud.providers.gcp.update.choose", return_value="User Preferences"):
-                with patch.object(
-                    updater, "_update_user_preferences", new_callable=AsyncMock
-                ) as mock_update:
-                    with patch.object(updater, "_print_summary"):
-                        # Act
-                        await updater.run()
+            mocker.patch("builtins.input", return_value="1")
+            with patch.object(
+                updater, "_update_user_preferences", new_callable=AsyncMock
+            ) as mock_update:
+                with patch.object(updater, "_print_summary"):
+                    # Act
+                    await updater.run()
 
         # Assert
         mock_update.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_run_calls_print_summary(self):
+    async def test_run_calls_print_summary(self, mocker):
         """Test that run() calls _print_summary at the end."""
         # Arrange
         updater = GCPUpdate(project_id="test-project")
 
         with patch.object(updater, "_print_welcome"):
-            with patch("cloud.providers.gcp.update.choose", return_value="User Preferences"):
-                with patch.object(
-                    updater, "_update_user_preferences", new_callable=AsyncMock
-                ):
-                    with patch.object(updater, "_print_summary") as mock_summary:
-                        # Act
-                        await updater.run()
+            mocker.patch("builtins.input", return_value="1")
+            with patch.object(
+                updater, "_update_user_preferences", new_callable=AsyncMock
+            ):
+                with patch.object(updater, "_print_summary") as mock_summary:
+                    # Act
+                    await updater.run()
 
         # Assert
         mock_summary.assert_called_once()
@@ -134,29 +135,29 @@ class TestGCPUpdateRun:
 class TestPrintWelcome:
     """Test suite for _print_welcome method."""
 
-    def test_print_welcome_calls_print_header(self):
-        """Test that _print_welcome calls print_header with correct message."""
+    def test_print_welcome_prints_project_info(self, capsys):
+        """Test that _print_welcome prints correct message."""
         # Arrange
         updater = GCPUpdate(project_id="my-project-456")
 
-        with patch("cloud.providers.gcp.update.print_header") as mock_print_header:
-            # Act
-            updater._print_welcome()
-
+        # Act
+        updater._print_welcome()
+        
         # Assert
-        mock_print_header.assert_called_once_with("Google Cloud Updater for project: my-project-456")
+        captured = capsys.readouterr()
+        assert "my-project-456" in captured.out
 
-    def test_print_welcome_with_empty_project_id(self):
+    def test_print_welcome_with_empty_project_id(self, capsys):
         """Test _print_welcome with empty project ID."""
         # Arrange
         updater = GCPUpdate(project_id="")
 
-        with patch("cloud.providers.gcp.update.print_header") as mock_print_header:
-            # Act
-            updater._print_welcome()
-
+        # Act
+        updater._print_welcome()
+        
         # Assert
-        mock_print_header.assert_called_once_with("Google Cloud Updater for project: ")
+        captured = capsys.readouterr()
+        assert "Google Cloud Updater" in captured.out
 
 
 class TestUpdateUserPreferences:
