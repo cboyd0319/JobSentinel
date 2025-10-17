@@ -2,6 +2,10 @@
 
 Find what you need fast. Keep README lean; deep dives live here.
 
+## Wiki
+- **[Wiki Home](../wiki/Home.md)** - Wiki-style documentation
+- **[Current Capabilities](../wiki/Capabilities.md)** - Complete feature overview
+
 ## Core Guides
 - Quickstart: [QUICKSTART.md](QUICKSTART.md)
 - Troubleshooting: [TROUBLESHOOTING.md](TROUBLESHOOTING.md)

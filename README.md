@@ -47,6 +47,8 @@ Scrapes top job boards → scores against your preferences → sends alerts. 100
 
 All data stays on your machine. No third-party tracking. No data sales.
 
+**Want to see all capabilities?** → [Wiki: Current Capabilities](wiki/Capabilities.md)
+
 ## Quick start
 
 ### Windows 11+
@@ -324,6 +326,7 @@ MIT License - see [LICENSE](LICENSE)
 
 ## Support
 
+- **Wiki:** [wiki/Home.md](wiki/Home.md) - Comprehensive capabilities and features
 - **Documentation:** [docs/DOCUMENTATION_INDEX.md](docs/DOCUMENTATION_INDEX.md)
 - **Issues:** https://github.com/cboyd0319/JobSentinel/issues
 - **Discussions:** https://github.com/cboyd0319/JobSentinel/discussions
