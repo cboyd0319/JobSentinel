@@ -1,6 +1,16 @@
 {
   "$comment": "NOTE: GitHub MCP server tools (repo operations, issues, PRs) are built-in to Copilot and do not need configuration here. The COPILOT_MCP_GITHUB_PERSONAL_ACCESS_TOKEN secret is NOT used for MCP - it's reserved for other GitHub API integrations. GitHub MCP uses OAuth through Copilot's built-in authentication.",
   "mcpServers": {
+    "claude": {
+      "description": "Anthropic's Claude MCP server for enhanced AI capabilities and integrations.",
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "@anthropic-ai/mcp-server-claude"],
+      "env": {
+        "ANTHROPIC_API_KEY": "$COPILOT_MCP_ANTHROPIC_API_KEY"
+      },
+      "tools": ["*"]
+    },
     "context7": {
       "description": "Pulls up-to-date, version-specific documentation and code examples directly from the source. Provides accurate, relevant documentation with no hallucinations for better AI understanding of your stack. Useful for looking up Python 3.13+, Playwright, Flask, SQLAlchemy, Pydantic, pytest, and other framework documentation.",
       "type": "http",
