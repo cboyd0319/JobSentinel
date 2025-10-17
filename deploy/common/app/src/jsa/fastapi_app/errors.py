@@ -75,7 +75,7 @@ class InputValidationError(JobSentinelAPIError):
 
     def __init__(self, detail: str, errors: list[dict[str, Any]] | None = None):
         super().__init__(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail=detail,
             error_code="validation_error",
             errors=errors or [],
@@ -123,12 +123,12 @@ async def validation_exception_handler(
     )
 
     return JSONResponse(
-        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
         content={
             # RFC 7807 fields
             "type": "https://jobsentinel.local/errors/validation-error",
             "title": "Request Validation Failed",
-            "status": status.HTTP_422_UNPROCESSABLE_ENTITY,
+            "status": status.HTTP_422_UNPROCESSABLE_CONTENT,
             "detail": "One or more fields failed validation. See 'errors' for details.",
             "instance": str(request.url.path),
             # Additional context
