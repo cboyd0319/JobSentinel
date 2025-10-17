@@ -27,7 +27,7 @@
     "playwright-mcp": {
       "type": "local",
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-playwright@latest"],
+      "args": ["@playwright/mcp@latest"],
       "tools": ["*"]
     }
   }
