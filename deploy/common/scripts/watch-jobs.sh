@@ -37,6 +37,7 @@ echo "Press Ctrl+C to stop"
 echo ""
 
 # Watch for new JSON files in scraped directory
-# Note: The /_ placeholder in entr is replaced with the changed file path
+# The /_ placeholder in entr is replaced with the changed file path
+# and passed as the last argument to the callback command
 rg --files "$JOBS_DIR"/*.json 2>/dev/null | \
-entr -p sh -c "$CALLBACK_CMD"
+entr -p sh -c "$CALLBACK_CMD /_"
