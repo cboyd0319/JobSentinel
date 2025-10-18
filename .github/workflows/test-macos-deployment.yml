@@ -215,7 +215,7 @@ jobs:
           echo "Testing macos_setup.py preflight checks..."
           
           # Test that the setup script can run its checks
-          python3 -c '
+          python3 << 'EOF'
           import sys
           from pathlib import Path
           
@@ -230,23 +230,23 @@ jobs:
           
           # Run preflight checks
           passed, msg = module.check_macos_version()
-          print(f"macOS Check: {\"PASS\" if passed else \"FAIL\"} - {msg}")
+          print(f"macOS Check: {'PASS' if passed else 'FAIL'} - {msg}")
           assert passed, f"macOS version check failed: {msg}"
           
           passed, msg = module.check_python_version()
-          print(f"Python Check: {\"PASS\" if passed else \"FAIL\"} - {msg}")
+          print(f"Python Check: {'PASS' if passed else 'FAIL'} - {msg}")
           assert passed, f"Python version check failed: {msg}"
           
           passed, msg = module.check_disk_space()
-          print(f"Disk Space Check: {\"PASS\" if passed else \"FAIL\"} - {msg}")
+          print(f"Disk Space Check: {'PASS' if passed else 'FAIL'} - {msg}")
           assert passed, f"Disk space check failed: {msg}"
           
           passed, msg = module.check_internet()
-          print(f"Internet Check: {\"PASS\" if passed else \"FAIL\"} - {msg}")"
+          print(f"Internet Check: {'PASS' if passed else 'FAIL'} - {msg}")
           assert passed, f"Internet check failed: {msg}"
           
           print("✅ All preflight checks passed!")
-          '
+          EOF
 
       - name: Test macOS deployment documentation
         run: |
