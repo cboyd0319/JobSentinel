@@ -39,6 +39,6 @@ echo ""
 # Watch for new JSON files in scraped directory
 # The /_ placeholder in entr is replaced with the changed file path
 # and passed as the last argument to the callback command
-# The -p flag clears the screen, -s enables shell mode for /_ substitution
+# -p flag clears the screen, -s enables shell mode for /_ substitution
 rg --files "$JOBS_DIR"/*.json 2>/dev/null | \
-entr -ps "$CALLBACK_CMD /_"
+entr -p -s "$CALLBACK_CMD /_"
