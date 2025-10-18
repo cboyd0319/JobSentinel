@@ -4,11 +4,10 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-cd "$SCRIPT_DIR"
 
-if [[ ! -x "launch-gui.sh" ]]; then
+if [[ ! -x "$SCRIPT_DIR/launch-gui.sh" ]]; then
   echo "Making launch-gui.sh executable..."
-  chmod +x launch-gui.sh
+  chmod +x "$SCRIPT_DIR/launch-gui.sh"
 fi
 
-./launch-gui.sh
+"$SCRIPT_DIR/launch-gui.sh"

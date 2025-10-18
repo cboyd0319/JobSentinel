@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-macOS 15+ Zero-Knowledge Setup Script
+macOS Zero-Knowledge Setup Script
 
 This script provides a completely automated setup experience for macOS users
 with ZERO technical knowledge. It handles everything:
@@ -20,8 +20,8 @@ Usage:
     python3 scripts/macos_setup.py
 
 Requirements:
-    - macOS 15+ (Sequoia or later)
-    - Python 3.12+ already installed
+    - macOS 12+ (Monterey or later, 14+ recommended for best compatibility)
+    - Python 3.11+ (3.12+ recommended)
     - Internet connection
 """
 
@@ -200,8 +200,8 @@ def run_preflight_checks() -> bool:
     print("🔍 Running preflight checks...\n")
 
     checks = [
-        ("macOS 15+", check_macos_version),
-        ("Python 3.12+", check_python_version),
+        ("macOS Version", check_macos_version),
+        ("Python Version", check_python_version),
         ("Disk Space", check_disk_space),
         ("Internet Connection", check_internet),
     ]
