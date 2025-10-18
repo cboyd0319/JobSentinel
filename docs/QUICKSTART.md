@@ -8,7 +8,13 @@ Get JobSentinel running in 5 minutes.
 - Git: any version (optional—ZIP is fine)
 - Disk space: 1GB (app + models)
 
-Optional
+Optional (Performance)
+- RipGrep: 14+ (10-50x faster search and log analysis)
+  - Windows: `winget install BurntSushi.ripgrep.MSVC`
+  - macOS: `brew install ripgrep`
+  - Linux: `apt install ripgrep` (Debian/Ubuntu)
+
+Optional (Alerts)
 - Slack webhook (for alerts)
 - Reed API key (UK jobs)
 - Email SMTP (for alerts)

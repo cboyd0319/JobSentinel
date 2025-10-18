@@ -72,6 +72,7 @@ class PreflightChecker:
         # Dependency checks
         self._check_pip()
         self._check_git()
+        self._check_ripgrep()
 
         # Configuration checks
         self._check_config_directory()
@@ -470,6 +471,33 @@ class PreflightChecker:
                     name="git",
                     passed=True,
                     message="git not found (optional - can download ZIP instead)",
+                    severity="info",
+                )
+            )
+
+    def _check_ripgrep(self) -> None:
+        """Check if RipGrep is available (optional but recommended)."""
+        if shutil.which("rg"):
+            self.results.append(
+                CheckResult(
+                    name="RipGrep",
+                    passed=True,
+                    message="RipGrep found (recommended for performance)",
+                    severity="info",
+                )
+            )
+        else:
+            self.results.append(
+                CheckResult(
+                    name="RipGrep",
+                    passed=True,
+                    message="RipGrep not found (optional - enables 10-50x faster search)",
+                    fix_suggestion=(
+                        "Install RipGrep for better performance:\n"
+                        "  macOS: brew install ripgrep\n"
+                        "  Linux: apt install ripgrep\n"
+                        "  Windows: winget install BurntSushi.ripgrep.MSVC"
+                    ),
                     severity="info",
                 )
             )

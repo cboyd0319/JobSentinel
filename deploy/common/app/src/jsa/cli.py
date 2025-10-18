@@ -505,6 +505,76 @@ def _cmd_run_once(args: argparse.Namespace) -> int:
         return 1
 
 
+def _cmd_analyze_resume(args: argparse.Namespace) -> int:
+    """Analyze resume against scraped jobs for keyword optimization."""
+    try:
+        from jsa.resume_analyzer import generate_resume_report
+
+        resume_path = Path(args.resume)
+        if not resume_path.exists():
+            print(f"Error: Resume file not found: {resume_path}")
+            return 1
+
+        jobs_dir = Path(args.jobs_dir)
+        if not jobs_dir.exists():
+            print(f"Error: Jobs directory not found: {jobs_dir}")
+            print("Run job scraping first: python -m jsa.cli run-once")
+            return 1
+
+        print(f"Analyzing resume: {resume_path}")
+        print(f"Against jobs in: {jobs_dir}")
+        print()
+
+        analysis = generate_resume_report(
+            str(resume_path), str(jobs_dir), output_path=args.output
+        )
+
+        print(f"✓ Resume Coverage: {analysis['coverage_pct']:.1f}%")
+        print(f"✓ Keywords Found: {len(analysis['found'])}")
+        print(f"✓ Missing Keywords: {len(analysis['missing'])}")
+        print(f"✓ Report saved to: {args.output}")
+
+        return 0
+
+    except ImportError as e:
+        print(f"Error: Missing required dependencies: {e}")
+        return 1
+    except Exception as e:
+        print(f"Error: {e}")
+        return 1
+
+
+def _cmd_watch(args: argparse.Namespace) -> int:
+    """Watch for new jobs and trigger alerts in real-time."""
+    try:
+        from jsa.watchers import watch_for_new_jobs
+
+        jobs_dir = Path(args.jobs_dir)
+        if not jobs_dir.exists():
+            print(f"Error: Jobs directory not found: {jobs_dir}")
+            print("Creating directory...")
+            jobs_dir.mkdir(parents=True, exist_ok=True)
+
+        # Build callback command
+        callback_parts = ["python", "-m", "jsa.cli", "health"]
+        if args.verbose:
+            callback_parts.append("--verbose")
+
+        callback = " ".join(callback_parts)
+
+        watch_for_new_jobs(str(jobs_dir), callback_script=callback)
+        return 0
+
+    except ImportError as e:
+        print(f"Error: Missing required dependencies: {e}")
+        return 1
+    except SystemExit as e:
+        return e.code if isinstance(e.code, int) else 1
+    except Exception as e:
+        print(f"Error: {e}")
+        return 1
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="jsa",
@@ -745,6 +815,56 @@ def build_parser() -> argparse.ArgumentParser:
         "database, and more. Perfect for troubleshooting!",
     )
     p_fix.set_defaults(func=_cmd_fix)
+
+    # Resume Analysis (RipGrep Integration)
+    p_analyze_resume = sub.add_parser(
+        "analyze-resume",
+        help="Analyze resume against scraped jobs for keyword optimization",
+        description="Use RipGrep-powered analysis to identify missing keywords in your resume. "
+        "Compares your resume against scraped job descriptions to improve match rates. "
+        "Provides actionable recommendations for resume optimization.",
+    )
+    p_analyze_resume.add_argument(
+        "--resume",
+        type=str,
+        required=True,
+        help="Path to resume file (txt, pdf, or docx)",
+    )
+    p_analyze_resume.add_argument(
+        "--jobs-dir",
+        type=str,
+        default="data/scraped_jobs",
+        help="Directory containing scraped job files (default: data/scraped_jobs)",
+    )
+    p_analyze_resume.add_argument(
+        "--output",
+        type=str,
+        default="resume_analysis.txt",
+        help="Output file for analysis report (default: resume_analysis.txt)",
+    )
+    p_analyze_resume.set_defaults(func=_cmd_analyze_resume)
+
+    # Watch Mode (RipGrep Integration)
+    p_watch = sub.add_parser(
+        "watch",
+        help="Watch for new jobs and trigger alerts in real-time",
+        description="Monitor scraped jobs directory and immediately process new jobs. "
+        "Uses RipGrep + entr for efficient file watching. "
+        "Requires both 'rg' (ripgrep) and 'entr' to be installed.",
+    )
+    p_watch.add_argument(
+        "--jobs-dir",
+        type=str,
+        default="data/scraped_jobs",
+        help="Directory to watch for new jobs (default: data/scraped_jobs)",
+    )
+    p_watch.add_argument(
+        "--verbose",
+        "-v",
+        action="store_true",
+        help="Show detailed output for each new job",
+    )
+    p_watch.set_defaults(func=_cmd_watch)
 
     return p
 
