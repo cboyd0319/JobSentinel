@@ -215,6 +215,7 @@ jobs:
           echo "Testing macos_setup.py preflight checks..."
           
           # Test that the setup script can run its checks
+          set -e  # Exit on error
           python3 << 'EOF'
           import sys
           from pathlib import Path
