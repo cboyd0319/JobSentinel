@@ -5,8 +5,9 @@
 
 set -e
 
-# Default directory
+# Default directory and callback
 JOBS_DIR="${1:-data/scraped_jobs}"
+CALLBACK_CMD="${2:-python -m jsa.cli health --verbose}"
 
 # Check if ripgrep is installed
 if ! command -v rg &> /dev/null; then
@@ -31,8 +32,11 @@ fi
 mkdir -p "$JOBS_DIR"
 
 echo "Watching $JOBS_DIR for new jobs..."
+echo "Callback: $CALLBACK_CMD"
 echo "Press Ctrl+C to stop"
+echo ""
 
 # Watch for new JSON files in scraped directory
+# Note: The /_ placeholder in entr is replaced with the changed file path
 rg --files "$JOBS_DIR"/*.json 2>/dev/null | \
-entr -p python -m jsa.cli score-new-jobs /_
+entr -p sh -c "$CALLBACK_CMD"
