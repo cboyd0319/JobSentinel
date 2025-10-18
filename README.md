@@ -89,7 +89,11 @@ python -m jsa.cli run-once
 - Git: any version (optional—can download ZIP)
 - Disk space: 1GB (app + models)
 
-Optional
+Optional (Performance)
+- RipGrep: 14+ (enables 10-50x faster job search and log analysis)
+  - Install: `brew install ripgrep` (macOS), `apt install ripgrep` (Linux), `winget install BurntSushi.ripgrep.MSVC` (Windows)
+
+Optional (Alerts)
 - Slack webhook (for alerts)
 - Reed API key (UK jobs)
 - Email SMTP (for alerts)
@@ -133,6 +137,12 @@ python -m jsa.cli web --port 8000
 
 # Health check
 python -m jsa.cli health
+
+# Resume analysis (RipGrep-powered)
+python -m jsa.cli analyze-resume --resume ~/resume.txt --jobs-dir data/scraped_jobs
+
+# Watch mode - real-time job alerts (requires RipGrep + entr)
+python -m jsa.cli watch --jobs-dir data/scraped_jobs
 ```
 
 ### Web UI Features
