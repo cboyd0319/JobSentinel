@@ -49,10 +49,12 @@ htmlcov/
 .coverage
 .coverage.*
 coverage.xml
+coverage.json
 *.cover
 *.py,cover
 nosetests.xml
 testResults.xml
+.mutmut-cache
 
 # ==========================================
 # Environment & Secrets
