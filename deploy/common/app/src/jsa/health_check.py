@@ -449,6 +449,48 @@ class HealthChecker:
 
         return results
 
+    def check_ripgrep(self) -> HealthCheckResult:
+        """Check if RipGrep is installed (optional but recommended for performance)."""
+        rg_path = shutil.which("rg")
+
+        if rg_path:
+            try:
+                # Get version
+                result = subprocess.run(
+                    ["rg", "--version"],
+                    capture_output=True,
+                    text=True,
+                    timeout=5,
+                    check=False,
+                )
+                version_line = result.stdout.split("\n")[0] if result.stdout else "unknown"
+
+                return HealthCheckResult(
+                    name="RipGrep (Performance Tool)",
+                    status="pass",
+                    message=f"Installed: {version_line}",
+                    details={"path": rg_path, "version": version_line},
+                )
+            except (subprocess.TimeoutExpired, subprocess.SubprocessError):
+                return HealthCheckResult(
+                    name="RipGrep (Performance Tool)",
+                    status="warn",
+                    message="Installed but not responding",
+                    recommendations=["Reinstall RipGrep if issues persist"],
+                )
+        else:
+            return HealthCheckResult(
+                name="RipGrep (Performance Tool)",
+                status="warn",
+                message="Not installed (optional - degrades performance)",
+                recommendations=[
+                    "Install RipGrep for 10-50x faster job search and log analysis",
+                    "macOS: brew install ripgrep",
+                    "Linux: apt install ripgrep (Debian/Ubuntu)",
+                    "Windows: winget install BurntSushi.ripgrep.MSVC",
+                ],
+            )
+
     def run_all_checks(self) -> dict[str, Any]:
         """Run all health checks."""
         self.results = []
@@ -460,6 +502,7 @@ class HealthChecker:
         self.results.append(self.check_database())
         self.results.extend(self.check_network())
         self.results.extend(self.check_system_resources())
+        self.results.append(self.check_ripgrep())
 
         # Calculate summary
         pass_count = sum(1 for r in self.results if r.status == "pass")
