@@ -149,8 +149,7 @@ jobs:
 
       - name: Test macOS version requirements
         run: |
-          # The script requires macOS 15+, but that's too strict
-          # macOS 12+ should work based on README
+          # The script checks for macOS 12+ based on documentation
           macos_version=$(sw_vers -productVersion | cut -d '.' -f 1)
           echo "macOS major version: $macos_version"
 
@@ -164,6 +163,91 @@ jobs:
         run: |
           python3 -m pytest deploy/common/tests/test_macos_deployment.py -v -k "Core or test_python_version_check or test_required_packages"
 
+      - name: Test .command files can execute
+        run: |
+          echo "Testing .command file executability..."
+          
+          # Make sure .command files are executable
+          chmod +x deploy/local/macos/*.command
+          chmod +x deploy/local/macos/*.sh
+          
+          # Test that .command files can locate their corresponding .sh files
+          cd deploy/local/macos
+          
+          # Test setup.command can find setup.sh
+          if bash -c 'SCRIPT_DIR="$(cd "$(dirname "setup.command")" && pwd)"; test -f "$SCRIPT_DIR/setup.sh"'; then
+            echo "✅ setup.command can locate setup.sh"
+          else
+            echo "❌ setup.command cannot locate setup.sh"
+            exit 1
+          fi
+          
+          # Test launch-gui.command can find launch-gui.sh
+          if bash -c 'SCRIPT_DIR="$(cd "$(dirname "launch-gui.command")" && pwd)"; test -f "$SCRIPT_DIR/launch-gui.sh"'; then
+            echo "✅ launch-gui.command can locate launch-gui.sh"
+          else
+            echo "❌ launch-gui.command cannot locate launch-gui.sh"
+            exit 1
+          fi
+
+      - name: Test setup script path resolution
+        run: |
+          echo "Testing setup.sh path resolution..."
+          
+          # Test that setup.sh can navigate to repository root
+          cd deploy/local/macos
+          
+          # Simulate what setup.sh does
+          SCRIPT_DIR="$(cd "$(dirname "setup.sh")" && pwd)"
+          REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+          
+          if [ -f "$REPO_ROOT/pyproject.toml" ]; then
+            echo "✅ setup.sh can locate repository root"
+            echo "   Repository root: $REPO_ROOT"
+          else
+            echo "❌ setup.sh cannot locate repository root"
+            echo "   Expected pyproject.toml in: $REPO_ROOT"
+            exit 1
+          fi
+
+      - name: Test macos_setup.py preflight checks
+        run: |
+          echo "Testing macos_setup.py preflight checks..."
+          
+          # Test that the setup script can run its checks
+          python3 -c '
+          import sys
+          from pathlib import Path
+          
+          # Add the app source to path
+          sys.path.insert(0, "deploy/common/app/src")
+          
+          # Import and run checks from macos_setup.py
+          import importlib.util
+          spec = importlib.util.spec_from_file_location("macos_setup", "deploy/common/scripts/macos_setup.py")
+          module = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(module)
+          
+          # Run preflight checks
+          passed, msg = module.check_macos_version()
+          print(f"macOS Check: {\"PASS\" if passed else \"FAIL\"} - {msg}")
+          assert passed, f"macOS version check failed: {msg}"
+          
+          passed, msg = module.check_python_version()
+          print(f"Python Check: {\"PASS\" if passed else \"FAIL\"} - {msg}")
+          assert passed, f"Python version check failed: {msg}"
+          
+          passed, msg = module.check_disk_space()
+          print(f"Disk Space Check: {\"PASS\" if passed else \"FAIL\"} - {msg}")
+          assert passed, f"Disk space check failed: {msg}"
+          
+          passed, msg = module.check_internet()
+          print(f"Internet Check: {\"PASS\" if passed else \"FAIL\"} - {msg}")"
+          assert passed, f"Internet check failed: {msg}"
+          
+          print("✅ All preflight checks passed!")
+          '
+
       - name: Test macOS deployment documentation
         run: |
           docs=(
@@ -172,13 +256,24 @@ jobs:
             "docs/MACOS_TROUBLESHOOTING.md"
           )
 
+          missing=0
           for doc in "${docs[@]}"; do
             if [ -f "$doc" ]; then
               echo "✅ Found: $doc"
             else
-              echo "⚠️  Missing: $doc"
+              echo "❌ Missing: $doc"
+              ((missing++))
             fi
           done
+          
+          if [ $missing -gt 0 ]; then
+            echo ""
+            echo "❌ Missing $missing required documentation files"
+            exit 1
+          fi
+          
+          echo ""
+          echo "✅ All documentation files present"
 
       - name: Test platform detection
         run: |

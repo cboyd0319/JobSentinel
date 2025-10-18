@@ -5,11 +5,10 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-cd "$SCRIPT_DIR"
 
-if [[ ! -x "setup.sh" ]]; then
+if [[ ! -x "$SCRIPT_DIR/setup.sh" ]]; then
   echo "Making setup.sh executable..."
-  chmod +x setup.sh
+  chmod +x "$SCRIPT_DIR/setup.sh"
 fi
 
-./setup.sh
+"$SCRIPT_DIR/setup.sh"
