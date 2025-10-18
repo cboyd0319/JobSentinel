@@ -1,6 +1,12 @@
-# JobSentinel — Private job alerts on your machine
+<div align="center">
 
-Local‑first job search automation that finds high‑match roles and pings you fast.
+<img src="docs/images/logo.png" alt="JobSentinel Logo" width="200">
+
+# JobSentinel
+
+### **Private job alerts on your machine**
+
+Local-first job search automation • Smart scoring • Zero tracking • $0 forever
 
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.12%2B-blue.svg)](https://www.python.org/)
@@ -12,148 +18,243 @@ Local‑first job search automation that finds high‑match roles and pings you 
 [![codecov](https://codecov.io/github/cboyd0319/JobSentinel/graph/badge.svg?token=QHEYIFQL0E)](https://codecov.io/github/cboyd0319/JobSentinel)
 [![CodeQL](https://github.com/cboyd0319/JobSentinel/actions/workflows/codeql.yml/badge.svg)](https://github.com/cboyd0319/JobSentinel/actions/workflows/codeql.yml)
 [![Scorecard](https://github.com/cboyd0319/JobSentinel/actions/workflows/scorecard.yml/badge.svg)](https://github.com/cboyd0319/JobSentinel/actions/workflows/scorecard.yml)
-[![Docs](https://github.com/cboyd0319/JobSentinel/actions/workflows/docs-ci.yml/badge.svg)](https://github.com/cboyd0319/JobSentinel/actions/workflows/docs-ci.yml)
 
-## GitHub Actions
+[Quickstart](#-quickstart) •
+[Features](#-features) •
+[Documentation](docs/DOCUMENTATION_INDEX.md) •
+[Wiki](wiki/Home.md)
 
-- CI: .github/workflows/ci.yml
-- Coverage: .github/workflows/coverage.yml
-- Docs CI: .github/workflows/docs-ci.yml
-- Code Scanning: .github/workflows/codeql.yml
-- Security: .github/workflows/security.yml
-- Scorecard: .github/workflows/scorecard.yml
-- Path Guard: .github/workflows/path-guard.yml
-- Deployment (Windows): .github/workflows/test-windows-deployment.yml
-- Deployment (macOS): .github/workflows/test-macos-deployment.yml
+</div>
 
-Badges above reflect latest statuses.
+---
 
-## TL;DR
+## What is JobSentinel?
 
-Scrapes top job boards → scores against your preferences → sends alerts. 100% local. $0. No tracking. No subscriptions.
+**The problem:** Job boards are noisy, privacy-invasive, and require manual filtering. Paid services charge monthly fees ($30-100/mo), sell your data, and still miss the best opportunities.
 
-```bash
-# Windows: Double-click deploy/local/windows/launch-gui.bat
-# macOS: Double-click deploy/local/macos/launch-gui.sh
-# Linux: See docs/QUICKSTART.md
-```
+**The solution:** JobSentinel runs 100% locally on your machine. It scrapes top job boards, scores matches against your preferences, and sends high-value alerts (80+ score) to Slack or email—all while keeping your data private. **No tracking. No subscriptions. $0 forever.**
 
-## What it does
+### Who is this for?
 
-1. **Scrape** - Pull jobs from Greenhouse, Lever, Reed, JobsWithGPT, JobSpy
-2. **Score** - Match keywords, salary, location, company preferences
-3. **Alert** - Send high-value matches (80+ score) to Slack or email
-4. **Store** - Save to local SQLite database
+- **Job seekers** who value privacy and want automated alerts for high-match roles
+- **Passive candidates** monitoring the market without broadcasting availability
+- **Recruiters** tracking positions for clients (GDPR/HIPAA compliant)
+- **Developers** who want local-first automation without cloud dependencies
 
-All data stays on your machine. No third-party tracking. No data sales.
+### What's New
 
-**Want to see all capabilities?** → [Wiki: Current Capabilities](wiki/Capabilities.md)
+- **React 19 + Vite 7** modern web UI with real-time updates
+- **Platform installers** one-click setup for Windows and macOS
+- **WCAG 2.1 AA** accessibility compliance
+- **Resume analyzer** AI-powered job-resume matching
+- **Application tracker** manage your job search pipeline
+- **Dark mode** eye-friendly interface
 
-## Quick start
+---
 
-### Windows 11+
+## Quickstart
+
+### Option 1: Windows (One-Click Install)
 
 1. Download: https://github.com/cboyd0319/JobSentinel/archive/refs/heads/main.zip
 2. Extract to Desktop
 3. Double-click: `deploy/local/windows/launch-gui.bat`
 
-A GUI opens. Click buttons. No terminal needed.
+**Done!** A GUI opens. Click "Start JobSentinel" and view logs in the interface.
 
-### macOS 15+
+### Option 2: macOS (5-Minute Wizard)
 
 1. Download: https://github.com/cboyd0319/JobSentinel/archive/refs/heads/main.zip
 2. Extract to Desktop
 3. Double-click: `deploy/local/macos/setup-macos.sh`
    - If blocked: Right-click → Open → Open
 
-Follow the 5-minute wizard.
+Follow the interactive wizard to configure your preferences.
 
-### Linux
+### Option 3: Linux/Command Line
 
 ```bash
+# Clone repository
 git clone https://github.com/cboyd0319/JobSentinel
 cd JobSentinel
+
+# Create virtual environment
 python3 -m venv .venv && source .venv/bin/activate
+
+# Install dependencies
 pip install -e .
 playwright install chromium
+
+# Configure preferences
 cp deploy/common/config/user_prefs.example.json deploy/common/config/user_prefs.json
-# Edit config with your preferences
+# Edit config with your keywords, locations, salary, etc.
+
+# Run single scan
 python -m jsa.cli run-once
+
+# Or start daemon (every 2 hours)
+python -m jsa.cli run-daemon --interval 7200
+
+# Or launch web UI
+python -m jsa.cli web --port 8000
+# Open: http://localhost:8000
 ```
 
-**First time using a terminal?** → [docs/QUICKSTART.md](docs/QUICKSTART.md)
+**First time using a terminal?** → [Quickstart Guide](docs/QUICKSTART.md)
 
-## Prerequisites
+---
 
-- Python: 3.12+ (includes SQLite)
-- Git: any version (optional—can download ZIP)
-- Disk space: 1GB (app + models)
+## How It Works
 
-Optional (Performance)
-- RipGrep: 14+ (enables 10-50x faster job search and log analysis)
-  - Install: `brew install ripgrep` (macOS), `apt install ripgrep` (Linux), `winget install BurntSushi.ripgrep.MSVC` (Windows)
+```mermaid
+graph LR
+    A[Job Boards] -->|Scrape| B[JobSentinel]
+    B -->|Score| C[Matcher Engine]
+    C -->|80+ score| D[Alerts]
+    C -->|All jobs| E[SQLite DB]
+    D -->|Slack/Email| F[You]
 
-Optional (Alerts)
-- Slack webhook (for alerts)
-- Reed API key (UK jobs)
-- Email SMTP (for alerts)
+    style A fill:#43A047
+    style C fill:#1976D2
+    style D fill:#F57C00
+    style F fill:#E91E63
+```
 
-Installer checks requirements and guides you through missing items.
+### Workflow
+
+1. **Scrape** - Pull jobs from Greenhouse, Lever, Reed, JobsWithGPT, JobSpy
+2. **Normalize** - Convert to standard format (source, title, company, location, salary, URL)
+3. **Score** - Match against preferences (skills 40%, salary 25%, location 20%, company 10%, recency 5%)
+4. **Alert** - Send high matches (80+ score) via Slack/email
+5. **Store** - Save to local SQLite database (`data/jobs.sqlite`)
+
+**Privacy-first:** All data stays on your machine. No telemetry. No external API calls (except job board scraping).
+
+---
+
+## Features
+
+<table>
+<tr>
+<td width="50%">
+
+**Job Scraping**
+- **Multiple sources**: Greenhouse, Lever, Reed, JobsWithGPT, JobSpy
+- **Auto-detection** of job board types
+- **Rate limiting** respects robots.txt
+- **Deduplication** across sources
+- **Incremental updates** (only fetch new jobs)
+
+**Smart Scoring**
+- **Multi-factor scoring**:
+  - Skills match: 40%
+  - Salary range: 25%
+  - Location: 20%
+  - Company preferences: 10%
+  - Recency: 5%
+- **Keyword matching** (weighted by importance)
+- **Deny list** (exclude companies/titles)
+- **Salary filtering** (min/max ranges)
+
+**Web UI** (NEW)
+- **Dashboard** with job statistics
+- **Search & filter** by source, date, score
+- **Application tracker** manage pipeline
+- **Resume analyzer** AI-powered matching
+- **Real-time updates** via WebSocket
+- **Dark mode** support
+- **WCAG 2.1 AA** accessibility
+
+</td>
+<td width="50%">
+
+**Alerts & Notifications**
+- **Slack integration** (incoming webhooks)
+- **Email notifications** (SMTP)
+- **Threshold filtering** (only high scores)
+- **Batching** (daily/weekly digests)
+- **Rich formatting** (job details, links, scores)
+
+**Data Storage**
+- **SQLite database** (~50MB per 1000 jobs)
+- **Full job history** (never lose opportunities)
+- **Search queries** saved for re-runs
+- **Export to CSV** for analysis
+- **Privacy-first** (local-only, no cloud)
+
+**Security & Privacy**
+- **Local-first** - All data on your machine
+- **No telemetry** - Zero tracking
+- **OWASP ASVS Level 2** compliant (17 controls)
+- **Secrets in .env** - Never hardcoded
+- **Read-only scrapers** - Don't post to job boards
+- **Input validation** - All external data validated
+
+**Platform Support**
+- **Windows** 11+ (one-click installer)
+- **macOS** 15+ (interactive wizard)
+- **Linux** (Ubuntu, Debian, Fedora)
+- **Docker** (containerized deployment)
+- **Python** 3.12+ required
+
+</td>
+</tr>
+</table>
+
+---
 
 ## Installation
 
-See [docs/QUICKSTART.md](docs/QUICKSTART.md) for detailed setup.
+### Prerequisites
 
-**TL;DR:**
-- Windows/macOS: Double-click installer, follow wizard (5 min)
-- Linux: Clone, venv, install, configure (10 min)
+<table>
+  <thead>
+    <tr>
+      <th>Tool</th>
+      <th>Version</th>
+      <th>Purpose</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Python</strong></td>
+      <td>≥ 3.12</td>
+      <td>Runtime (includes SQLite)</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td><strong>Git</strong></td>
+      <td>any</td>
+      <td>Clone repository (or download ZIP)</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td><strong>Disk Space</strong></td>
+      <td>1GB</td>
+      <td>App + ML models + job data</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td><strong>Slack Webhook</strong></td>
+      <td>N/A</td>
+      <td>Alerts (optional)</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td><strong>Reed API Key</strong></td>
+      <td>N/A</td>
+      <td>UK jobs (optional)</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
 
-## Usage
+### Installation Guide
 
-### GUI (Windows/macOS)
+See [Quickstart Guide](docs/QUICKSTART.md) for detailed instructions.
 
-```bash
-# Windows
-deploy\local\windows\launch-gui.bat
-
-# macOS
-deploy/local/macos/launch-gui.sh
-```
-
-Click "Start JobSentinel" button. View logs in GUI.
-
-### Command Line
-
-```bash
-# Single run
-python -m jsa.cli run-once
-
-# Scheduled (every 2 hours)
-python -m jsa.cli run-daemon --interval 7200
-
-# Web UI
-python -m jsa.cli web --port 8000
-# Open: http://localhost:8000
-
-# Health check
-python -m jsa.cli health
-
-# Resume analysis (RipGrep-powered)
-python -m jsa.cli analyze-resume --resume ~/resume.txt --jobs-dir data/scraped_jobs
-
-# Watch mode - real-time job alerts (requires RipGrep + entr)
-python -m jsa.cli watch --jobs-dir data/scraped_jobs
-```
-
-### Web UI Features
-
-- Dashboard with job stats
-- Search and filter jobs
-- Application tracker
-- Resume analyzer
-- Real-time updates (WebSocket)
-- Dark mode support
-- WCAG 2.1 AA accessibility
+---
 
 ## Configuration
 
@@ -187,66 +288,95 @@ Edit `deploy/common/config/user_prefs.json`:
 
 ### Key Configuration Options
 
-- `keywords` (list[str], default `[]`): terms to match in title/description
-- `locations` (list[str], default `[]`): allowed locations (e.g., “Remote”, “SF”)
-- `min_salary` (int, default `0`): minimum annual salary (USD)
-- `denied_companies` (list[str], default `[]`): companies to exclude
-- `job_sources.*.enabled` (bool, default `false`): enable/disable a source
-- `job_sources.*.api_key` (str, default `""`): API key for sources that need it
-- `alerts.slack.webhook_url` (str, default `""`): Slack incoming webhook
-- `alerts.email.smtp_host` (str, default `""`): SMTP host (e.g., `smtp.gmail.com`)
+<table>
+  <thead>
+    <tr>
+      <th>Key</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Example</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>keywords</code></td>
+      <td>list[str]</td>
+      <td>[]</td>
+      <td>["python", "backend"]</td>
+    </tr>
+    <tr>
+      <td><code>locations</code></td>
+      <td>list[str]</td>
+      <td>[]</td>
+      <td>["Remote", "SF"]</td>
+    </tr>
+    <tr>
+      <td><code>min_salary</code></td>
+      <td>int</td>
+      <td>0</td>
+      <td>120000</td>
+    </tr>
+    <tr>
+      <td><code>denied_companies</code></td>
+      <td>list[str]</td>
+      <td>[]</td>
+      <td>["Meta", "Amazon"]</td>
+    </tr>
+  </tbody>
+</table>
 
-Validate config
+Validate config:
 ```bash
 python -m jsa.cli config-validate
 ```
 
-## Architecture
+---
 
+## Usage
+
+### Command Line
+
+```bash
+# Single scan
+python -m jsa.cli run-once
+
+# Daemon (every 2 hours)
+python -m jsa.cli run-daemon --interval 7200
+
+# Web UI
+python -m jsa.cli web --port 8000
+
+# Health check
+python -m jsa.cli health
 ```
-Job Boards → Scrapers → Scorer → Alerts
-     ↓          ↓         ↓        ↓
-          SQLite     Config    Logs
-```
 
-**Flow:**
-1. Scrapers fetch from public APIs/HTML (respects robots.txt, rate limits)
-2. Normalize to standard format (source, title, company, location, salary, URL)
-3. Score against preferences (skills 40%, salary 25%, location 20%, company 10%, recency 5%)
-4. Alert on high matches (80+ score) via Slack/email
-5. Store in SQLite (`data/jobs.sqlite`)
+### Web UI
 
-**Trust boundaries:**
-- API keys in `.env` or environment variables
-- All data local (no telemetry)
-- Scrapers are read-only (no writes to job boards)
+1. Start web server: `python -m jsa.cli web --port 8000`
+2. Open browser: `http://localhost:8000`
 
-**Components:**
-- `deploy/common/app/src/jsa/` - Core (CLI, web, DB)
-- `deploy/common/app/sources/` - Job board scrapers
-- `deploy/common/app/src/matchers/` - Scoring logic
-- `deploy/common/app/src/notify/` - Alert systems
-- `deploy/common/web/` - React UI
+**Features:**
+- Dashboard with job statistics
+- Search and filter jobs
+- Application tracker
+- Resume analyzer (AI-powered)
+- Real-time updates (WebSocket)
+- Dark mode support
+- WCAG 2.1 AA accessibility
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for details.
-
-## Security
-
-- **Local-first:** All data on your machine
-- **No telemetry:** Zero tracking, zero analytics
-- **Secrets in `.env`:** Never hardcoded
-- **Read-only scrapers:** Don't post to job boards
-- **Rate limiting:** Respect job board limits
-- **Input validation:** All external data validated
-- **OWASP ASVS Level 2 compliant** (17 controls)
-
-Report vulnerabilities: [SECURITY.md](SECURITY.md)
+---
 
 ## Troubleshooting
 
 ### Top 5 Issues
 
-**"Python not found"**
+<details>
+<summary><strong>Error: Python not found</strong></summary>
+
+**Cause:** Python 3.12+ not installed
+
+**Fix:**
+
 ```bash
 # Check version
 python --version  # Need 3.12+
@@ -257,70 +387,132 @@ python --version  # Need 3.12+
 # Linux: apt install python3.12
 ```
 
-**"Config not found"**
+</details>
+
+<details>
+<summary><strong>Error: Config not found</strong></summary>
+
+**Cause:** Missing user_prefs.json
+
+**Fix:**
+
 ```bash
 cp deploy/common/config/user_prefs.example.json deploy/common/config/user_prefs.json
 ```
 
-**"No jobs found"**
-- Keywords too specific? Try broader terms
-- Minimum salary too high? Lower threshold
+</details>
+
+<details>
+<summary><strong>No jobs found</strong></summary>
+
+**Cause:** Keywords too specific, salary too high, or sources disabled
+
+**Fix:**
+- Broaden keywords (e.g., "engineer" instead of "senior staff principal engineer")
+- Lower minimum salary threshold
 - Check enabled sources: `python -m jsa.cli config-validate`
 
-**"Slack alerts not working"**
+</details>
+
+<details>
+<summary><strong>Slack alerts not working</strong></summary>
+
+**Cause:** Invalid webhook URL or Slack app misconfigured
+
+**Fix:**
+
 ```bash
 # Test webhook
 curl -X POST "YOUR_WEBHOOK" \
   -H "Content-Type: application/json" \
   -d '{"text":"Test"}'
+
+# Verify webhook in config
+cat deploy/common/config/user_prefs.json | grep webhook_url
 ```
 
-**"Database locked"**
+</details>
+
+<details>
+<summary><strong>Database locked error</strong></summary>
+
+**Cause:** Multiple JobSentinel processes running
+
+**Fix:**
+
 ```bash
-# Kill other processes
-ps aux | grep jobsentinel  # Find process
-kill <PID>  # Kill it
+# Find and kill processes
+ps aux | grep jobsentinel
+kill <PID>
+
+# Or restart system
 ```
 
-**More help:** [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)
+</details>
+
+**More help:** [Troubleshooting Guide](docs/TROUBLESHOOTING.md) • [GitHub Discussions](https://github.com/cboyd0319/JobSentinel/discussions)
+
+---
 
 ## Performance
 
+**Expected performance:**
 - Scrape time: 30–60s per source
 - Scoring: <5s per 100 jobs
 - Alert latency: <10s (Slack/email)
-- Memory: <500MB (includes ML models)
-- Disk: ~50MB per 1000 jobs
+- Memory usage: <500MB (includes ML models)
+- Disk usage: ~50MB per 1000 jobs
 - Database: SQLite (<100MB typical)
 
-Tested with 10,000+ jobs in SQLite.
+**Tested with:** 10,000+ jobs in SQLite without performance degradation.
+
+---
 
 ## Roadmap
 
 ### v0.9.0 (Current)
-- ✅ React 19 + Vite 7 UI
-- ✅ Consolidated documentation
-- ✅ Platform installers (Windows/macOS)
-- ✅ WCAG 2.1 AA accessibility
+- React 19 + Vite 7 UI
+- Consolidated documentation
+- Platform installers (Windows/macOS)
+- WCAG 2.1 AA accessibility
 
 ### v1.0 (Q1 2026)
-- [ ] GPT-4 integration (optional, cost-controlled)
-- [ ] Multi-language support
-- [ ] Browser extension
-- [ ] Mobile companion app
+- GPT-4 integration (optional, cost-controlled)
+- Multi-language support
+- Browser extension
+- Mobile companion app
 
-See [docs/reference/AI_ML_ROADMAP.md](docs/reference/AI_ML_ROADMAP.md) for AI/ML features.
+See [AI/ML Roadmap](docs/reference/AI_ML_ROADMAP.md) for AI/ML features.
+
+---
+
+## Documentation
+
+### Getting Started
+- **[Quickstart Guide](docs/QUICKSTART.md)** - Detailed setup instructions
+- **[Documentation Index](docs/DOCUMENTATION_INDEX.md)** - Complete documentation map
+- **[Wiki](wiki/Home.md)** - Capabilities and features
+
+### Architecture & Design
+- **[Architecture](docs/ARCHITECTURE.md)** - System design and data flow
+- **[Security](SECURITY.md)** - Security model and threat analysis
+
+### Operations
+- **[Troubleshooting](docs/TROUBLESHOOTING.md)** - Common issues and fixes
+- **[Contributing](CONTRIBUTING.md)** - Development setup
+
+---
 
 ## Contributing
 
-Contributions welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
+Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 **Before submitting:**
-- [ ] Tests pass (`make test`)
-- [ ] Lint passes (`make lint`)
-- [ ] Type check passes (`make type`)
-- [ ] Coverage ≥85% (`make cov`)
-- [ ] No secrets committed
+- Tests pass: `make test`
+- Lint passes: `make lint`
+- Type check passes: `make type`
+- Coverage ≥85%: `make cov`
+- No secrets committed
 
 **Quick start for developers:**
 ```bash
@@ -330,23 +522,58 @@ make dev  # Install dev dependencies
 make test  # Run tests
 ```
 
+---
+
 ## License
 
-MIT License - see [LICENSE](LICENSE)
+**MIT License** - See [LICENSE](LICENSE) for full text.
 
-## Support
+```
+✅ Commercial use allowed
+✅ Modification allowed
+✅ Distribution allowed
+✅ Private use allowed
+📋 License and copyright notice required
+```
 
-- **Wiki:** [wiki/Home.md](wiki/Home.md) - Comprehensive capabilities and features
-- **Documentation:** [docs/DOCUMENTATION_INDEX.md](docs/DOCUMENTATION_INDEX.md)
-- **Issues:** https://github.com/cboyd0319/JobSentinel/issues
-- **Discussions:** https://github.com/cboyd0319/JobSentinel/discussions
-- **Security:** [SECURITY.md](SECURITY.md)
+**TL;DR:** Use it however you want. Just include the license.
+
+Learn more: https://choosealicense.com/licenses/mit/
+
+---
+
+## Support & Community
+
+**Need help?**
+- 🐛 [File a bug report](https://github.com/cboyd0319/JobSentinel/issues/new?template=bug_report.md)
+- 💡 [Request a feature](https://github.com/cboyd0319/JobSentinel/discussions/new?category=feature-requests)
+- 💬 [Ask a question](https://github.com/cboyd0319/JobSentinel/discussions/new?category=q-a)
+- 🔒 [Report a security issue](SECURITY.md) (private)
+
+**Resources:**
+- [Wiki](wiki/Home.md) - Comprehensive capabilities and features
+- [Documentation](docs/DOCUMENTATION_INDEX.md) - Complete docs
+- [Security Policy](SECURITY.md) - Responsible disclosure
 
 ### Support Policy
 
-This is a single‑developer, personal project. Support is best‑effort with no SLAs.
+This is a single-developer, personal project. Support is best-effort with no SLAs.
 Security issues are prioritized; feature requests and questions are handled as time allows.
 
 ---
 
-**Made with ❤️ for job seekers who value privacy**
+<div align="center">
+
+## ⭐ Spread the Word
+
+If JobSentinel helps you find your next opportunity, **give us a star** ⭐
+
+[![Star History](https://img.shields.io/github/stars/cboyd0319/JobSentinel?style=social)](https://github.com/cboyd0319/JobSentinel/stargazers)
+
+**Active Development** • **Privacy-First** • **Community-Driven**
+
+Made with ❤️ for job seekers who value privacy
+
+[⬆ Back to top](#jobsentinel)
+
+</div>
