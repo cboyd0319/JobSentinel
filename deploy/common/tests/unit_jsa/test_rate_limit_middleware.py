@@ -132,9 +132,11 @@ class TestTokenBucket:
         # Arrange
         bucket = TokenBucket(capacity=10, refill_rate=1.0)
         original_time = bucket.last_refill
+        
+        # Simulate time passage by manually setting last_refill in the past
+        bucket.last_refill = original_time - 0.1
 
         # Act
-        time.sleep(0.01)  # Small delay
         bucket._refill()
 
         # Assert
@@ -386,8 +388,9 @@ class TestCleanupMechanism:
         # Consume some tokens from one IP
         middleware._check_rate_limit("192.168.1.1")
         
-        # Don't consume from another IP (stays at full capacity)
-        middleware.minute_buckets["192.168.1.2"]  # Just access it
+        # Access another bucket without consuming (stays at full capacity)
+        # This bucket should be eligible for cleanup
+        _ = middleware.minute_buckets["192.168.1.2"]
         
         # Store original count
         original_minute_count = len(middleware.minute_buckets)
@@ -551,8 +554,8 @@ class TestIntegrationBehavior:
         # Try one more immediately (should fail)
         assert bucket.consume() is False
 
-        # Wait for refill
-        time.sleep(1.1)
+        # Simulate time passage instead of sleeping
+        bucket.last_refill = bucket.last_refill - 1.1
         
         # Should have refilled ~1 token
         assert bucket.consume() is True
@@ -562,10 +565,11 @@ class TestIntegrationBehavior:
         # Arrange
         bucket = TokenBucket(capacity=10, refill_rate=5.0)  # 5 tokens/sec
 
-        # Act - Make requests slower than refill rate
+        # Act - Simulate requests slower than refill rate by manipulating time
         for _ in range(5):
             assert bucket.consume() is True
-            time.sleep(0.25)  # 0.25 sec * 5 tokens/sec = 1.25 tokens refilled
+            # Simulate 0.25 sec passage (0.25 sec * 5 tokens/sec = 1.25 tokens refilled)
+            bucket.last_refill = bucket.last_refill - 0.25
 
         # Assert - All requests should succeed
         assert bucket.tokens > 0
