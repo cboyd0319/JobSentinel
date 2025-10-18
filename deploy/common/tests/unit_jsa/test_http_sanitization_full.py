@@ -170,7 +170,10 @@ class TestSafeExternalUrl:
         result = safe_external_url({})  # type: ignore[arg-type]
         assert result == "#"
 
-        # Integers raise AttributeError (not currently caught - would be a bug to fix)
+        # BUG: Integers raise AttributeError (not currently caught by the function)
+        # The function catches ValueError and TypeError but not AttributeError
+        # This test documents the current buggy behavior - it should return "#" instead
+        # TODO: Fix safe_external_url to catch AttributeError along with ValueError/TypeError
         with pytest.raises(AttributeError):
             safe_external_url(12345)  # type: ignore[arg-type]
 
@@ -218,9 +221,14 @@ class TestSafeExternalUrl:
     def test_handles_very_long_urls(self, url):
         """Test that very long URLs are handled correctly."""
         result = safe_external_url(url)
-        # Should either return the URL or # (depending on validity)
+        # Should return a string result
         assert isinstance(result, str)
-        assert result in (url, "#") or result.startswith("http")
+        # Should either be the sanitized URL (without fragment) or "#"
+        if result != "#":
+            # If not rejected, should be a valid http/https URL
+            assert result.startswith(("http://", "https://"))
+            # Should not have fragment
+            assert "#" not in result
 
     def test_handles_ipv4_addresses(self):
         """Test URLs with IPv4 addresses."""
