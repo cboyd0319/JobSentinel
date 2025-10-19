@@ -59,12 +59,14 @@ jobs:
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
+        if: always() && hashFiles('coverage.xml') != ''
         with:
           files: ./coverage.xml
           flags: unittests
-          name: codecov-umbrella
+          name: jobsentinel-coverage
           fail_ci_if_error: false
           token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true
 
       - name: Upload HTML coverage report
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
