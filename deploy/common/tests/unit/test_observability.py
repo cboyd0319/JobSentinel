@@ -365,8 +365,9 @@ def test_track_performance_no_metadata():
     assert perf.metadata is not None
 
 
+@pytest.mark.slow
 def test_track_performance_timing_accuracy():
-    """Test that track_performance measures time accurately."""
+    """Test that track_performance measures time accurately (marked slow)."""
     collector = get_metrics_collector()
     collector.clear_metrics()
     

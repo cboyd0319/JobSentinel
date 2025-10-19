@@ -350,8 +350,9 @@ class TestCircuitBreaker:
         with pytest.raises(CircuitBreakerOpenError):
             breaker.call(lambda: "should not execute")
 
+    @pytest.mark.slow
     def test_circuit_breaker_half_open_after_timeout(self):
-        """Test CircuitBreaker transitions to half-open after timeout."""
+        """Test CircuitBreaker transitions to half-open after timeout (marked slow)."""
         # Arrange
         config = CircuitBreakerConfig(failure_threshold=2, timeout_seconds=0.1)
         breaker = CircuitBreaker(name="test", config=config)
@@ -472,8 +473,9 @@ class TestResilienceWorkflows:
         assert delays[2] == 0.04  # 2^2
         assert delays[3] == 0.08  # 2^3
 
+    @pytest.mark.slow
     def test_circuit_breaker_full_cycle(self):
-        """Test complete circuit breaker lifecycle: closed -> open -> half-open -> closed."""
+        """Test complete circuit breaker lifecycle (marked slow due to real timing)."""
         # Arrange
         config = CircuitBreakerConfig(
             failure_threshold=2, success_threshold=2, timeout_seconds=0.1
