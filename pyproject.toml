@@ -212,6 +212,10 @@ filterwarnings = [
   "ignore:Importing 'parser.split_arg_string' is deprecated:DeprecationWarning:spacy",
   # Pydantic v1 typing deprecation noise on ForwardRef evaluation under Py3.13+
   "ignore:Failing to pass a value to the 'type_params' parameter of 'typing.ForwardRef._evaluate':DeprecationWarning:pydantic",
+  # Pydantic V1 style validators deprecation (will be migrated in separate task)
+  "ignore:Pydantic V1 style `@validator` validators are deprecated:pydantic.warnings.PydanticDeprecatedSince20",
+  # datetime.utcnow() deprecation (will be migrated in separate task)
+  "ignore:datetime.datetime.utcnow\\(\\) is deprecated:DeprecationWarning",
   # Treat most warnings as errors (pytest architect best practice)
   "error::DeprecationWarning",
   "error::PendingDeprecationWarning",
