@@ -16,7 +16,7 @@ from sqlmodel import Session, select
 
 from utils.logging import get_logger
 
-from .unified_database import UnifiedJob, save_unified_job
+from unified_database import UnifiedJob, save_unified_job
 
 logger = get_logger("src.concurrent_database")
 
@@ -54,7 +54,7 @@ class DatabaseConnectionPool:
                 # threading issues
                 from sqlmodel import create_engine
 
-                from .unified_database import UNIFIED_DB_FILE
+                from unified_database import UNIFIED_DB_FILE
 
                 engine = create_engine(
                     f"sqlite:///{UNIFIED_DB_FILE}",
