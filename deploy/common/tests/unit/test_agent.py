@@ -30,20 +30,7 @@ from agent import get_job_board_urls, load_user_prefs, process_jobs
 # ============================================================================
 # Fixtures
 # ============================================================================
-
-
-@pytest.fixture(autouse=True)
-def _seed_rng(monkeypatch):
-    """Seed RNG for deterministic tests."""
-    import random
-
-    random.seed(1337)
-    try:
-        import numpy as np
-
-        np.random.seed(1337)
-    except ImportError:
-        pass
+# Note: _seed_rng fixture is already provided by conftest.py
 
 
 @pytest.fixture
@@ -255,7 +242,8 @@ class TestProcessJobs:
                 mock_cache.is_duplicate.return_value = False
 
                 with patch("agent.score_job") as mock_score:
-                    # Return score < immediate threshold but > 0 (2-tuple legacy format)
+                    # Return score < immediate threshold but > 0
+                    # Using 2-tuple legacy format to test backward compatibility
                     mock_score.return_value = (0.7, ["Decent match"])
 
                     with patch("agent.add_job") as mock_add_job:
@@ -292,6 +280,7 @@ class TestProcessJobs:
 
                 with patch("agent.score_job") as mock_score:
                     # Return score <= 0
+                    # Using 3-tuple format (new format with metadata)
                     mock_score.return_value = (0.0, ["No match"], {"scoring_method": "llm"})
 
                     with patch("agent.add_job") as mock_add_job:
