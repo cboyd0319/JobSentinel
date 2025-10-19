@@ -37,7 +37,7 @@ def validate_url(url: str) -> str:
 
     if not url_pattern.match(url):
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=422,
             detail=f"Invalid URL format: {url}",
         )
 
@@ -61,7 +61,7 @@ def validate_email(email: str) -> str:
 
     if not email_pattern.match(email):
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=422,
             detail=f"Invalid email format: {email}",
         )
 
@@ -87,7 +87,7 @@ def validate_phone(phone: str) -> str:
     # Check if it's a valid phone number (10-15 digits)
     if not re.match(r"^\+?\d{10,15}$", cleaned):
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=422,
             detail=f"Invalid phone number format: {phone}",
         )
 
@@ -112,13 +112,13 @@ def validate_positive_integer(value: Any, field_name: str = "value") -> int:
         int_value = int(value)
     except (ValueError, TypeError) as e:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=422,
             detail=f"{field_name} must be an integer",
         ) from e
 
     if int_value < 0:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=422,
             detail=f"{field_name} must be positive",
         )
 
@@ -145,13 +145,13 @@ def validate_string_length(
     """
     if len(value) < min_length:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=422,
             detail=f"{field_name} must be at least {min_length} characters",
         )
 
     if len(value) > max_length:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=422,
             detail=f"{field_name} must be at most {max_length} characters",
         )
 
@@ -175,13 +175,13 @@ def validate_score(score: float | int) -> float:
         float_score = float(score)
     except (ValueError, TypeError) as e:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=422,
             detail="Score must be a number",
         ) from e
 
     if not 0 <= float_score <= 100:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=422,
             detail="Score must be between 0 and 100",
         )
 
@@ -231,7 +231,7 @@ def validate_enum_value(value: str, allowed_values: list[str], field_name: str =
     """
     if value not in allowed_values:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=422,
             detail=f"{field_name} must be one of: {', '.join(allowed_values)}",
         )
 
