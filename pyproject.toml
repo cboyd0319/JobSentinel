@@ -206,6 +206,10 @@ markers = [
 timeout = 30
 timeout_method = "thread"
 filterwarnings = [
+  # Treat most warnings as errors (pytest architect best practice)
+  # NOTE: This must come FIRST so specific ignores below can override it
+  "error::DeprecationWarning",
+  "error::PendingDeprecationWarning",
   # Third-party deprecations (Click 9.0 parser split_arg_string)
   "ignore:Importing 'parser.split_arg_string' is deprecated:DeprecationWarning:click",
   "ignore:Importing 'parser.split_arg_string' is deprecated:DeprecationWarning:weasel",
@@ -216,9 +220,6 @@ filterwarnings = [
   "ignore:Pydantic V1 style `@validator` validators are deprecated:pydantic.warnings.PydanticDeprecatedSince20",
   # datetime.utcnow() deprecation (will be migrated in separate task)
   "ignore:datetime.datetime.utcnow\\(\\) is deprecated:DeprecationWarning",
-  # Treat most warnings as errors (pytest architect best practice)
-  "error::DeprecationWarning",
-  "error::PendingDeprecationWarning",
 ]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
