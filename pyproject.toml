@@ -235,10 +235,7 @@ skips = ["*_test.py", "test_*.py"]
 
 [tool.coverage.run]
 source = [
-  "deploy/common/app/src/jsa",
-  "deploy/common/app/src/domains",
-  "deploy/common/app/src/notify",
-  "deploy/common/app/src/matchers",
+  "deploy/common/app/src",
   "deploy/common/app/models",
   "deploy/common/app/sources",
   "deploy/common/app/utils",
@@ -248,6 +245,7 @@ omit = [
   "*/tests/*",
   "*/__pycache__/*",
   "*/migrations/*",
+  "*/examples/*",
 ]
 branch = true
 parallel = true

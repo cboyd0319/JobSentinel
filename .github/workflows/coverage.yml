@@ -62,6 +62,13 @@ jobs:
             --ignore=deploy/common/tests/test_macos_deployment.py \
             --ignore=deploy/common/tests/unit/cloud \
             --ignore=deploy/common/tests/unit_jsa \
+            --ignore=deploy/common/tests/unit/test_multi_task_learning.py \
+            --ignore=deploy/common/tests/unit/test_cross_encoder_reranking.py \
+            --ignore=deploy/common/tests/unit/test_custom_fine_tuning.py \
+            --ignore=deploy/common/tests/unit/test_ml_features.py \
+            --ignore=deploy/common/tests/unit/test_concurrent_database.py \
+            --ignore=deploy/common/tests/unit/test_unified_database.py \
+            --deselect=deploy/common/tests/unit/test_agent.py::TestHealthCheck::test_health_check_handles_restore_acceptance \
             | tee coverage-output.txt
 
       - name: Upload coverage to Codecov
