@@ -49,6 +49,7 @@ jobs:
         run: |
           set -euo pipefail
           pytest --cov=deploy/common/app/src/jsa --cov-report=xml --cov-report=html --cov-report=term \
+            --override-ini="addopts=-q --strict-config --strict-markers --tb=short --cov-branch --maxfail=1 --randomly-seed=1337 --timeout=30" \
             --ignore=deploy/common/tests/test_gui_launcher.py \
             --ignore=deploy/common/tests/test_ui_improvements.py \
             --ignore=deploy/common/tests/test_windows_deployment_simulation.py \
