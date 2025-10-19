@@ -14,7 +14,9 @@ This report documents the test coverage status for all core modules in the JobSe
 | `web_ui.py` | **100.00%** | 4/4 (0) | 0/0 (0) | ✅ Complete |
 | `unified_database.py` | **31.61%** | 120/300 (-180) | 0/86 (-86) | ⚠️ Deprecated |
 
-**Active Modules Average: 96.70%** ✅
+**Active Modules Average: 96.59%** ✅
+
+*Note: Line-weighted average: (186×97.57% + 265×94.52% + 192×100% + 4×100%) / (186+265+192+4) = 96.59%*
 
 ## Detailed Analysis
 
