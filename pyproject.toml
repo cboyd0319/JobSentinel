@@ -237,6 +237,11 @@ skips = ["*_test.py", "test_*.py"]
 source = [
   "deploy/common/app/src/jsa",
   "deploy/common/app/src/domains",
+  "deploy/common/app/src/notify",
+  "deploy/common/app/src/matchers",
+  "deploy/common/app/models",
+  "deploy/common/app/sources",
+  "deploy/common/app/utils",
   "deploy/cloud/common",
 ]
 omit = [
