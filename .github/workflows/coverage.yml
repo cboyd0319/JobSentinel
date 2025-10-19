@@ -42,7 +42,7 @@ jobs:
 
       - name: Install dev extras
         run: |
-          python -m pip install -e .[dev]
+          python -m pip install -e .[dev,ml,resume]
 
       - name: Run tests with coverage
         shell: bash
