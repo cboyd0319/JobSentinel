@@ -267,19 +267,31 @@ class TestDatabaseURLConfiguration:
         assert result == expected_type
 
     def test_postgresql_engine_configuration(self, monkeypatch):
-        """PostgreSQL database uses connection pooling configuration."""
-        import importlib
+        """PostgreSQL database configuration logic is correct."""
+        # Test verifies the _get_db_type function works for PostgreSQL URLs
+        # The actual engine creation (lines 95-111) requires asyncpg to be installed
+        # and happens at module import time, making it difficult to test in isolation
+        # without a full PostgreSQL setup or mocking engine creation
         
-        # Set up PostgreSQL DATABASE_URL
         pg_url = "postgresql+asyncpg://user:pass@localhost/testdb"
-        monkeypatch.setenv("DATABASE_URL", pg_url)
         
-        # Need to reload the module to pick up the new DATABASE_URL
-        # This test verifies the PostgreSQL configuration path (lines 95-111)
-        # is executed when DB_TYPE == "postgresql"
-        from database import _get_db_type
+        # Test the type detection function
+        from database import _get_db_type, _derive_sync_url
+        
         db_type = _get_db_type(pg_url)
         assert db_type == "postgresql"
+        
+        # Test the sync URL derivation
+        sync_url = _derive_sync_url(pg_url)
+        assert sync_url == "postgresql+psycopg2://user:pass@localhost/testdb"
+        
+        # Note: Lines 95-111 (PostgreSQL engine creation with connection pooling)
+        # are executed at module import time when DATABASE_URL contains postgresql.
+        # Full coverage would require either:
+        # 1. Installing asyncpg and actually creating a PostgreSQL engine
+        # 2. Complex module reloading with mocked create_async_engine
+        # 3. Integration tests with real PostgreSQL
+        # Current coverage: 97.57% - the uncovered lines are PostgreSQL-specific config
 
 
 # ============================================================================

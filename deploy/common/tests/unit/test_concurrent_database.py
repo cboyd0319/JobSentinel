@@ -12,6 +12,7 @@ Following PyTest Architect principles:
 
 from __future__ import annotations
 
+import sys
 import threading
 import time
 from dataclasses import dataclass
@@ -19,6 +20,10 @@ from queue import Empty, Queue
 from unittest.mock import MagicMock, Mock, patch
 
 import pytest
+
+# Add the src directory to the path so we can import the module
+# This is needed because concurrent_database uses relative imports
+sys.path.insert(0, 'deploy/common/app/src')
 
 from concurrent_database import BatchJobData, DatabaseConnectionPool
 
@@ -101,7 +106,8 @@ class TestDatabaseConnectionPool:
     def test_connection_pool_pre_creates_connections(self):
         """DatabaseConnectionPool pre-creates minimum connections."""
         # Arrange & Act
-        with patch("concurrent_database.create_engine") as mock_engine:
+        with patch("sqlmodel.create_engine") as mock_engine:
+            mock_engine.return_value = MagicMock()
             pool = DatabaseConnectionPool(max_connections=10)
 
             # Assert
@@ -112,16 +118,14 @@ class TestDatabaseConnectionPool:
     def test_connection_pool_creates_connection_with_sqlite_url(self):
         """DatabaseConnectionPool creates SQLite connections correctly."""
         # Arrange
-        with patch("concurrent_database.create_engine") as mock_engine:
-            with patch("concurrent_database.UNIFIED_DB_FILE", "test.sqlite"):
-                pool = DatabaseConnectionPool(max_connections=1)
+        with patch("sqlmodel.create_engine") as mock_engine:
+            mock_engine.return_value = MagicMock()
+            with patch("unified_database.UNIFIED_DB_FILE", "test.sqlite"):
+                # Use larger max to avoid queue blocking
+                pool = DatabaseConnectionPool(max_connections=10)
 
-                # Act - force creation
-                pool._created_connections = 0  # Reset counter
-                pool._create_connection()
-
-                # Assert
-                mock_engine.assert_called()
+                # Assert - check that create_engine was called with correct params
+                assert mock_engine.called
                 call_args = mock_engine.call_args
                 assert "sqlite:///" in call_args[0][0]
                 assert call_args[1]["echo"] is False
@@ -131,7 +135,8 @@ class TestDatabaseConnectionPool:
         """DatabaseConnectionPool doesn't exceed max_connections."""
         # Arrange
         max_conn = 2
-        with patch("concurrent_database.create_engine"):
+        with patch("sqlmodel.create_engine") as mock_engine:
+            mock_engine.return_value = MagicMock()
             pool = DatabaseConnectionPool(max_connections=max_conn)
 
             # Act - Try to create more than max
@@ -145,7 +150,7 @@ class TestDatabaseConnectionPool:
         """get_connection returns a database connection."""
         # Arrange
         mock_engine = MagicMock()
-        with patch("concurrent_database.create_engine", return_value=mock_engine):
+        with patch("sqlmodel.create_engine", return_value=mock_engine):
             pool = DatabaseConnectionPool(max_connections=3)
 
             # Act
@@ -156,7 +161,8 @@ class TestDatabaseConnectionPool:
     def test_get_connection_returns_to_pool(self):
         """get_connection returns connection to pool after use."""
         # Arrange
-        with patch("concurrent_database.create_engine") as mock_engine:
+        with patch("sqlmodel.create_engine") as mock_engine:
+            mock_engine.return_value = MagicMock()
             pool = DatabaseConnectionPool(max_connections=3)
             initial_size = pool._connections.qsize()
 
@@ -171,7 +177,8 @@ class TestDatabaseConnectionPool:
     def test_get_connection_creates_if_none_available(self):
         """get_connection creates new connection if none available and under max."""
         # Arrange
-        with patch("concurrent_database.create_engine"):
+        with patch("sqlmodel.create_engine") as mock_engine:
+            mock_engine.return_value = MagicMock()
             pool = DatabaseConnectionPool(max_connections=5)
             # Empty the queue
             while not pool._connections.empty():
@@ -193,7 +200,8 @@ class TestDatabaseConnectionPool:
     def test_connection_pool_thread_safe(self):
         """DatabaseConnectionPool is thread-safe."""
         # Arrange
-        with patch("concurrent_database.create_engine"):
+        with patch("sqlmodel.create_engine") as mock_engine:
+            mock_engine.return_value = MagicMock()
             pool = DatabaseConnectionPool(max_connections=5)
             results = []
             errors = []
@@ -220,7 +228,8 @@ class TestDatabaseConnectionPool:
     def test_connection_pool_timeout_handling(self):
         """get_connection handles timeout when pool exhausted."""
         # Arrange
-        with patch("concurrent_database.create_engine"):
+        with patch("sqlmodel.create_engine") as mock_engine:
+            mock_engine.return_value = MagicMock()
             pool = DatabaseConnectionPool(max_connections=1)
             # Hold the only connection
             with pool.get_connection():
