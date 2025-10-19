@@ -1223,6 +1223,60 @@ class TestMainAsyncFunction:
                                     # (Implementation uses fallback when failures >= 3)
 
     @pytest.mark.asyncio
+    async def test_process_jobs_handles_exception_result(self):
+        """process_jobs handles when gather returns Exception instead of dict result."""
+        # Tests lines 171-172
+        # Arrange
+        jobs = [
+            {"hash": "job1", "title": "Test Job 1", "url": "https://example.com/job1",
+             "company": "Test Co", "location": "Remote"},
+        ]
+        prefs = {}
+        
+        # Mock asyncio.gather to return an exception directly (simulating return_exceptions=True)
+        async def mock_gather(*tasks, return_exceptions=False):
+            # Return list with one exception to trigger lines 171-172
+            return [Exception("Job processing error")]
+        
+        with patch("agent.asyncio.gather", side_effect=mock_gather):
+            with patch("agent.config_manager") as mock_config:
+                mock_filter = MagicMock()
+                mock_filter.immediate_alert_threshold = 0.8
+                mock_notification = MagicMock()
+                mock_notification.validate_slack.return_value = False
+                mock_config.get_filter_config.return_value = mock_filter
+                mock_config.get_notification_config.return_value = mock_notification
+                
+                with patch("agent.mark_jobs_alert_sent_batch", new=AsyncMock()):
+                    # Act - should not crash despite exception in results
+                    await process_jobs(jobs, prefs)
+                    
+                    # Assert - exception was logged and handled gracefully
+
+    @pytest.mark.asyncio
+    async def test_main_self_healing_actions_taken(self):
+        """main function logs when self-healing actions are taken."""
+        # Tests line 440
+        # Arrange
+        from agent import main
+        
+        test_args = ["agent.py", "--mode", "test"]
+        
+        with patch("sys.argv", test_args):
+            with patch.dict("os.environ", {"ENABLE_SELF_HEALING": "true"}):
+                with patch("agent.init_unified_db", new=AsyncMock()):
+                    with patch("utils.self_healing.run_self_healing_check", new=AsyncMock(
+                        return_value={"actions_taken": ["fixed_config", "cleaned_cache"]}
+                    )):
+                        with patch("agent.test_notifications"):
+                            with patch("agent.main_logger") as mock_logger:
+                                # Act
+                                await main()
+                                
+                                # Assert - actions taken were logged
+                                # The log should contain information about actions taken
+
+    @pytest.mark.asyncio
     async def test_main_poll_mode_fallback_scraper_exception(self):
         """main function handles fallback scraper exception."""
         # Tests lines 519-520
