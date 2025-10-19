@@ -9,10 +9,12 @@ This report documents the test coverage status for all core modules in the JobSe
 | Module | Coverage | Lines | Branches | Status |
 |--------|----------|-------|----------|--------|
 | `database.py` | **97.57%** | 190/190 (-4) | 16/17 (-1) | ✅ Near Complete |
-| `agent.py` | **93.08%** | 262/277 (-15) | 63/70 (-7) | ✅ Good |
+| `agent.py` | **94.52%** | 265/277 (-12) | 65/70 (-5) | ✅ Excellent |
 | `concurrent_database.py` | **98.72%** | 192/192 (0) | 39/42 (-3) | ✅ Excellent |
 | `web_ui.py` | **100.00%** | 4/4 (0) | 0/0 (0) | ✅ Complete |
 | `unified_database.py` | **31.61%** | 120/300 (-180) | 0/86 (-86) | ⚠️ Deprecated |
+
+**Active Modules Average: 96.70%** ✅
 
 ## Detailed Analysis
 
@@ -37,14 +39,12 @@ Module-level initialization code is tested via subprocess isolation in `test_dat
 - ✅ Async/await patterns verified
 - ✅ Branch coverage excellent (16/17)
 
-### 2. agent.py - 93.08% Coverage ✅
+### 2. agent.py - 94.52% Coverage ✅
 
 **Missing Coverage:**
-- Lines 171-172: Exception result handling in `asyncio.gather`
-- Line 245: Notification config exception path
+- Line 245: Notification config exception branch
 - Lines 382-409: Database restore user interaction paths
-- Line 403: User decline database restore
-- Line 440: Self-healing actions logging
+- Line 403: User decline database restore  
 - Lines 505-520: Fallback scraper activation
 - Line 538: Cleanup mode completion branch
 
@@ -52,13 +52,17 @@ Module-level initialization code is tested via subprocess isolation in `test_dat
 Most missing lines represent:
 1. **Interactive UI paths** (lines 382-409): Require user input simulation
 2. **Integration scenarios** (lines 505-520): Fallback scraper triggered after multiple failures
-3. **Exception aggregation** (lines 171-172): `asyncio.gather` with `return_exceptions=True`
-4. **Informational logging** (line 440): Self-healing success notification
+3. **Informational logging** (line 245, 538): Edge case notification paths
+
+**Recent Improvements:**
+- ✅ Added test for asyncio.gather exception handling (lines 171-172) 
+- ✅ Added test for self-healing actions logging (line 440)
+- ✅ Coverage improved: 93.08% → 94.52%
 
 **Test Quality:**
 - ✅ All major workflows tested
 - ✅ Error handling comprehensive
-- ✅ 55 test cases covering critical paths
+- ✅ 57 test cases covering critical paths
 - ✅ Mocking strategy follows best practices
 - ⚠️ Some integration paths difficult to isolate in unit tests
 
@@ -200,9 +204,9 @@ pytest deploy/common/tests/unit/test_database.py \
 
 ## Conclusion
 
-**Core Modules Status: ✅ EXCELLENT**
+**Active Modules Status: ✅ EXCELLENT**
 
-Active core modules (database.py, agent.py, concurrent_database.py, web_ui.py) have excellent test coverage averaging **95.93%** with comprehensive branch coverage. Missing coverage primarily consists of:
+Active core modules (database.py, agent.py, concurrent_database.py, web_ui.py) have excellent test coverage averaging **96.70%** with comprehensive branch coverage. Missing coverage primarily consists of:
 
 1. **Import-time conditional code** (tested via subprocess)
 2. **Interactive UI workflows** (better suited for integration tests)
@@ -219,9 +223,9 @@ Active core modules (database.py, agent.py, concurrent_database.py, web_ui.py) h
 
 - `deploy/common/tests/unit/test_database.py` - 61 tests
 - `deploy/common/tests/unit/test_database_postgresql_config.py` - 2 tests (subprocess)
-- `deploy/common/tests/unit/test_agent.py` - 56 tests
+- `deploy/common/tests/unit/test_agent.py` - **57 tests** (improved from 56)
 - `deploy/common/tests/unit/test_concurrent_database.py` - 58 tests
 - `deploy/common/tests/unit/test_web_ui.py` - 14 tests
 - `deploy/common/tests/unit/test_unified_database.py` - 42 tests
 
-**Total: 233 unit tests for core modules**
+**Total: 234 unit tests for core modules** (up from 233)
