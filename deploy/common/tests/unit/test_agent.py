@@ -1223,6 +1223,30 @@ class TestMainAsyncFunction:
                                     # (Implementation uses fallback when failures >= 3)
 
     @pytest.mark.asyncio
+    async def test_process_jobs_handles_exception_result(self):
+        """process_jobs handles when gather returns Exception instead of dict result."""
+        # Tests lines 171-172
+        # Arrange
+        jobs = [
+            {"hash": "job1", "title": "Test Job 1", "url": "https://example.com/job1",
+             "company": "Test Co", "location": "Remote"},
+        ]
+        prefs = {}
+        
+        with patch("agent.asyncio.to_thread", side_effect=Exception("Scoring error")):
+            with patch("agent.config_manager") as mock_config:
+                mock_filter = MagicMock()
+                mock_filter.immediate_alert_threshold = 0.8
+                mock_notification = MagicMock()
+                mock_notification.validate_slack.return_value = False
+                mock_config.get_filter_config.return_value = mock_filter
+                mock_config.get_notification_config.return_value = mock_notification
+                
+                with patch("agent.add_job", new=AsyncMock()):
+                    # Act & Assert - should not crash despite exception
+                    await process_jobs(jobs, prefs)
+
+    @pytest.mark.asyncio
     async def test_main_poll_mode_fallback_scraper_exception(self):
         """main function handles fallback scraper exception."""
         # Tests lines 519-520
