@@ -44,6 +44,11 @@ jobs:
         run: |
           python -m pip install -e .[dev,ml,resume]
 
+      - name: Clean pycache to avoid import conflicts
+        run: |
+          find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
+          find . -type f -name "*.pyc" -delete 2>/dev/null || true
+
       - name: Run tests with coverage
         shell: bash
         run: |
