@@ -5,7 +5,6 @@ Tests token bucket implementation and rate limit enforcement.
 
 from __future__ import annotations
 
-import time
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
@@ -113,32 +112,36 @@ class TestTokenBucket:
         assert bucket.tokens == 9.0
 
     def test_refill_after_time(self):
-        """Test that tokens refill over time."""
+        """Test that tokens refill over time using mocked time."""
         # Arrange
-        bucket = TokenBucket(capacity=10, refill_rate=2.0)
-        bucket.consume(5)  # Use 5 tokens
-        initial_tokens = bucket.tokens
+        with patch("time.time") as mock_time:
+            mock_time.return_value = 1000.0
+            bucket = TokenBucket(capacity=10, refill_rate=2.0)
+            bucket.consume(5)  # Use 5 tokens, leaves 5.0
+            initial_tokens = bucket.tokens
 
-        # Act - Wait and consume (triggers refill)
-        time.sleep(0.6)  # Should add ~1.2 tokens
-        bucket.consume(1)
+            # Act - Simulate 0.6 seconds passing (should add ~1.2 tokens)
+            mock_time.return_value = 1000.6
+            bucket.consume(1)
 
-        # Assert
-        # Should have more tokens than initially after consuming 1
-        assert bucket.tokens >= initial_tokens - 1
+            # Assert
+            # Should have more tokens than initially after consuming 1
+            assert bucket.tokens >= initial_tokens - 1
 
     def test_refill_caps_at_capacity(self):
-        """Test that refilling doesn't exceed capacity."""
+        """Test that refilling doesn't exceed capacity using mocked time."""
         # Arrange
-        bucket = TokenBucket(capacity=10, refill_rate=100.0)  # Very fast refill
-        bucket.consume(5)  # Use some tokens
+        with patch("time.time") as mock_time:
+            mock_time.return_value = 1000.0
+            bucket = TokenBucket(capacity=10, refill_rate=100.0)  # Very fast refill
+            bucket.consume(5)  # Use some tokens
 
-        # Act - Wait long enough to exceed capacity
-        time.sleep(1.0)
-        bucket._refill()
+            # Act - Simulate 1 second passing (enough to exceed capacity)
+            mock_time.return_value = 1001.0
+            bucket._refill()
 
-        # Assert
-        assert bucket.tokens == 10.0  # Capped at capacity
+            # Assert
+            assert bucket.tokens == 10.0  # Capped at capacity
 
     def test_multiple_consumes(self):
         """Test multiple consecutive consume operations."""
@@ -174,45 +177,51 @@ class TestTokenBucketEdgeCases:
         assert result is False
 
     def test_zero_refill_rate(self):
-        """Test bucket with zero refill rate."""
+        """Test bucket with zero refill rate using mocked time."""
         # Arrange
-        bucket = TokenBucket(capacity=10, refill_rate=0.0)
-        bucket.consume(10)  # Empty the bucket
+        with patch("time.time") as mock_time:
+            mock_time.return_value = 1000.0
+            bucket = TokenBucket(capacity=10, refill_rate=0.0)
+            bucket.consume(10)  # Empty the bucket
 
-        # Act - Wait and try to consume
-        time.sleep(0.1)
-        result = bucket.consume(1)
+            # Act - Simulate 0.1 seconds passing
+            mock_time.return_value = 1000.1
+            result = bucket.consume(1)
 
-        # Assert
-        # With zero refill rate, should still be empty
-        assert result is False
+            # Assert
+            # With zero refill rate, should still be empty
+            assert result is False
 
     def test_very_high_refill_rate(self):
-        """Test bucket with very high refill rate."""
+        """Test bucket with very high refill rate using mocked time."""
         # Arrange
-        bucket = TokenBucket(capacity=10, refill_rate=1000.0)
-        bucket.consume(10)
+        with patch("time.time") as mock_time:
+            mock_time.return_value = 1000.0
+            bucket = TokenBucket(capacity=10, refill_rate=1000.0)
+            bucket.consume(10)
 
-        # Act - Even tiny delay should refill completely
-        time.sleep(0.02)
-        result = bucket.consume(10)
+            # Act - Even tiny delay should refill completely
+            mock_time.return_value = 1000.02
+            result = bucket.consume(10)
 
-        # Assert
-        assert result is True
+            # Assert
+            assert result is True
 
     def test_fractional_tokens(self):
-        """Test that tokens can be fractional."""
+        """Test that tokens can be fractional using mocked time."""
         # Arrange
-        bucket = TokenBucket(capacity=10, refill_rate=0.5)
-        bucket.consume(5)
+        with patch("time.time") as mock_time:
+            mock_time.return_value = 1000.0
+            bucket = TokenBucket(capacity=10, refill_rate=0.5)
+            bucket.consume(5)
 
-        # Act - Wait for partial refill
-        time.sleep(1.0)  # Should add 0.5 tokens
-        bucket._refill()
+            # Act - Simulate 1 second passing (should add 0.5 tokens)
+            mock_time.return_value = 1001.0
+            bucket._refill()
 
-        # Assert
-        assert bucket.tokens > 5.0
-        assert bucket.tokens <= 10.0
+            # Assert
+            assert bucket.tokens > 5.0
+            assert bucket.tokens <= 10.0
 
     def test_consume_zero_tokens(self):
         """Test consuming zero tokens."""
@@ -228,17 +237,19 @@ class TestTokenBucketEdgeCases:
         assert bucket.tokens == initial_tokens
 
     def test_refill_timestamp_updates(self):
-        """Test that refill updates last_refill timestamp."""
+        """Test that refill updates last_refill timestamp using mocked time."""
         # Arrange
-        bucket = TokenBucket(capacity=10, refill_rate=1.0)
-        initial_timestamp = bucket.last_refill
+        with patch("time.time") as mock_time:
+            mock_time.return_value = 1000.0
+            bucket = TokenBucket(capacity=10, refill_rate=1.0)
+            initial_timestamp = bucket.last_refill
 
-        # Act
-        time.sleep(0.1)
-        bucket._refill()
+            # Act - Simulate 0.1 seconds passing
+            mock_time.return_value = 1000.1
+            bucket._refill()
 
-        # Assert
-        assert bucket.last_refill > initial_timestamp
+            # Assert
+            assert bucket.last_refill > initial_timestamp
 
     def test_multiple_buckets_independent(self):
         """Test that multiple TokenBucket instances are independent."""

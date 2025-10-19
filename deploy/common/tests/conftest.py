@@ -12,6 +12,7 @@ import random
 import sys
 import tempfile
 from pathlib import Path
+from unittest.mock import Mock
 
 import pytest
 
@@ -128,3 +129,37 @@ def sample_emails():
         "user+tag@example.com",
         "admin@subdomain.example.com",
     ]
+
+
+@pytest.fixture
+def mock_time(monkeypatch):
+    """Provide controllable time mocking for tests that need time progression.
+
+    Returns a Mock object that can be used to control time.time() calls.
+    Use this instead of time.sleep() for deterministic, fast tests.
+
+    Example:
+        def test_with_time(mock_time):
+            mock_time.return_value = 100.0
+            # ... test code ...
+            mock_time.return_value = 101.0  # Advance 1 second
+    """
+    import time
+
+    mock = Mock()
+    mock.return_value = 1000.0
+    monkeypatch.setattr(time, "time", mock)
+    return mock
+
+
+@pytest.fixture
+def freeze_time_2025():
+    """Freeze time to 2025-01-01 00:00:00 UTC for deterministic time-based tests."""
+    try:
+        from freezegun import freeze_time
+    except ImportError:
+        pytest.skip("freezegun not installed")
+
+    with freeze_time("2025-01-01 00:00:00"):
+        yield
+
