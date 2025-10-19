@@ -332,7 +332,8 @@ def test_track_performance_success():
     
     assert perf.operation == "test_operation"
     assert perf.success is True
-    assert perf.duration_ms >= 0
+    # Some minimal time will be measured even without sleep
+    assert perf.duration_ms > 0, "Performance tracking should measure non-zero duration"
     assert perf.metadata == {"key": "value"}
 
 
@@ -403,7 +404,8 @@ def test_track_time_decorator_success():
     perf = collector.performance_data[0]
     assert "sample_function" in perf.operation
     assert perf.success is True
-    assert perf.duration_ms >= 0
+    # Some minimal time will be measured even without sleep
+    assert perf.duration_ms > 0, "Decorator should measure non-zero duration"
     assert perf.metadata["args_count"] == 2
     assert perf.metadata["kwargs_count"] == 0
 
