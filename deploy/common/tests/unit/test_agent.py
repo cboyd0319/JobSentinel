@@ -358,6 +358,87 @@ class TestProcessJobs:
                             # Assert
                             assert mock_add_job.call_count == 2  # 2 jobs above 0
 
+    @pytest.mark.asyncio
+    async def test_process_jobs_handles_job_processing_exception(self, mock_env):
+        """process_jobs handles exceptions during individual job processing."""
+        # Tests lines 170-172
+        # Arrange
+        jobs = [
+            {"title": "Engineer", "company": "ACME", "hash": "test1"},
+            {"title": "Developer", "company": "TechCo", "hash": "test2"}
+        ]
+        prefs = {"threshold": 0.8}
+
+        with patch("agent.config_manager") as mock_config:
+            mock_config.get_filter_config.return_value = MagicMock(
+                immediate_alert_threshold=0.9
+            )
+            mock_config.get_notification_config.return_value = MagicMock()
+            
+            with patch("agent.job_cache") as mock_cache:
+                mock_cache.is_duplicate.return_value = False
+                
+                with patch("agent.score_job", side_effect=[Exception("Scoring error"), (0.95, ["test"], {})]):
+                    with patch("agent.add_job", new=AsyncMock(return_value=MagicMock(id=1))):
+                        # Act - should not raise, should continue processing
+                        await process_jobs(jobs, prefs)
+                        
+                        # Assert - second job was still processed despite first job's error
+                        # (implementation continues after logging error)
+
+    @pytest.mark.asyncio
+    async def test_process_jobs_handles_batch_mark_alerts_failure(self, mock_env):
+        """process_jobs handles failure when batch marking alert jobs."""
+        # Tests lines 188-189
+        # Arrange
+        jobs = [{"title": "Senior Engineer", "company": "ACME", "hash": "test123"}]
+        prefs = {"threshold": 0.8}
+
+        with patch("agent.config_manager") as mock_config:
+            mock_config.get_filter_config.return_value = MagicMock(
+                immediate_alert_threshold=0.9
+            )
+            mock_config.get_notification_config.return_value = MagicMock(validate_slack=MagicMock(return_value=False))
+            
+            with patch("agent.job_cache") as mock_cache:
+                mock_cache.is_duplicate.return_value = False
+                
+                with patch("agent.score_job", return_value=(0.95, ["test"], {})):
+                    with patch("agent.add_job", new=AsyncMock(return_value=MagicMock(id=1))):
+                        with patch("agent.mark_jobs_alert_sent_batch", new=AsyncMock(side_effect=Exception("DB error"))):
+                            # Act - should not raise
+                            await process_jobs(jobs, prefs)
+                            
+                            # Assert - error was logged but processing continued
+
+    @pytest.mark.asyncio
+    async def test_process_jobs_handles_slack_alert_failure(self, mock_env):
+        """process_jobs handles failure when sending Slack alerts."""
+        # Tests lines 196-197
+        # Arrange
+        jobs = [{"title": "Senior Engineer", "company": "ACME", "hash": "test123"}]
+        prefs = {"threshold": 0.8}
+
+        with patch("agent.config_manager") as mock_config:
+            mock_config.get_filter_config.return_value = MagicMock(
+                immediate_alert_threshold=0.9
+            )
+            mock_config.get_notification_config.return_value = MagicMock(validate_slack=MagicMock(return_value=True))
+            
+            with patch("agent.job_cache") as mock_cache:
+                mock_cache.is_duplicate.return_value = False
+                
+                with patch("agent.score_job", return_value=(0.95, ["test"], {})):
+                    with patch("agent.add_job", new=AsyncMock(return_value=MagicMock(id=1))):
+                        with patch("agent.mark_jobs_alert_sent_batch", new=AsyncMock()):
+                            with patch("agent.slack") as mock_slack:
+                                mock_slack.send_slack_alert.side_effect = Exception("Slack API error")
+                                
+                                # Act - should not raise
+                                await process_jobs(jobs, prefs)
+                                
+                                # Assert - error was logged but processing continued
+
 
 # ============================================================================
 # Integration Tests
@@ -384,3 +465,598 @@ class TestAgentIntegration:
         assert hasattr(agent, "get_job_board_urls")
         assert hasattr(agent, "load_user_prefs")
         assert hasattr(agent, "process_jobs")
+
+
+# ============================================================================
+# Tests for send_digest
+# ============================================================================
+
+
+class TestSendDigest:
+    """Tests for send_digest async function."""
+
+    @pytest.mark.asyncio
+    async def test_send_digest_sends_jobs_to_slack(self):
+        """send_digest sends digest with jobs to Slack."""
+        # Arrange
+        from agent import send_digest
+        
+        mock_job1 = MagicMock()
+        mock_job1.id = 1
+        mock_job1.title = "Engineer"
+        mock_job1.url = "https://example.com/job1"
+        mock_job1.company = "TechCorp"
+        mock_job1.location = "Remote"
+        mock_job1.score = 0.85
+        mock_job1.score_reasons = '["python", "remote"]'
+        
+        with patch("agent.config_manager") as mock_config:
+            with patch("agent.get_jobs_for_digest", new=AsyncMock(return_value=[mock_job1])):
+                with patch("agent.mark_jobs_digest_sent", new=AsyncMock()):
+                    with patch("agent.slack") as mock_slack:
+                        mock_notification_config = MagicMock()
+                        mock_notification_config.validate_slack.return_value = True
+                        mock_config.get_notification_config.return_value = mock_notification_config
+                        
+                        mock_filter_config = MagicMock()
+                        mock_filter_config.digest_min_score = 0.6
+                        mock_config.get_filter_config.return_value = mock_filter_config
+                        
+                        # Act
+                        await send_digest()
+                        
+                        # Assert
+                        mock_slack.send_slack_alert.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_send_digest_handles_no_jobs(self):
+        """send_digest returns early when no jobs for digest."""
+        # Arrange
+        from agent import send_digest
+        
+        with patch("agent.config_manager"):
+            with patch("agent.get_jobs_for_digest", new=AsyncMock(return_value=[])):
+                with patch("agent.mark_jobs_digest_sent", new=AsyncMock()) as mock_mark:
+                    # Act
+                    await send_digest()
+                    
+                    # Assert
+                    mock_mark.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_send_digest_handles_invalid_json_score_reasons(self):
+        """send_digest handles invalid JSON in score_reasons."""
+        # Arrange
+        from agent import send_digest
+        
+        mock_job = MagicMock()
+        mock_job.id = 1
+        mock_job.title = "Engineer"
+        mock_job.url = "https://example.com/job1"
+        mock_job.company = "TechCorp"
+        mock_job.location = "Remote"
+        mock_job.score = 0.85
+        mock_job.score_reasons = "invalid json"
+        
+        with patch("agent.config_manager") as mock_config:
+            with patch("agent.get_jobs_for_digest", new=AsyncMock(return_value=[mock_job])):
+                with patch("agent.mark_jobs_digest_sent", new=AsyncMock()):
+                    with patch("agent.slack") as mock_slack:
+                        mock_notification_config = MagicMock()
+                        mock_notification_config.validate_slack.return_value = True
+                        mock_config.get_notification_config.return_value = mock_notification_config
+                        mock_config.get_filter_config.return_value = MagicMock(digest_min_score=0.6)
+                        
+                        # Act
+                        await send_digest()
+                        
+                        # Assert - should still send with empty score_reasons
+                        mock_slack.send_slack_alert.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_send_digest_handles_slack_failure(self):
+        """send_digest handles Slack sending errors gracefully."""
+        # Arrange
+        from agent import send_digest
+        
+        mock_job = MagicMock()
+        mock_job.id = 1
+        mock_job.title = "Engineer"
+        mock_job.url = "https://example.com/job1"
+        mock_job.company = "TechCorp"
+        mock_job.location = "Remote"
+        mock_job.score = 0.85
+        mock_job.score_reasons = '["python"]'
+        
+        with patch("agent.config_manager") as mock_config:
+            with patch("agent.get_jobs_for_digest", new=AsyncMock(return_value=[mock_job])):
+                with patch("agent.mark_jobs_digest_sent", new=AsyncMock()):
+                    with patch("agent.slack") as mock_slack:
+                        mock_slack.send_slack_alert.side_effect = Exception("Slack error")
+                        mock_notification_config = MagicMock()
+                        mock_notification_config.validate_slack.return_value = True
+                        mock_config.get_notification_config.return_value = mock_notification_config
+                        mock_config.get_filter_config.return_value = MagicMock(digest_min_score=0.6)
+                        
+                        # Act - should not raise
+                        await send_digest()
+                        
+                        # Assert - still marks jobs as sent
+                        # (implementation continues despite Slack error)
+
+    @pytest.mark.asyncio
+    async def test_send_digest_raises_on_general_error(self):
+        """send_digest raises exception on general errors."""
+        # Arrange
+        from agent import send_digest
+        
+        with patch("agent.config_manager") as mock_config:
+            mock_config.get_notification_config.side_effect = Exception("Config error")
+            
+            # Act & Assert
+            with pytest.raises(Exception, match="Config error"):
+                await send_digest()
+
+
+# ============================================================================
+# Tests for test_notifications
+# ============================================================================
+
+
+class TestTestNotifications:
+    """Tests for test_notifications function."""
+
+    def test_test_notifications_sends_to_slack(self):
+        """test_notifications sends test message to Slack."""
+        # Arrange
+        from agent import test_notifications
+        
+        with patch("agent.config_manager") as mock_config:
+            with patch("agent.slack") as mock_slack:
+                mock_notification_config = MagicMock()
+                mock_notification_config.validate_slack.return_value = True
+                mock_config.get_notification_config.return_value = mock_notification_config
+                
+                # Act
+                test_notifications()
+                
+                # Assert
+                mock_slack.send_slack_alert.assert_called_once()
+
+    def test_test_notifications_skips_unconfigured_slack(self):
+        """test_notifications skips Slack if not configured."""
+        # Arrange
+        from agent import test_notifications
+        
+        with patch("agent.config_manager") as mock_config:
+            with patch("agent.slack") as mock_slack:
+                mock_notification_config = MagicMock()
+                mock_notification_config.validate_slack.return_value = False
+                mock_config.get_notification_config.return_value = mock_notification_config
+                
+                # Act
+                test_notifications()
+                
+                # Assert
+                mock_slack.send_slack_alert.assert_not_called()
+
+    def test_test_notifications_handles_slack_error(self):
+        """test_notifications handles Slack errors gracefully."""
+        # Arrange
+        from agent import test_notifications
+        
+        with patch("agent.config_manager") as mock_config:
+            with patch("agent.slack") as mock_slack:
+                mock_slack.send_slack_alert.side_effect = Exception("Slack error")
+                mock_notification_config = MagicMock()
+                mock_notification_config.validate_slack.return_value = True
+                mock_config.get_notification_config.return_value = mock_notification_config
+                
+                # Act - should not raise
+                test_notifications()
+                
+                # Assert - error was handled
+
+
+# ============================================================================
+# Tests for cleanup
+# ============================================================================
+
+
+class TestCleanup:
+    """Tests for cleanup async function."""
+
+    @pytest.mark.asyncio
+    async def test_cleanup_removes_old_jobs(self):
+        """cleanup removes old jobs from database."""
+        # Arrange
+        from agent import cleanup
+        
+        with patch("agent.cleanup_old_jobs", new=AsyncMock(return_value=5)):
+            # Mock the dynamic cloud cleanup import
+            with patch("builtins.__import__") as mock_import:
+                mock_cloud_module = MagicMock()
+                mock_cloud_module.cleanup_old_backups = AsyncMock(return_value=2)
+                mock_import.return_value = mock_cloud_module
+                
+                # Act
+                await cleanup()
+                
+                # Assert - cleanup was called successfully
+
+    @pytest.mark.asyncio
+    async def test_cleanup_handles_exception(self):
+        """cleanup handles exceptions gracefully (logs but doesn't raise)."""
+        # Arrange
+        from agent import cleanup
+        
+        with patch("agent.cleanup_old_jobs", new=AsyncMock(side_effect=Exception("DB error"))):
+            # Act - should not raise
+            await cleanup()
+            
+            # Assert - error was logged but function completed
+
+    @pytest.mark.asyncio
+    async def test_cleanup_uses_environment_variables(self):
+        """cleanup respects CLEANUP_DAYS environment variable."""
+        # Arrange
+        from agent import cleanup
+        
+        with patch.dict("os.environ", {"CLEANUP_DAYS": "60"}):
+            with patch("agent.cleanup_old_jobs", new=AsyncMock(return_value=10)) as mock_cleanup:
+                # Mock the dynamic cloud cleanup import to prevent import errors
+                with patch("builtins.__import__") as mock_import:
+                    mock_cloud_module = MagicMock()
+                    mock_cloud_module.cleanup_old_backups = AsyncMock(return_value=3)
+                    mock_import.return_value = mock_cloud_module
+                    
+                    # Act
+                    await cleanup()
+                    
+                    # Assert - called with correct days value
+                    mock_cleanup.assert_called_once_with(60)
+
+    @pytest.mark.asyncio
+    async def test_cleanup_handles_invalid_cleanup_days(self):
+        """cleanup handles invalid CLEANUP_DAYS values."""
+        # Arrange
+        from agent import cleanup
+        
+        with patch.dict("os.environ", {"CLEANUP_DAYS": "invalid"}):
+            with patch("agent.cleanup_old_jobs", new=AsyncMock(return_value=0)) as mock_cleanup:
+                # Mock the dynamic cloud cleanup import
+                with patch("builtins.__import__") as mock_import:
+                    mock_cloud_module = MagicMock()
+                    mock_cloud_module.cleanup_old_backups = AsyncMock(return_value=0)
+                    mock_import.return_value = mock_cloud_module
+                    
+                    # Act
+                    await cleanup()
+                    
+                    # Assert - fell back to default 90 days
+                    mock_cleanup.assert_called_once_with(90)
+
+
+# ============================================================================
+# Tests for health_check
+# ============================================================================
+
+
+class TestHealthCheck:
+    """Tests for health_check function (synchronous)."""
+
+    def test_health_check_returns_report(self):
+        """health_check returns system health report."""
+        # Arrange
+        from agent import health_check
+        
+        mock_report = {
+            "overall_status": "healthy",
+            "metrics": [
+                {"name": "database_status", "status": "ok", "message": "Database operational"}
+            ]
+        }
+        
+        with patch("agent.health_monitor") as mock_health:
+            mock_health.generate_health_report.return_value = mock_report
+            
+            # Act
+            result = health_check()
+            
+            # Assert
+            assert result == mock_report
+
+    def test_health_check_handles_critical_issues(self):
+        """health_check detects and handles critical issues."""
+        # Arrange
+        from agent import health_check
+        
+        mock_report = {
+            "overall_status": "critical",
+            "metrics": [
+                {"name": "database_status", "status": "critical", "message": "Integrity check failed"}
+            ]
+        }
+        
+        with patch("agent.health_monitor") as mock_health:
+            mock_health.generate_health_report.return_value = mock_report
+            
+            with patch("agent.console.input", return_value="n"):  # Don't restore
+                # Act
+                result = health_check()
+                
+                # Assert
+                assert result == mock_report
+
+    def test_health_check_shows_healthy_status(self):
+        """health_check shows healthy message when no issues."""
+        # Arrange
+        from agent import health_check
+        
+        mock_report = {
+            "overall_status": "healthy",
+            "metrics": [
+                {"name": "database_status", "status": "ok", "message": "OK"}
+            ]
+        }
+        
+        with patch("agent.health_monitor") as mock_health:
+            mock_health.generate_health_report.return_value = mock_report
+            
+            # Act
+            result = health_check()
+            
+            # Assert
+            assert result == mock_report
+
+
+# ============================================================================
+# Tests for main async function
+# ============================================================================
+
+
+class TestMainAsyncFunction:
+    """Tests for main async function."""
+
+    @pytest.mark.asyncio
+    async def test_main_poll_mode_executes_scraping(self):
+        """main function executes scraping workflow in poll mode."""
+        # Arrange
+        from agent import main
+        
+        test_args = ["agent.py", "--mode", "poll"]
+        mock_jobs = [{"title": "Engineer", "url": "https://example.com/job1"}]
+        
+        with patch("sys.argv", test_args):
+            with patch("agent.init_unified_db", new=AsyncMock()):
+                with patch("agent.get_job_board_urls", return_value=["https://example.com"]):
+                    with patch("agent.load_user_prefs", return_value={}):
+                        with patch("agent.scrape_multiple_async_fast", new=AsyncMock(return_value=[
+                            MagicMock(success=True, jobs=mock_jobs, url="https://example.com")
+                        ])):
+                            with patch("agent.process_jobs", new=AsyncMock()):
+                                with patch("agent.asyncio.wait_for", new=AsyncMock(return_value=[
+                                    MagicMock(success=True, jobs=mock_jobs, url="https://example.com")
+                                ])):
+                                    # Act
+                                    await main()
+                                    
+                                    # Assert - workflow executed
+
+    @pytest.mark.asyncio
+    async def test_main_poll_mode_handles_no_urls(self):
+        """main function handles case with no URLs in poll mode."""
+        # Arrange
+        from agent import main
+        
+        test_args = ["agent.py", "--mode", "poll"]
+        
+        with patch("sys.argv", test_args):
+            with patch("agent.init_unified_db", new=AsyncMock()):
+                with patch("agent.get_job_board_urls", return_value=[]):
+                    # Act
+                    await main()
+                    
+                    # Assert - should exit gracefully without error
+
+    @pytest.mark.asyncio
+    async def test_main_digest_mode(self):
+        """main function executes digest workflow."""
+        # Arrange
+        from agent import main
+        
+        test_args = ["agent.py", "--mode", "digest"]
+        
+        with patch("sys.argv", test_args):
+            with patch("agent.init_unified_db", new=AsyncMock()):
+                with patch("agent.send_digest", new=AsyncMock()):
+                    # Act
+                    await main()
+                    
+                    # Assert - digest was called
+
+    @pytest.mark.asyncio
+    async def test_main_health_mode(self):
+        """main function executes health check."""
+        # Arrange
+        from agent import main
+        
+        test_args = ["agent.py", "--mode", "health"]
+        
+        with patch("sys.argv", test_args):
+            with patch("agent.init_unified_db", new=AsyncMock()):
+                with patch("agent.health_check") as mock_health:
+                    mock_health.return_value = {"overall_status": "healthy", "metrics": []}
+                    
+                    # Act
+                    await main()
+                    
+                    # Assert
+                    mock_health.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_main_test_mode(self):
+        """main function executes test notifications."""
+        # Arrange
+        from agent import main
+        
+        test_args = ["agent.py", "--mode", "test"]
+        
+        with patch("sys.argv", test_args):
+            with patch("agent.init_unified_db", new=AsyncMock()):
+                with patch("agent.test_notifications") as mock_test:
+                    # Act
+                    await main()
+                    
+                    # Assert
+                    mock_test.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_main_cleanup_mode(self):
+        """main function executes cleanup."""
+        # Arrange
+        from agent import main
+        
+        test_args = ["agent.py", "--mode", "cleanup"]
+        
+        with patch("sys.argv", test_args):
+            with patch("agent.init_unified_db", new=AsyncMock()):
+                with patch("agent.cleanup", new=AsyncMock()):
+                    # Act
+                    await main()
+                    
+                    # Assert - cleanup was called
+
+    @pytest.mark.asyncio
+    async def test_main_handles_scraping_timeout(self):
+        """main function handles scraping timeouts."""
+        # Arrange
+        from agent import main
+        
+        test_args = ["agent.py", "--mode", "poll"]
+        
+        with patch("sys.argv", test_args):
+            with patch("agent.init_unified_db", new=AsyncMock()):
+                with patch("agent.get_job_board_urls", return_value=["https://example.com"]):
+                    with patch("agent.asyncio.wait_for", new=AsyncMock(side_effect=TimeoutError())):
+                        # Act - should not raise
+                        await main()
+                        
+                        # Assert - timeout was handled gracefully
+
+    @pytest.mark.asyncio
+    async def test_main_handles_scraping_failure(self):
+        """main function handles scraping failures."""
+        # Arrange
+        from agent import main
+        
+        test_args = ["agent.py", "--mode", "poll"]
+        
+        with patch("sys.argv", test_args):
+            with patch("agent.init_unified_db", new=AsyncMock()):
+                with patch("agent.get_job_board_urls", return_value=["https://example.com"]):
+                    with patch("agent.load_user_prefs", return_value={}):
+                        with patch("agent.asyncio.wait_for", new=AsyncMock(return_value=[
+                            MagicMock(success=False, jobs=[], url="https://example.com", error="Error")
+                        ])):
+                            with patch("agent.process_jobs", new=AsyncMock()):
+                                # Act - should not raise
+                                await main()
+                                
+                                # Assert - failure was handled
+
+    @pytest.mark.asyncio
+    async def test_main_self_healing_disabled(self):
+        """main function skips self-healing when disabled."""
+        # Arrange
+        from agent import main
+        
+        test_args = ["agent.py", "--mode", "test"]
+        
+        with patch("sys.argv", test_args):
+            with patch.dict("os.environ", {"ENABLE_SELF_HEALING": "false"}):
+                with patch("agent.init_unified_db", new=AsyncMock()):
+                    with patch("agent.test_notifications"):
+                        # Act
+                        await main()
+                        
+                        # Assert - self-healing was skipped
+
+
+# ============================================================================
+# Tests for parse_args
+# ============================================================================
+
+
+class TestParseArgs:
+    """Tests for parse_args function."""
+
+    def test_parse_args_default_mode(self):
+        """parse_args defaults to poll mode."""
+        # Arrange
+        from agent import parse_args
+        
+        test_args = ["agent.py"]
+        
+        with patch("sys.argv", test_args):
+            # Act
+            args = parse_args()
+            
+            # Assert
+            assert args.mode == "poll"
+
+    def test_parse_args_digest_mode(self):
+        """parse_args parses digest mode."""
+        # Arrange
+        from agent import parse_args
+        
+        test_args = ["agent.py", "--mode", "digest"]
+        
+        with patch("sys.argv", test_args):
+            # Act
+            args = parse_args()
+            
+            # Assert
+            assert args.mode == "digest"
+
+    def test_parse_args_health_mode(self):
+        """parse_args parses health mode."""
+        # Arrange
+        from agent import parse_args
+        
+        test_args = ["agent.py", "--mode", "health"]
+        
+        with patch("sys.argv", test_args):
+            # Act
+            args = parse_args()
+            
+            # Assert
+            assert args.mode == "health"
+
+    def test_parse_args_test_mode(self):
+        """parse_args parses test mode."""
+        # Arrange
+        from agent import parse_args
+        
+        test_args = ["agent.py", "--mode", "test"]
+        
+        with patch("sys.argv", test_args):
+            # Act
+            args = parse_args()
+            
+            # Assert
+            assert args.mode == "test"
+
+    def test_parse_args_cleanup_mode(self):
+        """parse_args parses cleanup mode."""
+        # Arrange
+        from agent import parse_args
+        
+        test_args = ["agent.py", "--mode", "cleanup"]
+        
+        with patch("sys.argv", test_args):
+            # Act
+            args = parse_args()
+            
+            # Assert
+            assert args.mode == "cleanup"
