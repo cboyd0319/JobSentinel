@@ -12,7 +12,6 @@ Following PyTest Architect principles:
 
 from __future__ import annotations
 
-import sys
 import threading
 import time
 from dataclasses import dataclass
@@ -21,10 +20,7 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-# Add the src directory to the path so we can import the module
-# This is needed because concurrent_database uses relative imports
-sys.path.insert(0, 'deploy/common/app/src')
-
+# Import using absolute imports since concurrent_database uses them
 from concurrent_database import BatchJobData, DatabaseConnectionPool
 
 
