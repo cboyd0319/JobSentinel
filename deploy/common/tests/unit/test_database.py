@@ -573,11 +573,11 @@ class TestMarkJobsDigestSent:
         ]
 
         mock_session = AsyncMock()
-        mock_result = AsyncMock()
+        mock_result = MagicMock()
         mock_result.all.return_value = jobs
         mock_session.exec = AsyncMock(return_value=mock_result)
         mock_session.__aenter__.return_value = mock_session
-        mock_session.__aexit__.return_value = None
+        mock_session.__aexit__.return_value = AsyncMock()
 
         with patch("database.AsyncSession", return_value=mock_session):
             await mark_jobs_digest_sent([1])
@@ -589,11 +589,11 @@ class TestMarkJobsDigestSent:
     async def test_mark_jobs_digest_sent_handles_empty_list(self):
         """mark_jobs_digest_sent handles empty job ID list gracefully."""
         mock_session = AsyncMock()
-        mock_result = AsyncMock()
+        mock_result = MagicMock()
         mock_result.all.return_value = []
         mock_session.exec = AsyncMock(return_value=mock_result)
         mock_session.__aenter__.return_value = mock_session
-        mock_session.__aexit__.return_value = None
+        mock_session.__aexit__.return_value = AsyncMock()
 
         with patch("database.AsyncSession", return_value=mock_session):
             await mark_jobs_digest_sent([])
