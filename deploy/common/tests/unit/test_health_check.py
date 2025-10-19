@@ -651,9 +651,14 @@ class TestRunAllChecks:
             ),
             patch.object(health_checker, "check_network", return_value=[]),
             patch.object(health_checker, "check_system_resources", return_value=[]),
+            patch.object(
+                health_checker,
+                "check_ripgrep",
+                return_value=HealthCheckResult("Test5", "pass", "OK"),
+            ),
         ):
             result = health_checker.run_all_checks()
-            assert result["summary"]["pass"] == 2
+            assert result["summary"]["pass"] == 3
             assert result["summary"]["warn"] == 1
             assert result["summary"]["fail"] == 1
 
