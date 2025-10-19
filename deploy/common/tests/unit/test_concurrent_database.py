@@ -1081,3 +1081,59 @@ class TestConcurrentDatabaseIntegration:
                     # Assert - exception was logged
                     mock_logger.error.assert_called_once()
                     assert "Test error" in str(mock_logger.error.call_args)
+
+    def test_batch_processor_thread_runs_and_processes_timeout(self):
+        """_batch_processor thread actually runs and processes timeouts."""
+        # This test exercises the actual batch processor thread code (lines 260-272)
+        
+        with patch("concurrent_database.DatabaseConnectionPool"):
+            # Arrange - Create database with batching enabled
+            db = ConcurrentJobDatabase(
+                batch_size=5, 
+                batch_timeout=0.1,  # Very short timeout for quick test
+                enable_batching=True
+            )
+            
+            # Add jobs to batch but don't reach batch size
+            db._add_to_batch({"hash": "job1", "title": "Engineer"}, 0.8)
+            db._add_to_batch({"hash": "job2", "title": "Developer"}, 0.9)
+            
+            # Wait for batch timeout to trigger (thread should flush)
+            # The thread checks every 1 second, so we need to wait a bit
+            time.sleep(0.2)  # Wait for timeout to be reached
+            
+            # Give thread time to process
+            time.sleep(1.2)  # Wait for thread to wake up and process
+            
+            # Assert - batch should have been flushed by the background thread
+            with db._batch_lock:
+                # Batch should be empty after flush
+                assert len(db._batch_queue) == 0 or db._batch_queue == []
+
+    def test_batch_processor_thread_handles_exceptions(self):
+        """_batch_processor thread handles exceptions in flush operation."""
+        # This test exercises lines 271-272 (exception handling in batch processor)
+        
+        with patch("concurrent_database.DatabaseConnectionPool"):
+            with patch("concurrent_database.logger") as mock_logger:
+                # Arrange - Create database with batching enabled
+                db = ConcurrentJobDatabase(
+                    batch_size=5,
+                    batch_timeout=0.1,  # Very short timeout
+                    enable_batching=True
+                )
+                
+                # Make _flush_batch raise an exception
+                with patch.object(db, "_flush_batch", side_effect=ValueError("Test error")):
+                    # Add jobs to batch
+                    db._add_to_batch({"hash": "job1", "title": "Engineer"}, 0.8)
+                    
+                    # Wait for batch timeout and thread to process (which will fail)
+                    time.sleep(0.2)  # Wait for timeout
+                    time.sleep(1.2)  # Wait for thread to wake up and hit exception
+                    
+                    # Assert - exception should have been logged
+                    # Check if error was logged (may be called multiple times as thread loops)
+                    error_calls = [call for call in mock_logger.error.call_args_list 
+                                   if "Batch processor error" in str(call)]
+                    assert len(error_calls) > 0, "Expected batch processor error to be logged"
