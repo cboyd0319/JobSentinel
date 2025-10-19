@@ -108,9 +108,8 @@ class TestInitUnifiedDb:
             with patch("unified_database.init_cloud_db", mock_cloud_init):
                 await init_unified_db()
 
-                # Assert
-                if mock_cloud_init is not None:
-                    mock_cloud_init.assert_called_once()
+                # Assert - cloud init should be called if it's available
+                mock_cloud_init.assert_called_once()
 
 
 class TestSaveUnifiedJob:
