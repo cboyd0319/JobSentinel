@@ -266,6 +266,25 @@ class TestDatabaseURLConfiguration:
         result = _get_db_type(db_url)
         assert result == expected_type
 
+    def test_postgresql_engine_configuration(self, monkeypatch):
+        """PostgreSQL database configuration logic is correct."""
+        # Test verifies the _get_db_type function works for PostgreSQL URLs
+        # Note: The actual engine creation (lines 95-111) requires asyncpg
+        # installation and happens at module import time. See documentation
+        # in CORE_MODULES_TEST_COVERAGE_FINAL.md for details.
+        
+        pg_url = "postgresql+asyncpg://user:pass@localhost/testdb"
+        
+        # Test the type detection function
+        from database import _get_db_type, _derive_sync_url
+        
+        db_type = _get_db_type(pg_url)
+        assert db_type == "postgresql"
+        
+        # Test the sync URL derivation
+        sync_url = _derive_sync_url(pg_url)
+        assert sync_url == "postgresql+psycopg2://user:pass@localhost/testdb"
+
 
 # ============================================================================
 # Database Initialization Tests
@@ -330,12 +349,14 @@ class TestAddJob:
     async def test_add_job_creates_new_job_when_not_exists(self, sample_job_data):
         """add_job creates a new job when hash doesn't exist."""
         mock_session = AsyncMock(spec=AsyncSession)
-        mock_result = AsyncMock()
+        mock_result = MagicMock()  # Result is NOT async
         mock_result.first.return_value = None  # No existing job
 
         mock_session.exec = AsyncMock(return_value=mock_result)
+        mock_session.commit = AsyncMock()
+        mock_session.refresh = AsyncMock()
         mock_session.__aenter__.return_value = mock_session
-        mock_session.__aexit__.return_value = None
+        mock_session.__aexit__.return_value = AsyncMock()
 
         with patch("database.AsyncSession", return_value=mock_session):
             result = await add_job(sample_job_data)
@@ -360,12 +381,14 @@ class TestAddJob:
         )
 
         mock_session = AsyncMock(spec=AsyncSession)
-        mock_result = AsyncMock()
+        mock_result = MagicMock()  # Result is NOT async
         mock_result.first.return_value = existing_job
 
         mock_session.exec = AsyncMock(return_value=mock_result)
+        mock_session.commit = AsyncMock()
+        mock_session.refresh = AsyncMock()
         mock_session.__aenter__.return_value = mock_session
-        mock_session.__aexit__.return_value = None
+        mock_session.__aexit__.return_value = AsyncMock()
 
         with patch("database.AsyncSession", return_value=mock_session):
             result = await add_job(sample_job_data)
@@ -405,12 +428,14 @@ class TestAddJob:
         }
 
         mock_session = AsyncMock(spec=AsyncSession)
-        mock_result = AsyncMock()
+        mock_result = MagicMock()  # Result is NOT async
         mock_result.first.return_value = None
 
         mock_session.exec = AsyncMock(return_value=mock_result)
+        mock_session.commit = AsyncMock()
+        mock_session.refresh = AsyncMock()
         mock_session.__aenter__.return_value = mock_session
-        mock_session.__aexit__.return_value = None
+        mock_session.__aexit__.return_value = AsyncMock()
 
         with patch("database.AsyncSession", return_value=mock_session):
             result = await add_job(minimal_data)
@@ -433,11 +458,11 @@ class TestGetJobByHash:
         )
 
         mock_session = AsyncMock()
-        mock_result = AsyncMock()
+        mock_result = MagicMock()  # Result is NOT async
         mock_result.first.return_value = expected_job
         mock_session.exec = AsyncMock(return_value=mock_result)
         mock_session.__aenter__.return_value = mock_session
-        mock_session.__aexit__.return_value = None
+        mock_session.__aexit__.return_value = AsyncMock()
 
         with patch("database.AsyncSession", return_value=mock_session):
             result = await get_job_by_hash("test123")
@@ -447,11 +472,11 @@ class TestGetJobByHash:
     async def test_get_job_by_hash_returns_none_when_not_exists(self):
         """get_job_by_hash returns None when hash doesn't exist."""
         mock_session = AsyncMock()
-        mock_result = AsyncMock()
+        mock_result = MagicMock()  # Result is NOT async
         mock_result.first.return_value = None
         mock_session.exec = AsyncMock(return_value=mock_result)
         mock_session.__aenter__.return_value = mock_session
-        mock_session.__aexit__.return_value = None
+        mock_session.__aexit__.return_value = AsyncMock()
 
         with patch("database.AsyncSession", return_value=mock_session):
             result = await get_job_by_hash("nonexistent")
@@ -511,11 +536,11 @@ class TestGetJobsForDigest:
         ]
 
         mock_session = AsyncMock()
-        mock_result = AsyncMock()
+        mock_result = MagicMock()  # Result is NOT async
         mock_result.all.return_value = jobs
         mock_session.exec = AsyncMock(return_value=mock_result)
         mock_session.__aenter__.return_value = mock_session
-        mock_session.__aexit__.return_value = None
+        mock_session.__aexit__.return_value = AsyncMock()
 
         with patch("database.AsyncSession", return_value=mock_session):
             result = await get_jobs_for_digest(min_score=0.5, hours_back=24)
@@ -526,11 +551,11 @@ class TestGetJobsForDigest:
     async def test_get_jobs_for_digest_filters_by_min_score(self):
         """get_jobs_for_digest filters jobs by minimum score."""
         mock_session = AsyncMock()
-        mock_result = AsyncMock()
+        mock_result = MagicMock()  # Result is NOT async
         mock_result.all.return_value = []
         mock_session.exec = AsyncMock(return_value=mock_result)
         mock_session.__aenter__.return_value = mock_session
-        mock_session.__aexit__.return_value = None
+        mock_session.__aexit__.return_value = AsyncMock()
 
         with patch("database.AsyncSession", return_value=mock_session):
             result = await get_jobs_for_digest(min_score=0.9, hours_back=24)
@@ -573,11 +598,11 @@ class TestMarkJobsDigestSent:
         ]
 
         mock_session = AsyncMock()
-        mock_result = AsyncMock()
+        mock_result = MagicMock()
         mock_result.all.return_value = jobs
         mock_session.exec = AsyncMock(return_value=mock_result)
         mock_session.__aenter__.return_value = mock_session
-        mock_session.__aexit__.return_value = None
+        mock_session.__aexit__.return_value = AsyncMock()
 
         with patch("database.AsyncSession", return_value=mock_session):
             await mark_jobs_digest_sent([1])
@@ -589,16 +614,34 @@ class TestMarkJobsDigestSent:
     async def test_mark_jobs_digest_sent_handles_empty_list(self):
         """mark_jobs_digest_sent handles empty job ID list gracefully."""
         mock_session = AsyncMock()
-        mock_result = AsyncMock()
+        mock_result = MagicMock()
         mock_result.all.return_value = []
         mock_session.exec = AsyncMock(return_value=mock_result)
         mock_session.__aenter__.return_value = mock_session
-        mock_session.__aexit__.return_value = None
+        mock_session.__aexit__.return_value = AsyncMock()
 
         with patch("database.AsyncSession", return_value=mock_session):
             await mark_jobs_digest_sent([])
             # Should still attempt to query
             mock_session.exec.assert_called()
+
+    @pytest.mark.asyncio
+    async def test_mark_jobs_digest_sent_raises_exception_on_error(self):
+        """mark_jobs_digest_sent raises DatabaseException on database error."""
+        from utils.errors import DatabaseException
+
+        mock_session = AsyncMock()
+        mock_session.exec.side_effect = Exception("Database error")
+        mock_session.__aenter__.return_value = mock_session
+        mock_session.__aexit__.return_value = None
+
+        with (
+            patch("database.AsyncSession", return_value=mock_session),
+            pytest.raises(DatabaseException) as exc_info,
+        ):
+            await mark_jobs_digest_sent([1, 2, 3])
+
+        assert "mark_jobs_digest_sent" in str(exc_info.value)
 
 
 class TestMarkJobAlertSent:
@@ -642,6 +685,24 @@ class TestMarkJobAlertSent:
             await mark_job_alert_sent(999)
             mock_session.commit.assert_not_called()
 
+    @pytest.mark.asyncio
+    async def test_mark_job_alert_sent_raises_exception_on_error(self):
+        """mark_job_alert_sent raises DatabaseException on database error."""
+        from utils.errors import DatabaseException
+
+        mock_session = AsyncMock()
+        mock_session.get.side_effect = Exception("Database error")
+        mock_session.__aenter__.return_value = mock_session
+        mock_session.__aexit__.return_value = None
+
+        with (
+            patch("database.AsyncSession", return_value=mock_session),
+            pytest.raises(DatabaseException) as exc_info,
+        ):
+            await mark_job_alert_sent(1)
+
+        assert "mark_job_alert_sent" in str(exc_info.value)
+
 
 class TestMarkJobsAlertSentBatch:
     """Test mark_jobs_alert_sent_batch function."""
@@ -666,6 +727,24 @@ class TestMarkJobsAlertSentBatch:
             await mark_jobs_alert_sent_batch([])
             # Should not create session or execute queries
             mock_session.__aenter__.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_mark_jobs_alert_sent_batch_raises_exception_on_error(self):
+        """mark_jobs_alert_sent_batch raises DatabaseException on database error."""
+        from utils.errors import DatabaseException
+
+        mock_session = AsyncMock()
+        mock_session.execute.side_effect = Exception("Database error")
+        mock_session.__aenter__.return_value = mock_session
+        mock_session.__aexit__.return_value = None
+
+        with (
+            patch("database.AsyncSession", return_value=mock_session),
+            pytest.raises(DatabaseException) as exc_info,
+        ):
+            await mark_jobs_alert_sent_batch([1, 2, 3])
+
+        assert "mark_jobs_alert_sent_batch" in str(exc_info.value)
 
 
 # ============================================================================
@@ -860,11 +939,13 @@ class TestEdgeCasesAndErrors:
         }
 
         mock_session = AsyncMock()
-        mock_result = AsyncMock()
+        mock_result = MagicMock()  # Result is NOT async
         mock_result.first.return_value = None
         mock_session.exec = AsyncMock(return_value=mock_result)
+        mock_session.commit = AsyncMock()
+        mock_session.refresh = AsyncMock()
         mock_session.__aenter__.return_value = mock_session
-        mock_session.__aexit__.return_value = None
+        mock_session.__aexit__.return_value = AsyncMock()
 
         with patch("database.AsyncSession", return_value=mock_session):
             await add_job(job_data)
@@ -884,11 +965,13 @@ class TestEdgeCasesAndErrors:
         }
 
         mock_session = AsyncMock()
-        mock_result = AsyncMock()
+        mock_result = MagicMock()  # Result is NOT async
         mock_result.first.return_value = None
         mock_session.exec = AsyncMock(return_value=mock_result)
+        mock_session.commit = AsyncMock()
+        mock_session.refresh = AsyncMock()
         mock_session.__aenter__.return_value = mock_session
-        mock_session.__aexit__.return_value = None
+        mock_session.__aexit__.return_value = AsyncMock()
 
         with patch("database.AsyncSession", return_value=mock_session):
             await add_job(job_data)
@@ -911,11 +994,13 @@ class TestEdgeCasesAndErrors:
         }
 
         mock_session = AsyncMock()
-        mock_result = AsyncMock()
+        mock_result = MagicMock()  # Result is NOT async
         mock_result.first.return_value = None
         mock_session.exec = AsyncMock(return_value=mock_result)
+        mock_session.commit = AsyncMock()
+        mock_session.refresh = AsyncMock()
         mock_session.__aenter__.return_value = mock_session
-        mock_session.__aexit__.return_value = None
+        mock_session.__aexit__.return_value = AsyncMock()
 
         with patch("database.AsyncSession", return_value=mock_session):
             await add_job(job_data)
