@@ -166,8 +166,9 @@ class TestResponseCache:
         assert cached.content == "Cached response"
         assert cached.cached is True
 
+    @pytest.mark.slow
     def test_cache_expiration(self):
-        """Test cached responses expire after TTL."""
+        """Test cached responses expire after TTL (marked slow due to real timing)."""
         cache = ResponseCache(ttl_seconds=1)  # 1 second TTL
 
         response = LLMResponse(

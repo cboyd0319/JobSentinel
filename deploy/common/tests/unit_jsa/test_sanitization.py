@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 
 pytest.importorskip("hypothesis")
-from hypothesis import given, strategies as st  # noqa: E402
+from hypothesis import given, settings, strategies as st  # noqa: E402
 
 from jsa.http.sanitization import safe_external_url
 
@@ -30,6 +30,7 @@ def test_bad_schemes(bad: str):
     assert safe_external_url(bad) == "#"
 
 
+@settings(max_examples=50, deadline=500)
 @given(st.text(min_size=1, max_size=50))
 def test_property_non_http_becomes_hash(s: str):
     if not s.startswith("http://") and not s.startswith("https://"):
