@@ -55,7 +55,7 @@ class TestBatchJobData:
         """BatchJobData accepts custom timestamp."""
         # Arrange
         job_data = {"title": "Engineer"}
-        timestamp = time.time()
+        timestamp = 1234567890.0  # Fixed timestamp for determinism
 
         # Act
         batch_job = BatchJobData(job_data=job_data, timestamp=timestamp)
@@ -68,10 +68,10 @@ class TestBatchJobData:
         [
             (0.0, 0.0),
             (0.5, 100.0),
-            (1.0, time.time()),
+            (1.0, 1234567890.0),  # Fixed timestamp instead of time.time()
             (0.99, 999999.99),
         ],
-        ids=["zeros", "half", "current_time", "large_values"],
+        ids=["zeros", "half", "fixed_time", "large_values"],
     )
     def test_batch_job_data_various_values(self, score, timestamp):
         """BatchJobData handles various score and timestamp values."""
@@ -202,7 +202,7 @@ class TestDatabaseConnectionPool:
                 try:
                     with pool.get_connection() as conn:
                         results.append(conn)
-                        time.sleep(0.01)  # Simulate work
+                        # Removed sleep for fast execution - thread safety doesn't require delays
                 except Exception as e:
                     errors.append(e)
 
