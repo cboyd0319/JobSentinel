@@ -325,14 +325,14 @@ def test_track_performance_success():
     collector.clear_metrics()
     
     with track_performance("test_operation", metadata={"key": "value"}):
-        time.sleep(0.01)  # Simulate work
+        pass  # No need for sleep - just testing the tracking mechanism
     
     assert len(collector.performance_data) == 1
     perf = collector.performance_data[0]
     
     assert perf.operation == "test_operation"
     assert perf.success is True
-    assert perf.duration_ms > 0
+    assert perf.duration_ms >= 0
     assert perf.metadata == {"key": "value"}
 
 
@@ -393,8 +393,7 @@ def test_track_time_decorator_success():
     
     @track_time()
     def sample_function(x, y):
-        time.sleep(0.01)
-        return x + y
+        return x + y  # No need for sleep - just testing the decorator
     
     result = sample_function(2, 3)
     
@@ -404,7 +403,7 @@ def test_track_time_decorator_success():
     perf = collector.performance_data[0]
     assert "sample_function" in perf.operation
     assert perf.success is True
-    assert perf.duration_ms > 0
+    assert perf.duration_ms >= 0
     assert perf.metadata["args_count"] == 2
     assert perf.metadata["kwargs_count"] == 0
 

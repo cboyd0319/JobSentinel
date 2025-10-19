@@ -17,7 +17,7 @@ This document describes the test suite optimizations implemented to improve test
 
 ### After Optimization
 - **Test runtime**: 4.57s (721 tests, excluding slow tests)
-- **Improvement**: **55% faster**
+- **Improvement**: **57% faster**
 - **Slowest test**: 0.32s (optimized hypothesis test)
 - **Key changes**:
   - Replaced `time.sleep()` with mocked time in rate limit tests
