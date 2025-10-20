@@ -141,7 +141,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Generate SBOM
-        uses: anchore/sbom-action@d8a2c0130026bf585de5c176ab8f7ce62d75bf04 # v0.20.7
+        uses: anchore/sbom-action@aa0e114b2e19480f157109b9922bda359bd98b90 # v0.20.8
         with:
           artifact-name: jobsentinel-${{ needs.validate.outputs.version }}.spdx.json
           output-file: jobsentinel-${{ needs.validate.outputs.version }}.spdx.json
