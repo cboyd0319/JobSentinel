@@ -71,7 +71,7 @@ mcp = [
 ]
 llm = [
   "openai>=2.3,<3",
-  "anthropic>=0.69,<0.70",
+  "anthropic>=0.69,<0.72",
   "litellm>=1.78,<2",
 ]
 dev = [
