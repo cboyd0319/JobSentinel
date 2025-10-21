@@ -1,0 +1,214 @@
+rules:
+  - id: jobsentinel-path-traversal
+    pattern-either:
+      - pattern: open($PATH, ...)
+      - pattern: pathlib.Path($PATH).open(...)
+      - pattern: pathlib.Path($PATH).read_text(...)
+      - pattern: pathlib.Path($PATH).read_bytes(...)
+    pattern-not: open("...", ...)
+    pattern-not-inside: |
+      $PATH = pathlib.Path(...).resolve()
+      ...
+    message: |
+      Potential path traversal vulnerability. User-supplied file paths should be
+      validated before use. Use pathlib.Path.resolve() and verify the resolved path
+      is within an allowed directory.
+    languages: [python]
+    severity: WARNING
+    metadata:
+      cwe: CWE-22
+      owasp: A01:2021 - Broken Access Control
+      references:
+        - https://owasp.org/www-community/attacks/Path_Traversal
+      category: security
+      subcategory: [vuln]
+
+  - id: jobsentinel-ssrf-http-request
+    pattern-either:
+      - pattern: requests.get($URL, ...)
+      - pattern: requests.post($URL, ...)
+      - pattern: httpx.get($URL, ...)
+      - pattern: httpx.post($URL, ...)
+      - pattern: aiohttp.ClientSession().get($URL, ...)
+      - pattern: aiohttp.ClientSession().post($URL, ...)
+    pattern-not: requests.get("https://...", ...)
+    pattern-not: requests.post("https://...", ...)
+    pattern-not-inside: |
+      $URL = validate_url(...)
+      ...
+    message: |
+      Potential SSRF vulnerability. User-supplied URLs should be validated before
+      making HTTP requests. Ensure URL scheme is https://, and block private IP
+      ranges (localhost, 192.168.x.x, 10.x.x.x, 172.16-31.x.x).
+    languages: [python]
+    severity: WARNING
+    metadata:
+      cwe: CWE-918
+      owasp: A10:2021 - Server-Side Request Forgery
+      references:
+        - https://owasp.org/www-community/attacks/Server_Side_Request_Forgery
+      category: security
+      subcategory: [vuln]
+
+  - id: jobsentinel-secret-in-log
+    pattern-either:
+      - pattern: logger.$METHOD(..., $API_KEY, ...)
+      - pattern: logging.$METHOD(..., $TOKEN, ...)
+      - pattern: print(..., $PASSWORD, ...)
+    metavariable-pattern:
+      metavariable: $API_KEY
+      pattern-regex: (?i)(api_key|apikey|api-key|token|password|secret|credential)
+    message: |
+      Potential secret leakage in log statement. Avoid logging variables with
+      names like 'api_key', 'token', 'password', 'secret', or 'credential'.
+      Redact sensitive values before logging.
+    languages: [python]
+    severity: ERROR
+    metadata:
+      cwe: CWE-532
+      owasp: A09:2021 - Security Logging and Monitoring Failures
+      references:
+        - https://owasp.org/www-project-top-ten/2017/A10_2017-Insufficient_Logging%2526Monitoring
+      category: security
+      subcategory: [vuln]
+
+  - id: jobsentinel-unsafe-subprocess-shell
+    pattern: subprocess.$METHOD(..., shell=True, ...)
+    message: |
+      Unsafe subprocess call with shell=True. This can lead to command injection
+      if user input is included in the command. Use shell=False and pass arguments
+      as a list, or use shlex.quote() to escape arguments.
+    languages: [python]
+    severity: ERROR
+    metadata:
+      cwe: CWE-78
+      owasp: A03:2021 - Injection
+      references:
+        - https://docs.python.org/3/library/subprocess.html#security-considerations
+      category: security
+      subcategory: [vuln]
+
+  - id: jobsentinel-unvalidated-redirect
+    pattern-either:
+      - pattern: flask.redirect($URL)
+      - pattern: fastapi.responses.RedirectResponse($URL)
+    pattern-not: flask.redirect("...")
+    pattern-not: fastapi.responses.RedirectResponse("...")
+    pattern-not-inside: |
+      $URL = validate_url(...)
+      ...
+    message: |
+      Potential open redirect vulnerability. User-supplied URLs in redirects should
+      be validated. Use a whitelist of allowed redirect targets or validate the URL
+      scheme and domain.
+    languages: [python]
+    severity: WARNING
+    metadata:
+      cwe: CWE-601
+      owasp: A01:2021 - Broken Access Control
+      references:
+        - https://owasp.org/www-community/attacks/Unvalidated_Redirects_and_Forwards_Cheat_Sheet
+      category: security
+      subcategory: [vuln]
+
+  - id: jobsentinel-hardcoded-secret
+    pattern-either:
+      - pattern: $VAR = "..."
+      - pattern: $VAR = '...'
+    metavariable-pattern:
+      metavariable: $VAR
+      pattern-regex: (?i)(api_key|apikey|password|secret|token|access_key|private_key)
+    metavariable-comparison:
+      metavariable: $VAR
+      comparison: len(str($VAR)) > 10
+    message: |
+      Potential hardcoded secret. Secrets should be stored in environment variables
+      or a secure vault, not hardcoded in source code. Use python-dotenv to load
+      from .env files.
+    languages: [python]
+    severity: ERROR
+    metadata:
+      cwe: CWE-798
+      owasp: A07:2021 - Identification and Authentication Failures
+      references:
+        - https://owasp.org/www-community/vulnerabilities/Use_of_hard-coded_password
+      category: security
+      subcategory: [vuln]
+
+  - id: jobsentinel-sql-injection
+    pattern-either:
+      - pattern: $DB.execute(f"...", ...)
+      - pattern: $DB.execute("..." + $VAR, ...)
+      - pattern: $DB.execute("..." % $VAR, ...)
+      - pattern: $CURSOR.execute(f"...", ...)
+      - pattern: $CURSOR.execute("..." + $VAR, ...)
+      - pattern: $CURSOR.execute("..." % $VAR, ...)
+    message: |
+      Potential SQL injection vulnerability. Use parameterized queries or an ORM
+      (SQLAlchemy) instead of string formatting/concatenation. Never use f-strings
+      or + operator to build SQL queries.
+    languages: [python]
+    severity: ERROR
+    metadata:
+      cwe: CWE-89
+      owasp: A03:2021 - Injection
+      references:
+        - https://owasp.org/www-community/attacks/SQL_Injection
+      category: security
+      subcategory: [vuln]
+
+  - id: jobsentinel-unsafe-yaml-load
+    pattern: yaml.load($DATA, ...)
+    pattern-not: yaml.load($DATA, Loader=yaml.SafeLoader)
+    pattern-not: yaml.safe_load($DATA)
+    message: |
+      Unsafe YAML deserialization. yaml.load() can execute arbitrary code.
+      Use yaml.safe_load() or yaml.load() with Loader=yaml.SafeLoader.
+    languages: [python]
+    severity: ERROR
+    metadata:
+      cwe: CWE-502
+      owasp: A08:2021 - Software and Data Integrity Failures
+      references:
+        - https://owasp.org/www-community/vulnerabilities/Deserialization_of_untrusted_data
+      category: security
+      subcategory: [vuln]
+
+  - id: jobsentinel-eval-exec-usage
+    pattern-either:
+      - pattern: eval(...)
+      - pattern: exec(...)
+      - pattern: compile(..., mode="eval")
+    message: |
+      Use of eval() or exec() is extremely dangerous and can lead to arbitrary code
+      execution. Avoid using these functions. If absolutely necessary, use
+      ast.literal_eval() for safe evaluation of Python literals.
+    languages: [python]
+    severity: ERROR
+    metadata:
+      cwe: CWE-95
+      owasp: A03:2021 - Injection
+      references:
+        - https://docs.python.org/3/library/ast.html#ast.literal_eval
+      category: security
+      subcategory: [vuln]
+
+  - id: jobsentinel-insecure-random
+    pattern: random.$METHOD(...)
+    pattern-not: secrets.$METHOD(...)
+    pattern-inside: |
+      import random
+      ...
+    message: |
+      Use of insecure random number generator. For security-sensitive operations
+      (tokens, passwords, cryptographic keys), use the 'secrets' module instead
+      of 'random'.
+    languages: [python]
+    severity: WARNING
+    metadata:
+      cwe: CWE-338
+      owasp: A02:2021 - Cryptographic Failures
+      references:
+        - https://docs.python.org/3/library/secrets.html
+      category: security
+      subcategory: [vuln]

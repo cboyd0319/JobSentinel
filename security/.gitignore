@@ -1,0 +1,9 @@
+# Security scan results should not be committed (may contain sensitive paths/findings)
+SCANNER_RESULTS/
+*.sarif
+*.json
+
+# Exception: Keep SBOM files (they're public artifacts)
+!SBOM/*.json
+!SBOM/*.xml
+!SBOM/*.spdx
