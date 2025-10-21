@@ -186,9 +186,13 @@ graph LR
 - **Local-first** - All data on your machine
 - **No telemetry** - Zero tracking
 - **OWASP ASVS Level 2** compliant (17 controls)
+- **SLSA Level 3** - Build provenance attestations
+- **SBOM included** - Software Bill of Materials (SPDX)
 - **Secrets in .env** - Never hardcoded
 - **Read-only scrapers** - Don't post to job boards
 - **Input validation** - All external data validated
+- **Automated scanning** - Bandit, Semgrep, OSV, CodeQL
+- **Supply chain security** - SHA-pinned deps, vulnerability tracking
 
 **Platform Support**
 - **Windows** 11+ (one-click installer)
@@ -495,7 +499,13 @@ See [AI/ML Roadmap](docs/reference/AI_ML_ROADMAP.md) for AI/ML features.
 
 ### Architecture & Design
 - **[Architecture](docs/ARCHITECTURE.md)** - System design and data flow
-- **[Security](SECURITY.md)** - Security model and threat analysis
+- **[Security Policy](SECURITY.md)** - Vulnerability disclosure and security model
+- **[Threat Model](docs/THREAT_MODEL.md)** - Data flows and trust boundaries
+
+### Security Documentation
+- **[Secure Coding Guide](docs/SECURE_CODING_GUIDE.md)** - Security best practices for contributors
+- **[Supply Chain Security](docs/SUPPLY_CHAIN_SECURITY.md)** - SBOM, SLSA, dependency management
+- **[Risk Ledger](security/RISK_LEDGER.md)** - Current security risks and mitigations
 
 ### Operations
 - **[Troubleshooting](docs/TROUBLESHOOTING.md)** - Common issues and fixes
