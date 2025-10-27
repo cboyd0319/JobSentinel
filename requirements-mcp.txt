@@ -13,4 +13,4 @@ jobspy==0.31.0
 
 # Utilities
 pydantic==2.12.2
-python-dotenv==1.1.1
+python-dotenv==1.2.1
