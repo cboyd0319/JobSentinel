@@ -50,3 +50,4 @@ lerna-debug.log*
 
 # SQLx
 .sqlx
+src-tauri/gen/
