@@ -11,7 +11,6 @@ import pytest
 # Module path is handled in conftest.py
 # Mock the GCP teardown module before importing
 import sys
-from unittest.mock import MagicMock
 
 sys.modules["cloud.providers.gcp.teardown"] = MagicMock()
 

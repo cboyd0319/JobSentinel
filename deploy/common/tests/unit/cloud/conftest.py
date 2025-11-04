@@ -20,28 +20,60 @@ import pytest
 DEPLOY_DIR = Path(__file__).resolve().parent.parent.parent.parent.parent
 CLOUD_COMMON_DIR = DEPLOY_DIR / "cloud" / "common"
 
-# Add the cloud/common directory to path - this allows direct imports like "import style"
-if str(CLOUD_COMMON_DIR) not in sys.path:
-    sys.path.insert(0, str(CLOUD_COMMON_DIR))
+# Add deploy/common/app/src to path for database and utils.X imports
+# This must come FIRST so "from utils.X import" resolves to the utils package
+APP_SRC_DIR = DEPLOY_DIR / "common" / "app" / "src"
+if str(APP_SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(APP_SRC_DIR))
 
 # Create a "cloud" module namespace that delegates to the cloud/common directory
-# This allows "from cloud.style" imports to work
+# This allows "from cloud.X" imports to work without adding cloud/common to sys.path
+# which would conflict with the utils package
 cloud_module = types.ModuleType("cloud")
 cloud_module.__path__ = [str(CLOUD_COMMON_DIR)]
 cloud_module.__file__ = str(CLOUD_COMMON_DIR / "__init__.py")
 sys.modules["cloud"] = cloud_module
 
+# Create a "providers" module namespace for direct test imports
+providers_module = types.ModuleType("providers")
+providers_module.__path__ = [str(CLOUD_COMMON_DIR / "providers")]
+providers_module.__file__ = str(CLOUD_COMMON_DIR / "providers" / "__init__.py")
+sys.modules["providers"] = providers_module
+
+# Create "providers.gcp" namespace
+providers_gcp_module = types.ModuleType("providers.gcp")
+providers_gcp_module.__path__ = [str(CLOUD_COMMON_DIR / "providers" / "gcp")]
+providers_gcp_module.__file__ = str(CLOUD_COMMON_DIR / "providers" / "gcp" / "__init__.py")
+sys.modules["providers.gcp"] = providers_gcp_module
+providers_module.gcp = providers_gcp_module
+
+# Create a "functions" module namespace for cloud functions
+functions_module = types.ModuleType("functions")
+functions_module.__path__ = [str(CLOUD_COMMON_DIR / "functions")]
+functions_module.__file__ = str(CLOUD_COMMON_DIR / "functions" / "__init__.py")
+sys.modules["functions"] = functions_module
+
+# For direct imports like "import style" or "import receipt", we need to load them explicitly
+# and add them to sys.modules to avoid conflicts with app/src/utils
+import importlib.util
+
+for module_name in ["style", "receipt", "teardown", "update", "bootstrap", "exceptions"]:
+    module_path = CLOUD_COMMON_DIR / f"{module_name}.py"
+    if module_path.exists():
+        spec = importlib.util.spec_from_file_location(module_name, module_path)
+        if spec and spec.loader:
+            module = importlib.util.module_from_spec(spec)
+            sys.modules[module_name] = module
+            try:
+                spec.loader.exec_module(module)
+            except Exception:
+                # Some modules may fail to load during test collection, that's OK
+                pass
+
 # Mock utils.cost_tracker before any cloud modules are imported
-# We need to load the actual cloud/common/utils.py but mock its dependency on utils.cost_tracker
-# First, mock the cost_tracker module that cloud/common/utils.py tries to import
 cost_tracker_mock = MagicMock()
 cost_tracker_mock.tracker = MagicMock()
 sys.modules["utils.cost_tracker"] = cost_tracker_mock
-
-# Add deploy/common/app/utils to path so utils.secure_subprocess can be imported
-APP_UTILS_DIR = DEPLOY_DIR / "common" / "app" / "utils"
-if str(APP_UTILS_DIR) not in sys.path:
-    sys.path.insert(0, str(APP_UTILS_DIR.parent))  # Add parent so utils.X works
 
 
 @pytest.fixture

@@ -35,9 +35,9 @@ except ImportError:
     init_cloud_db = None  # type: ignore[assignment]
 
 from sqlmodel import Field, Session, SQLModel, create_engine, select
+from utils.logging import get_logger
 
 from database import Job, get_sync_session, init_db
-from utils.logging import get_logger
 
 logger = get_logger("unified_database")
 

@@ -116,8 +116,8 @@ class OpenAIClient(LLMClient):
         """Generate text using OpenAI."""
         try:
             from openai import AsyncOpenAI
-        except ImportError:
-            raise ImportError("OpenAI not installed. Install with: pip install -e .[llm]")
+        except ImportError as err:
+            raise ImportError("OpenAI not installed. Install with: pip install -e .[llm]") from err
 
         temp = temperature if temperature is not None else self.config.temperature
         max_tok = max_tokens if max_tokens is not None else self.config.max_tokens
@@ -207,8 +207,8 @@ class AnthropicClient(LLMClient):
         """Generate text using Anthropic Claude."""
         try:
             from anthropic import AsyncAnthropic
-        except ImportError:
-            raise ImportError("Anthropic not installed. Install with: pip install -e .[llm]")
+        except ImportError as err:
+            raise ImportError("Anthropic not installed. Install with: pip install -e .[llm]") from err
 
         temp = temperature if temperature is not None else self.config.temperature
         max_tok = max_tokens if max_tokens is not None else self.config.max_tokens

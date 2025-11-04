@@ -12,12 +12,15 @@ from rich.progress import (
     TextColumn,
     TimeRemainingColumn,
 )
-
-from matchers.rules import score_job
-from notify import slack
 from sources.concurrent_scraper import (  # Import the async scraper
     scrape_multiple_async_fast,
 )
+from utils.cache import job_cache
+from utils.config import config_manager
+from utils.errors import ConfigurationException
+from utils.health import health_monitor
+from utils.logging import console, get_logger, setup_logging
+
 from database import (
     add_job,
     cleanup_old_jobs,
@@ -25,12 +28,9 @@ from database import (
     mark_jobs_alert_sent_batch,
     mark_jobs_digest_sent,
 )
+from matchers.rules import score_job
+from notify import slack
 from unified_database import init_unified_db
-from utils.cache import job_cache
-from utils.config import config_manager
-from utils.errors import ConfigurationException
-from utils.health import health_monitor
-from utils.logging import console, get_logger, setup_logging
 
 # Load environment variables
 load_dotenv()
