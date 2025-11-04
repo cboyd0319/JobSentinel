@@ -1,3 +1,0 @@
-# Use pyproject.toml for dependency management
-# Install with: pip install -e .[dev,resume,mcp]
-# Or for users: pip install -e .

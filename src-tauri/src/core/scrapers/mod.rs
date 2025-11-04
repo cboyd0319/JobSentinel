@@ -1,0 +1,29 @@
+//! Job Board Scrapers
+//!
+//! Implementations for scraping various job boards.
+
+use crate::core::db::Job;
+use async_trait::async_trait;
+
+pub mod greenhouse;
+pub mod lever;
+pub mod jobswithgpt;
+
+/// Scraper result
+pub type ScraperResult = Result<Vec<Job>, Box<dyn std::error::Error + Send + Sync>>;
+
+/// Job scraper trait
+#[async_trait]
+pub trait JobScraper: Send + Sync {
+    /// Scrape jobs from this source
+    async fn scrape(&self) -> ScraperResult;
+
+    /// Get scraper name
+    fn name(&self) -> &'static str;
+}
+
+/// Run all enabled scrapers
+pub async fn scrape_all() -> Vec<Job> {
+    // TODO: Implement parallel scraping
+    vec![]
+}

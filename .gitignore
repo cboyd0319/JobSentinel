@@ -1,272 +1,52 @@
-# ==========================================
-# Python Build & Runtime
-# ==========================================
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-pip-log.txt
-pip-delete-this-directory.txt
+# Rust
+/target
+**/*.rs.bk
+*.pdb
 
-# ==========================================
-# Virtual Environments
-# ==========================================
-.venv/
-venv/
-env/
-ENV/
-__pypackages__/
+# Node
+/node_modules
+/dist
+/dist-ssr
+*.local
 
-# ==========================================
-# Testing & Quality Tools
-# ==========================================
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.hypothesis/
-.tox/
-.cache/
-.benchmarks/
-htmlcov/
-.coverage
-.coverage.*
-coverage.xml
-coverage.json
-*.cover
-*.py,cover
-nosetests.xml
-testResults.xml
-.mutmut-cache
-
-# ==========================================
-# Environment & Secrets
-# ==========================================
-.env
-.env.*
-*.env
-.envrc
-
-# Credentials and keys
-*-key.json
-*_key.json
-service-account*.json
-*credentials*.json
-gcp-key*.json
-auth.json
-secrets.json
-*.secret
-*.secrets
-*.p12
-*.pfx
-*.key
-*.pem
-*.crt
-*.csr
-id_rsa*
-*.ppk
-
-# Cloud CLI directories
-.aws/
-.azure/
-.gcloud/
-
-# ==========================================
-# User Configuration
-# ==========================================
-# Keep examples, ignore actual user configs
-config/user_prefs.json
-config/user_profile.json
-user_prefs.json
-!config/user_prefs.example.json
-
-# ==========================================
-# Data & Runtime Files
-# ==========================================
-data/
-*.log
-*.sqlite
-*.sqlite3
-*.db
-*.db3
-*.sqlite-journal
-*.db-shm
-*.db-wal
-logs/*.jsonl
-logs/*.log
-!logs/.gitkeep
-
-# ==========================================
-# IDE & Editor Files
-# ==========================================
-.vscode/
-.idea/
-.cursor/
-.claude/
-*.swp
-*.swo
-*~
-.vimrc.local
-.lvimrc
-
-# ==========================================
-# OS-Specific Files
-# ==========================================
-# macOS
-.DS_Store
-._*
-
-# Windows
-Thumbs.db
-desktop.ini
-ehthumbs.db
-
-# Linux
-*~
-
-# ==========================================
-# Terraform
-# ==========================================
-.terraform/
-.terraform.lock.hcl
-*.tfplan
-*.tfstate
-*.tfstate.backup
-terraform.tfstate.lock.info
-terraform.tfvars
-*.tfvars
-!*.tfvars.example
-override.tf
-override.tf.json
-*_override.tf
-*_override.tf.json
-
-# ==========================================
-# PowerShell
-# ==========================================
-*.ps1xml
-$PROFILE
-*.psm1-backup
-*.ps1.bak
-analyze-all.ps1
-analysis-*.json
-deploy-state-*.json
-.psqa/backups/
-.psqa/logs/
-.psqa/reports/
-**/.psqa-backups/
-psqa-*.log
-psqa-*.json
-psqa-*.html
-
-# ==========================================
-# Security Reports (Generated)
-# ==========================================
-.security-reports/
-*.security-report.*
-*.sarif
-*.sarif.json
-.scannerwork/
-bandit-report.*
-bandit-results.*
-safety-report.*
-safety-results.*
-pip-audit-report.*
-semgrep-results.*
-
-# ==========================================
-# Cloud Deployment Artifacts
-# ==========================================
-.deployment-state.json
-snapshots/
-deployment-receipt.md
-cloud/reports/
-google-cloud-sdk-download/
-
-# ==========================================
-# Node.js/npm (if used for tooling)
-# ==========================================
-node_modules/
+# Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-package-lock.json
-yarn.lock
+pnpm-debug.log*
+lerna-debug.log*
 
-# ==========================================
-# Jupyter Notebook
-# ==========================================
-.ipynb_checkpoints
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
-# ==========================================
-# Python Version Management
-# ==========================================
-.python-version
+# Tauri
+/src-tauri/target
+/src-tauri/WixTools
 
-# ==========================================
-# Claude Code & MCP
-# ==========================================
-.claude/
-claude_code_generated/
-.claude_context/
-logs/audit.jsonl
-.mcp_disabled
+# Database
+*.db
+*.db-shm
+*.db-wal
 
-# ==========================================
-# Docker
-# ==========================================
-jobspy-cache/
+# Environment variables
+.env
+.env.local
+.env.production
 
-# ==========================================
-# Project-Specific
-# ==========================================
-/old_structure/
-inno_temp/
-innosetup-*.exe
-deploy/windows_v2/
-install-receipt.md
-installer-state.json
-installer-crash.log
-diagnostics-*.zip
+# Build artifacts
+*.msi
+*.dmg
+*.deb
+*.rpm
+*.AppImage
 
-# Windows-Local Edition - Portable tools
-.tools/
-
-# Playwright browsers (downloaded by setup scripts)
-~/.cache/ms-playwright/
-
-# Backup files
-*_backup_*
-*.bak
-*.tmp
-*.temp
-
-# PyGuard reports
-pyguard-report.html
-pyguard-*.html
-.venv-test/
-
-# Python caches
-__pycache__/
-*.py[cod]
-bin/actionlint
-
-# Actionlint binary
-actionlint
+# SQLx
+.sqlx
