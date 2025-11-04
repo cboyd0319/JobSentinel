@@ -14,15 +14,15 @@
 
 pub mod config;
 pub mod db;
-pub mod scrapers;
-pub mod scoring;
 pub mod notify;
 pub mod scheduler;
+pub mod scoring;
+pub mod scrapers;
 
 // Re-export commonly used types
 pub use config::Config;
 pub use db::{Database, Job};
-pub use scrapers::{JobScraper, ScraperResult};
-pub use scoring::{JobScore, ScoringEngine};
 pub use notify::{Notification, NotificationService};
-pub use scheduler::{Scheduler, ScheduleConfig};
+pub use scheduler::{ScheduleConfig, Scheduler};
+pub use scoring::{JobScore, ScoringEngine};
+pub use scrapers::{JobScraper, ScraperResult};

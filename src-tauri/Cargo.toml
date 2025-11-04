@@ -3,6 +3,10 @@ name = "jobsentinel"
 version = "1.0.0"
 description = "Privacy-first job search automation for Windows 11+"
 authors = ["Chad Boyd"]
+license = "MIT"
+repository = "https://github.com/cboyd0319/JobSentinel"
+keywords = ["job-search", "automation", "privacy", "tauri", "desktop-app"]
+categories = ["command-line-utilities"]
 edition = "2021"
 
 [build-dependencies]

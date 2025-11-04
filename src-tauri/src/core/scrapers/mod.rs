@@ -7,8 +7,8 @@ use anyhow::Result;
 use async_trait::async_trait;
 
 pub mod greenhouse;
-pub mod lever;
 pub mod jobswithgpt;
+pub mod lever;
 
 /// Scraper result using anyhow for automatic Send + Sync
 pub type ScraperResult = Result<Vec<Job>>;

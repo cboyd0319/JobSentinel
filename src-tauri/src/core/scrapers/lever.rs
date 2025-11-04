@@ -179,17 +179,37 @@ mod tests {
 
     #[test]
     fn test_infer_remote() {
-        assert!(LeverScraper::infer_remote("Software Engineer (Remote)", None));
-        assert!(LeverScraper::infer_remote("Backend Developer", Some("Remote")));
+        assert!(LeverScraper::infer_remote(
+            "Software Engineer (Remote)",
+            None
+        ));
+        assert!(LeverScraper::infer_remote(
+            "Backend Developer",
+            Some("Remote")
+        ));
         assert!(LeverScraper::infer_remote("DevOps - Remote", Some("USA")));
-        assert!(!LeverScraper::infer_remote("Frontend Engineer", Some("San Francisco")));
+        assert!(!LeverScraper::infer_remote(
+            "Frontend Engineer",
+            Some("San Francisco")
+        ));
     }
 
     #[test]
     fn test_compute_hash() {
-        let hash1 = LeverScraper::compute_hash("Shopify", "Engineer", Some("Remote"), "https://example.com/1");
-        let hash2 = LeverScraper::compute_hash("Shopify", "Engineer", Some("Remote"), "https://example.com/1");
-        let hash3 = LeverScraper::compute_hash("Shopify", "Engineer", Some("SF"), "https://example.com/1");
+        let hash1 = LeverScraper::compute_hash(
+            "Shopify",
+            "Engineer",
+            Some("Remote"),
+            "https://example.com/1",
+        );
+        let hash2 = LeverScraper::compute_hash(
+            "Shopify",
+            "Engineer",
+            Some("Remote"),
+            "https://example.com/1",
+        );
+        let hash3 =
+            LeverScraper::compute_hash("Shopify", "Engineer", Some("SF"), "https://example.com/1");
 
         assert_eq!(hash1, hash2);
         assert_ne!(hash1, hash3);

@@ -9,8 +9,8 @@ use crate::core::{
     scoring::{JobScore, ScoringEngine},
     scrapers::{
         greenhouse::{GreenhouseCompany, GreenhouseScraper},
-        lever::{LeverCompany, LeverScraper},
         jobswithgpt::{JobQuery, JobsWithGptScraper},
+        lever::{LeverCompany, LeverScraper},
         JobScraper,
     },
 };
@@ -93,7 +93,10 @@ impl Scheduler {
             }
 
             // Wait for next run
-            tracing::info!("Next scraping cycle in {} hours", self.config.scraping_interval_hours);
+            tracing::info!(
+                "Next scraping cycle in {} hours",
+                self.config.scraping_interval_hours
+            );
             time::sleep(interval).await;
         }
     }
@@ -222,7 +225,9 @@ impl Scheduler {
 
         for (job, _score) in &scored_jobs {
             // Check if job exists before upserting
-            let was_existing = self.database.get_job_by_hash(&job.hash)
+            let was_existing = self
+                .database
+                .get_job_by_hash(&job.hash)
                 .await
                 .ok()
                 .flatten()
@@ -259,13 +264,22 @@ impl Scheduler {
                         score: score.clone(),
                     };
 
-                    match notification_service.send_immediate_alert(&notification).await {
+                    match notification_service
+                        .send_immediate_alert(&notification)
+                        .await
+                    {
                         Ok(()) => {
                             tracing::info!("Alert sent for: {}", job.title);
                             alerts_sent += 1;
 
                             // Mark as alerted in database
-                            if let Some(existing_job) = self.database.get_job_by_hash(&job.hash).await.ok().flatten() {
+                            if let Some(existing_job) = self
+                                .database
+                                .get_job_by_hash(&job.hash)
+                                .await
+                                .ok()
+                                .flatten()
+                            {
                                 let _ = self.database.mark_alert_sent(existing_job.id).await;
                             }
                         }
@@ -278,7 +292,11 @@ impl Scheduler {
             }
         }
 
-        tracing::info!("Notifications: {} high matches, {} alerts sent", high_matches, alerts_sent);
+        tracing::info!(
+            "Notifications: {} high matches, {} alerts sent",
+            high_matches,
+            alerts_sent
+        );
 
         Ok(ScrapingResult {
             jobs_found: scored_jobs.len(),

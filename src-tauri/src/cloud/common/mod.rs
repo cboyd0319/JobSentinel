@@ -47,9 +47,7 @@ pub enum DeploymentMode {
 
 /// Detect deployment mode based on environment
 pub fn detect_deployment_mode() -> Option<DeploymentMode> {
-    if std::env::var("AWS_LAMBDA_FUNCTION_NAME").is_ok()
-        || std::env::var("FUNCTION_NAME").is_ok()
-    {
+    if std::env::var("AWS_LAMBDA_FUNCTION_NAME").is_ok() || std::env::var("FUNCTION_NAME").is_ok() {
         Some(DeploymentMode::Serverless)
     } else if std::env::var("KUBERNETES_SERVICE_HOST").is_ok() || is_cloud_run() {
         Some(DeploymentMode::Container)

@@ -51,7 +51,10 @@ pub async fn search_jobs(state: State<'_, AppState>) -> Result<Value, String> {
 ///
 /// Returns the most recent jobs, sorted by score (descending).
 #[tauri::command]
-pub async fn get_recent_jobs(limit: usize, state: State<'_, AppState>) -> Result<Vec<Value>, String> {
+pub async fn get_recent_jobs(
+    limit: usize,
+    state: State<'_, AppState>,
+) -> Result<Vec<Value>, String> {
     tracing::info!("Command: get_recent_jobs (limit: {})", limit);
 
     match state.database.get_recent_jobs(limit as i64).await {
@@ -90,8 +93,8 @@ pub async fn save_config(config: Value, _state: State<'_, AppState>) -> Result<(
     tracing::info!("Command: save_config");
 
     // Parse config from JSON
-    let parsed_config: Config = serde_json::from_value(config)
-        .map_err(|e| format!("Invalid configuration: {}", e))?;
+    let parsed_config: Config =
+        serde_json::from_value(config).map_err(|e| format!("Invalid configuration: {}", e))?;
 
     // Save to file
     let config_path = Config::default_path();
@@ -108,8 +111,7 @@ pub async fn save_config(config: Value, _state: State<'_, AppState>) -> Result<(
 pub async fn get_config(state: State<'_, AppState>) -> Result<Value, String> {
     tracing::info!("Command: get_config");
 
-    serde_json::to_value(&*state.config)
-        .map_err(|e| format!("Failed to serialize config: {}", e))
+    serde_json::to_value(&*state.config).map_err(|e| format!("Failed to serialize config: {}", e))
 }
 
 /// Validate Slack webhook URL
@@ -132,8 +134,9 @@ pub async fn get_statistics(state: State<'_, AppState>) -> Result<Value, String>
     tracing::info!("Command: get_statistics");
 
     match state.database.get_statistics().await {
-        Ok(stats) => serde_json::to_value(&stats)
-            .map_err(|e| format!("Failed to serialize stats: {}", e)),
+        Ok(stats) => {
+            serde_json::to_value(&stats).map_err(|e| format!("Failed to serialize stats: {}", e))
+        }
         Err(e) => {
             tracing::error!("Failed to get statistics: {}", e);
             Err(format!("Database error: {}", e))
@@ -174,8 +177,8 @@ pub async fn complete_setup(config: Value) -> Result<(), String> {
     tracing::info!("Command: complete_setup");
 
     // Parse config from JSON
-    let parsed_config: Config = serde_json::from_value(config)
-        .map_err(|e| format!("Invalid configuration: {}", e))?;
+    let parsed_config: Config =
+        serde_json::from_value(config).map_err(|e| format!("Invalid configuration: {}", e))?;
 
     // Ensure config directory exists
     let config_path = Config::default_path();
@@ -211,7 +214,11 @@ pub async fn search_jobs_query(
     limit: usize,
     state: State<'_, AppState>,
 ) -> Result<Vec<Value>, String> {
-    tracing::info!("Command: search_jobs_query (query: {}, limit: {})", query, limit);
+    tracing::info!(
+        "Command: search_jobs_query (query: {}, limit: {})",
+        query,
+        limit
+    );
 
     match state.database.search_jobs(&query, limit as i64).await {
         Ok(jobs) => {
