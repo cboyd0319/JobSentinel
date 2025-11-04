@@ -9,12 +9,11 @@ use std::path::PathBuf;
 /// Returns: %LOCALAPPDATA%\JobSentinel
 /// Example: C:\Users\Username\AppData\Local\JobSentinel
 pub fn get_data_dir() -> PathBuf {
-    let local_appdata = std::env::var("LOCALAPPDATA")
-        .unwrap_or_else(|_| {
-            // Fallback to %USERPROFILE%\AppData\Local
-            let userprofile = std::env::var("USERPROFILE").unwrap_or_else(|_| ".".to_string());
-            format!("{}\\AppData\\Local", userprofile)
-        });
+    let local_appdata = std::env::var("LOCALAPPDATA").unwrap_or_else(|_| {
+        // Fallback to %USERPROFILE%\AppData\Local
+        let userprofile = std::env::var("USERPROFILE").unwrap_or_else(|_| ".".to_string());
+        format!("{}\\AppData\\Local", userprofile)
+    });
 
     PathBuf::from(local_appdata).join("JobSentinel")
 }
@@ -24,12 +23,11 @@ pub fn get_data_dir() -> PathBuf {
 /// Returns: %APPDATA%\JobSentinel
 /// Example: C:\Users\Username\AppData\Roaming\JobSentinel
 pub fn get_config_dir() -> PathBuf {
-    let appdata = std::env::var("APPDATA")
-        .unwrap_or_else(|_| {
-            // Fallback to %USERPROFILE%\AppData\Roaming
-            let userprofile = std::env::var("USERPROFILE").unwrap_or_else(|_| ".".to_string());
-            format!("{}\\AppData\\Roaming", userprofile)
-        });
+    let appdata = std::env::var("APPDATA").unwrap_or_else(|_| {
+        // Fallback to %USERPROFILE%\AppData\Roaming
+        let userprofile = std::env::var("USERPROFILE").unwrap_or_else(|_| ".".to_string());
+        format!("{}\\AppData\\Roaming", userprofile)
+    });
 
     PathBuf::from(appdata).join("JobSentinel")
 }

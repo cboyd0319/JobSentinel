@@ -42,7 +42,11 @@ impl GreenhouseScraper {
         let response = client.get(&company.url).send().await?;
 
         if !response.status().is_success() {
-            return Err(anyhow::anyhow!("HTTP {}: {}", response.status(), company.url));
+            return Err(anyhow::anyhow!(
+                "HTTP {}: {}",
+                response.status(),
+                company.url
+            ));
         }
 
         let html = response.text().await?;
@@ -107,15 +111,13 @@ impl GreenhouseScraper {
         let url_selector = Selector::parse("a").ok();
         let url = if let Some(sel) = url_selector {
             element.select(&sel).next().and_then(|e| {
-                e.value()
-                    .attr("href")
-                    .map(|href| {
-                        if href.starts_with("http") {
-                            href.to_string()
-                        } else {
-                            format!("{}{}", company.url.trim_end_matches('/'), href)
-                        }
-                    })
+                e.value().attr("href").map(|href| {
+                    if href.starts_with("http") {
+                        href.to_string()
+                    } else {
+                        format!("{}{}", company.url.trim_end_matches('/'), href)
+                    }
+                })
             })
         } else {
             None
@@ -167,13 +169,17 @@ impl GreenhouseScraper {
     async fn scrape_greenhouse_api(&self, company: &GreenhouseCompany) -> ScraperResult {
         // Extract company ID from URL
         // Example: https://boards.greenhouse.io/cloudflare
-        let company_id = company.url
+        let company_id = company
+            .url
             .trim_end_matches('/')
             .split('/')
             .last()
             .ok_or_else(|| anyhow::anyhow!("Invalid Greenhouse URL"))?;
 
-        let api_url = format!("https://boards-api.greenhouse.io/v1/boards/{}/jobs", company_id);
+        let api_url = format!(
+            "https://boards-api.greenhouse.io/v1/boards/{}/jobs",
+            company_id
+        );
 
         tracing::debug!("Fetching Greenhouse API: {}", api_url);
 
@@ -185,7 +191,10 @@ impl GreenhouseScraper {
         let response = client.get(&api_url).send().await?;
 
         if !response.status().is_success() {
-            return Err(anyhow::anyhow!("Greenhouse API failed: {}", response.status()));
+            return Err(anyhow::anyhow!(
+                "Greenhouse API failed: {}",
+                response.status()
+            ));
         }
 
         let json: serde_json::Value = response.json().await?;
@@ -196,7 +205,10 @@ impl GreenhouseScraper {
             for job_data in jobs_array {
                 let title = job_data["title"].as_str().unwrap_or("").to_string();
                 let job_id = job_data["id"].as_i64().unwrap_or(0);
-                let url = format!("https://boards.greenhouse.io/{}/jobs/{}", company_id, job_id);
+                let url = format!(
+                    "https://boards.greenhouse.io/{}/jobs/{}",
+                    company_id, job_id
+                );
                 let location = job_data["location"]["name"].as_str().map(|s| s.to_string());
 
                 let hash = Self::compute_hash(&company.name, &title, location.as_deref(), &url);
@@ -276,9 +288,24 @@ mod tests {
 
     #[test]
     fn test_compute_hash() {
-        let hash1 = GreenhouseScraper::compute_hash("Cloudflare", "Security Engineer", Some("Remote"), "https://example.com/1");
-        let hash2 = GreenhouseScraper::compute_hash("Cloudflare", "Security Engineer", Some("Remote"), "https://example.com/1");
-        let hash3 = GreenhouseScraper::compute_hash("Cloudflare", "Security Engineer", Some("Hybrid"), "https://example.com/1");
+        let hash1 = GreenhouseScraper::compute_hash(
+            "Cloudflare",
+            "Security Engineer",
+            Some("Remote"),
+            "https://example.com/1",
+        );
+        let hash2 = GreenhouseScraper::compute_hash(
+            "Cloudflare",
+            "Security Engineer",
+            Some("Remote"),
+            "https://example.com/1",
+        );
+        let hash3 = GreenhouseScraper::compute_hash(
+            "Cloudflare",
+            "Security Engineer",
+            Some("Hybrid"),
+            "https://example.com/1",
+        );
 
         assert_eq!(hash1, hash2); // Same job = same hash
         assert_ne!(hash1, hash3); // Different location = different hash

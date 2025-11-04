@@ -60,11 +60,7 @@ impl JobsWithGptScraper {
             .timeout(std::time::Duration::from_secs(60))
             .build()?;
 
-        let response = client
-            .post(&self.endpoint)
-            .json(&request)
-            .send()
-            .await?;
+        let response = client.post(&self.endpoint).json(&request).send().await?;
 
         if !response.status().is_success() {
             return Err(anyhow::anyhow!("MCP server failed: {}", response.status()));
@@ -92,10 +88,7 @@ impl JobsWithGptScraper {
     }
 
     /// Parse a job from MCP response
-    fn parse_mcp_job(
-        &self,
-        data: &serde_json::Value,
-    ) -> Result<Option<Job>> {
+    fn parse_mcp_job(&self, data: &serde_json::Value) -> Result<Option<Job>> {
         let title = data["title"].as_str().unwrap_or("").to_string();
         let company = data["company"].as_str().unwrap_or("Unknown").to_string();
         let url = data["url"].as_str().unwrap_or("").to_string();
@@ -168,9 +161,24 @@ mod tests {
 
     #[test]
     fn test_compute_hash() {
-        let hash1 = JobsWithGptScraper::compute_hash("Apple", "iOS Engineer", Some("Cupertino"), "https://example.com/1");
-        let hash2 = JobsWithGptScraper::compute_hash("Apple", "iOS Engineer", Some("Cupertino"), "https://example.com/1");
-        let hash3 = JobsWithGptScraper::compute_hash("Apple", "iOS Engineer", Some("Remote"), "https://example.com/1");
+        let hash1 = JobsWithGptScraper::compute_hash(
+            "Apple",
+            "iOS Engineer",
+            Some("Cupertino"),
+            "https://example.com/1",
+        );
+        let hash2 = JobsWithGptScraper::compute_hash(
+            "Apple",
+            "iOS Engineer",
+            Some("Cupertino"),
+            "https://example.com/1",
+        );
+        let hash3 = JobsWithGptScraper::compute_hash(
+            "Apple",
+            "iOS Engineer",
+            Some("Remote"),
+            "https://example.com/1",
+        );
 
         assert_eq!(hash1, hash2);
         assert_ne!(hash1, hash3);

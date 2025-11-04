@@ -26,11 +26,11 @@ pub struct JobScore {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ScoreBreakdown {
-    pub skills: f64,    // 0.0 - 0.40
-    pub salary: f64,    // 0.0 - 0.25
-    pub location: f64,  // 0.0 - 0.20
-    pub company: f64,   // 0.0 - 0.10
-    pub recency: f64,   // 0.0 - 0.05
+    pub skills: f64,   // 0.0 - 0.40
+    pub salary: f64,   // 0.0 - 0.25
+    pub location: f64, // 0.0 - 0.20
+    pub company: f64,  // 0.0 - 0.10
+    pub recency: f64,  // 0.0 - 0.05
 }
 
 /// Scoring engine
@@ -51,7 +51,8 @@ impl ScoringEngine {
         let company_score = self.score_company(job);
         let recency_score = self.score_recency(job);
 
-        let total = skills_score.0 + salary_score.0 + location_score.0 + company_score.0 + recency_score.0;
+        let total =
+            skills_score.0 + salary_score.0 + location_score.0 + company_score.0 + recency_score.0;
 
         let mut reasons = Vec::new();
         reasons.extend(skills_score.1);
@@ -80,7 +81,9 @@ impl ScoringEngine {
 
         // Check if title is in allowlist
         let title_match = self.config.title_allowlist.iter().any(|allowed_title| {
-            job.title.to_lowercase().contains(&allowed_title.to_lowercase())
+            job.title
+                .to_lowercase()
+                .contains(&allowed_title.to_lowercase())
         });
 
         if !title_match {
@@ -91,7 +94,9 @@ impl ScoringEngine {
 
         // Check if title is in blocklist
         let title_blocked = self.config.title_blocklist.iter().any(|blocked_title| {
-            job.title.to_lowercase().contains(&blocked_title.to_lowercase())
+            job.title
+                .to_lowercase()
+                .contains(&blocked_title.to_lowercase())
         });
 
         if title_blocked {
@@ -99,9 +104,12 @@ impl ScoringEngine {
         }
 
         // Check for excluded keywords
-        let description_text = format!("{} {}", job.title, job.description.as_deref().unwrap_or(""));
+        let description_text =
+            format!("{} {}", job.title, job.description.as_deref().unwrap_or(""));
         let has_excluded_keyword = self.config.keywords_exclude.iter().any(|keyword| {
-            description_text.to_lowercase().contains(&keyword.to_lowercase())
+            description_text
+                .to_lowercase()
+                .contains(&keyword.to_lowercase())
         });
 
         if has_excluded_keyword {
@@ -111,7 +119,10 @@ impl ScoringEngine {
         // Count boost keywords matches
         let mut boost_matches = 0;
         for keyword in &self.config.keywords_boost {
-            if description_text.to_lowercase().contains(&keyword.to_lowercase()) {
+            if description_text
+                .to_lowercase()
+                .contains(&keyword.to_lowercase())
+            {
                 boost_matches += 1;
                 reasons.push(format!("✓ Has keyword: {}", keyword));
             }
@@ -144,7 +155,10 @@ impl ScoringEngine {
                 reasons.push(format!("✓ Salary >= ${}", self.config.salary_floor_usd));
                 return (max_score, reasons);
             } else {
-                reasons.push(format!("✗ Salary ${} < ${}", salary_min, self.config.salary_floor_usd));
+                reasons.push(format!(
+                    "✗ Salary ${} < ${}",
+                    salary_min, self.config.salary_floor_usd
+                ));
                 return (0.0, reasons);
             }
         }
@@ -199,7 +213,10 @@ impl ScoringEngine {
 
         // For v1.0, we don't have company allowlist/blocklist in config
         // Give full score for now
-        (max_score, vec!["Company preference not configured".to_string()])
+        (
+            max_score,
+            vec!["Company preference not configured".to_string()],
+        )
     }
 
     /// Score recency (5% weight)
@@ -216,7 +233,11 @@ impl ScoringEngine {
             (max_score, reasons)
         } else if days_old <= 30 {
             let score = max_score * (1.0 - (days_old as f64 - 7.0) / 23.0);
-            reasons.push(format!("Posted {} days ago ({}% credit)", days_old, (score / max_score * 100.0) as i32));
+            reasons.push(format!(
+                "Posted {} days ago ({}% credit)",
+                days_old,
+                (score / max_score * 100.0) as i32
+            ));
             (score, reasons)
         } else {
             reasons.push(format!("✗ Posted {} days ago (too old)", days_old));
@@ -233,7 +254,7 @@ impl ScoringEngine {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::config::{Config, LocationPreferences, AlertConfig, SlackConfig};
+    use crate::core::config::{AlertConfig, Config, LocationPreferences, SlackConfig};
 
     fn create_test_config() -> Config {
         Config {
@@ -269,7 +290,9 @@ mod tests {
             company: "Cloudflare".to_string(),
             url: "https://example.com".to_string(),
             location: Some("Remote".to_string()),
-            description: Some("We need a Security Engineer with Kubernetes and AWS experience".to_string()),
+            description: Some(
+                "We need a Security Engineer with Kubernetes and AWS experience".to_string(),
+            ),
             score: None,
             score_reasons: None,
             source: "greenhouse".to_string(),
@@ -312,7 +335,10 @@ mod tests {
         let engine = ScoringEngine::new(config);
         let score = engine.score(&job);
 
-        assert!(score.total < 0.5, "Score should be low for non-matching title");
+        assert!(
+            score.total < 0.5,
+            "Score should be low for non-matching title"
+        );
     }
 
     #[test]
@@ -324,6 +350,9 @@ mod tests {
         let engine = ScoringEngine::new(config);
         let score = engine.score(&job);
 
-        assert!(score.breakdown.salary == 0.0, "Salary score should be 0 for below floor");
+        assert!(
+            score.breakdown.salary == 0.0,
+            "Salary score should be 0 for below floor"
+        );
     }
 }

@@ -197,20 +197,22 @@ impl Database {
 
     /// Get recent jobs
     pub async fn get_recent_jobs(&self, limit: i64) -> Result<Vec<Job>, sqlx::Error> {
-        let jobs = sqlx::query_as::<_, Job>(
-            "SELECT * FROM jobs ORDER BY created_at DESC LIMIT ?"
-        )
-        .bind(limit)
-        .fetch_all(&self.pool)
-        .await?;
+        let jobs = sqlx::query_as::<_, Job>("SELECT * FROM jobs ORDER BY created_at DESC LIMIT ?")
+            .bind(limit)
+            .fetch_all(&self.pool)
+            .await?;
 
         Ok(jobs)
     }
 
     /// Get jobs by minimum score
-    pub async fn get_jobs_by_score(&self, min_score: f64, limit: i64) -> Result<Vec<Job>, sqlx::Error> {
+    pub async fn get_jobs_by_score(
+        &self,
+        min_score: f64,
+        limit: i64,
+    ) -> Result<Vec<Job>, sqlx::Error> {
         let jobs = sqlx::query_as::<_, Job>(
-            "SELECT * FROM jobs WHERE score >= ? ORDER BY score DESC, created_at DESC LIMIT ?"
+            "SELECT * FROM jobs WHERE score >= ? ORDER BY score DESC, created_at DESC LIMIT ?",
         )
         .bind(min_score)
         .bind(limit)
@@ -221,9 +223,13 @@ impl Database {
     }
 
     /// Get jobs by source
-    pub async fn get_jobs_by_source(&self, source: &str, limit: i64) -> Result<Vec<Job>, sqlx::Error> {
+    pub async fn get_jobs_by_source(
+        &self,
+        source: &str,
+        limit: i64,
+    ) -> Result<Vec<Job>, sqlx::Error> {
         let jobs = sqlx::query_as::<_, Job>(
-            "SELECT * FROM jobs WHERE source = ? ORDER BY created_at DESC LIMIT ?"
+            "SELECT * FROM jobs WHERE source = ? ORDER BY created_at DESC LIMIT ?",
         )
         .bind(source)
         .bind(limit)
@@ -256,13 +262,12 @@ impl Database {
     /// Full-text search on title and description
     pub async fn search_jobs(&self, query: &str, limit: i64) -> Result<Vec<Job>, sqlx::Error> {
         // Use FTS5 virtual table for fast full-text search
-        let job_ids: Vec<i64> = sqlx::query_scalar(
-            "SELECT rowid FROM jobs_fts WHERE jobs_fts MATCH ? LIMIT ?"
-        )
-        .bind(query)
-        .bind(limit)
-        .fetch_all(&self.pool)
-        .await?;
+        let job_ids: Vec<i64> =
+            sqlx::query_scalar("SELECT rowid FROM jobs_fts WHERE jobs_fts MATCH ? LIMIT ?")
+                .bind(query)
+                .bind(limit)
+                .fetch_all(&self.pool)
+                .await?;
 
         if job_ids.is_empty() {
             return Ok(Vec::new());
@@ -291,15 +296,15 @@ impl Database {
             .fetch_one(&self.pool)
             .await?;
 
-        let average_score: Option<f64> = sqlx::query_scalar("SELECT AVG(score) FROM jobs WHERE score IS NOT NULL")
-            .fetch_one(&self.pool)
-            .await?;
+        let average_score: Option<f64> =
+            sqlx::query_scalar("SELECT AVG(score) FROM jobs WHERE score IS NOT NULL")
+                .fetch_one(&self.pool)
+                .await?;
 
-        let jobs_today: i64 = sqlx::query_scalar(
-            "SELECT COUNT(*) FROM jobs WHERE DATE(created_at) = DATE('now')"
-        )
-        .fetch_one(&self.pool)
-        .await?;
+        let jobs_today: i64 =
+            sqlx::query_scalar("SELECT COUNT(*) FROM jobs WHERE DATE(created_at) = DATE('now')")
+                .fetch_one(&self.pool)
+                .await?;
 
         Ok(Statistics {
             total_jobs,
