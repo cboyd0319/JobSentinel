@@ -65,8 +65,12 @@ pub struct LocationPreferences {
     #[serde(default)]
     pub states: Vec<String>,
 
-    #[serde(default)]
+    #[serde(default = "default_country")]
     pub country: String,
+}
+
+fn default_country() -> String {
+    "US".to_string()
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

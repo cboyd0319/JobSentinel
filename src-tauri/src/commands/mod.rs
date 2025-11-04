@@ -2,106 +2,114 @@
 //!
 //! This module contains all Tauri commands (RPC-style functions) that can be invoked
 //! from the React frontend using `invoke()`.
-//!
-//! ## Architecture
-//!
-//! Commands act as an API layer between the Rust backend (business logic) and
-//! React frontend (UI). Each command:
-//! - Takes serializable parameters (JSON)
-//! - Returns `Result<T, String>` where T is serializable
-//! - Handles errors gracefully
-//! - Logs operations for debugging
-//!
-//! ## Usage in React
-//!
-//! ```typescript
-//! import { invoke } from '@tauri-apps/api/tauri';
-//!
-//! // Call a command
-//! const jobs = await invoke('search_jobs');
-//! ```
 
-use crate::core::{Config, Database};
+use crate::core::{config::Config, db::Database, scheduler::Scheduler};
 use serde_json::Value;
+use std::sync::Arc;
+use tauri::State;
+
+/// Application state shared across commands
+pub struct AppState {
+    pub config: Arc<Config>,
+    pub database: Arc<Database>,
+    pub scheduler: Option<Arc<Scheduler>>,
+}
 
 /// Search for jobs from all enabled sources
 ///
 /// This triggers a full scraping cycle across Greenhouse, Lever, and JobsWithGPT.
 #[tauri::command]
-pub async fn search_jobs() -> Result<Vec<Value>, String> {
+pub async fn search_jobs(state: State<'_, AppState>) -> Result<Value, String> {
     tracing::info!("Command: search_jobs");
 
-    // TODO: Implement job scraping
-    // 1. Load configuration
-    // 2. Run scrapers concurrently
-    // 3. Score and filter jobs
-    // 4. Send notifications
-    // 5. Return results
+    // Create scheduler instance
+    let scheduler = Scheduler::new(state.config.clone(), state.database.clone());
 
-    Ok(vec![])
+    // Run single scraping cycle
+    match scheduler.run_scraping_cycle().await {
+        Ok(result) => {
+            tracing::info!("Scraping complete: {} jobs found", result.jobs_found);
+
+            Ok(serde_json::json!({
+                "success": true,
+                "jobs_found": result.jobs_found,
+                "jobs_new": result.jobs_new,
+                "jobs_updated": result.jobs_updated,
+                "high_matches": result.high_matches,
+                "alerts_sent": result.alerts_sent,
+                "errors": result.errors,
+            }))
+        }
+        Err(e) => {
+            tracing::error!("Search failed: {}", e);
+            Err(format!("Scraping failed: {}", e))
+        }
+    }
 }
 
 /// Get recent jobs from database
 ///
 /// Returns the most recent jobs, sorted by score (descending).
 #[tauri::command]
-pub async fn get_recent_jobs(limit: usize) -> Result<Vec<Value>, String> {
+pub async fn get_recent_jobs(limit: usize, state: State<'_, AppState>) -> Result<Vec<Value>, String> {
     tracing::info!("Command: get_recent_jobs (limit: {})", limit);
 
-    // TODO: Implement database query
-    // 1. Connect to database
-    // 2. Query recent jobs (ORDER BY score DESC, created_at DESC)
-    // 3. Serialize to JSON
+    match state.database.get_recent_jobs(limit as i64).await {
+        Ok(jobs) => {
+            let jobs_json: Vec<Value> = jobs
+                .into_iter()
+                .map(|job| serde_json::to_value(&job).unwrap_or_default())
+                .collect();
 
-    Ok(vec![])
+            Ok(jobs_json)
+        }
+        Err(e) => {
+            tracing::error!("Failed to get recent jobs: {}", e);
+            Err(format!("Database error: {}", e))
+        }
+    }
 }
 
 /// Get job by ID
 #[tauri::command]
-pub async fn get_job_by_id(id: i64) -> Result<Option<Value>, String> {
+pub async fn get_job_by_id(id: i64, state: State<'_, AppState>) -> Result<Option<Value>, String> {
     tracing::info!("Command: get_job_by_id (id: {})", id);
 
-    // TODO: Implement database query
-    Ok(None)
+    match state.database.get_job_by_id(id).await {
+        Ok(job) => Ok(job.map(|j| serde_json::to_value(&j).unwrap_or_default())),
+        Err(e) => {
+            tracing::error!("Failed to get job: {}", e);
+            Err(format!("Database error: {}", e))
+        }
+    }
 }
 
 /// Save user configuration
 #[tauri::command]
-pub async fn save_config(config: Value) -> Result<(), String> {
+pub async fn save_config(config: Value, _state: State<'_, AppState>) -> Result<(), String> {
     tracing::info!("Command: save_config");
 
-    // TODO: Implement config saving
-    // 1. Validate configuration
-    // 2. Write to config file
-    // 3. Reload application settings
+    // Parse config from JSON
+    let parsed_config: Config = serde_json::from_value(config)
+        .map_err(|e| format!("Invalid configuration: {}", e))?;
 
+    // Save to file
+    let config_path = Config::default_path();
+    parsed_config
+        .save(&config_path)
+        .map_err(|e| format!("Failed to save config: {}", e))?;
+
+    tracing::info!("Configuration saved successfully");
     Ok(())
 }
 
 /// Get user configuration
 #[tauri::command]
-pub async fn get_config() -> Result<Value, String> {
+pub async fn get_config(state: State<'_, AppState>) -> Result<Value, String> {
     tracing::info!("Command: get_config");
 
-    // TODO: Implement config loading
-    // Return default config for now
-    Ok(serde_json::json!({
-        "title_allowlist": [],
-        "keywords_boost": [],
-        "location_preferences": {
-            "allow_remote": true,
-            "allow_hybrid": false,
-            "allow_onsite": false
-        },
-        "salary_floor_usd": 0,
-        "scraping_interval_hours": 2,
-        "alerts": {
-            "slack": {
-                "enabled": false,
-                "webhook_url": ""
-            }
-        }
-    }))
+    serde_json::to_value(&*state.config)
+        .map_err(|e| format!("Failed to serialize config: {}", e))
 }
 
 /// Validate Slack webhook URL
@@ -109,42 +117,41 @@ pub async fn get_config() -> Result<Value, String> {
 pub async fn validate_slack_webhook(webhook_url: String) -> Result<bool, String> {
     tracing::info!("Command: validate_slack_webhook");
 
-    // TODO: Implement Slack webhook validation
-    // 1. Send test POST request
-    // 2. Check for 200 OK response
-
-    Ok(!webhook_url.is_empty())
+    match crate::core::notify::slack::validate_webhook(&webhook_url).await {
+        Ok(valid) => Ok(valid),
+        Err(e) => {
+            tracing::error!("Webhook validation failed: {}", e);
+            Err(format!("Validation failed: {}", e))
+        }
+    }
 }
 
 /// Get application statistics
 #[tauri::command]
-pub async fn get_statistics() -> Result<Value, String> {
+pub async fn get_statistics(state: State<'_, AppState>) -> Result<Value, String> {
     tracing::info!("Command: get_statistics");
 
-    // TODO: Implement statistics query
-    // - Total jobs scraped
-    // - High matches (score >= 0.9)
-    // - Average score
-    // - Jobs scraped today
-
-    Ok(serde_json::json!({
-        "total_jobs": 0,
-        "high_matches": 0,
-        "average_score": 0.0,
-        "jobs_today": 0
-    }))
+    match state.database.get_statistics().await {
+        Ok(stats) => serde_json::to_value(&stats)
+            .map_err(|e| format!("Failed to serialize stats: {}", e)),
+        Err(e) => {
+            tracing::error!("Failed to get statistics: {}", e);
+            Err(format!("Database error: {}", e))
+        }
+    }
 }
 
 /// Get scraping status
 #[tauri::command]
-pub async fn get_scraping_status() -> Result<Value, String> {
+pub async fn get_scraping_status(state: State<'_, AppState>) -> Result<Value, String> {
     tracing::info!("Command: get_scraping_status");
 
-    // TODO: Implement status check
+    // TODO: Track last run time and next run time in state
     Ok(serde_json::json!({
         "is_running": false,
         "last_run": null,
-        "next_run": null
+        "next_run": null,
+        "interval_hours": state.config.scraping_interval_hours,
     }))
 }
 
@@ -153,10 +160,12 @@ pub async fn get_scraping_status() -> Result<Value, String> {
 pub async fn is_first_run() -> Result<bool, String> {
     tracing::info!("Command: is_first_run");
 
-    // TODO: Check if configuration exists
-    // If config file doesn't exist, return true (show setup wizard)
+    // Check if configuration file exists
+    let config_path = Config::default_path();
+    let first_run = !config_path.exists();
 
-    Ok(true) // For now, always show setup wizard
+    tracing::info!("First run: {}", first_run);
+    Ok(first_run)
 }
 
 /// Complete first-run setup
@@ -164,11 +173,58 @@ pub async fn is_first_run() -> Result<bool, String> {
 pub async fn complete_setup(config: Value) -> Result<(), String> {
     tracing::info!("Command: complete_setup");
 
-    // TODO: Implement setup completion
-    // 1. Validate configuration
-    // 2. Create config file
-    // 3. Initialize database
-    // 4. Test Slack webhook (if provided)
+    // Parse config from JSON
+    let parsed_config: Config = serde_json::from_value(config)
+        .map_err(|e| format!("Invalid configuration: {}", e))?;
 
+    // Ensure config directory exists
+    let config_path = Config::default_path();
+    if let Some(parent) = config_path.parent() {
+        std::fs::create_dir_all(parent)
+            .map_err(|e| format!("Failed to create config directory: {}", e))?;
+    }
+
+    // Save configuration
+    parsed_config
+        .save(&config_path)
+        .map_err(|e| format!("Failed to save config: {}", e))?;
+
+    // Initialize database
+    let db_path = Database::default_path();
+    let database = Database::connect(&db_path)
+        .await
+        .map_err(|e| format!("Failed to connect to database: {}", e))?;
+
+    database
+        .migrate()
+        .await
+        .map_err(|e| format!("Failed to migrate database: {}", e))?;
+
+    tracing::info!("Setup complete");
     Ok(())
+}
+
+/// Search jobs with filter
+#[tauri::command]
+pub async fn search_jobs_query(
+    query: String,
+    limit: usize,
+    state: State<'_, AppState>,
+) -> Result<Vec<Value>, String> {
+    tracing::info!("Command: search_jobs_query (query: {}, limit: {})", query, limit);
+
+    match state.database.search_jobs(&query, limit as i64).await {
+        Ok(jobs) => {
+            let jobs_json: Vec<Value> = jobs
+                .into_iter()
+                .map(|job| serde_json::to_value(&job).unwrap_or_default())
+                .collect();
+
+            Ok(jobs_json)
+        }
+        Err(e) => {
+            tracing::error!("Search failed: {}", e);
+            Err(format!("Database error: {}", e))
+        }
+    }
 }

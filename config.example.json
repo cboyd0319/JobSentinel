@@ -1,0 +1,64 @@
+{
+  "_comment": "JobSentinel v1.0 Configuration Example",
+  "_comment_instructions": "Copy this file to %LOCALAPPDATA%\\JobSentinel\\config.json and customize for your preferences",
+
+  "title_allowlist": [
+    "Security Engineer",
+    "Product Security Engineer",
+    "Application Security Engineer",
+    "Cloud Security Engineer"
+  ],
+
+  "title_blocklist": [
+    "Manager",
+    "Director",
+    "VP",
+    "Intern",
+    "Recruiter"
+  ],
+
+  "keywords_boost": [
+    "Kubernetes",
+    "AWS",
+    "IAM",
+    "Zero Trust",
+    "SAST",
+    "DAST",
+    "Threat Modeling",
+    "Penetration Testing",
+    "Rust",
+    "Go"
+  ],
+
+  "keywords_exclude": [
+    "recruiter",
+    "sales",
+    "cold calling",
+    "door to door"
+  ],
+
+  "location_preferences": {
+    "allow_remote": true,
+    "allow_hybrid": true,
+    "allow_onsite": false,
+    "cities": [],
+    "states": [],
+    "country": "US"
+  },
+
+  "salary_floor_usd": 150000,
+
+  "immediate_alert_threshold": 0.9,
+
+  "scraping_interval_hours": 2,
+
+  "alerts": {
+    "slack": {
+      "enabled": true,
+      "webhook_url": "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+    }
+  },
+
+  "_comment_scoring": "Scoring weights: Skills 40%, Salary 25%, Location 20%, Company 10%, Recency 5%",
+  "_comment_threshold": "immediate_alert_threshold: Jobs scoring above this value (0.0-1.0) will trigger immediate Slack notifications"
+}

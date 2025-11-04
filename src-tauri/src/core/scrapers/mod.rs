@@ -3,14 +3,15 @@
 //! Implementations for scraping various job boards.
 
 use crate::core::db::Job;
+use anyhow::Result;
 use async_trait::async_trait;
 
 pub mod greenhouse;
 pub mod lever;
 pub mod jobswithgpt;
 
-/// Scraper result
-pub type ScraperResult = Result<Vec<Job>, Box<dyn std::error::Error + Send + Sync>>;
+/// Scraper result using anyhow for automatic Send + Sync
+pub type ScraperResult = Result<Vec<Job>>;
 
 /// Job scraper trait
 #[async_trait]

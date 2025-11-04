@@ -2,10 +2,12 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 // Import library modules
-use jobsentinel::commands;
+use jobsentinel::commands::{self, AppState};
 use jobsentinel::platforms;
+use jobsentinel::{Config, Database};
 
-use tauri::{Manager, SystemTray, SystemTrayEvent, SystemTrayMenu, SystemTrayMenuItem};
+use std::sync::Arc;
+use tauri::Manager;
 
 fn main() {
     // Initialize logging
@@ -17,52 +19,8 @@ fn main() {
         std::process::exit(1);
     }
 
-    // Create system tray menu
-    let tray_menu = SystemTrayMenu::new()
-        .add_item(SystemTrayMenuItem::new("id-open", "Open Dashboard"))
-        .add_native_item(tauri::SystemTrayMenuItem::Separator)
-        .add_item(SystemTrayMenuItem::new("id-search", "Search Now"))
-        .add_item(SystemTrayMenuItem::new("id-settings", "Settings"))
-        .add_native_item(tauri::SystemTrayMenuItem::Separator)
-        .add_item(SystemTrayMenuItem::new("id-quit", "Quit"));
-
-    let system_tray = SystemTray::new().with_menu(tray_menu);
-
     tauri::Builder::default()
-        .system_tray(system_tray)
-        .on_system_tray_event(|app, event| match event {
-            SystemTrayEvent::LeftClick { .. } => {
-                // Show main window
-                if let Some(window) = app.get_window("main") {
-                    let _ = window.show();
-                    let _ = window.set_focus();
-                }
-            }
-            SystemTrayEvent::MenuItemClick { id, .. } => match id.as_str() {
-                "id-open" => {
-                    if let Some(window) = app.get_window("main") {
-                        let _ = window.show();
-                        let _ = window.set_focus();
-                    }
-                }
-                "id-search" => {
-                    // Trigger manual job search
-                    tracing::info!("Manual search triggered from tray");
-                }
-                "id-settings" => {
-                    // Open settings page
-                    if let Some(window) = app.get_window("main") {
-                        let _ = window.show();
-                        let _ = window.eval("window.location.hash = '#/settings'");
-                    }
-                }
-                "id-quit" => {
-                    std::process::exit(0);
-                }
-                _ => {}
-            },
-            _ => {}
-        })
+        .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
             commands::search_jobs,
             commands::get_recent_jobs,
@@ -74,16 +32,80 @@ fn main() {
             commands::get_scraping_status,
             commands::is_first_run,
             commands::complete_setup,
+            commands::search_jobs_query,
         ])
         .setup(|app| {
+            // Initialize configuration
+            let config_path = Config::default_path();
+            let config = if config_path.exists() {
+                match Config::load(&config_path) {
+                    Ok(cfg) => {
+                        tracing::info!("Loaded configuration from {:?}", config_path);
+                        cfg
+                    }
+                    Err(e) => {
+                        tracing::error!("Failed to load config: {}", e);
+                        return Err(format!("Configuration error: {}", e).into());
+                    }
+                }
+            } else {
+                tracing::info!("No configuration file found, first-run setup required");
+                // Default config for first run (will be set by setup wizard)
+                Config {
+                    title_allowlist: vec![],
+                    title_blocklist: vec![],
+                    keywords_boost: vec![],
+                    keywords_exclude: vec![],
+                    location_preferences: jobsentinel::core::config::LocationPreferences {
+                        allow_remote: true,
+                        allow_hybrid: false,
+                        allow_onsite: false,
+                        cities: vec![],
+                        states: vec![],
+                        country: "US".to_string(),
+                    },
+                    salary_floor_usd: 0,
+                    immediate_alert_threshold: 0.9,
+                    scraping_interval_hours: 2,
+                    alerts: jobsentinel::core::config::AlertConfig {
+                        slack: jobsentinel::core::config::SlackConfig {
+                            enabled: false,
+                            webhook_url: String::new(),
+                        },
+                    },
+                }
+            };
+
             // Initialize database
-            // TODO: Implement database initialization
+            let db_path = Database::default_path();
+            tracing::info!("Connecting to database at {:?}", db_path);
 
-            // Start scheduler (if auto-search is enabled)
-            // TODO: Implement scheduler startup
+            let database = tauri::async_runtime::block_on(async {
+                let db = Database::connect(&db_path)
+                    .await
+                    .map_err(|e| format!("Failed to connect to database: {}", e))?;
 
-            // Show window on first run
-            if let Some(window) = app.get_window("main") {
+                db.migrate()
+                    .await
+                    .map_err(|e| format!("Failed to run migrations: {}", e))?;
+
+                Ok::<Database, String>(db)
+            })?;
+
+            tracing::info!("Database initialized successfully");
+
+            // Create AppState with Arc-wrapped shared state
+            let app_state = AppState {
+                config: Arc::new(config),
+                database: Arc::new(database),
+                scheduler: None, // Scheduler is created on-demand by commands
+            };
+
+            // Register AppState with Tauri
+            app.manage(app_state);
+
+            // Show window
+            if let Some(window) = app.get_webview_window("main") {
                 let _ = window.show();
             }
 

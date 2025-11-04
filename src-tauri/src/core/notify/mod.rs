@@ -3,6 +3,7 @@
 //! Sends alerts via Slack (v1.0) and Email (v2.0).
 
 use crate::core::{config::Config, db::Job, scoring::JobScore};
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
 pub mod slack;
@@ -25,7 +26,7 @@ impl NotificationService {
     }
 
     /// Send immediate alert for high-scoring job
-    pub async fn send_immediate_alert(&self, notification: &Notification) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn send_immediate_alert(&self, notification: &Notification) -> Result<()> {
         if self.config.alerts.slack.enabled {
             slack::send_slack_notification(&self.config.alerts.slack.webhook_url, notification).await?;
         }

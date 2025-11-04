@@ -24,15 +24,7 @@
       "digestAlgorithm": "sha256",
       "timestampUrl": "",
       "wix": {
-        "language": "en-US",
-        "template": null,
-        "fragmentPaths": [],
-        "componentRefs": [],
-        "featureRefs": [],
-        "mergeRefs": [],
-        "skipWebviewInstall": false,
-        "bannerPath": null,
-        "dialogImagePath": null
+        "language": "en-US"
       },
       "nsis": null
     }
@@ -65,9 +57,6 @@
   "plugins": {
     "shell": {
       "open": true
-    },
-    "notification": {
-      "identifier": "com.jobsentinel.app"
     }
   }
 }

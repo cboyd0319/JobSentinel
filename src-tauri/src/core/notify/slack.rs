@@ -3,13 +3,14 @@
 //! Sends rich-formatted job alerts to Slack via incoming webhooks.
 
 use super::Notification;
+use anyhow::Result;
 use serde_json::json;
 
 /// Send Slack notification
 pub async fn send_slack_notification(
     webhook_url: &str,
     notification: &Notification,
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> Result<()> {
     let job = &notification.job;
     let score = &notification.score;
 
@@ -77,14 +78,14 @@ pub async fn send_slack_notification(
         .await?;
 
     if !response.status().is_success() {
-        return Err(format!("Slack webhook failed: {}", response.status()).into());
+        return Err(anyhow::anyhow!("Slack webhook failed: {}", response.status()));
     }
 
     Ok(())
 }
 
 /// Validate Slack webhook URL
-pub async fn validate_webhook(webhook_url: &str) -> Result<bool, Box<dyn std::error::Error>> {
+pub async fn validate_webhook(webhook_url: &str) -> Result<bool> {
     // Send a test message
     let client = reqwest::Client::new();
     let response = client
