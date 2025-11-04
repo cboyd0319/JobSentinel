@@ -23,7 +23,7 @@ from typing import Any
 try:
     import psutil
 except ImportError:
-    psutil = None  # type: ignore[assignment]
+    psutil = None  # type: ignore
 
 
 @dataclass

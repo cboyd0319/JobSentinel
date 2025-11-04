@@ -24,7 +24,6 @@ import pytest
 # Path setup and module mocking is handled in conftest.py
 # Import the cloud utils module explicitly to avoid conflicts with app/utils package
 import importlib.util
-from pathlib import Path
 
 _cloud_utils_path = Path(__file__).resolve().parent.parent.parent.parent.parent / "cloud" / "common" / "utils.py"
 spec = importlib.util.spec_from_file_location("cloud_common_utils", _cloud_utils_path)

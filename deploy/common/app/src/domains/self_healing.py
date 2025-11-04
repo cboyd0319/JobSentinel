@@ -298,9 +298,9 @@ class RetryHandler:
         )
 
         if self.jitter:
-            # Add ±25% jitter
+            # Add ±25% jitter (non-cryptographic use - timing variance only)
             jitter_range = delay * 0.25
-            delay += random.uniform(-jitter_range, jitter_range)
+            delay += random.uniform(-jitter_range, jitter_range)  # noqa: S311
 
         return max(0, delay)
 

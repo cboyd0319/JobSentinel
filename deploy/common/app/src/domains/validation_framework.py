@@ -46,7 +46,7 @@ class ValidationLevel(str, Enum):
 class CheckStatus(str, Enum):
     """Validation check result status."""
 
-    PASS = "pass"  # Check passed
+    PASS = "pass"  # Check passed  # noqa: S105
     WARN = "warn"  # Non-critical issue
     FAIL = "fail"  # Critical issue
     SKIP = "skip"  # Check skipped (not applicable)
