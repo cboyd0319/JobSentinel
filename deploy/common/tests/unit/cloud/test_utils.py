@@ -22,23 +22,32 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 import pytest
 
 # Path setup and module mocking is handled in conftest.py
-# Import from utils which is in the cloud/common/ directory
-from utils import (
-    Spinner,
-    _redact_command_for_logging,
-    choose,
-    confirm,
-    current_os,
-    download_and_verify,
-    ensure_directory,
-    ensure_python_version,
-    prepend_path,
-    print_header,
-    resolve_project_root,
-    run_command,
-    verify_file_checksum,
-    which,
-)
+# Import the cloud utils module explicitly to avoid conflicts with app/utils package
+import importlib.util
+from pathlib import Path
+
+_cloud_utils_path = Path(__file__).resolve().parent.parent.parent.parent.parent / "cloud" / "common" / "utils.py"
+spec = importlib.util.spec_from_file_location("cloud_common_utils", _cloud_utils_path)
+if not spec or not spec.loader:
+    raise ImportError(f"Could not load cloud utils from {_cloud_utils_path}")
+cloud_utils = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(cloud_utils)
+
+# Extract the functions we need to test
+Spinner = cloud_utils.Spinner
+_redact_command_for_logging = cloud_utils._redact_command_for_logging
+choose = cloud_utils.choose
+confirm = cloud_utils.confirm
+current_os = cloud_utils.current_os
+download_and_verify = cloud_utils.download_and_verify
+ensure_directory = cloud_utils.ensure_directory
+ensure_python_version = cloud_utils.ensure_python_version
+prepend_path = cloud_utils.prepend_path
+print_header = cloud_utils.print_header
+resolve_project_root = cloud_utils.resolve_project_root
+run_command = cloud_utils.run_command
+verify_file_checksum = cloud_utils.verify_file_checksum
+which = cloud_utils.which
 
 
 class TestSpinner:
