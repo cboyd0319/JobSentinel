@@ -5,7 +5,7 @@
 
 use super::{JobScraper, ScraperResult};
 use crate::core::db::Job;
-use anyhow::{Context, Result};
+use anyhow::Result;
 use async_trait::async_trait;
 use chrono::Utc;
 use scraper::{Html, Selector};

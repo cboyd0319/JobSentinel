@@ -5,7 +5,6 @@
 
 use super::{JobScraper, ScraperResult};
 use crate::core::db::Job;
-use anyhow::Result;
 use async_trait::async_trait;
 use chrono::Utc;
 use sha2::{Digest, Sha256};

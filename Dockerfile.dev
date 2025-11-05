@@ -1,0 +1,40 @@
+# JobSentinel development container
+# Extends the shared rust-dev image with Node + GTK stack required by Tauri.
+FROM rust-dev:latest
+
+USER root
+
+# System dependencies for Tauri (GTK stack) and general build tooling.
+RUN apt-get update && apt-get install -y \
+        build-essential \
+        clang \
+        cmake \
+        libwebkit2gtk-4.1-dev \
+        libgtk-3-dev \
+        libsoup-3.0-dev \
+        libayatana-appindicator3-dev \
+        librsvg2-dev \
+        pkg-config \
+        python3 \
+        python3-pip \
+        nodejs \
+        npm \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN npm install -g pnpm yarn
+
+USER dev
+WORKDIR /workspace
+
+# Prime npm and cargo caches so first container run is snappy.
+WORKDIR /tmp/bootstrap
+COPY package.json package-lock.json ./
+RUN npm ci && rm -rf node_modules
+
+COPY src-tauri/Cargo.toml ./src-tauri/Cargo.toml
+COPY src-tauri/Cargo.lock ./src-tauri/Cargo.lock
+RUN cd src-tauri && cargo fetch && cd .. && rm -rf src-tauri
+
+WORKDIR /workspace
+
+CMD ["bash"]

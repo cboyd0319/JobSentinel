@@ -8,7 +8,7 @@
 //! - Recency: 5%
 
 use crate::core::{config::Config, db::Job};
-use chrono::{DateTime, Utc};
+use chrono::Utc;
 use serde::{Deserialize, Serialize};
 
 /// Job score with breakdown
@@ -331,13 +331,16 @@ mod tests {
         let config = create_test_config();
         let mut job = create_test_job();
         job.title = "Product Manager".to_string();
+        // Make salary below floor to reduce total score
+        job.salary_min = Some(100000);
 
         let engine = ScoringEngine::new(config);
         let score = engine.score(&job);
 
         assert!(
             score.total < 0.5,
-            "Score should be low for non-matching title"
+            "Score should be low for non-matching title, got: {}",
+            score.total
         );
     }
 

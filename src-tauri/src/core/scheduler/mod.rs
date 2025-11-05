@@ -14,7 +14,7 @@ use crate::core::{
         JobScraper,
     },
 };
-use anyhow::{Context, Result};
+use anyhow::Result;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::time;

@@ -2,7 +2,7 @@
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "JobSentinel",
   "version": "1.0.0",
-  "identifier": "com.jobsentinel.app",
+  "identifier": "com.jobsentinel.main",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:5173",
@@ -11,7 +11,7 @@
   },
   "bundle": {
     "active": true,
-    "targets": ["msi"],
+    "targets": ["msi", "dmg", "app"],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -35,24 +35,19 @@
     },
     "windows": [
       {
+        "label": "main",
         "title": "JobSentinel",
         "width": 1200,
         "height": 800,
         "resizable": true,
         "fullscreen": false,
-        "visible": false,
+        "visible": true,
         "decorations": true,
         "alwaysOnTop": false,
         "center": true,
         "skipTaskbar": false
       }
-    ],
-    "trayIcon": {
-      "iconPath": "icons/icon.png",
-      "iconAsTemplate": false,
-      "menuOnLeftClick": false,
-      "tooltip": "JobSentinel - Job Search Automation"
-    }
+    ]
   },
   "plugins": {
     "shell": {
