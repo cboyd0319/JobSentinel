@@ -5,6 +5,7 @@
 use crate::core::{config::Config, db::Job, scoring::JobScore};
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
+use std::sync::Arc;
 
 pub mod slack;
 
@@ -17,11 +18,11 @@ pub struct Notification {
 
 /// Notification service
 pub struct NotificationService {
-    config: Config,
+    config: Arc<Config>,
 }
 
 impl NotificationService {
-    pub fn new(config: Config) -> Self {
+    pub fn new(config: Arc<Config>) -> Self {
         Self { config }
     }
 

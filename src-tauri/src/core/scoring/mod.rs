@@ -10,6 +10,7 @@
 use crate::core::{config::Config, db::Job};
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
+use std::sync::Arc;
 
 /// Job score with breakdown
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -35,11 +36,11 @@ pub struct ScoreBreakdown {
 
 /// Scoring engine
 pub struct ScoringEngine {
-    config: Config,
+    config: Arc<Config>,
 }
 
 impl ScoringEngine {
-    pub fn new(config: Config) -> Self {
+    pub fn new(config: Arc<Config>) -> Self {
         Self { config }
     }
 
@@ -313,7 +314,7 @@ mod tests {
     fn test_perfect_match() {
         let config = create_test_config();
         let job = create_test_job();
-        let engine = ScoringEngine::new(config);
+        let engine = ScoringEngine::new(Arc::new(config));
 
         let score = engine.score(&job);
 
@@ -334,7 +335,7 @@ mod tests {
         // Make salary below floor to reduce total score
         job.salary_min = Some(100000);
 
-        let engine = ScoringEngine::new(config);
+        let engine = ScoringEngine::new(Arc::new(config));
         let score = engine.score(&job);
 
         assert!(
@@ -350,7 +351,7 @@ mod tests {
         let mut job = create_test_job();
         job.salary_min = Some(100000);
 
-        let engine = ScoringEngine::new(config);
+        let engine = ScoringEngine::new(Arc::new(config));
         let score = engine.score(&job);
 
         assert!(

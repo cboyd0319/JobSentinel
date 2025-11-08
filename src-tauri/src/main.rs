@@ -106,7 +106,9 @@ fn main() {
 
             // Show window
             if let Some(window) = app.get_webview_window("main") {
-                let _ = window.show();
+                if let Err(e) = window.show() {
+                    tracing::warn!("Failed to show window: {}", e);
+                }
             }
 
             tracing::info!("JobSentinel initialized successfully");
@@ -114,5 +116,9 @@ fn main() {
             Ok(())
         })
         .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .map_err(|e| {
+            eprintln!("Fatal error running Tauri application: {}", e);
+            std::process::exit(1);
+        })
+        .ok();
 }

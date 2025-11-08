@@ -3,7 +3,7 @@
 //! Handles loading, validating, and saving user preferences.
 
 use serde::{Deserialize, Serialize};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 /// User configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -88,16 +88,50 @@ pub struct SlackConfig {
 
 impl Config {
     /// Load configuration from file
-    pub fn load(path: &PathBuf) -> Result<Self, Box<dyn std::error::Error>> {
+    pub fn load(path: &Path) -> Result<Self, Box<dyn std::error::Error>> {
         let content = std::fs::read_to_string(path)?;
-        let config: Config = serde_json::from_str(&content)?;
+        let mut config: Config = serde_json::from_str(&content)?;
+
+        // Validate configuration
+        config.validate()?;
+
         Ok(config)
     }
 
     /// Save configuration to file
-    pub fn save(&self, path: &PathBuf) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn save(&self, path: &Path) -> Result<(), Box<dyn std::error::Error>> {
+        // Validate before saving
+        self.validate()?;
+
         let content = serde_json::to_string_pretty(self)?;
+
+        // Ensure parent directory exists
+        if let Some(parent) = path.parent() {
+            std::fs::create_dir_all(parent)
+                .map_err(|e| format!("Failed to create config directory: {}", e))?;
+        }
+
         std::fs::write(path, content)?;
+        Ok(())
+    }
+
+    /// Validate configuration values
+    fn validate(&self) -> Result<(), Box<dyn std::error::Error>> {
+        // Validate salary floor (must be non-negative)
+        if self.salary_floor_usd < 0 {
+            return Err("Salary floor cannot be negative".into());
+        }
+
+        // Validate immediate alert threshold (must be between 0.0 and 1.0)
+        if self.immediate_alert_threshold < 0.0 || self.immediate_alert_threshold > 1.0 {
+            return Err("Immediate alert threshold must be between 0.0 and 1.0".into());
+        }
+
+        // Validate scraping interval (must be at least 1 hour)
+        if self.scraping_interval_hours < 1 {
+            return Err("Scraping interval must be at least 1 hour".into());
+        }
+
         Ok(())
     }
 

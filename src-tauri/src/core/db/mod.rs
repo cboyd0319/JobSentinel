@@ -72,7 +72,10 @@ impl Database {
     pub async fn connect(path: &PathBuf) -> Result<Self, sqlx::Error> {
         // Ensure parent directory exists
         if let Some(parent) = path.parent() {
-            std::fs::create_dir_all(parent).ok();
+            std::fs::create_dir_all(parent).map_err(|e| {
+                tracing::warn!("Failed to create database directory: {}", e);
+                sqlx::Error::Io(e)
+            })?;
         }
 
         let url = format!("sqlite://{}", path.display());
@@ -143,7 +146,7 @@ impl Database {
             .bind(job.score)
             .bind(&job.score_reasons)
             .bind(&job.source)
-            .bind(job.remote.map(|r| r as i64))
+            .bind(job.remote.map(|r| if r { 1i64 } else { 0i64 }))
             .bind(job.salary_min)
             .bind(job.salary_max)
             .bind(&job.currency)
@@ -176,7 +179,7 @@ impl Database {
             .bind(job.score)
             .bind(&job.score_reasons)
             .bind(&job.source)
-            .bind(job.remote.map(|r| r as i64))
+            .bind(job.remote.map(|r| if r { 1i64 } else { 0i64 }))
             .bind(job.salary_min)
             .bind(job.salary_max)
             .bind(&job.currency)
@@ -184,8 +187,8 @@ impl Database {
             .bind(&job.updated_at)
             .bind(&job.last_seen)
             .bind(job.times_seen)
-            .bind(job.immediate_alert_sent as i64)
-            .bind(job.included_in_digest as i64)
+            .bind(if job.immediate_alert_sent { 1i64 } else { 0i64 })
+            .bind(if job.included_in_digest { 1i64 } else { 0i64 })
             .execute(&self.pool)
             .await?;
 
