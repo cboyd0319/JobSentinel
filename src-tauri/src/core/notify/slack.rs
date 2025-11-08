@@ -3,11 +3,46 @@
 //! Sends rich-formatted job alerts to Slack via incoming webhooks.
 
 use super::Notification;
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use serde_json::json;
+
+/// Validate Slack webhook URL format
+///
+/// Ensures the URL is a legitimate Slack webhook to prevent data exfiltration.
+fn validate_webhook_url(url: &str) -> Result<()> {
+    // Check if URL starts with Slack's webhook domain
+    if !url.starts_with("https://hooks.slack.com/services/") {
+        return Err(anyhow!(
+            "Invalid Slack webhook URL. Must start with 'https://hooks.slack.com/services/'"
+        ));
+    }
+
+    // Validate URL structure
+    let url_parsed = url::Url::parse(url).map_err(|e| anyhow!("Invalid URL format: {}", e))?;
+
+    // Ensure HTTPS
+    if url_parsed.scheme() != "https" {
+        return Err(anyhow!("Webhook URL must use HTTPS"));
+    }
+
+    // Ensure correct host
+    if url_parsed.host_str() != Some("hooks.slack.com") {
+        return Err(anyhow!("Webhook URL must use hooks.slack.com domain"));
+    }
+
+    // Ensure path starts with /services/
+    if !url_parsed.path().starts_with("/services/") {
+        return Err(anyhow!("Invalid Slack webhook path"));
+    }
+
+    Ok(())
+}
 
 /// Send Slack notification
 pub async fn send_slack_notification(webhook_url: &str, notification: &Notification) -> Result<()> {
+    // Validate webhook URL before sending
+    validate_webhook_url(webhook_url)?;
+
     let job = &notification.job;
     let score = &notification.score;
 
@@ -66,8 +101,10 @@ pub async fn send_slack_notification(webhook_url: &str, notification: &Notificat
         ]
     });
 
-    // Send POST request to Slack webhook
-    let client = reqwest::Client::new();
+    // Send POST request to Slack webhook with timeout
+    let client = reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(10))
+        .build()?;
     let response = client.post(webhook_url).json(&payload).send().await?;
 
     if !response.status().is_success() {
@@ -82,8 +119,13 @@ pub async fn send_slack_notification(webhook_url: &str, notification: &Notificat
 
 /// Validate Slack webhook URL
 pub async fn validate_webhook(webhook_url: &str) -> Result<bool> {
+    // First validate the URL format
+    validate_webhook_url(webhook_url)?;
+
     // Send a test message
-    let client = reqwest::Client::new();
+    let client = reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(10))
+        .build()?;
     let response = client
         .post(webhook_url)
         .json(&json!({"text": "JobSentinel: Webhook validation successful ✅"}))

@@ -1,17 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import SetupWizard from "./pages/SetupWizard";
 import Dashboard from "./pages/Dashboard";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 function App() {
   const [isFirstRun, setIsFirstRun] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    checkFirstRun();
-  }, []);
-
-  const checkFirstRun = async () => {
+  const checkFirstRun = useCallback(async () => {
     try {
       const firstRun = await invoke<boolean>("is_first_run");
       setIsFirstRun(firstRun);
@@ -21,7 +18,11 @@ function App() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    checkFirstRun();
+  }, [checkFirstRun]);
 
   const handleSetupComplete = () => {
     setIsFirstRun(false);
@@ -39,13 +40,15 @@ function App() {
   }
 
   return (
-    <div className="h-screen">
-      {isFirstRun ? (
-        <SetupWizard onComplete={handleSetupComplete} />
-      ) : (
-        <Dashboard />
-      )}
-    </div>
+    <ErrorBoundary>
+      <div className="h-screen">
+        {isFirstRun ? (
+          <SetupWizard onComplete={handleSetupComplete} />
+        ) : (
+          <Dashboard />
+        )}
+      </div>
+    </ErrorBoundary>
   );
 }
 

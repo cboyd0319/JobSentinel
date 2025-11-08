@@ -10,8 +10,17 @@ use std::sync::Arc;
 use tauri::Manager;
 
 fn main() {
-    // Initialize logging
-    tracing_subscriber::fmt::init();
+    // Initialize logging with environment filter support
+    tracing_subscriber::fmt()
+        .with_env_filter(
+            tracing_subscriber::EnvFilter::try_from_default_env()
+                .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("info")),
+        )
+        .with_target(false)
+        .with_thread_ids(true)
+        .with_file(true)
+        .with_line_number(true)
+        .init();
 
     // Initialize platform-specific features
     if let Err(e) = platforms::initialize() {
