@@ -2,12 +2,19 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 // Import library modules
-use jobsentinel::commands::{self, AppState};
+use jobsentinel::commands::{self, AppState, SchedulerStatus};
+use jobsentinel::core::scheduler::Scheduler;
 use jobsentinel::platforms;
 use jobsentinel::{Config, Database};
 
+use chrono::{Duration, Utc};
 use std::sync::Arc;
 use tauri::Manager;
+use tauri::{
+    menu::{Menu, MenuItem},
+    tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
+};
+use tokio::sync::RwLock;
 
 fn main() {
     // Initialize logging with environment filter support
@@ -82,6 +89,8 @@ fn main() {
                             webhook_url: String::new(),
                         },
                     },
+                    greenhouse_urls: vec![],
+                    lever_urls: vec![],
                 }
             };
 
@@ -103,15 +112,149 @@ fn main() {
 
             tracing::info!("Database initialized successfully");
 
+            // Wrap shared state in Arc
+            let config_arc = Arc::new(config);
+            let database_arc = Arc::new(database);
+
+            // Initialize scheduler status tracking
+            let scheduler_status = Arc::new(RwLock::new(SchedulerStatus::default()));
+
+            // Create scheduler (will be started after setup if not first run)
+            let scheduler = Scheduler::new(Arc::clone(&config_arc), Arc::clone(&database_arc));
+            let scheduler_arc = Arc::new(scheduler);
+
             // Create AppState with Arc-wrapped shared state
             let app_state = AppState {
-                config: Arc::new(config),
-                database: Arc::new(database),
-                scheduler: None, // Scheduler is created on-demand by commands
+                config: Arc::clone(&config_arc),
+                database: Arc::clone(&database_arc),
+                scheduler: Some(Arc::clone(&scheduler_arc)),
+                scheduler_status: Arc::clone(&scheduler_status),
             };
 
             // Register AppState with Tauri
             app.manage(app_state);
+
+            // Start background scheduler (only if not first run)
+            let config_path = Config::default_path();
+            if config_path.exists() {
+                tracing::info!("Starting background scheduler");
+
+                let scheduler_clone = Arc::clone(&scheduler_arc);
+                let status_clone = Arc::clone(&scheduler_status);
+                let interval_hours = config_arc.scraping_interval_hours;
+
+                tauri::async_runtime::spawn(async move {
+                    // Run immediately on startup, then periodically
+                    tracing::info!("Running initial scraping cycle on startup");
+
+                    loop {
+                        // Update status: running
+                        {
+                            let mut status = status_clone.write().await;
+                            status.is_running = true;
+                            status.next_run = None;
+                        }
+
+                        // Run scraping cycle
+                        match scheduler_clone.run_scraping_cycle().await {
+                            Ok(result) => {
+                                tracing::info!(
+                                    "Background scraping complete: {} jobs found, {} new",
+                                    result.jobs_found,
+                                    result.jobs_new
+                                );
+                            }
+                            Err(e) => {
+                                tracing::error!("Background scraping failed: {}", e);
+                            }
+                        }
+
+                        // Update status: completed, set next run
+                        {
+                            let mut status = status_clone.write().await;
+                            status.is_running = false;
+                            status.last_run = Some(Utc::now());
+                            status.next_run = Some(Utc::now() + Duration::hours(interval_hours as i64));
+                        }
+
+                        // Wait for next interval
+                        tokio::time::sleep(tokio::time::Duration::from_secs(interval_hours * 3600)).await;
+                    }
+                });
+
+                tracing::info!("Background scheduler started successfully");
+            } else {
+                tracing::info!("First run detected, background scheduler will start after setup");
+            }
+
+            // Initialize system tray
+            let search_item =
+                MenuItem::with_id(app, "search", "Search Now", true, None::<&str>)?;
+            let dashboard_item =
+                MenuItem::with_id(app, "dashboard", "Open Dashboard", true, None::<&str>)?;
+            let quit_item = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
+
+            let menu = Menu::with_items(app, &[&search_item, &dashboard_item, &quit_item])?;
+
+            let _tray = TrayIconBuilder::new()
+                .menu(&menu)
+                .on_menu_event(|app, event| {
+                    match event.id.as_ref() {
+                        "search" => {
+                            tracing::info!("Manual job search triggered from tray");
+                            let app_handle = app.clone();
+                            tauri::async_runtime::spawn(async move {
+                                let state = app_handle.state::<AppState>();
+                                match commands::search_jobs(state).await {
+                                    Ok(_) => tracing::info!("Manual search completed successfully"),
+                                    Err(e) => tracing::error!("Manual search failed: {}", e),
+                                }
+                            });
+                        }
+                        "dashboard" => {
+                            tracing::info!("Opening dashboard from tray");
+                            if let Some(window) = app.get_webview_window("main") {
+                                if let Err(e) = window.show() {
+                                    tracing::warn!("Failed to show window: {}", e);
+                                }
+                                if let Err(e) = window.set_focus() {
+                                    tracing::warn!("Failed to focus window: {}", e);
+                                }
+                                if let Err(e) = window.unminimize() {
+                                    tracing::warn!("Failed to unminimize window: {}", e);
+                                }
+                            }
+                        }
+                        "quit" => {
+                            tracing::info!("Application quit requested from tray");
+                            app.exit(0);
+                        }
+                        _ => {}
+                    }
+                })
+                .on_tray_icon_event(|tray, event| {
+                    // Handle double-click on tray icon to show/hide window
+                    if let TrayIconEvent::Click {
+                        button: MouseButton::Left,
+                        button_state: MouseButtonState::Up,
+                        ..
+                    } = event
+                    {
+                        if let Some(app) = tray.app_handle().upgrade() {
+                            if let Some(window) = app.get_webview_window("main") {
+                                if window.is_visible().unwrap_or(false) {
+                                    let _ = window.hide();
+                                } else {
+                                    let _ = window.show();
+                                    let _ = window.set_focus();
+                                }
+                            }
+                        }
+                    }
+                })
+                .build(app)?;
+
+            tracing::info!("System tray initialized successfully");
 
             // Show window
             if let Some(window) = app.get_webview_window("main") {
