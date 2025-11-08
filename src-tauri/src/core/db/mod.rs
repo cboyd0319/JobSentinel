@@ -109,6 +109,56 @@ impl Database {
     ///
     /// Returns the job ID.
     pub async fn upsert_job(&self, job: &Job) -> Result<i64, sqlx::Error> {
+        // Validate job field lengths to prevent database bloat
+        const MAX_TITLE_LENGTH: usize = 500;
+        const MAX_COMPANY_LENGTH: usize = 200;
+        const MAX_URL_LENGTH: usize = 2000;
+        const MAX_LOCATION_LENGTH: usize = 200;
+        const MAX_DESCRIPTION_LENGTH: usize = 50000;
+
+        if job.title.len() > MAX_TITLE_LENGTH {
+            return Err(sqlx::Error::Protocol(format!(
+                "Job title too long: {} chars (max: {})",
+                job.title.len(),
+                MAX_TITLE_LENGTH
+            )));
+        }
+
+        if job.company.len() > MAX_COMPANY_LENGTH {
+            return Err(sqlx::Error::Protocol(format!(
+                "Company name too long: {} chars (max: {})",
+                job.company.len(),
+                MAX_COMPANY_LENGTH
+            )));
+        }
+
+        if job.url.len() > MAX_URL_LENGTH {
+            return Err(sqlx::Error::Protocol(format!(
+                "Job URL too long: {} chars (max: {})",
+                job.url.len(),
+                MAX_URL_LENGTH
+            )));
+        }
+
+        if let Some(location) = &job.location {
+            if location.len() > MAX_LOCATION_LENGTH {
+                return Err(sqlx::Error::Protocol(format!(
+                    "Location too long: {} chars (max: {})",
+                    location.len(),
+                    MAX_LOCATION_LENGTH
+                )));
+            }
+        }
+
+        if let Some(description) = &job.description {
+            if description.len() > MAX_DESCRIPTION_LENGTH {
+                return Err(sqlx::Error::Protocol(format!(
+                    "Description too long: {} chars (max: {})",
+                    description.len(),
+                    MAX_DESCRIPTION_LENGTH
+                )));
+            }
+        }
         // Check if job with this hash already exists
         let existing: Option<i64> = sqlx::query_scalar("SELECT id FROM jobs WHERE hash = ?")
             .bind(&job.hash)
@@ -283,7 +333,20 @@ impl Database {
             return Ok(Vec::new());
         }
 
+        // Limit number of IDs to prevent query performance issues
+        const MAX_IDS: usize = 1000;
+        if job_ids.len() > MAX_IDS {
+            return Err(sqlx::Error::Protocol(format!(
+                "Too many job IDs requested: {} (max: {})",
+                job_ids.len(),
+                MAX_IDS
+            )));
+        }
+
         // Fetch full job records
+        // SAFETY: This is NOT vulnerable to SQL injection. The format! only creates
+        // placeholders ("?"), and actual values are bound using SQLx's parameterization.
+        // This is the recommended pattern for dynamic IN clauses with SQLx.
         let placeholders = job_ids.iter().map(|_| "?").collect::<Vec<_>>().join(",");
         let sql = format!("SELECT * FROM jobs WHERE id IN ({})", placeholders);
 

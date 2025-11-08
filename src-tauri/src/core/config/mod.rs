@@ -117,9 +117,23 @@ impl Config {
 
     /// Validate configuration values
     fn validate(&self) -> Result<(), Box<dyn std::error::Error>> {
+        // Define limits
+        const MAX_TITLE_LENGTH: usize = 200;
+        const MAX_KEYWORD_LENGTH: usize = 100;
+        const MAX_ARRAY_SIZE: usize = 500;
+        const MAX_CITY_LENGTH: usize = 100;
+        const MAX_STATE_LENGTH: usize = 50;
+        const MAX_COUNTRY_LENGTH: usize = 50;
+        const MAX_WEBHOOK_URL_LENGTH: usize = 500;
+
         // Validate salary floor (must be non-negative)
         if self.salary_floor_usd < 0 {
             return Err("Salary floor cannot be negative".into());
+        }
+
+        // Validate salary is reasonable (less than $10M USD)
+        if self.salary_floor_usd > 10_000_000 {
+            return Err("Salary floor exceeds reasonable limit ($10M USD)".into());
         }
 
         // Validate immediate alert threshold (must be between 0.0 and 1.0)
@@ -127,9 +141,121 @@ impl Config {
             return Err("Immediate alert threshold must be between 0.0 and 1.0".into());
         }
 
-        // Validate scraping interval (must be at least 1 hour)
+        // Validate scraping interval (must be at least 1 hour, max 168 hours/1 week)
         if self.scraping_interval_hours < 1 {
             return Err("Scraping interval must be at least 1 hour".into());
+        }
+        if self.scraping_interval_hours > 168 {
+            return Err("Scraping interval cannot exceed 168 hours (1 week)".into());
+        }
+
+        // Validate title allowlist
+        if self.title_allowlist.len() > MAX_ARRAY_SIZE {
+            return Err(
+                format!("Too many title allowlist entries (max: {})", MAX_ARRAY_SIZE).into(),
+            );
+        }
+        for title in &self.title_allowlist {
+            if title.is_empty() {
+                return Err("Title allowlist cannot contain empty strings".into());
+            }
+            if title.len() > MAX_TITLE_LENGTH {
+                return Err(format!("Title too long (max: {} chars)", MAX_TITLE_LENGTH).into());
+            }
+        }
+
+        // Validate title blocklist
+        if self.title_blocklist.len() > MAX_ARRAY_SIZE {
+            return Err(
+                format!("Too many title blocklist entries (max: {})", MAX_ARRAY_SIZE).into(),
+            );
+        }
+        for title in &self.title_blocklist {
+            if title.len() > MAX_TITLE_LENGTH {
+                return Err(format!("Title too long (max: {} chars)", MAX_TITLE_LENGTH).into());
+            }
+        }
+
+        // Validate keywords boost
+        if self.keywords_boost.len() > MAX_ARRAY_SIZE {
+            return Err(
+                format!("Too many keywords boost entries (max: {})", MAX_ARRAY_SIZE).into(),
+            );
+        }
+        for keyword in &self.keywords_boost {
+            if keyword.is_empty() {
+                return Err("Keywords boost cannot contain empty strings".into());
+            }
+            if keyword.len() > MAX_KEYWORD_LENGTH {
+                return Err(format!("Keyword too long (max: {} chars)", MAX_KEYWORD_LENGTH).into());
+            }
+        }
+
+        // Validate keywords exclude
+        if self.keywords_exclude.len() > MAX_ARRAY_SIZE {
+            return Err(format!(
+                "Too many keywords exclude entries (max: {})",
+                MAX_ARRAY_SIZE
+            )
+            .into());
+        }
+        for keyword in &self.keywords_exclude {
+            if keyword.is_empty() {
+                return Err("Keywords exclude cannot contain empty strings".into());
+            }
+            if keyword.len() > MAX_KEYWORD_LENGTH {
+                return Err(format!("Keyword too long (max: {} chars)", MAX_KEYWORD_LENGTH).into());
+            }
+        }
+
+        // Validate location preferences
+        if self.location_preferences.cities.len() > MAX_ARRAY_SIZE {
+            return Err(format!("Too many cities (max: {})", MAX_ARRAY_SIZE).into());
+        }
+        for city in &self.location_preferences.cities {
+            if city.len() > MAX_CITY_LENGTH {
+                return Err(format!("City name too long (max: {} chars)", MAX_CITY_LENGTH).into());
+            }
+        }
+
+        if self.location_preferences.states.len() > MAX_ARRAY_SIZE {
+            return Err(format!("Too many states (max: {})", MAX_ARRAY_SIZE).into());
+        }
+        for state in &self.location_preferences.states {
+            if state.len() > MAX_STATE_LENGTH {
+                return Err(
+                    format!("State name too long (max: {} chars)", MAX_STATE_LENGTH).into(),
+                );
+            }
+        }
+
+        if self.location_preferences.country.len() > MAX_COUNTRY_LENGTH {
+            return Err(
+                format!("Country name too long (max: {} chars)", MAX_COUNTRY_LENGTH).into(),
+            );
+        }
+
+        // Validate Slack webhook if enabled
+        if self.alerts.slack.enabled {
+            if self.alerts.slack.webhook_url.is_empty() {
+                return Err("Slack webhook URL is required when Slack alerts are enabled".into());
+            }
+            if self.alerts.slack.webhook_url.len() > MAX_WEBHOOK_URL_LENGTH {
+                return Err(format!(
+                    "Webhook URL too long (max: {} chars)",
+                    MAX_WEBHOOK_URL_LENGTH
+                )
+                .into());
+            }
+            // Validate URL format
+            if !self
+                .alerts
+                .slack
+                .webhook_url
+                .starts_with("https://hooks.slack.com/services/")
+            {
+                return Err("Invalid Slack webhook URL format".into());
+            }
         }
 
         Ok(())
