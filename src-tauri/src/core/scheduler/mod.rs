@@ -17,6 +17,7 @@ use crate::core::{
 use anyhow::Result;
 use std::sync::Arc;
 use std::time::Duration;
+use tokio::sync::broadcast;
 use tokio::time;
 
 /// Schedule configuration
@@ -42,6 +43,7 @@ impl From<&Config> for ScheduleConfig {
 pub struct Scheduler {
     config: Arc<Config>,
     database: Arc<Database>,
+    shutdown_tx: broadcast::Sender<()>,
 }
 
 /// Scraping result statistics
@@ -57,14 +59,40 @@ pub struct ScrapingResult {
 
 impl Scheduler {
     pub fn new(config: Arc<Config>, database: Arc<Database>) -> Self {
-        Self { config, database }
+        let (shutdown_tx, _) = broadcast::channel(1);
+        Self {
+            config,
+            database,
+            shutdown_tx,
+        }
+    }
+
+    /// Get a shutdown signal receiver
+    ///
+    /// This can be used to gracefully stop the scheduler
+    pub fn subscribe_shutdown(&self) -> broadcast::Receiver<()> {
+        self.shutdown_tx.subscribe()
+    }
+
+    /// Shutdown the scheduler gracefully
+    pub fn shutdown(&self) -> Result<()> {
+        tracing::info!("Shutting down scheduler");
+        self.shutdown_tx.send(()).ok();
+        Ok(())
     }
 
     /// Start the scheduler
     ///
     /// This runs in the background and triggers job scraping at regular intervals.
+    /// The scheduler will continue running until a shutdown signal is received.
+    ///
+    /// # Cancellation
+    ///
+    /// The scheduler can be stopped gracefully by calling `shutdown()` on the Scheduler instance.
     pub async fn start(&self) -> Result<()> {
         let interval = Duration::from_secs(self.config.scraping_interval_hours * 3600);
+        let mut shutdown_rx = self.shutdown_tx.subscribe();
+
         tracing::info!(
             "Starting scheduler with interval: {} hours",
             self.config.scraping_interval_hours
@@ -92,13 +120,25 @@ impl Scheduler {
                 }
             }
 
-            // Wait for next run
+            // Wait for next run or shutdown signal
             tracing::info!(
                 "Next scraping cycle in {} hours",
                 self.config.scraping_interval_hours
             );
-            time::sleep(interval).await;
+
+            tokio::select! {
+                _ = time::sleep(interval) => {
+                    // Continue to next iteration
+                }
+                _ = shutdown_rx.recv() => {
+                    tracing::info!("Scheduler received shutdown signal, stopping gracefully");
+                    break;
+                }
+            }
         }
+
+        tracing::info!("Scheduler stopped");
+        Ok(())
     }
 
     /// Run a single scraping cycle
@@ -197,14 +237,18 @@ impl Scheduler {
 
         // 2. Score all jobs
         tracing::info!("Step 2: Scoring jobs");
-        let scoring_engine = ScoringEngine::new((*self.config).clone());
+        let scoring_engine = ScoringEngine::new(Arc::clone(&self.config));
 
         let mut scored_jobs: Vec<(Job, JobScore)> = all_jobs
             .into_iter()
             .map(|mut job| {
                 let score = scoring_engine.score(&job);
                 job.score = Some(score.total);
-                job.score_reasons = Some(serde_json::to_string(&score.reasons).unwrap_or_default());
+                job.score_reasons =
+                    Some(serde_json::to_string(&score.reasons).unwrap_or_else(|e| {
+                        tracing::warn!("Failed to serialize score reasons: {}", e);
+                        String::new()
+                    }));
                 (job, score)
             })
             .collect();
@@ -249,7 +293,7 @@ impl Scheduler {
 
         // 4. Send notifications for high-scoring jobs
         tracing::info!("Step 4: Sending notifications");
-        let notification_service = NotificationService::new((*self.config).clone());
+        let notification_service = NotificationService::new(Arc::clone(&self.config));
         let mut high_matches = 0;
         let mut alerts_sent = 0;
 
@@ -272,7 +316,9 @@ impl Scheduler {
                             tracing::info!("Alert sent for: {}", job.title);
                             alerts_sent += 1;
 
-                            // Mark as alerted in database
+                            // Mark as alerted in database (use hash to avoid race conditions)
+                            // Note: This relies on the unique constraint on the hash column to prevent
+                            // duplicate alert notifications even if multiple scraping cycles run concurrently
                             if let Some(existing_job) = self
                                 .database
                                 .get_job_by_hash(&job.hash)
@@ -280,7 +326,18 @@ impl Scheduler {
                                 .ok()
                                 .flatten()
                             {
-                                let _ = self.database.mark_alert_sent(existing_job.id).await;
+                                if let Err(e) = self.database.mark_alert_sent(existing_job.id).await
+                                {
+                                    tracing::error!(
+                                        "Failed to mark alert as sent for {}: {}",
+                                        job.title,
+                                        e
+                                    );
+                                    errors.push(format!(
+                                        "Failed to mark alert sent for {}: {}",
+                                        job.title, e
+                                    ));
+                                }
                             }
                         }
                         Err(e) => {
