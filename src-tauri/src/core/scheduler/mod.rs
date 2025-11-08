@@ -155,52 +155,68 @@ impl Scheduler {
         // 1. Run all scrapers
         tracing::info!("Step 1: Running scrapers");
 
-        // Greenhouse scraper
-        let greenhouse_companies = vec![
-            // Example companies - in production, these would come from config
-            GreenhouseCompany {
-                id: "cloudflare".to_string(),
-                name: "Cloudflare".to_string(),
-                url: "https://boards.greenhouse.io/cloudflare".to_string(),
-            },
-        ];
+        // Greenhouse scraper - use URLs from config
+        if !self.config.greenhouse_urls.is_empty() {
+            let greenhouse_companies: Vec<GreenhouseCompany> = self
+                .config
+                .greenhouse_urls
+                .iter()
+                .filter_map(|url| {
+                    // Extract company ID from URL (e.g., "https://boards.greenhouse.io/cloudflare" -> "cloudflare")
+                    url.strip_prefix("https://boards.greenhouse.io/")
+                        .map(|id| GreenhouseCompany {
+                            id: id.to_string(),
+                            name: id.to_string(), // Use ID as name for simplicity
+                            url: url.clone(),
+                        })
+                })
+                .collect();
 
-        if !greenhouse_companies.is_empty() {
-            let greenhouse = GreenhouseScraper::new(greenhouse_companies);
-            match greenhouse.scrape().await {
-                Ok(jobs) => {
-                    tracing::info!("Greenhouse: {} jobs found", jobs.len());
-                    all_jobs.extend(jobs);
-                }
-                Err(e) => {
-                    let error_msg = format!("Greenhouse scraper failed: {}", e);
-                    tracing::error!("{}", error_msg);
-                    errors.push(error_msg);
+            if !greenhouse_companies.is_empty() {
+                let greenhouse = GreenhouseScraper::new(greenhouse_companies);
+                match greenhouse.scrape().await {
+                    Ok(jobs) => {
+                        tracing::info!("Greenhouse: {} jobs found", jobs.len());
+                        all_jobs.extend(jobs);
+                    }
+                    Err(e) => {
+                        let error_msg = format!("Greenhouse scraper failed: {}", e);
+                        tracing::error!("{}", error_msg);
+                        errors.push(error_msg);
+                    }
                 }
             }
         }
 
-        // Lever scraper
-        let lever_companies = vec![
-            // Example companies - in production, these would come from config
-            LeverCompany {
-                id: "netflix".to_string(),
-                name: "Netflix".to_string(),
-                url: "https://jobs.lever.co/netflix".to_string(),
-            },
-        ];
+        // Lever scraper - use URLs from config
+        if !self.config.lever_urls.is_empty() {
+            let lever_companies: Vec<LeverCompany> = self
+                .config
+                .lever_urls
+                .iter()
+                .filter_map(|url| {
+                    // Extract company ID from URL (e.g., "https://jobs.lever.co/netflix" -> "netflix")
+                    url.strip_prefix("https://jobs.lever.co/")
+                        .map(|id| LeverCompany {
+                            id: id.to_string(),
+                            name: id.to_string(), // Use ID as name for simplicity
+                            url: url.clone(),
+                        })
+                })
+                .collect();
 
-        if !lever_companies.is_empty() {
-            let lever = LeverScraper::new(lever_companies);
-            match lever.scrape().await {
-                Ok(jobs) => {
-                    tracing::info!("Lever: {} jobs found", jobs.len());
-                    all_jobs.extend(jobs);
-                }
-                Err(e) => {
-                    let error_msg = format!("Lever scraper failed: {}", e);
-                    tracing::error!("{}", error_msg);
-                    errors.push(error_msg);
+            if !lever_companies.is_empty() {
+                let lever = LeverScraper::new(lever_companies);
+                match lever.scrape().await {
+                    Ok(jobs) => {
+                        tracing::info!("Lever: {} jobs found", jobs.len());
+                        all_jobs.extend(jobs);
+                    }
+                    Err(e) => {
+                        let error_msg = format!("Lever scraper failed: {}", e);
+                        tracing::error!("{}", error_msg);
+                        errors.push(error_msg);
+                    }
                 }
             }
         }
@@ -394,6 +410,8 @@ mod tests {
                     webhook_url: "".to_string(),
                 },
             },
+            greenhouse_urls: vec![],
+            lever_urls: vec![],
         }
     }
 

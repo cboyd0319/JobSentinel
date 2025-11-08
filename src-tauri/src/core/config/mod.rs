@@ -39,6 +39,14 @@ pub struct Config {
 
     /// Alert configuration
     pub alerts: AlertConfig,
+
+    /// Greenhouse company URLs to scrape (e.g., "https://boards.greenhouse.io/cloudflare")
+    #[serde(default)]
+    pub greenhouse_urls: Vec<String>,
+
+    /// Lever company URLs to scrape (e.g., "https://jobs.lever.co/netflix")
+    #[serde(default)]
+    pub lever_urls: Vec<String>,
 }
 
 fn default_immediate_threshold() -> f64 {
@@ -255,6 +263,49 @@ impl Config {
                 .starts_with("https://hooks.slack.com/services/")
             {
                 return Err("Invalid Slack webhook URL format".into());
+            }
+        }
+
+        // Validate Greenhouse URLs
+        const MAX_COMPANY_URLS: usize = 100;
+        const MAX_URL_LENGTH: usize = 500;
+
+        if self.greenhouse_urls.len() > MAX_COMPANY_URLS {
+            return Err(format!("Too many Greenhouse URLs (max: {})", MAX_COMPANY_URLS).into());
+        }
+        for url in &self.greenhouse_urls {
+            if url.is_empty() {
+                return Err("Greenhouse URLs cannot be empty".into());
+            }
+            if url.len() > MAX_URL_LENGTH {
+                return Err(format!("Greenhouse URL too long (max: {} chars)", MAX_URL_LENGTH).into());
+            }
+            if !url.starts_with("https://boards.greenhouse.io/") {
+                return Err(format!(
+                    "Invalid Greenhouse URL format. Must start with 'https://boards.greenhouse.io/'. Got: {}",
+                    url
+                )
+                .into());
+            }
+        }
+
+        // Validate Lever URLs
+        if self.lever_urls.len() > MAX_COMPANY_URLS {
+            return Err(format!("Too many Lever URLs (max: {})", MAX_COMPANY_URLS).into());
+        }
+        for url in &self.lever_urls {
+            if url.is_empty() {
+                return Err("Lever URLs cannot be empty".into());
+            }
+            if url.len() > MAX_URL_LENGTH {
+                return Err(format!("Lever URL too long (max: {} chars)", MAX_URL_LENGTH).into());
+            }
+            if !url.starts_with("https://jobs.lever.co/") {
+                return Err(format!(
+                    "Invalid Lever URL format. Must start with 'https://jobs.lever.co/'. Got: {}",
+                    url
+                )
+                .into());
             }
         }
 

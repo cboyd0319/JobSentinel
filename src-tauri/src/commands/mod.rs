@@ -4,15 +4,26 @@
 //! from the React frontend using `invoke()`.
 
 use crate::core::{config::Config, db::Database, scheduler::Scheduler};
+use chrono::{DateTime, Utc};
 use serde_json::Value;
 use std::sync::Arc;
 use tauri::State;
+use tokio::sync::RwLock;
+
+/// Scheduler status tracking
+#[derive(Debug, Clone, Default)]
+pub struct SchedulerStatus {
+    pub is_running: bool,
+    pub last_run: Option<DateTime<Utc>>,
+    pub next_run: Option<DateTime<Utc>>,
+}
 
 /// Application state shared across commands
 pub struct AppState {
     pub config: Arc<Config>,
     pub database: Arc<Database>,
     pub scheduler: Option<Arc<Scheduler>>,
+    pub scheduler_status: Arc<RwLock<SchedulerStatus>>,
 }
 
 /// Search for jobs from all enabled sources
@@ -149,11 +160,12 @@ pub async fn get_statistics(state: State<'_, AppState>) -> Result<Value, String>
 pub async fn get_scraping_status(state: State<'_, AppState>) -> Result<Value, String> {
     tracing::info!("Command: get_scraping_status");
 
-    // TODO: Track last run time and next run time in state
+    let status = state.scheduler_status.read().await;
+
     Ok(serde_json::json!({
-        "is_running": false,
-        "last_run": null,
-        "next_run": null,
+        "is_running": status.is_running,
+        "last_scrape": status.last_run.map(|dt| dt.to_rfc3339()),
+        "next_scrape": status.next_run.map(|dt| dt.to_rfc3339()),
         "interval_hours": state.config.scraping_interval_hours,
     }))
 }
