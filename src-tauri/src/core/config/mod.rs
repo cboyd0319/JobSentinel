@@ -98,7 +98,7 @@ impl Config {
     /// Load configuration from file
     pub fn load(path: &Path) -> Result<Self, Box<dyn std::error::Error>> {
         let content = std::fs::read_to_string(path)?;
-        let mut config: Config = serde_json::from_str(&content)?;
+        let config: Config = serde_json::from_str(&content)?;
 
         // Validate configuration
         config.validate()?;

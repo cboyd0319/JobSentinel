@@ -9,6 +9,11 @@ keywords = ["job-search", "automation", "privacy", "tauri", "desktop-app"]
 categories = ["command-line-utilities"]
 edition = "2021"
 
+[features]
+default = []
+gcp = []
+aws = []
+
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
 
