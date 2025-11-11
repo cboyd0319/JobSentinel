@@ -59,6 +59,20 @@
     }
   },
 
+  "greenhouse_urls": [
+    "https://boards.greenhouse.io/cloudflare",
+    "https://boards.greenhouse.io/stripe",
+    "https://boards.greenhouse.io/figma"
+  ],
+
+  "lever_urls": [
+    "https://jobs.lever.co/netflix",
+    "https://jobs.lever.co/reddit"
+  ],
+
   "_comment_scoring": "Scoring weights: Skills 40%, Salary 25%, Location 20%, Company 10%, Recency 5%",
-  "_comment_threshold": "immediate_alert_threshold: Jobs scoring above this value (0.0-1.0) will trigger immediate Slack notifications"
+  "_comment_threshold": "immediate_alert_threshold: Jobs scoring above this value (0.0-1.0) will trigger immediate Slack notifications",
+  "_comment_greenhouse": "Add Greenhouse company URLs (e.g., https://boards.greenhouse.io/company-name)",
+  "_comment_lever": "Add Lever company URLs (e.g., https://jobs.lever.co/company-name)",
+  "_comment_jobswithgpt": "JobsWithGPT is scraped automatically - no configuration needed"
 }

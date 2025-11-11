@@ -1,15 +1,15 @@
 # JobSentinel v1.0 - Quick Start Guide
 
-**Privacy-first job search automation for Windows 11+**
+**Privacy-first job search automation for Windows 11+ & macOS 26.1+ (Tahoe)**
 
 ---
 
 ## 🚀 Installation
 
-### For Users (Windows 11+)
+### For Windows 11+ Users
 
 1. **Download the installer:**
-   - Go to the [Releases](https://github.com/yourusername/JobSentinel/releases) page
+   - Go to the [Releases](https://github.com/cboyd0319/JobSentinel/releases) page
    - Download `JobSentinel-1.0.0-x64.msi`
 
 2. **Run the installer:**
@@ -21,6 +21,23 @@
    - JobSentinel will appear in your system tray (bottom-right corner)
    - The setup wizard will automatically open
    - Follow the 4-step configuration process
+
+### For macOS 26.1+ (Tahoe) Users
+
+1. **Download the installer:**
+   - Go to the [Releases](https://github.com/cboyd0319/JobSentinel/releases) page
+   - Download `JobSentinel-1.0.0-aarch64.dmg` (Apple Silicon) or `JobSentinel-1.0.0-x86_64.dmg` (Intel)
+
+2. **Run the installer:**
+   - Open the `.dmg` file
+   - Drag JobSentinel to your Applications folder
+   - Launch from Applications or Spotlight (Cmd+Space, type "JobSentinel")
+
+3. **First launch:**
+   - JobSentinel will appear in your menu bar (top-right corner)
+   - The setup wizard will automatically open
+   - Follow the 4-step configuration process
+   - **Note:** macOS may ask to allow notifications - click "Allow" for job alerts
 
 ---
 
@@ -80,12 +97,13 @@ See `config.example.json` in the project root for all available options.
 
 JobSentinel runs in your system tray with these options:
 
-- **Left-click icon:** Open dashboard
+- **Left-click icon:** Toggle dashboard visibility
 - **Right-click icon:**
   - **Open Dashboard** - View your job matches
   - **Search Now** - Manually trigger job scraping
-  - **Settings** - Modify your preferences
   - **Quit** - Exit JobSentinel
+
+**Note:** To modify settings, edit the configuration file at `%LOCALAPPDATA%\JobSentinel\config.json`
 
 ### Dashboard
 
@@ -171,9 +189,15 @@ JobSentinel uses a **multi-factor scoring algorithm** (0-100%):
 
 All data is stored **locally on your machine**:
 
+**Windows:**
 - **Database:** `%LOCALAPPDATA%\JobSentinel\jobs.db` (SQLite)
 - **Configuration:** `%LOCALAPPDATA%\JobSentinel\config.json`
-- **Logs:** `%LOCALAPPDATA%\JobSentinel\logs\` (if enabled)
+- **Logs:** Enable with `RUST_LOG=debug` environment variable
+
+**macOS:**
+- **Database:** `~/Library/Application Support/JobSentinel/jobs.db` (SQLite)
+- **Configuration:** `~/.config/jobsentinel/config.json`
+- **Logs:** Enable with `RUST_LOG=debug` environment variable
 
 **Privacy:** No data is ever sent to external servers (except Slack notifications if enabled).
 
@@ -184,7 +208,7 @@ All data is stored **locally on your machine**:
 ### JobSentinel won't start
 
 1. Check if it's already running in the system tray
-2. Look for error messages in: `%LOCALAPPDATA%\JobSentinel\logs\`
+2. Run with `RUST_LOG=debug` to see detailed error messages
 3. Try reinstalling from the `.msi` file
 
 ### No jobs found
@@ -199,7 +223,7 @@ All data is stored **locally on your machine**:
 1. **Verify webhook URL** - Should start with `https://hooks.slack.com/`
 2. **Test in browser** - Visit the webhook URL (should show "Invalid request")
 3. **Check permissions** - Make sure the Slack app is authorized
-4. **Review logs** - Look for error messages in `%LOCALAPPDATA%\JobSentinel\logs\`
+4. **Review logs** - Run with `RUST_LOG=debug` to see detailed error messages
 
 ### Database errors
 
@@ -217,6 +241,55 @@ JobSentinel only uses CPU during scraping cycles (a few minutes every 2 hours). 
 1. Check if multiple instances are running
 2. Increase `scraping_interval_hours` in config
 3. Report the issue on GitHub
+
+### macOS-Specific Issues
+
+**"JobSentinel" cannot be opened because the developer cannot be verified**
+
+1. Right-click JobSentinel in Applications
+2. Select "Open"
+3. Click "Open" in the security dialog
+4. macOS will remember this choice
+
+**Menu bar icon not appearing:**
+
+1. Check System Settings → Control Center → Menu Bar Only
+2. Ensure JobSentinel is allowed in menu bar
+3. Try restarting the app
+
+**Permission errors accessing database:**
+
+```bash
+# Fix permissions
+chmod 755 ~/Library/Application\ Support/JobSentinel
+chmod 644 ~/Library/Application\ Support/JobSentinel/jobs.db
+```
+
+**"Operation not permitted" errors:**
+
+1. Go to System Settings → Privacy & Security → Full Disk Access
+2. Add JobSentinel to the list
+3. Restart JobSentinel
+
+**Notifications not showing:**
+
+1. Go to System Settings → Notifications
+2. Find JobSentinel in the list
+3. Enable "Allow Notifications"
+4. Set notification style to "Alerts" or "Banners"
+
+**Database locked errors:**
+
+```bash
+# Check for other instances
+ps aux | grep JobSentinel
+
+# Kill if found
+killall JobSentinel
+
+# Restart
+open -a JobSentinel
+```
 
 ---
 
@@ -243,7 +316,7 @@ JobSentinel is designed with **security-first principles**:
 - **Full Documentation:** See [GETTING_STARTED.md](GETTING_STARTED.md)
 - **Configuration Examples:** See [config.example.json](config.example.json)
 - **Environment Variables:** See [.env.example](.env.example)
-- **Report Issues:** https://github.com/yourusername/JobSentinel/issues
+- **Report Issues:** https://github.com/cboyd0319/JobSentinel/issues
 - **Developer Guide:** See [GETTING_STARTED.md](GETTING_STARTED.md) → Development section
 
 ---
@@ -276,16 +349,28 @@ JobSentinel is designed with **security-first principles**:
 
 ## 🎯 Quick Command Reference
 
+### Windows
+
 | Action | How To |
 |--------|--------|
 | Open dashboard | Left-click tray icon |
 | Manual search | Right-click tray → "Search Now" |
-| View settings | Right-click tray → "Settings" |
 | Edit config | Open `%LOCALAPPDATA%\JobSentinel\config.json` |
-| View database | Use SQLite browser on `jobs.db` |
-| Check logs | Open `%LOCALAPPDATA%\JobSentinel\logs\` |
-| Test webhook | Setup wizard → "Test Webhook" button |
+| View database | Use SQLite browser on `%LOCALAPPDATA%\JobSentinel\jobs.db` |
+| Check logs | Run with `RUST_LOG=debug` environment variable |
 | Quit app | Right-click tray → "Quit" |
+
+### macOS
+
+| Action | How To |
+|--------|--------|
+| Open dashboard | Click menu bar icon |
+| Manual search | Right-click menu bar icon → "Search Now" |
+| Edit config | `open ~/.config/jobsentinel/config.json` |
+| View database | `sqlite3 ~/Library/Application\ Support/JobSentinel/jobs.db` |
+| View database (GUI) | Use [DB Browser for SQLite](https://sqlitebrowser.org/) |
+| Check logs | Run with `RUST_LOG=debug` environment variable |
+| Quit app | Right-click menu bar icon → "Quit" or Cmd+Q |
 
 ---
 
@@ -294,12 +379,12 @@ JobSentinel is designed with **security-first principles**:
 **Stuck? Have questions?**
 
 1. Check this guide and [GETTING_STARTED.md](GETTING_STARTED.md)
-2. Search existing [GitHub Issues](https://github.com/yourusername/JobSentinel/issues)
+2. Search existing [GitHub Issues](https://github.com/cboyd0319/JobSentinel/issues)
 3. Create a new issue with:
-   - Your Windows version
+   - Your OS version (Windows 11+ or macOS 26.1+)
    - JobSentinel version
    - Steps to reproduce the problem
-   - Relevant log snippets (from `%LOCALAPPDATA%\JobSentinel\logs\`)
+   - Relevant error messages (run with `RUST_LOG=debug`)
 
 ---
 

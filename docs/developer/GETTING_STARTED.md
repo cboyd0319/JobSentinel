@@ -13,7 +13,7 @@
 
 - **Open Dashboard**: Click the tray icon
 - **Search Now**: Right-click tray icon → "Search Now"
-- **Settings**: Right-click tray icon → "Settings"
+- **Settings**: Edit `%LOCALAPPDATA%\JobSentinel\config.json`
 
 ---
 
@@ -225,8 +225,8 @@ Download: https://visualstudio.microsoft.com/downloads/
 
 ## Next Steps
 
-1. Read [Feature Inventory](FEATURE_INVENTORY.md) for v1.0 features
-2. Read [Dependency Analysis](DEPENDENCY_ANALYSIS.md) for Rust equivalents
+1. Read [v1.0 Completion Status](V1_COMPLETION_STATUS.md) for implementation details
+2. Read [Quick Start Guide](QUICK_START.md) for user documentation
 3. Check [GitHub Issues](https://github.com/cboyd0319/JobSentinel/issues) for tasks
 4. Join [Discussions](https://github.com/cboyd0319/JobSentinel/discussions) for questions
 

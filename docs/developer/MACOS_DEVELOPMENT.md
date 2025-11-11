@@ -1,6 +1,7 @@
 # JobSentinel - macOS Development Guide
 
 **Status:** ✅ Fully functional for development and testing on macOS 13+
+**Latest Tested:** ✅ macOS 26.1 (Tahoe) - November 2025
 
 ---
 
@@ -66,6 +67,8 @@ JobSentinel creates the following directories on macOS:
 | **Config** | `~/.config/jobsentinel` | config.json, user preferences |
 | **Cache** | `~/Library/Caches/JobSentinel` | Temporary files (future) |
 | **Logs** | `~/Library/Logs/JobSentinel` | Application logs (future) |
+
+**Tested on:** macOS 26.1 (Tahoe), macOS 15 (Sequoia), macOS 14 (Sonoma), macOS 13 (Ventura)
 
 ### View Your Data
 
