@@ -1,12 +1,12 @@
 # JobSentinel v1.0 - Quick Start Guide
 
-**Privacy-first job search automation for Windows 11+**
+**Privacy-first job search automation for Windows 11+ & macOS 26.1+ (Tahoe)**
 
 ---
 
 ## 🚀 Installation
 
-### For Users (Windows 11+)
+### For Windows 11+ Users
 
 1. **Download the installer:**
    - Go to the [Releases](https://github.com/cboyd0319/JobSentinel/releases) page
@@ -21,6 +21,23 @@
    - JobSentinel will appear in your system tray (bottom-right corner)
    - The setup wizard will automatically open
    - Follow the 4-step configuration process
+
+### For macOS 26.1+ (Tahoe) Users
+
+1. **Download the installer:**
+   - Go to the [Releases](https://github.com/cboyd0319/JobSentinel/releases) page
+   - Download `JobSentinel-1.0.0-aarch64.dmg` (Apple Silicon) or `JobSentinel-1.0.0-x86_64.dmg` (Intel)
+
+2. **Run the installer:**
+   - Open the `.dmg` file
+   - Drag JobSentinel to your Applications folder
+   - Launch from Applications or Spotlight (Cmd+Space, type "JobSentinel")
+
+3. **First launch:**
+   - JobSentinel will appear in your menu bar (top-right corner)
+   - The setup wizard will automatically open
+   - Follow the 4-step configuration process
+   - **Note:** macOS may ask to allow notifications - click "Allow" for job alerts
 
 ---
 
@@ -172,8 +189,14 @@ JobSentinel uses a **multi-factor scoring algorithm** (0-100%):
 
 All data is stored **locally on your machine**:
 
+**Windows:**
 - **Database:** `%LOCALAPPDATA%\JobSentinel\jobs.db` (SQLite)
 - **Configuration:** `%LOCALAPPDATA%\JobSentinel\config.json`
+- **Logs:** Enable with `RUST_LOG=debug` environment variable
+
+**macOS:**
+- **Database:** `~/Library/Application Support/JobSentinel/jobs.db` (SQLite)
+- **Configuration:** `~/.config/jobsentinel/config.json`
 - **Logs:** Enable with `RUST_LOG=debug` environment variable
 
 **Privacy:** No data is ever sent to external servers (except Slack notifications if enabled).

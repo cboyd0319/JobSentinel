@@ -6,7 +6,7 @@
 
 ### **The simplest way to automate your job search**
 
-Windows 11+ • Zero Technical Knowledge • 100% Private • $0 Forever
+Windows 11+ & macOS 26.1+ (Tahoe) • Zero Technical Knowledge • 100% Private • $0 Forever
 
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/Rust-1.83%2B-orange.svg)](https://www.rust-lang.org/)
@@ -37,11 +37,16 @@ The original Python version was powerful but **too complex** for the target user
 | **Memory Usage** | ~500MB | ~50MB |
 | **Admin Rights** | Sometimes required | ❌ Never required |
 | **Auto-Updates** | Manual | ✅ Built-in |
-| **Platform** | Windows, macOS, Linux (complex setup) | Windows 11+ (v1.0), macOS/Linux coming v2.1+ |
+| **Platform** | Windows, macOS, Linux (complex setup) | Windows 11+ & macOS 26.1+ (Tahoe), Linux coming v2.1+ |
 
-### v2.0 Focus: **Windows 11+ Only**
+### v2.0 Platform Support
 
-We're starting with **one platform done right**. macOS and Linux support will come in v2.1+.
+**Available Now:**
+- ✅ **Windows 11+** - MSI installer
+- ✅ **macOS 26.1+ (Tahoe)** - DMG installer
+
+**Coming Soon:**
+- 🔜 **Linux** (v2.1+) - .deb, .rpm, .AppImage
 
 ---
 
@@ -58,18 +63,33 @@ We're starting with **one platform done right**. macOS and Linux support will co
 
 ## 🚀 Installation
 
-### Prerequisites
+### Windows 11+
 
-- **Windows 11** or newer
-- **8MB disk space**
-- **No admin rights required**
+**Prerequisites:**
+- Windows 11 or newer
+- 8MB disk space
+- No admin rights required
 
-### Steps
-
-1. Download the latest `.msi` installer from [Releases](https://github.com/cboyd0319/JobSentinel/releases)
-2. Double-click `JobSentinel-1.0.0-x64.msi`
+**Steps:**
+1. Download `JobSentinel-1.0.0-x64.msi` from [Releases](https://github.com/cboyd0319/JobSentinel/releases)
+2. Double-click the `.msi` file
 3. Follow the setup wizard (4 steps, ~2 minutes)
 4. Done! App runs in your system tray
+
+### macOS 26.1+ (Tahoe)
+
+**Prerequisites:**
+- macOS 26.1 (Tahoe) or newer
+- 8MB disk space
+- No admin rights required
+
+**Steps:**
+1. Download `JobSentinel-1.0.0-aarch64.dmg` (Apple Silicon) or `JobSentinel-1.0.0-x86_64.dmg` (Intel) from [Releases](https://github.com/cboyd0319/JobSentinel/releases)
+2. Open the `.dmg` file
+3. Drag JobSentinel to Applications
+4. Launch from Applications or Spotlight
+5. Follow the setup wizard (4 steps, ~2 minutes)
+6. Done! App runs in your menu bar
 
 ---
 
@@ -174,7 +194,9 @@ JobSentinel/
 
 ### Configuration File
 
-Stored at: `%LOCALAPPDATA%\JobSentinel\config.json`
+**Location:**
+- **Windows:** `%LOCALAPPDATA%\JobSentinel\config.json`
+- **macOS:** `~/.config/jobsentinel/config.json`
 
 ```json
 {
