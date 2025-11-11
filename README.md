@@ -280,6 +280,203 @@ npm run tauri:build
 
 ---
 
+## ❓ Frequently Asked Questions (FAQ)
+
+### General Questions
+
+**Q: Is JobSentinel really free?**
+A: Yes! 100% free, forever. No subscriptions, no hidden costs, no premium tiers. JobSentinel is open source under the MIT license.
+
+**Q: Do I need to create an account?**
+A: No! JobSentinel runs entirely on your local machine. No account, no login, no cloud sync. Your data stays private.
+
+**Q: What job boards does it support?**
+A: Currently Greenhouse, Lever, and JobsWithGPT (covering 500K+ job listings). More scrapers planned for v1.1+ (Reed.co.uk, LinkedIn, etc.).
+
+**Q: Can I use this for non-tech jobs?**
+A: Absolutely! While designed for tech roles, JobSentinel works for any jobs posted on Greenhouse, Lever, or JobsWithGPT.
+
+**Q: Does it work offline?**
+A: Partially. The app runs offline, but it needs internet to scrape job boards and send Slack notifications.
+
+### Privacy & Security
+
+**Q: What data does JobSentinel collect?**
+A: **Nothing!** Zero telemetry, zero analytics, zero tracking. All data stays on your machine. We literally can't see your data.
+
+**Q: Is my Slack webhook secure?**
+A: Yes. Webhooks are validated (must start with `https://hooks.slack.com/services/`), stored locally, and only used for job alerts you configure.
+
+**Q: Can someone else access my job data?**
+A: Only if they have physical access to your computer. JobSentinel stores data in standard OS directories with your user permissions.
+
+### Setup & Configuration
+
+**Q: How long does setup take?**
+A: ~2 minutes. The 4-step wizard covers job titles, location, salary, and Slack notifications (optional).
+
+**Q: Can I change my preferences later?**
+A: Yes! Edit the config file:
+- **Windows:** `%LOCALAPPDATA%\JobSentinel\config.json`
+- **macOS:** `~/.config/jobsentinel/config.json`
+
+**Q: What's a good starting configuration?**
+A: See [Configuration Presets](#configuration-presets) below for role-specific templates.
+
+**Q: Do I need a Slack webhook?**
+A: No, it's optional. Without Slack, you'll still see all jobs in the dashboard - you just won't get instant notifications.
+
+### Job Scraping & Scoring
+
+**Q: How often does it check for new jobs?**
+A: Every 2 hours by default (configurable in `config.json`). You can also trigger manually via "Search Now".
+
+**Q: How accurate is the job scoring?**
+A: Very good for title/salary/location matching. The algorithm uses: Skills (40%), Salary (25%), Location (20%), Company (10%), Recency (5%).
+
+**Q: Why am I not finding any jobs?**
+A: Common fixes:
+1. Broaden your title allowlist (try variations: "Engineer", "Developer", "Specialist")
+2. Allow multiple locations (Remote + Hybrid)
+3. Lower salary floor to $0 initially
+4. Check that Greenhouse/Lever companies are hiring
+
+**Q: Can I search specific companies?**
+A: Yes! Add company URLs to `config.json`:
+```json
+{
+  "greenhouse_urls": ["https://boards.greenhouse.io/cloudflare"],
+  "lever_urls": ["https://jobs.lever.co/netflix"]
+}
+```
+
+### Technical Questions
+
+**Q: Does this require Python/Node.js/etc?**
+A: No! JobSentinel is a single-file installer. No dependencies, no setup. Just double-click and go.
+
+**Q: What's the system requirements?**
+A: Minimal:
+- **Windows:** Windows 11+, 8MB disk, no admin rights
+- **macOS:** macOS 26.1+ (Tahoe), 8MB disk, no admin rights
+
+**Q: Can I run multiple instances?**
+A: Not recommended. One instance per user is optimal to avoid duplicate notifications and database conflicts.
+
+**Q: How do I update to a new version?**
+A: Download the new installer and run it. Your config and database will be preserved.
+
+### Troubleshooting
+
+**Q: JobSentinel won't start**
+A: Check:
+1. Is it already running? (Check system tray/menu bar)
+2. Run with `RUST_LOG=debug` to see error messages
+3. Try reinstalling from the latest `.msi`/`.dmg`
+
+**Q: Slack notifications not working**
+A: Verify:
+1. Webhook URL starts with `https://hooks.slack.com/services/`
+2. Slack app has permission to post
+3. At least one job scores ≥90% (or your configured threshold)
+4. Check logs with `RUST_LOG=debug`
+
+**Q: Database errors**
+A: Rare, but if it happens:
+1. Close JobSentinel
+2. Backup database file
+3. Delete database (will be recreated)
+4. Restart JobSentinel
+
+**Q: High CPU usage**
+A: JobSentinel only uses CPU during scraping (a few minutes every 2 hours). If constantly high, check for multiple instances running.
+
+### Comparison with Alternatives
+
+**Q: How is this better than LinkedIn Easy Apply?**
+A:
+- ✅ Privacy-first (LinkedIn tracks everything)
+- ✅ Automated scoring (LinkedIn requires manual review)
+- ✅ Covers more job boards (LinkedIn is just LinkedIn)
+- ✅ Slack alerts for instant notifications
+- ✅ 100% free (LinkedIn Premium is $40/month)
+
+**Q: How is this different from Indeed/Glassdoor?**
+A: JobSentinel is an *automation tool*, not a job board. It scrapes multiple boards, scores jobs based on *your* preferences, and alerts you immediately.
+
+**Q: What about JobSpy or other scrapers?**
+A: Most require Python setup, command-line knowledge, and manual configuration. JobSentinel is designed for **zero technical knowledge** - just click and go.
+
+---
+
+## 🎯 Configuration Presets
+
+Quick-start templates for common roles:
+
+### Security Engineer
+```json
+{
+  "title_allowlist": ["Security Engineer", "AppSec Engineer", "Product Security"],
+  "keywords_boost": ["Penetration Testing", "SAST", "DAST", "Threat Modeling", "AWS", "Kubernetes"],
+  "location_preferences": { "allow_remote": true, "allow_hybrid": true, "allow_onsite": false },
+  "salary_floor_usd": 150000
+}
+```
+
+### Frontend Developer
+```json
+{
+  "title_allowlist": ["Frontend Engineer", "Frontend Developer", "React Developer"],
+  "keywords_boost": ["React", "TypeScript", "Next.js", "TailwindCSS", "GraphQL"],
+  "keywords_exclude": ["Angular", "jQuery"],
+  "location_preferences": { "allow_remote": true, "allow_hybrid": false, "allow_onsite": false },
+  "salary_floor_usd": 120000
+}
+```
+
+### Backend Engineer
+```json
+{
+  "title_allowlist": ["Backend Engineer", "API Engineer", "Platform Engineer"],
+  "keywords_boost": ["Python", "Go", "Rust", "Kubernetes", "PostgreSQL", "Microservices"],
+  "location_preferences": { "allow_remote": true, "allow_hybrid": true, "allow_onsite": false },
+  "salary_floor_usd": 140000
+}
+```
+
+### DevOps/SRE
+```json
+{
+  "title_allowlist": ["DevOps Engineer", "SRE", "Platform Engineer", "Infrastructure Engineer"],
+  "keywords_boost": ["Kubernetes", "Terraform", "AWS", "Docker", "CI/CD", "Monitoring"],
+  "location_preferences": { "allow_remote": true, "allow_hybrid": false, "allow_onsite": false },
+  "salary_floor_usd": 150000
+}
+```
+
+### Data Scientist
+```json
+{
+  "title_allowlist": ["Data Scientist", "ML Engineer", "Machine Learning Engineer"],
+  "keywords_boost": ["Python", "TensorFlow", "PyTorch", "SQL", "Statistics", "Deep Learning"],
+  "location_preferences": { "allow_remote": true, "allow_hybrid": true, "allow_onsite": false },
+  "salary_floor_usd": 130000
+}
+```
+
+### Product Manager
+```json
+{
+  "title_allowlist": ["Product Manager", "Senior Product Manager", "Group Product Manager"],
+  "title_blocklist": ["Associate", "Junior", "Intern"],
+  "keywords_boost": ["B2B", "SaaS", "Analytics", "User Research"],
+  "location_preferences": { "allow_remote": true, "allow_hybrid": true, "allow_onsite": false },
+  "salary_floor_usd": 140000
+}
+```
+
+---
+
 ## 🤝 Contributing
 
 We're not accepting contributions yet while v2.0 is in alpha. Check back in Q2 2025!

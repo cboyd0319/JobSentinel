@@ -242,6 +242,55 @@ JobSentinel only uses CPU during scraping cycles (a few minutes every 2 hours). 
 2. Increase `scraping_interval_hours` in config
 3. Report the issue on GitHub
 
+### macOS-Specific Issues
+
+**"JobSentinel" cannot be opened because the developer cannot be verified**
+
+1. Right-click JobSentinel in Applications
+2. Select "Open"
+3. Click "Open" in the security dialog
+4. macOS will remember this choice
+
+**Menu bar icon not appearing:**
+
+1. Check System Settings → Control Center → Menu Bar Only
+2. Ensure JobSentinel is allowed in menu bar
+3. Try restarting the app
+
+**Permission errors accessing database:**
+
+```bash
+# Fix permissions
+chmod 755 ~/Library/Application\ Support/JobSentinel
+chmod 644 ~/Library/Application\ Support/JobSentinel/jobs.db
+```
+
+**"Operation not permitted" errors:**
+
+1. Go to System Settings → Privacy & Security → Full Disk Access
+2. Add JobSentinel to the list
+3. Restart JobSentinel
+
+**Notifications not showing:**
+
+1. Go to System Settings → Notifications
+2. Find JobSentinel in the list
+3. Enable "Allow Notifications"
+4. Set notification style to "Alerts" or "Banners"
+
+**Database locked errors:**
+
+```bash
+# Check for other instances
+ps aux | grep JobSentinel
+
+# Kill if found
+killall JobSentinel
+
+# Restart
+open -a JobSentinel
+```
+
 ---
 
 ## 🔐 Security & Privacy
@@ -300,6 +349,8 @@ JobSentinel is designed with **security-first principles**:
 
 ## 🎯 Quick Command Reference
 
+### Windows
+
 | Action | How To |
 |--------|--------|
 | Open dashboard | Left-click tray icon |
@@ -308,6 +359,18 @@ JobSentinel is designed with **security-first principles**:
 | View database | Use SQLite browser on `%LOCALAPPDATA%\JobSentinel\jobs.db` |
 | Check logs | Run with `RUST_LOG=debug` environment variable |
 | Quit app | Right-click tray → "Quit" |
+
+### macOS
+
+| Action | How To |
+|--------|--------|
+| Open dashboard | Click menu bar icon |
+| Manual search | Right-click menu bar icon → "Search Now" |
+| Edit config | `open ~/.config/jobsentinel/config.json` |
+| View database | `sqlite3 ~/Library/Application\ Support/JobSentinel/jobs.db` |
+| View database (GUI) | Use [DB Browser for SQLite](https://sqlitebrowser.org/) |
+| Check logs | Run with `RUST_LOG=debug` environment variable |
+| Quit app | Right-click menu bar icon → "Quit" or Cmd+Q |
 
 ---
 
@@ -318,7 +381,7 @@ JobSentinel is designed with **security-first principles**:
 1. Check this guide and [GETTING_STARTED.md](GETTING_STARTED.md)
 2. Search existing [GitHub Issues](https://github.com/cboyd0319/JobSentinel/issues)
 3. Create a new issue with:
-   - Your Windows version
+   - Your OS version (Windows 11+ or macOS 26.1+)
    - JobSentinel version
    - Steps to reproduce the problem
    - Relevant error messages (run with `RUST_LOG=debug`)
