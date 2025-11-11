@@ -13,7 +13,7 @@ Windows 11+ • Zero Technical Knowledge • 100% Private • $0 Forever
 [![Tauri](https://img.shields.io/badge/Tauri-2.1-blue.svg)](https://tauri.app/)
 [![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev/)
 
-[Download](#installation) • [Features](#features) • [Documentation](FEATURE_INVENTORY.md)
+[Download](#installation) • [Features](#features) • [Quick Start](QUICK_START.md) • [Getting Started](GETTING_STARTED.md)
 
 </div>
 
@@ -68,7 +68,7 @@ We're starting with **one platform done right**. macOS and Linux support will co
 
 1. Download the latest `.msi` installer from [Releases](https://github.com/cboyd0319/JobSentinel/releases)
 2. Double-click `JobSentinel-1.0.0-x64.msi`
-3. Follow the setup wizard (5 steps, ~2 minutes)
+3. Follow the setup wizard (4 steps, ~2 minutes)
 4. Done! App runs in your system tray
 
 ---
@@ -174,7 +174,7 @@ JobSentinel/
 
 ### Configuration File
 
-Stored at: `%APPDATA%\JobSentinel\config.json`
+Stored at: `%LOCALAPPDATA%\JobSentinel\config.json`
 
 ```json
 {
@@ -251,9 +251,10 @@ npm run tauri:build
 
 ### Documentation
 
-- **[Feature Inventory](FEATURE_INVENTORY.md)** - Complete v1.0 feature list
-- **[Dependency Analysis](DEPENDENCY_ANALYSIS.md)** - Python → Rust mapping
-- **[Architecture (Coming Soon)](docs/architecture/ARCHITECTURE.md)**
+- **[Quick Start Guide](QUICK_START.md)** - User installation and setup guide
+- **[Getting Started](GETTING_STARTED.md)** - Developer setup and contribution guide
+- **[v1.0 Completion Status](V1_COMPLETION_STATUS.md)** - Implementation tracking
+- **[Deep Analysis Fixes](DEEP_ANALYSIS_FIXES.md)** - Security and stability improvements
 
 ---
 

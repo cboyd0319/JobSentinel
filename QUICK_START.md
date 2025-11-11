@@ -9,7 +9,7 @@
 ### For Users (Windows 11+)
 
 1. **Download the installer:**
-   - Go to the [Releases](https://github.com/yourusername/JobSentinel/releases) page
+   - Go to the [Releases](https://github.com/cboyd0319/JobSentinel/releases) page
    - Download `JobSentinel-1.0.0-x64.msi`
 
 2. **Run the installer:**
@@ -80,12 +80,13 @@ See `config.example.json` in the project root for all available options.
 
 JobSentinel runs in your system tray with these options:
 
-- **Left-click icon:** Open dashboard
+- **Left-click icon:** Toggle dashboard visibility
 - **Right-click icon:**
   - **Open Dashboard** - View your job matches
   - **Search Now** - Manually trigger job scraping
-  - **Settings** - Modify your preferences
   - **Quit** - Exit JobSentinel
+
+**Note:** To modify settings, edit the configuration file at `%LOCALAPPDATA%\JobSentinel\config.json`
 
 ### Dashboard
 
@@ -173,7 +174,7 @@ All data is stored **locally on your machine**:
 
 - **Database:** `%LOCALAPPDATA%\JobSentinel\jobs.db` (SQLite)
 - **Configuration:** `%LOCALAPPDATA%\JobSentinel\config.json`
-- **Logs:** `%LOCALAPPDATA%\JobSentinel\logs\` (if enabled)
+- **Logs:** Enable with `RUST_LOG=debug` environment variable
 
 **Privacy:** No data is ever sent to external servers (except Slack notifications if enabled).
 
@@ -184,7 +185,7 @@ All data is stored **locally on your machine**:
 ### JobSentinel won't start
 
 1. Check if it's already running in the system tray
-2. Look for error messages in: `%LOCALAPPDATA%\JobSentinel\logs\`
+2. Run with `RUST_LOG=debug` to see detailed error messages
 3. Try reinstalling from the `.msi` file
 
 ### No jobs found
@@ -199,7 +200,7 @@ All data is stored **locally on your machine**:
 1. **Verify webhook URL** - Should start with `https://hooks.slack.com/`
 2. **Test in browser** - Visit the webhook URL (should show "Invalid request")
 3. **Check permissions** - Make sure the Slack app is authorized
-4. **Review logs** - Look for error messages in `%LOCALAPPDATA%\JobSentinel\logs\`
+4. **Review logs** - Run with `RUST_LOG=debug` to see detailed error messages
 
 ### Database errors
 
@@ -243,7 +244,7 @@ JobSentinel is designed with **security-first principles**:
 - **Full Documentation:** See [GETTING_STARTED.md](GETTING_STARTED.md)
 - **Configuration Examples:** See [config.example.json](config.example.json)
 - **Environment Variables:** See [.env.example](.env.example)
-- **Report Issues:** https://github.com/yourusername/JobSentinel/issues
+- **Report Issues:** https://github.com/cboyd0319/JobSentinel/issues
 - **Developer Guide:** See [GETTING_STARTED.md](GETTING_STARTED.md) → Development section
 
 ---
@@ -280,11 +281,9 @@ JobSentinel is designed with **security-first principles**:
 |--------|--------|
 | Open dashboard | Left-click tray icon |
 | Manual search | Right-click tray → "Search Now" |
-| View settings | Right-click tray → "Settings" |
 | Edit config | Open `%LOCALAPPDATA%\JobSentinel\config.json` |
-| View database | Use SQLite browser on `jobs.db` |
-| Check logs | Open `%LOCALAPPDATA%\JobSentinel\logs\` |
-| Test webhook | Setup wizard → "Test Webhook" button |
+| View database | Use SQLite browser on `%LOCALAPPDATA%\JobSentinel\jobs.db` |
+| Check logs | Run with `RUST_LOG=debug` environment variable |
 | Quit app | Right-click tray → "Quit" |
 
 ---
@@ -294,12 +293,12 @@ JobSentinel is designed with **security-first principles**:
 **Stuck? Have questions?**
 
 1. Check this guide and [GETTING_STARTED.md](GETTING_STARTED.md)
-2. Search existing [GitHub Issues](https://github.com/yourusername/JobSentinel/issues)
+2. Search existing [GitHub Issues](https://github.com/cboyd0319/JobSentinel/issues)
 3. Create a new issue with:
    - Your Windows version
    - JobSentinel version
    - Steps to reproduce the problem
-   - Relevant log snippets (from `%LOCALAPPDATA%\JobSentinel\logs\`)
+   - Relevant error messages (run with `RUST_LOG=debug`)
 
 ---
 
