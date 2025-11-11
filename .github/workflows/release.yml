@@ -7,103 +7,56 @@ on:
   workflow_dispatch:
 
 jobs:
-  create-release:
-    runs-on: ubuntu-latest
-    outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
-      version: ${{ steps.get_version.outputs.version }}
-    steps:
-      - name: Get version from tag
-        id: get_version
-        run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+  publish:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: windows-latest
+            args: '--target x86_64-pc-windows-msvc'
+          - platform: macos-latest
+            args: '--target aarch64-apple-darwin'
+          - platform: macos-latest
+            args: '--target x86_64-apple-darwin'
 
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || 'x86_64-pc-windows-msvc' }}
+
+      - name: Install frontend dependencies
+        run: npm install
+
+      - name: Build and release
+        uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: JobSentinel v${{ steps.get_version.outputs.version }}
-          draft: false
-          prerelease: false
-          body: |
-            ## 🚀 JobSentinel v${{ steps.get_version.outputs.version }}
+          tagName: ${{ github.ref_name }}
+          releaseName: 'JobSentinel v__VERSION__'
+          releaseBody: |
+            ## 🚀 JobSentinel v__VERSION__
 
-            ### Downloads
-            - **Windows 11+**: `JobSentinel-${{ steps.get_version.outputs.version }}-x64.msi`
-            - **macOS 26.1+ (Apple Silicon)**: `JobSentinel-${{ steps.get_version.outputs.version }}-aarch64.dmg`
-            - **macOS 26.1+ (Intel)**: `JobSentinel-${{ steps.get_version.outputs.version }}-x86_64.dmg`
+            ### Platform Support
+            - ✅ **Windows 11+** - MSI installer
+            - ✅ **macOS 26.1+ (Tahoe)** - DMG installer (Apple Silicon & Intel)
 
             ### What's New
             See [CHANGELOG.md](https://github.com/cboyd0319/JobSentinel/blob/main/CHANGELOG.md) for details.
 
             ### Installation
-            See [QUICK_START.md](https://github.com/cboyd0319/JobSentinel/blob/main/QUICK_START.md) for instructions.
-
-  build-windows:
-    needs: create-release
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Install Dependencies
-        run: npm install
-
-      - name: Build Windows MSI
-        run: npm run tauri:build
-
-      - name: Upload Windows MSI
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ./src-tauri/target/release/bundle/msi/JobSentinel_${{ needs.create-release.outputs.version }}_x64_en-US.msi
-          asset_name: JobSentinel-${{ needs.create-release.outputs.version }}-x64.msi
-          asset_content_type: application/x-msi
-
-  build-macos:
-    needs: create-release
-    runs-on: macos-latest
-    strategy:
-      matrix:
-        arch: [aarch64, x86_64]
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.arch }}-apple-darwin
-
-      - name: Install Dependencies
-        run: npm install
-
-      - name: Build macOS DMG (${{ matrix.arch }})
-        run: |
-          rustup target add ${{ matrix.arch }}-apple-darwin
-          npm run tauri:build -- --target ${{ matrix.arch }}-apple-darwin
-
-      - name: Upload macOS DMG
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ./src-tauri/target/${{ matrix.arch }}-apple-darwin/release/bundle/dmg/JobSentinel_${{ needs.create-release.outputs.version }}_${{ matrix.arch }}.dmg
-          asset_name: JobSentinel-${{ needs.create-release.outputs.version }}-${{ matrix.arch }}.dmg
-          asset_content_type: application/x-apple-diskimage
+            See [Quick Start Guide](https://github.com/cboyd0319/JobSentinel/blob/main/docs/user/QUICK_START.md) for instructions.
+          releaseDraft: false
+          prerelease: false
+          args: ${{ matrix.args }}
