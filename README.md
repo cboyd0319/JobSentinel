@@ -273,10 +273,12 @@ npm run tauri:build
 
 ### Documentation
 
-- **[Quick Start Guide](QUICK_START.md)** - User installation and setup guide
-- **[Getting Started](GETTING_STARTED.md)** - Developer setup and contribution guide
-- **[v1.0 Completion Status](V1_COMPLETION_STATUS.md)** - Implementation tracking
-- **[Deep Analysis Fixes](DEEP_ANALYSIS_FIXES.md)** - Security and stability improvements
+- **[📖 Documentation Hub](docs/README.md)** - Complete documentation index
+- **[🚀 Quick Start Guide](docs/user/QUICK_START.md)** - User installation and setup guide
+- **[💻 Getting Started](docs/developer/GETTING_STARTED.md)** - Developer setup and contribution guide
+- **[🍎 macOS Development](docs/developer/MACOS_DEVELOPMENT.md)** - macOS-specific development guide
+- **[🤝 Contributing](docs/developer/CONTRIBUTING.md)** - Contribution guidelines
+- **[📊 Analysis Report](docs/reports/DEEP_ANALYSIS_COMPLETE_REPORT.md)** - Complete security and code analysis
 
 ---
 
