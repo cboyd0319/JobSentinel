@@ -287,7 +287,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_compute_hash() {
+    fn test_compute_hash_deterministic() {
         let hash1 = GreenhouseScraper::compute_hash(
             "Cloudflare",
             "Security Engineer",
@@ -300,14 +300,156 @@ mod tests {
             Some("Remote"),
             "https://example.com/1",
         );
-        let hash3 = GreenhouseScraper::compute_hash(
+
+        assert_eq!(hash1, hash2, "Same inputs should produce same hash");
+        assert_eq!(hash1.len(), 64, "SHA-256 hash should be 64 hex chars");
+    }
+
+    #[test]
+    fn test_compute_hash_different_company() {
+        let hash1 = GreenhouseScraper::compute_hash(
             "Cloudflare",
+            "Engineer",
+            None,
+            "https://example.com/1",
+        );
+        let hash2 = GreenhouseScraper::compute_hash(
+            "Stripe",
+            "Engineer",
+            None,
+            "https://example.com/1",
+        );
+
+        assert_ne!(hash1, hash2, "Different company should produce different hash");
+    }
+
+    #[test]
+    fn test_compute_hash_different_title() {
+        let hash1 = GreenhouseScraper::compute_hash(
+            "Company",
             "Security Engineer",
+            None,
+            "https://example.com/1",
+        );
+        let hash2 = GreenhouseScraper::compute_hash(
+            "Company",
+            "Software Engineer",
+            None,
+            "https://example.com/1",
+        );
+
+        assert_ne!(hash1, hash2, "Different title should produce different hash");
+    }
+
+    #[test]
+    fn test_compute_hash_different_location() {
+        let hash1 = GreenhouseScraper::compute_hash(
+            "Company",
+            "Engineer",
+            Some("Remote"),
+            "https://example.com/1",
+        );
+        let hash2 = GreenhouseScraper::compute_hash(
+            "Company",
+            "Engineer",
             Some("Hybrid"),
             "https://example.com/1",
         );
 
-        assert_eq!(hash1, hash2); // Same job = same hash
-        assert_ne!(hash1, hash3); // Different location = different hash
+        assert_ne!(hash1, hash2, "Different location should produce different hash");
+    }
+
+    #[test]
+    fn test_compute_hash_location_none_vs_some() {
+        let hash1 = GreenhouseScraper::compute_hash(
+            "Company",
+            "Engineer",
+            None,
+            "https://example.com/1",
+        );
+        let hash2 = GreenhouseScraper::compute_hash(
+            "Company",
+            "Engineer",
+            Some("Remote"),
+            "https://example.com/1",
+        );
+
+        assert_ne!(hash1, hash2, "None location should produce different hash than Some");
+    }
+
+    #[test]
+    fn test_compute_hash_different_url() {
+        let hash1 = GreenhouseScraper::compute_hash(
+            "Company",
+            "Engineer",
+            None,
+            "https://example.com/1",
+        );
+        let hash2 = GreenhouseScraper::compute_hash(
+            "Company",
+            "Engineer",
+            None,
+            "https://example.com/2",
+        );
+
+        assert_ne!(hash1, hash2, "Different URL should produce different hash");
+    }
+
+    #[test]
+    fn test_compute_hash_empty_strings() {
+        let hash = GreenhouseScraper::compute_hash(
+            "",
+            "",
+            None,
+            "",
+        );
+
+        assert_eq!(hash.len(), 64, "Hash of empty strings should still be valid");
+    }
+
+    #[test]
+    fn test_compute_hash_special_characters() {
+        let hash = GreenhouseScraper::compute_hash(
+            "Company™",
+            "Senior Engineer (Remote) - 🚀",
+            Some("San Francisco, CA"),
+            "https://example.com/jobs?id=123&ref=test",
+        );
+
+        assert_eq!(hash.len(), 64, "Hash should handle special characters");
+    }
+
+    #[test]
+    fn test_scraper_name() {
+        let scraper = GreenhouseScraper::new(vec![]);
+        assert_eq!(scraper.name(), "greenhouse");
+    }
+
+    #[test]
+    fn test_new_scraper_with_companies() {
+        let companies = vec![
+            GreenhouseCompany {
+                id: "cloudflare".to_string(),
+                name: "Cloudflare".to_string(),
+                url: "https://boards.greenhouse.io/cloudflare".to_string(),
+            },
+            GreenhouseCompany {
+                id: "stripe".to_string(),
+                name: "Stripe".to_string(),
+                url: "https://boards.greenhouse.io/stripe".to_string(),
+            },
+        ];
+
+        let scraper = GreenhouseScraper::new(companies.clone());
+
+        assert_eq!(scraper.companies.len(), 2);
+        assert_eq!(scraper.companies[0].name, "Cloudflare");
+        assert_eq!(scraper.companies[1].name, "Stripe");
+    }
+
+    #[test]
+    fn test_new_scraper_empty() {
+        let scraper = GreenhouseScraper::new(vec![]);
+        assert_eq!(scraper.companies.len(), 0);
     }
 }
