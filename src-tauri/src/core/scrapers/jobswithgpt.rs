@@ -436,4 +436,105 @@ mod tests {
         assert_eq!(scraper.query.remote_only, query.remote_only);
         assert_eq!(scraper.query.limit, query.limit);
     }
+
+    // ========================================
+    // Property-Based Tests
+    // ========================================
+
+    use proptest::prelude::*;
+
+    proptest! {
+        /// Property: Hash function is deterministic
+        #[test]
+        fn prop_hash_deterministic(
+            company in "\\PC{1,100}",
+            title in "\\PC{1,200}",
+            location in proptest::option::of("\\PC{1,100}"),
+            url in "https?://[a-z0-9./]+",
+        ) {
+            let hash1 = JobsWithGptScraper::compute_hash(&company, &title, location.as_deref(), &url);
+            let hash2 = JobsWithGptScraper::compute_hash(&company, &title, location.as_deref(), &url);
+
+            prop_assert_eq!(hash1, hash2);
+            prop_assert_eq!(hash1.len(), 64);
+        }
+
+        /// Property: Hash format is always valid
+        #[test]
+        fn prop_hash_format_valid(
+            company in "\\PC*",
+            title in "\\PC*",
+            location in proptest::option::of("\\PC*"),
+            url in "\\PC*",
+        ) {
+            let hash = JobsWithGptScraper::compute_hash(&company, &title, location.as_deref(), &url);
+
+            prop_assert_eq!(hash.len(), 64);
+            prop_assert!(hash.chars().all(|c| c.is_ascii_hexdigit()));
+        }
+
+        /// Property: Different inputs produce different hashes
+        #[test]
+        fn prop_hash_collision_resistance(
+            company1 in "\\PC{1,100}",
+            company2 in "\\PC{1,100}",
+            title in "\\PC{1,200}",
+            url in "https?://[a-z0-9./]+",
+        ) {
+            prop_assume!(company1 != company2);
+
+            let hash1 = JobsWithGptScraper::compute_hash(&company1, &title, None, &url);
+            let hash2 = JobsWithGptScraper::compute_hash(&company2, &title, None, &url);
+
+            prop_assert_ne!(hash1, hash2);
+        }
+
+        /// Property: Query limit is always respected
+        #[test]
+        fn prop_query_limit_bounds(
+            limit in 1usize..1000usize,
+        ) {
+            let query = JobQuery {
+                titles: vec!["Engineer".to_string()],
+                location: None,
+                remote_only: false,
+                limit,
+            };
+
+            prop_assert_eq!(query.limit, limit);
+            prop_assert!(query.limit > 0);
+            prop_assert!(query.limit < 1000);
+        }
+
+        /// Property: JobQuery preserves title list
+        #[test]
+        fn prop_query_preserves_titles(
+            titles in proptest::collection::vec("[a-zA-Z ]{3,30}", 1..10),
+            remote_only in proptest::bool::ANY,
+            limit in 1usize..500usize,
+        ) {
+            let query = JobQuery {
+                titles: titles.clone(),
+                location: None,
+                remote_only,
+                limit,
+            };
+
+            prop_assert_eq!(query.titles, titles);
+            prop_assert_eq!(query.remote_only, remote_only);
+        }
+
+        /// Property: Hash handles all Unicode safely
+        #[test]
+        fn prop_hash_unicode_safe(
+            company in "[\\PC🦀™®]{1,50}",
+            title in "[\\PC🚀💼]{1,100}",
+            url in "\\PC{10,200}",
+        ) {
+            let hash = JobsWithGptScraper::compute_hash(&company, &title, None, &url);
+
+            prop_assert_eq!(hash.len(), 64);
+            prop_assert!(hash.chars().all(|c| c.is_ascii_hexdigit()));
+        }
+    }
 }

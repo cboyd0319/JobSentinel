@@ -452,4 +452,124 @@ mod tests {
         let scraper = GreenhouseScraper::new(vec![]);
         assert_eq!(scraper.companies.len(), 0);
     }
+
+    // ========================================
+    // Property-Based Tests
+    // ========================================
+
+    use proptest::prelude::*;
+
+    proptest! {
+        /// Property: Hash function is deterministic
+        /// Given the same inputs, compute_hash should always return the same output
+        #[test]
+        fn prop_hash_deterministic(
+            company in "\\PC{1,100}",
+            title in "\\PC{1,200}",
+            location in proptest::option::of("\\PC{1,100}"),
+            url in "https?://[a-z0-9./]+",
+        ) {
+            let hash1 = GreenhouseScraper::compute_hash(&company, &title, location.as_deref(), &url);
+            let hash2 = GreenhouseScraper::compute_hash(&company, &title, location.as_deref(), &url);
+
+            prop_assert_eq!(hash1, hash2, "Hash should be deterministic");
+            prop_assert_eq!(hash1.len(), 64, "Hash should be 64 hex chars");
+        }
+
+        /// Property: Hash format is always valid
+        /// All hashes should be exactly 64 hexadecimal characters
+        #[test]
+        fn prop_hash_format_valid(
+            company in "\\PC*",
+            title in "\\PC*",
+            location in proptest::option::of("\\PC*"),
+            url in "\\PC*",
+        ) {
+            let hash = GreenhouseScraper::compute_hash(&company, &title, location.as_deref(), &url);
+
+            prop_assert_eq!(hash.len(), 64, "Hash length should be 64");
+            prop_assert!(hash.chars().all(|c| c.is_ascii_hexdigit()), "Hash should only contain hex chars");
+        }
+
+        /// Property: Different companies produce different hashes
+        /// Changing only the company name should change the hash
+        #[test]
+        fn prop_hash_company_sensitivity(
+            company1 in "\\PC{1,100}",
+            company2 in "\\PC{1,100}",
+            title in "\\PC{1,200}",
+            url in "https?://[a-z0-9./]+",
+        ) {
+            prop_assume!(company1 != company2);
+
+            let hash1 = GreenhouseScraper::compute_hash(&company1, &title, None, &url);
+            let hash2 = GreenhouseScraper::compute_hash(&company2, &title, None, &url);
+
+            prop_assert_ne!(hash1, hash2, "Different companies should produce different hashes");
+        }
+
+        /// Property: Different titles produce different hashes
+        /// Changing only the title should change the hash
+        #[test]
+        fn prop_hash_title_sensitivity(
+            company in "\\PC{1,100}",
+            title1 in "\\PC{1,200}",
+            title2 in "\\PC{1,200}",
+            url in "https?://[a-z0-9./]+",
+        ) {
+            prop_assume!(title1 != title2);
+
+            let hash1 = GreenhouseScraper::compute_hash(&company, &title1, None, &url);
+            let hash2 = GreenhouseScraper::compute_hash(&company, &title2, None, &url);
+
+            prop_assert_ne!(hash1, hash2, "Different titles should produce different hashes");
+        }
+
+        /// Property: Different URLs produce different hashes
+        /// Changing only the URL should change the hash
+        #[test]
+        fn prop_hash_url_sensitivity(
+            company in "\\PC{1,100}",
+            title in "\\PC{1,200}",
+            url1 in "https?://[a-z0-9./]+",
+            url2 in "https?://[a-z0-9./]+",
+        ) {
+            prop_assume!(url1 != url2);
+
+            let hash1 = GreenhouseScraper::compute_hash(&company, &title, None, &url1);
+            let hash2 = GreenhouseScraper::compute_hash(&company, &title, None, &url2);
+
+            prop_assert_ne!(hash1, hash2, "Different URLs should produce different hashes");
+        }
+
+        /// Property: Location presence affects hash
+        /// None vs Some(location) should produce different hashes
+        #[test]
+        fn prop_hash_location_none_vs_some(
+            company in "\\PC{1,100}",
+            title in "\\PC{1,200}",
+            location in "\\PC{1,100}",
+            url in "https?://[a-z0-9./]+",
+        ) {
+            let hash_none = GreenhouseScraper::compute_hash(&company, &title, None, &url);
+            let hash_some = GreenhouseScraper::compute_hash(&company, &title, Some(&location), &url);
+
+            prop_assert_ne!(hash_none, hash_some, "None vs Some location should produce different hashes");
+        }
+
+        /// Property: Hash handles all valid Unicode
+        /// Hash should work with any UTF-8 string including emoji and special chars
+        #[test]
+        fn prop_hash_unicode_safe(
+            company in "[\\PC🦀™®]{1,50}",
+            title in "[\\PC🚀💼]{1,100}",
+            location in proptest::option::of("[\\PC🌍]{1,50}"),
+            url in "\\PC{1,200}",
+        ) {
+            let hash = GreenhouseScraper::compute_hash(&company, &title, location.as_deref(), &url);
+
+            prop_assert_eq!(hash.len(), 64);
+            prop_assert!(hash.chars().all(|c| c.is_ascii_hexdigit()));
+        }
+    }
 }
