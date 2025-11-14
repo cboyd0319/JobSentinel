@@ -317,3 +317,508 @@ impl Config {
         crate::platforms::get_config_dir().join("config.json")
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs;
+    use tempfile::TempDir;
+
+    /// Helper function to create a valid test config
+    fn create_valid_config() -> Config {
+        Config {
+            title_allowlist: vec!["Security Engineer".to_string()],
+            title_blocklist: vec!["Manager".to_string()],
+            keywords_boost: vec!["Rust".to_string(), "Kubernetes".to_string()],
+            keywords_exclude: vec!["sales".to_string()],
+            location_preferences: LocationPreferences {
+                allow_remote: true,
+                allow_hybrid: false,
+                allow_onsite: false,
+                cities: vec!["San Francisco".to_string()],
+                states: vec!["CA".to_string()],
+                country: "US".to_string(),
+            },
+            salary_floor_usd: 150000,
+            immediate_alert_threshold: 0.9,
+            scraping_interval_hours: 2,
+            alerts: AlertConfig {
+                slack: SlackConfig {
+                    enabled: true,
+                    webhook_url: "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX".to_string(),
+                },
+            },
+            greenhouse_urls: vec!["https://boards.greenhouse.io/cloudflare".to_string()],
+            lever_urls: vec!["https://jobs.lever.co/netflix".to_string()],
+        }
+    }
+
+    #[test]
+    fn test_valid_config_passes_validation() {
+        let config = create_valid_config();
+        assert!(config.validate().is_ok(), "Valid config should pass validation");
+    }
+
+    #[test]
+    fn test_negative_salary_floor_fails() {
+        let mut config = create_valid_config();
+        config.salary_floor_usd = -1000;
+
+        let result = config.validate();
+        assert!(result.is_err(), "Negative salary should fail validation");
+        assert!(result.unwrap_err().to_string().contains("negative"));
+    }
+
+    #[test]
+    fn test_excessive_salary_floor_fails() {
+        let mut config = create_valid_config();
+        config.salary_floor_usd = 15_000_000; // Over $10M limit
+
+        let result = config.validate();
+        assert!(result.is_err(), "Excessive salary should fail validation");
+        assert!(result.unwrap_err().to_string().contains("exceeds reasonable limit"));
+    }
+
+    #[test]
+    fn test_salary_floor_at_boundary_passes() {
+        let mut config = create_valid_config();
+        config.salary_floor_usd = 10_000_000; // Exactly $10M
+
+        assert!(config.validate().is_ok(), "Salary at $10M boundary should pass");
+    }
+
+    #[test]
+    fn test_zero_salary_floor_passes() {
+        let mut config = create_valid_config();
+        config.salary_floor_usd = 0;
+
+        assert!(config.validate().is_ok(), "Zero salary floor should pass");
+    }
+
+    #[test]
+    fn test_alert_threshold_too_low_fails() {
+        let mut config = create_valid_config();
+        config.immediate_alert_threshold = -0.1;
+
+        let result = config.validate();
+        assert!(result.is_err(), "Alert threshold < 0.0 should fail");
+        assert!(result.unwrap_err().to_string().contains("between 0.0 and 1.0"));
+    }
+
+    #[test]
+    fn test_alert_threshold_too_high_fails() {
+        let mut config = create_valid_config();
+        config.immediate_alert_threshold = 1.5;
+
+        let result = config.validate();
+        assert!(result.is_err(), "Alert threshold > 1.0 should fail");
+        assert!(result.unwrap_err().to_string().contains("between 0.0 and 1.0"));
+    }
+
+    #[test]
+    fn test_alert_threshold_at_boundaries_passes() {
+        let mut config = create_valid_config();
+
+        // Test lower boundary
+        config.immediate_alert_threshold = 0.0;
+        assert!(config.validate().is_ok(), "Alert threshold 0.0 should pass");
+
+        // Test upper boundary
+        config.immediate_alert_threshold = 1.0;
+        assert!(config.validate().is_ok(), "Alert threshold 1.0 should pass");
+    }
+
+    #[test]
+    fn test_scraping_interval_too_low_fails() {
+        let mut config = create_valid_config();
+        config.scraping_interval_hours = 0;
+
+        let result = config.validate();
+        assert!(result.is_err(), "Scraping interval < 1 hour should fail");
+        assert!(result.unwrap_err().to_string().contains("at least 1 hour"));
+    }
+
+    #[test]
+    fn test_scraping_interval_too_high_fails() {
+        let mut config = create_valid_config();
+        config.scraping_interval_hours = 169; // Over 1 week
+
+        let result = config.validate();
+        assert!(result.is_err(), "Scraping interval > 168 hours should fail");
+        assert!(result.unwrap_err().to_string().contains("cannot exceed 168 hours"));
+    }
+
+    #[test]
+    fn test_scraping_interval_at_boundaries_passes() {
+        let mut config = create_valid_config();
+
+        // Test lower boundary
+        config.scraping_interval_hours = 1;
+        assert!(config.validate().is_ok(), "Scraping interval 1 hour should pass");
+
+        // Test upper boundary
+        config.scraping_interval_hours = 168;
+        assert!(config.validate().is_ok(), "Scraping interval 168 hours should pass");
+    }
+
+    #[test]
+    fn test_empty_title_in_allowlist_fails() {
+        let mut config = create_valid_config();
+        config.title_allowlist = vec!["Valid Title".to_string(), "".to_string()];
+
+        let result = config.validate();
+        assert!(result.is_err(), "Empty title in allowlist should fail");
+        assert!(result.unwrap_err().to_string().contains("empty strings"));
+    }
+
+    #[test]
+    fn test_title_too_long_fails() {
+        let mut config = create_valid_config();
+        config.title_allowlist = vec!["a".repeat(201)]; // Over 200 char limit
+
+        let result = config.validate();
+        assert!(result.is_err(), "Title > 200 chars should fail");
+        assert!(result.unwrap_err().to_string().contains("Title too long"));
+    }
+
+    #[test]
+    fn test_too_many_titles_in_allowlist_fails() {
+        let mut config = create_valid_config();
+        config.title_allowlist = (0..501).map(|i| format!("Title {}", i)).collect();
+
+        let result = config.validate();
+        assert!(result.is_err(), "More than 500 titles should fail");
+        assert!(result.unwrap_err().to_string().contains("Too many title allowlist"));
+    }
+
+    #[test]
+    fn test_title_blocklist_too_long_fails() {
+        let mut config = create_valid_config();
+        config.title_blocklist = vec!["b".repeat(201)];
+
+        let result = config.validate();
+        assert!(result.is_err(), "Blocklist title > 200 chars should fail");
+        assert!(result.unwrap_err().to_string().contains("Title too long"));
+    }
+
+    #[test]
+    fn test_too_many_titles_in_blocklist_fails() {
+        let mut config = create_valid_config();
+        config.title_blocklist = (0..501).map(|i| format!("Block {}", i)).collect();
+
+        let result = config.validate();
+        assert!(result.is_err(), "More than 500 blocked titles should fail");
+        assert!(result.unwrap_err().to_string().contains("Too many title blocklist"));
+    }
+
+    #[test]
+    fn test_empty_keyword_in_boost_fails() {
+        let mut config = create_valid_config();
+        config.keywords_boost = vec!["Rust".to_string(), "".to_string()];
+
+        let result = config.validate();
+        assert!(result.is_err(), "Empty keyword in boost should fail");
+        assert!(result.unwrap_err().to_string().contains("Keywords boost cannot contain empty"));
+    }
+
+    #[test]
+    fn test_keyword_boost_too_long_fails() {
+        let mut config = create_valid_config();
+        config.keywords_boost = vec!["k".repeat(101)]; // Over 100 char limit
+
+        let result = config.validate();
+        assert!(result.is_err(), "Keyword > 100 chars should fail");
+        assert!(result.unwrap_err().to_string().contains("Keyword too long"));
+    }
+
+    #[test]
+    fn test_too_many_keywords_boost_fails() {
+        let mut config = create_valid_config();
+        config.keywords_boost = (0..501).map(|i| format!("Keyword{}", i)).collect();
+
+        let result = config.validate();
+        assert!(result.is_err(), "More than 500 boost keywords should fail");
+        assert!(result.unwrap_err().to_string().contains("Too many keywords boost"));
+    }
+
+    #[test]
+    fn test_empty_keyword_in_exclude_fails() {
+        let mut config = create_valid_config();
+        config.keywords_exclude = vec!["sales".to_string(), "".to_string()];
+
+        let result = config.validate();
+        assert!(result.is_err(), "Empty keyword in exclude should fail");
+        assert!(result.unwrap_err().to_string().contains("Keywords exclude cannot contain empty"));
+    }
+
+    #[test]
+    fn test_keyword_exclude_too_long_fails() {
+        let mut config = create_valid_config();
+        config.keywords_exclude = vec!["x".repeat(101)];
+
+        let result = config.validate();
+        assert!(result.is_err(), "Exclude keyword > 100 chars should fail");
+        assert!(result.unwrap_err().to_string().contains("Keyword too long"));
+    }
+
+    #[test]
+    fn test_too_many_keywords_exclude_fails() {
+        let mut config = create_valid_config();
+        config.keywords_exclude = (0..501).map(|i| format!("Exclude{}", i)).collect();
+
+        let result = config.validate();
+        assert!(result.is_err(), "More than 500 exclude keywords should fail");
+        assert!(result.unwrap_err().to_string().contains("Too many keywords exclude"));
+    }
+
+    #[test]
+    fn test_city_name_too_long_fails() {
+        let mut config = create_valid_config();
+        config.location_preferences.cities = vec!["c".repeat(101)]; // Over 100 char limit
+
+        let result = config.validate();
+        assert!(result.is_err(), "City name > 100 chars should fail");
+        assert!(result.unwrap_err().to_string().contains("City name too long"));
+    }
+
+    #[test]
+    fn test_too_many_cities_fails() {
+        let mut config = create_valid_config();
+        config.location_preferences.cities = (0..501).map(|i| format!("City{}", i)).collect();
+
+        let result = config.validate();
+        assert!(result.is_err(), "More than 500 cities should fail");
+        assert!(result.unwrap_err().to_string().contains("Too many cities"));
+    }
+
+    #[test]
+    fn test_state_name_too_long_fails() {
+        let mut config = create_valid_config();
+        config.location_preferences.states = vec!["s".repeat(51)]; // Over 50 char limit
+
+        let result = config.validate();
+        assert!(result.is_err(), "State name > 50 chars should fail");
+        assert!(result.unwrap_err().to_string().contains("State name too long"));
+    }
+
+    #[test]
+    fn test_too_many_states_fails() {
+        let mut config = create_valid_config();
+        config.location_preferences.states = (0..501).map(|i| format!("ST{}", i)).collect();
+
+        let result = config.validate();
+        assert!(result.is_err(), "More than 500 states should fail");
+        assert!(result.unwrap_err().to_string().contains("Too many states"));
+    }
+
+    #[test]
+    fn test_country_name_too_long_fails() {
+        let mut config = create_valid_config();
+        config.location_preferences.country = "c".repeat(51); // Over 50 char limit
+
+        let result = config.validate();
+        assert!(result.is_err(), "Country name > 50 chars should fail");
+        assert!(result.unwrap_err().to_string().contains("Country name too long"));
+    }
+
+    #[test]
+    fn test_slack_enabled_but_empty_webhook_fails() {
+        let mut config = create_valid_config();
+        config.alerts.slack.enabled = true;
+        config.alerts.slack.webhook_url = "".to_string();
+
+        let result = config.validate();
+        assert!(result.is_err(), "Empty webhook URL when Slack enabled should fail");
+        assert!(result.unwrap_err().to_string().contains("webhook URL is required"));
+    }
+
+    #[test]
+    fn test_slack_disabled_with_empty_webhook_passes() {
+        let mut config = create_valid_config();
+        config.alerts.slack.enabled = false;
+        config.alerts.slack.webhook_url = "".to_string();
+
+        assert!(config.validate().is_ok(), "Empty webhook URL when Slack disabled should pass");
+    }
+
+    #[test]
+    fn test_invalid_slack_webhook_format_fails() {
+        let mut config = create_valid_config();
+        config.alerts.slack.webhook_url = "https://evil.com/webhook".to_string();
+
+        let result = config.validate();
+        assert!(result.is_err(), "Invalid Slack webhook format should fail");
+        assert!(result.unwrap_err().to_string().contains("Invalid Slack webhook URL format"));
+    }
+
+    #[test]
+    fn test_slack_webhook_too_long_fails() {
+        let mut config = create_valid_config();
+        config.alerts.slack.webhook_url = format!("https://hooks.slack.com/services/{}", "X".repeat(500));
+
+        let result = config.validate();
+        assert!(result.is_err(), "Webhook URL > 500 chars should fail");
+        assert!(result.unwrap_err().to_string().contains("Webhook URL too long"));
+    }
+
+    #[test]
+    fn test_empty_greenhouse_url_fails() {
+        let mut config = create_valid_config();
+        config.greenhouse_urls = vec!["".to_string()];
+
+        let result = config.validate();
+        assert!(result.is_err(), "Empty Greenhouse URL should fail");
+        assert!(result.unwrap_err().to_string().contains("Greenhouse URLs cannot be empty"));
+    }
+
+    #[test]
+    fn test_invalid_greenhouse_url_prefix_fails() {
+        let mut config = create_valid_config();
+        config.greenhouse_urls = vec!["https://wrongsite.com/company".to_string()];
+
+        let result = config.validate();
+        assert!(result.is_err(), "Invalid Greenhouse URL prefix should fail");
+        assert!(result.unwrap_err().to_string().contains("Invalid Greenhouse URL format"));
+    }
+
+    #[test]
+    fn test_greenhouse_url_too_long_fails() {
+        let mut config = create_valid_config();
+        config.greenhouse_urls = vec![format!("https://boards.greenhouse.io/{}", "x".repeat(500))];
+
+        let result = config.validate();
+        assert!(result.is_err(), "Greenhouse URL > 500 chars should fail");
+        assert!(result.unwrap_err().to_string().contains("Greenhouse URL too long"));
+    }
+
+    #[test]
+    fn test_too_many_greenhouse_urls_fails() {
+        let mut config = create_valid_config();
+        config.greenhouse_urls = (0..101)
+            .map(|i| format!("https://boards.greenhouse.io/company{}", i))
+            .collect();
+
+        let result = config.validate();
+        assert!(result.is_err(), "More than 100 Greenhouse URLs should fail");
+        assert!(result.unwrap_err().to_string().contains("Too many Greenhouse URLs"));
+    }
+
+    #[test]
+    fn test_empty_lever_url_fails() {
+        let mut config = create_valid_config();
+        config.lever_urls = vec!["".to_string()];
+
+        let result = config.validate();
+        assert!(result.is_err(), "Empty Lever URL should fail");
+        assert!(result.unwrap_err().to_string().contains("Lever URLs cannot be empty"));
+    }
+
+    #[test]
+    fn test_invalid_lever_url_prefix_fails() {
+        let mut config = create_valid_config();
+        config.lever_urls = vec!["https://wrongsite.com/company".to_string()];
+
+        let result = config.validate();
+        assert!(result.is_err(), "Invalid Lever URL prefix should fail");
+        assert!(result.unwrap_err().to_string().contains("Invalid Lever URL format"));
+    }
+
+    #[test]
+    fn test_lever_url_too_long_fails() {
+        let mut config = create_valid_config();
+        config.lever_urls = vec![format!("https://jobs.lever.co/{}", "y".repeat(500))];
+
+        let result = config.validate();
+        assert!(result.is_err(), "Lever URL > 500 chars should fail");
+        assert!(result.unwrap_err().to_string().contains("Lever URL too long"));
+    }
+
+    #[test]
+    fn test_too_many_lever_urls_fails() {
+        let mut config = create_valid_config();
+        config.lever_urls = (0..101)
+            .map(|i| format!("https://jobs.lever.co/company{}", i))
+            .collect();
+
+        let result = config.validate();
+        assert!(result.is_err(), "More than 100 Lever URLs should fail");
+        assert!(result.unwrap_err().to_string().contains("Too many Lever URLs"));
+    }
+
+    #[test]
+    fn test_save_and_load_config_roundtrip() {
+        let temp_dir = TempDir::new().expect("Failed to create temp dir");
+        let config_path = temp_dir.path().join("config.json");
+
+        let original_config = create_valid_config();
+
+        // Save config
+        original_config.save(&config_path).expect("Failed to save config");
+
+        // Verify file exists
+        assert!(config_path.exists(), "Config file should exist after save");
+
+        // Load config back
+        let loaded_config = Config::load(&config_path).expect("Failed to load config");
+
+        // Verify key fields match
+        assert_eq!(loaded_config.title_allowlist, original_config.title_allowlist);
+        assert_eq!(loaded_config.salary_floor_usd, original_config.salary_floor_usd);
+        assert_eq!(loaded_config.immediate_alert_threshold, original_config.immediate_alert_threshold);
+        assert_eq!(loaded_config.greenhouse_urls, original_config.greenhouse_urls);
+    }
+
+    #[test]
+    fn test_save_creates_parent_directories() {
+        let temp_dir = TempDir::new().expect("Failed to create temp dir");
+        let config_path = temp_dir.path().join("nested").join("dirs").join("config.json");
+
+        let config = create_valid_config();
+
+        // Save should create nested directories
+        config.save(&config_path).expect("Failed to save config to nested path");
+
+        assert!(config_path.exists(), "Config file should exist in nested directories");
+    }
+
+    #[test]
+    fn test_load_invalid_json_fails() {
+        let temp_dir = TempDir::new().expect("Failed to create temp dir");
+        let config_path = temp_dir.path().join("invalid.json");
+
+        // Write invalid JSON
+        fs::write(&config_path, "{ this is not valid JSON }").expect("Failed to write file");
+
+        let result = Config::load(&config_path);
+        assert!(result.is_err(), "Loading invalid JSON should fail");
+    }
+
+    #[test]
+    fn test_load_nonexistent_file_fails() {
+        let temp_dir = TempDir::new().expect("Failed to create temp dir");
+        let config_path = temp_dir.path().join("nonexistent.json");
+
+        let result = Config::load(&config_path);
+        assert!(result.is_err(), "Loading nonexistent file should fail");
+    }
+
+    #[test]
+    fn test_save_invalid_config_fails() {
+        let temp_dir = TempDir::new().expect("Failed to create temp dir");
+        let config_path = temp_dir.path().join("config.json");
+
+        let mut config = create_valid_config();
+        config.salary_floor_usd = -1000; // Make it invalid
+
+        let result = config.save(&config_path);
+        assert!(result.is_err(), "Saving invalid config should fail");
+    }
+
+    #[test]
+    fn test_default_values() {
+        // Test that default functions return expected values
+        assert_eq!(default_immediate_threshold(), 0.9);
+        assert_eq!(default_scraping_interval(), 2);
+        assert_eq!(default_country(), "US");
+    }
+}
