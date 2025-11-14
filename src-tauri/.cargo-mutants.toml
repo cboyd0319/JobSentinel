@@ -1,0 +1,67 @@
+# cargo-mutants configuration
+#
+# Mutation testing helps verify that tests actually catch bugs by introducing
+# intentional mutations to the code and checking if tests fail.
+#
+# Install: cargo install cargo-mutants
+# Run: cargo mutants
+#
+# See: https://mutants.rs/
+
+# Minimum timeout multiplier for each test
+timeout_multiplier = 5.0
+
+# Exclude files/modules from mutation testing
+exclude_globs = [
+    # Skip test files themselves
+    "tests/**",
+    "**/tests/**",
+
+    # Skip generated code
+    "gen/**",
+    "target/**",
+
+    # Skip platform-specific code (tested on specific platforms only)
+    "src/platforms/windows/**",
+    "src/platforms/linux/**",
+]
+
+# Only test specific modules (comment out to test everything)
+# test_only = [
+#     "core::config",
+#     "core::db",
+#     "core::scoring",
+# ]
+
+# Test each file in isolation for faster feedback
+#isolate_tests = true
+
+# Show caught mutants (ones that tests successfully detected)
+show_caught = false
+
+# Show missed mutants (potential gaps in test coverage)
+show_missed = true
+
+# Show unviable mutants (syntax errors, etc.)
+show_unviable = false
+
+# Number of jobs to run in parallel (default: number of CPUs)
+# jobs = 4
+
+# Skip functions matching these patterns
+exclude_functions = [
+    # Skip simple getters
+    "::new",
+    "::clone",
+    "::default",
+
+    # Skip debug/display impls
+    "::fmt",
+
+    # Skip simple property accessors
+    "::name",
+    "::enabled",
+]
+
+# Additional cargo test arguments
+# test_args = ["--", "--nocapture"]

@@ -176,25 +176,61 @@ impl JobScraper for LeverScraper {
 mod tests {
     use super::*;
 
+    // Remote inference tests
     #[test]
-    fn test_infer_remote() {
-        assert!(LeverScraper::infer_remote(
-            "Software Engineer (Remote)",
-            None
-        ));
-        assert!(LeverScraper::infer_remote(
-            "Backend Developer",
-            Some("Remote")
-        ));
-        assert!(LeverScraper::infer_remote("DevOps - Remote", Some("USA")));
-        assert!(!LeverScraper::infer_remote(
-            "Frontend Engineer",
-            Some("San Francisco")
-        ));
+    fn test_infer_remote_from_title_remote() {
+        assert!(LeverScraper::infer_remote("Software Engineer (Remote)", None));
+        assert!(LeverScraper::infer_remote("REMOTE - Backend Developer", None));
+        assert!(LeverScraper::infer_remote("DevOps Engineer - remote", None));
     }
 
     #[test]
-    fn test_compute_hash() {
+    fn test_infer_remote_from_title_wfh() {
+        assert!(LeverScraper::infer_remote("Frontend Dev (Work From Home)", None));
+        assert!(LeverScraper::infer_remote("WFH - Data Engineer", None));
+    }
+
+    #[test]
+    fn test_infer_remote_from_location_remote() {
+        assert!(LeverScraper::infer_remote("Backend Developer", Some("Remote")));
+        assert!(LeverScraper::infer_remote("Engineer", Some("Remote - US")));
+        assert!(LeverScraper::infer_remote("Developer", Some("REMOTE")));
+    }
+
+    #[test]
+    fn test_infer_remote_from_location_anywhere() {
+        assert!(LeverScraper::infer_remote("Engineer", Some("Anywhere")));
+        assert!(LeverScraper::infer_remote("Developer", Some("anywhere in USA")));
+    }
+
+    #[test]
+    fn test_infer_remote_from_location_worldwide() {
+        assert!(LeverScraper::infer_remote("Engineer", Some("Worldwide")));
+        assert!(LeverScraper::infer_remote("Developer", Some("worldwide - remote")));
+    }
+
+    #[test]
+    fn test_infer_remote_false_for_onsite() {
+        assert!(!LeverScraper::infer_remote("Frontend Engineer", Some("San Francisco")));
+        assert!(!LeverScraper::infer_remote("Backend Dev", Some("New York, NY")));
+        assert!(!LeverScraper::infer_remote("DevOps", Some("Seattle")));
+    }
+
+    #[test]
+    fn test_infer_remote_false_no_indicators() {
+        assert!(!LeverScraper::infer_remote("Software Engineer", None));
+        assert!(!LeverScraper::infer_remote("Data Scientist", Some("Boston")));
+    }
+
+    #[test]
+    fn test_infer_remote_case_insensitive() {
+        assert!(LeverScraper::infer_remote("Engineer (REMOTE)", None));
+        assert!(LeverScraper::infer_remote("Dev", Some("ReMoTe")));
+    }
+
+    // Hash computation tests
+    #[test]
+    fn test_compute_hash_deterministic() {
         let hash1 = LeverScraper::compute_hash(
             "Shopify",
             "Engineer",
@@ -207,10 +243,184 @@ mod tests {
             Some("Remote"),
             "https://example.com/1",
         );
-        let hash3 =
-            LeverScraper::compute_hash("Shopify", "Engineer", Some("SF"), "https://example.com/1");
 
-        assert_eq!(hash1, hash2);
-        assert_ne!(hash1, hash3);
+        assert_eq!(hash1, hash2, "Same inputs should produce same hash");
+        assert_eq!(hash1.len(), 64, "SHA-256 hash should be 64 hex chars");
+    }
+
+    #[test]
+    fn test_compute_hash_different_company() {
+        let hash1 = LeverScraper::compute_hash("Shopify", "Engineer", None, "https://example.com/1");
+        let hash2 = LeverScraper::compute_hash("Netflix", "Engineer", None, "https://example.com/1");
+
+        assert_ne!(hash1, hash2, "Different company should produce different hash");
+    }
+
+    #[test]
+    fn test_compute_hash_different_title() {
+        let hash1 = LeverScraper::compute_hash("Company", "Frontend Engineer", None, "https://example.com/1");
+        let hash2 = LeverScraper::compute_hash("Company", "Backend Engineer", None, "https://example.com/1");
+
+        assert_ne!(hash1, hash2, "Different title should produce different hash");
+    }
+
+    #[test]
+    fn test_compute_hash_different_location() {
+        let hash1 = LeverScraper::compute_hash("Company", "Engineer", Some("Remote"), "https://example.com/1");
+        let hash2 = LeverScraper::compute_hash("Company", "Engineer", Some("SF"), "https://example.com/1");
+
+        assert_ne!(hash1, hash2, "Different location should produce different hash");
+    }
+
+    #[test]
+    fn test_compute_hash_location_none_vs_some() {
+        let hash1 = LeverScraper::compute_hash("Company", "Engineer", None, "https://example.com/1");
+        let hash2 = LeverScraper::compute_hash("Company", "Engineer", Some("Remote"), "https://example.com/1");
+
+        assert_ne!(hash1, hash2, "None location should differ from Some");
+    }
+
+    #[test]
+    fn test_compute_hash_different_url() {
+        let hash1 = LeverScraper::compute_hash("Company", "Engineer", None, "https://example.com/1");
+        let hash2 = LeverScraper::compute_hash("Company", "Engineer", None, "https://example.com/2");
+
+        assert_ne!(hash1, hash2, "Different URL should produce different hash");
+    }
+
+    #[test]
+    fn test_compute_hash_empty_strings() {
+        let hash = LeverScraper::compute_hash("", "", None, "");
+        assert_eq!(hash.len(), 64, "Hash of empty strings should still be valid");
+    }
+
+    #[test]
+    fn test_compute_hash_special_characters() {
+        let hash = LeverScraper::compute_hash(
+            "Company™",
+            "Senior Engineer (Remote) 🚀",
+            Some("San Francisco, CA"),
+            "https://jobs.lever.co/company/job-id?ref=test&utm_source=linkedin",
+        );
+
+        assert_eq!(hash.len(), 64, "Hash should handle special characters");
+    }
+
+    // Scraper initialization tests
+    #[test]
+    fn test_scraper_name() {
+        let scraper = LeverScraper::new(vec![]);
+        assert_eq!(scraper.name(), "lever");
+    }
+
+    #[test]
+    fn test_new_scraper_with_companies() {
+        let companies = vec![
+            LeverCompany {
+                id: "shopify".to_string(),
+                name: "Shopify".to_string(),
+                url: "https://jobs.lever.co/shopify".to_string(),
+            },
+            LeverCompany {
+                id: "netflix".to_string(),
+                name: "Netflix".to_string(),
+                url: "https://jobs.lever.co/netflix".to_string(),
+            },
+        ];
+
+        let scraper = LeverScraper::new(companies.clone());
+
+        assert_eq!(scraper.companies.len(), 2);
+        assert_eq!(scraper.companies[0].name, "Shopify");
+        assert_eq!(scraper.companies[1].name, "Netflix");
+        assert_eq!(scraper.companies[0].id, "shopify");
+    }
+
+    #[test]
+    fn test_new_scraper_empty() {
+        let scraper = LeverScraper::new(vec![]);
+        assert_eq!(scraper.companies.len(), 0);
+    }
+
+    // ========================================
+    // Property-Based Tests
+    // ========================================
+
+    use proptest::prelude::*;
+
+    proptest! {
+        /// Property: Hash function is deterministic
+        #[test]
+        fn prop_hash_deterministic(
+            company in "\\PC{1,100}",
+            title in "\\PC{1,200}",
+            location in proptest::option::of("\\PC{1,100}"),
+            url in "https?://[a-z0-9./]+",
+        ) {
+            let hash1 = LeverScraper::compute_hash(&company, &title, location.as_deref(), &url);
+            let hash2 = LeverScraper::compute_hash(&company, &title, location.as_deref(), &url);
+
+            prop_assert_eq!(hash1, hash2);
+            prop_assert_eq!(hash1.len(), 64);
+        }
+
+        /// Property: Hash collision resistance
+        #[test]
+        fn prop_hash_collision_resistance(
+            company1 in "\\PC{1,100}",
+            company2 in "\\PC{1,100}",
+            title in "\\PC{1,200}",
+            url in "https?://[a-z0-9./]+",
+        ) {
+            prop_assume!(company1 != company2);
+
+            let hash1 = LeverScraper::compute_hash(&company1, &title, None, &url);
+            let hash2 = LeverScraper::compute_hash(&company2, &title, None, &url);
+
+            prop_assert_ne!(hash1, hash2);
+        }
+
+        /// Property: Remote inference from title is case-insensitive
+        #[test]
+        fn prop_remote_inference_case_insensitive(
+            prefix in "(remote|REMOTE|Remote|ReMoTe)",
+            title in "[a-zA-Z ]{5,50}",
+        ) {
+            let full_title = format!("{} {}", prefix, title);
+            prop_assert!(LeverScraper::infer_remote(&full_title, None));
+        }
+
+        /// Property: Remote inference from location handles various "remote" spellings
+        #[test]
+        fn prop_remote_inference_from_location(
+            location in "(Remote|remote|REMOTE|Anywhere|anywhere|Work from home)",
+        ) {
+            prop_assert!(LeverScraper::infer_remote("Engineer", Some(&location)));
+        }
+
+        /// Property: Non-remote titles don't trigger false positives
+        #[test]
+        fn prop_remote_inference_no_false_positives(
+            title in "[a-zA-Z ]{5,50}",
+            location in "(New York|San Francisco|London|Tokyo|Austin)",
+        ) {
+            prop_assume!(!title.to_lowercase().contains("remote"));
+            prop_assume!(!title.to_lowercase().contains("work from home"));
+
+            prop_assert!(!LeverScraper::infer_remote(&title, Some(&location)));
+        }
+
+        /// Property: Hash handles Unicode characters
+        #[test]
+        fn prop_hash_unicode_support(
+            company in "[\\PC🦀]{1,50}",
+            title in "[\\PC💼]{1,100}",
+            url in "\\PC{10,200}",
+        ) {
+            let hash = LeverScraper::compute_hash(&company, &title, None, &url);
+
+            prop_assert_eq!(hash.len(), 64);
+            prop_assert!(hash.chars().all(|c| c.is_ascii_hexdigit()));
+        }
     }
 }
