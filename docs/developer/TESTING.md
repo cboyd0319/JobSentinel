@@ -120,15 +120,19 @@ src-tauri/
 
 | Module | Tests | Coverage |
 |--------|-------|----------|
-| `core/config` | 51 | 100% validation |
+| `core/config` | 69 | 100% validation + 18 properties |
 | `core/db` | 21 | All CRUD + edge cases |
 | `core/notify/slack` | 10 | Webhook + formatting |
 | `commands` | 13 | All Tauri RPC |
 | `core/scoring` | 3 | Happy + edge cases |
-| `core/scrapers/greenhouse` | 12 | Hash computation |
+| `core/scheduler` | 18 | Lifecycle + shutdown + 1 unit |
+| `core/scrapers/greenhouse` | 19 | 12 unit + 7 properties |
+| `core/scrapers/lever` | 30 | 24 unit + 6 properties |
+| `core/scrapers/jobswithgpt` | 26 | 19 unit + 6 properties + 1 legacy |
 | `platforms/macos` | 6 | Paths + initialization |
 | `platforms/windows` | 2 | Paths |
-| **Total** | **118+** | **Comprehensive** |
+| **Integration Tests** | **15** | **Full pipeline** |
+| **Total** | **232** | **Comprehensive** |
 
 ---
 
