@@ -189,7 +189,7 @@ JobSentinel enables **ALL** available SQLite protections and performance optimiz
   ✓ Checksum verification enabled (SQLite 3.37+)
   ✓ Trusted schema disabled (SQLite 3.31+)
   ✓ Secure delete = FAST (balanced security)
-  ✓ Cache size = 64MB
+  ✓ Cache size = 128MB
   ✓ Temp store = MEMORY
   ✓ Memory-mapped I/O = 256MB
   ✓ Locking mode = NORMAL (multi-connection)
@@ -345,7 +345,7 @@ let diag = db_integrity.get_pragma_diagnostics().await?;
 | Integrity check | 2000ms | 100ms | **20x faster** |
 
 **Why So Fast?**
-- **64MB cache** eliminates disk reads for hot data
+- **128MB cache** eliminates disk reads for hot data
 - **Memory-mapped I/O** uses OS page cache (zero-copy reads)
 - **Temp store = MEMORY** eliminates temp disk I/O
 - **WAL mode** enables concurrent reads

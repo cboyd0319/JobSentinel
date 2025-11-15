@@ -187,12 +187,14 @@ impl Database {
         // PERFORMANCE SETTINGS
         // ============================================================
 
-        // Set cache size to 64MB (negative = kilobytes, positive = pages)
+        // Set cache size to 128MB (negative = kilobytes, positive = pages)
         // Larger cache = fewer disk reads = faster queries
-        sqlx::query("PRAGMA cache_size = -64000")
+        // Using 128MB to ensure we have AT LEAST 64MB (with 2x safety margin)
+        const CACHE_SIZE_KB: i64 = -128000; // 128MB in kilobytes
+        sqlx::query(&format!("PRAGMA cache_size = {}", CACHE_SIZE_KB))
             .execute(pool)
             .await?;
-        tracing::debug!("  ✓ Cache size = 64MB");
+        tracing::debug!("  ✓ Cache size = 128MB (AT LEAST 64MB guaranteed)");
 
         // Use memory for temporary tables and indices (much faster)
         // Options: DEFAULT (disk), FILE (disk), MEMORY (RAM) ← WE USE THIS
@@ -321,6 +323,54 @@ impl Database {
         {
             if let Ok(version) = row.get::<String, _>(0) {
                 tracing::info!("  📦 SQLite version: {}", version);
+            }
+        }
+
+        // ============================================================
+        // VALIDATION: Verify Critical Settings
+        // ============================================================
+
+        // Verify cache size is AT LEAST 64MB
+        if let Ok(row) = sqlx::query("PRAGMA cache_size").fetch_one(pool).await {
+            if let Ok(cache_size) = row.get::<i64, _>(0) {
+                let actual_mb = if cache_size < 0 {
+                    // Negative = kilobytes
+                    cache_size.abs() / 1024
+                } else {
+                    // Positive = pages (4KB each typically)
+                    cache_size * 4 / 1024
+                };
+
+                if actual_mb >= 64 {
+                    tracing::debug!("  ✓ Cache size verified: {}MB (>= 64MB ✅)", actual_mb);
+                } else {
+                    tracing::warn!(
+                        "  ⚠️  Cache size only {}MB (< 64MB minimum!)",
+                        actual_mb
+                    );
+                }
+            }
+        }
+
+        // Verify WAL mode is actually enabled
+        if let Ok(row) = sqlx::query("PRAGMA journal_mode").fetch_one(pool).await {
+            if let Ok(mode) = row.get::<String, _>(0) {
+                if mode.eq_ignore_ascii_case("wal") {
+                    tracing::debug!("  ✓ WAL mode verified ✅");
+                } else {
+                    tracing::error!("  ❌ WAL mode NOT enabled (got: {})", mode);
+                }
+            }
+        }
+
+        // Verify foreign keys are enforced
+        if let Ok(row) = sqlx::query("PRAGMA foreign_keys").fetch_one(pool).await {
+            if let Ok(enabled) = row.get::<i64, _>(0) {
+                if enabled == 1 {
+                    tracing::debug!("  ✓ Foreign keys verified ✅");
+                } else {
+                    tracing::error!("  ❌ Foreign keys NOT enabled!");
+                }
             }
         }
 
