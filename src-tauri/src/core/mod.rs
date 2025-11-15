@@ -11,7 +11,9 @@
 //! - `scoring`: Multi-factor job scoring algorithm
 //! - `notify`: Notification services (Slack, email)
 //! - `scheduler`: Job search scheduling and automation
+//! - `ats`: Application Tracking System (Kanban board, reminders)
 
+pub mod ats;
 pub mod config;
 pub mod db;
 pub mod notify;
