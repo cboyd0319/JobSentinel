@@ -84,6 +84,21 @@ fn default_country() -> String {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AlertConfig {
     pub slack: SlackConfig,
+
+    #[serde(default)]
+    pub email: EmailConfig,
+
+    #[serde(default)]
+    pub discord: DiscordConfig,
+
+    #[serde(default)]
+    pub telegram: TelegramConfig,
+
+    #[serde(default)]
+    pub teams: TeamsConfig,
+
+    #[serde(default)]
+    pub desktop: DesktopConfig,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -92,6 +107,108 @@ pub struct SlackConfig {
 
     #[serde(default)]
     pub webhook_url: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct EmailConfig {
+    #[serde(default)]
+    pub enabled: bool,
+
+    /// SMTP server hostname (e.g., "smtp.gmail.com")
+    #[serde(default)]
+    pub smtp_server: String,
+
+    /// SMTP port (typically 587 for STARTTLS, 465 for SSL)
+    #[serde(default = "default_smtp_port")]
+    pub smtp_port: u16,
+
+    /// SMTP username/email
+    #[serde(default)]
+    pub smtp_username: String,
+
+    /// SMTP password or app-specific password
+    #[serde(default)]
+    pub smtp_password: String,
+
+    /// Email address to send from
+    #[serde(default)]
+    pub from_email: String,
+
+    /// Email address(es) to send to
+    #[serde(default)]
+    pub to_emails: Vec<String>,
+
+    /// Use STARTTLS (true for port 587, false for port 465)
+    #[serde(default = "default_use_starttls")]
+    pub use_starttls: bool,
+}
+
+fn default_smtp_port() -> u16 {
+    587
+}
+
+fn default_use_starttls() -> bool {
+    true
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct DiscordConfig {
+    #[serde(default)]
+    pub enabled: bool,
+
+    /// Discord webhook URL
+    #[serde(default)]
+    pub webhook_url: String,
+
+    /// Optional: Discord user ID to mention in notifications
+    #[serde(default)]
+    pub user_id_to_mention: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct TelegramConfig {
+    #[serde(default)]
+    pub enabled: bool,
+
+    /// Telegram Bot API token
+    #[serde(default)]
+    pub bot_token: String,
+
+    /// Telegram chat ID to send messages to
+    #[serde(default)]
+    pub chat_id: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct TeamsConfig {
+    #[serde(default)]
+    pub enabled: bool,
+
+    /// Microsoft Teams webhook URL
+    #[serde(default)]
+    pub webhook_url: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct DesktopConfig {
+    #[serde(default = "default_desktop_enabled")]
+    pub enabled: bool,
+
+    /// Show desktop notifications even if app is focused
+    #[serde(default)]
+    pub show_when_focused: bool,
+
+    /// Play sound with notifications
+    #[serde(default = "default_play_sound")]
+    pub play_sound: bool,
+}
+
+fn default_desktop_enabled() -> bool {
+    true
+}
+
+fn default_play_sound() -> bool {
+    true
 }
 
 impl Config {
@@ -266,6 +383,97 @@ impl Config {
             }
         }
 
+        // Validate Email configuration if enabled
+        if self.alerts.email.enabled {
+            if self.alerts.email.smtp_server.is_empty() {
+                return Err("SMTP server is required when email alerts are enabled".into());
+            }
+            if self.alerts.email.smtp_server.len() > 100 {
+                return Err("SMTP server name too long (max: 100 chars)".into());
+            }
+            if self.alerts.email.smtp_username.is_empty() {
+                return Err("SMTP username is required when email alerts are enabled".into());
+            }
+            if self.alerts.email.smtp_password.is_empty() {
+                return Err("SMTP password is required when email alerts are enabled".into());
+            }
+            if self.alerts.email.from_email.is_empty() {
+                return Err("From email address is required when email alerts are enabled".into());
+            }
+            if !self.alerts.email.from_email.contains('@') {
+                return Err("Invalid from email format".into());
+            }
+            if self.alerts.email.to_emails.is_empty() {
+                return Err("At least one recipient email is required when email alerts are enabled".into());
+            }
+            for email in &self.alerts.email.to_emails {
+                if email.is_empty() {
+                    return Err("Recipient email cannot be empty".into());
+                }
+                if !email.contains('@') {
+                    return Err(format!("Invalid recipient email format: {}", email).into());
+                }
+                if email.len() > 100 {
+                    return Err("Recipient email too long (max: 100 chars)".into());
+                }
+            }
+        }
+
+        // Validate Discord webhook if enabled
+        if self.alerts.discord.enabled {
+            if self.alerts.discord.webhook_url.is_empty() {
+                return Err("Discord webhook URL is required when Discord alerts are enabled".into());
+            }
+            if self.alerts.discord.webhook_url.len() > MAX_WEBHOOK_URL_LENGTH {
+                return Err(format!(
+                    "Discord webhook URL too long (max: {} chars)",
+                    MAX_WEBHOOK_URL_LENGTH
+                )
+                .into());
+            }
+            if !self.alerts.discord.webhook_url.starts_with("https://discord.com/api/webhooks/")
+                && !self.alerts.discord.webhook_url.starts_with("https://discordapp.com/api/webhooks/")
+            {
+                return Err("Invalid Discord webhook URL format".into());
+            }
+        }
+
+        // Validate Telegram configuration if enabled
+        if self.alerts.telegram.enabled {
+            if self.alerts.telegram.bot_token.is_empty() {
+                return Err("Telegram bot token is required when Telegram alerts are enabled".into());
+            }
+            if self.alerts.telegram.bot_token.len() > 100 {
+                return Err("Telegram bot token too long (max: 100 chars)".into());
+            }
+            if self.alerts.telegram.chat_id.is_empty() {
+                return Err("Telegram chat ID is required when Telegram alerts are enabled".into());
+            }
+            if self.alerts.telegram.chat_id.len() > 50 {
+                return Err("Telegram chat ID too long (max: 50 chars)".into());
+            }
+        }
+
+        // Validate Teams webhook if enabled
+        if self.alerts.teams.enabled {
+            if self.alerts.teams.webhook_url.is_empty() {
+                return Err("Teams webhook URL is required when Teams alerts are enabled".into());
+            }
+            if self.alerts.teams.webhook_url.len() > MAX_WEBHOOK_URL_LENGTH {
+                return Err(format!(
+                    "Teams webhook URL too long (max: {} chars)",
+                    MAX_WEBHOOK_URL_LENGTH
+                )
+                .into());
+            }
+            // Teams webhooks can be either outlook.office.com or outlook.office365.com
+            if !self.alerts.teams.webhook_url.starts_with("https://outlook.office.com/webhook/")
+                && !self.alerts.teams.webhook_url.starts_with("https://outlook.office365.com/webhook/")
+            {
+                return Err("Invalid Teams webhook URL format".into());
+            }
+        }
+
         // Validate Greenhouse URLs
         const MAX_COMPANY_URLS: usize = 100;
         const MAX_URL_LENGTH: usize = 500;
@@ -347,6 +555,11 @@ mod tests {
                     enabled: true,
                     webhook_url: "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX".to_string(),
                 },
+                email: EmailConfig::default(),
+                discord: DiscordConfig::default(),
+                telegram: TelegramConfig::default(),
+                teams: TeamsConfig::default(),
+                desktop: DesktopConfig::default(),
             },
             greenhouse_urls: vec!["https://boards.greenhouse.io/cloudflare".to_string()],
             lever_urls: vec!["https://jobs.lever.co/netflix".to_string()],

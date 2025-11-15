@@ -7,8 +7,11 @@ use anyhow::Result;
 use async_trait::async_trait;
 
 pub mod greenhouse;
+pub mod indeed;
 pub mod jobswithgpt;
 pub mod lever;
+pub mod linkedin;
+pub mod rate_limiter;
 
 /// Scraper result using anyhow for automatic Send + Sync
 pub type ScraperResult = Result<Vec<Job>>;

@@ -37,6 +37,12 @@ url = "2.5"
 # HTML Parsing
 scraper = "0.21"
 
+# URL encoding for query parameters
+urlencoding = "2.1"
+
+# Regular expressions for pattern matching
+regex = "1.10"
+
 # Database
 sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "sqlite", "migrate", "chrono"] }
 
@@ -63,6 +69,12 @@ hex = "0.4"
 
 # Platform directories
 dirs = "5.0"
+
+# Email notifications (SMTP)
+lettre = { version = "0.11", features = ["tokio1-rustls-tls", "builder", "smtp-transport"] }
+
+# PDF parsing for resume extraction
+pdf-extract = "0.7"
 
 [target.'cfg(windows)'.dependencies]
 windows = { version = "0.58", features = ["Win32_Foundation", "Win32_System_Threading"] }
