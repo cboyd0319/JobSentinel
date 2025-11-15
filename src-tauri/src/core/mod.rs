@@ -13,8 +13,10 @@
 //! - `scheduler`: Job search scheduling and automation
 //! - `ats`: Application Tracking System (Kanban board, reminders)
 //! - `resume`: AI Resume-Job Matcher (PDF parsing, skill extraction, matching)
+//! - `automation`: One-Click Apply automation (ATS detection, profile management)
 
 pub mod ats;
+pub mod automation;
 pub mod config;
 pub mod db;
 pub mod notify;
@@ -24,6 +26,7 @@ pub mod scoring;
 pub mod scrapers;
 
 // Re-export commonly used types
+pub use automation::{ApplicationProfile, AtsPlatform, AutomationManager, AutomationStatus};
 pub use config::Config;
 pub use db::{Database, Job};
 pub use notify::{Notification, NotificationService};

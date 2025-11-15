@@ -40,6 +40,9 @@ scraper = "0.21"
 # URL encoding for query parameters
 urlencoding = "2.1"
 
+# Regular expressions for pattern matching
+regex = "1.10"
+
 # Database
 sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "sqlite", "migrate", "chrono"] }
 
