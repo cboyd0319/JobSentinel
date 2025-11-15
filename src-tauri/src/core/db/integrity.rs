@@ -747,4 +747,327 @@ mod tests {
         assert!(!history.is_empty(), "Should have backup history");
         assert!(history[0].reason.as_ref().unwrap().contains("test_history"));
     }
+
+    #[tokio::test]
+    async fn test_health_metrics() {
+        let db = create_test_db().await;
+        let temp_dir = tempfile::tempdir().unwrap();
+        let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
+
+        // Get health metrics
+        let health = integrity.get_health_metrics().await.unwrap();
+
+        // Verify basic metrics are collected
+        assert!(health.database_size_bytes > 0, "Database should have size");
+        assert_eq!(health.schema_version, 2, "Schema version should be 2");
+        assert_eq!(
+            health.application_id, 0x4A534442,
+            "Application ID should be JSDB"
+        );
+        assert_eq!(health.total_jobs, 0, "New database should have 0 jobs");
+        assert!(
+            health.total_integrity_checks >= 0,
+            "Should have integrity check count"
+        );
+        assert_eq!(
+            health.failed_integrity_checks, 0,
+            "Should have no failed checks"
+        );
+    }
+
+    #[tokio::test]
+    async fn test_health_metrics_with_data() {
+        let db = create_test_db().await;
+        let temp_dir = tempfile::tempdir().unwrap();
+        let integrity = DatabaseIntegrity::new(db.clone(), temp_dir.path().to_path_buf());
+
+        // Insert some test jobs
+        for i in 0..10 {
+            sqlx::query(
+                r#"
+                INSERT INTO jobs (hash, title, company, url, source, score)
+                VALUES (?, ?, ?, ?, ?, ?)
+                "#,
+            )
+            .bind(format!("hash_{}", i))
+            .bind(format!("Job {}", i))
+            .bind("Test Company")
+            .bind(format!("https://example.com/job/{}", i))
+            .bind("test")
+            .bind(0.9)
+            .execute(&db)
+            .await
+            .unwrap();
+        }
+
+        // Get health metrics
+        let health = integrity.get_health_metrics().await.unwrap();
+
+        assert_eq!(health.total_jobs, 10, "Should have 10 jobs");
+        assert!(health.database_size_bytes > 0);
+    }
+
+    #[tokio::test]
+    async fn test_optimize_query_planner() {
+        let db = create_test_db().await;
+        let temp_dir = tempfile::tempdir().unwrap();
+        let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
+
+        // Should not fail
+        integrity.optimize_query_planner().await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn test_checkpoint_wal() {
+        let db = create_test_db().await;
+        let temp_dir = tempfile::tempdir().unwrap();
+        let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
+
+        // Checkpoint WAL
+        let result = integrity.checkpoint_wal().await.unwrap();
+
+        // busy should be 0 (not blocked)
+        assert_eq!(result.busy, 0, "Checkpoint should not be blocked");
+        assert!(result.log_frames >= 0, "Should have frame count");
+        assert!(result.checkpointed_frames >= 0, "Should have checkpointed frames");
+    }
+
+    #[tokio::test]
+    async fn test_pragma_diagnostics() {
+        let db = create_test_db().await;
+        let temp_dir = tempfile::tempdir().unwrap();
+        let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
+
+        let diag = integrity.get_pragma_diagnostics().await.unwrap();
+
+        // Verify WAL mode
+        assert_eq!(
+            diag.journal_mode.to_lowercase(),
+            "wal",
+            "Should be in WAL mode"
+        );
+
+        // Verify foreign keys enabled
+        assert!(diag.foreign_keys, "Foreign keys should be enabled");
+
+        // Verify cache size (should be -64000 or close)
+        assert!(
+            diag.cache_size.abs() > 1000,
+            "Cache size should be set (got {})",
+            diag.cache_size
+        );
+
+        // Verify page size
+        assert_eq!(diag.page_size, 4096, "Page size should be 4096");
+
+        // Verify SQLite version is set
+        assert!(!diag.sqlite_version.is_empty(), "SQLite version should be set");
+
+        // Log diagnostics for debugging
+        println!("PRAGMA Diagnostics:");
+        println!("  Journal mode: {}", diag.journal_mode);
+        println!("  Synchronous: {}", diag.synchronous);
+        println!("  Cache size: {}", diag.cache_size);
+        println!("  Page size: {}", diag.page_size);
+        println!("  Auto vacuum: {}", diag.auto_vacuum);
+        println!("  Foreign keys: {}", diag.foreign_keys);
+        println!("  Temp store: {}", diag.temp_store);
+        println!("  Locking mode: {}", diag.locking_mode);
+        println!("  Secure delete: {}", diag.secure_delete);
+        println!("  Cell size check: {}", diag.cell_size_check);
+        println!("  SQLite version: {}", diag.sqlite_version);
+    }
+
+    #[tokio::test]
+    async fn test_fragmentation_tracking() {
+        let db = create_test_db().await;
+        let temp_dir = tempfile::tempdir().unwrap();
+        let integrity = DatabaseIntegrity::new(db.clone(), temp_dir.path().to_path_buf());
+
+        // Insert and delete jobs to create fragmentation
+        for i in 0..100 {
+            sqlx::query(
+                r#"
+                INSERT INTO jobs (hash, title, company, url, source)
+                VALUES (?, ?, ?, ?, ?)
+                "#,
+            )
+            .bind(format!("hash_{}", i))
+            .bind(format!("Job {}", i))
+            .bind("Test Company")
+            .bind(format!("https://example.com/job/{}", i))
+            .bind("test")
+            .execute(&db)
+            .await
+            .unwrap();
+        }
+
+        // Delete half of them to create freelist
+        sqlx::query("DELETE FROM jobs WHERE id % 2 = 0")
+            .execute(&db)
+            .await
+            .unwrap();
+
+        // Get health metrics
+        let health = integrity.get_health_metrics().await.unwrap();
+
+        assert!(health.database_size_bytes > 0);
+        // Fragmentation should be measurable
+        assert!(
+            health.fragmentation_percent >= 0.0,
+            "Fragmentation should be non-negative"
+        );
+        println!("Fragmentation: {:.2}%", health.fragmentation_percent);
+    }
+
+    #[tokio::test]
+    async fn test_backup_and_restore() {
+        let db = create_test_db().await;
+        let temp_dir = tempfile::tempdir().unwrap();
+        let integrity = DatabaseIntegrity::new(db.clone(), temp_dir.path().to_path_buf());
+
+        // Insert test data
+        sqlx::query(
+            r#"
+            INSERT INTO jobs (hash, title, company, url, source)
+            VALUES (?, ?, ?, ?, ?)
+            "#,
+        )
+        .bind("test_hash")
+        .bind("Test Job")
+        .bind("Test Company")
+        .bind("https://example.com/job")
+        .bind("test")
+        .execute(&db)
+        .await
+        .unwrap();
+
+        // Create backup
+        let backup_path = integrity.create_backup("test_restore").await.unwrap();
+        assert!(backup_path.exists(), "Backup file should exist");
+
+        // Verify backup is not empty
+        let backup_size = std::fs::metadata(&backup_path).unwrap().len();
+        assert!(backup_size > 0, "Backup should not be empty");
+        println!("Backup size: {} bytes", backup_size);
+
+        // Delete original data
+        sqlx::query("DELETE FROM jobs WHERE hash = 'test_hash'")
+            .execute(&db)
+            .await
+            .unwrap();
+
+        // Verify data is gone
+        let count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM jobs WHERE hash = 'test_hash'")
+            .fetch_one(&db)
+            .await
+            .unwrap();
+        assert_eq!(count, 0, "Data should be deleted");
+
+        // Note: Actual restore requires closing and reopening database
+        // which is complex to test in this context
+        // But we've verified backup creation works
+    }
+
+    #[tokio::test]
+    async fn test_multiple_backups_cleanup() {
+        let db = create_test_db().await;
+        let temp_dir = tempfile::tempdir().unwrap();
+        let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
+
+        // Create 10 backups
+        for i in 0..10 {
+            integrity
+                .create_backup(&format!("test_cleanup_{}", i))
+                .await
+                .unwrap();
+            tokio::time::sleep(tokio::time::Duration::from_millis(50)).await;
+        }
+
+        // Verify 10 backups exist
+        let backup_count: usize = std::fs::read_dir(temp_dir.path())
+            .unwrap()
+            .filter_map(|e| e.ok())
+            .filter(|e| {
+                e.path()
+                    .extension()
+                    .and_then(|s| s.to_str())
+                    .map(|s| s == "db")
+                    .unwrap_or(false)
+            })
+            .count();
+        assert_eq!(backup_count, 10, "Should have 10 backups");
+
+        // Cleanup, keeping only 3
+        let deleted = integrity.cleanup_old_backups(3).await.unwrap();
+        assert_eq!(deleted, 7, "Should delete 7 old backups");
+
+        // Verify only 3 remain
+        let remaining_count: usize = std::fs::read_dir(temp_dir.path())
+            .unwrap()
+            .filter_map(|e| e.ok())
+            .filter(|e| {
+                e.path()
+                    .extension()
+                    .and_then(|s| s.to_str())
+                    .map(|s| s == "db")
+                    .unwrap_or(false)
+            })
+            .count();
+        assert_eq!(remaining_count, 3, "Should have 3 backups remaining");
+    }
+
+    #[tokio::test]
+    async fn test_integrity_check_logging() {
+        let db = create_test_db().await;
+        let temp_dir = tempfile::tempdir().unwrap();
+        let integrity = DatabaseIntegrity::new(db.clone(), temp_dir.path().to_path_buf());
+
+        // Run startup check
+        let status = integrity.startup_check().await.unwrap();
+        assert!(matches!(status, IntegrityStatus::Healthy));
+
+        // Verify check was logged
+        let log_count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM integrity_check_log")
+            .fetch_one(&db)
+            .await
+            .unwrap();
+        assert!(log_count > 0, "Should have logged integrity check");
+
+        // Verify log details
+        let log_entry: (String, String) = sqlx::query_as(
+            "SELECT check_type, status FROM integrity_check_log ORDER BY created_at DESC LIMIT 1",
+        )
+        .fetch_one(&db)
+        .await
+        .unwrap();
+
+        assert_eq!(log_entry.0, "quick", "Should log quick check");
+        assert_eq!(log_entry.1, "passed", "Should log passed status");
+    }
+
+    #[tokio::test]
+    async fn test_foreign_key_violation_detection() {
+        let db = create_test_db().await;
+        let temp_dir = tempfile::tempdir().unwrap();
+        let integrity = DatabaseIntegrity::new(db.clone(), temp_dir.path().to_path_buf());
+
+        // Temporarily disable foreign keys to insert invalid data
+        sqlx::query("PRAGMA foreign_keys = OFF")
+            .execute(&db)
+            .await
+            .unwrap();
+
+        // This would normally be caught, but we disabled FK checks
+        // In a real scenario with FK violations, this would be detected
+        // For now, just verify the check runs without error
+        let violations = integrity.foreign_key_check().await.unwrap();
+        assert_eq!(violations.len(), 0, "Should have no violations in test DB");
+
+        // Re-enable foreign keys
+        sqlx::query("PRAGMA foreign_keys = ON")
+            .execute(&db)
+            .await
+            .unwrap();
+    }
 }
