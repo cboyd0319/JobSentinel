@@ -64,6 +64,9 @@ hex = "0.4"
 # Platform directories
 dirs = "5.0"
 
+# Email notifications (SMTP)
+lettre = { version = "0.11", features = ["tokio1-rustls-tls", "builder", "smtp-transport"] }
+
 [target.'cfg(windows)'.dependencies]
 windows = { version = "0.58", features = ["Win32_Foundation", "Win32_System_Threading"] }
 
