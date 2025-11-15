@@ -2,6 +2,8 @@
 //!
 //! Handles all database operations using SQLx with async support.
 
+pub mod integrity;
+
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::{sqlite::SqlitePool, FromRow};
@@ -68,7 +70,7 @@ pub struct Database {
 }
 
 impl Database {
-    /// Connect to SQLite database
+    /// Connect to SQLite database with optimized settings
     pub async fn connect(path: &PathBuf) -> Result<Self, sqlx::Error> {
         // Ensure parent directory exists
         if let Some(parent) = path.parent() {
@@ -78,10 +80,57 @@ impl Database {
             })?;
         }
 
-        let url = format!("sqlite://{}", path.display());
+        let url = format!("sqlite://{}?mode=rwc", path.display());
         let pool = SqlitePool::connect(&url).await?;
 
+        // Configure SQLite for better integrity and performance
+        Self::configure_pragmas(&pool).await?;
+
         Ok(Database { pool })
+    }
+
+    /// Configure SQLite PRAGMA settings for optimal performance and integrity
+    async fn configure_pragmas(pool: &SqlitePool) -> Result<(), sqlx::Error> {
+        // Enable WAL mode for better crash recovery and concurrent access
+        sqlx::query("PRAGMA journal_mode = WAL")
+            .execute(pool)
+            .await?;
+
+        // Enable foreign keys
+        sqlx::query("PRAGMA foreign_keys = ON")
+            .execute(pool)
+            .await?;
+
+        // Set synchronous mode (NORMAL = good balance between safety and speed)
+        // FULL = safest but slowest, NORMAL = good balance, OFF = fastest but risky
+        sqlx::query("PRAGMA synchronous = NORMAL")
+            .execute(pool)
+            .await?;
+
+        // Set busy timeout (wait up to 5 seconds for lock)
+        sqlx::query("PRAGMA busy_timeout = 5000")
+            .execute(pool)
+            .await?;
+
+        // Enable auto_vacuum for automatic space reclamation
+        sqlx::query("PRAGMA auto_vacuum = INCREMENTAL")
+            .execute(pool)
+            .await?;
+
+        // Set cache size to 64MB (negative = kilobytes)
+        sqlx::query("PRAGMA cache_size = -64000")
+            .execute(pool)
+            .await?;
+
+        // Enable checksum verification (requires SQLite 3.37+)
+        // Ignore errors if not supported
+        sqlx::query("PRAGMA checksum_verification = ON")
+            .execute(pool)
+            .await
+            .ok();
+
+        tracing::info!("✅ Database PRAGMA settings configured");
+        Ok(())
     }
 
     /// Run database migrations
@@ -390,6 +439,16 @@ impl Database {
     /// Get default database path
     pub fn default_path() -> PathBuf {
         crate::platforms::get_data_dir().join("jobs.db")
+    }
+
+    /// Get reference to the connection pool (for integrity checks and backups)
+    pub fn pool(&self) -> &SqlitePool {
+        &self.pool
+    }
+
+    /// Get default backup directory path
+    pub fn default_backup_dir() -> PathBuf {
+        crate::platforms::get_data_dir().join("backups")
     }
 }
 
