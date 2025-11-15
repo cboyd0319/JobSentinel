@@ -37,6 +37,9 @@ url = "2.5"
 # HTML Parsing
 scraper = "0.21"
 
+# URL encoding for query parameters
+urlencoding = "2.1"
+
 # Database
 sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "sqlite", "migrate", "chrono"] }
 
