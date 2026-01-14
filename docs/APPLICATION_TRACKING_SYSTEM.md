@@ -1,10 +1,12 @@
 # Application Tracking System (ATS)
 ## Kanban Board & Pipeline Management for JobSentinel
 
-> **Status:** ✅ Core Implementation Complete
-> **Version:** 1.0.0
-> **Last Updated:** 2025-11-15
-> **Estimated Effort:** 3-4 weeks ✅ **PHASE 1 COMPLETE**
+> **Status:** DEFERRED to v1.1+ - Module disabled pending compilation fixes
+> **Completion:** ~85%
+> **Last Updated:** 2026-01-14
+> **Blocker:** Minor compilation errors, mostly complete
+
+**Note:** This module is currently disabled in `src-tauri/src/core/mod.rs`. The documentation below describes the intended functionality.
 
 ---
 

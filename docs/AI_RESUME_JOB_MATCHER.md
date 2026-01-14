@@ -1,10 +1,12 @@
 # AI Resume-Job Matcher
 ## Intelligent Resume Analysis & Job Compatibility Scoring
 
-> **Status:** ✅ Core Implementation Complete (Keyword-based Matching)
-> **Version:** 1.0.0
-> **Last Updated:** 2025-11-15
-> **Estimated Effort:** 4-6 weeks (Phase 1 Complete: 2 weeks)
+> **Status:** DEFERRED to v1.1+ - Module disabled pending compilation fixes
+> **Completion:** ~65%
+> **Last Updated:** 2026-01-14
+> **Blocker:** Compilation errors in resume parser, needs SQLx query fixes
+
+**Note:** This module is currently disabled in `src-tauri/src/core/mod.rs`. The documentation below describes the intended functionality.
 
 ---
 

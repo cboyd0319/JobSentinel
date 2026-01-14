@@ -1,16 +1,18 @@
 # LinkedIn & Indeed Scrapers
 ## Expand Job Coverage 10x with Major Job Boards
 
-> **Status:** ✅ Core Implementation Complete (HTTP-based scraping)
-> **Version:** 1.0.0
-> **Last Updated:** 2025-11-15
-> **Estimated Effort:** 6-8 weeks (Phase 1 Complete: 2 weeks)
+> **Status:** DEFERRED to v1.1+ - Code exists but incomplete
+> **Completion:** ~30%
+> **Last Updated:** 2026-01-14
+> **Blocker:** Scrapers have code but are not integrated, need anti-bot handling
+
+**Note:** LinkedIn and Indeed scraper code exists in `src-tauri/src/core/scrapers/` but is not fully functional. These scrapers require careful handling of rate limits and anti-bot measures.
 
 ---
 
-## 🎯 Overview
+## Overview
 
-JobSentinel now supports scraping from the two largest job boards: **LinkedIn** (30M+ jobs) and **Indeed** (20M+ jobs). This expands job coverage by 10x compared to company-specific ATSs alone.
+JobSentinel aims to support scraping from the two largest job boards: **LinkedIn** (30M+ jobs) and **Indeed** (20M+ jobs). This would expand job coverage by 10x compared to company-specific ATSs alone.
 
 ### Key Features
 

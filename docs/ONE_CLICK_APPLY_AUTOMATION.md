@@ -1,15 +1,16 @@
 # One-Click Apply Automation
 ## Automated Job Application Submission Infrastructure
 
-> **⚠️ Status:** 🔧 **Phase 1 Foundation Complete** (Infrastructure Only)
-> **Version:** 1.0.0 (Foundation)
-> **Last Updated:** 2025-11-15
-> **Estimated Full Implementation:** 8-10 weeks
-> **Phase 1 Effort:** 2 weeks ✅ **COMPLETE**
+> **Status:** DEFERRED to v2.0+ - Requires legal review and user consent framework
+> **Completion:** ~40%
+> **Last Updated:** 2026-01-14
+> **Blocker:** Legal/ethical concerns require user consent framework before enabling
+
+**Note:** This module is permanently disabled in v1.x releases. Auto-applying to jobs on behalf of users raises significant legal and ethical concerns that need to be addressed before this feature can be enabled.
 
 ---
 
-## ⚠️ IMPORTANT ETHICAL & LEGAL NOTICE
+## IMPORTANT ETHICAL & LEGAL NOTICE
 
 ### Legal Considerations
 

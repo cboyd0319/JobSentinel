@@ -1,10 +1,12 @@
 # Job Market Intelligence Dashboard
 ## Real-Time Analytics & Trend Visualization
 
-> **Status:** ✅ Core Implementation Complete
-> **Version:** 1.0.0
-> **Last Updated:** 2025-11-15
-> **Estimated Effort:** 3-4 weeks (Phase 1 Complete: 2 weeks)
+> **Status:** DEFERRED to v1.1+ - Module disabled pending compilation fixes
+> **Completion:** ~60%
+> **Last Updated:** 2026-01-14
+> **Blocker:** SQLite MEDIAN() function not available, needs workaround
+
+**Note:** This module is currently disabled in `src-tauri/src/core/mod.rs`. The documentation below describes the intended functionality.
 
 ---
 
