@@ -37,7 +37,7 @@ pub async fn send_email_notification(
     let html_body = format_html_email(job, score);
 
     // Generate plain text version (for email clients that don't support HTML)
-    let text_body = format_text_email(job, score);
+    let _text_body = format_text_email(job, score);
 
     // Send to each recipient (some SMTP servers require individual sends)
     for to_address in to_addresses {

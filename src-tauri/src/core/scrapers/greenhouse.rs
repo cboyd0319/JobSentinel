@@ -173,7 +173,7 @@ impl GreenhouseScraper {
             .url
             .trim_end_matches('/')
             .split('/')
-            .last()
+            .next_back()
             .ok_or_else(|| anyhow::anyhow!("Invalid Greenhouse URL"))?;
 
         let api_url = format!(

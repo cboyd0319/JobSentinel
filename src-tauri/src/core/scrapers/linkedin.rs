@@ -235,7 +235,7 @@ impl LinkedInScraper {
             .to_string();
         let job_id = urn
             .split(':')
-            .last()
+            .next_back()
             .unwrap_or("unknown")
             .to_string();
 

@@ -33,7 +33,7 @@ pub mod scrapers;
 
 // v1.1+ modules - disabled until compilation errors fixed
 // TODO: Fix MEDIAN() SQL issues, type mismatches, then re-enable
-// pub mod ats;
+pub mod ats;
 // pub mod market_intelligence;
 // pub mod resume;
 // pub mod salary;
@@ -50,7 +50,7 @@ pub use scoring::{JobScore, ScoringEngine};
 pub use scrapers::{JobScraper, ScraperResult};
 
 // v1.1+ re-exports - uncomment when modules are fixed
-// pub use ats::{Application, ApplicationStatus, AtsManager};
+pub use ats::{Application, ApplicationStatus, ApplicationTracker, ApplicationsByStatus, PendingReminder};
 // pub use market_intelligence::{MarketAlert, MarketAnalyzer, MarketIntelligence, MarketSnapshot, SkillDemandTrend, SalaryTrend};
 // pub use resume::{MatchResult, Resume, ResumeMatcher, UserSkill};
 // pub use salary::{SalaryAnalyzer, SalaryBenchmark, SalaryPrediction, SeniorityLevel};
