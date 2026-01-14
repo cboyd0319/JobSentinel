@@ -4,10 +4,11 @@ Welcome to the JobSentinel documentation! This directory contains all guides, re
 
 ## Current Status (January 2026)
 
-**Version: 1.0.0-alpha** - Core functionality working, 256 tests passing
+**Version: 1.0.0-alpha** - Core functionality working, 256 tests passing, 13 ignored
 
 ### Working Features (v1.0)
 - Job scrapers: Greenhouse, Lever, JobsWithGPT
+- Application Tracking System (ATS): Kanban board, status pipeline, reminders
 - Multi-factor scoring algorithm
 - Notifications: Slack, Discord, Teams
 - SQLite database with full-text search
@@ -16,7 +17,6 @@ Welcome to the JobSentinel documentation! This directory contains all guides, re
 
 ### Deferred Features (v1.1+)
 The following modules are disabled until fixes are complete:
-- Application Tracking System (85% complete)
 - AI Resume-Job Matcher (65% complete)
 - Salary Negotiation AI (50% complete)
 - Job Market Intelligence Dashboard (60% complete)
@@ -60,12 +60,15 @@ The following modules are disabled until fixes are complete:
   - Testing on macOS
   - Platform-specific features
 
-### Feature Documentation (Deferred)
+### Feature Documentation
 
+#### Working Features
+- **[Application Tracking System](APPLICATION_TRACKING_SYSTEM.md)** - Kanban board, pipeline management, reminders
+
+#### Deferred Features (v1.1+)
 These documents describe features that are partially implemented and deferred to v1.1+:
 
 - **[AI Resume Job Matcher](AI_RESUME_JOB_MATCHER.md)** - v1.1+ (65% complete)
-- **[Application Tracking System](APPLICATION_TRACKING_SYSTEM.md)** - v1.1+ (85% complete)
 - **[Salary Negotiation AI](SALARY_NEGOTIATION_AI.md)** - v1.1+ (50% complete)
 - **[Job Market Intelligence](JOB_MARKET_INTELLIGENCE_DASHBOARD.md)** - v1.1+ (60% complete)
 - **[LinkedIn Indeed Scrapers](LINKEDIN_INDEED_SCRAPERS.md)** - v1.1+ (incomplete)

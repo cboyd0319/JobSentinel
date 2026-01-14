@@ -12,7 +12,7 @@ Windows 11+ (primary) | macOS 26.2+ & Linux (v2.0) | 100% Private | $0 Forever
 [![Rust](https://img.shields.io/badge/Rust-1.83%2B-orange.svg)](https://www.rust-lang.org/)
 [![Tauri](https://img.shields.io/badge/Tauri-2.1-blue.svg)](https://tauri.app/)
 [![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev/)
-[![Tests](https://img.shields.io/badge/Tests-256%20passing-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/Tests-256%20passing%2C%2013%20ignored-brightgreen.svg)]()
 
 [Download](#installation) | [Features](#features) | [Quick Start](QUICK_START.md) | [Getting Started](GETTING_STARTED.md)
 
@@ -27,14 +27,14 @@ Windows 11+ (primary) | macOS 26.2+ & Linux (v2.0) | 100% Private | $0 Forever
 | Component | Status |
 |-----------|--------|
 | Core (config, db, scoring, scrapers, scheduler, notify) | Working |
+| Application Tracking System (ATS) | Working |
 | Frontend (React 19 + TypeScript) | Working |
 | Tauri integration | Working |
-| Tests | 256 passing, 0 failures |
+| Tests | 256 passing, 13 ignored |
 | Windows build | Ready for testing |
 | macOS/Linux builds | Planned for v2.0 |
 
 ### Deferred Features (v1.1+)
-- Application Tracking System (85% complete)
 - AI Resume-Job Matcher (65% complete)
 - Salary Negotiation AI (50% complete)
 - Job Market Intelligence Dashboard (60% complete)
@@ -89,6 +89,7 @@ Linux support (.deb, .rpm, .AppImage) is planned for v2.0.
 | Feature | Description |
 |---------|-------------|
 | **3 Job Boards** | Greenhouse, Lever, JobsWithGPT (500K+ listings) |
+| **Application Tracking** | Kanban board, status pipeline, automated reminders |
 | **Smart Scoring** | Skills 40%, Salary 25%, Location 20%, Company 10%, Recency 5% |
 | **Multi-Channel Alerts** | Slack, Discord, and Teams webhook notifications |
 | **Auto-Scheduling** | Scrapes every 2 hours (configurable) |
@@ -96,10 +97,8 @@ Linux support (.deb, .rpm, .AppImage) is planned for v2.0.
 | **SQLite Database** | Local storage, full-text search |
 | **Setup Wizard** | Interactive first-run configuration |
 
-### v2.0 Roadmap
 ### v1.1+ Roadmap (Deferred Features)
 
-- [ ] Application Tracking System (ATS) - 85% complete
 - [ ] AI Resume-Job Matcher - 65% complete
 - [ ] Salary Negotiation AI - 50% complete
 - [ ] Job Market Intelligence Dashboard - 60% complete

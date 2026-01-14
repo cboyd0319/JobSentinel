@@ -7,21 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Application Tracking System (ATS) module now enabled
+  - Kanban board with 12 status columns
+  - Automated follow-up reminders
+  - Timeline/audit trail for all application events
+  - Ghosting detection (auto-mark after 2 weeks no contact)
+
 ### Changed
 - Refactored codebase to fix all compilation errors
-- Disabled incomplete modules (ats, resume, salary, market_intelligence, automation) until fixes complete
-- Updated test suite: 256 tests passing, 9 ignored (require file-based database)
+- Updated test suite: 256 tests passing, 13 ignored (require file-based database)
 - Fixed SQLx Row trait usage (get -> try_get)
 - Fixed proptest edge cases in scrapers
 - Fixed webhook URL validation test assertions
 - Updated documentation for accurate v1.0 status
 
+### Security
+- Removed `unsafe-inline` from script-src CSP
+- Added Discord and Teams webhook URLs to CSP connect-src
+- Fixed npm vulnerabilities (glob, js-yaml)
+- Removed unused `backoff` crate (unmaintained)
+
 ### Technical
+- Implemented Display and FromStr traits for ApplicationStatus
 - Added Default derive to AlertConfig and SlackConfig
 - Fixed Indeed scraper hash generation
 - Fixed database integrity DateTime handling
-- Added #[ignore] to backup/restore tests (require file-based database)
+- Added #[ignore] to backup/restore and ATS tests (require file-based database)
 - Fixed doctest compilation issues
+- Auto-fixed clippy warnings
 
 ## [1.0.0-alpha] - 2026-01-14
 

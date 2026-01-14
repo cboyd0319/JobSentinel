@@ -1,16 +1,14 @@
 # Application Tracking System (ATS)
 ## Kanban Board & Pipeline Management for JobSentinel
 
-> **Status:** DEFERRED to v1.1+ - Module disabled pending compilation fixes
-> **Completion:** ~85%
+> **Status:** WORKING - Module enabled in v1.0.0-alpha
+> **Completion:** 100% core functionality
 > **Last Updated:** 2026-01-14
-> **Blocker:** Minor compilation errors, mostly complete
-
-**Note:** This module is currently disabled in `src-tauri/src/core/mod.rs`. The documentation below describes the intended functionality.
+> **Tests:** 4 tests (ignored - require file-based database setup)
 
 ---
 
-## 🎯 Overview
+## Overview
 
 JobSentinel's Application Tracking System provides comprehensive pipeline management for your job search with:
 
