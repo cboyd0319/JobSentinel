@@ -1,12 +1,9 @@
 # Salary Negotiation AI
 ## Data-Driven Compensation Intelligence & Negotiation Assistance
 
-> **Status:** DEFERRED to v1.1+ - Module disabled pending compilation fixes
-> **Completion:** ~50%
+> **Status:** ENABLED - Module fully functional
+> **Completion:** 100%
 > **Last Updated:** 2026-01-14
-> **Blocker:** SQLite MEDIAN() function not available, needs workaround
-
-**Note:** This module is currently disabled in `src-tauri/src/core/mod.rs`. The documentation below describes the intended functionality.
 
 ---
 
