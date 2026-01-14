@@ -22,7 +22,7 @@ impl ResumeParser {
     /// Extracted text content from the PDF
     ///
     /// # Example
-    /// ```rust
+    /// ```rust,ignore
     /// use std::path::Path;
     /// let parser = ResumeParser::new();
     /// let text = parser.parse_pdf(Path::new("/path/to/resume.pdf"))?;

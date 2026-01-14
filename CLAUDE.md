@@ -41,16 +41,18 @@ JobSentinel/
 ## Current Status
 
 ### Working Modules
-- config, db, notify, scheduler, scoring, scrapers, ats
+All core modules are enabled and functional:
+- config, db, notify, scheduler, scoring, scrapers
+- ats (Application Tracking System)
+- resume (AI Resume-Job Matcher)
+- salary (Salary Prediction AI)
+- market_intelligence (Market Analytics)
 
-### Deferred Modules (v1.1+)
-- resume (65% complete)
-- salary (50% complete) - needs SQLite MEDIAN() workaround
-- market_intelligence (60% complete) - needs SQLite MEDIAN() workaround
-- automation (v2.0+ - requires legal review)
+### Deferred Modules (v2.0+)
+- automation (One-Click Apply - requires legal review)
 
 ### Test Status
-- 256 tests passing, 13 ignored
+- 275 tests passing, 14 ignored
 - Ignored tests require file-based database
 
 ## Development Commands
@@ -65,7 +67,7 @@ npm run build            # Production build
 cd src-tauri
 cargo check              # Type check
 cargo test               # Run tests
-cargo clippy             # Linting
+cargo clippy -- -D warnings  # Linting (strict)
 cargo build --release    # Release build
 
 # Full app

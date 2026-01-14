@@ -6,7 +6,7 @@ use super::SeniorityLevel;
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::SqlitePool;
+use sqlx::{Row, SqlitePool};
 
 /// Salary benchmark data
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -88,7 +88,9 @@ impl BenchmarkManager {
 
     /// Upsert salary benchmark
     pub async fn upsert_benchmark(&self, benchmark: &SalaryBenchmark) -> Result<()> {
-        sqlx::query!(
+        let seniority_str = benchmark.seniority_level.as_str();
+
+        sqlx::query(
             r#"
             INSERT INTO salary_benchmarks (
                 job_title_normalized, location_normalized, seniority_level,
@@ -108,17 +110,17 @@ impl BenchmarkManager {
                 sample_size = excluded.sample_size,
                 last_updated = datetime('now')
             "#,
-            benchmark.job_title,
-            benchmark.location,
-            benchmark.seniority_level.as_str(),
-            benchmark.min_salary,
-            benchmark.p25_salary,
-            benchmark.median_salary,
-            benchmark.p75_salary,
-            benchmark.max_salary,
-            benchmark.average_salary,
-            benchmark.sample_size
         )
+        .bind(&benchmark.job_title)
+        .bind(&benchmark.location)
+        .bind(seniority_str)
+        .bind(benchmark.min_salary)
+        .bind(benchmark.p25_salary)
+        .bind(benchmark.median_salary)
+        .bind(benchmark.p75_salary)
+        .bind(benchmark.max_salary)
+        .bind(benchmark.average_salary)
+        .bind(benchmark.sample_size)
         .execute(&self.db)
         .await?;
 
@@ -127,7 +129,7 @@ impl BenchmarkManager {
 
     /// Get all benchmarks for a job title
     pub async fn get_benchmarks_for_title(&self, job_title: &str) -> Result<Vec<SalaryBenchmark>> {
-        let records = sqlx::query!(
+        let rows = sqlx::query(
             r#"
             SELECT job_title_normalized, location_normalized, seniority_level,
                    min_salary, p25_salary, median_salary, p75_salary,
@@ -137,34 +139,42 @@ impl BenchmarkManager {
             ORDER BY sample_size DESC
             LIMIT 50
             "#,
-            format!("%{}%", job_title.to_lowercase())
         )
+        .bind(format!("%{}%", job_title.to_lowercase()))
         .fetch_all(&self.db)
         .await?;
 
-        Ok(records
+        Ok(rows
             .into_iter()
             .map(|r| SalaryBenchmark {
-                job_title: r.job_title_normalized,
-                location: r.location_normalized,
-                seniority_level: SeniorityLevel::from_str(&r.seniority_level),
-                min_salary: r.min_salary,
-                p25_salary: r.p25_salary,
-                median_salary: r.median_salary,
-                p75_salary: r.p75_salary,
-                max_salary: r.max_salary,
-                average_salary: r.average_salary,
-                sample_size: r.sample_size,
-                last_updated: DateTime::parse_from_rfc3339(&r.last_updated)
-                    .unwrap()
-                    .with_timezone(&Utc),
+                job_title: r.try_get::<String, _>("job_title_normalized").unwrap_or_default(),
+                location: r.try_get::<String, _>("location_normalized").unwrap_or_default(),
+                seniority_level: SeniorityLevel::parse(
+                    &r.try_get::<String, _>("seniority_level").unwrap_or_default(),
+                ),
+                min_salary: r.try_get::<i64, _>("min_salary").unwrap_or(0),
+                p25_salary: r.try_get::<i64, _>("p25_salary").unwrap_or(0),
+                median_salary: r.try_get::<i64, _>("median_salary").unwrap_or(0),
+                p75_salary: r.try_get::<i64, _>("p75_salary").unwrap_or(0),
+                max_salary: r.try_get::<i64, _>("max_salary").unwrap_or(0),
+                average_salary: r.try_get::<i64, _>("average_salary").unwrap_or(0),
+                sample_size: r.try_get::<i64, _>("sample_size").unwrap_or(0),
+                last_updated: DateTime::parse_from_rfc3339(
+                    &r.try_get::<String, _>("last_updated").unwrap_or_default(),
+                )
+                .unwrap_or_else(|_| DateTime::default())
+                .with_timezone(&Utc),
             })
             .collect())
     }
 
     /// Get top paying locations for a job title
-    pub async fn get_top_paying_locations(&self, job_title: &str, limit: usize) -> Result<Vec<(String, i64)>> {
-        let records = sqlx::query!(
+    pub async fn get_top_paying_locations(
+        &self,
+        job_title: &str,
+        limit: usize,
+    ) -> Result<Vec<(String, i64)>> {
+        let rows = sqlx::query(
             r#"
             SELECT location_normalized, median_salary
             FROM salary_benchmarks
@@ -172,15 +182,20 @@ impl BenchmarkManager {
             ORDER BY median_salary DESC
             LIMIT ?
             "#,
-            job_title,
-            limit as i64
         )
+        .bind(job_title)
+        .bind(limit as i64)
         .fetch_all(&self.db)
         .await?;
 
-        Ok(records
+        Ok(rows
             .into_iter()
-            .map(|r| (r.location_normalized, r.median_salary))
+            .map(|r| {
+                (
+                    r.try_get::<String, _>("location_normalized").unwrap_or_default(),
+                    r.try_get::<i64, _>("median_salary").unwrap_or(0),
+                )
+            })
             .collect())
     }
 }
@@ -234,13 +249,13 @@ mod tests {
             last_updated: Utc::now(),
         };
 
-        // Below median → aim for median
+        // Below median - aim for median
         assert_eq!(benchmark.negotiation_target(130000), 150000);
 
-        // At median → aim for p75
+        // At median - aim for p75
         assert_eq!(benchmark.negotiation_target(150000), 180000);
 
-        // Above p75 → push 5% higher
+        // Above p75 - push 5% higher
         assert_eq!(benchmark.negotiation_target(200000), 210000);
     }
 }

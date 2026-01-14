@@ -4,17 +4,31 @@
 //! salary movements, company hiring velocity, and geographic distribution.
 
 use anyhow::Result;
-use chrono::{DateTime, NaiveDate, Utc};
+use chrono::Utc;
 use serde::{Deserialize, Serialize};
-use sqlx::SqlitePool;
+use sqlx::{Row, SqlitePool};
 
-pub mod trends;
-pub mod analytics;
 pub mod alerts;
+pub mod analytics;
+pub mod trends;
 
-pub use trends::{SkillDemandTrend, SalaryTrend, RoleDemandTrend};
+pub use alerts::{AlertSeverity, AlertType, MarketAlert};
 pub use analytics::{MarketAnalyzer, MarketSnapshot};
-pub use alerts::{MarketAlert, AlertType, AlertSeverity};
+pub use trends::{RoleDemandTrend, SalaryTrend, SkillDemandTrend};
+
+/// Compute median from a vector of values (SQLite doesn't have MEDIAN())
+fn compute_median(values: &mut [f64]) -> Option<f64> {
+    if values.is_empty() {
+        return None;
+    }
+    values.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
+    let len = values.len();
+    if len.is_multiple_of(2) {
+        Some((values[len / 2 - 1] + values[len / 2]) / 2.0)
+    } else {
+        Some(values[len / 2])
+    }
+}
 
 /// Market intelligence manager
 pub struct MarketIntelligence {
@@ -53,7 +67,7 @@ impl MarketIntelligence {
         let today = Utc::now().date_naive();
 
         // Get all skills from job_skills table grouped by skill
-        let records = sqlx::query!(
+        let records = sqlx::query(
             r#"
             SELECT
                 skill_name,
@@ -62,31 +76,43 @@ impl MarketIntelligence {
             FROM job_skills
             WHERE created_at >= date('now', 'start of day')
             GROUP BY skill_name
-            "#
+            "#,
         )
         .fetch_all(&self.db)
         .await?;
 
         for record in records {
+            let skill_name: String = record.try_get("skill_name")?;
+            let mention_count: i64 = record.try_get("mention_count")?;
+            let job_count: i64 = record.try_get("job_count")?;
+
             // Get salary stats for jobs with this skill
-            let salary_stats = sqlx::query!(
+            let salary_rows = sqlx::query(
                 r#"
-                SELECT
-                    AVG(jsp.predicted_median) as avg_salary,
-                    MEDIAN(jsp.predicted_median) as median_salary
+                SELECT jsp.predicted_median
                 FROM job_skills js
                 JOIN job_salary_predictions jsp ON js.job_hash = jsp.job_hash
                 WHERE js.skill_name = ?
                   AND js.created_at >= date('now', 'start of day')
                 "#,
-                record.skill_name
             )
-            .fetch_one(&self.db)
-            .await
-            .ok();
+            .bind(&skill_name)
+            .fetch_all(&self.db)
+            .await?;
+
+            let mut salaries: Vec<f64> = salary_rows
+                .iter()
+                .filter_map(|r| r.try_get::<f64, _>("predicted_median").ok())
+                .collect();
+            let avg_salary = if salaries.is_empty() {
+                None
+            } else {
+                Some(salaries.iter().sum::<f64>() / salaries.len() as f64)
+            };
+            let median_salary = compute_median(&mut salaries);
 
             // Get top company and location for this skill
-            let top_data = sqlx::query!(
+            let top_data = sqlx::query(
                 r#"
                 SELECT
                     j.company as top_company,
@@ -99,13 +125,18 @@ impl MarketIntelligence {
                 ORDER BY COUNT(*) DESC
                 LIMIT 1
                 "#,
-                record.skill_name
             )
+            .bind(&skill_name)
             .fetch_optional(&self.db)
             .await?;
 
+            let top_company: Option<String> =
+                top_data.as_ref().and_then(|r| r.try_get("top_company").ok());
+            let top_location: Option<String> =
+                top_data.as_ref().and_then(|r| r.try_get("top_location").ok());
+
             // Insert or update skill demand trend
-            sqlx::query!(
+            sqlx::query(
                 r#"
                 INSERT INTO skill_demand_trends (
                     skill_name, date, mention_count, job_count,
@@ -120,15 +151,15 @@ impl MarketIntelligence {
                     top_company = excluded.top_company,
                     top_location = excluded.top_location
                 "#,
-                record.skill_name,
-                today.to_string(),
-                record.mention_count,
-                record.job_count,
-                salary_stats.as_ref().and_then(|s| s.avg_salary.map(|v| v as i64)),
-                salary_stats.as_ref().and_then(|s| s.median_salary.map(|v| v as i64)),
-                top_data.as_ref().map(|d| d.top_company.as_str()),
-                top_data.as_ref().map(|d| d.top_location.as_str())
             )
+            .bind(&skill_name)
+            .bind(today.to_string())
+            .bind(mention_count)
+            .bind(job_count)
+            .bind(avg_salary.map(|v| v as i64))
+            .bind(median_salary.map(|v| v as i64))
+            .bind(&top_company)
+            .bind(&top_location)
             .execute(&self.db)
             .await?;
         }
@@ -141,27 +172,37 @@ impl MarketIntelligence {
         let today = Utc::now().date_naive();
 
         // Get salary stats grouped by normalized title and location
-        let records = sqlx::query!(
+        let records = sqlx::query(
             r#"
             SELECT
-                sb.job_title_normalized,
-                sb.location_normalized,
-                sb.min_salary,
-                sb.p25_salary,
-                sb.median_salary,
-                sb.p75_salary,
-                sb.max_salary,
-                sb.average_salary,
-                sb.sample_size
-            FROM salary_benchmarks sb
-            "#
+                job_title_normalized,
+                location_normalized,
+                min_salary,
+                p25_salary,
+                median_salary,
+                p75_salary,
+                max_salary,
+                average_salary,
+                sample_size
+            FROM salary_benchmarks
+            "#,
         )
         .fetch_all(&self.db)
         .await?;
 
         for record in records {
+            let job_title: String = record.try_get("job_title_normalized")?;
+            let location: String = record.try_get("location_normalized")?;
+            let min_salary: i64 = record.try_get("min_salary")?;
+            let p25_salary: i64 = record.try_get("p25_salary")?;
+            let median_salary: i64 = record.try_get("median_salary")?;
+            let p75_salary: i64 = record.try_get("p75_salary")?;
+            let max_salary: i64 = record.try_get("max_salary")?;
+            let average_salary: i64 = record.try_get("average_salary")?;
+            let sample_size: i64 = record.try_get("sample_size")?;
+
             // Calculate salary growth (compare to previous period)
-            let previous_trend = sqlx::query!(
+            let prev_median = sqlx::query_scalar::<_, Option<i64>>(
                 r#"
                 SELECT median_salary
                 FROM salary_trends
@@ -171,16 +212,17 @@ impl MarketIntelligence {
                 ORDER BY date DESC
                 LIMIT 1
                 "#,
-                record.job_title_normalized,
-                record.location_normalized,
-                today.to_string()
             )
-            .fetch_optional(&self.db)
-            .await?;
+            .bind(&job_title)
+            .bind(&location)
+            .bind(today.to_string())
+            .fetch_one(&self.db)
+            .await
+            .unwrap_or(None);
 
-            let salary_growth_pct = if let Some(prev) = previous_trend {
-                if prev.median_salary > 0 {
-                    ((record.median_salary - prev.median_salary) as f64 / prev.median_salary as f64) * 100.0
+            let salary_growth_pct = if let Some(prev) = prev_median {
+                if prev > 0 {
+                    ((median_salary - prev) as f64 / prev as f64) * 100.0
                 } else {
                     0.0
                 }
@@ -188,7 +230,7 @@ impl MarketIntelligence {
                 0.0
             };
 
-            sqlx::query!(
+            sqlx::query(
                 r#"
                 INSERT INTO salary_trends (
                     job_title_normalized, location_normalized, date,
@@ -206,18 +248,18 @@ impl MarketIntelligence {
                     sample_size = excluded.sample_size,
                     salary_growth_pct = excluded.salary_growth_pct
                 "#,
-                record.job_title_normalized,
-                record.location_normalized,
-                today.to_string(),
-                record.min_salary,
-                record.p25_salary,
-                record.median_salary,
-                record.p75_salary,
-                record.max_salary,
-                record.average_salary,
-                record.sample_size,
-                salary_growth_pct
             )
+            .bind(&job_title)
+            .bind(&location)
+            .bind(today.to_string())
+            .bind(min_salary)
+            .bind(p25_salary)
+            .bind(median_salary)
+            .bind(p75_salary)
+            .bind(max_salary)
+            .bind(average_salary)
+            .bind(sample_size)
+            .bind(salary_growth_pct)
             .execute(&self.db)
             .await?;
         }
@@ -230,40 +272,40 @@ impl MarketIntelligence {
         let today = Utc::now().date_naive();
 
         // Get companies and their job posting counts
-        let companies = sqlx::query!(
+        let companies = sqlx::query(
             r#"
             SELECT DISTINCT company
             FROM jobs
             WHERE company IS NOT NULL AND company != ''
-            "#
+            "#,
         )
         .fetch_all(&self.db)
         .await?;
 
         for company_record in companies {
-            let company = &company_record.company;
+            let company: String = company_record.try_get("company")?;
 
             // Jobs posted today
             let jobs_posted = sqlx::query_scalar::<_, i64>(
-                "SELECT COUNT(*) FROM jobs WHERE company = ? AND DATE(posted_at) = DATE('now')"
+                "SELECT COUNT(*) FROM jobs WHERE company = ? AND DATE(posted_at) = DATE('now')",
             )
-            .bind(company)
+            .bind(&company)
             .fetch_one(&self.db)
             .await?;
 
             // Currently active jobs
             let jobs_active = sqlx::query_scalar::<_, i64>(
-                "SELECT COUNT(*) FROM jobs WHERE company = ? AND status = 'active'"
+                "SELECT COUNT(*) FROM jobs WHERE company = ? AND status = 'active'",
             )
-            .bind(company)
+            .bind(&company)
             .fetch_one(&self.db)
             .await?;
 
-            // Jobs filled today (status changed to 'closed' or 'applied')
+            // Jobs filled today (status changed to 'closed' or 'filled')
             let jobs_filled = sqlx::query_scalar::<_, i64>(
                 "SELECT COUNT(*) FROM jobs WHERE company = ? AND status IN ('closed', 'filled') AND DATE(updated_at) = DATE('now')"
             )
-            .bind(company)
+            .bind(&company)
             .fetch_one(&self.db)
             .await?;
 
@@ -276,9 +318,9 @@ impl MarketIntelligence {
                 GROUP BY title
                 ORDER BY COUNT(*) DESC
                 LIMIT 1
-                "#
+                "#,
             )
-            .bind(company)
+            .bind(&company)
             .fetch_one(&self.db)
             .await?;
 
@@ -291,9 +333,9 @@ impl MarketIntelligence {
                 GROUP BY location
                 ORDER BY COUNT(*) DESC
                 LIMIT 1
-                "#
+                "#,
             )
-            .bind(company)
+            .bind(&company)
             .fetch_one(&self.db)
             .await?;
 
@@ -306,11 +348,12 @@ impl MarketIntelligence {
                   AND date >= date('now', '-7 days')
                 ORDER BY date DESC
                 LIMIT 1
-                "#
+                "#,
             )
-            .bind(company)
+            .bind(&company)
             .fetch_one(&self.db)
-            .await?;
+            .await
+            .unwrap_or(None);
 
             let hiring_trend = if let Some(prev) = prev_week_velocity {
                 if jobs_posted > prev {
@@ -324,7 +367,7 @@ impl MarketIntelligence {
                 "stable"
             };
 
-            sqlx::query!(
+            sqlx::query(
                 r#"
                 INSERT INTO company_hiring_velocity (
                     company_name, date, jobs_posted_count, jobs_filled_count,
@@ -341,16 +384,16 @@ impl MarketIntelligence {
                     is_actively_hiring = excluded.is_actively_hiring,
                     hiring_trend = excluded.hiring_trend
                 "#,
-                company,
-                today.to_string(),
-                jobs_posted,
-                jobs_filled,
-                jobs_active,
-                top_role,
-                top_location,
-                (jobs_posted > 0) as i32,
-                hiring_trend
             )
+            .bind(&company)
+            .bind(today.to_string())
+            .bind(jobs_posted)
+            .bind(jobs_filled)
+            .bind(jobs_active)
+            .bind(&top_role)
+            .bind(&top_location)
+            .bind((jobs_posted > 0) as i32)
+            .bind(hiring_trend)
             .execute(&self.db)
             .await?;
         }
@@ -363,30 +406,29 @@ impl MarketIntelligence {
         let today = Utc::now().date_naive();
 
         // Get all unique locations
-        let locations = sqlx::query!(
+        let locations = sqlx::query(
             r#"
             SELECT DISTINCT location
             FROM jobs
             WHERE location IS NOT NULL AND location != ''
-            "#
+            "#,
         )
         .fetch_all(&self.db)
         .await?;
 
         for location_record in locations {
-            let location = &location_record.location;
-            let normalized = self.normalize_location(location);
+            let location: String = location_record.try_get("location")?;
+            let normalized = self.normalize_location(&location);
 
             // Parse city, state from location
-            let (city, state) = self.parse_location(location);
+            let (city, state) = self.parse_location(&location);
 
             // Job count for this location
-            let job_count = sqlx::query_scalar::<_, i64>(
-                "SELECT COUNT(*) FROM jobs WHERE location = ?"
-            )
-            .bind(location)
-            .fetch_one(&self.db)
-            .await?;
+            let job_count =
+                sqlx::query_scalar::<_, i64>("SELECT COUNT(*) FROM jobs WHERE location = ?")
+                    .bind(&location)
+                    .fetch_one(&self.db)
+                    .await?;
 
             // Remote job count
             let remote_count = sqlx::query_scalar::<_, i64>(
@@ -395,26 +437,35 @@ impl MarketIntelligence {
                 FROM jobs
                 WHERE location = ?
                   AND (LOWER(location) LIKE '%remote%' OR LOWER(title) LIKE '%remote%')
-                "#
+                "#,
             )
-            .bind(location)
+            .bind(&location)
             .fetch_one(&self.db)
             .await?;
 
-            // Salary stats
-            let salary_stats = sqlx::query!(
+            // Salary stats - fetch all and compute in Rust
+            let salary_rows = sqlx::query(
                 r#"
-                SELECT
-                    AVG(jsp.predicted_median) as avg_salary,
-                    MEDIAN(jsp.predicted_median) as median_salary
+                SELECT jsp.predicted_median
                 FROM jobs j
                 LEFT JOIN job_salary_predictions jsp ON j.hash = jsp.job_hash
                 WHERE j.location = ?
                 "#,
-                location
             )
-            .fetch_one(&self.db)
+            .bind(&location)
+            .fetch_all(&self.db)
             .await?;
+
+            let mut salaries: Vec<f64> = salary_rows
+                .iter()
+                .filter_map(|r| r.try_get::<f64, _>("predicted_median").ok())
+                .collect();
+            let avg_salary = if salaries.is_empty() {
+                None
+            } else {
+                Some(salaries.iter().sum::<f64>() / salaries.len() as f64)
+            };
+            let median_salary = compute_median(&mut salaries);
 
             // Top skill
             let top_skill = sqlx::query_scalar::<_, Option<String>>(
@@ -426,9 +477,9 @@ impl MarketIntelligence {
                 GROUP BY js.skill_name
                 ORDER BY COUNT(*) DESC
                 LIMIT 1
-                "#
+                "#,
             )
-            .bind(location)
+            .bind(&location)
             .fetch_one(&self.db)
             .await?;
 
@@ -441,9 +492,9 @@ impl MarketIntelligence {
                 GROUP BY company
                 ORDER BY COUNT(*) DESC
                 LIMIT 1
-                "#
+                "#,
             )
-            .bind(location)
+            .bind(&location)
             .fetch_one(&self.db)
             .await?;
 
@@ -456,13 +507,13 @@ impl MarketIntelligence {
                 GROUP BY title
                 ORDER BY COUNT(*) DESC
                 LIMIT 1
-                "#
+                "#,
             )
-            .bind(location)
+            .bind(&location)
             .fetch_one(&self.db)
             .await?;
 
-            sqlx::query!(
+            sqlx::query(
                 r#"
                 INSERT INTO location_job_density (
                     location_normalized, city, state, date,
@@ -479,18 +530,18 @@ impl MarketIntelligence {
                     top_company = excluded.top_company,
                     top_role = excluded.top_role
                 "#,
-                normalized,
-                city,
-                state,
-                today.to_string(),
-                job_count,
-                remote_count,
-                salary_stats.avg_salary.map(|v| v as i64),
-                salary_stats.median_salary.map(|v| v as i64),
-                top_skill,
-                top_company,
-                top_role
             )
+            .bind(&normalized)
+            .bind(&city)
+            .bind(&state)
+            .bind(today.to_string())
+            .bind(job_count)
+            .bind(remote_count)
+            .bind(avg_salary.map(|v| v as i64))
+            .bind(median_salary.map(|v| v as i64))
+            .bind(&top_skill)
+            .bind(&top_company)
+            .bind(&top_role)
             .execute(&self.db)
             .await?;
         }
@@ -503,43 +554,52 @@ impl MarketIntelligence {
         let today = Utc::now().date_naive();
 
         // Get all job titles (normalized)
-        let titles = sqlx::query!(
+        let titles = sqlx::query(
             r#"
             SELECT DISTINCT job_title_normalized
             FROM salary_benchmarks
-            "#
+            "#,
         )
         .fetch_all(&self.db)
         .await?;
 
         for title_record in titles {
-            let title = &title_record.job_title_normalized;
+            let title: String = title_record.try_get("job_title_normalized")?;
 
             // Job count for this role
             let job_count = sqlx::query_scalar::<_, i64>(
-                "SELECT COUNT(*) FROM jobs WHERE LOWER(title) LIKE '%' || ? || '%'"
+                "SELECT COUNT(*) FROM jobs WHERE LOWER(title) LIKE '%' || ? || '%'",
             )
-            .bind(title)
+            .bind(&title)
             .fetch_one(&self.db)
             .await?;
 
-            // Salary stats
-            let salary_stats = sqlx::query!(
+            // Salary stats - fetch all and compute in Rust
+            let salary_rows = sqlx::query(
                 r#"
-                SELECT
-                    AVG(jsp.predicted_median) as avg_salary,
-                    MEDIAN(jsp.predicted_median) as median_salary
+                SELECT jsp.predicted_median
                 FROM jobs j
                 LEFT JOIN job_salary_predictions jsp ON j.hash = jsp.job_hash
                 WHERE LOWER(j.title) LIKE '%' || ? || '%'
                 "#,
-                title
             )
-            .fetch_one(&self.db)
+            .bind(&title)
+            .fetch_all(&self.db)
             .await?;
 
+            let mut salaries: Vec<f64> = salary_rows
+                .iter()
+                .filter_map(|r| r.try_get::<f64, _>("predicted_median").ok())
+                .collect();
+            let avg_salary = if salaries.is_empty() {
+                None
+            } else {
+                Some(salaries.iter().sum::<f64>() / salaries.len() as f64)
+            };
+            let median_salary = compute_median(&mut salaries);
+
             // Top company and location
-            let top_data = sqlx::query!(
+            let top_data = sqlx::query(
                 r#"
                 SELECT company, location
                 FROM jobs
@@ -548,10 +608,15 @@ impl MarketIntelligence {
                 ORDER BY COUNT(*) DESC
                 LIMIT 1
                 "#,
-                title
             )
+            .bind(&title)
             .fetch_optional(&self.db)
             .await?;
+
+            let top_company: Option<String> =
+                top_data.as_ref().and_then(|r| r.try_get("company").ok());
+            let top_location: Option<String> =
+                top_data.as_ref().and_then(|r| r.try_get("location").ok());
 
             // Remote percentage
             let remote_pct = sqlx::query_scalar::<_, Option<f64>>(
@@ -561,9 +626,9 @@ impl MarketIntelligence {
                     CAST(COUNT(*) AS REAL) * 100.0
                 FROM jobs
                 WHERE LOWER(title) LIKE '%' || ? || '%'
-                "#
+                "#,
             )
-            .bind(title)
+            .bind(&title)
             .fetch_one(&self.db)
             .await?;
 
@@ -576,11 +641,12 @@ impl MarketIntelligence {
                   AND date >= date('now', '-7 days')
                 ORDER BY date DESC
                 LIMIT 1
-                "#
+                "#,
             )
-            .bind(title)
+            .bind(&title)
             .fetch_one(&self.db)
-            .await?;
+            .await
+            .unwrap_or(None);
 
             let demand_trend = if let Some(prev) = prev_week_demand {
                 if job_count > prev {
@@ -594,7 +660,7 @@ impl MarketIntelligence {
                 "stable"
             };
 
-            sqlx::query!(
+            sqlx::query(
                 r#"
                 INSERT INTO role_demand_trends (
                     job_title_normalized, date, job_count,
@@ -611,16 +677,16 @@ impl MarketIntelligence {
                     remote_percentage = excluded.remote_percentage,
                     demand_trend = excluded.demand_trend
                 "#,
-                title,
-                today.to_string(),
-                job_count,
-                salary_stats.avg_salary.map(|v| v as i64),
-                salary_stats.median_salary.map(|v| v as i64),
-                top_data.as_ref().map(|d| d.company.as_str()),
-                top_data.as_ref().map(|d| d.location.as_str()),
-                remote_pct,
-                demand_trend
             )
+            .bind(&title)
+            .bind(today.to_string())
+            .bind(job_count)
+            .bind(avg_salary.map(|v| v as i64))
+            .bind(median_salary.map(|v| v as i64))
+            .bind(&top_company)
+            .bind(&top_location)
+            .bind(remote_pct)
+            .bind(demand_trend)
             .execute(&self.db)
             .await?;
         }
@@ -631,13 +697,12 @@ impl MarketIntelligence {
     /// Detect market alerts (anomalies, trends)
     async fn detect_market_alerts(&self) -> Result<()> {
         // Detect skill surges (50%+ increase in mentions)
-        let skill_surges = sqlx::query!(
+        let skill_surges = sqlx::query(
             r#"
             SELECT
                 curr.skill_name,
                 curr.mention_count as current_mentions,
-                prev.mention_count as prev_mentions,
-                ((curr.mention_count - prev.mention_count) * 100.0 / prev.mention_count) as pct_change
+                prev.mention_count as prev_mentions
             FROM skill_demand_trends curr
             LEFT JOIN skill_demand_trends prev ON
                 curr.skill_name = prev.skill_name AND
@@ -645,16 +710,19 @@ impl MarketIntelligence {
             WHERE curr.date = date('now')
               AND prev.mention_count > 0
               AND ((curr.mention_count - prev.mention_count) * 100.0 / prev.mention_count) >= 50
-            "#
+            "#,
         )
         .fetch_all(&self.db)
         .await?;
 
         for surge in skill_surges {
-            let pct_change = ((surge.current_mentions - surge.prev_mentions) as f64
-                / surge.prev_mentions as f64) * 100.0;
+            let skill_name: String = surge.try_get("skill_name")?;
+            let current_mentions: i64 = surge.try_get("current_mentions")?;
+            let prev_mentions: i64 = surge.try_get("prev_mentions")?;
 
-            sqlx::query!(
+            let pct_change = ((current_mentions - prev_mentions) as f64 / prev_mentions as f64) * 100.0;
+
+            sqlx::query(
                 r#"
                 INSERT INTO market_alerts (
                     alert_type, title, description, severity,
@@ -662,24 +730,24 @@ impl MarketIntelligence {
                 )
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 "#,
-                "skill_surge",
-                format!("{} demand surging!", surge.skill_name),
-                format!(
-                    "The skill '{}' saw a {}% increase in job postings this week ({} → {} mentions).",
-                    surge.skill_name, pct_change as i32, surge.prev_mentions, surge.current_mentions
-                ),
-                "info",
-                surge.skill_name,
-                "skill",
-                surge.current_mentions as f64,
-                pct_change
             )
+            .bind("skill_surge")
+            .bind(format!("{} demand surging!", skill_name))
+            .bind(format!(
+                "The skill '{}' saw a {}% increase in job postings this week ({} -> {} mentions).",
+                skill_name, pct_change as i32, prev_mentions, current_mentions
+            ))
+            .bind("info")
+            .bind(&skill_name)
+            .bind("skill")
+            .bind(current_mentions as f64)
+            .bind(pct_change)
             .execute(&self.db)
             .await?;
         }
 
         // Detect salary spikes (25%+ increase)
-        let salary_spikes = sqlx::query!(
+        let salary_spikes = sqlx::query(
             r#"
             SELECT
                 job_title_normalized,
@@ -689,40 +757,43 @@ impl MarketIntelligence {
             FROM salary_trends
             WHERE date = date('now')
               AND salary_growth_pct >= 25.0
-            "#
+            "#,
         )
         .fetch_all(&self.db)
         .await?;
 
         for spike in salary_spikes {
-            if let Some(growth) = spike.salary_growth_pct {
-                sqlx::query!(
-                    r#"
-                    INSERT INTO market_alerts (
-                        alert_type, title, description, severity,
-                        related_entity, related_entity_type, metric_value, metric_change_pct
-                    )
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                    "#,
-                    "salary_spike",
-                    format!("{} salaries jumping in {}", spike.job_title_normalized, spike.location_normalized),
-                    format!(
-                        "Salaries for '{}' in {} increased by {:.1}% (median: ${}).",
-                        spike.job_title_normalized, spike.location_normalized, growth, spike.median_salary
-                    ),
-                    "info",
-                    spike.job_title_normalized,
-                    "role",
-                    spike.median_salary as f64,
-                    growth
+            let job_title: String = spike.try_get("job_title_normalized")?;
+            let location: String = spike.try_get("location_normalized")?;
+            let growth: f64 = spike.try_get("salary_growth_pct")?;
+            let median: i64 = spike.try_get("median_salary")?;
+
+            sqlx::query(
+                r#"
+                INSERT INTO market_alerts (
+                    alert_type, title, description, severity,
+                    related_entity, related_entity_type, metric_value, metric_change_pct
                 )
-                .execute(&self.db)
-                .await?;
-            }
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                "#,
+            )
+            .bind("salary_spike")
+            .bind(format!("{} salaries jumping in {}", job_title, location))
+            .bind(format!(
+                "Salaries for '{}' in {} increased by {:.1}% (median: ${}).",
+                job_title, location, growth, median
+            ))
+            .bind("info")
+            .bind(&job_title)
+            .bind("role")
+            .bind(median as f64)
+            .bind(growth)
+            .execute(&self.db)
+            .await?;
         }
 
         // Detect hiring sprees (companies posting 10+ jobs in a day)
-        let hiring_sprees = sqlx::query!(
+        let hiring_sprees = sqlx::query(
             r#"
             SELECT
                 company_name,
@@ -731,13 +802,17 @@ impl MarketIntelligence {
             FROM company_hiring_velocity
             WHERE date = date('now')
               AND jobs_posted_count >= 10
-            "#
+            "#,
         )
         .fetch_all(&self.db)
         .await?;
 
         for spree in hiring_sprees {
-            sqlx::query!(
+            let company_name: String = spree.try_get("company_name")?;
+            let jobs_posted: i64 = spree.try_get("jobs_posted_count")?;
+            let jobs_active: i64 = spree.try_get("jobs_active_count")?;
+
+            sqlx::query(
                 r#"
                 INSERT INTO market_alerts (
                     alert_type, title, description, severity,
@@ -745,17 +820,17 @@ impl MarketIntelligence {
                 )
                 VALUES (?, ?, ?, ?, ?, ?, ?)
                 "#,
-                "hiring_spree",
-                format!("{} hiring aggressively", spree.company_name),
-                format!(
-                    "{} posted {} new jobs today ({} total active positions).",
-                    spree.company_name, spree.jobs_posted_count, spree.jobs_active_count
-                ),
-                "info",
-                spree.company_name,
-                "company",
-                spree.jobs_posted_count as f64
             )
+            .bind("hiring_spree")
+            .bind(format!("{} hiring aggressively", company_name))
+            .bind(format!(
+                "{} posted {} new jobs today ({} total active positions).",
+                company_name, jobs_posted, jobs_active
+            ))
+            .bind("info")
+            .bind(&company_name)
+            .bind("company")
+            .bind(jobs_posted as f64)
             .execute(&self.db)
             .await?;
         }
@@ -765,7 +840,7 @@ impl MarketIntelligence {
 
     /// Get trending skills (last 30 days)
     pub async fn get_trending_skills(&self, limit: usize) -> Result<Vec<SkillTrend>> {
-        let records = sqlx::query!(
+        let rows = sqlx::query(
             r#"
             SELECT
                 skill_name,
@@ -777,24 +852,24 @@ impl MarketIntelligence {
             ORDER BY total_jobs DESC
             LIMIT ?
             "#,
-            limit as i64
         )
+        .bind(limit as i64)
         .fetch_all(&self.db)
         .await?;
 
-        Ok(records
+        Ok(rows
             .into_iter()
             .map(|r| SkillTrend {
-                skill_name: r.skill_name,
-                total_jobs: r.total_jobs.unwrap_or(0),
-                avg_salary: r.avg_salary.map(|v| v as i64),
+                skill_name: r.try_get("skill_name").unwrap_or_default(),
+                total_jobs: r.try_get("total_jobs").unwrap_or(0),
+                avg_salary: r.try_get::<Option<f64>, _>("avg_salary").ok().flatten().map(|v| v as i64),
             })
             .collect())
     }
 
     /// Get most active companies
     pub async fn get_most_active_companies(&self, limit: usize) -> Result<Vec<CompanyActivity>> {
-        let records = sqlx::query!(
+        let rows = sqlx::query(
             r#"
             SELECT
                 company_name,
@@ -807,25 +882,25 @@ impl MarketIntelligence {
             ORDER BY total_posted DESC
             LIMIT ?
             "#,
-            limit as i64
         )
+        .bind(limit as i64)
         .fetch_all(&self.db)
         .await?;
 
-        Ok(records
+        Ok(rows
             .into_iter()
             .map(|r| CompanyActivity {
-                company_name: r.company_name,
-                total_posted: r.total_posted.unwrap_or(0),
-                avg_active: r.avg_active.unwrap_or(0.0),
-                hiring_trend: r.hiring_trend,
+                company_name: r.try_get("company_name").unwrap_or_default(),
+                total_posted: r.try_get("total_posted").unwrap_or(0),
+                avg_active: r.try_get("avg_active").unwrap_or(0.0),
+                hiring_trend: r.try_get("hiring_trend").ok(),
             })
             .collect())
     }
 
     /// Get hottest job markets by location
     pub async fn get_hottest_locations(&self, limit: usize) -> Result<Vec<LocationHeat>> {
-        let records = sqlx::query!(
+        let rows = sqlx::query(
             r#"
             SELECT
                 location_normalized,
@@ -839,19 +914,19 @@ impl MarketIntelligence {
             ORDER BY total_jobs DESC
             LIMIT ?
             "#,
-            limit as i64
         )
+        .bind(limit as i64)
         .fetch_all(&self.db)
         .await?;
 
-        Ok(records
+        Ok(rows
             .into_iter()
             .map(|r| LocationHeat {
-                location: r.location_normalized,
-                city: r.city,
-                state: r.state,
-                total_jobs: r.total_jobs.unwrap_or(0),
-                avg_median_salary: r.avg_median_salary.map(|v| v as i64),
+                location: r.try_get("location_normalized").unwrap_or_default(),
+                city: r.try_get("city").ok(),
+                state: r.try_get("state").ok(),
+                total_jobs: r.try_get("total_jobs").unwrap_or(0),
+                avg_median_salary: r.try_get::<Option<f64>, _>("avg_median_salary").ok().flatten().map(|v| v as i64),
             })
             .collect())
     }

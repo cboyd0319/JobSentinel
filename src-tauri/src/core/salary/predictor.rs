@@ -5,7 +5,7 @@
 use super::{SalaryPrediction, SeniorityLevel};
 use anyhow::Result;
 use chrono::Utc;
-use sqlx::SqlitePool;
+use sqlx::{Row, SqlitePool};
 
 /// Salary predictor
 pub struct SalaryPredictor {
@@ -24,26 +24,29 @@ impl SalaryPredictor {
         years_of_experience: Option<i32>,
     ) -> Result<SalaryPrediction> {
         // Get job details
-        let job = sqlx::query!(
-            "SELECT title, location FROM jobs WHERE hash = ?",
-            job_hash
-        )
-        .fetch_one(&self.db)
-        .await?;
+        let job = sqlx::query("SELECT title, location FROM jobs WHERE hash = ?")
+            .bind(job_hash)
+            .fetch_one(&self.db)
+            .await?;
+
+        let title: String = job.try_get("title")?;
+        let location: Option<String> = job.try_get("location")?;
+        let location = location.unwrap_or_default();
 
         // Determine seniority
         let seniority = if let Some(years) = years_of_experience {
             SeniorityLevel::from_years_of_experience(years)
         } else {
-            SeniorityLevel::from_job_title(&job.title)
+            SeniorityLevel::from_job_title(&title)
         };
 
         // Normalize title and location
-        let normalized_title = self.normalize_title(&job.title);
-        let normalized_location = self.normalize_location(&job.location);
+        let normalized_title = self.normalize_title(&title);
+        let normalized_location = self.normalize_location(&location);
+        let seniority_str = seniority.as_str().to_string();
 
         // Query benchmark
-        let benchmark = sqlx::query!(
+        let benchmark = sqlx::query(
             r#"
             SELECT min_salary, median_salary, p75_salary, sample_size
             FROM salary_benchmarks
@@ -53,26 +56,26 @@ impl SalaryPredictor {
             ORDER BY sample_size DESC
             LIMIT 1
             "#,
-            normalized_title,
-            format!("%{}%", normalized_location),
-            seniority.as_str()
         )
+        .bind(&normalized_title)
+        .bind(format!("%{}%", normalized_location))
+        .bind(&seniority_str)
         .fetch_optional(&self.db)
         .await?;
 
         let (min, median, max, sample_size, method, confidence) = if let Some(b) = benchmark {
             // Found exact match
             (
-                b.min_salary,
-                b.median_salary,
-                b.p75_salary,
-                b.sample_size,
+                b.try_get::<i64, _>("min_salary").unwrap_or(0),
+                b.try_get::<i64, _>("median_salary").unwrap_or(0),
+                b.try_get::<i64, _>("p75_salary").unwrap_or(0),
+                b.try_get::<i64, _>("sample_size").unwrap_or(0),
                 "h1b_match",
                 0.9, // High confidence for exact match
             )
         } else {
             // Fallback: broader search (any location, same title/seniority)
-            let fallback = sqlx::query!(
+            let fallback = sqlx::query(
                 r#"
                 SELECT AVG(min_salary) as avg_min, AVG(median_salary) as avg_median,
                        AVG(p75_salary) as avg_p75, SUM(sample_size) as total_samples
@@ -80,18 +83,20 @@ impl SalaryPredictor {
                 WHERE job_title_normalized = ?
                   AND seniority_level = ?
                 "#,
-                normalized_title,
-                seniority.as_str()
             )
+            .bind(&normalized_title)
+            .bind(&seniority_str)
             .fetch_one(&self.db)
             .await?;
 
-            if fallback.avg_median.is_some() {
+            let avg_median: Option<f64> = fallback.try_get("avg_median").ok();
+
+            if avg_median.is_some() {
                 (
-                    fallback.avg_min.unwrap() as i64,
-                    fallback.avg_median.unwrap() as i64,
-                    fallback.avg_p75.unwrap() as i64,
-                    fallback.total_samples.unwrap_or(0),
+                    fallback.try_get::<f64, _>("avg_min").unwrap_or(0.0) as i64,
+                    fallback.try_get::<f64, _>("avg_median").unwrap_or(0.0) as i64,
+                    fallback.try_get::<f64, _>("avg_p75").unwrap_or(0.0) as i64,
+                    fallback.try_get::<i64, _>("total_samples").unwrap_or(0),
                     "h1b_average",
                     0.6, // Lower confidence for averaged data
                 )
@@ -129,7 +134,7 @@ impl SalaryPredictor {
             created_at: Utc::now(),
         };
 
-        sqlx::query!(
+        sqlx::query(
             r#"
             INSERT INTO job_salary_predictions (
                 job_hash, predicted_min, predicted_max, predicted_median,
@@ -144,14 +149,14 @@ impl SalaryPredictor {
                 prediction_method = excluded.prediction_method,
                 data_points_used = excluded.data_points_used
             "#,
-            prediction.job_hash,
-            prediction.predicted_min,
-            prediction.predicted_max,
-            prediction.predicted_median,
-            prediction.confidence_score,
-            prediction.prediction_method,
-            prediction.data_points_used
         )
+        .bind(&prediction.job_hash)
+        .bind(prediction.predicted_min)
+        .bind(prediction.predicted_max)
+        .bind(prediction.predicted_median)
+        .bind(prediction.confidence_score)
+        .bind(&prediction.prediction_method)
+        .bind(prediction.data_points_used)
         .execute(&self.db)
         .await?;
 
@@ -160,30 +165,33 @@ impl SalaryPredictor {
 
     /// Get existing prediction for a job
     pub async fn get_prediction(&self, job_hash: &str) -> Result<Option<SalaryPrediction>> {
-        let record = sqlx::query!(
+        let record = sqlx::query(
             r#"
             SELECT job_hash, predicted_min, predicted_max, predicted_median,
                    confidence_score, prediction_method, data_points_used, created_at
             FROM job_salary_predictions
             WHERE job_hash = ?
             "#,
-            job_hash
         )
+        .bind(job_hash)
         .fetch_optional(&self.db)
         .await?;
 
         match record {
             Some(r) => Ok(Some(SalaryPrediction {
-                job_hash: r.job_hash,
-                predicted_min: r.predicted_min.unwrap_or(0),
-                predicted_max: r.predicted_max.unwrap_or(0),
-                predicted_median: r.predicted_median.unwrap_or(0),
-                confidence_score: r.confidence_score.unwrap_or(0.0),
-                prediction_method: r.prediction_method.unwrap_or_else(|| "unknown".to_string()),
-                data_points_used: r.data_points_used.unwrap_or(0),
-                created_at: chrono::DateTime::parse_from_rfc3339(&r.created_at)
-                    .unwrap()
-                    .with_timezone(&Utc),
+                job_hash: r.try_get::<String, _>("job_hash")?,
+                predicted_min: r.try_get::<i64, _>("predicted_min").unwrap_or(0),
+                predicted_max: r.try_get::<i64, _>("predicted_max").unwrap_or(0),
+                predicted_median: r.try_get::<i64, _>("predicted_median").unwrap_or(0),
+                confidence_score: r.try_get::<f64, _>("confidence_score").unwrap_or(0.0),
+                prediction_method: r
+                    .try_get::<String, _>("prediction_method")
+                    .unwrap_or_else(|_| "unknown".to_string()),
+                data_points_used: r.try_get::<i64, _>("data_points_used").unwrap_or(0),
+                created_at: chrono::DateTime::parse_from_rfc3339(
+                    &r.try_get::<String, _>("created_at")?,
+                )?
+                .with_timezone(&Utc),
             })),
             None => Ok(None),
         }

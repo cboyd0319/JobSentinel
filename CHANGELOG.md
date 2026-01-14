@@ -13,14 +13,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Automated follow-up reminders
   - Timeline/audit trail for all application events
   - Ghosting detection (auto-mark after 2 weeks no contact)
+- Resume Matcher module now enabled
+  - PDF resume parsing
+  - Skill extraction from resumes
+  - Job-resume matching with confidence scores
+- Salary AI module now enabled
+  - H1B data-based salary predictions
+  - Salary benchmarks by role and location
+  - Offer comparison and negotiation insights
+- Market Intelligence module now enabled
+  - Daily market snapshots
+  - Skill demand trends
+  - Salary trends by role/location
+  - Company hiring velocity tracking
+  - Location job density analysis
+  - Market alerts for anomalies
 
 ### Changed
 - Refactored codebase to fix all compilation errors
-- Updated test suite: 256 tests passing, 13 ignored (require file-based database)
+- Updated test suite: 275 tests passing, 14 ignored (require file-based database)
 - Fixed SQLx Row trait usage (get -> try_get)
+- Converted all query! macros to runtime queries (removed DATABASE_URL dependency)
 - Fixed proptest edge cases in scrapers
 - Fixed webhook URL validation test assertions
 - Updated documentation for accurate v1.0 status
+- Fixed MEDIAN() SQLite incompatibility (computed in Rust)
 
 ### Security
 - Removed `unsafe-inline` from script-src CSP
@@ -35,7 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed database integrity DateTime handling
 - Added #[ignore] to backup/restore and ATS tests (require file-based database)
 - Fixed doctest compilation issues
-- Auto-fixed clippy warnings
+- Fixed all clippy warnings (zero warnings with -D warnings)
 
 ## [1.0.0-alpha] - 2026-01-14
 

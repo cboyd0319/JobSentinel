@@ -71,7 +71,7 @@ pub struct Database {
 
 impl Database {
     /// Connect to SQLite database with optimized settings
-    pub async fn connect(path: &PathBuf) -> Result<Self, sqlx::Error> {
+    pub async fn connect(path: &std::path::Path) -> Result<Self, sqlx::Error> {
         // Ensure parent directory exists
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent).map_err(|e| {
@@ -143,24 +143,26 @@ impl Database {
         tracing::debug!("  ✓ Cell size verification enabled");
 
         // Enable checksum verification (requires SQLite 3.37+, ignore if not supported)
-        if let Ok(_) = sqlx::query("PRAGMA checksum_verification = ON")
+        if sqlx::query("PRAGMA checksum_verification = ON")
             .execute(pool)
             .await
+            .is_ok()
         {
-            tracing::debug!("  ✓ Checksum verification enabled (SQLite 3.37+)");
+            tracing::debug!("  - Checksum verification enabled (SQLite 3.37+)");
         } else {
-            tracing::debug!("  ⚠ Checksum verification not supported (SQLite < 3.37)");
+            tracing::debug!("  - Checksum verification not supported (SQLite < 3.37)");
         }
 
         // Disable potentially unsafe schema features (SQLite 3.31+)
         // Prevents malicious SQL from being executed via schema
-        if let Ok(_) = sqlx::query("PRAGMA trusted_schema = OFF")
+        if sqlx::query("PRAGMA trusted_schema = OFF")
             .execute(pool)
             .await
+            .is_ok()
         {
-            tracing::debug!("  ✓ Trusted schema disabled (SQLite 3.31+)");
+            tracing::debug!("  - Trusted schema disabled (SQLite 3.31+)");
         } else {
-            tracing::debug!("  ⚠ Trusted schema setting not supported (SQLite < 3.31)");
+            tracing::debug!("  - Trusted schema setting not supported (SQLite < 3.31)");
         }
 
         // Enable secure delete - overwrites deleted content with zeros
@@ -741,9 +743,7 @@ mod tests {
         // Use in-memory database for testing
         let db = Database::connect_memory().await.unwrap();
         db.migrate().await.unwrap();
-
         // Database is created successfully (implicitly verified by unwrap)
-        assert!(true);
     }
 
     #[tokio::test]

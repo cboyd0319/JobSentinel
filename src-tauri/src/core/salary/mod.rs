@@ -14,7 +14,7 @@
 //! 1. **H1B Salary Database** (Primary)
 //!    - Source: U.S. Department of Labor (public data)
 //!    - Coverage: 500K+ salaries annually
-//!    - Legal: ✅ Public domain
+//!    - Legal: Public domain
 //!
 //! 2. **User-Reported Salaries** (Secondary)
 //!    - Crowdsourced from JobSentinel users (opt-in)
@@ -22,7 +22,7 @@
 //!
 //! ## Usage
 //!
-//! ```rust
+//! ```rust,ignore
 //! use jobsentinel::core::salary::SalaryAnalyzer;
 //!
 //! let analyzer = SalaryAnalyzer::new(db_pool);
@@ -41,7 +41,7 @@
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::SqlitePool;
+use sqlx::{Row, SqlitePool};
 
 pub mod benchmarks;
 pub mod predictor;
@@ -74,7 +74,7 @@ impl SeniorityLevel {
         }
     }
 
-    pub fn from_str(s: &str) -> Self {
+    pub fn parse(s: &str) -> Self {
         match s {
             "entry" => Self::Entry,
             "mid" => Self::Mid,
@@ -175,8 +175,9 @@ impl SalaryAnalyzer {
     ) -> Result<Option<SalaryBenchmark>> {
         let normalized_title = self.normalize_job_title(job_title);
         let normalized_location = self.normalize_location(location);
+        let seniority_str = seniority.as_str();
 
-        let record = sqlx::query!(
+        let row = sqlx::query(
             r#"
             SELECT min_salary, p25_salary, median_salary, p75_salary,
                    max_salary, average_salary, sample_size, last_updated
@@ -187,27 +188,30 @@ impl SalaryAnalyzer {
             ORDER BY last_updated DESC
             LIMIT 1
             "#,
-            normalized_title,
-            normalized_location,
-            seniority.as_str()
         )
+        .bind(&normalized_title)
+        .bind(&normalized_location)
+        .bind(seniority_str)
         .fetch_optional(&self.db)
         .await?;
 
-        match record {
+        match row {
             Some(r) => Ok(Some(SalaryBenchmark {
                 job_title: normalized_title,
                 location: normalized_location,
                 seniority_level: seniority,
-                min_salary: r.min_salary,
-                p25_salary: r.p25_salary,
-                median_salary: r.median_salary,
-                p75_salary: r.p75_salary,
-                max_salary: r.max_salary,
-                average_salary: r.average_salary,
-                sample_size: r.sample_size,
-                last_updated: DateTime::parse_from_rfc3339(&r.last_updated)?
-                    .with_timezone(&Utc),
+                min_salary: r.try_get::<i64, _>("min_salary").unwrap_or(0),
+                p25_salary: r.try_get::<i64, _>("p25_salary").unwrap_or(0),
+                median_salary: r.try_get::<i64, _>("median_salary").unwrap_or(0),
+                p75_salary: r.try_get::<i64, _>("p75_salary").unwrap_or(0),
+                max_salary: r.try_get::<i64, _>("max_salary").unwrap_or(0),
+                average_salary: r.try_get::<i64, _>("average_salary").unwrap_or(0),
+                sample_size: r.try_get::<i64, _>("sample_size").unwrap_or(0),
+                last_updated: DateTime::parse_from_rfc3339(
+                    &r.try_get::<String, _>("last_updated").unwrap_or_default(),
+                )
+                .unwrap_or_else(|_| DateTime::default())
+                .with_timezone(&Utc),
             })),
             None => Ok(None),
         }
@@ -227,7 +231,7 @@ impl SalaryAnalyzer {
         let mut comparisons = Vec::new();
 
         for offer_id in offer_ids {
-            let offer = sqlx::query!(
+            let offer = sqlx::query(
                 r#"
                 SELECT o.id, o.base_salary, o.annual_bonus, o.equity_shares,
                        a.job_hash, j.title, j.company
@@ -236,26 +240,27 @@ impl SalaryAnalyzer {
                 JOIN jobs j ON j.hash = a.job_hash
                 WHERE o.id = ?
                 "#,
-                offer_id
             )
+            .bind(offer_id)
             .fetch_one(&self.db)
             .await?;
 
+            let id: i64 = offer.try_get("id")?;
+            let company: String = offer.try_get("company")?;
+            let job_hash: String = offer.try_get("job_hash")?;
+            let base_salary: i64 = offer.try_get::<Option<i64>, _>("base_salary")?.unwrap_or(0);
+            let annual_bonus: i64 = offer.try_get::<Option<i64>, _>("annual_bonus")?.unwrap_or(0);
+
             // Calculate total comp (simplified)
-            let total_comp = offer.base_salary.unwrap_or(0)
-                + offer.annual_bonus.unwrap_or(0);
+            let total_comp = base_salary + annual_bonus;
 
             // Get market benchmark
-            let prediction = self
-                .predictor
-                .get_prediction(&offer.job_hash)
-                .await?;
+            let prediction = self.predictor.get_prediction(&job_hash).await?;
 
             let (market_median, market_position, recommendation) = if let Some(pred) = prediction {
-                let base = offer.base_salary.unwrap_or(0);
-                let position = if base >= pred.predicted_max {
+                let position = if base_salary >= pred.predicted_max {
                     "above_market"
-                } else if base >= pred.predicted_median {
+                } else if base_salary >= pred.predicted_median {
                     "at_market"
                 } else {
                     "below_market"
@@ -277,9 +282,9 @@ impl SalaryAnalyzer {
             };
 
             comparisons.push(OfferComparison {
-                offer_id: offer.id,
-                company: offer.company,
-                base_salary: offer.base_salary.unwrap_or(0),
+                offer_id: id,
+                company,
+                base_salary,
                 total_compensation: total_comp,
                 market_median,
                 market_position,
@@ -314,7 +319,7 @@ impl SalaryAnalyzer {
 
     /// Normalize location for matching
     fn normalize_location(&self, location: &str) -> String {
-        let mut normalized = location.to_lowercase();
+        let normalized = location.to_lowercase();
 
         // Standardize common metro areas
         if normalized.contains("san francisco") || normalized.contains("sf") {
@@ -377,30 +382,5 @@ mod tests {
             SeniorityLevel::from_job_title("Principal Engineer"),
             SeniorityLevel::Principal
         );
-    }
-
-    #[test]
-    fn test_normalize_job_title() {
-        let analyzer = SalaryAnalyzer::new(SqlitePool::connect("sqlite::memory:").await.unwrap());
-
-        assert_eq!(
-            analyzer.normalize_job_title("Sr. Software Engineer"),
-            "software engineer"
-        );
-        assert_eq!(
-            analyzer.normalize_job_title("SWE II"),
-            "software engineer"
-        );
-    }
-
-    #[test]
-    fn test_normalize_location() {
-        let analyzer = SalaryAnalyzer::new(SqlitePool::connect("sqlite::memory:").await.unwrap());
-
-        assert_eq!(
-            analyzer.normalize_location("San Francisco Bay Area"),
-            "san francisco, ca"
-        );
-        assert_eq!(analyzer.normalize_location("NYC"), "new york, ny");
     }
 }

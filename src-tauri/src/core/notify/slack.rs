@@ -139,7 +139,6 @@ pub async fn validate_webhook(webhook_url: &str) -> Result<bool> {
 mod tests {
     use super::*;
     use crate::core::{
-        config::{AlertConfig, Config, LocationPreferences, SlackConfig},
         db::Job,
         scoring::{JobScore, ScoreBreakdown},
     };
@@ -350,7 +349,7 @@ mod tests {
 
     #[test]
     fn test_notification_score_formatting() {
-        let notification = create_test_notification();
+        let _notification = create_test_notification();
 
         // Test various score values
         let test_cases = vec![

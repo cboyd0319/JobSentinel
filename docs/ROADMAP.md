@@ -6,7 +6,10 @@
 
 ### Working Features
 - Job scrapers: Greenhouse, Lever, JobsWithGPT
-- Application Tracking System (ATS): Kanban board, reminders
+- Application Tracking System (ATS): Kanban board, reminders, timeline
+- AI Resume-Job Matcher: PDF parsing, skill extraction, matching
+- Salary AI: Benchmarks, predictions, offer comparison
+- Market Intelligence: Trends, snapshots, alerts
 - Multi-factor scoring algorithm
 - Multi-channel notifications: Slack, Discord, Teams
 - SQLite database with full-text search
@@ -15,14 +18,12 @@
 
 ### v1.1 Planned Features
 
-| Feature | Status | Blocker |
-|---------|--------|---------|
-| AI Resume-Job Matcher | 65% | Type mismatches |
-| Salary Negotiation AI | 50% | SQLite MEDIAN() |
-| Job Market Intelligence | 60% | SQLite MEDIAN() |
-| Email notifications (SMTP) | Code exists | Integration |
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Email notifications (SMTP) | Code exists | Integration needed |
 | LinkedIn scraper | 30% | API incomplete |
 | Indeed scraper | 30% | API incomplete |
+| Desktop notifications | Planned | Tauri plugin |
 
 ### v2.0 Planned Features
 
@@ -45,24 +46,28 @@
 
 ## Feature Details
 
-### AI Resume-Job Matcher (v1.1)
+### AI Resume-Job Matcher (Enabled)
 Automatically parse resumes and match skills against job requirements.
-- PDF/DOCX parsing with skill extraction
+- PDF parsing with skill extraction
 - Semantic similarity matching
-- "Skills gap" visualization
-- Recommendations for skill development
+- Confidence scoring per job match
+- Skills database with proficiency levels
 
-### Salary Negotiation AI (v1.1)
+### Salary AI (Enabled)
 Data-driven compensation insights.
+- H1B data-based salary predictions
 - Salary benchmarks by role/location/company
-- Market rate predictions
-- Negotiation talking points
+- Seniority-level aware predictions
+- Offer comparison and negotiation insights
 
-### Job Market Intelligence (v1.1)
+### Market Intelligence (Enabled)
 Analytics and trend visualization.
+- Daily market snapshots
 - Skill demand trends over time
 - Salary trends by region
-- Company hiring patterns
+- Company hiring velocity
+- Location job density
+- Market alerts for anomalies
 
 ### One-Click Apply (v2.0+)
 Automated application submission.
@@ -73,18 +78,25 @@ Automated application submission.
 
 ---
 
-## Technical Debt
-
-### Priority Fixes
-1. Replace SQLite MEDIAN() with compatible alternative
-2. Complete LinkedIn/Indeed API integration
-3. Add comprehensive integration tests
-4. Set up CI/CD pipeline
+## Technical Status
 
 ### Code Quality
 - All Rust code compiles with 0 errors
-- Clippy passes (minor warnings for unused LinkedIn structs)
-- 256 tests passing, 13 ignored
+- Clippy passes with 0 warnings (`-D warnings`)
+- 275 tests passing, 14 ignored (require file-based database)
+- All modules enabled and functional
+
+### Resolved Technical Debt
+- [x] SQLite MEDIAN() - computed in Rust instead
+- [x] SQLx query! macros - converted to runtime queries
+- [x] All compilation errors fixed
+- [x] All clippy warnings fixed
+
+### Remaining Work
+- [ ] Complete LinkedIn/Indeed API integration
+- [ ] Add comprehensive integration tests
+- [ ] Set up CI/CD pipeline
+- [ ] Email notifications integration
 
 ---
 
@@ -94,6 +106,6 @@ See [CONTRIBUTING.md](developer/CONTRIBUTING.md) for how to contribute.
 
 Priority areas for contribution:
 1. LinkedIn/Indeed scraper completion
-2. SQLite MEDIAN() workaround implementation
-3. Additional notification channels
-4. UI/UX improvements
+2. Email notification integration
+3. UI/UX improvements
+4. Additional test coverage

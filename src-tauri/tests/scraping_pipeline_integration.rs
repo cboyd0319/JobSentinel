@@ -5,11 +5,10 @@
 use jobsentinel::core::{
     config::{Config, LocationPreferences},
     db::{Database, Job},
-    scheduler::{Scheduler, ScrapingResult},
-    scoring::{JobScore, ScoringEngine},
+    scheduler::Scheduler,
+    scoring::ScoringEngine,
 };
 use std::sync::Arc;
-use tokio;
 
 /// Helper to create a minimal test config
 fn create_test_config() -> Config {
@@ -145,7 +144,6 @@ async fn test_database_upsert_pipeline() {
 
 #[tokio::test]
 async fn test_pipeline_job_deduplication() {
-    let config = Arc::new(create_test_config());
     let db = Database::connect_memory().await.unwrap();
     db.migrate().await.unwrap();
     let database = Arc::new(db);
@@ -192,7 +190,6 @@ async fn test_pipeline_job_deduplication() {
 
 #[tokio::test]
 async fn test_pipeline_high_score_filtering() {
-    let config = Arc::new(create_test_config());
     let db = Database::connect_memory().await.unwrap();
     db.migrate().await.unwrap();
     let database = Arc::new(db);
@@ -256,7 +253,6 @@ async fn test_pipeline_high_score_filtering() {
 
 #[tokio::test]
 async fn test_pipeline_full_cycle_statistics() {
-    let config = Arc::new(create_test_config());
     let db = Database::connect_memory().await.unwrap();
     db.migrate().await.unwrap();
     let database = Arc::new(db);
@@ -354,7 +350,7 @@ async fn test_pipeline_search_functionality() {
 
     // Search for "Rust"
     let rust_results = db.search_jobs("Rust", 10).await.unwrap();
-    assert!(rust_results.len() > 0, "Should find Rust jobs");
+    assert!(!rust_results.is_empty(), "Should find Rust jobs");
     assert!(
         rust_results.iter().any(|j| j.title.contains("Rust")),
         "Results should contain Rust job"
@@ -362,7 +358,7 @@ async fn test_pipeline_search_functionality() {
 
     // Search for "Security"
     let security_results = db.search_jobs("Security", 10).await.unwrap();
-    assert!(security_results.len() > 0, "Should find Security jobs");
+    assert!(!security_results.is_empty(), "Should find Security jobs");
     assert!(
         security_results.iter().any(|j| j.title.contains("Security")),
         "Results should contain Security job"
@@ -426,7 +422,7 @@ async fn test_pipeline_job_ordering_by_score() {
     db.migrate().await.unwrap();
 
     // Insert jobs in random score order
-    let scores = vec![0.3, 0.9, 0.5, 0.95, 0.2, 0.8];
+    let scores = [0.3, 0.9, 0.5, 0.95, 0.2, 0.8];
 
     for (i, score) in scores.iter().enumerate() {
         let job = Job {

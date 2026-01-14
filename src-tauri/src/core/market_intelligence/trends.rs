@@ -56,8 +56,10 @@ impl SalaryTrend {
     /// Format salary range as string
     pub fn range_description(&self) -> String {
         format!(
-            "${:,}-${:,} (median: ${:,})",
-            self.min_salary, self.max_salary, self.median_salary
+            "${}-${} (median: ${})",
+            format_thousands(self.min_salary),
+            format_thousands(self.max_salary),
+            format_thousands(self.median_salary)
         )
     }
 
@@ -70,6 +72,19 @@ impl SalaryTrend {
     pub fn is_significant_growth(&self) -> bool {
         self.salary_growth_pct.unwrap_or(0.0) >= 10.0
     }
+}
+
+/// Format number with thousands separators
+fn format_thousands(n: i64) -> String {
+    let s = n.to_string();
+    let mut result = String::new();
+    for (i, c) in s.chars().rev().enumerate() {
+        if i > 0 && i % 3 == 0 {
+            result.push(',');
+        }
+        result.push(c);
+    }
+    result.chars().rev().collect()
 }
 
 /// Role demand trend over time

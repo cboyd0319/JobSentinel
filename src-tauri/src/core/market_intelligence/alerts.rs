@@ -5,7 +5,7 @@
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::SqlitePool;
+use sqlx::{Row, SqlitePool};
 
 /// Market alert types
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -30,7 +30,7 @@ impl AlertType {
         }
     }
 
-    pub fn from_str(s: &str) -> Self {
+    pub fn parse(s: &str) -> Self {
         match s {
             "skill_surge" => Self::SkillSurge,
             "salary_spike" => Self::SalarySpike,
@@ -60,7 +60,7 @@ impl AlertSeverity {
         }
     }
 
-    pub fn from_str(s: &str) -> Self {
+    pub fn parse(s: &str) -> Self {
         match s {
             "info" => Self::Info,
             "warning" => Self::Warning,
@@ -89,7 +89,7 @@ impl EntityType {
         }
     }
 
-    pub fn from_str(s: &str) -> Self {
+    pub fn parse(s: &str) -> Self {
         match s {
             "skill" => Self::Skill,
             "company" => Self::Company,
@@ -119,7 +119,8 @@ pub struct MarketAlert {
 impl MarketAlert {
     /// Mark alert as read
     pub async fn mark_read(&self, db: &SqlitePool) -> Result<()> {
-        sqlx::query!("UPDATE market_alerts SET is_read = 1 WHERE id = ?", self.id)
+        sqlx::query("UPDATE market_alerts SET is_read = 1 WHERE id = ?")
+            .bind(self.id)
             .execute(db)
             .await?;
         Ok(())
@@ -138,31 +139,56 @@ impl MarketAlert {
         }
     }
 
-    /// Get severity emoji
-    pub fn severity_emoji(&self) -> &str {
+    /// Get severity indicator
+    pub fn severity_indicator(&self) -> &str {
         match self.severity {
-            AlertSeverity::Info => "ℹ️",
-            AlertSeverity::Warning => "⚠️",
-            AlertSeverity::Critical => "🚨",
+            AlertSeverity::Info => "[INFO]",
+            AlertSeverity::Warning => "[WARN]",
+            AlertSeverity::Critical => "[CRIT]",
         }
     }
 
-    /// Get alert type emoji
-    pub fn type_emoji(&self) -> &str {
+    /// Get alert type indicator
+    pub fn type_indicator(&self) -> &str {
         match self.alert_type {
-            AlertType::SkillSurge => "📈",
-            AlertType::SalarySpike => "💰",
-            AlertType::HiringFreeze => "❄️",
-            AlertType::HiringSpree => "🔥",
-            AlertType::LocationBoom => "📍",
-            AlertType::RoleObsolete => "📉",
+            AlertType::SkillSurge => "[SKILL+]",
+            AlertType::SalarySpike => "[SALARY+]",
+            AlertType::HiringFreeze => "[FREEZE]",
+            AlertType::HiringSpree => "[HIRING]",
+            AlertType::LocationBoom => "[LOCATION]",
+            AlertType::RoleObsolete => "[ROLE-]",
         }
     }
 }
 
+fn row_to_alert(r: &sqlx::sqlite::SqliteRow) -> Result<MarketAlert> {
+    let created_str: String = r.try_get("created_at")?;
+    let created_at = DateTime::parse_from_rfc3339(&created_str)
+        .map(|dt| dt.with_timezone(&Utc))
+        .unwrap_or_else(|_| Utc::now());
+
+    Ok(MarketAlert {
+        id: r.try_get("id")?,
+        alert_type: AlertType::parse(&r.try_get::<String, _>("alert_type")?),
+        title: r.try_get("title")?,
+        description: r.try_get("description")?,
+        severity: AlertSeverity::parse(&r.try_get::<String, _>("severity")?),
+        related_entity: r.try_get("related_entity").ok(),
+        related_entity_type: r
+            .try_get::<Option<String>, _>("related_entity_type")
+            .ok()
+            .flatten()
+            .map(|t| EntityType::parse(&t)),
+        metric_value: r.try_get("metric_value").ok(),
+        metric_change_pct: r.try_get("metric_change_pct").ok(),
+        is_read: r.try_get::<i64, _>("is_read").unwrap_or(0) != 0,
+        created_at,
+    })
+}
+
 /// Get all unread market alerts
 pub async fn get_unread_alerts(db: &SqlitePool) -> Result<Vec<MarketAlert>> {
-    let records = sqlx::query!(
+    let rows = sqlx::query(
         r#"
         SELECT
             id, alert_type, title, description, severity,
@@ -171,34 +197,17 @@ pub async fn get_unread_alerts(db: &SqlitePool) -> Result<Vec<MarketAlert>> {
         FROM market_alerts
         WHERE is_read = 0
         ORDER BY created_at DESC
-        "#
+        "#,
     )
     .fetch_all(db)
     .await?;
 
-    Ok(records
-        .into_iter()
-        .map(|r| MarketAlert {
-            id: r.id,
-            alert_type: AlertType::from_str(&r.alert_type),
-            title: r.title,
-            description: r.description,
-            severity: AlertSeverity::from_str(&r.severity),
-            related_entity: r.related_entity,
-            related_entity_type: r.related_entity_type.map(|t| EntityType::from_str(&t)),
-            metric_value: r.metric_value,
-            metric_change_pct: r.metric_change_pct,
-            is_read: r.is_read != 0,
-            created_at: DateTime::parse_from_rfc3339(&r.created_at)
-                .unwrap()
-                .with_timezone(&Utc),
-        })
-        .collect())
+    rows.iter().map(row_to_alert).collect()
 }
 
 /// Get all alerts (read and unread)
 pub async fn get_all_alerts(db: &SqlitePool, limit: usize) -> Result<Vec<MarketAlert>> {
-    let records = sqlx::query!(
+    let rows = sqlx::query(
         r#"
         SELECT
             id, alert_type, title, description, severity,
@@ -208,29 +217,12 @@ pub async fn get_all_alerts(db: &SqlitePool, limit: usize) -> Result<Vec<MarketA
         ORDER BY created_at DESC
         LIMIT ?
         "#,
-        limit as i64
     )
+    .bind(limit as i64)
     .fetch_all(db)
     .await?;
 
-    Ok(records
-        .into_iter()
-        .map(|r| MarketAlert {
-            id: r.id,
-            alert_type: AlertType::from_str(&r.alert_type),
-            title: r.title,
-            description: r.description,
-            severity: AlertSeverity::from_str(&r.severity),
-            related_entity: r.related_entity,
-            related_entity_type: r.related_entity_type.map(|t| EntityType::from_str(&t)),
-            metric_value: r.metric_value,
-            metric_change_pct: r.metric_change_pct,
-            is_read: r.is_read != 0,
-            created_at: DateTime::parse_from_rfc3339(&r.created_at)
-                .unwrap()
-                .with_timezone(&Utc),
-        })
-        .collect())
+    rows.iter().map(row_to_alert).collect()
 }
 
 /// Get alerts by type
@@ -239,7 +231,7 @@ pub async fn get_alerts_by_type(
     alert_type: AlertType,
     limit: usize,
 ) -> Result<Vec<MarketAlert>> {
-    let records = sqlx::query!(
+    let rows = sqlx::query(
         r#"
         SELECT
             id, alert_type, title, description, severity,
@@ -250,35 +242,18 @@ pub async fn get_alerts_by_type(
         ORDER BY created_at DESC
         LIMIT ?
         "#,
-        alert_type.as_str(),
-        limit as i64
     )
+    .bind(alert_type.as_str())
+    .bind(limit as i64)
     .fetch_all(db)
     .await?;
 
-    Ok(records
-        .into_iter()
-        .map(|r| MarketAlert {
-            id: r.id,
-            alert_type: AlertType::from_str(&r.alert_type),
-            title: r.title,
-            description: r.description,
-            severity: AlertSeverity::from_str(&r.severity),
-            related_entity: r.related_entity,
-            related_entity_type: r.related_entity_type.map(|t| EntityType::from_str(&t)),
-            metric_value: r.metric_value,
-            metric_change_pct: r.metric_change_pct,
-            is_read: r.is_read != 0,
-            created_at: DateTime::parse_from_rfc3339(&r.created_at)
-                .unwrap()
-                .with_timezone(&Utc),
-        })
-        .collect())
+    rows.iter().map(row_to_alert).collect()
 }
 
 /// Mark all alerts as read
 pub async fn mark_all_read(db: &SqlitePool) -> Result<u64> {
-    let result = sqlx::query!("UPDATE market_alerts SET is_read = 1 WHERE is_read = 0")
+    let result = sqlx::query("UPDATE market_alerts SET is_read = 1 WHERE is_read = 0")
         .execute(db)
         .await?;
 
@@ -287,16 +262,11 @@ pub async fn mark_all_read(db: &SqlitePool) -> Result<u64> {
 
 /// Delete old alerts (older than N days)
 pub async fn cleanup_old_alerts(db: &SqlitePool, days: usize) -> Result<u64> {
-    let result = sqlx::query!(
-        r#"
-        DELETE FROM market_alerts
-        WHERE created_at < datetime('now', '-' || ? || ' days')
-          AND is_read = 1
-        "#,
-        days as i64
-    )
-    .execute(db)
-    .await?;
+    let query = format!(
+        "DELETE FROM market_alerts WHERE created_at < datetime('now', '-{} days') AND is_read = 1",
+        days
+    );
+    let result = sqlx::query(&query).execute(db).await?;
 
     Ok(result.rows_affected())
 }
@@ -308,19 +278,19 @@ mod tests {
     #[test]
     fn test_alert_type_conversion() {
         assert_eq!(AlertType::SkillSurge.as_str(), "skill_surge");
-        assert_eq!(AlertType::from_str("hiring_spree"), AlertType::HiringSpree);
+        assert_eq!(AlertType::parse("hiring_spree"), AlertType::HiringSpree);
     }
 
     #[test]
     fn test_alert_severity() {
         assert_eq!(AlertSeverity::Warning.as_str(), "warning");
-        assert_eq!(AlertSeverity::from_str("critical"), AlertSeverity::Critical);
+        assert_eq!(AlertSeverity::parse("critical"), AlertSeverity::Critical);
     }
 
     #[test]
     fn test_entity_type() {
         assert_eq!(EntityType::Skill.as_str(), "skill");
-        assert_eq!(EntityType::from_str("company"), EntityType::Company);
+        assert_eq!(EntityType::parse("company"), EntityType::Company);
     }
 
     #[test]
@@ -340,7 +310,7 @@ mod tests {
         };
 
         assert_eq!(alert.change_description(), "+75.0%");
-        assert_eq!(alert.severity_emoji(), "ℹ️");
-        assert_eq!(alert.type_emoji(), "📈");
+        assert_eq!(alert.severity_indicator(), "[INFO]");
+        assert_eq!(alert.type_indicator(), "[SKILL+]");
     }
 }

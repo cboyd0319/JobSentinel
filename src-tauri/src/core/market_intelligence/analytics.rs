@@ -5,11 +5,25 @@
 use anyhow::Result;
 use chrono::{NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::SqlitePool;
+use sqlx::{Row, SqlitePool};
 
 /// Market analyzer
 pub struct MarketAnalyzer {
     db: SqlitePool,
+}
+
+/// Compute median from a vector of values (SQLite doesn't have MEDIAN())
+fn compute_median(values: &mut [f64]) -> Option<f64> {
+    if values.is_empty() {
+        return None;
+    }
+    values.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
+    let len = values.len();
+    if len.is_multiple_of(2) {
+        Some((values[len / 2 - 1] + values[len / 2]) / 2.0)
+    } else {
+        Some(values[len / 2])
+    }
 }
 
 impl MarketAnalyzer {
@@ -27,10 +41,11 @@ impl MarketAnalyzer {
             .await?;
 
         // New jobs today
-        let new_jobs_today =
-            sqlx::query_scalar::<_, i64>("SELECT COUNT(*) FROM jobs WHERE DATE(posted_at) = DATE('now')")
-                .fetch_one(&self.db)
-                .await?;
+        let new_jobs_today = sqlx::query_scalar::<_, i64>(
+            "SELECT COUNT(*) FROM jobs WHERE DATE(posted_at) = DATE('now')",
+        )
+        .fetch_one(&self.db)
+        .await?;
 
         // Jobs filled today
         let jobs_filled_today = sqlx::query_scalar::<_, i64>(
@@ -41,21 +56,24 @@ impl MarketAnalyzer {
 
         // Average salary
         let avg_salary = sqlx::query_scalar::<_, Option<f64>>(
-            "SELECT AVG(predicted_median) FROM job_salary_predictions"
+            "SELECT AVG(predicted_median) FROM job_salary_predictions",
         )
         .fetch_one(&self.db)
         .await?;
 
-        // Median salary
-        let median_salary = sqlx::query_scalar::<_, Option<f64>>(
-            "SELECT MEDIAN(predicted_median) FROM job_salary_predictions"
-        )
-        .fetch_one(&self.db)
-        .await?;
+        // Median salary - fetch all values and compute in Rust
+        let salary_rows = sqlx::query("SELECT predicted_median FROM job_salary_predictions")
+            .fetch_all(&self.db)
+            .await?;
+        let mut salaries: Vec<f64> = salary_rows
+            .iter()
+            .filter_map(|r| r.try_get::<f64, _>("predicted_median").ok())
+            .collect();
+        let median_salary = compute_median(&mut salaries);
 
         // Remote job percentage
         let remote_count = sqlx::query_scalar::<_, i64>(
-            "SELECT COUNT(*) FROM jobs WHERE LOWER(location) LIKE '%remote%'"
+            "SELECT COUNT(*) FROM jobs WHERE LOWER(location) LIKE '%remote%'",
         )
         .fetch_one(&self.db)
         .await?;
@@ -74,7 +92,7 @@ impl MarketAnalyzer {
             GROUP BY skill_name
             ORDER BY COUNT(*) DESC
             LIMIT 1
-            "#
+            "#,
         )
         .fetch_one(&self.db)
         .await?;
@@ -88,7 +106,7 @@ impl MarketAnalyzer {
             GROUP BY company
             ORDER BY COUNT(*) DESC
             LIMIT 1
-            "#
+            "#,
         )
         .fetch_one(&self.db)
         .await?;
@@ -102,7 +120,7 @@ impl MarketAnalyzer {
             GROUP BY location
             ORDER BY COUNT(*) DESC
             LIMIT 1
-            "#
+            "#,
         )
         .fetch_one(&self.db)
         .await?;
@@ -114,13 +132,15 @@ impl MarketAnalyzer {
             FROM jobs
             WHERE company IS NOT NULL AND company != ''
               AND status = 'active'
-            "#
+            "#,
         )
         .fetch_one(&self.db)
         .await?;
 
         // Determine market sentiment
-        let market_sentiment = self.calculate_market_sentiment(new_jobs_today, jobs_filled_today).await?;
+        let market_sentiment = self
+            .calculate_market_sentiment(new_jobs_today, jobs_filled_today)
+            .await?;
 
         // Create snapshot
         let snapshot = MarketSnapshot {
@@ -147,7 +167,7 @@ impl MarketAnalyzer {
 
     /// Store market snapshot in database
     async fn store_snapshot(&self, snapshot: &MarketSnapshot) -> Result<()> {
-        sqlx::query!(
+        sqlx::query(
             r#"
             INSERT INTO market_snapshots (
                 date, total_jobs, new_jobs_today, jobs_filled_today,
@@ -170,20 +190,20 @@ impl MarketAnalyzer {
                 market_sentiment = excluded.market_sentiment,
                 notes = excluded.notes
             "#,
-            snapshot.date.to_string(),
-            snapshot.total_jobs,
-            snapshot.new_jobs_today,
-            snapshot.jobs_filled_today,
-            snapshot.avg_salary,
-            snapshot.median_salary,
-            snapshot.remote_job_percentage,
-            snapshot.top_skill,
-            snapshot.top_company,
-            snapshot.top_location,
-            snapshot.total_companies_hiring,
-            snapshot.market_sentiment,
-            snapshot.notes
         )
+        .bind(snapshot.date.to_string())
+        .bind(snapshot.total_jobs)
+        .bind(snapshot.new_jobs_today)
+        .bind(snapshot.jobs_filled_today)
+        .bind(snapshot.avg_salary)
+        .bind(snapshot.median_salary)
+        .bind(snapshot.remote_job_percentage)
+        .bind(&snapshot.top_skill)
+        .bind(&snapshot.top_company)
+        .bind(&snapshot.top_location)
+        .bind(snapshot.total_companies_hiring)
+        .bind(&snapshot.market_sentiment)
+        .bind(&snapshot.notes)
         .execute(&self.db)
         .await?;
 
@@ -191,6 +211,7 @@ impl MarketAnalyzer {
     }
 
     /// Calculate market sentiment based on job posting activity
+    #[allow(unused_variables)]
     async fn calculate_market_sentiment(&self, new_jobs: i64, jobs_filled: i64) -> Result<String> {
         // Get previous week's average
         let prev_avg = sqlx::query_scalar::<_, Option<f64>>(
@@ -198,7 +219,7 @@ impl MarketAnalyzer {
             SELECT AVG(new_jobs_today)
             FROM market_snapshots
             WHERE date >= date('now', '-7 days')
-            "#
+            "#,
         )
         .fetch_one(&self.db)
         .await?
@@ -221,7 +242,7 @@ impl MarketAnalyzer {
 
     /// Get market snapshot for a specific date
     pub async fn get_snapshot(&self, date: NaiveDate) -> Result<Option<MarketSnapshot>> {
-        let record = sqlx::query!(
+        let row = sqlx::query(
             r#"
             SELECT
                 date, total_jobs, new_jobs_today, jobs_filled_today,
@@ -231,34 +252,20 @@ impl MarketAnalyzer {
             FROM market_snapshots
             WHERE date = ?
             "#,
-            date.to_string()
         )
+        .bind(date.to_string())
         .fetch_optional(&self.db)
         .await?;
 
-        match record {
-            Some(r) => Ok(Some(MarketSnapshot {
-                date: NaiveDate::parse_from_str(&r.date, "%Y-%m-%d")?,
-                total_jobs: r.total_jobs,
-                new_jobs_today: r.new_jobs_today,
-                jobs_filled_today: r.jobs_filled_today,
-                avg_salary: r.avg_salary,
-                median_salary: r.median_salary,
-                remote_job_percentage: r.remote_job_percentage,
-                top_skill: r.top_skill,
-                top_company: r.top_company,
-                top_location: r.top_location,
-                total_companies_hiring: r.total_companies_hiring,
-                market_sentiment: r.market_sentiment,
-                notes: r.notes,
-            })),
+        match row {
+            Some(r) => Ok(Some(row_to_snapshot(&r)?)),
             None => Ok(None),
         }
     }
 
     /// Get latest market snapshot
     pub async fn get_latest_snapshot(&self) -> Result<Option<MarketSnapshot>> {
-        let record = sqlx::query!(
+        let row = sqlx::query(
             r#"
             SELECT
                 date, total_jobs, new_jobs_today, jobs_filled_today,
@@ -268,34 +275,20 @@ impl MarketAnalyzer {
             FROM market_snapshots
             ORDER BY date DESC
             LIMIT 1
-            "#
+            "#,
         )
         .fetch_optional(&self.db)
         .await?;
 
-        match record {
-            Some(r) => Ok(Some(MarketSnapshot {
-                date: NaiveDate::parse_from_str(&r.date, "%Y-%m-%d")?,
-                total_jobs: r.total_jobs,
-                new_jobs_today: r.new_jobs_today,
-                jobs_filled_today: r.jobs_filled_today,
-                avg_salary: r.avg_salary,
-                median_salary: r.median_salary,
-                remote_job_percentage: r.remote_job_percentage,
-                top_skill: r.top_skill,
-                top_company: r.top_company,
-                top_location: r.top_location,
-                total_companies_hiring: r.total_companies_hiring,
-                market_sentiment: r.market_sentiment,
-                notes: r.notes,
-            })),
+        match row {
+            Some(r) => Ok(Some(row_to_snapshot(&r)?)),
             None => Ok(None),
         }
     }
 
     /// Get historical snapshots (last N days)
     pub async fn get_historical_snapshots(&self, days: usize) -> Result<Vec<MarketSnapshot>> {
-        let records = sqlx::query!(
+        let query = format!(
             r#"
             SELECT
                 date, total_jobs, new_jobs_today, jobs_filled_today,
@@ -303,35 +296,37 @@ impl MarketAnalyzer {
                 top_skill, top_company, top_location,
                 total_companies_hiring, market_sentiment, notes
             FROM market_snapshots
-            WHERE date >= date('now', '-' || ? || ' days')
+            WHERE date >= date('now', '-{} days')
             ORDER BY date DESC
             "#,
-            days as i64
-        )
-        .fetch_all(&self.db)
-        .await?;
+            days
+        );
 
-        Ok(records
-            .into_iter()
-            .filter_map(|r| {
-                Some(MarketSnapshot {
-                    date: NaiveDate::parse_from_str(&r.date, "%Y-%m-%d").ok()?,
-                    total_jobs: r.total_jobs,
-                    new_jobs_today: r.new_jobs_today,
-                    jobs_filled_today: r.jobs_filled_today,
-                    avg_salary: r.avg_salary,
-                    median_salary: r.median_salary,
-                    remote_job_percentage: r.remote_job_percentage,
-                    top_skill: r.top_skill.clone(),
-                    top_company: r.top_company.clone(),
-                    top_location: r.top_location.clone(),
-                    total_companies_hiring: r.total_companies_hiring,
-                    market_sentiment: r.market_sentiment.clone(),
-                    notes: r.notes.clone(),
-                })
-            })
-            .collect())
+        let rows = sqlx::query(&query).fetch_all(&self.db).await?;
+
+        rows.into_iter()
+            .map(|r| row_to_snapshot(&r))
+            .collect::<Result<Vec<_>>>()
     }
+}
+
+fn row_to_snapshot(r: &sqlx::sqlite::SqliteRow) -> Result<MarketSnapshot> {
+    let date_str: String = r.try_get("date")?;
+    Ok(MarketSnapshot {
+        date: NaiveDate::parse_from_str(&date_str, "%Y-%m-%d")?,
+        total_jobs: r.try_get("total_jobs")?,
+        new_jobs_today: r.try_get("new_jobs_today")?,
+        jobs_filled_today: r.try_get("jobs_filled_today")?,
+        avg_salary: r.try_get("avg_salary").ok(),
+        median_salary: r.try_get("median_salary").ok(),
+        remote_job_percentage: r.try_get("remote_job_percentage")?,
+        top_skill: r.try_get("top_skill").ok(),
+        top_company: r.try_get("top_company").ok(),
+        top_location: r.try_get("top_location").ok(),
+        total_companies_hiring: r.try_get("total_companies_hiring")?,
+        market_sentiment: r.try_get("market_sentiment")?,
+        notes: r.try_get("notes").ok(),
+    })
 }
 
 /// Market snapshot (daily aggregate statistics)
@@ -366,15 +361,16 @@ impl MarketSnapshot {
 
     /// Is market healthy?
     pub fn is_healthy(&self) -> bool {
-        self.market_sentiment == "bullish" || (self.market_sentiment == "neutral" && self.new_jobs_today > 0)
+        self.market_sentiment == "bullish"
+            || (self.market_sentiment == "neutral" && self.new_jobs_today > 0)
     }
 
-    /// Get sentiment emoji
-    pub fn sentiment_emoji(&self) -> &str {
+    /// Get sentiment indicator
+    pub fn sentiment_indicator(&self) -> &str {
         match self.market_sentiment.as_str() {
-            "bullish" => "📈",
-            "bearish" => "📉",
-            _ => "➡️",
+            "bullish" => "[UP]",
+            "bearish" => "[DOWN]",
+            _ => "[FLAT]",
         }
     }
 }
@@ -404,7 +400,7 @@ mod tests {
         assert!(snapshot.summary().contains("150 new jobs"));
         assert!(snapshot.summary().contains("bullish"));
         assert!(snapshot.is_healthy());
-        assert_eq!(snapshot.sentiment_emoji(), "📈");
+        assert_eq!(snapshot.sentiment_indicator(), "[UP]");
     }
 
     #[test]
@@ -426,6 +422,18 @@ mod tests {
         };
 
         assert!(!snapshot.is_healthy());
-        assert_eq!(snapshot.sentiment_emoji(), "📉");
+        assert_eq!(snapshot.sentiment_indicator(), "[DOWN]");
+    }
+
+    #[test]
+    fn test_compute_median() {
+        let mut values = vec![1.0, 3.0, 2.0];
+        assert_eq!(compute_median(&mut values), Some(2.0));
+
+        let mut values = vec![1.0, 2.0, 3.0, 4.0];
+        assert_eq!(compute_median(&mut values), Some(2.5));
+
+        let mut values: Vec<f64> = vec![];
+        assert_eq!(compute_median(&mut values), None);
     }
 }

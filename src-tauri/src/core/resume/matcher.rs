@@ -2,13 +2,18 @@
 //!
 //! Compares resume skills against job requirements and generates match scores.
 
-use super::skills::{ExtractedSkill, SkillExtractor};
+use super::skills::SkillExtractor;
 use super::{MatchResult, UserSkill};
-use crate::core::db::Job;
 use anyhow::Result;
 use chrono::Utc;
-use sqlx::SqlitePool;
+use sqlx::{Row, SqlitePool};
 use std::collections::HashSet;
+
+/// Minimal job info for matching
+struct JobInfo {
+    title: String,
+    description: String,
+}
 
 /// Job matcher for calculating resume-job compatibility
 pub struct JobMatcher {
@@ -35,17 +40,17 @@ impl JobMatcher {
 
         // Insert skills into database
         for skill in &extracted_skills {
-            sqlx::query!(
+            sqlx::query(
                 r#"
                 INSERT INTO job_skills (job_hash, skill_name, is_required, skill_category)
                 VALUES (?, ?, 1, ?)
                 ON CONFLICT(job_hash, skill_name) DO UPDATE SET
                     skill_category = excluded.skill_category
                 "#,
-                job_hash,
-                skill.skill_name,
-                skill.skill_category
             )
+            .bind(job_hash)
+            .bind(&skill.skill_name)
+            .bind(&skill.skill_category)
             .execute(&self.db)
             .await?;
         }
@@ -174,35 +179,27 @@ impl JobMatcher {
     }
 
     /// Get job by hash
-    async fn get_job(&self, job_hash: &str) -> Result<Job> {
-        let record = sqlx::query!(
+    async fn get_job(&self, job_hash: &str) -> Result<JobInfo> {
+        let row = sqlx::query(
             r#"
-            SELECT hash, title, company, location, description, url, score, found_at, source
+            SELECT title, description
             FROM jobs
             WHERE hash = ?
             "#,
-            job_hash
         )
+        .bind(job_hash)
         .fetch_one(&self.db)
         .await?;
 
-        Ok(Job {
-            hash: record.hash,
-            title: record.title,
-            company: record.company,
-            location: record.location.unwrap_or_default(),
-            description: record.description,
-            url: record.url,
-            score: record.score,
-            found_at: chrono::DateTime::parse_from_rfc3339(&record.found_at)?
-                .with_timezone(&Utc),
-            source: record.source,
+        Ok(JobInfo {
+            title: row.try_get("title")?,
+            description: row.try_get::<Option<String>, _>("description")?.unwrap_or_default(),
         })
     }
 
     /// Get user skills for resume
     async fn get_user_skills(&self, resume_id: i64) -> Result<Vec<UserSkill>> {
-        let records = sqlx::query!(
+        let rows = sqlx::query(
             r#"
             SELECT id, resume_id, skill_name, skill_category, confidence_score,
                    years_experience, proficiency_level, source
@@ -210,41 +207,44 @@ impl JobMatcher {
             WHERE resume_id = ?
             ORDER BY confidence_score DESC
             "#,
-            resume_id
         )
+        .bind(resume_id)
         .fetch_all(&self.db)
         .await?;
 
-        Ok(records
+        Ok(rows
             .into_iter()
             .map(|r| UserSkill {
-                id: r.id,
-                resume_id: r.resume_id,
-                skill_name: r.skill_name,
-                skill_category: r.skill_category,
-                confidence_score: r.confidence_score,
-                years_experience: r.years_experience,
-                proficiency_level: r.proficiency_level,
-                source: r.source,
+                id: r.try_get::<i64, _>("id").unwrap_or(0),
+                resume_id: r.try_get::<i64, _>("resume_id").unwrap_or(0),
+                skill_name: r.try_get::<String, _>("skill_name").unwrap_or_default(),
+                skill_category: r.try_get::<Option<String>, _>("skill_category").unwrap_or(None),
+                confidence_score: r.try_get::<f64, _>("confidence_score").unwrap_or(0.0),
+                years_experience: r.try_get::<Option<f64>, _>("years_experience").unwrap_or(None),
+                proficiency_level: r.try_get::<Option<String>, _>("proficiency_level").unwrap_or(None),
+                source: r.try_get::<String, _>("source").unwrap_or_default(),
             })
             .collect())
     }
 
     /// Get job skills
     async fn get_job_skills(&self, job_hash: &str) -> Result<Vec<String>> {
-        let records = sqlx::query!(
+        let rows = sqlx::query(
             r#"
             SELECT skill_name
             FROM job_skills
             WHERE job_hash = ?
             ORDER BY is_required DESC, skill_name ASC
             "#,
-            job_hash
         )
+        .bind(job_hash)
         .fetch_all(&self.db)
         .await?;
 
-        Ok(records.into_iter().map(|r| r.skill_name).collect())
+        Ok(rows
+            .into_iter()
+            .map(|r| r.try_get::<String, _>("skill_name").unwrap_or_default())
+            .collect())
     }
 }
 
@@ -252,68 +252,137 @@ impl JobMatcher {
 mod tests {
     use super::*;
     use sqlx::sqlite::SqlitePoolOptions;
-    use tempfile::TempDir;
 
-    async fn setup_test_db() -> (SqlitePool, TempDir) {
-        let temp_dir = TempDir::new().unwrap();
-        let db_path = temp_dir.path().join("test.db");
-        let db_url = format!("sqlite:{}", db_path.display());
+    async fn setup_test_db() -> SqlitePool {
+        let pool = SqlitePoolOptions::new()
+            .connect("sqlite::memory:")
+            .await
+            .unwrap();
 
-        let pool = SqlitePoolOptions::new().connect(&db_url).await.unwrap();
+        // Create schema inline for tests
+        sqlx::query(
+            r#"
+            CREATE TABLE IF NOT EXISTS jobs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                hash TEXT NOT NULL UNIQUE,
+                title TEXT NOT NULL,
+                company TEXT NOT NULL,
+                url TEXT NOT NULL,
+                location TEXT,
+                description TEXT,
+                score REAL,
+                source TEXT NOT NULL,
+                created_at TEXT NOT NULL DEFAULT (datetime('now'))
+            )
+            "#,
+        )
+        .execute(&pool)
+        .await
+        .unwrap();
 
-        sqlx::migrate!("./migrations").run(&pool).await.unwrap();
+        sqlx::query(
+            r#"
+            CREATE TABLE IF NOT EXISTS resumes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                file_path TEXT NOT NULL,
+                parsed_text TEXT,
+                is_active INTEGER NOT NULL DEFAULT 0,
+                created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+            )
+            "#,
+        )
+        .execute(&pool)
+        .await
+        .unwrap();
 
-        (pool, temp_dir)
+        sqlx::query(
+            r#"
+            CREATE TABLE IF NOT EXISTS user_skills (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                resume_id INTEGER NOT NULL,
+                skill_name TEXT NOT NULL,
+                skill_category TEXT,
+                confidence_score REAL NOT NULL DEFAULT 0.0,
+                years_experience REAL,
+                proficiency_level TEXT,
+                source TEXT NOT NULL DEFAULT 'resume',
+                UNIQUE(resume_id, skill_name)
+            )
+            "#,
+        )
+        .execute(&pool)
+        .await
+        .unwrap();
+
+        sqlx::query(
+            r#"
+            CREATE TABLE IF NOT EXISTS job_skills (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                job_hash TEXT NOT NULL,
+                skill_name TEXT NOT NULL,
+                is_required INTEGER NOT NULL DEFAULT 1,
+                skill_category TEXT,
+                UNIQUE(job_hash, skill_name)
+            )
+            "#,
+        )
+        .execute(&pool)
+        .await
+        .unwrap();
+
+        pool
     }
 
     async fn create_test_job(pool: &SqlitePool, job_hash: &str) {
-        sqlx::query!(
+        sqlx::query(
             r#"
             INSERT INTO jobs (hash, title, company, location, description, url, score, source)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             "#,
-            job_hash,
-            "Software Engineer",
-            "TechCorp",
-            "Remote",
-            "Looking for Python and React developer",
-            "https://example.com/job",
-            0.9,
-            "greenhouse"
         )
+        .bind(job_hash)
+        .bind("Software Engineer")
+        .bind("TechCorp")
+        .bind("Remote")
+        .bind("Looking for Python and React developer")
+        .bind("https://example.com/job")
+        .bind(0.9)
+        .bind("greenhouse")
         .execute(pool)
         .await
         .unwrap();
     }
 
     async fn create_test_resume_with_skills(pool: &SqlitePool) -> i64 {
-        let resume_id = sqlx::query!(
+        let result = sqlx::query(
             r#"
             INSERT INTO resumes (name, file_path, parsed_text, is_active)
             VALUES (?, ?, ?, 1)
             "#,
-            "Test Resume",
-            "/tmp/test.pdf",
-            "Python, JavaScript, Docker experience"
         )
+        .bind("Test Resume")
+        .bind("/tmp/test.pdf")
+        .bind("Python, JavaScript, Docker experience")
         .execute(pool)
         .await
-        .unwrap()
-        .last_insert_rowid();
+        .unwrap();
+        let resume_id = result.last_insert_rowid();
 
         // Add user skills
         for skill in &["Python", "JavaScript", "Docker"] {
-            sqlx::query!(
+            sqlx::query(
                 r#"
                 INSERT INTO user_skills (resume_id, skill_name, skill_category, confidence_score, source)
                 VALUES (?, ?, ?, ?, ?)
                 "#,
-                resume_id,
-                skill,
-                "programming_language",
-                0.9,
-                "resume"
             )
+            .bind(resume_id)
+            .bind(*skill)
+            .bind("programming_language")
+            .bind(0.9)
+            .bind("resume")
             .execute(pool)
             .await
             .unwrap();
@@ -324,7 +393,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_extract_job_skills() {
-        let (pool, _temp_dir) = setup_test_db().await;
+        let pool = setup_test_db().await;
         let matcher = JobMatcher::new(pool.clone());
 
         let job_hash = "test_job_123";
@@ -338,7 +407,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_calculate_match() {
-        let (pool, _temp_dir) = setup_test_db().await;
+        let pool = setup_test_db().await;
         let matcher = JobMatcher::new(pool.clone());
 
         let job_hash = "test_job_456";
@@ -375,7 +444,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_match_score_calculation() {
-        let (pool, _temp_dir) = setup_test_db().await;
+        let pool = setup_test_db().await;
         let matcher = JobMatcher::new(pool.clone());
 
         let job_hash = "test_job_789";
@@ -384,12 +453,12 @@ mod tests {
 
         // Add job skills manually for precise testing
         for skill in &["Python", "JavaScript", "TypeScript", "React"] {
-            sqlx::query!(
+            sqlx::query(
                 "INSERT INTO job_skills (job_hash, skill_name, is_required, skill_category) VALUES (?, ?, 1, ?)",
-                job_hash,
-                skill,
-                "programming_language"
             )
+            .bind(job_hash)
+            .bind(*skill)
+            .bind("programming_language")
             .execute(&pool)
             .await
             .unwrap();

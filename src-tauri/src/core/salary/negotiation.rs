@@ -3,7 +3,7 @@
 //! Generates personalized negotiation scripts based on templates and parameters.
 
 use anyhow::Result;
-use sqlx::SqlitePool;
+use sqlx::{Row, SqlitePool};
 use std::collections::HashMap;
 
 /// Negotiation script generator
@@ -20,17 +20,7 @@ impl NegotiationScriptGenerator {
     ///
     /// # Arguments
     /// * `scenario` - Template scenario (e.g., "initial_offer", "counter_offer")
-    /// * `params` - Key-value pairs to fill placeholders (e.g., {"company": "Google", "current_offer": "150000"})
-    ///
-    /// # Example
-    /// ```rust
-    /// let mut params = HashMap::new();
-    /// params.insert("company".to_string(), "Google".to_string());
-    /// params.insert("current_offer".to_string(), "150000".to_string());
-    /// params.insert("target_salary".to_string(), "180000".to_string());
-    ///
-    /// let script = generator.generate("initial_offer", params).await?;
-    /// ```
+    /// * `params` - Key-value pairs to fill placeholders
     pub async fn generate(
         &self,
         scenario: &str,
@@ -51,27 +41,32 @@ impl NegotiationScriptGenerator {
 
     /// Get template by scenario
     async fn get_template(&self, scenario: &str) -> Result<String> {
-        let record = sqlx::query!(
+        let row = sqlx::query(
             "SELECT template_text FROM negotiation_templates WHERE scenario = ? AND is_default = 1 LIMIT 1",
-            scenario
         )
+        .bind(scenario)
         .fetch_one(&self.db)
         .await?;
 
-        Ok(record.template_text)
+        Ok(row.try_get::<String, _>("template_text")?)
     }
 
     /// Get all available templates
     pub async fn get_templates(&self) -> Result<Vec<(String, String)>> {
-        let records = sqlx::query!(
-            "SELECT template_name, scenario FROM negotiation_templates ORDER BY is_default DESC, template_name ASC"
+        let rows = sqlx::query(
+            "SELECT template_name, scenario FROM negotiation_templates ORDER BY is_default DESC, template_name ASC",
         )
         .fetch_all(&self.db)
         .await?;
 
-        Ok(records
+        Ok(rows
             .into_iter()
-            .map(|r| (r.template_name, r.scenario))
+            .map(|r| {
+                (
+                    r.try_get::<String, _>("template_name").unwrap_or_default(),
+                    r.try_get::<String, _>("scenario").unwrap_or_default(),
+                )
+            })
             .collect())
     }
 
@@ -85,16 +80,16 @@ impl NegotiationScriptGenerator {
     ) -> Result<()> {
         let placeholders_json = serde_json::to_string(&placeholders)?;
 
-        sqlx::query!(
+        sqlx::query(
             r#"
             INSERT INTO negotiation_templates (template_name, scenario, template_text, placeholders, is_default)
             VALUES (?, ?, ?, ?, 0)
             "#,
-            name,
-            scenario,
-            template_text,
-            placeholders_json
         )
+        .bind(name)
+        .bind(scenario)
+        .bind(template_text)
+        .bind(&placeholders_json)
         .execute(&self.db)
         .await?;
 

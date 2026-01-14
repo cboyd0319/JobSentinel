@@ -68,25 +68,29 @@ pub struct LinkedInScraper {
     pub limit: usize,
 }
 
-/// LinkedIn job search result from API
+/// LinkedIn job search result from API (for future API integration)
+#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 struct LinkedInSearchResponse {
     #[serde(default)]
     data: LinkedInSearchData,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Default, Deserialize)]
 struct LinkedInSearchData {
     #[serde(rename = "searchDashJobsByCard", default)]
     jobs: LinkedInJobs,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Default, Deserialize)]
 struct LinkedInJobs {
     #[serde(default)]
     elements: Vec<LinkedInJob>,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 struct LinkedInJob {
     #[serde(rename = "dashEntityUrn")]
@@ -98,12 +102,14 @@ struct LinkedInJob {
     location: Option<String>,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 struct LinkedInCompany {
     #[serde(rename = "companyResolutionResult")]
     company: LinkedInCompanyInfo,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 struct LinkedInCompanyInfo {
     name: String,

@@ -11,13 +11,10 @@
 //! - `scoring`: Multi-factor job scoring algorithm
 //! - `notify`: Notification services (Slack, email)
 //! - `scheduler`: Job search scheduling and automation
-//!
-//! ## Deferred to v1.1+ (need fixes before enabling)
-//!
-//! - `ats`: Application Tracking System (Kanban board, reminders) - 85% complete
-//! - `resume`: AI Resume-Job Matcher (PDF parsing, skill extraction) - 65% complete
-//! - `salary`: Salary Negotiation AI (benchmarks, prediction) - 50% complete
-//! - `market_intelligence`: Job Market Intelligence Dashboard - 60% complete
+//! - `ats`: Application Tracking System (Kanban board, reminders)
+//! - `resume`: AI Resume-Job Matcher (PDF parsing, skill extraction)
+//! - `salary`: Salary Negotiation AI (benchmarks, prediction)
+//! - `market_intelligence`: Job Market Intelligence Dashboard
 //!
 //! ## Deferred to v2.0+ (requires legal review)
 //!
@@ -31,12 +28,11 @@ pub mod scheduler;
 pub mod scoring;
 pub mod scrapers;
 
-// v1.1+ modules - disabled until compilation errors fixed
-// TODO: Fix MEDIAN() SQL issues, type mismatches, then re-enable
+// v1.1+ modules
 pub mod ats;
-// pub mod market_intelligence;
-// pub mod resume;
-// pub mod salary;
+pub mod resume;
+pub mod salary;
+pub mod market_intelligence;
 
 // v2.0+ modules - disabled pending legal review
 // pub mod automation;
@@ -49,8 +45,12 @@ pub use scheduler::{ScheduleConfig, ScrapingResult, Scheduler};
 pub use scoring::{JobScore, ScoringEngine};
 pub use scrapers::{JobScraper, ScraperResult};
 
-// v1.1+ re-exports - uncomment when modules are fixed
+// v1.1+ re-exports
 pub use ats::{Application, ApplicationStatus, ApplicationTracker, ApplicationsByStatus, PendingReminder};
-// pub use market_intelligence::{MarketAlert, MarketAnalyzer, MarketIntelligence, MarketSnapshot, SkillDemandTrend, SalaryTrend};
-// pub use resume::{MatchResult, Resume, ResumeMatcher, UserSkill};
-// pub use salary::{SalaryAnalyzer, SalaryBenchmark, SalaryPrediction, SeniorityLevel};
+pub use resume::{MatchResult, Resume, ResumeMatcher, UserSkill};
+pub use salary::{SalaryAnalyzer, SalaryBenchmark, SalaryPrediction, SeniorityLevel};
+pub use market_intelligence::{
+    MarketAlert, MarketAnalyzer, MarketIntelligence, MarketSnapshot,
+    SkillDemandTrend, SalaryTrend, RoleDemandTrend, AlertType, AlertSeverity,
+    SkillTrend, CompanyActivity, LocationHeat,
+};

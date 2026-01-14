@@ -385,7 +385,7 @@ impl Scheduler {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::config::{AlertConfig, LocationPreferences, SlackConfig};
+    use crate::core::config::LocationPreferences;
 
     fn create_test_config() -> Config {
         Config {

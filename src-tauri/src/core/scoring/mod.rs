@@ -255,7 +255,7 @@ impl ScoringEngine {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::config::{AlertConfig, Config, LocationPreferences, SlackConfig};
+    use crate::core::config::{Config, LocationPreferences};
 
     fn create_test_config() -> Config {
         Config {
