@@ -1,7 +1,7 @@
 # JobSentinel - macOS Development Guide
 
-**Status:** ✅ Fully functional for development and testing on macOS 13+
-**Latest Tested:** ✅ macOS 26.1 (Tahoe) - November 2025
+**Status:** Development works on macOS 26.2+
+**Latest Tested:** macOS 26.2 - January 2026
 
 ---
 

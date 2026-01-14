@@ -1,43 +1,52 @@
-# JobSentinel v1.0 - Quick Start Guide
+# JobSentinel - Quick Start Guide
 
-**Privacy-first job search automation for Windows 11+ & macOS 26.1+ (Tahoe)**
+**Privacy-first job search automation**
+
+> **Note:** Pre-built installers are not yet available. See [Building from Source](#building-from-source) below.
 
 ---
 
-## 🚀 Installation
+## Current Status
 
-### For Windows 11+ Users
+**Version 1.0.0-alpha** (January 2026)
 
-1. **Download the installer:**
-   - Go to the [Releases](https://github.com/cboyd0319/JobSentinel/releases) page
-   - Download `JobSentinel-1.0.0-x64.msi`
+- Windows 11+ is the primary target platform
+- macOS 26.2+ and Linux support planned for v2.0
+- All core features working (scrapers, scoring, notifications)
+- 256 tests passing
 
-2. **Run the installer:**
-   - Double-click the `.msi` file
-   - Follow the installation wizard
-   - **No admin rights required** (installs to `%LOCALAPPDATA%\JobSentinel`)
+---
 
-3. **First launch:**
-   - JobSentinel will appear in your system tray (bottom-right corner)
-   - The setup wizard will automatically open
-   - Follow the 4-step configuration process
+## Building from Source
 
-### For macOS 26.1+ (Tahoe) Users
+### Prerequisites
 
-1. **Download the installer:**
-   - Go to the [Releases](https://github.com/cboyd0319/JobSentinel/releases) page
-   - Download `JobSentinel-1.0.0-aarch64.dmg` (Apple Silicon) or `JobSentinel-1.0.0-x86_64.dmg` (Intel)
+- **Rust** 1.83+ ([rustup.rs](https://rustup.rs/))
+- **Node.js** 20+ ([nodejs.org](https://nodejs.org/))
+- **Tauri CLI** 2.1+ (`cargo install tauri-cli`)
 
-2. **Run the installer:**
-   - Open the `.dmg` file
-   - Drag JobSentinel to your Applications folder
-   - Launch from Applications or Spotlight (Cmd+Space, type "JobSentinel")
+### Build Steps
 
-3. **First launch:**
-   - JobSentinel will appear in your menu bar (top-right corner)
-   - The setup wizard will automatically open
-   - Follow the 4-step configuration process
-   - **Note:** macOS may ask to allow notifications - click "Allow" for job alerts
+```bash
+# Clone the repository
+git clone https://github.com/cboyd0319/JobSentinel.git
+cd JobSentinel
+
+# Install frontend dependencies
+npm install
+
+# Run in development mode
+npm run tauri:dev
+
+# Build for production
+npm run tauri:build
+```
+
+### First Launch
+
+1. JobSentinel will appear in your system tray (Windows) or menu bar (macOS)
+2. The setup wizard will automatically open
+3. Follow the 4-step configuration process
 
 ---
 

@@ -1,19 +1,14 @@
-# Getting Started with JobSentinel v2.0
+# Getting Started with JobSentinel
 
-## For Users
+## Project Status
 
-### Installation
+**Version 1.0.0-alpha** (January 2026)
 
-1. Download the latest `.msi` installer from [Releases](https://github.com/cboyd0319/JobSentinel/releases)
-2. Double-click to install (no admin rights needed)
-3. Follow the 4-step setup wizard
-4. Done! The app runs in your system tray
-
-### Usage
-
-- **Open Dashboard**: Click the tray icon
-- **Search Now**: Right-click tray icon → "Search Now"
-- **Settings**: Edit `%LOCALAPPDATA%\JobSentinel\config.json`
+| Component | Status |
+|-----------|--------|
+| Core modules (config, db, scoring, scrapers, scheduler, notify) | Working |
+| Frontend (React 19 + TypeScript) | Working |
+| Tests | 256 passing, 0 failures |
 
 ---
 
