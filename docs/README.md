@@ -1,152 +1,94 @@
 # JobSentinel Documentation
 
-Welcome to the JobSentinel documentation! This directory contains all guides, reports, and technical documentation.
+Welcome to JobSentinel documentation.
 
 ## Current Status (January 2026)
 
-**Version: 1.0.0-alpha** - Core functionality working, 256 tests passing, 13 ignored
+**Version: 1.0.0-alpha** | 256 tests passing, 13 ignored
 
-### Working Features (v1.0)
+### Working Features
 - Job scrapers: Greenhouse, Lever, JobsWithGPT
-- Application Tracking System (ATS): Kanban board, status pipeline, reminders
+- Application Tracking System (ATS)
 - Multi-factor scoring algorithm
 - Notifications: Slack, Discord, Teams
 - SQLite database with full-text search
-- Scheduler for periodic scraping
 - React 19 frontend with setup wizard
 
 ### Deferred Features (v1.1+)
-The following modules are disabled until fixes are complete:
-- AI Resume-Job Matcher (65% complete)
-- Salary Negotiation AI (50% complete)
-- Job Market Intelligence Dashboard (60% complete)
-- LinkedIn/Indeed scrapers (incomplete)
+- AI Resume-Job Matcher (65%)
+- Salary Negotiation AI (50%)
+- Job Market Intelligence (60%)
+- LinkedIn/Indeed scrapers
 
 ---
 
-## Documentation Structure
+## Documentation Index
 
 ### For Users
-
-**Start here if you're installing and using JobSentinel:**
-
-- **[Quick Start Guide](user/QUICK_START.md)** - Installation, setup, and daily usage
-  - Installation instructions (Windows 11+ primary, macOS/Linux planned)
-  - Setup wizard walkthrough
-  - Configuration options
-  - Troubleshooting common issues
-  - FAQ section
+- **[Quick Start Guide](user/QUICK_START.md)** - Installation and setup
 
 ### For Developers
+- **[Getting Started](developer/GETTING_STARTED.md)** - Development setup
+- **[Contributing](developer/CONTRIBUTING.md)** - How to contribute
+- **[Architecture](developer/ARCHITECTURE.md)** - System design
+- **[Testing](developer/TESTING.md)** - Test suite guide
+- **[macOS Development](developer/MACOS_DEVELOPMENT.md)** - macOS-specific
 
-**Start here if you're contributing to JobSentinel:**
+### Planning
+- **[Roadmap](ROADMAP.md)** - Feature roadmap and priorities
 
-- **[Getting Started](developer/GETTING_STARTED.md)** - Development setup and workflow
-  - Prerequisites (Rust, Node.js, Tauri)
-  - Development setup
-  - Project structure
-  - Running tests
+### Feature Specs
+| Feature | Status | Doc |
+|---------|--------|-----|
+| Application Tracking | Working | [ATS](APPLICATION_TRACKING_SYSTEM.md) |
+| Multi-Channel Notifications | Working | [Notifications](MULTI_CHANNEL_NOTIFICATIONS.md) |
+| SQLite Configuration | Working | [SQLite](SQLITE_CONFIGURATION.md) |
+| Resume Matcher | Deferred | [Resume](AI_RESUME_JOB_MATCHER.md) |
+| Salary AI | Deferred | [Salary](SALARY_NEGOTIATION_AI.md) |
+| Market Intelligence | Deferred | [Market](JOB_MARKET_INTELLIGENCE_DASHBOARD.md) |
+| LinkedIn/Indeed | Deferred | [Scrapers](LINKEDIN_INDEED_SCRAPERS.md) |
+| One-Click Apply | v2.0+ | [Automation](ONE_CLICK_APPLY_AUTOMATION.md) |
 
-- **[Contributing Guide](developer/CONTRIBUTING.md)** - How to contribute
-  - Code of conduct
-  - Development workflow
-  - Coding standards
-  - Pull request process
-  - Adding new features
-
-- **[macOS Development](developer/MACOS_DEVELOPMENT.md)** - macOS-specific guide
-  - macOS 26.2+ setup
-  - Directory structure
-  - Testing on macOS
-  - Platform-specific features
-
-### Feature Documentation
-
-#### Working Features
-- **[Application Tracking System](APPLICATION_TRACKING_SYSTEM.md)** - Kanban board, pipeline management, reminders
-
-#### Deferred Features (v1.1+)
-These documents describe features that are partially implemented and deferred to v1.1+:
-
-- **[AI Resume Job Matcher](AI_RESUME_JOB_MATCHER.md)** - v1.1+ (65% complete)
-- **[Salary Negotiation AI](SALARY_NEGOTIATION_AI.md)** - v1.1+ (50% complete)
-- **[Job Market Intelligence](JOB_MARKET_INTELLIGENCE_DASHBOARD.md)** - v1.1+ (60% complete)
-- **[LinkedIn Indeed Scrapers](LINKEDIN_INDEED_SCRAPERS.md)** - v1.1+ (incomplete)
-- **[One Click Apply Automation](ONE_CLICK_APPLY_AUTOMATION.md)** - v2.0+ (requires legal review)
-
-### Reports & Analysis
-
-**Technical reports and historical documentation:**
-
-- **[Complete Deep Analysis Report](reports/DEEP_ANALYSIS_COMPLETE_REPORT.md)** - Latest comprehensive analysis
-- **[v1.0 Completion Status](reports/V1_COMPLETION_STATUS.md)** - Implementation tracking
-- **[Implementation Summary](IMPLEMENTATION_SUMMARY.md)** - Development progress
+### Reports
+- **[Deep Analysis](reports/DEEP_ANALYSIS_COMPLETE_REPORT.md)** - Security and code analysis
+- **[v1.0 Status](reports/V1_COMPLETION_STATUS.md)** - Implementation tracking
 
 ---
 
 ## Quick Links
 
-### I want to...
-
-**Install JobSentinel:**
-See [Quick Start Guide](user/QUICK_START.md#installation)
-
-**Configure my job search:**
-See [Quick Start Guide](user/QUICK_START.md#configuration)
-
-**Troubleshoot an issue:**
-See [Quick Start Guide](user/QUICK_START.md#troubleshooting)
-
-**Set up development environment:**
-See [Getting Started](developer/GETTING_STARTED.md#development-setup)
-
-**Contribute code:**
-See [Contributing Guide](developer/CONTRIBUTING.md)
-
-**Build on macOS:**
-See [macOS Development](developer/MACOS_DEVELOPMENT.md)
-
-**Understand the architecture:**
-See [Getting Started](developer/GETTING_STARTED.md#architecture-overview)
-
-**Review security analysis:**
-See [Deep Analysis Report](reports/DEEP_ANALYSIS_COMPLETE_REPORT.md#security-assessment)
+| I want to... | Go to... |
+|--------------|----------|
+| Install JobSentinel | [Quick Start](user/QUICK_START.md) |
+| Set up development | [Getting Started](developer/GETTING_STARTED.md) |
+| Contribute code | [Contributing](developer/CONTRIBUTING.md) |
+| Understand architecture | [Architecture](developer/ARCHITECTURE.md) |
+| See the roadmap | [Roadmap](ROADMAP.md) |
 
 ---
 
-## File Organization
+## File Structure
 
 ```
 docs/
-├── README.md (this file)
+├── README.md           # This file
+├── ROADMAP.md          # Feature roadmap
 ├── user/
-│   └── QUICK_START.md           # User installation & usage guide
+│   └── QUICK_START.md
 ├── developer/
-│   ├── GETTING_STARTED.md       # Developer setup guide
-│   ├── CONTRIBUTING.md          # Contribution guidelines
-│   └── MACOS_DEVELOPMENT.md     # macOS-specific development
+│   ├── GETTING_STARTED.md
+│   ├── CONTRIBUTING.md
+│   ├── ARCHITECTURE.md
+│   ├── TESTING.md
+│   └── MACOS_DEVELOPMENT.md
 ├── reports/
-│   ├── DEEP_ANALYSIS_COMPLETE_REPORT.md  # Latest full analysis
-│   ├── V1_COMPLETION_STATUS.md          # v1.0 implementation status
-│   └── ...                              # Other analysis reports
+│   ├── DEEP_ANALYSIS_COMPLETE_REPORT.md
+│   └── V1_COMPLETION_STATUS.md
 ├── images/
-│   └── logo.png                  # Project logo
-└── [Feature docs]                # Deferred feature documentation
+│   └── logo.png
+└── [Feature docs]      # Individual feature specifications
 ```
-
----
-
-## Need Help?
-
-If you can't find what you need:
-
-1. Check the [main README FAQ](../README.md#frequently-asked-questions-faq)
-2. Search [existing issues](https://github.com/cboyd0319/JobSentinel/issues)
-3. Ask in [Discussions](https://github.com/cboyd0319/JobSentinel/discussions)
-4. Create a [new issue](https://github.com/cboyd0319/JobSentinel/issues/new/choose)
 
 ---
 
 **Last Updated:** January 14, 2026
-**Documentation Version:** 1.1
-**JobSentinel Version:** 1.0.0-alpha
