@@ -5,12 +5,30 @@ All notable changes to JobSentinel will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.0] - 2025-11-11
+## [Unreleased]
+
+### Changed
+- Refactored codebase to fix all compilation errors
+- Disabled incomplete modules (ats, resume, salary, market_intelligence, automation) until fixes complete
+- Updated test suite: 256 tests passing, 9 ignored (require file-based database)
+- Fixed SQLx Row trait usage (get -> try_get)
+- Fixed proptest edge cases in scrapers
+- Fixed webhook URL validation test assertions
+- Updated documentation for accurate v1.0 status
+
+### Technical
+- Added Default derive to AlertConfig and SlackConfig
+- Fixed Indeed scraper hash generation
+- Fixed database integrity DateTime handling
+- Added #[ignore] to backup/restore tests (require file-based database)
+- Fixed doctest compilation issues
+
+## [1.0.0-alpha] - 2026-01-14
 
 ### Added
-- Initial v1.0 release of JobSentinel
+- Core v1.0 release of JobSentinel (alpha)
 - Cross-platform desktop application built with Tauri 2.1, Rust, and React 19
-- Support for Windows 11+ (MSI installer) and macOS 26.1+ Tahoe (DMG installer for Intel and Apple Silicon)
+- Windows 11+ support (primary target)
 - Automated job scraping from three major job boards:
   - Greenhouse
   - Lever
@@ -21,12 +39,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Location preferences (20%)
   - Company preferences (10%)
   - Job recency (5%)
-- Slack webhook integration for instant high-match job alerts (90%+ score)
+- Multi-channel webhook notifications:
+  - Slack
+  - Discord
+  - Microsoft Teams
 - Automatic job search scheduling (every 2 hours, configurable)
 - Manual job search trigger via system tray right-click menu
 - SQLite database for local job storage with full-text search
 - Interactive setup wizard for first-run configuration
-- System tray integration (Windows) and menu bar integration (macOS)
 - Privacy-first architecture - all data stays local, zero telemetry
 - No admin rights required for installation
 
@@ -38,29 +58,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Auto-update capability (built-in to Tauri)
 - Minimal resource footprint (~50MB memory, <0.5s startup)
 
-### Documentation
-- Comprehensive README with quick start guide
-- User documentation in `docs/user/`
-- Developer documentation in `docs/developer/`
-- Complete security and code analysis report
-
-### Infrastructure
-- CI/CD pipeline with GitHub Actions
-- Automated release builds for Windows and macOS
-- Security audit integration
-- Cross-platform testing
-
-## [Unreleased]
-
-### Planned for v1.1+
+### Deferred to v1.1+
+- Application Tracking System (ATS) - 85% complete
+- AI Resume-Job Matcher - 65% complete
+- Salary Negotiation AI - 50% complete
+- Job Market Intelligence Dashboard - 60% complete
+- LinkedIn/Indeed scrapers - code exists, incomplete
 - Email notifications (SMTP)
-- Reed.co.uk scraper integration
-- JobSpy integration
-- Resume parsing and job-resume matching
-- Application tracker
-- ML-enhanced scoring
+- macOS support (.dmg installer)
 - Linux support (.deb, .rpm, .AppImage)
+
+### Deferred to v2.0+
+- One-Click Apply Automation - requires legal review and user consent framework
 
 ---
 
-[1.0.0]: https://github.com/cboyd0319/JobSentinel/releases/tag/v1.0.0
+[Unreleased]: https://github.com/cboyd0319/JobSentinel/compare/v1.0.0-alpha...HEAD
+[1.0.0-alpha]: https://github.com/cboyd0319/JobSentinel/releases/tag/v1.0.0-alpha

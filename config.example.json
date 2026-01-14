@@ -1,6 +1,6 @@
 {
   "_comment": "JobSentinel v1.0 Configuration Example",
-  "_comment_instructions": "Copy this file to %LOCALAPPDATA%\\JobSentinel\\config.json and customize for your preferences",
+  "_comment_instructions": "Copy this file to %LOCALAPPDATA%\\JobSentinel\\config.json (Windows) or ~/.config/jobsentinel/config.json (macOS/Linux)",
 
   "title_allowlist": [
     "Security Engineer",
@@ -56,6 +56,26 @@
     "slack": {
       "enabled": true,
       "webhook_url": "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+    },
+    "discord": {
+      "enabled": false,
+      "webhook_url": "https://discord.com/api/webhooks/YOUR/WEBHOOK"
+    },
+    "teams": {
+      "enabled": false,
+      "webhook_url": "https://outlook.office.com/webhook/YOUR/WEBHOOK"
+    },
+    "email": {
+      "enabled": false,
+      "smtp_server": "smtp.gmail.com",
+      "smtp_port": 587,
+      "username": "",
+      "password": "",
+      "from_address": "",
+      "to_addresses": []
+    },
+    "desktop": {
+      "enabled": true
     }
   },
 
@@ -71,8 +91,9 @@
   ],
 
   "_comment_scoring": "Scoring weights: Skills 40%, Salary 25%, Location 20%, Company 10%, Recency 5%",
-  "_comment_threshold": "immediate_alert_threshold: Jobs scoring above this value (0.0-1.0) will trigger immediate Slack notifications",
+  "_comment_threshold": "immediate_alert_threshold: Jobs scoring above this value (0.0-1.0) will trigger immediate notifications",
   "_comment_greenhouse": "Add Greenhouse company URLs (e.g., https://boards.greenhouse.io/company-name)",
   "_comment_lever": "Add Lever company URLs (e.g., https://jobs.lever.co/company-name)",
-  "_comment_jobswithgpt": "JobsWithGPT is scraped automatically - no configuration needed"
+  "_comment_jobswithgpt": "JobsWithGPT is scraped automatically - no configuration needed",
+  "_comment_alerts": "Enable one or more notification channels: slack, discord, teams, email, desktop"
 }

@@ -2,123 +2,115 @@
 
 <img src="docs/images/logo.png" alt="JobSentinel Logo" width="200">
 
-# JobSentinel v2.0
+# JobSentinel
 
-### **The simplest way to automate your job search**
+### **Privacy-first job search automation**
 
-Windows 11+ & macOS 26.1+ (Tahoe) • Zero Technical Knowledge • 100% Private • $0 Forever
+Windows 11+ (primary) | macOS 26.2+ & Linux (v2.0) | 100% Private | $0 Forever
 
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/Rust-1.83%2B-orange.svg)](https://www.rust-lang.org/)
 [![Tauri](https://img.shields.io/badge/Tauri-2.1-blue.svg)](https://tauri.app/)
 [![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev/)
+[![Tests](https://img.shields.io/badge/Tests-256%20passing-brightgreen.svg)]()
 
-[Download](#installation) • [Features](#features) • [Quick Start](QUICK_START.md) • [Getting Started](GETTING_STARTED.md)
+[Download](#installation) | [Features](#features) | [Quick Start](QUICK_START.md) | [Getting Started](GETTING_STARTED.md)
 
 </div>
 
 ---
 
-## ⚡ What Changed in v2.0?
+## Project Status
 
-**JobSentinel v2.0 is a complete rewrite from the ground up.**
+**Current Version: 1.0.0-alpha** (January 2026)
 
-### Why the Rewrite?
+| Component | Status |
+|-----------|--------|
+| Core (config, db, scoring, scrapers, scheduler, notify) | Working |
+| Frontend (React 19 + TypeScript) | Working |
+| Tauri integration | Working |
+| Tests | 256 passing, 0 failures |
+| Windows build | Ready for testing |
+| macOS/Linux builds | Planned for v2.0 |
 
-The original Python version was powerful but **too complex** for the target user: someone with **zero technical knowledge** who just wants to click an installer and have it work.
-
-### What's New?
-
-| Feature | v1.0 (Python) | v2.0 (Tauri/Rust) |
-|---------|---------------|-------------------|
-| **Installation** | Requires Python 3.12+, pip, Playwright | Single `.msi` installer, double-click to install |
-| **Size** | ~350MB (with dependencies) | ~8MB installer |
-| **Startup Time** | 3-5 seconds | <0.5 seconds |
-| **Memory Usage** | ~500MB | ~50MB |
-| **Admin Rights** | Sometimes required | ❌ Never required |
-| **Auto-Updates** | Manual | ✅ Built-in |
-| **Platform** | Windows, macOS, Linux (complex setup) | Windows 11+ & macOS 26.1+ (Tahoe), Linux coming v2.1+ |
-
-### v2.0 Platform Support
-
-**Available Now:**
-- ✅ **Windows 11+** - MSI installer
-- ✅ **macOS 26.1+ (Tahoe)** - DMG installer
-
-**Coming Soon:**
-- 🔜 **Linux** (v2.1+) - .deb, .rpm, .AppImage
+### Deferred Features (v1.1+)
+- Application Tracking System (85% complete)
+- AI Resume-Job Matcher (65% complete)
+- Salary Negotiation AI (50% complete)
+- Job Market Intelligence Dashboard (60% complete)
+- LinkedIn/Indeed scrapers (code exists, incomplete)
 
 ---
 
-## 🎯 What is JobSentinel?
+## What is JobSentinel?
 
 **JobSentinel** is a desktop app that:
 1. **Scrapes** job boards (Greenhouse, Lever, JobsWithGPT) every 2 hours
 2. **Scores** jobs using your preferences (skills, salary, location, company)
-3. **Alerts** you on Slack when high-match jobs are found (90%+ score)
+3. **Alerts** you on Slack/Discord/Teams when high-match jobs are found (90%+ score)
 
 **All data stays on your machine.** No cloud. No tracking. No subscriptions.
 
 ---
 
-## 🚀 Installation
+## Installation
 
-### Windows 11+
+> **Note:** Pre-built installers are not yet available. See [Development](#development) to build from source.
+
+### Windows 11+ (Primary Target)
 
 **Prerequisites:**
 - Windows 11 or newer
 - 8MB disk space
 - No admin rights required
 
-**Steps:**
-1. Download `JobSentinel-1.0.0-x64.msi` from [Releases](https://github.com/cboyd0319/JobSentinel/releases)
-2. Double-click the `.msi` file
-3. Follow the setup wizard (4 steps, ~2 minutes)
-4. Done! App runs in your system tray
+**From Source:**
+```bash
+git clone https://github.com/cboyd0319/JobSentinel
+cd JobSentinel
+npm install
+npm run tauri:build
+```
 
-### macOS 26.1+ (Tahoe)
+### macOS 26.2+ (Planned for v2.0)
 
-**Prerequisites:**
-- macOS 26.1 (Tahoe) or newer
-- 8MB disk space
-- No admin rights required
+macOS support is planned for v2.0. Development is currently done on macOS.
 
-**Steps:**
-1. Download `JobSentinel-1.0.0-aarch64.dmg` (Apple Silicon) or `JobSentinel-1.0.0-x86_64.dmg` (Intel) from [Releases](https://github.com/cboyd0319/JobSentinel/releases)
-2. Open the `.dmg` file
-3. Drag JobSentinel to Applications
-4. Launch from Applications or Spotlight
-5. Follow the setup wizard (4 steps, ~2 minutes)
-6. Done! App runs in your menu bar
+### Linux (Planned for v2.0)
+
+Linux support (.deb, .rpm, .AppImage) is planned for v2.0.
 
 ---
 
-## ✨ Features
+## Features
 
-### v1.0 (Current)
+### v1.0 Core (Working)
 
 | Feature | Description |
 |---------|-------------|
 | **3 Job Boards** | Greenhouse, Lever, JobsWithGPT (500K+ listings) |
 | **Smart Scoring** | Skills 40%, Salary 25%, Location 20%, Company 10%, Recency 5% |
-| **Slack Alerts** | Rich-formatted notifications for high matches |
+| **Multi-Channel Alerts** | Slack, Discord, and Teams webhook notifications |
 | **Auto-Scheduling** | Scrapes every 2 hours (configurable) |
-| **Manual Trigger** | Right-click tray icon → "Search Now" |
+| **Manual Trigger** | Right-click tray icon -> "Search Now" |
 | **SQLite Database** | Local storage, full-text search |
 | **Setup Wizard** | Interactive first-run configuration |
 
 ### v2.0 Roadmap
+### v1.1+ Roadmap (Deferred Features)
 
+- [ ] Application Tracking System (ATS) - 85% complete
+- [ ] AI Resume-Job Matcher - 65% complete
+- [ ] Salary Negotiation AI - 50% complete
+- [ ] Job Market Intelligence Dashboard - 60% complete
+- [ ] LinkedIn/Indeed scrapers
 - [ ] Email notifications (SMTP)
-- [ ] Reed.co.uk + JobSpy integration
-- [ ] Resume parsing and job-resume matching
-- [ ] Application tracker
-- [ ] ML-enhanced scoring
 - [ ] macOS support (`.dmg` installer)
 - [ ] Linux support (`.deb`, `.rpm`, `.AppImage`)
 
-### v3.0+ (Cloud)
+### v2.0+ (Future)
 
+- [ ] One-Click Apply Automation (requires legal review)
 - [ ] GCP Cloud Run deployment
 - [ ] AWS Lambda deployment
 - [ ] Multi-user support
@@ -126,7 +118,7 @@ The original Python version was powerful but **too complex** for the target user
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ### Tech Stack
 
@@ -137,7 +129,7 @@ The original Python version was powerful but **too complex** for the target user
 | **Database** | SQLite (SQLx) | Local job storage |
 | **Desktop** | Tauri 2.1 | Cross-platform desktop framework |
 | **HTTP** | reqwest + scraper | Job board scraping |
-| **Notifications** | Slack webhooks | Immediate alerts |
+| **Notifications** | Slack, Discord, Teams webhooks | Immediate alerts |
 
 ### Directory Structure (Future-Proof)
 
@@ -154,7 +146,7 @@ JobSentinel/
 │   │   │   └── scheduler/   # Job search scheduling
 │   │   ├── platforms/       # Platform-specific code
 │   │   │   ├── windows/     # Windows 11+ (v1.0)
-│   │   │   ├── macos/       # macOS 13+ (v2.1+)
+│   │   │   ├── macos/       # macOS 26.2+ (v2.1+)
 │   │   │   └── linux/       # Linux (v2.1+)
 │   │   ├── cloud/           # Cloud deployment (v3.0+)
 │   │   │   ├── gcp/         # Google Cloud Platform
@@ -360,7 +352,7 @@ A: No! JobSentinel is a single-file installer. No dependencies, no setup. Just d
 **Q: What's the system requirements?**
 A: Minimal:
 - **Windows:** Windows 11+, 8MB disk, no admin rights
-- **macOS:** macOS 26.1+ (Tahoe), 8MB disk, no admin rights
+- **macOS:** macOS 26.2+ (Tahoe), 8MB disk, no admin rights
 
 **Q: Can I run multiple instances?**
 A: Not recommended. One instance per user is optimal to avoid duplicate notifications and database conflicts.
@@ -515,6 +507,6 @@ If JobSentinel helps you land your next job, give us a star ⭐
 
 **Made with ❤️ for job seekers who value privacy**
 
-[⬆ Back to top](#jobsentinel-v20)
+[Back to top](#jobsentinel)
 
 </div>

@@ -2,10 +2,38 @@
 
 Purpose: Provide clear, enforceable guidance so changes remain aligned with JobSentinel's mission, security posture, testing rigor, and documentation standards.
 
+## Current Status (January 2026)
+
+**Version: 1.0.0-alpha** - Core functionality working, tests passing
+
+### v1.0 Core (Working)
+- Config management with JSON-based preferences
+- SQLite database with async SQLx operations
+- Job scrapers: Greenhouse, Lever, JobsWithGPT
+- Multi-factor scoring algorithm (skills, salary, location, company, recency)
+- Notifications: Slack, Discord, Teams webhooks
+- Scheduler for periodic scraping (configurable interval)
+- Tauri 2.x desktop app with React 19 frontend
+
+### v1.1+ Features (Deferred - Need Fixes)
+- Application Tracking System (ATS) - 85% complete
+- AI Resume-Job Matcher - 65% complete
+- Salary Negotiation AI - 50% complete
+- Job Market Intelligence Dashboard - 60% complete
+
+### v2.0+ Features (Deferred - Requires Legal Review)
+- One-Click Apply Automation - requires user consent framework
+
+### Test Status
+- 256 tests pass (243 library + 12 integration + 1 doc)
+- 9 tests ignored (require file-based database for backup/restore)
+- 0 clippy warnings
+- Release build succeeds
+
 ## Mission & Non-Negotiables
 
 - Privacy-first job search automation: 100% privacy, zero telemetry. Local-only operation is required.
-- Desktop-first: Tauri-based single binary for Windows 11+ (primary), macOS 13+ (v2.0), Linux (v2.0).
+- Desktop-first: Tauri-based single binary for Windows 11+ (primary), macOS 26.2+ (v2.0), Linux (v2.0).
 - Rust backend: Memory-safe Rust implementation with SQLite for local data storage.
 - React frontend: Modern React 19 with TypeScript and TailwindCSS for UI.
 - Offline-first: All job data and configuration stored locally; no cloud dependencies required.
@@ -18,7 +46,7 @@ CRITICAL Repo Rules (must follow)
 - Avoid doc sprawl. Do not create a new doc for every small task. Prefer updating existing docs. Create new documents only when a clear gap exists.
 
 Primary audience: Job seekers who value privacy and want automated job search without sharing data with third parties.
-Target OS: Windows 11+ (primary) → macOS 13+ (v2.0) → Linux (v2.0).
+Target OS: Windows 11+ (primary) → macOS 26.2+ (v2.0) → Linux (v2.0).
 
 ## Architecture Snapshot
 
@@ -33,12 +61,23 @@ Target OS: Windows 11+ (primary) → macOS 13+ (v2.0) → Linux (v2.0).
   - `pages/`: Dashboard and SetupWizard components
   - `index.css`: TailwindCSS styles
 - Database: SQLite with SQLx for async operations
-- Scrapers:
+- Scrapers (v1.0 working):
   - Greenhouse: Company-specific job board scraping
   - Lever: Company-specific job board scraping
   - JobsWithGPT: MCP-based job aggregator API
+- Scrapers (v1.1+ incomplete):
+  - Indeed: Code exists but incomplete
+  - LinkedIn: Code exists but incomplete
 - Scoring: Multi-factor algorithm (skills 40%, salary 25%, location 20%, company 10%, recency 5%)
-- Notifications: Slack webhook integration for high-match alerts (>90% score)
+- Notifications: Slack, Discord, and Teams webhook integration for high-match alerts (>90% score)
+
+### Disabled Modules (in src-tauri/src/core/mod.rs)
+The following modules are commented out until fixed:
+- `ats` - Application tracking (needs compilation fixes)
+- `resume` - Resume matcher (needs compilation fixes)
+- `salary` - Salary negotiation (needs SQLite MEDIAN() workaround)
+- `market_intelligence` - Market trends (needs SQLite MEDIAN() workaround)
+- `automation` - One-click apply (deferred to v2.0+, requires legal review)
 
 ## Documentation Policy (must follow)
 
@@ -194,7 +233,7 @@ Target OS: Windows 11+ (primary) → macOS 13+ (v2.0) → Linux (v2.0).
 - MSI installer with custom UI
 
 **macOS (v2.0 - Future):**
-- macOS 13+ (Ventura) required
+- macOS 26.2+ (Ventura) required
 - Menu bar integration
 - macOS notifications via Tauri plugin
 - Paths: ~/Library/Application Support/JobSentinel (data), ~/.config/jobsentinel (config)
