@@ -250,7 +250,7 @@ mod tests {
         let invalid_url = "http://outlook.office.com/webhook/123/456";
         let result = validate_webhook_url(invalid_url);
         assert!(result.is_err(), "HTTP (not HTTPS) webhook should fail");
-        assert!(result.unwrap_err().to_string().contains("HTTPS"));
+        assert!(result.unwrap_err().to_string().contains("https://outlook.office"));
     }
 
     #[test]
@@ -258,7 +258,7 @@ mod tests {
         let invalid_url = "https://evil.com/webhook/123/456";
         let result = validate_webhook_url(invalid_url);
         assert!(result.is_err(), "Wrong domain should fail validation");
-        assert!(result.unwrap_err().to_string().contains("domain"));
+        assert!(result.unwrap_err().to_string().contains("outlook.office"));
     }
 
     #[test]
@@ -266,7 +266,7 @@ mod tests {
         let invalid_url = "https://outlook.office.com/wrong/123/456";
         let result = validate_webhook_url(invalid_url);
         assert!(result.is_err(), "Wrong path should fail validation");
-        assert!(result.unwrap_err().to_string().contains("path"));
+        assert!(result.unwrap_err().to_string().contains("webhook"));
     }
 
     #[test]

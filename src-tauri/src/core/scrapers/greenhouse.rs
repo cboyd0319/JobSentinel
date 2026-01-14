@@ -472,7 +472,7 @@ mod tests {
             let hash1 = GreenhouseScraper::compute_hash(&company, &title, location.as_deref(), &url);
             let hash2 = GreenhouseScraper::compute_hash(&company, &title, location.as_deref(), &url);
 
-            prop_assert_eq!(hash1, hash2, "Hash should be deterministic");
+            prop_assert_eq!(hash1.clone(), hash2, "Hash should be deterministic");
             prop_assert_eq!(hash1.len(), 64, "Hash should be 64 hex chars");
         }
 

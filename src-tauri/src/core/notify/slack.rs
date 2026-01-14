@@ -201,7 +201,7 @@ mod tests {
         let invalid_url = "http://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX";
         let result = validate_webhook_url(invalid_url);
         assert!(result.is_err(), "HTTP (not HTTPS) webhook should fail");
-        assert!(result.unwrap_err().to_string().contains("HTTPS"));
+        assert!(result.unwrap_err().to_string().contains("https://hooks.slack.com"));
     }
 
     #[test]
@@ -217,7 +217,7 @@ mod tests {
         let invalid_url = "https://hooks.slack.com/wrong/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX";
         let result = validate_webhook_url(invalid_url);
         assert!(result.is_err(), "Wrong path prefix should fail validation");
-        assert!(result.unwrap_err().to_string().contains("Must start with"));
+        assert!(result.unwrap_err().to_string().contains("services"));
     }
 
     #[test]

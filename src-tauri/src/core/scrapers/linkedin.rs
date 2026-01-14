@@ -271,15 +271,26 @@ impl LinkedInScraper {
         let hash = self.generate_hash(&title, &company, &url);
 
         Ok(Some(Job {
+            id: 0,
             hash,
             title: title.trim().to_string(),
             company: company.trim().to_string(),
-            location: location.trim().to_string(),
-            description: String::new(), // Requires separate detail fetch
+            location: Some(location.trim().to_string()),
+            description: Some(String::new()), // Requires separate detail fetch
             url,
-            score: 0.0,
-            found_at: Utc::now(),
+            score: Some(0.0),
+            score_reasons: None,
             source: "linkedin".to_string(),
+            remote: None,
+            salary_min: None,
+            salary_max: None,
+            currency: None,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            last_seen: Utc::now(),
+            times_seen: 1,
+            immediate_alert_sent: false,
+            included_in_digest: false,
         }))
     }
 
@@ -382,15 +393,26 @@ impl LinkedInScraper {
         let hash = self.generate_hash(&title, &company, &url);
 
         Ok(Some(Job {
+            id: 0,
             hash,
             title: title.trim().to_string(),
             company: company.trim().to_string(),
-            location: location.trim().to_string(),
-            description: String::new(),
+            location: Some(location.trim().to_string()),
+            description: Some(String::new()),
             url,
-            score: 0.0,
-            found_at: Utc::now(),
+            score: Some(0.0),
+            score_reasons: None,
             source: "linkedin".to_string(),
+            remote: None,
+            salary_min: None,
+            salary_max: None,
+            currency: None,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            last_seen: Utc::now(),
+            times_seen: 1,
+            immediate_alert_sent: false,
+            included_in_digest: false,
         }))
     }
 
@@ -491,7 +513,7 @@ mod tests {
         let job = job.unwrap();
         assert_eq!(job.title, "Senior Engineer");
         assert_eq!(job.company, "TechCorp");
-        assert_eq!(job.location, "Remote");
+        assert_eq!(job.location, Some("Remote".to_string()));
         assert_eq!(job.source, "linkedin");
         assert!(job.url.contains("12345"));
     }

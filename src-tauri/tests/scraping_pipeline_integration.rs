@@ -3,7 +3,7 @@
 //! Tests the complete scraping workflow from scraper → scorer → database → notifications
 
 use jobsentinel::core::{
-    config::{AlertConfig, Config, LocationPreferences, SlackConfig},
+    config::{Config, LocationPreferences},
     db::{Database, Job},
     scheduler::{Scheduler, ScrapingResult},
     scoring::{JobScore, ScoringEngine},
@@ -29,12 +29,7 @@ fn create_test_config() -> Config {
         salary_floor_usd: 120000,
         immediate_alert_threshold: 0.85,
         scraping_interval_hours: 2,
-        alerts: AlertConfig {
-            slack: SlackConfig {
-                enabled: false,
-                webhook_url: "".to_string(),
-            },
-        },
+        alerts: Default::default(),
         greenhouse_urls: vec![],
         lever_urls: vec![],
     }
@@ -253,7 +248,7 @@ async fn test_pipeline_high_score_filtering() {
     database.upsert_job(&low_score_job).await.unwrap();
 
     // Query by score threshold (config has threshold of 0.85)
-    let high_scoring_jobs = database.get_jobs_by_score(0.85).await.unwrap();
+    let high_scoring_jobs = database.get_jobs_by_score(0.85, 100).await.unwrap();
 
     assert_eq!(high_scoring_jobs.len(), 1, "Should only return high-scoring jobs");
     assert_eq!(high_scoring_jobs[0].hash, "high_score_1");
@@ -299,7 +294,7 @@ async fn test_pipeline_full_cycle_statistics() {
 
     assert_eq!(stats.total_jobs, 10);
     assert_eq!(stats.jobs_today, 10);
-    assert!(stats.avg_score > 0.0);
+    assert!(stats.average_score > 0.0);
 }
 
 #[tokio::test]
@@ -461,7 +456,7 @@ async fn test_pipeline_job_ordering_by_score() {
     }
 
     // Get jobs above threshold 0.7
-    let high_scoring = db.get_jobs_by_score(0.7).await.unwrap();
+    let high_scoring = db.get_jobs_by_score(0.7, 100).await.unwrap();
 
     // Should be ordered by score descending
     assert_eq!(high_scoring.len(), 3); // 0.95, 0.9, 0.8

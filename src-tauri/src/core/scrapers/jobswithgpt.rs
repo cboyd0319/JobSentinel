@@ -455,7 +455,7 @@ mod tests {
             let hash1 = JobsWithGptScraper::compute_hash(&company, &title, location.as_deref(), &url);
             let hash2 = JobsWithGptScraper::compute_hash(&company, &title, location.as_deref(), &url);
 
-            prop_assert_eq!(hash1, hash2);
+            prop_assert_eq!(hash1.clone(), hash2);
             prop_assert_eq!(hash1.len(), 64);
         }
 

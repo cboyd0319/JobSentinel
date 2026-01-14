@@ -83,12 +83,7 @@ fn main() {
                     salary_floor_usd: 0,
                     immediate_alert_threshold: 0.9,
                     scraping_interval_hours: 2,
-                    alerts: jobsentinel::core::config::AlertConfig {
-                        slack: jobsentinel::core::config::SlackConfig {
-                            enabled: false,
-                            webhook_url: String::new(),
-                        },
-                    },
+                    alerts: Default::default(),
                     greenhouse_urls: vec![],
                     lever_urls: vec![],
                 }

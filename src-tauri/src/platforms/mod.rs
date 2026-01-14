@@ -24,8 +24,8 @@
 //!
 //! ## Usage Example
 //!
-//! ```rust
-//! use crate::platforms;
+//! ```rust,ignore
+//! use jobsentinel::platforms;
 //!
 //! // Get platform-specific data directory
 //! let data_dir = platforms::get_data_dir();

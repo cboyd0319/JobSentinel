@@ -6,7 +6,7 @@ pub mod integrity;
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::{sqlite::SqlitePool, FromRow};
+use sqlx::{sqlite::SqlitePool, FromRow, Row};
 use std::path::PathBuf;
 
 /// Job model
@@ -296,7 +296,7 @@ impl Database {
         {
             let options: Vec<String> = rows
                 .iter()
-                .filter_map(|row| row.get::<String, _>(0).ok())
+                .filter_map(|row| row.try_get::<String, _>(0).ok())
                 .collect();
             tracing::debug!("  📋 SQLite compile options: {} features", options.len());
 
@@ -321,7 +321,7 @@ impl Database {
             .fetch_one(pool)
             .await
         {
-            if let Ok(version) = row.get::<String, _>(0) {
+            if let Ok(version) = row.try_get::<String, _>(0) {
                 tracing::info!("  📦 SQLite version: {}", version);
             }
         }
@@ -332,7 +332,7 @@ impl Database {
 
         // Verify cache size is AT LEAST 64MB
         if let Ok(row) = sqlx::query("PRAGMA cache_size").fetch_one(pool).await {
-            if let Ok(cache_size) = row.get::<i64, _>(0) {
+            if let Ok(cache_size) = row.try_get::<i64, _>(0) {
                 let actual_mb = if cache_size < 0 {
                     // Negative = kilobytes
                     cache_size.abs() / 1024
@@ -354,7 +354,7 @@ impl Database {
 
         // Verify WAL mode is actually enabled
         if let Ok(row) = sqlx::query("PRAGMA journal_mode").fetch_one(pool).await {
-            if let Ok(mode) = row.get::<String, _>(0) {
+            if let Ok(mode) = row.try_get::<String, _>(0) {
                 if mode.eq_ignore_ascii_case("wal") {
                     tracing::debug!("  ✓ WAL mode verified ✅");
                 } else {
@@ -365,7 +365,7 @@ impl Database {
 
         // Verify foreign keys are enforced
         if let Ok(row) = sqlx::query("PRAGMA foreign_keys").fetch_one(pool).await {
-            if let Ok(enabled) = row.get::<i64, _>(0) {
+            if let Ok(enabled) = row.try_get::<i64, _>(0) {
                 if enabled == 1 {
                     tracing::debug!("  ✓ Foreign keys verified ✅");
                 } else {
@@ -385,7 +385,7 @@ impl Database {
     }
 
     /// Connect to in-memory SQLite database (for testing)
-    #[cfg(test)]
+    /// Available in test builds and for integration tests
     pub async fn connect_memory() -> Result<Self, sqlx::Error> {
         let pool = SqlitePool::connect("sqlite::memory:").await?;
         Ok(Database { pool })

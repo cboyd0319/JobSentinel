@@ -242,7 +242,7 @@ mod tests {
         let invalid_url = "http://discord.com/api/webhooks/123456789/token";
         let result = validate_webhook_url(invalid_url);
         assert!(result.is_err(), "HTTP (not HTTPS) webhook should fail");
-        assert!(result.unwrap_err().to_string().contains("HTTPS"));
+        assert!(result.unwrap_err().to_string().contains("https://discord.com"));
     }
 
     #[test]
@@ -250,7 +250,7 @@ mod tests {
         let invalid_url = "https://evil.com/api/webhooks/123456789/token";
         let result = validate_webhook_url(invalid_url);
         assert!(result.is_err(), "Wrong domain should fail validation");
-        assert!(result.unwrap_err().to_string().contains("domain"));
+        assert!(result.unwrap_err().to_string().contains("discord.com"));
     }
 
     #[test]
@@ -258,7 +258,7 @@ mod tests {
         let invalid_url = "https://discord.com/wrong/path/123456789/token";
         let result = validate_webhook_url(invalid_url);
         assert!(result.is_err(), "Wrong path should fail validation");
-        assert!(result.unwrap_err().to_string().contains("path"));
+        assert!(result.unwrap_err().to_string().contains("webhooks"));
     }
 
     #[test]

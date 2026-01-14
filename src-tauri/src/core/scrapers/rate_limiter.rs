@@ -39,7 +39,9 @@ impl RateLimiter {
     /// * `max_requests_per_hour` - Maximum requests allowed per hour
     ///
     /// # Example
-    /// ```rust
+    /// ```rust,no_run
+    /// # use jobsentinel::core::scrapers::rate_limiter::RateLimiter;
+    /// # async fn example() {
     /// let limiter = RateLimiter::new();
     ///
     /// // LinkedIn: max 100 requests/hour
@@ -47,6 +49,7 @@ impl RateLimiter {
     ///
     /// // Indeed: max 500 requests/hour
     /// limiter.wait("indeed", 500).await;
+    /// # }
     /// ```
     pub async fn wait(&self, scraper_name: &str, max_requests_per_hour: u32) {
         let mut buckets = self.buckets.lock().await;

@@ -404,12 +404,7 @@ mod tests {
             salary_floor_usd: 0,
             immediate_alert_threshold: 0.9,
             scraping_interval_hours: 2,
-            alerts: AlertConfig {
-                slack: SlackConfig {
-                    enabled: false,
-                    webhook_url: "".to_string(),
-                },
-            },
+            alerts: Default::default(),
             greenhouse_urls: vec![],
             lever_urls: vec![],
         }

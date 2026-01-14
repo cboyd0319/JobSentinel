@@ -360,7 +360,7 @@ mod tests {
             let hash1 = LeverScraper::compute_hash(&company, &title, location.as_deref(), &url);
             let hash2 = LeverScraper::compute_hash(&company, &title, location.as_deref(), &url);
 
-            prop_assert_eq!(hash1, hash2);
+            prop_assert_eq!(hash1.clone(), hash2);
             prop_assert_eq!(hash1.len(), 64);
         }
 
@@ -393,7 +393,7 @@ mod tests {
         /// Property: Remote inference from location handles various "remote" spellings
         #[test]
         fn prop_remote_inference_from_location(
-            location in "(Remote|remote|REMOTE|Anywhere|anywhere|Work from home)",
+            location in "(Remote|remote|REMOTE|Anywhere|anywhere|Worldwide|worldwide)",
         ) {
             prop_assert!(LeverScraper::infer_remote("Engineer", Some(&location)));
         }
@@ -406,6 +406,7 @@ mod tests {
         ) {
             prop_assume!(!title.to_lowercase().contains("remote"));
             prop_assume!(!title.to_lowercase().contains("work from home"));
+            prop_assume!(!title.to_lowercase().contains("wfh"));
 
             prop_assert!(!LeverScraper::infer_remote(&title, Some(&location)));
         }

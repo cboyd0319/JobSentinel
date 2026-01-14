@@ -179,24 +179,29 @@ impl IndeedScraper {
 
         // Build full URL
         let url = format!("https://www.indeed.com/viewjob?jk={}", job_key);
-
-        // Generate hash
         let hash = self.generate_hash(&title, &company, &url);
 
-        if title.is_empty() {
-            return Ok(None);
-        }
-
         Ok(Some(Job {
+            id: 0, // Placeholder, will be set by DB
             hash,
             title: title.trim().to_string(),
             company: company.trim().to_string(),
-            location: location.trim().to_string(),
-            description,
+            location: Some(location.trim().to_string()),
+            description: Some(description),
             url,
-            score: 0.0,
-            found_at: Utc::now(),
+            score: Some(0.0),
+            score_reasons: None,
             source: "indeed".to_string(),
+            remote: None,
+            salary_min: None,
+            salary_max: None,
+            currency: None,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            last_seen: Utc::now(),
+            times_seen: 1,
+            immediate_alert_sent: false,
+            included_in_digest: false,
         }))
     }
 
@@ -245,15 +250,26 @@ impl IndeedScraper {
         }
 
         Ok(Some(Job {
+            id: 0,
             hash,
             title: title.trim().to_string(),
             company: company.trim().to_string(),
-            location: location.trim().to_string(),
-            description,
+            location: Some(location.trim().to_string()),
+            description: Some(description),
             url,
-            score: 0.0,
-            found_at: Utc::now(),
+            score: Some(0.0),
+            score_reasons: None,
             source: "indeed".to_string(),
+            remote: None,
+            salary_min: None,
+            salary_max: None,
+            currency: None,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            last_seen: Utc::now(),
+            times_seen: 1,
+            immediate_alert_sent: false,
+            included_in_digest: false,
         }))
     }
 
@@ -341,7 +357,7 @@ mod tests {
         let job = job.unwrap();
         assert_eq!(job.title, "Senior Software Engineer");
         assert_eq!(job.company, "TechCorp Inc");
-        assert_eq!(job.location, "San Francisco, CA");
+        assert_eq!(job.location, Some("San Francisco, CA".to_string()));
         assert_eq!(job.source, "indeed");
         assert!(job.url.contains("abc123"));
     }
