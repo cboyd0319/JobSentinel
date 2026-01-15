@@ -44,7 +44,7 @@ urlencoding = "2.1"
 regex = "1.10"
 
 # Database
-sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "sqlite", "migrate", "chrono"] }
+sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio-rustls", "sqlite", "migrate", "chrono", "macros"] }
 
 # Date/Time
 chrono = { version = "0.4", features = ["serde"] }

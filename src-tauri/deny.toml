@@ -1,0 +1,16 @@
+# cargo-deny configuration
+# https://embarkstudios.github.io/cargo-deny/
+
+[advisories]
+# The SQLx crate includes sqlx-mysql in Cargo.lock when using the 'chrono' feature,
+# even when MySQL is disabled. This is a known Cargo quirk (see SQLx issues #2911, #3538).
+# The 'rsa' crate is NOT compiled into our binary - verified with:
+#   cargo tree -i rsa (returns "nothing to print")
+# Therefore, RUSTSEC-2023-0071 (Marvin Attack) does not affect our application.
+ignore = [
+    "RUSTSEC-2023-0071",  # rsa - Marvin Attack - NOT in our binary (sqlx-mysql not compiled)
+]
+
+# The GTK3 bindings are required by Tauri for Linux support.
+# They are "unmaintained" but not insecure.
+# These are warnings, not vulnerabilities.
