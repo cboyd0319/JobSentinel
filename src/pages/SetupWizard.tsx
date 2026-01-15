@@ -14,14 +14,55 @@ const isValidSlackWebhook = (url: string): boolean => {
 
 const STEPS = [
   { id: 1, title: "Job Titles", description: "What roles are you looking for?" },
-  { id: 2, title: "Location", description: "Where do you want to work?" },
-  { id: 3, title: "Salary", description: "What's your minimum?" },
-  { id: 4, title: "Notifications", description: "Stay informed (optional)" },
+  { id: 2, title: "Skills", description: "What are you good at?" },
+  { id: 3, title: "Location", description: "Where do you want to work?" },
+  { id: 4, title: "Salary", description: "What's your target?" },
+  { id: 5, title: "Notifications", description: "Stay informed (optional)" },
+];
+
+// Popular job titles for suggestions
+const POPULAR_TITLES = [
+  "Software Engineer",
+  "Product Manager", 
+  "Data Analyst",
+  "UX Designer",
+  "Marketing Manager",
+  "Sales Representative",
+  "Project Manager",
+  "Business Analyst",
+  "Customer Success Manager",
+  "Operations Manager",
+  "Accountant",
+  "Human Resources",
+  "Administrative Assistant",
+  "Graphic Designer",
+  "Content Writer",
+];
+
+// Popular skills for suggestions
+const POPULAR_SKILLS = [
+  "Excel",
+  "Communication",
+  "Problem Solving",
+  "Leadership",
+  "Project Management",
+  "Customer Service",
+  "Data Analysis",
+  "Writing",
+  "JavaScript",
+  "Python",
+  "SQL",
+  "Salesforce",
+  "Marketing",
+  "Accounting",
+  "Design",
 ];
 
 export default function SetupWizard({ onComplete }: SetupWizardProps) {
   const [step, setStep] = useState(1);
   const [titleInput, setTitleInput] = useState("");
+  const [skillInput, setSkillInput] = useState("");
+  const [cityInput, setCityInput] = useState("");
   const [config, setConfig] = useState({
     title_allowlist: [] as string[],
     keywords_boost: [] as string[],
@@ -29,6 +70,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
       allow_remote: true,
       allow_hybrid: false,
       allow_onsite: false,
+      cities: [] as string[],
     },
     salary_floor_usd: 0,
     alerts: {
@@ -57,6 +99,48 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
     setConfig((prev) => ({
       ...prev,
       title_allowlist: prev.title_allowlist.filter((t) => t !== titleToRemove),
+    }));
+  };
+
+  const handleAddSkill = () => {
+    const trimmed = skillInput.trim();
+    if (trimmed && !config.keywords_boost.includes(trimmed)) {
+      setConfig((prev) => ({
+        ...prev,
+        keywords_boost: [...prev.keywords_boost, trimmed],
+      }));
+      setSkillInput("");
+    }
+  };
+
+  const handleRemoveSkill = (skillToRemove: string) => {
+    setConfig((prev) => ({
+      ...prev,
+      keywords_boost: prev.keywords_boost.filter((s) => s !== skillToRemove),
+    }));
+  };
+
+  const handleAddCity = () => {
+    const trimmed = cityInput.trim();
+    if (trimmed && !config.location_preferences.cities.includes(trimmed)) {
+      setConfig((prev) => ({
+        ...prev,
+        location_preferences: {
+          ...prev.location_preferences,
+          cities: [...prev.location_preferences.cities, trimmed],
+        },
+      }));
+      setCityInput("");
+    }
+  };
+
+  const handleRemoveCity = (cityToRemove: string) => {
+    setConfig((prev) => ({
+      ...prev,
+      location_preferences: {
+        ...prev.location_preferences,
+        cities: prev.location_preferences.cities.filter((c) => c !== cityToRemove),
+      },
     }));
   };
 
@@ -161,6 +245,31 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                 </Button>
               </div>
 
+              {/* Popular suggestions */}
+              {config.title_allowlist.length === 0 && (
+                <div className="mb-4">
+                  <p className="text-sm text-surface-500 mb-2">Popular titles - click to add:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {POPULAR_TITLES.slice(0, 8).map((title) => (
+                      <button
+                        key={title}
+                        onClick={() => {
+                          if (!config.title_allowlist.includes(title)) {
+                            setConfig((prev) => ({
+                              ...prev,
+                              title_allowlist: [...prev.title_allowlist, title],
+                            }));
+                          }
+                        }}
+                        className="px-3 py-1.5 text-sm bg-surface-100 hover:bg-sentinel-100 hover:text-sentinel-700 text-surface-600 rounded-full transition-colors"
+                      >
+                        + {title}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {config.title_allowlist.length > 0 ? (
                 <div className="flex flex-wrap gap-2 mb-6 p-4 bg-surface-50 rounded-lg min-h-[80px]">
                   {config.title_allowlist.map((title) => (
@@ -199,10 +308,88 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
             </div>
           )}
 
-          {/* Step 2: Location */}
+          {/* Step 2: Skills */}
           {step === 2 && (
             <div className="animate-slide-up">
-              <div className="space-y-3 mb-8">
+              <div className="flex gap-2 mb-4">
+                <Input
+                  placeholder="e.g., Excel, Python, Leadership"
+                  value={skillInput}
+                  onChange={(e) => setSkillInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleAddSkill();
+                    }
+                  }}
+                  leftIcon={<SparkleIcon />}
+                />
+                <Button onClick={handleAddSkill} disabled={!skillInput.trim()}>
+                  Add
+                </Button>
+              </div>
+
+              {/* Popular suggestions */}
+              {config.keywords_boost.length === 0 && (
+                <div className="mb-4">
+                  <p className="text-sm text-surface-500 mb-2">Popular skills - click to add:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {POPULAR_SKILLS.slice(0, 10).map((skill) => (
+                      <button
+                        key={skill}
+                        onClick={() => {
+                          if (!config.keywords_boost.includes(skill)) {
+                            setConfig((prev) => ({
+                              ...prev,
+                              keywords_boost: [...prev.keywords_boost, skill],
+                            }));
+                          }
+                        }}
+                        className="px-3 py-1.5 text-sm bg-surface-100 hover:bg-alert-100 hover:text-alert-700 text-surface-600 rounded-full transition-colors"
+                      >
+                        + {skill}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {config.keywords_boost.length > 0 ? (
+                <div className="flex flex-wrap gap-2 mb-6 p-4 bg-surface-50 rounded-lg min-h-[80px]">
+                  {config.keywords_boost.map((skill) => (
+                    <Badge
+                      key={skill}
+                      variant="alert"
+                      removable
+                      onRemove={() => handleRemoveSkill(skill)}
+                    >
+                      {skill}
+                    </Badge>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex items-center justify-center p-8 bg-surface-50 rounded-lg mb-6">
+                  <p className="text-surface-400 text-sm">
+                    Add skills to boost matching jobs (optional but helpful)
+                  </p>
+                </div>
+              )}
+
+              <div className="flex gap-3">
+                <Button variant="secondary" onClick={() => setStep(1)} className="flex-1" size="lg">
+                  Back
+                </Button>
+                <Button onClick={() => setStep(3)} className="flex-1" size="lg">
+                  {config.keywords_boost.length > 0 ? "Continue" : "Skip"}
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 3: Location */}
+          {step === 3 && (
+            <div className="animate-slide-up">
+              <div className="space-y-3 mb-6">
                 <LocationOption
                   label="Remote"
                   description="Work from anywhere"
@@ -250,29 +437,66 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                 />
               </div>
 
+              {/* City input for hybrid/onsite */}
+              {(config.location_preferences.allow_hybrid || config.location_preferences.allow_onsite) && (
+                <div className="mb-6">
+                  <div className="flex gap-2 mb-3">
+                    <Input
+                      placeholder="e.g., San Francisco, New York"
+                      value={cityInput}
+                      onChange={(e) => setCityInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleAddCity();
+                        }
+                      }}
+                      leftIcon={<MapPinIcon />}
+                    />
+                    <Button onClick={handleAddCity} disabled={!cityInput.trim()}>
+                      Add
+                    </Button>
+                  </div>
+                  {config.location_preferences.cities.length > 0 && (
+                    <div className="flex flex-wrap gap-2 p-3 bg-surface-50 rounded-lg">
+                      {config.location_preferences.cities.map((city) => (
+                        <Badge
+                          key={city}
+                          variant="surface"
+                          removable
+                          onRemove={() => handleRemoveCity(city)}
+                        >
+                          {city}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="flex gap-3">
-                <Button variant="secondary" onClick={() => setStep(1)} className="flex-1" size="lg">
+                <Button variant="secondary" onClick={() => setStep(2)} className="flex-1" size="lg">
                   Back
                 </Button>
-                <Button onClick={() => setStep(3)} className="flex-1" size="lg">
+                <Button onClick={() => setStep(4)} className="flex-1" size="lg">
                   Continue
                 </Button>
               </div>
             </div>
           )}
 
-          {/* Step 3: Salary */}
-          {step === 3 && (
+          {/* Step 4: Salary */}
+          {step === 4 && (
             <div className="animate-slide-up">
               <div className="mb-8">
                 <Input
                   type="number"
-                  label="Minimum Annual Salary (USD)"
+                  label="Target Annual Salary (USD)"
                   value={config.salary_floor_usd || ""}
                   onChange={(e) => handleSalaryChange(e.target.value)}
-                  placeholder="e.g., 120000"
+                  placeholder="e.g., 60000"
                   leftIcon={<DollarIcon />}
-                  hint="Jobs below this salary will be ranked lower"
+                  hint="Jobs below this salary will be ranked lower (leave blank if unsure)"
                 />
 
                 {config.salary_floor_usd > 0 && (
@@ -289,22 +513,46 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
               </div>
 
               <div className="flex gap-3">
-                <Button variant="secondary" onClick={() => setStep(2)} className="flex-1" size="lg">
+                <Button variant="secondary" onClick={() => setStep(3)} className="flex-1" size="lg">
                   Back
                 </Button>
-                <Button onClick={() => setStep(4)} className="flex-1" size="lg">
-                  Continue
+                <Button onClick={() => setStep(5)} className="flex-1" size="lg">
+                  {config.salary_floor_usd > 0 ? "Continue" : "Skip"}
                 </Button>
               </div>
             </div>
           )}
 
-          {/* Step 4: Notifications */}
-          {step === 4 && (
+          {/* Step 5: Notifications */}
+          {step === 5 && (
             <div className="animate-slide-up">
-              <div className="mb-8">
+              <div className="mb-6">
+                <p className="text-surface-600 mb-4 text-center">
+                  Get notified when we find great matches for you
+                </p>
+                
+                {/* Simple notification toggle */}
+                <div className="space-y-3 mb-6">
+                  <label className="flex items-center gap-3 p-4 rounded-lg border-2 border-surface-200 hover:border-surface-300 cursor-pointer transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={config.alerts.slack.enabled && config.alerts.slack.webhook_url.length > 0}
+                      onChange={() => {}}
+                      className="sr-only"
+                    />
+                    <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
+                      <SlackIcon />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium text-surface-700">Slack</p>
+                      <p className="text-sm text-surface-500">Get alerts in your Slack workspace</p>
+                    </div>
+                  </label>
+                </div>
+
+                {/* Slack webhook input */}
                 <Input
-                  label="Slack Webhook URL (Optional)"
+                  label="Slack Webhook URL"
                   value={config.alerts.slack.webhook_url}
                   onChange={(e) =>
                     setConfig((prev) => ({
@@ -319,31 +567,30 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                   }
                   placeholder="https://hooks.slack.com/services/..."
                   leftIcon={<SlackIcon />}
-                  error={!isValidWebhook ? "Please enter a valid Slack webhook URL" : undefined}
-                  hint="Get notified when high-match jobs are found"
+                  error={config.alerts.slack.webhook_url && !isValidWebhook ? "Please enter a valid Slack webhook URL" : undefined}
+                  hint="Don't have Slack? No problem! Skip this and check the app directly."
                 />
               </div>
 
-              <div className="p-4 bg-surface-50 rounded-lg mb-8">
+              <div className="p-4 bg-surface-50 rounded-lg mb-6">
                 <p className="text-sm text-surface-600">
-                  <span className="font-medium text-surface-700">Privacy note:</span> JobSentinel 
-                  stores all data locally. Your preferences never leave your device unless you 
-                  configure external notifications.
+                  <span className="font-medium text-surface-700">Your privacy matters:</span> JobSentinel 
+                  stores all your data on your computer. Nothing is sent anywhere unless you set up notifications.
                 </p>
               </div>
 
               <div className="flex gap-3">
-                <Button variant="secondary" onClick={() => setStep(3)} className="flex-1" size="lg">
+                <Button variant="secondary" onClick={() => setStep(4)} className="flex-1" size="lg">
                   Back
                 </Button>
                 <Button
                   onClick={handleComplete}
-                  disabled={!isValidWebhook}
+                  disabled={config.alerts.slack.webhook_url.length > 0 && !isValidWebhook}
                   variant="success"
                   className="flex-1"
                   size="lg"
                 >
-                  Complete Setup
+                  Start Finding Jobs
                 </Button>
               </div>
             </div>
@@ -437,6 +684,23 @@ function GlobeIcon() {
   return (
     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+    </svg>
+  );
+}
+
+function SparkleIcon() {
+  return (
+    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
+    </svg>
+  );
+}
+
+function MapPinIcon() {
+  return (
+    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
     </svg>
   );
 }
