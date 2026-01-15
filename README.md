@@ -38,20 +38,26 @@ Windows 11+ (primary) | macOS 26.2+ & Linux (v2.0) | 100% Private | $0 Forever
 | macOS/Linux builds | Planned for v2.0 |
 
 ### Remaining Work (v1.1)
-- LinkedIn/Indeed scrapers (API incomplete)
+- LinkedIn scraper (requires manual cookie extraction - complex for non-technical users)
+- Indeed scraper (rate-limited, needs proxy support)
 - Email notifications (SMTP)
 - Desktop notifications (Tauri plugin)
+
+### Job Sources (Currently Working)
+- **Greenhouse** - Many tech companies use this
+- **Lever** - Popular with startups
+- **JobsWithGPT** - Aggregates from multiple sources
 
 ---
 
 ## What is JobSentinel?
 
 **JobSentinel** is a desktop app that:
-1. **Scrapes** job boards (Greenhouse, Lever, JobsWithGPT) every 2 hours
-2. **Scores** jobs using your preferences (skills, salary, location, company)
-3. **Alerts** you on Slack/Discord/Teams when high-match jobs are found (90%+ score)
+1. **Scans** job boards (Greenhouse, Lever, JobsWithGPT) every 2 hours
+2. **Matches** jobs to your preferences (skills, salary, location)
+3. **Alerts** you on Slack when great matches are found (90%+ score)
 
-**All data stays on your machine.** No cloud. No tracking. No subscriptions.
+**All data stays on your computer.** No cloud. No tracking. No subscriptions.
 
 ---
 

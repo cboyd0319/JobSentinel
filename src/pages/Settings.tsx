@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { Button, Input, Badge, Card } from "../components";
 import { useToast } from "../contexts";
@@ -42,11 +42,7 @@ export default function Settings({ onClose }: SettingsProps) {
   const [cityInput, setCityInput] = useState("");
   const toast = useToast();
 
-  useEffect(() => {
-    loadConfig();
-  }, []);
-
-  const loadConfig = async () => {
+  const loadConfig = useCallback(async () => {
     try {
       setLoading(true);
       const configData = await invoke<Config>("get_config");
@@ -57,7 +53,11 @@ export default function Settings({ onClose }: SettingsProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    loadConfig();
+  }, [loadConfig]);
 
   const handleSave = async () => {
     if (!config) return;
