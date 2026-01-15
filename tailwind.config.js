@@ -101,6 +101,8 @@ export default {
         'slide-up': 'slideUp 0.4s ease-out',
         'slide-in-right': 'slideInRight 0.3s ease-out',
         'score-fill': 'scoreFill 1s ease-out forwards',
+        'progress-indeterminate': 'progressIndeterminate 1.5s ease-in-out infinite',
+        'shimmer': 'shimmer 2s linear infinite',
       },
       keyframes: {
         scan: {
@@ -122,6 +124,14 @@ export default {
         scoreFill: {
           '0%': { width: '0%' },
           '100%': { width: 'var(--score-width)' },
+        },
+        progressIndeterminate: {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(400%)' },
+        },
+        shimmer: {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
         },
       },
       backdropBlur: {

@@ -36,11 +36,11 @@ export function JobCard({ job, onViewJob }: JobCardProps) {
   return (
     <div
       className={`
-        group relative bg-white rounded-card border transition-all duration-200 ease-out
+        group relative bg-white dark:bg-surface-800 rounded-card border transition-all duration-200 ease-out
         hover:shadow-card-hover hover:-translate-y-0.5
         ${isHighMatch 
-          ? "border-alert-200 shadow-soft hover:border-alert-300" 
-          : "border-surface-100 shadow-soft hover:border-surface-200"
+          ? "border-alert-200 dark:border-alert-700 shadow-soft hover:border-alert-300 dark:hover:border-alert-600" 
+          : "border-surface-100 dark:border-surface-700 shadow-soft dark:shadow-none hover:border-surface-200 dark:hover:border-surface-600"
         }
       `}
     >
@@ -59,13 +59,13 @@ export function JobCard({ job, onViewJob }: JobCardProps) {
           {/* Content */}
           <div className="flex-1 min-w-0">
             {/* Title and company */}
-            <h3 className="font-display text-display-md text-surface-900 mb-1 truncate group-hover:text-sentinel-600 transition-colors">
+            <h3 className="font-display text-display-md text-surface-900 dark:text-white mb-1 truncate group-hover:text-sentinel-600 dark:group-hover:text-sentinel-400 transition-colors">
               {job.title}
             </h3>
-            <p className="text-surface-600 font-medium mb-3">{job.company}</p>
+            <p className="text-surface-600 dark:text-surface-400 font-medium mb-3">{job.company}</p>
 
             {/* Meta info */}
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-surface-500">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-surface-500 dark:text-surface-400">
               {/* Location */}
               <span className="inline-flex items-center gap-1">
                 <LocationIcon />
@@ -102,8 +102,8 @@ export function JobCard({ job, onViewJob }: JobCardProps) {
                 inline-flex items-center gap-1 px-4 py-2 rounded-lg font-medium text-sm
                 transition-all duration-150
                 ${isGoodMatch
-                  ? "bg-sentinel-50 text-sentinel-600 hover:bg-sentinel-100"
-                  : "bg-surface-50 text-surface-600 hover:bg-surface-100"
+                  ? "bg-sentinel-50 dark:bg-sentinel-900/30 text-sentinel-600 dark:text-sentinel-400 hover:bg-sentinel-100 dark:hover:bg-sentinel-900/50"
+                  : "bg-surface-50 dark:bg-surface-700 text-surface-600 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-600"
                 }
               `}
             >

@@ -12,6 +12,7 @@
 
   body {
     @apply font-body text-surface-800 bg-surface-50 m-0;
+    @apply dark:text-surface-100 dark:bg-surface-900;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -19,11 +20,13 @@
   /* Custom selection color */
   ::selection {
     @apply bg-sentinel-200 text-sentinel-900;
+    @apply dark:bg-sentinel-800 dark:text-sentinel-100;
   }
 
   /* Smooth focus rings */
   :focus-visible {
     @apply outline-none ring-2 ring-sentinel-500/50 ring-offset-2 ring-offset-surface-50;
+    @apply dark:ring-offset-surface-900;
   }
 
   /* Custom scrollbar */
@@ -31,13 +34,13 @@
     @apply w-2;
   }
   ::-webkit-scrollbar-track {
-    @apply bg-surface-100;
+    @apply bg-surface-100 dark:bg-surface-800;
   }
   ::-webkit-scrollbar-thumb {
-    @apply bg-surface-300 rounded-full;
+    @apply bg-surface-300 rounded-full dark:bg-surface-600;
   }
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-surface-400;
+    @apply bg-surface-400 dark:bg-surface-500;
   }
 
   #root {

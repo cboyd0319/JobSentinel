@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { Button, Card, CardHeader, LoadingSpinner, JobCard, ScoreDisplay } from "../components";
+import { Button, Card, CardHeader, LoadingSpinner, JobCard, ScoreDisplay, ThemeToggle, Tooltip } from "../components";
+import { useToast } from "../contexts";
 import { getErrorMessage, logError } from "../utils/errorUtils";
 
 interface Job {
@@ -41,6 +42,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const toast = useToast();
 
   const fetchData = useCallback(async () => {
     try {
@@ -72,11 +74,14 @@ export default function Dashboard() {
     try {
       setSearching(true);
       setError(null);
+      toast.info("Scanning job boards...", "This may take a moment");
       await invoke("search_jobs");
       await fetchData();
+      toast.success("Scan complete!", `Found ${jobs.length} jobs`);
     } catch (err) {
       logError("Failed to search jobs:", err);
       setError(getErrorMessage(err));
+      toast.error("Scan failed", getErrorMessage(err));
     } finally {
       setSearching(false);
     }
@@ -93,9 +98,9 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-surface-50">
+    <div className="min-h-screen bg-surface-50 dark:bg-surface-900">
       {/* Header */}
-      <header className="bg-white border-b border-surface-100 sticky top-0 z-10">
+      <header className="bg-white dark:bg-surface-800 border-b border-surface-100 dark:border-surface-700 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             {/* Logo & Title */}
@@ -104,24 +109,28 @@ export default function Dashboard() {
                 <SentinelIcon className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="font-display text-display-md text-surface-900">
+                <h1 className="font-display text-display-md text-surface-900 dark:text-white">
                   JobSentinel
                 </h1>
-                <p className="text-sm text-surface-500">
+                <p className="text-sm text-surface-500 dark:text-surface-400">
                   Privacy-first job search automation
                 </p>
               </div>
             </div>
 
             {/* Actions */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               {/* Status indicator */}
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-surface-50 rounded-lg">
-                <div className={scrapingStatus.is_running ? "status-dot-active" : "status-dot-idle"} />
-                <span className="text-sm text-surface-600">
-                  {scrapingStatus.is_running ? "Scanning..." : "Idle"}
-                </span>
-              </div>
+              <Tooltip content={scrapingStatus.is_running ? "Currently scanning job boards" : "Ready to scan"}>
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-surface-50 dark:bg-surface-700 rounded-lg">
+                  <div className={scrapingStatus.is_running ? "status-dot-active" : "status-dot-idle"} />
+                  <span className="text-sm text-surface-600 dark:text-surface-300">
+                    {scrapingStatus.is_running ? "Scanning..." : "Idle"}
+                  </span>
+                </div>
+              </Tooltip>
+
+              <ThemeToggle />
 
               <Button
                 onClick={handleSearchNow}
@@ -139,18 +148,18 @@ export default function Dashboard() {
       <main className="max-w-7xl mx-auto px-6 py-8">
         {/* Error alert */}
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg animate-slide-up">
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg animate-slide-up">
             <div className="flex items-start gap-3">
               <div className="flex-shrink-0 mt-0.5">
                 <ErrorIcon className="w-5 h-5 text-danger" />
               </div>
               <div>
                 <p className="font-medium text-danger">Error</p>
-                <p className="text-sm text-red-700">{error}</p>
+                <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
               </div>
               <button
                 onClick={() => setError(null)}
-                className="ml-auto text-red-400 hover:text-red-600"
+                className="ml-auto text-red-400 hover:text-red-600 dark:hover:text-red-300"
               >
                 <CloseIcon />
               </button>
@@ -161,15 +170,15 @@ export default function Dashboard() {
         {/* Stats cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 stagger-children">
           {/* Total Jobs */}
-          <Card className="relative overflow-hidden">
+          <Card className="relative overflow-hidden dark:bg-surface-800">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-surface-500 mb-1">Total Jobs</p>
-                <p className="font-display text-display-xl text-surface-900">
+                <p className="text-sm font-medium text-surface-500 dark:text-surface-400 mb-1">Total Jobs</p>
+                <p className="font-display text-display-xl text-surface-900 dark:text-white">
                   {statistics.total_jobs.toLocaleString()}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-sentinel-50 rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 bg-sentinel-50 dark:bg-sentinel-900/30 rounded-lg flex items-center justify-center">
                 <BriefcaseIcon className="w-6 h-6 text-sentinel-500" />
               </div>
             </div>
@@ -177,15 +186,15 @@ export default function Dashboard() {
           </Card>
 
           {/* High Matches */}
-          <Card className="relative overflow-hidden">
+          <Card className="relative overflow-hidden dark:bg-surface-800">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-surface-500 mb-1">High Matches</p>
-                <p className="font-display text-display-xl text-alert-600">
+                <p className="text-sm font-medium text-surface-500 dark:text-surface-400 mb-1">High Matches</p>
+                <p className="font-display text-display-xl text-alert-600 dark:text-alert-400">
                   {statistics.high_matches.toLocaleString()}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-alert-50 rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 bg-alert-50 dark:bg-alert-900/30 rounded-lg flex items-center justify-center">
                 <StarIcon className="w-6 h-6 text-alert-500" />
               </div>
             </div>
@@ -195,11 +204,11 @@ export default function Dashboard() {
           </Card>
 
           {/* Average Score */}
-          <Card className="relative overflow-hidden">
+          <Card className="relative overflow-hidden dark:bg-surface-800">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-surface-500 mb-1">Avg Score</p>
-                <p className="font-mono text-display-xl text-surface-900">
+                <p className="text-sm font-medium text-surface-500 dark:text-surface-400 mb-1">Avg Score</p>
+                <p className="font-mono text-display-xl text-surface-900 dark:text-white">
                   {Math.round(statistics.average_score * 100)}%
                 </p>
               </div>
@@ -209,32 +218,32 @@ export default function Dashboard() {
         </div>
 
         {/* Scraping status */}
-        <Card className="mb-8">
+        <Card className="mb-8 dark:bg-surface-800">
           <CardHeader
             title="Scraping Status"
             action={
-              <span className="text-sm text-surface-500">
+              <span className="text-sm text-surface-500 dark:text-surface-400">
                 Next scan: {formatDate(scrapingStatus.next_scrape)}
               </span>
             }
           />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <p className="text-sm text-surface-500 mb-1">Last Scan</p>
-              <p className="font-medium text-surface-800">{formatDate(scrapingStatus.last_scrape)}</p>
+              <p className="text-sm text-surface-500 dark:text-surface-400 mb-1">Last Scan</p>
+              <p className="font-medium text-surface-800 dark:text-surface-200">{formatDate(scrapingStatus.last_scrape)}</p>
             </div>
             <div>
-              <p className="text-sm text-surface-500 mb-1">Status</p>
+              <p className="text-sm text-surface-500 dark:text-surface-400 mb-1">Status</p>
               <div className="flex items-center gap-2">
                 <div className={scrapingStatus.is_running ? "status-dot-active" : "status-dot-idle"} />
-                <p className="font-medium text-surface-800">
+                <p className="font-medium text-surface-800 dark:text-surface-200">
                   {scrapingStatus.is_running ? "Scanning job boards..." : "Idle"}
                 </p>
               </div>
             </div>
             <div>
-              <p className="text-sm text-surface-500 mb-1">Sources</p>
-              <p className="font-medium text-surface-800">Greenhouse, Lever, LinkedIn</p>
+              <p className="text-sm text-surface-500 dark:text-surface-400 mb-1">Sources</p>
+              <p className="font-medium text-surface-800 dark:text-surface-200">Greenhouse, Lever, LinkedIn</p>
             </div>
           </div>
         </Card>
@@ -242,25 +251,25 @@ export default function Dashboard() {
         {/* Jobs list */}
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-display text-display-lg text-surface-900">
+            <h2 className="font-display text-display-lg text-surface-900 dark:text-white">
               Recent Jobs
             </h2>
             {jobs.length > 0 && (
-              <span className="text-sm text-surface-500">
+              <span className="text-sm text-surface-500 dark:text-surface-400">
                 Showing {jobs.length} jobs
               </span>
             )}
           </div>
 
           {jobs.length === 0 ? (
-            <Card className="text-center py-12">
-              <div className="w-16 h-16 bg-surface-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Card className="text-center py-12 dark:bg-surface-800">
+              <div className="w-16 h-16 bg-surface-100 dark:bg-surface-700 rounded-full flex items-center justify-center mx-auto mb-4">
                 <SearchIcon className="w-8 h-8 text-surface-400" />
               </div>
-              <h3 className="font-display text-display-md text-surface-700 mb-2">
+              <h3 className="font-display text-display-md text-surface-700 dark:text-surface-300 mb-2">
                 No jobs found yet
               </h3>
-              <p className="text-surface-500 mb-6 max-w-md mx-auto">
+              <p className="text-surface-500 dark:text-surface-400 mb-6 max-w-md mx-auto">
                 Click "Search Now" to start scanning job boards for opportunities matching your preferences.
               </p>
               <Button onClick={handleSearchNow} loading={searching}>

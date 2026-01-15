@@ -25,14 +25,16 @@ export function Card({
   return (
     <div
       className={`
-        bg-white rounded-card border border-surface-100 shadow-soft
+        bg-white dark:bg-surface-800 rounded-card 
+        border border-surface-100 dark:border-surface-700 
+        shadow-soft dark:shadow-none
         transition-all duration-200 ease-out
         ${paddingStyles[padding]}
         ${hover || isInteractive 
-          ? "hover:shadow-card-hover hover:-translate-y-0.5 hover:border-surface-200" 
+          ? "hover:shadow-card-hover hover:-translate-y-0.5 hover:border-surface-200 dark:hover:border-surface-600" 
           : ""
         }
-        ${isInteractive ? "cursor-pointer hover:border-sentinel-200" : ""}
+        ${isInteractive ? "cursor-pointer hover:border-sentinel-200 dark:hover:border-sentinel-700" : ""}
         ${className}
       `}
       onClick={onClick}
@@ -61,9 +63,9 @@ export function CardHeader({ title, subtitle, action }: CardHeaderProps) {
   return (
     <div className="flex items-start justify-between mb-4">
       <div>
-        <h3 className="font-display text-display-md text-surface-900">{title}</h3>
+        <h3 className="font-display text-display-md text-surface-900 dark:text-white">{title}</h3>
         {subtitle && (
-          <p className="text-sm text-surface-500 mt-0.5">{subtitle}</p>
+          <p className="text-sm text-surface-500 dark:text-surface-400 mt-0.5">{subtitle}</p>
         )}
       </div>
       {action && <div>{action}</div>}
@@ -72,5 +74,5 @@ export function CardHeader({ title, subtitle, action }: CardHeaderProps) {
 }
 
 export function CardDivider() {
-  return <hr className="border-surface-100 my-4" />;
+  return <hr className="border-surface-100 dark:border-surface-700 my-4" />;
 }
