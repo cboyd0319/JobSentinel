@@ -5,7 +5,6 @@
 //! connection pools instead of creating new clients per request.
 
 use anyhow::Result;
-use once_cell::sync::Lazy;
 use std::time::Duration;
 
 /// Default user agent for scraper requests
@@ -22,20 +21,31 @@ pub const DEFAULT_TIMEOUT_SECS: u64 = 30;
 /// - Connection pooling (reuse TCP connections)
 /// - Consistent configuration (timeouts, user-agent)
 /// - Better performance (no per-request client creation overhead)
-pub static SHARED_CLIENT: Lazy<reqwest::Client> = Lazy::new(|| {
+///
+/// # Safety
+/// Uses OnceCell with fallible initialization to avoid panics on startup.
+/// If client creation fails, get_client() will attempt to create a fallback client.
+static SHARED_CLIENT: once_cell::sync::OnceCell<reqwest::Client> = once_cell::sync::OnceCell::new();
+
+/// Initialize the shared HTTP client
+fn init_shared_client() -> Result<reqwest::Client> {
     reqwest::Client::builder()
         .user_agent(DEFAULT_USER_AGENT)
         .timeout(Duration::from_secs(DEFAULT_TIMEOUT_SECS))
         .pool_max_idle_per_host(10)
         .pool_idle_timeout(Duration::from_secs(90))
         .build()
-        .expect("Failed to create shared HTTP client")
-});
+        .map_err(|e| anyhow::anyhow!("Failed to create HTTP client: {}", e))
+}
 
 /// Get the shared HTTP client
 ///
 /// This is the preferred way to get an HTTP client for scraping.
 /// The client is created once and reused for all requests.
+///
+/// # Returns
+/// A reference to the shared HTTP client. If the shared client failed to initialize,
+/// this function will attempt to create a minimal fallback client.
 ///
 /// # Example
 ///
@@ -46,7 +56,23 @@ pub static SHARED_CLIENT: Lazy<reqwest::Client> = Lazy::new(|| {
 /// let response = client.get("https://example.com").send().await?;
 /// ```
 pub fn get_client() -> &'static reqwest::Client {
-    &SHARED_CLIENT
+    SHARED_CLIENT.get_or_init(|| {
+        match init_shared_client() {
+            Ok(client) => client,
+            Err(e) => {
+                // Log error and create minimal fallback client
+                tracing::error!("Failed to create optimized HTTP client: {}. Using fallback.", e);
+                reqwest::Client::builder()
+                    .timeout(Duration::from_secs(DEFAULT_TIMEOUT_SECS))
+                    .build()
+                    .unwrap_or_else(|_| {
+                        // Absolute fallback - default client with no customization
+                        tracing::error!("Fallback HTTP client creation also failed. Using default client.");
+                        reqwest::Client::new()
+                    })
+            }
+        }
+    })
 }
 
 /// Create a custom HTTP client with specific configuration

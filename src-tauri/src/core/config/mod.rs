@@ -110,6 +110,21 @@ pub struct SlackConfig {
     pub webhook_url: String,
 }
 
+/// Email notification configuration
+///
+/// # Security Warning
+///
+/// The `smtp_password` field is stored in plaintext in the config file.
+/// For improved security, consider:
+///
+/// 1. Using app-specific passwords (e.g., Gmail's app passwords)
+/// 2. Restricting config file permissions (chmod 600)
+/// 3. Using OAuth2 authentication (planned for v2.0)
+///
+/// Future versions will use OS keyring for secure credential storage:
+/// - macOS: Keychain
+/// - Windows: Credential Manager
+/// - Linux: Secret Service API (libsecret)
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct EmailConfig {
     #[serde(default)]
@@ -128,6 +143,9 @@ pub struct EmailConfig {
     pub smtp_username: String,
 
     /// SMTP password or app-specific password
+    ///
+    /// **Security Note**: This is stored in plaintext. Use app-specific passwords
+    /// and restrict config file permissions. Keyring storage planned for v2.0.
     #[serde(default)]
     pub smtp_password: String,
 

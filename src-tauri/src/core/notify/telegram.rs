@@ -7,11 +7,91 @@ use crate::core::config::TelegramConfig;
 use anyhow::{anyhow, Result};
 use serde_json::json;
 
+/// Validate Telegram bot token format
+///
+/// Bot tokens follow the format: `<bot_id>:<alphanumeric_token>`
+/// Example: `123456789:ABCdefGHIjklMNOpqrsTUVwxyz`
+fn validate_bot_token(token: &str) -> Result<()> {
+    if token.is_empty() {
+        return Err(anyhow!("Telegram bot token cannot be empty"));
+    }
+
+    // Token format: <bot_id>:<token_part>
+    let parts: Vec<&str> = token.split(':').collect();
+    if parts.len() != 2 {
+        return Err(anyhow!(
+            "Invalid Telegram bot token format. Expected format: '<bot_id>:<token>'"
+        ));
+    }
+
+    // Bot ID should be numeric
+    let bot_id = parts[0];
+    if bot_id.is_empty() || !bot_id.chars().all(|c| c.is_ascii_digit()) {
+        return Err(anyhow!(
+            "Invalid Telegram bot token: bot ID must be numeric"
+        ));
+    }
+
+    // Token part should be alphanumeric with possible underscores and dashes
+    let token_part = parts[1];
+    if token_part.is_empty() || token_part.len() < 20 {
+        return Err(anyhow!(
+            "Invalid Telegram bot token: token part is too short"
+        ));
+    }
+
+    if !token_part.chars().all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-') {
+        return Err(anyhow!(
+            "Invalid Telegram bot token: token contains invalid characters"
+        ));
+    }
+
+    Ok(())
+}
+
+/// Validate chat ID format
+///
+/// Chat IDs can be:
+/// - Negative numbers for groups (e.g., -123456789)
+/// - Positive numbers for users (e.g., 123456789)
+/// - Strings starting with @ for usernames (e.g., @myusername)
+fn validate_chat_id(chat_id: &str) -> Result<()> {
+    if chat_id.is_empty() {
+        return Err(anyhow!("Telegram chat ID cannot be empty"));
+    }
+
+    // Username format
+    if chat_id.starts_with('@') {
+        if chat_id.len() < 2 {
+            return Err(anyhow!("Invalid Telegram username: too short"));
+        }
+        return Ok(());
+    }
+
+    // Numeric chat ID (can be negative for groups)
+    let is_valid_number = chat_id.strip_prefix('-')
+        .unwrap_or(chat_id)
+        .chars()
+        .all(|c| c.is_ascii_digit());
+
+    if !is_valid_number {
+        return Err(anyhow!(
+            "Invalid Telegram chat ID: must be a number or username (@username)"
+        ));
+    }
+
+    Ok(())
+}
+
 /// Send Telegram notification via Bot API
 pub async fn send_telegram_notification(
     config: &TelegramConfig,
     notification: &Notification,
 ) -> Result<()> {
+    // Validate configuration before sending
+    validate_bot_token(&config.bot_token)?;
+    validate_chat_id(&config.chat_id)?;
+
     let job = &notification.job;
     let score = &notification.score;
 

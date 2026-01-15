@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { Button, Card, CardHeader, LoadingSpinner, JobCard, ScoreDisplay, ThemeToggle, Tooltip } from "../components";
+import { Button, Card, CardHeader, LoadingSpinner, JobCard, ScoreDisplay, ThemeToggle, Tooltip, ModalErrorBoundary } from "../components";
 import { useToast } from "../contexts";
 import { getErrorMessage, logError } from "../utils/errorUtils";
 import Settings from "./Settings";
@@ -92,9 +92,19 @@ export default function Dashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally run once on mount
   }, []);
 
+  // Cooldown state for search button to prevent rapid repeated clicks
+  const [searchCooldown, setSearchCooldown] = useState(false);
+
   const handleSearchNow = async () => {
+    // Prevent rapid repeated clicks (cooldown check)
+    if (searchCooldown) {
+      toast.info("Please wait", "Search is on cooldown to prevent rate limiting");
+      return;
+    }
+
     try {
       setSearching(true);
+      setSearchCooldown(true);
       setError(null);
       toast.info("Scanning job boards...", "This may take a moment");
       await invoke("search_jobs");
@@ -114,6 +124,8 @@ export default function Dashboard() {
       toast.error("Scan failed", getErrorMessage(err));
     } finally {
       setSearching(false);
+      // Set a 30-second cooldown to prevent rate limiting from job boards
+      setTimeout(() => setSearchCooldown(false), 30000);
     }
   };
 
@@ -131,7 +143,14 @@ export default function Dashboard() {
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return "Never";
     const date = new Date(dateStr);
-    return date.toLocaleString();
+    // Use consistent date formatting with explicit options
+    return date.toLocaleString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
 
   if (loading) {
@@ -177,6 +196,7 @@ export default function Dashboard() {
                 <button
                   onClick={() => setShowSettings(true)}
                   className="p-2 text-surface-500 hover:text-surface-700 dark:text-surface-400 dark:hover:text-surface-200 transition-colors"
+                  aria-label="Open settings"
                 >
                   <SettingsIcon />
                 </button>
@@ -185,21 +205,28 @@ export default function Dashboard() {
               <Button
                 onClick={handleSearchNow}
                 loading={searching}
+                disabled={searchCooldown && !searching}
                 icon={<SearchIcon />}
+                aria-label={searching ? "Scanning job boards" : "Search for new jobs"}
               >
-                Search Now
+                {searchCooldown && !searching ? "Wait..." : "Search Now"}
               </Button>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Settings Modal */}
+      {/* Settings Modal with Error Boundary */}
       {showSettings && (
-        <Settings onClose={() => {
-          setShowSettings(false);
-          fetchData(); // Refresh data after settings change
-        }} />
+        <ModalErrorBoundary
+          onClose={() => setShowSettings(false)}
+          title="Settings Error"
+        >
+          <Settings onClose={() => {
+            setShowSettings(false);
+            fetchData(); // Refresh data after settings change
+          }} />
+        </ModalErrorBoundary>
       )}
 
       {/* Main content */}

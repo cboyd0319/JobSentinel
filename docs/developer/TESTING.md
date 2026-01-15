@@ -120,19 +120,27 @@ src-tauri/
 
 | Module | Tests | Coverage |
 |--------|-------|----------|
-| `core/config` | 69 | 100% validation + 18 properties |
+| `core/config` | 51 | 100% validation |
 | `core/db` | 21 | All CRUD + edge cases |
-| `core/notify/slack` | 10 | Webhook + formatting |
+| `core/db/integrity` | 12 | Health checks, backups |
+| `core/notify/*` | 55 | Slack, Discord, Teams, Telegram, Email |
 | `commands` | 13 | All Tauri RPC |
 | `core/scoring` | 3 | Happy + edge cases |
-| `core/scheduler` | 18 | Lifecycle + shutdown + 1 unit |
+| `core/scheduler` | 12 | Lifecycle + shutdown |
 | `core/scrapers/greenhouse` | 19 | 12 unit + 7 properties |
-| `core/scrapers/lever` | 30 | 24 unit + 6 properties |
-| `core/scrapers/jobswithgpt` | 26 | 19 unit + 6 properties + 1 legacy |
+| `core/scrapers/lever` | 22 | Unit + properties |
+| `core/scrapers/jobswithgpt` | 21 | Unit + properties |
+| `core/scrapers/linkedin` | 4 | Basic functionality |
+| `core/scrapers/indeed` | 3 | Basic functionality |
+| `core/scrapers/rate_limiter` | 5 | Token bucket algorithm |
+| `core/ats` | 4 | Application tracking (ignored) |
+| `core/resume` | 14 | Parser + matcher + skills |
+| `core/salary` | 8 | Benchmarks + negotiation |
+| `core/market_intelligence` | 12 | Trends + alerts + analytics |
 | `platforms/macos` | 6 | Paths + initialization |
-| `platforms/windows` | 2 | Paths |
-| **Integration Tests** | **15** | **Full pipeline** |
-| **Total** | **232** | **Comprehensive** |
+| `cloud/common` | 1 | Deployment mode detection |
+| **Integration Tests** | **12** | **Full pipeline** |
+| **Total** | **291 passing** | **20 ignored** |
 
 ---
 
@@ -497,6 +505,6 @@ fn test_example() {
 
 ---
 
-**Last Updated**: November 14, 2025
-**Test Count**: 118+
+**Last Updated**: January 15, 2026
+**Test Count**: 291 passing, 20 ignored
 **Maintained By**: The Rust Mac Overlord 🦀

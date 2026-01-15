@@ -8,6 +8,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `ModalErrorBoundary` component for graceful Settings modal error handling
+- Database query timeout utility (`with_timeout()`) for preventing hangs
+- Telegram bot token and chat ID validation
+- Search button cooldown (30 seconds) to prevent job board rate limiting
+- Accessibility labels (`aria-label`) on icon buttons
+- Consistent date formatting (en-US locale)
+
+### Fixed
+- HTTP client panic on startup - replaced `expect()` with `OnceCell` + graceful fallback
+- Serialization error handling in commands - replaced `unwrap_or_default()` with proper error logging
+- Scheduler status race condition - atomic status updates within single lock
+- Scheduler graceful shutdown - added `tokio::select!` with shutdown signal
+- JobCard console.error now dev-only (`import.meta.env.DEV`)
+- Score bounds checking - clamped to 0.0-1.0 with warning logs for anomalies
+
+### Security
+- Added comprehensive security documentation for email SMTP password storage
+- Documented keyring integration planned for v2.0 (macOS Keychain, Windows Credential Manager)
+
+### Changed
 - Application Tracking System (ATS) module now enabled
   - Kanban board with 12 status columns
   - Automated follow-up reminders

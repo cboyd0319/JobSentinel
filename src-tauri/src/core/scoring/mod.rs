@@ -52,8 +52,28 @@ impl ScoringEngine {
         let company_score = self.score_company(job);
         let recency_score = self.score_recency(job);
 
-        let total =
+        let raw_total =
             skills_score.0 + salary_score.0 + location_score.0 + company_score.0 + recency_score.0;
+
+        // Ensure score is within valid bounds (0.0 - 1.0)
+        // Log a warning if raw total exceeds 1.0 (indicates potential scoring bug)
+        let total = if raw_total > 1.0 {
+            tracing::warn!(
+                "Job score {} exceeded 1.0 ({:.4}), clamping. This may indicate a scoring bug.",
+                job.id,
+                raw_total
+            );
+            1.0
+        } else if raw_total < 0.0 {
+            tracing::warn!(
+                "Job score {} was negative ({:.4}), clamping. This may indicate a scoring bug.",
+                job.id,
+                raw_total
+            );
+            0.0
+        } else {
+            raw_total
+        };
 
         let mut reasons = Vec::new();
         reasons.extend(skills_score.1);

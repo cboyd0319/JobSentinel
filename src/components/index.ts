@@ -17,3 +17,4 @@ export { Dropdown } from "./Dropdown";
 export { Skeleton, SkeletonCard, SkeletonJobCard, SkeletonStatCard } from "./Skeleton";
 export { Progress, ProgressIndeterminate } from "./Progress";
 export { default as ErrorBoundary } from "./ErrorBoundary";
+export { default as ModalErrorBoundary } from "./ModalErrorBoundary";

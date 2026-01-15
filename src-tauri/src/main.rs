@@ -140,16 +140,20 @@ fn main() {
                 let status_clone = Arc::clone(&scheduler_status);
                 let interval_hours = config_arc.scraping_interval_hours;
 
+                // Subscribe to shutdown signal before spawning task
+                let mut shutdown_rx = scheduler_arc.subscribe_shutdown();
+
                 tauri::async_runtime::spawn(async move {
                     // Run immediately on startup, then periodically
                     tracing::info!("Running initial scraping cycle on startup");
 
                     loop {
-                        // Update status: running
+                        // Update status atomically: running, clear next_run
                         {
                             let mut status = status_clone.write().await;
                             status.is_running = true;
                             status.next_run = None;
+                            // Keep last_run from previous cycle for continuity
                         }
 
                         // Run scraping cycle
@@ -166,17 +170,36 @@ fn main() {
                             }
                         }
 
-                        // Update status: completed, set next run
+                        // Calculate next run time first to ensure consistency
+                        let now = Utc::now();
+                        let next_run_time = now + Duration::hours(interval_hours as i64);
+
+                        // Update status atomically: completed, set times
                         {
                             let mut status = status_clone.write().await;
                             status.is_running = false;
-                            status.last_run = Some(Utc::now());
-                            status.next_run = Some(Utc::now() + Duration::hours(interval_hours as i64));
+                            status.last_run = Some(now);
+                            status.next_run = Some(next_run_time);
                         }
 
-                        // Wait for next interval
-                        tokio::time::sleep(tokio::time::Duration::from_secs(interval_hours * 3600)).await;
+                        // Wait for next interval or shutdown signal
+                        let sleep_duration = tokio::time::Duration::from_secs(interval_hours * 3600);
+                        tokio::select! {
+                            _ = tokio::time::sleep(sleep_duration) => {
+                                // Continue to next iteration
+                            }
+                            _ = shutdown_rx.recv() => {
+                                tracing::info!("Background scheduler received shutdown signal, stopping gracefully");
+                                // Update status to show not running
+                                let mut status = status_clone.write().await;
+                                status.is_running = false;
+                                status.next_run = None;
+                                break;
+                            }
+                        }
                     }
+
+                    tracing::info!("Background scheduler stopped");
                 });
 
                 tracing::info!("Background scheduler started successfully");

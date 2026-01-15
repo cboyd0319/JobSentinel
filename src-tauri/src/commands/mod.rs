@@ -72,7 +72,14 @@ pub async fn get_recent_jobs(
         Ok(jobs) => {
             let jobs_json: Vec<Value> = jobs
                 .into_iter()
-                .map(|job| serde_json::to_value(&job).unwrap_or_default())
+                .filter_map(|job| {
+                    serde_json::to_value(&job)
+                        .map_err(|e| {
+                            tracing::error!("Failed to serialize job {}: {}", job.id, e);
+                            e
+                        })
+                        .ok()
+                })
                 .collect();
 
             Ok(jobs_json)
@@ -90,7 +97,14 @@ pub async fn get_job_by_id(id: i64, state: State<'_, AppState>) -> Result<Option
     tracing::info!("Command: get_job_by_id (id: {})", id);
 
     match state.database.get_job_by_id(id).await {
-        Ok(job) => Ok(job.map(|j| serde_json::to_value(&j).unwrap_or_default())),
+        Ok(job) => Ok(job.and_then(|j| {
+            serde_json::to_value(&j)
+                .map_err(|e| {
+                    tracing::error!("Failed to serialize job {}: {}", j.id, e);
+                    e
+                })
+                .ok()
+        })),
         Err(e) => {
             tracing::error!("Failed to get job: {}", e);
             Err(format!("Database error: {}", e))
@@ -236,7 +250,14 @@ pub async fn search_jobs_query(
         Ok(jobs) => {
             let jobs_json: Vec<Value> = jobs
                 .into_iter()
-                .map(|job| serde_json::to_value(&job).unwrap_or_default())
+                .filter_map(|job| {
+                    serde_json::to_value(&job)
+                        .map_err(|e| {
+                            tracing::error!("Failed to serialize job {}: {}", job.id, e);
+                            e
+                        })
+                        .ok()
+                })
                 .collect();
 
             Ok(jobs_json)

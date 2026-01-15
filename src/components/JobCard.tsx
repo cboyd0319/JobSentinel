@@ -27,7 +27,10 @@ export function JobCard({ job, onViewJob, onHideJob }: JobCardProps) {
     try {
       await open(url);
     } catch (err) {
-      console.error("Failed to open URL:", err);
+      // Log error only in development mode
+      if (import.meta.env.DEV) {
+        console.error("Failed to open URL:", err);
+      }
       // Fallback to window.open
       window.open(url, "_blank", "noopener,noreferrer");
     }
