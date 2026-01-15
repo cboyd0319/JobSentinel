@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import SetupWizard from "./pages/SetupWizard";
 import Dashboard from "./pages/Dashboard";
-import { ErrorBoundary, LoadingSpinner } from "./components";
+import { ErrorBoundary, LoadingSpinner, SkipToContent } from "./components";
 import { logError } from "./utils/errorUtils";
 
 function App() {
@@ -35,7 +35,8 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen">
+      <SkipToContent />
+      <div className="min-h-screen" id="main-content">
         {isFirstRun ? (
           <SetupWizard onComplete={handleSetupComplete} />
         ) : (

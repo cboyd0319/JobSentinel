@@ -163,10 +163,32 @@ JobSentinel/
 ```
 
 **Key Design Principles:**
-- ✅ **Core business logic** is platform-agnostic (works on Windows, macOS, Linux, cloud)
-- ✅ **Platform-specific code** is isolated with conditional compilation
-- ✅ **Cloud deployment** modules are separate (no bloat in desktop app)
-- ✅ **No refactoring needed** when adding macOS, Linux, or cloud support
+- **Core business logic** is platform-agnostic (works on Windows, macOS, Linux, cloud)
+- **Platform-specific code** is isolated with conditional compilation
+- **Cloud deployment** modules are separate (no bloat in desktop app)
+- **No refactoring needed** when adding macOS, Linux, or cloud support
+
+### UI/UX Design System
+
+JobSentinel features a distinctive, non-generic design system built around the concept of a "vigilant guardian" for your job search:
+
+| Element | Implementation |
+|---------|---------------|
+| **Brand Colors** | Sentinel Teal (trust, security) + Alert Amber (opportunities) |
+| **Typography** | Space Grotesk (display), Inter (body), JetBrains Mono (scores) |
+| **Components** | Button, Input, Card, Badge, JobCard, ScoreDisplay, StatCard |
+| **Animations** | Staggered entrance, smooth transitions, scanning loader |
+| **Accessibility** | Skip-to-content, focus traps, ARIA labels, keyboard navigation |
+
+**Component Library (`src/components/`):**
+- `Button` - Multiple variants, loading states, icons
+- `Input` - Labels, hints, error states, left/right icons
+- `Card` - With hover effects, CardHeader, CardDivider
+- `Badge` - Removable badges with semantic variants
+- `ScoreDisplay` - Circular and bar score visualizations
+- `JobCard` - Rich job listing with score, meta, actions
+- `StatCard` - Dashboard statistics with trends
+- `EmptyState` - Consistent empty states across the app
 
 ---
 
