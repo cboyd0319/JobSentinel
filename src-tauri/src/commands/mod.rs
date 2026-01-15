@@ -3,9 +3,18 @@
 //! This module contains all Tauri commands (RPC-style functions) that can be invoked
 //! from the React frontend using `invoke()`.
 
-use crate::core::{config::Config, db::Database, scheduler::Scheduler};
+use crate::core::{
+    ats::{ApplicationStatus, ApplicationTracker, ApplicationsByStatus, PendingReminder},
+    config::Config,
+    db::Database,
+    market_intelligence::{CompanyActivity, LocationHeat, MarketAlert, MarketIntelligence, SkillTrend},
+    resume::{MatchResult, Resume, ResumeMatcher, UserSkill},
+    salary::{OfferComparison, SalaryAnalyzer, SalaryPrediction, SeniorityLevel},
+    scheduler::Scheduler,
+};
 use chrono::{DateTime, Utc};
 use serde_json::Value;
+use std::collections::HashMap;
 use std::sync::Arc;
 use tauri::State;
 use tokio::sync::RwLock;
@@ -303,6 +312,341 @@ pub async fn unhide_job(id: i64, state: State<'_, AppState>) -> Result<(), Strin
     }
 }
 
+// ============================================================================
+// ATS (Application Tracking System) Commands
+// ============================================================================
+
+/// Create a new application from a job
+#[tauri::command]
+pub async fn create_application(job_hash: String, state: State<'_, AppState>) -> Result<i64, String> {
+    tracing::info!("Command: create_application (job_hash: {})", job_hash);
+
+    let tracker = ApplicationTracker::new(state.database.pool().clone());
+    tracker
+        .create_application(&job_hash)
+        .await
+        .map_err(|e| format!("Failed to create application: {}", e))
+}
+
+/// Get applications grouped by status (for Kanban board)
+#[tauri::command]
+pub async fn get_applications_kanban(state: State<'_, AppState>) -> Result<ApplicationsByStatus, String> {
+    tracing::info!("Command: get_applications_kanban");
+
+    let tracker = ApplicationTracker::new(state.database.pool().clone());
+    tracker
+        .get_applications_by_status()
+        .await
+        .map_err(|e| format!("Failed to get applications: {}", e))
+}
+
+/// Update application status
+#[tauri::command]
+pub async fn update_application_status(
+    application_id: i64,
+    status: String,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    tracing::info!("Command: update_application_status (id: {}, status: {})", application_id, status);
+
+    let tracker = ApplicationTracker::new(state.database.pool().clone());
+    let new_status: ApplicationStatus = status
+        .parse()
+        .map_err(|e| format!("Invalid status: {}", e))?;
+
+    tracker
+        .update_status(application_id, new_status)
+        .await
+        .map_err(|e| format!("Failed to update status: {}", e))
+}
+
+/// Add notes to an application
+#[tauri::command]
+pub async fn add_application_notes(
+    application_id: i64,
+    notes: String,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    tracing::info!("Command: add_application_notes (id: {})", application_id);
+
+    let tracker = ApplicationTracker::new(state.database.pool().clone());
+    tracker
+        .add_notes(application_id, &notes)
+        .await
+        .map_err(|e| format!("Failed to add notes: {}", e))
+}
+
+/// Get pending reminders
+#[tauri::command]
+pub async fn get_pending_reminders(state: State<'_, AppState>) -> Result<Vec<PendingReminder>, String> {
+    tracing::info!("Command: get_pending_reminders");
+
+    let tracker = ApplicationTracker::new(state.database.pool().clone());
+    tracker
+        .get_pending_reminders()
+        .await
+        .map_err(|e| format!("Failed to get reminders: {}", e))
+}
+
+/// Mark reminder as completed
+#[tauri::command]
+pub async fn complete_reminder(reminder_id: i64, state: State<'_, AppState>) -> Result<(), String> {
+    tracing::info!("Command: complete_reminder (id: {})", reminder_id);
+
+    let tracker = ApplicationTracker::new(state.database.pool().clone());
+    tracker
+        .complete_reminder(reminder_id)
+        .await
+        .map_err(|e| format!("Failed to complete reminder: {}", e))
+}
+
+/// Auto-detect ghosted applications
+#[tauri::command]
+pub async fn detect_ghosted_applications(state: State<'_, AppState>) -> Result<usize, String> {
+    tracing::info!("Command: detect_ghosted_applications");
+
+    let tracker = ApplicationTracker::new(state.database.pool().clone());
+    tracker
+        .auto_detect_ghosted()
+        .await
+        .map_err(|e| format!("Failed to detect ghosted: {}", e))
+}
+
+// ============================================================================
+// Resume Matcher Commands
+// ============================================================================
+
+/// Upload and parse a resume
+#[tauri::command]
+pub async fn upload_resume(
+    name: String,
+    file_path: String,
+    state: State<'_, AppState>,
+) -> Result<i64, String> {
+    tracing::info!("Command: upload_resume (name: {}, path: {})", name, file_path);
+
+    let matcher = ResumeMatcher::new(state.database.pool().clone());
+    matcher
+        .upload_resume(&name, &file_path)
+        .await
+        .map_err(|e| format!("Failed to upload resume: {}", e))
+}
+
+/// Get active resume
+#[tauri::command]
+pub async fn get_active_resume(state: State<'_, AppState>) -> Result<Option<Resume>, String> {
+    tracing::info!("Command: get_active_resume");
+
+    let matcher = ResumeMatcher::new(state.database.pool().clone());
+    matcher
+        .get_active_resume()
+        .await
+        .map_err(|e| format!("Failed to get resume: {}", e))
+}
+
+/// Set active resume
+#[tauri::command]
+pub async fn set_active_resume(resume_id: i64, state: State<'_, AppState>) -> Result<(), String> {
+    tracing::info!("Command: set_active_resume (id: {})", resume_id);
+
+    let matcher = ResumeMatcher::new(state.database.pool().clone());
+    matcher
+        .set_active_resume(resume_id)
+        .await
+        .map_err(|e| format!("Failed to set active resume: {}", e))
+}
+
+/// Get user skills from active resume
+#[tauri::command]
+pub async fn get_user_skills(resume_id: i64, state: State<'_, AppState>) -> Result<Vec<UserSkill>, String> {
+    tracing::info!("Command: get_user_skills (resume_id: {})", resume_id);
+
+    let matcher = ResumeMatcher::new(state.database.pool().clone());
+    matcher
+        .get_user_skills(resume_id)
+        .await
+        .map_err(|e| format!("Failed to get skills: {}", e))
+}
+
+/// Match resume to a job
+#[tauri::command]
+pub async fn match_resume_to_job(
+    resume_id: i64,
+    job_hash: String,
+    state: State<'_, AppState>,
+) -> Result<MatchResult, String> {
+    tracing::info!("Command: match_resume_to_job (resume: {}, job: {})", resume_id, job_hash);
+
+    let matcher = ResumeMatcher::new(state.database.pool().clone());
+    matcher
+        .match_resume_to_job(resume_id, &job_hash)
+        .await
+        .map_err(|e| format!("Failed to match resume: {}", e))
+}
+
+/// Get existing match result
+#[tauri::command]
+pub async fn get_match_result(
+    resume_id: i64,
+    job_hash: String,
+    state: State<'_, AppState>,
+) -> Result<Option<MatchResult>, String> {
+    tracing::info!("Command: get_match_result (resume: {}, job: {})", resume_id, job_hash);
+
+    let matcher = ResumeMatcher::new(state.database.pool().clone());
+    matcher
+        .get_match_result(resume_id, &job_hash)
+        .await
+        .map_err(|e| format!("Failed to get match result: {}", e))
+}
+
+// ============================================================================
+// Salary AI Commands
+// ============================================================================
+
+/// Predict salary for a job
+#[tauri::command]
+pub async fn predict_salary(
+    job_hash: String,
+    years_experience: Option<i32>,
+    state: State<'_, AppState>,
+) -> Result<SalaryPrediction, String> {
+    tracing::info!("Command: predict_salary (job: {}, years: {:?})", job_hash, years_experience);
+
+    let analyzer = SalaryAnalyzer::new(state.database.pool().clone());
+    analyzer
+        .predict_salary_for_job(&job_hash, years_experience)
+        .await
+        .map_err(|e| format!("Failed to predict salary: {}", e))
+}
+
+/// Get salary benchmark for a role
+#[tauri::command]
+pub async fn get_salary_benchmark(
+    job_title: String,
+    location: String,
+    seniority: String,
+    state: State<'_, AppState>,
+) -> Result<Option<Value>, String> {
+    tracing::info!("Command: get_salary_benchmark (title: {}, location: {})", job_title, location);
+
+    let analyzer = SalaryAnalyzer::new(state.database.pool().clone());
+    let seniority_level = SeniorityLevel::parse(&seniority);
+
+    match analyzer.get_benchmark(&job_title, &location, seniority_level).await {
+        Ok(Some(benchmark)) => serde_json::to_value(&benchmark)
+            .map(Some)
+            .map_err(|e| format!("Failed to serialize benchmark: {}", e)),
+        Ok(None) => Ok(None),
+        Err(e) => Err(format!("Failed to get benchmark: {}", e)),
+    }
+}
+
+/// Generate negotiation script
+#[tauri::command]
+pub async fn generate_negotiation_script(
+    scenario: String,
+    params: HashMap<String, String>,
+    state: State<'_, AppState>,
+) -> Result<String, String> {
+    tracing::info!("Command: generate_negotiation_script (scenario: {})", scenario);
+
+    let analyzer = SalaryAnalyzer::new(state.database.pool().clone());
+    analyzer
+        .generate_negotiation_script(&scenario, params)
+        .await
+        .map_err(|e| format!("Failed to generate script: {}", e))
+}
+
+/// Compare multiple job offers
+#[tauri::command]
+pub async fn compare_offers(
+    offer_ids: Vec<i64>,
+    state: State<'_, AppState>,
+) -> Result<Vec<OfferComparison>, String> {
+    tracing::info!("Command: compare_offers (count: {})", offer_ids.len());
+
+    let analyzer = SalaryAnalyzer::new(state.database.pool().clone());
+    analyzer
+        .compare_offers(offer_ids)
+        .await
+        .map_err(|e| format!("Failed to compare offers: {}", e))
+}
+
+// ============================================================================
+// Market Intelligence Commands
+// ============================================================================
+
+/// Get trending skills
+#[tauri::command]
+pub async fn get_trending_skills(
+    limit: usize,
+    state: State<'_, AppState>,
+) -> Result<Vec<SkillTrend>, String> {
+    tracing::info!("Command: get_trending_skills (limit: {})", limit);
+
+    let intel = MarketIntelligence::new(state.database.pool().clone());
+    intel
+        .get_trending_skills(limit)
+        .await
+        .map_err(|e| format!("Failed to get trending skills: {}", e))
+}
+
+/// Get most active hiring companies
+#[tauri::command]
+pub async fn get_active_companies(
+    limit: usize,
+    state: State<'_, AppState>,
+) -> Result<Vec<CompanyActivity>, String> {
+    tracing::info!("Command: get_active_companies (limit: {})", limit);
+
+    let intel = MarketIntelligence::new(state.database.pool().clone());
+    intel
+        .get_most_active_companies(limit)
+        .await
+        .map_err(|e| format!("Failed to get active companies: {}", e))
+}
+
+/// Get hottest job market locations
+#[tauri::command]
+pub async fn get_hottest_locations(
+    limit: usize,
+    state: State<'_, AppState>,
+) -> Result<Vec<LocationHeat>, String> {
+    tracing::info!("Command: get_hottest_locations (limit: {})", limit);
+
+    let intel = MarketIntelligence::new(state.database.pool().clone());
+    intel
+        .get_hottest_locations(limit)
+        .await
+        .map_err(|e| format!("Failed to get hottest locations: {}", e))
+}
+
+/// Get unread market alerts
+#[tauri::command]
+pub async fn get_market_alerts(state: State<'_, AppState>) -> Result<Vec<MarketAlert>, String> {
+    tracing::info!("Command: get_market_alerts");
+
+    let intel = MarketIntelligence::new(state.database.pool().clone());
+    intel
+        .get_unread_alerts()
+        .await
+        .map_err(|e| format!("Failed to get market alerts: {}", e))
+}
+
+/// Run market analysis (manual trigger)
+#[tauri::command]
+pub async fn run_market_analysis(state: State<'_, AppState>) -> Result<Value, String> {
+    tracing::info!("Command: run_market_analysis");
+
+    let intel = MarketIntelligence::new(state.database.pool().clone());
+    match intel.run_daily_analysis().await {
+        Ok(snapshot) => serde_json::to_value(&snapshot)
+            .map_err(|e| format!("Failed to serialize snapshot: {}", e)),
+        Err(e) => Err(format!("Failed to run market analysis: {}", e)),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -333,6 +677,8 @@ mod tests {
             alerts: AlertConfig::default(),
             greenhouse_urls: vec![],
             lever_urls: vec![],
+            linkedin: Default::default(),
+            indeed: Default::default(),
         };
 
         let database = Database::connect_memory().await.expect("Failed to create test database");
@@ -464,6 +810,8 @@ mod tests {
             alerts: AlertConfig::default(),
             greenhouse_urls: vec![],
             lever_urls: vec![],
+            linkedin: Default::default(),
+            indeed: Default::default(),
         };
 
         let config_json = serde_json::to_value(&config).unwrap();
@@ -543,6 +891,8 @@ mod tests {
             alerts: AlertConfig::default(),
             greenhouse_urls: vec![],
             lever_urls: vec![],
+            linkedin: Default::default(),
+            indeed: Default::default(),
         };
 
         // Test that config can be serialized and deserialized

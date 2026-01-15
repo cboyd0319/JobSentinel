@@ -4,23 +4,29 @@ Welcome to JobSentinel documentation.
 
 ## Current Status (January 2026)
 
-**Version: 1.0.0-alpha** | 291 tests passing, 20 ignored
+**Version: 1.0.0-alpha** | 290 tests passing, 20 ignored
 
 ### Working Features
-- Job scrapers: Greenhouse, Lever, JobsWithGPT
-- Application Tracking System (ATS)
+- Job scrapers: Greenhouse, Lever, JobsWithGPT, LinkedIn, Indeed
+- Application Tracking System (ATS) with Kanban board
+- AI Resume-Job Matcher with PDF parsing
+- Salary AI with negotiation insights
+- Market Intelligence with trend analysis
 - Multi-factor scoring algorithm
-- Notifications: Slack, Discord, Teams
+- Notifications: Slack, Discord, Teams, Desktop
 - SQLite database with full-text search
 - React 19 frontend with setup wizard
 
-### Enabled Modules (Backend Complete)
-- AI Resume-Job Matcher (frontend pending)
-- Salary Negotiation AI (frontend pending)
-- Job Market Intelligence (frontend pending)
+### All Backend Modules Enabled
+- Core: config, db, scoring, scheduler, scrapers, notify
+- ATS: 7 Tauri commands (Kanban, reminders, ghosting detection)
+- Resume Matcher: 6 Tauri commands (upload, match, skills)
+- Salary AI: 4 Tauri commands (predict, benchmark, negotiate, compare)
+- Market Intelligence: 5 Tauri commands (trends, companies, locations, alerts)
 
-### Deferred Features (v1.1+)
-- LinkedIn/Indeed scrapers
+### Deferred Features (v2.0+)
+- Email notifications (SMTP - backend ready)
+- One-Click Apply Automation (legal review required)
 
 ---
 
@@ -45,10 +51,10 @@ Welcome to JobSentinel documentation.
 | Application Tracking | Working | [ATS](APPLICATION_TRACKING_SYSTEM.md) |
 | Multi-Channel Notifications | Working | [Notifications](MULTI_CHANNEL_NOTIFICATIONS.md) |
 | SQLite Configuration | Working | [SQLite](SQLITE_CONFIGURATION.md) |
-| Resume Matcher | Backend Ready | [Resume](AI_RESUME_JOB_MATCHER.md) |
-| Salary AI | Backend Ready | [Salary](SALARY_NEGOTIATION_AI.md) |
-| Market Intelligence | Backend Ready | [Market](JOB_MARKET_INTELLIGENCE_DASHBOARD.md) |
-| LinkedIn/Indeed | Deferred | [Scrapers](LINKEDIN_INDEED_SCRAPERS.md) |
+| Resume Matcher | Working | [Resume](AI_RESUME_JOB_MATCHER.md) |
+| Salary AI | Working | [Salary](SALARY_NEGOTIATION_AI.md) |
+| Market Intelligence | Working | [Market](JOB_MARKET_INTELLIGENCE_DASHBOARD.md) |
+| LinkedIn/Indeed | Working | [Scrapers](LINKEDIN_INDEED_SCRAPERS.md) |
 | One-Click Apply | v2.0+ | [Automation](ONE_CLICK_APPLY_AUTOMATION.md) |
 
 ### Reports

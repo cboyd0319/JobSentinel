@@ -3,6 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { Button, Card, CardHeader, LoadingSpinner, JobCard, ScoreDisplay, ThemeToggle, Tooltip, ModalErrorBoundary } from "../components";
 import { useToast } from "../contexts";
 import { getErrorMessage, logError } from "../utils/errorUtils";
+import { notifyScrapingComplete } from "../utils/notifications";
 import Settings from "./Settings";
 
 interface Job {
@@ -118,6 +119,12 @@ export default function Dashboard() {
       setStatistics(statsData);
       setScrapingStatus(statusData);
       toast.success("Scan complete!", `Found ${statsData.total_jobs} jobs`);
+
+      // Send desktop notification for high matches
+      const newHighMatches = statsData.high_matches;
+      if (newHighMatches > 0) {
+        notifyScrapingComplete(jobsData.length, newHighMatches);
+      }
     } catch (err) {
       logError("Failed to search jobs:", err);
       setError(getErrorMessage(err));

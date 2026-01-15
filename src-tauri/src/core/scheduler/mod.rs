@@ -9,8 +9,10 @@ use crate::core::{
     scoring::{JobScore, ScoringEngine},
     scrapers::{
         greenhouse::{GreenhouseCompany, GreenhouseScraper},
+        indeed::IndeedScraper,
         jobswithgpt::{JobQuery, JobsWithGptScraper},
         lever::{LeverCompany, LeverScraper},
+        linkedin::LinkedInScraper,
         JobScraper,
     },
 };
@@ -249,6 +251,53 @@ impl Scheduler {
             }
         }
 
+        // LinkedIn scraper - requires session cookie
+        if self.config.linkedin.enabled && !self.config.linkedin.session_cookie.is_empty() {
+            tracing::info!("Running LinkedIn scraper");
+            let linkedin = LinkedInScraper {
+                session_cookie: self.config.linkedin.session_cookie.clone(),
+                query: self.config.linkedin.query.clone(),
+                location: self.config.linkedin.location.clone(),
+                remote_only: self.config.linkedin.remote_only,
+                limit: self.config.linkedin.limit,
+            };
+
+            match linkedin.scrape().await {
+                Ok(jobs) => {
+                    tracing::info!("LinkedIn: {} jobs found", jobs.len());
+                    all_jobs.extend(jobs);
+                }
+                Err(e) => {
+                    let error_msg = format!("LinkedIn scraper failed: {}", e);
+                    tracing::error!("{}", error_msg);
+                    errors.push(error_msg);
+                }
+            }
+        }
+
+        // Indeed scraper - no authentication required
+        if self.config.indeed.enabled && !self.config.indeed.query.is_empty() {
+            tracing::info!("Running Indeed scraper");
+            let indeed = IndeedScraper::new(
+                self.config.indeed.query.clone(),
+                self.config.indeed.location.clone(),
+            )
+            .with_radius(self.config.indeed.radius)
+            .with_limit(self.config.indeed.limit);
+
+            match indeed.scrape().await {
+                Ok(jobs) => {
+                    tracing::info!("Indeed: {} jobs found", jobs.len());
+                    all_jobs.extend(jobs);
+                }
+                Err(e) => {
+                    let error_msg = format!("Indeed scraper failed: {}", e);
+                    tracing::error!("{}", error_msg);
+                    errors.push(error_msg);
+                }
+            }
+        }
+
         tracing::info!("Total jobs scraped: {}", all_jobs.len());
 
         // 2. Score all jobs
@@ -407,6 +456,8 @@ mod tests {
             alerts: Default::default(),
             greenhouse_urls: vec![],
             lever_urls: vec![],
+            linkedin: Default::default(),
+            indeed: Default::default(),
         }
     }
 

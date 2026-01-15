@@ -5,13 +5,13 @@
 ## Current Version: 1.0.0-alpha
 
 ### Working Features
-- Job scrapers: Greenhouse, Lever, JobsWithGPT
-- Application Tracking System (ATS): Kanban board, reminders, timeline
+- Job scrapers: Greenhouse, Lever, JobsWithGPT, LinkedIn, Indeed
+- Application Tracking System (ATS): Kanban board, reminders, timeline, ghosting detection
 - AI Resume-Job Matcher: PDF parsing, skill extraction, matching
-- Salary AI: Benchmarks, predictions, offer comparison
-- Market Intelligence: Trends, snapshots, alerts
+- Salary AI: Benchmarks, predictions, offer comparison, negotiation scripts
+- Market Intelligence: Trends, snapshots, alerts, hiring velocity
 - Multi-factor scoring algorithm
-- Multi-channel notifications: Slack, Discord, Teams
+- Multi-channel notifications: Slack, Discord, Teams, Desktop
 - SQLite database with full-text search
 - Scheduler for periodic scraping
 - React 19 frontend with setup wizard
@@ -20,10 +20,8 @@
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| Email notifications (SMTP) | Code exists | Integration needed |
-| LinkedIn scraper | 30% | API incomplete |
-| Indeed scraper | 30% | API incomplete |
-| Desktop notifications | Planned | Tauri plugin |
+| Email notifications (SMTP) | Backend ready | Frontend UI needed |
+| Frontend pages for ATS/Resume/Salary/Market | Backend ready | UI pages needed |
 
 ### v2.0 Planned Features
 
@@ -46,21 +44,28 @@
 
 ## Feature Details
 
-### AI Resume-Job Matcher (Enabled)
+### LinkedIn/Indeed Scrapers (Working)
+Both scrapers fully integrated with scheduler and Settings UI.
+- LinkedIn: Requires li_at session cookie, configurable query/location/remote-only
+- Indeed: Query-based search with configurable radius and limit
+
+### AI Resume-Job Matcher (Working)
 Automatically parse resumes and match skills against job requirements.
 - PDF parsing with skill extraction
 - Semantic similarity matching
 - Confidence scoring per job match
 - Skills database with proficiency levels
+- 6 Tauri commands exposed
 
-### Salary AI (Enabled)
+### Salary AI (Working)
 Data-driven compensation insights.
 - H1B data-based salary predictions
 - Salary benchmarks by role/location/company
 - Seniority-level aware predictions
 - Offer comparison and negotiation insights
+- 4 Tauri commands exposed
 
-### Market Intelligence (Enabled)
+### Market Intelligence (Working)
 Analytics and trend visualization.
 - Daily market snapshots
 - Skill demand trends over time
@@ -68,6 +73,12 @@ Analytics and trend visualization.
 - Company hiring velocity
 - Location job density
 - Market alerts for anomalies
+- 5 Tauri commands exposed
+
+### Desktop Notifications (Working)
+Native OS notifications via Tauri plugin.
+- Notifies on high-match job discoveries
+- Integrated into Dashboard
 
 ### One-Click Apply (v2.0+)
 Automated application submission.
@@ -83,20 +94,24 @@ Automated application submission.
 ### Code Quality
 - All Rust code compiles with 0 errors
 - Clippy passes with 0 warnings (`-D warnings`)
-- 291 tests passing, 20 ignored (require file-based database or are doc examples)
+- 290 tests passing, 20 ignored (require file-based database or are doc examples)
 - All modules enabled and functional
+- 25 new Tauri commands for backend modules
 
 ### Resolved Technical Debt
 - [x] SQLite MEDIAN() - computed in Rust instead
 - [x] SQLx query! macros - converted to runtime queries
 - [x] All compilation errors fixed
 - [x] All clippy warnings fixed
+- [x] LinkedIn/Indeed scrapers integrated
+- [x] Desktop notifications implemented
+- [x] All backend modules exposed via Tauri commands
 
 ### Remaining Work
-- [ ] Complete LinkedIn/Indeed API integration
+- [ ] Email notifications frontend UI
+- [ ] Frontend pages for ATS, Resume, Salary, Market features
 - [ ] Add comprehensive integration tests
 - [ ] Set up CI/CD pipeline
-- [ ] Email notifications integration
 
 ---
 
@@ -105,7 +120,7 @@ Automated application submission.
 See [CONTRIBUTING.md](developer/CONTRIBUTING.md) for how to contribute.
 
 Priority areas for contribution:
-1. LinkedIn/Indeed scraper completion
-2. Email notification integration
+1. Frontend UI pages for new features
+2. Email notification frontend integration
 3. UI/UX improvements
 4. Additional test coverage

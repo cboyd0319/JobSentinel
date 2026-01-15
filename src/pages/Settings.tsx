@@ -26,6 +26,21 @@ interface Config {
       webhook_url: string;
     };
   };
+  linkedin: {
+    enabled: boolean;
+    session_cookie: string;
+    query: string;
+    location: string;
+    remote_only: boolean;
+    limit: number;
+  };
+  indeed: {
+    enabled: boolean;
+    query: string;
+    location: string;
+    radius: number;
+    limit: number;
+  };
 }
 
 const isValidSlackWebhook = (url: string): boolean => {
@@ -345,7 +360,7 @@ export default function Settings({ onClose }: SettingsProps) {
           </section>
 
           {/* Notifications */}
-          <section className="mb-8">
+          <section className="mb-6">
             <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3">Notifications</h3>
             <Input
               label="Slack Webhook URL"
@@ -365,6 +380,232 @@ export default function Settings({ onClose }: SettingsProps) {
               error={config.alerts.slack.webhook_url && !isValidWebhook ? "Invalid Slack webhook URL" : undefined}
               hint="Get notified when high-match jobs are found"
             />
+          </section>
+
+          {/* Job Sources */}
+          <section className="mb-6">
+            <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3">Job Sources</h3>
+            <p className="text-sm text-surface-500 dark:text-surface-400 mb-4">
+              Configure additional job boards to search. Greenhouse and Lever boards are always enabled.
+            </p>
+
+            {/* LinkedIn */}
+            <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-4 mb-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <LinkedInIcon className="w-5 h-5 text-[#0077B5]" />
+                  <span className="font-medium text-surface-800 dark:text-surface-200">LinkedIn</span>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={config.linkedin?.enabled ?? false}
+                    onChange={(e) =>
+                      setConfig({
+                        ...config,
+                        linkedin: {
+                          ...config.linkedin,
+                          enabled: e.target.checked,
+                        },
+                      })
+                    }
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-surface-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-sentinel-300 dark:peer-focus:ring-sentinel-800 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-surface-600 peer-checked:bg-sentinel-500"></div>
+                </label>
+              </div>
+
+              {config.linkedin?.enabled && (
+                <div className="space-y-3">
+                  <Input
+                    label="Session Cookie (li_at)"
+                    type="password"
+                    value={config.linkedin?.session_cookie ?? ""}
+                    onChange={(e) =>
+                      setConfig({
+                        ...config,
+                        linkedin: {
+                          ...config.linkedin,
+                          session_cookie: e.target.value,
+                        },
+                      })
+                    }
+                    placeholder="Your LinkedIn li_at cookie value"
+                    hint="Required. Find this in browser dev tools → Cookies → linkedin.com → li_at"
+                  />
+                  <div className="grid grid-cols-2 gap-3">
+                    <Input
+                      label="Search Query"
+                      value={config.linkedin?.query ?? ""}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          linkedin: {
+                            ...config.linkedin,
+                            query: e.target.value,
+                          },
+                        })
+                      }
+                      placeholder="e.g., Security Engineer"
+                    />
+                    <Input
+                      label="Location"
+                      value={config.linkedin?.location ?? ""}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          linkedin: {
+                            ...config.linkedin,
+                            location: e.target.value,
+                          },
+                        })
+                      }
+                      placeholder="e.g., United States"
+                    />
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={config.linkedin?.remote_only ?? false}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            linkedin: {
+                              ...config.linkedin,
+                              remote_only: e.target.checked,
+                            },
+                          })
+                        }
+                        className="w-4 h-4 rounded border-surface-300 text-sentinel-500 focus:ring-sentinel-500"
+                      />
+                      <span className="text-sm text-surface-700 dark:text-surface-300">Remote only</span>
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <label className="text-sm text-surface-700 dark:text-surface-300">Max results:</label>
+                      <input
+                        type="number"
+                        min="10"
+                        max="100"
+                        value={config.linkedin?.limit ?? 25}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            linkedin: {
+                              ...config.linkedin,
+                              limit: parseInt(e.target.value) || 25,
+                            },
+                          })
+                        }
+                        className="w-20 px-2 py-1 text-sm border border-surface-300 dark:border-surface-600 rounded bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Indeed */}
+            <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <IndeedIcon className="w-5 h-5 text-[#2164F3]" />
+                  <span className="font-medium text-surface-800 dark:text-surface-200">Indeed</span>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={config.indeed?.enabled ?? false}
+                    onChange={(e) =>
+                      setConfig({
+                        ...config,
+                        indeed: {
+                          ...config.indeed,
+                          enabled: e.target.checked,
+                        },
+                      })
+                    }
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-surface-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-sentinel-300 dark:peer-focus:ring-sentinel-800 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-surface-600 peer-checked:bg-sentinel-500"></div>
+                </label>
+              </div>
+
+              {config.indeed?.enabled && (
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <Input
+                      label="Search Query"
+                      value={config.indeed?.query ?? ""}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          indeed: {
+                            ...config.indeed,
+                            query: e.target.value,
+                          },
+                        })
+                      }
+                      placeholder="e.g., Security Engineer"
+                    />
+                    <Input
+                      label="Location"
+                      value={config.indeed?.location ?? ""}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          indeed: {
+                            ...config.indeed,
+                            location: e.target.value,
+                          },
+                        })
+                      }
+                      placeholder="e.g., Remote or San Francisco, CA"
+                    />
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                      <label className="text-sm text-surface-700 dark:text-surface-300">Radius (miles):</label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={config.indeed?.radius ?? 25}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            indeed: {
+                              ...config.indeed,
+                              radius: parseInt(e.target.value) || 25,
+                            },
+                          })
+                        }
+                        className="w-20 px-2 py-1 text-sm border border-surface-300 dark:border-surface-600 rounded bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <label className="text-sm text-surface-700 dark:text-surface-300">Max results:</label>
+                      <input
+                        type="number"
+                        min="10"
+                        max="100"
+                        value={config.indeed?.limit ?? 25}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            indeed: {
+                              ...config.indeed,
+                              limit: parseInt(e.target.value) || 25,
+                            },
+                          })
+                        }
+                        className="w-20 px-2 py-1 text-sm border border-surface-300 dark:border-surface-600 rounded bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </section>
 
           {/* Actions */}
@@ -395,6 +636,22 @@ function CloseIcon() {
   return (
     <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  );
+}
+
+function LinkedInIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+    </svg>
+  );
+}
+
+function IndeedIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M11.566 21.5633v-8.762c.2699.0237.5412.0356.8129.0356 1.6573 0 3.1939-.4812 4.4783-1.3045v10.0309c0 .8765-.4813 1.5643-1.0871 1.5643-.5344 0-1.087-.6878-1.087-1.5643v-3.6373c-1.0274.5936-2.1092.858-3.1171.6373zm1.0515-20.4946c-2.4136-.8768-5.0683-.2512-6.2971 1.6326-1.1932 1.8245-1.1932 4.9212.9475 6.6804.4813.2749 1.0871.4762 1.7046.6646.6175.1884 1.2469.3293 1.8773.4467.6292.1063 1.2469.1655 1.8527.1655.6175 0 1.2469-.0474 1.8644-.1655.6175-.1174 1.2469-.2584 1.8644-.4467.6175-.1884 1.2351-.3897 1.7164-.6646.2455-.1655.4929-.3778.7285-.6171.2455-.2393.4811-.4786.7049-.7298.4455-.5346.8176-1.1518 1.1041-1.8484.2811-.6878.4455-1.4452.4455-2.2498 0-1.613-.7285-3.0379-1.9337-4.0565-1.205-1.0068-2.8622-1.5179-4.5791-1.2114z"/>
     </svg>
   );
 }

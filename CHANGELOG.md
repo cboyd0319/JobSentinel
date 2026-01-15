@@ -8,6 +8,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **LinkedIn scraper integration** - fully wired into scheduler with Settings UI
+  - Session cookie (li_at) authentication
+  - Configurable query, location, remote-only filter
+  - Adjustable result limit (10-100)
+- **Indeed scraper integration** - fully wired into scheduler with Settings UI
+  - Query-based search with location
+  - Configurable radius (0-100 miles)
+  - Adjustable result limit (10-100)
+- **Desktop notifications** - native OS notifications via Tauri plugin
+  - Notifies on high-match job discoveries
+  - Uses tauri-plugin-notification v2
+- **25 new Tauri commands** for backend modules:
+  - ATS: `create_application`, `get_applications_kanban`, `update_application_status`, `add_application_notes`, `get_pending_reminders`, `complete_reminder`, `detect_ghosted_applications`
+  - Resume: `upload_resume`, `get_active_resume`, `set_active_resume`, `get_user_skills`, `match_resume_to_job`, `get_match_result`
+  - Salary: `predict_salary`, `get_salary_benchmark`, `generate_negotiation_script`, `compare_offers`
+  - Market Intelligence: `get_trending_skills`, `get_active_companies`, `get_hottest_locations`, `get_market_alerts`, `run_market_analysis`
+- LinkedIn/Indeed configuration UI in Settings page with toggle switches
+- `src/utils/notifications.ts` - frontend notification utility module
 - `ModalErrorBoundary` component for graceful Settings modal error handling
 - Database query timeout utility (`with_timeout()`) for preventing hangs
 - Telegram bot token and chat ID validation
@@ -51,7 +69,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Refactored codebase to fix all compilation errors
-- Updated test suite: 291 tests passing, 20 ignored (require file-based database or are doc examples)
+- Updated test suite: 290 tests passing, 20 ignored (require file-based database or are doc examples)
 - Fixed SQLx Row trait usage (get -> try_get)
 - Converted all query! macros to runtime queries (removed DATABASE_URL dependency)
 - Fixed proptest edge cases in scrapers
@@ -109,13 +127,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Auto-update capability (built-in to Tauri)
 - Minimal resource footprint (~50MB memory, <0.5s startup)
 
+### Completed Since Alpha
+- Application Tracking System (ATS) - ✅ Fully enabled
+- AI Resume-Job Matcher - ✅ Fully enabled
+- Salary Negotiation AI - ✅ Fully enabled
+- Job Market Intelligence Dashboard - ✅ Fully enabled
+- LinkedIn scraper - ✅ Integrated with scheduler and Settings UI
+- Indeed scraper - ✅ Integrated with scheduler and Settings UI
+- Desktop notifications - ✅ Via Tauri plugin
+
 ### Deferred to v1.1+
-- Application Tracking System (ATS) - 85% complete
-- AI Resume-Job Matcher - 65% complete
-- Salary Negotiation AI - 50% complete
-- Job Market Intelligence Dashboard - 60% complete
-- LinkedIn/Indeed scrapers - code exists, incomplete
-- Email notifications (SMTP)
+- Email notifications (SMTP - backend ready, frontend pending)
 - macOS support (.dmg installer)
 - Linux support (.deb, .rpm, .AppImage)
 

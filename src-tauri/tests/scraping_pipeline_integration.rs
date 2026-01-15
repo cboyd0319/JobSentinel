@@ -31,6 +31,8 @@ fn create_test_config() -> Config {
         alerts: Default::default(),
         greenhouse_urls: vec![],
         lever_urls: vec![],
+        linkedin: Default::default(),
+        indeed: Default::default(),
     }
 }
 

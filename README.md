@@ -21,7 +21,7 @@
   <a href="https://www.rust-lang.org/"><img src="https://img.shields.io/badge/Rust-1.83%2B-orange.svg?style=flat-square" alt="Rust"></a>
   <a href="https://tauri.app/"><img src="https://img.shields.io/badge/Tauri-2.1-blue.svg?style=flat-square" alt="Tauri"></a>
   <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-19-61dafb.svg?style=flat-square" alt="React"></a>
-  <img src="https://img.shields.io/badge/Tests-291%20passing-brightgreen.svg?style=flat-square" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-290%20passing-brightgreen.svg?style=flat-square" alt="Tests">
   <img src="https://img.shields.io/badge/Vulnerabilities-0-brightgreen.svg?style=flat-square" alt="Security">
 </p>
 
@@ -72,18 +72,14 @@
 | 🎨 **Frontend** | ✅ Working | React 19 + TypeScript + TailwindCSS |
 | 🖥️ **Desktop App** | ✅ Working | Tauri 2.1 integration |
 | 🔐 **Security** | ✅ **0 vulnerabilities** | cargo-audit verified |
-| ✅ **Test Coverage** | ✅ **291 passing** | 20 ignored (require file-based DB) |
+| ✅ **Test Coverage** | ✅ **290 passing** | 20 ignored (require file-based DB) |
 
-### Remaining Work (v1.1)
-- LinkedIn scraper (requires manual cookie extraction - complex for non-technical users)
-- Indeed scraper (rate-limited, needs proxy support)
-- Email notifications (SMTP)
-- Desktop notifications (Tauri plugin)
-
-### Job Sources (Currently Working)
+### Job Sources (Working)
 - **Greenhouse** - Many tech companies use this
 - **Lever** - Popular with startups
 - **JobsWithGPT** - Aggregates from multiple sources
+- **LinkedIn** - Requires session cookie (li_at) - configurable in Settings
+- **Indeed** - Query-based search - configurable in Settings
 
 ---
 
@@ -94,9 +90,9 @@
 </div>
 
 **JobSentinel** is a desktop app that automatically:
-1. **🔍 Scans** job boards (Greenhouse, Lever, JobsWithGPT) every 2 hours
+1. **🔍 Scans** job boards (Greenhouse, Lever, JobsWithGPT, LinkedIn, Indeed) every 2 hours
 2. **🧠 Matches** jobs to your preferences using AI scoring
-3. **📢 Alerts** you on Slack/Discord/Teams when great matches appear (90%+ score)
+3. **📢 Alerts** you on Slack/Discord/Teams/Desktop when great matches appear (90%+ score)
 
 > **🔒 All data stays on YOUR computer.** No cloud. No tracking. No subscriptions. Ever.
 
@@ -137,13 +133,13 @@ Linux support (.deb, .rpm, .AppImage) is planned for v2.0.
 
 | Feature | Description |
 |---------|-------------|
-| 🌐 **3 Job Boards** | Greenhouse, Lever, JobsWithGPT (500K+ listings) |
+| 🌐 **5 Job Boards** | Greenhouse, Lever, JobsWithGPT, LinkedIn, Indeed |
 | 📋 **Application Tracking** | Kanban board, status pipeline, automated reminders |
 | 🤖 **AI Resume Matcher** | PDF parsing, skill extraction, job-resume scoring |
 | 💰 **Salary AI** | H1B-based predictions, offer comparison, negotiation insights |
 | 📊 **Market Intelligence** | Daily snapshots, skill trends, hiring velocity, alerts |
 | 🎯 **Smart Scoring** | Skills 40%, Salary 25%, Location 20%, Company 10%, Recency 5% |
-| 📢 **Multi-Channel Alerts** | Slack, Discord, and Teams webhook notifications |
+| 📢 **Multi-Channel Alerts** | Slack, Discord, Teams webhooks + Desktop notifications |
 | ⏰ **Auto-Scheduling** | Scrapes every 2 hours (configurable) |
 | 👆 **Manual Trigger** | Right-click tray icon → "Search Now" |
 | 🗄️ **SQLite Database** | Local storage, full-text search |
@@ -151,9 +147,10 @@ Linux support (.deb, .rpm, .AppImage) is planned for v2.0.
 
 ### v1.1 Roadmap (In Progress)
 
-- [ ] LinkedIn/Indeed scrapers (API incomplete)
-- [ ] Email notifications (SMTP)
-- [ ] Desktop notifications (Tauri plugin)
+- [x] LinkedIn scraper (requires session cookie)
+- [x] Indeed scraper (query-based)
+- [x] Desktop notifications (Tauri plugin)
+- [ ] Email notifications (SMTP - backend ready, frontend pending)
 
 ### v2.0+ (Future)
 
@@ -178,7 +175,7 @@ Linux support (.deb, .rpm, .AppImage) is planned for v2.0.
 | **Database** | SQLite (SQLx) | Local job storage |
 | **Desktop** | Tauri 2.1 | Cross-platform desktop framework |
 | **HTTP** | reqwest + scraper | Job board scraping |
-| **Notifications** | Slack, Discord, Teams webhooks | Immediate alerts |
+| **Notifications** | Slack, Discord, Teams, Desktop | Immediate alerts |
 
 ### Directory Structure (Future-Proof)
 

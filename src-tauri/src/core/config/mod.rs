@@ -47,6 +47,14 @@ pub struct Config {
     /// Lever company URLs to scrape (e.g., "https://jobs.lever.co/netflix")
     #[serde(default)]
     pub lever_urls: Vec<String>,
+
+    /// LinkedIn scraper configuration
+    #[serde(default)]
+    pub linkedin: LinkedInConfig,
+
+    /// Indeed scraper configuration
+    #[serde(default)]
+    pub indeed: IndeedConfig,
 }
 
 fn default_immediate_threshold() -> f64 {
@@ -228,6 +236,85 @@ fn default_desktop_enabled() -> bool {
 
 fn default_play_sound() -> bool {
     true
+}
+
+/// LinkedIn scraper configuration
+///
+/// LinkedIn requires authentication via session cookie. Users must manually
+/// extract this from their browser after logging in.
+///
+/// # Security Note
+/// The session cookie provides full access to your LinkedIn account.
+/// Keep your config file secure (chmod 600).
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct LinkedInConfig {
+    /// Enable LinkedIn job scraping
+    #[serde(default)]
+    pub enabled: bool,
+
+    /// LinkedIn session cookie (li_at value)
+    /// Get this from browser DevTools: Application → Cookies → li_at
+    #[serde(default)]
+    pub session_cookie: String,
+
+    /// Search query (job title, keywords)
+    /// Example: "software engineer", "rust developer"
+    #[serde(default)]
+    pub query: String,
+
+    /// Location filter
+    /// Example: "San Francisco Bay Area", "Remote", "United States"
+    #[serde(default)]
+    pub location: String,
+
+    /// Search only for remote jobs
+    #[serde(default)]
+    pub remote_only: bool,
+
+    /// Maximum results to return (default: 50, max: 100)
+    #[serde(default = "default_linkedin_limit")]
+    pub limit: usize,
+}
+
+fn default_linkedin_limit() -> usize {
+    50
+}
+
+/// Indeed scraper configuration
+///
+/// Indeed uses public search pages. No authentication required, but
+/// aggressive scraping may trigger rate limiting.
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct IndeedConfig {
+    /// Enable Indeed job scraping
+    #[serde(default)]
+    pub enabled: bool,
+
+    /// Search query (job title, keywords)
+    /// Example: "software engineer", "security analyst"
+    #[serde(default)]
+    pub query: String,
+
+    /// Location filter (city, state, zip, or "remote")
+    /// Example: "San Francisco, CA", "Remote", "94105"
+    #[serde(default)]
+    pub location: String,
+
+    /// Search radius in miles (default: 25)
+    #[serde(default = "default_indeed_radius")]
+    pub radius: u32,
+
+    /// Maximum results to return (default: 50)
+    #[serde(default = "default_indeed_limit")]
+    pub limit: usize,
+}
+
+fn default_indeed_radius() -> u32 {
+    25
+}
+
+fn default_indeed_limit() -> usize {
+    50
 }
 
 impl Config {
@@ -536,6 +623,53 @@ impl Config {
             }
         }
 
+        // Validate LinkedIn configuration if enabled
+        if self.linkedin.enabled {
+            if self.linkedin.session_cookie.is_empty() {
+                return Err("LinkedIn session cookie is required when LinkedIn is enabled".into());
+            }
+            if self.linkedin.session_cookie.len() > 500 {
+                return Err("LinkedIn session cookie too long (max: 500 chars)".into());
+            }
+            if self.linkedin.query.is_empty() {
+                return Err("LinkedIn search query is required when LinkedIn is enabled".into());
+            }
+            if self.linkedin.query.len() > 200 {
+                return Err("LinkedIn search query too long (max: 200 chars)".into());
+            }
+            if self.linkedin.location.len() > 100 {
+                return Err("LinkedIn location too long (max: 100 chars)".into());
+            }
+            if self.linkedin.limit > 100 {
+                return Err("LinkedIn result limit cannot exceed 100".into());
+            }
+            if self.linkedin.limit == 0 {
+                return Err("LinkedIn result limit must be at least 1".into());
+            }
+        }
+
+        // Validate Indeed configuration if enabled
+        if self.indeed.enabled {
+            if self.indeed.query.is_empty() {
+                return Err("Indeed search query is required when Indeed is enabled".into());
+            }
+            if self.indeed.query.len() > 200 {
+                return Err("Indeed search query too long (max: 200 chars)".into());
+            }
+            if self.indeed.location.len() > 100 {
+                return Err("Indeed location too long (max: 100 chars)".into());
+            }
+            if self.indeed.radius > 100 {
+                return Err("Indeed search radius cannot exceed 100 miles".into());
+            }
+            if self.indeed.limit > 100 {
+                return Err("Indeed result limit cannot exceed 100".into());
+            }
+            if self.indeed.limit == 0 {
+                return Err("Indeed result limit must be at least 1".into());
+            }
+        }
+
         Ok(())
     }
 
@@ -582,6 +716,8 @@ mod tests {
             },
             greenhouse_urls: vec!["https://boards.greenhouse.io/cloudflare".to_string()],
             lever_urls: vec!["https://jobs.lever.co/netflix".to_string()],
+            linkedin: LinkedInConfig::default(),
+            indeed: IndeedConfig::default(),
         }
     }
 

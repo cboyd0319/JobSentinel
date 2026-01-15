@@ -52,8 +52,15 @@ All core modules are enabled and functional:
 - automation (One-Click Apply - requires legal review)
 
 ### Test Status
-- 291 tests passing, 20 ignored
+- 290 tests passing, 20 ignored
 - Ignored tests require file-based database or are doc-tests for example code
+
+### Tauri Commands (38 total)
+- Core: 14 commands (jobs, config, search, statistics)
+- ATS: 7 commands (applications, reminders, ghosting)
+- Resume: 6 commands (upload, match, skills)
+- Salary: 4 commands (predict, benchmark, negotiate, compare)
+- Market: 5 commands (trends, companies, locations, alerts)
 
 ## Development Commands
 

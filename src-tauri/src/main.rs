@@ -37,7 +37,9 @@ fn main() {
 
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_notification::init())
         .invoke_handler(tauri::generate_handler![
+            // Core job commands
             commands::search_jobs,
             commands::get_recent_jobs,
             commands::get_job_by_id,
@@ -51,6 +53,32 @@ fn main() {
             commands::search_jobs_query,
             commands::hide_job,
             commands::unhide_job,
+            // ATS commands
+            commands::create_application,
+            commands::get_applications_kanban,
+            commands::update_application_status,
+            commands::add_application_notes,
+            commands::get_pending_reminders,
+            commands::complete_reminder,
+            commands::detect_ghosted_applications,
+            // Resume Matcher commands
+            commands::upload_resume,
+            commands::get_active_resume,
+            commands::set_active_resume,
+            commands::get_user_skills,
+            commands::match_resume_to_job,
+            commands::get_match_result,
+            // Salary AI commands
+            commands::predict_salary,
+            commands::get_salary_benchmark,
+            commands::generate_negotiation_script,
+            commands::compare_offers,
+            // Market Intelligence commands
+            commands::get_trending_skills,
+            commands::get_active_companies,
+            commands::get_hottest_locations,
+            commands::get_market_alerts,
+            commands::run_market_analysis,
         ])
         .setup(|app| {
             // Initialize configuration
@@ -88,6 +116,8 @@ fn main() {
                     alerts: Default::default(),
                     greenhouse_urls: vec![],
                     lever_urls: vec![],
+                    linkedin: Default::default(),
+                    indeed: Default::default(),
                 }
             };
 
