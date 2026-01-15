@@ -14,13 +14,13 @@ export function LoadingSpinner({
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-surface-50">
+    <div className="flex items-center justify-center h-screen bg-surface-50 dark:bg-surface-900">
       <div className="text-center animate-fade-in">
         {/* Sentinel-themed scanner animation */}
         <div className="relative mb-6">
           <div className={`${sizeClasses[size]} mx-auto`}>
             {/* Outer ring */}
-            <svg className="w-full h-full" viewBox="0 0 48 48">
+            <svg className="w-full h-full" viewBox="0 0 48 48" aria-hidden="true">
               <circle
                 cx="24"
                 cy="24"
@@ -28,7 +28,7 @@ export function LoadingSpinner({
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"
-                className="text-surface-200"
+                className="text-surface-200 dark:text-surface-700"
               />
               {/* Scanning arc */}
               <circle
@@ -51,6 +51,7 @@ export function LoadingSpinner({
                 fill="none" 
                 viewBox="0 0 24 24" 
                 stroke="currentColor"
+                aria-hidden="true"
               >
                 <path 
                   strokeLinecap="round" 
@@ -68,7 +69,7 @@ export function LoadingSpinner({
             </div>
           </div>
         </div>
-        <p className="text-surface-600 font-medium">{message}</p>
+        <p className="text-surface-600 dark:text-surface-400 font-medium">{message}</p>
       </div>
     </div>
   );

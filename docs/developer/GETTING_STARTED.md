@@ -8,7 +8,7 @@
 |-----------|--------|
 | Core modules (config, db, scoring, scrapers, scheduler, notify) | Working |
 | Frontend (React 19 + TypeScript) | Working |
-| Tests | 256 passing, 13 ignored |
+| Tests | 291 passing, 20 ignored |
 
 ---
 

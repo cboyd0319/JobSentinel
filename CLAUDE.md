@@ -52,7 +52,7 @@ All core modules are enabled and functional:
 - automation (One-Click Apply - requires legal review)
 
 ### Test Status
-- 288 tests passing, 18 ignored
+- 291 tests passing, 20 ignored
 - Ignored tests require file-based database or are doc-tests for example code
 
 ## Development Commands

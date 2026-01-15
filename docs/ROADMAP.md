@@ -83,7 +83,7 @@ Automated application submission.
 ### Code Quality
 - All Rust code compiles with 0 errors
 - Clippy passes with 0 warnings (`-D warnings`)
-- 288 tests passing, 18 ignored (require file-based database or are doc examples)
+- 291 tests passing, 20 ignored (require file-based database or are doc examples)
 - All modules enabled and functional
 
 ### Resolved Technical Debt

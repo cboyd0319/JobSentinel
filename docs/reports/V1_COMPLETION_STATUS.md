@@ -1,7 +1,7 @@
 # JobSentinel v1.0 - Completion Status
 
 **Original Date:** 2025-11-04
-**Updated:** 2026-01-14
+**Updated:** 2026-01-15
 **Status:** v1.0.0-alpha - All major modules working
 
 ---
@@ -9,8 +9,8 @@
 > **Note:** This document was originally created claiming 100% completion. After a comprehensive refactoring in January 2026, all major modules have been fixed and enabled. The status below reflects the current accurate state.
 
 ## Current Test Status
-- **288 tests passing**
-- **18 tests ignored** (require file-based database or are doc examples)
+- **291 tests passing**
+- **20 tests ignored** (require file-based database or are doc examples)
 - **0 failures**
 
 ---
@@ -240,7 +240,7 @@ npm run tauri:build
 ### Code Quality
 - ✅ Error handling throughout
 - ✅ Comprehensive logging
-- ✅ Unit tests (288 passing)
+- ✅ Unit tests (291 passing)
 - ✅ Type safety (Rust + TypeScript)
 - ✅ Documentation comments
 - ✅ Zero clippy warnings
@@ -337,7 +337,7 @@ During a comprehensive audit in January 2026, several modules were found to have
 5. ATS module compilation (Display/FromStr traits)
 
 ### Current Accurate Status
-- **256 tests passing**
-- **13 tests ignored** (require file-based database)
-- **Core modules:** config, db, notify, scheduler, scoring, scrapers, ats
-- **Deferred modules:** resume, salary, market_intelligence, automation
+- **291 tests passing**
+- **20 tests ignored** (require file-based database or are doc examples)
+- **Core modules:** config, db, notify, scheduler, scoring, scrapers, ats, resume, salary, market_intelligence
+- **Deferred modules:** automation (requires legal review)

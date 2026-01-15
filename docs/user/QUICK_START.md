@@ -13,7 +13,7 @@
 - Windows 11+ is the primary target platform
 - macOS 26.2+ and Linux support planned for v2.0
 - All core features working (scrapers, scoring, notifications)
-- 256 tests passing
+- 291 tests passing
 
 ---
 

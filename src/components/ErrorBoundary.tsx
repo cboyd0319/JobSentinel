@@ -20,7 +20,10 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Uncaught error:', error, errorInfo);
+    // Only log in development - in production, consider sending to error tracking service
+    if (import.meta.env.DEV) {
+      console.error('Uncaught error:', error, errorInfo);
+    }
   }
 
   public render() {
@@ -32,14 +35,15 @@ class ErrorBoundary extends Component<Props, State> {
             <div className="absolute top-1/3 left-1/3 w-96 h-96 bg-danger/10 rounded-full blur-3xl" />
           </div>
 
-          <div className="relative max-w-md w-full bg-white rounded-card shadow-card p-8 animate-fade-in">
+          <div className="relative max-w-md w-full bg-white dark:bg-surface-800 rounded-card shadow-card dark:shadow-none border dark:border-surface-700 p-8 animate-fade-in">
             <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg
                   className="h-8 w-8 text-danger"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
+                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"
@@ -49,23 +53,23 @@ class ErrorBoundary extends Component<Props, State> {
                   />
                 </svg>
               </div>
-              <h3 className="font-display text-display-lg text-surface-900 mb-2">
+              <h3 className="font-display text-display-lg text-surface-900 dark:text-white mb-2">
                 Something went wrong
               </h3>
-              <p className="text-surface-600">
+              <p className="text-surface-600 dark:text-surface-400">
                 {this.state.error?.message || 'An unexpected error occurred'}
               </p>
             </div>
 
-            <div className="p-4 bg-surface-50 rounded-lg mb-6">
-              <p className="text-sm text-surface-500">
+            <div className="p-4 bg-surface-50 dark:bg-surface-900/50 rounded-lg mb-6">
+              <p className="text-sm text-surface-500 dark:text-surface-400">
                 Your data is safe. Try reloading the application to continue.
               </p>
             </div>
 
             <button
               onClick={() => window.location.reload()}
-              className="w-full bg-sentinel-500 hover:bg-sentinel-600 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 hover:shadow-soft"
+              className="w-full bg-sentinel-500 hover:bg-sentinel-600 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 hover:shadow-soft focus:outline-none focus:ring-2 focus:ring-sentinel-500 focus:ring-offset-2 dark:focus:ring-offset-surface-800"
             >
               Reload Application
             </button>

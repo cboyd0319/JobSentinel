@@ -17,6 +17,17 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  /* Respect user's motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
   /* Custom selection color */
   ::selection {
     @apply bg-sentinel-200 text-sentinel-900;
@@ -69,6 +80,9 @@
     @apply hover:bg-surface-200 hover:border-surface-300;
     @apply active:bg-surface-300;
     @apply focus-visible:ring-surface-400;
+    @apply dark:bg-surface-700 dark:text-surface-200 dark:border-surface-600;
+    @apply dark:hover:bg-surface-600 dark:hover:border-surface-500;
+    @apply dark:active:bg-surface-500;
   }
 
   /* Ghost button - minimal */
@@ -76,19 +90,23 @@
     @apply btn text-surface-600 rounded-lg;
     @apply hover:bg-surface-100 hover:text-surface-800;
     @apply active:bg-surface-200;
+    @apply dark:text-surface-400 dark:hover:bg-surface-800 dark:hover:text-surface-200;
+    @apply dark:active:bg-surface-700;
   }
 
   /* Card component */
   .card {
     @apply bg-white rounded-card border border-surface-100 shadow-soft;
     @apply transition-all duration-200 ease-out;
+    @apply dark:bg-surface-800 dark:border-surface-700 dark:shadow-none;
   }
   .card-hover {
     @apply hover:shadow-card-hover hover:-translate-y-0.5 hover:border-surface-200;
+    @apply dark:hover:border-surface-600;
   }
   .card-interactive {
     @apply card card-hover cursor-pointer;
-    @apply hover:border-sentinel-200;
+    @apply hover:border-sentinel-200 dark:hover:border-sentinel-700;
   }
 
   /* Input fields */
@@ -98,6 +116,9 @@
     @apply transition-all duration-150;
     @apply hover:border-surface-300;
     @apply focus:border-sentinel-400 focus:ring-2 focus:ring-sentinel-100;
+    @apply dark:bg-surface-800 dark:border-surface-600 dark:text-surface-100;
+    @apply dark:placeholder:text-surface-500 dark:hover:border-surface-500;
+    @apply dark:focus:border-sentinel-500 dark:focus:ring-sentinel-900/50;
   }
   .input-error {
     @apply border-danger focus:border-danger focus:ring-danger/20;
@@ -109,12 +130,15 @@
   }
   .badge-sentinel {
     @apply badge bg-sentinel-100 text-sentinel-700;
+    @apply dark:bg-sentinel-900/40 dark:text-sentinel-300;
   }
   .badge-alert {
     @apply badge bg-alert-100 text-alert-700;
+    @apply dark:bg-alert-900/40 dark:text-alert-300;
   }
   .badge-surface {
     @apply badge bg-surface-100 text-surface-600;
+    @apply dark:bg-surface-700 dark:text-surface-300;
   }
 
   /* Score indicator */

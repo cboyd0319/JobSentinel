@@ -15,10 +15,10 @@ export function ScoreDisplay({
   
   // Color based on score
   const getScoreColor = () => {
-    if (score >= 0.9) return { ring: "stroke-alert-500", text: "text-alert-600", glow: "shadow-alert-glow" };
-    if (score >= 0.7) return { ring: "stroke-sentinel-500", text: "text-sentinel-600", glow: "" };
-    if (score >= 0.5) return { ring: "stroke-surface-400", text: "text-surface-600", glow: "" };
-    return { ring: "stroke-surface-300", text: "text-surface-500", glow: "" };
+    if (score >= 0.9) return { ring: "stroke-alert-500", text: "text-alert-600 dark:text-alert-400", glow: "shadow-alert-glow" };
+    if (score >= 0.7) return { ring: "stroke-sentinel-500", text: "text-sentinel-600 dark:text-sentinel-400", glow: "" };
+    if (score >= 0.5) return { ring: "stroke-surface-400", text: "text-surface-600 dark:text-surface-400", glow: "" };
+    return { ring: "stroke-surface-300", text: "text-surface-500 dark:text-surface-400", glow: "" };
   };
 
   const colors = getScoreColor();
@@ -36,7 +36,7 @@ export function ScoreDisplay({
   return (
     <div className="inline-flex flex-col items-center gap-1">
       <div className={`relative ${config.container} ${score >= 0.9 ? colors.glow : ""} rounded-full`}>
-        <svg className="w-full h-full -rotate-90" viewBox="0 0 80 80">
+        <svg className="w-full h-full -rotate-90" viewBox="0 0 80 80" aria-hidden="true">
           {/* Background ring */}
           <circle
             cx="40"
@@ -45,7 +45,7 @@ export function ScoreDisplay({
             fill="none"
             stroke="currentColor"
             strokeWidth={config.strokeWidth}
-            className="text-surface-100"
+            className="text-surface-100 dark:text-surface-700"
           />
           {/* Score ring */}
           <circle
@@ -98,7 +98,7 @@ export function ScoreBar({ score, className = "" }: ScoreBarProps) {
   };
 
   return (
-    <div className={`relative h-2 bg-surface-100 rounded-full overflow-hidden ${className}`}>
+    <div className={`relative h-2 bg-surface-100 dark:bg-surface-700 rounded-full overflow-hidden ${className}`}>
       <div
         className={`absolute left-0 top-0 h-full rounded-full transition-all duration-500 ease-out ${getColor()}`}
         style={{ width: `${percentage}%` }}

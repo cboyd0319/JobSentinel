@@ -11,19 +11,19 @@ interface StatCardProps {
 
 const accentStyles = {
   sentinel: {
-    icon: "bg-sentinel-50 text-sentinel-500",
+    icon: "bg-sentinel-50 dark:bg-sentinel-900/30 text-sentinel-500",
     bar: "from-sentinel-400 to-sentinel-500",
-    value: "text-surface-900",
+    value: "text-surface-900 dark:text-white",
   },
   alert: {
-    icon: "bg-alert-50 text-alert-500",
+    icon: "bg-alert-50 dark:bg-alert-900/30 text-alert-500",
     bar: "from-alert-400 to-alert-500",
-    value: "text-alert-600",
+    value: "text-alert-600 dark:text-alert-400",
   },
   surface: {
-    icon: "bg-surface-100 text-surface-500",
+    icon: "bg-surface-100 dark:bg-surface-700 text-surface-500",
     bar: "",
-    value: "text-surface-900",
+    value: "text-surface-900 dark:text-white",
   },
 };
 
@@ -37,10 +37,10 @@ export function StatCard({
   const styles = accentStyles[accentColor];
 
   return (
-    <div className="relative bg-white rounded-card border border-surface-100 shadow-soft overflow-hidden p-6">
+    <div className="relative bg-white dark:bg-surface-800 rounded-card border border-surface-100 dark:border-surface-700 shadow-soft dark:shadow-none overflow-hidden p-6">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-medium text-surface-500 mb-1">{label}</p>
+          <p className="text-sm font-medium text-surface-500 dark:text-surface-400 mb-1">{label}</p>
           <div className="flex items-baseline gap-2">
             <p className={`font-display text-display-xl ${styles.value}`}>
               {typeof value === "number" ? value.toLocaleString() : value}

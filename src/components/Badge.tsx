@@ -7,11 +7,11 @@ interface BadgeProps {
 }
 
 const variantStyles = {
-  sentinel: "bg-sentinel-100 text-sentinel-700",
-  alert: "bg-alert-100 text-alert-700",
-  surface: "bg-surface-100 text-surface-600",
-  success: "bg-green-100 text-green-700",
-  danger: "bg-red-100 text-red-700",
+  sentinel: "bg-sentinel-100 dark:bg-sentinel-900/30 text-sentinel-700 dark:text-sentinel-400",
+  alert: "bg-alert-100 dark:bg-alert-900/30 text-alert-700 dark:text-alert-400",
+  surface: "bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-300",
+  success: "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400",
+  danger: "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400",
 };
 
 const sizeStyles = {
@@ -38,10 +38,10 @@ export function Badge({
       {removable && (
         <button
           onClick={onRemove}
-          className="ml-0.5 p-0.5 rounded-full hover:bg-black/10 transition-colors"
+          className="ml-0.5 p-0.5 rounded-full hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
           aria-label="Remove"
         >
-          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
