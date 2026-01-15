@@ -89,6 +89,17 @@ export default function Dashboard() {
     }
   };
 
+  const handleHideJob = async (id: number) => {
+    try {
+      await invoke("hide_job", { id });
+      setJobs(jobs.filter((job) => job.id !== id));
+      toast.success("Job hidden", "You won't see this job again");
+    } catch (err) {
+      logError("Failed to hide job:", err);
+      toast.error("Failed to hide job", getErrorMessage(err));
+    }
+  };
+
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return "Never";
     const date = new Date(dateStr);
@@ -298,7 +309,7 @@ export default function Dashboard() {
           ) : (
             <div className="space-y-3 stagger-children">
               {jobs.map((job) => (
-                <JobCard key={job.id} job={job} />
+                <JobCard key={job.id} job={job} onHideJob={handleHideJob} />
               ))}
             </div>
           )}

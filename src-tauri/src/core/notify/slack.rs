@@ -167,6 +167,7 @@ mod tests {
                 last_seen: Utc::now(),
                 times_seen: 1,
                 immediate_alert_sent: false,
+                hidden: false,
                 included_in_digest: false,
             },
             score: JobScore {

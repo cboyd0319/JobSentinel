@@ -248,6 +248,40 @@ pub async fn search_jobs_query(
     }
 }
 
+/// Hide a job (mark as dismissed by user)
+#[tauri::command]
+pub async fn hide_job(id: i64, state: State<'_, AppState>) -> Result<(), String> {
+    tracing::info!("Command: hide_job (id: {})", id);
+
+    match state.database.hide_job(id).await {
+        Ok(_) => {
+            tracing::info!("Job {} hidden successfully", id);
+            Ok(())
+        }
+        Err(e) => {
+            tracing::error!("Failed to hide job: {}", e);
+            Err(format!("Database error: {}", e))
+        }
+    }
+}
+
+/// Unhide a job (restore to visible)
+#[tauri::command]
+pub async fn unhide_job(id: i64, state: State<'_, AppState>) -> Result<(), String> {
+    tracing::info!("Command: unhide_job (id: {})", id);
+
+    match state.database.unhide_job(id).await {
+        Ok(_) => {
+            tracing::info!("Job {} unhidden successfully", id);
+            Ok(())
+        }
+        Err(e) => {
+            tracing::error!("Failed to unhide job: {}", e);
+            Err(format!("Database error: {}", e))
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -313,6 +347,7 @@ mod tests {
             last_seen: Utc::now(),
             times_seen: 1,
             immediate_alert_sent: false,
+        hidden: false,
             included_in_digest: false,
         }
     }

@@ -62,6 +62,10 @@ pub struct Job {
 
     /// Whether this job was included in a digest email
     pub included_in_digest: bool,
+
+    /// Whether user has hidden/dismissed this job
+    #[serde(default)]
+    pub hidden: bool,
 }
 
 /// Database handle
@@ -553,7 +557,7 @@ impl Database {
 
     /// Get recent jobs
     pub async fn get_recent_jobs(&self, limit: i64) -> Result<Vec<Job>, sqlx::Error> {
-        let jobs = sqlx::query_as::<_, Job>("SELECT * FROM jobs ORDER BY created_at DESC LIMIT ?")
+        let jobs = sqlx::query_as::<_, Job>("SELECT * FROM jobs WHERE hidden = 0 ORDER BY score DESC, created_at DESC LIMIT ?")
             .bind(limit)
             .fetch_all(&self.pool)
             .await?;
@@ -568,7 +572,7 @@ impl Database {
         limit: i64,
     ) -> Result<Vec<Job>, sqlx::Error> {
         let jobs = sqlx::query_as::<_, Job>(
-            "SELECT * FROM jobs WHERE score >= ? ORDER BY score DESC, created_at DESC LIMIT ?",
+            "SELECT * FROM jobs WHERE score >= ? AND hidden = 0 ORDER BY score DESC, created_at DESC LIMIT ?",
         )
         .bind(min_score)
         .bind(limit)
@@ -585,7 +589,7 @@ impl Database {
         limit: i64,
     ) -> Result<Vec<Job>, sqlx::Error> {
         let jobs = sqlx::query_as::<_, Job>(
-            "SELECT * FROM jobs WHERE source = ? ORDER BY created_at DESC LIMIT ?",
+            "SELECT * FROM jobs WHERE source = ? AND hidden = 0 ORDER BY created_at DESC LIMIT ?",
         )
         .bind(source)
         .bind(limit)
@@ -603,6 +607,26 @@ impl Database {
             .await?;
 
         Ok(job)
+    }
+
+    /// Hide a job (user dismissal)
+    pub async fn hide_job(&self, id: i64) -> Result<(), sqlx::Error> {
+        sqlx::query("UPDATE jobs SET hidden = 1 WHERE id = ?")
+            .bind(id)
+            .execute(&self.pool)
+            .await?;
+
+        Ok(())
+    }
+
+    /// Unhide a job (restore to visible)
+    pub async fn unhide_job(&self, id: i64) -> Result<(), sqlx::Error> {
+        sqlx::query("UPDATE jobs SET hidden = 0 WHERE id = ?")
+            .bind(id)
+            .execute(&self.pool)
+            .await?;
+
+        Ok(())
     }
 
     /// Get job by hash
@@ -735,6 +759,7 @@ mod tests {
             times_seen: 1,
             immediate_alert_sent: false,
             included_in_digest: false,
+            hidden: false,
         }
     }
 

@@ -14,9 +14,10 @@ interface Job {
 interface JobCardProps {
   job: Job;
   onViewJob?: (url: string) => void;
+  onHideJob?: (id: number) => void;
 }
 
-export function JobCard({ job, onViewJob }: JobCardProps) {
+export function JobCard({ job, onViewJob, onHideJob }: JobCardProps) {
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
     const now = new Date();
@@ -110,6 +111,17 @@ export function JobCard({ job, onViewJob }: JobCardProps) {
               View
               <ArrowIcon />
             </a>
+            
+            {/* Hide button */}
+            {onHideJob && (
+              <button
+                onClick={() => onHideJob(job.id)}
+                className="p-2 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 transition-colors opacity-0 group-hover:opacity-100"
+                title="Not interested"
+              >
+                <HideIcon />
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -118,6 +130,14 @@ export function JobCard({ job, onViewJob }: JobCardProps) {
 }
 
 // Icons
+function HideIcon() {
+  return (
+    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  );
+}
+
 function LocationIcon() {
   return (
     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

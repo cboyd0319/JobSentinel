@@ -49,6 +49,8 @@ fn main() {
             commands::is_first_run,
             commands::complete_setup,
             commands::search_jobs_query,
+            commands::hide_job,
+            commands::unhide_job,
         ])
         .setup(|app| {
             // Initialize configuration

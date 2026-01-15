@@ -85,6 +85,7 @@ async fn test_scoring_engine_integration() {
         last_seen: chrono::Utc::now(),
         times_seen: 1,
         immediate_alert_sent: false,
+        hidden: false,
         included_in_digest: false,
     };
 
@@ -119,6 +120,7 @@ async fn test_database_upsert_pipeline() {
         last_seen: chrono::Utc::now(),
         times_seen: 1,
         immediate_alert_sent: false,
+        hidden: false,
         included_in_digest: false,
     };
 
@@ -169,6 +171,7 @@ async fn test_pipeline_job_deduplication() {
         last_seen: chrono::Utc::now(),
         times_seen: 1,
         immediate_alert_sent: false,
+        hidden: false,
         included_in_digest: false,
     };
 
@@ -215,6 +218,7 @@ async fn test_pipeline_high_score_filtering() {
         last_seen: chrono::Utc::now(),
         times_seen: 1,
         immediate_alert_sent: false,
+        hidden: false,
         included_in_digest: false,
     };
 
@@ -238,6 +242,7 @@ async fn test_pipeline_high_score_filtering() {
         last_seen: chrono::Utc::now(),
         times_seen: 1,
         immediate_alert_sent: false,
+        hidden: false,
         included_in_digest: false,
     };
 
@@ -279,6 +284,7 @@ async fn test_pipeline_full_cycle_statistics() {
             last_seen: chrono::Utc::now(),
             times_seen: 1,
             immediate_alert_sent: false,
+        hidden: false,
             included_in_digest: false,
         };
 
@@ -319,6 +325,7 @@ async fn test_pipeline_search_functionality() {
         last_seen: chrono::Utc::now(),
         times_seen: 1,
         immediate_alert_sent: false,
+        hidden: false,
         included_in_digest: false,
     };
 
@@ -342,6 +349,7 @@ async fn test_pipeline_search_functionality() {
         last_seen: chrono::Utc::now(),
         times_seen: 1,
         immediate_alert_sent: false,
+        hidden: false,
         included_in_digest: false,
     };
 
@@ -396,6 +404,7 @@ async fn test_pipeline_concurrent_upserts() {
                 last_seen: chrono::Utc::now(),
                 times_seen: 1,
                 immediate_alert_sent: false,
+        hidden: false,
                 included_in_digest: false,
             };
 
@@ -445,6 +454,7 @@ async fn test_pipeline_job_ordering_by_score() {
             last_seen: chrono::Utc::now(),
             times_seen: 1,
             immediate_alert_sent: false,
+        hidden: false,
             included_in_digest: false,
         };
 
@@ -486,6 +496,7 @@ async fn test_pipeline_alert_sent_flag() {
         last_seen: chrono::Utc::now(),
         times_seen: 1,
         immediate_alert_sent: false,
+        hidden: false,
         included_in_digest: false,
     };
 
@@ -528,6 +539,7 @@ async fn test_scoring_title_matching() {
         last_seen: chrono::Utc::now(),
         times_seen: 1,
         immediate_alert_sent: false,
+        hidden: false,
         included_in_digest: false,
     };
 
@@ -551,6 +563,7 @@ async fn test_scoring_title_matching() {
         last_seen: chrono::Utc::now(),
         times_seen: 1,
         immediate_alert_sent: false,
+        hidden: false,
         included_in_digest: false,
     };
 
@@ -588,6 +601,7 @@ async fn test_scoring_salary_influence() {
         last_seen: chrono::Utc::now(),
         times_seen: 1,
         immediate_alert_sent: false,
+        hidden: false,
         included_in_digest: false,
     };
 
@@ -611,6 +625,7 @@ async fn test_scoring_salary_influence() {
         last_seen: chrono::Utc::now(),
         times_seen: 1,
         immediate_alert_sent: false,
+        hidden: false,
         included_in_digest: false,
     };
 
