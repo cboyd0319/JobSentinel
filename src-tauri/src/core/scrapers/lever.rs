@@ -3,6 +3,7 @@
 //! Scrapes jobs from Lever-powered career pages.
 //! Lever is used by companies like Netflix, Shopify, IDEO, etc.
 
+use super::http_client::get_client;
 use super::{JobScraper, ScraperResult};
 use crate::core::db::Job;
 use async_trait::async_trait;
@@ -36,10 +37,7 @@ impl LeverScraper {
 
         tracing::debug!("Fetching Lever API: {}", api_url);
 
-        let client = reqwest::Client::builder()
-            .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
-            .timeout(std::time::Duration::from_secs(30))
-            .build()?;
+        let client = get_client();
 
         let response = client.get(&api_url).send().await?;
 
@@ -49,9 +47,8 @@ impl LeverScraper {
 
         let json: serde_json::Value = response.json().await?;
 
-        let mut jobs = Vec::new();
-
-        if let Some(postings) = json.as_array() {
+        let jobs = if let Some(postings) = json.as_array() {
+            let mut jobs = Vec::with_capacity(postings.len());
             for posting in postings {
                 let title = posting["text"].as_str().unwrap_or("").to_string();
                 let url = posting["hostedUrl"].as_str().unwrap_or("").to_string();
@@ -101,7 +98,10 @@ impl LeverScraper {
                     });
                 }
             }
-        }
+            jobs
+        } else {
+            Vec::new()
+        };
 
         tracing::info!("Found {} jobs from {}", jobs.len(), company.name);
         Ok(jobs)

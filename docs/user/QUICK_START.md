@@ -322,11 +322,11 @@ JobSentinel is designed with **security-first principles**:
 
 ## 📚 Additional Resources
 
-- **Full Documentation:** See [GETTING_STARTED.md](GETTING_STARTED.md)
-- **Configuration Examples:** See [config.example.json](config.example.json)
-- **Environment Variables:** See [.env.example](.env.example)
+- **Full Documentation:** See [Getting Started](../developer/GETTING_STARTED.md)
+- **Configuration Examples:** See [config.example.json](../../config.example.json)
+- **Environment Variables:** See [.env.example](../../.env.example)
 - **Report Issues:** https://github.com/cboyd0319/JobSentinel/issues
-- **Developer Guide:** See [GETTING_STARTED.md](GETTING_STARTED.md) → Development section
+- **Developer Guide:** See [Developer Guide](../developer/GETTING_STARTED.md) → Development section
 
 ---
 
@@ -387,7 +387,7 @@ JobSentinel is designed with **security-first principles**:
 
 **Stuck? Have questions?**
 
-1. Check this guide and [GETTING_STARTED.md](GETTING_STARTED.md)
+1. Check this guide and the [Developer Guide](../developer/GETTING_STARTED.md)
 2. Search existing [GitHub Issues](https://github.com/cboyd0319/JobSentinel/issues)
 3. Create a new issue with:
    - Your OS version (Windows 11+ or macOS 26.1+)

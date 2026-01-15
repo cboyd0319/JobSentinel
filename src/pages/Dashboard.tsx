@@ -1,5 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import { LoadingSpinner } from "../components/LoadingSpinner";
+import { getErrorMessage, logError } from "../utils/errorUtils";
 
 interface Job {
   id: number;
@@ -56,8 +58,8 @@ export default function Dashboard() {
       setStatistics(statsData);
       setScrapingStatus(statusData);
     } catch (err) {
-      console.error("Failed to fetch dashboard data:", err);
-      setError(err instanceof Error ? err.message : "Failed to load data");
+      logError("Failed to fetch dashboard data:", err);
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -75,8 +77,8 @@ export default function Dashboard() {
       // Refresh data after search completes
       await fetchData();
     } catch (err) {
-      console.error("Failed to search jobs:", err);
-      setError(err instanceof Error ? err.message : "Failed to search jobs");
+      logError("Failed to search jobs:", err);
+      setError(getErrorMessage(err));
     } finally {
       setSearching(false);
     }
@@ -93,14 +95,7 @@ export default function Dashboard() {
   };
 
   if (loading) {
-    return (
-      <div className="h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading dashboard...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner message="Loading dashboard..." />;
   }
 
   return (

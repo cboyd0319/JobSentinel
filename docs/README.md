@@ -4,7 +4,7 @@ Welcome to JobSentinel documentation.
 
 ## Current Status (January 2026)
 
-**Version: 1.0.0-alpha** | 256 tests passing, 13 ignored
+**Version: 1.0.0-alpha** | 291 tests passing, 20 ignored
 
 ### Working Features
 - Job scrapers: Greenhouse, Lever, JobsWithGPT
@@ -14,10 +14,12 @@ Welcome to JobSentinel documentation.
 - SQLite database with full-text search
 - React 19 frontend with setup wizard
 
+### Enabled Modules (Backend Complete)
+- AI Resume-Job Matcher (frontend pending)
+- Salary Negotiation AI (frontend pending)
+- Job Market Intelligence (frontend pending)
+
 ### Deferred Features (v1.1+)
-- AI Resume-Job Matcher (65%)
-- Salary Negotiation AI (50%)
-- Job Market Intelligence (60%)
 - LinkedIn/Indeed scrapers
 
 ---
@@ -43,9 +45,9 @@ Welcome to JobSentinel documentation.
 | Application Tracking | Working | [ATS](APPLICATION_TRACKING_SYSTEM.md) |
 | Multi-Channel Notifications | Working | [Notifications](MULTI_CHANNEL_NOTIFICATIONS.md) |
 | SQLite Configuration | Working | [SQLite](SQLITE_CONFIGURATION.md) |
-| Resume Matcher | Deferred | [Resume](AI_RESUME_JOB_MATCHER.md) |
-| Salary AI | Deferred | [Salary](SALARY_NEGOTIATION_AI.md) |
-| Market Intelligence | Deferred | [Market](JOB_MARKET_INTELLIGENCE_DASHBOARD.md) |
+| Resume Matcher | Backend Ready | [Resume](AI_RESUME_JOB_MATCHER.md) |
+| Salary AI | Backend Ready | [Salary](SALARY_NEGOTIATION_AI.md) |
+| Market Intelligence | Backend Ready | [Market](JOB_MARKET_INTELLIGENCE_DASHBOARD.md) |
 | LinkedIn/Indeed | Deferred | [Scrapers](LINKEDIN_INDEED_SCRAPERS.md) |
 | One-Click Apply | v2.0+ | [Automation](ONE_CLICK_APPLY_AUTOMATION.md) |
 

@@ -220,8 +220,8 @@ Download: https://visualstudio.microsoft.com/downloads/
 
 ## Next Steps
 
-1. Read [v1.0 Completion Status](V1_COMPLETION_STATUS.md) for implementation details
-2. Read [Quick Start Guide](QUICK_START.md) for user documentation
+1. Read [v1.0 Completion Status](../reports/V1_COMPLETION_STATUS.md) for implementation details
+2. Read [Quick Start Guide](../user/QUICK_START.md) for user documentation
 3. Check [GitHub Issues](https://github.com/cboyd0319/JobSentinel/issues) for tasks
 4. Join [Discussions](https://github.com/cboyd0319/JobSentinel/discussions) for questions
 

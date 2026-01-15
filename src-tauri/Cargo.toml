@@ -64,6 +64,9 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 sha2 = "0.10"
 hex = "0.4"
 
+# Lazy initialization for shared resources
+once_cell = "1.19"
+
 # Platform directories
 dirs = "5.0"
 

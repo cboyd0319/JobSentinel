@@ -3,6 +3,7 @@
 //! Scrapes jobs from Indeed.com using their public search API and RSS feeds.
 //! Indeed is one of the largest job boards with millions of listings.
 
+use super::http_client::get_client;
 use super::{JobScraper, ScraperResult};
 use crate::core::db::Job;
 use anyhow::{Context, Result};
@@ -70,11 +71,8 @@ impl IndeedScraper {
 
         tracing::debug!("Indeed search URL: {}", url);
 
-        // Fetch search results with realistic user agent
-        let client = reqwest::Client::builder()
-            .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
-            .timeout(std::time::Duration::from_secs(30))
-            .build()?;
+        // Use shared HTTP client
+        let client = get_client();
 
         let response = client
             .get(&url)

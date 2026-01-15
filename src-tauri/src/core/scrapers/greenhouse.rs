@@ -3,6 +3,7 @@
 //! Scrapes jobs from Greenhouse-powered career pages.
 //! Greenhouse is used by companies like Cloudflare, Stripe, Figma, etc.
 
+use super::http_client::get_client;
 use super::{JobScraper, ScraperResult};
 use crate::core::db::Job;
 use anyhow::Result;
@@ -34,10 +35,7 @@ impl GreenhouseScraper {
         tracing::info!("Scraping Greenhouse: {}", company.name);
 
         // Fetch the careers page
-        let client = reqwest::Client::builder()
-            .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
-            .timeout(std::time::Duration::from_secs(30))
-            .build()?;
+        let client = get_client();
 
         let response = client.get(&company.url).send().await?;
 
@@ -183,10 +181,7 @@ impl GreenhouseScraper {
 
         tracing::debug!("Fetching Greenhouse API: {}", api_url);
 
-        let client = reqwest::Client::builder()
-            .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
-            .timeout(std::time::Duration::from_secs(30))
-            .build()?;
+        let client = get_client();
 
         let response = client.get(&api_url).send().await?;
 
@@ -199,9 +194,8 @@ impl GreenhouseScraper {
 
         let json: serde_json::Value = response.json().await?;
 
-        let mut jobs = Vec::new();
-
-        if let Some(jobs_array) = json["jobs"].as_array() {
+        let jobs = if let Some(jobs_array) = json["jobs"].as_array() {
+            let mut jobs = Vec::with_capacity(jobs_array.len());
             for job_data in jobs_array {
                 let title = job_data["title"].as_str().unwrap_or("").to_string();
                 let job_id = job_data["id"].as_i64().unwrap_or(0);
@@ -236,7 +230,10 @@ impl GreenhouseScraper {
                     included_in_digest: false,
                 });
             }
-        }
+            jobs
+        } else {
+            Vec::new()
+        };
 
         Ok(jobs)
     }

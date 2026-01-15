@@ -42,6 +42,7 @@
 //!    }
 //!    ```
 
+use super::http_client::get_client;
 use super::{JobScraper, ScraperResult};
 use crate::core::db::Job;
 use anyhow::{Context, Result};
@@ -68,50 +69,47 @@ pub struct LinkedInScraper {
     pub limit: usize,
 }
 
-/// LinkedIn job search result from API (for future API integration)
-#[allow(dead_code)]
+/// LinkedIn job search result from API
+/// These structs model LinkedIn's Voyager API response structure
 #[derive(Debug, Deserialize)]
 struct LinkedInSearchResponse {
     #[serde(default)]
     data: LinkedInSearchData,
 }
 
-#[allow(dead_code)]
 #[derive(Debug, Default, Deserialize)]
 struct LinkedInSearchData {
     #[serde(rename = "searchDashJobsByCard", default)]
     jobs: LinkedInJobs,
 }
 
-#[allow(dead_code)]
 #[derive(Debug, Default, Deserialize)]
 struct LinkedInJobs {
     #[serde(default)]
-    elements: Vec<LinkedInJob>,
+    elements: Vec<LinkedInJobElement>,
 }
 
-#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
-struct LinkedInJob {
-    #[serde(rename = "dashEntityUrn")]
+struct LinkedInJobElement {
+    #[serde(rename = "dashEntityUrn", default)]
     urn: String,
+    #[serde(default)]
     title: String,
-    #[serde(rename = "companyDetails")]
-    company: LinkedInCompany,
-    #[serde(rename = "formattedLocation")]
+    #[serde(rename = "companyDetails", default)]
+    company_details: Option<LinkedInCompanyDetails>,
+    #[serde(rename = "formattedLocation", default)]
     location: Option<String>,
 }
 
-#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
-struct LinkedInCompany {
-    #[serde(rename = "companyResolutionResult")]
-    company: LinkedInCompanyInfo,
+struct LinkedInCompanyDetails {
+    #[serde(rename = "companyResolutionResult", default)]
+    company: Option<LinkedInCompanyInfo>,
 }
 
-#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 struct LinkedInCompanyInfo {
+    #[serde(default)]
     name: String,
 }
 
@@ -179,11 +177,8 @@ impl LinkedInScraper {
             urlencoding::encode(&self.location)
         );
 
-        // Build authenticated request
-        let client = reqwest::Client::builder()
-            .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
-            .timeout(Duration::from_secs(30))
-            .build()?;
+        // Use shared HTTP client
+        let client = get_client();
 
         // Add delay to respect rate limits
         sleep(Duration::from_secs(2)).await;
@@ -211,11 +206,26 @@ impl LinkedInScraper {
         Ok(jobs)
     }
 
-    /// Parse LinkedIn API JSON response
+    /// Parse LinkedIn API JSON response using typed structs
     fn parse_linkedin_api_response(&self, json: &serde_json::Value) -> Result<Vec<Job>> {
-        let mut jobs = Vec::new();
+        // Try to deserialize into typed struct first
+        if let Ok(response) = serde_json::from_value::<LinkedInSearchResponse>(json.clone()) {
+            let jobs: Vec<Job> = response
+                .data
+                .jobs
+                .elements
+                .iter()
+                .filter_map(|element| self.convert_linkedin_element(element))
+                .collect();
+            
+            if !jobs.is_empty() {
+                return Ok(jobs);
+            }
+        }
 
-        // LinkedIn API response structure varies, try multiple paths
+        // Fallback to manual parsing if typed deserialization fails
+        // (LinkedIn API response structure can vary)
+        let mut jobs = Vec::new();
         if let Some(elements) = json
             .get("data")
             .and_then(|d| d.get("searchDashJobsByCard"))
@@ -232,7 +242,49 @@ impl LinkedInScraper {
         Ok(jobs)
     }
 
-    /// Parse individual LinkedIn job from API response
+    /// Convert a typed LinkedIn job element to our Job struct
+    fn convert_linkedin_element(&self, element: &LinkedInJobElement) -> Option<Job> {
+        let job_id = element.urn.split(':').next_back().unwrap_or("unknown");
+        
+        if element.title.is_empty() || job_id == "unknown" {
+            return None;
+        }
+
+        let company = element
+            .company_details
+            .as_ref()
+            .and_then(|cd| cd.company.as_ref())
+            .map(|c| c.name.clone())
+            .unwrap_or_else(|| "Unknown Company".to_string());
+
+        let url = format!("https://www.linkedin.com/jobs/view/{}", job_id);
+        let hash = self.generate_hash(&element.title, &company, &url);
+
+        Some(Job {
+            id: 0,
+            hash,
+            title: element.title.trim().to_string(),
+            company: company.trim().to_string(),
+            location: element.location.as_ref().map(|l| l.trim().to_string()),
+            description: Some(String::new()),
+            url,
+            score: Some(0.0),
+            score_reasons: None,
+            source: "linkedin".to_string(),
+            remote: None,
+            salary_min: None,
+            salary_max: None,
+            currency: None,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            last_seen: Utc::now(),
+            times_seen: 1,
+            immediate_alert_sent: false,
+            included_in_digest: false,
+        })
+    }
+
+    /// Parse individual LinkedIn job from API response (fallback for untyped parsing)
     fn parse_linkedin_job_element(&self, element: &serde_json::Value) -> Result<Option<Job>> {
         // Extract job ID from URN
         let urn = element["dashEntityUrn"]
@@ -308,10 +360,8 @@ impl LinkedInScraper {
             urlencoding::encode(&self.location)
         );
 
-        let client = reqwest::Client::builder()
-            .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
-            .timeout(Duration::from_secs(30))
-            .build()?;
+        // Use shared HTTP client
+        let client = get_client();
 
         // Add delay
         sleep(Duration::from_secs(2)).await;

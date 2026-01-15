@@ -31,7 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Refactored codebase to fix all compilation errors
-- Updated test suite: 288 tests passing, 18 ignored (require file-based database or are doc examples)
+- Updated test suite: 291 tests passing, 20 ignored (require file-based database or are doc examples)
 - Fixed SQLx Row trait usage (get -> try_get)
 - Converted all query! macros to runtime queries (removed DATABASE_URL dependency)
 - Fixed proptest edge cases in scrapers

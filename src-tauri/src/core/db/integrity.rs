@@ -872,18 +872,18 @@ mod tests {
         assert!(!diag.sqlite_version.is_empty(), "SQLite version should be set");
 
         // Log diagnostics for debugging
-        println!("PRAGMA Diagnostics:");
-        println!("  Journal mode: {}", diag.journal_mode);
-        println!("  Synchronous: {}", diag.synchronous);
-        println!("  Cache size: {}", diag.cache_size);
-        println!("  Page size: {}", diag.page_size);
-        println!("  Auto vacuum: {}", diag.auto_vacuum);
-        println!("  Foreign keys: {}", diag.foreign_keys);
-        println!("  Temp store: {}", diag.temp_store);
-        println!("  Locking mode: {}", diag.locking_mode);
-        println!("  Secure delete: {}", diag.secure_delete);
-        println!("  Cell size check: {}", diag.cell_size_check);
-        println!("  SQLite version: {}", diag.sqlite_version);
+        tracing::debug!("PRAGMA Diagnostics:");
+        tracing::debug!("  Journal mode: {}", diag.journal_mode);
+        tracing::debug!("  Synchronous: {}", diag.synchronous);
+        tracing::debug!("  Cache size: {}", diag.cache_size);
+        tracing::debug!("  Page size: {}", diag.page_size);
+        tracing::debug!("  Auto vacuum: {}", diag.auto_vacuum);
+        tracing::debug!("  Foreign keys: {}", diag.foreign_keys);
+        tracing::debug!("  Temp store: {}", diag.temp_store);
+        tracing::debug!("  Locking mode: {}", diag.locking_mode);
+        tracing::debug!("  Secure delete: {}", diag.secure_delete);
+        tracing::debug!("  Cell size check: {}", diag.cell_size_check);
+        tracing::debug!("  SQLite version: {}", diag.sqlite_version);
     }
 
     #[tokio::test]

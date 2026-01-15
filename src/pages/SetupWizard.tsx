@@ -1,9 +1,16 @@
 import { useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import { logError } from "../utils/errorUtils";
 
 interface SetupWizardProps {
   onComplete: () => void;
 }
+
+// Validate Slack webhook URL format
+const isValidSlackWebhook = (url: string): boolean => {
+  if (!url) return true; // Empty is OK (optional)
+  return url.startsWith("https://hooks.slack.com/services/");
+};
 
 export default function SetupWizard({ onComplete }: SetupWizardProps) {
   const [step, setStep] = useState(1);
@@ -24,12 +31,39 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
     },
   });
 
+  // Validation states
+  const canProceedFromStep1 = config.title_allowlist.length > 0;
+  const isValidWebhook = isValidSlackWebhook(config.alerts.slack.webhook_url);
+
+  const handleAddTitle = (title: string) => {
+    const trimmed = title.trim();
+    if (trimmed && !config.title_allowlist.includes(trimmed)) {
+      setConfig((prev) => ({
+        ...prev,
+        title_allowlist: [...prev.title_allowlist, trimmed],
+      }));
+    }
+  };
+
+  const handleRemoveTitle = (titleToRemove: string) => {
+    setConfig((prev) => ({
+      ...prev,
+      title_allowlist: prev.title_allowlist.filter((t) => t !== titleToRemove),
+    }));
+  };
+
+  const handleSalaryChange = (value: string) => {
+    const parsed = parseInt(value) || 0;
+    const sanitized = Math.max(0, parsed); // No negative salaries
+    setConfig((prev) => ({ ...prev, salary_floor_usd: sanitized }));
+  };
+
   const handleComplete = async () => {
     try {
       await invoke("complete_setup", { config });
       onComplete();
     } catch (error) {
-      console.error("Setup failed:", error);
+      logError("Setup failed:", error);
       alert("Setup failed. Please try again.");
     }
   };
@@ -52,24 +86,41 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
               onKeyPress={(e) => {
                 if (e.key === "Enter" && e.currentTarget.value) {
-                  setConfig({
-                    ...config,
-                    title_allowlist: [...config.title_allowlist, e.currentTarget.value],
-                  });
+                  handleAddTitle(e.currentTarget.value);
                   e.currentTarget.value = "";
                 }
               }}
             />
             <div className="mt-4 flex flex-wrap gap-2">
-              {config.title_allowlist.map((title, i) => (
-                <span key={i} className="px-3 py-1 bg-primary text-white rounded-full text-sm">
+              {config.title_allowlist.map((title) => (
+                <span
+                  key={title}
+                  className="px-3 py-1 bg-primary text-white rounded-full text-sm flex items-center gap-1"
+                >
                   {title}
+                  <button
+                    onClick={() => handleRemoveTitle(title)}
+                    className="ml-1 hover:text-gray-200"
+                    aria-label={`Remove ${title}`}
+                  >
+                    ×
+                  </button>
                 </span>
               ))}
             </div>
+            {!canProceedFromStep1 && (
+              <p className="mt-2 text-sm text-amber-600">
+                Add at least one job title to continue
+              </p>
+            )}
             <button
               onClick={() => setStep(2)}
-              className="mt-8 w-full bg-primary text-white py-3 rounded-lg font-semibold hover:bg-primary-dark transition"
+              disabled={!canProceedFromStep1}
+              className={`mt-8 w-full py-3 rounded-lg font-semibold transition ${
+                canProceedFromStep1
+                  ? "bg-primary text-white hover:bg-primary-dark"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
             >
               Next
             </button>
@@ -139,7 +190,8 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
             <input
               type="number"
               value={config.salary_floor_usd}
-              onChange={(e) => setConfig({ ...config, salary_floor_usd: parseInt(e.target.value) || 0 })}
+              onChange={(e) => handleSalaryChange(e.target.value)}
+              min={0}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
               placeholder="e.g., 120000"
             />
@@ -168,19 +220,26 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
               type="text"
               value={config.alerts.slack.webhook_url}
               onChange={(e) =>
-                setConfig({
-                  ...config,
+                setConfig((prev) => ({
+                  ...prev,
                   alerts: {
                     slack: {
-                      enabled: e.target.value.length > 0,
+                      enabled: e.target.value.length > 0 && isValidSlackWebhook(e.target.value),
                       webhook_url: e.target.value,
                     },
                   },
-                })
+                }))
               }
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary ${
+                !isValidWebhook ? "border-red-500" : "border-gray-300"
+              }`}
               placeholder="https://hooks.slack.com/services/..."
             />
+            {!isValidWebhook && (
+              <p className="mt-2 text-sm text-red-600">
+                Please enter a valid Slack webhook URL (starts with https://hooks.slack.com/services/)
+              </p>
+            )}
             <div className="flex gap-4 mt-8">
               <button
                 onClick={() => setStep(3)}
@@ -190,7 +249,12 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
               </button>
               <button
                 onClick={handleComplete}
-                className="flex-1 bg-success text-white py-3 rounded-lg font-semibold hover:bg-green-600 transition"
+                disabled={!isValidWebhook}
+                className={`flex-1 py-3 rounded-lg font-semibold transition ${
+                  isValidWebhook
+                    ? "bg-success text-white hover:bg-green-600"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
               >
                 Complete Setup
               </button>

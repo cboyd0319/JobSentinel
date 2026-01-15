@@ -12,9 +12,9 @@ Windows 11+ (primary) | macOS 26.2+ & Linux (v2.0) | 100% Private | $0 Forever
 [![Rust](https://img.shields.io/badge/Rust-1.83%2B-orange.svg)](https://www.rust-lang.org/)
 [![Tauri](https://img.shields.io/badge/Tauri-2.1-blue.svg)](https://tauri.app/)
 [![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev/)
-[![Tests](https://img.shields.io/badge/Tests-288%20passing%2C%2018%20ignored-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/Tests-291%20passing%2C%2020%20ignored-brightgreen.svg)]()
 
-[Download](#installation) | [Features](#features) | [Quick Start](QUICK_START.md) | [Getting Started](GETTING_STARTED.md)
+[Download](#installation) | [Features](#features) | [Quick Start](docs/user/QUICK_START.md) | [Getting Started](docs/developer/GETTING_STARTED.md)
 
 </div>
 
@@ -33,7 +33,7 @@ Windows 11+ (primary) | macOS 26.2+ & Linux (v2.0) | 100% Private | $0 Forever
 | Job Market Intelligence | Working |
 | Frontend (React 19 + TypeScript) | Working |
 | Tauri integration | Working |
-| Tests | 288 passing, 18 ignored |
+| Tests | 291 passing, 20 ignored |
 | Windows build | Ready for testing |
 | macOS/Linux builds | Planned for v2.0 |
 

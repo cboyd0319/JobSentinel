@@ -3,6 +3,7 @@
 //! Integrates with JobsWithGPT via Model Context Protocol for 500K+ job listings.
 //! MCP is a JSON-RPC based protocol for querying structured data.
 
+use super::http_client::get_client;
 use super::{JobScraper, ScraperResult};
 use crate::core::db::Job;
 use anyhow::Result;
@@ -55,10 +56,7 @@ impl JobsWithGptScraper {
 
         tracing::debug!("MCP request: {}", request);
 
-        let client = reqwest::Client::builder()
-            .user_agent("JobSentinel/2.0")
-            .timeout(std::time::Duration::from_secs(60))
-            .build()?;
+        let client = get_client();
 
         let response = client.post(&self.endpoint).json(&request).send().await?;
 

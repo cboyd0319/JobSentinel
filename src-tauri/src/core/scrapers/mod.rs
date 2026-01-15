@@ -7,6 +7,7 @@ use anyhow::Result;
 use async_trait::async_trait;
 
 pub mod greenhouse;
+pub mod http_client;
 pub mod indeed;
 pub mod jobswithgpt;
 pub mod lever;
