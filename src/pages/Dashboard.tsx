@@ -13,7 +13,11 @@ interface Job {
   url: string;
   source: string;
   score: number;
-  discovered_at: string;
+  created_at: string;
+  description?: string | null;
+  salary_min?: number | null;
+  salary_max?: number | null;
+  remote?: boolean | null;
 }
 
 interface Statistics {
@@ -72,14 +76,38 @@ export default function Dashboard() {
     fetchData();
   }, [fetchData]);
 
+  // Only refresh once after initial load (30 seconds) to catch background scraping results
+  // No continuous polling - user can click "Search Now" to refresh manually
+  useEffect(() => {
+    const initialRefresh = setTimeout(() => {
+      // Only refresh if we have no jobs yet (background scrape may have finished)
+      if (jobs.length === 0) {
+        fetchData();
+      }
+    }, 30000);
+
+    return () => {
+      clearTimeout(initialRefresh);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally run once on mount
+  }, []);
+
   const handleSearchNow = async () => {
     try {
       setSearching(true);
       setError(null);
       toast.info("Scanning job boards...", "This may take a moment");
       await invoke("search_jobs");
-      await fetchData();
-      toast.success("Scan complete!", `Found ${jobs.length} jobs`);
+      // Fetch fresh data and show updated count
+      const [jobsData, statsData, statusData] = await Promise.all([
+        invoke<Job[]>("get_recent_jobs", { limit: 50 }),
+        invoke<Statistics>("get_statistics"),
+        invoke<ScrapingStatus>("get_scraping_status"),
+      ]);
+      setJobs(jobsData);
+      setStatistics(statsData);
+      setScrapingStatus(statusData);
+      toast.success("Scan complete!", `Found ${statsData.total_jobs} jobs`);
     } catch (err) {
       logError("Failed to search jobs:", err);
       setError(getErrorMessage(err));
@@ -134,7 +162,7 @@ export default function Dashboard() {
             {/* Actions */}
             <div className="flex items-center gap-3">
               {/* Status indicator */}
-              <Tooltip content={scrapingStatus.is_running ? "Currently scanning job boards" : "Ready to scan"}>
+              <Tooltip content={scrapingStatus.is_running ? "Currently scanning job boards" : "Ready to scan"} position="bottom">
                 <div className="flex items-center gap-2 px-3 py-1.5 bg-surface-50 dark:bg-surface-700 rounded-lg">
                   <div className={scrapingStatus.is_running ? "status-dot-active" : "status-dot-idle"} />
                   <span className="text-sm text-surface-600 dark:text-surface-300">
@@ -145,7 +173,7 @@ export default function Dashboard() {
 
               <ThemeToggle />
 
-              <Tooltip content="Settings">
+              <Tooltip content="Settings" position="bottom">
                 <button
                   onClick={() => setShowSettings(true)}
                   className="p-2 text-surface-500 hover:text-surface-700 dark:text-surface-400 dark:hover:text-surface-200 transition-colors"

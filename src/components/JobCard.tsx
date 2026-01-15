@@ -1,4 +1,5 @@
 import { ScoreDisplay } from "./ScoreDisplay";
+import { open } from "@tauri-apps/plugin-shell";
 
 interface Job {
   id: number;
@@ -8,7 +9,11 @@ interface Job {
   url: string;
   source: string;
   score: number;
-  discovered_at: string;
+  created_at: string;
+  description?: string | null;
+  salary_min?: number | null;
+  salary_max?: number | null;
+  remote?: boolean | null;
 }
 
 interface JobCardProps {
@@ -18,6 +23,16 @@ interface JobCardProps {
 }
 
 export function JobCard({ job, onViewJob, onHideJob }: JobCardProps) {
+  const handleOpenUrl = async (url: string) => {
+    try {
+      await open(url);
+    } catch (err) {
+      console.error("Failed to open URL:", err);
+      // Fallback to window.open
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
+  };
+
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
     const now = new Date();
@@ -31,8 +46,29 @@ export function JobCard({ job, onViewJob, onHideJob }: JobCardProps) {
     return date.toLocaleDateString();
   };
 
+  const formatSalary = (min?: number | null, max?: number | null) => {
+    if (!min && !max) return null;
+    const formatNum = (n: number) => {
+      if (n >= 1000) return `$${Math.round(n / 1000)}k`;
+      return `$${n}`;
+    };
+    if (min && max) return `${formatNum(min)} - ${formatNum(max)}`;
+    if (min) return `${formatNum(min)}+`;
+    if (max) return `Up to ${formatNum(max)}`;
+    return null;
+  };
+
+  const truncateDescription = (desc?: string | null, maxLen = 120) => {
+    if (!desc) return null;
+    const cleaned = desc.replace(/\s+/g, ' ').trim();
+    if (cleaned.length <= maxLen) return cleaned;
+    return cleaned.substring(0, maxLen).trim() + '...';
+  };
+
   const isHighMatch = job.score >= 0.9;
   const isGoodMatch = job.score >= 0.7;
+  const salaryText = formatSalary(job.salary_min, job.salary_max);
+  const descSnippet = truncateDescription(job.description);
 
   return (
     <div
@@ -63,15 +99,30 @@ export function JobCard({ job, onViewJob, onHideJob }: JobCardProps) {
             <h3 className="font-display text-display-md text-surface-900 dark:text-white mb-1 truncate group-hover:text-sentinel-600 dark:group-hover:text-sentinel-400 transition-colors">
               {job.title}
             </h3>
-            <p className="text-surface-600 dark:text-surface-400 font-medium mb-3">{job.company}</p>
+            <p className="text-surface-600 dark:text-surface-400 font-medium mb-2">{job.company}</p>
+
+            {/* Description snippet */}
+            {descSnippet && (
+              <p className="text-sm text-surface-500 dark:text-surface-400 mb-2 line-clamp-2">
+                {descSnippet}
+              </p>
+            )}
 
             {/* Meta info */}
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-surface-500 dark:text-surface-400">
               {/* Location */}
               <span className="inline-flex items-center gap-1">
                 <LocationIcon />
-                {job.location || "Remote"}
+                {job.remote ? "Remote" : job.location || "Location TBD"}
               </span>
+
+              {/* Salary */}
+              {salaryText && (
+                <span className="inline-flex items-center gap-1 text-green-600 dark:text-green-400 font-medium">
+                  <SalaryIcon />
+                  {salaryText}
+                </span>
+              )}
 
               {/* Source */}
               <span className="inline-flex items-center gap-1">
@@ -82,26 +133,24 @@ export function JobCard({ job, onViewJob, onHideJob }: JobCardProps) {
               {/* Time */}
               <span className="inline-flex items-center gap-1">
                 <ClockIcon />
-                {formatDate(job.discovered_at)}
+                {formatDate(job.created_at)}
               </span>
             </div>
           </div>
 
           {/* Action */}
-          <div className="flex-shrink-0 self-center">
-            <a
-              href={job.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => {
+          <div className="flex-shrink-0 self-center flex items-center gap-1">
+            <button
+              onClick={() => {
                 if (onViewJob) {
-                  e.preventDefault();
                   onViewJob(job.url);
+                } else {
+                  handleOpenUrl(job.url);
                 }
               }}
               className={`
                 inline-flex items-center gap-1 px-4 py-2 rounded-lg font-medium text-sm
-                transition-all duration-150
+                transition-all duration-150 cursor-pointer
                 ${isGoodMatch
                   ? "bg-sentinel-50 dark:bg-sentinel-900/30 text-sentinel-600 dark:text-sentinel-400 hover:bg-sentinel-100 dark:hover:bg-sentinel-900/50"
                   : "bg-surface-50 dark:bg-surface-700 text-surface-600 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-600"
@@ -110,7 +159,7 @@ export function JobCard({ job, onViewJob, onHideJob }: JobCardProps) {
             >
               View
               <ArrowIcon />
-            </a>
+            </button>
             
             {/* Hide button */}
             {onHideJob && (
@@ -143,6 +192,14 @@ function LocationIcon() {
     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+    </svg>
+  );
+}
+
+function SalaryIcon() {
+  return (
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
     </svg>
   );
 }

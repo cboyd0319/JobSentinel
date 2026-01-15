@@ -65,7 +65,7 @@ export default function Settings({ onClose }: SettingsProps) {
     try {
       setSaving(true);
       await invoke("save_config", { config });
-      toast.success("Settings saved!", "Your preferences have been updated");
+      toast.success("Settings saved!", "Click 'Search Now' to rescore jobs with new settings");
       onClose();
     } catch (error) {
       logError("Failed to save config:", error);

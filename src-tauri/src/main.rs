@@ -230,7 +230,7 @@ fn main() {
                     }
                 })
                 .on_tray_icon_event(|tray, event| {
-                    // Handle double-click on tray icon to show/hide window
+                    // Handle click on tray icon - always show window (don't toggle)
                     if let TrayIconEvent::Click {
                         button: MouseButton::Left,
                         button_state: MouseButtonState::Up,
@@ -239,12 +239,10 @@ fn main() {
                     {
                         let app = tray.app_handle();
                         if let Some(window) = app.get_webview_window("main") {
-                            if window.is_visible().unwrap_or(false) {
-                                let _ = window.hide();
-                            } else {
-                                let _ = window.show();
-                                let _ = window.set_focus();
-                            }
+                            // Always show and focus - no toggle
+                            let _ = window.show();
+                            let _ = window.set_focus();
+                            let _ = window.unminimize();
                         }
                     }
                 })
@@ -252,10 +250,18 @@ fn main() {
 
             tracing::info!("System tray initialized successfully");
 
-            // Show window
+            // Show window and bring to front
             if let Some(window) = app.get_webview_window("main") {
                 if let Err(e) = window.show() {
                     tracing::warn!("Failed to show window: {}", e);
+                }
+                if let Err(e) = window.set_focus() {
+                    tracing::warn!("Failed to focus window: {}", e);
+                }
+                // On macOS, also unminimize in case it's minimized
+                #[cfg(target_os = "macos")]
+                {
+                    let _ = window.unminimize();
                 }
             }
 

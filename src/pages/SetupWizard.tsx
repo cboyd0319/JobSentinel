@@ -248,21 +248,19 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                 </Button>
               </div>
 
-              {/* Popular suggestions */}
-              {config.title_allowlist.length === 0 && (
+              {/* Popular suggestions - always visible, filter out already selected */}
+              {POPULAR_TITLES.filter(t => !config.title_allowlist.includes(t)).length > 0 && (
                 <div className="mb-4">
-                  <p className="text-sm text-surface-500 mb-2">Popular titles - click to add:</p>
+                  <p className="text-sm text-surface-500 mb-2">Popular titles - click to add multiple:</p>
                   <div className="flex flex-wrap gap-2">
-                    {POPULAR_TITLES.slice(0, 8).map((title) => (
+                    {POPULAR_TITLES.filter(t => !config.title_allowlist.includes(t)).map((title) => (
                       <button
                         key={title}
                         onClick={() => {
-                          if (!config.title_allowlist.includes(title)) {
-                            setConfig((prev) => ({
-                              ...prev,
-                              title_allowlist: [...prev.title_allowlist, title],
-                            }));
-                          }
+                          setConfig((prev) => ({
+                            ...prev,
+                            title_allowlist: [...prev.title_allowlist, title],
+                          }));
                         }}
                         className="px-3 py-1.5 text-sm bg-surface-100 hover:bg-sentinel-100 hover:text-sentinel-700 text-surface-600 rounded-full transition-colors"
                       >
@@ -332,21 +330,19 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                 </Button>
               </div>
 
-              {/* Popular suggestions */}
-              {config.keywords_boost.length === 0 && (
+              {/* Popular suggestions - always visible, filter out already selected */}
+              {POPULAR_SKILLS.filter(s => !config.keywords_boost.includes(s)).length > 0 && (
                 <div className="mb-4">
-                  <p className="text-sm text-surface-500 mb-2">Popular skills - click to add:</p>
+                  <p className="text-sm text-surface-500 mb-2">Popular skills - click to add multiple:</p>
                   <div className="flex flex-wrap gap-2">
-                    {POPULAR_SKILLS.slice(0, 10).map((skill) => (
+                    {POPULAR_SKILLS.filter(s => !config.keywords_boost.includes(s)).map((skill) => (
                       <button
                         key={skill}
                         onClick={() => {
-                          if (!config.keywords_boost.includes(skill)) {
-                            setConfig((prev) => ({
-                              ...prev,
-                              keywords_boost: [...prev.keywords_boost, skill],
-                            }));
-                          }
+                          setConfig((prev) => ({
+                            ...prev,
+                            keywords_boost: [...prev.keywords_boost, skill],
+                          }));
                         }}
                         className="px-3 py-1.5 text-sm bg-surface-100 hover:bg-alert-100 hover:text-alert-700 text-surface-600 rounded-full transition-colors"
                       >
