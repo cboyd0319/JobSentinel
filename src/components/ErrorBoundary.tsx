@@ -26,12 +26,17 @@ class ErrorBoundary extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-gray-900 flex items-center justify-center px-4">
-          <div className="max-w-md w-full bg-gray-800 rounded-lg shadow-xl p-6">
-            <div className="flex items-center mb-4">
-              <div className="flex-shrink-0">
+        <div className="min-h-screen bg-surface-900 flex items-center justify-center px-6">
+          {/* Background effect */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute top-1/3 left-1/3 w-96 h-96 bg-danger/10 rounded-full blur-3xl" />
+          </div>
+
+          <div className="relative max-w-md w-full bg-white rounded-card shadow-card p-8 animate-fade-in">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg
-                  className="h-12 w-12 text-red-500"
+                  className="h-8 w-8 text-danger"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -44,20 +49,23 @@ class ErrorBoundary extends Component<Props, State> {
                   />
                 </svg>
               </div>
-              <div className="ml-3">
-                <h3 className="text-lg font-medium text-white">
-                  Something went wrong
-                </h3>
-              </div>
-            </div>
-            <div className="mt-2 mb-4">
-              <p className="text-sm text-gray-300">
+              <h3 className="font-display text-display-lg text-surface-900 mb-2">
+                Something went wrong
+              </h3>
+              <p className="text-surface-600">
                 {this.state.error?.message || 'An unexpected error occurred'}
               </p>
             </div>
+
+            <div className="p-4 bg-surface-50 rounded-lg mb-6">
+              <p className="text-sm text-surface-500">
+                Your data is safe. Try reloading the application to continue.
+              </p>
+            </div>
+
             <button
               onClick={() => window.location.reload()}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded transition-colors"
+              className="w-full bg-sentinel-500 hover:bg-sentinel-600 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 hover:shadow-soft"
             >
               Reload Application
             </button>

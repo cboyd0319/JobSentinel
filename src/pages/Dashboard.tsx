@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { LoadingSpinner } from "../components/LoadingSpinner";
+import { Button, Card, CardHeader, LoadingSpinner, JobCard, ScoreDisplay } from "../components";
 import { getErrorMessage, logError } from "../utils/errorUtils";
 
 interface Job {
@@ -47,7 +47,6 @@ export default function Dashboard() {
       setLoading(true);
       setError(null);
 
-      // Fetch recent jobs, statistics, and scraping status in parallel
       const [jobsData, statsData, statusData] = await Promise.all([
         invoke<Job[]>("get_recent_jobs", { limit: 50 }),
         invoke<Statistics>("get_statistics"),
@@ -74,7 +73,6 @@ export default function Dashboard() {
       setSearching(true);
       setError(null);
       await invoke("search_jobs");
-      // Refresh data after search completes
       await fetchData();
     } catch (err) {
       logError("Failed to search jobs:", err);
@@ -90,146 +88,244 @@ export default function Dashboard() {
     return date.toLocaleString();
   };
 
-  const formatScore = (score: number) => {
-    return `${Math.round(score * 100)}%`;
-  };
-
   if (loading) {
-    return <LoadingSpinner message="Loading dashboard..." />;
+    return <LoadingSpinner message="Scanning job boards..." />;
   }
 
   return (
-    <div className="h-screen bg-gray-50 overflow-auto">
-      <div className="container mx-auto p-8">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
-            JobSentinel Dashboard
-          </h1>
-          <button
-            onClick={handleSearchNow}
-            disabled={searching}
-            className="bg-primary hover:bg-primary-dark text-white font-medium py-2 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {searching ? "Searching..." : "Search Now"}
-          </button>
-        </div>
+    <div className="min-h-screen bg-surface-50">
+      {/* Header */}
+      <header className="bg-white border-b border-surface-100 sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            {/* Logo & Title */}
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-sentinel-500 rounded-lg flex items-center justify-center">
+                <SentinelIcon className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="font-display text-display-md text-surface-900">
+                  JobSentinel
+                </h1>
+                <p className="text-sm text-surface-500">
+                  Privacy-first job search automation
+                </p>
+              </div>
+            </div>
 
+            {/* Actions */}
+            <div className="flex items-center gap-4">
+              {/* Status indicator */}
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-surface-50 rounded-lg">
+                <div className={scrapingStatus.is_running ? "status-dot-active" : "status-dot-idle"} />
+                <span className="text-sm text-surface-600">
+                  {scrapingStatus.is_running ? "Scanning..." : "Idle"}
+                </span>
+              </div>
+
+              <Button
+                onClick={handleSearchNow}
+                loading={searching}
+                icon={<SearchIcon />}
+              >
+                Search Now
+              </Button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main content */}
+      <main className="max-w-7xl mx-auto px-6 py-8">
+        {/* Error alert */}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
-            <p className="font-medium">Error</p>
-            <p className="text-sm">{error}</p>
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg animate-slide-up">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0 mt-0.5">
+                <ErrorIcon className="w-5 h-5 text-danger" />
+              </div>
+              <div>
+                <p className="font-medium text-danger">Error</p>
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+              <button
+                onClick={() => setError(null)}
+                className="ml-auto text-red-400 hover:text-red-600"
+              >
+                <CloseIcon />
+              </button>
+            </div>
           </div>
         )}
 
-        {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">
-              Total Jobs
-            </h3>
-            <p className="text-3xl font-bold text-primary">
-              {statistics.total_jobs}
-            </p>
-          </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">
-              High Matches
-            </h3>
-            <p className="text-3xl font-bold text-success">
-              {statistics.high_matches}
-            </p>
-          </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">
-              Avg Score
-            </h3>
-            <p className="text-3xl font-bold text-gray-900">
-              {formatScore(statistics.average_score)}
-            </p>
-          </div>
+        {/* Stats cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 stagger-children">
+          {/* Total Jobs */}
+          <Card className="relative overflow-hidden">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-surface-500 mb-1">Total Jobs</p>
+                <p className="font-display text-display-xl text-surface-900">
+                  {statistics.total_jobs.toLocaleString()}
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-sentinel-50 rounded-lg flex items-center justify-center">
+                <BriefcaseIcon className="w-6 h-6 text-sentinel-500" />
+              </div>
+            </div>
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-sentinel-400 to-sentinel-500" />
+          </Card>
+
+          {/* High Matches */}
+          <Card className="relative overflow-hidden">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-surface-500 mb-1">High Matches</p>
+                <p className="font-display text-display-xl text-alert-600">
+                  {statistics.high_matches.toLocaleString()}
+                </p>
+              </div>
+              <div className="w-12 h-12 bg-alert-50 rounded-lg flex items-center justify-center">
+                <StarIcon className="w-6 h-6 text-alert-500" />
+              </div>
+            </div>
+            {statistics.high_matches > 0 && (
+              <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-alert-400 to-alert-500" />
+            )}
+          </Card>
+
+          {/* Average Score */}
+          <Card className="relative overflow-hidden">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-surface-500 mb-1">Avg Score</p>
+                <p className="font-mono text-display-xl text-surface-900">
+                  {Math.round(statistics.average_score * 100)}%
+                </p>
+              </div>
+              <ScoreDisplay score={statistics.average_score} size="md" showLabel={false} animate={false} />
+            </div>
+          </Card>
         </div>
 
-        {/* Scraping Status */}
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
-          <h2 className="text-xl font-semibold mb-4">Scraping Status</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+        {/* Scraping status */}
+        <Card className="mb-8">
+          <CardHeader
+            title="Scraping Status"
+            action={
+              <span className="text-sm text-surface-500">
+                Next scan: {formatDate(scrapingStatus.next_scrape)}
+              </span>
+            }
+          />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <p className="text-gray-600 mb-1">Last Scrape</p>
-              <p className="font-medium">{formatDate(scrapingStatus.last_scrape)}</p>
+              <p className="text-sm text-surface-500 mb-1">Last Scan</p>
+              <p className="font-medium text-surface-800">{formatDate(scrapingStatus.last_scrape)}</p>
             </div>
             <div>
-              <p className="text-gray-600 mb-1">Next Scrape</p>
-              <p className="font-medium">{formatDate(scrapingStatus.next_scrape)}</p>
+              <p className="text-sm text-surface-500 mb-1">Status</p>
+              <div className="flex items-center gap-2">
+                <div className={scrapingStatus.is_running ? "status-dot-active" : "status-dot-idle"} />
+                <p className="font-medium text-surface-800">
+                  {scrapingStatus.is_running ? "Scanning job boards..." : "Idle"}
+                </p>
+              </div>
             </div>
             <div>
-              <p className="text-gray-600 mb-1">Status</p>
-              <p className="font-medium">
-                {scrapingStatus.is_running ? (
-                  <span className="text-primary">Running...</span>
-                ) : (
-                  <span className="text-gray-900">Idle</span>
-                )}
-              </p>
+              <p className="text-sm text-surface-500 mb-1">Sources</p>
+              <p className="font-medium text-surface-800">Greenhouse, Lever, LinkedIn</p>
             </div>
           </div>
-        </div>
+        </Card>
 
-        {/* Recent Jobs */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">Recent Jobs</h2>
+        {/* Jobs list */}
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-display text-display-lg text-surface-900">
+              Recent Jobs
+            </h2>
+            {jobs.length > 0 && (
+              <span className="text-sm text-surface-500">
+                Showing {jobs.length} jobs
+              </span>
+            )}
+          </div>
+
           {jobs.length === 0 ? (
-            <p className="text-gray-600">
-              No jobs found yet. Click "Search Now" to start scraping.
-            </p>
+            <Card className="text-center py-12">
+              <div className="w-16 h-16 bg-surface-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <SearchIcon className="w-8 h-8 text-surface-400" />
+              </div>
+              <h3 className="font-display text-display-md text-surface-700 mb-2">
+                No jobs found yet
+              </h3>
+              <p className="text-surface-500 mb-6 max-w-md mx-auto">
+                Click "Search Now" to start scanning job boards for opportunities matching your preferences.
+              </p>
+              <Button onClick={handleSearchNow} loading={searching}>
+                Start Scanning
+              </Button>
+            </Card>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3 stagger-children">
               {jobs.map((job) => (
-                <div
-                  key={job.id}
-                  className="border border-gray-200 rounded-lg p-4 hover:border-primary transition-colors"
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                        {job.title}
-                      </h3>
-                      <p className="text-gray-600">{job.company}</p>
-                    </div>
-                    <div className="text-right ml-4">
-                      <div
-                        className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
-                          job.score >= 0.9
-                            ? "bg-green-100 text-green-800"
-                            : job.score >= 0.7
-                            ? "bg-blue-100 text-blue-800"
-                            : "bg-gray-100 text-gray-800"
-                        }`}
-                      >
-                        {formatScore(job.score)}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4 text-sm text-gray-500 mb-3">
-                    <span>{job.location || "Remote"}</span>
-                    <span>•</span>
-                    <span>{job.source}</span>
-                    <span>•</span>
-                    <span>{formatDate(job.discovered_at)}</span>
-                  </div>
-                  <a
-                    href={job.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:text-primary-dark font-medium text-sm"
-                  >
-                    View Job →
-                  </a>
-                </div>
+                <JobCard key={job.id} job={job} />
               ))}
             </div>
           )}
         </div>
-      </div>
+      </main>
     </div>
+  );
+}
+
+// Icons
+function SentinelIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+    </svg>
+  );
+}
+
+function SearchIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={`w-4 h-4 ${className}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+    </svg>
+  );
+}
+
+function ErrorIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+  );
+}
+
+function CloseIcon() {
+  return (
+    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  );
+}
+
+function BriefcaseIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+    </svg>
+  );
+}
+
+function StarIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+    </svg>
   );
 }

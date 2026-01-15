@@ -2,8 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import SetupWizard from "./pages/SetupWizard";
 import Dashboard from "./pages/Dashboard";
-import ErrorBoundary from "./components/ErrorBoundary";
-import { LoadingSpinner } from "./components/LoadingSpinner";
+import { ErrorBoundary, LoadingSpinner } from "./components";
 import { logError } from "./utils/errorUtils";
 
 function App() {
@@ -16,7 +15,7 @@ function App() {
       setIsFirstRun(firstRun);
     } catch (error) {
       logError("Failed to check first run:", error);
-      setIsFirstRun(true); // Default to showing setup wizard
+      setIsFirstRun(true);
     } finally {
       setLoading(false);
     }
@@ -31,12 +30,12 @@ function App() {
   };
 
   if (loading) {
-    return <LoadingSpinner message="Loading JobSentinel..." />;
+    return <LoadingSpinner message="Initializing JobSentinel..." />;
   }
 
   return (
     <ErrorBoundary>
-      <div className="h-screen">
+      <div className="min-h-screen">
         {isFirstRun ? (
           <SetupWizard onComplete={handleSetupComplete} />
         ) : (

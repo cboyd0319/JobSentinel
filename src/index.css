@@ -1,17 +1,193 @@
+/* Google Fonts - must be first */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@layer base {
+  html {
+    @apply antialiased;
+  }
+
+  body {
+    @apply font-body text-surface-800 bg-surface-50 m-0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Custom selection color */
+  ::selection {
+    @apply bg-sentinel-200 text-sentinel-900;
+  }
+
+  /* Smooth focus rings */
+  :focus-visible {
+    @apply outline-none ring-2 ring-sentinel-500/50 ring-offset-2 ring-offset-surface-50;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-surface-100;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-surface-300 rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-surface-400;
+  }
+
+  #root {
+    @apply w-full min-h-screen;
+  }
 }
 
-#root {
-  width: 100%;
-  height: 100vh;
+@layer components {
+  /* Button base - shared across variants */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 font-semibold transition-all duration-200 ease-out;
+    @apply focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  /* Primary button - sentinel brand */
+  .btn-primary {
+    @apply btn bg-sentinel-500 text-white rounded-lg;
+    @apply hover:bg-sentinel-600 hover:shadow-soft hover:-translate-y-0.5;
+    @apply active:translate-y-0 active:bg-sentinel-700;
+    @apply focus-visible:ring-sentinel-500;
+  }
+
+  /* Secondary button - subtle */
+  .btn-secondary {
+    @apply btn bg-surface-100 text-surface-700 border border-surface-200 rounded-lg;
+    @apply hover:bg-surface-200 hover:border-surface-300;
+    @apply active:bg-surface-300;
+    @apply focus-visible:ring-surface-400;
+  }
+
+  /* Ghost button - minimal */
+  .btn-ghost {
+    @apply btn text-surface-600 rounded-lg;
+    @apply hover:bg-surface-100 hover:text-surface-800;
+    @apply active:bg-surface-200;
+  }
+
+  /* Card component */
+  .card {
+    @apply bg-white rounded-card border border-surface-100 shadow-soft;
+    @apply transition-all duration-200 ease-out;
+  }
+  .card-hover {
+    @apply hover:shadow-card-hover hover:-translate-y-0.5 hover:border-surface-200;
+  }
+  .card-interactive {
+    @apply card card-hover cursor-pointer;
+    @apply hover:border-sentinel-200;
+  }
+
+  /* Input fields */
+  .input {
+    @apply w-full px-4 py-3 bg-white border border-surface-200 rounded-lg;
+    @apply text-surface-800 placeholder:text-surface-400;
+    @apply transition-all duration-150;
+    @apply hover:border-surface-300;
+    @apply focus:border-sentinel-400 focus:ring-2 focus:ring-sentinel-100;
+  }
+  .input-error {
+    @apply border-danger focus:border-danger focus:ring-danger/20;
+  }
+
+  /* Badge/Tag component */
+  .badge {
+    @apply inline-flex items-center gap-1 px-2.5 py-1 text-sm font-medium rounded-full;
+  }
+  .badge-sentinel {
+    @apply badge bg-sentinel-100 text-sentinel-700;
+  }
+  .badge-alert {
+    @apply badge bg-alert-100 text-alert-700;
+  }
+  .badge-surface {
+    @apply badge bg-surface-100 text-surface-600;
+  }
+
+  /* Score indicator */
+  .score-ring {
+    @apply relative inline-flex items-center justify-center;
+  }
+  .score-ring::before {
+    content: '';
+    @apply absolute inset-0 rounded-full border-4 border-surface-100;
+  }
+
+  /* Sentinel scanning animation */
+  .sentinel-scan {
+    @apply relative;
+  }
+  .sentinel-scan::after {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-b from-sentinel-500/10 to-transparent;
+    @apply animate-scan pointer-events-none;
+  }
+
+  /* Job match score bar */
+  .score-bar {
+    @apply relative h-2 bg-surface-100 rounded-full overflow-hidden;
+  }
+  .score-bar-fill {
+    @apply absolute left-0 top-0 h-full rounded-full transition-all duration-500 ease-out;
+  }
+
+  /* Section headers */
+  .section-header {
+    @apply font-display text-display-md text-surface-900 mb-4;
+  }
+
+  /* Status indicator */
+  .status-dot {
+    @apply w-2 h-2 rounded-full;
+  }
+  .status-dot-active {
+    @apply status-dot bg-sentinel-500 animate-pulse-slow;
+  }
+  .status-dot-idle {
+    @apply status-dot bg-surface-300;
+  }
+}
+
+@layer utilities {
+  /* Text gradient utility */
+  .text-gradient-sentinel {
+    @apply bg-gradient-to-r from-sentinel-600 to-sentinel-400 bg-clip-text text-transparent;
+  }
+
+  /* Glass effect */
+  .glass {
+    @apply bg-white/80 backdrop-blur-sm border border-white/20;
+  }
+
+  /* Smooth entrance animations */
+  .enter-fade {
+    animation: fadeIn 0.3s ease-out forwards;
+  }
+  .enter-slide-up {
+    animation: slideUp 0.4s ease-out forwards;
+  }
+
+  /* Staggered children animation */
+  .stagger-children > * {
+    @apply opacity-0;
+    animation: slideUp 0.4s ease-out forwards;
+  }
+  .stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+  .stagger-children > *:nth-child(2) { animation-delay: 50ms; }
+  .stagger-children > *:nth-child(3) { animation-delay: 100ms; }
+  .stagger-children > *:nth-child(4) { animation-delay: 150ms; }
+  .stagger-children > *:nth-child(5) { animation-delay: 200ms; }
+  .stagger-children > *:nth-child(6) { animation-delay: 250ms; }
+  .stagger-children > *:nth-child(7) { animation-delay: 300ms; }
+  .stagger-children > *:nth-child(8) { animation-delay: 350ms; }
 }
