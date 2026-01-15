@@ -297,14 +297,42 @@ export default function Dashboard() {
                 <SearchIcon className="w-8 h-8 text-surface-400" />
               </div>
               <h3 className="font-display text-display-md text-surface-700 dark:text-surface-300 mb-2">
-                No jobs found yet
+                Ready to find your next opportunity
               </h3>
               <p className="text-surface-500 dark:text-surface-400 mb-6 max-w-md mx-auto">
-                Click "Search Now" to start scanning job boards for opportunities matching your preferences.
+                Click "Search Now" to scan job boards for positions matching your preferences.
               </p>
               <Button onClick={handleSearchNow} loading={searching}>
                 Start Scanning
               </Button>
+              
+              {/* How it works */}
+              <div className="mt-8 pt-6 border-t border-surface-200 dark:border-surface-700">
+                <p className="text-sm text-surface-500 dark:text-surface-400 mb-4">How JobSentinel works:</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left max-w-lg mx-auto">
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0 w-8 h-8 bg-sentinel-100 dark:bg-sentinel-900/30 rounded-full flex items-center justify-center text-sentinel-600 dark:text-sentinel-400 font-semibold text-sm">1</div>
+                    <div>
+                      <p className="text-sm font-medium text-surface-700 dark:text-surface-300">We scan</p>
+                      <p className="text-xs text-surface-500 dark:text-surface-400">Job boards every 2 hours</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0 w-8 h-8 bg-sentinel-100 dark:bg-sentinel-900/30 rounded-full flex items-center justify-center text-sentinel-600 dark:text-sentinel-400 font-semibold text-sm">2</div>
+                    <div>
+                      <p className="text-sm font-medium text-surface-700 dark:text-surface-300">We match</p>
+                      <p className="text-xs text-surface-500 dark:text-surface-400">Based on your skills</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0 w-8 h-8 bg-sentinel-100 dark:bg-sentinel-900/30 rounded-full flex items-center justify-center text-sentinel-600 dark:text-sentinel-400 font-semibold text-sm">3</div>
+                    <div>
+                      <p className="text-sm font-medium text-surface-700 dark:text-surface-300">You apply</p>
+                      <p className="text-xs text-surface-500 dark:text-surface-400">To jobs that fit you</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </Card>
           ) : (
             <div className="space-y-3 stagger-children">
