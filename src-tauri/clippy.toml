@@ -1,0 +1,11 @@
+# Clippy configuration for JobSentinel
+# Allow common patterns that are intentional
+
+# Large types are okay - we have complex configs
+type-complexity-threshold = 500
+
+# Functions can have many lines for complex business logic
+too-many-lines-threshold = 200
+
+# Allow more arguments for builder patterns and config
+too-many-arguments-threshold = 10

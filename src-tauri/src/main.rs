@@ -1,5 +1,13 @@
 // Prevents additional console window on Windows in release mode
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+// Clippy configuration for binary
+#![allow(clippy::uninlined_format_args)]
+#![allow(clippy::significant_drop_tightening)]
+#![allow(clippy::too_many_lines)]
+#![allow(clippy::ignored_unit_patterns)]
+#![allow(clippy::cast_possible_wrap)]
+#![allow(clippy::cast_sign_loss)]
+#![allow(clippy::default_trait_access)]
 
 // Import library modules
 use jobsentinel::commands::{self, AppState, SchedulerStatus};

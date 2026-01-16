@@ -263,16 +263,28 @@ export default function Applications({ onBack }: ApplicationsProps) {
 
       {/* Application Detail Modal */}
       {selectedApp && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setSelectedApp(null);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setSelectedApp(null);
+          }}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="modal-title"
+        >
           <Card className="w-full max-w-lg dark:bg-surface-800">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="font-display text-display-md text-surface-900 dark:text-white">
+                <h2 id="modal-title" className="font-display text-display-md text-surface-900 dark:text-white">
                   {selectedApp.job_title}
                 </h2>
                 <button
                   onClick={() => setSelectedApp(null)}
                   className="p-2 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300"
+                  aria-label="Close modal"
                 >
                   <CloseIcon />
                 </button>
@@ -281,13 +293,14 @@ export default function Applications({ onBack }: ApplicationsProps) {
               <p className="text-surface-600 dark:text-surface-400 mb-4">{selectedApp.company}</p>
 
               <div className="mb-4">
-                <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+                <label htmlFor="app-status" className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                   Status
                 </label>
                 <select
+                  id="app-status"
                   value={selectedApp.status}
                   onChange={(e) => handleStatusChange(selectedApp.id, e.target.value)}
-                  className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100"
+                  className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:ring-2 focus:ring-sentinel-500 focus:border-sentinel-500"
                 >
                   {STATUS_COLUMNS.map((col) => (
                     <option key={col.key} value={col.key}>
@@ -298,15 +311,16 @@ export default function Applications({ onBack }: ApplicationsProps) {
               </div>
 
               <div className="mb-4">
-                <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+                <label htmlFor="app-notes" className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                   Add Notes
                 </label>
                 <textarea
+                  id="app-notes"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Add notes about this application..."
                   rows={3}
-                  className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 resize-none"
+                  className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 resize-none focus:ring-2 focus:ring-sentinel-500 focus:border-sentinel-500"
                 />
               </div>
 

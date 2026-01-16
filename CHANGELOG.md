@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Comprehensive clippy configuration** - lib.rs now includes pedantic lint allows for intentional patterns
+- **Email validation** in Settings - from/to email fields validate format before save
 - **4 new frontend pages** with navigation from Dashboard:
   - **Applications** - Kanban board for tracking job applications through pipeline
   - **Resume** - AI resume matcher with PDF upload and skill extraction
@@ -48,6 +50,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Scheduler graceful shutdown - added `tokio::select!` with shutdown signal
 - JobCard console.error now dev-only (`import.meta.env.DEV`)
 - Score bounds checking - clamped to 0.0-1.0 with warning logs for anomalies
+
+### Accessibility
+- Modal dialogs support ESC key to close and click-outside to dismiss
+- Added `role="dialog"`, `aria-modal`, and `aria-labelledby` to all modals
+- All form inputs now have proper `id` and associated `htmlFor` labels
+- Added `aria-valuetext` to range inputs for screen reader support
+- Added focus ring styles (`focus:ring-2`) to selects and textareas
 
 ### Security
 - Added comprehensive security documentation for email SMTP password storage

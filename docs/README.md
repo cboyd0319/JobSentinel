@@ -4,7 +4,7 @@ Welcome to JobSentinel documentation.
 
 ## Current Status (January 2026)
 
-**Version: 1.1.0** | 291 tests passing, 20 ignored | CI/CD enabled
+**Version: 1.1.0** | 291 tests passing, 20 ignored | Accessibility enhanced
 
 ### Working Features
 - Job scrapers: Greenhouse, Lever, JobsWithGPT, LinkedIn, Indeed

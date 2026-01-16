@@ -103,15 +103,16 @@ Automated application submission.
 - [x] SQLite MEDIAN() - computed in Rust instead
 - [x] SQLx query! macros - converted to runtime queries
 - [x] All compilation errors fixed
-- [x] All clippy warnings fixed
+- [x] All clippy warnings fixed (with comprehensive lint configuration)
 - [x] LinkedIn/Indeed scrapers integrated
 - [x] Desktop notifications implemented
 - [x] All backend modules exposed via Tauri commands
+- [x] Accessibility improvements (ARIA labels, keyboard nav, focus styles)
+- [x] Form validation (email format validation in Settings)
 
 ### Remaining Work
 - [x] Email notifications frontend UI
 - [x] Frontend pages for ATS, Resume, Salary, Market features
-- [x] Set up CI/CD pipeline (GitHub Actions)
 - [ ] Add comprehensive integration tests
 
 ---

@@ -149,13 +149,14 @@ export default function Salary({ onBack }: SalaryProps) {
               />
 
               <div>
-                <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+                <label htmlFor="seniority-level" className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                   Seniority Level
                 </label>
                 <select
+                  id="seniority-level"
                   value={seniority}
                   onChange={(e) => setSeniority(e.target.value)}
-                  className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100"
+                  className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:ring-2 focus:ring-sentinel-500 focus:border-sentinel-500"
                 >
                   {SENIORITY_LEVELS.map((level) => (
                     <option key={level.value} value={level.value}>
@@ -166,16 +167,21 @@ export default function Salary({ onBack }: SalaryProps) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+                <label htmlFor="years-exp" className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                   Years of Experience
                 </label>
                 <input
+                  id="years-exp"
                   type="range"
                   min="0"
                   max="20"
                   value={yearsExp}
                   onChange={(e) => setYearsExp(parseInt(e.target.value))}
-                  className="w-full"
+                  className="w-full accent-sentinel-500"
+                  aria-valuemin={0}
+                  aria-valuemax={20}
+                  aria-valuenow={yearsExp}
+                  aria-valuetext={`${yearsExp} years of experience`}
                 />
                 <div className="flex justify-between text-sm text-surface-500 dark:text-surface-400">
                   <span>0 years</span>

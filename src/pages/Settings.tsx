@@ -58,6 +58,11 @@ const isValidSlackWebhook = (url: string): boolean => {
   return url.startsWith("https://hooks.slack.com/services/");
 };
 
+const isValidEmail = (email: string): boolean => {
+  if (!email) return true;
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+};
+
 export default function Settings({ onClose }: SettingsProps) {
   const [config, setConfig] = useState<Config | null>(null);
   const [loading, setLoading] = useState(true);
@@ -181,8 +186,22 @@ export default function Settings({ onClose }: SettingsProps) {
 
   const isValidWebhook = isValidSlackWebhook(config.alerts.slack.webhook_url);
 
+  const isValidFromEmail = isValidEmail(config.alerts.email?.from_email ?? "");
+  const hasValidToEmails = (config.alerts.email?.to_emails ?? []).every(isValidEmail);
+
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Escape") onClose();
+      }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="settings-title"
+    >
       <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto dark:bg-surface-800">
         <div className="p-6">
           {/* Header */}
@@ -192,7 +211,7 @@ export default function Settings({ onClose }: SettingsProps) {
                 <SettingsIcon className="w-5 h-5 text-sentinel-600 dark:text-sentinel-400" />
               </div>
               <div>
-                <h2 className="font-display text-display-lg text-surface-900 dark:text-white">Settings</h2>
+                <h2 id="settings-title" className="font-display text-display-lg text-surface-900 dark:text-white">Settings</h2>
                 <p className="text-sm text-surface-500 dark:text-surface-400">Update your job search preferences</p>
               </div>
             </div>
@@ -544,6 +563,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         })
                       }
                       placeholder="alerts@yourdomain.com"
+                      error={!isValidFromEmail ? "Invalid email address" : undefined}
                     />
                     <Input
                       label="To Email(s)"
@@ -562,6 +582,7 @@ export default function Settings({ onClose }: SettingsProps) {
                       }
                       placeholder="you@email.com, backup@email.com"
                       hint="Comma-separated for multiple"
+                      error={!hasValidToEmails ? "One or more email addresses are invalid" : undefined}
                     />
                   </div>
                 </div>
