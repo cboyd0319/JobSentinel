@@ -23,3 +23,4 @@ export { default as PageErrorBoundary } from "./PageErrorBoundary";
 export { OnboardingProvider, useOnboarding, TourHelpButton } from "./OnboardingTour";
 export { VirtualJobList } from "./VirtualJobList";
 export { AnalyticsPanel } from "./AnalyticsPanel";
+export { InterviewScheduler } from "./InterviewScheduler";

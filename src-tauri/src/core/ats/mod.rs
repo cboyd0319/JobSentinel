@@ -467,6 +467,127 @@ impl ApplicationTracker {
         Ok(())
     }
 
+    /// Schedule a new interview
+    pub async fn schedule_interview(
+        &self,
+        application_id: i64,
+        interview_type: &str,
+        scheduled_at: &str,
+        duration_minutes: i32,
+        location: Option<&str>,
+        interviewer_name: Option<&str>,
+        interviewer_title: Option<&str>,
+        notes: Option<&str>,
+    ) -> Result<i64> {
+        let result = sqlx::query!(
+            r#"
+            INSERT INTO interviews (
+                application_id, interview_type, scheduled_at, duration_minutes,
+                location, interviewer_name, interviewer_title, notes
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            "#,
+            application_id,
+            interview_type,
+            scheduled_at,
+            duration_minutes,
+            location,
+            interviewer_name,
+            interviewer_title,
+            notes
+        )
+        .execute(&self.db)
+        .await?;
+
+        Ok(result.last_insert_rowid())
+    }
+
+    /// Get upcoming interviews (next 30 days, not completed)
+    pub async fn get_upcoming_interviews(&self) -> Result<Vec<InterviewWithJob>> {
+        let interviews = sqlx::query!(
+            r#"
+            SELECT
+                i.id,
+                i.application_id,
+                i.interview_type,
+                i.scheduled_at,
+                i.duration_minutes,
+                i.location,
+                i.interviewer_name,
+                i.interviewer_title,
+                i.notes,
+                i.completed,
+                i.outcome,
+                j.title as job_title,
+                j.company
+            FROM interviews i
+            JOIN applications a ON i.application_id = a.id
+            JOIN jobs j ON a.job_hash = j.hash
+            WHERE i.completed = 0
+              AND datetime(i.scheduled_at) >= datetime('now')
+              AND datetime(i.scheduled_at) <= datetime('now', '+30 days')
+            ORDER BY i.scheduled_at ASC
+            "#
+        )
+        .fetch_all(&self.db)
+        .await?;
+
+        Ok(interviews
+            .into_iter()
+            .filter_map(|row| {
+                Some(InterviewWithJob {
+                    id: row.id?,
+                    application_id: row.application_id,
+                    interview_type: row.interview_type.unwrap_or_else(|| "other".to_string()),
+                    scheduled_at: row.scheduled_at,
+                    duration_minutes: row.duration_minutes.unwrap_or(60) as i32,
+                    location: row.location,
+                    interviewer_name: row.interviewer_name,
+                    interviewer_title: row.interviewer_title,
+                    notes: row.notes,
+                    completed: row.completed != 0,
+                    outcome: row.outcome,
+                    job_title: row.job_title,
+                    company: row.company,
+                })
+            })
+            .collect())
+    }
+
+    /// Update interview outcome
+    pub async fn complete_interview(
+        &self,
+        interview_id: i64,
+        outcome: &str,
+        notes: Option<&str>,
+    ) -> Result<()> {
+        let now = Utc::now().to_rfc3339();
+
+        sqlx::query!(
+            r#"
+            UPDATE interviews
+            SET completed = 1, outcome = ?, notes = COALESCE(?, notes), updated_at = ?
+            WHERE id = ?
+            "#,
+            outcome,
+            notes,
+            now,
+            interview_id
+        )
+        .execute(&self.db)
+        .await?;
+
+        Ok(())
+    }
+
+    /// Delete an interview
+    pub async fn delete_interview(&self, interview_id: i64) -> Result<()> {
+        sqlx::query!("DELETE FROM interviews WHERE id = ?", interview_id)
+            .execute(&self.db)
+            .await?;
+
+        Ok(())
+    }
+
     /// Get application statistics for analytics
     pub async fn get_application_stats(&self) -> Result<ApplicationStats> {
         // Get counts by status
@@ -612,6 +733,67 @@ pub struct StatusCounts {
 pub struct WeeklyData {
     pub week: String,
     pub count: i32,
+}
+
+/// Interview types
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum InterviewType {
+    Phone,
+    Screening,
+    Technical,
+    Behavioral,
+    Onsite,
+    Final,
+    Other,
+}
+
+impl std::fmt::Display for InterviewType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            InterviewType::Phone => write!(f, "phone"),
+            InterviewType::Screening => write!(f, "screening"),
+            InterviewType::Technical => write!(f, "technical"),
+            InterviewType::Behavioral => write!(f, "behavioral"),
+            InterviewType::Onsite => write!(f, "onsite"),
+            InterviewType::Final => write!(f, "final"),
+            InterviewType::Other => write!(f, "other"),
+        }
+    }
+}
+
+impl std::str::FromStr for InterviewType {
+    type Err = anyhow::Error;
+
+    fn from_str(s: &str) -> Result<Self> {
+        match s.to_lowercase().as_str() {
+            "phone" => Ok(InterviewType::Phone),
+            "screening" => Ok(InterviewType::Screening),
+            "technical" => Ok(InterviewType::Technical),
+            "behavioral" => Ok(InterviewType::Behavioral),
+            "onsite" => Ok(InterviewType::Onsite),
+            "final" => Ok(InterviewType::Final),
+            _ => Ok(InterviewType::Other),
+        }
+    }
+}
+
+/// Interview with job details (for display)
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct InterviewWithJob {
+    pub id: i64,
+    pub application_id: i64,
+    pub interview_type: String,
+    pub scheduled_at: String,
+    pub duration_minutes: i32,
+    pub location: Option<String>,
+    pub interviewer_name: Option<String>,
+    pub interviewer_title: Option<String>,
+    pub notes: Option<String>,
+    pub completed: bool,
+    pub outcome: Option<String>,
+    pub job_title: String,
+    pub company: String,
 }
 
 /// Pending reminder with job details

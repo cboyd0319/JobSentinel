@@ -510,6 +510,93 @@ pub async fn get_application_stats(
 }
 
 // ============================================================================
+// Interview Scheduler Commands
+// ============================================================================
+
+/// Schedule a new interview
+#[tauri::command]
+pub async fn schedule_interview(
+    application_id: i64,
+    interview_type: String,
+    scheduled_at: String,
+    duration_minutes: i32,
+    location: Option<String>,
+    interviewer_name: Option<String>,
+    interviewer_title: Option<String>,
+    notes: Option<String>,
+    state: State<'_, AppState>,
+) -> Result<i64, String> {
+    tracing::info!(
+        "Command: schedule_interview (app: {}, type: {}, at: {})",
+        application_id,
+        interview_type,
+        scheduled_at
+    );
+
+    let tracker = ApplicationTracker::new(state.database.pool().clone());
+    tracker
+        .schedule_interview(
+            application_id,
+            &interview_type,
+            &scheduled_at,
+            duration_minutes,
+            location.as_deref(),
+            interviewer_name.as_deref(),
+            interviewer_title.as_deref(),
+            notes.as_deref(),
+        )
+        .await
+        .map_err(|e| format!("Failed to schedule interview: {}", e))
+}
+
+/// Get upcoming interviews
+#[tauri::command]
+pub async fn get_upcoming_interviews(
+    state: State<'_, AppState>,
+) -> Result<Vec<crate::core::InterviewWithJob>, String> {
+    tracing::info!("Command: get_upcoming_interviews");
+
+    let tracker = ApplicationTracker::new(state.database.pool().clone());
+    tracker
+        .get_upcoming_interviews()
+        .await
+        .map_err(|e| format!("Failed to get interviews: {}", e))
+}
+
+/// Complete an interview with outcome
+#[tauri::command]
+pub async fn complete_interview(
+    interview_id: i64,
+    outcome: String,
+    notes: Option<String>,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    tracing::info!(
+        "Command: complete_interview (id: {}, outcome: {})",
+        interview_id,
+        outcome
+    );
+
+    let tracker = ApplicationTracker::new(state.database.pool().clone());
+    tracker
+        .complete_interview(interview_id, &outcome, notes.as_deref())
+        .await
+        .map_err(|e| format!("Failed to complete interview: {}", e))
+}
+
+/// Delete an interview
+#[tauri::command]
+pub async fn delete_interview(interview_id: i64, state: State<'_, AppState>) -> Result<(), String> {
+    tracing::info!("Command: delete_interview (id: {})", interview_id);
+
+    let tracker = ApplicationTracker::new(state.database.pool().clone());
+    tracker
+        .delete_interview(interview_id)
+        .await
+        .map_err(|e| format!("Failed to delete interview: {}", e))
+}
+
+// ============================================================================
 // Job Deduplication Commands
 // ============================================================================
 

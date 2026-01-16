@@ -75,6 +75,11 @@ fn main() {
             commands::complete_reminder,
             commands::detect_ghosted_applications,
             commands::get_application_stats,
+            // Interview commands
+            commands::schedule_interview,
+            commands::get_upcoming_interviews,
+            commands::complete_interview,
+            commands::delete_interview,
             // Deduplication commands
             commands::find_duplicates,
             commands::merge_duplicates,
