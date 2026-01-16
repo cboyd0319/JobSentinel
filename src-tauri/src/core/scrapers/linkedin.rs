@@ -538,6 +538,20 @@ mod tests {
     }
 
     #[test]
+    fn test_short_cookie_detection() {
+        let scraper = LinkedInScraper::new(
+            "short".to_string(),
+            "test".to_string(),
+            "test".to_string(),
+        );
+
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        let result = rt.block_on(scraper.scrape());
+        assert!(result.is_err());
+        assert!(result.unwrap_err().to_string().contains("Invalid"));
+    }
+
+    #[test]
     fn test_hash_generation() {
         let scraper = LinkedInScraper::new(
             "test".to_string(),
@@ -551,6 +565,29 @@ mod tests {
 
         assert_eq!(hash1, hash2);
         assert_ne!(hash1, hash3);
+        assert_eq!(hash1.len(), 64); // SHA-256 produces 64 hex chars
+    }
+
+    #[test]
+    fn test_hash_deterministic() {
+        let scraper = LinkedInScraper::new(
+            "test".to_string(),
+            "test".to_string(),
+            "test".to_string(),
+        );
+
+        let hash1 = scraper.generate_hash(
+            "Software Engineer",
+            "TechCorp",
+            "https://linkedin.com/jobs/view/123",
+        );
+        let hash2 = scraper.generate_hash(
+            "Software Engineer",
+            "TechCorp",
+            "https://linkedin.com/jobs/view/123",
+        );
+
+        assert_eq!(hash1, hash2);
     }
 
     #[test]
@@ -583,6 +620,230 @@ mod tests {
         assert!(job.url.contains("12345"));
     }
 
+    #[test]
+    fn test_parse_linkedin_job_element_minimal() {
+        let scraper = LinkedInScraper::new(
+            "test".to_string(),
+            "test".to_string(),
+            "test".to_string(),
+        );
+
+        let json = serde_json::json!({
+            "dashEntityUrn": "urn:li:fsd_jobPosting:99999",
+            "title": "Backend Developer"
+        });
+
+        let job = scraper.parse_linkedin_job_element(&json).unwrap();
+
+        assert!(job.is_some());
+        let job = job.unwrap();
+        assert_eq!(job.title, "Backend Developer");
+        assert_eq!(job.company, "Unknown Company");
+        assert_eq!(job.location, Some("".to_string()));
+        assert!(job.url.contains("99999"));
+    }
+
+    #[test]
+    fn test_parse_linkedin_job_element_empty_title() {
+        let scraper = LinkedInScraper::new(
+            "test".to_string(),
+            "test".to_string(),
+            "test".to_string(),
+        );
+
+        let json = serde_json::json!({
+            "dashEntityUrn": "urn:li:fsd_jobPosting:12345",
+            "title": ""
+        });
+
+        let job = scraper.parse_linkedin_job_element(&json).unwrap();
+        assert!(job.is_none());
+    }
+
+    #[test]
+    fn test_parse_linkedin_job_element_missing_urn() {
+        let scraper = LinkedInScraper::new(
+            "test".to_string(),
+            "test".to_string(),
+            "test".to_string(),
+        );
+
+        let json = serde_json::json!({
+            "title": "Software Engineer"
+        });
+
+        let job = scraper.parse_linkedin_job_element(&json).unwrap();
+        // When URN is missing, job_id becomes empty string "" (not "unknown")
+        // The function only returns None if title is empty OR job_id == "unknown"
+        // Since title is present, it returns Some with job_id as ""
+        assert!(job.is_some());
+        let job = job.unwrap();
+        assert!(job.url.contains("/")); // URL will be malformed but present
+    }
+
+    #[test]
+    fn test_parse_linkedin_html_empty_document() {
+        let scraper = LinkedInScraper::new(
+            "test".to_string(),
+            "test".to_string(),
+            "test".to_string(),
+        );
+
+        let html = "<html><body></body></html>";
+        let jobs = scraper.parse_linkedin_html(html).unwrap();
+
+        assert_eq!(jobs.len(), 0);
+    }
+
+    #[test]
+    fn test_parse_linkedin_html_with_job_cards() {
+        let scraper = LinkedInScraper::new(
+            "test".to_string(),
+            "test".to_string(),
+            "test".to_string(),
+        );
+
+        let html = r#"
+            <html>
+                <body>
+                    <div class="job-card-container" data-job-id="123456">
+                        <h3 class="job-card-list__title">Senior Software Engineer</h3>
+                        <h4 class="job-card-container__company-name">TechCorp Inc</h4>
+                        <span class="job-card-container__metadata-item">San Francisco, CA</span>
+                    </div>
+                    <div class="job-card-container" data-job-id="789012">
+                        <h3 class="job-card-list__title">Backend Developer</h3>
+                        <h4 class="job-card-container__company-name">DataCorp</h4>
+                        <span class="job-card-container__metadata-item">Remote</span>
+                    </div>
+                </body>
+            </html>
+        "#;
+
+        let jobs = scraper.parse_linkedin_html(html).unwrap();
+
+        assert_eq!(jobs.len(), 2);
+        assert_eq!(jobs[0].title, "Senior Software Engineer");
+        assert_eq!(jobs[0].company, "TechCorp Inc");
+        assert_eq!(jobs[0].location, Some("San Francisco, CA".to_string()));
+        assert!(jobs[0].url.contains("123456"));
+        assert_eq!(jobs[0].source, "linkedin");
+
+        assert_eq!(jobs[1].title, "Backend Developer");
+        assert_eq!(jobs[1].company, "DataCorp");
+        assert_eq!(jobs[1].location, Some("Remote".to_string()));
+    }
+
+    #[test]
+    fn test_parse_linkedin_html_limit_respected() {
+        let scraper = LinkedInScraper::new(
+            "test".to_string(),
+            "test".to_string(),
+            "test".to_string(),
+        )
+        .with_limit(1);
+
+        let html = r#"
+            <html>
+                <body>
+                    <div class="job-card-container" data-job-id="1">
+                        <h3>Job 1</h3>
+                        <h4>Company 1</h4>
+                    </div>
+                    <div class="job-card-container" data-job-id="2">
+                        <h3>Job 2</h3>
+                        <h4>Company 2</h4>
+                    </div>
+                </body>
+            </html>
+        "#;
+
+        let jobs = scraper.parse_linkedin_html(html).unwrap();
+        assert_eq!(jobs.len(), 1);
+    }
+
+    #[test]
+    fn test_parse_linkedin_html_whitespace_trimming() {
+        let scraper = LinkedInScraper::new(
+            "test".to_string(),
+            "test".to_string(),
+            "test".to_string(),
+        );
+
+        let html = r#"
+            <html>
+                <body>
+                    <div class="job-card-container" data-job-id="123">
+                        <h3>
+                            Software Engineer
+                        </h3>
+                        <h4>
+                            TechCorp
+                        </h4>
+                        <span class="job-card-container__metadata-item">
+                            Remote
+                        </span>
+                    </div>
+                </body>
+            </html>
+        "#;
+
+        let jobs = scraper.parse_linkedin_html(html).unwrap();
+
+        assert_eq!(jobs.len(), 1);
+        assert_eq!(jobs[0].title, "Software Engineer");
+        assert_eq!(jobs[0].company, "TechCorp");
+        assert_eq!(jobs[0].location, Some("Remote".to_string()));
+    }
+
+    #[test]
+    fn test_convert_linkedin_element() {
+        let scraper = LinkedInScraper::new(
+            "test".to_string(),
+            "test".to_string(),
+            "test".to_string(),
+        );
+
+        let element = LinkedInJobElement {
+            urn: "urn:li:fsd_jobPosting:54321".to_string(),
+            title: "Full Stack Engineer".to_string(),
+            company_details: Some(LinkedInCompanyDetails {
+                company: Some(LinkedInCompanyInfo {
+                    name: "StartupXYZ".to_string(),
+                }),
+            }),
+            location: Some("New York, NY".to_string()),
+        };
+
+        let job = scraper.convert_linkedin_element(&element);
+
+        assert!(job.is_some());
+        let job = job.unwrap();
+        assert_eq!(job.title, "Full Stack Engineer");
+        assert_eq!(job.company, "StartupXYZ");
+        assert_eq!(job.location, Some("New York, NY".to_string()));
+        assert!(job.url.contains("54321"));
+    }
+
+    #[test]
+    fn test_convert_linkedin_element_empty_title() {
+        let scraper = LinkedInScraper::new(
+            "test".to_string(),
+            "test".to_string(),
+            "test".to_string(),
+        );
+
+        let element = LinkedInJobElement {
+            urn: "urn:li:fsd_jobPosting:12345".to_string(),
+            title: "".to_string(),
+            company_details: None,
+            location: None,
+        };
+
+        let job = scraper.convert_linkedin_element(&element);
+        assert!(job.is_none());
+    }
+
     #[tokio::test]
     async fn test_scraper_name() {
         let scraper = LinkedInScraper::new(
@@ -591,5 +852,73 @@ mod tests {
             "test".to_string(),
         );
         assert_eq!(scraper.name(), "LinkedIn");
+    }
+
+    #[test]
+    fn test_parse_api_response_typed() {
+        let scraper = LinkedInScraper::new(
+            "test".to_string(),
+            "test".to_string(),
+            "test".to_string(),
+        );
+
+        let json = serde_json::json!({
+            "data": {
+                "searchDashJobsByCard": {
+                    "elements": [
+                        {
+                            "dashEntityUrn": "urn:li:fsd_jobPosting:11111",
+                            "title": "DevOps Engineer",
+                            "companyDetails": {
+                                "companyResolutionResult": {
+                                    "name": "CloudCorp"
+                                }
+                            },
+                            "formattedLocation": "Seattle, WA"
+                        },
+                        {
+                            "dashEntityUrn": "urn:li:fsd_jobPosting:22222",
+                            "title": "Platform Engineer",
+                            "companyDetails": {
+                                "companyResolutionResult": {
+                                    "name": "InfraStartup"
+                                }
+                            },
+                            "formattedLocation": "Austin, TX"
+                        }
+                    ]
+                }
+            }
+        });
+
+        let jobs = scraper.parse_linkedin_api_response(&json).unwrap();
+
+        assert_eq!(jobs.len(), 2);
+        assert_eq!(jobs[0].title, "DevOps Engineer");
+        assert_eq!(jobs[0].company, "CloudCorp");
+        assert_eq!(jobs[0].location, Some("Seattle, WA".to_string()));
+
+        assert_eq!(jobs[1].title, "Platform Engineer");
+        assert_eq!(jobs[1].company, "InfraStartup");
+    }
+
+    #[test]
+    fn test_parse_api_response_empty() {
+        let scraper = LinkedInScraper::new(
+            "test".to_string(),
+            "test".to_string(),
+            "test".to_string(),
+        );
+
+        let json = serde_json::json!({
+            "data": {
+                "searchDashJobsByCard": {
+                    "elements": []
+                }
+            }
+        });
+
+        let jobs = scraper.parse_linkedin_api_response(&json).unwrap();
+        assert_eq!(jobs.len(), 0);
     }
 }

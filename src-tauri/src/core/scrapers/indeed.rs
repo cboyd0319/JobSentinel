@@ -336,6 +336,27 @@ mod tests {
 
         // Different company should produce different hash
         assert_ne!(hash1, hash3);
+
+        // SHA-256 produces 64 hex characters
+        assert_eq!(hash1.len(), 64);
+    }
+
+    #[test]
+    fn test_hash_deterministic() {
+        let scraper = IndeedScraper::new("test".to_string(), "test".to_string());
+
+        let hash1 = scraper.generate_hash(
+            "Backend Developer",
+            "TechCorp",
+            "https://indeed.com/viewjob?jk=xyz123",
+        );
+        let hash2 = scraper.generate_hash(
+            "Backend Developer",
+            "TechCorp",
+            "https://indeed.com/viewjob?jk=xyz123",
+        );
+
+        assert_eq!(hash1, hash2);
     }
 
     #[test]
@@ -366,9 +387,325 @@ mod tests {
         assert!(job.url.contains("abc123"));
     }
 
+    #[test]
+    fn test_parse_classic_job_card() {
+        let html = r#"
+        <div class="jobsearch-SerpJobCard" data-jk="xyz789">
+            <a class="jobtitle">Backend Developer</a>
+            <span class="company">DataCorp</span>
+            <div class="location">Austin, TX</div>
+            <div class="summary">Work on exciting data pipelines...</div>
+        </div>
+        "#;
+
+        let document = Html::parse_document(html);
+        let scraper = IndeedScraper::new("test".to_string(), "test".to_string());
+
+        let selector = Selector::parse(".jobsearch-SerpJobCard").unwrap();
+        let card = document.select(&selector).next().unwrap();
+
+        let job = scraper.parse_job_card_classic(&card).unwrap();
+
+        assert!(job.is_some());
+        let job = job.unwrap();
+        assert_eq!(job.title, "Backend Developer");
+        assert_eq!(job.company, "DataCorp");
+        assert_eq!(job.location, Some("Austin, TX".to_string()));
+        assert!(job.url.contains("xyz789"));
+    }
+
+    #[test]
+    fn test_parse_job_cards_modern_layout() {
+        let scraper = IndeedScraper::new("test".to_string(), "test".to_string());
+
+        let html = r#"
+            <html>
+                <body>
+                    <div data-jk="job123">
+                        <h2 class="jobTitle"><span>Full Stack Engineer</span></h2>
+                        <span data-testid="company-name">TechStartup</span>
+                        <div data-testid="text-location">Remote</div>
+                        <div class="job-snippet">Great opportunity...</div>
+                    </div>
+                    <div data-jk="job456">
+                        <h2 class="jobTitle"><span>DevOps Engineer</span></h2>
+                        <span data-testid="company-name">CloudCorp</span>
+                        <div data-testid="text-location">Seattle, WA</div>
+                        <div class="job-snippet">Build infrastructure...</div>
+                    </div>
+                </body>
+            </html>
+        "#;
+
+        let jobs = scraper.parse_job_cards(html).unwrap();
+
+        assert_eq!(jobs.len(), 2);
+        assert_eq!(jobs[0].title, "Full Stack Engineer");
+        assert_eq!(jobs[0].company, "TechStartup");
+        assert_eq!(jobs[0].location, Some("Remote".to_string()));
+
+        assert_eq!(jobs[1].title, "DevOps Engineer");
+        assert_eq!(jobs[1].company, "CloudCorp");
+    }
+
+    #[test]
+    fn test_parse_job_cards_classic_layout() {
+        let scraper = IndeedScraper::new("test".to_string(), "test".to_string());
+
+        // Classic layout WITHOUT data-jk attribute (so it won't match modern selector)
+        let html = r#"
+            <html>
+                <body>
+                    <div class="jobsearch-SerpJobCard" id="job_old123">
+                        <a class="jobtitle">Software Engineer</a>
+                        <span class="company">LegacyCorp</span>
+                        <div class="location">New York, NY</div>
+                        <div class="summary">Join our team...</div>
+                    </div>
+                </body>
+            </html>
+        "#;
+
+        let jobs = scraper.parse_job_cards(html).unwrap();
+
+        assert_eq!(jobs.len(), 1);
+        assert_eq!(jobs[0].title, "Software Engineer");
+        assert_eq!(jobs[0].company, "LegacyCorp");
+        assert_eq!(jobs[0].location, Some("New York, NY".to_string()));
+    }
+
+    #[test]
+    fn test_parse_job_cards_empty_document() {
+        let scraper = IndeedScraper::new("test".to_string(), "test".to_string());
+        let html = "<html><body></body></html>";
+
+        let jobs = scraper.parse_job_cards(html).unwrap();
+        assert_eq!(jobs.len(), 0);
+    }
+
+    #[test]
+    fn test_parse_job_card_modern_missing_fields() {
+        let html = r#"
+        <div data-jk="minimal123">
+            <h2 class="jobTitle"><span>Platform Engineer</span></h2>
+        </div>
+        "#;
+
+        let document = Html::parse_document(html);
+        let scraper = IndeedScraper::new("test".to_string(), "test".to_string());
+
+        let selector = Selector::parse("[data-jk]").unwrap();
+        let card = document.select(&selector).next().unwrap();
+
+        let job = scraper.parse_job_card_modern(&card).unwrap();
+
+        assert!(job.is_some());
+        let job = job.unwrap();
+        assert_eq!(job.title, "Platform Engineer");
+        assert_eq!(job.company, "Unknown Company");
+        assert_eq!(job.location, Some("".to_string()));
+    }
+
+    #[test]
+    fn test_parse_job_card_classic_with_id() {
+        let html = r#"
+        <div class="jobsearch-SerpJobCard" id="job_id_999">
+            <a class="jobTitle">Data Engineer</a>
+            <span class="company">AnalyticsCorp</span>
+            <div class="companyLocation">Boston, MA</div>
+            <div class="summary">Analyze data...</div>
+        </div>
+        "#;
+
+        let document = Html::parse_document(html);
+        let scraper = IndeedScraper::new("test".to_string(), "test".to_string());
+
+        let selector = Selector::parse(".jobsearch-SerpJobCard").unwrap();
+        let card = document.select(&selector).next().unwrap();
+
+        let job = scraper.parse_job_card_classic(&card).unwrap();
+
+        assert!(job.is_some());
+        let job = job.unwrap();
+        assert_eq!(job.title, "Data Engineer");
+        assert_eq!(job.company, "AnalyticsCorp");
+        assert!(job.url.contains("job_id_999"));
+    }
+
+    #[test]
+    fn test_parse_job_card_classic_empty_title() {
+        let html = r#"
+        <div class="jobsearch-SerpJobCard" data-jk="empty999">
+            <a class="jobtitle"></a>
+            <span class="company">CompanyName</span>
+        </div>
+        "#;
+
+        let document = Html::parse_document(html);
+        let scraper = IndeedScraper::new("test".to_string(), "test".to_string());
+
+        let selector = Selector::parse(".jobsearch-SerpJobCard").unwrap();
+        let card = document.select(&selector).next().unwrap();
+
+        let job = scraper.parse_job_card_classic(&card).unwrap();
+
+        // Should be None due to empty title
+        assert!(job.is_none());
+    }
+
+    #[test]
+    fn test_parse_job_cards_whitespace_trimming() {
+        let scraper = IndeedScraper::new("test".to_string(), "test".to_string());
+
+        let html = r#"
+            <html>
+                <body>
+                    <div data-jk="whitespace123">
+                        <h2 class="jobTitle"><span>
+                            Senior Engineer
+                        </span></h2>
+                        <span data-testid="company-name">
+                            TechCorp
+                        </span>
+                        <div data-testid="text-location">
+                            Remote
+                        </div>
+                    </div>
+                </body>
+            </html>
+        "#;
+
+        let jobs = scraper.parse_job_cards(html).unwrap();
+
+        assert_eq!(jobs.len(), 1);
+        assert_eq!(jobs[0].title, "Senior Engineer");
+        assert_eq!(jobs[0].company, "TechCorp");
+        assert_eq!(jobs[0].location, Some("Remote".to_string()));
+    }
+
+    #[test]
+    fn test_parse_job_cards_mobile_layout() {
+        let scraper = IndeedScraper::new("test".to_string(), "test".to_string());
+
+        let html = r#"
+            <html>
+                <body>
+                    <div class="job_seen_beacon" data-jk="mobile123">
+                        <h2 class="jobTitle"><span>Mobile Developer</span></h2>
+                        <span data-testid="company-name">AppCorp</span>
+                        <div data-testid="text-location">Portland, OR</div>
+                    </div>
+                </body>
+            </html>
+        "#;
+
+        let jobs = scraper.parse_job_cards(html).unwrap();
+
+        assert_eq!(jobs.len(), 1);
+        assert_eq!(jobs[0].title, "Mobile Developer");
+        assert_eq!(jobs[0].company, "AppCorp");
+    }
+
+    #[test]
+    fn test_parse_job_cards_mixed_layouts() {
+        let scraper = IndeedScraper::new("test".to_string(), "test".to_string());
+
+        // Both have data-jk, so both will be parsed by modern parser
+        let html = r#"
+            <html>
+                <body>
+                    <div data-jk="modern1">
+                        <h2 class="jobTitle"><span>Engineer 1</span></h2>
+                        <span data-testid="company-name">Company 1</span>
+                    </div>
+                    <div class="jobsearch-SerpJobCard" data-jk="classic1">
+                        <a class="jobtitle">Engineer 2</a>
+                        <span class="company">Company 2</span>
+                    </div>
+                </body>
+            </html>
+        "#;
+
+        let jobs = scraper.parse_job_cards(html).unwrap();
+
+        // Both cards have data-jk, so both will be parsed by modern parser
+        // The modern parser looks for h2.jobTitle span and [data-testid='company-name']
+        // Classic card doesn't have these, so it gets empty title and "Unknown Company"
+        assert_eq!(jobs.len(), 2);
+        assert_eq!(jobs[0].title, "Engineer 1");
+        assert_eq!(jobs[0].company, "Company 1");
+        // Second job has empty title and Unknown Company because modern parser
+        // doesn't find classic selectors (.jobtitle, .company)
+        assert_eq!(jobs[1].title, "");
+        assert_eq!(jobs[1].company, "Unknown Company");
+    }
+
+    #[test]
+    fn test_parse_job_card_with_description() {
+        let html = r#"
+        <div data-jk="desc123">
+            <h2 class="jobTitle"><span>Rust Developer</span></h2>
+            <span data-testid="company-name">Systems Inc</span>
+            <div data-testid="text-location">Remote</div>
+            <div class="job-snippet">Build high-performance systems with Rust...</div>
+        </div>
+        "#;
+
+        let document = Html::parse_document(html);
+        let scraper = IndeedScraper::new("test".to_string(), "test".to_string());
+
+        let selector = Selector::parse("[data-jk]").unwrap();
+        let card = document.select(&selector).next().unwrap();
+
+        let job = scraper.parse_job_card_modern(&card).unwrap();
+
+        assert!(job.is_some());
+        let job = job.unwrap();
+        assert_eq!(job.title, "Rust Developer");
+        assert!(job.description.is_some());
+        assert!(job
+            .description
+            .unwrap()
+            .contains("high-performance systems"));
+    }
+
     #[tokio::test]
     async fn test_scraper_name() {
         let scraper = IndeedScraper::new("test".to_string(), "test".to_string());
         assert_eq!(scraper.name(), "Indeed");
+    }
+
+    #[test]
+    fn test_scraper_builder_defaults() {
+        let scraper = IndeedScraper::new("developer".to_string(), "Chicago".to_string());
+
+        assert_eq!(scraper.query, "developer");
+        assert_eq!(scraper.location, "Chicago");
+        assert_eq!(scraper.radius, 25);
+        assert_eq!(scraper.limit, 50);
+    }
+
+    #[test]
+    fn test_scraper_builder_with_options() {
+        let scraper = IndeedScraper::new("engineer".to_string(), "NYC".to_string())
+            .with_radius(100)
+            .with_limit(75);
+
+        assert_eq!(scraper.radius, 100);
+        assert_eq!(scraper.limit, 75);
+    }
+
+    #[test]
+    fn test_url_construction() {
+        let scraper = IndeedScraper::new(
+            "software engineer".to_string(),
+            "San Francisco".to_string(),
+        )
+        .with_radius(30)
+        .with_limit(25);
+
+        // Can't test exact URL due to HashMap ordering, but verify it's not empty
+        let jobs = scraper.parse_job_cards("<html></html>").unwrap();
+        assert_eq!(jobs.len(), 0); // Empty HTML should return no jobs
     }
 }

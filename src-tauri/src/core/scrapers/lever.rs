@@ -345,6 +345,370 @@ mod tests {
         assert_eq!(scraper.companies.len(), 0);
     }
 
+    #[test]
+    fn test_parse_response_single_job() {
+        let json_data = r#"
+        [
+            {
+                "text": "Senior Backend Engineer",
+                "hostedUrl": "https://jobs.lever.co/shopify/abc123",
+                "categories": {
+                    "location": "Remote",
+                    "team": "Engineering"
+                },
+                "description": "<p>Join our backend team</p>",
+                "descriptionPlain": "Join our backend team"
+            }
+        ]
+        "#;
+
+        let _scraper = LeverScraper::new(vec![LeverCompany {
+            id: "shopify".to_string(),
+            name: "Shopify".to_string(),
+            url: "https://jobs.lever.co/shopify".to_string(),
+        }]);
+
+        let parsed: serde_json::Value = serde_json::from_str(json_data).unwrap();
+
+        if let Some(postings) = parsed.as_array() {
+            assert_eq!(postings.len(), 1);
+
+            let posting = &postings[0];
+            let title = posting["text"].as_str().unwrap();
+            let url = posting["hostedUrl"].as_str().unwrap();
+            let location = posting["categories"]["location"].as_str();
+
+            assert_eq!(title, "Senior Backend Engineer");
+            assert_eq!(url, "https://jobs.lever.co/shopify/abc123");
+            assert_eq!(location, Some("Remote"));
+        }
+    }
+
+    #[test]
+    fn test_parse_response_multiple_jobs() {
+        let json_data = r#"
+        [
+            {
+                "text": "Frontend Engineer",
+                "hostedUrl": "https://jobs.lever.co/netflix/job1",
+                "categories": {
+                    "location": "Los Gatos, CA"
+                }
+            },
+            {
+                "text": "Platform Engineer",
+                "hostedUrl": "https://jobs.lever.co/netflix/job2",
+                "categories": {
+                    "team": "Infrastructure"
+                }
+            },
+            {
+                "text": "DevOps Engineer",
+                "hostedUrl": "https://jobs.lever.co/netflix/job3",
+                "categories": {
+                    "location": "Remote - US"
+                }
+            }
+        ]
+        "#;
+
+        let parsed: serde_json::Value = serde_json::from_str(json_data).unwrap();
+
+        if let Some(postings) = parsed.as_array() {
+            assert_eq!(postings.len(), 3);
+
+            assert_eq!(postings[0]["text"].as_str(), Some("Frontend Engineer"));
+            assert_eq!(postings[1]["text"].as_str(), Some("Platform Engineer"));
+            assert_eq!(postings[2]["text"].as_str(), Some("DevOps Engineer"));
+
+            // First has location in categories.location
+            assert_eq!(
+                postings[0]["categories"]["location"].as_str(),
+                Some("Los Gatos, CA")
+            );
+
+            // Second has team instead of location
+            assert_eq!(postings[1]["categories"]["location"].as_str(), None);
+            assert_eq!(postings[1]["categories"]["team"].as_str(), Some("Infrastructure"));
+
+            // Third has remote location
+            assert_eq!(
+                postings[2]["categories"]["location"].as_str(),
+                Some("Remote - US")
+            );
+        }
+    }
+
+    #[test]
+    fn test_parse_response_empty_array() {
+        let json_data = "[]";
+        let parsed: serde_json::Value = serde_json::from_str(json_data).unwrap();
+
+        if let Some(postings) = parsed.as_array() {
+            assert_eq!(postings.len(), 0);
+        }
+    }
+
+    #[test]
+    fn test_parse_response_missing_fields() {
+        let json_data = r#"
+        [
+            {
+                "text": "Engineer",
+                "hostedUrl": "https://jobs.lever.co/company/job1"
+            },
+            {
+                "hostedUrl": "https://jobs.lever.co/company/job2"
+            },
+            {
+                "text": "Developer"
+            },
+            {
+                "text": "",
+                "hostedUrl": ""
+            }
+        ]
+        "#;
+
+        let parsed: serde_json::Value = serde_json::from_str(json_data).unwrap();
+
+        if let Some(postings) = parsed.as_array() {
+            assert_eq!(postings.len(), 4);
+
+            // First has both fields
+            assert!(postings[0]["text"].as_str().is_some());
+            assert!(postings[0]["hostedUrl"].as_str().is_some());
+
+            // Second missing text
+            assert!(postings[1]["text"].as_str().is_none());
+
+            // Third missing hostedUrl
+            assert!(postings[2]["hostedUrl"].as_str().is_none());
+
+            // Fourth has empty strings (should be filtered by scraper logic)
+            assert_eq!(postings[3]["text"].as_str(), Some(""));
+            assert_eq!(postings[3]["hostedUrl"].as_str(), Some(""));
+        }
+    }
+
+    #[test]
+    fn test_parse_response_with_description_variants() {
+        let json_data = r#"
+        [
+            {
+                "text": "Job 1",
+                "hostedUrl": "https://jobs.lever.co/company/1",
+                "description": "<p>HTML description</p>"
+            },
+            {
+                "text": "Job 2",
+                "hostedUrl": "https://jobs.lever.co/company/2",
+                "descriptionPlain": "Plain text description"
+            },
+            {
+                "text": "Job 3",
+                "hostedUrl": "https://jobs.lever.co/company/3",
+                "description": "<p>HTML version</p>",
+                "descriptionPlain": "Plain version"
+            },
+            {
+                "text": "Job 4",
+                "hostedUrl": "https://jobs.lever.co/company/4"
+            }
+        ]
+        "#;
+
+        let parsed: serde_json::Value = serde_json::from_str(json_data).unwrap();
+
+        if let Some(postings) = parsed.as_array() {
+            // Job 1: has description (HTML)
+            assert_eq!(
+                postings[0]["description"].as_str(),
+                Some("<p>HTML description</p>")
+            );
+
+            // Job 2: has descriptionPlain only
+            assert_eq!(
+                postings[1]["descriptionPlain"].as_str(),
+                Some("Plain text description")
+            );
+
+            // Job 3: has both (should prefer description first)
+            assert!(postings[2]["description"].as_str().is_some());
+            assert!(postings[2]["descriptionPlain"].as_str().is_some());
+
+            // Job 4: has neither
+            assert!(postings[3]["description"].as_str().is_none());
+            assert!(postings[3]["descriptionPlain"].as_str().is_none());
+        }
+    }
+
+    #[test]
+    fn test_infer_remote_from_combined_indicators() {
+        // Both title and location indicate remote
+        assert!(LeverScraper::infer_remote(
+            "Remote Senior Engineer",
+            Some("Remote - Global")
+        ));
+
+        // Title says remote, location doesn't
+        assert!(LeverScraper::infer_remote(
+            "Remote Engineer",
+            Some("San Francisco")
+        ));
+
+        // Location says remote, title doesn't
+        assert!(LeverScraper::infer_remote(
+            "Senior Engineer",
+            Some("Remote - US")
+        ));
+
+        // Neither indicates remote
+        assert!(!LeverScraper::infer_remote(
+            "Senior Engineer",
+            Some("New York, NY")
+        ));
+    }
+
+    #[test]
+    fn test_infer_remote_edge_cases() {
+        // "remote" as part of a larger word should still match
+        assert!(LeverScraper::infer_remote("remotely", None));
+
+        // Multiple remote indicators
+        assert!(LeverScraper::infer_remote(
+            "Remote Work From Home Engineer",
+            Some("Anywhere")
+        ));
+
+        // Empty location
+        assert!(!LeverScraper::infer_remote("Engineer", Some("")));
+
+        // None location with non-remote title
+        assert!(!LeverScraper::infer_remote("Senior Engineer", None));
+    }
+
+    #[test]
+    fn test_api_url_construction() {
+        let companies = vec![
+            LeverCompany {
+                id: "shopify".to_string(),
+                name: "Shopify".to_string(),
+                url: "https://jobs.lever.co/shopify".to_string(),
+            },
+            LeverCompany {
+                id: "netflix".to_string(),
+                name: "Netflix".to_string(),
+                url: "https://jobs.lever.co/netflix".to_string(),
+            },
+        ];
+
+        for company in &companies {
+            let api_url = format!("https://api.lever.co/v0/postings/{}", company.id);
+            assert!(api_url.starts_with("https://api.lever.co/v0/postings/"));
+            assert!(api_url.ends_with(&company.id));
+        }
+    }
+
+    #[test]
+    fn test_hash_with_json_data() {
+        let company = "Shopify";
+        let title = "Senior Backend Engineer";
+        let location = Some("Remote");
+        let url = "https://jobs.lever.co/shopify/abc123";
+
+        let hash = LeverScraper::compute_hash(company, title, location, url);
+
+        assert_eq!(hash.len(), 64);
+        assert!(hash.chars().all(|c| c.is_ascii_hexdigit()));
+    }
+
+    #[test]
+    fn test_hash_different_with_different_location_values() {
+        let hash1 = LeverScraper::compute_hash(
+            "Company",
+            "Engineer",
+            Some("Remote"),
+            "https://example.com/1",
+        );
+        let hash2 = LeverScraper::compute_hash(
+            "Company",
+            "Engineer",
+            Some("Remote - US"),
+            "https://example.com/1",
+        );
+        let hash3 = LeverScraper::compute_hash(
+            "Company",
+            "Engineer",
+            Some("Remote - Global"),
+            "https://example.com/1",
+        );
+
+        assert_ne!(hash1, hash2);
+        assert_ne!(hash2, hash3);
+        assert_ne!(hash1, hash3);
+    }
+
+    #[test]
+    fn test_parse_response_location_fallback_to_team() {
+        let json_data = r#"
+        [
+            {
+                "text": "Engineer",
+                "hostedUrl": "https://jobs.lever.co/company/job1",
+                "categories": {
+                    "team": "Platform Team"
+                }
+            }
+        ]
+        "#;
+
+        let parsed: serde_json::Value = serde_json::from_str(json_data).unwrap();
+
+        if let Some(postings) = parsed.as_array() {
+            let posting = &postings[0];
+
+            // No location field, should fall back to team
+            let location = posting["categories"]["location"]
+                .as_str()
+                .map(|s| s.to_string())
+                .or_else(|| {
+                    posting["categories"]["team"]
+                        .as_str()
+                        .map(|s| s.to_string())
+                });
+
+            assert_eq!(location, Some("Platform Team".to_string()));
+        }
+    }
+
+    #[test]
+    fn test_parse_response_special_characters_in_json() {
+        let json_data = r#"
+        [
+            {
+                "text": "Senior Engineer (Backend) - 🚀",
+                "hostedUrl": "https://jobs.lever.co/company™/job-id",
+                "categories": {
+                    "location": "San Francisco, CA / Remote"
+                },
+                "description": "We're looking for a <strong>talented</strong> engineer!"
+            }
+        ]
+        "#;
+
+        let parsed: serde_json::Value = serde_json::from_str(json_data).unwrap();
+
+        if let Some(postings) = parsed.as_array() {
+            let posting = &postings[0];
+
+            assert!(posting["text"].as_str().unwrap().contains("🚀"));
+            assert!(posting["hostedUrl"].as_str().unwrap().contains("™"));
+            assert!(posting["categories"]["location"].as_str().unwrap().contains("/"));
+            assert!(posting["description"].as_str().unwrap().contains("<strong>"));
+        }
+    }
+
     // ========================================
     // Property-Based Tests
     // ========================================

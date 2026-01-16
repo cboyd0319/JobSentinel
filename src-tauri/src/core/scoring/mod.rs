@@ -382,4 +382,386 @@ mod tests {
             "Salary score should be 0 for below floor"
         );
     }
+
+    #[test]
+    fn test_title_in_blocklist() {
+        let config = create_test_config();
+        let mut job = create_test_job();
+        job.title = "Engineering Manager".to_string(); // Contains "Manager" from blocklist
+
+        let engine = ScoringEngine::new(Arc::new(config));
+        let score = engine.score(&job);
+
+        assert_eq!(
+            score.breakdown.skills, 0.0,
+            "Skills score should be 0 for blocked title"
+        );
+        // Check that the first reason is about blocklist (since skills score is 0)
+        assert!(
+            !score.reasons.is_empty(),
+            "Should have at least one reason"
+        );
+    }
+
+    #[test]
+    fn test_keyword_matching_case_insensitive() {
+        let config = create_test_config();
+        let mut job = create_test_job();
+        job.description = Some("Looking for kubernetes and aws experience".to_string());
+
+        let engine = ScoringEngine::new(Arc::new(config));
+        let score = engine.score(&job);
+
+        // Should match both keywords despite lowercase
+        assert_eq!(
+            score.breakdown.skills, 0.40,
+            "Should match keywords case-insensitively"
+        );
+    }
+
+    #[test]
+    fn test_keyword_matching_partial() {
+        let config = create_test_config();
+        let mut job = create_test_job();
+        job.description = Some("Experience with Kubernetes-native applications and AWS cloud".to_string());
+
+        let engine = ScoringEngine::new(Arc::new(config));
+        let score = engine.score(&job);
+
+        // Should match both keywords partially
+        assert_eq!(
+            score.breakdown.skills, 0.40,
+            "Should match keywords with partial matches"
+        );
+    }
+
+    #[test]
+    fn test_excluded_keyword() {
+        let config = create_test_config();
+        let mut job = create_test_job();
+        job.description = Some("Security Engineer with sales responsibilities, AWS and Kubernetes experience".to_string());
+
+        let engine = ScoringEngine::new(Arc::new(config));
+        let score = engine.score(&job);
+
+        assert_eq!(
+            score.breakdown.skills, 0.0,
+            "Skills score should be 0 for excluded keyword"
+        );
+        assert!(score
+            .reasons
+            .contains(&"Contains excluded keyword".to_string()));
+    }
+
+    #[test]
+    fn test_partial_keyword_match() {
+        let config = create_test_config();
+        let mut job = create_test_job();
+        job.description = Some("Security Engineer with AWS experience".to_string()); // Only 1 of 2 keywords
+
+        let engine = ScoringEngine::new(Arc::new(config));
+        let score = engine.score(&job);
+
+        // Should get 50% of skills score (1 of 2 keywords)
+        assert_eq!(
+            score.breakdown.skills, 0.20,
+            "Skills score should be 50% for partial match"
+        );
+    }
+
+    #[test]
+    fn test_no_boost_keywords() {
+        let mut config = create_test_config();
+        config.keywords_boost.clear();
+        let job = create_test_job();
+
+        let engine = ScoringEngine::new(Arc::new(config));
+        let score = engine.score(&job);
+
+        // Should get full skills score when no boost keywords configured
+        assert_eq!(
+            score.breakdown.skills, 0.40,
+            "Should get full skills score with no boost keywords"
+        );
+    }
+
+    #[test]
+    fn test_location_remote_match() {
+        let config = create_test_config();
+        let mut job = create_test_job();
+        job.remote = Some(true);
+        job.location = Some("Remote".to_string());
+
+        let engine = ScoringEngine::new(Arc::new(config));
+        let score = engine.score(&job);
+
+        assert_eq!(
+            score.breakdown.location, 0.20,
+            "Should get full location score for remote match"
+        );
+        assert!(score
+            .reasons
+            .iter()
+            .any(|r| r.contains("Remote job")));
+    }
+
+    #[test]
+    fn test_location_hybrid_no_match() {
+        let config = create_test_config();
+        let mut job = create_test_job();
+        job.remote = Some(false);
+        job.location = Some("San Francisco, CA (Hybrid)".to_string());
+
+        let engine = ScoringEngine::new(Arc::new(config));
+        let score = engine.score(&job);
+
+        assert_eq!(
+            score.breakdown.location, 0.0,
+            "Should get 0 location score for hybrid when not allowed"
+        );
+    }
+
+    #[test]
+    fn test_location_onsite_no_match() {
+        let config = create_test_config();
+        let mut job = create_test_job();
+        job.remote = Some(false);
+        job.location = Some("New York, NY".to_string());
+
+        let engine = ScoringEngine::new(Arc::new(config));
+        let score = engine.score(&job);
+
+        assert_eq!(
+            score.breakdown.location, 0.0,
+            "Should get 0 location score for onsite when not allowed"
+        );
+    }
+
+    #[test]
+    fn test_salary_not_specified() {
+        let config = create_test_config();
+        let mut job = create_test_job();
+        job.salary_min = None;
+        job.salary_max = None;
+
+        let engine = ScoringEngine::new(Arc::new(config));
+        let score = engine.score(&job);
+
+        assert_eq!(
+            score.breakdown.salary, 0.125,
+            "Should get 50% salary score when not specified"
+        );
+        assert!(score
+            .reasons
+            .iter()
+            .any(|r| r.contains("Salary not specified")));
+    }
+
+    #[test]
+    fn test_salary_at_floor() {
+        let config = create_test_config();
+        let mut job = create_test_job();
+        job.salary_min = Some(150000);
+
+        let engine = ScoringEngine::new(Arc::new(config));
+        let score = engine.score(&job);
+
+        assert_eq!(
+            score.breakdown.salary, 0.25,
+            "Should get full salary score at floor"
+        );
+    }
+
+    #[test]
+    fn test_no_salary_requirement() {
+        let mut config = create_test_config();
+        config.salary_floor_usd = 0;
+        let mut job = create_test_job();
+        job.salary_min = None;
+
+        let engine = ScoringEngine::new(Arc::new(config));
+        let score = engine.score(&job);
+
+        assert_eq!(
+            score.breakdown.salary, 0.25,
+            "Should get full salary score when no requirement"
+        );
+    }
+
+    #[test]
+    fn test_recency_fresh_job() {
+        let config = create_test_config();
+        let job = create_test_job(); // Created at Utc::now()
+
+        let engine = ScoringEngine::new(Arc::new(config));
+        let score = engine.score(&job);
+
+        assert_eq!(
+            score.breakdown.recency, 0.05,
+            "Should get full recency score for fresh job"
+        );
+    }
+
+    #[test]
+    fn test_recency_old_job() {
+        let config = create_test_config();
+        let mut job = create_test_job();
+        job.created_at = Utc::now() - chrono::Duration::days(45);
+
+        let engine = ScoringEngine::new(Arc::new(config));
+        let score = engine.score(&job);
+
+        assert_eq!(
+            score.breakdown.recency, 0.0,
+            "Should get 0 recency score for jobs older than 30 days"
+        );
+    }
+
+    #[test]
+    fn test_recency_moderate_age() {
+        let config = create_test_config();
+        let mut job = create_test_job();
+        job.created_at = Utc::now() - chrono::Duration::days(15);
+
+        let engine = ScoringEngine::new(Arc::new(config));
+        let score = engine.score(&job);
+
+        // Should get partial recency score (between 0 and max)
+        assert!(
+            score.breakdown.recency > 0.0 && score.breakdown.recency < 0.05,
+            "Should get partial recency score for moderately old job, got: {}",
+            score.breakdown.recency
+        );
+    }
+
+    #[test]
+    fn test_score_normalization() {
+        let config = create_test_config();
+        let job = create_test_job();
+
+        let engine = ScoringEngine::new(Arc::new(config));
+        let score = engine.score(&job);
+
+        assert!(
+            score.total >= 0.0 && score.total <= 1.0,
+            "Total score should be between 0 and 1, got: {}",
+            score.total
+        );
+        assert!(
+            score.breakdown.skills >= 0.0 && score.breakdown.skills <= 0.40,
+            "Skills score should be between 0 and 0.40"
+        );
+        assert!(
+            score.breakdown.salary >= 0.0 && score.breakdown.salary <= 0.25,
+            "Salary score should be between 0 and 0.25"
+        );
+        assert!(
+            score.breakdown.location >= 0.0 && score.breakdown.location <= 0.20,
+            "Location score should be between 0 and 0.20"
+        );
+        assert!(
+            score.breakdown.company >= 0.0 && score.breakdown.company <= 0.10,
+            "Company score should be between 0 and 0.10"
+        );
+        assert!(
+            score.breakdown.recency >= 0.0 && score.breakdown.recency <= 0.05,
+            "Recency score should be between 0 and 0.05"
+        );
+    }
+
+    #[test]
+    fn test_empty_title() {
+        let config = create_test_config();
+        let mut job = create_test_job();
+        job.title = "".to_string();
+
+        let engine = ScoringEngine::new(Arc::new(config));
+        let score = engine.score(&job);
+
+        assert_eq!(
+            score.breakdown.skills, 0.0,
+            "Should get 0 skills score for empty title"
+        );
+    }
+
+    #[test]
+    fn test_empty_description() {
+        let config = create_test_config();
+        let mut job = create_test_job();
+        job.description = None;
+
+        let engine = ScoringEngine::new(Arc::new(config));
+        let score = engine.score(&job);
+
+        // With no description and no keywords matched, score will be 0
+        // But the job should still be scored (not crash)
+        assert!(
+            score.total >= 0.0,
+            "Should handle empty description without crashing"
+        );
+    }
+
+    #[test]
+    fn test_immediate_alert_threshold() {
+        let config = create_test_config();
+        let job = create_test_job();
+
+        let engine = ScoringEngine::new(Arc::new(config));
+        let score = engine.score(&job);
+
+        // Perfect match should trigger immediate alert (threshold is 0.9)
+        assert!(
+            engine.should_alert_immediately(&score),
+            "Perfect match should trigger immediate alert"
+        );
+    }
+
+    #[test]
+    fn test_no_immediate_alert_low_score() {
+        let config = create_test_config();
+        let mut job = create_test_job();
+        job.salary_min = Some(100000); // Below floor
+        job.description = Some("Basic description".to_string()); // No keywords
+
+        let engine = ScoringEngine::new(Arc::new(config));
+        let score = engine.score(&job);
+
+        assert!(
+            !engine.should_alert_immediately(&score),
+            "Low score should not trigger immediate alert"
+        );
+    }
+
+    #[test]
+    fn test_location_remote_in_title() {
+        let config = create_test_config();
+        let mut job = create_test_job();
+        job.title = "Remote Security Engineer".to_string();
+        job.remote = None;
+        job.location = None;
+
+        let engine = ScoringEngine::new(Arc::new(config));
+        let score = engine.score(&job);
+
+        assert_eq!(
+            score.breakdown.location, 0.20,
+            "Should detect remote from title"
+        );
+    }
+
+    #[test]
+    fn test_location_remote_in_location_string() {
+        let config = create_test_config();
+        let mut job = create_test_job();
+        job.remote = None;
+        job.location = Some("United States - Remote".to_string());
+
+        let engine = ScoringEngine::new(Arc::new(config));
+        let score = engine.score(&job);
+
+        assert_eq!(
+            score.breakdown.location, 0.20,
+            "Should detect remote from location string"
+        );
+    }
 }
