@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { Button, Input, Badge, Card, ErrorLogPanel } from "../components";
+import { Button, Input, Badge, Card, ErrorLogPanel, NotificationPreferences } from "../components";
 import { useToast } from "../contexts";
 import { logError, getErrorMessage } from "../utils/errorUtils";
 import { exportConfigToJSON, importConfigFromJSON } from "../utils/export";
@@ -701,6 +701,11 @@ export default function Settings({ onClose }: SettingsProps) {
                 </div>
               )}
             </div>
+          </section>
+
+          {/* Notification Preferences by Source */}
+          <section className="mb-6">
+            <NotificationPreferences />
           </section>
 
           {/* Job Sources */}

@@ -26,3 +26,5 @@ export { AnalyticsPanel } from "./AnalyticsPanel";
 export { InterviewScheduler } from "./InterviewScheduler";
 export { ErrorLogPanel } from "./ErrorLogPanel";
 export { CoverLetterTemplates } from "./CoverLetterTemplates";
+export { NotificationPreferences, loadNotificationPreferences, shouldNotifyForJob } from "./NotificationPreferences";
+export type { NotificationPreferences as NotificationPreferencesType, SourceNotificationConfig } from "./NotificationPreferences";
