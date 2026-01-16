@@ -20,7 +20,7 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Button, Card, Badge } from "../components";
+import { Button, Card, Badge, AnalyticsPanel } from "../components";
 import { useToast } from "../contexts";
 import { logError, getErrorMessage } from "../utils/errorUtils";
 
@@ -232,6 +232,7 @@ export default function Applications({ onBack }: ApplicationsProps) {
   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
   const [notes, setNotes] = useState("");
   const [activeId, setActiveId] = useState<number | null>(null);
+  const [showAnalytics, setShowAnalytics] = useState(false);
   const toast = useToast();
 
   const sensors = useSensors(
@@ -425,9 +426,15 @@ export default function Applications({ onBack }: ApplicationsProps) {
                 </p>
               </div>
             </div>
-            <Button onClick={handleDetectGhosted} variant="secondary">
-              Detect Ghosted
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button onClick={() => setShowAnalytics(true)} variant="secondary">
+                <AnalyticsIcon />
+                Analytics
+              </Button>
+              <Button onClick={handleDetectGhosted} variant="secondary">
+                Detect Ghosted
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -601,6 +608,11 @@ export default function Applications({ onBack }: ApplicationsProps) {
           </Card>
         </div>
       )}
+
+      {/* Analytics Panel */}
+      {showAnalytics && (
+        <AnalyticsPanel onClose={() => setShowAnalytics(false)} />
+      )}
     </div>
   );
 }
@@ -617,6 +629,14 @@ function CloseIcon() {
   return (
     <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  );
+}
+
+function AnalyticsIcon() {
+  return (
+    <svg className="w-5 h-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
     </svg>
   );
 }

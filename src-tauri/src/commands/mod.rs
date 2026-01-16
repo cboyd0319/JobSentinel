@@ -495,6 +495,20 @@ pub async fn detect_ghosted_applications(state: State<'_, AppState>) -> Result<u
         .map_err(|e| format!("Failed to detect ghosted: {}", e))
 }
 
+/// Get application statistics for analytics dashboard
+#[tauri::command]
+pub async fn get_application_stats(
+    state: State<'_, AppState>,
+) -> Result<crate::core::ApplicationStats, String> {
+    tracing::info!("Command: get_application_stats");
+
+    let tracker = ApplicationTracker::new(state.database.pool().clone());
+    tracker
+        .get_application_stats()
+        .await
+        .map_err(|e| format!("Failed to get application stats: {}", e))
+}
+
 // ============================================================================
 // Job Deduplication Commands
 // ============================================================================

@@ -74,6 +74,7 @@ fn main() {
             commands::get_pending_reminders,
             commands::complete_reminder,
             commands::detect_ghosted_applications,
+            commands::get_application_stats,
             // Deduplication commands
             commands::find_duplicates,
             commands::merge_duplicates,

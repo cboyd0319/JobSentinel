@@ -466,6 +466,152 @@ impl ApplicationTracker {
 
         Ok(())
     }
+
+    /// Get application statistics for analytics
+    pub async fn get_application_stats(&self) -> Result<ApplicationStats> {
+        // Get counts by status
+        let status_counts = sqlx::query!(
+            r#"
+            SELECT
+                status,
+                COUNT(*) as count
+            FROM applications
+            GROUP BY status
+            "#
+        )
+        .fetch_all(&self.db)
+        .await?;
+
+        let mut stats = ApplicationStats::default();
+        for row in status_counts {
+            let count = row.count as i32;
+            match row.status.as_str() {
+                "to_apply" => stats.by_status.to_apply = count,
+                "applied" => stats.by_status.applied = count,
+                "screening_call" => stats.by_status.screening_call = count,
+                "phone_interview" => stats.by_status.phone_interview = count,
+                "technical_interview" => stats.by_status.technical_interview = count,
+                "onsite_interview" => stats.by_status.onsite_interview = count,
+                "offer_received" => stats.by_status.offer_received = count,
+                "offer_accepted" => stats.by_status.offer_accepted = count,
+                "offer_rejected" => stats.by_status.offer_rejected = count,
+                "rejected" => stats.by_status.rejected = count,
+                "ghosted" => stats.by_status.ghosted = count,
+                "withdrawn" => stats.by_status.withdrawn = count,
+                _ => {}
+            }
+        }
+
+        // Calculate totals
+        stats.total = stats.by_status.to_apply
+            + stats.by_status.applied
+            + stats.by_status.screening_call
+            + stats.by_status.phone_interview
+            + stats.by_status.technical_interview
+            + stats.by_status.onsite_interview
+            + stats.by_status.offer_received
+            + stats.by_status.offer_accepted
+            + stats.by_status.offer_rejected
+            + stats.by_status.rejected
+            + stats.by_status.ghosted
+            + stats.by_status.withdrawn;
+
+        // Calculate response rate (moved past applied / total applied)
+        let total_applied = stats.by_status.applied
+            + stats.by_status.screening_call
+            + stats.by_status.phone_interview
+            + stats.by_status.technical_interview
+            + stats.by_status.onsite_interview
+            + stats.by_status.offer_received
+            + stats.by_status.offer_accepted
+            + stats.by_status.offer_rejected
+            + stats.by_status.rejected
+            + stats.by_status.ghosted;
+
+        let got_response = stats.by_status.screening_call
+            + stats.by_status.phone_interview
+            + stats.by_status.technical_interview
+            + stats.by_status.onsite_interview
+            + stats.by_status.offer_received
+            + stats.by_status.offer_accepted
+            + stats.by_status.offer_rejected
+            + stats.by_status.rejected;
+
+        if total_applied > 0 {
+            stats.response_rate = (got_response as f64 / total_applied as f64) * 100.0;
+        }
+
+        // Calculate offer rate (offers / total applied)
+        let total_offers = stats.by_status.offer_received
+            + stats.by_status.offer_accepted
+            + stats.by_status.offer_rejected;
+
+        if total_applied > 0 {
+            stats.offer_rate = (total_offers as f64 / total_applied as f64) * 100.0;
+        }
+
+        // Get applications by week for the last 12 weeks
+        let weekly_data = sqlx::query!(
+            r#"
+            SELECT
+                strftime('%Y-%W', applied_at) as week,
+                COUNT(*) as count
+            FROM applications
+            WHERE applied_at IS NOT NULL
+              AND applied_at >= datetime('now', '-12 weeks')
+            GROUP BY week
+            ORDER BY week ASC
+            "#
+        )
+        .fetch_all(&self.db)
+        .await?;
+
+        stats.weekly_applications = weekly_data
+            .into_iter()
+            .filter_map(|row| {
+                row.week.map(|w| WeeklyData {
+                    week: w,
+                    count: row.count as i32,
+                })
+            })
+            .collect();
+
+        Ok(stats)
+    }
+}
+
+/// Application statistics for analytics dashboard
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+pub struct ApplicationStats {
+    pub total: i32,
+    pub by_status: StatusCounts,
+    pub response_rate: f64,
+    pub offer_rate: f64,
+    pub weekly_applications: Vec<WeeklyData>,
+}
+
+/// Counts by status
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+pub struct StatusCounts {
+    pub to_apply: i32,
+    pub applied: i32,
+    pub screening_call: i32,
+    pub phone_interview: i32,
+    pub technical_interview: i32,
+    pub onsite_interview: i32,
+    pub offer_received: i32,
+    pub offer_accepted: i32,
+    pub offer_rejected: i32,
+    pub rejected: i32,
+    pub ghosted: i32,
+    pub withdrawn: i32,
+}
+
+/// Weekly application data
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct WeeklyData {
+    pub week: String,
+    pub count: i32,
 }
 
 /// Pending reminder with job details

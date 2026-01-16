@@ -46,7 +46,7 @@ pub use scoring::{JobScore, ScoringEngine};
 pub use scrapers::{JobScraper, ScraperResult};
 
 // v1.1+ re-exports
-pub use ats::{Application, ApplicationStatus, ApplicationTracker, ApplicationsByStatus, PendingReminder};
+pub use ats::{Application, ApplicationStats, ApplicationStatus, ApplicationTracker, ApplicationsByStatus, PendingReminder, StatusCounts, WeeklyData};
 pub use resume::{MatchResult, Resume, ResumeMatcher, UserSkill};
 pub use salary::{SalaryAnalyzer, SalaryBenchmark, SalaryPrediction, SeniorityLevel};
 pub use market_intelligence::{
