@@ -1,15 +1,21 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
-import { ThemeProvider, ToastProvider, UndoProvider } from "./contexts";
+import { ThemeProvider, ToastProvider, UndoProvider, AnnouncerProvider } from "./contexts";
+import { reportWebVitals } from "./utils/vitals";
 import "./index.css";
+
+// Report Web Vitals in development mode
+reportWebVitals();
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <ThemeProvider>
       <ToastProvider>
         <UndoProvider>
-          <App />
+          <AnnouncerProvider>
+            <App />
+          </AnnouncerProvider>
         </UndoProvider>
       </ToastProvider>
     </ThemeProvider>
