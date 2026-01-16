@@ -25,6 +25,16 @@ interface Config {
       enabled: boolean;
       webhook_url: string;
     };
+    email: {
+      enabled: boolean;
+      smtp_server: string;
+      smtp_port: number;
+      smtp_username: string;
+      smtp_password: string;
+      from_email: string;
+      to_emails: string[];
+      use_starttls: boolean;
+    };
   };
   linkedin: {
     enabled: boolean;
@@ -362,24 +372,201 @@ export default function Settings({ onClose }: SettingsProps) {
           {/* Notifications */}
           <section className="mb-6">
             <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3">Notifications</h3>
-            <Input
-              label="Slack Webhook URL"
-              value={config.alerts.slack.webhook_url}
-              onChange={(e) =>
-                setConfig({
-                  ...config,
-                  alerts: {
-                    slack: {
-                      enabled: e.target.value.length > 0 && isValidSlackWebhook(e.target.value),
-                      webhook_url: e.target.value,
+
+            {/* Slack */}
+            <div className="mb-4">
+              <Input
+                label="Slack Webhook URL"
+                value={config.alerts.slack.webhook_url}
+                onChange={(e) =>
+                  setConfig({
+                    ...config,
+                    alerts: {
+                      ...config.alerts,
+                      slack: {
+                        enabled: e.target.value.length > 0 && isValidSlackWebhook(e.target.value),
+                        webhook_url: e.target.value,
+                      },
                     },
-                  },
-                })
-              }
-              placeholder="https://hooks.slack.com/services/..."
-              error={config.alerts.slack.webhook_url && !isValidWebhook ? "Invalid Slack webhook URL" : undefined}
-              hint="Get notified when high-match jobs are found"
-            />
+                  })
+                }
+                placeholder="https://hooks.slack.com/services/..."
+                error={config.alerts.slack.webhook_url && !isValidWebhook ? "Invalid Slack webhook URL" : undefined}
+                hint="Get notified when high-match jobs are found"
+              />
+            </div>
+
+            {/* Email */}
+            <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <EmailIcon className="w-5 h-5 text-blue-500" />
+                  <span className="font-medium text-surface-800 dark:text-surface-200">Email (SMTP)</span>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={config.alerts.email?.enabled ?? false}
+                    onChange={(e) =>
+                      setConfig({
+                        ...config,
+                        alerts: {
+                          ...config.alerts,
+                          email: {
+                            ...config.alerts.email,
+                            enabled: e.target.checked,
+                          },
+                        },
+                      })
+                    }
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-surface-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-sentinel-300 dark:peer-focus:ring-sentinel-800 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-surface-600 peer-checked:bg-sentinel-500"></div>
+                </label>
+              </div>
+
+              {config.alerts.email?.enabled && (
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <Input
+                      label="SMTP Server"
+                      value={config.alerts.email?.smtp_server ?? ""}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          alerts: {
+                            ...config.alerts,
+                            email: {
+                              ...config.alerts.email,
+                              smtp_server: e.target.value,
+                            },
+                          },
+                        })
+                      }
+                      placeholder="smtp.gmail.com"
+                    />
+                    <div className="flex gap-2">
+                      <div className="flex-1">
+                        <Input
+                          label="Port"
+                          type="number"
+                          value={config.alerts.email?.smtp_port ?? 587}
+                          onChange={(e) =>
+                            setConfig({
+                              ...config,
+                              alerts: {
+                                ...config.alerts,
+                                email: {
+                                  ...config.alerts.email,
+                                  smtp_port: parseInt(e.target.value) || 587,
+                                },
+                              },
+                            })
+                          }
+                        />
+                      </div>
+                      <div className="flex items-end pb-2">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={config.alerts.email?.use_starttls ?? true}
+                            onChange={(e) =>
+                              setConfig({
+                                ...config,
+                                alerts: {
+                                  ...config.alerts,
+                                  email: {
+                                    ...config.alerts.email,
+                                    use_starttls: e.target.checked,
+                                  },
+                                },
+                              })
+                            }
+                            className="w-4 h-4 rounded border-surface-300 text-sentinel-500 focus:ring-sentinel-500"
+                          />
+                          <span className="text-sm text-surface-700 dark:text-surface-300">STARTTLS</span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Input
+                      label="Username"
+                      value={config.alerts.email?.smtp_username ?? ""}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          alerts: {
+                            ...config.alerts,
+                            email: {
+                              ...config.alerts.email,
+                              smtp_username: e.target.value,
+                            },
+                          },
+                        })
+                      }
+                      placeholder="your@email.com"
+                    />
+                    <Input
+                      label="Password"
+                      type="password"
+                      value={config.alerts.email?.smtp_password ?? ""}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          alerts: {
+                            ...config.alerts,
+                            email: {
+                              ...config.alerts.email,
+                              smtp_password: e.target.value,
+                            },
+                          },
+                        })
+                      }
+                      placeholder="App-specific password"
+                      hint="Use app-specific password for Gmail"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Input
+                      label="From Email"
+                      value={config.alerts.email?.from_email ?? ""}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          alerts: {
+                            ...config.alerts,
+                            email: {
+                              ...config.alerts.email,
+                              from_email: e.target.value,
+                            },
+                          },
+                        })
+                      }
+                      placeholder="alerts@yourdomain.com"
+                    />
+                    <Input
+                      label="To Email(s)"
+                      value={config.alerts.email?.to_emails?.join(", ") ?? ""}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          alerts: {
+                            ...config.alerts,
+                            email: {
+                              ...config.alerts.email,
+                              to_emails: e.target.value.split(",").map((s) => s.trim()).filter(Boolean),
+                            },
+                          },
+                        })
+                      }
+                      placeholder="you@email.com, backup@email.com"
+                      hint="Comma-separated for multiple"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
           </section>
 
           {/* Job Sources */}
@@ -652,6 +839,14 @@ function IndeedIcon({ className = "" }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path d="M11.566 21.5633v-8.762c.2699.0237.5412.0356.8129.0356 1.6573 0 3.1939-.4812 4.4783-1.3045v10.0309c0 .8765-.4813 1.5643-1.0871 1.5643-.5344 0-1.087-.6878-1.087-1.5643v-3.6373c-1.0274.5936-2.1092.858-3.1171.6373zm1.0515-20.4946c-2.4136-.8768-5.0683-.2512-6.2971 1.6326-1.1932 1.8245-1.1932 4.9212.9475 6.6804.4813.2749 1.0871.4762 1.7046.6646.6175.1884 1.2469.3293 1.8773.4467.6292.1063 1.2469.1655 1.8527.1655.6175 0 1.2469-.0474 1.8644-.1655.6175-.1174 1.2469-.2584 1.8644-.4467.6175-.1884 1.2351-.3897 1.7164-.6646.2455-.1655.4929-.3778.7285-.6171.2455-.2393.4811-.4786.7049-.7298.4455-.5346.8176-1.1518 1.1041-1.8484.2811-.6878.4455-1.4452.4455-2.2498 0-1.613-.7285-3.0379-1.9337-4.0565-1.205-1.0068-2.8622-1.5179-4.5791-1.2114z"/>
+    </svg>
+  );
+}
+
+function EmailIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
     </svg>
   );
 }

@@ -16,12 +16,13 @@
 - Scheduler for periodic scraping
 - React 19 frontend with setup wizard
 
-### v1.1 Planned Features
+### v1.1 Features (COMPLETED)
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| Email notifications (SMTP) | Backend ready | Frontend UI needed |
-| Frontend pages for ATS/Resume/Salary/Market | Backend ready | UI pages needed |
+| Email notifications (SMTP) | **Done** | Full UI in Settings |
+| Frontend pages for ATS/Resume/Salary/Market | **Done** | 4 new pages with navigation |
+| GitHub Actions CI/CD | **Done** | Multi-platform build/test |
 
 ### v2.0 Planned Features
 
@@ -108,10 +109,10 @@ Automated application submission.
 - [x] All backend modules exposed via Tauri commands
 
 ### Remaining Work
-- [ ] Email notifications frontend UI
-- [ ] Frontend pages for ATS, Resume, Salary, Market features
+- [x] Email notifications frontend UI
+- [x] Frontend pages for ATS, Resume, Salary, Market features
+- [x] Set up CI/CD pipeline (GitHub Actions)
 - [ ] Add comprehensive integration tests
-- [ ] Set up CI/CD pipeline
 
 ---
 

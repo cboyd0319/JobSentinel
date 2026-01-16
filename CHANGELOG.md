@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **4 new frontend pages** with navigation from Dashboard:
+  - **Applications** - Kanban board for tracking job applications through pipeline
+  - **Resume** - AI resume matcher with PDF upload and skill extraction
+  - **Salary** - Salary benchmarks, predictions, and negotiation script generation
+  - **Market** - Market intelligence with skill trends, company activity, location heat maps
+- **Email notifications UI** in Settings - full SMTP configuration with toggle switch
+- **GitHub Actions CI/CD** - multi-platform build/test workflow (`.github/workflows/ci.yml`)
+- **Dialog plugin** for file picker (tauri-plugin-dialog) - enables resume PDF upload
 - **LinkedIn scraper integration** - fully wired into scheduler with Settings UI
   - Session cookie (li_at) authentication
   - Configurable query, location, remote-only filter

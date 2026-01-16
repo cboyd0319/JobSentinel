@@ -4,18 +4,19 @@ Welcome to JobSentinel documentation.
 
 ## Current Status (January 2026)
 
-**Version: 1.0.0-alpha** | 290 tests passing, 20 ignored
+**Version: 1.1.0** | 291 tests passing, 20 ignored | CI/CD enabled
 
 ### Working Features
 - Job scrapers: Greenhouse, Lever, JobsWithGPT, LinkedIn, Indeed
-- Application Tracking System (ATS) with Kanban board
-- AI Resume-Job Matcher with PDF parsing
-- Salary AI with negotiation insights
-- Market Intelligence with trend analysis
+- Application Tracking System (ATS) with Kanban board **+ frontend page**
+- AI Resume-Job Matcher with PDF parsing **+ frontend page**
+- Salary AI with negotiation insights **+ frontend page**
+- Market Intelligence with trend analysis **+ frontend page**
 - Multi-factor scoring algorithm
-- Notifications: Slack, Discord, Teams, Desktop
+- Notifications: Slack, Discord, Teams, Desktop, **Email (SMTP)**
 - SQLite database with full-text search
-- React 19 frontend with setup wizard
+- React 19 frontend with setup wizard and navigation
+- GitHub Actions CI/CD for multi-platform build/test
 
 ### All Backend Modules Enabled
 - Core: config, db, scoring, scheduler, scrapers, notify
@@ -25,7 +26,6 @@ Welcome to JobSentinel documentation.
 - Market Intelligence: 5 Tauri commands (trends, companies, locations, alerts)
 
 ### Deferred Features (v2.0+)
-- Email notifications (SMTP - backend ready)
 - One-Click Apply Automation (legal review required)
 
 ---

@@ -33,7 +33,13 @@ interface ScrapingStatus {
   is_running: boolean;
 }
 
-export default function Dashboard() {
+type Page = "dashboard" | "applications" | "resume" | "salary" | "market";
+
+interface DashboardProps {
+  onNavigate?: (page: Page) => void;
+}
+
+export default function Dashboard({ onNavigate }: DashboardProps) {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [statistics, setStatistics] = useState<Statistics>({
     total_jobs: 0,
@@ -309,6 +315,63 @@ export default function Dashboard() {
           </Card>
         </div>
 
+        {/* Quick Navigation */}
+        {onNavigate && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <button
+              onClick={() => onNavigate("applications")}
+              className="flex items-center gap-3 p-4 bg-white dark:bg-surface-800 rounded-lg border border-surface-200 dark:border-surface-700 hover:border-sentinel-300 dark:hover:border-sentinel-600 transition-colors group"
+            >
+              <div className="w-10 h-10 bg-blue-50 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                <KanbanIcon className="w-5 h-5 text-blue-500" />
+              </div>
+              <div className="text-left">
+                <p className="font-medium text-surface-800 dark:text-surface-200 group-hover:text-sentinel-600 dark:group-hover:text-sentinel-400">Applications</p>
+                <p className="text-xs text-surface-500 dark:text-surface-400">Track your pipeline</p>
+              </div>
+            </button>
+
+            <button
+              onClick={() => onNavigate("resume")}
+              className="flex items-center gap-3 p-4 bg-white dark:bg-surface-800 rounded-lg border border-surface-200 dark:border-surface-700 hover:border-sentinel-300 dark:hover:border-sentinel-600 transition-colors group"
+            >
+              <div className="w-10 h-10 bg-purple-50 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
+                <DocumentIcon className="w-5 h-5 text-purple-500" />
+              </div>
+              <div className="text-left">
+                <p className="font-medium text-surface-800 dark:text-surface-200 group-hover:text-sentinel-600 dark:group-hover:text-sentinel-400">Resume</p>
+                <p className="text-xs text-surface-500 dark:text-surface-400">AI matching</p>
+              </div>
+            </button>
+
+            <button
+              onClick={() => onNavigate("salary")}
+              className="flex items-center gap-3 p-4 bg-white dark:bg-surface-800 rounded-lg border border-surface-200 dark:border-surface-700 hover:border-sentinel-300 dark:hover:border-sentinel-600 transition-colors group"
+            >
+              <div className="w-10 h-10 bg-green-50 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                <CurrencyIcon className="w-5 h-5 text-green-500" />
+              </div>
+              <div className="text-left">
+                <p className="font-medium text-surface-800 dark:text-surface-200 group-hover:text-sentinel-600 dark:group-hover:text-sentinel-400">Salary AI</p>
+                <p className="text-xs text-surface-500 dark:text-surface-400">Benchmarks & negotiation</p>
+              </div>
+            </button>
+
+            <button
+              onClick={() => onNavigate("market")}
+              className="flex items-center gap-3 p-4 bg-white dark:bg-surface-800 rounded-lg border border-surface-200 dark:border-surface-700 hover:border-sentinel-300 dark:hover:border-sentinel-600 transition-colors group"
+            >
+              <div className="w-10 h-10 bg-orange-50 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
+                <ChartIcon className="w-5 h-5 text-orange-500" />
+              </div>
+              <div className="text-left">
+                <p className="font-medium text-surface-800 dark:text-surface-200 group-hover:text-sentinel-600 dark:group-hover:text-sentinel-400">Market Intel</p>
+                <p className="text-xs text-surface-500 dark:text-surface-400">Trends & insights</p>
+              </div>
+            </button>
+          </div>
+        )}
+
         {/* Scraping status */}
         <Card className="mb-8 dark:bg-surface-800">
           <CardHeader
@@ -464,6 +527,38 @@ function SettingsIcon() {
     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+    </svg>
+  );
+}
+
+function KanbanIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+    </svg>
+  );
+}
+
+function DocumentIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    </svg>
+  );
+}
+
+function CurrencyIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+  );
+}
+
+function ChartIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
     </svg>
   );
 }
