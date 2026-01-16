@@ -1,0 +1,101 @@
+{
+  "_profile": "Content & Copywriting",
+  "_description": "For content writers, copywriters, content strategists, and editorial professionals",
+  "_salary_range": "$55,000 - $130,000",
+
+  "title_allowlist": [
+    "Content Writer",
+    "Senior Content Writer",
+    "Copywriter",
+    "Senior Copywriter",
+    "Content Strategist",
+    "Content Manager",
+    "Content Marketing Manager",
+    "Content Director",
+    "Head of Content",
+    "Editorial Manager",
+    "Editor",
+    "Managing Editor",
+    "Technical Writer",
+    "UX Writer",
+    "UX Copywriter",
+    "Brand Copywriter",
+    "Creative Writer",
+    "Blog Writer",
+    "Content Producer",
+    "Social Media Manager",
+    "Social Media Content",
+    "Communications Manager",
+    "PR Manager",
+    "Public Relations"
+  ],
+
+  "title_blocklist": [
+    "Intern",
+    "Internship",
+    "Junior",
+    "Entry Level",
+    "Freelance",
+    "Contract"
+  ],
+
+  "keywords_boost": [
+    "Content Strategy",
+    "SEO Writing",
+    "SEO Content",
+    "Blog",
+    "Long-form",
+    "Short-form",
+    "B2B Content",
+    "B2C Content",
+    "SaaS Writing",
+    "Technical Writing",
+    "Documentation",
+    "API Documentation",
+    "UX Writing",
+    "Microcopy",
+    "Email Copy",
+    "Landing Pages",
+    "Website Copy",
+    "Brand Voice",
+    "Tone of Voice",
+    "Style Guide",
+    "Editorial Calendar",
+    "Content Management",
+    "CMS",
+    "WordPress",
+    "Contentful",
+    "Webflow",
+    "Figma",
+    "Notion",
+    "Google Analytics",
+    "Conversion",
+    "Engagement"
+  ],
+
+  "keywords_exclude": [
+    "ghostwriting only",
+    "content mill",
+    "pay per article"
+  ],
+
+  "location_preferences": {
+    "allow_remote": true,
+    "allow_hybrid": true,
+    "allow_onsite": true,
+    "cities": [],
+    "states": [],
+    "country": "US"
+  },
+
+  "salary_floor_usd": 65000,
+
+  "greenhouse_urls": [
+    "https://boards.greenhouse.io/notion",
+    "https://boards.greenhouse.io/webflow",
+    "https://boards.greenhouse.io/hubspot",
+    "https://boards.greenhouse.io/mailchimp"
+  ],
+
+  "lever_urls": []
+}

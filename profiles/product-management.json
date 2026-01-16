@@ -1,0 +1,101 @@
+{
+  "_profile": "Product Management",
+  "_description": "For product managers, product owners, and product leaders",
+  "_salary_range": "$100,000 - $200,000",
+
+  "title_allowlist": [
+    "Product Manager",
+    "Senior Product Manager",
+    "Staff Product Manager",
+    "Principal Product Manager",
+    "Group Product Manager",
+    "Director of Product",
+    "VP of Product",
+    "Head of Product",
+    "Product Owner",
+    "Technical Product Manager",
+    "Platform Product Manager",
+    "Growth Product Manager",
+    "Product Lead",
+    "Associate Product Manager",
+    "Product Operations",
+    "Product Analyst"
+  ],
+
+  "title_blocklist": [
+    "Intern",
+    "Internship",
+    "Project Manager",
+    "Program Manager",
+    "Marketing Manager",
+    "Sales"
+  ],
+
+  "keywords_boost": [
+    "Product Strategy",
+    "Roadmap",
+    "Product Discovery",
+    "User Research",
+    "A/B Testing",
+    "Data-Driven",
+    "Agile",
+    "Scrum",
+    "OKRs",
+    "KPIs",
+    "Product Analytics",
+    "Amplitude",
+    "Mixpanel",
+    "Segment",
+    "PRD",
+    "Product Requirements",
+    "User Stories",
+    "Stakeholder Management",
+    "Cross-functional",
+    "B2B",
+    "B2C",
+    "SaaS",
+    "Platform",
+    "API",
+    "Mobile",
+    "Growth",
+    "Retention",
+    "Monetization",
+    "Figma",
+    "Jira",
+    "Confluence",
+    "SQL"
+  ],
+
+  "keywords_exclude": [
+    "staffing agency",
+    "recruiting",
+    "commission only"
+  ],
+
+  "location_preferences": {
+    "allow_remote": true,
+    "allow_hybrid": true,
+    "allow_onsite": true,
+    "cities": [],
+    "states": [],
+    "country": "US"
+  },
+
+  "salary_floor_usd": 110000,
+
+  "greenhouse_urls": [
+    "https://boards.greenhouse.io/stripe",
+    "https://boards.greenhouse.io/figma",
+    "https://boards.greenhouse.io/notion",
+    "https://boards.greenhouse.io/airbnb",
+    "https://boards.greenhouse.io/doordash",
+    "https://boards.greenhouse.io/instacart",
+    "https://boards.greenhouse.io/coinbase",
+    "https://boards.greenhouse.io/databricks"
+  ],
+
+  "lever_urls": [
+    "https://jobs.lever.co/netflix",
+    "https://jobs.lever.co/reddit"
+  ]
+}

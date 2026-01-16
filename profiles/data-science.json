@@ -1,0 +1,105 @@
+{
+  "_profile": "Data Science & Analytics",
+  "_description": "For data scientists, data analysts, ML engineers, and analytics professionals",
+  "_salary_range": "$90,000 - $220,000",
+
+  "title_allowlist": [
+    "Data Scientist",
+    "Senior Data Scientist",
+    "Staff Data Scientist",
+    "Principal Data Scientist",
+    "Data Analyst",
+    "Senior Data Analyst",
+    "Business Analyst",
+    "Analytics Engineer",
+    "Machine Learning Engineer",
+    "ML Engineer",
+    "Applied Scientist",
+    "Research Scientist",
+    "AI Engineer",
+    "Data Engineer",
+    "Analytics Manager",
+    "Head of Data",
+    "Director of Analytics",
+    "Quantitative Analyst",
+    "Statistician",
+    "BI Developer",
+    "BI Analyst",
+    "Business Intelligence"
+  ],
+
+  "title_blocklist": [
+    "Intern",
+    "Internship",
+    "Junior",
+    "Entry Level",
+    "Data Entry"
+  ],
+
+  "keywords_boost": [
+    "Python",
+    "R",
+    "SQL",
+    "Machine Learning",
+    "Deep Learning",
+    "TensorFlow",
+    "PyTorch",
+    "Scikit-learn",
+    "Pandas",
+    "NumPy",
+    "Statistics",
+    "A/B Testing",
+    "Experimentation",
+    "Causal Inference",
+    "NLP",
+    "Computer Vision",
+    "LLM",
+    "Generative AI",
+    "Snowflake",
+    "Databricks",
+    "BigQuery",
+    "Redshift",
+    "Spark",
+    "Airflow",
+    "DBT",
+    "Looker",
+    "Tableau",
+    "Power BI",
+    "ETL",
+    "Data Pipeline",
+    "Feature Engineering",
+    "Model Deployment",
+    "MLOps"
+  ],
+
+  "keywords_exclude": [
+    "data entry",
+    "manual data",
+    "commission"
+  ],
+
+  "location_preferences": {
+    "allow_remote": true,
+    "allow_hybrid": true,
+    "allow_onsite": false,
+    "cities": [],
+    "states": [],
+    "country": "US"
+  },
+
+  "salary_floor_usd": 100000,
+
+  "greenhouse_urls": [
+    "https://boards.greenhouse.io/databricks",
+    "https://boards.greenhouse.io/stripe",
+    "https://boards.greenhouse.io/airbnb",
+    "https://boards.greenhouse.io/netflix",
+    "https://boards.greenhouse.io/meta",
+    "https://boards.greenhouse.io/spotify"
+  ],
+
+  "lever_urls": [
+    "https://jobs.lever.co/reddit",
+    "https://jobs.lever.co/netflix"
+  ]
+}

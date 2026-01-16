@@ -1,0 +1,107 @@
+{
+  "_profile": "Sales & Business Development",
+  "_description": "For account executives, sales managers, BDRs, and business development professionals",
+  "_salary_range": "$60,000 - $200,000+ (base + commission)",
+
+  "title_allowlist": [
+    "Account Executive",
+    "Senior Account Executive",
+    "Enterprise Account Executive",
+    "Strategic Account Executive",
+    "Sales Manager",
+    "Regional Sales Manager",
+    "Sales Director",
+    "VP of Sales",
+    "Head of Sales",
+    "Business Development Representative",
+    "BDR",
+    "Sales Development Representative",
+    "SDR",
+    "Business Development Manager",
+    "Partnership Manager",
+    "Channel Manager",
+    "Revenue Manager",
+    "Commercial Manager",
+    "Customer Success Manager",
+    "Account Manager",
+    "Key Account Manager",
+    "Inside Sales",
+    "Field Sales",
+    "Solutions Consultant",
+    "Sales Engineer"
+  ],
+
+  "title_blocklist": [
+    "Intern",
+    "Internship",
+    "Retail",
+    "Door to Door",
+    "Canvassing"
+  ],
+
+  "keywords_boost": [
+    "SaaS",
+    "B2B",
+    "Enterprise Sales",
+    "Solution Selling",
+    "Consultative Sales",
+    "Salesforce",
+    "HubSpot",
+    "Outreach",
+    "Gong",
+    "LinkedIn Sales Navigator",
+    "Pipeline Management",
+    "Quota",
+    "ARR",
+    "MRR",
+    "ACV",
+    "TCV",
+    "Sales Cycle",
+    "Discovery",
+    "Demo",
+    "Negotiation",
+    "Closing",
+    "Land and Expand",
+    "Upsell",
+    "Cross-sell",
+    "C-Suite",
+    "Executive Selling",
+    "MEDDIC",
+    "BANT",
+    "Challenger Sale",
+    "SPIN Selling"
+  ],
+
+  "keywords_exclude": [
+    "door to door",
+    "cold calling only",
+    "commission only",
+    "100% commission",
+    "MLM",
+    "network marketing",
+    "insurance sales",
+    "timeshare"
+  ],
+
+  "location_preferences": {
+    "allow_remote": true,
+    "allow_hybrid": true,
+    "allow_onsite": true,
+    "cities": [],
+    "states": [],
+    "country": "US"
+  },
+
+  "salary_floor_usd": 70000,
+
+  "greenhouse_urls": [
+    "https://boards.greenhouse.io/salesforce",
+    "https://boards.greenhouse.io/hubspot",
+    "https://boards.greenhouse.io/stripe",
+    "https://boards.greenhouse.io/datadog",
+    "https://boards.greenhouse.io/snowflake",
+    "https://boards.greenhouse.io/mongodb"
+  ],
+
+  "lever_urls": []
+}

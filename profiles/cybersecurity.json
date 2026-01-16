@@ -1,0 +1,108 @@
+{
+  "_profile": "Cybersecurity",
+  "_description": "For security engineers, analysts, penetration testers, and security architects",
+  "_salary_range": "$100,000 - $250,000",
+
+  "title_allowlist": [
+    "Security Engineer",
+    "Senior Security Engineer",
+    "Staff Security Engineer",
+    "Principal Security Engineer",
+    "Application Security Engineer",
+    "AppSec Engineer",
+    "Product Security Engineer",
+    "Cloud Security Engineer",
+    "Infrastructure Security",
+    "Network Security Engineer",
+    "Security Architect",
+    "Security Analyst",
+    "SOC Analyst",
+    "Threat Analyst",
+    "Incident Response",
+    "Penetration Tester",
+    "Red Team",
+    "Blue Team",
+    "Security Consultant",
+    "GRC Analyst",
+    "Compliance Analyst",
+    "Security Manager",
+    "CISO",
+    "Head of Security",
+    "Director of Security",
+    "VP of Security"
+  ],
+
+  "title_blocklist": [
+    "Intern",
+    "Internship",
+    "Junior",
+    "Entry Level",
+    "Physical Security",
+    "Security Guard"
+  ],
+
+  "keywords_boost": [
+    "Application Security",
+    "AppSec",
+    "Cloud Security",
+    "AWS Security",
+    "GCP Security",
+    "Azure Security",
+    "Kubernetes Security",
+    "Container Security",
+    "SAST",
+    "DAST",
+    "SCA",
+    "Threat Modeling",
+    "Penetration Testing",
+    "Vulnerability Assessment",
+    "Zero Trust",
+    "IAM",
+    "SSO",
+    "SAML",
+    "OAuth",
+    "Encryption",
+    "PKI",
+    "SIEM",
+    "SOAR",
+    "Incident Response",
+    "Forensics",
+    "Malware Analysis",
+    "SOC 2",
+    "ISO 27001",
+    "NIST",
+    "OWASP",
+    "Burp Suite",
+    "Splunk",
+    "CrowdStrike"
+  ],
+
+  "keywords_exclude": [
+    "security clearance required",
+    "TS/SCI",
+    "polygraph",
+    "physical security"
+  ],
+
+  "location_preferences": {
+    "allow_remote": true,
+    "allow_hybrid": true,
+    "allow_onsite": false,
+    "cities": [],
+    "states": [],
+    "country": "US"
+  },
+
+  "salary_floor_usd": 130000,
+
+  "greenhouse_urls": [
+    "https://boards.greenhouse.io/cloudflare",
+    "https://boards.greenhouse.io/crowdstrike",
+    "https://boards.greenhouse.io/paloaltonetworks",
+    "https://boards.greenhouse.io/datadog",
+    "https://boards.greenhouse.io/snyk",
+    "https://boards.greenhouse.io/1password"
+  ],
+
+  "lever_urls": []
+}

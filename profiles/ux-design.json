@@ -1,0 +1,99 @@
+{
+  "_profile": "UX/UI Design",
+  "_description": "For UX designers, UI designers, product designers, and design leaders",
+  "_salary_range": "$80,000 - $180,000",
+
+  "title_allowlist": [
+    "UX Designer",
+    "UI Designer",
+    "Product Designer",
+    "Senior Product Designer",
+    "Staff Product Designer",
+    "Principal Designer",
+    "Design Lead",
+    "UX Lead",
+    "Design Manager",
+    "Head of Design",
+    "Director of Design",
+    "VP of Design",
+    "Interaction Designer",
+    "Visual Designer",
+    "UX Researcher",
+    "User Researcher",
+    "Design Systems",
+    "Brand Designer",
+    "Creative Director",
+    "UX/UI Designer"
+  ],
+
+  "title_blocklist": [
+    "Intern",
+    "Internship",
+    "Junior",
+    "Entry Level",
+    "Graphic Designer",
+    "Print Designer"
+  ],
+
+  "keywords_boost": [
+    "Figma",
+    "Sketch",
+    "Adobe XD",
+    "InVision",
+    "Framer",
+    "Principle",
+    "Prototyping",
+    "Wireframing",
+    "User Research",
+    "Usability Testing",
+    "Design Systems",
+    "Component Library",
+    "Design Tokens",
+    "Accessibility",
+    "WCAG",
+    "Mobile Design",
+    "Responsive Design",
+    "Information Architecture",
+    "User Flows",
+    "Journey Mapping",
+    "Persona",
+    "A/B Testing",
+    "Design Thinking",
+    "Human-Centered Design",
+    "Interaction Design",
+    "Motion Design",
+    "Lottie",
+    "After Effects"
+  ],
+
+  "keywords_exclude": [
+    "print only",
+    "traditional media",
+    "commission"
+  ],
+
+  "location_preferences": {
+    "allow_remote": true,
+    "allow_hybrid": true,
+    "allow_onsite": true,
+    "cities": [],
+    "states": [],
+    "country": "US"
+  },
+
+  "salary_floor_usd": 90000,
+
+  "greenhouse_urls": [
+    "https://boards.greenhouse.io/figma",
+    "https://boards.greenhouse.io/airbnb",
+    "https://boards.greenhouse.io/stripe",
+    "https://boards.greenhouse.io/notion",
+    "https://boards.greenhouse.io/canva",
+    "https://boards.greenhouse.io/squarespace",
+    "https://boards.greenhouse.io/webflow"
+  ],
+
+  "lever_urls": [
+    "https://jobs.lever.co/spotify"
+  ]
+}

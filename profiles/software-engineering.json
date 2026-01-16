@@ -1,0 +1,117 @@
+{
+  "_profile": "Software Engineering",
+  "_description": "For software engineers, developers, and programmers across all stacks",
+  "_salary_range": "$100,000 - $250,000",
+
+  "title_allowlist": [
+    "Software Engineer",
+    "Software Developer",
+    "Full Stack Engineer",
+    "Full Stack Developer",
+    "Backend Engineer",
+    "Backend Developer",
+    "Frontend Engineer",
+    "Frontend Developer",
+    "Web Developer",
+    "Application Developer",
+    "Platform Engineer",
+    "Systems Engineer",
+    "Site Reliability Engineer",
+    "SRE",
+    "DevOps Engineer",
+    "Infrastructure Engineer",
+    "Cloud Engineer",
+    "Mobile Engineer",
+    "iOS Engineer",
+    "Android Engineer",
+    "React Developer",
+    "Node.js Developer",
+    "Python Developer",
+    "Java Developer",
+    "Go Developer",
+    "Rust Developer",
+    "Staff Engineer",
+    "Principal Engineer",
+    "Senior Engineer"
+  ],
+
+  "title_blocklist": [
+    "Intern",
+    "Internship",
+    "Junior",
+    "Entry Level",
+    "New Grad",
+    "Recruiter",
+    "Recruiting",
+    "Sales",
+    "Support Engineer"
+  ],
+
+  "keywords_boost": [
+    "Python",
+    "JavaScript",
+    "TypeScript",
+    "React",
+    "Node.js",
+    "Go",
+    "Rust",
+    "Java",
+    "Kubernetes",
+    "Docker",
+    "AWS",
+    "GCP",
+    "Azure",
+    "PostgreSQL",
+    "MongoDB",
+    "Redis",
+    "GraphQL",
+    "REST API",
+    "Microservices",
+    "CI/CD",
+    "Terraform",
+    "Linux",
+    "Git",
+    "Agile",
+    "System Design",
+    "Distributed Systems"
+  ],
+
+  "keywords_exclude": [
+    "staffing agency",
+    "recruiting firm",
+    "cold calling",
+    "commission",
+    "clearance required",
+    "security clearance"
+  ],
+
+  "location_preferences": {
+    "allow_remote": true,
+    "allow_hybrid": true,
+    "allow_onsite": false,
+    "cities": [],
+    "states": [],
+    "country": "US"
+  },
+
+  "salary_floor_usd": 120000,
+
+  "greenhouse_urls": [
+    "https://boards.greenhouse.io/cloudflare",
+    "https://boards.greenhouse.io/stripe",
+    "https://boards.greenhouse.io/figma",
+    "https://boards.greenhouse.io/notion",
+    "https://boards.greenhouse.io/discord",
+    "https://boards.greenhouse.io/datadog",
+    "https://boards.greenhouse.io/plaid",
+    "https://boards.greenhouse.io/ramp",
+    "https://boards.greenhouse.io/vercel",
+    "https://boards.greenhouse.io/linear"
+  ],
+
+  "lever_urls": [
+    "https://jobs.lever.co/netflix",
+    "https://jobs.lever.co/reddit",
+    "https://jobs.lever.co/twitch"
+  ]
+}

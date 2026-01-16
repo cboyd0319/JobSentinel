@@ -1,41 +1,35 @@
 {
-  "_comment": "JobSentinel v1.0 Configuration Example",
-  "_comment_instructions": "Copy this file to %LOCALAPPDATA%\\JobSentinel\\config.json (Windows) or ~/.config/jobsentinel/config.json (macOS/Linux)",
+  "_comment": "JobSentinel v1.3 Configuration",
+  "_instructions": "1. Copy a profile from profiles/ folder OR customize below. 2. Save to config.json in your config directory.",
+  "_profiles_available": "See profiles/ folder for ready-to-use templates: software-engineering, seo-digital-marketing, product-management, ux-design, data-science, sales-business-dev, hr-recruiting, finance-accounting, project-operations, content-copywriting, cybersecurity",
 
   "title_allowlist": [
-    "Security Engineer",
-    "Product Security Engineer",
-    "Application Security Engineer",
-    "Cloud Security Engineer"
+    "YOUR_JOB_TITLE_HERE",
+    "Alternative Title",
+    "Another Variation"
   ],
+  "_title_allowlist_help": "Job titles you want to see. Be inclusive - add variations like 'Manager', 'Lead', 'Senior', 'Director' versions.",
 
   "title_blocklist": [
-    "Manager",
-    "Director",
-    "VP",
     "Intern",
-    "Recruiter"
+    "Internship",
+    "Entry Level"
   ],
+  "_title_blocklist_help": "Job titles to always skip. Common: Intern, Junior (if you're senior), specific industries you don't want.",
 
   "keywords_boost": [
-    "Kubernetes",
-    "AWS",
-    "IAM",
-    "Zero Trust",
-    "SAST",
-    "DAST",
-    "Threat Modeling",
-    "Penetration Testing",
-    "Rust",
-    "Go"
+    "YOUR_SKILL_1",
+    "YOUR_SKILL_2",
+    "YOUR_TOOL_1"
   ],
+  "_keywords_boost_help": "Skills, tools, technologies you know. Jobs matching these score higher.",
 
   "keywords_exclude": [
-    "recruiter",
-    "sales",
     "cold calling",
-    "door to door"
+    "door to door",
+    "commission only"
   ],
+  "_keywords_exclude_help": "Red flags to auto-reject jobs. Add deal-breakers here.",
 
   "location_preferences": {
     "allow_remote": true,
@@ -45,16 +39,19 @@
     "states": [],
     "country": "US"
   },
+  "_location_help": "Set allow_onsite to true and add cities/states if you want local jobs.",
 
-  "salary_floor_usd": 150000,
+  "salary_floor_usd": 0,
+  "_salary_help": "Minimum acceptable salary. Set to 0 to see all jobs regardless of salary.",
 
-  "immediate_alert_threshold": 0.9,
+  "immediate_alert_threshold": 0.85,
+  "_threshold_help": "Jobs scoring above this (0.0-1.0) trigger immediate notifications. Lower = more alerts.",
 
   "scraping_interval_hours": 2,
 
   "alerts": {
     "slack": {
-      "enabled": true,
+      "enabled": false,
       "webhook_url": "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
     },
     "discord": {
@@ -69,31 +66,29 @@
       "enabled": false,
       "smtp_server": "smtp.gmail.com",
       "smtp_port": 587,
-      "username": "",
-      "password": "",
-      "from_address": "",
-      "to_addresses": []
+      "smtp_username": "",
+      "smtp_password": "",
+      "from_email": "",
+      "to_emails": []
     },
     "desktop": {
       "enabled": true
     }
   },
 
-  "greenhouse_urls": [
-    "https://boards.greenhouse.io/cloudflare",
-    "https://boards.greenhouse.io/stripe",
-    "https://boards.greenhouse.io/figma"
-  ],
+  "greenhouse_urls": [],
+  "_greenhouse_help": "Add company career pages: https://boards.greenhouse.io/COMPANY_NAME",
 
-  "lever_urls": [
-    "https://jobs.lever.co/netflix",
-    "https://jobs.lever.co/reddit"
-  ],
+  "lever_urls": [],
+  "_lever_help": "Add company career pages: https://jobs.lever.co/COMPANY_NAME",
 
-  "_comment_scoring": "Scoring weights: Skills 40%, Salary 25%, Location 20%, Company 10%, Recency 5%",
-  "_comment_threshold": "immediate_alert_threshold: Jobs scoring above this value (0.0-1.0) will trigger immediate notifications",
-  "_comment_greenhouse": "Add Greenhouse company URLs (e.g., https://boards.greenhouse.io/company-name)",
-  "_comment_lever": "Add Lever company URLs (e.g., https://jobs.lever.co/company-name)",
-  "_comment_jobswithgpt": "JobsWithGPT is scraped automatically - no configuration needed",
-  "_comment_alerts": "Enable one or more notification channels: slack, discord, teams, email, desktop"
+  "linkedin": {
+    "enabled": true,
+    "search_queries": []
+  },
+
+  "indeed": {
+    "enabled": true,
+    "search_queries": []
+  }
 }

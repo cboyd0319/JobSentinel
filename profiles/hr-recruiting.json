@@ -1,0 +1,102 @@
+{
+  "_profile": "HR & Recruiting",
+  "_description": "For recruiters, HR managers, talent acquisition, and people operations professionals",
+  "_salary_range": "$60,000 - $150,000",
+
+  "title_allowlist": [
+    "Recruiter",
+    "Senior Recruiter",
+    "Technical Recruiter",
+    "Talent Acquisition",
+    "Sourcer",
+    "Recruiting Manager",
+    "Talent Acquisition Manager",
+    "Head of Recruiting",
+    "Director of Recruiting",
+    "VP of Talent",
+    "HR Manager",
+    "HR Business Partner",
+    "HRBP",
+    "People Operations",
+    "People Partner",
+    "HR Generalist",
+    "HR Director",
+    "Chief People Officer",
+    "CPO",
+    "Compensation Analyst",
+    "Benefits Manager",
+    "Employee Relations",
+    "Learning and Development",
+    "L&D Manager",
+    "Talent Development",
+    "HR Analyst",
+    "People Analytics"
+  ],
+
+  "title_blocklist": [
+    "Intern",
+    "Internship",
+    "Junior",
+    "Entry Level",
+    "Coordinator",
+    "Assistant"
+  ],
+
+  "keywords_boost": [
+    "Greenhouse",
+    "Lever",
+    "Workday",
+    "ADP",
+    "BambooHR",
+    "Rippling",
+    "LinkedIn Recruiter",
+    "Sourcing",
+    "Talent Pipeline",
+    "Employer Branding",
+    "Candidate Experience",
+    "Offer Negotiation",
+    "Compensation",
+    "Benefits",
+    "DEI",
+    "Diversity",
+    "Employee Engagement",
+    "Performance Management",
+    "HRIS",
+    "People Analytics",
+    "Org Design",
+    "Change Management",
+    "Culture",
+    "Onboarding",
+    "Offboarding",
+    "Compliance",
+    "Employment Law"
+  ],
+
+  "keywords_exclude": [
+    "staffing agency",
+    "temp agency",
+    "commission only"
+  ],
+
+  "location_preferences": {
+    "allow_remote": true,
+    "allow_hybrid": true,
+    "allow_onsite": true,
+    "cities": [],
+    "states": [],
+    "country": "US"
+  },
+
+  "salary_floor_usd": 70000,
+
+  "greenhouse_urls": [
+    "https://boards.greenhouse.io/greenhouse",
+    "https://boards.greenhouse.io/rippling",
+    "https://boards.greenhouse.io/stripe",
+    "https://boards.greenhouse.io/airbnb"
+  ],
+
+  "lever_urls": [
+    "https://jobs.lever.co/lever"
+  ]
+}

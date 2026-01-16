@@ -1,0 +1,103 @@
+{
+  "_profile": "Finance & Accounting",
+  "_description": "For accountants, financial analysts, controllers, and finance professionals",
+  "_salary_range": "$60,000 - $180,000",
+
+  "title_allowlist": [
+    "Financial Analyst",
+    "Senior Financial Analyst",
+    "FP&A Analyst",
+    "FP&A Manager",
+    "Finance Manager",
+    "Controller",
+    "Assistant Controller",
+    "Accounting Manager",
+    "Staff Accountant",
+    "Senior Accountant",
+    "Tax Manager",
+    "Tax Analyst",
+    "Auditor",
+    "Internal Auditor",
+    "Treasury Analyst",
+    "Treasury Manager",
+    "CFO",
+    "VP of Finance",
+    "Director of Finance",
+    "Head of Finance",
+    "Revenue Accountant",
+    "Payroll Manager",
+    "Accounts Payable",
+    "Accounts Receivable",
+    "Billing Manager",
+    "Financial Controller",
+    "Corporate Accountant"
+  ],
+
+  "title_blocklist": [
+    "Intern",
+    "Internship",
+    "Junior",
+    "Entry Level",
+    "Bookkeeper",
+    "Clerk"
+  ],
+
+  "keywords_boost": [
+    "GAAP",
+    "IFRS",
+    "CPA",
+    "Financial Reporting",
+    "Month-End Close",
+    "Year-End Close",
+    "Budgeting",
+    "Forecasting",
+    "Variance Analysis",
+    "Financial Modeling",
+    "Excel",
+    "NetSuite",
+    "QuickBooks",
+    "SAP",
+    "Oracle",
+    "Workday",
+    "Adaptive Planning",
+    "Anaplan",
+    "Revenue Recognition",
+    "ASC 606",
+    "SOX Compliance",
+    "Audit",
+    "Tax",
+    "Consolidation",
+    "Intercompany",
+    "Treasury",
+    "Cash Flow",
+    "Working Capital",
+    "IPO",
+    "M&A",
+    "Due Diligence"
+  ],
+
+  "keywords_exclude": [
+    "collection calls",
+    "debt collection"
+  ],
+
+  "location_preferences": {
+    "allow_remote": true,
+    "allow_hybrid": true,
+    "allow_onsite": true,
+    "cities": [],
+    "states": [],
+    "country": "US"
+  },
+
+  "salary_floor_usd": 75000,
+
+  "greenhouse_urls": [
+    "https://boards.greenhouse.io/stripe",
+    "https://boards.greenhouse.io/plaid",
+    "https://boards.greenhouse.io/ramp",
+    "https://boards.greenhouse.io/brex"
+  ],
+
+  "lever_urls": []
+}

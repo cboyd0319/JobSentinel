@@ -1,0 +1,100 @@
+{
+  "_profile": "Project & Operations Management",
+  "_description": "For project managers, program managers, operations managers, and process improvement professionals",
+  "_salary_range": "$70,000 - $160,000",
+
+  "title_allowlist": [
+    "Project Manager",
+    "Senior Project Manager",
+    "Program Manager",
+    "Technical Program Manager",
+    "TPM",
+    "Operations Manager",
+    "Operations Director",
+    "VP of Operations",
+    "Head of Operations",
+    "Chief Operating Officer",
+    "COO",
+    "Business Operations",
+    "Strategy and Operations",
+    "Process Manager",
+    "Process Improvement",
+    "Continuous Improvement",
+    "Lean Manager",
+    "Six Sigma",
+    "Scrum Master",
+    "Agile Coach",
+    "Delivery Manager",
+    "Release Manager",
+    "Implementation Manager",
+    "Launch Manager",
+    "PMO Manager",
+    "Portfolio Manager"
+  ],
+
+  "title_blocklist": [
+    "Intern",
+    "Internship",
+    "Junior",
+    "Entry Level",
+    "Coordinator",
+    "Assistant"
+  ],
+
+  "keywords_boost": [
+    "PMP",
+    "Agile",
+    "Scrum",
+    "Kanban",
+    "Waterfall",
+    "PRINCE2",
+    "Jira",
+    "Asana",
+    "Monday.com",
+    "Confluence",
+    "Smartsheet",
+    "MS Project",
+    "Stakeholder Management",
+    "Risk Management",
+    "Budget Management",
+    "Resource Planning",
+    "Capacity Planning",
+    "Process Improvement",
+    "Lean",
+    "Six Sigma",
+    "Kaizen",
+    "KPIs",
+    "OKRs",
+    "SLAs",
+    "Cross-functional",
+    "Change Management",
+    "Vendor Management",
+    "Contract Management"
+  ],
+
+  "keywords_exclude": [
+    "construction",
+    "manufacturing floor",
+    "warehouse"
+  ],
+
+  "location_preferences": {
+    "allow_remote": true,
+    "allow_hybrid": true,
+    "allow_onsite": true,
+    "cities": [],
+    "states": [],
+    "country": "US"
+  },
+
+  "salary_floor_usd": 80000,
+
+  "greenhouse_urls": [
+    "https://boards.greenhouse.io/asana",
+    "https://boards.greenhouse.io/monday",
+    "https://boards.greenhouse.io/notion",
+    "https://boards.greenhouse.io/stripe"
+  ],
+
+  "lever_urls": []
+}

@@ -1,0 +1,130 @@
+{
+  "_profile": "SEO & Digital Marketing",
+  "_description": "For SEO managers, digital marketing professionals, e-commerce managers, and growth marketers",
+  "_salary_range": "$70,000 - $150,000",
+
+  "title_allowlist": [
+    "SEO Manager",
+    "SEO Specialist",
+    "SEO Analyst",
+    "SEO Director",
+    "Digital Marketing Manager",
+    "Digital Marketing Specialist",
+    "E-Commerce Manager",
+    "E-Commerce Director",
+    "Growth Marketing Manager",
+    "Growth Marketing",
+    "Performance Marketing",
+    "Paid Media Manager",
+    "PPC Manager",
+    "PPC Specialist",
+    "SEM Manager",
+    "SEM Specialist",
+    "Content Marketing Manager",
+    "Content Strategist",
+    "Marketing Operations",
+    "Digital Operations",
+    "Web Marketing Manager",
+    "Online Marketing",
+    "Demand Generation",
+    "Marketing Analytics",
+    "CRO Manager",
+    "Conversion Optimization"
+  ],
+
+  "title_blocklist": [
+    "Intern",
+    "Junior",
+    "Entry Level",
+    "Associate",
+    "Coordinator",
+    "Assistant"
+  ],
+
+  "keywords_boost": [
+    "SEO",
+    "SEM",
+    "PPC",
+    "Google Analytics",
+    "Google Ads",
+    "Google Tag Manager",
+    "Google Search Console",
+    "Adobe Analytics",
+    "Shopify",
+    "Salesforce Commerce Cloud",
+    "BigCommerce",
+    "Magento",
+    "WooCommerce",
+    "Conversion Rate Optimization",
+    "CRO",
+    "A/B Testing",
+    "Optimizely",
+    "VWO",
+    "Semrush",
+    "Ahrefs",
+    "Moz",
+    "HubSpot",
+    "Marketo",
+    "Klaviyo",
+    "Mailchimp",
+    "Email Marketing",
+    "Marketing Automation",
+    "Meta Ads",
+    "Facebook Ads",
+    "LinkedIn Ads",
+    "Paid Social",
+    "Content Strategy",
+    "Keyword Research",
+    "Link Building",
+    "Technical SEO",
+    "E-commerce",
+    "DTC",
+    "Direct to Consumer",
+    "ROAS",
+    "CAC",
+    "LTV",
+    "Attribution",
+    "Looker Studio",
+    "Data Studio",
+    "Tableau"
+  ],
+
+  "keywords_exclude": [
+    "cold calling",
+    "door to door",
+    "commission only",
+    "MLM",
+    "network marketing",
+    "canvassing"
+  ],
+
+  "location_preferences": {
+    "allow_remote": true,
+    "allow_hybrid": true,
+    "allow_onsite": true,
+    "cities": [],
+    "states": [],
+    "country": "US"
+  },
+
+  "salary_floor_usd": 80000,
+
+  "greenhouse_urls": [
+    "https://boards.greenhouse.io/shopify",
+    "https://boards.greenhouse.io/hubspot",
+    "https://boards.greenhouse.io/klaviyo",
+    "https://boards.greenhouse.io/wayfair",
+    "https://boards.greenhouse.io/chewy",
+    "https://boards.greenhouse.io/etsy",
+    "https://boards.greenhouse.io/squarespace",
+    "https://boards.greenhouse.io/wix",
+    "https://boards.greenhouse.io/mailchimp",
+    "https://boards.greenhouse.io/canva"
+  ],
+
+  "lever_urls": [
+    "https://jobs.lever.co/semrush",
+    "https://jobs.lever.co/hotjar",
+    "https://jobs.lever.co/unbounce"
+  ]
+}
