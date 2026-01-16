@@ -8,16 +8,26 @@ import "./index.css";
 // Report Web Vitals in development mode
 reportWebVitals();
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <ThemeProvider>
-      <ToastProvider>
-        <UndoProvider>
-          <AnnouncerProvider>
-            <App />
-          </AnnouncerProvider>
-        </UndoProvider>
-      </ToastProvider>
-    </ThemeProvider>
-  </React.StrictMode>
-);
+// Enable API mocking in development (when running in browser without Tauri)
+async function enableMocking() {
+  if (import.meta.env.DEV && import.meta.env.VITE_MOCK_API === "true") {
+    const { setupMocking } = await import("./mocks");
+    await setupMocking();
+  }
+}
+
+enableMocking().then(() => {
+  ReactDOM.createRoot(document.getElementById("root")!).render(
+    <React.StrictMode>
+      <ThemeProvider>
+        <ToastProvider>
+          <UndoProvider>
+            <AnnouncerProvider>
+              <App />
+            </AnnouncerProvider>
+          </UndoProvider>
+        </ToastProvider>
+      </ThemeProvider>
+    </React.StrictMode>
+  );
+});
