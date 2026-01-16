@@ -332,4 +332,430 @@ mod tests {
             None
         );
     }
+
+    #[test]
+    fn test_parse_rss_complete_job() {
+        let scraper = WeWorkRemotelyScraper::new(None, 10);
+        let rss = r#"
+            <rss>
+                <channel>
+                    <item>
+                        <title><![CDATA[TechCorp: Senior Rust Engineer]]></title>
+                        <link>https://weworkremotely.com/jobs/12345</link>
+                        <description><![CDATA[
+                            We're hiring a Senior Rust Engineer to join our distributed team.
+                            Work from anywhere worldwide. Competitive salary and benefits.
+                        ]]></description>
+                    </item>
+                </channel>
+            </rss>
+        "#;
+
+        let jobs = scraper.parse_rss(rss).expect("parse_rss should succeed");
+
+        assert_eq!(jobs.len(), 1);
+        assert_eq!(jobs[0].title, "Senior Rust Engineer");
+        assert_eq!(jobs[0].company, "TechCorp");
+        assert_eq!(jobs[0].url, "https://weworkremotely.com/jobs/12345");
+        assert_eq!(jobs[0].source, "weworkremotely");
+        assert_eq!(jobs[0].remote, Some(true));
+        assert_eq!(jobs[0].location, Some("Worldwide".to_string()));
+        assert!(jobs[0].description.is_some());
+    }
+
+    #[test]
+    fn test_parse_rss_multiple_jobs() {
+        let scraper = WeWorkRemotelyScraper::new(Some("programming".to_string()), 10);
+        let rss = r#"
+            <rss>
+                <channel>
+                    <item>
+                        <title>Company A: Backend Developer</title>
+                        <link>https://weworkremotely.com/jobs/1</link>
+                        <description>Join our remote team. USA only.</description>
+                    </item>
+                    <item>
+                        <title>Company B: Frontend Engineer</title>
+                        <link>https://weworkremotely.com/jobs/2</link>
+                        <description>Remote position open to Europe.</description>
+                    </item>
+                    <item>
+                        <title>Company C: Full Stack Developer</title>
+                        <link>https://weworkremotely.com/jobs/3</link>
+                        <description>Position is open to North America timezone.</description>
+                    </item>
+                </channel>
+            </rss>
+        "#;
+
+        let jobs = scraper.parse_rss(rss).expect("parse_rss should succeed");
+
+        assert_eq!(jobs.len(), 3);
+        assert_eq!(jobs[0].company, "Company A");
+        assert_eq!(jobs[0].title, "Backend Developer");
+        assert_eq!(jobs[0].location, Some("USA".to_string()));
+
+        assert_eq!(jobs[1].company, "Company B");
+        assert_eq!(jobs[1].title, "Frontend Engineer");
+        assert_eq!(jobs[1].location, Some("Europe".to_string()));
+
+        assert_eq!(jobs[2].company, "Company C");
+        assert_eq!(jobs[2].title, "Full Stack Developer");
+        assert_eq!(jobs[2].location, Some("North America".to_string()));
+    }
+
+    #[test]
+    fn test_parse_rss_with_html_entities() {
+        let scraper = WeWorkRemotelyScraper::new(None, 10);
+        let rss = r#"
+            <rss>
+                <channel>
+                    <item>
+                        <title>Tech &amp; Data Corp: Software Engineer &amp; Architect</title>
+                        <link>https://weworkremotely.com/jobs/123</link>
+                        <description>&lt;p&gt;Great remote opportunity&lt;/p&gt; &quot;Join us&quot;</description>
+                    </item>
+                </channel>
+            </rss>
+        "#;
+
+        let jobs = scraper.parse_rss(rss).expect("parse_rss should succeed");
+
+        assert_eq!(jobs.len(), 1);
+        assert_eq!(jobs[0].company, "Tech & Data Corp");
+        assert_eq!(jobs[0].title, "Software Engineer & Architect");
+        assert!(jobs[0].description.as_ref().unwrap().contains("Great remote opportunity"));
+        assert!(jobs[0].description.as_ref().unwrap().contains("\"Join us\""));
+    }
+
+    #[test]
+    fn test_parse_rss_category_programming() {
+        let scraper = WeWorkRemotelyScraper::new(Some("programming".to_string()), 10);
+        let url = scraper.build_url();
+        assert_eq!(url, "https://weworkremotely.com/categories/programming.rss");
+    }
+
+    #[test]
+    fn test_parse_rss_category_design() {
+        let scraper = WeWorkRemotelyScraper::new(Some("design".to_string()), 10);
+        let url = scraper.build_url();
+        assert_eq!(url, "https://weworkremotely.com/categories/design.rss");
+    }
+
+    #[test]
+    fn test_parse_rss_category_devops() {
+        let scraper = WeWorkRemotelyScraper::new(Some("devops".to_string()), 10);
+        let url = scraper.build_url();
+        assert_eq!(url, "https://weworkremotely.com/categories/devops.rss");
+    }
+
+    #[test]
+    fn test_parse_rss_limit_respected() {
+        let scraper = WeWorkRemotelyScraper::new(None, 2);
+        let rss = r#"
+            <rss>
+                <channel>
+                    <item><title>Co A: Job 1</title><link>http://a.com/1</link></item>
+                    <item><title>Co B: Job 2</title><link>http://a.com/2</link></item>
+                    <item><title>Co C: Job 3</title><link>http://a.com/3</link></item>
+                    <item><title>Co D: Job 4</title><link>http://a.com/4</link></item>
+                </channel>
+            </rss>
+        "#;
+
+        let jobs = scraper.parse_rss(rss).expect("parse_rss should succeed");
+
+        assert_eq!(jobs.len(), 2);
+        assert_eq!(jobs[0].title, "Job 1");
+        assert_eq!(jobs[1].title, "Job 2");
+    }
+
+    #[test]
+    fn test_parse_rss_empty_input() {
+        let scraper = WeWorkRemotelyScraper::new(None, 10);
+        let rss = "<rss><channel></channel></rss>";
+
+        let jobs = scraper.parse_rss(rss).expect("parse_rss should succeed");
+
+        assert_eq!(jobs.len(), 0);
+    }
+
+    #[test]
+    fn test_parse_rss_malformed_missing_title() {
+        let scraper = WeWorkRemotelyScraper::new(None, 10);
+        let rss = r#"
+            <rss>
+                <channel>
+                    <item>
+                        <link>https://weworkremotely.com/jobs/123</link>
+                        <description>Some description</description>
+                    </item>
+                </channel>
+            </rss>
+        "#;
+
+        let jobs = scraper.parse_rss(rss).expect("parse_rss should succeed");
+
+        // Should be skipped due to empty title
+        assert_eq!(jobs.len(), 0);
+    }
+
+    #[test]
+    fn test_parse_rss_malformed_missing_url() {
+        let scraper = WeWorkRemotelyScraper::new(None, 10);
+        let rss = r#"
+            <rss>
+                <channel>
+                    <item>
+                        <title>TechCorp: Software Engineer</title>
+                        <description>Great opportunity</description>
+                    </item>
+                </channel>
+            </rss>
+        "#;
+
+        let jobs = scraper.parse_rss(rss).expect("parse_rss should succeed");
+
+        // Should be skipped due to empty URL
+        assert_eq!(jobs.len(), 0);
+    }
+
+    #[test]
+    fn test_parse_rss_title_without_colon() {
+        let scraper = WeWorkRemotelyScraper::new(None, 10);
+        let rss = r#"
+            <rss>
+                <channel>
+                    <item>
+                        <title>Software Engineer Position</title>
+                        <link>https://weworkremotely.com/jobs/123</link>
+                        <description>Join our team</description>
+                    </item>
+                </channel>
+            </rss>
+        "#;
+
+        let jobs = scraper.parse_rss(rss).expect("parse_rss should succeed");
+
+        assert_eq!(jobs.len(), 1);
+        assert_eq!(jobs[0].company, "Unknown Company");
+        assert_eq!(jobs[0].title, "Software Engineer Position");
+    }
+
+    #[test]
+    fn test_parse_rss_title_with_multiple_colons() {
+        let scraper = WeWorkRemotelyScraper::new(None, 10);
+        let rss = r#"
+            <rss>
+                <channel>
+                    <item>
+                        <title>Acme Corp: Senior Engineer: Backend Team</title>
+                        <link>https://weworkremotely.com/jobs/123</link>
+                        <description>Join us</description>
+                    </item>
+                </channel>
+            </rss>
+        "#;
+
+        let jobs = scraper.parse_rss(rss).expect("parse_rss should succeed");
+
+        assert_eq!(jobs.len(), 1);
+        assert_eq!(jobs[0].company, "Acme Corp");
+        assert_eq!(jobs[0].title, "Senior Engineer: Backend Team");
+    }
+
+    #[test]
+    fn test_extract_location_worldwide() {
+        assert_eq!(
+            WeWorkRemotelyScraper::extract_location("Work from anywhere in the world"),
+            Some("Worldwide".to_string())
+        );
+        assert_eq!(
+            WeWorkRemotelyScraper::extract_location("Worldwide opportunity"),
+            Some("Worldwide".to_string())
+        );
+    }
+
+    #[test]
+    fn test_extract_location_usa() {
+        assert_eq!(
+            WeWorkRemotelyScraper::extract_location("This is a US only position"),
+            Some("USA".to_string())
+        );
+        assert_eq!(
+            WeWorkRemotelyScraper::extract_location("USA only candidates"),
+            Some("USA".to_string())
+        );
+    }
+
+    #[test]
+    fn test_extract_location_europe() {
+        assert_eq!(
+            WeWorkRemotelyScraper::extract_location("Open to candidates in Europe"),
+            Some("Europe".to_string())
+        );
+        assert_eq!(
+            WeWorkRemotelyScraper::extract_location("EU only position"),
+            Some("Europe".to_string())
+        );
+    }
+
+    #[test]
+    fn test_extract_location_north_america() {
+        assert_eq!(
+            WeWorkRemotelyScraper::extract_location("North America timezone required"),
+            Some("North America".to_string())
+        );
+    }
+
+    #[test]
+    fn test_extract_location_none() {
+        assert_eq!(
+            WeWorkRemotelyScraper::extract_location("Great team and benefits"),
+            None
+        );
+    }
+
+    #[test]
+    fn test_hash_consistency() {
+        let hash1 = WeWorkRemotelyScraper::compute_hash(
+            "TechCorp",
+            "Rust Engineer",
+            Some("Worldwide"),
+            "https://weworkremotely.com/jobs/123"
+        );
+        let hash2 = WeWorkRemotelyScraper::compute_hash(
+            "TechCorp",
+            "Rust Engineer",
+            Some("Worldwide"),
+            "https://weworkremotely.com/jobs/123"
+        );
+
+        assert_eq!(hash1, hash2);
+        assert_eq!(hash1.len(), 64);
+    }
+
+    #[test]
+    fn test_hash_differs_with_different_location() {
+        let hash1 = WeWorkRemotelyScraper::compute_hash(
+            "TechCorp",
+            "Engineer",
+            Some("USA"),
+            "https://weworkremotely.com/jobs/123"
+        );
+        let hash2 = WeWorkRemotelyScraper::compute_hash(
+            "TechCorp",
+            "Engineer",
+            Some("Europe"),
+            "https://weworkremotely.com/jobs/123"
+        );
+
+        assert_ne!(hash1, hash2);
+    }
+
+    #[test]
+    fn test_strip_html_tags_preserves_text() {
+        let html = "<div><p>Looking for a <strong>talented</strong> developer.</p> <ul> <li>Item 1</li> <li>Item 2</li> </ul></div>";
+        let result = WeWorkRemotelyScraper::strip_html_tags(html);
+        assert_eq!(result, "Looking for a talented developer. Item 1 Item 2");
+    }
+
+    #[test]
+    fn test_strip_html_tags_empty() {
+        let html = "";
+        let result = WeWorkRemotelyScraper::strip_html_tags(html);
+        assert_eq!(result, "");
+    }
+
+    #[test]
+    fn test_decode_html_entities_all_types() {
+        let text = "Test &amp; Example &lt;tag&gt; &quot;quote&quot; &#39;apostrophe&#39; &nbsp;space";
+        let decoded = WeWorkRemotelyScraper::decode_html_entities(text);
+        assert_eq!(decoded, "Test & Example <tag> \"quote\" 'apostrophe'  space");
+    }
+
+    #[test]
+    fn test_parse_rss_all_jobs_remote() {
+        let scraper = WeWorkRemotelyScraper::new(None, 10);
+        let rss = r#"
+            <rss>
+                <channel>
+                    <item>
+                        <title>Company: Engineer</title>
+                        <link>https://weworkremotely.com/jobs/1</link>
+                        <description>Remote job</description>
+                    </item>
+                </channel>
+            </rss>
+        "#;
+
+        let jobs = scraper.parse_rss(rss).expect("parse_rss should succeed");
+
+        assert_eq!(jobs.len(), 1);
+        // All WeWorkRemotely jobs are remote
+        assert_eq!(jobs[0].remote, Some(true));
+    }
+
+    #[test]
+    fn test_parse_rss_whitespace_trimming() {
+        let scraper = WeWorkRemotelyScraper::new(None, 10);
+        let rss = r#"
+            <rss>
+                <channel>
+                    <item>
+                        <title>
+                            TechStartup  :  Senior Engineer
+                        </title>
+                        <link>  https://weworkremotely.com/jobs/123  </link>
+                        <description>
+                            Great opportunity
+                        </description>
+                    </item>
+                </channel>
+            </rss>
+        "#;
+
+        let jobs = scraper.parse_rss(rss).expect("parse_rss should succeed");
+
+        assert_eq!(jobs.len(), 1);
+        assert_eq!(jobs[0].company, "TechStartup");
+        assert_eq!(jobs[0].title, "Senior Engineer");
+    }
+
+    #[test]
+    fn test_extract_tag_missing() {
+        let xml = "<item><title>Test</title></item>";
+        assert_eq!(WeWorkRemotelyScraper::extract_tag(xml, "nonexistent"), None);
+    }
+
+    #[test]
+    fn test_extract_tag_empty_content() {
+        let xml = "<item><title></title></item>";
+        // Empty tags are not found (returns None)
+        assert_eq!(
+            WeWorkRemotelyScraper::extract_tag(xml, "title"),
+            None
+        );
+    }
+
+    #[test]
+    fn test_remote_flag_always_true() {
+        let scraper = WeWorkRemotelyScraper::new(None, 10);
+        let rss = r#"
+            <rss>
+                <channel>
+                    <item>
+                        <title>Company: Job</title>
+                        <link>https://weworkremotely.com/jobs/1</link>
+                    </item>
+                </channel>
+            </rss>
+        "#;
+
+        let jobs = scraper.parse_rss(rss).expect("parse_rss should succeed");
+
+        assert_eq!(jobs.len(), 1);
+        // WeWorkRemotely is remote-only, so all jobs should have remote=true
+        assert_eq!(jobs[0].remote, Some(true));
+    }
 }

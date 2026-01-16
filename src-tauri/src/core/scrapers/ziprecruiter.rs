@@ -506,4 +506,347 @@ mod tests {
         let (min, _) = ZipRecruiterScraper::extract_salary("Starting at $80,000");
         assert_eq!(min, Some(80000));
     }
+
+    #[test]
+    fn test_parse_rss_complete_job() {
+        let scraper = ZipRecruiterScraper::new("rust developer".to_string(), None, None, 10);
+        let rss = r#"
+            <rss>
+                <channel>
+                    <item>
+                        <title>Senior Rust Engineer (Remote)</title>
+                        <link>https://www.ziprecruiter.com/c/TechCorp/Job/123456</link>
+                        <source>TechCorp Inc</source>
+                        <description><![CDATA[
+                            Company: TechCorp Inc | Location: Remote | Salary: $120k - $180k
+                            We are seeking a Senior Rust Engineer for fully remote position.
+                        ]]></description>
+                    </item>
+                </channel>
+            </rss>
+        "#;
+
+        let jobs = scraper.parse_rss(rss).expect("parse_rss should succeed");
+
+        assert_eq!(jobs.len(), 1);
+        assert_eq!(jobs[0].title, "Senior Rust Engineer (Remote)");
+        assert_eq!(jobs[0].company, "TechCorp Inc");
+        assert_eq!(jobs[0].url, "https://www.ziprecruiter.com/c/TechCorp/Job/123456");
+        assert_eq!(jobs[0].source, "ziprecruiter");
+        assert_eq!(jobs[0].remote, Some(true));
+        assert_eq!(jobs[0].salary_min, Some(120000));
+        assert_eq!(jobs[0].salary_max, Some(180000));
+        assert_eq!(jobs[0].currency, Some("USD".to_string()));
+        assert!(jobs[0].description.is_some());
+        assert_eq!(jobs[0].location, Some("Remote".to_string()));
+    }
+
+    #[test]
+    fn test_parse_rss_multiple_jobs() {
+        let scraper = ZipRecruiterScraper::new("developer".to_string(), None, None, 10);
+        let rss = r#"
+            <rss>
+                <channel>
+                    <item>
+                        <title>Backend Developer</title>
+                        <link>https://ziprecruiter.com/job/1</link>
+                        <source>Company A</source>
+                        <description>Join Company A in San Francisco</description>
+                    </item>
+                    <item>
+                        <title>Frontend Developer</title>
+                        <link>https://ziprecruiter.com/job/2</link>
+                        <source>Company B</source>
+                        <description>Remote position at Company B</description>
+                    </item>
+                    <item>
+                        <title>Full Stack Developer</title>
+                        <link>https://ziprecruiter.com/job/3</link>
+                        <description>Company: Company C | Based in Austin, TX</description>
+                    </item>
+                </channel>
+            </rss>
+        "#;
+
+        let jobs = scraper.parse_rss(rss).expect("parse_rss should succeed");
+
+        assert_eq!(jobs.len(), 3);
+        assert_eq!(jobs[0].company, "Company A");
+        assert_eq!(jobs[1].company, "Company B");
+        assert_eq!(jobs[2].company, "Company C");
+    }
+
+    #[test]
+    fn test_parse_rss_with_html_entities() {
+        let scraper = ZipRecruiterScraper::new("engineer".to_string(), None, None, 10);
+        let rss = r#"
+            <rss>
+                <channel>
+                    <item>
+                        <title>Software Engineer &amp; Architect</title>
+                        <link>https://ziprecruiter.com/job/123</link>
+                        <source>Tech &amp; Data Corp</source>
+                        <description>&lt;p&gt;Great opportunity&lt;/p&gt;</description>
+                    </item>
+                </channel>
+            </rss>
+        "#;
+
+        let jobs = scraper.parse_rss(rss).expect("parse_rss should succeed");
+
+        assert_eq!(jobs.len(), 1);
+        assert_eq!(jobs[0].title, "Software Engineer & Architect");
+        // Company from <source> tag doesn't go through decode_html_entities
+        assert_eq!(jobs[0].company, "Tech &amp; Data Corp");
+        assert!(jobs[0].description.as_ref().unwrap().contains("Great opportunity"));
+    }
+
+    #[test]
+    fn test_parse_rss_limit_respected() {
+        let scraper = ZipRecruiterScraper::new("developer".to_string(), None, None, 2);
+        let rss = r#"
+            <rss>
+                <channel>
+                    <item><title>Job 1</title><link>http://a.com/1</link><source>Co 1</source></item>
+                    <item><title>Job 2</title><link>http://a.com/2</link><source>Co 2</source></item>
+                    <item><title>Job 3</title><link>http://a.com/3</link><source>Co 3</source></item>
+                    <item><title>Job 4</title><link>http://a.com/4</link><source>Co 4</source></item>
+                </channel>
+            </rss>
+        "#;
+
+        let jobs = scraper.parse_rss(rss).expect("parse_rss should succeed");
+
+        assert_eq!(jobs.len(), 2);
+        assert_eq!(jobs[0].title, "Job 1");
+        assert_eq!(jobs[1].title, "Job 2");
+    }
+
+    #[test]
+    fn test_parse_rss_empty_input() {
+        let scraper = ZipRecruiterScraper::new("developer".to_string(), None, None, 10);
+        let rss = "<rss><channel></channel></rss>";
+
+        let jobs = scraper.parse_rss(rss).expect("parse_rss should succeed");
+
+        assert_eq!(jobs.len(), 0);
+    }
+
+    #[test]
+    fn test_parse_rss_malformed_missing_title() {
+        let scraper = ZipRecruiterScraper::new("developer".to_string(), None, None, 10);
+        let rss = r#"
+            <rss>
+                <channel>
+                    <item>
+                        <link>https://ziprecruiter.com/job/123</link>
+                        <source>TechCorp</source>
+                    </item>
+                </channel>
+            </rss>
+        "#;
+
+        let jobs = scraper.parse_rss(rss).expect("parse_rss should succeed");
+
+        // Should be skipped due to empty title
+        assert_eq!(jobs.len(), 0);
+    }
+
+    #[test]
+    fn test_parse_rss_malformed_missing_url() {
+        let scraper = ZipRecruiterScraper::new("developer".to_string(), None, None, 10);
+        let rss = r#"
+            <rss>
+                <channel>
+                    <item>
+                        <title>Software Engineer</title>
+                        <source>TechCorp</source>
+                    </item>
+                </channel>
+            </rss>
+        "#;
+
+        let jobs = scraper.parse_rss(rss).expect("parse_rss should succeed");
+
+        // Should be skipped due to empty URL
+        assert_eq!(jobs.len(), 0);
+    }
+
+    #[test]
+    fn test_extract_company_from_description() {
+        let xml = r#"<item><description>Company: Acme Corporation | Location: Remote</description></item>"#;
+        assert_eq!(
+            ZipRecruiterScraper::extract_company_from_description(xml),
+            Some("Acme Corporation".to_string())
+        );
+
+        let xml2 = r#"<item><description>No company here</description></item>"#;
+        assert_eq!(
+            ZipRecruiterScraper::extract_company_from_description(xml2),
+            None
+        );
+    }
+
+    #[test]
+    fn test_extract_location_from_description() {
+        assert_eq!(
+            ZipRecruiterScraper::extract_location_from_description(Some("Location: Austin, TX | Remote OK")),
+            Some("Austin, TX".to_string())
+        );
+
+        assert_eq!(
+            ZipRecruiterScraper::extract_location_from_description(Some("Based in Seattle for this role")),
+            Some("Seattle for this role".to_string())
+        );
+
+        assert_eq!(
+            ZipRecruiterScraper::extract_location_from_description(Some("100% remote opportunity")),
+            Some("Remote".to_string())
+        );
+
+        assert_eq!(
+            ZipRecruiterScraper::extract_location_from_description(Some("Great benefits and team")),
+            None
+        );
+    }
+
+    #[test]
+    fn test_is_remote_all_fields() {
+        assert!(ZipRecruiterScraper::is_remote(
+            "Remote Software Engineer",
+            None,
+            None
+        ));
+
+        assert!(ZipRecruiterScraper::is_remote(
+            "Software Engineer",
+            Some("Remote, USA"),
+            None
+        ));
+
+        assert!(ZipRecruiterScraper::is_remote(
+            "Software Engineer",
+            None,
+            Some("This is a 100% remote position")
+        ));
+
+        assert!(ZipRecruiterScraper::is_remote(
+            "Engineer",
+            Some("San Francisco"),
+            Some("Work from home flexibility")
+        ));
+
+        assert!(!ZipRecruiterScraper::is_remote(
+            "On-site Engineer",
+            Some("San Francisco, CA"),
+            Some("Must work in office")
+        ));
+    }
+
+    #[test]
+    fn test_extract_salary_range() {
+        let (min, max) = ZipRecruiterScraper::extract_salary("Compensation: $100k - $150k annually");
+        assert_eq!(min, Some(100000));
+        assert_eq!(max, Some(150000));
+    }
+
+    #[test]
+    fn test_extract_salary_single_value() {
+        let (min, max) = ZipRecruiterScraper::extract_salary("Up to $120,000 per year");
+        assert_eq!(min, Some(120000));
+        assert_eq!(max, None);
+    }
+
+    #[test]
+    fn test_extract_salary_no_salary() {
+        let (min, max) = ZipRecruiterScraper::extract_salary("Competitive salary and benefits");
+        assert_eq!(min, None);
+        assert_eq!(max, None);
+    }
+
+    #[test]
+    fn test_hash_consistency_with_location() {
+        let hash1 = ZipRecruiterScraper::compute_hash(
+            "TechCorp",
+            "Rust Engineer",
+            Some("Remote"),
+            "https://ziprecruiter.com/job/123"
+        );
+        let hash2 = ZipRecruiterScraper::compute_hash(
+            "TechCorp",
+            "Rust Engineer",
+            Some("Remote"),
+            "https://ziprecruiter.com/job/123"
+        );
+
+        assert_eq!(hash1, hash2);
+    }
+
+    #[test]
+    fn test_hash_differs_without_location() {
+        let hash_with_loc = ZipRecruiterScraper::compute_hash(
+            "TechCorp",
+            "Rust Engineer",
+            Some("Remote"),
+            "https://ziprecruiter.com/job/123"
+        );
+        let hash_without_loc = ZipRecruiterScraper::compute_hash(
+            "TechCorp",
+            "Rust Engineer",
+            None,
+            "https://ziprecruiter.com/job/123"
+        );
+
+        assert_ne!(hash_with_loc, hash_without_loc);
+    }
+
+    #[test]
+    fn test_build_url_with_all_params() {
+        let scraper = ZipRecruiterScraper::new(
+            "rust developer".to_string(),
+            Some("Austin, TX".to_string()),
+            Some(50),
+            25,
+        );
+        let url = scraper.build_url();
+
+        assert!(url.contains("search=rust%20developer"));
+        assert!(url.contains("location=Austin"));
+        assert!(url.contains("radius=50"));
+    }
+
+    #[test]
+    fn test_strip_html_tags_complex() {
+        let html = "<div><p>Hello <strong>World</strong>!</p> <span>Test</span></div>";
+        let result = ZipRecruiterScraper::strip_html_tags(html);
+        assert_eq!(result, "Hello World! Test");
+    }
+
+    #[test]
+    fn test_decode_all_html_entities() {
+        let text = "Test&nbsp;&amp;&nbsp;&lt;code&gt;&nbsp;&quot;hello&quot;&nbsp;&#39;world&#39;";
+        let decoded = ZipRecruiterScraper::decode_html_entities(text);
+        assert_eq!(decoded, "Test & <code> \"hello\" 'world'");
+    }
+
+    #[test]
+    fn test_parse_rss_unknown_company_fallback() {
+        let scraper = ZipRecruiterScraper::new("engineer".to_string(), None, None, 10);
+        let rss = r#"
+            <rss>
+                <channel>
+                    <item>
+                        <title>Software Engineer</title>
+                        <link>https://ziprecruiter.com/job/123</link>
+                        <description>Great opportunity</description>
+                    </item>
+                </channel>
+            </rss>
+        "#;
+
+        let jobs = scraper.parse_rss(rss).expect("parse_rss should succeed");
+
+        assert_eq!(jobs.len(), 1);
+        assert_eq!(jobs[0].company, "Unknown Company");
+    }
 }

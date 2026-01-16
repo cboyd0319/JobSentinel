@@ -57,3 +57,5 @@ Vagrantfile
 *storybook.log
 storybook-static
 coverage/
+playwright-report/
+test-results/

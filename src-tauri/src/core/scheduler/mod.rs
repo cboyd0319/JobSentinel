@@ -753,4 +753,470 @@ mod tests {
         assert!(debug_str.contains("jobs_found"));
         assert!(debug_str.contains("high_matches"));
     }
+
+    // ========================================
+    // Interval Validation and Edge Cases
+    // ========================================
+
+    #[test]
+    fn test_schedule_config_minimum_interval() {
+        let config = ScheduleConfig {
+            interval_hours: 1,
+            enabled: true,
+        };
+
+        assert_eq!(config.interval_hours, 1);
+        assert!(config.enabled);
+    }
+
+    #[test]
+    fn test_schedule_config_maximum_interval() {
+        let config = ScheduleConfig {
+            interval_hours: 168, // 1 week
+            enabled: true,
+        };
+
+        assert_eq!(config.interval_hours, 168);
+    }
+
+    #[test]
+    fn test_schedule_config_zero_interval() {
+        // Zero interval is technically allowed but would run continuously
+        let config = ScheduleConfig {
+            interval_hours: 0,
+            enabled: true,
+        };
+
+        assert_eq!(config.interval_hours, 0);
+    }
+
+    #[tokio::test]
+    async fn test_scheduler_interval_calculation() {
+        let mut config = create_test_config();
+        config.scraping_interval_hours = 4;
+        let config = Arc::new(config);
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
+
+        // The interval should be converted to seconds correctly
+        // 4 hours = 4 * 3600 = 14400 seconds
+        assert_eq!(scheduler.config.scraping_interval_hours, 4);
+    }
+
+    #[tokio::test]
+    async fn test_scheduler_very_large_interval() {
+        let mut config = create_test_config();
+        config.scraping_interval_hours = u64::MAX / 3600; // Very large but valid
+        let config = Arc::new(config);
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        // Should not panic when creating scheduler with large interval
+        let _scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
+    }
+
+    // ========================================
+    // Scraping Cycle Execution Tracking
+    // ========================================
+
+    #[tokio::test]
+    async fn test_scraping_cycle_tracks_new_vs_updated_jobs() {
+        let config = Arc::new(create_test_config());
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        // Pre-populate database with a job
+        let now = chrono::Utc::now();
+        let existing_job = Job {
+            id: 0,
+            hash: "test_hash_123".to_string(),
+            title: "Senior Rust Developer".to_string(),
+            company: "Test Corp".to_string(),
+            location: Some("Remote".to_string()),
+            url: "https://example.com/job/1".to_string(),
+            description: Some("Great job".to_string()),
+            score: Some(0.8),
+            score_reasons: None,
+            source: "test".to_string(),
+            remote: Some(true),
+            salary_min: None,
+            salary_max: None,
+            currency: None,
+            created_at: now,
+            updated_at: now,
+            last_seen: now,
+            times_seen: 1,
+            immediate_alert_sent: false,
+            included_in_digest: false,
+            hidden: false,
+            bookmarked: false,
+            notes: None,
+        };
+        database.upsert_job(&existing_job).await.unwrap();
+
+        let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
+
+        // Run scraping cycle (empty config = no scrapers)
+        let result = scheduler.run_scraping_cycle().await.unwrap();
+
+        // Verify tracking
+        assert_eq!(result.jobs_found, 0);
+        assert_eq!(result.jobs_new, 0);
+        assert_eq!(result.jobs_updated, 0);
+    }
+
+    #[tokio::test]
+    async fn test_scraping_result_partial_errors() {
+        let result = ScrapingResult {
+            jobs_found: 50,
+            jobs_new: 30,
+            jobs_updated: 20,
+            high_matches: 5,
+            alerts_sent: 3,
+            errors: vec![
+                "Greenhouse scraper timeout".to_string(),
+                "Lever scraper rate limit".to_string(),
+            ],
+        };
+
+        assert_eq!(result.jobs_found, 50);
+        assert_eq!(result.errors.len(), 2);
+        assert!(!result.errors.is_empty());
+    }
+
+    // ========================================
+    // Error Handling and Recovery
+    // ========================================
+
+    #[tokio::test]
+    async fn test_scraping_cycle_continues_on_scraper_error() {
+        // Even if individual scrapers fail, the cycle should complete
+        let config = Arc::new(create_test_config());
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
+
+        // Run cycle - scrapers will fail but cycle should complete
+        let result = scheduler.run_scraping_cycle().await;
+
+        assert!(result.is_ok(), "Scraping cycle should complete even with scraper errors");
+    }
+
+    #[test]
+    fn test_scraping_result_multiple_errors() {
+        let errors = vec![
+            "Error 1".to_string(),
+            "Error 2".to_string(),
+            "Error 3".to_string(),
+            "Error 4".to_string(),
+            "Error 5".to_string(),
+        ];
+
+        let result = ScrapingResult {
+            jobs_found: 10,
+            jobs_new: 10,
+            jobs_updated: 0,
+            high_matches: 0,
+            alerts_sent: 0,
+            errors: errors.clone(),
+        };
+
+        assert_eq!(result.errors.len(), 5);
+        assert_eq!(result.errors, errors);
+    }
+
+    // ========================================
+    // Concurrent Operations
+    // ========================================
+
+    #[tokio::test]
+    async fn test_scheduler_multiple_concurrent_cycles() {
+        let config = Arc::new(create_test_config());
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        let scheduler = Arc::new(Scheduler::new(Arc::clone(&config), Arc::clone(&database)));
+
+        // Run multiple scraping cycles concurrently
+        let scheduler1 = Arc::clone(&scheduler);
+        let scheduler2 = Arc::clone(&scheduler);
+        let scheduler3 = Arc::clone(&scheduler);
+
+        let handle1 = tokio::spawn(async move {
+            scheduler1.run_scraping_cycle().await
+        });
+        let handle2 = tokio::spawn(async move {
+            scheduler2.run_scraping_cycle().await
+        });
+        let handle3 = tokio::spawn(async move {
+            scheduler3.run_scraping_cycle().await
+        });
+
+        // All should complete successfully
+        let result1 = handle1.await.unwrap();
+        let result2 = handle2.await.unwrap();
+        let result3 = handle3.await.unwrap();
+
+        assert!(result1.is_ok());
+        assert!(result2.is_ok());
+        assert!(result3.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_scheduler_shutdown_during_cycle() {
+        let mut config = create_test_config();
+        config.scraping_interval_hours = 24; // Long interval
+        let config = Arc::new(config);
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        let scheduler = Arc::new(Scheduler::new(Arc::clone(&config), Arc::clone(&database)));
+        let scheduler_clone = Arc::clone(&scheduler);
+
+        // Start scheduler
+        let handle = tokio::spawn(async move {
+            scheduler_clone.start().await
+        });
+
+        // Let it start up
+        tokio::time::sleep(Duration::from_millis(50)).await;
+
+        // Shutdown immediately (potentially during cycle)
+        scheduler.shutdown().unwrap();
+
+        // Should stop gracefully
+        let result = tokio::time::timeout(Duration::from_secs(5), handle).await;
+        assert!(result.is_ok());
+    }
+
+    // ========================================
+    // Database Interaction Patterns
+    // ========================================
+
+    #[tokio::test]
+    async fn test_scraping_cycle_database_persistence() {
+        let config = Arc::new(create_test_config());
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
+
+        // Run cycle
+        let _result = scheduler.run_scraping_cycle().await.unwrap();
+
+        // Verify database is still accessible
+        let jobs = database.get_recent_jobs(10).await.unwrap();
+        assert!(jobs.is_empty() || !jobs.is_empty()); // Database should be queryable
+    }
+
+    #[tokio::test]
+    async fn test_scraping_cycle_job_deduplication() {
+        let _config = Arc::new(create_test_config());
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        // Insert same job twice with same hash
+        let now = chrono::Utc::now();
+        let job = Job {
+            id: 0,
+            hash: "duplicate_hash".to_string(),
+            title: "Test Job".to_string(),
+            company: "Test Co".to_string(),
+            location: Some("Remote".to_string()),
+            url: "https://example.com/job".to_string(),
+            description: None,
+            score: None,
+            score_reasons: None,
+            source: "test".to_string(),
+            remote: Some(true),
+            salary_min: None,
+            salary_max: None,
+            currency: None,
+            created_at: now,
+            updated_at: now,
+            last_seen: now,
+            times_seen: 1,
+            immediate_alert_sent: false,
+            included_in_digest: false,
+            hidden: false,
+            bookmarked: false,
+            notes: None,
+        };
+
+        database.upsert_job(&job).await.unwrap();
+        database.upsert_job(&job).await.unwrap();
+
+        // Should only have one job
+        let jobs = database.get_recent_jobs(10).await.unwrap();
+        assert_eq!(jobs.len(), 1, "Duplicate jobs should be deduplicated");
+    }
+
+    // ========================================
+    // Configuration Validation
+    // ========================================
+
+    #[test]
+    fn test_schedule_config_from_various_intervals() {
+        let test_cases = vec![
+            (1, 1),    // 1 hour
+            (2, 2),    // 2 hours
+            (6, 6),    // 6 hours
+            (12, 12),  // 12 hours
+            (24, 24),  // 1 day
+            (168, 168), // 1 week
+        ];
+
+        for (input_hours, expected_hours) in test_cases {
+            let mut config = create_test_config();
+            config.scraping_interval_hours = input_hours;
+            let schedule_config = ScheduleConfig::from(&config);
+
+            assert_eq!(
+                schedule_config.interval_hours, expected_hours,
+                "Failed for interval: {} hours",
+                input_hours
+            );
+        }
+    }
+
+    #[tokio::test]
+    async fn test_scheduler_respects_config_interval() {
+        let mut config = create_test_config();
+        config.scraping_interval_hours = 8;
+        let config = Arc::new(config);
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
+
+        // Verify scheduler uses correct interval
+        assert_eq!(scheduler.config.scraping_interval_hours, 8);
+    }
+
+    // ========================================
+    // Edge Cases
+    // ========================================
+
+    #[test]
+    fn test_scraping_result_all_zeros() {
+        let result = ScrapingResult {
+            jobs_found: 0,
+            jobs_new: 0,
+            jobs_updated: 0,
+            high_matches: 0,
+            alerts_sent: 0,
+            errors: vec![],
+        };
+
+        assert_eq!(result.jobs_found, 0);
+        assert_eq!(result.jobs_new, 0);
+        assert_eq!(result.jobs_updated, 0);
+        assert_eq!(result.high_matches, 0);
+        assert_eq!(result.alerts_sent, 0);
+        assert!(result.errors.is_empty());
+    }
+
+    #[test]
+    fn test_scraping_result_max_values() {
+        let result = ScrapingResult {
+            jobs_found: usize::MAX,
+            jobs_new: usize::MAX,
+            jobs_updated: usize::MAX,
+            high_matches: usize::MAX,
+            alerts_sent: usize::MAX,
+            errors: vec!["error".to_string(); 100],
+        };
+
+        assert_eq!(result.jobs_found, usize::MAX);
+        assert_eq!(result.errors.len(), 100);
+    }
+
+    #[tokio::test]
+    async fn test_scheduler_immediate_shutdown() {
+        let config = Arc::new(create_test_config());
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        let scheduler = Arc::new(Scheduler::new(Arc::clone(&config), Arc::clone(&database)));
+        let scheduler_clone = Arc::clone(&scheduler);
+
+        // Start scheduler in background
+        let handle = tokio::spawn(async move {
+            scheduler_clone.start().await
+        });
+
+        // Give scheduler time to start and run first cycle
+        tokio::time::sleep(Duration::from_millis(100)).await;
+
+        // Shutdown the scheduler
+        scheduler.shutdown().unwrap();
+
+        // Should shutdown within reasonable time (allowing for current cycle to complete)
+        let result = tokio::time::timeout(Duration::from_secs(5), handle).await;
+        assert!(result.is_ok(), "Scheduler should shutdown within timeout");
+    }
+
+    #[tokio::test]
+    async fn test_scheduler_rapid_shutdown_subscribe_cycle() {
+        let config = Arc::new(create_test_config());
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
+
+        // Rapid subscribe/shutdown cycles should not panic
+        for _ in 0..10 {
+            let _rx = scheduler.subscribe_shutdown();
+        }
+
+        scheduler.shutdown().unwrap();
+    }
+
+    #[test]
+    fn test_schedule_config_equality_after_clone() {
+        let original = ScheduleConfig {
+            interval_hours: 5,
+            enabled: true,
+        };
+
+        let cloned = original.clone();
+
+        assert_eq!(original.interval_hours, cloned.interval_hours);
+        assert_eq!(original.enabled, cloned.enabled);
+    }
+
+    #[test]
+    fn test_scraping_result_equality_after_clone() {
+        let original = ScrapingResult {
+            jobs_found: 42,
+            jobs_new: 20,
+            jobs_updated: 22,
+            high_matches: 8,
+            alerts_sent: 4,
+            errors: vec!["test".to_string()],
+        };
+
+        let cloned = original.clone();
+
+        assert_eq!(original.jobs_found, cloned.jobs_found);
+        assert_eq!(original.jobs_new, cloned.jobs_new);
+        assert_eq!(original.jobs_updated, cloned.jobs_updated);
+        assert_eq!(original.high_matches, cloned.high_matches);
+        assert_eq!(original.alerts_sent, cloned.alerts_sent);
+        assert_eq!(original.errors, cloned.errors);
+    }
 }

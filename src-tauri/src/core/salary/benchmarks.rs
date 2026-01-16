@@ -212,6 +212,24 @@ mod tests {
     }
 
     #[test]
+    fn test_salary_formatting_edge_cases() {
+        assert_eq!(SalaryBenchmark::format_salary(0), "0");
+        assert_eq!(SalaryBenchmark::format_salary(1), "1");
+        assert_eq!(SalaryBenchmark::format_salary(100), "100");
+        assert_eq!(SalaryBenchmark::format_salary(1000), "1,000");
+        assert_eq!(SalaryBenchmark::format_salary(10000), "10,000");
+        assert_eq!(SalaryBenchmark::format_salary(100000), "100,000");
+        assert_eq!(SalaryBenchmark::format_salary(1000000), "1,000,000");
+    }
+
+    #[test]
+    fn test_range_description() {
+        let benchmark = create_test_benchmark();
+        let description = benchmark.range_description();
+        assert_eq!(description, "$100,000-$250,000 (median: $150,000)");
+    }
+
+    #[test]
     fn test_competitiveness_check() {
         let benchmark = SalaryBenchmark {
             job_title: "Software Engineer".to_string(),
@@ -231,6 +249,38 @@ mod tests {
         assert_eq!(benchmark.is_competitive(160000), "competitive");
         assert_eq!(benchmark.is_competitive(130000), "fair");
         assert_eq!(benchmark.is_competitive(110000), "below_market");
+    }
+
+    #[test]
+    fn test_competitiveness_boundary_conditions() {
+        let benchmark = create_test_benchmark();
+
+        // Exactly at boundaries
+        assert_eq!(benchmark.is_competitive(180000), "excellent"); // p75
+        assert_eq!(benchmark.is_competitive(150000), "competitive"); // median
+        assert_eq!(benchmark.is_competitive(120000), "fair"); // p25
+        assert_eq!(benchmark.is_competitive(100000), "below_market"); // min
+
+        // Just above boundaries
+        assert_eq!(benchmark.is_competitive(180001), "excellent");
+        assert_eq!(benchmark.is_competitive(150001), "competitive");
+        assert_eq!(benchmark.is_competitive(120001), "fair");
+
+        // Just below boundaries
+        assert_eq!(benchmark.is_competitive(179999), "competitive");
+        assert_eq!(benchmark.is_competitive(149999), "fair");
+        assert_eq!(benchmark.is_competitive(119999), "below_market");
+    }
+
+    #[test]
+    fn test_competitiveness_extreme_values() {
+        let benchmark = create_test_benchmark();
+
+        // Way above market
+        assert_eq!(benchmark.is_competitive(500000), "excellent");
+
+        // Way below market
+        assert_eq!(benchmark.is_competitive(50000), "below_market");
     }
 
     #[test]
@@ -257,5 +307,87 @@ mod tests {
 
         // Above p75 - push 5% higher
         assert_eq!(benchmark.negotiation_target(200000), 210000);
+    }
+
+    #[test]
+    fn test_negotiation_target_edge_cases() {
+        let benchmark = create_test_benchmark();
+
+        // Exactly at median
+        assert_eq!(benchmark.negotiation_target(150000), 180000);
+
+        // Just below median
+        assert_eq!(benchmark.negotiation_target(149999), 150000);
+
+        // Exactly at p75
+        assert_eq!(benchmark.negotiation_target(180000), 189000); // 5% of 180000 = 189000
+
+        // Just below p75
+        assert_eq!(benchmark.negotiation_target(179999), 180000);
+
+        // Very low offer
+        assert_eq!(benchmark.negotiation_target(80000), 150000);
+    }
+
+    #[test]
+    fn test_negotiation_target_5_percent_calculation() {
+        let benchmark = create_test_benchmark();
+
+        // Above p75 - should push 5% higher
+        let current = 200000;
+        let expected = (current as f64 * 1.05) as i64;
+        assert_eq!(benchmark.negotiation_target(current), expected);
+        assert_eq!(benchmark.negotiation_target(200000), 210000);
+
+        let current = 250000;
+        let expected = (current as f64 * 1.05) as i64;
+        assert_eq!(benchmark.negotiation_target(current), expected);
+        assert_eq!(benchmark.negotiation_target(250000), 262500);
+    }
+
+    #[test]
+    fn test_different_seniority_levels() {
+        for seniority in [
+            SeniorityLevel::Entry,
+            SeniorityLevel::Mid,
+            SeniorityLevel::Senior,
+            SeniorityLevel::Staff,
+            SeniorityLevel::Principal,
+            SeniorityLevel::Unknown,
+        ] {
+            let benchmark = SalaryBenchmark {
+                job_title: "Software Engineer".to_string(),
+                location: "San Francisco, CA".to_string(),
+                seniority_level: seniority,
+                min_salary: 100000,
+                p25_salary: 120000,
+                median_salary: 150000,
+                p75_salary: 180000,
+                max_salary: 250000,
+                average_salary: 155000,
+                sample_size: 500,
+                last_updated: Utc::now(),
+            };
+
+            // Just verify it works for all seniority levels
+            assert_eq!(benchmark.is_competitive(160000), "competitive");
+        }
+    }
+
+    // Helper function to create a standard test benchmark
+    fn create_test_benchmark() -> SalaryBenchmark {
+        SalaryBenchmark {
+            job_title: "Software Engineer".to_string(),
+            location: "San Francisco, CA".to_string(),
+            seniority_level: SeniorityLevel::Mid,
+            min_salary: 100000,
+            p25_salary: 120000,
+            median_salary: 150000,
+            p75_salary: 180000,
+            max_salary: 250000,
+            average_salary: 155000,
+            sample_size: 500,
+            last_updated: Utc::now(),
+        }
     }
 }
