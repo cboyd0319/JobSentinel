@@ -24,10 +24,11 @@ interface JobCardProps {
   onHideJob?: (id: number) => void;
   onToggleBookmark?: (id: number) => void;
   onEditNotes?: (id: number, currentNotes?: string | null) => void;
+  onResearchCompany?: (company: string) => void;
   isSelected?: boolean;
 }
 
-export function JobCard({ job, onViewJob, onHideJob, onToggleBookmark, onEditNotes, isSelected = false }: JobCardProps) {
+export function JobCard({ job, onViewJob, onHideJob, onToggleBookmark, onEditNotes, onResearchCompany, isSelected = false }: JobCardProps) {
   const handleOpenUrl = async (url: string) => {
     try {
       await open(url);
@@ -151,6 +152,18 @@ export function JobCard({ job, onViewJob, onHideJob, onToggleBookmark, onEditNot
 
           {/* Action */}
           <div className="flex-shrink-0 self-center flex items-center gap-1">
+            {/* Research company button */}
+            {onResearchCompany && (
+              <button
+                onClick={() => onResearchCompany(job.company)}
+                className="p-2 text-surface-400 hover:text-purple-500 dark:hover:text-purple-400 opacity-0 group-hover:opacity-100 transition-colors"
+                aria-label="Research company"
+                title="Research company"
+              >
+                <ResearchIcon />
+              </button>
+            )}
+
             {/* Notes button */}
             {onEditNotes && (
               <button
@@ -281,6 +294,14 @@ function NotesIcon({ filled = false }: { filled?: boolean }) {
   return (
     <svg className="w-5 h-5" fill={filled ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+    </svg>
+  );
+}
+
+function ResearchIcon() {
+  return (
+    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
     </svg>
   );
 }

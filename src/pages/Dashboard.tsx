@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-shell";
-import { Button, Card, CardHeader, LoadingSpinner, JobCard, ScoreDisplay, ThemeToggle, Tooltip, ModalErrorBoundary, Dropdown, Modal, ModalFooter } from "../components";
+import { Button, Card, CardHeader, LoadingSpinner, JobCard, ScoreDisplay, ThemeToggle, Tooltip, ModalErrorBoundary, Dropdown, Modal, ModalFooter, CompanyResearchPanel } from "../components";
 import { useToast } from "../contexts";
 import { useUndo } from "../contexts/UndoContext";
 import { useKeyboardNavigation } from "../hooks/useKeyboardNavigation";
@@ -120,6 +120,8 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
   // Comparison state
   const [compareModalOpen, setCompareModalOpen] = useState(false);
   const [comparedJobs, setComparedJobs] = useState<Job[]>([]);
+  // Company research state
+  const [researchCompany, setResearchCompany] = useState<string | null>(null);
   // Auto-refresh state
   const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(false);
   const [autoRefreshInterval, setAutoRefreshInterval] = useState(30); // minutes
@@ -1444,6 +1446,7 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
                       onHideJob={bulkMode ? undefined : handleHideJob}
                       onToggleBookmark={bulkMode ? undefined : handleToggleBookmark}
                       onEditNotes={bulkMode ? undefined : handleEditNotes}
+                      onResearchCompany={bulkMode ? undefined : setResearchCompany}
                       isSelected={isKeyboardActive && index === selectedIndex}
                     />
                   </div>
@@ -1742,6 +1745,26 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
           )}
         </div>
       </Modal>
+
+      {/* Company Research Modal */}
+      {researchCompany && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setResearchCompany(null);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setResearchCompany(null);
+          }}
+          role="dialog"
+          aria-modal="true"
+        >
+          <CompanyResearchPanel
+            companyName={researchCompany}
+            onClose={() => setResearchCompany(null)}
+          />
+        </div>
+      )}
     </div>
   );
 }
