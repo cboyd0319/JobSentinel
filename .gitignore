@@ -56,3 +56,4 @@ Vagrantfile
 
 *storybook.log
 storybook-static
+coverage/

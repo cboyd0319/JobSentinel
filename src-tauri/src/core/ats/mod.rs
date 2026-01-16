@@ -4,12 +4,32 @@
 //! automated reminders, and comprehensive timeline tracking.
 
 use anyhow::{anyhow, Result};
-use chrono::{DateTime, Duration, Utc};
+use chrono::{DateTime, Duration, NaiveDateTime, Utc};
 use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
 use sqlx::SqlitePool;
 use std::fmt;
 use std::str::FromStr;
+
+/// Parse a datetime string from SQLite which can be in multiple formats
+fn parse_sqlite_datetime(s: &str) -> Result<DateTime<Utc>> {
+    // Try RFC3339 first (format with 'T' and 'Z'): 2026-01-15T12:34:56Z
+    if let Ok(dt) = DateTime::parse_from_rfc3339(s) {
+        return Ok(dt.with_timezone(&Utc));
+    }
+
+    // Try SQLite datetime() format (space instead of T, no Z): 2026-01-15 12:34:56
+    if let Ok(naive) = NaiveDateTime::parse_from_str(s, "%Y-%m-%d %H:%M:%S") {
+        return Ok(DateTime::from_naive_utc_and_offset(naive, Utc));
+    }
+
+    // Try ISO8601 with T but no Z: 2026-01-15T12:34:56
+    if let Ok(naive) = NaiveDateTime::parse_from_str(s, "%Y-%m-%dT%H:%M:%S") {
+        return Ok(DateTime::from_naive_utc_and_offset(naive, Utc));
+    }
+
+    Err(anyhow!("Failed to parse datetime: {}", s))
+}
 
 /// Application status in the job search pipeline
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -161,16 +181,16 @@ impl ApplicationTracker {
             id: row.id,
             job_hash: row.job_hash,
             status: row.status.parse()?,
-            applied_at: row.applied_at.and_then(|s| DateTime::parse_from_rfc3339(&s).ok().map(|dt| dt.with_timezone(&Utc))),
-            last_contact: row.last_contact.and_then(|s| DateTime::parse_from_rfc3339(&s).ok().map(|dt| dt.with_timezone(&Utc))),
-            next_followup: row.next_followup.and_then(|s| DateTime::parse_from_rfc3339(&s).ok().map(|dt| dt.with_timezone(&Utc))),
+            applied_at: row.applied_at.and_then(|s| parse_sqlite_datetime(&s).ok()),
+            last_contact: row.last_contact.and_then(|s| parse_sqlite_datetime(&s).ok()),
+            next_followup: row.next_followup.and_then(|s| parse_sqlite_datetime(&s).ok()),
             notes: row.notes,
             recruiter_name: row.recruiter_name,
             recruiter_email: row.recruiter_email,
             recruiter_phone: row.recruiter_phone,
             salary_expectation: row.salary_expectation,
-            created_at: DateTime::parse_from_rfc3339(&row.created_at)?.with_timezone(&Utc),
-            updated_at: DateTime::parse_from_rfc3339(&row.updated_at)?.with_timezone(&Utc),
+            created_at: parse_sqlite_datetime(&row.created_at)?,
+            updated_at: parse_sqlite_datetime(&row.updated_at)?,
         })
     }
 
@@ -869,7 +889,7 @@ pub struct PendingReminder {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use sqlx::sqlite::SqlitePoolOptions;
+    use crate::core::db::Database;
 
     // ========================================
     // Unit tests (no database required)
@@ -960,102 +980,18 @@ mod tests {
     // ========================================
 
     async fn create_test_db() -> SqlitePool {
-        // Use in-memory database with shared cache for tests
-        let pool = SqlitePoolOptions::new()
-            .connect("sqlite::memory:")
-            .await
-            .unwrap();
-
-        // Create jobs table
-        sqlx::query(
-            r#"
-            CREATE TABLE jobs (
-                id INTEGER PRIMARY KEY,
-                hash TEXT UNIQUE NOT NULL,
-                title TEXT NOT NULL,
-                company TEXT NOT NULL,
-                url TEXT NOT NULL,
-                score REAL NOT NULL DEFAULT 0.0,
-                created_at TEXT DEFAULT (datetime('now'))
-            )
-            "#,
-        )
-        .execute(&pool)
-        .await
-        .unwrap();
-
-        // Create applications table
-        sqlx::query(
-            r#"
-            CREATE TABLE applications (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                job_hash TEXT NOT NULL,
-                status TEXT NOT NULL DEFAULT 'to_apply',
-                applied_at TEXT,
-                last_contact TEXT,
-                next_followup TEXT,
-                notes TEXT,
-                recruiter_name TEXT,
-                recruiter_email TEXT,
-                recruiter_phone TEXT,
-                salary_expectation INTEGER,
-                created_at TEXT NOT NULL DEFAULT (datetime('now')),
-                updated_at TEXT NOT NULL DEFAULT (datetime('now')),
-                FOREIGN KEY (job_hash) REFERENCES jobs(hash) ON DELETE CASCADE
-            )
-            "#,
-        )
-        .execute(&pool)
-        .await
-        .unwrap();
-
-        // Create application_events table
-        sqlx::query(
-            r#"
-            CREATE TABLE application_events (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                application_id INTEGER NOT NULL,
-                event_type TEXT NOT NULL,
-                event_data TEXT,
-                created_at TEXT NOT NULL DEFAULT (datetime('now')),
-                FOREIGN KEY (application_id) REFERENCES applications(id) ON DELETE CASCADE
-            )
-            "#,
-        )
-        .execute(&pool)
-        .await
-        .unwrap();
-
-        // Create application_reminders table
-        sqlx::query(
-            r#"
-            CREATE TABLE application_reminders (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                application_id INTEGER NOT NULL,
-                reminder_type TEXT NOT NULL,
-                reminder_time TEXT NOT NULL,
-                message TEXT,
-                completed INTEGER NOT NULL DEFAULT 0,
-                completed_at TEXT,
-                created_at TEXT NOT NULL DEFAULT (datetime('now')),
-                FOREIGN KEY (application_id) REFERENCES applications(id) ON DELETE CASCADE
-            )
-            "#,
-        )
-        .execute(&pool)
-        .await
-        .unwrap();
-
-        pool
+        // Use in-memory database with migrations
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        db.pool().clone()
     }
 
     #[tokio::test]
-    #[ignore = "Requires file-based database with migrations run"]
     async fn test_create_application() {
         let pool = create_test_db().await;
 
         // Insert test job
-        sqlx::query("INSERT INTO jobs (hash, title, company, url) VALUES ('test123', 'Engineer', 'TestCo', 'http://test.com')")
+        sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Engineer', 'TestCo', 'http://test.com', 'test')")
             .execute(&pool)
             .await
             .unwrap();
@@ -1071,11 +1007,10 @@ mod tests {
     }
 
     #[tokio::test]
-    #[ignore = "Requires file-based database with migrations run"]
     async fn test_update_status() {
         let pool = create_test_db().await;
 
-        sqlx::query("INSERT INTO jobs (hash, title, company, url) VALUES ('test123', 'Engineer', 'TestCo', 'http://test.com')")
+        sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Engineer', 'TestCo', 'http://test.com', 'test')")
             .execute(&pool)
             .await
             .unwrap();
@@ -1095,15 +1030,14 @@ mod tests {
     }
 
     #[tokio::test]
-    #[ignore = "Requires file-based database with migrations run"]
     async fn test_kanban_board() {
         let pool = create_test_db().await;
 
-        sqlx::query("INSERT INTO jobs (hash, title, company, url) VALUES ('job1', 'Engineer', 'TestCo', 'http://test.com')")
+        sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('job1', 'Engineer', 'TestCo', 'http://test.com', 'test')")
             .execute(&pool)
             .await
             .unwrap();
-        sqlx::query("INSERT INTO jobs (hash, title, company, url) VALUES ('job2', 'Developer', 'AnotherCo', 'http://test2.com')")
+        sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('job2', 'Developer', 'AnotherCo', 'http://test2.com', 'test')")
             .execute(&pool)
             .await
             .unwrap();
@@ -1124,11 +1058,10 @@ mod tests {
     }
 
     #[tokio::test]
-    #[ignore = "Requires file-based database with migrations run"]
     async fn test_auto_reminders() {
         let pool = create_test_db().await;
 
-        sqlx::query("INSERT INTO jobs (hash, title, company, url) VALUES ('test123', 'Engineer', 'TestCo', 'http://test.com')")
+        sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Engineer', 'TestCo', 'http://test.com', 'test')")
             .execute(&pool)
             .await
             .unwrap();

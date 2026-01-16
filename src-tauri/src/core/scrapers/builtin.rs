@@ -241,4 +241,245 @@ mod tests {
         assert_eq!(hash1, hash2);
         assert_eq!(hash1.len(), 64);
     }
+
+    #[test]
+    fn test_parse_html_with_job_cards() {
+        let scraper = BuiltInScraper::new("nyc".to_string(), None, 10);
+        let html = r#"
+            <html>
+                <body>
+                    <article class="job-listing">
+                        <h2><a href="/job/senior-rust-engineer-123">Senior Rust Engineer</a></h2>
+                        <span class="company-name">TechCorp Inc</span>
+                        <div class="job-location">New York, NY</div>
+                    </article>
+                    <article class="job-listing">
+                        <h2><a href="/job/frontend-developer-456">Frontend Developer (Remote)</a></h2>
+                        <span class="company-name">StartupXYZ</span>
+                        <div class="job-location">Remote</div>
+                    </article>
+                </body>
+            </html>
+        "#;
+
+        let jobs = scraper.parse_html(html).expect("parse_html should succeed");
+
+        assert_eq!(jobs.len(), 2);
+
+        // First job
+        assert_eq!(jobs[0].title, "Senior Rust Engineer");
+        assert_eq!(jobs[0].company, "TechCorp Inc");
+        assert_eq!(jobs[0].url, "https://builtin.com/job/senior-rust-engineer-123");
+        assert_eq!(jobs[0].location, Some("New York, NY".to_string()));
+        assert_eq!(jobs[0].source, "builtin");
+        assert_eq!(jobs[0].remote, Some(false));
+
+        // Second job - should detect remote
+        assert_eq!(jobs[1].title, "Frontend Developer (Remote)");
+        assert_eq!(jobs[1].company, "StartupXYZ");
+        assert_eq!(jobs[1].remote, Some(true));
+    }
+
+    #[test]
+    fn test_parse_html_with_data_id_attributes() {
+        let scraper = BuiltInScraper::new("boston".to_string(), None, 10);
+        let html = r#"
+            <html>
+                <body>
+                    <div data-id="job-card">
+                        <h2 data-id="job-title"><a href="/job/devops-engineer-789">DevOps Engineer</a></h2>
+                        <span data-id="company-name">CloudTech</span>
+                        <div class="job-location">Boston, MA</div>
+                    </div>
+                </body>
+            </html>
+        "#;
+
+        let jobs = scraper.parse_html(html).expect("parse_html should succeed");
+
+        assert_eq!(jobs.len(), 1);
+        assert_eq!(jobs[0].title, "DevOps Engineer");
+        assert_eq!(jobs[0].company, "CloudTech");
+        assert_eq!(jobs[0].location, Some("Boston, MA".to_string()));
+    }
+
+    #[test]
+    fn test_parse_html_with_absolute_urls() {
+        let scraper = BuiltInScraper::new("chicago".to_string(), None, 10);
+        let html = r#"
+            <html>
+                <body>
+                    <article class="job-listing">
+                        <h2><a href="https://external-site.com/job/123">External Job</a></h2>
+                        <span class="company-name">ExternalCorp</span>
+                        <div class="job-location">Chicago, IL</div>
+                    </article>
+                </body>
+            </html>
+        "#;
+
+        let jobs = scraper.parse_html(html).expect("parse_html should succeed");
+
+        assert_eq!(jobs.len(), 1);
+        assert_eq!(jobs[0].url, "https://external-site.com/job/123");
+    }
+
+    #[test]
+    fn test_parse_html_empty_document() {
+        let scraper = BuiltInScraper::new("nyc".to_string(), None, 10);
+        let html = "<html><body></body></html>";
+
+        let jobs = scraper.parse_html(html).expect("parse_html should succeed");
+
+        assert_eq!(jobs.len(), 0);
+    }
+
+    #[test]
+    fn test_parse_html_malformed_missing_title() {
+        let scraper = BuiltInScraper::new("nyc".to_string(), None, 10);
+        let html = r#"
+            <html>
+                <body>
+                    <article class="job-listing">
+                        <h2><a href="/job/123"></a></h2>
+                        <span class="company-name">TechCorp</span>
+                    </article>
+                </body>
+            </html>
+        "#;
+
+        let jobs = scraper.parse_html(html).expect("parse_html should succeed");
+
+        // Should be skipped due to empty title
+        assert_eq!(jobs.len(), 0);
+    }
+
+    #[test]
+    fn test_parse_html_malformed_missing_url() {
+        let scraper = BuiltInScraper::new("nyc".to_string(), None, 10);
+        let html = r#"
+            <html>
+                <body>
+                    <article class="job-listing">
+                        <h2>Software Engineer</h2>
+                        <span class="company-name">TechCorp</span>
+                    </article>
+                </body>
+            </html>
+        "#;
+
+        let jobs = scraper.parse_html(html).expect("parse_html should succeed");
+
+        // Should be skipped due to missing URL
+        assert_eq!(jobs.len(), 0);
+    }
+
+    #[test]
+    fn test_parse_html_remote_detection() {
+        let scraper = BuiltInScraper::new("austin".to_string(), None, 10);
+        let html = r#"
+            <html>
+                <body>
+                    <article class="job-listing">
+                        <h2><a href="/job/1">Job 1</a></h2>
+                        <span class="company-name">Company A</span>
+                        <div class="job-location">Remote</div>
+                    </article>
+                    <article class="job-listing">
+                        <h2><a href="/job/2">Job 2</a></h2>
+                        <span class="company-name">Company B</span>
+                        <div class="job-location">Work from anywhere</div>
+                    </article>
+                    <article class="job-listing">
+                        <h2><a href="/job/3">Job 3</a></h2>
+                        <span class="company-name">Company C</span>
+                        <div class="job-location">Austin, TX</div>
+                    </article>
+                </body>
+            </html>
+        "#;
+
+        let jobs = scraper.parse_html(html).expect("parse_html should succeed");
+
+        assert_eq!(jobs.len(), 3);
+        assert_eq!(jobs[0].remote, Some(true), "Should detect 'Remote'");
+        assert_eq!(jobs[1].remote, Some(true), "Should detect 'anywhere'");
+        assert_eq!(jobs[2].remote, Some(false), "Should not be remote");
+    }
+
+    #[test]
+    fn test_parse_html_limit_respected() {
+        let scraper = BuiltInScraper::new("seattle".to_string(), None, 2);
+        let html = r#"
+            <html>
+                <body>
+                    <article class="job-listing">
+                        <h2><a href="/job/1">Job 1</a></h2>
+                        <span class="company-name">Company 1</span>
+                    </article>
+                    <article class="job-listing">
+                        <h2><a href="/job/2">Job 2</a></h2>
+                        <span class="company-name">Company 2</span>
+                    </article>
+                    <article class="job-listing">
+                        <h2><a href="/job/3">Job 3</a></h2>
+                        <span class="company-name">Company 3</span>
+                    </article>
+                </body>
+            </html>
+        "#;
+
+        let jobs = scraper.parse_html(html).expect("parse_html should succeed");
+
+        // Should only return 2 jobs due to limit
+        assert_eq!(jobs.len(), 2);
+    }
+
+    #[test]
+    fn test_parse_html_unknown_company_fallback() {
+        let scraper = BuiltInScraper::new("nyc".to_string(), None, 10);
+        let html = r#"
+            <html>
+                <body>
+                    <article class="job-listing">
+                        <h2><a href="/job/123">Software Engineer</a></h2>
+                    </article>
+                </body>
+            </html>
+        "#;
+
+        let jobs = scraper.parse_html(html).expect("parse_html should succeed");
+
+        assert_eq!(jobs.len(), 1);
+        assert_eq!(jobs[0].company, "Unknown Company");
+    }
+
+    #[test]
+    fn test_parse_html_whitespace_trimming() {
+        let scraper = BuiltInScraper::new("sf".to_string(), None, 10);
+        let html = r#"
+            <html>
+                <body>
+                    <article class="job-listing">
+                        <h2><a href="/job/1">
+                            Senior Engineer
+                        </a></h2>
+                        <span class="company-name">
+                            TechCorp
+                        </span>
+                        <div class="job-location">
+                            San Francisco, CA
+                        </div>
+                    </article>
+                </body>
+            </html>
+        "#;
+
+        let jobs = scraper.parse_html(html).expect("parse_html should succeed");
+
+        assert_eq!(jobs.len(), 1);
+        assert_eq!(jobs[0].title, "Senior Engineer");
+        assert_eq!(jobs[0].company, "TechCorp");
+        assert_eq!(jobs[0].location, Some("San Francisco, CA".to_string()));
+    }
 }
