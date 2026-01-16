@@ -292,6 +292,7 @@ mod tests {
                 country: "US".to_string(),
             },
             salary_floor_usd: 150000,
+            auto_refresh: Default::default(),
             immediate_alert_threshold: 0.9,
             scraping_interval_hours: 2,
             alerts: Default::default(),
@@ -326,6 +327,8 @@ mod tests {
             times_seen: 1,
             immediate_alert_sent: false,
             hidden: false,
+            bookmarked: false,
+            notes: None,
             included_in_digest: false,
         }
     }

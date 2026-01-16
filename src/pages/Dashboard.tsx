@@ -1095,6 +1095,7 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
                 icon={<SearchIcon />}
                 aria-label={searching ? "Scanning job boards" : "Search for new jobs"}
                 data-tour="search-button"
+                data-testid="btn-search-now"
               >
                 {searchCooldown && !searching ? "Wait..." : "Search Now"}
               </Button>
@@ -1336,6 +1337,7 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
                       placeholder="Search (AND, OR, NOT)..."
                       className="w-48 sm:w-56 pl-8 pr-8 py-1.5 text-sm bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sentinel-500 focus:border-transparent"
                       aria-label="Search jobs with advanced syntax"
+                      data-testid="search-input"
                     />
                   </Tooltip>
                   <svg
@@ -1730,7 +1732,7 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
               </button>
             </Card>
           ) : (
-            <div ref={jobListRef} className="space-y-3 stagger-children">
+            <div ref={jobListRef} className="space-y-3 stagger-children" data-testid="job-list">
               {filteredAndSortedJobs.map((job, index) => (
                 <div key={job.id} className="flex items-start gap-3">
                   {bulkMode && (

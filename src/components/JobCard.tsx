@@ -91,6 +91,8 @@ export function JobCard({ job, onViewJob, onHideJob, onToggleBookmark, onEditNot
             : "border-surface-100 dark:border-surface-700 shadow-soft dark:shadow-none hover:border-surface-200 dark:hover:border-surface-600"
         }
       `}
+      data-testid="job-card"
+      data-job-id={job.id}
       data-selected={isSelected || undefined}
     >
       {/* High match indicator */}
@@ -108,10 +110,10 @@ export function JobCard({ job, onViewJob, onHideJob, onToggleBookmark, onEditNot
           {/* Content */}
           <div className="flex-1 min-w-0">
             {/* Title and company */}
-            <h3 className="font-display text-display-md text-surface-900 dark:text-white mb-1 truncate group-hover:text-sentinel-600 dark:group-hover:text-sentinel-400 transition-colors">
+            <h3 data-testid="job-title" className="font-display text-display-md text-surface-900 dark:text-white mb-1 truncate group-hover:text-sentinel-600 dark:group-hover:text-sentinel-400 transition-colors">
               {job.title}
             </h3>
-            <p className="text-surface-600 dark:text-surface-400 font-medium mb-2">{job.company}</p>
+            <p data-testid="job-company" className="text-surface-600 dark:text-surface-400 font-medium mb-2">{job.company}</p>
 
             {/* Description snippet */}
             {descSnippet && (
@@ -159,6 +161,7 @@ export function JobCard({ job, onViewJob, onHideJob, onToggleBookmark, onEditNot
                 className="p-2 text-surface-400 hover:text-purple-500 dark:hover:text-purple-400 opacity-0 group-hover:opacity-100 transition-colors"
                 aria-label="Research company"
                 title="Research company"
+                data-testid="btn-research"
               >
                 <ResearchIcon />
               </button>
@@ -174,6 +177,7 @@ export function JobCard({ job, onViewJob, onHideJob, onToggleBookmark, onEditNot
                     : "text-surface-400 hover:text-blue-500 dark:hover:text-blue-400 opacity-0 group-hover:opacity-100"
                 }`}
                 aria-label={job.notes ? "Edit notes" : "Add notes"}
+                data-testid="btn-notes"
               >
                 <NotesIcon filled={!!job.notes} />
               </button>
@@ -189,6 +193,8 @@ export function JobCard({ job, onViewJob, onHideJob, onToggleBookmark, onEditNot
                     : "text-surface-400 hover:text-yellow-500 dark:hover:text-yellow-400 opacity-0 group-hover:opacity-100"
                 }`}
                 aria-label={job.bookmarked ? "Remove bookmark" : "Bookmark this job"}
+                data-testid="btn-bookmark"
+                data-bookmarked={job.bookmarked || undefined}
               >
                 <BookmarkIcon filled={job.bookmarked} />
               </button>
@@ -210,6 +216,7 @@ export function JobCard({ job, onViewJob, onHideJob, onToggleBookmark, onEditNot
                   : "bg-surface-50 dark:bg-surface-700 text-surface-600 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-600"
                 }
               `}
+              data-testid="btn-view"
             >
               View
               <ArrowIcon />
@@ -221,6 +228,7 @@ export function JobCard({ job, onViewJob, onHideJob, onToggleBookmark, onEditNot
                 onClick={() => onHideJob(job.id)}
                 className="p-2 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 transition-colors opacity-0 group-hover:opacity-100"
                 aria-label="Not interested in this job"
+                data-testid="btn-hide"
               >
                 <HideIcon />
               </button>

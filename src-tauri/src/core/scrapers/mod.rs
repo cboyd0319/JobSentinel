@@ -7,6 +7,7 @@ use anyhow::Result;
 use async_trait::async_trait;
 
 pub mod builtin;
+pub mod dice;
 pub mod greenhouse;
 pub mod hn_hiring;
 pub mod http_client;
@@ -18,6 +19,8 @@ pub mod rate_limiter;
 pub mod remoteok;
 pub mod wellfound;
 pub mod weworkremotely;
+pub mod yc_startup;
+pub mod ziprecruiter;
 
 /// Scraper result using anyhow for automatic Send + Sync
 pub type ScraperResult = Result<Vec<Job>>;

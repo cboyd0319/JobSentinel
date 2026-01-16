@@ -915,6 +915,7 @@ mod tests {
             lever_urls: vec![],
             linkedin: Default::default(),
             indeed: Default::default(),
+            auto_refresh: Default::default(),
         };
 
         let database = Database::connect_memory().await.expect("Failed to create test database");
@@ -1050,6 +1051,7 @@ mod tests {
             lever_urls: vec![],
             linkedin: Default::default(),
             indeed: Default::default(),
+            auto_refresh: Default::default(),
         };
 
         let config_json = serde_json::to_value(&config).unwrap();
@@ -1131,6 +1133,7 @@ mod tests {
             lever_urls: vec![],
             linkedin: Default::default(),
             indeed: Default::default(),
+            auto_refresh: Default::default(),
         };
 
         // Test that config can be serialized and deserialized

@@ -147,6 +147,7 @@ export function CommandPalette({ commands = [] }: CommandPaletteProps) {
         role="dialog"
         aria-modal="true"
         aria-label="Command palette"
+        data-testid="command-palette"
       >
         {/* Search input */}
         <div className="flex items-center border-b border-surface-200 dark:border-surface-700 px-4">
@@ -170,6 +171,7 @@ export function CommandPalette({ commands = [] }: CommandPaletteProps) {
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Type a command or search..."
             className="w-full px-3 py-4 bg-transparent text-surface-900 dark:text-white placeholder-surface-400 focus:outline-none"
+            data-testid="command-palette-input"
           />
           <kbd className="hidden sm:inline-flex px-2 py-1 text-xs font-medium text-surface-500 bg-surface-100 dark:bg-surface-700 rounded">
             esc
@@ -181,6 +183,7 @@ export function CommandPalette({ commands = [] }: CommandPaletteProps) {
           ref={listRef}
           className="max-h-80 overflow-y-auto py-2"
           role="listbox"
+          data-testid="command-palette-list"
         >
           {flatCommands.length === 0 ? (
             <div className="px-4 py-8 text-center text-surface-500">

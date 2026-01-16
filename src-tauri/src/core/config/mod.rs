@@ -738,6 +738,7 @@ mod tests {
             lever_urls: vec!["https://jobs.lever.co/netflix".to_string()],
             linkedin: LinkedInConfig::default(),
             indeed: IndeedConfig::default(),
+            auto_refresh: Default::default(),
         }
     }
 
