@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card } from './Card';
 import { Badge } from './Badge';
 import { useToast } from '../contexts';
@@ -276,13 +276,10 @@ function SourceConfigRow({ sourceKey, config, onChange }: SourceConfigRowProps) 
 }
 
 export function NotificationPreferences() {
-  const [prefs, setPrefs] = useState<NotificationPreferences>(DEFAULT_PREFERENCES);
+  // Use lazy initialization to avoid setState in effect
+  const [prefs, setPrefs] = useState<NotificationPreferences>(() => loadNotificationPreferences());
   const [hasChanges, setHasChanges] = useState(false);
   const toast = useToast();
-
-  useEffect(() => {
-    setPrefs(loadNotificationPreferences());
-  }, []);
 
   const handleSourceChange = (sourceKey: string, config: SourceNotificationConfig) => {
     const updated = { ...prefs, [sourceKey]: config };

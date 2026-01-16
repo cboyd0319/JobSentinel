@@ -181,7 +181,7 @@ impl ZipRecruiterScraper {
         // Common patterns: "Company: XYZ", "at XYZ", "XYZ is hiring"
         if let Some(pos) = decoded.find("Company:") {
             let rest = &decoded[pos + 8..];
-            let end = rest.find(|c: char| c == '\n' || c == '<' || c == '|').unwrap_or(rest.len());
+            let end = rest.find(['\n', '<', '|']).unwrap_or(rest.len());
             let company = rest[..end].trim();
             if !company.is_empty() && company.len() < 100 {
                 return Some(company.to_string());
@@ -207,8 +207,8 @@ impl ZipRecruiterScraper {
             if let Some(pos) = lower.find(pattern) {
                 let rest = &desc[pos + offset..];
                 let end = rest
-                    .find(|c: char| c == '\n' || c == '.' || c == '|' || c == '<')
-                    .unwrap_or(rest.len().min(50));
+                    .find(['\n', '.', '|', '<'])
+                    .unwrap_or_else(|| rest.len().min(50));
                 let location = rest[..end].trim();
                 if !location.is_empty() && location.len() < 100 {
                     return Some(location.to_string());

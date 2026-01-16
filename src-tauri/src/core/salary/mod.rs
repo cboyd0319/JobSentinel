@@ -341,6 +341,44 @@ mod tests {
     use super::*;
 
     #[test]
+    fn test_seniority_as_str() {
+        assert_eq!(SeniorityLevel::Entry.as_str(), "entry");
+        assert_eq!(SeniorityLevel::Mid.as_str(), "mid");
+        assert_eq!(SeniorityLevel::Senior.as_str(), "senior");
+        assert_eq!(SeniorityLevel::Staff.as_str(), "staff");
+        assert_eq!(SeniorityLevel::Principal.as_str(), "principal");
+        assert_eq!(SeniorityLevel::Unknown.as_str(), "unknown");
+    }
+
+    #[test]
+    fn test_seniority_parse() {
+        assert_eq!(SeniorityLevel::parse("entry"), SeniorityLevel::Entry);
+        assert_eq!(SeniorityLevel::parse("mid"), SeniorityLevel::Mid);
+        assert_eq!(SeniorityLevel::parse("senior"), SeniorityLevel::Senior);
+        assert_eq!(SeniorityLevel::parse("staff"), SeniorityLevel::Staff);
+        assert_eq!(SeniorityLevel::parse("principal"), SeniorityLevel::Principal);
+        assert_eq!(SeniorityLevel::parse("unknown"), SeniorityLevel::Unknown);
+        assert_eq!(SeniorityLevel::parse("invalid"), SeniorityLevel::Unknown);
+        assert_eq!(SeniorityLevel::parse(""), SeniorityLevel::Unknown);
+    }
+
+    #[test]
+    fn test_seniority_roundtrip() {
+        for level in [
+            SeniorityLevel::Entry,
+            SeniorityLevel::Mid,
+            SeniorityLevel::Senior,
+            SeniorityLevel::Staff,
+            SeniorityLevel::Principal,
+            SeniorityLevel::Unknown,
+        ] {
+            let str = level.as_str();
+            let parsed = SeniorityLevel::parse(str);
+            assert_eq!(level, parsed);
+        }
+    }
+
+    #[test]
     fn test_seniority_from_years() {
         assert_eq!(
             SeniorityLevel::from_years_of_experience(1),

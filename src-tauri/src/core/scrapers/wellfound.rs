@@ -81,18 +81,21 @@ impl WellfoundScraper {
         // These selectors are based on their typical HTML structure
         let job_selector =
             Selector::parse("[data-test='StartupResult'], .styles_component__XXXXX")
-                .unwrap_or_else(|_| Selector::parse("div").unwrap());
+                .or_else(|_| Selector::parse("div"))
+                .expect("fallback selector 'div' is valid CSS");
 
-        let title_selector =
-            Selector::parse("[data-test='JobTitle'], .job-title")
-                .unwrap_or_else(|_| Selector::parse("h2").unwrap());
+        let title_selector = Selector::parse("[data-test='JobTitle'], .job-title")
+            .or_else(|_| Selector::parse("h2"))
+            .expect("fallback selector 'h2' is valid CSS");
 
         let company_selector =
             Selector::parse("[data-test='CompanyName'], .startup-name")
-                .unwrap_or_else(|_| Selector::parse("h3").unwrap());
+                .or_else(|_| Selector::parse("h3"))
+                .expect("fallback selector 'h3' is valid CSS");
 
         let link_selector = Selector::parse("a[href*='/jobs/']")
-            .unwrap_or_else(|_| Selector::parse("a").unwrap());
+            .or_else(|_| Selector::parse("a"))
+            .expect("fallback selector 'a' is valid CSS");
 
         for job_element in document.select(&job_selector).take(self.limit) {
             let title = job_element

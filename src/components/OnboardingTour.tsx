@@ -37,12 +37,11 @@ interface OnboardingProviderProps {
 export function OnboardingProvider({ children, steps }: OnboardingProviderProps) {
   const [isActive, setIsActive] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
-  const [hasCompletedTour, setHasCompletedTour] = useState(true);
-
-  useEffect(() => {
+  // Use lazy initialization to avoid setState in effect
+  const [hasCompletedTour, setHasCompletedTour] = useState(() => {
     const completed = localStorage.getItem(TOUR_STORAGE_KEY);
-    setHasCompletedTour(completed === "true");
-  }, []);
+    return completed === "true";
+  });
 
   const startTour = useCallback(() => {
     setCurrentStep(0);

@@ -26,6 +26,7 @@ fn create_test_config() -> Config {
             country: "US".to_string(),
         },
         salary_floor_usd: 120000,
+        auto_refresh: Default::default(),
         immediate_alert_threshold: 0.85,
         scraping_interval_hours: 2,
         alerts: Default::default(),
@@ -89,6 +90,8 @@ async fn test_scoring_engine_integration() {
         immediate_alert_sent: false,
         hidden: false,
         included_in_digest: false,
+    bookmarked: false,
+    notes: None,
     };
 
     let score = scoring_engine.score(&job);
@@ -124,6 +127,8 @@ async fn test_database_upsert_pipeline() {
         immediate_alert_sent: false,
         hidden: false,
         included_in_digest: false,
+    bookmarked: false,
+    notes: None,
     };
 
     // First insert
@@ -175,6 +180,8 @@ async fn test_pipeline_job_deduplication() {
         immediate_alert_sent: false,
         hidden: false,
         included_in_digest: false,
+    bookmarked: false,
+    notes: None,
     };
 
     let mut job2 = job1.clone();
@@ -222,6 +229,8 @@ async fn test_pipeline_high_score_filtering() {
         immediate_alert_sent: false,
         hidden: false,
         included_in_digest: false,
+    bookmarked: false,
+    notes: None,
     };
 
     let low_score_job = Job {
@@ -246,6 +255,8 @@ async fn test_pipeline_high_score_filtering() {
         immediate_alert_sent: false,
         hidden: false,
         included_in_digest: false,
+    bookmarked: false,
+    notes: None,
     };
 
     database.upsert_job(&high_score_job).await.unwrap();
@@ -288,6 +299,8 @@ async fn test_pipeline_full_cycle_statistics() {
             immediate_alert_sent: false,
         hidden: false,
             included_in_digest: false,
+        bookmarked: false,
+        notes: None,
         };
 
         database.upsert_job(&job).await.unwrap();
@@ -329,6 +342,8 @@ async fn test_pipeline_search_functionality() {
         immediate_alert_sent: false,
         hidden: false,
         included_in_digest: false,
+    bookmarked: false,
+    notes: None,
     };
 
     let job2 = Job {
@@ -353,6 +368,8 @@ async fn test_pipeline_search_functionality() {
         immediate_alert_sent: false,
         hidden: false,
         included_in_digest: false,
+    bookmarked: false,
+    notes: None,
     };
 
     db.upsert_job(&job1).await.unwrap();
@@ -408,6 +425,8 @@ async fn test_pipeline_concurrent_upserts() {
                 immediate_alert_sent: false,
         hidden: false,
                 included_in_digest: false,
+            bookmarked: false,
+            notes: None,
             };
 
             db_clone.upsert_job(&job).await
@@ -458,6 +477,8 @@ async fn test_pipeline_job_ordering_by_score() {
             immediate_alert_sent: false,
         hidden: false,
             included_in_digest: false,
+        bookmarked: false,
+        notes: None,
         };
 
         db.upsert_job(&job).await.unwrap();
@@ -500,6 +521,8 @@ async fn test_pipeline_alert_sent_flag() {
         immediate_alert_sent: false,
         hidden: false,
         included_in_digest: false,
+    bookmarked: false,
+    notes: None,
     };
 
     let id = db.upsert_job(&job).await.unwrap();
@@ -543,6 +566,8 @@ async fn test_scoring_title_matching() {
         immediate_alert_sent: false,
         hidden: false,
         included_in_digest: false,
+    bookmarked: false,
+    notes: None,
     };
 
     let non_matching_job = Job {
@@ -567,6 +592,8 @@ async fn test_scoring_title_matching() {
         immediate_alert_sent: false,
         hidden: false,
         included_in_digest: false,
+    bookmarked: false,
+    notes: None,
     };
 
     let matching_score = scoring_engine.score(&matching_job);
@@ -605,6 +632,8 @@ async fn test_scoring_salary_influence() {
         immediate_alert_sent: false,
         hidden: false,
         included_in_digest: false,
+    bookmarked: false,
+    notes: None,
     };
 
     let low_salary_job = Job {
@@ -629,6 +658,8 @@ async fn test_scoring_salary_influence() {
         immediate_alert_sent: false,
         hidden: false,
         included_in_digest: false,
+    bookmarked: false,
+    notes: None,
     };
 
     let high_score = scoring_engine.score(&high_salary_job);

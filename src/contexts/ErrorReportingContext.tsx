@@ -13,14 +13,14 @@ interface ErrorReportingContextType {
 const ErrorReportingContext = createContext<ErrorReportingContextType | null>(null);
 
 export function ErrorReportingProvider({ children }: { children: ReactNode }) {
-  const [errors, setErrors] = useState<ErrorReport[]>([]);
+  // Use lazy initialization to avoid setState in effect
+  const [errors, setErrors] = useState<ErrorReport[]>(() => {
+    errorReporter.init();
+    return errorReporter.getErrors();
+  });
 
   useEffect(() => {
-    // Initialize error reporter
-    errorReporter.init();
-    setErrors(errorReporter.getErrors());
-
-    // Subscribe to updates
+    // Subscribe to updates from error reporter
     const unsubscribe = errorReporter.subscribe(setErrors);
     return unsubscribe;
   }, []);

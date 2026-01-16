@@ -108,26 +108,32 @@ impl YcStartupScraper {
 
         // If no specific job selector found, try to find job links
         let job_selector = job_selector.unwrap_or_else(|| {
-            Selector::parse("a[href*='/jobs/']").unwrap_or_else(|_| Selector::parse("a").unwrap())
+            Selector::parse("a[href*='/jobs/']")
+                .or_else(|_| Selector::parse("a"))
+                .expect("fallback selector 'a' is valid CSS")
         });
 
         // Selectors for job details
         let title_selector = Selector::parse(
             "[class*='jobTitle'], [class*='title'], h3, h4, .role-title",
         )
-        .unwrap_or_else(|_| Selector::parse("span").unwrap());
+        .or_else(|_| Selector::parse("span"))
+        .expect("fallback selector 'span' is valid CSS");
 
         let company_selector = Selector::parse(
             "[class*='companyName'], [class*='company'], .startup-name",
         )
-        .unwrap_or_else(|_| Selector::parse("span").unwrap());
+        .or_else(|_| Selector::parse("span"))
+        .expect("fallback selector 'span' is valid CSS");
 
         let location_selector =
             Selector::parse("[class*='location'], [class*='Location'], .job-location")
-                .unwrap_or_else(|_| Selector::parse("span").unwrap());
+                .or_else(|_| Selector::parse("span"))
+                .expect("fallback selector 'span' is valid CSS");
 
         let link_selector = Selector::parse("a[href*='/jobs/'], a[href*='/companies/']")
-            .unwrap_or_else(|_| Selector::parse("a").unwrap());
+            .or_else(|_| Selector::parse("a"))
+            .expect("fallback selector 'a' is valid CSS");
 
         for job_element in document.select(&job_selector).take(self.limit * 2) {
             // Extract title

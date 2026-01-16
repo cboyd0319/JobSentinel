@@ -1,4 +1,4 @@
-import { createContext, useContext, useCallback, useRef, useEffect, ReactNode } from "react";
+import { createContext, useContext, useCallback, useState, useEffect, ReactNode } from "react";
 import { useToast } from "./index";
 
 type ActionType = "hide" | "bookmark" | "notes" | "status";
@@ -26,15 +26,10 @@ const UndoContext = createContext<UndoContextType | undefined>(undefined);
 const MAX_UNDO_STACK = 50;
 
 export function UndoProvider({ children }: { children: ReactNode }) {
-  const undoStackRef = useRef<UndoableAction[]>([]);
-  const redoStackRef = useRef<UndoableAction[]>([]);
+  // Use state instead of refs to properly trigger re-renders
+  const [undoStack, setUndoStack] = useState<UndoableAction[]>([]);
+  const [redoStack, setRedoStack] = useState<UndoableAction[]>([]);
   const toast = useToast();
-
-  // Force re-render when stacks change
-  const forceUpdate = useCallback(() => {
-    // This is a simple way to force re-render
-    undoStackRef.current = [...undoStackRef.current];
-  }, []);
 
   const pushAction = useCallback((action: Omit<UndoableAction, "id" | "timestamp">) => {
     const newAction: UndoableAction = {
@@ -43,10 +38,9 @@ export function UndoProvider({ children }: { children: ReactNode }) {
       timestamp: Date.now(),
     };
 
-    undoStackRef.current = [newAction, ...undoStackRef.current].slice(0, MAX_UNDO_STACK);
+    setUndoStack(prev => [newAction, ...prev].slice(0, MAX_UNDO_STACK));
     // Clear redo stack when new action is performed
-    redoStackRef.current = [];
-    forceUpdate();
+    setRedoStack([]);
 
     // Show toast with undo action
     toast.success(action.description, "Press Ctrl+Z or click to undo", {
@@ -55,49 +49,64 @@ export function UndoProvider({ children }: { children: ReactNode }) {
         try {
           await action.undo();
           // Move to redo stack
-          const [undone, ...rest] = undoStackRef.current;
-          if (undone) {
-            redoStackRef.current = [undone, ...redoStackRef.current];
-            undoStackRef.current = rest;
-          }
+          setUndoStack(prev => {
+            const [undone, ...rest] = prev;
+            if (undone) {
+              setRedoStack(redoPrev => [undone, ...redoPrev]);
+            }
+            return rest;
+          });
           toast.info("Undone", action.description);
-          forceUpdate();
         } catch {
           toast.error("Undo failed", "Could not undo the action");
         }
       },
     });
-  }, [toast, forceUpdate]);
+  }, [toast]);
 
   const undo = useCallback(async () => {
-    const [action, ...rest] = undoStackRef.current;
-    if (!action) return;
+    setUndoStack(prev => {
+      const [action, ...rest] = prev;
+      if (!action) return prev;
 
-    try {
-      await action.undo();
-      redoStackRef.current = [action, ...redoStackRef.current];
-      undoStackRef.current = rest;
-      toast.info("Undone", action.description);
-      forceUpdate();
-    } catch {
-      toast.error("Undo failed", "Could not undo the action");
-    }
-  }, [toast, forceUpdate]);
+      // Perform undo asynchronously
+      (async () => {
+        try {
+          await action.undo();
+          setRedoStack(redoPrev => [action, ...redoPrev]);
+          toast.info("Undone", action.description);
+        } catch {
+          toast.error("Undo failed", "Could not undo the action");
+          // Restore the action to undo stack on failure
+          setUndoStack(p => [action, ...p]);
+        }
+      })();
+
+      return rest;
+    });
+  }, [toast]);
 
   const redo = useCallback(async () => {
-    const [action, ...rest] = redoStackRef.current;
-    if (!action) return;
+    setRedoStack(prev => {
+      const [action, ...rest] = prev;
+      if (!action) return prev;
 
-    try {
-      await action.redo();
-      undoStackRef.current = [action, ...undoStackRef.current];
-      redoStackRef.current = rest;
-      toast.info("Redone", action.description);
-      forceUpdate();
-    } catch {
-      toast.error("Redo failed", "Could not redo the action");
-    }
-  }, [toast, forceUpdate]);
+      // Perform redo asynchronously
+      (async () => {
+        try {
+          await action.redo();
+          setUndoStack(undoPrev => [action, ...undoPrev]);
+          toast.info("Redone", action.description);
+        } catch {
+          toast.error("Redo failed", "Could not redo the action");
+          // Restore the action to redo stack on failure
+          setRedoStack(p => [action, ...p]);
+        }
+      })();
+
+      return rest;
+    });
+  }, [toast]);
 
   // Global keyboard shortcuts for undo/redo
   useEffect(() => {
@@ -125,9 +134,9 @@ export function UndoProvider({ children }: { children: ReactNode }) {
     pushAction,
     undo,
     redo,
-    canUndo: undoStackRef.current.length > 0,
-    canRedo: redoStackRef.current.length > 0,
-    lastAction: undoStackRef.current[0] || null,
+    canUndo: undoStack.length > 0,
+    canRedo: redoStack.length > 0,
+    lastAction: undoStack[0] || null,
   };
 
   return (

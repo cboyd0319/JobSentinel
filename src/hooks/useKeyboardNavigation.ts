@@ -308,15 +308,15 @@ export function useKeyboardNavigation<T>({
     };
   }, [enabled, handleKeyDown, handleMouseDown]);
 
-  // Reset selection when items change significantly
-  useEffect(() => {
-    if (selectedIndex >= items.length) {
-      setSelectedIndex(items.length > 0 ? items.length - 1 : -1);
-    }
-  }, [items.length, selectedIndex]);
+  // Compute bounded selection index - avoids setState in effect
+  const boundedSelectedIndex = items.length === 0
+    ? -1
+    : selectedIndex >= items.length
+      ? items.length - 1
+      : selectedIndex;
 
   return {
-    selectedIndex,
+    selectedIndex: boundedSelectedIndex,
     setSelectedIndex,
     isKeyboardActive,
   };

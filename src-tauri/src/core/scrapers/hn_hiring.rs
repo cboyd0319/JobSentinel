@@ -241,7 +241,7 @@ impl HnHiringScraper {
         if parts.len() >= 2 {
             let company = parts[0]
                 .trim()
-                .trim_end_matches(|c: char| c == '(' || c == '-')
+                .trim_end_matches(['(', '-'])
                 .trim()
                 .to_string();
             let rest = parts[1..].join("|");
@@ -287,9 +287,9 @@ impl HnHiringScraper {
         for pattern in patterns {
             if let Some(pos) = lower.find(pattern) {
                 // Extract the title with surrounding context
-                let start = text[..pos].rfind(|c: char| c == '|' || c == '\n').map(|p| p + 1).unwrap_or(0);
+                let start = text[..pos].rfind(['|', '\n']).map(|p| p + 1).unwrap_or(0);
                 let end = pos + pattern.len();
-                let end = text[end..].find(|c: char| c == '|' || c == '\n' || c == ',').map(|p| end + p).unwrap_or(end);
+                let end = text[end..].find(['|', '\n', ',']).map(|p| end + p).unwrap_or(end);
 
                 let title = text[start..end].trim();
                 if title.len() > 5 && title.len() < 100 {

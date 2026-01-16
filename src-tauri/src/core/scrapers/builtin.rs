@@ -78,19 +78,24 @@ impl BuiltInScraper {
 
         // BuiltIn uses various selectors for job cards
         let job_selector = Selector::parse("[data-id='job-card'], .job-card, article.job-listing")
-            .unwrap_or_else(|_| Selector::parse("article").unwrap());
+            .or_else(|_| Selector::parse("article"))
+            .expect("fallback selector 'article' is valid CSS");
 
         let title_selector = Selector::parse("[data-id='job-title'], .job-title, h2 a")
-            .unwrap_or_else(|_| Selector::parse("h2").unwrap());
+            .or_else(|_| Selector::parse("h2"))
+            .expect("fallback selector 'h2' is valid CSS");
 
         let company_selector = Selector::parse("[data-id='company-name'], .company-name, .company")
-            .unwrap_or_else(|_| Selector::parse("span").unwrap());
+            .or_else(|_| Selector::parse("span"))
+            .expect("fallback selector 'span' is valid CSS");
 
-        let link_selector =
-            Selector::parse("a[href*='/job/']").unwrap_or_else(|_| Selector::parse("a").unwrap());
+        let link_selector = Selector::parse("a[href*='/job/']")
+            .or_else(|_| Selector::parse("a"))
+            .expect("fallback selector 'a' is valid CSS");
 
         let location_selector = Selector::parse(".job-location, .location")
-            .unwrap_or_else(|_| Selector::parse(".location").unwrap());
+            .or_else(|_| Selector::parse(".location"))
+            .expect("fallback selector '.location' is valid CSS");
 
         for job_element in document.select(&job_selector).take(self.limit) {
             let title = job_element

@@ -59,6 +59,11 @@ function App() {
     setCurrentPage(page);
   };
 
+  // Moved before early returns to comply with hooks rules
+  const openSettings = useCallback(() => {
+    setShowSettings(true);
+  }, []);
+
   if (loading) {
     return <LoadingSpinner message="Initializing JobSentinel..." />;
   }
@@ -75,10 +80,6 @@ function App() {
       </ErrorBoundary>
     );
   }
-
-  const openSettings = useCallback(() => {
-    setShowSettings(true);
-  }, []);
 
   return (
     <ErrorBoundary>

@@ -104,29 +104,33 @@ impl DiceScraper {
             None => {
                 // Fallback: try to find any job-like elements
                 Selector::parse("a[href*='/job-detail/']")
-                    .unwrap_or_else(|_| Selector::parse("a").unwrap())
+                    .or_else(|_| Selector::parse("a"))
+                    .expect("fallback selector 'a' is valid CSS")
             }
         };
 
         // Selectors for job details
         let title_selector =
             Selector::parse("[data-cy='card-title'], .card-title-link, h5 a, .job-title")
-                .unwrap_or_else(|_| Selector::parse("a").unwrap());
+                .or_else(|_| Selector::parse("a"))
+                .expect("fallback selector 'a' is valid CSS");
 
         let company_selector =
             Selector::parse("[data-cy='search-result-company-name'], .company-name, .employer-name")
-                .unwrap_or_else(|_| Selector::parse("span").unwrap());
+                .or_else(|_| Selector::parse("span"))
+                .expect("fallback selector 'span' is valid CSS");
 
         let location_selector =
             Selector::parse("[data-cy='search-result-location'], .job-location, .search-result-location")
-                .unwrap_or_else(|_| Selector::parse("span").unwrap());
+                .or_else(|_| Selector::parse("span"))
+                .expect("fallback selector 'span' is valid CSS");
 
         for job_element in document.select(&job_selector).take(self.limit) {
-            // Extract title
+            // Extract title - ElementRef implements Copy, no need for clone
             let title = job_element
                 .select(&title_selector)
                 .next()
-                .or_else(|| Some(job_element.clone()))
+                .or(Some(job_element))
                 .map(|el| el.text().collect::<String>().trim().to_string())
                 .unwrap_or_default();
 
@@ -138,12 +142,14 @@ impl DiceScraper {
                 .unwrap_or_else(|| "Unknown Company".to_string());
 
             // Extract URL
+            // Simple 'a' selector is always valid
+            let a_selector = Selector::parse("a").expect("'a' is valid CSS");
             let url = job_element
                 .value()
                 .attr("href")
                 .or_else(|| {
                     job_element
-                        .select(&Selector::parse("a").unwrap())
+                        .select(&a_selector)
                         .next()
                         .and_then(|a| a.value().attr("href"))
                 })

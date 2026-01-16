@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from './Button';
 import { Input } from './Input';
 import { Card } from './Card';
@@ -230,16 +230,13 @@ function TemplatePreview({ template, onEdit, onDelete, onCopy }: TemplatePreview
 }
 
 export function CoverLetterTemplates() {
-  const [templates, setTemplates] = useState<CoverLetterTemplate[]>([]);
+  // Use lazy initialization to avoid setState in effect
+  const [templates, setTemplates] = useState<CoverLetterTemplate[]>(() => loadTemplates());
   const [editingTemplate, setEditingTemplate] = useState<CoverLetterTemplate | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<TemplateCategory | 'all'>('all');
   const toast = useToast();
-
-  useEffect(() => {
-    setTemplates(loadTemplates());
-  }, []);
 
   // Filter templates by category
   const filteredTemplates = categoryFilter === 'all'
