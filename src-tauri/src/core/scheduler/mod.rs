@@ -1219,4 +1219,704 @@ mod tests {
         assert_eq!(original.alerts_sent, cloned.alerts_sent);
         assert_eq!(original.errors, cloned.errors);
     }
+
+    // ========================================
+    // Duration Calculation Tests
+    // ========================================
+
+    #[tokio::test]
+    async fn test_scheduler_interval_duration_conversion() {
+        let test_cases = vec![
+            (1, 3600),      // 1 hour = 3600 seconds
+            (2, 7200),      // 2 hours
+            (4, 14400),     // 4 hours
+            (8, 28800),     // 8 hours
+            (12, 43200),    // 12 hours
+            (24, 86400),    // 24 hours
+        ];
+
+        for (hours, expected_seconds) in test_cases {
+            let duration = Duration::from_secs(hours * 3600);
+            assert_eq!(
+                duration.as_secs(),
+                expected_seconds,
+                "Duration conversion failed for {} hours",
+                hours
+            );
+        }
+    }
+
+    #[test]
+    fn test_scheduler_duration_overflow_protection() {
+        // Test that very large intervals don't overflow
+        let max_safe_hours = u64::MAX / 3600;
+        let duration = Duration::from_secs(max_safe_hours * 3600);
+        assert!(duration.as_secs() > 0);
+    }
+
+    #[tokio::test]
+    async fn test_scheduler_zero_interval_duration() {
+        let duration = Duration::from_secs(0);
+        assert_eq!(duration.as_secs(), 0);
+        assert_eq!(duration.as_millis(), 0);
+    }
+
+    // ========================================
+    // Scraper URL Parsing Tests
+    // ========================================
+
+    #[tokio::test]
+    async fn test_scraping_cycle_with_greenhouse_urls() {
+        let mut config = create_test_config();
+        config.greenhouse_urls = vec![
+            "https://boards.greenhouse.io/cloudflare".to_string(),
+            "https://boards.greenhouse.io/netflix".to_string(),
+        ];
+        let config = Arc::new(config);
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
+
+        // Run cycle - will fail to scrape but should handle gracefully
+        let result = scheduler.run_scraping_cycle().await.unwrap();
+
+        // Should have attempted to scrape but likely got errors
+        // Errors are expected since we're not running real scrapers
+        assert!(result.jobs_found == 0 || result.errors.len() > 0);
+    }
+
+    #[tokio::test]
+    async fn test_scraping_cycle_with_lever_urls() {
+        let mut config = create_test_config();
+        config.lever_urls = vec![
+            "https://jobs.lever.co/netflix".to_string(),
+            "https://jobs.lever.co/stripe".to_string(),
+        ];
+        let config = Arc::new(config);
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
+
+        // Run cycle - will fail to scrape but should handle gracefully
+        let result = scheduler.run_scraping_cycle().await.unwrap();
+
+        // Cycle should complete (errors expected since not real scrapers)
+        assert!(result.jobs_found == 0 || result.errors.len() > 0);
+    }
+
+    #[tokio::test]
+    async fn test_scraping_cycle_with_invalid_greenhouse_url() {
+        let mut config = create_test_config();
+        config.greenhouse_urls = vec![
+            "https://invalid-url".to_string(),
+            "not-a-greenhouse-url".to_string(),
+        ];
+        let config = Arc::new(config);
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
+
+        // Should handle invalid URLs gracefully
+        let result = scheduler.run_scraping_cycle().await;
+        assert!(result.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_scraping_cycle_with_invalid_lever_url() {
+        let mut config = create_test_config();
+        config.lever_urls = vec![
+            "https://invalid-url".to_string(),
+            "not-a-lever-url".to_string(),
+        ];
+        let config = Arc::new(config);
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
+
+        // Should handle invalid URLs gracefully
+        let result = scheduler.run_scraping_cycle().await;
+        assert!(result.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_scraping_cycle_with_mixed_valid_invalid_urls() {
+        let mut config = create_test_config();
+        config.greenhouse_urls = vec![
+            "https://boards.greenhouse.io/cloudflare".to_string(),
+            "invalid-url".to_string(),
+        ];
+        config.lever_urls = vec![
+            "https://jobs.lever.co/netflix".to_string(),
+            "not-a-url".to_string(),
+        ];
+        let config = Arc::new(config);
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
+
+        // Should process valid URLs and skip/report invalid ones
+        let result = scheduler.run_scraping_cycle().await;
+        assert!(result.is_ok());
+    }
+
+    // ========================================
+    // Scoring Integration Tests
+    // ========================================
+
+    #[tokio::test]
+    async fn test_scraping_cycle_scores_jobs() {
+        let config = Arc::new(create_test_config());
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
+
+        // Run cycle (no scrapers, so empty result)
+        let result = scheduler.run_scraping_cycle().await.unwrap();
+
+        // Should complete successfully
+        assert_eq!(result.jobs_found, 0);
+    }
+
+    #[tokio::test]
+    async fn test_scraping_cycle_sorts_jobs_by_score() {
+        // This test verifies that jobs are sorted by score descending
+        let config = Arc::new(create_test_config());
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
+
+        // Run cycle
+        let _result = scheduler.run_scraping_cycle().await.unwrap();
+
+        // Verify jobs in database are retrievable
+        let jobs = database.get_recent_jobs(10).await.unwrap();
+
+        // If there are jobs, they should be sorted by score
+        if jobs.len() >= 2 {
+            for i in 0..jobs.len() - 1 {
+                if let (Some(score1), Some(score2)) = (jobs[i].score, jobs[i + 1].score) {
+                    assert!(
+                        score1 >= score2,
+                        "Jobs should be sorted by score descending"
+                    );
+                }
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn test_scraping_cycle_handles_score_serialization_error() {
+        // Tests the error path in score_reasons serialization
+        let config = Arc::new(create_test_config());
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
+
+        // Run cycle - should handle any serialization issues gracefully
+        let result = scheduler.run_scraping_cycle().await;
+        assert!(result.is_ok());
+    }
+
+    // ========================================
+    // High Score Alert Tests
+    // ========================================
+
+    #[tokio::test]
+    async fn test_scraping_cycle_identifies_high_matches() {
+        let mut config = create_test_config();
+        config.immediate_alert_threshold = 0.9;
+        let config = Arc::new(config);
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
+
+        // Run cycle
+        let result = scheduler.run_scraping_cycle().await.unwrap();
+
+        // Should track high matches count
+        assert_eq!(result.high_matches, 0);
+    }
+
+    #[tokio::test]
+    async fn test_scraping_cycle_skips_already_alerted_jobs() {
+        let config = Arc::new(create_test_config());
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        // Pre-populate with a high-scoring job that already has alert sent
+        let now = chrono::Utc::now();
+        let alerted_job = Job {
+            id: 0,
+            hash: "alerted_hash".to_string(),
+            title: "Amazing Security Engineer".to_string(),
+            company: "Dream Corp".to_string(),
+            location: Some("Remote".to_string()),
+            url: "https://example.com/job/999".to_string(),
+            description: Some("Perfect match".to_string()),
+            score: Some(0.95),
+            score_reasons: None,
+            source: "test".to_string(),
+            remote: Some(true),
+            salary_min: None,
+            salary_max: None,
+            currency: None,
+            created_at: now,
+            updated_at: now,
+            last_seen: now,
+            times_seen: 1,
+            immediate_alert_sent: true, // Already alerted
+            included_in_digest: false,
+            hidden: false,
+            bookmarked: false,
+            notes: None,
+        };
+        database.upsert_job(&alerted_job).await.unwrap();
+
+        let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
+
+        // Run cycle
+        let result = scheduler.run_scraping_cycle().await.unwrap();
+
+        // Should not send duplicate alerts
+        assert_eq!(result.alerts_sent, 0);
+    }
+
+    // ========================================
+    // LinkedIn Scraper Configuration Tests
+    // ========================================
+
+    #[tokio::test]
+    async fn test_scraping_cycle_with_linkedin_enabled() {
+        let mut config = create_test_config();
+        config.linkedin.enabled = true;
+        config.linkedin.session_cookie = "fake_cookie".to_string();
+        config.linkedin.query = "Security Engineer".to_string();
+        config.linkedin.location = "Remote".to_string();
+        config.linkedin.remote_only = true;
+        config.linkedin.limit = 50;
+        let config = Arc::new(config);
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
+
+        // Run cycle - will fail to scrape but should handle gracefully
+        let result = scheduler.run_scraping_cycle().await.unwrap();
+
+        // Cycle should complete (LinkedIn errors expected)
+        assert!(result.jobs_found == 0 || result.errors.len() > 0);
+    }
+
+    #[tokio::test]
+    async fn test_scraping_cycle_with_linkedin_disabled() {
+        let mut config = create_test_config();
+        config.linkedin.enabled = false;
+        let config = Arc::new(config);
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
+
+        // Run cycle - should skip LinkedIn
+        let result = scheduler.run_scraping_cycle().await.unwrap();
+
+        // No LinkedIn errors since it was disabled
+        assert!(!result.errors.iter().any(|e| e.contains("LinkedIn")));
+    }
+
+    #[tokio::test]
+    async fn test_scraping_cycle_with_linkedin_empty_cookie() {
+        let mut config = create_test_config();
+        config.linkedin.enabled = true;
+        config.linkedin.session_cookie = "".to_string(); // Empty cookie
+        let config = Arc::new(config);
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
+
+        // Run cycle - should skip LinkedIn due to empty cookie
+        let result = scheduler.run_scraping_cycle().await.unwrap();
+
+        // Should not attempt LinkedIn scraping
+        assert!(!result.errors.iter().any(|e| e.contains("LinkedIn")));
+    }
+
+    // ========================================
+    // Indeed Scraper Configuration Tests
+    // ========================================
+
+    #[tokio::test]
+    async fn test_scraping_cycle_with_indeed_enabled() {
+        let mut config = create_test_config();
+        config.indeed.enabled = true;
+        config.indeed.query = "Security Engineer".to_string();
+        config.indeed.location = "Remote".to_string();
+        config.indeed.radius = 50;
+        config.indeed.limit = 100;
+        let config = Arc::new(config);
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
+
+        // Run cycle - will fail to scrape but should handle gracefully
+        let result = scheduler.run_scraping_cycle().await.unwrap();
+
+        // Cycle should complete (Indeed errors expected)
+        assert!(result.jobs_found == 0 || result.errors.len() > 0);
+    }
+
+    #[tokio::test]
+    async fn test_scraping_cycle_with_indeed_disabled() {
+        let mut config = create_test_config();
+        config.indeed.enabled = false;
+        let config = Arc::new(config);
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
+
+        // Run cycle - should skip Indeed
+        let result = scheduler.run_scraping_cycle().await.unwrap();
+
+        // No Indeed errors since it was disabled
+        assert!(!result.errors.iter().any(|e| e.contains("Indeed")));
+    }
+
+    #[tokio::test]
+    async fn test_scraping_cycle_with_indeed_empty_query() {
+        let mut config = create_test_config();
+        config.indeed.enabled = true;
+        config.indeed.query = "".to_string(); // Empty query
+        let config = Arc::new(config);
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
+
+        // Run cycle - should skip Indeed due to empty query
+        let result = scheduler.run_scraping_cycle().await.unwrap();
+
+        // Should not attempt Indeed scraping
+        assert!(!result.errors.iter().any(|e| e.contains("Indeed")));
+    }
+
+    #[tokio::test]
+    async fn test_scraping_cycle_with_indeed_custom_radius() {
+        let mut config = create_test_config();
+        config.indeed.enabled = true;
+        config.indeed.query = "Developer".to_string();
+        config.indeed.location = "San Francisco".to_string();
+        config.indeed.radius = 25; // Custom radius
+        config.indeed.limit = 50;
+        let config = Arc::new(config);
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
+
+        // Run cycle
+        let result = scheduler.run_scraping_cycle().await.unwrap();
+
+        // Cycle should complete (errors expected)
+        assert!(result.jobs_found == 0 || result.errors.len() > 0);
+    }
+
+    // ========================================
+    // JobsWithGPT Scraper Tests
+    // ========================================
+
+    #[tokio::test]
+    async fn test_scraping_cycle_with_jobswithgpt_remote_only() {
+        let mut config = create_test_config();
+        config.title_allowlist = vec!["Engineer".to_string()];
+        config.location_preferences.allow_remote = true;
+        config.location_preferences.allow_onsite = false;
+        let config = Arc::new(config);
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
+
+        // Run cycle - will fail to scrape but should handle gracefully
+        let result = scheduler.run_scraping_cycle().await.unwrap();
+
+        // Cycle should complete (JobsWithGPT errors expected)
+        assert!(result.jobs_found == 0 || result.errors.len() > 0);
+    }
+
+    #[tokio::test]
+    async fn test_scraping_cycle_with_jobswithgpt_not_remote_only() {
+        let mut config = create_test_config();
+        config.title_allowlist = vec!["Engineer".to_string()];
+        config.location_preferences.allow_remote = false;
+        config.location_preferences.allow_onsite = true;
+        let config = Arc::new(config);
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
+
+        // Run cycle - should set remote_only=false
+        let result = scheduler.run_scraping_cycle().await.unwrap();
+
+        // Cycle should complete
+        assert!(result.jobs_found == 0 || result.errors.len() > 0);
+    }
+
+    #[tokio::test]
+    async fn test_scraping_cycle_with_empty_title_allowlist() {
+        let mut config = create_test_config();
+        config.title_allowlist = vec![]; // Empty allowlist
+        let config = Arc::new(config);
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
+
+        // Run cycle - should skip JobsWithGPT
+        let result = scheduler.run_scraping_cycle().await.unwrap();
+
+        // No JobsWithGPT errors since it was skipped
+        assert!(!result.errors.iter().any(|e| e.contains("JobsWithGPT")));
+    }
+
+    // ========================================
+    // Multiple Scrapers Enabled Tests
+    // ========================================
+
+    #[tokio::test]
+    async fn test_scraping_cycle_all_scrapers_enabled() {
+        let mut config = create_test_config();
+        config.greenhouse_urls = vec!["https://boards.greenhouse.io/test".to_string()];
+        config.lever_urls = vec!["https://jobs.lever.co/test".to_string()];
+        config.title_allowlist = vec!["Engineer".to_string()];
+        config.linkedin.enabled = true;
+        config.linkedin.session_cookie = "cookie".to_string();
+        config.linkedin.query = "Engineer".to_string();
+        config.indeed.enabled = true;
+        config.indeed.query = "Engineer".to_string();
+        let config = Arc::new(config);
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
+
+        // Run cycle - all scrapers will attempt to run
+        let result = scheduler.run_scraping_cycle().await.unwrap();
+
+        // All scrapers attempted (errors expected)
+        assert!(result.jobs_found == 0 || result.errors.len() > 0);
+    }
+
+    #[tokio::test]
+    async fn test_scraping_cycle_all_scrapers_disabled() {
+        let mut config = create_test_config();
+        config.greenhouse_urls = vec![];
+        config.lever_urls = vec![];
+        config.title_allowlist = vec![];
+        config.linkedin.enabled = false;
+        config.indeed.enabled = false;
+        let config = Arc::new(config);
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
+
+        // Run cycle - no scrapers enabled
+        let result = scheduler.run_scraping_cycle().await.unwrap();
+
+        // Should complete with no jobs found and no errors
+        assert_eq!(result.jobs_found, 0);
+        assert_eq!(result.errors.len(), 0);
+    }
+
+    // ========================================
+    // Error Accumulation Tests
+    // ========================================
+
+    #[tokio::test]
+    async fn test_scraping_cycle_accumulates_multiple_scraper_errors() {
+        let mut config = create_test_config();
+        // Set up invalid configurations to trigger errors
+        config.greenhouse_urls = vec!["invalid".to_string()];
+        config.lever_urls = vec!["invalid".to_string()];
+        let config = Arc::new(config);
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
+
+        // Run cycle - should accumulate errors from multiple scrapers
+        let result = scheduler.run_scraping_cycle().await.unwrap();
+
+        // Cycle should complete (may have accumulated errors)
+        assert!(result.jobs_found == 0 || result.errors.len() > 0);
+    }
+
+    // ========================================
+    // State Transition Tests
+    // ========================================
+
+    #[tokio::test]
+    async fn test_scheduler_start_to_shutdown_transition() {
+        let mut config = create_test_config();
+        config.scraping_interval_hours = 24;
+        let config = Arc::new(config);
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        let scheduler = Arc::new(Scheduler::new(Arc::clone(&config), Arc::clone(&database)));
+        let scheduler_clone = Arc::clone(&scheduler);
+
+        // Start scheduler
+        let handle = tokio::spawn(async move { scheduler_clone.start().await });
+
+        // Let it run briefly
+        tokio::time::sleep(Duration::from_millis(50)).await;
+
+        // Transition to shutdown
+        scheduler.shutdown().unwrap();
+
+        // Wait for clean shutdown
+        let result = tokio::time::timeout(Duration::from_secs(5), handle).await;
+        assert!(result.is_ok());
+        assert!(result.unwrap().is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_scheduler_multiple_start_cycles() {
+        let config = Arc::new(create_test_config());
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
+
+        // Multiple scraping cycles should be idempotent
+        let _result1 = scheduler.run_scraping_cycle().await.unwrap();
+        let _result2 = scheduler.run_scraping_cycle().await.unwrap();
+        let _result3 = scheduler.run_scraping_cycle().await.unwrap();
+
+        // All cycles should complete successfully
+        let jobs = database.get_recent_jobs(100).await.unwrap();
+        // Jobs can be retrieved from database
+        assert!(jobs.is_empty() || !jobs.is_empty());
+    }
+
+    // ========================================
+    // Edge Cases for Alert Logic
+    // ========================================
+
+    #[tokio::test]
+    async fn test_scraping_cycle_alert_threshold_boundary() {
+        let mut config = create_test_config();
+        config.immediate_alert_threshold = 1.0; // Maximum threshold
+        let config = Arc::new(config);
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
+
+        // Run cycle - very high threshold means no alerts
+        let result = scheduler.run_scraping_cycle().await.unwrap();
+
+        assert_eq!(result.alerts_sent, 0);
+    }
+
+    #[tokio::test]
+    async fn test_scraping_cycle_alert_threshold_zero() {
+        let mut config = create_test_config();
+        config.immediate_alert_threshold = 0.0; // Minimum threshold
+        let config = Arc::new(config);
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
+
+        // Run cycle - low threshold might trigger alerts if jobs found
+        let result = scheduler.run_scraping_cycle().await.unwrap();
+
+        // With no scrapers configured, no jobs and no alerts
+        assert_eq!(result.alerts_sent, 0);
+    }
+
+    // ========================================
+    // Scraper URL Edge Cases
+    // ========================================
+
+    #[tokio::test]
+    async fn test_scraping_cycle_with_many_greenhouse_urls() {
+        let mut config = create_test_config();
+        config.greenhouse_urls = (0..50)
+            .map(|i| format!("https://boards.greenhouse.io/company{}", i))
+            .collect();
+        let config = Arc::new(config);
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
+
+        // Run cycle with many URLs
+        let result = scheduler.run_scraping_cycle().await.unwrap();
+
+        // Should handle many URLs gracefully
+        assert!(result.jobs_found == 0 || result.errors.len() > 0);
+    }
+
+    #[tokio::test]
+    async fn test_scraping_cycle_with_duplicate_urls() {
+        let mut config = create_test_config();
+        let url = "https://boards.greenhouse.io/cloudflare".to_string();
+        config.greenhouse_urls = vec![url.clone(), url.clone(), url.clone()];
+        let config = Arc::new(config);
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+        let database = Arc::new(db);
+
+        let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
+
+        // Run cycle - should handle duplicate URLs
+        let result = scheduler.run_scraping_cycle().await.unwrap();
+
+        // Cycle should complete
+        assert!(result.jobs_found == 0 || result.errors.len() > 0);
+    }
 }

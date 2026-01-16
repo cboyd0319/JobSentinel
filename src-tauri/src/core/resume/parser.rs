@@ -211,4 +211,132 @@ Python, Rust, React
         assert!(result.is_err());
         assert!(result.unwrap_err().to_string().contains("must be a PDF"));
     }
+
+    #[test]
+    fn test_clean_text_empty() {
+        let parser = ResumeParser::new();
+        let cleaned = parser.clean_text("");
+        assert_eq!(cleaned, "");
+    }
+
+    #[test]
+    fn test_clean_text_only_whitespace() {
+        let parser = ResumeParser::new();
+        let cleaned = parser.clean_text("   \n\n   \n   ");
+        assert_eq!(cleaned, "");
+    }
+
+    #[test]
+    fn test_clean_text_null_characters() {
+        let parser = ResumeParser::new();
+        let text_with_nulls = "Line 1\0\nLine 2\0";
+        let cleaned = parser.clean_text(text_with_nulls);
+        // Should preserve content but remove empty lines
+        assert!(cleaned.contains("Line 1") || cleaned.contains("Line 2"));
+    }
+
+    #[test]
+    fn test_extract_sections_empty_text() {
+        let parser = ResumeParser::new();
+        let sections = parser.extract_sections("");
+        // Should have at least the header section
+        assert!(sections.is_empty() || sections.contains_key("header"));
+    }
+
+    #[test]
+    fn test_extract_sections_no_section_headers() {
+        let parser = ResumeParser::new();
+        let resume_text = "Just some plain text\nwithout any section headers\nat all";
+        let sections = parser.extract_sections(resume_text);
+
+        // All content should go to "header" section
+        assert!(sections.contains_key("header"));
+        let header = sections.get("header").unwrap();
+        assert!(header.contains("plain text"));
+    }
+
+    #[test]
+    fn test_extract_sections_long_header_ignored() {
+        let parser = ResumeParser::new();
+        // Line with "skills" keyword but >50 chars should not be treated as header
+        let resume_text = r#"
+This is a very long line that contains the word skills but is way more than fifty characters long so it should not be considered a section header
+Python
+Rust
+        "#;
+
+        let sections = parser.extract_sections(resume_text);
+        // Should not have "skills" section since line is too long
+        // Content should remain in current section
+        assert!(sections.len() <= 1);
+    }
+
+    #[test]
+    fn test_extract_sections_multiple_section_types() {
+        let parser = ResumeParser::new();
+        let resume_text = r#"
+John Doe
+
+PROFILE
+Senior Engineer
+
+PROJECTS
+Built cool stuff
+
+CERTIFICATIONS
+AWS Certified
+
+EDUCATION
+BS Computer Science
+        "#;
+
+        let sections = parser.extract_sections(resume_text);
+
+        assert!(sections.contains_key("summary") || sections.contains_key("header"));
+        assert!(sections.contains_key("projects"));
+        assert!(sections.contains_key("certifications"));
+        assert!(sections.contains_key("education"));
+    }
+
+    #[test]
+    fn test_extract_sections_case_insensitive() {
+        let parser = ResumeParser::new();
+        let resume_text = r#"
+SKILLS
+Python
+
+sKiLlS
+JavaScript
+        "#;
+
+        let sections = parser.extract_sections(resume_text);
+        // Second "skills" section should replace first
+        assert!(sections.contains_key("skills"));
+    }
+
+    #[test]
+    fn test_default_trait() {
+        let parser1 = ResumeParser::default();
+        let parser2 = ResumeParser::new();
+
+        // Both should work identically
+        let text = "  Line 1  \n  Line 2  ";
+        assert_eq!(parser1.clean_text(text), parser2.clean_text(text));
+    }
+
+    #[test]
+    fn test_parse_pdf_no_extension() {
+        use std::fs::File;
+        use tempfile::TempDir;
+
+        let temp_dir = TempDir::new().unwrap();
+        let file_path = temp_dir.path().join("noextension");
+        File::create(&file_path).unwrap();
+
+        let parser = ResumeParser::new();
+        let result = parser.parse_pdf(&file_path);
+
+        assert!(result.is_err());
+        assert!(result.unwrap_err().to_string().contains("must be a PDF"));
+    }
 }

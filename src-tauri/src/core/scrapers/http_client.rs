@@ -111,9 +111,49 @@ mod tests {
     }
 
     #[test]
+    fn test_shared_client_is_functional() {
+        let client = get_client();
+        // Verify the client is actually usable
+        assert!(client.get("https://example.com").build().is_ok());
+    }
+
+    #[test]
     fn test_create_custom_client() {
         let client = create_custom_client("TestAgent/1.0", 10);
         assert!(client.is_ok());
+    }
+
+    #[test]
+    fn test_create_custom_client_with_empty_user_agent() {
+        let client = create_custom_client("", 10);
+        // Empty user agent is technically valid
+        assert!(client.is_ok());
+    }
+
+    #[test]
+    fn test_create_custom_client_with_zero_timeout() {
+        let client = create_custom_client("TestAgent/1.0", 0);
+        // Zero timeout should work (means no timeout)
+        assert!(client.is_ok());
+    }
+
+    #[test]
+    fn test_create_custom_client_with_long_timeout() {
+        let client = create_custom_client("TestAgent/1.0", 3600);
+        assert!(client.is_ok());
+    }
+
+    #[test]
+    fn test_custom_client_with_custom_user_agent() {
+        let custom_agent = "CustomBot/2.0 (Test)";
+        let client = create_custom_client(custom_agent, 10).unwrap();
+
+        // Verify the client can build requests successfully
+        // Note: reqwest doesn't expose the default user agent from the client,
+        // but we can verify the client was created with the custom config
+        let request = client.get("https://example.com").build().unwrap();
+        assert_eq!(request.method(), reqwest::Method::GET);
+        assert_eq!(request.url().as_str(), "https://example.com/");
     }
 
     #[test]
@@ -121,5 +161,71 @@ mod tests {
         assert!(!DEFAULT_USER_AGENT.is_empty());
         // DEFAULT_TIMEOUT_SECS is a const, so this is a compile-time check
         const _: () = assert!(DEFAULT_TIMEOUT_SECS > 0);
+    }
+
+    #[test]
+    fn test_default_user_agent_format() {
+        // Verify it looks like a browser user agent
+        assert!(DEFAULT_USER_AGENT.contains("Mozilla"));
+        assert!(DEFAULT_USER_AGENT.contains("Chrome"));
+        assert!(DEFAULT_USER_AGENT.contains("Windows NT"));
+    }
+
+    #[test]
+    fn test_default_timeout_is_reasonable() {
+        // Timeout should be neither too short nor too long
+        assert!(DEFAULT_TIMEOUT_SECS >= 10);
+        assert!(DEFAULT_TIMEOUT_SECS <= 120);
+    }
+
+    #[test]
+    fn test_init_shared_client_success() {
+        let result = init_shared_client();
+        assert!(result.is_ok());
+
+        let client = result.unwrap();
+        // Verify the client can build requests
+        assert!(client.get("https://example.com").build().is_ok());
+    }
+
+    #[test]
+    fn test_shared_client_request_building() {
+        let client = get_client();
+
+        // Test various HTTP methods
+        assert!(client.get("https://example.com").build().is_ok());
+        assert!(client.post("https://example.com").build().is_ok());
+        assert!(client.head("https://example.com").build().is_ok());
+    }
+
+    #[test]
+    fn test_custom_client_request_building() {
+        let client = create_custom_client("TestAgent/1.0", 10).unwrap();
+
+        // Verify the custom client can build requests
+        assert!(client.get("https://example.com").build().is_ok());
+        assert!(client.post("https://example.com").build().is_ok());
+    }
+
+    #[test]
+    fn test_custom_client_with_special_characters_in_user_agent() {
+        let client = create_custom_client("Test-Agent/1.0 (Special!@#)", 10);
+        // Special characters in user agent should be handled
+        assert!(client.is_ok());
+    }
+
+    #[test]
+    fn test_custom_client_with_unicode_user_agent() {
+        let client = create_custom_client("TestAgent/1.0 (テスト)", 10);
+        // Unicode in user agent should be handled
+        assert!(client.is_ok());
+    }
+
+    #[test]
+    fn test_custom_client_with_very_long_user_agent() {
+        let long_agent = "A".repeat(1000);
+        let client = create_custom_client(&long_agent, 10);
+        // Very long user agent should still work
+        assert!(client.is_ok());
     }
 }
