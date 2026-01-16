@@ -20,7 +20,7 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Button, Card, Badge, AnalyticsPanel, InterviewScheduler } from "../components";
+import { Button, Card, Badge, AnalyticsPanel, InterviewScheduler, CoverLetterTemplates } from "../components";
 import { useToast } from "../contexts";
 import { logError, getErrorMessage } from "../utils/errorUtils";
 
@@ -234,6 +234,7 @@ export default function Applications({ onBack }: ApplicationsProps) {
   const [activeId, setActiveId] = useState<number | null>(null);
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [showInterviews, setShowInterviews] = useState(false);
+  const [showTemplates, setShowTemplates] = useState(false);
   const toast = useToast();
 
   const sensors = useSensors(
@@ -428,6 +429,10 @@ export default function Applications({ onBack }: ApplicationsProps) {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <Button onClick={() => setShowTemplates(true)} variant="secondary">
+                <TemplateIcon />
+                Templates
+              </Button>
               <Button onClick={() => setShowInterviews(true)} variant="secondary">
                 <CalendarIcon />
                 Interviews
@@ -632,6 +637,36 @@ export default function Applications({ onBack }: ApplicationsProps) {
             }))}
         />
       )}
+
+      {/* Cover Letter Templates */}
+      {showTemplates && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowTemplates(false);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setShowTemplates(false);
+          }}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="templates-title"
+        >
+          <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h2 id="templates-title" className="sr-only">Cover Letter Templates</h2>
+              <button
+                onClick={() => setShowTemplates(false)}
+                className="ml-auto p-2 text-white hover:text-surface-300 transition-colors"
+                aria-label="Close templates"
+              >
+                <CloseIcon />
+              </button>
+            </div>
+            <CoverLetterTemplates />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -664,6 +699,14 @@ function CalendarIcon() {
   return (
     <svg className="w-5 h-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+    </svg>
+  );
+}
+
+function TemplateIcon() {
+  return (
+    <svg className="w-5 h-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
     </svg>
   );
 }
