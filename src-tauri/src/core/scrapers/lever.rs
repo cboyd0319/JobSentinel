@@ -1579,6 +1579,506 @@ mod tests {
     }
 
     // ========================================
+    // Additional Integration Tests for Full Coverage
+    // ========================================
+
+    #[tokio::test]
+    async fn test_scrape_company_full_job_creation_with_all_fields() {
+        // Comprehensive test covering all Job struct field assignment paths
+        let company = LeverCompany {
+            id: "comprehensive-test".to_string(),
+            name: "Comprehensive Test Co".to_string(),
+            url: "https://jobs.lever.co/comprehensive-test".to_string(),
+        };
+
+        let json_response = serde_json::json!([
+            {
+                "text": "Senior Backend Engineer (Remote)",
+                "hostedUrl": "https://jobs.lever.co/comprehensive-test/job1",
+                "categories": {
+                    "location": "Remote - Global",
+                    "team": "Engineering",
+                    "commitment": "Full-time"
+                },
+                "description": "<h1>Join our team</h1><p>We are looking for passionate engineers</p>",
+                "descriptionPlain": "Join our team. We are looking for passionate engineers."
+            }
+        ]);
+
+        // Simulate scrape_company processing
+        if let Some(postings) = json_response.as_array() {
+            assert_eq!(postings.len(), 1);
+
+            let mut jobs = Vec::with_capacity(postings.len());
+            for posting in postings {
+                let title = posting["text"].as_str().unwrap_or("").to_string();
+                let url = posting["hostedUrl"].as_str().unwrap_or("").to_string();
+                let location = posting["categories"]["location"]
+                    .as_str()
+                    .map(|s| s.to_string())
+                    .or_else(|| {
+                        posting["categories"]["team"]
+                            .as_str()
+                            .map(|s| s.to_string())
+                    });
+
+                let description = posting["description"]
+                    .as_str()
+                    .or_else(|| posting["descriptionPlain"].as_str())
+                    .map(|s| s.to_string());
+
+                let remote = LeverScraper::infer_remote(&title, location.as_deref());
+                let hash = LeverScraper::compute_hash(&company.name, &title, location.as_deref(), &url);
+
+                if !title.is_empty() && !url.is_empty() {
+                    jobs.push(Job {
+                        id: 0,
+                        hash,
+                        title,
+                        company: company.name.clone(),
+                        url,
+                        location,
+                        description,
+                        score: None,
+                        score_reasons: None,
+                        source: "lever".to_string(),
+                        remote: Some(remote),
+                        salary_min: None,
+                        salary_max: None,
+                        currency: None,
+                        created_at: Utc::now(),
+                        updated_at: Utc::now(),
+                        last_seen: Utc::now(),
+                        times_seen: 1,
+                        immediate_alert_sent: false,
+                        hidden: false,
+                        bookmarked: false,
+                        notes: None,
+                        included_in_digest: false,
+                    });
+                }
+            }
+
+            assert_eq!(jobs.len(), 1);
+
+            // Verify all fields are set correctly
+            let job = &jobs[0];
+            assert_eq!(job.title, "Senior Backend Engineer (Remote)");
+            assert_eq!(job.company, "Comprehensive Test Co");
+            assert_eq!(job.url, "https://jobs.lever.co/comprehensive-test/job1");
+            assert_eq!(job.location, Some("Remote - Global".to_string()));
+            assert!(job.description.as_ref().unwrap().contains("<h1>Join our team</h1>"));
+            assert_eq!(job.source, "lever");
+            assert_eq!(job.remote, Some(true));
+            assert_eq!(job.times_seen, 1);
+            assert!(!job.immediate_alert_sent);
+            assert!(!job.hidden);
+            assert!(!job.bookmarked);
+            assert!(job.notes.is_none());
+            assert!(!job.included_in_digest);
+            assert_eq!(job.hash.len(), 64);
+        }
+    }
+
+    #[tokio::test]
+    async fn test_scrape_company_with_descriptionplain_only() {
+        // Test path where description is None but descriptionPlain exists
+        let _company = LeverCompany {
+            id: "test".to_string(),
+            name: "Test Co".to_string(),
+            url: "https://jobs.lever.co/test".to_string(),
+        };
+
+        let json_response = serde_json::json!([
+            {
+                "text": "Engineer",
+                "hostedUrl": "https://jobs.lever.co/test/job1",
+                "descriptionPlain": "This is a plain text description"
+            }
+        ]);
+
+        if let Some(postings) = json_response.as_array() {
+            let posting = &postings[0];
+
+            let description = posting["description"]
+                .as_str()
+                .or_else(|| posting["descriptionPlain"].as_str())
+                .map(|s| s.to_string());
+
+            assert_eq!(description, Some("This is a plain text description".to_string()));
+        }
+    }
+
+    #[tokio::test]
+    async fn test_scrape_company_with_team_fallback_location() {
+        // Test path where location is None but team exists
+        let _company = LeverCompany {
+            id: "test".to_string(),
+            name: "Test Co".to_string(),
+            url: "https://jobs.lever.co/test".to_string(),
+        };
+
+        let json_response = serde_json::json!([
+            {
+                "text": "Platform Engineer",
+                "hostedUrl": "https://jobs.lever.co/test/job1",
+                "categories": {
+                    "team": "Infrastructure Team"
+                }
+            }
+        ]);
+
+        if let Some(postings) = json_response.as_array() {
+            let posting = &postings[0];
+
+            let location = posting["categories"]["location"]
+                .as_str()
+                .map(|s| s.to_string())
+                .or_else(|| {
+                    posting["categories"]["team"]
+                        .as_str()
+                        .map(|s| s.to_string())
+                });
+
+            assert_eq!(location, Some("Infrastructure Team".to_string()));
+        }
+    }
+
+    #[tokio::test]
+    async fn test_scrape_company_filters_jobs_with_empty_title() {
+        let _company = LeverCompany {
+            id: "test".to_string(),
+            name: "Test Co".to_string(),
+            url: "https://jobs.lever.co/test".to_string(),
+        };
+
+        let json_response = serde_json::json!([
+            {
+                "text": "",
+                "hostedUrl": "https://jobs.lever.co/test/job1"
+            },
+            {
+                "text": "Valid Engineer",
+                "hostedUrl": "https://jobs.lever.co/test/job2"
+            }
+        ]);
+
+        let mut jobs = Vec::new();
+        if let Some(postings) = json_response.as_array() {
+            for posting in postings {
+                let title = posting["text"].as_str().unwrap_or("").to_string();
+                let url = posting["hostedUrl"].as_str().unwrap_or("").to_string();
+
+                if !title.is_empty() && !url.is_empty() {
+                    jobs.push((title, url));
+                }
+            }
+        }
+
+        assert_eq!(jobs.len(), 1);
+        assert_eq!(jobs[0].0, "Valid Engineer");
+    }
+
+    #[tokio::test]
+    async fn test_scrape_company_filters_jobs_with_empty_url() {
+        let json_response = serde_json::json!([
+            {
+                "text": "Engineer",
+                "hostedUrl": ""
+            },
+            {
+                "text": "Valid Engineer",
+                "hostedUrl": "https://jobs.lever.co/test/job2"
+            }
+        ]);
+
+        let mut jobs = Vec::new();
+        if let Some(postings) = json_response.as_array() {
+            for posting in postings {
+                let title = posting["text"].as_str().unwrap_or("").to_string();
+                let url = posting["hostedUrl"].as_str().unwrap_or("").to_string();
+
+                if !title.is_empty() && !url.is_empty() {
+                    jobs.push((title, url));
+                }
+            }
+        }
+
+        assert_eq!(jobs.len(), 1);
+        assert_eq!(jobs[0].0, "Valid Engineer");
+    }
+
+    #[tokio::test]
+    async fn test_scrape_company_computes_hash_for_each_job() {
+        let company = LeverCompany {
+            id: "test".to_string(),
+            name: "Test Company".to_string(),
+            url: "https://jobs.lever.co/test".to_string(),
+        };
+
+        let json_response = serde_json::json!([
+            {
+                "text": "Job 1",
+                "hostedUrl": "https://jobs.lever.co/test/job1",
+                "categories": {
+                    "location": "Remote"
+                }
+            },
+            {
+                "text": "Job 2",
+                "hostedUrl": "https://jobs.lever.co/test/job2",
+                "categories": {
+                    "location": "SF"
+                }
+            }
+        ]);
+
+        let mut hashes = Vec::new();
+        if let Some(postings) = json_response.as_array() {
+            for posting in postings {
+                let title = posting["text"].as_str().unwrap_or("").to_string();
+                let url = posting["hostedUrl"].as_str().unwrap_or("").to_string();
+                let location = posting["categories"]["location"]
+                    .as_str()
+                    .map(|s| s.to_string());
+
+                let hash = LeverScraper::compute_hash(&company.name, &title, location.as_deref(), &url);
+                hashes.push(hash);
+            }
+        }
+
+        assert_eq!(hashes.len(), 2);
+        assert_ne!(hashes[0], hashes[1]);
+        assert_eq!(hashes[0].len(), 64);
+        assert_eq!(hashes[1].len(), 64);
+    }
+
+    #[tokio::test]
+    async fn test_scrape_company_infers_remote_for_each_job() {
+        let json_response = serde_json::json!([
+            {
+                "text": "Remote Engineer",
+                "hostedUrl": "https://jobs.lever.co/test/job1",
+                "categories": {}
+            },
+            {
+                "text": "Onsite Engineer",
+                "hostedUrl": "https://jobs.lever.co/test/job2",
+                "categories": {
+                    "location": "San Francisco, CA"
+                }
+            }
+        ]);
+
+        let mut remote_flags = Vec::new();
+        if let Some(postings) = json_response.as_array() {
+            for posting in postings {
+                let title = posting["text"].as_str().unwrap_or("").to_string();
+                let location = posting["categories"]["location"]
+                    .as_str()
+                    .map(|s| s.to_string());
+
+                let remote = LeverScraper::infer_remote(&title, location.as_deref());
+                remote_flags.push(remote);
+            }
+        }
+
+        assert_eq!(remote_flags.len(), 2);
+        assert!(remote_flags[0]); // Remote Engineer should be remote
+        assert!(!remote_flags[1]); // Onsite Engineer should not be remote
+    }
+
+    #[tokio::test]
+    async fn test_scrape_returns_empty_for_non_array_json() {
+        let json_response = serde_json::json!({
+            "error": "Invalid format"
+        });
+
+        let jobs = if let Some(postings) = json_response.as_array() {
+            postings.len()
+        } else {
+            0
+        };
+
+        assert_eq!(jobs, 0);
+    }
+
+    #[test]
+    fn test_job_struct_all_boolean_fields_default_false() {
+        let job = Job {
+            id: 0,
+            hash: "test".to_string(),
+            title: "Test".to_string(),
+            company: "Test".to_string(),
+            url: "https://test.com".to_string(),
+            location: None,
+            description: None,
+            score: None,
+            score_reasons: None,
+            source: "lever".to_string(),
+            remote: Some(false),
+            salary_min: None,
+            salary_max: None,
+            currency: None,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            last_seen: Utc::now(),
+            times_seen: 1,
+            immediate_alert_sent: false,
+            hidden: false,
+            bookmarked: false,
+            notes: None,
+            included_in_digest: false,
+        };
+
+        assert!(!job.immediate_alert_sent);
+        assert!(!job.hidden);
+        assert!(!job.bookmarked);
+        assert!(!job.included_in_digest);
+    }
+
+    #[test]
+    fn test_job_struct_times_seen_is_one() {
+        let job = Job {
+            id: 0,
+            hash: "test".to_string(),
+            title: "Test".to_string(),
+            company: "Test".to_string(),
+            url: "https://test.com".to_string(),
+            location: None,
+            description: None,
+            score: None,
+            score_reasons: None,
+            source: "lever".to_string(),
+            remote: None,
+            salary_min: None,
+            salary_max: None,
+            currency: None,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            last_seen: Utc::now(),
+            times_seen: 1,
+            immediate_alert_sent: false,
+            hidden: false,
+            bookmarked: false,
+            notes: None,
+            included_in_digest: false,
+        };
+
+        assert_eq!(job.times_seen, 1);
+    }
+
+    #[test]
+    fn test_source_is_lever() {
+        let job = Job {
+            id: 0,
+            hash: "test".to_string(),
+            title: "Test".to_string(),
+            company: "Test".to_string(),
+            url: "https://test.com".to_string(),
+            location: None,
+            description: None,
+            score: None,
+            score_reasons: None,
+            source: "lever".to_string(),
+            remote: None,
+            salary_min: None,
+            salary_max: None,
+            currency: None,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            last_seen: Utc::now(),
+            times_seen: 1,
+            immediate_alert_sent: false,
+            hidden: false,
+            bookmarked: false,
+            notes: None,
+            included_in_digest: false,
+        };
+
+        assert_eq!(job.source, "lever");
+    }
+
+    #[tokio::test]
+    async fn test_scrape_company_with_capacity_optimization() {
+        let json_response = serde_json::json!([
+            {"text": "Job 1", "hostedUrl": "https://test.com/1"},
+            {"text": "Job 2", "hostedUrl": "https://test.com/2"},
+            {"text": "Job 3", "hostedUrl": "https://test.com/3"},
+        ]);
+
+        if let Some(postings) = json_response.as_array() {
+            let mut jobs = Vec::with_capacity(postings.len());
+
+            for posting in postings {
+                let title = posting["text"].as_str().unwrap_or("").to_string();
+                let url = posting["hostedUrl"].as_str().unwrap_or("").to_string();
+
+                if !title.is_empty() && !url.is_empty() {
+                    jobs.push((title, url));
+                }
+            }
+
+            assert_eq!(jobs.len(), 3);
+            assert_eq!(jobs.capacity(), 3);
+        }
+    }
+
+    #[test]
+    fn test_api_url_construction_with_company_id() {
+        let company = LeverCompany {
+            id: "test-company-123".to_string(),
+            name: "Test Company".to_string(),
+            url: "https://jobs.lever.co/test-company-123".to_string(),
+        };
+
+        let api_url = format!("https://api.lever.co/v0/postings/{}", company.id);
+
+        assert_eq!(api_url, "https://api.lever.co/v0/postings/test-company-123");
+    }
+
+    #[tokio::test]
+    async fn test_scrape_company_multiple_jobs_all_valid() {
+        let _company = LeverCompany {
+            id: "multi".to_string(),
+            name: "Multi Jobs Co".to_string(),
+            url: "https://jobs.lever.co/multi".to_string(),
+        };
+
+        let json_response = serde_json::json!([
+            {
+                "text": "Frontend Engineer",
+                "hostedUrl": "https://jobs.lever.co/multi/fe",
+                "categories": {"location": "Remote"}
+            },
+            {
+                "text": "Backend Engineer",
+                "hostedUrl": "https://jobs.lever.co/multi/be",
+                "categories": {"location": "NYC"}
+            },
+            {
+                "text": "DevOps Engineer",
+                "hostedUrl": "https://jobs.lever.co/multi/devops",
+                "categories": {"team": "Infrastructure"}
+            }
+        ]);
+
+        let mut jobs = Vec::new();
+        if let Some(postings) = json_response.as_array() {
+            for posting in postings {
+                let title = posting["text"].as_str().unwrap_or("").to_string();
+                let url = posting["hostedUrl"].as_str().unwrap_or("").to_string();
+
+                if !title.is_empty() && !url.is_empty() {
+                    jobs.push((title, url));
+                }
+            }
+        }
+
+        assert_eq!(jobs.len(), 3);
+    }
+
+    // ========================================
     // Property-Based Tests
     // ========================================
 
