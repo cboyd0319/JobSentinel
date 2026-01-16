@@ -77,6 +77,9 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
   const [notesModalOpen, setNotesModalOpen] = useState(false);
   const [editingJobId, setEditingJobId] = useState<number | null>(null);
   const [notesText, setNotesText] = useState("");
+  // Bulk selection state
+  const [selectedJobIds, setSelectedJobIds] = useState<Set<number>>(new Set());
+  const [bulkMode, setBulkMode] = useState(false);
   const toast = useToast();
   const { pushAction } = useUndo();
 
@@ -405,6 +408,141 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
     setNotesModalOpen(false);
     setEditingJobId(null);
     setNotesText("");
+  };
+
+  // Bulk selection handlers
+  const toggleBulkMode = () => {
+    setBulkMode(!bulkMode);
+    if (bulkMode) {
+      setSelectedJobIds(new Set());
+    }
+  };
+
+  const toggleJobSelection = (id: number) => {
+    setSelectedJobIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const selectAllJobs = () => {
+    setSelectedJobIds(new Set(filteredAndSortedJobs.map((j) => j.id)));
+  };
+
+  const clearSelection = () => {
+    setSelectedJobIds(new Set());
+  };
+
+  const handleBulkHide = async () => {
+    if (selectedJobIds.size === 0) return;
+
+    const selectedJobs = jobs.filter((j) => selectedJobIds.has(j.id));
+    const idsToHide = Array.from(selectedJobIds);
+
+    try {
+      // Hide all selected jobs
+      await Promise.all(idsToHide.map((id) => invoke("hide_job", { id })));
+
+      // Invalidate cache and update state
+      invalidateCacheByCommand("get_recent_jobs");
+      invalidateCacheByCommand("get_statistics");
+      setJobs(jobs.filter((job) => !selectedJobIds.has(job.id)));
+      setSelectedJobIds(new Set());
+
+      // Push undoable action
+      pushAction({
+        type: "hide",
+        description: `Hidden ${selectedJobs.length} jobs`,
+        undo: async () => {
+          await Promise.all(idsToHide.map((id) => invoke("unhide_job", { id })));
+          invalidateCacheByCommand("get_recent_jobs");
+          invalidateCacheByCommand("get_statistics");
+          setJobs((prev) => [...selectedJobs, ...prev]);
+        },
+        redo: async () => {
+          await Promise.all(idsToHide.map((id) => invoke("hide_job", { id })));
+          invalidateCacheByCommand("get_recent_jobs");
+          invalidateCacheByCommand("get_statistics");
+          setJobs((prev) => prev.filter((job) => !idsToHide.includes(job.id)));
+        },
+      });
+    } catch (err) {
+      logError("Failed to bulk hide jobs:", err);
+      toast.error("Failed to hide jobs", getErrorMessage(err));
+    }
+  };
+
+  const handleBulkBookmark = async (bookmark: boolean) => {
+    if (selectedJobIds.size === 0) return;
+
+    const idsToUpdate = Array.from(selectedJobIds);
+    const previousStates = new Map(
+      jobs.filter((j) => selectedJobIds.has(j.id)).map((j) => [j.id, j.bookmarked])
+    );
+
+    try {
+      // Update all selected jobs - we need to toggle each one to match the desired state
+      for (const id of idsToUpdate) {
+        const job = jobs.find((j) => j.id === id);
+        if (job && job.bookmarked !== bookmark) {
+          await invoke<boolean>("toggle_bookmark", { id });
+        }
+      }
+
+      // Update local state
+      setJobs(jobs.map((j) =>
+        selectedJobIds.has(j.id) ? { ...j, bookmarked: bookmark } : j
+      ));
+
+      toast.success(
+        bookmark ? `Bookmarked ${idsToUpdate.length} jobs` : `Removed ${idsToUpdate.length} bookmarks`,
+        ""
+      );
+
+      // Push undoable action
+      pushAction({
+        type: "bookmark",
+        description: bookmark ? `Bookmarked ${idsToUpdate.length} jobs` : `Unbookmarked ${idsToUpdate.length} jobs`,
+        undo: async () => {
+          for (const id of idsToUpdate) {
+            const wasBookmarked = previousStates.get(id);
+            const currentJob = jobs.find((j) => j.id === id);
+            if (currentJob && currentJob.bookmarked !== wasBookmarked) {
+              await invoke<boolean>("toggle_bookmark", { id });
+            }
+          }
+          setJobs((prev) => prev.map((j) =>
+            idsToUpdate.includes(j.id) ? { ...j, bookmarked: previousStates.get(j.id) } : j
+          ));
+        },
+        redo: async () => {
+          for (const id of idsToUpdate) {
+            const job = jobs.find((j) => j.id === id);
+            if (job && job.bookmarked !== bookmark) {
+              await invoke<boolean>("toggle_bookmark", { id });
+            }
+          }
+          setJobs((prev) => prev.map((j) =>
+            idsToUpdate.includes(j.id) ? { ...j, bookmarked: bookmark } : j
+          ));
+        },
+      });
+    } catch (err) {
+      logError("Failed to bulk bookmark jobs:", err);
+      toast.error("Failed to update bookmarks", getErrorMessage(err));
+    }
+  };
+
+  const handleBulkExport = () => {
+    const selectedJobs = filteredAndSortedJobs.filter((j) => selectedJobIds.has(j.id));
+    if (selectedJobs.length === 0) return;
+    exportJobsToCSV(selectedJobs);
+    toast.success(`Exported ${selectedJobs.length} jobs`, "CSV file downloaded");
   };
 
   const formatDate = (dateStr: string | null) => {
@@ -782,6 +920,22 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
                 {/* Spacer */}
                 <div className="flex-1" />
 
+                {/* Select toggle button */}
+                <Tooltip content={bulkMode ? "Exit selection mode" : "Select multiple jobs"} position="bottom">
+                  <button
+                    onClick={toggleBulkMode}
+                    className={`flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                      bulkMode
+                        ? "bg-sentinel-100 dark:bg-sentinel-900/30 text-sentinel-600 dark:text-sentinel-400"
+                        : "text-surface-600 dark:text-surface-300 hover:text-surface-800 dark:hover:text-surface-100 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600"
+                    }`}
+                    aria-label={bulkMode ? "Exit selection mode" : "Select multiple jobs"}
+                  >
+                    <SelectIcon className="w-4 h-4" />
+                    <span className="hidden sm:inline">{bulkMode ? "Done" : "Select"}</span>
+                  </button>
+                </Tooltip>
+
                 {/* Export button */}
                 <Tooltip content="Export jobs to CSV" position="bottom">
                   <button
@@ -793,6 +947,55 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
                     <span className="hidden sm:inline">Export</span>
                   </button>
                 </Tooltip>
+              </div>
+            )}
+
+            {/* Bulk actions toolbar */}
+            {bulkMode && (
+              <div className="flex items-center gap-3 p-3 bg-sentinel-50 dark:bg-sentinel-900/20 border border-sentinel-200 dark:border-sentinel-800 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={selectedJobIds.size === filteredAndSortedJobs.length && filteredAndSortedJobs.length > 0}
+                    onChange={(e) => e.target.checked ? selectAllJobs() : clearSelection()}
+                    className="w-4 h-4 rounded border-surface-300 dark:border-surface-600 text-sentinel-500 focus:ring-sentinel-500"
+                    aria-label="Select all jobs"
+                  />
+                  <span className="text-sm text-surface-600 dark:text-surface-400">
+                    {selectedJobIds.size > 0
+                      ? `${selectedJobIds.size} selected`
+                      : "Select all"}
+                  </span>
+                </div>
+
+                {selectedJobIds.size > 0 && (
+                  <>
+                    <div className="h-4 w-px bg-surface-300 dark:bg-surface-600" />
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={handleBulkExport}
+                        className="flex items-center gap-1 px-2 py-1 text-sm text-surface-600 dark:text-surface-300 hover:text-surface-800 dark:hover:text-surface-100 hover:bg-surface-200 dark:hover:bg-surface-700 rounded transition-colors"
+                      >
+                        <ExportIcon className="w-4 h-4" />
+                        Export
+                      </button>
+                      <button
+                        onClick={() => handleBulkBookmark(true)}
+                        className="flex items-center gap-1 px-2 py-1 text-sm text-surface-600 dark:text-surface-300 hover:text-yellow-600 dark:hover:text-yellow-400 hover:bg-surface-200 dark:hover:bg-surface-700 rounded transition-colors"
+                      >
+                        <BookmarkIcon className="w-4 h-4" />
+                        Bookmark
+                      </button>
+                      <button
+                        onClick={handleBulkHide}
+                        className="flex items-center gap-1 px-2 py-1 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
+                      >
+                        <HideIcon className="w-4 h-4" />
+                        Hide
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </div>
@@ -865,14 +1068,28 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
           ) : (
             <div ref={jobListRef} className="space-y-3 stagger-children">
               {filteredAndSortedJobs.map((job, index) => (
-                <JobCard
-                  key={job.id}
-                  job={job}
-                  onHideJob={handleHideJob}
-                  onToggleBookmark={handleToggleBookmark}
-                  onEditNotes={handleEditNotes}
-                  isSelected={isKeyboardActive && index === selectedIndex}
-                />
+                <div key={job.id} className="flex items-start gap-3">
+                  {bulkMode && (
+                    <div className="flex-shrink-0 pt-5">
+                      <input
+                        type="checkbox"
+                        checked={selectedJobIds.has(job.id)}
+                        onChange={() => toggleJobSelection(job.id)}
+                        className="w-5 h-5 rounded border-surface-300 dark:border-surface-600 text-sentinel-500 focus:ring-sentinel-500"
+                        aria-label={`Select ${job.title}`}
+                      />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <JobCard
+                      job={job}
+                      onHideJob={bulkMode ? undefined : handleHideJob}
+                      onToggleBookmark={bulkMode ? undefined : handleToggleBookmark}
+                      onEditNotes={bulkMode ? undefined : handleEditNotes}
+                      isSelected={isKeyboardActive && index === selectedIndex}
+                    />
+                  </div>
+                </div>
               ))}
             </div>
           )}
@@ -1021,6 +1238,30 @@ function KeyboardIcon({ className = "" }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+    </svg>
+  );
+}
+
+function SelectIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+    </svg>
+  );
+}
+
+function BookmarkIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+    </svg>
+  );
+}
+
+function HideIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
     </svg>
   );
 }
