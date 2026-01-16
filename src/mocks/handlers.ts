@@ -78,6 +78,10 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
     case "get_job_notes":
       return (jobs.find((j) => j.id === args?.jobId)?.notes || null) as T;
 
+    // Setup/First run
+    case "is_first_run":
+      return false as T;
+
     // Config commands
     case "get_config":
       return config as T;

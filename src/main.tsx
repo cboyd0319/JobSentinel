@@ -16,7 +16,9 @@ reportWebVitals();
 
 // Enable API mocking in development (when running in browser without Tauri)
 async function enableMocking() {
-  if (import.meta.env.DEV && import.meta.env.VITE_MOCK_API === "true") {
+  // Use setupMocking which auto-detects when mocking is needed
+  // (either VITE_MOCK_API=true or running in browser without Tauri in DEV mode)
+  if (import.meta.env.DEV) {
     const { setupMocking } = await import("./mocks");
     await setupMocking();
   }
