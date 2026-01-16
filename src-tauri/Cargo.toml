@@ -85,6 +85,7 @@ windows = { version = "0.58", features = ["Win32_Foundation", "Win32_System_Thre
 tempfile = "3.13"
 proptest = "1.5"
 wiremock = "0.6"
+futures = "0.3"
 
 [lints.rust]
 unsafe_code = "deny"

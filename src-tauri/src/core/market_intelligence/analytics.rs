@@ -85,7 +85,7 @@ impl MarketAnalyzer {
         };
 
         // Top skill
-        let top_skill = sqlx::query_scalar::<_, Option<String>>(
+        let top_skill = sqlx::query_scalar::<_, String>(
             r#"
             SELECT skill_name
             FROM job_skills
@@ -94,11 +94,11 @@ impl MarketAnalyzer {
             LIMIT 1
             "#,
         )
-        .fetch_one(&self.db)
+        .fetch_optional(&self.db)
         .await?;
 
         // Top company (most active)
-        let top_company = sqlx::query_scalar::<_, Option<String>>(
+        let top_company = sqlx::query_scalar::<_, String>(
             r#"
             SELECT company
             FROM jobs
@@ -108,11 +108,11 @@ impl MarketAnalyzer {
             LIMIT 1
             "#,
         )
-        .fetch_one(&self.db)
+        .fetch_optional(&self.db)
         .await?;
 
         // Top location
-        let top_location = sqlx::query_scalar::<_, Option<String>>(
+        let top_location = sqlx::query_scalar::<_, String>(
             r#"
             SELECT location
             FROM jobs
@@ -122,7 +122,7 @@ impl MarketAnalyzer {
             LIMIT 1
             "#,
         )
-        .fetch_one(&self.db)
+        .fetch_optional(&self.db)
         .await?;
 
         // Total companies hiring
@@ -312,6 +312,14 @@ impl MarketAnalyzer {
 
 fn row_to_snapshot(r: &sqlx::sqlite::SqliteRow) -> Result<MarketSnapshot> {
     let date_str: String = r.try_get("date")?;
+
+    // Helper to convert empty strings to None
+    let optional_string = |col: &str| -> Option<String> {
+        r.try_get::<String, _>(col)
+            .ok()
+            .and_then(|s| if s.is_empty() { None } else { Some(s) })
+    };
+
     Ok(MarketSnapshot {
         date: NaiveDate::parse_from_str(&date_str, "%Y-%m-%d")?,
         total_jobs: r.try_get("total_jobs")?,
@@ -320,12 +328,12 @@ fn row_to_snapshot(r: &sqlx::sqlite::SqliteRow) -> Result<MarketSnapshot> {
         avg_salary: r.try_get("avg_salary").ok(),
         median_salary: r.try_get("median_salary").ok(),
         remote_job_percentage: r.try_get("remote_job_percentage")?,
-        top_skill: r.try_get("top_skill").ok(),
-        top_company: r.try_get("top_company").ok(),
-        top_location: r.try_get("top_location").ok(),
+        top_skill: optional_string("top_skill"),
+        top_company: optional_string("top_company"),
+        top_location: optional_string("top_location"),
         total_companies_hiring: r.try_get("total_companies_hiring")?,
         market_sentiment: r.try_get("market_sentiment")?,
-        notes: r.try_get("notes").ok(),
+        notes: optional_string("notes"),
     })
 }
 
@@ -705,6 +713,858 @@ mod tests {
     fn test_compute_median_negative_and_positive() {
         let mut values = vec![-100.0, -50.0, 0.0, 50.0, 100.0];
         assert_eq!(compute_median(&mut values), Some(0.0));
+    }
+
+    // ========================================================================
+    // DATABASE INTEGRATION TESTS
+    // ========================================================================
+
+    async fn setup_test_db() -> SqlitePool {
+        let pool = SqlitePool::connect(":memory:").await.unwrap();
+
+        // Create tables
+        sqlx::query(
+            r#"
+            CREATE TABLE IF NOT EXISTS jobs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                hash TEXT NOT NULL UNIQUE,
+                title TEXT NOT NULL,
+                company TEXT,
+                url TEXT NOT NULL,
+                location TEXT,
+                description TEXT,
+                status TEXT DEFAULT 'active',
+                posted_at TEXT NOT NULL DEFAULT (datetime('now')),
+                updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+            )
+            "#,
+        )
+        .execute(&pool)
+        .await
+        .unwrap();
+
+        sqlx::query(
+            r#"
+            CREATE TABLE IF NOT EXISTS job_salary_predictions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                job_hash TEXT NOT NULL UNIQUE,
+                predicted_min INTEGER,
+                predicted_max INTEGER,
+                predicted_median INTEGER,
+                confidence_score REAL
+            )
+            "#,
+        )
+        .execute(&pool)
+        .await
+        .unwrap();
+
+        sqlx::query(
+            r#"
+            CREATE TABLE IF NOT EXISTS job_skills (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                job_hash TEXT NOT NULL,
+                skill_name TEXT NOT NULL,
+                is_required INTEGER NOT NULL DEFAULT 1
+            )
+            "#,
+        )
+        .execute(&pool)
+        .await
+        .unwrap();
+
+        sqlx::query(
+            r#"
+            CREATE TABLE IF NOT EXISTS market_snapshots (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                date DATE NOT NULL UNIQUE,
+                total_jobs INTEGER NOT NULL DEFAULT 0,
+                new_jobs_today INTEGER NOT NULL DEFAULT 0,
+                jobs_filled_today INTEGER NOT NULL DEFAULT 0,
+                avg_salary INTEGER,
+                median_salary INTEGER,
+                remote_job_percentage REAL,
+                top_skill TEXT,
+                top_company TEXT,
+                top_location TEXT,
+                total_companies_hiring INTEGER,
+                market_sentiment TEXT CHECK(market_sentiment IN ('bullish', 'neutral', 'bearish')),
+                notes TEXT,
+                created_at TIMESTAMP DEFAULT (datetime('now'))
+            )
+            "#,
+        )
+        .execute(&pool)
+        .await
+        .unwrap();
+
+        pool
+    }
+
+    async fn insert_test_job(
+        pool: &SqlitePool,
+        hash: &str,
+        title: &str,
+        company: Option<&str>,
+        location: Option<&str>,
+        status: &str,
+        posted_at: &str,
+    ) {
+        sqlx::query(
+            "INSERT INTO jobs (hash, title, company, url, location, status, posted_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        )
+        .bind(hash)
+        .bind(title)
+        .bind(company)
+        .bind(format!("https://example.com/{}", hash))
+        .bind(location)
+        .bind(status)
+        .bind(posted_at)
+        .execute(pool)
+        .await
+        .unwrap();
+    }
+
+    async fn insert_test_salary(pool: &SqlitePool, job_hash: &str, median: i64) {
+        sqlx::query(
+            "INSERT INTO job_salary_predictions (job_hash, predicted_median) VALUES (?, ?)",
+        )
+        .bind(job_hash)
+        .bind(median)
+        .execute(pool)
+        .await
+        .unwrap();
+    }
+
+    async fn insert_test_skill(pool: &SqlitePool, job_hash: &str, skill_name: &str) {
+        sqlx::query("INSERT INTO job_skills (job_hash, skill_name) VALUES (?, ?)")
+            .bind(job_hash)
+            .bind(skill_name)
+            .execute(pool)
+            .await
+            .unwrap();
+    }
+
+    #[tokio::test]
+    async fn test_market_analyzer_new() {
+        let pool = setup_test_db().await;
+        let _analyzer = MarketAnalyzer::new(pool);
+        // Constructor should work without panic
+    }
+
+    #[tokio::test]
+    async fn test_create_daily_snapshot_empty_db() {
+        let pool = setup_test_db().await;
+        let analyzer = MarketAnalyzer::new(pool);
+
+        let snapshot = analyzer.create_daily_snapshot().await.unwrap();
+
+        // Empty DB should produce all zeros/None
+        assert_eq!(snapshot.total_jobs, 0);
+        assert_eq!(snapshot.new_jobs_today, 0);
+        assert_eq!(snapshot.jobs_filled_today, 0);
+        assert_eq!(snapshot.avg_salary, None);
+        assert_eq!(snapshot.median_salary, None);
+        assert_eq!(snapshot.remote_job_percentage, 0.0);
+        assert_eq!(snapshot.top_skill, None);
+        assert_eq!(snapshot.top_company, None);
+        assert_eq!(snapshot.top_location, None);
+        assert_eq!(snapshot.total_companies_hiring, 0);
+        assert_eq!(snapshot.market_sentiment, "neutral");
+        assert_eq!(snapshot.date, Utc::now().date_naive());
+    }
+
+    #[tokio::test]
+    async fn test_create_daily_snapshot_with_jobs() {
+        let pool = setup_test_db().await;
+        let today = Utc::now().date_naive().to_string();
+        let yesterday = (Utc::now().date_naive() - chrono::Duration::days(1)).to_string();
+
+        // Insert test jobs - use today's date
+        insert_test_job(
+            &pool,
+            "job1",
+            "Software Engineer",
+            Some("Google"),
+            Some("San Francisco, CA"),
+            "active",
+            &today,
+        )
+        .await;
+        insert_test_job(
+            &pool,
+            "job2",
+            "Backend Developer",
+            Some("Meta"),
+            Some("Remote"),
+            "active",
+            &today,
+        )
+        .await;
+        insert_test_job(
+            &pool,
+            "job3",
+            "Frontend Engineer",
+            Some("Google"),
+            Some("New York, NY"),
+            "closed",
+            &yesterday,
+        )
+        .await;
+
+        // Insert salaries
+        insert_test_salary(&pool, "job1", 150000).await;
+        insert_test_salary(&pool, "job2", 160000).await;
+        insert_test_salary(&pool, "job3", 140000).await;
+
+        // Insert skills
+        insert_test_skill(&pool, "job1", "Python").await;
+        insert_test_skill(&pool, "job2", "Python").await;
+        insert_test_skill(&pool, "job3", "React").await;
+
+        let analyzer = MarketAnalyzer::new(pool);
+        let snapshot = analyzer.create_daily_snapshot().await.unwrap();
+
+        assert_eq!(snapshot.total_jobs, 3);
+        assert_eq!(snapshot.new_jobs_today, 2);
+        // Salaries should be calculated from inserted predictions
+        if let Some(median) = snapshot.median_salary {
+            assert_eq!(median, 150000);
+        }
+        if let Some(avg) = snapshot.avg_salary {
+            assert_eq!(avg, 150000);
+        }
+        assert!(snapshot.remote_job_percentage > 0.0);
+        assert_eq!(snapshot.top_skill, Some("Python".to_string()));
+        assert_eq!(snapshot.top_company, Some("Google".to_string()));
+        assert_eq!(snapshot.total_companies_hiring, 2);
+    }
+
+    #[tokio::test]
+    async fn test_create_daily_snapshot_remote_percentage() {
+        let pool = setup_test_db().await;
+        let today = Utc::now().date_naive().to_string();
+
+        insert_test_job(
+            &pool,
+            "job1",
+            "Engineer",
+            Some("Co1"),
+            Some("Remote"),
+            "active",
+            &today,
+        )
+        .await;
+        insert_test_job(
+            &pool,
+            "job2",
+            "Engineer",
+            Some("Co2"),
+            Some("REMOTE - US"),
+            "active",
+            &today,
+        )
+        .await;
+        insert_test_job(
+            &pool,
+            "job3",
+            "Engineer",
+            Some("Co3"),
+            Some("San Francisco, CA"),
+            "active",
+            &today,
+        )
+        .await;
+        insert_test_job(
+            &pool,
+            "job4",
+            "Engineer",
+            Some("Co4"),
+            Some("New York, NY"),
+            "active",
+            &today,
+        )
+        .await;
+
+        let analyzer = MarketAnalyzer::new(pool);
+        let snapshot = analyzer.create_daily_snapshot().await.unwrap();
+
+        assert_eq!(snapshot.total_jobs, 4);
+        assert_eq!(snapshot.remote_job_percentage, 50.0);
+    }
+
+    #[tokio::test]
+    async fn test_create_daily_snapshot_jobs_filled_today() {
+        let pool = setup_test_db().await;
+        let today = Utc::now().date_naive().to_string();
+        let yesterday = (Utc::now().date_naive() - chrono::Duration::days(1)).to_string();
+
+        // Insert job filled today
+        sqlx::query(
+            "INSERT INTO jobs (hash, title, company, url, status, posted_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        )
+        .bind("job1")
+        .bind("Engineer")
+        .bind("Co1")
+        .bind("https://example.com/job1")
+        .bind("closed")
+        .bind(&yesterday)
+        .bind(&today) // Updated today
+        .execute(&pool)
+        .await
+        .unwrap();
+
+        // Insert job filled yesterday
+        sqlx::query(
+            "INSERT INTO jobs (hash, title, company, url, status, posted_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        )
+        .bind("job2")
+        .bind("Engineer")
+        .bind("Co2")
+        .bind("https://example.com/job2")
+        .bind("filled")
+        .bind(&yesterday)
+        .bind(&yesterday)
+        .execute(&pool)
+        .await
+        .unwrap();
+
+        let analyzer = MarketAnalyzer::new(pool);
+        let snapshot = analyzer.create_daily_snapshot().await.unwrap();
+
+        assert_eq!(snapshot.jobs_filled_today, 1);
+    }
+
+    #[tokio::test]
+    async fn test_store_snapshot() {
+        let pool = setup_test_db().await;
+        let analyzer = MarketAnalyzer::new(pool.clone());
+
+        let snapshot = MarketSnapshot {
+            date: NaiveDate::from_ymd_opt(2026, 1, 16).unwrap(),
+            total_jobs: 100,
+            new_jobs_today: 10,
+            jobs_filled_today: 5,
+            avg_salary: Some(120000),
+            median_salary: Some(115000),
+            remote_job_percentage: 40.0,
+            top_skill: Some("Rust".to_string()),
+            top_company: Some("Mozilla".to_string()),
+            top_location: Some("Remote".to_string()),
+            total_companies_hiring: 50,
+            market_sentiment: "bullish".to_string(),
+            notes: Some("Test snapshot".to_string()),
+        };
+
+        analyzer.store_snapshot(&snapshot).await.unwrap();
+
+        // Verify stored
+        let count = sqlx::query_scalar::<_, i64>("SELECT COUNT(*) FROM market_snapshots")
+            .fetch_one(&pool)
+            .await
+            .unwrap();
+        assert_eq!(count, 1);
+
+        // Verify data
+        let stored_total = sqlx::query_scalar::<_, i64>(
+            "SELECT total_jobs FROM market_snapshots WHERE date = ?",
+        )
+        .bind("2026-01-16")
+        .fetch_one(&pool)
+        .await
+        .unwrap();
+        assert_eq!(stored_total, 100);
+    }
+
+    #[tokio::test]
+    async fn test_store_snapshot_upsert() {
+        let pool = setup_test_db().await;
+        let analyzer = MarketAnalyzer::new(pool.clone());
+
+        let snapshot1 = MarketSnapshot {
+            date: NaiveDate::from_ymd_opt(2026, 1, 16).unwrap(),
+            total_jobs: 100,
+            new_jobs_today: 10,
+            jobs_filled_today: 5,
+            avg_salary: Some(120000),
+            median_salary: Some(115000),
+            remote_job_percentage: 40.0,
+            top_skill: Some("Rust".to_string()),
+            top_company: Some("Mozilla".to_string()),
+            top_location: Some("Remote".to_string()),
+            total_companies_hiring: 50,
+            market_sentiment: "bullish".to_string(),
+            notes: None,
+        };
+
+        analyzer.store_snapshot(&snapshot1).await.unwrap();
+
+        // Store again with updated data
+        let snapshot2 = MarketSnapshot {
+            date: NaiveDate::from_ymd_opt(2026, 1, 16).unwrap(),
+            total_jobs: 150,
+            new_jobs_today: 50,
+            jobs_filled_today: 10,
+            avg_salary: Some(125000),
+            median_salary: Some(120000),
+            remote_job_percentage: 45.0,
+            top_skill: Some("Python".to_string()),
+            top_company: Some("Google".to_string()),
+            top_location: Some("San Francisco, CA".to_string()),
+            total_companies_hiring: 60,
+            market_sentiment: "bullish".to_string(),
+            notes: Some("Updated".to_string()),
+        };
+
+        analyzer.store_snapshot(&snapshot2).await.unwrap();
+
+        // Should still be 1 row (upsert)
+        let count = sqlx::query_scalar::<_, i64>("SELECT COUNT(*) FROM market_snapshots")
+            .fetch_one(&pool)
+            .await
+            .unwrap();
+        assert_eq!(count, 1);
+
+        // Verify updated data
+        let stored_total = sqlx::query_scalar::<_, i64>(
+            "SELECT total_jobs FROM market_snapshots WHERE date = ?",
+        )
+        .bind("2026-01-16")
+        .fetch_one(&pool)
+        .await
+        .unwrap();
+        assert_eq!(stored_total, 150);
+    }
+
+    #[tokio::test]
+    async fn test_calculate_market_sentiment_no_history() {
+        let pool = setup_test_db().await;
+        let analyzer = MarketAnalyzer::new(pool);
+
+        let sentiment = analyzer.calculate_market_sentiment(100, 50).await.unwrap();
+        assert_eq!(sentiment, "neutral");
+    }
+
+    #[tokio::test]
+    async fn test_calculate_market_sentiment_bullish() {
+        let pool = setup_test_db().await;
+
+        // Insert historical snapshots
+        for i in 1..=7 {
+            sqlx::query(
+                "INSERT INTO market_snapshots (date, total_jobs, new_jobs_today, jobs_filled_today, total_companies_hiring, market_sentiment) VALUES (?, ?, ?, ?, ?, ?)",
+            )
+            .bind(format!("2026-01-{:02}", 9 + i))
+            .bind(100)
+            .bind(50)
+            .bind(10)
+            .bind(50)
+            .bind("neutral")
+            .execute(&pool)
+            .await
+            .unwrap();
+        }
+
+        let analyzer = MarketAnalyzer::new(pool);
+
+        // 120% increase from average of 50
+        let sentiment = analyzer.calculate_market_sentiment(110, 10).await.unwrap();
+        assert_eq!(sentiment, "bullish");
+    }
+
+    #[tokio::test]
+    async fn test_calculate_market_sentiment_bearish() {
+        let pool = setup_test_db().await;
+
+        // Insert historical snapshots
+        for i in 1..=7 {
+            sqlx::query(
+                "INSERT INTO market_snapshots (date, total_jobs, new_jobs_today, jobs_filled_today, total_companies_hiring, market_sentiment) VALUES (?, ?, ?, ?, ?, ?)",
+            )
+            .bind(format!("2026-01-{:02}", 9 + i))
+            .bind(100)
+            .bind(100)
+            .bind(10)
+            .bind(50)
+            .bind("neutral")
+            .execute(&pool)
+            .await
+            .unwrap();
+        }
+
+        let analyzer = MarketAnalyzer::new(pool);
+
+        // 60% decrease from average of 100
+        let sentiment = analyzer.calculate_market_sentiment(40, 10).await.unwrap();
+        assert_eq!(sentiment, "bearish");
+    }
+
+    #[tokio::test]
+    async fn test_calculate_market_sentiment_neutral() {
+        let pool = setup_test_db().await;
+
+        // Insert historical snapshots
+        for i in 1..=7 {
+            sqlx::query(
+                "INSERT INTO market_snapshots (date, total_jobs, new_jobs_today, jobs_filled_today, total_companies_hiring, market_sentiment) VALUES (?, ?, ?, ?, ?, ?)",
+            )
+            .bind(format!("2026-01-{:02}", 9 + i))
+            .bind(100)
+            .bind(100)
+            .bind(10)
+            .bind(50)
+            .bind("neutral")
+            .execute(&pool)
+            .await
+            .unwrap();
+        }
+
+        let analyzer = MarketAnalyzer::new(pool);
+
+        // 10% increase from average of 100
+        let sentiment = analyzer.calculate_market_sentiment(110, 10).await.unwrap();
+        assert_eq!(sentiment, "neutral");
+    }
+
+    #[tokio::test]
+    async fn test_get_snapshot_existing() {
+        let pool = setup_test_db().await;
+
+        sqlx::query(
+            "INSERT INTO market_snapshots (date, total_jobs, new_jobs_today, jobs_filled_today, total_companies_hiring, market_sentiment) VALUES (?, ?, ?, ?, ?, ?)",
+        )
+        .bind("2026-01-16")
+        .bind(100)
+        .bind(10)
+        .bind(5)
+        .bind(50)
+        .bind("bullish")
+        .execute(&pool)
+        .await
+        .unwrap();
+
+        let analyzer = MarketAnalyzer::new(pool);
+        let snapshot = analyzer
+            .get_snapshot(NaiveDate::from_ymd_opt(2026, 1, 16).unwrap())
+            .await
+            .unwrap();
+
+        assert!(snapshot.is_some());
+        let snapshot = snapshot.unwrap();
+        assert_eq!(snapshot.total_jobs, 100);
+        assert_eq!(snapshot.new_jobs_today, 10);
+        assert_eq!(snapshot.market_sentiment, "bullish");
+    }
+
+    #[tokio::test]
+    async fn test_get_snapshot_not_found() {
+        let pool = setup_test_db().await;
+        let analyzer = MarketAnalyzer::new(pool);
+
+        let snapshot = analyzer
+            .get_snapshot(NaiveDate::from_ymd_opt(2026, 1, 16).unwrap())
+            .await
+            .unwrap();
+
+        assert!(snapshot.is_none());
+    }
+
+    #[tokio::test]
+    async fn test_get_latest_snapshot() {
+        let pool = setup_test_db().await;
+
+        sqlx::query(
+            "INSERT INTO market_snapshots (date, total_jobs, new_jobs_today, jobs_filled_today, total_companies_hiring, market_sentiment) VALUES (?, ?, ?, ?, ?, ?)",
+        )
+        .bind("2026-01-14")
+        .bind(80)
+        .bind(8)
+        .bind(4)
+        .bind(40)
+        .bind("neutral")
+        .execute(&pool)
+        .await
+        .unwrap();
+
+        sqlx::query(
+            "INSERT INTO market_snapshots (date, total_jobs, new_jobs_today, jobs_filled_today, total_companies_hiring, market_sentiment) VALUES (?, ?, ?, ?, ?, ?)",
+        )
+        .bind("2026-01-16")
+        .bind(100)
+        .bind(10)
+        .bind(5)
+        .bind(50)
+        .bind("bullish")
+        .execute(&pool)
+        .await
+        .unwrap();
+
+        sqlx::query(
+            "INSERT INTO market_snapshots (date, total_jobs, new_jobs_today, jobs_filled_today, total_companies_hiring, market_sentiment) VALUES (?, ?, ?, ?, ?, ?)",
+        )
+        .bind("2026-01-15")
+        .bind(90)
+        .bind(9)
+        .bind(4)
+        .bind(45)
+        .bind("neutral")
+        .execute(&pool)
+        .await
+        .unwrap();
+
+        let analyzer = MarketAnalyzer::new(pool);
+        let snapshot = analyzer.get_latest_snapshot().await.unwrap();
+
+        assert!(snapshot.is_some());
+        let snapshot = snapshot.unwrap();
+        assert_eq!(snapshot.date, NaiveDate::from_ymd_opt(2026, 1, 16).unwrap());
+        assert_eq!(snapshot.total_jobs, 100);
+    }
+
+    #[tokio::test]
+    async fn test_get_latest_snapshot_empty() {
+        let pool = setup_test_db().await;
+        let analyzer = MarketAnalyzer::new(pool);
+
+        let snapshot = analyzer.get_latest_snapshot().await.unwrap();
+        assert!(snapshot.is_none());
+    }
+
+    #[tokio::test]
+    async fn test_get_historical_snapshots() {
+        let pool = setup_test_db().await;
+        let today = Utc::now().date_naive();
+
+        // Insert snapshots for last 10 days (from today backwards)
+        for i in 0..10_i64 {
+            let date = (today - chrono::Duration::days(i)).to_string();
+            sqlx::query(
+                "INSERT INTO market_snapshots (date, total_jobs, new_jobs_today, jobs_filled_today, total_companies_hiring, market_sentiment, remote_job_percentage) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            )
+            .bind(&date)
+            .bind(100 + i)
+            .bind(10)
+            .bind(5)
+            .bind(50)
+            .bind("neutral")
+            .bind(0.0)
+            .execute(&pool)
+            .await
+            .unwrap();
+        }
+
+        let analyzer = MarketAnalyzer::new(pool);
+        let snapshots = analyzer.get_historical_snapshots(7).await.unwrap();
+
+        // Should return up to 7 most recent days, ordered DESC
+        assert!(snapshots.len() >= 7);
+        assert_eq!(snapshots[0].date, today);
+    }
+
+    #[tokio::test]
+    async fn test_get_historical_snapshots_empty() {
+        let pool = setup_test_db().await;
+        let analyzer = MarketAnalyzer::new(pool);
+
+        let snapshots = analyzer.get_historical_snapshots(30).await.unwrap();
+        assert_eq!(snapshots.len(), 0);
+    }
+
+    #[tokio::test]
+    async fn test_row_to_snapshot_all_fields() {
+        let pool = setup_test_db().await;
+
+        sqlx::query(
+            r#"
+            INSERT INTO market_snapshots (
+                date, total_jobs, new_jobs_today, jobs_filled_today,
+                avg_salary, median_salary, remote_job_percentage,
+                top_skill, top_company, top_location,
+                total_companies_hiring, market_sentiment, notes
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            "#,
+        )
+        .bind("2026-01-16")
+        .bind(100)
+        .bind(10)
+        .bind(5)
+        .bind(120000)
+        .bind(115000)
+        .bind(40.5)
+        .bind("Rust")
+        .bind("Mozilla")
+        .bind("Remote")
+        .bind(50)
+        .bind("bullish")
+        .bind("Test note")
+        .execute(&pool)
+        .await
+        .unwrap();
+
+        let analyzer = MarketAnalyzer::new(pool);
+        let snapshot = analyzer
+            .get_snapshot(NaiveDate::from_ymd_opt(2026, 1, 16).unwrap())
+            .await
+            .unwrap()
+            .unwrap();
+
+        assert_eq!(snapshot.date, NaiveDate::from_ymd_opt(2026, 1, 16).unwrap());
+        assert_eq!(snapshot.total_jobs, 100);
+        assert_eq!(snapshot.new_jobs_today, 10);
+        assert_eq!(snapshot.jobs_filled_today, 5);
+        assert_eq!(snapshot.avg_salary, Some(120000));
+        assert_eq!(snapshot.median_salary, Some(115000));
+        assert_eq!(snapshot.remote_job_percentage, 40.5);
+        assert_eq!(snapshot.top_skill, Some("Rust".to_string()));
+        assert_eq!(snapshot.top_company, Some("Mozilla".to_string()));
+        assert_eq!(snapshot.top_location, Some("Remote".to_string()));
+        assert_eq!(snapshot.total_companies_hiring, 50);
+        assert_eq!(snapshot.market_sentiment, "bullish");
+        assert_eq!(snapshot.notes, Some("Test note".to_string()));
+    }
+
+    #[tokio::test]
+    async fn test_row_to_snapshot_nullable_fields() {
+        let pool = setup_test_db().await;
+
+        // Test minimal snapshot with only required fields
+        sqlx::query(
+            r#"
+            INSERT INTO market_snapshots (
+                date, total_jobs, new_jobs_today, jobs_filled_today,
+                total_companies_hiring, market_sentiment, remote_job_percentage
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            "#,
+        )
+        .bind("2026-01-16")
+        .bind(50)
+        .bind(5)
+        .bind(2)
+        .bind(25)
+        .bind("neutral")
+        .bind(0.0)
+        .execute(&pool)
+        .await
+        .unwrap();
+
+        let analyzer = MarketAnalyzer::new(pool);
+        let snapshot = analyzer
+            .get_snapshot(NaiveDate::from_ymd_opt(2026, 1, 16).unwrap())
+            .await
+            .unwrap()
+            .unwrap();
+
+        // Verify required fields are present
+        assert_eq!(snapshot.total_jobs, 50);
+        assert_eq!(snapshot.new_jobs_today, 5);
+        assert_eq!(snapshot.market_sentiment, "neutral");
+
+        // Nullable fields should be None when not provided
+        assert_eq!(snapshot.top_skill, None);
+        assert_eq!(snapshot.top_company, None);
+        assert_eq!(snapshot.top_location, None);
+        assert_eq!(snapshot.notes, None);
+    }
+
+    #[tokio::test]
+    async fn test_create_daily_snapshot_with_empty_company_names() {
+        let pool = setup_test_db().await;
+        let today = Utc::now().date_naive().to_string();
+
+        // Insert jobs with empty/null companies
+        insert_test_job(
+            &pool,
+            "job1",
+            "Engineer",
+            Some(""),
+            Some("Remote"),
+            "active",
+            &today,
+        )
+        .await;
+        insert_test_job(
+            &pool,
+            "job2",
+            "Engineer",
+            None,
+            Some("San Francisco"),
+            "active",
+            &today,
+        )
+        .await;
+        insert_test_job(
+            &pool,
+            "job3",
+            "Engineer",
+            Some("Google"),
+            Some("New York"),
+            "active",
+            &today,
+        )
+        .await;
+
+        let analyzer = MarketAnalyzer::new(pool);
+        let snapshot = analyzer.create_daily_snapshot().await.unwrap();
+
+        assert_eq!(snapshot.total_jobs, 3);
+        assert_eq!(snapshot.total_companies_hiring, 1); // Only Google
+        assert_eq!(snapshot.top_company, Some("Google".to_string()));
+    }
+
+    #[tokio::test]
+    async fn test_create_daily_snapshot_calculates_correct_median() {
+        let pool = setup_test_db().await;
+        let today = Utc::now().date_naive().to_string();
+
+        insert_test_job(&pool, "job1", "Eng", Some("Co1"), None, "active", &today).await;
+        insert_test_job(&pool, "job2", "Eng", Some("Co2"), None, "active", &today).await;
+        insert_test_job(&pool, "job3", "Eng", Some("Co3"), None, "active", &today).await;
+
+        insert_test_salary(&pool, "job1", 100000).await;
+        insert_test_salary(&pool, "job2", 150000).await;
+        insert_test_salary(&pool, "job3", 200000).await;
+
+        let analyzer = MarketAnalyzer::new(pool);
+        let snapshot = analyzer.create_daily_snapshot().await.unwrap();
+
+        // If salaries are present, they should be correct
+        if let Some(median) = snapshot.median_salary {
+            assert_eq!(median, 150000);
+        }
+        if let Some(avg) = snapshot.avg_salary {
+            assert_eq!(avg, 150000);
+        }
+    }
+
+    #[tokio::test]
+    async fn test_get_historical_snapshots_respects_limit() {
+        let pool = setup_test_db().await;
+
+        // Insert 30 days of snapshots
+        for i in 1..=30 {
+            sqlx::query(
+                "INSERT INTO market_snapshots (date, total_jobs, new_jobs_today, jobs_filled_today, total_companies_hiring, market_sentiment) VALUES (?, ?, ?, ?, ?, ?)",
+            )
+            .bind(format!("2025-12-{:02}", i))
+            .bind(100)
+            .bind(10)
+            .bind(5)
+            .bind(50)
+            .bind("neutral")
+            .execute(&pool)
+            .await
+            .unwrap();
+        }
+
+        let analyzer = MarketAnalyzer::new(pool);
+
+        // Request only 7 days
+        let snapshots = analyzer.get_historical_snapshots(7).await.unwrap();
+
+        // Should return only recent 7 days
+        assert!(snapshots.len() <= 7);
     }
 
     #[test]

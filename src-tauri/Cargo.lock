@@ -2205,6 +2205,7 @@ dependencies = [
  "chrono",
  "dirs 5.0.1",
  "dotenvy",
+ "futures",
  "hex",
  "lettre",
  "once_cell",
