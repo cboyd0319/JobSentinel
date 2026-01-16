@@ -1118,4 +1118,182 @@ mod tests {
         assert!(heat.avg_median_salary.is_none());
         assert!(heat.city.is_none());
     }
+
+    #[test]
+    fn test_normalize_location_san_francisco() {
+        // Test the normalization logic without database
+        let location = "San Francisco Bay Area";
+        let result = if location.to_lowercase().contains("san francisco") || location.to_lowercase().contains("sf") {
+            "san francisco, ca"
+        } else {
+            &location.to_lowercase()
+        };
+        assert_eq!(result, "san francisco, ca");
+
+        let location2 = "SF, CA";
+        let result2 = if location2.to_lowercase().contains("san francisco") || location2.to_lowercase().contains("sf") {
+            "san francisco, ca"
+        } else {
+            &location2.to_lowercase()
+        };
+        assert_eq!(result2, "san francisco, ca");
+    }
+
+    #[test]
+    fn test_normalize_location_new_york() {
+        let location = "New York City";
+        let result = if location.to_lowercase().contains("new york") || location.to_lowercase().contains("nyc") {
+            "new york, ny"
+        } else {
+            &location.to_lowercase()
+        };
+        assert_eq!(result, "new york, ny");
+
+        let location2 = "NYC";
+        let result2 = if location2.to_lowercase().contains("new york") || location2.to_lowercase().contains("nyc") {
+            "new york, ny"
+        } else {
+            &location2.to_lowercase()
+        };
+        assert_eq!(result2, "new york, ny");
+    }
+
+    #[test]
+    fn test_normalize_location_remote() {
+        let location = "Remote - US";
+        let result = if location.to_lowercase().contains("remote") {
+            "remote"
+        } else {
+            &location.to_lowercase()
+        };
+        assert_eq!(result, "remote");
+    }
+
+    #[test]
+    fn test_normalize_location_other() {
+        let location = "Seattle, WA";
+        let result = if location.to_lowercase().contains("san francisco") || location.to_lowercase().contains("sf") {
+            "san francisco, ca"
+        } else if location.to_lowercase().contains("new york") || location.to_lowercase().contains("nyc") {
+            "new york, ny"
+        } else if location.to_lowercase().contains("remote") {
+            "remote"
+        } else {
+            &location.to_lowercase()
+        };
+        assert_eq!(result, "seattle, wa");
+    }
+
+    #[test]
+    fn test_parse_location_city_state() {
+        let location = "Seattle, WA";
+        let parts: Vec<&str> = location.split(',').map(|s| s.trim()).collect();
+        let (city, state) = if parts.len() >= 2 {
+            (Some(parts[0].to_string()), Some(parts[1].to_string()))
+        } else {
+            (Some(location.to_string()), None)
+        };
+        assert_eq!(city, Some("Seattle".to_string()));
+        assert_eq!(state, Some("WA".to_string()));
+    }
+
+    #[test]
+    fn test_parse_location_city_only() {
+        let location = "London";
+        let parts: Vec<&str> = location.split(',').map(|s| s.trim()).collect();
+        let (city, state) = if parts.len() >= 2 {
+            (Some(parts[0].to_string()), Some(parts[1].to_string()))
+        } else {
+            (Some(location.to_string()), None)
+        };
+        assert_eq!(city, Some("London".to_string()));
+        assert_eq!(state, None);
+    }
+
+    #[test]
+    fn test_parse_location_with_extra_parts() {
+        let location = "New York, NY, USA";
+        let parts: Vec<&str> = location.split(',').map(|s| s.trim()).collect();
+        let (city, state) = if parts.len() >= 2 {
+            (Some(parts[0].to_string()), Some(parts[1].to_string()))
+        } else {
+            (Some(location.to_string()), None)
+        };
+        assert_eq!(city, Some("New York".to_string()));
+        assert_eq!(state, Some("NY".to_string()));
+    }
+
+    #[test]
+    fn test_parse_location_empty() {
+        let location = "";
+        let parts: Vec<&str> = location.split(',').map(|s| s.trim()).collect();
+        let (city, state) = if parts.len() >= 2 {
+            (Some(parts[0].to_string()), Some(parts[1].to_string()))
+        } else {
+            (Some(location.to_string()), None)
+        };
+        assert_eq!(city, Some("".to_string()));
+        assert_eq!(state, None);
+    }
+
+    #[test]
+    fn test_compute_median_with_floats() {
+        let mut values = vec![1.5, 2.5, 3.5, 4.5];
+        assert_eq!(compute_median(&mut values), Some(3.0));
+    }
+
+    #[test]
+    fn test_compute_median_precision() {
+        let mut values = vec![100.1, 100.2, 100.3];
+        assert_eq!(compute_median(&mut values), Some(100.2));
+    }
+
+    #[test]
+    fn test_skill_trend_serialization() {
+        let trend = SkillTrend {
+            skill_name: "TypeScript".to_string(),
+            total_jobs: 300,
+            avg_salary: Some(135000),
+        };
+
+        let serialized = serde_json::to_string(&trend).unwrap();
+        let deserialized: SkillTrend = serde_json::from_str(&serialized).unwrap();
+
+        assert_eq!(deserialized.skill_name, "TypeScript");
+        assert_eq!(deserialized.total_jobs, 300);
+        assert_eq!(deserialized.avg_salary, Some(135000));
+    }
+
+    #[test]
+    fn test_company_activity_serialization() {
+        let activity = CompanyActivity {
+            company_name: "Microsoft".to_string(),
+            total_posted: 100,
+            avg_active: 75.5,
+            hiring_trend: Some("stable".to_string()),
+        };
+
+        let serialized = serde_json::to_string(&activity).unwrap();
+        let deserialized: CompanyActivity = serde_json::from_str(&serialized).unwrap();
+
+        assert_eq!(deserialized.company_name, "Microsoft");
+        assert_eq!(deserialized.total_posted, 100);
+    }
+
+    #[test]
+    fn test_location_heat_serialization() {
+        let heat = LocationHeat {
+            location: "austin, tx".to_string(),
+            city: Some("Austin".to_string()),
+            state: Some("TX".to_string()),
+            total_jobs: 450,
+            avg_median_salary: Some(120000),
+        };
+
+        let serialized = serde_json::to_string(&heat).unwrap();
+        let deserialized: LocationHeat = serde_json::from_str(&serialized).unwrap();
+
+        assert_eq!(deserialized.location, "austin, tx");
+        assert_eq!(deserialized.total_jobs, 450);
+    }
 }

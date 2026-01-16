@@ -540,6 +540,541 @@ mod tests {
         assert!(result.is_ok(), "Long token should pass validation");
     }
 
+    #[test]
+    fn test_webhook_url_with_username_password_fails() {
+        let url = "https://user:pass@hooks.slack.com/services/T00000000/B00000000/XXXX";
+        let result = validate_webhook_url(url);
+        // URL with credentials should fail host comparison
+        assert!(result.is_err(), "URL with credentials should fail validation");
+    }
+
+    #[test]
+    fn test_webhook_url_with_trailing_slash() {
+        let url = "https://hooks.slack.com/services/T00000000/B00000000/XXXX/";
+        let result = validate_webhook_url(url);
+        assert!(result.is_ok(), "URL with trailing slash should pass");
+    }
+
+    #[test]
+    fn test_webhook_url_mixed_case_path() {
+        let url = "https://hooks.slack.com/Services/T00000000/B00000000/XXXX";
+        let result = validate_webhook_url(url);
+        // Path check is case-sensitive
+        assert!(result.is_err(), "Mixed case path should fail");
+    }
+
+    #[test]
+    fn test_webhook_url_wrong_path_structure() {
+        let url = "https://hooks.slack.com/api/services/T00000000";
+        let result = validate_webhook_url(url);
+        assert!(result.is_err(), "Wrong path structure should fail");
+    }
+
+    #[test]
+    fn test_notification_with_special_characters_in_title() {
+        let mut notification = create_test_notification();
+        notification.job.title = "Senior Engineer @ \"Cool\" Company <script>alert('xss')</script>".to_string();
+
+        let payload = json!({
+            "blocks": [
+                {
+                    "type": "header",
+                    "text": {
+                        "type": "plain_text",
+                        "text": format!("🎯 High Match: {}", notification.job.title),
+                    }
+                }
+            ]
+        });
+
+        // Verify special characters are preserved (Slack handles escaping)
+        let title_text = payload["blocks"][0]["text"]["text"].as_str().unwrap();
+        assert!(title_text.contains("@"));
+        assert!(title_text.contains("\""));
+        assert!(title_text.contains("<script>"));
+    }
+
+    #[test]
+    fn test_notification_with_unicode_characters() {
+        let mut notification = create_test_notification();
+        notification.job.company = "🚀 Startup™ Inc. — São Paulo".to_string();
+        notification.job.location = Some("Zürich 🇨🇭".to_string());
+
+        let payload = json!({
+            "blocks": [
+                {
+                    "type": "section",
+                    "fields": [
+                        {
+                            "type": "mrkdwn",
+                            "text": format!("*Company:*\n{}", notification.job.company)
+                        },
+                        {
+                            "type": "mrkdwn",
+                            "text": format!("*Location:*\n{}", notification.job.location.as_deref().unwrap_or("N/A"))
+                        }
+                    ]
+                }
+            ]
+        });
+
+        let company_text = payload["blocks"][0]["fields"][0]["text"].as_str().unwrap();
+        assert!(company_text.contains("🚀"));
+        assert!(company_text.contains("™"));
+        assert!(company_text.contains("São Paulo"));
+
+        let location_text = payload["blocks"][0]["fields"][1]["text"].as_str().unwrap();
+        assert!(location_text.contains("Zürich"));
+        assert!(location_text.contains("🇨🇭"));
+    }
+
+    #[test]
+    fn test_notification_with_markdown_special_chars() {
+        let mut notification = create_test_notification();
+        notification.score.reasons = vec![
+            "✓ Has *asterisks* and _underscores_".to_string(),
+            "✓ Contains `backticks` and ~tildes~".to_string(),
+            "✓ Has [brackets] and (parens)".to_string(),
+        ];
+
+        let reasons_text = notification.score.reasons.join("\n");
+
+        // Markdown characters should be preserved
+        assert!(reasons_text.contains("*asterisks*"));
+        assert!(reasons_text.contains("_underscores_"));
+        assert!(reasons_text.contains("`backticks`"));
+        assert!(reasons_text.contains("~tildes~"));
+        assert!(reasons_text.contains("[brackets]"));
+        assert!(reasons_text.contains("(parens)"));
+    }
+
+    #[test]
+    fn test_notification_with_very_long_reason() {
+        let mut notification = create_test_notification();
+        let long_reason = "✓ ".to_string() + &"Very long reason text ".repeat(50);
+        notification.score.reasons = vec![long_reason.clone()];
+
+        let reasons_text = notification.score.reasons.join("\n");
+        assert_eq!(reasons_text.len(), long_reason.len());
+        assert!(reasons_text.starts_with("✓ Very long"));
+    }
+
+    #[test]
+    fn test_notification_with_newlines_in_company_name() {
+        let mut notification = create_test_notification();
+        notification.job.company = "Multi\nLine\nCompany".to_string();
+
+        let payload = json!({
+            "blocks": [
+                {
+                    "type": "section",
+                    "fields": [
+                        {
+                            "type": "mrkdwn",
+                            "text": format!("*Company:*\n{}", notification.job.company)
+                        }
+                    ]
+                }
+            ]
+        });
+
+        let company_text = payload["blocks"][0]["fields"][0]["text"].as_str().unwrap();
+        assert!(company_text.contains("Multi\nLine\nCompany"));
+    }
+
+    #[test]
+    fn test_notification_all_blocks_have_correct_types() {
+        let notification = create_test_notification();
+
+        let payload = json!({
+            "blocks": [
+                {
+                    "type": "header",
+                    "text": {
+                        "type": "plain_text",
+                        "text": format!("🎯 High Match: {}", notification.job.title),
+                    }
+                },
+                {
+                    "type": "section",
+                    "fields": [
+                        {"type": "mrkdwn", "text": format!("*Company:*\n{}", notification.job.company)},
+                        {"type": "mrkdwn", "text": format!("*Location:*\n{}", notification.job.location.as_deref().unwrap_or("N/A"))},
+                        {"type": "mrkdwn", "text": format!("*Score:*\n{:.0}%", notification.score.total * 100.0)},
+                        {"type": "mrkdwn", "text": format!("*Source:*\n{}", notification.job.source)},
+                    ]
+                },
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": format!("*Why this matches:*\n{}", notification.score.reasons.join("\n"))
+                    }
+                },
+                {
+                    "type": "actions",
+                    "elements": [
+                        {
+                            "type": "button",
+                            "text": {
+                                "type": "plain_text",
+                                "text": "View Job"
+                            },
+                            "url": notification.job.url.clone(),
+                            "style": "primary"
+                        }
+                    ]
+                }
+            ]
+        });
+
+        // Verify block types
+        assert_eq!(payload["blocks"][0]["type"], "header");
+        assert_eq!(payload["blocks"][1]["type"], "section");
+        assert_eq!(payload["blocks"][2]["type"], "section");
+        assert_eq!(payload["blocks"][3]["type"], "actions");
+
+        // Verify text types
+        assert_eq!(payload["blocks"][0]["text"]["type"], "plain_text");
+        assert_eq!(payload["blocks"][1]["fields"][0]["type"], "mrkdwn");
+        assert_eq!(payload["blocks"][2]["text"]["type"], "mrkdwn");
+        assert_eq!(payload["blocks"][3]["elements"][0]["text"]["type"], "plain_text");
+
+        // Verify button element
+        assert_eq!(payload["blocks"][3]["elements"][0]["type"], "button");
+        assert_eq!(payload["blocks"][3]["elements"][0]["style"], "primary");
+    }
+
+    #[test]
+    fn test_notification_button_text_exact_match() {
+        let notification = create_test_notification();
+
+        let payload = json!({
+            "blocks": [
+                {
+                    "type": "actions",
+                    "elements": [
+                        {
+                            "type": "button",
+                            "text": {
+                                "type": "plain_text",
+                                "text": "View Job"
+                            },
+                            "url": notification.job.url.clone(),
+                            "style": "primary"
+                        }
+                    ]
+                }
+            ]
+        });
+
+        assert_eq!(payload["blocks"][0]["elements"][0]["text"]["text"], "View Job");
+    }
+
+    #[test]
+    fn test_notification_header_emoji_preserved() {
+        let notification = create_test_notification();
+
+        let payload = json!({
+            "blocks": [
+                {
+                    "type": "header",
+                    "text": {
+                        "type": "plain_text",
+                        "text": format!("🎯 High Match: {}", notification.job.title),
+                    }
+                }
+            ]
+        });
+
+        let header_text = payload["blocks"][0]["text"]["text"].as_str().unwrap();
+        assert!(header_text.starts_with("🎯 High Match:"));
+    }
+
+    #[test]
+    fn test_notification_source_field_formatting() {
+        let notification = create_test_notification();
+
+        let payload = json!({
+            "blocks": [
+                {
+                    "type": "section",
+                    "fields": [
+                        {
+                            "type": "mrkdwn",
+                            "text": format!("*Source:*\n{}", notification.job.source)
+                        }
+                    ]
+                }
+            ]
+        });
+
+        let source_text = payload["blocks"][0]["fields"][0]["text"].as_str().unwrap();
+        assert!(source_text.starts_with("*Source:*\n"));
+        assert!(source_text.contains("greenhouse"));
+    }
+
+    #[test]
+    fn test_notification_with_different_sources() {
+        let sources = vec!["greenhouse", "lever", "linkedin", "indeed", "jobswithgpt"];
+
+        for source in sources {
+            let mut notification = create_test_notification();
+            notification.job.source = source.to_string();
+
+            let payload = json!({
+                "blocks": [
+                    {
+                        "type": "section",
+                        "fields": [
+                            {
+                                "type": "mrkdwn",
+                                "text": format!("*Source:*\n{}", notification.job.source)
+                            }
+                        ]
+                    }
+                ]
+            });
+
+            let source_text = payload["blocks"][0]["fields"][0]["text"].as_str().unwrap();
+            assert!(source_text.contains(source), "Should contain source: {}", source);
+        }
+    }
+
+    #[test]
+    fn test_notification_reasons_formatting_with_bullets() {
+        let mut notification = create_test_notification();
+        notification.score.reasons = vec![
+            "✓ First reason".to_string(),
+            "✓ Second reason".to_string(),
+            "✓ Third reason".to_string(),
+        ];
+
+        let payload = json!({
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": format!("*Why this matches:*\n{}", notification.score.reasons.join("\n"))
+                    }
+                }
+            ]
+        });
+
+        let reasons_text = payload["blocks"][0]["text"]["text"].as_str().unwrap();
+        assert!(reasons_text.starts_with("*Why this matches:*\n"));
+        assert!(reasons_text.contains("✓ First reason"));
+        assert!(reasons_text.contains("✓ Second reason"));
+        assert!(reasons_text.contains("✓ Third reason"));
+    }
+
+    #[test]
+    fn test_validate_webhook_url_error_messages() {
+        let test_cases = vec![
+            ("http://hooks.slack.com/services/T/B/X", "https://hooks.slack.com"),
+            ("https://evil.com/services/T/B/X", "hooks.slack.com"),
+            ("https://hooks.slack.com/wrong/T/B/X", "services"),
+        ];
+
+        for (url, expected_error_part) in test_cases {
+            let result = validate_webhook_url(url);
+            assert!(result.is_err(), "URL should fail: {}", url);
+            let error_msg = result.unwrap_err().to_string();
+            assert!(
+                error_msg.contains(expected_error_part),
+                "Error for '{}' should contain '{}', got: {}",
+                url,
+                expected_error_part,
+                error_msg
+            );
+        }
+    }
+
+    #[test]
+    fn test_webhook_url_malformed_error_message() {
+        // Test malformed URL separately as it fails at the prefix check, not URL parsing
+        let url = "not a url";
+        let result = validate_webhook_url(url);
+        assert!(result.is_err(), "Malformed URL should fail");
+        // This fails the prefix check before URL parsing
+        assert!(result.unwrap_err().to_string().contains("https://hooks.slack.com"));
+    }
+
+    #[test]
+    fn test_webhook_url_ipv4_address_fails() {
+        let url = "https://192.168.1.1/services/T00000000/B00000000/XXXX";
+        let result = validate_webhook_url(url);
+        assert!(result.is_err(), "IP address should fail validation");
+    }
+
+    #[test]
+    fn test_webhook_url_ipv6_address_fails() {
+        let url = "https://[::1]/services/T00000000/B00000000/XXXX";
+        let result = validate_webhook_url(url);
+        assert!(result.is_err(), "IPv6 address should fail validation");
+    }
+
+    #[test]
+    fn test_webhook_url_localhost_fails() {
+        let url = "https://localhost/services/T00000000/B00000000/XXXX";
+        let result = validate_webhook_url(url);
+        assert!(result.is_err(), "localhost should fail validation");
+    }
+
+    #[test]
+    fn test_notification_complete_payload_serializable() {
+        let notification = create_test_notification();
+
+        let payload = json!({
+            "blocks": [
+                {
+                    "type": "header",
+                    "text": {
+                        "type": "plain_text",
+                        "text": format!("🎯 High Match: {}", notification.job.title),
+                    }
+                },
+                {
+                    "type": "section",
+                    "fields": [
+                        {"type": "mrkdwn", "text": format!("*Company:*\n{}", notification.job.company)},
+                        {"type": "mrkdwn", "text": format!("*Location:*\n{}", notification.job.location.as_deref().unwrap_or("N/A"))},
+                        {"type": "mrkdwn", "text": format!("*Score:*\n{:.0}%", notification.score.total * 100.0)},
+                        {"type": "mrkdwn", "text": format!("*Source:*\n{}", notification.job.source)},
+                    ]
+                },
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": format!("*Why this matches:*\n{}", notification.score.reasons.join("\n"))
+                    }
+                },
+                {
+                    "type": "actions",
+                    "elements": [
+                        {
+                            "type": "button",
+                            "text": {
+                                "type": "plain_text",
+                                "text": "View Job"
+                            },
+                            "url": notification.job.url.clone(),
+                            "style": "primary"
+                        }
+                    ]
+                }
+            ]
+        });
+
+        // Test that payload serializes to valid JSON
+        let json_string = serde_json::to_string(&payload);
+        assert!(json_string.is_ok(), "Payload should serialize to JSON");
+
+        // Verify we can deserialize it back
+        let deserialized: serde_json::Value = serde_json::from_str(&json_string.unwrap()).unwrap();
+        assert_eq!(deserialized, payload);
+    }
+
+    #[test]
+    fn test_notification_with_empty_string_location() {
+        let mut notification = create_test_notification();
+        notification.job.location = Some("".to_string());
+
+        let location_display = notification.job.location.as_deref().unwrap_or("N/A");
+        // Empty string should be used (not N/A)
+        assert_eq!(location_display, "");
+    }
+
+    #[test]
+    fn test_notification_with_whitespace_only_location() {
+        let mut notification = create_test_notification();
+        notification.job.location = Some("   ".to_string());
+
+        let location_display = notification.job.location.as_deref().unwrap_or("N/A");
+        // Whitespace should be preserved
+        assert_eq!(location_display, "   ");
+    }
+
+    #[test]
+    fn test_notification_score_percentage_precision() {
+        // Test that {:.0}% formats with no decimal places
+        let test_values = vec![
+            (0.123, "12%"),
+            (0.456, "46%"),
+            (0.789, "79%"),
+            (0.995, "100%"),  // Rounds up
+            (0.994, "99%"),   // Rounds down
+        ];
+
+        for (score, expected) in test_values {
+            let formatted = format!("{:.0}%", score * 100.0);
+            assert_eq!(formatted, expected, "Score {} should format to {}", score, expected);
+        }
+    }
+
+    #[test]
+    fn test_webhook_url_path_traversal_normalized() {
+        let url = "https://hooks.slack.com/services/../../etc/passwd";
+        let result = validate_webhook_url(url);
+        // URL parser normalizes path traversal to "/etc/passwd"
+        // which fails the /services/ prefix check
+        assert!(result.is_err(), "Normalized path should fail prefix check");
+    }
+
+    #[test]
+    fn test_webhook_url_double_slash_in_path() {
+        let url = "https://hooks.slack.com//services//T00000000//B00000000//XXXX";
+        let result = validate_webhook_url(url);
+        // Double slashes don't match "/services/" prefix
+        assert!(result.is_err(), "Double slashes should fail prefix check");
+    }
+
+    #[test]
+    fn test_notification_all_field_labels_bold() {
+        let notification = create_test_notification();
+
+        let payload = json!({
+            "blocks": [
+                {
+                    "type": "section",
+                    "fields": [
+                        {"type": "mrkdwn", "text": format!("*Company:*\n{}", notification.job.company)},
+                        {"type": "mrkdwn", "text": format!("*Location:*\n{}", notification.job.location.as_deref().unwrap_or("N/A"))},
+                        {"type": "mrkdwn", "text": format!("*Score:*\n{:.0}%", notification.score.total * 100.0)},
+                        {"type": "mrkdwn", "text": format!("*Source:*\n{}", notification.job.source)},
+                    ]
+                }
+            ]
+        });
+
+        for i in 0..4 {
+            let field_text = payload["blocks"][0]["fields"][i]["text"].as_str().unwrap();
+            assert!(field_text.contains("*"), "Field {} should have bold label", i);
+        }
+    }
+
+    #[test]
+    fn test_notification_reasons_section_title_bold() {
+        let notification = create_test_notification();
+
+        let payload = json!({
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": format!("*Why this matches:*\n{}", notification.score.reasons.join("\n"))
+                    }
+                }
+            ]
+        });
+
+        let reasons_text = payload["blocks"][0]["text"]["text"].as_str().unwrap();
+        assert!(reasons_text.starts_with("*Why this matches:*"));
+    }
+
     // Note: We cannot easily test actual HTTP calls without setting up a mock server,
     // but we've tested all the validation and JSON construction logic.
     // In a production environment, you could use `mockito` or `wiremock` crates

@@ -593,4 +593,193 @@ mod tests {
         assert!(snapshot.is_healthy());
         assert_eq!(snapshot.total_jobs, 1);
     }
+
+    #[test]
+    fn test_market_snapshot_with_notes() {
+        let snapshot = MarketSnapshot {
+            date: Utc::now().date_naive(),
+            total_jobs: 5000,
+            new_jobs_today: 100,
+            jobs_filled_today: 50,
+            avg_salary: Some(125000),
+            median_salary: Some(120000),
+            remote_job_percentage: 40.0,
+            top_skill: Some("Rust".to_string()),
+            top_company: Some("Mozilla".to_string()),
+            top_location: Some("San Francisco, CA".to_string()),
+            total_companies_hiring: 350,
+            market_sentiment: "bullish".to_string(),
+            notes: Some("Strong tech hiring in Q4".to_string()),
+        };
+
+        assert_eq!(snapshot.notes, Some("Strong tech hiring in Q4".to_string()));
+        assert!(snapshot.is_healthy());
+    }
+
+    #[test]
+    fn test_market_snapshot_neutral_no_jobs() {
+        let snapshot = MarketSnapshot {
+            date: Utc::now().date_naive(),
+            total_jobs: 1000,
+            new_jobs_today: 0,
+            jobs_filled_today: 10,
+            avg_salary: Some(100000),
+            median_salary: Some(95000),
+            remote_job_percentage: 20.0,
+            top_skill: None,
+            top_company: None,
+            top_location: None,
+            total_companies_hiring: 50,
+            market_sentiment: "neutral".to_string(),
+            notes: None,
+        };
+
+        assert!(!snapshot.is_healthy());
+        assert_eq!(snapshot.sentiment_indicator(), "[FLAT]");
+    }
+
+    #[test]
+    fn test_market_snapshot_serialization() {
+        let snapshot = MarketSnapshot {
+            date: Utc::now().date_naive(),
+            total_jobs: 7500,
+            new_jobs_today: 125,
+            jobs_filled_today: 75,
+            avg_salary: Some(140000),
+            median_salary: Some(135000),
+            remote_job_percentage: 55.0,
+            top_skill: Some("Go".to_string()),
+            top_company: Some("Google".to_string()),
+            top_location: Some("Remote".to_string()),
+            total_companies_hiring: 450,
+            market_sentiment: "bullish".to_string(),
+            notes: Some("Tech boom continues".to_string()),
+        };
+
+        let serialized = serde_json::to_string(&snapshot).unwrap();
+        let deserialized: MarketSnapshot = serde_json::from_str(&serialized).unwrap();
+
+        assert_eq!(deserialized.total_jobs, 7500);
+        assert_eq!(deserialized.market_sentiment, "bullish");
+        assert_eq!(deserialized.notes, Some("Tech boom continues".to_string()));
+    }
+
+    #[test]
+    fn test_market_snapshot_summary_with_all_fields() {
+        let snapshot = MarketSnapshot {
+            date: Utc::now().date_naive(),
+            total_jobs: 12000,
+            new_jobs_today: 200,
+            jobs_filled_today: 100,
+            avg_salary: Some(150000),
+            median_salary: Some(145000),
+            remote_job_percentage: 60.0,
+            top_skill: Some("Kubernetes".to_string()),
+            top_company: Some("Amazon".to_string()),
+            top_location: Some("Seattle, WA".to_string()),
+            total_companies_hiring: 700,
+            market_sentiment: "bullish".to_string(),
+            notes: Some("Cloud infrastructure demand high".to_string()),
+        };
+
+        let summary = snapshot.summary();
+        assert!(summary.contains("200 new jobs"));
+        assert!(summary.contains("12000 total"));
+        assert!(summary.contains("bullish"));
+        assert!(summary.contains("Kubernetes"));
+    }
+
+    #[test]
+    fn test_compute_median_extreme_values() {
+        let mut values = vec![1.0, 1000000.0];
+        assert_eq!(compute_median(&mut values), Some(500000.5));
+    }
+
+    #[test]
+    fn test_compute_median_very_large_dataset() {
+        let mut values: Vec<f64> = (1..=10000).map(|x| x as f64).collect();
+        assert_eq!(compute_median(&mut values), Some(5000.5));
+    }
+
+    #[test]
+    fn test_compute_median_negative_and_positive() {
+        let mut values = vec![-100.0, -50.0, 0.0, 50.0, 100.0];
+        assert_eq!(compute_median(&mut values), Some(0.0));
+    }
+
+    #[test]
+    fn test_market_snapshot_bullish_healthy() {
+        let snapshot = MarketSnapshot {
+            date: Utc::now().date_naive(),
+            total_jobs: 8000,
+            new_jobs_today: 150,
+            jobs_filled_today: 60,
+            avg_salary: Some(145000),
+            median_salary: Some(140000),
+            remote_job_percentage: 50.0,
+            top_skill: Some("Python".to_string()),
+            top_company: Some("Netflix".to_string()),
+            top_location: Some("Los Angeles, CA".to_string()),
+            total_companies_hiring: 500,
+            market_sentiment: "bullish".to_string(),
+            notes: None,
+        };
+
+        assert!(snapshot.is_healthy());
+        assert_eq!(snapshot.sentiment_indicator(), "[UP]");
+    }
+
+    #[test]
+    fn test_market_snapshot_partial_data() {
+        let snapshot = MarketSnapshot {
+            date: Utc::now().date_naive(),
+            total_jobs: 3000,
+            new_jobs_today: 50,
+            jobs_filled_today: 30,
+            avg_salary: None,
+            median_salary: None,
+            remote_job_percentage: 0.0,
+            top_skill: None,
+            top_company: Some("StartupCo".to_string()),
+            top_location: None,
+            total_companies_hiring: 100,
+            market_sentiment: "neutral".to_string(),
+            notes: None,
+        };
+
+        assert!(snapshot.is_healthy());
+        assert!(snapshot.avg_salary.is_none());
+        assert!(snapshot.median_salary.is_none());
+    }
+
+    #[test]
+    fn test_market_snapshot_all_none() {
+        let snapshot = MarketSnapshot {
+            date: Utc::now().date_naive(),
+            total_jobs: 0,
+            new_jobs_today: 0,
+            jobs_filled_today: 0,
+            avg_salary: None,
+            median_salary: None,
+            remote_job_percentage: 0.0,
+            top_skill: None,
+            top_company: None,
+            top_location: None,
+            total_companies_hiring: 0,
+            market_sentiment: "bearish".to_string(),
+            notes: None,
+        };
+
+        assert!(!snapshot.is_healthy());
+        assert!(snapshot.summary().contains("N/A"));
+    }
+
+    #[test]
+    fn test_compute_median_fractional_positions() {
+        let mut values = vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0];
+        assert_eq!(compute_median(&mut values), Some(3.5));
+
+        let mut values2 = vec![1.0, 2.0, 3.0, 4.0, 5.0];
+        assert_eq!(compute_median(&mut values2), Some(3.0));
+    }
 }
