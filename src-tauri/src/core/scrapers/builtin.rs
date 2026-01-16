@@ -642,6 +642,72 @@ mod tests {
     }
 
     #[test]
+    fn test_parse_html_job_card_selector() {
+        let scraper = BuiltInScraper::new("austin".to_string(), None, 10);
+        let html = r#"
+            <html>
+                <body>
+                    <div data-id="job-card">
+                        <h2 data-id="job-title"><a href="/job/123">Job with data-id</a></h2>
+                        <span data-id="company-name">Company A</span>
+                        <div class="location">Austin, TX</div>
+                    </div>
+                </body>
+            </html>
+        "#;
+
+        let jobs = scraper.parse_html(html).expect("parse_html should succeed");
+
+        assert_eq!(jobs.len(), 1);
+        assert_eq!(jobs[0].title, "Job with data-id");
+        assert_eq!(jobs[0].company, "Company A");
+    }
+
+    #[test]
+    fn test_parse_html_class_job_card_selector() {
+        let scraper = BuiltInScraper::new("seattle".to_string(), None, 10);
+        let html = r#"
+            <html>
+                <body>
+                    <div class="job-card">
+                        <h2 class="job-title"><a href="/job/456">Senior Developer</a></h2>
+                        <span class="company">TechCorp</span>
+                        <div class="location">Seattle, WA</div>
+                    </div>
+                </body>
+            </html>
+        "#;
+
+        let jobs = scraper.parse_html(html).expect("parse_html should succeed");
+
+        assert_eq!(jobs.len(), 1);
+        assert_eq!(jobs[0].title, "Senior Developer");
+        assert_eq!(jobs[0].company, "TechCorp");
+    }
+
+    #[test]
+    fn test_parse_html_link_selector_with_wildcard() {
+        let scraper = BuiltInScraper::new("boston".to_string(), None, 10);
+        let html = r#"
+            <html>
+                <body>
+                    <article class="job-listing">
+                        <h2><a href="/job/backend-engineer-789">Backend Engineer</a></h2>
+                        <span class="company-name">StartupXYZ</span>
+                        <div class="location">Boston, MA</div>
+                    </article>
+                </body>
+            </html>
+        "#;
+
+        let jobs = scraper.parse_html(html).expect("parse_html should succeed");
+
+        assert_eq!(jobs.len(), 1);
+        assert_eq!(jobs[0].title, "Backend Engineer");
+        assert_eq!(jobs[0].url, "https://builtin.com/job/backend-engineer-789");
+    }
+
+    #[test]
     fn test_compute_hash_different_inputs() {
         let hash1 = BuiltInScraper::compute_hash(
             "CompanyA",
