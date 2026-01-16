@@ -24,3 +24,4 @@ export { OnboardingProvider, useOnboarding, TourHelpButton } from "./OnboardingT
 export { VirtualJobList } from "./VirtualJobList";
 export { AnalyticsPanel } from "./AnalyticsPanel";
 export { InterviewScheduler } from "./InterviewScheduler";
+export { ErrorLogPanel } from "./ErrorLogPanel";

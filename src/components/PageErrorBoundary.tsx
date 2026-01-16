@@ -1,6 +1,7 @@
 import { Component, ErrorInfo, ReactNode } from "react";
 import { Button } from "./Button";
 import { EmptyState } from "./EmptyState";
+import { errorReporter } from "../utils/errorReporting";
 
 interface Props {
   children: ReactNode;
@@ -28,9 +29,12 @@ class PageErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    if (import.meta.env.DEV) {
-      console.error(`Error in ${this.props.pageName || "page"}:`, error, errorInfo);
-    }
+    // Capture error with error reporting system
+    errorReporter.captureReactError(
+      error,
+      errorInfo.componentStack || undefined,
+      { page: this.props.pageName || "unknown" }
+    );
   }
 
   private handleRetry = () => {

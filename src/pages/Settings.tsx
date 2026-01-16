@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { Button, Input, Badge, Card } from "../components";
+import { Button, Input, Badge, Card, ErrorLogPanel } from "../components";
 import { useToast } from "../contexts";
 import { logError, getErrorMessage } from "../utils/errorUtils";
 import { exportConfigToJSON, importConfigFromJSON } from "../utils/export";
@@ -927,6 +927,12 @@ export default function Settings({ onClose }: SettingsProps) {
                 </div>
               )}
             </div>
+          </section>
+
+          {/* Developer Tools */}
+          <section className="mb-6">
+            <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3">Developer Tools</h3>
+            <ErrorLogPanel />
           </section>
 
           {/* Import/Export */}

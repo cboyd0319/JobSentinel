@@ -1,4 +1,5 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
+import { errorReporter } from '../utils/errorReporting';
 
 interface Props {
   children: ReactNode;
@@ -20,10 +21,12 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // Only log in development - in production, consider sending to error tracking service
-    if (import.meta.env.DEV) {
-      console.error('Uncaught error:', error, errorInfo);
-    }
+    // Capture error with error reporting system
+    errorReporter.captureReactError(
+      error,
+      errorInfo.componentStack || undefined,
+      { location: 'root' }
+    );
   }
 
   public render() {

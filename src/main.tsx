@@ -1,7 +1,13 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
-import { ThemeProvider, ToastProvider, UndoProvider, AnnouncerProvider } from "./contexts";
+import {
+  ThemeProvider,
+  ToastProvider,
+  UndoProvider,
+  AnnouncerProvider,
+  ErrorReportingProvider,
+} from "./contexts";
 import { reportWebVitals } from "./utils/vitals";
 import "./index.css";
 
@@ -19,15 +25,17 @@ async function enableMocking() {
 enableMocking().then(() => {
   ReactDOM.createRoot(document.getElementById("root")!).render(
     <React.StrictMode>
-      <ThemeProvider>
-        <ToastProvider>
-          <UndoProvider>
-            <AnnouncerProvider>
-              <App />
-            </AnnouncerProvider>
-          </UndoProvider>
-        </ToastProvider>
-      </ThemeProvider>
+      <ErrorReportingProvider>
+        <ThemeProvider>
+          <ToastProvider>
+            <UndoProvider>
+              <AnnouncerProvider>
+                <App />
+              </AnnouncerProvider>
+            </UndoProvider>
+          </ToastProvider>
+        </ThemeProvider>
+      </ErrorReportingProvider>
     </React.StrictMode>
   );
 });

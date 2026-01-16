@@ -2,6 +2,7 @@ export { ThemeProvider } from "./ThemeContext";
 export { ToastProvider } from "./ToastContext";
 export { UndoProvider, useUndo } from "./UndoContext";
 export { AnnouncerProvider, useAnnouncer } from "./AnnouncerContext";
+export { ErrorReportingProvider, useErrorReporting } from "./ErrorReportingContext";
 export { ThemeContext } from "./themeContextDef";
 export { ToastContext } from "./toastContextDef";
 export { useTheme } from "../hooks/useTheme";
