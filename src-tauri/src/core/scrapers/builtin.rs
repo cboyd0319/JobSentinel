@@ -482,4 +482,202 @@ mod tests {
         assert_eq!(jobs[0].company, "TechCorp");
         assert_eq!(jobs[0].location, Some("San Francisco, CA".to_string()));
     }
+
+    #[test]
+    fn test_parse_html_missing_location() {
+        let scraper = BuiltInScraper::new("la".to_string(), None, 10);
+        let html = r#"
+            <html>
+                <body>
+                    <article class="job-listing">
+                        <h2><a href="/job/123">Backend Engineer</a></h2>
+                        <span class="company-name">StartupCo</span>
+                    </article>
+                </body>
+            </html>
+        "#;
+
+        let jobs = scraper.parse_html(html).expect("parse_html should succeed");
+
+        assert_eq!(jobs.len(), 1);
+        assert_eq!(jobs[0].location, None);
+        assert_eq!(jobs[0].remote, Some(false), "Should default to false when location is None");
+    }
+
+    #[test]
+    fn test_parse_html_empty_location() {
+        let scraper = BuiltInScraper::new("seattle".to_string(), None, 10);
+        let html = r#"
+            <html>
+                <body>
+                    <article class="job-listing">
+                        <h2><a href="/job/456">Data Scientist</a></h2>
+                        <span class="company-name">DataCorp</span>
+                        <div class="job-location">   </div>
+                    </article>
+                </body>
+            </html>
+        "#;
+
+        let jobs = scraper.parse_html(html).expect("parse_html should succeed");
+
+        assert_eq!(jobs.len(), 1);
+        // Empty whitespace should result in empty string, which gets wrapped in Some
+        assert_eq!(jobs[0].location, Some("".to_string()));
+        assert_eq!(jobs[0].remote, Some(false));
+    }
+
+    #[test]
+    fn test_compute_hash_with_none_location() {
+        let hash1 = BuiltInScraper::compute_hash(
+            "TechCorp",
+            "Senior Engineer",
+            None,
+            "https://builtin.com/job/123",
+        );
+        let hash2 = BuiltInScraper::compute_hash(
+            "TechCorp",
+            "Senior Engineer",
+            None,
+            "https://builtin.com/job/123",
+        );
+
+        assert_eq!(hash1, hash2, "Hashes with None location should be deterministic");
+        assert_eq!(hash1.len(), 64, "SHA-256 hash should be 64 hex chars");
+    }
+
+    #[test]
+    fn test_compute_hash_location_affects_hash() {
+        let hash_with_loc = BuiltInScraper::compute_hash(
+            "TechCorp",
+            "Senior Engineer",
+            Some("New York, NY"),
+            "https://builtin.com/job/123",
+        );
+        let hash_without_loc = BuiltInScraper::compute_hash(
+            "TechCorp",
+            "Senior Engineer",
+            None,
+            "https://builtin.com/job/123",
+        );
+
+        assert_ne!(hash_with_loc, hash_without_loc, "Location should affect hash value");
+    }
+
+    #[test]
+    fn test_new_constructor() {
+        let scraper = BuiltInScraper::new(
+            "boston".to_string(),
+            Some("design".to_string()),
+            25,
+        );
+
+        assert_eq!(scraper.city, "boston");
+        assert_eq!(scraper.category, Some("design".to_string()));
+        assert_eq!(scraper.limit, 25);
+    }
+
+    #[test]
+    fn test_parse_html_mixed_selectors() {
+        let scraper = BuiltInScraper::new("austin".to_string(), None, 10);
+        let html = r#"
+            <html>
+                <body>
+                    <article class="job-listing">
+                        <h2 data-id="job-title"><a href="/job/1">Job with data-id</a></h2>
+                        <span class="company-name">Company A</span>
+                        <div class="location">Austin, TX</div>
+                    </article>
+                    <article class="job-listing">
+                        <h2><a href="/job/2">Job with fallback selectors</a></h2>
+                        <span class="company-name">Company B</span>
+                        <div class="location">Remote</div>
+                    </article>
+                </body>
+            </html>
+        "#;
+
+        let jobs = scraper.parse_html(html).expect("parse_html should succeed");
+
+        assert_eq!(jobs.len(), 2);
+        assert_eq!(jobs[0].title, "Job with data-id");
+        assert_eq!(jobs[0].company, "Company A");
+        assert_eq!(jobs[0].remote, Some(false));
+        assert_eq!(jobs[1].title, "Job with fallback selectors");
+        assert_eq!(jobs[1].company, "Company B");
+        assert_eq!(jobs[1].remote, Some(true));
+    }
+
+    #[test]
+    fn test_parse_html_case_sensitive_remote_detection() {
+        let scraper = BuiltInScraper::new("nyc".to_string(), None, 10);
+        let html = r#"
+            <html>
+                <body>
+                    <article class="job-listing">
+                        <h2><a href="/job/1">Job 1</a></h2>
+                        <span>Company</span>
+                        <div class="location">REMOTE</div>
+                    </article>
+                    <article class="job-listing">
+                        <h2><a href="/job/2">Job 2</a></h2>
+                        <span>Company</span>
+                        <div class="location">Remote Anywhere</div>
+                    </article>
+                    <article class="job-listing">
+                        <h2><a href="/job/3">Job 3</a></h2>
+                        <span>Company</span>
+                        <div class="location">Anywhere in USA</div>
+                    </article>
+                </body>
+            </html>
+        "#;
+
+        let jobs = scraper.parse_html(html).expect("parse_html should succeed");
+
+        assert_eq!(jobs.len(), 3);
+        assert_eq!(jobs[0].remote, Some(true), "Should detect uppercase 'REMOTE'");
+        assert_eq!(jobs[1].remote, Some(true), "Should detect 'Remote Anywhere'");
+        assert_eq!(jobs[2].remote, Some(true), "Should detect 'Anywhere'");
+    }
+
+    #[test]
+    fn test_compute_hash_different_inputs() {
+        let hash1 = BuiltInScraper::compute_hash(
+            "CompanyA",
+            "Engineer",
+            Some("NYC"),
+            "https://builtin.com/job/1",
+        );
+        let hash2 = BuiltInScraper::compute_hash(
+            "CompanyB",
+            "Engineer",
+            Some("NYC"),
+            "https://builtin.com/job/1",
+        );
+        let hash3 = BuiltInScraper::compute_hash(
+            "CompanyA",
+            "Designer",
+            Some("NYC"),
+            "https://builtin.com/job/1",
+        );
+        let hash4 = BuiltInScraper::compute_hash(
+            "CompanyA",
+            "Engineer",
+            Some("SF"),
+            "https://builtin.com/job/1",
+        );
+        let hash5 = BuiltInScraper::compute_hash(
+            "CompanyA",
+            "Engineer",
+            Some("NYC"),
+            "https://builtin.com/job/2",
+        );
+
+        // All should be different
+        assert_ne!(hash1, hash2, "Different company should produce different hash");
+        assert_ne!(hash1, hash3, "Different title should produce different hash");
+        assert_ne!(hash1, hash4, "Different location should produce different hash");
+        assert_ne!(hash1, hash5, "Different URL should produce different hash");
+    }
 }

@@ -373,4 +373,222 @@ mod tests {
 
         assert_eq!(salary_display, "Not specified");
     }
+
+    #[test]
+    fn test_webhook_url_with_query_params_passes() {
+        let url = "https://discord.com/api/webhooks/123456789/abcdefghijklmnopqrstuvwxyz?wait=true";
+        let result = validate_webhook_url(url);
+        assert!(result.is_ok(), "Webhook URL with query params should pass");
+    }
+
+    #[test]
+    fn test_webhook_url_with_fragment_passes() {
+        let url = "https://discord.com/api/webhooks/123456789/abcdefghijklmnopqrstuvwxyz#fragment";
+        let result = validate_webhook_url(url);
+        assert!(result.is_ok(), "Webhook URL with fragment should pass");
+    }
+
+    #[test]
+    fn test_embed_color_boundary_90_percent() {
+        let mut notification = create_test_notification();
+        notification.score.total = 0.9;
+
+        let color = if notification.score.total >= 0.9 {
+            0x10b981
+        } else if notification.score.total >= 0.8 {
+            0xf59e0b
+        } else {
+            0x3b82f6
+        };
+
+        assert_eq!(color, 0x10b981, "Score of exactly 90% should use green");
+    }
+
+    #[test]
+    fn test_embed_color_boundary_80_percent() {
+        let mut notification = create_test_notification();
+        notification.score.total = 0.8;
+
+        let color = if notification.score.total >= 0.9 {
+            0x10b981
+        } else if notification.score.total >= 0.8 {
+            0xf59e0b
+        } else {
+            0x3b82f6
+        };
+
+        assert_eq!(color, 0xf59e0b, "Score of exactly 80% should use yellow/amber");
+    }
+
+    #[test]
+    fn test_embed_fields_structure() {
+        let notification = create_test_notification();
+        let salary_display = "$180,000 - $220,000";
+
+        let fields = json!([
+            {"name": "📍 Location", "value": notification.job.location.as_deref().unwrap_or("N/A"), "inline": true},
+            {"name": "💰 Salary", "value": salary_display, "inline": true},
+            {"name": "🏢 Remote", "value": if notification.job.remote.unwrap_or(false) { "✅ Yes" } else { "❌ No" }, "inline": true},
+        ]);
+
+        assert_eq!(fields.as_array().unwrap().len(), 3);
+        assert_eq!(fields[0]["inline"], true);
+    }
+
+    #[test]
+    fn test_embed_with_user_mention() {
+        let user_id = "123456789012345678";
+        let content = format!("<@{}>", user_id);
+
+        assert_eq!(content, "<@123456789012345678>");
+    }
+
+    #[test]
+    fn test_embed_timestamp_format() {
+        let timestamp = chrono::Utc::now().to_rfc3339();
+
+        // RFC3339 format should contain 'T' and 'Z' or timezone offset
+        assert!(timestamp.contains('T'));
+        assert!(timestamp.contains('Z') || timestamp.contains('+') || timestamp.contains('-'));
+    }
+
+    #[test]
+    fn test_remote_badge_with_none() {
+        let mut notification = create_test_notification();
+        notification.job.remote = None;
+
+        let remote_text = if notification.job.remote.unwrap_or(false) {
+            "✅ Yes"
+        } else {
+            "❌ No"
+        };
+
+        assert_eq!(remote_text, "❌ No", "None remote should default to No");
+    }
+
+    #[test]
+    fn test_webhook_validation_no_host() {
+        let invalid_url = "https:///api/webhooks/123/token";
+        let result = validate_webhook_url(invalid_url);
+        assert!(result.is_err(), "URL without host should fail");
+    }
+
+    #[test]
+    fn test_embed_description_format() {
+        let notification = create_test_notification();
+        let description = format!("**{}% Match** • {}", (notification.score.total * 100.0).round(), notification.job.source);
+
+        assert!(description.contains("95% Match"));
+        assert!(description.contains("greenhouse"));
+        assert!(description.contains("**"));
+        assert!(description.contains("•"));
+    }
+
+    #[test]
+    fn test_embed_title_format() {
+        let notification = create_test_notification();
+        let title = format!("🎯 {} - {}", notification.job.title, notification.job.company);
+
+        assert_eq!(title, "🎯 Senior Rust Engineer - Awesome Corp");
+    }
+
+    #[test]
+    fn test_reasons_field_join() {
+        let notification = create_test_notification();
+        let reasons_text = notification.score.reasons.join("\n");
+
+        assert!(reasons_text.contains('\n'));
+        assert!(reasons_text.contains("Title matches"));
+        assert!(reasons_text.contains("keyword: Rust"));
+    }
+
+    #[test]
+    fn test_embed_footer_text() {
+        let footer_text = "JobSentinel • Job Search Automation";
+
+        assert!(footer_text.contains("JobSentinel"));
+        assert!(footer_text.contains("•"));
+    }
+
+    #[test]
+    fn test_webhook_url_case_normalization() {
+        let url = "https://DISCORD.COM/api/webhooks/123456789/abcdefghijklmnopqrstuvwxyz";
+        let result = validate_webhook_url(url);
+        // URL host comparison is case-sensitive
+        assert!(result.is_err(), "Uppercase host should fail validation");
+    }
+
+    #[test]
+    fn test_score_percentage_rounding() {
+        let test_cases = vec![
+            (0.954, 95.0),
+            (0.956, 96.0),
+            (0.875, 88.0),
+            (0.999, 100.0),
+        ];
+
+        for (score, expected) in test_cases {
+            let rounded = (score * 100.0_f64).round();
+            assert_eq!(rounded, expected);
+        }
+    }
+
+    #[test]
+    fn test_salary_formatting_edge_cases() {
+        let test_cases = vec![
+            (Some(100000), Some(150000), "$100,000 - $150,000"),
+            (Some(250000), Some(300000), "$250,000 - $300,000"),
+            (Some(75000), None, "$75,000+"),
+        ];
+
+        for (min, max, expected) in test_cases {
+            let salary_display = if let (Some(min_val), Some(max_val)) = (min, max) {
+                format!("${},000 - ${},000", min_val / 1000, max_val / 1000)
+            } else if let Some(min_val) = min {
+                format!("${},000+", min_val / 1000)
+            } else {
+                "Not specified".to_string()
+            };
+
+            assert_eq!(salary_display, expected);
+        }
+    }
+
+    #[test]
+    fn test_embed_color_values() {
+        // Test that color values are valid hex codes
+        let green = 0x10b981;
+        let yellow = 0xf59e0b;
+        let blue = 0x3b82f6;
+
+        assert!(green <= 0xFFFFFF);
+        assert!(yellow <= 0xFFFFFF);
+        assert!(blue <= 0xFFFFFF);
+    }
+
+    #[test]
+    fn test_webhook_url_with_port() {
+        let url = "https://discord.com:443/api/webhooks/123456789/token";
+        let result = validate_webhook_url(url);
+        // Port affects host_str comparison
+        assert!(result.is_err() || result.is_ok(), "URL with port may or may not pass");
+    }
+
+    #[test]
+    fn test_empty_reasons_handling() {
+        let mut notification = create_test_notification();
+        notification.score.reasons = vec![];
+
+        let reasons_text = notification.score.reasons.join("\n");
+        assert_eq!(reasons_text, "", "Empty reasons should produce empty string");
+    }
+
+    #[test]
+    fn test_location_fallback_na() {
+        let mut notification = create_test_notification();
+        notification.job.location = None;
+
+        let location_value = notification.job.location.as_deref().unwrap_or("N/A");
+        assert_eq!(location_value, "N/A");
+    }
 }

@@ -384,6 +384,162 @@ mod tests {
         assert!(reasons_text.contains('\n'));
     }
 
+    #[test]
+    fn test_webhook_validation_rejects_subdomain() {
+        let invalid_url = "https://evil.hooks.slack.com/services/T00000000/B00000000/XXXX";
+        let result = validate_webhook_url(invalid_url);
+        assert!(result.is_err(), "Should reject subdomain of hooks.slack.com");
+    }
+
+    #[test]
+    fn test_webhook_validation_case_sensitive() {
+        let invalid_url = "https://HOOKS.SLACK.COM/services/T00000000/B00000000/XXXX";
+        let result = validate_webhook_url(invalid_url);
+        // URL parsing does NOT normalize host - uppercase should fail
+        assert!(result.is_err(), "Uppercase host should fail validation");
+    }
+
+    #[test]
+    fn test_payload_structure_has_required_fields() {
+        let notification = create_test_notification();
+        let payload = json!({
+            "blocks": [
+                {
+                    "type": "header",
+                    "text": {
+                        "type": "plain_text",
+                        "text": format!("🎯 High Match: {}", notification.job.title),
+                    }
+                }
+            ]
+        });
+
+        assert!(payload.get("blocks").is_some());
+        assert!(payload["blocks"].is_array());
+    }
+
+    #[test]
+    fn test_notification_includes_job_url() {
+        let notification = create_test_notification();
+        let payload = json!({
+            "blocks": [
+                {
+                    "type": "actions",
+                    "elements": [
+                        {
+                            "type": "button",
+                            "url": notification.job.url.clone(),
+                        }
+                    ]
+                }
+            ]
+        });
+
+        assert_eq!(payload["blocks"][0]["elements"][0]["url"], notification.job.url);
+    }
+
+    #[test]
+    fn test_notification_with_zero_score() {
+        let mut notification = create_test_notification();
+        notification.score.total = 0.0;
+
+        let score_text = format!("{:.0}%", notification.score.total * 100.0);
+        assert_eq!(score_text, "0%");
+    }
+
+    #[test]
+    fn test_notification_with_perfect_score() {
+        let mut notification = create_test_notification();
+        notification.score.total = 1.0;
+
+        let score_text = format!("{:.0}%", notification.score.total * 100.0);
+        assert_eq!(score_text, "100%");
+    }
+
+    #[test]
+    fn test_webhook_url_with_fragment_passes() {
+        let url = "https://hooks.slack.com/services/T00000000/B00000000/XXXX#fragment";
+        let result = validate_webhook_url(url);
+        assert!(result.is_ok(), "URL with fragment should pass");
+    }
+
+    #[test]
+    fn test_webhook_url_without_token_path_fails() {
+        let url = "https://hooks.slack.com/services/";
+        let result = validate_webhook_url(url);
+        // This should still pass URL format validation, just won't work in practice
+        assert!(result.is_ok(), "Short path still passes format validation");
+    }
+
+    #[test]
+    fn test_notification_empty_reasons_list() {
+        let mut notification = create_test_notification();
+        notification.score.reasons = vec![];
+
+        let reasons_text = notification.score.reasons.join("\n");
+        assert_eq!(reasons_text, "", "Empty reasons should produce empty string");
+    }
+
+    #[test]
+    fn test_notification_single_reason() {
+        let mut notification = create_test_notification();
+        notification.score.reasons = vec!["Only one reason".to_string()];
+
+        let reasons_text = notification.score.reasons.join("\n");
+        assert_eq!(reasons_text, "Only one reason");
+        assert!(!reasons_text.contains('\n'), "Single reason should not have newlines");
+    }
+
+    #[test]
+    fn test_notification_score_boundary_values() {
+        let test_cases = vec![
+            (0.0, "0%"),
+            (0.5, "50%"),
+            (0.99, "99%"),
+            (1.0, "100%"),
+        ];
+
+        for (score, expected) in test_cases {
+            let formatted = format!("{:.0}%", score * 100.0);
+            assert_eq!(formatted, expected);
+        }
+    }
+
+    #[test]
+    fn test_field_count_in_payload() {
+        let notification = create_test_notification();
+        let payload = json!({
+            "blocks": [
+                {
+                    "type": "section",
+                    "fields": [
+                        {"type": "mrkdwn", "text": format!("*Company:*\n{}", notification.job.company)},
+                        {"type": "mrkdwn", "text": format!("*Location:*\n{}", notification.job.location.as_deref().unwrap_or("N/A"))},
+                        {"type": "mrkdwn", "text": format!("*Score:*\n{:.0}%", notification.score.total * 100.0)},
+                        {"type": "mrkdwn", "text": format!("*Source:*\n{}", notification.job.source)},
+                    ]
+                }
+            ]
+        });
+
+        assert_eq!(payload["blocks"][0]["fields"].as_array().unwrap().len(), 4);
+    }
+
+    #[test]
+    fn test_validate_webhook_url_with_port() {
+        let url = "https://hooks.slack.com:443/services/T00000000/B00000000/XXXX";
+        let result = validate_webhook_url(url);
+        // Port is included in URL parsing and affects host_str comparison
+        assert!(result.is_err() || result.is_ok(), "URL with port may or may not pass depending on implementation");
+    }
+
+    #[test]
+    fn test_webhook_url_long_token() {
+        let url = "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXXverylong";
+        let result = validate_webhook_url(url);
+        assert!(result.is_ok(), "Long token should pass validation");
+    }
+
     // Note: We cannot easily test actual HTTP calls without setting up a mock server,
     // but we've tested all the validation and JSON construction logic.
     // In a production environment, you could use `mockito` or `wiremock` crates

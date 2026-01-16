@@ -334,7 +334,7 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_job_empty_url_gets_base_domain() {
+    fn test_parse_job_empty_url_becomes_base_url() {
         let scraper = RemoteOkScraper::new(vec![], 10);
 
         let job_data = serde_json::json!({
@@ -344,8 +344,8 @@ mod tests {
         });
 
         let result = scraper.parse_job(&job_data).unwrap();
-        // Empty URL becomes "https://remoteok.com" after formatting, which is not ideal
-        // but is how the current implementation works
+        // Empty string URL becomes "https://remoteok.com" after formatting
+        // This is current behavior - empty string is not None from as_str()
         assert!(result.is_some());
         let job = result.unwrap();
         assert_eq!(job.url, "https://remoteok.com");
@@ -617,5 +617,265 @@ mod tests {
 
         assert_eq!(scraper.tags.len(), 0);
         assert_eq!(scraper.limit, 100);
+    }
+
+    #[test]
+    fn test_job_matches_tags_with_none_description() {
+        let scraper = RemoteOkScraper::new(vec!["rust".to_string()], 10);
+
+        let job_with_no_description = Job {
+            id: 0,
+            hash: "test".to_string(),
+            title: "Java Developer".to_string(),
+            company: "Test".to_string(),
+            url: "https://example.com".to_string(),
+            location: None,
+            description: None, // No description
+            score: None,
+            score_reasons: None,
+            source: "remoteok".to_string(),
+            remote: Some(true),
+            salary_min: None,
+            salary_max: None,
+            currency: None,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            last_seen: Utc::now(),
+            times_seen: 1,
+            immediate_alert_sent: false,
+            hidden: false,
+            bookmarked: false,
+            notes: None,
+            included_in_digest: false,
+        };
+
+        let tags = vec!["rust".to_string()];
+        // Should not match because "rust" is not in title and description is None
+        assert!(!scraper.job_matches_tags(&job_with_no_description, &tags));
+    }
+
+    #[test]
+    fn test_job_matches_tags_empty_description() {
+        let scraper = RemoteOkScraper::new(vec!["backend".to_string()], 10);
+
+        let job_with_empty_description = Job {
+            id: 0,
+            hash: "test".to_string(),
+            title: "Frontend Developer".to_string(),
+            company: "Test".to_string(),
+            url: "https://example.com".to_string(),
+            location: None,
+            description: Some("".to_string()), // Empty description
+            score: None,
+            score_reasons: None,
+            source: "remoteok".to_string(),
+            remote: Some(true),
+            salary_min: None,
+            salary_max: None,
+            currency: None,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            last_seen: Utc::now(),
+            times_seen: 1,
+            immediate_alert_sent: false,
+            hidden: false,
+            bookmarked: false,
+            notes: None,
+            included_in_digest: false,
+        };
+
+        let tags = vec!["backend".to_string()];
+        // Should not match because "backend" is not in title or empty description
+        assert!(!scraper.job_matches_tags(&job_with_empty_description, &tags));
+    }
+
+    #[test]
+    fn test_job_matches_tags_multiple_tags_match_one() {
+        let scraper = RemoteOkScraper::new(vec!["rust".to_string(), "java".to_string()], 10);
+
+        let job = Job {
+            id: 0,
+            hash: "test".to_string(),
+            title: "Rust Systems Engineer".to_string(),
+            company: "Test".to_string(),
+            url: "https://example.com".to_string(),
+            location: None,
+            description: Some("Build low-level systems".to_string()),
+            score: None,
+            score_reasons: None,
+            source: "remoteok".to_string(),
+            remote: Some(true),
+            salary_min: None,
+            salary_max: None,
+            currency: None,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            last_seen: Utc::now(),
+            times_seen: 1,
+            immediate_alert_sent: false,
+            hidden: false,
+            bookmarked: false,
+            notes: None,
+            included_in_digest: false,
+        };
+
+        let tags = vec!["rust".to_string(), "java".to_string()];
+        // Should match because "rust" is in title (OR logic)
+        assert!(scraper.job_matches_tags(&job, &tags));
+    }
+
+    #[test]
+    fn test_parse_job_url_with_slash_prefix() {
+        let scraper = RemoteOkScraper::new(vec![], 10);
+
+        let job_data = serde_json::json!({
+            "position": "DevOps Engineer",
+            "company": "CloudTech",
+            "url": "/remote-job/devops-123"
+        });
+
+        let job = scraper.parse_job(&job_data).unwrap().unwrap();
+
+        // URL without http prefix should get remoteok.com prepended
+        assert_eq!(job.url, "https://remoteok.com/remote-job/devops-123");
+    }
+
+    #[test]
+    fn test_parse_job_url_with_https_prefix() {
+        let scraper = RemoteOkScraper::new(vec![], 10);
+
+        let job_data = serde_json::json!({
+            "position": "Security Engineer",
+            "company": "SecureCorp",
+            "url": "https://careers.example.com/job/sec-456"
+        });
+
+        let job = scraper.parse_job(&job_data).unwrap().unwrap();
+
+        // Absolute HTTPS URL should remain unchanged
+        assert_eq!(job.url, "https://careers.example.com/job/sec-456");
+    }
+
+    #[test]
+    fn test_parse_job_url_with_http_prefix() {
+        let scraper = RemoteOkScraper::new(vec![], 10);
+
+        let job_data = serde_json::json!({
+            "position": "Data Engineer",
+            "company": "DataCorp",
+            "url": "http://jobs.example.com/data-engineer"
+        });
+
+        let job = scraper.parse_job(&job_data).unwrap().unwrap();
+
+        // Absolute HTTP URL should remain unchanged
+        assert_eq!(job.url, "http://jobs.example.com/data-engineer");
+    }
+
+    #[test]
+    fn test_compute_hash_with_different_locations() {
+        let hash1 = RemoteOkScraper::compute_hash(
+            "Company",
+            "Engineer",
+            Some("Remote"),
+            "https://example.com/job/1",
+        );
+        let hash2 = RemoteOkScraper::compute_hash(
+            "Company",
+            "Engineer",
+            Some("Worldwide"),
+            "https://example.com/job/1",
+        );
+
+        // Different locations should produce different hashes
+        assert_ne!(hash1, hash2);
+    }
+
+    #[test]
+    fn test_compute_hash_location_some_vs_none() {
+        let hash1 = RemoteOkScraper::compute_hash(
+            "Company",
+            "Engineer",
+            Some("Remote"),
+            "https://example.com/job/1",
+        );
+        let hash2 = RemoteOkScraper::compute_hash(
+            "Company",
+            "Engineer",
+            None,
+            "https://example.com/job/1",
+        );
+
+        // Some(location) vs None should produce different hashes
+        assert_ne!(hash1, hash2);
+    }
+
+    #[test]
+    fn test_parse_job_with_numeric_salary_as_string() {
+        let scraper = RemoteOkScraper::new(vec![], 10);
+
+        // Some APIs might return salary as string instead of number
+        let job_data = serde_json::json!({
+            "position": "Product Manager",
+            "company": "ProductCo",
+            "url": "/job/pm-123",
+            "salary_min": "150000",
+            "salary_max": "200000"
+        });
+
+        let job = scraper.parse_job(&job_data).unwrap().unwrap();
+
+        // String salaries should be treated as None
+        assert_eq!(job.salary_min, None);
+        assert_eq!(job.salary_max, None);
+    }
+
+    #[test]
+    fn test_job_fields_default_values() {
+        let scraper = RemoteOkScraper::new(vec![], 10);
+
+        let job_data = serde_json::json!({
+            "position": "Full Stack Developer",
+            "company": "WebStartup",
+            "url": "/job/fullstack-789"
+        });
+
+        let job = scraper.parse_job(&job_data).unwrap().unwrap();
+
+        // Verify default/computed fields
+        assert_eq!(job.id, 0);
+        assert_eq!(job.source, "remoteok");
+        assert_eq!(job.remote, Some(true));
+        assert_eq!(job.currency, Some("USD".to_string()));
+        assert_eq!(job.times_seen, 1);
+        assert_eq!(job.immediate_alert_sent, false);
+        assert_eq!(job.hidden, false);
+        assert_eq!(job.bookmarked, false);
+        assert_eq!(job.notes, None);
+        assert_eq!(job.included_in_digest, false);
+        assert_eq!(job.score, None);
+        assert_eq!(job.score_reasons, None);
+        assert!(!job.hash.is_empty());
+    }
+
+    #[test]
+    fn test_parse_job_preserves_whitespace_in_fields() {
+        let scraper = RemoteOkScraper::new(vec![], 10);
+
+        let job_data = serde_json::json!({
+            "position": "  Senior Software Engineer  ",
+            "company": "  TechCorp Inc.  ",
+            "url": "/job/123",
+            "location": "  Worldwide  ",
+            "description": "  Great opportunity  "
+        });
+
+        let job = scraper.parse_job(&job_data).unwrap().unwrap();
+
+        // Current implementation preserves whitespace
+        assert_eq!(job.title, "  Senior Software Engineer  ");
+        assert_eq!(job.company, "  TechCorp Inc.  ");
+        assert_eq!(job.location, Some("  Worldwide  ".to_string()));
+        assert_eq!(job.description, Some("  Great opportunity  ".to_string()));
     }
 }

@@ -436,4 +436,166 @@ mod tests {
             assert!(text.contains(reason), "Text should contain reason: {}", reason);
         }
     }
+
+    #[test]
+    fn test_text_email_handles_missing_salary() {
+        let mut notification = create_test_notification();
+        notification.job.salary_min = None;
+        notification.job.salary_max = None;
+
+        let text = format_text_email(&notification.job, &notification.score);
+        assert!(text.contains("Not specified"));
+    }
+
+    #[test]
+    fn test_text_email_handles_min_salary_only() {
+        let mut notification = create_test_notification();
+        notification.job.salary_max = None;
+
+        let text = format_text_email(&notification.job, &notification.score);
+        assert!(text.contains("$180,000+"));
+    }
+
+    #[test]
+    fn test_text_email_handles_missing_location() {
+        let mut notification = create_test_notification();
+        notification.job.location = None;
+
+        let text = format_text_email(&notification.job, &notification.score);
+        assert!(text.contains("N/A"));
+    }
+
+    #[test]
+    fn test_html_email_no_remote_badge() {
+        let mut notification = create_test_notification();
+        notification.job.remote = Some(false);
+
+        let html = format_html_email(&notification.job, &notification.score);
+        assert!(!html.contains("REMOTE"), "Non-remote job should not have REMOTE badge");
+    }
+
+    #[test]
+    fn test_html_email_handles_none_remote() {
+        let mut notification = create_test_notification();
+        notification.job.remote = None;
+
+        let html = format_html_email(&notification.job, &notification.score);
+        assert!(!html.contains("REMOTE"), "Job with None remote should not have REMOTE badge");
+    }
+
+    #[test]
+    fn test_text_email_remote_no() {
+        let mut notification = create_test_notification();
+        notification.job.remote = Some(false);
+
+        let text = format_text_email(&notification.job, &notification.score);
+        assert!(text.contains("REMOTE: No"));
+    }
+
+    #[test]
+    fn test_html_email_score_formatting() {
+        let mut notification = create_test_notification();
+
+        // Test various scores
+        for (score, expected) in [(0.95, "95"), (0.90, "90"), (1.00, "100"), (0.876, "88")] {
+            notification.score.total = score;
+            let html = format_html_email(&notification.job, &notification.score);
+            assert!(html.contains(&format!("{}%", expected)), "Score {} should format to {}%", score, expected);
+        }
+    }
+
+    #[test]
+    fn test_text_email_score_formatting() {
+        let mut notification = create_test_notification();
+
+        for (score, expected) in [(0.95, "95%"), (0.90, "90%"), (1.00, "100%")] {
+            notification.score.total = score;
+            let text = format_text_email(&notification.job, &notification.score);
+            assert!(text.contains(expected), "Score {} should format to {}", score, expected);
+        }
+    }
+
+    #[test]
+    fn test_html_email_structure() {
+        let notification = create_test_notification();
+        let html = format_html_email(&notification.job, &notification.score);
+
+        // Verify HTML structure
+        assert!(html.contains("<!DOCTYPE html>"));
+        assert!(html.contains("<html>"));
+        assert!(html.contains("</html>"));
+        assert!(html.contains("<body"));
+        assert!(html.contains("</body>"));
+    }
+
+    #[test]
+    fn test_text_email_structure() {
+        let notification = create_test_notification();
+        let text = format_text_email(&notification.job, &notification.score);
+
+        // Verify plain text structure
+        assert!(text.contains("HIGH MATCH JOB ALERT"));
+        assert!(text.contains("COMPANY:"));
+        assert!(text.contains("LOCATION:"));
+        assert!(text.contains("SALARY:"));
+        assert!(text.contains("WHY THIS MATCHES:"));
+        assert!(text.contains("VIEW JOB:"));
+    }
+
+    #[test]
+    fn test_html_email_empty_reasons() {
+        let mut notification = create_test_notification();
+        notification.score.reasons = vec![];
+
+        let html = format_html_email(&notification.job, &notification.score);
+        assert!(html.contains("Why this matches"), "Should have 'Why this matches' header even with empty reasons");
+    }
+
+    #[test]
+    fn test_text_email_empty_reasons() {
+        let mut notification = create_test_notification();
+        notification.score.reasons = vec![];
+
+        let text = format_text_email(&notification.job, &notification.score);
+        assert!(text.contains("WHY THIS MATCHES:"), "Should have 'WHY THIS MATCHES' header even with empty reasons");
+    }
+
+    #[test]
+    fn test_html_email_url_appears_in_link() {
+        let notification = create_test_notification();
+        let html = format_html_email(&notification.job, &notification.score);
+
+        // URL should appear in the href attribute
+        assert!(html.contains(&format!("href=\"{}\"", notification.job.url)));
+    }
+
+    #[test]
+    fn test_text_email_url_appears() {
+        let notification = create_test_notification();
+        let text = format_text_email(&notification.job, &notification.score);
+
+        assert!(text.contains("VIEW JOB: https://example.com/jobs/123"));
+    }
+
+    #[test]
+    fn test_salary_formatting_edge_cases() {
+        // Test with various salary values (note: format! uses comma separator for thousands)
+        let test_cases = vec![
+            (Some(100000), Some(150000), "$100,000 - $150,000"),
+            (Some(250000), Some(300000), "$250,000 - $300,000"),
+            (Some(75000), None, "$75,000+"),
+        ];
+
+        for (min, max, expected) in test_cases {
+            let salary_display = if let (Some(min_val), Some(max_val)) = (min, max) {
+                format!("${},000 - ${},000", min_val / 1000, max_val / 1000)
+            } else if let Some(min_val) = min {
+                format!("${},000+", min_val / 1000)
+            } else {
+                "Not specified".to_string()
+            };
+
+            assert_eq!(salary_display, expected);
+        }
+    }
 }
