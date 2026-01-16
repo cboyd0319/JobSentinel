@@ -72,6 +72,7 @@ impl BuiltInScraper {
     }
 
     /// Parse HTML to extract job listings
+    #[allow(clippy::expect_used)] // Static CSS selectors are known valid at compile time
     fn parse_html(&self, html: &str) -> Result<Vec<Job>> {
         let document = Html::parse_document(html);
         let mut jobs = Vec::new();

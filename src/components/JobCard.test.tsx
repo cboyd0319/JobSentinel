@@ -130,7 +130,7 @@ describe("JobCard", () => {
 
     it("does not render salary section when both are null", () => {
       const jobNoSalary = { ...mockJob, salary_min: null, salary_max: null };
-      const { container } = render(<JobCard job={jobNoSalary} />);
+      render(<JobCard job={jobNoSalary} />);
       expect(screen.queryByText(/\$/)).not.toBeInTheDocument();
     });
   });
@@ -329,7 +329,7 @@ describe("JobCard", () => {
     it("falls back to window.open when shell.open fails", async () => {
       const user = userEvent.setup();
       const mockWindowOpen = vi.fn();
-      global.window.open = mockWindowOpen;
+      (window as typeof globalThis & { open: typeof window.open }).open = mockWindowOpen;
       vi.mocked(shell.open).mockRejectedValue(new Error("Failed"));
 
       render(<JobCard job={mockJob} />);
