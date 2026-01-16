@@ -98,6 +98,19 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
         hidden_count: jobs.filter((j) => j.hidden).length,
       } as T;
 
+    // Dashboard commands
+    case "get_recent_jobs":
+      return jobs.slice(0, (args?.limit as number) || 10) as T;
+
+    case "get_scraping_status":
+      return {
+        is_running: false,
+        current_source: null,
+        progress: 0,
+        last_run: new Date().toISOString(),
+        jobs_found: jobs.length,
+      } as T;
+
     // Search commands
     case "search_jobs":
       return { jobs_found: Math.floor(Math.random() * 20) + 5, duration_ms: 1500 } as T;
