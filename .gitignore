@@ -53,3 +53,6 @@ lerna-debug.log*
 src-tauri/gen/
 Vagrantfile
 .vagrant/
+
+*storybook.log
+storybook-static
