@@ -28,6 +28,62 @@
     }
   }
 
+  /* High contrast mode for accessibility */
+  @media (prefers-contrast: more) {
+    /* Increase border visibility */
+    .border,
+    [class*="border-"] {
+      border-width: 2px !important;
+    }
+
+    /* Enhance text contrast */
+    .text-surface-500,
+    .text-surface-400 {
+      @apply text-surface-700 dark:text-surface-200 !important;
+    }
+
+    /* Stronger focus rings */
+    :focus-visible {
+      outline: 3px solid currentColor !important;
+      outline-offset: 2px !important;
+    }
+
+    /* Increase button contrast */
+    button,
+    [role="button"] {
+      border: 2px solid currentColor !important;
+    }
+
+    /* Make disabled states more obvious */
+    [disabled],
+    .disabled {
+      opacity: 0.6 !important;
+      text-decoration: line-through !important;
+    }
+  }
+
+  /* Manual high contrast toggle via data attribute */
+  [data-high-contrast="true"] {
+    /* Force high contrast colors */
+    --tw-text-opacity: 1 !important;
+
+    .text-surface-500,
+    .text-surface-400,
+    .text-surface-300 {
+      @apply text-surface-800 dark:text-surface-100 !important;
+    }
+
+    .border,
+    [class*="border-surface"] {
+      @apply border-surface-600 dark:border-surface-300 !important;
+      border-width: 2px !important;
+    }
+
+    .bg-surface-50 {
+      @apply bg-surface-100 dark:bg-surface-800 !important;
+    }
+  }
+
   /* Custom selection color */
   ::selection {
     @apply bg-sentinel-200 text-sentinel-900;

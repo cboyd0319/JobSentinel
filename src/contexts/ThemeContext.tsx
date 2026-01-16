@@ -4,6 +4,7 @@ import { ThemeContext } from "./themeContextDef";
 type Theme = "light" | "dark" | "system";
 
 const STORAGE_KEY = "jobsentinel-theme";
+const HIGH_CONTRAST_KEY = "jobsentinel-high-contrast";
 
 function getSystemTheme(): "light" | "dark" {
   if (typeof window !== "undefined") {
@@ -24,6 +25,13 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">(() => {
     if (theme === "system") return getSystemTheme();
     return theme;
+  });
+
+  const [highContrast, setHighContrastState] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem(HIGH_CONTRAST_KEY) === "true";
+    }
+    return false;
   });
 
   useEffect(() => {
@@ -53,6 +61,16 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     return () => mediaQuery.removeEventListener("change", handleChange);
   }, [theme]);
 
+  // Apply high contrast mode
+  useEffect(() => {
+    const root = document.documentElement;
+    if (highContrast) {
+      root.setAttribute("data-high-contrast", "true");
+    } else {
+      root.removeAttribute("data-high-contrast");
+    }
+  }, [highContrast]);
+
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
     localStorage.setItem(STORAGE_KEY, newTheme);
@@ -62,8 +80,13 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setTheme(resolvedTheme === "light" ? "dark" : "light");
   };
 
+  const setHighContrast = (enabled: boolean) => {
+    setHighContrastState(enabled);
+    localStorage.setItem(HIGH_CONTRAST_KEY, String(enabled));
+  };
+
   return (
-    <ThemeContext.Provider value={{ theme, resolvedTheme, setTheme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, resolvedTheme, setTheme, toggleTheme, highContrast, setHighContrast }}>
       {children}
     </ThemeContext.Provider>
   );

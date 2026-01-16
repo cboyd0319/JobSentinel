@@ -7,6 +7,8 @@ export interface ThemeContextType {
   resolvedTheme: "light" | "dark";
   setTheme: (theme: Theme) => void;
   toggleTheme: () => void;
+  highContrast: boolean;
+  setHighContrast: (enabled: boolean) => void;
 }
 
 export const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
