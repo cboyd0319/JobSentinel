@@ -62,6 +62,10 @@ fn main() {
             commands::search_jobs_query,
             commands::hide_job,
             commands::unhide_job,
+            commands::toggle_bookmark,
+            commands::get_bookmarked_jobs,
+            commands::set_job_notes,
+            commands::get_job_notes,
             // ATS commands
             commands::create_application,
             commands::get_applications_kanban,

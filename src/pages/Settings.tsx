@@ -3,6 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { Button, Input, Badge, Card } from "../components";
 import { useToast } from "../contexts";
 import { logError, getErrorMessage } from "../utils/errorUtils";
+import { exportConfigToJSON, importConfigFromJSON } from "../utils/export";
 
 interface SettingsProps {
   onClose: () => void;
@@ -102,6 +103,51 @@ export default function Settings({ onClose }: SettingsProps) {
       toast.error("Failed to save settings", getErrorMessage(error));
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleExportConfig = () => {
+    if (!config) return;
+    try {
+      exportConfigToJSON(config);
+      toast.success("Config exported", "Sensitive data (passwords, tokens) excluded for security");
+    } catch (error) {
+      logError("Failed to export config:", error);
+      toast.error("Failed to export config", getErrorMessage(error));
+    }
+  };
+
+  const handleImportConfig = async () => {
+    try {
+      const imported = await importConfigFromJSON<Config>();
+      if (!imported) {
+        return; // User cancelled
+      }
+
+      // Merge imported config with current config, preserving sensitive fields
+      setConfig((current) => {
+        if (!current) return imported;
+        return {
+          ...imported,
+          alerts: {
+            ...imported.alerts,
+            email: {
+              ...imported.alerts.email,
+              // Preserve sensitive data if import has empty values
+              smtp_password: imported.alerts.email.smtp_password || current.alerts.email.smtp_password,
+            },
+          },
+          linkedin: {
+            ...imported.linkedin,
+            // Preserve sensitive data if import has empty values
+            session_cookie: imported.linkedin.session_cookie || current.linkedin.session_cookie,
+          },
+        };
+      });
+      toast.success("Config imported", "Review settings and click Save to apply");
+    } catch (error) {
+      logError("Failed to import config:", error);
+      toast.error("Failed to import config", "The file may be corrupted or invalid");
     }
   };
 
@@ -816,6 +862,24 @@ export default function Settings({ onClose }: SettingsProps) {
             </div>
           </section>
 
+          {/* Import/Export */}
+          <div className="flex gap-3 mb-4">
+            <button
+              onClick={handleImportConfig}
+              className="flex items-center gap-2 px-3 py-2 text-sm text-surface-600 dark:text-surface-300 hover:text-surface-800 dark:hover:text-surface-100 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 rounded-lg transition-colors"
+            >
+              <ImportIcon className="w-4 h-4" />
+              Import Config
+            </button>
+            <button
+              onClick={handleExportConfig}
+              className="flex items-center gap-2 px-3 py-2 text-sm text-surface-600 dark:text-surface-300 hover:text-surface-800 dark:hover:text-surface-100 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 rounded-lg transition-colors"
+            >
+              <ExportIcon className="w-4 h-4" />
+              Export Config
+            </button>
+          </div>
+
           {/* Actions */}
           <div className="flex gap-3">
             <Button variant="secondary" onClick={onClose} className="flex-1">
@@ -868,6 +932,22 @@ function EmailIcon({ className = "" }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+    </svg>
+  );
+}
+
+function ImportIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+    </svg>
+  );
+}
+
+function ExportIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
     </svg>
   );
 }

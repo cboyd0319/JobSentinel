@@ -1,10 +1,17 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { Button, Card, CardHeader, LoadingSpinner, JobCard, ScoreDisplay, ThemeToggle, Tooltip, ModalErrorBoundary } from "../components";
+import { open } from "@tauri-apps/plugin-shell";
+import { Button, Card, CardHeader, LoadingSpinner, JobCard, ScoreDisplay, ThemeToggle, Tooltip, ModalErrorBoundary, Dropdown, Modal, ModalFooter } from "../components";
 import { useToast } from "../contexts";
+import { useKeyboardNavigation } from "../hooks/useKeyboardNavigation";
 import { getErrorMessage, logError } from "../utils/errorUtils";
 import { notifyScrapingComplete } from "../utils/notifications";
+import { exportJobsToCSV } from "../utils/export";
+import { cachedInvoke, invalidateCacheByCommand } from "../utils/api";
 import Settings from "./Settings";
+
+type SortOption = "score-desc" | "score-asc" | "date-desc" | "date-asc" | "company-asc";
+type ScoreFilter = "all" | "high" | "medium" | "low";
 
 interface Job {
   id: number;
@@ -19,6 +26,8 @@ interface Job {
   salary_min?: number | null;
   salary_max?: number | null;
   remote?: boolean | null;
+  bookmarked?: boolean;
+  notes?: string | null;
 }
 
 interface Statistics {
@@ -37,9 +46,11 @@ type Page = "dashboard" | "applications" | "resume" | "salary" | "market";
 
 interface DashboardProps {
   onNavigate?: (page: Page) => void;
+  showSettings?: boolean;
+  onShowSettingsChange?: (show: boolean) => void;
 }
 
-export default function Dashboard({ onNavigate }: DashboardProps) {
+export default function Dashboard({ onNavigate, showSettings: showSettingsProp, onShowSettingsChange }: DashboardProps) {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [statistics, setStatistics] = useState<Statistics>({
     total_jobs: 0,
@@ -54,18 +65,136 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showSettings, setShowSettings] = useState(false);
+  const [showSettingsLocal, setShowSettingsLocal] = useState(false);
+  const [sortBy, setSortBy] = useState<SortOption>("score-desc");
+  const [scoreFilter, setScoreFilter] = useState<ScoreFilter>("all");
+  const [sourceFilter, setSourceFilter] = useState<string>("all");
+  const [remoteFilter, setRemoteFilter] = useState<string>("all");
+  const [bookmarkFilter, setBookmarkFilter] = useState<string>("all");
+  const [notesFilter, setNotesFilter] = useState<string>("all");
+  // Notes modal state
+  const [notesModalOpen, setNotesModalOpen] = useState(false);
+  const [editingJobId, setEditingJobId] = useState<number | null>(null);
+  const [notesText, setNotesText] = useState("");
   const toast = useToast();
+
+  // Use prop if provided, otherwise use local state
+  const showSettings = showSettingsProp ?? showSettingsLocal;
+  const setShowSettings = onShowSettingsChange ?? setShowSettingsLocal;
+
+  // Get unique sources from jobs
+  const availableSources = useMemo(() => {
+    const sources = new Set(jobs.map((job) => job.source));
+    return ["all", ...Array.from(sources)];
+  }, [jobs]);
+
+  // Filter and sort jobs
+  const filteredAndSortedJobs = useMemo(() => {
+    let result = [...jobs];
+
+    // Apply score filter
+    if (scoreFilter !== "all") {
+      result = result.filter((job) => {
+        if (scoreFilter === "high") return job.score >= 0.7;
+        if (scoreFilter === "medium") return job.score >= 0.4 && job.score < 0.7;
+        if (scoreFilter === "low") return job.score < 0.4;
+        return true;
+      });
+    }
+
+    // Apply source filter
+    if (sourceFilter !== "all") {
+      result = result.filter((job) => job.source === sourceFilter);
+    }
+
+    // Apply remote filter
+    if (remoteFilter !== "all") {
+      result = result.filter((job) => {
+        if (remoteFilter === "remote") return job.remote === true;
+        if (remoteFilter === "onsite") return job.remote === false;
+        return true;
+      });
+    }
+
+    // Apply bookmark filter
+    if (bookmarkFilter !== "all") {
+      result = result.filter((job) => {
+        if (bookmarkFilter === "bookmarked") return job.bookmarked === true;
+        if (bookmarkFilter === "not-bookmarked") return job.bookmarked !== true;
+        return true;
+      });
+    }
+
+    // Apply notes filter
+    if (notesFilter !== "all") {
+      result = result.filter((job) => {
+        if (notesFilter === "has-notes") return !!job.notes;
+        if (notesFilter === "no-notes") return !job.notes;
+        return true;
+      });
+    }
+
+    // Apply sorting
+    result.sort((a, b) => {
+      switch (sortBy) {
+        case "score-desc":
+          return b.score - a.score;
+        case "score-asc":
+          return a.score - b.score;
+        case "date-desc":
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        case "date-asc":
+          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        case "company-asc":
+          return a.company.localeCompare(b.company);
+        default:
+          return 0;
+      }
+    });
+
+    return result;
+  }, [jobs, scoreFilter, sourceFilter, remoteFilter, bookmarkFilter, notesFilter, sortBy]);
+
+  // Ref for job list container (for scrolling selected job into view)
+  const jobListRef = useRef<HTMLDivElement>(null);
+
+  // Open job URL in external browser
+  const handleOpenJob = useCallback(async (job: Job) => {
+    try {
+      await open(job.url);
+    } catch {
+      window.open(job.url, "_blank", "noopener,noreferrer");
+    }
+  }, []);
+
+  // Keyboard navigation for job list
+  const { selectedIndex, isKeyboardActive } = useKeyboardNavigation({
+    items: filteredAndSortedJobs,
+    enabled: !showSettings && !loading,
+    onOpen: handleOpenJob,
+    onHide: (job) => handleHideJob(job.id),
+  });
+
+  // Scroll selected job into view when navigating with keyboard
+  useEffect(() => {
+    if (isKeyboardActive && selectedIndex >= 0 && jobListRef.current) {
+      const selectedElement = jobListRef.current.querySelector(`[data-selected="true"]`);
+      if (selectedElement) {
+        selectedElement.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+    }
+  }, [selectedIndex, isKeyboardActive]);
 
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
+      // Use cached invoke with 30s TTL for stats, 10s for jobs (more dynamic)
       const [jobsData, statsData, statusData] = await Promise.all([
-        invoke<Job[]>("get_recent_jobs", { limit: 50 }),
-        invoke<Statistics>("get_statistics"),
-        invoke<ScrapingStatus>("get_scraping_status"),
+        cachedInvoke<Job[]>("get_recent_jobs", { limit: 50 }, 10_000),
+        cachedInvoke<Statistics>("get_statistics", undefined, 30_000),
+        cachedInvoke<ScrapingStatus>("get_scraping_status", undefined, 10_000),
       ]);
 
       setJobs(jobsData);
@@ -115,7 +244,13 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
       setError(null);
       toast.info("Scanning job boards...", "This may take a moment");
       await invoke("search_jobs");
-      // Fetch fresh data and show updated count
+
+      // Invalidate cache after mutation - we want fresh data
+      invalidateCacheByCommand("get_recent_jobs");
+      invalidateCacheByCommand("get_statistics");
+      invalidateCacheByCommand("get_scraping_status");
+
+      // Fetch fresh data (no cache, we just invalidated)
       const [jobsData, statsData, statusData] = await Promise.all([
         invoke<Job[]>("get_recent_jobs", { limit: 50 }),
         invoke<Statistics>("get_statistics"),
@@ -145,12 +280,63 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
   const handleHideJob = async (id: number) => {
     try {
       await invoke("hide_job", { id });
+      // Invalidate cache since job list changed
+      invalidateCacheByCommand("get_recent_jobs");
+      invalidateCacheByCommand("get_statistics");
       setJobs(jobs.filter((job) => job.id !== id));
       toast.success("Job hidden", "You won't see this job again");
     } catch (err) {
       logError("Failed to hide job:", err);
       toast.error("Failed to hide job", getErrorMessage(err));
     }
+  };
+
+  const handleToggleBookmark = async (id: number) => {
+    try {
+      const newState = await invoke<boolean>("toggle_bookmark", { id });
+      // Update local state optimistically
+      setJobs(jobs.map((job) =>
+        job.id === id ? { ...job, bookmarked: newState } : job
+      ));
+      toast.success(
+        newState ? "Bookmarked" : "Removed bookmark",
+        newState ? "Job saved to favorites" : "Job removed from favorites"
+      );
+    } catch (err) {
+      logError("Failed to toggle bookmark:", err);
+      toast.error("Failed to update bookmark", getErrorMessage(err));
+    }
+  };
+
+  const handleEditNotes = (id: number, currentNotes?: string | null) => {
+    setEditingJobId(id);
+    setNotesText(currentNotes || "");
+    setNotesModalOpen(true);
+  };
+
+  const handleSaveNotes = async () => {
+    if (editingJobId === null) return;
+    try {
+      const notesToSave = notesText.trim() || null;
+      await invoke("set_job_notes", { id: editingJobId, notes: notesToSave });
+      // Update local state
+      setJobs(jobs.map((job) =>
+        job.id === editingJobId ? { ...job, notes: notesToSave } : job
+      ));
+      toast.success("Notes saved", notesToSave ? "Your notes have been saved" : "Notes removed");
+      setNotesModalOpen(false);
+      setEditingJobId(null);
+      setNotesText("");
+    } catch (err) {
+      logError("Failed to save notes:", err);
+      toast.error("Failed to save notes", getErrorMessage(err));
+    }
+  };
+
+  const handleCloseNotesModal = () => {
+    setNotesModalOpen(false);
+    setEditingJobId(null);
+    setNotesText("");
   };
 
   const formatDate = (dateStr: string | null) => {
@@ -203,13 +389,16 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
                 </div>
               </Tooltip>
 
-              <ThemeToggle />
+              <div data-tour="theme-toggle">
+                <ThemeToggle />
+              </div>
 
               <Tooltip content="Settings" position="bottom">
                 <button
                   onClick={() => setShowSettings(true)}
                   className="p-2 text-surface-500 hover:text-surface-700 dark:text-surface-400 dark:hover:text-surface-200 transition-colors"
                   aria-label="Open settings"
+                  data-tour="settings-button"
                 >
                   <SettingsIcon />
                 </button>
@@ -221,6 +410,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
                 disabled={searchCooldown && !searching}
                 icon={<SearchIcon />}
                 aria-label={searching ? "Scanning job boards" : "Search for new jobs"}
+                data-tour="search-button"
               >
                 {searchCooldown && !searching ? "Wait..." : "Search Now"}
               </Button>
@@ -317,7 +507,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
 
         {/* Quick Navigation */}
         {onNavigate && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8" data-tour="quick-nav">
             <button
               onClick={() => onNavigate("applications")}
               className="flex items-center gap-3 p-4 bg-white dark:bg-surface-800 rounded-lg border border-surface-200 dark:border-surface-700 hover:border-sentinel-300 dark:hover:border-sentinel-600 transition-colors group"
@@ -405,14 +595,137 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
 
         {/* Jobs list */}
         <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-display text-display-lg text-surface-900 dark:text-white">
-              Recent Jobs
-            </h2>
+          <div className="flex flex-col gap-4 mb-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <h2 className="font-display text-display-lg text-surface-900 dark:text-white">
+                  Recent Jobs
+                </h2>
+                {/* Keyboard shortcut hint */}
+                {jobs.length > 0 && (
+                  <Tooltip content="Navigate: j/k, Open: o/Enter, Hide: h" position="right">
+                    <span className="text-xs text-surface-400 dark:text-surface-500 px-2 py-1 bg-surface-100 dark:bg-surface-700 rounded">
+                      <KeyboardIcon className="w-3 h-3 inline mr-1" />
+                      j/k/o/h
+                    </span>
+                  </Tooltip>
+                )}
+              </div>
+              {jobs.length > 0 && (
+                <span className="text-sm text-surface-500 dark:text-surface-400">
+                  Showing {filteredAndSortedJobs.length} of {jobs.length} jobs
+                </span>
+              )}
+            </div>
+
+            {/* Filter and Sort Controls */}
             {jobs.length > 0 && (
-              <span className="text-sm text-surface-500 dark:text-surface-400">
-                Showing {jobs.length} jobs
-              </span>
+              <div className="flex flex-wrap items-center gap-3" data-tour="job-filters">
+                {/* Sort */}
+                <Dropdown
+                  label="Sort"
+                  value={sortBy}
+                  onChange={(value) => setSortBy(value as SortOption)}
+                  options={[
+                    { value: "score-desc", label: "Score (High → Low)" },
+                    { value: "score-asc", label: "Score (Low → High)" },
+                    { value: "date-desc", label: "Date (Newest)" },
+                    { value: "date-asc", label: "Date (Oldest)" },
+                    { value: "company-asc", label: "Company (A-Z)" },
+                  ]}
+                />
+
+                {/* Score Filter */}
+                <Dropdown
+                  label="Score"
+                  value={scoreFilter}
+                  onChange={(value) => setScoreFilter(value as ScoreFilter)}
+                  options={[
+                    { value: "all", label: "All Scores" },
+                    { value: "high", label: "High (70%+)" },
+                    { value: "medium", label: "Medium (40-69%)" },
+                    { value: "low", label: "Low (<40%)" },
+                  ]}
+                />
+
+                {/* Source Filter */}
+                <Dropdown
+                  label="Source"
+                  value={sourceFilter}
+                  onChange={setSourceFilter}
+                  options={availableSources.map((source) => ({
+                    value: source,
+                    label: source === "all" ? "All Sources" : source,
+                  }))}
+                />
+
+                {/* Remote Filter */}
+                <Dropdown
+                  label="Location"
+                  value={remoteFilter}
+                  onChange={setRemoteFilter}
+                  options={[
+                    { value: "all", label: "All Locations" },
+                    { value: "remote", label: "Remote Only" },
+                    { value: "onsite", label: "On-site Only" },
+                  ]}
+                />
+
+                {/* Bookmark Filter */}
+                <Dropdown
+                  label="Saved"
+                  value={bookmarkFilter}
+                  onChange={setBookmarkFilter}
+                  options={[
+                    { value: "all", label: "All Jobs" },
+                    { value: "bookmarked", label: "Bookmarked" },
+                    { value: "not-bookmarked", label: "Not Bookmarked" },
+                  ]}
+                />
+
+                {/* Notes Filter */}
+                <Dropdown
+                  label="Notes"
+                  value={notesFilter}
+                  onChange={setNotesFilter}
+                  options={[
+                    { value: "all", label: "All Jobs" },
+                    { value: "has-notes", label: "With Notes" },
+                    { value: "no-notes", label: "No Notes" },
+                  ]}
+                />
+
+                {/* Clear filters */}
+                {(scoreFilter !== "all" || sourceFilter !== "all" || remoteFilter !== "all" || bookmarkFilter !== "all" || notesFilter !== "all") && (
+                  <button
+                    onClick={() => {
+                      setScoreFilter("all");
+                      setSourceFilter("all");
+                      setRemoteFilter("all");
+                      setBookmarkFilter("all");
+                      setNotesFilter("all");
+                    }}
+                    className="text-sm text-sentinel-600 dark:text-sentinel-400 hover:underline"
+                  >
+                    Clear filters
+                  </button>
+                )}
+
+                {/* Spacer */}
+                <div className="flex-1" />
+
+                {/* Export button */}
+                <Tooltip content="Export jobs to CSV" position="bottom">
+                  <button
+                    onClick={() => exportJobsToCSV(filteredAndSortedJobs)}
+                    className="flex items-center gap-2 px-3 py-1.5 text-sm text-surface-600 dark:text-surface-300 hover:text-surface-800 dark:hover:text-surface-100 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 rounded-lg transition-colors"
+                    aria-label="Export jobs to CSV"
+                  >
+                    <ExportIcon className="w-4 h-4" />
+                    <span className="hidden sm:inline">Export</span>
+                  </button>
+                </Tooltip>
+              </div>
             )}
           </div>
 
@@ -459,15 +772,72 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
                 </div>
               </div>
             </Card>
+          ) : filteredAndSortedJobs.length === 0 ? (
+            <Card className="text-center py-8 dark:bg-surface-800">
+              <div className="w-12 h-12 bg-surface-100 dark:bg-surface-700 rounded-full flex items-center justify-center mx-auto mb-3">
+                <FilterIcon className="w-6 h-6 text-surface-400" />
+              </div>
+              <h3 className="font-medium text-surface-700 dark:text-surface-300 mb-2">
+                No jobs match your filters
+              </h3>
+              <p className="text-sm text-surface-500 dark:text-surface-400 mb-4">
+                Try adjusting your filter criteria to see more results.
+              </p>
+              <button
+                onClick={() => {
+                  setScoreFilter("all");
+                  setSourceFilter("all");
+                  setRemoteFilter("all");
+                }}
+                className="text-sm text-sentinel-600 dark:text-sentinel-400 hover:underline"
+              >
+                Clear all filters
+              </button>
+            </Card>
           ) : (
-            <div className="space-y-3 stagger-children">
-              {jobs.map((job) => (
-                <JobCard key={job.id} job={job} onHideJob={handleHideJob} />
+            <div ref={jobListRef} className="space-y-3 stagger-children">
+              {filteredAndSortedJobs.map((job, index) => (
+                <JobCard
+                  key={job.id}
+                  job={job}
+                  onHideJob={handleHideJob}
+                  onToggleBookmark={handleToggleBookmark}
+                  onEditNotes={handleEditNotes}
+                  isSelected={isKeyboardActive && index === selectedIndex}
+                />
               ))}
             </div>
           )}
         </div>
       </main>
+
+      {/* Notes Modal */}
+      <Modal
+        isOpen={notesModalOpen}
+        onClose={handleCloseNotesModal}
+        title="Edit Notes"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-surface-600 dark:text-surface-400">
+            Add personal notes about this job. Notes are only visible to you.
+          </p>
+          <textarea
+            value={notesText}
+            onChange={(e) => setNotesText(e.target.value)}
+            placeholder="Interview prep, company research, questions to ask..."
+            className="w-full h-32 px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 placeholder-surface-400 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500 dark:focus:border-sentinel-400 dark:focus:ring-sentinel-400 resize-none"
+            autoFocus
+          />
+          <ModalFooter>
+            <Button variant="secondary" onClick={handleCloseNotesModal}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveNotes}>
+              {notesText.trim() ? "Save Notes" : "Remove Notes"}
+            </Button>
+          </ModalFooter>
+        </div>
+      </Modal>
     </div>
   );
 }
@@ -522,6 +892,22 @@ function StarIcon({ className = "" }: { className?: string }) {
   );
 }
 
+function FilterIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+    </svg>
+  );
+}
+
+function ExportIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+    </svg>
+  );
+}
+
 function SettingsIcon() {
   return (
     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
@@ -559,6 +945,14 @@ function ChartIcon({ className = "" }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+    </svg>
+  );
+}
+
+function KeyboardIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
     </svg>
   );
 }

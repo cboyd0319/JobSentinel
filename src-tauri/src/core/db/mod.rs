@@ -84,6 +84,14 @@ pub struct Job {
     /// Whether user has hidden/dismissed this job
     #[serde(default)]
     pub hidden: bool,
+
+    /// Whether user has bookmarked/favorited this job
+    #[serde(default)]
+    pub bookmarked: bool,
+
+    /// User's personal notes on this job
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub notes: Option<String>,
 }
 
 /// Database handle
@@ -647,6 +655,88 @@ impl Database {
         Ok(())
     }
 
+    /// Toggle bookmark status for a job
+    pub async fn toggle_bookmark(&self, id: i64) -> Result<bool, sqlx::Error> {
+        // Get current state
+        let current: Option<i64> =
+            sqlx::query_scalar("SELECT bookmarked FROM jobs WHERE id = ?")
+                .bind(id)
+                .fetch_optional(&self.pool)
+                .await?;
+
+        let new_state = match current {
+            Some(1) => 0,
+            Some(0) => 1,
+            None => return Err(sqlx::Error::RowNotFound),
+            _ => 1,
+        };
+
+        sqlx::query("UPDATE jobs SET bookmarked = ? WHERE id = ?")
+            .bind(new_state)
+            .execute(&self.pool)
+            .await?;
+
+        Ok(new_state == 1)
+    }
+
+    /// Set bookmark status for a job
+    pub async fn set_bookmark(&self, id: i64, bookmarked: bool) -> Result<(), sqlx::Error> {
+        sqlx::query("UPDATE jobs SET bookmarked = ? WHERE id = ?")
+            .bind(if bookmarked { 1 } else { 0 })
+            .bind(id)
+            .execute(&self.pool)
+            .await?;
+
+        Ok(())
+    }
+
+    /// Get bookmarked jobs
+    pub async fn get_bookmarked_jobs(&self, limit: i64) -> Result<Vec<Job>, sqlx::Error> {
+        let jobs = sqlx::query_as::<_, Job>(
+            "SELECT * FROM jobs WHERE bookmarked = 1 AND hidden = 0 ORDER BY score DESC, created_at DESC LIMIT ?",
+        )
+        .bind(limit)
+        .fetch_all(&self.pool)
+        .await?;
+
+        Ok(jobs)
+    }
+
+    /// Set notes for a job
+    pub async fn set_job_notes(&self, id: i64, notes: Option<&str>) -> Result<(), sqlx::Error> {
+        sqlx::query("UPDATE jobs SET notes = ? WHERE id = ?")
+            .bind(notes)
+            .bind(id)
+            .execute(&self.pool)
+            .await?;
+
+        Ok(())
+    }
+
+    /// Get notes for a job
+    pub async fn get_job_notes(&self, id: i64) -> Result<Option<String>, sqlx::Error> {
+        let notes: Option<String> =
+            sqlx::query_scalar("SELECT notes FROM jobs WHERE id = ?")
+                .bind(id)
+                .fetch_optional(&self.pool)
+                .await?
+                .flatten();
+
+        Ok(notes)
+    }
+
+    /// Get jobs with notes
+    pub async fn get_jobs_with_notes(&self, limit: i64) -> Result<Vec<Job>, sqlx::Error> {
+        let jobs = sqlx::query_as::<_, Job>(
+            "SELECT * FROM jobs WHERE notes IS NOT NULL AND hidden = 0 ORDER BY updated_at DESC LIMIT ?",
+        )
+        .bind(limit)
+        .fetch_all(&self.pool)
+        .await?;
+
+        Ok(jobs)
+    }
+
     /// Get job by hash
     pub async fn get_job_by_hash(&self, hash: &str) -> Result<Option<Job>, sqlx::Error> {
         let job = sqlx::query_as::<_, Job>("SELECT * FROM jobs WHERE hash = ?")
@@ -778,6 +868,8 @@ mod tests {
             immediate_alert_sent: false,
             included_in_digest: false,
             hidden: false,
+            bookmarked: false,
+            notes: None,
         }
     }
 

@@ -95,6 +95,8 @@ impl LeverScraper {
                         times_seen: 1,
                         immediate_alert_sent: false,
             hidden: false,
+            bookmarked: false,
+            notes: None,
                         included_in_digest: false,
                     });
                 }

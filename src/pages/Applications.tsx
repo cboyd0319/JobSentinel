@@ -1,6 +1,26 @@
 import { useEffect, useState, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { Button, Card, Badge, LoadingSpinner } from "../components";
+import { cachedInvoke, invalidateCacheByCommand } from "../utils/api";
+import {
+  DndContext,
+  DragOverlay,
+  closestCorners,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragStartEvent,
+  DragEndEvent,
+  DragOverEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { Button, Card, Badge } from "../components";
 import { useToast } from "../contexts";
 import { logError, getErrorMessage } from "../utils/errorUtils";
 
@@ -54,20 +74,184 @@ const STATUS_COLUMNS = [
   { key: "ghosted", label: "Ghosted", color: "bg-surface-400" },
 ] as const;
 
+type StatusKey = typeof STATUS_COLUMNS[number]["key"];
+
+// Sortable application card component
+function SortableApplicationCard({
+  app,
+  onClick,
+  formatDate,
+}: {
+  app: Application;
+  onClick: () => void;
+  formatDate: (date: string) => string;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: app.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className={`p-3 bg-white dark:bg-surface-700 rounded-lg shadow-sm cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow ${
+        isDragging ? "shadow-lg ring-2 ring-sentinel-500" : ""
+      }`}
+      onClick={(e) => {
+        // Only trigger click if not dragging
+        if (!isDragging) {
+          e.stopPropagation();
+          onClick();
+        }
+      }}
+    >
+      <h4 className="font-medium text-surface-800 dark:text-surface-200 mb-1">
+        {app.job_title}
+      </h4>
+      <p className="text-sm text-surface-500 dark:text-surface-400 mb-2">
+        {app.company}
+      </p>
+      <p className="text-xs text-surface-400 dark:text-surface-500">
+        Applied: {formatDate(app.applied_at)}
+      </p>
+      {app.notes && (
+        <p className="text-xs text-surface-500 dark:text-surface-400 mt-2 truncate">
+          Note: {app.notes}
+        </p>
+      )}
+    </div>
+  );
+}
+
+// Droppable column component
+function DroppableColumn({
+  column,
+  apps,
+  onCardClick,
+  formatDate,
+}: {
+  column: typeof STATUS_COLUMNS[number];
+  apps: Application[];
+  onCardClick: (app: Application) => void;
+  formatDate: (date: string) => string;
+}) {
+  return (
+    <div className="w-72 flex-shrink-0 bg-surface-100 dark:bg-surface-800 rounded-lg p-4">
+      <div className="flex items-center gap-2 mb-4">
+        <div className={`w-3 h-3 rounded-full ${column.color}`} />
+        <h3 className="font-medium text-surface-800 dark:text-surface-200">
+          {column.label}
+        </h3>
+        <Badge variant="surface">{apps.length}</Badge>
+      </div>
+
+      <SortableContext
+        items={apps.map((a) => a.id)}
+        strategy={verticalListSortingStrategy}
+      >
+        <div className="space-y-3 min-h-[100px]">
+          {apps.map((app) => (
+            <SortableApplicationCard
+              key={app.id}
+              app={app}
+              onClick={() => onCardClick(app)}
+              formatDate={formatDate}
+            />
+          ))}
+
+          {apps.length === 0 && (
+            <p className="text-sm text-surface-400 dark:text-surface-500 text-center py-4">
+              Drop here
+            </p>
+          )}
+        </div>
+      </SortableContext>
+    </div>
+  );
+}
+
+// Skeleton loader for initial load
+function KanbanSkeleton() {
+  return (
+    <div className="min-h-screen bg-surface-50 dark:bg-surface-900">
+      <header className="bg-white dark:bg-surface-800 border-b border-surface-100 dark:border-surface-700 sticky top-0 z-10">
+        <div className="max-w-full mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-surface-200 dark:bg-surface-700 rounded-lg animate-pulse" />
+              <div>
+                <div className="h-6 w-48 bg-surface-200 dark:bg-surface-700 rounded animate-pulse mb-2" />
+                <div className="h-4 w-64 bg-surface-200 dark:bg-surface-700 rounded animate-pulse" />
+              </div>
+            </div>
+            <div className="h-10 w-32 bg-surface-200 dark:bg-surface-700 rounded-lg animate-pulse" />
+          </div>
+        </div>
+      </header>
+      <main className="p-6">
+        <div className="flex gap-4 overflow-x-auto pb-4">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="w-72 flex-shrink-0 bg-surface-100 dark:bg-surface-800 rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-3 h-3 rounded-full bg-surface-300 dark:bg-surface-600 animate-pulse" />
+                <div className="h-5 w-24 bg-surface-200 dark:bg-surface-700 rounded animate-pulse" />
+              </div>
+              <div className="space-y-3">
+                {[1, 2].map((j) => (
+                  <div key={j} className="p-3 bg-white dark:bg-surface-700 rounded-lg">
+                    <div className="h-4 w-full bg-surface-200 dark:bg-surface-600 rounded animate-pulse mb-2" />
+                    <div className="h-3 w-2/3 bg-surface-200 dark:bg-surface-600 rounded animate-pulse" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </main>
+    </div>
+  );
+}
+
 export default function Applications({ onBack }: ApplicationsProps) {
   const [applications, setApplications] = useState<ApplicationsByStatus | null>(null);
   const [reminders, setReminders] = useState<PendingReminder[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
   const [notes, setNotes] = useState("");
+  const [activeId, setActiveId] = useState<number | null>(null);
   const toast = useToast();
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // 8px movement required before drag starts
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
+      // Use cached invoke with short TTL (5s) - data changes frequently via drag/drop
       const [appsData, remindersData] = await Promise.all([
-        invoke<ApplicationsByStatus>("get_applications_kanban"),
-        invoke<PendingReminder[]>("get_pending_reminders"),
+        cachedInvoke<ApplicationsByStatus>("get_applications_kanban", undefined, 5_000),
+        cachedInvoke<PendingReminder[]>("get_pending_reminders", undefined, 10_000),
       ]);
       setApplications(appsData);
       setReminders(remindersData);
@@ -83,14 +267,73 @@ export default function Applications({ onBack }: ApplicationsProps) {
     fetchData();
   }, [fetchData]);
 
-  const handleStatusChange = async (appId: number, newStatus: string) => {
+  const findColumnForApp = (appId: number): StatusKey | null => {
+    if (!applications) return null;
+    for (const column of STATUS_COLUMNS) {
+      const apps = applications[column.key as keyof ApplicationsByStatus];
+      if (apps.some((a) => a.id === appId)) {
+        return column.key;
+      }
+    }
+    return null;
+  };
+
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as number);
+  };
+
+  const handleDragOver = (event: DragOverEvent) => {
+    const { active, over } = event;
+    if (!over || !applications) return;
+
+    const activeId = active.id as number;
+    const overId = over.id;
+
+    const activeColumn = findColumnForApp(activeId);
+
+    // Check if we're over a column (the column has the status key as id)
+    const overColumn = STATUS_COLUMNS.find((c) => c.key === overId)?.key || findColumnForApp(overId as number);
+
+    if (!activeColumn || !overColumn || activeColumn === overColumn) return;
+
+    // Move the item to the new column optimistically
+    setApplications((prev) => {
+      if (!prev) return prev;
+
+      const activeApp = prev[activeColumn].find((a) => a.id === activeId);
+      if (!activeApp) return prev;
+
+      return {
+        ...prev,
+        [activeColumn]: prev[activeColumn].filter((a) => a.id !== activeId),
+        [overColumn]: [...prev[overColumn], { ...activeApp, status: overColumn }],
+      };
+    });
+  };
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    setActiveId(null);
+
+    if (!over || !applications) return;
+
+    const activeId = active.id as number;
+    const newColumn = findColumnForApp(activeId);
+
+    if (!newColumn) return;
+
+    // Persist the change to backend
     try {
-      await invoke("update_application_status", { applicationId: appId, status: newStatus });
-      toast.success("Status updated", `Application moved to ${newStatus}`);
-      fetchData();
+      await invoke("update_application_status", { applicationId: activeId, status: newColumn });
+      // Invalidate cache after mutation
+      invalidateCacheByCommand("get_applications_kanban");
+      toast.success("Status updated", `Application moved to ${STATUS_COLUMNS.find((c) => c.key === newColumn)?.label}`);
     } catch (err) {
       logError("Failed to update status:", err);
       toast.error("Failed to update status", getErrorMessage(err));
+      // Revert by refetching
+      invalidateCacheByCommand("get_applications_kanban");
+      fetchData();
     }
   };
 
@@ -98,6 +341,8 @@ export default function Applications({ onBack }: ApplicationsProps) {
     if (!selectedApp || !notes.trim()) return;
     try {
       await invoke("add_application_notes", { applicationId: selectedApp.id, notes });
+      // Invalidate cache after mutation
+      invalidateCacheByCommand("get_applications_kanban");
       toast.success("Notes added", "Your notes have been saved");
       setNotes("");
       setSelectedApp(null);
@@ -111,6 +356,8 @@ export default function Applications({ onBack }: ApplicationsProps) {
   const handleCompleteReminder = async (reminderId: number) => {
     try {
       await invoke("complete_reminder", { reminderId });
+      // Invalidate cache after mutation
+      invalidateCacheByCommand("get_pending_reminders");
       toast.success("Reminder completed", "Marked as done");
       fetchData();
     } catch (err) {
@@ -122,6 +369,8 @@ export default function Applications({ onBack }: ApplicationsProps) {
   const handleDetectGhosted = async () => {
     try {
       const count = await invoke<number>("detect_ghosted_applications");
+      // Invalidate cache after mutation
+      invalidateCacheByCommand("get_applications_kanban");
       toast.info("Ghosted detection complete", `${count} application(s) marked as ghosted`);
       fetchData();
     } catch (err) {
@@ -138,8 +387,19 @@ export default function Applications({ onBack }: ApplicationsProps) {
     });
   };
 
+  const getActiveApp = (): Application | null => {
+    if (!activeId || !applications) return null;
+    for (const column of STATUS_COLUMNS) {
+      const app = applications[column.key as keyof ApplicationsByStatus].find(
+        (a) => a.id === activeId
+      );
+      if (app) return app;
+    }
+    return null;
+  };
+
   if (loading) {
-    return <LoadingSpinner message="Loading applications..." />;
+    return <KanbanSkeleton />;
   }
 
   return (
@@ -161,7 +421,7 @@ export default function Applications({ onBack }: ApplicationsProps) {
                   Application Tracker
                 </h1>
                 <p className="text-sm text-surface-500 dark:text-surface-400">
-                  Track your job applications through the hiring pipeline
+                  Drag cards between columns to update status
                 </p>
               </div>
             </div>
@@ -206,59 +466,45 @@ export default function Applications({ onBack }: ApplicationsProps) {
           </Card>
         )}
 
-        {/* Kanban Board */}
-        <div className="overflow-x-auto pb-4">
-          <div className="flex gap-4 min-w-max">
-            {STATUS_COLUMNS.map((column) => {
-              const apps = applications?.[column.key as keyof ApplicationsByStatus] || [];
-              return (
-                <div
-                  key={column.key}
-                  className="w-72 flex-shrink-0 bg-surface-100 dark:bg-surface-800 rounded-lg p-4"
-                >
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className={`w-3 h-3 rounded-full ${column.color}`} />
-                    <h3 className="font-medium text-surface-800 dark:text-surface-200">
-                      {column.label}
-                    </h3>
-                    <Badge variant="surface">{apps.length}</Badge>
-                  </div>
-
-                  <div className="space-y-3">
-                    {apps.map((app) => (
-                      <Card
-                        key={app.id}
-                        className="p-3 cursor-pointer hover:shadow-md transition-shadow dark:bg-surface-700"
-                        onClick={() => setSelectedApp(app)}
-                      >
-                        <h4 className="font-medium text-surface-800 dark:text-surface-200 mb-1">
-                          {app.job_title}
-                        </h4>
-                        <p className="text-sm text-surface-500 dark:text-surface-400 mb-2">
-                          {app.company}
-                        </p>
-                        <p className="text-xs text-surface-400 dark:text-surface-500">
-                          Applied: {formatDate(app.applied_at)}
-                        </p>
-                        {app.notes && (
-                          <p className="text-xs text-surface-500 dark:text-surface-400 mt-2 truncate">
-                            Note: {app.notes}
-                          </p>
-                        )}
-                      </Card>
-                    ))}
-
-                    {apps.length === 0 && (
-                      <p className="text-sm text-surface-400 dark:text-surface-500 text-center py-4">
-                        No applications
-                      </p>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
+        {/* Drag and Drop Kanban Board */}
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCorners}
+          onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
+          onDragEnd={handleDragEnd}
+        >
+          <div className="overflow-x-auto pb-4">
+            <div className="flex gap-4 min-w-max">
+              {STATUS_COLUMNS.map((column) => {
+                const apps = applications?.[column.key as keyof ApplicationsByStatus] || [];
+                return (
+                  <DroppableColumn
+                    key={column.key}
+                    column={column}
+                    apps={apps}
+                    onCardClick={setSelectedApp}
+                    formatDate={formatDate}
+                  />
+                );
+              })}
+            </div>
           </div>
-        </div>
+
+          {/* Drag Overlay - shows the card being dragged */}
+          <DragOverlay>
+            {activeId ? (
+              <div className="p-3 bg-white dark:bg-surface-700 rounded-lg shadow-xl ring-2 ring-sentinel-500 cursor-grabbing">
+                <h4 className="font-medium text-surface-800 dark:text-surface-200 mb-1">
+                  {getActiveApp()?.job_title}
+                </h4>
+                <p className="text-sm text-surface-500 dark:text-surface-400">
+                  {getActiveApp()?.company}
+                </p>
+              </div>
+            ) : null}
+          </DragOverlay>
+        </DndContext>
       </main>
 
       {/* Application Detail Modal */}
@@ -299,7 +545,18 @@ export default function Applications({ onBack }: ApplicationsProps) {
                 <select
                   id="app-status"
                   value={selectedApp.status}
-                  onChange={(e) => handleStatusChange(selectedApp.id, e.target.value)}
+                  onChange={async (e) => {
+                    const newStatus = e.target.value;
+                    try {
+                      await invoke("update_application_status", { applicationId: selectedApp.id, status: newStatus });
+                      toast.success("Status updated", `Application moved to ${newStatus}`);
+                      setSelectedApp({ ...selectedApp, status: newStatus });
+                      fetchData();
+                    } catch (err) {
+                      logError("Failed to update status:", err);
+                      toast.error("Failed to update status", getErrorMessage(err));
+                    }
+                  }}
                   className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:ring-2 focus:ring-sentinel-500 focus:border-sentinel-500"
                 >
                   {STATUS_COLUMNS.map((col) => (

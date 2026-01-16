@@ -14,15 +14,20 @@ interface Job {
   salary_min?: number | null;
   salary_max?: number | null;
   remote?: boolean | null;
+  bookmarked?: boolean;
+  notes?: string | null;
 }
 
 interface JobCardProps {
   job: Job;
   onViewJob?: (url: string) => void;
   onHideJob?: (id: number) => void;
+  onToggleBookmark?: (id: number) => void;
+  onEditNotes?: (id: number, currentNotes?: string | null) => void;
+  isSelected?: boolean;
 }
 
-export function JobCard({ job, onViewJob, onHideJob }: JobCardProps) {
+export function JobCard({ job, onViewJob, onHideJob, onToggleBookmark, onEditNotes, isSelected = false }: JobCardProps) {
   const handleOpenUrl = async (url: string) => {
     try {
       await open(url);
@@ -78,11 +83,14 @@ export function JobCard({ job, onViewJob, onHideJob }: JobCardProps) {
       className={`
         group relative bg-white dark:bg-surface-800 rounded-card border transition-all duration-200 ease-out
         hover:shadow-card-hover hover:-translate-y-0.5
-        ${isHighMatch 
-          ? "border-alert-200 dark:border-alert-700 shadow-soft hover:border-alert-300 dark:hover:border-alert-600" 
-          : "border-surface-100 dark:border-surface-700 shadow-soft dark:shadow-none hover:border-surface-200 dark:hover:border-surface-600"
+        ${isSelected
+          ? "ring-2 ring-sentinel-500 dark:ring-sentinel-400 border-sentinel-300 dark:border-sentinel-600"
+          : isHighMatch
+            ? "border-alert-200 dark:border-alert-700 shadow-soft hover:border-alert-300 dark:hover:border-alert-600"
+            : "border-surface-100 dark:border-surface-700 shadow-soft dark:shadow-none hover:border-surface-200 dark:hover:border-surface-600"
         }
       `}
+      data-selected={isSelected || undefined}
     >
       {/* High match indicator */}
       {isHighMatch && (
@@ -143,6 +151,36 @@ export function JobCard({ job, onViewJob, onHideJob }: JobCardProps) {
 
           {/* Action */}
           <div className="flex-shrink-0 self-center flex items-center gap-1">
+            {/* Notes button */}
+            {onEditNotes && (
+              <button
+                onClick={() => onEditNotes(job.id, job.notes)}
+                className={`p-2 transition-colors ${
+                  job.notes
+                    ? "text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300"
+                    : "text-surface-400 hover:text-blue-500 dark:hover:text-blue-400 opacity-0 group-hover:opacity-100"
+                }`}
+                aria-label={job.notes ? "Edit notes" : "Add notes"}
+              >
+                <NotesIcon filled={!!job.notes} />
+              </button>
+            )}
+
+            {/* Bookmark button */}
+            {onToggleBookmark && (
+              <button
+                onClick={() => onToggleBookmark(job.id)}
+                className={`p-2 transition-colors ${
+                  job.bookmarked
+                    ? "text-yellow-500 hover:text-yellow-600 dark:text-yellow-400 dark:hover:text-yellow-300"
+                    : "text-surface-400 hover:text-yellow-500 dark:hover:text-yellow-400 opacity-0 group-hover:opacity-100"
+                }`}
+                aria-label={job.bookmarked ? "Remove bookmark" : "Bookmark this job"}
+              >
+                <BookmarkIcon filled={job.bookmarked} />
+              </button>
+            )}
+
             <button
               onClick={() => {
                 if (onViewJob) {
@@ -163,7 +201,7 @@ export function JobCard({ job, onViewJob, onHideJob }: JobCardProps) {
               View
               <ArrowIcon />
             </button>
-            
+
             {/* Hide button */}
             {onHideJob && (
               <button
@@ -227,6 +265,22 @@ function ArrowIcon() {
   return (
     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+    </svg>
+  );
+}
+
+function BookmarkIcon({ filled = false }: { filled?: boolean }) {
+  return (
+    <svg className="w-5 h-5" fill={filled ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+    </svg>
+  );
+}
+
+function NotesIcon({ filled = false }: { filled?: boolean }) {
+  return (
+    <svg className="w-5 h-5" fill={filled ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
     </svg>
   );
 }

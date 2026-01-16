@@ -312,6 +312,89 @@ pub async fn unhide_job(id: i64, state: State<'_, AppState>) -> Result<(), Strin
     }
 }
 
+/// Toggle bookmark status for a job
+#[tauri::command]
+pub async fn toggle_bookmark(id: i64, state: State<'_, AppState>) -> Result<bool, String> {
+    tracing::info!("Command: toggle_bookmark (id: {})", id);
+
+    match state.database.toggle_bookmark(id).await {
+        Ok(new_state) => {
+            tracing::info!("Job {} bookmark toggled to {}", id, new_state);
+            Ok(new_state)
+        }
+        Err(e) => {
+            tracing::error!("Failed to toggle bookmark: {}", e);
+            Err(format!("Database error: {}", e))
+        }
+    }
+}
+
+/// Get bookmarked jobs
+#[tauri::command]
+pub async fn get_bookmarked_jobs(
+    limit: usize,
+    state: State<'_, AppState>,
+) -> Result<Vec<Value>, String> {
+    tracing::info!("Command: get_bookmarked_jobs (limit: {})", limit);
+
+    match state.database.get_bookmarked_jobs(limit as i64).await {
+        Ok(jobs) => {
+            let jobs_json: Vec<Value> = jobs
+                .into_iter()
+                .filter_map(|job| {
+                    serde_json::to_value(&job)
+                        .map_err(|e| {
+                            tracing::error!("Failed to serialize job {}: {}", job.id, e);
+                            e
+                        })
+                        .ok()
+                })
+                .collect();
+
+            Ok(jobs_json)
+        }
+        Err(e) => {
+            tracing::error!("Failed to get bookmarked jobs: {}", e);
+            Err(format!("Database error: {}", e))
+        }
+    }
+}
+
+/// Set notes for a job
+#[tauri::command]
+pub async fn set_job_notes(
+    id: i64,
+    notes: Option<String>,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    tracing::info!("Command: set_job_notes (id: {}, has_notes: {})", id, notes.is_some());
+
+    match state.database.set_job_notes(id, notes.as_deref()).await {
+        Ok(_) => {
+            tracing::info!("Notes saved for job {}", id);
+            Ok(())
+        }
+        Err(e) => {
+            tracing::error!("Failed to save notes: {}", e);
+            Err(format!("Database error: {}", e))
+        }
+    }
+}
+
+/// Get notes for a job
+#[tauri::command]
+pub async fn get_job_notes(id: i64, state: State<'_, AppState>) -> Result<Option<String>, String> {
+    tracing::info!("Command: get_job_notes (id: {})", id);
+
+    match state.database.get_job_notes(id).await {
+        Ok(notes) => Ok(notes),
+        Err(e) => {
+            tracing::error!("Failed to get notes: {}", e);
+            Err(format!("Database error: {}", e))
+        }
+    }
+}
+
 // ============================================================================
 // ATS (Application Tracking System) Commands
 // ============================================================================
@@ -714,8 +797,10 @@ mod tests {
             last_seen: Utc::now(),
             times_seen: 1,
             immediate_alert_sent: false,
-        hidden: false,
+            hidden: false,
             included_in_digest: false,
+            bookmarked: false,
+            notes: None,
         }
     }
 
