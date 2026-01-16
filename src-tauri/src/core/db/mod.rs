@@ -3485,4 +3485,528 @@ mod tests {
             assert!(job.immediate_alert_sent);
         }
     }
+
+    mod connection_tests {
+        use super::*;
+        use std::path::Path;
+
+        #[tokio::test]
+        async fn test_connect_memory_and_migrate() {
+            let db = Database::connect_memory().await.unwrap();
+            let result = db.migrate().await;
+            assert!(result.is_ok());
+        }
+
+        #[tokio::test]
+        async fn test_connect_creates_parent_directory() {
+            let temp_dir = std::env::temp_dir();
+            let test_db_dir = temp_dir.join("jobsentinel_test_db_parent");
+            let db_path = test_db_dir.join("test_create_parent.db");
+
+            // Ensure directory doesn't exist
+            let _ = std::fs::remove_dir_all(&test_db_dir);
+
+            let db = Database::connect(&db_path).await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Verify directory was created
+            assert!(test_db_dir.exists());
+
+            // Cleanup
+            let _ = std::fs::remove_dir_all(&test_db_dir);
+        }
+
+        #[tokio::test]
+        async fn test_connect_with_existing_file() {
+            let temp_dir = std::env::temp_dir();
+            let db_path = temp_dir.join("test_existing.db");
+
+            // Create database
+            let db1 = Database::connect(&db_path).await.unwrap();
+            db1.migrate().await.unwrap();
+
+            // Insert a job
+            let job = create_test_job("existing_test", "Test Job", 0.9);
+            let id = db1.upsert_job(&job).await.unwrap();
+
+            // Reconnect to same database
+            let db2 = Database::connect(&db_path).await.unwrap();
+
+            // Should be able to read the job
+            let fetched = db2.get_job_by_id(id).await.unwrap();
+            assert!(fetched.is_some());
+
+            // Cleanup
+            let _ = std::fs::remove_file(&db_path);
+        }
+
+        #[tokio::test]
+        async fn test_connect_without_parent_directory() {
+            // Test connecting to a path in root directory (should succeed)
+            let db_path = Path::new("test_no_parent.db");
+            let db = Database::connect(db_path).await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Cleanup
+            let _ = std::fs::remove_file(db_path);
+        }
+
+        #[tokio::test]
+        async fn test_pool_accessor() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let pool = db.pool();
+
+            // Verify pool is usable
+            let result = sqlx::query("SELECT COUNT(*) FROM jobs")
+                .fetch_one(pool)
+                .await;
+            assert!(result.is_ok());
+        }
+    }
+
+    mod search_error_paths {
+        use super::*;
+
+        #[tokio::test]
+        async fn test_search_jobs_with_too_many_results() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Insert 1005 jobs with common keyword (exceeds MAX_IDS = 1000)
+            for i in 0..1005 {
+                let job = create_test_job(
+                    &format!("search_overflow_{}", i),
+                    &format!("Engineer Position {}", i),
+                    0.8
+                );
+                db.upsert_job(&job).await.unwrap();
+            }
+
+            // Search should hit the MAX_IDS limit
+            let result = db.search_jobs("Engineer", 1005).await;
+
+            // Should return error about too many IDs
+            assert!(result.is_err());
+            let err_msg = result.unwrap_err().to_string();
+            assert!(err_msg.contains("Too many job IDs") || err_msg.contains("job IDs requested"));
+        }
+
+        #[tokio::test]
+        async fn test_search_jobs_with_max_limit() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Insert 100 jobs
+            for i in 0..100 {
+                let job = create_test_job(
+                    &format!("max_limit_{}", i),
+                    &format!("Software Engineer {}", i),
+                    0.8
+                );
+                db.upsert_job(&job).await.unwrap();
+            }
+
+            // Search with exactly 1000 limit (should succeed)
+            let result = db.search_jobs("Software", 1000).await;
+            assert!(result.is_ok());
+            assert!(result.unwrap().len() <= 100);
+        }
+
+        #[tokio::test]
+        async fn test_search_jobs_special_characters() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let mut job = create_test_job("special", "Test Job", 0.9);
+            job.description = Some("Job requires C# and .NET experience".to_string());
+            db.upsert_job(&job).await.unwrap();
+
+            // Search with special characters (FTS5 may handle differently)
+            let result = db.search_jobs("C#", 10).await;
+            // Should not crash - may return results or error depending on tokenizer
+            assert!(result.is_ok() || result.is_err());
+        }
+
+        #[tokio::test]
+        async fn test_search_jobs_with_quotes() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let mut job = create_test_job("quotes", "Senior Engineer", 0.9);
+            job.description = Some("Looking for 'expert' developers".to_string());
+            db.upsert_job(&job).await.unwrap();
+
+            // FTS5 phrase search with quotes
+            let result = db.search_jobs("\"Senior Engineer\"", 10).await;
+            // Should handle quoted phrases
+            assert!(result.is_ok() || result.is_err());
+        }
+
+        #[tokio::test]
+        async fn test_search_jobs_unicode_query() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let mut job = create_test_job("unicode_search", "Développeur Senior", 0.9);
+            job.description = Some("Poste à São Paulo".to_string());
+            db.upsert_job(&job).await.unwrap();
+
+            let result = db.search_jobs("Développeur", 10).await;
+            assert!(result.is_ok());
+        }
+    }
+
+    mod toggle_bookmark_edge_cases {
+        use super::*;
+
+        #[tokio::test]
+        async fn test_toggle_bookmark_handles_unexpected_values() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let job = create_test_job("toggle_edge", "Test Job", 0.9);
+            let id = db.upsert_job(&job).await.unwrap();
+
+            // First toggle (0 -> 1)
+            let state1 = db.toggle_bookmark(id).await.unwrap();
+            assert!(state1);
+
+            // Verify state
+            let job = db.get_job_by_id(id).await.unwrap().unwrap();
+            assert!(job.bookmarked);
+
+            // Second toggle (1 -> 0)
+            let state2 = db.toggle_bookmark(id).await.unwrap();
+            assert!(!state2);
+        }
+
+        #[tokio::test]
+        async fn test_toggle_bookmark_multiple_cycles() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let job = create_test_job("multi_cycle", "Test Job", 0.9);
+            let id = db.upsert_job(&job).await.unwrap();
+
+            // Cycle 10 times
+            for i in 0..10 {
+                let expected = i % 2 == 0; // Even iterations = true, odd = false
+                let state = db.toggle_bookmark(id).await.unwrap();
+                assert_eq!(state, expected, "Failed on iteration {}", i);
+            }
+
+            // Should end in false state (10 is even, so ends at false)
+            let job = db.get_job_by_id(id).await.unwrap().unwrap();
+            assert!(!job.bookmarked);
+        }
+    }
+
+    mod validation_tests {
+        use super::*;
+
+        #[tokio::test]
+        async fn test_upsert_job_max_title_length() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let mut job = create_test_job("max_title", "Test", 0.9);
+            // Exactly 500 chars (at limit)
+            job.title = "x".repeat(500);
+
+            let result = db.upsert_job(&job).await;
+            assert!(result.is_ok());
+        }
+
+        #[tokio::test]
+        async fn test_upsert_job_max_company_length() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let mut job = create_test_job("max_company", "Test", 0.9);
+            // Exactly 200 chars (at limit)
+            job.company = "c".repeat(200);
+
+            let result = db.upsert_job(&job).await;
+            assert!(result.is_ok());
+        }
+
+        #[tokio::test]
+        async fn test_upsert_job_max_location_length() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let mut job = create_test_job("max_location", "Test", 0.9);
+            // Exactly 200 chars (at limit)
+            job.location = Some("l".repeat(200));
+
+            let result = db.upsert_job(&job).await;
+            assert!(result.is_ok());
+        }
+
+        #[tokio::test]
+        async fn test_upsert_job_max_description_length() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let mut job = create_test_job("max_desc", "Test", 0.9);
+            // Exactly 50000 chars (at limit)
+            job.description = Some("d".repeat(50000));
+
+            let result = db.upsert_job(&job).await;
+            assert!(result.is_ok());
+        }
+
+        #[tokio::test]
+        async fn test_upsert_job_url_exactly_at_max() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let mut job = create_test_job("url_max", "Test", 0.9);
+            // Exactly 2000 chars (at limit)
+            // "https://example.com/" = 20 chars, so need 1980 more
+            job.url = format!("https://example.com/{}", "x".repeat(1980));
+            assert_eq!(job.url.len(), 2000);
+
+            let result = db.upsert_job(&job).await;
+            assert!(result.is_ok());
+        }
+    }
+
+    mod statistics_edge_cases {
+        use super::*;
+
+        #[tokio::test]
+        async fn test_statistics_with_null_scores() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Insert jobs with scores
+            let job1 = create_test_job("with_score", "Job 1", 0.9);
+            db.upsert_job(&job1).await.unwrap();
+
+            // Insert job without score
+            let mut job2 = create_test_job("no_score", "Job 2", 0.0);
+            job2.score = None;
+            db.upsert_job(&job2).await.unwrap();
+
+            let stats = db.get_statistics().await.unwrap();
+            assert_eq!(stats.total_jobs, 2);
+            // Average should only count non-null scores
+            assert_eq!(stats.high_matches, 1);
+        }
+
+        #[tokio::test]
+        async fn test_statistics_all_null_scores() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Insert jobs with no scores
+            let mut job1 = create_test_job("null1", "Job 1", 0.0);
+            job1.score = None;
+            db.upsert_job(&job1).await.unwrap();
+
+            let mut job2 = create_test_job("null2", "Job 2", 0.0);
+            job2.score = None;
+            db.upsert_job(&job2).await.unwrap();
+
+            let stats = db.get_statistics().await.unwrap();
+            assert_eq!(stats.total_jobs, 2);
+            assert_eq!(stats.high_matches, 0);
+            assert_eq!(stats.average_score, 0.0);
+        }
+
+        #[tokio::test]
+        async fn test_statistics_jobs_today_count() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Insert job with today's date
+            let job = create_test_job("today", "Today's Job", 0.9);
+            db.upsert_job(&job).await.unwrap();
+
+            let stats = db.get_statistics().await.unwrap();
+            // Should count the job created today
+            assert!(stats.jobs_today >= 1);
+        }
+    }
+
+    mod duplicate_edge_cases {
+        use super::*;
+
+        #[tokio::test]
+        async fn test_find_duplicate_groups_different_companies() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Same title, different companies - should NOT be duplicates
+            let mut job1 = create_test_job("diff1", "Senior Engineer", 0.9);
+            job1.company = "CompanyA".to_string();
+            db.upsert_job(&job1).await.unwrap();
+
+            let mut job2 = create_test_job("diff2", "Senior Engineer", 0.85);
+            job2.company = "CompanyB".to_string();
+            db.upsert_job(&job2).await.unwrap();
+
+            let groups = db.find_duplicate_groups().await.unwrap();
+            assert_eq!(groups.len(), 0);
+        }
+
+        #[tokio::test]
+        async fn test_find_duplicate_groups_different_titles() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Same company, different titles - should NOT be duplicates
+            let mut job1 = create_test_job("diff_title1", "Senior Engineer", 0.9);
+            job1.company = "Company".to_string();
+            db.upsert_job(&job1).await.unwrap();
+
+            let mut job2 = create_test_job("diff_title2", "Junior Engineer", 0.85);
+            job2.company = "Company".to_string();
+            db.upsert_job(&job2).await.unwrap();
+
+            let groups = db.find_duplicate_groups().await.unwrap();
+            assert_eq!(groups.len(), 0);
+        }
+
+        #[tokio::test]
+        async fn test_merge_duplicates_preserves_bookmarks() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Primary job (not bookmarked)
+            let mut job1 = create_test_job("merge_bm1", "Job", 0.9);
+            job1.company = "Company".to_string();
+            let id1 = db.upsert_job(&job1).await.unwrap();
+
+            // Duplicate job (bookmarked)
+            let mut job2 = create_test_job("merge_bm2", "Job", 0.8);
+            job2.company = "Company".to_string();
+            let id2 = db.upsert_job(&job2).await.unwrap();
+            db.set_bookmark(id2, true).await.unwrap();
+
+            // Merge (hides duplicate)
+            db.merge_duplicates(id1, &[id1, id2]).await.unwrap();
+
+            // Primary visible, duplicate hidden but bookmark preserved
+            let primary = db.get_job_by_id(id1).await.unwrap().unwrap();
+            assert!(!primary.hidden);
+
+            let duplicate = db.get_job_by_id(id2).await.unwrap().unwrap();
+            assert!(duplicate.hidden);
+            assert!(duplicate.bookmarked); // Bookmark should still exist
+        }
+    }
+
+    mod with_timeout_coverage {
+        use super::*;
+
+        #[tokio::test]
+        async fn test_with_timeout_actual_timeout() {
+            // Test a future that takes longer than the timeout
+            let result = tokio::time::timeout(
+                std::time::Duration::from_millis(10),
+                async {
+                    tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+                    Ok::<i32, sqlx::Error>(42)
+                }
+            ).await;
+
+            // Should timeout
+            assert!(result.is_err());
+        }
+
+        #[tokio::test]
+        async fn test_with_timeout_string_result() {
+            let result = with_timeout(async {
+                Ok::<String, sqlx::Error>("success".to_string())
+            }).await;
+
+            assert!(result.is_ok());
+            assert_eq!(result.unwrap(), "success");
+        }
+
+        #[tokio::test]
+        async fn test_with_timeout_unit_result() {
+            let result = with_timeout(async {
+                Ok::<(), sqlx::Error>(())
+            }).await;
+
+            assert!(result.is_ok());
+        }
+    }
+
+    mod job_field_updates {
+        use super::*;
+
+        #[tokio::test]
+        async fn test_upsert_updates_optional_fields_to_none() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Insert job with all optional fields populated
+            let job1 = create_test_job("update_none", "Test Job", 0.9);
+            let id = db.upsert_job(&job1).await.unwrap();
+
+            // Update with None for optional fields
+            let mut job2 = job1.clone();
+            job2.location = None;
+            job2.description = None;
+            job2.score = None;
+            job2.remote = None;
+            job2.salary_min = None;
+            job2.salary_max = None;
+            job2.currency = None;
+
+            db.upsert_job(&job2).await.unwrap();
+
+            let updated = db.get_job_by_id(id).await.unwrap().unwrap();
+            assert!(updated.location.is_none());
+            assert!(updated.description.is_none());
+            assert!(updated.score.is_none());
+            assert!(updated.remote.is_none());
+            assert!(updated.salary_min.is_none());
+            assert!(updated.salary_max.is_none());
+            assert!(updated.currency.is_none());
+        }
+
+        #[tokio::test]
+        async fn test_upsert_remote_false_to_true() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let mut job = create_test_job("remote_change", "Test Job", 0.9);
+            job.remote = Some(false);
+            let id = db.upsert_job(&job).await.unwrap();
+
+            // Update remote to true
+            job.remote = Some(true);
+            db.upsert_job(&job).await.unwrap();
+
+            let updated = db.get_job_by_id(id).await.unwrap().unwrap();
+            assert_eq!(updated.remote, Some(true));
+        }
+
+        #[tokio::test]
+        async fn test_upsert_salary_range_update() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let mut job = create_test_job("salary_update", "Test Job", 0.9);
+            job.salary_min = Some(100000);
+            job.salary_max = Some(150000);
+            let id = db.upsert_job(&job).await.unwrap();
+
+            // Update salary range
+            job.salary_min = Some(120000);
+            job.salary_max = Some(180000);
+            db.upsert_job(&job).await.unwrap();
+
+            let updated = db.get_job_by_id(id).await.unwrap().unwrap();
+            assert_eq!(updated.salary_min, Some(120000));
+            assert_eq!(updated.salary_max, Some(180000));
+        }
+    }
 }

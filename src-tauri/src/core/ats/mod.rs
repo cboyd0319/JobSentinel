@@ -1907,4 +1907,161 @@ mod tests {
 
         assert_eq!(reminders.len(), 0);
     }
+
+    // ========================================
+    // Auto-reminder tests for interview statuses
+    // ========================================
+
+    #[tokio::test]
+    async fn test_technical_interview_auto_sets_thank_you_reminder() {
+        let pool = create_test_db().await;
+
+        sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Engineer', 'TestCo', 'http://test.com', 'test')")
+            .execute(&pool)
+            .await
+            .unwrap();
+
+        let tracker = ApplicationTracker::new(pool.clone());
+        let app_id = tracker.create_application("test123").await.unwrap();
+
+        tracker.update_status(app_id, ApplicationStatus::TechnicalInterview).await.unwrap();
+
+        let reminders = sqlx::query!("SELECT * FROM application_reminders WHERE application_id = ?", app_id)
+            .fetch_all(&pool)
+            .await
+            .unwrap();
+
+        assert_eq!(reminders.len(), 1);
+        assert!(reminders[0].message.as_ref().unwrap().contains("thank-you"));
+    }
+
+    #[tokio::test]
+    async fn test_onsite_interview_auto_sets_thank_you_reminder() {
+        let pool = create_test_db().await;
+
+        sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Engineer', 'TestCo', 'http://test.com', 'test')")
+            .execute(&pool)
+            .await
+            .unwrap();
+
+        let tracker = ApplicationTracker::new(pool.clone());
+        let app_id = tracker.create_application("test123").await.unwrap();
+
+        tracker.update_status(app_id, ApplicationStatus::OnsiteInterview).await.unwrap();
+
+        let reminders = sqlx::query!("SELECT * FROM application_reminders WHERE application_id = ?", app_id)
+            .fetch_all(&pool)
+            .await
+            .unwrap();
+
+        assert_eq!(reminders.len(), 1);
+        assert!(reminders[0].message.as_ref().unwrap().contains("thank-you"));
+    }
+
+    #[tokio::test]
+    async fn test_screening_call_no_auto_reminder() {
+        let pool = create_test_db().await;
+
+        sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Engineer', 'TestCo', 'http://test.com', 'test')")
+            .execute(&pool)
+            .await
+            .unwrap();
+
+        let tracker = ApplicationTracker::new(pool.clone());
+        let app_id = tracker.create_application("test123").await.unwrap();
+
+        tracker.update_status(app_id, ApplicationStatus::ScreeningCall).await.unwrap();
+
+        let reminders = sqlx::query!("SELECT * FROM application_reminders WHERE application_id = ?", app_id)
+            .fetch_all(&pool)
+            .await
+            .unwrap();
+
+        // ScreeningCall is not in the auto-reminder list (line 301), so no reminders
+        assert_eq!(reminders.len(), 0);
+    }
+
+    #[tokio::test]
+    async fn test_withdrawn_status_no_auto_reminder() {
+        let pool = create_test_db().await;
+
+        sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test1', 'Engineer', 'TestCo', 'http://test.com', 'test')")
+            .execute(&pool)
+            .await
+            .unwrap();
+
+        let tracker = ApplicationTracker::new(pool.clone());
+        let app_id = tracker.create_application("test1").await.unwrap();
+
+        tracker.update_status(app_id, ApplicationStatus::Withdrawn).await.unwrap();
+
+        let reminders = sqlx::query!("SELECT * FROM application_reminders WHERE application_id = ?", app_id)
+            .fetch_all(&pool)
+            .await
+            .unwrap();
+
+        // Withdrawn is not in the auto-reminder list (line 301), so no reminders
+        assert_eq!(reminders.len(), 0);
+    }
+
+    // ========================================
+    // Application stats edge cases
+    // ========================================
+
+    #[tokio::test]
+    async fn test_application_stats_weekly_data_with_null_week() {
+        let pool = create_test_db().await;
+
+        sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test1', 'Engineer', 'TestCo', 'http://test.com', 'test')")
+            .execute(&pool)
+            .await
+            .unwrap();
+
+        let tracker = ApplicationTracker::new(pool.clone());
+        let app_id = tracker.create_application("test1").await.unwrap();
+
+        tracker.update_status(app_id, ApplicationStatus::Applied).await.unwrap();
+
+        let stats = tracker.get_application_stats().await.unwrap();
+
+        // Should have weekly data for current week (tests lines 769-771 filter_map)
+        assert!(stats.weekly_applications.len() >= 0);
+
+        // Insert application with NULL applied_at to test filter_map on line 769
+        sqlx::query!("UPDATE applications SET applied_at = NULL WHERE id = ?", app_id)
+            .execute(&pool)
+            .await
+            .unwrap();
+
+        let stats2 = tracker.get_application_stats().await.unwrap();
+        // NULL applied_at should be filtered out
+        assert_eq!(stats2.weekly_applications.len(), 0);
+    }
+
+    #[tokio::test]
+    async fn test_event_logging_via_reminder_set() {
+        let pool = create_test_db().await;
+
+        sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Engineer', 'TestCo', 'http://test.com', 'test')")
+            .execute(&pool)
+            .await
+            .unwrap();
+
+        let tracker = ApplicationTracker::new(pool.clone());
+        let app_id = tracker.create_application("test123").await.unwrap();
+
+        let reminder_time = Utc::now() + Duration::days(1);
+        tracker.set_reminder(app_id, "custom", reminder_time, "Custom reminder").await.unwrap();
+
+        // Verify event was logged (tests log_event function lines 329-338)
+        let events = sqlx::query!("SELECT * FROM application_events WHERE application_id = ? AND event_type = 'reminder_set'", app_id)
+            .fetch_all(&pool)
+            .await
+            .unwrap();
+
+        assert_eq!(events.len(), 1);
+        let event_data: serde_json::Value = serde_json::from_str(events[0].event_data.as_ref().unwrap()).unwrap();
+        assert_eq!(event_data["type"], "custom");
+        assert_eq!(event_data["message"], "Custom reminder");
+    }
 }

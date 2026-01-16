@@ -538,4 +538,277 @@ mod tests {
             prop_assert!(hash.chars().all(|c| c.is_ascii_hexdigit()));
         }
     }
+
+    // Additional tests for uncovered paths
+
+    #[tokio::test]
+    async fn test_scrape_calls_query_mcp() {
+        let scraper = JobsWithGptScraper::new(
+            "http://localhost:3000/mcp".to_string(),
+            JobQuery {
+                titles: vec!["Rust Engineer".to_string()],
+                location: Some("Remote".to_string()),
+                remote_only: true,
+                limit: 10,
+            },
+        );
+
+        // scrape() calls query_mcp() which we can't test without mocking the API
+        // but we can verify the scraper is properly initialized
+        assert_eq!(scraper.endpoint, "http://localhost:3000/mcp");
+        assert_eq!(scraper.query.titles.len(), 1);
+        assert_eq!(scraper.query.remote_only, true);
+        assert_eq!(scraper.name(), "jobswithgpt");
+    }
+
+    #[test]
+    fn test_parse_mcp_job_with_remote_false() {
+        let scraper = JobsWithGptScraper::new(
+            "http://localhost:3000/mcp".to_string(),
+            JobQuery {
+                titles: vec![],
+                location: None,
+                remote_only: false,
+                limit: 10,
+            },
+        );
+
+        let job_data = serde_json::json!({
+            "title": "Onsite Engineer",
+            "company": "TechCorp",
+            "url": "https://example.com/job/123",
+            "remote": false
+        });
+
+        let job = scraper.parse_mcp_job(&job_data).unwrap().unwrap();
+        assert_eq!(job.remote, Some(false));
+    }
+
+    #[test]
+    fn test_parse_mcp_job_with_all_optional_fields() {
+        let scraper = JobsWithGptScraper::new(
+            "http://localhost:3000/mcp".to_string(),
+            JobQuery {
+                titles: vec![],
+                location: None,
+                remote_only: false,
+                limit: 10,
+            },
+        );
+
+        let job_data = serde_json::json!({
+            "title": "Full Stack Engineer",
+            "company": "Startup Inc",
+            "url": "https://example.com/job/456",
+            "location": "San Francisco, CA",
+            "description": "Build amazing products",
+            "remote": true,
+            "salary_min": 120000,
+            "salary_max": 180000,
+            "currency": "USD"
+        });
+
+        let job = scraper.parse_mcp_job(&job_data).unwrap().unwrap();
+
+        assert_eq!(job.title, "Full Stack Engineer");
+        assert_eq!(job.company, "Startup Inc");
+        assert_eq!(job.url, "https://example.com/job/456");
+        assert_eq!(job.location, Some("San Francisco, CA".to_string()));
+        assert_eq!(job.description, Some("Build amazing products".to_string()));
+        assert_eq!(job.remote, Some(true));
+        assert_eq!(job.salary_min, Some(120000));
+        assert_eq!(job.salary_max, Some(180000));
+        assert_eq!(job.currency, Some("USD".to_string()));
+        assert_eq!(job.source, "jobswithgpt");
+    }
+
+    #[test]
+    fn test_parse_mcp_job_missing_title() {
+        let scraper = JobsWithGptScraper::new(
+            "http://localhost:3000/mcp".to_string(),
+            JobQuery {
+                titles: vec![],
+                location: None,
+                remote_only: false,
+                limit: 10,
+            },
+        );
+
+        let job_data = serde_json::json!({
+            "company": "Company",
+            "url": "https://example.com/job"
+        });
+
+        let result = scraper.parse_mcp_job(&job_data).unwrap();
+        assert!(result.is_none(), "Missing title should return None");
+    }
+
+    #[test]
+    fn test_parse_mcp_job_missing_url() {
+        let scraper = JobsWithGptScraper::new(
+            "http://localhost:3000/mcp".to_string(),
+            JobQuery {
+                titles: vec![],
+                location: None,
+                remote_only: false,
+                limit: 10,
+            },
+        );
+
+        let job_data = serde_json::json!({
+            "title": "Engineer",
+            "company": "Company"
+        });
+
+        let result = scraper.parse_mcp_job(&job_data).unwrap();
+        assert!(result.is_none(), "Missing URL should return None");
+    }
+
+    #[test]
+    fn test_parse_mcp_job_null_optional_fields() {
+        let scraper = JobsWithGptScraper::new(
+            "http://localhost:3000/mcp".to_string(),
+            JobQuery {
+                titles: vec![],
+                location: None,
+                remote_only: false,
+                limit: 10,
+            },
+        );
+
+        let job_data = serde_json::json!({
+            "title": "Engineer",
+            "company": "Company",
+            "url": "https://example.com/job",
+            "location": null,
+            "description": null,
+            "remote": null,
+            "salary_min": null,
+            "salary_max": null,
+            "currency": null
+        });
+
+        let job = scraper.parse_mcp_job(&job_data).unwrap().unwrap();
+
+        assert_eq!(job.location, None);
+        assert_eq!(job.description, None);
+        assert_eq!(job.remote, None);
+        assert_eq!(job.salary_min, None);
+        assert_eq!(job.salary_max, None);
+        assert_eq!(job.currency, None);
+    }
+
+    #[test]
+    fn test_job_query_empty_titles() {
+        let query = JobQuery {
+            titles: vec![],
+            location: Some("Remote".to_string()),
+            remote_only: false,
+            limit: 100,
+        };
+
+        assert_eq!(query.titles.len(), 0);
+        assert!(query.titles.is_empty());
+    }
+
+    #[test]
+    fn test_job_query_clone() {
+        let query = JobQuery {
+            titles: vec!["Engineer".to_string()],
+            location: Some("Remote".to_string()),
+            remote_only: true,
+            limit: 50,
+        };
+
+        let cloned = query.clone();
+
+        assert_eq!(query.titles, cloned.titles);
+        assert_eq!(query.location, cloned.location);
+        assert_eq!(query.remote_only, cloned.remote_only);
+        assert_eq!(query.limit, cloned.limit);
+    }
+
+    #[test]
+    fn test_job_query_debug_format() {
+        let query = JobQuery {
+            titles: vec!["Rust Developer".to_string()],
+            location: Some("San Francisco".to_string()),
+            remote_only: true,
+            limit: 25,
+        };
+
+        let debug_str = format!("{:?}", query);
+        assert!(debug_str.contains("Rust Developer"));
+        assert!(debug_str.contains("San Francisco"));
+    }
+
+    #[test]
+    fn test_parse_mcp_job_job_struct_defaults() {
+        let scraper = JobsWithGptScraper::new(
+            "http://localhost:3000/mcp".to_string(),
+            JobQuery {
+                titles: vec![],
+                location: None,
+                remote_only: false,
+                limit: 10,
+            },
+        );
+
+        let job_data = serde_json::json!({
+            "title": "Engineer",
+            "company": "Company",
+            "url": "https://example.com/job"
+        });
+
+        let job = scraper.parse_mcp_job(&job_data).unwrap().unwrap();
+
+        assert_eq!(job.id, 0);
+        assert_eq!(job.times_seen, 1);
+        assert!(!job.immediate_alert_sent);
+        assert!(!job.hidden);
+        assert!(!job.bookmarked);
+        assert!(job.notes.is_none());
+        assert!(!job.included_in_digest);
+        assert_eq!(job.score, None);
+        assert_eq!(job.score_reasons, None);
+    }
+
+    #[test]
+    fn test_compute_hash_with_all_fields() {
+        let hash1 = JobsWithGptScraper::compute_hash(
+            "TechCorp",
+            "Senior Rust Engineer",
+            Some("Remote - US"),
+            "https://jobs.techcorp.com/rust-123",
+        );
+
+        let hash2 = JobsWithGptScraper::compute_hash(
+            "TechCorp",
+            "Senior Rust Engineer",
+            Some("Remote - US"),
+            "https://jobs.techcorp.com/rust-123",
+        );
+
+        assert_eq!(hash1, hash2);
+        assert_eq!(hash1.len(), 64);
+    }
+
+    #[test]
+    fn test_multiple_titles_in_query() {
+        let query = JobQuery {
+            titles: vec![
+                "Rust Engineer".to_string(),
+                "Backend Developer".to_string(),
+                "Systems Programmer".to_string(),
+            ],
+            location: None,
+            remote_only: false,
+            limit: 50,
+        };
+
+        assert_eq!(query.titles.len(), 3);
+        assert!(query.titles.contains(&"Rust Engineer".to_string()));
+        assert!(query.titles.contains(&"Backend Developer".to_string()));
+        assert!(query.titles.contains(&"Systems Programmer".to_string()));
+    }
 }

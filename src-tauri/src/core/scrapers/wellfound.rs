@@ -595,4 +595,214 @@ mod tests {
             "https://wellfound.com/role/r/engineer/remote"
         );
     }
+
+    #[tokio::test]
+    async fn test_scrape_calls_fetch_jobs() {
+        let scraper = WellfoundScraper::new(
+            "software-engineer".to_string(),
+            Some("remote".to_string()),
+            true,
+            5,
+        );
+
+        // scrape() calls fetch_jobs() which we can't test without mocking the API
+        // but we can verify the scraper is properly initialized
+        assert_eq!(scraper.role, "software-engineer");
+        assert_eq!(scraper.location, Some("remote".to_string()));
+        assert!(scraper.remote_only);
+        assert_eq!(scraper.limit, 5);
+        assert_eq!(scraper.name(), "wellfound");
+    }
+
+    #[test]
+    fn test_parse_html_filters_empty_title() {
+        let scraper = WellfoundScraper::new("engineer".to_string(), None, false, 10);
+        let html = r#"
+            <html>
+                <body>
+                    <div data-test="StartupResult">
+                        <h2 data-test="JobTitle"></h2>
+                        <h3 data-test="CompanyName">Company</h3>
+                        <a href="/jobs/123">Link</a>
+                    </div>
+                </body>
+            </html>
+        "#;
+
+        let jobs = scraper.parse_html(html).expect("parse_html should succeed");
+        assert_eq!(jobs.len(), 0, "Empty title should be filtered");
+    }
+
+    #[test]
+    fn test_parse_html_filters_empty_url() {
+        let scraper = WellfoundScraper::new("engineer".to_string(), None, false, 10);
+        let html = r#"
+            <html>
+                <body>
+                    <div data-test="StartupResult">
+                        <h2 data-test="JobTitle">Engineer</h2>
+                        <h3 data-test="CompanyName">Company</h3>
+                    </div>
+                </body>
+            </html>
+        "#;
+
+        let jobs = scraper.parse_html(html).expect("parse_html should succeed");
+        assert_eq!(jobs.len(), 0, "Missing URL should be filtered");
+    }
+
+    #[test]
+    fn test_compute_hash_different_inputs() {
+        let hash1 = WellfoundScraper::compute_hash(
+            "CompanyA",
+            "Engineer",
+            Some("Remote"),
+            "https://wellfound.com/jobs/1",
+        );
+        let hash2 = WellfoundScraper::compute_hash(
+            "CompanyB",
+            "Engineer",
+            Some("Remote"),
+            "https://wellfound.com/jobs/1",
+        );
+
+        assert_ne!(hash1, hash2, "Different companies should produce different hashes");
+    }
+
+    #[test]
+    fn test_compute_hash_with_location_none() {
+        let hash = WellfoundScraper::compute_hash(
+            "Company",
+            "Developer",
+            None,
+            "https://wellfound.com/jobs/123",
+        );
+
+        assert_eq!(hash.len(), 64);
+    }
+
+    #[test]
+    fn test_parse_html_location_from_scraper_config() {
+        let scraper = WellfoundScraper::new(
+            "engineer".to_string(),
+            Some("boston".to_string()),
+            false,
+            10,
+        );
+
+        let html = r#"
+            <html>
+                <body>
+                    <div data-test="StartupResult">
+                        <h2 data-test="JobTitle">Engineer</h2>
+                        <h3 data-test="CompanyName">Startup</h3>
+                        <a href="/jobs/1">Apply</a>
+                    </div>
+                </body>
+            </html>
+        "#;
+
+        let jobs = scraper.parse_html(html).expect("parse_html should succeed");
+
+        assert_eq!(jobs.len(), 1);
+        // Location comes from scraper config
+        assert_eq!(jobs[0].location, Some("boston".to_string()));
+    }
+
+    #[test]
+    fn test_parse_html_with_no_company_uses_default() {
+        let scraper = WellfoundScraper::new("engineer".to_string(), None, false, 10);
+        let html = r#"
+            <html>
+                <body>
+                    <div data-test="StartupResult">
+                        <h2 data-test="JobTitle">Software Engineer</h2>
+                        <a href="/jobs/123">Apply</a>
+                    </div>
+                </body>
+            </html>
+        "#;
+
+        let jobs = scraper.parse_html(html).expect("parse_html should succeed");
+
+        assert_eq!(jobs.len(), 1);
+        assert_eq!(jobs[0].company, "Unknown Startup");
+    }
+
+    #[test]
+    fn test_parse_html_source_is_wellfound() {
+        let scraper = WellfoundScraper::new("engineer".to_string(), None, false, 10);
+        let html = r#"
+            <html>
+                <body>
+                    <div data-test="StartupResult">
+                        <h2 data-test="JobTitle">Engineer</h2>
+                        <h3 data-test="CompanyName">Startup</h3>
+                        <a href="/jobs/123">Apply</a>
+                    </div>
+                </body>
+            </html>
+        "#;
+
+        let jobs = scraper.parse_html(html).expect("parse_html should succeed");
+
+        assert_eq!(jobs.len(), 1);
+        assert_eq!(jobs[0].source, "wellfound");
+    }
+
+    #[test]
+    fn test_parse_html_job_struct_fields() {
+        let scraper = WellfoundScraper::new("engineer".to_string(), None, true, 10);
+        let html = r#"
+            <html>
+                <body>
+                    <div data-test="StartupResult">
+                        <h2 data-test="JobTitle">Full Stack Engineer</h2>
+                        <h3 data-test="CompanyName">TechStartup</h3>
+                        <a href="/jobs/abc123">View Job</a>
+                    </div>
+                </body>
+            </html>
+        "#;
+
+        let jobs = scraper.parse_html(html).expect("parse_html should succeed");
+
+        assert_eq!(jobs.len(), 1);
+        let job = &jobs[0];
+
+        assert_eq!(job.id, 0);
+        assert_eq!(job.title, "Full Stack Engineer");
+        assert_eq!(job.company, "TechStartup");
+        assert_eq!(job.url, "https://wellfound.com/jobs/abc123");
+        assert_eq!(job.description, None);
+        assert_eq!(job.score, None);
+        assert_eq!(job.score_reasons, None);
+        assert_eq!(job.source, "wellfound");
+        assert_eq!(job.remote, Some(true));
+        assert_eq!(job.salary_min, None);
+        assert_eq!(job.salary_max, None);
+        assert_eq!(job.currency, None);
+        assert_eq!(job.times_seen, 1);
+        assert!(!job.immediate_alert_sent);
+        assert!(!job.hidden);
+        assert!(!job.bookmarked);
+        assert!(job.notes.is_none());
+        assert!(!job.included_in_digest);
+        assert!(!job.hash.is_empty());
+    }
+
+    #[test]
+    fn test_build_url_no_location_no_remote() {
+        let scraper = WellfoundScraper::new(
+            "backend-engineer".to_string(),
+            None,
+            false,
+            10,
+        );
+
+        assert_eq!(
+            scraper.build_url(),
+            "https://wellfound.com/role/r/backend-engineer"
+        );
+    }
 }

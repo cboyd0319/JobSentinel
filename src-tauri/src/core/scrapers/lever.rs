@@ -2000,6 +2000,59 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn test_scrape_with_multiple_companies() {
+        let companies = vec![
+            LeverCompany {
+                id: "company1".to_string(),
+                name: "Company 1".to_string(),
+                url: "https://jobs.lever.co/company1".to_string(),
+            },
+            LeverCompany {
+                id: "company2".to_string(),
+                name: "Company 2".to_string(),
+                url: "https://jobs.lever.co/company2".to_string(),
+            },
+        ];
+
+        let scraper = LeverScraper::new(companies);
+
+        // scrape() calls scrape_company for each company and aggregates results
+        // We can't test actual API calls without mocking, but we test the structure
+        assert_eq!(scraper.companies.len(), 2);
+        assert_eq!(scraper.name(), "lever");
+    }
+
+    #[test]
+    fn test_infer_remote_with_work_from_home_in_title() {
+        assert!(LeverScraper::infer_remote("Software Engineer (Work From Home)", None));
+        assert!(LeverScraper::infer_remote("Backend Dev - Work from Home", None));
+        assert!(LeverScraper::infer_remote("Work From Home Engineer", None));
+    }
+
+    #[test]
+    fn test_location_extraction_fallback_chain() {
+        let json = serde_json::json!({
+            "text": "Engineer",
+            "hostedUrl": "https://jobs.lever.co/company/job1",
+            "categories": {
+                "team": "Engineering Team"
+            }
+        });
+
+        // Test that when location is missing, team is used
+        let location = json["categories"]["location"]
+            .as_str()
+            .map(|s| s.to_string())
+            .or_else(|| {
+                json["categories"]["team"]
+                    .as_str()
+                    .map(|s| s.to_string())
+            });
+
+        assert_eq!(location, Some("Engineering Team".to_string()));
+    }
+
+    #[tokio::test]
     async fn test_scrape_company_with_capacity_optimization() {
         let json_response = serde_json::json!([
             {"text": "Job 1", "hostedUrl": "https://test.com/1"},

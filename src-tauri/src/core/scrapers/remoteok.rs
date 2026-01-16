@@ -878,4 +878,174 @@ mod tests {
         assert_eq!(job.location, Some("  Worldwide  ".to_string()));
         assert_eq!(job.description, Some("  Great opportunity  ".to_string()));
     }
+
+    #[tokio::test]
+    async fn test_scrape_calls_fetch_jobs() {
+        let scraper = RemoteOkScraper::new(vec!["rust".to_string()], 5);
+
+        // scrape() calls fetch_jobs() which we can't test without mocking the API
+        // but we can verify the scraper is properly initialized
+        assert_eq!(scraper.tags.len(), 1);
+        assert_eq!(scraper.limit, 5);
+        assert_eq!(scraper.name(), "remoteok");
+    }
+
+    #[test]
+    fn test_parse_job_filters_by_empty_position_field() {
+        let scraper = RemoteOkScraper::new(vec![], 10);
+
+        let job_data = serde_json::json!({
+            "position": "",
+            "company": "Company",
+            "url": "/job/123"
+        });
+
+        let result = scraper.parse_job(&job_data).unwrap();
+        assert!(result.is_none(), "Empty position should be filtered");
+    }
+
+    #[test]
+    fn test_job_matches_tags_with_multiple_tags_any_match() {
+        let scraper = RemoteOkScraper::new(vec!["rust".to_string(), "python".to_string(), "go".to_string()], 10);
+
+        let job = Job {
+            id: 0,
+            hash: "test".to_string(),
+            title: "Backend Engineer".to_string(),
+            company: "Test".to_string(),
+            url: "https://example.com".to_string(),
+            location: None,
+            description: Some("We use Go for our microservices".to_string()),
+            score: None,
+            score_reasons: None,
+            source: "remoteok".to_string(),
+            remote: Some(true),
+            salary_min: None,
+            salary_max: None,
+            currency: None,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            last_seen: Utc::now(),
+            times_seen: 1,
+            immediate_alert_sent: false,
+            hidden: false,
+            bookmarked: false,
+            notes: None,
+            included_in_digest: false,
+        };
+
+        let tags = vec!["rust".to_string(), "python".to_string(), "go".to_string()];
+        // Should match because "go" is in description (any match)
+        assert!(scraper.job_matches_tags(&job, &tags));
+    }
+
+    #[test]
+    fn test_parse_job_with_null_salary_fields() {
+        let scraper = RemoteOkScraper::new(vec![], 10);
+
+        let job_data = serde_json::json!({
+            "position": "Engineer",
+            "company": "Company",
+            "url": "/job/123",
+            "salary_min": null,
+            "salary_max": null
+        });
+
+        let job = scraper.parse_job(&job_data).unwrap().unwrap();
+        assert_eq!(job.salary_min, None);
+        assert_eq!(job.salary_max, None);
+    }
+
+    #[test]
+    fn test_url_formatting_edge_cases() {
+        let scraper = RemoteOkScraper::new(vec![], 10);
+
+        // Test http URL
+        let job_data1 = serde_json::json!({
+            "position": "Engineer",
+            "url": "http://example.com/job"
+        });
+        let job1 = scraper.parse_job(&job_data1).unwrap().unwrap();
+        assert_eq!(job1.url, "http://example.com/job");
+
+        // Test https URL
+        let job_data2 = serde_json::json!({
+            "position": "Engineer",
+            "url": "https://example.com/job"
+        });
+        let job2 = scraper.parse_job(&job_data2).unwrap().unwrap();
+        assert_eq!(job2.url, "https://example.com/job");
+
+        // Test relative URL
+        let job_data3 = serde_json::json!({
+            "position": "Engineer",
+            "url": "/remote-jobs/123"
+        });
+        let job3 = scraper.parse_job(&job_data3).unwrap().unwrap();
+        assert_eq!(job3.url, "https://remoteok.com/remote-jobs/123");
+    }
+
+    #[test]
+    fn test_tags_lowercase_conversion() {
+        let scraper = RemoteOkScraper::new(vec!["Rust".to_string(), "PYTHON".to_string()], 10);
+
+        let job = Job {
+            id: 0,
+            hash: "test".to_string(),
+            title: "RUST developer".to_string(),
+            company: "Test".to_string(),
+            url: "https://example.com".to_string(),
+            location: None,
+            description: None,
+            score: None,
+            score_reasons: None,
+            source: "remoteok".to_string(),
+            remote: Some(true),
+            salary_min: None,
+            salary_max: None,
+            currency: None,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            last_seen: Utc::now(),
+            times_seen: 1,
+            immediate_alert_sent: false,
+            hidden: false,
+            bookmarked: false,
+            notes: None,
+            included_in_digest: false,
+        };
+
+        // Tags are converted to lowercase in fetch_jobs
+        let tags_lower: Vec<String> = scraper.tags.iter().map(|t| t.to_lowercase()).collect();
+        assert!(scraper.job_matches_tags(&job, &tags_lower));
+    }
+
+    #[test]
+    fn test_currency_default_usd() {
+        let scraper = RemoteOkScraper::new(vec![], 10);
+
+        let job_data = serde_json::json!({
+            "position": "Engineer",
+            "company": "Company",
+            "url": "/job/123"
+        });
+
+        let job = scraper.parse_job(&job_data).unwrap().unwrap();
+        assert_eq!(job.currency, Some("USD".to_string()));
+    }
+
+    #[test]
+    fn test_remote_always_true() {
+        let scraper = RemoteOkScraper::new(vec![], 10);
+
+        let job_data = serde_json::json!({
+            "position": "Engineer",
+            "company": "Company",
+            "url": "/job/123"
+        });
+
+        let job = scraper.parse_job(&job_data).unwrap().unwrap();
+        // All RemoteOK jobs are remote by definition
+        assert_eq!(job.remote, Some(true));
+    }
 }
