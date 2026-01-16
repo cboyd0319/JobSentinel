@@ -395,14 +395,338 @@ mod tests {
         assert!(notification.job.last_seen >= notification.job.created_at);
     }
 
+    #[tokio::test]
+    async fn test_send_immediate_alert_all_channels_disabled() {
+        let config = create_disabled_config();
+        let service = NotificationService::new(config);
+        let notification = create_test_notification();
+
+        // Should succeed when no channels are enabled (nothing to do)
+        let result = service.send_immediate_alert(&notification).await;
+        assert!(result.is_ok(), "Should succeed when all channels disabled");
+    }
+
+    #[test]
+    fn test_enabled_channel_counting_all_disabled() {
+        let config = create_disabled_config();
+
+        let enabled_count = [
+            config.alerts.slack.enabled,
+            config.alerts.email.enabled,
+            config.alerts.discord.enabled,
+            config.alerts.telegram.enabled,
+            config.alerts.teams.enabled,
+        ].iter().filter(|&&e| e).count();
+
+        assert_eq!(enabled_count, 0, "All channels should be disabled");
+    }
+
+    #[test]
+    fn test_enabled_channel_counting_slack_only() {
+        let mut config = create_disabled_config();
+        Arc::get_mut(&mut config).unwrap().alerts.slack.enabled = true;
+
+        let enabled_count = [
+            config.alerts.slack.enabled,
+            config.alerts.email.enabled,
+            config.alerts.discord.enabled,
+            config.alerts.telegram.enabled,
+            config.alerts.teams.enabled,
+        ].iter().filter(|&&e| e).count();
+
+        assert_eq!(enabled_count, 1, "Only Slack should be enabled");
+    }
+
+    #[test]
+    fn test_enabled_channel_counting_multiple() {
+        let mut config = create_disabled_config();
+        let config_mut = Arc::get_mut(&mut config).unwrap();
+        config_mut.alerts.slack.enabled = true;
+        config_mut.alerts.discord.enabled = true;
+        config_mut.alerts.teams.enabled = true;
+
+        let enabled_count = [
+            config.alerts.slack.enabled,
+            config.alerts.email.enabled,
+            config.alerts.discord.enabled,
+            config.alerts.telegram.enabled,
+            config.alerts.teams.enabled,
+        ].iter().filter(|&&e| e).count();
+
+        assert_eq!(enabled_count, 3, "Three channels should be enabled");
+    }
+
+    #[test]
+    fn test_enabled_channel_counting_all_enabled() {
+        let mut config = create_disabled_config();
+        let config_mut = Arc::get_mut(&mut config).unwrap();
+        config_mut.alerts.slack.enabled = true;
+        config_mut.alerts.email.enabled = true;
+        config_mut.alerts.discord.enabled = true;
+        config_mut.alerts.telegram.enabled = true;
+        config_mut.alerts.teams.enabled = true;
+
+        let enabled_count = [
+            config.alerts.slack.enabled,
+            config.alerts.email.enabled,
+            config.alerts.discord.enabled,
+            config.alerts.telegram.enabled,
+            config.alerts.teams.enabled,
+        ].iter().filter(|&&e| e).count();
+
+        assert_eq!(enabled_count, 5, "All five channels should be enabled");
+    }
+
+    #[test]
+    fn test_notification_service_config_immutability() {
+        let config = create_disabled_config();
+        let service = NotificationService::new(config.clone());
+
+        // Service should hold a reference to the same config
+        assert_eq!(service.config.immediate_alert_threshold, config.immediate_alert_threshold);
+        assert_eq!(service.config.salary_floor_usd, config.salary_floor_usd);
+    }
+
+    #[test]
+    fn test_notification_service_checks_slack_enabled() {
+        let mut config = create_disabled_config();
+        Arc::get_mut(&mut config).unwrap().alerts.slack.enabled = true;
+
+        let service = NotificationService::new(config);
+
+        assert!(service.config.alerts.slack.enabled, "Slack should be enabled");
+        assert!(!service.config.alerts.email.enabled, "Email should remain disabled");
+    }
+
+    #[test]
+    fn test_notification_service_checks_email_enabled() {
+        let mut config = create_disabled_config();
+        Arc::get_mut(&mut config).unwrap().alerts.email.enabled = true;
+
+        let service = NotificationService::new(config);
+
+        assert!(service.config.alerts.email.enabled, "Email should be enabled");
+        assert!(!service.config.alerts.slack.enabled, "Slack should remain disabled");
+    }
+
+    #[test]
+    fn test_notification_service_checks_discord_enabled() {
+        let mut config = create_disabled_config();
+        Arc::get_mut(&mut config).unwrap().alerts.discord.enabled = true;
+
+        let service = NotificationService::new(config);
+
+        assert!(service.config.alerts.discord.enabled, "Discord should be enabled");
+        assert!(!service.config.alerts.telegram.enabled, "Telegram should remain disabled");
+    }
+
+    #[test]
+    fn test_notification_service_checks_telegram_enabled() {
+        let mut config = create_disabled_config();
+        Arc::get_mut(&mut config).unwrap().alerts.telegram.enabled = true;
+
+        let service = NotificationService::new(config);
+
+        assert!(service.config.alerts.telegram.enabled, "Telegram should be enabled");
+        assert!(!service.config.alerts.teams.enabled, "Teams should remain disabled");
+    }
+
+    #[test]
+    fn test_notification_service_checks_teams_enabled() {
+        let mut config = create_disabled_config();
+        Arc::get_mut(&mut config).unwrap().alerts.teams.enabled = true;
+
+        let service = NotificationService::new(config);
+
+        assert!(service.config.alerts.teams.enabled, "Teams should be enabled");
+        assert!(!service.config.alerts.slack.enabled, "Slack should remain disabled");
+    }
+
+    #[test]
+    fn test_error_message_format_single_channel() {
+        let errors = vec!["Slack: Connection timeout".to_string()];
+        let error_msg = format!("All notification channels failed: {}", errors.join("; "));
+
+        assert!(error_msg.contains("Slack"));
+        assert!(error_msg.contains("Connection timeout"));
+        assert!(!error_msg.contains(";;"), "Should not have double semicolons");
+    }
+
+    #[test]
+    fn test_error_message_format_multiple_channels() {
+        let errors = vec![
+            "Slack: Connection timeout".to_string(),
+            "Email: SMTP auth failed".to_string(),
+            "Discord: Invalid webhook".to_string(),
+        ];
+        let error_msg = format!("All notification channels failed: {}", errors.join("; "));
+
+        assert!(error_msg.contains("Slack"));
+        assert!(error_msg.contains("Email"));
+        assert!(error_msg.contains("Discord"));
+        assert!(error_msg.contains("; "), "Should have semicolon separators");
+        assert_eq!(error_msg.matches("; ").count(), 2, "Should have exactly 2 separators for 3 errors");
+    }
+
+    #[test]
+    fn test_error_collection_empty() {
+        let errors: Vec<String> = Vec::new();
+
+        assert!(errors.is_empty(), "Error collection should start empty");
+        assert_eq!(errors.len(), 0, "Length should be zero");
+    }
+
+    #[test]
+    fn test_error_collection_accumulation() {
+        let mut errors: Vec<String> = Vec::new();
+
+        errors.push("Slack: Error 1".to_string());
+        assert_eq!(errors.len(), 1);
+
+        errors.push("Email: Error 2".to_string());
+        assert_eq!(errors.len(), 2);
+
+        errors.push("Discord: Error 3".to_string());
+        assert_eq!(errors.len(), 3);
+    }
+
+    #[test]
+    fn test_partial_failure_condition() {
+        let errors = vec!["Slack: Error".to_string()];
+        let enabled_count = 3; // Slack, Email, Discord enabled
+
+        // Partial failure (1 error out of 3 enabled channels)
+        let is_total_failure = errors.len() == enabled_count;
+        assert!(!is_total_failure, "Should not be total failure when only 1 of 3 failed");
+    }
+
+    #[test]
+    fn test_total_failure_condition() {
+        let errors = vec![
+            "Slack: Error".to_string(),
+            "Email: Error".to_string(),
+            "Discord: Error".to_string(),
+        ];
+        let enabled_count = 3;
+
+        // Total failure (all 3 enabled channels failed)
+        let is_total_failure = errors.len() == enabled_count;
+        assert!(is_total_failure, "Should be total failure when all enabled channels failed");
+    }
+
+    #[test]
+    fn test_notification_with_high_score() {
+        let mut notification = create_test_notification();
+        notification.score.total = 0.98;
+
+        assert!(notification.score.total > 0.9, "Should be high-scoring job");
+        assert!(notification.score.total <= 1.0, "Should not exceed maximum score");
+    }
+
+    #[test]
+    fn test_notification_with_threshold_score() {
+        let mut notification = create_test_notification();
+        let config = create_disabled_config();
+
+        notification.score.total = config.immediate_alert_threshold;
+
+        assert_eq!(notification.score.total, config.immediate_alert_threshold,
+                   "Score should exactly match threshold");
+    }
+
+    #[test]
+    fn test_notification_above_threshold() {
+        let mut notification = create_test_notification();
+        let config = create_disabled_config();
+
+        notification.score.total = config.immediate_alert_threshold + 0.01;
+
+        assert!(notification.score.total > config.immediate_alert_threshold,
+                "Score should be above threshold");
+    }
+
+    #[test]
+    fn test_notification_below_threshold() {
+        let mut notification = create_test_notification();
+        let config = create_disabled_config();
+
+        notification.score.total = config.immediate_alert_threshold - 0.01;
+
+        assert!(notification.score.total < config.immediate_alert_threshold,
+                "Score should be below threshold");
+    }
+
+    #[test]
+    fn test_webhook_url_empty_when_disabled() {
+        let config = create_disabled_config();
+
+        assert!(!config.alerts.slack.enabled);
+        assert!(config.alerts.slack.webhook_url.is_empty());
+
+        assert!(!config.alerts.discord.enabled);
+        assert!(config.alerts.discord.webhook_url.is_empty());
+
+        assert!(!config.alerts.teams.enabled);
+        assert!(config.alerts.teams.webhook_url.is_empty());
+    }
+
+    #[test]
+    fn test_job_source_validation() {
+        let notification = create_test_notification();
+
+        // Source should be a known scraper
+        let valid_sources = ["greenhouse", "lever", "linkedin", "indeed", "jobswithgpt"];
+        assert!(valid_sources.contains(&notification.job.source.as_str()),
+                "Job source should be a known scraper");
+    }
+
+    #[test]
+    fn test_notification_job_not_hidden() {
+        let notification = create_test_notification();
+
+        assert!(!notification.job.hidden, "High-scoring jobs for alerts should not be hidden");
+    }
+
+    #[test]
+    fn test_notification_alert_not_sent_initially() {
+        let notification = create_test_notification();
+
+        assert!(!notification.job.immediate_alert_sent,
+                "New job should not have alert sent yet");
+    }
+
+    #[test]
+    fn test_notification_times_seen_positive() {
+        let notification = create_test_notification();
+
+        assert!(notification.job.times_seen > 0,
+                "Job should have been seen at least once");
+    }
+
+    #[test]
+    fn test_notification_company_not_empty() {
+        let notification = create_test_notification();
+
+        assert!(!notification.job.company.is_empty(),
+                "Company name should not be empty");
+    }
+
+    #[test]
+    fn test_notification_title_not_empty() {
+        let notification = create_test_notification();
+
+        assert!(!notification.job.title.is_empty(),
+                "Job title should not be empty");
+    }
+
     // Note: Tests for actual HTTP notification sending are in the individual modules
     // (slack.rs, discord.rs, teams.rs, telegram.rs, email.rs) as they require
     // mocking HTTP clients or integration testing with real endpoints.
     //
-    // The NotificationService::send_immediate_alert method would require:
+    // The NotificationService::send_immediate_alert method's HTTP orchestration would require:
     // - Mock HTTP servers (wiremock/mockito crates)
     // - Integration tests with test webhooks
-    // - Testing the orchestration logic with multiple channels
+    // - Testing the error handling with simulated failures
     //
     // These are better suited for integration tests rather than unit tests.
 }

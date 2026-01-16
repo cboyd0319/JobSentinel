@@ -673,6 +673,7 @@ impl Database {
 
         sqlx::query("UPDATE jobs SET bookmarked = ? WHERE id = ?")
             .bind(new_state)
+            .bind(id)
             .execute(&self.pool)
             .await?;
 
@@ -1800,6 +1801,1087 @@ mod tests {
         fn test_default_backup_dir() {
             let path = Database::default_backup_dir();
             assert!(path.to_string_lossy().contains("backups"));
+        }
+    }
+
+    // ============================================================
+    // COMPREHENSIVE DATABASE OPERATION TESTS
+    // ============================================================
+
+    mod hide_unhide_tests {
+        use super::*;
+
+        #[tokio::test]
+        async fn test_hide_job() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let job = create_test_job("hide_test", "Test Job", 0.9);
+            let id = db.upsert_job(&job).await.unwrap();
+
+            // Initially not hidden
+            let before = db.get_job_by_id(id).await.unwrap().unwrap();
+            assert!(!before.hidden);
+
+            // Hide the job
+            db.hide_job(id).await.unwrap();
+
+            // Verify it's hidden
+            let after = db.get_job_by_id(id).await.unwrap().unwrap();
+            assert!(after.hidden);
+        }
+
+        #[tokio::test]
+        async fn test_unhide_job() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let mut job = create_test_job("unhide_test", "Test Job", 0.9);
+            job.hidden = true;
+            let id = db.upsert_job(&job).await.unwrap();
+
+            // Manually hide first
+            db.hide_job(id).await.unwrap();
+
+            // Verify hidden
+            let hidden = db.get_job_by_id(id).await.unwrap().unwrap();
+            assert!(hidden.hidden);
+
+            // Unhide the job
+            db.unhide_job(id).await.unwrap();
+
+            // Verify it's visible again
+            let visible = db.get_job_by_id(id).await.unwrap().unwrap();
+            assert!(!visible.hidden);
+        }
+
+        #[tokio::test]
+        async fn test_hide_unhide_cycle() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let job = create_test_job("cycle_test", "Test Job", 0.9);
+            let id = db.upsert_job(&job).await.unwrap();
+
+            // Hide
+            db.hide_job(id).await.unwrap();
+            let after_hide = db.get_job_by_id(id).await.unwrap().unwrap();
+            assert!(after_hide.hidden);
+
+            // Unhide
+            db.unhide_job(id).await.unwrap();
+            let after_unhide = db.get_job_by_id(id).await.unwrap().unwrap();
+            assert!(!after_unhide.hidden);
+
+            // Hide again
+            db.hide_job(id).await.unwrap();
+            let after_rehide = db.get_job_by_id(id).await.unwrap().unwrap();
+            assert!(after_rehide.hidden);
+        }
+
+        #[tokio::test]
+        async fn test_hidden_jobs_excluded_from_recent() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Insert visible job
+            let job1 = create_test_job("visible1", "Visible Job", 0.9);
+            db.upsert_job(&job1).await.unwrap();
+
+            // Insert hidden job
+            let job2 = create_test_job("hidden1", "Hidden Job", 0.95);
+            let id2 = db.upsert_job(&job2).await.unwrap();
+            db.hide_job(id2).await.unwrap();
+
+            // Get recent jobs
+            let recent = db.get_recent_jobs(10).await.unwrap();
+
+            // Should only return visible job
+            assert_eq!(recent.len(), 1);
+            assert_eq!(recent[0].title, "Visible Job");
+        }
+
+        #[tokio::test]
+        async fn test_hidden_jobs_excluded_from_score_query() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Insert visible high-score job
+            let job1 = create_test_job("visible_high", "Visible High", 0.95);
+            db.upsert_job(&job1).await.unwrap();
+
+            // Insert hidden high-score job
+            let job2 = create_test_job("hidden_high", "Hidden High", 0.98);
+            let id2 = db.upsert_job(&job2).await.unwrap();
+            db.hide_job(id2).await.unwrap();
+
+            // Get jobs by score
+            let high_score = db.get_jobs_by_score(0.9, 10).await.unwrap();
+
+            // Should only return visible job
+            assert_eq!(high_score.len(), 1);
+            assert_eq!(high_score[0].title, "Visible High");
+        }
+
+        #[tokio::test]
+        async fn test_hidden_jobs_excluded_from_source_query() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Insert visible job from greenhouse
+            let mut job1 = create_test_job("visible_gh", "Visible Greenhouse", 0.9);
+            job1.source = "greenhouse".to_string();
+            db.upsert_job(&job1).await.unwrap();
+
+            // Insert hidden job from greenhouse
+            let mut job2 = create_test_job("hidden_gh", "Hidden Greenhouse", 0.95);
+            job2.source = "greenhouse".to_string();
+            let id2 = db.upsert_job(&job2).await.unwrap();
+            db.hide_job(id2).await.unwrap();
+
+            // Get greenhouse jobs
+            let greenhouse = db.get_jobs_by_source("greenhouse", 10).await.unwrap();
+
+            // Should only return visible job
+            assert_eq!(greenhouse.len(), 1);
+            assert_eq!(greenhouse[0].title, "Visible Greenhouse");
+        }
+    }
+
+    mod bookmark_tests {
+        use super::*;
+
+        #[tokio::test]
+        async fn test_toggle_bookmark_on() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let job = create_test_job("toggle_on", "Test Job", 0.9);
+            let id = db.upsert_job(&job).await.unwrap();
+
+            // Initially not bookmarked
+            let before = db.get_job_by_id(id).await.unwrap().unwrap();
+            assert!(!before.bookmarked);
+
+            // Toggle bookmark (should turn ON)
+            let new_state = db.toggle_bookmark(id).await.unwrap();
+            assert!(new_state);
+
+            // Verify in database
+            let after = db.get_job_by_id(id).await.unwrap().unwrap();
+            assert!(after.bookmarked);
+        }
+
+        #[tokio::test]
+        async fn test_toggle_bookmark_off() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let job = create_test_job("toggle_off", "Test Job", 0.9);
+            let id = db.upsert_job(&job).await.unwrap();
+
+            // First toggle to ON
+            let state1 = db.toggle_bookmark(id).await.unwrap();
+            assert!(state1, "First toggle should return true");
+
+            // Verify it's ON
+            let mid = db.get_job_by_id(id).await.unwrap().unwrap();
+            assert!(mid.bookmarked, "Job should be bookmarked after first toggle");
+
+            // Toggle again (should turn OFF)
+            let state2 = db.toggle_bookmark(id).await.unwrap();
+            assert!(!state2, "Second toggle should return false");
+
+            // Verify in database
+            let after = db.get_job_by_id(id).await.unwrap().unwrap();
+            assert!(!after.bookmarked, "Job should not be bookmarked after second toggle");
+        }
+
+        #[tokio::test]
+        async fn test_toggle_bookmark_cycle() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let job = create_test_job("toggle_cycle", "Test Job", 0.9);
+            let id = db.upsert_job(&job).await.unwrap();
+
+            // Cycle: OFF -> ON -> OFF -> ON
+            let state1 = db.toggle_bookmark(id).await.unwrap();
+            assert!(state1, "First toggle should be ON");
+
+            let state2 = db.toggle_bookmark(id).await.unwrap();
+            assert!(!state2, "Second toggle should be OFF");
+
+            let state3 = db.toggle_bookmark(id).await.unwrap();
+            assert!(state3, "Third toggle should be ON");
+        }
+
+        #[tokio::test]
+        async fn test_toggle_bookmark_nonexistent_job() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Try to toggle bookmark on non-existent job
+            let result = db.toggle_bookmark(999999).await;
+            assert!(result.is_err());
+        }
+
+        #[tokio::test]
+        async fn test_set_bookmark_true() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let job = create_test_job("set_true", "Test Job", 0.9);
+            let id = db.upsert_job(&job).await.unwrap();
+
+            // Set bookmark to true
+            db.set_bookmark(id, true).await.unwrap();
+
+            let after = db.get_job_by_id(id).await.unwrap().unwrap();
+            assert!(after.bookmarked);
+        }
+
+        #[tokio::test]
+        async fn test_set_bookmark_false() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let job = create_test_job("set_false", "Test Job", 0.9);
+            let id = db.upsert_job(&job).await.unwrap();
+
+            // Bookmark it first
+            db.set_bookmark(id, true).await.unwrap();
+
+            // Then set to false
+            db.set_bookmark(id, false).await.unwrap();
+
+            let after = db.get_job_by_id(id).await.unwrap().unwrap();
+            assert!(!after.bookmarked);
+        }
+
+        #[tokio::test]
+        async fn test_set_bookmark_idempotent() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let job = create_test_job("idempotent", "Test Job", 0.9);
+            let id = db.upsert_job(&job).await.unwrap();
+
+            // Set to true multiple times
+            db.set_bookmark(id, true).await.unwrap();
+            db.set_bookmark(id, true).await.unwrap();
+            db.set_bookmark(id, true).await.unwrap();
+
+            let after = db.get_job_by_id(id).await.unwrap().unwrap();
+            assert!(after.bookmarked);
+        }
+
+        #[tokio::test]
+        async fn test_get_bookmarked_jobs() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Insert bookmarked jobs with different scores
+            let job1 = create_test_job("bookmarked1", "Bookmarked High", 0.95);
+            let id1 = db.upsert_job(&job1).await.unwrap();
+            db.set_bookmark(id1, true).await.unwrap();
+
+            let job2 = create_test_job("bookmarked2", "Bookmarked Medium", 0.80);
+            let id2 = db.upsert_job(&job2).await.unwrap();
+            db.set_bookmark(id2, true).await.unwrap();
+
+            // Insert non-bookmarked job
+            let job3 = create_test_job("not_bookmarked", "Not Bookmarked", 0.99);
+            db.upsert_job(&job3).await.unwrap();
+
+            // Get bookmarked jobs
+            let bookmarked = db.get_bookmarked_jobs(10).await.unwrap();
+
+            // Should only return bookmarked jobs
+            assert_eq!(bookmarked.len(), 2);
+            assert!(bookmarked.iter().all(|j| j.bookmarked));
+
+            // Should be ordered by score DESC
+            assert!(bookmarked[0].score.unwrap() >= bookmarked[1].score.unwrap());
+        }
+
+        #[tokio::test]
+        async fn test_get_bookmarked_jobs_limit() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Insert 5 bookmarked jobs
+            for i in 0..5 {
+                let job = create_test_job(&format!("bookmark_{}", i), &format!("Job {}", i), 0.8);
+                let id = db.upsert_job(&job).await.unwrap();
+                db.set_bookmark(id, true).await.unwrap();
+            }
+
+            // Get only 3
+            let bookmarked = db.get_bookmarked_jobs(3).await.unwrap();
+            assert_eq!(bookmarked.len(), 3);
+        }
+
+        #[tokio::test]
+        async fn test_get_bookmarked_jobs_excludes_hidden() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Insert bookmarked but hidden job
+            let job1 = create_test_job("bookmarked_hidden", "Bookmarked Hidden", 0.9);
+            let id1 = db.upsert_job(&job1).await.unwrap();
+            db.set_bookmark(id1, true).await.unwrap();
+            db.hide_job(id1).await.unwrap();
+
+            // Insert bookmarked visible job
+            let job2 = create_test_job("bookmarked_visible", "Bookmarked Visible", 0.85);
+            let id2 = db.upsert_job(&job2).await.unwrap();
+            db.set_bookmark(id2, true).await.unwrap();
+
+            // Should only return visible bookmarked job
+            let bookmarked = db.get_bookmarked_jobs(10).await.unwrap();
+            assert_eq!(bookmarked.len(), 1);
+            assert_eq!(bookmarked[0].title, "Bookmarked Visible");
+        }
+
+        #[tokio::test]
+        async fn test_get_bookmarked_jobs_empty() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Insert non-bookmarked job
+            let job = create_test_job("not_bookmarked", "Not Bookmarked", 0.9);
+            db.upsert_job(&job).await.unwrap();
+
+            let bookmarked = db.get_bookmarked_jobs(10).await.unwrap();
+            assert_eq!(bookmarked.len(), 0);
+        }
+    }
+
+    mod notes_tests {
+        use super::*;
+
+        #[tokio::test]
+        async fn test_set_job_notes() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let job = create_test_job("notes_test", "Test Job", 0.9);
+            let id = db.upsert_job(&job).await.unwrap();
+
+            // Set notes
+            db.set_job_notes(id, Some("Great company culture!")).await.unwrap();
+
+            // Verify notes were set
+            let after = db.get_job_by_id(id).await.unwrap().unwrap();
+            assert_eq!(after.notes.as_deref(), Some("Great company culture!"));
+        }
+
+        #[tokio::test]
+        async fn test_set_job_notes_update() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let job = create_test_job("notes_update", "Test Job", 0.9);
+            let id = db.upsert_job(&job).await.unwrap();
+
+            // Set initial notes
+            db.set_job_notes(id, Some("Original notes")).await.unwrap();
+
+            // Update notes
+            db.set_job_notes(id, Some("Updated notes")).await.unwrap();
+
+            let after = db.get_job_by_id(id).await.unwrap().unwrap();
+            assert_eq!(after.notes.as_deref(), Some("Updated notes"));
+        }
+
+        #[tokio::test]
+        async fn test_set_job_notes_clear() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let job = create_test_job("notes_clear", "Test Job", 0.9);
+            let id = db.upsert_job(&job).await.unwrap();
+
+            // Set notes
+            db.set_job_notes(id, Some("Some notes")).await.unwrap();
+
+            // Clear notes by setting to None
+            db.set_job_notes(id, None).await.unwrap();
+
+            let after = db.get_job_by_id(id).await.unwrap().unwrap();
+            assert!(after.notes.is_none());
+        }
+
+        #[tokio::test]
+        async fn test_get_job_notes() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let job = create_test_job("get_notes", "Test Job", 0.9);
+            let id = db.upsert_job(&job).await.unwrap();
+
+            // Set notes
+            db.set_job_notes(id, Some("Test notes")).await.unwrap();
+
+            // Get notes using dedicated method
+            let notes = db.get_job_notes(id).await.unwrap();
+            assert_eq!(notes.as_deref(), Some("Test notes"));
+        }
+
+        #[tokio::test]
+        async fn test_get_job_notes_none() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let job = create_test_job("no_notes", "Test Job", 0.9);
+            let id = db.upsert_job(&job).await.unwrap();
+
+            // Get notes (should be None)
+            let notes = db.get_job_notes(id).await.unwrap();
+            assert!(notes.is_none());
+        }
+
+        #[tokio::test]
+        async fn test_get_job_notes_nonexistent() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Get notes for non-existent job
+            let notes = db.get_job_notes(999999).await.unwrap();
+            assert!(notes.is_none());
+        }
+
+        #[tokio::test]
+        async fn test_get_jobs_with_notes() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Insert job with notes
+            let job1 = create_test_job("with_notes1", "Job 1", 0.9);
+            let id1 = db.upsert_job(&job1).await.unwrap();
+            db.set_job_notes(id1, Some("Notes 1")).await.unwrap();
+
+            // Insert job without notes
+            let job2 = create_test_job("no_notes", "Job 2", 0.85);
+            db.upsert_job(&job2).await.unwrap();
+
+            // Insert another job with notes
+            let job3 = create_test_job("with_notes2", "Job 3", 0.95);
+            let id3 = db.upsert_job(&job3).await.unwrap();
+            db.set_job_notes(id3, Some("Notes 2")).await.unwrap();
+
+            // Get jobs with notes
+            let jobs_with_notes = db.get_jobs_with_notes(10).await.unwrap();
+
+            assert_eq!(jobs_with_notes.len(), 2);
+            assert!(jobs_with_notes.iter().all(|j| j.notes.is_some()));
+        }
+
+        #[tokio::test]
+        async fn test_get_jobs_with_notes_ordered_by_updated() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Insert first job with notes
+            let job1 = create_test_job("notes_old", "Old Job", 0.9);
+            let id1 = db.upsert_job(&job1).await.unwrap();
+            db.set_job_notes(id1, Some("Old notes")).await.unwrap();
+
+            tokio::time::sleep(tokio::time::Duration::from_millis(10)).await;
+
+            // Insert second job with notes
+            let job2 = create_test_job("notes_new", "New Job", 0.85);
+            let id2 = db.upsert_job(&job2).await.unwrap();
+            db.set_job_notes(id2, Some("New notes")).await.unwrap();
+
+            let jobs = db.get_jobs_with_notes(10).await.unwrap();
+
+            // Should be ordered by updated_at DESC (newest first)
+            assert_eq!(jobs[0].title, "New Job");
+            assert_eq!(jobs[1].title, "Old Job");
+        }
+
+        #[tokio::test]
+        async fn test_get_jobs_with_notes_limit() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Insert 5 jobs with notes
+            for i in 0..5 {
+                let job = create_test_job(&format!("notes_{}", i), &format!("Job {}", i), 0.8);
+                let id = db.upsert_job(&job).await.unwrap();
+                db.set_job_notes(id, Some(&format!("Notes {}", i))).await.unwrap();
+            }
+
+            let jobs = db.get_jobs_with_notes(3).await.unwrap();
+            assert_eq!(jobs.len(), 3);
+        }
+
+        #[tokio::test]
+        async fn test_get_jobs_with_notes_excludes_hidden() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Insert job with notes but hidden
+            let job1 = create_test_job("notes_hidden", "Hidden Job", 0.9);
+            let id1 = db.upsert_job(&job1).await.unwrap();
+            db.set_job_notes(id1, Some("Hidden notes")).await.unwrap();
+            db.hide_job(id1).await.unwrap();
+
+            // Insert job with notes and visible
+            let job2 = create_test_job("notes_visible", "Visible Job", 0.85);
+            let id2 = db.upsert_job(&job2).await.unwrap();
+            db.set_job_notes(id2, Some("Visible notes")).await.unwrap();
+
+            let jobs = db.get_jobs_with_notes(10).await.unwrap();
+            assert_eq!(jobs.len(), 1);
+            assert_eq!(jobs[0].title, "Visible Job");
+        }
+
+        #[tokio::test]
+        async fn test_notes_with_special_characters() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let job = create_test_job("special_chars", "Test Job", 0.9);
+            let id = db.upsert_job(&job).await.unwrap();
+
+            let special_notes = "Notes with 'quotes', \"double quotes\", and émojis 🎉";
+            db.set_job_notes(id, Some(special_notes)).await.unwrap();
+
+            let notes = db.get_job_notes(id).await.unwrap();
+            assert_eq!(notes.as_deref(), Some(special_notes));
+        }
+
+        #[tokio::test]
+        async fn test_notes_with_long_text() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let job = create_test_job("long_notes", "Test Job", 0.9);
+            let id = db.upsert_job(&job).await.unwrap();
+
+            let long_notes = "x".repeat(10000);
+            db.set_job_notes(id, Some(&long_notes)).await.unwrap();
+
+            let notes = db.get_job_notes(id).await.unwrap();
+            assert_eq!(notes.as_deref(), Some(long_notes.as_str()));
+        }
+    }
+
+    mod search_tests {
+        use super::*;
+
+        #[tokio::test]
+        async fn test_search_jobs_by_title() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Insert jobs
+            let job1 = create_test_job("search1", "Senior Rust Engineer", 0.9);
+            db.upsert_job(&job1).await.unwrap();
+
+            let job2 = create_test_job("search2", "Junior Python Developer", 0.8);
+            db.upsert_job(&job2).await.unwrap();
+
+            let job3 = create_test_job("search3", "Rust Developer", 0.85);
+            db.upsert_job(&job3).await.unwrap();
+
+            // Search for "Rust"
+            let results = db.search_jobs("Rust", 10).await.unwrap();
+
+            assert_eq!(results.len(), 2);
+            assert!(results.iter().any(|j| j.title.contains("Rust")));
+        }
+
+        #[tokio::test]
+        async fn test_search_jobs_by_description() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Insert job with specific description
+            let mut job = create_test_job("search_desc", "Test Job", 0.9);
+            job.description = Some("Looking for an expert in distributed systems and microservices".to_string());
+            db.upsert_job(&job).await.unwrap();
+
+            // Search for term in description
+            let results = db.search_jobs("microservices", 10).await.unwrap();
+
+            assert_eq!(results.len(), 1);
+            assert!(results[0].description.as_ref().unwrap().contains("microservices"));
+        }
+
+        #[tokio::test]
+        async fn test_search_jobs_limit() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Insert 5 jobs with "Engineer" in title
+            for i in 0..5 {
+                let job = create_test_job(&format!("eng_{}", i), &format!("Software Engineer {}", i), 0.8);
+                db.upsert_job(&job).await.unwrap();
+            }
+
+            // Search with limit 3
+            let results = db.search_jobs("Engineer", 3).await.unwrap();
+
+            assert_eq!(results.len(), 3);
+        }
+
+        #[tokio::test]
+        async fn test_search_jobs_no_results() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let job = create_test_job("search_none", "Rust Engineer", 0.9);
+            db.upsert_job(&job).await.unwrap();
+
+            // Search for term that doesn't exist
+            let results = db.search_jobs("ZyxwvutNonexistent", 10).await.unwrap();
+
+            assert_eq!(results.len(), 0);
+        }
+
+        #[tokio::test]
+        async fn test_search_jobs_case_insensitive() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let job = create_test_job("case_test", "Senior RUST Engineer", 0.9);
+            db.upsert_job(&job).await.unwrap();
+
+            // Search with lowercase
+            let results = db.search_jobs("rust", 10).await.unwrap();
+
+            assert_eq!(results.len(), 1);
+        }
+
+        #[tokio::test]
+        async fn test_search_jobs_empty_query() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let job = create_test_job("empty_search", "Test Job", 0.9);
+            db.upsert_job(&job).await.unwrap();
+
+            // Empty search should return no results (FTS5 requirement)
+            let results = db.search_jobs("", 10).await;
+
+            // FTS5 typically returns error for empty query
+            assert!(results.is_err() || results.unwrap().is_empty());
+        }
+    }
+
+    mod duplicate_detection_tests {
+        use super::*;
+
+        #[tokio::test]
+        async fn test_find_duplicate_groups_same_title_company() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Insert same job from different sources
+            let mut job1 = create_test_job("dup1", "Senior Engineer", 0.95);
+            job1.company = "TechCorp".to_string();
+            job1.source = "greenhouse".to_string();
+            db.upsert_job(&job1).await.unwrap();
+
+            let mut job2 = create_test_job("dup2", "Senior Engineer", 0.90);
+            job2.company = "TechCorp".to_string();
+            job2.source = "lever".to_string();
+            db.upsert_job(&job2).await.unwrap();
+
+            let mut job3 = create_test_job("dup3", "Senior Engineer", 0.88);
+            job3.company = "TechCorp".to_string();
+            job3.source = "linkedin".to_string();
+            db.upsert_job(&job3).await.unwrap();
+
+            // Find duplicates
+            let groups = db.find_duplicate_groups().await.unwrap();
+
+            assert_eq!(groups.len(), 1);
+            assert_eq!(groups[0].jobs.len(), 3);
+            assert_eq!(groups[0].sources.len(), 3);
+        }
+
+        #[tokio::test]
+        async fn test_find_duplicate_groups_case_insensitive() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Insert jobs with different casing
+            let mut job1 = create_test_job("case1", "Software Engineer", 0.9);
+            job1.company = "CompanyA".to_string();
+            db.upsert_job(&job1).await.unwrap();
+
+            let mut job2 = create_test_job("case2", "SOFTWARE ENGINEER", 0.85);
+            job2.company = "companyA".to_string();
+            db.upsert_job(&job2).await.unwrap();
+
+            let groups = db.find_duplicate_groups().await.unwrap();
+
+            assert_eq!(groups.len(), 1);
+            assert_eq!(groups[0].jobs.len(), 2);
+        }
+
+        #[tokio::test]
+        async fn test_find_duplicate_groups_primary_is_highest_score() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Insert duplicates with different scores
+            let mut job1 = create_test_job("score1", "Job Title", 0.85);
+            job1.company = "Company".to_string();
+            let _id1 = db.upsert_job(&job1).await.unwrap();
+
+            let mut job2 = create_test_job("score2", "Job Title", 0.95);
+            job2.company = "Company".to_string();
+            let id2 = db.upsert_job(&job2).await.unwrap();
+
+            let groups = db.find_duplicate_groups().await.unwrap();
+
+            assert_eq!(groups.len(), 1);
+            // Primary should be the highest score (id2)
+            assert_eq!(groups[0].primary_id, id2);
+        }
+
+        #[tokio::test]
+        async fn test_find_duplicate_groups_excludes_hidden() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Insert visible duplicate
+            let mut job1 = create_test_job("visible_dup", "Duplicate Job", 0.9);
+            job1.company = "Company".to_string();
+            db.upsert_job(&job1).await.unwrap();
+
+            // Insert hidden duplicate
+            let mut job2 = create_test_job("hidden_dup", "Duplicate Job", 0.85);
+            job2.company = "Company".to_string();
+            let id2 = db.upsert_job(&job2).await.unwrap();
+            db.hide_job(id2).await.unwrap();
+
+            let groups = db.find_duplicate_groups().await.unwrap();
+
+            // Should not form a duplicate group if one is hidden
+            assert_eq!(groups.len(), 0);
+        }
+
+        #[tokio::test]
+        async fn test_find_duplicate_groups_no_duplicates() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Insert unique jobs
+            let job1 = create_test_job("unique1", "Job A", 0.9);
+            db.upsert_job(&job1).await.unwrap();
+
+            let job2 = create_test_job("unique2", "Job B", 0.85);
+            db.upsert_job(&job2).await.unwrap();
+
+            let groups = db.find_duplicate_groups().await.unwrap();
+
+            assert_eq!(groups.len(), 0);
+        }
+
+        #[tokio::test]
+        async fn test_find_duplicate_groups_multiple_groups() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Group 1: Job A at CompanyX
+            let mut job1a = create_test_job("1a", "Job A", 0.9);
+            job1a.company = "CompanyX".to_string();
+            db.upsert_job(&job1a).await.unwrap();
+
+            let mut job1b = create_test_job("1b", "Job A", 0.85);
+            job1b.company = "CompanyX".to_string();
+            db.upsert_job(&job1b).await.unwrap();
+
+            // Group 2: Job B at CompanyY
+            let mut job2a = create_test_job("2a", "Job B", 0.95);
+            job2a.company = "CompanyY".to_string();
+            db.upsert_job(&job2a).await.unwrap();
+
+            let mut job2b = create_test_job("2b", "Job B", 0.80);
+            job2b.company = "CompanyY".to_string();
+            db.upsert_job(&job2b).await.unwrap();
+
+            let groups = db.find_duplicate_groups().await.unwrap();
+
+            assert_eq!(groups.len(), 2);
+        }
+
+        #[tokio::test]
+        async fn test_merge_duplicates() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Insert duplicates
+            let mut job1 = create_test_job("merge1", "Job Title", 0.95);
+            job1.company = "Company".to_string();
+            let primary_id = db.upsert_job(&job1).await.unwrap();
+
+            let mut job2 = create_test_job("merge2", "Job Title", 0.90);
+            job2.company = "Company".to_string();
+            let dup_id1 = db.upsert_job(&job2).await.unwrap();
+
+            let mut job3 = create_test_job("merge3", "Job Title", 0.85);
+            job3.company = "Company".to_string();
+            let dup_id2 = db.upsert_job(&job3).await.unwrap();
+
+            // Merge duplicates
+            db.merge_duplicates(primary_id, &[primary_id, dup_id1, dup_id2]).await.unwrap();
+
+            // Primary should still be visible
+            let primary = db.get_job_by_id(primary_id).await.unwrap().unwrap();
+            assert!(!primary.hidden);
+
+            // Duplicates should be hidden
+            let dup1 = db.get_job_by_id(dup_id1).await.unwrap().unwrap();
+            assert!(dup1.hidden);
+
+            let dup2 = db.get_job_by_id(dup_id2).await.unwrap().unwrap();
+            assert!(dup2.hidden);
+        }
+
+        #[tokio::test]
+        async fn test_merge_duplicates_primary_not_hidden() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let job1 = create_test_job("primary", "Job", 0.9);
+            let primary_id = db.upsert_job(&job1).await.unwrap();
+
+            let job2 = create_test_job("duplicate", "Job", 0.8);
+            let dup_id = db.upsert_job(&job2).await.unwrap();
+
+            // Merge with primary in the list
+            db.merge_duplicates(primary_id, &[primary_id, dup_id]).await.unwrap();
+
+            // Primary should NOT be hidden
+            let primary = db.get_job_by_id(primary_id).await.unwrap().unwrap();
+            assert!(!primary.hidden);
+        }
+
+        #[tokio::test]
+        async fn test_merge_duplicates_empty_list() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let job = create_test_job("single", "Single Job", 0.9);
+            let id = db.upsert_job(&job).await.unwrap();
+
+            // Merge with empty list (should be no-op)
+            db.merge_duplicates(id, &[]).await.unwrap();
+
+            let after = db.get_job_by_id(id).await.unwrap().unwrap();
+            assert!(!after.hidden);
+        }
+    }
+
+    mod edge_case_tests {
+        use super::*;
+
+        #[tokio::test]
+        async fn test_job_with_empty_strings() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let mut job = create_test_job("empty_strings", "Valid Title", 0.9);
+            job.location = Some("".to_string());
+            job.description = Some("".to_string());
+            job.currency = Some("".to_string());
+
+            let id = db.upsert_job(&job).await.unwrap();
+            let fetched = db.get_job_by_id(id).await.unwrap().unwrap();
+
+            // Empty strings should be preserved (not converted to None)
+            assert_eq!(fetched.location.as_deref(), Some(""));
+            assert_eq!(fetched.description.as_deref(), Some(""));
+            assert_eq!(fetched.currency.as_deref(), Some(""));
+        }
+
+        #[tokio::test]
+        async fn test_job_with_zero_salary() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let mut job = create_test_job("zero_salary", "Test Job", 0.9);
+            job.salary_min = Some(0);
+            job.salary_max = Some(0);
+
+            let id = db.upsert_job(&job).await.unwrap();
+            let fetched = db.get_job_by_id(id).await.unwrap().unwrap();
+
+            assert_eq!(fetched.salary_min, Some(0));
+            assert_eq!(fetched.salary_max, Some(0));
+        }
+
+        #[tokio::test]
+        async fn test_job_with_negative_salary() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let mut job = create_test_job("negative_salary", "Test Job", 0.9);
+            job.salary_min = Some(-1000);
+            job.salary_max = Some(-500);
+
+            let id = db.upsert_job(&job).await.unwrap();
+            let fetched = db.get_job_by_id(id).await.unwrap().unwrap();
+
+            // Negative salaries are stored (validation is application-level)
+            assert_eq!(fetched.salary_min, Some(-1000));
+            assert_eq!(fetched.salary_max, Some(-500));
+        }
+
+        #[tokio::test]
+        async fn test_job_with_score_boundary_values() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Score = 0.0
+            let job1 = create_test_job("score_zero", "Zero Score", 0.0);
+            let id1 = db.upsert_job(&job1).await.unwrap();
+            let fetched1 = db.get_job_by_id(id1).await.unwrap().unwrap();
+            assert_eq!(fetched1.score, Some(0.0));
+
+            // Score = 1.0
+            let job2 = create_test_job("score_one", "Perfect Score", 1.0);
+            let id2 = db.upsert_job(&job2).await.unwrap();
+            let fetched2 = db.get_job_by_id(id2).await.unwrap().unwrap();
+            assert_eq!(fetched2.score, Some(1.0));
+        }
+
+        #[tokio::test]
+        async fn test_get_recent_jobs_with_limit_zero() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let job = create_test_job("limit_zero", "Test Job", 0.9);
+            db.upsert_job(&job).await.unwrap();
+
+            let results = db.get_recent_jobs(0).await.unwrap();
+            assert_eq!(results.len(), 0);
+        }
+
+        #[tokio::test]
+        async fn test_get_recent_jobs_with_negative_limit() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let job = create_test_job("negative_limit", "Test Job", 0.9);
+            db.upsert_job(&job).await.unwrap();
+
+            // SQLite treats negative LIMIT as unlimited
+            let results = db.get_recent_jobs(-1).await.unwrap();
+            assert_eq!(results.len(), 1);
+        }
+
+        #[tokio::test]
+        async fn test_unicode_in_job_fields() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let mut job = create_test_job("unicode", "Développeur Senior 🚀", 0.9);
+            job.company = "株式会社テスト".to_string();
+            job.location = Some("São Paulo, Brasil 🇧🇷".to_string());
+            job.description = Some("Looking for a 全栈工程师 with 経験 in Rust".to_string());
+
+            let id = db.upsert_job(&job).await.unwrap();
+            let fetched = db.get_job_by_id(id).await.unwrap().unwrap();
+
+            assert_eq!(fetched.title, "Développeur Senior 🚀");
+            assert_eq!(fetched.company, "株式会社テスト");
+            assert_eq!(fetched.location.as_deref(), Some("São Paulo, Brasil 🇧🇷"));
+        }
+
+        #[tokio::test]
+        async fn test_sql_injection_protection_in_search() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let job = create_test_job("injection_test", "Test Job", 0.9);
+            db.upsert_job(&job).await.unwrap();
+
+            // Try SQL injection in search query
+            let malicious_query = "'; DROP TABLE jobs; --";
+            let _result = db.search_jobs(malicious_query, 10).await;
+
+            // Should either return empty results or FTS5 error, NOT drop the table
+            // The table should still exist after this
+            let jobs = db.get_recent_jobs(10).await.unwrap();
+            assert_eq!(jobs.len(), 1, "Table should not be dropped");
+        }
+
+        #[tokio::test]
+        async fn test_very_large_times_seen() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let job = create_test_job("large_times_seen", "Popular Job", 0.9);
+            let id = db.upsert_job(&job).await.unwrap();
+
+            // Upsert many times
+            for _ in 0..100 {
+                db.upsert_job(&job).await.unwrap();
+            }
+
+            let fetched = db.get_job_by_id(id).await.unwrap().unwrap();
+            assert_eq!(fetched.times_seen, 101);
+        }
+
+        #[tokio::test]
+        async fn test_job_with_very_long_url() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let mut job = create_test_job("long_url", "Test Job", 0.9);
+            // Create a URL at the limit (2000 chars exactly)
+            job.url = format!("https://example.com/job?{}", "x".repeat(1976));
+
+            let id = db.upsert_job(&job).await.unwrap();
+            let fetched = db.get_job_by_id(id).await.unwrap().unwrap();
+
+            assert_eq!(fetched.url.len(), 2000);
+        }
+
+        #[tokio::test]
+        async fn test_concurrent_upserts_same_hash() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let job = create_test_job("concurrent", "Test Job", 0.9);
+
+            // First insert the job once to establish the row
+            db.upsert_job(&job).await.unwrap();
+
+            // Then do concurrent updates
+            let mut handles = vec![];
+            for _ in 0..10 {
+                let job_clone = job.clone();
+                let db_pool = db.pool().clone();
+                let handle = tokio::spawn(async move {
+                    let db = Database { pool: db_pool };
+                    db.upsert_job(&job_clone).await
+                });
+                handles.push(handle);
+            }
+
+            // Wait for all to complete
+            let mut ids = vec![];
+            for handle in handles {
+                let id = handle.await.unwrap().unwrap();
+                ids.push(id);
+            }
+
+            // All should return the same ID (deduplication worked)
+            assert!(ids.iter().all(|&id| id == ids[0]));
+
+            // Verify times_seen incremented correctly (1 initial + 10 concurrent = 11)
+            let fetched = db.get_job_by_id(ids[0]).await.unwrap().unwrap();
+            assert_eq!(fetched.times_seen, 11);
         }
     }
 }

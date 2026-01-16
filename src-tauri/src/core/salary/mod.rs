@@ -1288,4 +1288,712 @@ mod tests {
             SeniorityLevel::Entry
         );
     }
+
+    // Database-dependent tests using in-memory SQLite
+    mod database_tests {
+        use super::*;
+        use sqlx::sqlite::SqlitePoolOptions;
+
+        // Helper to create test database with schema
+        async fn create_test_db() -> SqlitePool {
+            let pool = SqlitePoolOptions::new()
+                .connect(":memory:")
+                .await
+                .expect("Failed to create in-memory database");
+
+            // Create jobs table
+            sqlx::query(
+                r#"
+                CREATE TABLE jobs (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    hash TEXT NOT NULL UNIQUE,
+                    title TEXT NOT NULL,
+                    company TEXT NOT NULL,
+                    url TEXT NOT NULL,
+                    location TEXT,
+                    description TEXT,
+                    score REAL,
+                    source TEXT NOT NULL,
+                    remote INTEGER,
+                    salary_min INTEGER,
+                    salary_max INTEGER,
+                    currency TEXT DEFAULT 'USD',
+                    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                    updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+                )
+                "#,
+            )
+            .execute(&pool)
+            .await
+            .expect("Failed to create jobs table");
+
+            // Create salary_benchmarks table
+            sqlx::query(
+                r#"
+                CREATE TABLE salary_benchmarks (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    job_title_normalized TEXT NOT NULL,
+                    location_normalized TEXT NOT NULL,
+                    seniority_level TEXT CHECK(seniority_level IN ('entry', 'mid', 'senior', 'staff', 'principal', 'unknown')),
+                    min_salary INTEGER NOT NULL,
+                    p25_salary INTEGER NOT NULL,
+                    median_salary INTEGER NOT NULL,
+                    p75_salary INTEGER NOT NULL,
+                    max_salary INTEGER NOT NULL,
+                    average_salary INTEGER NOT NULL,
+                    sample_size INTEGER NOT NULL,
+                    data_source TEXT DEFAULT 'h1b',
+                    last_updated TEXT NOT NULL DEFAULT (datetime('now')),
+                    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                    UNIQUE(job_title_normalized, location_normalized, seniority_level, data_source)
+                )
+                "#,
+            )
+            .execute(&pool)
+            .await
+            .expect("Failed to create salary_benchmarks table");
+
+            // Create job_salary_predictions table
+            sqlx::query(
+                r#"
+                CREATE TABLE job_salary_predictions (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    job_hash TEXT NOT NULL UNIQUE,
+                    predicted_min INTEGER,
+                    predicted_max INTEGER,
+                    predicted_median INTEGER,
+                    confidence_score REAL,
+                    prediction_method TEXT,
+                    data_points_used INTEGER,
+                    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+                )
+                "#,
+            )
+            .execute(&pool)
+            .await
+            .expect("Failed to create job_salary_predictions table");
+
+            // Create negotiation_templates table
+            sqlx::query(
+                r#"
+                CREATE TABLE negotiation_templates (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    template_name TEXT NOT NULL,
+                    scenario TEXT NOT NULL,
+                    template_text TEXT NOT NULL,
+                    placeholders TEXT,
+                    is_default INTEGER NOT NULL DEFAULT 0,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+                "#,
+            )
+            .execute(&pool)
+            .await
+            .expect("Failed to create negotiation_templates table");
+
+            // Create applications table (for offers)
+            sqlx::query(
+                r#"
+                CREATE TABLE applications (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    job_hash TEXT NOT NULL,
+                    status TEXT NOT NULL,
+                    applied_at TEXT NOT NULL,
+                    FOREIGN KEY(job_hash) REFERENCES jobs(hash)
+                )
+                "#,
+            )
+            .execute(&pool)
+            .await
+            .expect("Failed to create applications table");
+
+            // Create offers table
+            sqlx::query(
+                r#"
+                CREATE TABLE offers (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    application_id INTEGER NOT NULL,
+                    base_salary INTEGER,
+                    annual_bonus INTEGER,
+                    equity_shares INTEGER,
+                    received_at TEXT NOT NULL,
+                    FOREIGN KEY(application_id) REFERENCES applications(id)
+                )
+                "#,
+            )
+            .execute(&pool)
+            .await
+            .expect("Failed to create offers table");
+
+            pool
+        }
+
+        // Insert test benchmark
+        async fn insert_benchmark(
+            pool: &SqlitePool,
+            title: &str,
+            location: &str,
+            seniority: &str,
+            min: i64,
+            median: i64,
+            p75: i64,
+        ) {
+            sqlx::query(
+                r#"
+                INSERT INTO salary_benchmarks (
+                    job_title_normalized, location_normalized, seniority_level,
+                    min_salary, p25_salary, median_salary, p75_salary, max_salary,
+                    average_salary, sample_size
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                "#,
+            )
+            .bind(title)
+            .bind(location)
+            .bind(seniority)
+            .bind(min)
+            .bind((min + median) / 2)
+            .bind(median)
+            .bind(p75)
+            .bind(p75 + 10000)
+            .bind((min + median + p75) / 3)
+            .bind(100)
+            .execute(pool)
+            .await
+            .expect("Failed to insert benchmark");
+        }
+
+        // Insert test job
+        async fn insert_job(pool: &SqlitePool, hash: &str, title: &str, location: &str) {
+            sqlx::query(
+                r#"
+                INSERT INTO jobs (hash, title, company, url, location, source)
+                VALUES (?, ?, 'Test Company', 'https://example.com', ?, 'test')
+                "#,
+            )
+            .bind(hash)
+            .bind(title)
+            .bind(location)
+            .execute(pool)
+            .await
+            .expect("Failed to insert job");
+        }
+
+        // Insert test template
+        async fn insert_template(pool: &SqlitePool, scenario: &str, text: &str) {
+            sqlx::query(
+                r#"
+                INSERT INTO negotiation_templates (template_name, scenario, template_text, placeholders, is_default)
+                VALUES (?, ?, ?, '[]', 1)
+                "#,
+            )
+            .bind(scenario)
+            .bind(scenario)
+            .bind(text)
+            .execute(pool)
+            .await
+            .expect("Failed to insert template");
+        }
+
+        #[tokio::test]
+        async fn test_salary_analyzer_new() {
+            let pool = create_test_db().await;
+            let analyzer = SalaryAnalyzer::new(pool);
+
+            // Verify analyzer was created (basic check)
+            assert_eq!(
+                std::mem::size_of_val(&analyzer),
+                std::mem::size_of::<SqlitePool>() * 3 // db + predictor + script_generator each have pool
+            );
+        }
+
+        #[tokio::test]
+        async fn test_predict_salary_for_job() {
+            let pool = create_test_db().await;
+            insert_job(&pool, "job123", "Senior Software Engineer", "San Francisco, CA").await;
+            insert_benchmark(&pool, "software engineer", "san francisco, ca", "senior", 150000, 180000, 220000)
+                .await;
+
+            let analyzer = SalaryAnalyzer::new(pool);
+            let result = analyzer.predict_salary_for_job("job123", None).await;
+
+            assert!(result.is_ok());
+            let prediction = result.unwrap();
+            assert_eq!(prediction.job_hash, "job123");
+            assert_eq!(prediction.predicted_min, 150000);
+            assert_eq!(prediction.predicted_median, 180000);
+            assert_eq!(prediction.predicted_max, 220000);
+        }
+
+        #[tokio::test]
+        async fn test_predict_salary_for_job_with_experience() {
+            let pool = create_test_db().await;
+            insert_job(&pool, "job456", "Software Engineer", "New York, NY").await;
+            insert_benchmark(&pool, "software engineer", "new york, ny", "entry", 80000, 100000, 120000).await;
+
+            let analyzer = SalaryAnalyzer::new(pool);
+            // 2 years = Entry level
+            let result = analyzer.predict_salary_for_job("job456", Some(2)).await;
+
+            assert!(result.is_ok());
+            let prediction = result.unwrap();
+            assert_eq!(prediction.predicted_median, 100000);
+        }
+
+        #[tokio::test]
+        async fn test_predict_salary_for_job_nonexistent() {
+            let pool = create_test_db().await;
+            let analyzer = SalaryAnalyzer::new(pool);
+
+            let result = analyzer.predict_salary_for_job("nonexistent", None).await;
+            assert!(result.is_err());
+        }
+
+        #[tokio::test]
+        async fn test_get_benchmark_found() {
+            let pool = create_test_db().await;
+            insert_benchmark(&pool, "software engineer", "san francisco, ca", "mid", 120000, 150000, 180000)
+                .await;
+
+            let analyzer = SalaryAnalyzer::new(pool);
+            let result = analyzer
+                .get_benchmark("Software Engineer", "San Francisco, CA", SeniorityLevel::Mid)
+                .await;
+
+            assert!(result.is_ok());
+            let benchmark = result.unwrap();
+            assert!(benchmark.is_some());
+
+            let bench = benchmark.unwrap();
+            assert_eq!(bench.job_title, "software engineer");
+            assert_eq!(bench.location, "san francisco, ca");
+            assert_eq!(bench.seniority_level, SeniorityLevel::Mid);
+            assert_eq!(bench.min_salary, 120000);
+            assert_eq!(bench.median_salary, 150000);
+            assert_eq!(bench.p75_salary, 180000);
+        }
+
+        #[tokio::test]
+        async fn test_get_benchmark_not_found() {
+            let pool = create_test_db().await;
+            let analyzer = SalaryAnalyzer::new(pool);
+
+            let result = analyzer
+                .get_benchmark("DevOps Engineer", "Austin, TX", SeniorityLevel::Senior)
+                .await;
+
+            assert!(result.is_ok());
+            assert!(result.unwrap().is_none());
+        }
+
+        #[tokio::test]
+        async fn test_get_benchmark_normalizes_inputs() {
+            let pool = create_test_db().await;
+            insert_benchmark(&pool, "software engineer", "new york, ny", "senior", 140000, 170000, 200000).await;
+
+            let analyzer = SalaryAnalyzer::new(pool);
+            // Test with variations that should normalize
+            let result = analyzer
+                .get_benchmark("Sr. SWE", "NYC", SeniorityLevel::Senior)
+                .await;
+
+            assert!(result.is_ok());
+            let benchmark = result.unwrap();
+            assert!(benchmark.is_some());
+
+            let bench = benchmark.unwrap();
+            assert_eq!(bench.median_salary, 170000);
+        }
+
+        #[tokio::test]
+        async fn test_get_benchmark_returns_latest() {
+            let pool = create_test_db().await;
+
+            // Insert first benchmark with data_source='h1b'
+            insert_benchmark(&pool, "data scientist", "seattle, wa", "mid", 100000, 120000, 140000).await;
+
+            // Wait a tiny bit to ensure different timestamp
+            tokio::time::sleep(tokio::time::Duration::from_millis(50)).await;
+
+            // Update the same benchmark (same data_source to avoid unique constraint)
+            // This simulates a data refresh
+            sqlx::query(
+                r#"
+                UPDATE salary_benchmarks
+                SET min_salary = 110000,
+                    p25_salary = 125000,
+                    median_salary = 130000,
+                    p75_salary = 150000,
+                    max_salary = 160000,
+                    average_salary = 135000,
+                    sample_size = 200,
+                    last_updated = datetime('now')
+                WHERE job_title_normalized = 'data scientist'
+                  AND location_normalized = 'seattle, wa'
+                  AND seniority_level = 'mid'
+                  AND data_source = 'h1b'
+                "#,
+            )
+            .execute(&pool)
+            .await
+            .expect("Failed to update benchmark");
+
+            let analyzer = SalaryAnalyzer::new(pool);
+            let result = analyzer
+                .get_benchmark("Data Scientist", "Seattle, WA", SeniorityLevel::Mid)
+                .await
+                .unwrap()
+                .unwrap();
+
+            // Should return the updated data (higher median)
+            assert_eq!(result.median_salary, 130000);
+            assert_eq!(result.sample_size, 200);
+        }
+
+        #[tokio::test]
+        async fn test_generate_negotiation_script() {
+            let pool = create_test_db().await;
+            insert_template(&pool, "greeting", "Hello {{name}}, your offer is {{amount}}.").await;
+
+            let analyzer = SalaryAnalyzer::new(pool);
+
+            let mut params = std::collections::HashMap::new();
+            params.insert("name".to_string(), "Alice".to_string());
+            params.insert("amount".to_string(), "$150,000".to_string());
+
+            let result = analyzer.generate_negotiation_script("greeting", params).await;
+
+            assert!(result.is_ok());
+            assert_eq!(result.unwrap(), "Hello Alice, your offer is $150,000.");
+        }
+
+        #[tokio::test]
+        async fn test_generate_negotiation_script_missing_template() {
+            let pool = create_test_db().await;
+            let analyzer = SalaryAnalyzer::new(pool);
+
+            let params = std::collections::HashMap::new();
+            let result = analyzer
+                .generate_negotiation_script("nonexistent", params)
+                .await;
+
+            assert!(result.is_err());
+        }
+
+        #[tokio::test]
+        async fn test_compare_offers_single() {
+            let pool = create_test_db().await;
+
+            // Setup: job, application, offer, prediction
+            insert_job(&pool, "job_offer1", "Software Engineer", "Seattle, WA").await;
+
+            sqlx::query("INSERT INTO applications (job_hash, status, applied_at) VALUES (?, 'offer', datetime('now'))")
+                .bind("job_offer1")
+                .execute(&pool)
+                .await
+                .unwrap();
+
+            sqlx::query(
+                "INSERT INTO offers (application_id, base_salary, annual_bonus, received_at) VALUES (1, 140000, 20000, datetime('now'))",
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            // Insert prediction
+            sqlx::query(
+                r#"
+                INSERT INTO job_salary_predictions (job_hash, predicted_min, predicted_max, predicted_median, confidence_score, prediction_method, data_points_used)
+                VALUES (?, 120000, 180000, 150000, 0.85, 'h1b_match', 50)
+                "#,
+            )
+            .bind("job_offer1")
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            let analyzer = SalaryAnalyzer::new(pool);
+            let result = analyzer.compare_offers(vec![1]).await;
+
+            assert!(result.is_ok());
+            let comparisons = result.unwrap();
+            assert_eq!(comparisons.len(), 1);
+
+            let comp = &comparisons[0];
+            assert_eq!(comp.offer_id, 1);
+            assert_eq!(comp.company, "Test Company");
+            assert_eq!(comp.base_salary, 140000);
+            assert_eq!(comp.total_compensation, 160000); // 140000 + 20000
+            assert_eq!(comp.market_median, Some(150000));
+            assert_eq!(comp.market_position, "below_market"); // 140000 < 150000
+            assert!(comp.recommendation.contains("Counter with"));
+        }
+
+        #[tokio::test]
+        async fn test_compare_offers_multiple() {
+            let pool = create_test_db().await;
+
+            // First offer
+            insert_job(&pool, "job1", "Data Scientist", "Boston, MA").await;
+            sqlx::query("INSERT INTO applications (job_hash, status, applied_at) VALUES (?, 'offer', datetime('now'))")
+                .bind("job1")
+                .execute(&pool)
+                .await
+                .unwrap();
+            sqlx::query(
+                "INSERT INTO offers (application_id, base_salary, annual_bonus, received_at) VALUES (1, 130000, 15000, datetime('now'))",
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+            sqlx::query(
+                "INSERT INTO job_salary_predictions (job_hash, predicted_min, predicted_max, predicted_median, confidence_score, prediction_method, data_points_used) VALUES (?, 110000, 160000, 135000, 0.8, 'h1b_match', 40)",
+            )
+            .bind("job1")
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            // Second offer
+            insert_job(&pool, "job2", "Product Manager", "Denver, CO").await;
+            sqlx::query("INSERT INTO applications (job_hash, status, applied_at) VALUES (?, 'offer', datetime('now'))")
+                .bind("job2")
+                .execute(&pool)
+                .await
+                .unwrap();
+            sqlx::query(
+                "INSERT INTO offers (application_id, base_salary, annual_bonus, received_at) VALUES (2, 150000, 25000, datetime('now'))",
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+            sqlx::query(
+                "INSERT INTO job_salary_predictions (job_hash, predicted_min, predicted_max, predicted_median, confidence_score, prediction_method, data_points_used) VALUES (?, 120000, 170000, 145000, 0.75, 'h1b_average', 30)",
+            )
+            .bind("job2")
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            let analyzer = SalaryAnalyzer::new(pool);
+            let result = analyzer.compare_offers(vec![1, 2]).await;
+
+            assert!(result.is_ok());
+            let comparisons = result.unwrap();
+            assert_eq!(comparisons.len(), 2);
+
+            // First offer: 130000 < 135000 (median) = below_market
+            assert_eq!(comparisons[0].market_position, "below_market");
+
+            // Second offer: 150000 > 145000 (median) but < 170000 (max) = at_market
+            assert_eq!(comparisons[1].market_position, "at_market");
+        }
+
+        #[tokio::test]
+        async fn test_compare_offers_above_market() {
+            let pool = create_test_db().await;
+
+            insert_job(&pool, "job_great", "Software Engineer", "Remote").await;
+            sqlx::query("INSERT INTO applications (job_hash, status, applied_at) VALUES (?, 'offer', datetime('now'))")
+                .bind("job_great")
+                .execute(&pool)
+                .await
+                .unwrap();
+            sqlx::query(
+                "INSERT INTO offers (application_id, base_salary, annual_bonus, received_at) VALUES (1, 200000, 30000, datetime('now'))",
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+            sqlx::query(
+                "INSERT INTO job_salary_predictions (job_hash, predicted_min, predicted_max, predicted_median, confidence_score, prediction_method, data_points_used) VALUES (?, 120000, 180000, 150000, 0.9, 'h1b_match', 100)",
+            )
+            .bind("job_great")
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            let analyzer = SalaryAnalyzer::new(pool);
+            let result = analyzer.compare_offers(vec![1]).await.unwrap();
+
+            // 200000 >= 180000 (max) = above_market
+            assert_eq!(result[0].market_position, "above_market");
+            assert_eq!(result[0].recommendation, "Excellent offer! Accept or negotiate equity.");
+        }
+
+        #[tokio::test]
+        async fn test_compare_offers_no_prediction() {
+            let pool = create_test_db().await;
+
+            insert_job(&pool, "job_unknown", "Blockchain Engineer", "Miami, FL").await;
+            sqlx::query("INSERT INTO applications (job_hash, status, applied_at) VALUES (?, 'offer', datetime('now'))")
+                .bind("job_unknown")
+                .execute(&pool)
+                .await
+                .unwrap();
+            sqlx::query(
+                "INSERT INTO offers (application_id, base_salary, annual_bonus, received_at) VALUES (1, 160000, 20000, datetime('now'))",
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+            // No prediction inserted
+
+            let analyzer = SalaryAnalyzer::new(pool);
+            let result = analyzer.compare_offers(vec![1]).await.unwrap();
+
+            assert_eq!(result[0].market_median, None);
+            assert_eq!(result[0].market_position, "unknown");
+            assert_eq!(result[0].recommendation, "Insufficient data for recommendation.");
+        }
+
+        #[tokio::test]
+        async fn test_compare_offers_empty_list() {
+            let pool = create_test_db().await;
+            let analyzer = SalaryAnalyzer::new(pool);
+
+            let result = analyzer.compare_offers(vec![]).await;
+
+            assert!(result.is_ok());
+            assert_eq!(result.unwrap().len(), 0);
+        }
+
+        #[tokio::test]
+        async fn test_compare_offers_nonexistent_offer() {
+            let pool = create_test_db().await;
+            let analyzer = SalaryAnalyzer::new(pool);
+
+            let result = analyzer.compare_offers(vec![999]).await;
+
+            assert!(result.is_err());
+        }
+
+        #[tokio::test]
+        async fn test_compare_offers_null_bonus() {
+            let pool = create_test_db().await;
+
+            insert_job(&pool, "job_null", "Engineer", "Chicago, IL").await;
+            sqlx::query("INSERT INTO applications (job_hash, status, applied_at) VALUES (?, 'offer', datetime('now'))")
+                .bind("job_null")
+                .execute(&pool)
+                .await
+                .unwrap();
+            // Insert offer with NULL bonus
+            sqlx::query(
+                "INSERT INTO offers (application_id, base_salary, annual_bonus, received_at) VALUES (1, 130000, NULL, datetime('now'))",
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+            sqlx::query(
+                "INSERT INTO job_salary_predictions (job_hash, predicted_min, predicted_max, predicted_median, confidence_score, prediction_method, data_points_used) VALUES (?, 100000, 150000, 125000, 0.7, 'default', 0)",
+            )
+            .bind("job_null")
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            let analyzer = SalaryAnalyzer::new(pool);
+            let result = analyzer.compare_offers(vec![1]).await.unwrap();
+
+            // Total comp should be 130000 + 0
+            assert_eq!(result[0].total_compensation, 130000);
+        }
+
+        #[tokio::test]
+        async fn test_compare_offers_calculates_total_comp() {
+            let pool = create_test_db().await;
+
+            insert_job(&pool, "job_comp", "Engineer", "LA, CA").await;
+            sqlx::query("INSERT INTO applications (job_hash, status, applied_at) VALUES (?, 'offer', datetime('now'))")
+                .bind("job_comp")
+                .execute(&pool)
+                .await
+                .unwrap();
+            sqlx::query(
+                "INSERT INTO offers (application_id, base_salary, annual_bonus, received_at) VALUES (1, 120000, 30000, datetime('now'))",
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+            sqlx::query(
+                "INSERT INTO job_salary_predictions (job_hash, predicted_min, predicted_max, predicted_median, confidence_score, prediction_method, data_points_used) VALUES (?, 100000, 160000, 130000, 0.75, 'h1b_match', 50)",
+            )
+            .bind("job_comp")
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            let analyzer = SalaryAnalyzer::new(pool);
+            let result = analyzer.compare_offers(vec![1]).await.unwrap();
+
+            assert_eq!(result[0].base_salary, 120000);
+            assert_eq!(result[0].total_compensation, 150000); // 120000 + 30000
+        }
+
+        #[tokio::test]
+        async fn test_compare_offers_market_position_at_median() {
+            let pool = create_test_db().await;
+
+            insert_job(&pool, "job_exact", "Developer", "Portland, OR").await;
+            sqlx::query("INSERT INTO applications (job_hash, status, applied_at) VALUES (?, 'offer', datetime('now'))")
+                .bind("job_exact")
+                .execute(&pool)
+                .await
+                .unwrap();
+            // Base salary exactly at median
+            sqlx::query(
+                "INSERT INTO offers (application_id, base_salary, annual_bonus, received_at) VALUES (1, 150000, 10000, datetime('now'))",
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+            sqlx::query(
+                "INSERT INTO job_salary_predictions (job_hash, predicted_min, predicted_max, predicted_median, confidence_score, prediction_method, data_points_used) VALUES (?, 120000, 180000, 150000, 0.85, 'h1b_match', 60)",
+            )
+            .bind("job_exact")
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            let analyzer = SalaryAnalyzer::new(pool);
+            let result = analyzer.compare_offers(vec![1]).await.unwrap();
+
+            // 150000 >= 150000 (median) but < 180000 (max) = at_market
+            assert_eq!(result[0].market_position, "at_market");
+            assert_eq!(result[0].recommendation, "Fair offer. Consider negotiating for 10-15% more.");
+        }
+
+        #[tokio::test]
+        async fn test_compare_offers_market_position_at_max() {
+            let pool = create_test_db().await;
+
+            insert_job(&pool, "job_max", "Engineer", "Austin, TX").await;
+            sqlx::query("INSERT INTO applications (job_hash, status, applied_at) VALUES (?, 'offer', datetime('now'))")
+                .bind("job_max")
+                .execute(&pool)
+                .await
+                .unwrap();
+            // Base salary exactly at max
+            sqlx::query(
+                "INSERT INTO offers (application_id, base_salary, annual_bonus, received_at) VALUES (1, 200000, 15000, datetime('now'))",
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+            sqlx::query(
+                "INSERT INTO job_salary_predictions (job_hash, predicted_min, predicted_max, predicted_median, confidence_score, prediction_method, data_points_used) VALUES (?, 140000, 200000, 170000, 0.9, 'h1b_match', 80)",
+            )
+            .bind("job_max")
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            let analyzer = SalaryAnalyzer::new(pool);
+            let result = analyzer.compare_offers(vec![1]).await.unwrap();
+
+            // 200000 >= 200000 (max) = above_market
+            assert_eq!(result[0].market_position, "above_market");
+        }
+    }
 }

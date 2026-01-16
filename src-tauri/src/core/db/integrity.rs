@@ -1080,4 +1080,564 @@ mod tests {
             .await
             .unwrap();
     }
+
+    #[tokio::test]
+    async fn test_full_integrity_check() {
+        let db = create_test_db().await;
+        let temp_dir = tempfile::tempdir().unwrap();
+        let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
+
+        let result = integrity.full_integrity_check().await.unwrap();
+        assert!(result.is_ok, "Healthy database should pass full integrity check");
+        assert_eq!(result.message.to_lowercase(), "ok");
+    }
+
+    #[tokio::test]
+    async fn test_should_run_full_check_never_run() {
+        let db = create_test_db().await;
+        let temp_dir = tempfile::tempdir().unwrap();
+        let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
+
+        let should_run = integrity.should_run_full_check().await.unwrap();
+        assert!(should_run, "Should run full check if never run before");
+    }
+
+    #[tokio::test]
+    async fn test_should_run_full_check_recent() {
+        let db = create_test_db().await;
+        let temp_dir = tempfile::tempdir().unwrap();
+        let integrity = DatabaseIntegrity::new(db.clone(), temp_dir.path().to_path_buf());
+
+        // Set last check to now
+        integrity.update_last_full_check().await.unwrap();
+
+        let should_run = integrity.should_run_full_check().await.unwrap();
+        assert!(!should_run, "Should not run full check if recently run");
+    }
+
+    #[tokio::test]
+    async fn test_should_run_full_check_old() {
+        let db = create_test_db().await;
+        let temp_dir = tempfile::tempdir().unwrap();
+        let integrity = DatabaseIntegrity::new(db.clone(), temp_dir.path().to_path_buf());
+
+        // Set last check to 8 days ago
+        let old_timestamp = (Utc::now() - chrono::Duration::days(8)).to_rfc3339();
+        sqlx::query(
+            "INSERT OR REPLACE INTO app_metadata (key, value, updated_at) VALUES (?, ?, datetime('now'))",
+        )
+        .bind("last_full_integrity_check")
+        .bind(old_timestamp)
+        .execute(&db)
+        .await
+        .unwrap();
+
+        let should_run = integrity.should_run_full_check().await.unwrap();
+        assert!(should_run, "Should run full check if last check was > 7 days ago");
+    }
+
+    #[tokio::test]
+    async fn test_should_run_full_check_invalid_timestamp() {
+        let db = create_test_db().await;
+        let temp_dir = tempfile::tempdir().unwrap();
+        let integrity = DatabaseIntegrity::new(db.clone(), temp_dir.path().to_path_buf());
+
+        // Set invalid timestamp
+        sqlx::query(
+            "INSERT OR REPLACE INTO app_metadata (key, value, updated_at) VALUES (?, ?, datetime('now'))",
+        )
+        .bind("last_full_integrity_check")
+        .bind("invalid-timestamp")
+        .execute(&db)
+        .await
+        .unwrap();
+
+        let should_run = integrity.should_run_full_check().await.unwrap();
+        assert!(should_run, "Should run full check if timestamp is invalid");
+    }
+
+    #[tokio::test]
+    async fn test_update_last_full_check() {
+        let db = create_test_db().await;
+        let temp_dir = tempfile::tempdir().unwrap();
+        let integrity = DatabaseIntegrity::new(db.clone(), temp_dir.path().to_path_buf());
+
+        integrity.update_last_full_check().await.unwrap();
+
+        let timestamp: String = sqlx::query_scalar(
+            "SELECT value FROM app_metadata WHERE key = 'last_full_integrity_check'",
+        )
+        .fetch_one(&db)
+        .await
+        .unwrap();
+
+        assert!(!timestamp.is_empty(), "Timestamp should be set");
+        assert!(
+            chrono::DateTime::parse_from_rfc3339(&timestamp).is_ok(),
+            "Timestamp should be valid RFC3339"
+        );
+    }
+
+    #[tokio::test]
+    async fn test_log_check() {
+        let db = create_test_db().await;
+        let temp_dir = tempfile::tempdir().unwrap();
+        let integrity = DatabaseIntegrity::new(db.clone(), temp_dir.path().to_path_buf());
+
+        let duration = std::time::Duration::from_millis(123);
+        integrity
+            .log_check("quick", "passed", Some("test details"), duration)
+            .await
+            .unwrap();
+
+        let (check_type, status, details, duration_ms): (String, String, Option<String>, i64) =
+            sqlx::query_as(
+                "SELECT check_type, status, details, duration_ms FROM integrity_check_log ORDER BY created_at DESC LIMIT 1",
+            )
+            .fetch_one(&db)
+            .await
+            .unwrap();
+
+        assert_eq!(check_type, "quick");
+        assert_eq!(status, "passed");
+        assert_eq!(details.unwrap(), "test details");
+        assert_eq!(duration_ms, 123);
+    }
+
+    #[tokio::test]
+    async fn test_log_check_without_details() {
+        let db = create_test_db().await;
+        let temp_dir = tempfile::tempdir().unwrap();
+        let integrity = DatabaseIntegrity::new(db.clone(), temp_dir.path().to_path_buf());
+
+        let duration = std::time::Duration::from_secs(1);
+        integrity
+            .log_check("quick", "passed", None, duration)
+            .await
+            .unwrap();
+
+        let details: Option<String> = sqlx::query_scalar(
+            "SELECT details FROM integrity_check_log ORDER BY created_at DESC LIMIT 1",
+        )
+        .fetch_one(&db)
+        .await
+        .unwrap();
+
+        assert!(details.is_none(), "Details should be None");
+    }
+
+    #[tokio::test]
+    #[ignore = "Requires file-based database (VACUUM INTO doesn't work with in-memory)"]
+    async fn test_backup_before_operation() {
+        let db = create_test_db().await;
+        let temp_dir = tempfile::tempdir().unwrap();
+        let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
+
+        let backup_path = integrity
+            .backup_before_operation("migration")
+            .await
+            .unwrap();
+        assert!(
+            backup_path
+                .file_name()
+                .unwrap()
+                .to_str()
+                .unwrap()
+                .contains("pre_migration"),
+            "Backup filename should contain operation name"
+        );
+        assert!(backup_path.exists(), "Backup file should exist");
+    }
+
+    #[tokio::test]
+    #[ignore = "Requires file-based database for restore operations"]
+    async fn test_restore_from_backup_file_not_found() {
+        let db = create_test_db().await;
+        let temp_dir = tempfile::tempdir().unwrap();
+        let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
+
+        let nonexistent_backup = temp_dir.path().join("nonexistent.db");
+        let current_db = temp_dir.path().join("current.db");
+
+        let result = integrity
+            .restore_from_backup(&nonexistent_backup, &current_db)
+            .await;
+        assert!(result.is_err(), "Should fail if backup file doesn't exist");
+        assert!(
+            result
+                .unwrap_err()
+                .to_string()
+                .contains("Backup file not found"),
+            "Error message should mention file not found"
+        );
+    }
+
+    #[tokio::test]
+    async fn test_optimize() {
+        let db = create_test_db().await;
+        let temp_dir = tempfile::tempdir().unwrap();
+        let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
+
+        // Should not fail
+        integrity.optimize().await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn test_optimize_with_data() {
+        let db = create_test_db().await;
+        let temp_dir = tempfile::tempdir().unwrap();
+        let integrity = DatabaseIntegrity::new(db.clone(), temp_dir.path().to_path_buf());
+
+        // Insert some data
+        for i in 0..50 {
+            sqlx::query(
+                "INSERT INTO jobs (hash, title, company, url, source) VALUES (?, ?, ?, ?, ?)",
+            )
+            .bind(format!("hash_{}", i))
+            .bind(format!("Job {}", i))
+            .bind("Company")
+            .bind(format!("https://example.com/{}", i))
+            .bind("test")
+            .execute(&db)
+            .await
+            .unwrap();
+        }
+
+        // Optimize should succeed
+        integrity.optimize().await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn test_cleanup_old_backups_no_backups() {
+        let db = create_test_db().await;
+        let temp_dir = tempfile::tempdir().unwrap();
+        let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
+
+        let deleted = integrity.cleanup_old_backups(5).await.unwrap();
+        assert_eq!(deleted, 0, "Should delete 0 files when no backups exist");
+    }
+
+    #[tokio::test]
+    async fn test_cleanup_old_backups_fewer_than_keep_count() {
+        let db = create_test_db().await;
+        let temp_dir = tempfile::tempdir().unwrap();
+        let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
+
+        // Create 2 dummy backup files
+        for i in 0..2 {
+            let backup_file = temp_dir.path().join(format!("backup_{}.db", i));
+            std::fs::write(&backup_file, b"dummy backup").unwrap();
+        }
+
+        let deleted = integrity.cleanup_old_backups(5).await.unwrap();
+        assert_eq!(
+            deleted, 0,
+            "Should delete 0 files when backups < keep_count"
+        );
+    }
+
+    #[tokio::test]
+    async fn test_cleanup_old_backups_ignores_non_db_files() {
+        let db = create_test_db().await;
+        let temp_dir = tempfile::tempdir().unwrap();
+        let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
+
+        // Create various files
+        std::fs::write(temp_dir.path().join("backup1.db"), b"backup").unwrap();
+        std::fs::write(temp_dir.path().join("backup2.db"), b"backup").unwrap();
+        std::fs::write(temp_dir.path().join("readme.txt"), b"text").unwrap();
+        std::fs::write(temp_dir.path().join("data.json"), b"json").unwrap();
+
+        // Keep only 1, should delete 1 (not the txt/json files)
+        let deleted = integrity.cleanup_old_backups(1).await.unwrap();
+        assert_eq!(deleted, 1, "Should delete only .db files");
+
+        // Verify non-db files still exist
+        assert!(temp_dir.path().join("readme.txt").exists());
+        assert!(temp_dir.path().join("data.json").exists());
+    }
+
+    #[tokio::test]
+    async fn test_startup_check_triggers_full_check() {
+        let db = create_test_db().await;
+        let temp_dir = tempfile::tempdir().unwrap();
+        let integrity = DatabaseIntegrity::new(db.clone(), temp_dir.path().to_path_buf());
+
+        // Set last check to 8 days ago to trigger full check
+        let old_timestamp = (Utc::now() - chrono::Duration::days(8)).to_rfc3339();
+        sqlx::query(
+            "INSERT OR REPLACE INTO app_metadata (key, value, updated_at) VALUES (?, ?, datetime('now'))",
+        )
+        .bind("last_full_integrity_check")
+        .bind(old_timestamp)
+        .execute(&db)
+        .await
+        .unwrap();
+
+        let status = integrity.startup_check().await.unwrap();
+        assert!(matches!(status, IntegrityStatus::Healthy));
+
+        // Verify last_full_integrity_check was updated
+        let timestamp: String = sqlx::query_scalar(
+            "SELECT value FROM app_metadata WHERE key = 'last_full_integrity_check'",
+        )
+        .fetch_one(&db)
+        .await
+        .unwrap();
+
+        let last_check = chrono::DateTime::parse_from_rfc3339(&timestamp).unwrap();
+        let diff = (Utc::now() - last_check.with_timezone(&Utc)).num_seconds();
+        assert!(diff < 10, "Last check should be very recent");
+    }
+
+    #[tokio::test]
+    async fn test_checkpoint_wal_in_memory() {
+        let db = create_test_db().await;
+        let temp_dir = tempfile::tempdir().unwrap();
+        let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
+
+        // In-memory database doesn't use WAL, but the call should still succeed
+        let result = integrity.checkpoint_wal().await.unwrap();
+
+        // In-memory databases may return -1 for WAL operations that don't apply
+        assert!(result.busy >= 0 || result.busy == -1, "Busy should be valid");
+        // log_frames and checkpointed_frames can be -1 for non-WAL databases
+        assert!(
+            result.log_frames >= 0 || result.log_frames == -1,
+            "Log frames should be valid (got {})",
+            result.log_frames
+        );
+        assert!(
+            result.checkpointed_frames >= 0 || result.checkpointed_frames == -1,
+            "Checkpointed frames should be valid (got {})",
+            result.checkpointed_frames
+        );
+    }
+
+    #[tokio::test]
+    async fn test_get_pragma_diagnostics_in_memory() {
+        let db = create_test_db().await;
+        let temp_dir = tempfile::tempdir().unwrap();
+        let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
+
+        let diag = integrity.get_pragma_diagnostics().await.unwrap();
+
+        // Verify all fields are populated
+        assert!(!diag.journal_mode.is_empty(), "Journal mode should be set");
+        assert!(diag.synchronous >= 0, "Synchronous should be set");
+        assert!(diag.cache_size != 0, "Cache size should be set");
+        assert!(diag.page_size > 0, "Page size should be positive");
+        assert!(diag.auto_vacuum >= 0, "Auto vacuum should be set");
+        assert!(diag.temp_store >= 0, "Temp store should be set");
+        assert!(!diag.locking_mode.is_empty(), "Locking mode should be set");
+        assert!(diag.secure_delete >= 0, "Secure delete should be set");
+        assert!(!diag.sqlite_version.is_empty(), "SQLite version should be set");
+
+        // Verify SQLite version format (should be like "3.40.0")
+        let version_parts: Vec<&str> = diag.sqlite_version.split('.').collect();
+        assert!(
+            version_parts.len() >= 2,
+            "SQLite version should have at least major.minor"
+        );
+    }
+
+    #[tokio::test]
+    async fn test_get_backup_history_empty() {
+        let db = create_test_db().await;
+        let temp_dir = tempfile::tempdir().unwrap();
+        let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
+
+        let history = integrity.get_backup_history(10).await.unwrap();
+        assert_eq!(history.len(), 0, "Should have no backup history initially");
+    }
+
+    #[tokio::test]
+    async fn test_get_backup_history_limit() {
+        let db = create_test_db().await;
+        let temp_dir = tempfile::tempdir().unwrap();
+        let integrity = DatabaseIntegrity::new(db.clone(), temp_dir.path().to_path_buf());
+
+        // Insert 5 backup log entries
+        for i in 0..5 {
+            sqlx::query(
+                "INSERT INTO backup_log (backup_path, reason, size_bytes) VALUES (?, ?, ?)",
+            )
+            .bind(format!("/path/to/backup_{}.db", i))
+            .bind(format!("test_{}", i))
+            .bind(1000 + i)
+            .execute(&db)
+            .await
+            .unwrap();
+        }
+
+        // Get only 3
+        let history = integrity.get_backup_history(3).await.unwrap();
+        assert_eq!(history.len(), 3, "Should respect limit parameter");
+
+        // Verify we got 3 entries (exact order may vary due to same timestamp)
+        assert_eq!(history.len(), 3);
+
+        // All entries should have valid data
+        for entry in &history {
+            assert!(entry.reason.is_some());
+            assert!(entry.size_bytes.is_some());
+            assert!(entry.size_bytes.unwrap() >= 1000 && entry.size_bytes.unwrap() <= 1004);
+        }
+    }
+
+    #[tokio::test]
+    async fn test_health_metrics_overdue_checks() {
+        let db = create_test_db().await;
+        let temp_dir = tempfile::tempdir().unwrap();
+        let integrity = DatabaseIntegrity::new(db.clone(), temp_dir.path().to_path_buf());
+
+        // Set last integrity check to 10 days ago
+        let old_integrity = (Utc::now() - chrono::Duration::days(10)).to_rfc3339();
+        sqlx::query(
+            "INSERT OR REPLACE INTO app_metadata (key, value, updated_at) VALUES (?, ?, datetime('now'))",
+        )
+        .bind("last_full_integrity_check")
+        .bind(old_integrity)
+        .execute(&db)
+        .await
+        .unwrap();
+
+        // Set last backup to 30 hours ago
+        let old_backup = (Utc::now() - chrono::Duration::hours(30)).to_rfc3339();
+        sqlx::query(
+            "INSERT OR REPLACE INTO app_metadata (key, value, updated_at) VALUES (?, ?, datetime('now'))",
+        )
+        .bind("last_backup")
+        .bind(old_backup)
+        .execute(&db)
+        .await
+        .unwrap();
+
+        let health = integrity.get_health_metrics().await.unwrap();
+
+        assert!(
+            health.integrity_check_overdue,
+            "Integrity check should be overdue (> 7 days)"
+        );
+        assert!(
+            health.backup_overdue,
+            "Backup should be overdue (> 24 hours)"
+        );
+        assert_eq!(health.days_since_last_integrity_check, 10);
+        assert_eq!(health.hours_since_last_backup, 30);
+    }
+
+    #[tokio::test]
+    async fn test_health_metrics_recent_maintenance() {
+        let db = create_test_db().await;
+        let temp_dir = tempfile::tempdir().unwrap();
+        let integrity = DatabaseIntegrity::new(db.clone(), temp_dir.path().to_path_buf());
+
+        // Set recent integrity check
+        integrity.update_last_full_check().await.unwrap();
+
+        // Set recent backup
+        sqlx::query(
+            "INSERT OR REPLACE INTO app_metadata (key, value, updated_at) VALUES (?, ?, datetime('now'))",
+        )
+        .bind("last_backup")
+        .bind(Utc::now().to_rfc3339())
+        .execute(&db)
+        .await
+        .unwrap();
+
+        let health = integrity.get_health_metrics().await.unwrap();
+
+        assert!(
+            !health.integrity_check_overdue,
+            "Integrity check should not be overdue"
+        );
+        assert!(!health.backup_overdue, "Backup should not be overdue");
+        assert_eq!(health.days_since_last_integrity_check, 0);
+        assert_eq!(health.hours_since_last_backup, 0);
+    }
+
+    #[tokio::test]
+    async fn test_health_metrics_failed_checks() {
+        let db = create_test_db().await;
+        let temp_dir = tempfile::tempdir().unwrap();
+        let integrity = DatabaseIntegrity::new(db.clone(), temp_dir.path().to_path_buf());
+
+        // Insert failed check log entries
+        for i in 0..3 {
+            sqlx::query(
+                "INSERT INTO integrity_check_log (check_type, status, details, duration_ms) VALUES (?, ?, ?, ?)",
+            )
+            .bind("full")
+            .bind("failed")
+            .bind(format!("Error {}", i))
+            .bind(100)
+            .execute(&db)
+            .await
+            .unwrap();
+        }
+
+        // Insert successful check
+        sqlx::query(
+            "INSERT INTO integrity_check_log (check_type, status, details, duration_ms) VALUES (?, ?, ?, ?)",
+        )
+        .bind("quick")
+        .bind("passed")
+        .bind(None::<String>)
+        .bind(50)
+        .execute(&db)
+        .await
+        .unwrap();
+
+        let health = integrity.get_health_metrics().await.unwrap();
+
+        assert_eq!(health.total_integrity_checks, 4);
+        assert_eq!(health.failed_integrity_checks, 3);
+    }
+
+    #[tokio::test]
+    async fn test_database_integrity_new_creates_backup_dir() {
+        let temp_dir = tempfile::tempdir().unwrap();
+        let backup_dir = temp_dir.path().join("backups").join("nested");
+        assert!(!backup_dir.exists(), "Backup dir should not exist yet");
+
+        let db = create_test_db().await;
+        let _integrity = DatabaseIntegrity::new(db, backup_dir.clone());
+
+        assert!(backup_dir.exists(), "Backup dir should be created");
+        assert!(backup_dir.is_dir(), "Should be a directory");
+    }
+
+    #[tokio::test]
+    async fn test_foreign_key_check_returns_empty_vec() {
+        let db = create_test_db().await;
+        let temp_dir = tempfile::tempdir().unwrap();
+        let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
+
+        let violations = integrity.foreign_key_check().await.unwrap();
+        assert!(violations.is_empty(), "Clean DB should have no violations");
+    }
+
+    #[tokio::test]
+    async fn test_health_metrics_all_fields() {
+        let db = create_test_db().await;
+        let temp_dir = tempfile::tempdir().unwrap();
+        let integrity = DatabaseIntegrity::new(db, temp_dir.path().to_path_buf());
+
+        let health = integrity.get_health_metrics().await.unwrap();
+
+        // Verify all fields are initialized with sensible values
+        assert!(health.database_size_bytes >= 0);
+        assert!(health.freelist_size_bytes >= 0);
+        // WAL size can be negative (indicates no WAL or non-WAL mode)
+        // This is expected for in-memory databases or databases not in WAL mode
+        assert!(health.fragmentation_percent >= 0.0);
+        assert!(health.schema_version >= 0);
+        assert!(health.total_jobs >= 0);
+        assert!(health.total_integrity_checks >= 0);
+        assert!(health.failed_integrity_checks >= 0);
+        assert!(health.total_backups >= 0);
+        assert!(health.days_since_last_integrity_check >= 0);
+        assert!(health.hours_since_last_backup >= 0);
+    }
 }

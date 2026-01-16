@@ -1296,4 +1296,875 @@ mod tests {
         assert_eq!(deserialized.location, "austin, tx");
         assert_eq!(deserialized.total_jobs, 450);
     }
+
+    // Async tests for MarketIntelligence methods
+    mod async_tests {
+        use super::*;
+        use sqlx::SqlitePool;
+
+        async fn setup_test_db() -> SqlitePool {
+            let pool = SqlitePool::connect(":memory:").await.unwrap();
+
+            // Create all required tables
+            sqlx::query(
+                r#"
+                CREATE TABLE IF NOT EXISTS jobs (
+                    hash TEXT PRIMARY KEY,
+                    title TEXT NOT NULL,
+                    company TEXT,
+                    location TEXT,
+                    posted_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    status TEXT DEFAULT 'active'
+                )
+                "#,
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            sqlx::query(
+                r#"
+                CREATE TABLE IF NOT EXISTS job_skills (
+                    job_hash TEXT NOT NULL,
+                    skill_name TEXT NOT NULL,
+                    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                    PRIMARY KEY (job_hash, skill_name)
+                )
+                "#,
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            sqlx::query(
+                r#"
+                CREATE TABLE IF NOT EXISTS job_salary_predictions (
+                    job_hash TEXT PRIMARY KEY,
+                    predicted_median REAL NOT NULL
+                )
+                "#,
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            sqlx::query(
+                r#"
+                CREATE TABLE IF NOT EXISTS skill_demand_trends (
+                    skill_name TEXT NOT NULL,
+                    date TEXT NOT NULL,
+                    mention_count INTEGER NOT NULL,
+                    job_count INTEGER NOT NULL,
+                    avg_salary INTEGER,
+                    median_salary INTEGER,
+                    top_company TEXT,
+                    top_location TEXT,
+                    PRIMARY KEY (skill_name, date)
+                )
+                "#,
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            sqlx::query(
+                r#"
+                CREATE TABLE IF NOT EXISTS salary_benchmarks (
+                    job_title_normalized TEXT NOT NULL,
+                    location_normalized TEXT NOT NULL,
+                    min_salary INTEGER NOT NULL,
+                    p25_salary INTEGER NOT NULL,
+                    median_salary INTEGER NOT NULL,
+                    p75_salary INTEGER NOT NULL,
+                    max_salary INTEGER NOT NULL,
+                    average_salary INTEGER NOT NULL,
+                    sample_size INTEGER NOT NULL,
+                    PRIMARY KEY (job_title_normalized, location_normalized)
+                )
+                "#,
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            sqlx::query(
+                r#"
+                CREATE TABLE IF NOT EXISTS salary_trends (
+                    job_title_normalized TEXT NOT NULL,
+                    location_normalized TEXT NOT NULL,
+                    date TEXT NOT NULL,
+                    min_salary INTEGER NOT NULL,
+                    p25_salary INTEGER NOT NULL,
+                    median_salary INTEGER NOT NULL,
+                    p75_salary INTEGER NOT NULL,
+                    max_salary INTEGER NOT NULL,
+                    avg_salary INTEGER NOT NULL,
+                    sample_size INTEGER NOT NULL,
+                    salary_growth_pct REAL DEFAULT 0.0,
+                    PRIMARY KEY (job_title_normalized, location_normalized, date)
+                )
+                "#,
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            sqlx::query(
+                r#"
+                CREATE TABLE IF NOT EXISTS company_hiring_velocity (
+                    company_name TEXT NOT NULL,
+                    date TEXT NOT NULL,
+                    jobs_posted_count INTEGER NOT NULL,
+                    jobs_filled_count INTEGER DEFAULT 0,
+                    jobs_active_count INTEGER DEFAULT 0,
+                    top_role TEXT,
+                    top_location TEXT,
+                    is_actively_hiring INTEGER DEFAULT 0,
+                    hiring_trend TEXT DEFAULT 'stable',
+                    PRIMARY KEY (company_name, date)
+                )
+                "#,
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            sqlx::query(
+                r#"
+                CREATE TABLE IF NOT EXISTS location_job_density (
+                    location_normalized TEXT NOT NULL,
+                    city TEXT,
+                    state TEXT,
+                    date TEXT NOT NULL,
+                    job_count INTEGER NOT NULL,
+                    remote_job_count INTEGER DEFAULT 0,
+                    avg_salary INTEGER,
+                    median_salary INTEGER,
+                    top_skill TEXT,
+                    top_company TEXT,
+                    top_role TEXT,
+                    PRIMARY KEY (location_normalized, date)
+                )
+                "#,
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            sqlx::query(
+                r#"
+                CREATE TABLE IF NOT EXISTS role_demand_trends (
+                    job_title_normalized TEXT NOT NULL,
+                    date TEXT NOT NULL,
+                    job_count INTEGER NOT NULL,
+                    avg_salary INTEGER,
+                    median_salary INTEGER,
+                    top_company TEXT,
+                    top_location TEXT,
+                    remote_percentage REAL,
+                    demand_trend TEXT DEFAULT 'stable',
+                    PRIMARY KEY (job_title_normalized, date)
+                )
+                "#,
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            sqlx::query(
+                r#"
+                CREATE TABLE IF NOT EXISTS market_alerts (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    alert_type TEXT NOT NULL,
+                    title TEXT NOT NULL,
+                    description TEXT,
+                    severity TEXT DEFAULT 'info',
+                    related_entity TEXT,
+                    related_entity_type TEXT,
+                    metric_value REAL,
+                    metric_change_pct REAL,
+                    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                    is_read INTEGER DEFAULT 0
+                )
+                "#,
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            sqlx::query(
+                r#"
+                CREATE TABLE IF NOT EXISTS market_snapshots (
+                    date TEXT PRIMARY KEY,
+                    total_jobs INTEGER NOT NULL,
+                    new_jobs_today INTEGER NOT NULL,
+                    avg_salary REAL,
+                    top_skill TEXT,
+                    top_company TEXT,
+                    top_location TEXT,
+                    remote_percentage REAL
+                )
+                "#,
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            pool
+        }
+
+        #[tokio::test]
+        async fn test_market_intelligence_new() {
+            let pool = setup_test_db().await;
+            let mi = MarketIntelligence::new(pool.clone());
+
+            // Verify struct creation
+            assert_eq!(std::mem::size_of_val(&mi), std::mem::size_of::<MarketIntelligence>());
+        }
+
+        #[tokio::test]
+        async fn test_normalize_location_via_method() {
+            let pool = setup_test_db().await;
+            let mi = MarketIntelligence::new(pool);
+
+            assert_eq!(mi.normalize_location("San Francisco Bay Area"), "san francisco, ca");
+            assert_eq!(mi.normalize_location("SF, California"), "san francisco, ca");
+            assert_eq!(mi.normalize_location("New York City"), "new york, ny");
+            assert_eq!(mi.normalize_location("NYC"), "new york, ny");
+            assert_eq!(mi.normalize_location("Remote - US"), "remote");
+            assert_eq!(mi.normalize_location("Seattle, WA"), "seattle, wa");
+        }
+
+        #[tokio::test]
+        async fn test_parse_location_via_method() {
+            let pool = setup_test_db().await;
+            let mi = MarketIntelligence::new(pool);
+
+            let (city, state) = mi.parse_location("Seattle, WA");
+            assert_eq!(city, Some("Seattle".to_string()));
+            assert_eq!(state, Some("WA".to_string()));
+
+            let (city2, state2) = mi.parse_location("London");
+            assert_eq!(city2, Some("London".to_string()));
+            assert_eq!(state2, None);
+
+            let (city3, state3) = mi.parse_location("Austin, TX, USA");
+            assert_eq!(city3, Some("Austin".to_string()));
+            assert_eq!(state3, Some("TX".to_string()));
+        }
+
+        #[tokio::test]
+        async fn test_get_trending_skills_empty() {
+            let pool = setup_test_db().await;
+            let mi = MarketIntelligence::new(pool);
+
+            let trends = mi.get_trending_skills(10).await.unwrap();
+            assert_eq!(trends.len(), 0);
+        }
+
+        #[tokio::test]
+        async fn test_get_trending_skills_with_data() {
+            let pool = setup_test_db().await;
+
+            // Insert test data
+            sqlx::query(
+                r#"
+                INSERT INTO skill_demand_trends (skill_name, date, mention_count, job_count, avg_salary)
+                VALUES
+                    ('Rust', date('now'), 100, 50, 150000),
+                    ('Python', date('now'), 200, 100, 130000),
+                    ('TypeScript', date('now'), 150, 75, 140000)
+                "#,
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            let mi = MarketIntelligence::new(pool);
+            let trends = mi.get_trending_skills(3).await.unwrap();
+
+            assert_eq!(trends.len(), 3);
+            assert_eq!(trends[0].skill_name, "Python");
+            assert_eq!(trends[0].total_jobs, 100);
+            assert_eq!(trends[1].skill_name, "TypeScript");
+            assert_eq!(trends[2].skill_name, "Rust");
+        }
+
+        #[tokio::test]
+        async fn test_get_trending_skills_limit() {
+            let pool = setup_test_db().await;
+
+            sqlx::query(
+                r#"
+                INSERT INTO skill_demand_trends (skill_name, date, mention_count, job_count)
+                VALUES
+                    ('Rust', date('now'), 100, 50),
+                    ('Python', date('now'), 200, 100),
+                    ('TypeScript', date('now'), 150, 75),
+                    ('Go', date('now'), 80, 40)
+                "#,
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            let mi = MarketIntelligence::new(pool);
+            let trends = mi.get_trending_skills(2).await.unwrap();
+
+            assert_eq!(trends.len(), 2);
+            assert_eq!(trends[0].skill_name, "Python");
+            assert_eq!(trends[1].skill_name, "TypeScript");
+        }
+
+        #[tokio::test]
+        async fn test_get_most_active_companies_empty() {
+            let pool = setup_test_db().await;
+            let mi = MarketIntelligence::new(pool);
+
+            let companies = mi.get_most_active_companies(10).await.unwrap();
+            assert_eq!(companies.len(), 0);
+        }
+
+        #[tokio::test]
+        async fn test_get_most_active_companies_with_data() {
+            let pool = setup_test_db().await;
+
+            sqlx::query(
+                r#"
+                INSERT INTO company_hiring_velocity (company_name, date, jobs_posted_count, jobs_active_count, hiring_trend)
+                VALUES
+                    ('TechCorp', date('now'), 50, 30, 'increasing'),
+                    ('StartupInc', date('now'), 25, 15, 'stable'),
+                    ('BigTech', date('now'), 100, 75, 'increasing')
+                "#,
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            let mi = MarketIntelligence::new(pool);
+            let companies = mi.get_most_active_companies(3).await.unwrap();
+
+            assert_eq!(companies.len(), 3);
+            assert_eq!(companies[0].company_name, "BigTech");
+            assert_eq!(companies[0].total_posted, 100);
+            assert_eq!(companies[0].hiring_trend, Some("increasing".to_string()));
+            assert_eq!(companies[1].company_name, "TechCorp");
+            assert_eq!(companies[2].company_name, "StartupInc");
+        }
+
+        #[tokio::test]
+        async fn test_get_most_active_companies_limit() {
+            let pool = setup_test_db().await;
+
+            sqlx::query(
+                r#"
+                INSERT INTO company_hiring_velocity (company_name, date, jobs_posted_count, jobs_active_count)
+                VALUES
+                    ('Company1', date('now'), 50, 30),
+                    ('Company2', date('now'), 75, 45),
+                    ('Company3', date('now'), 25, 15),
+                    ('Company4', date('now'), 100, 60)
+                "#,
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            let mi = MarketIntelligence::new(pool);
+            let companies = mi.get_most_active_companies(2).await.unwrap();
+
+            assert_eq!(companies.len(), 2);
+            assert_eq!(companies[0].company_name, "Company4");
+            assert_eq!(companies[1].company_name, "Company2");
+        }
+
+        #[tokio::test]
+        async fn test_get_hottest_locations_empty() {
+            let pool = setup_test_db().await;
+            let mi = MarketIntelligence::new(pool);
+
+            let locations = mi.get_hottest_locations(10).await.unwrap();
+            assert_eq!(locations.len(), 0);
+        }
+
+        #[tokio::test]
+        async fn test_get_hottest_locations_with_data() {
+            let pool = setup_test_db().await;
+
+            sqlx::query(
+                r#"
+                INSERT INTO location_job_density (location_normalized, city, state, date, job_count, median_salary)
+                VALUES
+                    ('san francisco, ca', 'San Francisco', 'CA', date('now'), 500, 165000),
+                    ('new york, ny', 'New York', 'NY', date('now'), 450, 155000),
+                    ('remote', NULL, NULL, date('now'), 300, 140000)
+                "#,
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            let mi = MarketIntelligence::new(pool);
+            let locations = mi.get_hottest_locations(3).await.unwrap();
+
+            assert_eq!(locations.len(), 3);
+            assert_eq!(locations[0].location, "san francisco, ca");
+            assert_eq!(locations[0].total_jobs, 500);
+            assert_eq!(locations[0].city, Some("San Francisco".to_string()));
+            assert_eq!(locations[0].state, Some("CA".to_string()));
+            assert_eq!(locations[1].location, "new york, ny");
+            assert_eq!(locations[2].location, "remote");
+        }
+
+        #[tokio::test]
+        async fn test_get_hottest_locations_limit() {
+            let pool = setup_test_db().await;
+
+            sqlx::query(
+                r#"
+                INSERT INTO location_job_density (location_normalized, date, job_count)
+                VALUES
+                    ('seattle, wa', date('now'), 400),
+                    ('austin, tx', date('now'), 350),
+                    ('boston, ma', date('now'), 300),
+                    ('denver, co', date('now'), 250)
+                "#,
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            let mi = MarketIntelligence::new(pool);
+            let locations = mi.get_hottest_locations(2).await.unwrap();
+
+            assert_eq!(locations.len(), 2);
+            assert_eq!(locations[0].location, "seattle, wa");
+            assert_eq!(locations[1].location, "austin, tx");
+        }
+
+        #[tokio::test]
+        async fn test_compute_skill_demand_trends_no_data() {
+            let pool = setup_test_db().await;
+            let mi = MarketIntelligence::new(pool.clone());
+
+            // Should not error on empty database
+            let result = mi.compute_skill_demand_trends().await;
+            assert!(result.is_ok());
+
+            // Verify no trends were created
+            let count: i64 =
+                sqlx::query_scalar("SELECT COUNT(*) FROM skill_demand_trends")
+                    .fetch_one(&pool)
+                    .await
+                    .unwrap();
+            assert_eq!(count, 0);
+        }
+
+        #[tokio::test]
+        async fn test_compute_skill_demand_trends_with_data() {
+            let pool = setup_test_db().await;
+
+            // Insert test jobs and skills
+            sqlx::query(
+                r#"
+                INSERT INTO jobs (hash, title, company, location, posted_at, updated_at)
+                VALUES ('job1', 'Software Engineer', 'TechCorp', 'San Francisco, CA', datetime('now'), datetime('now'))
+                "#,
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            sqlx::query(
+                r#"
+                INSERT INTO job_skills (job_hash, skill_name, created_at)
+                VALUES ('job1', 'Rust', datetime('now'))
+                "#,
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            sqlx::query(
+                r#"
+                INSERT INTO job_salary_predictions (job_hash, predicted_median)
+                VALUES ('job1', 150000.0)
+                "#,
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            let mi = MarketIntelligence::new(pool.clone());
+            let result = mi.compute_skill_demand_trends().await;
+            assert!(result.is_ok());
+
+            // Verify trend was created
+            let trend: (String, i64, i64) = sqlx::query_as(
+                "SELECT skill_name, mention_count, job_count FROM skill_demand_trends WHERE skill_name = 'Rust'",
+            )
+            .fetch_one(&pool)
+            .await
+            .unwrap();
+
+            assert_eq!(trend.0, "Rust");
+            assert_eq!(trend.1, 1); // mention_count
+            assert_eq!(trend.2, 1); // job_count
+        }
+
+        #[tokio::test]
+        async fn test_compute_salary_trends_no_data() {
+            let pool = setup_test_db().await;
+            let mi = MarketIntelligence::new(pool.clone());
+
+            let result = mi.compute_salary_trends().await;
+            assert!(result.is_ok());
+
+            let count: i64 =
+                sqlx::query_scalar("SELECT COUNT(*) FROM salary_trends")
+                    .fetch_one(&pool)
+                    .await
+                    .unwrap();
+            assert_eq!(count, 0);
+        }
+
+        #[tokio::test]
+        async fn test_compute_salary_trends_with_data() {
+            let pool = setup_test_db().await;
+
+            // Insert benchmark data
+            sqlx::query(
+                r#"
+                INSERT INTO salary_benchmarks (
+                    job_title_normalized, location_normalized, min_salary, p25_salary,
+                    median_salary, p75_salary, max_salary, average_salary, sample_size
+                )
+                VALUES ('software engineer', 'san francisco, ca', 100000, 120000, 140000, 160000, 180000, 140000, 50)
+                "#,
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            let mi = MarketIntelligence::new(pool.clone());
+            let result = mi.compute_salary_trends().await;
+            assert!(result.is_ok());
+
+            // Verify trend was created
+            let count: i64 =
+                sqlx::query_scalar("SELECT COUNT(*) FROM salary_trends")
+                    .fetch_one(&pool)
+                    .await
+                    .unwrap();
+            assert_eq!(count, 1);
+
+            let median: i64 = sqlx::query_scalar(
+                "SELECT median_salary FROM salary_trends WHERE job_title_normalized = 'software engineer'",
+            )
+            .fetch_one(&pool)
+            .await
+            .unwrap();
+            assert_eq!(median, 140000);
+        }
+
+        #[tokio::test]
+        async fn test_compute_company_hiring_velocity_no_data() {
+            let pool = setup_test_db().await;
+            let mi = MarketIntelligence::new(pool.clone());
+
+            let result = mi.compute_company_hiring_velocity().await;
+            assert!(result.is_ok());
+
+            let count: i64 =
+                sqlx::query_scalar("SELECT COUNT(*) FROM company_hiring_velocity")
+                    .fetch_one(&pool)
+                    .await
+                    .unwrap();
+            assert_eq!(count, 0);
+        }
+
+        #[tokio::test]
+        async fn test_compute_company_hiring_velocity_with_data() {
+            let pool = setup_test_db().await;
+
+            // Insert test jobs
+            sqlx::query(
+                r#"
+                INSERT INTO jobs (hash, title, company, location, posted_at, updated_at, status)
+                VALUES
+                    ('job1', 'Engineer', 'TechCorp', 'SF', date('now'), datetime('now'), 'active'),
+                    ('job2', 'Designer', 'TechCorp', 'SF', date('now'), datetime('now'), 'active')
+                "#,
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            let mi = MarketIntelligence::new(pool.clone());
+            let result = mi.compute_company_hiring_velocity().await;
+            assert!(result.is_ok());
+
+            // Verify velocity was recorded
+            let velocity: (i64, i64) = sqlx::query_as(
+                "SELECT jobs_posted_count, jobs_active_count FROM company_hiring_velocity WHERE company_name = 'TechCorp'",
+            )
+            .fetch_one(&pool)
+            .await
+            .unwrap();
+
+            assert_eq!(velocity.0, 2); // jobs_posted_count
+            assert_eq!(velocity.1, 2); // jobs_active_count
+        }
+
+        #[tokio::test]
+        async fn test_compute_location_job_density_no_data() {
+            let pool = setup_test_db().await;
+            let mi = MarketIntelligence::new(pool.clone());
+
+            let result = mi.compute_location_job_density().await;
+            assert!(result.is_ok());
+
+            let count: i64 =
+                sqlx::query_scalar("SELECT COUNT(*) FROM location_job_density")
+                    .fetch_one(&pool)
+                    .await
+                    .unwrap();
+            assert_eq!(count, 0);
+        }
+
+        #[tokio::test]
+        async fn test_compute_location_job_density_with_data() {
+            let pool = setup_test_db().await;
+
+            // Insert test jobs
+            sqlx::query(
+                r#"
+                INSERT INTO jobs (hash, title, company, location, posted_at, updated_at)
+                VALUES
+                    ('job1', 'Engineer', 'Corp1', 'Seattle, WA', datetime('now'), datetime('now')),
+                    ('job2', 'Designer', 'Corp2', 'Seattle, WA', datetime('now'), datetime('now'))
+                "#,
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            // Insert skills for the jobs
+            sqlx::query(
+                r#"
+                INSERT INTO job_skills (job_hash, skill_name)
+                VALUES
+                    ('job1', 'Rust'),
+                    ('job2', 'TypeScript')
+                "#,
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            let mi = MarketIntelligence::new(pool.clone());
+            let result = mi.compute_location_job_density().await;
+            if let Err(e) = &result {
+                eprintln!("Error: {}", e);
+            }
+            assert!(result.is_ok());
+
+            // Verify density was recorded
+            let density: (String, Option<String>, Option<String>, i64) = sqlx::query_as(
+                "SELECT location_normalized, city, state, job_count FROM location_job_density",
+            )
+            .fetch_one(&pool)
+            .await
+            .unwrap();
+
+            assert_eq!(density.0, "seattle, wa");
+            assert_eq!(density.1, Some("Seattle".to_string()));
+            assert_eq!(density.2, Some("WA".to_string()));
+            assert_eq!(density.3, 2);
+        }
+
+        #[tokio::test]
+        async fn test_compute_role_demand_trends_no_data() {
+            let pool = setup_test_db().await;
+            let mi = MarketIntelligence::new(pool.clone());
+
+            let result = mi.compute_role_demand_trends().await;
+            assert!(result.is_ok());
+
+            let count: i64 =
+                sqlx::query_scalar("SELECT COUNT(*) FROM role_demand_trends")
+                    .fetch_one(&pool)
+                    .await
+                    .unwrap();
+            assert_eq!(count, 0);
+        }
+
+        #[tokio::test]
+        async fn test_compute_role_demand_trends_with_data() {
+            let pool = setup_test_db().await;
+
+            // Insert salary benchmark (source of normalized titles)
+            sqlx::query(
+                r#"
+                INSERT INTO salary_benchmarks (
+                    job_title_normalized, location_normalized, min_salary, p25_salary,
+                    median_salary, p75_salary, max_salary, average_salary, sample_size
+                )
+                VALUES ('engineer', 'remote', 100000, 120000, 140000, 160000, 180000, 140000, 10)
+                "#,
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            // Insert job with matching title
+            sqlx::query(
+                r#"
+                INSERT INTO jobs (hash, title, company, location, posted_at, updated_at)
+                VALUES ('job1', 'Senior Engineer', 'TechCorp', 'Remote', datetime('now'), datetime('now'))
+                "#,
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            let mi = MarketIntelligence::new(pool.clone());
+            let result = mi.compute_role_demand_trends().await;
+            assert!(result.is_ok());
+
+            // Verify trend was created
+            let count: i64 =
+                sqlx::query_scalar("SELECT COUNT(*) FROM role_demand_trends WHERE job_title_normalized = 'engineer'")
+                    .fetch_one(&pool)
+                    .await
+                    .unwrap();
+            assert_eq!(count, 1);
+        }
+
+        #[tokio::test]
+        async fn test_detect_market_alerts_skill_surge() {
+            let pool = setup_test_db().await;
+
+            // Insert skill data with surge
+            sqlx::query(
+                r#"
+                INSERT INTO skill_demand_trends (skill_name, date, mention_count, job_count)
+                VALUES
+                    ('Rust', date('now', '-7 days'), 10, 5),
+                    ('Rust', date('now'), 20, 12)
+                "#,
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            let mi = MarketIntelligence::new(pool.clone());
+            let result = mi.detect_market_alerts().await;
+            assert!(result.is_ok());
+
+            // Verify alert was created
+            let alert_count: i64 =
+                sqlx::query_scalar("SELECT COUNT(*) FROM market_alerts WHERE alert_type = 'skill_surge'")
+                    .fetch_one(&pool)
+                    .await
+                    .unwrap();
+            assert_eq!(alert_count, 1);
+        }
+
+        #[tokio::test]
+        async fn test_detect_market_alerts_salary_spike() {
+            let pool = setup_test_db().await;
+
+            // Insert salary trend with spike
+            sqlx::query(
+                r#"
+                INSERT INTO salary_trends (
+                    job_title_normalized, location_normalized, date,
+                    min_salary, p25_salary, median_salary, p75_salary, max_salary,
+                    avg_salary, sample_size, salary_growth_pct
+                )
+                VALUES ('engineer', 'sf', date('now'), 100000, 120000, 140000, 160000, 180000, 140000, 50, 30.0)
+                "#,
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            let mi = MarketIntelligence::new(pool.clone());
+            let result = mi.detect_market_alerts().await;
+            assert!(result.is_ok());
+
+            // Verify alert was created
+            let alert_count: i64 =
+                sqlx::query_scalar("SELECT COUNT(*) FROM market_alerts WHERE alert_type = 'salary_spike'")
+                    .fetch_one(&pool)
+                    .await
+                    .unwrap();
+            assert_eq!(alert_count, 1);
+        }
+
+        #[tokio::test]
+        async fn test_detect_market_alerts_hiring_spree() {
+            let pool = setup_test_db().await;
+
+            // Insert company with high velocity
+            sqlx::query(
+                r#"
+                INSERT INTO company_hiring_velocity (company_name, date, jobs_posted_count, jobs_active_count)
+                VALUES ('BigTech', date('now'), 15, 50)
+                "#,
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            let mi = MarketIntelligence::new(pool.clone());
+            let result = mi.detect_market_alerts().await;
+            assert!(result.is_ok());
+
+            // Verify alert was created
+            let alert_count: i64 =
+                sqlx::query_scalar("SELECT COUNT(*) FROM market_alerts WHERE alert_type = 'hiring_spree'")
+                    .fetch_one(&pool)
+                    .await
+                    .unwrap();
+            assert_eq!(alert_count, 1);
+        }
+
+        #[tokio::test]
+        async fn test_get_unread_alerts_empty() {
+            let pool = setup_test_db().await;
+            let mi = MarketIntelligence::new(pool);
+
+            let alerts = mi.get_unread_alerts().await.unwrap();
+            assert_eq!(alerts.len(), 0);
+        }
+
+        #[tokio::test]
+        async fn test_get_unread_alerts_with_data() {
+            let pool = setup_test_db().await;
+
+            // Insert test alerts
+            sqlx::query(
+                r#"
+                INSERT INTO market_alerts (alert_type, title, description, severity, is_read)
+                VALUES
+                    ('skill_surge', 'Rust Surging', 'Rust is hot', 'info', 0),
+                    ('salary_spike', 'Salaries Up', 'Pay is rising', 'info', 1)
+                "#,
+            )
+            .execute(&pool)
+            .await
+            .unwrap();
+
+            let mi = MarketIntelligence::new(pool);
+            let alerts = mi.get_unread_alerts().await.unwrap();
+
+            // Should only get unread alerts
+            assert_eq!(alerts.len(), 1);
+            assert_eq!(alerts[0].title, "Rust Surging");
+        }
+    }
 }
