@@ -985,3 +985,137 @@ pub struct LocationHeat {
     pub total_jobs: i64,
     pub avg_median_salary: Option<i64>,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_compute_median_odd_length() {
+        let mut values = vec![5.0, 1.0, 3.0];
+        assert_eq!(compute_median(&mut values), Some(3.0));
+    }
+
+    #[test]
+    fn test_compute_median_even_length() {
+        let mut values = vec![1.0, 2.0, 3.0, 4.0];
+        assert_eq!(compute_median(&mut values), Some(2.5));
+    }
+
+    #[test]
+    fn test_compute_median_single_value() {
+        let mut values = vec![42.0];
+        assert_eq!(compute_median(&mut values), Some(42.0));
+    }
+
+    #[test]
+    fn test_compute_median_empty() {
+        let mut values: Vec<f64> = vec![];
+        assert_eq!(compute_median(&mut values), None);
+    }
+
+    #[test]
+    fn test_compute_median_unsorted() {
+        let mut values = vec![10.0, 5.0, 20.0, 15.0];
+        assert_eq!(compute_median(&mut values), Some(12.5));
+    }
+
+    #[test]
+    fn test_compute_median_with_duplicates() {
+        let mut values = vec![5.0, 5.0, 5.0];
+        assert_eq!(compute_median(&mut values), Some(5.0));
+    }
+
+    #[test]
+    fn test_compute_median_negative_values() {
+        let mut values = vec![-10.0, -5.0, 0.0, 5.0];
+        assert_eq!(compute_median(&mut values), Some(-2.5));
+    }
+
+    #[test]
+    fn test_compute_median_large_dataset() {
+        let mut values: Vec<f64> = (1..=1000).map(|x| x as f64).collect();
+        assert_eq!(compute_median(&mut values), Some(500.5));
+    }
+
+    #[test]
+    fn test_skill_trend_data() {
+        let trend = SkillTrend {
+            skill_name: "Rust".to_string(),
+            total_jobs: 250,
+            avg_salary: Some(140000),
+        };
+
+        assert_eq!(trend.skill_name, "Rust");
+        assert_eq!(trend.total_jobs, 250);
+        assert_eq!(trend.avg_salary, Some(140000));
+    }
+
+    #[test]
+    fn test_skill_trend_no_salary() {
+        let trend = SkillTrend {
+            skill_name: "Python".to_string(),
+            total_jobs: 500,
+            avg_salary: None,
+        };
+
+        assert!(trend.avg_salary.is_none());
+    }
+
+    #[test]
+    fn test_company_activity_data() {
+        let activity = CompanyActivity {
+            company_name: "TechCorp".to_string(),
+            total_posted: 50,
+            avg_active: 30.5,
+            hiring_trend: Some("increasing".to_string()),
+        };
+
+        assert_eq!(activity.company_name, "TechCorp");
+        assert_eq!(activity.total_posted, 50);
+        assert_eq!(activity.avg_active, 30.5);
+        assert_eq!(activity.hiring_trend, Some("increasing".to_string()));
+    }
+
+    #[test]
+    fn test_company_activity_no_trend() {
+        let activity = CompanyActivity {
+            company_name: "StartupCo".to_string(),
+            total_posted: 5,
+            avg_active: 3.0,
+            hiring_trend: None,
+        };
+
+        assert!(activity.hiring_trend.is_none());
+    }
+
+    #[test]
+    fn test_location_heat_data() {
+        let heat = LocationHeat {
+            location: "san francisco, ca".to_string(),
+            city: Some("San Francisco".to_string()),
+            state: Some("CA".to_string()),
+            total_jobs: 1500,
+            avg_median_salary: Some(165000),
+        };
+
+        assert_eq!(heat.location, "san francisco, ca");
+        assert_eq!(heat.city, Some("San Francisco".to_string()));
+        assert_eq!(heat.total_jobs, 1500);
+        assert_eq!(heat.avg_median_salary, Some(165000));
+    }
+
+    #[test]
+    fn test_location_heat_no_salary_data() {
+        let heat = LocationHeat {
+            location: "remote".to_string(),
+            city: None,
+            state: None,
+            total_jobs: 800,
+            avg_median_salary: None,
+        };
+
+        assert!(heat.avg_median_salary.is_none());
+        assert!(heat.city.is_none());
+    }
+}

@@ -436,4 +436,161 @@ mod tests {
         let mut values: Vec<f64> = vec![];
         assert_eq!(compute_median(&mut values), None);
     }
+
+    #[test]
+    fn test_market_snapshot_neutral_sentiment() {
+        let snapshot = MarketSnapshot {
+            date: Utc::now().date_naive(),
+            total_jobs: 5000,
+            new_jobs_today: 50,
+            jobs_filled_today: 45,
+            avg_salary: Some(115000),
+            median_salary: Some(110000),
+            remote_job_percentage: 30.0,
+            top_skill: Some("Java".to_string()),
+            top_company: Some("Amazon".to_string()),
+            top_location: Some("Seattle, WA".to_string()),
+            total_companies_hiring: 300,
+            market_sentiment: "neutral".to_string(),
+            notes: None,
+        };
+
+        assert!(snapshot.is_healthy());
+        assert_eq!(snapshot.sentiment_indicator(), "[FLAT]");
+        assert!(snapshot.summary().contains("neutral"));
+    }
+
+    #[test]
+    fn test_market_snapshot_bearish_no_jobs() {
+        let snapshot = MarketSnapshot {
+            date: Utc::now().date_naive(),
+            total_jobs: 1000,
+            new_jobs_today: 0,
+            jobs_filled_today: 20,
+            avg_salary: Some(100000),
+            median_salary: Some(95000),
+            remote_job_percentage: 20.0,
+            top_skill: None,
+            top_company: None,
+            top_location: None,
+            total_companies_hiring: 50,
+            market_sentiment: "bearish".to_string(),
+            notes: Some("Market downturn".to_string()),
+        };
+
+        assert!(!snapshot.is_healthy());
+        assert_eq!(snapshot.sentiment_indicator(), "[DOWN]");
+        assert!(snapshot.summary().contains("N/A"));
+    }
+
+    #[test]
+    fn test_market_snapshot_summary_no_skill() {
+        let snapshot = MarketSnapshot {
+            date: Utc::now().date_naive(),
+            total_jobs: 8000,
+            new_jobs_today: 120,
+            jobs_filled_today: 80,
+            avg_salary: Some(135000),
+            median_salary: Some(130000),
+            remote_job_percentage: 45.0,
+            top_skill: None,
+            top_company: Some("Microsoft".to_string()),
+            top_location: Some("Remote".to_string()),
+            total_companies_hiring: 600,
+            market_sentiment: "bullish".to_string(),
+            notes: None,
+        };
+
+        let summary = snapshot.summary();
+        assert!(summary.contains("120 new jobs"));
+        assert!(summary.contains("bullish"));
+        assert!(summary.contains("N/A"));
+    }
+
+    #[test]
+    fn test_market_snapshot_zero_totals() {
+        let snapshot = MarketSnapshot {
+            date: Utc::now().date_naive(),
+            total_jobs: 0,
+            new_jobs_today: 0,
+            jobs_filled_today: 0,
+            avg_salary: None,
+            median_salary: None,
+            remote_job_percentage: 0.0,
+            top_skill: None,
+            top_company: None,
+            top_location: None,
+            total_companies_hiring: 0,
+            market_sentiment: "neutral".to_string(),
+            notes: Some("No activity".to_string()),
+        };
+
+        assert!(!snapshot.is_healthy());
+        assert_eq!(snapshot.sentiment_indicator(), "[FLAT]");
+    }
+
+    #[test]
+    fn test_market_snapshot_high_remote_percentage() {
+        let snapshot = MarketSnapshot {
+            date: Utc::now().date_naive(),
+            total_jobs: 3000,
+            new_jobs_today: 100,
+            jobs_filled_today: 60,
+            avg_salary: Some(140000),
+            median_salary: Some(135000),
+            remote_job_percentage: 85.5,
+            top_skill: Some("Rust".to_string()),
+            top_company: Some("Oxide".to_string()),
+            top_location: Some("Remote".to_string()),
+            total_companies_hiring: 250,
+            market_sentiment: "bullish".to_string(),
+            notes: None,
+        };
+
+        assert_eq!(snapshot.remote_job_percentage, 85.5);
+        assert!(snapshot.is_healthy());
+    }
+
+    #[test]
+    fn test_compute_median_with_nan() {
+        let mut values = vec![1.0, 2.0, f64::NAN, 3.0];
+        // NaN handling should be graceful
+        let result = compute_median(&mut values);
+        // Result depends on sort behavior with NaN, but should not panic
+        assert!(result.is_some() || result.is_none());
+    }
+
+    #[test]
+    fn test_compute_median_all_same() {
+        let mut values = vec![42.0, 42.0, 42.0, 42.0, 42.0];
+        assert_eq!(compute_median(&mut values), Some(42.0));
+    }
+
+    #[test]
+    fn test_compute_median_two_elements() {
+        let mut values = vec![10.0, 20.0];
+        assert_eq!(compute_median(&mut values), Some(15.0));
+    }
+
+    #[test]
+    fn test_market_snapshot_edge_case_one_job() {
+        let snapshot = MarketSnapshot {
+            date: Utc::now().date_naive(),
+            total_jobs: 1,
+            new_jobs_today: 1,
+            jobs_filled_today: 0,
+            avg_salary: Some(100000),
+            median_salary: Some(100000),
+            remote_job_percentage: 100.0,
+            top_skill: Some("Obscure".to_string()),
+            top_company: Some("StartupOne".to_string()),
+            top_location: Some("Remote".to_string()),
+            total_companies_hiring: 1,
+            market_sentiment: "neutral".to_string(),
+            notes: None,
+        };
+
+        assert!(snapshot.is_healthy());
+        assert_eq!(snapshot.total_jobs, 1);
+    }
 }

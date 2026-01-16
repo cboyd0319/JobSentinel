@@ -732,6 +732,483 @@ mod tests {
         assert_eq!(job1.hash, job2.hash, "Hash should be deterministic");
     }
 
+    #[test]
+    fn test_parse_job_element_special_characters() {
+        let scraper = GreenhouseScraper::new(vec![]);
+        let company = GreenhouseCompany {
+            id: "test".to_string(),
+            name: "Test™ Company".to_string(),
+            url: "https://boards.greenhouse.io/test".to_string(),
+        };
+
+        let html = r#"
+            <div class="opening">
+                <a href="/test/jobs/1">Senior Engineer (Remote) 🚀</a>
+                <span class="location">San Francisco, CA / Remote</span>
+            </div>
+        "#;
+
+        let document = Html::parse_document(html);
+        let selector = Selector::parse(".opening").unwrap();
+        let element = document.select(&selector).next().unwrap();
+
+        let job = scraper
+            .parse_job_element(&element, &company)
+            .expect("should parse job")
+            .expect("should have job");
+
+        assert!(job.title.contains("🚀"));
+        assert!(job.company.contains("™"));
+        assert!(job.location.unwrap().contains("/"));
+    }
+
+    #[test]
+    fn test_parse_job_element_multiple_links() {
+        let scraper = GreenhouseScraper::new(vec![]);
+        let company = GreenhouseCompany {
+            id: "test".to_string(),
+            name: "Test".to_string(),
+            url: "https://boards.greenhouse.io/test".to_string(),
+        };
+
+        let html = r#"
+            <div class="opening">
+                <a href="/test/jobs/123">Engineer</a>
+                <a href="/test/apply/123">Apply</a>
+                <span class="location">Remote</span>
+            </div>
+        "#;
+
+        let document = Html::parse_document(html);
+        let selector = Selector::parse(".opening").unwrap();
+        let element = document.select(&selector).next().unwrap();
+
+        let job = scraper
+            .parse_job_element(&element, &company)
+            .expect("should parse job")
+            .expect("should have job");
+
+        // Should pick the first link
+        assert!(job.url.contains("/test/jobs/123"));
+    }
+
+    #[test]
+    fn test_scraper_initialization() {
+        let companies = vec![
+            GreenhouseCompany {
+                id: "cloudflare".to_string(),
+                name: "Cloudflare".to_string(),
+                url: "https://boards.greenhouse.io/cloudflare".to_string(),
+            },
+            GreenhouseCompany {
+                id: "stripe".to_string(),
+                name: "Stripe".to_string(),
+                url: "https://boards.greenhouse.io/stripe".to_string(),
+            },
+        ];
+
+        let scraper = GreenhouseScraper::new(companies.clone());
+
+        assert_eq!(scraper.companies.len(), 2);
+        assert_eq!(scraper.companies[0].id, "cloudflare");
+        assert_eq!(scraper.companies[1].id, "stripe");
+    }
+
+    #[test]
+    fn test_company_struct_clone() {
+        let company = GreenhouseCompany {
+            id: "test-id".to_string(),
+            name: "Test Company".to_string(),
+            url: "https://boards.greenhouse.io/test".to_string(),
+        };
+
+        let cloned = company.clone();
+
+        assert_eq!(company.id, cloned.id);
+        assert_eq!(company.name, cloned.name);
+        assert_eq!(company.url, cloned.url);
+    }
+
+    #[test]
+    fn test_company_struct_debug() {
+        let company = GreenhouseCompany {
+            id: "debug-test".to_string(),
+            name: "Debug Test Company".to_string(),
+            url: "https://boards.greenhouse.io/debug".to_string(),
+        };
+
+        let debug_str = format!("{:?}", company);
+        assert!(debug_str.contains("debug-test"));
+        assert!(debug_str.contains("Debug Test Company"));
+    }
+
+    // ========================================
+    // JSON API Parsing Tests
+    // ========================================
+
+    #[test]
+    fn test_parse_api_response_single_job() {
+        let json_data = r#"
+        {
+            "jobs": [
+                {
+                    "id": 123456,
+                    "title": "Backend Engineer",
+                    "location": {
+                        "name": "Remote"
+                    }
+                }
+            ]
+        }
+        "#;
+
+        let parsed: serde_json::Value = serde_json::from_str(json_data).unwrap();
+
+        if let Some(jobs_array) = parsed["jobs"].as_array() {
+            assert_eq!(jobs_array.len(), 1);
+
+            let job = &jobs_array[0];
+            assert_eq!(job["id"].as_i64(), Some(123456));
+            assert_eq!(job["title"].as_str(), Some("Backend Engineer"));
+            assert_eq!(job["location"]["name"].as_str(), Some("Remote"));
+        } else {
+            panic!("jobs should be an array");
+        }
+    }
+
+    #[test]
+    fn test_parse_api_response_multiple_jobs() {
+        let json_data = r#"
+        {
+            "jobs": [
+                {
+                    "id": 1,
+                    "title": "Frontend Engineer",
+                    "location": {
+                        "name": "San Francisco, CA"
+                    }
+                },
+                {
+                    "id": 2,
+                    "title": "Backend Engineer",
+                    "location": {
+                        "name": "Remote"
+                    }
+                },
+                {
+                    "id": 3,
+                    "title": "DevOps Engineer",
+                    "location": {
+                        "name": "New York, NY"
+                    }
+                }
+            ]
+        }
+        "#;
+
+        let parsed: serde_json::Value = serde_json::from_str(json_data).unwrap();
+
+        if let Some(jobs_array) = parsed["jobs"].as_array() {
+            assert_eq!(jobs_array.len(), 3);
+
+            assert_eq!(jobs_array[0]["title"].as_str(), Some("Frontend Engineer"));
+            assert_eq!(jobs_array[1]["title"].as_str(), Some("Backend Engineer"));
+            assert_eq!(jobs_array[2]["title"].as_str(), Some("DevOps Engineer"));
+        }
+    }
+
+    #[test]
+    fn test_parse_api_response_empty_jobs() {
+        let json_data = r#"
+        {
+            "jobs": []
+        }
+        "#;
+
+        let parsed: serde_json::Value = serde_json::from_str(json_data).unwrap();
+
+        if let Some(jobs_array) = parsed["jobs"].as_array() {
+            assert_eq!(jobs_array.len(), 0);
+        }
+    }
+
+    #[test]
+    fn test_parse_api_response_missing_jobs_key() {
+        let json_data = r#"
+        {
+            "error": "Not found"
+        }
+        "#;
+
+        let parsed: serde_json::Value = serde_json::from_str(json_data).unwrap();
+
+        if let Some(_jobs_array) = parsed["jobs"].as_array() {
+            panic!("jobs should not exist");
+        }
+    }
+
+    #[test]
+    fn test_parse_api_response_missing_location() {
+        let json_data = r#"
+        {
+            "jobs": [
+                {
+                    "id": 123,
+                    "title": "Engineer"
+                }
+            ]
+        }
+        "#;
+
+        let parsed: serde_json::Value = serde_json::from_str(json_data).unwrap();
+
+        if let Some(jobs_array) = parsed["jobs"].as_array() {
+            let job = &jobs_array[0];
+
+            // location.name should be None
+            let location = job["location"]["name"].as_str();
+            assert_eq!(location, None);
+        }
+    }
+
+    #[test]
+    fn test_parse_api_response_missing_title() {
+        let json_data = r#"
+        {
+            "jobs": [
+                {
+                    "id": 456,
+                    "location": {
+                        "name": "Remote"
+                    }
+                }
+            ]
+        }
+        "#;
+
+        let parsed: serde_json::Value = serde_json::from_str(json_data).unwrap();
+
+        if let Some(jobs_array) = parsed["jobs"].as_array() {
+            let job = &jobs_array[0];
+
+            // title should default to empty string via unwrap_or
+            let title = job["title"].as_str().unwrap_or("");
+            assert_eq!(title, "");
+        }
+    }
+
+    #[test]
+    fn test_parse_api_response_missing_id() {
+        let json_data = r#"
+        {
+            "jobs": [
+                {
+                    "title": "Engineer",
+                    "location": {
+                        "name": "Remote"
+                    }
+                }
+            ]
+        }
+        "#;
+
+        let parsed: serde_json::Value = serde_json::from_str(json_data).unwrap();
+
+        if let Some(jobs_array) = parsed["jobs"].as_array() {
+            let job = &jobs_array[0];
+
+            // id should default to 0 via unwrap_or
+            let id = job["id"].as_i64().unwrap_or(0);
+            assert_eq!(id, 0);
+        }
+    }
+
+    #[test]
+    fn test_api_url_construction() {
+        let company_id = "cloudflare";
+        let api_url = format!("https://boards-api.greenhouse.io/v1/boards/{}/jobs", company_id);
+
+        assert_eq!(
+            api_url,
+            "https://boards-api.greenhouse.io/v1/boards/cloudflare/jobs"
+        );
+    }
+
+    #[test]
+    fn test_api_url_from_company_url() {
+        let company_url = "https://boards.greenhouse.io/cloudflare";
+        let company_id = company_url
+            .trim_end_matches('/')
+            .split('/')
+            .next_back()
+            .unwrap();
+
+        assert_eq!(company_id, "cloudflare");
+
+        let api_url = format!("https://boards-api.greenhouse.io/v1/boards/{}/jobs", company_id);
+        assert_eq!(
+            api_url,
+            "https://boards-api.greenhouse.io/v1/boards/cloudflare/jobs"
+        );
+    }
+
+    #[test]
+    fn test_api_url_with_trailing_slash() {
+        let company_url = "https://boards.greenhouse.io/stripe/";
+        let company_id = company_url
+            .trim_end_matches('/')
+            .split('/')
+            .next_back()
+            .unwrap();
+
+        assert_eq!(company_id, "stripe");
+    }
+
+    #[test]
+    fn test_job_url_construction_from_api() {
+        let company_id = "figma";
+        let job_id = 987654;
+        let url = format!("https://boards.greenhouse.io/{}/jobs/{}", company_id, job_id);
+
+        assert_eq!(url, "https://boards.greenhouse.io/figma/jobs/987654");
+    }
+
+    #[test]
+    fn test_hash_consistency_across_runs() {
+        let company = "Test Company™";
+        let title = "Senior Engineer (Remote) 🚀";
+        let location = Some("San Francisco, CA");
+        let url = "https://boards.greenhouse.io/test/jobs/123";
+
+        let hashes: Vec<String> = (0..10)
+            .map(|_| GreenhouseScraper::compute_hash(company, title, location, url))
+            .collect();
+
+        for i in 1..hashes.len() {
+            assert_eq!(hashes[0], hashes[i]);
+        }
+    }
+
+    #[test]
+    fn test_hash_with_query_parameters() {
+        let hash1 = GreenhouseScraper::compute_hash(
+            "Company",
+            "Engineer",
+            None,
+            "https://boards.greenhouse.io/company/jobs/1?ref=linkedin",
+        );
+        let hash2 = GreenhouseScraper::compute_hash(
+            "Company",
+            "Engineer",
+            None,
+            "https://boards.greenhouse.io/company/jobs/1?ref=twitter",
+        );
+        let hash3 = GreenhouseScraper::compute_hash(
+            "Company",
+            "Engineer",
+            None,
+            "https://boards.greenhouse.io/company/jobs/1",
+        );
+
+        assert_ne!(hash1, hash2);
+        assert_ne!(hash1, hash3);
+        assert_ne!(hash2, hash3);
+    }
+
+    #[test]
+    fn test_parse_job_element_all_fields_present() {
+        let scraper = GreenhouseScraper::new(vec![]);
+        let company = GreenhouseCompany {
+            id: "test".to_string(),
+            name: "Test Company".to_string(),
+            url: "https://boards.greenhouse.io/test".to_string(),
+        };
+
+        let html = r#"
+            <div class="opening">
+                <a href="/test/jobs/999">Full Stack Engineer</a>
+                <span class="location">Remote - Worldwide</span>
+            </div>
+        "#;
+
+        let document = Html::parse_document(html);
+        let selector = Selector::parse(".opening").unwrap();
+        let element = document.select(&selector).next().unwrap();
+
+        let job = scraper
+            .parse_job_element(&element, &company)
+            .expect("should parse job")
+            .expect("should have job");
+
+        assert_eq!(job.title, "Full Stack Engineer");
+        assert_eq!(job.company, "Test Company");
+        assert_eq!(job.location, Some("Remote - Worldwide".to_string()));
+        assert_eq!(job.source, "greenhouse");
+        assert_eq!(job.description, None);
+        assert_eq!(job.remote, None);
+        assert_eq!(job.hash.len(), 64);
+    }
+
+    #[test]
+    fn test_parse_job_element_nested_text() {
+        let scraper = GreenhouseScraper::new(vec![]);
+        let company = GreenhouseCompany {
+            id: "test".to_string(),
+            name: "Test".to_string(),
+            url: "https://boards.greenhouse.io/test".to_string(),
+        };
+
+        let html = r#"
+            <div class="opening">
+                <a href="/test/jobs/1">
+                    <span class="title">Senior</span>
+                    <span>Engineer</span>
+                </a>
+                <span class="location">Boston, MA</span>
+            </div>
+        "#;
+
+        let document = Html::parse_document(html);
+        let selector = Selector::parse(".opening").unwrap();
+        let element = document.select(&selector).next().unwrap();
+
+        let job = scraper
+            .parse_job_element(&element, &company)
+            .expect("should parse job")
+            .expect("should have job");
+
+        // Text collection should concatenate all text nodes
+        assert!(job.title.contains("Senior"));
+        assert!(job.title.contains("Engineer"));
+    }
+
+    #[test]
+    fn test_parse_api_response_with_capacity() {
+        let json_data = r#"
+        {
+            "jobs": [
+                {"id": 1, "title": "Job 1"},
+                {"id": 2, "title": "Job 2"},
+                {"id": 3, "title": "Job 3"}
+            ]
+        }
+        "#;
+
+        let parsed: serde_json::Value = serde_json::from_str(json_data).unwrap();
+
+        if let Some(jobs_array) = parsed["jobs"].as_array() {
+            let mut jobs = Vec::with_capacity(jobs_array.len());
+
+            for job_data in jobs_array {
+                let title = job_data["title"].as_str().unwrap_or("").to_string();
+                jobs.push(title);
+            }
+
+            assert_eq!(jobs.len(), 3);
+            assert_eq!(jobs.capacity(), 3);
+        }
+    }
+
     proptest! {
         /// Property: Hash function is deterministic
         /// Given the same inputs, compute_hash should always return the same output

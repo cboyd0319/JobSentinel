@@ -313,4 +313,234 @@ mod tests {
         assert_eq!(alert.severity_indicator(), "[INFO]");
         assert_eq!(alert.type_indicator(), "[SKILL+]");
     }
+
+    #[test]
+    fn test_alert_type_all_variants() {
+        assert_eq!(AlertType::SkillSurge.as_str(), "skill_surge");
+        assert_eq!(AlertType::SalarySpike.as_str(), "salary_spike");
+        assert_eq!(AlertType::HiringFreeze.as_str(), "hiring_freeze");
+        assert_eq!(AlertType::HiringSpree.as_str(), "hiring_spree");
+        assert_eq!(AlertType::LocationBoom.as_str(), "location_boom");
+        assert_eq!(AlertType::RoleObsolete.as_str(), "role_obsolete");
+    }
+
+    #[test]
+    fn test_alert_type_parse_all_variants() {
+        assert_eq!(AlertType::parse("skill_surge"), AlertType::SkillSurge);
+        assert_eq!(AlertType::parse("salary_spike"), AlertType::SalarySpike);
+        assert_eq!(AlertType::parse("hiring_freeze"), AlertType::HiringFreeze);
+        assert_eq!(AlertType::parse("hiring_spree"), AlertType::HiringSpree);
+        assert_eq!(AlertType::parse("location_boom"), AlertType::LocationBoom);
+        assert_eq!(AlertType::parse("role_obsolete"), AlertType::RoleObsolete);
+    }
+
+    #[test]
+    fn test_alert_type_parse_invalid() {
+        assert_eq!(AlertType::parse("invalid"), AlertType::SkillSurge);
+        assert_eq!(AlertType::parse(""), AlertType::SkillSurge);
+    }
+
+    #[test]
+    fn test_alert_severity_all_variants() {
+        assert_eq!(AlertSeverity::Info.as_str(), "info");
+        assert_eq!(AlertSeverity::Warning.as_str(), "warning");
+        assert_eq!(AlertSeverity::Critical.as_str(), "critical");
+    }
+
+    #[test]
+    fn test_alert_severity_parse_all() {
+        assert_eq!(AlertSeverity::parse("info"), AlertSeverity::Info);
+        assert_eq!(AlertSeverity::parse("warning"), AlertSeverity::Warning);
+        assert_eq!(AlertSeverity::parse("critical"), AlertSeverity::Critical);
+    }
+
+    #[test]
+    fn test_alert_severity_parse_invalid() {
+        assert_eq!(AlertSeverity::parse("invalid"), AlertSeverity::Info);
+        assert_eq!(AlertSeverity::parse(""), AlertSeverity::Info);
+    }
+
+    #[test]
+    fn test_entity_type_all_variants() {
+        assert_eq!(EntityType::Skill.as_str(), "skill");
+        assert_eq!(EntityType::Company.as_str(), "company");
+        assert_eq!(EntityType::Location.as_str(), "location");
+        assert_eq!(EntityType::Role.as_str(), "role");
+    }
+
+    #[test]
+    fn test_entity_type_parse_all() {
+        assert_eq!(EntityType::parse("skill"), EntityType::Skill);
+        assert_eq!(EntityType::parse("company"), EntityType::Company);
+        assert_eq!(EntityType::parse("location"), EntityType::Location);
+        assert_eq!(EntityType::parse("role"), EntityType::Role);
+    }
+
+    #[test]
+    fn test_entity_type_parse_invalid() {
+        assert_eq!(EntityType::parse("invalid"), EntityType::Skill);
+    }
+
+    #[test]
+    fn test_market_alert_negative_change() {
+        let alert = MarketAlert {
+            id: 2,
+            alert_type: AlertType::RoleObsolete,
+            title: "Junior roles declining".to_string(),
+            description: "Junior roles down 30%".to_string(),
+            severity: AlertSeverity::Warning,
+            related_entity: Some("Junior Developer".to_string()),
+            related_entity_type: Some(EntityType::Role),
+            metric_value: Some(70.0),
+            metric_change_pct: Some(-30.0),
+            is_read: false,
+            created_at: Utc::now(),
+        };
+
+        assert_eq!(alert.change_description(), "-30.0%");
+        assert_eq!(alert.severity_indicator(), "[WARN]");
+        assert_eq!(alert.type_indicator(), "[ROLE-]");
+    }
+
+    #[test]
+    fn test_market_alert_no_change() {
+        let alert = MarketAlert {
+            id: 3,
+            alert_type: AlertType::HiringSpree,
+            title: "Company hiring".to_string(),
+            description: "Company posted jobs".to_string(),
+            severity: AlertSeverity::Info,
+            related_entity: Some("TechCorp".to_string()),
+            related_entity_type: Some(EntityType::Company),
+            metric_value: Some(50.0),
+            metric_change_pct: None,
+            is_read: true,
+            created_at: Utc::now(),
+        };
+
+        assert_eq!(alert.change_description(), "N/A");
+        assert!(alert.is_read);
+    }
+
+    #[test]
+    fn test_market_alert_critical_salary_spike() {
+        let alert = MarketAlert {
+            id: 4,
+            alert_type: AlertType::SalarySpike,
+            title: "Massive salary increase!".to_string(),
+            description: "Salaries jumped 50%".to_string(),
+            severity: AlertSeverity::Critical,
+            related_entity: Some("AI Engineer".to_string()),
+            related_entity_type: Some(EntityType::Role),
+            metric_value: Some(250000.0),
+            metric_change_pct: Some(50.0),
+            is_read: false,
+            created_at: Utc::now(),
+        };
+
+        assert_eq!(alert.change_description(), "+50.0%");
+        assert_eq!(alert.severity_indicator(), "[CRIT]");
+        assert_eq!(alert.type_indicator(), "[SALARY+]");
+    }
+
+    #[test]
+    fn test_market_alert_hiring_freeze() {
+        let alert = MarketAlert {
+            id: 5,
+            alert_type: AlertType::HiringFreeze,
+            title: "BigCorp stops hiring".to_string(),
+            description: "Hiring frozen indefinitely".to_string(),
+            severity: AlertSeverity::Warning,
+            related_entity: Some("BigCorp".to_string()),
+            related_entity_type: Some(EntityType::Company),
+            metric_value: Some(0.0),
+            metric_change_pct: Some(-100.0),
+            is_read: false,
+            created_at: Utc::now(),
+        };
+
+        assert_eq!(alert.change_description(), "-100.0%");
+        assert_eq!(alert.severity_indicator(), "[WARN]");
+        assert_eq!(alert.type_indicator(), "[FREEZE]");
+    }
+
+    #[test]
+    fn test_market_alert_location_boom() {
+        let alert = MarketAlert {
+            id: 6,
+            alert_type: AlertType::LocationBoom,
+            title: "Austin tech boom!".to_string(),
+            description: "Austin jobs increased 80%".to_string(),
+            severity: AlertSeverity::Info,
+            related_entity: Some("Austin, TX".to_string()),
+            related_entity_type: Some(EntityType::Location),
+            metric_value: Some(500.0),
+            metric_change_pct: Some(80.0),
+            is_read: false,
+            created_at: Utc::now(),
+        };
+
+        assert_eq!(alert.change_description(), "+80.0%");
+        assert_eq!(alert.type_indicator(), "[LOCATION]");
+    }
+
+    #[test]
+    fn test_market_alert_no_entity() {
+        let alert = MarketAlert {
+            id: 7,
+            alert_type: AlertType::SkillSurge,
+            title: "General trend".to_string(),
+            description: "Overall market improving".to_string(),
+            severity: AlertSeverity::Info,
+            related_entity: None,
+            related_entity_type: None,
+            metric_value: None,
+            metric_change_pct: None,
+            is_read: false,
+            created_at: Utc::now(),
+        };
+
+        assert_eq!(alert.change_description(), "N/A");
+        assert!(alert.related_entity.is_none());
+        assert!(alert.related_entity_type.is_none());
+    }
+
+    #[test]
+    fn test_market_alert_zero_change() {
+        let alert = MarketAlert {
+            id: 8,
+            alert_type: AlertType::HiringSpree,
+            title: "Stable hiring".to_string(),
+            description: "No change in hiring".to_string(),
+            severity: AlertSeverity::Info,
+            related_entity: Some("StableCorp".to_string()),
+            related_entity_type: Some(EntityType::Company),
+            metric_value: Some(100.0),
+            metric_change_pct: Some(0.0),
+            is_read: false,
+            created_at: Utc::now(),
+        };
+
+        // Zero change doesn't get a + prefix
+        assert_eq!(alert.change_description(), "0.0%");
+    }
+
+    #[test]
+    fn test_market_alert_small_change() {
+        let alert = MarketAlert {
+            id: 9,
+            alert_type: AlertType::SkillSurge,
+            title: "Slight increase".to_string(),
+            description: "Minimal growth".to_string(),
+            severity: AlertSeverity::Info,
+            related_entity: Some("CSS".to_string()),
+            related_entity_type: Some(EntityType::Skill),
+            metric_value: Some(105.0),
+            metric_change_pct: Some(0.5),
+            is_read: false,
+            created_at: Utc::now(),
+        };
+
+        assert_eq!(alert.change_description(), "+0.5%");
+    }
 }
