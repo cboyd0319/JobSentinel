@@ -80,6 +80,7 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
 
     // Setup/First run
     case "is_first_run":
+      // Set to true to test setup wizard, false to show dashboard
       return false as T;
 
     // Config commands

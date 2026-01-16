@@ -30,3 +30,4 @@ export { NotificationPreferences, loadNotificationPreferences, shouldNotifyForJo
 export type { NotificationPreferences as NotificationPreferencesType, SourceNotificationConfig, AdvancedFilters, JobForNotification } from "./NotificationPreferences";
 export { CompanyResearchPanel } from "./CompanyResearchPanel";
 export { KeyboardShortcutsHelp } from "./KeyboardShortcutsHelp";
+export { CareerProfileSelector } from "./CareerProfileSelector";

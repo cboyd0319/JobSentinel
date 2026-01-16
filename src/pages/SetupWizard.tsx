@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { Button, Input, Badge, Card } from "../components";
+import { CareerProfileSelector } from "../components/CareerProfileSelector";
 import { useToast } from "../contexts";
 import { logError, getErrorMessage } from "../utils/errorUtils";
+import { CAREER_PROFILES, getProfileById, profileToConfig } from "../utils/profiles";
 
 interface SetupWizardProps {
   onComplete: () => void;
@@ -13,61 +15,28 @@ const isValidSlackWebhook = (url: string): boolean => {
   return url.startsWith("https://hooks.slack.com/services/");
 };
 
+// Step 0 is profile selection, then simplified flow
 const STEPS = [
-  { id: 1, title: "Job Titles", description: "What roles are you looking for?" },
-  { id: 2, title: "Skills", description: "What are you good at?" },
-  { id: 3, title: "Location", description: "Where do you want to work?" },
-  { id: 4, title: "Salary", description: "What's your target?" },
-  { id: 5, title: "Notifications", description: "Stay informed (optional)" },
+  { id: 0, title: "Career Path", description: "What kind of work are you looking for?" },
+  { id: 1, title: "Review & Edit", description: "Customize your job search" },
+  { id: 2, title: "Location", description: "Where do you want to work?" },
+  { id: 3, title: "Notifications", description: "Stay informed (optional)" },
 ];
 
-// Popular job titles for suggestions
-const POPULAR_TITLES = [
-  "Software Engineer",
-  "Product Manager", 
-  "Data Analyst",
-  "UX Designer",
-  "Marketing Manager",
-  "Sales Representative",
-  "Project Manager",
-  "Business Analyst",
-  "Customer Success Manager",
-  "Operations Manager",
-  "Accountant",
-  "Human Resources",
-  "Administrative Assistant",
-  "Graphic Designer",
-  "Content Writer",
-];
-
-// Popular skills for suggestions
-const POPULAR_SKILLS = [
-  "Excel",
-  "Communication",
-  "Problem Solving",
-  "Leadership",
-  "Project Management",
-  "Customer Service",
-  "Data Analysis",
-  "Writing",
-  "JavaScript",
-  "Python",
-  "SQL",
-  "Salesforce",
-  "Marketing",
-  "Accounting",
-  "Design",
-];
+// Popular suggestions are no longer needed - profiles provide pre-populated data
 
 export default function SetupWizard({ onComplete }: SetupWizardProps) {
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0); // Start at step 0 (profile selection)
+  const [selectedProfile, setSelectedProfile] = useState<string | null>(null);
   const [titleInput, setTitleInput] = useState("");
   const [skillInput, setSkillInput] = useState("");
   const [cityInput, setCityInput] = useState("");
   const toast = useToast();
   const [config, setConfig] = useState({
     title_allowlist: [] as string[],
+    title_blocklist: [] as string[],
     keywords_boost: [] as string[],
+    keywords_exclude: [] as string[],
     location_preferences: {
       allow_remote: true,
       allow_hybrid: false,
@@ -82,6 +51,42 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
       },
     },
   });
+
+  // When a profile is selected, auto-populate the config
+  const handleProfileSelect = (profileId: string | null) => {
+    setSelectedProfile(profileId);
+    if (profileId) {
+      const profile = getProfileById(profileId);
+      if (profile) {
+        const profileConfig = profileToConfig(profile);
+        setConfig(prev => ({
+          ...prev,
+          ...profileConfig,
+        }));
+      }
+    } else {
+      // Reset to empty for custom setup
+      setConfig({
+        title_allowlist: [],
+        title_blocklist: [],
+        keywords_boost: [],
+        keywords_exclude: [],
+        location_preferences: {
+          allow_remote: true,
+          allow_hybrid: false,
+          allow_onsite: false,
+          cities: [],
+        },
+        salary_floor_usd: 0,
+        alerts: {
+          slack: {
+            enabled: false,
+            webhook_url: "",
+          },
+        },
+      });
+    }
+  };
 
   const canProceedFromStep1 = config.title_allowlist.length > 0;
   const isValidWebhook = isValidSlackWebhook(config.alerts.slack.webhook_url);
@@ -146,12 +151,6 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
     }));
   };
 
-  const handleSalaryChange = (value: string) => {
-    const parsed = parseInt(value) || 0;
-    const sanitized = Math.max(0, parsed);
-    setConfig((prev) => ({ ...prev, salary_floor_usd: sanitized }));
-  };
-
   const handleComplete = async () => {
     try {
       await invoke("complete_setup", { config });
@@ -181,10 +180,10 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                   className={`
                     w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm
                     transition-all duration-300
-                    ${step > s.id 
-                      ? "bg-sentinel-500 text-white" 
-                      : step === s.id 
-                        ? "bg-sentinel-500 text-white ring-4 ring-sentinel-500/30" 
+                    ${step > s.id
+                      ? "bg-sentinel-500 text-white"
+                      : step === s.id
+                        ? "bg-sentinel-500 text-white ring-4 ring-sentinel-500/30"
                         : "bg-surface-700 text-surface-400"
                     }
                   `}
@@ -192,7 +191,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                   {step > s.id ? (
                     <CheckIcon className="w-5 h-5" />
                   ) : (
-                    s.id
+                    i + 1
                   )}
                 </div>
                 {i < STEPS.length - 1 && (
@@ -208,7 +207,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
             ))}
           </div>
           <div className="text-center">
-            <p className="text-surface-400 text-sm">Step {step} of {STEPS.length}</p>
+            <p className="text-surface-400 text-sm">Step {step + 1} of {STEPS.length}</p>
           </div>
         </div>
 
@@ -220,173 +219,162 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
               <SentinelIcon className="w-8 h-8 text-sentinel-600" />
             </div>
             <h1 className="font-display text-display-xl text-surface-900 mb-2">
-              {STEPS[step - 1].title}
+              {STEPS[step].title}
             </h1>
             <p className="text-surface-500">
-              {STEPS[step - 1].description}
+              {STEPS[step].description}
             </p>
           </div>
 
-          {/* Step 1: Job Titles */}
-          {step === 1 && (
+          {/* Step 0: Career Profile Selection */}
+          {step === 0 && (
             <div className="animate-slide-up">
-              <div className="flex gap-2 mb-4">
-                <Input
-                  placeholder="e.g., Software Engineer"
-                  value={titleInput}
-                  onChange={(e) => setTitleInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      handleAddTitle();
-                    }
-                  }}
-                  leftIcon={<SearchIcon />}
-                />
-                <Button onClick={handleAddTitle} disabled={!titleInput.trim()}>
-                  Add
-                </Button>
-              </div>
+              <CareerProfileSelector
+                selectedProfile={selectedProfile}
+                onSelectProfile={handleProfileSelect}
+              />
 
-              {/* Popular suggestions - always visible, filter out already selected */}
-              {POPULAR_TITLES.filter(t => !config.title_allowlist.includes(t)).length > 0 && (
-                <div className="mb-4">
-                  <p className="text-sm text-surface-500 mb-2">Popular titles - click to add multiple:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {POPULAR_TITLES.filter(t => !config.title_allowlist.includes(t)).map((title) => (
-                      <button
-                        key={title}
-                        onClick={() => {
-                          setConfig((prev) => ({
-                            ...prev,
-                            title_allowlist: [...prev.title_allowlist, title],
-                          }));
-                        }}
-                        className="px-3 py-1.5 text-sm bg-surface-100 hover:bg-sentinel-100 hover:text-sentinel-700 text-surface-600 rounded-full transition-colors"
-                      >
-                        + {title}
-                      </button>
-                    ))}
-                  </div>
+              <Button
+                onClick={() => setStep(1)}
+                disabled={selectedProfile === undefined}
+                className="w-full mt-6"
+                size="lg"
+              >
+                {selectedProfile ? "Continue with This Profile" : "Continue with Custom Setup"}
+              </Button>
+            </div>
+          )}
+
+          {/* Step 1: Review & Edit Job Titles + Skills (combined) */}
+          {step === 1 && (
+            <div className="animate-slide-up space-y-6">
+              {/* Pre-populated indicator */}
+              {selectedProfile && (
+                <div className="p-3 bg-sentinel-50 border border-sentinel-200 rounded-lg text-sm text-sentinel-700">
+                  Pre-filled from your <strong>{CAREER_PROFILES.find(p => p.id === selectedProfile)?.name}</strong> profile. Edit as needed.
                 </div>
               )}
 
-              {config.title_allowlist.length > 0 ? (
-                <div className="flex flex-wrap gap-2 mb-6 p-4 bg-surface-50 rounded-lg min-h-[80px]">
-                  {config.title_allowlist.map((title) => (
-                    <Badge
-                      key={title}
-                      variant="sentinel"
-                      removable
-                      onRemove={() => handleRemoveTitle(title)}
-                    >
-                      {title}
-                    </Badge>
-                  ))}
+              {/* Job Titles Section */}
+              <div>
+                <h3 className="font-semibold text-surface-800 mb-3 flex items-center gap-2">
+                  <SearchIcon /> Job Titles
+                </h3>
+                <div className="flex gap-2 mb-3">
+                  <Input
+                    placeholder="Add a job title..."
+                    value={titleInput}
+                    onChange={(e) => setTitleInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleAddTitle();
+                      }
+                    }}
+                  />
+                  <Button onClick={handleAddTitle} disabled={!titleInput.trim()}>
+                    Add
+                  </Button>
                 </div>
-              ) : (
-                <div className="flex items-center justify-center p-8 bg-surface-50 rounded-lg mb-6">
-                  <p className="text-surface-400 text-sm">
-                    Add job titles you're interested in
+
+                {config.title_allowlist.length > 0 ? (
+                  <div className="flex flex-wrap gap-2 p-3 bg-surface-50 rounded-lg max-h-32 overflow-y-auto">
+                    {config.title_allowlist.map((title) => (
+                      <Badge
+                        key={title}
+                        variant="sentinel"
+                        removable
+                        onRemove={() => handleRemoveTitle(title)}
+                      >
+                        {title}
+                      </Badge>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center p-6 bg-surface-50 rounded-lg">
+                    <p className="text-surface-400 text-sm">Add at least one job title</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Skills Section */}
+              <div>
+                <h3 className="font-semibold text-surface-800 mb-3 flex items-center gap-2">
+                  <SparkleIcon /> Skills & Keywords
+                </h3>
+                <div className="flex gap-2 mb-3">
+                  <Input
+                    placeholder="Add a skill..."
+                    value={skillInput}
+                    onChange={(e) => setSkillInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleAddSkill();
+                      }
+                    }}
+                  />
+                  <Button onClick={handleAddSkill} disabled={!skillInput.trim()}>
+                    Add
+                  </Button>
+                </div>
+
+                {config.keywords_boost.length > 0 ? (
+                  <div className="flex flex-wrap gap-2 p-3 bg-surface-50 rounded-lg max-h-32 overflow-y-auto">
+                    {config.keywords_boost.map((skill) => (
+                      <Badge
+                        key={skill}
+                        variant="alert"
+                        removable
+                        onRemove={() => handleRemoveSkill(skill)}
+                      >
+                        {skill}
+                      </Badge>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center p-6 bg-surface-50 rounded-lg">
+                    <p className="text-surface-400 text-sm">Skills help us find better matches (optional)</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Salary indicator (pre-populated from profile) */}
+              {config.salary_floor_usd > 0 && (
+                <div className="p-3 bg-surface-50 rounded-lg">
+                  <p className="text-sm text-surface-600">
+                    Looking for jobs paying at least{" "}
+                    <span className="font-semibold text-surface-800">
+                      ${config.salary_floor_usd.toLocaleString()}/year
+                    </span>
                   </p>
                 </div>
               )}
 
               {!canProceedFromStep1 && (
-                <p className="text-center text-sm text-amber-600 mb-4">
+                <p className="text-center text-sm text-amber-600">
                   Add at least one job title to continue
                 </p>
               )}
 
-              <Button
-                onClick={() => setStep(2)}
-                disabled={!canProceedFromStep1}
-                className="w-full"
-                size="lg"
-              >
-                Continue
-              </Button>
-            </div>
-          )}
-
-          {/* Step 2: Skills */}
-          {step === 2 && (
-            <div className="animate-slide-up">
-              <div className="flex gap-2 mb-4">
-                <Input
-                  placeholder="e.g., Excel, Python, Leadership"
-                  value={skillInput}
-                  onChange={(e) => setSkillInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      handleAddSkill();
-                    }
-                  }}
-                  leftIcon={<SparkleIcon />}
-                />
-                <Button onClick={handleAddSkill} disabled={!skillInput.trim()}>
-                  Add
-                </Button>
-              </div>
-
-              {/* Popular suggestions - always visible, filter out already selected */}
-              {POPULAR_SKILLS.filter(s => !config.keywords_boost.includes(s)).length > 0 && (
-                <div className="mb-4">
-                  <p className="text-sm text-surface-500 mb-2">Popular skills - click to add multiple:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {POPULAR_SKILLS.filter(s => !config.keywords_boost.includes(s)).map((skill) => (
-                      <button
-                        key={skill}
-                        onClick={() => {
-                          setConfig((prev) => ({
-                            ...prev,
-                            keywords_boost: [...prev.keywords_boost, skill],
-                          }));
-                        }}
-                        className="px-3 py-1.5 text-sm bg-surface-100 hover:bg-alert-100 hover:text-alert-700 text-surface-600 rounded-full transition-colors"
-                      >
-                        + {skill}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {config.keywords_boost.length > 0 ? (
-                <div className="flex flex-wrap gap-2 mb-6 p-4 bg-surface-50 rounded-lg min-h-[80px]">
-                  {config.keywords_boost.map((skill) => (
-                    <Badge
-                      key={skill}
-                      variant="alert"
-                      removable
-                      onRemove={() => handleRemoveSkill(skill)}
-                    >
-                      {skill}
-                    </Badge>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex items-center justify-center p-8 bg-surface-50 rounded-lg mb-6">
-                  <p className="text-surface-400 text-sm">
-                    Add skills to boost matching jobs (optional but helpful)
-                  </p>
-                </div>
-              )}
-
               <div className="flex gap-3">
-                <Button variant="secondary" onClick={() => setStep(1)} className="flex-1" size="lg">
+                <Button variant="secondary" onClick={() => setStep(0)} className="flex-1" size="lg">
                   Back
                 </Button>
-                <Button onClick={() => setStep(3)} className="flex-1" size="lg">
-                  {config.keywords_boost.length > 0 ? "Continue" : "Skip"}
+                <Button
+                  onClick={() => setStep(2)}
+                  disabled={!canProceedFromStep1}
+                  className="flex-1"
+                  size="lg"
+                >
+                  Continue
                 </Button>
               </div>
             </div>
           )}
 
-          {/* Step 3: Location */}
-          {step === 3 && (
+          {/* Step 2: Location */}
+          {step === 2 && (
             <div className="animate-slide-up">
               <div className="space-y-3 mb-6">
                 <LocationOption
@@ -474,56 +462,18 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
               )}
 
               <div className="flex gap-3">
-                <Button variant="secondary" onClick={() => setStep(2)} className="flex-1" size="lg">
+                <Button variant="secondary" onClick={() => setStep(1)} className="flex-1" size="lg">
                   Back
                 </Button>
-                <Button onClick={() => setStep(4)} className="flex-1" size="lg">
+                <Button onClick={() => setStep(3)} className="flex-1" size="lg">
                   Continue
                 </Button>
               </div>
             </div>
           )}
 
-          {/* Step 4: Salary */}
-          {step === 4 && (
-            <div className="animate-slide-up">
-              <div className="mb-8">
-                <Input
-                  type="number"
-                  label="Target Annual Salary (USD)"
-                  value={config.salary_floor_usd || ""}
-                  onChange={(e) => handleSalaryChange(e.target.value)}
-                  placeholder="e.g., 60000"
-                  leftIcon={<DollarIcon />}
-                  hint="Jobs below this salary will be ranked lower (leave blank if unsure)"
-                />
-
-                {config.salary_floor_usd > 0 && (
-                  <div className="mt-4 p-4 bg-sentinel-50 rounded-lg">
-                    <p className="text-sm text-sentinel-700">
-                      Looking for jobs paying at least{" "}
-                      <span className="font-semibold font-mono">
-                        ${config.salary_floor_usd.toLocaleString()}
-                      </span>
-                      /year
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex gap-3">
-                <Button variant="secondary" onClick={() => setStep(3)} className="flex-1" size="lg">
-                  Back
-                </Button>
-                <Button onClick={() => setStep(5)} className="flex-1" size="lg">
-                  {config.salary_floor_usd > 0 ? "Continue" : "Skip"}
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {/* Step 5: Notifications */}
-          {step === 5 && (
+          {/* Step 3: Notifications */}
+          {step === 3 && (
             <div className="animate-slide-up">
               <div className="mb-6">
                 <p className="text-surface-600 mb-4 text-center">
@@ -579,7 +529,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
               </div>
 
               <div className="flex gap-3">
-                <Button variant="secondary" onClick={() => setStep(4)} className="flex-1" size="lg">
+                <Button variant="secondary" onClick={() => setStep(2)} className="flex-1" size="lg">
                   Back
                 </Button>
                 <Button
@@ -716,14 +666,6 @@ function OfficeIcon() {
   return (
     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
-    </svg>
-  );
-}
-
-function DollarIcon() {
-  return (
-    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
     </svg>
   );
 }
