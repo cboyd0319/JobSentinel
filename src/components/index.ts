@@ -27,5 +27,6 @@ export { InterviewScheduler } from "./InterviewScheduler";
 export { ErrorLogPanel } from "./ErrorLogPanel";
 export { CoverLetterTemplates } from "./CoverLetterTemplates";
 export { NotificationPreferences, loadNotificationPreferences, shouldNotifyForJob } from "./NotificationPreferences";
-export type { NotificationPreferences as NotificationPreferencesType, SourceNotificationConfig } from "./NotificationPreferences";
+export type { NotificationPreferences as NotificationPreferencesType, SourceNotificationConfig, AdvancedFilters, JobForNotification } from "./NotificationPreferences";
 export { CompanyResearchPanel } from "./CompanyResearchPanel";
+export { KeyboardShortcutsHelp } from "./KeyboardShortcutsHelp";

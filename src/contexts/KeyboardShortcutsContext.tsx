@@ -23,6 +23,10 @@ interface KeyboardShortcutsContextType {
   openCommandPalette: () => void;
   closeCommandPalette: () => void;
   toggleCommandPalette: () => void;
+  isHelpOpen: boolean;
+  openHelp: () => void;
+  closeHelp: () => void;
+  toggleHelp: () => void;
 }
 
 const KeyboardShortcutsContext =
@@ -51,6 +55,7 @@ export function KeyboardShortcutsProvider({
 }: KeyboardShortcutsProviderProps) {
   const [shortcuts, setShortcuts] = useState<Shortcut[]>([]);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
 
   const openCommandPalette = useCallback(() => {
     setIsCommandPaletteOpen(true);
@@ -62,6 +67,18 @@ export function KeyboardShortcutsProvider({
 
   const toggleCommandPalette = useCallback(() => {
     setIsCommandPaletteOpen((prev) => !prev);
+  }, []);
+
+  const openHelp = useCallback(() => {
+    setIsHelpOpen(true);
+  }, []);
+
+  const closeHelp = useCallback(() => {
+    setIsHelpOpen(false);
+  }, []);
+
+  const toggleHelp = useCallback(() => {
+    setIsHelpOpen((prev) => !prev);
   }, []);
 
   const registerShortcut = useCallback((shortcut: Shortcut) => {
@@ -140,6 +157,13 @@ export function KeyboardShortcutsProvider({
         action: closeCommandPalette,
         category: "ui",
       },
+      {
+        key: "?",
+        modifiers: ["shift"],
+        description: "Show keyboard shortcuts help",
+        action: toggleHelp,
+        category: "ui",
+      },
     ];
 
     defaultShortcuts.forEach(registerShortcut);
@@ -152,6 +176,7 @@ export function KeyboardShortcutsProvider({
     unregisterShortcut,
     toggleCommandPalette,
     closeCommandPalette,
+    toggleHelp,
     onNavigate,
     onOpenSettings,
   ]);
@@ -212,6 +237,10 @@ export function KeyboardShortcutsProvider({
         openCommandPalette,
         closeCommandPalette,
         toggleCommandPalette,
+        isHelpOpen,
+        openHelp,
+        closeHelp,
+        toggleHelp,
       }}
     >
       {children}

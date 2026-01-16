@@ -78,6 +78,7 @@ fn main() {
             // Interview commands
             commands::schedule_interview,
             commands::get_upcoming_interviews,
+            commands::get_past_interviews,
             commands::complete_interview,
             commands::delete_interview,
             // Deduplication commands

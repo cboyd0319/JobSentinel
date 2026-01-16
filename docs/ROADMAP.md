@@ -1,20 +1,26 @@
 # JobSentinel Roadmap
 
-**Last Updated:** January 2026
+**Last Updated:** January 17, 2026
 
-## Current Version: 1.0.0-alpha
+## Current Version: 1.3.0
 
-### Working Features
-- Job scrapers: Greenhouse, Lever, JobsWithGPT, LinkedIn, Indeed
+### Working Features (v1.3)
+- **10 Job scrapers**: Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT
 - Application Tracking System (ATS): Kanban board, reminders, timeline, ghosting detection
+- Interview Scheduler: iCal export, prep checklists, follow-up reminders
 - AI Resume-Job Matcher: PDF parsing, skill extraction, matching
 - Salary AI: Benchmarks, predictions, offer comparison, negotiation scripts
 - Market Intelligence: Trends, snapshots, alerts, hiring velocity
 - Multi-factor scoring algorithm
-- Multi-channel notifications: Slack, Discord, Teams, Desktop
+- Multi-channel notifications: Slack, Discord, Teams, Desktop, Email (SMTP)
+- Advanced notification filtering: keyword filters, salary threshold, company lists
+- Keyboard shortcuts: `b` bookmark, `n` notes, `c` company, `/` search, `?` help
+- Advanced search: Boolean AND/OR/NOT, search history
+- Enhanced analytics: Response rates, weekly goals, company response times
+- Company research: 40+ companies with tech stacks
 - SQLite database with full-text search
 - Scheduler for periodic scraping
-- React 19 frontend with setup wizard
+- React 19 frontend with virtual lists
 
 ### v1.1 Features (COMPLETED)
 
@@ -23,6 +29,35 @@
 | Email notifications (SMTP) | **Done** | Full UI in Settings |
 | Frontend pages for ATS/Resume/Salary/Market | **Done** | 4 new pages with navigation |
 | GitHub Actions CI/CD | **Done** | Multi-platform build/test |
+
+### v1.2 Features (COMPLETED)
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Virtual job list | **Done** | Performance for large lists |
+| Error boundaries | **Done** | Graceful error handling |
+| Command palette | **Done** | Cmd/Ctrl+K quick actions |
+| Onboarding tour | **Done** | First-run guided tour |
+| Export utilities | **Done** | CSV/JSON export |
+| RemoteOK scraper | **Done** | JSON API for remote jobs |
+| Wellfound scraper | **Done** | HTML scraping for startups |
+
+### v1.3 Features (COMPLETED)
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Advanced notification filtering | **Done** | Keywords, salary, company lists |
+| Keyboard shortcuts | **Done** | Power user navigation |
+| Cover letter categories | **Done** | Template filtering and placeholders |
+| Company research panel | **Done** | 40+ companies with tech stacks |
+| Interview prep checklist | **Done** | 5-item checklist with reminders |
+| Follow-up reminders | **Done** | Post-interview thank you tracking |
+| Analytics weekly goals | **Done** | Application targets with progress |
+| Company response rates | **Done** | Fastest/slowest responders |
+| WeWorkRemotely scraper | **Done** | RSS feed for remote jobs |
+| BuiltIn scraper | **Done** | City-specific tech jobs |
+| HN Who's Hiring scraper | **Done** | Monthly thread parsing |
+| Advanced search | **Done** | AND/OR/NOT, search history |
 
 ### v2.0 Planned Features
 
@@ -97,7 +132,8 @@ Automated application submission.
 - Clippy passes with 0 warnings (`-D warnings`)
 - 290 tests passing, 20 ignored (require file-based database or are doc examples)
 - All modules enabled and functional
-- 25 new Tauri commands for backend modules
+- 38 Tauri commands for backend modules
+- 10 job board scrapers implemented
 
 ### Resolved Technical Debt
 - [x] SQLite MEDIAN() - computed in Rust instead
@@ -109,11 +145,21 @@ Automated application submission.
 - [x] All backend modules exposed via Tauri commands
 - [x] Accessibility improvements (ARIA labels, keyboard nav, focus styles)
 - [x] Form validation (email format validation in Settings)
+- [x] Virtual list for large job lists
+- [x] Error boundaries for graceful failures
+- [x] Advanced search with boolean operators
+- [x] Interview scheduler with iCal export
+- [x] Company research panel with known companies database
 
 ### Remaining Work
 - [x] Email notifications frontend UI
 - [x] Frontend pages for ATS, Resume, Salary, Market features
+- [x] Virtual list optimization
+- [x] Keyboard shortcuts
+- [x] Advanced notification filtering
+- [x] Additional job scrapers (WeWorkRemotely, BuiltIn, HN)
 - [ ] Add comprehensive integration tests
+- [ ] E2E tests with Playwright
 
 ---
 
@@ -122,7 +168,8 @@ Automated application submission.
 See [CONTRIBUTING.md](developer/CONTRIBUTING.md) for how to contribute.
 
 Priority areas for contribution:
-1. Frontend UI pages for new features
-2. Email notification frontend integration
+1. Integration and E2E tests
+2. Additional job board scrapers
 3. UI/UX improvements
-4. Additional test coverage
+4. Performance optimization
+5. Documentation improvements

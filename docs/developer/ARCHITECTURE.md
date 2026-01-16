@@ -1,6 +1,6 @@
 # Architecture Documentation
 
-**JobSentinel v2.0 System Architecture**
+**JobSentinel v1.3 System Architecture**
 
 ---
 
@@ -146,10 +146,17 @@ CREATE VIRTUAL TABLE jobs_fts USING fts5(
 ```
 
 #### `core/scrapers/`
-**Purpose**: Job board scraping
-- Greenhouse ATS scraper
-- Lever ATS scraper
-- JobsWithGPT API client
+**Purpose**: Job board scraping (10 sources)
+- **Greenhouse** - ATS scraper (HTML)
+- **Lever** - ATS scraper (HTML)
+- **LinkedIn** - Session cookie authentication
+- **Indeed** - Query-based search
+- **RemoteOK** - JSON API
+- **Wellfound** - HTML scraper (formerly AngelList)
+- **WeWorkRemotely** - RSS feed parsing
+- **BuiltIn** - City-specific tech jobs (HTML)
+- **HN Who's Hiring** - Algolia API for monthly threads
+- **JobsWithGPT** - API client
 
 **Architecture:**
 ```rust
@@ -210,8 +217,10 @@ total_score = (
        │
        v
 ┌──────────────┐
-│ Scrape All   │──> Greenhouse, Lever, JobsGPT (parallel)
-│   Sources    │
+│ Scrape All   │──> 10 sources in parallel:
+│   Sources    │    Greenhouse, Lever, LinkedIn, Indeed,
+│              │    RemoteOK, Wellfound, WeWorkRemotely,
+│              │    BuiltIn, HN Hiring, JobsGPT
 └──────┬───────┘
        │
        v
@@ -226,7 +235,7 @@ total_score = (
        │
        v
 ┌──────────────┐
-│ Send Alerts  │──> Slack (if score >= threshold)
+│ Send Alerts  │──> Slack/Discord/Teams/Email (if score >= threshold)
 └──────────────┘
 ```
 
@@ -492,6 +501,6 @@ pub struct GreenhouseScraper { ... }
 
 ---
 
-**Last Updated**: November 14, 2025
-**Version**: 2.0
+**Last Updated**: January 17, 2026
+**Version**: 1.3
 **Maintained By**: The Rust Mac Overlord 🦀

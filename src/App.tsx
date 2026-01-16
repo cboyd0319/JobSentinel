@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, lazy, Suspense } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { ErrorBoundary, LoadingSpinner, SkipToContent, CommandPalette, PageErrorBoundary } from "./components";
-import { KeyboardShortcutsProvider } from "./contexts/KeyboardShortcutsContext";
+import { ErrorBoundary, LoadingSpinner, SkipToContent, CommandPalette, PageErrorBoundary, KeyboardShortcutsHelp } from "./components";
+import { KeyboardShortcutsProvider, useKeyboardShortcuts } from "./contexts/KeyboardShortcutsContext";
 import { logError } from "./utils/errorUtils";
 
 // Lazy load pages for better initial load performance
@@ -19,6 +19,12 @@ function PageLoader({ message = "Loading..." }: { message?: string }) {
       <LoadingSpinner message={message} />
     </div>
   );
+}
+
+// Global keyboard help modal - consumes context
+function GlobalKeyboardHelp() {
+  const { isHelpOpen, closeHelp } = useKeyboardShortcuts();
+  return <KeyboardShortcutsHelp isOpen={isHelpOpen} onClose={closeHelp} />;
 }
 
 type Page = "dashboard" | "applications" | "resume" | "salary" | "market";
@@ -82,6 +88,7 @@ function App() {
       >
         <SkipToContent />
         <CommandPalette />
+        <GlobalKeyboardHelp />
         <div className="min-h-screen" id="main-content">
           <Suspense fallback={<PageLoader />}>
             {currentPage === "dashboard" && (

@@ -5,6 +5,44 @@ All notable changes to JobSentinel will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-01-17
+
+### Added
+- **10 job board scrapers** - Now supporting Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, and JobsWithGPT
+- **Advanced notification filtering** - Keyword include/exclude, salary threshold, remote-only toggle, company whitelist/blacklist
+- **Keyboard shortcuts** - `b` bookmark, `n` notes, `c` company research, `x` select, `/` search, `?` help, `r` refresh
+- **Advanced search** - Boolean operators (AND with space, OR with comma, NOT with -prefix), search history dropdown
+- **Interview scheduler enhancements** - iCal export (.ics), interview prep checklist (5 items), follow-up reminders
+- **Analytics enhancements** - Company response rates (fastest/slowest), weekly application goals with progress bar
+- **Cover letter improvements** - Template categories (General/Tech/Creative/Finance/Healthcare/Sales), additional placeholders ({location}, {date}, {years_experience}, {hiring_manager}), word/character count
+- **Company research panel** - 40+ known companies database with tech stacks, Glassdoor/LinkedIn links
+- **New scrapers**:
+  - WeWorkRemotely (RSS feed parsing for remote jobs)
+  - BuiltIn (HTML scraping for city-specific tech jobs)
+  - HN Who's Hiring (Algolia API for monthly hiring threads)
+
+### Changed
+- Search input now shows syntax help tooltip
+- Past interviews show follow-up reminder checkbox
+- Analytics panel shows weekly goal progress
+
+## [1.2.0] - 2026-01-16
+
+### Added
+- **Virtual job list** - Performance optimization for large job lists
+- **Error boundaries** - PageErrorBoundary component for graceful error handling
+- **Command palette** - Quick actions via keyboard (Cmd/Ctrl+K)
+- **Onboarding tour** - First-run guided tour of features
+- **Export utilities** - CSV/JSON export for jobs and applications
+- **API configuration** - Centralized API endpoint configuration
+- **New scrapers**:
+  - RemoteOK (JSON API for remote jobs)
+  - Wellfound (HTML scraping for startup jobs)
+
+### Changed
+- Improved loading states with skeleton components
+- Better accessibility with skip-to-content links
+
 ## [Unreleased]
 
 ### Added
@@ -163,5 +201,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/cboyd0319/JobSentinel/compare/v1.0.0-alpha...HEAD
+[Unreleased]: https://github.com/cboyd0319/JobSentinel/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/cboyd0319/JobSentinel/compare/v1.2.0...v1.3.0
+[1.2.0]: https://github.com/cboyd0319/JobSentinel/compare/v1.0.0-alpha...v1.2.0
 [1.0.0-alpha]: https://github.com/cboyd0319/JobSentinel/releases/tag/v1.0.0-alpha

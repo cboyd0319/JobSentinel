@@ -546,6 +546,61 @@ impl ApplicationTracker {
                     notes: row.notes,
                     completed: row.completed != 0,
                     outcome: row.outcome,
+                    // TODO: Add post_interview_notes when migration is applied
+                    post_interview_notes: None,
+                    job_title: row.job_title,
+                    company: row.company,
+                })
+            })
+            .collect())
+    }
+
+    /// Get past interviews (completed, last 90 days)
+    pub async fn get_past_interviews(&self) -> Result<Vec<InterviewWithJob>> {
+        let interviews = sqlx::query!(
+            r#"
+            SELECT
+                i.id,
+                i.application_id,
+                i.interview_type,
+                i.scheduled_at,
+                i.duration_minutes,
+                i.location,
+                i.interviewer_name,
+                i.interviewer_title,
+                i.notes,
+                i.completed,
+                i.outcome,
+                j.title as job_title,
+                j.company
+            FROM interviews i
+            JOIN applications a ON i.application_id = a.id
+            JOIN jobs j ON a.job_hash = j.hash
+            WHERE i.completed = 1
+              AND datetime(i.scheduled_at) >= datetime('now', '-90 days')
+            ORDER BY i.scheduled_at DESC
+            "#
+        )
+        .fetch_all(&self.db)
+        .await?;
+
+        Ok(interviews
+            .into_iter()
+            .filter_map(|row| {
+                Some(InterviewWithJob {
+                    id: row.id?,
+                    application_id: row.application_id,
+                    interview_type: row.interview_type.unwrap_or_else(|| "other".to_string()),
+                    scheduled_at: row.scheduled_at,
+                    duration_minutes: row.duration_minutes.unwrap_or(60) as i32,
+                    location: row.location,
+                    interviewer_name: row.interviewer_name,
+                    interviewer_title: row.interviewer_title,
+                    notes: row.notes,
+                    completed: row.completed != 0,
+                    outcome: row.outcome,
+                    // TODO: Add post_interview_notes when migration is applied
+                    post_interview_notes: None,
                     job_title: row.job_title,
                     company: row.company,
                 })
@@ -554,22 +609,23 @@ impl ApplicationTracker {
     }
 
     /// Update interview outcome
+    /// Note: post_notes parameter is currently ignored until migration is applied
     pub async fn complete_interview(
         &self,
         interview_id: i64,
         outcome: &str,
-        notes: Option<&str>,
+        _post_notes: Option<&str>,
     ) -> Result<()> {
         let now = Utc::now().to_rfc3339();
 
+        // TODO: Store post_notes in post_interview_notes column when migration is applied
         sqlx::query!(
             r#"
             UPDATE interviews
-            SET completed = 1, outcome = ?, notes = COALESCE(?, notes), updated_at = ?
+            SET completed = 1, outcome = ?, updated_at = ?
             WHERE id = ?
             "#,
             outcome,
-            notes,
             now,
             interview_id
         )
@@ -792,6 +848,7 @@ pub struct InterviewWithJob {
     pub notes: Option<String>,
     pub completed: bool,
     pub outcome: Option<String>,
+    pub post_interview_notes: Option<String>,
     pub job_title: String,
     pub company: String,
 }

@@ -13,6 +13,7 @@ import Settings from "./Settings";
 
 type SortOption = "score-desc" | "score-asc" | "date-desc" | "date-asc" | "company-asc";
 type ScoreFilter = "all" | "high" | "medium" | "low";
+type PostedDateFilter = "all" | "24h" | "7d" | "30d";
 
 interface SavedSearch {
   id: string;
@@ -24,11 +25,78 @@ interface SavedSearch {
     remoteFilter: string;
     bookmarkFilter: string;
     notesFilter: string;
+    postedDateFilter?: PostedDateFilter;
+    salaryMinFilter?: number | null;
+    salaryMaxFilter?: number | null;
   };
   createdAt: string;
 }
 
 const SAVED_SEARCHES_KEY = "jobsentinel_saved_searches";
+const SEARCH_HISTORY_KEY = "jobsentinel_search_history";
+const MAX_SEARCH_HISTORY = 10;
+
+// Parse advanced search query with AND, OR, NOT operators
+function parseSearchQuery(query: string): { includes: string[]; excludes: string[]; isOr: boolean } {
+  const trimmed = query.trim();
+  if (!trimmed) return { includes: [], excludes: [], isOr: false };
+
+  const excludes: string[] = [];
+  const includes: string[] = [];
+  let isOr = false;
+
+  // Check for OR mode (comma-separated or explicit OR)
+  if (trimmed.includes(',') || trimmed.toUpperCase().includes(' OR ')) {
+    isOr = true;
+  }
+
+  // Split by comma or OR
+  const parts = trimmed
+    .split(/,|\sOR\s/i)
+    .map(p => p.trim())
+    .filter(p => p.length > 0);
+
+  for (const part of parts) {
+    // Handle AND within each part
+    const andParts = part.split(/\sAND\s/i).map(p => p.trim());
+
+    for (const term of andParts) {
+      // Handle NOT/- prefix
+      if (term.startsWith('-') || term.toUpperCase().startsWith('NOT ')) {
+        const excludeTerm = term.replace(/^-|^NOT\s+/i, '').trim();
+        if (excludeTerm) excludes.push(excludeTerm.toLowerCase());
+      } else {
+        if (term) includes.push(term.toLowerCase());
+      }
+    }
+  }
+
+  return { includes, excludes, isOr };
+}
+
+// Match job against parsed search query
+function matchesSearchQuery(
+  job: { title: string; company: string; location: string | null },
+  query: { includes: string[]; excludes: string[]; isOr: boolean }
+): boolean {
+  const searchableText = `${job.title} ${job.company} ${job.location || ''}`.toLowerCase();
+
+  // Check excludes first - any match means exclude
+  for (const exclude of query.excludes) {
+    if (searchableText.includes(exclude)) return false;
+  }
+
+  // If no includes, pass (only excludes matter)
+  if (query.includes.length === 0) return true;
+
+  // OR mode: any include matches
+  if (query.isOr) {
+    return query.includes.some(term => searchableText.includes(term));
+  }
+
+  // AND mode: all includes must match
+  return query.includes.every(term => searchableText.includes(term));
+}
 
 interface Job {
   id: number;
@@ -95,6 +163,37 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
   const [remoteFilter, setRemoteFilter] = useState<string>("all");
   const [bookmarkFilter, setBookmarkFilter] = useState<string>("all");
   const [notesFilter, setNotesFilter] = useState<string>("all");
+  const [postedDateFilter, setPostedDateFilter] = useState<PostedDateFilter>("all");
+  const [salaryMinFilter, setSalaryMinFilter] = useState<number | null>(null);
+  const [salaryMaxFilter, setSalaryMaxFilter] = useState<number | null>(null);
+  // Quick text search filter with history
+  const [textSearch, setTextSearch] = useState("");
+  const [searchHistory, setSearchHistory] = useState<string[]>([]);
+  const [showSearchHistory, setShowSearchHistory] = useState(false);
+
+  // Load search history on mount
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(SEARCH_HISTORY_KEY);
+      if (stored) setSearchHistory(JSON.parse(stored));
+    } catch { /* ignore */ }
+  }, []);
+
+  // Add to search history when user finishes typing
+  const addToSearchHistory = useCallback((query: string) => {
+    if (!query.trim() || query.length < 2) return;
+    setSearchHistory(prev => {
+      const filtered = prev.filter(h => h.toLowerCase() !== query.toLowerCase());
+      const updated = [query, ...filtered].slice(0, MAX_SEARCH_HISTORY);
+      localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
+
+  const clearSearchHistory = useCallback(() => {
+    setSearchHistory([]);
+    localStorage.removeItem(SEARCH_HISTORY_KEY);
+  }, []);
   // Notes modal state
   const [notesModalOpen, setNotesModalOpen] = useState(false);
   const [editingJobId, setEditingJobId] = useState<number | null>(null);
@@ -143,6 +242,12 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
   const filteredAndSortedJobs = useMemo(() => {
     let result = [...jobs];
 
+    // Apply text search filter with advanced query support (AND, OR, NOT)
+    if (textSearch.trim()) {
+      const query = parseSearchQuery(textSearch);
+      result = result.filter((job) => matchesSearchQuery(job, query));
+    }
+
     // Apply score filter
     if (scoreFilter !== "all") {
       result = result.filter((job) => {
@@ -185,6 +290,43 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
       });
     }
 
+    // Apply posted date filter
+    if (postedDateFilter !== "all") {
+      const now = new Date();
+      result = result.filter((job) => {
+        const jobDate = new Date(job.created_at);
+        const diffHours = (now.getTime() - jobDate.getTime()) / (1000 * 60 * 60);
+        if (postedDateFilter === "24h") return diffHours <= 24;
+        if (postedDateFilter === "7d") return diffHours <= 24 * 7;
+        if (postedDateFilter === "30d") return diffHours <= 24 * 30;
+        return true;
+      });
+    }
+
+    // Apply salary filter
+    if (salaryMinFilter !== null || salaryMaxFilter !== null) {
+      result = result.filter((job) => {
+        // Skip jobs without salary info if filter is active
+        const hasMinSalary = job.salary_min != null;
+        const hasMaxSalary = job.salary_max != null;
+        if (!hasMinSalary && !hasMaxSalary) return false;
+
+        const jobMin = job.salary_min ?? job.salary_max ?? 0;
+        const jobMax = job.salary_max ?? job.salary_min ?? 0;
+
+        // Check against filters (salary filter is in thousands, job salary is in actual dollars)
+        if (salaryMinFilter !== null) {
+          const minThreshold = salaryMinFilter * 1000;
+          if (jobMax < minThreshold) return false;
+        }
+        if (salaryMaxFilter !== null) {
+          const maxThreshold = salaryMaxFilter * 1000;
+          if (jobMin > maxThreshold) return false;
+        }
+        return true;
+      });
+    }
+
     // Apply sorting
     result.sort((a, b) => {
       switch (sortBy) {
@@ -204,10 +346,12 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
     });
 
     return result;
-  }, [jobs, scoreFilter, sourceFilter, remoteFilter, bookmarkFilter, notesFilter, sortBy]);
+  }, [jobs, textSearch, scoreFilter, sourceFilter, remoteFilter, bookmarkFilter, notesFilter, postedDateFilter, salaryMinFilter, salaryMaxFilter, sortBy]);
 
   // Ref for job list container (for scrolling selected job into view)
   const jobListRef = useRef<HTMLDivElement>(null);
+  // Ref for quick search input (for `/` keyboard shortcut)
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Open job URL in external browser
   const handleOpenJob = useCallback(async (job: Job) => {
@@ -221,9 +365,31 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
   // Keyboard navigation for job list
   const { selectedIndex, isKeyboardActive } = useKeyboardNavigation({
     items: filteredAndSortedJobs,
-    enabled: !showSettings && !loading,
+    enabled: !showSettings && !loading && !notesModalOpen,
     onOpen: handleOpenJob,
     onHide: (job) => handleHideJob(job.id),
+    onBookmark: (job) => handleToggleBookmark(job.id),
+    onNotes: (job) => handleEditNotes(job.id, job.notes),
+    onResearch: (job) => setResearchCompany(job.company),
+    onToggleSelect: (job) => {
+      setSelectedJobIds((prev) => {
+        const next = new Set(prev);
+        if (next.has(job.id)) {
+          next.delete(job.id);
+        } else {
+          next.add(job.id);
+        }
+        return next;
+      });
+      // Enable bulk mode if any jobs are selected
+      setBulkMode(true);
+    },
+    onFocusSearch: () => {
+      searchInputRef.current?.focus();
+    },
+    // Note: handleSearchNow is defined below, this works because the callback
+    // is only called at runtime (when user presses 'r'), not during render
+    onRefresh: () => handleSearchNow(),
   });
 
   // Scroll selected job into view when navigating with keyboard
@@ -689,6 +855,9 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
     remoteFilter,
     bookmarkFilter,
     notesFilter,
+    postedDateFilter,
+    salaryMinFilter,
+    salaryMaxFilter,
   });
 
   const handleSaveSearch = () => {
@@ -719,6 +888,9 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
     setRemoteFilter(search.filters.remoteFilter);
     setBookmarkFilter(search.filters.bookmarkFilter);
     setNotesFilter(search.filters.notesFilter);
+    setPostedDateFilter(search.filters.postedDateFilter ?? "all");
+    setSalaryMinFilter(search.filters.salaryMinFilter ?? null);
+    setSalaryMaxFilter(search.filters.salaryMaxFilter ?? null);
     toast.info("Filters loaded", `Applied "${search.name}"`);
   };
 
@@ -1135,6 +1307,89 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
             {/* Filter and Sort Controls */}
             {jobs.length > 0 && (
               <div className="flex flex-wrap items-center gap-3" data-tour="job-filters">
+                {/* Quick text search with history and advanced syntax */}
+                <div className="relative">
+                  <Tooltip
+                    content={
+                      <div className="text-xs space-y-1">
+                        <p className="font-medium">Advanced Search:</p>
+                        <p>• Comma or OR: react, vue (any match)</p>
+                        <p>• AND: senior AND engineer (all match)</p>
+                        <p>• NOT or -: -intern (exclude term)</p>
+                      </div>
+                    }
+                    position="bottom"
+                  >
+                    <input
+                      ref={searchInputRef}
+                      type="text"
+                      value={textSearch}
+                      onChange={(e) => setTextSearch(e.target.value)}
+                      onFocus={() => setShowSearchHistory(true)}
+                      onBlur={() => setTimeout(() => setShowSearchHistory(false), 200)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && textSearch.trim()) {
+                          addToSearchHistory(textSearch.trim());
+                          setShowSearchHistory(false);
+                        }
+                      }}
+                      placeholder="Search (AND, OR, NOT)..."
+                      className="w-48 sm:w-56 pl-8 pr-8 py-1.5 text-sm bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sentinel-500 focus:border-transparent"
+                      aria-label="Search jobs with advanced syntax"
+                    />
+                  </Tooltip>
+                  <svg
+                    className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-400 pointer-events-none"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  {textSearch && (
+                    <button
+                      onClick={() => setTextSearch("")}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300"
+                      aria-label="Clear search"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  )}
+
+                  {/* Search History Dropdown */}
+                  {showSearchHistory && searchHistory.length > 0 && !textSearch && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-600 rounded-lg shadow-lg z-20 overflow-hidden">
+                      <div className="flex items-center justify-between px-3 py-1.5 border-b border-surface-200 dark:border-surface-600">
+                        <span className="text-xs text-surface-500 font-medium">Recent Searches</span>
+                        <button
+                          onClick={clearSearchHistory}
+                          className="text-xs text-surface-400 hover:text-surface-600 dark:hover:text-surface-300"
+                        >
+                          Clear
+                        </button>
+                      </div>
+                      <ul className="max-h-40 overflow-y-auto">
+                        {searchHistory.map((query, idx) => (
+                          <li key={idx}>
+                            <button
+                              onClick={() => {
+                                setTextSearch(query);
+                                setShowSearchHistory(false);
+                              }}
+                              className="w-full px-3 py-2 text-left text-sm text-surface-700 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-700 flex items-center gap-2"
+                            >
+                              <HistoryIcon className="w-3 h-3 text-surface-400" />
+                              {query}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+
                 {/* Sort */}
                 <Dropdown
                   label="Sort"
@@ -1209,15 +1464,58 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
                   ]}
                 />
 
+                {/* Posted Date Filter */}
+                <Dropdown
+                  label="Posted"
+                  value={postedDateFilter}
+                  onChange={(value) => setPostedDateFilter(value as PostedDateFilter)}
+                  options={[
+                    { value: "all", label: "Any Time" },
+                    { value: "24h", label: "Last 24 Hours" },
+                    { value: "7d", label: "Last 7 Days" },
+                    { value: "30d", label: "Last 30 Days" },
+                  ]}
+                />
+
+                {/* Salary Range Filter */}
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-surface-500 dark:text-surface-400 whitespace-nowrap">Salary:</span>
+                  <input
+                    type="number"
+                    placeholder="Min $K"
+                    value={salaryMinFilter ?? ""}
+                    onChange={(e) => setSalaryMinFilter(e.target.value ? parseInt(e.target.value) : null)}
+                    className="w-20 px-2 py-1 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-white"
+                    min={0}
+                    step={10}
+                    aria-label="Minimum salary in thousands"
+                  />
+                  <span className="text-xs text-surface-400">-</span>
+                  <input
+                    type="number"
+                    placeholder="Max $K"
+                    value={salaryMaxFilter ?? ""}
+                    onChange={(e) => setSalaryMaxFilter(e.target.value ? parseInt(e.target.value) : null)}
+                    className="w-20 px-2 py-1 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-white"
+                    min={0}
+                    step={10}
+                    aria-label="Maximum salary in thousands"
+                  />
+                </div>
+
                 {/* Clear filters */}
-                {(scoreFilter !== "all" || sourceFilter !== "all" || remoteFilter !== "all" || bookmarkFilter !== "all" || notesFilter !== "all") && (
+                {(textSearch || scoreFilter !== "all" || sourceFilter !== "all" || remoteFilter !== "all" || bookmarkFilter !== "all" || notesFilter !== "all" || postedDateFilter !== "all" || salaryMinFilter !== null || salaryMaxFilter !== null) && (
                   <button
                     onClick={() => {
+                      setTextSearch("");
                       setScoreFilter("all");
                       setSourceFilter("all");
                       setRemoteFilter("all");
                       setBookmarkFilter("all");
                       setNotesFilter("all");
+                      setPostedDateFilter("all");
+                      setSalaryMinFilter(null);
+                      setSalaryMaxFilter(null);
                     }}
                     className="text-sm text-sentinel-600 dark:text-sentinel-400 hover:underline"
                   >
@@ -1416,9 +1714,15 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
               </p>
               <button
                 onClick={() => {
+                  setTextSearch("");
                   setScoreFilter("all");
                   setSourceFilter("all");
                   setRemoteFilter("all");
+                  setBookmarkFilter("all");
+                  setNotesFilter("all");
+                  setPostedDateFilter("all");
+                  setSalaryMinFilter(null);
+                  setSalaryMaxFilter(null);
                 }}
                 className="text-sm text-sentinel-600 dark:text-sentinel-400 hover:underline"
               >
@@ -1524,6 +1828,9 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
               {remoteFilter !== "all" && <li>Location: {remoteFilter}</li>}
               {bookmarkFilter !== "all" && <li>Saved: {bookmarkFilter}</li>}
               {notesFilter !== "all" && <li>Notes: {notesFilter}</li>}
+              {postedDateFilter !== "all" && <li>Posted: {postedDateFilter === "24h" ? "Last 24 hours" : postedDateFilter === "7d" ? "Last 7 days" : "Last 30 days"}</li>}
+              {salaryMinFilter !== null && <li>Min salary: ${salaryMinFilter}K</li>}
+              {salaryMaxFilter !== null && <li>Max salary: ${salaryMaxFilter}K</li>}
             </ul>
           </div>
           {savedSearches.length > 0 && (
@@ -1960,6 +2267,14 @@ function CompareIcon({ className = "" }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+    </svg>
+  );
+}
+
+function HistoryIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
     </svg>
   );
 }

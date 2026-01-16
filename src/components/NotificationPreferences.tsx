@@ -1,11 +1,25 @@
 import { useState, useEffect } from 'react';
 import { Card } from './Card';
 import { Badge } from './Badge';
+import { useToast } from '../contexts';
 
 export interface SourceNotificationConfig {
   enabled: boolean;
   minScoreThreshold: number; // 0-100
   soundEnabled: boolean;
+}
+
+export interface AdvancedFilters {
+  // Keyword filters
+  includeKeywords: string[]; // Only notify if title contains any of these
+  excludeKeywords: string[]; // Never notify if title contains any of these
+  // Salary filter
+  minSalary: number | null; // Only notify if salary >= this (in thousands)
+  // Location filters
+  remoteOnly: boolean;
+  // Company filters
+  companyWhitelist: string[]; // Only notify for these companies (empty = all)
+  companyBlacklist: string[]; // Never notify for these companies
 }
 
 export interface NotificationPreferences {
@@ -20,7 +34,18 @@ export interface NotificationPreferences {
     quietHoursEnd: string;
     quietHoursEnabled: boolean;
   };
+  // Advanced filters (v1.3)
+  advancedFilters: AdvancedFilters;
 }
+
+const DEFAULT_ADVANCED_FILTERS: AdvancedFilters = {
+  includeKeywords: [],
+  excludeKeywords: [],
+  minSalary: null,
+  remoteOnly: false,
+  companyWhitelist: [],
+  companyBlacklist: [],
+};
 
 const DEFAULT_PREFERENCES: NotificationPreferences = {
   linkedin: { enabled: true, minScoreThreshold: 70, soundEnabled: true },
@@ -34,6 +59,7 @@ const DEFAULT_PREFERENCES: NotificationPreferences = {
     quietHoursEnd: '08:00',
     quietHoursEnabled: false,
   },
+  advancedFilters: DEFAULT_ADVANCED_FILTERS,
 };
 
 const STORAGE_KEY = 'jobsentinel_notification_preferences';
@@ -60,18 +86,34 @@ export function loadNotificationPreferences(): NotificationPreferences {
   return DEFAULT_PREFERENCES;
 }
 
-export function saveNotificationPreferences(prefs: NotificationPreferences): void {
+export function saveNotificationPreferences(prefs: NotificationPreferences): boolean {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
+    return true;
   } catch (e) {
     console.warn('Failed to save notification preferences:', e);
+    return false;
   }
+}
+
+// Type for source keys only (excluding global and advancedFilters)
+type SourceKey = 'linkedin' | 'indeed' | 'greenhouse' | 'lever' | 'jobswithgpt';
+
+// Extended job info for advanced filtering
+export interface JobForNotification {
+  title: string;
+  company: string;
+  salary_min?: number | null;
+  salary_max?: number | null;
+  remote?: boolean | null;
+  location?: string | null;
 }
 
 export function shouldNotifyForJob(
   source: string,
   score: number,
-  prefs: NotificationPreferences
+  prefs: NotificationPreferences,
+  job?: JobForNotification
 ): boolean {
   // Check global enable
   if (!prefs.global.enabled) return false;
@@ -92,7 +134,7 @@ export function shouldNotifyForJob(
   }
 
   // Check source-specific settings
-  const sourceKey = source.toLowerCase().replace(/\s+/g, '') as keyof Omit<NotificationPreferences, 'global'>;
+  const sourceKey = source.toLowerCase().replace(/\s+/g, '') as SourceKey;
   const sourceConfig = prefs[sourceKey];
 
   if (!sourceConfig) {
@@ -104,7 +146,63 @@ export function shouldNotifyForJob(
 
   // Score is 0-1, threshold is 0-100
   const scorePercent = score * 100;
-  return scorePercent >= sourceConfig.minScoreThreshold;
+  if (scorePercent < sourceConfig.minScoreThreshold) return false;
+
+  // Apply advanced filters if job info is provided
+  if (job && prefs.advancedFilters) {
+    const { advancedFilters } = prefs;
+    const titleLower = job.title.toLowerCase();
+    const companyLower = job.company.toLowerCase();
+
+    // Include keywords filter (if set, title must contain at least one)
+    if (advancedFilters.includeKeywords.length > 0) {
+      const hasIncludeKeyword = advancedFilters.includeKeywords.some(
+        keyword => titleLower.includes(keyword.toLowerCase())
+      );
+      if (!hasIncludeKeyword) return false;
+    }
+
+    // Exclude keywords filter (if title contains any, skip)
+    if (advancedFilters.excludeKeywords.length > 0) {
+      const hasExcludeKeyword = advancedFilters.excludeKeywords.some(
+        keyword => titleLower.includes(keyword.toLowerCase())
+      );
+      if (hasExcludeKeyword) return false;
+    }
+
+    // Salary filter
+    if (advancedFilters.minSalary !== null) {
+      const minSalaryThreshold = advancedFilters.minSalary * 1000; // Convert from K to actual
+      const jobMaxSalary = job.salary_max ?? job.salary_min ?? 0;
+      if (jobMaxSalary > 0 && jobMaxSalary < minSalaryThreshold) return false;
+    }
+
+    // Remote-only filter
+    if (advancedFilters.remoteOnly) {
+      const isRemote = job.remote ||
+        job.location?.toLowerCase().includes('remote') ||
+        titleLower.includes('remote');
+      if (!isRemote) return false;
+    }
+
+    // Company whitelist (if set, company must be in list)
+    if (advancedFilters.companyWhitelist.length > 0) {
+      const isWhitelisted = advancedFilters.companyWhitelist.some(
+        company => companyLower.includes(company.toLowerCase())
+      );
+      if (!isWhitelisted) return false;
+    }
+
+    // Company blacklist (if company is in list, skip)
+    if (advancedFilters.companyBlacklist.length > 0) {
+      const isBlacklisted = advancedFilters.companyBlacklist.some(
+        company => companyLower.includes(company.toLowerCase())
+      );
+      if (isBlacklisted) return false;
+    }
+  }
+
+  return true;
 }
 
 interface SourceConfigRowProps {
@@ -180,6 +278,7 @@ function SourceConfigRow({ sourceKey, config, onChange }: SourceConfigRowProps) 
 export function NotificationPreferences() {
   const [prefs, setPrefs] = useState<NotificationPreferences>(DEFAULT_PREFERENCES);
   const [hasChanges, setHasChanges] = useState(false);
+  const toast = useToast();
 
   useEffect(() => {
     setPrefs(loadNotificationPreferences());
@@ -188,17 +287,37 @@ export function NotificationPreferences() {
   const handleSourceChange = (sourceKey: string, config: SourceNotificationConfig) => {
     const updated = { ...prefs, [sourceKey]: config };
     setPrefs(updated);
-    saveNotificationPreferences(updated);
-    setHasChanges(true);
-    setTimeout(() => setHasChanges(false), 2000);
+    if (saveNotificationPreferences(updated)) {
+      setHasChanges(true);
+      setTimeout(() => setHasChanges(false), 2000);
+    } else {
+      toast.error('Failed to save', 'Changes may be lost when you close the app');
+    }
   };
 
   const handleGlobalChange = (updates: Partial<NotificationPreferences['global']>) => {
     const updated = { ...prefs, global: { ...prefs.global, ...updates } };
     setPrefs(updated);
-    saveNotificationPreferences(updated);
-    setHasChanges(true);
-    setTimeout(() => setHasChanges(false), 2000);
+    if (saveNotificationPreferences(updated)) {
+      setHasChanges(true);
+      setTimeout(() => setHasChanges(false), 2000);
+    } else {
+      toast.error('Failed to save', 'Changes may be lost when you close the app');
+    }
+  };
+
+  const handleAdvancedFiltersChange = (updates: Partial<AdvancedFilters>) => {
+    const updated = {
+      ...prefs,
+      advancedFilters: { ...prefs.advancedFilters, ...updates }
+    };
+    setPrefs(updated);
+    if (saveNotificationPreferences(updated)) {
+      setHasChanges(true);
+      setTimeout(() => setHasChanges(false), 2000);
+    } else {
+      toast.error('Failed to save', 'Changes may be lost when you close the app');
+    }
   };
 
   return (
@@ -295,13 +414,314 @@ export function NotificationPreferences() {
             <SourceConfigRow
               key={sourceKey}
               sourceKey={sourceKey}
-              config={prefs[sourceKey as keyof Omit<NotificationPreferences, 'global'>]}
+              config={prefs[sourceKey as SourceKey]}
               onChange={(config) => handleSourceChange(sourceKey, config)}
             />
           ))}
         </div>
+
+        {/* Advanced Filters */}
+        <AdvancedFiltersSection
+          filters={prefs.advancedFilters}
+          onChange={handleAdvancedFiltersChange}
+          disabled={!prefs.global.enabled}
+        />
       </div>
     </Card>
+  );
+}
+
+// Advanced Filters Section Component
+interface AdvancedFiltersSectionProps {
+  filters: AdvancedFilters;
+  onChange: (updates: Partial<AdvancedFilters>) => void;
+  disabled?: boolean;
+}
+
+function AdvancedFiltersSection({ filters, onChange, disabled }: AdvancedFiltersSectionProps) {
+  const [includeInput, setIncludeInput] = useState('');
+  const [excludeInput, setExcludeInput] = useState('');
+  const [whitelistInput, setWhitelistInput] = useState('');
+  const [blacklistInput, setBlacklistInput] = useState('');
+
+  const addKeyword = (type: 'include' | 'exclude', value: string) => {
+    const trimmed = value.trim();
+    if (!trimmed) return;
+    if (type === 'include') {
+      if (!filters.includeKeywords.includes(trimmed)) {
+        onChange({ includeKeywords: [...filters.includeKeywords, trimmed] });
+      }
+      setIncludeInput('');
+    } else {
+      if (!filters.excludeKeywords.includes(trimmed)) {
+        onChange({ excludeKeywords: [...filters.excludeKeywords, trimmed] });
+      }
+      setExcludeInput('');
+    }
+  };
+
+  const removeKeyword = (type: 'include' | 'exclude', value: string) => {
+    if (type === 'include') {
+      onChange({ includeKeywords: filters.includeKeywords.filter(k => k !== value) });
+    } else {
+      onChange({ excludeKeywords: filters.excludeKeywords.filter(k => k !== value) });
+    }
+  };
+
+  const addCompany = (type: 'whitelist' | 'blacklist', value: string) => {
+    const trimmed = value.trim();
+    if (!trimmed) return;
+    if (type === 'whitelist') {
+      if (!filters.companyWhitelist.includes(trimmed)) {
+        onChange({ companyWhitelist: [...filters.companyWhitelist, trimmed] });
+      }
+      setWhitelistInput('');
+    } else {
+      if (!filters.companyBlacklist.includes(trimmed)) {
+        onChange({ companyBlacklist: [...filters.companyBlacklist, trimmed] });
+      }
+      setBlacklistInput('');
+    }
+  };
+
+  const removeCompany = (type: 'whitelist' | 'blacklist', value: string) => {
+    if (type === 'whitelist') {
+      onChange({ companyWhitelist: filters.companyWhitelist.filter(c => c !== value) });
+    } else {
+      onChange({ companyBlacklist: filters.companyBlacklist.filter(c => c !== value) });
+    }
+  };
+
+  return (
+    <div className={`mt-4 pt-4 border-t border-surface-200 dark:border-surface-700 ${disabled ? 'opacity-50 pointer-events-none' : ''}`}>
+      <div className="flex items-center gap-2 mb-4">
+        <FilterIcon className="w-4 h-4 text-surface-500" />
+        <p className="text-xs font-medium text-surface-500 dark:text-surface-400 uppercase tracking-wide">
+          Advanced Filters
+        </p>
+      </div>
+
+      {/* Keyword Filters */}
+      <div className="space-y-3 mb-4">
+        {/* Include Keywords */}
+        <div>
+          <label className="text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5 block">
+            Only notify if title contains
+          </label>
+          <div className="flex gap-2 mb-2">
+            <input
+              type="text"
+              value={includeInput}
+              onChange={(e) => setIncludeInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && addKeyword('include', includeInput)}
+              placeholder="e.g., Senior, Lead, Staff"
+              className="flex-1 px-3 py-1.5 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100 placeholder:text-surface-400"
+            />
+            <button
+              onClick={() => addKeyword('include', includeInput)}
+              className="px-3 py-1.5 text-sm bg-sentinel-500 text-white rounded-lg hover:bg-sentinel-600 transition-colors"
+            >
+              Add
+            </button>
+          </div>
+          {filters.includeKeywords.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {filters.includeKeywords.map((keyword) => (
+                <span
+                  key={keyword}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full"
+                >
+                  {keyword}
+                  <button
+                    onClick={() => removeKeyword('include', keyword)}
+                    className="hover:text-green-900 dark:hover:text-green-300"
+                  >
+                    &times;
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Exclude Keywords */}
+        <div>
+          <label className="text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5 block">
+            Never notify if title contains
+          </label>
+          <div className="flex gap-2 mb-2">
+            <input
+              type="text"
+              value={excludeInput}
+              onChange={(e) => setExcludeInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && addKeyword('exclude', excludeInput)}
+              placeholder="e.g., Junior, Intern, Contract"
+              className="flex-1 px-3 py-1.5 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100 placeholder:text-surface-400"
+            />
+            <button
+              onClick={() => addKeyword('exclude', excludeInput)}
+              className="px-3 py-1.5 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+            >
+              Add
+            </button>
+          </div>
+          {filters.excludeKeywords.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {filters.excludeKeywords.map((keyword) => (
+                <span
+                  key={keyword}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 text-xs bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-full"
+                >
+                  {keyword}
+                  <button
+                    onClick={() => removeKeyword('exclude', keyword)}
+                    className="hover:text-red-900 dark:hover:text-red-300"
+                  >
+                    &times;
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Salary & Remote Filters */}
+      <div className="grid grid-cols-2 gap-4 mb-4">
+        {/* Minimum Salary */}
+        <div>
+          <label className="text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5 block">
+            Minimum Salary
+          </label>
+          <div className="flex items-center gap-2">
+            <span className="text-surface-500">$</span>
+            <input
+              type="number"
+              value={filters.minSalary ?? ''}
+              onChange={(e) => onChange({
+                minSalary: e.target.value ? parseInt(e.target.value) : null
+              })}
+              placeholder="e.g., 150"
+              className="w-24 px-3 py-1.5 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100"
+            />
+            <span className="text-surface-500 text-sm">K/year</span>
+          </div>
+        </div>
+
+        {/* Remote Only */}
+        <div>
+          <label className="text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5 block">
+            Remote Only
+          </label>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={filters.remoteOnly}
+              onChange={(e) => onChange({ remoteOnly: e.target.checked })}
+              className="sr-only peer"
+            />
+            <div className="w-9 h-5 bg-surface-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-sentinel-300 rounded-full peer dark:bg-surface-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sentinel-500"></div>
+            <span className="ml-2 text-sm text-surface-600 dark:text-surface-400">
+              {filters.remoteOnly ? 'Yes' : 'No'}
+            </span>
+          </label>
+        </div>
+      </div>
+
+      {/* Company Filters */}
+      <div className="space-y-3">
+        {/* Company Whitelist */}
+        <div>
+          <label className="text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5 block">
+            Only notify for these companies
+            <span className="font-normal text-surface-500 ml-1">(leave empty for all)</span>
+          </label>
+          <div className="flex gap-2 mb-2">
+            <input
+              type="text"
+              value={whitelistInput}
+              onChange={(e) => setWhitelistInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && addCompany('whitelist', whitelistInput)}
+              placeholder="e.g., Google, Stripe, Anthropic"
+              className="flex-1 px-3 py-1.5 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100 placeholder:text-surface-400"
+            />
+            <button
+              onClick={() => addCompany('whitelist', whitelistInput)}
+              className="px-3 py-1.5 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            >
+              Add
+            </button>
+          </div>
+          {filters.companyWhitelist.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {filters.companyWhitelist.map((company) => (
+                <span
+                  key={company}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-full"
+                >
+                  {company}
+                  <button
+                    onClick={() => removeCompany('whitelist', company)}
+                    className="hover:text-blue-900 dark:hover:text-blue-300"
+                  >
+                    &times;
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Company Blacklist */}
+        <div>
+          <label className="text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5 block">
+            Never notify for these companies
+          </label>
+          <div className="flex gap-2 mb-2">
+            <input
+              type="text"
+              value={blacklistInput}
+              onChange={(e) => setBlacklistInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && addCompany('blacklist', blacklistInput)}
+              placeholder="e.g., Acme Corp, BadCompany"
+              className="flex-1 px-3 py-1.5 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100 placeholder:text-surface-400"
+            />
+            <button
+              onClick={() => addCompany('blacklist', blacklistInput)}
+              className="px-3 py-1.5 text-sm bg-surface-500 text-white rounded-lg hover:bg-surface-600 transition-colors"
+            >
+              Add
+            </button>
+          </div>
+          {filters.companyBlacklist.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {filters.companyBlacklist.map((company) => (
+                <span
+                  key={company}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 text-xs bg-surface-200 dark:bg-surface-700 text-surface-700 dark:text-surface-300 rounded-full"
+                >
+                  {company}
+                  <button
+                    onClick={() => removeCompany('blacklist', company)}
+                    className="hover:text-surface-900 dark:hover:text-surface-100"
+                  >
+                    &times;
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FilterIcon({ className = '' }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+    </svg>
   );
 }
 

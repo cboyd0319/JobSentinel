@@ -4,22 +4,27 @@ Welcome to JobSentinel documentation.
 
 ## Current Status (January 2026)
 
-**Version: 1.1.0** | 291 tests passing, 20 ignored | Accessibility enhanced
+**Version: 1.3.0** | 290 tests passing, 20 ignored | Full-featured release
 
 ### Working Features
-- Job scrapers: Greenhouse, Lever, JobsWithGPT, LinkedIn, Indeed
-- Application Tracking System (ATS) with Kanban board **+ frontend page**
-- AI Resume-Job Matcher with PDF parsing **+ frontend page**
-- Salary AI with negotiation insights **+ frontend page**
-- Market Intelligence with trend analysis **+ frontend page**
+- **10 Job scrapers**: Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT
+- Application Tracking System (ATS) with Kanban board + interview scheduler
+- AI Resume-Job Matcher with PDF parsing
+- Salary AI with negotiation insights
+- Market Intelligence with trend analysis
 - Multi-factor scoring algorithm
-- Notifications: Slack, Discord, Teams, Desktop, **Email (SMTP)**
+- Notifications: Slack, Discord, Teams, Desktop, Email (SMTP)
+- **Advanced notification filtering** - keyword filters, salary threshold, company lists
+- **Keyboard shortcuts** - power user navigation (`b`, `n`, `c`, `/`, `?`, etc.)
+- **Advanced search** - Boolean AND/OR/NOT operators, search history
+- **Interview prep** - iCal export, prep checklists, follow-up reminders
+- **Enhanced analytics** - Response rates, weekly goals, company response times
+- **Company research** - 40+ companies with tech stacks
 - SQLite database with full-text search
-- React 19 frontend with setup wizard and navigation
-- GitHub Actions CI/CD for multi-platform build/test
+- React 19 frontend with virtual lists and error boundaries
 
 ### All Backend Modules Enabled
-- Core: config, db, scoring, scheduler, scrapers, notify
+- Core: config, db, scoring, scheduler, scrapers (10), notify
 - ATS: 7 Tauri commands (Kanban, reminders, ghosting detection)
 - Resume Matcher: 6 Tauri commands (upload, match, skills)
 - Salary AI: 4 Tauri commands (predict, benchmark, negotiate, compare)
@@ -99,4 +104,4 @@ docs/
 
 ---
 
-**Last Updated:** January 15, 2026
+**Last Updated:** January 17, 2026

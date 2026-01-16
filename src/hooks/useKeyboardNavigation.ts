@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 
 interface UseKeyboardNavigationOptions<T> {
   items: T[];
@@ -6,6 +6,12 @@ interface UseKeyboardNavigationOptions<T> {
   onSelect?: (item: T, index: number) => void;
   onOpen?: (item: T, index: number) => void;
   onHide?: (item: T, index: number) => void;
+  onBookmark?: (item: T, index: number) => void;
+  onNotes?: (item: T, index: number) => void;
+  onResearch?: (item: T, index: number) => void;
+  onToggleSelect?: (item: T, index: number) => void;
+  onFocusSearch?: () => void;
+  onRefresh?: () => void;
   wrapAround?: boolean;
 }
 
@@ -17,13 +23,25 @@ interface UseKeyboardNavigationResult {
 
 /**
  * Hook for vim-style keyboard navigation in lists
+ *
+ * Navigation:
  * - j/ArrowDown: move down
  * - k/ArrowUp: move up
- * - o/Enter: open/select item
- * - h/Delete: hide item
- * - Escape: clear selection
  * - Home: go to first item
  * - End: go to last item
+ * - Escape: clear selection
+ *
+ * Actions:
+ * - o/Enter: open/select item
+ * - h/Delete: hide item
+ * - b: toggle bookmark
+ * - n: open notes
+ * - c: research company
+ * - x: toggle selection (for bulk operations)
+ *
+ * Global:
+ * - /: focus search input
+ * - r: refresh/reload jobs
  */
 export function useKeyboardNavigation<T>({
   items,
@@ -31,14 +49,46 @@ export function useKeyboardNavigation<T>({
   onSelect,
   onOpen,
   onHide,
+  onBookmark,
+  onNotes,
+  onResearch,
+  onToggleSelect,
+  onFocusSearch,
+  onRefresh,
   wrapAround = true,
 }: UseKeyboardNavigationOptions<T>): UseKeyboardNavigationResult {
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [isKeyboardActive, setIsKeyboardActive] = useState(false);
 
+  // Store items and callbacks in refs to avoid dependency array issues
+  const itemsRef = useRef(items);
+  const callbacksRef = useRef({ onSelect, onOpen, onHide, onBookmark, onNotes, onResearch, onToggleSelect, onFocusSearch, onRefresh });
+
+  // Update refs when values change
+  useEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
+
+  useEffect(() => {
+    callbacksRef.current = { onSelect, onOpen, onHide, onBookmark, onNotes, onResearch, onToggleSelect, onFocusSearch, onRefresh };
+  }, [onSelect, onOpen, onHide, onBookmark, onNotes, onResearch, onToggleSelect, onFocusSearch, onRefresh]);
+
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
-      if (!enabled || items.length === 0) return;
+      const currentItems = itemsRef.current;
+      const {
+        onSelect: selectCb,
+        onOpen: openCb,
+        onHide: hideCb,
+        onBookmark: bookmarkCb,
+        onNotes: notesCb,
+        onResearch: researchCb,
+        onToggleSelect: toggleSelectCb,
+        onFocusSearch: focusSearchCb,
+        onRefresh: refreshCb,
+      } = callbacksRef.current;
+
+      if (!enabled || currentItems.length === 0) return;
 
       // Ignore if focus is on an input element
       const target = event.target as HTMLElement;
@@ -61,7 +111,7 @@ export function useKeyboardNavigation<T>({
           setIsKeyboardActive(true);
           setSelectedIndex((prev) => {
             if (prev === -1) return 0;
-            if (prev >= items.length - 1) {
+            if (prev >= currentItems.length - 1) {
               return wrapAround ? 0 : prev;
             }
             return prev + 1;
@@ -75,9 +125,9 @@ export function useKeyboardNavigation<T>({
           handled = true;
           setIsKeyboardActive(true);
           setSelectedIndex((prev) => {
-            if (prev === -1) return items.length - 1;
+            if (prev === -1) return currentItems.length - 1;
             if (prev <= 0) {
-              return wrapAround ? items.length - 1 : prev;
+              return wrapAround ? currentItems.length - 1 : prev;
             }
             return prev - 1;
           });
@@ -86,47 +136,57 @@ export function useKeyboardNavigation<T>({
 
         case "o":
         case "Enter": {
-          if (selectedIndex >= 0 && selectedIndex < items.length) {
-            event.preventDefault();
-            handled = true;
-            const item = items[selectedIndex];
-            if (onOpen) {
-              onOpen(item, selectedIndex);
-            } else if (onSelect) {
-              onSelect(item, selectedIndex);
+          setSelectedIndex((currentIndex) => {
+            if (currentIndex >= 0 && currentIndex < currentItems.length) {
+              event.preventDefault();
+              handled = true;
+              const item = currentItems[currentIndex];
+              if (openCb) {
+                openCb(item, currentIndex);
+              } else if (selectCb) {
+                selectCb(item, currentIndex);
+              }
             }
-          }
+            return currentIndex;
+          });
           break;
         }
 
         case "h":
         case "Delete":
         case "Backspace": {
-          if (selectedIndex >= 0 && selectedIndex < items.length && onHide) {
-            event.preventDefault();
-            handled = true;
-            const item = items[selectedIndex];
-            onHide(item, selectedIndex);
-            // Move selection after hide
-            if (selectedIndex >= items.length - 1) {
-              setSelectedIndex(Math.max(0, items.length - 2));
+          setSelectedIndex((currentIndex) => {
+            if (currentIndex >= 0 && currentIndex < currentItems.length && hideCb) {
+              event.preventDefault();
+              handled = true;
+              const item = currentItems[currentIndex];
+              hideCb(item, currentIndex);
+              // Move selection after hide
+              if (currentIndex >= currentItems.length - 1) {
+                return Math.max(0, currentItems.length - 2);
+              }
             }
-          }
+            return currentIndex;
+          });
           break;
         }
 
         case "Escape": {
-          if (selectedIndex !== -1 || isKeyboardActive) {
-            event.preventDefault();
-            handled = true;
-            setSelectedIndex(-1);
-            setIsKeyboardActive(false);
-          }
+          setSelectedIndex((currentIndex) => {
+            setIsKeyboardActive((active) => {
+              if (currentIndex !== -1 || active) {
+                event.preventDefault();
+                handled = true;
+              }
+              return false;
+            });
+            return -1;
+          });
           break;
         }
 
         case "Home": {
-          if (items.length > 0) {
+          if (currentItems.length > 0) {
             event.preventDefault();
             handled = true;
             setIsKeyboardActive(true);
@@ -136,11 +196,88 @@ export function useKeyboardNavigation<T>({
         }
 
         case "End": {
-          if (items.length > 0) {
+          if (currentItems.length > 0) {
             event.preventDefault();
             handled = true;
             setIsKeyboardActive(true);
-            setSelectedIndex(items.length - 1);
+            setSelectedIndex(currentItems.length - 1);
+          }
+          break;
+        }
+
+        // Action shortcuts
+        case "b": {
+          // Toggle bookmark
+          setSelectedIndex((currentIndex) => {
+            if (currentIndex >= 0 && currentIndex < currentItems.length && bookmarkCb) {
+              event.preventDefault();
+              handled = true;
+              const item = currentItems[currentIndex];
+              bookmarkCb(item, currentIndex);
+            }
+            return currentIndex;
+          });
+          break;
+        }
+
+        case "n": {
+          // Open notes
+          setSelectedIndex((currentIndex) => {
+            if (currentIndex >= 0 && currentIndex < currentItems.length && notesCb) {
+              event.preventDefault();
+              handled = true;
+              const item = currentItems[currentIndex];
+              notesCb(item, currentIndex);
+            }
+            return currentIndex;
+          });
+          break;
+        }
+
+        case "c": {
+          // Research company
+          setSelectedIndex((currentIndex) => {
+            if (currentIndex >= 0 && currentIndex < currentItems.length && researchCb) {
+              event.preventDefault();
+              handled = true;
+              const item = currentItems[currentIndex];
+              researchCb(item, currentIndex);
+            }
+            return currentIndex;
+          });
+          break;
+        }
+
+        case "x": {
+          // Toggle selection for bulk operations
+          setSelectedIndex((currentIndex) => {
+            if (currentIndex >= 0 && currentIndex < currentItems.length && toggleSelectCb) {
+              event.preventDefault();
+              handled = true;
+              const item = currentItems[currentIndex];
+              toggleSelectCb(item, currentIndex);
+            }
+            return currentIndex;
+          });
+          break;
+        }
+
+        case "/": {
+          // Focus search input
+          if (focusSearchCb) {
+            event.preventDefault();
+            handled = true;
+            focusSearchCb();
+          }
+          break;
+        }
+
+        case "r": {
+          // Refresh jobs
+          if (refreshCb) {
+            event.preventDefault();
+            handled = true;
+            refreshCb();
           }
           break;
         }
@@ -151,15 +288,13 @@ export function useKeyboardNavigation<T>({
         event.stopPropagation();
       }
     },
-    [enabled, items, selectedIndex, onSelect, onOpen, onHide, wrapAround, isKeyboardActive]
+    [enabled, wrapAround]
   );
 
   // Mouse click deactivates keyboard mode
   const handleMouseDown = useCallback(() => {
-    if (isKeyboardActive) {
-      setIsKeyboardActive(false);
-    }
-  }, [isKeyboardActive]);
+    setIsKeyboardActive(false);
+  }, []);
 
   useEffect(() => {
     if (!enabled) return;

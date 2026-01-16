@@ -4,7 +4,7 @@
 
 **JobSentinel** is a privacy-first job search automation desktop app built with Tauri 2.x (Rust backend) and React 19 (TypeScript frontend).
 
-**Current Version:** 1.0.0-alpha (January 2026)
+**Current Version:** 1.3.0 (January 2026)
 **Primary Target:** Windows 11+ (macOS/Linux planned for v2.0)
 
 ## Tech Stack
@@ -22,17 +22,22 @@
 ```
 JobSentinel/
 ├── src/                    # React frontend
+│   ├── components/        # UI components (JobCard, CommandPalette, etc.)
+│   ├── contexts/          # React contexts (KeyboardShortcuts)
+│   ├── hooks/             # Custom hooks (useKeyboardNavigation)
+│   ├── pages/             # Page components (Dashboard, Applications, etc.)
+│   └── utils/             # Utilities (export, api)
 ├── src-tauri/              # Rust backend
 │   ├── src/
 │   │   ├── core/          # Business logic
 │   │   │   ├── ats/       # Application Tracking (ENABLED)
 │   │   │   ├── config/    # Configuration
 │   │   │   ├── db/        # Database layer
-│   │   │   ├── notify/    # Notifications (Slack, Discord, Teams)
+│   │   │   ├── notify/    # Notifications (Slack, Discord, Teams, Email)
 │   │   │   ├── scheduler/ # Job scheduling
 │   │   │   ├── scoring/   # Job scoring algorithm
-│   │   │   └── scrapers/  # Job board scrapers
-│   │   ├── commands/      # Tauri RPC handlers
+│   │   │   └── scrapers/  # 10 job board scrapers
+│   │   ├── commands/      # Tauri RPC handlers (38 commands)
 │   │   └── platforms/     # Platform-specific code
 │   └── migrations/        # SQLite migrations
 └── docs/                  # Documentation
@@ -42,11 +47,21 @@ JobSentinel/
 
 ### Working Modules
 All core modules are enabled and functional:
-- config, db, notify, scheduler, scoring, scrapers
-- ats (Application Tracking System)
+- config, db, notify, scheduler, scoring
+- scrapers (10 sources: Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT)
+- ats (Application Tracking System with interview scheduler)
 - resume (AI Resume-Job Matcher)
 - salary (Salary Prediction AI)
 - market_intelligence (Market Analytics)
+
+### Frontend Features (v1.3)
+- Advanced notification filtering (keywords, salary, company lists)
+- Keyboard shortcuts (b, n, c, /, ?, r, x)
+- Advanced search (AND/OR/NOT, search history)
+- Interview prep checklists and follow-up reminders
+- Analytics with weekly goals and response rates
+- Company research panel (40+ companies)
+- Virtual list for performance
 
 ### Deferred Modules (v2.0+)
 - automation (One-Click Apply - requires legal review)
@@ -99,7 +114,11 @@ npm run tauri:build      # Production build
 
 - `src-tauri/src/core/mod.rs` - Module registry (controls enabled features)
 - `src-tauri/src/core/db/mod.rs` - Database layer with Job struct
-- `src-tauri/src/commands/mod.rs` - Tauri command handlers
+- `src-tauri/src/core/scrapers/mod.rs` - Scraper registry (10 sources)
+- `src-tauri/src/commands/mod.rs` - Tauri command handlers (38 commands)
+- `src/pages/Dashboard.tsx` - Main dashboard with search and job list
+- `src/components/` - UI component library
+- `src/contexts/KeyboardShortcutsContext.tsx` - Keyboard navigation
 - `config.example.json` - Example configuration
 
 ## Privacy Requirements

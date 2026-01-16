@@ -6,13 +6,18 @@ use crate::core::db::Job;
 use anyhow::Result;
 use async_trait::async_trait;
 
+pub mod builtin;
 pub mod greenhouse;
+pub mod hn_hiring;
 pub mod http_client;
 pub mod indeed;
 pub mod jobswithgpt;
 pub mod lever;
 pub mod linkedin;
 pub mod rate_limiter;
+pub mod remoteok;
+pub mod wellfound;
+pub mod weworkremotely;
 
 /// Scraper result using anyhow for automatic Send + Sync
 pub type ScraperResult = Result<Vec<Job>>;

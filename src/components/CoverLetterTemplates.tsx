@@ -5,32 +5,48 @@ import { Card } from './Card';
 import { Modal, ModalFooter } from './Modal';
 import { useToast } from '../contexts';
 
+type TemplateCategory = 'general' | 'tech' | 'creative' | 'finance' | 'healthcare' | 'sales' | 'custom';
+
 interface CoverLetterTemplate {
   id: string;
   name: string;
   content: string;
+  category: TemplateCategory;
   createdAt: string;
   updatedAt: string;
 }
 
 const STORAGE_KEY = 'jobsentinel_cover_letter_templates';
 
+const CATEGORY_LABELS: Record<TemplateCategory, string> = {
+  general: 'General',
+  tech: 'Tech & Engineering',
+  creative: 'Creative & Design',
+  finance: 'Finance & Accounting',
+  healthcare: 'Healthcare',
+  sales: 'Sales & Marketing',
+  custom: 'Custom',
+};
+
 const DEFAULT_TEMPLATES: CoverLetterTemplate[] = [
   {
     id: 'default-1',
     name: 'General Application',
-    content: `Dear Hiring Manager,
+    category: 'general',
+    content: `Dear {hiring_manager},
 
-I am writing to express my interest in the {position} position at {company}. With my background in {skill1} and {skill2}, I believe I would be a strong addition to your team.
+I am writing to express my interest in the {position} position at {company}. With my {years_experience} years of experience in {skill1} and {skill2}, I believe I would be a strong addition to your team.
 
 [Customize this paragraph with specific qualifications]
 
-I am excited about the opportunity to contribute to {company}'s mission and would welcome the chance to discuss how my skills align with your needs.
+I am excited about the opportunity to contribute to {company}'s mission at their {location} office and would welcome the chance to discuss how my skills align with your needs.
 
 Thank you for considering my application.
 
 Best regards,
-{your_name}`,
+{your_name}
+
+Date: {date}`,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
@@ -39,9 +55,13 @@ Best regards,
 const PLACEHOLDER_HINTS = [
   { placeholder: '{company}', description: 'Company name' },
   { placeholder: '{position}', description: 'Job title' },
+  { placeholder: '{location}', description: 'Job location' },
+  { placeholder: '{hiring_manager}', description: 'Hiring manager name (or "Hiring Manager")' },
   { placeholder: '{skill1}', description: 'Your primary skill' },
   { placeholder: '{skill2}', description: 'Your secondary skill' },
+  { placeholder: '{years_experience}', description: 'Years of experience' },
   { placeholder: '{your_name}', description: 'Your full name' },
+  { placeholder: '{date}', description: 'Today\'s date' },
 ];
 
 function loadTemplates(): CoverLetterTemplate[] {
@@ -56,11 +76,13 @@ function loadTemplates(): CoverLetterTemplate[] {
   return DEFAULT_TEMPLATES;
 }
 
-function saveTemplates(templates: CoverLetterTemplate[]): void {
+function saveTemplates(templates: CoverLetterTemplate[]): boolean {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(templates));
+    return true;
   } catch (e) {
     console.warn('Failed to save templates:', e);
+    return false;
   }
 }
 
@@ -73,25 +95,53 @@ interface TemplateEditorProps {
 function TemplateEditor({ template, onSave, onCancel }: TemplateEditorProps) {
   const [name, setName] = useState(template?.name || '');
   const [content, setContent] = useState(template?.content || '');
+  const [category, setCategory] = useState<TemplateCategory>(template?.category || 'general');
+
+  // Calculate word and character counts
+  const charCount = content.length;
+  const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0;
 
   const handleSave = () => {
     if (!name.trim() || !content.trim()) return;
-    onSave({ name: name.trim(), content: content.trim() });
+    onSave({ name: name.trim(), content: content.trim(), category });
   };
 
   return (
     <div className="space-y-4">
-      <Input
-        label="Template Name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        placeholder="e.g., Tech Company Application"
-      />
+      <div className="grid grid-cols-2 gap-4">
+        <Input
+          label="Template Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="e.g., Tech Company Application"
+        />
+        <div>
+          <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">
+            Category
+          </label>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value as TemplateCategory)}
+            className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500"
+          >
+            {Object.entries(CATEGORY_LABELS).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
 
       <div>
-        <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">
-          Template Content
-        </label>
+        <div className="flex items-center justify-between mb-1.5">
+          <label className="block text-sm font-medium text-surface-700 dark:text-surface-300">
+            Template Content
+          </label>
+          <span className="text-xs text-surface-500 dark:text-surface-400">
+            {wordCount} words · {charCount} characters
+          </span>
+        </div>
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
@@ -103,7 +153,7 @@ function TemplateEditor({ template, onSave, onCancel }: TemplateEditorProps) {
 
       <div className="p-3 bg-surface-50 dark:bg-surface-800/50 rounded-lg">
         <p className="text-xs font-medium text-surface-600 dark:text-surface-400 mb-2">
-          Available placeholders:
+          Available placeholders (click to insert):
         </p>
         <div className="flex flex-wrap gap-2">
           {PLACEHOLDER_HINTS.map(({ placeholder, description }) => (
@@ -139,15 +189,23 @@ interface TemplatePreviewProps {
 }
 
 function TemplatePreview({ template, onEdit, onDelete, onCopy }: TemplatePreviewProps) {
+  // Calculate word count for preview
+  const wordCount = template.content.trim() ? template.content.trim().split(/\s+/).length : 0;
+
   return (
     <div className="border border-surface-200 dark:border-surface-700 rounded-lg overflow-hidden">
       <div className="px-4 py-3 bg-surface-50 dark:bg-surface-800/50 flex items-center justify-between">
         <div>
-          <h4 className="font-medium text-surface-900 dark:text-white">
-            {template.name}
-          </h4>
+          <div className="flex items-center gap-2">
+            <h4 className="font-medium text-surface-900 dark:text-white">
+              {template.name}
+            </h4>
+            <span className="text-xs px-2 py-0.5 bg-sentinel-100 dark:bg-sentinel-900/30 text-sentinel-700 dark:text-sentinel-300 rounded">
+              {CATEGORY_LABELS[template.category] || 'General'}
+            </span>
+          </div>
           <p className="text-xs text-surface-500 mt-0.5">
-            Updated {new Date(template.updatedAt).toLocaleDateString('en-US')}
+            {wordCount} words · Updated {new Date(template.updatedAt).toLocaleDateString('en-US')}
           </p>
         </div>
         <div className="flex gap-2">
@@ -176,11 +234,17 @@ export function CoverLetterTemplates() {
   const [editingTemplate, setEditingTemplate] = useState<CoverLetterTemplate | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [categoryFilter, setCategoryFilter] = useState<TemplateCategory | 'all'>('all');
   const toast = useToast();
 
   useEffect(() => {
     setTemplates(loadTemplates());
   }, []);
+
+  // Filter templates by category
+  const filteredTemplates = categoryFilter === 'all'
+    ? templates
+    : templates.filter((t) => t.category === categoryFilter);
 
   const handleSaveTemplate = (data: Omit<CoverLetterTemplate, 'id' | 'createdAt' | 'updatedAt'>) => {
     const now = new Date().toISOString();
@@ -193,8 +257,11 @@ export function CoverLetterTemplates() {
           : t
       );
       setTemplates(updated);
-      saveTemplates(updated);
-      toast.success('Template updated');
+      if (saveTemplates(updated)) {
+        toast.success('Template updated');
+      } else {
+        toast.error('Failed to save', 'Changes may be lost when you close the app');
+      }
       setEditingTemplate(null);
     } else {
       // Create new
@@ -206,8 +273,11 @@ export function CoverLetterTemplates() {
       };
       const updated = [...templates, newTemplate];
       setTemplates(updated);
-      saveTemplates(updated);
-      toast.success('Template created');
+      if (saveTemplates(updated)) {
+        toast.success('Template created');
+      } else {
+        toast.error('Failed to save', 'Changes may be lost when you close the app');
+      }
       setIsCreating(false);
     }
   };
@@ -215,9 +285,12 @@ export function CoverLetterTemplates() {
   const handleDeleteTemplate = (id: string) => {
     const updated = templates.filter((t) => t.id !== id);
     setTemplates(updated);
-    saveTemplates(updated);
+    if (saveTemplates(updated)) {
+      toast.success('Template deleted');
+    } else {
+      toast.error('Failed to save', 'Changes may be lost when you close the app');
+    }
     setDeleteConfirm(null);
-    toast.success('Template deleted');
   };
 
   const handleCopyTemplate = async (template: CoverLetterTemplate) => {
@@ -251,6 +324,44 @@ export function CoverLetterTemplates() {
         </div>
       </div>
 
+      {/* Category filter */}
+      {!showEditor && templates.length > 0 && (
+        <div className="px-4 py-3 border-b border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800/30">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-medium text-surface-500 dark:text-surface-400">
+              Filter:
+            </span>
+            <button
+              onClick={() => setCategoryFilter('all')}
+              className={`text-xs px-2 py-1 rounded transition-colors ${
+                categoryFilter === 'all'
+                  ? 'bg-sentinel-600 text-white'
+                  : 'bg-surface-200 dark:bg-surface-700 hover:bg-surface-300 dark:hover:bg-surface-600'
+              }`}
+            >
+              All ({templates.length})
+            </button>
+            {Object.entries(CATEGORY_LABELS).map(([value, label]) => {
+              const count = templates.filter((t) => t.category === value).length;
+              if (count === 0) return null;
+              return (
+                <button
+                  key={value}
+                  onClick={() => setCategoryFilter(value as TemplateCategory)}
+                  className={`text-xs px-2 py-1 rounded transition-colors ${
+                    categoryFilter === value
+                      ? 'bg-sentinel-600 text-white'
+                      : 'bg-surface-200 dark:bg-surface-700 hover:bg-surface-300 dark:hover:bg-surface-600'
+                  }`}
+                >
+                  {label} ({count})
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       <div className="p-4">
         {showEditor ? (
           <TemplateEditor
@@ -273,9 +384,21 @@ export function CoverLetterTemplates() {
               Create your first cover letter template
             </p>
           </div>
+        ) : filteredTemplates.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-surface-600 dark:text-surface-400">
+              No templates in this category
+            </p>
+            <button
+              onClick={() => setCategoryFilter('all')}
+              className="text-sm text-sentinel-600 dark:text-sentinel-400 hover:underline mt-2"
+            >
+              Show all templates
+            </button>
+          </div>
         ) : (
           <div className="space-y-4">
-            {templates.map((template) => (
+            {filteredTemplates.map((template) => (
               <TemplatePreview
                 key={template.id}
                 template={template}

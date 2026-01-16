@@ -60,7 +60,7 @@
 
 ## Project Status
 
-**Current Version: 1.0.0-alpha** (January 2026)
+**Current Version: 1.3.0** (January 2026)
 
 | Component | Status | Description |
 |-----------|--------|-------------|
@@ -74,12 +74,17 @@
 | 🔐 **Security** | ✅ **0 vulnerabilities** | cargo-audit verified |
 | ✅ **Test Coverage** | ✅ **290 passing** | 20 ignored (require file-based DB) |
 
-### Job Sources (Working)
-- **Greenhouse** - Many tech companies use this
+### Job Sources (10 Working)
+- **Greenhouse** - Many tech companies use this ATS
 - **Lever** - Popular with startups
 - **JobsWithGPT** - Aggregates from multiple sources
 - **LinkedIn** - Requires session cookie (li_at) - configurable in Settings
 - **Indeed** - Query-based search - configurable in Settings
+- **RemoteOK** - Remote-only jobs via JSON API
+- **Wellfound** - Startup jobs (formerly AngelList)
+- **WeWorkRemotely** - Remote jobs via RSS feed
+- **BuiltIn** - City-specific tech jobs (NYC, LA, Chicago, etc.)
+- **HN Who's Hiring** - Monthly Hacker News hiring threads
 
 ---
 
@@ -90,9 +95,9 @@
 </div>
 
 **JobSentinel** is a desktop app that automatically:
-1. **🔍 Scans** job boards (Greenhouse, Lever, JobsWithGPT, LinkedIn, Indeed) every 2 hours
+1. **🔍 Scans** 10 job boards (Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT) every 2 hours
 2. **🧠 Matches** jobs to your preferences using AI scoring
-3. **📢 Alerts** you on Slack/Discord/Teams/Desktop when great matches appear (90%+ score)
+3. **📢 Alerts** you on Slack/Discord/Teams/Desktop/Email when great matches appear (90%+ score)
 
 > **🔒 All data stays on YOUR computer.** No cloud. No tracking. No subscriptions. Ever.
 
@@ -129,28 +134,37 @@ Linux support (.deb, .rpm, .AppImage) is planned for v2.0.
 
 ## 💪 Features
 
-### v1.0 Core (Working Now)
+### v1.3 (Current Release)
 
 | Feature | Description |
 |---------|-------------|
-| 🌐 **5 Job Boards** | Greenhouse, Lever, JobsWithGPT, LinkedIn, Indeed |
-| 📋 **Application Tracking** | Kanban board, status pipeline, automated reminders |
+| 🌐 **10 Job Boards** | Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT |
+| 📋 **Application Tracking** | Kanban board, status pipeline, automated reminders, interview scheduler |
 | 🤖 **AI Resume Matcher** | PDF parsing, skill extraction, job-resume scoring |
 | 💰 **Salary AI** | H1B-based predictions, offer comparison, negotiation insights |
 | 📊 **Market Intelligence** | Daily snapshots, skill trends, hiring velocity, alerts |
 | 🎯 **Smart Scoring** | Skills 40%, Salary 25%, Location 20%, Company 10%, Recency 5% |
-| 📢 **Multi-Channel Alerts** | Slack, Discord, Teams webhooks + Desktop notifications |
+| 📢 **Multi-Channel Alerts** | Slack, Discord, Teams, Desktop, Email (SMTP) |
+| ⌨️ **Keyboard Shortcuts** | `b` bookmark, `n` notes, `c` company research, `/` search, `?` help |
+| 🔍 **Advanced Search** | Boolean operators (AND/OR/NOT), search history, saved queries |
+| 📅 **Interview Scheduler** | iCal export, prep checklists, follow-up reminders |
+| 📈 **Enhanced Analytics** | Response rates by source, weekly goals, company response times |
+| 🏢 **Company Research** | 40+ known companies with tech stacks, Glassdoor/LinkedIn links |
+| 💼 **Cover Letter Templates** | Category filters, custom placeholders, word count |
+| 🔔 **Notification Filtering** | Keyword include/exclude, salary threshold, company whitelist/blacklist |
 | ⏰ **Auto-Scheduling** | Scrapes every 2 hours (configurable) |
-| 👆 **Manual Trigger** | Right-click tray icon → "Search Now" |
 | 🗄️ **SQLite Database** | Local storage, full-text search |
-| ✨ **Setup Wizard** | Interactive first-run configuration |
 
-### v1.1 Roadmap (In Progress)
+### v1.0-1.2 (Complete)
 
-- [x] LinkedIn scraper (requires session cookie)
-- [x] Indeed scraper (query-based)
+- [x] Core scrapers (Greenhouse, Lever, JobsWithGPT)
+- [x] LinkedIn and Indeed scrapers
 - [x] Desktop notifications (Tauri plugin)
-- [ ] Email notifications (SMTP - backend ready, frontend pending)
+- [x] Email notifications (SMTP)
+- [x] Frontend pages for ATS, Resume, Salary, Market
+- [x] Virtual list for performance
+- [x] Error boundaries and loading states
+- [x] Accessibility improvements (ARIA, keyboard nav)
 
 ### v2.0+ (Future)
 
@@ -360,7 +374,7 @@ A: Yes! 100% free, forever. No subscriptions, no hidden costs, no premium tiers.
 A: No! JobSentinel runs entirely on your local machine. No account, no login, no cloud sync. Your data stays private.
 
 **Q: What job boards does it support?**
-A: Currently Greenhouse, Lever, and JobsWithGPT (covering 500K+ job listings). More scrapers planned for v1.1+ (Reed.co.uk, LinkedIn, etc.).
+A: Currently 10 job boards: Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, and JobsWithGPT (covering 1M+ job listings).
 
 **Q: Can I use this for non-tech jobs?**
 A: Absolutely! While designed for tech roles, JobSentinel works for any jobs posted on Greenhouse, Lever, or JobsWithGPT.

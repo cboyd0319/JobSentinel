@@ -563,6 +563,20 @@ pub async fn get_upcoming_interviews(
         .map_err(|e| format!("Failed to get interviews: {}", e))
 }
 
+/// Get past interviews (completed, last 90 days)
+#[tauri::command]
+pub async fn get_past_interviews(
+    state: State<'_, AppState>,
+) -> Result<Vec<crate::core::InterviewWithJob>, String> {
+    tracing::info!("Command: get_past_interviews");
+
+    let tracker = ApplicationTracker::new(state.database.pool().clone());
+    tracker
+        .get_past_interviews()
+        .await
+        .map_err(|e| format!("Failed to get past interviews: {}", e))
+}
+
 /// Complete an interview with outcome
 #[tauri::command]
 pub async fn complete_interview(
