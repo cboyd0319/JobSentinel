@@ -14,6 +14,22 @@ import Settings from "./Settings";
 type SortOption = "score-desc" | "score-asc" | "date-desc" | "date-asc" | "company-asc";
 type ScoreFilter = "all" | "high" | "medium" | "low";
 
+interface SavedSearch {
+  id: string;
+  name: string;
+  filters: {
+    sortBy: SortOption;
+    scoreFilter: ScoreFilter;
+    sourceFilter: string;
+    remoteFilter: string;
+    bookmarkFilter: string;
+    notesFilter: string;
+  };
+  createdAt: string;
+}
+
+const SAVED_SEARCHES_KEY = "jobsentinel_saved_searches";
+
 interface Job {
   id: number;
   title: string;
@@ -80,6 +96,17 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
   // Bulk selection state
   const [selectedJobIds, setSelectedJobIds] = useState<Set<number>>(new Set());
   const [bulkMode, setBulkMode] = useState(false);
+  // Saved searches state
+  const [savedSearches, setSavedSearches] = useState<SavedSearch[]>(() => {
+    try {
+      const stored = localStorage.getItem(SAVED_SEARCHES_KEY);
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [saveSearchModalOpen, setSaveSearchModalOpen] = useState(false);
+  const [newSearchName, setNewSearchName] = useState("");
   const toast = useToast();
   const { pushAction } = useUndo();
 
@@ -545,6 +572,54 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
     toast.success(`Exported ${selectedJobs.length} jobs`, "CSV file downloaded");
   };
 
+  // Saved search handlers
+  const getCurrentFilters = () => ({
+    sortBy,
+    scoreFilter,
+    sourceFilter,
+    remoteFilter,
+    bookmarkFilter,
+    notesFilter,
+  });
+
+  const handleSaveSearch = () => {
+    if (!newSearchName.trim()) {
+      toast.error("Name required", "Please enter a name for this search");
+      return;
+    }
+
+    const newSearch: SavedSearch = {
+      id: `search-${Date.now()}`,
+      name: newSearchName.trim(),
+      filters: getCurrentFilters(),
+      createdAt: new Date().toISOString(),
+    };
+
+    const updated = [newSearch, ...savedSearches];
+    setSavedSearches(updated);
+    localStorage.setItem(SAVED_SEARCHES_KEY, JSON.stringify(updated));
+    setSaveSearchModalOpen(false);
+    setNewSearchName("");
+    toast.success("Search saved", `"${newSearch.name}" can now be loaded anytime`);
+  };
+
+  const handleLoadSearch = (search: SavedSearch) => {
+    setSortBy(search.filters.sortBy);
+    setScoreFilter(search.filters.scoreFilter);
+    setSourceFilter(search.filters.sourceFilter);
+    setRemoteFilter(search.filters.remoteFilter);
+    setBookmarkFilter(search.filters.bookmarkFilter);
+    setNotesFilter(search.filters.notesFilter);
+    toast.info("Filters loaded", `Applied "${search.name}"`);
+  };
+
+  const handleDeleteSearch = (id: string) => {
+    const updated = savedSearches.filter((s) => s.id !== id);
+    setSavedSearches(updated);
+    localStorage.setItem(SAVED_SEARCHES_KEY, JSON.stringify(updated));
+    toast.success("Search deleted", "Saved search removed");
+  };
+
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return "Never";
     const date = new Date(dateStr);
@@ -947,6 +1022,36 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
                     <span className="hidden sm:inline">Export</span>
                   </button>
                 </Tooltip>
+
+                {/* Save current search button */}
+                <Tooltip content="Save current filters" position="bottom">
+                  <button
+                    onClick={() => setSaveSearchModalOpen(true)}
+                    className="flex items-center gap-2 px-3 py-1.5 text-sm text-surface-600 dark:text-surface-300 hover:text-surface-800 dark:hover:text-surface-100 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 rounded-lg transition-colors"
+                    aria-label="Save current filters"
+                  >
+                    <SaveIcon className="w-4 h-4" />
+                  </button>
+                </Tooltip>
+
+                {/* Saved searches dropdown */}
+                {savedSearches.length > 0 && (
+                  <Dropdown
+                    label="Saved"
+                    value=""
+                    onChange={(value) => {
+                      const search = savedSearches.find((s) => s.id === value);
+                      if (search) handleLoadSearch(search);
+                    }}
+                    options={[
+                      { value: "", label: `${savedSearches.length} saved` },
+                      ...savedSearches.map((s) => ({
+                        value: s.id,
+                        label: s.name,
+                      })),
+                    ]}
+                  />
+                )}
               </div>
             )}
 
@@ -1123,6 +1228,93 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
           </ModalFooter>
         </div>
       </Modal>
+
+      {/* Save Search Modal */}
+      <Modal
+        isOpen={saveSearchModalOpen}
+        onClose={() => {
+          setSaveSearchModalOpen(false);
+          setNewSearchName("");
+        }}
+        title="Save Current Filters"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-surface-600 dark:text-surface-400">
+            Save your current filter settings to quickly apply them later.
+          </p>
+          <div>
+            <label htmlFor="search-name" className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
+              Name
+            </label>
+            <input
+              id="search-name"
+              type="text"
+              value={newSearchName}
+              onChange={(e) => setNewSearchName(e.target.value)}
+              placeholder="e.g., Remote Rust Jobs"
+              className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 placeholder-surface-400 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500 dark:focus:border-sentinel-400 dark:focus:ring-sentinel-400"
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSaveSearch();
+              }}
+            />
+          </div>
+          <div className="text-xs text-surface-500 dark:text-surface-400">
+            <p className="font-medium mb-1">Current filters:</p>
+            <ul className="list-disc list-inside space-y-0.5">
+              <li>Sort: {sortBy}</li>
+              {scoreFilter !== "all" && <li>Score: {scoreFilter}</li>}
+              {sourceFilter !== "all" && <li>Source: {sourceFilter}</li>}
+              {remoteFilter !== "all" && <li>Location: {remoteFilter}</li>}
+              {bookmarkFilter !== "all" && <li>Saved: {bookmarkFilter}</li>}
+              {notesFilter !== "all" && <li>Notes: {notesFilter}</li>}
+            </ul>
+          </div>
+          {savedSearches.length > 0 && (
+            <div className="border-t border-surface-200 dark:border-surface-700 pt-4">
+              <p className="text-xs font-medium text-surface-500 dark:text-surface-400 mb-2">
+                Saved searches ({savedSearches.length})
+              </p>
+              <div className="space-y-1 max-h-32 overflow-y-auto">
+                {savedSearches.map((search) => (
+                  <div
+                    key={search.id}
+                    className="flex items-center justify-between px-2 py-1 rounded hover:bg-surface-100 dark:hover:bg-surface-700 group"
+                  >
+                    <button
+                      onClick={() => {
+                        handleLoadSearch(search);
+                        setSaveSearchModalOpen(false);
+                      }}
+                      className="text-sm text-surface-600 dark:text-surface-300 hover:text-sentinel-600 dark:hover:text-sentinel-400 text-left flex-1"
+                    >
+                      {search.name}
+                    </button>
+                    <button
+                      onClick={() => handleDeleteSearch(search.id)}
+                      className="p-1 text-surface-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                      aria-label={`Delete "${search.name}"`}
+                    >
+                      <TrashIcon className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          <ModalFooter>
+            <Button variant="secondary" onClick={() => {
+              setSaveSearchModalOpen(false);
+              setNewSearchName("");
+            }}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveSearch} disabled={!newSearchName.trim()}>
+              Save
+            </Button>
+          </ModalFooter>
+        </div>
+      </Modal>
     </div>
   );
 }
@@ -1262,6 +1454,22 @@ function HideIcon({ className = "" }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+    </svg>
+  );
+}
+
+function SaveIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+    </svg>
+  );
+}
+
+function TrashIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
     </svg>
   );
 }
