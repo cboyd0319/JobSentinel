@@ -787,6 +787,69 @@ impl Database {
         Ok(jobs)
     }
 
+    /// Find potential duplicate jobs (same title + company, different sources)
+    /// Returns groups of jobs that are likely duplicates
+    pub async fn find_duplicate_groups(&self) -> Result<Vec<DuplicateGroup>, sqlx::Error> {
+        // First, find all title+company pairs that have multiple jobs
+        let duplicate_keys: Vec<(String, String)> = sqlx::query_as(
+            r#"
+            SELECT LOWER(title) as norm_title, LOWER(company) as norm_company
+            FROM jobs
+            WHERE hidden = 0
+            GROUP BY LOWER(title), LOWER(company)
+            HAVING COUNT(*) > 1
+            ORDER BY MAX(score) DESC
+            "#,
+        )
+        .fetch_all(&self.pool)
+        .await?;
+
+        let mut groups = Vec::new();
+
+        for (norm_title, norm_company) in duplicate_keys {
+            let jobs: Vec<Job> = sqlx::query_as(
+                r#"
+                SELECT id, hash, title, company, url, location, description, score, score_reasons,
+                       source, remote, salary_min, salary_max, currency, created_at, updated_at,
+                       last_seen, times_seen, immediate_alert_sent, included_in_digest, hidden,
+                       bookmarked, notes
+                FROM jobs
+                WHERE LOWER(title) = ? AND LOWER(company) = ? AND hidden = 0
+                ORDER BY score DESC, created_at ASC
+                "#,
+            )
+            .bind(&norm_title)
+            .bind(&norm_company)
+            .fetch_all(&self.pool)
+            .await?;
+
+            if jobs.len() > 1 {
+                // The first job (highest score, oldest) is the "primary"
+                let primary_id = jobs[0].id;
+                let sources: Vec<String> = jobs.iter().map(|j| j.source.clone()).collect();
+
+                groups.push(DuplicateGroup {
+                    primary_id,
+                    jobs,
+                    sources,
+                });
+            }
+        }
+
+        Ok(groups)
+    }
+
+    /// Merge duplicate jobs: hide all duplicates except the primary one
+    pub async fn merge_duplicates(&self, primary_id: i64, duplicate_ids: &[i64]) -> Result<(), sqlx::Error> {
+        // Hide all duplicates
+        for &id in duplicate_ids {
+            if id != primary_id {
+                self.hide_job(id).await?;
+            }
+        }
+        Ok(())
+    }
+
     /// Get statistics
     pub async fn get_statistics(&self) -> Result<Statistics, sqlx::Error> {
         let total_jobs: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM jobs")
@@ -838,6 +901,17 @@ pub struct Statistics {
     pub high_matches: i64,
     pub average_score: f64,
     pub jobs_today: i64,
+}
+
+/// A group of duplicate jobs (same title + company from different sources)
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DuplicateGroup {
+    /// The ID of the primary job (highest score)
+    pub primary_id: i64,
+    /// All jobs in this duplicate group
+    pub jobs: Vec<Job>,
+    /// Sources where this job appears
+    pub sources: Vec<String>,
 }
 
 #[cfg(test)]

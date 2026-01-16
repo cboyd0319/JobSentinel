@@ -496,6 +496,44 @@ pub async fn detect_ghosted_applications(state: State<'_, AppState>) -> Result<u
 }
 
 // ============================================================================
+// Job Deduplication Commands
+// ============================================================================
+
+/// Find duplicate job groups (same title + company from different sources)
+#[tauri::command]
+pub async fn find_duplicates(
+    state: State<'_, AppState>,
+) -> Result<Vec<crate::core::db::DuplicateGroup>, String> {
+    tracing::info!("Command: find_duplicates");
+
+    state
+        .database
+        .find_duplicate_groups()
+        .await
+        .map_err(|e| format!("Database error: {}", e))
+}
+
+/// Merge duplicate jobs: keep primary, hide duplicates
+#[tauri::command]
+pub async fn merge_duplicates(
+    primary_id: i64,
+    duplicate_ids: Vec<i64>,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    tracing::info!(
+        "Command: merge_duplicates (primary: {}, duplicates: {:?})",
+        primary_id,
+        duplicate_ids
+    );
+
+    state
+        .database
+        .merge_duplicates(primary_id, &duplicate_ids)
+        .await
+        .map_err(|e| format!("Database error: {}", e))
+}
+
+// ============================================================================
 // Resume Matcher Commands
 // ============================================================================
 

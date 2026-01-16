@@ -53,6 +53,12 @@ interface Statistics {
   average_score: number;
 }
 
+interface DuplicateGroup {
+  primary_id: number;
+  jobs: Job[];
+  sources: string[];
+}
+
 interface ScrapingStatus {
   last_scrape: string | null;
   next_scrape: string | null;
@@ -107,6 +113,10 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
   });
   const [saveSearchModalOpen, setSaveSearchModalOpen] = useState(false);
   const [newSearchName, setNewSearchName] = useState("");
+  // Deduplication state
+  const [duplicatesModalOpen, setDuplicatesModalOpen] = useState(false);
+  const [duplicateGroups, setDuplicateGroups] = useState<DuplicateGroup[]>([]);
+  const [checkingDuplicates, setCheckingDuplicates] = useState(false);
   // Auto-refresh state
   const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(false);
   const [autoRefreshInterval, setAutoRefreshInterval] = useState(30); // minutes
@@ -714,6 +724,73 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
     toast.success("Search deleted", "Saved search removed");
   };
 
+  // Deduplication handlers
+  const handleCheckDuplicates = async () => {
+    try {
+      setCheckingDuplicates(true);
+      const groups = await invoke<DuplicateGroup[]>("find_duplicates");
+      setDuplicateGroups(groups);
+      setDuplicatesModalOpen(true);
+
+      if (groups.length === 0) {
+        toast.success("No duplicates", "All jobs are unique");
+      } else {
+        toast.info("Duplicates found", `${groups.length} duplicate groups detected`);
+      }
+    } catch (err) {
+      logError("Failed to check duplicates:", err);
+      toast.error("Check failed", getErrorMessage(err));
+    } finally {
+      setCheckingDuplicates(false);
+    }
+  };
+
+  const handleMergeDuplicates = async (primaryId: number, duplicateIds: number[]) => {
+    try {
+      await invoke("merge_duplicates", {
+        primaryId,
+        duplicateIds,
+      });
+
+      // Remove merged jobs from the list
+      setJobs(jobs.filter((j) => j.id === primaryId || !duplicateIds.includes(j.id)));
+
+      // Remove the group from duplicateGroups
+      setDuplicateGroups((prev) => prev.filter((g) => g.primary_id !== primaryId));
+
+      toast.success("Duplicates merged", "Keeping highest-scoring version");
+
+      // Invalidate cache
+      invalidateCacheByCommand("get_recent_jobs");
+      invalidateCacheByCommand("get_statistics");
+    } catch (err) {
+      logError("Failed to merge duplicates:", err);
+      toast.error("Merge failed", getErrorMessage(err));
+    }
+  };
+
+  const handleMergeAllDuplicates = async () => {
+    try {
+      for (const group of duplicateGroups) {
+        const duplicateIds = group.jobs.map((j) => j.id);
+        await invoke("merge_duplicates", {
+          primaryId: group.primary_id,
+          duplicateIds,
+        });
+      }
+
+      // Refresh job list
+      await fetchData();
+      setDuplicateGroups([]);
+      setDuplicatesModalOpen(false);
+
+      toast.success("All duplicates merged", `${duplicateGroups.length} groups cleaned up`);
+    } catch (err) {
+      logError("Failed to merge all duplicates:", err);
+      toast.error("Merge failed", getErrorMessage(err));
+    }
+  };
+
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return "Never";
     const date = new Date(dateStr);
@@ -1130,6 +1207,19 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
                 {/* Spacer */}
                 <div className="flex-1" />
 
+                {/* Check duplicates button */}
+                <Tooltip content="Find and merge duplicate jobs" position="bottom">
+                  <button
+                    onClick={handleCheckDuplicates}
+                    disabled={checkingDuplicates}
+                    className="flex items-center gap-2 px-3 py-1.5 text-sm text-surface-600 dark:text-surface-300 hover:text-surface-800 dark:hover:text-surface-100 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 rounded-lg transition-colors disabled:opacity-50"
+                    aria-label="Check for duplicates"
+                  >
+                    <DuplicateIcon className="w-4 h-4" />
+                    <span className="hidden sm:inline">{checkingDuplicates ? "Checking..." : "Duplicates"}</span>
+                  </button>
+                </Tooltip>
+
                 {/* Select toggle button */}
                 <Tooltip content={bulkMode ? "Exit selection mode" : "Select multiple jobs"} position="bottom">
                   <button
@@ -1450,6 +1540,97 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
           </ModalFooter>
         </div>
       </Modal>
+
+      {/* Duplicates Modal */}
+      <Modal
+        isOpen={duplicatesModalOpen}
+        onClose={() => setDuplicatesModalOpen(false)}
+        title="Duplicate Jobs"
+      >
+        <div className="space-y-4">
+          {duplicateGroups.length === 0 ? (
+            <div className="text-center py-8">
+              <CheckCircleIcon className="w-12 h-12 text-green-500 mx-auto mb-3" />
+              <p className="text-surface-600 dark:text-surface-400">
+                No duplicate jobs found. All jobs are unique!
+              </p>
+            </div>
+          ) : (
+            <>
+              <p className="text-sm text-surface-600 dark:text-surface-400">
+                Found {duplicateGroups.length} duplicate groups. Same job from multiple sources.
+                Merging will keep the highest-scoring version and hide duplicates.
+              </p>
+
+              <div className="space-y-4 max-h-96 overflow-y-auto">
+                {duplicateGroups.map((group) => (
+                  <div
+                    key={group.primary_id}
+                    className="border border-surface-200 dark:border-surface-700 rounded-lg p-4"
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <h4 className="font-medium text-surface-800 dark:text-surface-200">
+                          {group.jobs[0].title}
+                        </h4>
+                        <p className="text-sm text-surface-500 dark:text-surface-400">
+                          {group.jobs[0].company}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => handleMergeDuplicates(
+                          group.primary_id,
+                          group.jobs.map((j) => j.id)
+                        )}
+                        className="px-3 py-1 text-sm bg-sentinel-500 text-white rounded-lg hover:bg-sentinel-600 transition-colors"
+                      >
+                        Merge
+                      </button>
+                    </div>
+                    <div className="space-y-2">
+                      {group.jobs.map((job, idx) => (
+                        <div
+                          key={job.id}
+                          className={`flex items-center justify-between px-3 py-2 rounded ${
+                            idx === 0
+                              ? "bg-sentinel-50 dark:bg-sentinel-900/20 border border-sentinel-200 dark:border-sentinel-800"
+                              : "bg-surface-50 dark:bg-surface-700"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-medium text-surface-500 dark:text-surface-400 uppercase">
+                              {job.source}
+                            </span>
+                            {idx === 0 && (
+                              <span className="text-xs bg-sentinel-500 text-white px-1.5 py-0.5 rounded">
+                                Primary
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span className="text-sm text-surface-600 dark:text-surface-300">
+                              {job.score ? `${Math.round(job.score * 100)}%` : "N/A"}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <ModalFooter>
+                <Button variant="secondary" onClick={() => setDuplicatesModalOpen(false)}>
+                  Close
+                </Button>
+                <Button onClick={handleMergeAllDuplicates}>
+                  Merge All ({duplicateGroups.length})
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </div>
+      </Modal>
     </div>
   );
 }
@@ -1605,6 +1786,22 @@ function TrashIcon({ className = "" }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+    </svg>
+  );
+}
+
+function DuplicateIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+    </svg>
+  );
+}
+
+function CheckCircleIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
     </svg>
   );
 }
