@@ -3,6 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-shell";
 import { Button, Card, CardHeader, LoadingSpinner, JobCard, ScoreDisplay, ThemeToggle, Tooltip, ModalErrorBoundary, Dropdown, Modal, ModalFooter } from "../components";
 import { useToast } from "../contexts";
+import { useUndo } from "../contexts/UndoContext";
 import { useKeyboardNavigation } from "../hooks/useKeyboardNavigation";
 import { getErrorMessage, logError } from "../utils/errorUtils";
 import { notifyScrapingComplete } from "../utils/notifications";
@@ -77,6 +78,7 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
   const [editingJobId, setEditingJobId] = useState<number | null>(null);
   const [notesText, setNotesText] = useState("");
   const toast = useToast();
+  const { pushAction } = useUndo();
 
   // Use prop if provided, otherwise use local state
   const showSettings = showSettingsProp ?? showSettingsLocal;
@@ -278,13 +280,35 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
   };
 
   const handleHideJob = async (id: number) => {
+    // Find the job before hiding for undo
+    const hiddenJob = jobs.find((job) => job.id === id);
+    if (!hiddenJob) return;
+
     try {
       await invoke("hide_job", { id });
       // Invalidate cache since job list changed
       invalidateCacheByCommand("get_recent_jobs");
       invalidateCacheByCommand("get_statistics");
       setJobs(jobs.filter((job) => job.id !== id));
-      toast.success("Job hidden", "You won't see this job again");
+
+      // Push undoable action
+      pushAction({
+        type: "hide",
+        description: `Hidden: ${hiddenJob.title}`,
+        undo: async () => {
+          await invoke("unhide_job", { id });
+          invalidateCacheByCommand("get_recent_jobs");
+          invalidateCacheByCommand("get_statistics");
+          // Re-add the job to the list
+          setJobs((prev) => [hiddenJob, ...prev]);
+        },
+        redo: async () => {
+          await invoke("hide_job", { id });
+          invalidateCacheByCommand("get_recent_jobs");
+          invalidateCacheByCommand("get_statistics");
+          setJobs((prev) => prev.filter((job) => job.id !== id));
+        },
+      });
     } catch (err) {
       logError("Failed to hide job:", err);
       toast.error("Failed to hide job", getErrorMessage(err));
@@ -292,16 +316,35 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
   };
 
   const handleToggleBookmark = async (id: number) => {
+    const job = jobs.find((j) => j.id === id);
+    if (!job) return;
+
+    const previousState = job.bookmarked;
+
     try {
       const newState = await invoke<boolean>("toggle_bookmark", { id });
       // Update local state optimistically
-      setJobs(jobs.map((job) =>
-        job.id === id ? { ...job, bookmarked: newState } : job
+      setJobs(jobs.map((j) =>
+        j.id === id ? { ...j, bookmarked: newState } : j
       ));
-      toast.success(
-        newState ? "Bookmarked" : "Removed bookmark",
-        newState ? "Job saved to favorites" : "Job removed from favorites"
-      );
+
+      // Push undoable action
+      pushAction({
+        type: "bookmark",
+        description: newState ? `Bookmarked: ${job.title}` : `Unbookmarked: ${job.title}`,
+        undo: async () => {
+          await invoke<boolean>("toggle_bookmark", { id });
+          setJobs((prev) => prev.map((j) =>
+            j.id === id ? { ...j, bookmarked: previousState } : j
+          ));
+        },
+        redo: async () => {
+          await invoke<boolean>("toggle_bookmark", { id });
+          setJobs((prev) => prev.map((j) =>
+            j.id === id ? { ...j, bookmarked: newState } : j
+          ));
+        },
+      });
     } catch (err) {
       logError("Failed to toggle bookmark:", err);
       toast.error("Failed to update bookmark", getErrorMessage(err));
@@ -316,14 +359,39 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
 
   const handleSaveNotes = async () => {
     if (editingJobId === null) return;
+
+    const job = jobs.find((j) => j.id === editingJobId);
+    if (!job) return;
+
+    const previousNotes = job.notes;
+    const jobId = editingJobId;
+
     try {
       const notesToSave = notesText.trim() || null;
-      await invoke("set_job_notes", { id: editingJobId, notes: notesToSave });
+      await invoke("set_job_notes", { id: jobId, notes: notesToSave });
       // Update local state
-      setJobs(jobs.map((job) =>
-        job.id === editingJobId ? { ...job, notes: notesToSave } : job
+      setJobs(jobs.map((j) =>
+        j.id === jobId ? { ...j, notes: notesToSave } : j
       ));
-      toast.success("Notes saved", notesToSave ? "Your notes have been saved" : "Notes removed");
+
+      // Push undoable action
+      pushAction({
+        type: "notes",
+        description: notesToSave ? `Updated notes: ${job.title}` : `Removed notes: ${job.title}`,
+        undo: async () => {
+          await invoke("set_job_notes", { id: jobId, notes: previousNotes });
+          setJobs((prev) => prev.map((j) =>
+            j.id === jobId ? { ...j, notes: previousNotes } : j
+          ));
+        },
+        redo: async () => {
+          await invoke("set_job_notes", { id: jobId, notes: notesToSave });
+          setJobs((prev) => prev.map((j) =>
+            j.id === jobId ? { ...j, notes: notesToSave } : j
+          ));
+        },
+      });
+
       setNotesModalOpen(false);
       setEditingJobId(null);
       setNotesText("");

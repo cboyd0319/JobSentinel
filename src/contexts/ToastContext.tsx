@@ -1,28 +1,37 @@
-import { useState, useCallback, ReactNode } from "react";
-import { ToastContext, Toast } from "./toastContextDef";
+import { useState, useCallback, ReactNode, useRef } from "react";
+import { ToastContext, Toast, ToastAction } from "./toastContextDef";
 
 let toastId = 0;
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const timerRefs = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
   const removeToast = useCallback((id: string) => {
+    // Clear any pending timer
+    const timer = timerRefs.current.get(id);
+    if (timer) {
+      clearTimeout(timer);
+      timerRefs.current.delete(id);
+    }
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
   const addToast = useCallback((toast: Omit<Toast, "id">) => {
     const id = `toast-${++toastId}`;
-    const duration = toast.duration ?? 5000;
+    // Longer duration for toasts with actions (user needs time to click)
+    const duration = toast.duration ?? (toast.action ? 8000 : 5000);
 
     setToasts((prev) => [...prev, { ...toast, id }]);
 
     if (duration > 0) {
-      setTimeout(() => removeToast(id), duration);
+      const timer = setTimeout(() => removeToast(id), duration);
+      timerRefs.current.set(id, timer);
     }
   }, [removeToast]);
 
-  const success = useCallback((title: string, message?: string) => {
-    addToast({ type: "success", title, message });
+  const success = useCallback((title: string, message?: string, action?: ToastAction) => {
+    addToast({ type: "success", title, message, action });
   }, [addToast]);
 
   const error = useCallback((title: string, message?: string) => {
@@ -83,6 +92,13 @@ function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: (id: string) =
 
   const styles = typeStyles[toast.type];
 
+  const handleAction = () => {
+    if (toast.action) {
+      toast.action.onClick();
+      onRemove(toast.id);
+    }
+  };
+
   return (
     <div
       className={`
@@ -94,10 +110,22 @@ function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: (id: string) =
     >
       <div className="flex-shrink-0 mt-0.5">{styles.icon}</div>
       <div className="flex-1 min-w-0">
-        <p className="font-semibold text-sm">{toast.title}</p>
-        {toast.message && (
-          <p className="text-sm text-white/80 mt-0.5">{toast.message}</p>
-        )}
+        <div className="flex items-center gap-3">
+          <div className="flex-1">
+            <p className="font-semibold text-sm">{toast.title}</p>
+            {toast.message && (
+              <p className="text-sm text-white/80 mt-0.5">{toast.message}</p>
+            )}
+          </div>
+          {toast.action && (
+            <button
+              onClick={handleAction}
+              className="flex-shrink-0 px-3 py-1 text-sm font-medium bg-white/20 hover:bg-white/30 rounded-md transition-colors"
+            >
+              {toast.action.label}
+            </button>
+          )}
+        </div>
       </div>
       <button
         onClick={() => onRemove(toast.id)}
