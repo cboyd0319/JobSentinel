@@ -1,35 +1,36 @@
 /**
  * Default onboarding tour steps for JobSentinel
+ * Written in plain English for users of all technical backgrounds
  */
 export const defaultTourSteps = [
   {
     target: "[data-tour='search-button']",
-    title: "Search for Jobs",
-    content: "Click here to manually scan job boards for new positions matching your preferences.",
+    title: "Find New Jobs",
+    content: "Click here to search for jobs! We'll scan multiple job boards and show you the best matches based on your profile.",
     placement: "bottom" as const,
   },
   {
     target: "[data-tour='settings-button']",
-    title: "Configure Settings",
-    content: "Set up your job search criteria, notification preferences, and connect LinkedIn/Indeed.",
+    title: "Customize Your Search",
+    content: "Change your job titles, skills, salary preferences, or set up notifications to get alerts when great jobs appear.",
     placement: "bottom" as const,
   },
   {
     target: "[data-tour='theme-toggle']",
-    title: "Toggle Dark Mode",
-    content: "Switch between light and dark themes. Your preference is saved automatically.",
+    title: "Light or Dark Mode",
+    content: "Prefer a dark screen? Toggle this to switch. Your choice is remembered automatically.",
     placement: "bottom" as const,
   },
   {
     target: "[data-tour='quick-nav']",
-    title: "Quick Navigation",
-    content: "Access Applications, Resume Matcher, Salary AI, and Market Intelligence from here.",
+    title: "More Tools",
+    content: "Track your applications, compare your resume to job posts, see salary insights, and explore job market trends.",
     placement: "top" as const,
   },
   {
     target: "[data-tour='job-filters']",
-    title: "Filter & Sort Jobs",
-    content: "Use filters to narrow down jobs by score, source, or location. Export your results to CSV.",
+    title: "Filter Your Results",
+    content: "Too many jobs? Use these filters to narrow down by quality score, job board source, or just show bookmarked jobs.",
     placement: "bottom" as const,
   },
 ];

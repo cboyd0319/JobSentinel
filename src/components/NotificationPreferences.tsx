@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Card } from './Card';
 import { Badge } from './Badge';
+import { HelpIcon } from './HelpIcon';
 import { useToast } from '../contexts';
 
 export interface SourceNotificationConfig {
@@ -242,8 +243,9 @@ function SourceConfigRow({ sourceKey, config, onChange }: SourceConfigRowProps) 
 
       {/* Score threshold */}
       <div className="flex items-center gap-2 flex-1">
-        <label className="text-sm text-surface-600 dark:text-surface-400 whitespace-nowrap">
-          Min score:
+        <label className="text-sm text-surface-600 dark:text-surface-400 whitespace-nowrap flex items-center gap-1">
+          Quality:
+          <HelpIcon text="Only alert for jobs above this match score. Higher = fewer but better matches." size="sm" />
         </label>
         <input
           type="range"
@@ -322,11 +324,12 @@ export function NotificationPreferences() {
       <div className="p-4 border-b border-surface-200 dark:border-surface-700">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="font-medium text-surface-900 dark:text-white">
-              Notification Preferences
+            <h3 className="font-medium text-surface-900 dark:text-white flex items-center gap-2">
+              Which Jobs Alert You
+              <HelpIcon text="Control which jobs trigger notifications. You can set different rules for each job board and filter by salary, keywords, and more." />
             </h3>
             <p className="text-sm text-surface-500 dark:text-surface-400 mt-0.5">
-              Control alerts for each job source
+              Fine-tune when you get notified about new jobs
             </p>
           </div>
           {hasChanges && (
@@ -493,8 +496,9 @@ function AdvancedFiltersSection({ filters, onChange, disabled }: AdvancedFilters
     <div className={`mt-4 pt-4 border-t border-surface-200 dark:border-surface-700 ${disabled ? 'opacity-50 pointer-events-none' : ''}`}>
       <div className="flex items-center gap-2 mb-4">
         <FilterIcon className="w-4 h-4 text-surface-500" />
-        <p className="text-xs font-medium text-surface-500 dark:text-surface-400 uppercase tracking-wide">
-          Advanced Filters
+        <p className="text-xs font-medium text-surface-500 dark:text-surface-400 uppercase tracking-wide flex items-center gap-1">
+          Extra Filters
+          <HelpIcon text="Additional rules to customize which jobs you get notified about. All of these are optional." size="sm" />
         </p>
       </div>
 

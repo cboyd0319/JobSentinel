@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { Button, Input, Badge, Card, ErrorLogPanel, NotificationPreferences } from "../components";
+import { Button, Input, Badge, Card, ErrorLogPanel, NotificationPreferences, HelpIcon } from "../components";
 import { useToast } from "../contexts";
-import { logError, getErrorMessage } from "../utils/errorUtils";
+import { logError } from "../utils/errorUtils";
+import { getUserFriendlyError } from "../utils/errorMessages";
 import { exportConfigToJSON, importConfigFromJSON } from "../utils/export";
 
 interface SettingsProps {
@@ -84,7 +85,8 @@ export default function Settings({ onClose }: SettingsProps) {
       setConfig(configData);
     } catch (error) {
       logError("Failed to load config:", error);
-      toast.error("Failed to load settings", getErrorMessage(error));
+      const friendly = getUserFriendlyError(error);
+      toast.error(friendly.title, friendly.message);
     } finally {
       setLoading(false);
     }
@@ -104,7 +106,8 @@ export default function Settings({ onClose }: SettingsProps) {
       onClose();
     } catch (error) {
       logError("Failed to save config:", error);
-      toast.error("Failed to save settings", getErrorMessage(error));
+      const friendly = getUserFriendlyError(error);
+      toast.error(friendly.title, friendly.message);
     } finally {
       setSaving(false);
     }
@@ -117,7 +120,8 @@ export default function Settings({ onClose }: SettingsProps) {
       toast.success("Config exported", "Sensitive data (passwords, tokens) excluded for security");
     } catch (error) {
       logError("Failed to export config:", error);
-      toast.error("Failed to export config", getErrorMessage(error));
+      const friendly = getUserFriendlyError(error);
+      toast.error(friendly.title, friendly.message);
     }
   };
 
@@ -275,7 +279,10 @@ export default function Settings({ onClose }: SettingsProps) {
 
           {/* Job Titles */}
           <section className="mb-6">
-            <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3">Job Titles</h3>
+            <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
+              Job Titles You Want
+              <HelpIcon text="Jobs with these titles will appear in your feed. Add titles like 'Marketing Manager' or 'SEO Specialist'." />
+            </h3>
             <div className="flex gap-2 mb-3">
               <Input
                 placeholder="Add a job title..."
@@ -306,7 +313,10 @@ export default function Settings({ onClose }: SettingsProps) {
 
           {/* Skills */}
           <section className="mb-6">
-            <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3">Skills</h3>
+            <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
+              Your Skills
+              <HelpIcon text="Jobs that mention these skills will rank higher. Add skills from your resume like 'Python' or 'Project Management'." />
+            </h3>
             <div className="flex gap-2 mb-3">
               <Input
                 placeholder="Add a skill..."
@@ -337,7 +347,10 @@ export default function Settings({ onClose }: SettingsProps) {
 
           {/* Location */}
           <section className="mb-6">
-            <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3">Work Location</h3>
+            <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
+              Where You Want to Work
+              <HelpIcon text="Choose your work style preferences. If you select hybrid or on-site, you can add specific cities." />
+            </h3>
             <div className="space-y-2 mb-4">
               <label className="flex items-center gap-3 cursor-pointer">
                 <input
@@ -423,7 +436,10 @@ export default function Settings({ onClose }: SettingsProps) {
 
           {/* Salary */}
           <section className="mb-6">
-            <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3">Target Salary</h3>
+            <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
+              Minimum Salary
+              <HelpIcon text="Jobs below this amount will still appear, but will be ranked lower in your results." />
+            </h3>
             <Input
               type="number"
               value={config.salary_floor_usd || ""}
@@ -434,13 +450,16 @@ export default function Settings({ onClose }: SettingsProps) {
                 })
               }
               placeholder="e.g., 60000"
-              hint="Jobs below this salary will be ranked lower"
+              hint="Enter your minimum acceptable salary (before taxes)"
             />
           </section>
 
           {/* Auto-Refresh */}
           <section className="mb-6">
-            <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3">Auto-Refresh</h3>
+            <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
+              Auto-Search
+              <HelpIcon text="Automatically check for new jobs while the app is open. Turn this on to never miss a new posting." />
+            </h3>
             <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-4">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
@@ -503,29 +522,55 @@ export default function Settings({ onClose }: SettingsProps) {
 
           {/* Notifications */}
           <section className="mb-6">
-            <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3">Notifications</h3>
+            <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
+              Get Notified
+              <HelpIcon text="Receive alerts when new jobs match your criteria. You can use Slack, email, or both." />
+            </h3>
 
             {/* Slack */}
             <div className="mb-4">
-              <Input
-                label="Slack Webhook URL"
-                value={config.alerts.slack.webhook_url}
-                onChange={(e) =>
-                  setConfig({
-                    ...config,
-                    alerts: {
-                      ...config.alerts,
-                      slack: {
-                        enabled: e.target.value.length > 0 && isValidSlackWebhook(e.target.value),
-                        webhook_url: e.target.value,
-                      },
-                    },
-                  })
-                }
-                placeholder="https://hooks.slack.com/services/..."
-                error={config.alerts.slack.webhook_url && !isValidWebhook ? "Invalid Slack webhook URL" : undefined}
-                hint="Get notified when high-match jobs are found"
-              />
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1 flex items-center gap-2">
+                Slack Notifications
+                <HelpIcon text="Get job alerts in a Slack channel. To set up: Go to your Slack workspace → Apps → Incoming Webhooks → Create New → Copy the webhook URL" position="right" />
+              </label>
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <Input
+                    value={config.alerts.slack.webhook_url}
+                    onChange={(e) =>
+                      setConfig({
+                        ...config,
+                        alerts: {
+                          ...config.alerts,
+                          slack: {
+                            enabled: e.target.value.length > 0 && isValidSlackWebhook(e.target.value),
+                            webhook_url: e.target.value,
+                          },
+                        },
+                      })
+                    }
+                    placeholder="Paste your Slack webhook URL here"
+                    error={config.alerts.slack.webhook_url && !isValidWebhook ? "This doesn't look like a valid Slack webhook URL" : undefined}
+                    hint="Leave empty to skip Slack notifications"
+                  />
+                </div>
+                {config.alerts.slack.webhook_url && isValidWebhook && (
+                  <Button
+                    variant="secondary"
+                    onClick={async () => {
+                      try {
+                        await invoke("test_slack_notification", { webhookUrl: config.alerts.slack.webhook_url });
+                        toast.success("Test sent!", "Check your Slack channel");
+                      } catch {
+                        toast.error("Test failed", "Check that the webhook URL is correct and try again");
+                      }
+                    }}
+                    className="whitespace-nowrap"
+                  >
+                    Test
+                  </Button>
+                )}
+              </div>
             </div>
 
             {/* Email */}
@@ -533,7 +578,8 @@ export default function Settings({ onClose }: SettingsProps) {
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <EmailIcon className="w-5 h-5 text-blue-500" />
-                  <span className="font-medium text-surface-800 dark:text-surface-200">Email (SMTP)</span>
+                  <span className="font-medium text-surface-800 dark:text-surface-200">Email Alerts</span>
+                  <HelpIcon text="Receive job alerts via email. Requires an email account that allows sending (like Gmail with an App Password)." />
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
@@ -559,9 +605,12 @@ export default function Settings({ onClose }: SettingsProps) {
 
               {config.alerts.email?.enabled && (
                 <div className="space-y-3">
+                  <p className="text-sm text-surface-500 dark:text-surface-400 -mt-1">
+                    For Gmail: use smtp.gmail.com, port 587, and create an App Password in your Google Account settings.
+                  </p>
                   <div className="grid grid-cols-2 gap-3">
                     <Input
-                      label="SMTP Server"
+                      label="Email Server"
                       value={config.alerts.email?.smtp_server ?? ""}
                       onChange={(e) =>
                         setConfig({
@@ -576,6 +625,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         })
                       }
                       placeholder="smtp.gmail.com"
+                      hint="Your email provider's sending server"
                     />
                     <div className="flex gap-2">
                       <div className="flex-1">
@@ -595,10 +645,11 @@ export default function Settings({ onClose }: SettingsProps) {
                               },
                             })
                           }
+                          hint="Usually 587"
                         />
                       </div>
                       <div className="flex items-end pb-2">
-                        <label className="flex items-center gap-2 cursor-pointer">
+                        <label className="flex items-center gap-2 cursor-pointer" title="Enable secure connection (recommended)">
                           <input
                             type="checkbox"
                             checked={config.alerts.email?.use_starttls ?? true}
@@ -616,14 +667,14 @@ export default function Settings({ onClose }: SettingsProps) {
                             }
                             className="w-4 h-4 rounded border-surface-300 text-sentinel-500 focus:ring-sentinel-500"
                           />
-                          <span className="text-sm text-surface-700 dark:text-surface-300">STARTTLS</span>
+                          <span className="text-sm text-surface-700 dark:text-surface-300">Secure</span>
                         </label>
                       </div>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <Input
-                      label="Username"
+                      label="Your Email"
                       value={config.alerts.email?.smtp_username ?? ""}
                       onChange={(e) =>
                         setConfig({
@@ -637,10 +688,11 @@ export default function Settings({ onClose }: SettingsProps) {
                           },
                         })
                       }
-                      placeholder="your@email.com"
+                      placeholder="your@gmail.com"
+                      hint="The email account to send from"
                     />
                     <Input
-                      label="Password"
+                      label="App Password"
                       type="password"
                       value={config.alerts.email?.smtp_password ?? ""}
                       onChange={(e) =>
@@ -655,13 +707,13 @@ export default function Settings({ onClose }: SettingsProps) {
                           },
                         })
                       }
-                      placeholder="App-specific password"
-                      hint="Use app-specific password for Gmail"
+                      placeholder="Your app-specific password"
+                      hint="Not your regular password — create an App Password"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <Input
-                      label="From Email"
+                      label="Send From"
                       value={config.alerts.email?.from_email ?? ""}
                       onChange={(e) =>
                         setConfig({
@@ -675,11 +727,12 @@ export default function Settings({ onClose }: SettingsProps) {
                           },
                         })
                       }
-                      placeholder="alerts@yourdomain.com"
-                      error={!isValidFromEmail ? "Invalid email address" : undefined}
+                      placeholder="your@gmail.com"
+                      hint="Usually same as 'Your Email'"
+                      error={!isValidFromEmail ? "Please enter a valid email address" : undefined}
                     />
                     <Input
-                      label="To Email(s)"
+                      label="Send To"
                       value={config.alerts.email?.to_emails?.join(", ") ?? ""}
                       onChange={(e) =>
                         setConfig({
@@ -693,9 +746,9 @@ export default function Settings({ onClose }: SettingsProps) {
                           },
                         })
                       }
-                      placeholder="you@email.com, backup@email.com"
-                      hint="Comma-separated for multiple"
-                      error={!hasValidToEmails ? "One or more email addresses are invalid" : undefined}
+                      placeholder="you@email.com"
+                      hint="Where to receive alerts (can be the same email)"
+                      error={!hasValidToEmails ? "Please enter a valid email address" : undefined}
                     />
                   </div>
                 </div>
@@ -710,9 +763,12 @@ export default function Settings({ onClose }: SettingsProps) {
 
           {/* Job Sources */}
           <section className="mb-6">
-            <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3">Job Sources</h3>
+            <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
+              Additional Job Boards
+              <HelpIcon text="JobSentinel searches many job boards automatically. Enable these for even more options (requires some setup)." />
+            </h3>
             <p className="text-sm text-surface-500 dark:text-surface-400 mb-4">
-              Configure additional job boards to search. Greenhouse and Lever boards are always enabled.
+              We automatically search Greenhouse, Lever, and other popular job boards. These are optional extras.
             </p>
 
             {/* LinkedIn */}
@@ -743,22 +799,30 @@ export default function Settings({ onClose }: SettingsProps) {
 
               {config.linkedin?.enabled && (
                 <div className="space-y-3">
-                  <Input
-                    label="Session Cookie (li_at)"
-                    type="password"
-                    value={config.linkedin?.session_cookie ?? ""}
-                    onChange={(e) =>
-                      setConfig({
-                        ...config,
-                        linkedin: {
-                          ...config.linkedin,
-                          session_cookie: e.target.value,
-                        },
-                      })
-                    }
-                    placeholder="Your LinkedIn li_at cookie value"
-                    hint="Required. Find this in browser dev tools → Cookies → linkedin.com → li_at"
-                  />
+                  <p className="text-sm text-surface-500 dark:text-surface-400 -mt-1">
+                    LinkedIn requires your login cookie. This stays on your computer and is never shared.
+                  </p>
+                  <div>
+                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1 flex items-center gap-2">
+                      Login Cookie
+                      <HelpIcon text="To get this: 1) Log into LinkedIn in Chrome, 2) Right-click → Inspect → Application → Cookies → linkedin.com, 3) Copy the 'li_at' value" position="right" />
+                    </label>
+                    <Input
+                      type="password"
+                      value={config.linkedin?.session_cookie ?? ""}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          linkedin: {
+                            ...config.linkedin,
+                            session_cookie: e.target.value,
+                          },
+                        })
+                      }
+                      placeholder="Paste your li_at cookie value here"
+                      hint="This is the 'li_at' cookie from linkedin.com"
+                    />
+                  </div>
                   <div className="grid grid-cols-2 gap-3">
                     <Input
                       label="Search Query"
@@ -934,27 +998,32 @@ export default function Settings({ onClose }: SettingsProps) {
             </div>
           </section>
 
-          {/* Developer Tools */}
+          {/* Troubleshooting */}
           <section className="mb-6">
-            <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3">Developer Tools</h3>
+            <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
+              Troubleshooting
+              <HelpIcon text="If something isn't working right, these logs can help diagnose the problem." />
+            </h3>
             <ErrorLogPanel />
           </section>
 
-          {/* Import/Export */}
+          {/* Backup & Restore */}
           <div className="flex gap-3 mb-4">
             <button
               onClick={handleImportConfig}
               className="flex items-center gap-2 px-3 py-2 text-sm text-surface-600 dark:text-surface-300 hover:text-surface-800 dark:hover:text-surface-100 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 rounded-lg transition-colors"
+              title="Restore settings from a backup file"
             >
               <ImportIcon className="w-4 h-4" />
-              Import Config
+              Restore Settings
             </button>
             <button
               onClick={handleExportConfig}
               className="flex items-center gap-2 px-3 py-2 text-sm text-surface-600 dark:text-surface-300 hover:text-surface-800 dark:hover:text-surface-100 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 rounded-lg transition-colors"
+              title="Save your current settings to a backup file"
             >
               <ExportIcon className="w-4 h-4" />
-              Export Config
+              Backup Settings
             </button>
           </div>
 

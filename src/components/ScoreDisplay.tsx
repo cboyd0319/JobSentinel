@@ -1,8 +1,32 @@
+import { Tooltip } from "./Tooltip";
+
 interface ScoreDisplayProps {
   score: number; // 0-1 range
   size?: "sm" | "md" | "lg";
   showLabel?: boolean;
   animate?: boolean;
+}
+
+/**
+ * Get a human-friendly label and explanation for a job match score
+ */
+function getScoreInfo(score: number) {
+  if (score >= 0.9) return {
+    label: "Great Match!",
+    explanation: "This job closely matches your skills, salary, and preferences. Highly recommended!",
+  };
+  if (score >= 0.7) return {
+    label: "Good Match",
+    explanation: "This job matches most of your criteria. Worth a closer look.",
+  };
+  if (score >= 0.5) return {
+    label: "Partial Match",
+    explanation: "This job matches some of your criteria but may be missing key requirements.",
+  };
+  return {
+    label: "Low Match",
+    explanation: "This job doesn't match many of your preferences. You might want to skip it.",
+  };
 }
 
 export function ScoreDisplay({
@@ -12,7 +36,8 @@ export function ScoreDisplay({
   animate = true,
 }: ScoreDisplayProps) {
   const percentage = Math.round(score * 100);
-  
+  const scoreInfo = getScoreInfo(score);
+
   // Color based on score
   const getScoreColor = () => {
     if (score >= 0.9) return { ring: "stroke-alert-500", text: "text-alert-600 dark:text-alert-400", glow: "shadow-alert-glow" };
@@ -34,50 +59,52 @@ export function ScoreDisplay({
   const strokeDashoffset = circumference - (score * circumference);
 
   return (
-    <div className="inline-flex flex-col items-center gap-1">
-      <div className={`relative ${config.container} ${score >= 0.9 ? colors.glow : ""} rounded-full`}>
-        <svg className="w-full h-full -rotate-90" viewBox="0 0 80 80" aria-hidden="true">
-          {/* Background ring */}
-          <circle
-            cx="40"
-            cy="40"
-            r={config.radius}
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={config.strokeWidth}
-            className="text-surface-100 dark:text-surface-700"
-          />
-          {/* Score ring */}
-          <circle
-            cx="40"
-            cy="40"
-            r={config.radius}
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={config.strokeWidth}
-            strokeLinecap="round"
-            strokeDasharray={circumference}
-            strokeDashoffset={animate ? circumference : strokeDashoffset}
-            className={`${colors.ring} transition-all duration-1000 ease-out`}
-            style={{
-              strokeDashoffset: strokeDashoffset,
-              transitionDelay: animate ? "200ms" : "0ms",
-            }}
-          />
-        </svg>
-        {/* Center percentage */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className={`font-mono font-semibold ${config.fontSize} ${colors.text}`}>
-            {percentage}%
-          </span>
+    <Tooltip content={scoreInfo.explanation} position="top">
+      <div className="inline-flex flex-col items-center gap-1 cursor-help">
+        <div className={`relative ${config.container} ${score >= 0.9 ? colors.glow : ""} rounded-full`}>
+          <svg className="w-full h-full -rotate-90" viewBox="0 0 80 80" aria-hidden="true">
+            {/* Background ring */}
+            <circle
+              cx="40"
+              cy="40"
+              r={config.radius}
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={config.strokeWidth}
+              className="text-surface-100 dark:text-surface-700"
+            />
+            {/* Score ring */}
+            <circle
+              cx="40"
+              cy="40"
+              r={config.radius}
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={config.strokeWidth}
+              strokeLinecap="round"
+              strokeDasharray={circumference}
+              strokeDashoffset={animate ? circumference : strokeDashoffset}
+              className={`${colors.ring} transition-all duration-1000 ease-out`}
+              style={{
+                strokeDashoffset: strokeDashoffset,
+                transitionDelay: animate ? "200ms" : "0ms",
+              }}
+            />
+          </svg>
+          {/* Center percentage */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className={`font-mono font-semibold ${config.fontSize} ${colors.text}`}>
+              {percentage}%
+            </span>
+          </div>
         </div>
+        {showLabel && (
+          <span className={`text-xs font-medium ${colors.text}`}>
+            {scoreInfo.label}
+          </span>
+        )}
       </div>
-      {showLabel && (
-        <span className={`text-xs font-medium ${colors.text}`}>
-          {score >= 0.9 ? "Excellent" : score >= 0.7 ? "Good" : score >= 0.5 ? "Fair" : "Low"}
-        </span>
-      )}
-    </div>
+    </Tooltip>
   );
 }
 

@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-shell";
-import { Button, Card, CardHeader, LoadingSpinner, JobCard, ScoreDisplay, ThemeToggle, Tooltip, ModalErrorBoundary, Dropdown, Modal, ModalFooter, CompanyResearchPanel } from "../components";
+import { Button, Card, CardHeader, LoadingSpinner, JobCard, ScoreDisplay, ThemeToggle, Tooltip, ModalErrorBoundary, Dropdown, Modal, ModalFooter, CompanyResearchPanel, TourHelpButton } from "../components";
 import { useToast } from "../contexts";
 import { useUndo } from "../contexts/UndoContext";
 import { useKeyboardNavigation } from "../hooks/useKeyboardNavigation";
@@ -1076,6 +1076,10 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
               <div data-tour="theme-toggle">
                 <ThemeToggle />
               </div>
+
+              <Tooltip content="Take a tour" position="bottom">
+                <TourHelpButton />
+              </Tooltip>
 
               <Tooltip content="Settings" position="bottom">
                 <button

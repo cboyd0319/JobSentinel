@@ -13,6 +13,7 @@ export { SkipToContent } from "./SkipToContent";
 export { ThemeToggle } from "./ThemeToggle";
 export { Modal, ModalFooter } from "./Modal";
 export { Tooltip } from "./Tooltip";
+export { HelpIcon } from "./HelpIcon";
 export { Dropdown } from "./Dropdown";
 export { Skeleton, SkeletonCard, SkeletonJobCard, SkeletonStatCard, SkeletonJobList, DashboardSkeleton } from "./Skeleton";
 export { CommandPalette } from "./CommandPalette";
