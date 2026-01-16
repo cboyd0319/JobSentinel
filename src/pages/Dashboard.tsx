@@ -117,6 +117,9 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
   const [duplicatesModalOpen, setDuplicatesModalOpen] = useState(false);
   const [duplicateGroups, setDuplicateGroups] = useState<DuplicateGroup[]>([]);
   const [checkingDuplicates, setCheckingDuplicates] = useState(false);
+  // Comparison state
+  const [compareModalOpen, setCompareModalOpen] = useState(false);
+  const [comparedJobs, setComparedJobs] = useState<Job[]>([]);
   // Auto-refresh state
   const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(false);
   const [autoRefreshInterval, setAutoRefreshInterval] = useState(30); // minutes
@@ -791,6 +794,22 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
     }
   };
 
+  // Comparison handlers
+  const handleCompareJobs = () => {
+    if (selectedJobIds.size < 2) {
+      toast.error("Select jobs", "Select 2-3 jobs to compare");
+      return;
+    }
+    if (selectedJobIds.size > 3) {
+      toast.error("Too many jobs", "Select only 2-3 jobs to compare");
+      return;
+    }
+
+    const jobsToCompare = jobs.filter((j) => selectedJobIds.has(j.id));
+    setComparedJobs(jobsToCompare);
+    setCompareModalOpen(true);
+  };
+
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return "Never";
     const date = new Date(dateStr);
@@ -1310,6 +1329,15 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
                         Export
                       </button>
                       <button
+                        onClick={handleCompareJobs}
+                        disabled={selectedJobIds.size < 2 || selectedJobIds.size > 3}
+                        className="flex items-center gap-1 px-2 py-1 text-sm text-surface-600 dark:text-surface-300 hover:text-sentinel-600 dark:hover:text-sentinel-400 hover:bg-surface-200 dark:hover:bg-surface-700 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        title={selectedJobIds.size < 2 ? "Select 2-3 jobs" : selectedJobIds.size > 3 ? "Max 3 jobs" : "Compare selected jobs"}
+                      >
+                        <CompareIcon className="w-4 h-4" />
+                        Compare
+                      </button>
+                      <button
                         onClick={() => handleBulkBookmark(true)}
                         className="flex items-center gap-1 px-2 py-1 text-sm text-surface-600 dark:text-surface-300 hover:text-yellow-600 dark:hover:text-yellow-400 hover:bg-surface-200 dark:hover:bg-surface-700 rounded transition-colors"
                       >
@@ -1631,7 +1659,106 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
           )}
         </div>
       </Modal>
+
+      {/* Job Comparison Modal */}
+      <Modal
+        isOpen={compareModalOpen}
+        onClose={() => setCompareModalOpen(false)}
+        title="Compare Jobs"
+        size="xl"
+      >
+        <div className="space-y-4">
+          {comparedJobs.length > 0 && (
+            <>
+              {/* Job headers */}
+              <div className={`grid gap-4 ${comparedJobs.length === 2 ? "grid-cols-2" : "grid-cols-3"}`}>
+                {comparedJobs.map((job) => (
+                  <div
+                    key={job.id}
+                    className="p-4 bg-surface-50 dark:bg-surface-700 rounded-lg border border-surface-200 dark:border-surface-600"
+                  >
+                    <h4 className="font-semibold text-surface-800 dark:text-surface-200 truncate">
+                      {job.title}
+                    </h4>
+                    <p className="text-sm text-surface-500 dark:text-surface-400 truncate">
+                      {job.company}
+                    </p>
+                    <ScoreDisplay score={job.score} size="sm" showLabel={false} />
+                  </div>
+                ))}
+              </div>
+
+              {/* Comparison table */}
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <tbody className="divide-y divide-surface-200 dark:divide-surface-700">
+                    <CompareRow label="Match Score" values={comparedJobs.map((j) => `${Math.round(j.score * 100)}%`)} />
+                    <CompareRow label="Location" values={comparedJobs.map((j) => j.remote ? "Remote" : j.location || "N/A")} />
+                    <CompareRow
+                      label="Salary"
+                      values={comparedJobs.map((j) => {
+                        if (!j.salary_min && !j.salary_max) return "Not listed";
+                        const min = j.salary_min ? `$${Math.round(j.salary_min / 1000)}k` : "";
+                        const max = j.salary_max ? `$${Math.round(j.salary_max / 1000)}k` : "";
+                        if (min && max) return `${min} - ${max}`;
+                        return min || `Up to ${max}`;
+                      })}
+                    />
+                    <CompareRow label="Source" values={comparedJobs.map((j) => j.source)} />
+                    <CompareRow label="Remote" values={comparedJobs.map((j) => j.remote ? "Yes" : j.remote === false ? "No" : "Unknown")} />
+                    <CompareRow
+                      label="Posted"
+                      values={comparedJobs.map((j) => {
+                        const date = new Date(j.created_at);
+                        return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+                      })}
+                    />
+                    <CompareRow label="Bookmarked" values={comparedJobs.map((j) => j.bookmarked ? "Yes" : "No")} />
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Description comparison */}
+              <div className="pt-4 border-t border-surface-200 dark:border-surface-700">
+                <h5 className="font-medium text-surface-800 dark:text-surface-200 mb-3">Descriptions</h5>
+                <div className={`grid gap-4 ${comparedJobs.length === 2 ? "grid-cols-2" : "grid-cols-3"}`}>
+                  {comparedJobs.map((job) => (
+                    <div
+                      key={job.id}
+                      className="p-3 bg-surface-50 dark:bg-surface-700 rounded-lg text-xs text-surface-600 dark:text-surface-400 max-h-40 overflow-y-auto"
+                    >
+                      {job.description || "No description available"}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <ModalFooter>
+                <Button variant="secondary" onClick={() => setCompareModalOpen(false)}>
+                  Close
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </div>
+      </Modal>
     </div>
+  );
+}
+
+// Comparison table row component
+function CompareRow({ label, values }: { label: string; values: string[] }) {
+  return (
+    <tr>
+      <td className="py-2 pr-4 font-medium text-surface-700 dark:text-surface-300 whitespace-nowrap">
+        {label}
+      </td>
+      {values.map((value, idx) => (
+        <td key={idx} className="py-2 px-2 text-surface-600 dark:text-surface-400">
+          {value}
+        </td>
+      ))}
+    </tr>
   );
 }
 
@@ -1802,6 +1929,14 @@ function CheckCircleIcon({ className = "" }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+  );
+}
+
+function CompareIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
     </svg>
   );
 }
