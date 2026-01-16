@@ -183,6 +183,9 @@
   .status-dot-idle {
     @apply status-dot bg-surface-300;
   }
+  .status-dot-auto {
+    @apply status-dot bg-green-500;
+  }
 }
 
 @layer utilities {

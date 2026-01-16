@@ -124,6 +124,7 @@ fn main() {
                         country: "US".to_string(),
                     },
                     salary_floor_usd: 0,
+                    auto_refresh: Default::default(),
                     immediate_alert_threshold: 0.9,
                     scraping_interval_hours: 2,
                     alerts: Default::default(),

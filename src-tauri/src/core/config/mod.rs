@@ -29,6 +29,10 @@ pub struct Config {
     /// Minimum salary in USD
     pub salary_floor_usd: i64,
 
+    /// Auto-refresh configuration
+    #[serde(default)]
+    pub auto_refresh: AutoRefreshConfig,
+
     /// Immediate alert threshold (0.0 - 1.0)
     #[serde(default = "default_immediate_threshold")]
     pub immediate_alert_threshold: f64,
@@ -87,6 +91,22 @@ pub struct LocationPreferences {
 
 fn default_country() -> String {
     "US".to_string()
+}
+
+/// Auto-refresh configuration for the frontend
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct AutoRefreshConfig {
+    /// Enable automatic job refresh
+    #[serde(default)]
+    pub enabled: bool,
+
+    /// Refresh interval in minutes (default: 30)
+    #[serde(default = "default_auto_refresh_interval")]
+    pub interval_minutes: u32,
+}
+
+fn default_auto_refresh_interval() -> u32 {
+    30
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]

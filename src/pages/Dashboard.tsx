@@ -107,6 +107,10 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
   });
   const [saveSearchModalOpen, setSaveSearchModalOpen] = useState(false);
   const [newSearchName, setNewSearchName] = useState("");
+  // Auto-refresh state
+  const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(false);
+  const [autoRefreshInterval, setAutoRefreshInterval] = useState(30); // minutes
+  const [nextRefreshTime, setNextRefreshTime] = useState<Date | null>(null);
   const toast = useToast();
   const { pushAction } = useUndo();
 
@@ -217,6 +221,11 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
     }
   }, [selectedIndex, isKeyboardActive]);
 
+  interface AutoRefreshConfig {
+    enabled: boolean;
+    interval_minutes: number;
+  }
+
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
@@ -232,6 +241,17 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
       setJobs(jobsData);
       setStatistics(statsData);
       setScrapingStatus(statusData);
+
+      // Load auto-refresh config
+      try {
+        const config = await cachedInvoke<{ auto_refresh?: AutoRefreshConfig }>("get_config", undefined, 60_000);
+        if (config?.auto_refresh) {
+          setAutoRefreshEnabled(config.auto_refresh.enabled);
+          setAutoRefreshInterval(config.auto_refresh.interval_minutes || 30);
+        }
+      } catch {
+        // Config might not have auto_refresh yet, use defaults
+      }
     } catch (err) {
       logError("Failed to fetch dashboard data:", err);
       setError(getErrorMessage(err));
@@ -244,11 +264,85 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
     fetchData();
   }, [fetchData]);
 
-  // Only refresh once after initial load (30 seconds) to catch background scraping results
-  // No continuous polling - user can click "Search Now" to refresh manually
+  // Countdown display update effect - refreshes every second when auto-refresh is enabled
+  const [, setCountdownTick] = useState(0);
   useEffect(() => {
+    if (!autoRefreshEnabled || !nextRefreshTime) return;
+
+    const tickInterval = setInterval(() => {
+      setCountdownTick((t) => t + 1);
+    }, 1000);
+
+    return () => clearInterval(tickInterval);
+  }, [autoRefreshEnabled, nextRefreshTime]);
+
+  // Auto-refresh effect - runs at configured interval when enabled
+  useEffect(() => {
+    if (!autoRefreshEnabled || searching) {
+      setNextRefreshTime(null);
+      return;
+    }
+
+    const intervalMs = autoRefreshInterval * 60 * 1000;
+
+    // Set initial next refresh time
+    setNextRefreshTime(new Date(Date.now() + intervalMs));
+
+    const performAutoRefresh = async () => {
+      // Don't refresh if currently searching or settings modal is open
+      if (searching || showSettings) {
+        setNextRefreshTime(new Date(Date.now() + intervalMs));
+        return;
+      }
+
+      try {
+        toast.info("Auto-refreshing...", "Scanning for new jobs");
+        await invoke("search_jobs");
+
+        // Invalidate cache after mutation
+        invalidateCacheByCommand("get_recent_jobs");
+        invalidateCacheByCommand("get_statistics");
+        invalidateCacheByCommand("get_scraping_status");
+
+        // Fetch fresh data
+        const [jobsData, statsData, statusData] = await Promise.all([
+          invoke<Job[]>("get_recent_jobs", { limit: 50 }),
+          invoke<Statistics>("get_statistics"),
+          invoke<ScrapingStatus>("get_scraping_status"),
+        ]);
+
+        setJobs(jobsData);
+        setStatistics(statsData);
+        setScrapingStatus(statusData);
+
+        // Check for new high matches
+        if (statsData.high_matches > statistics.high_matches) {
+          const newCount = statsData.high_matches - statistics.high_matches;
+          toast.success("New matches found!", `${newCount} new high-match jobs`);
+          notifyScrapingComplete(jobsData.length, newCount);
+        }
+      } catch (err) {
+        logError("Auto-refresh failed:", err);
+        // Silent fail for auto-refresh - don't show error toast
+      }
+
+      // Schedule next refresh
+      setNextRefreshTime(new Date(Date.now() + intervalMs));
+    };
+
+    const intervalId = setInterval(performAutoRefresh, intervalMs);
+
+    return () => {
+      clearInterval(intervalId);
+      setNextRefreshTime(null);
+    };
+  }, [autoRefreshEnabled, autoRefreshInterval, searching, showSettings, statistics.high_matches, toast]);
+
+  // One-time fallback refresh for initial load (if no auto-refresh and no jobs)
+  useEffect(() => {
+    if (autoRefreshEnabled) return; // Skip if auto-refresh is handling it
+
     const initialRefresh = setTimeout(() => {
-      // Only refresh if we have no jobs yet (background scrape may have finished)
       if (jobs.length === 0) {
         fetchData();
       }
@@ -258,7 +352,7 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
       clearTimeout(initialRefresh);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally run once on mount
-  }, []);
+  }, [autoRefreshEnabled]);
 
   // Cooldown state for search button to prevent rapid repeated clicks
   const [searchCooldown, setSearchCooldown] = useState(false);
@@ -633,6 +727,25 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
     });
   };
 
+  const formatTimeUntil = (date: Date) => {
+    const now = Date.now();
+    const diff = date.getTime() - now;
+    if (diff <= 0) return "now";
+
+    const minutes = Math.floor(diff / 60000);
+    const seconds = Math.floor((diff % 60000) / 1000);
+
+    if (minutes >= 60) {
+      const hours = Math.floor(minutes / 60);
+      const mins = minutes % 60;
+      return `${hours}h ${mins}m`;
+    }
+    if (minutes > 0) {
+      return `${minutes}m ${seconds}s`;
+    }
+    return `${seconds}s`;
+  };
+
   if (loading) {
     return <LoadingSpinner message="Scanning job boards..." />;
   }
@@ -661,11 +774,31 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
             {/* Actions */}
             <div className="flex items-center gap-3">
               {/* Status indicator */}
-              <Tooltip content={scrapingStatus.is_running ? "Currently scanning job boards" : "Ready to scan"} position="bottom">
+              <Tooltip
+                content={
+                  scrapingStatus.is_running
+                    ? "Currently scanning job boards"
+                    : autoRefreshEnabled && nextRefreshTime
+                      ? `Auto-refresh in ${formatTimeUntil(nextRefreshTime)}`
+                      : "Ready to scan"
+                }
+                position="bottom"
+              >
                 <div className="flex items-center gap-2 px-3 py-1.5 bg-surface-50 dark:bg-surface-700 rounded-lg">
-                  <div className={scrapingStatus.is_running ? "status-dot-active" : "status-dot-idle"} />
+                  <div className={
+                    scrapingStatus.is_running
+                      ? "status-dot-active"
+                      : autoRefreshEnabled
+                        ? "status-dot-auto"
+                        : "status-dot-idle"
+                  } />
                   <span className="text-sm text-surface-600 dark:text-surface-300">
-                    {scrapingStatus.is_running ? "Scanning..." : "Idle"}
+                    {scrapingStatus.is_running
+                      ? "Scanning..."
+                      : autoRefreshEnabled && nextRefreshTime
+                        ? formatTimeUntil(nextRefreshTime)
+                        : "Idle"
+                    }
                   </span>
                 </div>
               </Tooltip>
@@ -708,6 +841,8 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
         >
           <Settings onClose={() => {
             setShowSettings(false);
+            // Invalidate config cache to pick up new settings (like auto-refresh)
+            invalidateCacheByCommand("get_config");
             fetchData(); // Refresh data after settings change
           }} />
         </ModalErrorBoundary>
