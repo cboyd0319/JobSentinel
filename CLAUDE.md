@@ -198,6 +198,17 @@ npm run tauri:build      # Production build
 - Use SQLx parameterized queries (never string concatenation)
 - Run `cargo clippy` before committing
 
+### Database Schema Changes (NO MIGRATIONS)
+
+**IMPORTANT: No users exist yet. v2.1.0 is the first official release.**
+
+- **DO NOT** create incremental migrations for schema changes
+- **DO** modify the schema files directly (consolidate into base migrations)
+- **DO NOT** worry about backward compatibility until v2.1.0
+- **DELETE** migration files when consolidating - no one has data to preserve
+
+This saves significant development time. When we approach v2.1.0, we'll freeze the schema and start proper migrations from that baseline.
+
 ### TypeScript
 - Strict mode enabled
 - Use React hooks correctly

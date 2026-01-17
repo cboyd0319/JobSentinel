@@ -1,6 +1,6 @@
 # JobSentinel Roadmap
 
-**Last Updated:** January 16, 2026
+**Last Updated:** January 17, 2026
 
 ## Current Version: 1.4.0
 
@@ -155,6 +155,28 @@ Automated application submission.
 - Form field detection and filling
 - Requires explicit user consent
 - Legal review needed for ToS compliance
+
+---
+
+## Development Policy: No Backward Compatibility (Pre-v2.1.0)
+
+**v2.1.0 is the first official public release. No users exist before that.**
+
+### What This Means:
+- **NO incremental migrations** - Modify schema files directly
+- **NO backward compatibility work** - No one has data to preserve
+- **DELETE/consolidate migrations** when refactoring schema
+- **Focus on features** - Don't waste time on migration infrastructure
+
+### Schema Change Process (Pre-v2.1.0):
+1. Edit the existing migration file directly (or create new consolidated file)
+2. Delete database and run `cargo sqlx database reset` if needed
+3. No need for "up" and "down" migrations
+
+### When Migrations Start:
+- v2.1.0 will freeze the schema baseline
+- All migrations from that point forward will be incremental
+- Users upgrading from v2.1.0+ will have proper migration support
 
 ---
 

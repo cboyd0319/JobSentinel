@@ -8,6 +8,31 @@
 **v2.0.0 - Production Release** (16-22 weeks)
 - Keyring, CI/CD, Packaging, Resume Builder, One-Click Apply
 
+**v2.1.0 - First Official Release** (TBD)
+- Schema freeze, proper migration baseline, public release
+
+---
+
+## CRITICAL: No Backward Compatibility (Pre-v2.1.0)
+
+**No users exist yet. v2.1.0 is the first official release.**
+
+### Development Rules:
+1. **NO incremental migrations** - Modify schema files directly
+2. **NO backward compatibility** - No one has data to preserve
+3. **DELETE old migrations** when consolidating schema
+4. **CONSOLIDATE schemas** - Keep migration count minimal
+
+### Why This Matters:
+- Building migrations for non-existent users wastes development time
+- Each migration adds complexity and test burden
+- We can freely restructure tables without worrying about data loss
+
+### When to Start Migrations:
+- Only after v2.1.0 schema freeze
+- That becomes the baseline for all future migrations
+- Users upgrading from v2.1.0+ will have proper migration support
+
 ---
 
 # Part 1: v1.4.0 - Existing Feature Improvements
@@ -152,26 +177,27 @@ Applied: 50 | Interviews: 5 (10%) | Offers: 1 (2%)
 
 ---
 
-## E3: Backend Persistence (localStorage → SQLite)
+## E3: Backend Persistence (localStorage → SQLite) - COMPLETE
 
 **Goal:** Move user data from localStorage to database for persistence across reinstalls.
 
-### Migration Targets
+**Status:** COMPLETE - All tables added to schema, Rust module created, frontend updated.
 
-| Data | Current Storage | New Storage |
-|------|-----------------|-------------|
-| Cover Letter Templates | `jobsentinel_cover_letter_templates` | `cover_letter_templates` table |
-| Interview Prep Checklists | `jobsentinel_interview_prep_{id}` | `interview_prep_checklists` table |
-| Saved Searches | `jobsentinel_saved_searches` | `saved_searches` table (no 10-item cap) |
-| Notification Preferences | `jobsentinel_notification_preferences` | `notification_preferences` table |
+### Data Moved to SQLite
 
-### Files to Create
-- `src-tauri/migrations/20260117000001_add_cover_letter_templates.sql`
-- `src-tauri/migrations/20260117000002_add_interview_prep_checklists.sql`
-- `src-tauri/migrations/20260117000003_add_saved_searches.sql`
-- `src-tauri/migrations/20260117000004_add_notification_preferences.sql`
-- `src-tauri/src/core/user_data/mod.rs` - UserDataManager
+| Data | New Storage |
+|------|-------------|
+| Cover Letter Templates | `cover_letter_templates` table |
+| Interview Prep Checklists | `interview_prep_checklists` table |
+| Saved Searches | `saved_searches` table (no 10-item cap) |
+| Search History | `search_history` table (unlimited) |
+| Notification Preferences | `notification_preferences` table |
+
+### Files Created
+- `src-tauri/src/core/user_data/mod.rs` - UserDataManager with 20 commands
 - `src/utils/localStorageMigration.ts` - One-time migration utility
+
+**Note:** Schema changes added directly to migration files. No incremental migrations needed (see "No Backward Compatibility" section above).
 
 ### Files to Modify
 - `src-tauri/src/commands/mod.rs` - Add 14 new commands
