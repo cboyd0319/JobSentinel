@@ -2,13 +2,13 @@
 
 ## Project Status
 
-**Version 1.0.0-alpha** (January 2026)
+**Version 1.3.1** (January 2026)
 
 | Component | Status |
 |-----------|--------|
 | Core modules (config, db, scoring, scrapers, scheduler, notify) | Working |
 | Frontend (React 19 + TypeScript) | Working |
-| Tests | 291 passing, 20 ignored |
+| Tests | 2008 passing, 20 ignored |
 
 ---
 
@@ -124,10 +124,10 @@ All core functionality is in `src-tauri/src/core/` and works identically on all 
 
 - **config**: JSON-based user preferences
 - **db**: SQLite database with async support
-- **scrapers**: Job board scraping (Greenhouse, Lever, JobsWithGPT)
+- **scrapers**: 13 job board scrapers with parallel execution
 - **scoring**: Multi-factor scoring algorithm
-- **notify**: Slack notifications
-- **scheduler**: Periodic job scraping
+- **notify**: Multi-channel notifications (Slack, Discord, Teams, Email, Desktop)
+- **scheduler**: Periodic job scraping with configurable interval
 
 ### Platform-Specific Code
 

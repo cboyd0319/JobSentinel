@@ -22,7 +22,7 @@
 ```
 JobSentinel/
 ├── src/                    # React frontend
-│   ├── components/        # UI components (JobCard, CommandPalette, etc.)
+│   ├── components/        # UI components (36 components)
 │   ├── contexts/          # React contexts (KeyboardShortcuts)
 │   ├── hooks/             # Custom hooks (useKeyboardNavigation)
 │   ├── pages/             # Page components (Dashboard, Applications, etc.)
@@ -33,13 +33,13 @@ JobSentinel/
 │   │   │   ├── ats/       # Application Tracking (ENABLED)
 │   │   │   ├── config/    # Configuration
 │   │   │   ├── db/        # Database layer
-│   │   │   ├── notify/    # Notifications (Slack, Discord, Teams, Email)
-│   │   │   ├── scheduler/ # Job scheduling
+│   │   │   ├── notify/    # Notifications (Slack, Discord, Teams, Email, Telegram)
+│   │   │   ├── scheduler/ # Job scheduling with auto-refresh
 │   │   │   ├── scoring/   # Job scoring algorithm
-│   │   │   └── scrapers/  # 10 job board scrapers
-│   │   ├── commands/      # Tauri RPC handlers (38 commands)
-│   │   └── platforms/     # Platform-specific code
-│   └── migrations/        # SQLite migrations
+│   │   │   └── scrapers/  # 13 job board scrapers with parallel scraping
+│   │   ├── commands/      # Tauri RPC handlers (47 commands)
+│   │   └── platforms/     # Platform-specific code (Windows, macOS, Linux)
+│   └── migrations/        # SQLite migrations (13 migrations)
 └── docs/                  # Documentation
 ```
 
@@ -48,7 +48,7 @@ JobSentinel/
 ### Working Modules
 All core modules are enabled and functional:
 - config, db, notify, scheduler, scoring
-- scrapers (10 sources: Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT)
+- scrapers (13 sources: Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, ZipRecruiter)
 - ats (Application Tracking System with interview scheduler)
 - resume (AI Resume-Job Matcher)
 - salary (Salary Prediction AI)
@@ -67,15 +67,16 @@ All core modules are enabled and functional:
 - automation (One-Click Apply - requires legal review)
 
 ### Test Status
-- 290 tests passing, 20 ignored
+- 2008 tests passing, 20 ignored
 - Ignored tests require file-based database or are doc-tests for example code
 
-### Tauri Commands (38 total)
-- Core: 14 commands (jobs, config, search, statistics)
-- ATS: 7 commands (applications, reminders, ghosting)
+### Tauri Commands (47 total)
+- Core: 18 commands (jobs, config, search, statistics, scraping)
+- ATS: 10 commands (applications, reminders, ghosting, interviews)
 - Resume: 6 commands (upload, match, skills)
 - Salary: 4 commands (predict, benchmark, negotiate, compare)
 - Market: 5 commands (trends, companies, locations, alerts)
+- Setup: 4 commands (wizard, first run, profiles)
 
 ## Development Commands
 
@@ -114,10 +115,10 @@ npm run tauri:build      # Production build
 
 - `src-tauri/src/core/mod.rs` - Module registry (controls enabled features)
 - `src-tauri/src/core/db/mod.rs` - Database layer with Job struct
-- `src-tauri/src/core/scrapers/mod.rs` - Scraper registry (10 sources)
-- `src-tauri/src/commands/mod.rs` - Tauri command handlers (38 commands)
+- `src-tauri/src/core/scrapers/mod.rs` - Scraper registry (13 sources) with parallel scraping
+- `src-tauri/src/commands/mod.rs` - Tauri command handlers (47 commands)
 - `src/pages/Dashboard.tsx` - Main dashboard with search and job list
-- `src/components/` - UI component library
+- `src/components/` - UI component library (36 components)
 - `src/contexts/KeyboardShortcutsContext.tsx` - Keyboard navigation
 - `config.example.json` - Example configuration
 

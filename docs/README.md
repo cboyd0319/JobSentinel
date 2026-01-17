@@ -4,10 +4,10 @@ Welcome to JobSentinel documentation.
 
 ## Current Status (January 2026)
 
-**Version: 1.3.0** | 290 tests passing, 20 ignored | Full-featured release
+**Version: 1.3.0** | 2008 tests passing, 20 ignored | Full-featured release
 
 ### Working Features
-- **10 Job scrapers**: Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT
+- **13 Job scrapers**: Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, ZipRecruiter
 - Application Tracking System (ATS) with Kanban board + interview scheduler
 - AI Resume-Job Matcher with PDF parsing
 - Salary AI with negotiation insights
@@ -24,11 +24,12 @@ Welcome to JobSentinel documentation.
 - React 19 frontend with virtual lists and error boundaries
 
 ### All Backend Modules Enabled
-- Core: config, db, scoring, scheduler, scrapers (10), notify
-- ATS: 7 Tauri commands (Kanban, reminders, ghosting detection)
+- Core: config, db, scoring, scheduler, scrapers (13 with parallel scraping), notify
+- ATS: 10 Tauri commands (Kanban, reminders, ghosting detection, interviews)
 - Resume Matcher: 6 Tauri commands (upload, match, skills)
 - Salary AI: 4 Tauri commands (predict, benchmark, negotiate, compare)
 - Market Intelligence: 5 Tauri commands (trends, companies, locations, alerts)
+- Total: 47 Tauri commands
 
 ### Deferred Features (v2.0+)
 - One-Click Apply Automation (legal review required)
@@ -104,4 +105,4 @@ docs/
 
 ---
 
-**Last Updated:** January 17, 2026
+**Last Updated:** January 16, 2026

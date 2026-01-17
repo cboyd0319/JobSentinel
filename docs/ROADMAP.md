@@ -1,11 +1,11 @@
 # JobSentinel Roadmap
 
-**Last Updated:** January 17, 2026
+**Last Updated:** January 16, 2026
 
-## Current Version: 1.3.0
+## Current Version: 1.3.1
 
-### Working Features (v1.3)
-- **10 Job scrapers**: Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT
+### Working Features (v1.3.1)
+- **13 Job scrapers**: Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, ZipRecruiter
 - Application Tracking System (ATS): Kanban board, reminders, timeline, ghosting detection
 - Interview Scheduler: iCal export, prep checklists, follow-up reminders
 - AI Resume-Job Matcher: PDF parsing, skill extraction, matching
@@ -130,10 +130,10 @@ Automated application submission.
 ### Code Quality
 - All Rust code compiles with 0 errors
 - Clippy passes with 0 warnings (`-D warnings`)
-- 290 tests passing, 20 ignored (require file-based database or are doc examples)
+- 2008 tests passing, 20 ignored (require file-based database or are doc examples)
 - All modules enabled and functional
-- 38 Tauri commands for backend modules
-- 10 job board scrapers implemented
+- 47 Tauri commands for backend modules
+- 13 job board scrapers with parallel execution
 
 ### Resolved Technical Debt
 - [x] SQLite MEDIAN() - computed in Rust instead

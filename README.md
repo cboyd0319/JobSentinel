@@ -12,16 +12,16 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Windows_11+-0078D6?style=for-the-badge&logo=windows&logoColor=white" alt="Windows 11+">
-  <img src="https://img.shields.io/badge/macOS_26.2+-000000?style=for-the-badge&logo=apple&logoColor=white" alt="macOS 26.2+">
+  <img src="https://img.shields.io/badge/macOS_14+-000000?style=for-the-badge&logo=apple&logoColor=white" alt="macOS 14+">
   <img src="https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black" alt="Linux">
 </p>
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg?style=flat-square" alt="License"></a>
   <a href="https://www.rust-lang.org/"><img src="https://img.shields.io/badge/Rust-1.83%2B-orange.svg?style=flat-square" alt="Rust"></a>
-  <a href="https://tauri.app/"><img src="https://img.shields.io/badge/Tauri-2.1-blue.svg?style=flat-square" alt="Tauri"></a>
+  <a href="https://tauri.app/"><img src="https://img.shields.io/badge/Tauri-2.x-blue.svg?style=flat-square" alt="Tauri"></a>
   <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-19-61dafb.svg?style=flat-square" alt="React"></a>
-  <img src="https://img.shields.io/badge/Tests-290%20passing-brightgreen.svg?style=flat-square" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-2008%20passing-brightgreen.svg?style=flat-square" alt="Tests">
   <img src="https://img.shields.io/badge/Vulnerabilities-0-brightgreen.svg?style=flat-square" alt="Security">
 </p>
 
@@ -72,12 +72,12 @@
 | 🎨 **Frontend** | ✅ Working | React 19 + TypeScript + TailwindCSS |
 | 🖥️ **Desktop App** | ✅ Working | Tauri 2.1 integration |
 | 🔐 **Security** | ✅ **0 vulnerabilities** | cargo-audit verified |
-| ✅ **Test Coverage** | ✅ **290 passing** | 20 ignored (require file-based DB) |
+| ✅ **Test Coverage** | ✅ **2008 passing** | 20 ignored (require file-based DB) |
 
-### Job Sources (10 Working)
+### Job Sources (13 Working)
 - **Greenhouse** - Many tech companies use this ATS
 - **Lever** - Popular with startups
-- **JobsWithGPT** - Aggregates from multiple sources
+- **JobsWithGPT** - AI-powered job aggregator
 - **LinkedIn** - Requires session cookie (li_at) - configurable in Settings
 - **Indeed** - Query-based search - configurable in Settings
 - **RemoteOK** - Remote-only jobs via JSON API
@@ -85,6 +85,9 @@
 - **WeWorkRemotely** - Remote jobs via RSS feed
 - **BuiltIn** - City-specific tech jobs (NYC, LA, Chicago, etc.)
 - **HN Who's Hiring** - Monthly Hacker News hiring threads
+- **Dice** - Tech-focused job board
+- **YC Startup Jobs** - Y Combinator company jobs
+- **ZipRecruiter** - Broad job aggregator
 
 ---
 
@@ -95,7 +98,7 @@
 </div>
 
 **JobSentinel** is a desktop app that automatically:
-1. **🔍 Scans** 10 job boards (Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT) every 2 hours
+1. **🔍 Scans** 13 job boards (Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, ZipRecruiter) every 2 hours
 2. **🧠 Matches** jobs to your preferences using AI scoring
 3. **📢 Alerts** you on Slack/Discord/Teams/Desktop/Email when great matches appear (90%+ score)
 
@@ -122,9 +125,9 @@ npm install
 npm run tauri:build
 ```
 
-### macOS 26.2+ (Planned for v2.0)
+### macOS 14+ (Sonoma/Sequoia)
 
-macOS support is planned for v2.0. Development is currently done on macOS.
+macOS builds work and are used for development. Official `.dmg` installers planned for v2.0.
 
 ### Linux (Planned for v2.0)
 
@@ -138,7 +141,7 @@ Linux support (.deb, .rpm, .AppImage) is planned for v2.0.
 
 | Feature | Description |
 |---------|-------------|
-| 🌐 **10 Job Boards** | Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT |
+| 🌐 **13 Job Boards** | Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, ZipRecruiter |
 | 📋 **Application Tracking** | Kanban board, status pipeline, automated reminders, interview scheduler |
 | 🤖 **AI Resume Matcher** | PDF parsing, skill extraction, job-resume scoring |
 | 💰 **Salary AI** | H1B-based predictions, offer comparison, negotiation insights |
@@ -187,7 +190,7 @@ Linux support (.deb, .rpm, .AppImage) is planned for v2.0.
 | **Frontend** | React 19 + Vite + TailwindCSS | Modern, responsive UI |
 | **Backend** | Rust + Tokio | Async job scraping, scoring, notifications |
 | **Database** | SQLite (SQLx) | Local job storage |
-| **Desktop** | Tauri 2.1 | Cross-platform desktop framework |
+| **Desktop** | Tauri 2.x | Cross-platform desktop framework |
 | **HTTP** | reqwest + scraper | Job board scraping |
 | **Notifications** | Slack, Discord, Teams, Desktop | Immediate alerts |
 
@@ -206,7 +209,7 @@ JobSentinel/
 │   │   │   └── scheduler/   # Job search scheduling
 │   │   ├── platforms/       # Platform-specific code
 │   │   │   ├── windows/     # Windows 11+ (v1.0)
-│   │   │   ├── macos/       # macOS 26.2+ (v2.1+)
+│   │   │   ├── macos/       # macOS 14+ (v2.1+)
 │   │   │   └── linux/       # Linux (v2.1+)
 │   │   ├── cloud/           # Cloud deployment (v3.0+)
 │   │   │   ├── gcp/         # Google Cloud Platform
@@ -374,7 +377,7 @@ A: Yes! 100% free, forever. No subscriptions, no hidden costs, no premium tiers.
 A: No! JobSentinel runs entirely on your local machine. No account, no login, no cloud sync. Your data stays private.
 
 **Q: What job boards does it support?**
-A: Currently 10 job boards: Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, and JobsWithGPT (covering 1M+ job listings).
+A: Currently 13 job boards: Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, and ZipRecruiter (covering 1M+ job listings).
 
 **Q: Can I use this for non-tech jobs?**
 A: Absolutely! While designed for tech roles, JobSentinel works for any jobs posted on Greenhouse, Lever, or JobsWithGPT.
@@ -441,7 +444,7 @@ A: No! JobSentinel is a single-file installer. No dependencies, no setup. Just d
 **Q: What's the system requirements?**
 A: Minimal:
 - **Windows:** Windows 11+, 8MB disk, no admin rights
-- **macOS:** macOS 26.2+ (Tahoe), 8MB disk, no admin rights
+- **macOS:** macOS 14+ (Sonoma/Sequoia), 8MB disk, no admin rights
 
 **Q: Can I run multiple instances?**
 A: Not recommended. One instance per user is optimal to avoid duplicate notifications and database conflicts.
@@ -562,7 +565,7 @@ Quick-start templates for common roles:
 
 ## 🤝 Contributing
 
-We're not accepting contributions yet while v2.0 is in alpha. Check back in Q2 2025!
+Contributions are welcome! See our [Contributing Guide](docs/developer/CONTRIBUTING.md) for details.
 
 ---
 

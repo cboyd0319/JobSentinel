@@ -8,12 +8,12 @@
 
 ## Current Status
 
-**Version 1.0.0-alpha** (January 2026)
+**Version 1.3.1** (January 2026)
 
 - Windows 11+ is the primary target platform
-- macOS 26.2+ and Linux support planned for v2.0
-- All core features working (scrapers, scoring, notifications)
-- 291 tests passing
+- macOS 14+ (Sonoma/Sequoia) and Linux support planned for v2.0
+- All core features working (13 scrapers, scoring, multi-channel notifications)
+- 2008 tests passing
 
 ---
 
@@ -390,7 +390,7 @@ JobSentinel is designed with **security-first principles**:
 1. Check this guide and the [Developer Guide](../developer/GETTING_STARTED.md)
 2. Search existing [GitHub Issues](https://github.com/cboyd0319/JobSentinel/issues)
 3. Create a new issue with:
-   - Your OS version (Windows 11+ or macOS 26.1+)
+   - Your OS version (Windows 11+ or macOS 14+)
    - JobSentinel version
    - Steps to reproduce the problem
    - Relevant error messages (run with `RUST_LOG=debug`)

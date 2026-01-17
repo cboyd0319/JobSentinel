@@ -501,6 +501,6 @@ pub struct GreenhouseScraper { ... }
 
 ---
 
-**Last Updated**: January 17, 2026
-**Version**: 1.3
+**Last Updated**: January 16, 2026
+**Version**: 1.3.1
 **Maintained By**: The Rust Mac Overlord 🦀

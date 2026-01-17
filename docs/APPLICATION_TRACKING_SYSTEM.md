@@ -1,9 +1,9 @@
 # Application Tracking System (ATS)
 ## Kanban Board & Pipeline Management for JobSentinel
 
-> **Status:** WORKING - Module enabled in v1.0.0-alpha
+> **Status:** WORKING - Module enabled in v1.3.1
 > **Completion:** 100% core functionality
-> **Last Updated:** 2026-01-14
+> **Last Updated:** 2026-01-16
 > **Tests:** 4 tests (ignored - require file-based database setup)
 
 ---

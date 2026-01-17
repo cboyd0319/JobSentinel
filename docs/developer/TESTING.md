@@ -140,7 +140,7 @@ src-tauri/
 | `platforms/macos` | 6 | Paths + initialization |
 | `cloud/common` | 1 | Deployment mode detection |
 | **Integration Tests** | **12** | **Full pipeline** |
-| **Total** | **290 passing** | **20 ignored** |
+| **Total** | **2008 passing** | **20 ignored** |
 
 ---
 
@@ -505,6 +505,6 @@ fn test_example() {
 
 ---
 
-**Last Updated**: January 15, 2026
-**Test Count**: 290 passing, 20 ignored
+**Last Updated**: January 16, 2026
+**Test Count**: 2008 passing, 20 ignored
 **Maintained By**: The Rust Mac Overlord 🦀

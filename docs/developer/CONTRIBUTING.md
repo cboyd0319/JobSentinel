@@ -122,7 +122,7 @@ RUST_LOG=debug npm run tauri:dev
 
 # Test on target platforms
 # - Windows 11+
-# - macOS 26.1+ (Tahoe)
+# - macOS 14+ (Sonoma/Sequoia)
 ```
 
 ### 4. Commit Changes
@@ -283,7 +283,7 @@ cargo test -- --nocapture
 - [ ] Slack notifications send (if configured)
 - [ ] Dashboard displays jobs
 - [ ] Config file loads/saves correctly
-- [ ] App runs on Windows 11+ and macOS 26.1+
+- [ ] App runs on Windows 11+ and macOS 14+
 
 ---
 
@@ -331,7 +331,7 @@ Closes #123
 
 ## Testing
 - [ ] Tested on Windows 11
-- [ ] Tested on macOS 26.1 (Tahoe)
+- [ ] Tested on macOS 14+ (Sonoma/Sequoia)
 - [ ] All Rust tests pass
 - [ ] Manual testing completed
 
@@ -465,7 +465,7 @@ What should happen
 (if applicable)
 
 **Environment:**
- - OS: [e.g., Windows 11, macOS 26.1]
+ - OS: [e.g., Windows 11, macOS 15 Sequoia]
  - JobSentinel Version: [e.g., 1.0.0]
  - Error logs: (run with `RUST_LOG=debug`)
 
