@@ -61,13 +61,18 @@ pub fn get_client() -> &'static reqwest::Client {
             Ok(client) => client,
             Err(e) => {
                 // Log error and create minimal fallback client
-                tracing::error!("Failed to create optimized HTTP client: {}. Using fallback.", e);
+                tracing::error!(
+                    "Failed to create optimized HTTP client: {}. Using fallback.",
+                    e
+                );
                 reqwest::Client::builder()
                     .timeout(Duration::from_secs(DEFAULT_TIMEOUT_SECS))
                     .build()
                     .unwrap_or_else(|_| {
                         // Absolute fallback - default client with no customization
-                        tracing::error!("Fallback HTTP client creation also failed. Using default client.");
+                        tracing::error!(
+                            "Fallback HTTP client creation also failed. Using default client."
+                        );
                         reqwest::Client::new()
                     })
             }

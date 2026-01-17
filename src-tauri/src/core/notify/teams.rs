@@ -47,10 +47,7 @@ fn validate_webhook_url(url: &str) -> Result<()> {
 ///
 /// Uses the MessageCard format for compatibility with most Teams setups.
 /// Newer Adaptive Cards format could be added in the future.
-pub async fn send_teams_notification(
-    webhook_url: &str,
-    notification: &Notification,
-) -> Result<()> {
+pub async fn send_teams_notification(webhook_url: &str, notification: &Notification) -> Result<()> {
     // Validate webhook URL before sending
     validate_webhook_url(webhook_url)?;
 
@@ -185,7 +182,10 @@ pub async fn validate_webhook(webhook_url: &str) -> Result<bool> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::{db::Job, scoring::{JobScore, ScoreBreakdown}};
+    use crate::core::{
+        db::Job,
+        scoring::{JobScore, ScoreBreakdown},
+    };
     use chrono::Utc;
 
     fn create_test_notification() -> Notification {
@@ -212,10 +212,10 @@ mod tests {
                 immediate_alert_sent: false,
                 hidden: false,
                 bookmarked: false,
-            ghost_score: None,
-            ghost_reasons: None,
-            first_seen: None,
-            repost_count: 0,
+                ghost_score: None,
+                ghost_reasons: None,
+                first_seen: None,
+                repost_count: 0,
                 notes: None,
                 included_in_digest: false,
             },
@@ -242,14 +242,20 @@ mod tests {
     fn test_valid_office_com_webhook_url_passes() {
         let valid_url = "https://outlook.office.com/webhook/12345678-1234-1234-1234-123456789012@12345678-1234-1234-1234-123456789012/IncomingWebhook/abcdef/12345678-1234-1234-1234-123456789012";
         let result = validate_webhook_url(valid_url);
-        assert!(result.is_ok(), "Valid outlook.office.com webhook URL should pass validation");
+        assert!(
+            result.is_ok(),
+            "Valid outlook.office.com webhook URL should pass validation"
+        );
     }
 
     #[test]
     fn test_valid_office365_com_webhook_url_passes() {
         let valid_url = "https://outlook.office365.com/webhook/12345678-1234-1234-1234-123456789012@12345678-1234-1234-1234-123456789012/IncomingWebhook/abcdef/12345678-1234-1234-1234-123456789012";
         let result = validate_webhook_url(valid_url);
-        assert!(result.is_ok(), "Valid outlook.office365.com webhook URL should pass validation");
+        assert!(
+            result.is_ok(),
+            "Valid outlook.office365.com webhook URL should pass validation"
+        );
     }
 
     #[test]
@@ -257,7 +263,10 @@ mod tests {
         let invalid_url = "http://outlook.office.com/webhook/123/456";
         let result = validate_webhook_url(invalid_url);
         assert!(result.is_err(), "HTTP (not HTTPS) webhook should fail");
-        assert!(result.unwrap_err().to_string().contains("https://outlook.office"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("https://outlook.office"));
     }
 
     #[test]
@@ -319,7 +328,10 @@ mod tests {
             "0078D4"
         };
 
-        assert_eq!(theme_color, "FFA500", "Score of 85% should use orange color");
+        assert_eq!(
+            theme_color, "FFA500",
+            "Score of 85% should use orange color"
+        );
     }
 
     #[test]
@@ -336,13 +348,18 @@ mod tests {
             "0078D4"
         };
 
-        assert_eq!(theme_color, "0078D4", "Score of 75% should use Microsoft blue color");
+        assert_eq!(
+            theme_color, "0078D4",
+            "Score of 75% should use Microsoft blue color"
+        );
     }
 
     #[test]
     fn test_salary_formatting_with_range() {
         let notification = create_test_notification();
-        let salary_display = if let (Some(min), Some(max)) = (notification.job.salary_min, notification.job.salary_max) {
+        let salary_display = if let (Some(min), Some(max)) =
+            (notification.job.salary_min, notification.job.salary_max)
+        {
             format!("${},000 - ${},000", min / 1000, max / 1000)
         } else if let Some(min) = notification.job.salary_min {
             format!("${},000+", min / 1000)
@@ -358,7 +375,9 @@ mod tests {
         let mut notification = create_test_notification();
         notification.job.salary_max = None;
 
-        let salary_display = if let (Some(min), Some(_max)) = (notification.job.salary_min, notification.job.salary_max) {
+        let salary_display = if let (Some(min), Some(_max)) =
+            (notification.job.salary_min, notification.job.salary_max)
+        {
             format!("${},000 - ${},000", min / 1000, _max / 1000)
         } else if let Some(min) = notification.job.salary_min {
             format!("${},000+", min / 1000)
@@ -375,7 +394,9 @@ mod tests {
         notification.job.salary_min = None;
         notification.job.salary_max = None;
 
-        let salary_display = if let (Some(min), Some(max)) = (notification.job.salary_min, notification.job.salary_max) {
+        let salary_display = if let (Some(min), Some(max)) =
+            (notification.job.salary_min, notification.job.salary_max)
+        {
             format!("${},000 - ${},000", min / 1000, max / 1000)
         } else if let Some(min) = notification.job.salary_min {
             format!("${},000+", min / 1000)
@@ -395,7 +416,8 @@ mod tests {
 
     #[test]
     fn test_webhook_url_with_fragment_passes() {
-        let url = "https://outlook.office.com/webhook/12345678-1234-1234-1234-123456789012#fragment";
+        let url =
+            "https://outlook.office.com/webhook/12345678-1234-1234-1234-123456789012#fragment";
         let result = validate_webhook_url(url);
         assert!(result.is_ok(), "Webhook URL with fragment should pass");
     }
@@ -413,7 +435,10 @@ mod tests {
             "0078D4"
         };
 
-        assert_eq!(theme_color, "00FF00", "Score of exactly 90% should use green");
+        assert_eq!(
+            theme_color, "00FF00",
+            "Score of exactly 90% should use green"
+        );
     }
 
     #[test]
@@ -429,7 +454,10 @@ mod tests {
             "0078D4"
         };
 
-        assert_eq!(theme_color, "FFA500", "Score of exactly 80% should use orange");
+        assert_eq!(
+            theme_color, "FFA500",
+            "Score of exactly 80% should use orange"
+        );
     }
 
     #[test]
@@ -539,9 +567,7 @@ mod tests {
 
     #[test]
     fn test_salary_formatting_large_numbers() {
-        let test_cases = vec![
-            (Some(500000), Some(750000), "$500,000 - $750,000"),
-        ];
+        let test_cases = vec![(Some(500000), Some(750000), "$500,000 - $750,000")];
 
         for (min, max, expected) in test_cases {
             let salary_display = if let (Some(min_val), Some(max_val)) = (min, max) {
@@ -633,7 +659,10 @@ mod tests {
         // Verify top-level structure
         assert_eq!(payload["@type"], "MessageCard");
         assert_eq!(payload["@context"], "https://schema.org/extensions");
-        assert_eq!(payload["summary"], "New job alert: Senior Rust Engineer at Awesome Corp");
+        assert_eq!(
+            payload["summary"],
+            "New job alert: Senior Rust Engineer at Awesome Corp"
+        );
         assert_eq!(payload["themeColor"], "00FF00");
         assert_eq!(payload["title"], "🎯 High Match Job Alert (95% Match)");
 
@@ -656,15 +685,24 @@ mod tests {
         assert_eq!(facts[3]["value"], "95%");
 
         // Verify text/reasons
-        assert!(sections[0]["text"].as_str().unwrap().contains("Why this matches"));
-        assert!(sections[0]["text"].as_str().unwrap().contains("Title matches"));
+        assert!(sections[0]["text"]
+            .as_str()
+            .unwrap()
+            .contains("Why this matches"));
+        assert!(sections[0]["text"]
+            .as_str()
+            .unwrap()
+            .contains("Title matches"));
 
         // Verify actions
         let actions = payload["potentialAction"].as_array().unwrap();
         assert_eq!(actions.len(), 1);
         assert_eq!(actions[0]["@type"], "OpenUri");
         assert_eq!(actions[0]["name"], "View Full Job Posting");
-        assert_eq!(actions[0]["targets"][0]["uri"], "https://example.com/jobs/123");
+        assert_eq!(
+            actions[0]["targets"][0]["uri"],
+            "https://example.com/jobs/123"
+        );
     }
 
     #[test]
@@ -688,14 +726,23 @@ mod tests {
     #[test]
     fn test_message_card_summary_format() {
         let notification = create_test_notification();
-        let summary = format!("New job alert: {} at {}", notification.job.title, notification.job.company);
-        assert_eq!(summary, "New job alert: Senior Rust Engineer at Awesome Corp");
+        let summary = format!(
+            "New job alert: {} at {}",
+            notification.job.title, notification.job.company
+        );
+        assert_eq!(
+            summary,
+            "New job alert: Senior Rust Engineer at Awesome Corp"
+        );
     }
 
     #[test]
     fn test_message_card_title_format() {
         let notification = create_test_notification();
-        let title = format!("🎯 High Match Job Alert ({}% Match)", (notification.score.total * 100.0).round());
+        let title = format!(
+            "🎯 High Match Job Alert ({}% Match)",
+            (notification.score.total * 100.0).round()
+        );
         assert_eq!(title, "🎯 High Match Job Alert (95% Match)");
     }
 
@@ -777,7 +824,11 @@ mod tests {
     fn test_remote_job_display_true() {
         let notification = create_test_notification();
         assert_eq!(notification.job.remote, Some(true));
-        let remote_text = if notification.job.remote.unwrap_or(false) { "✅ Yes" } else { "❌ No" };
+        let remote_text = if notification.job.remote.unwrap_or(false) {
+            "✅ Yes"
+        } else {
+            "❌ No"
+        };
         assert_eq!(remote_text, "✅ Yes");
     }
 
@@ -785,7 +836,11 @@ mod tests {
     fn test_remote_job_display_false() {
         let mut notification = create_test_notification();
         notification.job.remote = Some(false);
-        let remote_text = if notification.job.remote.unwrap_or(false) { "✅ Yes" } else { "❌ No" };
+        let remote_text = if notification.job.remote.unwrap_or(false) {
+            "✅ Yes"
+        } else {
+            "❌ No"
+        };
         assert_eq!(remote_text, "❌ No");
     }
 
@@ -863,7 +918,10 @@ mod tests {
     fn test_webhook_url_trailing_slash() {
         let url = "https://outlook.office.com/webhook/12345678-1234-1234-1234-123456789012/";
         let result = validate_webhook_url(url);
-        assert!(result.is_ok(), "Webhook URL with trailing slash should pass");
+        assert!(
+            result.is_ok(),
+            "Webhook URL with trailing slash should pass"
+        );
     }
 
     #[test]
@@ -890,7 +948,8 @@ mod tests {
 
     #[test]
     fn test_activity_image_url() {
-        let image_url = "https://raw.githubusercontent.com/cboyd0319/JobSentinel/main/assets/icon.png";
+        let image_url =
+            "https://raw.githubusercontent.com/cboyd0319/JobSentinel/main/assets/icon.png";
         assert!(image_url.starts_with("https://"));
         assert!(image_url.contains("JobSentinel"));
     }
@@ -898,7 +957,10 @@ mod tests {
     #[test]
     fn test_message_card_text_formatting() {
         let notification = create_test_notification();
-        let text = format!("**Why this matches:**\n\n{}", notification.score.reasons.join("\n\n"));
+        let text = format!(
+            "**Why this matches:**\n\n{}",
+            notification.score.reasons.join("\n\n")
+        );
         assert!(text.starts_with("**Why this matches:**"));
         assert!(text.contains("\n\n"));
         assert!(text.contains("✓ Title matches"));
@@ -930,7 +992,10 @@ mod tests {
         assert_eq!(payload["@type"], "MessageCard");
         assert_eq!(payload["themeColor"], "00FF00");
         assert_eq!(payload["title"], "✅ JobSentinel Webhook Test");
-        assert!(payload["text"].as_str().unwrap().contains("configured correctly"));
+        assert!(payload["text"]
+            .as_str()
+            .unwrap()
+            .contains("configured correctly"));
     }
 
     #[test]
@@ -977,7 +1042,10 @@ mod tests {
         let url = "https://outlook.office.com/webhook";
         let result = validate_webhook_url(url);
         // Path is "/webhook" not "/webhook/" - validation requires /webhook/ prefix
-        assert!(result.is_err(), "Path /webhook without trailing content should fail");
+        assert!(
+            result.is_err(),
+            "Path /webhook without trailing content should fail"
+        );
     }
 
     #[test]
@@ -1131,7 +1199,10 @@ mod tests {
         let url = "https://outlook.office.com//webhook/123";
         let result = validate_webhook_url(url);
         // URL with double slash fails because path is "//webhook/123" not "/webhook/123"
-        assert!(result.is_err(), "Double slash in path should fail validation");
+        assert!(
+            result.is_err(),
+            "Double slash in path should fail validation"
+        );
     }
 
     #[test]
@@ -1172,7 +1243,11 @@ mod tests {
             } else {
                 "0078D4"
             };
-            assert_eq!(color, expected, "Score {} should map to color {}", score, expected);
+            assert_eq!(
+                color, expected,
+                "Score {} should map to color {}",
+                score, expected
+            );
         }
     }
 
@@ -1235,8 +1310,14 @@ mod tests {
         notification.job.title = "Senior Engineer (Rust/C++)".to_string();
         notification.job.company = "Company & Co.".to_string();
 
-        let summary = format!("New job alert: {} at {}", notification.job.title, notification.job.company);
-        assert_eq!(summary, "New job alert: Senior Engineer (Rust/C++) at Company & Co.");
+        let summary = format!(
+            "New job alert: {} at {}",
+            notification.job.title, notification.job.company
+        );
+        assert_eq!(
+            summary,
+            "New job alert: Senior Engineer (Rust/C++) at Company & Co."
+        );
     }
 
     #[test]
@@ -1254,8 +1335,13 @@ mod tests {
             // Extract the numeric part from expected and compare with .0 suffix
             let expected_num = expected_suffix.trim_end_matches("% Match");
             let actual_num_str = format!("{}", rounded_score);
-            assert!(actual_num_str.starts_with(expected_num),
-                "Score {} should round to {} (got {})", score, expected_num, actual_num_str);
+            assert!(
+                actual_num_str.starts_with(expected_num),
+                "Score {} should round to {} (got {})",
+                score,
+                expected_num,
+                actual_num_str
+            );
         }
     }
 
@@ -1334,14 +1420,20 @@ mod tests {
         assert_eq!(payload["potentialAction"][0]["@type"], "OpenUri");
         assert_eq!(payload["potentialAction"][0]["name"], "Learn More");
         assert_eq!(payload["potentialAction"][0]["targets"][0]["os"], "default");
-        assert_eq!(payload["potentialAction"][0]["targets"][0]["uri"], "https://github.com/cboyd0319/JobSentinel");
+        assert_eq!(
+            payload["potentialAction"][0]["targets"][0]["uri"],
+            "https://github.com/cboyd0319/JobSentinel"
+        );
     }
 
     #[test]
     fn test_webhook_url_with_encoded_characters() {
         let url = "https://outlook.office.com/webhook/12345678%2D1234%2D1234%2D1234%2D123456789012";
         let result = validate_webhook_url(url);
-        assert!(result.is_ok(), "URL with percent-encoded characters should pass");
+        assert!(
+            result.is_ok(),
+            "URL with percent-encoded characters should pass"
+        );
     }
 
     #[test]
@@ -1353,7 +1445,11 @@ mod tests {
 
         for url in urls {
             let result = validate_webhook_url(url);
-            assert!(result.is_ok(), "Both office.com and office365.com should be valid: {}", url);
+            assert!(
+                result.is_ok(),
+                "Both office.com and office365.com should be valid: {}",
+                url
+            );
         }
     }
 
@@ -1434,7 +1530,10 @@ mod tests {
     fn test_webhook_validation_empty_path_after_webhook() {
         let url = "https://outlook.office.com/webhook/";
         let result = validate_webhook_url(url);
-        assert!(result.is_ok(), "URL with /webhook/ and trailing slash should pass");
+        assert!(
+            result.is_ok(),
+            "URL with /webhook/ and trailing slash should pass"
+        );
     }
 
     #[test]
@@ -1465,7 +1564,8 @@ mod tests {
 
     #[test]
     fn test_activity_image_url_format() {
-        let image_url = "https://raw.githubusercontent.com/cboyd0319/JobSentinel/main/assets/icon.png";
+        let image_url =
+            "https://raw.githubusercontent.com/cboyd0319/JobSentinel/main/assets/icon.png";
         assert!(image_url.starts_with("https://"));
         assert!(image_url.ends_with(".png"));
         assert!(image_url.contains("JobSentinel"));
@@ -1514,7 +1614,10 @@ mod tests {
     #[test]
     fn test_webhook_url_validation_error_messages_specificity() {
         let cases = vec![
-            ("http://outlook.office.com/webhook/123", "https://outlook.office"),
+            (
+                "http://outlook.office.com/webhook/123",
+                "https://outlook.office",
+            ),
             ("https://evil.com/webhook/123", "outlook.office"),
             ("https://outlook.office.com/badpath/123", "webhook"),
             ("not-a-url", "Invalid"),
@@ -1524,8 +1627,13 @@ mod tests {
             let result = validate_webhook_url(url);
             assert!(result.is_err());
             let error = result.unwrap_err().to_string();
-            assert!(error.contains(expected_substring),
-                "Error for '{}' should contain '{}', got: {}", url, expected_substring, error);
+            assert!(
+                error.contains(expected_substring),
+                "Error for '{}' should contain '{}', got: {}",
+                url,
+                expected_substring,
+                error
+            );
         }
     }
 

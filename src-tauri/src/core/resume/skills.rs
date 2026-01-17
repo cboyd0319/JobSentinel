@@ -361,10 +361,7 @@ mod tests {
         assert_eq!(postgres_skill.skill_category, Some("database".to_string()));
 
         let aws_skill = skills.iter().find(|s| s.skill_name == "AWS").unwrap();
-        assert_eq!(
-            aws_skill.skill_category,
-            Some("cloud_platform".to_string())
-        );
+        assert_eq!(aws_skill.skill_category, Some("cloud_platform".to_string()));
     }
 
     #[test]
@@ -393,10 +390,7 @@ mod tests {
         let resume_text = "Python Python Python JavaScript JavaScript";
         let skills = extractor.extract_skills(resume_text);
 
-        let python_count = skills
-            .iter()
-            .filter(|s| s.skill_name == "Python")
-            .count();
+        let python_count = skills.iter().filter(|s| s.skill_name == "Python").count();
         let js_count = skills
             .iter()
             .filter(|s| s.skill_name == "JavaScript")
@@ -461,7 +455,10 @@ mod tests {
         assert!(skill_names.contains(&"MongoDB".to_string()));
         assert!(skill_names.contains(&"Redis".to_string()));
 
-        let postgres_skill = skills.iter().find(|s| s.skill_name == "PostgreSQL").unwrap();
+        let postgres_skill = skills
+            .iter()
+            .find(|s| s.skill_name == "PostgreSQL")
+            .unwrap();
         assert_eq!(postgres_skill.skill_category, Some("database".to_string()));
     }
 
@@ -492,8 +489,14 @@ mod tests {
         assert!(skill_names.contains(&"Agile".to_string()));
         assert!(skill_names.contains(&"Scrum".to_string()));
 
-        let leadership_skill = skills.iter().find(|s| s.skill_name == "Leadership").unwrap();
-        assert_eq!(leadership_skill.skill_category, Some("soft_skill".to_string()));
+        let leadership_skill = skills
+            .iter()
+            .find(|s| s.skill_name == "Leadership")
+            .unwrap();
+        assert_eq!(
+            leadership_skill.skill_category,
+            Some("soft_skill".to_string())
+        );
     }
 
     #[test]
@@ -525,7 +528,11 @@ mod tests {
 
         // Should have lower confidence without "skills" section
         // Base (0.2) + frequency (0.3) + context without skills section (0.15) = 0.65
-        assert!(confidence >= 0.6 && confidence < 0.75, "Expected confidence between 0.6 and 0.75, got {}", confidence);
+        assert!(
+            confidence >= 0.6 && confidence < 0.75,
+            "Expected confidence between 0.6 and 0.75, got {}",
+            confidence
+        );
     }
 
     #[test]
@@ -642,9 +649,9 @@ mod tests {
         // C++, C#, etc. may not match due to regex escaping
         // At minimum, Node.js and .NET should be in the database
         assert!(
-            skill_names.contains(&"Node.js".to_string()) ||
-            skill_names.contains(&".NET".to_string()) ||
-            skill_names.len() > 0,
+            skill_names.contains(&"Node.js".to_string())
+                || skill_names.contains(&".NET".to_string())
+                || skill_names.len() > 0,
             "Should extract at least some skills from text with special characters"
         );
     }

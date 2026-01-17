@@ -90,9 +90,7 @@ impl WeWorkRemotelyScraper {
                 .map(|d| Self::strip_html_tags(&d));
 
             // Try to extract location from description
-            let location = description
-                .as_ref()
-                .and_then(|d| Self::extract_location(d));
+            let location = description.as_ref().and_then(|d| Self::extract_location(d));
 
             let hash = Self::compute_hash(&company, &job_title, location.as_deref(), &url);
 
@@ -181,10 +179,7 @@ impl WeWorkRemotelyScraper {
         }
 
         // Clean up whitespace
-        result
-            .split_whitespace()
-            .collect::<Vec<_>>()
-            .join(" ")
+        result.split_whitespace().collect::<Vec<_>>().join(" ")
     }
 
     /// Try to extract location from description
@@ -428,8 +423,16 @@ mod tests {
         assert_eq!(jobs.len(), 1);
         assert_eq!(jobs[0].company, "Tech & Data Corp");
         assert_eq!(jobs[0].title, "Software Engineer & Architect");
-        assert!(jobs[0].description.as_ref().unwrap().contains("Great remote opportunity"));
-        assert!(jobs[0].description.as_ref().unwrap().contains("\"Join us\""));
+        assert!(jobs[0]
+            .description
+            .as_ref()
+            .unwrap()
+            .contains("Great remote opportunity"));
+        assert!(jobs[0]
+            .description
+            .as_ref()
+            .unwrap()
+            .contains("\"Join us\""));
     }
 
     #[test]
@@ -626,13 +629,13 @@ mod tests {
             "TechCorp",
             "Rust Engineer",
             Some("Worldwide"),
-            "https://weworkremotely.com/jobs/123"
+            "https://weworkremotely.com/jobs/123",
         );
         let hash2 = WeWorkRemotelyScraper::compute_hash(
             "TechCorp",
             "Rust Engineer",
             Some("Worldwide"),
-            "https://weworkremotely.com/jobs/123"
+            "https://weworkremotely.com/jobs/123",
         );
 
         assert_eq!(hash1, hash2);
@@ -645,13 +648,13 @@ mod tests {
             "TechCorp",
             "Engineer",
             Some("USA"),
-            "https://weworkremotely.com/jobs/123"
+            "https://weworkremotely.com/jobs/123",
         );
         let hash2 = WeWorkRemotelyScraper::compute_hash(
             "TechCorp",
             "Engineer",
             Some("Europe"),
-            "https://weworkremotely.com/jobs/123"
+            "https://weworkremotely.com/jobs/123",
         );
 
         assert_ne!(hash1, hash2);
@@ -673,9 +676,13 @@ mod tests {
 
     #[test]
     fn test_decode_html_entities_all_types() {
-        let text = "Test &amp; Example &lt;tag&gt; &quot;quote&quot; &#39;apostrophe&#39; &nbsp;space";
+        let text =
+            "Test &amp; Example &lt;tag&gt; &quot;quote&quot; &#39;apostrophe&#39; &nbsp;space";
         let decoded = WeWorkRemotelyScraper::decode_html_entities(text);
-        assert_eq!(decoded, "Test & Example <tag> \"quote\" 'apostrophe'  space");
+        assert_eq!(
+            decoded,
+            "Test & Example <tag> \"quote\" 'apostrophe'  space"
+        );
     }
 
     #[test]
@@ -736,10 +743,7 @@ mod tests {
     fn test_extract_tag_empty_content() {
         let xml = "<item><title></title></item>";
         // Empty tags are not found (returns None)
-        assert_eq!(
-            WeWorkRemotelyScraper::extract_tag(xml, "title"),
-            None
-        );
+        assert_eq!(WeWorkRemotelyScraper::extract_tag(xml, "title"), None);
     }
 
     #[test]
@@ -824,18 +828,8 @@ mod tests {
 
     #[test]
     fn test_compute_hash_with_different_locations() {
-        let hash1 = WeWorkRemotelyScraper::compute_hash(
-            "Company",
-            "Job",
-            Some("USA"),
-            "url",
-        );
-        let hash2 = WeWorkRemotelyScraper::compute_hash(
-            "Company",
-            "Job",
-            Some("Europe"),
-            "url",
-        );
+        let hash1 = WeWorkRemotelyScraper::compute_hash("Company", "Job", Some("USA"), "url");
+        let hash2 = WeWorkRemotelyScraper::compute_hash("Company", "Job", Some("Europe"), "url");
 
         assert_ne!(hash1, hash2);
     }

@@ -7,11 +7,11 @@ use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
-pub mod slack;
-pub mod email;
 pub mod discord;
-pub mod telegram;
+pub mod email;
+pub mod slack;
 pub mod teams;
+pub mod telegram;
 
 /// Notification
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -36,7 +36,10 @@ impl NotificationService {
 
         // Send to Slack if enabled
         if self.config.alerts.slack.enabled {
-            if let Err(e) = slack::send_slack_notification(&self.config.alerts.slack.webhook_url, notification).await {
+            if let Err(e) =
+                slack::send_slack_notification(&self.config.alerts.slack.webhook_url, notification)
+                    .await
+            {
                 tracing::error!("Failed to send Slack notification: {}", e);
                 errors.push(format!("Slack: {}", e));
             } else {
@@ -46,7 +49,9 @@ impl NotificationService {
 
         // Send to Email if enabled
         if self.config.alerts.email.enabled {
-            if let Err(e) = email::send_email_notification(&self.config.alerts.email, notification).await {
+            if let Err(e) =
+                email::send_email_notification(&self.config.alerts.email, notification).await
+            {
                 tracing::error!("Failed to send email notification: {}", e);
                 errors.push(format!("Email: {}", e));
             } else {
@@ -56,27 +61,41 @@ impl NotificationService {
 
         // Send to Discord if enabled
         if self.config.alerts.discord.enabled {
-            if let Err(e) = discord::send_discord_notification(&self.config.alerts.discord, notification).await {
+            if let Err(e) =
+                discord::send_discord_notification(&self.config.alerts.discord, notification).await
+            {
                 tracing::error!("Failed to send Discord notification: {}", e);
                 errors.push(format!("Discord: {}", e));
             } else {
-                tracing::info!("✓ Sent Discord notification for: {}", notification.job.title);
+                tracing::info!(
+                    "✓ Sent Discord notification for: {}",
+                    notification.job.title
+                );
             }
         }
 
         // Send to Telegram if enabled
         if self.config.alerts.telegram.enabled {
-            if let Err(e) = telegram::send_telegram_notification(&self.config.alerts.telegram, notification).await {
+            if let Err(e) =
+                telegram::send_telegram_notification(&self.config.alerts.telegram, notification)
+                    .await
+            {
                 tracing::error!("Failed to send Telegram notification: {}", e);
                 errors.push(format!("Telegram: {}", e));
             } else {
-                tracing::info!("✓ Sent Telegram notification for: {}", notification.job.title);
+                tracing::info!(
+                    "✓ Sent Telegram notification for: {}",
+                    notification.job.title
+                );
             }
         }
 
         // Send to Teams if enabled
         if self.config.alerts.teams.enabled {
-            if let Err(e) = teams::send_teams_notification(&self.config.alerts.teams.webhook_url, notification).await {
+            if let Err(e) =
+                teams::send_teams_notification(&self.config.alerts.teams.webhook_url, notification)
+                    .await
+            {
                 tracing::error!("Failed to send Teams notification: {}", e);
                 errors.push(format!("Teams: {}", e));
             } else {
@@ -93,7 +112,10 @@ impl NotificationService {
                 self.config.alerts.discord.enabled,
                 self.config.alerts.telegram.enabled,
                 self.config.alerts.teams.enabled,
-            ].iter().filter(|&&e| e).count();
+            ]
+            .iter()
+            .filter(|&&e| e)
+            .count();
 
             if errors.len() == enabled_count {
                 return Err(anyhow::anyhow!(
@@ -111,7 +133,9 @@ impl NotificationService {
 mod tests {
     use super::*;
     use crate::core::{
-        config::{AlertConfig, SlackConfig, DiscordConfig, EmailConfig, TelegramConfig, TeamsConfig},
+        config::{
+            AlertConfig, DiscordConfig, EmailConfig, SlackConfig, TeamsConfig, TelegramConfig,
+        },
         db::Job,
         scoring::{JobScore, ScoreBreakdown},
     };
@@ -142,10 +166,10 @@ mod tests {
                 immediate_alert_sent: false,
                 hidden: false,
                 bookmarked: false,
-            ghost_score: None,
-            ghost_reasons: None,
-            first_seen: None,
-            repost_count: 0,
+                ghost_score: None,
+                ghost_reasons: None,
+                first_seen: None,
+                repost_count: 0,
                 notes: None,
                 included_in_digest: false,
             },
@@ -170,7 +194,9 @@ mod tests {
 
     /// Helper to create a minimal disabled config
     fn create_disabled_config() -> Arc<Config> {
-        use crate::core::config::{LocationPreferences, AutoRefreshConfig, LinkedInConfig, IndeedConfig};
+        use crate::core::config::{
+            AutoRefreshConfig, IndeedConfig, LinkedInConfig, LocationPreferences,
+        };
 
         Arc::new(Config {
             title_allowlist: vec!["Engineer".to_string()],
@@ -270,13 +296,15 @@ mod tests {
         notification.job.remote = None;
 
         // Should serialize without errors
-        let json = serde_json::to_string(&notification).expect("Should serialize with missing fields");
+        let json =
+            serde_json::to_string(&notification).expect("Should serialize with missing fields");
 
         // Verify JSON was created
         assert!(!json.is_empty(), "JSON should not be empty");
 
         // Deserialize to verify round-trip works
-        let deserialized: Notification = serde_json::from_str(&json).expect("Should deserialize with missing fields");
+        let deserialized: Notification =
+            serde_json::from_str(&json).expect("Should deserialize with missing fields");
         assert_eq!(deserialized.job.location, None);
         assert_eq!(deserialized.job.description, None);
         assert_eq!(deserialized.job.salary_min, None);
@@ -290,21 +318,34 @@ mod tests {
         let notification = create_test_notification();
         let breakdown = &notification.score.breakdown;
 
-        let sum = breakdown.skills + breakdown.salary + breakdown.location
-                + breakdown.company + breakdown.recency;
+        let sum = breakdown.skills
+            + breakdown.salary
+            + breakdown.location
+            + breakdown.company
+            + breakdown.recency;
 
         // Should sum to approximately the total score (allowing for floating point precision)
         // Note: breakdown doesn't necessarily sum to 1.0, but to the total score
-        assert!((sum - notification.score.total).abs() < 0.001,
-                "Breakdown should sum to total score {}, got {}", notification.score.total, sum);
+        assert!(
+            (sum - notification.score.total).abs() < 0.001,
+            "Breakdown should sum to total score {}, got {}",
+            notification.score.total,
+            sum
+        );
     }
 
     #[test]
     fn test_score_reasons_not_empty() {
         let notification = create_test_notification();
 
-        assert!(!notification.score.reasons.is_empty(), "Score reasons should not be empty");
-        assert!(notification.score.reasons.len() >= 1, "Should have at least one reason");
+        assert!(
+            !notification.score.reasons.is_empty(),
+            "Score reasons should not be empty"
+        );
+        assert!(
+            notification.score.reasons.len() >= 1,
+            "Should have at least one reason"
+        );
     }
 
     #[test]
@@ -313,7 +354,10 @@ mod tests {
         let mut notification2 = create_test_notification();
         notification2.job.hash = "different_hash".to_string();
 
-        assert_ne!(notification1.job.hash, notification2.job.hash, "Different jobs should have different hashes");
+        assert_ne!(
+            notification1.job.hash, notification2.job.hash,
+            "Different jobs should have different hashes"
+        );
     }
 
     #[test]
@@ -386,7 +430,10 @@ mod tests {
         let notification = create_test_notification();
 
         // URL should be parseable
-        assert!(url::Url::parse(&notification.job.url).is_ok(), "Job URL should be valid");
+        assert!(
+            url::Url::parse(&notification.job.url).is_ok(),
+            "Job URL should be valid"
+        );
     }
 
     #[test]
@@ -421,7 +468,10 @@ mod tests {
             config.alerts.discord.enabled,
             config.alerts.telegram.enabled,
             config.alerts.teams.enabled,
-        ].iter().filter(|&&e| e).count();
+        ]
+        .iter()
+        .filter(|&&e| e)
+        .count();
 
         assert_eq!(enabled_count, 0, "All channels should be disabled");
     }
@@ -437,7 +487,10 @@ mod tests {
             config.alerts.discord.enabled,
             config.alerts.telegram.enabled,
             config.alerts.teams.enabled,
-        ].iter().filter(|&&e| e).count();
+        ]
+        .iter()
+        .filter(|&&e| e)
+        .count();
 
         assert_eq!(enabled_count, 1, "Only Slack should be enabled");
     }
@@ -456,7 +509,10 @@ mod tests {
             config.alerts.discord.enabled,
             config.alerts.telegram.enabled,
             config.alerts.teams.enabled,
-        ].iter().filter(|&&e| e).count();
+        ]
+        .iter()
+        .filter(|&&e| e)
+        .count();
 
         assert_eq!(enabled_count, 3, "Three channels should be enabled");
     }
@@ -477,7 +533,10 @@ mod tests {
             config.alerts.discord.enabled,
             config.alerts.telegram.enabled,
             config.alerts.teams.enabled,
-        ].iter().filter(|&&e| e).count();
+        ]
+        .iter()
+        .filter(|&&e| e)
+        .count();
 
         assert_eq!(enabled_count, 5, "All five channels should be enabled");
     }
@@ -488,7 +547,10 @@ mod tests {
         let service = NotificationService::new(config.clone());
 
         // Service should hold a reference to the same config
-        assert_eq!(service.config.immediate_alert_threshold, config.immediate_alert_threshold);
+        assert_eq!(
+            service.config.immediate_alert_threshold,
+            config.immediate_alert_threshold
+        );
         assert_eq!(service.config.salary_floor_usd, config.salary_floor_usd);
     }
 
@@ -499,8 +561,14 @@ mod tests {
 
         let service = NotificationService::new(config);
 
-        assert!(service.config.alerts.slack.enabled, "Slack should be enabled");
-        assert!(!service.config.alerts.email.enabled, "Email should remain disabled");
+        assert!(
+            service.config.alerts.slack.enabled,
+            "Slack should be enabled"
+        );
+        assert!(
+            !service.config.alerts.email.enabled,
+            "Email should remain disabled"
+        );
     }
 
     #[test]
@@ -510,8 +578,14 @@ mod tests {
 
         let service = NotificationService::new(config);
 
-        assert!(service.config.alerts.email.enabled, "Email should be enabled");
-        assert!(!service.config.alerts.slack.enabled, "Slack should remain disabled");
+        assert!(
+            service.config.alerts.email.enabled,
+            "Email should be enabled"
+        );
+        assert!(
+            !service.config.alerts.slack.enabled,
+            "Slack should remain disabled"
+        );
     }
 
     #[test]
@@ -521,8 +595,14 @@ mod tests {
 
         let service = NotificationService::new(config);
 
-        assert!(service.config.alerts.discord.enabled, "Discord should be enabled");
-        assert!(!service.config.alerts.telegram.enabled, "Telegram should remain disabled");
+        assert!(
+            service.config.alerts.discord.enabled,
+            "Discord should be enabled"
+        );
+        assert!(
+            !service.config.alerts.telegram.enabled,
+            "Telegram should remain disabled"
+        );
     }
 
     #[test]
@@ -532,8 +612,14 @@ mod tests {
 
         let service = NotificationService::new(config);
 
-        assert!(service.config.alerts.telegram.enabled, "Telegram should be enabled");
-        assert!(!service.config.alerts.teams.enabled, "Teams should remain disabled");
+        assert!(
+            service.config.alerts.telegram.enabled,
+            "Telegram should be enabled"
+        );
+        assert!(
+            !service.config.alerts.teams.enabled,
+            "Teams should remain disabled"
+        );
     }
 
     #[test]
@@ -543,8 +629,14 @@ mod tests {
 
         let service = NotificationService::new(config);
 
-        assert!(service.config.alerts.teams.enabled, "Teams should be enabled");
-        assert!(!service.config.alerts.slack.enabled, "Slack should remain disabled");
+        assert!(
+            service.config.alerts.teams.enabled,
+            "Teams should be enabled"
+        );
+        assert!(
+            !service.config.alerts.slack.enabled,
+            "Slack should remain disabled"
+        );
     }
 
     #[test]
@@ -554,7 +646,10 @@ mod tests {
 
         assert!(error_msg.contains("Slack"));
         assert!(error_msg.contains("Connection timeout"));
-        assert!(!error_msg.contains(";;"), "Should not have double semicolons");
+        assert!(
+            !error_msg.contains(";;"),
+            "Should not have double semicolons"
+        );
     }
 
     #[test]
@@ -570,7 +665,11 @@ mod tests {
         assert!(error_msg.contains("Email"));
         assert!(error_msg.contains("Discord"));
         assert!(error_msg.contains("; "), "Should have semicolon separators");
-        assert_eq!(error_msg.matches("; ").count(), 2, "Should have exactly 2 separators for 3 errors");
+        assert_eq!(
+            error_msg.matches("; ").count(),
+            2,
+            "Should have exactly 2 separators for 3 errors"
+        );
     }
 
     #[test]
@@ -602,7 +701,10 @@ mod tests {
 
         // Partial failure (1 error out of 3 enabled channels)
         let is_total_failure = errors.len() == enabled_count;
-        assert!(!is_total_failure, "Should not be total failure when only 1 of 3 failed");
+        assert!(
+            !is_total_failure,
+            "Should not be total failure when only 1 of 3 failed"
+        );
     }
 
     #[test]
@@ -616,7 +718,10 @@ mod tests {
 
         // Total failure (all 3 enabled channels failed)
         let is_total_failure = errors.len() == enabled_count;
-        assert!(is_total_failure, "Should be total failure when all enabled channels failed");
+        assert!(
+            is_total_failure,
+            "Should be total failure when all enabled channels failed"
+        );
     }
 
     #[test]
@@ -625,7 +730,10 @@ mod tests {
         notification.score.total = 0.98;
 
         assert!(notification.score.total > 0.9, "Should be high-scoring job");
-        assert!(notification.score.total <= 1.0, "Should not exceed maximum score");
+        assert!(
+            notification.score.total <= 1.0,
+            "Should not exceed maximum score"
+        );
     }
 
     #[test]
@@ -635,8 +743,10 @@ mod tests {
 
         notification.score.total = config.immediate_alert_threshold;
 
-        assert_eq!(notification.score.total, config.immediate_alert_threshold,
-                   "Score should exactly match threshold");
+        assert_eq!(
+            notification.score.total, config.immediate_alert_threshold,
+            "Score should exactly match threshold"
+        );
     }
 
     #[test]
@@ -646,8 +756,10 @@ mod tests {
 
         notification.score.total = config.immediate_alert_threshold + 0.01;
 
-        assert!(notification.score.total > config.immediate_alert_threshold,
-                "Score should be above threshold");
+        assert!(
+            notification.score.total > config.immediate_alert_threshold,
+            "Score should be above threshold"
+        );
     }
 
     #[test]
@@ -657,8 +769,10 @@ mod tests {
 
         notification.score.total = config.immediate_alert_threshold - 0.01;
 
-        assert!(notification.score.total < config.immediate_alert_threshold,
-                "Score should be below threshold");
+        assert!(
+            notification.score.total < config.immediate_alert_threshold,
+            "Score should be below threshold"
+        );
     }
 
     #[test]
@@ -681,47 +795,60 @@ mod tests {
 
         // Source should be a known scraper
         let valid_sources = ["greenhouse", "lever", "linkedin", "indeed", "jobswithgpt"];
-        assert!(valid_sources.contains(&notification.job.source.as_str()),
-                "Job source should be a known scraper");
+        assert!(
+            valid_sources.contains(&notification.job.source.as_str()),
+            "Job source should be a known scraper"
+        );
     }
 
     #[test]
     fn test_notification_job_not_hidden() {
         let notification = create_test_notification();
 
-        assert!(!notification.job.hidden, "High-scoring jobs for alerts should not be hidden");
+        assert!(
+            !notification.job.hidden,
+            "High-scoring jobs for alerts should not be hidden"
+        );
     }
 
     #[test]
     fn test_notification_alert_not_sent_initially() {
         let notification = create_test_notification();
 
-        assert!(!notification.job.immediate_alert_sent,
-                "New job should not have alert sent yet");
+        assert!(
+            !notification.job.immediate_alert_sent,
+            "New job should not have alert sent yet"
+        );
     }
 
     #[test]
     fn test_notification_times_seen_positive() {
         let notification = create_test_notification();
 
-        assert!(notification.job.times_seen > 0,
-                "Job should have been seen at least once");
+        assert!(
+            notification.job.times_seen > 0,
+            "Job should have been seen at least once"
+        );
     }
 
     #[test]
     fn test_notification_company_not_empty() {
         let notification = create_test_notification();
 
-        assert!(!notification.job.company.is_empty(),
-                "Company name should not be empty");
+        assert!(
+            !notification.job.company.is_empty(),
+            "Company name should not be empty"
+        );
     }
 
     #[test]
     fn test_notification_title_not_empty() {
         let notification = create_test_notification();
 
-        assert!(!notification.job.title.is_empty(),
-                "Job title should not be empty");
+        assert!(
+            !notification.job.title.is_empty(),
+            "Job title should not be empty"
+        );
     }
 
     // Note: Tests for actual HTTP notification sending are in the individual modules

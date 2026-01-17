@@ -54,10 +54,7 @@ pub async fn send_email_notification(
             .context("Failed to build email message")?;
 
         // Create SMTP client
-        let creds = Credentials::new(
-            config.smtp_username.clone(),
-            config.smtp_password.clone(),
-        );
+        let creds = Credentials::new(config.smtp_username.clone(), config.smtp_password.clone());
 
         let mailer = if config.use_starttls {
             // STARTTLS (port 587)
@@ -310,7 +307,10 @@ pub async fn validate_email_config(config: &EmailConfig) -> Result<bool> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::{db::Job, scoring::{JobScore, ScoreBreakdown}};
+    use crate::core::{
+        db::Job,
+        scoring::{JobScore, ScoreBreakdown},
+    };
     use chrono::Utc;
 
     fn create_test_notification() -> Notification {
@@ -337,10 +337,10 @@ mod tests {
                 immediate_alert_sent: false,
                 hidden: false,
                 bookmarked: false,
-            ghost_score: None,
-            ghost_reasons: None,
-            first_seen: None,
-            repost_count: 0,
+                ghost_score: None,
+                ghost_reasons: None,
+                first_seen: None,
+                repost_count: 0,
                 notes: None,
                 included_in_digest: false,
             },
@@ -371,7 +371,7 @@ mod tests {
         // Verify key components are present
         assert!(html.contains("Senior Rust Engineer"));
         assert!(html.contains("Awesome Corp"));
-        assert!(html.contains("95"));  // Score percentage
+        assert!(html.contains("95")); // Score percentage
         assert!(html.contains("REMOTE"));
         assert!(html.contains("$180,000 - $220,000"));
         assert!(html.contains("greenhouse"));
@@ -388,7 +388,7 @@ mod tests {
         assert!(text.contains("Senior Rust Engineer"));
         assert!(text.contains("Awesome Corp"));
         assert!(text.contains("95%"));
-        assert!(text.contains("Yes"));  // Remote
+        assert!(text.contains("Yes")); // Remote
         assert!(text.contains("$180,000 - $220,000"));
         assert!(text.contains("Title matches: Senior Rust Engineer"));
     }
@@ -427,7 +427,11 @@ mod tests {
         let html = format_html_email(&notification.job, &notification.score);
 
         for reason in &notification.score.reasons {
-            assert!(html.contains(reason), "HTML should contain reason: {}", reason);
+            assert!(
+                html.contains(reason),
+                "HTML should contain reason: {}",
+                reason
+            );
         }
     }
 
@@ -437,7 +441,11 @@ mod tests {
         let text = format_text_email(&notification.job, &notification.score);
 
         for reason in &notification.score.reasons {
-            assert!(text.contains(reason), "Text should contain reason: {}", reason);
+            assert!(
+                text.contains(reason),
+                "Text should contain reason: {}",
+                reason
+            );
         }
     }
 
@@ -475,7 +483,10 @@ mod tests {
         notification.job.remote = Some(false);
 
         let html = format_html_email(&notification.job, &notification.score);
-        assert!(!html.contains("REMOTE"), "Non-remote job should not have REMOTE badge");
+        assert!(
+            !html.contains("REMOTE"),
+            "Non-remote job should not have REMOTE badge"
+        );
     }
 
     #[test]
@@ -484,7 +495,10 @@ mod tests {
         notification.job.remote = None;
 
         let html = format_html_email(&notification.job, &notification.score);
-        assert!(!html.contains("REMOTE"), "Job with None remote should not have REMOTE badge");
+        assert!(
+            !html.contains("REMOTE"),
+            "Job with None remote should not have REMOTE badge"
+        );
     }
 
     #[test]
@@ -504,7 +518,12 @@ mod tests {
         for (score, expected) in [(0.95, "95"), (0.90, "90"), (1.00, "100"), (0.876, "88")] {
             notification.score.total = score;
             let html = format_html_email(&notification.job, &notification.score);
-            assert!(html.contains(&format!("{}%", expected)), "Score {} should format to {}%", score, expected);
+            assert!(
+                html.contains(&format!("{}%", expected)),
+                "Score {} should format to {}%",
+                score,
+                expected
+            );
         }
     }
 
@@ -515,7 +534,12 @@ mod tests {
         for (score, expected) in [(0.95, "95%"), (0.90, "90%"), (1.00, "100%")] {
             notification.score.total = score;
             let text = format_text_email(&notification.job, &notification.score);
-            assert!(text.contains(expected), "Score {} should format to {}", score, expected);
+            assert!(
+                text.contains(expected),
+                "Score {} should format to {}",
+                score,
+                expected
+            );
         }
     }
 
@@ -552,7 +576,10 @@ mod tests {
         notification.score.reasons = vec![];
 
         let html = format_html_email(&notification.job, &notification.score);
-        assert!(html.contains("Why this matches"), "Should have 'Why this matches' header even with empty reasons");
+        assert!(
+            html.contains("Why this matches"),
+            "Should have 'Why this matches' header even with empty reasons"
+        );
     }
 
     #[test]
@@ -561,7 +588,10 @@ mod tests {
         notification.score.reasons = vec![];
 
         let text = format_text_email(&notification.job, &notification.score);
-        assert!(text.contains("WHY THIS MATCHES:"), "Should have 'WHY THIS MATCHES' header even with empty reasons");
+        assert!(
+            text.contains("WHY THIS MATCHES:"),
+            "Should have 'WHY THIS MATCHES' header even with empty reasons"
+        );
     }
 
     #[test]
@@ -667,7 +697,10 @@ mod tests {
     #[test]
     fn test_text_email_with_long_location() {
         let mut notification = create_test_notification();
-        notification.job.location = Some("San Francisco Bay Area, California, United States (Remote within PST timezone)".to_string());
+        notification.job.location = Some(
+            "San Francisco Bay Area, California, United States (Remote within PST timezone)"
+                .to_string(),
+        );
 
         let text = format_text_email(&notification.job, &notification.score);
 
@@ -721,7 +754,12 @@ mod tests {
         for (score, expected) in test_cases {
             notification.score.total = score;
             let html = format_html_email(&notification.job, &notification.score);
-            assert!(html.contains(expected), "Score {} should contain '{}' in HTML", score, expected);
+            assert!(
+                html.contains(expected),
+                "Score {} should contain '{}' in HTML",
+                score,
+                expected
+            );
         }
     }
 
@@ -729,28 +767,31 @@ mod tests {
     fn test_text_email_score_boundary_values() {
         let mut notification = create_test_notification();
 
-        let test_cases = vec![
-            (0.0, "0%"),
-            (0.01, "1%"),
-            (0.50, "50%"),
-            (0.999, "100%"),
-        ];
+        let test_cases = vec![(0.0, "0%"), (0.01, "1%"), (0.50, "50%"), (0.999, "100%")];
 
         for (score, expected) in test_cases {
             notification.score.total = score;
             let text = format_text_email(&notification.job, &notification.score);
-            assert!(text.contains(expected), "Score {} should format to {}", score, expected);
+            assert!(
+                text.contains(expected),
+                "Score {} should format to {}",
+                score,
+                expected
+            );
         }
     }
 
     #[test]
     fn test_html_email_url_with_query_params() {
         let mut notification = create_test_notification();
-        notification.job.url = "https://example.com/jobs/123?utm_source=jobsentinel&ref=alert".to_string();
+        notification.job.url =
+            "https://example.com/jobs/123?utm_source=jobsentinel&ref=alert".to_string();
 
         let html = format_html_email(&notification.job, &notification.score);
 
-        assert!(html.contains("href=\"https://example.com/jobs/123?utm_source=jobsentinel&ref=alert\""));
+        assert!(
+            html.contains("href=\"https://example.com/jobs/123?utm_source=jobsentinel&ref=alert\"")
+        );
     }
 
     #[test]
@@ -826,7 +867,8 @@ mod tests {
 
         // Verify HTML meta tags for proper rendering
         assert!(html.contains(r#"<meta charset="UTF-8">"#));
-        assert!(html.contains(r#"<meta name="viewport" content="width=device-width, initial-scale=1.0">"#));
+        assert!(html
+            .contains(r#"<meta name="viewport" content="width=device-width, initial-scale=1.0">"#));
     }
 
     #[test]
@@ -998,10 +1040,8 @@ mod tests {
     #[test]
     fn test_html_email_reason_with_html_like_text() {
         let mut notification = create_test_notification();
-        notification.score.reasons = vec![
-            "Matches <keyword>".to_string(),
-            "Has & symbol".to_string(),
-        ];
+        notification.score.reasons =
+            vec!["Matches <keyword>".to_string(), "Has & symbol".to_string()];
 
         let html = format_html_email(&notification.job, &notification.score);
 

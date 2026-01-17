@@ -201,11 +201,7 @@ impl ZipRecruiterScraper {
         let lower = desc.to_lowercase();
 
         // Check for explicit location patterns
-        let patterns = [
-            ("location:", 9),
-            ("located in", 10),
-            ("based in", 8),
-        ];
+        let patterns = [("location:", 9), ("located in", 10), ("based in", 8)];
 
         for (pattern, offset) in patterns {
             if let Some(pos) = lower.find(pattern) {
@@ -341,10 +337,7 @@ impl ZipRecruiterScraper {
         }
 
         // Clean up whitespace
-        result
-            .split_whitespace()
-            .collect::<Vec<_>>()
-            .join(" ")
+        result.split_whitespace().collect::<Vec<_>>().join(" ")
     }
 
     /// Compute SHA-256 hash for deduplication
@@ -489,8 +482,14 @@ mod tests {
 
     #[test]
     fn test_parse_salary_string() {
-        assert_eq!(ZipRecruiterScraper::parse_salary_string("100k"), Some(100000));
-        assert_eq!(ZipRecruiterScraper::parse_salary_string("150K"), Some(150000));
+        assert_eq!(
+            ZipRecruiterScraper::parse_salary_string("100k"),
+            Some(100000)
+        );
+        assert_eq!(
+            ZipRecruiterScraper::parse_salary_string("150K"),
+            Some(150000)
+        );
         assert_eq!(
             ZipRecruiterScraper::parse_salary_string("100000"),
             Some(100000)
@@ -535,7 +534,10 @@ mod tests {
         assert_eq!(jobs.len(), 1);
         assert_eq!(jobs[0].title, "Senior Rust Engineer (Remote)");
         assert_eq!(jobs[0].company, "TechCorp Inc");
-        assert_eq!(jobs[0].url, "https://www.ziprecruiter.com/c/TechCorp/Job/123456");
+        assert_eq!(
+            jobs[0].url,
+            "https://www.ziprecruiter.com/c/TechCorp/Job/123456"
+        );
         assert_eq!(jobs[0].source, "ziprecruiter");
         assert_eq!(jobs[0].remote, Some(true));
         assert_eq!(jobs[0].salary_min, Some(120000));
@@ -602,7 +604,11 @@ mod tests {
         assert_eq!(jobs[0].title, "Software Engineer & Architect");
         // Company from <source> tag doesn't go through decode_html_entities
         assert_eq!(jobs[0].company, "Tech &amp; Data Corp");
-        assert!(jobs[0].description.as_ref().unwrap().contains("Great opportunity"));
+        assert!(jobs[0]
+            .description
+            .as_ref()
+            .unwrap()
+            .contains("Great opportunity"));
     }
 
     #[test]
@@ -694,12 +700,16 @@ mod tests {
     #[test]
     fn test_extract_location_from_description() {
         assert_eq!(
-            ZipRecruiterScraper::extract_location_from_description(Some("Location: Austin, TX | Remote OK")),
+            ZipRecruiterScraper::extract_location_from_description(Some(
+                "Location: Austin, TX | Remote OK"
+            )),
             Some("Austin, TX".to_string())
         );
 
         assert_eq!(
-            ZipRecruiterScraper::extract_location_from_description(Some("Based in Seattle for this role")),
+            ZipRecruiterScraper::extract_location_from_description(Some(
+                "Based in Seattle for this role"
+            )),
             Some("Seattle for this role".to_string())
         );
 
@@ -749,7 +759,8 @@ mod tests {
 
     #[test]
     fn test_extract_salary_range() {
-        let (min, max) = ZipRecruiterScraper::extract_salary("Compensation: $100k - $150k annually");
+        let (min, max) =
+            ZipRecruiterScraper::extract_salary("Compensation: $100k - $150k annually");
         assert_eq!(min, Some(100000));
         assert_eq!(max, Some(150000));
     }
@@ -774,13 +785,13 @@ mod tests {
             "TechCorp",
             "Rust Engineer",
             Some("Remote"),
-            "https://ziprecruiter.com/job/123"
+            "https://ziprecruiter.com/job/123",
         );
         let hash2 = ZipRecruiterScraper::compute_hash(
             "TechCorp",
             "Rust Engineer",
             Some("Remote"),
-            "https://ziprecruiter.com/job/123"
+            "https://ziprecruiter.com/job/123",
         );
 
         assert_eq!(hash1, hash2);
@@ -792,13 +803,13 @@ mod tests {
             "TechCorp",
             "Rust Engineer",
             Some("Remote"),
-            "https://ziprecruiter.com/job/123"
+            "https://ziprecruiter.com/job/123",
         );
         let hash_without_loc = ZipRecruiterScraper::compute_hash(
             "TechCorp",
             "Rust Engineer",
             None,
-            "https://ziprecruiter.com/job/123"
+            "https://ziprecruiter.com/job/123",
         );
 
         assert_ne!(hash_with_loc, hash_without_loc);

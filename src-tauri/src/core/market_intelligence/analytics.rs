@@ -1066,13 +1066,12 @@ mod tests {
         assert_eq!(count, 1);
 
         // Verify data
-        let stored_total = sqlx::query_scalar::<_, i64>(
-            "SELECT total_jobs FROM market_snapshots WHERE date = ?",
-        )
-        .bind("2026-01-16")
-        .fetch_one(&pool)
-        .await
-        .unwrap();
+        let stored_total =
+            sqlx::query_scalar::<_, i64>("SELECT total_jobs FROM market_snapshots WHERE date = ?")
+                .bind("2026-01-16")
+                .fetch_one(&pool)
+                .await
+                .unwrap();
         assert_eq!(stored_total, 100);
     }
 
@@ -1126,13 +1125,12 @@ mod tests {
         assert_eq!(count, 1);
 
         // Verify updated data
-        let stored_total = sqlx::query_scalar::<_, i64>(
-            "SELECT total_jobs FROM market_snapshots WHERE date = ?",
-        )
-        .bind("2026-01-16")
-        .fetch_one(&pool)
-        .await
-        .unwrap();
+        let stored_total =
+            sqlx::query_scalar::<_, i64>("SELECT total_jobs FROM market_snapshots WHERE date = ?")
+                .bind("2026-01-16")
+                .fetch_one(&pool)
+                .await
+                .unwrap();
         assert_eq!(stored_total, 150);
     }
 

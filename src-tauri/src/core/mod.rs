@@ -30,9 +30,9 @@ pub mod scrapers;
 
 // v1.1+ modules
 pub mod ats;
+pub mod market_intelligence;
 pub mod resume;
 pub mod salary;
-pub mod market_intelligence;
 
 // v1.4+ modules
 pub mod ghost;
@@ -45,22 +45,27 @@ pub mod user_data;
 pub use config::Config;
 pub use db::{Database, Job};
 pub use notify::{Notification, NotificationService};
-pub use scheduler::{ScheduleConfig, ScrapingResult, Scheduler};
+pub use scheduler::{ScheduleConfig, Scheduler, ScrapingResult};
 pub use scoring::{JobScore, ScoringEngine};
 pub use scrapers::{JobScraper, ScraperResult};
 
 // v1.1+ re-exports
-pub use ats::{Application, ApplicationStats, ApplicationStatus, ApplicationTracker, ApplicationsByStatus, InterviewType, InterviewWithJob, PendingReminder, StatusCounts, WeeklyData};
+pub use ats::{
+    Application, ApplicationStats, ApplicationStatus, ApplicationTracker, ApplicationsByStatus,
+    InterviewType, InterviewWithJob, PendingReminder, StatusCounts, WeeklyData,
+};
+pub use market_intelligence::{
+    AlertSeverity, AlertType, CompanyActivity, LocationHeat, MarketAlert, MarketAnalyzer,
+    MarketIntelligence, MarketSnapshot, RoleDemandTrend, SalaryTrend, SkillDemandTrend, SkillTrend,
+};
 pub use resume::{MatchResult, Resume, ResumeMatcher, UserSkill};
 pub use salary::{SalaryAnalyzer, SalaryBenchmark, SalaryPrediction, SeniorityLevel};
-pub use market_intelligence::{
-    MarketAlert, MarketAnalyzer, MarketIntelligence, MarketSnapshot,
-    SkillDemandTrend, SalaryTrend, RoleDemandTrend, AlertType, AlertSeverity,
-    SkillTrend, CompanyActivity, LocationHeat,
-};
 
 // v1.4+ re-exports
-pub use ghost::{GhostAnalysis, GhostCategory, GhostConfig, GhostDetector, GhostReason, Severity as GhostSeverity};
+pub use ghost::{
+    GhostAnalysis, GhostCategory, GhostConfig, GhostDetector, GhostReason,
+    Severity as GhostSeverity,
+};
 pub use user_data::{
     AdvancedFilters, CoverLetterTemplate, FollowUpReminder, GlobalNotificationSettings,
     NotificationPreferences, PrepChecklistItem, SavedSearch, SourceNotificationConfig,

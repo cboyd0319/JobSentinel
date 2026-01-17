@@ -47,11 +47,7 @@ impl IndeedScraper {
 
     /// Scrape jobs from Indeed search results
     async fn scrape_search(&self) -> ScraperResult {
-        tracing::info!(
-            "Scraping Indeed for '{}' in {}",
-            self.query,
-            self.location
-        );
+        tracing::info!("Scraping Indeed for '{}' in {}", self.query, self.location);
 
         // Build Indeed search URL
         // Format: https://www.indeed.com/jobs?q=software+engineer&l=San+Francisco,+CA&radius=25
@@ -705,12 +701,10 @@ mod tests {
 
     #[test]
     fn test_url_construction() {
-        let scraper = IndeedScraper::new(
-            "software engineer".to_string(),
-            "San Francisco".to_string(),
-        )
-        .with_radius(30)
-        .with_limit(25);
+        let scraper =
+            IndeedScraper::new("software engineer".to_string(), "San Francisco".to_string())
+                .with_radius(30)
+                .with_limit(25);
 
         // Can't test exact URL due to HashMap ordering, but verify it's not empty
         let jobs = scraper.parse_job_cards("<html></html>").unwrap();

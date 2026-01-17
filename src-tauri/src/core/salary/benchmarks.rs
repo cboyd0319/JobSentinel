@@ -16,8 +16,8 @@ pub struct SalaryBenchmark {
     pub seniority_level: SeniorityLevel,
     pub min_salary: i64,
     pub p25_salary: i64,    // 25th percentile
-    pub median_salary: i64,  // 50th percentile
-    pub p75_salary: i64,     // 75th percentile
+    pub median_salary: i64, // 50th percentile
+    pub p75_salary: i64,    // 75th percentile
     pub max_salary: i64,
     pub average_salary: i64,
     pub sample_size: i64,
@@ -147,10 +147,15 @@ impl BenchmarkManager {
         Ok(rows
             .into_iter()
             .map(|r| SalaryBenchmark {
-                job_title: r.try_get::<String, _>("job_title_normalized").unwrap_or_default(),
-                location: r.try_get::<String, _>("location_normalized").unwrap_or_default(),
+                job_title: r
+                    .try_get::<String, _>("job_title_normalized")
+                    .unwrap_or_default(),
+                location: r
+                    .try_get::<String, _>("location_normalized")
+                    .unwrap_or_default(),
                 seniority_level: SeniorityLevel::parse(
-                    &r.try_get::<String, _>("seniority_level").unwrap_or_default(),
+                    &r.try_get::<String, _>("seniority_level")
+                        .unwrap_or_default(),
                 ),
                 min_salary: r.try_get::<i64, _>("min_salary").unwrap_or(0),
                 p25_salary: r.try_get::<i64, _>("p25_salary").unwrap_or(0),
@@ -192,7 +197,8 @@ impl BenchmarkManager {
             .into_iter()
             .map(|r| {
                 (
-                    r.try_get::<String, _>("location_normalized").unwrap_or_default(),
+                    r.try_get::<String, _>("location_normalized")
+                        .unwrap_or_default(),
                     r.try_get::<i64, _>("median_salary").unwrap_or(0),
                 )
             })
@@ -450,7 +456,10 @@ mod tests {
             sample_size: 10,
             last_updated: Utc::now(),
         };
-        assert_eq!(benchmark.range_description(), "$500-$2,000 (median: $1,000)");
+        assert_eq!(
+            benchmark.range_description(),
+            "$500-$2,000 (median: $1,000)"
+        );
     }
 
     #[test]
@@ -669,9 +678,15 @@ mod tests {
 
         // Test exact matches at each percentile boundary
         assert_eq!(benchmark.is_competitive(benchmark.p75_salary), "excellent");
-        assert_eq!(benchmark.is_competitive(benchmark.median_salary), "competitive");
+        assert_eq!(
+            benchmark.is_competitive(benchmark.median_salary),
+            "competitive"
+        );
         assert_eq!(benchmark.is_competitive(benchmark.p25_salary), "fair");
-        assert_eq!(benchmark.is_competitive(benchmark.min_salary), "below_market");
+        assert_eq!(
+            benchmark.is_competitive(benchmark.min_salary),
+            "below_market"
+        );
     }
 
     #[test]
@@ -684,7 +699,10 @@ mod tests {
         for offer in offers {
             let target = benchmark.negotiation_target(offer);
             // Target should generally increase (or stay same if already at max strategy)
-            assert!(target >= offer, "Negotiation target should be at least the current offer");
+            assert!(
+                target >= offer,
+                "Negotiation target should be at least the current offer"
+            );
         }
     }
 
@@ -761,7 +779,10 @@ mod tests {
         let pool = setup_test_db().await;
         let manager = BenchmarkManager::new(pool);
         // Just verify construction works
-        assert_eq!(std::mem::size_of_val(&manager), std::mem::size_of::<SqlitePool>());
+        assert_eq!(
+            std::mem::size_of_val(&manager),
+            std::mem::size_of::<SqlitePool>()
+        );
     }
 
     #[tokio::test]
@@ -996,9 +1017,18 @@ mod tests {
         manager.upsert_benchmark(&benchmark).await.unwrap();
 
         // All case variations should match
-        let results1 = manager.get_benchmarks_for_title("software engineer").await.unwrap();
-        let results2 = manager.get_benchmarks_for_title("SOFTWARE ENGINEER").await.unwrap();
-        let results3 = manager.get_benchmarks_for_title("SoFtWaRe EnGiNeEr").await.unwrap();
+        let results1 = manager
+            .get_benchmarks_for_title("software engineer")
+            .await
+            .unwrap();
+        let results2 = manager
+            .get_benchmarks_for_title("SOFTWARE ENGINEER")
+            .await
+            .unwrap();
+        let results3 = manager
+            .get_benchmarks_for_title("SoFtWaRe EnGiNeEr")
+            .await
+            .unwrap();
 
         assert_eq!(results1.len(), 1);
         assert_eq!(results2.len(), 1);

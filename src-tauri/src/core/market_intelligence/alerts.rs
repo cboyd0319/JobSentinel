@@ -10,12 +10,12 @@ use sqlx::{Row, SqlitePool};
 /// Market alert types
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum AlertType {
-    SkillSurge,      // Skill demand suddenly increased
-    SalarySpike,     // Salaries jumped significantly
-    HiringFreeze,    // Company stopped hiring
-    HiringSpree,     // Company hiring aggressively
-    LocationBoom,    // New hot location
-    RoleObsolete,    // Role demand declining
+    SkillSurge,   // Skill demand suddenly increased
+    SalarySpike,  // Salaries jumped significantly
+    HiringFreeze, // Company stopped hiring
+    HiringSpree,  // Company hiring aggressively
+    LocationBoom, // New hot location
+    RoleObsolete, // Role demand declining
 }
 
 impl AlertType {
@@ -605,11 +605,10 @@ mod tests {
             assert_eq!(unread.len(), 0);
 
             // Verify in database
-            let is_read: i64 =
-                sqlx::query_scalar("SELECT is_read FROM market_alerts WHERE id = 1")
-                    .fetch_one(&pool)
-                    .await
-                    .unwrap();
+            let is_read: i64 = sqlx::query_scalar("SELECT is_read FROM market_alerts WHERE id = 1")
+                .fetch_one(&pool)
+                .await
+                .unwrap();
             assert_eq!(is_read, 1);
         }
 

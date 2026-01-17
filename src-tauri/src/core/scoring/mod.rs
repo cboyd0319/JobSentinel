@@ -431,7 +431,8 @@ mod tests {
     fn test_keyword_matching_partial() {
         let config = create_test_config();
         let mut job = create_test_job();
-        job.description = Some("Experience with Kubernetes-native applications and AWS cloud".to_string());
+        job.description =
+            Some("Experience with Kubernetes-native applications and AWS cloud".to_string());
 
         let engine = ScoringEngine::new(Arc::new(config));
         let score = engine.score(&job);
@@ -447,7 +448,10 @@ mod tests {
     fn test_excluded_keyword() {
         let config = create_test_config();
         let mut job = create_test_job();
-        job.description = Some("Security Engineer with sales responsibilities, AWS and Kubernetes experience".to_string());
+        job.description = Some(
+            "Security Engineer with sales responsibilities, AWS and Kubernetes experience"
+                .to_string(),
+        );
 
         let engine = ScoringEngine::new(Arc::new(config));
         let score = engine.score(&job);
@@ -507,10 +511,7 @@ mod tests {
             score.breakdown.location, 0.20,
             "Should get full location score for remote match"
         );
-        assert!(score
-            .reasons
-            .iter()
-            .any(|r| r.contains("Remote job")));
+        assert!(score.reasons.iter().any(|r| r.contains("Remote job")));
     }
 
     #[test]
@@ -791,10 +792,7 @@ mod tests {
             score.breakdown.location, 0.20,
             "Should get full location score for hybrid when allowed"
         );
-        assert!(score
-            .reasons
-            .iter()
-            .any(|r| r.contains("Hybrid job")));
+        assert!(score.reasons.iter().any(|r| r.contains("Hybrid job")));
     }
 
     #[test]
@@ -815,10 +813,7 @@ mod tests {
             score.breakdown.location, 0.20,
             "Should get full location score for onsite when allowed"
         );
-        assert!(score
-            .reasons
-            .iter()
-            .any(|r| r.contains("Onsite job")));
+        assert!(score.reasons.iter().any(|r| r.contains("Onsite job")));
     }
 
     #[test]

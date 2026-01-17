@@ -115,17 +115,15 @@ impl YcStartupScraper {
         });
 
         // Selectors for job details
-        let title_selector = Selector::parse(
-            "[class*='jobTitle'], [class*='title'], h3, h4, .role-title",
-        )
-        .or_else(|_| Selector::parse("span"))
-        .expect("fallback selector 'span' is valid CSS");
+        let title_selector =
+            Selector::parse("[class*='jobTitle'], [class*='title'], h3, h4, .role-title")
+                .or_else(|_| Selector::parse("span"))
+                .expect("fallback selector 'span' is valid CSS");
 
-        let company_selector = Selector::parse(
-            "[class*='companyName'], [class*='company'], .startup-name",
-        )
-        .or_else(|_| Selector::parse("span"))
-        .expect("fallback selector 'span' is valid CSS");
+        let company_selector =
+            Selector::parse("[class*='companyName'], [class*='company'], .startup-name")
+                .or_else(|_| Selector::parse("span"))
+                .expect("fallback selector 'span' is valid CSS");
 
         let location_selector =
             Selector::parse("[class*='location'], [class*='Location'], .job-location")
@@ -145,7 +143,11 @@ impl YcStartupScraper {
                 .or_else(|| {
                     // Try to get text from the element itself
                     let text = job_element.text().collect::<String>();
-                    let lines: Vec<&str> = text.lines().map(|l| l.trim()).filter(|l| !l.is_empty()).collect();
+                    let lines: Vec<&str> = text
+                        .lines()
+                        .map(|l| l.trim())
+                        .filter(|l| !l.is_empty())
+                        .collect();
                     lines.first().map(|s| s.to_string())
                 })
                 .unwrap_or_default();
@@ -378,7 +380,10 @@ mod tests {
 
     #[test]
     fn test_is_remote() {
-        assert!(YcStartupScraper::is_remote("Remote Software Engineer", None));
+        assert!(YcStartupScraper::is_remote(
+            "Remote Software Engineer",
+            None
+        ));
         assert!(YcStartupScraper::is_remote("Engineer", Some("Remote, US")));
         assert!(YcStartupScraper::is_remote("Developer", Some("Anywhere")));
         assert!(!YcStartupScraper::is_remote(
@@ -390,7 +395,10 @@ mod tests {
     #[test]
     fn test_is_remote_distributed() {
         // The is_remote function checks for "distributed" in location, not title
-        assert!(YcStartupScraper::is_remote("Engineer", Some("Distributed team")));
+        assert!(YcStartupScraper::is_remote(
+            "Engineer",
+            Some("Distributed team")
+        ));
         assert!(YcStartupScraper::is_remote("Engineer", Some("distributed")));
     }
 
@@ -429,7 +437,10 @@ mod tests {
         // First job
         assert_eq!(jobs[0].title, "Senior Backend Engineer");
         assert_eq!(jobs[0].company, "AI Startup Inc");
-        assert_eq!(jobs[0].url, "https://www.ycombinator.com/companies/ai-startup/jobs/backend-123");
+        assert_eq!(
+            jobs[0].url,
+            "https://www.ycombinator.com/companies/ai-startup/jobs/backend-123"
+        );
         assert_eq!(jobs[0].source, "yc_startup");
         assert_eq!(jobs[0].remote, Some(false));
 
@@ -687,8 +698,14 @@ mod tests {
 
         // Should only return jobs matching "rust" in title or company
         assert_eq!(jobs.len(), 2);
-        assert!(jobs[0].title.to_lowercase().contains("rust") || jobs[0].company.to_lowercase().contains("rust"));
-        assert!(jobs[1].title.to_lowercase().contains("rust") || jobs[1].company.to_lowercase().contains("rust"));
+        assert!(
+            jobs[0].title.to_lowercase().contains("rust")
+                || jobs[0].company.to_lowercase().contains("rust")
+        );
+        assert!(
+            jobs[1].title.to_lowercase().contains("rust")
+                || jobs[1].company.to_lowercase().contains("rust")
+        );
     }
 
     #[test]
@@ -817,8 +834,14 @@ mod tests {
 
     #[test]
     fn test_is_remote_distributed_keyword() {
-        assert!(YcStartupScraper::is_remote("Engineer", Some("Distributed team")));
-        assert!(YcStartupScraper::is_remote("Developer", Some("fully distributed")));
+        assert!(YcStartupScraper::is_remote(
+            "Engineer",
+            Some("Distributed team")
+        ));
+        assert!(YcStartupScraper::is_remote(
+            "Developer",
+            Some("fully distributed")
+        ));
     }
 
     #[test]

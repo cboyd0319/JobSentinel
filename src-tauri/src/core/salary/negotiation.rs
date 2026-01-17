@@ -193,7 +193,10 @@ mod tests {
         let mut params = HashMap::new();
         params.insert("recruiter".to_string(), "Sarah".to_string());
         params.insert("amount".to_string(), "$160,000".to_string());
-        params.insert("position".to_string(), "Senior Software Engineer".to_string());
+        params.insert(
+            "position".to_string(),
+            "Senior Software Engineer".to_string(),
+        );
         params.insert("company".to_string(), "TechCorp".to_string());
 
         let result = generator.generate("initial_offer", params).await.unwrap();
@@ -341,7 +344,10 @@ Best regards,
 
         let mut params = HashMap::new();
         params.insert("recruiter_name".to_string(), "Sarah Johnson".to_string());
-        params.insert("position".to_string(), "Senior Software Engineer".to_string());
+        params.insert(
+            "position".to_string(),
+            "Senior Software Engineer".to_string(),
+        );
         params.insert("years_experience".to_string(), "7".to_string());
         params.insert("location".to_string(), "San Francisco, CA".to_string());
         params.insert("expected_min".to_string(), "$180,000".to_string());
@@ -596,10 +602,12 @@ Best regards,
             .unwrap();
 
         // Verify is_default is 0
-        let row = sqlx::query("SELECT is_default FROM negotiation_templates WHERE scenario = 'custom_scenario'")
-            .fetch_one(&pool)
-            .await
-            .unwrap();
+        let row = sqlx::query(
+            "SELECT is_default FROM negotiation_templates WHERE scenario = 'custom_scenario'",
+        )
+        .fetch_one(&pool)
+        .await
+        .unwrap();
         let is_default: i32 = row.try_get("is_default").unwrap();
         assert_eq!(is_default, 0);
     }

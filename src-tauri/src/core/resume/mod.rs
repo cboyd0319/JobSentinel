@@ -34,13 +34,13 @@ use serde::{Deserialize, Serialize};
 use sqlx::{Row, SqlitePool};
 use std::path::Path;
 
+pub mod matcher;
 pub mod parser;
 pub mod skills;
-pub mod matcher;
 
+use matcher::JobMatcher;
 use parser::ResumeParser;
 use skills::SkillExtractor;
-use matcher::JobMatcher;
 
 /// Resume metadata
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -296,10 +296,16 @@ impl ResumeMatcher {
                 id: r.try_get::<i64, _>("id").unwrap_or(0),
                 resume_id: r.try_get::<i64, _>("resume_id").unwrap_or(0),
                 skill_name: r.try_get::<String, _>("skill_name").unwrap_or_default(),
-                skill_category: r.try_get::<Option<String>, _>("skill_category").unwrap_or(None),
+                skill_category: r
+                    .try_get::<Option<String>, _>("skill_category")
+                    .unwrap_or(None),
                 confidence_score: r.try_get::<f64, _>("confidence_score").unwrap_or(0.0),
-                years_experience: r.try_get::<Option<f64>, _>("years_experience").unwrap_or(None),
-                proficiency_level: r.try_get::<Option<String>, _>("proficiency_level").unwrap_or(None),
+                years_experience: r
+                    .try_get::<Option<f64>, _>("years_experience")
+                    .unwrap_or(None),
+                proficiency_level: r
+                    .try_get::<Option<String>, _>("proficiency_level")
+                    .unwrap_or(None),
                 source: r.try_get::<String, _>("source").unwrap_or_default(),
             })
             .collect())
@@ -311,7 +317,10 @@ impl ResumeMatcher {
         self.job_matcher.extract_job_skills(job_hash).await?;
 
         // Perform matching
-        let match_result = self.job_matcher.calculate_match(resume_id, job_hash).await?;
+        let match_result = self
+            .job_matcher
+            .calculate_match(resume_id, job_hash)
+            .await?;
 
         // Store match result
         let result = sqlx::query(
@@ -349,7 +358,11 @@ impl ResumeMatcher {
     }
 
     /// Get match result for a resume-job pair
-    pub async fn get_match_result(&self, resume_id: i64, job_hash: &str) -> Result<Option<MatchResult>> {
+    pub async fn get_match_result(
+        &self,
+        resume_id: i64,
+        job_hash: &str,
+    ) -> Result<Option<MatchResult>> {
         let row = sqlx::query(
             r#"
             SELECT id, resume_id, job_hash, overall_match_score, skills_match_score,
@@ -377,10 +390,12 @@ impl ResumeMatcher {
                     })?;
 
                 // Handle missing_skills and matching_skills JSON with proper NULL handling
-                let missing_skills_str = r.try_get::<Option<String>, _>("missing_skills")
+                let missing_skills_str = r
+                    .try_get::<Option<String>, _>("missing_skills")
                     .unwrap_or(None)
                     .unwrap_or_else(|| "[]".to_string());
-                let matching_skills_str = r.try_get::<Option<String>, _>("matching_skills")
+                let matching_skills_str = r
+                    .try_get::<Option<String>, _>("matching_skills")
                     .unwrap_or(None)
                     .unwrap_or_else(|| "[]".to_string());
 
@@ -390,7 +405,8 @@ impl ResumeMatcher {
                     job_hash: r.try_get::<String, _>("job_hash")?,
                     overall_match_score: r.try_get::<f64, _>("overall_match_score")?,
                     skills_match_score: r.try_get::<Option<f64>, _>("skills_match_score")?,
-                    experience_match_score: r.try_get::<Option<f64>, _>("experience_match_score")?,
+                    experience_match_score: r
+                        .try_get::<Option<f64>, _>("experience_match_score")?,
                     education_match_score: r.try_get::<Option<f64>, _>("education_match_score")?,
                     missing_skills: serde_json::from_str(&missing_skills_str)?,
                     matching_skills: serde_json::from_str(&matching_skills_str)?,
@@ -403,7 +419,11 @@ impl ResumeMatcher {
     }
 
     /// Get recent match results for a resume with job titles
-    pub async fn get_recent_matches(&self, resume_id: i64, limit: i64) -> Result<Vec<MatchResultWithJob>> {
+    pub async fn get_recent_matches(
+        &self,
+        resume_id: i64,
+        limit: i64,
+    ) -> Result<Vec<MatchResultWithJob>> {
         let rows = sqlx::query(
             r#"
             SELECT m.id, m.resume_id, m.job_hash, m.overall_match_score, m.skills_match_score,
@@ -432,10 +452,12 @@ impl ResumeMatcher {
                         .map(|dt| Utc.from_utc_datetime(&dt))
                 })?;
 
-            let missing_skills_str = r.try_get::<Option<String>, _>("missing_skills")
+            let missing_skills_str = r
+                .try_get::<Option<String>, _>("missing_skills")
                 .unwrap_or(None)
                 .unwrap_or_else(|| "[]".to_string());
-            let matching_skills_str = r.try_get::<Option<String>, _>("matching_skills")
+            let matching_skills_str = r
+                .try_get::<Option<String>, _>("matching_skills")
                 .unwrap_or(None)
                 .unwrap_or_else(|| "[]".to_string());
 
@@ -443,8 +465,12 @@ impl ResumeMatcher {
                 id: r.try_get::<i64, _>("id")?,
                 resume_id: r.try_get::<i64, _>("resume_id")?,
                 job_hash: r.try_get::<String, _>("job_hash")?,
-                job_title: r.try_get::<Option<String>, _>("job_title")?.unwrap_or_else(|| "Unknown Job".to_string()),
-                company: r.try_get::<Option<String>, _>("company")?.unwrap_or_else(|| "Unknown Company".to_string()),
+                job_title: r
+                    .try_get::<Option<String>, _>("job_title")?
+                    .unwrap_or_else(|| "Unknown Job".to_string()),
+                company: r
+                    .try_get::<Option<String>, _>("company")?
+                    .unwrap_or_else(|| "Unknown Company".to_string()),
                 overall_match_score: r.try_get::<f64, _>("overall_match_score")?,
                 skills_match_score: r.try_get::<Option<f64>, _>("skills_match_score")?,
                 missing_skills: serde_json::from_str(&missing_skills_str)?,
@@ -465,12 +491,10 @@ impl ResumeMatcher {
             .await?;
 
         // Activate selected resume
-        sqlx::query(
-            "UPDATE resumes SET is_active = 1, updated_at = datetime('now') WHERE id = ?",
-        )
-        .bind(resume_id)
-        .execute(&self.db)
-        .await?;
+        sqlx::query("UPDATE resumes SET is_active = 1, updated_at = datetime('now') WHERE id = ?")
+            .bind(resume_id)
+            .execute(&self.db)
+            .await?;
 
         Ok(())
     }
@@ -478,8 +502,8 @@ impl ResumeMatcher {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use super::skills::SkillExtractor;
+    use super::*;
     use sqlx::sqlite::SqlitePoolOptions;
 
     async fn setup_test_db() -> SqlitePool {
@@ -693,10 +717,12 @@ mod tests {
         create_test_resume(&pool, "Test Resume", "Test content").await;
 
         // Query active resume directly instead of using get_active_resume (datetime parsing issues)
-        let row = sqlx::query("SELECT id, name FROM resumes WHERE is_active = 1 ORDER BY created_at DESC LIMIT 1")
-            .fetch_optional(&pool)
-            .await
-            .unwrap();
+        let row = sqlx::query(
+            "SELECT id, name FROM resumes WHERE is_active = 1 ORDER BY created_at DESC LIMIT 1",
+        )
+        .fetch_optional(&pool)
+        .await
+        .unwrap();
 
         assert!(row.is_some());
         assert_eq!(row.unwrap().get::<String, _>("name"), "Test Resume");
@@ -777,10 +803,12 @@ mod tests {
         .last_insert_rowid();
 
         // Most recent (Resume 2) should be returned by ORDER BY created_at DESC
-        let row = sqlx::query("SELECT id, name FROM resumes WHERE is_active = 1 ORDER BY created_at DESC LIMIT 1")
-            .fetch_one(&pool)
-            .await
-            .unwrap();
+        let row = sqlx::query(
+            "SELECT id, name FROM resumes WHERE is_active = 1 ORDER BY created_at DESC LIMIT 1",
+        )
+        .fetch_one(&pool)
+        .await
+        .unwrap();
         assert_eq!(row.get::<i64, _>("id"), id2);
         assert_eq!(row.get::<String, _>("name"), "Resume 2");
     }
@@ -824,10 +852,7 @@ mod tests {
 
         let skills = matcher.get_user_skills(resume_id).await.unwrap();
 
-        let python_count = skills
-            .iter()
-            .filter(|s| s.skill_name == "Python")
-            .count();
+        let python_count = skills.iter().filter(|s| s.skill_name == "Python").count();
         assert_eq!(python_count, 1, "Should only have one Python skill");
     }
 
@@ -901,9 +926,18 @@ mod tests {
         let resume_id = create_test_resume(&pool, "Dev Resume", resume_text).await;
 
         let job_hash = "job_123";
-        create_test_job(&pool, job_hash, "Backend Engineer", "Python, JavaScript, PostgreSQL").await;
+        create_test_job(
+            &pool,
+            job_hash,
+            "Backend Engineer",
+            "Python, JavaScript, PostgreSQL",
+        )
+        .await;
 
-        let match_result = matcher.match_resume_to_job(resume_id, job_hash).await.unwrap();
+        let match_result = matcher
+            .match_resume_to_job(resume_id, job_hash)
+            .await
+            .unwrap();
 
         assert_eq!(match_result.resume_id, resume_id);
         assert_eq!(match_result.job_hash, job_hash);
@@ -922,9 +956,18 @@ mod tests {
         let resume_id = create_test_resume(&pool, "Full Stack Resume", resume_text).await;
 
         let job_hash = "job_perfect";
-        create_test_job(&pool, job_hash, "Full Stack Dev", "Python JavaScript React Django").await;
+        create_test_job(
+            &pool,
+            job_hash,
+            "Full Stack Dev",
+            "Python JavaScript React Django",
+        )
+        .await;
 
-        let match_result = matcher.match_resume_to_job(resume_id, job_hash).await.unwrap();
+        let match_result = matcher
+            .match_resume_to_job(resume_id, job_hash)
+            .await
+            .unwrap();
 
         // Should be a good match (skills were extracted from both)
         assert!(match_result.overall_match_score >= 0.5);
@@ -940,9 +983,18 @@ mod tests {
         let resume_id = create_test_resume(&pool, "Python Resume", resume_text).await;
 
         let job_hash = "job_mismatch";
-        create_test_job(&pool, job_hash, "Java Developer", "Java Spring Hibernate Maven").await;
+        create_test_job(
+            &pool,
+            job_hash,
+            "Java Developer",
+            "Java Spring Hibernate Maven",
+        )
+        .await;
 
-        let match_result = matcher.match_resume_to_job(resume_id, job_hash).await.unwrap();
+        let match_result = matcher
+            .match_resume_to_job(resume_id, job_hash)
+            .await
+            .unwrap();
 
         // Should have low match score
         assert!(match_result.overall_match_score < 0.3);
@@ -960,7 +1012,10 @@ mod tests {
         create_test_job(&pool, job_hash, "Engineer", "Python JavaScript React").await;
 
         // First match
-        let match1 = matcher.match_resume_to_job(resume_id, job_hash).await.unwrap();
+        let match1 = matcher
+            .match_resume_to_job(resume_id, job_hash)
+            .await
+            .unwrap();
         assert!(match1.id > 0);
 
         // Verify match was persisted via direct query
@@ -972,7 +1027,10 @@ mod tests {
             .unwrap();
 
         assert_eq!(row.get::<i64, _>("id"), match1.id);
-        assert_eq!(row.get::<f64, _>("overall_match_score"), match1.overall_match_score);
+        assert_eq!(
+            row.get::<f64, _>("overall_match_score"),
+            match1.overall_match_score
+        );
     }
 
     #[tokio::test]
@@ -980,7 +1038,10 @@ mod tests {
         let pool = setup_test_db().await;
         let matcher = ResumeMatcher::new(pool.clone());
 
-        let result = matcher.get_match_result(999, "nonexistent_job").await.unwrap();
+        let result = matcher
+            .get_match_result(999, "nonexistent_job")
+            .await
+            .unwrap();
         assert!(result.is_none());
     }
 
@@ -994,7 +1055,10 @@ mod tests {
         create_test_job(&pool, job_hash, "Engineer", "Python").await;
 
         // First match
-        let _match1 = matcher.match_resume_to_job(resume_id, job_hash).await.unwrap();
+        let _match1 = matcher
+            .match_resume_to_job(resume_id, job_hash)
+            .await
+            .unwrap();
 
         // Update resume skills to change match score
         sqlx::query(
@@ -1018,15 +1082,20 @@ mod tests {
             .unwrap();
 
         // Second match (should upsert)
-        let _match2 = matcher.match_resume_to_job(resume_id, job_hash).await.unwrap();
-
-        // Should have updated the existing record
-        let all_matches = sqlx::query("SELECT COUNT(*) as count FROM resume_job_matches WHERE resume_id = ? AND job_hash = ?")
-            .bind(resume_id)
-            .bind(job_hash)
-            .fetch_one(&pool)
+        let _match2 = matcher
+            .match_resume_to_job(resume_id, job_hash)
             .await
             .unwrap();
+
+        // Should have updated the existing record
+        let all_matches = sqlx::query(
+            "SELECT COUNT(*) as count FROM resume_job_matches WHERE resume_id = ? AND job_hash = ?",
+        )
+        .bind(resume_id)
+        .bind(job_hash)
+        .fetch_one(&pool)
+        .await
+        .unwrap();
         assert_eq!(all_matches.get::<i64, _>("count"), 1);
     }
 
@@ -1104,7 +1173,10 @@ mod tests {
         .unwrap();
 
         // Should handle null description gracefully
-        let match_result = matcher.match_resume_to_job(resume_id, job_hash).await.unwrap();
+        let match_result = matcher
+            .match_resume_to_job(resume_id, job_hash)
+            .await
+            .unwrap();
         assert!(match_result.overall_match_score >= 0.0);
     }
 
@@ -1147,10 +1219,12 @@ mod tests {
         .last_insert_rowid();
 
         // Should return most recent active resume via direct query
-        let row = sqlx::query("SELECT id, name FROM resumes WHERE is_active = 1 ORDER BY created_at DESC LIMIT 1")
-            .fetch_one(&pool)
-            .await
-            .unwrap();
+        let row = sqlx::query(
+            "SELECT id, name FROM resumes WHERE is_active = 1 ORDER BY created_at DESC LIMIT 1",
+        )
+        .fetch_one(&pool)
+        .await
+        .unwrap();
         assert_eq!(row.get::<i64, _>("id"), id3);
         assert_eq!(row.get::<String, _>("name"), "Resume 3");
     }
@@ -1183,7 +1257,10 @@ mod tests {
         let job_hash = "job_special";
         create_test_job(&pool, job_hash, "Developer", "C++ C# Node.js ASP.NET").await;
 
-        let match_result = matcher.match_resume_to_job(resume_id, job_hash).await.unwrap();
+        let match_result = matcher
+            .match_resume_to_job(resume_id, job_hash)
+            .await
+            .unwrap();
 
         // Should handle special characters in skill names
         // Note: Some special char skills may not be in the skill database
@@ -1215,7 +1292,10 @@ mod tests {
         assert_eq!(resume.id, resume_id);
         assert_eq!(resume.name, "Complete Resume");
         assert_eq!(resume.file_path, "/tmp/complete.pdf");
-        assert_eq!(resume.parsed_text, Some("Complete content with skills".to_string()));
+        assert_eq!(
+            resume.parsed_text,
+            Some("Complete content with skills".to_string())
+        );
         assert!(resume.is_active);
     }
 
@@ -1306,7 +1386,10 @@ mod tests {
         create_test_job(&pool, job_hash, "Engineer", "Python JavaScript React").await;
 
         // Create match
-        let created_match = matcher.match_resume_to_job(resume_id, job_hash).await.unwrap();
+        let created_match = matcher
+            .match_resume_to_job(resume_id, job_hash)
+            .await
+            .unwrap();
 
         // Test get_match_result
         let retrieved = matcher.get_match_result(resume_id, job_hash).await.unwrap();
@@ -1315,7 +1398,10 @@ mod tests {
         assert_eq!(result.id, created_match.id);
         assert_eq!(result.resume_id, resume_id);
         assert_eq!(result.job_hash, job_hash);
-        assert_eq!(result.overall_match_score, created_match.overall_match_score);
+        assert_eq!(
+            result.overall_match_score,
+            created_match.overall_match_score
+        );
         assert_eq!(result.skills_match_score, created_match.skills_match_score);
         assert_eq!(result.missing_skills, created_match.missing_skills);
         assert_eq!(result.matching_skills, created_match.matching_skills);
@@ -1330,7 +1416,10 @@ mod tests {
         let job_hash = "job_empty_skills";
         create_test_job(&pool, job_hash, "Engineer", "").await;
 
-        let created_match = matcher.match_resume_to_job(resume_id, job_hash).await.unwrap();
+        let created_match = matcher
+            .match_resume_to_job(resume_id, job_hash)
+            .await
+            .unwrap();
 
         let result = matcher.get_match_result(resume_id, job_hash).await.unwrap();
         assert!(result.is_some());
@@ -1453,7 +1542,10 @@ mod tests {
         create_test_job(&pool, job_hash, "Engineer", "Python").await;
 
         // Create a match
-        matcher.match_resume_to_job(resume_id, job_hash).await.unwrap();
+        matcher
+            .match_resume_to_job(resume_id, job_hash)
+            .await
+            .unwrap();
 
         // Manually corrupt the JSON to test error handling
         sqlx::query(
@@ -1483,9 +1575,18 @@ mod tests {
         create_test_job(&pool, job_hash, "Engineer", "Python JavaScript").await;
 
         // Create match multiple times
-        let match1 = matcher.match_resume_to_job(resume_id, job_hash).await.unwrap();
-        let match2 = matcher.match_resume_to_job(resume_id, job_hash).await.unwrap();
-        let match3 = matcher.match_resume_to_job(resume_id, job_hash).await.unwrap();
+        let match1 = matcher
+            .match_resume_to_job(resume_id, job_hash)
+            .await
+            .unwrap();
+        let match2 = matcher
+            .match_resume_to_job(resume_id, job_hash)
+            .await
+            .unwrap();
+        let match3 = matcher
+            .match_resume_to_job(resume_id, job_hash)
+            .await
+            .unwrap();
 
         // Should have same scores (deterministic matching)
         assert_eq!(match1.overall_match_score, match2.overall_match_score);
@@ -1565,7 +1666,10 @@ mod tests {
         create_test_job(&pool, job_hash, "Engineer", "Python").await;
 
         // Create match and manually set all score fields
-        matcher.match_resume_to_job(resume_id, job_hash).await.unwrap();
+        matcher
+            .match_resume_to_job(resume_id, job_hash)
+            .await
+            .unwrap();
 
         sqlx::query(
             r#"

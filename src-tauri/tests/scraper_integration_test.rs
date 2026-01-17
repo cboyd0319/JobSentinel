@@ -243,11 +243,7 @@ fn test_dice_scraper_construction() {
 
 #[test]
 fn test_dice_scraper_with_location() {
-    let scraper = DiceScraper::new(
-        "python".to_string(),
-        Some("Austin, TX".to_string()),
-        10,
-    );
+    let scraper = DiceScraper::new("python".to_string(), Some("Austin, TX".to_string()), 10);
     assert_eq!(scraper.name(), "dice");
     assert_eq!(scraper.location, Some("Austin, TX".to_string()));
 }
@@ -420,11 +416,7 @@ fn test_builtin_scraper_construction() {
 
 #[test]
 fn test_builtin_scraper_with_category() {
-    let scraper = BuiltInScraper::new(
-        "Austin".to_string(),
-        Some("engineering".to_string()),
-        15,
-    );
+    let scraper = BuiltInScraper::new("Austin".to_string(), Some("engineering".to_string()), 15);
     assert_eq!(scraper.name(), "builtin");
     assert_eq!(scraper.category, Some("engineering".to_string()));
 }

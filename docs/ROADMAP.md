@@ -2,7 +2,7 @@
 
 **Last Updated:** January 17, 2026
 
-## Current Version: 1.4.0
+## Current Version: 1.5.0
 
 ### Working Features (v1.4.0)
 - **13 Job scrapers**: Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, ZipRecruiter
@@ -80,21 +80,21 @@
 | Keyboard Shortcut Badges | **Done** | ShortcutKey component for visual hints |
 | Tour Integration | **Done** | "Take a guided tour" link in keyboard help |
 
-### v1.5 - Code Quality & Refactoring (PLANNED)
+### v1.5 - Code Quality & Refactoring (COMPLETED)
 
-Major refactoring effort to modularize oversized files. See **Technical Debt** section below.
+Major refactoring effort to modularize oversized files. All high-priority files have been split.
 
-| File | Lines | Target | Strategy |
-|------|-------|--------|----------|
-| `db/mod.rs` | 4442 | <500 each | Split: queries, migrations, types, tests |
-| `scheduler/mod.rs` | 2955 | <600 each | Split: pipeline, workers, state, tests |
-| `market_intelligence/mod.rs` | 2703 | <500 each | Split: trends, snapshots, alerts, analytics |
-| `db/integrity.rs` | 2517 | <500 each | Split: validators, checks, repairs |
-| `config/mod.rs` | 2343 | <500 each | Split: types, validation, defaults, io |
-| `Dashboard.tsx` | 2315 | <400 each | Split: JobList, Filters, Stats, Search |
-| `scrapers/lever.rs` | 2256 | <500 | Extract tests to separate file |
-| `ats/mod.rs` | 2082 | <500 each | Split: applications, reminders, timeline |
-| `commands/mod.rs` | 1278 | <300 each | Group by domain: jobs, ats, resume, salary |
+| File | Before | After | Status |
+|------|--------|-------|--------|
+| `db/mod.rs` | 4442 | 85 (+8 modules) | **Done** |
+| `scheduler/mod.rs` | 2955 | ~300 (+7 modules) | **Done** |
+| `market_intelligence/mod.rs` | 2703 | ~400 (+4 modules) | **Done** |
+| `db/integrity.rs` | 2517 | 85 (+5 modules) | **Done** |
+| `config/mod.rs` | 2343 | ~300 (+5 modules) | **Done** |
+| `Dashboard.tsx` | 2315 | 672 (+11 files) | **Done** |
+| `ats/mod.rs` | 2082 | ~300 (+5 modules) | **Done** |
+| `scrapers/lever.rs` | 2256 | - | Deferred (mostly tests) |
+| `commands/mod.rs` | 1278 | - | Deferred (v1.6) |
 
 ### v2.0 Planned Features
 
@@ -225,53 +225,37 @@ Automated application submission.
 
 ---
 
-## Technical Debt: File Modularization
+## Technical Debt: File Modularization (v1.5 COMPLETE)
 
-### Priority 1 - Critical (4000+ lines)
+The v1.5 modularization effort successfully split 7 oversized files into smaller, focused modules.
 
-#### `src-tauri/src/core/db/mod.rs` (4442 lines)
-**Problem:** Monolithic database module with queries, types, migrations, and tests all in one file.
+### Completed Splits
 
-**Split Strategy:**
-- `db/mod.rs` - Re-exports and Database struct (~100 lines)
-- `db/types.rs` - Job, JobFilter, SearchResult structs (~200 lines)
-- `db/queries.rs` - All SQL query functions (~800 lines)
-- `db/migrations.rs` - Migration runner and schema (~300 lines)
-- `db/search.rs` - Full-text search logic (~400 lines)
-- `db/tests/` - Move all tests to separate module (~2500 lines)
+#### Rust Backend Modules
 
-### Priority 2 - High (2500+ lines)
+| Module | Before | After | Files Created |
+|--------|--------|-------|---------------|
+| `db/mod.rs` | 4442 | 85 | types.rs, connection.rs, crud.rs, queries.rs, interactions.rs, analytics.rs, ghost.rs, tests.rs |
+| `db/integrity.rs` | 2517 | → `db/integrity/` | mod.rs (85), types.rs, checks.rs, backups.rs, diagnostics.rs, tests.rs |
+| `scheduler/mod.rs` | 2955 | ~300 | types.rs, pipeline.rs, workers/{mod,scrapers,scoring,persistence}.rs, tests.rs |
+| `market_intelligence/mod.rs` | 2703 | ~400 | computations.rs, queries.rs, utils.rs, tests.rs |
+| `config/mod.rs` | 2343 | ~300 | types.rs, defaults.rs, validation.rs, io.rs, tests.rs |
+| `ats/mod.rs` | 2082 | ~300 | types.rs, tracker.rs, reminders.rs, interview.rs, tests.rs |
 
-#### `src-tauri/src/core/scheduler/mod.rs` (2955 lines)
-**Split Strategy:**
-- `scheduler/mod.rs` - Scheduler struct and public API (~200 lines)
-- `scheduler/pipeline.rs` - Scraping pipeline logic (~500 lines)
-- `scheduler/workers.rs` - Async worker management (~400 lines)
-- `scheduler/state.rs` - State tracking and persistence (~300 lines)
-- `scheduler/tests.rs` - Unit tests (~1500 lines)
+#### React Frontend
 
-#### `src-tauri/src/core/market_intelligence/mod.rs` (2703 lines)
-**Split Strategy:**
-- `market_intelligence/mod.rs` - Public API and types (~200 lines)
-- `market_intelligence/trends.rs` - Skill trend analysis (~500 lines)
-- `market_intelligence/snapshots.rs` - Daily snapshot logic (~400 lines)
-- `market_intelligence/alerts.rs` - Alert detection (~300 lines)
-- `market_intelligence/tests.rs` - Tests (~1300 lines)
+| File | Before | After | Files Created |
+|------|--------|-------|---------------|
+| `Dashboard.tsx` | 2315 | 672 | DashboardTypes.ts, DashboardIcons.tsx, 5 hooks (useDashboardFilters, useDashboardSearch, useDashboardJobOps, useDashboardSavedSearches, useDashboardAutoRefresh), 3 UI components (DashboardHeader, DashboardStats, DashboardFiltersBar) |
 
-#### `src-tauri/src/core/db/integrity.rs` (2517 lines)
-**Split Strategy:**
-- `db/integrity/mod.rs` - Public API (~100 lines)
-- `db/integrity/validators.rs` - Field validation (~400 lines)
-- `db/integrity/checks.rs` - Integrity checks (~500 lines)
-- `db/integrity/repairs.rs` - Auto-repair logic (~400 lines)
-- `db/integrity/tests.rs` - Tests (~1100 lines)
+### Remaining (Lower Priority - v1.6+)
 
-### Priority 3 - Medium (2000+ lines)
-
-#### `src-tauri/src/core/config/mod.rs` (2343 lines)
-**Split Strategy:**
-- `config/mod.rs` - Config struct and load/save (~300 lines)
-- `config/types.rs` - All config subtypes (~500 lines)
+| File | Lines | Notes |
+|------|-------|-------|
+| `scrapers/lever.rs` | 2256 | Mostly tests - extract when needed |
+| `commands/mod.rs` | 1278 | Could split by domain (jobs, ats, resume, salary) |
+| `salary/mod.rs` | 1999 | Split predictor, benchmarks, tests |
+| `resume/mod.rs` | 1727 | Split parser, matcher, tests |
 - `config/validation.rs` - Validation logic (~400 lines)
 - `config/defaults.rs` - Default values (~200 lines)
 - `config/tests.rs` - Tests (~900 lines)

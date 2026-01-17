@@ -90,7 +90,10 @@ impl SalaryPredictor {
             .await?;
 
             // Check if we have actual data (not just NULL from empty AVG)
-            let avg_median = fallback.try_get::<Option<f64>, _>("avg_median").ok().flatten();
+            let avg_median = fallback
+                .try_get::<Option<f64>, _>("avg_median")
+                .ok()
+                .flatten();
 
             if avg_median.is_some() {
                 (
@@ -197,7 +200,9 @@ impl SalaryPredictor {
                         .or_else(|_| {
                             // Parse SQLite datetime format: "YYYY-MM-DD HH:MM:SS"
                             chrono::NaiveDateTime::parse_from_str(&created_str, "%Y-%m-%d %H:%M:%S")
-                                .map(|ndt| chrono::DateTime::<Utc>::from_naive_utc_and_offset(ndt, Utc))
+                                .map(|ndt| {
+                                    chrono::DateTime::<Utc>::from_naive_utc_and_offset(ndt, Utc)
+                                })
                         })?
                 },
             })),
@@ -373,13 +378,22 @@ mod tests {
         let pool = create_test_db().await;
         let predictor = SalaryPredictor::new(pool);
         // Just verify it was created (struct is simple)
-        assert_eq!(std::mem::size_of_val(&predictor), std::mem::size_of::<SqlitePool>());
+        assert_eq!(
+            std::mem::size_of_val(&predictor),
+            std::mem::size_of::<SqlitePool>()
+        );
     }
 
     #[tokio::test]
     async fn test_predict_for_job_exact_match() {
         let pool = create_test_db().await;
-        insert_test_job(&pool, "job123", "Senior Software Engineer", "San Francisco, CA").await;
+        insert_test_job(
+            &pool,
+            "job123",
+            "Senior Software Engineer",
+            "San Francisco, CA",
+        )
+        .await;
         insert_benchmark(
             &pool,
             "software engineer",
@@ -441,8 +455,28 @@ mod tests {
         insert_test_job(&pool, "job789", "Software Engineer", "Austin, TX").await;
 
         // No exact location match, but have data for same title/seniority in other locations
-        insert_benchmark(&pool, "software engineer", "san francisco, ca", "mid", 140000, 160000, 190000, 80).await;
-        insert_benchmark(&pool, "software engineer", "new york, ny", "mid", 130000, 150000, 180000, 60).await;
+        insert_benchmark(
+            &pool,
+            "software engineer",
+            "san francisco, ca",
+            "mid",
+            140000,
+            160000,
+            190000,
+            80,
+        )
+        .await;
+        insert_benchmark(
+            &pool,
+            "software engineer",
+            "new york, ny",
+            "mid",
+            130000,
+            150000,
+            180000,
+            60,
+        )
+        .await;
 
         let predictor = SalaryPredictor::new(pool);
         let result = predictor.predict_for_job("job789", Some(5)).await; // 5 years = Mid
@@ -550,22 +584,39 @@ mod tests {
         let predictor = SalaryPredictor::new(pool.clone());
 
         // First prediction
-        let first = predictor.predict_for_job("job_update", Some(5)).await.unwrap();
+        let first = predictor
+            .predict_for_job("job_update", Some(5))
+            .await
+            .unwrap();
         assert_eq!(first.predicted_median, 120000); // Mid level default
 
         // Add benchmark data (use cloned pool)
-        insert_benchmark(&pool, "product manager", "denver, co", "mid", 110000, 130000, 150000, 30).await;
+        insert_benchmark(
+            &pool,
+            "product manager",
+            "denver, co",
+            "mid",
+            110000,
+            130000,
+            150000,
+            30,
+        )
+        .await;
 
         // Second prediction should update
-        let second = predictor.predict_for_job("job_update", Some(5)).await.unwrap();
+        let second = predictor
+            .predict_for_job("job_update", Some(5))
+            .await
+            .unwrap();
         assert_eq!(second.predicted_median, 130000); // Now uses benchmark
 
         // Verify only one record exists
-        let count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM job_salary_predictions WHERE job_hash = ?")
-            .bind("job_update")
-            .fetch_one(&predictor.db)
-            .await
-            .unwrap();
+        let count: i64 =
+            sqlx::query_scalar("SELECT COUNT(*) FROM job_salary_predictions WHERE job_hash = ?")
+                .bind("job_update")
+                .fetch_one(&predictor.db)
+                .await
+                .unwrap();
         assert_eq!(count, 1);
     }
 
@@ -627,10 +678,23 @@ mod tests {
     async fn test_get_prediction_returns_correct_data() {
         let pool = create_test_db().await;
         insert_test_job(&pool, "job_data", "ML Engineer", "Los Angeles, CA").await;
-        insert_benchmark(&pool, "ml engineer", "los angeles, ca", "mid", 125000, 145000, 175000, 25).await;
+        insert_benchmark(
+            &pool,
+            "ml engineer",
+            "los angeles, ca",
+            "mid",
+            125000,
+            145000,
+            175000,
+            25,
+        )
+        .await;
 
         let predictor = SalaryPredictor::new(pool);
-        let predicted = predictor.predict_for_job("job_data", Some(6)).await.unwrap();
+        let predicted = predictor
+            .predict_for_job("job_data", Some(6))
+            .await
+            .unwrap();
 
         let retrieved = predictor.get_prediction("job_data").await.unwrap().unwrap();
 
@@ -648,11 +712,23 @@ mod tests {
         let pool = create_test_db().await;
         let predictor = SalaryPredictor::new(pool);
 
-        assert_eq!(predictor.normalize_title("Software Engineer"), "software engineer");
+        assert_eq!(
+            predictor.normalize_title("Software Engineer"),
+            "software engineer"
+        );
         assert_eq!(predictor.normalize_title("Senior SWE"), "software engineer");
-        assert_eq!(predictor.normalize_title("Data Scientist"), "data scientist");
-        assert_eq!(predictor.normalize_title("Product Manager"), "product manager");
-        assert_eq!(predictor.normalize_title("DevOps Engineer"), "devops engineer");
+        assert_eq!(
+            predictor.normalize_title("Data Scientist"),
+            "data scientist"
+        );
+        assert_eq!(
+            predictor.normalize_title("Product Manager"),
+            "product manager"
+        );
+        assert_eq!(
+            predictor.normalize_title("DevOps Engineer"),
+            "devops engineer"
+        );
     }
 
     #[tokio::test]
@@ -660,7 +736,10 @@ mod tests {
         let pool = create_test_db().await;
         let predictor = SalaryPredictor::new(pool);
 
-        assert_eq!(predictor.normalize_location("San Francisco, CA"), "san francisco, ca");
+        assert_eq!(
+            predictor.normalize_location("San Francisco, CA"),
+            "san francisco, ca"
+        );
         assert_eq!(predictor.normalize_location("SF"), "san francisco, ca");
         assert_eq!(predictor.normalize_location("New York, NY"), "new york, ny");
         assert_eq!(predictor.normalize_location("NYC"), "new york, ny");
@@ -670,9 +749,25 @@ mod tests {
     #[tokio::test]
     async fn test_prediction_with_location_like_pattern() {
         let pool = create_test_db().await;
-        insert_test_job(&pool, "job_like", "Software Engineer", "San Francisco Bay Area").await;
+        insert_test_job(
+            &pool,
+            "job_like",
+            "Software Engineer",
+            "San Francisco Bay Area",
+        )
+        .await;
         // Benchmark for "san francisco, ca" should match "san francisco bay area" due to LIKE %...%
-        insert_benchmark(&pool, "software engineer", "san francisco, ca", "mid", 140000, 165000, 195000, 75).await;
+        insert_benchmark(
+            &pool,
+            "software engineer",
+            "san francisco, ca",
+            "mid",
+            140000,
+            165000,
+            195000,
+            75,
+        )
+        .await;
 
         let predictor = SalaryPredictor::new(pool);
         let result = predictor.predict_for_job("job_like", Some(5)).await;
@@ -691,7 +786,17 @@ mod tests {
 
         // Entry level
         insert_test_job(&pool, "job_jr", "Junior Software Engineer", "Remote").await;
-        insert_benchmark(&pool, "software engineer", "remote", "entry", 70000, 85000, 100000, 40).await;
+        insert_benchmark(
+            &pool,
+            "software engineer",
+            "remote",
+            "entry",
+            70000,
+            85000,
+            100000,
+            40,
+        )
+        .await;
 
         let predictor = SalaryPredictor::new(pool.clone());
         let result = predictor.predict_for_job("job_jr", None).await.unwrap(); // No experience provided
@@ -699,7 +804,17 @@ mod tests {
 
         // Senior level (use cloned pool)
         insert_test_job(&pool, "job_sr", "Senior Software Engineer", "Remote").await;
-        insert_benchmark(&pool, "software engineer", "remote", "senior", 150000, 170000, 200000, 50).await;
+        insert_benchmark(
+            &pool,
+            "software engineer",
+            "remote",
+            "senior",
+            150000,
+            170000,
+            200000,
+            50,
+        )
+        .await;
 
         let result = predictor.predict_for_job("job_sr", None).await.unwrap();
         assert_eq!(result.predicted_median, 170000);
@@ -717,14 +832,8 @@ mod tests {
             predictor.normalize_title("Senior Software Engineer"),
             "software engineer"
         );
-        assert_eq!(
-            predictor.normalize_title("SWE"),
-            "software engineer"
-        );
-        assert_eq!(
-            predictor.normalize_title("Staff SWE"),
-            "software engineer"
-        );
+        assert_eq!(predictor.normalize_title("SWE"), "software engineer");
+        assert_eq!(predictor.normalize_title("Staff SWE"), "software engineer");
     }
 
     #[test]
@@ -775,10 +884,7 @@ mod tests {
             predictor.normalize_title("Backend Developer"),
             "backend developer"
         );
-        assert_eq!(
-            predictor.normalize_title("QA Engineer"),
-            "qa engineer"
-        );
+        assert_eq!(predictor.normalize_title("QA Engineer"), "qa engineer");
     }
 
     #[test]
@@ -877,20 +983,14 @@ mod tests {
             predictor.normalize_title("Ingénieur Logiciel"),
             "ingénieur logiciel"
         );
-        assert_eq!(
-            predictor.normalize_title("开发工程师"),
-            "开发工程师"
-        );
+        assert_eq!(predictor.normalize_title("开发工程师"), "开发工程师");
     }
 
     #[test]
     fn test_normalize_title_special_characters() {
         let predictor = create_test_predictor();
         // Special characters in non-matching titles
-        assert_eq!(
-            predictor.normalize_title("C++ Developer"),
-            "c++ developer"
-        );
+        assert_eq!(predictor.normalize_title("C++ Developer"), "c++ developer");
         assert_eq!(
             predictor.normalize_title("ML/AI Engineer"),
             "ml/ai engineer"
@@ -909,10 +1009,7 @@ mod tests {
             predictor.normalize_title("Software Engineer III"),
             "software engineer"
         );
-        assert_eq!(
-            predictor.normalize_title("SWE 2"),
-            "software engineer"
-        );
+        assert_eq!(predictor.normalize_title("SWE 2"), "software engineer");
     }
 
     #[test]
@@ -927,46 +1024,28 @@ mod tests {
             predictor.normalize_location("San Francisco Bay Area"),
             "san francisco, ca"
         );
-        assert_eq!(
-            predictor.normalize_location("SF"),
-            "san francisco, ca"
-        );
-        assert_eq!(
-            predictor.normalize_location("sf, ca"),
-            "san francisco, ca"
-        );
+        assert_eq!(predictor.normalize_location("SF"), "san francisco, ca");
+        assert_eq!(predictor.normalize_location("sf, ca"), "san francisco, ca");
     }
 
     #[test]
     fn test_normalize_location_new_york() {
         let predictor = create_test_predictor();
 
-        assert_eq!(
-            predictor.normalize_location("New York, NY"),
-            "new york, ny"
-        );
+        assert_eq!(predictor.normalize_location("New York, NY"), "new york, ny");
         assert_eq!(
             predictor.normalize_location("New York City"),
             "new york, ny"
         );
-        assert_eq!(
-            predictor.normalize_location("NYC"),
-            "new york, ny"
-        );
+        assert_eq!(predictor.normalize_location("NYC"), "new york, ny");
     }
 
     #[test]
     fn test_normalize_location_other_cities() {
         let predictor = create_test_predictor();
 
-        assert_eq!(
-            predictor.normalize_location("Denver, CO"),
-            "denver, co"
-        );
-        assert_eq!(
-            predictor.normalize_location("Boston, MA"),
-            "boston, ma"
-        );
+        assert_eq!(predictor.normalize_location("Denver, CO"), "denver, co");
+        assert_eq!(predictor.normalize_location("Boston, MA"), "boston, ma");
     }
 
     #[test]
@@ -983,10 +1062,7 @@ mod tests {
             predictor.normalize_location("SAN FRANCISCO"),
             "san francisco, ca"
         );
-        assert_eq!(
-            predictor.normalize_location("new YORK"),
-            "new york, ny"
-        );
+        assert_eq!(predictor.normalize_location("new YORK"), "new york, ny");
     }
 
     #[test]
@@ -1017,10 +1093,7 @@ mod tests {
     #[test]
     fn test_normalize_location_partial_nyc_matches() {
         let predictor = create_test_predictor();
-        assert_eq!(
-            predictor.normalize_location("NYC, USA"),
-            "new york, ny"
-        );
+        assert_eq!(predictor.normalize_location("NYC, USA"), "new york, ny");
         assert_eq!(
             predictor.normalize_location("Manhattan, New York"),
             "new york, ny"
@@ -1035,14 +1108,8 @@ mod tests {
     fn test_normalize_location_remote() {
         let predictor = create_test_predictor();
         assert_eq!(predictor.normalize_location("Remote"), "remote");
-        assert_eq!(
-            predictor.normalize_location("Remote - US"),
-            "remote - us"
-        );
-        assert_eq!(
-            predictor.normalize_location("Fully Remote"),
-            "fully remote"
-        );
+        assert_eq!(predictor.normalize_location("Remote - US"), "remote - us");
+        assert_eq!(predictor.normalize_location("Fully Remote"), "fully remote");
     }
 
     #[test]
@@ -1091,14 +1158,8 @@ mod tests {
     fn test_normalize_location_no_match() {
         let predictor = create_test_predictor();
         // Locations that don't match special cases
-        assert_eq!(
-            predictor.normalize_location("Seattle, WA"),
-            "seattle, wa"
-        );
-        assert_eq!(
-            predictor.normalize_location("Austin, TX"),
-            "austin, tx"
-        );
+        assert_eq!(predictor.normalize_location("Seattle, WA"), "seattle, wa");
+        assert_eq!(predictor.normalize_location("Austin, TX"), "austin, tx");
     }
 
     #[test]
@@ -1330,7 +1391,8 @@ mod tests {
         let predictor = create_test_predictor();
 
         // Very long title
-        let long_title = "Senior Staff Principal Software Engineer Architect Team Lead Manager Director";
+        let long_title =
+            "Senior Staff Principal Software Engineer Architect Team Lead Manager Director";
         let result = predictor.normalize_title(long_title);
         assert_eq!(result, "software engineer"); // Contains "software engineer"
 

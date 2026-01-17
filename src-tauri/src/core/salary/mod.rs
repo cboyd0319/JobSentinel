@@ -44,12 +44,12 @@ use serde::{Deserialize, Serialize};
 use sqlx::{Row, SqlitePool};
 
 pub mod benchmarks;
-pub mod predictor;
 pub mod negotiation;
+pub mod predictor;
 
 pub use benchmarks::SalaryBenchmark;
-pub use predictor::SalaryPredictor;
 pub use negotiation::NegotiationScriptGenerator;
+pub use predictor::SalaryPredictor;
 
 /// Seniority level
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -104,9 +104,15 @@ impl SeniorityLevel {
             Self::Principal
         } else if title_lower.contains("staff") || title_lower.contains("architect") {
             Self::Staff
-        } else if title_lower.contains("senior") || title_lower.contains("sr.") || title_lower.contains("lead") {
+        } else if title_lower.contains("senior")
+            || title_lower.contains("sr.")
+            || title_lower.contains("lead")
+        {
             Self::Senior
-        } else if title_lower.contains("junior") || title_lower.contains("jr.") || title_lower.contains("associate") {
+        } else if title_lower.contains("junior")
+            || title_lower.contains("jr.")
+            || title_lower.contains("associate")
+        {
             Self::Entry
         } else {
             Self::Mid // Default assumption
@@ -249,7 +255,9 @@ impl SalaryAnalyzer {
             let company: String = offer.try_get("company")?;
             let job_hash: String = offer.try_get("job_hash")?;
             let base_salary: i64 = offer.try_get::<Option<i64>, _>("base_salary")?.unwrap_or(0);
-            let annual_bonus: i64 = offer.try_get::<Option<i64>, _>("annual_bonus")?.unwrap_or(0);
+            let annual_bonus: i64 = offer
+                .try_get::<Option<i64>, _>("annual_bonus")?
+                .unwrap_or(0);
 
             // Calculate total comp (simplified)
             let total_comp = base_salary + annual_bonus;
@@ -278,7 +286,11 @@ impl SalaryAnalyzer {
 
                 (Some(pred.predicted_median), position.to_string(), rec)
             } else {
-                (None, "unknown".to_string(), "Insufficient data for recommendation.".to_string())
+                (
+                    None,
+                    "unknown".to_string(),
+                    "Insufficient data for recommendation.".to_string(),
+                )
             };
 
             comparisons.push(OfferComparison {
@@ -356,7 +368,10 @@ mod tests {
         assert_eq!(SeniorityLevel::parse("mid"), SeniorityLevel::Mid);
         assert_eq!(SeniorityLevel::parse("senior"), SeniorityLevel::Senior);
         assert_eq!(SeniorityLevel::parse("staff"), SeniorityLevel::Staff);
-        assert_eq!(SeniorityLevel::parse("principal"), SeniorityLevel::Principal);
+        assert_eq!(
+            SeniorityLevel::parse("principal"),
+            SeniorityLevel::Principal
+        );
         assert_eq!(SeniorityLevel::parse("unknown"), SeniorityLevel::Unknown);
         assert_eq!(SeniorityLevel::parse("invalid"), SeniorityLevel::Unknown);
         assert_eq!(SeniorityLevel::parse(""), SeniorityLevel::Unknown);
@@ -553,10 +568,7 @@ mod tests {
 
     #[test]
     fn test_seniority_from_empty_title() {
-        assert_eq!(
-            SeniorityLevel::from_job_title(""),
-            SeniorityLevel::Mid
-        );
+        assert_eq!(SeniorityLevel::from_job_title(""), SeniorityLevel::Mid);
     }
 
     #[test]
@@ -568,10 +580,7 @@ mod tests {
             analyzer.normalize_job_title("Senior Software Engineer"),
             "software engineer"
         );
-        assert_eq!(
-            analyzer.normalize_job_title("Sr. SWE"),
-            "software engineer"
-        );
+        assert_eq!(analyzer.normalize_job_title("Sr. SWE"), "software engineer");
         assert_eq!(
             analyzer.normalize_job_title("Staff SWE - Backend"),
             "software engineer"
@@ -641,50 +650,29 @@ mod tests {
             analyzer.normalize_location("San Francisco Bay Area"),
             "san francisco, ca"
         );
-        assert_eq!(
-            analyzer.normalize_location("SF, CA"),
-            "san francisco, ca"
-        );
+        assert_eq!(analyzer.normalize_location("SF, CA"), "san francisco, ca");
 
         // New York variants
-        assert_eq!(
-            analyzer.normalize_location("New York, NY"),
-            "new york, ny"
-        );
-        assert_eq!(
-            analyzer.normalize_location("New York City"),
-            "new york, ny"
-        );
-        assert_eq!(
-            analyzer.normalize_location("NYC"),
-            "new york, ny"
-        );
+        assert_eq!(analyzer.normalize_location("New York, NY"), "new york, ny");
+        assert_eq!(analyzer.normalize_location("New York City"), "new york, ny");
+        assert_eq!(analyzer.normalize_location("NYC"), "new york, ny");
 
         // Seattle
-        assert_eq!(
-            analyzer.normalize_location("Seattle, WA"),
-            "seattle, wa"
-        );
+        assert_eq!(analyzer.normalize_location("Seattle, WA"), "seattle, wa");
         assert_eq!(
             analyzer.normalize_location("Seattle Metropolitan Area"),
             "seattle, wa"
         );
 
         // Austin
-        assert_eq!(
-            analyzer.normalize_location("Austin, TX"),
-            "austin, tx"
-        );
+        assert_eq!(analyzer.normalize_location("Austin, TX"), "austin, tx");
         assert_eq!(
             analyzer.normalize_location("Austin-Round Rock"),
             "austin, tx"
         );
 
         // Other locations remain lowercased
-        assert_eq!(
-            analyzer.normalize_location("Denver, CO"),
-            "denver, co"
-        );
+        assert_eq!(analyzer.normalize_location("Denver, CO"), "denver, co");
     }
 
     #[test]
@@ -742,10 +730,7 @@ mod tests {
         let rec = match position {
             "above_market" => "Excellent offer! Accept or negotiate equity.".to_string(),
             "at_market" => "Fair offer. Consider negotiating for 10-15% more.".to_string(),
-            "below_market" => format!(
-                "Below market. Counter with ${}-${}.",
-                150000, 180000
-            ),
+            "below_market" => format!("Below market. Counter with ${}-${}.", 150000, 180000),
             _ => "Unknown".to_string(),
         };
         assert_eq!(rec, "Excellent offer! Accept or negotiate equity.");
@@ -755,10 +740,7 @@ mod tests {
         let rec = match position {
             "above_market" => "Excellent offer! Accept or negotiate equity.".to_string(),
             "at_market" => "Fair offer. Consider negotiating for 10-15% more.".to_string(),
-            "below_market" => format!(
-                "Below market. Counter with ${}-${}.",
-                150000, 180000
-            ),
+            "below_market" => format!("Below market. Counter with ${}-${}.", 150000, 180000),
             _ => "Unknown".to_string(),
         };
         assert_eq!(rec, "Fair offer. Consider negotiating for 10-15% more.");
@@ -768,10 +750,7 @@ mod tests {
         let rec = match position {
             "above_market" => "Excellent offer! Accept or negotiate equity.".to_string(),
             "at_market" => "Fair offer. Consider negotiating for 10-15% more.".to_string(),
-            "below_market" => format!(
-                "Below market. Counter with ${}-${}.",
-                150000, 180000
-            ),
+            "below_market" => format!("Below market. Counter with ${}-${}.", 150000, 180000),
             _ => "Unknown".to_string(),
         };
         assert_eq!(rec, "Below market. Counter with $150000-$180000.");
@@ -968,7 +947,10 @@ mod tests {
 
         assert_eq!(comparison.market_median, None);
         assert_eq!(comparison.market_position, "unknown");
-        assert_eq!(comparison.recommendation, "Insufficient data for recommendation.");
+        assert_eq!(
+            comparison.recommendation,
+            "Insufficient data for recommendation."
+        );
     }
 
     #[test]
@@ -994,10 +976,7 @@ mod tests {
         );
         // "SWE3" -> "swe3" (lowercase) -> "software engineer3" (replace swe)
         // Then contains "software engineer" so returns just "software engineer"
-        assert_eq!(
-            analyzer.normalize_job_title("SWE3"),
-            "software engineer"
-        );
+        assert_eq!(analyzer.normalize_job_title("SWE3"), "software engineer");
 
         // Multiple replacements
         // "Sr. SWE II" -> "sr. swe ii" -> "senior swe ii" -> "senior software engineer ii"
@@ -1017,10 +996,7 @@ mod tests {
             analyzer.normalize_job_title("Blockchain Ninja"),
             "blockchain ninja"
         );
-        assert_eq!(
-            analyzer.normalize_job_title("DevOps Guru"),
-            "devops guru"
-        );
+        assert_eq!(analyzer.normalize_job_title("DevOps Guru"), "devops guru");
         assert_eq!(
             analyzer.normalize_job_title("Full Stack Wizard"),
             "full stack wizard"
@@ -1036,10 +1012,7 @@ mod tests {
             analyzer.normalize_location("SAN FRANCISCO"),
             "san francisco, ca"
         );
-        assert_eq!(
-            analyzer.normalize_location("nYc"),
-            "new york, ny"
-        );
+        assert_eq!(analyzer.normalize_location("nYc"), "new york, ny");
 
         // Partial matches
         assert_eq!(
@@ -1052,14 +1025,8 @@ mod tests {
         );
 
         // No match - returns lowercase
-        assert_eq!(
-            analyzer.normalize_location("Portland, OR"),
-            "portland, or"
-        );
-        assert_eq!(
-            analyzer.normalize_location("Remote - USA"),
-            "remote - usa"
-        );
+        assert_eq!(analyzer.normalize_location("Portland, OR"), "portland, or");
+        assert_eq!(analyzer.normalize_location("Remote - USA"), "remote - usa");
     }
 
     #[test]
@@ -1067,14 +1034,8 @@ mod tests {
         let analyzer = create_test_analyzer();
 
         // Leading/trailing whitespace
-        assert_eq!(
-            analyzer.normalize_location("  Seattle  "),
-            "seattle, wa"
-        );
-        assert_eq!(
-            analyzer.normalize_location("\tNew York\n"),
-            "new york, ny"
-        );
+        assert_eq!(analyzer.normalize_location("  Seattle  "), "seattle, wa");
+        assert_eq!(analyzer.normalize_location("\tNew York\n"), "new york, ny");
     }
 
     #[test]
@@ -1123,10 +1084,7 @@ mod tests {
         let rec = match position {
             "above_market" => "Excellent offer! Accept or negotiate equity.".to_string(),
             "at_market" => "Fair offer. Consider negotiating for 10-15% more.".to_string(),
-            "below_market" => format!(
-                "Below market. Counter with ${}-${}.",
-                150000, 180000
-            ),
+            "below_market" => format!("Below market. Counter with ${}-${}.", 150000, 180000),
             _ => "Unknown".to_string(),
         };
         assert_eq!(rec, "Unknown");
@@ -1510,9 +1468,23 @@ mod tests {
         #[tokio::test]
         async fn test_predict_salary_for_job() {
             let pool = create_test_db().await;
-            insert_job(&pool, "job123", "Senior Software Engineer", "San Francisco, CA").await;
-            insert_benchmark(&pool, "software engineer", "san francisco, ca", "senior", 150000, 180000, 220000)
-                .await;
+            insert_job(
+                &pool,
+                "job123",
+                "Senior Software Engineer",
+                "San Francisco, CA",
+            )
+            .await;
+            insert_benchmark(
+                &pool,
+                "software engineer",
+                "san francisco, ca",
+                "senior",
+                150000,
+                180000,
+                220000,
+            )
+            .await;
 
             let analyzer = SalaryAnalyzer::new(pool);
             let result = analyzer.predict_salary_for_job("job123", None).await;
@@ -1529,7 +1501,16 @@ mod tests {
         async fn test_predict_salary_for_job_with_experience() {
             let pool = create_test_db().await;
             insert_job(&pool, "job456", "Software Engineer", "New York, NY").await;
-            insert_benchmark(&pool, "software engineer", "new york, ny", "entry", 80000, 100000, 120000).await;
+            insert_benchmark(
+                &pool,
+                "software engineer",
+                "new york, ny",
+                "entry",
+                80000,
+                100000,
+                120000,
+            )
+            .await;
 
             let analyzer = SalaryAnalyzer::new(pool);
             // 2 years = Entry level
@@ -1552,12 +1533,24 @@ mod tests {
         #[tokio::test]
         async fn test_get_benchmark_found() {
             let pool = create_test_db().await;
-            insert_benchmark(&pool, "software engineer", "san francisco, ca", "mid", 120000, 150000, 180000)
-                .await;
+            insert_benchmark(
+                &pool,
+                "software engineer",
+                "san francisco, ca",
+                "mid",
+                120000,
+                150000,
+                180000,
+            )
+            .await;
 
             let analyzer = SalaryAnalyzer::new(pool);
             let result = analyzer
-                .get_benchmark("Software Engineer", "San Francisco, CA", SeniorityLevel::Mid)
+                .get_benchmark(
+                    "Software Engineer",
+                    "San Francisco, CA",
+                    SeniorityLevel::Mid,
+                )
                 .await;
 
             assert!(result.is_ok());
@@ -1589,7 +1582,16 @@ mod tests {
         #[tokio::test]
         async fn test_get_benchmark_normalizes_inputs() {
             let pool = create_test_db().await;
-            insert_benchmark(&pool, "software engineer", "new york, ny", "senior", 140000, 170000, 200000).await;
+            insert_benchmark(
+                &pool,
+                "software engineer",
+                "new york, ny",
+                "senior",
+                140000,
+                170000,
+                200000,
+            )
+            .await;
 
             let analyzer = SalaryAnalyzer::new(pool);
             // Test with variations that should normalize
@@ -1610,7 +1612,16 @@ mod tests {
             let pool = create_test_db().await;
 
             // Insert first benchmark with data_source='h1b'
-            insert_benchmark(&pool, "data scientist", "seattle, wa", "mid", 100000, 120000, 140000).await;
+            insert_benchmark(
+                &pool,
+                "data scientist",
+                "seattle, wa",
+                "mid",
+                100000,
+                120000,
+                140000,
+            )
+            .await;
 
             // Wait a tiny bit to ensure different timestamp
             tokio::time::sleep(tokio::time::Duration::from_millis(50)).await;
@@ -1653,7 +1664,12 @@ mod tests {
         #[tokio::test]
         async fn test_generate_negotiation_script() {
             let pool = create_test_db().await;
-            insert_template(&pool, "greeting", "Hello {{name}}, your offer is {{amount}}.").await;
+            insert_template(
+                &pool,
+                "greeting",
+                "Hello {{name}}, your offer is {{amount}}.",
+            )
+            .await;
 
             let analyzer = SalaryAnalyzer::new(pool);
 
@@ -1661,7 +1677,9 @@ mod tests {
             params.insert("name".to_string(), "Alice".to_string());
             params.insert("amount".to_string(), "$150,000".to_string());
 
-            let result = analyzer.generate_negotiation_script("greeting", params).await;
+            let result = analyzer
+                .generate_negotiation_script("greeting", params)
+                .await;
 
             assert!(result.is_ok());
             assert_eq!(result.unwrap(), "Hello Alice, your offer is $150,000.");
@@ -1818,7 +1836,10 @@ mod tests {
 
             // 200000 >= 180000 (max) = above_market
             assert_eq!(result[0].market_position, "above_market");
-            assert_eq!(result[0].recommendation, "Excellent offer! Accept or negotiate equity.");
+            assert_eq!(
+                result[0].recommendation,
+                "Excellent offer! Accept or negotiate equity."
+            );
         }
 
         #[tokio::test]
@@ -1844,7 +1865,10 @@ mod tests {
 
             assert_eq!(result[0].market_median, None);
             assert_eq!(result[0].market_position, "unknown");
-            assert_eq!(result[0].recommendation, "Insufficient data for recommendation.");
+            assert_eq!(
+                result[0].recommendation,
+                "Insufficient data for recommendation."
+            );
         }
 
         #[tokio::test]
@@ -1961,7 +1985,10 @@ mod tests {
 
             // 150000 >= 150000 (median) but < 180000 (max) = at_market
             assert_eq!(result[0].market_position, "at_market");
-            assert_eq!(result[0].recommendation, "Fair offer. Consider negotiating for 10-15% more.");
+            assert_eq!(
+                result[0].recommendation,
+                "Fair offer. Consider negotiating for 10-15% more."
+            );
         }
 
         #[tokio::test]

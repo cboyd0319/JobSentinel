@@ -186,40 +186,79 @@ mod tests {
 
     #[test]
     fn test_compute_hash_different_company() {
-        let hash1 = JobsWithGptScraper::compute_hash("Apple", "Engineer", None, "https://example.com/1");
-        let hash2 = JobsWithGptScraper::compute_hash("Google", "Engineer", None, "https://example.com/1");
+        let hash1 =
+            JobsWithGptScraper::compute_hash("Apple", "Engineer", None, "https://example.com/1");
+        let hash2 =
+            JobsWithGptScraper::compute_hash("Google", "Engineer", None, "https://example.com/1");
 
-        assert_ne!(hash1, hash2, "Different company should produce different hash");
+        assert_ne!(
+            hash1, hash2,
+            "Different company should produce different hash"
+        );
     }
 
     #[test]
     fn test_compute_hash_different_title() {
-        let hash1 = JobsWithGptScraper::compute_hash("Company", "iOS Engineer", None, "https://example.com/1");
-        let hash2 = JobsWithGptScraper::compute_hash("Company", "Android Engineer", None, "https://example.com/1");
+        let hash1 = JobsWithGptScraper::compute_hash(
+            "Company",
+            "iOS Engineer",
+            None,
+            "https://example.com/1",
+        );
+        let hash2 = JobsWithGptScraper::compute_hash(
+            "Company",
+            "Android Engineer",
+            None,
+            "https://example.com/1",
+        );
 
-        assert_ne!(hash1, hash2, "Different title should produce different hash");
+        assert_ne!(
+            hash1, hash2,
+            "Different title should produce different hash"
+        );
     }
 
     #[test]
     fn test_compute_hash_different_location() {
-        let hash1 = JobsWithGptScraper::compute_hash("Company", "Engineer", Some("SF"), "https://example.com/1");
-        let hash2 = JobsWithGptScraper::compute_hash("Company", "Engineer", Some("NY"), "https://example.com/1");
+        let hash1 = JobsWithGptScraper::compute_hash(
+            "Company",
+            "Engineer",
+            Some("SF"),
+            "https://example.com/1",
+        );
+        let hash2 = JobsWithGptScraper::compute_hash(
+            "Company",
+            "Engineer",
+            Some("NY"),
+            "https://example.com/1",
+        );
 
-        assert_ne!(hash1, hash2, "Different location should produce different hash");
+        assert_ne!(
+            hash1, hash2,
+            "Different location should produce different hash"
+        );
     }
 
     #[test]
     fn test_compute_hash_location_none_vs_some() {
-        let hash1 = JobsWithGptScraper::compute_hash("Company", "Engineer", None, "https://example.com/1");
-        let hash2 = JobsWithGptScraper::compute_hash("Company", "Engineer", Some("Remote"), "https://example.com/1");
+        let hash1 =
+            JobsWithGptScraper::compute_hash("Company", "Engineer", None, "https://example.com/1");
+        let hash2 = JobsWithGptScraper::compute_hash(
+            "Company",
+            "Engineer",
+            Some("Remote"),
+            "https://example.com/1",
+        );
 
         assert_ne!(hash1, hash2, "None location should differ from Some");
     }
 
     #[test]
     fn test_compute_hash_different_url() {
-        let hash1 = JobsWithGptScraper::compute_hash("Company", "Engineer", None, "https://example.com/1");
-        let hash2 = JobsWithGptScraper::compute_hash("Company", "Engineer", None, "https://example.com/2");
+        let hash1 =
+            JobsWithGptScraper::compute_hash("Company", "Engineer", None, "https://example.com/1");
+        let hash2 =
+            JobsWithGptScraper::compute_hash("Company", "Engineer", None, "https://example.com/2");
 
         assert_ne!(hash1, hash2, "Different URL should produce different hash");
     }
@@ -227,7 +266,11 @@ mod tests {
     #[test]
     fn test_compute_hash_empty_strings() {
         let hash = JobsWithGptScraper::compute_hash("", "", None, "");
-        assert_eq!(hash.len(), 64, "Hash of empty strings should still be valid");
+        assert_eq!(
+            hash.len(),
+            64,
+            "Hash of empty strings should still be valid"
+        );
     }
 
     #[test]
@@ -239,7 +282,11 @@ mod tests {
             "https://jobs.example.com/job?id=123&utm_source=jobswithgpt",
         );
 
-        assert_eq!(hash.len(), 64, "Hash should handle special characters and query params");
+        assert_eq!(
+            hash.len(),
+            64,
+            "Hash should handle special characters and query params"
+        );
     }
 
     // MCP job parsing tests

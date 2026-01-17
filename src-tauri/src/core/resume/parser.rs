@@ -30,13 +30,17 @@ impl ResumeParser {
     pub fn parse_pdf(&self, file_path: &Path) -> Result<String> {
         // Canonicalize path to prevent path traversal attacks
         // This resolves symlinks and removes ../ components
-        let canonical_path = file_path
-            .canonicalize()
-            .context(format!("Invalid or inaccessible path: {}", file_path.display()))?;
+        let canonical_path = file_path.canonicalize().context(format!(
+            "Invalid or inaccessible path: {}",
+            file_path.display()
+        ))?;
 
         // Security: Verify the canonical path still exists (canonicalize can succeed on symlinks to deleted files)
         if !canonical_path.exists() {
-            return Err(anyhow::anyhow!("File not found: {}", canonical_path.display()));
+            return Err(anyhow::anyhow!(
+                "File not found: {}",
+                canonical_path.display()
+            ));
         }
 
         // Security: Verify the canonical path is a regular file (not a directory, device, etc.)
@@ -96,7 +100,10 @@ impl ResumeParser {
         // Common section headers
         let section_keywords = [
             ("summary", vec!["summary", "objective", "profile"]),
-            ("experience", vec!["experience", "work history", "employment"]),
+            (
+                "experience",
+                vec!["experience", "work history", "employment"],
+            ),
             (
                 "education",
                 vec!["education", "academic", "degree", "university"],
@@ -208,7 +215,10 @@ Python, Rust, React
 
         assert!(result.is_err());
         // Path canonicalization fails for nonexistent files
-        assert!(result.unwrap_err().to_string().contains("Invalid or inaccessible path"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("Invalid or inaccessible path"));
     }
 
     #[test]
@@ -365,7 +375,10 @@ JavaScript
         let result = parser.parse_pdf(temp_dir.path());
 
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("not a regular file"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("not a regular file"));
     }
 
     #[test]

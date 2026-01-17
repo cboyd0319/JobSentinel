@@ -1,0 +1,295 @@
+//! Configuration type definitions
+
+use serde::{Deserialize, Serialize};
+
+/// User configuration
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Config {
+    /// Job titles to match (e.g., "Security Engineer")
+    pub title_allowlist: Vec<String>,
+
+    /// Job titles to exclude (e.g., "Manager", "Intern")
+    #[serde(default)]
+    pub title_blocklist: Vec<String>,
+
+    /// Keywords to boost score
+    #[serde(default)]
+    pub keywords_boost: Vec<String>,
+
+    /// Keywords to auto-reject
+    #[serde(default)]
+    pub keywords_exclude: Vec<String>,
+
+    /// Location preferences
+    pub location_preferences: LocationPreferences,
+
+    /// Minimum salary in USD
+    pub salary_floor_usd: i64,
+
+    /// Auto-refresh configuration
+    #[serde(default)]
+    pub auto_refresh: AutoRefreshConfig,
+
+    /// Immediate alert threshold (0.0 - 1.0)
+    #[serde(default = "super::defaults::default_immediate_threshold")]
+    pub immediate_alert_threshold: f64,
+
+    /// Scraping interval in hours
+    #[serde(default = "super::defaults::default_scraping_interval")]
+    pub scraping_interval_hours: u64,
+
+    /// Alert configuration
+    pub alerts: AlertConfig,
+
+    /// Greenhouse company URLs to scrape (e.g., "https://boards.greenhouse.io/cloudflare")
+    #[serde(default)]
+    pub greenhouse_urls: Vec<String>,
+
+    /// Lever company URLs to scrape (e.g., "https://jobs.lever.co/netflix")
+    #[serde(default)]
+    pub lever_urls: Vec<String>,
+
+    /// LinkedIn scraper configuration
+    #[serde(default)]
+    pub linkedin: LinkedInConfig,
+
+    /// Indeed scraper configuration
+    #[serde(default)]
+    pub indeed: IndeedConfig,
+
+    /// JobsWithGPT MCP endpoint URL
+    #[serde(default = "super::defaults::default_jobswithgpt_endpoint")]
+    pub jobswithgpt_endpoint: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LocationPreferences {
+    pub allow_remote: bool,
+
+    #[serde(default)]
+    pub allow_hybrid: bool,
+
+    #[serde(default)]
+    pub allow_onsite: bool,
+
+    #[serde(default)]
+    pub cities: Vec<String>,
+
+    #[serde(default)]
+    pub states: Vec<String>,
+
+    #[serde(default = "super::defaults::default_country")]
+    pub country: String,
+}
+
+/// Auto-refresh configuration for the frontend
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct AutoRefreshConfig {
+    /// Enable automatic job refresh
+    #[serde(default)]
+    pub enabled: bool,
+
+    /// Refresh interval in minutes (default: 30)
+    #[serde(default = "super::defaults::default_auto_refresh_interval")]
+    pub interval_minutes: u32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct AlertConfig {
+    #[serde(default)]
+    pub slack: SlackConfig,
+
+    #[serde(default)]
+    pub email: EmailConfig,
+
+    #[serde(default)]
+    pub discord: DiscordConfig,
+
+    #[serde(default)]
+    pub telegram: TelegramConfig,
+
+    #[serde(default)]
+    pub teams: TeamsConfig,
+
+    #[serde(default)]
+    pub desktop: DesktopConfig,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct SlackConfig {
+    pub enabled: bool,
+
+    #[serde(default)]
+    pub webhook_url: String,
+}
+
+/// Email notification configuration
+///
+/// # Security Warning
+///
+/// The `smtp_password` field is stored in plaintext in the config file.
+/// For improved security, consider:
+///
+/// 1. Using app-specific passwords (e.g., Gmail's app passwords)
+/// 2. Restricting config file permissions (chmod 600)
+/// 3. Using OAuth2 authentication (planned for v2.0)
+///
+/// Future versions will use OS keyring for secure credential storage:
+/// - macOS: Keychain
+/// - Windows: Credential Manager
+/// - Linux: Secret Service API (libsecret)
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct EmailConfig {
+    #[serde(default)]
+    pub enabled: bool,
+
+    /// SMTP server hostname (e.g., "smtp.gmail.com")
+    #[serde(default)]
+    pub smtp_server: String,
+
+    /// SMTP port (typically 587 for STARTTLS, 465 for SSL)
+    #[serde(default = "super::defaults::default_smtp_port")]
+    pub smtp_port: u16,
+
+    /// SMTP username/email
+    #[serde(default)]
+    pub smtp_username: String,
+
+    /// SMTP password or app-specific password
+    ///
+    /// **Security Note**: This is stored in plaintext. Use app-specific passwords
+    /// and restrict config file permissions. Keyring storage planned for v2.0.
+    #[serde(default)]
+    pub smtp_password: String,
+
+    /// Email address to send from
+    #[serde(default)]
+    pub from_email: String,
+
+    /// Email address(es) to send to
+    #[serde(default)]
+    pub to_emails: Vec<String>,
+
+    /// Use STARTTLS (true for port 587, false for port 465)
+    #[serde(default = "super::defaults::default_use_starttls")]
+    pub use_starttls: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct DiscordConfig {
+    #[serde(default)]
+    pub enabled: bool,
+
+    /// Discord webhook URL
+    #[serde(default)]
+    pub webhook_url: String,
+
+    /// Optional: Discord user ID to mention in notifications
+    #[serde(default)]
+    pub user_id_to_mention: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct TelegramConfig {
+    #[serde(default)]
+    pub enabled: bool,
+
+    /// Telegram Bot API token
+    #[serde(default)]
+    pub bot_token: String,
+
+    /// Telegram chat ID to send messages to
+    #[serde(default)]
+    pub chat_id: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct TeamsConfig {
+    #[serde(default)]
+    pub enabled: bool,
+
+    /// Microsoft Teams webhook URL
+    #[serde(default)]
+    pub webhook_url: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct DesktopConfig {
+    #[serde(default = "super::defaults::default_desktop_enabled")]
+    pub enabled: bool,
+
+    /// Show desktop notifications even if app is focused
+    #[serde(default)]
+    pub show_when_focused: bool,
+
+    /// Play sound with notifications
+    #[serde(default = "super::defaults::default_play_sound")]
+    pub play_sound: bool,
+}
+
+/// LinkedIn scraper configuration
+///
+/// LinkedIn requires authentication via session cookie. Users must manually
+/// extract this from their browser after logging in.
+///
+/// # Security Note
+/// The session cookie provides full access to your LinkedIn account.
+/// Keep your config file secure (chmod 600).
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct LinkedInConfig {
+    /// Enable LinkedIn job scraping
+    #[serde(default)]
+    pub enabled: bool,
+
+    /// LinkedIn session cookie (li_at value)
+    /// Get this from browser DevTools: Application → Cookies → li_at
+    #[serde(default)]
+    pub session_cookie: String,
+
+    /// Search query (job title, keywords)
+    /// Example: "software engineer", "rust developer"
+    #[serde(default)]
+    pub query: String,
+
+    /// Location filter
+    /// Example: "San Francisco Bay Area", "Remote", "United States"
+    #[serde(default)]
+    pub location: String,
+
+    /// Search only for remote jobs
+    #[serde(default)]
+    pub remote_only: bool,
+
+    /// Maximum results to return (default: 50, max: 100)
+    #[serde(default = "super::defaults::default_linkedin_limit")]
+    pub limit: usize,
+}
+
+/// Indeed scraper configuration
+///
+/// Indeed uses public search pages. No authentication required, but
+/// aggressive scraping may trigger rate limiting.
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct IndeedConfig {
+    /// Enable Indeed job scraping
+    #[serde(default)]
+    pub enabled: bool,
+
+    /// Search query (job title, keywords)
+    /// Example: "software engineer", "security analyst"
+    #[serde(default)]
+    pub query: String,
+
+    /// Location filter (city, state, zip, or "remote")
+    /// Example: "San Francisco, CA", "Remote", "94105"
+    #[serde(default)]
+    pub location: String,
+
+    /// Search radius in miles (default: 25)
+    #[serde(default = "super::defaults::default_indeed_radius")]
+    pub radius: u32,
+
+    /// Maximum results to return (default: 50)
+    #[serde(default = "super::defaults::default_indeed_limit")]
+    pub limit: usize,
+}

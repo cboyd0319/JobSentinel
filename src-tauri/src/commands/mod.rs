@@ -7,7 +7,9 @@ use crate::core::{
     ats::{ApplicationStatus, ApplicationTracker, ApplicationsByStatus, PendingReminder},
     config::Config,
     db::Database,
-    market_intelligence::{CompanyActivity, LocationHeat, MarketAlert, MarketIntelligence, SkillTrend},
+    market_intelligence::{
+        CompanyActivity, LocationHeat, MarketAlert, MarketIntelligence, SkillTrend,
+    },
     resume::{MatchResult, MatchResultWithJob, Resume, ResumeMatcher, UserSkill},
     salary::{OfferComparison, SalaryAnalyzer, SalaryPrediction, SeniorityLevel},
     scheduler::Scheduler,
@@ -371,7 +373,11 @@ pub async fn set_job_notes(
     notes: Option<String>,
     state: State<'_, AppState>,
 ) -> Result<(), String> {
-    tracing::info!("Command: set_job_notes (id: {}, has_notes: {})", id, notes.is_some());
+    tracing::info!(
+        "Command: set_job_notes (id: {}, has_notes: {})",
+        id,
+        notes.is_some()
+    );
 
     match state.database.set_job_notes(id, notes.as_deref()).await {
         Ok(_) => {
@@ -405,7 +411,10 @@ pub async fn get_job_notes(id: i64, state: State<'_, AppState>) -> Result<Option
 
 /// Create a new application from a job
 #[tauri::command]
-pub async fn create_application(job_hash: String, state: State<'_, AppState>) -> Result<i64, String> {
+pub async fn create_application(
+    job_hash: String,
+    state: State<'_, AppState>,
+) -> Result<i64, String> {
     tracing::info!("Command: create_application (job_hash: {})", job_hash);
 
     let tracker = ApplicationTracker::new(state.database.pool().clone());
@@ -417,7 +426,9 @@ pub async fn create_application(job_hash: String, state: State<'_, AppState>) ->
 
 /// Get applications grouped by status (for Kanban board)
 #[tauri::command]
-pub async fn get_applications_kanban(state: State<'_, AppState>) -> Result<ApplicationsByStatus, String> {
+pub async fn get_applications_kanban(
+    state: State<'_, AppState>,
+) -> Result<ApplicationsByStatus, String> {
     tracing::info!("Command: get_applications_kanban");
 
     let tracker = ApplicationTracker::new(state.database.pool().clone());
@@ -434,7 +445,11 @@ pub async fn update_application_status(
     status: String,
     state: State<'_, AppState>,
 ) -> Result<(), String> {
-    tracing::info!("Command: update_application_status (id: {}, status: {})", application_id, status);
+    tracing::info!(
+        "Command: update_application_status (id: {}, status: {})",
+        application_id,
+        status
+    );
 
     let tracker = ApplicationTracker::new(state.database.pool().clone());
     let new_status: ApplicationStatus = status
@@ -465,7 +480,9 @@ pub async fn add_application_notes(
 
 /// Get pending reminders
 #[tauri::command]
-pub async fn get_pending_reminders(state: State<'_, AppState>) -> Result<Vec<PendingReminder>, String> {
+pub async fn get_pending_reminders(
+    state: State<'_, AppState>,
+) -> Result<Vec<PendingReminder>, String> {
     tracing::info!("Command: get_pending_reminders");
 
     let tracker = ApplicationTracker::new(state.database.pool().clone());
@@ -663,7 +680,11 @@ pub async fn upload_resume(
     file_path: String,
     state: State<'_, AppState>,
 ) -> Result<i64, String> {
-    tracing::info!("Command: upload_resume (name: {}, path: {})", name, file_path);
+    tracing::info!(
+        "Command: upload_resume (name: {}, path: {})",
+        name,
+        file_path
+    );
 
     let matcher = ResumeMatcher::new(state.database.pool().clone());
     matcher
@@ -698,7 +719,10 @@ pub async fn set_active_resume(resume_id: i64, state: State<'_, AppState>) -> Re
 
 /// Get user skills from active resume
 #[tauri::command]
-pub async fn get_user_skills(resume_id: i64, state: State<'_, AppState>) -> Result<Vec<UserSkill>, String> {
+pub async fn get_user_skills(
+    resume_id: i64,
+    state: State<'_, AppState>,
+) -> Result<Vec<UserSkill>, String> {
     tracing::info!("Command: get_user_skills (resume_id: {})", resume_id);
 
     let matcher = ResumeMatcher::new(state.database.pool().clone());
@@ -715,7 +739,11 @@ pub async fn match_resume_to_job(
     job_hash: String,
     state: State<'_, AppState>,
 ) -> Result<MatchResult, String> {
-    tracing::info!("Command: match_resume_to_job (resume: {}, job: {})", resume_id, job_hash);
+    tracing::info!(
+        "Command: match_resume_to_job (resume: {}, job: {})",
+        resume_id,
+        job_hash
+    );
 
     let matcher = ResumeMatcher::new(state.database.pool().clone());
     matcher
@@ -731,7 +759,11 @@ pub async fn get_match_result(
     job_hash: String,
     state: State<'_, AppState>,
 ) -> Result<Option<MatchResult>, String> {
-    tracing::info!("Command: get_match_result (resume: {}, job: {})", resume_id, job_hash);
+    tracing::info!(
+        "Command: get_match_result (resume: {}, job: {})",
+        resume_id,
+        job_hash
+    );
 
     let matcher = ResumeMatcher::new(state.database.pool().clone());
     matcher
@@ -747,7 +779,11 @@ pub async fn get_recent_matches(
     limit: Option<i64>,
     state: State<'_, AppState>,
 ) -> Result<Vec<MatchResultWithJob>, String> {
-    tracing::info!("Command: get_recent_matches (resume: {}, limit: {:?})", resume_id, limit);
+    tracing::info!(
+        "Command: get_recent_matches (resume: {}, limit: {:?})",
+        resume_id,
+        limit
+    );
 
     let matcher = ResumeMatcher::new(state.database.pool().clone());
     matcher
@@ -767,7 +803,11 @@ pub async fn predict_salary(
     years_experience: Option<i32>,
     state: State<'_, AppState>,
 ) -> Result<SalaryPrediction, String> {
-    tracing::info!("Command: predict_salary (job: {}, years: {:?})", job_hash, years_experience);
+    tracing::info!(
+        "Command: predict_salary (job: {}, years: {:?})",
+        job_hash,
+        years_experience
+    );
 
     let analyzer = SalaryAnalyzer::new(state.database.pool().clone());
     analyzer
@@ -784,12 +824,19 @@ pub async fn get_salary_benchmark(
     seniority: String,
     state: State<'_, AppState>,
 ) -> Result<Option<Value>, String> {
-    tracing::info!("Command: get_salary_benchmark (title: {}, location: {})", job_title, location);
+    tracing::info!(
+        "Command: get_salary_benchmark (title: {}, location: {})",
+        job_title,
+        location
+    );
 
     let analyzer = SalaryAnalyzer::new(state.database.pool().clone());
     let seniority_level = SeniorityLevel::parse(&seniority);
 
-    match analyzer.get_benchmark(&job_title, &location, seniority_level).await {
+    match analyzer
+        .get_benchmark(&job_title, &location, seniority_level)
+        .await
+    {
         Ok(Some(benchmark)) => serde_json::to_value(&benchmark)
             .map(Some)
             .map_err(|e| format!("Failed to serialize benchmark: {}", e)),
@@ -805,7 +852,10 @@ pub async fn generate_negotiation_script(
     params: HashMap<String, String>,
     state: State<'_, AppState>,
 ) -> Result<String, String> {
-    tracing::info!("Command: generate_negotiation_script (scenario: {})", scenario);
+    tracing::info!(
+        "Command: generate_negotiation_script (scenario: {})",
+        scenario
+    );
 
     let analyzer = SalaryAnalyzer::new(state.database.pool().clone());
     analyzer
@@ -1353,7 +1403,9 @@ mod tests {
             jobswithgpt_endpoint: "https://api.jobswithgpt.com/mcp".to_string(),
         };
 
-        let database = Database::connect_memory().await.expect("Failed to create test database");
+        let database = Database::connect_memory()
+            .await
+            .expect("Failed to create test database");
         database.migrate().await.expect("Failed to run migrations");
 
         AppState {
@@ -1407,11 +1459,23 @@ mod tests {
         job1.hash = "unique_hash_1".to_string();
         job2.hash = "unique_hash_2".to_string();
 
-        state.database.upsert_job(&job1).await.expect("Failed to insert job1");
-        state.database.upsert_job(&job2).await.expect("Failed to insert job2");
+        state
+            .database
+            .upsert_job(&job1)
+            .await
+            .expect("Failed to insert job1");
+        state
+            .database
+            .upsert_job(&job2)
+            .await
+            .expect("Failed to insert job2");
 
         // Test get_recent_jobs logic
-        let jobs = state.database.get_recent_jobs(10).await.expect("get_recent_jobs should succeed");
+        let jobs = state
+            .database
+            .get_recent_jobs(10)
+            .await
+            .expect("get_recent_jobs should succeed");
         assert_eq!(jobs.len(), 2, "Should return 2 jobs");
     }
 
@@ -1423,11 +1487,19 @@ mod tests {
         for i in 0..5 {
             let mut job = create_test_job(0, &format!("Job {}", i), 0.8);
             job.hash = format!("unique_hash_{}", i); // Unique hash for each job
-            state.database.upsert_job(&job).await.expect("Failed to insert job");
+            state
+                .database
+                .upsert_job(&job)
+                .await
+                .expect("Failed to insert job");
         }
 
         // Request only 3 jobs
-        let jobs = state.database.get_recent_jobs(3).await.expect("get_recent_jobs should succeed");
+        let jobs = state
+            .database
+            .get_recent_jobs(3)
+            .await
+            .expect("get_recent_jobs should succeed");
         assert_eq!(jobs.len(), 3, "Should return exactly 3 jobs");
     }
 
@@ -1435,8 +1507,16 @@ mod tests {
     async fn test_database_empty() {
         let state = create_test_app_state().await;
 
-        let jobs = state.database.get_recent_jobs(10).await.expect("get_recent_jobs should succeed on empty DB");
-        assert_eq!(jobs.len(), 0, "Should return empty array for empty database");
+        let jobs = state
+            .database
+            .get_recent_jobs(10)
+            .await
+            .expect("get_recent_jobs should succeed on empty DB");
+        assert_eq!(
+            jobs.len(),
+            0,
+            "Should return empty array for empty database"
+        );
     }
 
     #[tokio::test]
@@ -1444,9 +1524,17 @@ mod tests {
         let state = create_test_app_state().await;
 
         let job = create_test_job(0, "Test Engineer", 0.9);
-        let job_id = state.database.upsert_job(&job).await.expect("Failed to insert job");
+        let job_id = state
+            .database
+            .upsert_job(&job)
+            .await
+            .expect("Failed to insert job");
 
-        let found_job = state.database.get_job_by_id(job_id).await.expect("get_job_by_id should succeed");
+        let found_job = state
+            .database
+            .get_job_by_id(job_id)
+            .await
+            .expect("get_job_by_id should succeed");
         assert!(found_job.is_some(), "Should find the job");
         assert_eq!(found_job.unwrap().title, "Test Engineer");
     }
@@ -1455,8 +1543,15 @@ mod tests {
     async fn test_database_job_by_id_not_found() {
         let state = create_test_app_state().await;
 
-        let found_job = state.database.get_job_by_id(999999).await.expect("get_job_by_id should succeed even when not found");
-        assert!(found_job.is_none(), "Should return None for nonexistent job");
+        let found_job = state
+            .database
+            .get_job_by_id(999999)
+            .await
+            .expect("get_job_by_id should succeed even when not found");
+        assert!(
+            found_job.is_none(),
+            "Should return None for nonexistent job"
+        );
     }
 
     #[tokio::test]
@@ -1512,11 +1607,27 @@ mod tests {
         job2.hash = "hash_2".to_string();
         job3.hash = "hash_3".to_string();
 
-        state.database.upsert_job(&job1).await.expect("Failed to insert job1");
-        state.database.upsert_job(&job2).await.expect("Failed to insert job2");
-        state.database.upsert_job(&job3).await.expect("Failed to insert job3");
+        state
+            .database
+            .upsert_job(&job1)
+            .await
+            .expect("Failed to insert job1");
+        state
+            .database
+            .upsert_job(&job2)
+            .await
+            .expect("Failed to insert job2");
+        state
+            .database
+            .upsert_job(&job3)
+            .await
+            .expect("Failed to insert job3");
 
-        let stats = state.database.get_statistics().await.expect("get_statistics should succeed");
+        let stats = state
+            .database
+            .get_statistics()
+            .await
+            .expect("get_statistics should succeed");
         assert_eq!(stats.total_jobs, 3);
         assert_eq!(stats.high_matches, 2); // Jobs with score >= 0.9
     }
@@ -1525,7 +1636,11 @@ mod tests {
     async fn test_database_statistics_empty() {
         let state = create_test_app_state().await;
 
-        let stats = state.database.get_statistics().await.expect("get_statistics should succeed on empty DB");
+        let stats = state
+            .database
+            .get_statistics()
+            .await
+            .expect("get_statistics should succeed on empty DB");
         assert_eq!(stats.total_jobs, 0);
         assert_eq!(stats.high_matches, 0);
         assert_eq!(stats.average_score, 0.0);
@@ -1593,14 +1708,25 @@ mod tests {
         job1.hash = "rust_hash".to_string();
         job2.hash = "python_hash".to_string();
 
-        state.database.upsert_job(&job1).await.expect("Failed to insert job1");
-        state.database.upsert_job(&job2).await.expect("Failed to insert job2");
+        state
+            .database
+            .upsert_job(&job1)
+            .await
+            .expect("Failed to insert job1");
+        state
+            .database
+            .upsert_job(&job2)
+            .await
+            .expect("Failed to insert job2");
 
         // Note: Full-text search requires FTS5 table which may not be set up in test migrations
         // This test verifies the search doesn't panic
         let result = state.database.search_jobs("Rust", 10).await;
         // The result might fail if FTS5 isn't properly set up in tests,
         // but should handle it gracefully
-        assert!(result.is_ok() || result.is_err(), "search_jobs should not panic");
+        assert!(
+            result.is_ok() || result.is_err(),
+            "search_jobs should not panic"
+        );
     }
 }

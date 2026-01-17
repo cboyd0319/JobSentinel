@@ -264,13 +264,8 @@ impl GhostDetector {
         }
 
         // 4. Missing key details
-        let missing_details = self.check_missing_details(
-            description,
-            salary_min,
-            salary_max,
-            location,
-            remote,
-        );
+        let missing_details =
+            self.check_missing_details(description, salary_min, salary_max, location, remote);
         if !missing_details.is_empty() {
             let weight = 0.05 * missing_details.len() as f64;
             let weight = weight.min(0.15);
@@ -324,8 +319,7 @@ impl GhostDetector {
 
         // 8. Company has many open positions (potential mass hiring or ghost postings)
         if company_open_jobs > 50 {
-            let weight =
-                0.05 * (f64::from((company_open_jobs - 50).min(100) as i32) / 100.0);
+            let weight = 0.05 * (f64::from((company_open_jobs - 50).min(100) as i32) / 100.0);
             reasons.push(GhostReason {
                 category: GhostCategory::CompanyBehavior,
                 description: format!("Company has {company_open_jobs} open positions"),
@@ -415,9 +409,7 @@ impl GhostDetector {
     /// Check for unrealistic experience requirements
     fn has_unrealistic_requirements(&self, title: &str, description: &str) -> bool {
         let combined = format!("{title} {description}");
-        UNREALISTIC_PATTERNS
-            .iter()
-            .any(|re| re.is_match(&combined))
+        UNREALISTIC_PATTERNS.iter().any(|re| re.is_match(&combined))
     }
 
     /// Check for vague/generic job titles
@@ -606,9 +598,7 @@ mod tests {
 
         let analysis = detector.analyze(
             "Junior Developer",
-            Some(
-                "Entry-level position requiring 10+ years of experience with React and Node.js.",
-            ),
+            Some("Entry-level position requiring 10+ years of experience with React and Node.js."),
             None,
             None,
             Some("NYC"),
@@ -655,12 +645,12 @@ mod tests {
         let analysis = detector.analyze(
             "Various Positions", // vague title
             Some("Fast-paced environment. Work hard play hard. Like a family."), // short + generic
-            None, // no salary
+            None,                // no salary
             None,
             None, // no location
             None,
             created_at,
-            6, // reposted 6 times
+            6,  // reposted 6 times
             60, // many open positions
         );
 
@@ -682,15 +672,17 @@ mod tests {
         let created_at = create_test_job_created_at(200); // very old
 
         let analysis = detector.analyze(
-            "Join Our Team!!!",            // vague
-            Some("We want passionate rockstars who can hit the ground running in our fast-paced, \
-                  dynamic environment. We're like a family and work hard play hard!"), // very generic
+            "Join Our Team!!!", // vague
+            Some(
+                "We want passionate rockstars who can hit the ground running in our fast-paced, \
+                  dynamic environment. We're like a family and work hard play hard!",
+            ), // very generic
             None,
             None,
             None,
             None,
             created_at,
-            10, // many reposts
+            10,  // many reposts
             200, // tons of open positions
         );
 

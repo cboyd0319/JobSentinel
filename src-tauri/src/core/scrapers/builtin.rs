@@ -214,8 +214,11 @@ mod tests {
 
     #[test]
     fn test_build_url_with_category() {
-        let scraper =
-            BuiltInScraper::new("chicago".to_string(), Some("dev-engineering".to_string()), 10);
+        let scraper = BuiltInScraper::new(
+            "chicago".to_string(),
+            Some("dev-engineering".to_string()),
+            10,
+        );
         assert_eq!(
             scraper.build_url(),
             "https://builtin.com/chicago/jobs/dev-engineering"
@@ -274,7 +277,10 @@ mod tests {
         // First job
         assert_eq!(jobs[0].title, "Senior Rust Engineer");
         assert_eq!(jobs[0].company, "TechCorp Inc");
-        assert_eq!(jobs[0].url, "https://builtin.com/job/senior-rust-engineer-123");
+        assert_eq!(
+            jobs[0].url,
+            "https://builtin.com/job/senior-rust-engineer-123"
+        );
         assert_eq!(jobs[0].location, Some("New York, NY".to_string()));
         assert_eq!(jobs[0].source, "builtin");
         assert_eq!(jobs[0].remote, Some(false));
@@ -506,7 +512,11 @@ mod tests {
 
         assert_eq!(jobs.len(), 1);
         assert_eq!(jobs[0].location, None);
-        assert_eq!(jobs[0].remote, Some(false), "Should default to false when location is None");
+        assert_eq!(
+            jobs[0].remote,
+            Some(false),
+            "Should default to false when location is None"
+        );
     }
 
     #[test]
@@ -547,7 +557,10 @@ mod tests {
             "https://builtin.com/job/123",
         );
 
-        assert_eq!(hash1, hash2, "Hashes with None location should be deterministic");
+        assert_eq!(
+            hash1, hash2,
+            "Hashes with None location should be deterministic"
+        );
         assert_eq!(hash1.len(), 64, "SHA-256 hash should be 64 hex chars");
     }
 
@@ -566,16 +579,15 @@ mod tests {
             "https://builtin.com/job/123",
         );
 
-        assert_ne!(hash_with_loc, hash_without_loc, "Location should affect hash value");
+        assert_ne!(
+            hash_with_loc, hash_without_loc,
+            "Location should affect hash value"
+        );
     }
 
     #[test]
     fn test_new_constructor() {
-        let scraper = BuiltInScraper::new(
-            "boston".to_string(),
-            Some("design".to_string()),
-            25,
-        );
+        let scraper = BuiltInScraper::new("boston".to_string(), Some("design".to_string()), 25);
 
         assert_eq!(scraper.city, "boston");
         assert_eq!(scraper.category, Some("design".to_string()));
@@ -641,8 +653,16 @@ mod tests {
         let jobs = scraper.parse_html(html).expect("parse_html should succeed");
 
         assert_eq!(jobs.len(), 3);
-        assert_eq!(jobs[0].remote, Some(true), "Should detect uppercase 'REMOTE'");
-        assert_eq!(jobs[1].remote, Some(true), "Should detect 'Remote Anywhere'");
+        assert_eq!(
+            jobs[0].remote,
+            Some(true),
+            "Should detect uppercase 'REMOTE'"
+        );
+        assert_eq!(
+            jobs[1].remote,
+            Some(true),
+            "Should detect 'Remote Anywhere'"
+        );
         assert_eq!(jobs[2].remote, Some(true), "Should detect 'Anywhere'");
     }
 
@@ -746,9 +766,18 @@ mod tests {
         );
 
         // All should be different
-        assert_ne!(hash1, hash2, "Different company should produce different hash");
-        assert_ne!(hash1, hash3, "Different title should produce different hash");
-        assert_ne!(hash1, hash4, "Different location should produce different hash");
+        assert_ne!(
+            hash1, hash2,
+            "Different company should produce different hash"
+        );
+        assert_ne!(
+            hash1, hash3,
+            "Different title should produce different hash"
+        );
+        assert_ne!(
+            hash1, hash4,
+            "Different location should produce different hash"
+        );
         assert_ne!(hash1, hash5, "Different URL should produce different hash");
     }
 }

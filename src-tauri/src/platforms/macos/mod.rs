@@ -298,10 +298,7 @@ mod tests {
         env::set_var("HOME", "/custom/home");
         let dir = get_logs_dir();
 
-        assert_eq!(
-            dir,
-            PathBuf::from("/custom/home/Library/Logs/JobSentinel")
-        );
+        assert_eq!(dir, PathBuf::from("/custom/home/Library/Logs/JobSentinel"));
 
         // Restore original HOME
         match original_home {
@@ -344,7 +341,10 @@ mod tests {
         assert!(!is_sandboxed());
 
         // Test sandboxed environment
-        env::set_var("HOME", "/Users/testuser/Library/Containers/com.example.app/Data");
+        env::set_var(
+            "HOME",
+            "/Users/testuser/Library/Containers/com.example.app/Data",
+        );
         assert!(is_sandboxed());
 
         // Restore original HOME
@@ -396,8 +396,16 @@ mod tests {
         let data_dir = get_data_dir();
         let config_dir = get_config_dir();
 
-        assert!(data_dir.exists(), "Data directory should exist: {:?}", data_dir);
-        assert!(config_dir.exists(), "Config directory should exist: {:?}", config_dir);
+        assert!(
+            data_dir.exists(),
+            "Data directory should exist: {:?}",
+            data_dir
+        );
+        assert!(
+            config_dir.exists(),
+            "Config directory should exist: {:?}",
+            config_dir
+        );
 
         // Restore original env vars
         match original_home {

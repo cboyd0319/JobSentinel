@@ -89,10 +89,7 @@ impl HnHiringScraper {
 
         for comment in hits.iter().take(self.limit * 2) {
             // Take more than limit since we'll filter
-            let comment_text = comment["comment_text"]
-                .as_str()
-                .unwrap_or("")
-                .to_string();
+            let comment_text = comment["comment_text"].as_str().unwrap_or("").to_string();
 
             // Skip if empty or too short
             if comment_text.len() < 50 {
@@ -293,7 +290,10 @@ impl HnHiringScraper {
                 // Extract the title with surrounding context
                 let start = text[..pos].rfind(['|', '\n']).map(|p| p + 1).unwrap_or(0);
                 let end = pos + pattern.len();
-                let end = text[end..].find(['|', '\n', ',']).map(|p| end + p).unwrap_or(end);
+                let end = text[end..]
+                    .find(['|', '\n', ','])
+                    .map(|p| end + p)
+                    .unwrap_or(end);
 
                 let title = text[start..end].trim();
                 if title.len() > 5 && title.len() < 100 {
@@ -442,7 +442,8 @@ mod tests {
 
     #[test]
     fn test_extract_company() {
-        let (company, rest) = HnHiringScraper::extract_company("Acme Inc | Senior Engineer | Remote");
+        let (company, rest) =
+            HnHiringScraper::extract_company("Acme Inc | Senior Engineer | Remote");
         assert_eq!(company, "Acme Inc");
         assert!(rest.contains("Senior Engineer"));
 
@@ -452,7 +453,8 @@ mod tests {
 
     #[test]
     fn test_extract_company_with_dash_separator() {
-        let (company, rest) = HnHiringScraper::extract_company("TechCorp - Senior Backend Developer");
+        let (company, rest) =
+            HnHiringScraper::extract_company("TechCorp - Senior Backend Developer");
         assert_eq!(company, "TechCorp");
         assert_eq!(rest, "Senior Backend Developer");
     }
@@ -474,7 +476,9 @@ mod tests {
 
     #[test]
     fn test_is_remote_distributed() {
-        assert!(HnHiringScraper::is_remote("Distributed team, work anywhere"));
+        assert!(HnHiringScraper::is_remote(
+            "Distributed team, work anywhere"
+        ));
     }
 
     #[test]
@@ -568,11 +572,14 @@ mod tests {
     #[test]
     fn test_extract_title_common_patterns() {
         // The function extracts from the beginning of the line to the end of the pattern
-        let title1 = HnHiringScraper::extract_title("Looking for a Senior Software Engineer to join our team");
+        let title1 = HnHiringScraper::extract_title(
+            "Looking for a Senior Software Engineer to join our team",
+        );
         assert!(title1.is_some());
         assert!(title1.as_ref().unwrap().contains("Software Engineer"));
 
-        let title2 = HnHiringScraper::extract_title("We need a Backend Engineer with Rust experience");
+        let title2 =
+            HnHiringScraper::extract_title("We need a Backend Engineer with Rust experience");
         assert!(title2.is_some());
         assert!(title2.as_ref().unwrap().contains("Backend Engineer"));
     }
@@ -615,7 +622,9 @@ mod tests {
             ]
         });
 
-        let jobs = scraper.parse_comments(&json_data).expect("parse_comments should succeed");
+        let jobs = scraper
+            .parse_comments(&json_data)
+            .expect("parse_comments should succeed");
 
         assert_eq!(jobs.len(), 2);
         assert_eq!(jobs[0].company, "Acme Corp (YC S21)");
@@ -644,7 +653,9 @@ mod tests {
             ]
         });
 
-        let jobs = scraper.parse_comments(&json_data).expect("parse_comments should succeed");
+        let jobs = scraper
+            .parse_comments(&json_data)
+            .expect("parse_comments should succeed");
 
         assert_eq!(jobs.len(), 2);
     }
@@ -669,7 +680,9 @@ mod tests {
             ]
         });
 
-        let jobs = scraper.parse_comments(&json_data).expect("parse_comments should succeed");
+        let jobs = scraper
+            .parse_comments(&json_data)
+            .expect("parse_comments should succeed");
 
         assert_eq!(jobs.len(), 2); // Only remote jobs
         assert!(jobs.iter().all(|j| j.remote == Some(true)));
@@ -691,7 +704,9 @@ mod tests {
             ]
         });
 
-        let jobs = scraper.parse_comments(&json_data).expect("parse_comments should succeed");
+        let jobs = scraper
+            .parse_comments(&json_data)
+            .expect("parse_comments should succeed");
 
         assert_eq!(jobs.len(), 1);
         assert_eq!(jobs[0].company, "ValidCorp");
@@ -704,7 +719,9 @@ mod tests {
             "hits": []
         });
 
-        let jobs = scraper.parse_comments(&json_data).expect("parse_comments should succeed");
+        let jobs = scraper
+            .parse_comments(&json_data)
+            .expect("parse_comments should succeed");
 
         assert_eq!(jobs.len(), 0);
     }
@@ -712,10 +729,7 @@ mod tests {
     #[test]
     fn test_parse_comments_truncates_long_description() {
         let scraper = HnHiringScraper::new(10, false);
-        let long_text = format!(
-            "BigCorp | Engineer | Remote\n\n{}",
-            "A".repeat(600)
-        );
+        let long_text = format!("BigCorp | Engineer | Remote\n\n{}", "A".repeat(600));
         let json_data = serde_json::json!({
             "hits": [
                 {
@@ -725,7 +739,9 @@ mod tests {
             ]
         });
 
-        let jobs = scraper.parse_comments(&json_data).expect("parse_comments should succeed");
+        let jobs = scraper
+            .parse_comments(&json_data)
+            .expect("parse_comments should succeed");
 
         assert_eq!(jobs.len(), 1);
         let description = jobs[0].description.as_ref().unwrap();
@@ -748,7 +764,8 @@ mod tests {
 
     #[test]
     fn test_extract_company_with_parentheses() {
-        let (company, rest) = HnHiringScraper::extract_company("StartupCo (YC W22) | Backend Engineer");
+        let (company, rest) =
+            HnHiringScraper::extract_company("StartupCo (YC W22) | Backend Engineer");
         assert_eq!(company, "StartupCo (YC W22)");
         assert!(rest.contains("Backend Engineer"));
     }
@@ -782,7 +799,11 @@ mod tests {
         let text = "Product Manager role available";
         let title = HnHiringScraper::extract_title(text);
         assert!(title.is_some());
-        assert!(title.as_ref().unwrap().to_lowercase().contains("product manager"));
+        assert!(title
+            .as_ref()
+            .unwrap()
+            .to_lowercase()
+            .contains("product manager"));
     }
 
     #[test]
@@ -790,7 +811,11 @@ mod tests {
         let text = "Data Engineer position for building ETL pipelines";
         let title = HnHiringScraper::extract_title(text);
         assert!(title.is_some());
-        assert!(title.as_ref().unwrap().to_lowercase().contains("data engineer"));
+        assert!(title
+            .as_ref()
+            .unwrap()
+            .to_lowercase()
+            .contains("data engineer"));
     }
 
     #[test]
@@ -798,7 +823,11 @@ mod tests {
         let text = "Infrastructure role managing cloud systems";
         let title = HnHiringScraper::extract_title(text);
         assert!(title.is_some());
-        assert!(title.as_ref().unwrap().to_lowercase().contains("infrastructure"));
+        assert!(title
+            .as_ref()
+            .unwrap()
+            .to_lowercase()
+            .contains("infrastructure"));
     }
 
     #[test]
@@ -872,18 +901,24 @@ mod tests {
     #[test]
     fn test_is_remote_with_distributed() {
         assert!(HnHiringScraper::is_remote("We have a distributed team"));
-        assert!(HnHiringScraper::is_remote("Distributed company, work anywhere"));
+        assert!(HnHiringScraper::is_remote(
+            "Distributed company, work anywhere"
+        ));
     }
 
     #[test]
     fn test_is_remote_with_anywhere() {
-        assert!(HnHiringScraper::is_remote("Work from anywhere in the world"));
+        assert!(HnHiringScraper::is_remote(
+            "Work from anywhere in the world"
+        ));
         assert!(HnHiringScraper::is_remote("Anywhere, fully remote"));
     }
 
     #[test]
     fn test_is_remote_false_for_onsite() {
-        assert!(!HnHiringScraper::is_remote("Onsite position in San Francisco"));
+        assert!(!HnHiringScraper::is_remote(
+            "Onsite position in San Francisco"
+        ));
         assert!(!HnHiringScraper::is_remote("In-office only"));
         assert!(!HnHiringScraper::is_remote("Must be in NYC office"));
     }
@@ -1025,7 +1060,9 @@ mod tests {
             ]
         });
 
-        let jobs = scraper.parse_comments(&json_data).expect("parse_comments should succeed");
+        let jobs = scraper
+            .parse_comments(&json_data)
+            .expect("parse_comments should succeed");
 
         // Should take up to limit * 2 comments and then filter, but respect final limit
         assert!(jobs.len() <= 2);
@@ -1063,7 +1100,11 @@ mod tests {
         let title = HnHiringScraper::extract_title(text);
 
         assert!(title.is_some());
-        assert!(title.as_ref().unwrap().to_lowercase().contains("backend engineer"));
+        assert!(title
+            .as_ref()
+            .unwrap()
+            .to_lowercase()
+            .contains("backend engineer"));
     }
 
     #[test]

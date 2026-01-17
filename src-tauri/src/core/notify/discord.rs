@@ -136,7 +136,10 @@ pub async fn send_discord_notification(
 
     if !response.status().is_success() {
         let status = response.status();
-        let error_text = response.text().await.unwrap_or_else(|_| "Unknown error".to_string());
+        let error_text = response
+            .text()
+            .await
+            .unwrap_or_else(|_| "Unknown error".to_string());
         return Err(anyhow!(
             "Discord webhook failed with status {}: {}",
             status,
@@ -177,7 +180,10 @@ pub async fn validate_webhook(webhook_url: &str) -> Result<bool> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::{db::Job, scoring::{JobScore, ScoreBreakdown}};
+    use crate::core::{
+        db::Job,
+        scoring::{JobScore, ScoreBreakdown},
+    };
     use chrono::Utc;
 
     fn create_test_notification() -> Notification {
@@ -204,10 +210,10 @@ mod tests {
                 immediate_alert_sent: false,
                 hidden: false,
                 bookmarked: false,
-            ghost_score: None,
-            ghost_reasons: None,
-            first_seen: None,
-            repost_count: 0,
+                ghost_score: None,
+                ghost_reasons: None,
+                first_seen: None,
+                repost_count: 0,
                 notes: None,
                 included_in_digest: false,
             },
@@ -234,14 +240,20 @@ mod tests {
     fn test_valid_discord_webhook_url_passes() {
         let valid_url = "https://discord.com/api/webhooks/123456789/abcdefghijklmnopqrstuvwxyz";
         let result = validate_webhook_url(valid_url);
-        assert!(result.is_ok(), "Valid Discord webhook URL should pass validation");
+        assert!(
+            result.is_ok(),
+            "Valid Discord webhook URL should pass validation"
+        );
     }
 
     #[test]
     fn test_valid_discordapp_webhook_url_passes() {
         let valid_url = "https://discordapp.com/api/webhooks/123456789/abcdefghijklmnopqrstuvwxyz";
         let result = validate_webhook_url(valid_url);
-        assert!(result.is_ok(), "Valid discordapp.com webhook URL should pass validation");
+        assert!(
+            result.is_ok(),
+            "Valid discordapp.com webhook URL should pass validation"
+        );
     }
 
     #[test]
@@ -249,7 +261,10 @@ mod tests {
         let invalid_url = "http://discord.com/api/webhooks/123456789/token";
         let result = validate_webhook_url(invalid_url);
         assert!(result.is_err(), "HTTP (not HTTPS) webhook should fail");
-        assert!(result.unwrap_err().to_string().contains("https://discord.com"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("https://discord.com"));
     }
 
     #[test]
@@ -311,7 +326,10 @@ mod tests {
             0x3b82f6
         };
 
-        assert_eq!(color, 0xf59e0b, "Score of 85% should use yellow/amber color");
+        assert_eq!(
+            color, 0xf59e0b,
+            "Score of 85% should use yellow/amber color"
+        );
     }
 
     #[test]
@@ -334,7 +352,9 @@ mod tests {
     #[test]
     fn test_salary_formatting_with_range() {
         let notification = create_test_notification();
-        let salary_display = if let (Some(min), Some(max)) = (notification.job.salary_min, notification.job.salary_max) {
+        let salary_display = if let (Some(min), Some(max)) =
+            (notification.job.salary_min, notification.job.salary_max)
+        {
             format!("${},000 - ${},000", min / 1000, max / 1000)
         } else if let Some(min) = notification.job.salary_min {
             format!("${},000+", min / 1000)
@@ -350,7 +370,9 @@ mod tests {
         let mut notification = create_test_notification();
         notification.job.salary_max = None;
 
-        let salary_display = if let (Some(min), Some(_max)) = (notification.job.salary_min, notification.job.salary_max) {
+        let salary_display = if let (Some(min), Some(_max)) =
+            (notification.job.salary_min, notification.job.salary_max)
+        {
             format!("${},000 - ${},000", min / 1000, _max / 1000)
         } else if let Some(min) = notification.job.salary_min {
             format!("${},000+", min / 1000)
@@ -367,7 +389,9 @@ mod tests {
         notification.job.salary_min = None;
         notification.job.salary_max = None;
 
-        let salary_display = if let (Some(min), Some(max)) = (notification.job.salary_min, notification.job.salary_max) {
+        let salary_display = if let (Some(min), Some(max)) =
+            (notification.job.salary_min, notification.job.salary_max)
+        {
             format!("${},000 - ${},000", min / 1000, max / 1000)
         } else if let Some(min) = notification.job.salary_min {
             format!("${},000+", min / 1000)
@@ -421,7 +445,10 @@ mod tests {
             0x3b82f6
         };
 
-        assert_eq!(color, 0xf59e0b, "Score of exactly 80% should use yellow/amber");
+        assert_eq!(
+            color, 0xf59e0b,
+            "Score of exactly 80% should use yellow/amber"
+        );
     }
 
     #[test]
@@ -480,7 +507,11 @@ mod tests {
     #[test]
     fn test_embed_description_format() {
         let notification = create_test_notification();
-        let description = format!("**{}% Match** • {}", (notification.score.total * 100.0).round(), notification.job.source);
+        let description = format!(
+            "**{}% Match** • {}",
+            (notification.score.total * 100.0).round(),
+            notification.job.source
+        );
 
         assert!(description.contains("95% Match"));
         assert!(description.contains("greenhouse"));
@@ -491,7 +522,10 @@ mod tests {
     #[test]
     fn test_embed_title_format() {
         let notification = create_test_notification();
-        let title = format!("🎯 {} - {}", notification.job.title, notification.job.company);
+        let title = format!(
+            "🎯 {} - {}",
+            notification.job.title, notification.job.company
+        );
 
         assert_eq!(title, "🎯 Senior Rust Engineer - Awesome Corp");
     }
@@ -524,12 +558,7 @@ mod tests {
 
     #[test]
     fn test_score_percentage_rounding() {
-        let test_cases = vec![
-            (0.954, 95.0),
-            (0.956, 96.0),
-            (0.875, 88.0),
-            (0.999, 100.0),
-        ];
+        let test_cases = vec![(0.954, 95.0), (0.956, 96.0), (0.875, 88.0), (0.999, 100.0)];
 
         for (score, expected) in test_cases {
             let rounded = (score * 100.0_f64).round();
@@ -575,7 +604,10 @@ mod tests {
         let url = "https://discord.com:443/api/webhooks/123456789/token";
         let result = validate_webhook_url(url);
         // Port affects host_str comparison
-        assert!(result.is_err() || result.is_ok(), "URL with port may or may not pass");
+        assert!(
+            result.is_err() || result.is_ok(),
+            "URL with port may or may not pass"
+        );
     }
 
     #[test]
@@ -584,7 +616,10 @@ mod tests {
         notification.score.reasons = vec![];
 
         let reasons_text = notification.score.reasons.join("\n");
-        assert_eq!(reasons_text, "", "Empty reasons should produce empty string");
+        assert_eq!(
+            reasons_text, "",
+            "Empty reasons should produce empty string"
+        );
     }
 
     #[test]
@@ -686,7 +721,10 @@ mod tests {
     fn test_webhook_url_trailing_slash() {
         let url = "https://discord.com/api/webhooks/123456789/token/";
         let result = validate_webhook_url(url);
-        assert!(result.is_ok(), "Webhook URL with trailing slash should pass");
+        assert!(
+            result.is_ok(),
+            "Webhook URL with trailing slash should pass"
+        );
     }
 
     #[test]
@@ -725,7 +763,9 @@ mod tests {
         notification.job.salary_min = Some(0);
         notification.job.salary_max = Some(0);
 
-        let salary_display = if let (Some(min), Some(max)) = (notification.job.salary_min, notification.job.salary_max) {
+        let salary_display = if let (Some(min), Some(max)) =
+            (notification.job.salary_min, notification.job.salary_max)
+        {
             format!("${},000 - ${},000", min / 1000, max / 1000)
         } else if let Some(min) = notification.job.salary_min {
             format!("${},000+", min / 1000)
@@ -742,7 +782,9 @@ mod tests {
         notification.job.salary_min = Some(500000);
         notification.job.salary_max = Some(1000000);
 
-        let salary_display = if let (Some(min), Some(max)) = (notification.job.salary_min, notification.job.salary_max) {
+        let salary_display = if let (Some(min), Some(max)) =
+            (notification.job.salary_min, notification.job.salary_max)
+        {
             format!("${},000 - ${},000", min / 1000, max / 1000)
         } else if let Some(min) = notification.job.salary_min {
             format!("${},000+", min / 1000)
@@ -865,7 +907,10 @@ mod tests {
         let mut notification = create_test_notification();
         notification.job.company = "Acme & Co. (USA)".to_string();
 
-        let title = format!("🎯 {} - {}", notification.job.title, notification.job.company);
+        let title = format!(
+            "🎯 {} - {}",
+            notification.job.title, notification.job.company
+        );
         assert!(title.contains("&"));
         assert!(title.contains("("));
         assert!(title.contains(")"));
@@ -876,7 +921,10 @@ mod tests {
         let mut notification = create_test_notification();
         notification.job.title = "Sr. C++ Developer / Tech Lead".to_string();
 
-        let title = format!("🎯 {} - {}", notification.job.title, notification.job.company);
+        let title = format!(
+            "🎯 {} - {}",
+            notification.job.title, notification.job.company
+        );
         assert!(title.contains("/"));
         assert!(title.contains("."));
     }
@@ -963,7 +1011,11 @@ mod tests {
         let mut notification = create_test_notification();
         notification.job.source = "lever".to_string();
 
-        let description = format!("**{}% Match** • {}", (notification.score.total * 100.0).round(), notification.job.source);
+        let description = format!(
+            "**{}% Match** • {}",
+            (notification.score.total * 100.0).round(),
+            notification.job.source
+        );
         assert!(description.contains("lever"));
     }
 
@@ -992,7 +1044,9 @@ mod tests {
         notification.job.salary_min = Some(1000);
         notification.job.salary_max = None;
 
-        let salary_display = if let (Some(min), Some(_max)) = (notification.job.salary_min, notification.job.salary_max) {
+        let salary_display = if let (Some(min), Some(_max)) =
+            (notification.job.salary_min, notification.job.salary_max)
+        {
             format!("${},000 - ${},000", min / 1000, _max / 1000)
         } else if let Some(min) = notification.job.salary_min {
             format!("${},000+", min / 1000)
@@ -1093,7 +1147,10 @@ mod tests {
     #[test]
     fn test_webhook_url_validation_error_messages() {
         let test_cases = vec![
-            ("http://discord.com/api/webhooks/123/token", "https://discord.com"),
+            (
+                "http://discord.com/api/webhooks/123/token",
+                "https://discord.com",
+            ),
             ("https://evil.com/api/webhooks/123/token", "discord.com"),
             ("https://discord.com/wrong/path", "webhooks"),
         ];
@@ -1128,8 +1185,12 @@ mod tests {
     #[test]
     fn test_color_selection_logic_all_branches() {
         let test_cases = vec![
-            (1.0, 0x10b981), (0.9, 0x10b981), (0.89, 0xf59e0b),
-            (0.8, 0xf59e0b), (0.79, 0x3b82f6), (0.0, 0x3b82f6),
+            (1.0, 0x10b981),
+            (0.9, 0x10b981),
+            (0.89, 0xf59e0b),
+            (0.8, 0xf59e0b),
+            (0.79, 0x3b82f6),
+            (0.0, 0x3b82f6),
         ];
 
         for (score, expected_color) in test_cases {
@@ -1153,7 +1214,11 @@ mod tests {
         ];
 
         for (remote, expected) in test_cases {
-            let remote_text = if remote.unwrap_or(false) { "✅ Yes" } else { "❌ No" };
+            let remote_text = if remote.unwrap_or(false) {
+                "✅ Yes"
+            } else {
+                "❌ No"
+            };
             assert_eq!(remote_text, expected);
         }
     }
@@ -1189,8 +1254,10 @@ mod tests {
     #[test]
     fn test_embed_field_names_emojis() {
         let field_names = vec![
-            ("📍 Location", "📍"), ("💰 Salary", "💰"),
-            ("🏢 Remote", "🏢"), ("✨ Why this matches", "✨"),
+            ("📍 Location", "📍"),
+            ("💰 Salary", "💰"),
+            ("🏢 Remote", "🏢"),
+            ("✨ Why this matches", "✨"),
         ];
 
         for (name, emoji) in field_names {
@@ -1201,7 +1268,10 @@ mod tests {
     #[test]
     fn test_title_emoji_format() {
         let notification = create_test_notification();
-        let title = format!("🎯 {} - {}", notification.job.title, notification.job.company);
+        let title = format!(
+            "🎯 {} - {}",
+            notification.job.title, notification.job.company
+        );
         assert!(title.starts_with("🎯 "));
         assert_eq!(title, "🎯 Senior Rust Engineer - Awesome Corp");
     }
@@ -1209,9 +1279,11 @@ mod tests {
     #[test]
     fn test_description_markdown_bold() {
         let notification = create_test_notification();
-        let description = format!("**{}% Match** • {}",
+        let description = format!(
+            "**{}% Match** • {}",
             (notification.score.total * 100.0).round(),
-            notification.job.source);
+            notification.job.source
+        );
         assert!(description.starts_with("**"));
         assert!(description.contains(" • "));
     }
@@ -1260,8 +1332,11 @@ mod tests {
     #[test]
     fn test_score_percentage_precision() {
         let test_cases = vec![
-            (0.999, 100.0), (0.995, 100.0), (0.954, 95.0),
-            (0.005, 1.0), (0.0, 0.0),
+            (0.999, 100.0),
+            (0.995, 100.0),
+            (0.954, 95.0),
+            (0.005, 1.0),
+            (0.0, 0.0),
         ];
 
         for (score, expected) in test_cases {
@@ -1272,7 +1347,8 @@ mod tests {
 
     #[test]
     fn test_thumbnail_url_validation() {
-        let thumbnail_url = "https://raw.githubusercontent.com/cboyd0319/JobSentinel/main/assets/icon.png";
+        let thumbnail_url =
+            "https://raw.githubusercontent.com/cboyd0319/JobSentinel/main/assets/icon.png";
         assert!(thumbnail_url.starts_with("https://"));
         assert!(thumbnail_url.ends_with(".png"));
     }
@@ -1292,8 +1368,10 @@ mod tests {
             "url": "https://raw.githubusercontent.com/cboyd0319/JobSentinel/main/assets/icon.png"
         });
         assert!(embed.get("thumbnail").is_some());
-        assert_eq!(embed["thumbnail"]["url"],
-            "https://raw.githubusercontent.com/cboyd0319/JobSentinel/main/assets/icon.png");
+        assert_eq!(
+            embed["thumbnail"]["url"],
+            "https://raw.githubusercontent.com/cboyd0319/JobSentinel/main/assets/icon.png"
+        );
     }
 
     #[test]

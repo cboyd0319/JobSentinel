@@ -217,7 +217,7 @@ impl LinkedInScraper {
                 .iter()
                 .filter_map(|element| self.convert_linkedin_element(element))
                 .collect();
-            
+
             if !jobs.is_empty() {
                 return Ok(jobs);
             }
@@ -245,7 +245,7 @@ impl LinkedInScraper {
     /// Convert a typed LinkedIn job element to our Job struct
     fn convert_linkedin_element(&self, element: &LinkedInJobElement) -> Option<Job> {
         let job_id = element.urn.split(':').next_back().unwrap_or("unknown");
-        
+
         if element.title.is_empty() || job_id == "unknown" {
             return None;
         }
@@ -294,21 +294,11 @@ impl LinkedInScraper {
     /// Parse individual LinkedIn job from API response (fallback for untyped parsing)
     fn parse_linkedin_job_element(&self, element: &serde_json::Value) -> Result<Option<Job>> {
         // Extract job ID from URN
-        let urn = element["dashEntityUrn"]
-            .as_str()
-            .unwrap_or("")
-            .to_string();
-        let job_id = urn
-            .split(':')
-            .next_back()
-            .unwrap_or("unknown")
-            .to_string();
+        let urn = element["dashEntityUrn"].as_str().unwrap_or("").to_string();
+        let job_id = urn.split(':').next_back().unwrap_or("unknown").to_string();
 
         // Extract title
-        let title = element["title"]
-            .as_str()
-            .unwrap_or("")
-            .to_string();
+        let title = element["title"].as_str().unwrap_or("").to_string();
 
         // Extract company name
         let company = element
@@ -408,7 +398,9 @@ impl LinkedInScraper {
         let mut jobs = Vec::new();
 
         // LinkedIn job cards (React-based, structure varies)
-        if let Ok(card_selector) = Selector::parse(".job-card-container, .jobs-search-results__list-item") {
+        if let Ok(card_selector) =
+            Selector::parse(".job-card-container, .jobs-search-results__list-item")
+        {
             for card in document.select(&card_selector).take(self.limit) {
                 if let Some(job) = self.parse_linkedin_job_card(&card)? {
                     jobs.push(job);
@@ -536,11 +528,7 @@ mod tests {
 
     #[test]
     fn test_invalid_cookie_detection() {
-        let scraper = LinkedInScraper::new(
-            "".to_string(),
-            "test".to_string(),
-            "test".to_string(),
-        );
+        let scraper = LinkedInScraper::new("".to_string(), "test".to_string(), "test".to_string());
 
         // Should fail with invalid cookie
         let rt = tokio::runtime::Runtime::new().unwrap();
@@ -551,11 +539,8 @@ mod tests {
 
     #[test]
     fn test_short_cookie_detection() {
-        let scraper = LinkedInScraper::new(
-            "short".to_string(),
-            "test".to_string(),
-            "test".to_string(),
-        );
+        let scraper =
+            LinkedInScraper::new("short".to_string(), "test".to_string(), "test".to_string());
 
         let rt = tokio::runtime::Runtime::new().unwrap();
         let result = rt.block_on(scraper.scrape());
@@ -565,11 +550,8 @@ mod tests {
 
     #[test]
     fn test_hash_generation() {
-        let scraper = LinkedInScraper::new(
-            "test".to_string(),
-            "test".to_string(),
-            "test".to_string(),
-        );
+        let scraper =
+            LinkedInScraper::new("test".to_string(), "test".to_string(), "test".to_string());
 
         let hash1 = scraper.generate_hash("Engineer", "Google", "https://linkedin.com/1");
         let hash2 = scraper.generate_hash("Engineer", "Google", "https://linkedin.com/1");
@@ -582,11 +564,8 @@ mod tests {
 
     #[test]
     fn test_hash_deterministic() {
-        let scraper = LinkedInScraper::new(
-            "test".to_string(),
-            "test".to_string(),
-            "test".to_string(),
-        );
+        let scraper =
+            LinkedInScraper::new("test".to_string(), "test".to_string(), "test".to_string());
 
         let hash1 = scraper.generate_hash(
             "Software Engineer",
@@ -604,11 +583,8 @@ mod tests {
 
     #[test]
     fn test_parse_linkedin_job_element() {
-        let scraper = LinkedInScraper::new(
-            "test".to_string(),
-            "test".to_string(),
-            "test".to_string(),
-        );
+        let scraper =
+            LinkedInScraper::new("test".to_string(), "test".to_string(), "test".to_string());
 
         let json = serde_json::json!({
             "dashEntityUrn": "urn:li:fsd_jobPosting:12345",
@@ -634,11 +610,8 @@ mod tests {
 
     #[test]
     fn test_parse_linkedin_job_element_minimal() {
-        let scraper = LinkedInScraper::new(
-            "test".to_string(),
-            "test".to_string(),
-            "test".to_string(),
-        );
+        let scraper =
+            LinkedInScraper::new("test".to_string(), "test".to_string(), "test".to_string());
 
         let json = serde_json::json!({
             "dashEntityUrn": "urn:li:fsd_jobPosting:99999",
@@ -657,11 +630,8 @@ mod tests {
 
     #[test]
     fn test_parse_linkedin_job_element_empty_title() {
-        let scraper = LinkedInScraper::new(
-            "test".to_string(),
-            "test".to_string(),
-            "test".to_string(),
-        );
+        let scraper =
+            LinkedInScraper::new("test".to_string(), "test".to_string(), "test".to_string());
 
         let json = serde_json::json!({
             "dashEntityUrn": "urn:li:fsd_jobPosting:12345",
@@ -674,11 +644,8 @@ mod tests {
 
     #[test]
     fn test_parse_linkedin_job_element_missing_urn() {
-        let scraper = LinkedInScraper::new(
-            "test".to_string(),
-            "test".to_string(),
-            "test".to_string(),
-        );
+        let scraper =
+            LinkedInScraper::new("test".to_string(), "test".to_string(), "test".to_string());
 
         let json = serde_json::json!({
             "title": "Software Engineer"
@@ -695,11 +662,8 @@ mod tests {
 
     #[test]
     fn test_parse_linkedin_html_empty_document() {
-        let scraper = LinkedInScraper::new(
-            "test".to_string(),
-            "test".to_string(),
-            "test".to_string(),
-        );
+        let scraper =
+            LinkedInScraper::new("test".to_string(), "test".to_string(), "test".to_string());
 
         let html = "<html><body></body></html>";
         let jobs = scraper.parse_linkedin_html(html).unwrap();
@@ -709,11 +673,8 @@ mod tests {
 
     #[test]
     fn test_parse_linkedin_html_with_job_cards() {
-        let scraper = LinkedInScraper::new(
-            "test".to_string(),
-            "test".to_string(),
-            "test".to_string(),
-        );
+        let scraper =
+            LinkedInScraper::new("test".to_string(), "test".to_string(), "test".to_string());
 
         let html = r#"
             <html>
@@ -748,12 +709,9 @@ mod tests {
 
     #[test]
     fn test_parse_linkedin_html_limit_respected() {
-        let scraper = LinkedInScraper::new(
-            "test".to_string(),
-            "test".to_string(),
-            "test".to_string(),
-        )
-        .with_limit(1);
+        let scraper =
+            LinkedInScraper::new("test".to_string(), "test".to_string(), "test".to_string())
+                .with_limit(1);
 
         let html = r#"
             <html>
@@ -776,11 +734,8 @@ mod tests {
 
     #[test]
     fn test_parse_linkedin_html_whitespace_trimming() {
-        let scraper = LinkedInScraper::new(
-            "test".to_string(),
-            "test".to_string(),
-            "test".to_string(),
-        );
+        let scraper =
+            LinkedInScraper::new("test".to_string(), "test".to_string(), "test".to_string());
 
         let html = r#"
             <html>
@@ -810,11 +765,8 @@ mod tests {
 
     #[test]
     fn test_convert_linkedin_element() {
-        let scraper = LinkedInScraper::new(
-            "test".to_string(),
-            "test".to_string(),
-            "test".to_string(),
-        );
+        let scraper =
+            LinkedInScraper::new("test".to_string(), "test".to_string(), "test".to_string());
 
         let element = LinkedInJobElement {
             urn: "urn:li:fsd_jobPosting:54321".to_string(),
@@ -839,11 +791,8 @@ mod tests {
 
     #[test]
     fn test_convert_linkedin_element_empty_title() {
-        let scraper = LinkedInScraper::new(
-            "test".to_string(),
-            "test".to_string(),
-            "test".to_string(),
-        );
+        let scraper =
+            LinkedInScraper::new("test".to_string(), "test".to_string(), "test".to_string());
 
         let element = LinkedInJobElement {
             urn: "urn:li:fsd_jobPosting:12345".to_string(),
@@ -858,21 +807,15 @@ mod tests {
 
     #[tokio::test]
     async fn test_scraper_name() {
-        let scraper = LinkedInScraper::new(
-            "test".to_string(),
-            "test".to_string(),
-            "test".to_string(),
-        );
+        let scraper =
+            LinkedInScraper::new("test".to_string(), "test".to_string(), "test".to_string());
         assert_eq!(scraper.name(), "LinkedIn");
     }
 
     #[test]
     fn test_parse_api_response_typed() {
-        let scraper = LinkedInScraper::new(
-            "test".to_string(),
-            "test".to_string(),
-            "test".to_string(),
-        );
+        let scraper =
+            LinkedInScraper::new("test".to_string(), "test".to_string(), "test".to_string());
 
         let json = serde_json::json!({
             "data": {
@@ -916,11 +859,8 @@ mod tests {
 
     #[test]
     fn test_parse_api_response_empty() {
-        let scraper = LinkedInScraper::new(
-            "test".to_string(),
-            "test".to_string(),
-            "test".to_string(),
-        );
+        let scraper =
+            LinkedInScraper::new("test".to_string(), "test".to_string(), "test".to_string());
 
         let json = serde_json::json!({
             "data": {
@@ -936,11 +876,8 @@ mod tests {
 
     #[test]
     fn test_parse_api_response_fallback_to_manual_parsing() {
-        let scraper = LinkedInScraper::new(
-            "test".to_string(),
-            "test".to_string(),
-            "test".to_string(),
-        );
+        let scraper =
+            LinkedInScraper::new("test".to_string(), "test".to_string(), "test".to_string());
 
         // Use untyped JSON structure to trigger fallback parsing
         let json = serde_json::json!({
@@ -965,11 +902,8 @@ mod tests {
 
     #[test]
     fn test_convert_linkedin_element_without_company() {
-        let scraper = LinkedInScraper::new(
-            "test".to_string(),
-            "test".to_string(),
-            "test".to_string(),
-        );
+        let scraper =
+            LinkedInScraper::new("test".to_string(), "test".to_string(), "test".to_string());
 
         let element = LinkedInJobElement {
             urn: "urn:li:fsd_jobPosting:nocompany123".to_string(),
@@ -987,11 +921,8 @@ mod tests {
 
     #[test]
     fn test_convert_linkedin_element_unknown_urn() {
-        let scraper = LinkedInScraper::new(
-            "test".to_string(),
-            "test".to_string(),
-            "test".to_string(),
-        );
+        let scraper =
+            LinkedInScraper::new("test".to_string(), "test".to_string(), "test".to_string());
 
         let element = LinkedInJobElement {
             urn: "invalid:urn".to_string(),
@@ -1010,11 +941,8 @@ mod tests {
 
     #[test]
     fn test_parse_linkedin_html_missing_job_id() {
-        let scraper = LinkedInScraper::new(
-            "test".to_string(),
-            "test".to_string(),
-            "test".to_string(),
-        );
+        let scraper =
+            LinkedInScraper::new("test".to_string(), "test".to_string(), "test".to_string());
 
         let html = r#"
             <html>
@@ -1035,11 +963,8 @@ mod tests {
 
     #[test]
     fn test_parse_linkedin_html_alternative_list_item_selector() {
-        let scraper = LinkedInScraper::new(
-            "test".to_string(),
-            "test".to_string(),
-            "test".to_string(),
-        );
+        let scraper =
+            LinkedInScraper::new("test".to_string(), "test".to_string(), "test".to_string());
 
         let html = r#"
             <html>
@@ -1060,11 +985,8 @@ mod tests {
 
     #[test]
     fn test_parse_job_element_empty_company_details() {
-        let scraper = LinkedInScraper::new(
-            "test".to_string(),
-            "test".to_string(),
-            "test".to_string(),
-        );
+        let scraper =
+            LinkedInScraper::new("test".to_string(), "test".to_string(), "test".to_string());
 
         let json = serde_json::json!({
             "dashEntityUrn": "urn:li:fsd_jobPosting:emptycorp123",
@@ -1082,11 +1004,8 @@ mod tests {
 
     #[test]
     fn test_hash_generation_different_values() {
-        let scraper = LinkedInScraper::new(
-            "test".to_string(),
-            "test".to_string(),
-            "test".to_string(),
-        );
+        let scraper =
+            LinkedInScraper::new("test".to_string(), "test".to_string(), "test".to_string());
 
         let hash1 = scraper.generate_hash("Title1", "Company1", "url1");
         let hash2 = scraper.generate_hash("Title2", "Company1", "url1");

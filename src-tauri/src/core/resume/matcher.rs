@@ -55,7 +55,10 @@ impl JobMatcher {
             .await?;
         }
 
-        Ok(extracted_skills.iter().map(|s| s.skill_name.clone()).collect())
+        Ok(extracted_skills
+            .iter()
+            .map(|s| s.skill_name.clone())
+            .collect())
     }
 
     /// Calculate match between resume and job
@@ -69,7 +72,8 @@ impl JobMatcher {
 
         // Get job skills
         let job_skills = self.get_job_skills(job_hash).await?;
-        let job_skill_names: HashSet<String> = job_skills.iter().map(|s| s.to_lowercase()).collect();
+        let job_skill_names: HashSet<String> =
+            job_skills.iter().map(|s| s.to_lowercase()).collect();
 
         // Calculate matching skills
         let matching_skills: Vec<String> = job_skill_names
@@ -107,11 +111,8 @@ impl JobMatcher {
         let overall_match_score = skills_match_score;
 
         // Generate gap analysis
-        let gap_analysis = self.generate_gap_analysis(
-            &matching_skills,
-            &missing_skills,
-            overall_match_score,
-        );
+        let gap_analysis =
+            self.generate_gap_analysis(&matching_skills, &missing_skills, overall_match_score);
 
         Ok(MatchResult {
             id: 0, // Will be set by caller
@@ -140,10 +141,7 @@ impl JobMatcher {
         let mut analysis = format!("Match: {}%\n\n", match_percentage);
 
         if !matching_skills.is_empty() {
-            analysis.push_str(&format!(
-                "✓ Matching Skills ({}):\n",
-                matching_skills.len()
-            ));
+            analysis.push_str(&format!("✓ Matching Skills ({}):\n", matching_skills.len()));
             for skill in matching_skills {
                 analysis.push_str(&format!("  • {}\n", skill));
             }
@@ -193,7 +191,9 @@ impl JobMatcher {
 
         Ok(JobInfo {
             title: row.try_get("title")?,
-            description: row.try_get::<Option<String>, _>("description")?.unwrap_or_default(),
+            description: row
+                .try_get::<Option<String>, _>("description")?
+                .unwrap_or_default(),
         })
     }
 
@@ -218,10 +218,16 @@ impl JobMatcher {
                 id: r.try_get::<i64, _>("id").unwrap_or(0),
                 resume_id: r.try_get::<i64, _>("resume_id").unwrap_or(0),
                 skill_name: r.try_get::<String, _>("skill_name").unwrap_or_default(),
-                skill_category: r.try_get::<Option<String>, _>("skill_category").unwrap_or(None),
+                skill_category: r
+                    .try_get::<Option<String>, _>("skill_category")
+                    .unwrap_or(None),
                 confidence_score: r.try_get::<f64, _>("confidence_score").unwrap_or(0.0),
-                years_experience: r.try_get::<Option<f64>, _>("years_experience").unwrap_or(None),
-                proficiency_level: r.try_get::<Option<String>, _>("proficiency_level").unwrap_or(None),
+                years_experience: r
+                    .try_get::<Option<f64>, _>("years_experience")
+                    .unwrap_or(None),
+                proficiency_level: r
+                    .try_get::<Option<String>, _>("proficiency_level")
+                    .unwrap_or(None),
                 source: r.try_get::<String, _>("source").unwrap_or_default(),
             })
             .collect())
@@ -534,7 +540,11 @@ mod tests {
     async fn test_gap_analysis_strong_match() {
         let matcher = JobMatcher::new(SqlitePool::connect("sqlite::memory:").await.unwrap());
 
-        let matching = vec!["Python".to_string(), "JavaScript".to_string(), "React".to_string()];
+        let matching = vec![
+            "Python".to_string(),
+            "JavaScript".to_string(),
+            "React".to_string(),
+        ];
         let missing = vec!["TypeScript".to_string()];
 
         let analysis = matcher.generate_gap_analysis(&matching, &missing, 0.85);
@@ -615,14 +625,13 @@ mod tests {
         let matcher = JobMatcher::new(pool.clone());
 
         // Create resume without skills
-        let result = sqlx::query(
-            "INSERT INTO resumes (name, file_path, is_active) VALUES (?, ?, 1)"
-        )
-        .bind("Empty Resume")
-        .bind("/tmp/empty.pdf")
-        .execute(&pool)
-        .await
-        .unwrap();
+        let result =
+            sqlx::query("INSERT INTO resumes (name, file_path, is_active) VALUES (?, ?, 1)")
+                .bind("Empty Resume")
+                .bind("/tmp/empty.pdf")
+                .execute(&pool)
+                .await
+                .unwrap();
         let resume_id = result.last_insert_rowid();
 
         let skills = matcher.get_user_skills(resume_id).await.unwrap();
@@ -675,14 +684,13 @@ mod tests {
         create_test_job(&pool, job_hash).await;
 
         // Create resume with lowercase skills
-        let result = sqlx::query(
-            "INSERT INTO resumes (name, file_path, is_active) VALUES (?, ?, 1)"
-        )
-        .bind("Test Resume")
-        .bind("/tmp/test.pdf")
-        .execute(&pool)
-        .await
-        .unwrap();
+        let result =
+            sqlx::query("INSERT INTO resumes (name, file_path, is_active) VALUES (?, ?, 1)")
+                .bind("Test Resume")
+                .bind("/tmp/test.pdf")
+                .execute(&pool)
+                .await
+                .unwrap();
         let resume_id = result.last_insert_rowid();
 
         sqlx::query(
@@ -744,14 +752,13 @@ mod tests {
         let pool = setup_test_db().await;
         let matcher = JobMatcher::new(pool.clone());
 
-        let result = sqlx::query(
-            "INSERT INTO resumes (name, file_path, is_active) VALUES (?, ?, 1)"
-        )
-        .bind("Test Resume")
-        .bind("/tmp/test.pdf")
-        .execute(&pool)
-        .await
-        .unwrap();
+        let result =
+            sqlx::query("INSERT INTO resumes (name, file_path, is_active) VALUES (?, ?, 1)")
+                .bind("Test Resume")
+                .bind("/tmp/test.pdf")
+                .execute(&pool)
+                .await
+                .unwrap();
         let resume_id = result.last_insert_rowid();
 
         // Insert skill with all optional fields populated
@@ -778,7 +785,10 @@ mod tests {
 
         let skill = &skills[0];
         assert_eq!(skill.skill_name, "Python");
-        assert_eq!(skill.skill_category, Some("programming_language".to_string()));
+        assert_eq!(
+            skill.skill_category,
+            Some("programming_language".to_string())
+        );
         assert_eq!(skill.confidence_score, 0.95);
         assert_eq!(skill.years_experience, Some(5.5));
         assert_eq!(skill.proficiency_level, Some("expert".to_string()));

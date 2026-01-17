@@ -281,15 +281,16 @@ mod tests {
         let start = Instant::now();
 
         // Use a short timeout to verify it blocks (doesn't complete immediately)
-        let wait_result = tokio::time::timeout(
-            Duration::from_millis(100),
-            limiter.wait("slow", 2)
-        ).await;
+        let wait_result =
+            tokio::time::timeout(Duration::from_millis(100), limiter.wait("slow", 2)).await;
 
         let elapsed = start.elapsed();
 
         // Verify wait timed out (proving it was blocking)
-        assert!(wait_result.is_err(), "Wait should have timed out, proving it blocks when no tokens available");
+        assert!(
+            wait_result.is_err(),
+            "Wait should have timed out, proving it blocks when no tokens available"
+        );
 
         // Should have waited approximately the timeout duration
         assert!(

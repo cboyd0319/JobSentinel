@@ -194,10 +194,10 @@ mod tests {
                 immediate_alert_sent: false,
                 hidden: false,
                 bookmarked: false,
-            ghost_score: None,
-            ghost_reasons: None,
-            first_seen: None,
-            repost_count: 0,
+                ghost_score: None,
+                ghost_reasons: None,
+                first_seen: None,
+                repost_count: 0,
                 notes: None,
                 included_in_digest: false,
             },
@@ -224,15 +224,22 @@ mod tests {
     fn test_valid_webhook_url_passes() {
         let valid_url = "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX";
         let result = validate_webhook_url(valid_url);
-        assert!(result.is_ok(), "Valid Slack webhook URL should pass validation");
+        assert!(
+            result.is_ok(),
+            "Valid Slack webhook URL should pass validation"
+        );
     }
 
     #[test]
     fn test_invalid_scheme_fails() {
-        let invalid_url = "http://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX";
+        let invalid_url =
+            "http://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX";
         let result = validate_webhook_url(invalid_url);
         assert!(result.is_err(), "HTTP (not HTTPS) webhook should fail");
-        assert!(result.unwrap_err().to_string().contains("https://hooks.slack.com"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("https://hooks.slack.com"));
     }
 
     #[test]
@@ -266,7 +273,8 @@ mod tests {
 
     #[test]
     fn test_url_with_query_params_passes() {
-        let valid_url = "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX?extra=param";
+        let valid_url =
+            "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX?extra=param";
         let result = validate_webhook_url(valid_url);
         // This should pass as long as the base structure is correct
         assert!(result.is_ok(), "Webhook URL with query params should pass");
@@ -332,18 +340,32 @@ mod tests {
         });
 
         // Verify structure
-        assert!(payload["blocks"].is_array(), "Payload should have blocks array");
-        assert_eq!(payload["blocks"].as_array().unwrap().len(), 4, "Should have 4 blocks");
+        assert!(
+            payload["blocks"].is_array(),
+            "Payload should have blocks array"
+        );
+        assert_eq!(
+            payload["blocks"].as_array().unwrap().len(),
+            4,
+            "Should have 4 blocks"
+        );
 
         // Verify header block
         let header = &payload["blocks"][0];
         assert_eq!(header["type"], "header");
-        assert!(header["text"]["text"].as_str().unwrap().contains("Senior Rust Engineer"));
+        assert!(header["text"]["text"]
+            .as_str()
+            .unwrap()
+            .contains("Senior Rust Engineer"));
 
         // Verify section fields
         let section = &payload["blocks"][1];
         assert_eq!(section["type"], "section");
-        assert_eq!(section["fields"].as_array().unwrap().len(), 4, "Should have 4 fields");
+        assert_eq!(
+            section["fields"].as_array().unwrap().len(),
+            4,
+            "Should have 4 fields"
+        );
 
         // Verify score is formatted correctly
         let score_field = &section["fields"][2];
@@ -376,7 +398,10 @@ mod tests {
         });
 
         // Should show "N/A" for missing location
-        assert!(payload["blocks"][0]["fields"][0]["text"].as_str().unwrap().contains("N/A"));
+        assert!(payload["blocks"][0]["fields"][0]["text"]
+            .as_str()
+            .unwrap()
+            .contains("N/A"));
     }
 
     #[test]
@@ -393,7 +418,11 @@ mod tests {
 
         for (score, expected) in test_cases {
             let formatted = format!("{:.0}%", score * 100.0);
-            assert_eq!(formatted, expected, "Score {} should format to {}", score, expected);
+            assert_eq!(
+                formatted, expected,
+                "Score {} should format to {}",
+                score, expected
+            );
         }
     }
 
@@ -417,7 +446,10 @@ mod tests {
     fn test_webhook_validation_rejects_subdomain() {
         let invalid_url = "https://evil.hooks.slack.com/services/T00000000/B00000000/XXXX";
         let result = validate_webhook_url(invalid_url);
-        assert!(result.is_err(), "Should reject subdomain of hooks.slack.com");
+        assert!(
+            result.is_err(),
+            "Should reject subdomain of hooks.slack.com"
+        );
     }
 
     #[test]
@@ -464,7 +496,10 @@ mod tests {
             ]
         });
 
-        assert_eq!(payload["blocks"][0]["elements"][0]["url"], notification.job.url);
+        assert_eq!(
+            payload["blocks"][0]["elements"][0]["url"],
+            notification.job.url
+        );
     }
 
     #[test]
@@ -506,7 +541,10 @@ mod tests {
         notification.score.reasons = vec![];
 
         let reasons_text = notification.score.reasons.join("\n");
-        assert_eq!(reasons_text, "", "Empty reasons should produce empty string");
+        assert_eq!(
+            reasons_text, "",
+            "Empty reasons should produce empty string"
+        );
     }
 
     #[test]
@@ -516,17 +554,15 @@ mod tests {
 
         let reasons_text = notification.score.reasons.join("\n");
         assert_eq!(reasons_text, "Only one reason");
-        assert!(!reasons_text.contains('\n'), "Single reason should not have newlines");
+        assert!(
+            !reasons_text.contains('\n'),
+            "Single reason should not have newlines"
+        );
     }
 
     #[test]
     fn test_notification_score_boundary_values() {
-        let test_cases = vec![
-            (0.0, "0%"),
-            (0.5, "50%"),
-            (0.99, "99%"),
-            (1.0, "100%"),
-        ];
+        let test_cases = vec![(0.0, "0%"), (0.5, "50%"), (0.99, "99%"), (1.0, "100%")];
 
         for (score, expected) in test_cases {
             let formatted = format!("{:.0}%", score * 100.0);
@@ -559,12 +595,16 @@ mod tests {
         let url = "https://hooks.slack.com:443/services/T00000000/B00000000/XXXX";
         let result = validate_webhook_url(url);
         // Port is included in URL parsing and affects host_str comparison
-        assert!(result.is_err() || result.is_ok(), "URL with port may or may not pass depending on implementation");
+        assert!(
+            result.is_err() || result.is_ok(),
+            "URL with port may or may not pass depending on implementation"
+        );
     }
 
     #[test]
     fn test_webhook_url_long_token() {
-        let url = "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXXverylong";
+        let url =
+            "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXXverylong";
         let result = validate_webhook_url(url);
         assert!(result.is_ok(), "Long token should pass validation");
     }
@@ -574,7 +614,10 @@ mod tests {
         let url = "https://user:pass@hooks.slack.com/services/T00000000/B00000000/XXXX";
         let result = validate_webhook_url(url);
         // URL with credentials should fail host comparison
-        assert!(result.is_err(), "URL with credentials should fail validation");
+        assert!(
+            result.is_err(),
+            "URL with credentials should fail validation"
+        );
     }
 
     #[test]
@@ -602,7 +645,8 @@ mod tests {
     #[test]
     fn test_notification_with_special_characters_in_title() {
         let mut notification = create_test_notification();
-        notification.job.title = "Senior Engineer @ \"Cool\" Company <script>alert('xss')</script>".to_string();
+        notification.job.title =
+            "Senior Engineer @ \"Cool\" Company <script>alert('xss')</script>".to_string();
 
         let payload = json!({
             "blocks": [
@@ -767,7 +811,10 @@ mod tests {
         assert_eq!(payload["blocks"][0]["text"]["type"], "plain_text");
         assert_eq!(payload["blocks"][1]["fields"][0]["type"], "mrkdwn");
         assert_eq!(payload["blocks"][2]["text"]["type"], "mrkdwn");
-        assert_eq!(payload["blocks"][3]["elements"][0]["text"]["type"], "plain_text");
+        assert_eq!(
+            payload["blocks"][3]["elements"][0]["text"]["type"],
+            "plain_text"
+        );
 
         // Verify button element
         assert_eq!(payload["blocks"][3]["elements"][0]["type"], "button");
@@ -797,7 +844,10 @@ mod tests {
             ]
         });
 
-        assert_eq!(payload["blocks"][0]["elements"][0]["text"]["text"], "View Job");
+        assert_eq!(
+            payload["blocks"][0]["elements"][0]["text"]["text"],
+            "View Job"
+        );
     }
 
     #[test]
@@ -866,7 +916,11 @@ mod tests {
             });
 
             let source_text = payload["blocks"][0]["fields"][0]["text"].as_str().unwrap();
-            assert!(source_text.contains(source), "Should contain source: {}", source);
+            assert!(
+                source_text.contains(source),
+                "Should contain source: {}",
+                source
+            );
         }
     }
 
@@ -901,7 +955,10 @@ mod tests {
     #[test]
     fn test_validate_webhook_url_error_messages() {
         let test_cases = vec![
-            ("http://hooks.slack.com/services/T/B/X", "https://hooks.slack.com"),
+            (
+                "http://hooks.slack.com/services/T/B/X",
+                "https://hooks.slack.com",
+            ),
             ("https://evil.com/services/T/B/X", "hooks.slack.com"),
             ("https://hooks.slack.com/wrong/T/B/X", "services"),
         ];
@@ -927,7 +984,10 @@ mod tests {
         let result = validate_webhook_url(url);
         assert!(result.is_err(), "Malformed URL should fail");
         // This fails the prefix check before URL parsing
-        assert!(result.unwrap_err().to_string().contains("https://hooks.slack.com"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("https://hooks.slack.com"));
     }
 
     #[test]
@@ -1033,13 +1093,17 @@ mod tests {
             (0.123, "12%"),
             (0.456, "46%"),
             (0.789, "79%"),
-            (0.995, "100%"),  // Rounds up
-            (0.994, "99%"),   // Rounds down
+            (0.995, "100%"), // Rounds up
+            (0.994, "99%"),  // Rounds down
         ];
 
         for (score, expected) in test_values {
             let formatted = format!("{:.0}%", score * 100.0);
-            assert_eq!(formatted, expected, "Score {} should format to {}", score, expected);
+            assert_eq!(
+                formatted, expected,
+                "Score {} should format to {}",
+                score, expected
+            );
         }
     }
 
@@ -1080,7 +1144,11 @@ mod tests {
 
         for i in 0..4 {
             let field_text = payload["blocks"][0]["fields"][i]["text"].as_str().unwrap();
-            assert!(field_text.contains("*"), "Field {} should have bold label", i);
+            assert!(
+                field_text.contains("*"),
+                "Field {} should have bold label",
+                i
+            );
         }
     }
 

@@ -186,20 +186,32 @@ mod tests {
     // Remote inference tests
     #[test]
     fn test_infer_remote_from_title_remote() {
-        assert!(LeverScraper::infer_remote("Software Engineer (Remote)", None));
-        assert!(LeverScraper::infer_remote("REMOTE - Backend Developer", None));
+        assert!(LeverScraper::infer_remote(
+            "Software Engineer (Remote)",
+            None
+        ));
+        assert!(LeverScraper::infer_remote(
+            "REMOTE - Backend Developer",
+            None
+        ));
         assert!(LeverScraper::infer_remote("DevOps Engineer - remote", None));
     }
 
     #[test]
     fn test_infer_remote_from_title_wfh() {
-        assert!(LeverScraper::infer_remote("Frontend Dev (Work From Home)", None));
+        assert!(LeverScraper::infer_remote(
+            "Frontend Dev (Work From Home)",
+            None
+        ));
         assert!(LeverScraper::infer_remote("WFH - Data Engineer", None));
     }
 
     #[test]
     fn test_infer_remote_from_location_remote() {
-        assert!(LeverScraper::infer_remote("Backend Developer", Some("Remote")));
+        assert!(LeverScraper::infer_remote(
+            "Backend Developer",
+            Some("Remote")
+        ));
         assert!(LeverScraper::infer_remote("Engineer", Some("Remote - US")));
         assert!(LeverScraper::infer_remote("Developer", Some("REMOTE")));
     }
@@ -207,26 +219,41 @@ mod tests {
     #[test]
     fn test_infer_remote_from_location_anywhere() {
         assert!(LeverScraper::infer_remote("Engineer", Some("Anywhere")));
-        assert!(LeverScraper::infer_remote("Developer", Some("anywhere in USA")));
+        assert!(LeverScraper::infer_remote(
+            "Developer",
+            Some("anywhere in USA")
+        ));
     }
 
     #[test]
     fn test_infer_remote_from_location_worldwide() {
         assert!(LeverScraper::infer_remote("Engineer", Some("Worldwide")));
-        assert!(LeverScraper::infer_remote("Developer", Some("worldwide - remote")));
+        assert!(LeverScraper::infer_remote(
+            "Developer",
+            Some("worldwide - remote")
+        ));
     }
 
     #[test]
     fn test_infer_remote_false_for_onsite() {
-        assert!(!LeverScraper::infer_remote("Frontend Engineer", Some("San Francisco")));
-        assert!(!LeverScraper::infer_remote("Backend Dev", Some("New York, NY")));
+        assert!(!LeverScraper::infer_remote(
+            "Frontend Engineer",
+            Some("San Francisco")
+        ));
+        assert!(!LeverScraper::infer_remote(
+            "Backend Dev",
+            Some("New York, NY")
+        ));
         assert!(!LeverScraper::infer_remote("DevOps", Some("Seattle")));
     }
 
     #[test]
     fn test_infer_remote_false_no_indicators() {
         assert!(!LeverScraper::infer_remote("Software Engineer", None));
-        assert!(!LeverScraper::infer_remote("Data Scientist", Some("Boston")));
+        assert!(!LeverScraper::infer_remote(
+            "Data Scientist",
+            Some("Boston")
+        ));
     }
 
     #[test]
@@ -257,40 +284,75 @@ mod tests {
 
     #[test]
     fn test_compute_hash_different_company() {
-        let hash1 = LeverScraper::compute_hash("Shopify", "Engineer", None, "https://example.com/1");
-        let hash2 = LeverScraper::compute_hash("Netflix", "Engineer", None, "https://example.com/1");
+        let hash1 =
+            LeverScraper::compute_hash("Shopify", "Engineer", None, "https://example.com/1");
+        let hash2 =
+            LeverScraper::compute_hash("Netflix", "Engineer", None, "https://example.com/1");
 
-        assert_ne!(hash1, hash2, "Different company should produce different hash");
+        assert_ne!(
+            hash1, hash2,
+            "Different company should produce different hash"
+        );
     }
 
     #[test]
     fn test_compute_hash_different_title() {
-        let hash1 = LeverScraper::compute_hash("Company", "Frontend Engineer", None, "https://example.com/1");
-        let hash2 = LeverScraper::compute_hash("Company", "Backend Engineer", None, "https://example.com/1");
+        let hash1 = LeverScraper::compute_hash(
+            "Company",
+            "Frontend Engineer",
+            None,
+            "https://example.com/1",
+        );
+        let hash2 = LeverScraper::compute_hash(
+            "Company",
+            "Backend Engineer",
+            None,
+            "https://example.com/1",
+        );
 
-        assert_ne!(hash1, hash2, "Different title should produce different hash");
+        assert_ne!(
+            hash1, hash2,
+            "Different title should produce different hash"
+        );
     }
 
     #[test]
     fn test_compute_hash_different_location() {
-        let hash1 = LeverScraper::compute_hash("Company", "Engineer", Some("Remote"), "https://example.com/1");
-        let hash2 = LeverScraper::compute_hash("Company", "Engineer", Some("SF"), "https://example.com/1");
+        let hash1 = LeverScraper::compute_hash(
+            "Company",
+            "Engineer",
+            Some("Remote"),
+            "https://example.com/1",
+        );
+        let hash2 =
+            LeverScraper::compute_hash("Company", "Engineer", Some("SF"), "https://example.com/1");
 
-        assert_ne!(hash1, hash2, "Different location should produce different hash");
+        assert_ne!(
+            hash1, hash2,
+            "Different location should produce different hash"
+        );
     }
 
     #[test]
     fn test_compute_hash_location_none_vs_some() {
-        let hash1 = LeverScraper::compute_hash("Company", "Engineer", None, "https://example.com/1");
-        let hash2 = LeverScraper::compute_hash("Company", "Engineer", Some("Remote"), "https://example.com/1");
+        let hash1 =
+            LeverScraper::compute_hash("Company", "Engineer", None, "https://example.com/1");
+        let hash2 = LeverScraper::compute_hash(
+            "Company",
+            "Engineer",
+            Some("Remote"),
+            "https://example.com/1",
+        );
 
         assert_ne!(hash1, hash2, "None location should differ from Some");
     }
 
     #[test]
     fn test_compute_hash_different_url() {
-        let hash1 = LeverScraper::compute_hash("Company", "Engineer", None, "https://example.com/1");
-        let hash2 = LeverScraper::compute_hash("Company", "Engineer", None, "https://example.com/2");
+        let hash1 =
+            LeverScraper::compute_hash("Company", "Engineer", None, "https://example.com/1");
+        let hash2 =
+            LeverScraper::compute_hash("Company", "Engineer", None, "https://example.com/2");
 
         assert_ne!(hash1, hash2, "Different URL should produce different hash");
     }
@@ -298,7 +360,11 @@ mod tests {
     #[test]
     fn test_compute_hash_empty_strings() {
         let hash = LeverScraper::compute_hash("", "", None, "");
-        assert_eq!(hash.len(), 64, "Hash of empty strings should still be valid");
+        assert_eq!(
+            hash.len(),
+            64,
+            "Hash of empty strings should still be valid"
+        );
     }
 
     #[test]
@@ -433,7 +499,10 @@ mod tests {
 
             // Second has team instead of location
             assert_eq!(postings[1]["categories"]["location"].as_str(), None);
-            assert_eq!(postings[1]["categories"]["team"].as_str(), Some("Infrastructure"));
+            assert_eq!(
+                postings[1]["categories"]["team"].as_str(),
+                Some("Infrastructure")
+            );
 
             // Third has remote location
             assert_eq!(
@@ -887,25 +956,46 @@ mod tests {
         assert!(LeverScraper::infer_remote("wfh-friendly", None));
 
         // "work from home" requires exact spacing (not "work-from-home")
-        assert!(LeverScraper::infer_remote("work from home opportunity", None));
-        assert!(!LeverScraper::infer_remote("work-from-home opportunity", None));
+        assert!(LeverScraper::infer_remote(
+            "work from home opportunity",
+            None
+        ));
+        assert!(!LeverScraper::infer_remote(
+            "work-from-home opportunity",
+            None
+        ));
     }
 
     #[test]
     fn test_infer_remote_location_variations() {
         // Various remote location formats
         assert!(LeverScraper::infer_remote("Engineer", Some("Remote (US)")));
-        assert!(LeverScraper::infer_remote("Engineer", Some("Remote/Hybrid")));
+        assert!(LeverScraper::infer_remote(
+            "Engineer",
+            Some("Remote/Hybrid")
+        ));
         assert!(LeverScraper::infer_remote("Engineer", Some("100% Remote")));
         assert!(LeverScraper::infer_remote("Engineer", Some("REMOTE FIRST")));
 
         // Worldwide variations
-        assert!(LeverScraper::infer_remote("Engineer", Some("Worldwide Remote")));
-        assert!(LeverScraper::infer_remote("Engineer", Some("Global/Worldwide")));
+        assert!(LeverScraper::infer_remote(
+            "Engineer",
+            Some("Worldwide Remote")
+        ));
+        assert!(LeverScraper::infer_remote(
+            "Engineer",
+            Some("Global/Worldwide")
+        ));
 
         // Anywhere variations
-        assert!(LeverScraper::infer_remote("Engineer", Some("Work from Anywhere")));
-        assert!(LeverScraper::infer_remote("Engineer", Some("Anywhere in Europe")));
+        assert!(LeverScraper::infer_remote(
+            "Engineer",
+            Some("Work from Anywhere")
+        ));
+        assert!(LeverScraper::infer_remote(
+            "Engineer",
+            Some("Anywhere in Europe")
+        ));
     }
 
     #[test]
@@ -992,14 +1082,26 @@ mod tests {
     fn test_infer_remote_false_positives_prevention() {
         // Current implementation matches "remote" anywhere in the string
         // This is a known limitation - any "remote" substring matches
-        assert!(LeverScraper::infer_remote("Engineer", Some("Remote Street, Boston")));
+        assert!(LeverScraper::infer_remote(
+            "Engineer",
+            Some("Remote Street, Boston")
+        ));
 
         // Should match if it's clearly about work arrangement
-        assert!(LeverScraper::infer_remote("Engineer", Some("Remote - Boston preferred")));
+        assert!(LeverScraper::infer_remote(
+            "Engineer",
+            Some("Remote - Boston preferred")
+        ));
 
         // Location names that definitely aren't remote work
-        assert!(!LeverScraper::infer_remote("Engineer", Some("Paris, France")));
-        assert!(!LeverScraper::infer_remote("Engineer", Some("Downtown NYC")));
+        assert!(!LeverScraper::infer_remote(
+            "Engineer",
+            Some("Paris, France")
+        ));
+        assert!(!LeverScraper::infer_remote(
+            "Engineer",
+            Some("Downtown NYC")
+        ));
     }
 
     #[test]
@@ -1094,8 +1196,14 @@ mod tests {
 
             assert!(posting["text"].as_str().unwrap().contains("🚀"));
             assert!(posting["hostedUrl"].as_str().unwrap().contains("™"));
-            assert!(posting["categories"]["location"].as_str().unwrap().contains("/"));
-            assert!(posting["description"].as_str().unwrap().contains("<strong>"));
+            assert!(posting["categories"]["location"]
+                .as_str()
+                .unwrap()
+                .contains("/"));
+            assert!(posting["description"]
+                .as_str()
+                .unwrap()
+                .contains("<strong>"));
         }
     }
 
@@ -1162,7 +1270,8 @@ mod tests {
                     .map(|s| s.to_string());
 
                 let remote = LeverScraper::infer_remote(&title, location.as_deref());
-                let hash = LeverScraper::compute_hash(&company.name, &title, location.as_deref(), &url);
+                let hash =
+                    LeverScraper::compute_hash(&company.name, &title, location.as_deref(), &url);
 
                 if !title.is_empty() && !url.is_empty() {
                     jobs.push(Job {
@@ -1188,10 +1297,10 @@ mod tests {
                         hidden: false,
                         bookmarked: false,
                         notes: None,
-            ghost_score: None,
-            ghost_reasons: None,
-            first_seen: None,
-            repost_count: 0,
+                        ghost_score: None,
+                        ghost_reasons: None,
+                        first_seen: None,
+                        repost_count: 0,
                         included_in_digest: false,
                     });
                 }
@@ -1202,14 +1311,21 @@ mod tests {
         };
 
         // Validate results
-        assert_eq!(jobs.len(), 2, "Should create 2 jobs (third has empty title)");
+        assert_eq!(
+            jobs.len(),
+            2,
+            "Should create 2 jobs (third has empty title)"
+        );
 
         // Validate first job
         assert_eq!(jobs[0].title, "Senior Backend Engineer");
         assert_eq!(jobs[0].company, "Test Company");
         assert_eq!(jobs[0].url, "https://jobs.lever.co/test-company/job1");
         assert_eq!(jobs[0].location, Some("Remote".to_string()));
-        assert_eq!(jobs[0].description, Some("<p>Join our backend team</p>".to_string()));
+        assert_eq!(
+            jobs[0].description,
+            Some("<p>Join our backend team</p>".to_string())
+        );
         assert_eq!(jobs[0].source, "lever");
         assert_eq!(jobs[0].remote, Some(true));
         assert_eq!(jobs[0].times_seen, 1);
@@ -1266,10 +1382,10 @@ mod tests {
                         hidden: false,
                         bookmarked: false,
                         notes: None,
-            ghost_score: None,
-            ghost_reasons: None,
-            first_seen: None,
-            repost_count: 0,
+                        ghost_score: None,
+                        ghost_reasons: None,
+                        first_seen: None,
+                        repost_count: 0,
                         included_in_digest: false,
                     });
                 }
@@ -1314,10 +1430,10 @@ mod tests {
                     hidden: false,
                     bookmarked: false,
                     notes: None,
-            ghost_score: None,
-            ghost_reasons: None,
-            first_seen: None,
-            repost_count: 0,
+                    ghost_score: None,
+                    ghost_reasons: None,
+                    first_seen: None,
+                    repost_count: 0,
                     included_in_digest: false,
                 });
             }
@@ -1326,7 +1442,11 @@ mod tests {
             Vec::new()
         };
 
-        assert_eq!(jobs.len(), 0, "Non-array response should produce empty job list");
+        assert_eq!(
+            jobs.len(),
+            0,
+            "Non-array response should produce empty job list"
+        );
     }
 
     #[tokio::test]
@@ -1478,11 +1598,7 @@ mod tests {
         let location = json["categories"]["location"]
             .as_str()
             .map(|s| s.to_string())
-            .or_else(|| {
-                json["categories"]["team"]
-                    .as_str()
-                    .map(|s| s.to_string())
-            });
+            .or_else(|| json["categories"]["team"].as_str().map(|s| s.to_string()));
 
         assert_eq!(location, Some("Remote".to_string()));
 
@@ -1496,11 +1612,7 @@ mod tests {
         let location2 = json2["categories"]["location"]
             .as_str()
             .map(|s| s.to_string())
-            .or_else(|| {
-                json2["categories"]["team"]
-                    .as_str()
-                    .map(|s| s.to_string())
-            });
+            .or_else(|| json2["categories"]["team"].as_str().map(|s| s.to_string()));
 
         assert_eq!(location2, Some("Platform".to_string()));
 
@@ -1512,11 +1624,7 @@ mod tests {
         let location3 = json3["categories"]["location"]
             .as_str()
             .map(|s| s.to_string())
-            .or_else(|| {
-                json3["categories"]["team"]
-                    .as_str()
-                    .map(|s| s.to_string())
-            });
+            .or_else(|| json3["categories"]["team"].as_str().map(|s| s.to_string()));
 
         assert_eq!(location3, None);
     }
@@ -1547,7 +1655,11 @@ mod tests {
 
         for (title, url, should_be_valid) in test_cases {
             let is_valid = !title.is_empty() && !url.is_empty();
-            assert_eq!(is_valid, should_be_valid, "Failed for title='{}', url='{}'", title, url);
+            assert_eq!(
+                is_valid, should_be_valid,
+                "Failed for title='{}', url='{}'",
+                title, url
+            );
         }
     }
 
@@ -1652,7 +1764,8 @@ mod tests {
                     .map(|s| s.to_string());
 
                 let remote = LeverScraper::infer_remote(&title, location.as_deref());
-                let hash = LeverScraper::compute_hash(&company.name, &title, location.as_deref(), &url);
+                let hash =
+                    LeverScraper::compute_hash(&company.name, &title, location.as_deref(), &url);
 
                 if !title.is_empty() && !url.is_empty() {
                     jobs.push(Job {
@@ -1678,10 +1791,10 @@ mod tests {
                         hidden: false,
                         bookmarked: false,
                         notes: None,
-            ghost_score: None,
-            ghost_reasons: None,
-            first_seen: None,
-            repost_count: 0,
+                        ghost_score: None,
+                        ghost_reasons: None,
+                        first_seen: None,
+                        repost_count: 0,
                         included_in_digest: false,
                     });
                 }
@@ -1695,7 +1808,11 @@ mod tests {
             assert_eq!(job.company, "Comprehensive Test Co");
             assert_eq!(job.url, "https://jobs.lever.co/comprehensive-test/job1");
             assert_eq!(job.location, Some("Remote - Global".to_string()));
-            assert!(job.description.as_ref().unwrap().contains("<h1>Join our team</h1>"));
+            assert!(job
+                .description
+                .as_ref()
+                .unwrap()
+                .contains("<h1>Join our team</h1>"));
             assert_eq!(job.source, "lever");
             assert_eq!(job.remote, Some(true));
             assert_eq!(job.times_seen, 1);
@@ -1733,7 +1850,10 @@ mod tests {
                 .or_else(|| posting["descriptionPlain"].as_str())
                 .map(|s| s.to_string());
 
-            assert_eq!(description, Some("This is a plain text description".to_string()));
+            assert_eq!(
+                description,
+                Some("This is a plain text description".to_string())
+            );
         }
     }
 
@@ -1870,7 +1990,8 @@ mod tests {
                     .as_str()
                     .map(|s| s.to_string());
 
-                let hash = LeverScraper::compute_hash(&company.name, &title, location.as_deref(), &url);
+                let hash =
+                    LeverScraper::compute_hash(&company.name, &title, location.as_deref(), &url);
                 hashes.push(hash);
             }
         }
@@ -2064,8 +2185,14 @@ mod tests {
 
     #[test]
     fn test_infer_remote_with_work_from_home_in_title() {
-        assert!(LeverScraper::infer_remote("Software Engineer (Work From Home)", None));
-        assert!(LeverScraper::infer_remote("Backend Dev - Work from Home", None));
+        assert!(LeverScraper::infer_remote(
+            "Software Engineer (Work From Home)",
+            None
+        ));
+        assert!(LeverScraper::infer_remote(
+            "Backend Dev - Work from Home",
+            None
+        ));
         assert!(LeverScraper::infer_remote("Work From Home Engineer", None));
     }
 
@@ -2083,11 +2210,7 @@ mod tests {
         let location = json["categories"]["location"]
             .as_str()
             .map(|s| s.to_string())
-            .or_else(|| {
-                json["categories"]["team"]
-                    .as_str()
-                    .map(|s| s.to_string())
-            });
+            .or_else(|| json["categories"]["team"].as_str().map(|s| s.to_string()));
 
         assert_eq!(location, Some("Engineering Team".to_string()));
     }

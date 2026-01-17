@@ -56,13 +56,19 @@ impl WellfoundScraper {
 
         let response = client
             .get(&url)
-            .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+            .header(
+                "User-Agent",
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            )
             .header("Accept", "text/html,application/xhtml+xml")
             .send()
             .await?;
 
         if !response.status().is_success() {
-            return Err(anyhow::anyhow!("Wellfound request failed: {}", response.status()));
+            return Err(anyhow::anyhow!(
+                "Wellfound request failed: {}",
+                response.status()
+            ));
         }
 
         let html = response.text().await?;
@@ -80,19 +86,17 @@ impl WellfoundScraper {
 
         // Wellfound uses data attributes and dynamic content
         // These selectors are based on their typical HTML structure
-        let job_selector =
-            Selector::parse("[data-test='StartupResult'], .styles_component__XXXXX")
-                .or_else(|_| Selector::parse("div"))
-                .expect("fallback selector 'div' is valid CSS");
+        let job_selector = Selector::parse("[data-test='StartupResult'], .styles_component__XXXXX")
+            .or_else(|_| Selector::parse("div"))
+            .expect("fallback selector 'div' is valid CSS");
 
         let title_selector = Selector::parse("[data-test='JobTitle'], .job-title")
             .or_else(|_| Selector::parse("h2"))
             .expect("fallback selector 'h2' is valid CSS");
 
-        let company_selector =
-            Selector::parse("[data-test='CompanyName'], .startup-name")
-                .or_else(|_| Selector::parse("h3"))
-                .expect("fallback selector 'h3' is valid CSS");
+        let company_selector = Selector::parse("[data-test='CompanyName'], .startup-name")
+            .or_else(|_| Selector::parse("h3"))
+            .expect("fallback selector 'h3' is valid CSS");
 
         let link_selector = Selector::parse("a[href*='/jobs/']")
             .or_else(|_| Selector::parse("a"))
@@ -194,12 +198,7 @@ mod tests {
 
     #[test]
     fn test_build_url_basic() {
-        let scraper = WellfoundScraper::new(
-            "software-engineer".to_string(),
-            None,
-            false,
-            10,
-        );
+        let scraper = WellfoundScraper::new("software-engineer".to_string(), None, false, 10);
         assert_eq!(
             scraper.build_url(),
             "https://wellfound.com/role/r/software-engineer"
@@ -222,12 +221,7 @@ mod tests {
 
     #[test]
     fn test_build_url_remote() {
-        let scraper = WellfoundScraper::new(
-            "software-engineer".to_string(),
-            None,
-            true,
-            10,
-        );
+        let scraper = WellfoundScraper::new("software-engineer".to_string(), None, true, 10);
         assert_eq!(
             scraper.build_url(),
             "https://wellfound.com/role/r/software-engineer/remote"
@@ -261,12 +255,7 @@ mod tests {
 
     #[test]
     fn test_parse_html_with_data_test_attributes() {
-        let scraper = WellfoundScraper::new(
-            "software-engineer".to_string(),
-            None,
-            true,
-            10,
-        );
+        let scraper = WellfoundScraper::new("software-engineer".to_string(), None, true, 10);
         let html = r#"
             <html>
                 <body>
@@ -291,7 +280,10 @@ mod tests {
         // First job
         assert_eq!(jobs[0].title, "Senior Frontend Engineer");
         assert_eq!(jobs[0].company, "TechStartup Inc");
-        assert_eq!(jobs[0].url, "https://wellfound.com/jobs/senior-frontend-123");
+        assert_eq!(
+            jobs[0].url,
+            "https://wellfound.com/jobs/senior-frontend-123"
+        );
         assert_eq!(jobs[0].source, "wellfound");
         assert_eq!(jobs[0].remote, Some(true));
 
@@ -503,8 +495,12 @@ mod tests {
             </html>
         "#;
 
-        let jobs_remote = scraper_remote.parse_html(html).expect("parse_html should succeed");
-        let jobs_not_remote = scraper_not_remote.parse_html(html).expect("parse_html should succeed");
+        let jobs_remote = scraper_remote
+            .parse_html(html)
+            .expect("parse_html should succeed");
+        let jobs_not_remote = scraper_not_remote
+            .parse_html(html)
+            .expect("parse_html should succeed");
 
         assert_eq!(jobs_remote.len(), 1);
         assert_eq!(jobs_remote[0].remote, Some(true));
@@ -671,7 +667,10 @@ mod tests {
             "https://wellfound.com/jobs/1",
         );
 
-        assert_ne!(hash1, hash2, "Different companies should produce different hashes");
+        assert_ne!(
+            hash1, hash2,
+            "Different companies should produce different hashes"
+        );
     }
 
     #[test]
@@ -798,12 +797,7 @@ mod tests {
 
     #[test]
     fn test_build_url_no_location_no_remote() {
-        let scraper = WellfoundScraper::new(
-            "backend-engineer".to_string(),
-            None,
-            false,
-            10,
-        );
+        let scraper = WellfoundScraper::new("backend-engineer".to_string(), None, false, 10);
 
         assert_eq!(
             scraper.build_url(),

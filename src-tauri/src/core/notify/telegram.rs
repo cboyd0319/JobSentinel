@@ -40,7 +40,10 @@ fn validate_bot_token(token: &str) -> Result<()> {
         ));
     }
 
-    if !token_part.chars().all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-') {
+    if !token_part
+        .chars()
+        .all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-')
+    {
         return Err(anyhow!(
             "Invalid Telegram bot token: token contains invalid characters"
         ));
@@ -69,7 +72,8 @@ fn validate_chat_id(chat_id: &str) -> Result<()> {
     }
 
     // Numeric chat ID (can be negative for groups)
-    let is_valid_number = chat_id.strip_prefix('-')
+    let is_valid_number = chat_id
+        .strip_prefix('-')
         .unwrap_or(chat_id)
         .chars()
         .all(|c| c.is_ascii_digit());
@@ -202,7 +206,16 @@ fn format_telegram_message(
 [View Full Job Posting]({})
 
 _Sent by JobSentinel • Job Search Automation_"#,
-        title, company, score_percent, company, location, salary_display, source, remote, reasons, job.url
+        title,
+        company,
+        score_percent,
+        company,
+        location,
+        salary_display,
+        source,
+        remote,
+        reasons,
+        job.url
     )
 }
 
@@ -236,7 +249,10 @@ pub async fn validate_telegram_config(config: &TelegramConfig) -> Result<bool> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::{db::Job, scoring::{JobScore, ScoreBreakdown}};
+    use crate::core::{
+        db::Job,
+        scoring::{JobScore, ScoreBreakdown},
+    };
     use chrono::Utc;
 
     fn create_test_notification() -> Notification {
@@ -263,10 +279,10 @@ mod tests {
                 immediate_alert_sent: false,
                 hidden: false,
                 bookmarked: false,
-            ghost_score: None,
-            ghost_reasons: None,
-            first_seen: None,
-            repost_count: 0,
+                ghost_score: None,
+                ghost_reasons: None,
+                first_seen: None,
+                repost_count: 0,
                 notes: None,
                 included_in_digest: false,
             },
@@ -349,8 +365,8 @@ mod tests {
         let escape = |s: &str| -> String {
             s.chars()
                 .map(|c| match c {
-                    '_' | '*' | '[' | ']' | '(' | ')' | '~' | '`' | '>' | '#' | '+' | '-'
-                    | '=' | '|' | '{' | '}' | '.' | '!' => format!("\\{}", c),
+                    '_' | '*' | '[' | ']' | '(' | ')' | '~' | '`' | '>' | '#' | '+' | '-' | '='
+                    | '|' | '{' | '}' | '.' | '!' => format!("\\{}", c),
                     _ => c.to_string(),
                 })
                 .collect()
@@ -360,7 +376,10 @@ mod tests {
         let output = escape(input);
 
         // All special characters should be escaped
-        assert_eq!(output, "Test\\_\\*\\[\\]\\(\\)\\~\\`\\>\\#\\+\\-\\=\\|\\{\\}\\.\\!");
+        assert_eq!(
+            output,
+            "Test\\_\\*\\[\\]\\(\\)\\~\\`\\>\\#\\+\\-\\=\\|\\{\\}\\.\\!"
+        );
     }
 
     #[test]
@@ -368,8 +387,8 @@ mod tests {
         let escape = |s: &str| -> String {
             s.chars()
                 .map(|c| match c {
-                    '_' | '*' | '[' | ']' | '(' | ')' | '~' | '`' | '>' | '#' | '+' | '-'
-                    | '=' | '|' | '{' | '}' | '.' | '!' => format!("\\{}", c),
+                    '_' | '*' | '[' | ']' | '(' | ')' | '~' | '`' | '>' | '#' | '+' | '-' | '='
+                    | '|' | '{' | '}' | '.' | '!' => format!("\\{}", c),
                     _ => c.to_string(),
                 })
                 .collect()
@@ -434,7 +453,10 @@ mod tests {
         let invalid_token = "abc123:ABCdefGHIjklMNOpqrsTUVwxyz";
         let result = validate_bot_token(invalid_token);
         assert!(result.is_err(), "Non-numeric bot ID should fail");
-        assert!(result.unwrap_err().to_string().contains("bot ID must be numeric"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("bot ID must be numeric"));
     }
 
     #[test]
@@ -515,7 +537,10 @@ mod tests {
     #[test]
     fn test_validate_chat_id_alphanumeric() {
         let result = validate_chat_id("abc123");
-        assert!(result.is_err(), "Alphanumeric (not starting with @) should fail");
+        assert!(
+            result.is_err(),
+            "Alphanumeric (not starting with @) should fail"
+        );
     }
 
     #[test]
@@ -556,8 +581,8 @@ mod tests {
         let escape = |s: &str| -> String {
             s.chars()
                 .map(|c| match c {
-                    '_' | '*' | '[' | ']' | '(' | ')' | '~' | '`' | '>' | '#' | '+' | '-'
-                    | '=' | '|' | '{' | '}' | '.' | '!' => format!("\\{}", c),
+                    '_' | '*' | '[' | ']' | '(' | ')' | '~' | '`' | '>' | '#' | '+' | '-' | '='
+                    | '|' | '{' | '}' | '.' | '!' => format!("\\{}", c),
                     _ => c.to_string(),
                 })
                 .collect()
@@ -589,7 +614,10 @@ mod tests {
         notification.job.remote = None;
 
         let message = format_telegram_message(&notification.job, &notification.score);
-        assert!(message.contains("❌ No"), "None remote should default to No");
+        assert!(
+            message.contains("❌ No"),
+            "None remote should default to No"
+        );
     }
 
     #[test]
@@ -598,7 +626,10 @@ mod tests {
         notification.score.reasons = vec![];
 
         let message = format_telegram_message(&notification.job, &notification.score);
-        assert!(message.contains("*Why this matches:*"), "Should have header even with empty reasons");
+        assert!(
+            message.contains("*Why this matches:*"),
+            "Should have header even with empty reasons"
+        );
     }
 
     #[test]
@@ -625,12 +656,7 @@ mod tests {
 
     #[test]
     fn test_telegram_message_score_formatting() {
-        let test_cases = vec![
-            (0.95, "95%"),
-            (0.90, "90%"),
-            (1.00, "100%"),
-            (0.0, "0%"),
-        ];
+        let test_cases = vec![(0.95, "95%"), (0.90, "90%"), (1.00, "100%"), (0.0, "0%")];
 
         for (score, expected) in test_cases {
             let formatted = format!("{:.0}%", score * 100.0);

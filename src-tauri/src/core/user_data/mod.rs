@@ -563,7 +563,10 @@ impl UserDataManager {
 
     /// Get follow-up reminder for an interview
     #[instrument(skip(self))]
-    pub async fn get_followup(&self, interview_id: i64) -> Result<Option<FollowUpReminder>, sqlx::Error> {
+    pub async fn get_followup(
+        &self,
+        interview_id: i64,
+    ) -> Result<Option<FollowUpReminder>, sqlx::Error> {
         debug!("Getting follow-up for interview: {}", interview_id);
 
         let row: Option<FollowUpRow> = sqlx::query_as(
@@ -646,7 +649,10 @@ impl UserDataManager {
 
     /// Create a saved search
     #[instrument(skip(self))]
-    pub async fn create_saved_search(&self, search: SavedSearch) -> Result<SavedSearch, sqlx::Error> {
+    pub async fn create_saved_search(
+        &self,
+        search: SavedSearch,
+    ) -> Result<SavedSearch, sqlx::Error> {
         let id = if search.id.is_empty() {
             Uuid::new_v4().to_string()
         } else {
@@ -792,7 +798,9 @@ impl UserDataManager {
 
     /// Get notification preferences
     #[instrument(skip(self))]
-    pub async fn get_notification_preferences(&self) -> Result<NotificationPreferences, sqlx::Error> {
+    pub async fn get_notification_preferences(
+        &self,
+    ) -> Result<NotificationPreferences, sqlx::Error> {
         debug!("Getting notification preferences");
 
         let row: Option<NotificationPreferencesRow> = sqlx::query_as(
@@ -864,7 +872,11 @@ impl UserDataManager {
 
         let now = Utc::now().to_rfc3339();
         let global_enabled: i64 = if prefs.global.enabled { 1 } else { 0 };
-        let quiet_hours_enabled: i64 = if prefs.global.quiet_hours_enabled { 1 } else { 0 };
+        let quiet_hours_enabled: i64 = if prefs.global.quiet_hours_enabled {
+            1
+        } else {
+            0
+        };
 
         sqlx::query(
             r#"
@@ -998,8 +1010,14 @@ mod tests {
 
     #[test]
     fn test_template_category_from_str() {
-        assert_eq!("general".parse::<TemplateCategory>().unwrap(), TemplateCategory::General);
-        assert_eq!("TECH".parse::<TemplateCategory>().unwrap(), TemplateCategory::Tech);
+        assert_eq!(
+            "general".parse::<TemplateCategory>().unwrap(),
+            TemplateCategory::General
+        );
+        assert_eq!(
+            "TECH".parse::<TemplateCategory>().unwrap(),
+            TemplateCategory::Tech
+        );
         assert!("invalid".parse::<TemplateCategory>().is_err());
     }
 

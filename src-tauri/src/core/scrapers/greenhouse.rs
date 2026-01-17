@@ -156,9 +156,9 @@ impl GreenhouseScraper {
                 last_seen: Utc::now(),
                 times_seen: 1,
                 immediate_alert_sent: false,
-            hidden: false,
-            bookmarked: false,
-            notes: None,
+                hidden: false,
+                bookmarked: false,
+                notes: None,
                 included_in_digest: false,
                 ghost_score: None,
                 ghost_reasons: None,
@@ -234,9 +234,9 @@ impl GreenhouseScraper {
                     last_seen: Utc::now(),
                     times_seen: 1,
                     immediate_alert_sent: false,
-            hidden: false,
-            bookmarked: false,
-            notes: None,
+                    hidden: false,
+                    bookmarked: false,
+                    notes: None,
                     included_in_digest: false,
                     ghost_score: None,
                     ghost_reasons: None,
@@ -324,14 +324,13 @@ mod tests {
             None,
             "https://example.com/1",
         );
-        let hash2 = GreenhouseScraper::compute_hash(
-            "Stripe",
-            "Engineer",
-            None,
-            "https://example.com/1",
-        );
+        let hash2 =
+            GreenhouseScraper::compute_hash("Stripe", "Engineer", None, "https://example.com/1");
 
-        assert_ne!(hash1, hash2, "Different company should produce different hash");
+        assert_ne!(
+            hash1, hash2,
+            "Different company should produce different hash"
+        );
     }
 
     #[test]
@@ -349,7 +348,10 @@ mod tests {
             "https://example.com/1",
         );
 
-        assert_ne!(hash1, hash2, "Different title should produce different hash");
+        assert_ne!(
+            hash1, hash2,
+            "Different title should produce different hash"
+        );
     }
 
     #[test]
@@ -367,17 +369,16 @@ mod tests {
             "https://example.com/1",
         );
 
-        assert_ne!(hash1, hash2, "Different location should produce different hash");
+        assert_ne!(
+            hash1, hash2,
+            "Different location should produce different hash"
+        );
     }
 
     #[test]
     fn test_compute_hash_location_none_vs_some() {
-        let hash1 = GreenhouseScraper::compute_hash(
-            "Company",
-            "Engineer",
-            None,
-            "https://example.com/1",
-        );
+        let hash1 =
+            GreenhouseScraper::compute_hash("Company", "Engineer", None, "https://example.com/1");
         let hash2 = GreenhouseScraper::compute_hash(
             "Company",
             "Engineer",
@@ -385,37 +386,31 @@ mod tests {
             "https://example.com/1",
         );
 
-        assert_ne!(hash1, hash2, "None location should produce different hash than Some");
+        assert_ne!(
+            hash1, hash2,
+            "None location should produce different hash than Some"
+        );
     }
 
     #[test]
     fn test_compute_hash_different_url() {
-        let hash1 = GreenhouseScraper::compute_hash(
-            "Company",
-            "Engineer",
-            None,
-            "https://example.com/1",
-        );
-        let hash2 = GreenhouseScraper::compute_hash(
-            "Company",
-            "Engineer",
-            None,
-            "https://example.com/2",
-        );
+        let hash1 =
+            GreenhouseScraper::compute_hash("Company", "Engineer", None, "https://example.com/1");
+        let hash2 =
+            GreenhouseScraper::compute_hash("Company", "Engineer", None, "https://example.com/2");
 
         assert_ne!(hash1, hash2, "Different URL should produce different hash");
     }
 
     #[test]
     fn test_compute_hash_empty_strings() {
-        let hash = GreenhouseScraper::compute_hash(
-            "",
-            "",
-            None,
-            "",
-        );
+        let hash = GreenhouseScraper::compute_hash("", "", None, "");
 
-        assert_eq!(hash.len(), 64, "Hash of empty strings should still be valid");
+        assert_eq!(
+            hash.len(),
+            64,
+            "Hash of empty strings should still be valid"
+        );
     }
 
     #[test]
@@ -1034,7 +1029,10 @@ mod tests {
     #[test]
     fn test_api_url_construction() {
         let company_id = "cloudflare";
-        let api_url = format!("https://boards-api.greenhouse.io/v1/boards/{}/jobs", company_id);
+        let api_url = format!(
+            "https://boards-api.greenhouse.io/v1/boards/{}/jobs",
+            company_id
+        );
 
         assert_eq!(
             api_url,
@@ -1053,7 +1051,10 @@ mod tests {
 
         assert_eq!(company_id, "cloudflare");
 
-        let api_url = format!("https://boards-api.greenhouse.io/v1/boards/{}/jobs", company_id);
+        let api_url = format!(
+            "https://boards-api.greenhouse.io/v1/boards/{}/jobs",
+            company_id
+        );
         assert_eq!(
             api_url,
             "https://boards-api.greenhouse.io/v1/boards/cloudflare/jobs"
@@ -1076,7 +1077,10 @@ mod tests {
     fn test_job_url_construction_from_api() {
         let company_id = "figma";
         let job_id = 987654;
-        let url = format!("https://boards.greenhouse.io/{}/jobs/{}", company_id, job_id);
+        let url = format!(
+            "https://boards.greenhouse.io/{}/jobs/{}",
+            company_id, job_id
+        );
 
         assert_eq!(url, "https://boards.greenhouse.io/figma/jobs/987654");
     }

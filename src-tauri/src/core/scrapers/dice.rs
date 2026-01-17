@@ -65,7 +65,10 @@ impl DiceScraper {
             .await?;
 
         if !response.status().is_success() {
-            return Err(anyhow::anyhow!("Dice request failed: {}", response.status()));
+            return Err(anyhow::anyhow!(
+                "Dice request failed: {}",
+                response.status()
+            ));
         }
 
         let html = response.text().await?;
@@ -116,15 +119,17 @@ impl DiceScraper {
                 .or_else(|_| Selector::parse("a"))
                 .expect("fallback selector 'a' is valid CSS");
 
-        let company_selector =
-            Selector::parse("[data-cy='search-result-company-name'], .company-name, .employer-name")
-                .or_else(|_| Selector::parse("span"))
-                .expect("fallback selector 'span' is valid CSS");
+        let company_selector = Selector::parse(
+            "[data-cy='search-result-company-name'], .company-name, .employer-name",
+        )
+        .or_else(|_| Selector::parse("span"))
+        .expect("fallback selector 'span' is valid CSS");
 
-        let location_selector =
-            Selector::parse("[data-cy='search-result-location'], .job-location, .search-result-location")
-                .or_else(|_| Selector::parse("span"))
-                .expect("fallback selector 'span' is valid CSS");
+        let location_selector = Selector::parse(
+            "[data-cy='search-result-location'], .job-location, .search-result-location",
+        )
+        .or_else(|_| Selector::parse("span"))
+        .expect("fallback selector 'span' is valid CSS");
 
         for job_element in document.select(&job_selector).take(self.limit) {
             // Extract title - ElementRef implements Copy, no need for clone
@@ -263,8 +268,7 @@ mod tests {
 
     #[test]
     fn test_build_url_with_location() {
-        let scraper =
-            DiceScraper::new("python".to_string(), Some("New York".to_string()), 10);
+        let scraper = DiceScraper::new("python".to_string(), Some("New York".to_string()), 10);
         let url = scraper.build_url();
         assert!(url.contains("location=New%20York"));
     }
@@ -296,7 +300,10 @@ mod tests {
 
     #[test]
     fn test_is_remote() {
-        assert!(DiceScraper::is_remote("Senior Rust Engineer (Remote)", None));
+        assert!(DiceScraper::is_remote(
+            "Senior Rust Engineer (Remote)",
+            None
+        ));
         assert!(DiceScraper::is_remote("Developer", Some("Remote, USA")));
         assert!(DiceScraper::is_remote("Engineer", Some("Work from home")));
         assert!(!DiceScraper::is_remote("Developer", Some("New York, NY")));
@@ -333,7 +340,10 @@ mod tests {
         // First job - remote
         assert_eq!(jobs[0].title, "Senior Rust Engineer (Remote)");
         assert_eq!(jobs[0].company, "TechCorp Inc");
-        assert_eq!(jobs[0].url, "https://www.dice.com/job-detail/senior-rust-engineer-123");
+        assert_eq!(
+            jobs[0].url,
+            "https://www.dice.com/job-detail/senior-rust-engineer-123"
+        );
         assert_eq!(jobs[0].location, Some("Remote".to_string()));
         assert_eq!(jobs[0].source, "dice");
         assert_eq!(jobs[0].remote, Some(true));
@@ -410,7 +420,10 @@ mod tests {
         let jobs = scraper.parse_html(html).expect("parse_html should succeed");
 
         assert_eq!(jobs.len(), 1);
-        assert_eq!(jobs[0].url, "https://www.dice.com/job-detail/go-developer-111");
+        assert_eq!(
+            jobs[0].url,
+            "https://www.dice.com/job-detail/go-developer-111"
+        );
     }
 
     #[test]
@@ -481,7 +494,11 @@ mod tests {
         let jobs = scraper.parse_html(html).expect("parse_html should succeed");
 
         assert_eq!(jobs.len(), 1);
-        assert_eq!(jobs[0].remote, Some(true), "Should detect 'Remote' in title");
+        assert_eq!(
+            jobs[0].remote,
+            Some(true),
+            "Should detect 'Remote' in title"
+        );
     }
 
     #[test]
@@ -502,7 +519,11 @@ mod tests {
         let jobs = scraper.parse_html(html).expect("parse_html should succeed");
 
         assert_eq!(jobs.len(), 1);
-        assert_eq!(jobs[0].remote, Some(true), "Should detect 'Anywhere' in location");
+        assert_eq!(
+            jobs[0].remote,
+            Some(true),
+            "Should detect 'Anywhere' in location"
+        );
     }
 
     #[test]
@@ -592,7 +613,10 @@ mod tests {
     fn test_is_remote_partial_match() {
         assert!(DiceScraper::is_remote("Full-time Remote Engineer", None));
         assert!(DiceScraper::is_remote("Engineer", Some("Remote, USA")));
-        assert!(DiceScraper::is_remote("Engineer", Some("Work anywhere in the US")));
+        assert!(DiceScraper::is_remote(
+            "Engineer",
+            Some("Work anywhere in the US")
+        ));
     }
 
     #[test]
@@ -661,7 +685,10 @@ mod tests {
 
     #[test]
     fn test_is_remote_work_from_home() {
-        assert!(DiceScraper::is_remote("Engineer", Some("Work from home opportunity")));
+        assert!(DiceScraper::is_remote(
+            "Engineer",
+            Some("Work from home opportunity")
+        ));
         // WFH is not explicitly checked in is_remote function - only "work from home" text
         assert!(!DiceScraper::is_remote("Engineer", Some("WFH position")));
     }
@@ -676,18 +703,10 @@ mod tests {
 
     #[test]
     fn test_compute_hash_with_none_location() {
-        let hash1 = DiceScraper::compute_hash(
-            "Company",
-            "Engineer",
-            None,
-            "https://dice.com/job/123",
-        );
-        let hash2 = DiceScraper::compute_hash(
-            "Company",
-            "Engineer",
-            None,
-            "https://dice.com/job/123",
-        );
+        let hash1 =
+            DiceScraper::compute_hash("Company", "Engineer", None, "https://dice.com/job/123");
+        let hash2 =
+            DiceScraper::compute_hash("Company", "Engineer", None, "https://dice.com/job/123");
 
         assert_eq!(hash1, hash2);
     }

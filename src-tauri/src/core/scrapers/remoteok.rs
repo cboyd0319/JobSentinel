@@ -38,7 +38,10 @@ impl RemoteOkScraper {
             .await?;
 
         if !response.status().is_success() {
-            return Err(anyhow::anyhow!("RemoteOK API failed: {}", response.status()));
+            return Err(anyhow::anyhow!(
+                "RemoteOK API failed: {}",
+                response.status()
+            ));
         }
 
         let json: serde_json::Value = response.json().await?;
@@ -626,10 +629,7 @@ mod tests {
 
     #[test]
     fn test_new_scraper_with_tags() {
-        let scraper = RemoteOkScraper::new(
-            vec!["rust".to_string(), "engineer".to_string()],
-            50,
-        );
+        let scraper = RemoteOkScraper::new(vec!["rust".to_string(), "engineer".to_string()], 50);
 
         assert_eq!(scraper.tags.len(), 2);
         assert_eq!(scraper.limit, 50);
@@ -835,12 +835,8 @@ mod tests {
             Some("Remote"),
             "https://example.com/job/1",
         );
-        let hash2 = RemoteOkScraper::compute_hash(
-            "Company",
-            "Engineer",
-            None,
-            "https://example.com/job/1",
-        );
+        let hash2 =
+            RemoteOkScraper::compute_hash("Company", "Engineer", None, "https://example.com/job/1");
 
         // Some(location) vs None should produce different hashes
         assert_ne!(hash1, hash2);
@@ -942,7 +938,10 @@ mod tests {
 
     #[test]
     fn test_job_matches_tags_with_multiple_tags_any_match() {
-        let scraper = RemoteOkScraper::new(vec!["rust".to_string(), "python".to_string(), "go".to_string()], 10);
+        let scraper = RemoteOkScraper::new(
+            vec!["rust".to_string(), "python".to_string(), "go".to_string()],
+            10,
+        );
 
         let job = Job {
             id: 0,

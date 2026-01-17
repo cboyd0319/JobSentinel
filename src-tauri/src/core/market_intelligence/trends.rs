@@ -251,7 +251,10 @@ mod tests {
 
         assert!(trend.is_growing());
         assert!(trend.is_significant_growth());
-        assert_eq!(trend.range_description(), "$100,000-$250,000 (median: $150,000)");
+        assert_eq!(
+            trend.range_description(),
+            "$100,000-$250,000 (median: $150,000)"
+        );
     }
 
     #[test]
@@ -477,7 +480,10 @@ mod tests {
             salary_growth_pct: Some(15.5),
         };
 
-        assert_eq!(trend.range_description(), "$150,000-$300,000 (median: $200,000)");
+        assert_eq!(
+            trend.range_description(),
+            "$150,000-$300,000 (median: $200,000)"
+        );
     }
 
     #[test]

@@ -5,6 +5,20 @@ All notable changes to JobSentinel will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-01-17
+
+### Changed
+- **Major Code Modularization** - Split oversized files to improve maintainability
+  - `db/mod.rs` (4442→85 lines): Split into types.rs, connection.rs, crud.rs, queries.rs, interactions.rs, analytics.rs, ghost.rs, tests.rs
+  - `scheduler/mod.rs` (2955→~300 lines): Split into types.rs, pipeline.rs, workers/ (mod, scrapers, scoring, persistence), tests.rs
+  - `market_intelligence/mod.rs` (2703→~400 lines): Extracted computations.rs, queries.rs, utils.rs, tests.rs
+  - `db/integrity.rs` (2517→85 lines): Split into integrity/ module with types.rs, checks.rs, backups.rs, diagnostics.rs, tests.rs
+  - `config/mod.rs` (2343→~300 lines): Split into types.rs, defaults.rs, validation.rs, io.rs, tests.rs
+  - `ats/mod.rs` (2082→~300 lines): Split into types.rs, tracker.rs, reminders.rs, interview.rs, tests.rs
+  - `Dashboard.tsx` (2315→672 lines): Extracted DashboardTypes.ts, DashboardIcons.tsx, 5 custom hooks, 3 UI components
+- All modules now follow 500-line limit guideline for maintainability
+- Test count maintained: 1992 passing, 13 ignored
+
 ## [1.4.0] - 2026-01-16
 
 ### Added
