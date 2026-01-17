@@ -4,7 +4,7 @@ Welcome to JobSentinel documentation.
 
 ## Current Status (January 2026)
 
-**Version: 1.3.0** | 2008 tests passing, 20 ignored | Full-featured release
+**Version: 1.3.1** | 2008 tests passing, 20 ignored | Full-featured release
 
 ### Working Features
 - **13 Job scrapers**: Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, ZipRecruiter
@@ -22,6 +22,12 @@ Welcome to JobSentinel documentation.
 - **Company research** - 40+ companies with tech stacks
 - SQLite database with full-text search
 - React 19 frontend with virtual lists and error boundaries
+
+### Screenshots
+
+| Dashboard | Application Tracker |
+|-----------|---------------------|
+| ![Dashboard](images/dashboard.png) | ![Kanban](images/kanban-board.png) |
 
 ### All Backend Modules Enabled
 - Core: config, db, scoring, scheduler, scrapers (13 with parallel scraping), notify

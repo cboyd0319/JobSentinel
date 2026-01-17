@@ -18,6 +18,14 @@ JobSentinel's Application Tracking System provides comprehensive pipeline manage
 - **👻 Ghosting Detection** - Automatic detection of stalled applications
 - **📊 Analytics-Ready** - Track success rates, response times, and more
 
+### Screenshot
+
+<p align="center">
+  <img src="images/kanban-board.png" alt="Application Tracker Kanban Board" width="800">
+  <br>
+  <em>Drag cards between columns to update application status</em>
+</p>
+
 ---
 
 ## 🏗️ Architecture

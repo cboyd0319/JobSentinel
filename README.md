@@ -104,6 +104,37 @@
 
 > **🔒 All data stays on YOUR computer.** No cloud. No tracking. No subscriptions. Ever.
 
+### 📸 Screenshots
+
+<p align="center">
+  <img src="docs/images/dashboard.png" alt="JobSentinel Dashboard" width="800">
+  <br>
+  <em>Dashboard - Job listings with smart scoring, filters, and keyboard navigation</em>
+</p>
+
+<p align="center">
+  <img src="docs/images/kanban-board.png" alt="Application Tracker" width="800">
+  <br>
+  <em>Application Tracker - Kanban board to track your job applications pipeline</em>
+</p>
+
+<details>
+<summary><strong>More Screenshots</strong></summary>
+
+<p align="center">
+  <img src="docs/images/settings.png" alt="Settings" width="600">
+  <br>
+  <em>Settings - Configure job preferences, skills, notifications, and scrapers</em>
+</p>
+
+<p align="center">
+  <img src="docs/images/keyboard-shortcuts.png" alt="Keyboard Shortcuts" width="600">
+  <br>
+  <em>Keyboard Shortcuts - Power user navigation with vim-style keys</em>
+</p>
+
+</details>
+
 ---
 
 ## Installation

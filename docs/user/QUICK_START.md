@@ -15,6 +15,12 @@
 - All core features working (13 scrapers, scoring, multi-channel notifications)
 - 2008 tests passing
 
+<p align="center">
+  <img src="../images/dashboard.png" alt="JobSentinel Dashboard" width="700">
+  <br>
+  <em>The JobSentinel Dashboard showing job listings with smart scoring</em>
+</p>
+
 ---
 
 ## Building from Source
