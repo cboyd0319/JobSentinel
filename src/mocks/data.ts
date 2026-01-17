@@ -152,16 +152,47 @@ export const mockJobs = [
 
 export const mockConfig = {
   title_allowlist: ["SEO Manager", "E-Commerce Manager", "Digital Marketing"],
+  title_blocklist: [],
   keywords_boost: ["SEO", "Google Analytics", "Shopify", "E-commerce"],
+  keywords_exclude: [],
   location_preferences: {
     allow_remote: true,
     allow_hybrid: true,
     allow_onsite: true,
+    cities: ["Remote", "San Francisco", "New York"],
   },
   salary_floor_usd: 80000,
-  excluded_companies: [],
-  alert_webhook: null,
-  email_notifications: null,
+  alerts: {
+    slack: {
+      enabled: false,
+      webhook_url: "",
+    },
+    email: {
+      enabled: false,
+      smtp_server: "",
+      smtp_port: 587,
+      smtp_username: "",
+      smtp_password: "",
+      from_email: "",
+      to_emails: [],
+      use_starttls: true,
+    },
+  },
+  linkedin: {
+    enabled: false,
+    session_cookie: "",
+    query: "software engineer",
+    location: "United States",
+    remote_only: true,
+    limit: 50,
+  },
+  indeed: {
+    enabled: false,
+    query: "software engineer",
+    location: "United States",
+    radius: 50,
+    limit: 50,
+  },
   auto_refresh: {
     enabled: true,
     interval_minutes: 30,

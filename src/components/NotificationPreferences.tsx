@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Card } from './Card';
 import { Badge } from './Badge';
 import { HelpIcon } from './HelpIcon';
+import { CompanyAutocomplete } from './CompanyAutocomplete';
 import { useToast } from '../contexts';
 
 export interface SourceNotificationConfig {
@@ -19,8 +20,8 @@ export interface AdvancedFilters {
   // Location filters
   remoteOnly: boolean;
   // Company filters
-  companyWhitelist: string[]; // Only notify for these companies (empty = all)
-  companyBlacklist: string[]; // Never notify for these companies
+  companyWhitelist: string[]; // Favorite companies - only notify for these (empty = all)
+  companyBlacklist: string[]; // Companies to skip - never notify for these
 }
 
 export interface NotificationPreferences {
@@ -186,20 +187,20 @@ export function shouldNotifyForJob(
       if (!isRemote) return false;
     }
 
-    // Company whitelist (if set, company must be in list)
+    // Favorite companies (if set, company must be in list)
     if (advancedFilters.companyWhitelist.length > 0) {
-      const isWhitelisted = advancedFilters.companyWhitelist.some(
+      const isFavorite = advancedFilters.companyWhitelist.some(
         company => companyLower.includes(company.toLowerCase())
       );
-      if (!isWhitelisted) return false;
+      if (!isFavorite) return false;
     }
 
-    // Company blacklist (if company is in list, skip)
+    // Companies to skip (if company is in list, skip)
     if (advancedFilters.companyBlacklist.length > 0) {
-      const isBlacklisted = advancedFilters.companyBlacklist.some(
+      const shouldSkip = advancedFilters.companyBlacklist.some(
         company => companyLower.includes(company.toLowerCase())
       );
-      if (isBlacklisted) return false;
+      if (shouldSkip) return false;
     }
   }
 
@@ -441,8 +442,8 @@ interface AdvancedFiltersSectionProps {
 function AdvancedFiltersSection({ filters, onChange, disabled }: AdvancedFiltersSectionProps) {
   const [includeInput, setIncludeInput] = useState('');
   const [excludeInput, setExcludeInput] = useState('');
-  const [whitelistInput, setWhitelistInput] = useState('');
-  const [blacklistInput, setBlacklistInput] = useState('');
+  const [favoriteCompanyInput, setFavoriteCompanyInput] = useState('');
+  const [skipCompanyInput, setSkipCompanyInput] = useState('');
 
   const addKeyword = (type: 'include' | 'exclude', value: string) => {
     const trimmed = value.trim();
@@ -468,24 +469,24 @@ function AdvancedFiltersSection({ filters, onChange, disabled }: AdvancedFilters
     }
   };
 
-  const addCompany = (type: 'whitelist' | 'blacklist', value: string) => {
-    const trimmed = value.trim();
+  const addFavoriteCompany = (company: string) => {
+    const trimmed = company.trim();
     if (!trimmed) return;
-    if (type === 'whitelist') {
-      if (!filters.companyWhitelist.includes(trimmed)) {
-        onChange({ companyWhitelist: [...filters.companyWhitelist, trimmed] });
-      }
-      setWhitelistInput('');
-    } else {
-      if (!filters.companyBlacklist.includes(trimmed)) {
-        onChange({ companyBlacklist: [...filters.companyBlacklist, trimmed] });
-      }
-      setBlacklistInput('');
+    if (!filters.companyWhitelist.includes(trimmed)) {
+      onChange({ companyWhitelist: [...filters.companyWhitelist, trimmed] });
     }
   };
 
-  const removeCompany = (type: 'whitelist' | 'blacklist', value: string) => {
-    if (type === 'whitelist') {
+  const addSkipCompany = (company: string) => {
+    const trimmed = company.trim();
+    if (!trimmed) return;
+    if (!filters.companyBlacklist.includes(trimmed)) {
+      onChange({ companyBlacklist: [...filters.companyBlacklist, trimmed] });
+    }
+  };
+
+  const removeCompany = (type: 'favorite' | 'skip', value: string) => {
+    if (type === 'favorite') {
       onChange({ companyWhitelist: filters.companyWhitelist.filter(c => c !== value) });
     } else {
       onChange({ companyBlacklist: filters.companyBlacklist.filter(c => c !== value) });
@@ -631,27 +632,21 @@ function AdvancedFiltersSection({ filters, onChange, disabled }: AdvancedFilters
 
       {/* Company Filters */}
       <div className="space-y-3">
-        {/* Company Whitelist */}
+        {/* Favorite Companies */}
         <div>
           <label className="text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5 block">
-            Only notify for these companies
-            <span className="font-normal text-surface-500 ml-1">(leave empty for all)</span>
+            Favorite Companies
+            <span className="font-normal text-surface-500 ml-1">(get alerts only from these, or leave empty for all)</span>
           </label>
-          <div className="flex gap-2 mb-2">
-            <input
-              type="text"
-              value={whitelistInput}
-              onChange={(e) => setWhitelistInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && addCompany('whitelist', whitelistInput)}
+          <div className="mb-2">
+            <CompanyAutocomplete
+              value={favoriteCompanyInput}
+              onChange={setFavoriteCompanyInput}
+              onAdd={addFavoriteCompany}
               placeholder="e.g., Google, Stripe, Anthropic"
-              className="flex-1 px-3 py-1.5 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100 placeholder:text-surface-400"
+              existingCompanies={filters.companyWhitelist}
+              buttonColor="blue"
             />
-            <button
-              onClick={() => addCompany('whitelist', whitelistInput)}
-              className="px-3 py-1.5 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-            >
-              Add
-            </button>
           </div>
           {filters.companyWhitelist.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
@@ -662,7 +657,7 @@ function AdvancedFiltersSection({ filters, onChange, disabled }: AdvancedFilters
                 >
                   {company}
                   <button
-                    onClick={() => removeCompany('whitelist', company)}
+                    onClick={() => removeCompany('favorite', company)}
                     className="hover:text-blue-900 dark:hover:text-blue-300"
                   >
                     &times;
@@ -673,26 +668,21 @@ function AdvancedFiltersSection({ filters, onChange, disabled }: AdvancedFilters
           )}
         </div>
 
-        {/* Company Blacklist */}
+        {/* Companies to Skip */}
         <div>
           <label className="text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5 block">
-            Never notify for these companies
+            Companies to Skip
+            <span className="font-normal text-surface-500 ml-1">(never get alerts from these)</span>
           </label>
-          <div className="flex gap-2 mb-2">
-            <input
-              type="text"
-              value={blacklistInput}
-              onChange={(e) => setBlacklistInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && addCompany('blacklist', blacklistInput)}
+          <div className="mb-2">
+            <CompanyAutocomplete
+              value={skipCompanyInput}
+              onChange={setSkipCompanyInput}
+              onAdd={addSkipCompany}
               placeholder="e.g., Acme Corp, BadCompany"
-              className="flex-1 px-3 py-1.5 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100 placeholder:text-surface-400"
+              existingCompanies={filters.companyBlacklist}
+              buttonColor="surface"
             />
-            <button
-              onClick={() => addCompany('blacklist', blacklistInput)}
-              className="px-3 py-1.5 text-sm bg-surface-500 text-white rounded-lg hover:bg-surface-600 transition-colors"
-            >
-              Add
-            </button>
           </div>
           {filters.companyBlacklist.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
@@ -703,7 +693,7 @@ function AdvancedFiltersSection({ filters, onChange, disabled }: AdvancedFilters
                 >
                   {company}
                   <button
-                    onClick={() => removeCompany('blacklist', company)}
+                    onClick={() => removeCompany('skip', company)}
                     className="hover:text-surface-900 dark:hover:text-surface-100"
                   >
                     &times;

@@ -30,5 +30,6 @@ export { CoverLetterTemplates } from "./CoverLetterTemplates";
 export { NotificationPreferences, loadNotificationPreferences, shouldNotifyForJob } from "./NotificationPreferences";
 export type { NotificationPreferences as NotificationPreferencesType, SourceNotificationConfig, AdvancedFilters, JobForNotification } from "./NotificationPreferences";
 export { CompanyResearchPanel } from "./CompanyResearchPanel";
+export { CompanyAutocomplete, COMPANY_SUGGESTIONS } from "./CompanyAutocomplete";
 export { KeyboardShortcutsHelp } from "./KeyboardShortcutsHelp";
 export { CareerProfileSelector } from "./CareerProfileSelector";

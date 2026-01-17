@@ -605,9 +605,43 @@ export default function Settings({ onClose }: SettingsProps) {
 
               {config.alerts.email?.enabled && (
                 <div className="space-y-3">
-                  <p className="text-sm text-surface-500 dark:text-surface-400 -mt-1">
-                    For Gmail: use smtp.gmail.com, port 587, and create an App Password in your Google Account settings.
-                  </p>
+                  <div className="flex items-center justify-between -mt-1 mb-3">
+                    <p className="text-sm text-surface-500 dark:text-surface-400">
+                      For Gmail: use smtp.gmail.com, port 587, and create an App Password in your Google Account settings.
+                    </p>
+                    {config.alerts.email?.smtp_server &&
+                      config.alerts.email?.smtp_username &&
+                      config.alerts.email?.smtp_password &&
+                      config.alerts.email?.from_email &&
+                      isValidFromEmail &&
+                      config.alerts.email?.to_emails?.length > 0 &&
+                      hasValidToEmails && (
+                        <Button
+                          variant="secondary"
+                          onClick={async () => {
+                            try {
+                              await invoke("test_email_notification", {
+                                emailConfig: {
+                                  smtp_server: config.alerts.email.smtp_server,
+                                  smtp_port: config.alerts.email.smtp_port,
+                                  smtp_username: config.alerts.email.smtp_username,
+                                  smtp_password: config.alerts.email.smtp_password,
+                                  from_email: config.alerts.email.from_email,
+                                  to_emails: config.alerts.email.to_emails,
+                                  use_starttls: config.alerts.email.use_starttls ?? true,
+                                },
+                              });
+                              toast.success("Test sent!", "Check your email inbox");
+                            } catch (error) {
+                              toast.error("Test failed", "Check your email settings and try again");
+                            }
+                          }}
+                          className="whitespace-nowrap"
+                        >
+                          Test
+                        </Button>
+                      )}
+                  </div>
                   <div className="grid grid-cols-2 gap-3">
                     <Input
                       label="Email Server"
