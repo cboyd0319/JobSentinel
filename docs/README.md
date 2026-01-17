@@ -4,22 +4,23 @@ Welcome to JobSentinel documentation.
 
 ## Current Status (January 2026)
 
-**Version: 1.3.1** | 2008 tests passing, 20 ignored | Full-featured release
+**Version: 1.4.0** | 2029 tests passing | Full-featured release
 
 ### Working Features
 - **13 Job scrapers**: Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, ZipRecruiter
+- **Ghost Job Detection** (NEW in v1.4) - Identifies fake/stale job postings
 - Application Tracking System (ATS) with Kanban board + interview scheduler
 - AI Resume-Job Matcher with PDF parsing
 - Salary AI with negotiation insights
 - Market Intelligence with trend analysis
 - Multi-factor scoring algorithm
 - Notifications: Slack, Discord, Teams, Desktop, Email (SMTP)
-- **Advanced notification filtering** - keyword filters, salary threshold, company lists
-- **Keyboard shortcuts** - power user navigation (`b`, `n`, `c`, `/`, `?`, etc.)
-- **Advanced search** - Boolean AND/OR/NOT operators, search history
-- **Interview prep** - iCal export, prep checklists, follow-up reminders
-- **Enhanced analytics** - Response rates, weekly goals, company response times
-- **Company research** - 40+ companies with tech stacks
+- Advanced notification filtering - keyword filters, salary threshold, company lists
+- Keyboard shortcuts - power user navigation (`b`, `n`, `c`, `/`, `?`, etc.)
+- Advanced search - Boolean AND/OR/NOT operators, search history
+- Interview prep - iCal export, prep checklists, follow-up reminders
+- Enhanced analytics - Response rates, weekly goals, company response times
+- Company research - 40+ companies with tech stacks
 - SQLite database with full-text search
 - React 19 frontend with virtual lists and error boundaries
 
@@ -29,13 +30,13 @@ Welcome to JobSentinel documentation.
 |-----------|---------------------|
 | ![Dashboard](images/dashboard.png) | ![Kanban](images/kanban-board.png) |
 
-### All Backend Modules Enabled
-- Core: config, db, scoring, scheduler, scrapers (13 with parallel scraping), notify
-- ATS: 10 Tauri commands (Kanban, reminders, ghosting detection, interviews)
-- Resume Matcher: 6 Tauri commands (upload, match, skills)
-- Salary AI: 4 Tauri commands (predict, benchmark, negotiate, compare)
-- Market Intelligence: 5 Tauri commands (trends, companies, locations, alerts)
-- Total: 47 Tauri commands
+### Backend Modules (47 Tauri Commands)
+- **Core**: config, db, scoring, scheduler, scrapers (13 with parallel scraping), notify, ghost
+- **ATS**: 10 commands (Kanban, reminders, ghosting detection, interviews)
+- **Resume Matcher**: 6 commands (upload, match, skills)
+- **Salary AI**: 4 commands (predict, benchmark, negotiate, compare)
+- **Market Intelligence**: 5 commands (trends, companies, locations, alerts)
+- **Ghost Detection**: 3 commands (ghost jobs, statistics, filtered search)
 
 ### Deferred Features (v2.0+)
 - One-Click Apply Automation (legal review required)
@@ -53,26 +54,36 @@ Welcome to JobSentinel documentation.
 - **[Architecture](developer/ARCHITECTURE.md)** - System design
 - **[Testing](developer/TESTING.md)** - Test suite guide
 - **[macOS Development](developer/MACOS_DEVELOPMENT.md)** - macOS-specific
+- **[SQLite Configuration](developer/sqlite-configuration.md)** - Database setup
+- **[Error Handling](developer/ERROR_HANDLING.md)** - Error patterns
+- **[Mutation Testing](developer/MUTATION_TESTING.md)** - Test quality
 
-### Planning
-- **[Roadmap](ROADMAP.md)** - Feature roadmap and priorities
+### Features
+| Feature | Status | Documentation |
+|---------|--------|---------------|
+| Ghost Detection | **v1.4** | [Ghost Detection](features/ghost-detection.md) |
+| Application Tracking | Working | [ATS](features/application-tracking.md) |
+| Notifications | Working | [Notifications](features/notifications.md) |
+| Resume Matcher | Working | [Resume](features/resume-matcher.md) |
+| Salary AI | Working | [Salary](features/salary-ai.md) |
+| Market Intelligence | Working | [Market](features/market-intelligence.md) |
+| Job Scrapers | Working | [Scrapers](features/scrapers.md) |
 
-### Feature Specs
-| Feature | Status | Doc |
-|---------|--------|-----|
-| Application Tracking | Working | [ATS](APPLICATION_TRACKING_SYSTEM.md) |
-| Multi-Channel Notifications | Working | [Notifications](MULTI_CHANNEL_NOTIFICATIONS.md) |
-| SQLite Configuration | Working | [SQLite](SQLITE_CONFIGURATION.md) |
-| Resume Matcher | Working | [Resume](AI_RESUME_JOB_MATCHER.md) |
-| Salary AI | Working | [Salary](SALARY_NEGOTIATION_AI.md) |
-| Market Intelligence | Working | [Market](JOB_MARKET_INTELLIGENCE_DASHBOARD.md) |
-| LinkedIn/Indeed | Working | [Scrapers](LINKEDIN_INDEED_SCRAPERS.md) |
-| One-Click Apply | v2.0+ | [Automation](ONE_CLICK_APPLY_AUTOMATION.md) |
+### Release Notes
+- **[v1.4 - Ghost Hunter](releases/v1.4.md)** - Ghost job detection
+- **[v1.3 - Power User](releases/v1.3.md)** - Keyboard shortcuts, advanced search
+- **[v1.2 - Notifications](releases/v1.2.md)** - Multi-channel notifications
 
 ### Reports
 - **[Security Audit (2026-01-16)](reports/SECURITY_AUDIT_2026-01-16.md)** - Comprehensive security analysis
 - **[Deep Analysis](reports/DEEP_ANALYSIS_COMPLETE_REPORT.md)** - Security and code analysis
 - **[v1.0 Status](reports/V1_COMPLETION_STATUS.md)** - Implementation tracking
+
+### Planning
+- **[Roadmap](ROADMAP.md)** - Feature roadmap and priorities
+
+### Archive
+- [One-Click Apply](archive/ONE_CLICK_APPLY_AUTOMATION.md) - Deferred to v2.0
 
 ---
 
@@ -82,6 +93,7 @@ Welcome to JobSentinel documentation.
 |--------------|----------|
 | Install JobSentinel | [Quick Start](user/QUICK_START.md) |
 | Set up development | [Getting Started](developer/GETTING_STARTED.md) |
+| Understand ghost detection | [Ghost Detection](features/ghost-detection.md) |
 | Contribute code | [Contributing](developer/CONTRIBUTING.md) |
 | Understand architecture | [Architecture](developer/ARCHITECTURE.md) |
 | See the roadmap | [Roadmap](ROADMAP.md) |
@@ -92,8 +104,20 @@ Welcome to JobSentinel documentation.
 
 ```
 docs/
-├── README.md           # This file
-├── ROADMAP.md          # Feature roadmap
+├── README.md              # This file
+├── ROADMAP.md             # Feature roadmap
+├── features/              # Feature documentation
+│   ├── ghost-detection.md     # Ghost job detection (v1.4)
+│   ├── application-tracking.md
+│   ├── notifications.md
+│   ├── resume-matcher.md
+│   ├── salary-ai.md
+│   ├── market-intelligence.md
+│   └── scrapers.md
+├── releases/              # Version release notes
+│   ├── v1.4.md
+│   ├── v1.3.md
+│   └── v1.2.md
 ├── user/
 │   └── QUICK_START.md
 ├── developer/
@@ -101,13 +125,19 @@ docs/
 │   ├── CONTRIBUTING.md
 │   ├── ARCHITECTURE.md
 │   ├── TESTING.md
-│   └── MACOS_DEVELOPMENT.md
+│   ├── MACOS_DEVELOPMENT.md
+│   ├── ERROR_HANDLING.md
+│   ├── MUTATION_TESTING.md
+│   └── sqlite-configuration.md
 ├── reports/
+│   ├── SECURITY_AUDIT_2026-01-16.md
 │   ├── DEEP_ANALYSIS_COMPLETE_REPORT.md
 │   └── V1_COMPLETION_STATUS.md
-├── images/
-│   └── logo.png
-└── [Feature docs]      # Individual feature specifications
+├── archive/               # Deferred/deprecated docs
+│   └── ONE_CLICK_APPLY_AUTOMATION.md
+└── images/
+    ├── dashboard.png
+    └── kanban-board.png
 ```
 
 ---

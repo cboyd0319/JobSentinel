@@ -21,7 +21,7 @@
   <a href="https://www.rust-lang.org/"><img src="https://img.shields.io/badge/Rust-1.83%2B-orange.svg?style=flat-square" alt="Rust"></a>
   <a href="https://tauri.app/"><img src="https://img.shields.io/badge/Tauri-2.x-blue.svg?style=flat-square" alt="Tauri"></a>
   <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-19-61dafb.svg?style=flat-square" alt="React"></a>
-  <img src="https://img.shields.io/badge/Tests-2008%20passing-brightgreen.svg?style=flat-square" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-2029%20passing-brightgreen.svg?style=flat-square" alt="Tests">
   <img src="https://img.shields.io/badge/Vulnerabilities-0-brightgreen.svg?style=flat-square" alt="Security">
 </p>
 
@@ -60,11 +60,12 @@
 
 ## Project Status
 
-**Current Version: 1.3.0** (January 2026)
+**Current Version: 1.4.0** (January 2026)
 
 | Component | Status | Description |
 |-----------|--------|-------------|
 | 🧠 **Core Engine** | ✅ Working | Config, DB, scoring, scrapers, scheduler, notifications |
+| 👻 **Ghost Detection** | ✅ **NEW** | Identifies fake/stale job postings |
 | 📋 **Application Tracking** | ✅ Working | Kanban board with automated reminders |
 | 🤖 **AI Resume Matcher** | ✅ Working | PDF parsing, skill extraction, job-resume scoring |
 | 💰 **Salary AI** | ✅ Working | H1B-based predictions, negotiation insights |
@@ -72,7 +73,7 @@
 | 🎨 **Frontend** | ✅ Working | React 19 + TypeScript + TailwindCSS |
 | 🖥️ **Desktop App** | ✅ Working | Tauri 2.1 integration |
 | 🔐 **Security** | ✅ **0 vulnerabilities** | cargo-audit verified |
-| ✅ **Test Coverage** | ✅ **2008 passing** | 20 ignored (require file-based DB) |
+| ✅ **Test Coverage** | ✅ **2029 passing** | 21 ignored (require file-based DB) |
 
 ### Job Sources (13 Working)
 - **Greenhouse** - Many tech companies use this ATS
@@ -168,10 +169,11 @@ Linux support (.deb, .rpm, .AppImage) is planned for v2.0.
 
 ## 💪 Features
 
-### v1.3 (Current Release)
+### v1.4 (Current Release)
 
 | Feature | Description |
 |---------|-------------|
+| 👻 **Ghost Detection** | Identifies fake, stale, or already-filled job postings with confidence scoring |
 | 🌐 **13 Job Boards** | Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, ZipRecruiter |
 | 📋 **Application Tracking** | Kanban board, status pipeline, automated reminders, interview scheduler |
 | 🤖 **AI Resume Matcher** | PDF parsing, skill extraction, job-resume scoring |
@@ -189,7 +191,7 @@ Linux support (.deb, .rpm, .AppImage) is planned for v2.0.
 | ⏰ **Auto-Scheduling** | Scrapes every 2 hours (configurable) |
 | 🗄️ **SQLite Database** | Local storage, full-text search |
 
-### v1.0-1.2 (Complete)
+### v1.0-1.3 (Complete)
 
 - [x] Core scrapers (Greenhouse, Lever, JobsWithGPT)
 - [x] LinkedIn and Indeed scrapers

@@ -92,6 +92,24 @@ pub struct Job {
     /// User's personal notes on this job
     #[serde(skip_serializing_if = "Option::is_none")]
     pub notes: Option<String>,
+
+    // Ghost job detection fields (v1.4+)
+
+    /// Ghost score (0.0 = likely real, 1.0 = likely ghost job)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ghost_score: Option<f64>,
+
+    /// JSON array of ghost detection reasons
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ghost_reasons: Option<String>,
+
+    /// First time this job was discovered (for tracking staleness)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub first_seen: Option<DateTime<Utc>>,
+
+    /// Number of times this job has been reposted
+    #[serde(default)]
+    pub repost_count: i64,
 }
 
 /// Database handle
@@ -500,7 +518,7 @@ impl Database {
             .await?;
 
         if let Some(existing_id) = existing {
-            // Job exists - update it
+            // Job exists - update it (preserve first_seen, increment repost_count)
             sqlx::query(
                 r#"
                 UPDATE jobs SET
@@ -518,7 +536,10 @@ impl Database {
                     currency = ?,
                     updated_at = ?,
                     last_seen = ?,
-                    times_seen = times_seen + 1
+                    times_seen = times_seen + 1,
+                    ghost_score = ?,
+                    ghost_reasons = ?,
+                    repost_count = ?
                 WHERE id = ?
                 "#,
             )
@@ -536,6 +557,9 @@ impl Database {
             .bind(&job.currency)
             .bind(Utc::now())
             .bind(Utc::now())
+            .bind(job.ghost_score)
+            .bind(&job.ghost_reasons)
+            .bind(job.repost_count)
             .bind(existing_id)
             .execute(&self.pool)
             .await?;
@@ -550,8 +574,9 @@ impl Database {
                     score, score_reasons, source, remote,
                     salary_min, salary_max, currency,
                     created_at, updated_at, last_seen, times_seen,
-                    immediate_alert_sent, included_in_digest
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    immediate_alert_sent, included_in_digest,
+                    ghost_score, ghost_reasons, first_seen, repost_count
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 "#,
             )
             .bind(&job.hash)
@@ -573,6 +598,10 @@ impl Database {
             .bind(job.times_seen)
             .bind(if job.immediate_alert_sent { 1i64 } else { 0i64 })
             .bind(if job.included_in_digest { 1i64 } else { 0i64 })
+            .bind(job.ghost_score)
+            .bind(&job.ghost_reasons)
+            .bind(job.first_seen)
+            .bind(job.repost_count)
             .execute(&self.pool)
             .await?;
 
@@ -821,7 +850,7 @@ impl Database {
                 SELECT id, hash, title, company, url, location, description, score, score_reasons,
                        source, remote, salary_min, salary_max, currency, created_at, updated_at,
                        last_seen, times_seen, immediate_alert_sent, included_in_digest, hidden,
-                       bookmarked, notes
+                       bookmarked, notes, ghost_score, ghost_reasons, first_seen, repost_count
                 FROM jobs
                 WHERE LOWER(title) = ? AND LOWER(company) = ? AND hidden = 0
                 ORDER BY score DESC, created_at ASC
@@ -901,6 +930,169 @@ impl Database {
     pub fn default_backup_dir() -> PathBuf {
         crate::platforms::get_data_dir().join("backups")
     }
+
+    // ============================================================
+    // Ghost Job Detection Methods
+    // ============================================================
+
+    /// Update ghost analysis for a job
+    pub async fn update_ghost_analysis(
+        &self,
+        job_id: i64,
+        ghost_score: f64,
+        ghost_reasons: &str,
+    ) -> Result<(), sqlx::Error> {
+        sqlx::query(
+            "UPDATE jobs SET ghost_score = ?, ghost_reasons = ?, updated_at = datetime('now') WHERE id = ?",
+        )
+        .bind(ghost_score)
+        .bind(ghost_reasons)
+        .bind(job_id)
+        .execute(&self.pool)
+        .await?;
+        Ok(())
+    }
+
+    /// Track job repost (upsert into job_repost_history)
+    /// Returns the current repost count for this company+title+source combo
+    pub async fn track_repost(
+        &self,
+        company: &str,
+        title: &str,
+        source: &str,
+        job_hash: &str,
+    ) -> Result<i64, sqlx::Error> {
+        // Try to update existing entry, otherwise insert
+        let result: i64 = sqlx::query_scalar(
+            r#"
+            INSERT INTO job_repost_history (job_hash, company, title, source, first_seen, last_seen, repost_count)
+            VALUES (?, ?, ?, ?, datetime('now'), datetime('now'), 1)
+            ON CONFLICT(company, title, source) DO UPDATE SET
+                job_hash = excluded.job_hash,
+                last_seen = datetime('now'),
+                repost_count = repost_count + 1
+            RETURNING repost_count
+            "#,
+        )
+        .bind(job_hash)
+        .bind(company)
+        .bind(title)
+        .bind(source)
+        .fetch_one(&self.pool)
+        .await?;
+
+        Ok(result)
+    }
+
+    /// Get repost count for a job (company+title+source combination)
+    pub async fn get_repost_count(
+        &self,
+        company: &str,
+        title: &str,
+        source: &str,
+    ) -> Result<i64, sqlx::Error> {
+        let count: Option<i64> = sqlx::query_scalar(
+            "SELECT repost_count FROM job_repost_history WHERE company = ? AND title = ? AND source = ?",
+        )
+        .bind(company)
+        .bind(title)
+        .bind(source)
+        .fetch_optional(&self.pool)
+        .await?;
+
+        Ok(count.unwrap_or(0))
+    }
+
+    /// Count open jobs per company (for company behavior analysis)
+    pub async fn count_company_open_jobs(&self, company: &str) -> Result<i64, sqlx::Error> {
+        let count: i64 =
+            sqlx::query_scalar("SELECT COUNT(*) FROM jobs WHERE company = ? AND hidden = 0")
+                .bind(company)
+                .fetch_one(&self.pool)
+                .await?;
+
+        Ok(count)
+    }
+
+    /// Get jobs with high ghost scores
+    pub async fn get_ghost_jobs(
+        &self,
+        min_ghost_score: f64,
+        limit: i64,
+    ) -> Result<Vec<Job>, sqlx::Error> {
+        let jobs = sqlx::query_as::<_, Job>(
+            "SELECT * FROM jobs WHERE ghost_score >= ? AND hidden = 0 ORDER BY ghost_score DESC LIMIT ?",
+        )
+        .bind(min_ghost_score)
+        .bind(limit)
+        .fetch_all(&self.pool)
+        .await?;
+
+        Ok(jobs)
+    }
+
+    /// Get recent jobs with optional ghost score filtering
+    pub async fn get_recent_jobs_filtered(
+        &self,
+        limit: i64,
+        max_ghost_score: Option<f64>,
+    ) -> Result<Vec<Job>, sqlx::Error> {
+        let jobs = if let Some(max_score) = max_ghost_score {
+            sqlx::query_as::<_, Job>(
+                "SELECT * FROM jobs WHERE hidden = 0 AND (ghost_score IS NULL OR ghost_score < ?) ORDER BY score DESC, created_at DESC LIMIT ?",
+            )
+            .bind(max_score)
+            .bind(limit)
+            .fetch_all(&self.pool)
+            .await?
+        } else {
+            sqlx::query_as::<_, Job>(
+                "SELECT * FROM jobs WHERE hidden = 0 ORDER BY score DESC, created_at DESC LIMIT ?",
+            )
+            .bind(limit)
+            .fetch_all(&self.pool)
+            .await?
+        };
+
+        Ok(jobs)
+    }
+
+    /// Get ghost detection statistics
+    pub async fn get_ghost_statistics(&self) -> Result<GhostStatistics, sqlx::Error> {
+        let total_analyzed: i64 =
+            sqlx::query_scalar("SELECT COUNT(*) FROM jobs WHERE ghost_score IS NOT NULL")
+                .fetch_one(&self.pool)
+                .await?;
+
+        let likely_ghosts: i64 =
+            sqlx::query_scalar("SELECT COUNT(*) FROM jobs WHERE ghost_score >= 0.5")
+                .fetch_one(&self.pool)
+                .await?;
+
+        let warnings: i64 = sqlx::query_scalar(
+            "SELECT COUNT(*) FROM jobs WHERE ghost_score >= 0.3 AND ghost_score < 0.5",
+        )
+        .fetch_one(&self.pool)
+        .await?;
+
+        let avg_ghost_score: Option<f64> =
+            sqlx::query_scalar("SELECT AVG(ghost_score) FROM jobs WHERE ghost_score IS NOT NULL")
+                .fetch_one(&self.pool)
+                .await?;
+
+        let total_reposts: i64 =
+            sqlx::query_scalar("SELECT COALESCE(SUM(repost_count), 0) FROM job_repost_history")
+                .fetch_one(&self.pool)
+                .await?;
+
+        Ok(GhostStatistics {
+            total_analyzed,
+            likely_ghosts,
+            warnings,
+            avg_ghost_score: avg_ghost_score.unwrap_or(0.0),
+            total_reposts,
+        })
+    }
 }
 
 /// Database statistics
@@ -910,6 +1102,21 @@ pub struct Statistics {
     pub high_matches: i64,
     pub average_score: f64,
     pub jobs_today: i64,
+}
+
+/// Ghost detection statistics
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GhostStatistics {
+    /// Total jobs with ghost analysis
+    pub total_analyzed: i64,
+    /// Jobs with ghost score >= 0.5 (likely ghost)
+    pub likely_ghosts: i64,
+    /// Jobs with ghost score 0.3-0.5 (warning)
+    pub warnings: i64,
+    /// Average ghost score across all analyzed jobs
+    pub avg_ghost_score: f64,
+    /// Total repost count across all tracked reposts
+    pub total_reposts: i64,
 }
 
 /// A group of duplicate jobs (same title + company from different sources)
@@ -953,6 +1160,10 @@ mod tests {
             hidden: false,
             bookmarked: false,
             notes: None,
+            ghost_score: None,
+            ghost_reasons: None,
+            first_seen: None,
+            repost_count: 0,
         }
     }
 
@@ -1341,6 +1552,10 @@ mod tests {
                 hidden: false,
                 bookmarked: true,
                 notes: Some("Looks promising!".to_string()),
+                ghost_score: None,
+                ghost_reasons: None,
+                first_seen: None,
+                repost_count: 0,
             };
 
             assert_eq!(job.id, 42);
@@ -1380,6 +1595,10 @@ mod tests {
                 hidden: false,
                 bookmarked: false,
                 notes: None,
+            ghost_score: None,
+            ghost_reasons: None,
+            first_seen: None,
+            repost_count: 0,
             };
 
             assert_eq!(job.id, 1);
@@ -4050,6 +4269,174 @@ mod tests {
             let updated = db.get_job_by_id(id).await.unwrap().unwrap();
             assert_eq!(updated.salary_min, Some(120000));
             assert_eq!(updated.salary_max, Some(180000));
+        }
+
+        // ============================================================
+        // Ghost Job Detection Tests (v1.4)
+        // ============================================================
+
+        #[tokio::test]
+        async fn test_update_ghost_analysis() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let job = create_test_job("ghost_test", "Ghost Job Test", 0.8);
+            let id = db.upsert_job(&job).await.unwrap();
+
+            // Update ghost analysis
+            db.update_ghost_analysis(id, 0.75, r#"[{"category":"stale","description":"Job posted 90+ days ago"}]"#)
+                .await
+                .unwrap();
+
+            let updated = db.get_job_by_id(id).await.unwrap().unwrap();
+            assert_eq!(updated.ghost_score, Some(0.75));
+            assert!(updated.ghost_reasons.unwrap().contains("stale"));
+        }
+
+        #[tokio::test]
+        async fn test_track_repost() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            // First time tracking - should return 1
+            // track_repost(company, title, source, job_hash)
+            let count = db.track_repost("Company A", "Software Engineer", "linkedin", "hash1")
+                .await
+                .unwrap();
+            assert_eq!(count, 1);
+
+            // Second time - should return 2
+            let count = db.track_repost("Company A", "Software Engineer", "linkedin", "hash1")
+                .await
+                .unwrap();
+            assert_eq!(count, 2);
+
+            // Different job - should return 1
+            let count = db.track_repost("Company B", "Data Scientist", "indeed", "hash2")
+                .await
+                .unwrap();
+            assert_eq!(count, 1);
+        }
+
+        #[tokio::test]
+        async fn test_get_repost_count() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Track reposts: track_repost(company, title, source, job_hash)
+            for _ in 0..5 {
+                db.track_repost("Repeat Corp", "Reposted Job", "greenhouse", "hash_repeat")
+                    .await
+                    .unwrap();
+            }
+
+            let count = db.get_repost_count("Repeat Corp", "Reposted Job", "greenhouse")
+                .await
+                .unwrap();
+            assert_eq!(count, 5);
+
+            // Non-existent job
+            let count = db.get_repost_count("No Corp", "No Job", "none")
+                .await
+                .unwrap();
+            assert_eq!(count, 0);
+        }
+
+        #[tokio::test]
+        async fn test_get_ghost_jobs() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Create jobs with varying ghost scores
+            let mut job1 = create_test_job("ghost_high", "Likely Ghost", 0.5);
+            job1.ghost_score = Some(0.85);
+            db.upsert_job(&job1).await.unwrap();
+
+            let mut job2 = create_test_job("ghost_low", "Likely Real", 0.9);
+            job2.ghost_score = Some(0.2);
+            db.upsert_job(&job2).await.unwrap();
+
+            let mut job3 = create_test_job("ghost_medium", "Maybe Ghost", 0.7);
+            job3.ghost_score = Some(0.6);
+            db.upsert_job(&job3).await.unwrap();
+
+            // Get jobs with ghost score >= 0.5
+            let ghost_jobs = db.get_ghost_jobs(0.5, 100).await.unwrap();
+            assert_eq!(ghost_jobs.len(), 2);
+            assert!(ghost_jobs.iter().all(|j| j.ghost_score.unwrap() >= 0.5));
+        }
+
+        #[tokio::test]
+        async fn test_get_recent_jobs_filtered_exclude_ghosts() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            let mut real_job = create_test_job("real_job", "Real Job", 0.9);
+            real_job.ghost_score = Some(0.1);
+            db.upsert_job(&real_job).await.unwrap();
+
+            let mut ghost_job = create_test_job("ghost_job", "Ghost Job", 0.8);
+            ghost_job.ghost_score = Some(0.7);
+            db.upsert_job(&ghost_job).await.unwrap();
+
+            // Get all jobs
+            let all_jobs = db.get_recent_jobs_filtered(100, None).await.unwrap();
+            assert_eq!(all_jobs.len(), 2);
+
+            // Exclude ghosts (score >= 0.5)
+            let real_jobs = db.get_recent_jobs_filtered(100, Some(0.5)).await.unwrap();
+            assert_eq!(real_jobs.len(), 1);
+            assert_eq!(real_jobs[0].title, "Real Job");
+        }
+
+        #[tokio::test]
+        async fn test_get_ghost_statistics() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Create jobs with varying ghost scores
+            let mut job1 = create_test_job("stat_ghost", "Ghost Job", 0.5);
+            job1.ghost_score = Some(0.8);
+            db.upsert_job(&job1).await.unwrap();
+
+            let mut job2 = create_test_job("stat_suspect", "Suspicious Job", 0.7);
+            job2.ghost_score = Some(0.4);
+            db.upsert_job(&job2).await.unwrap();
+
+            let mut job3 = create_test_job("stat_real", "Real Job", 0.9);
+            job3.ghost_score = Some(0.1);
+            db.upsert_job(&job3).await.unwrap();
+
+            let stats = db.get_ghost_statistics().await.unwrap();
+            assert_eq!(stats.total_analyzed, 3);
+            assert_eq!(stats.likely_ghosts, 1); // score >= 0.5
+            assert_eq!(stats.warnings, 1);      // score 0.3-0.5
+        }
+
+        #[tokio::test]
+        async fn test_count_company_open_jobs() {
+            let db = Database::connect_memory().await.unwrap();
+            db.migrate().await.unwrap();
+
+            // Create multiple jobs from same company
+            let job1 = create_test_job("company_job1", "Job 1", 0.8);
+            db.upsert_job(&job1).await.unwrap();
+
+            let mut job2 = create_test_job("company_job2", "Job 2", 0.7);
+            job2.company = "Test Company".to_string();
+            db.upsert_job(&job2).await.unwrap();
+
+            let mut job3 = create_test_job("company_job3", "Job 3", 0.6);
+            job3.company = "Test Company".to_string();
+            db.upsert_job(&job3).await.unwrap();
+
+            // Count open jobs from "Test Company"
+            let count = db.count_company_open_jobs("Test Company").await.unwrap();
+            assert_eq!(count, 3);
+
+            // Non-existent company
+            let count = db.count_company_open_jobs("Unknown Corp").await.unwrap();
+            assert_eq!(count, 0);
         }
     }
 }

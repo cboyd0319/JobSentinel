@@ -5,6 +5,7 @@
 use crate::core::{
     config::Config,
     db::{Database, Job},
+    ghost::{GhostConfig, GhostDetector},
     notify::{Notification, NotificationService},
     scoring::{JobScore, ScoringEngine},
     scrapers::{
@@ -327,6 +328,61 @@ impl Scheduler {
 
         tracing::info!("Scored {} jobs", scored_jobs.len());
 
+        // 2.5. Ghost detection analysis
+        tracing::info!("Step 2.5: Analyzing jobs for ghost indicators");
+        let ghost_detector = GhostDetector::new(GhostConfig::default());
+
+        for (job, _score) in &mut scored_jobs {
+            // Get repost count from database (if job was seen before)
+            let repost_count = self
+                .database
+                .get_repost_count(&job.company, &job.title, &job.source)
+                .await
+                .unwrap_or(0);
+
+            // Get count of open jobs from this company
+            let company_open_jobs = self
+                .database
+                .count_company_open_jobs(&job.company)
+                .await
+                .unwrap_or(0);
+
+            // Analyze for ghost indicators
+            let analysis = ghost_detector.analyze(
+                &job.title,
+                job.description.as_deref(),
+                job.salary_min,
+                job.salary_max,
+                job.location.as_deref(),
+                job.remote,
+                job.created_at,
+                repost_count,
+                company_open_jobs,
+            );
+
+            // Update job with ghost analysis results
+            job.ghost_score = Some(analysis.score);
+            job.ghost_reasons = if analysis.reasons.is_empty() {
+                None
+            } else {
+                Some(serde_json::to_string(&analysis.reasons).unwrap_or_default())
+            };
+            job.repost_count = repost_count;
+
+            if analysis.score >= 0.5 {
+                tracing::debug!(
+                    "Ghost indicator for '{}' at {}: score={:.2}, reasons={:?}",
+                    job.title,
+                    job.company,
+                    analysis.score,
+                    analysis.reasons.iter().map(|r| &r.description).collect::<Vec<_>>()
+                );
+            }
+        }
+
+        let ghost_count = scored_jobs.iter().filter(|(j, _)| j.ghost_score.unwrap_or(0.0) >= 0.5).count();
+        tracing::info!("Ghost analysis: {} potential ghost jobs detected", ghost_count);
+
         // 3. Store in database
         tracing::info!("Step 3: Storing jobs in database");
         let mut jobs_new = 0;
@@ -351,6 +407,15 @@ impl Scheduler {
             if let Err(e) = self.database.upsert_job(job).await {
                 tracing::error!("Failed to upsert job {}: {}", job.title, e);
                 errors.push(format!("Database error for {}: {}", job.title, e));
+            }
+
+            // Track reposts for ghost detection
+            if let Err(e) = self
+                .database
+                .track_repost(&job.hash, &job.company, &job.title, &job.source)
+                .await
+            {
+                tracing::warn!("Failed to track repost for {}: {}", job.title, e);
             }
         }
 
@@ -861,6 +926,10 @@ mod tests {
             included_in_digest: false,
             hidden: false,
             bookmarked: false,
+            ghost_score: None,
+            ghost_reasons: None,
+            first_seen: None,
+            repost_count: 0,
             notes: None,
         };
         database.upsert_job(&existing_job).await.unwrap();
@@ -1057,6 +1126,10 @@ mod tests {
             included_in_digest: false,
             hidden: false,
             bookmarked: false,
+            ghost_score: None,
+            ghost_reasons: None,
+            first_seen: None,
+            repost_count: 0,
             notes: None,
         };
 
@@ -1493,6 +1566,10 @@ mod tests {
             included_in_digest: false,
             hidden: false,
             bookmarked: false,
+            ghost_score: None,
+            ghost_reasons: None,
+            first_seen: None,
+            repost_count: 0,
             notes: None,
         };
         database.upsert_job(&alerted_job).await.unwrap();
@@ -2590,6 +2667,10 @@ mod tests {
             included_in_digest: false,
             hidden: false,
             bookmarked: false,
+            ghost_score: None,
+            ghost_reasons: None,
+            first_seen: None,
+            repost_count: 0,
             notes: None,
         };
         database.upsert_job(&job_with_alert).await.unwrap();
@@ -2855,6 +2936,10 @@ mod tests {
             included_in_digest: false,
             hidden: false,
             bookmarked: false,
+            ghost_score: None,
+            ghost_reasons: None,
+            first_seen: None,
+            repost_count: 0,
             notes: None,
         };
         database.upsert_job(&existing_job).await.unwrap();

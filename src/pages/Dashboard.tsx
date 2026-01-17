@@ -113,7 +113,12 @@ interface Job {
   remote?: boolean | null;
   bookmarked?: boolean;
   notes?: string | null;
+  // Ghost detection fields (v1.4)
+  ghost_score?: number | null;
+  ghost_reasons?: string | null;
 }
+
+type GhostFilter = "all" | "real" | "ghost";
 
 interface Statistics {
   total_jobs: number;
@@ -164,6 +169,7 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
   const [bookmarkFilter, setBookmarkFilter] = useState<string>("all");
   const [notesFilter, setNotesFilter] = useState<string>("all");
   const [postedDateFilter, setPostedDateFilter] = useState<PostedDateFilter>("all");
+  const [ghostFilter, setGhostFilter] = useState<GhostFilter>("all");
   const [salaryMinFilter, setSalaryMinFilter] = useState<number | null>(null);
   const [salaryMaxFilter, setSalaryMaxFilter] = useState<number | null>(null);
   // Quick text search filter with history
@@ -327,6 +333,16 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
       });
     }
 
+    // Apply ghost filter (v1.4)
+    if (ghostFilter !== "all") {
+      result = result.filter((job) => {
+        const isGhost = (job.ghost_score ?? 0) >= 0.5;
+        if (ghostFilter === "real") return !isGhost;
+        if (ghostFilter === "ghost") return isGhost;
+        return true;
+      });
+    }
+
     // Apply sorting
     result.sort((a, b) => {
       switch (sortBy) {
@@ -346,7 +362,7 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
     });
 
     return result;
-  }, [jobs, textSearch, scoreFilter, sourceFilter, remoteFilter, bookmarkFilter, notesFilter, postedDateFilter, salaryMinFilter, salaryMaxFilter, sortBy]);
+  }, [jobs, textSearch, scoreFilter, sourceFilter, remoteFilter, bookmarkFilter, notesFilter, postedDateFilter, salaryMinFilter, salaryMaxFilter, ghostFilter, sortBy]);
 
   // Ref for job list container (for scrolling selected job into view)
   const jobListRef = useRef<HTMLDivElement>(null);
@@ -1470,6 +1486,18 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
                   ]}
                 />
 
+                {/* Ghost Filter (v1.4) */}
+                <Dropdown
+                  label="Legitimacy"
+                  value={ghostFilter}
+                  onChange={(value) => setGhostFilter(value as GhostFilter)}
+                  options={[
+                    { value: "all", label: "All Jobs" },
+                    { value: "real", label: "Likely Real" },
+                    { value: "ghost", label: "Possible Ghost" },
+                  ]}
+                />
+
                 {/* Posted Date Filter */}
                 <Dropdown
                   label="Posted"
@@ -1510,7 +1538,7 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
                 </div>
 
                 {/* Clear filters */}
-                {(textSearch || scoreFilter !== "all" || sourceFilter !== "all" || remoteFilter !== "all" || bookmarkFilter !== "all" || notesFilter !== "all" || postedDateFilter !== "all" || salaryMinFilter !== null || salaryMaxFilter !== null) && (
+                {(textSearch || scoreFilter !== "all" || sourceFilter !== "all" || remoteFilter !== "all" || bookmarkFilter !== "all" || notesFilter !== "all" || ghostFilter !== "all" || postedDateFilter !== "all" || salaryMinFilter !== null || salaryMaxFilter !== null) && (
                   <button
                     onClick={() => {
                       setTextSearch("");
@@ -1519,6 +1547,7 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
                       setRemoteFilter("all");
                       setBookmarkFilter("all");
                       setNotesFilter("all");
+                      setGhostFilter("all");
                       setPostedDateFilter("all");
                       setSalaryMinFilter(null);
                       setSalaryMaxFilter(null);

@@ -4,7 +4,7 @@
 
 **JobSentinel** is a privacy-first job search automation desktop app built with Tauri 2.x (Rust backend) and React 19 (TypeScript frontend).
 
-**Current Version:** 1.3.0 (January 2026)
+**Current Version:** 1.4.0 (January 2026)
 **Primary Target:** Windows 11+ (macOS/Linux planned for v2.0)
 
 ## Tech Stack
@@ -22,7 +22,7 @@
 ```
 JobSentinel/
 ├── src/                    # React frontend
-│   ├── components/        # UI components (36 components)
+│   ├── components/        # UI components (37 components)
 │   ├── contexts/          # React contexts (KeyboardShortcuts)
 │   ├── hooks/             # Custom hooks (useKeyboardNavigation)
 │   ├── pages/             # Page components (Dashboard, Applications, etc.)
@@ -33,28 +33,36 @@ JobSentinel/
 │   │   │   ├── ats/       # Application Tracking (ENABLED)
 │   │   │   ├── config/    # Configuration
 │   │   │   ├── db/        # Database layer
+│   │   │   ├── ghost/     # Ghost job detection (NEW in v1.4)
 │   │   │   ├── notify/    # Notifications (Slack, Discord, Teams, Email, Telegram)
 │   │   │   ├── scheduler/ # Job scheduling with auto-refresh
 │   │   │   ├── scoring/   # Job scoring algorithm
 │   │   │   └── scrapers/  # 13 job board scrapers with parallel scraping
-│   │   ├── commands/      # Tauri RPC handlers (47 commands)
+│   │   ├── commands/      # Tauri RPC handlers (50 commands)
 │   │   └── platforms/     # Platform-specific code (Windows, macOS, Linux)
-│   └── migrations/        # SQLite migrations (13 migrations)
+│   └── migrations/        # SQLite migrations (14 migrations)
 └── docs/                  # Documentation
+    ├── features/          # Feature documentation
+    ├── releases/          # Version release notes
+    ├── developer/         # Developer guides
+    ├── user/              # User guides
+    └── reports/           # Analysis reports
 ```
 
 ## Current Status
 
 ### Working Modules
 All core modules are enabled and functional:
-- config, db, notify, scheduler, scoring
+- config, db, notify, scheduler, scoring, ghost
 - scrapers (13 sources: Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, ZipRecruiter)
 - ats (Application Tracking System with interview scheduler)
 - resume (AI Resume-Job Matcher)
 - salary (Salary Prediction AI)
 - market_intelligence (Market Analytics)
 
-### Frontend Features (v1.3)
+### Frontend Features (v1.4)
+- **Ghost Detection** - Visual indicators for fake/stale job postings
+- Ghost filter dropdown (All/Real/Ghost jobs)
 - Advanced notification filtering (keywords, salary, company lists)
 - Keyboard shortcuts (b, n, c, /, ?, r, x)
 - Advanced search (AND/OR/NOT, search history)
@@ -67,11 +75,12 @@ All core modules are enabled and functional:
 - automation (One-Click Apply - requires legal review)
 
 ### Test Status
-- 2008 tests passing, 20 ignored
+- 2029 tests passing, 21 ignored
 - Ignored tests require file-based database or are doc-tests for example code
 
-### Tauri Commands (47 total)
+### Tauri Commands (50 total)
 - Core: 18 commands (jobs, config, search, statistics, scraping)
+- Ghost: 3 commands (ghost_jobs, ghost_statistics, filtered_search)
 - ATS: 10 commands (applications, reminders, ghosting, interviews)
 - Resume: 6 commands (upload, match, skills)
 - Salary: 4 commands (predict, benchmark, negotiate, compare)
@@ -115,10 +124,12 @@ npm run tauri:build      # Production build
 
 - `src-tauri/src/core/mod.rs` - Module registry (controls enabled features)
 - `src-tauri/src/core/db/mod.rs` - Database layer with Job struct
+- `src-tauri/src/core/ghost/mod.rs` - Ghost detection algorithm
 - `src-tauri/src/core/scrapers/mod.rs` - Scraper registry (13 sources) with parallel scraping
-- `src-tauri/src/commands/mod.rs` - Tauri command handlers (47 commands)
-- `src/pages/Dashboard.tsx` - Main dashboard with search and job list
-- `src/components/` - UI component library (36 components)
+- `src-tauri/src/commands/mod.rs` - Tauri command handlers (50 commands)
+- `src/pages/Dashboard.tsx` - Main dashboard with search, job list, ghost filter
+- `src/components/GhostIndicator.tsx` - Ghost job warning indicators
+- `src/components/` - UI component library (37 components)
 - `src/contexts/KeyboardShortcutsContext.tsx` - Keyboard navigation
 - `config.example.json` - Example configuration
 
@@ -147,6 +158,7 @@ npm run tauri:build      # Production build
 ```bash
 cargo test core::ats          # ATS tests
 cargo test core::scrapers     # Scraper tests
+cargo test core::ghost        # Ghost detection tests
 cargo test --ignored          # Run ignored tests (need file db)
 ```
 
@@ -154,6 +166,7 @@ cargo test --ignored          # Run ignored tests (need file db)
 
 - `README.md` - User-facing overview
 - `docs/README.md` - Documentation hub
+- `docs/features/ghost-detection.md` - Ghost detection feature guide
 - `docs/user/QUICK_START.md` - User guide
 - `docs/developer/GETTING_STARTED.md` - Developer setup
 - `CHANGELOG.md` - Version history

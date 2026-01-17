@@ -139,6 +139,10 @@ impl RemoteOkScraper {
             bookmarked: false,
             notes: None,
             included_in_digest: false,
+            ghost_score: None,
+            ghost_reasons: None,
+            first_seen: None,
+            repost_count: 0,
         }))
     }
 
@@ -411,6 +415,10 @@ mod tests {
             immediate_alert_sent: false,
             hidden: false,
             bookmarked: false,
+            ghost_score: None,
+            ghost_reasons: None,
+            first_seen: None,
+            repost_count: 0,
             notes: None,
             included_in_digest: false,
         };
@@ -445,6 +453,10 @@ mod tests {
             immediate_alert_sent: false,
             hidden: false,
             bookmarked: false,
+            ghost_score: None,
+            ghost_reasons: None,
+            first_seen: None,
+            repost_count: 0,
             notes: None,
             included_in_digest: false,
         };
@@ -479,6 +491,10 @@ mod tests {
             immediate_alert_sent: false,
             hidden: false,
             bookmarked: false,
+            ghost_score: None,
+            ghost_reasons: None,
+            first_seen: None,
+            repost_count: 0,
             notes: None,
             included_in_digest: false,
         };
@@ -513,6 +529,10 @@ mod tests {
             immediate_alert_sent: false,
             hidden: false,
             bookmarked: false,
+            ghost_score: None,
+            ghost_reasons: None,
+            first_seen: None,
+            repost_count: 0,
             notes: None,
             included_in_digest: false,
         };
@@ -547,6 +567,10 @@ mod tests {
             immediate_alert_sent: false,
             hidden: false,
             bookmarked: false,
+            ghost_score: None,
+            ghost_reasons: None,
+            first_seen: None,
+            repost_count: 0,
             notes: None,
             included_in_digest: false,
         };
@@ -645,6 +669,10 @@ mod tests {
             immediate_alert_sent: false,
             hidden: false,
             bookmarked: false,
+            ghost_score: None,
+            ghost_reasons: None,
+            first_seen: None,
+            repost_count: 0,
             notes: None,
             included_in_digest: false,
         };
@@ -680,6 +708,10 @@ mod tests {
             immediate_alert_sent: false,
             hidden: false,
             bookmarked: false,
+            ghost_score: None,
+            ghost_reasons: None,
+            first_seen: None,
+            repost_count: 0,
             notes: None,
             included_in_digest: false,
         };
@@ -715,6 +747,10 @@ mod tests {
             immediate_alert_sent: false,
             hidden: false,
             bookmarked: false,
+            ghost_score: None,
+            ghost_reasons: None,
+            first_seen: None,
+            repost_count: 0,
             notes: None,
             included_in_digest: false,
         };
@@ -930,6 +966,10 @@ mod tests {
             immediate_alert_sent: false,
             hidden: false,
             bookmarked: false,
+            ghost_score: None,
+            ghost_reasons: None,
+            first_seen: None,
+            repost_count: 0,
             notes: None,
             included_in_digest: false,
         };
@@ -1011,6 +1051,10 @@ mod tests {
             immediate_alert_sent: false,
             hidden: false,
             bookmarked: false,
+            ghost_score: None,
+            ghost_reasons: None,
+            first_seen: None,
+            repost_count: 0,
             notes: None,
             included_in_digest: false,
         };

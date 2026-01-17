@@ -632,7 +632,7 @@ export default function Settings({ onClose }: SettingsProps) {
                                 },
                               });
                               toast.success("Test sent!", "Check your email inbox");
-                            } catch (error) {
+                            } catch {
                               toast.error("Test failed", "Check your email settings and try again");
                             }
                           }}

@@ -1,4 +1,5 @@
 import { ScoreDisplay } from "./ScoreDisplay";
+import { GhostIndicatorCompact } from "./GhostIndicator";
 import { open } from "@tauri-apps/plugin-shell";
 
 interface Job {
@@ -16,6 +17,9 @@ interface Job {
   remote?: boolean | null;
   bookmarked?: boolean;
   notes?: string | null;
+  // Ghost detection fields (v1.4)
+  ghost_score?: number | null;
+  ghost_reasons?: string | null;
 }
 
 interface JobCardProps {
@@ -135,6 +139,14 @@ export function JobCard({ job, onViewJob, onHideJob, onToggleBookmark, onEditNot
 
             {/* Meta info */}
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-surface-500 dark:text-surface-400">
+              {/* Ghost indicator */}
+              {job.ghost_score !== undefined && job.ghost_score !== null && job.ghost_score >= 0.5 && (
+                <GhostIndicatorCompact
+                  ghostScore={job.ghost_score}
+                  ghostReasons={job.ghost_reasons ?? null}
+                />
+              )}
+
               {/* Location */}
               <span className="inline-flex items-center gap-1">
                 <LocationIcon />

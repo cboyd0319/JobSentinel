@@ -38,6 +38,39 @@ fn create_test_config() -> Config {
     }
 }
 
+/// Helper to create a test job with ghost detection fields
+fn create_test_job(hash: &str, title: &str, company: &str) -> Job {
+    Job {
+        id: 0,
+        hash: hash.to_string(),
+        title: title.to_string(),
+        company: company.to_string(),
+        url: format!("https://example.com/job/{}", hash),
+        location: None,
+        description: None,
+        score: None,
+        score_reasons: None,
+        source: "test".to_string(),
+        remote: None,
+        salary_min: None,
+        salary_max: None,
+        currency: None,
+        created_at: chrono::Utc::now(),
+        updated_at: chrono::Utc::now(),
+        last_seen: chrono::Utc::now(),
+        times_seen: 1,
+        immediate_alert_sent: false,
+        hidden: false,
+        included_in_digest: false,
+        bookmarked: false,
+        notes: None,
+        ghost_score: None,
+        ghost_reasons: None,
+        first_seen: None,
+        repost_count: 0,
+    }
+}
+
 // ========================================
 // Scraping Pipeline Integration Tests
 // ========================================
@@ -93,6 +126,10 @@ async fn test_scoring_engine_integration() {
         included_in_digest: false,
     bookmarked: false,
     notes: None,
+    ghost_score: None,
+    ghost_reasons: None,
+    first_seen: None,
+    repost_count: 0,
     };
 
     let score = scoring_engine.score(&job);
@@ -130,6 +167,10 @@ async fn test_database_upsert_pipeline() {
         included_in_digest: false,
     bookmarked: false,
     notes: None,
+    ghost_score: None,
+    ghost_reasons: None,
+    first_seen: None,
+    repost_count: 0,
     };
 
     // First insert
@@ -183,6 +224,10 @@ async fn test_pipeline_job_deduplication() {
         included_in_digest: false,
     bookmarked: false,
     notes: None,
+    ghost_score: None,
+    ghost_reasons: None,
+    first_seen: None,
+    repost_count: 0,
     };
 
     let mut job2 = job1.clone();
@@ -232,6 +277,10 @@ async fn test_pipeline_high_score_filtering() {
         included_in_digest: false,
     bookmarked: false,
     notes: None,
+    ghost_score: None,
+    ghost_reasons: None,
+    first_seen: None,
+    repost_count: 0,
     };
 
     let low_score_job = Job {
@@ -258,6 +307,10 @@ async fn test_pipeline_high_score_filtering() {
         included_in_digest: false,
     bookmarked: false,
     notes: None,
+    ghost_score: None,
+    ghost_reasons: None,
+    first_seen: None,
+    repost_count: 0,
     };
 
     database.upsert_job(&high_score_job).await.unwrap();
@@ -302,6 +355,10 @@ async fn test_pipeline_full_cycle_statistics() {
             included_in_digest: false,
         bookmarked: false,
         notes: None,
+        ghost_score: None,
+        ghost_reasons: None,
+        first_seen: None,
+        repost_count: 0,
         };
 
         database.upsert_job(&job).await.unwrap();
@@ -345,6 +402,10 @@ async fn test_pipeline_search_functionality() {
         included_in_digest: false,
     bookmarked: false,
     notes: None,
+    ghost_score: None,
+    ghost_reasons: None,
+    first_seen: None,
+    repost_count: 0,
     };
 
     let job2 = Job {
@@ -371,6 +432,10 @@ async fn test_pipeline_search_functionality() {
         included_in_digest: false,
     bookmarked: false,
     notes: None,
+    ghost_score: None,
+    ghost_reasons: None,
+    first_seen: None,
+    repost_count: 0,
     };
 
     db.upsert_job(&job1).await.unwrap();
@@ -424,10 +489,14 @@ async fn test_pipeline_concurrent_upserts() {
                 last_seen: chrono::Utc::now(),
                 times_seen: 1,
                 immediate_alert_sent: false,
-        hidden: false,
+                hidden: false,
                 included_in_digest: false,
-            bookmarked: false,
-            notes: None,
+                bookmarked: false,
+                notes: None,
+                ghost_score: None,
+                ghost_reasons: None,
+                first_seen: None,
+                repost_count: 0,
             };
 
             db_clone.upsert_job(&job).await
@@ -480,6 +549,10 @@ async fn test_pipeline_job_ordering_by_score() {
             included_in_digest: false,
         bookmarked: false,
         notes: None,
+        ghost_score: None,
+        ghost_reasons: None,
+        first_seen: None,
+        repost_count: 0,
         };
 
         db.upsert_job(&job).await.unwrap();
@@ -524,6 +597,10 @@ async fn test_pipeline_alert_sent_flag() {
         included_in_digest: false,
     bookmarked: false,
     notes: None,
+    ghost_score: None,
+    ghost_reasons: None,
+    first_seen: None,
+    repost_count: 0,
     };
 
     let id = db.upsert_job(&job).await.unwrap();
@@ -569,6 +646,10 @@ async fn test_scoring_title_matching() {
         included_in_digest: false,
     bookmarked: false,
     notes: None,
+    ghost_score: None,
+    ghost_reasons: None,
+    first_seen: None,
+    repost_count: 0,
     };
 
     let non_matching_job = Job {
@@ -595,6 +676,10 @@ async fn test_scoring_title_matching() {
         included_in_digest: false,
     bookmarked: false,
     notes: None,
+    ghost_score: None,
+    ghost_reasons: None,
+    first_seen: None,
+    repost_count: 0,
     };
 
     let matching_score = scoring_engine.score(&matching_job);
@@ -635,6 +720,10 @@ async fn test_scoring_salary_influence() {
         included_in_digest: false,
     bookmarked: false,
     notes: None,
+    ghost_score: None,
+    ghost_reasons: None,
+    first_seen: None,
+    repost_count: 0,
     };
 
     let low_salary_job = Job {
@@ -661,6 +750,10 @@ async fn test_scoring_salary_influence() {
         included_in_digest: false,
     bookmarked: false,
     notes: None,
+    ghost_score: None,
+    ghost_reasons: None,
+    first_seen: None,
+    repost_count: 0,
     };
 
     let high_score = scoring_engine.score(&high_salary_job);

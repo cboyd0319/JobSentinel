@@ -5,6 +5,32 @@ All notable changes to JobSentinel will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-01-16
+
+### Added
+- **Ghost Job Detection** - Intelligent system to identify fake, stale, or already-filled job postings
+  - Analyzes jobs for stale postings (60+ days old)
+  - Tracks and flags frequently reposted positions
+  - Detects generic/vague descriptions and unrealistic requirements
+  - Identifies companies with excessive open positions
+  - Ghost score from 0.0 (real) to 1.0 (likely ghost)
+- **Ghost Filter UI** - Dashboard dropdown to show all/real/ghost jobs only
+- **Ghost Indicators** - Visual badges with severity-based coloring (yellow/orange/red)
+- **Ghost Tooltips** - Hover to see specific reasons why a job was flagged
+- **Repost History Tracking** - New `job_repost_history` database table
+- **3 new Tauri commands** - `get_ghost_jobs`, `get_ghost_statistics`, `get_recent_jobs_filtered`
+
+### Changed
+- Job struct now includes `ghost_score`, `ghost_reasons`, `first_seen`, `repost_count` fields
+- Scheduler pipeline runs ghost analysis after scoring, before database storage
+- Test count increased from 2008 to **2029 tests passing**
+
+### Documentation
+- New `/docs/features/` directory for feature documentation
+- New `/docs/releases/` directory for version release notes
+- Reorganized feature docs with cleaner naming
+- Archived deferred One-Click Apply documentation
+
 ## [1.3.1] - 2026-01-16
 
 ### Added

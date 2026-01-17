@@ -120,6 +120,10 @@ impl WeWorkRemotelyScraper {
                 bookmarked: false,
                 notes: None,
                 included_in_digest: false,
+                ghost_score: None,
+                ghost_reasons: None,
+                first_seen: None,
+                repost_count: 0,
             });
         }
 

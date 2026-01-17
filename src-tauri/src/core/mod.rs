@@ -34,6 +34,9 @@ pub mod resume;
 pub mod salary;
 pub mod market_intelligence;
 
+// v1.4+ modules
+pub mod ghost;
+
 // v2.0+ modules - disabled pending legal review
 // pub mod automation;
 
@@ -54,3 +57,6 @@ pub use market_intelligence::{
     SkillDemandTrend, SalaryTrend, RoleDemandTrend, AlertType, AlertSeverity,
     SkillTrend, CompanyActivity, LocationHeat,
 };
+
+// v1.4+ re-exports
+pub use ghost::{GhostAnalysis, GhostCategory, GhostConfig, GhostDetector, GhostReason, Severity as GhostSeverity};

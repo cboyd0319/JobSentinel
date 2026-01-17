@@ -94,10 +94,14 @@ impl LeverScraper {
                         last_seen: Utc::now(),
                         times_seen: 1,
                         immediate_alert_sent: false,
-            hidden: false,
-            bookmarked: false,
-            notes: None,
+                        hidden: false,
+                        bookmarked: false,
+                        notes: None,
                         included_in_digest: false,
+                        ghost_score: None,
+                        ghost_reasons: None,
+                        first_seen: None,
+                        repost_count: 0,
                     });
                 }
             }
@@ -1184,6 +1188,10 @@ mod tests {
                         hidden: false,
                         bookmarked: false,
                         notes: None,
+            ghost_score: None,
+            ghost_reasons: None,
+            first_seen: None,
+            repost_count: 0,
                         included_in_digest: false,
                     });
                 }
@@ -1258,6 +1266,10 @@ mod tests {
                         hidden: false,
                         bookmarked: false,
                         notes: None,
+            ghost_score: None,
+            ghost_reasons: None,
+            first_seen: None,
+            repost_count: 0,
                         included_in_digest: false,
                     });
                 }
@@ -1302,6 +1314,10 @@ mod tests {
                     hidden: false,
                     bookmarked: false,
                     notes: None,
+            ghost_score: None,
+            ghost_reasons: None,
+            first_seen: None,
+            repost_count: 0,
                     included_in_digest: false,
                 });
             }
@@ -1358,6 +1374,10 @@ mod tests {
             hidden: false,
             bookmarked: false,
             notes: None,
+            ghost_score: None,
+            ghost_reasons: None,
+            first_seen: None,
+            repost_count: 0,
             included_in_digest: false,
         };
 
@@ -1399,6 +1419,10 @@ mod tests {
             hidden: false,
             bookmarked: false,
             notes: None,
+            ghost_score: None,
+            ghost_reasons: None,
+            first_seen: None,
+            repost_count: 0,
             included_in_digest: false,
         };
 
@@ -1654,6 +1678,10 @@ mod tests {
                         hidden: false,
                         bookmarked: false,
                         notes: None,
+            ghost_score: None,
+            ghost_reasons: None,
+            first_seen: None,
+            repost_count: 0,
                         included_in_digest: false,
                     });
                 }
@@ -1928,6 +1956,10 @@ mod tests {
             hidden: false,
             bookmarked: false,
             notes: None,
+            ghost_score: None,
+            ghost_reasons: None,
+            first_seen: None,
+            repost_count: 0,
             included_in_digest: false,
         };
 
@@ -1962,6 +1994,10 @@ mod tests {
             hidden: false,
             bookmarked: false,
             notes: None,
+            ghost_score: None,
+            ghost_reasons: None,
+            first_seen: None,
+            repost_count: 0,
             included_in_digest: false,
         };
 
@@ -1993,6 +2029,10 @@ mod tests {
             hidden: false,
             bookmarked: false,
             notes: None,
+            ghost_score: None,
+            ghost_reasons: None,
+            first_seen: None,
+            repost_count: 0,
             included_in_digest: false,
         };
 
