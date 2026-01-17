@@ -1,8 +1,15 @@
 //! Notification Services
 //!
 //! Sends alerts via multiple channels: Slack, Email, Discord, Telegram, Teams, and Desktop.
+//!
+//! Credentials are stored securely in the OS keyring and fetched at runtime.
 
-use crate::core::{config::Config, db::Job, scoring::JobScore};
+use crate::core::{
+    config::Config,
+    credentials::{CredentialKey, CredentialStore},
+    db::Job,
+    scoring::JobScore,
+};
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
@@ -31,75 +38,154 @@ impl NotificationService {
     }
 
     /// Send immediate alert for high-scoring job across all enabled channels
+    ///
+    /// Credentials are fetched from OS keyring at runtime (not stored in config).
     pub async fn send_immediate_alert(&self, notification: &Notification) -> Result<()> {
         let mut errors = Vec::new();
 
         // Send to Slack if enabled
         if self.config.alerts.slack.enabled {
-            if let Err(e) =
-                slack::send_slack_notification(&self.config.alerts.slack.webhook_url, notification)
-                    .await
-            {
-                tracing::error!("Failed to send Slack notification: {}", e);
-                errors.push(format!("Slack: {}", e));
-            } else {
-                tracing::info!("✓ Sent Slack notification for: {}", notification.job.title);
+            match CredentialStore::retrieve(CredentialKey::SlackWebhook) {
+                Ok(Some(webhook_url)) => {
+                    if let Err(e) = slack::send_slack_notification(&webhook_url, notification).await
+                    {
+                        tracing::error!("Failed to send Slack notification: {}", e);
+                        errors.push(format!("Slack: {}", e));
+                    } else {
+                        tracing::info!("✓ Sent Slack notification for: {}", notification.job.title);
+                    }
+                }
+                Ok(None) => {
+                    tracing::warn!("Slack enabled but webhook not configured in keyring");
+                    errors.push("Slack: Webhook not configured".to_string());
+                }
+                Err(e) => {
+                    tracing::error!("Failed to retrieve Slack webhook from keyring: {}", e);
+                    errors.push(format!("Slack: {}", e));
+                }
             }
         }
 
         // Send to Email if enabled
         if self.config.alerts.email.enabled {
-            if let Err(e) =
-                email::send_email_notification(&self.config.alerts.email, notification).await
-            {
-                tracing::error!("Failed to send email notification: {}", e);
-                errors.push(format!("Email: {}", e));
-            } else {
-                tracing::info!("✓ Sent email notification for: {}", notification.job.title);
+            match CredentialStore::retrieve(CredentialKey::SmtpPassword) {
+                Ok(Some(smtp_password)) => {
+                    // Create config with password from keyring
+                    let email_config = crate::core::config::EmailConfig {
+                        enabled: self.config.alerts.email.enabled,
+                        smtp_server: self.config.alerts.email.smtp_server.clone(),
+                        smtp_port: self.config.alerts.email.smtp_port,
+                        smtp_username: self.config.alerts.email.smtp_username.clone(),
+                        smtp_password,
+                        from_email: self.config.alerts.email.from_email.clone(),
+                        to_emails: self.config.alerts.email.to_emails.clone(),
+                        use_starttls: self.config.alerts.email.use_starttls,
+                    };
+                    if let Err(e) = email::send_email_notification(&email_config, notification).await
+                    {
+                        tracing::error!("Failed to send email notification: {}", e);
+                        errors.push(format!("Email: {}", e));
+                    } else {
+                        tracing::info!("✓ Sent email notification for: {}", notification.job.title);
+                    }
+                }
+                Ok(None) => {
+                    tracing::warn!("Email enabled but SMTP password not configured in keyring");
+                    errors.push("Email: SMTP password not configured".to_string());
+                }
+                Err(e) => {
+                    tracing::error!("Failed to retrieve SMTP password from keyring: {}", e);
+                    errors.push(format!("Email: {}", e));
+                }
             }
         }
 
         // Send to Discord if enabled
         if self.config.alerts.discord.enabled {
-            if let Err(e) =
-                discord::send_discord_notification(&self.config.alerts.discord, notification).await
-            {
-                tracing::error!("Failed to send Discord notification: {}", e);
-                errors.push(format!("Discord: {}", e));
-            } else {
-                tracing::info!(
-                    "✓ Sent Discord notification for: {}",
-                    notification.job.title
-                );
+            match CredentialStore::retrieve(CredentialKey::DiscordWebhook) {
+                Ok(Some(webhook_url)) => {
+                    // Create config with webhook from keyring
+                    let discord_config = crate::core::config::DiscordConfig {
+                        enabled: self.config.alerts.discord.enabled,
+                        webhook_url,
+                        user_id_to_mention: self.config.alerts.discord.user_id_to_mention.clone(),
+                    };
+                    if let Err(e) =
+                        discord::send_discord_notification(&discord_config, notification).await
+                    {
+                        tracing::error!("Failed to send Discord notification: {}", e);
+                        errors.push(format!("Discord: {}", e));
+                    } else {
+                        tracing::info!(
+                            "✓ Sent Discord notification for: {}",
+                            notification.job.title
+                        );
+                    }
+                }
+                Ok(None) => {
+                    tracing::warn!("Discord enabled but webhook not configured in keyring");
+                    errors.push("Discord: Webhook not configured".to_string());
+                }
+                Err(e) => {
+                    tracing::error!("Failed to retrieve Discord webhook from keyring: {}", e);
+                    errors.push(format!("Discord: {}", e));
+                }
             }
         }
 
         // Send to Telegram if enabled
         if self.config.alerts.telegram.enabled {
-            if let Err(e) =
-                telegram::send_telegram_notification(&self.config.alerts.telegram, notification)
-                    .await
-            {
-                tracing::error!("Failed to send Telegram notification: {}", e);
-                errors.push(format!("Telegram: {}", e));
-            } else {
-                tracing::info!(
-                    "✓ Sent Telegram notification for: {}",
-                    notification.job.title
-                );
+            match CredentialStore::retrieve(CredentialKey::TelegramBotToken) {
+                Ok(Some(bot_token)) => {
+                    // Create config with bot token from keyring
+                    let telegram_config = crate::core::config::TelegramConfig {
+                        enabled: self.config.alerts.telegram.enabled,
+                        bot_token,
+                        chat_id: self.config.alerts.telegram.chat_id.clone(),
+                    };
+                    if let Err(e) =
+                        telegram::send_telegram_notification(&telegram_config, notification).await
+                    {
+                        tracing::error!("Failed to send Telegram notification: {}", e);
+                        errors.push(format!("Telegram: {}", e));
+                    } else {
+                        tracing::info!(
+                            "✓ Sent Telegram notification for: {}",
+                            notification.job.title
+                        );
+                    }
+                }
+                Ok(None) => {
+                    tracing::warn!("Telegram enabled but bot token not configured in keyring");
+                    errors.push("Telegram: Bot token not configured".to_string());
+                }
+                Err(e) => {
+                    tracing::error!("Failed to retrieve Telegram bot token from keyring: {}", e);
+                    errors.push(format!("Telegram: {}", e));
+                }
             }
         }
 
         // Send to Teams if enabled
         if self.config.alerts.teams.enabled {
-            if let Err(e) =
-                teams::send_teams_notification(&self.config.alerts.teams.webhook_url, notification)
-                    .await
-            {
-                tracing::error!("Failed to send Teams notification: {}", e);
-                errors.push(format!("Teams: {}", e));
-            } else {
-                tracing::info!("✓ Sent Teams notification for: {}", notification.job.title);
+            match CredentialStore::retrieve(CredentialKey::TeamsWebhook) {
+                Ok(Some(webhook_url)) => {
+                    if let Err(e) = teams::send_teams_notification(&webhook_url, notification).await
+                    {
+                        tracing::error!("Failed to send Teams notification: {}", e);
+                        errors.push(format!("Teams: {}", e));
+                    } else {
+                        tracing::info!("✓ Sent Teams notification for: {}", notification.job.title);
+                    }
+                }
+                Ok(None) => {
+                    tracing::warn!("Teams enabled but webhook not configured in keyring");
+                    errors.push("Teams: Webhook not configured".to_string());
+                }
+                Err(e) => {
+                    tracing::error!("Failed to retrieve Teams webhook from keyring: {}", e);
+                    errors.push(format!("Teams: {}", e));
+                }
             }
         }
 

@@ -12,6 +12,7 @@ use crate::core::{config::Config, db::Database, scheduler::Scheduler};
 // Module declarations (public for Tauri macro access)
 pub mod ats;
 pub mod config;
+pub mod credentials;
 pub mod ghost;
 pub mod jobs;
 pub mod market;
@@ -91,4 +92,9 @@ pub use user_data::{
 // Config commands
 pub use config::{
     complete_setup, get_config, is_first_run, save_config, validate_slack_webhook,
+};
+
+// Credential commands
+pub use credentials::{
+    delete_credential, get_credential_status, has_credential, retrieve_credential, store_credential,
 };

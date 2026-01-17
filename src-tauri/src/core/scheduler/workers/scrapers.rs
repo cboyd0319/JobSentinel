@@ -4,6 +4,7 @@
 
 use crate::core::{
     config::Config,
+    credentials::{CredentialKey, CredentialStore},
     db::Job,
     scrapers::{
         greenhouse::{GreenhouseCompany, GreenhouseScraper},
@@ -111,24 +112,36 @@ pub async fn run_scrapers(config: &Arc<Config>) -> (Vec<Job>, Vec<String>) {
         }
     }
 
-    // LinkedIn scraper - requires session cookie
-    if config.linkedin.enabled && !config.linkedin.session_cookie.is_empty() {
-        tracing::info!("Running LinkedIn scraper");
-        let linkedin = LinkedInScraper {
-            session_cookie: config.linkedin.session_cookie.clone(),
-            query: config.linkedin.query.clone(),
-            location: config.linkedin.location.clone(),
-            remote_only: config.linkedin.remote_only,
-            limit: config.linkedin.limit,
-        };
+    // LinkedIn scraper - requires session cookie from secure storage
+    if config.linkedin.enabled {
+        match CredentialStore::retrieve(CredentialKey::LinkedInCookie) {
+            Ok(Some(session_cookie)) => {
+                tracing::info!("Running LinkedIn scraper");
+                let linkedin = LinkedInScraper {
+                    session_cookie,
+                    query: config.linkedin.query.clone(),
+                    location: config.linkedin.location.clone(),
+                    remote_only: config.linkedin.remote_only,
+                    limit: config.linkedin.limit,
+                };
 
-        match linkedin.scrape().await {
-            Ok(jobs) => {
-                tracing::info!("LinkedIn: {} jobs found", jobs.len());
-                all_jobs.extend(jobs);
+                match linkedin.scrape().await {
+                    Ok(jobs) => {
+                        tracing::info!("LinkedIn: {} jobs found", jobs.len());
+                        all_jobs.extend(jobs);
+                    }
+                    Err(e) => {
+                        let error_msg = format!("LinkedIn scraper failed: {}", e);
+                        tracing::error!("{}", error_msg);
+                        errors.push(error_msg);
+                    }
+                }
+            }
+            Ok(None) => {
+                tracing::warn!("LinkedIn enabled but session cookie not configured in keyring");
             }
             Err(e) => {
-                let error_msg = format!("LinkedIn scraper failed: {}", e);
+                let error_msg = format!("Failed to retrieve LinkedIn cookie from keyring: {}", e);
                 tracing::error!("{}", error_msg);
                 errors.push(error_msg);
             }

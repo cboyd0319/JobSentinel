@@ -1,7 +1,8 @@
 {
-  "_comment": "JobSentinel v1.3 Configuration",
+  "_comment": "JobSentinel v2.0 Configuration",
   "_instructions": "1. Copy a profile from profiles/ folder OR customize below. 2. Save to config.json in your config directory.",
   "_profiles_available": "See profiles/ folder for ready-to-use templates: software-engineering, seo-digital-marketing, product-management, ux-design, data-science, sales-business-dev, hr-recruiting, finance-accounting, project-operations, content-copywriting, cybersecurity",
+  "_security_note": "IMPORTANT: Passwords and API tokens are stored in OS keyring (v2.0+), NOT in this file. Configure credentials in Settings UI.",
 
   "title_allowlist": [
     "YOUR_JOB_TITLE_HERE",
@@ -50,24 +51,25 @@
   "scraping_interval_hours": 2,
 
   "alerts": {
+    "_note": "Webhook URLs and passwords are stored in OS keyring, not here. Configure via Settings UI.",
     "slack": {
-      "enabled": false,
-      "webhook_url": "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+      "enabled": false
     },
     "discord": {
-      "enabled": false,
-      "webhook_url": "https://discord.com/api/webhooks/YOUR/WEBHOOK"
+      "enabled": false
     },
     "teams": {
+      "enabled": false
+    },
+    "telegram": {
       "enabled": false,
-      "webhook_url": "https://outlook.office.com/webhook/YOUR/WEBHOOK"
+      "chat_id": ""
     },
     "email": {
       "enabled": false,
       "smtp_server": "smtp.gmail.com",
       "smtp_port": 587,
       "smtp_username": "",
-      "smtp_password": "",
       "from_email": "",
       "to_emails": []
     },

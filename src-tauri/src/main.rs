@@ -11,6 +11,7 @@
 
 // Import library modules
 use jobsentinel::commands::{self, AppState, SchedulerStatus};
+use jobsentinel::core::credentials::{migration, CredentialStore};
 use jobsentinel::core::scheduler::Scheduler;
 use jobsentinel::platforms;
 use jobsentinel::{Config, Database};
@@ -43,10 +44,62 @@ fn main() {
         std::process::exit(1);
     }
 
+    // Migrate plaintext credentials to secure storage (one-time migration)
+    let config_path = Config::default_path();
+    if config_path.exists() && !migration::is_migrated() {
+        tracing::info!("Checking for plaintext credentials to migrate to secure storage");
+
+        match migration::extract_plaintext_credentials(&config_path) {
+            Ok(credentials) => {
+                if credentials.is_empty() {
+                    tracing::info!("No plaintext credentials found, marking as migrated");
+                } else {
+                    tracing::info!(
+                        "Found {} plaintext credentials to migrate",
+                        credentials.len()
+                    );
+
+                    let mut migration_success = true;
+                    for (key, value) in &credentials {
+                        if let Err(e) = CredentialStore::store(*key, value) {
+                            tracing::error!(
+                                "Failed to migrate credential {:?} to keyring: {}",
+                                key,
+                                e
+                            );
+                            migration_success = false;
+                        } else {
+                            tracing::info!("✓ Migrated {:?} to secure storage", key);
+                        }
+                    }
+
+                    // Only clear config and mark migrated if all credentials were stored
+                    if migration_success {
+                        if let Err(e) = migration::clear_config_credentials(&config_path) {
+                            tracing::error!(
+                                "Failed to clear plaintext credentials from config: {}",
+                                e
+                            );
+                        }
+                    }
+                }
+
+                // Mark migration as complete (even if partial, to avoid repeated attempts)
+                if let Err(e) = migration::set_migrated() {
+                    tracing::warn!("Failed to set migration flag: {}", e);
+                }
+            }
+            Err(e) => {
+                tracing::error!("Failed to extract plaintext credentials for migration: {}", e);
+            }
+        }
+    }
+
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_secure_storage::init())
         .invoke_handler(tauri::generate_handler![
             // Core job commands
             commands::jobs::search_jobs,
@@ -127,6 +180,12 @@ fn main() {
             commands::user_data::add_search_history,
             commands::user_data::get_search_history,
             commands::user_data::clear_search_history,
+            // Credential commands (v2.0 - secure storage)
+            commands::credentials::store_credential,
+            commands::credentials::retrieve_credential,
+            commands::credentials::delete_credential,
+            commands::credentials::has_credential,
+            commands::credentials::get_credential_status,
         ])
         .setup(|app| {
             // Initialize configuration

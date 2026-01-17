@@ -21,17 +21,25 @@ Welcome to JobSentinel documentation.
 |---------|--------|-------|
 | v1.4 | Complete | Ghost detection, data insights, backend persistence |
 | v1.5 | Complete | File modularization (see Technical Debt) |
-| v2.0 | Planned | Keyring, CI/CD, Resume Builder, One-Click Apply |
+| v2.0 | **Complete** | **OS-Native Keyring Integration** |
+| v2.1+ | Planned | CI/CD, Resume Builder, One-Click Apply |
 
 ---
 
 ## Current Status (January 2026)
 
-**Version: 1.6.0** | 2002+ tests passing | Full-featured release
+**Version: 2.0.0** | 1963+ tests passing | Security-Hardened Release
+
+### What's New in v2.0 🔐
+- **OS-Native Keyring Integration** - All credentials securely stored in OS credential managers
+  - macOS: Keychain | Windows: Credential Manager | Linux: Secret Service
+- **6 credentials secured**: SMTP password, Telegram token, Slack/Discord/Teams webhooks, LinkedIn cookie
+- **Automatic migration** - Existing plaintext credentials migrated on first launch
+- See [Keyring Documentation](security/KEYRING.md) for full details
 
 ### Working Features
 - **13 Job scrapers**: Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, ZipRecruiter
-- **Ghost Job Detection** (NEW in v1.4) - Identifies fake/stale job postings
+- **Ghost Job Detection** - Identifies fake/stale job postings
 - Application Tracking System (ATS) with Kanban board + interview scheduler
 - AI Resume-Job Matcher with PDF parsing
 - Salary AI with negotiation insights
@@ -83,6 +91,11 @@ Welcome to JobSentinel documentation.
 - **[Error Handling](developer/ERROR_HANDLING.md)** - Error patterns
 - **[Mutation Testing](developer/MUTATION_TESTING.md)** - Test quality
 
+### Security
+| Topic | Documentation |
+|-------|---------------|
+| **Keyring Integration** | [Secure Credential Storage](security/KEYRING.md) |
+
 ### Features
 | Feature | Status | Documentation |
 |---------|--------|---------------|
@@ -95,6 +108,7 @@ Welcome to JobSentinel documentation.
 | Job Scrapers | Working | [Scrapers](features/scrapers.md) |
 
 ### Release Notes
+- **[v2.0 - Security Hardening](releases/v2.0.md)** - OS-native keyring integration
 - **[v1.6 - Additional Refactoring](releases/v1.6.md)** - Commands, scrapers, salary, resume modularization
 - **[v1.5 - Modularization](releases/v1.5.md)** - File refactoring and code organization
 - **[v1.4 - Ghost Hunter](releases/v1.4.md)** - Ghost job detection
@@ -133,6 +147,8 @@ Welcome to JobSentinel documentation.
 docs/
 ├── README.md              # This file
 ├── ROADMAP.md             # Feature roadmap
+├── security/              # Security documentation (v2.0+)
+│   └── KEYRING.md             # OS-native credential storage
 ├── features/              # Feature documentation
 │   ├── ghost-detection.md     # Ghost job detection (v1.4)
 │   ├── application-tracking.md
@@ -142,6 +158,8 @@ docs/
 │   ├── market-intelligence.md
 │   └── scrapers.md
 ├── releases/              # Version release notes
+│   ├── v2.0.md                # Security hardening
+│   ├── v1.6.md
 │   ├── v1.5.md
 │   ├── v1.4.md
 │   ├── v1.3.md

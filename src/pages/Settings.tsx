@@ -10,6 +10,7 @@ interface SettingsProps {
   onClose: () => void;
 }
 
+// Config interface without sensitive credential fields (stored in OS keyring)
 interface Config {
   title_allowlist: string[];
   title_blocklist: string[];
@@ -29,14 +30,14 @@ interface Config {
   alerts: {
     slack: {
       enabled: boolean;
-      webhook_url: string;
+      // webhook_url stored securely in keyring
     };
     email: {
       enabled: boolean;
       smtp_server: string;
       smtp_port: number;
       smtp_username: string;
-      smtp_password: string;
+      // smtp_password stored securely in keyring
       from_email: string;
       to_emails: string[];
       use_starttls: boolean;
@@ -44,7 +45,7 @@ interface Config {
   };
   linkedin: {
     enabled: boolean;
-    session_cookie: string;
+    // session_cookie stored securely in keyring
     query: string;
     location: string;
     remote_only: boolean;
@@ -59,6 +60,31 @@ interface Config {
   };
 }
 
+// Credentials stored in OS keyring (macOS Keychain, Windows Credential Manager)
+interface Credentials {
+  slack_webhook: string;
+  smtp_password: string;
+  linkedin_cookie: string;
+}
+
+// Credential key names (must match backend CredentialKey enum)
+type CredentialKey = "slack_webhook" | "smtp_password" | "linkedin_cookie";
+
+// Helper to store a credential in secure storage
+async function storeCredential(key: CredentialKey, value: string): Promise<void> {
+  await invoke("store_credential", { key, value });
+}
+
+// Helper to retrieve a credential from secure storage
+async function retrieveCredential(key: CredentialKey): Promise<string | null> {
+  return await invoke<string | null>("retrieve_credential", { key });
+}
+
+// Helper to check if a credential exists
+async function hasCredential(key: CredentialKey): Promise<boolean> {
+  return await invoke<boolean>("has_credential", { key });
+}
+
 const isValidSlackWebhook = (url: string): boolean => {
   if (!url) return true;
   return url.startsWith("https://hooks.slack.com/services/");
@@ -71,6 +97,16 @@ const isValidEmail = (email: string): boolean => {
 
 export default function Settings({ onClose }: SettingsProps) {
   const [config, setConfig] = useState<Config | null>(null);
+  const [credentials, setCredentials] = useState<Credentials>({
+    slack_webhook: "",
+    smtp_password: "",
+    linkedin_cookie: "",
+  });
+  const [credentialStatus, setCredentialStatus] = useState<Record<CredentialKey, boolean>>({
+    slack_webhook: false,
+    smtp_password: false,
+    linkedin_cookie: false,
+  });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [titleInput, setTitleInput] = useState("");
@@ -81,8 +117,24 @@ export default function Settings({ onClose }: SettingsProps) {
   const loadConfig = useCallback(async () => {
     try {
       setLoading(true);
+
+      // Load config (non-sensitive settings)
       const configData = await invoke<Config>("get_config");
       setConfig(configData);
+
+      // Check which credentials exist in secure storage (don't load actual values)
+      const [hasSlack, hasSmtp, hasLinkedIn] = await Promise.all([
+        hasCredential("slack_webhook"),
+        hasCredential("smtp_password"),
+        hasCredential("linkedin_cookie"),
+      ]);
+
+      setCredentialStatus({
+        slack_webhook: hasSlack,
+        smtp_password: hasSmtp,
+        linkedin_cookie: hasLinkedIn,
+      });
+
     } catch (error) {
       logError("Failed to load config:", error);
       const friendly = getUserFriendlyError(error);
@@ -101,8 +153,27 @@ export default function Settings({ onClose }: SettingsProps) {
 
     try {
       setSaving(true);
-      await invoke("save_config", { config });
-      toast.success("Settings saved!", "Click 'Search Now' to rescore jobs with new settings");
+
+      // Save credentials to secure storage (only if user entered new values)
+      const credentialSaves: Promise<void>[] = [];
+
+      if (credentials.slack_webhook) {
+        credentialSaves.push(storeCredential("slack_webhook", credentials.slack_webhook));
+      }
+      if (credentials.smtp_password) {
+        credentialSaves.push(storeCredential("smtp_password", credentials.smtp_password));
+      }
+      if (credentials.linkedin_cookie) {
+        credentialSaves.push(storeCredential("linkedin_cookie", credentials.linkedin_cookie));
+      }
+
+      // Save credentials and config in parallel
+      await Promise.all([
+        ...credentialSaves,
+        invoke("save_config", { config }),
+      ]);
+
+      toast.success("Settings saved!", "Credentials stored securely in your system keychain");
       onClose();
     } catch (error) {
       logError("Failed to save config:", error);
@@ -132,27 +203,10 @@ export default function Settings({ onClose }: SettingsProps) {
         return; // User cancelled
       }
 
-      // Merge imported config with current config, preserving sensitive fields
-      setConfig((current) => {
-        if (!current) return imported;
-        return {
-          ...imported,
-          alerts: {
-            ...imported.alerts,
-            email: {
-              ...imported.alerts.email,
-              // Preserve sensitive data if import has empty values
-              smtp_password: imported.alerts.email.smtp_password || current.alerts.email.smtp_password,
-            },
-          },
-          linkedin: {
-            ...imported.linkedin,
-            // Preserve sensitive data if import has empty values
-            session_cookie: imported.linkedin.session_cookie || current.linkedin.session_cookie,
-          },
-        };
-      });
-      toast.success("Config imported", "Review settings and click Save to apply");
+      // Credentials are stored in OS keyring, not in config file
+      // So we just import the non-sensitive config settings
+      setConfig(imported);
+      toast.success("Config imported", "Review settings and click Save to apply. Note: Credentials must be re-entered (they are stored securely and not exported).");
     } catch (error) {
       logError("Failed to import config:", error);
       toast.error("Failed to import config", "The file may be corrupted or invalid");
@@ -237,8 +291,6 @@ export default function Settings({ onClose }: SettingsProps) {
       </div>
     );
   }
-
-  const isValidWebhook = isValidSlackWebhook(config.alerts.slack.webhook_url);
 
   const isValidFromEmail = isValidEmail(config.alerts.email?.from_email ?? "");
   const hasValidToEmails = (config.alerts.email?.to_emails ?? []).every(isValidEmail);
@@ -532,34 +584,46 @@ export default function Settings({ onClose }: SettingsProps) {
               <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1 flex items-center gap-2">
                 Slack Notifications
                 <HelpIcon text="Get job alerts in a Slack channel. To set up: Go to your Slack workspace → Apps → Incoming Webhooks → Create New → Copy the webhook URL" position="right" />
+                {credentialStatus.slack_webhook && (
+                  <span className="text-xs text-green-600 dark:text-green-400">(Stored securely)</span>
+                )}
               </label>
               <div className="flex gap-2">
                 <div className="flex-1">
                   <Input
-                    value={config.alerts.slack.webhook_url}
-                    onChange={(e) =>
-                      setConfig({
-                        ...config,
-                        alerts: {
-                          ...config.alerts,
-                          slack: {
-                            enabled: e.target.value.length > 0 && isValidSlackWebhook(e.target.value),
-                            webhook_url: e.target.value,
+                    type="password"
+                    value={credentials.slack_webhook}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setCredentials((prev) => ({ ...prev, slack_webhook: value }));
+                      // Auto-enable Slack if valid webhook entered
+                      if (value && isValidSlackWebhook(value)) {
+                        setConfig({
+                          ...config,
+                          alerts: {
+                            ...config.alerts,
+                            slack: { enabled: true },
                           },
-                        },
-                      })
-                    }
-                    placeholder="Paste your Slack webhook URL here"
-                    error={config.alerts.slack.webhook_url && !isValidWebhook ? "This doesn't look like a valid Slack webhook URL" : undefined}
-                    hint="Leave empty to skip Slack notifications"
+                        });
+                      }
+                    }}
+                    placeholder={credentialStatus.slack_webhook ? "Enter new webhook to update" : "Paste your Slack webhook URL here"}
+                    error={credentials.slack_webhook && !isValidSlackWebhook(credentials.slack_webhook) ? "This doesn't look like a valid Slack webhook URL" : undefined}
+                    hint="Stored securely in your system keychain"
                   />
                 </div>
-                {config.alerts.slack.webhook_url && isValidWebhook && (
+                {(credentials.slack_webhook || credentialStatus.slack_webhook) && (
                   <Button
                     variant="secondary"
                     onClick={async () => {
                       try {
-                        await invoke("test_slack_notification", { webhookUrl: config.alerts.slack.webhook_url });
+                        // Use new value if entered, otherwise test existing stored credential
+                        const webhookUrl = credentials.slack_webhook || await retrieveCredential("slack_webhook");
+                        if (!webhookUrl) {
+                          toast.error("No webhook", "Please enter a Slack webhook URL first");
+                          return;
+                        }
+                        await invoke("validate_slack_webhook", { webhookUrl });
                         toast.success("Test sent!", "Check your Slack channel");
                       } catch {
                         toast.error("Test failed", "Check that the webhook URL is correct and try again");
@@ -611,7 +675,7 @@ export default function Settings({ onClose }: SettingsProps) {
                     </p>
                     {config.alerts.email?.smtp_server &&
                       config.alerts.email?.smtp_username &&
-                      config.alerts.email?.smtp_password &&
+                      (credentials.smtp_password || credentialStatus.smtp_password) &&
                       config.alerts.email?.from_email &&
                       isValidFromEmail &&
                       config.alerts.email?.to_emails?.length > 0 &&
@@ -620,12 +684,18 @@ export default function Settings({ onClose }: SettingsProps) {
                           variant="secondary"
                           onClick={async () => {
                             try {
+                              // Use new password if entered, otherwise retrieve from keyring
+                              const password = credentials.smtp_password || await retrieveCredential("smtp_password");
+                              if (!password) {
+                                toast.error("No password", "Please enter an SMTP password first");
+                                return;
+                              }
                               await invoke("test_email_notification", {
                                 emailConfig: {
                                   smtp_server: config.alerts.email.smtp_server,
                                   smtp_port: config.alerts.email.smtp_port,
                                   smtp_username: config.alerts.email.smtp_username,
-                                  smtp_password: config.alerts.email.smtp_password,
+                                  smtp_password: password,
                                   from_email: config.alerts.email.from_email,
                                   to_emails: config.alerts.email.to_emails,
                                   use_starttls: config.alerts.email.use_starttls ?? true,
@@ -725,25 +795,21 @@ export default function Settings({ onClose }: SettingsProps) {
                       placeholder="your@gmail.com"
                       hint="The email account to send from"
                     />
-                    <Input
-                      label="App Password"
-                      type="password"
-                      value={config.alerts.email?.smtp_password ?? ""}
-                      onChange={(e) =>
-                        setConfig({
-                          ...config,
-                          alerts: {
-                            ...config.alerts,
-                            email: {
-                              ...config.alerts.email,
-                              smtp_password: e.target.value,
-                            },
-                          },
-                        })
-                      }
-                      placeholder="Your app-specific password"
-                      hint="Not your regular password — create an App Password"
-                    />
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm font-medium text-surface-700 dark:text-surface-300">App Password</span>
+                        {credentialStatus.smtp_password && (
+                          <span className="text-xs text-green-600 dark:text-green-400">(Stored securely)</span>
+                        )}
+                      </div>
+                      <Input
+                        type="password"
+                        value={credentials.smtp_password}
+                        onChange={(e) => setCredentials((prev) => ({ ...prev, smtp_password: e.target.value }))}
+                        placeholder={credentialStatus.smtp_password ? "Enter new password to update" : "Your app-specific password"}
+                        hint="Stored securely in your system keychain"
+                      />
+                    </div>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <Input
@@ -834,27 +900,22 @@ export default function Settings({ onClose }: SettingsProps) {
               {config.linkedin?.enabled && (
                 <div className="space-y-3">
                   <p className="text-sm text-surface-500 dark:text-surface-400 -mt-1">
-                    LinkedIn requires your login cookie. This stays on your computer and is never shared.
+                    LinkedIn requires your login cookie. Stored securely in your system keychain and never shared.
                   </p>
                   <div>
                     <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1 flex items-center gap-2">
                       Login Cookie
                       <HelpIcon text="To get this: 1) Log into LinkedIn in Chrome, 2) Right-click → Inspect → Application → Cookies → linkedin.com, 3) Copy the 'li_at' value" position="right" />
+                      {credentialStatus.linkedin_cookie && (
+                        <span className="text-xs text-green-600 dark:text-green-400">(Stored securely)</span>
+                      )}
                     </label>
                     <Input
                       type="password"
-                      value={config.linkedin?.session_cookie ?? ""}
-                      onChange={(e) =>
-                        setConfig({
-                          ...config,
-                          linkedin: {
-                            ...config.linkedin,
-                            session_cookie: e.target.value,
-                          },
-                        })
-                      }
-                      placeholder="Paste your li_at cookie value here"
-                      hint="This is the 'li_at' cookie from linkedin.com"
+                      value={credentials.linkedin_cookie}
+                      onChange={(e) => setCredentials((prev) => ({ ...prev, linkedin_cookie: e.target.value }))}
+                      placeholder={credentialStatus.linkedin_cookie ? "Enter new cookie to update" : "Paste your li_at cookie value here"}
+                      hint="Stored securely in your system keychain"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-3">

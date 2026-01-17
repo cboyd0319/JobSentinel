@@ -2619,6 +2619,72 @@
           "markdownDescription": "Denies the show command without any pre-configured scope."
         },
         {
+          "description": "Default permissions for the plugin\n#### This default permission set includes:\n\n- `allow-set-item`\n- `allow-get-item`\n- `allow-remove-item`",
+          "type": "string",
+          "const": "secure-storage:default",
+          "markdownDescription": "Default permissions for the plugin\n#### This default permission set includes:\n\n- `allow-set-item`\n- `allow-get-item`\n- `allow-remove-item`"
+        },
+        {
+          "description": "Enables the get_item command without any pre-configured scope.",
+          "type": "string",
+          "const": "secure-storage:allow-get-item",
+          "markdownDescription": "Enables the get_item command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the ping command without any pre-configured scope.",
+          "type": "string",
+          "const": "secure-storage:allow-ping",
+          "markdownDescription": "Enables the ping command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the remove_item command without any pre-configured scope.",
+          "type": "string",
+          "const": "secure-storage:allow-remove-item",
+          "markdownDescription": "Enables the remove_item command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the set_item command without any pre-configured scope.",
+          "type": "string",
+          "const": "secure-storage:allow-set-item",
+          "markdownDescription": "Enables the set_item command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the set_synchronize_keychain command without any pre-configured scope.",
+          "type": "string",
+          "const": "secure-storage:allow-set-synchronize-keychain",
+          "markdownDescription": "Enables the set_synchronize_keychain command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the get_item command without any pre-configured scope.",
+          "type": "string",
+          "const": "secure-storage:deny-get-item",
+          "markdownDescription": "Denies the get_item command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the ping command without any pre-configured scope.",
+          "type": "string",
+          "const": "secure-storage:deny-ping",
+          "markdownDescription": "Denies the ping command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the remove_item command without any pre-configured scope.",
+          "type": "string",
+          "const": "secure-storage:deny-remove-item",
+          "markdownDescription": "Denies the remove_item command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the set_item command without any pre-configured scope.",
+          "type": "string",
+          "const": "secure-storage:deny-set-item",
+          "markdownDescription": "Denies the set_item command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the set_synchronize_keychain command without any pre-configured scope.",
+          "type": "string",
+          "const": "secure-storage:deny-set-synchronize-keychain",
+          "markdownDescription": "Denies the set_synchronize_keychain command without any pre-configured scope."
+        },
+        {
           "description": "This permission set configures which\nshell functionality is exposed by default.\n\n#### Granted Permissions\n\nIt allows to use the `open` functionality with a reasonable\nscope pre-configured. It will allow opening `http(s)://`,\n`tel:` and `mailto:` links.\n\n#### This default permission set includes:\n\n- `allow-open`",
           "type": "string",
           "const": "shell:default",

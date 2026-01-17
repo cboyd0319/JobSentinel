@@ -380,20 +380,18 @@ mod tests {
     }
 
     #[test]
-    fn test_slack_enabled_but_empty_webhook_fails() {
+    fn test_slack_enabled_with_empty_webhook_passes_validation() {
+        // In v2.0+, Slack webhook is stored in OS keyring, not config.
+        // Validation passes because the actual credential check happens at runtime.
         let mut config = create_valid_config();
         config.alerts.slack.enabled = true;
         config.alerts.slack.webhook_url = "".to_string();
 
         let result = validate_config(&config);
         assert!(
-            result.is_err(),
-            "Empty webhook URL when Slack enabled should fail"
+            result.is_ok(),
+            "Empty webhook URL should pass validation (credential is in keyring)"
         );
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("webhook URL is required"));
     }
 
     #[test]
@@ -409,30 +407,31 @@ mod tests {
     }
 
     #[test]
-    fn test_invalid_slack_webhook_format_fails() {
+    fn test_slack_webhook_format_not_validated_in_config() {
+        // In v2.0+, Slack webhook is stored in OS keyring, not config.
+        // Format validation happens at runtime when storing in keyring.
         let mut config = create_valid_config();
         config.alerts.slack.webhook_url = "https://evil.com/webhook".to_string();
 
         let result = validate_config(&config);
-        assert!(result.is_err(), "Invalid Slack webhook format should fail");
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("Invalid Slack webhook URL format"));
+        assert!(
+            result.is_ok(),
+            "Webhook format not validated in config (validated in keyring)"
+        );
     }
 
     #[test]
-    fn test_slack_webhook_too_long_fails() {
+    fn test_slack_webhook_length_not_validated_in_config() {
+        // In v2.0+, Slack webhook is stored in OS keyring, not config.
         let mut config = create_valid_config();
         config.alerts.slack.webhook_url =
             format!("https://hooks.slack.com/services/{}", "X".repeat(500));
 
         let result = validate_config(&config);
-        assert!(result.is_err(), "Webhook URL > 500 chars should fail");
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("Webhook URL too long"));
+        assert!(
+            result.is_ok(),
+            "Webhook length not validated in config (validated in keyring)"
+        );
     }
 
     #[test]
@@ -698,7 +697,8 @@ mod tests {
     }
 
     #[test]
-    fn test_email_enabled_but_empty_password_fails() {
+    fn test_email_enabled_with_empty_password_passes_validation() {
+        // In v2.0+, SMTP password is stored in OS keyring, not config.
         let mut config = create_valid_config();
         config.alerts.email.enabled = true;
         config.alerts.email.smtp_server = "smtp.gmail.com".to_string();
@@ -709,13 +709,9 @@ mod tests {
 
         let result = validate_config(&config);
         assert!(
-            result.is_err(),
-            "Empty SMTP password when email enabled should fail"
+            result.is_ok(),
+            "Empty SMTP password should pass validation (credential is in keyring)"
         );
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("SMTP password is required"));
     }
 
     #[test]
@@ -894,41 +890,36 @@ mod tests {
     // ========================================
 
     #[test]
-    fn test_discord_enabled_but_empty_webhook_fails() {
+    fn test_discord_enabled_with_empty_webhook_passes_validation() {
+        // In v2.0+, Discord webhook is stored in OS keyring, not config.
         let mut config = create_valid_config();
         config.alerts.discord.enabled = true;
         config.alerts.discord.webhook_url = "".to_string();
 
         let result = validate_config(&config);
         assert!(
-            result.is_err(),
-            "Empty Discord webhook URL when enabled should fail"
+            result.is_ok(),
+            "Empty Discord webhook should pass validation (credential is in keyring)"
         );
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("Discord webhook URL is required"));
     }
 
     #[test]
-    fn test_discord_invalid_webhook_format_fails() {
+    fn test_discord_webhook_format_not_validated_in_config() {
+        // In v2.0+, Discord webhook is stored in OS keyring, not config.
         let mut config = create_valid_config();
         config.alerts.discord.enabled = true;
         config.alerts.discord.webhook_url = "https://evil.com/webhook".to_string();
 
         let result = validate_config(&config);
         assert!(
-            result.is_err(),
-            "Invalid Discord webhook format should fail"
+            result.is_ok(),
+            "Discord webhook format not validated in config (validated in keyring)"
         );
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("Invalid Discord webhook URL format"));
     }
 
     #[test]
-    fn test_discord_webhook_too_long_fails() {
+    fn test_discord_webhook_length_not_validated_in_config() {
+        // In v2.0+, Discord webhook is stored in OS keyring, not config.
         let mut config = create_valid_config();
         config.alerts.discord.enabled = true;
         config.alerts.discord.webhook_url =
@@ -936,13 +927,9 @@ mod tests {
 
         let result = validate_config(&config);
         assert!(
-            result.is_err(),
-            "Discord webhook URL > 500 chars should fail"
+            result.is_ok(),
+            "Discord webhook length not validated in config (validated in keyring)"
         );
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("Discord webhook URL too long"));
     }
 
     #[test]
@@ -1001,7 +988,8 @@ mod tests {
     // ========================================
 
     #[test]
-    fn test_telegram_enabled_but_empty_bot_token_fails() {
+    fn test_telegram_enabled_with_empty_bot_token_passes_validation() {
+        // In v2.0+, Telegram bot token is stored in OS keyring, not config.
         let mut config = create_valid_config();
         config.alerts.telegram.enabled = true;
         config.alerts.telegram.bot_token = "".to_string();
@@ -1009,13 +997,9 @@ mod tests {
 
         let result = validate_config(&config);
         assert!(
-            result.is_err(),
-            "Empty Telegram bot token when enabled should fail"
+            result.is_ok(),
+            "Empty Telegram bot token should pass validation (credential is in keyring)"
         );
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("Telegram bot token is required"));
     }
 
     #[test]
@@ -1037,7 +1021,8 @@ mod tests {
     }
 
     #[test]
-    fn test_telegram_bot_token_too_long_fails() {
+    fn test_telegram_bot_token_length_not_validated_in_config() {
+        // In v2.0+, Telegram bot token is stored in OS keyring, not config.
         let mut config = create_valid_config();
         config.alerts.telegram.enabled = true;
         config.alerts.telegram.bot_token = "t".repeat(101);
@@ -1045,13 +1030,9 @@ mod tests {
 
         let result = validate_config(&config);
         assert!(
-            result.is_err(),
-            "Telegram bot token > 100 chars should fail"
+            result.is_ok(),
+            "Telegram bot token length not validated in config (validated in keyring)"
         );
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("Telegram bot token too long"));
     }
 
     #[test]
@@ -1100,49 +1081,46 @@ mod tests {
     // ========================================
 
     #[test]
-    fn test_teams_enabled_but_empty_webhook_fails() {
+    fn test_teams_enabled_with_empty_webhook_passes_validation() {
+        // In v2.0+, Teams webhook is stored in OS keyring, not config.
         let mut config = create_valid_config();
         config.alerts.teams.enabled = true;
         config.alerts.teams.webhook_url = "".to_string();
 
         let result = validate_config(&config);
         assert!(
-            result.is_err(),
-            "Empty Teams webhook URL when enabled should fail"
+            result.is_ok(),
+            "Empty Teams webhook should pass validation (credential is in keyring)"
         );
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("Teams webhook URL is required"));
     }
 
     #[test]
-    fn test_teams_invalid_webhook_format_fails() {
+    fn test_teams_webhook_format_not_validated_in_config() {
+        // In v2.0+, Teams webhook is stored in OS keyring, not config.
         let mut config = create_valid_config();
         config.alerts.teams.enabled = true;
         config.alerts.teams.webhook_url = "https://evil.com/webhook".to_string();
 
         let result = validate_config(&config);
-        assert!(result.is_err(), "Invalid Teams webhook format should fail");
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("Invalid Teams webhook URL format"));
+        assert!(
+            result.is_ok(),
+            "Teams webhook format not validated in config (validated in keyring)"
+        );
     }
 
     #[test]
-    fn test_teams_webhook_too_long_fails() {
+    fn test_teams_webhook_length_not_validated_in_config() {
+        // In v2.0+, Teams webhook is stored in OS keyring, not config.
         let mut config = create_valid_config();
         config.alerts.teams.enabled = true;
         config.alerts.teams.webhook_url =
             format!("https://outlook.office.com/webhook/{}", "X".repeat(500));
 
         let result = validate_config(&config);
-        assert!(result.is_err(), "Teams webhook URL > 500 chars should fail");
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("Teams webhook URL too long"));
+        assert!(
+            result.is_ok(),
+            "Teams webhook length not validated in config (validated in keyring)"
+        );
     }
 
     #[test]

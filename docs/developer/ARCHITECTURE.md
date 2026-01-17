@@ -1,6 +1,6 @@
 # Architecture Documentation
 
-**JobSentinel v1.5 System Architecture**
+**JobSentinel v2.0 System Architecture**
 
 ---
 
@@ -217,16 +217,48 @@ total_score = (
 )
 ```
 
+#### `core/credentials/` (NEW in v2.0)
+**Purpose**: Secure credential storage
+- OS-native keyring integration
+- macOS Keychain, Windows Credential Manager, Linux Secret Service
+- Dual-access pattern: Tauri plugin for frontend, keyring crate for backend
+
+**Key Types:**
+```rust
+pub enum CredentialKey {
+    SmtpPassword,
+    TelegramBotToken,
+    SlackWebhookUrl,
+    DiscordWebhookUrl,
+    TeamsWebhookUrl,
+    LinkedInSessionCookie,
+}
+
+pub struct CredentialStore {
+    service_name: String,  // "com.jobsentinel.app"
+}
+```
+
+**Credentials Secured:**
+- SMTP password (email notifications)
+- Telegram bot token
+- Slack/Discord/Teams webhook URLs
+- LinkedIn session cookie
+
+See [Security: Keyring Integration](../security/KEYRING.md) for full documentation.
+
 #### `core/notify/`
 **Purpose**: Alert notifications
 - Slack, Discord, Teams webhooks
 - Email via SMTP
 - Desktop notifications via Tauri
+- **Credentials fetched from keyring at runtime** (v2.0+)
 
 **Security:**
 - Webhook URL validation
 - HTTPS enforcement
 - Domain allowlisting
+- Secure credential storage via keyring
 
 #### `core/ghost/`
 **Purpose**: Ghost job detection (v1.4)
@@ -638,5 +670,5 @@ pub struct GreenhouseScraper { ... }
 ---
 
 **Last Updated**: January 17, 2026
-**Version**: 1.5.0
+**Version**: 2.0.0
 **Maintained By**: The Rust Mac Overlord 🦀

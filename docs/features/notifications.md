@@ -2,9 +2,20 @@
 ## Complete Implementation Guide for JobSentinel
 
 > **Status:** ✅ Fully Implemented
-> **Version:** 1.5.0
+> **Version:** 2.0.0
 > **Last Updated:** 2026-01-17
 > **Estimated Effort:** 2-3 weeks ✅ **COMPLETE**
+
+---
+
+## 🔐 Security Note (v2.0)
+
+**All notification credentials are now stored in OS-native keyring storage**, not in the config file:
+- **Webhook URLs**: Slack, Discord, Teams
+- **API Tokens**: Telegram bot token
+- **Passwords**: SMTP password
+
+Configure credentials via the **Settings UI** in JobSentinel. See [Keyring Documentation](../security/KEYRING.md) for full details.
 
 ---
 
@@ -36,10 +47,12 @@ JobSentinel now supports **5 notification channels** with rich formatting and co
 - **Telegram**: Markdown formatting with proper escaping
 - **Teams**: MessageCard format with facts and actions
 
-### Security & Validation
+### Security & Validation (v2.0 Enhanced)
+- **OS-native keyring** - All credentials stored in secure OS credential managers
 - **URL validation** - Webhook URLs validated before sending
-- **Credential protection** - SMTP passwords handled securely
+- **Credential protection** - Passwords never stored in config files
 - **Domain verification** - Only official webhook domains allowed
+- **Runtime validation** - Credentials validated when fetched from keyring
 - **Test endpoints** - Validate configuration before use
 
 ---
@@ -461,6 +474,22 @@ cargo test --lib slack::tests
 
 ## 🔒 Security Considerations
 
+### Credential Storage (v2.0)
+
+All sensitive credentials are stored in OS-native keyring:
+
+| Credential | Storage Location |
+|------------|-----------------|
+| Slack webhook URL | OS Keyring |
+| Discord webhook URL | OS Keyring |
+| Teams webhook URL | OS Keyring |
+| Telegram bot token | OS Keyring |
+| SMTP password | OS Keyring |
+
+**Migration:** Existing plaintext credentials are automatically migrated to keyring on first v2.0 launch.
+
+See [Keyring Documentation](../security/KEYRING.md) for full details.
+
 ### URL Validation
 
 All webhook URLs are validated before sending:
@@ -485,18 +514,28 @@ All webhook URLs are validated before sending:
 - ✅ HTTPS only
 - ✅ Domain verification
 
-### Credential Protection
+### Credential Protection (v2.0 Enhanced)
+
+**All Credentials (v2.0):**
+- ✅ **OS-native keyring storage** - Not in config files
+- ✅ macOS Keychain / Windows Credential Manager / Linux Secret Service
+- ✅ Encrypted at rest by OS
+- ✅ Access control per-application
+- ✅ Never logs credentials
+- ✅ Runtime validation from keyring
 
 **Email (SMTP):**
-- ✅ Passwords stored in config (encrypted at rest recommended)
+- ✅ Password stored in OS keyring
 - ✅ Support for app-specific passwords
 - ✅ TLS/STARTTLS encryption enforced
-- ✅ Never logs passwords
 
 **Telegram:**
-- ✅ Bot tokens kept secure
-- ✅ Tokens never logged
+- ✅ Bot token stored in OS keyring
 - ✅ Validation before use
+
+**Webhooks (Slack, Discord, Teams):**
+- ✅ URLs stored in OS keyring
+- ✅ Domain verification before sending
 
 ### Data Privacy
 
@@ -839,5 +878,5 @@ Before enabling multi-channel notifications in production:
 
 **Last Updated:** 2026-01-17
 **Maintained By:** JobSentinel Core Team
-**Documentation Version:** 1.5.0
-**Implementation Status:** ✅ Production Ready
+**Documentation Version:** 2.0.0
+**Implementation Status:** ✅ Production Ready (with secure credential storage)

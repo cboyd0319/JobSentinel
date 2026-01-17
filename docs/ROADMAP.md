@@ -2,7 +2,7 @@
 
 **Last Updated:** January 17, 2026
 
-## Current Version: 1.6.0
+## Current Version: 2.0.0
 
 ### Working Features (v1.4.0)
 - **13 Job scrapers**: Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, ZipRecruiter
@@ -117,7 +117,31 @@ Continued refactoring of remaining large files.
 - config.rs (99 lines) - Configuration commands
 - tests.rs (371 lines) - Command tests
 
-### v2.0 Planned Features
+### v2.0 - Security & Production Hardening (COMPLETED)
+
+Major security release with OS-native keyring integration.
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| **OS-Native Keyring Integration** | **Done** | Secure credential storage |
+| macOS Keychain support | **Done** | `keyring` crate with `apple-native` |
+| Windows Credential Manager | **Done** | `keyring` crate with `windows-native` |
+| Linux Secret Service | **Done** | `keyring` crate with `sync-secret-service` |
+| Automatic migration | **Done** | Plaintext → keyring on first v2.0 launch |
+| 5 credential commands | **Done** | store, retrieve, delete, has, get_status |
+| Updated Settings UI | **Done** | Credential status indicators |
+
+**Credentials secured:**
+- `smtp_password` - Email SMTP password
+- `telegram_bot_token` - Telegram Bot API token
+- `slack_webhook_url` - Slack incoming webhook URL
+- `discord_webhook_url` - Discord webhook URL
+- `teams_webhook_url` - Microsoft Teams webhook URL
+- `linkedin_session_cookie` - LinkedIn session cookie
+
+See [docs/security/KEYRING.md](security/KEYRING.md) for full documentation.
+
+### v2.1+ Planned Features
 
 | Feature | Status | Notes |
 |---------|--------|-------|

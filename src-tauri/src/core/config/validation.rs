@@ -112,30 +112,13 @@ pub fn validate_config(config: &Config) -> Result<(), Box<dyn std::error::Error>
         return Err(format!("Country name too long (max: {} chars)", MAX_COUNTRY_LENGTH).into());
     }
 
-    // Validate Slack webhook if enabled
-    if config.alerts.slack.enabled {
-        if config.alerts.slack.webhook_url.is_empty() {
-            return Err("Slack webhook URL is required when Slack alerts are enabled".into());
-        }
-        if config.alerts.slack.webhook_url.len() > MAX_WEBHOOK_URL_LENGTH {
-            return Err(format!(
-                "Webhook URL too long (max: {} chars)",
-                MAX_WEBHOOK_URL_LENGTH
-            )
-            .into());
-        }
-        // Validate URL format
-        if !config
-            .alerts
-            .slack
-            .webhook_url
-            .starts_with("https://hooks.slack.com/services/")
-        {
-            return Err("Invalid Slack webhook URL format".into());
-        }
-    }
+    // Note: Slack webhook URL is stored in OS keyring, not in config file.
+    // Validation of the webhook URL happens at runtime when fetching from keyring.
+    // We only validate that the Slack config section exists when enabled.
+    // The actual webhook URL presence is checked when sending notifications.
 
     // Validate Email configuration if enabled
+    // Note: SMTP password is stored in OS keyring, not in config file.
     if config.alerts.email.enabled {
         if config.alerts.email.smtp_server.is_empty() {
             return Err("SMTP server is required when email alerts are enabled".into());
@@ -146,9 +129,7 @@ pub fn validate_config(config: &Config) -> Result<(), Box<dyn std::error::Error>
         if config.alerts.email.smtp_username.is_empty() {
             return Err("SMTP username is required when email alerts are enabled".into());
         }
-        if config.alerts.email.smtp_password.is_empty() {
-            return Err("SMTP password is required when email alerts are enabled".into());
-        }
+        // smtp_password is in keyring, validated at runtime
         if config.alerts.email.from_email.is_empty() {
             return Err("From email address is required when email alerts are enabled".into());
         }
@@ -173,41 +154,13 @@ pub fn validate_config(config: &Config) -> Result<(), Box<dyn std::error::Error>
         }
     }
 
-    // Validate Discord webhook if enabled
-    if config.alerts.discord.enabled {
-        if config.alerts.discord.webhook_url.is_empty() {
-            return Err("Discord webhook URL is required when Discord alerts are enabled".into());
-        }
-        if config.alerts.discord.webhook_url.len() > MAX_WEBHOOK_URL_LENGTH {
-            return Err(format!(
-                "Discord webhook URL too long (max: {} chars)",
-                MAX_WEBHOOK_URL_LENGTH
-            )
-            .into());
-        }
-        if !config
-            .alerts
-            .discord
-            .webhook_url
-            .starts_with("https://discord.com/api/webhooks/")
-            && !config
-                .alerts
-                .discord
-                .webhook_url
-                .starts_with("https://discordapp.com/api/webhooks/")
-        {
-            return Err("Invalid Discord webhook URL format".into());
-        }
-    }
+    // Note: Discord webhook URL is stored in OS keyring, not in config file.
+    // Validation of the webhook URL happens at runtime when fetching from keyring.
 
     // Validate Telegram configuration if enabled
+    // Note: Telegram bot token is stored in OS keyring, not in config file.
     if config.alerts.telegram.enabled {
-        if config.alerts.telegram.bot_token.is_empty() {
-            return Err("Telegram bot token is required when Telegram alerts are enabled".into());
-        }
-        if config.alerts.telegram.bot_token.len() > 100 {
-            return Err("Telegram bot token too long (max: 100 chars)".into());
-        }
+        // bot_token is in keyring, validated at runtime
         if config.alerts.telegram.chat_id.is_empty() {
             return Err("Telegram chat ID is required when Telegram alerts are enabled".into());
         }
@@ -216,33 +169,8 @@ pub fn validate_config(config: &Config) -> Result<(), Box<dyn std::error::Error>
         }
     }
 
-    // Validate Teams webhook if enabled
-    if config.alerts.teams.enabled {
-        if config.alerts.teams.webhook_url.is_empty() {
-            return Err("Teams webhook URL is required when Teams alerts are enabled".into());
-        }
-        if config.alerts.teams.webhook_url.len() > MAX_WEBHOOK_URL_LENGTH {
-            return Err(format!(
-                "Teams webhook URL too long (max: {} chars)",
-                MAX_WEBHOOK_URL_LENGTH
-            )
-            .into());
-        }
-        // Teams webhooks can be either outlook.office.com or outlook.office365.com
-        if !config
-            .alerts
-            .teams
-            .webhook_url
-            .starts_with("https://outlook.office.com/webhook/")
-            && !config
-                .alerts
-                .teams
-                .webhook_url
-                .starts_with("https://outlook.office365.com/webhook/")
-        {
-            return Err("Invalid Teams webhook URL format".into());
-        }
-    }
+    // Note: Teams webhook URL is stored in OS keyring, not in config file.
+    // Validation of the webhook URL happens at runtime when fetching from keyring.
 
     // Validate Greenhouse URLs
     const MAX_COMPANY_URLS: usize = 100;

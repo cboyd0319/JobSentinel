@@ -23,6 +23,10 @@ tauri = { version = "2", features = ["tray-icon"] }
 tauri-plugin-shell = "2"
 tauri-plugin-notification = "2"
 tauri-plugin-dialog = "2"
+tauri-plugin-secure-storage = "1.4"
+
+# Direct keyring access for Rust backend (same crate used by plugin)
+keyring = { version = "3", features = ["apple-native", "windows-native", "sync-secret-service"] }
 
 # Serialization
 serde = { version = "1.0", features = ["derive"] }

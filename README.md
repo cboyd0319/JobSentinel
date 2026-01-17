@@ -60,12 +60,13 @@
 
 ## Project Status
 
-**Current Version: 1.5.0** (January 2026)
+**Current Version: 2.0.0** (January 2026)
 
 | Component | Status | Description |
 |-----------|--------|-------------|
 | 🧠 **Core Engine** | ✅ Working | Config, DB, scoring, scrapers, scheduler, notifications |
-| 👻 **Ghost Detection** | ✅ **NEW** | Identifies fake/stale job postings |
+| 🔐 **Secure Credentials** | ✅ **NEW v2.0** | OS-native keyring (macOS Keychain, Windows Credential Manager) |
+| 👻 **Ghost Detection** | ✅ Working | Identifies fake/stale job postings |
 | 📋 **Application Tracking** | ✅ Working | Kanban board with automated reminders |
 | 🤖 **AI Resume Matcher** | ✅ Working | PDF parsing, skill extraction, job-resume scoring |
 | 💰 **Salary AI** | ✅ Working | H1B-based predictions, negotiation insights |
@@ -73,7 +74,7 @@
 | 🎨 **Frontend** | ✅ Working | React 19 + TypeScript + TailwindCSS |
 | 🖥️ **Desktop App** | ✅ Working | Tauri 2.1 integration |
 | 🔐 **Security** | ✅ **0 vulnerabilities** | cargo-audit verified |
-| ✅ **Test Coverage** | ✅ **2033 passing** | 1992 unit + 40 integration + 1 doc test |
+| ✅ **Test Coverage** | ✅ **1963 passing** | Unit + integration + doc tests |
 
 ### Job Sources (13 Working)
 - **Greenhouse** - Many tech companies use this ATS
@@ -169,21 +170,27 @@ Linux support (.deb, .rpm, .AppImage) is planned for v2.0.
 
 ## 💪 Features
 
-### v1.5 (Current Release - Code Quality)
+### v2.0 (Current Release - Security Hardening)
+
+| Feature | Description |
+|---------|-------------|
+| 🔐 **OS-Native Keyring** | All credentials secured in OS credential managers |
+| **macOS Keychain** | Full integration for secure credential storage |
+| **Windows Credential Manager** | Native Windows credential protection |
+| **Linux Secret Service** | GNOME Keyring / KWallet support |
+| **Automatic Migration** | Existing plaintext credentials migrated on first launch |
+
+**Credentials secured:**
+- SMTP password, Telegram bot token, Slack/Discord/Teams webhooks, LinkedIn cookie
+
+See [docs/security/KEYRING.md](docs/security/KEYRING.md) for full documentation.
+
+### v1.5 (Code Quality)
 
 | Feature | Description |
 |---------|-------------|
 | **Major File Modularization** | Split 7 oversized files for better maintainability and regenerability |
 | **500-Line Guideline** | All modules now follow LLM-first principles for code maintainability |
-
-**Files refactored:**
-- `db/mod.rs` (4442 → split across modules)
-- `scheduler/mod.rs` (2955 → split)
-- `market_intelligence/mod.rs` (2703 → split)
-- `db/integrity.rs` (2517 → split)
-- `config/mod.rs` (2343 → split)
-- `Dashboard.tsx` (2315 → split)
-- `ats/mod.rs` (2082 → split)
 
 All features from v1.4 remain fully functional and enhanced.
 
@@ -220,11 +227,13 @@ All features from v1.4 remain fully functional and enhanced.
 - [x] Error boundaries and loading states
 - [x] Accessibility improvements (ARIA, keyboard nav)
 
-### v2.0+ (Future)
+### v2.1+ (Future)
 
 - [ ] macOS support (`.dmg` installer)
 - [ ] Linux support (`.deb`, `.rpm`, `.AppImage`)
 - [ ] One-Click Apply Automation (requires legal review)
+- [ ] CI/CD Pipeline (automated builds and releases)
+- [ ] Resume Builder (AI-powered)
 - [ ] GCP Cloud Run deployment
 - [ ] AWS Lambda deployment
 - [ ] Multi-user support
@@ -371,13 +380,22 @@ JobSentinel features a distinctive, non-generic design system built around the c
 |---------|--------|
 | **🏠 Local-First** | ✅ All data on your machine |
 | **📊 Zero Telemetry** | ✅ No tracking, no analytics |
+| **🔐 Secure Credentials** | ✅ **NEW v2.0** OS-native keyring storage |
 | **🔐 No Admin Rights** | ✅ Installs to user directory |
 | **🔗 HTTPS Only** | ✅ Encrypted scraping |
 | **📖 Open Source** | ✅ Audit every line |
 | **🛡️ Vulnerability-Free** | ✅ 0 CVEs in production code |
-| **✍️ Code Signed** | 🔜 Coming v1.1 |
 
 </div>
+
+### Secure Credential Storage (v2.0)
+
+All passwords, API tokens, and webhook URLs are stored in your OS's native credential manager:
+- **macOS**: Keychain
+- **Windows**: Windows Credential Manager
+- **Linux**: Secret Service (GNOME Keyring, KWallet)
+
+See [Keyring Documentation](docs/security/KEYRING.md) for details.
 
 > **Why Zero Vulnerabilities Matter**: JobSentinel is designed to run on public library computers and home computers for users with zero technical knowledge. Security isn't optional—it's foundational.
 

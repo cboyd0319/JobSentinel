@@ -119,25 +119,21 @@ pub struct AlertConfig {
 pub struct SlackConfig {
     pub enabled: bool,
 
-    #[serde(default)]
+    /// Webhook URL - stored in OS keyring, not serialized
+    #[serde(skip)]
     pub webhook_url: String,
 }
 
 /// Email notification configuration
 ///
-/// # Security Warning
+/// # Security
 ///
-/// The `smtp_password` field is stored in plaintext in the config file.
-/// For improved security, consider:
-///
-/// 1. Using app-specific passwords (e.g., Gmail's app passwords)
-/// 2. Restricting config file permissions (chmod 600)
-/// 3. Using OAuth2 authentication (planned for v2.0)
-///
-/// Future versions will use OS keyring for secure credential storage:
+/// The `smtp_password` field is stored securely in the OS keyring:
 /// - macOS: Keychain
 /// - Windows: Credential Manager
 /// - Linux: Secret Service API (libsecret)
+///
+/// For Gmail, use app-specific passwords rather than your main password.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct EmailConfig {
     #[serde(default)]
@@ -156,10 +152,8 @@ pub struct EmailConfig {
     pub smtp_username: String,
 
     /// SMTP password or app-specific password
-    ///
-    /// **Security Note**: This is stored in plaintext. Use app-specific passwords
-    /// and restrict config file permissions. Keyring storage planned for v2.0.
-    #[serde(default)]
+    /// Stored securely in OS keyring (macOS Keychain, Windows Credential Manager)
+    #[serde(skip)]
     pub smtp_password: String,
 
     /// Email address to send from
@@ -180,8 +174,8 @@ pub struct DiscordConfig {
     #[serde(default)]
     pub enabled: bool,
 
-    /// Discord webhook URL
-    #[serde(default)]
+    /// Discord webhook URL - stored in OS keyring, not serialized
+    #[serde(skip)]
     pub webhook_url: String,
 
     /// Optional: Discord user ID to mention in notifications
@@ -194,8 +188,8 @@ pub struct TelegramConfig {
     #[serde(default)]
     pub enabled: bool,
 
-    /// Telegram Bot API token
-    #[serde(default)]
+    /// Telegram Bot API token - stored in OS keyring, not serialized
+    #[serde(skip)]
     pub bot_token: String,
 
     /// Telegram chat ID to send messages to
@@ -208,8 +202,8 @@ pub struct TeamsConfig {
     #[serde(default)]
     pub enabled: bool,
 
-    /// Microsoft Teams webhook URL
-    #[serde(default)]
+    /// Microsoft Teams webhook URL - stored in OS keyring, not serialized
+    #[serde(skip)]
     pub webhook_url: String,
 }
 
@@ -232,9 +226,9 @@ pub struct DesktopConfig {
 /// LinkedIn requires authentication via session cookie. Users must manually
 /// extract this from their browser after logging in.
 ///
-/// # Security Note
-/// The session cookie provides full access to your LinkedIn account.
-/// Keep your config file secure (chmod 600).
+/// # Security
+/// The session cookie is stored securely in the OS keyring (macOS Keychain,
+/// Windows Credential Manager, Linux Secret Service).
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct LinkedInConfig {
     /// Enable LinkedIn job scraping
@@ -242,8 +236,8 @@ pub struct LinkedInConfig {
     pub enabled: bool,
 
     /// LinkedIn session cookie (li_at value)
-    /// Get this from browser DevTools: Application → Cookies → li_at
-    #[serde(default)]
+    /// Stored securely in OS keyring (macOS Keychain, Windows Credential Manager)
+    #[serde(skip)]
     pub session_cookie: String,
 
     /// Search query (job title, keywords)

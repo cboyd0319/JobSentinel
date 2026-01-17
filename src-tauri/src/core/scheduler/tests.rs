@@ -1689,11 +1689,13 @@ async fn test_scraping_cycle_jobswithgpt_error_path() {
 }
 
 #[tokio::test]
-async fn test_scraping_cycle_linkedin_error_path() {
-    // Tests lines 270-275 (LinkedIn error logging)
+async fn test_scraping_cycle_linkedin_skipped_without_keyring_cookie() {
+    // Tests that LinkedIn is skipped when no cookie is in the keyring.
+    // Note: In v2.0+, session_cookie is stored in OS keyring, not config.
+    // When no cookie exists in keyring, LinkedIn scraper is silently skipped.
     let mut config = create_test_config();
     config.linkedin.enabled = true;
-    config.linkedin.session_cookie = "invalid_cookie".to_string();
+    // session_cookie is now in keyring, config value is ignored
     config.linkedin.query = "Engineer".to_string();
     config.linkedin.location = "Remote".to_string();
     let config = Arc::new(config);
@@ -1703,13 +1705,13 @@ async fn test_scraping_cycle_linkedin_error_path() {
 
     let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
 
-    // Run cycle - LinkedIn will fail
+    // Run cycle - LinkedIn will be skipped (no cookie in keyring)
     let result = scheduler.run_scraping_cycle().await.unwrap();
 
-    // Should have errors from LinkedIn scraper
+    // Should NOT have LinkedIn errors (it's skipped, not failed)
     assert!(
-        result.errors.iter().any(|e| e.contains("LinkedIn")),
-        "Should have LinkedIn error"
+        !result.errors.iter().any(|e| e.contains("LinkedIn")),
+        "LinkedIn should be skipped when no cookie in keyring, not produce an error"
     );
 }
 

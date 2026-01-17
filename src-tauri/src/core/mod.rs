@@ -38,6 +38,9 @@ pub mod salary;
 pub mod ghost;
 pub mod user_data;
 
+// v2.0+ security modules
+pub mod credentials;
+
 // v2.0+ modules - disabled pending legal review
 // pub mod automation;
 
@@ -71,3 +74,6 @@ pub use user_data::{
     NotificationPreferences, PrepChecklistItem, SavedSearch, SourceNotificationConfig,
     TemplateCategory, UserDataManager,
 };
+
+// v2.0+ security re-exports
+pub use credentials::{CredentialKey, CredentialStore};

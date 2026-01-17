@@ -8,12 +8,13 @@
 
 ## Current Status
 
-**Version 1.5.0** (January 2026)
+**Version 2.0.0** (January 2026)
 
 - Windows 11+ is the primary target platform
-- macOS 26.2+ (Tahoe) and Linux support planned for v2.0
+- macOS 26.2+ (Tahoe) and Linux support planned for v2.1+
 - All core features working (13 scrapers, ghost detection, scoring, multi-channel notifications)
-- 2029 tests passing
+- **NEW: Secure credential storage** via OS keyring (macOS Keychain, Windows Credential Manager, Linux Secret Service)
+- 1963 tests passing
 
 <p align="center">
   <img src="../images/dashboard.png" alt="JobSentinel Dashboard" width="700">
@@ -319,6 +320,25 @@ JobSentinel is designed with **security-first principles**:
 - ✅ **HTTPS only** - All web requests use TLS
 - ✅ **SQLite** - No external database required
 - ✅ **SHA-256 deduplication** - Cryptographic hashing
+- ✅ **Secure credential storage** (v2.0) - All passwords/tokens in OS keyring
+
+### Secure Credential Storage (v2.0)
+
+All sensitive credentials are stored in your OS's secure credential manager:
+
+| Platform | Credential Store |
+|----------|-----------------|
+| **Windows** | Windows Credential Manager |
+| **macOS** | Keychain |
+| **Linux** | Secret Service (GNOME Keyring, KWallet) |
+
+**Secured credentials:**
+- SMTP password (email notifications)
+- Slack/Discord/Teams webhook URLs
+- Telegram bot token
+- LinkedIn session cookie
+
+Credentials are **never stored in plaintext** in the config file. See [Keyring Documentation](../security/KEYRING.md) for full details.
 
 **Optional external services:**
 - Slack (only if you enable notifications)
@@ -405,4 +425,4 @@ JobSentinel is designed with **security-first principles**:
 
 **Happy job hunting! 🚀**
 
-*JobSentinel v1.5.0 - Privacy-first, locally-run job search automation*
+*JobSentinel v2.0.0 - Privacy-first, locally-run job search automation with secure credential storage*

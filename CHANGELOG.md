@@ -5,6 +5,49 @@ All notable changes to JobSentinel will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-01-17
+
+### Security - Major Release
+
+- **OS-Native Keyring Integration** - All sensitive credentials now stored in secure OS credential managers
+  - macOS: Keychain
+  - Windows: Windows Credential Manager
+  - Linux: Secret Service (GNOME Keyring, KWallet)
+- **6 credentials migrated to secure storage**:
+  - `smtp_password` - Email SMTP password
+  - `telegram_bot_token` - Telegram Bot API token
+  - `slack_webhook_url` - Slack incoming webhook URL
+  - `discord_webhook_url` - Discord webhook URL
+  - `teams_webhook_url` - Microsoft Teams webhook URL
+  - `linkedin_session_cookie` - LinkedIn session cookie
+- **Automatic migration** - Existing plaintext credentials automatically migrated on first v2.0 launch
+- **New `credentials` module** - `src-tauri/src/core/credentials/mod.rs` with `CredentialStore` abstraction
+- **5 new Tauri commands** - `store_credential`, `retrieve_credential`, `delete_credential`, `has_credential`, `get_credential_status`
+- **Dual-access pattern** - Tauri plugin for frontend, `keyring` crate for backend
+- **Runtime credential validation** - Credentials validated when used, not at config load
+
+### Added
+
+- New security documentation: `docs/security/KEYRING.md`
+- Credential status indicators in Settings page
+
+### Changed
+
+- Config validation no longer requires credential fields (now in keyring)
+- Notification senders fetch credentials from keyring at runtime
+- LinkedIn scraper fetches session cookie from keyring
+- Settings.tsx refactored to use credential state separately from config
+
+### Dependencies
+
+- Added `tauri-plugin-secure-storage = "1.4"` - Frontend secure storage API
+- Added `keyring = "3"` with `apple-native`, `windows-native`, `sync-secret-service` features
+
+### Tests
+
+- Updated 14 tests for new credential validation behavior
+- All 1963 tests passing
+
 ## [1.6.0] - 2026-01-17
 
 ### Changed
