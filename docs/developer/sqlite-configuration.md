@@ -1,4 +1,5 @@
 # SQLite Maximum Protection & Performance Configuration
+
 ## Complete Reference Guide for JobSentinel
 
 > **Status:** ✅ Fully Implemented
@@ -9,9 +10,11 @@
 
 ## 🎯 Configuration Summary
 
-JobSentinel enables **ALL** available SQLite protections and performance optimizations for maximum reliability, security, and speed.
+JobSentinel enables **ALL** available SQLite protections and performance optimizations for
+maximum reliability, security, and speed.
 
 ### Quick Stats
+
 - **Total PRAGMA Settings:** 22+ configured
 - **Security Features:** 7 enabled
 - **Performance Features:** 8 optimized
@@ -31,6 +34,7 @@ JobSentinel enables **ALL** available SQLite protections and performance optimiz
 | `wal_autocheckpoint` | **1000 pages** (~4MB) | Automatic WAL size management | ✅ Prevents WAL from growing unbounded |
 
 **Why WAL Mode?**
+
 - Readers never block writers
 - Writers never block readers
 - Multiple concurrent readers
@@ -38,6 +42,7 @@ JobSentinel enables **ALL** available SQLite protections and performance optimiz
 - Better crash recovery than DELETE/TRUNCATE modes
 
 **Synchronous Levels:**
+
 - `OFF` = Fastest, risky (data loss on crash)
 - `NORMAL` = Good balance ← **WE USE THIS**
 - `FULL` = Safest, slowest (fsync after every write)
@@ -57,12 +62,14 @@ JobSentinel enables **ALL** available SQLite protections and performance optimiz
 | `reverse_unordered_selects` | **ON** (debug) | Randomize result order | ✅ Detect reliance on undefined ordering |
 
 **Security Benefits:**
+
 - **Foreign key enforcement** prevents data inconsistencies
 - **Checksum verification** detects bit rot and corruption
 - **Secure delete** makes forensic recovery harder
 - **Trusted schema OFF** prevents privilege escalation attacks
 
 **Corruption Detection:**
+
 - Cell size checks catch B-tree corruption
 - Checksums detect silent data corruption (ECC memory failures, disk errors)
 - Combined with integrity checks, provides multi-layered protection
@@ -83,22 +90,26 @@ JobSentinel enables **ALL** available SQLite protections and performance optimiz
 **Performance Breakdown:**
 
 **Cache Size (64MB):**
+
 - Stores frequently accessed pages in RAM
 - Reduces disk I/O by ~90% for hot data
 - Example: 100,000 jobs = ~15,000 pages ≈ 60MB (fits entirely in cache)
 
 **Temp Store = MEMORY:**
+
 - Temporary tables created in RAM instead of disk
 - Sorting, grouping, joins use RAM (much faster)
 - Trade-off: Uses more memory but eliminates slow disk I/O
 
 **Memory-Mapped I/O (256MB):**
+
 - Database file mapped into process memory space
 - Reads use memory copy instead of read() syscalls
 - OS handles page faults automatically
 - ~50-100% faster for read-heavy workloads
 
 **Busy Timeout:**
+
 - Prevents "database is locked" errors
 - Waits up to 5 seconds before failing
 - Essential for multi-threaded applications
@@ -113,16 +124,19 @@ JobSentinel enables **ALL** available SQLite protections and performance optimiz
 | `incremental_vacuum(100)` | On startup | Free 100 pages immediately | ✅ Reclaim space without full VACUUM |
 
 **Auto-Vacuum Modes:**
+
 - `NONE` = Manual VACUUM only (default SQLite)
 - `FULL` = Auto shrink file on DELETE (can be slow)
 - `INCREMENTAL` = Controlled space reclamation ← **WE USE THIS**
 
 **Why Incremental?**
+
 - Doesn't block operations (like FULL mode does)
 - Can vacuum a few pages at a time (low latency)
 - Good balance between space efficiency and performance
 
 **Space Reclamation:**
+
 - Deleting 1,000 jobs frees ~400KB
 - `incremental_vacuum(100)` reclaims ~400KB in <10ms
 - Full VACUUM reclaims all space but locks database
@@ -137,12 +151,14 @@ JobSentinel enables **ALL** available SQLite protections and performance optimiz
 | `user_version` | **2** | Schema version | ✅ Track migrations |
 
 **Application ID:**
+
 - Stored in database header
 - Helps identify JobSentinel database files
 - Useful for forensic analysis and recovery
 - ASCII: `J S D B` = 0x4A 0x53 0x44 0x42
 
 **User Version:**
+
 - Separate from SQLx migrations
 - Tracks major schema changes
 - Can be used for upgrade logic
@@ -157,12 +173,14 @@ JobSentinel enables **ALL** available SQLite protections and performance optimiz
 | `optimize` | On startup | Update statistics | 🚀 **Better query plans** |
 
 **What `PRAGMA optimize` Does:**
+
 - Analyzes table statistics (row counts, column distributions)
 - Updates query planner's cost estimates
 - Helps SQLite choose better indices and join strategies
 - Should run periodically (we run on startup + weekly)
 
 **Query Plan Improvements:**
+
 - Better index selection (can improve queries by 10-100x)
 - Optimized join order (fewer rows scanned)
 - Accurate row count estimates
@@ -172,13 +190,15 @@ JobSentinel enables **ALL** available SQLite protections and performance optimiz
 ### 7. DIAGNOSTIC LOGGING
 
 **At Startup, We Log:**
+
 - ✅ SQLite version (e.g., "3.42.0")
 - ✅ Compile options (FTS5, JSON1, R*Tree availability)
 - ✅ All PRAGMA settings configured
 - ✅ Configuration success/failure status
 
 **Example Startup Log:**
-```
+
+```text
 🔧 Configuring SQLite with maximum protections and performance...
   ✓ WAL mode enabled
   ✓ Synchronous = NORMAL (balanced safety)
@@ -217,28 +237,33 @@ JobSentinel enables **ALL** available SQLite protections and performance optimiz
 We track **20+ health metrics** for comprehensive monitoring:
 
 #### Size Metrics
+
 - `database_size_bytes` - Total database file size
 - `freelist_size_bytes` - Unused space (fragmentation)
 - `wal_size_bytes` - WAL file size
 - `fragmentation_percent` - % of database that's unused
 
 #### Version Info
+
 - `schema_version` - User version (migration tracking)
 - `application_id` - App identifier (JSDB)
 
 #### Maintenance Status
+
 - `integrity_check_overdue` - True if >7 days since last full check
 - `backup_overdue` - True if >24 hours since last backup
 - `days_since_last_integrity_check` - Days since PRAGMA integrity_check
 - `hours_since_last_backup` - Hours since last VACUUM INTO backup
 
 #### Statistics
+
 - `total_jobs` - Number of jobs in database
 - `total_integrity_checks` - Lifetime integrity checks performed
 - `failed_integrity_checks` - Number of failed checks (should be 0)
 - `total_backups` - Number of backups created
 
 **Example Health Check:**
+
 ```rust
 let health = db_integrity.get_health_metrics().await?;
 
@@ -287,6 +312,7 @@ if result.busy == 0 {
 ```
 
 **When to Checkpoint:**
+
 - Before backups (ensures WAL is merged into main DB)
 - Before database size analysis
 - After bulk operations
@@ -297,35 +323,45 @@ if result.busy == 0 {
 ## 🔧 Utility Functions
 
 ### 1. Optimize Query Planner
+
 ```rust
 db_integrity.optimize_query_planner().await?;
 ```
+
 **When to run:**
+
 - After bulk inserts/updates
 - After schema changes
 - Weekly maintenance
 - Before performance-critical operations
 
 ### 2. WAL Checkpoint
+
 ```rust
 let result = db_integrity.checkpoint_wal().await?;
 ```
+
 **Modes:**
+
 - `PASSIVE` - Don't block readers/writers
 - `FULL` - Wait for all readers
 - `RESTART` - Like FULL but restart WAL
 - `TRUNCATE` - Like RESTART but shrink WAL to 0 bytes ← **WE USE THIS**
 
 ### 3. Get Health Metrics
+
 ```rust
 let health = db_integrity.get_health_metrics().await?;
 ```
+
 **Returns:** All 20+ metrics in single call
 
 ### 4. Get PRAGMA Diagnostics
+
 ```rust
 let diag = db_integrity.get_pragma_diagnostics().await?;
 ```
+
 **Returns:** Full PRAGMA configuration snapshot
 
 ---
@@ -345,6 +381,7 @@ let diag = db_integrity.get_pragma_diagnostics().await?;
 | Integrity check | 2000ms | 100ms | **20x faster** |
 
 **Why So Fast?**
+
 - **128MB cache** eliminates disk reads for hot data
 - **Memory-mapped I/O** uses OS page cache (zero-copy reads)
 - **Temp store = MEMORY** eliminates temp disk I/O
@@ -356,18 +393,21 @@ let diag = db_integrity.get_pragma_diagnostics().await?;
 ## 🔒 Security Considerations
 
 ### Data Protection
+
 - ✅ **Checksums** detect silent corruption
 - ✅ **Cell size checks** catch B-tree errors
 - ✅ **Foreign keys** prevent inconsistent data
 - ✅ **Secure delete** makes forensic recovery harder
 
 ### Attack Vectors Mitigated
+
 - ✅ **SQL injection via schema** (trusted_schema OFF)
 - ✅ **Orphaned records** (foreign keys ON)
 - ✅ **Data corruption** (checksums, cell checks)
 - ✅ **Unauthorized recovery** (secure delete FAST)
 
 ### Privacy
+
 - ✅ All data stays local (no telemetry)
 - ✅ Secure delete makes undelete harder
 - ✅ Backups encrypted by OS (file-level encryption)
@@ -379,19 +419,23 @@ let diag = db_integrity.get_pragma_diagnostics().await?;
 ### Regular Maintenance
 
 **Daily:**
+
 - ✅ Automatic backups (via scheduler)
 - ✅ Automatic WAL checkpoints (via wal_autocheckpoint)
 
 **Weekly:**
+
 - ✅ Full integrity check (PRAGMA integrity_check)
 - ✅ Query optimizer update (PRAGMA optimize)
 
 **Monthly:**
+
 - ✅ Backup cleanup (keep last 30 days)
 - ✅ Fragmentation analysis
 - ✅ Performance review (query stats)
 
 **On-Demand:**
+
 - ✅ Manual backup before major operations
 - ✅ VACUUM FULL if fragmentation >20%
 - ✅ Health metrics review
@@ -399,6 +443,7 @@ let diag = db_integrity.get_pragma_diagnostics().await?;
 ### Monitoring
 
 **Watch For:**
+
 - ⚠️ Fragmentation >20% → Run VACUUM
 - ⚠️ WAL size >10MB → Manual checkpoint
 - ⚠️ Failed integrity checks → Restore from backup
@@ -409,31 +454,39 @@ let diag = db_integrity.get_pragma_diagnostics().await?;
 ## 🐛 Troubleshooting
 
 ### Database Locked Errors
+
 **Symptom:** "database is locked" errors
 **Solution:**
+
 - Check busy_timeout is set (5000ms)
 - Ensure WAL mode is enabled
 - Reduce long-running transactions
 - Use connection pooling
 
 ### Slow Queries
+
 **Symptom:** Queries taking >100ms
 **Solution:**
+
 - Run `PRAGMA optimize`
 - Check indices with `EXPLAIN QUERY PLAN`
 - Increase cache_size if memory available
 - Consider adding indices
 
 ### High Fragmentation
+
 **Symptom:** fragmentation_percent >20%
 **Solution:**
+
 - Run `VACUUM` (full rebuild)
 - Or: `PRAGMA incremental_vacuum(1000)` (gradual)
 - Check delete patterns (bulk deletes = more fragmentation)
 
 ### WAL Growing Large
+
 **Symptom:** wal_size_bytes >10MB
 **Solution:**
+
 - Manual checkpoint: `PRAGMA wal_checkpoint(TRUNCATE)`
 - Reduce wal_autocheckpoint (currently 1000 pages)
 - Check for long-running readers (blocking checkpoint)
@@ -443,6 +496,7 @@ let diag = db_integrity.get_pragma_diagnostics().await?;
 ## 🚀 Future Enhancements
 
 ### Planned
+
 - [ ] **Automatic performance tuning** based on workload
 - [ ] **Query performance logging** (slow query log)
 - [ ] **Index recommendation engine** (analyze missing indices)
@@ -450,6 +504,7 @@ let diag = db_integrity.get_pragma_diagnostics().await?;
 - [ ] **Cloud backup sync** (optional S3/GCS upload)
 
 ### Experimental
+
 - [ ] **Read-only replica** for analytics queries
 - [ ] **Sharding** for very large datasets (>10M jobs)
 - [ ] **Column-store extension** for analytics
@@ -469,6 +524,7 @@ let diag = db_integrity.get_pragma_diagnostics().await?;
 ## ✅ Verification Checklist
 
 After deployment, verify:
+
 - [ ] WAL mode enabled (`PRAGMA journal_mode` returns "wal")
 - [ ] Foreign keys enforced (`PRAGMA foreign_keys` returns 1)
 - [ ] Cache size set (`PRAGMA cache_size` returns -64000)

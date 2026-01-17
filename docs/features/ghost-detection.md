@@ -4,15 +4,20 @@
 **Status:** Production Ready
 **Last Updated:** January 17, 2026
 
-Ghost jobs are job postings that aren't genuine opportunities - they may be already filled, posted to collect resumes, or simply abandoned. JobSentinel's Ghost Detection feature helps you focus on real opportunities by identifying and flagging suspicious listings.
+Ghost jobs are job postings that aren't genuine opportunities - they may be already filled,
+posted to collect resumes, or simply abandoned. JobSentinel's Ghost Detection feature helps you
+focus on real opportunities by identifying and flagging suspicious listings.
 
 ## Overview
 
-The Ghost Detection system analyzes each job posting against multiple signals to calculate a "ghost score" from 0.0 (definitely real) to 1.0 (likely ghost). Jobs scoring 0.5 or higher are flagged with visual indicators.
+The Ghost Detection system analyzes each job posting against multiple signals to calculate a
+"ghost score" from 0.0 (definitely real) to 1.0 (likely ghost). Jobs scoring 0.5 or higher
+are flagged with visual indicators.
 
 ## Detection Signals
 
 ### 1. Stale Postings (Weight: 0.25)
+
 Jobs posted more than 60 days ago are increasingly likely to be filled or abandoned.
 
 | Age | Score Impact |
@@ -23,6 +28,7 @@ Jobs posted more than 60 days ago are increasingly likely to be filled or abando
 | > 90 days | 0.25 |
 
 ### 2. Frequent Reposts (Weight: 0.2)
+
 Jobs that are repeatedly reposted suggest the company isn't seriously hiring.
 
 | Repost Count | Score Impact |
@@ -33,9 +39,11 @@ Jobs that are repeatedly reposted suggest the company isn't seriously hiring.
 | 6+ | 0.2 |
 
 ### 3. Generic/Vague Descriptions (Weight: 0.15)
+
 Legitimate job postings typically have detailed, specific descriptions.
 
 **Detected phrases:**
+
 - "Fast-paced environment"
 - "Self-starter"
 - "Wear many hats"
@@ -44,18 +52,22 @@ Legitimate job postings typically have detailed, specific descriptions.
 - "Great opportunity"
 
 ### 4. Missing Salary Information (Weight: 0.1)
+
 While not definitive, missing salary information can indicate less serious postings.
 
 ### 5. Vague Titles (Weight: 0.15)
+
 Overly generic titles often indicate placeholder or mass-posted jobs.
 
 **Flagged patterns:**
+
 - Single-word titles (e.g., "Developer")
 - Titles with only "I", "II", "III" suffixes
 - "Various Positions"
 - "Multiple Openings"
 
 ### 6. Excessive Company Openings (Weight: 0.1)
+
 Companies with unusually high numbers of open positions may be posting speculatively.
 
 | Open Positions | Score Impact |
@@ -66,16 +78,18 @@ Companies with unusually high numbers of open positions may be posting speculati
 | 200+ | 0.1 |
 
 ### 7. Unrealistic Requirements (Weight: 0.15)
+
 Job postings requesting excessive experience for entry-level positions.
 
 **Detected patterns:**
+
 - "10+ years experience" for standard roles
 - "Entry level" combined with "5+ years"
 - Impossible technology stacks (e.g., "15 years Kubernetes experience")
 
 ## Confidence Scoring
 
-The system also tracks confidence in its analysis based on available data:
+The system tracks confidence in its analysis based on available data:
 
 | Data Available | Base Confidence |
 |----------------|-----------------|
@@ -90,6 +104,7 @@ The system also tracks confidence in its analysis based on available data:
 ### Dashboard Filter
 
 The Dashboard includes a ghost filter dropdown with three options:
+
 - **All Jobs** - Show everything (default)
 - **Real Jobs Only** - Hide jobs with ghost score >= 0.5
 - **Ghost Jobs** - Show only flagged jobs for review
@@ -105,6 +120,7 @@ Flagged jobs display a ghost icon with severity-based coloring:
 | 0.75+ | High | Red |
 
 Hovering over the indicator shows a tooltip with:
+
 - Confidence percentage
 - Top 3 reasons for the ghost score
 
@@ -144,6 +160,7 @@ CREATE TABLE job_repost_history (
 ### Tauri Commands
 
 #### `get_ghost_jobs`
+
 Retrieve jobs flagged as potential ghosts.
 
 ```typescript
@@ -154,6 +171,7 @@ invoke('get_ghost_jobs', {
 ```
 
 #### `get_ghost_statistics`
+
 Get aggregate ghost detection statistics.
 
 ```typescript
@@ -162,6 +180,7 @@ invoke('get_ghost_statistics')
 ```
 
 #### `get_recent_jobs_filtered`
+
 Get recent jobs with optional ghost filtering.
 
 ```typescript
@@ -194,7 +213,8 @@ The `ghost_reasons` field stores a JSON array:
 
 ## Configuration
 
-Ghost detection runs automatically during each scraping cycle. Currently, thresholds are not user-configurable, but this is planned for a future release.
+Ghost detection runs automatically during each scraping cycle. Currently, thresholds are not
+user-configurable, but this is planned for a future release.
 
 ### Planned Configuration Options (v1.5+)
 
@@ -225,7 +245,7 @@ Ghost detection runs automatically during each scraping cycle. Currently, thresh
 ## Best Practices
 
 1. **Don't auto-dismiss**: Use ghost scores as one factor, not the only factor
-2. **Review periodically**: Check flagged jobs occasionally for false positives
+2. **Review periodically**: Check flagged jobs occasionally for false positives and learn
 3. **Trust high scores**: Jobs scoring 0.8+ are very likely ghosts
 4. **Consider context**: Staffing agencies naturally have many openings
 

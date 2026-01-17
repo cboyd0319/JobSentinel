@@ -51,7 +51,7 @@ npm run tauri:build
 
 ### Project Structure
 
-```
+```text
 JobSentinel/
 ├── src/                      # React frontend (TypeScript + Tailwind)
 │   ├── components/          # 37 reusable UI components
@@ -146,17 +146,20 @@ All core functionality is in `src-tauri/src/core/` and works identically on all 
 - **salary**: Salary prediction and benchmarking
 - **scheduler**: Periodic job scraping with configurable interval and auto-refresh
 - **scoring**: Multi-factor job scoring (0-1 scale)
-- **scrapers**: 13 job board scrapers with parallel execution (Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, ZipRecruiter)
+- **scrapers**: 13 job board scrapers with parallel execution (Greenhouse, Lever, LinkedIn,
+  Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice,
+  YC Startup Jobs, ZipRecruiter)
 
 ### Platform-Specific Code
 
 Platform code is in `src-tauri/src/platforms/` and uses conditional compilation:
 
-- **windows**: Windows 11+ specific features (v1.0)
+- **Windows**: Windows 11+ specific features (v1.0)
 - **macos**: macOS 13+ specific features (v2.1+)
 - **linux**: Linux specific features (v2.1+)
 
 Example:
+
 ```rust
 #[cfg(target_os = "windows")]
 pub fn get_data_dir() -> PathBuf {
@@ -196,6 +199,7 @@ When running `npm run tauri:dev`, press `Ctrl+Shift+I` (Windows) to open Chrome 
 Database location: `%LOCALAPPDATA%\JobSentinel\jobs.db`
 
 Open with [DB Browser for SQLite](https://sqlitebrowser.org/):
+
 ```bash
 # Windows
 explorer %LOCALAPPDATA%\JobSentinel
@@ -230,10 +234,11 @@ npm install
 ### "Build fails on Windows"
 
 Ensure you have:
+
 - Visual Studio Build Tools 2022
 - Windows 10 SDK
 
-Download: https://visualstudio.microsoft.com/downloads/
+Download: <https://visualstudio.microsoft.com/downloads/>
 
 ### Modular Architecture (v1.5+)
 

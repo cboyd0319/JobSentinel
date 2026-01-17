@@ -1,4 +1,5 @@
 # AI Resume-Job Matcher
+
 ## Intelligent Resume Analysis & Job Compatibility Scoring
 
 > **Status:** ENABLED - Module fully functional
@@ -9,7 +10,9 @@
 
 ## 🎯 Overview
 
-JobSentinel's AI Resume-Job Matcher automatically analyzes your resume, extracts technical and soft skills, and calculates compatibility scores against job postings. Stop manually comparing job requirements—let the AI do it for you!
+JobSentinel's AI Resume-Job Matcher automatically analyzes your resume, extracts technical and
+soft skills, and calculates compatibility scores against job postings. Stop manually comparing
+job requirements—let the AI do it for you!
 
 ### Key Features
 
@@ -25,7 +28,7 @@ JobSentinel's AI Resume-Job Matcher automatically analyzes your resume, extracts
 
 ### System Flow
 
-```
+```text
 ┌─────────────┐      ┌──────────────┐      ┌─────────────┐
 │   Resume    │─────▶│ PDF Parser   │─────▶│   Skill     │
 │  (PDF)      │      │   Service    │      │ Extractor   │
@@ -115,6 +118,7 @@ let resume_id = matcher.upload_resume(
 ```
 
 **What happens:**
+
 1. PDF is parsed to extract text content
 2. Skills are automatically detected (200+ known skills)
 3. Resume is stored in database with `is_active = true`
@@ -136,7 +140,8 @@ for skill in skills {
 ```
 
 **Example output:**
-```
+
+```text
 Python (programming_language) - Confidence: 85%
 React (framework) - Confidence: 80%
 Docker (tool) - Confidence: 75%
@@ -157,7 +162,8 @@ println!("\n{}", match_result.gap_analysis.unwrap_or_default());
 ```
 
 **Example output:**
-```
+
+```text
 Overall Match: 75%
 Matching Skills: ["Python", "React", "Docker", "PostgreSQL"]
 Missing Skills: ["TypeScript", "Kubernetes"]
@@ -194,22 +200,35 @@ matcher.set_active_resume(other_resume_id).await?;
 The skill extractor recognizes **200+ skills** across 6 categories:
 
 ### Programming Languages (21)
-Python, JavaScript, TypeScript, Java, C++, C#, Go, Rust, Ruby, PHP, Swift, Kotlin, Scala, R, MATLAB, SQL, HTML, CSS, Shell, Bash, PowerShell
+
+Python, JavaScript, TypeScript, Java, C++, C#, Go, Rust, Ruby, PHP, Swift, Kotlin, Scala, R,
+MATLAB, SQL, HTML, CSS, Shell, Bash, PowerShell
 
 ### Frameworks (24)
-React, Angular, Vue, Next.js, Svelte, Django, Flask, FastAPI, Express, Node.js, Spring, Spring Boot, ASP.NET, .NET, Rails, Laravel, React Native, Flutter, SwiftUI, TensorFlow, PyTorch, Keras, scikit-learn
+
+React, Angular, Vue, Next.js, Svelte, Django, Flask, FastAPI, Express, Node.js, Spring,
+Spring Boot, ASP.NET, .NET, Rails, Laravel, React Native, Flutter, SwiftUI, TensorFlow,
+PyTorch, Keras, scikit-learn
 
 ### Tools (24)
-Git, GitHub, GitLab, Bitbucket, Jenkins, CircleCI, Travis CI, GitHub Actions, Docker, Kubernetes, Helm, Webpack, Vite, Maven, Gradle, Jest, Pytest, JUnit, Selenium, Cypress, Grafana, Prometheus, Datadog, New Relic
+
+Git, GitHub, GitLab, Bitbucket, Jenkins, CircleCI, Travis CI, GitHub Actions, Docker,
+Kubernetes, Helm, Webpack, Vite, Maven, Gradle, Jest, Pytest, JUnit, Selenium, Cypress,
+Grafana, Prometheus, Datadog, New Relic
 
 ### Databases (11)
-PostgreSQL, MySQL, SQLite, Microsoft SQL Server, Oracle, MongoDB, Redis, Cassandra, DynamoDB, Elasticsearch, Neo4j
+
+PostgreSQL, MySQL, SQLite, Microsoft SQL Server, Oracle, MongoDB, Redis, Cassandra,
+DynamoDB, Elasticsearch, Neo4j
 
 ### Cloud Platforms (8)
+
 AWS, Azure, Google Cloud, GCP, Heroku, Vercel, Netlify, DigitalOcean
 
 ### Soft Skills (10)
-Leadership, Communication, Team Collaboration, Problem Solving, Critical Thinking, Project Management, Agile, Scrum, Mentoring, Public Speaking
+
+Leadership, Communication, Team Collaboration, Problem Solving, Critical Thinking,
+Project Management, Agile, Scrum, Mentoring, Public Speaking
 
 ---
 
@@ -218,12 +237,14 @@ Leadership, Communication, Team Collaboration, Problem Solving, Critical Thinkin
 ### Current Implementation (Phase 1)
 
 **Keyword-based Matching:**
+
 1. Extract skills from resume using pattern matching
 2. Extract skills from job description
 3. Calculate intersection (matching skills)
 4. Calculate difference (missing skills)
 5. Compute match score:
-   ```
+
+   ```text
    skills_match_score = matching_skills / total_job_skills
    overall_match_score = skills_match_score  # Can expand later
    ```
@@ -240,7 +261,7 @@ Skills are assigned confidence scores (0.0-1.0) based on:
 // Example confidence calculation
 // "Python" mentioned 3 times in Skills section:
 frequency_score = min(3 * 0.1, 0.5) = 0.3
-context_score = 0.3  // In Skills section
+context_score = 0.3    // In Skills section
 base_score = 0.2
 
 total_confidence = 0.3 + 0.3 + 0.2 = 0.8 (80%)
@@ -249,11 +270,11 @@ total_confidence = 0.3 + 0.3 + 0.2 = 0.8 (80%)
 ### Match Recommendations
 
 | Score Range | Recommendation |
-|-------------|----------------|
-| 80-100% | 💡 Strong match! Apply immediately. |
-| 60-79% | 💡 Good match. Consider highlighting transferable skills. |
-| 40-59% | 💡 Moderate match. Study missing skills and mention related experience. |
-| 0-39% | 💡 Low match. Consider upskilling in the missing areas before applying. |
+|------|--------|
+| 80-100% | Strong match! Apply. |
+| 60-79% | Good match. Highlight transferable skills. |
+| 40-59% | Moderate match. Study missing skills. |
+| 0-39% | Low match. Consider upskilling first. |
 
 ---
 
@@ -278,6 +299,7 @@ cargo test --lib resume
 ```
 
 **Test Statistics:**
+
 - **Parser:** 4 tests
 - **Skill Extractor:** 6 tests
 - **Matcher:** 4 tests
@@ -450,18 +472,25 @@ impl ResumeMatcher {
     pub fn new(db: SqlitePool) -> Self;
 
     // Resume management
-    pub async fn upload_resume(&self, name: &str, file_path: &str) -> Result<i64>;
+    pub async fn upload_resume(&self, name: &str,
+                                file_path: &str) -> Result<i64>;
     pub async fn get_resume(&self, resume_id: i64) -> Result<Resume>;
     pub async fn get_active_resume(&self) -> Result<Option<Resume>>;
     pub async fn set_active_resume(&self, resume_id: i64) -> Result<()>;
 
     // Skill extraction
-    pub async fn extract_skills(&self, resume_id: i64) -> Result<Vec<UserSkill>>;
-    pub async fn get_user_skills(&self, resume_id: i64) -> Result<Vec<UserSkill>>;
+    pub async fn extract_skills(&self, resume_id: i64)
+                                 -> Result<Vec<UserSkill>>;
+    pub async fn get_user_skills(&self, resume_id: i64)
+                                  -> Result<Vec<UserSkill>>;
 
     // Matching
-    pub async fn match_resume_to_job(&self, resume_id: i64, job_hash: &str) -> Result<MatchResult>;
-    pub async fn get_match_result(&self, resume_id: i64, job_hash: &str) -> Result<Option<MatchResult>>;
+    pub async fn match_resume_to_job(&self, resume_id: i64,
+                                      job_hash: &str)
+                                      -> Result<MatchResult>;
+    pub async fn get_match_result(&self, resume_id: i64,
+                                   job_hash: &str)
+                                   -> Result<Option<MatchResult>>;
 }
 ```
 
@@ -507,6 +536,7 @@ pub struct MatchResult {
 ## ✅ Implementation Status
 
 ### Completed ✅
+
 - [x] Database schema (6 tables, 10 indexes)
 - [x] PDF parsing with pdf-extract
 - [x] Text cleaning and section extraction
@@ -519,6 +549,7 @@ pub struct MatchResult {
 - [x] Full documentation
 
 ### Future 🔜
+
 - [ ] DOCX support
 - [ ] Semantic embeddings (BERT/GPT)
 - [ ] Experience and education parsing

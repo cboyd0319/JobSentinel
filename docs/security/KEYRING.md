@@ -11,6 +11,7 @@ All sensitive credentials (API keys, passwords, webhook URLs, session cookies) a
 in the operating system's secure credential manager instead of plain text configuration files.
 
 This is a **major security improvement** that protects your credentials with:
+
 - **OS-level encryption** - Credentials encrypted at rest
 - **Access control** - Only JobSentinel can access its stored credentials
 - **No plaintext storage** - Secrets never written to disk unencrypted
@@ -48,49 +49,52 @@ The following credentials are stored securely in the OS keyring:
 
 JobSentinel uses a dual-access pattern for credentials:
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                         Frontend (React)                        │
-│                                                                 │
-│   Settings.tsx uses Tauri commands:                            │
-│   - invoke("store_credential", { key, value })                 │
-│   - invoke("retrieve_credential", { key })                     │
-│   - invoke("delete_credential", { key })                       │
-│   - invoke("has_credential", { key })                          │
-│   - invoke("get_credential_status")                            │
-│                                                                 │
-└─────────────────────────────┬───────────────────────────────────┘
-                              │
-                    Tauri IPC (Commands)
-                              │
-┌─────────────────────────────┴───────────────────────────────────┐
-│                     Backend (Rust/Tauri)                        │
-│                                                                 │
-│   ┌───────────────────────────────────────────────────────┐    │
-│   │          Tauri Secure Storage Plugin (Frontend)       │    │
-│   │              tauri-plugin-secure-storage              │    │
-│   └───────────────────────────────────────────────────────┘    │
-│                                                                 │
-│   ┌───────────────────────────────────────────────────────┐    │
-│   │            Keyring Crate (Backend Direct)             │    │
-│   │     Used by: notify/mod.rs, scheduler/scrapers.rs     │    │
-│   └───────────────────────────────────────────────────────┘    │
-│                              │                                  │
-│                              v                                  │
-│   ┌───────────────────────────────────────────────────────┐    │
-│   │              OS Credential Manager                     │    │
-│   │    macOS: Keychain | Windows: Cred Manager | Linux: SS│    │
-│   └───────────────────────────────────────────────────────┘    │
-└─────────────────────────────────────────────────────────────────┘
+```text
+┌──────────────────────────────────────────────────────────────┐
+│                         Frontend (React)                     │
+│                                                              │
+│   Settings.tsx uses Tauri commands:                         │
+│   - invoke("store_credential", { key, value })              │
+│   - invoke("retrieve_credential", { key })                  │
+│   - invoke("delete_credential", { key })                    │
+│   - invoke("has_credential", { key })                       │
+│   - invoke("get_credential_status")                         │
+│                                                              │
+└──────────────────────────┬───────────────────────────────────┘
+                           │
+                 Tauri IPC (Commands)
+                           │
+┌──────────────────────────┴───────────────────────────────────┐
+│                  Backend (Rust/Tauri)                       │
+│                                                              │
+│   ┌───────────────────────────────────────────────────────┐ │
+│   │   Tauri Secure Storage Plugin (Frontend)              │ │
+│   │         tauri-plugin-secure-storage                   │ │
+│   └───────────────────────────────────────────────────────┘ │
+│                                                              │
+│   ┌───────────────────────────────────────────────────────┐ │
+│   │         Keyring Crate (Backend Direct)                │ │
+│   │   Used by: notify/mod.rs, scheduler/scrapers.rs       │ │
+│   └───────────────────────────────────────────────────────┘ │
+│                           │                                  │
+│                           v                                  │
+│   ┌───────────────────────────────────────────────────────┐ │
+│   │          OS Credential Manager                        │ │
+│   │  macOS: Keychain | Windows: Cred Mgr | Linux: SS      │ │
+│   └───────────────────────────────────────────────────────┘ │
+└──────────────────────────────────────────────────────────────┘
 ```
 
 ### Why Two Access Methods?
 
-1. **Frontend (`tauri-plugin-secure-storage`)**: Used by Settings.tsx to save/retrieve credentials with a JavaScript API.
+1. **Frontend (`tauri-plugin-secure-storage`)**: Used by Settings.tsx to save/retrieve
+   credentials with a JavaScript API.
 
-2. **Backend (`keyring` crate)**: Used by Rust code that needs direct access (notification senders, LinkedIn scraper) without going through Tauri commands.
+2. **Backend (`keyring` crate)**: Used by Rust code that needs direct access (notification
+   senders, LinkedIn scraper) without going through Tauri commands.
 
-Both use the same underlying OS credential store, so credentials stored via either method are accessible by both.
+Both use the same underlying OS credential store, so credentials stored via either method are
+accessible by both.
 
 ---
 
@@ -117,11 +121,13 @@ pub struct CredentialStore {
 }
 
 impl CredentialStore {
-    pub fn new() -> Self { ... }
-    pub fn store(&self, key: CredentialKey, value: &str) -> Result<()> { ... }
-    pub fn retrieve(&self, key: CredentialKey) -> Result<Option<String>> { ... }
-    pub fn delete(&self, key: CredentialKey) -> Result<()> { ... }
-    pub fn has(&self, key: CredentialKey) -> bool { ... }
+    pub fn new() -> Self { }
+    pub fn store(&self, key: CredentialKey,
+                 value: &str) -> Result<()> { }
+    pub fn retrieve(&self, key: CredentialKey)
+                    -> Result<Option<String>> { }
+    pub fn delete(&self, key: CredentialKey) -> Result<()> { }
+    pub fn has(&self, key: CredentialKey) -> bool { }
 }
 ```
 
@@ -152,7 +158,8 @@ pub async fn get_credential_status() -> Result<HashMap<String, bool>, String>
 
 ### Automatic Migration
 
-When JobSentinel v2.0 starts for the first time, it automatically migrates any plaintext credentials from your config file to the secure keyring:
+When JobSentinel v2.0 starts for the first time, it automatically migrates any plaintext
+credentials from your config file to the secure keyring:
 
 1. Checks if migration has already been performed
 2. Reads credentials from `config.json`
@@ -174,6 +181,7 @@ If automatic migration fails or you prefer manual control:
 ### Migration Status Check
 
 You can verify migration status via the Settings page - each credential field shows a status indicator:
+
 - ✅ **Stored** - Credential exists in keyring
 - ⚠️ **Not set** - Credential not configured
 
@@ -190,6 +198,7 @@ You can verify migration status via the Settings page - each credential field sh
 ### Access Control
 
 Credentials stored by JobSentinel:
+
 - Are scoped to the `com.jobsentinel.app` service name
 - Can only be accessed by the JobSentinel application
 - Require user authentication on locked devices
@@ -197,6 +206,7 @@ Credentials stored by JobSentinel:
 ### What's NOT in the Keyring
 
 The following data is still stored in `config.json` (non-sensitive):
+
 - Job title allowlists/blocklists
 - Keywords (boost/exclude)
 - Location preferences
@@ -252,12 +262,14 @@ kwalletd5
 ### macOS Keychain Permissions
 
 If prompted to allow keychain access:
+
 1. Click "Allow" to grant JobSentinel access
 2. If denied, go to Keychain Access → JobSentinel → Always Allow
 
 ### Windows Credential Manager
 
 View stored credentials:
+
 1. Open Control Panel → Credential Manager
 2. Look for "Windows Credentials"
 3. Find entries with `com.jobsentinel.app` prefix
@@ -271,6 +283,7 @@ View stored credentials:
 To add a new credential type:
 
 1. **Add to `CredentialKey` enum** in `src/core/credentials/mod.rs`:
+
    ```rust
    pub enum CredentialKey {
        // ... existing keys

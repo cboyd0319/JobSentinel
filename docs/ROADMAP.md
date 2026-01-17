@@ -5,7 +5,9 @@
 ## Current Version: 2.0.0
 
 ### Working Features (v1.4.0)
-- **13 Job scrapers**: Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, ZipRecruiter
+
+- **13 Job scrapers**: Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely,
+  BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, ZipRecruiter
 - Application Tracking System (ATS): Kanban board, reminders, timeline, ghosting detection
 - Interview Scheduler: iCal export, prep checklists, follow-up reminders
 - AI Resume-Job Matcher: PDF parsing, skill extraction, matching
@@ -107,6 +109,7 @@ Continued refactoring of remaining large files.
 | `resume/mod.rs` | 1831 | 440 (+types.rs, tests.rs) | **Done** |
 
 **Commands split into domain modules:**
+
 - jobs.rs (314 lines) - Job operations, search, bookmarks
 - ats.rs (224 lines) - Application tracking, interviews
 - user_data.rs (354 lines) - Templates, saved searches, history
@@ -132,6 +135,7 @@ Major security release with OS-native keyring integration.
 | Updated Settings UI | **Done** | Credential status indicators |
 
 **Credentials secured:**
+
 - `smtp_password` - Email SMTP password
 - `telegram_bot_token` - Telegram Bot API token
 - `slack_webhook_url` - Slack incoming webhook URL
@@ -163,12 +167,16 @@ See [docs/security/KEYRING.md](security/KEYRING.md) for full documentation.
 ## Feature Details
 
 ### LinkedIn/Indeed Scrapers (Working)
+
 Both scrapers fully integrated with scheduler and Settings UI.
+
 - LinkedIn: Requires li_at session cookie, configurable query/location/remote-only
 - Indeed: Query-based search with configurable radius and limit
 
 ### AI Resume-Job Matcher (Working)
+
 Automatically parse resumes and match skills against job requirements.
+
 - PDF parsing with skill extraction
 - Semantic similarity matching
 - Confidence scoring per job match
@@ -176,7 +184,9 @@ Automatically parse resumes and match skills against job requirements.
 - 6 Tauri commands exposed
 
 ### Salary AI (Working)
+
 Data-driven compensation insights.
+
 - H1B data-based salary predictions
 - Salary benchmarks by role/location/company
 - Seniority-level aware predictions
@@ -184,7 +194,9 @@ Data-driven compensation insights.
 - 4 Tauri commands exposed
 
 ### Market Intelligence (Working)
+
 Analytics and trend visualization.
+
 - Daily market snapshots
 - Skill demand trends over time
 - Salary trends by region
@@ -194,12 +206,16 @@ Analytics and trend visualization.
 - 5 Tauri commands exposed
 
 ### Desktop Notifications (Working)
+
 Native OS notifications via Tauri plugin.
+
 - Notifies on high-match job discoveries
 - Integrated into Dashboard
 
 ### One-Click Apply (v2.0+)
+
 Automated application submission.
+
 - Headless browser automation
 - Form field detection and filling
 - Requires explicit user consent
@@ -211,18 +227,21 @@ Automated application submission.
 
 **v2.1.0 is the first official public release. No users exist before that.**
 
-### What This Means:
+### What This Means
+
 - **NO incremental migrations** - Modify schema files directly
 - **NO backward compatibility work** - No one has data to preserve
 - **DELETE/consolidate migrations** when refactoring schema
 - **Focus on features** - Don't waste time on migration infrastructure
 
-### Schema Change Process (Pre-v2.1.0):
+### Schema Change Process (Pre-v2.1.0)
+
 1. Edit the existing migration file directly (or create new consolidated file)
 2. Delete database and run `cargo sqlx database reset` if needed
 3. No need for "up" and "down" migrations
 
-### When Migrations Start:
+### When Migrations Start
+
 - v2.1.0 will freeze the schema baseline
 - All migrations from that point forward will be incremental
 - Users upgrading from v2.1.0+ will have proper migration support
@@ -232,6 +251,7 @@ Automated application submission.
 ## Technical Status
 
 ### Code Quality
+
 - All Rust code compiles with 0 errors
 - Clippy passes with 0 warnings (`-D warnings`)
 - 2029+ tests passing, 20 ignored (require file-based database or are doc examples)
@@ -242,6 +262,7 @@ Automated application submission.
 - Backend persistence for all user data (localStorage → SQLite)
 
 ### Resolved Technical Debt
+
 - [x] SQLite MEDIAN() - computed in Rust instead
 - [x] SQLx query! macros - converted to runtime queries
 - [x] All compilation errors fixed
@@ -258,6 +279,7 @@ Automated application submission.
 - [x] Company research panel with known companies database
 
 ### Remaining Work
+
 - [x] Email notifications frontend UI
 - [x] Frontend pages for ATS, Resume, Salary, Market features
 - [x] Virtual list optimization
@@ -301,12 +323,15 @@ The v1.5 modularization effort successfully split 7 oversized files into smaller
 | `scrapers/lever.rs` | 2256 | Mostly tests - extract when needed |
 | `resume/mod.rs` | 1727 | Split parser, matcher, tests |
 | `commands/mod.rs` | 1278 | Could split by domain (jobs, ats, resume, salary) |
+
 - `config/validation.rs` - Validation logic (~400 lines)
 - `config/defaults.rs` - Default values (~200 lines)
 - `config/tests.rs` - Tests (~900 lines)
 
 #### `src/pages/Dashboard.tsx` (2315 lines)
+
 **Split Strategy:**
+
 - `pages/Dashboard.tsx` - Main layout and state (~400 lines)
 - `components/dashboard/JobList.tsx` - Virtual job list (~400 lines)
 - `components/dashboard/Filters.tsx` - Filter sidebar (~300 lines)
@@ -315,13 +340,17 @@ The v1.5 modularization effort successfully split 7 oversized files into smaller
 - `components/dashboard/GhostFilter.tsx` - Ghost job filtering (~150 lines)
 
 #### `src-tauri/src/core/scrapers/lever.rs` (2256 lines)
+
 **Problem:** Most of the file is tests.
 **Split Strategy:**
+
 - Keep `lever.rs` with implementation (~500 lines)
 - Move tests to `scrapers/tests/lever_tests.rs` (~1750 lines)
 
 #### `src-tauri/src/core/ats/mod.rs` (2082 lines)
+
 **Split Strategy:**
+
 - `ats/mod.rs` - ApplicationTracker and types (~300 lines)
 - `ats/applications.rs` - Application CRUD (~400 lines)
 - `ats/reminders.rs` - Reminder logic (~300 lines)
@@ -341,9 +370,11 @@ The v1.5 modularization effort successfully split 7 oversized files into smaller
 
 ### Refactoring Guidelines
 
-1. **Test Extraction First** - Many files are large due to inline tests. Extract `#[cfg(test)]` modules to `tests/` subdirectories first.
+1. **Test Extraction First** - Many files are large due to inline tests. Extract `#[cfg(test)]`
+   modules to `tests/` subdirectories first.
 
-2. **Preserve Public API** - Use `mod.rs` to re-export all public items so external callers don't need changes.
+2. **Preserve Public API** - Use `mod.rs` to re-export all public items so external callers
+   don't need changes.
 
 3. **One PR Per File** - Each file refactoring should be a separate PR to ease review.
 
@@ -358,6 +389,7 @@ The v1.5 modularization effort successfully split 7 oversized files into smaller
 See [CONTRIBUTING.md](developer/CONTRIBUTING.md) for how to contribute.
 
 Priority areas for contribution:
+
 1. **File modularization** - Help split oversized files (see Technical Debt section)
 2. Integration and E2E tests
 3. Additional job board scrapers

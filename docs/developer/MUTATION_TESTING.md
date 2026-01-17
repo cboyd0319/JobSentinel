@@ -21,6 +21,7 @@
 ### What is Mutation Testing?
 
 Mutation testing is a technique to measure the **quality** of your test suite by:
+
 1. Introducing intentional bugs (mutations) into your code
 2. Running your test suite against each mutation
 3. Checking if tests catch the bug (mutant is "caught")
@@ -31,6 +32,7 @@ Mutation testing is a technique to measure the **quality** of your test suite by
 **Code coverage tells you what code is executed, but not if it's properly tested.**
 
 Example:
+
 ```rust
 // Code with 100% line coverage
 fn is_positive(x: i32) -> bool {
@@ -69,6 +71,7 @@ cargo mutants
 ```
 
 This will:
+
 - Find all testable code
 - Generate mutations
 - Run tests against each mutation
@@ -112,7 +115,7 @@ cargo mutants --in-diff
 
 ### Sample Output
 
-```
+```text
 Running mutation tests...
 
 src/core/config/mod.rs:138: replaced > with >= in validate
@@ -161,6 +164,7 @@ exclude_functions = [
 ### Timeout Issues
 
 If you see timeout errors:
+
 ```toml
 # Increase timeout multiplier
 timeout_multiplier = 10.0
@@ -183,6 +187,7 @@ jobs = 4
 ### 1. Start Small
 
 Don't run all mutations at once. Start with:
+
 ```bash
 # Test critical modules first
 cargo mutants -- --file src/core/config/mod.rs
@@ -203,6 +208,7 @@ cargo mutants --show-missed --no-show-caught
 ```
 
 For each missed mutant:
+
 1. Understand what the mutation changed
 2. Ask: "Would this break my application?"
 3. If yes → write a test to catch it
@@ -222,6 +228,7 @@ exclude_functions = [
 ### 5. Run in CI (Selectively)
 
 Don't run all mutations in CI (too slow). Instead:
+
 ```bash
 # Only test files changed in this PR
 cargo mutants --in-diff
@@ -314,7 +321,7 @@ cargo mutants -- --file src/core/config/mod.rs
 
 ### 2. Review Missed Mutants
 
-```
+```text
 MISSED src/core/config/mod.rs:156: replaced 168 with 169
   in function validate, line: if self.scraping_interval_hours > 168
 ```
@@ -337,7 +344,7 @@ fn test_scraping_interval_exactly_169_fails() {
 cargo mutants -- --file src/core/config/mod.rs
 ```
 
-```
+```text
 CAUGHT src/core/config/mod.rs:156: replaced 168 with 169
   ✅ by test_scraping_interval_exactly_169_fails
 ```
@@ -433,12 +440,14 @@ exclude_globs = ["src/slow_module/**"]
 ### "False positives (semantically equivalent mutants)"
 
 Some mutations don't change behavior:
+
 ```rust
 // These may be equivalent
 x > 0  vs.  x >= 1  (for integers)
 ```
 
 **Solution:** Exclude the function if truly equivalent:
+
 ```toml
 exclude_functions = ["::function_name"]
 ```
@@ -465,6 +474,7 @@ exclude_functions = ["::function_name"]
 **Goal:** 90%+ mutation catch rate for critical modules
 
 **Use cases:**
+
 - Validate test suite quality
 - Find gaps in test coverage
 - Ensure boundary conditions are tested

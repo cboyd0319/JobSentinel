@@ -29,6 +29,7 @@ JobSentinel uses a comprehensive testing strategy across all layers:
 > **"If it's hard to test, the design is probably wrong."**
 
 We prioritize:
+
 1. **Fast, deterministic tests** (<100ms each)
 2. **Clear test names** describing behavior, conditions, and outcomes
 3. **Isolated tests** using in-memory databases and mocks
@@ -88,7 +89,7 @@ cargo test -- --test-threads=1
 
 ### Directory Structure
 
-```
+```text
 src-tauri/
 ├── src/
 │   ├── core/
@@ -124,7 +125,9 @@ src-tauri/
 └── tests/                   # Integration tests (40 tests)
 ```
 
-**Note**: As of v1.5.0, test files have been extracted to separate `tests.rs` files within each module directory. This improves code organization and keeps module files under 500 lines for easier maintenance and regeneration.
+**Note**: As of v1.5.0, test files have been extracted to separate `tests.rs` files within each
+module directory. This improves code organization and keeps module files under 500 lines for
+easier maintenance and regeneration.
 
 ### Test Counts by Module
 
@@ -179,6 +182,7 @@ async fn test_upsert_job() {
 ```
 
 **Benefits:**
+
 - Fast (no disk I/O)
 - Isolated (no shared state)
 - Auto-cleanup
@@ -204,6 +208,7 @@ fn test_save_and_load_config() {
 ```
 
 **Benefits:**
+
 - Isolated filesystem operations
 - No cleanup code needed
 - Works across all OSes
@@ -230,6 +235,7 @@ fn test_something() {
 ```
 
 **Benefits:**
+
 - DRY (Don't Repeat Yourself)
 - Easy to update test data
 - Self-documenting
@@ -251,6 +257,7 @@ fn test_negative_salary_floor_fails() {
 ```
 
 **Benefits:**
+
 - Clear intent
 - Tests error messages
 - Documents validation rules
@@ -270,6 +277,7 @@ fn test_salary_floor_at_boundary_passes() {
 ```
 
 **Benefits:**
+
 - Catches off-by-one errors
 - Documents boundaries
 - High bug-finding potential
@@ -281,6 +289,7 @@ fn test_salary_floor_at_boundary_passes() {
 ### 1. Test Naming Convention
 
 Use descriptive names that explain:
+
 - **What** is being tested
 - **Under what conditions**
 - **What the expected outcome is**

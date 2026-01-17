@@ -1,4 +1,5 @@
 # Multi-Channel Notifications System
+
 ## Complete Implementation Guide for JobSentinel
 
 > **Status:** ✅ Fully Implemented
@@ -11,11 +12,13 @@
 ## 🔐 Security Note (v2.0)
 
 **All notification credentials are now stored in OS-native keyring storage**, not in the config file:
+
 - **Webhook URLs**: Slack, Discord, Teams
 - **API Tokens**: Telegram bot token
 - **Passwords**: SMTP password
 
-Configure credentials via the **Settings UI** in JobSentinel. See [Keyring Documentation](../security/KEYRING.md) for full details.
+Configure credentials via the **Settings UI** in JobSentinel.
+See [Keyring Documentation](../security/KEYRING.md) for full details.
 
 ---
 
@@ -35,12 +38,14 @@ JobSentinel now supports **5 notification channels** with rich formatting and co
 ## ✨ Key Features
 
 ### Multi-Channel Broadcasting
+
 - **Graceful degradation** - If one channel fails, others still send
 - **Parallel delivery** - All channels send simultaneously
 - **Comprehensive logging** - Track success/failure per channel
 - **Unified interface** - Single call sends to all enabled channels
 
 ### Rich Formatting
+
 - **Email**: Beautiful HTML with gradients, tables, and buttons
 - **Slack**: Interactive blocks with fields and actions
 - **Discord**: Color-coded embeds (green/yellow/blue by score)
@@ -48,6 +53,7 @@ JobSentinel now supports **5 notification channels** with rich formatting and co
 - **Teams**: MessageCard format with facts and actions
 
 ### Security & Validation (v2.0 Enhanced)
+
 - **OS-native keyring** - All credentials stored in secure OS credential managers
 - **URL validation** - Webhook URLs validated before sending
 - **Credential protection** - Passwords never stored in config files
@@ -79,6 +85,7 @@ JobSentinel now supports **5 notification channels** with rich formatting and co
 ```
 
 **Popular SMTP Servers:**
+
 - **Gmail**: `smtp.gmail.com:587` (requires App Password)
 - **Outlook**: `smtp-mail.outlook.com:587`
 - **Yahoo**: `smtp.mail.yahoo.com:587`
@@ -102,7 +109,8 @@ JobSentinel now supports **5 notification channels** with rich formatting and co
 ```
 
 **Setup Instructions:**
-1. Go to https://api.slack.com/apps
+
+1. Go to <https://api.slack.com/apps>
 2. Create a new app or select existing
 3. Enable "Incoming Webhooks"
 4. Add webhook to workspace
@@ -125,6 +133,7 @@ JobSentinel now supports **5 notification channels** with rich formatting and co
 ```
 
 **Setup Instructions:**
+
 1. Open Discord server settings
 2. Go to Integrations → Webhooks
 3. Click "New Webhook"
@@ -151,6 +160,7 @@ JobSentinel now supports **5 notification channels** with rich formatting and co
 ```
 
 **Setup Instructions:**
+
 1. Message [@BotFather](https://t.me/BotFather) on Telegram
 2. Send `/newbot` and follow prompts
 3. Copy bot token (format: `123456789:ABCdef...`)
@@ -177,6 +187,7 @@ JobSentinel now supports **5 notification channels** with rich formatting and co
 ```
 
 **Setup Instructions:**
+
 1. Open Teams and go to target channel
 2. Click "..." → Connectors
 3. Find "Incoming Webhook" → Configure
@@ -215,6 +226,7 @@ Desktop notifications use native OS notification systems:
    - Desktop integration varies by distribution
 
 **Features:**
+
 - Instant notification delivery (no network dependency)
 - Job title and match score displayed
 - Click notification to open JobSentinel
@@ -226,7 +238,7 @@ Desktop notifications use native OS notification systems:
 
 ### Module Structure
 
-```
+```text
 src-tauri/src/core/notify/
 ├── mod.rs           # NotificationService (router)
 ├── slack.rs         # Slack webhook implementation
@@ -259,6 +271,7 @@ impl NotificationService {
 #### 2. Channel Modules
 
 Each channel module implements:
+
 - `send_X_notification()` - Main sending function
 - `validate_X()` - Test/validate configuration
 - URL/config validation with security checks
@@ -365,7 +378,7 @@ Each channel module implements:
 
 ### Telegram (MarkdownV2)
 
-```
+```text
 🎯 *High Match Job Alert*
 
 *Senior Rust Engineer*
@@ -463,6 +476,7 @@ cargo test --lib slack::tests
 ```
 
 **Test Coverage:**
+
 - ✅ URL validation (valid/invalid formats)
 - ✅ Message formatting (HTML, Markdown, JSON)
 - ✅ Special character escaping (Telegram MarkdownV2)
@@ -495,21 +509,25 @@ See [Keyring Documentation](../security/KEYRING.md) for full details.
 All webhook URLs are validated before sending:
 
 **Slack:**
+
 - ✅ Must start with `https://hooks.slack.com/services/`
 - ✅ HTTPS only
 - ✅ Correct domain verification
 
 **Discord:**
+
 - ✅ Must start with `https://discord.com/api/webhooks/` or `https://discordapp.com/api/webhooks/`
 - ✅ HTTPS only
 - ✅ Path validation
 
 **Telegram:**
+
 - ✅ Uses official Bot API (`https://api.telegram.org/bot...`)
 - ✅ Token format validation
 - ✅ Chat ID format validation
 
 **Teams:**
+
 - ✅ Must start with `https://outlook.office.com/webhook/` or `https://outlook.office365.com/webhook/`
 - ✅ HTTPS only
 - ✅ Domain verification
@@ -517,6 +535,7 @@ All webhook URLs are validated before sending:
 ### Credential Protection (v2.0 Enhanced)
 
 **All Credentials (v2.0):**
+
 - ✅ **OS-native keyring storage** - Not in config files
 - ✅ macOS Keychain / Windows Credential Manager / Linux Secret Service
 - ✅ Encrypted at rest by OS
@@ -525,15 +544,18 @@ All webhook URLs are validated before sending:
 - ✅ Runtime validation from keyring
 
 **Email (SMTP):**
+
 - ✅ Password stored in OS keyring
 - ✅ Support for app-specific passwords
 - ✅ TLS/STARTTLS encryption enforced
 
 **Telegram:**
+
 - ✅ Bot token stored in OS keyring
 - ✅ Validation before use
 
 **Webhooks (Slack, Discord, Teams):**
+
 - ✅ URLs stored in OS keyring
 - ✅ Domain verification before sending
 
@@ -673,6 +695,7 @@ Only enabled channels will send notifications.
 **Problem:** "Failed to send email via SMTP"
 
 **Solutions:**
+
 1. **Gmail users**: Enable 2-factor auth and create App Password
    - Go to Google Account → Security → 2-Step Verification → App Passwords
    - Generate password for "Mail" app
@@ -712,6 +735,7 @@ Only enabled channels will send notifications.
 **Problem:** "User mention not working"
 
 **Solution:**
+
 1. Get your Discord user ID: Right-click username → Copy ID (enable Developer Mode in Settings)
 2. Add to config: `"user_id_to_mention": "123456789012345678"`
 
@@ -726,6 +750,7 @@ Only enabled channels will send notifications.
 **Problem:** "Telegram API error: Bad Request: chat not found"
 
 **Solution:**
+
 1. Ensure bot is added to the group/channel
 2. Verify chat ID is correct (should start with `-` for groups)
 3. Make bot admin if using channels
@@ -745,6 +770,7 @@ Only enabled channels will send notifications.
 **Problem:** "Teams webhook failed: 400 Bad Request"
 
 **Solution:**
+
 1. Webhook may have been removed. Regenerate in Teams Connectors.
 2. Check if MessageCard format is valid (our implementation handles this automatically).
 
@@ -855,6 +881,7 @@ Before enabling multi-channel notifications in production:
 ### v1.5.0 (2026-01-17)
 
 **Documentation Update:**
+
 - ✅ Updated all version references to 1.5.0
 - ✅ Added Desktop notifications to channel list
 - ✅ Updated Last Updated date
@@ -862,6 +889,7 @@ Before enabling multi-channel notifications in production:
 ### v1.0.0 (2025-11-15)
 
 **Initial Release:**
+
 - ✅ Email notifications via SMTP (HTML + plain text)
 - ✅ Slack notifications (rich blocks)
 - ✅ Discord notifications (color-coded embeds)

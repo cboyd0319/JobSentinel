@@ -1,4 +1,5 @@
 # Job Market Intelligence Dashboard
+
 ## Real-Time Analytics & Trend Visualization
 
 > **Status:** ENABLED - Module fully functional
@@ -9,7 +10,9 @@
 
 ## 🎯 Overview
 
-JobSentinel's Market Intelligence Dashboard provides real-time analytics on job market trends, skill demand, salary movements, company hiring velocity, and geographic distribution. Make data-driven career decisions with comprehensive market insights.
+JobSentinel's Market Intelligence Dashboard provides real-time analytics on job market trends,
+skill demand, salary movements, company hiring velocity, and geographic distribution. Make
+data-driven career decisions with comprehensive market insights.
 
 ### Key Features
 
@@ -26,7 +29,7 @@ JobSentinel's Market Intelligence Dashboard provides real-time analytics on job 
 
 ### System Components
 
-```
+```text
 ┌─────────────────────────────────────────────────┐
 │      Job Market Intelligence Engine             │
 │                                                  │
@@ -50,6 +53,7 @@ JobSentinel's Market Intelligence Dashboard provides real-time analytics on job 
 ```
 
 **v1.5.0 Refactoring Note:** This module was refactored from a single 2703-line file into 4 focused submodules:
+
 - **computations** - Trend calculations and aggregations
 - **queries** - SQL queries and database operations
 - **utils** - Helper functions and formatting
@@ -129,6 +133,7 @@ println!("Market Snapshot: {}", snapshot.summary());
 ```
 
 **What it does:**
+
 - Computes skill demand trends
 - Tracks salary changes by role/location
 - Calculates company hiring velocity
@@ -151,7 +156,8 @@ for skill in trending_skills {
 ```
 
 **Example Output:**
-```
+
+```text
 Python: 1,250 jobs (avg salary: $135,000)
 React: 1,100 jobs (avg salary: $130,000)
 TypeScript: 950 jobs (avg salary: $140,000)
@@ -175,7 +181,8 @@ for company in active_companies {
 ```
 
 **Example Output:**
-```
+
+```text
 Google: 125 jobs posted, 450 active (trend: increasing)
 Meta: 100 jobs posted, 380 active (trend: stable)
 Amazon: 95 jobs posted, 520 active (trend: increasing)
@@ -198,7 +205,8 @@ for location in hot_locations {
 ```
 
 **Example Output:**
-```
+
+```text
 remote: 3,500 jobs (median salary: $145,000)
 san francisco, ca: 2,100 jobs (median salary: $165,000)
 new york, ny: 1,800 jobs (median salary: $155,000)
@@ -223,7 +231,8 @@ for alert in alerts {
 ```
 
 **Example Output:**
-```
+
+```text
 ℹ️ 📈 Rust demand surging!
   The skill 'Rust' saw a 75% increase in job postings this week (140 → 245 mentions).
   Change: +75.0%
@@ -257,7 +266,8 @@ if let Some(snap) = snapshot {
 ```
 
 **Example Output:**
-```
+
+```text
 Date: 2025-11-15
 Total Jobs: 10,500
 New Today: 150
@@ -351,7 +361,8 @@ LIMIT 20;
 **Trigger:** Skill mentions increased by ≥50% in a week
 
 **Example:**
-```
+
+```text
 Rust demand surging!
 The skill 'Rust' saw a 75% increase in job postings this week (140 → 245 mentions).
 ```
@@ -363,7 +374,8 @@ The skill 'Rust' saw a 75% increase in job postings this week (140 → 245 menti
 **Trigger:** Median salary increased by ≥25% for a role/location
 
 **Example:**
-```
+
+```text
 DevOps Engineer salaries jumping in Austin, TX
 Salaries for 'devops engineer' in austin, tx increased by 28.0% (median: $145,000).
 ```
@@ -375,7 +387,8 @@ Salaries for 'devops engineer' in austin, tx increased by 28.0% (median: $145,00
 **Trigger:** Company posted ≥10 jobs in a single day
 
 **Example:**
-```
+
+```text
 Meta hiring aggressively
 Meta posted 35 new jobs today (520 total active positions).
 ```
@@ -420,6 +433,7 @@ cargo test --lib market_intelligence
 ```
 
 **Test Statistics:**
+
 - **Trends Module:** 5 tests
 - **Analytics Module:** 2 tests
 - **Alerts Module:** 4 tests
@@ -432,28 +446,33 @@ cargo test --lib market_intelligence
 ### Recommended Charts
 
 **1. Skill Demand Line Chart**
+
 - X-axis: Date (last 30 days)
 - Y-axis: Job count
 - Lines: Top 5 skills
 - Library: Chart.js or Recharts
 
 **2. Salary Trend Chart**
+
 - X-axis: Date
 - Y-axis: Median salary
 - Lines: Different locations for same role
 - Show growth percentage
 
 **3. Company Hiring Velocity Bar Chart**
+
 - X-axis: Company names
 - Y-axis: Jobs posted (last 30 days)
 - Color: Hiring trend (green=increasing, yellow=stable, red=decreasing)
 
 **4. Geographic Heatmap**
+
 - Map: U.S. states or cities
 - Heat intensity: Job count
 - Tooltip: Median salary, top skill
 
 **5. Market Sentiment Gauge**
+
 - Type: Semi-circle gauge
 - Values: Bullish (green), Neutral (yellow), Bearish (red)
 - Shows current market health
@@ -602,6 +621,7 @@ scheduler.schedule_daily("0 2 * * *", || async {
 ```
 
 **What it computes:**
+
 - Skill demand trends (yesterday's data)
 - Salary trends (updated benchmarks)
 - Company hiring velocity (job posting counts)
@@ -623,7 +643,7 @@ scheduler.schedule_weekly("0 3 * * 0", || async {
 
 ## 📊 Example Dashboard Mockup
 
-```
+```text
 ┌────────────────────────────────────────────────────────────┐
 │  Job Market Intelligence Dashboard                         │
 ├────────────────────────────────────────────────────────────┤
@@ -673,12 +693,14 @@ scheduler.schedule_weekly("0 3 * * 0", || async {
 **Scenario:** You're deciding which skill to learn next.
 
 **How Market Intelligence Helps:**
+
 - Check trending skills (last 30 days)
 - See average salaries for each skill
 - Identify skills with highest growth rate
 - Avoid skills with declining demand
 
 **Example Query:**
+
 ```rust
 let skills = market_intel.get_trending_skills(20).await?;
 let fastest_growing = skills.iter()
@@ -691,12 +713,14 @@ let fastest_growing = skills.iter()
 **Scenario:** You received an offer and want to negotiate.
 
 **How Market Intelligence Helps:**
+
 - Compare offered salary to market median
 - Check if salaries are rising/falling for your role
 - Identify top-paying locations
 - See if company is hiring aggressively (more leverage)
 
 **Example:**
+
 ```rust
 // Is my offer competitive?
 let trend = analyzer.get_salary_trend("software engineer", "san francisco, ca").await?;
@@ -710,12 +734,14 @@ if my_offer < trend.median_salary {
 **Scenario:** You're considering moving to a new city.
 
 **How Market Intelligence Helps:**
+
 - See job counts by location
 - Compare median salaries across cities
 - Identify emerging job markets (location booms)
 - Check remote job availability
 
 **Example:**
+
 ```rust
 let locations = market_intel.get_hottest_locations(20).await?;
 for loc in locations {
@@ -732,12 +758,14 @@ for loc in locations {
 **Scenario:** You want to know if a company is growing or struggling.
 
 **How Market Intelligence Helps:**
+
 - Track hiring velocity (posting trends)
 - Detect hiring freezes (red flag)
 - See if company is hiring aggressively (growth signal)
 - Compare to competitors
 
 **Example:**
+
 ```rust
 let companies = market_intel.get_most_active_companies(50).await?;
 let target_company = companies.iter()
@@ -757,4 +785,5 @@ if let Some(company) = target_company {
 **Implementation Status:** ✅ Phase 1 Complete (Data Infrastructure)
 **Next Feature:** Browser Extension (P0)
 
-💡 **Pro Tip:** Run daily analysis as a scheduled job to maintain up-to-date market insights. Enable market alerts to get notified of significant changes in your target skills or companies!
+💡 **Pro Tip:** Run daily analysis as a scheduled job to maintain up-to-date market insights.
+Enable market alerts to get notified of significant changes in your target skills or companies!

@@ -12,13 +12,14 @@ Thank you for your interest in contributing to JobSentinel! This guide will help
 
 **DO NOT** read files sequentially. **USE PARALLEL SUB-AGENTS:**
 
-```
+```text
 WRONG: Read file A → Read file B → Read file C → Decide
 
 RIGHT: Launch 3 Explore agents in parallel → Receive all results → Decide with full context
 ```
 
 **Available agents to use:**
+
 - `Explore` - Fast codebase exploration (use for file discovery)
 - `code-reviewer` - PR review for bugs, security, style
 - `code-explorer` - Deep feature analysis
@@ -45,7 +46,8 @@ RIGHT: Launch 3 Explore agents in parallel → Receive all results → Decide wi
 
 **Keep files under 500 lines.** Large files are hard to maintain and regenerate with AI assistance.
 
-**Test organization:** Move test modules to separate `tests.rs` files when a file exceeds 400 lines. This keeps the main logic focused and tests discoverable.
+**Test organization:** Move test modules to separate `tests.rs` files when a file exceeds 400
+lines. This keeps the main logic focused and tests discoverable.
 
 See `docs/ROADMAP.md` → Technical Debt section for files needing refactoring.
 
@@ -57,6 +59,7 @@ See `docs/ROADMAP.md` → Technical Debt section for files needing refactoring.
 2. **Public roadmap:** `docs/ROADMAP.md` (priorities + technical debt)
 
 **Current status:**
+
 - **v1.4**: Ghost Detection + Data Insights (complete)
 - **v1.5**: File modularization - db/mod.rs → scheduler → market_intelligence (in progress)
 - **v2.0**: Keyring, CI/CD, Resume Builder, One-Click Apply (see detailed plan)
@@ -65,14 +68,14 @@ See `docs/ROADMAP.md` → Technical Debt section for files needing refactoring.
 
 ## 📋 Table of Contents
 
-- [Code of Conduct](#code-of-conduct)
-- [Getting Started](#getting-started)
-- [Development Workflow](#development-workflow)
-- [Coding Standards](#coding-standards)
-- [Testing](#testing)
-- [Submitting Changes](#submitting-changes)
-- [Adding New Features](#adding-new-features)
-- [Reporting Bugs](#reporting-bugs)
+- [Code of Conduct](#-code-of-conduct)
+- [Getting Started](#-getting-started)
+- [Development Workflow](#-development-workflow)
+- [Coding Standards](#-coding-standards)
+- [Testing](#-testing)
+- [Submitting Changes](#-submitting-changes)
+- [Adding New Features](#-adding-new-features)
+- [Reporting Bugs](#-reporting-bugs)
 
 ---
 
@@ -94,11 +97,13 @@ See `docs/ROADMAP.md` → Technical Debt section for files needing refactoring.
 ### Prerequisites
 
 **Required:**
+
 - Rust 1.83+ ([Install](https://rustup.rs/))
 - Node.js 20+ ([Install](https://nodejs.org/))
 - Git
 
 **Platform-Specific:**
+
 - **Windows:** Visual Studio Build Tools 2022, Windows 10 SDK
 - **macOS:** Xcode Command Line Tools
 - **Linux:** GTK development libraries
@@ -159,12 +164,14 @@ git rebase main
 ### 2. Make Changes
 
 **Follow the project structure:**
+
 - `src/` - React frontend (TypeScript + TailwindCSS)
 - `src-tauri/src/core/` - Platform-agnostic business logic
 - `src-tauri/src/platforms/` - OS-specific code
 - `src-tauri/src/commands/` - Tauri RPC handlers
 
 **Keep changes focused:**
+
 - One feature/fix per pull request
 - Small, atomic commits with clear messages
 - Update tests and documentation
@@ -202,7 +209,8 @@ Closes #123"
 ```
 
 **Commit Message Format:**
-```
+
+```text
 <type>: <subject>
 
 <body>
@@ -211,6 +219,7 @@ Closes #123"
 ```
 
 **Types:**
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation changes
@@ -226,6 +235,7 @@ Closes #123"
 ### Rust Code
 
 **Follow Rust conventions:**
+
 ```bash
 # Format code
 cargo fmt
@@ -238,6 +248,7 @@ cargo audit
 ```
 
 **Best Practices:**
+
 - Use descriptive variable names
 - Add doc comments for public APIs
 - Handle errors explicitly (avoid `.unwrap()` in production)
@@ -245,6 +256,7 @@ cargo audit
 - Keep functions small and focused
 
 **Example:**
+
 ```rust
 /// Scrape jobs from Greenhouse API
 ///
@@ -264,6 +276,7 @@ pub async fn scrape_company(&self, company: &GreenhouseCompany) -> Result<Vec<Jo
 ### TypeScript/React Code
 
 **Follow React best practices:**
+
 ```bash
 # Format code
 npm run format
@@ -273,6 +286,7 @@ npm run lint
 ```
 
 **Best Practices:**
+
 - Use functional components with hooks
 - Add TypeScript types for all props
 - Use TailwindCSS utility classes
@@ -280,6 +294,7 @@ npm run lint
 - Handle loading and error states
 
 **Example:**
+
 ```typescript
 interface JobListProps {
   jobs: Job[];
@@ -303,7 +318,8 @@ export function JobList({ jobs, onSelect }: JobListProps) {
 
 ### Rust Tests
 
-**Write tests for all new code.** For files over 400 lines, move tests to a separate `tests.rs` file to keep the main module focused:
+**Write tests for all new code.** For files over 400 lines, move tests to a separate `tests.rs`
+file to keep the main module focused:
 
 ```rust
 // In src/feature/mod.rs (main logic, <400 lines)
@@ -326,12 +342,14 @@ mod tests {
 ```
 
 Add to `mod.rs`:
+
 ```rust
 #[cfg(test)]
 mod tests;
 ```
 
 **Run tests:**
+
 ```bash
 cd src-tauri
 
@@ -348,6 +366,7 @@ cargo test -- --nocapture
 ### Manual Testing
 
 **Test checklist:**
+
 - [ ] Setup wizard completes successfully
 - [ ] Job scraping works for all sources
 - [ ] Scoring algorithm calculates correctly
@@ -378,6 +397,7 @@ git push origin feature/your-feature-name
 ### PR Checklist
 
 Before submitting:
+
 - [ ] Code compiles without errors (`cargo check`)
 - [ ] All tests pass (`cargo test`)
 - [ ] Code formatted (`cargo fmt`, `npm run format`)
@@ -435,6 +455,7 @@ Closes #123
 ### Adding a New Job Scraper
 
 **1. Create scraper file:**
+
 ```rust
 // src-tauri/src/core/scrapers/indeed.rs
 
@@ -459,12 +480,14 @@ impl JobScraper for IndeedScraper {
 ```
 
 **2. Add to mod.rs:**
+
 ```rust
 // src-tauri/src/core/scrapers/mod.rs
 pub mod indeed;
 ```
 
 **3. Add configuration:**
+
 ```json
 // config.example.json
 {
@@ -473,6 +496,7 @@ pub mod indeed;
 ```
 
 **4. Add tests:**
+
 ```rust
 #[cfg(test)]
 mod tests {
@@ -484,6 +508,7 @@ mod tests {
 ```
 
 **5. Update documentation:**
+
 - Update README.md
 - Update QUICK_START.md
 - Add to supported scrapers list
@@ -491,6 +516,7 @@ mod tests {
 ### Adding a New Platform
 
 **1. Create platform module:**
+
 ```rust
 // src-tauri/src/platforms/freebsd/mod.rs
 
@@ -504,6 +530,7 @@ pub fn initialize() -> Result<(), Box<dyn std::error::Error>> {
 ```
 
 **2. Add conditional compilation:**
+
 ```rust
 // src-tauri/src/platforms/mod.rs
 #[cfg(target_os = "freebsd")]
@@ -511,6 +538,7 @@ pub mod freebsd;
 ```
 
 **3. Update tauri.conf.json:**
+
 ```json
 {
   "bundle": {
@@ -596,6 +624,7 @@ Mockups, examples, etc.
 ## 🙏 Recognition
 
 Contributors will be:
+
 - Added to CONTRIBUTORS.md
 - Mentioned in release notes
 - Given credit in commit history

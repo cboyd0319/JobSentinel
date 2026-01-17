@@ -1,4 +1,5 @@
 # Salary Negotiation AI
+
 ## Data-Driven Compensation Intelligence & Negotiation Assistance
 
 > **Status:** ENABLED - Module fully functional
@@ -9,7 +10,8 @@
 
 ## 🎯 Overview
 
-JobSentinel's Salary Negotiation AI provides data-driven salary benchmarking, offer comparison, and AI-generated negotiation scripts to help you maximize your compensation.
+JobSentinel's Salary Negotiation AI provides data-driven salary benchmarking, offer comparison,
+and AI-generated negotiation scripts to help you maximize your compensation.
 
 ### Key Features
 
@@ -25,7 +27,7 @@ JobSentinel's Salary Negotiation AI provides data-driven salary benchmarking, of
 
 ### System Components
 
-```
+```text
 ┌─────────────────────────────────────────────────┐
 │          Salary Negotiation AI Engine           │
 │                                                  │
@@ -117,7 +119,8 @@ println!("Data Points: {}", prediction.data_points_used);
 ```
 
 **Example Output:**
-```
+
+```text
 Salary Range: $120,000-$180,000
 Market Median: $150,000
 Confidence: 90%
@@ -166,7 +169,8 @@ for comp in comparisons {
 ```
 
 **Example Output:**
-```
+
+```text
 Google
   Base: $180,000
   Total: $250,000
@@ -208,7 +212,8 @@ println!("{}", script);
 ```
 
 **Output:**
-```
+
+```text
 Thank you for the offer! I'm excited about the opportunity to join Google.
 Based on my research of market rates for this role in San Francisco and my
 5 years of experience, I was hoping for a compensation package in the range
@@ -257,11 +262,12 @@ sqlx::query!(
 ### 1. H1B Salary Database (Primary)
 
 **Source:** U.S. Department of Labor - Foreign Labor Certification Data Center
-**URL:** https://www.flcdatacenter.com/
+**URL:** <https://www.flcdatacenter.com/>
 **Coverage:** 500,000+ certified H1B applications annually
 **Legal:** ✅ Public domain (Freedom of Information Act)
 
 **Why H1B Data:**
+
 - ✅ Legally public and free
 - ✅ Verified by U.S. government
 - ✅ Includes exact salaries (not ranges)
@@ -269,6 +275,7 @@ sqlx::query!(
 - ✅ Updated quarterly
 
 **Data Fields:**
+
 - Job Title
 - Employer Name
 - Annual Salary ($)
@@ -283,6 +290,7 @@ sqlx::query!(
 **Verification:** Optional offer letter upload
 
 **Privacy:**
+
 - Anonymized by default
 - Company name optional
 - Helps fill gaps in H1B data
@@ -294,6 +302,7 @@ sqlx::query!(
 ### Automatic Inference
 
 **From Years of Experience:**
+
 ```rust
 let seniority = SeniorityLevel::from_years_of_experience(5);
 // Output: SeniorityLevel::Mid
@@ -306,6 +315,7 @@ let seniority = SeniorityLevel::from_years_of_experience(5);
 ```
 
 **From Job Title:**
+
 ```rust
 let seniority = SeniorityLevel::from_job_title("Senior Software Engineer");
 // Output: SeniorityLevel::Senior
@@ -332,6 +342,7 @@ let seniority = SeniorityLevel::from_job_title("Senior Software Engineer");
 ### Template Placeholders
 
 Common placeholders:
+
 - `{{company}}` - Company name
 - `{{current_offer}}` - Their current offer
 - `{{target_salary}}` - Your target salary
@@ -372,6 +383,7 @@ generator.add_template(
    - OR from job title keywords
 
 3. **Query Benchmarks**
+
    ```sql
    SELECT median_salary, p75_salary, sample_size
    FROM salary_benchmarks
@@ -422,6 +434,7 @@ cargo test --lib salary
 ```
 
 **Test Statistics:**
+
 - **Salary Module:** 4 tests
 - **Benchmarks:** 3 tests
 - **Negotiation:** 1 test
@@ -580,4 +593,5 @@ impl SalaryPredictor {
 **Implementation Status:** ✅ Phase 1 Complete (Data Infrastructure)
 **Next Feature:** Job Market Intelligence Dashboard (P0)
 
-💡 **Pro Tip:** Always negotiate! Research shows 70% of employers expect it, and the average salary increase from negotiation is 10-15%.
+💡 **Pro Tip:** Always negotiate! Research shows 70% of employers expect it, and the average
+salary increase from negotiation is 10-15%.

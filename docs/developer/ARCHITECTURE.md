@@ -18,7 +18,9 @@
 
 ## Overview
 
-JobSentinel is a **privacy-first, desktop-native job search automation tool** built with Rust and Tauri. The application runs entirely on the user's machine with no cloud dependencies (v1.0), ensuring complete data privacy and control.
+JobSentinel is a **privacy-first, desktop-native job search automation tool** built with Rust
+and Tauri. The application runs entirely on the user's machine with no cloud dependencies
+(v1.0), ensuring complete data privacy and control.
 
 ### Key Characteristics
 
@@ -34,7 +36,7 @@ JobSentinel is a **privacy-first, desktop-native job search automation tool** bu
 
 ### High-Level Architecture
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────┐
 │                         Frontend (React 19)                     │
 │  ┌───────────────┐  ┌───────────────┐  ┌───────────────┐      │
@@ -90,7 +92,9 @@ JobSentinel is a **privacy-first, desktop-native job search automation tool** bu
 Platform-agnostic business logic that can run on any OS or in the cloud.
 
 #### `core/config/` (5 submodules)
+
 **Purpose**: Configuration management
+
 - Load/save user preferences
 - Validate configuration values
 - Provide sensible defaults
@@ -102,6 +106,7 @@ Platform-agnostic business logic that can run on any OS or in the cloud.
   - `loader.rs` - Configuration file I/O
 
 **Key Types:**
+
 ```rust
 pub struct Config {
     title_allowlist: Vec<String>,
@@ -113,6 +118,7 @@ pub struct Config {
 ```
 
 **Validation Rules:**
+
 - Salary: 0 ≤ value ≤ $10M
 - Alert threshold: 0.0 ≤ value ≤ 1.0
 - Scraping interval: 1h ≤ value ≤ 168h
@@ -120,7 +126,9 @@ pub struct Config {
 - URL format validation
 
 #### `core/db/` (8 submodules + integrity/)
+
 **Purpose**: SQLite database abstraction
+
 - Job storage and retrieval
 - Full-text search (FTS5)
 - Statistics aggregation
@@ -142,6 +150,7 @@ pub struct Config {
     - `tests.rs` - Integrity tests
 
 **Key Operations:**
+
 ```rust
 upsert_job()        // Insert or update job
 get_recent_jobs()   // Get N most recent jobs
@@ -151,6 +160,7 @@ get_statistics()    // Aggregate stats
 ```
 
 **Schema:**
+
 ```sql
 CREATE TABLE jobs (
     id INTEGER PRIMARY KEY,
@@ -168,7 +178,9 @@ CREATE VIRTUAL TABLE jobs_fts USING fts5(
 ```
 
 #### `core/scrapers/`
+
 **Purpose**: Job board scraping (13 sources)
+
 - **Greenhouse** - ATS scraper (HTML)
 - **Lever** - ATS scraper (HTML)
 - **LinkedIn** - Session cookie authentication
@@ -184,6 +196,7 @@ CREATE VIRTUAL TABLE jobs_fts USING fts5(
 - **ZipRecruiter** - Job search platform
 
 **Architecture:**
+
 ```rust
 #[async_trait]
 pub trait JobScraper: Send + Sync {
@@ -193,20 +206,25 @@ pub trait JobScraper: Send + Sync {
 ```
 
 **Hash Computation:**
+
 ```rust
 SHA-256(company + title + location + url)
 ```
 
 **Rate Limiting:**
+
 - 2 second delay between companies
 - 30 second timeout per request
 
 #### `core/scoring/`
+
 **Purpose**: Multi-factor job scoring
+
 - Weighted scoring algorithm
 - Configurable factors
 
 **Algorithm:**
+
 ```rust
 total_score = (
     skills_match   * 0.40 +
@@ -218,12 +236,15 @@ total_score = (
 ```
 
 #### `core/credentials/` (NEW in v2.0)
+
 **Purpose**: Secure credential storage
+
 - OS-native keyring integration
 - macOS Keychain, Windows Credential Manager, Linux Secret Service
 - Dual-access pattern: Tauri plugin for frontend, keyring crate for backend
 
 **Key Types:**
+
 ```rust
 pub enum CredentialKey {
     SmtpPassword,
@@ -240,6 +261,7 @@ pub struct CredentialStore {
 ```
 
 **Credentials Secured:**
+
 - SMTP password (email notifications)
 - Telegram bot token
 - Slack/Discord/Teams webhook URLs
@@ -248,25 +270,31 @@ pub struct CredentialStore {
 See [Security: Keyring Integration](../security/KEYRING.md) for full documentation.
 
 #### `core/notify/`
+
 **Purpose**: Alert notifications
+
 - Slack, Discord, Teams webhooks
 - Email via SMTP
 - Desktop notifications via Tauri
 - **Credentials fetched from keyring at runtime** (v2.0+)
 
 **Security:**
+
 - Webhook URL validation
 - HTTPS enforcement
 - Domain allowlisting
 - Secure credential storage via keyring
 
 #### `core/ghost/`
+
 **Purpose**: Ghost job detection (v1.4)
+
 - Identifies fake/stale/already-filled job postings
 - Multi-signal analysis (age, reposts, content, requirements)
 - Ghost score 0.0-1.0
 
 **Signals Analyzed:**
+
 - Stale postings (60+ days old)
 - Repost frequency tracking
 - Generic/vague descriptions
@@ -274,7 +302,9 @@ See [Security: Keyring Integration](../security/KEYRING.md) for full documentati
 - Company excessive openings
 
 #### `core/ats/` (5 submodules)
+
 **Purpose**: Application Tracking System
+
 - Kanban board with 12 status columns
 - Automated follow-up reminders
 - Timeline/audit trail
@@ -288,7 +318,9 @@ See [Security: Keyring Integration](../security/KEYRING.md) for full documentati
   - `interviews.rs` - Interview scheduling and iCal export
 
 #### `core/user_data/`
+
 **Purpose**: User data persistence (v1.4)
+
 - Cover letter templates with categories
 - Interview prep checklists
 - Follow-up reminder tracking
@@ -299,20 +331,26 @@ See [Security: Keyring Integration](../security/KEYRING.md) for full documentati
 **Migration:** Includes localStorage → SQLite migration for existing users.
 
 #### `core/resume/`
+
 **Purpose**: AI Resume-Job Matcher
+
 - PDF resume parsing
 - Skill extraction
 - Job-resume matching with confidence scores
 
 #### `core/salary/`
+
 **Purpose**: Salary AI
+
 - H1B data-based predictions
 - Salary benchmarks by role/location
 - Negotiation script generation
 - Offer comparison
 
 #### `core/market_intelligence/` (4 submodules)
+
 **Purpose**: Market Analytics
+
 - Daily market snapshots
 - Skill demand trends
 - Company hiring velocity
@@ -325,7 +363,9 @@ See [Security: Keyring Integration](../security/KEYRING.md) for full documentati
   - `alerts.rs` - Anomaly detection and alerts
 
 #### `core/scheduler/` (7 submodules)
+
 **Purpose**: Automated job scraping
+
 - Configurable interval (1-168 hours)
 - Graceful shutdown
 - Error recovery
@@ -339,7 +379,8 @@ See [Security: Keyring Integration](../security/KEYRING.md) for full documentati
   - `tests.rs` - Scheduler unit tests
 
 **Workflow:**
-```
+
+```text
 ┌──────────────┐
 │  Schedule    │
 │  (every 2h)  │
@@ -375,6 +416,7 @@ See [Security: Keyring Integration](../security/KEYRING.md) for full documentati
 Tauri command handlers (RPC interface between React and Rust). **70 total commands.**
 
 **Core Commands (18):**
+
 ```rust
 search_jobs()              // Trigger manual scrape
 get_recent_jobs(limit)     // Get N recent jobs
@@ -388,6 +430,7 @@ get_scraping_status()      // Get scheduler status
 ```
 
 **Ghost Detection (3):**
+
 ```rust
 get_ghost_jobs()           // Get flagged ghost jobs
 get_ghost_statistics()     // Detection stats
@@ -395,6 +438,7 @@ get_recent_jobs_filtered() // Filter by ghost status
 ```
 
 **ATS Commands (10):**
+
 ```rust
 create_application(), get_applications_kanban(),
 update_application_status(), add_application_notes(),
@@ -404,6 +448,7 @@ get_upcoming_interviews(), complete_interview()
 ```
 
 **User Data Commands (20):**
+
 ```rust
 // Templates
 list_cover_letter_templates(), create_cover_letter_template(),
@@ -420,6 +465,7 @@ add_search_history(), get_search_history(), clear_search_history()
 ```
 
 **Resume/Salary/Market (15):**
+
 ```rust
 // Resume: upload, get_active, set_active, get_skills, match, get_match_result
 // Salary: predict, benchmark, negotiate, compare
@@ -427,6 +473,7 @@ add_search_history(), get_search_history(), clear_search_history()
 ```
 
 **Error Handling:**
+
 - All commands return `Result<T, String>`
 - Errors logged with `tracing`
 - User-friendly error messages
@@ -436,12 +483,14 @@ add_search_history(), get_search_history(), clear_search_history()
 OS-specific code (conditionally compiled).
 
 **Windows:**
+
 ```rust
 get_data_dir()    // %LOCALAPPDATA%\JobSentinel
 get_config_dir()  // %APPDATA%\JobSentinel
 ```
 
 **macOS:**
+
 ```rust
 get_data_dir()    // ~/Library/Application Support/JobSentinel
 get_config_dir()  // ~/.config/jobsentinel
@@ -450,6 +499,7 @@ get_logs_dir()    // ~/Library/Logs/JobSentinel
 ```
 
 **Linux:**
+
 ```rust
 get_data_dir()    // ~/.local/share/jobsentinel
 get_config_dir()  // ~/.config/jobsentinel
@@ -461,7 +511,7 @@ get_config_dir()  // ~/.config/jobsentinel
 
 ### Complete Scraping Cycle
 
-```
+```text
 1. User triggers scrape OR scheduler fires
    │
    v
@@ -493,7 +543,7 @@ get_config_dir()  // ~/.config/jobsentinel
 
 ### Configuration Flow
 
-```
+```text
 User edits config in UI
    │
    v
@@ -619,7 +669,7 @@ pub struct GreenhouseScraper { ... }
 
 ### Cloud Deployment
 
-```
+```text
 ┌──────────────┐
 │   Desktop    │ ──┐
 │     App      │   │

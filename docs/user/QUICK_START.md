@@ -75,7 +75,7 @@ The setup wizard guides you through:
    - Partial credit for unlisted salaries
 
 4. **Slack Notifications** - Get alerts for high matches
-   - Create a webhook: https://api.slack.com/messaging/webhooks
+   - Create a webhook: <https://api.slack.com/messaging/webhooks>
    - Paste the webhook URL
 
 ### Manual Configuration
@@ -85,6 +85,7 @@ You can also edit the configuration file directly:
 **Location:** `%LOCALAPPDATA%\JobSentinel\config.json`
 
 **Example:**
+
 ```json
 {
   "title_allowlist": ["Security Engineer"],
@@ -139,6 +140,7 @@ By default, JobSentinel runs every **2 hours** automatically:
 4. Sends Slack alerts for high matches (score ≥ 90%)
 
 You can change the interval in `config.json`:
+
 ```json
 {
   "scraping_interval_hours": 2
@@ -160,7 +162,7 @@ High-scoring jobs (≥90% match) trigger immediate Slack notifications with:
 
 **Setting up Slack webhook:**
 
-1. Go to https://api.slack.com/messaging/webhooks
+1. Go to <https://api.slack.com/messaging/webhooks>
 2. Click "Create New App" → "From Scratch"
 3. Name it "JobSentinel" and select your workspace
 4. Enable "Incoming Webhooks"
@@ -172,6 +174,7 @@ High-scoring jobs (≥90% match) trigger immediate Slack notifications with:
 In the setup wizard, click **"Test Webhook"** to verify it works.
 
 Or use the command line:
+
 ```bash
 curl -X POST -H 'Content-type: application/json' \
   --data '{"text":"JobSentinel test notification"}' \
@@ -193,6 +196,7 @@ JobSentinel uses a **multi-factor scoring algorithm** (0-100%):
 | **Recency** | 5% | Job posted within last 7 days |
 
 **Example:**
+
 - Job title "Security Engineer" matches allowlist: +40%
 - Salary $180k exceeds $150k floor: +25%
 - Remote position matches preference: +20%
@@ -206,11 +210,13 @@ JobSentinel uses a **multi-factor scoring algorithm** (0-100%):
 All data is stored **locally on your machine**:
 
 **Windows:**
+
 - **Database:** `%LOCALAPPDATA%\JobSentinel\jobs.db` (SQLite)
 - **Configuration:** `%LOCALAPPDATA%\JobSentinel\config.json`
 - **Logs:** Enable with `RUST_LOG=debug` environment variable
 
 **macOS:**
+
 - **Database:** `~/Library/Application Support/JobSentinel/jobs.db` (SQLite)
 - **Configuration:** `~/.config/jobsentinel/config.json`
 - **Logs:** Enable with `RUST_LOG=debug` environment variable
@@ -333,14 +339,17 @@ All sensitive credentials are stored in your OS's secure credential manager:
 | **Linux** | Secret Service (GNOME Keyring, KWallet) |
 
 **Secured credentials:**
+
 - SMTP password (email notifications)
 - Slack/Discord/Teams webhook URLs
 - Telegram bot token
 - LinkedIn session cookie
 
-Credentials are **never stored in plaintext** in the config file. See [Keyring Documentation](../security/KEYRING.md) for full details.
+Credentials are **never stored in plaintext** in the config file.
+See [Keyring Documentation](../security/KEYRING.md) for full details.
 
 **Optional external services:**
+
 - Slack (only if you enable notifications)
 - Job board APIs (Greenhouse, Lever, JobsWithGPT)
 
@@ -351,7 +360,7 @@ Credentials are **never stored in plaintext** in the config file. See [Keyring D
 - **Full Documentation:** See [Getting Started](../developer/GETTING_STARTED.md)
 - **Configuration Examples:** See [config.example.json](../../config.example.json)
 - **Environment Variables:** See [.env.example](../../.env.example)
-- **Report Issues:** https://github.com/cboyd0319/JobSentinel/issues
+- **Report Issues:** <https://github.com/cboyd0319/JobSentinel/issues>
 - **Developer Guide:** See [Developer Guide](../developer/GETTING_STARTED.md) → Development section
 
 ---

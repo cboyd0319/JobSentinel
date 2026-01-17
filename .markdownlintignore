@@ -12,5 +12,14 @@ src-tauri/gen/
 # Ignore changelogs (may have different formatting needs)
 CHANGELOG.md
 
-# Ignore archive docs
+# Ignore archive docs (deprecated content)
 docs/archive/
+
+# Ignore CLAUDE.md (internal AI instructions)
+CLAUDE.md
+
+# Ignore internal planning docs
+.claude/
+
+# Ignore browser extension (separate project)
+browser-extension/

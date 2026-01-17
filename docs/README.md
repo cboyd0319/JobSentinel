@@ -14,6 +14,7 @@ Welcome to JobSentinel documentation.
 ### Current Work in Progress
 
 **Plan documents:**
+
 - **Detailed:** `.claude/plans/virtual-puzzling-pretzel.md` (full specs for E1-E4, P0-P7)
 - **Public:** [ROADMAP.md](ROADMAP.md) (high-level + technical debt)
 
@@ -31,6 +32,7 @@ Welcome to JobSentinel documentation.
 **Version: 2.0.0** | 1963+ tests passing | Security-Hardened Release
 
 ### What's New in v2.0 🔐
+
 - **OS-Native Keyring Integration** - All credentials securely stored in OS credential managers
   - macOS: Keychain | Windows: Credential Manager | Linux: Secret Service
 - **6 credentials secured**: SMTP password, Telegram token, Slack/Discord/Teams webhooks, LinkedIn cookie
@@ -38,7 +40,9 @@ Welcome to JobSentinel documentation.
 - See [Keyring Documentation](security/KEYRING.md) for full details
 
 ### Working Features
-- **13 Job scrapers**: Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, ZipRecruiter
+
+- **13 Job scrapers**: Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely,
+  BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, ZipRecruiter
 - **Ghost Job Detection** - Identifies fake/stale job postings
 - Application Tracking System (ATS) with Kanban board + interview scheduler
 - AI Resume-Job Matcher with PDF parsing
@@ -62,6 +66,7 @@ Welcome to JobSentinel documentation.
 | ![Dashboard](images/dashboard.png) | ![Kanban](images/kanban-board.png) |
 
 ### Backend Modules (70 Tauri Commands)
+
 - **Core**: config, db, scoring, scheduler, scrapers (13 with parallel scraping), notify, ghost
 - **ATS**: 10 commands (Kanban, reminders, ghosting detection, interviews)
 - **Resume Matcher**: 6 commands (upload, match, skills)
@@ -71,6 +76,7 @@ Welcome to JobSentinel documentation.
 - **User Data**: 20 commands (templates, prep checklists, saved searches, notifications, history)
 
 ### Deferred Features (v2.0+)
+
 - One-Click Apply Automation (legal review required)
 
 ---
@@ -78,9 +84,11 @@ Welcome to JobSentinel documentation.
 ## Documentation Index
 
 ### For Users
+
 - **[Quick Start Guide](user/QUICK_START.md)** - Installation and setup
 
 ### For Developers
+
 - **[Getting Started](developer/GETTING_STARTED.md)** - Development setup
 - **[Contributing](developer/CONTRIBUTING.md)** - How to contribute
 - **[Architecture](developer/ARCHITECTURE.md)** - System design
@@ -92,11 +100,13 @@ Welcome to JobSentinel documentation.
 - **[Mutation Testing](developer/MUTATION_TESTING.md)** - Test quality
 
 ### Security
+
 | Topic | Documentation |
 |-------|---------------|
 | **Keyring Integration** | [Secure Credential Storage](security/KEYRING.md) |
 
 ### Features
+
 | Feature | Status | Documentation |
 |---------|--------|---------------|
 | Ghost Detection | **v1.4** | [Ghost Detection](features/ghost-detection.md) |
@@ -108,6 +118,7 @@ Welcome to JobSentinel documentation.
 | Job Scrapers | Working | [Scrapers](features/scrapers.md) |
 
 ### Release Notes
+
 - **[v2.0 - Security Hardening](releases/v2.0.md)** - OS-native keyring integration
 - **[v1.6 - Additional Refactoring](releases/v1.6.md)** - Commands, scrapers, salary, resume modularization
 - **[v1.5 - Modularization](releases/v1.5.md)** - File refactoring and code organization
@@ -116,14 +127,17 @@ Welcome to JobSentinel documentation.
 - **[v1.2 - Notifications](releases/v1.2.md)** - Multi-channel notifications
 
 ### Reports
+
 - **[Security Audit (2026-01-16)](reports/SECURITY_AUDIT_2026-01-16.md)** - Comprehensive security analysis
 - **[Deep Analysis](reports/DEEP_ANALYSIS_COMPLETE_REPORT.md)** - Security and code analysis
 - **[v1.0 Status](reports/V1_COMPLETION_STATUS.md)** - Implementation tracking
 
 ### Planning
+
 - **[Roadmap](ROADMAP.md)** - Feature roadmap and priorities
 
 ### Archive
+
 - [One-Click Apply](archive/ONE_CLICK_APPLY_AUTOMATION.md) - Deferred to v2.0
 
 ---
@@ -143,7 +157,7 @@ Welcome to JobSentinel documentation.
 
 ## File Structure
 
-```
+```text
 docs/
 ├── README.md              # This file
 ├── ROADMAP.md             # Feature roadmap

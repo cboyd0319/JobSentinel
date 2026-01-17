@@ -39,6 +39,7 @@ copy profiles\seo-digital-marketing.json %LOCALAPPDATA%\JobSentinel\config.json
 ### Option 3: Create a Custom Profile
 
 Start with `config.example.json` and fill in your own:
+
 - `title_allowlist`: Job titles you're targeting
 - `keywords_boost`: Your skills and tools
 - `salary_floor_usd`: Your minimum salary
@@ -60,6 +61,7 @@ Start with `config.example.json` and fill in your own:
 ## Scoring Algorithm
 
 Jobs are scored 0-100% based on:
+
 - **Skills Match (40%)**: Title + keyword matches
 - **Salary (25%)**: Meets or exceeds your floor
 - **Location (20%)**: Matches remote/hybrid/onsite preference
@@ -69,12 +71,15 @@ Jobs are scored 0-100% based on:
 ## Customization Tips
 
 ### For Senior Roles
+
 Add to `title_blocklist`:
+
 ```json
 "Junior", "Entry Level", "Associate", "I", "II"
 ```
 
 ### For Remote-Only
+
 ```json
 "location_preferences": {
   "allow_remote": true,
@@ -84,6 +89,7 @@ Add to `title_blocklist`:
 ```
 
 ### For Specific Cities
+
 ```json
 "location_preferences": {
   "allow_remote": true,
@@ -97,6 +103,7 @@ Add to `title_blocklist`:
 ## Contributing
 
 Have a career profile that's not covered? Submit a PR with:
+
 1. A new JSON file in this folder
 2. Update this README with the new profile
 3. Include realistic salary ranges and common job titles

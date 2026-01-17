@@ -6,7 +6,9 @@
 
 ## TL;DR
 
-Tauri gives us a **Rust backend**, **8MB app size**, **50MB memory usage**, and **zero telemetry** - perfect for a privacy-first job search tool that runs on public library computers.
+Tauri gives us a **Rust backend**, **8MB app size**, **50MB memory usage**, and **zero
+telemetry** - perfect for a privacy-first job search tool that runs on public library
+computers.
 
 ---
 
@@ -32,7 +34,7 @@ Electron bundles Chromium (the open-source Chrome browser) with every app. This 
 
 Every Electron app ships its own copy of Chromium. For a simple job scraper, this is absurd:
 
-```
+```text
 Electron app:
 ├── Chrome runtime     ~120MB
 ├── Node.js runtime    ~20MB
@@ -58,17 +60,21 @@ For users on older hardware or public library computers, this matters.
 
 ### 3. Chromium Telemetry
 
-Even though Electron uses open-source Chromium, it still includes various Google services and telemetry hooks. Disabling them is a constant battle. Tauri uses the OS's native webview with no third-party telemetry.
+Even though Electron uses open-source Chromium, it still includes various Google services and
+telemetry hooks. Disabling them is a constant battle. Tauri uses the OS's native webview
+with no third-party telemetry.
 
 ### 4. Node.js Backend
 
 Electron's backend runs on Node.js, which means:
+
 - JavaScript's dynamic typing (more bugs)
 - Single-threaded event loop (blocking I/O issues)
 - npm dependency hell (security vulnerabilities)
 - No memory safety guarantees
 
 Tauri's Rust backend gives us:
+
 - Strong static typing (compile-time bug catching)
 - True async with Tokio (efficient I/O)
 - Cargo's excellent dependency management
@@ -82,15 +88,18 @@ Chrome extensions seem like an obvious choice for a job search tool, but they ha
 
 ### 1. No Background Processing
 
-Extensions can't run scheduled tasks when Chrome is closed. JobSentinel needs to scrape job boards every 2 hours, even when you're not actively browsing.
+Extensions can't run scheduled tasks when Chrome is closed. JobSentinel needs to scrape job
+boards every 2 hours, even when you're not actively browsing.
 
 ### 2. No Local Database
 
-Extensions have limited storage (chrome.storage is key-value only, ~5MB limit). JobSentinel uses SQLite with full-text search, storing thousands of jobs with rich metadata.
+Extensions have limited storage (chrome.storage is key-value only, ~5MB limit). JobSentinel
+uses SQLite with full-text search, storing thousands of jobs with rich metadata.
 
 ### 3. No Desktop Notifications (When Chrome Closed)
 
-If a dream job appears at 3am, an extension can't notify you unless Chrome is open. Tauri apps can send native OS notifications anytime.
+If a dream job appears at 3am, an extension can't notify you unless Chrome is open. Tauri
+apps can send native OS notifications anytime.
 
 ### 4. Chrome Required
 
@@ -98,7 +107,8 @@ Not everyone uses Chrome. JobSentinel works on Windows, macOS, and Linux regardl
 
 ### 5. Extension Permissions = Trust Issues
 
-Users are rightfully suspicious of extensions requesting broad permissions. A native app with clear data boundaries is more trustworthy.
+Users are rightfully suspicious of extensions requesting broad permissions. A native app with
+clear data boundaries is more trustworthy.
 
 ---
 
@@ -113,6 +123,7 @@ The entire privacy promise of JobSentinel is **"all data stays on YOUR computer.
 ### 2. Subscription Business Model
 
 Servers cost money. That cost gets passed to users via:
+
 - Monthly subscriptions
 - Freemium with limitations
 - Ads
@@ -153,6 +164,7 @@ Instead of bundling Chrome, Tauri uses the OS's built-in webview:
 | Linux | WebKitGTK | Usually |
 
 This means:
+
 - Smaller app size (no bundled browser)
 - Native look and feel
 - Security updates via OS updates
@@ -170,6 +182,7 @@ Tauri was designed with security in mind:
 ### Active Development
 
 Tauri 2.0 (which JobSentinel uses) was released in late 2024 with:
+
 - Mobile support (iOS/Android)
 - Plugin system
 - Improved security model
@@ -206,6 +219,7 @@ Real-world measurements on a 2024 MacBook Pro:
 | Memory (active) | 80MB |
 
 Compare to typical Electron apps:
+
 - Cold start: 2-5s
 - Memory (idle): 200-400MB
 
@@ -231,7 +245,8 @@ Different OS webviews have subtle rendering differences (unlike Electron's consi
 
 Rust has a steeper learning curve than JavaScript.
 
-**Mitigation:** The safety and performance benefits are worth it. AI assistants (like Claude) also help significantly with Rust development.
+**Mitigation:** The safety and performance benefits are worth it. AI assistants (like Claude)
+also help significantly with Rust development.
 
 ### 4. Debugging Tools
 
@@ -243,9 +258,11 @@ Chrome DevTools in Electron is more polished than webview debugging.
 
 ## Conclusion
 
-For a **privacy-first**, **local-only**, **free-forever** job search tool that needs to run on **public library computers** with **minimal resources**, Tauri is the obvious choice.
+For a **privacy-first**, **local-only**, **free-forever** job search tool that needs to run on
+**public library computers** with **minimal resources**, Tauri is the obvious choice.
 
-The 8MB download, 50MB memory footprint, and Rust backend aren't just nice-to-haves - they're core to the product promise.
+The 8MB download, 50MB memory footprint, and Rust backend aren't just nice-to-haves - they're
+core to the product promise.
 
 ---
 
@@ -253,5 +270,6 @@ The 8MB download, 50MB memory footprint, and Rust backend aren't just nice-to-ha
 
 - [Tauri Official Docs](https://tauri.app/)
 - [Tauri vs Electron Comparison](https://tauri.app/about/intro#comparison-to-other-tools)
-- [Why Discord Stayed on Electron](https://discord.com/blog/why-discord-is-switching-from-go-to-rust) (spoiler: they should have used Tauri)
+- [Why Discord Switched to Rust](https://discord.com/blog/why-discord-is-switching-from-go-to-rust)
+  (note: from Go, not Electron)
 - [1Password's Move to Tauri](https://blog.1password.com/1password-8-the-story-so-far/)

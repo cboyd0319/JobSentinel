@@ -1,4 +1,5 @@
 # Application Tracking System (ATS)
+
 ## Kanban Board & Pipeline Management for JobSentinel
 
 > **Status:** WORKING - Module enabled in v1.4.0
@@ -49,19 +50,19 @@ This modular structure keeps code organized and maintainable while supporting fu
 applications
 ├── id (PRIMARY KEY)
 ├── job_hash (FOREIGN KEY → jobs.hash)
-├── status (CHECK constraint: 12 valid statuses)
+├── status
 ├── applied_at
 ├── last_contact
 ├── next_followup
 ├── notes
-├── recruiter_* (name, email, phone)
+├── recruiter_name, recruiter_email, recruiter_phone
 └── salary_expectation
 
 -- Event timeline (audit trail)
 application_events
 ├── id (PRIMARY KEY)
 ├── application_id (FOREIGN KEY)
-├── event_type (status_change, email_*, phone_call, etc.)
+├── event_type
 ├── event_data (JSON)
 └── created_at
 
@@ -69,22 +70,22 @@ application_events
 application_reminders
 ├── id (PRIMARY KEY)
 ├── application_id (FOREIGN KEY)
-├── reminder_type (follow_up, interview_prep, custom)
+├── reminder_type
 ├── reminder_time
 ├── message
 ├── completed (boolean)
 └── completed_at
 
 -- Interview tracking
-interviews (future enhancement)
+interviews
 
 -- Offer tracking
-offers (future enhancement)
+offers
 ```
 
 ### Status Pipeline
 
-```
+```text
 To Apply → Applied → Screening Call → Phone Interview
     ↓         ↓           ↓                 ↓
 Withdrawn  Rejected    Ghosted    Technical Interview
@@ -148,6 +149,7 @@ kanban.offer_received  // Vec<ApplicationWithJob>
 ```
 
 **Response Structure:**
+
 ```rust
 ApplicationsByStatus {
     to_apply: Vec<ApplicationWithJob>,
@@ -166,6 +168,7 @@ ApplicationsByStatus {
 ```
 
 Each `ApplicationWithJob` includes:
+
 - Application metadata (ID, status, dates, notes)
 - Job details (title, company, score)
 - Perfect for rendering Kanban cards
@@ -263,6 +266,7 @@ All significant events are logged automatically:
 ```
 
 **Query timeline:**
+
 ```sql
 SELECT event_type, event_data, created_at
 FROM application_events
@@ -289,6 +293,7 @@ cargo test --lib ats
 ```
 
 **Test Coverage:**
+
 - ✅ Create application
 - ✅ Get application by ID
 - ✅ Update status transitions
@@ -478,6 +483,7 @@ pub struct ApplicationsByStatus {
 ## ✅ Implementation Status
 
 ### Completed ✅
+
 - [x] Database schema (5 tables, 10 indexes)
 - [x] ApplicationTracker core module (500+ lines)
 - [x] Status management with transitions
@@ -490,6 +496,7 @@ pub struct ApplicationsByStatus {
 - [x] Comprehensive unit tests
 
 ### Future 🔜
+
 - [ ] Tauri commands
 - [ ] UI components (Kanban board)
 - [ ] Interview tracking

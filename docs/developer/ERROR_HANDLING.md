@@ -51,6 +51,7 @@ pub enum ScraperError {
 ```
 
 **Benefits:**
+
 - Type-safe error handling
 - Automatic `From` implementations
 - Good error messages
@@ -79,6 +80,7 @@ pub async fn scrape_company(url: &str) -> Result<Vec<Job>> {
 ```
 
 **Benefits:**
+
 - Easy context addition
 - Error chaining
 - Less boilerplate
@@ -100,6 +102,7 @@ impl Config {
 ```
 
 **Benefits:**
+
 - Works with any error type
 - Simple to use
 - Good for public APIs
@@ -117,7 +120,7 @@ impl Config {
 
 ### Decision Tree
 
-```
+```text
 Is this library code that others will use?
 ├─ Yes → Use thiserror
 │  └─ Define custom error enum
@@ -151,6 +154,7 @@ fn validate(&self) -> Result<(), Box<dyn std::error::Error>> {
 ```
 
 **Pattern:**
+
 - Early returns for invalid states
 - Clear error messages
 - Return descriptive errors
@@ -177,6 +181,7 @@ async fn scrape_with_retry(url: &str) -> Result<String> {
 ```
 
 **Pattern:**
+
 - Retry transient errors (network)
 - Fail fast on permanent errors (404, 401)
 - Log retry attempts
@@ -204,6 +209,7 @@ pub async fn scrape(&self) -> ScraperResult {
 ```
 
 **Pattern:**
+
 - Log errors but continue
 - Return partial results
 - Don't let one failure stop everything
@@ -225,6 +231,7 @@ pub async fn run_scraping_cycle(&self) -> Result<ScrapingResult> {
 ```
 
 **Pattern:**
+
 - Use RAII for cleanup
 - Leverage Rust's ownership
 - Automatic cleanup on error
@@ -252,6 +259,7 @@ pub async fn save_config(&self, path: &Path) -> Result<()> {
 ```
 
 **Pattern:**
+
 - Add context at each step
 - Build error chain from bottom up
 - Include relevant details in context
@@ -300,6 +308,7 @@ info!("Scraping {} complete: {} jobs in {}ms",
 ```
 
 **Benefits of structured logging:**
+
 - Queryable in log aggregators
 - Better for monitoring/alerting
 - Easier to parse programmatically
@@ -357,12 +366,14 @@ pub async fn search_jobs(state: State<'_, AppState>) -> Result<Value, String> {
 ### Error Message Guidelines
 
 **DO ✅:**
+
 - Explain what happened
 - Suggest next steps
 - Be specific when possible
 - Use plain language
 
 **DON'T ❌:**
+
 - Show stack traces to users
 - Use technical jargon
 - Blame the user

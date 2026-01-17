@@ -10,17 +10,20 @@
 ### Prerequisites
 
 1. **Install Rust:**
+
    ```bash
    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
    source $HOME/.cargo/env
    ```
 
 2. **Install Node.js:**
+
    ```bash
    brew install node
    ```
 
 3. **Install Tauri CLI:**
+
    ```bash
    npm install -g @tauri-apps/cli
    ```
@@ -28,12 +31,14 @@
 ### Development Setup
 
 1. **Clone and install dependencies:**
+
    ```bash
    cd /Users/c/Documents/GitHub/JobSentinel
    npm install
    ```
 
 2. **Run in development mode:**
+
    ```bash
    npm run tauri:dev
    ```
@@ -44,12 +49,14 @@
    - Launch the Tauri app window
 
 3. **Check for compilation errors:**
+
    ```bash
    cd src-tauri
    cargo check
    ```
 
 4. **Run tests:**
+
    ```bash
    cd src-tauri
    cargo test
@@ -91,6 +98,7 @@ npm run tauri:dev
 ```
 
 **Features:**
+
 - Hot reload for React frontend
 - Rust backend recompiles on save
 - Console logging enabled
@@ -105,6 +113,7 @@ npm run tauri:build
 **Output:** `src-tauri/target/release/bundle/dmg/JobSentinel_1.0.0_aarch64.dmg`
 
 **Note:** The `.dmg` installer is for distribution. You can also run the binary directly:
+
 ```bash
 ./src-tauri/target/release/jobsentinel
 ```
@@ -127,6 +136,7 @@ cargo --version
 ### SQLite errors
 
 If you see database errors, try:
+
 ```bash
 # Install SQLite (should be pre-installed on macOS)
 brew install sqlite
@@ -138,6 +148,7 @@ rm -f ~/Library/Application\ Support/JobSentinel/jobs.db
 ### Port conflicts
 
 If port 1420 is already in use:
+
 ```bash
 # Kill the process using port 1420
 lsof -ti:1420 | xargs kill -9
@@ -180,6 +191,7 @@ npm install
 ## Testing the Full Flow
 
 1. **Start the app:**
+
    ```bash
    npm run tauri:dev
    ```
@@ -197,6 +209,7 @@ npm install
 4. **View results:**
    - Check the dashboard for jobs
    - Look in the database:
+
      ```bash
      sqlite3 ~/Library/Application\ Support/JobSentinel/jobs.db "SELECT title, company, score FROM jobs ORDER BY score DESC LIMIT 10;"
      ```
@@ -265,7 +278,7 @@ cargo sqlx migrate info
    - Icon appears in top-right menu bar area
 
 2. **Window management:**
-   - Tauri windows behave slightly differently on macOS vs Windows
+   - Tauri Windows behave slightly differently on macOS vs Windows
    - Use Cmd+Q to quit (not just closing window)
 
 3. **File permissions:**
@@ -284,12 +297,14 @@ cargo sqlx migrate info
 ### First Compilation
 
 First `cargo build` will be slow (~5-10 minutes):
+
 - Downloads and compiles all Rust dependencies
 - Subsequent builds are much faster (~10-30 seconds)
 
 ### Optimization
 
 For faster development cycles:
+
 ```bash
 # Use mold linker (faster linking on macOS)
 brew install mold
@@ -330,6 +345,7 @@ rustflags = ["-C", "link-arg=-fuse-ld=/opt/homebrew/bin/mold"]
 When contributing macOS-specific code:
 
 1. Use conditional compilation:
+
    ```rust
    #[cfg(target_os = "macos")]
    pub fn macos_specific_function() {

@@ -4,25 +4,40 @@
 
 # 🛡️ JobSentinel
 
-### **Your AI-Powered Guardian for the Job Hunt**
+<a id="JobSentinel"></a>
+
+## **Your AI-Powered Guardian for the Job Hunt**
 
 *Privacy-first. Zero compromise. 100% free forever.*
 
 <br>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Windows_11+-0078D6?style=for-the-badge&logo=windows&logoColor=white" alt="Windows 11+">
-  <img src="https://img.shields.io/badge/macOS_26.2+-000000?style=for-the-badge&logo=apple&logoColor=white" alt="macOS 26.2+">
-  <img src="https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black" alt="Linux">
+  <img src="https://img.shields.io/badge/Windows_11+-0078D6?style=for-the-badge&logo=Windows&logoColor=white"
+    alt="Windows 11+">
+  <img src="https://img.shields.io/badge/macOS_26.2+-000000?style=for-the-badge&logo=apple&logoColor=white"
+    alt="macOS 26.2+">
+  <img src="https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black"
+    alt="Linux">
 </p>
 
 <p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg?style=flat-square" alt="License"></a>
-  <a href="https://www.rust-lang.org/"><img src="https://img.shields.io/badge/Rust-1.83%2B-orange.svg?style=flat-square" alt="Rust"></a>
-  <a href="https://tauri.app/"><img src="https://img.shields.io/badge/Tauri-2.x-blue.svg?style=flat-square" alt="Tauri"></a>
-  <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-19-61dafb.svg?style=flat-square" alt="React"></a>
-  <img src="https://img.shields.io/badge/Tests-2033%20passing-brightgreen.svg?style=flat-square" alt="Tests">
-  <img src="https://img.shields.io/badge/Vulnerabilities-0-brightgreen.svg?style=flat-square" alt="Security">
+  <a href="LICENSE"><img
+    src="https://img.shields.io/badge/License-MIT-green.svg?style=flat-square"
+    alt="License"></a>
+  <a href="https://www.rust-lang.org/"><img
+    src="https://img.shields.io/badge/Rust-1.83%2B-orange.svg?style=flat-square"
+    alt="Rust"></a>
+  <a href="https://tauri.app/"><img
+    src="https://img.shields.io/badge/Tauri-2.x-blue.svg?style=flat-square"
+    alt="Tauri"></a>
+  <a href="https://react.dev/"><img
+    src="https://img.shields.io/badge/React-19-61dafb.svg?style=flat-square"
+    alt="React"></a>
+  <img src="https://img.shields.io/badge/Tests-2033%20passing-brightgreen.svg?style=flat-square"
+    alt="Tests">
+  <img src="https://img.shields.io/badge/Vulnerabilities-0-brightgreen.svg?style=flat-square"
+    alt="Security">
 </p>
 
 <br>
@@ -41,7 +56,8 @@
 
 <br>
 
-[⬇️ Download](#installation) • [✨ Features](#features) • [🚀 Quick Start](docs/user/QUICK_START.md) • [💻 Developer Guide](docs/developer/GETTING_STARTED.md)
+[⬇️ Download](#installation) • [✨ Features](#-features) • [🚀 Quick Start](docs/user/QUICK_START.md)
+• [💻 Developer Guide](docs/developer/GETTING_STARTED.md)
 
 </div>
 
@@ -67,8 +83,8 @@
 | 🧠 **Core Engine** | ✅ Working | Config, DB, scoring, scrapers, scheduler, notifications |
 | 🔐 **Secure Credentials** | ✅ **NEW v2.0** | OS-native keyring (macOS Keychain, Windows Credential Manager) |
 | 👻 **Ghost Detection** | ✅ Working | Identifies fake/stale job postings |
-| 📋 **Application Tracking** | ✅ Working | Kanban board with automated reminders |
-| 🤖 **AI Resume Matcher** | ✅ Working | PDF parsing, skill extraction, job-resume scoring |
+| 📋 **Application Tracking** | ✅ Working | Kanban board with reminders and interview scheduler |
+| 🤖 **AI Resume Matcher** | ✅ Working | PDF parsing, skill extraction, job-resume matching |
 | 💰 **Salary AI** | ✅ Working | H1B-based predictions, negotiation insights |
 | 📊 **Market Intelligence** | ✅ Working | Skill trends, hiring velocity, alerts |
 | 🎨 **Frontend** | ✅ Working | React 19 + TypeScript + TailwindCSS |
@@ -77,6 +93,7 @@
 | ✅ **Test Coverage** | ✅ **1963 passing** | Unit + integration + doc tests |
 
 ### Job Sources (13 Working)
+
 - **Greenhouse** - Many tech companies use this ATS
 - **Lever** - Popular with startups
 - **JobsWithGPT** - AI-powered job aggregator
@@ -100,9 +117,13 @@
 </div>
 
 **JobSentinel** is a desktop app that automatically:
-1. **🔍 Scans** 13 job boards (Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, ZipRecruiter) every 2 hours
+
+1. **🔍 Scans** 13 job boards (Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound,
+   WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs,
+   ZipRecruiter) every 2 hours
 2. **🧠 Matches** jobs to your preferences using AI scoring
-3. **📢 Alerts** you on Slack/Discord/Teams/Desktop/Email when great matches appear (90%+ score)
+3. **📢 Alerts** you on Slack/Discord/Teams/Desktop/Email when great matches appear
+   (90%+ score)
 
 > **🔒 All data stays on YOUR computer.** No cloud. No tracking. No subscriptions. Ever.
 
@@ -141,16 +162,19 @@
 
 ## Installation
 
-> **Note:** Pre-built installers are not yet available. See [Development](#development) to build from source.
+> **Note:** Pre-built installers are not yet available. See [Development](#-development) to
+> build from source.
 
 ### Windows 11+ (Primary Target)
 
 **Prerequisites:**
+
 - Windows 11 or newer
 - 8MB disk space
 - No admin rights required
 
 **From Source:**
+
 ```bash
 git clone https://github.com/cboyd0319/JobSentinel
 cd JobSentinel
@@ -181,6 +205,7 @@ Linux support (.deb, .rpm, .AppImage) is planned for v2.0.
 | **Automatic Migration** | Existing plaintext credentials migrated on first launch |
 
 **Credentials secured:**
+
 - SMTP password, Telegram bot token, Slack/Discord/Teams webhooks, LinkedIn cookie
 
 See [docs/security/KEYRING.md](docs/security/KEYRING.md) for full documentation.
@@ -198,16 +223,16 @@ All features from v1.4 remain fully functional and enhanced.
 
 | Feature | Description |
 |---------|-------------|
-| 👻 **Ghost Detection** | Identifies fake, stale, or already-filled job postings with confidence scoring |
+| 👻 **Ghost Detection** | Identifies fake, stale, already-filled jobs |
 | 🌐 **13 Job Boards** | Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, ZipRecruiter |
-| 📋 **Application Tracking** | Kanban board, status pipeline, automated reminders, interview scheduler |
-| 🤖 **AI Resume Matcher** | PDF parsing, skill extraction, job-resume scoring |
-| 💰 **Salary AI** | H1B-based predictions, offer comparison, negotiation insights |
-| 📊 **Market Intelligence** | Daily snapshots, skill trends, hiring velocity, alerts |
+| 📋 **Application Tracking** | Kanban board with reminders and interview scheduler |
+| 🤖 **AI Resume Matcher** | PDF parsing, skill extraction, job-resume matching |
+| 💰 **Salary AI** | H1B predictions, offer comparison, negotiation insights |
+| 📊 **Market Intelligence** | Skill trends, hiring velocity, company insights |
 | 🎯 **Smart Scoring** | Skills 40%, Salary 25%, Location 20%, Company 10%, Recency 5% |
+| 💬 **Advanced Search** | Boolean operators, search history, saved queries |
 | 📢 **Multi-Channel Alerts** | Slack, Discord, Teams, Desktop, Email (SMTP) |
 | ⌨️ **Keyboard Shortcuts** | `b` bookmark, `n` notes, `c` company research, `/` search, `?` help |
-| 🔍 **Advanced Search** | Boolean operators (AND/OR/NOT), search history, saved queries |
 | 📅 **Interview Scheduler** | iCal export, prep checklists, follow-up reminders |
 | 📈 **Enhanced Analytics** | Response rates by source, weekly goals, company response times |
 | 🏢 **Company Research** | 40+ known companies with tech stacks, Glassdoor/LinkedIn links |
@@ -256,7 +281,7 @@ All features from v1.4 remain fully functional and enhanced.
 
 ### Directory Structure (Future-Proof)
 
-```
+```text
 JobSentinel/
 ├── src-tauri/                # Rust backend
 │   ├── src/
@@ -284,6 +309,7 @@ JobSentinel/
 ```
 
 **Key Design Principles:**
+
 - **Core business logic** is platform-agnostic (works on Windows, macOS, Linux, cloud)
 - **Platform-specific code** is isolated with conditional compilation
 - **Cloud deployment** modules are separate (no bloat in desktop app)
@@ -293,7 +319,8 @@ JobSentinel/
 
 ### UI/UX Design System
 
-JobSentinel features a distinctive, non-generic design system built around the concept of a "vigilant guardian" for your job search:
+JobSentinel features a distinctive, non-generic design system built around the concept
+of a "vigilant guardian" for your job search:
 
 | Element | Implementation |
 |---------|---------------|
@@ -304,6 +331,7 @@ JobSentinel features a distinctive, non-generic design system built around the c
 | **Accessibility** | Skip-to-content, focus traps, ARIA labels, keyboard navigation |
 
 **Component Library (`src/components/`):**
+
 - `Button` - Multiple variants, loading states, icons
 - `Input` - Labels, hints, error states, left/right icons
 - `Card` - With hover effects, CardHeader, CardDivider
@@ -329,11 +357,12 @@ JobSentinel features a distinctive, non-generic design system built around the c
    - Example: $150,000
 
 4. **Slack** (optional): Webhook URL for alerts
-   - Create at: https://api.slack.com/messaging/webhooks
+   - Create at: <https://api.slack.com/messaging/webhooks>
 
 ### Configuration File
 
 **Location:**
+
 - **Windows:** `%LOCALAPPDATA%\JobSentinel\config.json`
 - **macOS:** `~/.config/jobsentinel/config.json`
 
@@ -363,9 +392,11 @@ JobSentinel features a distinctive, non-generic design system built around the c
 ## 🎨 UI Preview
 
 ### Setup Wizard
+
 *Interactive 4-step configuration*
 
 ### Dashboard
+
 *Recent jobs, statistics, manual search trigger*
 
 *(Screenshots coming soon)*
@@ -391,13 +422,16 @@ JobSentinel features a distinctive, non-generic design system built around the c
 ### Secure Credential Storage (v2.0)
 
 All passwords, API tokens, and webhook URLs are stored in your OS's native credential manager:
+
 - **macOS**: Keychain
 - **Windows**: Windows Credential Manager
 - **Linux**: Secret Service (GNOME Keyring, KWallet)
 
 See [Keyring Documentation](docs/security/KEYRING.md) for details.
 
-> **Why Zero Vulnerabilities Matter**: JobSentinel is designed to run on public library computers and home computers for users with zero technical knowledge. Security isn't optional—it's foundational.
+> **Why Zero Vulnerabilities Matter**: JobSentinel is designed to run on public library
+> computers and home computers for users with zero technical knowledge. Security isn't
+> optional—it's foundational.
 
 ---
 
@@ -429,11 +463,15 @@ npm run tauri:build
 ### Documentation
 
 - **[📖 Documentation Hub](docs/README.md)** - Complete documentation index
-- **[🚀 Quick Start Guide](docs/user/QUICK_START.md)** - User installation and setup guide
-- **[💻 Getting Started](docs/developer/GETTING_STARTED.md)** - Developer setup and contribution guide
-- **[🍎 macOS Development](docs/developer/MACOS_DEVELOPMENT.md)** - macOS-specific development guide
+- **[🚀 Quick Start Guide](docs/user/QUICK_START.md)** - User installation and setup
+  guide
+- **[💻 Getting Started](docs/developer/GETTING_STARTED.md)** - Developer setup and
+  contribution guide
+- **[🍎 macOS Development](docs/developer/MACOS_DEVELOPMENT.md)** - macOS-specific
+  development guide
 - **[🤝 Contributing](docs/developer/CONTRIBUTING.md)** - Contribution guidelines
-- **[📊 Analysis Report](docs/reports/DEEP_ANALYSIS_COMPLETE_REPORT.md)** - Complete security and code analysis
+- **[📊 Analysis Report](docs/reports/DEEP_ANALYSIS_COMPLETE_REPORT.md)** - Complete
+  security and code analysis
 
 ---
 
@@ -442,30 +480,39 @@ npm run tauri:build
 ### General Questions
 
 **Q: Is JobSentinel really free?**
-A: Yes! 100% free, forever. No subscriptions, no hidden costs, no premium tiers. JobSentinel is open source under the MIT license.
+A: Yes! 100% free, forever. No subscriptions, no hidden costs, no premium tiers.
+JobSentinel is open source under the MIT license.
 
 **Q: Do I need to create an account?**
-A: No! JobSentinel runs entirely on your local machine. No account, no login, no cloud sync. Your data stays private.
+A: No! JobSentinel runs entirely on your local machine. No account, no login, no cloud
+sync. Your data stays private.
 
 **Q: What job boards does it support?**
-A: Currently 13 job boards: Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, and ZipRecruiter (covering 1M+ job listings).
+A: Currently 13 job boards: Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound,
+WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, and
+ZipRecruiter (covering 1M+ job listings).
 
 **Q: Can I use this for non-tech jobs?**
-A: Absolutely! While designed for tech roles, JobSentinel works for any jobs posted on Greenhouse, Lever, or JobsWithGPT.
+A: Absolutely! While designed for tech roles, JobSentinel works for any jobs posted on
+Greenhouse, Lever, or JobsWithGPT.
 
 **Q: Does it work offline?**
-A: Partially. The app runs offline, but it needs internet to scrape job boards and send Slack notifications.
+A: Partially. The app runs offline, but needs internet to scrape job boards and send Slack
+notifications.
 
 ### Privacy & Security
 
 **Q: What data does JobSentinel collect?**
-A: **Nothing!** Zero telemetry, zero analytics, zero tracking. All data stays on your machine. We literally can't see your data.
+A: **Nothing!** Zero telemetry, zero analytics, zero tracking. All data stays on your
+machine. We literally can't see your data.
 
 **Q: Is my Slack webhook secure?**
-A: Yes. Webhooks are validated (must start with `https://hooks.slack.com/services/`), stored locally, and only used for job alerts you configure.
+A: Yes. Webhooks are validated (must start with `https://hooks.slack.com/services/`),
+stored locally, and only used for job alerts you configure.
 
 **Q: Can someone else access my job data?**
-A: Only if they have physical access to your computer. JobSentinel stores data in standard OS directories with your user permissions.
+A: Only if they have physical access to your computer. JobSentinel stores data in
+standard OS directories with your user permissions.
 
 ### Setup & Configuration
 
@@ -473,33 +520,40 @@ A: Only if they have physical access to your computer. JobSentinel stores data i
 A: ~2 minutes. The 4-step wizard covers job titles, location, salary, and Slack notifications (optional).
 
 **Q: Can I change my preferences later?**
-A: Yes! Edit the config file:
+A: Yes! Edit the config file at one of these locations:
+
 - **Windows:** `%LOCALAPPDATA%\JobSentinel\config.json`
 - **macOS:** `~/.config/jobsentinel/config.json`
 
 **Q: What's a good starting configuration?**
-A: See [Configuration Presets](#configuration-presets) below for role-specific templates.
+A: See [Configuration Presets](#-configuration-presets) below for role-specific templates.
 
 **Q: Do I need a Slack webhook?**
-A: No, it's optional. Without Slack, you'll still see all jobs in the dashboard - you just won't get instant notifications.
+A: No, it's optional. Without Slack, you'll still see all jobs in the dashboard - you
+just won't get instant notifications.
 
 ### Job Scraping & Scoring
 
 **Q: How often does it check for new jobs?**
-A: Every 2 hours by default (configurable in `config.json`). You can also trigger manually via "Search Now".
+A: Every 2 hours by default (configurable in `config.json`). You can also trigger
+manually via "Search Now".
 
 **Q: How accurate is the job scoring?**
-A: Very good for title/salary/location matching. The algorithm uses: Skills (40%), Salary (25%), Location (20%), Company (10%), Recency (5%).
+A: Very good for title/salary/location matching. The algorithm uses: Skills (40%),
+Salary (25%), Location (20%), Company (10%), Recency (5%).
 
 **Q: Why am I not finding any jobs?**
 A: Common fixes:
-1. Broaden your title allowlist (try variations: "Engineer", "Developer", "Specialist")
+
+1. Broaden your title allowlist (try variations: "Engineer", "Developer",
+   "Specialist")
 2. Allow multiple locations (Remote + Hybrid)
 3. Lower salary floor to $0 initially
 4. Check that Greenhouse/Lever companies are hiring
 
 **Q: Can I search specific companies?**
 A: Yes! Add company URLs to `config.json`:
+
 ```json
 {
   "greenhouse_urls": ["https://boards.greenhouse.io/cloudflare"],
@@ -510,48 +564,57 @@ A: Yes! Add company URLs to `config.json`:
 ### Technical Questions
 
 **Q: Does this require Python/Node.js/etc?**
-A: No! JobSentinel is a single-file installer. No dependencies, no setup. Just double-click and go.
+A: No! JobSentinel is a single-file installer. No dependencies, no setup. Just
+double-click and go.
 
 **Q: What's the system requirements?**
 A: Minimal:
+
 - **Windows:** Windows 11+, 8MB disk, no admin rights
 - **macOS:** macOS 26.2+ (Tahoe), 8MB disk, no admin rights
 
 **Q: Can I run multiple instances?**
-A: Not recommended. One instance per user is optimal to avoid duplicate notifications and database conflicts.
+A: Not recommended. One instance per user is optimal to avoid duplicate notifications
+and database conflicts.
 
 **Q: How do I update to a new version?**
-A: Download the new installer and run it. Your config and database will be preserved.
+A: Download the new installer and run it. Your config and database will be
+preserved.
 
 ### Troubleshooting
 
 **Q: JobSentinel won't start**
-A: Check:
+A: Check these troubleshooting steps:
+
 1. Is it already running? (Check system tray/menu bar)
 2. Run with `RUST_LOG=debug` to see error messages
 3. Try reinstalling from the latest `.msi`/`.dmg`
 
 **Q: Slack notifications not working**
-A: Verify:
+A: Verify these settings:
+
 1. Webhook URL starts with `https://hooks.slack.com/services/`
 2. Slack app has permission to post
 3. At least one job scores ≥90% (or your configured threshold)
 4. Check logs with `RUST_LOG=debug`
 
 **Q: Database errors**
-A: Rare, but if it happens:
+A: Rare, but if it happens, follow these steps:
+
 1. Close JobSentinel
 2. Backup database file
 3. Delete database (will be recreated)
 4. Restart JobSentinel
 
 **Q: High CPU usage**
-A: JobSentinel only uses CPU during scraping (a few minutes every 2 hours). If constantly high, check for multiple instances running.
+A: JobSentinel only uses CPU during scraping (a few minutes every 2 hours). If
+constantly high, check for multiple instances running.
 
 ### Comparison with Alternatives
 
 **Q: How is this better than LinkedIn Easy Apply?**
-A:
+A: JobSentinel offers several advantages:
+
 - ✅ Privacy-first (LinkedIn tracks everything)
 - ✅ Automated scoring (LinkedIn requires manual review)
 - ✅ Covers more job boards (LinkedIn is just LinkedIn)
@@ -559,10 +622,12 @@ A:
 - ✅ 100% free (LinkedIn Premium is $40/month)
 
 **Q: How is this different from Indeed/Glassdoor?**
-A: JobSentinel is an *automation tool*, not a job board. It scrapes multiple boards, scores jobs based on *your* preferences, and alerts you immediately.
+A: JobSentinel is an *automation tool*, not a job board. It scrapes multiple boards,
+scores jobs based on *your* preferences, and alerts you immediately.
 
 **Q: What about JobSpy or other scrapers?**
-A: Most require Python setup, command-line knowledge, and manual configuration. JobSentinel is designed for **zero technical knowledge** - just click and go.
+A: Most require Python setup, command-line knowledge, and manual configuration.
+JobSentinel is designed for **zero technical knowledge** - just click and go.
 
 ---
 
@@ -571,6 +636,7 @@ A: Most require Python setup, command-line knowledge, and manual configuration. 
 Quick-start templates for common roles:
 
 ### Security Engineer
+
 ```json
 {
   "title_allowlist": ["Security Engineer", "AppSec Engineer", "Product Security"],
@@ -581,6 +647,7 @@ Quick-start templates for common roles:
 ```
 
 ### Frontend Developer
+
 ```json
 {
   "title_allowlist": ["Frontend Engineer", "Frontend Developer", "React Developer"],
@@ -592,6 +659,7 @@ Quick-start templates for common roles:
 ```
 
 ### Backend Engineer
+
 ```json
 {
   "title_allowlist": ["Backend Engineer", "API Engineer", "Platform Engineer"],
@@ -602,6 +670,7 @@ Quick-start templates for common roles:
 ```
 
 ### DevOps/SRE
+
 ```json
 {
   "title_allowlist": ["DevOps Engineer", "SRE", "Platform Engineer", "Infrastructure Engineer"],
@@ -612,6 +681,7 @@ Quick-start templates for common roles:
 ```
 
 ### Data Scientist
+
 ```json
 {
   "title_allowlist": ["Data Scientist", "ML Engineer", "Machine Learning Engineer"],
@@ -622,6 +692,7 @@ Quick-start templates for common roles:
 ```
 
 ### Product Manager
+
 ```json
 {
   "title_allowlist": ["Product Manager", "Senior Product Manager", "Group Product Manager"],
@@ -644,7 +715,7 @@ Contributions are welcome! See our [Contributing Guide](docs/developer/CONTRIBUT
 
 **MIT License** - See [LICENSE](LICENSE)
 
-```
+```text
 ✅ Commercial use
 ✅ Modification
 ✅ Distribution
@@ -676,6 +747,6 @@ If JobSentinel helps you land your next job, **give us a star!** ⭐
 
 <br>
 
-[Back to top](#-jobsentinel)
+[Back to top](#JobSentinel)
 
 </div>

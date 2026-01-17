@@ -1,4 +1,5 @@
 # Job Board Scrapers
+
 ## Support for 13+ Job Sources with Parallel Scraping
 
 > **Status:** ACTIVE (v1.5.0+)
@@ -6,13 +7,16 @@
 > **Last Updated:** 2026-01-17
 > **Architecture:** Parallel scraping with intelligent rate limiting and deduplication
 
-**Note:** JobSentinel includes production-ready scrapers for 13 major job boards. All scrapers implement intelligent rate limiting, automatic deduplication via SHA-256 hashing, and robust error handling.
+**Note:** JobSentinel includes production-ready scrapers for 13 major job boards. All scrapers
+implement intelligent rate limiting, automatic deduplication via SHA-256 hashing, and robust
+error handling.
 
 ---
 
 ## Overview
 
-JobSentinel integrates with 13 major job boards to maximize job coverage and find opportunities faster. Our parallel scraping architecture enables simultaneous searches across multiple sources.
+JobSentinel integrates with 13 major job boards to maximize job coverage and find opportunities
+faster. Our parallel scraping architecture enables simultaneous searches across multiple sources.
 
 ### Supported Scrapers (v1.5.0)
 
@@ -32,7 +36,7 @@ JobSentinel integrates with 13 major job boards to maximize job coverage and fin
 | **YC Startup Jobs** | ~10K | Public | ✅ Production |
 | **ZipRecruiter** | ~8M | Public | ✅ Production |
 
-### Key Features
+### Key Features (v1.5.0)
 
 - **🔹 Multi-Source Integration** - 13 scrapers with parallel execution
 - **🟢 Automatic Rate Limiting** - Token bucket algorithm prevents IP bans
@@ -46,7 +50,7 @@ JobSentinel integrates with 13 major job boards to maximize job coverage and fin
 
 ### Component Diagram
 
-```
+```text
 ┌─────────────────────────────────────────────────────┐
 │              Job Scraper Registry                   │
 │  ┌─────────┐  ┌─────────┐  ┌────────┐ ┌──────────┐│
@@ -69,6 +73,7 @@ JobSentinel integrates with 13 major job boards to maximize job coverage and fin
 ### Scraper Details by Category
 
 #### Major General Job Boards
+
 | Feature | LinkedIn | Indeed | ZipRecruiter |
 |---------|----------|--------|--------------|
 | **Authentication** | Session cookie | None | None |
@@ -78,6 +83,7 @@ JobSentinel integrates with 13 major job boards to maximize job coverage and fin
 | **CAPTCHA Risk** | High | Medium | Low |
 
 #### ATS Integration Platforms
+
 | Feature | Greenhouse | Lever |
 |---------|-----------|-------|
 | **Authentication** | None | None |
@@ -87,6 +93,7 @@ JobSentinel integrates with 13 major job boards to maximize job coverage and fin
 | **CAPTCHA Risk** | Low | Low |
 
 #### Remote-First Boards
+
 | Feature | RemoteOK | WeWorkRemotely | Wellfound |
 |---------|----------|----------------|-----------|
 | **Authentication** | None | None | None |
@@ -95,6 +102,7 @@ JobSentinel integrates with 13 major job boards to maximize job coverage and fin
 | **CAPTCHA Risk** | Low | Low | Low |
 
 #### Niche & Specialized
+
 | Feature | BuiltIn | HN Who's Hiring | Dice | JobsWithGPT | YC Jobs |
 |---------|---------|-----------------|------|-------------|---------|
 | **Focus** | Tech companies | Tech community | IT roles | AI-matched | Startups |
@@ -108,11 +116,13 @@ JobSentinel integrates with 13 major job boards to maximize job coverage and fin
 ### Setup Instructions
 
 **Step 1: Extract Session Cookie**
+
 1. Log into [LinkedIn](https://www.linkedin.com) in your browser
 2. Open DevTools (F12) → Application → Cookies
 3. Find and copy the `li_at` cookie value
 
 **Step 2: Add to Config**
+
 ```json
 {
   "linkedin": {
@@ -127,6 +137,7 @@ JobSentinel integrates with 13 major job boards to maximize job coverage and fin
 ```
 
 **Step 3: Run Scraper**
+
 ```rust
 use jobsentinel::core::scrapers::linkedin::LinkedInScraper;
 use jobsentinel::core::scrapers::rate_limiter::{RateLimiter, limits};
@@ -158,7 +169,7 @@ println!("Found {} jobs from LinkedIn", jobs.len());
 
 ### API Endpoint
 
-```
+```text
 GET https://www.linkedin.com/voyager/api/voyagerJobsDashJobCards
 ?decorationId=com.linkedin.voyager.dash.deco.jobs.search.JobSearchCardsCollection-174
 &count=50
@@ -209,12 +220,14 @@ tab.navigate_to("https://www.linkedin.com/jobs/search/?keywords=software+enginee
 ```
 
 **Benefits:**
+
 - No manual cookie extraction
 - JavaScript rendering
 - Better CAPTCHA handling
 - Session management
 
 **Drawbacks:**
+
 - Slower (30-60s startup)
 - Higher resource usage (Chrome instance)
 - More complex debugging
@@ -228,6 +241,7 @@ tab.navigate_to("https://www.linkedin.com/jobs/search/?keywords=software+enginee
 **No authentication required!** Indeed has public job listings.
 
 **Add to Config:**
+
 ```json
 {
   "indeed": {
@@ -241,6 +255,7 @@ tab.navigate_to("https://www.linkedin.com/jobs/search/?keywords=software+enginee
 ```
 
 **Run Scraper:**
+
 ```rust
 use jobsentinel::core::scrapers::indeed::IndeedScraper;
 use jobsentinel::core::scrapers::rate_limiter::{RateLimiter, limits};
@@ -273,7 +288,7 @@ println!("Found {} jobs from Indeed", jobs.len());
 
 ### Search URL Format
 
-```
+```text
 https://www.indeed.com/jobs
 ?q=software+engineer
 &l=San+Francisco,+CA
@@ -295,6 +310,7 @@ https://www.indeed.com/jobs
 Indeed uses multiple layout variations. The scraper handles all:
 
 **Modern Layout:**
+
 ```html
 <div data-jk="abc123">
   <h2 class="jobTitle">
@@ -307,6 +323,7 @@ Indeed uses multiple layout variations. The scraper handles all:
 ```
 
 **Classic Layout:**
+
 ```html
 <div class="jobsearch-SerpJobCard" data-jk="abc123">
   <h2 class="jobtitle">Senior Software Engineer</h2>
@@ -376,7 +393,7 @@ limiter.wait("greenhouse", limits::GREENHOUSE).await; // 1000/hour
 
 ### Example: Token Refill
 
-```
+```text
 Hour 0:00 → 100 tokens available
 Hour 0:10 → Use 50 tokens → 50 remaining
 Hour 0:20 → Refilled +17 tokens → 67 available
@@ -405,6 +422,7 @@ cargo test --lib scrapers::rate_limiter
 ```
 
 **Test Statistics:**
+
 - **Indeed:** 4 unit tests
 - **LinkedIn:** 5 unit tests
 - **Rate Limiter:** 5 unit tests
@@ -586,6 +604,7 @@ impl RateLimiter {
 ## ✅ Implementation Status
 
 ### Completed ✅ (v1.5.0)
+
 - [x] All 13 job board scrapers (production-ready)
 - [x] Parallel scraping architecture
 - [x] Rate limiting (token bucket, per-scraper)
@@ -597,6 +616,7 @@ impl RateLimiter {
 - [x] Job filtering (keyword, salary, location, company)
 
 ### Future Enhancements 🔜 (v1.6+)
+
 - [ ] Headless browser integration for JavaScript-heavy sites
 - [ ] Additional job boards (Monster, Glassdoor, CareerBuilder)
 - [ ] Job detail page fetching with full descriptions
