@@ -122,7 +122,7 @@ RUST_LOG=debug npm run tauri:dev
 
 # Test on target platforms
 # - Windows 11+
-# - macOS 14+ (Sonoma/Sequoia)
+# - macOS 26.2+ (Tahoe)
 ```
 
 ### 4. Commit Changes
@@ -283,7 +283,7 @@ cargo test -- --nocapture
 - [ ] Slack notifications send (if configured)
 - [ ] Dashboard displays jobs
 - [ ] Config file loads/saves correctly
-- [ ] App runs on Windows 11+ and macOS 14+
+- [ ] App runs on Windows 11+ and macOS 26.2+
 
 ---
 
@@ -331,7 +331,7 @@ Closes #123
 
 ## Testing
 - [ ] Tested on Windows 11
-- [ ] Tested on macOS 14+ (Sonoma/Sequoia)
+- [ ] Tested on macOS 26.2+ (Tahoe)
 - [ ] All Rust tests pass
 - [ ] Manual testing completed
 

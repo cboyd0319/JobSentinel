@@ -12,7 +12,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Windows_11+-0078D6?style=for-the-badge&logo=windows&logoColor=white" alt="Windows 11+">
-  <img src="https://img.shields.io/badge/macOS_14+-000000?style=for-the-badge&logo=apple&logoColor=white" alt="macOS 14+">
+  <img src="https://img.shields.io/badge/macOS_26.2+-000000?style=for-the-badge&logo=apple&logoColor=white" alt="macOS 26.2+">
   <img src="https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black" alt="Linux">
 </p>
 
@@ -125,7 +125,7 @@ npm install
 npm run tauri:build
 ```
 
-### macOS 14+ (Sonoma/Sequoia)
+### macOS 26.2+ (Tahoe)
 
 macOS builds work and are used for development. Official `.dmg` installers planned for v2.0.
 
@@ -209,7 +209,7 @@ JobSentinel/
 │   │   │   └── scheduler/   # Job search scheduling
 │   │   ├── platforms/       # Platform-specific code
 │   │   │   ├── windows/     # Windows 11+ (v1.0)
-│   │   │   ├── macos/       # macOS 14+ (v2.1+)
+│   │   │   ├── macos/       # macOS 26.2+ (v2.1+)
 │   │   │   └── linux/       # Linux (v2.1+)
 │   │   ├── cloud/           # Cloud deployment (v3.0+)
 │   │   │   ├── gcp/         # Google Cloud Platform
@@ -444,7 +444,7 @@ A: No! JobSentinel is a single-file installer. No dependencies, no setup. Just d
 **Q: What's the system requirements?**
 A: Minimal:
 - **Windows:** Windows 11+, 8MB disk, no admin rights
-- **macOS:** macOS 14+ (Sonoma/Sequoia), 8MB disk, no admin rights
+- **macOS:** macOS 26.2+ (Tahoe), 8MB disk, no admin rights
 
 **Q: Can I run multiple instances?**
 A: Not recommended. One instance per user is optimal to avoid duplicate notifications and database conflicts.
