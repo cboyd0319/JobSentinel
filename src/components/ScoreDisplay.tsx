@@ -5,6 +5,53 @@ interface ScoreDisplayProps {
   size?: "sm" | "md" | "lg";
   showLabel?: boolean;
   animate?: boolean;
+  scoreReasons?: string | null; // JSON array of reason strings
+}
+
+/**
+ * Parse score reasons JSON and categorize by factor
+ */
+function parseScoreReasons(reasonsJson?: string | null): {
+  skills: string[];
+  salary: string[];
+  location: string[];
+  company: string[];
+  recency: string[];
+} {
+  const result = {
+    skills: [] as string[],
+    salary: [] as string[],
+    location: [] as string[],
+    company: [] as string[],
+    recency: [] as string[],
+  };
+
+  if (!reasonsJson) return result;
+
+  try {
+    const reasons: string[] = JSON.parse(reasonsJson);
+    for (const reason of reasons) {
+      const lower = reason.toLowerCase();
+      if (lower.includes("title") || lower.includes("keyword") || lower.includes("allowlist") || lower.includes("blocklist")) {
+        result.skills.push(reason);
+      } else if (lower.includes("salary")) {
+        result.salary.push(reason);
+      } else if (lower.includes("remote") || lower.includes("location") || lower.includes("hybrid") || lower.includes("onsite")) {
+        result.location.push(reason);
+      } else if (lower.includes("company")) {
+        result.company.push(reason);
+      } else if (lower.includes("posted") || lower.includes("days ago") || lower.includes("fresh") || lower.includes("old")) {
+        result.recency.push(reason);
+      } else {
+        // Default to skills if can't categorize
+        result.skills.push(reason);
+      }
+    }
+  } catch {
+    // Invalid JSON, return empty
+  }
+
+  return result;
 }
 
 /**
@@ -29,11 +76,84 @@ function getScoreInfo(score: number) {
   };
 }
 
+/**
+ * Score factor weights for display
+ */
+const FACTOR_WEIGHTS = {
+  skills: { weight: 40, label: "Skills", icon: "🎯" },
+  salary: { weight: 25, label: "Salary", icon: "💰" },
+  location: { weight: 20, label: "Location", icon: "📍" },
+  company: { weight: 10, label: "Company", icon: "🏢" },
+  recency: { weight: 5, label: "Recency", icon: "⏰" },
+} as const;
+
+/**
+ * Render the score breakdown tooltip content
+ */
+function ScoreBreakdownTooltip({
+  score,
+  scoreReasons,
+}: {
+  score: number;
+  scoreReasons?: string | null;
+}) {
+  const scoreInfo = getScoreInfo(score);
+  const parsed = parseScoreReasons(scoreReasons);
+  const hasReasons = Object.values(parsed).some(arr => arr.length > 0);
+
+  if (!hasReasons) {
+    return <span>{scoreInfo.explanation}</span>;
+  }
+
+  return (
+    <div className="max-w-xs">
+      <div className="font-semibold mb-2 text-white">{scoreInfo.label}</div>
+      <table className="w-full text-xs">
+        <thead>
+          <tr className="border-b border-surface-600">
+            <th className="text-left pb-1 pr-2">Factor</th>
+            <th className="text-right pb-1 pr-2">Weight</th>
+            <th className="text-left pb-1">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {(Object.keys(FACTOR_WEIGHTS) as Array<keyof typeof FACTOR_WEIGHTS>).map((key) => {
+            const factor = FACTOR_WEIGHTS[key];
+            const reasons = parsed[key];
+            const hasPass = reasons.some(r => r.includes("✓"));
+            const hasFail = reasons.some(r => r.includes("✗"));
+            const status = hasFail ? "✗" : hasPass ? "✓" : "—";
+            const statusColor = hasFail ? "text-red-400" : hasPass ? "text-green-400" : "text-surface-400";
+
+            return (
+              <tr key={key} className="border-b border-surface-700 last:border-0">
+                <td className="py-1 pr-2">
+                  <span className="mr-1">{factor.icon}</span>
+                  {factor.label}
+                </td>
+                <td className="text-right py-1 pr-2 text-surface-400">{factor.weight}%</td>
+                <td className={`py-1 font-semibold ${statusColor}`}>{status}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+      {/* Show first specific reason */}
+      {Object.values(parsed).flat().slice(0, 2).map((reason, i) => (
+        <div key={i} className="mt-1.5 text-xs text-surface-300 truncate">
+          {reason}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function ScoreDisplay({
   score,
   size = "md",
   showLabel = true,
   animate = true,
+  scoreReasons,
 }: ScoreDisplayProps) {
   const percentage = Math.round(score * 100);
   const scoreInfo = getScoreInfo(score);
@@ -59,7 +179,10 @@ export function ScoreDisplay({
   const strokeDashoffset = circumference - (score * circumference);
 
   return (
-    <Tooltip content={scoreInfo.explanation} position="top">
+    <Tooltip
+      content={<ScoreBreakdownTooltip score={score} scoreReasons={scoreReasons} />}
+      position="top"
+    >
       <div className="inline-flex flex-col items-center gap-1 cursor-help">
         <div className={`relative ${config.container} ${score >= 0.9 ? colors.glow : ""} rounded-full`}>
           <svg className="w-full h-full -rotate-90" viewBox="0 0 80 80" aria-hidden="true">
@@ -116,7 +239,7 @@ interface ScoreBarProps {
 
 export function ScoreBar({ score, className = "" }: ScoreBarProps) {
   const percentage = Math.round(score * 100);
-  
+
   const getColor = () => {
     if (score >= 0.9) return "bg-alert-500";
     if (score >= 0.7) return "bg-sentinel-500";

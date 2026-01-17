@@ -8,7 +8,7 @@ use crate::core::{
     config::Config,
     db::Database,
     market_intelligence::{CompanyActivity, LocationHeat, MarketAlert, MarketIntelligence, SkillTrend},
-    resume::{MatchResult, Resume, ResumeMatcher, UserSkill},
+    resume::{MatchResult, MatchResultWithJob, Resume, ResumeMatcher, UserSkill},
     salary::{OfferComparison, SalaryAnalyzer, SalaryPrediction, SeniorityLevel},
     scheduler::Scheduler,
 };
@@ -734,6 +734,22 @@ pub async fn get_match_result(
         .get_match_result(resume_id, &job_hash)
         .await
         .map_err(|e| format!("Failed to get match result: {}", e))
+}
+
+/// Get recent match results for a resume
+#[tauri::command]
+pub async fn get_recent_matches(
+    resume_id: i64,
+    limit: Option<i64>,
+    state: State<'_, AppState>,
+) -> Result<Vec<MatchResultWithJob>, String> {
+    tracing::info!("Command: get_recent_matches (resume: {}, limit: {:?})", resume_id, limit);
+
+    let matcher = ResumeMatcher::new(state.database.pool().clone());
+    matcher
+        .get_recent_matches(resume_id, limit.unwrap_or(10))
+        .await
+        .map_err(|e| format!("Failed to get recent matches: {}", e))
 }
 
 // ============================================================================

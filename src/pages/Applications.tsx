@@ -449,6 +449,90 @@ export default function Applications({ onBack }: ApplicationsProps) {
         </div>
       </header>
 
+      {/* Quick Stats Bar */}
+      {applications && (
+        <div className="bg-white dark:bg-surface-800 border-b border-surface-100 dark:border-surface-700 px-6 py-3">
+          <div className="flex items-center gap-6 text-sm">
+            <QuickStat
+              label="Applied"
+              value={
+                applications.applied.length +
+                applications.phone_screen.length +
+                applications.technical.length +
+                applications.onsite.length +
+                applications.offer.length +
+                applications.accepted.length +
+                applications.rejected.length +
+                applications.withdrawn.length +
+                applications.ghosted.length
+              }
+              icon="📝"
+            />
+            <QuickStat
+              label="Interviews"
+              value={
+                applications.phone_screen.length +
+                applications.technical.length +
+                applications.onsite.length
+              }
+              percent={(() => {
+                const applied =
+                  applications.applied.length +
+                  applications.phone_screen.length +
+                  applications.technical.length +
+                  applications.onsite.length +
+                  applications.offer.length +
+                  applications.accepted.length +
+                  applications.rejected.length +
+                  applications.withdrawn.length +
+                  applications.ghosted.length;
+                const interviews =
+                  applications.phone_screen.length +
+                  applications.technical.length +
+                  applications.onsite.length +
+                  applications.offer.length +
+                  applications.accepted.length;
+                return applied > 0 ? Math.round((interviews / applied) * 100) : 0;
+              })()}
+              icon="📞"
+            />
+            <QuickStat
+              label="Offers"
+              value={
+                applications.offer.length +
+                applications.accepted.length
+              }
+              percent={(() => {
+                const applied =
+                  applications.applied.length +
+                  applications.phone_screen.length +
+                  applications.technical.length +
+                  applications.onsite.length +
+                  applications.offer.length +
+                  applications.accepted.length +
+                  applications.rejected.length +
+                  applications.withdrawn.length +
+                  applications.ghosted.length;
+                const offers = applications.offer.length + applications.accepted.length;
+                return applied > 0 ? Math.round((offers / applied) * 100) : 0;
+              })()}
+              icon="🎉"
+              highlight
+            />
+            <QuickStat
+              label="In Progress"
+              value={
+                applications.applied.length +
+                applications.phone_screen.length +
+                applications.technical.length +
+                applications.onsite.length
+              }
+              icon="⏳"
+            />
+          </div>
+        </div>
+      )}
+
       <main className="p-6">
         {/* Reminders */}
         {reminders.length > 0 && (
@@ -666,6 +750,36 @@ export default function Applications({ onBack }: ApplicationsProps) {
             <CoverLetterTemplates />
           </div>
         </div>
+      )}
+    </div>
+  );
+}
+
+// Quick stats display component
+function QuickStat({
+  label,
+  value,
+  percent,
+  icon,
+  highlight = false,
+}: {
+  label: string;
+  value: number;
+  percent?: number;
+  icon: string;
+  highlight?: boolean;
+}) {
+  return (
+    <div className={`flex items-center gap-2 ${highlight && value > 0 ? "text-green-600 dark:text-green-400" : "text-surface-600 dark:text-surface-300"}`}>
+      <span className="text-base">{icon}</span>
+      <span className="font-medium">{label}:</span>
+      <span className={`font-semibold ${highlight && value > 0 ? "text-green-600 dark:text-green-400" : "text-surface-900 dark:text-white"}`}>
+        {value}
+      </span>
+      {percent !== undefined && (
+        <span className="text-surface-400 dark:text-surface-500">
+          ({percent}%)
+        </span>
       )}
     </div>
   );

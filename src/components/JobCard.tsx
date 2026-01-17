@@ -10,6 +10,7 @@ interface Job {
   url: string;
   source: string;
   score: number;
+  score_reasons?: string | null; // JSON array of scoring reasons
   created_at: string;
   description?: string | null;
   salary_min?: number | null;
@@ -119,7 +120,7 @@ export function JobCard({ job, onViewJob, onHideJob, onToggleBookmark, onEditNot
         <div className="flex gap-4">
           {/* Score */}
           <div className="flex-shrink-0">
-            <ScoreDisplay score={job.score} size="md" showLabel={false} />
+            <ScoreDisplay score={job.score} size="md" showLabel={false} scoreReasons={job.score_reasons} />
           </div>
 
           {/* Content */}

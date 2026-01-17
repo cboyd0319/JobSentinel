@@ -1,5 +1,84 @@
 # JobSentinel - AI Assistant Instructions
 
+## CRITICAL: Agent Requirements
+
+### 1. USE SUB-AGENTS (MANDATORY)
+
+**Always use sub-agents for parallel work.** This is non-negotiable for efficiency.
+
+```
+When to spawn sub-agents:
+- Exploring multiple files/modules → Launch parallel Explore agents
+- Code review → Use pr-review-toolkit agents (code-reviewer, silent-failure-hunter)
+- Feature development → Use feature-dev agents (code-explorer, code-architect)
+- Any task with 3+ independent subtasks → Parallelize with Task tool
+```
+
+**Example - DON'T do this:**
+```
+1. Read file A
+2. Read file B
+3. Read file C
+4. Make decision
+```
+
+**DO this instead:**
+```
+1. Launch 3 parallel Explore agents for files A, B, C
+2. Receive all results simultaneously
+3. Make decision with full context
+```
+
+### 2. KEEP ALL DOCUMENTATION UPDATED (MANDATORY)
+
+**After ANY significant change, update ALL relevant docs:**
+
+| Change Type | Update These Docs |
+|------------|-------------------|
+| New feature | `CHANGELOG.md`, `docs/features/`, `README.md`, `docs/ROADMAP.md` |
+| New command | `CLAUDE.md` (Tauri Commands section), `docs/developer/` |
+| Bug fix | `CHANGELOG.md` |
+| Refactoring | `docs/ROADMAP.md` (Technical Debt section) |
+| New scraper | `docs/features/scrapers.md`, `CHANGELOG.md` |
+| Config change | `config.example.json`, relevant docs |
+
+**Documentation locations:**
+- `docs/features/` - Feature documentation (ghost-detection, scrapers, etc.)
+- `docs/releases/` - Version release notes (v1.2.md, v1.3.md, v1.4.md)
+- `docs/developer/` - Developer guides (ARCHITECTURE, TESTING, etc.)
+- `docs/ROADMAP.md` - Project roadmap and technical debt tracking
+
+**Before committing, always ask: "Did I update the docs?"**
+
+### 3. CURRENT WORK IN PROGRESS
+
+**Plan documents:**
+- **Detailed plan:** `.claude/plans/virtual-puzzling-pretzel.md` (full implementation details)
+- **Public roadmap:** `docs/ROADMAP.md` (high-level priorities + technical debt)
+
+**v1.4 Status (Ghost Detection + Data Insights):**
+- [x] E1: Ghost Job Detection - COMPLETE
+- [x] E2: Data Insights & Metrics - COMPLETE
+  - Score breakdown tooltip
+  - Application conversion stats
+  - Resume match visualization
+- [ ] E3: Backend Persistence - PENDING (localStorage → SQLite)
+- [ ] E4: UI Connections & Polish - PENDING
+
+**v1.5 Status (File Refactoring):**
+- [ ] Modularize oversized files (see Technical Debt section below)
+- Priority: db/mod.rs (4442 lines) → scheduler → market_intelligence → config
+
+**v2.0 Status (Production Release):**
+- See `.claude/plans/virtual-puzzling-pretzel.md` for P0-P7 details
+- Keyring, CI/CD, Packaging, Resume Builder, One-Click Apply
+
+**Before starting work:**
+1. Read `.claude/plans/virtual-puzzling-pretzel.md` for implementation details
+2. Check `docs/ROADMAP.md` for priorities
+
+---
+
 ## Project Overview
 
 **JobSentinel** is a privacy-first job search automation desktop app built with Tauri 2.x (Rust backend) and React 19 (TypeScript frontend).
@@ -169,4 +248,31 @@ cargo test --ignored          # Run ignored tests (need file db)
 - `docs/features/ghost-detection.md` - Ghost detection feature guide
 - `docs/user/QUICK_START.md` - User guide
 - `docs/developer/GETTING_STARTED.md` - Developer setup
+- `docs/ROADMAP.md` - Roadmap and technical debt tracking
 - `CHANGELOG.md` - Version history
+
+## Technical Debt: File Size Limits
+
+**IMPORTANT:** Keep files under 500 lines. Large files are hard to maintain and regenerate.
+
+### Files Needing Refactoring (v1.5 priority)
+
+| File | Lines | Status |
+|------|-------|--------|
+| `db/mod.rs` | 4442 | CRITICAL - needs split |
+| `scheduler/mod.rs` | 2955 | HIGH - needs split |
+| `market_intelligence/mod.rs` | 2703 | HIGH - needs split |
+| `db/integrity.rs` | 2517 | HIGH - needs split |
+| `config/mod.rs` | 2343 | MEDIUM |
+| `Dashboard.tsx` | 2315 | MEDIUM |
+| `scrapers/lever.rs` | 2256 | MEDIUM - mostly tests |
+| `ats/mod.rs` | 2082 | MEDIUM |
+
+**See `docs/ROADMAP.md` for detailed refactoring strategies.**
+
+### When Adding Code
+
+1. **Check file size first** - If file is >400 lines, consider splitting
+2. **Extract tests** - Move `#[cfg(test)]` to separate `tests.rs` files
+3. **One concern per file** - Don't mix queries, types, and logic
+4. **Update ROADMAP.md** - If you make a file larger, document it

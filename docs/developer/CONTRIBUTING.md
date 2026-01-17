@@ -4,6 +4,63 @@ Thank you for your interest in contributing to JobSentinel! This guide will help
 
 ---
 
+## 🤖 For AI Assistants (READ FIRST)
+
+**If you're an AI assistant (Claude, GPT, Copilot, etc.) working on this codebase:**
+
+### MANDATORY: Use Sub-Agents
+
+**DO NOT** read files sequentially. **USE PARALLEL SUB-AGENTS:**
+
+```
+WRONG: Read file A → Read file B → Read file C → Decide
+
+RIGHT: Launch 3 Explore agents in parallel → Receive all results → Decide with full context
+```
+
+**Available agents to use:**
+- `Explore` - Fast codebase exploration (use for file discovery)
+- `code-reviewer` - PR review for bugs, security, style
+- `code-explorer` - Deep feature analysis
+- `code-architect` - Design implementation plans
+- `silent-failure-hunter` - Find error handling issues
+- `type-design-analyzer` - Review type definitions
+
+### MANDATORY: Update Documentation
+
+**After ANY change, update ALL relevant docs:**
+
+| Change Type | Must Update |
+|------------|-------------|
+| New feature | `CHANGELOG.md`, `docs/features/`, `README.md`, `docs/ROADMAP.md` |
+| New Tauri command | `CLAUDE.md`, `docs/README.md` |
+| Bug fix | `CHANGELOG.md` |
+| Refactoring | `docs/ROADMAP.md` (Technical Debt section) |
+| New scraper | `docs/features/scrapers.md`, `CHANGELOG.md` |
+| Test changes | `docs/developer/TESTING.md` |
+
+**Before committing: "Did I update all relevant docs?"**
+
+### MANDATORY: File Size Limits
+
+**Keep files under 500 lines.** Large files need splitting.
+
+See `docs/ROADMAP.md` → Technical Debt section for files needing refactoring.
+
+### MANDATORY: Check Current Plan
+
+**Before starting work, check the plan documents:**
+
+1. **Detailed plan:** `.claude/plans/virtual-puzzling-pretzel.md` (full implementation specs)
+2. **Public roadmap:** `docs/ROADMAP.md` (priorities + technical debt)
+
+**Current status:**
+- **v1.4**: E1-E2 complete, E3 (Backend Persistence) and E4 (UI Polish) pending
+- **v1.5**: File modularization - db/mod.rs → scheduler → market_intelligence
+- **v2.0**: Keyring, CI/CD, Resume Builder, One-Click Apply (see detailed plan)
+
+---
+
 ## 📋 Table of Contents
 
 - [Code of Conduct](#code-of-conduct)
@@ -310,9 +367,12 @@ Before submitting:
 - [ ] All tests pass (`cargo test`)
 - [ ] Code formatted (`cargo fmt`, `npm run format`)
 - [ ] No linter warnings (`cargo clippy`, `npm run lint`)
-- [ ] Documentation updated (if needed)
-- [ ] CHANGELOG.md updated (for significant changes)
+- [ ] **Documentation updated** (MANDATORY - see table above)
+- [ ] CHANGELOG.md updated (for ALL significant changes)
+- [ ] CLAUDE.md updated (if commands/structure changed)
+- [ ] docs/ROADMAP.md updated (if adding to technical debt)
 - [ ] Tested on Windows and/or macOS
+- [ ] No new files exceed 500 lines
 
 ### PR Template
 
@@ -338,11 +398,19 @@ Closes #123
 ## Screenshots
 (if applicable)
 
+## Documentation Updates (REQUIRED)
+- [ ] CHANGELOG.md updated
+- [ ] Feature docs updated (if new feature)
+- [ ] CLAUDE.md updated (if structure/commands changed)
+- [ ] ROADMAP.md updated (if technical debt added)
+- [ ] N/A - No docs needed (explain why)
+
 ## Checklist
 - [ ] Code follows project conventions
 - [ ] Tests added/updated
-- [ ] Documentation updated
+- [ ] All documentation updated
 - [ ] No new warnings
+- [ ] No new files exceed 500 lines
 ```
 
 ---

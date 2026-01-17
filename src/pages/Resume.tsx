@@ -21,13 +21,17 @@ interface UserSkill {
 }
 
 interface MatchResult {
+  id: number;
+  resume_id: number;
   job_hash: string;
   job_title: string;
   company: string;
-  confidence_score: number;
-  matched_skills: string[];
+  overall_match_score: number;
+  skills_match_score: number | null;
+  matching_skills: string[];
   missing_skills: string[];
-  recommendations: string[];
+  gap_analysis: string | null;
+  created_at: string;
 }
 
 interface ResumeProps {
@@ -37,7 +41,7 @@ interface ResumeProps {
 export default function Resume({ onBack }: ResumeProps) {
   const [resume, setResume] = useState<ResumeData | null>(null);
   const [skills, setSkills] = useState<UserSkill[]>([]);
-  const [recentMatches] = useState<MatchResult[]>([]);
+  const [recentMatches, setRecentMatches] = useState<MatchResult[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const toast = useToast();
@@ -49,8 +53,13 @@ export default function Resume({ onBack }: ResumeProps) {
       setResume(resumeData);
 
       if (resumeData) {
-        const skillsData = await invoke<UserSkill[]>("get_user_skills", { resumeId: resumeData.id });
+        // Fetch skills and recent matches in parallel
+        const [skillsData, matchesData] = await Promise.all([
+          invoke<UserSkill[]>("get_user_skills", { resumeId: resumeData.id }),
+          invoke<MatchResult[]>("get_recent_matches", { resumeId: resumeData.id, limit: 10 }),
+        ]);
         setSkills(skillsData);
+        setRecentMatches(matchesData);
       }
     } catch (err) {
       logError("Failed to fetch resume data:", err);
@@ -259,7 +268,7 @@ export default function Resume({ onBack }: ResumeProps) {
                   {recentMatches.map((match) => (
                     <div
                       key={match.job_hash}
-                      className="p-4 border border-surface-200 dark:border-surface-700 rounded-lg"
+                      className="p-4 border border-surface-200 dark:border-surface-700 rounded-lg hover:border-surface-300 dark:hover:border-surface-600 transition-colors"
                     >
                       <div className="flex items-start justify-between mb-3">
                         <div>
@@ -270,35 +279,72 @@ export default function Resume({ onBack }: ResumeProps) {
                             {match.company}
                           </p>
                         </div>
-                        <ScoreDisplay score={match.confidence_score} size="sm" />
+                        <ScoreDisplay score={match.overall_match_score} size="sm" />
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Matched Skills - Green */}
                         <div>
-                          <p className="text-xs font-medium text-surface-500 dark:text-surface-400 mb-1">
-                            Matched Skills
+                          <p className="text-xs font-medium text-green-600 dark:text-green-400 mb-2 flex items-center gap-1">
+                            <CheckIcon className="w-3.5 h-3.5" />
+                            Matched Skills ({match.matching_skills.length})
                           </p>
-                          <div className="flex flex-wrap gap-1">
-                            {match.matched_skills.map((skill) => (
-                              <Badge key={skill} variant="sentinel">
-                                {skill}
-                              </Badge>
-                            ))}
+                          <div className="flex flex-wrap gap-1.5">
+                            {match.matching_skills.length > 0 ? (
+                              match.matching_skills.map((skill) => (
+                                <span
+                                  key={skill}
+                                  className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-md border border-green-200 dark:border-green-800"
+                                >
+                                  <CheckIcon className="w-3 h-3" />
+                                  {skill}
+                                </span>
+                              ))
+                            ) : (
+                              <span className="text-xs text-surface-400 dark:text-surface-500 italic">
+                                No matching skills found
+                              </span>
+                            )}
                           </div>
                         </div>
+
+                        {/* Missing Skills - Red */}
                         <div>
-                          <p className="text-xs font-medium text-surface-500 dark:text-surface-400 mb-1">
-                            Missing Skills
+                          <p className="text-xs font-medium text-red-600 dark:text-red-400 mb-2 flex items-center gap-1">
+                            <XIcon className="w-3.5 h-3.5" />
+                            Missing Skills ({match.missing_skills.length})
                           </p>
-                          <div className="flex flex-wrap gap-1">
-                            {match.missing_skills.map((skill) => (
-                              <Badge key={skill} variant="surface">
-                                {skill}
-                              </Badge>
-                            ))}
+                          <div className="flex flex-wrap gap-1.5">
+                            {match.missing_skills.length > 0 ? (
+                              match.missing_skills.map((skill) => (
+                                <span
+                                  key={skill}
+                                  className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-md border border-red-200 dark:border-red-800"
+                                >
+                                  <XIcon className="w-3 h-3" />
+                                  {skill}
+                                </span>
+                              ))
+                            ) : (
+                              <span className="text-xs text-green-600 dark:text-green-400">
+                                You have all required skills!
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>
+
+                      {/* Gap Analysis */}
+                      {match.gap_analysis && (
+                        <div className="mt-3 pt-3 border-t border-surface-200 dark:border-surface-700">
+                          <p className="text-xs font-medium text-surface-600 dark:text-surface-400 mb-1">
+                            Gap Analysis
+                          </p>
+                          <p className="text-sm text-surface-500 dark:text-surface-400">
+                            {match.gap_analysis}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -328,6 +374,22 @@ function DocumentIcon({ className = "" }: { className?: string }) {
         strokeWidth={1.5}
         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
       />
+    </svg>
+  );
+}
+
+function CheckIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+    </svg>
+  );
+}
+
+function XIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
     </svg>
   );
 }

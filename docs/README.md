@@ -2,9 +2,32 @@
 
 Welcome to JobSentinel documentation.
 
+## For AI Assistants (IMPORTANT)
+
+**If you're an AI assistant working on this codebase:**
+
+1. **USE SUB-AGENTS** - Parallelize work with Task tool. Don't read files sequentially.
+2. **UPDATE DOCS** - After ANY change, update relevant docs (see table in CLAUDE.md)
+3. **CHECK FILE SIZES** - Keep files <500 lines. See [ROADMAP.md](ROADMAP.md) for refactoring plan.
+4. **READ CLAUDE.md FIRST** - Contains project context and critical requirements.
+
+### Current Work in Progress
+
+**Plan documents:**
+- **Detailed:** `.claude/plans/virtual-puzzling-pretzel.md` (full specs for E1-E4, P0-P7)
+- **Public:** [ROADMAP.md](ROADMAP.md) (high-level + technical debt)
+
+| Version | Status | Focus |
+|---------|--------|-------|
+| v1.4 | E1-E2 done, E3-E4 pending | Ghost detection, data insights, backend persistence |
+| v1.5 | Planned | File modularization (see Technical Debt) |
+| v2.0 | Planned | Keyring, CI/CD, Resume Builder, One-Click Apply |
+
+---
+
 ## Current Status (January 2026)
 
-**Version: 1.4.0** | 2029 tests passing | Full-featured release
+**Version: 1.4.0** | 2029+ tests passing | Full-featured release
 
 ### Working Features
 - **13 Job scrapers**: Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, ZipRecruiter
@@ -30,7 +53,7 @@ Welcome to JobSentinel documentation.
 |-----------|---------------------|
 | ![Dashboard](images/dashboard.png) | ![Kanban](images/kanban-board.png) |
 
-### Backend Modules (47 Tauri Commands)
+### Backend Modules (50 Tauri Commands)
 - **Core**: config, db, scoring, scheduler, scrapers (13 with parallel scraping), notify, ghost
 - **ATS**: 10 commands (Kanban, reminders, ghosting detection, interviews)
 - **Resume Matcher**: 6 commands (upload, match, skills)

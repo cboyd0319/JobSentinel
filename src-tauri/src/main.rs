@@ -91,6 +91,7 @@ fn main() {
             commands::get_user_skills,
             commands::match_resume_to_job,
             commands::get_match_result,
+            commands::get_recent_matches,
             // Salary AI commands
             commands::predict_salary,
             commands::get_salary_benchmark,
