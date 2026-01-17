@@ -22,14 +22,14 @@ Welcome to JobSentinel documentation.
 |---------|--------|-------|
 | v1.4 | Complete | Ghost detection, data insights, backend persistence |
 | v1.5 | Complete | File modularization (see Technical Debt) |
-| v2.0 | **Complete** | **OS-Native Keyring Integration** |
-| v2.1+ | Planned | CI/CD, Resume Builder, One-Click Apply |
+| v2.0 | **Complete** | **OS-Native Keyring + Resume Builder** |
+| v2.1+ | Planned | CI/CD, Packaging, One-Click Apply |
 
 ---
 
 ## Current Status (January 2026)
 
-**Version: 2.0.0** | 1963+ tests passing | Security-Hardened Release
+**Version: 2.0.0** | 2078+ tests passing | Security-Hardened Release
 
 ### What's New in v2.0 🔐
 
@@ -38,6 +38,17 @@ Welcome to JobSentinel documentation.
 - **6 credentials secured**: SMTP password, Telegram token, Slack/Discord/Teams webhooks, LinkedIn cookie
 - **Automatic migration** - Existing plaintext credentials migrated on first launch
 - See [Keyring Documentation](security/KEYRING.md) for full details
+
+### What's New in v2.0 📄
+
+- **Resume Builder** - 7-step wizard for creating professional resumes
+  - 5 ATS-optimized templates (Classic, Modern, Technical, Executive, Military)
+  - DOCX export with professional formatting
+- **ATS Optimizer** - Analyze resumes against job descriptions
+  - Keyword extraction and scoring
+  - Bullet point improver with 45+ power words
+- **22 new Tauri commands** for resume operations
+- See [Resume Builder Documentation](features/resume-builder.md) for full details
 
 ### Working Features
 
@@ -65,11 +76,12 @@ Welcome to JobSentinel documentation.
 |-----------|---------------------|
 | ![Dashboard](images/dashboard.png) | ![Kanban](images/kanban-board.png) |
 
-### Backend Modules (70 Tauri Commands)
+### Backend Modules (92 Tauri Commands)
 
 - **Core**: config, db, scoring, scheduler, scrapers (13 with parallel scraping), notify, ghost
 - **ATS**: 10 commands (Kanban, reminders, ghosting detection, interviews)
 - **Resume Matcher**: 6 commands (upload, match, skills)
+- **Resume Builder**: 22 commands (builder, templates, export, ATS analysis)
 - **Salary AI**: 4 commands (predict, benchmark, negotiate, compare)
 - **Market Intelligence**: 5 commands (trends, companies, locations, alerts)
 - **Ghost Detection**: 3 commands (ghost jobs, statistics, filtered search)
@@ -109,10 +121,11 @@ Welcome to JobSentinel documentation.
 
 | Feature | Status | Documentation |
 |---------|--------|---------------|
+| Resume Builder | **v2.0** | [Resume Builder](features/resume-builder.md) |
 | Ghost Detection | **v1.4** | [Ghost Detection](features/ghost-detection.md) |
 | Application Tracking | Working | [ATS](features/application-tracking.md) |
 | Notifications | Working | [Notifications](features/notifications.md) |
-| Resume Matcher | Working | [Resume](features/resume-matcher.md) |
+| Resume Matcher | Working | [Resume Matcher](features/resume-matcher.md) |
 | Salary AI | Working | [Salary](features/salary-ai.md) |
 | Market Intelligence | Working | [Market](features/market-intelligence.md) |
 | Job Scrapers | Working | [Scrapers](features/scrapers.md) |
@@ -164,6 +177,7 @@ docs/
 ├── security/              # Security documentation (v2.0+)
 │   └── KEYRING.md             # OS-native credential storage
 ├── features/              # Feature documentation
+│   ├── resume-builder.md      # Resume builder + ATS optimizer (v2.0)
 │   ├── ghost-detection.md     # Ghost job detection (v1.4)
 │   ├── application-tracking.md
 │   ├── notifications.md

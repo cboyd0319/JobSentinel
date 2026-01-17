@@ -13,8 +13,9 @@
 - Windows 11+ is the primary target platform
 - macOS 26.2+ (Tahoe) and Linux support planned for v2.1+
 - All core features working (13 scrapers, ghost detection, scoring, multi-channel notifications)
+- **NEW: Resume Builder & ATS Optimizer** - Create professional resumes with 5 ATS-optimized templates
 - **NEW: Secure credential storage** via OS keyring (macOS Keychain, Windows Credential Manager, Linux Secret Service)
-- 1963 tests passing
+- 2078+ tests passing
 
 <p align="center">
   <img src="../images/dashboard.png" alt="JobSentinel Dashboard" width="700">
@@ -129,6 +130,205 @@ The dashboard shows:
 - **Recent Jobs** - Latest job matches sorted by score
 - **Statistics** - Total jobs, high matches, average score
 - **Search Bar** - Full-text search across all jobs
+- **Ghost Filter** - Filter out suspected fake/stale job postings
+
+---
+
+## ⌨️ Keyboard Shortcuts
+
+JobSentinel includes keyboard shortcuts for power users:
+
+| Shortcut | Action | Context |
+|----------|--------|---------|
+| `b` | Toggle bookmark | When job is focused |
+| `n` | Open notes modal | When job is focused |
+| `c` | View company details | When job is focused |
+| `/` | Focus search bar | Dashboard |
+| `?` | Show keyboard help | Global |
+| `r` | Refresh job list | Dashboard |
+| `x` | Clear search | Dashboard |
+| `Esc` | Close modal | Any modal open |
+
+**Tip:** Press `?` anywhere in the app to see the full keyboard shortcuts help modal.
+
+---
+
+## 🔍 Advanced Search
+
+### Boolean Operators
+
+JobSentinel supports boolean search operators:
+
+| Operator | Example | Matches |
+|----------|---------|---------|
+| `AND` | `python AND remote` | Jobs with both terms |
+| `OR` | `react OR vue` | Jobs with either term |
+| `NOT` | `engineer NOT junior` | Jobs without excluded term |
+| Quotes | `"senior engineer"` | Exact phrase match |
+
+**Examples:**
+
+```text
+security AND (engineer OR architect) NOT junior
+"product manager" AND remote
+python OR rust AND senior
+```
+
+### Saved Searches
+
+Save frequently used search queries for quick access:
+
+1. Enter your search query
+2. Click the **Save** icon next to the search bar
+3. Name your saved search
+4. Access saved searches from the dropdown menu
+
+Saved searches are stored in the local database and persist across sessions.
+
+### Search History
+
+Your recent searches are automatically saved (up to 100 entries). Access them by:
+
+- Clicking the search bar to see recent queries
+- Using the dropdown arrow to browse history
+- Clicking any history item to re-run the search
+
+---
+
+## 🏢 Company Research
+
+JobSentinel includes a built-in company research panel with data on 40+ major tech companies:
+
+### What's Included
+
+- **Tech Stack** - Primary technologies used
+- **Company Size** - Employee count range
+- **Funding Stage** - Startup to public
+- **Known For** - Company highlights
+- **Glassdoor Rating** - If available
+
+### How to Use
+
+1. Click on any job in the dashboard
+2. Click the company name or press `c`
+3. View the company research panel
+
+**Supported companies include:** Google, Meta, Amazon, Microsoft, Apple, Netflix, Stripe,
+Airbnb, Uber, Lyft, DoorDash, Coinbase, Robinhood, and many more.
+
+---
+
+## 📝 Cover Letter Templates
+
+Create and manage cover letter templates with smart placeholders:
+
+### Template Placeholders
+
+| Placeholder | Replaced With |
+|-------------|---------------|
+| `{{company}}` | Company name from job |
+| `{{position}}` | Job title |
+| `{{date}}` | Current date |
+| `{{salary}}` | Salary range (if available) |
+
+### Managing Templates
+
+1. Navigate to **Cover Letters** from the sidebar
+2. Click **New Template** to create a template
+3. Use placeholders for dynamic content
+4. Categorize templates (e.g., "Technical", "Management", "Startup")
+
+### Using Templates
+
+1. Open a job you want to apply to
+2. Click **Generate Cover Letter**
+3. Select a template
+4. Review and customize the generated letter
+5. Copy or export
+
+---
+
+## 📄 Resume Builder (v2.0)
+
+Create professional, ATS-optimized resumes directly in JobSentinel.
+
+### 7-Step Resume Wizard
+
+1. **Contact Information** - Name, email, phone, LinkedIn, GitHub, website
+2. **Professional Summary** - 2-3 sentence career overview
+3. **Work Experience** - Add positions with achievements and dates
+4. **Education** - Degrees, institutions, GPA, honors
+5. **Skills** - Technical and soft skills with proficiency levels
+6. **Preview** - Choose from 5 ATS-optimized templates
+7. **Export** - Download as DOCX or view HTML preview
+
+### ATS-Optimized Templates
+
+| Template | Best For |
+|----------|----------|
+| **Classic** | General use, traditional format |
+| **Modern** | Tech companies, clean design |
+| **Technical** | Engineering roles, skills-first |
+| **Executive** | Senior positions, leadership focus |
+| **Military** | Veterans, civilian-friendly terms |
+
+All templates are designed for maximum ATS compatibility:
+
+- Single-column layout
+- Standard fonts (Arial, Calibri, Times New Roman)
+- No tables, graphics, or icons
+- Clear section headers
+
+### ATS Optimizer
+
+Analyze your resume against job descriptions:
+
+1. Navigate to **Resume Optimizer** from the sidebar
+2. Paste the job description
+3. Enter your resume data
+4. Click **Analyze** to get ATS scores
+5. Review keyword matches and suggestions
+
+**Scores provided:**
+
+- **Overall Score** - Combined ATS compatibility (target: 80+)
+- **Keyword Match** - Job description keyword coverage
+- **Format Score** - ATS-safe formatting compliance
+- **Completeness** - All important sections present
+
+See [Resume Builder Documentation](../features/resume-builder.md) for full details.
+
+---
+
+## 👻 Ghost Job Detection
+
+JobSentinel automatically detects potentially fake or stale job postings ("ghost jobs"):
+
+### Ghost Indicators
+
+| Severity | Color | Meaning |
+|----------|-------|---------|
+| Low | Yellow | Minor concerns (50-59% ghost score) |
+| Medium | Orange | Multiple warning signs (60-74%) |
+| High | Red | Likely ghost job (75%+) |
+
+### Detection Signals
+
+- **Stale postings** - Posted 60+ days ago
+- **Frequent reposts** - Same job reposted multiple times
+- **Vague descriptions** - Generic phrases like "fast-paced environment"
+- **Missing salary** - No compensation information
+- **Excessive openings** - Company has 100+ similar positions
+
+### Filtering Ghost Jobs
+
+Use the ghost filter dropdown on the Dashboard:
+
+- **All Jobs** - Show everything
+- **Real Jobs Only** - Hide ghost jobs (score < 0.5)
+- **Ghost Jobs** - Show only flagged jobs for review
+
+See [Ghost Detection Documentation](../features/ghost-detection.md) for full details.
 
 ### Automatic Scraping
 
