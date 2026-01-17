@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { invoke } from '@tauri-apps/api/core';
 import { Button } from './Button';
 import { Input } from './Input';
 import { Card } from './Card';
 import { Modal, ModalFooter } from './Modal';
 import { useToast } from '../contexts';
+import { LoadingSpinner } from './LoadingSpinner';
 
 type TemplateCategory = 'general' | 'tech' | 'creative' | 'finance' | 'healthcare' | 'sales' | 'custom';
 
@@ -16,8 +18,6 @@ interface CoverLetterTemplate {
   updatedAt: string;
 }
 
-const STORAGE_KEY = 'jobsentinel_cover_letter_templates';
-
 const CATEGORY_LABELS: Record<TemplateCategory, string> = {
   general: 'General',
   tech: 'Tech & Engineering',
@@ -27,30 +27,6 @@ const CATEGORY_LABELS: Record<TemplateCategory, string> = {
   sales: 'Sales & Marketing',
   custom: 'Custom',
 };
-
-const DEFAULT_TEMPLATES: CoverLetterTemplate[] = [
-  {
-    id: 'default-1',
-    name: 'General Application',
-    category: 'general',
-    content: `Dear {hiring_manager},
-
-I am writing to express my interest in the {position} position at {company}. With my {years_experience} years of experience in {skill1} and {skill2}, I believe I would be a strong addition to your team.
-
-[Customize this paragraph with specific qualifications]
-
-I am excited about the opportunity to contribute to {company}'s mission at their {location} office and would welcome the chance to discuss how my skills align with your needs.
-
-Thank you for considering my application.
-
-Best regards,
-{your_name}
-
-Date: {date}`,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-];
 
 const PLACEHOLDER_HINTS = [
   { placeholder: '{company}', description: 'Company name' },
@@ -64,35 +40,14 @@ const PLACEHOLDER_HINTS = [
   { placeholder: '{date}', description: 'Today\'s date' },
 ];
 
-function loadTemplates(): CoverLetterTemplate[] {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      return JSON.parse(stored);
-    }
-  } catch (e) {
-    console.warn('Failed to load templates:', e);
-  }
-  return DEFAULT_TEMPLATES;
-}
-
-function saveTemplates(templates: CoverLetterTemplate[]): boolean {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(templates));
-    return true;
-  } catch (e) {
-    console.warn('Failed to save templates:', e);
-    return false;
-  }
-}
-
 interface TemplateEditorProps {
   template: CoverLetterTemplate | null;
   onSave: (template: Omit<CoverLetterTemplate, 'id' | 'createdAt' | 'updatedAt'>) => void;
   onCancel: () => void;
+  saving?: boolean;
 }
 
-function TemplateEditor({ template, onSave, onCancel }: TemplateEditorProps) {
+function TemplateEditor({ template, onSave, onCancel, saving }: TemplateEditorProps) {
   const [name, setName] = useState(template?.name || '');
   const [content, setContent] = useState(template?.content || '');
   const [category, setCategory] = useState<TemplateCategory>(template?.category || 'general');
@@ -114,6 +69,7 @@ function TemplateEditor({ template, onSave, onCancel }: TemplateEditorProps) {
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="e.g., Tech Company Application"
+          disabled={saving}
         />
         <div>
           <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">
@@ -122,7 +78,8 @@ function TemplateEditor({ template, onSave, onCancel }: TemplateEditorProps) {
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value as TemplateCategory)}
-            className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500"
+            disabled={saving}
+            className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500 disabled:opacity-50"
           >
             {Object.entries(CATEGORY_LABELS).map(([value, label]) => (
               <option key={value} value={value}>
@@ -147,7 +104,8 @@ function TemplateEditor({ template, onSave, onCancel }: TemplateEditorProps) {
           onChange={(e) => setContent(e.target.value)}
           placeholder="Write your cover letter template here..."
           rows={12}
-          className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500 resize-y font-mono text-sm"
+          disabled={saving}
+          className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500 resize-y font-mono text-sm disabled:opacity-50"
         />
       </div>
 
@@ -160,7 +118,8 @@ function TemplateEditor({ template, onSave, onCancel }: TemplateEditorProps) {
             <button
               key={placeholder}
               onClick={() => setContent((c) => c + placeholder)}
-              className="text-xs px-2 py-1 bg-surface-200 dark:bg-surface-700 rounded hover:bg-surface-300 dark:hover:bg-surface-600 transition-colors"
+              disabled={saving}
+              className="text-xs px-2 py-1 bg-surface-200 dark:bg-surface-700 rounded hover:bg-surface-300 dark:hover:bg-surface-600 transition-colors disabled:opacity-50"
               title={description}
             >
               {placeholder}
@@ -170,11 +129,11 @@ function TemplateEditor({ template, onSave, onCancel }: TemplateEditorProps) {
       </div>
 
       <ModalFooter>
-        <Button variant="secondary" onClick={onCancel}>
+        <Button variant="secondary" onClick={onCancel} disabled={saving}>
           Cancel
         </Button>
-        <Button onClick={handleSave} disabled={!name.trim() || !content.trim()}>
-          {template ? 'Update' : 'Create'} Template
+        <Button onClick={handleSave} disabled={!name.trim() || !content.trim() || saving}>
+          {saving ? 'Saving...' : template ? 'Update' : 'Create'} Template
         </Button>
       </ModalFooter>
     </div>
@@ -230,62 +189,91 @@ function TemplatePreview({ template, onEdit, onDelete, onCopy }: TemplatePreview
 }
 
 export function CoverLetterTemplates() {
-  // Use lazy initialization to avoid setState in effect
-  const [templates, setTemplates] = useState<CoverLetterTemplate[]>(() => loadTemplates());
+  const [templates, setTemplates] = useState<CoverLetterTemplate[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<CoverLetterTemplate | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<TemplateCategory | 'all'>('all');
   const toast = useToast();
 
+  // Load templates from backend
+  const loadTemplates = useCallback(async () => {
+    try {
+      setLoading(true);
+      const result = await invoke<CoverLetterTemplate[]>('list_cover_letter_templates');
+      setTemplates(result);
+    } catch (error) {
+      console.error('Failed to load templates:', error);
+      toast.error('Failed to load templates', String(error));
+    } finally {
+      setLoading(false);
+    }
+  }, [toast]);
+
+  // Load templates on mount
+  useEffect(() => {
+    loadTemplates();
+  }, [loadTemplates]);
+
   // Filter templates by category
   const filteredTemplates = categoryFilter === 'all'
     ? templates
     : templates.filter((t) => t.category === categoryFilter);
 
-  const handleSaveTemplate = (data: Omit<CoverLetterTemplate, 'id' | 'createdAt' | 'updatedAt'>) => {
-    const now = new Date().toISOString();
+  const handleSaveTemplate = async (data: Omit<CoverLetterTemplate, 'id' | 'createdAt' | 'updatedAt'>) => {
+    setSaving(true);
+    try {
+      if (editingTemplate) {
+        // Update existing
+        const updated = await invoke<CoverLetterTemplate | null>('update_cover_letter_template', {
+          id: editingTemplate.id,
+          name: data.name,
+          content: data.content,
+          category: data.category,
+        });
 
-    if (editingTemplate) {
-      // Update existing
-      const updated = templates.map((t) =>
-        t.id === editingTemplate.id
-          ? { ...t, ...data, updatedAt: now }
-          : t
-      );
-      setTemplates(updated);
-      if (saveTemplates(updated)) {
-        toast.success('Template updated');
+        if (updated) {
+          setTemplates((prev) =>
+            prev.map((t) => (t.id === editingTemplate.id ? updated : t))
+          );
+          toast.success('Template updated');
+        } else {
+          toast.error('Template not found');
+        }
+        setEditingTemplate(null);
       } else {
-        toast.error('Failed to save', 'Changes may be lost when you close the app');
-      }
-      setEditingTemplate(null);
-    } else {
-      // Create new
-      const newTemplate: CoverLetterTemplate = {
-        id: `template_${Date.now()}`,
-        ...data,
-        createdAt: now,
-        updatedAt: now,
-      };
-      const updated = [...templates, newTemplate];
-      setTemplates(updated);
-      if (saveTemplates(updated)) {
+        // Create new
+        const newTemplate = await invoke<CoverLetterTemplate>('create_cover_letter_template', {
+          name: data.name,
+          content: data.content,
+          category: data.category,
+        });
+        setTemplates((prev) => [newTemplate, ...prev]);
         toast.success('Template created');
-      } else {
-        toast.error('Failed to save', 'Changes may be lost when you close the app');
+        setIsCreating(false);
       }
-      setIsCreating(false);
+    } catch (error) {
+      console.error('Failed to save template:', error);
+      toast.error('Failed to save template', String(error));
+    } finally {
+      setSaving(false);
     }
   };
 
-  const handleDeleteTemplate = (id: string) => {
-    const updated = templates.filter((t) => t.id !== id);
-    setTemplates(updated);
-    if (saveTemplates(updated)) {
-      toast.success('Template deleted');
-    } else {
-      toast.error('Failed to save', 'Changes may be lost when you close the app');
+  const handleDeleteTemplate = async (id: string) => {
+    try {
+      const deleted = await invoke<boolean>('delete_cover_letter_template', { id });
+      if (deleted) {
+        setTemplates((prev) => prev.filter((t) => t.id !== id));
+        toast.success('Template deleted');
+      } else {
+        toast.error('Template not found');
+      }
+    } catch (error) {
+      console.error('Failed to delete template:', error);
+      toast.error('Failed to delete template', String(error));
     }
     setDeleteConfirm(null);
   };
@@ -300,6 +288,17 @@ export function CoverLetterTemplates() {
   };
 
   const showEditor = isCreating || editingTemplate;
+
+  if (loading) {
+    return (
+      <Card>
+        <div className="flex items-center justify-center p-8">
+          <LoadingSpinner />
+          <span className="ml-2 text-surface-600 dark:text-surface-400">Loading templates...</span>
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card>
@@ -368,6 +367,7 @@ export function CoverLetterTemplates() {
               setIsCreating(false);
               setEditingTemplate(null);
             }}
+            saving={saving}
           />
         ) : templates.length === 0 ? (
           <div className="text-center py-8">

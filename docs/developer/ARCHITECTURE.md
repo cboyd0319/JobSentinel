@@ -1,6 +1,6 @@
 # Architecture Documentation
 
-**JobSentinel v1.3 System Architecture**
+**JobSentinel v1.4 System Architecture**
 
 ---
 
@@ -194,13 +194,67 @@ total_score = (
 
 #### `core/notify/`
 **Purpose**: Alert notifications
-- Slack webhook integration (v1.0)
-- Email (v2.0)
+- Slack, Discord, Teams webhooks
+- Email via SMTP
+- Desktop notifications via Tauri
 
 **Security:**
 - Webhook URL validation
 - HTTPS enforcement
 - Domain allowlisting
+
+#### `core/ghost/`
+**Purpose**: Ghost job detection (v1.4)
+- Identifies fake/stale/already-filled job postings
+- Multi-signal analysis (age, reposts, content, requirements)
+- Ghost score 0.0-1.0
+
+**Signals Analyzed:**
+- Stale postings (60+ days old)
+- Repost frequency tracking
+- Generic/vague descriptions
+- Unrealistic requirements
+- Company excessive openings
+
+#### `core/ats/`
+**Purpose**: Application Tracking System
+- Kanban board with 12 status columns
+- Automated follow-up reminders
+- Timeline/audit trail
+- Ghosting detection (2 weeks no contact)
+- Interview scheduling with iCal export
+
+#### `core/user_data/`
+**Purpose**: User data persistence (v1.4)
+- Cover letter templates with categories
+- Interview prep checklists
+- Follow-up reminder tracking
+- Saved search filters
+- Search history (unlimited)
+- Notification preferences
+
+**Migration:** Includes localStorage → SQLite migration for existing users.
+
+#### `core/resume/`
+**Purpose**: AI Resume-Job Matcher
+- PDF resume parsing
+- Skill extraction
+- Job-resume matching with confidence scores
+
+#### `core/salary/`
+**Purpose**: Salary AI
+- H1B data-based predictions
+- Salary benchmarks by role/location
+- Negotiation script generation
+- Offer comparison
+
+#### `core/market_intelligence/`
+**Purpose**: Market Analytics
+- Daily market snapshots
+- Skill demand trends
+- Company hiring velocity
+- Location job density
+- Market alerts for anomalies
 
 #### `core/scheduler/`
 **Purpose**: Automated job scraping
@@ -241,9 +295,9 @@ total_score = (
 
 ### 2. Commands (`src/commands/`)
 
-Tauri command handlers (RPC interface between React and Rust).
+Tauri command handlers (RPC interface between React and Rust). **70 total commands.**
 
-**All Commands:**
+**Core Commands (18):**
 ```rust
 search_jobs()              // Trigger manual scrape
 get_recent_jobs(limit)     // Get N recent jobs
@@ -253,9 +307,46 @@ save_config(config)        // Save user config
 validate_slack_webhook()   // Test webhook
 get_statistics()           // Get aggregate stats
 get_scraping_status()      // Get scheduler status
-is_first_run()             // Check first-time setup
-complete_setup(config)     // Complete onboarding
-search_jobs_query(q)       // Full-text search
+// ... plus setup, search, bookmarks, notes
+```
+
+**Ghost Detection (3):**
+```rust
+get_ghost_jobs()           // Get flagged ghost jobs
+get_ghost_statistics()     // Detection stats
+get_recent_jobs_filtered() // Filter by ghost status
+```
+
+**ATS Commands (10):**
+```rust
+create_application(), get_applications_kanban(),
+update_application_status(), add_application_notes(),
+get_pending_reminders(), complete_reminder(),
+detect_ghosted_applications(), schedule_interview(),
+get_upcoming_interviews(), complete_interview()
+```
+
+**User Data Commands (20):**
+```rust
+// Templates
+list_cover_letter_templates(), create_cover_letter_template(),
+update_cover_letter_template(), delete_cover_letter_template(),
+// Interview Prep
+get_interview_prep_checklist(), save_interview_prep_item(),
+get_interview_followup(), save_interview_followup(),
+// Saved Searches
+list_saved_searches(), create_saved_search(),
+use_saved_search(), delete_saved_search(),
+// Notifications & History
+get_notification_preferences(), save_notification_preferences(),
+add_search_history(), get_search_history(), clear_search_history()
+```
+
+**Resume/Salary/Market (15):**
+```rust
+// Resume: upload, get_active, set_active, get_skills, match, get_match_result
+// Salary: predict, benchmark, negotiate, compare
+// Market: trends, companies, locations, alerts, analysis
 ```
 
 **Error Handling:**

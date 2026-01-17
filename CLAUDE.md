@@ -62,7 +62,10 @@ When to spawn sub-agents:
   - Score breakdown tooltip
   - Application conversion stats
   - Resume match visualization
-- [ ] E3: Backend Persistence - PENDING (localStorage → SQLite)
+- [x] E3: Backend Persistence - COMPLETE (localStorage → SQLite)
+  - 4 new database migrations
+  - UserDataManager Rust module with 20 Tauri commands
+  - localStorage migration utility for existing users
 - [ ] E4: UI Connections & Polish - PENDING
 
 **v1.5 Status (File Refactoring):**
@@ -117,9 +120,9 @@ JobSentinel/
 │   │   │   ├── scheduler/ # Job scheduling with auto-refresh
 │   │   │   ├── scoring/   # Job scoring algorithm
 │   │   │   └── scrapers/  # 13 job board scrapers with parallel scraping
-│   │   ├── commands/      # Tauri RPC handlers (50 commands)
+│   │   ├── commands/      # Tauri RPC handlers (70 commands)
 │   │   └── platforms/     # Platform-specific code (Windows, macOS, Linux)
-│   └── migrations/        # SQLite migrations (14 migrations)
+│   └── migrations/        # SQLite migrations (18 migrations)
 └── docs/                  # Documentation
     ├── features/          # Feature documentation
     ├── releases/          # Version release notes
@@ -157,7 +160,7 @@ All core modules are enabled and functional:
 - 2029 tests passing, 21 ignored
 - Ignored tests require file-based database or are doc-tests for example code
 
-### Tauri Commands (50 total)
+### Tauri Commands (70 total)
 - Core: 18 commands (jobs, config, search, statistics, scraping)
 - Ghost: 3 commands (ghost_jobs, ghost_statistics, filtered_search)
 - ATS: 10 commands (applications, reminders, ghosting, interviews)
@@ -165,6 +168,7 @@ All core modules are enabled and functional:
 - Salary: 4 commands (predict, benchmark, negotiate, compare)
 - Market: 5 commands (trends, companies, locations, alerts)
 - Setup: 4 commands (wizard, first run, profiles)
+- User Data: 20 commands (templates, prep checklists, saved searches, notifications, search history)
 
 ## Development Commands
 

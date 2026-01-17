@@ -70,52 +70,21 @@ const PREP_CHECKLIST = [
   { id: "tech_review", label: "Review relevant tech/skills", icon: "code" },
 ];
 
-// LocalStorage key for follow-up reminders
-const FOLLOWUP_STORAGE_KEY = "jobsentinel_interview_followups";
-
+// Types for backend API responses
 interface FollowUpReminder {
   interviewId: number;
   thankYouSent: boolean;
   sentAt: string | null;
 }
 
-function getFollowUpReminders(): Record<number, FollowUpReminder> {
-  try {
-    const stored = localStorage.getItem(FOLLOWUP_STORAGE_KEY);
-    return stored ? JSON.parse(stored) : {};
-  } catch {
-    return {};
-  }
+interface PrepChecklistItem {
+  itemId: string;
+  completed: boolean;
+  completedAt: string | null;
 }
-
-function saveFollowUpReminder(interviewId: number, thankYouSent: boolean): void {
-  const reminders = getFollowUpReminders();
-  reminders[interviewId] = {
-    interviewId,
-    thankYouSent,
-    sentAt: thankYouSent ? new Date().toISOString() : null,
-  };
-  localStorage.setItem(FOLLOWUP_STORAGE_KEY, JSON.stringify(reminders));
-}
-
-// LocalStorage key for prep checklist
-const PREP_STORAGE_KEY = "jobsentinel_interview_prep";
 
 interface PrepProgress {
   [itemId: string]: boolean;
-}
-
-function getPrepProgress(interviewId: number): PrepProgress {
-  try {
-    const stored = localStorage.getItem(`${PREP_STORAGE_KEY}_${interviewId}`);
-    return stored ? JSON.parse(stored) : {};
-  } catch {
-    return {};
-  }
-}
-
-function savePrepProgress(interviewId: number, progress: PrepProgress): void {
-  localStorage.setItem(`${PREP_STORAGE_KEY}_${interviewId}`, JSON.stringify(progress));
 }
 
 // Generate iCal (.ics) file content for an interview
@@ -200,32 +169,106 @@ export function InterviewScheduler({ onClose, applications = [] }: InterviewSche
   const [researchCompany, setResearchCompany] = useState<string>('');
   const toast = useToast();
 
-  // Load follow-up reminders on mount
+  // Load follow-up reminders from backend
+  const loadFollowUpReminders = useCallback(async () => {
+    try {
+      // Load reminders for all past interviews
+      const reminders: Record<number, FollowUpReminder> = {};
+      for (const interview of pastInterviews) {
+        const result = await invoke<{ thank_you_sent: boolean; sent_at: string | null } | null>(
+          'get_interview_followup',
+          { interviewId: interview.id }
+        );
+        if (result) {
+          reminders[interview.id] = {
+            interviewId: interview.id,
+            thankYouSent: result.thank_you_sent,
+            sentAt: result.sent_at,
+          };
+        }
+      }
+      setFollowUpReminders(reminders);
+    } catch (err) {
+      logError("Failed to load follow-up reminders:", err);
+    }
+  }, [pastInterviews]);
+
+  // Load follow-up reminders when past interviews change
   useEffect(() => {
-    setFollowUpReminders(getFollowUpReminders());
-  }, []);
+    if (pastInterviews.length > 0) {
+      loadFollowUpReminders();
+    }
+  }, [pastInterviews, loadFollowUpReminders]);
 
   // Load prep progress when interview is selected
   useEffect(() => {
-    if (selectedInterview) {
-      setPrepProgress(getPrepProgress(selectedInterview.id));
-    }
+    const loadPrepProgress = async () => {
+      if (!selectedInterview) return;
+      try {
+        const items = await invoke<PrepChecklistItem[]>(
+          'get_interview_prep_checklist',
+          { interviewId: selectedInterview.id }
+        );
+        const progress: PrepProgress = {};
+        for (const item of items) {
+          progress[item.itemId] = item.completed;
+        }
+        setPrepProgress(progress);
+      } catch (err) {
+        logError("Failed to load prep progress:", err);
+        setPrepProgress({});
+      }
+    };
+    loadPrepProgress();
   }, [selectedInterview]);
 
-  const handlePrepToggle = (itemId: string) => {
+  const handlePrepToggle = async (itemId: string) => {
     if (!selectedInterview) return;
-    const newProgress = { ...prepProgress, [itemId]: !prepProgress[itemId] };
-    setPrepProgress(newProgress);
-    savePrepProgress(selectedInterview.id, newProgress);
+    const newCompleted = !prepProgress[itemId];
+    // Optimistic update
+    setPrepProgress(prev => ({ ...prev, [itemId]: newCompleted }));
+    try {
+      await invoke('save_interview_prep_item', {
+        interviewId: selectedInterview.id,
+        itemId,
+        completed: newCompleted,
+      });
+    } catch (err) {
+      // Revert on error
+      logError("Failed to save prep item:", err);
+      setPrepProgress(prev => ({ ...prev, [itemId]: !newCompleted }));
+      toast.error("Failed to save", getErrorMessage(err));
+    }
   };
 
-  const handleFollowUpToggle = (interviewId: number) => {
+  const handleFollowUpToggle = async (interviewId: number) => {
     const current = followUpReminders[interviewId];
     const newValue = !(current?.thankYouSent);
-    saveFollowUpReminder(interviewId, newValue);
-    setFollowUpReminders(getFollowUpReminders());
-    if (newValue) {
-      toast.success("Follow-up marked", "Thank you note sent!");
+    // Optimistic update
+    setFollowUpReminders(prev => ({
+      ...prev,
+      [interviewId]: {
+        interviewId,
+        thankYouSent: newValue,
+        sentAt: newValue ? new Date().toISOString() : null,
+      },
+    }));
+    try {
+      await invoke('save_interview_followup', {
+        interviewId,
+        thankYouSent: newValue,
+      });
+      if (newValue) {
+        toast.success("Follow-up marked", "Thank you note sent!");
+      }
+    } catch (err) {
+      // Revert on error
+      logError("Failed to save follow-up:", err);
+      setFollowUpReminders(prev => ({
+        ...prev,
+        [interviewId]: current || { interviewId, thankYouSent: false, sentAt: null },
+      }));
+      toast.error("Failed to save", getErrorMessage(err));
     }
   };
 

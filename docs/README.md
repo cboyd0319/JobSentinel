@@ -19,7 +19,7 @@ Welcome to JobSentinel documentation.
 
 | Version | Status | Focus |
 |---------|--------|-------|
-| v1.4 | E1-E2 done, E3-E4 pending | Ghost detection, data insights, backend persistence |
+| v1.4 | E1-E3 done, E4 pending | Ghost detection, data insights, backend persistence |
 | v1.5 | Planned | File modularization (see Technical Debt) |
 | v2.0 | Planned | Keyring, CI/CD, Resume Builder, One-Click Apply |
 
@@ -53,13 +53,14 @@ Welcome to JobSentinel documentation.
 |-----------|---------------------|
 | ![Dashboard](images/dashboard.png) | ![Kanban](images/kanban-board.png) |
 
-### Backend Modules (50 Tauri Commands)
+### Backend Modules (70 Tauri Commands)
 - **Core**: config, db, scoring, scheduler, scrapers (13 with parallel scraping), notify, ghost
 - **ATS**: 10 commands (Kanban, reminders, ghosting detection, interviews)
 - **Resume Matcher**: 6 commands (upload, match, skills)
 - **Salary AI**: 4 commands (predict, benchmark, negotiate, compare)
 - **Market Intelligence**: 5 commands (trends, companies, locations, alerts)
 - **Ghost Detection**: 3 commands (ghost jobs, statistics, filtered search)
+- **User Data**: 20 commands (templates, prep checklists, saved searches, notifications, history)
 
 ### Deferred Features (v2.0+)
 - One-Click Apply Automation (legal review required)
@@ -165,4 +166,4 @@ docs/
 
 ---
 
-**Last Updated:** January 16, 2026
+**Last Updated:** January 17, 2026

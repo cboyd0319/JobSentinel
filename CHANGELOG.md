@@ -19,11 +19,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Ghost Tooltips** - Hover to see specific reasons why a job was flagged
 - **Repost History Tracking** - New `job_repost_history` database table
 - **3 new Tauri commands** - `get_ghost_jobs`, `get_ghost_statistics`, `get_recent_jobs_filtered`
+- **Backend Persistence (E3)** - Migrated localStorage data to SQLite for persistence
+  - Cover letter templates with categories
+  - Interview prep checklists with completion tracking
+  - Saved search filters for quick access
+  - Notification preferences with advanced filtering
+  - Search history persistence (no 10-item cap)
+  - 4 new database migrations
+  - 20 new Tauri commands for user data management
+  - localStorage migration utility for existing users
 
 ### Changed
 - Job struct now includes `ghost_score`, `ghost_reasons`, `first_seen`, `repost_count` fields
 - Scheduler pipeline runs ghost analysis after scoring, before database storage
 - Test count increased from 2008 to **2029 tests passing**
+- Total Tauri commands increased from 50 to **70 commands**
 
 ### Documentation
 - New `/docs/features/` directory for feature documentation

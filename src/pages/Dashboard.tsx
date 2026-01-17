@@ -32,9 +32,7 @@ interface SavedSearch {
   createdAt: string;
 }
 
-const SAVED_SEARCHES_KEY = "jobsentinel_saved_searches";
-const SEARCH_HISTORY_KEY = "jobsentinel_search_history";
-const MAX_SEARCH_HISTORY = 10;
+// Note: Saved searches and search history are now persisted via SQLite backend
 
 // Parse advanced search query with AND, OR, NOT operators
 function parseSearchQuery(query: string): { includes: string[]; excludes: string[]; isOr: boolean } {
@@ -177,28 +175,41 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [showSearchHistory, setShowSearchHistory] = useState(false);
 
-  // Load search history on mount
+  // Load search history from backend on mount
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(SEARCH_HISTORY_KEY);
-      if (stored) setSearchHistory(JSON.parse(stored));
-    } catch { /* ignore */ }
+    const loadSearchHistory = async () => {
+      try {
+        const history = await invoke<string[]>('get_search_history');
+        setSearchHistory(history);
+      } catch (err) {
+        logError("Failed to load search history:", err);
+      }
+    };
+    loadSearchHistory();
   }, []);
 
   // Add to search history when user finishes typing
-  const addToSearchHistory = useCallback((query: string) => {
+  const addToSearchHistory = useCallback(async (query: string) => {
     if (!query.trim() || query.length < 2) return;
-    setSearchHistory(prev => {
-      const filtered = prev.filter(h => h.toLowerCase() !== query.toLowerCase());
-      const updated = [query, ...filtered].slice(0, MAX_SEARCH_HISTORY);
-      localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(updated));
-      return updated;
-    });
+    try {
+      await invoke('add_search_history', { query: query.trim() });
+      // Update local state optimistically
+      setSearchHistory(prev => {
+        const filtered = prev.filter(h => h.toLowerCase() !== query.toLowerCase());
+        return [query.trim(), ...filtered];
+      });
+    } catch (err) {
+      logError("Failed to save search history:", err);
+    }
   }, []);
 
-  const clearSearchHistory = useCallback(() => {
-    setSearchHistory([]);
-    localStorage.removeItem(SEARCH_HISTORY_KEY);
+  const clearSearchHistory = useCallback(async () => {
+    try {
+      await invoke('clear_search_history');
+      setSearchHistory([]);
+    } catch (err) {
+      logError("Failed to clear search history:", err);
+    }
   }, []);
   // Notes modal state
   const [notesModalOpen, setNotesModalOpen] = useState(false);
@@ -207,17 +218,56 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
   // Bulk selection state
   const [selectedJobIds, setSelectedJobIds] = useState<Set<number>>(new Set());
   const [bulkMode, setBulkMode] = useState(false);
-  // Saved searches state
-  const [savedSearches, setSavedSearches] = useState<SavedSearch[]>(() => {
-    try {
-      const stored = localStorage.getItem(SAVED_SEARCHES_KEY);
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
-  });
+  // Saved searches state (loaded from SQLite backend)
+  const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
   const [saveSearchModalOpen, setSaveSearchModalOpen] = useState(false);
   const [newSearchName, setNewSearchName] = useState("");
+
+  // Load saved searches from backend on mount
+  useEffect(() => {
+    const loadSavedSearches = async () => {
+      try {
+        const searches = await invoke<Array<{
+          id: string;
+          name: string;
+          sort_by: SortOption;
+          score_filter: ScoreFilter;
+          source_filter: string;
+          remote_filter: string;
+          bookmark_filter: string;
+          notes_filter: string;
+          posted_date_filter: PostedDateFilter | null;
+          salary_min_filter: number | null;
+          salary_max_filter: number | null;
+          ghost_filter: string | null;
+          text_search: string | null;
+          created_at: string;
+          last_used_at: string | null;
+        }>>('list_saved_searches');
+        // Transform backend format to frontend format
+        const transformed: SavedSearch[] = searches.map(s => ({
+          id: s.id,
+          name: s.name,
+          filters: {
+            sortBy: s.sort_by,
+            scoreFilter: s.score_filter,
+            sourceFilter: s.source_filter,
+            remoteFilter: s.remote_filter,
+            bookmarkFilter: s.bookmark_filter,
+            notesFilter: s.notes_filter,
+            postedDateFilter: s.posted_date_filter ?? undefined,
+            salaryMinFilter: s.salary_min_filter,
+            salaryMaxFilter: s.salary_max_filter,
+          },
+          createdAt: s.created_at,
+        }));
+        setSavedSearches(transformed);
+      } catch (err) {
+        logError("Failed to load saved searches:", err);
+      }
+    };
+    loadSavedSearches();
+  }, []);
   // Deduplication state
   const [duplicatesModalOpen, setDuplicatesModalOpen] = useState(false);
   const [duplicateGroups, setDuplicateGroups] = useState<DuplicateGroup[]>([]);
@@ -876,28 +926,49 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
     salaryMaxFilter,
   });
 
-  const handleSaveSearch = () => {
+  const handleSaveSearch = async () => {
     if (!newSearchName.trim()) {
       toast.error("Name required", "Please enter a name for this search");
       return;
     }
 
-    const newSearch: SavedSearch = {
-      id: `search-${Date.now()}`,
-      name: newSearchName.trim(),
-      filters: getCurrentFilters(),
-      createdAt: new Date().toISOString(),
-    };
+    try {
+      const filters = getCurrentFilters();
+      const result = await invoke<{
+        id: string;
+        name: string;
+        created_at: string;
+      }>('create_saved_search', {
+        name: newSearchName.trim(),
+        sortBy: filters.sortBy,
+        scoreFilter: filters.scoreFilter,
+        sourceFilter: filters.sourceFilter,
+        remoteFilter: filters.remoteFilter,
+        bookmarkFilter: filters.bookmarkFilter,
+        notesFilter: filters.notesFilter,
+        postedDateFilter: filters.postedDateFilter,
+        salaryMinFilter: filters.salaryMinFilter,
+        salaryMaxFilter: filters.salaryMaxFilter,
+      });
 
-    const updated = [newSearch, ...savedSearches];
-    setSavedSearches(updated);
-    localStorage.setItem(SAVED_SEARCHES_KEY, JSON.stringify(updated));
-    setSaveSearchModalOpen(false);
-    setNewSearchName("");
-    toast.success("Search saved", `"${newSearch.name}" can now be loaded anytime`);
+      const newSearch: SavedSearch = {
+        id: result.id,
+        name: result.name,
+        filters,
+        createdAt: result.created_at,
+      };
+
+      setSavedSearches(prev => [newSearch, ...prev]);
+      setSaveSearchModalOpen(false);
+      setNewSearchName("");
+      toast.success("Search saved", `"${newSearch.name}" can now be loaded anytime`);
+    } catch (err) {
+      logError("Failed to save search:", err);
+      toast.error("Failed to save", getErrorMessage(err));
+    }
   };
 
-  const handleLoadSearch = (search: SavedSearch) => {
+  const handleLoadSearch = async (search: SavedSearch) => {
     setSortBy(search.filters.sortBy);
     setScoreFilter(search.filters.scoreFilter);
     setSourceFilter(search.filters.sourceFilter);
@@ -908,13 +979,21 @@ export default function Dashboard({ onNavigate, showSettings: showSettingsProp, 
     setSalaryMinFilter(search.filters.salaryMinFilter ?? null);
     setSalaryMaxFilter(search.filters.salaryMaxFilter ?? null);
     toast.info("Filters loaded", `Applied "${search.name}"`);
+    // Track usage in backend (non-blocking)
+    invoke('use_saved_search', { id: search.id }).catch(err => {
+      logError("Failed to track search usage:", err);
+    });
   };
 
-  const handleDeleteSearch = (id: string) => {
-    const updated = savedSearches.filter((s) => s.id !== id);
-    setSavedSearches(updated);
-    localStorage.setItem(SAVED_SEARCHES_KEY, JSON.stringify(updated));
-    toast.success("Search deleted", "Saved search removed");
+  const handleDeleteSearch = async (id: string) => {
+    try {
+      await invoke('delete_saved_search', { id });
+      setSavedSearches(prev => prev.filter((s) => s.id !== id));
+      toast.success("Search deleted", "Saved search removed");
+    } catch (err) {
+      logError("Failed to delete search:", err);
+      toast.error("Failed to delete", getErrorMessage(err));
+    }
   };
 
   // Deduplication handlers

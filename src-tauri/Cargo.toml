@@ -58,6 +58,9 @@ dotenvy = "0.15"
 thiserror = "2.0"
 anyhow = "1.0"
 
+# UUIDs
+uuid = { version = "1.11", features = ["v4"] }
+
 # Logging
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }

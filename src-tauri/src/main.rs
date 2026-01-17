@@ -103,6 +103,27 @@ fn main() {
             commands::get_hottest_locations,
             commands::get_market_alerts,
             commands::run_market_analysis,
+            // User Data commands (E3: Backend Persistence)
+            commands::list_cover_letter_templates,
+            commands::get_cover_letter_template,
+            commands::create_cover_letter_template,
+            commands::update_cover_letter_template,
+            commands::delete_cover_letter_template,
+            commands::get_interview_prep_checklist,
+            commands::save_interview_prep_item,
+            commands::get_interview_followup,
+            commands::save_interview_followup,
+            commands::list_saved_searches,
+            commands::create_saved_search,
+            commands::use_saved_search,
+            commands::delete_saved_search,
+            commands::get_notification_preferences,
+            commands::save_notification_preferences,
+            commands::import_cover_letter_templates,
+            commands::import_saved_searches,
+            commands::add_search_history,
+            commands::get_search_history,
+            commands::clear_search_history,
         ])
         .setup(|app| {
             // Initialize configuration

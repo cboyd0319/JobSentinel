@@ -59,7 +59,7 @@
 | HN Who's Hiring scraper | **Done** | Monthly thread parsing |
 | Advanced search | **Done** | AND/OR/NOT, search history |
 
-### v1.4 Features (IN PROGRESS)
+### v1.4 Features (COMPLETED)
 
 | Feature | Status | Notes |
 |---------|--------|-------|
@@ -69,7 +69,12 @@
 | Score Breakdown Tooltip | **Done** | Hover to see scoring factor breakdown |
 | Application Conversion Stats | **Done** | Quick stats bar on Applications page |
 | Resume Match Visualization | **Done** | Green/red skill match display |
-| **File Refactoring** | Planned | Modularize oversized source files |
+| **Backend Persistence (E3)** | **Done** | localStorage → SQLite migration |
+| Cover Letter Templates | **Done** | Persisted with categories in SQLite |
+| Interview Prep Checklists | **Done** | Per-interview completion tracking |
+| Saved Searches | **Done** | Filter presets stored in database |
+| Search History | **Done** | Unlimited history (no 10-item cap) |
+| Notification Preferences | **Done** | Advanced filtering stored in SQLite |
 
 ### v1.5 - Code Quality & Refactoring (PLANNED)
 
@@ -160,9 +165,10 @@ Automated application submission.
 - Clippy passes with 0 warnings (`-D warnings`)
 - 2029+ tests passing, 20 ignored (require file-based database or are doc examples)
 - All modules enabled and functional
-- 48 Tauri commands for backend modules
+- **70 Tauri commands** for backend modules (20 new for user data)
 - 13 job board scrapers with parallel execution
 - Ghost job detection with repost tracking
+- Backend persistence for all user data (localStorage → SQLite)
 
 ### Resolved Technical Debt
 - [x] SQLite MEDIAN() - computed in Rust instead

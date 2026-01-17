@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { invoke } from '@tauri-apps/api/core';
 import { Card } from './Card';
 import { Badge } from './Badge';
 import { HelpIcon } from './HelpIcon';
 import { CompanyAutocomplete } from './CompanyAutocomplete';
 import { useToast } from '../contexts';
+import { logError } from '../utils/errorUtils';
 
 export interface SourceNotificationConfig {
   enabled: boolean;
@@ -64,8 +66,6 @@ const DEFAULT_PREFERENCES: NotificationPreferences = {
   advancedFilters: DEFAULT_ADVANCED_FILTERS,
 };
 
-const STORAGE_KEY = 'jobsentinel_notification_preferences';
-
 const SOURCE_INFO: Record<string, { name: string; color: string; icon: string }> = {
   linkedin: { name: 'LinkedIn', color: '#0077B5', icon: 'in' },
   indeed: { name: 'Indeed', color: '#2164F3', icon: 'i' },
@@ -74,28 +74,40 @@ const SOURCE_INFO: Record<string, { name: string; color: string; icon: string }>
   jobswithgpt: { name: 'JobsWithGPT', color: '#10A37F', icon: 'J' },
 };
 
-export function loadNotificationPreferences(): NotificationPreferences {
+// Async load from backend
+export async function loadNotificationPreferencesAsync(): Promise<NotificationPreferences> {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = await invoke<NotificationPreferences | null>('get_notification_preferences');
     if (stored) {
-      const parsed = JSON.parse(stored);
       // Merge with defaults to handle new fields
-      return { ...DEFAULT_PREFERENCES, ...parsed };
+      return { ...DEFAULT_PREFERENCES, ...stored };
     }
   } catch (e) {
-    console.warn('Failed to load notification preferences:', e);
+    console.warn('Failed to load notification preferences from backend:', e);
   }
   return DEFAULT_PREFERENCES;
 }
 
-export function saveNotificationPreferences(prefs: NotificationPreferences): boolean {
+// Async save to backend
+export async function saveNotificationPreferencesAsync(prefs: NotificationPreferences): Promise<boolean> {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
+    await invoke('save_notification_preferences', { prefs });
     return true;
   } catch (e) {
-    console.warn('Failed to save notification preferences:', e);
+    console.warn('Failed to save notification preferences to backend:', e);
     return false;
   }
+}
+
+// Sync version for backward compatibility (returns defaults, used by shouldNotifyForJob)
+export function loadNotificationPreferences(): NotificationPreferences {
+  return DEFAULT_PREFERENCES;
+}
+
+// Sync version for backward compatibility (no-op, async version should be used)
+export function saveNotificationPreferences(_prefs: NotificationPreferences): boolean {
+  console.warn('saveNotificationPreferences is deprecated, use saveNotificationPreferencesAsync');
+  return false;
 }
 
 // Type for source keys only (excluding global and advancedFilters)
@@ -279,46 +291,64 @@ function SourceConfigRow({ sourceKey, config, onChange }: SourceConfigRowProps) 
 }
 
 export function NotificationPreferences() {
-  // Use lazy initialization to avoid setState in effect
-  const [prefs, setPrefs] = useState<NotificationPreferences>(() => loadNotificationPreferences());
+  const [prefs, setPrefs] = useState<NotificationPreferences>(DEFAULT_PREFERENCES);
+  const [loading, setLoading] = useState(true);
   const [hasChanges, setHasChanges] = useState(false);
   const toast = useToast();
 
-  const handleSourceChange = (sourceKey: string, config: SourceNotificationConfig) => {
+  // Load preferences from backend on mount
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const loaded = await loadNotificationPreferencesAsync();
+        setPrefs(loaded);
+      } catch (err) {
+        logError('Failed to load notification preferences:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, []);
+
+  const savePrefs = useCallback(async (updated: NotificationPreferences) => {
+    setPrefs(updated);
+    const success = await saveNotificationPreferencesAsync(updated);
+    if (success) {
+      setHasChanges(true);
+      setTimeout(() => setHasChanges(false), 2000);
+    } else {
+      toast.error('Failed to save', 'Changes may be lost when you close the app');
+    }
+  }, [toast]);
+
+  const handleSourceChange = useCallback((sourceKey: string, config: SourceNotificationConfig) => {
     const updated = { ...prefs, [sourceKey]: config };
-    setPrefs(updated);
-    if (saveNotificationPreferences(updated)) {
-      setHasChanges(true);
-      setTimeout(() => setHasChanges(false), 2000);
-    } else {
-      toast.error('Failed to save', 'Changes may be lost when you close the app');
-    }
-  };
+    savePrefs(updated);
+  }, [prefs, savePrefs]);
 
-  const handleGlobalChange = (updates: Partial<NotificationPreferences['global']>) => {
+  const handleGlobalChange = useCallback((updates: Partial<NotificationPreferences['global']>) => {
     const updated = { ...prefs, global: { ...prefs.global, ...updates } };
-    setPrefs(updated);
-    if (saveNotificationPreferences(updated)) {
-      setHasChanges(true);
-      setTimeout(() => setHasChanges(false), 2000);
-    } else {
-      toast.error('Failed to save', 'Changes may be lost when you close the app');
-    }
-  };
+    savePrefs(updated);
+  }, [prefs, savePrefs]);
 
-  const handleAdvancedFiltersChange = (updates: Partial<AdvancedFilters>) => {
+  const handleAdvancedFiltersChange = useCallback((updates: Partial<AdvancedFilters>) => {
     const updated = {
       ...prefs,
       advancedFilters: { ...prefs.advancedFilters, ...updates }
     };
-    setPrefs(updated);
-    if (saveNotificationPreferences(updated)) {
-      setHasChanges(true);
-      setTimeout(() => setHasChanges(false), 2000);
-    } else {
-      toast.error('Failed to save', 'Changes may be lost when you close the app');
-    }
-  };
+    savePrefs(updated);
+  }, [prefs, savePrefs]);
+
+  if (loading) {
+    return (
+      <Card>
+        <div className="p-8 text-center text-surface-500">
+          Loading preferences...
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card>

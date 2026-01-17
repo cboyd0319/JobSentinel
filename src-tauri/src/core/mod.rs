@@ -36,6 +36,7 @@ pub mod market_intelligence;
 
 // v1.4+ modules
 pub mod ghost;
+pub mod user_data;
 
 // v2.0+ modules - disabled pending legal review
 // pub mod automation;
@@ -60,3 +61,8 @@ pub use market_intelligence::{
 
 // v1.4+ re-exports
 pub use ghost::{GhostAnalysis, GhostCategory, GhostConfig, GhostDetector, GhostReason, Severity as GhostSeverity};
+pub use user_data::{
+    AdvancedFilters, CoverLetterTemplate, FollowUpReminder, GlobalNotificationSettings,
+    NotificationPreferences, PrepChecklistItem, SavedSearch, SourceNotificationConfig,
+    TemplateCategory, UserDataManager,
+};
