@@ -9,6 +9,40 @@ import { LoadingSpinner } from './LoadingSpinner';
 
 type TemplateCategory = 'general' | 'tech' | 'creative' | 'finance' | 'healthcare' | 'sales' | 'custom';
 
+// Minimal Job interface for auto-fill feature
+export interface JobForTemplate {
+  title: string;
+  company: string;
+  location: string | null;
+}
+
+/**
+ * Fill placeholders in a template with job data
+ */
+export function fillTemplatePlaceholders(
+  template: string,
+  job: JobForTemplate,
+  userContext?: { name?: string }
+): string {
+  const today = new Date().toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+
+  return template
+    .replace(/\{company\}/g, job.company)
+    .replace(/\{position\}/g, job.title)
+    .replace(/\{location\}/g, job.location || 'Remote')
+    .replace(/\{hiring_manager\}/g, 'Hiring Manager')
+    .replace(/\{your_name\}/g, userContext?.name || '[Your Name]')
+    .replace(/\{date\}/g, today)
+    // Leave skill placeholders for manual fill
+    .replace(/\{skill1\}/g, '[Your Primary Skill]')
+    .replace(/\{skill2\}/g, '[Your Secondary Skill]')
+    .replace(/\{years_experience\}/g, '[X]');
+}
+
 interface CoverLetterTemplate {
   id: string;
   name: string;
@@ -142,14 +176,22 @@ function TemplateEditor({ template, onSave, onCancel, saving }: TemplateEditorPr
 
 interface TemplatePreviewProps {
   template: CoverLetterTemplate;
+  selectedJob?: JobForTemplate | null;
   onEdit: () => void;
   onDelete: () => void;
   onCopy: () => void;
+  onUseForJob?: (filledContent: string) => void;
 }
 
-function TemplatePreview({ template, onEdit, onDelete, onCopy }: TemplatePreviewProps) {
+function TemplatePreview({ template, selectedJob, onEdit, onDelete, onCopy, onUseForJob }: TemplatePreviewProps) {
   // Calculate word count for preview
   const wordCount = template.content.trim() ? template.content.trim().split(/\s+/).length : 0;
+
+  const handleUseForJob = () => {
+    if (!selectedJob || !onUseForJob) return;
+    const filledContent = fillTemplatePlaceholders(template.content, selectedJob);
+    onUseForJob(filledContent);
+  };
 
   return (
     <div className="border border-surface-200 dark:border-surface-700 rounded-lg overflow-hidden">
@@ -168,6 +210,11 @@ function TemplatePreview({ template, onEdit, onDelete, onCopy }: TemplatePreview
           </p>
         </div>
         <div className="flex gap-2">
+          {selectedJob && onUseForJob && (
+            <Button size="sm" onClick={handleUseForJob} title={`Fill for ${selectedJob.company}`}>
+              Use for Job
+            </Button>
+          )}
           <Button size="sm" variant="secondary" onClick={onCopy}>
             Copy
           </Button>
@@ -188,7 +235,12 @@ function TemplatePreview({ template, onEdit, onDelete, onCopy }: TemplatePreview
   );
 }
 
-export function CoverLetterTemplates() {
+interface CoverLetterTemplatesProps {
+  /** Optional job to enable "Use for Job" auto-fill button */
+  selectedJob?: JobForTemplate | null;
+}
+
+export function CoverLetterTemplates({ selectedJob }: CoverLetterTemplatesProps = {}) {
   const [templates, setTemplates] = useState<CoverLetterTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -282,6 +334,18 @@ export function CoverLetterTemplates() {
     try {
       await navigator.clipboard.writeText(template.content);
       toast.success('Copied to clipboard', 'Remember to replace the placeholders');
+    } catch {
+      toast.error('Failed to copy', 'Please try again');
+    }
+  };
+
+  const handleUseForJob = async (filledContent: string) => {
+    try {
+      await navigator.clipboard.writeText(filledContent);
+      toast.success(
+        'Template filled and copied!',
+        'Check for [bracketed] placeholders that need manual editing'
+      );
     } catch {
       toast.error('Failed to copy', 'Please try again');
     }
@@ -399,9 +463,11 @@ export function CoverLetterTemplates() {
               <TemplatePreview
                 key={template.id}
                 template={template}
+                selectedJob={selectedJob}
                 onEdit={() => setEditingTemplate(template)}
                 onDelete={() => setDeleteConfirm(template.id)}
                 onCopy={() => handleCopyTemplate(template)}
+                onUseForJob={selectedJob ? handleUseForJob : undefined}
               />
             ))}
           </div>

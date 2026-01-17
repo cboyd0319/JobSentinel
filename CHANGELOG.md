@@ -28,6 +28,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - 4 new database migrations
   - 20 new Tauri commands for user data management
   - localStorage migration utility for existing users
+- **UI Polish (E4)** - Improved discoverability and usability
+  - Cover letter auto-fill: "Use for Job" button fills placeholders from selected job
+  - Keyboard shortcut badges: `ShortcutKey` component exported for visual hints
+  - Tour integration: "Take a guided tour" link in keyboard help modal
 
 ### Changed
 - Job struct now includes `ghost_score`, `ghost_reasons`, `first_seen`, `repost_count` fields

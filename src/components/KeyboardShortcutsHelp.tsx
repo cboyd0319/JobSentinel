@@ -1,4 +1,5 @@
 import { Modal } from './Modal';
+import { useOnboarding } from './OnboardingTour';
 
 interface KeyboardShortcutsHelpProps {
   isOpen: boolean;
@@ -47,7 +48,8 @@ const SHORTCUTS = {
   },
 };
 
-function ShortcutKey({ children }: { children: string }) {
+// Exported for use in tooltips and button hints
+export function ShortcutKey({ children }: { children: string }) {
   return (
     <kbd className="inline-flex items-center justify-center min-w-[24px] h-6 px-1.5 text-xs font-mono bg-surface-100 dark:bg-surface-700 border border-surface-300 dark:border-surface-600 rounded shadow-sm">
       {children}
@@ -89,6 +91,13 @@ function ShortcutSection({ title, shortcuts }: { title: string; shortcuts: { key
 }
 
 export function KeyboardShortcutsHelp({ isOpen, onClose }: KeyboardShortcutsHelpProps) {
+  const { startTour, hasCompletedTour } = useOnboarding();
+
+  const handleStartTour = () => {
+    onClose();
+    startTour();
+  };
+
   return (
     <Modal
       isOpen={isOpen}
@@ -107,10 +116,18 @@ export function KeyboardShortcutsHelp({ isOpen, onClose }: KeyboardShortcutsHelp
         </div>
       </div>
 
-      <div className="border-t border-surface-200 dark:border-surface-700 px-4 py-3 bg-surface-50 dark:bg-surface-800/50 rounded-b-lg">
+      <div className="border-t border-surface-200 dark:border-surface-700 px-4 py-3 bg-surface-50 dark:bg-surface-800/50 rounded-b-lg space-y-2">
         <p className="text-xs text-surface-500 dark:text-surface-400 text-center">
           Press <ShortcutKey>?</ShortcutKey> anytime to show this help
         </p>
+        <div className="text-center pt-2 border-t border-surface-200 dark:border-surface-700">
+          <button
+            onClick={handleStartTour}
+            className="text-xs text-sentinel-600 dark:text-sentinel-400 hover:text-sentinel-700 dark:hover:text-sentinel-300 underline"
+          >
+            {hasCompletedTour ? 'Retake the guided tour' : 'Take a guided tour'}
+          </button>
+        </div>
       </div>
     </Modal>
   );

@@ -75,6 +75,10 @@
 | Saved Searches | **Done** | Filter presets stored in database |
 | Search History | **Done** | Unlimited history (no 10-item cap) |
 | Notification Preferences | **Done** | Advanced filtering stored in SQLite |
+| **UI Polish (E4)** | **Done** | Cover letter auto-fill, shortcut badges, tour link |
+| Cover Letter Auto-Fill | **Done** | "Use for Job" button fills placeholders |
+| Keyboard Shortcut Badges | **Done** | ShortcutKey component for visual hints |
+| Tour Integration | **Done** | "Take a guided tour" link in keyboard help |
 
 ### v1.5 - Code Quality & Refactoring (PLANNED)
 

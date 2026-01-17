@@ -56,7 +56,7 @@ When to spawn sub-agents:
 - **Detailed plan:** `.claude/plans/virtual-puzzling-pretzel.md` (full implementation details)
 - **Public roadmap:** `docs/ROADMAP.md` (high-level priorities + technical debt)
 
-**v1.4 Status (Ghost Detection + Data Insights):**
+**v1.4 Status (Ghost Detection + Data Insights): COMPLETE**
 - [x] E1: Ghost Job Detection - COMPLETE
 - [x] E2: Data Insights & Metrics - COMPLETE
   - Score breakdown tooltip
@@ -66,7 +66,10 @@ When to spawn sub-agents:
   - 4 new database migrations
   - UserDataManager Rust module with 20 Tauri commands
   - localStorage migration utility for existing users
-- [ ] E4: UI Connections & Polish - PENDING
+- [x] E4: UI Connections & Polish - COMPLETE
+  - Cover letter auto-fill ("Use for Job" button)
+  - Keyboard shortcut badges (ShortcutKey component exported)
+  - Tour integration (link in keyboard help modal)
 
 **v1.5 Status (File Refactoring):**
 - [ ] Modularize oversized files (see Technical Debt section below)
