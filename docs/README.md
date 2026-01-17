@@ -70,6 +70,7 @@ Welcome to JobSentinel documentation.
 | One-Click Apply | v2.0+ | [Automation](ONE_CLICK_APPLY_AUTOMATION.md) |
 
 ### Reports
+- **[Security Audit (2026-01-16)](reports/SECURITY_AUDIT_2026-01-16.md)** - Comprehensive security analysis
 - **[Deep Analysis](reports/DEEP_ANALYSIS_COMPLETE_REPORT.md)** - Security and code analysis
 - **[v1.0 Status](reports/V1_COMPLETION_STATUS.md)** - Implementation tracking
 
