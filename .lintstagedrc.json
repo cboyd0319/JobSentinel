@@ -1,0 +1,12 @@
+{
+  "!(.*)**/*.md": [
+    "markdownlint-cli2 --fix",
+    "vale --no-exit"
+  ],
+  "src/**/*.{ts,tsx}": [
+    "vale --no-exit --glob='*.{ts,tsx}'"
+  ],
+  "*.{ts,tsx}": [
+    "eslint --fix"
+  ]
+}

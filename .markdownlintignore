@@ -1,0 +1,16 @@
+# Ignore generated and vendor files
+node_modules/
+dist/
+target/
+src-tauri/gen/
+
+# Ignore Vale synced styles (third-party)
+.vale/styles/Google/
+.vale/styles/Readability/
+.vale/styles/write-good/
+
+# Ignore changelogs (may have different formatting needs)
+CHANGELOG.md
+
+# Ignore archive docs
+docs/archive/

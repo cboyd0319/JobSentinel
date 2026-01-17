@@ -1,0 +1,47 @@
+# JobSentinel Glossary
+# Warns when undefined technical terms are used without explanation
+# Suggests plain language alternatives
+
+extends: substitution
+message: "Consider explaining '%s' or using a simpler term: %s"
+level: warning
+ignorecase: true
+action:
+  name: replace
+swap:
+  API: '"connection" or "link"'
+  webhook: '"automatic notification" or "alert connection"'
+  endpoint: '"web address" or "connection point"'
+  JSON: '"data format"'
+  regex: '"search pattern" or "text pattern"'
+  cron: '"schedule" or "scheduled task"'
+  daemon: '"background process" or "automatic service"'
+  CLI: '"command line" or "terminal"'
+  GUI: '"visual interface" or "app window"'
+  UI: '"interface" or "screen"'
+  UX: '"user experience"'
+  ATS: '"Application Tracking System"'
+  applicant tracking system: '"the system companies use to manage job applications"'
+  ghost job: '"fake or outdated job posting"'
+  scraper: '"job finder" or "automatic job search"'
+  scraping: '"automatically finding jobs"'
+  SQLite: '"local database" or "your saved data"'
+  database: '"your saved information"'
+  query: '"search" or "lookup"'
+  schema: '"data structure"'
+  migration: '"update" or "data upgrade"'
+  boolean: '"yes/no" or "on/off"'
+  string: '"text"'
+  integer: '"number"'
+  array: '"list"'
+  object: '"item" or "record"'
+  function: '"feature" or "action"'
+  parameter: '"setting" or "option"'
+  authentication: '"sign-in" or "login verification"'
+  authorization: '"permission"'
+  token: '"access key" or "security code"'
+  encryption: '"protection"'
+  credential: '"login information"'
+  Tauri: '"the app framework"'
+  Rust: '"the programming language"'
+  React: '"the interface library"'

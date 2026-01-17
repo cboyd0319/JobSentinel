@@ -1,0 +1,30 @@
+# JobSentinel Rejected Terms
+# These words should trigger an error if used
+# Reserved for truly incorrect or offensive terms
+
+# Common misspellings
+recieve
+occured
+seperate
+definately
+accomodate
+occurance
+refered
+commited
+
+# Offensive or inappropriate terms
+# (See Accessibility.yml for more comprehensive list)
+
+# Brand name misspellings
+Linkdin
+Linked-in
+linked in
+glassdor
+zip recruiter
+angelist
+wellfund
+
+# Product name misspellings
+Job Sentinel
+jobsentinal
+JobSentinal

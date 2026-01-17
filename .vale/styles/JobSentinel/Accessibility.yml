@@ -1,0 +1,34 @@
+# JobSentinel Accessibility Rules
+# Ensures documentation is accessible to all users
+
+extends: existence
+message: "Accessibility issue: %s"
+level: warning
+ignorecase: true
+tokens:
+  # Ableist language
+  - crippled
+  - handicapped
+  - lame
+  - blind to
+  - deaf to
+  - dumb
+  - insane
+  - crazy
+  - retarded
+  - moron
+  - idiot
+
+  # Exclusionary phrases
+  - obviously
+  - simply
+  - just
+  - easy
+  - easily
+  - trivial
+  - straightforward
+  - of course
+  - everyone knows
+  - as you know
+  - clearly
+  - naturally

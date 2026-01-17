@@ -10,6 +10,11 @@
     "preview": "vite preview",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "lint:md": "markdownlint-cli2 \"**/*.md\" \"#node_modules\" \"#target\" \"#dist\"",
+    "lint:md:fix": "markdownlint-cli2 --fix \"**/*.md\" \"#node_modules\" \"#target\" \"#dist\"",
+    "lint:prose": "vale docs/ README.md",
+    "lint:prose:all": "vale .",
+    "lint:docs": "npm run lint:md && npm run lint:prose",
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
@@ -19,7 +24,8 @@
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "prepare": "husky"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -38,6 +44,9 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.4.3",
+    "markdownlint-cli2": "^0.17.2",
     "@playwright/test": "^1.57.0",
     "@tauri-apps/cli": "^2.1.0",
     "@testing-library/jest-dom": "^6.9.1",

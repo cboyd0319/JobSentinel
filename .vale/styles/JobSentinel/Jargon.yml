@@ -1,0 +1,85 @@
+# JobSentinel Jargon Detector
+# Flags technical jargon that may confuse non-technical job seekers
+# Suggests plain language alternatives
+
+extends: existence
+message: "Avoid technical jargon '%s' in user-facing content. Use plain language instead."
+level: warning
+ignorecase: true
+tokens:
+  # Programming jargon
+  - backend
+  - frontend
+  - fullstack
+  - full-stack
+  - codebase
+  - repository
+  - repo
+  - commit
+  - merge
+  - deploy
+  - deployment
+  - localhost
+  - server-side
+  - client-side
+  - runtime
+  - compile
+  - debug
+  - refactor
+  - async
+  - asynchronous
+  - synchronous
+  - callback
+  - promise
+  - middleware
+
+  # DevOps jargon
+  - CI/CD
+  - pipeline
+  - containerized
+  - docker
+  - kubernetes
+  - microservice
+  - monolith
+  - load balancer
+  - proxy
+  - reverse proxy
+
+  # Database jargon
+  - CRUD
+  - ORM
+  - foreign key
+  - primary key
+  - index
+  - join
+  - normalize
+  - denormalize
+  - transaction
+  - rollback
+
+  # Web jargon
+  - REST
+  - RESTful
+  - GraphQL
+  - CORS
+  - HTTP
+  - HTTPS
+  - SSL
+  - TLS
+  - DNS
+  - CDN
+  - cache
+  - caching
+
+  # General tech jargon
+  - leverage
+  - utilize
+  - implement
+  - instantiate
+  - initialize
+  - iterate
+  - scalable
+  - robust
+  - agile
+  - sprint
+  - backlog

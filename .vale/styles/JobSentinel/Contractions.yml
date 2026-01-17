@@ -1,0 +1,44 @@
+# JobSentinel Contractions
+# Encourages use of contractions for conversational tone
+# (Opposite of typical technical writing)
+
+extends: substitution
+message: "Use contractions for a friendlier tone. Replace '%s' with '%s'."
+level: suggestion
+ignorecase: false
+action:
+  name: replace
+swap:
+  # Common contractions to encourage
+  "do not": "don't"
+  "does not": "doesn't"
+  "did not": "didn't"
+  "cannot": "can't"
+  "could not": "couldn't"
+  "would not": "wouldn't"
+  "should not": "shouldn't"
+  "will not": "won't"
+  "is not": "isn't"
+  "are not": "aren't"
+  "was not": "wasn't"
+  "were not": "weren't"
+  "have not": "haven't"
+  "has not": "hasn't"
+  "had not": "hadn't"
+  "it is": "it's"
+  "that is": "that's"
+  "there is": "there's"
+  "what is": "what's"
+  "who is": "who's"
+  "you are": "you're"
+  "they are": "they're"
+  "we are": "we're"
+  "I am": "I'm"
+  "you will": "you'll"
+  "we will": "we'll"
+  "they will": "they'll"
+  "I will": "I'll"
+  "you would": "you'd"
+  "we would": "we'd"
+  "I would": "I'd"
+  "let us": "let's"

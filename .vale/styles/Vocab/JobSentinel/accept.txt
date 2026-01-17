@@ -1,0 +1,93 @@
+# JobSentinel Accepted Terms
+# These words are valid and should not trigger spelling errors
+# Add product names, proper nouns, and domain-specific terms here
+
+# Product names
+JobSentinel
+Tauri
+markdownlint
+
+# Common words
+dumbing
+
+# Job board names
+LinkedIn
+Indeed
+Glassdoor
+ZipRecruiter
+Wellfound
+AngelList
+Greenhouse
+Lever
+RemoteOK
+WeWorkRemotely
+BuiltIn
+HackerNews
+Dice
+
+# Companies (from research panel)
+Google
+Microsoft
+Amazon
+Apple
+Meta
+Netflix
+Spotify
+Stripe
+Airbnb
+Uber
+Lyft
+Dropbox
+Slack
+Zoom
+Salesforce
+Adobe
+Oracle
+IBM
+Intel
+Nvidia
+AMD
+Qualcomm
+
+# Technical terms that are acceptable in context
+SQLite
+JSON
+API
+APIs
+ATS
+webhook
+webhooks
+
+# Job search terms
+ghosted
+ghosting
+lowball
+lowballing
+recruiter
+recruiters
+hiring
+onboarding
+offboarding
+
+# Common abbreviations
+FAQ
+FAQs
+URL
+URLs
+PDF
+PDFs
+CSV
+HR
+
+# UI terms
+dropdown
+checkbox
+checkboxes
+tooltip
+tooltips
+sidebar
+navbar
+popup
+popups
+modal
+modals

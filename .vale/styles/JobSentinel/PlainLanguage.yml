@@ -1,0 +1,78 @@
+# JobSentinel Plain Language Rules
+# Enforces clear, simple writing for non-technical readers
+# Based on Federal Plain Language Guidelines
+
+extends: substitution
+message: "Use simpler language. Replace '%s' with '%s'."
+level: suggestion
+ignorecase: true
+action:
+  name: replace
+swap:
+  # Complex -> Simple
+  utilize: use
+  utilization: use
+  implement: set up
+  implementation: setup
+  functionality: features
+  capability: ability
+  facilitate: help
+  leverage: use
+  optimize: improve
+  maximize: increase
+  minimize: reduce
+  initiate: start
+  terminate: end
+  finalize: finish
+  prioritize: rank
+  customize: change
+  configure: set up
+
+  # Formal -> Conversational
+  subsequently: then
+  consequently: so
+  therefore: so
+  however: but
+  nevertheless: but
+  furthermore: also
+  additionally: also
+  moreover: also
+  prior to: before
+  subsequent to: after
+  in order to: to
+  due to the fact that: because
+  in the event that: if
+  at this point in time: now
+  at the present time: now
+  for the purpose of: to
+  with regard to: about
+  in regards to: about
+  pertaining to: about
+  in accordance with: following
+  in conjunction with: with
+
+  # Wordy -> Concise
+  a number of: some
+  a majority of: most
+  a sufficient amount of: enough
+  in the near future: soon
+  on a daily basis: daily
+  on a regular basis: regularly
+  at all times: always
+  in all cases: always
+  in some cases: sometimes
+  in most cases: usually
+  it is important to note that: note that
+  it should be noted that: note that
+  please be advised that: ""
+
+  # Passive indicators -> Active suggestions
+  is achieved by: achieves
+  is accomplished by: accomplishes
+  is performed by: performs
+  is executed by: executes
+  is utilized by: uses
+  is required to: must
+  is able to: can
+  is capable of: can
+  has the ability to: can

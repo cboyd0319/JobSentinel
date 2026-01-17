@@ -1,0 +1,1 @@
+# Symlink target - actual file is at .vale/styles/Vocab/JobSentinel/accept.txt
