@@ -80,6 +80,12 @@ When to spawn sub-agents:
 - [x] Dashboard.tsx: 2315→672 lines (+11 files)
 - [x] ats/mod.rs: 2082→~300 lines (+5 modules)
 
+**v1.6 Status (Additional Refactoring): COMPLETE**
+- [x] commands/mod.rs: 1732→94 lines (+9 domain modules)
+- [x] scrapers/lever.rs: 2379→183 lines (tests extracted to lever/tests.rs)
+- [x] salary/mod.rs: 2026→59 lines (+types.rs, analyzer.rs, tests.rs)
+- [x] resume/mod.rs: 1831→440 lines (+types.rs, tests.rs)
+
 **v2.0 Status (Production Release):**
 - See `.claude/plans/virtual-puzzling-pretzel.md` for P0-P7 details
 - Keyring, CI/CD, Packaging, Resume Builder, One-Click Apply
@@ -94,7 +100,7 @@ When to spawn sub-agents:
 
 **JobSentinel** is a privacy-first job search automation desktop app built with Tauri 2.x (Rust backend) and React 19 (TypeScript frontend).
 
-**Current Version:** 1.5.0 (January 2026)
+**Current Version:** 1.6.0 (January 2026)
 **Primary Target:** Windows 11+ (macOS/Linux planned for v2.0)
 
 ## Tech Stack
@@ -165,7 +171,7 @@ All core modules are enabled and functional:
 - automation (One-Click Apply - requires legal review)
 
 ### Test Status
-- 2033 tests passing, 21 ignored
+- 2002 tests passing, 21 ignored
 - Ignored tests require file-based database or are doc-tests for example code
 
 ### Tauri Commands (70 total)
@@ -289,8 +295,17 @@ cargo test --ignored          # Run ignored tests (need file db)
 | `config/mod.rs` | 2343 | ~300 | 5 | DONE |
 | `Dashboard.tsx` | 2315 | 672 | 11 files | DONE |
 | `ats/mod.rs` | 2082 | ~300 | 5 | DONE |
+| `scrapers/lever.rs` | 2379 | 183 | lever/ dir (tests.rs) | DONE |
 
-**All v1.5 file modularization complete. See `docs/ROADMAP.md` for v1.6+ priorities.**
+### Files Refactored in v1.6
+
+| File | Original Lines | New Lines | Modules Created | Status |
+|------|---|---|---|--------|
+| `commands/mod.rs` | 1732 | 94 | 9 domain modules | DONE |
+| `salary/mod.rs` | 2026 | 59 | types.rs, analyzer.rs, tests.rs | DONE |
+| `resume/mod.rs` | 1831 | 440 | types.rs, tests.rs | DONE |
+
+**All v1.5 and v1.6 file modularization complete. Codebase ready for v2.0.**
 
 ### When Adding Code
 

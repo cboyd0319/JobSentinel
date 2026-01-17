@@ -2,7 +2,7 @@
 
 **Last Updated:** January 17, 2026
 
-## Current Version: 1.5.0
+## Current Version: 1.6.0
 
 ### Working Features (v1.4.0)
 - **13 Job scrapers**: Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, ZipRecruiter
@@ -94,7 +94,28 @@ Major refactoring effort to modularize oversized files. All high-priority files 
 | `Dashboard.tsx` | 2315 | 672 (+11 files) | **Done** |
 | `ats/mod.rs` | 2082 | ~300 (+5 modules) | **Done** |
 | `scrapers/lever.rs` | 2256 | - | Deferred (mostly tests) |
-| `commands/mod.rs` | 1278 | - | Deferred (v1.6) |
+
+### v1.6 - Additional Refactoring (COMPLETED)
+
+Continued refactoring of remaining large files.
+
+| File | Before | After | Status |
+|------|--------|-------|--------|
+| `commands/mod.rs` | 1732 | 94 (+9 domain modules) | **Done** |
+| `scrapers/lever.rs` | 2379 | 183 (+tests.rs) | **Done** |
+| `salary/mod.rs` | 2026 | 59 (+types, analyzer, tests) | **Done** |
+| `resume/mod.rs` | 1831 | 440 (+types.rs, tests.rs) | **Done** |
+
+**Commands split into domain modules:**
+- jobs.rs (314 lines) - Job operations, search, bookmarks
+- ats.rs (224 lines) - Application tracking, interviews
+- user_data.rs (354 lines) - Templates, saved searches, history
+- resume.rs (126 lines) - Resume matching commands
+- salary.rs (92 lines) - Salary prediction commands
+- market.rs (80 lines) - Market intelligence commands
+- ghost.rs (93 lines) - Ghost detection commands
+- config.rs (99 lines) - Configuration commands
+- tests.rs (371 lines) - Command tests
 
 ### v2.0 Planned Features
 
@@ -241,6 +262,7 @@ The v1.5 modularization effort successfully split 7 oversized files into smaller
 | `market_intelligence/mod.rs` | 2703 | ~400 | computations.rs, queries.rs, utils.rs, tests.rs |
 | `config/mod.rs` | 2343 | ~300 | types.rs, defaults.rs, validation.rs, io.rs, tests.rs |
 | `ats/mod.rs` | 2082 | ~300 | types.rs, tracker.rs, reminders.rs, interview.rs, tests.rs |
+| `salary/mod.rs` | 2026 | 59 | types.rs (98), analyzer.rs (213), tests.rs (853) |
 
 #### React Frontend
 
@@ -253,9 +275,8 @@ The v1.5 modularization effort successfully split 7 oversized files into smaller
 | File | Lines | Notes |
 |------|-------|-------|
 | `scrapers/lever.rs` | 2256 | Mostly tests - extract when needed |
-| `commands/mod.rs` | 1278 | Could split by domain (jobs, ats, resume, salary) |
-| `salary/mod.rs` | 1999 | Split predictor, benchmarks, tests |
 | `resume/mod.rs` | 1727 | Split parser, matcher, tests |
+| `commands/mod.rs` | 1278 | Could split by domain (jobs, ats, resume, salary) |
 - `config/validation.rs` - Validation logic (~400 lines)
 - `config/defaults.rs` - Default values (~200 lines)
 - `config/tests.rs` - Tests (~900 lines)
@@ -287,7 +308,6 @@ The v1.5 modularization effort successfully split 7 oversized files into smaller
 
 | File | Lines | Action |
 |------|-------|--------|
-| `salary/mod.rs` | 1999 | Extract predictor, benchmarks, tests |
 | `resume/mod.rs` | 1727 | Extract parser, matcher, tests |
 | `market_intelligence/analytics.rs` | 1645 | Consider merging into trends.rs |
 | `notify/teams.rs` | 1552 | Extract tests (~1000 lines) |

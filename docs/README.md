@@ -27,7 +27,7 @@ Welcome to JobSentinel documentation.
 
 ## Current Status (January 2026)
 
-**Version: 1.5.0** | 2033+ tests passing | Full-featured release
+**Version: 1.6.0** | 2002+ tests passing | Full-featured release
 
 ### Working Features
 - **13 Job scrapers**: Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, ZipRecruiter
@@ -95,6 +95,7 @@ Welcome to JobSentinel documentation.
 | Job Scrapers | Working | [Scrapers](features/scrapers.md) |
 
 ### Release Notes
+- **[v1.6 - Additional Refactoring](releases/v1.6.md)** - Commands, scrapers, salary, resume modularization
 - **[v1.5 - Modularization](releases/v1.5.md)** - File refactoring and code organization
 - **[v1.4 - Ghost Hunter](releases/v1.4.md)** - Ghost job detection
 - **[v1.3 - Power User](releases/v1.3.md)** - Keyboard shortcuts, advanced search

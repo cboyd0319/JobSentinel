@@ -5,6 +5,26 @@ All notable changes to JobSentinel will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2026-01-17
+
+### Changed
+- **Additional Code Modularization** - Continued refactoring of remaining large files
+  - `commands/mod.rs` (1732→94 lines): Split into 9 domain modules
+    - jobs.rs (314 lines) - Job operations, search, bookmarks
+    - ats.rs (224 lines) - Application tracking, interviews
+    - user_data.rs (354 lines) - Templates, saved searches, history
+    - resume.rs (126 lines) - Resume matching commands
+    - salary.rs (92 lines) - Salary prediction commands
+    - market.rs (80 lines) - Market intelligence commands
+    - ghost.rs (93 lines) - Ghost detection commands
+    - config.rs (99 lines) - Configuration commands
+    - tests.rs (371 lines) - Command tests
+  - `scrapers/lever.rs` (2379→183 lines): Extracted tests.rs (2195 lines)
+  - `salary/mod.rs` (2026→59 lines): Split into types.rs (98), analyzer.rs (213), tests.rs (853)
+  - `resume/mod.rs` (1831→440 lines): Extracted types.rs (71), tests.rs (1329)
+- Test count: 2002 tests passing (1961 unit + 40 integration + 1 doc)
+- Added `docs/developer/WHY_TAURI.md` - Architecture decision documentation
+
 ## [1.5.0] - 2026-01-17
 
 ### Changed
