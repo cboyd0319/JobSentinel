@@ -76,6 +76,7 @@ Welcome to JobSentinel documentation.
 - **[Getting Started](developer/GETTING_STARTED.md)** - Development setup
 - **[Contributing](developer/CONTRIBUTING.md)** - How to contribute
 - **[Architecture](developer/ARCHITECTURE.md)** - System design
+- **[Why Tauri?](developer/WHY_TAURI.md)** - Why we chose Tauri over Electron/Chrome
 - **[Testing](developer/TESTING.md)** - Test suite guide
 - **[macOS Development](developer/MACOS_DEVELOPMENT.md)** - macOS-specific
 - **[SQLite Configuration](developer/sqlite-configuration.md)** - Database setup
