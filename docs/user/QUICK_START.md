@@ -8,12 +8,12 @@
 
 ## Current Status
 
-**Version 1.3.1** (January 2026)
+**Version 1.5.0** (January 2026)
 
 - Windows 11+ is the primary target platform
 - macOS 26.2+ (Tahoe) and Linux support planned for v2.0
-- All core features working (13 scrapers, scoring, multi-channel notifications)
-- 2008 tests passing
+- All core features working (13 scrapers, ghost detection, scoring, multi-channel notifications)
+- 2029 tests passing
 
 <p align="center">
   <img src="../images/dashboard.png" alt="JobSentinel Dashboard" width="700">
@@ -405,4 +405,4 @@ JobSentinel is designed with **security-first principles**:
 
 **Happy job hunting! 🚀**
 
-*JobSentinel v1.0 - Privacy-first, locally-run job search automation*
+*JobSentinel v1.5.0 - Privacy-first, locally-run job search automation*

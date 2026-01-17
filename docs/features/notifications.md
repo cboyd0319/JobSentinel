@@ -2,8 +2,8 @@
 ## Complete Implementation Guide for JobSentinel
 
 > **Status:** ✅ Fully Implemented
-> **Version:** 1.0.0
-> **Last Updated:** 2025-11-15
+> **Version:** 1.5.0
+> **Last Updated:** 2026-01-17
 > **Estimated Effort:** 2-3 weeks ✅ **COMPLETE**
 
 ---
@@ -17,6 +17,7 @@ JobSentinel now supports **5 notification channels** with rich formatting and co
 3. **💜 Discord** - Colorful embeds with automatic theming
 4. **📱 Telegram** - MarkdownV2 formatted messages via Bot API
 5. **💼 Microsoft Teams** - MessageCard format with action buttons
+6. **🖥️ Desktop** - Native OS notifications (Windows, macOS, Linux)
 
 ---
 
@@ -172,6 +173,42 @@ JobSentinel now supports **5 notification channels** with rich formatting and co
 
 ---
 
+### Desktop Notifications Configuration
+
+```json
+{
+  "alerts": {
+    "desktop": {
+      "enabled": true
+    }
+  }
+}
+```
+
+**Setup Instructions:**
+
+Desktop notifications use native OS notification systems:
+
+1. **Windows 11+**: Uses Windows Toast notifications (no configuration needed)
+   - Notifications appear in Action Center
+   - Sound plays automatically (respects system settings)
+
+2. **macOS**: Uses native macOS notifications (no configuration needed)
+   - Notifications appear in Notification Center
+   - Sound plays automatically (respects system settings)
+
+3. **Linux**: Uses D-Bus notification daemon (no configuration needed)
+   - Requires notification daemon (e.g., dunst, notify-osd)
+   - Desktop integration varies by distribution
+
+**Features:**
+- Instant notification delivery (no network dependency)
+- Job title and match score displayed
+- Click notification to open JobSentinel
+- Works offline (local system notifications only)
+
+---
+
 ## 🏗️ Architecture
 
 ### Module Structure
@@ -183,7 +220,8 @@ src-tauri/src/core/notify/
 ├── email.rs         # SMTP email implementation
 ├── discord.rs       # Discord webhook implementation
 ├── telegram.rs      # Telegram Bot API implementation
-└── teams.rs         # Microsoft Teams webhook implementation
+├── teams.rs         # Microsoft Teams webhook implementation
+└── desktop.rs       # Native OS notification implementation
 ```
 
 ### Core Components
@@ -536,6 +574,7 @@ notify.send_immediate_alert(&notification).await?;
 // ✓ Sent Discord notification for: Senior Rust Engineer
 // ✓ Sent Telegram notification for: Senior Rust Engineer
 // ✓ Sent Teams notification for: Senior Rust Engineer
+// ✓ Sent desktop notification for: Senior Rust Engineer
 ```
 
 ### Example 2: Validate Configuration
@@ -578,7 +617,8 @@ match discord::validate_webhook(webhook_url).await {
     "email": {"enabled": true, ...},   // Enabled
     "discord": {"enabled": true, ...}, // Enabled
     "telegram": {"enabled": false},    // Disabled
-    "teams": {"enabled": false}        // Disabled
+    "teams": {"enabled": false},       // Disabled
+    "desktop": {"enabled": true}       // Enabled
   }
 }
 ```
@@ -675,7 +715,6 @@ Only enabled channels will send notifications.
 
 ### Planned Features
 
-- [ ] **Desktop notifications** (via Tauri plugin)
 - [ ] **SMS notifications** (via Twilio)
 - [ ] **Notification batching** (digest mode: daily summary)
 - [ ] **Rate limiting** (prevent spam for high-volume days)
@@ -746,6 +785,10 @@ pub async fn validate_telegram_config(config: &TelegramConfig) -> Result<bool>;
 // Teams
 pub async fn send_teams_notification(webhook_url: &str, notification: &Notification) -> Result<()>;
 pub async fn validate_webhook(webhook_url: &str) -> Result<bool>;
+
+// Desktop
+pub async fn send_desktop_notification(notification: &Notification) -> Result<()>;
+pub fn validate_desktop() -> Result<bool>;
 ```
 
 ---
@@ -756,7 +799,7 @@ Before enabling multi-channel notifications in production:
 
 - [ ] Configure at least one notification channel
 - [ ] Test configuration using validation endpoints
-- [ ] Verify webhook URLs are correct
+- [ ] Verify webhook URLs are correct (for webhook-based channels)
 - [ ] Test with actual job notification
 - [ ] Check logs for successful delivery
 - [ ] Confirm message formatting looks good
@@ -764,10 +807,18 @@ Before enabling multi-channel notifications in production:
 - [ ] Document channel configurations for team
 - [ ] Back up configuration (especially SMTP passwords)
 - [ ] Test failure scenarios (invalid webhook, network issues)
+- [ ] Verify desktop notifications work on target platforms (Windows, macOS, Linux)
 
 ---
 
 ## 📝 Changelog
+
+### v1.5.0 (2026-01-17)
+
+**Documentation Update:**
+- ✅ Updated all version references to 1.5.0
+- ✅ Added Desktop notifications to channel list
+- ✅ Updated Last Updated date
 
 ### v1.0.0 (2025-11-15)
 
@@ -786,7 +837,7 @@ Before enabling multi-channel notifications in production:
 
 ---
 
-**Last Updated:** 2025-11-15
+**Last Updated:** 2026-01-17
 **Maintained By:** JobSentinel Core Team
-**Documentation Version:** 1.0.0
+**Documentation Version:** 1.5.0
 **Implementation Status:** ✅ Production Ready

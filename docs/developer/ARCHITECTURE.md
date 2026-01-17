@@ -1,6 +1,6 @@
 # Architecture Documentation
 
-**JobSentinel v1.4 System Architecture**
+**JobSentinel v1.5 System Architecture**
 
 ---
 
@@ -89,11 +89,17 @@ JobSentinel is a **privacy-first, desktop-native job search automation tool** bu
 
 Platform-agnostic business logic that can run on any OS or in the cloud.
 
-#### `core/config/`
+#### `core/config/` (5 submodules)
 **Purpose**: Configuration management
 - Load/save user preferences
 - Validate configuration values
 - Provide sensible defaults
+- **Submodules:**
+  - `types.rs` - Configuration types and structures
+  - `validation.rs` - Configuration validation logic
+  - `defaults.rs` - Default configuration values
+  - `alerts.rs` - Alert configuration management
+  - `loader.rs` - Configuration file I/O
 
 **Key Types:**
 ```rust
@@ -113,11 +119,27 @@ pub struct Config {
 - String lengths enforced
 - URL format validation
 
-#### `core/db/`
+#### `core/db/` (8 submodules + integrity/)
 **Purpose**: SQLite database abstraction
 - Job storage and retrieval
 - Full-text search (FTS5)
 - Statistics aggregation
+- Data integrity validation
+- **Submodules:**
+  - `types.rs` - Database types (Job, Application, etc.)
+  - `connection.rs` - Connection pool management
+  - `crud.rs` - Create/Read/Update/Delete operations
+  - `queries.rs` - Advanced query builders
+  - `interactions.rs` - Job interaction tracking
+  - `analytics.rs` - Analytics and aggregations
+  - `ghost.rs` - Ghost job data storage
+  - `tests.rs` - Database unit tests
+  - `integrity/` - Data integrity checks (5 modules)
+    - `validator.rs` - Data validation logic
+    - `repair.rs` - Repair corrupted records
+    - `migrations.rs` - Database migration helpers
+    - `schema.rs` - Schema validation
+    - `tests.rs` - Integrity tests
 
 **Key Operations:**
 ```rust
@@ -146,7 +168,7 @@ CREATE VIRTUAL TABLE jobs_fts USING fts5(
 ```
 
 #### `core/scrapers/`
-**Purpose**: Job board scraping (10 sources)
+**Purpose**: Job board scraping (13 sources)
 - **Greenhouse** - ATS scraper (HTML)
 - **Lever** - ATS scraper (HTML)
 - **LinkedIn** - Session cookie authentication
@@ -157,6 +179,9 @@ CREATE VIRTUAL TABLE jobs_fts USING fts5(
 - **BuiltIn** - City-specific tech jobs (HTML)
 - **HN Who's Hiring** - Algolia API for monthly threads
 - **JobsWithGPT** - API client
+- **Dice** - Tech jobs scraper
+- **YC Startup Jobs** - Y Combinator startup opportunities
+- **ZipRecruiter** - Job search platform
 
 **Architecture:**
 ```rust
@@ -216,13 +241,19 @@ total_score = (
 - Unrealistic requirements
 - Company excessive openings
 
-#### `core/ats/`
+#### `core/ats/` (5 submodules)
 **Purpose**: Application Tracking System
 - Kanban board with 12 status columns
 - Automated follow-up reminders
 - Timeline/audit trail
 - Ghosting detection (2 weeks no contact)
 - Interview scheduling with iCal export
+- **Submodules:**
+  - `types.rs` - Application and status types
+  - `crud.rs` - Application CRUD operations
+  - `reminders.rs` - Reminder scheduling and tracking
+  - `ghosting.rs` - Ghosting detection logic
+  - `interviews.rs` - Interview scheduling and iCal export
 
 #### `core/user_data/`
 **Purpose**: User data persistence (v1.4)
@@ -248,19 +279,32 @@ total_score = (
 - Negotiation script generation
 - Offer comparison
 
-#### `core/market_intelligence/`
+#### `core/market_intelligence/` (4 submodules)
 **Purpose**: Market Analytics
 - Daily market snapshots
 - Skill demand trends
 - Company hiring velocity
 - Location job density
 - Market alerts for anomalies
+- **Submodules:**
+  - `types.rs` - Market analytics types
+  - `trends.rs` - Trend analysis and tracking
+  - `analysis.rs` - Market snapshot generation
+  - `alerts.rs` - Anomaly detection and alerts
 
-#### `core/scheduler/`
+#### `core/scheduler/` (7 submodules)
 **Purpose**: Automated job scraping
 - Configurable interval (1-168 hours)
 - Graceful shutdown
 - Error recovery
+- **Submodules:**
+  - `types.rs` - Scheduler types and state
+  - `pipeline.rs` - Scraping pipeline orchestration
+  - `workers/scraper.rs` - Scraper worker threads
+  - `workers/scorer.rs` - Job scoring worker
+  - `workers/notifier.rs` - Notification worker
+  - `workers/mod.rs` - Worker pool management
+  - `tests.rs` - Scheduler unit tests
 
 **Workflow:**
 ```
@@ -271,10 +315,11 @@ total_score = (
        │
        v
 ┌──────────────┐
-│ Scrape All   │──> 10 sources in parallel:
+│ Scrape All   │──> 13 sources in parallel:
 │   Sources    │    Greenhouse, Lever, LinkedIn, Indeed,
 │              │    RemoteOK, Wellfound, WeWorkRemotely,
-│              │    BuiltIn, HN Hiring, JobsGPT
+│              │    BuiltIn, HN Hiring, JobsGPT, Dice,
+│              │    YC Startup Jobs, ZipRecruiter
 └──────┬───────┘
        │
        v
@@ -592,6 +637,6 @@ pub struct GreenhouseScraper { ... }
 
 ---
 
-**Last Updated**: January 16, 2026
-**Version**: 1.3.1
+**Last Updated**: January 17, 2026
+**Version**: 1.5.0
 **Maintained By**: The Rust Mac Overlord 🦀

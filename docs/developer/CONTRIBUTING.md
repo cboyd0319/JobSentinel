@@ -43,7 +43,9 @@ RIGHT: Launch 3 Explore agents in parallel → Receive all results → Decide wi
 
 ### MANDATORY: File Size Limits
 
-**Keep files under 500 lines.** Large files need splitting.
+**Keep files under 500 lines.** Large files are hard to maintain and regenerate with AI assistance.
+
+**Test organization:** Move test modules to separate `tests.rs` files when a file exceeds 400 lines. This keeps the main logic focused and tests discoverable.
 
 See `docs/ROADMAP.md` → Technical Debt section for files needing refactoring.
 
@@ -55,8 +57,8 @@ See `docs/ROADMAP.md` → Technical Debt section for files needing refactoring.
 2. **Public roadmap:** `docs/ROADMAP.md` (priorities + technical debt)
 
 **Current status:**
-- **v1.4**: E1-E2 complete, E3 (Backend Persistence) and E4 (UI Polish) pending
-- **v1.5**: File modularization - db/mod.rs → scheduler → market_intelligence
+- **v1.4**: Ghost Detection + Data Insights (complete)
+- **v1.5**: File modularization - db/mod.rs → scheduler → market_intelligence (in progress)
 - **v2.0**: Keyring, CI/CD, Resume Builder, One-Click Apply (see detailed plan)
 
 ---
@@ -301,8 +303,15 @@ export function JobList({ jobs, onSelect }: JobListProps) {
 
 ### Rust Tests
 
-**Write tests for all new code:**
+**Write tests for all new code.** For files over 400 lines, move tests to a separate `tests.rs` file to keep the main module focused:
+
 ```rust
+// In src/feature/mod.rs (main logic, <400 lines)
+pub fn calculate_score(job: &Job) -> u32 {
+    // Implementation
+}
+
+// In src/feature/tests.rs (all tests)
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -314,6 +323,12 @@ mod tests {
         assert!(jobs.len() > 0);
     }
 }
+```
+
+Add to `mod.rs`:
+```rust
+#[cfg(test)]
+mod tests;
 ```
 
 **Run tests:**
@@ -372,7 +387,7 @@ Before submitting:
 - [ ] CLAUDE.md updated (if commands/structure changed)
 - [ ] docs/ROADMAP.md updated (if adding to technical debt)
 - [ ] Tested on Windows and/or macOS
-- [ ] No new files exceed 500 lines
+- [ ] No files exceed 500 lines (move tests to `tests.rs` if needed)
 
 ### PR Template
 
@@ -407,10 +422,10 @@ Closes #123
 
 ## Checklist
 - [ ] Code follows project conventions
-- [ ] Tests added/updated
+- [ ] Tests added/updated (in separate `tests.rs` if file >400 lines)
 - [ ] All documentation updated
 - [ ] No new warnings
-- [ ] No new files exceed 500 lines
+- [ ] No files exceed 500 lines
 ```
 
 ---
@@ -590,3 +605,7 @@ Contributors will be:
 **Thank you for contributing to JobSentinel!** 🚀
 
 *Questions? Open a [Discussion](https://github.com/cboyd0319/JobSentinel/discussions)*
+
+---
+
+**Last Updated:** January 17, 2026 (v1.5.0)

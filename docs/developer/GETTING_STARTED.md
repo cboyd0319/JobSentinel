@@ -2,13 +2,13 @@
 
 ## Project Status
 
-**Version 1.3.1** (January 2026)
+**Version 1.5.0** (January 17, 2026)
 
 | Component | Status |
 |-----------|--------|
-| Core modules (config, db, scoring, scrapers, scheduler, notify) | Working |
+| Core modules (config, db, scoring, scrapers, scheduler, notify, ghost, ats, resume, salary, market) | Working |
 | Frontend (React 19 + TypeScript) | Working |
-| Tests | 2008 passing, 20 ignored |
+| Tests | 2029 passing, 21 ignored |
 
 ---
 
@@ -54,19 +54,33 @@ npm run tauri:build
 ```
 JobSentinel/
 ├── src/                      # React frontend (TypeScript + Tailwind)
-│   ├── pages/               # Setup Wizard, Dashboard
-│   ├── components/          # Reusable UI components
+│   ├── components/          # 37 reusable UI components
+│   ├── contexts/            # React contexts (KeyboardShortcuts, ErrorReporting)
+│   ├── hooks/               # Custom hooks (useKeyboardNavigation)
+│   ├── pages/               # Page components (Dashboard, Applications, etc.)
+│   ├── utils/               # Utilities (export, api, notifications)
 │   ├── App.tsx              # Main app component
 │   └── main.tsx             # Entry point
 ├── src-tauri/               # Rust backend
 │   ├── src/
 │   │   ├── main.rs          # Tauri app entry
 │   │   ├── lib.rs           # Library exports
-│   │   ├── core/            # Business logic (scrapers, scoring, etc.)
+│   │   ├── core/            # Business logic (modular structure)
+│   │   │   ├── ats/         # Application Tracking System
+│   │   │   ├── config/      # Configuration (2343 lines - v1.5 candidate)
+│   │   │   ├── db/          # Database layer (4442 lines - CRITICAL refactoring needed)
+│   │   │   ├── ghost/       # Ghost job detection
+│   │   │   ├── market_intelligence/  # Market analytics (2703 lines)
+│   │   │   ├── notify/      # Multi-channel notifications
+│   │   │   ├── resume/      # Resume matching AI
+│   │   │   ├── salary/      # Salary prediction
+│   │   │   ├── scheduler/   # Job scheduling (2955 lines - HIGH priority refactoring)
+│   │   │   ├── scoring/     # Job scoring algorithm
+│   │   │   └── scrapers/    # 13 job board scrapers
 │   │   ├── platforms/       # Windows/macOS/Linux specific code
 │   │   ├── cloud/           # GCP/AWS deployment (v3.0+)
-│   │   └── commands/        # Tauri RPC commands
-│   ├── migrations/          # SQLite migrations
+│   │   └── commands/        # 70 Tauri RPC command handlers
+│   ├── migrations/          # 18 SQLite migrations
 │   └── Cargo.toml           # Rust dependencies
 ├── public/                  # Static assets (logo, etc.)
 ├── docs/                    # Documentation
@@ -122,12 +136,17 @@ npm run format
 
 All core functionality is in `src-tauri/src/core/` and works identically on all platforms:
 
+- **ats**: Application Tracking System with interview scheduler (10 commands)
 - **config**: JSON-based user preferences
-- **db**: SQLite database with async support
-- **scrapers**: 13 job board scrapers with parallel execution
-- **scoring**: Multi-factor scoring algorithm
-- **notify**: Multi-channel notifications (Slack, Discord, Teams, Email, Desktop)
-- **scheduler**: Periodic job scraping with configurable interval
+- **db**: SQLite database with async support (70+ queries)
+- **ghost**: Ghost job detection with repost tracking and stale detection
+- **market_intelligence**: Market analytics with trends and location insights
+- **notify**: Multi-channel notifications (Slack, Discord, Teams, Email, Telegram, Desktop)
+- **resume**: AI-powered resume-job matching with skill extraction
+- **salary**: Salary prediction and benchmarking
+- **scheduler**: Periodic job scraping with configurable interval and auto-refresh
+- **scoring**: Multi-factor job scoring (0-1 scale)
+- **scrapers**: 13 job board scrapers with parallel execution (Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, ZipRecruiter)
 
 ### Platform-Specific Code
 
@@ -216,15 +235,35 @@ Ensure you have:
 
 Download: https://visualstudio.microsoft.com/downloads/
 
+### Modular Architecture (v1.5+)
+
+To maintain code quality and regenerability, all files follow the LLM-first coding principle:
+
+- **File size limits**: Keep modules under 500 lines for easy maintenance and AI regeneration
+- **Flat hierarchy**: Explicit code over deep abstractions
+- **Modular structure**: Each module has clear boundaries and minimal coupling
+- **Separated concerns**: Tests go in `tests.rs` files, not inline `#[cfg(test)]` blocks
+
+**v1.5 Refactoring Priority** (see [ROADMAP.md](../ROADMAP.md) for details):
+
+| File | Lines | Status |
+|------|-------|--------|
+| `db/mod.rs` | 4442 | CRITICAL - needs modularization |
+| `scheduler/mod.rs` | 2955 | HIGH - candidate for split |
+| `market_intelligence/mod.rs` | 2703 | HIGH - candidate for split |
+| `config/mod.rs` | 2343 | MEDIUM - monitor size |
+| `Dashboard.tsx` | 2315 | MEDIUM - frontend refactoring planned |
+
 ---
 
 ## Next Steps
 
-1. Read [v1.0 Completion Status](../reports/V1_COMPLETION_STATUS.md) for implementation details
+1. Read [ROADMAP.md](../ROADMAP.md) for v1.5+ priorities and technical debt
 2. Read [Quick Start Guide](../user/QUICK_START.md) for user documentation
 3. Check [GitHub Issues](https://github.com/cboyd0319/JobSentinel/issues) for tasks
-4. Join [Discussions](https://github.com/cboyd0319/JobSentinel/discussions) for questions
+4. Review [Feature Documentation](../features/) for implementation details
+5. Join [Discussions](https://github.com/cboyd0319/JobSentinel/discussions) for questions
 
 ---
 
-**Happy coding!** 🚀
+**Last Updated:** January 17, 2026

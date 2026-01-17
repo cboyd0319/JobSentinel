@@ -1,6 +1,6 @@
 # Testing Guide
 
-**Complete guide to testing in JobSentinel v2.0**
+**Complete guide to testing in JobSentinel v1.5.0**
 
 ---
 
@@ -93,28 +93,38 @@ src-tauri/
 ├── src/
 │   ├── core/
 │   │   ├── config/
-│   │   │   └── mod.rs       # 51 unit tests
+│   │   │   ├── mod.rs       # Config logic
+│   │   │   └── tests.rs     # 51 unit tests (extracted)
 │   │   ├── db/
-│   │   │   └── mod.rs       # 21 unit tests
+│   │   │   ├── mod.rs       # Database operations
+│   │   │   └── tests.rs     # 21 unit tests (extracted)
 │   │   ├── scoring/
-│   │   │   └── mod.rs       # 3 unit tests
+│   │   │   ├── mod.rs       # Scoring logic
+│   │   │   └── tests.rs     # 3 unit tests (extracted)
 │   │   ├── scheduler/
-│   │   │   └── mod.rs       # 1 unit test
+│   │   │   ├── mod.rs       # Job scheduling
+│   │   │   └── tests.rs     # 1 unit test (extracted)
 │   │   ├── notify/
-│   │   │   ├── mod.rs
-│   │   │   └── slack.rs     # 10 unit tests
+│   │   │   ├── mod.rs       # Notification dispatch
+│   │   │   ├── slack.rs     # Slack channel
+│   │   │   └── tests.rs     # 10 unit tests (extracted)
 │   │   └── scrapers/
-│   │       ├── greenhouse.rs # 12 unit tests
-│   │       ├── lever.rs      # Tests
-│   │       └── jobswithgpt.rs # Tests
+│   │       ├── greenhouse.rs # Greenhouse scraper
+│   │       ├── lever.rs      # Lever scraper
+│   │       ├── jobswithgpt.rs # JobsWithGPT scraper
+│   │       └── tests.rs      # Scraper unit tests (extracted)
 │   ├── commands/
-│   │   └── mod.rs           # 13 integration tests
+│   │   ├── mod.rs           # Tauri RPC handlers
+│   │   └── tests.rs         # 13 integration tests (extracted)
 │   └── platforms/
-│       ├── windows/mod.rs   # 2 unit tests
-│       ├── macos/mod.rs     # 6 unit tests
-│       └── linux/mod.rs     # 2 unit tests
-└── tests/                   # Integration tests (future)
+│       ├── windows/mod.rs   # Windows platform code
+│       ├── macos/mod.rs     # macOS platform code
+│       ├── linux/mod.rs     # Linux platform code
+│       └── tests.rs         # 10 platform tests (extracted)
+└── tests/                   # Integration tests (40 tests)
 ```
+
+**Note**: As of v1.5.0, test files have been extracted to separate `tests.rs` files within each module directory. This improves code organization and keeps module files under 500 lines for easier maintenance and regeneration.
 
 ### Test Counts by Module
 
@@ -139,8 +149,10 @@ src-tauri/
 | `core/market_intelligence` | 12 | Trends + alerts + analytics |
 | `platforms/macos` | 6 | Paths + initialization |
 | `cloud/common` | 1 | Deployment mode detection |
-| **Integration Tests** | **12** | **Full pipeline** |
-| **Total** | **2008 passing** | **20 ignored** |
+| **Unit Tests** | **1992** | **Core module coverage** |
+| **Integration Tests** | **40** | **Full pipeline** |
+| **Doc Tests** | **1** | **Example code verification** |
+| **Total** | **2033 passing** | **0 ignored** |
 
 ---
 
@@ -505,6 +517,7 @@ fn test_example() {
 
 ---
 
-**Last Updated**: January 16, 2026
-**Test Count**: 2008 passing, 20 ignored
+**Last Updated**: January 17, 2026
+**Test Count**: 2033 passing (1992 unit + 40 integration + 1 doc)
+**Version**: v1.5.0
 **Maintained By**: The Rust Mac Overlord 🦀

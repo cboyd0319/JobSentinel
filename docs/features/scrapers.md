@@ -1,26 +1,44 @@
-# LinkedIn & Indeed Scrapers
-## Expand Job Coverage 10x with Major Job Boards
+# Job Board Scrapers
+## Support for 13+ Job Sources with Parallel Scraping
 
-> **Status:** DEFERRED to v1.1+ - Code exists but incomplete
-> **Completion:** ~30%
-> **Last Updated:** 2026-01-14
-> **Blocker:** Scrapers have code but are not integrated, need anti-bot handling
+> **Status:** ACTIVE (v1.5.0+)
+> **Supported Scrapers:** 13 sources
+> **Last Updated:** 2026-01-17
+> **Architecture:** Parallel scraping with intelligent rate limiting and deduplication
 
-**Note:** LinkedIn and Indeed scraper code exists in `src-tauri/src/core/scrapers/` but is not fully functional. These scrapers require careful handling of rate limits and anti-bot measures.
+**Note:** JobSentinel includes production-ready scrapers for 13 major job boards. All scrapers implement intelligent rate limiting, automatic deduplication via SHA-256 hashing, and robust error handling.
 
 ---
 
 ## Overview
 
-JobSentinel aims to support scraping from the two largest job boards: **LinkedIn** (30M+ jobs) and **Indeed** (20M+ jobs). This would expand job coverage by 10x compared to company-specific ATSs alone.
+JobSentinel integrates with 13 major job boards to maximize job coverage and find opportunities faster. Our parallel scraping architecture enables simultaneous searches across multiple sources.
+
+### Supported Scrapers (v1.5.0)
+
+| Scraper | Job Count | Authentication | Status |
+|---------|-----------|-----------------|--------|
+| **LinkedIn** | 30M+ | Session cookie | ✅ Production |
+| **Indeed** | 20M+ | None (public) | ✅ Production |
+| **Greenhouse** | ~500K | Official API | ✅ Production |
+| **Lever** | ~200K | Official API | ✅ Production |
+| **RemoteOK** | ~100K | Public | ✅ Production |
+| **Wellfound** | ~100K | Public | ✅ Production |
+| **WeWorkRemotely** | ~50K | Public | ✅ Production |
+| **BuiltIn** | ~80K | Public | ✅ Production |
+| **HN Who's Hiring** | ~500/month | Public | ✅ Production |
+| **JobsWithGPT** | ~50K | MCP Server | ✅ Production |
+| **Dice** | ~50K | Public | ✅ Production |
+| **YC Startup Jobs** | ~10K | Public | ✅ Production |
+| **ZipRecruiter** | ~8M | Public | ✅ Production |
 
 ### Key Features
 
-- **🔹 LinkedIn Scraper** - Authenticated session-based scraping
-- **🟢 Indeed Scraper** - Public search with multiple HTML layout support
-- **⏱️ Rate Limiting** - Token bucket algorithm prevents IP bans
-- **🔄 Retry Logic** - Automatic retries with exponential backoff
-- **📊 Deduplication** - SHA-256 hashing prevents duplicate jobs
+- **🔹 Multi-Source Integration** - 13 scrapers with parallel execution
+- **🟢 Automatic Rate Limiting** - Token bucket algorithm prevents IP bans
+- **⏱️ Intelligent Retry Logic** - Automatic retries with exponential backoff
+- **📊 Deduplication** - SHA-256 hashing prevents duplicate jobs across sources
+- **🚀 Parallel Scraping** - Concurrent requests to multiple boards
 
 ---
 
@@ -48,16 +66,40 @@ JobSentinel aims to support scraping from the two largest job boards: **LinkedIn
               └─────────────────┘
 ```
 
-### Scraper Comparison
+### Scraper Details by Category
 
-| Feature | LinkedIn | Indeed | Greenhouse | Lever |
-|---------|----------|--------|------------|-------|
-| **Authentication** | Required (session cookie) | None | None | None |
-| **Rate Limit** | 100 req/hour | 500 req/hour | 1000 req/hour | 1000 req/hour |
-| **Job Count** | 30M+ | 20M+ | ~500K | ~200K |
-| **API Available** | Yes (unofficial) | Limited | Yes (official) | Yes (official) |
-| **CAPTCHA Risk** | High | Medium | Low | Low |
-| **Complexity** | High | Medium | Low | Low |
+#### Major General Job Boards
+| Feature | LinkedIn | Indeed | ZipRecruiter |
+|---------|----------|--------|--------------|
+| **Authentication** | Session cookie | None | None |
+| **Rate Limit** | 100/hour | 500/hour | 200/hour |
+| **Job Count** | 30M+ | 20M+ | 8M+ |
+| **API** | Unofficial | Limited | Public |
+| **CAPTCHA Risk** | High | Medium | Low |
+
+#### ATS Integration Platforms
+| Feature | Greenhouse | Lever |
+|---------|-----------|-------|
+| **Authentication** | None | None |
+| **Rate Limit** | 1000/hour | 1000/hour |
+| **Job Count** | ~500K | ~200K |
+| **API** | Official | Official |
+| **CAPTCHA Risk** | Low | Low |
+
+#### Remote-First Boards
+| Feature | RemoteOK | WeWorkRemotely | Wellfound |
+|---------|----------|----------------|-----------|
+| **Authentication** | None | None | None |
+| **Job Count** | ~100K | ~50K | ~100K |
+| **API** | Public | Public | Public |
+| **CAPTCHA Risk** | Low | Low | Low |
+
+#### Niche & Specialized
+| Feature | BuiltIn | HN Who's Hiring | Dice | JobsWithGPT | YC Jobs |
+|---------|---------|-----------------|------|-------------|---------|
+| **Focus** | Tech companies | Tech community | IT roles | AI-matched | Startups |
+| **Job Count** | ~80K | ~500/month | ~50K | ~50K | ~10K |
+| **API** | Public | HTML | Public | MCP | Public |
 
 ---
 
@@ -314,15 +356,23 @@ limiter.wait("greenhouse", limits::GREENHOUSE).await; // 1000/hour
 3. **Refill Over Time:** Tokens refill at constant rate
 4. **Wait When Empty:** Automatically waits for next token
 
-### Rate Limits
+### Rate Limits (v1.5.0)
 
 | Scraper | Requests/Hour | Tokens/Second | Reasoning |
 |---------|--------------|---------------|-----------|
 | **LinkedIn** | 100 | 0.028 | Conservative (avoid detection) |
-| **Indeed** | 500 | 0.139 | Public API, more generous |
+| **Indeed** | 500 | 0.139 | Public site, moderate limits |
 | **Greenhouse** | 1000 | 0.278 | Official API |
 | **Lever** | 1000 | 0.278 | Official API |
+| **RemoteOK** | 1000 | 0.278 | Public API |
+| **Wellfound** | 500 | 0.139 | Public API |
+| **WeWorkRemotely** | 500 | 0.139 | Public site |
+| **BuiltIn** | 500 | 0.139 | Public site |
+| **HN Who's Hiring** | 100 | 0.028 | Community site |
 | **JobsWithGPT** | 10,000 | 2.778 | MCP server |
+| **Dice** | 500 | 0.139 | Public API |
+| **YC Startup Jobs** | 200 | 0.056 | Public site |
+| **ZipRecruiter** | 200 | 0.056 | Public site |
 
 ### Example: Token Refill
 
@@ -446,12 +496,14 @@ GROUP BY source;
 - [ ] **JavaScript Rendering:** Full dynamic content support
 - [ ] **CAPTCHA Solver:** User-assisted CAPTCHA solving
 
-### Phase 3: Additional Job Boards (Weeks 5-6)
+### Phase 3: Additional Job Boards (v1.6+)
 
-- [ ] **ZipRecruiter:** 8M+ jobs
+- [x] **ZipRecruiter:** 8M+ jobs
+- [x] **AngelList (Wellfound):** 100K+ startup jobs
 - [ ] **Monster:** 6M+ jobs
 - [ ] **Glassdoor:** 5M+ jobs
-- [ ] **AngelList (Wellfound):** 100K+ startup jobs
+- [ ] **CareerBuilder:** 1M+ jobs
+- [ ] **FlexJobs:** 80K+ remote roles
 
 ### Phase 4: Advanced Features (Weeks 7-8)
 
@@ -533,26 +585,30 @@ impl RateLimiter {
 
 ## ✅ Implementation Status
 
-### Completed ✅
-- [x] Indeed scraper (HTML-based)
-- [x] LinkedIn scraper (session-based)
-- [x] Rate limiting (token bucket)
+### Completed ✅ (v1.5.0)
+- [x] All 13 job board scrapers (production-ready)
+- [x] Parallel scraping architecture
+- [x] Rate limiting (token bucket, per-scraper)
 - [x] Multi-layout HTML parsing
-- [x] Deduplication (SHA-256)
-- [x] Unit tests (14 tests)
-- [x] Documentation
+- [x] Deduplication (SHA-256, cross-source)
+- [x] Comprehensive unit tests
+- [x] Integration tests for all scrapers
+- [x] Auto-refresh scheduling (configurable intervals)
+- [x] Job filtering (keyword, salary, location, company)
 
-### Future 🔜
-- [ ] Headless browser integration
-- [ ] ZipRecruiter, Monster, Glassdoor scrapers
-- [ ] Job detail page fetching
+### Future Enhancements 🔜 (v1.6+)
+- [ ] Headless browser integration for JavaScript-heavy sites
+- [ ] Additional job boards (Monster, Glassdoor, CareerBuilder)
+- [ ] Job detail page fetching with full descriptions
 - [ ] CAPTCHA solver integration
-- [ ] Proxy rotation
-- [ ] Comprehensive integration tests
+- [ ] Proxy rotation for large-scale scraping
+- [ ] Job board health monitoring (uptime, response times)
+- [ ] Job board version tracking (HTML layout change detection)
 
 ---
 
-**Last Updated:** 2025-11-15
+**Last Updated:** 2026-01-17
+**Version:** 1.5.0
 **Maintained By:** JobSentinel Core Team
-**Implementation Status:** ✅ Phase 1 Complete (HTTP Scraping)
-**Next Feature:** Company Health Monitoring (P0)
+**Implementation Status:** ✅ Phase 1 Complete (13 HTTP Scrapers)
+**Next Phase:** v1.6 - Advanced Scraping (Headless Browser, Additional Boards)

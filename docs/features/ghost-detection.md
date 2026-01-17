@@ -2,6 +2,7 @@
 
 **Version:** 1.4.0
 **Status:** Production Ready
+**Last Updated:** January 17, 2026
 
 Ghost jobs are job postings that aren't genuine opportunities - they may be already filled, posted to collect resumes, or simply abandoned. JobSentinel's Ghost Detection feature helps you focus on real opportunities by identifying and flagging suspicious listings.
 

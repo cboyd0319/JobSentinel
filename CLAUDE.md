@@ -71,9 +71,14 @@ When to spawn sub-agents:
   - Keyboard shortcut badges (ShortcutKey component exported)
   - Tour integration (link in keyboard help modal)
 
-**v1.5 Status (File Refactoring):**
-- [ ] Modularize oversized files (see Technical Debt section below)
-- Priority: db/mod.rs (4442 lines) → scheduler → market_intelligence → config
+**v1.5 Status (File Modularization): COMPLETE**
+- [x] db/mod.rs: 4442→85 lines (+8 modules)
+- [x] scheduler/mod.rs: 2955→~300 lines (+7 modules)
+- [x] market_intelligence/mod.rs: 2703→~400 lines (+4 modules)
+- [x] db/integrity.rs: 2517→85 lines (→integrity/ dir with 5 modules)
+- [x] config/mod.rs: 2343→~300 lines (+5 modules)
+- [x] Dashboard.tsx: 2315→672 lines (+11 files)
+- [x] ats/mod.rs: 2082→~300 lines (+5 modules)
 
 **v2.0 Status (Production Release):**
 - See `.claude/plans/virtual-puzzling-pretzel.md` for P0-P7 details
@@ -89,7 +94,7 @@ When to spawn sub-agents:
 
 **JobSentinel** is a privacy-first job search automation desktop app built with Tauri 2.x (Rust backend) and React 19 (TypeScript frontend).
 
-**Current Version:** 1.4.0 (January 2026)
+**Current Version:** 1.5.0 (January 2026)
 **Primary Target:** Windows 11+ (macOS/Linux planned for v2.0)
 
 ## Tech Stack
@@ -160,7 +165,7 @@ All core modules are enabled and functional:
 - automation (One-Click Apply - requires legal review)
 
 ### Test Status
-- 2029 tests passing, 21 ignored
+- 2033 tests passing, 21 ignored
 - Ignored tests require file-based database or are doc-tests for example code
 
 ### Tauri Commands (70 total)
@@ -273,20 +278,19 @@ cargo test --ignored          # Run ignored tests (need file db)
 
 **IMPORTANT:** Keep files under 500 lines. Large files are hard to maintain and regenerate.
 
-### Files Needing Refactoring (v1.5 priority)
+### Files Refactored in v1.5
 
-| File | Lines | Status |
-|------|-------|--------|
-| `db/mod.rs` | 4442 | CRITICAL - needs split |
-| `scheduler/mod.rs` | 2955 | HIGH - needs split |
-| `market_intelligence/mod.rs` | 2703 | HIGH - needs split |
-| `db/integrity.rs` | 2517 | HIGH - needs split |
-| `config/mod.rs` | 2343 | MEDIUM |
-| `Dashboard.tsx` | 2315 | MEDIUM |
-| `scrapers/lever.rs` | 2256 | MEDIUM - mostly tests |
-| `ats/mod.rs` | 2082 | MEDIUM |
+| File | Original Lines | New Lines | Modules Created | Status |
+|------|---|---|---|--------|
+| `db/mod.rs` | 4442 | 85 | 8 | DONE |
+| `scheduler/mod.rs` | 2955 | ~300 | 7 | DONE |
+| `market_intelligence/mod.rs` | 2703 | ~400 | 4 | DONE |
+| `db/integrity.rs` | 2517 | 85 | 5 (integrity/ dir) | DONE |
+| `config/mod.rs` | 2343 | ~300 | 5 | DONE |
+| `Dashboard.tsx` | 2315 | 672 | 11 files | DONE |
+| `ats/mod.rs` | 2082 | ~300 | 5 | DONE |
 
-**See `docs/ROADMAP.md` for detailed refactoring strategies.**
+**All v1.5 file modularization complete. See `docs/ROADMAP.md` for v1.6+ priorities.**
 
 ### When Adding Code
 

@@ -3,7 +3,7 @@
 
 > **Status:** ENABLED - Module fully functional
 > **Completion:** 100%
-> **Last Updated:** 2026-01-14
+> **Last Updated:** 2026-01-17
 
 ---
 
@@ -48,6 +48,12 @@ JobSentinel's Market Intelligence Dashboard provides real-time analytics on job 
        │   Charts   │      │   & Alerts     │
        └────────────┘      └────────────────┘
 ```
+
+**v1.5.0 Refactoring Note:** This module was refactored from a single 2703-line file into 4 focused submodules:
+- **computations** - Trend calculations and aggregations
+- **queries** - SQL queries and database operations
+- **utils** - Helper functions and formatting
+- **tests** - Comprehensive test suite
 
 ### Database Schema
 

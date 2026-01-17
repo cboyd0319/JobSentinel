@@ -21,7 +21,7 @@
   <a href="https://www.rust-lang.org/"><img src="https://img.shields.io/badge/Rust-1.83%2B-orange.svg?style=flat-square" alt="Rust"></a>
   <a href="https://tauri.app/"><img src="https://img.shields.io/badge/Tauri-2.x-blue.svg?style=flat-square" alt="Tauri"></a>
   <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-19-61dafb.svg?style=flat-square" alt="React"></a>
-  <img src="https://img.shields.io/badge/Tests-2029%20passing-brightgreen.svg?style=flat-square" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-2033%20passing-brightgreen.svg?style=flat-square" alt="Tests">
   <img src="https://img.shields.io/badge/Vulnerabilities-0-brightgreen.svg?style=flat-square" alt="Security">
 </p>
 
@@ -60,7 +60,7 @@
 
 ## Project Status
 
-**Current Version: 1.4.0** (January 2026)
+**Current Version: 1.5.0** (January 2026)
 
 | Component | Status | Description |
 |-----------|--------|-------------|
@@ -73,7 +73,7 @@
 | 🎨 **Frontend** | ✅ Working | React 19 + TypeScript + TailwindCSS |
 | 🖥️ **Desktop App** | ✅ Working | Tauri 2.1 integration |
 | 🔐 **Security** | ✅ **0 vulnerabilities** | cargo-audit verified |
-| ✅ **Test Coverage** | ✅ **2029 passing** | 21 ignored (require file-based DB) |
+| ✅ **Test Coverage** | ✅ **2033 passing** | 1992 unit + 40 integration + 1 doc test |
 
 ### Job Sources (13 Working)
 - **Greenhouse** - Many tech companies use this ATS
@@ -169,7 +169,25 @@ Linux support (.deb, .rpm, .AppImage) is planned for v2.0.
 
 ## 💪 Features
 
-### v1.4 (Current Release)
+### v1.5 (Current Release - Code Quality)
+
+| Feature | Description |
+|---------|-------------|
+| **Major File Modularization** | Split 7 oversized files for better maintainability and regenerability |
+| **500-Line Guideline** | All modules now follow LLM-first principles for code maintainability |
+
+**Files refactored:**
+- `db/mod.rs` (4442 → split across modules)
+- `scheduler/mod.rs` (2955 → split)
+- `market_intelligence/mod.rs` (2703 → split)
+- `db/integrity.rs` (2517 → split)
+- `config/mod.rs` (2343 → split)
+- `Dashboard.tsx` (2315 → split)
+- `ats/mod.rs` (2082 → split)
+
+All features from v1.4 remain fully functional and enhanced.
+
+### v1.4 (Previous Release)
 
 | Feature | Description |
 |---------|-------------|
@@ -261,6 +279,8 @@ JobSentinel/
 - **Platform-specific code** is isolated with conditional compilation
 - **Cloud deployment** modules are separate (no bloat in desktop app)
 - **No refactoring needed** when adding macOS, Linux, or cloud support
+- **LLM-first architecture** - All modules follow 500-line guideline for AI regenerability and maintainability
+- **Modular structure** - Each concern has its own file/module for easy navigation and testing
 
 ### UI/UX Design System
 

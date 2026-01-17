@@ -19,15 +19,15 @@ Welcome to JobSentinel documentation.
 
 | Version | Status | Focus |
 |---------|--------|-------|
-| v1.4 | E1-E3 done, E4 pending | Ghost detection, data insights, backend persistence |
-| v1.5 | Planned | File modularization (see Technical Debt) |
+| v1.4 | Complete | Ghost detection, data insights, backend persistence |
+| v1.5 | Complete | File modularization (see Technical Debt) |
 | v2.0 | Planned | Keyring, CI/CD, Resume Builder, One-Click Apply |
 
 ---
 
 ## Current Status (January 2026)
 
-**Version: 1.4.0** | 2029+ tests passing | Full-featured release
+**Version: 1.5.0** | 2033+ tests passing | Full-featured release
 
 ### Working Features
 - **13 Job scrapers**: Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, ZipRecruiter
@@ -94,6 +94,7 @@ Welcome to JobSentinel documentation.
 | Job Scrapers | Working | [Scrapers](features/scrapers.md) |
 
 ### Release Notes
+- **[v1.5 - Modularization](releases/v1.5.md)** - File refactoring and code organization
 - **[v1.4 - Ghost Hunter](releases/v1.4.md)** - Ghost job detection
 - **[v1.3 - Power User](releases/v1.3.md)** - Keyboard shortcuts, advanced search
 - **[v1.2 - Notifications](releases/v1.2.md)** - Multi-channel notifications
@@ -139,6 +140,7 @@ docs/
 │   ├── market-intelligence.md
 │   └── scrapers.md
 ├── releases/              # Version release notes
+│   ├── v1.5.md
 │   ├── v1.4.md
 │   ├── v1.3.md
 │   └── v1.2.md
