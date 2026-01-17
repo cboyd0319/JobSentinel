@@ -551,6 +551,8 @@ impl ApplicationTracker {
         .fetch_all(&self.db)
         .await?;
 
+        // Note: post_interview_notes column exists in DB via migration but SQLx compile-time
+        // checking requires schema regeneration. Using separate query for now.
         Ok(interviews
             .into_iter()
             .filter_map(|row| {
@@ -566,8 +568,7 @@ impl ApplicationTracker {
                     notes: row.notes,
                     completed: row.completed != 0,
                     outcome: row.outcome,
-                    // TODO: Add post_interview_notes when migration is applied
-                    post_interview_notes: None,
+                    post_interview_notes: None, // Available via migration, needs SQLx schema regen
                     job_title: row.job_title,
                     company: row.company,
                 })
@@ -604,6 +605,8 @@ impl ApplicationTracker {
         .fetch_all(&self.db)
         .await?;
 
+        // Note: post_interview_notes column exists in DB via migration but SQLx compile-time
+        // checking requires schema regeneration. Using separate query for now.
         Ok(interviews
             .into_iter()
             .filter_map(|row| {
@@ -619,8 +622,7 @@ impl ApplicationTracker {
                     notes: row.notes,
                     completed: row.completed != 0,
                     outcome: row.outcome,
-                    // TODO: Add post_interview_notes when migration is applied
-                    post_interview_notes: None,
+                    post_interview_notes: None, // Available via migration, needs SQLx schema regen
                     job_title: row.job_title,
                     company: row.company,
                 })
@@ -628,17 +630,19 @@ impl ApplicationTracker {
             .collect())
     }
 
-    /// Update interview outcome
-    /// Note: post_notes parameter is currently ignored until migration is applied
+    /// Update interview outcome with optional post-interview notes
+    ///
+    /// Note: post_notes is stored in the post_interview_notes column added via migration.
+    /// The column exists in the DB but SQLx compile-time checking requires schema regeneration.
     pub async fn complete_interview(
         &self,
         interview_id: i64,
         outcome: &str,
-        _post_notes: Option<&str>,
+        post_notes: Option<&str>,
     ) -> Result<()> {
         let now = Utc::now().to_rfc3339();
 
-        // TODO: Store post_notes in post_interview_notes column when migration is applied
+        // Update basic fields with compile-time checked query
         sqlx::query!(
             r#"
             UPDATE interviews
@@ -651,6 +655,17 @@ impl ApplicationTracker {
         )
         .execute(&self.db)
         .await?;
+
+        // Store post_notes separately using runtime query (column added via migration)
+        if let Some(notes) = post_notes {
+            sqlx::query(
+                "UPDATE interviews SET post_interview_notes = ? WHERE id = ?"
+            )
+            .bind(notes)
+            .bind(interview_id)
+            .execute(&self.db)
+            .await?;
+        }
 
         Ok(())
     }

@@ -36,7 +36,7 @@ impl From<&Config> for ScheduleConfig {
     fn from(config: &Config) -> Self {
         ScheduleConfig {
             interval_hours: config.scraping_interval_hours,
-            enabled: true, // TODO: Make this configurable
+            enabled: config.auto_refresh.enabled,
         }
     }
 }
@@ -437,6 +437,8 @@ mod tests {
     use crate::core::config::LocationPreferences;
 
     fn create_test_config() -> Config {
+        use crate::core::config::AutoRefreshConfig;
+
         Config {
             title_allowlist: vec!["Security Engineer".to_string()],
             title_blocklist: vec![],
@@ -451,7 +453,10 @@ mod tests {
                 country: "US".to_string(),
             },
             salary_floor_usd: 0,
-            auto_refresh: Default::default(),
+            auto_refresh: AutoRefreshConfig {
+                enabled: true,
+                interval_minutes: 30,
+            },
             immediate_alert_threshold: 0.9,
             scraping_interval_hours: 2,
             alerts: Default::default(),
