@@ -87,6 +87,19 @@ proptest = "1.5"
 wiremock = "0.6"
 futures = "0.3"
 
+# Release profile with security hardening
+[profile.release]
+# Enable link-time optimization for smaller, faster binaries
+lto = "thin"
+# Strip debug symbols to reduce binary size and prevent reverse engineering
+strip = "symbols"
+# Single codegen unit for better optimization (at cost of compile time)
+codegen-units = 1
+# Abort on panic instead of unwinding (smaller binary, prevents info leaks)
+panic = "abort"
+# Enable overflow checks even in release builds
+overflow-checks = true
+
 [lints.rust]
 unsafe_code = "deny"
 

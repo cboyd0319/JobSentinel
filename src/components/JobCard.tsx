@@ -29,7 +29,18 @@ interface JobCardProps {
 }
 
 export function JobCard({ job, onViewJob, onHideJob, onToggleBookmark, onEditNotes, onResearchCompany, isSelected = false }: JobCardProps) {
+  // Security: Validate URL protocol before opening
+  const isValidUrl = (url: string): boolean => {
+    return url.startsWith("https://") || url.startsWith("http://");
+  };
+
   const handleOpenUrl = async (url: string) => {
+    // Security: Block dangerous URL protocols (javascript:, data:, file:, etc.)
+    if (!isValidUrl(url)) {
+      console.error("Blocked attempt to open URL with invalid protocol:", url.slice(0, 50));
+      return;
+    }
+
     try {
       await open(url);
     } catch (err) {

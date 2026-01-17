@@ -466,6 +466,14 @@ impl Database {
             )));
         }
 
+        // Security: Validate URL protocol to prevent javascript: and other dangerous protocols
+        if !job.url.starts_with("https://") && !job.url.starts_with("http://") {
+            return Err(sqlx::Error::Protocol(format!(
+                "Invalid URL protocol. Job URLs must use http:// or https:// (got: {})",
+                job.url.chars().take(50).collect::<String>()
+            )));
+        }
+
         if let Some(location) = &job.location {
             if location.len() > MAX_LOCATION_LENGTH {
                 return Err(sqlx::Error::Protocol(format!(
@@ -1038,6 +1046,41 @@ mod tests {
         let result = db.upsert_job(&job).await;
         assert!(result.is_err(), "Overly long URL should fail");
         assert!(result.unwrap_err().to_string().contains("URL too long"));
+    }
+
+    #[tokio::test]
+    async fn test_upsert_job_invalid_url_protocol() {
+        let db = Database::connect_memory().await.unwrap();
+        db.migrate().await.unwrap();
+
+        // Test javascript: protocol (XSS vector)
+        let mut job = create_test_job("hash_xss", "Test Job", 0.9);
+        job.url = "javascript:alert('xss')".to_string();
+
+        let result = db.upsert_job(&job).await;
+        assert!(result.is_err(), "javascript: URL should be rejected");
+        assert!(result.unwrap_err().to_string().contains("Invalid URL protocol"));
+
+        // Test data: protocol
+        job.url = "data:text/html,<script>alert('xss')</script>".to_string();
+        let result = db.upsert_job(&job).await;
+        assert!(result.is_err(), "data: URL should be rejected");
+
+        // Test file: protocol
+        job.url = "file:///etc/passwd".to_string();
+        let result = db.upsert_job(&job).await;
+        assert!(result.is_err(), "file: URL should be rejected");
+
+        // Test valid https:// URL
+        job.url = "https://example.com/job/123".to_string();
+        let result = db.upsert_job(&job).await;
+        assert!(result.is_ok(), "https:// URL should be accepted");
+
+        // Test valid http:// URL
+        job.hash = "hash_http".to_string(); // Different hash for new job
+        job.url = "http://example.com/job/456".to_string();
+        let result = db.upsert_job(&job).await;
+        assert!(result.is_ok(), "http:// URL should be accepted");
     }
 
     #[tokio::test]

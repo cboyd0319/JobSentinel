@@ -28,23 +28,37 @@ impl ResumeParser {
     /// let text = parser.parse_pdf(Path::new("/path/to/resume.pdf"))?;
     /// ```
     pub fn parse_pdf(&self, file_path: &Path) -> Result<String> {
-        // Verify file exists
-        if !file_path.exists() {
-            return Err(anyhow::anyhow!("File not found: {}", file_path.display()));
+        // Canonicalize path to prevent path traversal attacks
+        // This resolves symlinks and removes ../ components
+        let canonical_path = file_path
+            .canonicalize()
+            .context(format!("Invalid or inaccessible path: {}", file_path.display()))?;
+
+        // Security: Verify the canonical path still exists (canonicalize can succeed on symlinks to deleted files)
+        if !canonical_path.exists() {
+            return Err(anyhow::anyhow!("File not found: {}", canonical_path.display()));
+        }
+
+        // Security: Verify the canonical path is a regular file (not a directory, device, etc.)
+        if !canonical_path.is_file() {
+            return Err(anyhow::anyhow!(
+                "Path is not a regular file: {}",
+                canonical_path.display()
+            ));
         }
 
         // Verify it's a PDF file
-        if file_path.extension().and_then(|s| s.to_str()) != Some("pdf") {
+        if canonical_path.extension().and_then(|s| s.to_str()) != Some("pdf") {
             return Err(anyhow::anyhow!(
                 "File must be a PDF. Got: {}",
-                file_path.display()
+                canonical_path.display()
             ));
         }
 
         // Extract text using pdf-extract
-        let text = pdf_extract::extract_text(file_path).context(format!(
+        let text = pdf_extract::extract_text(&canonical_path).context(format!(
             "Failed to extract text from PDF: {}",
-            file_path.display()
+            canonical_path.display()
         ))?;
 
         // Clean up extracted text
@@ -193,7 +207,8 @@ Python, Rust, React
         let result = parser.parse_pdf(Path::new("/nonexistent/file.pdf"));
 
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("File not found"));
+        // Path canonicalization fails for nonexistent files
+        assert!(result.unwrap_err().to_string().contains("Invalid or inaccessible path"));
     }
 
     #[test]
@@ -338,5 +353,40 @@ JavaScript
 
         assert!(result.is_err());
         assert!(result.unwrap_err().to_string().contains("must be a PDF"));
+    }
+
+    #[test]
+    fn test_parse_pdf_rejects_directory() {
+        use tempfile::TempDir;
+
+        let temp_dir = TempDir::new().unwrap();
+
+        let parser = ResumeParser::new();
+        let result = parser.parse_pdf(temp_dir.path());
+
+        assert!(result.is_err());
+        assert!(result.unwrap_err().to_string().contains("not a regular file"));
+    }
+
+    #[test]
+    fn test_parse_pdf_path_traversal_nonexistent() {
+        let parser = ResumeParser::new();
+
+        // Attempt path traversal to nonexistent file
+        let result = parser.parse_pdf(Path::new("/tmp/../../../etc/passwd"));
+
+        // Should fail because canonicalization resolves to a non-PDF or non-existent path
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_parse_pdf_relative_path_traversal() {
+        let parser = ResumeParser::new();
+
+        // Relative path with traversal
+        let result = parser.parse_pdf(Path::new("../../../etc/passwd"));
+
+        // Should fail - not a PDF and canonicalization won't accept this
+        assert!(result.is_err());
     }
 }
