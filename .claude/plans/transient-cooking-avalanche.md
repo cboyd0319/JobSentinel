@@ -3,6 +3,7 @@
 ## Summary
 
 Use **`tauri-plugin-secure-storage`** v1.4.0 to move 6 sensitive credentials from plaintext `config.json` to OS-native secure storage:
+
 - **macOS**: Keychain
 - **Windows**: Credential Manager
 - **Linux**: Secret Service API (libsecret)
@@ -10,6 +11,7 @@ Use **`tauri-plugin-secure-storage`** v1.4.0 to move 6 sensitive credentials fro
 ## Plugin Choice
 
 Using existing plugin instead of building from scratch:
+
 - **Crate**: `tauri-plugin-secure-storage = "1.4"`
 - **NPM**: Check for corresponding JS API package
 - **Why**: Mature (5 releases), actively maintained, wraps `keyring` v3, Tauri 2.6 compatible
@@ -30,11 +32,13 @@ Using existing plugin instead of building from scratch:
 ### Phase 1: Add Plugin
 
 1. **Cargo.toml** - Add dependency:
+
    ```toml
    tauri-plugin-secure-storage = "1.4"
    ```
 
 2. **main.rs** - Register plugin:
+
    ```rust
    .plugin(tauri_plugin_secure_storage::init())
    ```
@@ -44,6 +48,7 @@ Using existing plugin instead of building from scratch:
 ### Phase 2: Create Wrapper Module
 
 **New file: `src-tauri/src/core/credentials.rs`**
+
 - Thin wrapper around plugin API
 - Define credential keys as enum
 - Provide typed access: `store_credential(key, value)`, `get_credential(key)`
@@ -51,11 +56,13 @@ Using existing plugin instead of building from scratch:
 ### Phase 3: Modify Config
 
 **File: `src-tauri/src/core/config/types.rs`**
+
 - Add `#[serde(skip)]` to credential fields (keeps struct API, removes from JSON)
 
 ### Phase 4: Update Consumers
 
 **Files to modify:**
+
 - `src-tauri/src/core/notify/mod.rs` - Retrieve credentials before sending
 - `src-tauri/src/core/scheduler/workers/scrapers.rs` - Get LinkedIn cookie
 - `src/pages/Settings.tsx` - Use plugin's JS API for credential fields
@@ -63,6 +70,7 @@ Using existing plugin instead of building from scratch:
 ### Phase 5: Migration
 
 **New file: `src-tauri/src/core/credentials/migration.rs`**
+
 - On first run, detect plaintext creds in config.json
 - Move to secure storage
 - Remove from config file

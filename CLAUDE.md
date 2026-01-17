@@ -15,6 +15,7 @@ When to spawn sub-agents:
 ```
 
 **Example - DON'T do this:**
+
 ```
 1. Read file A
 2. Read file B
@@ -23,6 +24,7 @@ When to spawn sub-agents:
 ```
 
 **DO this instead:**
+
 ```
 1. Launch 3 parallel Explore agents for files A, B, C
 2. Receive all results simultaneously
@@ -43,6 +45,7 @@ When to spawn sub-agents:
 | Config change | `config.example.json`, relevant docs |
 
 **Documentation locations:**
+
 - `docs/features/` - Feature documentation (ghost-detection, scrapers, etc.)
 - `docs/releases/` - Version release notes (v1.2.md, v1.3.md, v1.4.md)
 - `docs/developer/` - Developer guides (ARCHITECTURE, TESTING, etc.)
@@ -53,10 +56,12 @@ When to spawn sub-agents:
 ### 3. CURRENT WORK IN PROGRESS
 
 **Plan documents:**
+
 - **Detailed plan:** `.claude/plans/virtual-puzzling-pretzel.md` (full implementation details)
 - **Public roadmap:** `docs/ROADMAP.md` (high-level priorities + technical debt)
 
 **v1.4 Status (Ghost Detection + Data Insights): COMPLETE**
+
 - [x] E1: Ghost Job Detection - COMPLETE
 - [x] E2: Data Insights & Metrics - COMPLETE
   - Score breakdown tooltip
@@ -72,6 +77,7 @@ When to spawn sub-agents:
   - Tour integration (link in keyboard help modal)
 
 **v1.5 Status (File Modularization): COMPLETE**
+
 - [x] db/mod.rs: 4442→85 lines (+8 modules)
 - [x] scheduler/mod.rs: 2955→~300 lines (+7 modules)
 - [x] market_intelligence/mod.rs: 2703→~400 lines (+4 modules)
@@ -81,16 +87,21 @@ When to spawn sub-agents:
 - [x] ats/mod.rs: 2082→~300 lines (+5 modules)
 
 **v1.6 Status (Additional Refactoring): COMPLETE**
+
 - [x] commands/mod.rs: 1732→94 lines (+9 domain modules)
 - [x] scrapers/lever.rs: 2379→183 lines (tests extracted to lever/tests.rs)
 - [x] salary/mod.rs: 2026→59 lines (+types.rs, analyzer.rs, tests.rs)
 - [x] resume/mod.rs: 1831→440 lines (+types.rs, tests.rs)
 
 **v2.0 Status (Production Release):**
+
+- [x] P0: Keyring Integration - COMPLETE (OS-native credential storage)
+- [x] P3: Integration Tests - COMPLETE (76 new tests across 4 files)
 - See `.claude/plans/virtual-puzzling-pretzel.md` for P0-P7 details
-- Keyring, CI/CD, Packaging, Resume Builder, One-Click Apply
+- Remaining: CI/CD, Packaging, Resume Builder, One-Click Apply
 
 **Before starting work:**
+
 1. Read `.claude/plans/virtual-puzzling-pretzel.md` for implementation details
 2. Check `docs/ROADMAP.md` for priorities
 
@@ -100,7 +111,7 @@ When to spawn sub-agents:
 
 **JobSentinel** is a privacy-first job search automation desktop app built with Tauri 2.x (Rust backend) and React 19 (TypeScript frontend).
 
-**Current Version:** 1.6.0 (January 2026)
+**Current Version:** 2.0.0 (January 2026)
 **Primary Target:** Windows 11+ (macOS/Linux planned for v2.0)
 
 ## Tech Stack
@@ -148,7 +159,9 @@ JobSentinel/
 ## Current Status
 
 ### Working Modules
+
 All core modules are enabled and functional:
+
 - config, db, notify, scheduler, scoring, ghost
 - scrapers (13 sources: Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, ZipRecruiter)
 - ats (Application Tracking System with interview scheduler)
@@ -157,6 +170,7 @@ All core modules are enabled and functional:
 - market_intelligence (Market Analytics)
 
 ### Frontend Features (v1.4)
+
 - **Ghost Detection** - Visual indicators for fake/stale job postings
 - Ghost filter dropdown (All/Real/Ghost jobs)
 - Advanced notification filtering (keywords, salary, company lists)
@@ -168,13 +182,17 @@ All core modules are enabled and functional:
 - Virtual list for performance
 
 ### Deferred Modules (v2.0+)
+
 - automation (One-Click Apply - requires legal review)
 
 ### Test Status
-- 2002 tests passing, 21 ignored
-- Ignored tests require file-based database or are doc-tests for example code
+
+- 2078 tests passing (2002 + 76 new integration tests)
+- 21 ignored (require file-based database or are doc-tests for example code)
+- New integration test files: `tests/db/`, `tests/scrapers/`, `tests/ghost/`, `tests/config/`
 
 ### Tauri Commands (70 total)
+
 - Core: 18 commands (jobs, config, search, statistics, scraping)
 - Ghost: 3 commands (ghost_jobs, ghost_statistics, filtered_search)
 - ATS: 10 commands (applications, reminders, ghosting, interviews)
@@ -207,6 +225,7 @@ npm run tauri:build      # Production build
 ## Code Standards
 
 ### Rust
+
 - Use `Result<T, E>` for error handling (no unwrap in production)
 - Use `tracing` crate for logging (not println!)
 - Use SQLx parameterized queries (never string concatenation)
@@ -224,6 +243,7 @@ npm run tauri:build      # Production build
 This saves significant development time. When we approach v2.1.0, we'll freeze the schema and start proper migrations from that baseline.
 
 ### TypeScript
+
 - Strict mode enabled
 - Use React hooks correctly
 - No console.log in production
@@ -251,18 +271,21 @@ This saves significant development time. When we approach v2.1.0, we'll freeze t
 ## Common Tasks
 
 ### Adding a new scraper
+
 1. Create `src-tauri/src/core/scrapers/newscraper.rs`
 2. Implement `JobScraper` trait
 3. Add to `scrapers/mod.rs`
 4. Add config options to `config/mod.rs`
 
 ### Adding a notification channel
+
 1. Create `src-tauri/src/core/notify/newchannel.rs`
 2. Implement webhook validation and send logic
 3. Add to `notify/mod.rs`
 4. Update `AlertConfig` in `config/mod.rs`
 
 ### Running specific tests
+
 ```bash
 cargo test core::ats          # ATS tests
 cargo test core::scrapers     # Scraper tests

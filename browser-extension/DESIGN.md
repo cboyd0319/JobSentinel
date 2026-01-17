@@ -1,4 +1,5 @@
 # JobSentinel Browser Extension
+
 ## In-Page Job Scoring & One-Click Save
 
 > **Status:** ✅ Core Implementation Complete
@@ -10,7 +11,9 @@
 
 ## 🎯 Overview
 
-The JobSentinel Browser Extension brings AI-powered job scoring directly to your browser. Get instant feedback on job postings while browsing career sites, save jobs to your desktop app with one click, and never miss great opportunities.
+The JobSentinel Browser Extension brings AI-powered job scoring directly to your browser.
+Get instant feedback on job postings while browsing career sites, save jobs to your desktop
+app with one click, and never miss great opportunities.
 
 ### Key Features
 
@@ -27,7 +30,7 @@ The JobSentinel Browser Extension brings AI-powered job scoring directly to your
 
 ### System Components
 
-```
+```text
 ┌────────────────────────────────────────────────────┐
 │         Browser Extension Architecture             │
 │                                                     │
@@ -53,7 +56,7 @@ The JobSentinel Browser Extension brings AI-powered job scoring directly to your
 
 ### File Structure
 
-```
+```text
 browser-extension/
 ├── manifest.json                 # Chrome Manifest V3
 ├── popup.html                    # Extension popup UI
@@ -79,6 +82,7 @@ browser-extension/
 ### Chrome/Edge (Developer Mode)
 
 1. **Clone Repository**
+
    ```bash
    git clone https://github.com/jobsentinel/JobSentinel.git
    cd JobSentinel/browser-extension
@@ -147,7 +151,7 @@ When you land on a job posting page, the extension will automatically:
 
 **Example Overlay:**
 
-```
+```text
 ┌──────────────────────────────────┐
 │ JobSentinel               ×      │
 ├──────────────────────────────────┤
@@ -176,7 +180,7 @@ Click **"Save to JobSentinel"** to send the job to your desktop app.
 
 Click **"View Details"** to see why the job scored the way it did:
 
-```
+```text
 Match Factors
 ─────────────
 Skills Match:    85%
@@ -244,6 +248,7 @@ async fn handle_connection(stream: TcpStream, db: SqlitePool) {
 #### Request: Check Job
 
 Browser → Desktop App:
+
 ```json
 {
   "action": "checkJob",
@@ -261,6 +266,7 @@ Browser → Desktop App:
 ```
 
 Desktop App → Browser:
+
 ```json
 {
   "action": "checkJobResponse",
@@ -273,6 +279,7 @@ Desktop App → Browser:
 #### Request: Save Job
 
 Browser → Desktop App:
+
 ```json
 {
   "action": "saveJob",
@@ -283,6 +290,7 @@ Browser → Desktop App:
 ```
 
 Desktop App → Browser:
+
 ```json
 {
   "action": "saveJobResponse",
@@ -295,6 +303,7 @@ Desktop App → Browser:
 #### Request: Get Match Factors
 
 Browser → Desktop App:
+
 ```json
 {
   "action": "getMatchFactors",
@@ -304,6 +313,7 @@ Browser → Desktop App:
 ```
 
 Desktop App → Browser:
+
 ```json
 {
   "action": "matchFactorsResponse",
@@ -324,6 +334,7 @@ Desktop App → Browser:
 ### 1. Greenhouse (`boards.greenhouse.io`)
 
 **Selectors:**
+
 - Title: `.app-title` or `h1`
 - Company: `.company-name` or hostname
 - Location: `.location`
@@ -332,6 +343,7 @@ Desktop App → Browser:
 ### 2. Lever (`*.lever.co`)
 
 **Selectors:**
+
 - Title: `.posting-headline h2`
 - Company: `.main-header-text a`
 - Location: `.posting-categories .location`
@@ -340,6 +352,7 @@ Desktop App → Browser:
 ### 3. Workday (`*.myworkdayjobs.com`)
 
 **Selectors:**
+
 - Title: `[data-automation-id="jobPostingHeader"]`
 - Company: `[data-automation-id="company"]`
 - Location: `[data-automation-id="locations"]`
@@ -348,6 +361,7 @@ Desktop App → Browser:
 ### 4. Indeed (`www.indeed.com`)
 
 **Selectors:**
+
 - Title: `[class*="jobsearch-JobInfoHeader-title"]`
 - Company: `[data-company-name="true"]`
 - Location: `[class*="jobsearch-JobInfoHeader-subtitle"] > div`
@@ -356,6 +370,7 @@ Desktop App → Browser:
 ### 5. LinkedIn (`linkedin.com/jobs`)
 
 **Selectors:**
+
 - Title: `.top-card-layout__title`
 - Company: `.topcard__org-name-link`
 - Location: `.topcard__flavor--bullet`
@@ -409,6 +424,7 @@ Desktop App → Browser:
 ### Manual Testing Checklist
 
 **Greenhouse:**
+
 - [ ] Navigate to `boards.greenhouse.io/*/jobs/*`
 - [ ] Verify overlay appears
 - [ ] Click "Save to JobSentinel"
@@ -416,19 +432,23 @@ Desktop App → Browser:
 - [ ] Refresh page → Verify "✓ Already Saved" shown
 
 **Lever:**
+
 - [ ] Navigate to `*.lever.co/jobs/*`
 - [ ] Verify overlay appears
 - [ ] Check score accuracy
 
 **Workday:**
+
 - [ ] Navigate to `*.myworkdayjobs.com/*`
 - [ ] Verify overlay appears
 
 **Indeed:**
+
 - [ ] Navigate to `indeed.com/viewjob/*`
 - [ ] Verify overlay appears
 
 **LinkedIn:**
+
 - [ ] Navigate to `linkedin.com/jobs/view/*`
 - [ ] Verify overlay appears
 
@@ -439,11 +459,13 @@ Desktop App → Browser:
 ### Issue: Overlay Not Appearing
 
 **Possible Causes:**
+
 1. Extension not loaded
 2. Not on a supported ATS platform
 3. Page not fully loaded
 
 **Solutions:**
+
 1. Check `chrome://extensions/` → Ensure extension is enabled
 2. Verify URL matches supported platforms
 3. Refresh page and wait 2-3 seconds
@@ -451,11 +473,13 @@ Desktop App → Browser:
 ### Issue: "Desktop App Not Connected"
 
 **Possible Causes:**
+
 1. Desktop app not running
 2. WebSocket server not started
 3. Port 8765 blocked by firewall
 
 **Solutions:**
+
 1. Start desktop app: `cd src-tauri && cargo run`
 2. Check console for WebSocket errors
 3. Verify firewall allows localhost:8765
@@ -463,10 +487,12 @@ Desktop App → Browser:
 ### Issue: Job Data Not Extracting
 
 **Possible Causes:**
+
 1. ATS platform updated their HTML structure
 2. Dynamic content not yet loaded
 
 **Solutions:**
+
 1. Check browser console for errors
 2. Update selectors in `job-detector.js`
 3. Wait longer before extracting (increase timeout)

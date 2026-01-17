@@ -1,4 +1,5 @@
 # One-Click Apply Automation
+
 ## Automated Job Application Submission Infrastructure
 
 > **Status:** DEFERRED to v2.0+ - Requires legal review and user consent framework
@@ -6,7 +7,9 @@
 > **Last Updated:** 2026-01-14
 > **Blocker:** Legal/ethical concerns require user consent framework before enabling
 
-**Note:** This module is permanently disabled in v1.x releases. Auto-applying to jobs on behalf of users raises significant legal and ethical concerns that need to be addressed before this feature can be enabled.
+**Note:** This module is permanently disabled in v1.x releases. Auto-applying to jobs on behalf of
+users raises significant legal and ethical concerns that need to be addressed before this feature
+can be enabled.
 
 ---
 
@@ -24,6 +27,7 @@
 ### Our Ethical Approach
 
 ✅ **DO:**
+
 - ✅ Require explicit user enablement
 - ✅ Apply ONLY to high-match jobs (80%+ score recommended)
 - ✅ Require manual approval before submission (default)
@@ -33,6 +37,7 @@
 - ✅ Maintain transparency about automation
 
 ❌ **DON'T:**
+
 - ❌ Mass-apply to low-quality matches
 - ❌ Bypass security measures
 - ❌ Ignore rate limits
@@ -54,7 +59,8 @@
 
 ## 🎯 Overview
 
-This is a **Phase 1 Foundation** providing the infrastructure for automated job application submission. Full automation with headless browsers will come in future phases.
+This is a **Phase 1 Foundation** providing the infrastructure for automated job application
+submission. Full automation with headless browsers will come in future phases.
 
 ### What's Included (Phase 1)
 
@@ -77,7 +83,7 @@ This is a **Phase 1 Foundation** providing the infrastructure for automated job 
 
 ### System Components
 
-```
+```text
 ┌──────────────────────────────────────────────────┐
 │         One-Click Apply Infrastructure           │
 │                                                   │
@@ -323,7 +329,8 @@ println!("Success rate: {:.1}%", stats.success_rate);
 ```
 
 **Example Output:**
-```
+
+```text
 Total attempts: 45
 Submitted: 38
 Failed: 7
@@ -364,12 +371,14 @@ LIMIT 10;
 ### Built-in Safety Features
 
 1. **Max Applications Per Day**
+
    ```rust
    // Set in application_profile
    max_applications_per_day: 10
    ```
 
 2. **Manual Approval Required**
+
    ```rust
    // Default to true for safety
    require_manual_approval: true
@@ -439,6 +448,7 @@ cargo test --lib automation
 ```
 
 **Test Statistics:**
+
 - **Profile Module:** 3 tests
 - **ATS Detector:** 10 tests
 - **Automation Manager:** 3 tests
@@ -456,6 +466,7 @@ cargo test --lib automation
 - [ ] Screenshot for debugging
 
 **Tech Stack:**
+
 ```toml
 [dependencies]
 fantoccini = "0.21"  # WebDriver client
@@ -575,4 +586,6 @@ impl AutomationManager {
 **Next Phase:** Headless Browser Integration
 **Full Feature:** Estimated 6-8 more weeks for complete automation
 
-⚠️ **Remember:** Always comply with company Terms of Service and local laws. This tool is designed for legitimate job seekers to save time, not to spam companies with low-quality applications.
+⚠️ **Remember:** Always comply with company Terms of Service and local laws. This tool is
+designed for legitimate job seekers to save time, not to spam companies with low-quality
+applications.

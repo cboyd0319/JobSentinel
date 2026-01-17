@@ -133,6 +133,7 @@ Major security release with OS-native keyring integration.
 | Automatic migration | **Done** | Plaintext → keyring on first v2.0 launch |
 | 5 credential commands | **Done** | store, retrieve, delete, has, get_status |
 | Updated Settings UI | **Done** | Credential status indicators |
+| **P3 Integration Tests** | **Done** | 76 tests across 4 files |
 
 **Credentials secured:**
 
@@ -254,7 +255,8 @@ Automated application submission.
 
 - All Rust code compiles with 0 errors
 - Clippy passes with 0 warnings (`-D warnings`)
-- 2029+ tests passing, 20 ignored (require file-based database or are doc examples)
+- 2078+ tests passing, 20 ignored (require file-based database or are doc examples)
+- P3 Integration tests: 76 tests across 4 files (api_contract, scheduler, database, automation)
 - All modules enabled and functional
 - **70 Tauri commands** for backend modules (20 new for user data)
 - 13 job board scrapers with parallel execution
@@ -286,7 +288,7 @@ Automated application submission.
 - [x] Keyboard shortcuts
 - [x] Advanced notification filtering
 - [x] Additional job scrapers (WeWorkRemotely, BuiltIn, HN)
-- [ ] Add comprehensive integration tests
+- [x] Add comprehensive integration tests (P3 complete)
 - [ ] E2E tests with Playwright
 - [ ] **File modularization (v1.5)** - See Technical Debt below
 
