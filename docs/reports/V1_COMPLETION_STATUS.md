@@ -6,9 +6,12 @@
 
 ---
 
-> **Note:** This document was originally created claiming 100% completion. After a comprehensive refactoring in January 2026, all major modules have been fixed and enabled. The status below reflects the current accurate state.
+> **Note:** This document was originally created claiming 100% completion. After a
+> comprehensive refactoring in January 2026, all major modules have been fixed and
+> enabled. The status below reflects the current accurate state.
 
 ## Current Test Status
+
 - **2008 tests passing**
 - **20 tests ignored** (require file-based database or are doc examples)
 - **0 failures**
@@ -18,6 +21,7 @@
 ## WORKING MODULES (v1.3.1)
 
 ### **1. Database Layer** (`src-tauri/src/core/db/mod.rs`)
+
 - ✅ Full SQLite integration with SQLx
 - ✅ Upsert with deduplication (hash-based)
 - ✅ All query methods (recent, by score, by source, by hash, full-text search)
@@ -29,6 +33,7 @@
 ### **2. Scrapers** (`src-tauri/src/core/scrapers/`)
 
 #### Greenhouse (`greenhouse.rs`)
+
 - ✅ HTML parsing with multiple selector patterns
 - ✅ API fallback (boards-api.greenhouse.io)
 - ✅ SHA-256 deduplication
@@ -38,6 +43,7 @@
 - **Lines:** 280 | **Tests:** 1/1 ✅
 
 #### Lever (`lever.rs`)
+
 - ✅ JSON API integration
 - ✅ Remote job inference
 - ✅ Description extraction
@@ -45,6 +51,7 @@
 - **Lines:** 197 | **Tests:** 2/2 ✅
 
 #### JobsWithGPT (`jobswithgpt.rs`)
+
 - ✅ MCP JSON-RPC protocol
 - ✅ Configurable queries
 - ✅ Salary parsing
@@ -52,6 +59,7 @@
 - **Lines:** 178 | **Tests:** 1/1 ✅
 
 ### **3. Scoring Engine** (`src-tauri/src/core/scoring/mod.rs`)
+
 - ✅ Multi-factor algorithm (Skills 40%, Salary 25%, Location 20%, Company 10%, Recency 5%)
 - ✅ Title allowlist/blocklist
 - ✅ Keyword boost/exclude
@@ -63,6 +71,7 @@
 - **Lines:** 330 | **Tests:** 3/3 ✅
 
 ### **4. Scheduler** (`src-tauri/src/core/scheduler/mod.rs`)
+
 - ✅ Full scraping pipeline: scrape → score → store → notify
 - ✅ All 3 scrapers integrated
 - ✅ Error handling and recovery
@@ -72,6 +81,7 @@
 - **Lines:** 339 | **Tests:** 1/1 ✅
 
 ### **5. Notifications** (`src-tauri/src/core/notify/slack.rs`)
+
 - ✅ Rich Slack block formatting
 - ✅ Score breakdown in messages
 - ✅ Webhook validation
@@ -79,6 +89,7 @@
 - **Lines:** 90 | **Complete** ✅
 
 ### **6. Configuration** (`src-tauri/src/core/config/mod.rs`)
+
 - ✅ JSON schema with serde
 - ✅ Save/load methods
 - ✅ Default values
@@ -86,6 +97,7 @@
 - **Lines:** 100 | **Complete** ✅
 
 ### **7. Platform Integration** (`src-tauri/src/platforms/`)
+
 - ✅ Windows implementation (data/config dirs)
 - ✅ macOS stub (ready for v2.1)
 - ✅ Linux stub (ready for v2.1)
@@ -94,12 +106,14 @@
 - **Lines:** 180 | **Tests:** 6/6 ✅
 
 ### **8. Cloud Stubs** (`src-tauri/src/cloud/`)
+
 - ✅ GCP module ready for v3.0
 - ✅ AWS module ready for v3.0
 - ✅ Common utilities
 - **Lines:** 150 | **Ready for v3.0** ✅
 
 ### **9. Tauri Commands** (`src-tauri/src/commands/mod.rs`)
+
 - ✅ All 11 RPC commands implemented
 - ✅ search_jobs, get_recent_jobs, get_job_by_id
 - ✅ save_config, get_config
@@ -110,6 +124,7 @@
 - **Lines:** 231 | **Complete** ✅
 
 ### **10. React Frontend** (`src/`)
+
 - ✅ Setup Wizard (4 steps)
 - ✅ Dashboard (with statistics)
 - ✅ Main App with first-run detection
@@ -119,7 +134,7 @@
 
 ---
 
-## ✅ CODE IMPLEMENTATION COMPLETE!
+## ✅ CODE IMPLEMENTATION COMPLETE
 
 ### **All Core Tasks Done:**
 
@@ -149,9 +164,11 @@
 ## 🚧 REMAINING NON-CODE TASKS (Windows-specific)
 
 ### **1. Icon Generation** (~30 minutes)
+
 **Files:** `src-tauri/icons/`
 
 **Required:**
+
 - Use logo.png from `/tmp/jobsentinel_backup/logo.png`
 - Generate multi-resolution icons:
   - 32x32.png, 128x128.png, 256x256.png
@@ -160,6 +177,7 @@
 - Tool: ImageMagick or online converter
 
 **Commands (when on Windows):**
+
 ```bash
 # Using ImageMagick
 magick logo.png -resize 32x32 32x32.png
@@ -171,9 +189,11 @@ magick logo.png icon.ico
 ---
 
 ### **2. Compilation Testing** (~30 minutes)
+
 **Platform:** Windows 11+ with Rust installed
 
 **TODO:**
+
 ```bash
 cd src-tauri
 cargo check                 # Check for errors
@@ -183,6 +203,7 @@ cargo test                  # Run all tests
 ```
 
 **Expected:**
+
 - All 17 unit tests pass
 - No compilation errors
 - Binary ~15MB (release mode)
@@ -190,9 +211,11 @@ cargo test                  # Run all tests
 ---
 
 ### **3. MSI Installer Build** (~15 minutes)
+
 **Platform:** Windows 11+ with Rust + Tauri CLI
 
 **TODO:**
+
 ```bash
 npm run tauri:build
 ```
@@ -226,6 +249,7 @@ npm run tauri:build
 ## 🎯 PRODUCTION READINESS CHECKLIST
 
 ### Core Functionality
+
 - ✅ Job scraping (3 sources: Greenhouse, Lever, JobsWithGPT)
 - ✅ Multi-factor scoring
 - ✅ Database storage with deduplication
@@ -238,6 +262,7 @@ npm run tauri:build
 - ✅ Job Market Intelligence
 
 ### Code Quality
+
 - ✅ Error handling throughout
 - ✅ Comprehensive logging
 - ✅ Unit tests (291 passing)
@@ -246,12 +271,14 @@ npm run tauri:build
 - ✅ Zero clippy warnings
 
 ### User Experience
+
 - ✅ Zero-config first run (wizard)
 - ✅ System tray integration
 - ✅ No admin rights required
 - ✅ Persistent storage
 
 ### Deployment
+
 - 🟡 MSI installer (needs Windows machine with Rust)
 - 🟡 Icon set (needs ImageMagick or online tool)
 - ✅ Example configuration
@@ -259,9 +286,10 @@ npm run tauri:build
 
 ---
 
-## 🚀 CODE IMPLEMENTATION: 100% COMPLETE!
+## 🚀 CODE IMPLEMENTATION: 100% COMPLETE
 
 ### **All Code Tasks Completed:**
+
 1. ✅ **Update main.rs with AppState** - Full initialization with Config + Database
 2. ✅ **Create config.example.json** - Comprehensive example with comments
 3. ✅ **Create .env.example** - Environment variable documentation
@@ -270,6 +298,7 @@ npm run tauri:build
 6. ✅ **Error handling** - Graceful fallbacks and logging
 
 ### **Code Status**
+
 🎉 **All Rust + TypeScript code is production-ready!**
 
 The codebase is **ready to compile and ship** once you have access to a Windows machine with Rust installed.
@@ -282,6 +311,7 @@ The codebase is **ready to compile and ship** once you have access to a Windows 
 ✅ **YES - 100% code implementation complete!**
 
 **What's needed to compile?**
+
 1. Windows 11+ machine with Rust toolchain installed
 2. Icon generation (30 min with ImageMagick)
 3. `cargo build --release` (first build ~5 min)
@@ -330,6 +360,7 @@ During a comprehensive audit in January 2026, several modules were found to have
 | Automation | Deferred to v2.0+ | 40% | Legal review |
 
 ### What Was Fixed
+
 1. SQLx Row trait usage (get -> try_get)
 2. Proptest edge cases in scrapers
 3. Webhook URL validation tests
@@ -337,6 +368,7 @@ During a comprehensive audit in January 2026, several modules were found to have
 5. ATS module compilation (Display/FromStr traits)
 
 ### Current Accurate Status
+
 - **2008 tests passing**
 - **20 tests ignored** (require file-based database or are doc examples)
 - **Core modules:** config, db, notify, scheduler, scoring, scrapers, ats, resume, salary, market_intelligence

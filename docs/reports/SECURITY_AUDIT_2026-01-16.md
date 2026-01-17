@@ -10,7 +10,9 @@
 
 ## Executive Summary
 
-JobSentinel demonstrates **strong security posture** for a privacy-first desktop application. No critical vulnerabilities were identified. All medium/low findings have been remediated with defense-in-depth measures.
+JobSentinel demonstrates **strong security posture** for a privacy-first desktop
+application. No critical vulnerabilities were identified. All medium/low findings have
+been remediated with defense-in-depth measures.
 
 ### Risk Summary (Post-Remediation)
 
@@ -31,13 +33,17 @@ JobSentinel demonstrates **strong security posture** for a privacy-first desktop
 **Verification:** `cargo tree -i rsa` returns no results.
 
 SQLx is configured with `default-features = false` and only SQLite features enabled:
+
 ```toml
-sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio-rustls", "sqlite", ...] }
+sqlx = { version = "0.8", default-features = false,
+  features = ["runtime-tokio-rustls", "sqlite", ...] }
 ```
 
-The rsa crate vulnerability reported by cargo audit is **NOT present** in the dependency tree because MySQL features are disabled.
+The rsa crate vulnerability reported by cargo audit is **NOT present** in the
+dependency tree because MySQL features are disabled.
 
 **18 warnings** from unmaintained crates:
+
 - All are GTK3/WebKitGTK bindings from Tauri's Linux dependencies
 - These are GUI toolkit crates, not security-sensitive
 - Tauri team is aware; no security impact
@@ -53,6 +59,7 @@ The rsa crate vulnerability reported by cargo audit is **NOT present** in the de
 All database operations use **SQLx parameterized queries**. No string concatenation for SQL.
 
 **Pattern verified across 47 database operations:**
+
 ```rust
 // SAFE: Uses parameterized queries
 sqlx::query("SELECT * FROM jobs WHERE id = ?")
@@ -97,12 +104,14 @@ React 19's default escaping protects against XSS. All scraped content rendered t
 | `connect-src` | Allowlist | Limited to verified webhook & job board APIs |
 
 **Why `'unsafe-inline'` for styles is acceptable:**
+
 1. `script-src` does NOT include `'unsafe-inline'` - no code execution risk
 2. Tailwind CSS generates dynamic class names at runtime
 3. Style injection cannot execute code without script execution
 4. Removing would require ejecting from Tailwind (major refactor)
 
 **Why `connect-src` allowlist is secure:**
+
 1. Each domain is a verified, official API endpoint
 2. Webhook URLs are additionally validated in Rust code
 3. No user-controlled domains can be added to CSP
@@ -116,14 +125,17 @@ React 19's default escaping protects against XSS. All scraped content rendered t
 ### Implemented Protections
 
 **1. Text Extraction (No HTML Storage):**
+
 ```rust
 // All scrapers use .text() which strips HTML tags
 let title = element.select(&selector).text().collect::<String>();
 ```
+
 - HTML is never stored - only plain text
 - No `.inner_html()` calls in codebase
 
 **2. URL Protocol Validation (Backend - db/mod.rs):**
+
 ```rust
 // Security: Validate URL protocol to prevent javascript: and other dangerous protocols
 if !job.url.starts_with("https://") && !job.url.starts_with("http://") {
@@ -134,6 +146,7 @@ if !job.url.starts_with("https://") && !job.url.starts_with("http://") {
 ```
 
 **3. URL Protocol Validation (Frontend - JobCard.tsx):**
+
 ```typescript
 // Security: Validate URL protocol before opening
 const isValidUrl = (url: string): boolean => {
@@ -151,6 +164,7 @@ const handleOpenUrl = async (url: string) => {
 ```
 
 **4. Field Length Limits (db/mod.rs):**
+
 ```rust
 const MAX_TITLE_LENGTH: usize = 500;
 const MAX_COMPANY_LENGTH: usize = 200;
@@ -160,6 +174,7 @@ const MAX_DESCRIPTION_LENGTH: usize = 50000;
 ```
 
 **5. Safe URL Opening (noopener/noreferrer):**
+
 ```typescript
 window.open(url, "_blank", "noopener,noreferrer");
 ```
@@ -171,6 +186,7 @@ window.open(url, "_blank", "noopener,noreferrer");
 ## 6. File Path Validation (Resume Parser)
 
 ### Original Finding
+
 Resume upload accepted file paths without canonicalization, potential path traversal vector.
 
 ### Remediation Implemented (parser.rs)
@@ -200,6 +216,7 @@ pub fn parse_pdf(&self, file_path: &Path) -> Result<String> {
 ```
 
 ### Tests Added
+
 - `test_parse_pdf_rejects_directory` - Rejects directories
 - `test_parse_pdf_path_traversal_nonexistent` - Blocks path traversal
 - `test_parse_pdf_relative_path_traversal` - Blocks relative traversal
@@ -242,11 +259,13 @@ All webhook integrations validate URLs to prevent data exfiltration:
 ### Findings: ✅ SECURE
 
 3 unsafe blocks in `platforms/windows/mod.rs`:
+
 1. `is_elevated()` - Windows token elevation check
 2. `get_windows_version()` - RtlGetVersion syscall
 3. `is_elevated()` Unix - `libc::geteuid()` syscall
 
 All blocks follow safe patterns:
+
 - Proper memory initialization
 - Handle cleanup after use
 - Safe defaults on API failure
