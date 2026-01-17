@@ -916,6 +916,7 @@ mod tests {
             linkedin: Default::default(),
             indeed: Default::default(),
             auto_refresh: Default::default(),
+            jobswithgpt_endpoint: "https://api.jobswithgpt.com/mcp".to_string(),
         };
 
         let database = Database::connect_memory().await.expect("Failed to create test database");
@@ -1052,6 +1053,7 @@ mod tests {
             linkedin: Default::default(),
             indeed: Default::default(),
             auto_refresh: Default::default(),
+            jobswithgpt_endpoint: "https://api.jobswithgpt.com/mcp".to_string(),
         };
 
         let config_json = serde_json::to_value(&config).unwrap();
@@ -1134,6 +1136,7 @@ mod tests {
             linkedin: Default::default(),
             indeed: Default::default(),
             auto_refresh: Default::default(),
+            jobswithgpt_endpoint: "https://api.jobswithgpt.com/mcp".to_string(),
         };
 
         // Test that config can be serialized and deserialized

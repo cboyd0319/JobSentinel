@@ -300,6 +300,7 @@ mod tests {
             lever_urls: vec![],
             linkedin: Default::default(),
             indeed: Default::default(),
+            jobswithgpt_endpoint: "https://api.jobswithgpt.com/mcp".to_string(),
         }
     }
 

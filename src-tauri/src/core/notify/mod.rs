@@ -227,6 +227,7 @@ mod tests {
             lever_urls: vec![],
             linkedin: LinkedInConfig::default(),
             indeed: IndeedConfig::default(),
+            jobswithgpt_endpoint: "https://api.jobswithgpt.com/mcp".to_string(),
         })
     }
 

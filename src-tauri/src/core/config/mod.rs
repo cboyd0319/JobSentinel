@@ -59,6 +59,14 @@ pub struct Config {
     /// Indeed scraper configuration
     #[serde(default)]
     pub indeed: IndeedConfig,
+
+    /// JobsWithGPT MCP endpoint URL
+    #[serde(default = "default_jobswithgpt_endpoint")]
+    pub jobswithgpt_endpoint: String,
+}
+
+fn default_jobswithgpt_endpoint() -> String {
+    "https://api.jobswithgpt.com/mcp".to_string()
 }
 
 fn default_immediate_threshold() -> f64 {
@@ -739,6 +747,7 @@ mod tests {
             linkedin: LinkedInConfig::default(),
             indeed: IndeedConfig::default(),
             auto_refresh: Default::default(),
+            jobswithgpt_endpoint: "https://api.jobswithgpt.com/mcp".to_string(),
         }
     }
 
