@@ -26,8 +26,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Dual-access pattern** - Tauri plugin for frontend, `keyring` crate for backend
 - **Runtime credential validation** - Credentials validated when used, not at config load
 
-### Added
+### Added - P4: Resume Builder + ATS Optimizer
 
+- **Interactive Resume Builder** - 7-step wizard for creating professional resumes
+  - Contact information, professional summary, work experience
+  - Education, skills (with proficiency levels), certifications, projects
+  - JSON-based storage in `resume_drafts` table
+  - 10 new Tauri commands for CRUD operations
+- **5 ATS-Optimized Templates** - Classic, Modern, Technical, Executive, Military
+  - HTML rendering for preview
+  - DOCX export using `docx-rs` crate
+  - ATS-safe formatting (no tables, graphics, single-column)
+- **ATS Analyzer** - Resume optimization for Applicant Tracking Systems
+  - Keyword extraction from job descriptions (Required/Preferred/Industry)
+  - Format validation and scoring (completeness, format, keywords)
+  - Bullet point improver with power word suggestions
+  - 45+ action verbs database
+  - 5 new Tauri commands for analysis
+- **New Frontend Pages**:
+  - `ResumeBuilder.tsx` - Full wizard with auto-save and validation
+  - `ResumeOptimizer.tsx` - Two-panel ATS analysis with score visualization
 - New security documentation: `docs/security/KEYRING.md`
 - Credential status indicators in Settings page
 

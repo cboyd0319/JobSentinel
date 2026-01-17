@@ -8,6 +8,9 @@
 //! - **Skill Extraction** - Identify technical and soft skills
 //! - **Semantic Matching** - Compare resume skills against job requirements
 //! - **Gap Analysis** - Identify missing skills and strengths
+//! - **ATS-Optimized Templates** - 5 professional resume templates (Classic, Modern, Technical, Executive, Military)
+//! - **Resume Builder** - Interactive resume creation with CRUD operations
+//! - **ATS Analyzer** - Keyword analysis and ATS compatibility scoring
 //!
 //! ## Usage
 //!
@@ -33,17 +36,53 @@ use chrono::{DateTime, TimeZone, Utc};
 use sqlx::{Row, SqlitePool};
 use std::path::Path;
 
+// Module declarations
+pub mod ats_analyzer;
+pub mod builder;
+pub mod export;
 pub mod matcher;
 pub mod parser;
 pub mod skills;
-mod types;
+pub mod templates;
+pub mod types;
 
 use matcher::JobMatcher;
 use parser::ResumeParser;
 use skills::SkillExtractor;
 
-// Re-export public types
-pub use types::{JobSkill, MatchResult, MatchResultWithJob, Resume, UserSkill};
+// Re-export ATS analyzer types
+pub use ats_analyzer::{
+    AtsAnalysisResult, AtsAnalyzer, AtsSuggestion, FormatIssue, IssueSeverity, KeywordImportance,
+    KeywordMatch, SuggestionCategory,
+};
+
+// Re-export builder types
+pub use builder::{
+    Certification as BuilderCertification, ContactInfo as BuilderContactInfo,
+    Education as BuilderEducation, Experience as BuilderExperience, Proficiency, Project,
+    ResumeBuilder, ResumeData as BuilderResumeData, SkillCategory as BuilderSkillCategory,
+    SkillEntry,
+};
+
+// Re-export export types
+pub use export::{
+    Certification as ExportCertification, EducationEntry, ExperienceEntry, PersonalInfo,
+    Project as ExportProject, ResumeData as ExportResumeData, ResumeExporter,
+    SkillCategory as ExportSkillCategory, TemplateId as ExportTemplateId,
+};
+
+// Re-export template rendering types
+pub use templates::{
+    Certification, ContactInfo, Education, Experience, ResumeData, SkillCategory, Template,
+    TemplateId, TemplateRenderer,
+};
+
+// Re-export core types
+pub use types::{
+    ContactInfo as AtsContactInfo, Education as AtsEducation, Experience as AtsExperience,
+    JobSkill, MatchResult, MatchResultWithJob, ResumeData as AtsResumeData, Resume, Skill,
+    UserSkill,
+};
 
 /// Main resume matcher service
 pub struct ResumeMatcher {

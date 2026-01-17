@@ -2,8 +2,9 @@
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
-/// Resume metadata
+/// Resume metadata (for uploaded PDF resumes)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Resume {
     pub id: i64,
@@ -13,6 +14,66 @@ pub struct Resume {
     pub is_active: bool,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
+}
+
+// ============================================================================
+// ATS Analyzer Types
+// ============================================================================
+
+/// Contact information for ATS analysis
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ContactInfo {
+    pub name: String,
+    pub email: String,
+    pub phone: String,
+    pub location: String,
+    pub linkedin: Option<String>,
+    pub github: Option<String>,
+    pub website: Option<String>,
+}
+
+/// Work experience entry for ATS analysis
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Experience {
+    pub title: String,
+    pub company: String,
+    pub location: String,
+    pub start_date: String,
+    pub end_date: String, // "Present" for current
+    pub achievements: Vec<String>,
+    pub current: bool,
+}
+
+/// Education entry for ATS analysis
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Education {
+    pub degree: String,
+    pub institution: String,
+    pub location: String,
+    pub graduation_date: String,
+    pub gpa: Option<f64>,
+    pub honors: Vec<String>,
+}
+
+/// Skill for ATS analysis
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Skill {
+    pub name: String,
+    pub category: String,
+    pub proficiency: Option<String>,
+}
+
+/// Complete resume data for ATS analysis
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ResumeData {
+    pub contact_info: ContactInfo,
+    pub summary: String,
+    pub experience: Vec<Experience>,
+    pub skills: Vec<Skill>,
+    pub education: Vec<Education>,
+    pub certifications: Vec<String>,
+    pub projects: Vec<String>,
+    pub custom_sections: HashMap<String, Vec<String>>,
 }
 
 /// Extracted skill from resume

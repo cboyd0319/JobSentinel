@@ -60,8 +60,20 @@ pub use ats::{
 
 // Resume commands
 pub use resume::{
+    // Matcher commands
     get_active_resume, get_match_result, get_recent_matches, get_user_skills,
     match_resume_to_job, set_active_resume, upload_resume,
+    // Builder commands
+    add_resume_education, add_resume_experience, create_resume_draft, delete_resume_draft,
+    delete_resume_education, delete_resume_experience, get_resume_draft, set_resume_skills,
+    update_resume_contact, update_resume_summary,
+    // Template commands
+    list_resume_templates, render_resume_html, render_resume_text,
+    // Export commands
+    export_resume_docx, export_resume_text,
+    // ATS analysis commands
+    analyze_resume_for_job, analyze_resume_format, extract_job_keywords, get_ats_power_words,
+    improve_bullet_point,
 };
 
 // Salary commands

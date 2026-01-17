@@ -34,7 +34,7 @@
   <a href="https://react.dev/"><img
     src="https://img.shields.io/badge/React-19-61dafb.svg?style=flat-square"
     alt="React"></a>
-  <img src="https://img.shields.io/badge/Tests-2033%20passing-brightgreen.svg?style=flat-square"
+  <img src="https://img.shields.io/badge/Tests-2078%20passing-brightgreen.svg?style=flat-square"
     alt="Tests">
   <img src="https://img.shields.io/badge/Vulnerabilities-0-brightgreen.svg?style=flat-square"
     alt="Security">
@@ -85,12 +85,14 @@
 | 👻 **Ghost Detection** | ✅ Working | Identifies fake/stale job postings |
 | 📋 **Application Tracking** | ✅ Working | Kanban board with reminders and interview scheduler |
 | 🤖 **AI Resume Matcher** | ✅ Working | PDF parsing, skill extraction, job-resume matching |
+| 📝 **Resume Builder** | ✅ **NEW v2.0** | 7-step wizard with 5 ATS templates, DOCX export |
+| 🎯 **ATS Optimizer** | ✅ **NEW v2.0** | Keyword analysis, format scoring, bullet improver |
 | 💰 **Salary AI** | ✅ Working | H1B-based predictions, negotiation insights |
 | 📊 **Market Intelligence** | ✅ Working | Skill trends, hiring velocity, alerts |
 | 🎨 **Frontend** | ✅ Working | React 19 + TypeScript + TailwindCSS |
 | 🖥️ **Desktop App** | ✅ Working | Tauri 2.1 integration |
 | 🔐 **Security** | ✅ **0 vulnerabilities** | cargo-audit verified |
-| ✅ **Test Coverage** | ✅ **1963 passing** | Unit + integration + doc tests |
+| ✅ **Test Coverage** | ✅ **2078 passing** | Unit + integration + doc tests |
 
 ### Job Sources (13 Working)
 

@@ -122,7 +122,7 @@ Continued refactoring of remaining large files.
 
 ### v2.0 - Security & Production Hardening (COMPLETED)
 
-Major security release with OS-native keyring integration.
+Major security release with OS-native keyring integration and Resume Builder.
 
 | Feature | Status | Notes |
 |---------|--------|-------|
@@ -134,6 +134,7 @@ Major security release with OS-native keyring integration.
 | 5 credential commands | **Done** | store, retrieve, delete, has, get_status |
 | Updated Settings UI | **Done** | Credential status indicators |
 | **P3 Integration Tests** | **Done** | 76 tests across 4 files |
+| **P4 Resume Builder + ATS Optimizer** | **Done** | Full resume creation and optimization |
 
 **Credentials secured:**
 
@@ -145,6 +146,17 @@ Major security release with OS-native keyring integration.
 - `linkedin_session_cookie` - LinkedIn session cookie
 
 See [docs/security/KEYRING.md](security/KEYRING.md) for full documentation.
+
+**P4 Resume Builder Features:**
+
+- 7-step resume wizard (contact, summary, experience, education, skills, preview, export)
+- 5 ATS-optimized templates (Classic, Modern, Technical, Executive, Military)
+- DOCX export with professional formatting
+- ATS Analyzer with keyword extraction and scoring
+- Bullet point improver with 45+ power words
+- 22 new Tauri commands
+
+See [docs/features/resume-builder.md](features/resume-builder.md) for full documentation.
 
 ### v2.1+ Planned Features
 

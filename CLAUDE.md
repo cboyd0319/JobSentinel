@@ -97,8 +97,16 @@ When to spawn sub-agents:
 
 - [x] P0: Keyring Integration - COMPLETE (OS-native credential storage)
 - [x] P3: Integration Tests - COMPLETE (76 new tests across 4 files)
+- [x] P4: Resume Builder + ATS Optimizer - COMPLETE
+  - `builder.rs` - ResumeBuilder with JSON storage, CRUD operations
+  - `templates.rs` - 5 ATS-optimized templates with HTML rendering
+  - `export.rs` - DOCX export (PDF stubbed for later)
+  - `ats_analyzer.rs` - Keyword analysis, format scoring, bullet improver
+  - `ResumeBuilder.tsx` - 7-step wizard frontend
+  - `ResumeOptimizer.tsx` - ATS analysis UI with score visualization
+  - 22 new Tauri commands (10 builder + 3 template + 2 export + 5 ATS + 2 misc)
 - See `.claude/plans/virtual-puzzling-pretzel.md` for P0-P7 details
-- Remaining: CI/CD, Packaging, Resume Builder, One-Click Apply
+- Remaining: CI/CD, Packaging, One-Click Apply
 
 **Before starting work:**
 
@@ -145,9 +153,9 @@ JobSentinel/
 │   │   │   ├── scheduler/ # Job scheduling with auto-refresh
 │   │   │   ├── scoring/   # Job scoring algorithm
 │   │   │   └── scrapers/  # 13 job board scrapers with parallel scraping
-│   │   ├── commands/      # Tauri RPC handlers (70 commands)
+│   │   ├── commands/      # Tauri RPC handlers (92 commands)
 │   │   └── platforms/     # Platform-specific code (Windows, macOS, Linux)
-│   └── migrations/        # SQLite migrations (18 migrations)
+│   └── migrations/        # SQLite migrations (19 migrations)
 └── docs/                  # Documentation
     ├── features/          # Feature documentation
     ├── releases/          # Version release notes
@@ -191,16 +199,21 @@ All core modules are enabled and functional:
 - 21 ignored (require file-based database or are doc-tests for example code)
 - New integration test files: `tests/db/`, `tests/scrapers/`, `tests/ghost/`, `tests/config/`
 
-### Tauri Commands (70 total)
+### Tauri Commands (92 total)
 
 - Core: 18 commands (jobs, config, search, statistics, scraping)
 - Ghost: 3 commands (ghost_jobs, ghost_statistics, filtered_search)
 - ATS: 10 commands (applications, reminders, ghosting, interviews)
-- Resume: 6 commands (upload, match, skills)
+- Resume Matcher: 7 commands (upload, match, skills, recent_matches)
+- Resume Builder: 10 commands (create, get, update_contact, update_summary, add_experience, etc.)
+- Resume Templates: 3 commands (list_templates, render_html, render_text)
+- Resume Export: 2 commands (export_docx, export_text)
+- ATS Analyzer: 5 commands (analyze_for_job, analyze_format, extract_keywords, power_words, improve_bullet)
 - Salary: 4 commands (predict, benchmark, negotiate, compare)
 - Market: 5 commands (trends, companies, locations, alerts)
 - Setup: 4 commands (wizard, first run, profiles)
 - User Data: 20 commands (templates, prep checklists, saved searches, notifications, search history)
+- Credentials: 5 commands (store, retrieve, delete, has, get_status)
 
 ## Development Commands
 
