@@ -120,7 +120,7 @@ export default function Market({ onBack }: MarketProps) {
   const [analyzing, setAnalyzing] = useState(false);
   const toast = useToast();
 
-  const unreadAlertCount = alerts.filter((a) => !a.is_read).length;
+  const unreadAlertCount = (alerts ?? []).filter((a) => !a.is_read).length;
 
   const tabs: Tab[] = [
     { id: "overview", label: "Overview", icon: "📊" },

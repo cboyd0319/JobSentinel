@@ -152,12 +152,12 @@ interface MarketAlertListProps {
 }
 
 export function MarketAlertList({
-  alerts,
+  alerts = [],
   onMarkRead,
   onMarkAllRead,
   loading = false,
 }: MarketAlertListProps) {
-  const unreadCount = alerts.filter((a) => !a.is_read).length;
+  const unreadCount = (alerts ?? []).filter((a) => !a.is_read).length;
 
   if (loading) {
     return (
