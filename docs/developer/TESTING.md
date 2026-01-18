@@ -1,6 +1,6 @@
 # Testing Guide
 
-**Complete guide to testing in JobSentinel v2.0.0**
+**Complete guide to testing in JobSentinel v2.5.0**
 
 ---
 
@@ -12,6 +12,7 @@
 - [Testing Patterns](#testing-patterns)
 - [Writing New Tests](#writing-new-tests)
 - [Test Coverage](#test-coverage)
+- [End-to-End Tests](#end-to-end-tests)
 - [CI/CD Integration](#cicd-integration)
 
 ---
@@ -22,7 +23,7 @@ JobSentinel uses a comprehensive testing strategy across all layers:
 
 - **Unit Tests**: Test individual functions and modules in isolation
 - **Integration Tests**: Test interaction between modules
-- **End-to-End Tests** (Future): Test complete workflows
+- **End-to-End Tests**: Test complete workflows with WebdriverIO + Tauri Driver
 
 ### Testing Philosophy
 
@@ -504,10 +505,64 @@ fn test_example() {
 
 ---
 
+## End-to-End Tests
+
+E2E tests use WebdriverIO with Tauri Driver to test complete workflows in the built app.
+
+### Running E2E Tests
+
+```bash
+# Build the app first
+npm run tauri build
+
+# Run E2E tests
+cd e2e-tests
+npm install
+npm test
+
+# Capture screenshots for documentation
+npm run screenshots
+```
+
+### E2E Test Coverage
+
+| Page | Test File | Tests |
+|------|-----------|-------|
+| Dashboard | `dashboard.e2e.js` | Load, nav, stats, search, shortcuts |
+| Settings | `settings.e2e.js` | Nav, preferences, notifications, save |
+| Applications | `applications.e2e.js` | Kanban, stats, cards, reminders |
+| Market | `market.e2e.js` | Tabs, snapshot, charts, heatmap, alerts |
+| Resume | `resume.e2e.js` | Upload, skills, categories, gap analysis |
+| Resume Builder | `resume-builder.e2e.js` | Wizard, steps, templates, export |
+| Salary | `salary.e2e.js` | Prediction, benchmark, comparison, negotiation |
+| One-Click Apply | `one-click-apply.e2e.js` | Profile, screening, ATS detection |
+
+### Writing E2E Tests
+
+```javascript
+describe('Feature', () => {
+  it('should do something', async () => {
+    // Find elements
+    const button = await $('button.primary');
+
+    // Interact
+    await button.click();
+
+    // Assert
+    await expect(button).toBeDisplayed();
+  });
+});
+```
+
+See [e2e-tests/README.md](../../e2e-tests/README.md) for full documentation.
+
+---
+
 ## Future Improvements
 
 ### Planned Additions
 
+- [x] E2E tests for all pages
 - [ ] Integration tests for full scraping pipeline
 - [ ] Property-based testing with `proptest`
 - [ ] Mutation testing with `cargo-mutants`
@@ -523,10 +578,12 @@ fn test_example() {
 - [tokio Testing](https://tokio.rs/tokio/topics/testing)
 - [tempfile Crate](https://docs.rs/tempfile/)
 - [SQLx Testing](https://github.com/launchbadge/sqlx#testing)
+- [Tauri WebDriver Docs](https://v2.tauri.app/develop/tests/webdriver/)
+- [WebdriverIO Documentation](https://webdriver.io/docs/gettingstarted)
 
 ---
 
-**Last Updated**: January 17, 2026
-**Test Count**: 2033 passing (1992 unit + 40 integration + 1 doc)
-**Version**: v1.5.0
+**Last Updated**: January 18, 2026
+**Test Count**: 2085+ passing (unit + integration + E2E)
+**Version**: v2.5.0
 **Maintained By**: The Rust Mac Overlord 🦀

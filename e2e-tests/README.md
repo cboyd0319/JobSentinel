@@ -46,13 +46,31 @@ Screenshots are saved to `./screenshots/`.
 ```text
 e2e-tests/
 ├── specs/
-│   ├── dashboard.e2e.js      # Dashboard functionality
-│   ├── settings.e2e.js       # Settings page tests
-│   └── one-click-apply.e2e.js # One-Click Apply settings
-├── screenshots/              # Captured screenshots
-├── wdio.conf.js             # WebdriverIO configuration
-└── package.json             # Test dependencies
+│   ├── dashboard.e2e.js        # Dashboard functionality
+│   ├── settings.e2e.js         # Settings page tests
+│   ├── applications.e2e.js     # Application tracking Kanban
+│   ├── market.e2e.js           # Market Intelligence tabs & charts
+│   ├── resume.e2e.js           # Resume matcher with skills
+│   ├── resume-builder.e2e.js   # Resume builder wizard
+│   ├── salary.e2e.js           # Salary AI predictions
+│   └── one-click-apply.e2e.js  # One-Click Apply settings
+├── screenshots/                # Captured screenshots
+├── wdio.conf.js               # WebdriverIO configuration
+└── package.json               # Test dependencies
 ```
+
+## Test Coverage
+
+| Page | Test File | Tests |
+|------|-----------|-------|
+| Dashboard | `dashboard.e2e.js` | Load, nav, stats, search, shortcuts |
+| Settings | `settings.e2e.js` | Nav, preferences, notifications, save |
+| Applications | `applications.e2e.js` | Kanban, stats, cards, reminders |
+| Market | `market.e2e.js` | Tabs, snapshot, charts, heatmap, alerts |
+| Resume | `resume.e2e.js` | Upload, skills, categories, gap analysis |
+| Resume Builder | `resume-builder.e2e.js` | Wizard, steps, templates, export |
+| Salary | `salary.e2e.js` | Prediction, benchmark, comparison, negotiation |
+| One-Click Apply | `one-click-apply.e2e.js` | Profile, screening, ATS detection |
 
 ## Writing New Tests
 
