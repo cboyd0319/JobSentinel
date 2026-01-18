@@ -10,16 +10,17 @@ function getSystemTheme(): "light" | "dark" {
   if (typeof window !== "undefined") {
     return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
   }
-  return "light";
+  return "dark"; // Default to dark when system preference unavailable
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(() => {
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
-      return stored || "system";
+      // Default to dark mode for new users
+      return stored || "dark";
     }
-    return "system";
+    return "dark";
   });
 
   const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">(() => {
