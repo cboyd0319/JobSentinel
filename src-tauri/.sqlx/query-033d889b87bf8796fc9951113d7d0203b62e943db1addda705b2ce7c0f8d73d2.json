@@ -1,0 +1,26 @@
+{
+  "db_name": "SQLite",
+  "query": "\n        SELECT warning_sent_at, expires_at\n        FROM credential_health\n        WHERE credential_key = ?\n        ",
+  "describe": {
+    "columns": [
+      {
+        "name": "warning_sent_at",
+        "ordinal": 0,
+        "type_info": "Datetime"
+      },
+      {
+        "name": "expires_at",
+        "ordinal": 1,
+        "type_info": "Datetime"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      true,
+      true
+    ]
+  },
+  "hash": "033d889b87bf8796fc9951113d7d0203b62e943db1addda705b2ce7c0f8d73d2"
+}

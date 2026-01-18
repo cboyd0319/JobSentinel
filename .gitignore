@@ -49,7 +49,6 @@ lerna-debug.log*
 *.AppImage
 
 # SQLx
-.sqlx
 src-tauri/gen/
 Vagrantfile
 .vagrant/

@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT INTO applications (job_hash, status) VALUES (?, 'to_apply')",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": []
+  },
+  "hash": "ed7ac9cb301a81861002ac22094011fd482fd05ae3e5f3505622504ec0842f3a"
+}

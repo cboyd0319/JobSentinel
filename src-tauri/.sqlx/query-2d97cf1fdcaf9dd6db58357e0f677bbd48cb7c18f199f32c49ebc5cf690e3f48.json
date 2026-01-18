@@ -1,0 +1,44 @@
+{
+  "db_name": "SQLite",
+  "query": "\n        SELECT credential_key, created_at, last_validated, expires_at, validation_status\n        FROM credential_health\n        WHERE warning_sent_at IS NULL\n        AND expires_at IS NOT NULL\n        AND expires_at <= datetime('now', '+30 days')\n        AND expires_at > datetime('now')\n        ",
+  "describe": {
+    "columns": [
+      {
+        "name": "credential_key",
+        "ordinal": 0,
+        "type_info": "Text"
+      },
+      {
+        "name": "created_at",
+        "ordinal": 1,
+        "type_info": "Datetime"
+      },
+      {
+        "name": "last_validated",
+        "ordinal": 2,
+        "type_info": "Datetime"
+      },
+      {
+        "name": "expires_at",
+        "ordinal": 3,
+        "type_info": "Datetime"
+      },
+      {
+        "name": "validation_status",
+        "ordinal": 4,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": [
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "2d97cf1fdcaf9dd6db58357e0f677bbd48cb7c18f199f32c49ebc5cf690e3f48"
+}

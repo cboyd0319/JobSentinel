@@ -1,0 +1,50 @@
+{
+  "db_name": "SQLite",
+  "query": "\n        SELECT\n            COUNT(*) as total,\n            SUM(CASE WHEN health_status = 'healthy' THEN 1 ELSE 0 END) as healthy,\n            SUM(CASE WHEN health_status = 'degraded' THEN 1 ELSE 0 END) as degraded,\n            SUM(CASE WHEN health_status = 'down' THEN 1 ELSE 0 END) as down,\n            SUM(CASE WHEN health_status = 'disabled' THEN 1 ELSE 0 END) as disabled,\n            SUM(jobs_found_24h) as total_jobs_24h\n        FROM scraper_health_status\n        ",
+  "describe": {
+    "columns": [
+      {
+        "name": "total",
+        "ordinal": 0,
+        "type_info": "Integer"
+      },
+      {
+        "name": "healthy",
+        "ordinal": 1,
+        "type_info": "Integer"
+      },
+      {
+        "name": "degraded",
+        "ordinal": 2,
+        "type_info": "Integer"
+      },
+      {
+        "name": "down",
+        "ordinal": 3,
+        "type_info": "Integer"
+      },
+      {
+        "name": "disabled",
+        "ordinal": 4,
+        "type_info": "Integer"
+      },
+      {
+        "name": "total_jobs_24h",
+        "ordinal": 5,
+        "type_info": "Integer"
+      }
+    ],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "11e285ff2b9fc05f5b5f94b2a94bf5150849a434f4ea3692796492ae12017281"
+}

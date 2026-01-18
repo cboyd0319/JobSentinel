@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n        INSERT INTO scraper_smoke_tests (scraper_name, test_type, duration_ms, status, details, error_message)\n        VALUES (?, ?, ?, ?, ?, ?)\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 6
+    },
+    "nullable": []
+  },
+  "hash": "8e9515d960a78dddf83b77373505a28092a3414890935b991fdb363c4e8622b6"
+}

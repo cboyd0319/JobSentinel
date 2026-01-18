@@ -1,0 +1,62 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            SELECT\n                r.id as \"id!: i64\",\n                r.application_id as \"application_id!: i64\",\n                r.reminder_type,\n                r.reminder_time,\n                r.message,\n                a.job_hash,\n                j.title as job_title,\n                j.company\n            FROM application_reminders r\n            JOIN applications a ON r.application_id = a.id\n            JOIN jobs j ON a.job_hash = j.hash\n            WHERE r.completed = 0 AND r.reminder_time <= ?\n            ORDER BY r.reminder_time ASC\n            ",
+  "describe": {
+    "columns": [
+      {
+        "name": "id!: i64",
+        "ordinal": 0,
+        "type_info": "Integer"
+      },
+      {
+        "name": "application_id!: i64",
+        "ordinal": 1,
+        "type_info": "Integer"
+      },
+      {
+        "name": "reminder_type",
+        "ordinal": 2,
+        "type_info": "Text"
+      },
+      {
+        "name": "reminder_time",
+        "ordinal": 3,
+        "type_info": "Text"
+      },
+      {
+        "name": "message",
+        "ordinal": 4,
+        "type_info": "Text"
+      },
+      {
+        "name": "job_hash",
+        "ordinal": 5,
+        "type_info": "Text"
+      },
+      {
+        "name": "job_title",
+        "ordinal": 6,
+        "type_info": "Text"
+      },
+      {
+        "name": "company",
+        "ordinal": 7,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      true,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "a5873cbb8f6072a01668e0bedef3a31f838e6d199f4ee84c775c686ac199dba9"
+}

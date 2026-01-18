@@ -1,0 +1,92 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            SELECT id, job_hash, status, applied_at, last_contact, next_followup,\n                   notes, recruiter_name, recruiter_email, recruiter_phone,\n                   salary_expectation, created_at, updated_at\n            FROM applications\n            WHERE id = ?\n            ",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Integer"
+      },
+      {
+        "name": "job_hash",
+        "ordinal": 1,
+        "type_info": "Text"
+      },
+      {
+        "name": "status",
+        "ordinal": 2,
+        "type_info": "Text"
+      },
+      {
+        "name": "applied_at",
+        "ordinal": 3,
+        "type_info": "Text"
+      },
+      {
+        "name": "last_contact",
+        "ordinal": 4,
+        "type_info": "Text"
+      },
+      {
+        "name": "next_followup",
+        "ordinal": 5,
+        "type_info": "Text"
+      },
+      {
+        "name": "notes",
+        "ordinal": 6,
+        "type_info": "Text"
+      },
+      {
+        "name": "recruiter_name",
+        "ordinal": 7,
+        "type_info": "Text"
+      },
+      {
+        "name": "recruiter_email",
+        "ordinal": 8,
+        "type_info": "Text"
+      },
+      {
+        "name": "recruiter_phone",
+        "ordinal": 9,
+        "type_info": "Text"
+      },
+      {
+        "name": "salary_expectation",
+        "ordinal": 10,
+        "type_info": "Integer"
+      },
+      {
+        "name": "created_at",
+        "ordinal": 11,
+        "type_info": "Text"
+      },
+      {
+        "name": "updated_at",
+        "ordinal": 12,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "1a20c5268a52db5fcc8d4ffa26e6e8b8ade595235abeb98550b41a216927ba9d"
+}

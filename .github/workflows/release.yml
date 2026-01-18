@@ -14,6 +14,9 @@ on:
 permissions:
   contents: write
 
+env:
+  SQLX_OFFLINE: true
+
 jobs:
   build:
     strategy:
@@ -23,9 +26,6 @@ jobs:
           - platform: macos-latest
             target: aarch64-apple-darwin
             name: macOS-arm64
-          - platform: macos-15-large
-            target: x86_64-apple-darwin
-            name: macOS-x64
           - platform: windows-latest
             target: x86_64-pc-windows-msvc
             name: Windows-x64
@@ -46,12 +46,6 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
-
-      - name: Install dependencies (Ubuntu)
-        if: matrix.platform == 'ubuntu-22.04'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
       - name: Install npm dependencies
         run: npm ci

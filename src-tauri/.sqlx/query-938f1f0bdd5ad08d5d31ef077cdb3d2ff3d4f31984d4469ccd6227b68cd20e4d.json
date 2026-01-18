@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n        UPDATE credential_health\n        SET validation_status = 'expired'\n        WHERE credential_key = ?\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": []
+  },
+  "hash": "938f1f0bdd5ad08d5d31ef077cdb3d2ff3d4f31984d4469ccd6227b68cd20e4d"
+}

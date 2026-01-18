@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n        UPDATE credential_health\n        SET warning_sent_at = datetime('now')\n        WHERE credential_key = ?\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": []
+  },
+  "hash": "9d08ea6eef4d56bd93a006b3e7bcbf29c915ae221353ca73a90f04a4b6163006"
+}

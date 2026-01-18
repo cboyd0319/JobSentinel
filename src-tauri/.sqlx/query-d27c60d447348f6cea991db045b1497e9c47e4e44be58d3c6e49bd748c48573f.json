@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            INSERT INTO interviews (\n                application_id, interview_type, scheduled_at, duration_minutes,\n                location, interviewer_name, interviewer_title, notes\n            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 8
+    },
+    "nullable": []
+  },
+  "hash": "d27c60d447348f6cea991db045b1497e9c47e4e44be58d3c6e49bd748c48573f"
+}

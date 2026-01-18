@@ -1,0 +1,26 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            SELECT\n                strftime('%Y-%W', applied_at) as week,\n                COUNT(*) as count\n            FROM applications\n            WHERE applied_at IS NOT NULL\n              AND applied_at >= datetime('now', '-12 weeks')\n            GROUP BY week\n            ORDER BY week ASC\n            ",
+  "describe": {
+    "columns": [
+      {
+        "name": "week",
+        "ordinal": 0,
+        "type_info": "Text"
+      },
+      {
+        "name": "count",
+        "ordinal": 1,
+        "type_info": "Integer"
+      }
+    ],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": [
+      true,
+      false
+    ]
+  },
+  "hash": "a083ea3ab09810f3f536e20f8c0b7fc1a47606a728eba6cb00df40be37abc663"
+}

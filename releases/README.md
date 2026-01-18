@@ -29,9 +29,9 @@ npm run tauri build
 | Platform | Architecture | Format | Status |
 |----------|-------------|--------|--------|
 | macOS | arm64 (Apple Silicon) | `.dmg` | ✅ Ready |
-| macOS | x86_64 (Intel) | `.dmg` | ✅ Ready |
 | Windows | x86_64 | `.msi` | ✅ Ready |
 | Linux | x86_64 | `.AppImage` | 🔮 v2.6 |
+| macOS | x86_64 (Intel) | `.dmg` | 🔮 v2.6 |
 
 ## Version History
 

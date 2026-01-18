@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            UPDATE applications\n            SET status = 'ghosted', updated_at = datetime('now')\n            WHERE status IN ('applied', 'phone_interview', 'technical_interview', 'onsite_interview')\n              AND (last_contact IS NULL OR last_contact < ?)\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": []
+  },
+  "hash": "52343fb32ce7c70033725870df9f464fd3b03adbf51458cca9ce11542a5c8302"
+}

@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n        INSERT INTO credential_health (credential_key, created_at, expires_at, validation_status)\n        VALUES (?, datetime('now'), datetime('now', ?), 'unknown')\n        ON CONFLICT(credential_key) DO UPDATE SET\n            created_at = datetime('now'),\n            expires_at = datetime('now', excluded.expires_at),\n            validation_status = 'unknown',\n            warning_sent_at = NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "edd9b91dd91f4a047359af9c115092b3ff4e3515ca529f13c4a66ba0eb5f3a47"
+}

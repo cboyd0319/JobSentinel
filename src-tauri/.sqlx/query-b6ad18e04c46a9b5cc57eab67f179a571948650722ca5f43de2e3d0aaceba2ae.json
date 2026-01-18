@@ -1,0 +1,98 @@
+{
+  "db_name": "SQLite",
+  "query": "\n        SELECT scraper_name, display_name, is_enabled, requires_auth, scraper_type,\n               selector_health, rate_limit_per_hour, success_rate_24h, avg_duration_ms,\n               last_success, last_error, total_runs_24h, jobs_found_24h, health_status\n        FROM scraper_health_status\n        ORDER BY\n            CASE health_status\n                WHEN 'down' THEN 0\n                WHEN 'degraded' THEN 1\n                WHEN 'healthy' THEN 2\n                WHEN 'unknown' THEN 3\n                WHEN 'disabled' THEN 4\n            END,\n            display_name ASC\n        ",
+  "describe": {
+    "columns": [
+      {
+        "name": "scraper_name",
+        "ordinal": 0,
+        "type_info": "Text"
+      },
+      {
+        "name": "display_name",
+        "ordinal": 1,
+        "type_info": "Text"
+      },
+      {
+        "name": "is_enabled",
+        "ordinal": 2,
+        "type_info": "Bool"
+      },
+      {
+        "name": "requires_auth",
+        "ordinal": 3,
+        "type_info": "Bool"
+      },
+      {
+        "name": "scraper_type",
+        "ordinal": 4,
+        "type_info": "Text"
+      },
+      {
+        "name": "selector_health",
+        "ordinal": 5,
+        "type_info": "Text"
+      },
+      {
+        "name": "rate_limit_per_hour",
+        "ordinal": 6,
+        "type_info": "Integer"
+      },
+      {
+        "name": "success_rate_24h",
+        "ordinal": 7,
+        "type_info": "Integer"
+      },
+      {
+        "name": "avg_duration_ms",
+        "ordinal": 8,
+        "type_info": "Integer"
+      },
+      {
+        "name": "last_success",
+        "ordinal": 9,
+        "type_info": "Datetime"
+      },
+      {
+        "name": "last_error",
+        "ordinal": 10,
+        "type_info": "Text"
+      },
+      {
+        "name": "total_runs_24h",
+        "ordinal": 11,
+        "type_info": "Integer"
+      },
+      {
+        "name": "jobs_found_24h",
+        "ordinal": 12,
+        "type_info": "Integer"
+      },
+      {
+        "name": "health_status",
+        "ordinal": 13,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": [
+      true,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "b6ad18e04c46a9b5cc57eab67f179a571948650722ca5f43de2e3d0aaceba2ae"
+}

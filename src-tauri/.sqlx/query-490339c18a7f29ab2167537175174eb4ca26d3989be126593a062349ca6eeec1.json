@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n        UPDATE scraper_config\n        SET is_enabled = ?, updated_at = datetime('now')\n        WHERE scraper_name = ?\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "490339c18a7f29ab2167537175174eb4ca26d3989be126593a062349ca6eeec1"
+}

@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "UPDATE application_reminders SET completed = 1, completed_at = ? WHERE id = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "baa94bb5fcbb3dfbba4d657edb78c2a641c3ea695b96a93754130bd9861e5bd5"
+}

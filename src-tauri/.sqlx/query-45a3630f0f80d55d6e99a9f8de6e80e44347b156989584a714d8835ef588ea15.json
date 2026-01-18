@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT INTO application_events (application_id, event_type, event_data) VALUES (?, ?, ?)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 3
+    },
+    "nullable": []
+  },
+  "hash": "45a3630f0f80d55d6e99a9f8de6e80e44347b156989584a714d8835ef588ea15"
+}

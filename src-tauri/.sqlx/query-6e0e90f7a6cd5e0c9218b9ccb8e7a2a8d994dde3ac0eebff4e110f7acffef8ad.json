@@ -1,0 +1,20 @@
+{
+  "db_name": "SQLite",
+  "query": "\n        INSERT INTO scraper_runs (scraper_name, started_at, status)\n        VALUES (?, ?, 'running')\n        RETURNING id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Integer"
+      }
+    ],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "6e0e90f7a6cd5e0c9218b9ccb8e7a2a8d994dde3ac0eebff4e110f7acffef8ad"
+}

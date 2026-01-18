@@ -1,0 +1,92 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            SELECT\n                i.id,\n                i.application_id,\n                i.interview_type,\n                i.scheduled_at,\n                i.duration_minutes,\n                i.location,\n                i.interviewer_name,\n                i.interviewer_title,\n                i.notes,\n                i.completed,\n                i.outcome,\n                j.title as job_title,\n                j.company\n            FROM interviews i\n            JOIN applications a ON i.application_id = a.id\n            JOIN jobs j ON a.job_hash = j.hash\n            WHERE i.completed = 0\n              AND datetime(i.scheduled_at) >= datetime('now')\n              AND datetime(i.scheduled_at) <= datetime('now', '+30 days')\n            ORDER BY i.scheduled_at ASC\n            ",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Integer"
+      },
+      {
+        "name": "application_id",
+        "ordinal": 1,
+        "type_info": "Integer"
+      },
+      {
+        "name": "interview_type",
+        "ordinal": 2,
+        "type_info": "Text"
+      },
+      {
+        "name": "scheduled_at",
+        "ordinal": 3,
+        "type_info": "Text"
+      },
+      {
+        "name": "duration_minutes",
+        "ordinal": 4,
+        "type_info": "Integer"
+      },
+      {
+        "name": "location",
+        "ordinal": 5,
+        "type_info": "Text"
+      },
+      {
+        "name": "interviewer_name",
+        "ordinal": 6,
+        "type_info": "Text"
+      },
+      {
+        "name": "interviewer_title",
+        "ordinal": 7,
+        "type_info": "Text"
+      },
+      {
+        "name": "notes",
+        "ordinal": 8,
+        "type_info": "Text"
+      },
+      {
+        "name": "completed",
+        "ordinal": 9,
+        "type_info": "Integer"
+      },
+      {
+        "name": "outcome",
+        "ordinal": 10,
+        "type_info": "Text"
+      },
+      {
+        "name": "job_title",
+        "ordinal": 11,
+        "type_info": "Text"
+      },
+      {
+        "name": "company",
+        "ordinal": 12,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": [
+      true,
+      false,
+      true,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "1edc9ac49c1eabefff32ed34d5daed54d834878cdd5162337404066d4f9d2d89"
+}

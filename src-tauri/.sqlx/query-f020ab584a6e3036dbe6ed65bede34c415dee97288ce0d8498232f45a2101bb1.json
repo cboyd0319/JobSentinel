@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n        UPDATE credential_health\n        SET last_validated = datetime('now'),\n            validation_status = 'valid'\n        WHERE credential_key = ?\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": []
+  },
+  "hash": "f020ab584a6e3036dbe6ed65bede34c415dee97288ce0d8498232f45a2101bb1"
+}

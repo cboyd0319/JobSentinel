@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT INTO application_reminders (application_id, reminder_type, reminder_time, message)\n             VALUES (?, ?, ?, ?)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 4
+    },
+    "nullable": []
+  },
+  "hash": "6c3e6f702cb31ef460bad5146487b227617a45e05c68018208619195a66a0cfe"
+}

@@ -1,0 +1,74 @@
+{
+  "db_name": "SQLite",
+  "query": "\n        SELECT scraper_name, display_name, is_enabled, requires_auth, auth_type,\n               scraper_type, rate_limit_per_hour, selector_health, last_selector_check, notes\n        FROM scraper_config\n        ORDER BY display_name\n        ",
+  "describe": {
+    "columns": [
+      {
+        "name": "scraper_name",
+        "ordinal": 0,
+        "type_info": "Text"
+      },
+      {
+        "name": "display_name",
+        "ordinal": 1,
+        "type_info": "Text"
+      },
+      {
+        "name": "is_enabled",
+        "ordinal": 2,
+        "type_info": "Bool"
+      },
+      {
+        "name": "requires_auth",
+        "ordinal": 3,
+        "type_info": "Bool"
+      },
+      {
+        "name": "auth_type",
+        "ordinal": 4,
+        "type_info": "Text"
+      },
+      {
+        "name": "scraper_type",
+        "ordinal": 5,
+        "type_info": "Text"
+      },
+      {
+        "name": "rate_limit_per_hour",
+        "ordinal": 6,
+        "type_info": "Integer"
+      },
+      {
+        "name": "selector_health",
+        "ordinal": 7,
+        "type_info": "Text"
+      },
+      {
+        "name": "last_selector_check",
+        "ordinal": 8,
+        "type_info": "Datetime"
+      },
+      {
+        "name": "notes",
+        "ordinal": 9,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": [
+      true,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "8d85896766105692a61106be6ca25612cc06e6335520c0ebf84837c2ec5eb4a1"
+}
