@@ -3,6 +3,7 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/plugin-shell";
 import {
   Button, Card, CardHeader, LoadingSpinner, JobCard, ScoreDisplay, Modal, ModalFooter,
@@ -113,6 +114,24 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  // Listen for jobs-updated event from Tauri backend
+  useEffect(() => {
+    const unlisten = listen<{ jobs_found: number; jobs_new: number }>("jobs-updated", (event) => {
+      const { jobs_new } = event.payload;
+      if (jobs_new > 0) {
+        toast.success("New jobs found!", `${jobs_new} new job${jobs_new > 1 ? "s" : ""} added`);
+        // Invalidate cache and refresh data
+        invalidateCacheByCommand("get_recent_jobs");
+        invalidateCacheByCommand("get_statistics");
+        fetchData();
+      }
+    });
+
+    return () => {
+      unlisten.then((fn) => fn());
+    };
+  }, [fetchData, toast]);
 
   // One-time fallback refresh for initial load
   useEffect(() => {

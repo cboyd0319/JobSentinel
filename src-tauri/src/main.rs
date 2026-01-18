@@ -18,7 +18,7 @@ use jobsentinel::{Config, Database};
 
 use chrono::{Duration, Utc};
 use std::sync::Arc;
-use tauri::Manager;
+use tauri::{Emitter, Manager};
 use tauri::{
     menu::{Menu, MenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
@@ -374,6 +374,7 @@ fn main() {
                 let scheduler_clone = Arc::clone(&scheduler_arc);
                 let status_clone = Arc::clone(&scheduler_status);
                 let interval_hours = config_arc.scraping_interval_hours;
+                let app_handle = app.handle().clone();
 
                 // Subscribe to shutdown signal before spawning task
                 let mut shutdown_rx = scheduler_arc.subscribe_shutdown();
@@ -399,6 +400,11 @@ fn main() {
                                     result.jobs_found,
                                     result.jobs_new
                                 );
+                                // Emit event to frontend so it can refresh
+                                let _ = app_handle.emit("jobs-updated", serde_json::json!({
+                                    "jobs_found": result.jobs_found,
+                                    "jobs_new": result.jobs_new
+                                }));
                             }
                             Err(e) => {
                                 tracing::error!("Background scraping failed: {}", e);
