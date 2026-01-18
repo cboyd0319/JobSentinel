@@ -33,6 +33,9 @@ interface Config {
     cities: string[];
   };
   salary_floor_usd: number;
+  salary_target_usd?: number;
+  company_whitelist: string[];
+  company_blacklist: string[];
   auto_refresh: {
     enabled: boolean;
     interval_minutes: number;
@@ -52,6 +55,25 @@ interface Config {
       to_emails: string[];
       use_starttls: boolean;
     };
+    discord: {
+      enabled: boolean;
+      // webhook_url stored securely in keyring
+      user_id_to_mention?: string;
+    };
+    telegram: {
+      enabled: boolean;
+      // bot_token stored securely in keyring
+      chat_id?: string;
+    };
+    teams: {
+      enabled: boolean;
+      // webhook_url stored securely in keyring
+    };
+    desktop: {
+      enabled: boolean;
+      show_when_focused: boolean;
+      play_sound: boolean;
+    };
   };
   linkedin: {
     enabled: boolean;
@@ -68,6 +90,54 @@ interface Config {
     radius: number;
     limit: number;
   };
+  remoteok: {
+    enabled: boolean;
+    tags: string[];
+    limit: number;
+  };
+  wellfound: {
+    enabled: boolean;
+    role: string;
+    location?: string;
+    remote_only: boolean;
+    limit: number;
+  };
+  weworkremotely: {
+    enabled: boolean;
+    category?: string;
+    limit: number;
+  };
+  builtin: {
+    enabled: boolean;
+    cities: string[];
+    category?: string;
+    limit: number;
+  };
+  hn_hiring: {
+    enabled: boolean;
+    remote_only: boolean;
+    limit: number;
+  };
+  dice: {
+    enabled: boolean;
+    query: string;
+    location?: string;
+    limit: number;
+  };
+  yc_startup: {
+    enabled: boolean;
+    query?: string;
+    remote_only: boolean;
+    limit: number;
+  };
+  ziprecruiter: {
+    enabled: boolean;
+    query: string;
+    location?: string;
+    radius?: number;
+    limit: number;
+  };
+  use_resume_matching: boolean;
 }
 
 // Credentials stored in OS keyring (macOS Keychain, Windows Credential Manager)
@@ -120,11 +190,16 @@ export default function Settings({ onClose }: SettingsProps) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [titleInput, setTitleInput] = useState("");
+  const [blockedTitleInput, setBlockedTitleInput] = useState("");
   const [skillInput, setSkillInput] = useState("");
+  const [excludeKeywordInput, setExcludeKeywordInput] = useState("");
   const [cityInput, setCityInput] = useState("");
+  const [whitelistCompanyInput, setWhitelistCompanyInput] = useState("");
+  const [blacklistCompanyInput, setBlacklistCompanyInput] = useState("");
   const [showHealthDashboard, setShowHealthDashboard] = useState(false);
   const [ghostConfig, setGhostConfig] = useState<GhostConfig | null>(null);
   const [ghostConfigLoading, setGhostConfigLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<"basic" | "advanced">("basic");
   const toast = useToast();
 
   const loadConfig = useCallback(async () => {
@@ -314,6 +389,90 @@ export default function Settings({ onClose }: SettingsProps) {
     });
   };
 
+  // Blocked title handlers
+  const handleAddBlockedTitle = () => {
+    if (!config) return;
+    const trimmed = blockedTitleInput.trim();
+    if (trimmed && !config.title_blocklist.includes(trimmed)) {
+      setConfig({
+        ...config,
+        title_blocklist: [...config.title_blocklist, trimmed],
+      });
+      setBlockedTitleInput("");
+    }
+  };
+
+  const handleRemoveBlockedTitle = (title: string) => {
+    if (!config) return;
+    setConfig({
+      ...config,
+      title_blocklist: config.title_blocklist.filter((t) => t !== title),
+    });
+  };
+
+  // Exclude keyword handlers
+  const handleAddExcludeKeyword = () => {
+    if (!config) return;
+    const trimmed = excludeKeywordInput.trim();
+    if (trimmed && !config.keywords_exclude.includes(trimmed)) {
+      setConfig({
+        ...config,
+        keywords_exclude: [...config.keywords_exclude, trimmed],
+      });
+      setExcludeKeywordInput("");
+    }
+  };
+
+  const handleRemoveExcludeKeyword = (keyword: string) => {
+    if (!config) return;
+    setConfig({
+      ...config,
+      keywords_exclude: config.keywords_exclude.filter((k) => k !== keyword),
+    });
+  };
+
+  // Company whitelist handlers
+  const handleAddWhitelistCompany = () => {
+    if (!config) return;
+    const trimmed = whitelistCompanyInput.trim();
+    if (trimmed && !config.company_whitelist.includes(trimmed)) {
+      setConfig({
+        ...config,
+        company_whitelist: [...config.company_whitelist, trimmed],
+      });
+      setWhitelistCompanyInput("");
+    }
+  };
+
+  const handleRemoveWhitelistCompany = (company: string) => {
+    if (!config) return;
+    setConfig({
+      ...config,
+      company_whitelist: config.company_whitelist.filter((c) => c !== company),
+    });
+  };
+
+  // Company blacklist handlers
+  const handleAddBlacklistCompany = () => {
+    if (!config) return;
+    const trimmed = blacklistCompanyInput.trim();
+    if (trimmed && !config.company_blacklist.includes(trimmed)) {
+      setConfig({
+        ...config,
+        company_blacklist: [...config.company_blacklist, trimmed],
+      });
+      setBlacklistCompanyInput("");
+    }
+  };
+
+  const handleRemoveBlacklistCompany = (company: string) => {
+    if (!config) return;
+    setConfig({
+      ...config,
+      company_blacklist: config.company_blacklist.filter((c) => c !== company),
+    });
+  };
+
   const handleSaveGhostConfig = async () => {
     if (!ghostConfig) return;
 
@@ -393,6 +552,33 @@ export default function Settings({ onClose }: SettingsProps) {
             </button>
           </div>
 
+          {/* Tab Navigation */}
+          <div className="flex border-b border-surface-200 dark:border-surface-700 mb-6">
+            <button
+              onClick={() => setActiveTab("basic")}
+              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === "basic"
+                  ? "border-sentinel-500 text-sentinel-600 dark:text-sentinel-400"
+                  : "border-transparent text-surface-500 hover:text-surface-700 dark:hover:text-surface-300"
+              }`}
+            >
+              Basic Settings
+            </button>
+            <button
+              onClick={() => setActiveTab("advanced")}
+              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === "advanced"
+                  ? "border-sentinel-500 text-sentinel-600 dark:text-sentinel-400"
+                  : "border-transparent text-surface-500 hover:text-surface-700 dark:hover:text-surface-300"
+              }`}
+            >
+              Advanced Settings
+            </button>
+          </div>
+
+          {/* BASIC SETTINGS TAB */}
+          {activeTab === "basic" && (
+            <>
           {/* Job Titles */}
           <section className="mb-6">
             <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
@@ -427,6 +613,40 @@ export default function Settings({ onClose }: SettingsProps) {
             </div>
           </section>
 
+          {/* Blocked Job Titles */}
+          <section className="mb-6">
+            <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
+              Job Titles to Avoid
+              <HelpIcon text="Jobs with these titles will be filtered out. Use this for titles like 'Intern' or 'Entry Level' if you're looking for senior roles." />
+            </h3>
+            <div className="flex gap-2 mb-3">
+              <Input
+                placeholder="Add a title to block..."
+                value={blockedTitleInput}
+                onChange={(e) => setBlockedTitleInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleAddBlockedTitle();
+                  }
+                }}
+              />
+              <Button onClick={handleAddBlockedTitle} disabled={!blockedTitleInput.trim()}>
+                Add
+              </Button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {config.title_blocklist.map((title) => (
+                <Badge key={title} variant="danger" removable onRemove={() => handleRemoveBlockedTitle(title)}>
+                  {title}
+                </Badge>
+              ))}
+              {config.title_blocklist.length === 0 && (
+                <p className="text-sm text-surface-400">No blocked titles</p>
+              )}
+            </div>
+          </section>
+
           {/* Skills */}
           <section className="mb-6">
             <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
@@ -457,6 +677,40 @@ export default function Settings({ onClose }: SettingsProps) {
               ))}
               {config.keywords_boost.length === 0 && (
                 <p className="text-sm text-surface-400">No skills added</p>
+              )}
+            </div>
+          </section>
+
+          {/* Keywords to Avoid */}
+          <section className="mb-6">
+            <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
+              Keywords to Avoid
+              <HelpIcon text="Jobs mentioning these keywords will rank lower. Use this for things you don't want like 'Sales' or 'Travel Required'." />
+            </h3>
+            <div className="flex gap-2 mb-3">
+              <Input
+                placeholder="Add a keyword to avoid..."
+                value={excludeKeywordInput}
+                onChange={(e) => setExcludeKeywordInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleAddExcludeKeyword();
+                  }
+                }}
+              />
+              <Button onClick={handleAddExcludeKeyword} disabled={!excludeKeywordInput.trim()}>
+                Add
+              </Button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {config.keywords_exclude.map((keyword) => (
+                <Badge key={keyword} variant="danger" removable onRemove={() => handleRemoveExcludeKeyword(keyword)}>
+                  {keyword}
+                </Badge>
+              ))}
+              {config.keywords_exclude.length === 0 && (
+                <p className="text-sm text-surface-400">No excluded keywords</p>
               )}
             </div>
           </section>
@@ -553,21 +807,120 @@ export default function Settings({ onClose }: SettingsProps) {
           {/* Salary */}
           <section className="mb-6">
             <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
-              Minimum Salary
-              <HelpIcon text="Jobs below this amount will still appear, but will be ranked lower in your results." />
+              Salary Preferences
+              <HelpIcon text="Set your minimum and target salary. Jobs are scored based on how close they are to your target." />
             </h3>
-            <Input
-              type="number"
-              value={config.salary_floor_usd || ""}
-              onChange={(e) =>
-                setConfig({
-                  ...config,
-                  salary_floor_usd: parseInt(e.target.value) || 0,
-                })
-              }
-              placeholder="e.g., 60000"
-              hint="Enter your minimum acceptable salary (before taxes)"
-            />
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
+                  Minimum Acceptable Salary
+                </label>
+                <Input
+                  type="number"
+                  value={config.salary_floor_usd || ""}
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      salary_floor_usd: parseInt(e.target.value) || 0,
+                    })
+                  }
+                  placeholder="e.g., 60000"
+                  hint="The lowest salary you'd consider"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
+                  Target Salary
+                </label>
+                <Input
+                  type="number"
+                  value={config.salary_target_usd || ""}
+                  onChange={(e) =>
+                    setConfig({
+                      ...config,
+                      salary_target_usd: parseInt(e.target.value) || undefined,
+                    })
+                  }
+                  placeholder="e.g., 100000"
+                  hint="Your ideal salary - jobs at or above this get top scores"
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* Company Preferences */}
+          <section className="mb-6">
+            <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
+              Company Preferences
+              <HelpIcon text="Add companies you love (they'll rank higher) or companies you want to avoid (they'll rank lower)." />
+            </h3>
+            <div className="space-y-4">
+              {/* Preferred Companies */}
+              <div>
+                <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+                  Preferred Companies
+                </label>
+                <div className="flex gap-2 mb-2">
+                  <Input
+                    placeholder="Add a company you'd love to work for..."
+                    value={whitelistCompanyInput}
+                    onChange={(e) => setWhitelistCompanyInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleAddWhitelistCompany();
+                      }
+                    }}
+                  />
+                  <Button onClick={handleAddWhitelistCompany} disabled={!whitelistCompanyInput.trim()}>
+                    Add
+                  </Button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {config.company_whitelist?.map((company) => (
+                    <Badge key={company} variant="sentinel" removable onRemove={() => handleRemoveWhitelistCompany(company)}>
+                      {company}
+                    </Badge>
+                  ))}
+                  {(!config.company_whitelist || config.company_whitelist.length === 0) && (
+                    <p className="text-sm text-surface-400">No preferred companies</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Blocked Companies */}
+              <div>
+                <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+                  Companies to Avoid
+                </label>
+                <div className="flex gap-2 mb-2">
+                  <Input
+                    placeholder="Add a company you don't want to see..."
+                    value={blacklistCompanyInput}
+                    onChange={(e) => setBlacklistCompanyInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleAddBlacklistCompany();
+                      }
+                    }}
+                  />
+                  <Button onClick={handleAddBlacklistCompany} disabled={!blacklistCompanyInput.trim()}>
+                    Add
+                  </Button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {config.company_blacklist?.map((company) => (
+                    <Badge key={company} variant="danger" removable onRemove={() => handleRemoveBlacklistCompany(company)}>
+                      {company}
+                    </Badge>
+                  ))}
+                  {(!config.company_blacklist || config.company_blacklist.length === 0) && (
+                    <p className="text-sm text-surface-400">No blocked companies</p>
+                  )}
+                </div>
+              </div>
+            </div>
           </section>
 
           {/* Auto-Refresh */}
@@ -635,7 +988,12 @@ export default function Settings({ onClose }: SettingsProps) {
               )}
             </div>
           </section>
+            </>
+          )}
 
+          {/* ADVANCED SETTINGS TAB */}
+          {activeTab === "advanced" && (
+            <>
           {/* Notifications */}
           <section className="mb-6">
             <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
@@ -918,6 +1276,232 @@ export default function Settings({ onClose }: SettingsProps) {
                 </div>
               )}
             </div>
+
+            {/* Discord */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1 flex items-center gap-2">
+                Discord Notifications
+                <HelpIcon text="Get job alerts in a Discord channel via webhook. Create a webhook in your Discord server settings." position="right" />
+              </label>
+              <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">💬</span>
+                    <span className="text-sm text-surface-600 dark:text-surface-300">Send alerts to Discord</span>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={config.alerts.discord?.enabled ?? false}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          alerts: {
+                            ...config.alerts,
+                            discord: {
+                              ...config.alerts.discord,
+                              enabled: e.target.checked,
+                            },
+                          },
+                        })
+                      }
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-surface-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-sentinel-300 dark:peer-focus:ring-sentinel-800 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-surface-600 peer-checked:bg-sentinel-500"></div>
+                  </label>
+                </div>
+                {config.alerts.discord?.enabled && (
+                  <p className="text-xs text-surface-500 dark:text-surface-400 mt-2">
+                    Configure webhook URL in Discord server settings → Integrations → Webhooks
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Microsoft Teams */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1 flex items-center gap-2">
+                Microsoft Teams Notifications
+                <HelpIcon text="Get job alerts in a Teams channel via incoming webhook connector." position="right" />
+              </label>
+              <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">👥</span>
+                    <span className="text-sm text-surface-600 dark:text-surface-300">Send alerts to Teams</span>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={config.alerts.teams?.enabled ?? false}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          alerts: {
+                            ...config.alerts,
+                            teams: {
+                              ...config.alerts.teams,
+                              enabled: e.target.checked,
+                            },
+                          },
+                        })
+                      }
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-surface-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-sentinel-300 dark:peer-focus:ring-sentinel-800 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-surface-600 peer-checked:bg-sentinel-500"></div>
+                  </label>
+                </div>
+                {config.alerts.teams?.enabled && (
+                  <p className="text-xs text-surface-500 dark:text-surface-400 mt-2">
+                    Add "Incoming Webhook" connector to your Teams channel, then paste the webhook URL
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Telegram */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1 flex items-center gap-2">
+                Telegram Notifications
+                <HelpIcon text="Get job alerts via Telegram bot. Create a bot with @BotFather and get your chat ID." position="right" />
+              </label>
+              <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">✈️</span>
+                    <span className="text-sm text-surface-600 dark:text-surface-300">Send alerts to Telegram</span>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={config.alerts.telegram?.enabled ?? false}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          alerts: {
+                            ...config.alerts,
+                            telegram: {
+                              ...config.alerts.telegram,
+                              enabled: e.target.checked,
+                            },
+                          },
+                        })
+                      }
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-surface-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-sentinel-300 dark:peer-focus:ring-sentinel-800 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-surface-600 peer-checked:bg-sentinel-500"></div>
+                  </label>
+                </div>
+                {config.alerts.telegram?.enabled && (
+                  <div className="mt-2">
+                    <Input
+                      placeholder="Chat ID (e.g., 123456789)"
+                      value={config.alerts.telegram?.chat_id ?? ""}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          alerts: {
+                            ...config.alerts,
+                            telegram: {
+                              ...config.alerts.telegram,
+                              enabled: true,
+                              chat_id: e.target.value,
+                            },
+                          },
+                        })
+                      }
+                      hint="Get your chat ID from @userinfobot on Telegram"
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Desktop Notifications */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1 flex items-center gap-2">
+                Desktop Notifications
+                <HelpIcon text="Get native OS notifications when new jobs match your criteria." position="right" />
+              </label>
+              <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">🔔</span>
+                    <span className="text-sm text-surface-600 dark:text-surface-300">Desktop alerts</span>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={config.alerts.desktop?.enabled ?? true}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          alerts: {
+                            ...config.alerts,
+                            desktop: {
+                              ...config.alerts.desktop,
+                              enabled: e.target.checked,
+                              show_when_focused: config.alerts.desktop?.show_when_focused ?? false,
+                              play_sound: config.alerts.desktop?.play_sound ?? true,
+                            },
+                          },
+                        })
+                      }
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-surface-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-sentinel-300 dark:peer-focus:ring-sentinel-800 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-surface-600 peer-checked:bg-sentinel-500"></div>
+                  </label>
+                </div>
+                {config.alerts.desktop?.enabled && (
+                  <div className="space-y-2 pt-2 border-t border-surface-200 dark:border-surface-700">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={config.alerts.desktop?.play_sound ?? true}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            alerts: {
+                              ...config.alerts,
+                              desktop: {
+                                ...config.alerts.desktop,
+                                enabled: true,
+                                play_sound: e.target.checked,
+                                show_when_focused: config.alerts.desktop?.show_when_focused ?? false,
+                              },
+                            },
+                          })
+                        }
+                        className="w-4 h-4 rounded border-surface-300 text-sentinel-500 focus:ring-sentinel-500"
+                      />
+                      <span className="text-sm text-surface-600 dark:text-surface-300">Play sound</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={config.alerts.desktop?.show_when_focused ?? false}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            alerts: {
+                              ...config.alerts,
+                              desktop: {
+                                ...config.alerts.desktop,
+                                enabled: true,
+                                show_when_focused: e.target.checked,
+                                play_sound: config.alerts.desktop?.play_sound ?? true,
+                              },
+                            },
+                          })
+                        }
+                        className="w-4 h-4 rounded border-surface-300 text-sentinel-500 focus:ring-sentinel-500"
+                      />
+                      <span className="text-sm text-surface-600 dark:text-surface-300">Show even when app is focused</span>
+                    </label>
+                  </div>
+                )}
+              </div>
+            </div>
           </section>
 
           {/* Notification Preferences by Source */}
@@ -1155,6 +1739,220 @@ export default function Settings({ onClose }: SettingsProps) {
                 </div>
               )}
             </div>
+
+            {/* More Job Boards - Collapsible Section */}
+            <details className="border border-surface-200 dark:border-surface-700 rounded-lg">
+              <summary className="p-4 cursor-pointer hover:bg-surface-50 dark:hover:bg-surface-800/50 font-medium text-surface-800 dark:text-surface-200 flex items-center gap-2">
+                <span>More Job Boards</span>
+                <span className="text-xs text-surface-500 dark:text-surface-400 font-normal">(8 additional sources)</span>
+              </summary>
+              <div className="p-4 pt-0 space-y-4">
+
+                {/* RemoteOK */}
+                <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">🌍</span>
+                      <span className="font-medium text-surface-800 dark:text-surface-200">RemoteOK</span>
+                      <span className="text-xs text-surface-500">(Remote-only jobs)</span>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={config.remoteok?.enabled ?? false}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            remoteok: { ...config.remoteok, enabled: e.target.checked, tags: config.remoteok?.tags ?? [], limit: config.remoteok?.limit ?? 50 },
+                          })
+                        }
+                        className="sr-only peer"
+                      />
+                      <div className="w-9 h-5 bg-surface-200 peer-focus:ring-2 peer-focus:ring-sentinel-300 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sentinel-500"></div>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Wellfound (AngelList) */}
+                <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">😇</span>
+                      <span className="font-medium text-surface-800 dark:text-surface-200">Wellfound</span>
+                      <span className="text-xs text-surface-500">(Startup jobs)</span>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={config.wellfound?.enabled ?? false}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            wellfound: { ...config.wellfound, enabled: e.target.checked, role: config.wellfound?.role ?? "", remote_only: config.wellfound?.remote_only ?? false, limit: config.wellfound?.limit ?? 50 },
+                          })
+                        }
+                        className="sr-only peer"
+                      />
+                      <div className="w-9 h-5 bg-surface-200 peer-focus:ring-2 peer-focus:ring-sentinel-300 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sentinel-500"></div>
+                    </label>
+                  </div>
+                </div>
+
+                {/* WeWorkRemotely */}
+                <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">🏠</span>
+                      <span className="font-medium text-surface-800 dark:text-surface-200">WeWorkRemotely</span>
+                      <span className="text-xs text-surface-500">(Remote jobs)</span>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={config.weworkremotely?.enabled ?? false}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            weworkremotely: { ...config.weworkremotely, enabled: e.target.checked, limit: config.weworkremotely?.limit ?? 50 },
+                          })
+                        }
+                        className="sr-only peer"
+                      />
+                      <div className="w-9 h-5 bg-surface-200 peer-focus:ring-2 peer-focus:ring-sentinel-300 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sentinel-500"></div>
+                    </label>
+                  </div>
+                </div>
+
+                {/* BuiltIn */}
+                <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">🏙️</span>
+                      <span className="font-medium text-surface-800 dark:text-surface-200">BuiltIn</span>
+                      <span className="text-xs text-surface-500">(Tech hubs)</span>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={config.builtin?.enabled ?? false}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            builtin: { ...config.builtin, enabled: e.target.checked, cities: config.builtin?.cities ?? [], limit: config.builtin?.limit ?? 50 },
+                          })
+                        }
+                        className="sr-only peer"
+                      />
+                      <div className="w-9 h-5 bg-surface-200 peer-focus:ring-2 peer-focus:ring-sentinel-300 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sentinel-500"></div>
+                    </label>
+                  </div>
+                </div>
+
+                {/* HN Who's Hiring */}
+                <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">🔶</span>
+                      <span className="font-medium text-surface-800 dark:text-surface-200">HN Who's Hiring</span>
+                      <span className="text-xs text-surface-500">(Monthly thread)</span>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={config.hn_hiring?.enabled ?? false}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            hn_hiring: { ...config.hn_hiring, enabled: e.target.checked, remote_only: config.hn_hiring?.remote_only ?? false, limit: config.hn_hiring?.limit ?? 50 },
+                          })
+                        }
+                        className="sr-only peer"
+                      />
+                      <div className="w-9 h-5 bg-surface-200 peer-focus:ring-2 peer-focus:ring-sentinel-300 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sentinel-500"></div>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Dice */}
+                <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">🎲</span>
+                      <span className="font-medium text-surface-800 dark:text-surface-200">Dice</span>
+                      <span className="text-xs text-surface-500">(Tech careers)</span>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={config.dice?.enabled ?? false}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            dice: { ...config.dice, enabled: e.target.checked, query: config.dice?.query ?? "", limit: config.dice?.limit ?? 50 },
+                          })
+                        }
+                        className="sr-only peer"
+                      />
+                      <div className="w-9 h-5 bg-surface-200 peer-focus:ring-2 peer-focus:ring-sentinel-300 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sentinel-500"></div>
+                    </label>
+                  </div>
+                </div>
+
+                {/* YC Work at a Startup */}
+                <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">🚀</span>
+                      <span className="font-medium text-surface-800 dark:text-surface-200">YC Startups</span>
+                      <span className="text-xs text-surface-500">(Y Combinator)</span>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={config.yc_startup?.enabled ?? false}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            yc_startup: { ...config.yc_startup, enabled: e.target.checked, remote_only: config.yc_startup?.remote_only ?? false, limit: config.yc_startup?.limit ?? 50 },
+                          })
+                        }
+                        className="sr-only peer"
+                      />
+                      <div className="w-9 h-5 bg-surface-200 peer-focus:ring-2 peer-focus:ring-sentinel-300 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sentinel-500"></div>
+                    </label>
+                  </div>
+                </div>
+
+                {/* ZipRecruiter */}
+                <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">📮</span>
+                      <span className="font-medium text-surface-800 dark:text-surface-200">ZipRecruiter</span>
+                      <span className="text-xs text-surface-500">(Job aggregator)</span>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={config.ziprecruiter?.enabled ?? false}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            ziprecruiter: { ...config.ziprecruiter, enabled: e.target.checked, query: config.ziprecruiter?.query ?? "", limit: config.ziprecruiter?.limit ?? 50 },
+                          })
+                        }
+                        className="sr-only peer"
+                      />
+                      <div className="w-9 h-5 bg-surface-200 peer-focus:ring-2 peer-focus:ring-sentinel-300 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sentinel-500"></div>
+                    </label>
+                  </div>
+                </div>
+
+                <p className="text-xs text-surface-500 dark:text-surface-400 pt-2">
+                  💡 These job boards are searched automatically. Enable the ones relevant to your job search.
+                </p>
+              </div>
+            </details>
           </section>
 
           {/* Ghost Detection Settings */}
@@ -1322,6 +2120,48 @@ export default function Settings({ onClose }: SettingsProps) {
             )}
           </section>
 
+          {/* Resume-Based Scoring */}
+          <section className="mb-6">
+            <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
+              Resume-Based Scoring
+              <HelpIcon text="When enabled, job scores are calculated based on skills from your uploaded resume. This provides more accurate matching than keyword-only scoring." />
+            </h3>
+            <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">📄</span>
+                  <div>
+                    <div className="text-sm font-medium text-surface-900 dark:text-white">
+                      Use Resume for Scoring
+                    </div>
+                    <div className="text-xs text-surface-500 dark:text-surface-400">
+                      Match jobs against your actual resume skills (70% resume match + 30% keywords)
+                    </div>
+                  </div>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={config.use_resume_matching ?? false}
+                    onChange={(e) =>
+                      setConfig({
+                        ...config,
+                        use_resume_matching: e.target.checked,
+                      })
+                    }
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-surface-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-sentinel-300 dark:peer-focus:ring-sentinel-800 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-surface-600 peer-checked:bg-sentinel-500"></div>
+                </label>
+              </div>
+              <div className="mt-3 pt-3 border-t border-surface-200 dark:border-surface-700">
+                <p className="text-xs text-surface-500 dark:text-surface-400">
+                  💡 <strong>Tip:</strong> Upload your resume in the <strong>Resume</strong> tab first. If no resume is uploaded, scoring falls back to keyword matching.
+                </p>
+              </div>
+            </div>
+          </section>
+
           {/* Job Scoring Weights */}
           <section className="mb-6">
             <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
@@ -1439,8 +2279,10 @@ export default function Settings({ onClose }: SettingsProps) {
 
             <ErrorLogPanel />
           </section>
+            </>
+          )}
 
-          {/* Backup & Restore */}
+          {/* Backup & Restore - visible on both tabs */}
           <div className="flex gap-3 mb-4">
             <button
               onClick={handleImportConfig}

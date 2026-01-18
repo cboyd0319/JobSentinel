@@ -312,6 +312,49 @@ cargo test --lib resume
 
 ---
 
+## 🎯 Scoring Engine Integration
+
+The Resume Matcher integrates directly with JobSentinel's Smart Scoring engine for automated job matching.
+
+### How It Works
+
+When **Resume-Based Scoring** is enabled in Settings:
+
+1. **Job Fetch**: New jobs are fetched from job boards
+2. **Async Scoring**: `ScoringEngine::score_async()` is called
+3. **Resume Match**: Active resume skills are matched against job requirements
+4. **Score Composition**:
+   - **70%** - Resume match score (skills you have vs. skills required)
+   - **30%** - Keyword boost ratio (traditional keyword matching)
+5. **Fallback**: If no resume is uploaded, falls back to keyword-only scoring
+
+### Enabling Resume-Based Scoring
+
+1. **Upload your resume** in the **Resume** tab
+2. Go to **Settings** → **Resume-Based Scoring**
+3. Toggle **"Use Resume for Scoring"** ON
+
+### Score Breakdown
+
+When viewing job scores, you'll see:
+
+- Overall resume match percentage
+- List of matching skills (skills you have that the job wants)
+- List of missing skills (skills the job wants that you don't have)
+- Keyword boost contribution
+
+### Configuration
+
+```json
+{
+  "use_resume_matching": true
+}
+```
+
+Or simply use the toggle in Settings (recommended for non-technical users).
+
+---
+
 ## 🎨 UI Integration (Future)
 
 ### Resume Upload Component
@@ -551,6 +594,8 @@ pub struct MatchResult {
 - [x] Resume activation management
 - [x] Comprehensive unit tests (16 tests)
 - [x] Full documentation
+- [x] **Scoring Engine Integration** (v2.2)
+- [x] Settings UI toggle for resume-based scoring
 
 ### Future 🔜
 

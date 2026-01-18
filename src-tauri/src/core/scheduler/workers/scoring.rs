@@ -17,20 +17,40 @@ pub async fn score_jobs(
     database: &Arc<Database>,
 ) -> Vec<(Job, JobScore)> {
     tracing::info!("Step 2: Scoring jobs");
-    let scoring_engine = ScoringEngine::new(Arc::clone(config));
 
-    let mut scored_jobs: Vec<(Job, JobScore)> = jobs
-        .into_iter()
-        .map(|mut job| {
-            let score = scoring_engine.score(&job);
+    // Use with_db to enable resume-based scoring when configured
+    let scoring_engine = ScoringEngine::with_db(Arc::clone(config), database.pool().clone());
+
+    let mut scored_jobs: Vec<(Job, JobScore)> = Vec::with_capacity(jobs.len());
+
+    // Use async scoring when resume matching is enabled
+    if config.use_resume_matching {
+        tracing::info!("Resume-based scoring enabled, using async scoring");
+        for mut job in jobs {
+            let score = scoring_engine.score_async(&job).await;
             job.score = Some(score.total);
             job.score_reasons = Some(serde_json::to_string(&score.reasons).unwrap_or_else(|e| {
                 tracing::warn!("Failed to serialize score reasons: {}", e);
                 String::new()
             }));
-            (job, score)
-        })
-        .collect();
+            scored_jobs.push((job, score));
+        }
+    } else {
+        // Use synchronous scoring for better performance when resume matching is disabled
+        scored_jobs = jobs
+            .into_iter()
+            .map(|mut job| {
+                let score = scoring_engine.score(&job);
+                job.score = Some(score.total);
+                job.score_reasons =
+                    Some(serde_json::to_string(&score.reasons).unwrap_or_else(|e| {
+                        tracing::warn!("Failed to serialize score reasons: {}", e);
+                        String::new()
+                    }));
+                (job, score)
+            })
+            .collect();
+    }
 
     // Sort by score descending
     scored_jobs.sort_by(|a, b| {

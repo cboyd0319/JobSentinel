@@ -193,6 +193,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Percentage badges with background colors
   - Factor icons for visual hierarchy
 
+### Added - Resume-Based Skills Matching Integration
+
+#### Smart Skills Scoring with Resume Data
+
+- **Async Resume-Based Scoring** - Integrates AI Resume-Job Matcher with scoring engine
+  - **Resume Match Weight (70%)** - Skills match from uploaded resume
+  - **Keyword Boost Weight (30%)** - Traditional keyword matching as fallback
+  - Combines both approaches for comprehensive skills scoring
+  - Graceful fallback to keyword-only scoring if no resume or matching fails
+
+- **New ScoringEngine Methods**
+  - `ScoringEngine::with_db()` - Create engine with database access for resume matching
+  - `score_async()` - Async scoring method that uses resume matching when enabled
+  - `score_skills_with_resume()` - Internal async skills scoring with resume data
+  - `calculate_keyword_boost_ratio()` - Helper for keyword boost calculation
+
+- **Configuration & UI**
+  - New `use_resume_matching: bool` config flag (default: false)
+  - **Settings UI Toggle** - Easy on/off switch in Settings page under "Resume-Based Scoring"
+  - Helpful tooltip explaining the feature and how to use it
+  - Tip directing users to upload resume first
+  - When enabled, scoring uses async method with database lookups
+  - When disabled, uses fast synchronous keyword-only scoring
+
+- **Integration Details**
+  - `score_jobs` worker updated to use async scoring when configured
+  - Fetches active resume via `ResumeMatcher::get_active_resume()`
+  - Calculates match via `ResumeMatcher::match_resume_to_job()`
+  - Score reasons include matching skills, missing skills, and gap analysis
+  - Performance: Only queries database when resume matching is enabled
+
+- **Score Breakdown**
+  - Shows combined resume match percentage
+  - Lists matching skills found in both resume and job
+  - Lists missing skills from job requirements
+  - Keyword boost ratio displayed separately
+
 ### Added - Ghost Detection & Deduplication Improvements
 
 #### Ghost Detection Enhancements

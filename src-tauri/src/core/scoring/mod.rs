@@ -17,10 +17,11 @@ pub use db::{load_scoring_config, reset_scoring_config, save_scoring_config};
 pub use remote::{detect_remote_status, score_remote_match, RemoteStatus, UserRemotePreference};
 pub use synonyms::SynonymMap;
 
-use crate::core::{config::Config, db::Job};
+use crate::core::{config::Config, db::Job, resume::ResumeMatcher};
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
+use tracing::debug;
 
 
 /// Normalize company name for fuzzy matching
@@ -199,6 +200,211 @@ impl ScoringEngine {
             },
             reasons,
         }
+    }
+
+    /// Score a job asynchronously with optional resume-based matching
+    ///
+    /// When `use_resume_matching` is enabled in config and a database is available,
+    /// this method will use the active resume to enhance skills scoring.
+    /// Falls back to keyword-based scoring if no resume is available.
+    pub async fn score_async(&self, job: &Job) -> JobScore {
+        // Try resume-based skills scoring if enabled
+        let skills_score = if self.config.use_resume_matching {
+            if let Some(ref db) = self.db {
+                match self.score_skills_with_resume(job, db).await {
+                    Ok(score) => score,
+                    Err(e) => {
+                        debug!("Resume matching failed, falling back to keywords: {}", e);
+                        self.score_skills(job)
+                    }
+                }
+            } else {
+                debug!("Resume matching enabled but no database available, using keywords");
+                self.score_skills(job)
+            }
+        } else {
+            self.score_skills(job)
+        };
+
+        let salary_score = self.score_salary(job);
+        let location_score = self.score_location(job);
+        let company_score = self.score_company(job);
+        let recency_score = self.score_recency(job);
+
+        let raw_total =
+            skills_score.0 + salary_score.0 + location_score.0 + company_score.0 + recency_score.0;
+
+        // Ensure score is within valid bounds (0.0 - 1.0)
+        let total = if raw_total > 1.0 {
+            tracing::warn!(
+                "Job score {} exceeded 1.0 ({:.4}), clamping. This may indicate a scoring bug.",
+                job.id,
+                raw_total
+            );
+            1.0
+        } else if raw_total < 0.0 {
+            tracing::warn!(
+                "Job score {} was negative ({:.4}), clamping. This may indicate a scoring bug.",
+                job.id,
+                raw_total
+            );
+            0.0
+        } else {
+            raw_total
+        };
+
+        let mut reasons = Vec::new();
+        reasons.extend(skills_score.1);
+        reasons.extend(salary_score.1);
+        reasons.extend(location_score.1);
+        reasons.extend(company_score.1);
+        reasons.extend(recency_score.1);
+
+        JobScore {
+            total,
+            breakdown: ScoreBreakdown {
+                skills: skills_score.0,
+                salary: salary_score.0,
+                location: location_score.0,
+                company: company_score.0,
+                recency: recency_score.0,
+            },
+            reasons,
+        }
+    }
+
+    /// Score skills using resume matching
+    ///
+    /// Compares the job requirements against the user's active resume.
+    /// Returns (score, reasons) tuple.
+    async fn score_skills_with_resume(
+        &self,
+        job: &Job,
+        db: &sqlx::SqlitePool,
+    ) -> Result<(f64, Vec<String>), anyhow::Error> {
+        let max_score = self.scoring_config.skills_weight;
+        let mut reasons = Vec::new();
+
+        // First, still check title allowlist/blocklist (these are hard filters)
+        let title_match = self.config.title_allowlist.iter().any(|allowed_title| {
+            job.title
+                .to_lowercase()
+                .contains(&allowed_title.to_lowercase())
+        });
+
+        if !title_match {
+            return Ok((0.0, vec!["Title not in allowlist".to_string()]));
+        }
+
+        reasons.push(format!("✓ Title matches: {}", job.title));
+
+        let title_blocked = self.config.title_blocklist.iter().any(|blocked_title| {
+            job.title
+                .to_lowercase()
+                .contains(&blocked_title.to_lowercase())
+        });
+
+        if title_blocked {
+            return Ok((0.0, vec!["Title in blocklist".to_string()]));
+        }
+
+        // Check excluded keywords
+        let description_text =
+            format!("{} {}", job.title, job.description.as_deref().unwrap_or(""));
+        let has_excluded = self.config.keywords_exclude.iter().any(|keyword| {
+            self.synonym_map
+                .matches_with_synonyms(keyword, &description_text)
+        });
+
+        if has_excluded {
+            return Ok((0.0, vec!["Contains excluded keyword".to_string()]));
+        }
+
+        // Now try resume matching
+        let matcher = ResumeMatcher::new(db.clone());
+
+        // Get active resume
+        let active_resume = matcher.get_active_resume().await?;
+        let resume = match active_resume {
+            Some(r) => r,
+            None => {
+                debug!("No active resume found, falling back to keyword scoring");
+                return Err(anyhow::anyhow!("No active resume"));
+            }
+        };
+
+        // Match resume to job
+        let match_result = matcher.match_resume_to_job(resume.id, &job.hash).await?;
+
+        // Calculate score based on match result
+        let resume_match_score = match_result.overall_match_score;
+
+        // Combine resume match with keyword boost matches
+        // Resume match contributes 70%, keyword boost contributes 30%
+        let keyword_score = self.calculate_keyword_boost_ratio(job);
+        let combined_score = (resume_match_score * 0.7) + (keyword_score * 0.3);
+
+        let final_score = max_score * combined_score;
+
+        // Add detailed reasons
+        reasons.push(format!(
+            "📄 Resume match: {}%",
+            (resume_match_score * 100.0) as i32
+        ));
+
+        if !match_result.matching_skills.is_empty() {
+            let skills_preview: Vec<_> = match_result
+                .matching_skills
+                .iter()
+                .take(5)
+                .cloned()
+                .collect();
+            reasons.push(format!("✓ Matching skills: {}", skills_preview.join(", ")));
+        }
+
+        if !match_result.missing_skills.is_empty() {
+            let missing_preview: Vec<_> = match_result
+                .missing_skills
+                .iter()
+                .take(3)
+                .cloned()
+                .collect();
+            reasons.push(format!("⚠ Missing skills: {}", missing_preview.join(", ")));
+        }
+
+        // Also show keyword matches
+        for keyword in &self.config.keywords_boost {
+            if self
+                .synonym_map
+                .matches_with_synonyms(keyword, &description_text)
+            {
+                reasons.push(format!("✓ Has keyword: {}", keyword));
+            }
+        }
+
+        Ok((final_score, reasons))
+    }
+
+    /// Calculate keyword boost ratio (used in combined resume+keyword scoring)
+    fn calculate_keyword_boost_ratio(&self, job: &Job) -> f64 {
+        if self.config.keywords_boost.is_empty() {
+            return 1.0; // No keywords configured = full keyword score
+        }
+
+        let description_text =
+            format!("{} {}", job.title, job.description.as_deref().unwrap_or(""));
+
+        let matches = self
+            .config
+            .keywords_boost
+            .iter()
+            .filter(|keyword| {
+                self.synonym_map
+                    .matches_with_synonyms(keyword, &description_text)
+            })
+            .count();
+
+        (matches as f64 / self.config.keywords_boost.len() as f64).min(1.0)
     }
 
     /// Score skills match (40% weight)
