@@ -2,6 +2,9 @@
 //!
 //! This module contains all Windows-specific code for JobSentinel v1.0.
 
+// Allow unsafe code for Windows API calls
+#![allow(unsafe_code)]
+
 use std::path::PathBuf;
 
 /// Get Windows application data directory
