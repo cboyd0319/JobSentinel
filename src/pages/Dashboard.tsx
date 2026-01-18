@@ -55,6 +55,13 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
   const jobListRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null!);
 
+  // Stable callback for data updates
+  const handleDataUpdate = useCallback((data: { jobs: Job[]; stats: Statistics; status: ScrapingStatus }) => {
+    setJobs(data.jobs);
+    setStatistics(data.stats);
+    setScrapingStatus(data.status);
+  }, []);
+
   // Extracted hooks
   const filters = useDashboardFilters(jobs);
   const { searchHistory, addToSearchHistory, clearSearchHistory, showSearchHistory, setShowSearchHistory } = useDashboardSearch();
@@ -66,11 +73,7 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
     searching,
     showSettings,
     statistics,
-    onDataUpdate: (data) => {
-      setJobs(data.jobs);
-      setStatistics(data.stats);
-      setScrapingStatus(data.status);
-    },
+    onDataUpdate: handleDataUpdate,
   });
 
   // Data fetching

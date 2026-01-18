@@ -204,6 +204,7 @@ export const mockStatistics = {
   new_today: 18,
   high_matches: 12,
   hidden_count: 23,
+  average_score: 0.78,
   by_source: {
     linkedin: 52,
     greenhouse: 41,

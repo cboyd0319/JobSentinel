@@ -158,14 +158,16 @@ export function ScoreDisplay({
   scoreReasons,
   onClick,
 }: ScoreDisplayProps) {
-  const percentage = Math.round(score * 100);
-  const scoreInfo = getScoreInfo(score);
+  // Guard against NaN/undefined scores
+  const safeScore = Number.isFinite(score) ? score : 0;
+  const percentage = Math.round(safeScore * 100);
+  const scoreInfo = getScoreInfo(safeScore);
 
   // Color based on score
   const getScoreColor = () => {
-    if (score >= 0.9) return { ring: "stroke-alert-500", text: "text-alert-600 dark:text-alert-400", glow: "shadow-alert-glow" };
-    if (score >= 0.7) return { ring: "stroke-sentinel-500", text: "text-sentinel-600 dark:text-sentinel-400", glow: "" };
-    if (score >= 0.5) return { ring: "stroke-surface-400", text: "text-surface-600 dark:text-surface-400", glow: "" };
+    if (safeScore >= 0.9) return { ring: "stroke-alert-500", text: "text-alert-600 dark:text-alert-400", glow: "shadow-alert-glow" };
+    if (safeScore >= 0.7) return { ring: "stroke-sentinel-500", text: "text-sentinel-600 dark:text-sentinel-400", glow: "" };
+    if (safeScore >= 0.5) return { ring: "stroke-surface-400", text: "text-surface-600 dark:text-surface-400", glow: "" };
     return { ring: "stroke-surface-300", text: "text-surface-500 dark:text-surface-400", glow: "" };
   };
 
@@ -179,18 +181,18 @@ export function ScoreDisplay({
 
   const config = sizeConfig[size];
   const circumference = 2 * Math.PI * config.radius;
-  const strokeDashoffset = circumference - (score * circumference);
+  const strokeDashoffset = circumference - (safeScore * circumference);
 
   return (
     <Tooltip
-      content={<ScoreBreakdownTooltip score={score} scoreReasons={scoreReasons} />}
+      content={<ScoreBreakdownTooltip score={safeScore} scoreReasons={scoreReasons} />}
       position="top"
     >
       <div
         className={`inline-flex flex-col items-center gap-1 ${onClick ? "cursor-pointer" : "cursor-help"}`}
         onClick={onClick}
       >
-        <div className={`relative ${config.container} ${score >= 0.9 ? colors.glow : ""} rounded-full`}>
+        <div className={`relative ${config.container} ${safeScore >= 0.9 ? colors.glow : ""} rounded-full`}>
           <svg className="w-full h-full -rotate-90" viewBox="0 0 80 80" aria-hidden="true">
             {/* Background ring */}
             <circle

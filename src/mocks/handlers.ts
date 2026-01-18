@@ -200,16 +200,67 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
     // Market intelligence
     case "get_trending_skills":
       return [
-        { skill: "Rust", growth: 45, demand: "high" },
-        { skill: "TypeScript", growth: 32, demand: "high" },
-        { skill: "Kubernetes", growth: 28, demand: "medium" },
+        { skill_name: "Rust", total_jobs: 245, avg_salary: 175000, change_percent: 45, trend_direction: "up" },
+        { skill_name: "TypeScript", total_jobs: 512, avg_salary: 155000, change_percent: 32, trend_direction: "up" },
+        { skill_name: "Kubernetes", total_jobs: 189, avg_salary: 165000, change_percent: 28, trend_direction: "up" },
+        { skill_name: "Python", total_jobs: 678, avg_salary: 145000, change_percent: 20, trend_direction: "stable" },
+        { skill_name: "AWS", total_jobs: 423, avg_salary: 160000, change_percent: 18, trend_direction: "up" },
       ] as T;
 
     case "get_active_companies":
       return [
-        { company: "TechCorp", openings: 15, growth: 25 },
-        { company: "StartupXYZ", openings: 8, growth: 40 },
+        { company_name: "TechCorp", total_posted: 45, avg_active: 15, hiring_trend: "up", avg_salary: 165000, growth_rate: 25 },
+        { company_name: "StartupXYZ", total_posted: 22, avg_active: 8, hiring_trend: "up", avg_salary: 155000, growth_rate: 40 },
+        { company_name: "BigTech Inc", total_posted: 78, avg_active: 22, hiring_trend: "stable", avg_salary: 185000, growth_rate: 15 },
       ] as T;
+
+    case "get_hottest_locations":
+      return [
+        { location: "San Francisco, CA", city: "San Francisco", state: "CA", total_jobs: 245, avg_median_salary: 185000, remote_percent: 35 },
+        { location: "New York, NY", city: "New York", state: "NY", total_jobs: 198, avg_median_salary: 175000, remote_percent: 28 },
+        { location: "Remote", city: null, state: null, total_jobs: 312, avg_median_salary: 165000, remote_percent: 100 },
+        { location: "Seattle, WA", city: "Seattle", state: "WA", total_jobs: 156, avg_median_salary: 178000, remote_percent: 42 },
+      ] as T;
+
+    case "get_market_alerts":
+      return [] as T;
+
+    case "get_market_snapshot":
+      return {
+        date: new Date().toISOString(),
+        total_jobs: 911,
+        new_jobs_today: 47,
+        jobs_filled_today: 12,
+        avg_salary: 165000,
+        median_salary: 155000,
+        remote_job_percentage: 42,
+        top_skill: "TypeScript",
+        top_company: "BigTech Inc",
+        jobs_30d_change: 8.5,
+        salary_30d_change: 2.1,
+      } as T;
+
+    case "run_market_analysis":
+      return { success: true } as T;
+
+    case "mark_alert_read":
+      return undefined as T;
+
+    case "mark_all_alerts_read":
+      return undefined as T;
+
+    // Search history and saved searches
+    case "get_search_history":
+      return [] as T;
+
+    case "list_saved_searches":
+      return [] as T;
+
+    case "save_search":
+      return { id: 1, name: args?.name, query: args?.query } as T;
+
+    case "delete_saved_search":
+      return undefined as T;
 
     default:
       console.warn(`[Mock] Unhandled command: ${cmd}`);

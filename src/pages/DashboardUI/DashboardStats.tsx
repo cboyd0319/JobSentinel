@@ -52,10 +52,10 @@ export function DashboardStats({ statistics }: DashboardStatsProps) {
           <div>
             <p className="text-sm font-medium text-surface-500 dark:text-surface-400 mb-1">Avg Score</p>
             <p className="font-mono text-display-xl text-surface-900 dark:text-white">
-              {Math.round(statistics.average_score * 100)}%
+              {Math.round((statistics.average_score ?? 0) * 100)}%
             </p>
           </div>
-          <ScoreDisplay score={statistics.average_score} size="md" showLabel={false} animate={false} />
+          <ScoreDisplay score={statistics.average_score ?? 0} size="md" showLabel={false} animate={false} />
         </div>
       </Card>
     </div>

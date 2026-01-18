@@ -511,7 +511,7 @@ interface TrendIndicatorProps {
 
 function TrendIndicator({ direction, percent }: TrendIndicatorProps) {
   const getIcon = () => {
-    switch (direction.toLowerCase()) {
+    switch ((direction ?? "stable").toLowerCase()) {
       case "up":
         return "↑";
       case "down":
