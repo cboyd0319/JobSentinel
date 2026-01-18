@@ -63,6 +63,13 @@ pub use ats::{
 
 // Resume commands
 pub use resume::{
+    // Skill management commands (Phase 1)
+    add_user_skill,
+    delete_user_skill,
+    update_user_skill,
+    // Resume library commands (Phase 2)
+    delete_resume,
+    list_all_resumes,
     // Builder commands
     add_resume_education,
     add_resume_experience,

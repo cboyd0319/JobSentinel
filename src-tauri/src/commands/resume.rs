@@ -7,8 +7,8 @@ use crate::commands::AppState;
 use crate::core::resume::{
     AtsAnalysisResult, AtsAnalyzer, AtsResumeData, BuilderContactInfo, BuilderEducation,
     BuilderExperience, BuilderResumeData, ExportResumeData, MatchResult, MatchResultWithJob,
-    Resume, ResumeBuilder, ResumeExporter, ResumeMatcher, SkillEntry, Template, TemplateId,
-    TemplateRenderer, UserSkill,
+    NewSkill, Resume, ResumeBuilder, ResumeExporter, ResumeMatcher, SkillEntry, SkillUpdate,
+    Template, TemplateId, TemplateRenderer, UserSkill,
 };
 use tauri::State;
 
@@ -129,6 +129,86 @@ pub async fn get_recent_matches(
         .get_recent_matches(resume_id, limit.unwrap_or(10))
         .await
         .map_err(|e| format!("Failed to get recent matches: {}", e))
+}
+
+// ============================================================================
+// Skill Management Commands (Phase 1: Skill Validation UI)
+// ============================================================================
+
+/// Update an existing user skill
+#[tauri::command]
+pub async fn update_user_skill(
+    skill_id: i64,
+    updates: SkillUpdate,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    tracing::info!("Command: update_user_skill (id: {})", skill_id);
+
+    let matcher = ResumeMatcher::new(state.database.pool().clone());
+    matcher
+        .update_user_skill(skill_id, updates)
+        .await
+        .map_err(|e| format!("Failed to update skill: {}", e))
+}
+
+/// Delete a user skill
+#[tauri::command]
+pub async fn delete_user_skill(skill_id: i64, state: State<'_, AppState>) -> Result<(), String> {
+    tracing::info!("Command: delete_user_skill (id: {})", skill_id);
+
+    let matcher = ResumeMatcher::new(state.database.pool().clone());
+    matcher
+        .delete_user_skill(skill_id)
+        .await
+        .map_err(|e| format!("Failed to delete skill: {}", e))
+}
+
+/// Add a new skill manually
+#[tauri::command]
+pub async fn add_user_skill(
+    resume_id: i64,
+    skill: NewSkill,
+    state: State<'_, AppState>,
+) -> Result<i64, String> {
+    tracing::info!(
+        "Command: add_user_skill (resume: {}, skill: {})",
+        resume_id,
+        skill.skill_name
+    );
+
+    let matcher = ResumeMatcher::new(state.database.pool().clone());
+    matcher
+        .add_user_skill(resume_id, skill)
+        .await
+        .map_err(|e| format!("Failed to add skill: {}", e))
+}
+
+// ============================================================================
+// Resume Library Commands (Phase 2)
+// ============================================================================
+
+/// List all resumes
+#[tauri::command]
+pub async fn list_all_resumes(state: State<'_, AppState>) -> Result<Vec<Resume>, String> {
+    tracing::info!("Command: list_all_resumes");
+
+    let matcher = ResumeMatcher::new(state.database.pool().clone());
+    matcher
+        .list_all_resumes()
+        .await
+        .map_err(|e| format!("Failed to list resumes: {}", e))
+}
+
+/// Delete a resume
+#[tauri::command]
+pub async fn delete_resume(resume_id: i64, state: State<'_, AppState>) -> Result<(), String> {
+    tracing::info!("Command: delete_resume (id: {})", resume_id);
+
+    let matcher = ResumeMatcher::new(state.database.pool().clone());
+    matcher
+        .delete_resume(resume_id)
+        .await
+        .map_err(|e| format!("Failed to delete resume: {}", e))
 }
 
 // ============================================================================

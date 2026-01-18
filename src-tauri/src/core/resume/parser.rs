@@ -1,16 +1,71 @@
 //! Resume PDF Parser
 //!
 //! Extracts text content from PDF resumes using pdf-extract.
+//! Supports OCR fallback for scanned PDFs when the `ocr` feature is enabled.
 
 use anyhow::{Context, Result};
 use std::path::Path;
 
+/// Minimum text length to consider PDF extraction successful (before falling back to OCR)
+const MIN_TEXT_LENGTH: usize = 100;
+
 /// Resume parser for extracting text from PDF files
-pub struct ResumeParser;
+///
+/// # OCR Support
+/// When built with the `ocr` feature, this parser can fall back to OCR
+/// for scanned PDFs. Requires:
+/// - Tesseract OCR installed on the system
+/// - poppler-utils (pdftoppm) for PDF-to-image conversion
+///
+/// Install requirements:
+/// - macOS: `brew install tesseract poppler`
+/// - Windows: Download Tesseract installer + poppler binaries
+/// - Linux: `apt install tesseract-ocr poppler-utils`
+pub struct ResumeParser {
+    /// Whether OCR is available (requires `ocr` feature and system Tesseract)
+    #[cfg(feature = "ocr")]
+    ocr_available: bool,
+}
 
 impl ResumeParser {
     pub fn new() -> Self {
-        Self
+        #[cfg(feature = "ocr")]
+        {
+            // Check if Tesseract is available on the system
+            let ocr_available = Self::check_tesseract_available();
+            Self { ocr_available }
+        }
+
+        #[cfg(not(feature = "ocr"))]
+        {
+            Self {}
+        }
+    }
+
+    /// Check if Tesseract OCR is available on the system
+    #[cfg(feature = "ocr")]
+    fn check_tesseract_available() -> bool {
+        use std::process::Command;
+
+        // Try to run tesseract --version
+        Command::new("tesseract")
+            .arg("--version")
+            .output()
+            .map(|output| output.status.success())
+            .unwrap_or(false)
+    }
+
+    /// Check if OCR is available for scanned PDFs
+    pub fn is_ocr_available(&self) -> bool {
+        #[cfg(feature = "ocr")]
+        {
+            self.ocr_available
+        }
+
+        #[cfg(not(feature = "ocr"))]
+        {
+            false
+        }
     }
 
     /// Parse PDF file and extract text content
@@ -68,7 +123,113 @@ impl ResumeParser {
         // Clean up extracted text
         let cleaned_text = self.clean_text(&text);
 
+        // If text is too short, it might be a scanned PDF - try OCR if available
+        #[cfg(feature = "ocr")]
+        if cleaned_text.len() < MIN_TEXT_LENGTH && self.ocr_available {
+            tracing::info!(
+                "Extracted text too short ({} chars), attempting OCR...",
+                cleaned_text.len()
+            );
+
+            match self.ocr_pdf(&canonical_path) {
+                Ok(ocr_text) => {
+                    if ocr_text.len() > cleaned_text.len() {
+                        tracing::info!(
+                            "OCR extraction successful ({} chars)",
+                            ocr_text.len()
+                        );
+                        return Ok(ocr_text);
+                    }
+                }
+                Err(e) => {
+                    tracing::warn!("OCR extraction failed: {}", e);
+                    // Fall back to original text
+                }
+            }
+        }
+
         Ok(cleaned_text)
+    }
+
+    /// Extract text from PDF using OCR (for scanned documents)
+    ///
+    /// Uses command-line tools:
+    /// - pdftoppm (from poppler-utils) to convert PDF pages to images
+    /// - tesseract to extract text from images
+    #[cfg(feature = "ocr")]
+    fn ocr_pdf(&self, file_path: &Path) -> Result<String> {
+        use std::process::Command;
+        use uuid::Uuid;
+
+        // Create temp directory for intermediate files
+        let temp_dir = std::env::temp_dir().join(format!("jobsentinel_ocr_{}", Uuid::new_v4()));
+        std::fs::create_dir_all(&temp_dir).context("Failed to create temp directory for OCR")?;
+
+        // Ensure cleanup on exit (clone path for closure)
+        let temp_dir_cleanup = temp_dir.clone();
+        let _cleanup = scopeguard::guard((), |_| {
+            let _ = std::fs::remove_dir_all(&temp_dir_cleanup);
+        });
+
+        // Convert PDF pages to images using pdftoppm (commonly installed with poppler)
+        let output_prefix = temp_dir.join("page");
+        let pdftoppm_result = Command::new("pdftoppm")
+            .arg("-png")
+            .arg("-r")
+            .arg("300") // 300 DPI for good OCR quality
+            .arg(file_path)
+            .arg(&output_prefix)
+            .output();
+
+        let mut image_paths: Vec<std::path::PathBuf> = match pdftoppm_result {
+            Ok(output) if output.status.success() => {
+                // Find generated image files
+                std::fs::read_dir(&temp_dir)?
+                    .filter_map(|e| e.ok())
+                    .map(|e| e.path())
+                    .filter(|p| p.extension().map(|e| e == "png").unwrap_or(false))
+                    .collect()
+            }
+            _ => {
+                return Err(anyhow::anyhow!(
+                    "pdftoppm not available. Install poppler-utils for OCR support."
+                ));
+            }
+        };
+
+        if image_paths.is_empty() {
+            return Err(anyhow::anyhow!("No images extracted from PDF"));
+        }
+
+        // Sort image paths to ensure correct page order
+        image_paths.sort();
+
+        // Run Tesseract on each page and combine results
+        let mut full_text = String::new();
+
+        for image_path in &image_paths {
+            let output = Command::new("tesseract")
+                .arg(image_path)
+                .arg("stdout")
+                .arg("-l")
+                .arg("eng") // English language
+                .output()
+                .context("Failed to run Tesseract OCR")?;
+
+            if output.status.success() {
+                let page_text = String::from_utf8_lossy(&output.stdout);
+                if !full_text.is_empty() {
+                    full_text.push_str("\n\n--- Page Break ---\n\n");
+                }
+                full_text.push_str(&page_text);
+            }
+        }
+
+        if full_text.is_empty() {
+            return Err(anyhow::anyhow!("Tesseract OCR returned no text"));
+        }
+
+        Ok(self.clean_text(&full_text))
     }
 
     /// Clean extracted text by:

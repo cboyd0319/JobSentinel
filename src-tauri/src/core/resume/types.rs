@@ -130,3 +130,121 @@ pub struct MatchResultWithJob {
     pub gap_analysis: Option<String>,
     pub created_at: DateTime<Utc>,
 }
+
+// ============================================================================
+// Skill Management Types
+// ============================================================================
+
+/// Update payload for modifying a user skill
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SkillUpdate {
+    pub skill_name: Option<String>,
+    pub skill_category: Option<String>,
+    pub proficiency_level: Option<String>,
+    pub years_experience: Option<f64>,
+}
+
+/// Payload for adding a new skill
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct NewSkill {
+    pub skill_name: String,
+    pub skill_category: Option<String>,
+    pub proficiency_level: Option<String>,
+    pub years_experience: Option<f64>,
+}
+
+// ============================================================================
+// Experience & Education Matching Types
+// ============================================================================
+
+/// Experience requirement extracted from job description
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ExperienceRequirement {
+    /// The skill/technology this requirement applies to (None = general experience)
+    pub skill: Option<String>,
+    /// Minimum years required
+    pub min_years: f64,
+    /// Maximum years (for ranges like "3-5 years")
+    pub max_years: Option<f64>,
+    /// Whether this is a strict requirement or preferred
+    pub is_required: bool,
+}
+
+/// Education/degree level for matching
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum DegreeLevel {
+    None = 0,
+    HighSchool = 1,
+    Associate = 2,
+    Bachelor = 3,
+    Master = 4,
+    PhD = 5,
+}
+
+impl DegreeLevel {
+    /// Parse degree level from text
+    pub fn from_text(text: &str) -> Option<Self> {
+        let lower = text.to_lowercase();
+
+        // PhD / Doctorate
+        if lower.contains("ph.d") || lower.contains("phd") || lower.contains("doctorate") {
+            return Some(DegreeLevel::PhD);
+        }
+
+        // Master's
+        if lower.contains("master") || lower.contains("m.s.") || lower.contains("m.a.")
+            || lower.contains("mba") || lower.contains("ms ") || lower.contains("ma ")
+        {
+            return Some(DegreeLevel::Master);
+        }
+
+        // Bachelor's
+        if lower.contains("bachelor") || lower.contains("b.s.") || lower.contains("b.a.")
+            || lower.contains("bs ") || lower.contains("ba ") || lower.contains("undergraduate")
+        {
+            return Some(DegreeLevel::Bachelor);
+        }
+
+        // Associate
+        if lower.contains("associate") || lower.contains("a.s.") || lower.contains("a.a.") {
+            return Some(DegreeLevel::Associate);
+        }
+
+        // High School
+        if lower.contains("high school") || lower.contains("ged") || lower.contains("diploma") {
+            return Some(DegreeLevel::HighSchool);
+        }
+
+        None
+    }
+
+    /// Get human-readable name
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            DegreeLevel::None => "No degree",
+            DegreeLevel::HighSchool => "High School",
+            DegreeLevel::Associate => "Associate's",
+            DegreeLevel::Bachelor => "Bachelor's",
+            DegreeLevel::Master => "Master's",
+            DegreeLevel::PhD => "PhD/Doctorate",
+        }
+    }
+}
+
+impl Default for DegreeLevel {
+    fn default() -> Self {
+        DegreeLevel::None
+    }
+}
+
+/// Education requirement extracted from job description
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EducationRequirement {
+    /// Minimum degree level required
+    pub degree_level: DegreeLevel,
+    /// Specific fields of study (CS, Engineering, etc.)
+    pub fields: Vec<String>,
+    /// Whether this is required or preferred
+    pub is_required: bool,
+}

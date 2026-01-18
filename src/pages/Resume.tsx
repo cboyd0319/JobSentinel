@@ -5,19 +5,39 @@ import { Button, Card, Badge, LoadingSpinner, ScoreDisplay } from "../components
 import { useToast } from "../contexts";
 import { logError, getErrorMessage } from "../utils/errorUtils";
 
+// Backend types (matching Rust types)
 interface ResumeData {
   id: number;
   name: string;
   file_path: string;
   is_active: boolean;
-  parsed_at: string;
-  raw_text: string;
+  created_at: string;
+  updated_at: string;
 }
 
 interface UserSkill {
-  name: string;
-  proficiency: string;
+  id: number;
+  resume_id: number;
+  skill_name: string;
+  skill_category: string | null;
+  confidence_score: number;
   years_experience: number | null;
+  proficiency_level: string | null;
+  source: string;
+}
+
+interface SkillUpdate {
+  skill_name?: string;
+  skill_category?: string;
+  proficiency_level?: string;
+  years_experience?: number;
+}
+
+interface NewSkill {
+  skill_name: string;
+  skill_category?: string;
+  proficiency_level?: string;
+  years_experience?: number;
 }
 
 interface MatchResult {
@@ -34,26 +54,51 @@ interface MatchResult {
   created_at: string;
 }
 
+const PROFICIENCY_LEVELS = ["Beginner", "Intermediate", "Advanced", "Expert"];
+const SKILL_CATEGORIES = [
+  "Programming Languages",
+  "Frameworks",
+  "Cloud & DevOps",
+  "Databases",
+  "Tools",
+  "Soft Skills",
+  "Other",
+];
+
 interface ResumeProps {
   onBack: () => void;
 }
 
 export default function Resume({ onBack }: ResumeProps) {
   const [resume, setResume] = useState<ResumeData | null>(null);
+  const [allResumes, setAllResumes] = useState<ResumeData[]>([]);
   const [skills, setSkills] = useState<UserSkill[]>([]);
   const [recentMatches, setRecentMatches] = useState<MatchResult[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [editingSkillId, setEditingSkillId] = useState<number | null>(null);
+  const [showAddSkill, setShowAddSkill] = useState(false);
+  const [showResumeLibrary, setShowResumeLibrary] = useState(false);
   const toast = useToast();
+
+  // Form state for editing/adding skills
+  const [editForm, setEditForm] = useState<SkillUpdate>({});
+  const [newSkillForm, setNewSkillForm] = useState<NewSkill>({
+    skill_name: "",
+    proficiency_level: "Intermediate",
+  });
 
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      const resumeData = await invoke<ResumeData | null>("get_active_resume");
+      const [resumeData, resumesData] = await Promise.all([
+        invoke<ResumeData | null>("get_active_resume"),
+        invoke<ResumeData[]>("list_all_resumes"),
+      ]);
       setResume(resumeData);
+      setAllResumes(resumesData);
 
       if (resumeData) {
-        // Fetch skills and recent matches in parallel
         const [skillsData, matchesData] = await Promise.all([
           invoke<UserSkill[]>("get_user_skills", { resumeId: resumeData.id }),
           invoke<MatchResult[]>("get_recent_matches", { resumeId: resumeData.id, limit: 10 }),
@@ -83,7 +128,6 @@ export default function Resume({ onBack }: ResumeProps) {
       if (!selected) return;
 
       setUploading(true);
-      // The dialog returns a string path when multiple is false
       const filePath = selected as string;
       const fileName = filePath.split("/").pop() || "Resume";
 
@@ -98,8 +142,86 @@ export default function Resume({ onBack }: ResumeProps) {
     }
   };
 
-  const getProficiencyColor = (proficiency: string) => {
-    switch (proficiency.toLowerCase()) {
+  const handleSetActiveResume = async (resumeId: number) => {
+    try {
+      await invoke("set_active_resume", { resumeId });
+      toast.success("Resume activated", "Switched to selected resume");
+      setShowResumeLibrary(false);
+      fetchData();
+    } catch (err) {
+      logError("Failed to set active resume:", err);
+      toast.error("Failed to switch resume", getErrorMessage(err));
+    }
+  };
+
+  const handleDeleteResume = async (resumeId: number) => {
+    try {
+      await invoke("delete_resume", { resumeId });
+      toast.success("Resume deleted", "Resume and associated data removed");
+      fetchData();
+    } catch (err) {
+      logError("Failed to delete resume:", err);
+      toast.error("Failed to delete resume", getErrorMessage(err));
+    }
+  };
+
+  const handleUpdateSkill = async (skillId: number) => {
+    try {
+      await invoke("update_user_skill", { skillId, updates: editForm });
+      toast.success("Skill updated", "Your skill has been updated");
+      setEditingSkillId(null);
+      setEditForm({});
+      fetchData();
+    } catch (err) {
+      logError("Failed to update skill:", err);
+      toast.error("Failed to update skill", getErrorMessage(err));
+    }
+  };
+
+  const handleDeleteSkill = async (skillId: number) => {
+    try {
+      await invoke("delete_user_skill", { skillId });
+      toast.success("Skill deleted", "Skill removed from your resume");
+      fetchData();
+    } catch (err) {
+      logError("Failed to delete skill:", err);
+      toast.error("Failed to delete skill", getErrorMessage(err));
+    }
+  };
+
+  const handleAddSkill = async () => {
+    if (!resume || !newSkillForm.skill_name.trim()) {
+      toast.error("Invalid skill", "Please enter a skill name");
+      return;
+    }
+
+    try {
+      await invoke("add_user_skill", {
+        resumeId: resume.id,
+        skill: newSkillForm,
+      });
+      toast.success("Skill added", `Added "${newSkillForm.skill_name}" to your skills`);
+      setShowAddSkill(false);
+      setNewSkillForm({ skill_name: "", proficiency_level: "Intermediate" });
+      fetchData();
+    } catch (err) {
+      logError("Failed to add skill:", err);
+      toast.error("Failed to add skill", getErrorMessage(err));
+    }
+  };
+
+  const startEditingSkill = (skill: UserSkill) => {
+    setEditingSkillId(skill.id);
+    setEditForm({
+      skill_name: skill.skill_name,
+      skill_category: skill.skill_category || undefined,
+      proficiency_level: skill.proficiency_level || "Intermediate",
+      years_experience: skill.years_experience || undefined,
+    });
+  };
+
+  const getProficiencyColor = (proficiency: string | null) => {
+    switch (proficiency?.toLowerCase()) {
       case "expert":
         return "sentinel";
       case "advanced":
@@ -138,16 +260,83 @@ export default function Resume({ onBack }: ResumeProps) {
                 </p>
               </div>
             </div>
-            <Button onClick={handleUploadResume} loading={uploading}>
-              {resume ? "Update Resume" : "Upload Resume"}
-            </Button>
+            <div className="flex items-center gap-2">
+              {allResumes.length > 1 && (
+                <Button
+                  variant="secondary"
+                  onClick={() => setShowResumeLibrary(!showResumeLibrary)}
+                >
+                  <FolderIcon className="w-4 h-4 mr-2" />
+                  Library ({allResumes.length})
+                </Button>
+              )}
+              <Button onClick={handleUploadResume} loading={uploading}>
+                {resume ? "Upload New" : "Upload Resume"}
+              </Button>
+            </div>
           </div>
         </div>
       </header>
 
+      {/* Resume Library Dropdown */}
+      {showResumeLibrary && allResumes.length > 0 && (
+        <div className="bg-white dark:bg-surface-800 border-b border-surface-200 dark:border-surface-700 shadow-lg">
+          <div className="max-w-7xl mx-auto px-6 py-4">
+            <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3">
+              Resume Library
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {allResumes.map((r) => (
+                <div
+                  key={r.id}
+                  className={`p-3 rounded-lg border ${
+                    r.is_active
+                      ? "border-sentinel-500 bg-sentinel-50 dark:bg-sentinel-900/20"
+                      : "border-surface-200 dark:border-surface-700 hover:border-surface-300 dark:hover:border-surface-600"
+                  } cursor-pointer transition-colors`}
+                  onClick={() => !r.is_active && handleSetActiveResume(r.id)}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <DocumentIcon className="w-5 h-5 text-surface-500" />
+                      <div>
+                        <p className="font-medium text-surface-800 dark:text-surface-200 text-sm">
+                          {r.name}
+                        </p>
+                        <p className="text-xs text-surface-500">
+                          {new Date(r.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {r.is_active && (
+                        <Badge variant="sentinel" size="sm">
+                          Active
+                        </Badge>
+                      )}
+                      {!r.is_active && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteResume(r.id);
+                          }}
+                          className="p-1 text-surface-400 hover:text-red-500 transition-colors"
+                          title="Delete resume"
+                        >
+                          <TrashIcon className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       <main className="max-w-7xl mx-auto p-6">
         {!resume ? (
-          /* No Resume State */
           <Card className="text-center py-12 dark:bg-surface-800">
             <div className="w-16 h-16 bg-surface-100 dark:bg-surface-700 rounded-full flex items-center justify-center mx-auto mb-4">
               <DocumentIcon className="w-8 h-8 text-surface-400" />
@@ -177,19 +366,29 @@ export default function Resume({ onBack }: ResumeProps) {
                 <div>
                   <p className="font-medium text-surface-800 dark:text-surface-200">{resume.name}</p>
                   <p className="text-sm text-surface-500 dark:text-surface-400">
-                    Parsed: {new Date(resume.parsed_at).toLocaleDateString("en-US")}
+                    Uploaded: {new Date(resume.created_at).toLocaleDateString("en-US")}
                   </p>
                 </div>
               </div>
 
               <div className="mb-4">
-                <h3 className="text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
-                  Skills Extracted ({skills.length})
-                </h3>
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-sm font-medium text-surface-700 dark:text-surface-300">
+                    Skills Extracted ({skills.length})
+                  </h3>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowAddSkill(true)}
+                  >
+                    <PlusIcon className="w-4 h-4 mr-1" />
+                    Add
+                  </Button>
+                </div>
                 <div className="flex flex-wrap gap-2">
                   {skills.slice(0, 15).map((skill) => (
-                    <Badge key={skill.name} variant={getProficiencyColor(skill.proficiency)}>
-                      {skill.name}
+                    <Badge key={skill.id} variant={getProficiencyColor(skill.proficiency_level)}>
+                      {skill.skill_name}
                       {skill.years_experience && ` (${skill.years_experience}y)`}
                     </Badge>
                   ))}
@@ -200,50 +399,233 @@ export default function Resume({ onBack }: ResumeProps) {
               </div>
             </Card>
 
-            {/* Skills Breakdown */}
+            {/* Skills Management */}
             <Card className="lg:col-span-2 dark:bg-surface-800">
-              <h2 className="font-display text-display-sm text-surface-900 dark:text-white mb-4">
-                Skills Analysis
-              </h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-display text-display-sm text-surface-900 dark:text-white">
+                  Skills Management
+                </h2>
+                <p className="text-sm text-surface-500 dark:text-surface-400">
+                  Edit, delete, or add skills
+                </p>
+              </div>
+
+              {/* Add Skill Form */}
+              {showAddSkill && (
+                <div className="mb-6 p-4 bg-sentinel-50 dark:bg-sentinel-900/20 rounded-lg border border-sentinel-200 dark:border-sentinel-800">
+                  <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3">
+                    Add New Skill
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <input
+                      type="text"
+                      placeholder="Skill name (e.g., Python, React)"
+                      value={newSkillForm.skill_name}
+                      onChange={(e) =>
+                        setNewSkillForm({ ...newSkillForm, skill_name: e.target.value })
+                      }
+                      className="px-3 py-2 rounded-lg border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-800 dark:text-surface-200 focus:ring-2 focus:ring-sentinel-500"
+                    />
+                    <select
+                      value={newSkillForm.proficiency_level || "Intermediate"}
+                      onChange={(e) =>
+                        setNewSkillForm({ ...newSkillForm, proficiency_level: e.target.value })
+                      }
+                      className="px-3 py-2 rounded-lg border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-800 dark:text-surface-200 focus:ring-2 focus:ring-sentinel-500"
+                    >
+                      {PROFICIENCY_LEVELS.map((level) => (
+                        <option key={level} value={level}>
+                          {level}
+                        </option>
+                      ))}
+                    </select>
+                    <select
+                      value={newSkillForm.skill_category || ""}
+                      onChange={(e) =>
+                        setNewSkillForm({
+                          ...newSkillForm,
+                          skill_category: e.target.value || undefined,
+                        })
+                      }
+                      className="px-3 py-2 rounded-lg border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-800 dark:text-surface-200 focus:ring-2 focus:ring-sentinel-500"
+                    >
+                      <option value="">Select category (optional)</option>
+                      {SKILL_CATEGORIES.map((cat) => (
+                        <option key={cat} value={cat}>
+                          {cat}
+                        </option>
+                      ))}
+                    </select>
+                    <input
+                      type="number"
+                      placeholder="Years of experience (optional)"
+                      min="0"
+                      max="50"
+                      value={newSkillForm.years_experience || ""}
+                      onChange={(e) =>
+                        setNewSkillForm({
+                          ...newSkillForm,
+                          years_experience: e.target.value ? Number(e.target.value) : undefined,
+                        })
+                      }
+                      className="px-3 py-2 rounded-lg border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-800 dark:text-surface-200 focus:ring-2 focus:ring-sentinel-500"
+                    />
+                  </div>
+                  <div className="flex gap-2 mt-3">
+                    <Button onClick={handleAddSkill}>Add Skill</Button>
+                    <Button variant="ghost" onClick={() => setShowAddSkill(false)}>
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              )}
 
               {skills.length === 0 ? (
-                <p className="text-surface-500 dark:text-surface-400">
-                  No skills extracted yet. Try re-uploading your resume.
-                </p>
+                <div className="text-center py-8">
+                  <p className="text-surface-500 dark:text-surface-400">
+                    No skills extracted yet. Try re-uploading your resume or add skills manually.
+                  </p>
+                </div>
               ) : (
-                <div className="space-y-4">
-                  {/* Group by proficiency */}
-                  {["Expert", "Advanced", "Intermediate", "Beginner"].map((level) => {
-                    const levelSkills = skills.filter(
-                      (s) => s.proficiency.toLowerCase() === level.toLowerCase()
-                    );
-                    if (levelSkills.length === 0) return null;
-
-                    return (
-                      <div key={level}>
-                        <h3 className="text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
-                          {level} ({levelSkills.length})
-                        </h3>
-                        <div className="flex flex-wrap gap-2">
-                          {levelSkills.map((skill) => (
-                            <div
-                              key={skill.name}
-                              className="px-3 py-1.5 bg-surface-100 dark:bg-surface-700 rounded-lg text-sm"
+                <div className="space-y-2 max-h-[500px] overflow-y-auto pr-2">
+                  {skills.map((skill) => (
+                    <div
+                      key={skill.id}
+                      className={`p-3 rounded-lg border ${
+                        editingSkillId === skill.id
+                          ? "border-sentinel-500 bg-sentinel-50 dark:bg-sentinel-900/20"
+                          : "border-surface-200 dark:border-surface-700"
+                      } transition-colors`}
+                    >
+                      {editingSkillId === skill.id ? (
+                        /* Edit Mode */
+                        <div className="space-y-3">
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                            <input
+                              type="text"
+                              value={editForm.skill_name || ""}
+                              onChange={(e) =>
+                                setEditForm({ ...editForm, skill_name: e.target.value })
+                              }
+                              className="px-2 py-1.5 text-sm rounded border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-800 dark:text-surface-200"
+                              placeholder="Skill name"
+                            />
+                            <select
+                              value={editForm.proficiency_level || "Intermediate"}
+                              onChange={(e) =>
+                                setEditForm({ ...editForm, proficiency_level: e.target.value })
+                              }
+                              className="px-2 py-1.5 text-sm rounded border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-800 dark:text-surface-200"
                             >
-                              <span className="text-surface-800 dark:text-surface-200">
-                                {skill.name}
-                              </span>
-                              {skill.years_experience && (
-                                <span className="text-surface-500 dark:text-surface-400 ml-1">
-                                  {skill.years_experience} years
-                                </span>
-                              )}
-                            </div>
-                          ))}
+                              {PROFICIENCY_LEVELS.map((level) => (
+                                <option key={level} value={level}>
+                                  {level}
+                                </option>
+                              ))}
+                            </select>
+                            <select
+                              value={editForm.skill_category || ""}
+                              onChange={(e) =>
+                                setEditForm({
+                                  ...editForm,
+                                  skill_category: e.target.value || undefined,
+                                })
+                              }
+                              className="px-2 py-1.5 text-sm rounded border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-800 dark:text-surface-200"
+                            >
+                              <option value="">No category</option>
+                              {SKILL_CATEGORIES.map((cat) => (
+                                <option key={cat} value={cat}>
+                                  {cat}
+                                </option>
+                              ))}
+                            </select>
+                            <input
+                              type="number"
+                              value={editForm.years_experience || ""}
+                              onChange={(e) =>
+                                setEditForm({
+                                  ...editForm,
+                                  years_experience: e.target.value
+                                    ? Number(e.target.value)
+                                    : undefined,
+                                })
+                              }
+                              min="0"
+                              max="50"
+                              placeholder="Years"
+                              className="px-2 py-1.5 text-sm rounded border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-800 dark:text-surface-200"
+                            />
+                          </div>
+                          <div className="flex gap-2">
+                            <Button size="sm" onClick={() => handleUpdateSkill(skill.id)}>
+                              Save
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                setEditingSkillId(null);
+                                setEditForm({});
+                              }}
+                            >
+                              Cancel
+                            </Button>
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      ) : (
+                        /* View Mode */
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div>
+                              <p className="font-medium text-surface-800 dark:text-surface-200">
+                                {skill.skill_name}
+                              </p>
+                              <div className="flex items-center gap-2 mt-0.5">
+                                <Badge
+                                  variant={getProficiencyColor(skill.proficiency_level)}
+                                  size="sm"
+                                >
+                                  {skill.proficiency_level || "Unknown"}
+                                </Badge>
+                                {skill.years_experience && (
+                                  <span className="text-xs text-surface-500">
+                                    {skill.years_experience} years
+                                  </span>
+                                )}
+                                {skill.skill_category && (
+                                  <span className="text-xs text-surface-400">
+                                    {skill.skill_category}
+                                  </span>
+                                )}
+                                {skill.source === "manual" && (
+                                  <Badge variant="surface" size="sm">
+                                    Manual
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => startEditingSkill(skill)}
+                              className="p-1.5 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 transition-colors"
+                              title="Edit skill"
+                            >
+                              <EditIcon className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteSkill(skill.id)}
+                              className="p-1.5 text-surface-400 hover:text-red-500 transition-colors"
+                              title="Delete skill"
+                            >
+                              <TrashIcon className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
               )}
             </Card>
@@ -283,7 +665,6 @@ export default function Resume({ onBack }: ResumeProps) {
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* Matched Skills - Green */}
                         <div>
                           <p className="text-xs font-medium text-green-600 dark:text-green-400 mb-2 flex items-center gap-1">
                             <CheckIcon className="w-3.5 h-3.5" />
@@ -308,7 +689,6 @@ export default function Resume({ onBack }: ResumeProps) {
                           </div>
                         </div>
 
-                        {/* Missing Skills - Red */}
                         <div>
                           <p className="text-xs font-medium text-red-600 dark:text-red-400 mb-2 flex items-center gap-1">
                             <XIcon className="w-3.5 h-3.5" />
@@ -334,7 +714,6 @@ export default function Resume({ onBack }: ResumeProps) {
                         </div>
                       </div>
 
-                      {/* Gap Analysis */}
                       {match.gap_analysis && (
                         <div className="mt-3 pt-3 border-t border-surface-200 dark:border-surface-700">
                           <p className="text-xs font-medium text-surface-600 dark:text-surface-400 mb-1">
@@ -357,6 +736,7 @@ export default function Resume({ onBack }: ResumeProps) {
   );
 }
 
+// Icons
 function BackIcon() {
   return (
     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
@@ -367,7 +747,7 @@ function BackIcon() {
 
 function DocumentIcon({ className = "" }: { className?: string }) {
   return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+    <svg className={className || "w-5 h-5"} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -390,6 +770,53 @@ function XIcon({ className = "" }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  );
+}
+
+function PlusIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+    </svg>
+  );
+}
+
+function EditIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+      />
+    </svg>
+  );
+}
+
+function TrashIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+      />
+    </svg>
+  );
+}
+
+function FolderIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+      />
     </svg>
   );
 }

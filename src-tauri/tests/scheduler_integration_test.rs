@@ -40,6 +40,8 @@ fn create_test_config() -> Config {
             country: "US".to_string(),
         },
         salary_floor_usd: 120000,
+        salary_target_usd: None,
+        penalize_missing_salary: false,
         auto_refresh: Default::default(),
         immediate_alert_threshold: 0.85,
         scraping_interval_hours: 2,
@@ -57,6 +59,10 @@ fn create_test_config() -> Config {
         dice: Default::default(),
         yc_startup: Default::default(),
         ziprecruiter: Default::default(),
+        ghost_config: None,
+        use_resume_matching: false,
+        company_whitelist: vec![],
+        company_blacklist: vec![],
     }
 }
 

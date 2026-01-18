@@ -1,197 +1,324 @@
-# Scraper Health Monitoring System
+# Resume Enhancement Plan - Complete Overhaul
 
-## Overview
+## Status: ✅ ALL 7 PHASES COMPLETE (v2.3.0)
 
-Implement comprehensive scraper health monitoring to track all 13 job scrapers, add retry logic, provide live smoke tests, and warn about credential expiry.
+Enhance JobSentinel's resume module with 7 major features:
 
-## Goals
+1. ✅ Skill Validation UI - DONE
+2. ✅ Resume Library UI - DONE
+3. ✅ Experience Matching - DONE
+4. ✅ Education Matching - DONE
+5. ✅ PDF Export - DONE
+6. ✅ OCR Support - DONE
+7. ✅ ML-based Skill Extraction - DONE
 
-1. **Wire all 13 scrapers** into the scheduler (currently only 5)
-2. **Track scraper health** - success/failure, duration, jobs found per run
-3. **Add retry logic** - exponential backoff for transient failures (429, 503)
-4. **Live smoke tests** - optional single-request tests to verify APIs work
-5. **Selector health checks** - verify HTML scrapers can still parse pages
-6. **LinkedIn cookie expiry warning** - alert when approaching 1-year expiry
-7. **Frontend dashboard** - display health metrics in Settings
-
----
-
-## Implementation
-
-### 1. Database Schema (New Migration)
-
-**File:** `src-tauri/migrations/20260118000000_add_scraper_health.sql`
-
-**Tables:**
-- `scraper_runs` - Track each execution (scraper_name, started_at, duration_ms, status, jobs_found, error_message, retry_attempt)
-- `scraper_health_metrics` - Daily aggregates (success_rate, avg_duration, last_success)
-- `scraper_config` - Scraper metadata (display_name, is_enabled, scraper_type, rate_limit, selector_health)
-- `credential_health` - Track credential age/expiry (created_at, last_validated, expires_at, status)
-- `scraper_smoke_tests` - Test results (test_type, status, duration_ms, error)
-
-**View:** `scraper_health_status` - Live health status joining runs + config
+**Completed:** January 17, 2026
+**Tests:** 145 resume module tests passing
 
 ---
 
-### 2. Rust Module Structure
+## Phase 1: Skill Validation UI (Quick Win)
 
-**New module:** `src-tauri/src/core/health/`
+**Goal:** Let users edit, delete, and add skills extracted from their resume.
 
-```
-health/
-├── mod.rs              # HealthManager, exports
-├── types.rs            # ScraperRun, HealthMetrics, SmokeTestResult, CredentialHealth
-├── tracking.rs         # Record run start/complete/fail
-├── metrics.rs          # Calculate success_rate, avg_duration
-├── retry.rs            # RetryConfig, with_retry() exponential backoff
-├── smoke_tests.rs      # Live API connectivity tests
-├── selector_check.rs   # HTML selector validation
-├── credential_health.rs # LinkedIn cookie expiry tracking
-└── tests.rs
-```
+### Backend (Already Ready)
+- `user_skills` table exists with all needed fields
+- Commands needed: `update_user_skill`, `delete_user_skill`, `add_user_skill`
 
-**Key Types:**
-- `RunStatus`: Running | Success | Failure | Timeout
-- `HealthStatus`: Healthy | Degraded | Down | Disabled
-- `SelectorHealth`: Healthy | Degraded | Broken | Unknown
-- `CredentialStatus`: Valid | Expiring | Expired | Unknown
+### Frontend Changes
+**File:** `src/pages/Resume.tsx`
 
----
+Add new section after Skills Analysis - editable skill cards with:
+- Proficiency dropdown (Beginner/Intermediate/Advanced/Expert)
+- Years of experience input
+- Edit/Delete buttons
+- "Add Skill" button for manual additions
 
-### 3. Retry Logic
-
-**File:** `src-tauri/src/core/health/retry.rs`
-
+### New Tauri Commands (3)
 ```rust
-pub struct RetryConfig {
-    max_attempts: 3,
-    initial_delay_ms: 1000,
-    max_delay_ms: 30000,
-    backoff_multiplier: 2.0,
-    retryable_codes: [429, 500, 502, 503, 504],
-}
-
-pub async fn with_retry<F>(config, scraper_name, operation) -> Result<T>
+// src-tauri/src/commands/resume.rs
+update_user_skill(skill_id: i64, updates: SkillUpdate) -> Result<()>
+delete_user_skill(skill_id: i64) -> Result<()>
+add_user_skill(resume_id: i64, skill: NewSkill) -> Result<i64>
 ```
 
-Retries on: timeout, 429, 503, connection errors
+### Files to Modify
+- `src/pages/Resume.tsx` - Add skill management section (~150 lines)
+- `src-tauri/src/commands/resume.rs` - Add 3 commands (~60 lines)
+- `src-tauri/src/core/resume/mod.rs` - Add skill CRUD methods (~80 lines)
 
 ---
 
-### 4. Wire All 13 Scrapers
+## Phase 2: Resume Library UI
 
-**File:** `src-tauri/src/core/scheduler/workers/scrapers.rs`
+**Goal:** Let users manage multiple resumes and switch between them.
 
-**Currently wired (5):** Greenhouse, Lever, LinkedIn, Indeed, JobsWithGPT
+### Backend (Already Ready)
+- `resumes` table supports multiple resumes
+- `is_active` field tracks current resume
+- `set_active_resume` command exists
 
-**Add (8):**
-- RemoteOK - title tags + limit
-- WeWorkRemotely - category + limit
-- BuiltIn - city + category
-- Dice - query + location
-- HN Who's Hiring - remote filter
-- Wellfound - query + remote
-- YC Startup - query + filters
-- ZipRecruiter - query + location
+### Frontend Changes
+**File:** `src/pages/Resume.tsx`
 
-**Config additions needed:**
-- `remoteok_enabled`, `weworkremotely_enabled`, etc.
-- Or use `additional_scrapers: Vec<String>` to enable by name
+Add resume dropdown in header showing all uploaded resumes with:
+- Resume name + upload date
+- Active indicator
+- Quick switch on click
+- Delete button
+- Upload new button
 
----
-
-### 5. New Tauri Commands (7)
-
-**File:** `src-tauri/src/commands/health.rs`
-
-| Command | Description |
-|---------|-------------|
-| `get_scraper_health` | All scrapers with health status |
-| `get_scraper_runs` | Recent runs for a scraper |
-| `run_scraper_smoke_test` | Test single scraper |
-| `run_all_smoke_tests` | Test all scrapers |
-| `get_linkedin_cookie_health` | Cookie expiry status |
-| `set_scraper_enabled` | Enable/disable scraper |
-| `get_scraper_config` | All scraper configs |
-
----
-
-### 6. Frontend Components
-
-**New:** `src/components/ScraperHealthDashboard.tsx`
-
-**Features:**
-- Summary stats: Healthy/Degraded/Down counts, Jobs Found Today
-- LinkedIn cookie expiry warning banner (yellow, shows days remaining)
-- Scraper list with status icons, success rate, avg duration, last error
-- "Run Smoke Test" button per scraper
-- "Run All Smoke Tests" button
-
-**Integration:** Add section to `src/pages/Settings.tsx`
-
----
-
-### 7. Config Changes
-
-**File:** `src-tauri/src/core/config/types.rs`
-
-Add:
+### New Tauri Commands (2)
 ```rust
-pub struct ScraperSettings {
-    pub remoteok: ScraperToggle,
-    pub weworkremotely: ScraperToggle,
-    pub builtin: BuiltInConfig,
-    pub dice: DiceConfig,
-    pub hn_hiring: HnHiringConfig,
-    pub wellfound: WellfoundConfig,
-    pub yc_startup: YcStartupConfig,
-    pub ziprecruiter: ZipRecruiterConfig,
+list_all_resumes() -> Result<Vec<Resume>>
+delete_resume(resume_id: i64) -> Result<()>
+```
+
+### Files to Modify
+- `src/pages/Resume.tsx` - Add resume dropdown (~100 lines)
+- `src-tauri/src/commands/resume.rs` - Add 2 commands (~40 lines)
+- `src-tauri/src/core/resume/mod.rs` - Add methods (~40 lines)
+
+---
+
+## Phase 3: Experience Matching
+
+**Goal:** Compare user's years of experience against job requirements.
+
+### Job Description Parsing
+Extract patterns like:
+- "5+ years of Python" → 5 years Python
+- "3-5 years experience" → 3 years general
+- "Senior (7+ years)" → 7 years seniority
+
+### Algorithm
+```rust
+// src-tauri/src/core/resume/matcher.rs
+fn extract_experience_requirements(job_description: &str) -> Vec<ExperienceReq>
+fn calculate_experience_match(user_skills: &[UserSkill], requirements: &[ExperienceReq]) -> f64
+```
+
+Scoring:
+- user_years >= required_years → 1.0
+- user_years < required_years → user_years / required_years (partial credit)
+
+### Update Overall Score
+```rust
+// Current: overall = skills_match
+// New: overall = (skills * 0.5) + (experience * 0.3) + (education * 0.2)
+```
+
+### Files to Modify
+- `src-tauri/src/core/resume/matcher.rs` - Add experience matching (~150 lines)
+- `src-tauri/src/core/resume/types.rs` - Add ExperienceReq type (~20 lines)
+
+---
+
+## Phase 4: Education Matching
+
+**Goal:** Compare user's education against job requirements.
+
+### Job Description Parsing
+Extract patterns like:
+- "Bachelor's degree required" → Bachelor required
+- "Master's preferred" → Master preferred
+- "BS/MS in Computer Science" → Bachelor or Master
+
+### Algorithm
+```rust
+enum DegreeLevel { None=0, HighSchool=1, Associate=2, Bachelor=3, Master=4, PhD=5 }
+
+fn extract_education_requirements(job_description: &str) -> Option<DegreeLevel>
+fn calculate_education_match(user: Option<DegreeLevel>, required: Option<DegreeLevel>) -> f64
+```
+
+Scoring:
+- user >= required → 1.0
+- user < required → user / required (partial credit)
+- No requirement → 1.0
+
+### Frontend Display
+Add score breakdown to match results:
+```
+Match Score: 85%
+├─ Skills: 90% (9/10 matched)
+├─ Experience: 80% (4 of 5 required years)
+└─ Education: 100% (Bachelor's meets requirement)
+```
+
+### Files to Modify
+- `src-tauri/src/core/resume/matcher.rs` - Add education matching (~100 lines)
+- `src-tauri/src/core/resume/types.rs` - Add DegreeLevel enum (~30 lines)
+- `src/pages/Resume.tsx` - Display breakdown (~50 lines)
+
+---
+
+## Phase 5: PDF Export
+
+**Goal:** Export resumes to PDF format.
+
+### Approach: HTML → Browser Print
+1. Backend already has `TemplateRenderer::render_html()` with 5 ATS templates
+2. Frontend renders HTML in hidden iframe
+3. Browser print-to-PDF functionality
+
+### Implementation
+```typescript
+// Frontend
+const handleExportPdf = async () => {
+  const html = await invoke<string>('export_resume_html', { resumeId, templateId });
+  const iframe = document.createElement('iframe');
+  iframe.srcdoc = html;
+  iframe.onload = () => iframe.contentWindow.print();
+  document.body.appendChild(iframe);
+};
+```
+
+### New Tauri Command (1)
+```rust
+export_resume_html(resume_id: i64, template_id: String) -> Result<String>
+```
+
+### Files to Modify
+- `src/pages/Resume.tsx` or `src/pages/ResumeBuilder.tsx` - Add export button (~30 lines)
+- `src-tauri/src/commands/resume.rs` - Wire HTML export command (~20 lines)
+
+---
+
+## Phase 6: OCR Support
+
+**Goal:** Parse scanned/image-based PDFs using Tesseract OCR.
+
+### Approach
+Add OCR fallback when pdf-extract returns minimal text (< 100 chars).
+
+### Dependencies
+```toml
+# Cargo.toml - Optional feature
+tesseract = { version = "0.14", optional = true }
+
+[features]
+ocr = ["tesseract"]
+```
+
+### Implementation
+```rust
+// src-tauri/src/core/resume/parser.rs
+pub fn parse_pdf(&self, file_path: &Path) -> Result<String> {
+    let text = pdf_extract::extract_text(&path)?;
+    if text.trim().len() < 100 {
+        #[cfg(feature = "ocr")]
+        return self.ocr_pdf(file_path);
+    }
+    Ok(self.clean_text(&text))
 }
 ```
 
----
+### System Requirement
+User needs Tesseract installed (optional):
+- macOS: `brew install tesseract`
+- Windows: Download installer
+- Linux: `apt install tesseract-ocr`
 
-## Files to Modify
-
-| File | Changes |
-|------|---------|
-| `src-tauri/migrations/` | Add `20260118000000_add_scraper_health.sql` |
-| `src-tauri/src/core/mod.rs` | Add `pub mod health;` |
-| `src-tauri/src/core/health/` | New module (8 files) |
-| `src-tauri/src/commands/mod.rs` | Add `pub mod health;` + register commands |
-| `src-tauri/src/commands/health.rs` | New file (7 commands) |
-| `src-tauri/src/core/scheduler/workers/scrapers.rs` | Wire all 13 scrapers, add health tracking |
-| `src-tauri/src/core/scheduler/pipeline.rs` | Integrate health tracking |
-| `src-tauri/src/core/config/types.rs` | Add scraper toggle configs |
-| `src-tauri/src/main.rs` | Register new commands |
-| `src/components/ScraperHealthDashboard.tsx` | New component |
-| `src/pages/Settings.tsx` | Add Scraper Health section |
-| `CHANGELOG.md` | Document new feature |
-| `docs/README.md` | Update command count |
+### Files to Modify
+- `src-tauri/Cargo.toml` - Add optional tesseract dependency
+- `src-tauri/src/core/resume/parser.rs` - Add OCR fallback (~100 lines)
 
 ---
 
-## Verification
+## Phase 7: ML-based Skill Extraction
 
-1. **Run tests:** `cd src-tauri && cargo test core::health`
-2. **Build check:** `cargo check`
-3. **Run app:** `npm run tauri:dev`
-4. **Verify in UI:**
-   - Open Settings → Scraper Health section
-   - See all 13 scrapers listed with status
-   - Run smoke test on one scraper
-   - Check LinkedIn cookie warning appears if cookie is old
-5. **Test retry:** Simulate 429 response and verify retry with backoff
-6. **Test metrics:** Run scraping cycle, verify runs recorded in DB
+**Goal:** Semantic skill matching using local LLM.
+
+### Approach: LM Studio Integration
+Use existing LM Studio for semantic extraction when available.
+
+### Implementation
+```rust
+// src-tauri/src/core/resume/skills.rs
+pub async fn extract_skills_ml(&self, text: &str) -> Result<Vec<ExtractedSkill>> {
+    let prompt = "Extract technical skills from this resume as JSON...";
+    let response = lm_studio_client.complete(&prompt).await?;
+    let skills: Vec<ExtractedSkill> = serde_json::from_str(&response)?;
+
+    // Merge with keyword extraction for completeness
+    let keyword_skills = self.extract_skills_keyword(text);
+    merge_skills(skills, keyword_skills)
+}
+```
+
+### Fallback
+If LM Studio unavailable, use keyword-based extraction (current behavior).
+
+### Files to Modify
+- `src-tauri/src/core/resume/skills.rs` - Add ML extraction (~150 lines)
+- `src-tauri/src/core/resume/mod.rs` - Wire async extraction (~30 lines)
 
 ---
 
-## Estimated Scope
+## Implementation Order
 
-- **Database:** 1 migration file (~100 lines)
-- **Rust:** ~800 lines across 8 health module files
-- **Commands:** ~100 lines
-- **Frontend:** ~300 lines for dashboard component
-- **Config:** ~50 lines for new settings
+| Phase | Feature | Complexity | Status |
+|-------|---------|------------|--------|
+| 1 | Skill Validation UI | Low | ✅ DONE |
+| 2 | Resume Library UI | Low | ✅ DONE |
+| 5 | PDF Export | Low | ✅ DONE |
+| 3 | Experience Matching | Medium | ✅ DONE |
+| 4 | Education Matching | Medium | ✅ DONE |
+| 6 | OCR Support | Medium | ✅ DONE |
+| 7 | ML Skill Extraction | High | ✅ DONE |
 
-**Total:** ~1,350 lines of new code
+**All phases completed on:** January 17, 2026
+
+---
+
+## Files Summary
+
+### Frontend
+- `src/pages/Resume.tsx` - Major updates (skill validation, library, match breakdown)
+
+### Backend Commands
+- `src-tauri/src/commands/resume.rs` - Add ~6 new commands
+
+### Backend Core
+- `src-tauri/src/core/resume/mod.rs` - Coordinator updates
+- `src-tauri/src/core/resume/matcher.rs` - Experience/education matching
+- `src-tauri/src/core/resume/skills.rs` - ML extraction
+- `src-tauri/src/core/resume/parser.rs` - OCR support
+- `src-tauri/src/core/resume/types.rs` - New types
+
+### Dependencies
+- `Cargo.toml` - Add tesseract (optional feature, Phase 6)
+
+---
+
+## Verification Plan
+
+### Phase 1-2 (UI)
+1. Upload a resume
+2. Edit a skill's proficiency → verify save
+3. Delete a skill → verify removal
+4. Add manual skill → verify addition
+5. Upload second resume → verify appears in library
+6. Switch resumes → verify active change
+
+### Phase 3-4 (Matching)
+1. Create test job with "5+ years Python, Bachelor's required"
+2. Match against resume with 3 years Python, Master's degree
+3. Verify breakdown: skills=X%, experience=60%, education=100%
+4. Verify overall score uses new weights (0.5/0.3/0.2)
+
+### Phase 5 (PDF)
+1. Click Export PDF
+2. Verify browser print dialog opens
+3. Save as PDF → verify formatting
+
+### Phase 6 (OCR)
+1. Upload scanned PDF resume
+2. Verify OCR triggers (text length < 100)
+3. Verify skills extracted from OCR text
+
+### Phase 7 (ML)
+1. Start LM Studio
+2. Upload resume → verify semantic extraction
+3. Stop LM Studio → verify keyword fallback works

@@ -238,20 +238,45 @@ Project Management, Agile, Scrum, Mentoring, Public Speaking
 
 ## 📊 Matching Algorithm
 
-### Current Implementation (Phase 1)
+### Current Implementation (v2.3.0)
 
-**Keyword-based Matching:**
+**Multi-Factor Matching:**
 
-1. Extract skills from resume using pattern matching
+The resume matcher now uses a weighted formula combining three factors:
+
+```text
+overall_score = (skills × 0.5) + (experience × 0.3) + (education × 0.2)
+```
+
+#### Skills Matching (50%)
+
+1. Extract skills from resume using keyword + ML extraction
 2. Extract skills from job description
 3. Calculate intersection (matching skills)
 4. Calculate difference (missing skills)
-5. Compute match score:
+5. Compute skills match score:
 
    ```text
    skills_match_score = matching_skills / total_job_skills
-   overall_match_score = skills_match_score  # Can expand later
    ```
+
+#### Experience Matching (30%)
+
+1. Extract experience requirements from job description using regex
+2. Patterns detected: "5+ years Python", "3-5 years experience", "Senior (7+ years)"
+3. Compare against user's years of experience per skill
+4. Scoring:
+   - `user_years >= required_years` → 1.0 (full credit)
+   - `user_years < required_years` → `user_years / required_years` (partial credit)
+
+#### Education Matching (20%)
+
+1. Extract degree requirements: "Bachelor's required", "Master's preferred", "PhD in CS"
+2. `DegreeLevel` hierarchy: None(0) < HighSchool(1) < Associate(2) < Bachelor(3) < Master(4) < PhD(5)
+3. Scoring:
+   - `user_level >= required_level` → 1.0 (full credit)
+   - `user_level < required_level` → `user_level / required_level` (partial credit)
+   - No requirement specified → 1.0
 
 ### Confidence Scoring
 
@@ -478,26 +503,45 @@ LIMIT 10;
 
 ---
 
-## 🚀 Future Enhancements
+## 🚀 Features & Enhancements
 
-### Phase 2: Advanced ML (Future)
+### Completed (v2.3.0)
 
-- [ ] **Semantic Embeddings** - Use BERT/GPT for context-aware matching
-- [ ] **Experience Parsing** - Extract years of experience per skill
-- [ ] **Education Matching** - Compare degrees against job requirements
-- [ ] **Salary Prediction** - Estimate expected salary based on skills
-- [ ] **Learning Recommendations** - Suggest courses for missing skills
+- [x] **Skill Validation UI** - Edit, delete, and add extracted skills
+- [x] **Resume Library** - Manage multiple resume versions
+- [x] **Experience Matching** - Years of experience vs requirements
+- [x] **Education Matching** - Degree level comparison
+- [x] **PDF Export** - Browser print-to-PDF functionality
+- [x] **OCR Support** - Scanned PDF parsing (optional `ocr` feature)
+- [x] **ML Skill Extraction** - LM Studio semantic extraction with fallback
 
-### Phase 3: Multi-Format Support (Future)
+### OCR Support (Optional)
+
+Enable with `cargo build --features ocr`. Requires system dependencies:
+
+- **macOS**: `brew install tesseract poppler`
+- **Windows**: Download Tesseract installer + poppler binaries
+- **Linux**: `apt install tesseract-ocr poppler-utils`
+
+When pdf-extract returns < 100 characters, OCR automatically kicks in:
+
+1. Converts PDF pages to PNG images at 300 DPI using `pdftoppm`
+2. Runs Tesseract on each page
+3. Merges results with page break markers
+
+### ML-based Skill Extraction
+
+When LM Studio is running at `http://localhost:1234`:
+
+1. Sends resume text with structured JSON prompt
+2. LLM extracts skills with category, confidence, context
+3. Results merged with keyword extraction for comprehensive coverage
+4. Graceful fallback to keyword-only when LM Studio unavailable
+
+### Future Enhancements
 
 - [ ] **DOCX Support** - Parse Microsoft Word resumes
 - [ ] **LinkedIn Import** - Import profile directly from LinkedIn
-- [ ] **Manual Skill Entry** - Add skills not detected automatically
-- [ ] **Resume Builder** - Generate optimized resumes per job
-- [ ] **Cover Letter Generator** - AI-powered cover letters highlighting matching skills
-
-### Phase 4: Advanced Features (Future)
-
 - [ ] **A/B Testing** - Track which resume versions perform best
 - [ ] **Skill Trend Analysis** - See which skills are growing in demand
 - [ ] **Resume Optimization** - Suggest keywords to add
@@ -592,24 +636,29 @@ pub struct MatchResult {
 - [x] Gap analysis generation
 - [x] Confidence scoring
 - [x] Resume activation management
-- [x] Comprehensive unit tests (16 tests)
+- [x] Comprehensive unit tests (145 tests)
 - [x] Full documentation
 - [x] **Scoring Engine Integration** (v2.2)
 - [x] Settings UI toggle for resume-based scoring
+- [x] **Skill Validation UI** (v2.3) - Edit/delete/add skills
+- [x] **Resume Library** (v2.3) - Multiple resume management
+- [x] **Experience Matching** (v2.3) - Years of experience extraction and scoring
+- [x] **Education Matching** (v2.3) - Degree level comparison
+- [x] **PDF Export** (v2.3) - Browser print-to-PDF
+- [x] **OCR Support** (v2.3) - Scanned PDF parsing via tesseract
+- [x] **ML Skill Extraction** (v2.3) - LM Studio semantic extraction
 
 ### Future 🔜
 
 - [ ] DOCX support
-- [ ] Semantic embeddings (BERT/GPT)
-- [ ] Experience and education parsing
-- [ ] Tauri commands
-- [ ] UI components
-- [ ] Learning recommendations
+- [ ] LinkedIn profile import
+- [ ] A/B testing for resume versions
+- [ ] Skill trend analysis
 - [ ] Resume optimization suggestions
 
 ---
 
 **Last Updated:** 2026-01-17
 **Maintained By:** JobSentinel Core Team
-**Implementation Status:** ✅ Phase 1 Complete (Keyword-based Matching)
-**Next Phase:** Resume Builder enhancements
+**Implementation Status:** ✅ v2.3.0 Complete (Multi-Factor Matching)
+**Tests:** 145 passing

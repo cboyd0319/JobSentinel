@@ -337,8 +337,8 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
     }
   }, [currentStep, generatePreview]);
 
-  // Export handler
-  const handleExport = async () => {
+  // Export DOCX handler
+  const handleExportDocx = async () => {
     if (!resumeData) return;
 
     try {
@@ -368,6 +368,68 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
       setExporting(false);
     }
   };
+
+  // Export PDF handler (via browser print)
+  const handleExportPdf = async () => {
+    if (!resumeData) return;
+
+    try {
+      setExporting(true);
+
+      // Generate HTML using the selected template
+      const html = await invoke<string>("render_resume_html", {
+        resume: resumeData,
+        templateId: selectedTemplate,
+      });
+
+      // Create a hidden iframe for printing
+      const iframe = document.createElement("iframe");
+      iframe.style.position = "fixed";
+      iframe.style.right = "0";
+      iframe.style.bottom = "0";
+      iframe.style.width = "0";
+      iframe.style.height = "0";
+      iframe.style.border = "0";
+      document.body.appendChild(iframe);
+
+      // Write HTML to iframe
+      const doc = iframe.contentWindow?.document;
+      if (doc) {
+        doc.open();
+        doc.write(html);
+        doc.close();
+
+        // Wait for content to load, then trigger print
+        iframe.onload = () => {
+          setTimeout(() => {
+            iframe.contentWindow?.print();
+            // Remove iframe after print dialog closes
+            setTimeout(() => {
+              document.body.removeChild(iframe);
+            }, 1000);
+          }, 250);
+        };
+
+        // Fallback: trigger print after a delay if onload doesn't fire
+        setTimeout(() => {
+          try {
+            iframe.contentWindow?.print();
+          } catch {
+            // Print dialog may have been triggered already
+          }
+        }, 500);
+      }
+
+      toast.success("Print dialog opened", "Save as PDF using your browser's print dialog");
+    } catch (err) {
+      toast.error("Export failed", getErrorMessage(err));
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  // Legacy export handler (defaults to DOCX)
+  const handleExport = handleExportDocx;
 
   // Loading state
   if (loading && !resumeId) {
@@ -872,7 +934,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
             <div className="space-y-6 text-center">
               <CardHeader
                 title="Export Resume"
-                subtitle="Download your resume as DOCX or view HTML preview"
+                subtitle="Download your resume in PDF or DOCX format"
               />
               <div className="py-8">
                 <CheckCircleIcon className="w-16 h-16 text-success mx-auto mb-4" />
@@ -880,16 +942,21 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                   Your resume is ready!
                 </h3>
                 <p className="text-sm text-surface-600 dark:text-surface-400 mb-6">
-                  Download as DOCX to edit further or send to employers
+                  Export as PDF for final submission or DOCX for further editing
                 </p>
-                <div className="flex gap-3 justify-center">
-                  <Button onClick={handleExport} loading={exporting} size="lg">
+                <div className="flex gap-3 justify-center flex-wrap">
+                  <Button onClick={handleExportPdf} loading={exporting} size="lg">
+                    <PdfIcon className="w-5 h-5 mr-2" />
+                    Download PDF
+                  </Button>
+                  <Button onClick={handleExportDocx} loading={exporting} size="lg" variant="secondary">
+                    <DocxIcon className="w-5 h-5 mr-2" />
                     Download DOCX
                   </Button>
-                  <Button variant="secondary" size="lg" onClick={() => setCurrentStep(6)}>
-                    View Preview
-                  </Button>
                 </div>
+                <p className="text-xs text-surface-500 dark:text-surface-400 mt-4">
+                  PDF export opens your browser's print dialog - select "Save as PDF"
+                </p>
               </div>
             </div>
           )}
@@ -1198,6 +1265,50 @@ function CheckCircleIcon({ className }: { className?: string }) {
         strokeLinejoin="round"
         strokeWidth={2}
         d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+      />
+    </svg>
+  );
+}
+
+function PdfIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      aria-hidden="true"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+      />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M9 13h2v2H9v-2zm0 0V9l4 4m-4 0h4"
+      />
+    </svg>
+  );
+}
+
+function DocxIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      aria-hidden="true"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
       />
     </svg>
   );

@@ -5,6 +5,97 @@ All notable changes to JobSentinel will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2026-01-17
+
+### Added - Advanced Resume Matching (7 Phases Complete)
+
+Major enhancement to JobSentinel's resume module with intelligent matching across skills, experience, and education.
+
+#### Phase 1: Skill Validation UI
+
+- **Editable Skills** - Users can now edit, delete, and add skills extracted from their resume
+- Proficiency dropdown (Beginner/Intermediate/Advanced/Expert)
+- Years of experience input field
+- "Add Skill" button for manual skill additions
+- **3 new Tauri commands**: `update_user_skill`, `delete_user_skill`, `add_user_skill`
+
+#### Phase 2: Resume Library UI
+
+- **Multiple Resume Support** - Manage multiple resume versions with quick switching
+- Resume dropdown in header showing all uploaded resumes
+- Active resume indicator with upload date
+- Delete button for removing old resumes
+- **2 new Tauri commands**: `list_all_resumes`, `delete_resume`
+
+#### Phase 3: Experience Matching
+
+- **Years of Experience Extraction** - Regex-based extraction from job descriptions
+- Extracts patterns like "5+ years Python", "3-5 years experience", "Senior (7+ years)"
+- Partial credit scoring: `user_years / required_years` for partial matches
+- Full credit (1.0) when user meets or exceeds requirement
+- **New types**: `ExperienceRequirement` struct with skill, min_years, max_years, is_required
+
+#### Phase 4: Education Matching
+
+- **Degree Level Comparison** - Hierarchical education matching
+- `DegreeLevel` enum: None(0), HighSchool(1), Associate(2), Bachelor(3), Master(4), PhD(5)
+- Extracts requirements like "Bachelor's required", "Master's preferred", "PhD in CS"
+- Partial credit when user has lower degree than required
+- **New types**: `EducationRequirement` struct with degree_level, fields, is_required
+
+#### Phase 5: PDF Export
+
+- **Browser Print-to-PDF** - Export resumes using browser print functionality
+- Renders HTML in hidden iframe using existing ATS templates
+- Works with all 5 templates: Classic, Modern, Technical, Executive, Military
+- **New Tauri command**: `export_resume_html`
+
+#### Phase 6: OCR Support (Optional Feature)
+
+- **Scanned PDF Parsing** - OCR fallback for image-based PDFs
+- Command-line approach using `tesseract` and `pdftoppm` (no native library linking)
+- Auto-detects when pdf-extract returns < 100 characters
+- Converts PDF to images at 300 DPI, runs Tesseract on each page
+- **New Cargo feature**: `ocr` (disabled by default)
+- **System requirements**: Tesseract OCR + poppler-utils installed
+
+#### Phase 7: ML-based Skill Extraction
+
+- **Semantic Skill Extraction** - LM Studio integration for intelligent skill detection
+- Sends resume text to local LLM with structured JSON prompt
+- Extracts skill name, category, confidence, and context
+- Graceful fallback to keyword-based extraction when LM Studio unavailable
+- Merges ML results with keyword extraction for comprehensive coverage
+- **New method**: `SkillExtractor::extract_skills_ml()`
+
+#### Weighted Match Scoring Formula
+
+The overall match score now combines three factors:
+
+```text
+overall_score = (skills × 0.5) + (experience × 0.3) + (education × 0.2)
+```
+
+- **Skills (50%)**: Keyword and semantic skill matching
+- **Experience (30%)**: Years of experience vs job requirements
+- **Education (20%)**: Degree level vs job requirements
+
+#### Score Breakdown Display
+
+- Visual breakdown showing contribution from each factor
+- Clear indicators for meeting/missing requirements
+- Enhanced gap analysis with experience and education recommendations
+
+### Dependencies
+
+- Added `scopeguard = "1.2"` for cleanup guards in OCR temp directory
+
+### Tests
+
+- **145 resume module tests** passing
+- Updated test assertions for new weighted scoring formula
+- Added tests for experience/education extraction patterns
+
 ## [Unreleased]
 
 ### Added - User-Configurable Scoring Weights

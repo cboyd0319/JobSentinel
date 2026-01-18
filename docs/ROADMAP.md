@@ -2,7 +2,7 @@
 
 **Last Updated:** January 17, 2026
 
-## Current Version: 2.1.0
+## Current Version: 2.3.0
 
 ### Working Features (v1.4.0)
 
@@ -202,7 +202,47 @@ Comprehensive health monitoring system for all 13 job board scrapers.
 
 See [docs/features/scrapers.md](features/scrapers.md) for full documentation.
 
-### v2.2+ Planned Features
+### v2.3 - Advanced Resume Matching (COMPLETED)
+
+Comprehensive resume enhancement with 7 major features for intelligent job matching.
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| **Phase 1: Skill Validation UI** | **Done** | Edit/delete/add extracted skills |
+| **Phase 2: Resume Library UI** | **Done** | Multiple resume management |
+| **Phase 3: Experience Matching** | **Done** | Years of experience vs requirements |
+| **Phase 4: Education Matching** | **Done** | Degree level comparison |
+| **Phase 5: PDF Export** | **Done** | Browser print-to-PDF |
+| **Phase 6: OCR Support** | **Done** | Scanned PDF parsing (optional) |
+| **Phase 7: ML Skill Extraction** | **Done** | LM Studio semantic extraction |
+
+**Weighted Match Scoring:**
+
+```text
+overall_score = (skills × 0.5) + (experience × 0.3) + (education × 0.2)
+```
+
+**New Types:**
+
+- `ExperienceRequirement` - Skill name, min/max years, required flag
+- `EducationRequirement` - Degree level, fields, required flag
+- `DegreeLevel` enum - None, HighSchool, Associate, Bachelor, Master, PhD
+
+**OCR Feature (Optional):**
+
+- Requires: tesseract-ocr + poppler-utils
+- Enable with `cargo build --features ocr`
+- Falls back when pdf-extract returns < 100 characters
+
+**ML Extraction:**
+
+- Uses local LM Studio at `http://localhost:1234`
+- Graceful fallback to keyword extraction
+- Merges ML and keyword results
+
+See [docs/features/resume-matcher.md](features/resume-matcher.md) for full documentation.
+
+### v2.4+ Planned Features
 
 | Feature | Status | Notes |
 |---------|--------|-------|

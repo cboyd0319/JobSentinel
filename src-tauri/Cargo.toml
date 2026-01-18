@@ -13,6 +13,9 @@ edition = "2021"
 default = []
 gcp = []
 aws = []
+# OCR support for scanned PDFs (uses command-line tesseract + pdftoppm)
+# Requires: tesseract-ocr and poppler-utils installed on system
+ocr = []
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
@@ -76,6 +79,9 @@ hex = "0.4"
 # Lazy initialization for shared resources
 once_cell = "1.19"
 
+# Scope guard for cleanup
+scopeguard = "1.2"
+
 # Platform directories
 dirs = "5.0"
 
@@ -85,6 +91,9 @@ lettre = { version = "0.11", default-features = false, features = ["tokio1-rustl
 # PDF parsing for resume extraction
 pdf-extract = "0.7"
 docx-rs = "0.4"
+
+# Note: OCR feature uses command-line tesseract and pdftoppm (no Rust crate dependencies)
+# This avoids complex native library linking while still providing OCR support
 
 # Browser automation for form filling (One-Click Apply)
 chromiumoxide = { version = "0.7", default-features = false, features = ["tokio-runtime"] }

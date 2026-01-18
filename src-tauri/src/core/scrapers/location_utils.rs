@@ -16,7 +16,7 @@ use std::collections::HashMap;
 ///
 /// # Examples
 /// ```
-/// use job_sentinel::core::scrapers::location_utils::normalize_location;
+/// use jobsentinel::core::scrapers::location_utils::normalize_location;
 ///
 /// assert_eq!(normalize_location("SF, CA"), "san francisco, california");
 /// assert_eq!(normalize_location("NYC"), "new york");

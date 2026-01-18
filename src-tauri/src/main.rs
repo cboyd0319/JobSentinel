@@ -148,6 +148,13 @@ fn main() {
             commands::resume::match_resume_to_job,
             commands::resume::get_match_result,
             commands::resume::get_recent_matches,
+            // Skill management commands (Phase 1: Skill Validation UI)
+            commands::resume::update_user_skill,
+            commands::resume::delete_user_skill,
+            commands::resume::add_user_skill,
+            // Resume library commands (Phase 2)
+            commands::resume::list_all_resumes,
+            commands::resume::delete_resume,
             // Resume Builder commands (v2.0)
             commands::resume::create_resume_draft,
             commands::resume::get_resume_draft,

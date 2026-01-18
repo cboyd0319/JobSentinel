@@ -79,9 +79,10 @@ pub use templates::{
 
 // Re-export core types
 pub use types::{
-    ContactInfo as AtsContactInfo, Education as AtsEducation, Experience as AtsExperience,
-    JobSkill, MatchResult, MatchResultWithJob, Resume, ResumeData as AtsResumeData, Skill,
-    UserSkill,
+    ContactInfo as AtsContactInfo, DegreeLevel, Education as AtsEducation,
+    EducationRequirement, Experience as AtsExperience, ExperienceRequirement, JobSkill,
+    MatchResult, MatchResultWithJob, NewSkill, Resume, ResumeData as AtsResumeData, Skill,
+    SkillUpdate, UserSkill,
 };
 
 /// Main resume matcher service
@@ -471,6 +472,201 @@ impl ResumeMatcher {
             .execute(&self.db)
             .await?;
 
+        Ok(())
+    }
+
+    // ========================================================================
+    // Skill CRUD Operations (Phase 1: Skill Validation UI)
+    // ========================================================================
+
+    /// Update an existing user skill
+    pub async fn update_user_skill(
+        &self,
+        skill_id: i64,
+        updates: types::SkillUpdate,
+    ) -> Result<()> {
+        // Build dynamic update query based on provided fields
+        let mut query_parts = Vec::new();
+        let mut bindings: Vec<Box<dyn std::any::Any + Send + Sync>> = Vec::new();
+
+        if let Some(ref name) = updates.skill_name {
+            query_parts.push("skill_name = ?");
+            bindings.push(Box::new(name.clone()));
+        }
+        if let Some(ref category) = updates.skill_category {
+            query_parts.push("skill_category = ?");
+            bindings.push(Box::new(category.clone()));
+        }
+        if let Some(ref level) = updates.proficiency_level {
+            query_parts.push("proficiency_level = ?");
+            bindings.push(Box::new(level.clone()));
+        }
+        if updates.years_experience.is_some() {
+            query_parts.push("years_experience = ?");
+            bindings.push(Box::new(updates.years_experience));
+        }
+
+        if query_parts.is_empty() {
+            return Ok(()); // Nothing to update
+        }
+
+        // Use a simpler approach - update each field individually
+        if let Some(ref name) = updates.skill_name {
+            sqlx::query("UPDATE user_skills SET skill_name = ? WHERE id = ?")
+                .bind(name)
+                .bind(skill_id)
+                .execute(&self.db)
+                .await?;
+        }
+        if let Some(ref category) = updates.skill_category {
+            sqlx::query("UPDATE user_skills SET skill_category = ? WHERE id = ?")
+                .bind(category)
+                .bind(skill_id)
+                .execute(&self.db)
+                .await?;
+        }
+        if let Some(ref level) = updates.proficiency_level {
+            sqlx::query("UPDATE user_skills SET proficiency_level = ? WHERE id = ?")
+                .bind(level)
+                .bind(skill_id)
+                .execute(&self.db)
+                .await?;
+        }
+        if let Some(years) = updates.years_experience {
+            sqlx::query("UPDATE user_skills SET years_experience = ? WHERE id = ?")
+                .bind(years)
+                .bind(skill_id)
+                .execute(&self.db)
+                .await?;
+        }
+
+        tracing::info!("Updated skill {}", skill_id);
+        Ok(())
+    }
+
+    /// Delete a user skill
+    pub async fn delete_user_skill(&self, skill_id: i64) -> Result<()> {
+        let result = sqlx::query("DELETE FROM user_skills WHERE id = ?")
+            .bind(skill_id)
+            .execute(&self.db)
+            .await?;
+
+        if result.rows_affected() == 0 {
+            anyhow::bail!("Skill with id {} not found", skill_id);
+        }
+
+        tracing::info!("Deleted skill {}", skill_id);
+        Ok(())
+    }
+
+    /// Add a new skill manually
+    pub async fn add_user_skill(
+        &self,
+        resume_id: i64,
+        skill: types::NewSkill,
+    ) -> Result<i64> {
+        let result = sqlx::query(
+            r#"
+            INSERT INTO user_skills (
+                resume_id, skill_name, skill_category, confidence_score,
+                proficiency_level, years_experience, source
+            )
+            VALUES (?, ?, ?, 1.0, ?, ?, 'manual')
+            "#,
+        )
+        .bind(resume_id)
+        .bind(&skill.skill_name)
+        .bind(&skill.skill_category)
+        .bind(&skill.proficiency_level)
+        .bind(skill.years_experience)
+        .execute(&self.db)
+        .await?;
+
+        let skill_id = result.last_insert_rowid();
+        tracing::info!(
+            "Added manual skill '{}' to resume {} with id {}",
+            skill.skill_name,
+            resume_id,
+            skill_id
+        );
+
+        Ok(skill_id)
+    }
+
+    // ========================================================================
+    // Resume Library Operations (Phase 2)
+    // ========================================================================
+
+    /// List all resumes
+    pub async fn list_all_resumes(&self) -> Result<Vec<Resume>> {
+        let rows = sqlx::query(
+            r#"
+            SELECT id, name, file_path, parsed_text, is_active, created_at, updated_at
+            FROM resumes
+            ORDER BY is_active DESC, created_at DESC
+            "#,
+        )
+        .fetch_all(&self.db)
+        .await?;
+
+        let mut resumes = Vec::new();
+        for row in rows {
+            let created_str = row.try_get::<String, _>("created_at")?;
+            let updated_str = row.try_get::<String, _>("updated_at")?;
+
+            let created_at = DateTime::parse_from_rfc3339(&created_str)
+                .map(|dt| dt.with_timezone(&Utc))
+                .or_else(|_| {
+                    chrono::NaiveDateTime::parse_from_str(&created_str, "%Y-%m-%d %H:%M:%S")
+                        .map(|dt| Utc.from_utc_datetime(&dt))
+                })?;
+
+            let updated_at = DateTime::parse_from_rfc3339(&updated_str)
+                .map(|dt| dt.with_timezone(&Utc))
+                .or_else(|_| {
+                    chrono::NaiveDateTime::parse_from_str(&updated_str, "%Y-%m-%d %H:%M:%S")
+                        .map(|dt| Utc.from_utc_datetime(&dt))
+                })?;
+
+            resumes.push(Resume {
+                id: row.try_get::<i64, _>("id")?,
+                name: row.try_get::<String, _>("name")?,
+                file_path: row.try_get::<String, _>("file_path")?,
+                parsed_text: row.try_get::<Option<String>, _>("parsed_text")?,
+                is_active: row.try_get::<i64, _>("is_active")? != 0,
+                created_at,
+                updated_at,
+            });
+        }
+
+        Ok(resumes)
+    }
+
+    /// Delete a resume and its associated skills
+    pub async fn delete_resume(&self, resume_id: i64) -> Result<()> {
+        // Delete associated skills first
+        sqlx::query("DELETE FROM user_skills WHERE resume_id = ?")
+            .bind(resume_id)
+            .execute(&self.db)
+            .await?;
+
+        // Delete associated matches
+        sqlx::query("DELETE FROM resume_job_matches WHERE resume_id = ?")
+            .bind(resume_id)
+            .execute(&self.db)
+            .await?;
+
+        // Delete the resume
+        let result = sqlx::query("DELETE FROM resumes WHERE id = ?")
+            .bind(resume_id)
+            .execute(&self.db)
+            .await?;
+
+        if result.rows_affected() == 0 {
+            anyhow::bail!("Resume with id {} not found", resume_id);
+        }
+
+        tracing::info!("Deleted resume {} and associated data", resume_id);
         Ok(())
     }
 }

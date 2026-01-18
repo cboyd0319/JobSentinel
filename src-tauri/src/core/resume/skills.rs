@@ -1,6 +1,10 @@
 //! Skill Extraction from Resumes
 //!
-//! Keyword-based skill extraction with categorization and confidence scoring.
+//! Supports two extraction methods:
+//! 1. Keyword-based: Fast, deterministic, good for common skills
+//! 2. ML-based: Uses local LLM (LM Studio) for semantic extraction
+//!
+//! The ML method falls back to keyword-based if LM Studio is unavailable.
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
@@ -157,6 +161,249 @@ impl SkillExtractor {
 impl Default for SkillExtractor {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+// ============================================================================
+// ML-based Skill Extraction (LM Studio Integration)
+// ============================================================================
+
+/// LM Studio API endpoint (default local server)
+const LM_STUDIO_URL: &str = "http://localhost:1234/v1/chat/completions";
+
+/// Prompt for skill extraction
+const SKILL_EXTRACTION_PROMPT: &str = r#"Extract all technical and professional skills from this resume text. Return ONLY a JSON array of skill objects with this exact format:
+
+[
+  {"skill": "Python", "category": "programming_language", "confidence": 0.95},
+  {"skill": "React", "category": "framework", "confidence": 0.9}
+]
+
+Categories must be one of: programming_language, framework, tool, database, cloud_platform, soft_skill, methodology, certification
+
+Rules:
+- Include ONLY skills explicitly mentioned in the text
+- Confidence should be 0.5-1.0 based on how clearly the skill is mentioned
+- Use proper capitalization for skill names (Python not python)
+- Include both technical and soft skills
+- Do NOT include generic terms like "software" or "development"
+- Return an empty array [] if no skills are found
+
+Resume text:
+"#;
+
+/// ML-extracted skill from LM Studio
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct MlExtractedSkill {
+    skill: String,
+    category: String,
+    confidence: f64,
+}
+
+/// LM Studio chat completion response
+#[derive(Debug, Deserialize)]
+struct LmStudioResponse {
+    choices: Vec<LmStudioChoice>,
+}
+
+#[derive(Debug, Deserialize)]
+struct LmStudioChoice {
+    message: LmStudioMessage,
+}
+
+#[derive(Debug, Deserialize)]
+struct LmStudioMessage {
+    content: String,
+}
+
+impl SkillExtractor {
+    /// Check if LM Studio is available
+    pub async fn is_lm_studio_available() -> bool {
+        let client = match reqwest::Client::builder()
+            .timeout(std::time::Duration::from_secs(2))
+            .build()
+        {
+            Ok(c) => c,
+            Err(_) => return false,
+        };
+
+        // Try to hit the models endpoint
+        client
+            .get("http://localhost:1234/v1/models")
+            .send()
+            .await
+            .map(|r| r.status().is_success())
+            .unwrap_or(false)
+    }
+
+    /// Extract skills using ML (LM Studio) with keyword fallback
+    ///
+    /// This method:
+    /// 1. Tries to use LM Studio for semantic skill extraction
+    /// 2. Falls back to keyword-based extraction if LM Studio is unavailable
+    /// 3. Merges results from both methods for comprehensive coverage
+    pub async fn extract_skills_ml(&self, text: &str) -> Vec<ExtractedSkill> {
+        // First, always do keyword extraction (fast and reliable)
+        let keyword_skills = self.extract_skills(text);
+
+        // Try ML extraction if LM Studio is available
+        if Self::is_lm_studio_available().await {
+            tracing::info!("LM Studio available, attempting ML skill extraction");
+
+            match self.extract_skills_via_lm_studio(text).await {
+                Ok(ml_skills) => {
+                    tracing::info!("ML extraction found {} skills", ml_skills.len());
+                    return self.merge_skills(ml_skills, keyword_skills);
+                }
+                Err(e) => {
+                    tracing::warn!("ML skill extraction failed: {}", e);
+                    // Fall through to keyword-only results
+                }
+            }
+        } else {
+            tracing::debug!("LM Studio not available, using keyword extraction only");
+        }
+
+        keyword_skills
+    }
+
+    /// Extract skills via LM Studio API
+    async fn extract_skills_via_lm_studio(&self, text: &str) -> anyhow::Result<Vec<ExtractedSkill>> {
+        let client = reqwest::Client::builder()
+            .timeout(std::time::Duration::from_secs(30))
+            .build()?;
+
+        // Truncate text if too long (LLM context limits)
+        let truncated_text = if text.len() > 8000 {
+            &text[..8000]
+        } else {
+            text
+        };
+
+        let prompt = format!("{}{}", SKILL_EXTRACTION_PROMPT, truncated_text);
+
+        let request_body = serde_json::json!({
+            "model": "default",
+            "messages": [
+                {
+                    "role": "system",
+                    "content": "You are a resume skill extraction assistant. Extract skills and return them as JSON."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            "temperature": 0.1,  // Low temperature for consistent output
+            "max_tokens": 2000
+        });
+
+        let response = client
+            .post(LM_STUDIO_URL)
+            .json(&request_body)
+            .send()
+            .await?;
+
+        if !response.status().is_success() {
+            anyhow::bail!("LM Studio returned error: {}", response.status());
+        }
+
+        let lm_response: LmStudioResponse = response.json().await?;
+
+        if lm_response.choices.is_empty() {
+            anyhow::bail!("LM Studio returned no choices");
+        }
+
+        let content = &lm_response.choices[0].message.content;
+
+        // Parse JSON from response (may have markdown code blocks)
+        let json_str = self.extract_json_from_response(content)?;
+        let ml_skills: Vec<MlExtractedSkill> = serde_json::from_str(&json_str)?;
+
+        // Convert to ExtractedSkill
+        Ok(ml_skills
+            .into_iter()
+            .map(|s| ExtractedSkill {
+                skill_name: s.skill,
+                skill_category: Some(s.category),
+                confidence_score: s.confidence.clamp(0.0, 1.0),
+            })
+            .collect())
+    }
+
+    /// Extract JSON array from LLM response (handles markdown code blocks)
+    fn extract_json_from_response(&self, content: &str) -> anyhow::Result<String> {
+        let content = content.trim();
+
+        // Try direct parsing first
+        if content.starts_with('[') {
+            return Ok(content.to_string());
+        }
+
+        // Look for JSON in markdown code block
+        if let Some(start) = content.find("```json") {
+            let after_marker = &content[start + 7..];
+            if let Some(end) = after_marker.find("```") {
+                return Ok(after_marker[..end].trim().to_string());
+            }
+        }
+
+        // Look for JSON in generic code block
+        if let Some(start) = content.find("```") {
+            let after_marker = &content[start + 3..];
+            if let Some(end) = after_marker.find("```") {
+                let inner = after_marker[..end].trim();
+                if inner.starts_with('[') {
+                    return Ok(inner.to_string());
+                }
+            }
+        }
+
+        // Look for array anywhere in the response
+        if let Some(start) = content.find('[') {
+            if let Some(end) = content.rfind(']') {
+                return Ok(content[start..=end].to_string());
+            }
+        }
+
+        anyhow::bail!("Could not extract JSON array from LLM response")
+    }
+
+    /// Merge ML-extracted skills with keyword-extracted skills
+    fn merge_skills(
+        &self,
+        ml_skills: Vec<ExtractedSkill>,
+        keyword_skills: Vec<ExtractedSkill>,
+    ) -> Vec<ExtractedSkill> {
+        let mut merged = Vec::new();
+        let mut seen: HashSet<String> = HashSet::new();
+
+        // Add ML skills first (higher priority)
+        for skill in ml_skills {
+            let key = skill.skill_name.to_lowercase();
+            if !seen.contains(&key) {
+                seen.insert(key);
+                merged.push(skill);
+            }
+        }
+
+        // Add keyword skills that weren't found by ML
+        for skill in keyword_skills {
+            let key = skill.skill_name.to_lowercase();
+            if !seen.contains(&key) {
+                seen.insert(key);
+                merged.push(skill);
+            }
+        }
+
+        // Sort by confidence
+        merged.sort_by(|a, b| {
+            b.confidence_score
+                .partial_cmp(&a.confidence_score)
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
+
+        merged
     }
 }
 
@@ -654,5 +901,131 @@ mod tests {
                 || skill_names.len() > 0,
             "Should extract at least some skills from text with special characters"
         );
+    }
+
+    // =========================================================================
+    // ML Extraction Helper Tests
+    // =========================================================================
+
+    #[test]
+    fn test_extract_json_direct_array() {
+        let extractor = SkillExtractor::new();
+        let content = r#"[{"skill": "Python", "category": "programming_language", "confidence": 0.9}]"#;
+        let result = extractor.extract_json_from_response(content);
+        assert!(result.is_ok());
+        assert!(result.unwrap().starts_with('['));
+    }
+
+    #[test]
+    fn test_extract_json_from_markdown_code_block() {
+        let extractor = SkillExtractor::new();
+        let content = r#"Here are the skills:
+```json
+[{"skill": "Python", "category": "programming_language", "confidence": 0.9}]
+```
+"#;
+        let result = extractor.extract_json_from_response(content);
+        assert!(result.is_ok());
+        let json = result.unwrap();
+        assert!(json.starts_with('['));
+        assert!(json.contains("Python"));
+    }
+
+    #[test]
+    fn test_extract_json_from_generic_code_block() {
+        let extractor = SkillExtractor::new();
+        let content = r#"```
+[{"skill": "Rust", "category": "programming_language", "confidence": 0.95}]
+```"#;
+        let result = extractor.extract_json_from_response(content);
+        assert!(result.is_ok());
+        assert!(result.unwrap().contains("Rust"));
+    }
+
+    #[test]
+    fn test_extract_json_finds_array_in_text() {
+        let extractor = SkillExtractor::new();
+        let content = "Here is the result: [{\"skill\": \"Go\", \"category\": \"programming_language\", \"confidence\": 0.8}] done.";
+        let result = extractor.extract_json_from_response(content);
+        assert!(result.is_ok());
+        assert!(result.unwrap().contains("Go"));
+    }
+
+    #[test]
+    fn test_extract_json_no_array_fails() {
+        let extractor = SkillExtractor::new();
+        let content = "I could not find any skills in this text.";
+        let result = extractor.extract_json_from_response(content);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_merge_skills_no_duplicates() {
+        let extractor = SkillExtractor::new();
+
+        let ml_skills = vec![
+            ExtractedSkill {
+                skill_name: "Python".to_string(),
+                skill_category: Some("programming_language".to_string()),
+                confidence_score: 0.95,
+            },
+            ExtractedSkill {
+                skill_name: "React".to_string(),
+                skill_category: Some("framework".to_string()),
+                confidence_score: 0.9,
+            },
+        ];
+
+        let keyword_skills = vec![
+            ExtractedSkill {
+                skill_name: "python".to_string(),  // Same as ML but lowercase
+                skill_category: Some("programming_language".to_string()),
+                confidence_score: 0.7,
+            },
+            ExtractedSkill {
+                skill_name: "Docker".to_string(),  // New skill
+                skill_category: Some("tool".to_string()),
+                confidence_score: 0.8,
+            },
+        ];
+
+        let merged = extractor.merge_skills(ml_skills, keyword_skills);
+
+        // Should have 3 unique skills (Python, React, Docker)
+        assert_eq!(merged.len(), 3);
+
+        // Python should be from ML (higher confidence)
+        let python = merged.iter().find(|s| s.skill_name == "Python").unwrap();
+        assert_eq!(python.confidence_score, 0.95);
+
+        // Docker should be included from keywords
+        assert!(merged.iter().any(|s| s.skill_name == "Docker"));
+    }
+
+    #[test]
+    fn test_merge_skills_sorted_by_confidence() {
+        let extractor = SkillExtractor::new();
+
+        let ml_skills = vec![
+            ExtractedSkill {
+                skill_name: "LowConf".to_string(),
+                skill_category: None,
+                confidence_score: 0.3,
+            },
+        ];
+
+        let keyword_skills = vec![
+            ExtractedSkill {
+                skill_name: "HighConf".to_string(),
+                skill_category: None,
+                confidence_score: 0.9,
+            },
+        ];
+
+        let merged = extractor.merge_skills(ml_skills, keyword_skills);
+
+        // Should be sorted by confidence (highest first)
+        assert_eq!(merged[0].skill_name, "HighConf");
+        assert_eq!(merged[1].skill_name, "LowConf");
     }
 }
