@@ -11,6 +11,7 @@
 <br>
 
 <p align="center">
+  <img src="https://img.shields.io/badge/Version-2.4.0-blue?style=for-the-badge" alt="Version 2.4.0">
   <img src="https://img.shields.io/badge/Windows-Ready-0078D6?style=for-the-badge&logo=Windows&logoColor=white" alt="Windows">
   <img src="https://img.shields.io/badge/macOS-Ready-000000?style=for-the-badge&logo=apple&logoColor=white" alt="macOS">
   <img src="https://img.shields.io/badge/Linux-Coming_Soon-FCC624?style=for-the-badge&logo=linux&logoColor=black" alt="Linux">
@@ -20,6 +21,7 @@
   <img src="https://img.shields.io/badge/Price-FREE_FOREVER-brightgreen?style=for-the-badge" alt="Free Forever">
   <img src="https://img.shields.io/badge/Privacy-100%25_LOCAL-blue?style=for-the-badge" alt="100% Local">
   <img src="https://img.shields.io/badge/Data_Collected-ZERO-red?style=for-the-badge" alt="Zero Data">
+  <img src="https://img.shields.io/badge/Dark_Mode-Supported-1a1a2e?style=for-the-badge" alt="Dark Mode">
 </p>
 
 ---
@@ -57,7 +59,7 @@ That's it. No accounts. No subscriptions. No data harvesting. Just... jobs that 
 <p align="center">
   <img src="docs/images/dashboard.png" alt="JobSentinel Dashboard" width="800">
   <br>
-  <em>Your command center. Every job scored and ranked. Keyboard shortcuts for power users.</em>
+  <em>Your command center. Every job scored and ranked. Dark mode included.</em>
 </p>
 
 <p align="center">
@@ -159,13 +161,28 @@ That's it. No accounts. No subscriptions. No data harvesting. Just... jobs that 
 - No cloud. No accounts. No tracking.
 - We literally cannot see your data
 
+**Keyboard-First Design**
+
+Power users can navigate entirely by keyboard:
+
+| Key | Action |
+|-----|--------|
+| `j` / `k` | Navigate job list (down/up) |
+| `o` | Open selected job |
+| `b` | Bookmark job |
+| `h` | Hide job |
+| `n` | Add note |
+| `/` | Focus search |
+| `?` | Show all shortcuts |
+| `Ctrl+1-7` | Switch pages |
+
 ---
 
 ## Get Started
 
 ### Step 1: Download
 
-> **Note:** Official installers coming January 18, 2026. For now, build from source (takes ~5 minutes).
+> **Note:** Official installers coming soon. For now, build from source (takes ~5 minutes).
 
 **Windows or macOS:**
 
@@ -320,8 +337,8 @@ should work even if you've never done it before.
 
 ### By the Numbers
 
-- **117 backend commands** powering all features
-- **2,150+ tests passing** (unit, integration, property-based)
+- **140 Tauri commands** powering all features
+- **2,000+ tests passing** (unit, integration, property-based)
 - **0 security vulnerabilities** (cargo-audit verified)
 - **~8MB** installed size
 - **<50MB RAM** typical usage
@@ -350,15 +367,15 @@ For full technical documentation, see:
 - **Browser extension** — Clip jobs directly from any website
 - **Mobile companion** — Get notifications on your phone
 
-### Just Released (v2.4)
+### Just Released (v2.2 – v2.4)
 
-- **Resume Builder UI Enhancements** — Skill confidence scores, category filtering, proficiency charts
-- **ATS Optimizer Improvements** — Side-by-side job comparison, keyword density heatmap
-- **Import Skills from Resume** — One-click skill import into builder
-- OS-native credential storage (your passwords in Keychain/Credential Manager)
-- Resume Builder with 5 professional templates
-- ATS Optimizer with keyword analysis
-- One-Click Apply for 7 major application systems
+- **Smart Scoring Engine** — Customizable weights, synonym matching, graduated salary scoring
+- **Resume Matching** — 300+ skills, experience/education matching, weighted scoring (50/30/20)
+- **Resume Builder UI** — Skill confidence scores, template previews, ATS score integration
+- **ATS Optimizer** — Side-by-side comparison, keyword density heatmap
+- **Settings UI** — Configure scoring weights, remote preferences, company lists
+- **OS-native credentials** — Keychain (macOS), Credential Manager (Windows)
+- **Dark mode** — Full dark theme support across all pages
 
 ---
 
