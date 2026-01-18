@@ -4,7 +4,7 @@
 
 use crate::commands::AppState;
 use crate::core::market_intelligence::{
-    CompanyActivity, LocationHeat, MarketAlert, MarketIntelligence, SkillTrend,
+    CompanyActivity, LocationHeat, MarketAlert, MarketIntelligence, MarketSnapshot, SkillTrend,
 };
 use serde_json::Value;
 use tauri::State;
@@ -77,4 +77,57 @@ pub async fn run_market_analysis(state: State<'_, AppState>) -> Result<Value, St
             .map_err(|e| format!("Failed to serialize snapshot: {}", e)),
         Err(e) => Err(format!("Failed to run market analysis: {}", e)),
     }
+}
+
+/// Get current market snapshot
+#[tauri::command]
+pub async fn get_market_snapshot(
+    state: State<'_, AppState>,
+) -> Result<Option<MarketSnapshot>, String> {
+    tracing::info!("Command: get_market_snapshot");
+
+    let intel = MarketIntelligence::new(state.database.pool().clone());
+    intel
+        .get_market_snapshot()
+        .await
+        .map_err(|e| format!("Failed to get market snapshot: {}", e))
+}
+
+/// Get historical market snapshots
+#[tauri::command]
+pub async fn get_historical_snapshots(
+    days: i64,
+    state: State<'_, AppState>,
+) -> Result<Vec<MarketSnapshot>, String> {
+    tracing::info!("Command: get_historical_snapshots (days: {})", days);
+
+    let intel = MarketIntelligence::new(state.database.pool().clone());
+    intel
+        .get_historical_snapshots(days as usize)
+        .await
+        .map_err(|e| format!("Failed to get historical snapshots: {}", e))
+}
+
+/// Mark a single alert as read
+#[tauri::command]
+pub async fn mark_alert_read(id: i64, state: State<'_, AppState>) -> Result<bool, String> {
+    tracing::info!("Command: mark_alert_read (id: {})", id);
+
+    let intel = MarketIntelligence::new(state.database.pool().clone());
+    intel
+        .mark_alert_read(id)
+        .await
+        .map_err(|e| format!("Failed to mark alert as read: {}", e))
+}
+
+/// Mark all alerts as read
+#[tauri::command]
+pub async fn mark_all_alerts_read(state: State<'_, AppState>) -> Result<u64, String> {
+    tracing::info!("Command: mark_all_alerts_read");
+
+    let intel = MarketIntelligence::new(state.database.pool().clone());
+    intel
+        .mark_all_alerts_read()
+        .await
+        .map_err(|e| format!("Failed to mark all alerts as read: {}", e))
 }

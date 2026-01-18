@@ -4,6 +4,7 @@ interface BadgeProps {
   size?: "sm" | "md";
   removable?: boolean;
   onRemove?: () => void;
+  className?: string;
 }
 
 const variantStyles = {
@@ -25,6 +26,7 @@ export function Badge({
   size = "md",
   removable = false,
   onRemove,
+  className = "",
 }: BadgeProps) {
   return (
     <span
@@ -32,6 +34,7 @@ export function Badge({
         inline-flex items-center gap-1 font-medium rounded-full
         ${variantStyles[variant]}
         ${sizeStyles[size]}
+        ${className}
       `}
     >
       {children}

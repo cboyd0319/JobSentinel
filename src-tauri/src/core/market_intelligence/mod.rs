@@ -17,7 +17,7 @@ mod utils;
 #[cfg(test)]
 mod tests;
 
-pub use alerts::{AlertSeverity, AlertType, MarketAlert};
+pub use alerts::{mark_alert_read, mark_all_read, AlertSeverity, AlertType, MarketAlert};
 pub use analytics::{MarketAnalyzer, MarketSnapshot};
 pub use queries::{CompanyActivity, LocationHeat, SkillTrend};
 pub use trends::{RoleDemandTrend, SalaryTrend, SkillDemandTrend};
@@ -57,5 +57,25 @@ impl MarketIntelligence {
     /// Get unread market alerts
     pub async fn get_unread_alerts(&self) -> Result<Vec<MarketAlert>> {
         alerts::get_unread_alerts(&self.db).await
+    }
+
+    /// Get market snapshot (latest)
+    pub async fn get_market_snapshot(&self) -> Result<Option<MarketSnapshot>> {
+        self.analyzer.get_latest_snapshot().await
+    }
+
+    /// Get historical snapshots
+    pub async fn get_historical_snapshots(&self, days: usize) -> Result<Vec<MarketSnapshot>> {
+        self.analyzer.get_historical_snapshots(days).await
+    }
+
+    /// Mark alert as read
+    pub async fn mark_alert_read(&self, id: i64) -> Result<bool> {
+        alerts::mark_alert_read(&self.db, id).await
+    }
+
+    /// Mark all alerts as read
+    pub async fn mark_all_alerts_read(&self) -> Result<u64> {
+        alerts::mark_all_read(&self.db).await
     }
 }

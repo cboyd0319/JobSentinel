@@ -260,6 +260,16 @@ pub async fn mark_all_read(db: &SqlitePool) -> Result<u64> {
     Ok(result.rows_affected())
 }
 
+/// Mark a single alert as read by ID
+pub async fn mark_alert_read(db: &SqlitePool, id: i64) -> Result<bool> {
+    let result = sqlx::query("UPDATE market_alerts SET is_read = 1 WHERE id = ?")
+        .bind(id)
+        .execute(db)
+        .await?;
+
+    Ok(result.rows_affected() > 0)
+}
+
 /// Delete old alerts (older than N days)
 pub async fn cleanup_old_alerts(db: &SqlitePool, days: usize) -> Result<u64> {
     let query = format!(

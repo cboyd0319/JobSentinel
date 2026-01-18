@@ -1,8 +1,8 @@
 # JobSentinel Roadmap
 
-**Last Updated:** January 17, 2026
+**Last Updated:** January 18, 2026
 
-## Current Version: 2.4.0
+## Current Version: 2.5.0
 
 ### Working Features (v1.4.0)
 
@@ -274,7 +274,37 @@ Enhanced user interfaces for resume management with visual improvements and seam
 
 See [docs/features/resume-matcher.md](features/resume-matcher.md) for full UI integration documentation.
 
-### v2.5+ Planned Features
+### v2.5 - Market Intelligence UI (COMPLETED)
+
+Complete visualization layer for Market Intelligence with interactive charts and tabbed layout.
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| **MarketSnapshotCard** | **Done** | Daily summary with sentiment |
+| **TrendChart (Recharts)** | **Done** | Line/bar charts for trends |
+| **MarketAlertCard** | **Done** | Severity-colored alert display |
+| **LocationHeatmap** | **Done** | Interactive job density grid |
+| **Tabbed Market.tsx** | **Done** | Overview, Skills, Companies, Locations, Alerts |
+| **Enhanced Backend Types** | **Done** | change_percent, trend_direction, growth_rate |
+| **4 New Tauri Commands** | **Done** | snapshot, historical, alert marking |
+| **TypeScript Alignment** | **Done** | Frontend types match Rust exactly |
+
+**New Tauri Commands:**
+
+- `get_market_snapshot` - Latest daily market snapshot
+- `get_historical_snapshots` - Historical snapshots for N days
+- `mark_alert_read` - Mark single alert as read
+- `mark_all_alerts_read` - Bulk mark all alerts
+
+**Enhanced Query Types:**
+
+- `SkillTrend` - Added `change_percent: f64`, `trend_direction: String`
+- `CompanyActivity` - Added `avg_salary: Option<i64>`, `growth_rate: f64`
+- `LocationHeat` - Added `remote_percent: f64`
+
+See [docs/features/market-intelligence.md](features/market-intelligence.md) for full documentation.
+
+### v2.6+ Planned Features
 
 | Feature | Status | Notes |
 |---------|--------|-------|

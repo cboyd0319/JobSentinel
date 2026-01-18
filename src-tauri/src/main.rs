@@ -193,6 +193,10 @@ fn main() {
             commands::market::get_hottest_locations,
             commands::market::get_market_alerts,
             commands::market::run_market_analysis,
+            commands::market::get_market_snapshot,
+            commands::market::get_historical_snapshots,
+            commands::market::mark_alert_read,
+            commands::market::mark_all_alerts_read,
             // Ghost detection commands (v1.4)
             commands::ghost::get_ghost_jobs,
             commands::ghost::get_ghost_statistics,

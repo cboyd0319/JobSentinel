@@ -40,5 +40,11 @@ export { ScraperHealthDashboard } from "./ScraperHealthDashboard";
 export { ResumeMatchScoreBreakdown } from "./ResumeMatchScoreBreakdown";
 export { SkillCategoryFilter } from "./SkillCategoryFilter";
 
+// Market Intelligence (v2.5)
+export { MarketSnapshotCard } from "./MarketSnapshotCard";
+export { TrendChart } from "./TrendChart";
+export { MarketAlertCard, MarketAlertList } from "./MarketAlertCard";
+export { LocationHeatmap } from "./LocationHeatmap";
+
 // Automation (One-Click Apply)
 export { ProfileForm, ScreeningAnswersForm, ApplyButton, AtsBadge, ApplicationPreview } from "./automation";

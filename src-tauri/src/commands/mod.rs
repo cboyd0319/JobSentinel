@@ -116,7 +116,8 @@ pub use scoring::{
 
 // Market intelligence commands
 pub use market::{
-    get_active_companies, get_hottest_locations, get_market_alerts, get_trending_skills,
+    get_active_companies, get_historical_snapshots, get_hottest_locations, get_market_alerts,
+    get_market_snapshot, get_trending_skills, mark_alert_read, mark_all_alerts_read,
     run_market_analysis,
 };
 

@@ -60,6 +60,8 @@ fn test_skill_trend_data() {
         skill_name: "Rust".to_string(),
         total_jobs: 250,
         avg_salary: Some(140000),
+        change_percent: 10.0,
+        trend_direction: "up".to_string(),
     };
 
     assert_eq!(trend.skill_name, "Rust");
@@ -73,6 +75,8 @@ fn test_skill_trend_no_salary() {
         skill_name: "Python".to_string(),
         total_jobs: 500,
         avg_salary: None,
+        change_percent: -3.0,
+        trend_direction: "flat".to_string(),
     };
 
     assert!(trend.avg_salary.is_none());
@@ -85,6 +89,8 @@ fn test_company_activity_data() {
         total_posted: 50,
         avg_active: 30.5,
         hiring_trend: Some("increasing".to_string()),
+        avg_salary: Some(150000),
+        growth_rate: 8.5,
     };
 
     assert_eq!(activity.company_name, "TechCorp");
@@ -100,6 +106,8 @@ fn test_company_activity_no_trend() {
         total_posted: 5,
         avg_active: 3.0,
         hiring_trend: None,
+        avg_salary: None,
+        growth_rate: 0.0,
     };
 
     assert!(activity.hiring_trend.is_none());
@@ -113,6 +121,7 @@ fn test_location_heat_data() {
         state: Some("CA".to_string()),
         total_jobs: 1500,
         avg_median_salary: Some(165000),
+        remote_percent: 25.0,
     };
 
     assert_eq!(heat.location, "san francisco, ca");
@@ -129,6 +138,7 @@ fn test_location_heat_no_salary_data() {
         state: None,
         total_jobs: 800,
         avg_median_salary: None,
+        remote_percent: 100.0,
     };
 
     assert!(heat.avg_median_salary.is_none());
@@ -285,6 +295,8 @@ fn test_skill_trend_serialization() {
         skill_name: "TypeScript".to_string(),
         total_jobs: 300,
         avg_salary: Some(135000),
+        change_percent: 15.5,
+        trend_direction: "up".to_string(),
     };
 
     let serialized = serde_json::to_string(&trend).unwrap();
@@ -293,6 +305,8 @@ fn test_skill_trend_serialization() {
     assert_eq!(deserialized.skill_name, "TypeScript");
     assert_eq!(deserialized.total_jobs, 300);
     assert_eq!(deserialized.avg_salary, Some(135000));
+    assert_eq!(deserialized.change_percent, 15.5);
+    assert_eq!(deserialized.trend_direction, "up");
 }
 
 #[test]
@@ -302,6 +316,8 @@ fn test_company_activity_serialization() {
         total_posted: 100,
         avg_active: 75.5,
         hiring_trend: Some("stable".to_string()),
+        avg_salary: Some(180000),
+        growth_rate: 12.3,
     };
 
     let serialized = serde_json::to_string(&activity).unwrap();
@@ -309,6 +325,8 @@ fn test_company_activity_serialization() {
 
     assert_eq!(deserialized.company_name, "Microsoft");
     assert_eq!(deserialized.total_posted, 100);
+    assert_eq!(deserialized.avg_salary, Some(180000));
+    assert_eq!(deserialized.growth_rate, 12.3);
 }
 
 #[test]
@@ -319,6 +337,7 @@ fn test_location_heat_serialization() {
         state: Some("TX".to_string()),
         total_jobs: 450,
         avg_median_salary: Some(120000),
+        remote_percent: 35.0,
     };
 
     let serialized = serde_json::to_string(&heat).unwrap();
@@ -326,6 +345,7 @@ fn test_location_heat_serialization() {
 
     assert_eq!(deserialized.location, "austin, tx");
     assert_eq!(deserialized.total_jobs, 450);
+    assert_eq!(deserialized.remote_percent, 35.0);
 }
 
 // Async tests for MarketIntelligence methods
@@ -448,6 +468,7 @@ mod async_tests {
                 jobs_posted_count INTEGER NOT NULL,
                 jobs_filled_count INTEGER DEFAULT 0,
                 jobs_active_count INTEGER DEFAULT 0,
+                avg_salary_offered INTEGER,
                 top_role TEXT,
                 top_location TEXT,
                 is_actively_hiring INTEGER DEFAULT 0,

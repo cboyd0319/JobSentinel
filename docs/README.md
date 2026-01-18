@@ -11,15 +11,27 @@ Welcome to JobSentinel documentation.
 3. **CHECK FILE SIZES** - Keep files <500 lines. See [ROADMAP.md](ROADMAP.md) for refactoring plan.
 4. **READ CLAUDE.md FIRST** - Contains project context and critical requirements.
 
-### Current Version: 2.0.0 (Production Ready)
+### Current Version: 2.5.0 (Production Ready)
 
-See [ROADMAP.md](ROADMAP.md) for future plans (v2.1: CI/CD, installers).
+See [ROADMAP.md](ROADMAP.md) for future plans (v2.6: ML predictions, installers).
 
 ---
 
 ## Current Status (January 2026)
 
-**Version: 2.0.0** | 2104+ tests passing | Security-Hardened Release
+**Version: 2.5.0** | 2100+ tests passing | Market Intelligence UI Release
+
+### What's New in v2.5 📊
+
+- **Market Intelligence UI** - Complete visualization layer with interactive charts
+  - MarketSnapshotCard - Daily market summary with sentiment indicators
+  - TrendChart - Recharts-powered line/bar charts for trends
+  - LocationHeatmap - Interactive job density grid
+  - MarketAlertCard - Alert display with mark-as-read
+- **Tabbed Market Page** - Overview, Skills, Companies, Locations, Alerts tabs
+- **Enhanced Backend Types** - Week-over-week change calculations
+- **4 new Tauri commands** for market operations
+- See [Market Intelligence Documentation](features/market-intelligence.md) for full details
 
 ### What's New in v2.0 🔐
 
@@ -93,17 +105,18 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.1: CI/CD, installers).
 |-----------------|
 | ![One-Click Apply](images/one-click-apply.png) |
 
-### Backend Modules (117 Tauri Commands)
+### Backend Modules (144 Tauri Commands)
 
 - **Core**: config, db, scoring, scheduler, scrapers (13 with parallel scraping), notify, ghost
 - **ATS**: 10 commands (Kanban, reminders, ghosting detection, interviews)
 - **Resume Matcher**: 6 commands (upload, match, skills)
 - **Resume Builder**: 22 commands (builder, templates, export, ATS analysis)
 - **Salary AI**: 4 commands (predict, benchmark, negotiate, compare)
-- **Market Intelligence**: 5 commands (trends, companies, locations, alerts)
+- **Market Intelligence**: 9 commands (trends, companies, locations, alerts, snapshot, historical)
 - **Ghost Detection**: 3 commands (ghost jobs, statistics, filtered search)
 - **User Data**: 20 commands (templates, prep checklists, saved searches, notifications, history)
 - **One-Click Apply**: 18 commands (profile, screening answers, attempts, ATS detection, browser)
+- **Health**: 9 commands (scraper health, smoke tests, credential expiry)
 
 ### Planned Features (v2.1+)
 
@@ -142,6 +155,7 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.1: CI/CD, installers).
 
 | Feature | Status | Documentation |
 |---------|--------|---------------|
+| Market Intelligence UI | **v2.5** | [Market](features/market-intelligence.md) |
 | One-Click Apply | **v2.0** | [One-Click Apply](features/one-click-apply.md) |
 | Resume Builder | **v2.0** | [Resume Builder](features/resume-builder.md) |
 | Ghost Detection | **v1.4** | [Ghost Detection](features/ghost-detection.md) |
@@ -149,11 +163,15 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.1: CI/CD, installers).
 | Notifications | Working | [Notifications](features/notifications.md) |
 | Resume Matcher | Working | [Resume Matcher](features/resume-matcher.md) |
 | Salary AI | Working | [Salary](features/salary-ai.md) |
-| Market Intelligence | Working | [Market](features/market-intelligence.md) |
 | Job Scrapers | Working | [Scrapers](features/scrapers.md) |
 
 ### Release Notes
 
+- **[v2.5 - Market Intelligence UI](releases/v2.5.md)** - Interactive charts, tabbed layout, heatmaps
+- **[v2.4 - Resume UI Enhancements](releases/v2.4.md)** - Skill visualization, comparison views
+- **[v2.3 - Health Monitoring](releases/v2.3.md)** - Scraper health, smoke tests
+- **[v2.2 - Additional Features](releases/v2.2.md)** - Bug fixes and improvements
+- **[v2.1 - CI/CD](releases/v2.1.md)** - Build pipeline, testing improvements
 - **[v2.0 - Security Hardening](releases/v2.0.md)** - OS-native keyring integration
 - **[v1.6 - Additional Refactoring](releases/v1.6.md)** - Commands, scrapers, salary, resume modularization
 - **[v1.5 - Modularization](releases/v1.5.md)** - File refactoring and code organization
@@ -239,4 +257,4 @@ e2e-tests/                 # E2E Tests (WebdriverIO + Tauri)
 
 ---
 
-**Last Updated:** January 17, 2026
+**Last Updated:** January 18, 2026

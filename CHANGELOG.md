@@ -5,6 +5,60 @@ All notable changes to JobSentinel will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.0] - 2026-01-18
+
+### Added - Market Intelligence UI
+
+Complete visualization layer for Market Intelligence module with interactive charts and tabbed layout.
+
+#### New Components
+
+- **MarketSnapshotCard** - Daily market summary with total jobs, new jobs, remote %, sentiment
+- **TrendChart** - Recharts-powered line/bar charts for skill and company trends
+- **MarketAlertCard** - Alert display with severity coloring and mark-as-read
+- **MarketAlertList** - Alert list with bulk mark-all-read
+- **LocationHeatmap** - Interactive grid showing job density by location
+
+#### Market.tsx Overhaul
+
+- **Tabbed Layout** - Overview, Skills, Companies, Locations, Alerts tabs
+- **Market Snapshot Display** - Top-level daily stats with sentiment indicator
+- **Skill Demand Charts** - Bar chart of trending skills with growth indicators
+- **Company Hiring Charts** - Bar chart of most active companies with table view
+- **Location Heatmap** - Interactive grid with click-to-detail
+- **Alert Management** - Mark individual or all alerts as read
+
+#### Backend Enhancements
+
+- **Enhanced SkillTrend** - Added `change_percent` and `trend_direction` fields
+- **Enhanced CompanyActivity** - Added `avg_salary` and `growth_rate` fields
+- **Enhanced LocationHeat** - Added `remote_percent` field
+- **New Tauri Commands**:
+  - `get_market_snapshot` - Get latest market snapshot
+  - `get_historical_snapshots` - Get snapshots for last N days
+  - `mark_alert_read` - Mark single alert as read
+  - `mark_all_alerts_read` - Mark all alerts as read
+
+#### TypeScript Alignment
+
+- All Market interfaces now match Rust backend exactly
+- Fixed type mismatches in Market.tsx
+- Added className support to Badge component
+
+### Changed
+
+- Market.tsx completely rewritten with new tabbed layout
+- Badge component now accepts className prop
+- TrendChart uses simplified string-based keys
+
+### Tests
+
+- Rust backend compiles with 4 warnings (dead code)
+- Frontend builds successfully
+- All 2085 tests continue to pass
+
+---
+
 ## [2.4.0] - 2026-01-17
 
 ### Added - Resume Builder + ATS Optimizer UI Enhancements

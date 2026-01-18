@@ -55,7 +55,7 @@ When to spawn sub-agents:
 
 ### 3. CURRENT STATUS
 
-**Version:** 2.0.0 (Production Ready)
+**Version:** 2.5.0 (Production Ready)
 
 All major features complete:
 
@@ -66,8 +66,9 @@ All major features complete:
 - 13 job board scrapers
 - Ghost job detection
 - Multi-channel notifications
+- **Market Intelligence UI** - Interactive charts, tabbed layout, heatmaps (NEW)
 
-**Next:** v2.5 - Market Intelligence UI, Official installers
+**Next:** v2.6 - Machine learning predictions, official installers
 
 See `docs/ROADMAP.md` for future plans
 
@@ -78,7 +79,7 @@ See `docs/ROADMAP.md` for future plans
 **JobSentinel** is a privacy-first job search automation desktop app built with Tauri 2.x (Rust backend)
 and React 19 (TypeScript frontend).
 
-**Current Version:** 2.4.0 (January 2026)
+**Current Version:** 2.5.0 (January 2026)
 **Primary Target:** Windows 11+ (macOS/Linux planned for v2.5)
 
 ## Tech Stack
@@ -96,7 +97,7 @@ and React 19 (TypeScript frontend).
 ```text
 JobSentinel/
 ├── src/                    # React frontend
-│   ├── components/        # UI components (42 components)
+│   ├── components/        # UI components (52 components)
 │   │   └── automation/    # One-Click Apply components (NEW in v2.0)
 │   ├── contexts/          # React contexts (KeyboardShortcuts, Toast, etc.)
 │   ├── hooks/             # Custom hooks (useKeyboardNavigation)
@@ -121,7 +122,7 @@ JobSentinel/
 │   │   │   ├── scheduler/ # Job scheduling with auto-refresh
 │   │   │   ├── scoring/   # Job scoring algorithm
 │   │   │   └── scrapers/  # 13 job board scrapers with parallel scraping
-│   │   ├── commands/      # Tauri RPC handlers (130 commands)
+│   │   ├── commands/      # Tauri RPC handlers (144 commands)
 │   │   └── platforms/     # Platform-specific code (Windows, macOS, Linux)
 │   └── migrations/        # SQLite migrations (21 migrations)
 └── docs/                  # Documentation
@@ -179,7 +180,7 @@ All core modules are enabled and functional:
 - 20 ignored (require file-based database, Chrome, or are doc-tests)
 - Integration test files: `tests/automation_integration_test.rs`, `tests/scheduler_integration_test.rs`, etc.
 
-### Tauri Commands (137 total)
+### Tauri Commands (144 total)
 
 - Core Jobs: 14 commands (search, get, hide, bookmark, notes, stats, duplicates)
 - Config: 6 commands (save, get, validate_webhook, first_run, complete_setup, test_email)
@@ -193,7 +194,7 @@ All core modules are enabled and functional:
 - Resume Export: 2 commands (export_docx, export_text)
 - ATS Analyzer: 5 commands (analyze_for_job, analyze_format, extract_keywords, power_words, improve_bullet)
 - Salary: 4 commands (predict, benchmark, negotiate, compare)
-- Market: 5 commands (trends, companies, locations, alerts, run_analysis)
+- Market: 9 commands (trends, companies, locations, alerts, run_analysis, snapshot, historical, mark_read, mark_all_read)
 - User Data: 20 commands (templates, prep checklists, saved searches, notifications, search history)
 - Credentials: 5 commands (store, retrieve, delete, has, get_status)
 - Automation: 18 commands (profile, screening answers, attempts, ATS detection, browser control)
@@ -257,13 +258,13 @@ and start proper migrations from that baseline.
 - `src-tauri/src/core/automation/mod.rs` - One-Click Apply automation manager
 - `src-tauri/src/core/automation/browser/` - Chrome DevTools Protocol automation
 - `src-tauri/src/core/credentials/mod.rs` - OS keyring credential storage
-- `src-tauri/src/commands/mod.rs` - Tauri command handlers (110 commands)
+- `src-tauri/src/commands/mod.rs` - Tauri command handlers (144 commands)
 - `src-tauri/src/commands/automation.rs` - Automation Tauri commands (18 commands)
 - `src/pages/Dashboard.tsx` - Main dashboard with search, job list, ghost filter
 - `src/pages/ApplicationProfile.tsx` - One-Click Apply settings page
 - `src/components/automation/` - ProfileForm, ScreeningAnswersForm, ApplyButton, ApplicationPreview
 - `src/components/GhostIndicator.tsx` - Ghost job warning indicators
-- `src/components/` - UI component library (42 components)
+- `src/components/` - UI component library (52 components)
 - `src/contexts/KeyboardShortcutsContext.tsx` - Keyboard navigation
 - `config.example.json` - Example configuration
 
