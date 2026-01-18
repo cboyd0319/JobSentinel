@@ -155,7 +155,11 @@ overall_score = (skills × 0.5) + (experience × 0.3) + (education × 0.2)
 - Updated test assertions for new weighted scoring formula
 - Added tests for experience/education extraction patterns
 
-## [Unreleased]
+## [2.2.0] - 2026-01-17
+
+### Added - Settings UI & Smart Scoring Overhaul
+
+Complete Settings UI with user-configurable scoring weights and intelligent job matching enhancements.
 
 ### Added - User-Configurable Scoring Weights
 
