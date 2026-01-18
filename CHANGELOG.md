@@ -138,10 +138,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **Major Code Modularization** - Split oversized files to improve maintainability
-  - `db/mod.rs` (4442→85 lines): Split into types.rs, connection.rs, crud.rs, queries.rs, interactions.rs, analytics.rs, ghost.rs, tests.rs
-  - `scheduler/mod.rs` (2955→~300 lines): Split into types.rs, pipeline.rs, workers/ (mod, scrapers, scoring, persistence), tests.rs
-  - `market_intelligence/mod.rs` (2703→~400 lines): Extracted computations.rs, queries.rs, utils.rs, tests.rs
-  - `db/integrity.rs` (2517→85 lines): Split into integrity/ module with types.rs, checks.rs, backups.rs, diagnostics.rs, tests.rs
+  - `db/mod.rs` (4442→85 lines): Split into types.rs, connection.rs, crud.rs,
+    queries.rs, interactions.rs, analytics.rs, ghost.rs, tests.rs
+  - `scheduler/mod.rs` (2955→~300 lines): Split into types.rs, pipeline.rs,
+    workers/ (mod, scrapers, scoring, persistence), tests.rs
+  - `market_intelligence/mod.rs` (2703→~400 lines): Extracted computations.rs,
+    queries.rs, utils.rs, tests.rs
+  - `db/integrity.rs` (2517→85 lines): Split into integrity/ module with types.rs,
+    checks.rs, backups.rs, diagnostics.rs, tests.rs
   - `config/mod.rs` (2343→~300 lines): Split into types.rs, defaults.rs, validation.rs, io.rs, tests.rs
   - `ats/mod.rs` (2082→~300 lines): Split into types.rs, tracker.rs, reminders.rs, interview.rs, tests.rs
   - `Dashboard.tsx` (2315→672 lines): Extracted DashboardTypes.ts, DashboardIcons.tsx, 5 custom hooks, 3 UI components
@@ -217,13 +221,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **10 job board scrapers** - Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, and JobsWithGPT
-- **Advanced notification filtering** - Keyword include/exclude, salary threshold, remote-only toggle, company whitelist/blacklist
-- **Keyboard shortcuts** - `b` bookmark, `n` notes, `c` company research, `x` select, `/` search, `?` help, `r` refresh
+- **10 job board scrapers** - Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound,
+  WeWorkRemotely, BuiltIn, HN Who's Hiring, and JobsWithGPT
+- **Advanced notification filtering** - Keyword include/exclude, salary threshold,
+  remote-only toggle, company whitelist/blacklist
+- **Keyboard shortcuts** - `b` bookmark, `n` notes, `c` company research, `x` select,
+  `/` search, `?` help, `r` refresh
 - **Advanced search** - Boolean operators (AND with space, OR with comma, NOT with -prefix), search history dropdown
 - **Interview scheduler enhancements** - iCal export (.ics), interview prep checklist (5 items), follow-up reminders
 - **Analytics enhancements** - Company response rates (fastest/slowest), weekly application goals with progress bar
-- **Cover letter improvements** - Template categories (General/Tech/Creative/Finance/Healthcare/Sales), additional placeholders ({location}, {date}, {years_experience}, {hiring_manager}), word/character count
+- **Cover letter improvements** - Template categories (General/Tech/Creative/Finance/Healthcare/Sales),
+  additional placeholders ({location}, {date}, {years_experience}, {hiring_manager}), word/character count
 - **Company research panel** - 40+ known companies database with tech stacks, Glassdoor/LinkedIn links
 - **New scrapers**:
   - WeWorkRemotely (RSS feed parsing for remote jobs)
@@ -281,7 +289,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Notifies on high-match job discoveries
   - Uses tauri-plugin-notification v2
 - **25 new Tauri commands** for backend modules:
-  - ATS: `create_application`, `get_applications_kanban`, `update_application_status`, `add_application_notes`, `get_pending_reminders`, `complete_reminder`, `detect_ghosted_applications`
+  - ATS: `create_application`, `get_applications_kanban`, `update_application_status`,
+    `add_application_notes`, `get_pending_reminders`, `complete_reminder`,
+    `detect_ghosted_applications`
   - Resume: `upload_resume`, `get_active_resume`, `set_active_resume`, `get_user_skills`, `match_resume_to_job`, `get_match_result`
   - Salary: `predict_salary`, `get_salary_benchmark`, `generate_negotiation_script`, `compare_offers`
   - Market Intelligence: `get_trending_skills`, `get_active_companies`, `get_hottest_locations`, `get_market_alerts`, `run_market_analysis`

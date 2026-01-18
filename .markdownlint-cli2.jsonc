@@ -1,0 +1,29 @@
+{
+  // Markdownlint CLI2 configuration for JobSentinel
+  // See: https://github.com/DavidAnson/markdownlint-cli2
+
+  // Use base config from .markdownlint.json
+  "config": {
+    "extends": ".markdownlint.json"
+  },
+
+  // Patterns to lint
+  "globs": [
+    "*.md",
+    "docs/**/*.md"
+  ],
+
+  // Patterns to ignore
+  "ignores": [
+    "node_modules/",
+    "dist/",
+    "target/",
+    "src-tauri/gen/",
+    ".vale/styles/",
+    "CHANGELOG.md",
+    "CLAUDE.md",
+    ".claude/",
+    "docs/archive/",
+    "browser-extension/"
+  ]
+}

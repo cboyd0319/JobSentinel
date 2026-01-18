@@ -6,7 +6,7 @@
 
 **Always use sub-agents for parallel work.** This is non-negotiable for efficiency.
 
-```
+```text
 When to spawn sub-agents:
 - Exploring multiple files/modules → Launch parallel Explore agents
 - Code review → Use pr-review-toolkit agents (code-reviewer, silent-failure-hunter)
@@ -16,7 +16,7 @@ When to spawn sub-agents:
 
 **Example - DON'T do this:**
 
-```
+```text
 1. Read file A
 2. Read file B
 3. Read file C
@@ -25,7 +25,7 @@ When to spawn sub-agents:
 
 **DO this instead:**
 
-```
+```text
 1. Launch 3 parallel Explore agents for files A, B, C
 2. Receive all results simultaneously
 3. Make decision with full context
@@ -75,7 +75,8 @@ See `docs/ROADMAP.md` for future plans
 
 ## Project Overview
 
-**JobSentinel** is a privacy-first job search automation desktop app built with Tauri 2.x (Rust backend) and React 19 (TypeScript frontend).
+**JobSentinel** is a privacy-first job search automation desktop app built with Tauri 2.x (Rust backend)
+and React 19 (TypeScript frontend).
 
 **Current Version:** 2.0.0 (January 2026)
 **Primary Target:** Windows 11+ (macOS/Linux planned for v2.0)
@@ -92,7 +93,7 @@ See `docs/ROADMAP.md` for future plans
 
 ## Project Structure
 
-```
+```text
 JobSentinel/
 ├── src/                    # React frontend
 │   ├── components/        # UI components (42 components)
@@ -137,7 +138,8 @@ JobSentinel/
 All core modules are enabled and functional:
 
 - config, db, notify, scheduler, scoring, ghost
-- scrapers (13 sources: Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, ZipRecruiter)
+- scrapers (13 sources: Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound,
+  WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, ZipRecruiter)
 - ats (Application Tracking System with interview scheduler)
 - resume (AI Resume-Job Matcher + Resume Builder + ATS Optimizer)
 - salary (Salary Prediction AI)
@@ -178,7 +180,8 @@ All core modules are enabled and functional:
 - Ghost: 3 commands (ghost_jobs, ghost_statistics, filtered_search)
 - ATS: 13 commands (applications, reminders, ghosting detection, interviews)
 - Resume Matcher: 7 commands (upload, get_active, set_active, get_skills, match, get_result, recent)
-- Resume Builder: 10 commands (create, get, update_contact, update_summary, add/delete experience/education, set_skills, delete)
+- Resume Builder: 10 commands (create, get, update_contact, update_summary,
+  add/delete experience/education, set_skills, delete)
 - Resume Templates: 3 commands (list_templates, render_html, render_text)
 - Resume Export: 2 commands (export_docx, export_text)
 - ATS Analyzer: 5 commands (analyze_for_job, analyze_format, extract_keywords, power_words, improve_bullet)
@@ -227,7 +230,8 @@ npm run tauri:build      # Production build
 - **DO NOT** worry about backward compatibility until v2.1.0
 - **DELETE** migration files when consolidating - no one has data to preserve
 
-This saves significant development time. When we approach v2.1.0, we'll freeze the schema and start proper migrations from that baseline.
+This saves significant development time. When we approach v2.1.0, we'll freeze the schema
+and start proper migrations from that baseline.
 
 ### TypeScript
 
