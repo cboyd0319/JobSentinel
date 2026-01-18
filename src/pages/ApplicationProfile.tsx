@@ -23,21 +23,30 @@ export default function ApplicationProfile({ onBack }: ApplicationProfileProps) 
   const [stats, setStats] = useState<AutomationStats | null>(null);
   const [loadingStats, setLoadingStats] = useState(false);
 
-  const loadStats = async () => {
+  const loadStats = async (signal?: AbortSignal) => {
     try {
       setLoadingStats(true);
       const data = await invoke<AutomationStats>("get_automation_stats");
+      
+      if (signal?.aborted) return;
       setStats(data);
     } catch (error) {
+      if (signal?.aborted) return;
       logError("Failed to load automation stats:", error);
     } finally {
-      setLoadingStats(false);
+      if (!signal?.aborted) {
+        setLoadingStats(false);
+      }
     }
   };
 
   // Load stats on mount
   useEffect(() => {
-    loadStats();
+    const controller = new AbortController();
+    
+    loadStats(controller.signal);
+    
+    return () => controller.abort();
   }, []);
 
   return (

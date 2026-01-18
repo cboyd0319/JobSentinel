@@ -11,7 +11,7 @@ Welcome to JobSentinel documentation.
 3. **CHECK FILE SIZES** - Keep files <500 lines. See [ROADMAP.md](ROADMAP.md) for refactoring plan.
 4. **READ CLAUDE.md FIRST** - Contains project context and critical requirements.
 
-### Current Version: 2.5.0 (Production Ready)
+### Current Version: 2.5.1 (Production Ready)
 
 See [ROADMAP.md](ROADMAP.md) for future plans (v2.6: ML predictions, installers).
 
@@ -19,7 +19,7 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.6: ML predictions, installers)
 
 ## Current Status (January 2026)
 
-**Version: 2.5.0** | 2100+ tests passing | Market Intelligence UI Release
+**Version: 2.5.1** | 2100+ tests passing | Market Intelligence UI Release
 
 ### What's New in v2.5 📊
 

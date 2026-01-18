@@ -3,7 +3,7 @@
 //! Scrapes jobs from Greenhouse-powered career pages.
 //! Greenhouse is used by companies like Cloudflare, Stripe, Figma, etc.
 
-use super::http_client::get_client;
+use super::http_client::get_with_retry;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
 use anyhow::Result;
@@ -34,10 +34,8 @@ impl GreenhouseScraper {
     async fn scrape_company(&self, company: &GreenhouseCompany) -> ScraperResult {
         tracing::info!("Scraping Greenhouse: {}", company.name);
 
-        // Fetch the careers page
-        let client = get_client();
-
-        let response = client.get(&company.url).send().await?;
+        // Fetch the careers page with retry logic
+        let response = get_with_retry(&company.url).await?;
 
         if !response.status().is_success() {
             return Err(anyhow::anyhow!(
@@ -188,9 +186,8 @@ impl GreenhouseScraper {
 
         tracing::debug!("Fetching Greenhouse API: {}", api_url);
 
-        let client = get_client();
-
-        let response = client.get(&api_url).send().await?;
+        // Use retry logic for API calls
+        let response = get_with_retry(&api_url).await?;
 
         if !response.status().is_success() {
             return Err(anyhow::anyhow!(

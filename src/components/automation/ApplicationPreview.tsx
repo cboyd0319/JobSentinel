@@ -36,32 +36,41 @@ export function ApplicationPreview({ job, atsPlatform }: ApplicationPreviewProps
   const [profile, setProfile] = useState<ApplicationProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const loadProfile = useCallback(async () => {
+  const loadProfile = useCallback(async (signal?: AbortSignal) => {
     try {
       const data = await invoke<ApplicationProfile | null>("get_application_profile");
+      
+      if (signal?.aborted) return;
       setProfile(data);
     } catch (error) {
+      if (signal?.aborted) return;
       logError("Failed to load profile for preview:", error);
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) {
+        setLoading(false);
+      }
     }
   }, []);
 
   useEffect(() => {
-    loadProfile();
+    const controller = new AbortController();
+    
+    loadProfile(controller.signal);
+    
+    return () => controller.abort();
   }, [loadProfile]);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <div className="animate-spin w-6 h-6 border-2 border-sentinel-500 border-t-transparent rounded-full" />
+      <div className="flex items-center justify-center py-8" role="status" aria-busy="true" aria-label="Loading application preview">
+        <div className="animate-spin w-6 h-6 border-2 border-sentinel-500 border-t-transparent rounded-full" aria-hidden="true" />
       </div>
     );
   }
 
   if (!profile) {
     return (
-      <div className="text-center py-8 text-surface-500 dark:text-surface-400">
+      <div className="text-center py-8 text-surface-500 dark:text-surface-400" role="status">
         <p>No profile configured. Please set up your application profile first.</p>
       </div>
     );
@@ -88,7 +97,7 @@ export function ApplicationPreview({ job, atsPlatform }: ApplicationPreviewProps
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" role="region" aria-label="Application preview">
       {/* Job Summary */}
       <Card className="p-4 bg-surface-50 dark:bg-surface-800/50">
         <div className="flex items-start justify-between">
@@ -101,24 +110,25 @@ export function ApplicationPreview({ job, atsPlatform }: ApplicationPreviewProps
             </p>
           </div>
           {atsPlatform && atsPlatform !== "unknown" && (
-            <Badge variant="surface">{atsPlatform}</Badge>
+            <Badge variant="surface" aria-label={`Application tracking system: ${atsPlatform}`}>{atsPlatform}</Badge>
           )}
         </div>
       </Card>
 
       {/* What Will Be Filled */}
-      <section>
-        <h4 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
-          <CheckCircleIcon className="w-5 h-5 text-green-500" />
+      <section role="group" aria-labelledby="auto-filled-heading">
+        <h4 id="auto-filled-heading" className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
+          <CheckCircleIcon className="w-5 h-5 text-green-500" aria-hidden="true" />
           Fields that will be auto-filled
         </h4>
-        <div className="border border-surface-200 dark:border-surface-700 rounded-lg divide-y divide-surface-200 dark:divide-surface-700">
+        <div className="border border-surface-200 dark:border-surface-700 rounded-lg divide-y divide-surface-200 dark:divide-surface-700" role="list" aria-label="Auto-filled fields">
           {fieldData
             .filter((f) => f.willFill && f.value)
             .map((field) => (
               <div
                 key={field.label}
                 className="px-4 py-3 flex items-center justify-between"
+                role="listitem"
               >
                 <span className="text-surface-600 dark:text-surface-400 text-sm">
                   {field.label}
@@ -132,12 +142,12 @@ export function ApplicationPreview({ job, atsPlatform }: ApplicationPreviewProps
       </section>
 
       {/* Manual Fields Warning */}
-      <section>
-        <h4 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
-          <ExclamationIcon className="w-5 h-5 text-amber-500" />
+      <section role="group" aria-labelledby="manual-fields-heading">
+        <h4 id="manual-fields-heading" className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
+          <ExclamationIcon className="w-5 h-5 text-amber-500" aria-hidden="true" />
           You'll need to complete manually
         </h4>
-        <ul className="text-sm text-surface-600 dark:text-surface-400 space-y-2 pl-7">
+        <ul className="text-sm text-surface-600 dark:text-surface-400 space-y-2 pl-7" role="list" aria-label="Manual tasks">
           <li className="flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
             Resume upload (select your file)
@@ -162,12 +172,12 @@ export function ApplicationPreview({ job, atsPlatform }: ApplicationPreviewProps
       </section>
 
       {/* Info Banner */}
-      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4" role="complementary" aria-labelledby="info-banner-title">
         <div className="flex gap-3">
-          <InfoIcon className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+          <InfoIcon className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" aria-hidden="true" />
           <div className="text-sm text-blue-800 dark:text-blue-200">
-            <p className="font-medium mb-1">How it works</p>
-            <ol className="list-decimal list-inside space-y-1 text-blue-700 dark:text-blue-300">
+            <p id="info-banner-title" className="font-medium mb-1">How it works</p>
+            <ol className="list-decimal list-inside space-y-1 text-blue-700 dark:text-blue-300" role="list" aria-label="Application process steps">
               <li>A browser window will open with the application page</li>
               <li>Your profile data will be filled into matching fields</li>
               <li>Review the filled data and complete any missing fields</li>

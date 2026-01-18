@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, lazy, Suspense } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import {
   Button,
@@ -6,12 +6,25 @@ import {
   Badge,
   LoadingSpinner,
   MarketSnapshotCard,
-  TrendChart,
   MarketAlertList,
   LocationHeatmap,
 } from "../components";
 import { useToast } from "../contexts";
 import { logError, getErrorMessage } from "../utils/errorUtils";
+
+// Lazy load TrendChart to defer recharts bundle
+const TrendChart = lazy(() => import("../components/TrendChart").then(m => ({ default: m.TrendChart })));
+
+// Chart loading fallback
+function ChartFallback() {
+  return (
+    <Card className="dark:bg-surface-800">
+      <div className="h-[250px] flex items-center justify-center">
+        <LoadingSpinner message="Loading chart..." />
+      </div>
+    </Card>
+  );
+}
 
 // ============================================================================
 // Types - Aligned with Rust backend
@@ -117,7 +130,7 @@ export default function Market({ onBack }: MarketProps) {
     { id: "alerts", label: "Alerts", icon: "🔔", badge: unreadAlertCount || undefined },
   ];
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (signal?: AbortSignal) => {
     try {
       setLoading(true);
       const [skillsData, companiesData, locationsData, alertsData, snapshotData] = await Promise.all([
@@ -128,21 +141,30 @@ export default function Market({ onBack }: MarketProps) {
         invoke<MarketSnapshot | null>("get_market_snapshot"),
       ]);
 
+      if (signal?.aborted) return;
+
       setSkills(skillsData);
       setCompanies(companiesData);
       setLocations(locationsData);
       setAlerts(alertsData);
       setSnapshot(snapshotData);
     } catch (err) {
+      if (signal?.aborted) return;
       logError("Failed to fetch market data:", err);
       toast.error("Failed to load market data", getErrorMessage(err));
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) {
+        setLoading(false);
+      }
     }
   }, [toast]);
 
   useEffect(() => {
-    fetchData();
+    const controller = new AbortController();
+    
+    fetchData(controller.signal);
+    
+    return () => controller.abort();
   }, [fetchData]);
 
   const handleRunAnalysis = async () => {
@@ -255,26 +277,30 @@ export default function Market({ onBack }: MarketProps) {
             <MarketSnapshotCard snapshot={snapshot} />
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <TrendChart
-                data={skills.slice(0, 8)}
-                type="bar"
-                title="Skill Demand"
-                xKey="skill_name"
-                yKey="total_jobs"
-                yLabel="Jobs"
-                color="#6366f1"
-                emptyMessage="Run analysis to see skill trends"
-              />
-              <TrendChart
-                data={companies.slice(0, 8)}
-                type="bar"
-                title="Company Hiring Activity"
-                xKey="company_name"
-                yKey="total_posted"
-                yLabel="Jobs Posted"
-                color="#10b981"
-                emptyMessage="Run analysis to see company activity"
-              />
+              <Suspense fallback={<ChartFallback />}>
+                <TrendChart
+                  data={skills.slice(0, 8)}
+                  type="bar"
+                  title="Skill Demand"
+                  xKey="skill_name"
+                  yKey="total_jobs"
+                  yLabel="Jobs"
+                  color="#6366f1"
+                  emptyMessage="Run analysis to see skill trends"
+                />
+              </Suspense>
+              <Suspense fallback={<ChartFallback />}>
+                <TrendChart
+                  data={companies.slice(0, 8)}
+                  type="bar"
+                  title="Company Hiring Activity"
+                  xKey="company_name"
+                  yKey="total_posted"
+                  yLabel="Jobs Posted"
+                  color="#10b981"
+                  emptyMessage="Run analysis to see company activity"
+                />
+              </Suspense>
             </div>
 
             <LocationHeatmap locations={locations} />
@@ -301,17 +327,19 @@ export default function Market({ onBack }: MarketProps) {
         {/* Skills Tab */}
         {activeTab === "skills" && (
           <div className="space-y-6">
-            <TrendChart
-              data={skills}
-              type="bar"
-              title="Skills by Demand"
-              xKey="skill_name"
-              yKey="total_jobs"
-              yLabel="Total Jobs"
-              color="#6366f1"
-              height={350}
-              emptyMessage="No skill data available. Run analysis to gather insights."
-            />
+            <Suspense fallback={<ChartFallback />}>
+              <TrendChart
+                data={skills}
+                type="bar"
+                title="Skills by Demand"
+                xKey="skill_name"
+                yKey="total_jobs"
+                yLabel="Total Jobs"
+                color="#6366f1"
+                height={350}
+                emptyMessage="No skill data available. Run analysis to gather insights."
+              />
+            </Suspense>
 
             <Card className="dark:bg-surface-800">
               <h3 className="font-display text-display-sm text-surface-900 dark:text-white mb-4">
@@ -363,17 +391,19 @@ export default function Market({ onBack }: MarketProps) {
         {/* Companies Tab */}
         {activeTab === "companies" && (
           <div className="space-y-6">
-            <TrendChart
-              data={companies}
-              type="bar"
-              title="Companies by Hiring Volume"
-              xKey="company_name"
-              yKey="total_posted"
-              yLabel="Jobs Posted"
-              color="#10b981"
-              height={350}
-              emptyMessage="No company data available. Run analysis to gather insights."
-            />
+            <Suspense fallback={<ChartFallback />}>
+              <TrendChart
+                data={companies}
+                type="bar"
+                title="Companies by Hiring Volume"
+                xKey="company_name"
+                yKey="total_posted"
+                yLabel="Jobs Posted"
+                color="#10b981"
+                height={350}
+                emptyMessage="No company data available. Run analysis to gather insights."
+              />
+            </Suspense>
 
             <Card className="dark:bg-surface-800">
               <h3 className="font-display text-display-sm text-surface-900 dark:text-white mb-4">

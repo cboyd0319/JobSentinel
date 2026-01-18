@@ -20,15 +20,16 @@ export function LocationHeatmap({ locations, loading = false }: LocationHeatmapP
 
   if (loading) {
     return (
-      <Card className="dark:bg-surface-800">
-        <h3 className="font-display text-display-sm text-surface-900 dark:text-white mb-4">
+      <Card className="dark:bg-surface-800" role="region" aria-label="Job Market by Location">
+        <h3 id="location-heatmap-title" className="font-display text-display-sm text-surface-900 dark:text-white mb-4">
           Job Market by Location
         </h3>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3" role="status" aria-live="polite" aria-busy="true" aria-label="Loading location data">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
             <div
               key={i}
               className="animate-pulse h-24 bg-surface-200 dark:bg-surface-700 rounded-lg"
+              aria-hidden="true"
             />
           ))}
         </div>
@@ -38,11 +39,11 @@ export function LocationHeatmap({ locations, loading = false }: LocationHeatmapP
 
   if (locations.length === 0) {
     return (
-      <Card className="dark:bg-surface-800">
-        <h3 className="font-display text-display-sm text-surface-900 dark:text-white mb-4">
+      <Card className="dark:bg-surface-800" role="region" aria-label="Job Market by Location">
+        <h3 id="location-heatmap-title" className="font-display text-display-sm text-surface-900 dark:text-white mb-4">
           Job Market by Location
         </h3>
-        <p className="text-center text-surface-500 dark:text-surface-400 py-8">
+        <p className="text-center text-surface-500 dark:text-surface-400 py-8" role="status">
           No location data available. Run analysis to gather insights.
         </p>
       </Card>
@@ -76,12 +77,12 @@ export function LocationHeatmap({ locations, loading = false }: LocationHeatmapP
   };
 
   return (
-    <Card className="dark:bg-surface-800">
-      <h3 className="font-display text-display-sm text-surface-900 dark:text-white mb-4">
+    <Card className="dark:bg-surface-800" role="region" aria-labelledby="location-heatmap-title">
+      <h3 id="location-heatmap-title" className="font-display text-display-sm text-surface-900 dark:text-white mb-4">
         Job Market by Location
       </h3>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3" role="list" aria-label="Job locations">
         {locations.map((loc) => (
           <button
             key={loc.location}
@@ -91,6 +92,9 @@ export function LocationHeatmap({ locations, loading = false }: LocationHeatmapP
                 ? "ring-2 ring-sentinel-500 ring-offset-2 dark:ring-offset-surface-900"
                 : "hover:scale-[1.02]"
             }`}
+            role="listitem"
+            aria-label={`${formatLocationName(loc)}: ${loc.total_jobs.toLocaleString()} jobs`}
+            aria-pressed={selectedLocation?.location === loc.location}
           >
             <div className="flex items-start justify-between">
               <h4 className="font-medium text-surface-800 dark:text-surface-200 text-sm truncate">
@@ -114,14 +118,15 @@ export function LocationHeatmap({ locations, loading = false }: LocationHeatmapP
 
       {/* Selected location detail */}
       {selectedLocation && (
-        <div className="mt-4 p-4 bg-surface-50 dark:bg-surface-900 rounded-lg border border-surface-200 dark:border-surface-700">
+        <div className="mt-4 p-4 bg-surface-50 dark:bg-surface-900 rounded-lg border border-surface-200 dark:border-surface-700" role="region" aria-labelledby="selected-location-title" aria-live="polite">
           <div className="flex items-center justify-between mb-2">
-            <h4 className="font-medium text-surface-900 dark:text-white">
+            <h4 id="selected-location-title" className="font-medium text-surface-900 dark:text-white">
               {formatLocationName(selectedLocation)}
             </h4>
             <button
               onClick={() => setSelectedLocation(null)}
               className="text-surface-500 hover:text-surface-700 dark:hover:text-surface-300"
+              aria-label="Close location details"
             >
               ✕
             </button>
@@ -150,7 +155,7 @@ export function LocationHeatmap({ locations, loading = false }: LocationHeatmapP
       )}
 
       {/* Legend */}
-      <div className="flex items-center gap-4 mt-4 pt-4 border-t border-surface-200 dark:border-surface-700 text-xs text-surface-500 dark:text-surface-400">
+      <div className="flex items-center gap-4 mt-4 pt-4 border-t border-surface-200 dark:border-surface-700 text-xs text-surface-500 dark:text-surface-400" role="img" aria-label="Job density legend">
         <span>Job Density:</span>
         <div className="flex items-center gap-1">
           <div className="w-4 h-4 rounded bg-surface-100 dark:bg-surface-800 border border-surface-300" />

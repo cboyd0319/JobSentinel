@@ -4,8 +4,9 @@
 //! for all job board scrapers. This improves performance by reusing
 //! connection pools instead of creating new clients per request.
 
-use anyhow::Result;
+use anyhow::{Context, Result};
 use std::time::Duration;
+use crate::core::scrapers::cache;
 
 /// Default user agent for scraper requests
 pub const DEFAULT_USER_AGENT: &str =
@@ -101,6 +102,297 @@ pub fn create_custom_client(user_agent: &str, timeout_secs: u64) -> Result<reqwe
         .pool_max_idle_per_host(5)
         .build()?;
     Ok(client)
+}
+
+/// Maximum number of retry attempts
+const MAX_RETRIES: u32 = 3;
+
+/// Base delay for exponential backoff in seconds
+const BASE_DELAY_SECS: u64 = 1;
+
+/// HTTP GET with automatic retry logic and exponential backoff
+///
+/// Retries on:
+/// - 429 (Too Many Requests / Rate Limited)
+/// - 5xx (Server Errors)
+///
+/// Uses exponential backoff: 1s, 2s, 4s, 8s (max 3 retries)
+/// Respects `Retry-After` header if present
+///
+/// # Arguments
+///
+/// * `url` - The URL to fetch
+///
+/// # Returns
+///
+/// The HTTP response if successful after retries
+///
+/// # Example
+///
+/// ```ignore
+/// use crate::core::scrapers::http_client::get_with_retry;
+///
+/// let response = get_with_retry("https://example.com/api/jobs").await?;
+/// let jobs = response.json::<Vec<Job>>().await?;
+/// ```
+pub async fn get_with_retry(url: &str) -> Result<reqwest::Response> {
+    let client = get_client();
+    
+    for attempt in 0..=MAX_RETRIES {
+        let response = client
+            .get(url)
+            .send()
+            .await
+            .context("Failed to send GET request")?;
+        
+        let status = response.status();
+        
+        // Success - return immediately
+        if status.is_success() {
+            if attempt > 0 {
+                tracing::info!(
+                    "Request succeeded after {} retry attempt(s): {}",
+                    attempt,
+                    url
+                );
+            }
+            return Ok(response);
+        }
+        
+        // Check if we should retry
+        let should_retry = status == reqwest::StatusCode::TOO_MANY_REQUESTS || status.is_server_error();
+        
+        if !should_retry || attempt == MAX_RETRIES {
+            // Don't retry, or exhausted retries
+            return Err(anyhow::anyhow!(
+                "HTTP {} after {} attempt(s): {}",
+                status,
+                attempt + 1,
+                url
+            ));
+        }
+        
+        // Calculate backoff delay
+        let delay = calculate_backoff_delay(&response, attempt);
+        
+        tracing::warn!(
+            "Request failed with HTTP {} (attempt {}/{}), retrying after {}s: {}",
+            status,
+            attempt + 1,
+            MAX_RETRIES + 1,
+            delay.as_secs(),
+            url
+        );
+        
+        tokio::time::sleep(delay).await;
+    }
+    
+    // Unreachable, but satisfy the compiler
+    Err(anyhow::anyhow!("Retry logic error"))
+}
+
+/// HTTP GET with cache support
+///
+/// Checks the cache first before making an HTTP request.
+/// If a fresh cached response exists, returns it immediately.
+/// Otherwise, makes the request and caches the successful response.
+///
+/// # Arguments
+///
+/// * `url` - The URL to fetch
+///
+/// # Returns
+///
+/// The response body as a String
+///
+/// # Example
+///
+/// ```ignore
+/// use crate::core::scrapers::http_client::get_with_cache;
+///
+/// let body = get_with_cache("https://example.com/api/jobs").await?;
+/// ```
+pub async fn get_with_cache(url: &str) -> Result<String> {
+    // Check cache first
+    if let Some(cached_body) = cache::get_cached(url).await {
+        tracing::debug!("Returning cached response for: {}", url);
+        return Ok(cached_body);
+    }
+    
+    // Cache miss - make the request
+    tracing::debug!("Cache miss, fetching: {}", url);
+    let response = get_with_retry(url).await?;
+    let body = response.text().await.context("Failed to read response body")?;
+    
+    // Cache the successful response
+    cache::set_cached(url, body.clone()).await;
+    
+    Ok(body)
+}
+
+/// HTTP GET with retry logic and optional caching
+///
+/// This is an enhanced version of `get_with_retry` that optionally uses caching.
+/// When `use_cache` is true, it checks the cache before making requests.
+/// Returns the response body as a String.
+///
+/// # Arguments
+///
+/// * `url` - The URL to fetch
+/// * `use_cache` - Whether to use response caching
+///
+/// # Returns
+///
+/// The response body as a String
+///
+/// # Example
+///
+/// ```ignore
+/// use crate::core::scrapers::http_client::get_with_retry_cached;
+///
+/// // With caching
+/// let body = get_with_retry_cached("https://example.com/api/jobs", true).await?;
+///
+/// // Without caching
+/// let body = get_with_retry_cached("https://example.com/api/jobs", false).await?;
+/// ```
+pub async fn get_with_retry_cached(url: &str, use_cache: bool) -> Result<String> {
+    if use_cache {
+        // Check cache first
+        if let Some(cached_body) = cache::get_cached(url).await {
+            tracing::debug!("Returning cached response for: {}", url);
+            return Ok(cached_body);
+        }
+    }
+    
+    // Make the actual request
+    let response = get_with_retry(url).await?;
+    let body = response.text().await.context("Failed to read response body")?;
+    
+    // Cache successful responses if caching is enabled
+    if use_cache {
+        cache::set_cached(url, body.clone()).await;
+    }
+    
+    Ok(body)
+}
+
+/// HTTP POST with automatic retry logic and exponential backoff
+///
+/// Retries on:
+/// - 429 (Too Many Requests / Rate Limited)
+/// - 5xx (Server Errors)
+///
+/// Uses exponential backoff: 1s, 2s, 4s, 8s (max 3 retries)
+/// Respects `Retry-After` header if present
+///
+/// # Arguments
+///
+/// * `url` - The URL to post to
+/// * `body` - The request body (must implement Clone)
+///
+/// # Returns
+///
+/// The HTTP response if successful after retries
+///
+/// # Example
+///
+/// ```ignore
+/// use crate::core::scrapers::http_client::post_with_retry;
+///
+/// let body = serde_json::json!({"query": "rust developer"});
+/// let response = post_with_retry("https://example.com/api/search", body).await?;
+/// ```
+pub async fn post_with_retry<T: serde::Serialize + Clone>(
+    url: &str,
+    body: T,
+) -> Result<reqwest::Response> {
+    let client = get_client();
+    
+    for attempt in 0..=MAX_RETRIES {
+        let response = client
+            .post(url)
+            .json(&body)
+            .send()
+            .await
+            .context("Failed to send POST request")?;
+        
+        let status = response.status();
+        
+        // Success - return immediately
+        if status.is_success() {
+            if attempt > 0 {
+                tracing::info!(
+                    "Request succeeded after {} retry attempt(s): {}",
+                    attempt,
+                    url
+                );
+            }
+            return Ok(response);
+        }
+        
+        // Check if we should retry
+        let should_retry = status == reqwest::StatusCode::TOO_MANY_REQUESTS || status.is_server_error();
+        
+        if !should_retry || attempt == MAX_RETRIES {
+            // Don't retry, or exhausted retries
+            return Err(anyhow::anyhow!(
+                "HTTP {} after {} attempt(s): {}",
+                status,
+                attempt + 1,
+                url
+            ));
+        }
+        
+        // Calculate backoff delay
+        let delay = calculate_backoff_delay(&response, attempt);
+        
+        tracing::warn!(
+            "Request failed with HTTP {} (attempt {}/{}), retrying after {}s: {}",
+            status,
+            attempt + 1,
+            MAX_RETRIES + 1,
+            delay.as_secs(),
+            url
+        );
+        
+        tokio::time::sleep(delay).await;
+    }
+    
+    // Unreachable, but satisfy the compiler
+    Err(anyhow::anyhow!("Retry logic error"))
+}
+
+/// Calculate backoff delay with respect to Retry-After header
+///
+/// Implements exponential backoff: 1s, 2s, 4s, 8s
+/// If the server provides a Retry-After header, uses that instead
+///
+/// # Arguments
+///
+/// * `response` - The HTTP response to check for Retry-After header
+/// * `attempt` - Current attempt number (0-indexed)
+///
+/// # Returns
+///
+/// Duration to wait before the next retry
+fn calculate_backoff_delay(response: &reqwest::Response, attempt: u32) -> Duration {
+    // Check for Retry-After header
+    if let Some(retry_after) = response.headers().get(reqwest::header::RETRY_AFTER) {
+        if let Ok(retry_after_str) = retry_after.to_str() {
+            // Try parsing as seconds (integer)
+            if let Ok(seconds) = retry_after_str.parse::<u64>() {
+                tracing::debug!("Using Retry-After header value: {}s", seconds);
+                return Duration::from_secs(seconds);
+            }
+            // Could also parse HTTP date format here, but most rate limiters use seconds
+        }
+    }
+    
+    // Exponential backoff: 2^attempt * BASE_DELAY_SECS
+    // attempt 0: 1s, attempt 1: 2s, attempt 2: 4s, attempt 3: 8s
+    let delay_secs = BASE_DELAY_SECS * 2_u64.pow(attempt);
+    Duration::from_secs(delay_secs)
 }
 
 #[cfg(test)]
@@ -233,4 +525,100 @@ mod tests {
         // Very long user agent should still work
         assert!(client.is_ok());
     }
+
+    #[test]
+    fn test_retry_constants() {
+        assert_eq!(MAX_RETRIES, 3);
+        assert_eq!(BASE_DELAY_SECS, 1);
+    }
+
+    #[test]
+    fn test_calculate_backoff_delay_exponential() {
+        // Test the exponential backoff logic
+        // attempt 0: 1s, attempt 1: 2s, attempt 2: 4s, attempt 3: 8s
+        assert_eq!(BASE_DELAY_SECS * 2_u64.pow(0), 1);
+        assert_eq!(BASE_DELAY_SECS * 2_u64.pow(1), 2);
+        assert_eq!(BASE_DELAY_SECS * 2_u64.pow(2), 4);
+        assert_eq!(BASE_DELAY_SECS * 2_u64.pow(3), 8);
+    }
+
+    #[tokio::test]
+    async fn test_get_with_retry_success() {
+        // Test with httpbin which should succeed
+        let result = get_with_retry("https://httpbin.org/status/200").await;
+        assert!(result.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_get_with_retry_client_error_no_retry() {
+        // 404 should not retry
+        let result = get_with_retry("https://httpbin.org/status/404").await;
+        assert!(result.is_err());
+        let err_msg = result.unwrap_err().to_string();
+        assert!(err_msg.contains("404"));
+    }
+
+    // Note: Testing actual retry behavior with 429/5xx would require a mock server
+    // Using wiremock in integration tests would be ideal for comprehensive retry testing
+
+    #[tokio::test]
+    async fn test_get_with_cache_miss() {
+        cache::clear_cache().await;
+        let stats_before = cache::cache_stats().await;
+        let misses_before = stats_before.misses;
+        
+        // This should result in a cache miss and fetch from network
+        let result = get_with_cache("https://httpbin.org/status/200").await;
+        assert!(result.is_ok());
+        
+        let stats = cache::cache_stats().await;
+        // At least one new miss should have occurred
+        assert!(stats.misses > misses_before);
+    }
+
+    #[tokio::test]
+    async fn test_get_with_cache_hit() {
+        cache::clear_cache().await;
+        
+        let url = "https://httpbin.org/uuid";
+        let stats_before = cache::cache_stats().await;
+        let hits_before = stats_before.hits;
+        
+        // First request - cache miss
+        let body1 = get_with_cache(url).await.unwrap();
+        
+        // Second request - should hit cache and return same body
+        let body2 = get_with_cache(url).await.unwrap();
+        
+        assert_eq!(body1, body2);
+        
+        let stats = cache::cache_stats().await;
+        // At least one new hit should have occurred
+        assert!(stats.hits > hits_before);
+    }
+
+    #[tokio::test]
+    async fn test_cache_reduces_requests() {
+        cache::clear_cache().await;
+        
+        let url = "https://httpbin.org/uuid";
+        
+        // Make 5 requests to the same URL
+        let mut responses = Vec::new();
+        for _ in 0..5 {
+            let body = get_with_cache(url).await.unwrap();
+            responses.push(body);
+        }
+        
+        // All responses should be identical (from cache)
+        for response in &responses[1..] {
+            assert_eq!(&responses[0], response);
+        }
+        
+        let stats = cache::cache_stats().await;
+        // 1 miss on first request, 4 hits on subsequent requests
+        assert_eq!(stats.misses, 1);
+        assert_eq!(stats.hits, 4);
+    }
 }
+

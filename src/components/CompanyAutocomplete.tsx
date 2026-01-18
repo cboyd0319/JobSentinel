@@ -175,7 +175,7 @@ export function CompanyAutocomplete({
   };
 
   return (
-    <div ref={wrapperRef} className="relative">
+    <div ref={wrapperRef} className="relative" role="combobox" aria-expanded={showSuggestions && suggestions.length > 0} aria-haspopup="listbox" aria-controls="company-suggestions-list">
       <div className="flex gap-2">
         <input
           ref={inputRef}
@@ -190,10 +190,14 @@ export function CompanyAutocomplete({
           placeholder={placeholder}
           className="flex-1 px-3 py-1.5 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100 placeholder:text-surface-400"
           autoComplete="off"
+          aria-label="Company name"
+          aria-autocomplete="list"
+          aria-activedescendant={showSuggestions && suggestions.length > 0 ? `company-suggestion-${selectedIndex}` : undefined}
         />
         <button
           onClick={handleAdd}
           className={`px-3 py-1.5 text-sm text-white rounded-lg transition-colors ${buttonColors[buttonColor]}`}
+          aria-label="Add company"
         >
           Add
         </button>
@@ -201,10 +205,11 @@ export function CompanyAutocomplete({
 
       {/* Suggestions dropdown */}
       {showSuggestions && suggestions.length > 0 && (
-        <div className="absolute z-50 w-full mt-1 bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-lg shadow-lg overflow-hidden">
+        <div id="company-suggestions-list" className="absolute z-50 w-full mt-1 bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-lg shadow-lg overflow-hidden" role="listbox" aria-label="Company suggestions">
           {suggestions.map((company, index) => (
             <button
               key={company.name}
+              id={`company-suggestion-${index}`}
               onClick={() => selectSuggestion(company.displayName)}
               onMouseEnter={() => setSelectedIndex(index)}
               className={`w-full px-3 py-2 text-left transition-colors ${
@@ -212,6 +217,8 @@ export function CompanyAutocomplete({
                   ? 'bg-sentinel-50 dark:bg-sentinel-900/30'
                   : 'hover:bg-surface-50 dark:hover:bg-surface-700/50'
               }`}
+              role="option"
+              aria-selected={index === selectedIndex}
             >
               <div className="flex items-center justify-between">
                 <span className="font-medium text-sm text-surface-900 dark:text-surface-100">
@@ -233,7 +240,7 @@ export function CompanyAutocomplete({
             </button>
           ))}
           {value.trim() && !suggestions.some(s => s.displayName.toLowerCase() === value.trim().toLowerCase()) && (
-            <div className="px-3 py-2 border-t border-surface-200 dark:border-surface-700 text-xs text-surface-500">
+            <div className="px-3 py-2 border-t border-surface-200 dark:border-surface-700 text-xs text-surface-500" role="status" aria-live="polite">
               Press Enter to add "{value.trim()}" as a custom company
             </div>
           )}

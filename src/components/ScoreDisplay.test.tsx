@@ -36,12 +36,12 @@ describe("ScoreDisplay", () => {
 
   it("shows label for high scores when showLabel is true", () => {
     render(<ScoreDisplay score={0.9} showLabel={true} />);
-    // High scores show "Excellent" label
-    expect(screen.getByText("Excellent")).toBeInTheDocument();
+    // High scores show "Great Match!" label
+    expect(screen.getByText("Great Match!")).toBeInTheDocument();
   });
 
   it("hides label when showLabel is false", () => {
     render(<ScoreDisplay score={0.9} showLabel={false} />);
-    expect(screen.queryByText("Excellent")).not.toBeInTheDocument();
+    expect(screen.queryByText("Great Match!")).not.toBeInTheDocument();
   });
 });

@@ -7,6 +7,7 @@ use anyhow::{Context, Result};
 use std::path::Path;
 
 /// Minimum text length to consider PDF extraction successful (before falling back to OCR)
+#[cfg(feature = "ocr")]
 const MIN_TEXT_LENGTH: usize = 100;
 
 /// Resume parser for extracting text from PDF files

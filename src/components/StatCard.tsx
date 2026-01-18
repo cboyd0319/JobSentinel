@@ -37,12 +37,12 @@ export function StatCard({
   const styles = accentStyles[accentColor];
 
   return (
-    <div className="relative bg-white dark:bg-surface-800 rounded-card border border-surface-100 dark:border-surface-700 shadow-soft dark:shadow-none overflow-hidden p-6">
+    <div className="relative bg-white dark:bg-surface-800 rounded-card border border-surface-100 dark:border-surface-700 shadow-soft dark:shadow-none overflow-hidden p-6" role="article" aria-label={`${label} statistic`}>
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-medium text-surface-500 dark:text-surface-400 mb-1">{label}</p>
           <div className="flex items-baseline gap-2">
-            <p className={`font-display text-display-xl ${styles.value}`}>
+            <p className={`font-display text-display-xl ${styles.value}`} aria-label={`${label} value: ${typeof value === "number" ? value.toLocaleString() : value}`}>
               {typeof value === "number" ? value.toLocaleString() : value}
             </p>
             {trend && (
@@ -50,6 +50,7 @@ export function StatCard({
                 className={`text-sm font-medium ${
                   trend.isPositive ? "text-success" : "text-danger"
                 }`}
+                aria-label={`${trend.isPositive ? "increased" : "decreased"} by ${Math.abs(trend.value)} percent`}
               >
                 {trend.isPositive ? "+" : "-"}
                 {Math.abs(trend.value)}%
@@ -58,13 +59,13 @@ export function StatCard({
           </div>
         </div>
         {icon && (
-          <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${styles.icon}`}>
+          <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${styles.icon}`} aria-hidden="true">
             {icon}
           </div>
         )}
       </div>
       {styles.bar && (
-        <div className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${styles.bar}`} />
+        <div className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${styles.bar}`} aria-hidden="true" />
       )}
     </div>
   );

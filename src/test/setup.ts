@@ -41,3 +41,6 @@ const localStorageMock = {
 Object.defineProperty(window, "localStorage", {
   value: localStorageMock,
 });
+
+// Mock scrollIntoView for dropdown tests
+Element.prototype.scrollIntoView = vi.fn();

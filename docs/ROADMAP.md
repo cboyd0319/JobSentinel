@@ -2,7 +2,7 @@
 
 **Last Updated:** January 18, 2026
 
-## Current Version: 2.5.0
+## Current Version: 2.5.1
 
 ### Working Features (v1.4.0)
 
@@ -532,6 +532,15 @@ See [docs/features/one-click-apply.md](features/one-click-apply.md) for full doc
 - [x] Advanced search with boolean operators
 - [x] Interview scheduler with iCal export
 - [x] Company research panel with known companies database
+- [x] **v2.5.1** Resume → One-Click Apply integration (resume file path wired)
+- [x] **v2.5.1** PDF export implemented (browser print method)
+- [x] **v2.5.1** Scraper retry logic with exponential backoff
+- [x] **v2.5.1** Scraper response caching (5-min TTL)
+- [x] **v2.5.1** ARIA accessibility for 12 components
+- [x] **v2.5.1** useEffect cleanup for async components
+- [x] **v2.5.1** Recharts circular dependency fix
+- [x] **v2.5.1** Console.log cleanup (debug statements removed)
+- [x] **v2.5.1** 248 new component tests (16 test files)
 
 ### Remaining Work
 

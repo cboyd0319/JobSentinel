@@ -1,4 +1,4 @@
-interface BadgeProps {
+interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   children: React.ReactNode;
   variant?: "sentinel" | "alert" | "surface" | "success" | "danger";
   size?: "sm" | "md";
@@ -27,6 +27,7 @@ export function Badge({
   removable = false,
   onRemove,
   className = "",
+  ...ariaProps
 }: BadgeProps) {
   return (
     <span
@@ -36,6 +37,7 @@ export function Badge({
         ${sizeStyles[size]}
         ${className}
       `}
+      {...ariaProps}
     >
       {children}
       {removable && (

@@ -180,30 +180,65 @@ impl LinkedInScraper {
         // Use shared HTTP client
         let client = get_client();
 
-        // Add delay to respect rate limits
-        sleep(Duration::from_secs(2)).await;
+        // Retry logic for LinkedIn API (with authentication headers)
+        const MAX_RETRIES: u32 = 3;
+        let mut last_error = None;
 
-        let response = client
-            .get(&api_url)
-            .header("Cookie", format!("li_at={}", self.session_cookie))
-            .header("csrf-token", &self.session_cookie) // LinkedIn CSRF protection
-            .send()
-            .await
-            .context("Failed to fetch LinkedIn API")?;
+        for attempt in 0..=MAX_RETRIES {
+            // Add delay to respect rate limits (longer on retries)
+            if attempt == 0 {
+                sleep(Duration::from_secs(2)).await;
+            } else {
+                let delay_secs = 2_u64.pow(attempt); // 2s, 4s, 8s
+                tracing::warn!(
+                    "Retrying LinkedIn API (attempt {}/{}), waiting {}s",
+                    attempt + 1,
+                    MAX_RETRIES + 1,
+                    delay_secs
+                );
+                sleep(Duration::from_secs(delay_secs)).await;
+            }
 
-        if !response.status().is_success() {
-            return Err(anyhow::anyhow!(
-                "LinkedIn API HTTP {}: Check if your session cookie is valid",
-                response.status()
+            let response = client
+                .get(&api_url)
+                .header("Cookie", format!("li_at={}", self.session_cookie))
+                .header("csrf-token", &self.session_cookie) // LinkedIn CSRF protection
+                .send()
+                .await
+                .context("Failed to fetch LinkedIn API")?;
+
+            let status = response.status();
+
+            if status.is_success() {
+                if attempt > 0 {
+                    tracing::info!("LinkedIn API request succeeded after {} retries", attempt);
+                }
+
+                let json: serde_json::Value = response.json().await?;
+                let jobs = self.parse_linkedin_api_response(&json)?;
+                return Ok(jobs);
+            }
+
+            // Check if we should retry
+            let should_retry = status == reqwest::StatusCode::TOO_MANY_REQUESTS 
+                || status.is_server_error();
+
+            if !should_retry {
+                return Err(anyhow::anyhow!(
+                    "LinkedIn API HTTP {}: Check if your session cookie is valid",
+                    status
+                ));
+            }
+
+            last_error = Some(anyhow::anyhow!(
+                "LinkedIn API HTTP {} (attempt {}/{})",
+                status,
+                attempt + 1,
+                MAX_RETRIES + 1
             ));
         }
 
-        let json: serde_json::Value = response.json().await?;
-
-        // Parse LinkedIn API response
-        let jobs = self.parse_linkedin_api_response(&json)?;
-
-        Ok(jobs)
+        Err(last_error.unwrap_or_else(|| anyhow::anyhow!("LinkedIn API failed after retries")))
     }
 
     /// Parse LinkedIn API JSON response using typed structs
@@ -372,29 +407,64 @@ impl LinkedInScraper {
         // Use shared HTTP client
         let client = get_client();
 
-        // Add delay
-        sleep(Duration::from_secs(2)).await;
+        // Retry logic for LinkedIn HTML scraping (with authentication)
+        const MAX_RETRIES: u32 = 3;
+        let mut last_error = None;
 
-        let response = client
-            .get(&search_url)
-            .header("Cookie", format!("li_at={}", self.session_cookie))
-            .send()
-            .await
-            .context("Failed to fetch LinkedIn search")?;
+        for attempt in 0..=MAX_RETRIES {
+            // Add delay to respect rate limits
+            if attempt == 0 {
+                sleep(Duration::from_secs(2)).await;
+            } else {
+                let delay_secs = 2_u64.pow(attempt);
+                tracing::warn!(
+                    "Retrying LinkedIn HTML scrape (attempt {}/{}), waiting {}s",
+                    attempt + 1,
+                    MAX_RETRIES + 1,
+                    delay_secs
+                );
+                sleep(Duration::from_secs(delay_secs)).await;
+            }
 
-        if !response.status().is_success() {
-            return Err(anyhow::anyhow!(
-                "LinkedIn HTML HTTP {}: Session may have expired",
-                response.status()
+            let response = client
+                .get(&search_url)
+                .header("Cookie", format!("li_at={}", self.session_cookie))
+                .send()
+                .await
+                .context("Failed to fetch LinkedIn search")?;
+
+            let status = response.status();
+
+            if status.is_success() {
+                if attempt > 0 {
+                    tracing::info!("LinkedIn HTML request succeeded after {} retries", attempt);
+                }
+
+                let html = response.text().await?;
+                let jobs = self.parse_linkedin_html(&html)?;
+                return Ok(jobs);
+            }
+
+            // Check if we should retry
+            let should_retry = status == reqwest::StatusCode::TOO_MANY_REQUESTS 
+                || status.is_server_error();
+
+            if !should_retry {
+                return Err(anyhow::anyhow!(
+                    "LinkedIn HTML HTTP {}: Session may have expired",
+                    status
+                ));
+            }
+
+            last_error = Some(anyhow::anyhow!(
+                "LinkedIn HTML HTTP {} (attempt {}/{})",
+                status,
+                attempt + 1,
+                MAX_RETRIES + 1
             ));
         }
 
-        let html = response.text().await?;
-
-        // Parse job cards from HTML
-        let jobs = self.parse_linkedin_html(&html)?;
-
-        Ok(jobs)
+        Err(last_error.unwrap_or_else(|| anyhow::anyhow!("LinkedIn HTML scrape failed after retries")))
     }
 
     /// Parse LinkedIn HTML job listings

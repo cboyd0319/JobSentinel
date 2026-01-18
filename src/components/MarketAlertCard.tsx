@@ -87,6 +87,9 @@ export function MarketAlertCard({ alert, onMarkRead }: MarketAlertCardProps) {
       className={`p-4 rounded-lg border ${styles.bg} ${styles.border} ${
         alert.is_read ? "opacity-60" : ""
       }`}
+      role="article"
+      aria-label={`${alert.severity} alert: ${alert.title}`}
+      aria-live={!alert.is_read ? "polite" : undefined}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3 flex-1">
@@ -131,6 +134,7 @@ export function MarketAlertCard({ alert, onMarkRead }: MarketAlertCardProps) {
             variant="ghost"
             size="sm"
             onClick={() => onMarkRead(alert.id)}
+            aria-label={`Mark ${alert.title} as read`}
           >
             Mark Read
           </Button>
@@ -157,10 +161,10 @@ export function MarketAlertList({
 
   if (loading) {
     return (
-      <div className="space-y-3">
+      <div className="space-y-3" role="status" aria-busy="true" aria-label="Loading market alerts">
         {[1, 2, 3].map((i) => (
           <div key={i} className="animate-pulse">
-            <div className="h-24 bg-surface-200 dark:bg-surface-700 rounded-lg" />
+            <div className="h-24 bg-surface-200 dark:bg-surface-700 rounded-lg" aria-hidden="true" />
           </div>
         ))}
       </div>
@@ -169,20 +173,20 @@ export function MarketAlertList({
 
   if (alerts.length === 0) {
     return (
-      <div className="text-center py-8 text-surface-500 dark:text-surface-400">
+      <div className="text-center py-8 text-surface-500 dark:text-surface-400" role="status">
         No market alerts at this time.
       </div>
     );
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3" role="feed" aria-label="Market alerts">
       {unreadCount > 0 && onMarkAllRead && (
         <div className="flex justify-between items-center mb-4">
-          <span className="text-sm text-surface-600 dark:text-surface-400">
+          <span className="text-sm text-surface-600 dark:text-surface-400" role="status" aria-live="polite" aria-atomic="true">
             {unreadCount} unread alert{unreadCount !== 1 ? "s" : ""}
           </span>
-          <Button variant="ghost" size="sm" onClick={onMarkAllRead}>
+          <Button variant="ghost" size="sm" onClick={onMarkAllRead} aria-label={`Mark all ${unreadCount} alerts as read`}>
             Mark All Read
           </Button>
         </div>

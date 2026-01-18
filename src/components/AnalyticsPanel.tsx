@@ -2,19 +2,17 @@ import { useEffect, useState } from "react";
 import { cachedInvoke } from "../utils/api";
 import { Card } from "./Card";
 import { logError } from "../utils/errorUtils";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  Legend,
-} from "recharts";
+import { BarChart } from "recharts/es6/chart/BarChart";
+import { Bar } from "recharts/es6/cartesian/Bar";
+import { XAxis } from "recharts/es6/cartesian/XAxis";
+import { YAxis } from "recharts/es6/cartesian/YAxis";
+import { CartesianGrid } from "recharts/es6/cartesian/CartesianGrid";
+import { Tooltip } from "recharts/es6/component/Tooltip";
+import { ResponsiveContainer } from "recharts/es6/component/ResponsiveContainer";
+import { PieChart } from "recharts/es6/chart/PieChart";
+import { Pie } from "recharts/es6/polar/Pie";
+import { Cell } from "recharts/es6/component/Cell";
+import { Legend } from "recharts/es6/component/Legend";
 
 interface StatusCounts {
   to_apply: number;

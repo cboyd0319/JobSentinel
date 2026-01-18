@@ -11,7 +11,7 @@ pub fn validate_config(config: &Config) -> Result<(), Box<dyn std::error::Error>
     const MAX_CITY_LENGTH: usize = 100;
     const MAX_STATE_LENGTH: usize = 50;
     const MAX_COUNTRY_LENGTH: usize = 50;
-    const MAX_WEBHOOK_URL_LENGTH: usize = 500;
+    // Note: Webhook URLs are validated separately in notify module before keyring storage
 
     // Validate salary floor (must be non-negative)
     if config.salary_floor_usd < 0 {

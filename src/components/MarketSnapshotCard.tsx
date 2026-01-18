@@ -23,15 +23,15 @@ interface MarketSnapshotCardProps {
 export function MarketSnapshotCard({ snapshot, loading = false }: MarketSnapshotCardProps) {
   if (loading) {
     return (
-      <Card className="dark:bg-surface-800 animate-pulse">
-        <div className="h-24 bg-surface-200 dark:bg-surface-700 rounded" />
+      <Card className="dark:bg-surface-800 animate-pulse" role="status" aria-busy="true" aria-label="Loading market snapshot">
+        <div className="h-24 bg-surface-200 dark:bg-surface-700 rounded" aria-hidden="true" />
       </Card>
     );
   }
 
   if (!snapshot) {
     return (
-      <Card className="dark:bg-surface-800">
+      <Card className="dark:bg-surface-800" role="status">
         <p className="text-center text-surface-500 dark:text-surface-400 py-6">
           No market snapshot available. Run analysis to generate one.
         </p>
@@ -71,30 +71,30 @@ export function MarketSnapshotCard({ snapshot, loading = false }: MarketSnapshot
   };
 
   return (
-    <Card className="dark:bg-surface-800">
+    <Card className="dark:bg-surface-800" role="region" aria-label="Market snapshot">
       <div className="flex flex-wrap items-center justify-between gap-4">
         {/* Main stats */}
-        <div className="flex flex-wrap gap-6">
-          <div>
-            <p className="text-2xl font-bold text-surface-900 dark:text-white">
+        <div className="flex flex-wrap gap-6" role="list" aria-label="Market statistics">
+          <div role="listitem">
+            <p className="text-2xl font-bold text-surface-900 dark:text-white" aria-label={`${snapshot.total_jobs.toLocaleString()} total jobs`}>
               {snapshot.total_jobs.toLocaleString()}
             </p>
             <p className="text-sm text-surface-500 dark:text-surface-400">Total Jobs</p>
           </div>
-          <div>
-            <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+          <div role="listitem">
+            <p className="text-2xl font-bold text-green-600 dark:text-green-400" aria-label={`${snapshot.new_jobs_today.toLocaleString()} new jobs today`}>
               +{snapshot.new_jobs_today.toLocaleString()}
             </p>
             <p className="text-sm text-surface-500 dark:text-surface-400">New Today</p>
           </div>
-          <div>
-            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+          <div role="listitem">
+            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400" aria-label={`${snapshot.remote_job_percentage.toFixed(0)} percent remote jobs`}>
               {snapshot.remote_job_percentage.toFixed(0)}%
             </p>
             <p className="text-sm text-surface-500 dark:text-surface-400">Remote</p>
           </div>
-          <div>
-            <p className="text-2xl font-bold text-surface-900 dark:text-white">
+          <div role="listitem">
+            <p className="text-2xl font-bold text-surface-900 dark:text-white" aria-label={`Median salary ${formatCurrency(snapshot.median_salary)}`}>
               {formatCurrency(snapshot.median_salary)}
             </p>
             <p className="text-sm text-surface-500 dark:text-surface-400">Median Salary</p>
@@ -102,8 +102,8 @@ export function MarketSnapshotCard({ snapshot, loading = false }: MarketSnapshot
         </div>
 
         {/* Sentiment */}
-        <div className="text-right">
-          <span className={`text-2xl ${getSentimentColor(snapshot.market_sentiment)}`}>
+        <div className="text-right" role="status" aria-label={`Market sentiment: ${snapshot.market_sentiment}`}>
+          <span className={`text-2xl ${getSentimentColor(snapshot.market_sentiment)}`} aria-hidden="true">
             {getSentimentIcon(snapshot.market_sentiment)} {snapshot.market_sentiment}
           </span>
           <p className="text-sm text-surface-500 dark:text-surface-400">Market Sentiment</p>
@@ -111,17 +111,17 @@ export function MarketSnapshotCard({ snapshot, loading = false }: MarketSnapshot
       </div>
 
       {/* Top badges */}
-      <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-surface-200 dark:border-surface-700">
+      <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-surface-200 dark:border-surface-700" role="list" aria-label="Market highlights">
         {snapshot.top_skill && (
-          <Badge variant="sentinel">🔧 Top Skill: {snapshot.top_skill}</Badge>
+          <Badge variant="sentinel" role="listitem">🔧 Top Skill: {snapshot.top_skill}</Badge>
         )}
         {snapshot.top_company && (
-          <Badge variant="surface">🏢 Top Company: {snapshot.top_company}</Badge>
+          <Badge variant="surface" role="listitem">🏢 Top Company: {snapshot.top_company}</Badge>
         )}
         {snapshot.top_location && (
-          <Badge variant="surface">📍 Top Location: {snapshot.top_location}</Badge>
+          <Badge variant="surface" role="listitem">📍 Top Location: {snapshot.top_location}</Badge>
         )}
-        <Badge variant="surface">
+        <Badge variant="surface" role="listitem">
           🏭 {snapshot.total_companies_hiring.toLocaleString()} Companies Hiring
         </Badge>
       </div>

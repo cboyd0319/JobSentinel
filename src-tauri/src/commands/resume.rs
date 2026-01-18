@@ -416,6 +416,16 @@ pub fn export_resume_docx(
     ResumeExporter::export_docx(&resume, template).map_err(|e| format!("Export failed: {}", e))
 }
 
+/// Export resume to HTML format for browser-based PDF generation
+#[tauri::command]
+pub fn export_resume_html(
+    resume: ExportResumeData,
+    template: crate::core::resume::ExportTemplateId,
+) -> String {
+    tracing::info!("Command: export_resume_html (template: {:?})", template);
+    ResumeExporter::export_html(&resume, template)
+}
+
 /// Export resume to plain text
 #[tauri::command]
 pub fn export_resume_text(resume: ExportResumeData) -> String {

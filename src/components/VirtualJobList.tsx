@@ -67,7 +67,7 @@ export function VirtualJobList({
   // If we have few items, don't virtualize
   if (jobs.length <= 10) {
     return (
-      <div className="space-y-3">
+      <div className="space-y-3" role="list" aria-label="Job listings">
         {jobs.map((job) => (
           <JobCard key={job.id} job={job} onHideJob={onHideJob} />
         ))}
@@ -85,6 +85,8 @@ export function VirtualJobList({
       overscanCount={3}
       className="scrollbar-thin scrollbar-thumb-surface-300 dark:scrollbar-thumb-surface-600"
       style={{ height: calculateHeight() }}
+      role="list"
+      aria-label={`${jobs.length} job listings`}
     />
   );
 }

@@ -407,6 +407,7 @@ impl JobMatcher {
     }
 
     /// Generate human-readable gap analysis (legacy - kept for backward compatibility)
+    #[cfg(test)]
     fn generate_gap_analysis(
         &self,
         matching_skills: &[String],

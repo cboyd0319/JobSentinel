@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import { open } from "@tauri-apps/plugin-dialog";
 import { Button, Input, Card, HelpIcon } from "..";
 import { useToast } from "../../contexts";
 import { logError } from "../../utils/errorUtils";
@@ -15,6 +16,7 @@ interface ApplicationProfile {
   portfolioUrl: string | null;
   websiteUrl: string | null;
   defaultResumeId: number | null;
+  resumeFilePath: string | null;
   defaultCoverLetterTemplate: string | null;
   usWorkAuthorized: boolean;
   requiresSponsorship: boolean;
@@ -33,6 +35,7 @@ interface ApplicationProfileInput {
   portfolio_url?: string | null;
   website_url?: string | null;
   default_resume_id?: number | null;
+  resume_file_path?: string | null;
   default_cover_letter_template?: string | null;
   us_work_authorized: boolean;
   requires_sponsorship: boolean;
@@ -59,6 +62,7 @@ export function ProfileForm({ onSaved }: ProfileFormProps) {
   const [githubUrl, setGithubUrl] = useState("");
   const [portfolioUrl, setPortfolioUrl] = useState("");
   const [websiteUrl, setWebsiteUrl] = useState("");
+  const [resumeFilePath, setResumeFilePath] = useState("");
   const [usWorkAuthorized, setUsWorkAuthorized] = useState(true);
   const [requiresSponsorship, setRequiresSponsorship] = useState(false);
   const [maxApplicationsPerDay, setMaxApplicationsPerDay] = useState(10);
@@ -78,6 +82,7 @@ export function ProfileForm({ onSaved }: ProfileFormProps) {
         setGithubUrl(data.githubUrl || "");
         setPortfolioUrl(data.portfolioUrl || "");
         setWebsiteUrl(data.websiteUrl || "");
+        setResumeFilePath(data.resumeFilePath || "");
         setUsWorkAuthorized(data.usWorkAuthorized);
         setRequiresSponsorship(data.requiresSponsorship);
         setMaxApplicationsPerDay(data.maxApplicationsPerDay);
@@ -94,6 +99,26 @@ export function ProfileForm({ onSaved }: ProfileFormProps) {
   useEffect(() => {
     loadProfile();
   }, [loadProfile]);
+
+  const handleSelectResume = async () => {
+    try {
+      const selected = await open({
+        multiple: false,
+        filters: [
+          {
+            name: "Resume",
+            extensions: ["pdf", "docx", "doc"],
+          },
+        ],
+      });
+      if (selected && typeof selected === "string") {
+        setResumeFilePath(selected);
+      }
+    } catch (error) {
+      logError("Failed to select resume file:", error);
+      toast.error("Failed to select file", "Please try again");
+    }
+  };
 
   const handleSave = async () => {
     // Validation
@@ -116,6 +141,7 @@ export function ProfileForm({ onSaved }: ProfileFormProps) {
         github_url: githubUrl.trim() || null,
         portfolio_url: portfolioUrl.trim() || null,
         website_url: websiteUrl.trim() || null,
+        resume_file_path: resumeFilePath.trim() || null,
         us_work_authorized: usWorkAuthorized,
         requires_sponsorship: requiresSponsorship,
         max_applications_per_day: maxApplicationsPerDay,
@@ -136,8 +162,8 @@ export function ProfileForm({ onSaved }: ProfileFormProps) {
   if (loading) {
     return (
       <Card className="p-6">
-        <div className="flex items-center justify-center py-8">
-          <div className="animate-spin w-6 h-6 border-2 border-sentinel-500 border-t-transparent rounded-full" />
+        <div className="flex items-center justify-center py-8" role="status" aria-busy="true" aria-label="Loading profile">
+          <div className="animate-spin w-6 h-6 border-2 border-sentinel-500 border-t-transparent rounded-full" aria-hidden="true" />
         </div>
       </Card>
     );
@@ -154,10 +180,10 @@ export function ProfileForm({ onSaved }: ProfileFormProps) {
         </p>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-6" role="form" aria-label="Application profile form">
         {/* Contact Information */}
-        <section>
-          <h4 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
+        <section role="group" aria-labelledby="contact-info-heading">
+          <h4 id="contact-info-heading" className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
             Contact Information
             <HelpIcon text="Basic info required for all job applications" />
           </h4>
@@ -186,8 +212,8 @@ export function ProfileForm({ onSaved }: ProfileFormProps) {
         </section>
 
         {/* URLs */}
-        <section>
-          <h4 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
+        <section role="group" aria-labelledby="professional-links-heading">
+          <h4 id="professional-links-heading" className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
             Professional Links
             <HelpIcon text="Links to your professional profiles and portfolio" />
           </h4>
@@ -223,13 +249,52 @@ export function ProfileForm({ onSaved }: ProfileFormProps) {
           </div>
         </section>
 
-        {/* Work Authorization */}
+        {/* Resume Upload */}
         <section>
           <h4 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
+            Resume File
+            <HelpIcon text="Select your resume file (PDF or DOCX) for auto-upload when applying" />
+          </h4>
+          <div className="flex items-center gap-3">
+            <div className="flex-1">
+              <Input
+                label=""
+                value={resumeFilePath}
+                onChange={(e) => setResumeFilePath(e.target.value)}
+                placeholder="No resume selected"
+                readOnly
+                leftIcon={<DocumentIcon className="w-4 h-4" />}
+              />
+            </div>
+            <Button
+              variant="secondary"
+              onClick={handleSelectResume}
+              className="shrink-0"
+            >
+              Browse...
+            </Button>
+            {resumeFilePath && (
+              <button
+                onClick={() => setResumeFilePath("")}
+                className="p-2 text-surface-400 hover:text-red-500 transition-colors"
+                aria-label="Clear resume"
+              >
+                <ClearIcon className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+          <p className="text-xs text-surface-500 dark:text-surface-400 mt-2">
+            Supported formats: PDF, DOCX, DOC. This file will be automatically uploaded when applying.
+          </p>
+        </section>
+
+        {/* Work Authorization */}
+        <section role="group" aria-labelledby="work-auth-heading">
+          <h4 id="work-auth-heading" className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
             Work Authorization
             <HelpIcon text="Common screening questions about work eligibility" />
           </h4>
-          <div className="space-y-3">
+          <div className="space-y-3" role="group" aria-labelledby="work-auth-heading">
             <label className="flex items-start gap-3 cursor-pointer">
               <input
                 type="checkbox"
@@ -266,20 +331,22 @@ export function ProfileForm({ onSaved }: ProfileFormProps) {
         </section>
 
         {/* Automation Settings */}
-        <section>
-          <h4 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
+        <section role="group" aria-labelledby="automation-settings-heading">
+          <h4 id="automation-settings-heading" className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
             Automation Settings
             <HelpIcon text="Control how the form filler behaves" />
           </h4>
           <div className="space-y-4">
             <div className="flex items-center gap-4">
-              <label className="text-surface-700 dark:text-surface-300 text-sm">
+              <label htmlFor="max-applications-select" className="text-surface-700 dark:text-surface-300 text-sm">
                 Max applications per day:
               </label>
               <select
+                id="max-applications-select"
                 value={maxApplicationsPerDay}
                 onChange={(e) => setMaxApplicationsPerDay(parseInt(e.target.value))}
                 className="px-3 py-1.5 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100"
+                aria-label="Maximum applications per day"
               >
                 <option value="5">5</option>
                 <option value="10">10</option>
@@ -346,6 +413,22 @@ function LinkIcon({ className = "" }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+    </svg>
+  );
+}
+
+function DocumentIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    </svg>
+  );
+}
+
+function ClearIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
     </svg>
   );
 }

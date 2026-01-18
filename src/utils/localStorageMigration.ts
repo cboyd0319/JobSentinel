@@ -53,8 +53,6 @@ export async function runMigration(): Promise<MigrationResult> {
     return result;
   }
 
-  console.log('[Migration] Starting localStorage to SQLite migration...');
-
   // 1. Migrate cover letter templates
   try {
     const templatesJson = localStorage.getItem(COVER_LETTER_TEMPLATES_KEY);
@@ -64,7 +62,6 @@ export async function runMigration(): Promise<MigrationResult> {
         result.templatesImported = await invoke<number>('import_cover_letter_templates', {
           templates,
         });
-        console.log(`[Migration] Imported ${result.templatesImported} cover letter templates`);
       }
     }
   } catch (error) {
@@ -101,7 +98,6 @@ export async function runMigration(): Promise<MigrationResult> {
         result.searchesImported = await invoke<number>('import_saved_searches', {
           searches: transformedSearches,
         });
-        console.log(`[Migration] Imported ${result.searchesImported} saved searches`);
       }
     }
   } catch (error) {
@@ -117,7 +113,6 @@ export async function runMigration(): Promise<MigrationResult> {
       const prefs = JSON.parse(prefsJson);
       await invoke('save_notification_preferences', { prefs });
       result.preferencesImported = true;
-      console.log('[Migration] Imported notification preferences');
     }
   } catch (error) {
     const msg = `Failed to migrate notification preferences: ${error}`;
@@ -137,7 +132,6 @@ export async function runMigration(): Promise<MigrationResult> {
             result.searchHistoryImported++;
           }
         }
-        console.log(`[Migration] Imported ${result.searchHistoryImported} search history items`);
       }
     }
   } catch (error) {
@@ -155,7 +149,6 @@ export async function runMigration(): Promise<MigrationResult> {
   localStorage.setItem(MIGRATION_FLAG, 'true');
   result.success = result.errors.length === 0;
 
-  console.log('[Migration] Migration complete:', result);
   return result;
 }
 
@@ -185,8 +178,6 @@ export function clearMigratedData(): void {
     }
   }
   keysToRemove.forEach((key) => localStorage.removeItem(key));
-
-  console.log('[Migration] Cleared migrated localStorage data');
 }
 
 /**
@@ -194,5 +185,4 @@ export function clearMigratedData(): void {
  */
 export function resetMigration(): void {
   localStorage.removeItem(MIGRATION_FLAG);
-  console.log('[Migration] Migration flag reset');
 }

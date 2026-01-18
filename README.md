@@ -11,7 +11,7 @@
 <br>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-2.5.0-blue?style=for-the-badge" alt="Version 2.5.0">
+  <img src="https://img.shields.io/badge/Version-2.5.1-blue?style=for-the-badge" alt="Version 2.5.1">
   <img src="https://img.shields.io/badge/Windows-Ready-0078D6?style=for-the-badge&logo=Windows&logoColor=white" alt="Windows">
   <img src="https://img.shields.io/badge/macOS-Ready-000000?style=for-the-badge&logo=apple&logoColor=white" alt="macOS">
   <img src="https://img.shields.io/badge/Linux-Coming_Soon-FCC624?style=for-the-badge&logo=linux&logoColor=black" alt="Linux">

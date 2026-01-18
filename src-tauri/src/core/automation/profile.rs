@@ -19,6 +19,7 @@ pub struct ApplicationProfile {
     pub portfolio_url: Option<String>,
     pub website_url: Option<String>,
     pub default_resume_id: Option<i64>,
+    pub resume_file_path: Option<String>,
     pub default_cover_letter_template: Option<String>,
     pub us_work_authorized: bool,
     pub requires_sponsorship: bool,
@@ -52,7 +53,7 @@ impl ProfileManager {
                 UPDATE application_profile
                 SET full_name = ?, email = ?, phone = ?, linkedin_url = ?,
                     github_url = ?, portfolio_url = ?, website_url = ?,
-                    default_resume_id = ?, default_cover_letter_template = ?,
+                    default_resume_id = ?, resume_file_path = ?, default_cover_letter_template = ?,
                     us_work_authorized = ?, requires_sponsorship = ?,
                     max_applications_per_day = ?, require_manual_approval = ?,
                     updated_at = datetime('now')
@@ -67,6 +68,7 @@ impl ProfileManager {
             .bind(&profile.portfolio_url)
             .bind(&profile.website_url)
             .bind(profile.default_resume_id)
+            .bind(&profile.resume_file_path)
             .bind(&profile.default_cover_letter_template)
             .bind(profile.us_work_authorized as i32)
             .bind(profile.requires_sponsorship as i32)
@@ -84,11 +86,11 @@ impl ProfileManager {
                 INSERT INTO application_profile (
                     full_name, email, phone, linkedin_url, github_url,
                     portfolio_url, website_url, default_resume_id,
-                    default_cover_letter_template, us_work_authorized,
+                    resume_file_path, default_cover_letter_template, us_work_authorized,
                     requires_sponsorship, max_applications_per_day,
                     require_manual_approval
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 "#,
             )
             .bind(&profile.full_name)
@@ -99,6 +101,7 @@ impl ProfileManager {
             .bind(&profile.portfolio_url)
             .bind(&profile.website_url)
             .bind(profile.default_resume_id)
+            .bind(&profile.resume_file_path)
             .bind(&profile.default_cover_letter_template)
             .bind(profile.us_work_authorized as i32)
             .bind(profile.requires_sponsorship as i32)
@@ -117,7 +120,7 @@ impl ProfileManager {
             r#"
             SELECT id, full_name, email, phone, linkedin_url, github_url,
                    portfolio_url, website_url, default_resume_id,
-                   default_cover_letter_template, us_work_authorized,
+                   resume_file_path, default_cover_letter_template, us_work_authorized,
                    requires_sponsorship, max_applications_per_day,
                    require_manual_approval, created_at, updated_at
             FROM application_profile
@@ -142,6 +145,7 @@ impl ProfileManager {
                     portfolio_url: r.get("portfolio_url"),
                     website_url: r.get("website_url"),
                     default_resume_id: r.get("default_resume_id"),
+                    resume_file_path: r.get("resume_file_path"),
                     default_cover_letter_template: r.get("default_cover_letter_template"),
                     us_work_authorized: r.get::<i32, _>("us_work_authorized") != 0,
                     requires_sponsorship: r.get::<i32, _>("requires_sponsorship") != 0,
@@ -246,6 +250,7 @@ pub struct ApplicationProfileInput {
     pub portfolio_url: Option<String>,
     pub website_url: Option<String>,
     pub default_resume_id: Option<i64>,
+    pub resume_file_path: Option<String>,
     pub default_cover_letter_template: Option<String>,
     pub us_work_authorized: bool,
     pub requires_sponsorship: bool,
@@ -298,6 +303,7 @@ mod tests {
             portfolio_url: None,
             website_url: None,
             default_resume_id: None,
+            resume_file_path: None,
             default_cover_letter_template: None,
             us_work_authorized: true,
             requires_sponsorship: false,
@@ -331,6 +337,7 @@ mod tests {
             portfolio_url: None,
             website_url: None,
             default_resume_id: None,
+            resume_file_path: None,
             default_cover_letter_template: None,
             us_work_authorized: true,
             requires_sponsorship: false,

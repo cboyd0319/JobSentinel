@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS application_profile (
     portfolio_url TEXT,
     website_url TEXT,
     default_resume_id INTEGER,
+    resume_file_path TEXT, -- Path to resume file for upload (DOCX/PDF)
     default_cover_letter_template TEXT,
     -- Work authorization
     us_work_authorized INTEGER NOT NULL DEFAULT 0, -- Boolean: 0 = no, 1 = yes

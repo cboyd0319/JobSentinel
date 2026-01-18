@@ -306,6 +306,14 @@ impl FormFiller {
                     vec!["input[type='file'][name*='resume']", "input[type='file']"],
                 );
                 selectors.insert(
+                    FieldType::CoverLetter,
+                    vec![
+                        "textarea[name*='cover_letter']",
+                        "textarea[name*='cover-letter']",
+                        "input[type='file'][name*='cover']",
+                    ],
+                );
+                selectors.insert(
                     FieldType::WorkAuthorized,
                     vec!["select[name*='authorized']", "input[name*='authorized']"],
                 );

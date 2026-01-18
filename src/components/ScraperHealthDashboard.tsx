@@ -156,7 +156,7 @@ export function ScraperHealthDashboard({ onClose }: ScraperHealthDashboardProps)
   const [error, setError] = useState<string | null>(null);
 
   // Load health data
-  const loadHealthData = useCallback(async () => {
+  const loadHealthData = useCallback(async (signal?: AbortSignal) => {
     try {
       setLoading(true);
       setError(null);
@@ -167,29 +167,39 @@ export function ScraperHealthDashboard({ onClose }: ScraperHealthDashboardProps)
         invoke<CredentialHealth[]>("get_expiring_credentials"),
       ]);
 
+      if (signal?.aborted) return;
+
       setSummary(summaryData);
       setScrapers(scrapersData);
       setCredentials(credentialsData);
     } catch (err) {
+      if (signal?.aborted) return;
       setError(err instanceof Error ? err.message : String(err));
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) {
+        setLoading(false);
+      }
     }
   }, []);
 
   // Load run history for a scraper
-  const loadRunHistory = useCallback(async (scraperName: string) => {
+  const loadRunHistory = useCallback(async (scraperName: string, signal?: AbortSignal) => {
     try {
       setRunsLoading(true);
       const runsData = await invoke<ScraperRun[]>("get_scraper_runs", {
         scraperName,
         limit: 20,
       });
+      
+      if (signal?.aborted) return;
       setRuns(runsData);
     } catch (err) {
+      if (signal?.aborted) return;
       console.error("Failed to load run history:", err);
     } finally {
-      setRunsLoading(false);
+      if (!signal?.aborted) {
+        setRunsLoading(false);
+      }
     }
   }, []);
 
@@ -238,14 +248,22 @@ export function ScraperHealthDashboard({ onClose }: ScraperHealthDashboardProps)
 
   // Initial load
   useEffect(() => {
-    loadHealthData();
+    const controller = new AbortController();
+    
+    loadHealthData(controller.signal);
+    
+    return () => controller.abort();
   }, [loadHealthData]);
 
   // Load runs when scraper selected
   useEffect(() => {
+    const controller = new AbortController();
+    
     if (selectedScraper) {
-      loadRunHistory(selectedScraper);
+      loadRunHistory(selectedScraper, controller.signal);
     }
+    
+    return () => controller.abort();
   }, [selectedScraper, loadRunHistory]);
 
   if (loading) {
@@ -265,7 +283,7 @@ export function ScraperHealthDashboard({ onClose }: ScraperHealthDashboardProps)
           <CardHeader title="Error" />
           <p className="text-danger mb-4">{error}</p>
           <div className="flex gap-2">
-            <Button onClick={loadHealthData}>Retry</Button>
+            <Button onClick={() => loadHealthData()}>Retry</Button>
             <Button variant="secondary" onClick={onClose}>Close</Button>
           </div>
         </Card>
@@ -296,7 +314,7 @@ export function ScraperHealthDashboard({ onClose }: ScraperHealthDashboardProps)
                 >
                   {testingAll ? "Testing..." : "Test All"}
                 </Button>
-                <Button variant="secondary" onClick={loadHealthData}>
+                <Button variant="secondary" onClick={() => loadHealthData()}>
                   Refresh
                 </Button>
                 <Button variant="secondary" onClick={onClose}>
@@ -307,7 +325,7 @@ export function ScraperHealthDashboard({ onClose }: ScraperHealthDashboardProps)
 
             {/* Summary Stats */}
             {summary && (
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6">
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6" role="region" aria-label="Health summary statistics">
                 <StatCard
                   label="Total Scrapers"
                   value={summary.total_scrapers}
@@ -347,7 +365,7 @@ export function ScraperHealthDashboard({ onClose }: ScraperHealthDashboardProps)
 
             {/* Credential Warnings */}
             {credentials.length > 0 && (
-              <div className="mb-6 p-4 bg-alert-50 dark:bg-alert-900/20 rounded-lg border border-alert-200 dark:border-alert-800">
+              <div className="mb-6 p-4 bg-alert-50 dark:bg-alert-900/20 rounded-lg border border-alert-200 dark:border-alert-800" role="alert" aria-live="polite">
                 <h3 className="font-medium text-alert-700 dark:text-alert-400 mb-2">
                   Credential Warnings
                 </h3>
@@ -371,9 +389,9 @@ export function ScraperHealthDashboard({ onClose }: ScraperHealthDashboardProps)
 
             {/* Scraper List */}
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full text-sm" role="table" aria-label="Scraper health status">
                 <thead>
-                  <tr className="border-b border-surface-200 dark:border-surface-700">
+                  <tr className="border-b border-surface-200 dark:border-surface-700" role="row">
                     <th className="text-left py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
                       Scraper
                     </th>
@@ -540,17 +558,17 @@ export function ScraperHealthDashboard({ onClose }: ScraperHealthDashboardProps)
 
             {/* Run History Panel */}
             {selectedScraper && (
-              <div className="mt-6 p-4 bg-surface-50 dark:bg-surface-700/30 rounded-lg">
-                <h3 className="font-medium text-surface-900 dark:text-white mb-4">
+              <div className="mt-6 p-4 bg-surface-50 dark:bg-surface-700/30 rounded-lg" role="region" aria-labelledby="run-history-title" aria-live="polite">
+                <h3 id="run-history-title" className="font-medium text-surface-900 dark:text-white mb-4">
                   Recent Runs: {scrapers.find((s) => s.scraper_name === selectedScraper)?.display_name}
                 </h3>
                 {runsLoading ? (
                   <LoadingSpinner message="Loading run history..." />
                 ) : runs.length === 0 ? (
-                  <p className="text-surface-500 dark:text-surface-400">No recent runs found.</p>
+                  <p className="text-surface-500 dark:text-surface-400" role="status">No recent runs found.</p>
                 ) : (
                   <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
+                    <table className="w-full text-sm" role="table" aria-label="Run history">
                       <thead>
                         <tr className="border-b border-surface-200 dark:border-surface-600">
                           <th className="text-left py-2 px-3 font-medium text-surface-600 dark:text-surface-400">

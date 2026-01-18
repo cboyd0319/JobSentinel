@@ -12,7 +12,7 @@ interface CareerProfileSelectorProps {
 
 export function CareerProfileSelector({ selectedProfile, onSelectProfile }: CareerProfileSelectorProps) {
   return (
-    <div className="animate-slide-up">
+    <div className="animate-slide-up" role="radiogroup" aria-label="Select career profile">
       <div className="grid grid-cols-2 gap-3 mb-4">
         {CAREER_PROFILES.map((profile) => (
           <ProfileCard
@@ -34,6 +34,9 @@ export function CareerProfileSelector({ selectedProfile, onSelectProfile }: Care
             : "border-surface-200 hover:border-surface-300 bg-white"
           }
         `}
+        role="radio"
+        aria-checked={selectedProfile === null}
+        aria-label="Custom Setup: I'll enter my own job titles and skills"
       >
         <div className="flex items-center gap-3">
           <div className={`
@@ -76,6 +79,9 @@ function ProfileCard({ profile, isSelected, onSelect }: ProfileCardProps) {
           : "border-surface-200 hover:border-surface-300 bg-white hover:shadow-sm"
         }
       `}
+      role="radio"
+      aria-checked={isSelected}
+      aria-label={`${profile.name}: ${profile.description}`}
     >
       <div className="flex flex-col gap-2">
         <div className={`
@@ -110,20 +116,21 @@ function SelectedProfilePreview({ profileId }: { profileId: string }) {
   if (!profile) return null;
 
   return (
-    <div className="mt-4 p-4 bg-sentinel-50 rounded-xl border border-sentinel-200">
-      <p className="text-sm font-medium text-sentinel-800 mb-2">
+    <div className="mt-4 p-4 bg-sentinel-50 rounded-xl border border-sentinel-200" role="region" aria-labelledby="profile-preview-title" aria-live="polite">
+      <p id="profile-preview-title" className="text-sm font-medium text-sentinel-800 mb-2">
         You'll see jobs like:
       </p>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2" role="list" aria-label="Sample job titles">
         {profile.sampleTitles.map((title) => (
           <span
             key={title}
             className="px-3 py-1 text-sm bg-white text-sentinel-700 rounded-full border border-sentinel-200"
+            role="listitem"
           >
             {title}
           </span>
         ))}
-        <span className="px-3 py-1 text-sm text-sentinel-600">
+        <span className="px-3 py-1 text-sm text-sentinel-600" aria-label={`Plus ${profile.titleAllowlist.length - profile.sampleTitles.length} more job titles`}>
           + {profile.titleAllowlist.length - profile.sampleTitles.length} more
         </span>
       </div>

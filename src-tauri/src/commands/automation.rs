@@ -64,6 +64,7 @@ pub struct ApplicationProfileResponse {
     pub portfolio_url: Option<String>,
     pub website_url: Option<String>,
     pub default_resume_id: Option<i64>,
+    pub resume_file_path: Option<String>,
     pub default_cover_letter_template: Option<String>,
     pub us_work_authorized: bool,
     pub requires_sponsorship: bool,
@@ -85,6 +86,7 @@ impl From<crate::core::automation::ApplicationProfile> for ApplicationProfileRes
             portfolio_url: p.portfolio_url,
             website_url: p.website_url,
             default_resume_id: p.default_resume_id,
+            resume_file_path: p.resume_file_path,
             default_cover_letter_template: p.default_cover_letter_template,
             us_work_authorized: p.us_work_authorized,
             requires_sponsorship: p.requires_sponsorship,
@@ -448,8 +450,11 @@ pub async fn fill_application_form(
     let platform = AtsDetector::detect_from_url(&job_url);
     tracing::info!("Detected ATS platform: {:?}", platform);
 
-    // Get resume path if configured (TODO: export from resume builder)
-    let resume_path = None; // Will be implemented when resume builder exports are integrated
+    // Get resume path from profile if configured
+    let resume_path = profile
+        .resume_file_path
+        .as_ref()
+        .map(std::path::PathBuf::from);
 
     // Create form filler and fill the form
     // The profile from ProfileManager is already ApplicationProfile with DateTime fields

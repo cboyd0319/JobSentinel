@@ -3,7 +3,7 @@
 //! Scrapes jobs from Indeed.com using their public search API and RSS feeds.
 //! Indeed is one of the largest job boards with millions of listings.
 
-use super::http_client::get_client;
+use super::http_client::get_with_retry;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
 use anyhow::{Context, Result};
@@ -67,12 +67,8 @@ impl IndeedScraper {
 
         tracing::debug!("Indeed search URL: {}", url);
 
-        // Use shared HTTP client
-        let client = get_client();
-
-        let response = client
-            .get(&url)
-            .send()
+        // Use retry logic for reliability against rate limits
+        let response = get_with_retry(&url)
             .await
             .context("Failed to fetch Indeed search results")?;
 

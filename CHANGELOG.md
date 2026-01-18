@@ -5,6 +5,94 @@ All notable changes to JobSentinel will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.1] - 2026-01-18
+
+### Added - Code Quality & Feature Completion Sprint
+
+Major improvements to existing features, code quality, accessibility, and test coverage.
+
+#### Feature Completions
+
+- **Resume → One-Click Apply Integration** - Resume file path now flows from Resume Builder to One-Click Apply
+  - Added `resume_file_path` field to ApplicationProfile
+  - File picker in ProfileForm.tsx for resume selection
+  - FormFiller receives resume path for ATS form uploads
+
+- **PDF Export Implementation** - Browser-based PDF export for resumes
+  - New `export_resume_html` Tauri command returns print-ready HTML
+  - ResumeBuilder uses browser print dialog for PDF generation
+  - Works cross-platform without external dependencies
+
+#### Scraper Reliability
+
+- **HTTP Retry Logic** - Exponential backoff for transient failures
+  - `get_with_retry()` and `post_with_retry()` in http_client.rs
+  - Retries on 429 (rate limit) and 5xx errors
+  - Backoff: 1s → 2s → 4s → 8s (max 3 retries)
+  - Respects Retry-After header when present
+  - Updated Indeed, Greenhouse, LinkedIn scrapers
+
+- **Response Caching** - In-memory cache to reduce API load
+  - 5-minute cache duration (configurable)
+  - `get_with_cache()` function in http_client.rs
+  - Hit/miss statistics with `cache_stats()`
+  - Thread-safe with tokio RwLock
+
+#### Accessibility (WCAG 2.1 AA)
+
+- **ARIA Attributes** - Added to 12 components missing accessibility
+  - LocationHeatmap, MarketSnapshotCard, VirtualJobList
+  - CompanyAutocomplete, StatCard, CareerProfileSelector
+  - MarketAlertCard, TrendChart, KeyboardShortcutsHelp
+  - ScraperHealthDashboard, ProfileForm, ApplicationPreview
+  - Extended Card and Badge components to accept ARIA props
+
+#### Code Quality
+
+- **Console Cleanup** - Removed 9 debug console.log statements
+  - Kept legitimate error logging in catch blocks
+  - Cleaned vitals.ts and localStorageMigration.ts
+
+- **useEffect Cleanup** - Added AbortController to 4 components
+  - ScraperHealthDashboard, ApplicationPreview
+  - ApplicationProfile, Market
+  - Prevents memory leaks on unmount
+
+- **Recharts Fix** - Fixed circular dependency warnings
+  - Changed to direct ES6 module imports
+  - Added TypeScript declarations for direct imports
+
+#### Performance
+
+- **Lazy Loading** - Charts now loaded on-demand
+  - TrendChart and AnalyticsPanel use React.lazy()
+  - Reduces initial bundle load time
+  - Charts chunk separated (387KB, loaded when needed)
+
+#### Test Coverage
+
+- **248 new component tests** across 16 test files
+  - StatCard, LoadingSpinner, Dropdown, Input, HelpIcon (batch 1)
+  - GhostIndicator, CompanyAutocomplete, VirtualJobList (batch 2)
+  - MarketAlertCard, MarketSnapshotCard, LocationHeatmap (batch 2)
+  - ProfileForm, ApplicationPreview, ScreeningAnswersForm, ApplyButton (batch 3)
+  - ErrorBoundary, ModalErrorBoundary, PageErrorBoundary (batch 4)
+  - FocusTrap, SkipToContent, Tooltip (batch 4)
+
+### Changed
+
+- Card and Badge components now extend React.HTMLAttributes for ARIA support
+- http_client.rs exports new retry and cache functions
+- TrendChart.tsx and AnalyticsPanel.tsx use direct recharts imports
+
+### Fixed
+
+- Recharts circular dependency build warnings
+- useEffect memory leaks in async data fetching
+- Missing ARIA labels causing screen reader issues
+
+---
+
 ## [2.5.0] - 2026-01-18
 
 ### Added - Market Intelligence UI

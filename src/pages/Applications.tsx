@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, lazy, Suspense } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { cachedInvoke, invalidateCacheByCommand } from "../utils/api";
 import {
@@ -20,9 +20,12 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Button, Card, Badge, AnalyticsPanel, InterviewScheduler, CoverLetterTemplates } from "../components";
+import { Button, Card, Badge, InterviewScheduler, CoverLetterTemplates, LoadingSpinner } from "../components";
 import { useToast } from "../contexts";
 import { logError, getErrorMessage } from "../utils/errorUtils";
+
+// Lazy load AnalyticsPanel to defer recharts bundle
+const AnalyticsPanel = lazy(() => import("../components/AnalyticsPanel").then(m => ({ default: m.AnalyticsPanel })));
 
 interface Application {
   id: number;
@@ -705,7 +708,9 @@ export default function Applications({ onBack }: ApplicationsProps) {
 
       {/* Analytics Panel */}
       {showAnalytics && (
-        <AnalyticsPanel onClose={() => setShowAnalytics(false)} />
+        <Suspense fallback={<div className="fixed inset-0 flex items-center justify-center bg-surface-900/50"><LoadingSpinner message="Loading analytics..." /></div>}>
+          <AnalyticsPanel onClose={() => setShowAnalytics(false)} />
+        </Suspense>
       )}
 
       {/* Interview Scheduler */}

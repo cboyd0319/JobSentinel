@@ -1,4 +1,4 @@
-interface CardProps {
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   className?: string;
   hover?: boolean;
@@ -19,6 +19,7 @@ export function Card({
   hover = false,
   padding = "md",
   onClick,
+  ...ariaProps
 }: CardProps) {
   const isInteractive = Boolean(onClick);
 
@@ -38,7 +39,7 @@ export function Card({
         ${className}
       `}
       onClick={onClick}
-      role={isInteractive ? "button" : undefined}
+      role={ariaProps.role || (isInteractive ? "button" : undefined)}
       tabIndex={isInteractive ? 0 : undefined}
       onKeyDown={isInteractive ? (e) => {
         if (e.key === "Enter" || e.key === " ") {
@@ -46,6 +47,7 @@ export function Card({
           onClick?.();
         }
       } : undefined}
+      {...ariaProps}
     >
       {children}
     </div>

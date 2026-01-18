@@ -7,6 +7,7 @@ use anyhow::Result;
 use async_trait::async_trait;
 
 pub mod builtin;
+pub mod cache;
 pub mod dice;
 pub mod greenhouse;
 pub mod hn_hiring;

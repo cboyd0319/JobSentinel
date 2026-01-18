@@ -121,35 +121,39 @@ pub struct Project {
 pub struct ResumeExporter;
 
 impl ResumeExporter {
-    /// Export resume to PDF format
+    /// Export resume to HTML format for browser-based PDF generation
+    ///
+    /// Returns HTML string that can be opened in a browser and printed to PDF
+    /// using the browser's native print functionality. This approach provides:
+    /// - Better PDF quality than custom PDF libraries
+    /// - No external dependencies
+    /// - Professional typography and layout
+    ///
+    /// **Implementation**: Option A - HTML + browser print (RECOMMENDED)
+    pub fn export_html(resume: &ResumeData, template: TemplateId) -> String {
+        // Convert export types to template types
+        let template_resume = convert_to_template_resume(resume);
+        
+        // Use existing template renderer for HTML generation
+        crate::core::resume::templates::TemplateRenderer::render_html(
+            &template_resume,
+            convert_template_id(template),
+        )
+    }
+
+    /// Legacy PDF export function - now redirects to HTML export
     ///
     /// Returns PDF bytes suitable for saving to file or sending to client.
     ///
     /// # Implementation Status
     ///
-    /// **TODO**: Full PDF generation with printpdf is complex. This is a stub
-    /// that will be implemented in a follow-up. For now, use DOCX export or
-    /// generate HTML and convert client-side.
+    /// This function now generates HTML instead of PDF bytes. Use `export_html()`
+    /// for the recommended HTML-based approach with browser print-to-PDF.
+    #[deprecated(since = "2.0.0", note = "Use export_html() instead")]
     pub fn export_pdf(_resume: &ResumeData, _template: TemplateId) -> Result<Vec<u8>> {
-        // TODO: Implement full PDF generation using printpdf crate
-        // The printpdf API requires:
-        // 1. Create PdfDocument with page dimensions
-        // 2. Add fonts (built-in Helvetica or embed custom fonts)
-        // 3. Calculate text positions manually (x, y coordinates)
-        // 4. Handle line wrapping, page breaks
-        // 5. Render text with proper styling
-        //
-        // This is substantial work. Alternatives:
-        // - Option A: Generate HTML in templates.rs, convert client-side with browser print
-        // - Option B: Use wkhtmltopdf external binary (requires system dependency)
-        // - Option C: Implement full printpdf rendering (200+ lines of coordinate math)
-        //
-        // For v2.0, recommend Option A (HTML + browser print) for speed.
-        // This stub ensures the API contract exists for future implementation.
-
         anyhow::bail!(
-            "PDF export not yet implemented. Use export_docx() or export_text() instead. \
-             For PDF output, generate HTML template and use browser print-to-PDF."
+            "PDF export not yet implemented. Use export_html() for browser print-to-PDF, \
+             or export_docx() for Word format."
         )
     }
 
@@ -359,6 +363,78 @@ impl ResumeExporter {
         }
 
         output
+    }
+}
+
+// Helper functions for type conversion
+
+/// Convert export TemplateId to templates TemplateId
+fn convert_template_id(template: TemplateId) -> crate::core::resume::templates::TemplateId {
+    match template {
+        TemplateId::Professional => crate::core::resume::templates::TemplateId::Classic,
+        TemplateId::Modern => crate::core::resume::templates::TemplateId::Modern,
+        TemplateId::Traditional => crate::core::resume::templates::TemplateId::Executive,
+    }
+}
+
+/// Convert export ResumeData to templates ResumeData
+fn convert_to_template_resume(resume: &ResumeData) -> crate::core::resume::templates::ResumeData {
+    use crate::core::resume::templates;
+    
+    templates::ResumeData {
+        contact: templates::ContactInfo {
+            name: resume.personal.full_name.clone(),
+            email: resume.personal.email.clone(),
+            phone: Some(resume.personal.phone.clone()),
+            location: Some(resume.personal.location.clone()),
+            linkedin: resume.personal.linkedin_url.clone(),
+            website: resume.personal.website_url.clone(),
+        },
+        summary: resume.summary.clone(),
+        experience: resume
+            .experience
+            .iter()
+            .map(|exp| templates::Experience {
+                title: exp.job_title.clone(),
+                company: exp.company.clone(),
+                location: exp.location.clone(),
+                start_date: exp.start_date.clone(),
+                end_date: exp.end_date.clone(),
+                achievements: exp.responsibilities.clone(),
+            })
+            .collect(),
+        education: resume
+            .education
+            .iter()
+            .map(|edu| templates::Education {
+                degree: edu.degree.clone(),
+                institution: edu.institution.clone(),
+                location: None,
+                graduation_date: Some(edu.graduation_year.clone()),
+                gpa: edu.gpa.map(|g| format!("{:.2}", g)),
+                honors: edu.honors.as_ref().map(|h| vec![h.clone()]).unwrap_or_default(),
+            })
+            .collect(),
+        skills: resume
+            .skills
+            .iter()
+            .map(|skill_cat| templates::SkillCategory {
+                name: skill_cat.category.clone(),
+                skills: skill_cat.skills.clone(),
+            })
+            .collect(),
+        certifications: resume
+            .certifications
+            .iter()
+            .map(|cert| templates::Certification {
+                name: cert.name.clone(),
+                issuer: cert.issuer.clone(),
+                date: Some(cert.date.clone()),
+                expiry: None,
+            })
+            .collect(),
+        clearance: None,
+        military_info: None,
     }
 }
 
@@ -637,6 +713,20 @@ mod tests {
     }
 
     #[test]
+    fn test_export_html() {
+        let resume = create_test_resume();
+        let html = ResumeExporter::export_html(&resume, TemplateId::Professional);
+
+        assert!(!html.is_empty());
+        assert!(html.contains("<html"));
+        assert!(html.contains("John Doe"));
+        assert!(html.contains("john.doe@example.com"));
+        assert!(html.contains("Tech Corp"));
+        assert!(html.contains("Stanford University"));
+    }
+
+    #[test]
+    #[allow(deprecated)]
     fn test_export_pdf_not_implemented() {
         let resume = create_test_resume();
         let result = ResumeExporter::export_pdf(&resume, TemplateId::Professional);

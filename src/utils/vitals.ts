@@ -27,23 +27,18 @@ export function reportWebVitals(onReport?: VitalsCallback) {
 /**
  * Default metric logger - logs to console in dev mode
  */
-function logMetric(metric: Metric) {
-  // Only log in development mode
-  if (import.meta.env.DEV) {
-    const rating = getMetricRating(metric);
-    console.log(
-      `[Web Vitals] ${metric.name}: ${Math.round(metric.value)}${getMetricUnit(metric.name)} (${rating})`
-    );
-  }
-
+function logMetric(_metric: Metric) {
   // In production, you could send to analytics service
   // Example: sendToAnalytics(metric)
 }
 
+// Note: getMetricRating and getMetricUnit are kept for potential future use
+// with analytics services or custom reporting
+
 /**
  * Get human-readable rating for a metric
  */
-function getMetricRating(metric: Metric): string {
+export function getMetricRating(metric: Metric): string {
   const { name, rating } = metric;
 
   if (rating === "good") return "✅ Good";
@@ -70,7 +65,7 @@ function getMetricRating(metric: Metric): string {
 /**
  * Get unit for metric display
  */
-function getMetricUnit(name: string): string {
+export function getMetricUnit(name: string): string {
   if (name === "CLS") return ""; // Unitless
   return "ms";
 }

@@ -1,16 +1,14 @@
 import { useMemo } from "react";
-import {
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-} from "recharts";
+import { LineChart } from "recharts/es6/chart/LineChart";
+import { Line } from "recharts/es6/cartesian/Line";
+import { BarChart } from "recharts/es6/chart/BarChart";
+import { Bar } from "recharts/es6/cartesian/Bar";
+import { XAxis } from "recharts/es6/cartesian/XAxis";
+import { YAxis } from "recharts/es6/cartesian/YAxis";
+import { CartesianGrid } from "recharts/es6/cartesian/CartesianGrid";
+import { Tooltip } from "recharts/es6/component/Tooltip";
+import { ResponsiveContainer } from "recharts/es6/component/ResponsiveContainer";
+import { Legend } from "recharts/es6/component/Legend";
 import { Card } from "./";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -51,12 +49,12 @@ export function TrendChart({
 
   if (loading) {
     return (
-      <Card className="dark:bg-surface-800">
-        <h3 className="font-display text-display-sm text-surface-900 dark:text-white mb-4">
+      <Card className="dark:bg-surface-800" role="region" aria-labelledby={`${title.replace(/\s+/g, '-').toLowerCase()}-title`}>
+        <h3 id={`${title.replace(/\s+/g, '-').toLowerCase()}-title`} className="font-display text-display-sm text-surface-900 dark:text-white mb-4">
           {title}
         </h3>
-        <div className="animate-pulse">
-          <div className="h-[250px] bg-surface-200 dark:bg-surface-700 rounded" />
+        <div className="animate-pulse" role="status" aria-busy="true" aria-label="Loading chart">
+          <div className="h-[250px] bg-surface-200 dark:bg-surface-700 rounded" aria-hidden="true" />
         </div>
       </Card>
     );
@@ -64,11 +62,11 @@ export function TrendChart({
 
   if (data.length === 0) {
     return (
-      <Card className="dark:bg-surface-800">
-        <h3 className="font-display text-display-sm text-surface-900 dark:text-white mb-4">
+      <Card className="dark:bg-surface-800" role="region" aria-labelledby={`${title.replace(/\s+/g, '-').toLowerCase()}-title`}>
+        <h3 id={`${title.replace(/\s+/g, '-').toLowerCase()}-title`} className="font-display text-display-sm text-surface-900 dark:text-white mb-4">
           {title}
         </h3>
-        <div className="h-[250px] flex items-center justify-center">
+        <div className="h-[250px] flex items-center justify-center" role="status">
           <p className="text-surface-500 dark:text-surface-400">{emptyMessage}</p>
         </div>
       </Card>
@@ -81,11 +79,12 @@ export function TrendChart({
   };
 
   return (
-    <Card className="dark:bg-surface-800">
-      <h3 className="font-display text-display-sm text-surface-900 dark:text-white mb-4">
+    <Card className="dark:bg-surface-800" role="region" aria-labelledby={`${title.replace(/\s+/g, '-').toLowerCase()}-title`}>
+      <h3 id={`${title.replace(/\s+/g, '-').toLowerCase()}-title`} className="font-display text-display-sm text-surface-900 dark:text-white mb-4">
         {title}
       </h3>
-      <ResponsiveContainer width="100%" height={height}>
+      <div role="img" aria-label={`${title} - ${type} chart showing ${data.length} data points`}>
+        <ResponsiveContainer width="100%" height={height}>
         {type === "line" ? (
           <LineChart {...commonProps}>
             <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
@@ -163,6 +162,7 @@ export function TrendChart({
           </BarChart>
         )}
       </ResponsiveContainer>
+      </div>
     </Card>
   );
 }

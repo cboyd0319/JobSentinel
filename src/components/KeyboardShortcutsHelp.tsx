@@ -59,14 +59,14 @@ export function ShortcutKey({ children }: { children: string }) {
 
 function ShortcutRow({ keys, description }: { keys: string[]; description: string }) {
   return (
-    <div className="flex items-center justify-between py-1.5">
+    <div className="flex items-center justify-between py-1.5" role="listitem">
       <span className="text-sm text-surface-600 dark:text-surface-400">
         {description}
       </span>
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1" role="group" aria-label={`Keyboard shortcut: ${keys.join(' or ')}`}>
         {keys.map((key, i) => (
           <span key={key} className="flex items-center gap-1">
-            {i > 0 && <span className="text-xs text-surface-400">or</span>}
+            {i > 0 && <span className="text-xs text-surface-400" aria-hidden="true">or</span>}
             <ShortcutKey>{key}</ShortcutKey>
           </span>
         ))}
@@ -77,11 +77,11 @@ function ShortcutRow({ keys, description }: { keys: string[]; description: strin
 
 function ShortcutSection({ title, shortcuts }: { title: string; shortcuts: { keys: string[]; description: string }[] }) {
   return (
-    <div>
-      <h4 className="text-xs font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wide mb-2">
+    <div role="group" aria-labelledby={`shortcut-section-${title.replace(/\s+/g, '-').toLowerCase()}`}>
+      <h4 id={`shortcut-section-${title.replace(/\s+/g, '-').toLowerCase()}`} className="text-xs font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wide mb-2">
         {title}
       </h4>
-      <div className="space-y-0.5">
+      <div className="space-y-0.5" role="list" aria-label={`${title} shortcuts`}>
         {shortcuts.map((shortcut) => (
           <ShortcutRow key={shortcut.description} {...shortcut} />
         ))}
@@ -105,7 +105,7 @@ export function KeyboardShortcutsHelp({ isOpen, onClose }: KeyboardShortcutsHelp
       title="Keyboard Shortcuts"
       size="md"
     >
-      <div className="grid grid-cols-2 gap-6 p-4">
+      <div className="grid grid-cols-2 gap-6 p-4" role="region" aria-label="Keyboard shortcuts reference">
         <div className="space-y-6">
           <ShortcutSection {...SHORTCUTS.navigation} />
           <ShortcutSection {...SHORTCUTS.actions} />
@@ -116,7 +116,7 @@ export function KeyboardShortcutsHelp({ isOpen, onClose }: KeyboardShortcutsHelp
         </div>
       </div>
 
-      <div className="border-t border-surface-200 dark:border-surface-700 px-4 py-3 bg-surface-50 dark:bg-surface-800/50 rounded-b-lg space-y-2">
+      <div className="border-t border-surface-200 dark:border-surface-700 px-4 py-3 bg-surface-50 dark:bg-surface-800/50 rounded-b-lg space-y-2" role="contentinfo">
         <p className="text-xs text-surface-500 dark:text-surface-400 text-center">
           Press <ShortcutKey>?</ShortcutKey> anytime to show this help
         </p>
@@ -124,6 +124,7 @@ export function KeyboardShortcutsHelp({ isOpen, onClose }: KeyboardShortcutsHelp
           <button
             onClick={handleStartTour}
             className="text-xs text-sentinel-600 dark:text-sentinel-400 hover:text-sentinel-700 dark:hover:text-sentinel-300 underline"
+            aria-label={hasCompletedTour ? 'Retake the guided tour' : 'Take a guided tour'}
           >
             {hasCompletedTour ? 'Retake the guided tour' : 'Take a guided tour'}
           </button>

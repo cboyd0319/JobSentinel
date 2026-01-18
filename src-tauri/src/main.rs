@@ -170,6 +170,7 @@ fn main() {
             commands::resume::render_resume_html,
             commands::resume::render_resume_text,
             commands::resume::export_resume_docx,
+            commands::resume::export_resume_html,
             commands::resume::export_resume_text,
             // ATS Optimizer commands (v2.0)
             commands::resume::analyze_resume_for_job,
