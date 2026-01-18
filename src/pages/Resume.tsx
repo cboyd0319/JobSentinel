@@ -48,6 +48,8 @@ interface MatchResult {
   company: string;
   overall_match_score: number;
   skills_match_score: number | null;
+  experience_match_score: number | null;
+  education_match_score: number | null;
   matching_skills: string[];
   missing_skills: string[];
   gap_analysis: string | null;
@@ -79,6 +81,7 @@ export default function Resume({ onBack }: ResumeProps) {
   const [editingSkillId, setEditingSkillId] = useState<number | null>(null);
   const [showAddSkill, setShowAddSkill] = useState(false);
   const [showResumeLibrary, setShowResumeLibrary] = useState(false);
+  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const toast = useToast();
 
   // Form state for editing/adding skills
@@ -389,12 +392,53 @@ export default function Resume({ onBack }: ResumeProps) {
                   {skills.slice(0, 15).map((skill) => (
                     <Badge key={skill.id} variant={getProficiencyColor(skill.proficiency_level)}>
                       {skill.skill_name}
-                      {skill.years_experience && ` (${skill.years_experience}y)`}
+                      {skill.years_experience && ` • ${skill.years_experience}y`}
+                      <span className="ml-1 text-xs opacity-70">
+                        ({Math.round(skill.confidence_score * 100)}%)
+                      </span>
                     </Badge>
                   ))}
                   {skills.length > 15 && (
                     <Badge variant="surface">+{skills.length - 15} more</Badge>
                   )}
+                </div>
+                {/* Proficiency Distribution Chart */}
+                <div className="mt-4 pt-4 border-t border-surface-200 dark:border-surface-700">
+                  <h4 className="text-xs font-medium text-surface-600 dark:text-surface-400 mb-2">
+                    Proficiency Distribution
+                  </h4>
+                  <div className="space-y-2">
+                    {PROFICIENCY_LEVELS.map((level) => {
+                      const count = skills.filter(
+                        (s) => s.proficiency_level?.toLowerCase() === level.toLowerCase()
+                      ).length;
+                      const percentage = skills.length > 0 ? (count / skills.length) * 100 : 0;
+                      return (
+                        <div key={level} className="flex items-center gap-2">
+                          <span className="text-xs text-surface-600 dark:text-surface-400 w-20">
+                            {level}
+                          </span>
+                          <div className="flex-1 h-5 bg-surface-100 dark:bg-surface-700 rounded overflow-hidden">
+                            <div
+                              className={`h-full ${
+                                level === "Expert"
+                                  ? "bg-sentinel-500"
+                                  : level === "Advanced"
+                                  ? "bg-alert-500"
+                                  : level === "Intermediate"
+                                  ? "bg-blue-500"
+                                  : "bg-surface-400"
+                              }`}
+                              style={{ width: `${percentage}%` }}
+                            />
+                          </div>
+                          <span className="text-xs text-surface-500 dark:text-surface-400 w-12 text-right">
+                            {count} ({Math.round(percentage)}%)
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </Card>
@@ -405,9 +449,23 @@ export default function Resume({ onBack }: ResumeProps) {
                 <h2 className="font-display text-display-sm text-surface-900 dark:text-white">
                   Skills Management
                 </h2>
-                <p className="text-sm text-surface-500 dark:text-surface-400">
-                  Edit, delete, or add skills
-                </p>
+                <div className="flex items-center gap-3">
+                  <select
+                    value={categoryFilter || ""}
+                    onChange={(e) => setCategoryFilter(e.target.value || null)}
+                    className="px-3 py-1.5 text-sm rounded-lg border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-800 dark:text-surface-200 focus:ring-2 focus:ring-sentinel-500"
+                  >
+                    <option value="">All Categories</option>
+                    {SKILL_CATEGORIES.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-sm text-surface-500 dark:text-surface-400">
+                    Edit, delete, or add skills
+                  </p>
+                </div>
               </div>
 
               {/* Add Skill Form */}
@@ -488,7 +546,9 @@ export default function Resume({ onBack }: ResumeProps) {
                 </div>
               ) : (
                 <div className="space-y-2 max-h-[500px] overflow-y-auto pr-2">
-                  {skills.map((skill) => (
+                  {skills
+                    .filter((skill) => !categoryFilter || skill.skill_category === categoryFilter)
+                    .map((skill) => (
                     <div
                       key={skill.id}
                       className={`p-3 rounded-lg border ${
@@ -664,6 +724,67 @@ export default function Resume({ onBack }: ResumeProps) {
                         <ScoreDisplay score={match.overall_match_score} size="sm" />
                       </div>
 
+                      {/* Score Breakdown */}
+                      {(match.skills_match_score !== null ||
+                        match.experience_match_score !== null ||
+                        match.education_match_score !== null) && (
+                        <div className="mb-4 p-3 bg-surface-50 dark:bg-surface-700 rounded-lg">
+                          <p className="text-xs font-medium text-surface-600 dark:text-surface-400 mb-2">
+                            Score Breakdown
+                          </p>
+                          <div className="space-y-2">
+                            {match.skills_match_score !== null && (
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-surface-600 dark:text-surface-400 w-24">
+                                  Skills (50%)
+                                </span>
+                                <div className="flex-1 h-4 bg-surface-200 dark:bg-surface-800 rounded overflow-hidden">
+                                  <div
+                                    className="h-full bg-sentinel-500"
+                                    style={{ width: `${match.skills_match_score}%` }}
+                                  />
+                                </div>
+                                <span className="text-xs font-medium text-surface-700 dark:text-surface-300 w-12 text-right">
+                                  {Math.round(match.skills_match_score)}%
+                                </span>
+                              </div>
+                            )}
+                            {match.experience_match_score !== null && (
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-surface-600 dark:text-surface-400 w-24">
+                                  Experience (30%)
+                                </span>
+                                <div className="flex-1 h-4 bg-surface-200 dark:bg-surface-800 rounded overflow-hidden">
+                                  <div
+                                    className="h-full bg-alert-500"
+                                    style={{ width: `${match.experience_match_score}%` }}
+                                  />
+                                </div>
+                                <span className="text-xs font-medium text-surface-700 dark:text-surface-300 w-12 text-right">
+                                  {Math.round(match.experience_match_score)}%
+                                </span>
+                              </div>
+                            )}
+                            {match.education_match_score !== null && (
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-surface-600 dark:text-surface-400 w-24">
+                                  Education (20%)
+                                </span>
+                                <div className="flex-1 h-4 bg-surface-200 dark:bg-surface-800 rounded overflow-hidden">
+                                  <div
+                                    className="h-full bg-blue-500"
+                                    style={{ width: `${match.education_match_score}%` }}
+                                  />
+                                </div>
+                                <span className="text-xs font-medium text-surface-700 dark:text-surface-300 w-12 text-right">
+                                  {Math.round(match.education_match_score)}%
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <p className="text-xs font-medium text-green-600 dark:text-green-400 mb-2 flex items-center gap-1">
@@ -716,12 +837,34 @@ export default function Resume({ onBack }: ResumeProps) {
 
                       {match.gap_analysis && (
                         <div className="mt-3 pt-3 border-t border-surface-200 dark:border-surface-700">
-                          <p className="text-xs font-medium text-surface-600 dark:text-surface-400 mb-1">
+                          <p className="text-xs font-medium text-surface-600 dark:text-surface-400 mb-2">
                             Gap Analysis
                           </p>
-                          <p className="text-sm text-surface-500 dark:text-surface-400">
-                            {match.gap_analysis}
-                          </p>
+                          <ul className="space-y-1">
+                            {match.gap_analysis.split("\n").map((line, idx) => {
+                              const trimmed = line.trim();
+                              if (!trimmed) return null;
+                              const isMatch = trimmed.startsWith("✓");
+                              const isMissing = trimmed.startsWith("✗");
+                              const text = trimmed.replace(/^[✓✗]\s*/, "");
+                              return (
+                                <li
+                                  key={idx}
+                                  className={`text-sm flex items-start gap-2 ${
+                                    isMatch
+                                      ? "text-green-600 dark:text-green-400"
+                                      : isMissing
+                                      ? "text-red-600 dark:text-red-400"
+                                      : "text-surface-500 dark:text-surface-400"
+                                  }`}
+                                >
+                                  {isMatch && <CheckIcon className="w-4 h-4 mt-0.5 flex-shrink-0" />}
+                                  {isMissing && <XIcon className="w-4 h-4 mt-0.5 flex-shrink-0" />}
+                                  <span>{text}</span>
+                                </li>
+                              );
+                            })}
+                          </ul>
                         </div>
                       )}
                     </div>

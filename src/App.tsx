@@ -145,7 +145,7 @@ function App() {
               )}
               {currentPage === "ats-optimizer" && (
                 <PageErrorBoundary pageName="ATS Optimizer" onBack={() => navigateTo("dashboard")}>
-                  <ResumeOptimizer onBack={() => navigateTo("dashboard")} />
+                  <ResumeOptimizer onBack={() => navigateTo("dashboard")} onNavigate={navigateTo} />
                 </PageErrorBoundary>
               )}
               {currentPage === "salary" && (

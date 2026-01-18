@@ -380,7 +380,7 @@ Or simply use the toggle in Settings (recommended for non-technical users).
 
 ---
 
-## 🎨 UI Integration (Future)
+## 🎨 UI Integration (v2.4.0)
 
 ### Resume Upload Component
 
@@ -401,33 +401,173 @@ const uploadResume = async (file: File) => {
 };
 ```
 
-### Match Dashboard
+### Match Dashboard with Enhanced Skill Visualization
 
 ```typescript
-// Display match results
+// Display match results with confidence scores and category filtering
 const MatchCard = ({ match }: { match: MatchResult }) => {
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const percentage = (match.overall_match_score * 100).toFixed(0);
+
+  // Skills display with confidence scores and years of experience
+  const filteredSkills = selectedCategory
+    ? match.matching_skills.filter(skill => skill.category === selectedCategory)
+    : match.matching_skills;
 
   return (
     <div className="match-card">
       <h3>{percentage}% Match</h3>
 
+      {/* Score breakdown chart: skills/experience/education */}
+      <ResumeMatchScoreBreakdown
+        skillsScore={match.skills_score}
+        experienceScore={match.experience_score}
+        educationScore={match.education_score}
+      />
+
+      {/* Category filter dropdown for skills */}
+      <SkillCategoryFilter
+        categories={Array.from(new Set(match.matching_skills.map(s => s.category)))}
+        selected={selectedCategory}
+        onChange={setSelectedCategory}
+      />
+
       <div className="matching-skills">
-        <h4>✓ You Have ({match.matching_skills.length})</h4>
-        {match.matching_skills.map(skill => (
-          <span key={skill} className="skill-badge success">{skill}</span>
+        <h4>✓ You Have ({filteredSkills.length})</h4>
+        {filteredSkills.map(skill => (
+          <div key={skill.name} className="skill-badge-container">
+            <span className="skill-badge success">{skill.name}</span>
+            <span className="confidence-score">{(skill.confidence * 100).toFixed(0)}%</span>
+            {skill.years_experience && (
+              <span className="experience-badge">{skill.years_experience}y</span>
+            )}
+          </div>
         ))}
       </div>
 
+      {/* Styled gap analysis with color-coded list */}
       <div className="missing-skills">
         <h4>✗ Missing ({match.missing_skills.length})</h4>
         {match.missing_skills.map(skill => (
-          <span key={skill} className="skill-badge warning">{skill}</span>
+          <span key={skill} className="skill-badge error">{skill}</span>
         ))}
       </div>
 
+      {/* Proficiency distribution chart */}
+      <ProficiencyDistributionChart
+        skills={filteredSkills}
+      />
+
       <p className="recommendation">{match.gap_analysis}</p>
     </div>
+  );
+};
+```
+
+### ATS Optimizer with Job Comparison
+
+```typescript
+// Side-by-side job comparison view with keyword density heatmap
+const AtsOptimizerView = ({ resumeDraft, selectedJob }: Props) => {
+  return (
+    <div className="ats-optimizer">
+      {/* Side-by-side comparison */}
+      <div className="comparison-panels">
+        <div className="resume-panel">
+          <h3>Your Resume</h3>
+          {/* Resume preview with ATS score */}
+          <ResumeDraftPreview draft={resumeDraft} />
+          <ATSScorePreview score={resumeDraft.ats_score} />
+        </div>
+
+        <div className="job-panel">
+          <h3>Job Requirements</h3>
+          {/* Job description with keywords highlighted */}
+          <JobRequirementsPanel job={selectedJob} />
+        </div>
+      </div>
+
+      {/* Keyword density heatmap by importance */}
+      <KeywordDensityHeatmap
+        resumeKeywords={resumeDraft.keywords}
+        jobKeywords={selectedJob.required_keywords}
+      />
+
+      {/* Tailor Resume workflow button */}
+      <button
+        onClick={() => navigateToBuilder(resumeDraft.id)}
+        className="tailor-button"
+      >
+        📝 Tailor Resume for This Job
+      </button>
+    </div>
+  );
+};
+```
+
+### Resume Builder with Enhancements
+
+```typescript
+// 7-step wizard with template previews and ATS score preview
+const ResumeBuilderWizard = () => {
+  return (
+    <div className="resume-builder">
+      {/* Step 1-5: Contact, Summary, Experience, Education, Skills */}
+      {currentStep <= 5 && <BuilderFormStep step={currentStep} />}
+
+      {/* Step 6: Template Selection with Thumbnails */}
+      {currentStep === 6 && (
+        <div className="template-selection">
+          <h3>Choose a Template</h3>
+          <div className="template-grid">
+            {TEMPLATES.map(template => (
+              <div
+                key={template.id}
+                className="template-card"
+                onClick={() => selectTemplate(template.id)}
+              >
+                {/* Thumbnail preview of template */}
+                <TemplatePreview template={template} />
+                <p>{template.name}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* ATS Score Preview */}
+          <div className="ats-preview">
+            <h4>ATS Score Preview: {atsScore}/100</h4>
+            <ScoreBreakdown breakdown={atsBreakdown} />
+          </div>
+        </div>
+      )}
+
+      {/* Step 7: Export/Download */}
+      {currentStep === 7 && (
+        <div className="export-options">
+          <button onClick={() => exportPDF()}>📄 Export as PDF</button>
+          <button onClick={() => exportDOCX()}>📝 Export as DOCX</button>
+        </div>
+      )}
+    </div>
+  );
+};
+```
+
+### Import Skills from Resume
+
+```typescript
+// Button to import skills from uploaded resume into builder
+const ImportSkillsButton = ({ resumeId }: { resumeId: number }) => {
+  const handleImport = async () => {
+    const skills = await invoke<UserSkill[]>('get_user_skills', { resume_id: resumeId });
+    // Populate builder with imported skills
+    populateBuilderSkills(skills);
+  };
+
+  return (
+    <button onClick={handleImport} className="import-skills-btn">
+      📥 Import Skills from Resume
+    </button>
   );
 };
 ```
@@ -649,17 +789,33 @@ pub struct MatchResult {
 - [x] **OCR Support** (v2.3) - Scanned PDF parsing via tesseract
 - [x] **Enhanced Skill Database** (v2.3) - 300+ skills across 10 categories
 
+### Completed (v2.4.0)
+
+- [x] **Resume.tsx UI Enhancements** - Skill confidence scores on badges
+- [x] **Years of Experience Display** - Per-skill experience tracking
+- [x] **Category Filtering** - Filter skills by category dropdown
+- [x] **Visual Score Breakdown Chart** - Skills/experience/education visualization
+- [x] **Styled Gap Analysis** - Color-coded missing skills list
+- [x] **Proficiency Distribution Chart** - Skill proficiency level visualization
+- [x] **ResumeOptimizer.tsx Enhancements** - Side-by-side job comparison
+- [x] **Keyword Density Heatmap** - Keyword importance visualization
+- [x] **Tailor Resume Workflow** - Button linking to resume builder
+- [x] **Import Skills from Resume** - Populate builder with extracted skills
+- [x] **ATS Score Preview** - Display score in builder step 6
+- [x] **Template Thumbnail Previews** - Visual template selection
+- [x] **New Components** - ResumeMatchScoreBreakdown, SkillCategoryFilter
+
 ### Future 🔜
 
-- [ ] DOCX support
 - [ ] LinkedIn profile import
 - [ ] A/B testing for resume versions
 - [ ] Skill trend analysis
-- [ ] Resume optimization suggestions
+- [ ] Cover letter generation from resume
+- [ ] Resume optimization suggestions with AI
 
 ---
 
 **Last Updated:** 2026-01-17
 **Maintained By:** JobSentinel Core Team
-**Implementation Status:** ✅ v2.3.0 Complete (Multi-Factor Matching)
-**Tests:** 145 passing
+**Implementation Status:** ✅ v2.4.0 Complete (Enhanced UI + Resume Builder Integration)
+**Tests:** 145+ passing (updated with v2.4.0 component tests)

@@ -37,6 +37,8 @@ export { KeyboardShortcutsHelp, ShortcutKey } from "./KeyboardShortcutsHelp";
 export { CareerProfileSelector } from "./CareerProfileSelector";
 export { GhostIndicator, GhostIndicatorCompact } from "./GhostIndicator";
 export { ScraperHealthDashboard } from "./ScraperHealthDashboard";
+export { ResumeMatchScoreBreakdown } from "./ResumeMatchScoreBreakdown";
+export { SkillCategoryFilter } from "./SkillCategoryFilter";
 
 // Automation (One-Click Apply)
 export { ProfileForm, ScreeningAnswersForm, ApplyButton, AtsBadge, ApplicationPreview } from "./automation";

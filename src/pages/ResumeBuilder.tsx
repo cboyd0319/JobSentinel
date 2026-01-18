@@ -5,6 +5,33 @@ import { useToast } from "../hooks/useToast";
 import { getErrorMessage } from "../utils/errorUtils";
 
 // TypeScript Types
+interface Resume {
+  id: number;
+  name: string;
+  file_path: string;
+  parsed_text: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+interface UserSkill {
+  id: number;
+  resume_id: number;
+  skill_name: string;
+  skill_category: string | null;
+  confidence_score: number;
+  years_experience: number | null;
+  proficiency_level: string | null;
+  source: string;
+}
+
+interface ATSAnalysis {
+  format_score: number;
+  issues: string[];
+  recommendations: string[];
+}
+
 interface ContactInfo {
   name: string;
   email: string;
@@ -92,6 +119,8 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateId>("Modern");
   const [previewHtml, setPreviewHtml] = useState<string>("");
   const [exporting, setExporting] = useState(false);
+  const [atsAnalysis, setAtsAnalysis] = useState<ATSAnalysis | null>(null);
+  const [importingSkills, setImportingSkills] = useState(false);
 
   // Contact form state
   const [contact, setContact] = useState<ContactInfo>({
@@ -311,6 +340,67 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
     setSkills(skills.filter((_, i) => i !== index));
   };
 
+  const handleImportSkills = async () => {
+    try {
+      setImportingSkills(true);
+
+      // Get active resume
+      const activeResume = await invoke<Resume>("get_active_resume");
+      if (!activeResume) {
+        toast.warning("No resume uploaded", "Please upload a resume in ATS Optimizer first");
+        return;
+      }
+
+      // Get skills from resume
+      const userSkills = await invoke<UserSkill[]>("get_user_skills", {
+        resumeId: activeResume.id,
+      });
+
+      if (userSkills.length === 0) {
+        toast.info("No skills found", "Upload a resume and parse it in ATS Optimizer first");
+        return;
+      }
+
+      // Map UserSkill to SkillEntry format
+      const importedSkills: SkillEntry[] = userSkills.map((skill) => ({
+        name: skill.skill_name,
+        category: skill.skill_category || "General",
+        proficiency: mapProficiencyLevel(skill.proficiency_level),
+      }));
+
+      // Merge with existing skills (avoid duplicates)
+      const existingSkillNames = new Set(skills.map((s) => s.name.toLowerCase()));
+      const newSkills = importedSkills.filter(
+        (skill) => !existingSkillNames.has(skill.name.toLowerCase())
+      );
+
+      if (newSkills.length === 0) {
+        toast.info("All skills already added", "No new skills to import");
+        return;
+      }
+
+      setSkills([...skills, ...newSkills]);
+      toast.success(`Imported ${newSkills.length} skills`, "Skills added from resume");
+    } catch (err) {
+      toast.error("Failed to import skills", getErrorMessage(err));
+    } finally {
+      setImportingSkills(false);
+    }
+  };
+
+  // Map proficiency level from UserSkill to builder format
+  const mapProficiencyLevel = (
+    level: string | null
+  ): "beginner" | "intermediate" | "advanced" | "expert" | null => {
+    if (!level) return null;
+    const normalized = level.toLowerCase();
+    if (normalized.includes("expert") || normalized.includes("advanced")) return "expert";
+    if (normalized.includes("intermediate") || normalized.includes("proficient"))
+      return "intermediate";
+    if (normalized.includes("beginner") || normalized.includes("basic")) return "beginner";
+    return "intermediate"; // Default fallback
+  };
+
   // Preview handlers
   const generatePreview = useCallback(async () => {
     if (!resumeId || !resumeData) return;
@@ -324,6 +414,17 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
         templateId: selectedTemplate,
       });
       setPreviewHtml(html);
+
+      // Generate ATS analysis
+      try {
+        const analysis = await invoke<ATSAnalysis>("analyze_resume_format", {
+          resume: resumeData,
+        });
+        setAtsAnalysis(analysis);
+      } catch (atsErr) {
+        console.error("ATS analysis failed:", atsErr);
+        // Non-critical, don't block preview
+      }
     } catch (err) {
       toast.error("Failed to generate preview", getErrorMessage(err));
     } finally {
@@ -795,10 +896,20 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
           {/* Step 5: Skills */}
           {currentStep === 5 && (
             <div className="space-y-6">
-              <CardHeader
-                title="Skills"
-                subtitle="Technical and professional skills"
-              />
+              <div className="flex items-center justify-between">
+                <CardHeader
+                  title="Skills"
+                  subtitle="Technical and professional skills"
+                />
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={handleImportSkills}
+                  loading={importingSkills}
+                >
+                  Import from Resume
+                </Button>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-surface-700 dark:text-surface-300 mb-1">
@@ -908,8 +1019,8 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                         : "border-surface-200 dark:border-surface-600 hover:border-sentinel-300 dark:hover:border-sentinel-700"
                     }`}
                   >
-                    <div className="aspect-[8.5/11] bg-surface-100 dark:bg-surface-700 rounded mb-2 flex items-center justify-center">
-                      <span className="text-xs text-surface-400">Preview</span>
+                    <div className="aspect-[8.5/11] bg-surface-100 dark:bg-surface-700 rounded mb-2 overflow-hidden">
+                      <TemplateThumbnail templateId={template.id} />
                     </div>
                     <p className="text-xs font-medium text-surface-800 dark:text-surface-200">
                       {template.name}
@@ -920,10 +1031,105 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                   </button>
                 ))}
               </div>
-              {previewHtml && (
-                <div className="border border-surface-200 dark:border-surface-600 rounded-lg p-6 bg-white dark:bg-surface-700 max-h-96 overflow-y-auto">
-                  {/* SAFETY: HTML is sanitized by Rust backend in render_resume_html */}
-                  <div dangerouslySetInnerHTML={{ __html: previewHtml }} />
+
+              {/* ATS Score Card and Preview */}
+              {(atsAnalysis || previewHtml) && (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                  {/* ATS Score Card */}
+                  {atsAnalysis && (
+                    <div className="lg:col-span-1">
+                      <div className="border border-surface-200 dark:border-surface-600 rounded-lg p-4 bg-white dark:bg-surface-800">
+                        <h3 className="text-sm font-semibold text-surface-800 dark:text-surface-200 mb-3">
+                          ATS Format Score
+                        </h3>
+                        <div className="flex items-center justify-center mb-4">
+                          <div className="relative w-24 h-24">
+                            <svg className="w-24 h-24 transform -rotate-90">
+                              <circle
+                                cx="48"
+                                cy="48"
+                                r="40"
+                                stroke="currentColor"
+                                strokeWidth="8"
+                                fill="none"
+                                className="text-surface-200 dark:text-surface-600"
+                              />
+                              <circle
+                                cx="48"
+                                cy="48"
+                                r="40"
+                                stroke="currentColor"
+                                strokeWidth="8"
+                                fill="none"
+                                strokeDasharray={`${2 * Math.PI * 40}`}
+                                strokeDashoffset={`${
+                                  2 * Math.PI * 40 * (1 - atsAnalysis.format_score / 100)
+                                }`}
+                                className={
+                                  atsAnalysis.format_score >= 80
+                                    ? "text-success"
+                                    : atsAnalysis.format_score >= 60
+                                    ? "text-warning"
+                                    : "text-error"
+                                }
+                                strokeLinecap="round"
+                              />
+                            </svg>
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <span className="text-2xl font-bold text-surface-800 dark:text-surface-200">
+                                {Math.round(atsAnalysis.format_score)}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {atsAnalysis.issues.length > 0 && (
+                          <div className="mb-3">
+                            <h4 className="text-xs font-semibold text-surface-700 dark:text-surface-300 mb-2">
+                              Quick Issues
+                            </h4>
+                            <ul className="space-y-1">
+                              {atsAnalysis.issues.slice(0, 3).map((issue, idx) => (
+                                <li
+                                  key={idx}
+                                  className="text-xs text-surface-600 dark:text-surface-400 flex items-start"
+                                >
+                                  <span className="text-error mr-1">•</span>
+                                  <span>{issue}</span>
+                                </li>
+                              ))}
+                            </ul>
+                            {atsAnalysis.issues.length > 3 && (
+                              <p className="text-xs text-surface-500 dark:text-surface-400 mt-1">
+                                +{atsAnalysis.issues.length - 3} more issues
+                              </p>
+                            )}
+                          </div>
+                        )}
+
+                        <p className="text-xs text-surface-500 dark:text-surface-400 mb-3">
+                          For detailed analysis and optimization recommendations, visit ATS
+                          Optimizer.
+                        </p>
+
+                        <Button size="sm" variant="secondary" className="w-full" disabled>
+                          Full ATS Analysis
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* HTML Preview */}
+                  {previewHtml && (
+                    <div
+                      className={`${
+                        atsAnalysis ? "lg:col-span-2" : "lg:col-span-3"
+                      } border border-surface-200 dark:border-surface-600 rounded-lg p-6 bg-white dark:bg-surface-700 max-h-96 overflow-y-auto`}
+                    >
+                      {/* SAFETY: HTML is sanitized by Rust backend in render_resume_html */}
+                      <div dangerouslySetInnerHTML={{ __html: previewHtml }} />
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -1229,6 +1435,110 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
       </Modal>
     </div>
   );
+}
+
+// Template Thumbnail Component
+function TemplateThumbnail({ templateId }: { templateId: TemplateId }) {
+  const thumbnails: Record<TemplateId, React.ReactElement> = {
+    Classic: (
+      <div className="w-full h-full bg-white dark:bg-surface-800 p-2 text-[4px] leading-tight">
+        <div className="text-center mb-1">
+          <div className="font-bold">JOHN DOE</div>
+          <div className="text-surface-500">Software Engineer</div>
+        </div>
+        <div className="space-y-1">
+          <div className="border-t border-surface-300 dark:border-surface-600 pt-1">
+            <div className="font-semibold">EXPERIENCE</div>
+            <div className="text-surface-600 dark:text-surface-400">Senior Engineer • 2020-2024</div>
+          </div>
+          <div className="border-t border-surface-300 dark:border-surface-600 pt-1">
+            <div className="font-semibold">EDUCATION</div>
+            <div className="text-surface-600 dark:text-surface-400">B.S. Computer Science</div>
+          </div>
+        </div>
+      </div>
+    ),
+    Modern: (
+      <div className="w-full h-full bg-gradient-to-br from-sentinel-50 to-white dark:from-surface-800 dark:to-surface-900 p-2 text-[4px] leading-tight">
+        <div className="bg-sentinel-600 text-white p-1 mb-1">
+          <div className="font-bold">JOHN DOE</div>
+          <div>Software Engineer</div>
+        </div>
+        <div className="space-y-1 px-1">
+          <div>
+            <div className="font-semibold text-sentinel-600">Experience</div>
+            <div className="text-surface-600 dark:text-surface-400">Senior Engineer</div>
+          </div>
+          <div>
+            <div className="font-semibold text-sentinel-600">Education</div>
+            <div className="text-surface-600 dark:text-surface-400">Computer Science</div>
+          </div>
+        </div>
+      </div>
+    ),
+    Technical: (
+      <div className="w-full h-full bg-surface-900 text-surface-100 p-2 text-[4px] leading-tight font-mono">
+        <div className="border-l-2 border-success pl-1 mb-1">
+          <div className="font-bold text-success">$ whoami</div>
+          <div>JOHN DOE - Software Engineer</div>
+        </div>
+        <div className="space-y-1">
+          <div className="border-l-2 border-surface-600 pl-1">
+            <div className="text-warning">./experience</div>
+            <div className="text-surface-400">Senior Engineer</div>
+          </div>
+          <div className="border-l-2 border-surface-600 pl-1">
+            <div className="text-warning">./education</div>
+            <div className="text-surface-400">B.S. CS</div>
+          </div>
+        </div>
+      </div>
+    ),
+    Executive: (
+      <div className="w-full h-full bg-white dark:bg-surface-800 p-2 text-[4px] leading-tight">
+        <div className="border-b-2 border-surface-800 dark:border-surface-200 pb-1 mb-1">
+          <div className="font-bold text-lg">JOHN DOE</div>
+          <div className="text-surface-600 dark:text-surface-400 italic">
+            Chief Technology Officer
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-1">
+          <div>
+            <div className="font-semibold uppercase tracking-wider">Experience</div>
+            <div className="text-surface-600 dark:text-surface-400">CTO • 2020-2024</div>
+          </div>
+          <div>
+            <div className="font-semibold uppercase tracking-wider">Education</div>
+            <div className="text-surface-600 dark:text-surface-400">MBA, Stanford</div>
+          </div>
+        </div>
+      </div>
+    ),
+    Military: (
+      <div className="w-full h-full bg-surface-50 dark:bg-surface-900 p-2 text-[4px] leading-tight">
+        <div className="border-4 border-surface-800 dark:border-surface-200 p-1 mb-1">
+          <div className="text-center font-bold">DOE, JOHN A.</div>
+          <div className="text-center text-surface-600 dark:text-surface-400">
+            SOFTWARE ENGINEER
+          </div>
+        </div>
+        <div className="space-y-1">
+          <div className="border border-surface-300 dark:border-surface-600 p-1">
+            <div className="font-semibold">PROFESSIONAL EXPERIENCE</div>
+            <div className="text-surface-600 dark:text-surface-400">
+              Senior Software Engineer
+            </div>
+          </div>
+          <div className="border border-surface-300 dark:border-surface-600 p-1">
+            <div className="font-semibold">EDUCATION & TRAINING</div>
+            <div className="text-surface-600 dark:text-surface-400">B.S. Computer Science</div>
+          </div>
+        </div>
+      </div>
+    ),
+  };
+
+  return thumbnails[templateId] || null;
 }
 
 // Icons

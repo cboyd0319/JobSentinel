@@ -5,6 +5,66 @@ All notable changes to JobSentinel will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.0] - 2026-01-17
+
+### Added - Resume Builder + ATS Optimizer UI Enhancements
+
+Comprehensive UI enhancements to Resume module with advanced visualization and seamless Resume Builder integration.
+
+#### Resume.tsx Enhancements
+
+- **Skill Confidence Scores** - Display confidence percentage on skill badges
+- **Years of Experience per Skill** - Show experience duration for each skill
+- **Category Filter Dropdown** - Filter displayed skills by category (Programming, Frameworks, Tools, etc.)
+- **Visual Score Breakdown Chart** - Three-factor breakdown: skills (50%), experience (30%), education (20%)
+- **Styled Gap Analysis** - Color-coded list of missing skills with visual distinction
+- **Proficiency Distribution Chart** - Visualize skill proficiency levels (Beginner/Intermediate/Advanced/Expert)
+
+#### ResumeOptimizer.tsx Enhancements
+
+- **Side-by-Side Job Comparison View** - Resume vs job requirements in parallel panels
+- **Keyword Density Heatmap** - Visual importance ranking of keywords by category (Required/Preferred/Industry)
+- **Tailor Resume Button** - Direct link from optimizer to resume builder for targeted customization
+- **ATS Score Integration** - Show ATS compatibility score in comparison view
+
+#### ResumeBuilder.tsx Enhancements
+
+- **Template Thumbnail Previews** - Visual preview of all 5 templates (Classic, Modern, Technical, Executive, Military)
+- **ATS Score Preview in Step 6** - Display estimated ATS score during template selection
+- **Import Skills from Resume** - Auto-populate skills section from uploaded resume
+- **Template Selection Cards** - Interactive card-based template chooser with visual representations
+
+#### New Components
+
+- **ResumeMatchScoreBreakdown** - Reusable component for three-factor score visualization
+- **SkillCategoryFilter** - Reusable category filter dropdown for skill lists
+- **ProficiencyDistributionChart** - Skill proficiency level distribution visualization
+- **KeywordDensityHeatmap** - Keyword importance heatmap for job comparison
+- **TemplatePreview** - Thumbnail preview component for resume templates
+- **ATSScorePreview** - ATS score display with breakdown details
+
+#### Integration
+
+- Resume matcher now feeds directly into builder workflow
+- ATS optimizer provides targeted feedback for resume improvements
+- Seamless data flow between matcher → optimizer → builder
+
+### Changed
+
+- Resume.tsx refactored to support enhanced skill visualization
+- ResumeOptimizer.tsx now displays side-by-side comparison
+- ResumeBuilder.tsx step 6 enhanced with template previews and ATS score
+- All skill display components now include confidence scores and experience data
+
+### Tests
+
+- Component tests for ResumeMatchScoreBreakdown
+- Component tests for SkillCategoryFilter
+- Integration tests for resume → builder workflow
+- Tests updated to include v2.4.0 component functionality
+
+---
+
 ## [2.3.0] - 2026-01-17
 
 ### Added - Advanced Resume Matching (7 Phases Complete)

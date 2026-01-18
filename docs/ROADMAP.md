@@ -2,7 +2,7 @@
 
 **Last Updated:** January 17, 2026
 
-## Current Version: 2.3.0
+## Current Version: 2.4.0
 
 ### Working Features (v1.4.0)
 
@@ -242,7 +242,39 @@ overall_score = (skills × 0.5) + (experience × 0.3) + (education × 0.2)
 
 See [docs/features/resume-matcher.md](features/resume-matcher.md) for full documentation.
 
-### v2.4+ Planned Features
+### v2.4 - Resume Builder + ATS Optimizer UI Enhancements (COMPLETED)
+
+Enhanced user interfaces for resume management with visual improvements and seamless workflow integration.
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| **Resume.tsx Skill Enhancements** | **Done** | Confidence scores, experience, category filter |
+| **Visual Score Breakdown Chart** | **Done** | Three-factor visualization: skills/experience/education |
+| **Styled Gap Analysis** | **Done** | Color-coded missing skills display |
+| **Proficiency Distribution Chart** | **Done** | Skill level visualization |
+| **ResumeOptimizer.tsx Job Comparison** | **Done** | Side-by-side resume vs job requirements |
+| **Keyword Density Heatmap** | **Done** | Keyword importance visualization |
+| **Tailor Resume Workflow** | **Done** | Button linking optimizer to builder |
+| **Template Thumbnail Previews** | **Done** | Visual template selection cards |
+| **Import Skills from Resume** | **Done** | Auto-populate builder skills from matcher |
+| **ATS Score Preview** | **Done** | Score display in builder step 6 |
+| **New Components** | **Done** | ResumeMatchScoreBreakdown, SkillCategoryFilter, etc. |
+| **Resume → Builder Integration** | **Done** | Seamless data flow between modules |
+
+**Enhanced User Workflow:**
+
+1. Upload resume and view match scores
+2. Filter skills by category
+3. See visual score breakdown
+4. Compare with specific job using side-by-side view
+5. Click "Tailor Resume" to jump to builder
+6. Builder pre-fills skills from matched resume
+7. Choose template with ATS score preview
+8. Export optimized resume
+
+See [docs/features/resume-matcher.md](features/resume-matcher.md) for full UI integration documentation.
+
+### v2.5+ Planned Features
 
 | Feature | Status | Notes |
 |---------|--------|-------|
