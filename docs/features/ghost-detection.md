@@ -78,11 +78,12 @@ hiring for all of them.
 
 Ghost jobs show a colored badge:
 
-- 🟡 **Yellow** - Minor concerns
-- 🟠 **Orange** - Multiple warning signs
-- 🔴 **Red** - Probably fake
+- 🟡 **Yellow** - Minor concerns (50-59%)
+- 🟠 **Orange** - Multiple warning signs (60-74%)
+- 🔴 **Red** - Probably fake (75%+)
 
-Hover over the badge to see why it was flagged.
+Hover over the badge to see why it was flagged. Job cards also show "Seen on X sources"
+badge to indicate deduplication detection.
 
 ### Ghost Filter
 
@@ -93,6 +94,22 @@ Use the dropdown filter above your job list:
 - **Ghost Jobs** - See only flagged jobs (useful for curiosity)
 
 Most people use "Real Jobs Only" to avoid wasting time.
+
+### Settings UI for Ghost Config
+
+Customize ghost detection sensitivity in **Settings → Detection → Ghost Job Settings**:
+
+- **Stale Job Threshold** - How old a job needs to be before it's flagged as stale (default: 60 days)
+- **Repost Threshold** - How many times a job must be reposted to trigger a flag (default: 3)
+- **Weight Adjustments** - Fine-tune the importance of each detection signal
+  - Stale postings weight (default: 25%)
+  - Repost frequency weight (default: 20%)
+  - Generic description weight (default: 15%)
+  - Vague title weight (default: 15%)
+  - Unrealistic requirements weight (default: 15%)
+  - Missing salary weight (default: 10%)
+
+Changes take effect immediately with a live preview showing your new ghost job count.
 
 ---
 
@@ -118,9 +135,22 @@ Ghost detection isn't perfect:
   companies or staffing agencies
 - **False negatives** - Some ghost jobs may slip through
 - **Data dependent** - Accuracy improves with more historical data
+- **Repost timing matters** - Very old reposts (180+ days) are weighted less heavily
+  because they may indicate legitimate evergreen roles
 
 Use ghost scores as one signal, not the only signal. If a job looks great despite a
 flag, apply anyway - you know your situation better than an algorithm.
+
+### User Feedback
+
+**Help improve detection accuracy** by marking jobs as real or ghost:
+
+- If you know a flagged job is legitimate, mark it as "real"
+- If you find a ghost job we missed, mark it as "ghost"
+- Your feedback can be cleared if you change your mind
+
+These corrections help you keep track of which jobs you've vetted.
+Future enhancement: we'll use this feedback to improve the detection algorithm.
 
 ---
 
@@ -162,6 +192,26 @@ invoke('get_ghost_statistics')
 
 // Get jobs with ghost filtering
 invoke('get_recent_jobs_filtered', { limit: 50, exclude_ghost: true })
+
+// Ghost configuration commands (NEW)
+invoke('get_ghost_config')                        // Get current settings
+invoke('set_ghost_config', {                      // Update settings
+  stale_threshold_days: 60,
+  repost_threshold: 3,
+  stale_posting_weight: 0.25,
+  repost_frequency_weight: 0.20,
+  generic_description_weight: 0.15,
+  vague_title_weight: 0.15,
+  unrealistic_requirements_weight: 0.15,
+  missing_salary_weight: 0.10
+})
+invoke('reset_ghost_config')                      // Reset to defaults
+
+// User feedback commands
+invoke('mark_job_as_real', { job_id: 123 })    // Mark job as legitimate
+invoke('mark_job_as_ghost', { job_id: 123 })   // Mark job as fake/ghost
+invoke('get_ghost_feedback', { job_id: 123 })  // Get user's verdict ("real", "ghost", or null)
+invoke('clear_ghost_feedback', { job_id: 123 }) // Remove user's verdict
 ```
 
 </details>

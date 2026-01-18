@@ -7,11 +7,19 @@ use crate::core::{
     credentials::{CredentialKey, CredentialStore},
     db::Job,
     scrapers::{
+        builtin::BuiltInScraper,
+        dice::DiceScraper,
         greenhouse::{GreenhouseCompany, GreenhouseScraper},
+        hn_hiring::HnHiringScraper,
         indeed::IndeedScraper,
         jobswithgpt::{JobQuery, JobsWithGptScraper},
         lever::{LeverCompany, LeverScraper},
         linkedin::LinkedInScraper,
+        remoteok::RemoteOkScraper,
+        wellfound::WellfoundScraper,
+        weworkremotely::WeWorkRemotelyScraper,
+        yc_startup::YcStartupScraper,
+        ziprecruiter::ZipRecruiterScraper,
         JobScraper,
     },
 };
@@ -22,17 +30,16 @@ pub async fn run_scrapers(config: &Arc<Config>) -> (Vec<Job>, Vec<String>) {
     let mut all_jobs = Vec::new();
     let mut errors = Vec::new();
 
-    // Greenhouse scraper - use URLs from config
+    // 1. Greenhouse scraper - use URLs from config
     if !config.greenhouse_urls.is_empty() {
         let greenhouse_companies: Vec<GreenhouseCompany> = config
             .greenhouse_urls
             .iter()
             .filter_map(|url| {
-                // Extract company ID from URL (e.g., "https://boards.greenhouse.io/cloudflare" -> "cloudflare")
                 url.strip_prefix("https://boards.greenhouse.io/")
                     .map(|id| GreenhouseCompany {
                         id: id.to_string(),
-                        name: id.to_string(), // Use ID as name for simplicity
+                        name: id.to_string(),
                         url: url.clone(),
                     })
             })
@@ -54,17 +61,16 @@ pub async fn run_scrapers(config: &Arc<Config>) -> (Vec<Job>, Vec<String>) {
         }
     }
 
-    // Lever scraper - use URLs from config
+    // 2. Lever scraper - use URLs from config
     if !config.lever_urls.is_empty() {
         let lever_companies: Vec<LeverCompany> = config
             .lever_urls
             .iter()
             .filter_map(|url| {
-                // Extract company ID from URL (e.g., "https://jobs.lever.co/netflix" -> "netflix")
                 url.strip_prefix("https://jobs.lever.co/")
                     .map(|id| LeverCompany {
                         id: id.to_string(),
-                        name: id.to_string(), // Use ID as name for simplicity
+                        name: id.to_string(),
                         url: url.clone(),
                     })
             })
@@ -86,8 +92,8 @@ pub async fn run_scrapers(config: &Arc<Config>) -> (Vec<Job>, Vec<String>) {
         }
     }
 
-    // JobsWithGPT MCP scraper
-    if !config.title_allowlist.is_empty() {
+    // 3. JobsWithGPT MCP scraper
+    if !config.title_allowlist.is_empty() && !config.jobswithgpt_endpoint.is_empty() {
         let jobswithgpt_query = JobQuery {
             titles: config.title_allowlist.clone(),
             location: None,
@@ -112,7 +118,7 @@ pub async fn run_scrapers(config: &Arc<Config>) -> (Vec<Job>, Vec<String>) {
         }
     }
 
-    // LinkedIn scraper - requires session cookie from secure storage
+    // 4. LinkedIn scraper - requires session cookie from secure storage
     if config.linkedin.enabled {
         match CredentialStore::retrieve(CredentialKey::LinkedInCookie) {
             Ok(Some(session_cookie)) => {
@@ -148,7 +154,7 @@ pub async fn run_scrapers(config: &Arc<Config>) -> (Vec<Job>, Vec<String>) {
         }
     }
 
-    // Indeed scraper - no authentication required
+    // 5. Indeed scraper - no authentication required
     if config.indeed.enabled && !config.indeed.query.is_empty() {
         tracing::info!("Running Indeed scraper");
         let indeed =
@@ -163,6 +169,177 @@ pub async fn run_scrapers(config: &Arc<Config>) -> (Vec<Job>, Vec<String>) {
             }
             Err(e) => {
                 let error_msg = format!("Indeed scraper failed: {}", e);
+                tracing::error!("{}", error_msg);
+                errors.push(error_msg);
+            }
+        }
+    }
+
+    // 6. RemoteOK scraper - public JSON API
+    if config.remoteok.enabled {
+        tracing::info!("Running RemoteOK scraper");
+        let remoteok = RemoteOkScraper::new(config.remoteok.tags.clone(), config.remoteok.limit);
+
+        match remoteok.scrape().await {
+            Ok(jobs) => {
+                tracing::info!("RemoteOK: {} jobs found", jobs.len());
+                all_jobs.extend(jobs);
+            }
+            Err(e) => {
+                let error_msg = format!("RemoteOK scraper failed: {}", e);
+                tracing::error!("{}", error_msg);
+                errors.push(error_msg);
+            }
+        }
+    }
+
+    // 7. Wellfound (AngelList Talent) scraper
+    if config.wellfound.enabled && !config.wellfound.role.is_empty() {
+        tracing::info!("Running Wellfound scraper");
+        let wellfound = WellfoundScraper::new(
+            config.wellfound.role.clone(),
+            config.wellfound.location.clone(),
+            config.wellfound.remote_only,
+            config.wellfound.limit,
+        );
+
+        match wellfound.scrape().await {
+            Ok(jobs) => {
+                tracing::info!("Wellfound: {} jobs found", jobs.len());
+                all_jobs.extend(jobs);
+            }
+            Err(e) => {
+                let error_msg = format!("Wellfound scraper failed: {}", e);
+                tracing::error!("{}", error_msg);
+                errors.push(error_msg);
+            }
+        }
+    }
+
+    // 8. WeWorkRemotely scraper - RSS feed
+    if config.weworkremotely.enabled {
+        tracing::info!("Running WeWorkRemotely scraper");
+        let weworkremotely = WeWorkRemotelyScraper::new(
+            config.weworkremotely.category.clone(),
+            config.weworkremotely.limit,
+        );
+
+        match weworkremotely.scrape().await {
+            Ok(jobs) => {
+                tracing::info!("WeWorkRemotely: {} jobs found", jobs.len());
+                all_jobs.extend(jobs);
+            }
+            Err(e) => {
+                let error_msg = format!("WeWorkRemotely scraper failed: {}", e);
+                tracing::error!("{}", error_msg);
+                errors.push(error_msg);
+            }
+        }
+    }
+
+    // 9. BuiltIn scraper - city-specific job boards
+    if config.builtin.enabled && !config.builtin.cities.is_empty() {
+        for city in &config.builtin.cities {
+            tracing::info!("Running BuiltIn scraper for {}", city);
+            let builtin = BuiltInScraper::new(
+                city.clone(),
+                config.builtin.category.clone(),
+                config.builtin.limit,
+            );
+
+            match builtin.scrape().await {
+                Ok(jobs) => {
+                    tracing::info!("BuiltIn ({}): {} jobs found", city, jobs.len());
+                    all_jobs.extend(jobs);
+                }
+                Err(e) => {
+                    let error_msg = format!("BuiltIn ({}) scraper failed: {}", city, e);
+                    tracing::error!("{}", error_msg);
+                    errors.push(error_msg);
+                }
+            }
+        }
+    }
+
+    // 10. Hacker News Who's Hiring scraper
+    if config.hn_hiring.enabled {
+        tracing::info!("Running HN Who's Hiring scraper");
+        let hn_hiring = HnHiringScraper::new(config.hn_hiring.limit, config.hn_hiring.remote_only);
+
+        match hn_hiring.scrape().await {
+            Ok(jobs) => {
+                tracing::info!("HN Who's Hiring: {} jobs found", jobs.len());
+                all_jobs.extend(jobs);
+            }
+            Err(e) => {
+                let error_msg = format!("HN Who's Hiring scraper failed: {}", e);
+                tracing::error!("{}", error_msg);
+                errors.push(error_msg);
+            }
+        }
+    }
+
+    // 11. Dice scraper - tech job board
+    if config.dice.enabled && !config.dice.query.is_empty() {
+        tracing::info!("Running Dice scraper");
+        let dice = DiceScraper::new(
+            config.dice.query.clone(),
+            config.dice.location.clone(),
+            config.dice.limit,
+        );
+
+        match dice.scrape().await {
+            Ok(jobs) => {
+                tracing::info!("Dice: {} jobs found", jobs.len());
+                all_jobs.extend(jobs);
+            }
+            Err(e) => {
+                let error_msg = format!("Dice scraper failed: {}", e);
+                tracing::error!("{}", error_msg);
+                errors.push(error_msg);
+            }
+        }
+    }
+
+    // 12. Y Combinator Work at a Startup scraper
+    if config.yc_startup.enabled {
+        tracing::info!("Running YC Startup scraper");
+        let yc_startup = YcStartupScraper::new(
+            config.yc_startup.query.clone(),
+            config.yc_startup.remote_only,
+            config.yc_startup.limit,
+        );
+
+        match yc_startup.scrape().await {
+            Ok(jobs) => {
+                tracing::info!("YC Startup: {} jobs found", jobs.len());
+                all_jobs.extend(jobs);
+            }
+            Err(e) => {
+                let error_msg = format!("YC Startup scraper failed: {}", e);
+                tracing::error!("{}", error_msg);
+                errors.push(error_msg);
+            }
+        }
+    }
+
+    // 13. ZipRecruiter scraper - RSS feed
+    if config.ziprecruiter.enabled && !config.ziprecruiter.query.is_empty() {
+        tracing::info!("Running ZipRecruiter scraper");
+        let ziprecruiter = ZipRecruiterScraper::new(
+            config.ziprecruiter.query.clone(),
+            config.ziprecruiter.location.clone(),
+            config.ziprecruiter.radius,
+            config.ziprecruiter.limit,
+        );
+
+        match ziprecruiter.scrape().await {
+            Ok(jobs) => {
+                tracing::info!("ZipRecruiter: {} jobs found", jobs.len());
+                all_jobs.extend(jobs);
+            }
+            Err(e) => {
+                let error_msg = format!("ZipRecruiter scraper failed: {}", e);
                 tracing::error!("{}", error_msg);
                 errors.push(error_msg);
             }

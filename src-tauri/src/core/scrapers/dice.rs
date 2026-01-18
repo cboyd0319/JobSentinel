@@ -4,7 +4,7 @@
 //! Dice specializes in technology and IT positions.
 
 use super::http_client::get_client;
-use super::{JobScraper, ScraperResult};
+use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
 use anyhow::Result;
 use async_trait::async_trait;
@@ -232,12 +232,12 @@ impl DiceScraper {
     /// Compute SHA-256 hash for deduplication
     fn compute_hash(company: &str, title: &str, location: Option<&str>, url: &str) -> String {
         let mut hasher = Sha256::new();
-        hasher.update(company.as_bytes());
-        hasher.update(title.as_bytes());
+        hasher.update(company.to_lowercase().as_bytes());
+        hasher.update(title_utils::normalize_title(title).as_bytes());
         if let Some(loc) = location {
-            hasher.update(loc.as_bytes());
+            hasher.update(location_utils::normalize_location(loc).as_bytes());
         }
-        hasher.update(url.as_bytes());
+        hasher.update(url_utils::normalize_url(url).as_bytes());
         hex::encode(hasher.finalize())
     }
 }

@@ -59,3 +59,13 @@ pub(crate) fn default_indeed_radius() -> u32 {
 pub(crate) fn default_indeed_limit() -> usize {
     50
 }
+
+/// Default scraper result limit (50)
+pub(crate) fn default_scraper_limit() -> usize {
+    50
+}
+
+/// Default ZipRecruiter search radius in miles (25)
+pub(crate) fn default_ziprecruiter_radius() -> Option<u32> {
+    Some(25)
+}

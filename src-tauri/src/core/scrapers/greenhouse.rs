@@ -4,7 +4,7 @@
 //! Greenhouse is used by companies like Cloudflare, Stripe, Figma, etc.
 
 use super::http_client::get_client;
-use super::{JobScraper, ScraperResult};
+use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
 use anyhow::Result;
 use async_trait::async_trait;
@@ -255,12 +255,12 @@ impl GreenhouseScraper {
     /// Compute SHA-256 hash for deduplication
     fn compute_hash(company: &str, title: &str, location: Option<&str>, url: &str) -> String {
         let mut hasher = Sha256::new();
-        hasher.update(company.as_bytes());
-        hasher.update(title.as_bytes());
+        hasher.update(company.to_lowercase().as_bytes());
+        hasher.update(title_utils::normalize_title(title).as_bytes());
         if let Some(loc) = location {
-            hasher.update(loc.as_bytes());
+            hasher.update(location_utils::normalize_location(loc).as_bytes());
         }
-        hasher.update(url.as_bytes());
+        hasher.update(url_utils::normalize_url(url).as_bytes());
         hex::encode(hasher.finalize())
     }
 }
@@ -1102,7 +1102,9 @@ mod tests {
     }
 
     #[test]
-    fn test_hash_with_query_parameters() {
+    fn test_hash_with_query_parameters_normalized() {
+        // With URL normalization, tracking params (ref, utm_*, etc.) are stripped
+        // so URLs that differ only in tracking params should produce the SAME hash
         let hash1 = GreenhouseScraper::compute_hash(
             "Company",
             "Engineer",
@@ -1122,9 +1124,10 @@ mod tests {
             "https://boards.greenhouse.io/company/jobs/1",
         );
 
-        assert_ne!(hash1, hash2);
-        assert_ne!(hash1, hash3);
-        assert_ne!(hash2, hash3);
+        // All three should produce the SAME hash (tracking params stripped)
+        assert_eq!(hash1, hash2);
+        assert_eq!(hash1, hash3);
+        assert_eq!(hash2, hash3);
     }
 
     #[test]

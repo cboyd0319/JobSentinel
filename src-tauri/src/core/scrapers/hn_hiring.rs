@@ -5,7 +5,7 @@
 //! high-quality tech job postings from the HN community.
 
 use super::http_client::get_client;
-use super::{JobScraper, ScraperResult};
+use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
 use anyhow::Result;
 use async_trait::async_trait;
@@ -360,12 +360,12 @@ impl HnHiringScraper {
     /// Compute SHA-256 hash for deduplication
     fn compute_hash(company: &str, title: &str, location: Option<&str>, url: &str) -> String {
         let mut hasher = Sha256::new();
-        hasher.update(company.as_bytes());
-        hasher.update(title.as_bytes());
+        hasher.update(company.to_lowercase().as_bytes());
+        hasher.update(title_utils::normalize_title(title).as_bytes());
         if let Some(loc) = location {
-            hasher.update(loc.as_bytes());
+            hasher.update(location_utils::normalize_location(loc).as_bytes());
         }
-        hasher.update(url.as_bytes());
+        hasher.update(url_utils::normalize_url(url).as_bytes());
         hex::encode(hasher.finalize())
     }
 }
@@ -1024,6 +1024,8 @@ mod tests {
 
     #[test]
     fn test_compute_hash_location_variations() {
+        // With normalization, "Remote (US)" and "Remote (EU)" both normalize to "remote"
+        // This is expected behavior - they should produce the same hash
         let hash1 = HnHiringScraper::compute_hash(
             "Company",
             "Engineer",
@@ -1037,7 +1039,17 @@ mod tests {
             "https://news.ycombinator.com/item?id=1",
         );
 
-        assert_ne!(hash1, hash2);
+        // Both should normalize to "remote" and produce the same hash
+        assert_eq!(hash1, hash2);
+
+        // But different cities should still produce different hashes
+        let hash3 = HnHiringScraper::compute_hash(
+            "Company",
+            "Engineer",
+            Some("New York, NY"),
+            "https://news.ycombinator.com/item?id=1",
+        );
+        assert_ne!(hash1, hash3);
     }
 
     #[test]

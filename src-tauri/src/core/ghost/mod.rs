@@ -228,12 +228,23 @@ impl GhostDetector {
             total_weight += weight;
         }
 
-        // 2. Reposted multiple times
+        // 2. Reposted multiple times (with age-based decay)
         if repost_count >= self.config.repost_threshold {
-            let weight = 0.15 * (f64::from(repost_count.min(10) as i32) / 10.0);
+            let base_weight = 0.15 * (f64::from(repost_count.min(10) as i32) / 10.0);
+
+            // Apply age-based decay: reposts older than 6 months have reduced weight
+            let decay_factor = self.calculate_repost_decay_factor(age_days);
+            let weight = base_weight * decay_factor;
+
+            let description = if decay_factor < 1.0 {
+                format!("Reposted {repost_count} times (older repost)")
+            } else {
+                format!("Reposted {repost_count} times")
+            };
+
             reasons.push(GhostReason {
                 category: GhostCategory::Repost,
-                description: format!("Reposted {repost_count} times"),
+                description,
                 weight,
                 severity: if repost_count > 5 {
                     Severity::High
@@ -354,6 +365,22 @@ impl GhostDetector {
             0.1
         } else {
             0.0
+        }
+    }
+
+    /// Calculate decay factor for repost weight based on age
+    ///
+    /// Reduces weight for older reposts to account for historical data:
+    /// - < 90 days: 1.0 (full weight)
+    /// - 90-180 days: 0.5 (half weight)
+    /// - > 180 days: 0.25 (quarter weight)
+    fn calculate_repost_decay_factor(&self, age_days: i64) -> f64 {
+        if age_days < 90 {
+            1.0 // Recent reposts are highly suspicious
+        } else if age_days < 180 {
+            0.5 // Older reposts less concerning (may be historical data)
+        } else {
+            0.25 // Very old reposts carry minimal weight
         }
     }
 
@@ -538,6 +565,106 @@ mod tests {
             .reasons
             .iter()
             .any(|r| r.category == GhostCategory::Repost));
+    }
+
+    #[test]
+    fn test_repost_aging_reduces_weight() {
+        let detector = GhostDetector::new(GhostConfig::default());
+
+        // Recent repost (30 days old) - full weight
+        let recent_created = create_test_job_created_at(30);
+        let recent_analysis = detector.analyze(
+            "Software Engineer",
+            Some("A normal job description."),
+            None,
+            None,
+            Some("NYC"),
+            None,
+            recent_created,
+            5, // reposted 5 times
+            10,
+        );
+
+        // Old repost (120 days old) - 50% weight
+        let old_created = create_test_job_created_at(120);
+        let old_analysis = detector.analyze(
+            "Software Engineer",
+            Some("A normal job description."),
+            None,
+            None,
+            Some("NYC"),
+            None,
+            old_created,
+            5, // reposted 5 times
+            10,
+        );
+
+        // Very old repost (200 days old) - 25% weight
+        let very_old_created = create_test_job_created_at(200);
+        let very_old_analysis = detector.analyze(
+            "Software Engineer",
+            Some("A normal job description."),
+            None,
+            None,
+            Some("NYC"),
+            None,
+            very_old_created,
+            5, // reposted 5 times
+            10,
+        );
+
+        // Get repost weights
+        let recent_repost_weight = recent_analysis
+            .reasons
+            .iter()
+            .find(|r| r.category == GhostCategory::Repost)
+            .map(|r| r.weight)
+            .expect("Should have repost reason");
+
+        let old_repost_weight = old_analysis
+            .reasons
+            .iter()
+            .find(|r| r.category == GhostCategory::Repost)
+            .map(|r| r.weight)
+            .expect("Should have repost reason");
+
+        let very_old_repost_weight = very_old_analysis
+            .reasons
+            .iter()
+            .find(|r| r.category == GhostCategory::Repost)
+            .map(|r| r.weight)
+            .expect("Should have repost reason");
+
+        // Recent should be highest
+        assert!(
+            recent_repost_weight > old_repost_weight,
+            "Recent repost should have higher weight than old: {} vs {}",
+            recent_repost_weight,
+            old_repost_weight
+        );
+
+        // Old should be higher than very old
+        assert!(
+            old_repost_weight > very_old_repost_weight,
+            "Old repost should have higher weight than very old: {} vs {}",
+            old_repost_weight,
+            very_old_repost_weight
+        );
+
+        // Verify approximate decay factors (allowing for rounding)
+        let decay_120 = old_repost_weight / recent_repost_weight;
+        let decay_200 = very_old_repost_weight / recent_repost_weight;
+
+        assert!(
+            (decay_120 - 0.5).abs() < 0.01,
+            "120-day decay should be ~0.5, got {}",
+            decay_120
+        );
+        assert!(
+            (decay_200 - 0.25).abs() < 0.01,
+            "200-day decay should be ~0.25, got {}",
+            decay_200
+        );
     }
 
     #[test]

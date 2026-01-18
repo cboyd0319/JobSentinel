@@ -1,4 +1,6 @@
 import { Tooltip } from "./Tooltip";
+import { invoke } from "@tauri-apps/api/core";
+import { useState } from "react";
 
 interface GhostReason {
   category: string;
@@ -11,6 +13,8 @@ interface GhostIndicatorProps {
   ghostScore: number | null;
   ghostReasons: string | null;
   size?: "sm" | "md";
+  jobId?: number;
+  onFeedbackSubmitted?: (verdict: "real" | "ghost") => void;
 }
 
 const severityStyles = {
@@ -83,7 +87,12 @@ export function GhostIndicator({
   ghostScore,
   ghostReasons,
   size = "sm",
+  jobId,
+  onFeedbackSubmitted,
 }: GhostIndicatorProps) {
+  const [feedbackState, setFeedbackState] = useState<"real" | "ghost" | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   // Don't show if score is null or below threshold
   if (ghostScore === null || ghostScore < 0.5) {
     return null;
@@ -92,6 +101,25 @@ export function GhostIndicator({
   const severity = getSeverity(ghostScore);
   const reasons = parseReasons(ghostReasons);
   const sizeClass = size === "sm" ? "w-4 h-4" : "w-5 h-5";
+
+  const handleFeedback = async (verdict: "real" | "ghost") => {
+    if (!jobId || isSubmitting) return;
+
+    setIsSubmitting(true);
+    try {
+      if (verdict === "real") {
+        await invoke("mark_job_as_real", { jobId });
+      } else {
+        await invoke("mark_job_as_ghost", { jobId });
+      }
+      setFeedbackState(verdict);
+      onFeedbackSubmitted?.(verdict);
+    } catch (err) {
+      console.error(`Failed to mark job as ${verdict}:`, err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const tooltipContent = (
     <div className="max-w-xs">
@@ -118,6 +146,42 @@ export function GhostIndicator({
       ) : (
         <p className="text-xs">Multiple warning signals detected</p>
       )}
+      {jobId && !feedbackState && (
+        <div className="mt-2 pt-2 border-t border-surface-200 dark:border-surface-600">
+          <p className="text-xs text-surface-400 mb-1">Is this correct?</p>
+          <div className="flex gap-1">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleFeedback("real");
+              }}
+              disabled={isSubmitting}
+              className="flex-1 px-2 py-1 text-xs rounded bg-green-500 hover:bg-green-600 text-white transition-colors disabled:opacity-50"
+              title="Mark as real job"
+            >
+              ✓ Real
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleFeedback("ghost");
+              }}
+              disabled={isSubmitting}
+              className="flex-1 px-2 py-1 text-xs rounded bg-red-500 hover:bg-red-600 text-white transition-colors disabled:opacity-50"
+              title="Confirm ghost job"
+            >
+              ✗ Ghost
+            </button>
+          </div>
+        </div>
+      )}
+      {feedbackState && (
+        <div className="mt-2 pt-2 border-t border-surface-200 dark:border-surface-600">
+          <p className="text-xs text-green-400">
+            ✓ Marked as {feedbackState}
+          </p>
+        </div>
+      )}
     </div>
   );
 
@@ -128,6 +192,7 @@ export function GhostIndicator({
           inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-medium
           ${severityBgStyles[severity]} ${severityStyles[severity]}
           cursor-help transition-colors
+          ${feedbackState === "real" ? "opacity-50" : ""}
         `}
         aria-label={`Potential ghost job: ${Math.round(ghostScore * 100)}% confidence`}
       >
@@ -137,7 +202,11 @@ export function GhostIndicator({
           <GhostIcon className={sizeClass} />
         )}
         <span className="sr-only sm:not-sr-only">
-          {severity === "high" ? "Likely Ghost" : "Possible Ghost"}
+          {feedbackState === "real"
+            ? "Marked Real"
+            : severity === "high"
+            ? "Likely Ghost"
+            : "Possible Ghost"}
         </span>
       </span>
     </Tooltip>
@@ -148,13 +217,37 @@ export function GhostIndicator({
 export function GhostIndicatorCompact({
   ghostScore,
   ghostReasons,
+  jobId,
+  onFeedbackSubmitted,
 }: Omit<GhostIndicatorProps, "size">) {
+  const [feedbackState, setFeedbackState] = useState<"real" | "ghost" | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   if (ghostScore === null || ghostScore < 0.5) {
     return null;
   }
 
   const severity = getSeverity(ghostScore);
   const reasons = parseReasons(ghostReasons);
+
+  const handleFeedback = async (verdict: "real" | "ghost") => {
+    if (!jobId || isSubmitting) return;
+
+    setIsSubmitting(true);
+    try {
+      if (verdict === "real") {
+        await invoke("mark_job_as_real", { jobId });
+      } else {
+        await invoke("mark_job_as_ghost", { jobId });
+      }
+      setFeedbackState(verdict);
+      onFeedbackSubmitted?.(verdict);
+    } catch (err) {
+      console.error(`Failed to mark job as ${verdict}:`, err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const tooltipContent = (
     <div className="max-w-xs">
@@ -175,6 +268,42 @@ export function GhostIndicatorCompact({
       ) : (
         <p className="text-xs">This job may be stale or fake</p>
       )}
+      {jobId && !feedbackState && (
+        <div className="mt-2 pt-2 border-t border-surface-200 dark:border-surface-600">
+          <p className="text-xs text-surface-400 mb-1">Is this correct?</p>
+          <div className="flex gap-1">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleFeedback("real");
+              }}
+              disabled={isSubmitting}
+              className="flex-1 px-2 py-1 text-xs rounded bg-green-500 hover:bg-green-600 text-white transition-colors disabled:opacity-50"
+              title="Mark as real job"
+            >
+              ✓ Real
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleFeedback("ghost");
+              }}
+              disabled={isSubmitting}
+              className="flex-1 px-2 py-1 text-xs rounded bg-red-500 hover:bg-red-600 text-white transition-colors disabled:opacity-50"
+              title="Confirm ghost job"
+            >
+              ✗ Ghost
+            </button>
+          </div>
+        </div>
+      )}
+      {feedbackState && (
+        <div className="mt-2 pt-2 border-t border-surface-200 dark:border-surface-600">
+          <p className="text-xs text-green-400">
+            ✓ Marked as {feedbackState}
+          </p>
+        </div>
+      )}
     </div>
   );
 
@@ -185,6 +314,7 @@ export function GhostIndicatorCompact({
           inline-flex items-center justify-center w-5 h-5 rounded-full
           ${severityBgStyles[severity]} ${severityStyles[severity]}
           cursor-help
+          ${feedbackState === "real" ? "opacity-50" : ""}
         `}
         aria-label={`Ghost warning: ${Math.round(ghostScore * 100)}%`}
       >

@@ -38,6 +38,15 @@ mod tests {
             indeed: Default::default(),
             auto_refresh: Default::default(),
             jobswithgpt_endpoint: "https://api.jobswithgpt.com/mcp".to_string(),
+            remoteok: Default::default(),
+            wellfound: Default::default(),
+            weworkremotely: Default::default(),
+            builtin: Default::default(),
+            hn_hiring: Default::default(),
+            dice: Default::default(),
+            yc_startup: Default::default(),
+            ziprecruiter: Default::default(),
+        ghost_config: None,
         };
 
         let database = Database::connect_memory()
@@ -224,6 +233,15 @@ mod tests {
             indeed: Default::default(),
             auto_refresh: Default::default(),
             jobswithgpt_endpoint: "https://api.jobswithgpt.com/mcp".to_string(),
+            remoteok: Default::default(),
+            wellfound: Default::default(),
+            weworkremotely: Default::default(),
+            builtin: Default::default(),
+            hn_hiring: Default::default(),
+            dice: Default::default(),
+            yc_startup: Default::default(),
+            ziprecruiter: Default::default(),
+        ghost_config: None,
         };
 
         let config_json = serde_json::to_value(&config).unwrap();
@@ -329,6 +347,15 @@ mod tests {
             indeed: Default::default(),
             auto_refresh: Default::default(),
             jobswithgpt_endpoint: "https://api.jobswithgpt.com/mcp".to_string(),
+            remoteok: Default::default(),
+            wellfound: Default::default(),
+            weworkremotely: Default::default(),
+            builtin: Default::default(),
+            hn_hiring: Default::default(),
+            dice: Default::default(),
+            yc_startup: Default::default(),
+            ziprecruiter: Default::default(),
+        ghost_config: None,
         };
 
         // Test that config can be serialized and deserialized

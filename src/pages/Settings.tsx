@@ -1,10 +1,20 @@
 import { useState, useEffect, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { Button, Input, Badge, Card, ErrorLogPanel, NotificationPreferences, HelpIcon } from "../components";
+import { Button, Input, Badge, Card, ErrorLogPanel, NotificationPreferences, HelpIcon, ScraperHealthDashboard } from "../components";
 import { useToast } from "../contexts";
 import { logError } from "../utils/errorUtils";
 import { getUserFriendlyError } from "../utils/errorMessages";
 import { exportConfigToJSON, importConfigFromJSON } from "../utils/export";
+
+// Ghost detection configuration interface
+interface GhostConfig {
+  stale_threshold_days: number;
+  repost_threshold: number;
+  min_description_length: number;
+  penalize_missing_salary: boolean;
+  warning_threshold: number;
+  hide_threshold: number;
+}
 
 interface SettingsProps {
   onClose: () => void;
@@ -112,6 +122,9 @@ export default function Settings({ onClose }: SettingsProps) {
   const [titleInput, setTitleInput] = useState("");
   const [skillInput, setSkillInput] = useState("");
   const [cityInput, setCityInput] = useState("");
+  const [showHealthDashboard, setShowHealthDashboard] = useState(false);
+  const [ghostConfig, setGhostConfig] = useState<GhostConfig | null>(null);
+  const [ghostConfigLoading, setGhostConfigLoading] = useState(false);
   const toast = useToast();
 
   const loadConfig = useCallback(async () => {
@@ -144,9 +157,31 @@ export default function Settings({ onClose }: SettingsProps) {
     }
   }, [toast]);
 
+  const loadGhostConfig = useCallback(async () => {
+    try {
+      setGhostConfigLoading(true);
+      const config = await invoke<GhostConfig>("get_ghost_config");
+      setGhostConfig(config);
+    } catch (error) {
+      logError("Failed to load ghost config:", error);
+      // Use default values if loading fails
+      setGhostConfig({
+        stale_threshold_days: 60,
+        repost_threshold: 3,
+        min_description_length: 200,
+        penalize_missing_salary: false,
+        warning_threshold: 0.3,
+        hide_threshold: 0.7,
+      });
+    } finally {
+      setGhostConfigLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     loadConfig();
-  }, [loadConfig]);
+    loadGhostConfig();
+  }, [loadConfig, loadGhostConfig]);
 
   const handleSave = async () => {
     if (!config) return;
@@ -277,6 +312,35 @@ export default function Settings({ onClose }: SettingsProps) {
         cities: config.location_preferences.cities.filter((c) => c !== city),
       },
     });
+  };
+
+  const handleSaveGhostConfig = async () => {
+    if (!ghostConfig) return;
+
+    try {
+      setGhostConfigLoading(true);
+      await invoke("set_ghost_config", { config: ghostConfig });
+      toast.success("Ghost Detection Settings Saved", "Settings will apply to new job scans");
+    } catch (error) {
+      logError("Failed to save ghost config:", error);
+      const friendly = getUserFriendlyError(error);
+      toast.error(friendly.title, friendly.message);
+    } finally {
+      setGhostConfigLoading(false);
+    }
+  };
+
+  const handleResetGhostConfig = async () => {
+    try {
+      setGhostConfigLoading(true);
+      await invoke("reset_ghost_config");
+      await loadGhostConfig();
+      toast.success("Reset to Defaults", "Ghost detection settings have been reset");
+    } catch (error) {
+      logError("Failed to reset ghost config:", error);
+      const friendly = getUserFriendlyError(error);
+      toast.error(friendly.title, friendly.message);
+    }
   };
 
   if (loading || !config) {
@@ -1093,12 +1157,192 @@ export default function Settings({ onClose }: SettingsProps) {
             </div>
           </section>
 
+          {/* Ghost Detection Settings */}
+          <section className="mb-6">
+            <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
+              Ghost Detection Settings
+              <HelpIcon text="Adjust how aggressively JobSentinel flags fake or stale job postings. Lower thresholds mean stricter detection." />
+            </h3>
+            {ghostConfig && (
+              <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-4 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
+                      Stale Threshold (days)
+                    </label>
+                    <Input
+                      type="number"
+                      min="1"
+                      max="365"
+                      value={ghostConfig.stale_threshold_days}
+                      onChange={(e) =>
+                        setGhostConfig({
+                          ...ghostConfig,
+                          stale_threshold_days: parseInt(e.target.value) || 60,
+                        })
+                      }
+                      hint="Jobs older than this are flagged as stale"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
+                      Repost Threshold
+                    </label>
+                    <Input
+                      type="number"
+                      min="1"
+                      max="20"
+                      value={ghostConfig.repost_threshold}
+                      onChange={(e) =>
+                        setGhostConfig({
+                          ...ghostConfig,
+                          repost_threshold: parseInt(e.target.value) || 3,
+                        })
+                      }
+                      hint="Flag jobs seen this many times or more"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
+                    Min Description Length (characters)
+                  </label>
+                  <Input
+                    type="number"
+                    min="50"
+                    max="1000"
+                    value={ghostConfig.min_description_length}
+                    onChange={(e) =>
+                      setGhostConfig({
+                        ...ghostConfig,
+                        min_description_length: parseInt(e.target.value) || 200,
+                      })
+                    }
+                    hint="Jobs with shorter descriptions are flagged"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={ghostConfig.penalize_missing_salary}
+                        onChange={(e) =>
+                          setGhostConfig({
+                            ...ghostConfig,
+                            penalize_missing_salary: e.target.checked,
+                          })
+                        }
+                        className="w-4 h-4 rounded border-surface-300 text-sentinel-500 focus:ring-sentinel-500"
+                      />
+                      <span className="text-sm text-surface-700 dark:text-surface-300">
+                        Flag jobs without salary info
+                      </span>
+                    </label>
+                    <HelpIcon text="Many legitimate jobs don't list salary. Enable this for stricter detection." position="right" />
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+                      Warning Threshold: {ghostConfig.warning_threshold.toFixed(2)}
+                    </label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.05"
+                      value={ghostConfig.warning_threshold}
+                      onChange={(e) =>
+                        setGhostConfig({
+                          ...ghostConfig,
+                          warning_threshold: parseFloat(e.target.value),
+                        })
+                      }
+                      className="w-full h-2 bg-surface-200 dark:bg-surface-700 rounded-lg appearance-none cursor-pointer accent-sentinel-500"
+                    />
+                    <p className="text-xs text-surface-500 dark:text-surface-400 mt-1">
+                      Jobs above this score show a warning indicator
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+                      Hide Threshold: {ghostConfig.hide_threshold.toFixed(2)}
+                    </label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.05"
+                      value={ghostConfig.hide_threshold}
+                      onChange={(e) =>
+                        setGhostConfig({
+                          ...ghostConfig,
+                          hide_threshold: parseFloat(e.target.value),
+                        })
+                      }
+                      className="w-full h-2 bg-surface-200 dark:bg-surface-700 rounded-lg appearance-none cursor-pointer accent-red-500"
+                    />
+                    <p className="text-xs text-surface-500 dark:text-surface-400 mt-1">
+                      Jobs above this score are hidden by default
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-2">
+                  <Button
+                    variant="secondary"
+                    onClick={handleResetGhostConfig}
+                    loading={ghostConfigLoading}
+                    className="flex-1"
+                  >
+                    Reset to Defaults
+                  </Button>
+                  <Button
+                    onClick={handleSaveGhostConfig}
+                    loading={ghostConfigLoading}
+                    className="flex-1"
+                  >
+                    Save Settings
+                  </Button>
+                </div>
+              </div>
+            )}
+            {!ghostConfig && (
+              <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-4">
+                <div className="flex items-center justify-center py-4" role="status" aria-label="Loading ghost config">
+                  <div className="animate-spin w-6 h-6 border-4 border-sentinel-500 border-t-transparent rounded-full" aria-hidden="true" />
+                  <span className="sr-only">Loading settings...</span>
+                </div>
+              </div>
+            )}
+          </section>
+
           {/* Troubleshooting */}
           <section className="mb-6">
             <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
               Troubleshooting
               <HelpIcon text="If something isn't working right, these logs can help diagnose the problem." />
             </h3>
+
+            {/* Scraper Health Dashboard Button */}
+            <div className="mb-4">
+              <button
+                onClick={() => setShowHealthDashboard(true)}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-surface-700 dark:text-surface-300 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 rounded-lg transition-colors w-full justify-center"
+              >
+                <HealthIcon className="w-5 h-5 text-sentinel-500" />
+                View Scraper Health Dashboard
+              </button>
+              <p className="text-xs text-surface-500 dark:text-surface-400 mt-1 text-center">
+                Monitor scraper status, run smoke tests, and view run history
+              </p>
+            </div>
+
             <ErrorLogPanel />
           </section>
 
@@ -1133,6 +1377,11 @@ export default function Settings({ onClose }: SettingsProps) {
           </div>
         </div>
       </Card>
+
+      {/* Scraper Health Dashboard Modal */}
+      {showHealthDashboard && (
+        <ScraperHealthDashboard onClose={() => setShowHealthDashboard(false)} />
+      )}
     </div>
   );
 }
@@ -1198,6 +1447,14 @@ function RefreshIcon({ className = "" }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+    </svg>
+  );
+}
+
+function HealthIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
     </svg>
   );
 }

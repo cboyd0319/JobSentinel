@@ -43,7 +43,7 @@
 //!    ```
 
 use super::http_client::get_client;
-use super::{JobScraper, ScraperResult};
+use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
 use anyhow::{Context, Result};
 use async_trait::async_trait;
@@ -258,7 +258,7 @@ impl LinkedInScraper {
             .unwrap_or_else(|| "Unknown Company".to_string());
 
         let url = format!("https://www.linkedin.com/jobs/view/{}", job_id);
-        let hash = self.generate_hash(&element.title, &company, &url);
+        let hash = Self::compute_hash(&company, &element.title, element.location.as_deref(), &url);
 
         Some(Job {
             id: 0,
@@ -323,7 +323,8 @@ impl LinkedInScraper {
         let url = format!("https://www.linkedin.com/jobs/view/{}", job_id);
 
         // Generate hash
-        let hash = self.generate_hash(&title, &company, &url);
+        let location_ref = if location.is_empty() { None } else { Some(location.as_str()) };
+        let hash = Self::compute_hash(&company, &title, location_ref, &url);
 
         Ok(Some(Job {
             id: 0,
@@ -452,7 +453,8 @@ impl LinkedInScraper {
         }
 
         let url = format!("https://www.linkedin.com/jobs/view/{}", job_id);
-        let hash = self.generate_hash(&title, &company, &url);
+        let location_ref = if location.is_empty() { None } else { Some(location.as_str()) };
+        let hash = Self::compute_hash(&company, &title, location_ref, &url);
 
         Ok(Some(Job {
             id: 0,
@@ -486,11 +488,14 @@ impl LinkedInScraper {
     }
 
     /// Generate SHA-256 hash for job deduplication
-    fn generate_hash(&self, title: &str, company: &str, url: &str) -> String {
+    fn compute_hash(company: &str, title: &str, location: Option<&str>, url: &str) -> String {
         let mut hasher = Sha256::new();
-        hasher.update(title.as_bytes());
-        hasher.update(company.as_bytes());
-        hasher.update(url.as_bytes());
+        hasher.update(company.to_lowercase().as_bytes());
+        hasher.update(title_utils::normalize_title(title).as_bytes());
+        if let Some(loc) = location {
+            hasher.update(location_utils::normalize_location(loc).as_bytes());
+        }
+        hasher.update(url_utils::normalize_url(url).as_bytes());
         format!("{:x}", hasher.finalize())
     }
 }
@@ -550,31 +555,29 @@ mod tests {
 
     #[test]
     fn test_hash_generation() {
-        let scraper =
-            LinkedInScraper::new("test".to_string(), "test".to_string(), "test".to_string());
-
-        let hash1 = scraper.generate_hash("Engineer", "Google", "https://linkedin.com/1");
-        let hash2 = scraper.generate_hash("Engineer", "Google", "https://linkedin.com/1");
-        let hash3 = scraper.generate_hash("Engineer", "Meta", "https://linkedin.com/1");
+        let hash1 = LinkedInScraper::compute_hash("Google", "Engineer", Some("San Francisco"), "https://linkedin.com/1");
+        let hash2 = LinkedInScraper::compute_hash("Google", "Engineer", Some("San Francisco"), "https://linkedin.com/1");
+        let hash3 = LinkedInScraper::compute_hash("Meta", "Engineer", Some("San Francisco"), "https://linkedin.com/1");
+        let hash4 = LinkedInScraper::compute_hash("Google", "Engineer", Some("New York"), "https://linkedin.com/1");
 
         assert_eq!(hash1, hash2);
-        assert_ne!(hash1, hash3);
+        assert_ne!(hash1, hash3); // Different company
+        assert_ne!(hash1, hash4); // Different location
         assert_eq!(hash1.len(), 64); // SHA-256 produces 64 hex chars
     }
 
     #[test]
     fn test_hash_deterministic() {
-        let scraper =
-            LinkedInScraper::new("test".to_string(), "test".to_string(), "test".to_string());
-
-        let hash1 = scraper.generate_hash(
-            "Software Engineer",
+        let hash1 = LinkedInScraper::compute_hash(
             "TechCorp",
+            "Software Engineer",
+            Some("Remote"),
             "https://linkedin.com/jobs/view/123",
         );
-        let hash2 = scraper.generate_hash(
-            "Software Engineer",
+        let hash2 = LinkedInScraper::compute_hash(
             "TechCorp",
+            "Software Engineer",
+            Some("Remote"),
             "https://linkedin.com/jobs/view/123",
         );
 
@@ -1004,16 +1007,17 @@ mod tests {
 
     #[test]
     fn test_hash_generation_different_values() {
-        let scraper =
-            LinkedInScraper::new("test".to_string(), "test".to_string(), "test".to_string());
+        let hash1 = LinkedInScraper::compute_hash("Company1", "Title1", Some("Location1"), "url1");
+        let hash2 = LinkedInScraper::compute_hash("Company1", "Title2", Some("Location1"), "url1");
+        let hash3 = LinkedInScraper::compute_hash("Company2", "Title1", Some("Location1"), "url1");
+        let hash4 = LinkedInScraper::compute_hash("Company1", "Title1", Some("Location1"), "url2");
+        let hash5 = LinkedInScraper::compute_hash("Company1", "Title1", Some("Location2"), "url1");
+        let hash6 = LinkedInScraper::compute_hash("Company1", "Title1", None, "url1");
 
-        let hash1 = scraper.generate_hash("Title1", "Company1", "url1");
-        let hash2 = scraper.generate_hash("Title2", "Company1", "url1");
-        let hash3 = scraper.generate_hash("Title1", "Company2", "url1");
-        let hash4 = scraper.generate_hash("Title1", "Company1", "url2");
-
-        assert_ne!(hash1, hash2);
-        assert_ne!(hash1, hash3);
-        assert_ne!(hash1, hash4);
+        assert_ne!(hash1, hash2); // Different title
+        assert_ne!(hash1, hash3); // Different company
+        assert_ne!(hash1, hash4); // Different URL
+        assert_ne!(hash1, hash5); // Different location
+        assert_ne!(hash1, hash6); // With vs without location
     }
 }

@@ -115,14 +115,15 @@ JobSentinel/
 │   │   │   ├── credentials/# OS keyring integration (NEW in v2.0)
 │   │   │   ├── db/        # Database layer
 │   │   │   ├── ghost/     # Ghost job detection
+│   │   │   ├── health/    # Scraper health monitoring (NEW in v2.1)
 │   │   │   ├── notify/    # Notifications (Slack, Discord, Teams, Email, Telegram)
 │   │   │   ├── resume/    # Resume Builder + ATS Optimizer (NEW in v2.0)
 │   │   │   ├── scheduler/ # Job scheduling with auto-refresh
 │   │   │   ├── scoring/   # Job scoring algorithm
 │   │   │   └── scrapers/  # 13 job board scrapers with parallel scraping
-│   │   ├── commands/      # Tauri RPC handlers (110 commands)
+│   │   ├── commands/      # Tauri RPC handlers (130 commands)
 │   │   └── platforms/     # Platform-specific code (Windows, macOS, Linux)
-│   └── migrations/        # SQLite migrations (20 migrations)
+│   └── migrations/        # SQLite migrations (21 migrations)
 └── docs/                  # Documentation
     ├── features/          # Feature documentation
     ├── releases/          # Version release notes
@@ -146,6 +147,7 @@ All core modules are enabled and functional:
 - market_intelligence (Market Analytics)
 - automation (One-Click Apply with form filling)
 - credentials (OS-native keyring integration)
+- health (Scraper health monitoring, run tracking, smoke tests, credential expiry)
 
 ### Frontend Features (v2.0)
 
@@ -169,15 +171,16 @@ All core modules are enabled and functional:
 
 ### Test Status
 
-- 2104 tests passing (2078 + 26 new automation tests)
-- 28 ignored (require file-based database, Chrome, or are doc-tests)
+- 2085 tests passing
+- 20 ignored (require file-based database, Chrome, or are doc-tests)
 - Integration test files: `tests/automation_integration_test.rs`, `tests/scheduler_integration_test.rs`, etc.
 
-### Tauri Commands (117 total)
+### Tauri Commands (137 total)
 
 - Core Jobs: 14 commands (search, get, hide, bookmark, notes, stats, duplicates)
 - Config: 6 commands (save, get, validate_webhook, first_run, complete_setup, test_email)
-- Ghost: 3 commands (ghost_jobs, ghost_statistics, filtered_search)
+- Ghost: 10 commands (ghost_jobs, ghost_statistics, filtered_search, mark_real, mark_ghost,
+  get_feedback, clear_feedback, get_ghost_config, set_ghost_config, reset_ghost_config)
 - ATS: 13 commands (applications, reminders, ghosting detection, interviews)
 - Resume Matcher: 7 commands (upload, get_active, set_active, get_skills, match, get_result, recent)
 - Resume Builder: 10 commands (create, get, update_contact, update_summary,
@@ -191,6 +194,8 @@ All core modules are enabled and functional:
 - Credentials: 5 commands (store, retrieve, delete, has, get_status)
 - Automation: 18 commands (profile, screening answers, attempts, ATS detection, browser control)
 - Browser: 2 commands (take_screenshot, fill_form - subset of automation)
+- Health: 9 commands (scraper_health, health_summary, scraper_configs, set_scraper_enabled,
+  scraper_runs, smoke_test, all_smoke_tests, linkedin_cookie_health, expiring_credentials)
 
 ## Development Commands
 
@@ -292,13 +297,29 @@ cargo test --ignored          # Run ignored tests (need file db)
 
 ## Documentation
 
+### User Documentation
+
 - `README.md` - User-facing overview
 - `docs/README.md` - Documentation hub
-- `docs/features/ghost-detection.md` - Ghost detection feature guide
 - `docs/user/QUICK_START.md` - User guide
-- `docs/developer/GETTING_STARTED.md` - Developer setup
-- `docs/ROADMAP.md` - Roadmap and technical debt tracking
 - `CHANGELOG.md` - Version history
+
+### Feature Documentation
+
+- `docs/features/ghost-detection.md` - Ghost detection with user feedback
+- `docs/features/scrapers.md` - 13 scrapers with deduplication improvements
+- `docs/features/` - All feature guides
+
+### Developer Documentation
+
+- `docs/developer/GETTING_STARTED.md` - Development environment setup
+- `docs/developer/ARCHITECTURE.md` - System architecture overview
+- `docs/developer/TESTING.md` - Testing guide (unit, integration, E2E)
+- `docs/developer/FRONTEND_TESTING.md` - React/Vitest/Playwright testing
+- `docs/developer/INTEGRATION_TESTING.md` - Rust integration testing
+- `docs/developer/CI_CD.md` - CI/CD pipeline setup and workflows
+- `docs/developer/CONTRIBUTING.md` - Contribution guidelines
+- `docs/ROADMAP.md` - Roadmap and technical debt tracking
 
 ## Technical Debt: File Size Limits
 

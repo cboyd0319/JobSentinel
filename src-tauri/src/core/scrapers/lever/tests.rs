@@ -514,7 +514,9 @@ fn test_hash_with_json_data() {
 }
 
 #[test]
-fn test_hash_different_with_different_location_values() {
+fn test_hash_remote_locations_normalized() {
+    // With location normalization, "Remote" variants all normalize to "remote"
+    // so they should produce the SAME hash (improved deduplication)
     let hash1 = LeverScraper::compute_hash(
         "Company",
         "Engineer",
@@ -534,9 +536,10 @@ fn test_hash_different_with_different_location_values() {
         "https://example.com/1",
     );
 
-    assert_ne!(hash1, hash2);
-    assert_ne!(hash2, hash3);
-    assert_ne!(hash1, hash3);
+    // All remote variants should produce the SAME hash
+    assert_eq!(hash1, hash2);
+    assert_eq!(hash2, hash3);
+    assert_eq!(hash1, hash3);
 }
 
 // ========================================
@@ -834,7 +837,9 @@ fn test_hash_consistency_across_runs() {
 }
 
 #[test]
-fn test_hash_with_query_parameters() {
+fn test_hash_with_query_parameters_normalized() {
+    // With URL normalization, tracking params (ref, utm_*, etc.) are stripped
+    // so URLs that differ only in tracking params should produce the SAME hash
     let hash1 = LeverScraper::compute_hash(
         "Company",
         "Engineer",
@@ -854,10 +859,10 @@ fn test_hash_with_query_parameters() {
         "https://jobs.lever.co/company/job",
     );
 
-    // Query parameters should affect hash
-    assert_ne!(hash1, hash2);
-    assert_ne!(hash1, hash3);
-    assert_ne!(hash2, hash3);
+    // All three should produce the SAME hash (tracking params stripped)
+    assert_eq!(hash1, hash2);
+    assert_eq!(hash1, hash3);
+    assert_eq!(hash2, hash3);
 }
 
 #[test]

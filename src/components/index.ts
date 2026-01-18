@@ -35,6 +35,7 @@ export { CompanyAutocomplete, COMPANY_SUGGESTIONS } from "./CompanyAutocomplete"
 export { KeyboardShortcutsHelp, ShortcutKey } from "./KeyboardShortcutsHelp";
 export { CareerProfileSelector } from "./CareerProfileSelector";
 export { GhostIndicator, GhostIndicatorCompact } from "./GhostIndicator";
+export { ScraperHealthDashboard } from "./ScraperHealthDashboard";
 
 // Automation (One-Click Apply)
 export { ProfileForm, ScreeningAnswersForm, ApplyButton, AtsBadge, ApplicationPreview } from "./automation";

@@ -57,9 +57,45 @@ pub struct Config {
     #[serde(default)]
     pub indeed: IndeedConfig,
 
+    /// RemoteOK scraper configuration
+    #[serde(default)]
+    pub remoteok: RemoteOkConfig,
+
+    /// Wellfound (AngelList Talent) scraper configuration
+    #[serde(default)]
+    pub wellfound: WellfoundConfig,
+
+    /// WeWorkRemotely scraper configuration
+    #[serde(default)]
+    pub weworkremotely: WeWorkRemotelyConfig,
+
+    /// BuiltIn scraper configuration
+    #[serde(default)]
+    pub builtin: BuiltInConfig,
+
+    /// Hacker News Who's Hiring scraper configuration
+    #[serde(default)]
+    pub hn_hiring: HnHiringConfig,
+
+    /// Dice scraper configuration
+    #[serde(default)]
+    pub dice: DiceConfig,
+
+    /// Y Combinator Work at a Startup scraper configuration
+    #[serde(default)]
+    pub yc_startup: YcStartupConfig,
+
+    /// ZipRecruiter scraper configuration
+    #[serde(default)]
+    pub ziprecruiter: ZipRecruiterConfig,
+
     /// JobsWithGPT MCP endpoint URL
     #[serde(default = "super::defaults::default_jobswithgpt_endpoint")]
     pub jobswithgpt_endpoint: String,
+
+    /// Ghost job detection configuration
+    #[serde(default)]
+    pub ghost_config: Option<crate::core::ghost::GhostConfig>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -285,5 +321,185 @@ pub struct IndeedConfig {
 
     /// Maximum results to return (default: 50)
     #[serde(default = "super::defaults::default_indeed_limit")]
+    pub limit: usize,
+}
+
+/// RemoteOK scraper configuration
+///
+/// RemoteOK provides a public JSON API for remote job listings.
+/// No authentication required.
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct RemoteOkConfig {
+    /// Enable RemoteOK job scraping
+    #[serde(default)]
+    pub enabled: bool,
+
+    /// Search tags to filter jobs (e.g., ["rust", "python", "engineer"])
+    #[serde(default)]
+    pub tags: Vec<String>,
+
+    /// Maximum results to return (default: 50)
+    #[serde(default = "super::defaults::default_scraper_limit")]
+    pub limit: usize,
+}
+
+/// Wellfound (AngelList Talent) scraper configuration
+///
+/// Wellfound is the premier platform for startup job listings.
+/// No authentication required.
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct WellfoundConfig {
+    /// Enable Wellfound job scraping
+    #[serde(default)]
+    pub enabled: bool,
+
+    /// Job role to search for (e.g., "software-engineer", "product-manager")
+    #[serde(default)]
+    pub role: String,
+
+    /// Location filter (e.g., "united-states", "new-york")
+    #[serde(default)]
+    pub location: Option<String>,
+
+    /// Filter for remote jobs only
+    #[serde(default)]
+    pub remote_only: bool,
+
+    /// Maximum results to return (default: 50)
+    #[serde(default = "super::defaults::default_scraper_limit")]
+    pub limit: usize,
+}
+
+/// WeWorkRemotely scraper configuration
+///
+/// WeWorkRemotely provides an RSS feed for remote-only jobs.
+/// No authentication required.
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct WeWorkRemotelyConfig {
+    /// Enable WeWorkRemotely job scraping
+    #[serde(default)]
+    pub enabled: bool,
+
+    /// Category to search (e.g., "remote-programming-jobs", "remote-design-jobs")
+    #[serde(default)]
+    pub category: Option<String>,
+
+    /// Maximum results to return (default: 50)
+    #[serde(default = "super::defaults::default_scraper_limit")]
+    pub limit: usize,
+}
+
+/// BuiltIn scraper configuration
+///
+/// BuiltIn covers tech jobs in major tech hubs.
+/// No authentication required.
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct BuiltInConfig {
+    /// Enable BuiltIn job scraping
+    #[serde(default)]
+    pub enabled: bool,
+
+    /// Cities to search (e.g., ["nyc", "la", "chicago", "austin", "boston", "seattle"])
+    #[serde(default)]
+    pub cities: Vec<String>,
+
+    /// Job category (e.g., "dev-engineering", "data", "design")
+    #[serde(default)]
+    pub category: Option<String>,
+
+    /// Maximum results to return per city (default: 50)
+    #[serde(default = "super::defaults::default_scraper_limit")]
+    pub limit: usize,
+}
+
+/// Hacker News Who's Hiring scraper configuration
+///
+/// Scrapes jobs from the monthly "Who is hiring?" threads.
+/// No authentication required.
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct HnHiringConfig {
+    /// Enable HN Who's Hiring job scraping
+    #[serde(default)]
+    pub enabled: bool,
+
+    /// Filter for remote jobs only
+    #[serde(default)]
+    pub remote_only: bool,
+
+    /// Maximum results to return (default: 50)
+    #[serde(default = "super::defaults::default_scraper_limit")]
+    pub limit: usize,
+}
+
+/// Dice scraper configuration
+///
+/// Dice is a tech-focused job board with IT and technology positions.
+/// No authentication required.
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct DiceConfig {
+    /// Enable Dice job scraping
+    #[serde(default)]
+    pub enabled: bool,
+
+    /// Search query (e.g., "rust developer", "software engineer")
+    #[serde(default)]
+    pub query: String,
+
+    /// Location filter (e.g., "Remote", "New York, NY")
+    #[serde(default)]
+    pub location: Option<String>,
+
+    /// Maximum results to return (default: 50)
+    #[serde(default = "super::defaults::default_scraper_limit")]
+    pub limit: usize,
+}
+
+/// Y Combinator Work at a Startup scraper configuration
+///
+/// Scrapes curated positions from YC-backed startups.
+/// No authentication required.
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct YcStartupConfig {
+    /// Enable YC Startup job scraping
+    #[serde(default)]
+    pub enabled: bool,
+
+    /// Optional keyword filter
+    #[serde(default)]
+    pub query: Option<String>,
+
+    /// Filter for remote jobs only
+    #[serde(default)]
+    pub remote_only: bool,
+
+    /// Maximum results to return (default: 50)
+    #[serde(default = "super::defaults::default_scraper_limit")]
+    pub limit: usize,
+}
+
+/// ZipRecruiter scraper configuration
+///
+/// ZipRecruiter provides an RSS feed for job listings.
+/// No authentication required.
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct ZipRecruiterConfig {
+    /// Enable ZipRecruiter job scraping
+    #[serde(default)]
+    pub enabled: bool,
+
+    /// Search query (e.g., "software engineer", "rust developer")
+    #[serde(default)]
+    pub query: String,
+
+    /// Location filter (city, state, or zip)
+    #[serde(default)]
+    pub location: Option<String>,
+
+    /// Search radius in miles (default: 25)
+    #[serde(default = "super::defaults::default_ziprecruiter_radius")]
+    pub radius: Option<u32>,
+
+    /// Maximum results to return (default: 50)
+    #[serde(default = "super::defaults::default_scraper_limit")]
     pub limit: usize,
 }

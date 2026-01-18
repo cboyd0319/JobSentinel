@@ -2,10 +2,10 @@
 
 ## Support for 13+ Job Sources with Parallel Scraping
 
-> **Status:** ACTIVE (v1.5.0+)
+> **Status:** ACTIVE (v2.1.0+)
 > **Supported Scrapers:** 13 sources
 > **Last Updated:** 2026-01-17
-> **Architecture:** Parallel scraping with intelligent rate limiting and deduplication
+> **Architecture:** Parallel scraping with intelligent rate limiting, health monitoring, and deduplication
 
 **Note:** JobSentinel includes production-ready scrapers for 13 major job boards. All scrapers
 implement intelligent rate limiting, automatic deduplication via SHA-256 hashing, and robust
@@ -403,6 +403,193 @@ Hour 1:00 → Fully refilled → 100 available
 
 ---
 
+## 🧮 Deduplication Improvements
+
+JobSentinel uses intelligent deduplication to prevent duplicate jobs across 13 sources
+using consistent hashing with URL, location, and title normalization.
+
+### URL Normalization
+
+Strips 20+ tracking parameters before hashing to deduplicate jobs shared via different
+sources (social media, email, newsletters):
+
+```text
+Before:  https://greenhouse.io/jobs/123?utm_source=linkedin&ref=twitter&fbclid=abc
+After:   https://greenhouse.io/jobs/123
+
+Preserved parameters (job identifiers):
+- id, job_id, posting, gh_jid, lever_id, position, etc.
+
+Removed parameters (tracking):
+- utm_*, fbclid, gclid, ref, source, campaign, session, etc.
+```
+
+**Benefit:** Same job posted on LinkedIn becomes identical after normalization.
+
+### Location Normalization
+
+Converts location name variations to canonical forms:
+
+```text
+"SF" → "San Francisco"
+"San Fran" → "San Francisco"
+"Remote US" → "Remote"
+"USA Remote" → "Remote"
+"Work from home" → "Remote"
+```
+
+**Benefit:** Prevents false positives from location spelling variations.
+
+### Title Normalization
+
+Removes abbreviations and standardizes common terms:
+
+```text
+"Sr. Software Engineer" → "Senior Software Engineer"
+"SWE" → "Software Engineer"
+"Sr Dev" → "Senior Developer"
+"Jr. Dev" → "Junior Developer"
+"FTE" → "Full-Time Employee"
+```
+
+**Benefit:** Reduces duplicates from title inconsistencies across job boards.
+
+### Hash Formula
+
+All 13 scrapers use the same consistent formula:
+
+```rust
+SHA256(
+  normalized_title +
+  company_name +
+  normalized_location +
+  normalized_url
+)
+```
+
+**Fixed in this release:**
+
+- LinkedIn hash now includes location (was missing, causing duplicates)
+- Indeed hash now includes location (was missing, causing duplicates)
+
+### Deduplication Badge
+
+Job cards display a "Seen on X sources" badge indicating duplicate detection:
+
+```text
+Seen on 3 sources  (same job found on LinkedIn, Indeed, Greenhouse)
+Seen on 1 source   (unique job)
+```
+
+### Implementation
+
+Three new utility modules handle normalization:
+
+| Module | Purpose |
+|--------|---------|
+| `url_utils.rs` | Strips 20+ tracking parameters |
+| `location_utils.rs` | Canonicalizes location names |
+| `title_utils.rs` | Standardizes job titles |
+
+Each module includes comprehensive tests (26+ test cases total).
+
+---
+
+## 🏥 Health Monitoring (v2.1.0+)
+
+### Scraper Health Dashboard
+
+Monitor the health and performance of all 13 scrapers from Settings → Troubleshooting → "View Scraper Health Dashboard".
+
+**Dashboard Features:**
+
+- **Summary Stats** - Total scrapers, healthy/degraded/down/disabled counts, jobs found (24h)
+- **Scraper Table** - Health status, success rate, avg duration, jobs found, selector health
+- **Run History** - Click any scraper to view recent runs with status, timing, and errors
+- **Smoke Tests** - Test individual scrapers or all at once
+- **Credential Warnings** - Alerts for expiring LinkedIn cookies
+
+### Health Status
+
+| Status | Description | Success Rate |
+|--------|-------------|--------------|
+| **Healthy** | Working normally | ≥90% |
+| **Degraded** | Some failures | 70-89% |
+| **Down** | Not working | <70% |
+| **Disabled** | Manually disabled | N/A |
+| **Unknown** | No recent runs | N/A |
+
+### Automatic Retry Logic
+
+Scrapers automatically retry on transient failures using exponential backoff:
+
+```rust
+// Default retry configuration
+RetryConfig {
+    max_attempts: 3,
+    initial_delay_ms: 1000,    // 1 second
+    max_delay_ms: 30000,       // 30 seconds
+    backoff_multiplier: 2.0,
+    retryable_status_codes: [429, 500, 502, 503, 504],
+}
+```
+
+**Retry Sequence Example:**
+
+```text
+Attempt 1: Immediate
+Attempt 2: Wait 1s (+ jitter)
+Attempt 3: Wait 2s (+ jitter)
+```
+
+### Smoke Tests
+
+Verify scraper connectivity without running full scrapes:
+
+```rust
+// Test single scraper
+let result = run_smoke_test(&db, &config, "linkedin").await?;
+
+// Test all scrapers
+let results = run_all_smoke_tests(&db, &config).await?;
+```
+
+Results are stored in `scraper_smoke_tests` table with response times.
+
+### Credential Health (LinkedIn)
+
+LinkedIn cookie expiry is automatically tracked:
+
+- **Cookie Lifespan:** ~365 days
+- **Warning Threshold:** 30 days before expiry
+- **Auto-notification:** Alerts when cookie is expiring
+
+### Tauri Commands (9 new)
+
+| Command | Description |
+|---------|-------------|
+| `get_scraper_health` | Health metrics for all scrapers |
+| `get_health_summary` | Aggregate health statistics |
+| `get_scraper_configs` | Scraper configuration details |
+| `set_scraper_enabled` | Enable/disable scrapers |
+| `get_scraper_runs` | Recent run history |
+| `run_scraper_smoke_test` | Test single scraper |
+| `run_all_smoke_tests` | Test all scrapers |
+| `get_linkedin_cookie_health` | LinkedIn credential status |
+| `get_expiring_credentials` | All expiring credentials |
+
+### Database Tables
+
+| Table | Purpose |
+|-------|---------|
+| `scraper_runs` | Run history with timing and status |
+| `scraper_config` | Scraper configuration and health state |
+| `credential_health` | Credential expiry tracking |
+| `scraper_smoke_tests` | Smoke test results |
+| `scraper_health_status` (view) | Aggregated health metrics |
+
+---
+
 ## 🧪 Testing
 
 ### Unit Tests
@@ -603,7 +790,7 @@ impl RateLimiter {
 
 ## ✅ Implementation Status
 
-### Completed ✅ (v1.5.0)
+### Completed ✅ (v2.1.0)
 
 - [x] All 13 job board scrapers (production-ready)
 - [x] Parallel scraping architecture
@@ -614,21 +801,25 @@ impl RateLimiter {
 - [x] Integration tests for all scrapers
 - [x] Auto-refresh scheduling (configurable intervals)
 - [x] Job filtering (keyword, salary, location, company)
+- [x] **Health monitoring dashboard** (v2.1.0)
+- [x] **Exponential backoff retry logic** (v2.1.0)
+- [x] **Smoke tests for all scrapers** (v2.1.0)
+- [x] **Credential expiry tracking** (v2.1.0)
+- [x] **Run history tracking** (v2.1.0)
 
-### Future Enhancements 🔜 (v1.6+)
+### Future Enhancements 🔜 (v2.2+)
 
 - [ ] Headless browser integration for JavaScript-heavy sites
 - [ ] Additional job boards (Monster, Glassdoor, CareerBuilder)
 - [ ] Job detail page fetching with full descriptions
 - [ ] CAPTCHA solver integration
 - [ ] Proxy rotation for large-scale scraping
-- [ ] Job board health monitoring (uptime, response times)
 - [ ] Job board version tracking (HTML layout change detection)
 
 ---
 
 **Last Updated:** 2026-01-17
-**Version:** 1.5.0
+**Version:** 2.1.0
 **Maintained By:** JobSentinel Core Team
-**Implementation Status:** ✅ Phase 1 Complete (13 HTTP Scrapers)
-**Next Phase:** v1.6 - Advanced Scraping (Headless Browser, Additional Boards)
+**Implementation Status:** ✅ Phase 2 Complete (Health Monitoring)
+**Next Phase:** v2.2 - Advanced Scraping (Headless Browser, Additional Boards)

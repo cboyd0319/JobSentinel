@@ -21,6 +21,8 @@ interface Job {
   // Ghost detection fields (v1.4)
   ghost_score?: number | null;
   ghost_reasons?: string | null;
+  // Deduplication field (v1.4)
+  times_seen?: number;
 }
 
 interface JobCardProps {
@@ -145,6 +147,7 @@ export function JobCard({ job, onViewJob, onHideJob, onToggleBookmark, onEditNot
                 <GhostIndicatorCompact
                   ghostScore={job.ghost_score}
                   ghostReasons={job.ghost_reasons ?? null}
+                  jobId={job.id}
                 />
               )}
 
@@ -167,6 +170,14 @@ export function JobCard({ job, onViewJob, onHideJob, onToggleBookmark, onEditNot
                 <SourceIcon />
                 {job.source}
               </span>
+
+              {/* Times seen (if > 1) */}
+              {job.times_seen && job.times_seen > 1 && (
+                <span className="inline-flex items-center gap-1 text-xs text-surface-400 dark:text-surface-500" title={`This job has been seen ${job.times_seen} times across different sources`}>
+                  <DuplicateIcon />
+                  {job.times_seen}x
+                </span>
+              )}
 
               {/* Time */}
               <span className="inline-flex items-center gap-1">
@@ -334,6 +345,14 @@ function ResearchIcon() {
   return (
     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+    </svg>
+  );
+}
+
+function DuplicateIcon() {
+  return (
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
     </svg>
   );
 }

@@ -2,7 +2,7 @@
 
 **Last Updated:** January 17, 2026
 
-## Current Version: 2.0.0
+## Current Version: 2.1.0
 
 ### Working Features (v1.4.0)
 
@@ -172,7 +172,37 @@ See [docs/features/resume-builder.md](features/resume-builder.md) for full docum
 
 See [docs/features/one-click-apply.md](features/one-click-apply.md) for full documentation.
 
-### v2.1+ Planned Features
+### v2.1 - Scraper Health Monitoring (COMPLETED)
+
+Comprehensive health monitoring system for all 13 job board scrapers.
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| **All 13 Scrapers Wired** | **Done** | Previously only 5/13 connected |
+| **Health Dashboard** | **Done** | Settings → Troubleshooting |
+| **Run History Tracking** | **Done** | Per-scraper execution logs |
+| **Exponential Backoff Retry** | **Done** | Auto-retry on 429, 5xx errors |
+| **Smoke Tests** | **Done** | Test individual or all scrapers |
+| **LinkedIn Cookie Expiry** | **Done** | 30-day warning threshold |
+| **9 New Tauri Commands** | **Done** | Health monitoring API |
+| **4 New Database Tables** | **Done** | + 1 aggregation view |
+
+**Scrapers now fully wired (previously missing 8):**
+
+- RemoteOK, Wellfound, WeWorkRemotely, BuiltIn
+- HN Who's Hiring, Dice, YC Startup Jobs, ZipRecruiter
+
+**Health Dashboard features:**
+
+- Summary stats (healthy/degraded/down/disabled scrapers)
+- Scraper table with success rate, avg duration, jobs found
+- Run history panel with error details
+- Smoke test results modal
+- Credential expiry warnings
+
+See [docs/features/scrapers.md](features/scrapers.md) for full documentation.
+
+### v2.2+ Planned Features
 
 | Feature | Status | Notes |
 |---------|--------|-------|

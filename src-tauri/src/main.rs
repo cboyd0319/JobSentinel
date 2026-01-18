@@ -182,6 +182,15 @@ fn main() {
             commands::ghost::get_ghost_jobs,
             commands::ghost::get_ghost_statistics,
             commands::ghost::get_recent_jobs_filtered,
+            // Ghost feedback commands
+            commands::ghost::mark_job_as_real,
+            commands::ghost::mark_job_as_ghost,
+            commands::ghost::get_ghost_feedback,
+            commands::ghost::clear_ghost_feedback,
+            // Ghost config commands
+            commands::ghost::get_ghost_config,
+            commands::ghost::set_ghost_config,
+            commands::ghost::reset_ghost_config,
             // User Data commands (E3: Backend Persistence)
             commands::user_data::list_cover_letter_templates,
             commands::user_data::get_cover_letter_template,
@@ -229,6 +238,16 @@ fn main() {
             commands::automation::is_browser_running,
             commands::automation::fill_application_form,
             commands::automation::take_automation_screenshot,
+            // Health monitoring commands (v2.1)
+            commands::health::get_scraper_health,
+            commands::health::get_health_summary,
+            commands::health::get_scraper_configs,
+            commands::health::set_scraper_enabled,
+            commands::health::get_scraper_runs,
+            commands::health::run_scraper_smoke_test,
+            commands::health::run_all_smoke_tests,
+            commands::health::get_linkedin_cookie_health,
+            commands::health::get_expiring_credentials,
         ])
         .setup(|app| {
             // Initialize configuration
@@ -269,7 +288,16 @@ fn main() {
                     lever_urls: vec![],
                     linkedin: Default::default(),
                     indeed: Default::default(),
+                    remoteok: Default::default(),
+                    wellfound: Default::default(),
+                    weworkremotely: Default::default(),
+                    builtin: Default::default(),
+                    hn_hiring: Default::default(),
+                    dice: Default::default(),
+                    yc_startup: Default::default(),
+                    ziprecruiter: Default::default(),
                     jobswithgpt_endpoint: "https://api.jobswithgpt.com/mcp".to_string(),
+                    ghost_config: None,
                 }
             };
 

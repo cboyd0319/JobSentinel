@@ -5,6 +5,122 @@ All notable changes to JobSentinel will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added - Ghost Detection & Deduplication Improvements
+
+#### Ghost Detection Enhancements
+
+- **Settings UI for Ghost Config** - Users can now adjust ghost detection thresholds
+  - Configurable: stale job threshold (days), repost threshold, score weights
+  - Live preview of impact on ghost job count
+- **Improved Repost History Weighting** - Stale reposts now weighted less heavily
+  - 90-180 days old: 50% weight (moderately concerning)
+  - 180+ days old: 25% weight (less likely to indicate active rejection)
+  - Recent reposts: 100% weight (most suspicious)
+- **3 New Tauri Commands** (ghost config):
+  - `get_ghost_config` - Retrieve current ghost detection settings
+  - `set_ghost_config` - Update ghost detection thresholds
+  - `reset_ghost_config` - Reset to default values
+- **4 New Tauri Commands** (user feedback, from v2.0 work):
+  - `mark_job_as_real` - User confirms job is legitimate
+  - `mark_job_as_ghost` - User confirms job is fake
+  - `get_ghost_feedback` - Get user's verdict for a job
+  - `clear_ghost_feedback` - Remove user's verdict
+- **Ghost Feedback UI** - User can mark jobs as real or ghost:
+  - Feedback buttons appear in GhostIndicator tooltip
+  - "✓ Real" (green) and "✗ Ghost" (red) buttons
+  - Visual confirmation after submission
+  - Opacity change when marked as real
+- **New Database Table**: `ghost_feedback` tracks user corrections
+  - Future enhancement: use this data to improve ghost detection algorithm
+
+#### Deduplication Improvements
+
+- **URL Normalization** - Strips 20+ tracking parameters before hashing
+  - Removes: utm_*, ref, fbclid, gclid, source, campaign, session, etc.
+  - Preserves: id, job_id, posting, gh_jid, lever_id, position, etc.
+  - Benefit: same job shared via different sources now deduplicated
+- **Location Normalization** - Consistent location matching
+  - "SF" = "San Francisco", "Remote US" = "remote", etc.
+  - Prevents false duplicates from location name variations
+- **Title Normalization** - Consistent title matching
+  - "Sr." = "Senior", "SWE" = "Software Engineer", etc.
+  - Removes abbreviations that create false duplicates
+- **Fixed Scraper Hash Formulas**
+  - LinkedIn hash now includes location (was missing)
+  - Indeed hash now includes location (was missing)
+  - All 13 scrapers now use consistent normalization
+- **Job Card Badge** - "Seen on X sources" now visible
+  - Shows duplicate detection at a glance
+- **3 New Utility Modules**:
+  - `src-tauri/src/core/scrapers/url_utils.rs` - URL normalization
+  - `src-tauri/src/core/scrapers/location_utils.rs` - Location normalization
+  - `src-tauri/src/core/scrapers/title_utils.rs` - Title normalization
+- **New Database Migration**: `20260118000001_add_ghost_feedback.sql`
+
+## [2.1.0] - 2026-01-17
+
+### Added - Scraper Health Monitoring
+
+- **All 13 Job Scrapers Now Wired** - All scrapers properly integrated into scheduler
+  - Previously only 5 scrapers were wired (Greenhouse, Lever, JobsWithGPT, LinkedIn, Indeed)
+  - Now includes: RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, Dice, YC Startup Jobs, ZipRecruiter
+- **Scraper Health Dashboard** - Monitor health and performance of all scrapers
+  - Success rate, average duration, last success time
+  - Health status: Healthy, Degraded, Down, Disabled, Unknown
+  - Selector health monitoring for HTML scrapers
+- **Run History Tracking** - Detailed execution logs per scraper
+  - Start/finish times, duration, jobs found/new
+  - Error messages and codes for failures
+  - Retry attempt tracking
+- **Exponential Backoff Retry Logic** - Automatic retries for transient failures
+  - Configurable max attempts, delays, and backoff multiplier
+  - Retries on 429 (rate limit), 500, 502, 503, 504 errors
+  - Conservative and aggressive presets
+- **Smoke Tests** - Live API connectivity verification
+  - Individual and batch smoke tests for all 13 scrapers
+  - Records test results with timing
+- **LinkedIn Cookie Expiry Tracking** - Credential health monitoring
+  - 365-day cookie expiry detection
+  - 30-day warning threshold
+  - Automatic expiry notifications
+- **9 New Tauri Commands**:
+  - `get_scraper_health` - Health metrics for all scrapers
+  - `get_health_summary` - Aggregate health statistics
+  - `get_scraper_configs` - Scraper configuration details
+  - `set_scraper_enabled` - Enable/disable scrapers
+  - `get_scraper_runs` - Recent run history
+  - `run_scraper_smoke_test` - Test single scraper
+  - `run_all_smoke_tests` - Test all scrapers
+  - `get_linkedin_cookie_health` - LinkedIn credential status
+  - `get_expiring_credentials` - All expiring credentials
+- **New Database Tables**:
+  - `scraper_runs` - Run history with timing and status
+  - `scraper_config` - Scraper configuration and health state
+  - `credential_health` - Credential expiry tracking
+  - `scraper_smoke_tests` - Smoke test results
+  - `scraper_health_status` (view) - Aggregated health metrics
+- **8 New Scraper Configs** - Configuration options for additional scrapers
+  - `remoteok` - Tags filter, result limit
+  - `wellfound` - Role, location, remote-only filter
+  - `weworkremotely` - Category filter
+  - `builtin` - Cities list, category filter
+  - `hn_hiring` - Remote-only filter
+  - `dice` - Query, location filter
+  - `yc_startup` - Query, remote-only filter
+  - `ziprecruiter` - Query, location, radius filter
+
+### Changed
+
+- `scheduler/workers/scrapers.rs` refactored to include all 13 scrapers
+- `config/types.rs` expanded with 8 new scraper config structs
+- `core/mod.rs` updated with health module re-exports
+
+### Dependencies
+
+- No new dependencies - uses existing SQLx, chrono, reqwest
+
 ## [2.0.0] - 2026-01-17
 
 ### Security - Major Release

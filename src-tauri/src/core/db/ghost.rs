@@ -73,4 +73,59 @@ impl Database {
 
         Ok(count.unwrap_or(0))
     }
+
+    /// Mark a job as real (user confirms it's not a ghost job)
+    pub async fn mark_job_as_real(&self, job_id: i64) -> Result<(), sqlx::Error> {
+        sqlx::query(
+            r#"
+            INSERT INTO ghost_feedback (job_id, user_verdict)
+            VALUES (?, 'real')
+            ON CONFLICT(job_id) DO UPDATE SET
+                user_verdict = 'real',
+                created_at = CURRENT_TIMESTAMP
+            "#,
+        )
+        .bind(job_id)
+        .execute(self.pool())
+        .await?;
+        Ok(())
+    }
+
+    /// Mark a job as ghost (user confirms it's a fake/ghost job)
+    pub async fn mark_job_as_ghost(&self, job_id: i64) -> Result<(), sqlx::Error> {
+        sqlx::query(
+            r#"
+            INSERT INTO ghost_feedback (job_id, user_verdict)
+            VALUES (?, 'ghost')
+            ON CONFLICT(job_id) DO UPDATE SET
+                user_verdict = 'ghost',
+                created_at = CURRENT_TIMESTAMP
+            "#,
+        )
+        .bind(job_id)
+        .execute(self.pool())
+        .await?;
+        Ok(())
+    }
+
+    /// Get user's verdict for a job (None if no feedback given)
+    pub async fn get_ghost_feedback(&self, job_id: i64) -> Result<Option<String>, sqlx::Error> {
+        let verdict: Option<String> = sqlx::query_scalar(
+            "SELECT user_verdict FROM ghost_feedback WHERE job_id = ?",
+        )
+        .bind(job_id)
+        .fetch_optional(self.pool())
+        .await?;
+
+        Ok(verdict)
+    }
+
+    /// Clear user feedback for a job
+    pub async fn clear_ghost_feedback(&self, job_id: i64) -> Result<(), sqlx::Error> {
+        sqlx::query("DELETE FROM ghost_feedback WHERE job_id = ?")
+            .bind(job_id)
+            .execute(self.pool())
+            .await?;
+        Ok(())
+    }
 }

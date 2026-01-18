@@ -44,6 +44,9 @@ pub mod credentials;
 // v2.0+ modules - One-Click Apply (form filling without auto-submit)
 pub mod automation;
 
+// v2.1+ modules - Scraper health monitoring
+pub mod health;
+
 // Re-export commonly used types
 pub use config::Config;
 pub use db::{Database, Job};
@@ -84,3 +87,10 @@ pub use automation::{
     AutomationStats, AutomationStatus,
 };
 pub use automation::profile::{ApplicationProfileInput, ProfileManager, ScreeningAnswer};
+
+// v2.1+ health re-exports
+pub use health::{
+    CredentialHealth, CredentialStatus, HealthManager, HealthStatus, HealthSummary, RetryConfig,
+    RunStatus, ScraperConfig, ScraperHealthMetrics, ScraperRun, ScraperType, SelectorHealth,
+    SmokeTestResult, SmokeTestType,
+};

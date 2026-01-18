@@ -15,6 +15,7 @@ pub mod automation;
 pub mod config;
 pub mod credentials;
 pub mod ghost;
+pub mod health;
 pub mod jobs;
 pub mod market;
 pub mod resume;
@@ -89,7 +90,11 @@ pub use market::{
 };
 
 // Ghost detection commands
-pub use ghost::{get_ghost_jobs, get_ghost_statistics, get_recent_jobs_filtered};
+pub use ghost::{
+    clear_ghost_feedback, get_ghost_config, get_ghost_feedback, get_ghost_jobs,
+    get_ghost_statistics, get_recent_jobs_filtered, mark_job_as_ghost, mark_job_as_real,
+    reset_ghost_config, set_ghost_config,
+};
 
 // User data commands
 pub use user_data::{
@@ -122,4 +127,11 @@ pub use automation::{
     // Browser control
     close_automation_browser, fill_application_form, is_browser_running, launch_automation_browser,
     take_automation_screenshot,
+};
+
+// Health monitoring commands
+pub use health::{
+    get_expiring_credentials, get_health_summary, get_linkedin_cookie_health, get_scraper_configs,
+    get_scraper_health, get_scraper_runs, run_all_smoke_tests, run_scraper_smoke_test,
+    set_scraper_enabled,
 };

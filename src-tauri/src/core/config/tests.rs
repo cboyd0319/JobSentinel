@@ -45,6 +45,15 @@ mod tests {
             indeed: IndeedConfig::default(),
             auto_refresh: Default::default(),
             jobswithgpt_endpoint: "https://api.jobswithgpt.com/mcp".to_string(),
+            remoteok: Default::default(),
+            wellfound: Default::default(),
+            weworkremotely: Default::default(),
+            builtin: Default::default(),
+            hn_hiring: Default::default(),
+            dice: Default::default(),
+            yc_startup: Default::default(),
+            ziprecruiter: Default::default(),
+        ghost_config: None,
         }
     }
 
