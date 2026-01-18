@@ -311,6 +311,7 @@ cargo test core::scrapers::cache -- --test-threads=1
 ### Cache Not Working
 
 Check that you're using the cached functions:
+
 - ✅ `get_with_cache(url)`
 - ✅ `get_with_retry_cached(url, true)`
 - ❌ `get_with_retry(url)` - bypasses cache

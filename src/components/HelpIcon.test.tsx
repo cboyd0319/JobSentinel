@@ -4,7 +4,7 @@ import { HelpIcon } from "./HelpIcon";
 
 // Mock the Tooltip component since we're testing HelpIcon specifically
 vi.mock("./Tooltip", () => ({
-  Tooltip: ({ content, children, position }: any) => (
+  Tooltip: ({ content, children, position }: { content: string; children: React.ReactNode; position?: string }) => (
     <div data-testid="tooltip-wrapper" data-position={position} data-content={content}>
       {children}
     </div>

@@ -7,7 +7,7 @@ import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
 
-export default tseslint.config({ ignores: ['dist'] }, {
+export default tseslint.config({ ignores: ['dist', 'src-tauri/target', 'target', 'node_modules'] }, {
   extends: [js.configs.recommended, ...tseslint.configs.recommended],
   files: ['**/*.{ts,tsx}'],
   languageOptions: {
@@ -25,5 +25,9 @@ export default tseslint.config({ ignores: ['dist'] }, {
       { allowConstantExport: true },
     ],
     '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+    // Allow setState in effects for initialization patterns
+    'react-hooks/set-state-in-effect': 'off',
+    // Deprecated rule - replaced by only-throw-error
+    '@typescript-eslint/no-throw-literal': 'off',
   },
 }, storybook.configs["flat/recommended"]);

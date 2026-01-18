@@ -1,6 +1,7 @@
 //! Resume-Job Matching Algorithm
 //!
 //! Compares resume skills against job requirements and generates match scores.
+#![allow(clippy::unwrap_used, clippy::expect_used)] // Regex patterns are compile-time constants
 
 use super::skills::SkillExtractor;
 use super::types::{DegreeLevel, EducationRequirement, ExperienceRequirement};

@@ -312,6 +312,109 @@ See [docs/features/market-intelligence.md](features/market-intelligence.md) for 
 | Linux support (.deb, .rpm) | Planned | |
 | Browser Extension | Designed | In-page job scoring |
 | CI/CD Pipeline | Planned | Automated builds and releases |
+| **Expanded Scrapers** | Planned | See scraper wishlist below |
+
+---
+
+## Scraper Expansion Plan
+
+**Legal Compliance is NON-NEGOTIABLE.** JobSentinel stays 100% legal. No exceptions.
+
+Currently JobSentinel has **13 scrapers**. The goal is to cover more job sources while respecting
+legal boundaries. This helps everyone — job seekers, veterans, career changers.
+
+### New Scrapers (Legal - API or Permissible Scraping)
+
+| Source | Method | Priority | Status | Notes |
+|--------|--------|----------|--------|-------|
+| **USAJobs.gov** | Official API | High | Code Ready | Free API key, designed for programmatic access |
+| **SimplyHired** | HTML Scraping | High | Code Ready | Aggregator, no explicit anti-scraping ToS |
+
+Files implemented:
+
+- `src-tauri/src/core/scrapers/usajobs.rs`
+- `src-tauri/src/core/scrapers/simplyhired.rs`
+
+### Restricted Sites (Legal Alternatives Only)
+
+These sites explicitly prohibit scraping in their Terms of Service. **DO NOT SCRAPE THEM.**
+
+| Site | Restriction | Our Approach |
+|------|-------------|--------------|
+| **ClearanceJobs.com** | ToS prohibits scraping + AI/ML training | Deep links only |
+| **GovernmentJobs.com** | robots.txt blocks bots, ToS prohibits scraping | Deep links only |
+| **Glassdoor** | Heavy anti-bot, login walls | Skip entirely |
+
+### Legal Maximum Value Features
+
+Instead of scraping restricted sites, we provide maximum value through legal means:
+
+#### 1. Universal Job Importer (Schema.org Parser)
+
+User pastes ANY job URL → we fetch that ONE page → parse Schema.org/JobPosting structured data.
+
+- **Why legal:** User-initiated, single page, Schema.org is designed for machine reading
+- **Implementation:** `src-tauri/src/core/import/` module (planned)
+- **Supports:** Any site with JobPosting schema (most major job boards)
+
+#### 2. Deep Link Generator
+
+Build pre-filled search URLs that open in user's browser.
+
+```text
+User enters: "security engineer" + "Denver, CO"
+We generate: https://www.governmentjobs.com/jobs?keyword=security+engineer&location=Denver
+User clicks → opens in their browser with search ready
+```
+
+- **Why legal:** Building URLs, not scraping. User's browser, user's session.
+- **Sites:** GovernmentJobs, ClearanceJobs, Glassdoor, LinkedIn, Indeed, Monster, CareerBuilder,
+  FlexJobs, Dice, ZipRecruiter, state gov portals, + more
+
+#### 3. Bookmarklet
+
+JavaScript bookmarklet user installs in browser. They browse to any job, click bookmarklet →
+extracts job data → sends to local JobSentinel.
+
+- **Why legal:** Runs in USER's browser with THEIR session. Not server-side scraping.
+- **Implementation:** Generate bookmarklet code in frontend
+
+#### 4. Browser Extension (v3.0+)
+
+Full extension that offers "Save to JobSentinel" on any job page.
+
+- **Why legal:** User's browser, user's session, user-initiated action
+- **Scope:** Future major feature
+
+#### 5. RSS Feeds
+
+Some sites offer public RSS feeds - these are explicitly permitted.
+
+#### 6. Government Open Data
+
+Many governments publish job data as open CSV/JSON:
+
+- data.gov federal datasets
+- State open data portals
+
+### Implementation Priority
+
+1. ✅ USAJobs API scraper (code done, needs config wiring)
+2. ✅ SimplyHired scraper (code done, needs config wiring)
+3. 🔲 Universal Job Importer with Schema.org parsing
+4. 🔲 Deep Link Generator for 15+ sites
+5. 🔲 Bookmarklet generator
+6. 🔲 Curated job board directory with direct links
+7. 🔲 RSS feed discovery and parsing
+8. 🔲 Browser extension (v3.0+)
+
+### Community Contributions
+
+- Scrapers: `src-tauri/src/core/scrapers/` - follow Greenhouse/Lever patterns
+- Deep links: Add URL patterns for new sites
+- See [docs/features/scrapers.md](features/scrapers.md) for implementation guide
+
+---
 
 ### v3.0+ Future Ideas
 

@@ -159,7 +159,7 @@ describe("ModalErrorBoundary", () => {
 
     it("displays fallback when error message is undefined", () => {
       function ThrowErrorWithoutMessage() {
-        // eslint-disable-next-line @typescript-eslint/no-throw-literal
+        // eslint-disable-next-line @typescript-eslint/only-throw-error
         throw { name: "CustomError" };
       }
 

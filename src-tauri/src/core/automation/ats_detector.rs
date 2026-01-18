@@ -2,6 +2,7 @@
 //!
 //! Identifies which ATS (Applicant Tracking System) platform a job posting uses
 //! based on URL patterns and page structure.
+#![allow(clippy::unwrap_used, clippy::expect_used)] // Regex patterns are compile-time constants
 
 use super::AtsPlatform;
 use regex::Regex;

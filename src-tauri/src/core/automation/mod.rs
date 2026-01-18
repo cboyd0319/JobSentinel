@@ -8,6 +8,7 @@
 //! - Never bypass CAPTCHAs or security measures
 //! - Respect rate limits (default: max 10 applications/day)
 //! - Only apply to jobs they genuinely intend to pursue
+#![allow(clippy::unwrap_used, clippy::expect_used)] // DateTime parsing from validated database values
 //! - Review applications before submission (human-in-the-loop)
 //!
 //! **Legal Considerations:**

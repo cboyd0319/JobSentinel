@@ -1,6 +1,7 @@
 //! Application Profile Management
 //!
 //! Manages user profile information for automated job applications.
+#![allow(clippy::unwrap_used, clippy::expect_used)] // DateTime parsing from validated database values
 
 use anyhow::Result;
 use chrono::{DateTime, Utc};

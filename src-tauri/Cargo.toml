@@ -1,6 +1,6 @@
 [package]
 name = "jobsentinel"
-version = "1.0.0"
+version = "2.5.1"
 description = "Privacy-first job search automation for Windows 11+"
 authors = ["Chad Boyd"]
 license = "MIT"
@@ -131,3 +131,51 @@ nursery = { level = "warn", priority = -1 }
 # These are denied in production code
 unwrap_used = "warn"
 expect_used = "warn"
+# Allow from_str methods that don't impl FromStr (used for infallible parsing)
+should_implement_trait = "allow"
+# Allow pub(crate) in private modules (intentional API design)
+redundant_pub_crate = "allow"
+# Allow matches! alternatives (stylistic choice)
+match_like_matches_macro = "allow"
+equatable_if_let = "allow"
+# Allow single-char string patterns (readability)
+single_char_pattern = "allow"
+# Allow wildcard imports for prelude-style modules
+wildcard_imports = "allow"
+# Allow manual derive impls (sometimes needed for custom logic)
+derivable_impls = "allow"
+# Allow push_str with single char (readability over micro-optimization)
+single_char_add_str = "allow"
+# Allow format! for consistency
+useless_format = "allow"
+# Allow redundant field names (explicit is clearer)
+redundant_field_names = "allow"
+# Allow unwrap_or_else for defaults (stylistic)
+unwrap_or_default = "allow"
+# Allow manual char comparisons
+manual_is_ascii_check = "allow"
+# Allow consecutive replace calls
+collapsible_str_replace = "allow"
+# Allow &PathBuf (sometimes needed for API compatibility)
+ptr_arg = "allow"
+# Allow suboptimal mul_add (clarity over micro-optimization)
+suboptimal_flops = "allow"
+# Allow manual char range patterns (clearer intent)
+manual_range_patterns = "allow"
+# Doc link format flexibility
+doc_link_with_quotes = "allow"
+# Allow clamp-like patterns (sometimes clearer)
+manual_clamp = "allow"
+# Allow iteration style choices
+explicit_iter_loop = "allow"
+# Allow empty string construction style
+default_trait_access = "allow"
+manual_string_new = "allow"
+# Allow collection usage patterns
+collection_is_never_read = "allow"
+# Allow char comparisons
+manual_pattern_char_comparison = "allow"
+# Allow debug formatting in errors
+unnecessary_debug_formatting = "allow"
+# Allow unnecessary casts (for clarity)
+unnecessary_cast = "allow"

@@ -53,7 +53,35 @@ When to spawn sub-agents:
 
 **Before committing, always ask: "Did I update the docs?"**
 
-### 3. CURRENT STATUS
+### 3. REDDIT BETA LAUNCH CAMPAIGN
+
+**Location:** `~/Documents/JobSentinel-Reddit-Launch/`
+
+Complete Reddit marketing campaign for beta tester recruitment. **Advocacy first, tool second.**
+
+| File | Purpose |
+|------|---------|
+| `COWORK-INSTRUCTIONS.md` | Master strategy, schedule, engagement tactics |
+| `VOICE-PROMPTS.md` | Chad's authentic voice/answers for all posts |
+| `FAQ.md` | 20+ pre-written responses for comment engagement |
+| `FALLBACK-SUBS.md` | Backup subreddits if primary ones fail |
+| `worms-fix.md` | Pre-launch karma building (WormsWMD-macOS-Fix promotion) |
+
+**11 Subreddit Posts (all ready):**
+- Advocacy: `veterans.md`, `vetsec.md`, `cybersecurity.md`, `securitycareeradvice.md`, `layoffs.md`
+- Pain Point: `recruitinghell.md`
+- Technical: `selfhosted.md`, `opensource.md`, `rust.md`, `cscareerquestions.md`
+- Beta Request: `alphaandbetausers.md`
+
+**Key Principles:**
+- MIT licensed forever (NON-NEGOTIABLE)
+- 100% private, no telemetry
+- Portable - runs from USB drive ("library computer + $5 thumb drive")
+- Veterans can spot fake military talk from a mile away - keep it real
+
+**Pre-Launch Strategy:** Post Worms WMD fix first (1-2 weeks before) to build karma/credibility.
+
+### 4. CURRENT STATUS
 
 **Version:** 2.5.0 (Production Ready)
 
@@ -274,6 +302,92 @@ and start proper migrations from that baseline.
 - Local-first - all data in local SQLite database
 - Validate webhooks before storing
 - Use rustls (pure Rust TLS)
+
+## Legal Compliance (NON-NEGOTIABLE)
+
+**JobSentinel stays 100% legal. No exceptions. We can skirt the line, but never cross it.**
+
+### Scraper Expansion Plan
+
+#### New Scrapers (API or Permissible Scraping)
+
+| Source | Method | Status | Notes |
+|--------|--------|--------|-------|
+| **USAJobs.gov** | Official API | PLANNED | Free API key, designed for programmatic access |
+| **SimplyHired** | HTML Scraping | PLANNED | Aggregator, no explicit anti-scraping ToS |
+
+Files created:
+- `src-tauri/src/core/scrapers/usajobs.rs` - USAJobs API client
+- `src-tauri/src/core/scrapers/simplyhired.rs` - SimplyHired HTML scraper
+
+#### Restricted Sites (Legal Alternatives Only)
+
+These sites explicitly prohibit scraping in their ToS. **DO NOT SCRAPE THEM.**
+
+| Site | Restriction | Our Approach |
+|------|-------------|--------------|
+| **ClearanceJobs.com** | ToS prohibits scraping + AI training | Deep links only |
+| **GovernmentJobs.com** | robots.txt blocks all bots, ToS prohibits scraping | Deep links only |
+| **Glassdoor** | Heavy anti-bot, login walls | Skip entirely |
+
+### Legal Maximum Value Features
+
+Instead of scraping restricted sites, we provide maximum value through legal means:
+
+#### 1. Universal Job Importer (Schema.org Parser)
+User pastes ANY job URL → we fetch that ONE page → parse Schema.org/JobPosting structured data.
+
+- **Why it's legal:** User-initiated, single page, Schema.org is designed for machine reading
+- **Implementation:** `src-tauri/src/core/import/` module
+- **Supports:** Any site with JobPosting schema (most major job boards)
+
+#### 2. Deep Link Generator
+Build pre-filled search URLs that open in user's browser.
+
+```
+User enters: "security engineer" + "Denver, CO"
+We generate: https://www.governmentjobs.com/jobs?keyword=security+engineer&location=Denver
+User clicks → opens in their browser with search ready
+```
+
+- **Why it's legal:** We're building URLs, not scraping. User's browser, user's session.
+- **Sites to support:** GovernmentJobs, ClearanceJobs, Glassdoor, LinkedIn, Indeed, + 10 more
+
+#### 3. Bookmarklet
+JavaScript bookmarklet user installs in their browser. They browse to any job, click bookmarklet → extracts job data → sends to local JobSentinel.
+
+- **Why it's legal:** Runs in USER's browser with THEIR session. Not server-side scraping.
+- **Implementation:** Generate bookmarklet code in frontend, user drags to bookmarks bar
+
+#### 4. Browser Extension (Future)
+Full extension that offers "Save to JobSentinel" on any job page.
+
+- **Why it's legal:** User's browser, user's session, user-initiated action
+- **Scope:** v3.0+ feature
+
+#### 5. RSS Feeds (Where Available)
+Some sites offer public RSS feeds - these are explicitly permitted.
+
+- Check each site for RSS availability
+- RSS is an invitation to consume data programmatically
+
+#### 6. Government Open Data
+Many governments publish job data as open CSV/JSON:
+
+- data.gov federal datasets
+- State open data portals
+- Explicitly public data meant for consumption
+
+### Implementation Priority
+
+1. ✅ USAJobs API scraper (done, needs config wiring)
+2. ✅ SimplyHired scraper (done, needs config wiring)
+3. 🔲 Universal Job Importer with Schema.org parsing
+4. 🔲 Deep Link Generator for 15+ sites
+5. 🔲 Bookmarklet generator
+6. 🔲 Curated job board directory with direct links
+7. 🔲 RSS feed discovery and parsing
+8. 🔲 Browser extension (v3.0+)
 
 ## Common Tasks
 

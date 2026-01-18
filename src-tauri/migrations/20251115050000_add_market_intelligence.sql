@@ -64,6 +64,7 @@ CREATE TABLE IF NOT EXISTS company_hiring_velocity (
     jobs_filled_count INTEGER NOT NULL DEFAULT 0,    -- Based on jobs no longer active
     jobs_active_count INTEGER NOT NULL DEFAULT 0,    -- Currently open positions
     avg_days_to_fill REAL,                          -- Average time from posting to fill
+    avg_salary_offered INTEGER,                     -- Average salary from job postings
     top_role TEXT,                                  -- Most common job title
     top_location TEXT,                              -- Most common location
     is_actively_hiring BOOLEAN DEFAULT 1,           -- Hiring velocity > 0

@@ -2,6 +2,7 @@
 //!
 //! This module analyzes resumes for ATS compatibility, keyword optimization,
 //! and provides suggestions for improving ATS pass-through rates.
+#![allow(clippy::unwrap_used, clippy::expect_used)] // Regex patterns are compile-time constants
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;

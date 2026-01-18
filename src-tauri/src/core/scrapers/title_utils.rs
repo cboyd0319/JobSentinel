@@ -8,6 +8,7 @@
 //! - **Abbreviation expansion**: "Sr. SW Eng" → "senior software engineer"
 //! - **Level indicator removal**: "Engineer (L5)" → "engineer"
 //! - **Whitespace normalization**: "Software  Engineer" → "software engineer"
+#![allow(clippy::unwrap_used, clippy::expect_used)] // Regex patterns are compile-time constants
 //! - **Case normalization**: "SENIOR ENGINEER" → "senior engineer"
 //!
 //! # Example

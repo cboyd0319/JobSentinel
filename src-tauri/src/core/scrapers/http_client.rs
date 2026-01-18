@@ -543,6 +543,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[ignore = "requires network access - may fail in CI or offline environments"]
     async fn test_get_with_retry_success() {
         // Test with httpbin which should succeed
         let result = get_with_retry("https://httpbin.org/status/200").await;
@@ -550,6 +551,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[ignore = "requires network access - may fail in CI or offline environments"]
     async fn test_get_with_retry_client_error_no_retry() {
         // 404 should not retry
         let result = get_with_retry("https://httpbin.org/status/404").await;
@@ -562,6 +564,7 @@ mod tests {
     // Using wiremock in integration tests would be ideal for comprehensive retry testing
 
     #[tokio::test]
+    #[ignore = "requires network access - may fail in CI or offline environments"]
     async fn test_get_with_cache_miss() {
         cache::clear_cache().await;
         let stats_before = cache::cache_stats().await;
@@ -577,6 +580,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[ignore = "requires network access - may fail in CI or offline environments"]
     async fn test_get_with_cache_hit() {
         cache::clear_cache().await;
         
@@ -598,6 +602,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[ignore = "requires network access - may fail in CI or offline environments"]
     async fn test_cache_reduces_requests() {
         cache::clear_cache().await;
         
