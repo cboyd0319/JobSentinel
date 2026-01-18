@@ -1,28 +1,34 @@
 # Releases
 
-Production builds are created via GitHub Actions and published to [GitHub Releases](https://github.com/cboyd0319/JobSentinel/releases).
+Production builds are created locally and published to [GitHub Releases](https://github.com/cboyd0319/JobSentinel/releases).
 
 ## Creating a Release
 
-1. **Tag the version:**
-   ```bash
-   git tag v2.5.1
-   git push origin v2.5.1
-   ```
-
-2. **GitHub Actions automatically builds:**
-   - macOS (Apple Silicon) - `.dmg`
-   - macOS (Intel x64) - `.dmg`
-   - Windows x64 - `.msi`
-
-3. **Review and publish** the draft release on GitHub.
-
-## Manual Local Build (macOS only)
+### 1. Build locally
 
 ```bash
+# macOS (from Mac)
 npm run tauri build
 # Output: src-tauri/target/release/bundle/dmg/JobSentinel_*.dmg
+
+# Windows (from Windows machine or VM)
+npm run tauri build
+# Output: src-tauri/target/release/bundle/msi/JobSentinel_*.msi
 ```
+
+### 2. Create GitHub Release
+
+```bash
+gh release create v2.5.1 \
+  --title "JobSentinel v2.5.1" \
+  --notes "Release notes here..." \
+  --draft \
+  src-tauri/target/release/bundle/dmg/*.dmg
+```
+
+### 3. Publish
+
+Review the draft release on GitHub and click "Publish release".
 
 ## Supported Platforms
 
