@@ -31,7 +31,10 @@ fn test_health_status_deserialization() {
 #[test]
 fn test_selector_health_deserialization() {
     assert_eq!(SelectorHealth::from_str("healthy"), SelectorHealth::Healthy);
-    assert_eq!(SelectorHealth::from_str("degraded"), SelectorHealth::Degraded);
+    assert_eq!(
+        SelectorHealth::from_str("degraded"),
+        SelectorHealth::Degraded
+    );
     assert_eq!(SelectorHealth::from_str("broken"), SelectorHealth::Broken);
     assert_eq!(SelectorHealth::from_str("unknown"), SelectorHealth::Unknown);
 }
@@ -47,9 +50,18 @@ fn test_scraper_type_deserialization() {
 #[test]
 fn test_credential_status_deserialization() {
     assert_eq!(CredentialStatus::from_str("valid"), CredentialStatus::Valid);
-    assert_eq!(CredentialStatus::from_str("expiring"), CredentialStatus::Expiring);
-    assert_eq!(CredentialStatus::from_str("expired"), CredentialStatus::Expired);
-    assert_eq!(CredentialStatus::from_str("unknown"), CredentialStatus::Unknown);
+    assert_eq!(
+        CredentialStatus::from_str("expiring"),
+        CredentialStatus::Expiring
+    );
+    assert_eq!(
+        CredentialStatus::from_str("expired"),
+        CredentialStatus::Expired
+    );
+    assert_eq!(
+        CredentialStatus::from_str("unknown"),
+        CredentialStatus::Unknown
+    );
 }
 
 #[test]

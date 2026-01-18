@@ -20,6 +20,7 @@ pub mod jobs;
 pub mod market;
 pub mod resume;
 pub mod salary;
+pub mod scoring;
 pub mod user_data;
 
 #[cfg(test)]
@@ -55,32 +56,55 @@ pub use jobs::{
 // ATS commands
 pub use ats::{
     add_application_notes, complete_interview, complete_reminder, create_application,
-    delete_interview, detect_ghosted_applications, get_application_stats,
-    get_applications_kanban, get_past_interviews, get_pending_reminders,
-    get_upcoming_interviews, schedule_interview, update_application_status,
+    delete_interview, detect_ghosted_applications, get_application_stats, get_applications_kanban,
+    get_past_interviews, get_pending_reminders, get_upcoming_interviews, schedule_interview,
+    update_application_status,
 };
 
 // Resume commands
 pub use resume::{
-    // Matcher commands
-    get_active_resume, get_match_result, get_recent_matches, get_user_skills,
-    match_resume_to_job, set_active_resume, upload_resume,
     // Builder commands
-    add_resume_education, add_resume_experience, create_resume_draft, delete_resume_draft,
-    delete_resume_education, delete_resume_experience, get_resume_draft, set_resume_skills,
-    update_resume_contact, update_resume_summary,
-    // Template commands
-    list_resume_templates, render_resume_html, render_resume_text,
-    // Export commands
-    export_resume_docx, export_resume_text,
+    add_resume_education,
+    add_resume_experience,
     // ATS analysis commands
-    analyze_resume_for_job, analyze_resume_format, extract_job_keywords, get_ats_power_words,
+    analyze_resume_for_job,
+    analyze_resume_format,
+    create_resume_draft,
+    delete_resume_draft,
+    delete_resume_education,
+    delete_resume_experience,
+    // Export commands
+    export_resume_docx,
+    export_resume_text,
+    extract_job_keywords,
+    // Matcher commands
+    get_active_resume,
+    get_ats_power_words,
+    get_match_result,
+    get_recent_matches,
+    get_resume_draft,
+    get_user_skills,
     improve_bullet_point,
+    // Template commands
+    list_resume_templates,
+    match_resume_to_job,
+    render_resume_html,
+    render_resume_text,
+    set_active_resume,
+    set_resume_skills,
+    update_resume_contact,
+    update_resume_summary,
+    upload_resume,
 };
 
 // Salary commands
 pub use salary::{
     compare_offers, generate_negotiation_script, get_salary_benchmark, predict_salary,
+};
+
+// Scoring configuration commands
+pub use scoring::{
+    get_scoring_config, reset_scoring_config_cmd, update_scoring_config, validate_scoring_config,
 };
 
 // Market intelligence commands
@@ -98,19 +122,17 @@ pub use ghost::{
 
 // User data commands
 pub use user_data::{
-    add_search_history, clear_search_history, create_cover_letter_template,
-    create_saved_search, delete_cover_letter_template, delete_saved_search,
-    get_cover_letter_template, get_interview_followup, get_interview_prep_checklist,
-    get_notification_preferences, get_search_history, import_cover_letter_templates,
-    import_saved_searches, list_cover_letter_templates, list_saved_searches,
-    save_interview_followup, save_interview_prep_item, save_notification_preferences,
-    update_cover_letter_template, use_saved_search,
+    add_search_history, clear_search_history, create_cover_letter_template, create_saved_search,
+    delete_cover_letter_template, delete_saved_search, get_cover_letter_template,
+    get_interview_followup, get_interview_prep_checklist, get_notification_preferences,
+    get_search_history, import_cover_letter_templates, import_saved_searches,
+    list_cover_letter_templates, list_saved_searches, save_interview_followup,
+    save_interview_prep_item, save_notification_preferences, update_cover_letter_template,
+    use_saved_search,
 };
 
 // Config commands
-pub use config::{
-    complete_setup, get_config, is_first_run, save_config, validate_slack_webhook,
-};
+pub use config::{complete_setup, get_config, is_first_run, save_config, validate_slack_webhook};
 
 // Credential commands
 pub use credentials::{
@@ -120,13 +142,25 @@ pub use credentials::{
 // Automation commands (One-Click Apply)
 pub use automation::{
     // Profile management
-    approve_automation_attempt, cancel_automation_attempt, create_automation_attempt,
-    detect_ats_from_html, detect_ats_platform, find_answer_for_question, get_application_profile,
-    get_automation_stats, get_automation_attempt, get_pending_attempts, get_screening_answers,
-    upsert_application_profile, upsert_screening_answer,
+    approve_automation_attempt,
+    cancel_automation_attempt,
     // Browser control
-    close_automation_browser, fill_application_form, is_browser_running, launch_automation_browser,
+    close_automation_browser,
+    create_automation_attempt,
+    detect_ats_from_html,
+    detect_ats_platform,
+    fill_application_form,
+    find_answer_for_question,
+    get_application_profile,
+    get_automation_attempt,
+    get_automation_stats,
+    get_pending_attempts,
+    get_screening_answers,
+    is_browser_running,
+    launch_automation_browser,
     take_automation_screenshot,
+    upsert_application_profile,
+    upsert_screening_answer,
 };
 
 // Health monitoring commands

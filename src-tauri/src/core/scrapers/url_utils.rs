@@ -74,7 +74,7 @@ const ESSENTIAL_PARAMS: &[&str] = &[
     "opening",
     "opening_id",
     // Indeed-specific
-    "jk", // Indeed job key
+    "jk",  // Indeed job key
     "vjs", // Indeed view job source (kept as it may affect job visibility)
 ];
 
@@ -171,7 +171,8 @@ mod tests {
 
     #[test]
     fn test_strip_utm_parameters() {
-        let input = "https://example.com/job/123?utm_source=linkedin&utm_medium=social&utm_campaign=hiring";
+        let input =
+            "https://example.com/job/123?utm_source=linkedin&utm_medium=social&utm_campaign=hiring";
         let expected = "https://example.com/job/123";
         assert_eq!(normalize_url(input), expected);
     }
@@ -205,7 +206,8 @@ mod tests {
 
     #[test]
     fn test_preserve_non_tracking_params() {
-        let input = "https://example.com/jobs?department=engineering&level=senior&utm_source=linkedin";
+        let input =
+            "https://example.com/jobs?department=engineering&level=senior&utm_source=linkedin";
         let expected = "https://example.com/jobs?department=engineering&level=senior";
         assert_eq!(normalize_url(input), expected);
     }
@@ -226,7 +228,8 @@ mod tests {
 
     #[test]
     fn test_greenhouse_specific() {
-        let input = "https://boards.greenhouse.io/company/jobs/123456?gh_jid=123456&utm_source=linkedin";
+        let input =
+            "https://boards.greenhouse.io/company/jobs/123456?gh_jid=123456&utm_source=linkedin";
         let expected = "https://boards.greenhouse.io/company/jobs/123456?gh_jid=123456";
         assert_eq!(normalize_url(input), expected);
     }

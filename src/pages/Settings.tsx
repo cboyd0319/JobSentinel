@@ -1322,6 +1322,100 @@ export default function Settings({ onClose }: SettingsProps) {
             )}
           </section>
 
+          {/* Job Scoring Weights */}
+          <section className="mb-6">
+            <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
+              Job Scoring Weights
+              <HelpIcon text="These weights determine how jobs are scored. Higher scores mean better matches. Click on any job score to see the full breakdown." />
+            </h3>
+            <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-4 bg-surface-50 dark:bg-surface-900/20">
+              <p className="text-sm text-surface-600 dark:text-surface-400 mb-4">
+                Each job is scored from 0-100% based on how well it matches your preferences. Click any job score to see a detailed breakdown.
+              </p>
+              <div className="space-y-3">
+                {/* Skills */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">🎯</span>
+                    <div>
+                      <div className="text-sm font-medium text-surface-900 dark:text-white">Skills Match</div>
+                      <div className="text-xs text-surface-500 dark:text-surface-400">Job title and keyword matches</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm font-semibold text-surface-900 dark:text-white">40%</div>
+                    <div className="text-xs text-surface-500 dark:text-surface-400">weight</div>
+                  </div>
+                </div>
+
+                {/* Salary */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">💰</span>
+                    <div>
+                      <div className="text-sm font-medium text-surface-900 dark:text-white">Salary</div>
+                      <div className="text-xs text-surface-500 dark:text-surface-400">Meets your salary requirements</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm font-semibold text-surface-900 dark:text-white">25%</div>
+                    <div className="text-xs text-surface-500 dark:text-surface-400">weight</div>
+                  </div>
+                </div>
+
+                {/* Location */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">📍</span>
+                    <div>
+                      <div className="text-sm font-medium text-surface-900 dark:text-white">Location</div>
+                      <div className="text-xs text-surface-500 dark:text-surface-400">Remote/hybrid/onsite preference</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm font-semibold text-surface-900 dark:text-white">20%</div>
+                    <div className="text-xs text-surface-500 dark:text-surface-400">weight</div>
+                  </div>
+                </div>
+
+                {/* Company */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">🏢</span>
+                    <div>
+                      <div className="text-sm font-medium text-surface-900 dark:text-white">Company</div>
+                      <div className="text-xs text-surface-500 dark:text-surface-400">Company preference (if configured)</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm font-semibold text-surface-900 dark:text-white">10%</div>
+                    <div className="text-xs text-surface-500 dark:text-surface-400">weight</div>
+                  </div>
+                </div>
+
+                {/* Recency */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">⏰</span>
+                    <div>
+                      <div className="text-sm font-medium text-surface-900 dark:text-white">Recency</div>
+                      <div className="text-xs text-surface-500 dark:text-surface-400">How fresh the posting is</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm font-semibold text-surface-900 dark:text-white">5%</div>
+                    <div className="text-xs text-surface-500 dark:text-surface-400">weight</div>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-4 pt-4 border-t border-surface-200 dark:border-surface-700">
+                <p className="text-xs text-surface-500 dark:text-surface-400">
+                  💡 <strong>Tip:</strong> These weights are optimized for best results. Customize your preferences in the sections above to improve your job matches.
+                </p>
+              </div>
+            </div>
+          </section>
+
           {/* Troubleshooting */}
           <section className="mb-6">
             <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">

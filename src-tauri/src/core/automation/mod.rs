@@ -202,7 +202,11 @@ impl AutomationManager {
             confirmation_screenshot_path: row.get("confirmation_screenshot_path"),
             automation_duration_ms: row.get("automation_duration_ms"),
             user_approved: row.get::<i32, _>("user_approved") != 0,
-            submitted_at: submitted_at.and_then(|s| DateTime::parse_from_rfc3339(&s).ok().map(|dt| dt.with_timezone(&Utc))),
+            submitted_at: submitted_at.and_then(|s| {
+                DateTime::parse_from_rfc3339(&s)
+                    .ok()
+                    .map(|dt| dt.with_timezone(&Utc))
+            }),
             created_at: DateTime::parse_from_rfc3339(&created_at)?.with_timezone(&Utc),
         })
     }
@@ -302,8 +306,14 @@ impl AutomationManager {
                     confirmation_screenshot_path: row.get("confirmation_screenshot_path"),
                     automation_duration_ms: row.get("automation_duration_ms"),
                     user_approved: row.get::<i32, _>("user_approved") != 0,
-                    submitted_at: submitted_at.and_then(|s| DateTime::parse_from_rfc3339(&s).ok().map(|dt| dt.with_timezone(&Utc))),
-                    created_at: DateTime::parse_from_rfc3339(&created_at).unwrap().with_timezone(&Utc),
+                    submitted_at: submitted_at.and_then(|s| {
+                        DateTime::parse_from_rfc3339(&s)
+                            .ok()
+                            .map(|dt| dt.with_timezone(&Utc))
+                    }),
+                    created_at: DateTime::parse_from_rfc3339(&created_at)
+                        .unwrap()
+                        .with_timezone(&Utc),
                 }
             })
             .collect())

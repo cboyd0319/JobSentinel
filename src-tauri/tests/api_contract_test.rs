@@ -133,7 +133,11 @@ mod job_commands {
         database.upsert_job(&job).await.unwrap();
 
         // Get the actual ID via hash lookup
-        let inserted = database.get_job_by_hash("by_id_001").await.unwrap().unwrap();
+        let inserted = database
+            .get_job_by_hash("by_id_001")
+            .await
+            .unwrap()
+            .unwrap();
 
         // get_job_by_id returns Option<Job>
         let result = database.get_job_by_id(inserted.id).await.unwrap();
@@ -168,7 +172,11 @@ mod job_commands {
         database.upsert_job(&job).await.unwrap();
 
         // Get the job ID
-        let inserted = database.get_job_by_hash("hide_test").await.unwrap().unwrap();
+        let inserted = database
+            .get_job_by_hash("hide_test")
+            .await
+            .unwrap()
+            .unwrap();
 
         // hide_job takes id: i64
         let result = database.hide_job(inserted.id).await;
@@ -186,7 +194,11 @@ mod job_commands {
         let job = create_test_job("bookmark_test", "Test Job", "Corp");
         database.upsert_job(&job).await.unwrap();
 
-        let inserted = database.get_job_by_hash("bookmark_test").await.unwrap().unwrap();
+        let inserted = database
+            .get_job_by_hash("bookmark_test")
+            .await
+            .unwrap()
+            .unwrap();
 
         // toggle_bookmark takes id: i64, returns bool
         let new_state = database.toggle_bookmark(inserted.id).await.unwrap();
@@ -216,8 +228,16 @@ mod job_commands {
         }
 
         // Bookmark the first two
-        let job1 = database.get_job_by_hash("bookmarked_0").await.unwrap().unwrap();
-        let job2 = database.get_job_by_hash("bookmarked_1").await.unwrap().unwrap();
+        let job1 = database
+            .get_job_by_hash("bookmarked_0")
+            .await
+            .unwrap()
+            .unwrap();
+        let job2 = database
+            .get_job_by_hash("bookmarked_1")
+            .await
+            .unwrap()
+            .unwrap();
         database.toggle_bookmark(job1.id).await.unwrap();
         database.toggle_bookmark(job2.id).await.unwrap();
 
@@ -233,10 +253,16 @@ mod job_commands {
         let job = create_test_job("notes_test", "Test Job", "Corp");
         database.upsert_job(&job).await.unwrap();
 
-        let inserted = database.get_job_by_hash("notes_test").await.unwrap().unwrap();
+        let inserted = database
+            .get_job_by_hash("notes_test")
+            .await
+            .unwrap()
+            .unwrap();
 
         // set_job_notes takes id: i64, notes: Option<&str>
-        let result = database.set_job_notes(inserted.id, Some("These are my notes")).await;
+        let result = database
+            .set_job_notes(inserted.id, Some("These are my notes"))
+            .await;
         assert!(result.is_ok());
 
         let with_notes = database.get_job_by_id(inserted.id).await.unwrap().unwrap();
@@ -295,7 +321,9 @@ mod ats_commands {
         let app_id = tracker.create_application("status_job").await.unwrap();
 
         // update_status takes id: i64, status: ApplicationStatus
-        let result = tracker.update_status(app_id, ApplicationStatus::Applied).await;
+        let result = tracker
+            .update_status(app_id, ApplicationStatus::Applied)
+            .await;
         assert!(result.is_ok());
     }
 
@@ -367,7 +395,9 @@ mod salary_commands {
         let analyzer = SalaryAnalyzer::new(database.pool().clone());
 
         // predict_salary_for_job takes job_hash and optional years_of_experience
-        let result = analyzer.predict_salary_for_job("salary_test", Some(5)).await;
+        let result = analyzer
+            .predict_salary_for_job("salary_test", Some(5))
+            .await;
 
         // May return error if no salary data, that's OK for contract test
         assert!(result.is_ok() || result.is_err());
@@ -380,7 +410,11 @@ mod salary_commands {
 
         // get_benchmark returns Option<SalaryBenchmark>
         let benchmark = analyzer
-            .get_benchmark("Software Engineer", "San Francisco, CA", SeniorityLevel::Mid)
+            .get_benchmark(
+                "Software Engineer",
+                "San Francisco, CA",
+                SeniorityLevel::Mid,
+            )
             .await
             .unwrap();
 
@@ -520,7 +554,7 @@ mod config_commands {
 
 mod user_data_commands {
     use super::*;
-    use jobsentinel::core::user_data::{UserDataManager, TemplateCategory, SavedSearch};
+    use jobsentinel::core::user_data::{SavedSearch, TemplateCategory, UserDataManager};
 
     #[tokio::test]
     async fn test_cover_letter_template_crud() {
@@ -529,7 +563,11 @@ mod user_data_commands {
 
         // Create - returns CoverLetterTemplate
         let template = manager
-            .create_template("Test Template", "Dear {company}...", TemplateCategory::General)
+            .create_template(
+                "Test Template",
+                "Dear {company}...",
+                TemplateCategory::General,
+            )
             .await
             .unwrap();
         assert!(!template.id.is_empty());
@@ -666,7 +704,10 @@ mod credential_commands {
         assert_eq!(CredentialKey::from_str("invalid"), None);
 
         // as_str returns &'static str
-        assert_eq!(CredentialKey::SmtpPassword.as_str(), "jobsentinel_smtp_password");
+        assert_eq!(
+            CredentialKey::SmtpPassword.as_str(),
+            "jobsentinel_smtp_password"
+        );
     }
 }
 

@@ -46,7 +46,12 @@ mod tests {
             dice: Default::default(),
             yc_startup: Default::default(),
             ziprecruiter: Default::default(),
-        ghost_config: None,
+            ghost_config: None,
+            company_whitelist: vec![],
+            company_blacklist: vec![],
+            use_resume_matching: false,
+            salary_target_usd: None,
+            penalize_missing_salary: false,
         };
 
         let database = Database::connect_memory()
@@ -241,7 +246,12 @@ mod tests {
             dice: Default::default(),
             yc_startup: Default::default(),
             ziprecruiter: Default::default(),
-        ghost_config: None,
+            ghost_config: None,
+            company_whitelist: vec![],
+            company_blacklist: vec![],
+            use_resume_matching: false,
+            salary_target_usd: None,
+            penalize_missing_salary: false,
         };
 
         let config_json = serde_json::to_value(&config).unwrap();
@@ -355,7 +365,12 @@ mod tests {
             dice: Default::default(),
             yc_startup: Default::default(),
             ziprecruiter: Default::default(),
-        ghost_config: None,
+            ghost_config: None,
+            company_whitelist: vec![],
+            company_blacklist: vec![],
+            use_resume_matching: false,
+            salary_target_usd: None,
+            penalize_missing_salary: false,
         };
 
         // Test that config can be serialized and deserialized

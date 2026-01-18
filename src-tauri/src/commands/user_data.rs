@@ -4,8 +4,8 @@
 
 use crate::commands::AppState;
 use crate::core::user_data::{
-    CoverLetterTemplate, FollowUpReminder, NotificationPreferences, PrepChecklistItem,
-    SavedSearch, TemplateCategory, UserDataManager,
+    CoverLetterTemplate, FollowUpReminder, NotificationPreferences, PrepChecklistItem, SavedSearch,
+    TemplateCategory, UserDataManager,
 };
 use tauri::State;
 

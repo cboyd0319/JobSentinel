@@ -53,7 +53,12 @@ mod tests {
             dice: Default::default(),
             yc_startup: Default::default(),
             ziprecruiter: Default::default(),
-        ghost_config: None,
+            ghost_config: None,
+            company_whitelist: vec![],
+            company_blacklist: vec![],
+            use_resume_matching: false,
+            salary_target_usd: None,
+            penalize_missing_salary: false,
         }
     }
 

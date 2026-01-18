@@ -30,24 +30,20 @@ static LEVEL_PATTERN: LazyLock<Regex> = LazyLock::new(|| {
 });
 
 /// Regex pattern for extra whitespace
-static WHITESPACE_PATTERN: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r"\s+").expect("Valid whitespace regex")
-});
+static WHITESPACE_PATTERN: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"\s+").expect("Valid whitespace regex"));
 
 /// Regex pattern for trailing punctuation
-static TRAILING_PUNCT_PATTERN: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r"[.!?,;:]+$").expect("Valid trailing punctuation regex")
-});
+static TRAILING_PUNCT_PATTERN: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"[.!?,;:]+$").expect("Valid trailing punctuation regex"));
 
 /// Regex pattern for normalizing commas (replace with space)
-static COMMA_PATTERN: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r",\s*").expect("Valid comma regex")
-});
+static COMMA_PATTERN: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r",\s*").expect("Valid comma regex"));
 
 /// Regex pattern for removing filler words
-static FILLER_WORDS_PATTERN: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r"\b(?:of|the|and|or)\b").expect("Valid filler words regex")
-});
+static FILLER_WORDS_PATTERN: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"\b(?:of|the|and|or)\b").expect("Valid filler words regex"));
 
 /// Common abbreviation mappings for job titles
 ///
@@ -129,7 +125,9 @@ pub fn normalize_title(title: &str) -> String {
     normalized = COMMA_PATTERN.replace_all(&normalized, " ").to_string();
 
     // Step 3: Remove filler words (of, the, and, or)
-    normalized = FILLER_WORDS_PATTERN.replace_all(&normalized, "").to_string();
+    normalized = FILLER_WORDS_PATTERN
+        .replace_all(&normalized, "")
+        .to_string();
 
     // Step 4: Expand abbreviations (with case-insensitive matching)
     for (pattern, replacement) in ABBREVIATIONS {
@@ -144,7 +142,9 @@ pub fn normalize_title(title: &str) -> String {
     normalized = WHITESPACE_PATTERN.replace_all(&normalized, " ").to_string();
 
     // Step 7: Remove trailing punctuation
-    normalized = TRAILING_PUNCT_PATTERN.replace_all(&normalized, "").to_string();
+    normalized = TRAILING_PUNCT_PATTERN
+        .replace_all(&normalized, "")
+        .to_string();
 
     // Final trim
     normalized.trim().to_string()
@@ -191,10 +191,7 @@ mod tests {
 
     #[test]
     fn test_basic_normalization() {
-        assert_eq!(
-            normalize_title("Software Engineer"),
-            "software engineer"
-        );
+        assert_eq!(normalize_title("Software Engineer"), "software engineer");
     }
 
     #[test]
@@ -207,70 +204,31 @@ mod tests {
             normalize_title("Sr Software Engineer"),
             "senior software engineer"
         );
-        assert_eq!(
-            normalize_title("Jr. Developer"),
-            "junior developer"
-        );
-        assert_eq!(
-            normalize_title("Jr Developer"),
-            "junior developer"
-        );
+        assert_eq!(normalize_title("Jr. Developer"), "junior developer");
+        assert_eq!(normalize_title("Jr Developer"), "junior developer");
     }
 
     #[test]
     fn test_job_function_abbreviations() {
-        assert_eq!(
-            normalize_title("SW Engineer"),
-            "software engineer"
-        );
-        assert_eq!(
-            normalize_title("SW Eng"),
-            "software engineer"
-        );
-        assert_eq!(
-            normalize_title("Software Engr"),
-            "software engineer"
-        );
-        assert_eq!(
-            normalize_title("Frontend Dev"),
-            "frontend developer"
-        );
-        assert_eq!(
-            normalize_title("FE Developer"),
-            "frontend developer"
-        );
-        assert_eq!(
-            normalize_title("BE Engineer"),
-            "backend engineer"
-        );
-        assert_eq!(
-            normalize_title("FS Developer"),
-            "fullstack developer"
-        );
+        assert_eq!(normalize_title("SW Engineer"), "software engineer");
+        assert_eq!(normalize_title("SW Eng"), "software engineer");
+        assert_eq!(normalize_title("Software Engr"), "software engineer");
+        assert_eq!(normalize_title("Frontend Dev"), "frontend developer");
+        assert_eq!(normalize_title("FE Developer"), "frontend developer");
+        assert_eq!(normalize_title("BE Engineer"), "backend engineer");
+        assert_eq!(normalize_title("FS Developer"), "fullstack developer");
     }
 
     #[test]
     fn test_role_abbreviations() {
-        assert_eq!(
-            normalize_title("SWE"),
-            "software engineer"
-        );
-        assert_eq!(
-            normalize_title("SDE"),
-            "software development engineer"
-        );
-        assert_eq!(
-            normalize_title("Eng Mgr"),
-            "engineer manager"
-        );
+        assert_eq!(normalize_title("SWE"), "software engineer");
+        assert_eq!(normalize_title("SDE"), "software development engineer");
+        assert_eq!(normalize_title("Eng Mgr"), "engineer manager");
         assert_eq!(
             normalize_title("VP of Engineering"),
             "vice president engineering"
         );
-        assert_eq!(
-            normalize_title("Dir. of Technology"),
-            "director technology"
-        );
+        assert_eq!(normalize_title("Dir. of Technology"), "director technology");
     }
 
     #[test]
@@ -279,34 +237,16 @@ mod tests {
             normalize_title("Software Engineer (L5)"),
             "software engineer"
         );
-        assert_eq!(
-            normalize_title("Engineer [IC4]"),
-            "engineer"
-        );
-        assert_eq!(
-            normalize_title("Developer - Level 3"),
-            "developer"
-        );
-        assert_eq!(
-            normalize_title("SWE II"),
-            "software engineer"
-        );
-        assert_eq!(
-            normalize_title("Engineer (I-5)"),
-            "engineer"
-        );
-        assert_eq!(
-            normalize_title("Developer L-4"),
-            "developer"
-        );
+        assert_eq!(normalize_title("Engineer [IC4]"), "engineer");
+        assert_eq!(normalize_title("Developer - Level 3"), "developer");
+        assert_eq!(normalize_title("SWE II"), "software engineer");
+        assert_eq!(normalize_title("Engineer (I-5)"), "engineer");
+        assert_eq!(normalize_title("Developer L-4"), "developer");
     }
 
     #[test]
     fn test_whitespace_normalization() {
-        assert_eq!(
-            normalize_title("Software  Engineer"),
-            "software engineer"
-        );
+        assert_eq!(normalize_title("Software  Engineer"), "software engineer");
         assert_eq!(
             normalize_title("  Software   Engineer  "),
             "software engineer"
@@ -315,18 +255,9 @@ mod tests {
 
     #[test]
     fn test_trailing_punctuation_removed() {
-        assert_eq!(
-            normalize_title("Software Engineer."),
-            "software engineer"
-        );
-        assert_eq!(
-            normalize_title("Software Engineer!"),
-            "software engineer"
-        );
-        assert_eq!(
-            normalize_title("Software Engineer..."),
-            "software engineer"
-        );
+        assert_eq!(normalize_title("Software Engineer."), "software engineer");
+        assert_eq!(normalize_title("Software Engineer!"), "software engineer");
+        assert_eq!(normalize_title("Software Engineer..."), "software engineer");
     }
 
     #[test]
@@ -375,28 +306,13 @@ mod tests {
             "Sr. Software Engineer (L5)",
             "Senior SW Eng - Level 5"
         ));
-        assert!(titles_match(
-            "Frontend Developer",
-            "FE Dev"
-        ));
-        assert!(titles_match(
-            "VP of Engineering",
-            "VP, Engineering"
-        ));
+        assert!(titles_match("Frontend Developer", "FE Dev"));
+        assert!(titles_match("VP of Engineering", "VP, Engineering"));
 
         // Should not match
-        assert!(!titles_match(
-            "Software Engineer",
-            "Product Manager"
-        ));
-        assert!(!titles_match(
-            "Senior Engineer",
-            "Junior Engineer"
-        ));
-        assert!(!titles_match(
-            "Frontend Developer",
-            "Backend Developer"
-        ));
+        assert!(!titles_match("Software Engineer", "Product Manager"));
+        assert!(!titles_match("Senior Engineer", "Junior Engineer"));
+        assert!(!titles_match("Frontend Developer", "Backend Developer"));
     }
 
     #[test]
@@ -426,30 +342,18 @@ mod tests {
         assert_eq!(normalize_title("Engineer"), "engineer");
 
         // Already normalized
-        assert_eq!(
-            normalize_title("software engineer"),
-            "software engineer"
-        );
+        assert_eq!(normalize_title("software engineer"), "software engineer");
     }
 
     #[test]
     fn test_tech_abbreviations() {
-        assert_eq!(
-            normalize_title("ML Engineer"),
-            "machine learning engineer"
-        );
+        assert_eq!(normalize_title("ML Engineer"), "machine learning engineer");
         assert_eq!(
             normalize_title("AI Researcher"),
             "artificial intelligence researcher"
         );
-        assert_eq!(
-            normalize_title("DB Admin"),
-            "database administrator"
-        );
-        assert_eq!(
-            normalize_title("QA Engineer"),
-            "quality assurance engineer"
-        );
+        assert_eq!(normalize_title("DB Admin"), "database administrator");
+        assert_eq!(normalize_title("QA Engineer"), "quality assurance engineer");
         assert_eq!(
             normalize_title("UI/UX Designer"),
             "user interface/user experience designer"

@@ -163,12 +163,23 @@ impl ResumeExporter {
 
         // Configure document properties
         doc = doc.page_size(12240, 15840); // Letter size: 8.5" x 11" in twentieths of a point
-        doc = doc.page_margin(PageMargin::new().top(1440).bottom(1440).left(1440).right(1440)); // 1" margins
+        doc = doc.page_margin(
+            PageMargin::new()
+                .top(1440)
+                .bottom(1440)
+                .left(1440)
+                .right(1440),
+        ); // 1" margins
 
         // Add name (centered, 18pt, bold)
         doc = doc.add_paragraph(
             Paragraph::new()
-                .add_run(Run::new().add_text(&resume.personal.full_name).size(36).bold()) // 36 half-points = 18pt
+                .add_run(
+                    Run::new()
+                        .add_text(&resume.personal.full_name)
+                        .size(36)
+                        .bold(),
+                ) // 36 half-points = 18pt
                 .align(AlignmentType::Center),
         );
 
@@ -335,7 +346,10 @@ impl ResumeExporter {
                 output.push_str(&format!("{}\n", project.name));
                 output.push_str(&format!("{}\n", project.description));
                 if !project.technologies.is_empty() {
-                    output.push_str(&format!("Technologies: {}\n", project.technologies.join(", ")));
+                    output.push_str(&format!(
+                        "Technologies: {}\n",
+                        project.technologies.join(", ")
+                    ));
                 }
                 if let Some(url) = &project.url {
                     output.push_str(&format!("URL: {}\n", url));
@@ -369,7 +383,6 @@ fn format_contact_line(personal: &PersonalInfo) -> String {
 }
 
 fn add_section_header(doc: Docx, title: &str) -> Docx {
-
     doc.add_paragraph(
         Paragraph::new()
             .add_run(Run::new().add_text(title).size(28).bold()) // 28 half-points = 14pt
@@ -378,7 +391,6 @@ fn add_section_header(doc: Docx, title: &str) -> Docx {
 }
 
 fn add_experience_entry(mut doc: Docx, exp: &ExperienceEntry, _template: TemplateId) -> Docx {
-
     let end_date = exp.end_date.as_deref().unwrap_or("Present");
 
     // Company and job title line
@@ -421,13 +433,19 @@ fn add_experience_entry(mut doc: Docx, exp: &ExperienceEntry, _template: Templat
 }
 
 fn add_education_entry(mut doc: Docx, edu: &EducationEntry) -> Docx {
-
-    let header = format!("{} — {} in {}", edu.institution, edu.degree, edu.field_of_study);
+    let header = format!(
+        "{} — {} in {}",
+        edu.institution, edu.degree, edu.field_of_study
+    );
 
     doc = doc.add_paragraph(
         Paragraph::new()
             .add_run(Run::new().add_text(&header).size(22).bold())
-            .add_run(Run::new().add_text(format!("    {}", edu.graduation_year)).size(22))
+            .add_run(
+                Run::new()
+                    .add_text(format!("    {}", edu.graduation_year))
+                    .size(22),
+            )
             .line_spacing(LineSpacing::new().after(60)),
     );
 
@@ -457,12 +475,16 @@ fn add_education_entry(mut doc: Docx, edu: &EducationEntry) -> Docx {
 }
 
 fn add_skill_category(mut doc: Docx, skill_cat: &SkillCategory) -> Docx {
-
     let skills_text = skill_cat.skills.join(", ");
 
     doc = doc.add_paragraph(
         Paragraph::new()
-            .add_run(Run::new().add_text(format!("{}: ", skill_cat.category)).size(22).bold())
+            .add_run(
+                Run::new()
+                    .add_text(format!("{}: ", skill_cat.category))
+                    .size(22)
+                    .bold(),
+            )
             .add_run(Run::new().add_text(&skills_text).size(22))
             .line_spacing(LineSpacing::new().after(60)),
     );
@@ -471,7 +493,6 @@ fn add_skill_category(mut doc: Docx, skill_cat: &SkillCategory) -> Docx {
 }
 
 fn add_certification_entry(mut doc: Docx, cert: &Certification) -> Docx {
-
     let header = format!("{} — {}", cert.name, cert.issuer);
 
     doc = doc.add_paragraph(
@@ -484,7 +505,11 @@ fn add_certification_entry(mut doc: Docx, cert: &Certification) -> Docx {
     if let Some(id) = &cert.credential_id {
         doc = doc.add_paragraph(
             Paragraph::new()
-                .add_run(Run::new().add_text(format!("Credential ID: {}", id)).size(22))
+                .add_run(
+                    Run::new()
+                        .add_text(format!("Credential ID: {}", id))
+                        .size(22),
+                )
                 .line_spacing(LineSpacing::new().after(120)),
         );
     } else {
@@ -499,7 +524,6 @@ fn add_certification_entry(mut doc: Docx, cert: &Certification) -> Docx {
 }
 
 fn add_project_entry(mut doc: Docx, project: &Project) -> Docx {
-
     doc = doc.add_paragraph(
         Paragraph::new()
             .add_run(Run::new().add_text(&project.name).size(22).bold())
@@ -577,7 +601,11 @@ mod tests {
             }],
             skills: vec![SkillCategory {
                 category: "Programming Languages".to_string(),
-                skills: vec!["Rust".to_string(), "TypeScript".to_string(), "Python".to_string()],
+                skills: vec![
+                    "Rust".to_string(),
+                    "TypeScript".to_string(),
+                    "Python".to_string(),
+                ],
             }],
             certifications: vec![],
             projects: vec![],
@@ -614,7 +642,10 @@ mod tests {
         let result = ResumeExporter::export_pdf(&resume, TemplateId::Professional);
 
         assert!(result.is_err());
-        assert!(result.unwrap_err().to_string().contains("not yet implemented"));
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("not yet implemented"));
     }
 
     #[test]

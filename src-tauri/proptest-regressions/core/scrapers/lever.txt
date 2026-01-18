@@ -1,8 +1,0 @@
-# Seeds for failure cases proptest has generated in the past. It is
-# automatically read and these particular cases re-run before any
-# novel cases are generated.
-#
-# It is recommended to check this file in to source control so that
-# everyone who runs the test benefits from these saved cases.
-cc acb5fd931d8a1562a39ca4ac5fc877754352a424bf53fd728ec3623a67cff2e6 # shrinks to location = "Work from home"
-cc fc48fb2afc556516296b10061d5f42837b2c79e859844a83de4c6f1527732c92 # shrinks to title = "WFhAa", location = "New York"

@@ -81,7 +81,8 @@ impl NotificationService {
                         to_emails: self.config.alerts.email.to_emails.clone(),
                         use_starttls: self.config.alerts.email.use_starttls,
                     };
-                    if let Err(e) = email::send_email_notification(&email_config, notification).await
+                    if let Err(e) =
+                        email::send_email_notification(&email_config, notification).await
                     {
                         tracing::error!("Failed to send email notification: {}", e);
                         errors.push(format!("Email: {}", e));
@@ -352,7 +353,12 @@ mod tests {
             dice: Default::default(),
             yc_startup: Default::default(),
             ziprecruiter: Default::default(),
-        ghost_config: None,
+            ghost_config: None,
+            company_whitelist: vec![],
+            company_blacklist: vec![],
+            use_resume_matching: false,
+            salary_target_usd: None,
+            penalize_missing_salary: false,
         })
     }
 

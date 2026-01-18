@@ -32,6 +32,18 @@
   ],
   "_keywords_exclude_help": "Red flags to auto-reject jobs. Add deal-breakers here.",
 
+  "company_whitelist": [
+    "Google",
+    "Cloudflare",
+    "GitHub"
+  ],
+  "_company_whitelist_help": "Preferred companies get 50% scoring bonus. Fuzzy matching handles 'Inc', 'LLC', etc.",
+
+  "company_blacklist": [
+    "Company To Avoid"
+  ],
+  "_company_blacklist_help": "Blocked companies get 0 score. Takes precedence over whitelist.",
+
   "location_preferences": {
     "allow_remote": true,
     "allow_hybrid": true,

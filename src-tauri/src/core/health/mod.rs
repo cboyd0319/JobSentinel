@@ -10,22 +10,22 @@
 //! - **Smoke Tests**: Live API connectivity verification
 //! - **Credential Health**: Track LinkedIn cookie expiry
 
-mod types;
-mod tracking;
+mod credential_health;
 mod metrics;
 mod retry;
 mod smoke_tests;
-mod credential_health;
+mod tracking;
+mod types;
 
 #[cfg(test)]
 mod tests;
 
-pub use types::*;
-pub use tracking::*;
+pub use credential_health::*;
 pub use metrics::*;
 pub use retry::*;
 pub use smoke_tests::*;
-pub use credential_health::*;
+pub use tracking::*;
+pub use types::*;
 
 use crate::core::{Config, Database};
 use anyhow::Result;

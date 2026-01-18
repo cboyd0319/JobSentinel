@@ -7,6 +7,192 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added - User-Configurable Scoring Weights
+
+#### Customizable Job Scoring Preferences
+
+- **Scoring Weight Configuration** - Users can now customize how jobs are scored
+  - **Adjustable Weights** - Modify importance of each scoring factor:
+    - Skills match weight (default: 40%)
+    - Salary match weight (default: 25%)
+    - Location match weight (default: 20%)
+    - Company preference weight (default: 10%)
+    - Job recency weight (default: 5%)
+  - **Validation** - Weights must be non-negative, ≤1.0, and sum to approximately 1.0 (±0.01 tolerance)
+  - **Database Persistence** - Config stored in SQLite, survives app restarts
+
+- **New Tauri Commands**
+  - `get_scoring_config()` - Retrieve current scoring weights
+  - `update_scoring_config(config)` - Save new weights with validation
+  - `reset_scoring_config_cmd()` - Reset to default weights
+  - `validate_scoring_config(config)` - Validate weights without saving
+
+- **Database Migration**
+  - New `scoring_config` table with single-row pattern (id=1 constraint)
+  - Auto-populated with default weights on first run
+  - Includes updated_at timestamp for tracking changes
+
+- **Implementation Details**
+  - New `ScoringConfig` struct with validation logic
+  - Updated `ScoringEngine` to use configurable weights instead of hardcoded values
+  - All scoring methods (`score_skills`, `score_salary`, etc.) now use `self.scoring_config` weights
+  - Comprehensive test coverage (9 config tests + 4 database tests)
+
+- **Backwards Compatibility**
+  - Existing users get default weights automatically via migration
+  - No changes required to existing code using `ScoringEngine::new()`
+
+### Added - Company Preference Scoring
+
+#### Intelligent Company Filtering
+
+- **Company Whitelist/Blacklist Support** - Control job scoring by company preference
+  - **Whitelist (Preferred Companies)** - Jobs from preferred companies get 50% scoring bonus (0.15 instead of 0.10)
+  - **Blacklist (Blocked Companies)** - Jobs from blocked companies get 0 score
+  - **Fuzzy Name Matching** - Handles company suffixes automatically (Inc, LLC, Corp, Ltd, etc.)
+  - Case-insensitive matching
+  - Partial matching support (e.g., "Google" matches "Google DeepMind", "Google LLC")
+  - Blacklist takes precedence over whitelist for conflict resolution
+
+- **Config Integration**
+  - New fields in Config: `company_whitelist` and `company_blacklist`
+  - Both fields optional (default: empty lists)
+  - JSON array format: `["Google", "Cloudflare", "Amazon"]`
+
+- **Implementation Details**
+  - Fuzzy matching functions: `normalize_company_name()` and `fuzzy_match_company()`
+  - Strips common suffixes: Inc, Inc., LLC, Corp, Corporation, Ltd, Co, PLC, GmbH, AG, etc.
+  - Normalizes whitespace and converts to lowercase
+  - Handles variations like "L.L.C" vs "LLC"
+
+- **Score Breakdown**
+  - Clear reasons in score breakdown:
+    - ✗ Company 'BadCo Inc.' is blocklisted
+    - ✓ Company 'Google LLC' is preferred (+50% bonus)
+    - Company 'Microsoft' is neutral
+    - No company preferences configured
+
+- **Comprehensive Test Suite**
+  - 13 new tests for company scoring
+  - Tests for blacklist, whitelist, neutral companies
+  - Fuzzy matching tests (case sensitivity, suffixes, partial matches)
+  - Edge cases (blacklist precedence, multiple lists, etc.)
+
+### Added - Synonym Matching for Smart Scoring
+
+#### Intelligent Keyword Matching
+
+- **Synonym Matching System** - Flexible keyword matching without exact matches
+  - Bidirectional synonym support (Python ↔ py ↔ Python3)
+  - Word boundary detection (prevents "py" from matching "spy")
+  - Case-insensitive matching
+  - Pre-populated with 60+ synonym groups for:
+    - Programming languages (Python/py/Python3, JavaScript/JS, TypeScript/TS, C++/CPP, etc.)
+    - Job titles (Senior/Sr./Sr, Junior/Jr., Engineer/Developer/Dev/SWE)
+    - Frameworks (React/ReactJS/React.js, Node/NodeJS/Node.js, Vue/VueJS)
+    - Cloud platforms (AWS/Amazon Web Services, GCP, Azure, Kubernetes/K8s)
+    - Skills (Machine Learning/ML, AI/Artificial Intelligence, CI/CD/CICD)
+    - Databases (PostgreSQL/Postgres, MongoDB/Mongo, MySQL)
+    - Security (Security/Cybersecurity/InfoSec, AppSec/Application Security)
+  - O(1) HashMap-based lookups for performance
+  - Fully backward compatible with existing configurations
+
+- **New Module: `src-tauri/src/core/scoring/synonyms.rs`**
+  - SynonymMap struct with efficient synonym storage
+  - `matches_with_synonyms()` - Smart keyword matching function
+  - `get_synonym_group()` - Retrieve all synonyms for a keyword
+  - `add_synonym_group()` - Add custom synonym groups
+  - Comprehensive test suite (25+ test cases)
+
+- **Scoring Integration** - Synonym matching in keyword scoring
+  - Boost keywords now match synonyms automatically
+  - Excluded keywords use synonym matching
+  - No configuration changes required
+  - Example: "Python" keyword now matches "Python3", "py", "python" in job descriptions
+
+#### Documentation
+
+- **docs/features/synonym-matching.md** - Complete feature documentation
+  - Full list of pre-populated synonym groups
+  - Architecture and implementation details
+  - Usage examples and migration guide
+  - Future enhancement roadmap (custom synonyms, database storage, fuzzy matching)
+
+### Added - Graduated Salary Scoring
+
+#### Intelligent Salary Matching
+
+- **Graduated Salary Scoring** - Jobs receive partial credit based on salary proximity to target
+  - **>= 120% of target**: 1.2x bonus (capped)
+  - **100-119% of target**: 1.0x (full credit)
+  - **90-99% of target**: 0.9x credit
+  - **80-89% of target**: 0.8x credit
+  - **70-79% of target**: 0.6x credit
+  - **< 70% of target**: 0.3x credit (not zero!)
+- **Target Salary Configuration** - New optional `salary_target_usd` config field
+  - Uses `salary_floor_usd` as fallback if not set
+  - Target represents your ideal salary; floor is minimum acceptable
+- **Salary Range Handling** - Uses midpoint for jobs with min-max salary range
+- **Missing Salary Handling** - Configurable penalty via `penalize_missing_salary`
+  - If true: 30% credit (0.3x)
+  - If false: 50% credit (0.5x, default)
+- **Detailed Score Reasons** - Shows percentage of target in breakdown
+  - "✓ Salary 110% of target (100% credit)"
+  - "Salary 85% of target (80% credit)"
+  - "✗ Salary 50% of target (30% credit)"
+
+### Added - Remote Preference Scoring
+
+#### Flexible Work Location Matching
+
+- **Remote Preference Modes** - Five preference modes for work location
+  - **RemoteOnly**: Remote jobs = 1.0x, Hybrid = 0.5x, Onsite = 0.1x
+  - **RemotePreferred**: Remote = 1.0x, Hybrid = 0.8x, Onsite = 0.4x
+  - **HybridPreferred**: Hybrid = 1.0x, Remote = 0.8x, Onsite = 0.6x
+  - **OnsitePreferred**: Onsite = 1.0x, Hybrid = 0.8x, Remote = 0.6x
+  - **Flexible**: All types = 1.0x (no preference)
+- **Smart Job Type Detection** - Detects work arrangement from multiple sources
+  - Checks job title, location field, description, and explicit remote flag
+  - Keywords: "remote", "WFH", "work from home", "hybrid", "on-site", "in-office"
+  - "Remote with occasional office" → treated as hybrid
+- **Graduated Scoring** - Jobs get partial credit instead of binary pass/fail
+  - Unspecified work arrangements get partial credit (0.3-0.8)
+  - Better job discovery without strict filtering
+- **New Module: `src-tauri/src/core/scoring/remote.rs`**
+  - `RemotePreference` enum with 5 preference modes
+  - `JobType` enum (Remote, Hybrid, Onsite, Unspecified)
+  - `detect_job_type()` - Smart detection from job data
+  - `score_remote_preference()` - Calculate remote match score
+  - Comprehensive test suite (15+ test cases)
+
+### Added - Score Breakdown UI
+
+#### Score Explanation Features
+
+- **ScoreBreakdownModal Component** - Detailed score visualization in a modal
+  - Overall score prominently displayed with color-coded label
+  - Breakdown by all 5 scoring factors with progress bars
+  - Visual status indicators (✓/✗) for each factor
+  - Factor-specific reasons from scoring algorithm
+  - Color coding: green (high), yellow (medium), red (low)
+  - Responsive design with dark mode support
+- **Interactive Score Display** - Click any job score to open breakdown modal
+  - Existing tooltip remains for quick preview
+  - Click handler added to ScoreDisplay component
+  - Modal shows full details with job title
+- **Scoring Weights in Settings** - New section showing current weights
+  - Skills Match: 40% (job title and keyword matches)
+  - Salary: 25% (meets salary requirements)
+  - Location: 20% (remote/hybrid/onsite preference)
+  - Company: 10% (company preference if configured)
+  - Recency: 5% (how fresh the posting is)
+  - Informational display with helpful tips
+  - Help icon explaining how to see breakdown
+- **Visual Progress Bars** - Each factor shows percentage with color-coded bar
+  - Animated progress bars in modal
+  - Percentage badges with background colors
+  - Factor icons for visual hierarchy
+
 ### Added - Ghost Detection & Deduplication Improvements
 
 #### Ghost Detection Enhancements

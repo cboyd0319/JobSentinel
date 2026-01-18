@@ -90,7 +90,10 @@ fn main() {
                 }
             }
             Err(e) => {
-                tracing::error!("Failed to extract plaintext credentials for migration: {}", e);
+                tracing::error!(
+                    "Failed to extract plaintext credentials for migration: {}",
+                    e
+                );
             }
         }
     }
@@ -172,6 +175,11 @@ fn main() {
             commands::salary::get_salary_benchmark,
             commands::salary::generate_negotiation_script,
             commands::salary::compare_offers,
+            // Scoring configuration commands
+            commands::scoring::get_scoring_config,
+            commands::scoring::update_scoring_config,
+            commands::scoring::reset_scoring_config_cmd,
+            commands::scoring::validate_scoring_config,
             // Market Intelligence commands
             commands::market::get_trending_skills,
             commands::market::get_active_companies,
@@ -297,6 +305,11 @@ fn main() {
                     yc_startup: Default::default(),
                     ziprecruiter: Default::default(),
                     jobswithgpt_endpoint: "https://api.jobswithgpt.com/mcp".to_string(),
+                    salary_target_usd: None,
+                    penalize_missing_salary: false,
+                    company_whitelist: vec![],
+                    company_blacklist: vec![],
+                    use_resume_matching: false,
                     ghost_config: None,
                 }
             };

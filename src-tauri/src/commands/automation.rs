@@ -130,7 +130,10 @@ pub async fn get_screening_answers(
 
     let manager = ProfileManager::new(state.database.pool().clone());
     match manager.get_screening_answers().await {
-        Ok(answers) => Ok(answers.into_iter().map(ScreeningAnswerResponse::from).collect()),
+        Ok(answers) => Ok(answers
+            .into_iter()
+            .map(ScreeningAnswerResponse::from)
+            .collect()),
         Err(e) => Err(format!("Failed to get screening answers: {}", e)),
     }
 }
@@ -368,9 +371,8 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 
 /// Global browser manager instance
-static BROWSER_MANAGER: Lazy<Arc<Mutex<BrowserManager>>> = Lazy::new(|| {
-    Arc::new(Mutex::new(BrowserManager::new()))
-});
+static BROWSER_MANAGER: Lazy<Arc<Mutex<BrowserManager>>> =
+    Lazy::new(|| Arc::new(Mutex::new(BrowserManager::new())));
 
 /// Launch the browser for form filling
 ///

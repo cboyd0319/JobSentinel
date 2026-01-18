@@ -110,8 +110,8 @@ pub struct ResumeData {
     pub education: Vec<Education>,
     pub skills: Vec<SkillCategory>,
     pub certifications: Vec<Certification>,
-    pub clearance: Option<String>,      // For military template
-    pub military_info: Option<String>,  // MOS/rating for military template
+    pub clearance: Option<String>,     // For military template
+    pub military_info: Option<String>, // MOS/rating for military template
 }
 
 /// Template renderer
@@ -124,7 +124,8 @@ impl TemplateRenderer {
             Template {
                 id: TemplateId::Classic,
                 name: "Classic Professional",
-                description: "Traditional chronological format with clear sections. Works with any ATS.",
+                description:
+                    "Traditional chronological format with clear sections. Works with any ATS.",
                 preview_image: "/templates/classic-preview.png",
             },
             Template {
@@ -136,19 +137,22 @@ impl TemplateRenderer {
             Template {
                 id: TemplateId::Technical,
                 name: "Technical Skills-First",
-                description: "Emphasizes technical skills and projects. Perfect for engineering roles.",
+                description:
+                    "Emphasizes technical skills and projects. Perfect for engineering roles.",
                 preview_image: "/templates/technical-preview.png",
             },
             Template {
                 id: TemplateId::Executive,
                 name: "Executive Summary",
-                description: "Highlights leadership and impact metrics. Ideal for senior positions.",
+                description:
+                    "Highlights leadership and impact metrics. Ideal for senior positions.",
                 preview_image: "/templates/executive-preview.png",
             },
             Template {
                 id: TemplateId::Military,
                 name: "Military Transition",
-                description: "Translates military experience for civilian employers. Includes clearance.",
+                description:
+                    "Translates military experience for civilian employers. Includes clearance.",
                 preview_image: "/templates/military-preview.png",
             },
         ]
@@ -191,7 +195,10 @@ impl TemplateRenderer {
             text.push_str("EXPERIENCE\n\n");
             for exp in &resume.experience {
                 let end = exp.end_date.as_deref().unwrap_or("Present");
-                text.push_str(&format!("{} | {} | {} - {}\n", exp.title, exp.company, exp.start_date, end));
+                text.push_str(&format!(
+                    "{} | {} | {} - {}\n",
+                    exp.title, exp.company, exp.start_date, end
+                ));
                 for achievement in &exp.achievements {
                     text.push_str(&format!("• {}\n", achievement));
                 }
@@ -229,7 +236,10 @@ impl TemplateRenderer {
         let mut html = Self::html_header("Classic Resume", Self::classic_styles());
 
         // Name centered
-        html.push_str(&format!("<h1 class=\"name\">{}</h1>\n", escape_html(&resume.contact.name)));
+        html.push_str(&format!(
+            "<h1 class=\"name\">{}</h1>\n",
+            escape_html(&resume.contact.name)
+        ));
 
         // Contact info
         html.push_str("<div class=\"contact\">\n");
@@ -254,9 +264,16 @@ impl TemplateRenderer {
             for exp in &resume.experience {
                 html.push_str("<div class=\"experience-item\">\n");
                 html.push_str(&format!("<h3>{}</h3>\n", escape_html(&exp.title)));
-                html.push_str(&format!("<div class=\"company\">{}</div>\n", escape_html(&exp.company)));
+                html.push_str(&format!(
+                    "<div class=\"company\">{}</div>\n",
+                    escape_html(&exp.company)
+                ));
                 let end = exp.end_date.as_deref().unwrap_or("Present");
-                html.push_str(&format!("<div class=\"dates\">{} - {}</div>\n", escape_html(&exp.start_date), escape_html(end)));
+                html.push_str(&format!(
+                    "<div class=\"dates\">{} - {}</div>\n",
+                    escape_html(&exp.start_date),
+                    escape_html(end)
+                ));
                 html.push_str("<ul>\n");
                 for achievement in &exp.achievements {
                     html.push_str(&format!("<li>{}</li>\n", escape_html(achievement)));
@@ -271,9 +288,15 @@ impl TemplateRenderer {
             for edu in &resume.education {
                 html.push_str("<div class=\"education-item\">\n");
                 html.push_str(&format!("<h3>{}</h3>\n", escape_html(&edu.degree)));
-                html.push_str(&format!("<div class=\"institution\">{}</div>\n", escape_html(&edu.institution)));
+                html.push_str(&format!(
+                    "<div class=\"institution\">{}</div>\n",
+                    escape_html(&edu.institution)
+                ));
                 if let Some(grad) = &edu.graduation_date {
-                    html.push_str(&format!("<div class=\"dates\">{}</div>\n", escape_html(grad)));
+                    html.push_str(&format!(
+                        "<div class=\"dates\">{}</div>\n",
+                        escape_html(grad)
+                    ));
                 }
                 html.push_str("</div>\n\n");
             }
@@ -283,9 +306,11 @@ impl TemplateRenderer {
         if !resume.skills.is_empty() {
             html.push_str("<h2>SKILLS</h2>\n");
             for category in &resume.skills {
-                html.push_str(&format!("<div class=\"skill-category\"><strong>{}:</strong> {}</div>\n",
+                html.push_str(&format!(
+                    "<div class=\"skill-category\"><strong>{}:</strong> {}</div>\n",
                     escape_html(&category.name),
-                    escape_html(&category.skills.join(", "))));
+                    escape_html(&category.skills.join(", "))
+                ));
             }
         }
 
@@ -298,7 +323,10 @@ impl TemplateRenderer {
         let mut html = Self::html_header("Modern Resume", Self::modern_styles());
 
         // Name left-aligned, bold
-        html.push_str(&format!("<h1 class=\"name\">{}</h1>\n", escape_html(&resume.contact.name)));
+        html.push_str(&format!(
+            "<h1 class=\"name\">{}</h1>\n",
+            escape_html(&resume.contact.name)
+        ));
 
         // Contact info
         html.push_str("<div class=\"contact\">\n");
@@ -326,9 +354,16 @@ impl TemplateRenderer {
             for exp in &resume.experience {
                 html.push_str("<div class=\"experience-item\">\n");
                 html.push_str(&format!("<h3>{}</h3>\n", escape_html(&exp.title)));
-                html.push_str(&format!("<div class=\"company\">{}</div>\n", escape_html(&exp.company)));
+                html.push_str(&format!(
+                    "<div class=\"company\">{}</div>\n",
+                    escape_html(&exp.company)
+                ));
                 let end = exp.end_date.as_deref().unwrap_or("Present");
-                html.push_str(&format!("<div class=\"dates\">{} - {}</div>\n", escape_html(&exp.start_date), escape_html(end)));
+                html.push_str(&format!(
+                    "<div class=\"dates\">{} - {}</div>\n",
+                    escape_html(&exp.start_date),
+                    escape_html(end)
+                ));
                 html.push_str("<ul>\n");
                 for achievement in &exp.achievements {
                     html.push_str(&format!("<li>{}</li>\n", escape_html(achievement)));
@@ -344,9 +379,15 @@ impl TemplateRenderer {
             for edu in &resume.education {
                 html.push_str("<div class=\"education-item\">\n");
                 html.push_str(&format!("<h3>{}</h3>\n", escape_html(&edu.degree)));
-                html.push_str(&format!("<div class=\"institution\">{}</div>\n", escape_html(&edu.institution)));
+                html.push_str(&format!(
+                    "<div class=\"institution\">{}</div>\n",
+                    escape_html(&edu.institution)
+                ));
                 if let Some(grad) = &edu.graduation_date {
-                    html.push_str(&format!("<div class=\"dates\">{}</div>\n", escape_html(grad)));
+                    html.push_str(&format!(
+                        "<div class=\"dates\">{}</div>\n",
+                        escape_html(grad)
+                    ));
                 }
                 html.push_str("</div>\n\n");
             }
@@ -357,9 +398,11 @@ impl TemplateRenderer {
         if !resume.skills.is_empty() {
             html.push_str("<h2>SKILLS</h2>\n");
             for category in &resume.skills {
-                html.push_str(&format!("<div class=\"skill-category\"><strong>{}:</strong> {}</div>\n",
+                html.push_str(&format!(
+                    "<div class=\"skill-category\"><strong>{}:</strong> {}</div>\n",
                     escape_html(&category.name),
-                    escape_html(&category.skills.join(", "))));
+                    escape_html(&category.skills.join(", "))
+                ));
             }
         }
 
@@ -372,7 +415,10 @@ impl TemplateRenderer {
         let mut html = Self::html_header("Technical Resume", Self::technical_styles());
 
         // Name
-        html.push_str(&format!("<h1 class=\"name\">{}</h1>\n", escape_html(&resume.contact.name)));
+        html.push_str(&format!(
+            "<h1 class=\"name\">{}</h1>\n",
+            escape_html(&resume.contact.name)
+        ));
 
         // Contact
         html.push_str("<div class=\"contact\">\n");
@@ -396,9 +442,11 @@ impl TemplateRenderer {
             html.push_str("<h2>TECHNICAL SKILLS</h2>\n");
             for category in &resume.skills {
                 html.push_str("<div class=\"skill-category\">\n");
-                html.push_str(&format!("<strong>{}:</strong> {}\n",
+                html.push_str(&format!(
+                    "<strong>{}:</strong> {}\n",
                     escape_html(&category.name),
-                    escape_html(&category.skills.join(", "))));
+                    escape_html(&category.skills.join(", "))
+                ));
                 html.push_str("</div>\n");
             }
             html.push_str("\n");
@@ -410,9 +458,16 @@ impl TemplateRenderer {
             for exp in &resume.experience {
                 html.push_str("<div class=\"experience-item\">\n");
                 html.push_str(&format!("<h3>{}</h3>\n", escape_html(&exp.title)));
-                html.push_str(&format!("<div class=\"company\">{}</div>\n", escape_html(&exp.company)));
+                html.push_str(&format!(
+                    "<div class=\"company\">{}</div>\n",
+                    escape_html(&exp.company)
+                ));
                 let end = exp.end_date.as_deref().unwrap_or("Present");
-                html.push_str(&format!("<div class=\"dates\">{} - {}</div>\n", escape_html(&exp.start_date), escape_html(end)));
+                html.push_str(&format!(
+                    "<div class=\"dates\">{} - {}</div>\n",
+                    escape_html(&exp.start_date),
+                    escape_html(end)
+                ));
                 html.push_str("<ul>\n");
                 for achievement in &exp.achievements {
                     html.push_str(&format!("<li>{}</li>\n", escape_html(achievement)));
@@ -427,7 +482,10 @@ impl TemplateRenderer {
             for edu in &resume.education {
                 html.push_str("<div class=\"education-item\">\n");
                 html.push_str(&format!("<h3>{}</h3>\n", escape_html(&edu.degree)));
-                html.push_str(&format!("<div class=\"institution\">{}</div>\n", escape_html(&edu.institution)));
+                html.push_str(&format!(
+                    "<div class=\"institution\">{}</div>\n",
+                    escape_html(&edu.institution)
+                ));
                 html.push_str("</div>\n\n");
             }
         }
@@ -441,7 +499,10 @@ impl TemplateRenderer {
         let mut html = Self::html_header("Executive Resume", Self::executive_styles());
 
         // Name
-        html.push_str(&format!("<h1 class=\"name\">{}</h1>\n", escape_html(&resume.contact.name)));
+        html.push_str(&format!(
+            "<h1 class=\"name\">{}</h1>\n",
+            escape_html(&resume.contact.name)
+        ));
 
         // Contact
         html.push_str("<div class=\"contact\">\n");
@@ -468,9 +529,16 @@ impl TemplateRenderer {
             for exp in &resume.experience {
                 html.push_str("<div class=\"experience-item\">\n");
                 html.push_str(&format!("<h3>{}</h3>\n", escape_html(&exp.title)));
-                html.push_str(&format!("<div class=\"company\">{}</div>\n", escape_html(&exp.company)));
+                html.push_str(&format!(
+                    "<div class=\"company\">{}</div>\n",
+                    escape_html(&exp.company)
+                ));
                 let end = exp.end_date.as_deref().unwrap_or("Present");
-                html.push_str(&format!("<div class=\"dates\">{} - {}</div>\n", escape_html(&exp.start_date), escape_html(end)));
+                html.push_str(&format!(
+                    "<div class=\"dates\">{} - {}</div>\n",
+                    escape_html(&exp.start_date),
+                    escape_html(end)
+                ));
                 html.push_str("<ul class=\"achievements\">\n");
                 for achievement in &exp.achievements {
                     html.push_str(&format!("<li>{}</li>\n", escape_html(achievement)));
@@ -485,7 +553,10 @@ impl TemplateRenderer {
             for edu in &resume.education {
                 html.push_str("<div class=\"education-item\">\n");
                 html.push_str(&format!("<h3>{}</h3>\n", escape_html(&edu.degree)));
-                html.push_str(&format!("<div class=\"institution\">{}</div>\n", escape_html(&edu.institution)));
+                html.push_str(&format!(
+                    "<div class=\"institution\">{}</div>\n",
+                    escape_html(&edu.institution)
+                ));
                 html.push_str("</div>\n\n");
             }
         }
@@ -494,9 +565,11 @@ impl TemplateRenderer {
         if !resume.skills.is_empty() {
             html.push_str("<h2>CORE COMPETENCIES</h2>\n");
             for category in &resume.skills {
-                html.push_str(&format!("<div class=\"skill-category\"><strong>{}:</strong> {}</div>\n",
+                html.push_str(&format!(
+                    "<div class=\"skill-category\"><strong>{}:</strong> {}</div>\n",
                     escape_html(&category.name),
-                    escape_html(&category.skills.join(", "))));
+                    escape_html(&category.skills.join(", "))
+                ));
             }
         }
 
@@ -509,7 +582,10 @@ impl TemplateRenderer {
         let mut html = Self::html_header("Military Resume", Self::military_styles());
 
         // Name
-        html.push_str(&format!("<h1 class=\"name\">{}</h1>\n", escape_html(&resume.contact.name)));
+        html.push_str(&format!(
+            "<h1 class=\"name\">{}</h1>\n",
+            escape_html(&resume.contact.name)
+        ));
 
         // Contact
         html.push_str("<div class=\"contact\">\n");
@@ -525,7 +601,10 @@ impl TemplateRenderer {
         // Clearance (PROMINENT)
         if let Some(clearance) = &resume.clearance {
             html.push_str("<div class=\"clearance\">\n");
-            html.push_str(&format!("<strong>Security Clearance:</strong> {}\n", escape_html(clearance)));
+            html.push_str(&format!(
+                "<strong>Security Clearance:</strong> {}\n",
+                escape_html(clearance)
+            ));
             html.push_str("</div>\n\n");
         }
 
@@ -541,9 +620,16 @@ impl TemplateRenderer {
             for exp in &resume.experience {
                 html.push_str("<div class=\"experience-item\">\n");
                 html.push_str(&format!("<h3>{}</h3>\n", escape_html(&exp.title)));
-                html.push_str(&format!("<div class=\"company\">{}</div>\n", escape_html(&exp.company)));
+                html.push_str(&format!(
+                    "<div class=\"company\">{}</div>\n",
+                    escape_html(&exp.company)
+                ));
                 let end = exp.end_date.as_deref().unwrap_or("Present");
-                html.push_str(&format!("<div class=\"dates\">{} - {}</div>\n", escape_html(&exp.start_date), escape_html(end)));
+                html.push_str(&format!(
+                    "<div class=\"dates\">{} - {}</div>\n",
+                    escape_html(&exp.start_date),
+                    escape_html(end)
+                ));
                 html.push_str("<ul>\n");
                 for achievement in &exp.achievements {
                     html.push_str(&format!("<li>{}</li>\n", escape_html(achievement)));
@@ -558,7 +644,10 @@ impl TemplateRenderer {
             for edu in &resume.education {
                 html.push_str("<div class=\"education-item\">\n");
                 html.push_str(&format!("<h3>{}</h3>\n", escape_html(&edu.degree)));
-                html.push_str(&format!("<div class=\"institution\">{}</div>\n", escape_html(&edu.institution)));
+                html.push_str(&format!(
+                    "<div class=\"institution\">{}</div>\n",
+                    escape_html(&edu.institution)
+                ));
                 html.push_str("</div>\n\n");
             }
         }
@@ -567,9 +656,11 @@ impl TemplateRenderer {
         if !resume.skills.is_empty() {
             html.push_str("<h2>SKILLS & QUALIFICATIONS</h2>\n");
             for category in &resume.skills {
-                html.push_str(&format!("<div class=\"skill-category\"><strong>{}:</strong> {}</div>\n",
+                html.push_str(&format!(
+                    "<div class=\"skill-category\"><strong>{}:</strong> {}</div>\n",
                     escape_html(&category.name),
-                    escape_html(&category.skills.join(", "))));
+                    escape_html(&category.skills.join(", "))
+                ));
             }
         }
 
@@ -931,30 +1022,28 @@ mod tests {
                 linkedin: Some("linkedin.com/in/johndoe".to_string()),
                 website: Some("johndoe.dev".to_string()),
             },
-            summary: Some("Experienced software engineer with 10 years in backend systems.".to_string()),
-            experience: vec![
-                Experience {
-                    title: "Senior Software Engineer".to_string(),
-                    company: "TechCorp".to_string(),
-                    location: Some("San Francisco, CA".to_string()),
-                    start_date: "Jan 2020".to_string(),
-                    end_date: None,
-                    achievements: vec![
-                        "Built distributed system handling 1M+ requests/day".to_string(),
-                        "Led team of 5 engineers".to_string(),
-                    ],
-                },
-            ],
-            education: vec![
-                Education {
-                    degree: "BS Computer Science".to_string(),
-                    institution: "Stanford University".to_string(),
-                    location: Some("Stanford, CA".to_string()),
-                    graduation_date: Some("2014".to_string()),
-                    gpa: Some("3.8".to_string()),
-                    honors: vec![],
-                },
-            ],
+            summary: Some(
+                "Experienced software engineer with 10 years in backend systems.".to_string(),
+            ),
+            experience: vec![Experience {
+                title: "Senior Software Engineer".to_string(),
+                company: "TechCorp".to_string(),
+                location: Some("San Francisco, CA".to_string()),
+                start_date: "Jan 2020".to_string(),
+                end_date: None,
+                achievements: vec![
+                    "Built distributed system handling 1M+ requests/day".to_string(),
+                    "Led team of 5 engineers".to_string(),
+                ],
+            }],
+            education: vec![Education {
+                degree: "BS Computer Science".to_string(),
+                institution: "Stanford University".to_string(),
+                location: Some("Stanford, CA".to_string()),
+                graduation_date: Some("2014".to_string()),
+                gpa: Some("3.8".to_string()),
+                honors: vec![],
+            }],
             skills: vec![
                 SkillCategory {
                     name: "Languages".to_string(),

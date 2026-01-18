@@ -25,7 +25,11 @@ fn create_test_config() -> Config {
             "Backend Engineer".to_string(),
         ],
         title_blocklist: vec!["Manager".to_string(), "Director".to_string()],
-        keywords_boost: vec!["Rust".to_string(), "Security".to_string(), "Kubernetes".to_string()],
+        keywords_boost: vec![
+            "Rust".to_string(),
+            "Security".to_string(),
+            "Kubernetes".to_string(),
+        ],
         keywords_exclude: vec!["PHP".to_string(), "Wordpress".to_string()],
         location_preferences: LocationPreferences {
             allow_remote: true,
@@ -57,7 +61,13 @@ fn create_test_config() -> Config {
 }
 
 /// Helper to create a test job with realistic data
-fn create_test_job(hash: &str, title: &str, company: &str, remote: bool, salary_min: Option<i64>) -> Job {
+fn create_test_job(
+    hash: &str,
+    title: &str,
+    company: &str,
+    remote: bool,
+    salary_min: Option<i64>,
+) -> Job {
     Job {
         id: 0,
         hash: hash.to_string(),
@@ -125,9 +135,7 @@ async fn test_scheduler_graceful_shutdown() {
     let scheduler_clone = Arc::new(scheduler);
     let scheduler_handle = scheduler_clone.clone();
 
-    let handle = tokio::spawn(async move {
-        scheduler_handle.start().await
-    });
+    let handle = tokio::spawn(async move { scheduler_handle.start().await });
 
     // Give it time to start
     tokio::time::sleep(Duration::from_millis(100)).await;
@@ -137,7 +145,10 @@ async fn test_scheduler_graceful_shutdown() {
 
     // Wait for scheduler to stop (with timeout)
     let result = tokio::time::timeout(Duration::from_secs(5), handle).await;
-    assert!(result.is_ok(), "Scheduler should shut down gracefully within 5 seconds");
+    assert!(
+        result.is_ok(),
+        "Scheduler should shut down gracefully within 5 seconds"
+    );
 }
 
 // ============================================================================
@@ -241,15 +252,27 @@ async fn test_title_matching_scoring() {
     let score1 = scoring_engine.score(&exact_match);
 
     // Partial title match
-    let partial_match = create_test_job("tm_002", "Senior Security Engineer Lead", "Company", true, None);
+    let partial_match = create_test_job(
+        "tm_002",
+        "Senior Security Engineer Lead",
+        "Company",
+        true,
+        None,
+    );
     let score2 = scoring_engine.score(&partial_match);
 
     // No title match
     let no_match = create_test_job("tm_003", "Marketing Manager", "Company", true, None);
     let score3 = scoring_engine.score(&no_match);
 
-    assert!(score1.total > score3.total, "Exact match should score higher than no match");
-    assert!(score2.total > score3.total, "Partial match should score higher than no match");
+    assert!(
+        score1.total > score3.total,
+        "Exact match should score higher than no match"
+    );
+    assert!(
+        score2.total > score3.total,
+        "Partial match should score higher than no match"
+    );
 }
 
 #[tokio::test]
@@ -262,7 +285,13 @@ async fn test_salary_influence_on_scoring() {
     let score_good = scoring_engine.score(&good_salary);
 
     // Job with salary below floor
-    let bad_salary = create_test_job("sal_002", "Rust Developer", "StartupCorp", true, Some(80000));
+    let bad_salary = create_test_job(
+        "sal_002",
+        "Rust Developer",
+        "StartupCorp",
+        true,
+        Some(80000),
+    );
     let score_bad = scoring_engine.score(&bad_salary);
 
     // Job with no salary
@@ -304,7 +333,13 @@ async fn test_job_upsert_creates_new() {
     let db = Database::connect_memory().await.unwrap();
     db.migrate().await.unwrap();
 
-    let job = create_test_job("upsert_001", "Test Engineer", "TestCorp", true, Some(120000));
+    let job = create_test_job(
+        "upsert_001",
+        "Test Engineer",
+        "TestCorp",
+        true,
+        Some(120000),
+    );
 
     // Upsert new job
     let result = db.upsert_job(&job).await;
@@ -523,9 +558,27 @@ async fn test_database_search_after_upsert() {
     // Insert jobs
     // Note: Using unique company names that don't contain search terms
     let jobs = vec![
-        create_test_job("search_001", "Rust Security Engineer", "SecureCorp", true, Some(150000)),
-        create_test_job("search_002", "Python Developer", "PyCorp", true, Some(120000)),
-        create_test_job("search_003", "Rust Backend Developer", "BackendCorp", true, Some(140000)),
+        create_test_job(
+            "search_001",
+            "Rust Security Engineer",
+            "SecureCorp",
+            true,
+            Some(150000),
+        ),
+        create_test_job(
+            "search_002",
+            "Python Developer",
+            "PyCorp",
+            true,
+            Some(120000),
+        ),
+        create_test_job(
+            "search_003",
+            "Rust Backend Developer",
+            "BackendCorp",
+            true,
+            Some(140000),
+        ),
     ];
 
     for job in &jobs {
@@ -571,5 +624,8 @@ async fn test_job_ordering_by_score() {
     let mut sorted_scores = scores.clone();
     sorted_scores.sort_by(|a, b| b.partial_cmp(a).unwrap());
 
-    assert_eq!(scores, sorted_scores, "Jobs should be ordered by score descending");
+    assert_eq!(
+        scores, sorted_scores,
+        "Jobs should be ordered by score descending"
+    );
 }

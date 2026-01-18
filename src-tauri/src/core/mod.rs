@@ -82,11 +82,11 @@ pub use user_data::{
 pub use credentials::{CredentialKey, CredentialStore};
 
 // v2.0+ automation re-exports
+pub use automation::profile::{ApplicationProfileInput, ProfileManager, ScreeningAnswer};
 pub use automation::{
     ApplicationAttempt, ApplicationProfile, AtsDetector, AtsPlatform, AutomationManager,
     AutomationStats, AutomationStatus,
 };
-pub use automation::profile::{ApplicationProfileInput, ProfileManager, ScreeningAnswer};
 
 // v2.1+ health re-exports
 pub use health::{

@@ -7,7 +7,7 @@ use crate::commands::AppState;
 use crate::core::resume::{
     AtsAnalysisResult, AtsAnalyzer, AtsResumeData, BuilderContactInfo, BuilderEducation,
     BuilderExperience, BuilderResumeData, ExportResumeData, MatchResult, MatchResultWithJob,
-    Resume, ResumeBuilder, ResumeMatcher, ResumeExporter, SkillEntry, Template, TemplateId,
+    Resume, ResumeBuilder, ResumeExporter, ResumeMatcher, SkillEntry, Template, TemplateId,
     TemplateRenderer, UserSkill,
 };
 use tauri::State;

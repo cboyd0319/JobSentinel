@@ -173,7 +173,11 @@ impl IndeedScraper {
 
         // Build full URL
         let url = format!("https://www.indeed.com/viewjob?jk={}", job_key);
-        let location_ref = if location.is_empty() { None } else { Some(location.as_str()) };
+        let location_ref = if location.is_empty() {
+            None
+        } else {
+            Some(location.as_str())
+        };
         let hash = Self::compute_hash(&company, &title, location_ref, &url);
 
         Ok(Some(Job {
@@ -250,7 +254,11 @@ impl IndeedScraper {
             return Ok(None);
         }
 
-        let location_ref = if location.is_empty() { None } else { Some(location.as_str()) };
+        let location_ref = if location.is_empty() {
+            None
+        } else {
+            Some(location.as_str())
+        };
         let hash = Self::compute_hash(&company, &title, location_ref, &url);
 
         Ok(Some(Job {
@@ -335,10 +343,30 @@ mod tests {
 
     #[test]
     fn test_hash_generation() {
-        let hash1 = IndeedScraper::compute_hash("Google", "Software Engineer", Some("San Francisco"), "https://example.com/1");
-        let hash2 = IndeedScraper::compute_hash("Google", "Software Engineer", Some("San Francisco"), "https://example.com/1");
-        let hash3 = IndeedScraper::compute_hash("Meta", "Software Engineer", Some("San Francisco"), "https://example.com/1");
-        let hash4 = IndeedScraper::compute_hash("Google", "Software Engineer", Some("New York"), "https://example.com/1");
+        let hash1 = IndeedScraper::compute_hash(
+            "Google",
+            "Software Engineer",
+            Some("San Francisco"),
+            "https://example.com/1",
+        );
+        let hash2 = IndeedScraper::compute_hash(
+            "Google",
+            "Software Engineer",
+            Some("San Francisco"),
+            "https://example.com/1",
+        );
+        let hash3 = IndeedScraper::compute_hash(
+            "Meta",
+            "Software Engineer",
+            Some("San Francisco"),
+            "https://example.com/1",
+        );
+        let hash4 = IndeedScraper::compute_hash(
+            "Google",
+            "Software Engineer",
+            Some("New York"),
+            "https://example.com/1",
+        );
 
         // Same input should produce same hash
         assert_eq!(hash1, hash2);

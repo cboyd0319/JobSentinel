@@ -43,7 +43,10 @@ pub async fn score_jobs(
 
     // Ghost detection analysis
     tracing::info!("Step 2.5: Analyzing jobs for ghost indicators");
-    let ghost_config = config.ghost_config.clone().unwrap_or_else(GhostConfig::default);
+    let ghost_config = config
+        .ghost_config
+        .clone()
+        .unwrap_or_else(GhostConfig::default);
     let ghost_detector = GhostDetector::new(ghost_config);
 
     for (job, _score) in &mut scored_jobs {

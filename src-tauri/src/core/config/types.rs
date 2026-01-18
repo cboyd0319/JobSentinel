@@ -23,8 +23,18 @@ pub struct Config {
     /// Location preferences
     pub location_preferences: LocationPreferences,
 
-    /// Minimum salary in USD
+    /// Minimum salary in USD (hard floor - jobs below this get low scores)
     pub salary_floor_usd: i64,
+
+    /// Target salary in USD (ideal salary - used for graduated scoring)
+    /// If not set, defaults to salary_floor_usd
+    #[serde(default)]
+    pub salary_target_usd: Option<i64>,
+
+    /// Penalize jobs with missing salary information
+    /// If true, jobs without salary get 0.3 score; if false, get 0.5 (neutral)
+    #[serde(default)]
+    pub penalize_missing_salary: bool,
 
     /// Auto-refresh configuration
     #[serde(default)]
@@ -96,6 +106,22 @@ pub struct Config {
     /// Ghost job detection configuration
     #[serde(default)]
     pub ghost_config: Option<crate::core::ghost::GhostConfig>,
+
+    /// Use resume matching for skills scoring (requires uploaded resume)
+    /// When enabled and a resume is available, scores are calculated based on actual resume skills
+    /// Falls back to keyword matching when no resume is present
+    #[serde(default)]
+    pub use_resume_matching: bool,
+
+    /// Company whitelist for scoring bonus (case-insensitive fuzzy matching)
+    /// Companies in this list receive scoring bonus
+    #[serde(default)]
+    pub company_whitelist: Vec<String>,
+
+    /// Company blacklist for scoring penalty (case-insensitive fuzzy matching)
+    /// Jobs from companies in this list receive very low scores
+    #[serde(default)]
+    pub company_blacklist: Vec<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

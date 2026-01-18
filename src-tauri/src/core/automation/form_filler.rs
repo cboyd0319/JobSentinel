@@ -29,7 +29,11 @@ impl FormFiller {
     ///
     /// Returns what was filled and what needs manual attention.
     /// Does NOT submit - user must click submit manually.
-    pub async fn fill_page(&self, page: &AutomationPage, platform: &AtsPlatform) -> Result<FillResult> {
+    pub async fn fill_page(
+        &self,
+        page: &AutomationPage,
+        platform: &AtsPlatform,
+    ) -> Result<FillResult> {
         let mut result = FillResult::new();
 
         // Check for CAPTCHA first
@@ -41,17 +45,20 @@ impl FormFiller {
         let selectors = Self::get_field_selectors(platform);
 
         // Fill basic contact fields
-        self.fill_contact_fields(page, &selectors, &mut result).await;
+        self.fill_contact_fields(page, &selectors, &mut result)
+            .await;
 
         // Fill URLs (LinkedIn, GitHub, etc.)
         self.fill_url_fields(page, &selectors, &mut result).await;
 
         // Fill work authorization
-        self.fill_work_auth_fields(page, &selectors, &mut result).await;
+        self.fill_work_auth_fields(page, &selectors, &mut result)
+            .await;
 
         // Upload resume if available
         if let Some(ref resume_path) = self.resume_path {
-            self.fill_resume(page, &selectors, resume_path, &mut result).await;
+            self.fill_resume(page, &selectors, resume_path, &mut result)
+                .await;
         }
 
         // Check for CAPTCHA again after filling (some appear after form interaction)
@@ -72,7 +79,12 @@ impl FormFiller {
     ) {
         // First name
         if let Some(sel_list) = selectors.get(&FieldType::FirstName) {
-            let first_name = self.profile.full_name.split_whitespace().next().unwrap_or("");
+            let first_name = self
+                .profile
+                .full_name
+                .split_whitespace()
+                .next()
+                .unwrap_or("");
             for selector in sel_list {
                 if let Ok(true) = page.fill(selector, first_name).await {
                     result.filled_fields.push("first_name".to_string());
@@ -83,7 +95,12 @@ impl FormFiller {
 
         // Last name
         if let Some(sel_list) = selectors.get(&FieldType::LastName) {
-            let last_name = self.profile.full_name.split_whitespace().last().unwrap_or("");
+            let last_name = self
+                .profile
+                .full_name
+                .split_whitespace()
+                .last()
+                .unwrap_or("");
             for selector in sel_list {
                 if let Ok(true) = page.fill(selector, last_name).await {
                     result.filled_fields.push("last_name".to_string());
@@ -217,11 +234,15 @@ impl FormFiller {
             };
             for selector in sel_list {
                 if let Ok(true) = page.fill(selector, value).await {
-                    result.filled_fields.push("requires_sponsorship".to_string());
+                    result
+                        .filled_fields
+                        .push("requires_sponsorship".to_string());
                     break;
                 }
                 if let Ok(true) = page.select(selector, value).await {
-                    result.filled_fields.push("requires_sponsorship".to_string());
+                    result
+                        .filled_fields
+                        .push("requires_sponsorship".to_string());
                     break;
                 }
             }
@@ -254,11 +275,19 @@ impl FormFiller {
             AtsPlatform::Greenhouse => {
                 selectors.insert(
                     FieldType::FirstName,
-                    vec!["#first_name", "input[name='first_name']", "[data-field='first_name']"],
+                    vec![
+                        "#first_name",
+                        "input[name='first_name']",
+                        "[data-field='first_name']",
+                    ],
                 );
                 selectors.insert(
                     FieldType::LastName,
-                    vec!["#last_name", "input[name='last_name']", "[data-field='last_name']"],
+                    vec![
+                        "#last_name",
+                        "input[name='last_name']",
+                        "[data-field='last_name']",
+                    ],
                 );
                 selectors.insert(
                     FieldType::Email,
@@ -288,7 +317,11 @@ impl FormFiller {
                 );
                 selectors.insert(
                     FieldType::Email,
-                    vec!["input[name='email']", "[data-qa='email-input']", "input[type='email']"],
+                    vec![
+                        "input[name='email']",
+                        "[data-qa='email-input']",
+                        "input[type='email']",
+                    ],
                 );
                 selectors.insert(
                     FieldType::Phone,
@@ -311,11 +344,17 @@ impl FormFiller {
                 // Workday uses dynamic IDs, so we use more generic selectors
                 selectors.insert(
                     FieldType::FirstName,
-                    vec!["input[data-automation-id='legalNameSection_firstName']", "input[id*='firstName']"],
+                    vec![
+                        "input[data-automation-id='legalNameSection_firstName']",
+                        "input[id*='firstName']",
+                    ],
                 );
                 selectors.insert(
                     FieldType::LastName,
-                    vec!["input[data-automation-id='legalNameSection_lastName']", "input[id*='lastName']"],
+                    vec![
+                        "input[data-automation-id='legalNameSection_lastName']",
+                        "input[id*='lastName']",
+                    ],
                 );
                 selectors.insert(
                     FieldType::Email,
@@ -323,12 +362,12 @@ impl FormFiller {
                 );
                 selectors.insert(
                     FieldType::Phone,
-                    vec!["input[data-automation-id='phone-number']", "input[type='tel']"],
+                    vec![
+                        "input[data-automation-id='phone-number']",
+                        "input[type='tel']",
+                    ],
                 );
-                selectors.insert(
-                    FieldType::Resume,
-                    vec!["input[type='file']"],
-                );
+                selectors.insert(FieldType::Resume, vec!["input[type='file']"]);
             }
             AtsPlatform::Taleo => {
                 selectors.insert(
@@ -347,10 +386,7 @@ impl FormFiller {
                     FieldType::Phone,
                     vec!["input[id*='Phone']", "input[type='tel']"],
                 );
-                selectors.insert(
-                    FieldType::Resume,
-                    vec!["input[type='file']"],
-                );
+                selectors.insert(FieldType::Resume, vec!["input[type='file']"]);
             }
             AtsPlatform::AshbyHq => {
                 selectors.insert(
@@ -365,14 +401,8 @@ impl FormFiller {
                     FieldType::Phone,
                     vec!["input[name='phone']", "input[type='tel']"],
                 );
-                selectors.insert(
-                    FieldType::LinkedIn,
-                    vec!["input[name*='linkedin']"],
-                );
-                selectors.insert(
-                    FieldType::Resume,
-                    vec!["input[type='file']"],
-                );
+                selectors.insert(FieldType::LinkedIn, vec!["input[name*='linkedin']"]);
+                selectors.insert(FieldType::Resume, vec!["input[type='file']"]);
             }
             _ => {
                 // Generic selectors for unknown platforms
@@ -404,10 +434,7 @@ impl FormFiller {
                     FieldType::GitHub,
                     vec!["input[name*='github']", "input[id*='github']"],
                 );
-                selectors.insert(
-                    FieldType::Resume,
-                    vec!["input[type='file']"],
-                );
+                selectors.insert(FieldType::Resume, vec!["input[type='file']"]);
             }
         }
 

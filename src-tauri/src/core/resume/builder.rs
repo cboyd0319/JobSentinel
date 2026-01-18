@@ -37,7 +37,7 @@ pub struct Experience {
     pub company: String,
     pub title: String,
     pub location: Option<String>,
-    pub start_date: String, // "2020-01" format
+    pub start_date: String,       // "2020-01" format
     pub end_date: Option<String>, // None means current
     pub is_current: bool,
     pub bullets: Vec<String>, // Action-verb bullet points
@@ -140,8 +140,8 @@ impl ResumeBuilder {
             updated_at: Utc::now(),
         };
 
-        let data_json = serde_json::to_string(&empty_data)
-            .context("Failed to serialize empty resume data")?;
+        let data_json =
+            serde_json::to_string(&empty_data).context("Failed to serialize empty resume data")?;
 
         let result = sqlx::query(
             r#"
@@ -243,13 +243,7 @@ impl ResumeBuilder {
             .context("Resume not found")?;
 
         // Generate new ID
-        let new_id = resume
-            .experience
-            .iter()
-            .map(|e| e.id)
-            .max()
-            .unwrap_or(0)
-            + 1;
+        let new_id = resume.experience.iter().map(|e| e.id).max().unwrap_or(0) + 1;
 
         exp.id = new_id;
         resume.experience.push(exp);
@@ -299,13 +293,7 @@ impl ResumeBuilder {
             .context("Resume not found")?;
 
         // Generate new ID
-        let new_id = resume
-            .education
-            .iter()
-            .map(|e| e.id)
-            .max()
-            .unwrap_or(0)
-            + 1;
+        let new_id = resume.education.iter().map(|e| e.id).max().unwrap_or(0) + 1;
 
         edu.id = new_id;
         resume.education.push(edu);
@@ -410,8 +398,7 @@ impl ResumeBuilder {
 
     /// Internal helper to save resume data
     async fn save_resume(&self, resume_id: i64, resume: &ResumeData) -> Result<()> {
-        let data_json =
-            serde_json::to_string(resume).context("Failed to serialize resume data")?;
+        let data_json = serde_json::to_string(resume).context("Failed to serialize resume data")?;
 
         sqlx::query(
             r#"
@@ -486,7 +473,10 @@ mod tests {
             website: Some("johndoe.com".to_string()),
         };
 
-        builder.update_contact(resume_id, contact.clone()).await.unwrap();
+        builder
+            .update_contact(resume_id, contact.clone())
+            .await
+            .unwrap();
 
         let resume = builder.get_resume(resume_id).await.unwrap().unwrap();
         assert_eq!(resume.contact.name, "John Doe");

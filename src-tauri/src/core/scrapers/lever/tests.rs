@@ -101,10 +101,8 @@ fn test_compute_hash_deterministic() {
 
 #[test]
 fn test_compute_hash_different_company() {
-    let hash1 =
-        LeverScraper::compute_hash("Shopify", "Engineer", None, "https://example.com/1");
-    let hash2 =
-        LeverScraper::compute_hash("Netflix", "Engineer", None, "https://example.com/1");
+    let hash1 = LeverScraper::compute_hash("Shopify", "Engineer", None, "https://example.com/1");
+    let hash2 = LeverScraper::compute_hash("Netflix", "Engineer", None, "https://example.com/1");
 
     assert_ne!(
         hash1, hash2,
@@ -120,12 +118,8 @@ fn test_compute_hash_different_title() {
         None,
         "https://example.com/1",
     );
-    let hash2 = LeverScraper::compute_hash(
-        "Company",
-        "Backend Engineer",
-        None,
-        "https://example.com/1",
-    );
+    let hash2 =
+        LeverScraper::compute_hash("Company", "Backend Engineer", None, "https://example.com/1");
 
     assert_ne!(
         hash1, hash2,
@@ -152,8 +146,7 @@ fn test_compute_hash_different_location() {
 
 #[test]
 fn test_compute_hash_location_none_vs_some() {
-    let hash1 =
-        LeverScraper::compute_hash("Company", "Engineer", None, "https://example.com/1");
+    let hash1 = LeverScraper::compute_hash("Company", "Engineer", None, "https://example.com/1");
     let hash2 = LeverScraper::compute_hash(
         "Company",
         "Engineer",
@@ -166,10 +159,8 @@ fn test_compute_hash_location_none_vs_some() {
 
 #[test]
 fn test_compute_hash_different_url() {
-    let hash1 =
-        LeverScraper::compute_hash("Company", "Engineer", None, "https://example.com/1");
-    let hash2 =
-        LeverScraper::compute_hash("Company", "Engineer", None, "https://example.com/2");
+    let hash1 = LeverScraper::compute_hash("Company", "Engineer", None, "https://example.com/1");
+    let hash2 = LeverScraper::compute_hash("Company", "Engineer", None, "https://example.com/2");
 
     assert_ne!(hash1, hash2, "Different URL should produce different hash");
 }
@@ -1092,8 +1083,7 @@ async fn test_scrape_company_creates_jobs_from_api_response() {
                 .map(|s| s.to_string());
 
             let remote = LeverScraper::infer_remote(&title, location.as_deref());
-            let hash =
-                LeverScraper::compute_hash(&company.name, &title, location.as_deref(), &url);
+            let hash = LeverScraper::compute_hash(&company.name, &title, location.as_deref(), &url);
 
             if !title.is_empty() && !url.is_empty() {
                 jobs.push(Job {
@@ -1586,8 +1576,7 @@ async fn test_scrape_company_full_job_creation_with_all_fields() {
                 .map(|s| s.to_string());
 
             let remote = LeverScraper::infer_remote(&title, location.as_deref());
-            let hash =
-                LeverScraper::compute_hash(&company.name, &title, location.as_deref(), &url);
+            let hash = LeverScraper::compute_hash(&company.name, &title, location.as_deref(), &url);
 
             if !title.is_empty() && !url.is_empty() {
                 jobs.push(Job {
@@ -1812,8 +1801,7 @@ async fn test_scrape_company_computes_hash_for_each_job() {
                 .as_str()
                 .map(|s| s.to_string());
 
-            let hash =
-                LeverScraper::compute_hash(&company.name, &title, location.as_deref(), &url);
+            let hash = LeverScraper::compute_hash(&company.name, &title, location.as_deref(), &url);
             hashes.push(hash);
         }
     }

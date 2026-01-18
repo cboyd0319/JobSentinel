@@ -214,7 +214,10 @@ async fn test_jobs_hash_unique_constraint() {
     .execute(&pool)
     .await;
 
-    assert!(result.is_err(), "Duplicate hash should fail unique constraint");
+    assert!(
+        result.is_err(),
+        "Duplicate hash should fail unique constraint"
+    );
 }
 
 #[tokio::test]
@@ -243,7 +246,10 @@ async fn test_applications_foreign_key_constraint() {
     .execute(&pool)
     .await;
 
-    assert!(result.is_ok(), "Application with valid job_hash should succeed");
+    assert!(
+        result.is_ok(),
+        "Application with valid job_hash should succeed"
+    );
 }
 
 #[tokio::test]
@@ -290,7 +296,10 @@ async fn test_interviews_foreign_key_constraint() {
     .execute(&pool)
     .await;
 
-    assert!(result.is_ok(), "Interview with valid application_id should succeed");
+    assert!(
+        result.is_ok(),
+        "Interview with valid application_id should succeed"
+    );
 }
 
 #[tokio::test]
@@ -357,7 +366,10 @@ async fn test_concurrent_job_inserts() {
         .filter(|r| r.is_ok() && r.as_ref().unwrap().is_ok())
         .count();
 
-    assert_eq!(success_count, 50, "All 50 concurrent inserts should succeed");
+    assert_eq!(
+        success_count, 50,
+        "All 50 concurrent inserts should succeed"
+    );
 
     // Verify all jobs were inserted
     let stats = database.get_statistics().await.unwrap();
@@ -401,7 +413,10 @@ async fn test_concurrent_upsert_same_job() {
 
     // Should still be only 1 job
     let stats = database.get_statistics().await.unwrap();
-    assert_eq!(stats.total_jobs, 1, "Should have exactly 1 job (upserted, not duplicated)");
+    assert_eq!(
+        stats.total_jobs, 1,
+        "Should have exactly 1 job (upserted, not duplicated)"
+    );
 
     // times_seen should have incremented
     let job = database
@@ -513,7 +528,7 @@ async fn test_job_data_preserved_on_upsert() {
         hidden: false,
         included_in_digest: true,
         bookmarked: false, // upsert doesn't preserve bookmarked
-        notes: None, // upsert doesn't preserve notes
+        notes: None,       // upsert doesn't preserve notes
         ghost_score: Some(0.1),
         ghost_reasons: Some(r#"{"age": "ok"}"#.to_string()),
         first_seen: Some(chrono::Utc::now()),
@@ -657,10 +672,7 @@ async fn test_get_recent_jobs_limit() {
     for i in 0..(limited.len() - 1) {
         let score1 = limited[i].score.unwrap();
         let score2 = limited[i + 1].score.unwrap();
-        assert!(
-            score1 >= score2,
-            "Results should be sorted by score DESC"
-        );
+        assert!(score1 >= score2, "Results should be sorted by score DESC");
     }
 }
 

@@ -3,7 +3,9 @@
 //! Commands for managing job applications, interviews, reminders, and ghosting detection.
 
 use crate::commands::AppState;
-use crate::core::ats::{ApplicationStatus, ApplicationTracker, ApplicationsByStatus, PendingReminder};
+use crate::core::ats::{
+    ApplicationStatus, ApplicationTracker, ApplicationsByStatus, PendingReminder,
+};
 use crate::core::{ApplicationStats, InterviewWithJob};
 use tauri::State;
 

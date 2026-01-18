@@ -236,7 +236,10 @@ async fn test_remoteok() -> Result<serde_json::Value> {
 
     let json: serde_json::Value = resp.json().await?;
     // First element is legal notice, rest are jobs
-    let job_count = json.as_array().map(|a| a.len().saturating_sub(1)).unwrap_or(0);
+    let job_count = json
+        .as_array()
+        .map(|a| a.len().saturating_sub(1))
+        .unwrap_or(0);
 
     Ok(serde_json::json!({
         "status": status.as_u16(),

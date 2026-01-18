@@ -110,12 +110,11 @@ impl Database {
 
     /// Get user's verdict for a job (None if no feedback given)
     pub async fn get_ghost_feedback(&self, job_id: i64) -> Result<Option<String>, sqlx::Error> {
-        let verdict: Option<String> = sqlx::query_scalar(
-            "SELECT user_verdict FROM ghost_feedback WHERE job_id = ?",
-        )
-        .bind(job_id)
-        .fetch_optional(self.pool())
-        .await?;
+        let verdict: Option<String> =
+            sqlx::query_scalar("SELECT user_verdict FROM ghost_feedback WHERE job_id = ?")
+                .bind(job_id)
+                .fetch_optional(self.pool())
+                .await?;
 
         Ok(verdict)
     }

@@ -58,15 +58,9 @@ impl AtsDetector {
                     Regex::new(r"(?i)(myworkdayjobs\.com|workday\.com/[^/]+/job)").unwrap(),
                 ),
                 // Taleo: *.taleo.net, tbe.taleo.net
-                (
-                    AtsPlatform::Taleo,
-                    Regex::new(r"(?i)taleo\.net").unwrap(),
-                ),
+                (AtsPlatform::Taleo, Regex::new(r"(?i)taleo\.net").unwrap()),
                 // iCIMS: *.icims.com, careers.*.com (using iCIMS)
-                (
-                    AtsPlatform::Icims,
-                    Regex::new(r"(?i)icims\.com").unwrap(),
-                ),
+                (AtsPlatform::Icims, Regex::new(r"(?i)icims\.com").unwrap()),
                 // BambooHR: *.bamboohr.com/careers
                 (
                     AtsPlatform::BambooHr,
@@ -151,10 +145,10 @@ impl AtsDetector {
                 "cards[Apply].fields[Full name]",
             ],
             AtsPlatform::Workday => vec![
-                "input-1", // First Name
-                "input-2", // Last Name
-                "input-3", // Email
-                "input-4", // Phone
+                "input-1",             // First Name
+                "input-2",             // Last Name
+                "input-3",             // Email
+                "input-4",             // Phone
                 "input-file-upload-0", // Resume
             ],
             AtsPlatform::Taleo => vec![
@@ -171,20 +165,8 @@ impl AtsDetector {
                 "applicant.phone",
                 "resumeUpload",
             ],
-            AtsPlatform::BambooHr => vec![
-                "first_name",
-                "last_name",
-                "email",
-                "phone",
-                "resume",
-            ],
-            AtsPlatform::AshbyHq => vec![
-                "name",
-                "email",
-                "phone",
-                "resume",
-                "linkedin_url",
-            ],
+            AtsPlatform::BambooHr => vec!["first_name", "last_name", "email", "phone", "resume"],
+            AtsPlatform::AshbyHq => vec!["name", "email", "phone", "resume", "linkedin_url"],
             AtsPlatform::Unknown => vec![],
         }
     }
@@ -256,7 +238,9 @@ mod tests {
     #[test]
     fn test_detect_workday() {
         assert_eq!(
-            AtsDetector::detect_from_url("https://company.wd1.myworkdayjobs.com/en-US/Careers/job/123"),
+            AtsDetector::detect_from_url(
+                "https://company.wd1.myworkdayjobs.com/en-US/Careers/job/123"
+            ),
             AtsPlatform::Workday
         );
         assert_eq!(
@@ -268,7 +252,9 @@ mod tests {
     #[test]
     fn test_detect_taleo() {
         assert_eq!(
-            AtsDetector::detect_from_url("https://company.taleo.net/careersection/jobdetail.ftl?job=123"),
+            AtsDetector::detect_from_url(
+                "https://company.taleo.net/careersection/jobdetail.ftl?job=123"
+            ),
             AtsPlatform::Taleo
         );
     }

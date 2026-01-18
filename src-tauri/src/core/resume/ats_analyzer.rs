@@ -118,8 +118,7 @@ impl AtsAnalyzer {
         let format_result = Self::analyze_format(resume);
 
         // Find keyword matches
-        let (keyword_matches, missing_keywords) =
-            Self::find_keyword_matches(resume, &job_keywords);
+        let (keyword_matches, missing_keywords) = Self::find_keyword_matches(resume, &job_keywords);
 
         // Calculate keyword score
         let total_keywords = job_keywords.len();
@@ -195,8 +194,8 @@ impl AtsAnalyzer {
             .iter()
             .filter(|i| i.severity == IssueSeverity::Warning)
             .count();
-        let format_score = (100.0 - (critical_count as f64 * 20.0) - (warning_count as f64 * 5.0))
-            .max(0.0);
+        let format_score =
+            (100.0 - (critical_count as f64 * 20.0) - (warning_count as f64 * 5.0)).max(0.0);
 
         // Calculate completeness score
         let completeness_score = Self::calculate_completeness(resume);
@@ -219,18 +218,12 @@ impl AtsAnalyzer {
         let lower = job_description.to_lowercase();
 
         // Split into sections
-        let required_section = Self::extract_section(&lower, &[
-            "required",
-            "must have",
-            "requirements",
-            "qualifications",
-        ]);
-        let preferred_section = Self::extract_section(&lower, &[
-            "preferred",
-            "nice to have",
-            "bonus",
-            "plus",
-        ]);
+        let required_section = Self::extract_section(
+            &lower,
+            &["required", "must have", "requirements", "qualifications"],
+        );
+        let preferred_section =
+            Self::extract_section(&lower, &["preferred", "nice to have", "bonus", "plus"]);
 
         // Extract from required section
         for keyword in Self::extract_keywords_from_text(&required_section) {
@@ -358,7 +351,10 @@ impl AtsAnalyzer {
                     .iter()
                     .any(|&k| improved.to_lowercase().contains(&k.to_lowercase()))
             {
-                improved.push_str(&format!(" (consider adding: {})", important_keywords.join(", ")));
+                improved.push_str(&format!(
+                    " (consider adding: {})",
+                    important_keywords.join(", ")
+                ));
             }
         }
 
@@ -610,10 +606,7 @@ impl AtsAnalyzer {
             if let Some(start) = text.find(header) {
                 let after = &text[start..];
                 // Find next section header or end
-                let end = after
-                    .find("\n\n")
-                    .map(|i| i + start)
-                    .unwrap_or(text.len());
+                let end = after.find("\n\n").map(|i| i + start).unwrap_or(text.len());
                 return text[start..end].to_string();
             }
         }
@@ -794,7 +787,10 @@ mod tests {
 
         let result = AtsAnalyzer::analyze_format(&resume);
 
-        assert!(result.format_issues.iter().any(|i| i.issue.contains("No work experience")));
+        assert!(result
+            .format_issues
+            .iter()
+            .any(|i| i.issue.contains("No work experience")));
     }
 
     #[test]
@@ -809,9 +805,13 @@ Nice to have: AWS, GraphQL
         let keywords = AtsAnalyzer::extract_job_keywords(job_desc);
 
         // Rust should be extracted as Required
-        assert!(keywords.iter().any(|(k, i)| k == "rust" && *i == KeywordImportance::Required));
+        assert!(keywords
+            .iter()
+            .any(|(k, i)| k == "rust" && *i == KeywordImportance::Required));
         // AWS should be extracted as Preferred (from "nice to have" section)
-        assert!(keywords.iter().any(|(k, i)| k == "aws" && *i == KeywordImportance::Preferred));
+        assert!(keywords
+            .iter()
+            .any(|(k, i)| k == "aws" && *i == KeywordImportance::Preferred));
     }
 
     #[test]
@@ -950,15 +950,13 @@ Nice to have: AWS, GraphQL
     #[test]
     fn test_keyword_frequency_tracking() {
         let mut resume = sample_resume();
-        resume.summary = "Rust developer with Rust experience building Rust applications".to_string();
+        resume.summary =
+            "Rust developer with Rust experience building Rust applications".to_string();
 
         let job_desc = "Required: Rust";
         let result = AtsAnalyzer::analyze_for_job(&resume, job_desc);
 
-        let rust_match = result
-            .keyword_matches
-            .iter()
-            .find(|m| m.keyword == "rust");
+        let rust_match = result.keyword_matches.iter().find(|m| m.keyword == "rust");
         assert!(rust_match.is_some());
         assert!(rust_match.unwrap().frequency >= 3);
     }

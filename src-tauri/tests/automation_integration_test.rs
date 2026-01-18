@@ -9,9 +9,7 @@
 //! - Automation attempt structures
 //! - Screening answer matching
 
-use jobsentinel::core::automation::{
-    ats_detector::AtsDetector, AtsPlatform, AutomationStatus,
-};
+use jobsentinel::core::automation::{ats_detector::AtsDetector, AtsPlatform, AutomationStatus};
 
 // ============================================================================
 // ATS Detection Tests (URL-based)
@@ -95,7 +93,10 @@ fn test_ats_platform_from_string() {
 fn test_automation_status_to_string() {
     assert_eq!(AutomationStatus::Pending.as_str(), "pending");
     assert_eq!(AutomationStatus::InProgress.as_str(), "in_progress");
-    assert_eq!(AutomationStatus::AwaitingApproval.as_str(), "awaiting_approval");
+    assert_eq!(
+        AutomationStatus::AwaitingApproval.as_str(),
+        "awaiting_approval"
+    );
     assert_eq!(AutomationStatus::Submitted.as_str(), "submitted");
     assert_eq!(AutomationStatus::Failed.as_str(), "failed");
     assert_eq!(AutomationStatus::Cancelled.as_str(), "cancelled");
@@ -103,14 +104,35 @@ fn test_automation_status_to_string() {
 
 #[test]
 fn test_automation_status_from_string() {
-    assert_eq!(AutomationStatus::from_str("pending"), AutomationStatus::Pending);
-    assert_eq!(AutomationStatus::from_str("in_progress"), AutomationStatus::InProgress);
-    assert_eq!(AutomationStatus::from_str("awaiting_approval"), AutomationStatus::AwaitingApproval);
-    assert_eq!(AutomationStatus::from_str("submitted"), AutomationStatus::Submitted);
-    assert_eq!(AutomationStatus::from_str("failed"), AutomationStatus::Failed);
-    assert_eq!(AutomationStatus::from_str("cancelled"), AutomationStatus::Cancelled);
+    assert_eq!(
+        AutomationStatus::from_str("pending"),
+        AutomationStatus::Pending
+    );
+    assert_eq!(
+        AutomationStatus::from_str("in_progress"),
+        AutomationStatus::InProgress
+    );
+    assert_eq!(
+        AutomationStatus::from_str("awaiting_approval"),
+        AutomationStatus::AwaitingApproval
+    );
+    assert_eq!(
+        AutomationStatus::from_str("submitted"),
+        AutomationStatus::Submitted
+    );
+    assert_eq!(
+        AutomationStatus::from_str("failed"),
+        AutomationStatus::Failed
+    );
+    assert_eq!(
+        AutomationStatus::from_str("cancelled"),
+        AutomationStatus::Cancelled
+    );
     // Invalid status defaults to Failed
-    assert_eq!(AutomationStatus::from_str("invalid"), AutomationStatus::Failed);
+    assert_eq!(
+        AutomationStatus::from_str("invalid"),
+        AutomationStatus::Failed
+    );
 }
 
 // ============================================================================

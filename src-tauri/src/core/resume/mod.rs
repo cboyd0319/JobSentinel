@@ -80,7 +80,7 @@ pub use templates::{
 // Re-export core types
 pub use types::{
     ContactInfo as AtsContactInfo, Education as AtsEducation, Experience as AtsExperience,
-    JobSkill, MatchResult, MatchResultWithJob, ResumeData as AtsResumeData, Resume, Skill,
+    JobSkill, MatchResult, MatchResultWithJob, Resume, ResumeData as AtsResumeData, Skill,
     UserSkill,
 };
 

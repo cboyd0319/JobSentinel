@@ -153,6 +153,10 @@ All core modules are enabled and functional:
 
 - **Ghost Detection** - Visual indicators for fake/stale job postings
 - Ghost filter dropdown (All/Real/Ghost jobs)
+- **Company Preference Scoring** - Whitelist/blacklist companies with fuzzy matching
+  - Preferred companies get 50% scoring bonus (0.15 vs 0.10 base)
+  - Blocked companies get 0 score
+  - Handles company suffixes automatically (Inc, LLC, Corp, Ltd, etc.)
 - Advanced notification filtering (keywords, salary, company lists)
 - Keyboard shortcuts (b, n, c, /, ?, r, x)
 - Advanced search (AND/OR/NOT, search history)

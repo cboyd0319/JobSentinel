@@ -228,7 +228,10 @@ mod tests {
         assert_eq!(normalize_location("San Francisco, USA"), "san francisco");
         assert_eq!(normalize_location("NYC, United States"), "new york");
         assert_eq!(normalize_location("Austin, TX, US"), "austin, texas");
-        assert_eq!(normalize_location("Seattle, WA, USA"), "seattle, washington");
+        assert_eq!(
+            normalize_location("Seattle, WA, USA"),
+            "seattle, washington"
+        );
     }
 
     #[test]

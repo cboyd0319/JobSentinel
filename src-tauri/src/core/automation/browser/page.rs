@@ -3,7 +3,9 @@
 //! Provides form filling and interaction methods for a browser page.
 
 use anyhow::{Context, Result};
-use chromiumoxide::cdp::browser_protocol::page::{CaptureScreenshotFormat, CaptureScreenshotParams};
+use chromiumoxide::cdp::browser_protocol::page::{
+    CaptureScreenshotFormat, CaptureScreenshotParams,
+};
 use chromiumoxide::Page;
 use serde::{Deserialize, Serialize};
 use std::path::Path;
@@ -199,9 +201,7 @@ impl AutomationPage {
 
         match self.page.find_element(selector).await {
             Ok(element) => {
-                let path_str = file_path
-                    .to_str()
-                    .context("Invalid file path encoding")?;
+                let path_str = file_path.to_str().context("Invalid file path encoding")?;
 
                 // Use CDP to set files on input element
                 let params = SetFileInputFilesParams::builder()
@@ -320,10 +320,7 @@ mod tests {
 
     #[test]
     fn test_fill_result_partial() {
-        let result = FillResult::partial(
-            vec!["email".to_string()],
-            vec!["phone".to_string()],
-        );
+        let result = FillResult::partial(vec!["email".to_string()], vec!["phone".to_string()]);
         assert_eq!(result.filled_fields.len(), 1);
         assert_eq!(result.unfilled_fields.len(), 1);
         assert!(result.ready_for_review);

@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { ScoreDisplay } from "./ScoreDisplay";
+import { ScoreBreakdownModal } from "./ScoreBreakdownModal";
 import { GhostIndicatorCompact } from "./GhostIndicator";
 import { open } from "@tauri-apps/plugin-shell";
 
@@ -36,6 +38,8 @@ interface JobCardProps {
 }
 
 export function JobCard({ job, onViewJob, onHideJob, onToggleBookmark, onEditNotes, onResearchCompany, isSelected = false }: JobCardProps) {
+  const [isScoreModalOpen, setIsScoreModalOpen] = useState(false);
+
   // Security: Validate URL protocol before opening
   const isValidUrl = (url: string): boolean => {
     return url.startsWith("https://") || url.startsWith("http://");
@@ -98,21 +102,30 @@ export function JobCard({ job, onViewJob, onHideJob, onToggleBookmark, onEditNot
   const descSnippet = truncateDescription(job.description);
 
   return (
-    <div
-      className={`
-        group relative bg-white dark:bg-surface-800 rounded-card border transition-all duration-200 ease-out
-        hover:shadow-card-hover hover:-translate-y-0.5
-        ${isSelected
-          ? "ring-2 ring-sentinel-500 dark:ring-sentinel-400 border-sentinel-300 dark:border-sentinel-600"
-          : isHighMatch
-            ? "border-alert-200 dark:border-alert-700 shadow-soft hover:border-alert-300 dark:hover:border-alert-600"
-            : "border-surface-100 dark:border-surface-700 shadow-soft dark:shadow-none hover:border-surface-200 dark:hover:border-surface-600"
-        }
-      `}
-      data-testid="job-card"
-      data-job-id={job.id}
-      data-selected={isSelected || undefined}
-    >
+    <>
+      <ScoreBreakdownModal
+        isOpen={isScoreModalOpen}
+        onClose={() => setIsScoreModalOpen(false)}
+        score={job.score}
+        scoreReasons={job.score_reasons}
+        jobTitle={job.title}
+      />
+
+      <div
+        className={`
+          group relative bg-white dark:bg-surface-800 rounded-card border transition-all duration-200 ease-out
+          hover:shadow-card-hover hover:-translate-y-0.5
+          ${isSelected
+            ? "ring-2 ring-sentinel-500 dark:ring-sentinel-400 border-sentinel-300 dark:border-sentinel-600"
+            : isHighMatch
+              ? "border-alert-200 dark:border-alert-700 shadow-soft hover:border-alert-300 dark:hover:border-alert-600"
+              : "border-surface-100 dark:border-surface-700 shadow-soft dark:shadow-none hover:border-surface-200 dark:hover:border-surface-600"
+          }
+        `}
+        data-testid="job-card"
+        data-job-id={job.id}
+        data-selected={isSelected || undefined}
+      >
       {/* High match indicator */}
       {isHighMatch && (
         <div className="absolute -top-px -left-px -right-px h-1 bg-gradient-to-r from-alert-400 via-alert-500 to-alert-400 rounded-t-card" />
@@ -122,7 +135,14 @@ export function JobCard({ job, onViewJob, onHideJob, onToggleBookmark, onEditNot
         <div className="flex gap-4">
           {/* Score */}
           <div className="flex-shrink-0">
-            <ScoreDisplay score={job.score} size="md" showLabel={false} scoreReasons={job.score_reasons} />
+            <ScoreDisplay
+              score={job.score}
+              size="md"
+              showLabel={false}
+              scoreReasons={job.score_reasons}
+              onClick={() => setIsScoreModalOpen(true)}
+              jobTitle={job.title}
+            />
           </div>
 
           {/* Content */}
@@ -272,6 +292,7 @@ export function JobCard({ job, onViewJob, onHideJob, onToggleBookmark, onEditNot
         </div>
       </div>
     </div>
+    </>
   );
 }
 

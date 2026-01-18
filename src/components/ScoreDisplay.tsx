@@ -6,6 +6,8 @@ interface ScoreDisplayProps {
   showLabel?: boolean;
   animate?: boolean;
   scoreReasons?: string | null; // JSON array of reason strings
+  onClick?: () => void; // Optional click handler for opening modal
+  jobTitle?: string; // Optional job title for modal
 }
 
 /**
@@ -154,6 +156,7 @@ export function ScoreDisplay({
   showLabel = true,
   animate = true,
   scoreReasons,
+  onClick,
 }: ScoreDisplayProps) {
   const percentage = Math.round(score * 100);
   const scoreInfo = getScoreInfo(score);
@@ -183,7 +186,10 @@ export function ScoreDisplay({
       content={<ScoreBreakdownTooltip score={score} scoreReasons={scoreReasons} />}
       position="top"
     >
-      <div className="inline-flex flex-col items-center gap-1 cursor-help">
+      <div
+        className={`inline-flex flex-col items-center gap-1 ${onClick ? "cursor-pointer" : "cursor-help"}`}
+        onClick={onClick}
+      >
         <div className={`relative ${config.container} ${score >= 0.9 ? colors.glow : ""} rounded-full`}>
           <svg className="w-full h-full -rotate-90" viewBox="0 0 80 80" aria-hidden="true">
             {/* Background ring */}

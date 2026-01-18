@@ -5,11 +5,11 @@
 
 use crate::core::health::{
     check_linkedin_cookie_health, get_all_scraper_health,
-    get_expiring_credentials as fetch_expiring_credentials,
-    get_health_summary as health_summary, get_scraper_configs as scraper_configs,
-    get_scraper_runs as scraper_runs, run_all_smoke_tests as all_smoke_tests,
-    run_smoke_test, set_scraper_enabled as scraper_enabled, CredentialHealth, HealthSummary,
-    ScraperConfig, ScraperHealthMetrics, ScraperRun, SmokeTestResult,
+    get_expiring_credentials as fetch_expiring_credentials, get_health_summary as health_summary,
+    get_scraper_configs as scraper_configs, get_scraper_runs as scraper_runs,
+    run_all_smoke_tests as all_smoke_tests, run_smoke_test, set_scraper_enabled as scraper_enabled,
+    CredentialHealth, HealthSummary, ScraperConfig, ScraperHealthMetrics, ScraperRun,
+    SmokeTestResult,
 };
 use crate::core::{Config, Database};
 use std::sync::Arc;
@@ -22,9 +22,7 @@ pub async fn get_scraper_health(
     db: State<'_, Arc<Mutex<Database>>>,
 ) -> Result<Vec<ScraperHealthMetrics>, String> {
     let db = db.lock().await;
-    get_all_scraper_health(&db)
-        .await
-        .map_err(|e| e.to_string())
+    get_all_scraper_health(&db).await.map_err(|e| e.to_string())
 }
 
 /// Get health summary statistics

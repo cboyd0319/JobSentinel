@@ -111,15 +111,12 @@ pub async fn get_ghost_config(state: State<'_, AppState>) -> Result<Value, Strin
 
 /// Update ghost detection configuration
 #[tauri::command]
-pub async fn set_ghost_config(
-    config: Value,
-    _state: State<'_, AppState>,
-) -> Result<(), String> {
+pub async fn set_ghost_config(config: Value, _state: State<'_, AppState>) -> Result<(), String> {
     tracing::info!("Command: set_ghost_config");
 
     // Parse GhostConfig from JSON
-    let ghost_config: GhostConfig = serde_json::from_value(config)
-        .map_err(|e| format!("Invalid ghost config: {}", e))?;
+    let ghost_config: GhostConfig =
+        serde_json::from_value(config).map_err(|e| format!("Invalid ghost config: {}", e))?;
 
     // Validate ranges
     if ghost_config.stale_threshold_days < 1 {
@@ -197,14 +194,10 @@ pub async fn reset_ghost_config(_state: State<'_, AppState>) -> Result<(), Strin
 pub async fn mark_job_as_real(job_id: i64, state: State<'_, AppState>) -> Result<(), String> {
     tracing::info!("Command: mark_job_as_real (job_id: {})", job_id);
 
-    state
-        .database
-        .mark_job_as_real(job_id)
-        .await
-        .map_err(|e| {
-            tracing::error!("Failed to mark job as real: {}", e);
-            format!("Database error: {}", e)
-        })
+    state.database.mark_job_as_real(job_id).await.map_err(|e| {
+        tracing::error!("Failed to mark job as real: {}", e);
+        format!("Database error: {}", e)
+    })
 }
 
 /// Mark a job as ghost (user confirms it's a fake/ghost job)
@@ -212,14 +205,10 @@ pub async fn mark_job_as_real(job_id: i64, state: State<'_, AppState>) -> Result
 pub async fn mark_job_as_ghost(job_id: i64, state: State<'_, AppState>) -> Result<(), String> {
     tracing::info!("Command: mark_job_as_ghost (job_id: {})", job_id);
 
-    state
-        .database
-        .mark_job_as_ghost(job_id)
-        .await
-        .map_err(|e| {
-            tracing::error!("Failed to mark job as ghost: {}", e);
-            format!("Database error: {}", e)
-        })
+    state.database.mark_job_as_ghost(job_id).await.map_err(|e| {
+        tracing::error!("Failed to mark job as ghost: {}", e);
+        format!("Database error: {}", e)
+    })
 }
 
 /// Get user's verdict for a job
@@ -244,10 +233,7 @@ pub async fn get_ghost_feedback(
 
 /// Clear user feedback for a job
 #[tauri::command]
-pub async fn clear_ghost_feedback(
-    job_id: i64,
-    state: State<'_, AppState>,
-) -> Result<(), String> {
+pub async fn clear_ghost_feedback(job_id: i64, state: State<'_, AppState>) -> Result<(), String> {
     tracing::info!("Command: clear_ghost_feedback (job_id: {})", job_id);
 
     state

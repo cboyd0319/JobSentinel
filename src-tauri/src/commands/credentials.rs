@@ -18,8 +18,8 @@ pub struct CredentialStatus {
 pub async fn store_credential(key: String, value: String) -> Result<(), String> {
     tracing::info!("Command: store_credential for {}", key);
 
-    let cred_key = CredentialKey::from_str(&key)
-        .ok_or_else(|| format!("Unknown credential key: {key}"))?;
+    let cred_key =
+        CredentialKey::from_str(&key).ok_or_else(|| format!("Unknown credential key: {key}"))?;
 
     CredentialStore::store(cred_key, &value)
 }
@@ -29,8 +29,8 @@ pub async fn store_credential(key: String, value: String) -> Result<(), String> 
 pub async fn retrieve_credential(key: String) -> Result<Option<String>, String> {
     tracing::info!("Command: retrieve_credential for {}", key);
 
-    let cred_key = CredentialKey::from_str(&key)
-        .ok_or_else(|| format!("Unknown credential key: {key}"))?;
+    let cred_key =
+        CredentialKey::from_str(&key).ok_or_else(|| format!("Unknown credential key: {key}"))?;
 
     CredentialStore::retrieve(cred_key)
 }
@@ -40,8 +40,8 @@ pub async fn retrieve_credential(key: String) -> Result<Option<String>, String> 
 pub async fn delete_credential(key: String) -> Result<(), String> {
     tracing::info!("Command: delete_credential for {}", key);
 
-    let cred_key = CredentialKey::from_str(&key)
-        .ok_or_else(|| format!("Unknown credential key: {key}"))?;
+    let cred_key =
+        CredentialKey::from_str(&key).ok_or_else(|| format!("Unknown credential key: {key}"))?;
 
     CredentialStore::delete(cred_key)
 }
@@ -51,8 +51,8 @@ pub async fn delete_credential(key: String) -> Result<(), String> {
 pub async fn has_credential(key: String) -> Result<bool, String> {
     tracing::info!("Command: has_credential for {}", key);
 
-    let cred_key = CredentialKey::from_str(&key)
-        .ok_or_else(|| format!("Unknown credential key: {key}"))?;
+    let cred_key =
+        CredentialKey::from_str(&key).ok_or_else(|| format!("Unknown credential key: {key}"))?;
 
     CredentialStore::exists(cred_key)
 }

@@ -54,11 +54,11 @@ pub struct ScraperRun {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum HealthStatus {
-    Healthy,   // Success in last 24h
-    Degraded,  // Success in last 7 days but not 24h
-    Down,      // No success in 7 days
-    Disabled,  // Scraper disabled
-    Unknown,   // No runs recorded yet
+    Healthy,  // Success in last 24h
+    Degraded, // Success in last 7 days but not 24h
+    Down,     // No success in 7 days
+    Disabled, // Scraper disabled
+    Unknown,  // No runs recorded yet
 }
 
 impl HealthStatus {
@@ -78,10 +78,10 @@ impl HealthStatus {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum SelectorHealth {
-    Healthy,   // All selectors working
-    Degraded,  // Some selectors failing
-    Broken,    // All selectors failing
-    Unknown,   // Not checked yet
+    Healthy,  // All selectors working
+    Degraded, // Some selectors failing
+    Broken,   // All selectors failing
+    Unknown,  // Not checked yet
 }
 
 impl SelectorHealth {

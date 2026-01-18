@@ -323,7 +323,11 @@ impl LinkedInScraper {
         let url = format!("https://www.linkedin.com/jobs/view/{}", job_id);
 
         // Generate hash
-        let location_ref = if location.is_empty() { None } else { Some(location.as_str()) };
+        let location_ref = if location.is_empty() {
+            None
+        } else {
+            Some(location.as_str())
+        };
         let hash = Self::compute_hash(&company, &title, location_ref, &url);
 
         Ok(Some(Job {
@@ -453,7 +457,11 @@ impl LinkedInScraper {
         }
 
         let url = format!("https://www.linkedin.com/jobs/view/{}", job_id);
-        let location_ref = if location.is_empty() { None } else { Some(location.as_str()) };
+        let location_ref = if location.is_empty() {
+            None
+        } else {
+            Some(location.as_str())
+        };
         let hash = Self::compute_hash(&company, &title, location_ref, &url);
 
         Ok(Some(Job {
@@ -555,10 +563,30 @@ mod tests {
 
     #[test]
     fn test_hash_generation() {
-        let hash1 = LinkedInScraper::compute_hash("Google", "Engineer", Some("San Francisco"), "https://linkedin.com/1");
-        let hash2 = LinkedInScraper::compute_hash("Google", "Engineer", Some("San Francisco"), "https://linkedin.com/1");
-        let hash3 = LinkedInScraper::compute_hash("Meta", "Engineer", Some("San Francisco"), "https://linkedin.com/1");
-        let hash4 = LinkedInScraper::compute_hash("Google", "Engineer", Some("New York"), "https://linkedin.com/1");
+        let hash1 = LinkedInScraper::compute_hash(
+            "Google",
+            "Engineer",
+            Some("San Francisco"),
+            "https://linkedin.com/1",
+        );
+        let hash2 = LinkedInScraper::compute_hash(
+            "Google",
+            "Engineer",
+            Some("San Francisco"),
+            "https://linkedin.com/1",
+        );
+        let hash3 = LinkedInScraper::compute_hash(
+            "Meta",
+            "Engineer",
+            Some("San Francisco"),
+            "https://linkedin.com/1",
+        );
+        let hash4 = LinkedInScraper::compute_hash(
+            "Google",
+            "Engineer",
+            Some("New York"),
+            "https://linkedin.com/1",
+        );
 
         assert_eq!(hash1, hash2);
         assert_ne!(hash1, hash3); // Different company

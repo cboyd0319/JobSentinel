@@ -169,7 +169,10 @@ pub fn extract_status_code(error: &anyhow::Error) -> Option<u16> {
     for pattern in ["http ", "status: ", "status code: ", "code "] {
         if let Some(idx) = msg.to_lowercase().find(pattern) {
             let start = idx + pattern.len();
-            let code_str: String = msg[start..].chars().take_while(|c| c.is_ascii_digit()).collect();
+            let code_str: String = msg[start..]
+                .chars()
+                .take_while(|c| c.is_ascii_digit())
+                .collect();
             if let Ok(code) = code_str.parse::<u16>() {
                 if (100..600).contains(&code) {
                     return Some(code);
@@ -213,8 +216,12 @@ mod tests {
     #[test]
     fn test_is_retryable_error() {
         assert!(is_retryable_error(&anyhow::anyhow!("Connection timeout")));
-        assert!(is_retryable_error(&anyhow::anyhow!("HTTP 429 Too Many Requests")));
-        assert!(is_retryable_error(&anyhow::anyhow!("503 Service Unavailable")));
+        assert!(is_retryable_error(&anyhow::anyhow!(
+            "HTTP 429 Too Many Requests"
+        )));
+        assert!(is_retryable_error(&anyhow::anyhow!(
+            "503 Service Unavailable"
+        )));
         assert!(!is_retryable_error(&anyhow::anyhow!("404 Not Found")));
         assert!(!is_retryable_error(&anyhow::anyhow!("Invalid JSON")));
     }
