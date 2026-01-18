@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, lazy, Suspense } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { ErrorBoundary, LoadingSpinner, SkipToContent, CommandPalette, PageErrorBoundary, KeyboardShortcutsHelp, OnboardingProvider, useOnboarding } from "./components";
+import { ErrorBoundary, LoadingSpinner, SkipToContent, CommandPalette, PageErrorBoundary, KeyboardShortcutsHelp, OnboardingProvider, useOnboarding, Navigation } from "./components";
 import { KeyboardShortcutsProvider, useKeyboardShortcuts } from "./contexts/KeyboardShortcutsContext";
 import { logError } from "./utils/errorUtils";
 import { defaultTourSteps } from "./config/tourSteps";
@@ -117,7 +117,12 @@ function App() {
           <CommandPalette />
           <GlobalKeyboardHelp />
           <TourStartTrigger shouldStart={shouldStartTour} onStarted={() => setShouldStartTour(false)} />
-          <div className="min-h-screen" id="main-content">
+          
+          {/* Navigation sidebar */}
+          <Navigation currentPage={currentPage} onNavigate={navigateTo} />
+          
+          {/* Main content with left margin for sidebar */}
+          <div className="min-h-screen ml-16" id="main-content">
             <Suspense fallback={<PageLoader />}>
               {currentPage === "dashboard" && (
                 <PageErrorBoundary pageName="Dashboard">
