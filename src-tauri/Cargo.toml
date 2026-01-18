@@ -11,8 +11,6 @@ edition = "2021"
 
 [features]
 default = []
-gcp = []
-aws = []
 # OCR support for scanned PDFs (uses command-line tesseract + pdftoppm)
 # Requires: tesseract-ocr and poppler-utils installed on system
 ocr = []

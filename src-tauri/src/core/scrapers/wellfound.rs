@@ -85,8 +85,8 @@ impl WellfoundScraper {
         let mut jobs = Vec::new();
 
         // Wellfound uses data attributes and dynamic content
-        // These selectors are based on their typical HTML structure
-        let job_selector = Selector::parse("[data-test='StartupResult'], .styles_component__XXXXX")
+        // These selectors target known Wellfound class patterns
+        let job_selector = Selector::parse("[data-test='StartupResult']")
             .or_else(|_| Selector::parse("div"))
             .expect("fallback selector 'div' is valid CSS");
 

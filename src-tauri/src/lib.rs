@@ -48,12 +48,10 @@
 #![allow(clippy::ignored_unit_patterns)]
 #![allow(clippy::implicit_hasher)]
 
-pub mod cloud;
 pub mod commands;
 /// JobSentinel Core Library
 ///
-/// This library contains all platform-agnostic business logic that can be shared
-/// across desktop (Windows/macOS/Linux) and cloud deployments (GCP/AWS).
+/// This library contains all platform-agnostic business logic for the desktop app.
 // Re-export core modules
 pub mod core;
 pub mod platforms;
