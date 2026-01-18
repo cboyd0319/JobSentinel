@@ -67,7 +67,7 @@ All major features complete:
 - Ghost job detection
 - Multi-channel notifications
 
-**Next:** v2.1 - Official installers, CI/CD pipeline
+**Next:** v2.5 - Market Intelligence UI, Official installers
 
 See `docs/ROADMAP.md` for future plans
 
@@ -78,8 +78,8 @@ See `docs/ROADMAP.md` for future plans
 **JobSentinel** is a privacy-first job search automation desktop app built with Tauri 2.x (Rust backend)
 and React 19 (TypeScript frontend).
 
-**Current Version:** 2.0.0 (January 2026)
-**Primary Target:** Windows 11+ (macOS/Linux planned for v2.0)
+**Current Version:** 2.4.0 (January 2026)
+**Primary Target:** Windows 11+ (macOS/Linux planned for v2.5)
 
 ## Tech Stack
 

@@ -350,8 +350,11 @@ For full technical documentation, see:
 - **Browser extension** — Clip jobs directly from any website
 - **Mobile companion** — Get notifications on your phone
 
-### Just Released (v2.0)
+### Just Released (v2.4)
 
+- **Resume Builder UI Enhancements** — Skill confidence scores, category filtering, proficiency charts
+- **ATS Optimizer Improvements** — Side-by-side job comparison, keyword density heatmap
+- **Import Skills from Resume** — One-click skill import into builder
 - OS-native credential storage (your passwords in Keychain/Credential Manager)
 - Resume Builder with 5 professional templates
 - ATS Optimizer with keyword analysis
