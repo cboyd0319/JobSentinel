@@ -258,6 +258,94 @@ See [docs/features/resume-matcher.md](features/resume-matcher.md) for full docum
 - Mobile companion app (React Native)
 - Company health monitoring (reviews, funding, red flags)
 - GPT-powered cover letter generator
+- **Embedded ML** - See section below
+
+---
+
+## Embedded ML (Future Enhancement)
+
+### Background
+
+The original Python version of JobSentinel (pre-Tauri rewrite, ~Oct 2025) had actual ML capabilities:
+
+- **BERT Embeddings** - Semantic text understanding
+- **Sentence-BERT** (all-MiniLM-L6-v2) - Sentence similarity
+- **spaCy NLP** - Named entity recognition, POS tagging
+- **VADER Sentiment** - Sentiment analysis for job descriptions
+
+These were lost in the Tauri/Rust rewrite. The current version uses **rule-based algorithms**:
+
+- Resume matching: keyword extraction + weighted scoring
+- Salary prediction: statistical regression on H1B data
+- Market intelligence: data aggregation and trend analysis
+
+### Why Not External Services?
+
+JobSentinel must be **100% self-contained** for:
+
+- **Privacy** - No data leaves the user's machine
+- **Security** - No API keys, no external attack surface
+- **Portability** - Works offline, no network dependencies
+- **Simplicity** - No setup required, just install and run
+
+LM Studio, OpenAI, or other external services violate these principles.
+
+### Recommended Approach: Embedded Models
+
+Use Rust-native ML frameworks to ship small models with the application:
+
+| Framework | Pros | Cons |
+|-----------|------|------|
+| **candle** (HuggingFace) | Pure Rust, no C deps, growing ecosystem | Newer, less mature |
+| **ort** (ONNX Runtime) | Mature, wide model support, optimized | C++ deps, larger binary |
+| **burn** | Pure Rust, GPU support, modern API | Very new, smaller ecosystem |
+| **tract** | Pure Rust, ONNX support, lightweight | Less active development |
+
+**Recommendation:** Start with `candle` for pure Rust simplicity, fall back to `ort` if model
+support is needed.
+
+### Potential ML Features
+
+| Feature | Model Type | Use Case |
+|---------|------------|----------|
+| Semantic skill matching | Sentence embeddings | Match skills beyond exact keywords |
+| Job classification | Text classifier | Auto-categorize jobs (remote, contract, etc.) |
+| Resume section parsing | NER model | Extract experience, education, skills |
+| Job quality scoring | Regression model | Predict job posting quality/legitimacy |
+| Cover letter generation | Small LLM (Phi-2, TinyLlama) | Generate personalized cover letters |
+
+### Implementation Plan
+
+1. **Phase 1: Infrastructure**
+   - Add `candle` to Cargo.toml with feature flag `embedded-ml`
+   - Create `src/core/ml/` module structure
+   - Implement model loading/caching from app resources
+
+2. **Phase 2: Sentence Embeddings**
+   - Ship quantized all-MiniLM-L6-v2 (~20MB)
+   - Use for semantic skill matching in resume matcher
+   - Fall back to keyword matching if ML disabled
+
+3. **Phase 3: Additional Models**
+   - Job classification model
+   - Resume section NER
+   - Quality scoring
+
+4. **Phase 4: Optional Small LLM**
+   - Ship Phi-2 or TinyLlama (~1-2GB) as optional download
+   - Use for cover letter generation
+   - Keep as opt-in due to size
+
+### Size Considerations
+
+| Model | Size (Quantized) | Purpose |
+|-------|------------------|---------|
+| all-MiniLM-L6-v2 | ~20MB | Sentence embeddings |
+| DistilBERT | ~65MB | Text classification |
+| Phi-2 | ~1.5GB | Text generation |
+| TinyLlama | ~600MB | Text generation |
+
+Base app should stay under 100MB. Larger models (LLMs) should be optional downloads.
 
 ---
 
