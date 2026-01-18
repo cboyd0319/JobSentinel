@@ -525,3 +525,68 @@ test.describe("One-Click Apply Settings", () => {
     }
   });
 });
+
+test.describe("Navigation Sidebar", () => {
+  test("should display navigation sidebar", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(300);
+
+    // Navigation should be visible
+    const nav = page.locator("nav");
+    await expect(nav.first()).toBeVisible();
+  });
+
+  test("should have all navigation items", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+
+    // Check for navigation buttons
+    const navButtons = page.locator("nav button");
+    const count = await navButtons.count();
+    
+    // Should have at least 5 navigation items
+    expect(count).toBeGreaterThanOrEqual(5);
+  });
+
+  test("should navigate to different pages via sidebar", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(500);
+
+    // Find and click Applications nav button (second one)
+    const navButtons = page.locator("nav button");
+    const applicationsBtn = navButtons.nth(1);
+    
+    if (await applicationsBtn.isVisible().catch(() => false)) {
+      await applicationsBtn.click();
+      await page.waitForTimeout(300);
+      
+      // Should navigate to Applications page
+      const pageContent = await page.textContent("body") || "";
+      expect(pageContent.match(/Applications|Kanban|Track/i)).toBeTruthy();
+    }
+  });
+
+  test("should expand sidebar on hover", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+
+    const nav = page.locator("nav").first();
+    
+    // Get initial width
+    const initialBox = await nav.boundingBox();
+    
+    // Hover over nav
+    await nav.hover();
+    await page.waitForTimeout(300);
+    
+    // Get expanded width
+    const expandedBox = await nav.boundingBox();
+    
+    // Sidebar should expand (width increases)
+    if (initialBox && expandedBox) {
+      expect(expandedBox.width).toBeGreaterThan(initialBox.width);
+    }
+  });
+});
