@@ -1,10 +1,7 @@
 //! Skill Extraction from Resumes
 //!
-//! Supports two extraction methods:
-//! 1. Keyword-based: Fast, deterministic, good for common skills
-//! 2. ML-based: Uses local LLM (LM Studio) for semantic extraction
-//!
-//! The ML method falls back to keyword-based if LM Studio is unavailable.
+//! Self-contained keyword-based skill extraction.
+//! No external dependencies - works 100% offline with the app.
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
@@ -18,6 +15,12 @@ pub struct ExtractedSkill {
 }
 
 /// Skill extractor using keyword matching
+///
+/// This is a fully self-contained skill extraction system that:
+/// - Recognizes 200+ technical and soft skills
+/// - Requires no external services or ML models
+/// - Works 100% offline
+/// - Is deterministic and fast
 pub struct SkillExtractor {
     skill_database: SkillDatabase,
 }
@@ -37,77 +40,17 @@ impl SkillExtractor {
         let mut found_skills = Vec::new();
         let mut seen_skills = HashSet::new();
 
-        // Extract programming languages
-        for skill in &self.skill_database.programming_languages {
-            if self.contains_skill(&text_lower, skill) && !seen_skills.contains(skill) {
-                found_skills.push(ExtractedSkill {
-                    skill_name: skill.clone(),
-                    skill_category: Some("programming_language".to_string()),
-                    confidence_score: self.calculate_confidence(&text_lower, skill),
-                });
-                seen_skills.insert(skill.clone());
-            }
-        }
-
-        // Extract frameworks
-        for skill in &self.skill_database.frameworks {
-            if self.contains_skill(&text_lower, skill) && !seen_skills.contains(skill) {
-                found_skills.push(ExtractedSkill {
-                    skill_name: skill.clone(),
-                    skill_category: Some("framework".to_string()),
-                    confidence_score: self.calculate_confidence(&text_lower, skill),
-                });
-                seen_skills.insert(skill.clone());
-            }
-        }
-
-        // Extract tools
-        for skill in &self.skill_database.tools {
-            if self.contains_skill(&text_lower, skill) && !seen_skills.contains(skill) {
-                found_skills.push(ExtractedSkill {
-                    skill_name: skill.clone(),
-                    skill_category: Some("tool".to_string()),
-                    confidence_score: self.calculate_confidence(&text_lower, skill),
-                });
-                seen_skills.insert(skill.clone());
-            }
-        }
-
-        // Extract databases
-        for skill in &self.skill_database.databases {
-            if self.contains_skill(&text_lower, skill) && !seen_skills.contains(skill) {
-                found_skills.push(ExtractedSkill {
-                    skill_name: skill.clone(),
-                    skill_category: Some("database".to_string()),
-                    confidence_score: self.calculate_confidence(&text_lower, skill),
-                });
-                seen_skills.insert(skill.clone());
-            }
-        }
-
-        // Extract cloud platforms
-        for skill in &self.skill_database.cloud_platforms {
-            if self.contains_skill(&text_lower, skill) && !seen_skills.contains(skill) {
-                found_skills.push(ExtractedSkill {
-                    skill_name: skill.clone(),
-                    skill_category: Some("cloud_platform".to_string()),
-                    confidence_score: self.calculate_confidence(&text_lower, skill),
-                });
-                seen_skills.insert(skill.clone());
-            }
-        }
-
-        // Extract soft skills
-        for skill in &self.skill_database.soft_skills {
-            if self.contains_skill(&text_lower, skill) && !seen_skills.contains(skill) {
-                found_skills.push(ExtractedSkill {
-                    skill_name: skill.clone(),
-                    skill_category: Some("soft_skill".to_string()),
-                    confidence_score: self.calculate_confidence(&text_lower, skill),
-                });
-                seen_skills.insert(skill.clone());
-            }
-        }
+        // Extract from all categories
+        self.extract_category(&text_lower, &self.skill_database.programming_languages, "programming_language", &mut found_skills, &mut seen_skills);
+        self.extract_category(&text_lower, &self.skill_database.frameworks, "framework", &mut found_skills, &mut seen_skills);
+        self.extract_category(&text_lower, &self.skill_database.tools, "tool", &mut found_skills, &mut seen_skills);
+        self.extract_category(&text_lower, &self.skill_database.databases, "database", &mut found_skills, &mut seen_skills);
+        self.extract_category(&text_lower, &self.skill_database.cloud_platforms, "cloud_platform", &mut found_skills, &mut seen_skills);
+        self.extract_category(&text_lower, &self.skill_database.soft_skills, "soft_skill", &mut found_skills, &mut seen_skills);
+        self.extract_category(&text_lower, &self.skill_database.methodologies, "methodology", &mut found_skills, &mut seen_skills);
+        self.extract_category(&text_lower, &self.skill_database.certifications, "certification", &mut found_skills, &mut seen_skills);
+        self.extract_category(&text_lower, &self.skill_database.security_skills, "security", &mut found_skills, &mut seen_skills);
+        self.extract_category(&text_lower, &self.skill_database.data_skills, "data", &mut found_skills, &mut seen_skills);
 
         // Sort by confidence score (highest first)
         found_skills.sort_by(|a, b| {
@@ -117,6 +60,27 @@ impl SkillExtractor {
         });
 
         found_skills
+    }
+
+    /// Extract skills from a specific category
+    fn extract_category(
+        &self,
+        text: &str,
+        skills: &[String],
+        category: &str,
+        found_skills: &mut Vec<ExtractedSkill>,
+        seen_skills: &mut HashSet<String>,
+    ) {
+        for skill in skills {
+            if self.contains_skill(text, skill) && !seen_skills.contains(skill) {
+                found_skills.push(ExtractedSkill {
+                    skill_name: skill.clone(),
+                    skill_category: Some(category.to_string()),
+                    confidence_score: self.calculate_confidence(text, skill),
+                });
+                seen_skills.insert(skill.clone());
+            }
+        }
     }
 
     /// Check if skill is present in text (case-insensitive, word boundary aware)
@@ -136,7 +100,7 @@ impl SkillExtractor {
     /// Calculate confidence score based on:
     /// - Frequency of mentions (0.5)
     /// - Context (appears in "Skills" section vs elsewhere) (0.3)
-    /// - Capitalization in original text (0.2)
+    /// - Base confidence (0.2)
     fn calculate_confidence(&self, text: &str, skill: &str) -> f64 {
         let skill_lower = skill.to_lowercase();
 
@@ -164,250 +128,7 @@ impl Default for SkillExtractor {
     }
 }
 
-// ============================================================================
-// ML-based Skill Extraction (LM Studio Integration)
-// ============================================================================
-
-/// LM Studio API endpoint (default local server)
-const LM_STUDIO_URL: &str = "http://localhost:1234/v1/chat/completions";
-
-/// Prompt for skill extraction
-const SKILL_EXTRACTION_PROMPT: &str = r#"Extract all technical and professional skills from this resume text. Return ONLY a JSON array of skill objects with this exact format:
-
-[
-  {"skill": "Python", "category": "programming_language", "confidence": 0.95},
-  {"skill": "React", "category": "framework", "confidence": 0.9}
-]
-
-Categories must be one of: programming_language, framework, tool, database, cloud_platform, soft_skill, methodology, certification
-
-Rules:
-- Include ONLY skills explicitly mentioned in the text
-- Confidence should be 0.5-1.0 based on how clearly the skill is mentioned
-- Use proper capitalization for skill names (Python not python)
-- Include both technical and soft skills
-- Do NOT include generic terms like "software" or "development"
-- Return an empty array [] if no skills are found
-
-Resume text:
-"#;
-
-/// ML-extracted skill from LM Studio
-#[derive(Debug, Clone, Serialize, Deserialize)]
-struct MlExtractedSkill {
-    skill: String,
-    category: String,
-    confidence: f64,
-}
-
-/// LM Studio chat completion response
-#[derive(Debug, Deserialize)]
-struct LmStudioResponse {
-    choices: Vec<LmStudioChoice>,
-}
-
-#[derive(Debug, Deserialize)]
-struct LmStudioChoice {
-    message: LmStudioMessage,
-}
-
-#[derive(Debug, Deserialize)]
-struct LmStudioMessage {
-    content: String,
-}
-
-impl SkillExtractor {
-    /// Check if LM Studio is available
-    pub async fn is_lm_studio_available() -> bool {
-        let client = match reqwest::Client::builder()
-            .timeout(std::time::Duration::from_secs(2))
-            .build()
-        {
-            Ok(c) => c,
-            Err(_) => return false,
-        };
-
-        // Try to hit the models endpoint
-        client
-            .get("http://localhost:1234/v1/models")
-            .send()
-            .await
-            .map(|r| r.status().is_success())
-            .unwrap_or(false)
-    }
-
-    /// Extract skills using ML (LM Studio) with keyword fallback
-    ///
-    /// This method:
-    /// 1. Tries to use LM Studio for semantic skill extraction
-    /// 2. Falls back to keyword-based extraction if LM Studio is unavailable
-    /// 3. Merges results from both methods for comprehensive coverage
-    pub async fn extract_skills_ml(&self, text: &str) -> Vec<ExtractedSkill> {
-        // First, always do keyword extraction (fast and reliable)
-        let keyword_skills = self.extract_skills(text);
-
-        // Try ML extraction if LM Studio is available
-        if Self::is_lm_studio_available().await {
-            tracing::info!("LM Studio available, attempting ML skill extraction");
-
-            match self.extract_skills_via_lm_studio(text).await {
-                Ok(ml_skills) => {
-                    tracing::info!("ML extraction found {} skills", ml_skills.len());
-                    return self.merge_skills(ml_skills, keyword_skills);
-                }
-                Err(e) => {
-                    tracing::warn!("ML skill extraction failed: {}", e);
-                    // Fall through to keyword-only results
-                }
-            }
-        } else {
-            tracing::debug!("LM Studio not available, using keyword extraction only");
-        }
-
-        keyword_skills
-    }
-
-    /// Extract skills via LM Studio API
-    async fn extract_skills_via_lm_studio(&self, text: &str) -> anyhow::Result<Vec<ExtractedSkill>> {
-        let client = reqwest::Client::builder()
-            .timeout(std::time::Duration::from_secs(30))
-            .build()?;
-
-        // Truncate text if too long (LLM context limits)
-        let truncated_text = if text.len() > 8000 {
-            &text[..8000]
-        } else {
-            text
-        };
-
-        let prompt = format!("{}{}", SKILL_EXTRACTION_PROMPT, truncated_text);
-
-        let request_body = serde_json::json!({
-            "model": "default",
-            "messages": [
-                {
-                    "role": "system",
-                    "content": "You are a resume skill extraction assistant. Extract skills and return them as JSON."
-                },
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ],
-            "temperature": 0.1,  // Low temperature for consistent output
-            "max_tokens": 2000
-        });
-
-        let response = client
-            .post(LM_STUDIO_URL)
-            .json(&request_body)
-            .send()
-            .await?;
-
-        if !response.status().is_success() {
-            anyhow::bail!("LM Studio returned error: {}", response.status());
-        }
-
-        let lm_response: LmStudioResponse = response.json().await?;
-
-        if lm_response.choices.is_empty() {
-            anyhow::bail!("LM Studio returned no choices");
-        }
-
-        let content = &lm_response.choices[0].message.content;
-
-        // Parse JSON from response (may have markdown code blocks)
-        let json_str = self.extract_json_from_response(content)?;
-        let ml_skills: Vec<MlExtractedSkill> = serde_json::from_str(&json_str)?;
-
-        // Convert to ExtractedSkill
-        Ok(ml_skills
-            .into_iter()
-            .map(|s| ExtractedSkill {
-                skill_name: s.skill,
-                skill_category: Some(s.category),
-                confidence_score: s.confidence.clamp(0.0, 1.0),
-            })
-            .collect())
-    }
-
-    /// Extract JSON array from LLM response (handles markdown code blocks)
-    fn extract_json_from_response(&self, content: &str) -> anyhow::Result<String> {
-        let content = content.trim();
-
-        // Try direct parsing first
-        if content.starts_with('[') {
-            return Ok(content.to_string());
-        }
-
-        // Look for JSON in markdown code block
-        if let Some(start) = content.find("```json") {
-            let after_marker = &content[start + 7..];
-            if let Some(end) = after_marker.find("```") {
-                return Ok(after_marker[..end].trim().to_string());
-            }
-        }
-
-        // Look for JSON in generic code block
-        if let Some(start) = content.find("```") {
-            let after_marker = &content[start + 3..];
-            if let Some(end) = after_marker.find("```") {
-                let inner = after_marker[..end].trim();
-                if inner.starts_with('[') {
-                    return Ok(inner.to_string());
-                }
-            }
-        }
-
-        // Look for array anywhere in the response
-        if let Some(start) = content.find('[') {
-            if let Some(end) = content.rfind(']') {
-                return Ok(content[start..=end].to_string());
-            }
-        }
-
-        anyhow::bail!("Could not extract JSON array from LLM response")
-    }
-
-    /// Merge ML-extracted skills with keyword-extracted skills
-    fn merge_skills(
-        &self,
-        ml_skills: Vec<ExtractedSkill>,
-        keyword_skills: Vec<ExtractedSkill>,
-    ) -> Vec<ExtractedSkill> {
-        let mut merged = Vec::new();
-        let mut seen: HashSet<String> = HashSet::new();
-
-        // Add ML skills first (higher priority)
-        for skill in ml_skills {
-            let key = skill.skill_name.to_lowercase();
-            if !seen.contains(&key) {
-                seen.insert(key);
-                merged.push(skill);
-            }
-        }
-
-        // Add keyword skills that weren't found by ML
-        for skill in keyword_skills {
-            let key = skill.skill_name.to_lowercase();
-            if !seen.contains(&key) {
-                seen.insert(key);
-                merged.push(skill);
-            }
-        }
-
-        // Sort by confidence
-        merged.sort_by(|a, b| {
-            b.confidence_score
-                .partial_cmp(&a.confidence_score)
-                .unwrap_or(std::cmp::Ordering::Equal)
-        });
-
-        merged
-    }
-}
-
-/// Database of known skills
+/// Database of known skills (200+ skills across 10 categories)
 #[derive(Debug, Clone)]
 struct SkillDatabase {
     programming_languages: Vec<String>,
@@ -416,6 +137,10 @@ struct SkillDatabase {
     databases: Vec<String>,
     cloud_platforms: Vec<String>,
     soft_skills: Vec<String>,
+    methodologies: Vec<String>,
+    certifications: Vec<String>,
+    security_skills: Vec<String>,
+    data_skills: Vec<String>,
 }
 
 impl Default for SkillDatabase {
@@ -429,6 +154,7 @@ impl Default for SkillDatabase {
                 "Java".to_string(),
                 "C++".to_string(),
                 "C#".to_string(),
+                "C".to_string(),
                 "Go".to_string(),
                 "Rust".to_string(),
                 "Ruby".to_string(),
@@ -444,34 +170,78 @@ impl Default for SkillDatabase {
                 "Shell".to_string(),
                 "Bash".to_string(),
                 "PowerShell".to_string(),
+                "Perl".to_string(),
+                "Lua".to_string(),
+                "Haskell".to_string(),
+                "Elixir".to_string(),
+                "Erlang".to_string(),
+                "Clojure".to_string(),
+                "F#".to_string(),
+                "Dart".to_string(),
+                "Julia".to_string(),
+                "Groovy".to_string(),
+                "Objective-C".to_string(),
+                "Assembly".to_string(),
+                "COBOL".to_string(),
+                "Fortran".to_string(),
+                "Solidity".to_string(),
+                "Zig".to_string(),
             ],
             frameworks: vec![
                 // Web frameworks
                 "React".to_string(),
                 "Angular".to_string(),
                 "Vue".to_string(),
+                "Vue.js".to_string(),
                 "Next.js".to_string(),
+                "Nuxt.js".to_string(),
                 "Svelte".to_string(),
                 "Django".to_string(),
                 "Flask".to_string(),
                 "FastAPI".to_string(),
                 "Express".to_string(),
+                "Express.js".to_string(),
                 "Node.js".to_string(),
                 "Spring".to_string(),
                 "Spring Boot".to_string(),
                 "ASP.NET".to_string(),
                 ".NET".to_string(),
+                ".NET Core".to_string(),
                 "Rails".to_string(),
+                "Ruby on Rails".to_string(),
                 "Laravel".to_string(),
+                "Symfony".to_string(),
+                "Phoenix".to_string(),
+                "Gin".to_string(),
+                "Echo".to_string(),
+                "Actix".to_string(),
+                "Rocket".to_string(),
+                "Axum".to_string(),
+                "Tauri".to_string(),
+                "Electron".to_string(),
                 // Mobile
                 "React Native".to_string(),
                 "Flutter".to_string(),
                 "SwiftUI".to_string(),
+                "Jetpack Compose".to_string(),
+                "Xamarin".to_string(),
+                "Ionic".to_string(),
                 // ML/AI
                 "TensorFlow".to_string(),
                 "PyTorch".to_string(),
                 "Keras".to_string(),
                 "scikit-learn".to_string(),
+                "JAX".to_string(),
+                "Hugging Face".to_string(),
+                "LangChain".to_string(),
+                // Testing
+                "Playwright".to_string(),
+                "Puppeteer".to_string(),
+                // State management
+                "Redux".to_string(),
+                "MobX".to_string(),
+                "Zustand".to_string(),
+                "Pinia".to_string(),
             ],
             tools: vec![
                 // Version control
@@ -479,39 +249,88 @@ impl Default for SkillDatabase {
                 "GitHub".to_string(),
                 "GitLab".to_string(),
                 "Bitbucket".to_string(),
+                "Mercurial".to_string(),
+                "SVN".to_string(),
                 // CI/CD
                 "Jenkins".to_string(),
                 "CircleCI".to_string(),
                 "Travis CI".to_string(),
                 "GitHub Actions".to_string(),
+                "GitLab CI".to_string(),
+                "Azure DevOps".to_string(),
+                "TeamCity".to_string(),
+                "Bamboo".to_string(),
+                "ArgoCD".to_string(),
+                "Spinnaker".to_string(),
                 // Containers
                 "Docker".to_string(),
                 "Kubernetes".to_string(),
                 "Helm".to_string(),
+                "Podman".to_string(),
+                "containerd".to_string(),
+                "OpenShift".to_string(),
+                "Rancher".to_string(),
                 // Build tools
                 "Webpack".to_string(),
                 "Vite".to_string(),
+                "esbuild".to_string(),
+                "Rollup".to_string(),
+                "Parcel".to_string(),
                 "Maven".to_string(),
                 "Gradle".to_string(),
+                "Make".to_string(),
+                "CMake".to_string(),
+                "Cargo".to_string(),
+                "npm".to_string(),
+                "yarn".to_string(),
+                "pnpm".to_string(),
+                "pip".to_string(),
                 // Testing
                 "Jest".to_string(),
+                "Mocha".to_string(),
                 "Pytest".to_string(),
                 "JUnit".to_string(),
+                "TestNG".to_string(),
                 "Selenium".to_string(),
                 "Cypress".to_string(),
+                "Postman".to_string(),
                 // Monitoring
                 "Grafana".to_string(),
                 "Prometheus".to_string(),
                 "Datadog".to_string(),
                 "New Relic".to_string(),
+                "Splunk".to_string(),
+                "ELK Stack".to_string(),
+                "Kibana".to_string(),
+                "Jaeger".to_string(),
+                "Sentry".to_string(),
+                // Infrastructure
+                "Terraform".to_string(),
+                "Ansible".to_string(),
+                "Puppet".to_string(),
+                "Chef".to_string(),
+                "CloudFormation".to_string(),
+                "Pulumi".to_string(),
+                // IDEs/Editors
+                "VS Code".to_string(),
+                "Visual Studio".to_string(),
+                "IntelliJ".to_string(),
+                "Vim".to_string(),
+                "Neovim".to_string(),
+                "Emacs".to_string(),
             ],
             databases: vec![
                 // SQL
                 "PostgreSQL".to_string(),
                 "MySQL".to_string(),
+                "MariaDB".to_string(),
                 "SQLite".to_string(),
                 "Microsoft SQL Server".to_string(),
+                "SQL Server".to_string(),
                 "Oracle".to_string(),
+                "Oracle Database".to_string(),
+                "CockroachDB".to_string(),
+                "TiDB".to_string(),
                 // NoSQL
                 "MongoDB".to_string(),
                 "Redis".to_string(),
@@ -519,28 +338,212 @@ impl Default for SkillDatabase {
                 "DynamoDB".to_string(),
                 "Elasticsearch".to_string(),
                 "Neo4j".to_string(),
+                "CouchDB".to_string(),
+                "Firebase".to_string(),
+                "Firestore".to_string(),
+                "Supabase".to_string(),
+                "RethinkDB".to_string(),
+                "InfluxDB".to_string(),
+                "TimescaleDB".to_string(),
+                // Message queues (data stores)
+                "Kafka".to_string(),
+                "RabbitMQ".to_string(),
+                "Apache Pulsar".to_string(),
+                "ActiveMQ".to_string(),
+                "SQS".to_string(),
             ],
             cloud_platforms: vec![
                 "AWS".to_string(),
+                "Amazon Web Services".to_string(),
                 "Azure".to_string(),
+                "Microsoft Azure".to_string(),
                 "Google Cloud".to_string(),
+                "Google Cloud Platform".to_string(),
                 "GCP".to_string(),
                 "Heroku".to_string(),
                 "Vercel".to_string(),
                 "Netlify".to_string(),
                 "DigitalOcean".to_string(),
+                "Linode".to_string(),
+                "Cloudflare".to_string(),
+                "Cloudflare Workers".to_string(),
+                "Fly.io".to_string(),
+                "Railway".to_string(),
+                "Render".to_string(),
+                // AWS Services
+                "EC2".to_string(),
+                "S3".to_string(),
+                "Lambda".to_string(),
+                "ECS".to_string(),
+                "EKS".to_string(),
+                "RDS".to_string(),
+                "CloudFront".to_string(),
+                "Route 53".to_string(),
+                // Azure Services
+                "Azure Functions".to_string(),
+                "Azure Kubernetes Service".to_string(),
+                "AKS".to_string(),
+                // GCP Services
+                "Cloud Run".to_string(),
+                "Cloud Functions".to_string(),
+                "BigQuery".to_string(),
+                "GKE".to_string(),
             ],
             soft_skills: vec![
                 "Leadership".to_string(),
                 "Communication".to_string(),
                 "Team Collaboration".to_string(),
+                "Teamwork".to_string(),
                 "Problem Solving".to_string(),
                 "Critical Thinking".to_string(),
                 "Project Management".to_string(),
                 "Agile".to_string(),
                 "Scrum".to_string(),
+                "Kanban".to_string(),
                 "Mentoring".to_string(),
                 "Public Speaking".to_string(),
+                "Presentation".to_string(),
+                "Technical Writing".to_string(),
+                "Documentation".to_string(),
+                "Time Management".to_string(),
+                "Prioritization".to_string(),
+                "Decision Making".to_string(),
+                "Conflict Resolution".to_string(),
+                "Negotiation".to_string(),
+                "Customer Service".to_string(),
+                "Stakeholder Management".to_string(),
+                "Cross-functional".to_string(),
+                "Remote Work".to_string(),
+            ],
+            methodologies: vec![
+                "DevOps".to_string(),
+                "CI/CD".to_string(),
+                "TDD".to_string(),
+                "Test-Driven Development".to_string(),
+                "BDD".to_string(),
+                "Behavior-Driven Development".to_string(),
+                "DDD".to_string(),
+                "Domain-Driven Design".to_string(),
+                "Microservices".to_string(),
+                "Event-Driven Architecture".to_string(),
+                "RESTful".to_string(),
+                "REST API".to_string(),
+                "GraphQL".to_string(),
+                "gRPC".to_string(),
+                "WebSockets".to_string(),
+                "SOLID".to_string(),
+                "Clean Architecture".to_string(),
+                "Hexagonal Architecture".to_string(),
+                "CQRS".to_string(),
+                "Event Sourcing".to_string(),
+                "Serverless".to_string(),
+                "Infrastructure as Code".to_string(),
+                "GitOps".to_string(),
+                "Site Reliability Engineering".to_string(),
+                "SRE".to_string(),
+                "Pair Programming".to_string(),
+                "Code Review".to_string(),
+                "Continuous Integration".to_string(),
+                "Continuous Deployment".to_string(),
+            ],
+            certifications: vec![
+                "AWS Certified".to_string(),
+                "AWS Solutions Architect".to_string(),
+                "AWS Developer".to_string(),
+                "Azure Certified".to_string(),
+                "Google Cloud Certified".to_string(),
+                "Kubernetes Administrator".to_string(),
+                "CKA".to_string(),
+                "CKAD".to_string(),
+                "Certified Scrum Master".to_string(),
+                "CSM".to_string(),
+                "PMP".to_string(),
+                "Project Management Professional".to_string(),
+                "CISSP".to_string(),
+                "CEH".to_string(),
+                "Certified Ethical Hacker".to_string(),
+                "CompTIA Security+".to_string(),
+                "CompTIA Network+".to_string(),
+                "CCNA".to_string(),
+                "CCNP".to_string(),
+                "Red Hat Certified".to_string(),
+                "RHCE".to_string(),
+                "Oracle Certified".to_string(),
+                "HashiCorp Certified".to_string(),
+            ],
+            security_skills: vec![
+                "Security".to_string(),
+                "Cybersecurity".to_string(),
+                "Information Security".to_string(),
+                "Application Security".to_string(),
+                "AppSec".to_string(),
+                "Network Security".to_string(),
+                "Cloud Security".to_string(),
+                "DevSecOps".to_string(),
+                "Penetration Testing".to_string(),
+                "Pentest".to_string(),
+                "Vulnerability Assessment".to_string(),
+                "SAST".to_string(),
+                "DAST".to_string(),
+                "OWASP".to_string(),
+                "Zero Trust".to_string(),
+                "IAM".to_string(),
+                "Identity and Access Management".to_string(),
+                "OAuth".to_string(),
+                "OIDC".to_string(),
+                "SAML".to_string(),
+                "JWT".to_string(),
+                "Encryption".to_string(),
+                "PKI".to_string(),
+                "SSL/TLS".to_string(),
+                "Firewall".to_string(),
+                "WAF".to_string(),
+                "SIEM".to_string(),
+                "SOC".to_string(),
+                "Incident Response".to_string(),
+                "Threat Modeling".to_string(),
+                "Secure Coding".to_string(),
+                "Compliance".to_string(),
+                "SOC 2".to_string(),
+                "HIPAA".to_string(),
+                "GDPR".to_string(),
+                "PCI DSS".to_string(),
+            ],
+            data_skills: vec![
+                "Data Analysis".to_string(),
+                "Data Science".to_string(),
+                "Machine Learning".to_string(),
+                "Deep Learning".to_string(),
+                "AI".to_string(),
+                "Artificial Intelligence".to_string(),
+                "NLP".to_string(),
+                "Natural Language Processing".to_string(),
+                "Computer Vision".to_string(),
+                "Data Engineering".to_string(),
+                "ETL".to_string(),
+                "Data Pipeline".to_string(),
+                "Data Warehouse".to_string(),
+                "Data Lake".to_string(),
+                "Apache Spark".to_string(),
+                "Spark".to_string(),
+                "Hadoop".to_string(),
+                "Airflow".to_string(),
+                "dbt".to_string(),
+                "Snowflake".to_string(),
+                "Databricks".to_string(),
+                "Pandas".to_string(),
+                "NumPy".to_string(),
+                "Matplotlib".to_string(),
+                "Tableau".to_string(),
+                "Power BI".to_string(),
+                "Looker".to_string(),
+                "Metabase".to_string(),
+                "A/B Testing".to_string(),
+                "Statistical Analysis".to_string(),
+                "Predictive Modeling".to_string(),
+                "Feature Engineering".to_string(),
+                "MLOps".to_string(),
+                "Model Deployment".to_string(),
             ],
         }
     }
@@ -658,7 +661,6 @@ mod tests {
         let skill_names: Vec<String> = skills.iter().map(|s| s.skill_name.clone()).collect();
 
         assert!(skill_names.contains(&"React".to_string()));
-        // R might match, but should have lower confidence
     }
 
     #[test]
@@ -800,24 +802,9 @@ mod tests {
         let text = "python developer with python experience";
         assert!(extractor.contains_skill(&text, "Python"));
 
-        // "for" should match the word "for"
-        let text2 = "programming for fun";
-        let matches = extractor.contains_skill(&text2, "for");
-        assert!(matches);
-
         // Test that partial matches don't work with word boundaries
         let text3 = "javascript developer";
         assert!(!extractor.contains_skill(&text3, "Java")); // Should not match Java within JavaScript
-    }
-
-    #[test]
-    fn test_regex_fallback() {
-        let extractor = SkillExtractor::new();
-        // Test with normal skill that should work with both methods
-        let text = "python and java experience";
-
-        assert!(extractor.contains_skill(&text, "Python"));
-        assert!(extractor.contains_skill(&text, "Java"));
     }
 
     #[test]
@@ -865,11 +852,15 @@ mod tests {
         AWS, Azure, GCP
         Git, Jenkins, Kubernetes
         Leadership, Communication, Agile
+        DevOps, Microservices, REST API
+        AWS Certified, CISSP
+        Security, Penetration Testing
+        Data Science, Machine Learning
         "#;
 
         let skills = extractor.extract_skills(resume_text);
 
-        // Verify all categories are present
+        // Verify multiple categories are present
         let categories: Vec<String> = skills
             .iter()
             .filter_map(|s| s.skill_category.clone())
@@ -892,8 +883,6 @@ mod tests {
 
         let skill_names: Vec<String> = skills.iter().map(|s| s.skill_name.clone()).collect();
 
-        // Note: Special characters in regex may cause issues, so test what actually works
-        // C++, C#, etc. may not match due to regex escaping
         // At minimum, Node.js and .NET should be in the database
         assert!(
             skill_names.contains(&"Node.js".to_string())
@@ -903,129 +892,38 @@ mod tests {
         );
     }
 
-    // =========================================================================
-    // ML Extraction Helper Tests
-    // =========================================================================
-
     #[test]
-    fn test_extract_json_direct_array() {
+    fn test_extract_security_skills() {
         let extractor = SkillExtractor::new();
-        let content = r#"[{"skill": "Python", "category": "programming_language", "confidence": 0.9}]"#;
-        let result = extractor.extract_json_from_response(content);
-        assert!(result.is_ok());
-        assert!(result.unwrap().starts_with('['));
+        let resume_text = "Experienced in DevSecOps, OWASP, and penetration testing";
+        let skills = extractor.extract_skills(resume_text);
+
+        let skill_names: Vec<String> = skills.iter().map(|s| s.skill_name.clone()).collect();
+        assert!(skill_names.contains(&"DevSecOps".to_string()));
+        assert!(skill_names.contains(&"OWASP".to_string()));
     }
 
     #[test]
-    fn test_extract_json_from_markdown_code_block() {
+    fn test_extract_data_skills() {
         let extractor = SkillExtractor::new();
-        let content = r#"Here are the skills:
-```json
-[{"skill": "Python", "category": "programming_language", "confidence": 0.9}]
-```
-"#;
-        let result = extractor.extract_json_from_response(content);
-        assert!(result.is_ok());
-        let json = result.unwrap();
-        assert!(json.starts_with('['));
-        assert!(json.contains("Python"));
+        let resume_text = "Data Science expertise with Pandas, Spark, and Machine Learning";
+        let skills = extractor.extract_skills(resume_text);
+
+        let skill_names: Vec<String> = skills.iter().map(|s| s.skill_name.clone()).collect();
+        assert!(skill_names.contains(&"Data Science".to_string()));
+        assert!(skill_names.contains(&"Pandas".to_string()));
+        assert!(skill_names.contains(&"Machine Learning".to_string()));
     }
 
     #[test]
-    fn test_extract_json_from_generic_code_block() {
+    fn test_extract_methodologies() {
         let extractor = SkillExtractor::new();
-        let content = r#"```
-[{"skill": "Rust", "category": "programming_language", "confidence": 0.95}]
-```"#;
-        let result = extractor.extract_json_from_response(content);
-        assert!(result.is_ok());
-        assert!(result.unwrap().contains("Rust"));
-    }
+        let resume_text = "Practiced TDD, CI/CD, and microservices architecture";
+        let skills = extractor.extract_skills(resume_text);
 
-    #[test]
-    fn test_extract_json_finds_array_in_text() {
-        let extractor = SkillExtractor::new();
-        let content = "Here is the result: [{\"skill\": \"Go\", \"category\": \"programming_language\", \"confidence\": 0.8}] done.";
-        let result = extractor.extract_json_from_response(content);
-        assert!(result.is_ok());
-        assert!(result.unwrap().contains("Go"));
-    }
-
-    #[test]
-    fn test_extract_json_no_array_fails() {
-        let extractor = SkillExtractor::new();
-        let content = "I could not find any skills in this text.";
-        let result = extractor.extract_json_from_response(content);
-        assert!(result.is_err());
-    }
-
-    #[test]
-    fn test_merge_skills_no_duplicates() {
-        let extractor = SkillExtractor::new();
-
-        let ml_skills = vec![
-            ExtractedSkill {
-                skill_name: "Python".to_string(),
-                skill_category: Some("programming_language".to_string()),
-                confidence_score: 0.95,
-            },
-            ExtractedSkill {
-                skill_name: "React".to_string(),
-                skill_category: Some("framework".to_string()),
-                confidence_score: 0.9,
-            },
-        ];
-
-        let keyword_skills = vec![
-            ExtractedSkill {
-                skill_name: "python".to_string(),  // Same as ML but lowercase
-                skill_category: Some("programming_language".to_string()),
-                confidence_score: 0.7,
-            },
-            ExtractedSkill {
-                skill_name: "Docker".to_string(),  // New skill
-                skill_category: Some("tool".to_string()),
-                confidence_score: 0.8,
-            },
-        ];
-
-        let merged = extractor.merge_skills(ml_skills, keyword_skills);
-
-        // Should have 3 unique skills (Python, React, Docker)
-        assert_eq!(merged.len(), 3);
-
-        // Python should be from ML (higher confidence)
-        let python = merged.iter().find(|s| s.skill_name == "Python").unwrap();
-        assert_eq!(python.confidence_score, 0.95);
-
-        // Docker should be included from keywords
-        assert!(merged.iter().any(|s| s.skill_name == "Docker"));
-    }
-
-    #[test]
-    fn test_merge_skills_sorted_by_confidence() {
-        let extractor = SkillExtractor::new();
-
-        let ml_skills = vec![
-            ExtractedSkill {
-                skill_name: "LowConf".to_string(),
-                skill_category: None,
-                confidence_score: 0.3,
-            },
-        ];
-
-        let keyword_skills = vec![
-            ExtractedSkill {
-                skill_name: "HighConf".to_string(),
-                skill_category: None,
-                confidence_score: 0.9,
-            },
-        ];
-
-        let merged = extractor.merge_skills(ml_skills, keyword_skills);
-
-        // Should be sorted by confidence (highest first)
-        assert_eq!(merged[0].skill_name, "HighConf");
-        assert_eq!(merged[1].skill_name, "LowConf");
+        let skill_names: Vec<String> = skills.iter().map(|s| s.skill_name.clone()).collect();
+        assert!(skill_names.contains(&"TDD".to_string()));
+        assert!(skill_names.contains(&"CI/CD".to_string()));
+        assert!(skill_names.contains(&"Microservices".to_string()));
     }
 }

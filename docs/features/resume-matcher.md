@@ -513,7 +513,7 @@ LIMIT 10;
 - [x] **Education Matching** - Degree level comparison
 - [x] **PDF Export** - Browser print-to-PDF functionality
 - [x] **OCR Support** - Scanned PDF parsing (optional `ocr` feature)
-- [x] **ML Skill Extraction** - LM Studio semantic extraction with fallback
+- [x] **Enhanced Skill Database** - 300+ skills across 10 categories
 
 ### OCR Support (Optional)
 
@@ -529,14 +529,15 @@ When pdf-extract returns < 100 characters, OCR automatically kicks in:
 2. Runs Tesseract on each page
 3. Merges results with page break markers
 
-### ML-based Skill Extraction
+### Self-Contained Skill Extraction
 
-When LM Studio is running at `http://localhost:1234`:
+JobSentinel uses a fully self-contained skill extraction system:
 
-1. Sends resume text with structured JSON prompt
-2. LLM extracts skills with category, confidence, context
-3. Results merged with keyword extraction for comprehensive coverage
-4. Graceful fallback to keyword-only when LM Studio unavailable
+1. **300+ recognized skills** across 10 categories
+2. **Categories**: programming languages, frameworks, tools, databases, cloud platforms,
+   soft skills, methodologies, certifications, security, data
+3. **100% offline** - no external services or network calls required
+4. **Deterministic** - same input always produces same output
 
 ### Future Enhancements
 
@@ -631,7 +632,7 @@ pub struct MatchResult {
 - [x] Database schema (6 tables, 10 indexes)
 - [x] PDF parsing with pdf-extract
 - [x] Text cleaning and section extraction
-- [x] Keyword-based skill extraction (200+ skills)
+- [x] Keyword-based skill extraction (300+ skills, 10 categories)
 - [x] Resume-job matching algorithm
 - [x] Gap analysis generation
 - [x] Confidence scoring
@@ -646,7 +647,7 @@ pub struct MatchResult {
 - [x] **Education Matching** (v2.3) - Degree level comparison
 - [x] **PDF Export** (v2.3) - Browser print-to-PDF
 - [x] **OCR Support** (v2.3) - Scanned PDF parsing via tesseract
-- [x] **ML Skill Extraction** (v2.3) - LM Studio semantic extraction
+- [x] **Enhanced Skill Database** (v2.3) - 300+ skills across 10 categories
 
 ### Future 🔜
 

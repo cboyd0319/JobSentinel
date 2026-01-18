@@ -59,14 +59,13 @@ Major enhancement to JobSentinel's resume module with intelligent matching acros
 - **New Cargo feature**: `ocr` (disabled by default)
 - **System requirements**: Tesseract OCR + poppler-utils installed
 
-#### Phase 7: ML-based Skill Extraction
+#### Phase 7: Enhanced Skill Database
 
-- **Semantic Skill Extraction** - LM Studio integration for intelligent skill detection
-- Sends resume text to local LLM with structured JSON prompt
-- Extracts skill name, category, confidence, and context
-- Graceful fallback to keyword-based extraction when LM Studio unavailable
-- Merges ML results with keyword extraction for comprehensive coverage
-- **New method**: `SkillExtractor::extract_skills_ml()`
+- **Expanded Skill Coverage** - 300+ skills across 10 categories
+- **New categories**: methodology, certification, security, data
+- Added: DevSecOps, OWASP, TDD, CI/CD, MLOps, Terraform, Kubernetes, etc.
+- 100% self-contained - no external dependencies required
+- Works fully offline with deterministic, fast results
 
 #### Weighted Match Scoring Formula
 
@@ -76,7 +75,7 @@ The overall match score now combines three factors:
 overall_score = (skills × 0.5) + (experience × 0.3) + (education × 0.2)
 ```
 
-- **Skills (50%)**: Keyword and semantic skill matching
+- **Skills (50%)**: Comprehensive keyword skill matching (300+ skills)
 - **Experience (30%)**: Years of experience vs job requirements
 - **Education (20%)**: Degree level vs job requirements
 

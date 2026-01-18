@@ -214,7 +214,7 @@ Comprehensive resume enhancement with 7 major features for intelligent job match
 | **Phase 4: Education Matching** | **Done** | Degree level comparison |
 | **Phase 5: PDF Export** | **Done** | Browser print-to-PDF |
 | **Phase 6: OCR Support** | **Done** | Scanned PDF parsing (optional) |
-| **Phase 7: ML Skill Extraction** | **Done** | LM Studio semantic extraction |
+| **Phase 7: Enhanced Skill Database** | **Done** | 300+ skills, 10 categories |
 
 **Weighted Match Scoring:**
 
@@ -234,11 +234,11 @@ overall_score = (skills × 0.5) + (experience × 0.3) + (education × 0.2)
 - Enable with `cargo build --features ocr`
 - Falls back when pdf-extract returns < 100 characters
 
-**ML Extraction:**
+**Self-Contained Skill Extraction:**
 
-- Uses local LM Studio at `http://localhost:1234`
-- Graceful fallback to keyword extraction
-- Merges ML and keyword results
+- 300+ skills across 10 categories
+- 100% offline - no external dependencies
+- Deterministic, fast keyword matching
 
 See [docs/features/resume-matcher.md](features/resume-matcher.md) for full documentation.
 
@@ -274,8 +274,8 @@ Both scrapers fully integrated with scheduler and Settings UI.
 
 Automatically parse resumes and match skills against job requirements.
 
-- PDF parsing with skill extraction
-- Semantic similarity matching
+- PDF parsing with skill extraction (300+ skills, 10 categories)
+- Multi-factor matching (skills, experience, education)
 - Confidence scoring per job match
 - Skills database with proficiency levels
 - 6 Tauri commands exposed
