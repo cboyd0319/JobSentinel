@@ -39,8 +39,8 @@ export function MarketSnapshotCard({ snapshot, loading = false }: MarketSnapshot
     );
   }
 
-  const getSentimentIcon = (sentiment: string) => {
-    switch (sentiment.toLowerCase()) {
+  const getSentimentIcon = (sentiment: string | undefined | null) => {
+    switch ((sentiment ?? "neutral").toLowerCase()) {
       case "bullish":
         return "📈";
       case "bearish":
@@ -50,8 +50,8 @@ export function MarketSnapshotCard({ snapshot, loading = false }: MarketSnapshot
     }
   };
 
-  const getSentimentColor = (sentiment: string) => {
-    switch (sentiment.toLowerCase()) {
+  const getSentimentColor = (sentiment: string | undefined | null) => {
+    switch ((sentiment ?? "neutral").toLowerCase()) {
       case "bullish":
         return "text-green-600 dark:text-green-400";
       case "bearish":
@@ -76,20 +76,20 @@ export function MarketSnapshotCard({ snapshot, loading = false }: MarketSnapshot
         {/* Main stats */}
         <div className="flex flex-wrap gap-6" role="list" aria-label="Market statistics">
           <div role="listitem">
-            <p className="text-2xl font-bold text-surface-900 dark:text-white" aria-label={`${snapshot.total_jobs.toLocaleString()} total jobs`}>
-              {snapshot.total_jobs.toLocaleString()}
+            <p className="text-2xl font-bold text-surface-900 dark:text-white" aria-label={`${(snapshot.total_jobs ?? 0).toLocaleString()} total jobs`}>
+              {(snapshot.total_jobs ?? 0).toLocaleString()}
             </p>
             <p className="text-sm text-surface-500 dark:text-surface-400">Total Jobs</p>
           </div>
           <div role="listitem">
-            <p className="text-2xl font-bold text-green-600 dark:text-green-400" aria-label={`${snapshot.new_jobs_today.toLocaleString()} new jobs today`}>
-              +{snapshot.new_jobs_today.toLocaleString()}
+            <p className="text-2xl font-bold text-green-600 dark:text-green-400" aria-label={`${(snapshot.new_jobs_today ?? 0).toLocaleString()} new jobs today`}>
+              +{(snapshot.new_jobs_today ?? 0).toLocaleString()}
             </p>
             <p className="text-sm text-surface-500 dark:text-surface-400">New Today</p>
           </div>
           <div role="listitem">
-            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400" aria-label={`${snapshot.remote_job_percentage.toFixed(0)} percent remote jobs`}>
-              {snapshot.remote_job_percentage.toFixed(0)}%
+            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400" aria-label={`${(snapshot.remote_job_percentage ?? 0).toFixed(0)} percent remote jobs`}>
+              {(snapshot.remote_job_percentage ?? 0).toFixed(0)}%
             </p>
             <p className="text-sm text-surface-500 dark:text-surface-400">Remote</p>
           </div>
@@ -121,9 +121,11 @@ export function MarketSnapshotCard({ snapshot, loading = false }: MarketSnapshot
         {snapshot.top_location && (
           <Badge variant="surface" role="listitem">📍 Top Location: {snapshot.top_location}</Badge>
         )}
-        <Badge variant="surface" role="listitem">
-          🏭 {snapshot.total_companies_hiring.toLocaleString()} Companies Hiring
-        </Badge>
+        {snapshot.total_companies_hiring != null && (
+          <Badge variant="surface" role="listitem">
+            🏭 {snapshot.total_companies_hiring.toLocaleString()} Companies Hiring
+          </Badge>
+        )}
       </div>
     </Card>
   );

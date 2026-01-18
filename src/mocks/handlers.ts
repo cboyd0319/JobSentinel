@@ -238,6 +238,7 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
         top_company: "BigTech Inc",
         jobs_30d_change: 8.5,
         salary_30d_change: 2.1,
+        market_sentiment: "bullish",
       } as T;
 
     case "run_market_analysis":
@@ -248,6 +249,34 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
 
     case "mark_all_alerts_read":
       return undefined as T;
+
+    // Automation / One-Click Apply
+    case "get_application_profile":
+      return {
+        full_name: "John Doe",
+        email: "john@example.com",
+        phone: "+1 (555) 123-4567",
+        linkedin_url: "https://linkedin.com/in/johndoe",
+        github_url: "https://github.com/johndoe",
+        portfolio_url: "https://johndoe.com",
+        website_url: "https://blog.johndoe.com",
+        resume_path: null,
+        us_work_authorized: true,
+        requires_sponsorship: false,
+        max_applications_per_day: 10,
+        require_manual_approval: true,
+      } as T;
+
+    case "get_automation_stats":
+      return {
+        total_attempts: 42,
+        submitted: 38,
+        pending: 4,
+        success_rate: 90.5,
+      } as T;
+
+    case "list_all_resumes":
+      return [] as T;
 
     // Search history and saved searches
     case "get_search_history":
