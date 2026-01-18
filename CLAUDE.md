@@ -53,75 +53,23 @@ When to spawn sub-agents:
 
 **Before committing, always ask: "Did I update the docs?"**
 
-### 3. CURRENT WORK IN PROGRESS
+### 3. CURRENT STATUS
 
-**Plan documents:**
+**Version:** 2.0.0 (Production Ready)
 
-- **Detailed plan:** `.claude/plans/virtual-puzzling-pretzel.md` (full implementation details)
-- **Public roadmap:** `docs/ROADMAP.md` (high-level priorities + technical debt)
+All major features complete:
 
-**v1.4 Status (Ghost Detection + Data Insights): COMPLETE**
+- OS-native keyring for secure credential storage
+- Resume Builder with 5 ATS-optimized templates
+- ATS Optimizer with keyword analysis
+- One-Click Apply for 7 ATS platforms
+- 13 job board scrapers
+- Ghost job detection
+- Multi-channel notifications
 
-- [x] E1: Ghost Job Detection - COMPLETE
-- [x] E2: Data Insights & Metrics - COMPLETE
-  - Score breakdown tooltip
-  - Application conversion stats
-  - Resume match visualization
-- [x] E3: Backend Persistence - COMPLETE (localStorage → SQLite)
-  - 4 new database migrations
-  - UserDataManager Rust module with 20 Tauri commands
-  - localStorage migration utility for existing users
-- [x] E4: UI Connections & Polish - COMPLETE
-  - Cover letter auto-fill ("Use for Job" button)
-  - Keyboard shortcut badges (ShortcutKey component exported)
-  - Tour integration (link in keyboard help modal)
+**Next:** v2.1 - Official installers, CI/CD pipeline
 
-**v1.5 Status (File Modularization): COMPLETE**
-
-- [x] db/mod.rs: 4442→85 lines (+8 modules)
-- [x] scheduler/mod.rs: 2955→~300 lines (+7 modules)
-- [x] market_intelligence/mod.rs: 2703→~400 lines (+4 modules)
-- [x] db/integrity.rs: 2517→85 lines (→integrity/ dir with 5 modules)
-- [x] config/mod.rs: 2343→~300 lines (+5 modules)
-- [x] Dashboard.tsx: 2315→672 lines (+11 files)
-- [x] ats/mod.rs: 2082→~300 lines (+5 modules)
-
-**v1.6 Status (Additional Refactoring): COMPLETE**
-
-- [x] commands/mod.rs: 1732→94 lines (+9 domain modules)
-- [x] scrapers/lever.rs: 2379→183 lines (tests extracted to lever/tests.rs)
-- [x] salary/mod.rs: 2026→59 lines (+types.rs, analyzer.rs, tests.rs)
-- [x] resume/mod.rs: 1831→440 lines (+types.rs, tests.rs)
-
-**v2.0 Status (Production Release):**
-
-- [x] P0: Keyring Integration - COMPLETE (OS-native credential storage)
-- [x] P3: Integration Tests - COMPLETE (76 new tests across 4 files)
-- [x] P4: Resume Builder + ATS Optimizer - COMPLETE
-  - `builder.rs` - ResumeBuilder with JSON storage, CRUD operations
-  - `templates.rs` - 5 ATS-optimized templates with HTML rendering
-  - `export.rs` - DOCX export (PDF stubbed for later)
-  - `ats_analyzer.rs` - Keyword analysis, format scoring, bullet improver
-  - `ResumeBuilder.tsx` - 7-step wizard frontend
-  - `ResumeOptimizer.tsx` - ATS analysis UI with score visualization
-  - 22 new Tauri commands (10 builder + 3 template + 2 export + 5 ATS + 2 misc)
-- [x] P5: One-Click Apply (Form Filling) - COMPLETE
-  - `automation/mod.rs` - AutomationManager, AtsPlatform, AutomationStatus
-  - `automation/profile.rs` - ProfileManager with ApplicationProfile
-  - `automation/ats_detector.rs` - 7 ATS platform detection (Greenhouse, Lever, Workday, etc.)
-  - `automation/browser/` - BrowserManager + AutomationPage (Chrome DevTools Protocol)
-  - `automation/form_filler.rs` - Platform-specific CSS selectors, field filling
-  - `ApplicationProfile.tsx` - Settings page with Profile and Screening tabs
-  - `components/automation/` - ProfileForm, ScreeningAnswersForm, ApplyButton, ApplicationPreview
-  - 18 new Tauri commands (profile + screening + attempts + browser control)
-  - Human-in-the-loop: fills form, pauses for review, user clicks Submit
-- See `.claude/plans/virtual-puzzling-pretzel.md` for P0-P7 details
-- Remaining: CI/CD, Packaging
-
-**Before starting work:**
-
-1. Read `.claude/plans/virtual-puzzling-pretzel.md` for implementation details
-2. Check `docs/ROADMAP.md` for priorities
+See `docs/ROADMAP.md` for future plans
 
 ---
 

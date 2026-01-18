@@ -11,19 +11,9 @@ Welcome to JobSentinel documentation.
 3. **CHECK FILE SIZES** - Keep files <500 lines. See [ROADMAP.md](ROADMAP.md) for refactoring plan.
 4. **READ CLAUDE.md FIRST** - Contains project context and critical requirements.
 
-### Current Work in Progress
+### Current Version: 2.0.0 (Production Ready)
 
-**Plan documents:**
-
-- **Detailed:** `.claude/plans/virtual-puzzling-pretzel.md` (full specs for E1-E4, P0-P7)
-- **Public:** [ROADMAP.md](ROADMAP.md) (high-level + technical debt)
-
-| Version | Status | Focus |
-|---------|--------|-------|
-| v1.4 | Complete | Ghost detection, data insights, backend persistence |
-| v1.5 | Complete | File modularization (see Technical Debt) |
-| v2.0 | **Complete** | **OS-Native Keyring + Resume Builder + One-Click Apply** |
-| v2.1+ | Planned | CI/CD, Packaging, macOS/Linux installers |
+See [ROADMAP.md](ROADMAP.md) for future plans (v2.1: CI/CD, installers).
 
 ---
 
@@ -174,16 +164,10 @@ Welcome to JobSentinel documentation.
 ### Reports
 
 - **[Security Audit (2026-01-16)](reports/SECURITY_AUDIT_2026-01-16.md)** - Comprehensive security analysis
-- **[v1.0 Status](reports/V1_COMPLETION_STATUS.md)** - Implementation tracking (historical)
-- **[Deep Analysis](reports/archive/DEEP_ANALYSIS_COMPLETE_REPORT.md)** - Historical code analysis (Nov 2025)
 
 ### Planning
 
 - **[Roadmap](ROADMAP.md)** - Feature roadmap and priorities
-
-### Archive
-
-- [One-Click Apply Design](archive/ONE_CLICK_APPLY_AUTOMATION.md) - Original design document (now implemented in v2.0)
 
 ---
 
@@ -237,12 +221,7 @@ docs/
 │   ├── MUTATION_TESTING.md
 │   └── sqlite-configuration.md
 ├── reports/
-│   ├── SECURITY_AUDIT_2026-01-16.md
-│   ├── V1_COMPLETION_STATUS.md
-│   └── archive/
-│       └── DEEP_ANALYSIS_COMPLETE_REPORT.md
-├── archive/               # Design documents
-│   └── ONE_CLICK_APPLY_AUTOMATION.md
+│   └── SECURITY_AUDIT_2026-01-16.md
 └── images/
     ├── dashboard.png
     └── kanban-board.png

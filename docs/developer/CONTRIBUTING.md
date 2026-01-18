@@ -51,18 +51,11 @@ lines. This keeps the main logic focused and tests discoverable.
 
 See `docs/ROADMAP.md` → Technical Debt section for files needing refactoring.
 
-### MANDATORY: Check Current Plan
+### MANDATORY: Check Current Status
 
-**Before starting work, check the plan documents:**
+**Current version:** 2.0.0 (Production Ready)
 
-1. **Detailed plan:** `.claude/plans/virtual-puzzling-pretzel.md` (full implementation specs)
-2. **Public roadmap:** `docs/ROADMAP.md` (priorities + technical debt)
-
-**Current status:**
-
-- **v1.4**: Ghost Detection + Data Insights (complete)
-- **v1.5**: File modularization - db/mod.rs → scheduler → market_intelligence (in progress)
-- **v2.0**: Keyring, CI/CD, Resume Builder, One-Click Apply (see detailed plan)
+See `docs/ROADMAP.md` for future plans and technical debt tracking.
 
 ---
 
@@ -591,7 +584,7 @@ Any other relevant information
 ### Before Requesting
 
 1. Search existing [issues](https://github.com/cboyd0319/JobSentinel/issues)
-2. Check [project roadmap](V1_COMPLETION_STATUS.md)
+2. Check [project roadmap](../ROADMAP.md)
 
 ### Feature Request Template
 
