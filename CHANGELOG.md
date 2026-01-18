@@ -26,6 +26,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Dual-access pattern** - Tauri plugin for frontend, `keyring` crate for backend
 - **Runtime credential validation** - Credentials validated when used, not at config load
 
+### Added - P5: One-Click Apply (Form Filling)
+
+- **Application Profile Management** - Store contact info and work authorization for auto-fill
+  - Full name, email, phone, LinkedIn, GitHub, portfolio URLs
+  - US work authorization and sponsorship status
+  - Max applications per day limit, manual approval requirement
+  - 2 new database tables: `application_profiles`, `screening_answers`
+- **Screening Question Auto-Answers** - Configure regex-based patterns for common questions
+  - Pattern matching for years of experience, salary, relocation, etc.
+  - 8 pre-configured common patterns
+  - Answer types: text, yes/no, textarea, select
+- **ATS Platform Detection** - Automatic detection of 7 ATS platforms
+  - Greenhouse, Lever, Workday, Taleo, iCIMS, BambooHR, Ashby
+  - Platform-specific CSS selectors for form fields
+  - Automation notes per platform
+- **Browser Automation** - Visible Chrome browser with form filling
+  - Uses `chromiumoxide` crate for Chrome DevTools Protocol
+  - Human-in-the-loop design: fills form, pauses for user review
+  - User clicks Submit manually (never auto-submit)
+  - CAPTCHA detection with user prompt
+- **18 new Tauri commands** for automation:
+  - Profile: `upsert_application_profile`, `get_application_profile`
+  - Screening: `upsert_screening_answer`, `get_screening_answers`, `find_answer_for_question`
+  - Attempts: `create_automation_attempt`, `get_automation_attempt`, `approve_automation_attempt`, etc.
+  - Browser: `launch_automation_browser`, `close_automation_browser`, `fill_application_form`
+- **New Frontend**:
+  - `ApplicationProfile.tsx` - Settings page for One-Click Apply
+  - `ProfileForm.tsx` - Contact info and work authorization form
+  - `ScreeningAnswersForm.tsx` - Question pattern configuration
+  - `ApplyButton.tsx` - Quick Apply button with ATS badge
+  - `ApplicationPreview.tsx` - Preview before filling
+
 ### Added - P4: Resume Builder + ATS Optimizer
 
 - **Interactive Resume Builder** - 7-step wizard for creating professional resumes
@@ -60,12 +92,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added `tauri-plugin-secure-storage = "1.4"` - Frontend secure storage API
 - Added `keyring = "3"` with `apple-native`, `windows-native`, `sync-secret-service` features
+- Added `chromiumoxide = "0.7"` with `tokio-runtime` feature - Chrome DevTools Protocol
+- Added `futures-util = "0.3"` - Async stream utilities
 
 ### Tests
 
 - Updated 14 tests for new credential validation behavior
+- **P5: Automation Tests - 26 tests across module**
+  - `ats_detector::tests` - 10 tests for ATS platform detection
+  - `form_filler::tests` - 3 tests for platform-specific selectors
+  - `browser::page::tests` - 4 tests for FillResult struct
+  - `browser::manager::tests` - 2 tests (1 ignored, requires Chrome)
+  - `profile::tests` - 3 tests (ignored, requires database)
+  - `automation::tests` - 3 tests (ignored, requires database)
 - **P3: Integration Tests Expansion - 76 new tests across 4 files**
-  - `automation_integration_test.rs` - 3 tests (placeholder for disabled module)
+  - `automation_integration_test.rs` - 11 tests (ATS detection and status enums)
   - `scheduler_integration_test.rs` - 18 tests for scheduler, scoring, DB operations
   - `database_integration_test.rs` - 22 tests for migrations, constraints, concurrency
   - `api_contract_test.rs` - 33 tests validating all 70 Tauri command signatures

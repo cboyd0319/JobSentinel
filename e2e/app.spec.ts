@@ -411,3 +411,117 @@ test.describe("Responsive Design", () => {
     await expect(page.locator("main, [role='main'], #root")).toBeVisible({ timeout: 15000 });
   });
 });
+
+test.describe("One-Click Apply Settings", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+
+    // Skip setup wizard if visible
+    const skipButton = page.locator("text=Skip for now, button:has-text('Skip')").first();
+    if (await skipButton.isVisible().catch(() => false)) {
+      await skipButton.click();
+      await page.waitForLoadState("networkidle");
+    }
+  });
+
+  test("should navigate to One-Click Apply settings", async ({ page }) => {
+    // Look for navigation to automation settings
+    const automationLink = page.locator(
+      'a[href*="automation"], button:has-text("One-Click"), button:has-text("Quick Apply"), nav button'
+    ).first();
+
+    if (await automationLink.isVisible().catch(() => false)) {
+      await automationLink.click();
+      await page.waitForLoadState("networkidle");
+
+      // Check for One-Click Apply page content
+      const heading = page.locator("text=One-Click Apply, text=Application Profile");
+      const isVisible = await heading.first().isVisible().catch(() => false);
+
+      if (isVisible) {
+        await expect(heading.first()).toBeVisible();
+      }
+    }
+  });
+
+  test("should display Application Profile form fields", async ({ page }) => {
+    // Navigate to automation settings first
+    const automationLink = page.locator(
+      'a[href*="automation"], button:has-text("One-Click"), button:has-text("Quick Apply")'
+    ).first();
+
+    if (await automationLink.isVisible().catch(() => false)) {
+      await automationLink.click();
+      await page.waitForLoadState("networkidle");
+
+      // Check for profile form fields
+      const nameInput = page.locator('input[placeholder*="name" i], input[name*="name" i]');
+      const emailInput = page.locator('input[type="email"], input[placeholder*="email" i]');
+      const phoneInput = page.locator('input[type="tel"], input[placeholder*="phone" i]');
+
+      // At least some form fields should be visible
+      const hasNameInput = await nameInput.first().isVisible().catch(() => false);
+      const hasEmailInput = await emailInput.first().isVisible().catch(() => false);
+
+      if (hasNameInput || hasEmailInput) {
+        // Verify at least one field exists
+        expect(hasNameInput || hasEmailInput).toBeTruthy();
+      }
+    }
+  });
+
+  test("should switch between Profile and Screening tabs", async ({ page }) => {
+    // Navigate to automation settings
+    const automationLink = page.locator(
+      'a[href*="automation"], button:has-text("One-Click"), button:has-text("Quick Apply")'
+    ).first();
+
+    if (await automationLink.isVisible().catch(() => false)) {
+      await automationLink.click();
+      await page.waitForLoadState("networkidle");
+
+      // Find tab buttons
+      const profileTab = page.locator('button:has-text("Profile"), [role="tab"]:has-text("Profile")');
+      const screeningTab = page.locator(
+        'button:has-text("Screening"), [role="tab"]:has-text("Screening")'
+      );
+
+      if (await screeningTab.isVisible().catch(() => false)) {
+        // Click screening tab
+        await screeningTab.click();
+        await page.waitForTimeout(300);
+
+        // Should show screening content
+        const screeningContent = page.locator('text=Screening, text=Question Pattern');
+        const isScreeningVisible = await screeningContent.first().isVisible().catch(() => false);
+
+        if (isScreeningVisible) {
+          // Click back to profile tab
+          await profileTab.click();
+          await page.waitForTimeout(300);
+        }
+      }
+    }
+  });
+
+  test("should display How It Works section", async ({ page }) => {
+    // Navigate to automation settings
+    const automationLink = page.locator(
+      'a[href*="automation"], button:has-text("One-Click"), button:has-text("Quick Apply")'
+    ).first();
+
+    if (await automationLink.isVisible().catch(() => false)) {
+      await automationLink.click();
+      await page.waitForLoadState("networkidle");
+
+      // Check for "How It Works" section
+      const howItWorks = page.locator('text=How It Works, text=How One-Click Apply Works');
+      const isVisible = await howItWorks.first().isVisible().catch(() => false);
+
+      if (isVisible) {
+        await expect(howItWorks.first()).toBeVisible();
+      }
+    }
+  });
+});

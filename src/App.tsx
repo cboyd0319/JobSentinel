@@ -10,8 +10,11 @@ const SetupWizard = lazy(() => import("./pages/SetupWizard"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Applications = lazy(() => import("./pages/Applications"));
 const Resume = lazy(() => import("./pages/Resume"));
+const ResumeBuilder = lazy(() => import("./pages/ResumeBuilder"));
+const ResumeOptimizer = lazy(() => import("./pages/ResumeOptimizer"));
 const Salary = lazy(() => import("./pages/Salary"));
 const Market = lazy(() => import("./pages/Market"));
+const ApplicationProfile = lazy(() => import("./pages/ApplicationProfile"));
 
 // Loading fallback for lazy-loaded pages
 function PageLoader({ message = "Loading..." }: { message?: string }) {
@@ -46,7 +49,7 @@ function TourStartTrigger({ shouldStart, onStarted }: { shouldStart: boolean; on
   return null;
 }
 
-type Page = "dashboard" | "applications" | "resume" | "salary" | "market";
+type Page = "dashboard" | "applications" | "resume" | "resume-builder" | "ats-optimizer" | "salary" | "market" | "automation";
 
 function App() {
   const [isFirstRun, setIsFirstRun] = useState<boolean | null>(null);
@@ -135,6 +138,16 @@ function App() {
                   <Resume onBack={() => navigateTo("dashboard")} />
                 </PageErrorBoundary>
               )}
+              {currentPage === "resume-builder" && (
+                <PageErrorBoundary pageName="Resume Builder" onBack={() => navigateTo("dashboard")}>
+                  <ResumeBuilder onBack={() => navigateTo("dashboard")} />
+                </PageErrorBoundary>
+              )}
+              {currentPage === "ats-optimizer" && (
+                <PageErrorBoundary pageName="ATS Optimizer" onBack={() => navigateTo("dashboard")}>
+                  <ResumeOptimizer onBack={() => navigateTo("dashboard")} />
+                </PageErrorBoundary>
+              )}
               {currentPage === "salary" && (
                 <PageErrorBoundary pageName="Salary" onBack={() => navigateTo("dashboard")}>
                   <Salary onBack={() => navigateTo("dashboard")} />
@@ -143,6 +156,11 @@ function App() {
               {currentPage === "market" && (
                 <PageErrorBoundary pageName="Market" onBack={() => navigateTo("dashboard")}>
                   <Market onBack={() => navigateTo("dashboard")} />
+                </PageErrorBoundary>
+              )}
+              {currentPage === "automation" && (
+                <PageErrorBoundary pageName="One-Click Apply" onBack={() => navigateTo("dashboard")}>
+                  <ApplicationProfile onBack={() => navigateTo("dashboard")} />
                 </PageErrorBoundary>
               )}
             </Suspense>

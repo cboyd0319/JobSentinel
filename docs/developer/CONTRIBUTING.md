@@ -278,10 +278,10 @@ pub async fn scrape_company(&self, company: &GreenhouseCompany) -> Result<Vec<Jo
 **Follow React best practices:**
 
 ```bash
-# Format code
-npm run format
+# Lint and auto-fix code
+npm run lint:fix
 
-# Lint code
+# Lint code (check only)
 npm run lint
 ```
 
@@ -400,7 +400,7 @@ Before submitting:
 
 - [ ] Code compiles without errors (`cargo check`)
 - [ ] All tests pass (`cargo test`)
-- [ ] Code formatted (`cargo fmt`, `npm run format`)
+- [ ] Code formatted (`cargo fmt`, `npm run lint:fix`)
 - [ ] No linter warnings (`cargo clippy`, `npm run lint`)
 - [ ] **Documentation updated** (MANDATORY - see table above)
 - [ ] CHANGELOG.md updated (for ALL significant changes)

@@ -2,13 +2,13 @@
 
 ## Project Status
 
-**Version 1.5.0** (January 17, 2026)
+**Version 2.0.0** (January 17, 2026)
 
 | Component | Status |
 |-----------|--------|
-| Core modules (config, db, scoring, scrapers, scheduler, notify, ghost, ats, resume, salary, market) | Working |
+| Core modules (config, db, scoring, scrapers, scheduler, notify, ghost, ats, resume, salary, market, automation, credentials) | Working |
 | Frontend (React 19 + TypeScript) | Working |
-| Tests | 2029 passing, 21 ignored |
+| Tests | 2150 passing, 31 ignored |
 
 ---
 

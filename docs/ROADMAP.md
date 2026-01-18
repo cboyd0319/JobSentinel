@@ -122,7 +122,7 @@ Continued refactoring of remaining large files.
 
 ### v2.0 - Security & Production Hardening (COMPLETED)
 
-Major security release with OS-native keyring integration and Resume Builder.
+Major security release with OS-native keyring integration, Resume Builder, and One-Click Apply automation.
 
 | Feature | Status | Notes |
 |---------|--------|-------|
@@ -135,6 +135,7 @@ Major security release with OS-native keyring integration and Resume Builder.
 | Updated Settings UI | **Done** | Credential status indicators |
 | **P3 Integration Tests** | **Done** | 76 tests across 4 files |
 | **P4 Resume Builder + ATS Optimizer** | **Done** | Full resume creation and optimization |
+| **P5 One-Click Apply** | **Done** | Form filling automation with human-in-the-loop |
 
 **Credentials secured:**
 
@@ -158,14 +159,27 @@ See [docs/security/KEYRING.md](security/KEYRING.md) for full documentation.
 
 See [docs/features/resume-builder.md](features/resume-builder.md) for full documentation.
 
+**P5 One-Click Apply Features:**
+
+- Human-in-the-loop design (user clicks Submit manually)
+- Application profile management (contact info, URLs, work authorization)
+- Screening question auto-answers with regex patterns
+- ATS platform detection (Greenhouse, Lever, Workday, Taleo, iCIMS, BambooHR, Ashby)
+- Visible browser automation via Chrome DevTools Protocol
+- CAPTCHA detection with user prompts
+- Rate limiting (configurable max applications per day)
+- 18 new Tauri commands
+
+See [docs/features/one-click-apply.md](features/one-click-apply.md) for full documentation.
+
 ### v2.1+ Planned Features
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| One-Click Apply Automation | 40% | Requires legal review |
 | macOS support (.dmg) | Planned | Development done on macOS |
 | Linux support (.deb, .rpm) | Planned | |
 | Browser Extension | Designed | In-page job scoring |
+| CI/CD Pipeline | Planned | Automated builds and releases |
 
 ### v3.0+ Future Ideas
 
@@ -225,14 +239,19 @@ Native OS notifications via Tauri plugin.
 - Notifies on high-match job discoveries
 - Integrated into Dashboard
 
-### One-Click Apply (v2.0+)
+### One-Click Apply (v2.0 - COMPLETE)
 
-Automated application submission.
+Human-in-the-loop form filling automation.
 
-- Headless browser automation
-- Form field detection and filling
-- Requires explicit user consent
-- Legal review needed for ToS compliance
+- Visible browser automation via Chrome DevTools Protocol
+- 7 ATS platforms: Greenhouse, Lever, Workday, Taleo, iCIMS, BambooHR, Ashby
+- Application profile for contact info, URLs, work authorization
+- Screening question auto-answers with regex patterns
+- CAPTCHA detection with user prompts
+- User always clicks Submit manually (never auto-submit)
+- 18 Tauri commands exposed
+
+See [docs/features/one-click-apply.md](features/one-click-apply.md) for full documentation.
 
 ---
 
@@ -267,13 +286,15 @@ Automated application submission.
 
 - All Rust code compiles with 0 errors
 - Clippy passes with 0 warnings (`-D warnings`)
-- 2078+ tests passing, 20 ignored (require file-based database or are doc examples)
+- 2104+ tests passing, 28 ignored (require file-based database or are doc examples)
 - P3 Integration tests: 76 tests across 4 files (api_contract, scheduler, database, automation)
+- P5 Automation tests: 19 tests (12 unit + 7 integration)
 - All modules enabled and functional
-- **70 Tauri commands** for backend modules (20 new for user data)
+- **117 Tauri commands** for backend modules (22 Resume Builder + 18 One-Click Apply)
 - 13 job board scrapers with parallel execution
 - Ghost job detection with repost tracking
 - Backend persistence for all user data (localStorage → SQLite)
+- One-Click Apply automation with 7 ATS platforms
 
 ### Resolved Technical Debt
 

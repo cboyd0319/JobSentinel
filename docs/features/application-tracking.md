@@ -33,11 +33,9 @@ This modular structure keeps code organized and maintainable while supporting fu
 
 ### Screenshot
 
-<p align="center">
-  <img src="images/kanban-board.png" alt="Application Tracker Kanban Board" width="800">
-  <br>
-  <em>Drag cards between columns to update application status</em>
-</p>
+![Application Tracking - Kanban Board](../images/application-tracking.png)
+
+*Drag cards between columns to update application status*
 
 ---
 

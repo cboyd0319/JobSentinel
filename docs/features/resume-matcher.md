@@ -22,6 +22,10 @@ job requirements—let the AI do it for you!
 - **📊 Gap Analysis** - See exactly which skills you're missing
 - **💡 Recommendations** - Get actionable advice on whether to apply
 
+### Screenshot
+
+![Resume Matcher Interface](../images/resume-matcher.png)
+
 ---
 
 ## 🏗️ Architecture

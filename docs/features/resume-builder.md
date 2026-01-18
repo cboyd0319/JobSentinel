@@ -1,170 +1,216 @@
 # Resume Builder & ATS Optimizer
 
-**Added in v2.0.0**
+**Create resumes that actually get past the robots.**
 
-JobSentinel includes a full-featured resume builder and ATS (Applicant Tracking System) optimizer
-to help you create professional, ATS-compatible resumes.
+Most companies use software called "ATS" (Applicant Tracking Systems) to filter resumes
+before a human ever sees them. JobSentinel helps you create resumes that pass these
+filters and land on a recruiter's desk.
 
-## Features Overview
+| Resume Builder | ATS Optimizer |
+|----------------|---------------|
+| ![Resume Builder](../images/resume-builder.png) | ![ATS Optimizer](../images/ats-optimizer.png) |
 
-### Resume Builder
+---
 
-A 7-step wizard that guides you through creating a professional resume:
+## Resume Builder
 
-1. **Contact Information** - Name, email, phone, location, LinkedIn, GitHub, website
-2. **Professional Summary** - 2-3 sentence career overview
-3. **Work Experience** - Add/edit/delete job entries with achievements
-4. **Education** - Degrees, institutions, GPA, honors
-5. **Skills** - Technical and soft skills with proficiency levels
-6. **Preview & Template Selection** - Choose from 5 ATS-optimized templates
-7. **Export** - Download as DOCX or view HTML preview
+Build a professional resume in 7 easy steps:
 
-### ATS Templates
+### Step 1: Contact Info
 
-Five professionally designed templates optimized for ATS parsing:
+Enter your basics:
 
-| Template | Best For | Key Features |
-|----------|----------|--------------|
-| **Classic** | General use | Traditional chronological format |
-| **Modern** | Tech companies | Clean design, subtle styling |
-| **Technical** | Engineering roles | Skills-first layout |
-| **Executive** | Senior positions | Summary-focused, leadership emphasis |
-| **Military** | Veterans | Clearance section, civilian-friendly terms |
+- Name, email, phone, location
+- LinkedIn URL (highly recommended)
+- GitHub, portfolio, or personal website (optional)
 
-All templates follow ATS best practices:
+### Step 2: Professional Summary
 
-- Single-column layout
-- Standard fonts (Arial, Calibri, Times New Roman)
-- No tables, graphics, or icons
-- Clear section headers with proper hierarchy
-- Machine-readable formatting
+Write 2-3 sentences about who you are professionally. Think of it as your elevator pitch.
 
-### ATS Optimizer
+**Good example:**
+> "Security engineer with 8 years of experience protecting financial services
+> infrastructure. Led incident response for a $50B+ organization and reduced
+> security incidents by 40%."
 
-Analyze your resume against job descriptions for maximum ATS compatibility:
+### Step 3: Work Experience
 
-- **Keyword Analysis** - Extracts Required, Preferred, and Industry keywords from job descriptions
-- **Format Scoring** - Checks for ATS compatibility issues
-- **Completeness Scoring** - Ensures all important sections are filled
-- **Suggestions** - Actionable recommendations to improve your resume
-- **Bullet Point Improver** - Enhances achievement statements with power words
+Add your jobs, starting with the most recent. For each position:
 
-## Usage
+- Job title
+- Company name
+- Start and end dates
+- 3-5 bullet points highlighting achievements (not just duties)
 
-### Creating a Resume
+**Pro tip:** Start each bullet with an action verb and include numbers when possible.
 
-1. Navigate to **Resume Builder** from the sidebar
-2. Follow the 7-step wizard, filling in each section
-3. Your progress auto-saves after each step
-4. In Step 6, preview your resume with different templates
-5. In Step 7, export as DOCX for applications
+### Step 4: Education
 
-### Optimizing for a Job
+Add your degrees:
 
-1. Navigate to **Resume Optimizer** from the sidebar
-2. Paste the job description in the left panel
-3. Enter your resume data (or use JSON format)
-4. Click **Analyze** to get your ATS scores
-5. Review keyword matches, missing keywords, and suggestions
-6. Use the bullet improver to enhance achievement statements
+- Degree name and field of study
+- Institution name
+- Graduation date
+- GPA and honors (optional)
 
-## Scores Explained
+### Step 5: Skills
 
-The ATS Optimizer provides four scores:
+List your technical and soft skills:
 
-| Score | Description | Good Range |
-|-------|-------------|------------|
-| **Overall** | Combined ATS compatibility | 80-100 |
-| **Keywords** | Job description keyword matches | 70-100 |
-| **Format** | ATS-safe formatting compliance | 90-100 |
-| **Completeness** | All important sections present | 80-100 |
+- **Technical:** Python, AWS, Kubernetes, SQL, etc.
+- **Soft skills:** Leadership, communication, project management
+- Include proficiency levels if you want (expert, intermediate, etc.)
 
-Color coding:
+### Step 6: Preview
 
-- 🟢 **Green (80-100)**: Excellent
-- 🟡 **Yellow (60-79)**: Good
-- 🟠 **Orange (40-59)**: Needs Work
-- 🔴 **Red (0-39)**: Poor
+Choose from 5 ATS-friendly templates:
 
-## Power Words
+| Template | Best For |
+|----------|----------|
+| **Classic** | General use - works for any industry |
+| **Modern** | Tech companies - clean and minimal |
+| **Technical** | Engineering roles - skills first |
+| **Executive** | Senior positions - leadership focus |
+| **Military** | Veterans - civilian-friendly language |
 
-The ATS Optimizer includes 45+ action verbs proven to improve resume impact:
+All templates are designed to pass ATS filters:
 
-**Leadership:** Led, Managed, Directed, Coordinated, Supervised
+- Single column (no tables that confuse robots)
+- Standard fonts (no fancy stuff)
+- Clear section headers
+- No graphics or icons
 
-**Achievement:** Achieved, Delivered, Exceeded, Increased, Reduced
+### Step 7: Export
 
-**Technical:** Developed, Engineered, Architected, Implemented, Optimized
+Download your resume as a Word document (.docx), ready to upload to any job application.
 
-**Analysis:** Analyzed, Assessed, Evaluated, Identified, Researched
+---
 
-**Communication:** Presented, Negotiated, Collaborated, Mentored, Facilitated
+## ATS Optimizer
+
+Already have a resume? Use the optimizer to see how it scores against a specific job.
+
+### How It Works
+
+1. Paste the job description
+2. Enter your resume info
+3. Click **Analyze**
+4. Get instant feedback
+
+### What You'll See
+
+**Overall Score** - Your combined ATS compatibility (aim for 80+)
+
+**Keyword Match** - How many job description keywords appear in your resume.
+ATS systems look for specific terms - if they're not in your resume, you might
+get filtered out.
+
+**Format Score** - Is your resume ATS-friendly? Single column? Standard fonts?
+Clear sections?
+
+**Completeness** - Are all important sections filled in?
+
+### Color Coding
+
+- 🟢 **80-100** - Excellent! You're likely to pass ATS filters
+- 🟡 **60-79** - Good, but could be better
+- 🟠 **40-59** - Needs work - you might get filtered
+- 🔴 **0-39** - Major issues - probably won't pass
+
+---
+
+## Keyword Matching
+
+The optimizer extracts three types of keywords from job descriptions:
+
+**Required Keywords** - Skills and qualifications explicitly mentioned as required.
+These are must-haves - make sure they're in your resume.
+
+**Preferred Keywords** - Nice-to-haves that give you bonus points.
+Include if you have them.
+
+**Industry Keywords** - Common terms in your field.
+Shows you speak the language.
+
+---
+
+## Bullet Point Improver
+
+Weak bullet points hurt your resume. The improver helps you write stronger ones.
+
+**Before:**
+> "Responsible for managing the security team"
+
+**After:**
+> "Led 12-person security team, reducing incident response time by 35%"
+
+### Power Words
+
+The optimizer suggests 45+ action verbs proven to improve resumes:
+
+- **Leadership:** Led, Managed, Directed, Coordinated
+- **Achievement:** Achieved, Delivered, Exceeded, Reduced
+- **Technical:** Developed, Engineered, Architected, Implemented
+- **Analysis:** Analyzed, Assessed, Evaluated, Identified
+
+---
+
+## Tips for Better Scores
+
+1. **Mirror the job description** - Use the same words they use. If they say
+   "Python", say "Python" (not "python programming language").
+
+2. **Include numbers** - "Increased sales by 25%" beats "Increased sales."
+
+3. **Use standard section headers** - "Experience" not "Professional Journey."
+
+4. **Skip the graphics** - ATS can't read images, logos, or fancy formatting.
+
+5. **Keep it simple** - One column, standard fonts, clear hierarchy.
+
+---
 
 ## Technical Details
 
-### Backend Modules
-
-- `builder.rs` - Resume data model and CRUD operations
-- `templates.rs` - HTML template rendering
-- `export.rs` - DOCX generation using docx-rs
-- `ats_analyzer.rs` - Keyword extraction and scoring
-
-### Frontend Components
-
-- `ResumeBuilder.tsx` - 7-step wizard page
-- `ResumeOptimizer.tsx` - ATS analysis page
+<details>
+<summary><strong>For developers and the curious</strong></summary>
 
 ### Database
 
-Resumes are stored as JSON in the `resume_drafts` table:
+Resumes are stored as JSON in the `resume_drafts` table, auto-saved after each step.
 
-```sql
-CREATE TABLE resume_drafts (
-    id INTEGER PRIMARY KEY,
-    data TEXT NOT NULL,  -- JSON serialized ResumeData
-    created_at TEXT,
-    updated_at TEXT
-);
-```
-
-### Tauri Commands
+### Tauri Commands (22 total)
 
 **Builder:**
 
-- `create_resume_draft` - Create new empty draft
-- `get_resume_draft` - Retrieve draft by ID
-- `update_resume_contact` - Update contact info
-- `update_resume_summary` - Update professional summary
-- `add_resume_experience` - Add work experience
-- `delete_resume_experience` - Remove work experience
-- `add_resume_education` - Add education entry
-- `delete_resume_education` - Remove education entry
-- `set_resume_skills` - Set skills list
-- `delete_resume_draft` - Delete draft
+- `create_resume_draft`, `get_resume_draft`, `delete_resume_draft`
+- `update_resume_contact`, `update_resume_summary`
+- `add_resume_experience`, `delete_resume_experience`
+- `add_resume_education`, `delete_resume_education`
+- `set_resume_skills`
 
 **Templates:**
 
-- `list_resume_templates` - Get available templates
-- `render_resume_html` - Render to HTML
-- `render_resume_text` - Render to plain text
+- `list_resume_templates`, `render_resume_html`, `render_resume_text`
 
 **Export:**
 
-- `export_resume_docx` - Export to DOCX format
-- `export_resume_text` - Export to plain text
+- `export_resume_docx`, `export_resume_text`
 
 **ATS Analysis:**
 
-- `analyze_resume_for_job` - Analyze against job description
-- `analyze_resume_format` - Check format compliance
-- `extract_job_keywords` - Extract keywords from job description
-- `get_ats_power_words` - Get list of action verbs
-- `improve_bullet_point` - Enhance achievement statement
+- `analyze_resume_for_job`, `analyze_resume_format`
+- `extract_job_keywords`, `get_ats_power_words`, `improve_bullet_point`
 
-## Future Enhancements
+### Backend Files
 
-- PDF export (currently stubbed)
-- AI-powered content suggestions
-- Resume version history
-- Template customization
-- Direct job application integration
+- `builder.rs` - Resume data model and CRUD
+- `templates.rs` - HTML template rendering
+- `export.rs` - DOCX generation
+- `ats_analyzer.rs` - Keyword extraction and scoring
+
+</details>
+
+---
+
+**Version:** 2.0.0 | **Last Updated:** January 17, 2026

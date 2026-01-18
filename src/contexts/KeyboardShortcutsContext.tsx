@@ -151,6 +151,27 @@ export function KeyboardShortcutsProvider({
         category: "navigation",
       },
       {
+        key: "6",
+        modifiers: ["meta"],
+        description: "Go to One-Click Apply",
+        action: () => onNavigate?.("automation"),
+        category: "navigation",
+      },
+      {
+        key: "7",
+        modifiers: ["meta"],
+        description: "Go to Resume Builder",
+        action: () => onNavigate?.("resume-builder"),
+        category: "navigation",
+      },
+      {
+        key: "8",
+        modifiers: ["meta"],
+        description: "Go to ATS Optimizer",
+        action: () => onNavigate?.("ats-optimizer"),
+        category: "navigation",
+      },
+      {
         key: "Escape",
         modifiers: [],
         description: "Close dialog / command palette",

@@ -1,256 +1,171 @@
 # Ghost Job Detection
 
-**Version:** 1.4.0
-**Status:** Production Ready
-**Last Updated:** January 17, 2026
+**Stop wasting time on fake job postings.**
 
-Ghost jobs are job postings that aren't genuine opportunities - they may be already filled,
-posted to collect resumes, or simply abandoned. JobSentinel's Ghost Detection feature helps you
-focus on real opportunities by identifying and flagging suspicious listings.
+Ever applied to a job and heard nothing back? There's a good chance it was a "ghost job" -
+a posting that isn't real. JobSentinel spots these so you can focus on real opportunities.
 
-## Overview
+---
 
-The Ghost Detection system analyzes each job posting against multiple signals to calculate a
-"ghost score" from 0.0 (definitely real) to 1.0 (likely ghost). Jobs scoring 0.5 or higher
-are flagged with visual indicators.
+## What's a Ghost Job?
 
-## Detection Signals
+Ghost jobs are job postings that aren't genuine opportunities:
 
-### 1. Stale Postings (Weight: 0.25)
+- **Already filled** - The company hired someone but left the posting up
+- **Resume harvesting** - Just collecting resumes with no intent to hire
+- **Abandoned** - Posted 6 months ago and forgotten
+- **Evergreen** - Always posted, rarely actually hiring
+- **Internal promotion** - Already know who they're hiring
 
-Jobs posted more than 60 days ago are increasingly likely to be filled or abandoned.
+Studies suggest **30-50% of job postings online are ghosts.** That's a lot of wasted applications.
 
-| Age | Score Impact |
-|-----|--------------|
-| < 30 days | 0.0 |
-| 30-60 days | 0.1 |
-| 60-90 days | 0.2 |
-| > 90 days | 0.25 |
+---
 
-### 2. Frequent Reposts (Weight: 0.2)
+## How JobSentinel Detects Ghosts
 
-Jobs that are repeatedly reposted suggest the company isn't seriously hiring.
+Every job gets analyzed against multiple signals. The result is a "ghost score" from 0% to 100%:
 
-| Repost Count | Score Impact |
-|--------------|--------------|
-| 0-1 | 0.0 |
-| 2-3 | 0.1 |
-| 4-5 | 0.15 |
-| 6+ | 0.2 |
+| Score | What It Means |
+|-------|---------------|
+| **0-49%** | Looks legitimate |
+| **50-59%** | Some concerns (yellow flag) |
+| **60-74%** | Multiple warning signs (orange flag) |
+| **75%+** | Probably a ghost (red flag) |
 
-### 3. Generic/Vague Descriptions (Weight: 0.15)
+### What We Look For
 
-Legitimate job postings typically have detailed, specific descriptions.
+**Stale Postings**
 
-**Detected phrases:**
+- Posted 30-60 days ago? Mild concern.
+- Posted 60-90 days ago? Getting suspicious.
+- Posted 90+ days ago? Almost certainly filled or abandoned.
+
+**Frequent Reposts**
+
+Companies that keep reposting the same job usually aren't serious about hiring.
+If we've seen this exact job 3+ times, that's a red flag.
+
+**Vague Descriptions**
+
+Real jobs have specific requirements. Ghost jobs use generic phrases like:
 
 - "Fast-paced environment"
 - "Self-starter"
 - "Wear many hats"
-- "Rockstar" / "Ninja" / "Guru"
-- "Competitive salary" (without specifics)
-- "Great opportunity"
+- "Rockstar developer"
+- "Competitive salary" (without actual numbers)
 
-### 4. Missing Salary Information (Weight: 0.1)
+**Missing Salary**
 
-While not definitive, missing salary information can indicate less serious postings.
+While not definitive, jobs that hide salary info are more likely to be ghosts.
+Real employers who want real candidates usually post real numbers.
 
-### 5. Vague Titles (Weight: 0.15)
+**Weird Titles**
 
-Overly generic titles often indicate placeholder or mass-posted jobs.
+Generic titles like "Developer" or "Various Positions" often indicate mass-posted,
+low-quality listings.
 
-**Flagged patterns:**
+**Too Many Openings**
 
-- Single-word titles (e.g., "Developer")
-- Titles with only "I", "II", "III" suffixes
-- "Various Positions"
-- "Multiple Openings"
+A company with 200+ open positions for the same role? They're probably not actually
+hiring for all of them.
 
-### 6. Excessive Company Openings (Weight: 0.1)
+---
 
-Companies with unusually high numbers of open positions may be posting speculatively.
+## Using Ghost Detection
 
-| Open Positions | Score Impact |
-|----------------|--------------|
-| < 50 | 0.0 |
-| 50-100 | 0.05 |
-| 100-200 | 0.08 |
-| 200+ | 0.1 |
+### On the Dashboard
 
-### 7. Unrealistic Requirements (Weight: 0.15)
+Ghost jobs show a colored badge:
 
-Job postings requesting excessive experience for entry-level positions.
+- 🟡 **Yellow** - Minor concerns
+- 🟠 **Orange** - Multiple warning signs
+- 🔴 **Red** - Probably fake
 
-**Detected patterns:**
+Hover over the badge to see why it was flagged.
 
-- "10+ years experience" for standard roles
-- "Entry level" combined with "5+ years"
-- Impossible technology stacks (e.g., "15 years Kubernetes experience")
+### Ghost Filter
 
-## Confidence Scoring
-
-The system tracks confidence in its analysis based on available data:
-
-| Data Available | Base Confidence |
-|----------------|-----------------|
-| Title only | 0.3 |
-| + Description | 0.5 |
-| + Salary info | 0.7 |
-| + Company history | 0.8 |
-| + Repost data | 0.9 |
-
-## User Interface
-
-### Dashboard Filter
-
-The Dashboard includes a ghost filter dropdown with three options:
+Use the dropdown filter above your job list:
 
 - **All Jobs** - Show everything (default)
-- **Real Jobs Only** - Hide jobs with ghost score >= 0.5
-- **Ghost Jobs** - Show only flagged jobs for review
+- **Real Jobs Only** - Hide anything with ghost score ≥ 50%
+- **Ghost Jobs** - See only flagged jobs (useful for curiosity)
 
-### Ghost Indicator
+Most people use "Real Jobs Only" to avoid wasting time.
 
-Flagged jobs display a ghost icon with severity-based coloring:
+---
 
-| Ghost Score | Severity | Color |
-|-------------|----------|-------|
-| 0.5 - 0.59 | Low | Yellow |
-| 0.6 - 0.74 | Medium | Orange |
-| 0.75+ | High | Red |
+## Should You Apply to Flagged Jobs?
 
-Hovering over the indicator shows a tooltip with:
+It depends on the flag color:
 
-- Confidence percentage
-- Top 3 reasons for the ghost score
+**Yellow (50-59%)** - Probably fine. The job might just be slightly old or have a
+generic description. Apply if it interests you.
 
-### Job Card Integration
+**Orange (60-74%)** - Be cautious. Something's off. Maybe apply if it's a dream company,
+but don't expect much.
 
-Ghost indicators appear in the job card metadata row, positioned before the location.
+**Red (75%+)** - Skip it. Save your energy for real opportunities.
 
-## Database Schema
-
-### Jobs Table Additions
-
-```sql
-ALTER TABLE jobs ADD COLUMN ghost_score REAL;
-ALTER TABLE jobs ADD COLUMN ghost_reasons TEXT;  -- JSON array
-ALTER TABLE jobs ADD COLUMN first_seen TEXT;
-ALTER TABLE jobs ADD COLUMN repost_count INTEGER DEFAULT 0;
-```
-
-### Repost History Table
-
-```sql
-CREATE TABLE job_repost_history (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    job_hash TEXT NOT NULL,
-    company TEXT NOT NULL,
-    title TEXT NOT NULL,
-    source TEXT NOT NULL,
-    first_seen TEXT NOT NULL,
-    last_seen TEXT NOT NULL,
-    repost_count INTEGER DEFAULT 1,
-    UNIQUE(company, title, source)
-);
-```
-
-## API Reference
-
-### Tauri Commands
-
-#### `get_ghost_jobs`
-
-Retrieve jobs flagged as potential ghosts.
-
-```typescript
-invoke('get_ghost_jobs', {
-  threshold: 0.5,  // Optional, default 0.5
-  limit: 100       // Optional, default 100
-})
-```
-
-#### `get_ghost_statistics`
-
-Get aggregate ghost detection statistics.
-
-```typescript
-invoke('get_ghost_statistics')
-// Returns: { total_analyzed, ghosts, warnings, real, average_score }
-```
-
-#### `get_recent_jobs_filtered`
-
-Get recent jobs with optional ghost filtering.
-
-```typescript
-invoke('get_recent_jobs_filtered', {
-  limit: 50,
-  exclude_ghost: true  // Filter out ghost jobs
-})
-```
-
-### Ghost Reasons Format
-
-The `ghost_reasons` field stores a JSON array:
-
-```json
-[
-  {
-    "category": "stale",
-    "description": "Posted 75 days ago",
-    "weight": 0.2,
-    "severity": "medium"
-  },
-  {
-    "category": "generic_description",
-    "description": "Contains vague phrases like 'fast-paced environment'",
-    "weight": 0.15,
-    "severity": "low"
-  }
-]
-```
-
-## Configuration
-
-Ghost detection runs automatically during each scraping cycle. Currently, thresholds are not
-user-configurable, but this is planned for a future release.
-
-### Planned Configuration Options (v1.5+)
-
-```json
-{
-  "ghost_detection": {
-    "enabled": true,
-    "threshold": 0.5,
-    "auto_hide_ghosts": false,
-    "stale_days": 60,
-    "max_company_openings": 50
-  }
-}
-```
-
-## Performance
-
-- Ghost analysis adds ~2ms per job during scraping
-- Repost tracking queries are indexed for fast lookups
-- UI filtering is done client-side for instant response
+---
 
 ## Limitations
 
-1. **False Positives**: Some legitimate jobs may be flagged, especially from large companies or staffing agencies
-2. **Data Dependent**: Accuracy improves with more historical data
-3. **Source Variation**: Different job boards provide varying levels of detail
+Ghost detection isn't perfect:
 
-## Best Practices
+- **False positives** - Some legitimate jobs may be flagged, especially from large
+  companies or staffing agencies
+- **False negatives** - Some ghost jobs may slip through
+- **Data dependent** - Accuracy improves with more historical data
 
-1. **Don't auto-dismiss**: Use ghost scores as one factor, not the only factor
-2. **Review periodically**: Check flagged jobs occasionally for false positives and learn
-3. **Trust high scores**: Jobs scoring 0.8+ are very likely ghosts
-4. **Consider context**: Staffing agencies naturally have many openings
+Use ghost scores as one signal, not the only signal. If a job looks great despite a
+flag, apply anyway - you know your situation better than an algorithm.
 
-## Related Documentation
+---
 
-- [Application Tracking System](./application-tracking.md)
-- [Job Scrapers](./scrapers.md)
-- [Dashboard Guide](../user/QUICK_START.md)
+## Technical Details
+
+<details>
+<summary><strong>For developers and the curious</strong></summary>
+
+### Signal Weights
+
+| Signal | Weight |
+|--------|--------|
+| Stale posting (60+ days) | 25% |
+| Frequent reposts | 20% |
+| Generic description | 15% |
+| Vague title | 15% |
+| Unrealistic requirements | 15% |
+| Missing salary | 10% |
+
+### Database Schema
+
+```sql
+-- Ghost-related columns in jobs table
+ghost_score REAL,         -- 0.0 to 1.0
+ghost_reasons TEXT,       -- JSON array of reasons
+first_seen TEXT,          -- When we first found this job
+repost_count INTEGER      -- How many times we've seen it
+```
+
+### API Commands
+
+```typescript
+// Get jobs flagged as ghosts
+invoke('get_ghost_jobs', { threshold: 0.5, limit: 100 })
+
+// Get ghost detection statistics
+invoke('get_ghost_statistics')
+// Returns: { total_analyzed, ghosts, warnings, real, average_score }
+
+// Get jobs with ghost filtering
+invoke('get_recent_jobs_filtered', { limit: 50, exclude_ghost: true })
+```
+
+</details>
+
+---
+
+**Version:** 2.0.0 | **Last Updated:** January 17, 2026

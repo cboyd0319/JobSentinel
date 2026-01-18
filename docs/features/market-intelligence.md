@@ -23,6 +23,10 @@ data-driven career decisions with comprehensive market insights.
 - **🚨 Market Alerts** - Get notified of skill surges, salary spikes, hiring sprees
 - **📈 Market Snapshots** - Daily market health indicators
 
+### Screenshot
+
+![Market Intelligence Dashboard](../images/market-intelligence.png)
+
 ---
 
 ## 🏗️ Architecture

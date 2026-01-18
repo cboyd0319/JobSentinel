@@ -11,6 +11,7 @@ use crate::core::{config::Config, db::Database, scheduler::Scheduler};
 
 // Module declarations (public for Tauri macro access)
 pub mod ats;
+pub mod automation;
 pub mod config;
 pub mod credentials;
 pub mod ghost;
@@ -109,4 +110,16 @@ pub use config::{
 // Credential commands
 pub use credentials::{
     delete_credential, get_credential_status, has_credential, retrieve_credential, store_credential,
+};
+
+// Automation commands (One-Click Apply)
+pub use automation::{
+    // Profile management
+    approve_automation_attempt, cancel_automation_attempt, create_automation_attempt,
+    detect_ats_from_html, detect_ats_platform, find_answer_for_question, get_application_profile,
+    get_automation_stats, get_automation_attempt, get_pending_attempts, get_screening_answers,
+    upsert_application_profile, upsert_screening_answer,
+    // Browser control
+    close_automation_browser, fill_application_form, is_browser_running, launch_automation_browser,
+    take_automation_screenshot,
 };

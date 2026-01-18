@@ -92,7 +92,11 @@ interface AtsAnalysisResult {
   suggestions: AtsSuggestion[];
 }
 
-export default function ResumeOptimizer() {
+interface ResumeOptimizerProps {
+  onBack: () => void;
+}
+
+export default function ResumeOptimizer({ onBack }: ResumeOptimizerProps) {
   const [jobDescription, setJobDescription] = useState("");
   const [resumeJson, setResumeJson] = useState("");
   const [analyzing, setAnalyzing] = useState(false);
@@ -226,12 +230,25 @@ export default function ResumeOptimizer() {
       {/* Header */}
       <header className="bg-white dark:bg-surface-800 border-b border-surface-200 dark:border-surface-700 shadow-soft">
         <div className="max-w-7xl mx-auto px-6 py-6">
-          <h1 className="font-display text-display-lg text-surface-900 dark:text-white">
-            ATS Resume Optimizer
-          </h1>
-          <p className="text-surface-500 dark:text-surface-400 mt-1">
-            Optimize your resume for Applicant Tracking Systems
-          </p>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={onBack}
+              className="p-2 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors"
+              title="Back to Dashboard"
+            >
+              <svg className="w-5 h-5 text-surface-600 dark:text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+            </button>
+            <div>
+              <h1 className="font-display text-display-lg text-surface-900 dark:text-white">
+                ATS Resume Optimizer
+              </h1>
+              <p className="text-surface-500 dark:text-surface-400 mt-1">
+                Optimize your resume for Applicant Tracking Systems
+              </p>
+            </div>
+          </div>
         </div>
       </header>
 

@@ -3,10 +3,29 @@
 //! Commands for saving, retrieving, and validating app configuration.
 
 use crate::commands::AppState;
-use crate::core::config::Config;
+use crate::core::config::{Config, EmailConfig};
 use crate::core::db::Database;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tauri::State;
+
+/// Email configuration for testing (matches frontend interface)
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub struct TestEmailConfig {
+    pub smtp_server: String,
+    pub smtp_port: u16,
+    pub smtp_username: String,
+    pub smtp_password: String,
+    pub from_email: String,
+    pub to_emails: Vec<String>,
+    #[serde(default = "default_starttls")]
+    pub use_starttls: bool,
+}
+
+fn default_starttls() -> bool {
+    true
+}
 
 /// Save user configuration
 #[tauri::command]
@@ -95,5 +114,30 @@ pub async fn complete_setup(config: Value) -> Result<(), String> {
         .map_err(|e| format!("Failed to migrate database: {}", e))?;
 
     tracing::info!("Setup complete");
+    Ok(())
+}
+
+/// Test email notification configuration by sending a test email
+#[tauri::command]
+pub async fn test_email_notification(email_config: TestEmailConfig) -> Result<(), String> {
+    tracing::info!("Command: test_email_notification");
+
+    // Convert to EmailConfig for the validate function
+    let config = EmailConfig {
+        enabled: true,
+        smtp_server: email_config.smtp_server,
+        smtp_port: email_config.smtp_port,
+        smtp_username: email_config.smtp_username,
+        smtp_password: email_config.smtp_password,
+        from_email: email_config.from_email,
+        to_emails: email_config.to_emails,
+        use_starttls: email_config.use_starttls,
+    };
+
+    crate::core::notify::email::validate_email_config(&config)
+        .await
+        .map_err(|e| format!("Failed to send test email: {}", e))?;
+
+    tracing::info!("Test email sent successfully");
     Ok(())
 }

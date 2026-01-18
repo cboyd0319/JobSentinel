@@ -362,6 +362,62 @@ See [Security: Keyring Integration](../security/KEYRING.md) for full documentati
   - `analysis.rs` - Market snapshot generation
   - `alerts.rs` - Anomaly detection and alerts
 
+#### `core/automation/` (NEW in v2.0)
+
+**Purpose**: One-Click Apply form filling automation
+
+- Human-in-the-loop design (user clicks Submit manually)
+- Application profile management
+- Screening question auto-answers
+- ATS platform detection and specialized selectors
+- Browser automation via Chrome DevTools Protocol
+
+**Key Components:**
+
+- `mod.rs` - Module organization and exports
+- `profile.rs` - Application profile and screening answer management
+- `browser.rs` - Browser control via chromiumoxide
+- `form_filler.rs` - Form field detection and filling
+- `ats_detection.rs` - ATS platform detection (7 platforms)
+
+**Supported ATS Platforms:**
+
+- Greenhouse (`boards.greenhouse.io`)
+- Lever (`jobs.lever.co`)
+- Workday (`myworkday.com`, `workday.com`)
+- Taleo (`taleo.net`)
+- iCIMS (`icims.com`)
+- BambooHR (`bamboohr.com`)
+- Ashby (`ashbyhq.com`, `jobs.ashby.io`)
+
+**Key Types:**
+
+```rust
+pub struct ApplicationProfile {
+    full_name: String,
+    email: String,
+    phone: Option<String>,
+    linkedin_url: Option<String>,
+    github_url: Option<String>,
+    // ... work authorization, settings
+}
+
+pub struct ScreeningAnswer {
+    question_pattern: String,  // Regex pattern
+    answer: String,
+    answer_type: AnswerType,  // text, yes/no, select
+}
+```
+
+**Safety Features:**
+
+- Never auto-submits (user always clicks Submit)
+- CAPTCHA detection with user prompts
+- Rate limiting (configurable max applications/day)
+- Visible browser window (no headless mode)
+
+See [One-Click Apply Feature](../features/one-click-apply.md) for full documentation.
+
 #### `core/scheduler/` (7 submodules)
 
 **Purpose**: Automated job scraping
@@ -413,7 +469,7 @@ See [Security: Keyring Integration](../security/KEYRING.md) for full documentati
 
 ### 2. Commands (`src/commands/`)
 
-Tauri command handlers (RPC interface between React and Rust). **70 total commands.**
+Tauri command handlers (RPC interface between React and Rust). **110 total commands.**
 
 **Core Commands (18):**
 
@@ -470,6 +526,25 @@ add_search_history(), get_search_history(), clear_search_history()
 // Resume: upload, get_active, set_active, get_skills, match, get_match_result
 // Salary: predict, benchmark, negotiate, compare
 // Market: trends, companies, locations, alerts, analysis
+```
+
+**Automation Commands (18):** (NEW in v2.0)
+
+```rust
+// Application Profile
+upsert_application_profile(), get_application_profile(),
+// Screening Answers
+upsert_screening_answer(), get_screening_answers(),
+delete_screening_answer(), find_answer_for_question(),
+// Automation Attempts
+create_automation_attempt(), get_automation_attempt(),
+approve_automation_attempt(), cancel_automation_attempt(),
+get_pending_attempts(), get_automation_stats(),
+// ATS Detection
+detect_ats_platform(), detect_ats_from_html(),
+// Browser Control
+launch_automation_browser(), close_automation_browser(),
+is_browser_running(), fill_application_form()
 ```
 
 **Error Handling:**

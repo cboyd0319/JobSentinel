@@ -105,8 +105,18 @@ When to spawn sub-agents:
   - `ResumeBuilder.tsx` - 7-step wizard frontend
   - `ResumeOptimizer.tsx` - ATS analysis UI with score visualization
   - 22 new Tauri commands (10 builder + 3 template + 2 export + 5 ATS + 2 misc)
+- [x] P5: One-Click Apply (Form Filling) - COMPLETE
+  - `automation/mod.rs` - AutomationManager, AtsPlatform, AutomationStatus
+  - `automation/profile.rs` - ProfileManager with ApplicationProfile
+  - `automation/ats_detector.rs` - 7 ATS platform detection (Greenhouse, Lever, Workday, etc.)
+  - `automation/browser/` - BrowserManager + AutomationPage (Chrome DevTools Protocol)
+  - `automation/form_filler.rs` - Platform-specific CSS selectors, field filling
+  - `ApplicationProfile.tsx` - Settings page with Profile and Screening tabs
+  - `components/automation/` - ProfileForm, ScreeningAnswersForm, ApplyButton, ApplicationPreview
+  - 18 new Tauri commands (profile + screening + attempts + browser control)
+  - Human-in-the-loop: fills form, pauses for review, user clicks Submit
 - See `.claude/plans/virtual-puzzling-pretzel.md` for P0-P7 details
-- Remaining: CI/CD, Packaging, One-Click Apply
+- Remaining: CI/CD, Packaging
 
 **Before starting work:**
 
@@ -137,25 +147,33 @@ When to spawn sub-agents:
 ```
 JobSentinel/
 ├── src/                    # React frontend
-│   ├── components/        # UI components (37 components)
-│   ├── contexts/          # React contexts (KeyboardShortcuts)
+│   ├── components/        # UI components (42 components)
+│   │   └── automation/    # One-Click Apply components (NEW in v2.0)
+│   ├── contexts/          # React contexts (KeyboardShortcuts, Toast, etc.)
 │   ├── hooks/             # Custom hooks (useKeyboardNavigation)
-│   ├── pages/             # Page components (Dashboard, Applications, etc.)
-│   └── utils/             # Utilities (export, api)
+│   ├── pages/             # Page components (Dashboard, Applications, ApplicationProfile, etc.)
+│   └── utils/             # Utilities (export, api, errorUtils)
 ├── src-tauri/              # Rust backend
 │   ├── src/
 │   │   ├── core/          # Business logic
 │   │   │   ├── ats/       # Application Tracking (ENABLED)
+│   │   │   ├── automation/# One-Click Apply (NEW in v2.0)
+│   │   │   │   ├── browser/   # Chrome DevTools Protocol automation
+│   │   │   │   ├── ats_detector.rs  # ATS platform detection
+│   │   │   │   ├── form_filler.rs   # Platform-specific form filling
+│   │   │   │   └── profile.rs       # Application profile management
 │   │   │   ├── config/    # Configuration
+│   │   │   ├── credentials/# OS keyring integration (NEW in v2.0)
 │   │   │   ├── db/        # Database layer
-│   │   │   ├── ghost/     # Ghost job detection (NEW in v1.4)
+│   │   │   ├── ghost/     # Ghost job detection
 │   │   │   ├── notify/    # Notifications (Slack, Discord, Teams, Email, Telegram)
+│   │   │   ├── resume/    # Resume Builder + ATS Optimizer (NEW in v2.0)
 │   │   │   ├── scheduler/ # Job scheduling with auto-refresh
 │   │   │   ├── scoring/   # Job scoring algorithm
 │   │   │   └── scrapers/  # 13 job board scrapers with parallel scraping
-│   │   ├── commands/      # Tauri RPC handlers (92 commands)
+│   │   ├── commands/      # Tauri RPC handlers (110 commands)
 │   │   └── platforms/     # Platform-specific code (Windows, macOS, Linux)
-│   └── migrations/        # SQLite migrations (19 migrations)
+│   └── migrations/        # SQLite migrations (20 migrations)
 └── docs/                  # Documentation
     ├── features/          # Feature documentation
     ├── releases/          # Version release notes
@@ -173,11 +191,13 @@ All core modules are enabled and functional:
 - config, db, notify, scheduler, scoring, ghost
 - scrapers (13 sources: Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, ZipRecruiter)
 - ats (Application Tracking System with interview scheduler)
-- resume (AI Resume-Job Matcher)
+- resume (AI Resume-Job Matcher + Resume Builder + ATS Optimizer)
 - salary (Salary Prediction AI)
 - market_intelligence (Market Analytics)
+- automation (One-Click Apply with form filling)
+- credentials (OS-native keyring integration)
 
-### Frontend Features (v1.4)
+### Frontend Features (v2.0)
 
 - **Ghost Detection** - Visual indicators for fake/stale job postings
 - Ghost filter dropdown (All/Real/Ghost jobs)
@@ -188,32 +208,38 @@ All core modules are enabled and functional:
 - Analytics with weekly goals and response rates
 - Company research panel (40+ companies)
 - Virtual list for performance
-
-### Deferred Modules (v2.0+)
-
-- automation (One-Click Apply - requires legal review)
+- **Resume Builder** - 7-step wizard with ATS-optimized templates
+- **ATS Optimizer** - Keyword analysis, format scoring, bullet improver
+- **One-Click Apply** - Form auto-fill with browser automation
+  - ATS platform detection badges on job cards
+  - Application profile with contact info and work authorization
+  - Screening question auto-answers with regex patterns
+  - Quick Apply button opens browser, fills form, pauses for review
+  - Human-in-the-loop: user clicks Submit manually
 
 ### Test Status
 
-- 2078 tests passing (2002 + 76 new integration tests)
-- 21 ignored (require file-based database or are doc-tests for example code)
-- New integration test files: `tests/db/`, `tests/scrapers/`, `tests/ghost/`, `tests/config/`
+- 2104 tests passing (2078 + 26 new automation tests)
+- 28 ignored (require file-based database, Chrome, or are doc-tests)
+- Integration test files: `tests/automation_integration_test.rs`, `tests/scheduler_integration_test.rs`, etc.
 
-### Tauri Commands (92 total)
+### Tauri Commands (117 total)
 
-- Core: 18 commands (jobs, config, search, statistics, scraping)
+- Core Jobs: 14 commands (search, get, hide, bookmark, notes, stats, duplicates)
+- Config: 6 commands (save, get, validate_webhook, first_run, complete_setup, test_email)
 - Ghost: 3 commands (ghost_jobs, ghost_statistics, filtered_search)
-- ATS: 10 commands (applications, reminders, ghosting, interviews)
-- Resume Matcher: 7 commands (upload, match, skills, recent_matches)
-- Resume Builder: 10 commands (create, get, update_contact, update_summary, add_experience, etc.)
+- ATS: 13 commands (applications, reminders, ghosting detection, interviews)
+- Resume Matcher: 7 commands (upload, get_active, set_active, get_skills, match, get_result, recent)
+- Resume Builder: 10 commands (create, get, update_contact, update_summary, add/delete experience/education, set_skills, delete)
 - Resume Templates: 3 commands (list_templates, render_html, render_text)
 - Resume Export: 2 commands (export_docx, export_text)
 - ATS Analyzer: 5 commands (analyze_for_job, analyze_format, extract_keywords, power_words, improve_bullet)
 - Salary: 4 commands (predict, benchmark, negotiate, compare)
-- Market: 5 commands (trends, companies, locations, alerts)
-- Setup: 4 commands (wizard, first run, profiles)
+- Market: 5 commands (trends, companies, locations, alerts, run_analysis)
 - User Data: 20 commands (templates, prep checklists, saved searches, notifications, search history)
 - Credentials: 5 commands (store, retrieve, delete, has, get_status)
+- Automation: 18 commands (profile, screening answers, attempts, ATS detection, browser control)
+- Browser: 2 commands (take_screenshot, fill_form - subset of automation)
 
 ## Development Commands
 
@@ -267,10 +293,16 @@ This saves significant development time. When we approach v2.1.0, we'll freeze t
 - `src-tauri/src/core/db/mod.rs` - Database layer with Job struct
 - `src-tauri/src/core/ghost/mod.rs` - Ghost detection algorithm
 - `src-tauri/src/core/scrapers/mod.rs` - Scraper registry (13 sources) with parallel scraping
-- `src-tauri/src/commands/mod.rs` - Tauri command handlers (50 commands)
+- `src-tauri/src/core/automation/mod.rs` - One-Click Apply automation manager
+- `src-tauri/src/core/automation/browser/` - Chrome DevTools Protocol automation
+- `src-tauri/src/core/credentials/mod.rs` - OS keyring credential storage
+- `src-tauri/src/commands/mod.rs` - Tauri command handlers (110 commands)
+- `src-tauri/src/commands/automation.rs` - Automation Tauri commands (18 commands)
 - `src/pages/Dashboard.tsx` - Main dashboard with search, job list, ghost filter
+- `src/pages/ApplicationProfile.tsx` - One-Click Apply settings page
+- `src/components/automation/` - ProfileForm, ScreeningAnswersForm, ApplyButton, ApplicationPreview
 - `src/components/GhostIndicator.tsx` - Ghost job warning indicators
-- `src/components/` - UI component library (37 components)
+- `src/components/` - UI component library (42 components)
 - `src/contexts/KeyboardShortcutsContext.tsx` - Keyboard navigation
 - `config.example.json` - Example configuration
 

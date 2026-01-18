@@ -41,8 +41,8 @@ pub mod user_data;
 // v2.0+ security modules
 pub mod credentials;
 
-// v2.0+ modules - disabled pending legal review
-// pub mod automation;
+// v2.0+ modules - One-Click Apply (form filling without auto-submit)
+pub mod automation;
 
 // Re-export commonly used types
 pub use config::Config;
@@ -77,3 +77,10 @@ pub use user_data::{
 
 // v2.0+ security re-exports
 pub use credentials::{CredentialKey, CredentialStore};
+
+// v2.0+ automation re-exports
+pub use automation::{
+    ApplicationAttempt, ApplicationProfile, AtsDetector, AtsPlatform, AutomationManager,
+    AutomationStats, AutomationStatus,
+};
+pub use automation::profile::{ApplicationProfileInput, ProfileManager, ScreeningAnswer};

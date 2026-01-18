@@ -22,14 +22,14 @@ Welcome to JobSentinel documentation.
 |---------|--------|-------|
 | v1.4 | Complete | Ghost detection, data insights, backend persistence |
 | v1.5 | Complete | File modularization (see Technical Debt) |
-| v2.0 | **Complete** | **OS-Native Keyring + Resume Builder** |
-| v2.1+ | Planned | CI/CD, Packaging, One-Click Apply |
+| v2.0 | **Complete** | **OS-Native Keyring + Resume Builder + One-Click Apply** |
+| v2.1+ | Planned | CI/CD, Packaging, macOS/Linux installers |
 
 ---
 
 ## Current Status (January 2026)
 
-**Version: 2.0.0** | 2078+ tests passing | Security-Hardened Release
+**Version: 2.0.0** | 2104+ tests passing | Security-Hardened Release
 
 ### What's New in v2.0 🔐
 
@@ -49,6 +49,17 @@ Welcome to JobSentinel documentation.
   - Bullet point improver with 45+ power words
 - **22 new Tauri commands** for resume operations
 - See [Resume Builder Documentation](features/resume-builder.md) for full details
+
+### What's New in v2.0 🚀
+
+- **One-Click Apply Automation** - Human-in-the-loop form filling
+  - 7 ATS platforms: Greenhouse, Lever, Workday, Taleo, iCIMS, BambooHR, Ashby
+  - Application profile for contact info and URLs
+  - Screening question auto-answers with regex patterns
+  - Visible browser automation (user always clicks Submit)
+  - CAPTCHA detection with user prompts
+- **18 new Tauri commands** for automation
+- See [One-Click Apply Documentation](features/one-click-apply.md) for full details
 
 ### Working Features
 
@@ -74,9 +85,25 @@ Welcome to JobSentinel documentation.
 
 | Dashboard | Application Tracker |
 |-----------|---------------------|
-| ![Dashboard](images/dashboard.png) | ![Kanban](images/kanban-board.png) |
+| ![Dashboard](images/dashboard.png) | ![Application Tracking](images/application-tracking.png) |
 
-### Backend Modules (92 Tauri Commands)
+| Resume Matcher | Salary AI |
+|----------------|-----------|
+| ![Resume Matcher](images/resume-matcher.png) | ![Salary AI](images/salary-ai.png) |
+
+| Market Intelligence | Settings |
+|---------------------|----------|
+| ![Market Intelligence](images/market-intelligence.png) | ![Settings](images/settings.png) |
+
+| Resume Builder | ATS Optimizer |
+|----------------|---------------|
+| ![Resume Builder](images/resume-builder.png) | ![ATS Optimizer](images/ats-optimizer.png) |
+
+| One-Click Apply |
+|-----------------|
+| ![One-Click Apply](images/one-click-apply.png) |
+
+### Backend Modules (117 Tauri Commands)
 
 - **Core**: config, db, scoring, scheduler, scrapers (13 with parallel scraping), notify, ghost
 - **ATS**: 10 commands (Kanban, reminders, ghosting detection, interviews)
@@ -86,10 +113,13 @@ Welcome to JobSentinel documentation.
 - **Market Intelligence**: 5 commands (trends, companies, locations, alerts)
 - **Ghost Detection**: 3 commands (ghost jobs, statistics, filtered search)
 - **User Data**: 20 commands (templates, prep checklists, saved searches, notifications, history)
+- **One-Click Apply**: 18 commands (profile, screening answers, attempts, ATS detection, browser)
 
-### Deferred Features (v2.0+)
+### Planned Features (v2.1+)
 
-- One-Click Apply Automation (legal review required)
+- macOS/Linux installers
+- CI/CD Pipeline
+- Browser Extension
 
 ---
 
@@ -106,6 +136,7 @@ Welcome to JobSentinel documentation.
 - **[Architecture](developer/ARCHITECTURE.md)** - System design
 - **[Why Tauri?](developer/WHY_TAURI.md)** - Why we chose Tauri over Electron/Chrome
 - **[Testing](developer/TESTING.md)** - Test suite guide
+- **[E2E Testing](../e2e-tests/README.md)** - WebdriverIO + Tauri E2E tests
 - **[macOS Development](developer/MACOS_DEVELOPMENT.md)** - macOS-specific
 - **[SQLite Configuration](developer/sqlite-configuration.md)** - Database setup
 - **[Error Handling](developer/ERROR_HANDLING.md)** - Error patterns
@@ -121,6 +152,7 @@ Welcome to JobSentinel documentation.
 
 | Feature | Status | Documentation |
 |---------|--------|---------------|
+| One-Click Apply | **v2.0** | [One-Click Apply](features/one-click-apply.md) |
 | Resume Builder | **v2.0** | [Resume Builder](features/resume-builder.md) |
 | Ghost Detection | **v1.4** | [Ghost Detection](features/ghost-detection.md) |
 | Application Tracking | Working | [ATS](features/application-tracking.md) |
@@ -142,8 +174,8 @@ Welcome to JobSentinel documentation.
 ### Reports
 
 - **[Security Audit (2026-01-16)](reports/SECURITY_AUDIT_2026-01-16.md)** - Comprehensive security analysis
-- **[Deep Analysis](reports/DEEP_ANALYSIS_COMPLETE_REPORT.md)** - Security and code analysis
-- **[v1.0 Status](reports/V1_COMPLETION_STATUS.md)** - Implementation tracking
+- **[v1.0 Status](reports/V1_COMPLETION_STATUS.md)** - Implementation tracking (historical)
+- **[Deep Analysis](reports/archive/DEEP_ANALYSIS_COMPLETE_REPORT.md)** - Historical code analysis (Nov 2025)
 
 ### Planning
 
@@ -151,7 +183,7 @@ Welcome to JobSentinel documentation.
 
 ### Archive
 
-- [One-Click Apply](archive/ONE_CLICK_APPLY_AUTOMATION.md) - Deferred to v2.0
+- [One-Click Apply Design](archive/ONE_CLICK_APPLY_AUTOMATION.md) - Original design document (now implemented in v2.0)
 
 ---
 
@@ -177,6 +209,7 @@ docs/
 ├── security/              # Security documentation (v2.0+)
 │   └── KEYRING.md             # OS-native credential storage
 ├── features/              # Feature documentation
+│   ├── one-click-apply.md     # One-Click Apply automation (v2.0)
 │   ├── resume-builder.md      # Resume builder + ATS optimizer (v2.0)
 │   ├── ghost-detection.md     # Ghost job detection (v1.4)
 │   ├── application-tracking.md
@@ -186,7 +219,7 @@ docs/
 │   ├── market-intelligence.md
 │   └── scrapers.md
 ├── releases/              # Version release notes
-│   ├── v2.0.md                # Security hardening
+│   ├── v2.0.md                # Security hardening + Resume Builder + One-Click Apply
 │   ├── v1.6.md
 │   ├── v1.5.md
 │   ├── v1.4.md
@@ -205,13 +238,24 @@ docs/
 │   └── sqlite-configuration.md
 ├── reports/
 │   ├── SECURITY_AUDIT_2026-01-16.md
-│   ├── DEEP_ANALYSIS_COMPLETE_REPORT.md
-│   └── V1_COMPLETION_STATUS.md
-├── archive/               # Deferred/deprecated docs
+│   ├── V1_COMPLETION_STATUS.md
+│   └── archive/
+│       └── DEEP_ANALYSIS_COMPLETE_REPORT.md
+├── archive/               # Design documents
 │   └── ONE_CLICK_APPLY_AUTOMATION.md
 └── images/
     ├── dashboard.png
     └── kanban-board.png
+
+e2e-tests/                 # E2E Tests (WebdriverIO + Tauri)
+├── README.md              # E2E testing guide
+├── package.json           # Test dependencies
+├── wdio.conf.js          # WebdriverIO configuration
+├── specs/                 # Test specifications
+│   ├── dashboard.e2e.js       # Dashboard tests
+│   ├── settings.e2e.js        # Settings tests
+│   └── one-click-apply.e2e.js # One-Click Apply tests
+└── screenshots/           # Captured screenshots
 ```
 
 ---

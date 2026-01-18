@@ -122,6 +122,7 @@ fn main() {
             commands::config::validate_slack_webhook,
             commands::config::is_first_run,
             commands::config::complete_setup,
+            commands::config::test_email_notification,
             // ATS commands
             commands::ats::create_application,
             commands::ats::get_applications_kanban,
@@ -144,6 +145,28 @@ fn main() {
             commands::resume::match_resume_to_job,
             commands::resume::get_match_result,
             commands::resume::get_recent_matches,
+            // Resume Builder commands (v2.0)
+            commands::resume::create_resume_draft,
+            commands::resume::get_resume_draft,
+            commands::resume::update_resume_contact,
+            commands::resume::update_resume_summary,
+            commands::resume::add_resume_experience,
+            commands::resume::delete_resume_experience,
+            commands::resume::add_resume_education,
+            commands::resume::delete_resume_education,
+            commands::resume::set_resume_skills,
+            commands::resume::delete_resume_draft,
+            commands::resume::list_resume_templates,
+            commands::resume::render_resume_html,
+            commands::resume::render_resume_text,
+            commands::resume::export_resume_docx,
+            commands::resume::export_resume_text,
+            // ATS Optimizer commands (v2.0)
+            commands::resume::analyze_resume_for_job,
+            commands::resume::analyze_resume_format,
+            commands::resume::extract_job_keywords,
+            commands::resume::get_ats_power_words,
+            commands::resume::improve_bullet_point,
             // Salary AI commands
             commands::salary::predict_salary,
             commands::salary::get_salary_benchmark,
@@ -186,6 +209,26 @@ fn main() {
             commands::credentials::delete_credential,
             commands::credentials::has_credential,
             commands::credentials::get_credential_status,
+            // Automation commands (One-Click Apply)
+            commands::automation::upsert_application_profile,
+            commands::automation::get_application_profile,
+            commands::automation::upsert_screening_answer,
+            commands::automation::get_screening_answers,
+            commands::automation::find_answer_for_question,
+            commands::automation::create_automation_attempt,
+            commands::automation::get_automation_attempt,
+            commands::automation::approve_automation_attempt,
+            commands::automation::cancel_automation_attempt,
+            commands::automation::get_pending_attempts,
+            commands::automation::get_automation_stats,
+            commands::automation::detect_ats_platform,
+            commands::automation::detect_ats_from_html,
+            // Browser control commands
+            commands::automation::launch_automation_browser,
+            commands::automation::close_automation_browser,
+            commands::automation::is_browser_running,
+            commands::automation::fill_application_form,
+            commands::automation::take_automation_screenshot,
         ])
         .setup(|app| {
             // Initialize configuration

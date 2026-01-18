@@ -21,6 +21,10 @@ and AI-generated negotiation scripts to help you maximize your compensation.
 - **📝 Negotiation Scripts** - AI-generated personalized templates
 - **📈 Market Intelligence** - Identify top-paying locations and companies
 
+### Screenshot
+
+![Salary AI Interface](../images/salary-ai.png)
+
 ---
 
 ## 🏗️ Architecture
