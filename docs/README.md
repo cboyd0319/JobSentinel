@@ -186,6 +186,8 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.6: ML predictions, installers)
 ### Planning
 
 - **[Roadmap](ROADMAP.md)** - Feature roadmap and priorities
+- **[Release Plans](plans/README.md)** - Formal planning documents for major releases
+  - [v2.6.0 UX Improvements](plans/v2.6.0-ux-improvements.md) - Current sprint
 
 ---
 
