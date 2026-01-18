@@ -244,7 +244,17 @@ docs/
 │   └── SECURITY_AUDIT_2026-01-16.md
 └── images/
     ├── dashboard.png
-    └── kanban-board.png
+    ├── dashboard-light.png
+    ├── settings.png
+    ├── one-click-apply.png
+    ├── resume-builder.png
+    ├── resume-matcher.png
+    ├── salary-ai.png
+    ├── market-intelligence.png
+    ├── application-tracking.png
+    ├── ats-optimizer.png
+    ├── keyboard-shortcuts.png
+    └── logo.png
 
 e2e-tests/                 # E2E Tests (WebdriverIO + Tauri)
 ├── README.md              # E2E testing guide
