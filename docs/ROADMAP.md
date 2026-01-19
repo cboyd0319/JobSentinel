@@ -691,6 +691,36 @@ The v1.5 modularization effort successfully split 7 oversized files into smaller
 | `resume/mod.rs` | 1727 | Split parser, matcher, tests |
 | `commands/mod.rs` | 1278 | Could split by domain (jobs, ats, resume, salary) |
 
+### Frontend Architecture (v2.6+)
+
+The current flat `src/components/` directory contains 70+ files. A future refactor should organize into:
+
+```text
+src/
+├── features/           # Feature modules (domain-specific)
+│   ├── dashboard/      # Dashboard page + related components
+│   │   ├── components/ # JobCard, VirtualJobList, GhostIndicator
+│   │   ├── hooks/      # useDashboard*, useFilters, etc.
+│   │   └── Dashboard.tsx
+│   ├── applications/   # Applications tracking
+│   ├── resume/         # Resume matcher, builder, optimizer
+│   ├── automation/     # One-Click Apply
+│   ├── market/         # Market intelligence
+│   ├── salary/         # Salary predictions
+│   └── settings/       # Settings, setup wizard
+├── components/         # Shared UI components only
+│   ├── ui/            # Button, Card, Badge, Input, Modal
+│   ├── layout/        # Navigation, FocusTrap, SkipToContent
+│   └── feedback/      # ErrorBoundary, LoadingSpinner, EmptyState
+├── hooks/             # Shared hooks
+├── contexts/          # Global contexts (Theme, Keyboard, Toast)
+├── types/             # Shared TypeScript types
+└── utils/             # Utility functions
+```
+
+**Why deferred:** Requires 100+ import path updates. Not worth the risk before Reddit launch.
+**Target:** v2.6 with comprehensive import path migration script.
+
 - `config/validation.rs` - Validation logic (~400 lines)
 - `config/defaults.rs` - Default values (~200 lines)
 - `config/tests.rs` - Tests (~900 lines)
