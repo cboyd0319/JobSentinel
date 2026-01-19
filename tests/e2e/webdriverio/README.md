@@ -44,7 +44,7 @@ Screenshots are saved to `./screenshots/`.
 ## Test Structure
 
 ```text
-e2e-tests/
+tests/e2e/webdriverio/
 ├── specs/
 │   ├── dashboard.e2e.js        # Dashboard functionality
 │   ├── settings.e2e.js         # Settings page tests

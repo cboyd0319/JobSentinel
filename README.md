@@ -373,7 +373,7 @@ For full technical documentation, see:
 ### Coming Soon (v2.6)
 
 - **Machine learning predictions** — Predict likelihood of response based on historical data
-- **Browser extension** — Clip jobs directly from any website
+- **Linux support** — AppImage installer for Linux users
 - **Mobile companion** — Get notifications on your phone
 
 ### Just Released (v2.5)

@@ -516,7 +516,7 @@ E2E tests use WebdriverIO with Tauri Driver to test complete workflows in the bu
 npm run tauri build
 
 # Run E2E tests
-cd e2e-tests
+cd tests/e2e/webdriverio
 npm install
 npm test
 
@@ -554,7 +554,7 @@ describe('Feature', () => {
 });
 ```
 
-See [e2e-tests/README.md](../../e2e-tests/README.md) for full documentation.
+See [tests/README.md](../../tests/README.md) for full documentation.
 
 ---
 

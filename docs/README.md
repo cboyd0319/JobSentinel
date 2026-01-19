@@ -139,7 +139,7 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.6: ML predictions, installers)
 - **[Architecture](developer/ARCHITECTURE.md)** - System design
 - **[Why Tauri?](developer/WHY_TAURI.md)** - Why we chose Tauri over Electron/Chrome
 - **[Testing](developer/TESTING.md)** - Test suite guide
-- **[E2E Testing](../e2e-tests/README.md)** - WebdriverIO + Tauri E2E tests
+- **[E2E Testing](../tests/README.md)** - WebdriverIO + Tauri E2E tests
 - **[macOS Development](developer/MACOS_DEVELOPMENT.md)** - macOS-specific
 - **[SQLite Configuration](developer/sqlite-configuration.md)** - Database setup
 - **[Error Handling](developer/ERROR_HANDLING.md)** - Error patterns
@@ -211,63 +211,40 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.6: ML predictions, installers)
 docs/
 ├── README.md              # This file
 ├── ROADMAP.md             # Feature roadmap
-├── security/              # Security documentation (v2.0+)
-│   └── KEYRING.md             # OS-native credential storage
-├── features/              # Feature documentation
-│   ├── one-click-apply.md     # One-Click Apply automation (v2.0)
-│   ├── resume-builder.md      # Resume builder + ATS optimizer (v2.0)
-│   ├── ghost-detection.md     # Ghost job detection (v1.4)
-│   ├── application-tracking.md
-│   ├── notifications.md
-│   ├── resume-matcher.md
-│   ├── salary-ai.md
-│   ├── market-intelligence.md
-│   └── scrapers.md
-├── releases/              # Version release notes
-│   ├── v2.0.md                # Security hardening + Resume Builder + One-Click Apply
-│   ├── v1.6.md
-│   ├── v1.5.md
-│   ├── v1.4.md
-│   ├── v1.3.md
-│   └── v1.2.md
-├── user/
-│   └── QUICK_START.md
-├── developer/
+├── CLAUDE.md              # AI assistant instructions
+├── developer/             # Developer documentation
 │   ├── GETTING_STARTED.md
 │   ├── CONTRIBUTING.md
 │   ├── ARCHITECTURE.md
 │   ├── TESTING.md
-│   ├── MACOS_DEVELOPMENT.md
-│   ├── ERROR_HANDLING.md
-│   ├── MUTATION_TESTING.md
-│   └── sqlite-configuration.md
-├── reports/
+│   ├── RELEASING.md           # Release process
+│   └── ...
+├── features/              # Feature documentation
+│   ├── one-click-apply.md
+│   ├── resume-builder.md
+│   ├── ghost-detection.md
+│   └── ...
+├── releases/              # Version release notes
+│   ├── v2.5.1.md
+│   ├── v2.5.md
+│   └── ...
+├── reports/               # Test and audit reports
+│   ├── TEST-REPORT.md
 │   └── SECURITY_AUDIT_2026-01-16.md
-└── images/
-    ├── dashboard.png
-    ├── dashboard-light.png
-    ├── settings.png
-    ├── one-click-apply.png
-    ├── resume-builder.png
-    ├── resume-matcher.png
-    ├── salary-ai.png
-    ├── market-intelligence.png
-    ├── application-tracking.png
-    ├── ats-optimizer.png
-    ├── keyboard-shortcuts.png
-    └── logo.png
+├── security/
+│   └── KEYRING.md
+├── user/
+│   └── QUICK_START.md
+└── images/                # Screenshots
 
-e2e-tests/                 # E2E Tests (WebdriverIO + Tauri)
-├── README.md              # E2E testing guide
-├── package.json           # Test dependencies
-├── wdio.conf.js          # WebdriverIO configuration
-├── specs/                 # Test specifications
-│   ├── dashboard.e2e.js       # Dashboard tests
-│   ├── settings.e2e.js        # Settings tests
-│   └── one-click-apply.e2e.js # One-Click Apply tests
-└── screenshots/           # Captured screenshots
+tests/                     # All tests
+├── README.md              # Testing overview
+├── e2e/
+│   ├── playwright/        # Playwright E2E tests
+│   └── webdriverio/       # WebdriverIO + Tauri tests
+└── unit/                  # Unit tests (future)
 ```
 
 ---
 
-**Last Updated:** January 18, 2026
+**Last Updated:** January 19, 2026
