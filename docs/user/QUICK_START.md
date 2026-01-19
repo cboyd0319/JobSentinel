@@ -10,12 +10,16 @@ Welcome! This guide will get you up and running in about 5 minutes.
 
 You'll need to install JobSentinel on your computer. Here's the quick version:
 
-**Option A: Download the Installer** (Coming January 18, 2026)
+**Option A: Download the Installer** (Recommended)
 
-- Just download, double-click, and you're done
-- No technical knowledge required
+1. Go to [GitHub Releases](https://github.com/cboyd0319/JobSentinel/releases)
+2. Download the installer for your platform:
+   - **Windows:** `JobSentinel_2.5.1_x64_en-US.msi`
+   - **macOS (Apple Silicon):** `JobSentinel_2.5.1_aarch64.dmg`
+3. Double-click and follow the prompts
+4. Done!
 
-**Option B: Build from Source** (Available Now)
+**Option B: Build from Source**
 
 If you're comfortable with command-line basics:
 

@@ -2,13 +2,13 @@
 
 ## Project Status
 
-**Version 2.0.0** (January 17, 2026)
+**Version 2.5.1** (January 18, 2026)
 
 | Component | Status |
 |-----------|--------|
-| Core modules (config, db, scoring, scrapers, scheduler, notify, ghost, ats, resume, salary, market, automation, credentials) | Working |
+| Core modules (config, db, scoring, scrapers, scheduler, notify, ghost, ats, resume, salary, market, automation, credentials, health) | Working |
 | Frontend (React 19 + TypeScript) | Working |
-| Tests | 2150 passing, 31 ignored |
+| Tests | 2200+ passing, 20 ignored |
 
 ---
 
@@ -67,14 +67,17 @@ JobSentinel/
 │   │   ├── lib.rs           # Library exports
 │   │   ├── core/            # Business logic (modular structure)
 │   │   │   ├── ats/         # Application Tracking System
-│   │   │   ├── config/      # Configuration (2343 lines - v1.5 candidate)
-│   │   │   ├── db/          # Database layer (4442 lines - CRITICAL refactoring needed)
+│   │   │   ├── automation/  # One-Click Apply
+│   │   │   ├── config/      # Configuration
+│   │   │   ├── credentials/ # OS keyring integration
+│   │   │   ├── db/          # Database layer (refactored v1.5)
 │   │   │   ├── ghost/       # Ghost job detection
-│   │   │   ├── market_intelligence/  # Market analytics (2703 lines)
+│   │   │   ├── health/      # Scraper health monitoring
+│   │   │   ├── market_intelligence/  # Market analytics
 │   │   │   ├── notify/      # Multi-channel notifications
-│   │   │   ├── resume/      # Resume matching AI
+│   │   │   ├── resume/      # Resume matching + builder
 │   │   │   ├── salary/      # Salary prediction
-│   │   │   ├── scheduler/   # Job scheduling (2955 lines - HIGH priority refactoring)
+│   │   │   ├── scheduler/   # Job scheduling
 │   │   │   ├── scoring/     # Job scoring algorithm
 │   │   │   └── scrapers/    # 13 job board scrapers
 │   │   ├── platforms/       # Windows/macOS/Linux specific code
@@ -110,7 +113,7 @@ JobSentinel/
 cd src-tauri
 cargo test
 
-# Frontend tests (coming soon)
+# Frontend tests (716 tests)
 npm test
 ```
 

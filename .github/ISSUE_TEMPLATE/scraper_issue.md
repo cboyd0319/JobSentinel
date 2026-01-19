@@ -51,7 +51,7 @@ https://example.com/jobs/...
 ## Environment
 
 - **OS:** [e.g., Windows 11, macOS 15]
-- **JobSentinel Version:** [e.g., 2.5.0]
+- **JobSentinel Version:** [e.g., 2.5.1]
 
 ## Scraper Health Dashboard Output
 

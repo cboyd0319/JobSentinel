@@ -182,9 +182,16 @@ Power users can navigate entirely by keyboard:
 
 ### Step 1: Download
 
-> **Note:** Official installers coming soon. For now, build from source (takes ~5 minutes).
+**Download from [GitHub Releases](https://github.com/cboyd0319/JobSentinel/releases):**
 
-**Windows or macOS:**
+| Platform | Download |
+|----------|----------|
+| **Windows** | [JobSentinel_2.5.1_x64_en-US.msi](https://github.com/cboyd0319/JobSentinel/releases/download/v2.5.1/JobSentinel_2.5.1_x64_en-US.msi) |
+| **macOS (Apple Silicon)** | [JobSentinel_2.5.1_aarch64.dmg](https://github.com/cboyd0319/JobSentinel/releases/download/v2.5.1/JobSentinel_2.5.1_aarch64.dmg) |
+
+<details>
+<summary><strong>Or build from source</strong></summary>
+<br>
 
 ```bash
 # 1. Install Rust (if you don't have it)
@@ -202,7 +209,9 @@ npm run tauri:build
 # 4. Find your installer in src-tauri/target/release/bundle/
 ```
 
-**That's it.** The app is ~8MB and runs without admin rights.
+</details>
+
+**That's it.** The app is ~10MB and runs without admin rights.
 
 ### Step 2: Setup (2 minutes)
 
@@ -361,21 +370,17 @@ For full technical documentation, see:
 
 ## What's Next?
 
-### Coming Soon
+### Coming Soon (v2.6)
 
-- **Official installers** — One-click install for Windows, macOS, and Linux
+- **Machine learning predictions** — Predict likelihood of response based on historical data
 - **Browser extension** — Clip jobs directly from any website
 - **Mobile companion** — Get notifications on your phone
 
-### Just Released (v2.2 – v2.4)
+### Just Released (v2.5)
 
-- **Smart Scoring Engine** — Customizable weights, synonym matching, graduated salary scoring
-- **Resume Matching** — 300+ skills, experience/education matching, weighted scoring (50/30/20)
-- **Resume Builder UI** — Skill confidence scores, template previews, ATS score integration
-- **ATS Optimizer** — Side-by-side comparison, keyword density heatmap
-- **Settings UI** — Configure scoring weights, remote preferences, company lists
-- **OS-native credentials** — Keychain (macOS), Credential Manager (Windows)
-- **Dark mode** — Full dark theme support across all pages
+- **Market Intelligence UI** — Interactive charts, tabbed layout, location heatmaps
+- **Visible navigation sidebar** — All features accessible without keyboard shortcuts
+- **Production builds** — Windows MSI and macOS DMG installers available
 
 ---
 

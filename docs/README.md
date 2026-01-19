@@ -118,11 +118,11 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.6: ML predictions, installers)
 - **One-Click Apply**: 18 commands (profile, screening answers, attempts, ATS detection, browser)
 - **Health**: 9 commands (scraper health, smoke tests, credential expiry)
 
-### Planned Features (v2.1+)
+### Planned Features (v2.6+)
 
-- macOS/Linux installers
-- CI/CD Pipeline
+- Machine Learning Predictions
 - Browser Extension
+- Mobile Companion App
 
 ---
 
@@ -167,6 +167,7 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.6: ML predictions, installers)
 
 ### Release Notes
 
+- **[v2.5.1 - Production Release](releases/v2.5.1.md)** - Official installers for Windows and macOS
 - **[v2.5 - Market Intelligence UI](releases/v2.5.md)** - Interactive charts, tabbed layout, heatmaps
 - **[v2.4 - Resume UI Enhancements](releases/v2.4.md)** - Skill visualization, comparison views
 - **[v2.3 - Health Monitoring](releases/v2.3.md)** - Scraper health, smoke tests
