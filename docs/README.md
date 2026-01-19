@@ -121,8 +121,8 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.6: ML predictions, installers)
 ### Planned Features (v2.6+)
 
 - Machine Learning Predictions
-- Browser Extension
-- Mobile Companion App
+- Linux Support
+- Intel Mac Support
 
 ---
 

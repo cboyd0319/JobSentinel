@@ -58,3 +58,4 @@ storybook-static
 coverage/
 playwright-report/
 test-results/
+.claude/

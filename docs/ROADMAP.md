@@ -308,10 +308,11 @@ See [docs/features/market-intelligence.md](features/market-intelligence.md) for 
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| macOS support (.dmg) | Planned | Development done on macOS |
-| Linux support (.deb, .rpm) | Planned | |
-| Browser Extension | Designed | In-page job scoring |
-| CI/CD Pipeline | Planned | Automated builds and releases |
+| macOS support (.dmg) | ✅ Done | v2.5.1 |
+| Windows support (.msi) | ✅ Done | v2.5.1 |
+| Linux support (.deb, .rpm) | Planned | v2.6 |
+| Intel Mac support | Planned | v2.6 |
+| CI/CD Pipeline | ✅ Done | GitHub Actions |
 | **Expanded Scrapers** | Planned | See scraper wishlist below |
 
 ---
@@ -379,18 +380,11 @@ extracts job data → sends to local JobSentinel.
 - **Why legal:** Runs in USER's browser with THEIR session. Not server-side scraping.
 - **Implementation:** Generate bookmarklet code in frontend
 
-#### 4. Browser Extension (v3.0+)
-
-Full extension that offers "Save to JobSentinel" on any job page.
-
-- **Why legal:** User's browser, user's session, user-initiated action
-- **Scope:** Future major feature
-
-#### 5. RSS Feeds
+#### 4. RSS Feeds
 
 Some sites offer public RSS feeds - these are explicitly permitted.
 
-#### 6. Government Open Data
+#### 5. Government Open Data
 
 Many governments publish job data as open CSV/JSON:
 
@@ -406,7 +400,6 @@ Many governments publish job data as open CSV/JSON:
 5. 🔲 Bookmarklet generator
 6. 🔲 Curated job board directory with direct links
 7. 🔲 RSS feed discovery and parsing
-8. 🔲 Browser extension (v3.0+)
 
 ### Community Contributions
 

@@ -360,19 +360,13 @@ JavaScript bookmarklet user installs in their browser. They browse to any job, c
 - **Why it's legal:** Runs in USER's browser with THEIR session. Not server-side scraping.
 - **Implementation:** Generate bookmarklet code in frontend, user drags to bookmarks bar
 
-#### 4. Browser Extension (Future)
-Full extension that offers "Save to JobSentinel" on any job page.
-
-- **Why it's legal:** User's browser, user's session, user-initiated action
-- **Scope:** v3.0+ feature
-
-#### 5. RSS Feeds (Where Available)
+#### 4. RSS Feeds (Where Available)
 Some sites offer public RSS feeds - these are explicitly permitted.
 
 - Check each site for RSS availability
 - RSS is an invitation to consume data programmatically
 
-#### 6. Government Open Data
+#### 5. Government Open Data
 Many governments publish job data as open CSV/JSON:
 
 - data.gov federal datasets
@@ -388,7 +382,6 @@ Many governments publish job data as open CSV/JSON:
 5. 🔲 Bookmarklet generator
 6. 🔲 Curated job board directory with direct links
 7. 🔲 RSS feed discovery and parsing
-8. 🔲 Browser extension (v3.0+)
 
 ## Common Tasks
 
