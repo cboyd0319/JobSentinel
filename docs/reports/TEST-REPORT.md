@@ -38,6 +38,7 @@ Unlike previous testing with mock data, this validation tested the **real Tauri 
 ### Migration Consolidation
 
 Merged 22 migration files into single schema file:
+
 - **Before:** 22 incremental migrations with checksum issues
 - **After:** 1 consolidated schema (1579 lines)
 - **Rationale:** No users exist yet, no backward compatibility needed

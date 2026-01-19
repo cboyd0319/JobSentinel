@@ -29,7 +29,7 @@ pub mod yc_startup;
 pub mod ziprecruiter;
 
 // NOTE: GovernmentJobs.com and ClearanceJobs.com explicitly prohibit scraping in their ToS.
-// We provide Deep Link Generator and Bookmarklet features instead. See CLAUDE.md for details.
+// We provide Deep Link Generator and Bookmarklet features instead. See docs/CLAUDE.md for details.
 
 /// Scraper result using anyhow for automatic Send + Sync
 pub type ScraperResult = Result<Vec<Job>>;

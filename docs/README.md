@@ -7,9 +7,9 @@ Welcome to JobSentinel documentation.
 **If you're an AI assistant working on this codebase:**
 
 1. **USE SUB-AGENTS** - Parallelize work with Task tool. Don't read files sequentially.
-2. **UPDATE DOCS** - After ANY change, update relevant docs (see table in CLAUDE.md)
+2. **UPDATE DOCS** - After ANY change, update relevant docs (see table in docs/CLAUDE.md)
 3. **CHECK FILE SIZES** - Keep files <500 lines. See [ROADMAP.md](ROADMAP.md) for refactoring plan.
-4. **READ CLAUDE.md FIRST** - Contains project context and critical requirements.
+4. **READ docs/CLAUDE.md FIRST** - Contains project context and critical requirements.
 
 ### Current Version: 2.5.1 (Production Ready)
 

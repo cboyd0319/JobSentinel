@@ -247,7 +247,7 @@ All webhook integrations validate URLs to prevent data exfiltration:
 
 - `.env` files - Properly gitignored
 - API keys in source - Only test fixtures, not production
-- Webhook URLs - Only example placeholders in config.example.json
+- Webhook URLs - Only example placeholders in config/config.example.json
 - User config stored at platform-specific secure locations
 
 ### Status: ✅ No action required

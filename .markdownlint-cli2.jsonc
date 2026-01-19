@@ -21,7 +21,7 @@
     "src-tauri/gen/",
     ".vale/styles/",
     "CHANGELOG.md",
-    "CLAUDE.md",
+    "docs/CLAUDE.md",
     ".claude/",
     "docs/archive/",
     "browser-extension/"

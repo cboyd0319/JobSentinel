@@ -34,7 +34,7 @@ RIGHT: Launch 3 Explore agents in parallel → Receive all results → Decide wi
 | Change Type | Must Update |
 |------------|-------------|
 | New feature | `CHANGELOG.md`, `docs/features/`, `README.md`, `docs/ROADMAP.md` |
-| New Tauri command | `CLAUDE.md`, `docs/README.md` |
+| New Tauri command | `docs/CLAUDE.md`, `docs/README.md` |
 | Bug fix | `CHANGELOG.md` |
 | Refactoring | `docs/ROADMAP.md` (Technical Debt section) |
 | New scraper | `docs/features/scrapers.md`, `CHANGELOG.md` |
@@ -196,7 +196,7 @@ git commit -m "feat: Add support for Indeed job scraper
 - Implement IndeedScraper in src-tauri/src/core/scrapers/
 - Add parsing for Indeed job listings
 - Add tests for Indeed scraper
-- Update config.example.json with Indeed URLs
+- Update config/config.example.json with Indeed URLs
 
 Closes #123"
 ```
@@ -397,7 +397,7 @@ Before submitting:
 - [ ] No linter warnings (`cargo clippy`, `npm run lint`)
 - [ ] **Documentation updated** (MANDATORY - see table above)
 - [ ] CHANGELOG.md updated (for ALL significant changes)
-- [ ] CLAUDE.md updated (if commands/structure changed)
+- [ ] docs/CLAUDE.md updated (if commands/structure changed)
 - [ ] docs/ROADMAP.md updated (if adding to technical debt)
 - [ ] Tested on Windows and/or macOS
 - [ ] No files exceed 500 lines (move tests to `tests.rs` if needed)
@@ -429,7 +429,7 @@ Closes #123
 ## Documentation Updates (REQUIRED)
 - [ ] CHANGELOG.md updated
 - [ ] Feature docs updated (if new feature)
-- [ ] CLAUDE.md updated (if structure/commands changed)
+- [ ] docs/CLAUDE.md updated (if structure/commands changed)
 - [ ] ROADMAP.md updated (if technical debt added)
 - [ ] N/A - No docs needed (explain why)
 
@@ -482,7 +482,7 @@ pub mod indeed;
 **3. Add configuration:**
 
 ```json
-// config.example.json
+// config/config.example.json
 {
   "indeed_urls": ["https://www.indeed.com/jobs?q=engineer"]
 }

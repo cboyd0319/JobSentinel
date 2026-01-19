@@ -42,7 +42,7 @@ When to spawn sub-agents:
 | Bug fix | `CHANGELOG.md` |
 | Refactoring | `docs/ROADMAP.md` (Technical Debt section) |
 | New scraper | `docs/features/scrapers.md`, `CHANGELOG.md` |
-| Config change | `config.example.json`, relevant docs |
+| Config change | `config/config.example.json`, relevant docs |
 
 **Documentation locations:**
 
@@ -294,7 +294,7 @@ and start proper migrations from that baseline.
 - `src/components/GhostIndicator.tsx` - Ghost job warning indicators
 - `src/components/` - UI component library (52 components)
 - `src/contexts/KeyboardShortcutsContext.tsx` - Keyboard navigation
-- `config.example.json` - Example configuration
+- `config/config.example.json` - Example configuration
 
 ## Privacy Requirements
 
@@ -342,16 +342,17 @@ User pastes ANY job URL → we fetch that ONE page → parse Schema.org/JobPosti
 - **Supports:** Any site with JobPosting schema (most major job boards)
 
 #### 2. Deep Link Generator
+
 Build pre-filled search URLs that open in user's browser.
 
-```
+```text
 User enters: "security engineer" + "Denver, CO"
 We generate: https://www.governmentjobs.com/jobs?keyword=security+engineer&location=Denver
 User clicks → opens in their browser with search ready
 ```
 
 - **Why it's legal:** We're building URLs, not scraping. User's browser, user's session.
-- **Sites to support:** GovernmentJobs, ClearanceJobs, Glassdoor, LinkedIn, Indeed, + 10 more
+- **Sites to support:** GovernmentJobs, ClearanceJobs, Glassdoor, LinkedIn, Indeed, + more
 
 #### 3. Bookmarklet
 JavaScript bookmarklet user installs in their browser. They browse to any job, click bookmarklet → extracts job data → sends to local JobSentinel.

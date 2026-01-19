@@ -38,7 +38,7 @@ copy profiles\seo-digital-marketing.json %LOCALAPPDATA%\JobSentinel\config.json
 
 ### Option 3: Create a Custom Profile
 
-Start with `config.example.json` and fill in your own:
+Start with `config/config.example.json` and fill in your own:
 
 - `title_allowlist`: Job titles you're targeting
 - `keywords_boost`: Your skills and tools
