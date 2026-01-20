@@ -221,6 +221,7 @@ npm run tauri:build
 macOS may show "JobSentinel can't be opened because Apple cannot check it for malicious software."
 
 **To fix this:**
+
 1. Go to **System Settings → Privacy & Security**
 2. Scroll down and click **"Open Anyway"** next to the JobSentinel message
 3. Click **Open** in the confirmation dialog
@@ -235,6 +236,7 @@ This only happens once. JobSentinel is safe — it's open source and you can ver
 Windows SmartScreen may show "Windows protected your PC" because JobSentinel is new.
 
 **To continue:**
+
 1. Click **"More info"**
 2. Click **"Run anyway"**
 
