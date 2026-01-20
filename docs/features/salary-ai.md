@@ -1,5 +1,39 @@
 # Salary Negotiation AI
 
+**Know your worth. Negotiate with confidence.**
+
+Not sure if a job offer is fair? JobSentinel's Salary AI shows you what similar roles actually
+pay, based on real data from 500,000+ verified salaries. Get personalized negotiation scripts
+so you know exactly what to say.
+
+---
+
+## What Can Salary AI Do For You?
+
+- **See if your offer is fair** — Compare it to real salaries for similar roles in your area
+- **Get negotiation scripts** — Copy-paste templates for asking for more money
+- **Compare multiple offers** — Side-by-side analysis when you have more than one offer
+- **Find top-paying locations** — See which cities pay the most for your role
+
+---
+
+## How to Use It
+
+1. Click **Salary AI** in the sidebar
+2. Enter a job title and location
+3. See the salary range (minimum, median, maximum)
+4. Click **Generate Script** for negotiation help
+
+That's it! The data comes from public U.S. government records (H1B visa applications),
+which are verified and updated quarterly.
+
+---
+
+## Technical Documentation
+
+<details>
+<summary><strong>For developers and the curious</strong></summary>
+
 ## Data-Driven Compensation Intelligence & Negotiation Assistance
 
 > **Status:** ENABLED - Module fully functional
@@ -599,3 +633,5 @@ impl SalaryPredictor {
 
 💡 **Pro Tip:** Always negotiate! Research shows 70% of employers expect it, and the average
 salary increase from negotiation is 10-15%.
+
+</details>

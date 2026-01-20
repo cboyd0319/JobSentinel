@@ -1,5 +1,37 @@
 # Job Market Intelligence Dashboard
 
+**See what's happening in the job market — at a glance.**
+
+Which skills are companies looking for right now? Which companies are hiring aggressively?
+Are salaries going up or down? JobSentinel's Market Intelligence shows you the trends so
+you can make smarter career decisions.
+
+---
+
+## What Can Market Intelligence Do For You?
+
+- **See trending skills** — Know which skills to learn next
+- **Find active companies** — See who's hiring the most
+- **Track salary trends** — Are salaries rising or falling for your role?
+- **Get market alerts** — Get notified when skills surge or companies go on hiring sprees
+
+---
+
+## How to Use It
+
+1. Click **Market Intelligence** in the sidebar
+2. Browse the tabs: Overview, Skills, Companies, Locations, Alerts
+3. Click on any item to see more details
+
+The data updates automatically as JobSentinel finds new jobs.
+
+---
+
+## Technical Documentation
+
+<details>
+<summary><strong>For developers and the curious</strong></summary>
+
 ## Real-Time Analytics & Trend Visualization
 
 > **Status:** ENABLED - Module fully functional with UI
@@ -795,3 +827,5 @@ if let Some(company) = target_company {
 
 💡 **Pro Tip:** Run daily analysis as a scheduled job to maintain up-to-date market insights.
 Enable market alerts to get notified of significant changes in your target skills or companies!
+
+</details>

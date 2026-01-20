@@ -116,7 +116,7 @@ That's it. No accounts. No subscriptions. No data harvesting. Just... jobs that 
 | **You miss jobs while sleeping** | JobSentinel watches 13 job boards 24/7 and pings you instantly |
 | **Half the listings are ghost jobs** | Built-in ghost detection flags fake, stale, and already-filled positions |
 | **Applications take forever** | One-click apply fills forms automatically (you still click Submit) |
-| **You're guessing at salary** | Salary AI shows real market rates from H1B data |
+| **You're guessing at salary** | Salary AI shows real market rates from public government data |
 | **Subscription fatigue** | **Free forever.** No premium tier. No "upgrade to unlock." |
 
 ### What Makes It Special
@@ -140,6 +140,7 @@ That's it. No accounts. No subscriptions. No data harvesting. Just... jobs that 
 **Resume Builder + ATS Optimizer**
 
 - Build professional resumes with 5 templates
+- ATS (Applicant Tracking System) is software companies use to filter resumes — we help you pass those filters
 - See exactly which keywords you're missing before you apply
 - Export to Word (.docx) ready to upload
 
@@ -213,6 +214,33 @@ npm run tauri:build
 
 **That's it.** The app is ~10MB and runs without admin rights.
 
+<details>
+<summary><strong>First time on Mac? (Gatekeeper warning)</strong></summary>
+<br>
+
+macOS may show "JobSentinel can't be opened because Apple cannot check it for malicious software."
+
+**To fix this:**
+1. Go to **System Settings → Privacy & Security**
+2. Scroll down and click **"Open Anyway"** next to the JobSentinel message
+3. Click **Open** in the confirmation dialog
+
+This only happens once. JobSentinel is safe — it's open source and you can verify the code yourself.
+</details>
+
+<details>
+<summary><strong>Windows showing a blue warning?</strong></summary>
+<br>
+
+Windows SmartScreen may show "Windows protected your PC" because JobSentinel is new.
+
+**To continue:**
+1. Click **"More info"**
+2. Click **"Run anyway"**
+
+This is normal for new apps. JobSentinel is safe — it's open source and you can verify the code yourself.
+</details>
+
 ### Step 2: Setup (2 minutes)
 
 When you first open JobSentinel, a friendly wizard asks you four questions:
@@ -227,7 +255,8 @@ When you first open JobSentinel, a friendly wizard asks you four questions:
    - Enter a number or $0 to see everything
 
 4. **Want instant alerts?** (optional)
-   - Add a Slack, Discord, or Teams webhook to get pinged when great jobs appear
+   - Connect Slack, Discord, or Teams to get pinged when great jobs appear
+   - (A "webhook" is just a special URL that lets JobSentinel send messages to these apps)
 
 Done. JobSentinel starts watching job boards immediately.
 
@@ -322,10 +351,8 @@ Your job search data is stored in a local SQLite database that only you can acce
 <details>
 <summary><strong>I'm not technical. Can I still use this?</strong></summary>
 <br>
-That's the goal! Once official installers are released, you'll just download, double-click, and go.
-
-Right now, building from source requires some command-line basics, but the instructions above
-should work even if you've never done it before.
+Absolutely! Just download the installer for your platform (Windows or Mac), double-click, and go.
+No command line or technical knowledge required.
 </details>
 
 ---
@@ -404,6 +431,6 @@ Your future is yours.
 
 <br>
 
-<sub>MIT License — Free forever — Zero data collection</sub>
+<sub>Open source and free forever — Zero data collection</sub>
 
 </div>

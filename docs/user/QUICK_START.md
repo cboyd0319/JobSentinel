@@ -19,6 +19,35 @@ You'll need to install JobSentinel on your computer. Here's the quick version:
 3. Double-click and follow the prompts
 4. Done!
 
+<details>
+<summary><strong>First time on Mac? (Gatekeeper warning)</strong></summary>
+<br>
+
+macOS may show "JobSentinel can't be opened because Apple cannot check it for malicious software."
+
+**To fix this:**
+
+1. Go to **System Settings → Privacy & Security**
+2. Scroll down and click **"Open Anyway"** next to the JobSentinel message
+3. Click **Open** in the confirmation dialog
+
+This only happens once. JobSentinel is safe — it's open source and you can verify the code yourself.
+</details>
+
+<details>
+<summary><strong>Windows showing a blue warning?</strong></summary>
+<br>
+
+Windows SmartScreen may show "Windows protected your PC" because JobSentinel is new.
+
+**To continue:**
+
+1. Click **"More info"**
+2. Click **"Run anyway"**
+
+This is normal for new apps. JobSentinel is safe — it's open source and you can verify the code yourself.
+</details>
+
 **Option B: Build from Source**
 
 If you're comfortable with command-line basics:
@@ -78,7 +107,8 @@ Not sure? Start with $0 to see everything, then raise it later.
 
 Connect Slack, Discord, or Teams to get notified when great jobs appear.
 
-Don't have a webhook? Skip this for now - you can always add it later in Settings.
+Don't know what a webhook is? No problem — it's just a special URL that lets JobSentinel
+send messages to these apps. Skip this for now and add it later in Settings if you want.
 
 ---
 
@@ -163,12 +193,14 @@ Create professional resumes right inside JobSentinel:
 
 1. Click **Resume Builder** in the sidebar
 2. Follow the 7-step wizard
-3. Pick from 5 ATS-friendly templates
+3. Pick from 5 ATS-friendly templates (designed to pass company resume-filtering software)
 4. Export to Word (.docx)
 
 ### ATS Optimizer ✅
 
-See how your resume scores against a job description:
+ATS stands for "Applicant Tracking System" — it's software that companies use to filter
+resumes before a human ever sees them. The optimizer helps you see how your resume scores
+against a specific job so you can improve it:
 
 1. Click **Resume Optimizer** in the sidebar
 2. Paste the job description

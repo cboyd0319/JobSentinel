@@ -1,4 +1,35 @@
-# Application Tracking System (ATS)
+# Application Tracking
+
+**Never lose track of a job application again.**
+
+Applied to 50 jobs and can't remember which ones? JobSentinel's Application Tracker is like
+a Trello board for your job search. Drag applications between columns as they progress,
+set reminders to follow up, and see your entire pipeline at a glance.
+
+---
+
+## What Can the Application Tracker Do For You?
+
+- **Visual pipeline** — See all your applications organized by status (Applied, Interviewing, Offer, etc.)
+- **Automatic reminders** — Get reminded to follow up or send thank-you emails
+- **Ghosting detection** — Know when a company has gone silent
+- **Notes & contacts** — Keep recruiter info and notes with each application
+
+---
+
+## How to Use It
+
+1. Click **Applications** in the sidebar
+2. When you find a job you like, click **"Track Application"**
+3. Drag cards between columns as your application progresses
+4. Click any card to add notes, set reminders, or update status
+
+---
+
+## Technical Documentation
+
+<details>
+<summary><strong>For developers and the curious</strong></summary>
 
 ## Kanban Board & Pipeline Management for JobSentinel
 
@@ -508,3 +539,5 @@ pub struct ApplicationsByStatus {
 **Maintained By:** JobSentinel Core Team
 **Implementation Status:** ✅ Core Complete (Phase 1)
 **Next Feature:** UI Connections & Polish (v1.4 E4)
+
+</details>

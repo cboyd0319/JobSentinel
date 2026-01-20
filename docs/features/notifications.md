@@ -9,6 +9,14 @@ No more checking job boards manually - let the jobs come to you.
 
 ---
 
+## What's a Webhook?
+
+A webhook is just a special URL that lets JobSentinel send messages to apps like Slack,
+Discord, or Teams. Think of it like giving JobSentinel your "address" so it knows where
+to send job alerts. You create this URL in Slack/Discord/Teams, then paste it into JobSentinel.
+
+---
+
 ## Available Notification Channels
 
 Pick whichever channels work best for you:

@@ -156,6 +156,36 @@ isn't actually hiring, or posted it just to collect resumes.
 
 ---
 
+## Installation terms
+
+### Gatekeeper (macOS)
+
+**What it is:** Apple's security feature that prevents apps from unknown developers from running.
+
+**Write this:** "Mac security warning" or just describe the fix
+
+**Example:** "If Mac shows a security warning, go to System Settings → Privacy & Security and click 'Open Anyway'."
+
+### SmartScreen (Windows)
+
+**What it is:** Microsoft's security feature that warns about apps from unknown publishers.
+
+**Write this:** "Windows security warning" or just describe the fix
+
+**Example:** "If Windows shows a blue warning screen, click 'More info' then 'Run anyway'."
+
+### Installer / MSI / DMG
+
+**What it is:** A file that installs the app on your computer.
+
+**Write this:** "installer" (lowercase, no technical file extension)
+
+**Don't write:** "Download the .msi file"
+
+**Write instead:** "Download the Windows installer"
+
+---
+
 ## Adding new terms
 
 When you encounter a technical term that needs a plain-language alternative:
