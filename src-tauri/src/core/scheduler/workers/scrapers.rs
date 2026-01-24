@@ -11,15 +11,12 @@ use crate::core::{
         dice::DiceScraper,
         greenhouse::{GreenhouseCompany, GreenhouseScraper},
         hn_hiring::HnHiringScraper,
-        indeed::IndeedScraper,
         jobswithgpt::{JobQuery, JobsWithGptScraper},
         lever::{LeverCompany, LeverScraper},
         linkedin::LinkedInScraper,
         remoteok::RemoteOkScraper,
-        wellfound::WellfoundScraper,
         weworkremotely::WeWorkRemotelyScraper,
         yc_startup::YcStartupScraper,
-        ziprecruiter::ZipRecruiterScraper,
         JobScraper,
     },
 };
@@ -154,28 +151,7 @@ pub async fn run_scrapers(config: &Arc<Config>) -> (Vec<Job>, Vec<String>) {
         }
     }
 
-    // 5. Indeed scraper - no authentication required
-    if config.indeed.enabled && !config.indeed.query.is_empty() {
-        tracing::info!("Running Indeed scraper");
-        let indeed =
-            IndeedScraper::new(config.indeed.query.clone(), config.indeed.location.clone())
-                .with_radius(config.indeed.radius)
-                .with_limit(config.indeed.limit);
-
-        match indeed.scrape().await {
-            Ok(jobs) => {
-                tracing::info!("Indeed: {} jobs found", jobs.len());
-                all_jobs.extend(jobs);
-            }
-            Err(e) => {
-                let error_msg = format!("Indeed scraper failed: {}", e);
-                tracing::error!("{}", error_msg);
-                errors.push(error_msg);
-            }
-        }
-    }
-
-    // 6. RemoteOK scraper - public JSON API
+    // 5. RemoteOK scraper - public JSON API
     if config.remoteok.enabled {
         tracing::info!("Running RemoteOK scraper");
         let remoteok = RemoteOkScraper::new(config.remoteok.tags.clone(), config.remoteok.limit);
@@ -193,30 +169,7 @@ pub async fn run_scrapers(config: &Arc<Config>) -> (Vec<Job>, Vec<String>) {
         }
     }
 
-    // 7. Wellfound (AngelList Talent) scraper
-    if config.wellfound.enabled && !config.wellfound.role.is_empty() {
-        tracing::info!("Running Wellfound scraper");
-        let wellfound = WellfoundScraper::new(
-            config.wellfound.role.clone(),
-            config.wellfound.location.clone(),
-            config.wellfound.remote_only,
-            config.wellfound.limit,
-        );
-
-        match wellfound.scrape().await {
-            Ok(jobs) => {
-                tracing::info!("Wellfound: {} jobs found", jobs.len());
-                all_jobs.extend(jobs);
-            }
-            Err(e) => {
-                let error_msg = format!("Wellfound scraper failed: {}", e);
-                tracing::error!("{}", error_msg);
-                errors.push(error_msg);
-            }
-        }
-    }
-
-    // 8. WeWorkRemotely scraper - RSS feed
+    // 6. WeWorkRemotely scraper - RSS feed
     if config.weworkremotely.enabled {
         tracing::info!("Running WeWorkRemotely scraper");
         let weworkremotely = WeWorkRemotelyScraper::new(
@@ -237,31 +190,30 @@ pub async fn run_scrapers(config: &Arc<Config>) -> (Vec<Job>, Vec<String>) {
         }
     }
 
-    // 9. BuiltIn scraper - city-specific job boards
-    if config.builtin.enabled && !config.builtin.cities.is_empty() {
-        for city in &config.builtin.cities {
-            tracing::info!("Running BuiltIn scraper for {}", city);
-            let builtin = BuiltInScraper::new(
-                city.clone(),
-                config.builtin.category.clone(),
-                config.builtin.limit,
-            );
+    // 7. BuiltIn scraper - tech job board
+    if config.builtin.enabled {
+        let mode = if config.builtin.remote_only {
+            "remote"
+        } else {
+            "all"
+        };
+        tracing::info!("Running BuiltIn scraper ({})", mode);
+        let builtin = BuiltInScraper::new(config.builtin.remote_only, config.builtin.limit);
 
-            match builtin.scrape().await {
-                Ok(jobs) => {
-                    tracing::info!("BuiltIn ({}): {} jobs found", city, jobs.len());
-                    all_jobs.extend(jobs);
-                }
-                Err(e) => {
-                    let error_msg = format!("BuiltIn ({}) scraper failed: {}", city, e);
-                    tracing::error!("{}", error_msg);
-                    errors.push(error_msg);
-                }
+        match builtin.scrape().await {
+            Ok(jobs) => {
+                tracing::info!("BuiltIn: {} jobs found", jobs.len());
+                all_jobs.extend(jobs);
+            }
+            Err(e) => {
+                let error_msg = format!("BuiltIn scraper failed: {}", e);
+                tracing::error!("{}", error_msg);
+                errors.push(error_msg);
             }
         }
     }
 
-    // 10. Hacker News Who's Hiring scraper
+    // 8. Hacker News Who's Hiring scraper
     if config.hn_hiring.enabled {
         tracing::info!("Running HN Who's Hiring scraper");
         let hn_hiring = HnHiringScraper::new(config.hn_hiring.limit, config.hn_hiring.remote_only);
@@ -279,7 +231,7 @@ pub async fn run_scrapers(config: &Arc<Config>) -> (Vec<Job>, Vec<String>) {
         }
     }
 
-    // 11. Dice scraper - tech job board
+    // 9. Dice scraper - tech job board
     if config.dice.enabled && !config.dice.query.is_empty() {
         tracing::info!("Running Dice scraper");
         let dice = DiceScraper::new(
@@ -301,7 +253,7 @@ pub async fn run_scrapers(config: &Arc<Config>) -> (Vec<Job>, Vec<String>) {
         }
     }
 
-    // 12. Y Combinator Work at a Startup scraper
+    // 10. Y Combinator Work at a Startup scraper
     if config.yc_startup.enabled {
         tracing::info!("Running YC Startup scraper");
         let yc_startup = YcStartupScraper::new(
@@ -317,29 +269,6 @@ pub async fn run_scrapers(config: &Arc<Config>) -> (Vec<Job>, Vec<String>) {
             }
             Err(e) => {
                 let error_msg = format!("YC Startup scraper failed: {}", e);
-                tracing::error!("{}", error_msg);
-                errors.push(error_msg);
-            }
-        }
-    }
-
-    // 13. ZipRecruiter scraper - RSS feed
-    if config.ziprecruiter.enabled && !config.ziprecruiter.query.is_empty() {
-        tracing::info!("Running ZipRecruiter scraper");
-        let ziprecruiter = ZipRecruiterScraper::new(
-            config.ziprecruiter.query.clone(),
-            config.ziprecruiter.location.clone(),
-            config.ziprecruiter.radius,
-            config.ziprecruiter.limit,
-        );
-
-        match ziprecruiter.scrape().await {
-            Ok(jobs) => {
-                tracing::info!("ZipRecruiter: {} jobs found", jobs.len());
-                all_jobs.extend(jobs);
-            }
-            Err(e) => {
-                let error_msg = format!("ZipRecruiter scraper failed: {}", e);
                 tracing::error!("{}", error_msg);
                 errors.push(error_msg);
             }

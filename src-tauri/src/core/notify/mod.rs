@@ -282,7 +282,7 @@ mod tests {
     /// Helper to create a minimal disabled config
     fn create_disabled_config() -> Arc<Config> {
         use crate::core::config::{
-            AutoRefreshConfig, IndeedConfig, LinkedInConfig, LocationPreferences,
+            AutoRefreshConfig, LinkedInConfig, LocationPreferences,
         };
 
         Arc::new(Config {
@@ -343,16 +343,13 @@ mod tests {
             greenhouse_urls: vec![],
             lever_urls: vec![],
             linkedin: LinkedInConfig::default(),
-            indeed: IndeedConfig::default(),
             jobswithgpt_endpoint: "https://api.jobswithgpt.com/mcp".to_string(),
             remoteok: Default::default(),
-            wellfound: Default::default(),
             weworkremotely: Default::default(),
             builtin: Default::default(),
             hn_hiring: Default::default(),
             dice: Default::default(),
             yc_startup: Default::default(),
-            ziprecruiter: Default::default(),
             ghost_config: None,
             company_whitelist: vec![],
             company_blacklist: vec![],
@@ -895,7 +892,7 @@ mod tests {
         let notification = create_test_notification();
 
         // Source should be a known scraper
-        let valid_sources = ["greenhouse", "lever", "linkedin", "indeed", "jobswithgpt"];
+        let valid_sources = ["greenhouse", "lever", "linkedin", "remoteok", "weworkremotely", "hn_hiring", "yc_startup", "dice", "builtin", "usajobs", "jobswithgpt"];
         assert!(
             valid_sources.contains(&notification.job.source.as_str()),
             "Job source should be a known scraper"

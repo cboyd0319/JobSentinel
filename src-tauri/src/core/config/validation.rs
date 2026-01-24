@@ -240,27 +240,5 @@ pub fn validate_config(config: &Config) -> Result<(), Box<dyn std::error::Error>
         }
     }
 
-    // Validate Indeed configuration if enabled
-    if config.indeed.enabled {
-        if config.indeed.query.is_empty() {
-            return Err("Indeed search query is required when Indeed is enabled".into());
-        }
-        if config.indeed.query.len() > 200 {
-            return Err("Indeed search query too long (max: 200 chars)".into());
-        }
-        if config.indeed.location.len() > 100 {
-            return Err("Indeed location too long (max: 100 chars)".into());
-        }
-        if config.indeed.radius > 100 {
-            return Err("Indeed search radius cannot exceed 100 miles".into());
-        }
-        if config.indeed.limit > 100 {
-            return Err("Indeed result limit cannot exceed 100".into());
-        }
-        if config.indeed.limit == 0 {
-            return Err("Indeed result limit must be at least 1".into());
-        }
-    }
-
     Ok(())
 }

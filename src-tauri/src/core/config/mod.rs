@@ -11,7 +11,7 @@ mod validation;
 // Re-export public types
 pub use types::{
     AlertConfig, AutoRefreshConfig, Config, DesktopConfig, DiscordConfig, EmailConfig,
-    IndeedConfig, LinkedInConfig, LocationPreferences, SlackConfig, TeamsConfig, TelegramConfig,
+    LinkedInConfig, LocationPreferences, SlackConfig, TeamsConfig, TelegramConfig,
 };
 
 // Tests

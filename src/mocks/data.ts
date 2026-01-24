@@ -84,7 +84,7 @@ export const mockJobs = [
     location: "Boston, MA",
     description: "Drive conversion optimization and merchandising strategy for our home goods categories. Experience with Salesforce Commerce Cloud, A/B testing, and e-commerce analytics...",
     url: "https://example.com/jobs/5",
-    source: "indeed",
+    source: "direct",
     salary_min: 85000,
     salary_max: 120000,
     remote: false,
@@ -186,13 +186,6 @@ export const mockConfig = {
     remote_only: true,
     limit: 50,
   },
-  indeed: {
-    enabled: false,
-    query: "software engineer",
-    location: "United States",
-    radius: 50,
-    limit: 50,
-  },
   auto_refresh: {
     enabled: true,
     interval_minutes: 30,
@@ -209,7 +202,7 @@ export const mockStatistics = {
     linkedin: 52,
     greenhouse: 41,
     lever: 28,
-    indeed: 35,
+    direct: 35,
   },
 };
 

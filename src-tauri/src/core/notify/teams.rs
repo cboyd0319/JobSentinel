@@ -1348,7 +1348,7 @@ mod tests {
     #[test]
     fn test_activity_subtitle_format_variations() {
         let cases = vec![
-            ("Acme Corp", "indeed", "Acme Corp • indeed"),
+            ("Acme Corp", "remoteok", "Acme Corp • remoteok"),
             ("A", "B", "A • B"),
             ("Company Name", "lever", "Company Name • lever"),
         ];

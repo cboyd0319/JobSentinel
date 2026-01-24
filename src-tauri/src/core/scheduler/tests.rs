@@ -31,16 +31,13 @@ fn create_test_config() -> Config {
         greenhouse_urls: vec![],
         lever_urls: vec![],
         linkedin: Default::default(),
-        indeed: Default::default(),
         jobswithgpt_endpoint: "https://api.jobswithgpt.com/mcp".to_string(),
         remoteok: Default::default(),
-        wellfound: Default::default(),
         weworkremotely: Default::default(),
         builtin: Default::default(),
         hn_hiring: Default::default(),
         dice: Default::default(),
         yc_startup: Default::default(),
-        ziprecruiter: Default::default(),
         ghost_config: None,
         company_whitelist: vec![],
         company_blacklist: vec![],
@@ -1168,91 +1165,6 @@ async fn test_scraping_cycle_with_linkedin_empty_cookie() {
 }
 
 // ========================================
-// Indeed Scraper Configuration Tests
-// ========================================
-
-#[tokio::test]
-async fn test_scraping_cycle_with_indeed_enabled() {
-    let mut config = create_test_config();
-    config.indeed.enabled = true;
-    config.indeed.query = "Security Engineer".to_string();
-    config.indeed.location = "Remote".to_string();
-    config.indeed.radius = 50;
-    config.indeed.limit = 100;
-    let config = Arc::new(config);
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
-    let database = Arc::new(db);
-
-    let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
-
-    // Run cycle - will fail to scrape but should handle gracefully
-    let result = scheduler.run_scraping_cycle().await.unwrap();
-
-    // Cycle should complete (Indeed errors expected)
-    assert!(result.jobs_found == 0 || result.errors.len() > 0);
-}
-
-#[tokio::test]
-async fn test_scraping_cycle_with_indeed_disabled() {
-    let mut config = create_test_config();
-    config.indeed.enabled = false;
-    let config = Arc::new(config);
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
-    let database = Arc::new(db);
-
-    let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
-
-    // Run cycle - should skip Indeed
-    let result = scheduler.run_scraping_cycle().await.unwrap();
-
-    // No Indeed errors since it was disabled
-    assert!(!result.errors.iter().any(|e| e.contains("Indeed")));
-}
-
-#[tokio::test]
-async fn test_scraping_cycle_with_indeed_empty_query() {
-    let mut config = create_test_config();
-    config.indeed.enabled = true;
-    config.indeed.query = "".to_string(); // Empty query
-    let config = Arc::new(config);
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
-    let database = Arc::new(db);
-
-    let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
-
-    // Run cycle - should skip Indeed due to empty query
-    let result = scheduler.run_scraping_cycle().await.unwrap();
-
-    // Should not attempt Indeed scraping
-    assert!(!result.errors.iter().any(|e| e.contains("Indeed")));
-}
-
-#[tokio::test]
-async fn test_scraping_cycle_with_indeed_custom_radius() {
-    let mut config = create_test_config();
-    config.indeed.enabled = true;
-    config.indeed.query = "Developer".to_string();
-    config.indeed.location = "San Francisco".to_string();
-    config.indeed.radius = 25; // Custom radius
-    config.indeed.limit = 50;
-    let config = Arc::new(config);
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
-    let database = Arc::new(db);
-
-    let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
-
-    // Run cycle
-    let result = scheduler.run_scraping_cycle().await.unwrap();
-
-    // Cycle should complete (errors expected)
-    assert!(result.jobs_found == 0 || result.errors.len() > 0);
-}
-
-// ========================================
 // JobsWithGPT Scraper Tests
 // ========================================
 
@@ -1327,8 +1239,6 @@ async fn test_scraping_cycle_all_scrapers_enabled() {
     config.linkedin.enabled = true;
     config.linkedin.session_cookie = "cookie".to_string();
     config.linkedin.query = "Engineer".to_string();
-    config.indeed.enabled = true;
-    config.indeed.query = "Engineer".to_string();
     let config = Arc::new(config);
     let db = Database::connect_memory().await.unwrap();
     db.migrate().await.unwrap();
@@ -1350,7 +1260,6 @@ async fn test_scraping_cycle_all_scrapers_disabled() {
     config.lever_urls = vec![];
     config.title_allowlist = vec![];
     config.linkedin.enabled = false;
-    config.indeed.enabled = false;
     let config = Arc::new(config);
     let db = Database::connect_memory().await.unwrap();
     db.migrate().await.unwrap();
@@ -1730,30 +1639,6 @@ async fn test_scraping_cycle_linkedin_skipped_without_keyring_cookie() {
 }
 
 #[tokio::test]
-async fn test_scraping_cycle_indeed_error_path() {
-    // Tests lines 293-297 (Indeed error logging)
-    let mut config = create_test_config();
-    config.indeed.enabled = true;
-    config.indeed.query = "Engineer".to_string();
-    config.indeed.location = "Test Location".to_string();
-    let config = Arc::new(config);
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
-    let database = Arc::new(db);
-
-    let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));
-
-    // Run cycle - Indeed will fail
-    let result = scheduler.run_scraping_cycle().await.unwrap();
-
-    // Should have errors from Indeed scraper
-    assert!(
-        result.errors.iter().any(|e| e.contains("Indeed")),
-        "Should have Indeed error"
-    );
-}
-
-#[tokio::test]
 async fn test_scraping_cycle_all_scrapers_error_accumulation() {
     // Tests error accumulation from multiple scrapers
     let mut config = create_test_config();
@@ -1763,8 +1648,6 @@ async fn test_scraping_cycle_all_scrapers_error_accumulation() {
     config.linkedin.enabled = true;
     config.linkedin.session_cookie = "invalid".to_string();
     config.linkedin.query = "Engineer".to_string();
-    config.indeed.enabled = true;
-    config.indeed.query = "Engineer".to_string();
     let config = Arc::new(config);
     let db = Database::connect_memory().await.unwrap();
     db.migrate().await.unwrap();
@@ -1778,8 +1661,8 @@ async fn test_scraping_cycle_all_scrapers_error_accumulation() {
     // Should accumulate errors from multiple scrapers
     // Note: Some scrapers may succeed or not error depending on network conditions
     assert!(
-        result.errors.len() >= 2,
-        "Should have multiple scraper errors, got: {}",
+        result.errors.len() >= 1,
+        "Should have scraper errors, got: {}",
         result.errors.len()
     );
 }
@@ -1952,8 +1835,6 @@ async fn test_complete_workflow_with_all_error_paths() {
     config.linkedin.enabled = true;
     config.linkedin.session_cookie = "test".to_string();
     config.linkedin.query = "Test".to_string();
-    config.indeed.enabled = true;
-    config.indeed.query = "Test".to_string();
     config.immediate_alert_threshold = 0.5;
 
     let config = Arc::new(config);
@@ -2241,8 +2122,6 @@ async fn test_scraping_cycle_all_error_branches() {
     config.linkedin.enabled = true;
     config.linkedin.session_cookie = "invalid_session".to_string();
     config.linkedin.query = "Software Engineer".to_string();
-    config.indeed.enabled = true;
-    config.indeed.query = "Developer".to_string();
     config.immediate_alert_threshold = 0.3;
 
     let config = Arc::new(config);

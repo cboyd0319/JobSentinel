@@ -105,24 +105,20 @@ const STATUS_LABELS: Record<string, string> = {
 // Source name mappings for display
 const SOURCE_LABELS: Record<string, string> = {
   linkedin: 'LinkedIn',
-  indeed: 'Indeed',
   greenhouse: 'Greenhouse',
   lever: 'Lever',
   jobswithgpt: 'JobsWithGPT',
   glassdoor: 'Glassdoor',
-  ziprecruiter: 'ZipRecruiter',
   direct: 'Direct',
   other: 'Other',
 };
 
 const SOURCE_COLORS: Record<string, string> = {
   linkedin: '#0A66C2',
-  indeed: '#2164F3',
   greenhouse: '#3AB549',
   lever: '#5B21B6',
   jobswithgpt: '#F59E0B',
   glassdoor: '#00A264',
-  ziprecruiter: '#1D4E89',
   direct: '#6B7280',
   other: '#9CA3AF',
 };

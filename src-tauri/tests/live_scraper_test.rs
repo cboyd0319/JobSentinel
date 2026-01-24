@@ -10,16 +10,15 @@ use jobsentinel::core::scrapers::{
     dice::DiceScraper,
     greenhouse::{GreenhouseCompany, GreenhouseScraper},
     hn_hiring::HnHiringScraper,
-    indeed::IndeedScraper,
     lever::{LeverCompany, LeverScraper},
     remoteok::RemoteOkScraper,
-    simplyhired::SimplyHiredScraper,
-    wellfound::WellfoundScraper,
     weworkremotely::WeWorkRemotelyScraper,
     yc_startup::YcStartupScraper,
-    ziprecruiter::ZipRecruiterScraper,
     JobScraper,
 };
+
+// REMOVED: indeed, ziprecruiter, wellfound, simplyhired
+// These scrapers were blocked by Cloudflare and have been removed from the codebase
 
 // ============================================================================
 // API-BASED SCRAPERS (Most reliable)
@@ -107,39 +106,14 @@ async fn test_weworkremotely_live() {
     }
 }
 
-#[tokio::test]
-async fn test_ziprecruiter_live() {
-    let scraper = ZipRecruiterScraper::new(
-        "software engineer".to_string(),
-        Some("remote".to_string()),
-        None,
-        50,
-    );
-
-    let result = scraper.scrape().await;
-    match result {
-        Ok(jobs) => {
-            println!("✅ ZipRecruiter: Found {} jobs", jobs.len());
-            // May be blocked by Cloudflare
-        }
-        Err(e) => {
-            println!("⚠️  ZipRecruiter: {}", e);
-            println!("    (Often blocked by Cloudflare - this is expected)");
-        }
-    }
-}
-
 // ============================================================================
 // HTML SCRAPERS (May be blocked or rate-limited)
 // ============================================================================
 
 #[tokio::test]
 async fn test_builtin_live() {
-    let scraper = BuiltInScraper::new(
-        "san-francisco".to_string(),
-        Some("dev-engineering".to_string()),
-        50,
-    );
+    // BuiltIn changed their URL structure - now uses /jobs and /jobs/remote
+    let scraper = BuiltInScraper::new(false, 50);
 
     let result = scraper.scrape().await;
     match result {
@@ -148,6 +122,23 @@ async fn test_builtin_live() {
         }
         Err(e) => {
             println!("⚠️  BuiltIn: {}", e);
+            println!("    (May be rate-limited or blocked)");
+        }
+    }
+}
+
+#[tokio::test]
+async fn test_builtin_remote_live() {
+    // Test the remote-only endpoint
+    let scraper = BuiltInScraper::new(true, 50);
+
+    let result = scraper.scrape().await;
+    match result {
+        Ok(jobs) => {
+            println!("✅ BuiltIn (Remote): Found {} jobs", jobs.len());
+        }
+        Err(e) => {
+            println!("⚠️  BuiltIn (Remote): {}", e);
             println!("    (May be rate-limited or blocked)");
         }
     }
@@ -169,42 +160,6 @@ async fn test_dice_live() {
     }
 }
 
-#[tokio::test]
-async fn test_indeed_live() {
-    let scraper = IndeedScraper::new("software engineer".to_string(), "remote".to_string());
-
-    let result = scraper.scrape().await;
-    match result {
-        Ok(jobs) => {
-            println!("✅ Indeed: Found {} jobs", jobs.len());
-        }
-        Err(e) => {
-            println!("⚠️  Indeed: {}", e);
-            println!("    (Usually blocked by Cloudflare - this is expected)");
-        }
-    }
-}
-
-#[tokio::test]
-async fn test_wellfound_live() {
-    let scraper = WellfoundScraper::new(
-        "software engineer".to_string(),
-        Some("Remote".to_string()),
-        true,
-        50,
-    );
-
-    let result = scraper.scrape().await;
-    match result {
-        Ok(jobs) => {
-            println!("✅ Wellfound: Found {} jobs", jobs.len());
-        }
-        Err(e) => {
-            println!("⚠️  Wellfound: {}", e);
-            println!("    (May require JavaScript rendering)");
-        }
-    }
-}
 
 #[tokio::test]
 async fn test_yc_startups_live() {
@@ -221,21 +176,6 @@ async fn test_yc_startups_live() {
     }
 }
 
-#[tokio::test]
-async fn test_simplyhired_live() {
-    let scraper = SimplyHiredScraper::new("developer".to_string());
-
-    let result = scraper.scrape().await;
-    match result {
-        Ok(jobs) => {
-            println!("✅ SimplyHired: Found {} jobs", jobs.len());
-        }
-        Err(e) => {
-            println!("⚠️  SimplyHired: {}", e);
-            println!("    (May be rate-limited)");
-        }
-    }
-}
 
 // ============================================================================
 // AUTH-REQUIRED SCRAPERS (Skipped - require credentials)

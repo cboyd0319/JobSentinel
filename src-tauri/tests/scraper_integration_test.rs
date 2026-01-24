@@ -15,15 +15,16 @@ use jobsentinel::core::scrapers::{
     dice::DiceScraper,
     greenhouse::{GreenhouseCompany, GreenhouseScraper},
     hn_hiring::HnHiringScraper,
-    indeed::IndeedScraper,
     lever::{LeverCompany, LeverScraper},
     linkedin::LinkedInScraper,
     remoteok::RemoteOkScraper,
     weworkremotely::WeWorkRemotelyScraper,
     yc_startup::YcStartupScraper,
-    ziprecruiter::ZipRecruiterScraper,
     JobScraper,
 };
+
+// REMOVED: indeed, ziprecruiter, wellfound, simplyhired
+// These scrapers were blocked by Cloudflare and have been removed from the codebase
 
 // ============================================================================
 // Test Fixtures - Sample Responses for Future Use
@@ -91,19 +92,6 @@ const WEWORKREMOTELY_RSS_RESPONSE: &str = r#"<?xml version="1.0" encoding="UTF-8
 <title><![CDATA[Company ABC: Senior Software Engineer]]></title>
 <link>https://weworkremotely.com/jobs/1</link>
 <description><![CDATA[We are looking for a senior engineer.]]></description>
-</item>
-</channel>
-</rss>"#;
-
-const ZIPRECRUITER_RSS_RESPONSE: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0">
-<channel>
-<title>ZipRecruiter Jobs</title>
-<item>
-<title>Software Engineer - Remote</title>
-<link>https://www.ziprecruiter.com/jobs/1</link>
-<source>TechCompany Inc</source>
-<description><![CDATA[Salary: $100k - $150k]]></description>
 </item>
 </channel>
 </rss>"#;
@@ -249,27 +237,6 @@ fn test_dice_scraper_with_location() {
 }
 
 #[test]
-fn test_ziprecruiter_scraper_construction() {
-    let scraper = ZipRecruiterScraper::new("software engineer".to_string(), None, None, 20);
-    assert_eq!(scraper.name(), "ziprecruiter");
-    assert_eq!(scraper.query, "software engineer");
-    assert_eq!(scraper.limit, 20);
-}
-
-#[test]
-fn test_ziprecruiter_scraper_with_params() {
-    let scraper = ZipRecruiterScraper::new(
-        "developer".to_string(),
-        Some("New York".to_string()),
-        Some(50),
-        10,
-    );
-    assert_eq!(scraper.name(), "ziprecruiter");
-    assert_eq!(scraper.location, Some("New York".to_string()));
-    assert_eq!(scraper.radius, Some(50));
-}
-
-#[test]
 fn test_yc_startup_scraper_construction() {
     let scraper = YcStartupScraper::new(None, false, 20);
     assert_eq!(scraper.name(), "yc_startup");
@@ -399,26 +366,19 @@ fn test_linkedin_scraper_construction() {
 }
 
 #[test]
-fn test_indeed_scraper_construction() {
-    let scraper = IndeedScraper::new("developer".to_string(), "Austin, TX".to_string());
-    assert_eq!(scraper.name(), "Indeed");
-    assert_eq!(scraper.query, "developer");
-    assert_eq!(scraper.location, "Austin, TX");
-}
-
-#[test]
 fn test_builtin_scraper_construction() {
-    let scraper = BuiltInScraper::new("San Francisco".to_string(), None, 10);
+    let scraper = BuiltInScraper::new(false, 50);
     assert_eq!(scraper.name(), "builtin");
-    assert_eq!(scraper.city, "San Francisco");
-    assert!(scraper.category.is_none());
+    assert!(!scraper.remote_only);
+    assert_eq!(scraper.limit, 50);
 }
 
 #[test]
-fn test_builtin_scraper_with_category() {
-    let scraper = BuiltInScraper::new("Austin".to_string(), Some("engineering".to_string()), 15);
+fn test_builtin_scraper_remote_only() {
+    let scraper = BuiltInScraper::new(true, 25);
     assert_eq!(scraper.name(), "builtin");
-    assert_eq!(scraper.category, Some("engineering".to_string()));
+    assert!(scraper.remote_only);
+    assert_eq!(scraper.limit, 25);
 }
 
 // ============================================================================
@@ -433,9 +393,6 @@ fn test_all_scrapers_implement_job_scraper() {
 
     let dice = DiceScraper::new("test".to_string(), None, 10);
     assert_job_scraper(&dice);
-
-    let ziprecruiter = ZipRecruiterScraper::new("test".to_string(), None, None, 10);
-    assert_job_scraper(&ziprecruiter);
 
     let yc = YcStartupScraper::new(None, false, 10);
     assert_job_scraper(&yc);
@@ -462,10 +419,7 @@ fn test_all_scrapers_implement_job_scraper() {
     );
     assert_job_scraper(&linkedin);
 
-    let indeed = IndeedScraper::new("query".to_string(), "location".to_string());
-    assert_job_scraper(&indeed);
-
-    let builtin = BuiltInScraper::new("city".to_string(), None, 10);
+    let builtin = BuiltInScraper::new(false, 10);
     assert_job_scraper(&builtin);
 }
 
@@ -474,7 +428,6 @@ fn test_all_scrapers_implement_job_scraper() {
 fn test_scraper_names_are_unique() {
     let names = vec![
         DiceScraper::new("test".to_string(), None, 10).name(),
-        ZipRecruiterScraper::new("test".to_string(), None, None, 10).name(),
         YcStartupScraper::new(None, false, 10).name(),
         RemoteOkScraper::new(vec![], 10).name(),
         WeWorkRemotelyScraper::new(None, 10).name(),
@@ -482,8 +435,7 @@ fn test_scraper_names_are_unique() {
         GreenhouseScraper::new(vec![test_greenhouse_company()]).name(),
         LeverScraper::new(vec![test_lever_company()]).name(),
         LinkedInScraper::new("c".to_string(), "q".to_string(), "l".to_string()).name(),
-        IndeedScraper::new("q".to_string(), "l".to_string()).name(),
-        BuiltInScraper::new("city".to_string(), None, 10).name(),
+        BuiltInScraper::new(false, 10).name(),
     ];
 
     // Check all names are unique (case-insensitive to catch duplicates)

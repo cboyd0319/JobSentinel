@@ -895,7 +895,7 @@ mod tests {
 
     #[test]
     fn test_notification_with_different_sources() {
-        let sources = vec!["greenhouse", "lever", "linkedin", "indeed", "jobswithgpt"];
+        let sources = vec!["greenhouse", "lever", "linkedin", "remoteok", "weworkremotely", "hn_hiring", "yc_startup", "dice", "builtin", "usajobs", "jobswithgpt"];
 
         for source in sources {
             let mut notification = create_test_notification();

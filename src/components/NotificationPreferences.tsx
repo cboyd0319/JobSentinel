@@ -28,7 +28,6 @@ export interface AdvancedFilters {
 
 export interface NotificationPreferences {
   linkedin: SourceNotificationConfig;
-  indeed: SourceNotificationConfig;
   greenhouse: SourceNotificationConfig;
   lever: SourceNotificationConfig;
   jobswithgpt: SourceNotificationConfig;
@@ -53,7 +52,6 @@ const DEFAULT_ADVANCED_FILTERS: AdvancedFilters = {
 
 const DEFAULT_PREFERENCES: NotificationPreferences = {
   linkedin: { enabled: true, minScoreThreshold: 70, soundEnabled: true },
-  indeed: { enabled: true, minScoreThreshold: 70, soundEnabled: true },
   greenhouse: { enabled: true, minScoreThreshold: 80, soundEnabled: true },
   lever: { enabled: true, minScoreThreshold: 80, soundEnabled: true },
   jobswithgpt: { enabled: true, minScoreThreshold: 75, soundEnabled: true },
@@ -68,7 +66,6 @@ const DEFAULT_PREFERENCES: NotificationPreferences = {
 
 const SOURCE_INFO: Record<string, { name: string; color: string; icon: string }> = {
   linkedin: { name: 'LinkedIn', color: '#0077B5', icon: 'in' },
-  indeed: { name: 'Indeed', color: '#2164F3', icon: 'i' },
   greenhouse: { name: 'Greenhouse', color: '#3AB549', icon: 'G' },
   lever: { name: 'Lever', color: '#6B46C1', icon: 'L' },
   jobswithgpt: { name: 'JobsWithGPT', color: '#10A37F', icon: 'J' },
@@ -111,7 +108,7 @@ export function saveNotificationPreferences(_prefs: NotificationPreferences): bo
 }
 
 // Type for source keys only (excluding global and advancedFilters)
-type SourceKey = 'linkedin' | 'indeed' | 'greenhouse' | 'lever' | 'jobswithgpt';
+type SourceKey = 'linkedin' | 'greenhouse' | 'lever' | 'jobswithgpt';
 
 // Extended job info for advanced filtering
 export interface JobForNotification {

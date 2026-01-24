@@ -919,11 +919,11 @@ mod tests {
     #[test]
     fn test_text_email_source_field() {
         let mut notification = create_test_notification();
-        notification.job.source = "indeed".to_string();
+        notification.job.source = "remoteok".to_string();
 
         let text = format_text_email(&notification.job, &notification.score);
 
-        assert!(text.contains("SOURCE: indeed"));
+        assert!(text.contains("SOURCE: remoteok"));
     }
 
     #[test]

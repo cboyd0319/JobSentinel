@@ -42,17 +42,14 @@ mod tests {
             greenhouse_urls: vec!["https://boards.greenhouse.io/cloudflare".to_string()],
             lever_urls: vec!["https://jobs.lever.co/netflix".to_string()],
             linkedin: LinkedInConfig::default(),
-            indeed: IndeedConfig::default(),
             auto_refresh: Default::default(),
             jobswithgpt_endpoint: "https://api.jobswithgpt.com/mcp".to_string(),
             remoteok: Default::default(),
-            wellfound: Default::default(),
             weworkremotely: Default::default(),
             builtin: Default::default(),
             hn_hiring: Default::default(),
             dice: Default::default(),
             yc_startup: Default::default(),
-            ziprecruiter: Default::default(),
             ghost_config: None,
             company_whitelist: vec![],
             company_blacklist: vec![],
@@ -660,8 +657,6 @@ mod tests {
         assert_eq!(default_desktop_enabled(), true);
         assert_eq!(default_play_sound(), true);
         assert_eq!(default_linkedin_limit(), 50);
-        assert_eq!(default_indeed_radius(), 25);
-        assert_eq!(default_indeed_limit(), 50);
     }
 
     // ========================================
@@ -1322,130 +1317,6 @@ mod tests {
         assert!(
             validate_config(&config).is_ok(),
             "Valid LinkedIn configuration should pass"
-        );
-    }
-
-    // ========================================
-    // Indeed Configuration Tests
-    // ========================================
-
-    #[test]
-    fn test_indeed_enabled_but_empty_query_fails() {
-        let mut config = create_valid_config();
-        config.indeed.enabled = true;
-        config.indeed.query = "".to_string();
-
-        let result = validate_config(&config);
-        assert!(
-            result.is_err(),
-            "Empty Indeed query when enabled should fail"
-        );
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("Indeed search query is required"));
-    }
-
-    #[test]
-    fn test_indeed_query_too_long_fails() {
-        let mut config = create_valid_config();
-        config.indeed.enabled = true;
-        config.indeed.query = "q".repeat(201);
-
-        let result = validate_config(&config);
-        assert!(result.is_err(), "Indeed query > 200 chars should fail");
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("Indeed search query too long"));
-    }
-
-    #[test]
-    fn test_indeed_location_too_long_fails() {
-        let mut config = create_valid_config();
-        config.indeed.enabled = true;
-        config.indeed.query = "software engineer".to_string();
-        config.indeed.location = "l".repeat(101);
-
-        let result = validate_config(&config);
-        assert!(result.is_err(), "Indeed location > 100 chars should fail");
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("Indeed location too long"));
-    }
-
-    #[test]
-    fn test_indeed_radius_exceeds_max_fails() {
-        let mut config = create_valid_config();
-        config.indeed.enabled = true;
-        config.indeed.query = "software engineer".to_string();
-        config.indeed.radius = 101;
-
-        let result = validate_config(&config);
-        assert!(result.is_err(), "Indeed radius > 100 miles should fail");
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("Indeed search radius cannot exceed 100"));
-    }
-
-    #[test]
-    fn test_indeed_limit_exceeds_max_fails() {
-        let mut config = create_valid_config();
-        config.indeed.enabled = true;
-        config.indeed.query = "software engineer".to_string();
-        config.indeed.limit = 101;
-
-        let result = validate_config(&config);
-        assert!(result.is_err(), "Indeed limit > 100 should fail");
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("Indeed result limit cannot exceed 100"));
-    }
-
-    #[test]
-    fn test_indeed_limit_zero_fails() {
-        let mut config = create_valid_config();
-        config.indeed.enabled = true;
-        config.indeed.query = "software engineer".to_string();
-        config.indeed.limit = 0;
-
-        let result = validate_config(&config);
-        assert!(result.is_err(), "Indeed limit of 0 should fail");
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("Indeed result limit must be at least 1"));
-    }
-
-    #[test]
-    fn test_indeed_disabled_with_invalid_config_passes() {
-        let mut config = create_valid_config();
-        config.indeed.enabled = false;
-        config.indeed.query = "".to_string();
-        config.indeed.limit = 0;
-        config.indeed.radius = 200;
-
-        assert!(
-            validate_config(&config).is_ok(),
-            "Invalid Indeed config should pass when disabled"
-        );
-    }
-
-    #[test]
-    fn test_indeed_valid_configuration_passes() {
-        let mut config = create_valid_config();
-        config.indeed.enabled = true;
-        config.indeed.query = "security analyst".to_string();
-        config.indeed.location = "Remote".to_string();
-        config.indeed.radius = 50;
-        config.indeed.limit = 75;
-
-        assert!(
-            validate_config(&config).is_ok(),
-            "Valid Indeed configuration should pass"
         );
     }
 
