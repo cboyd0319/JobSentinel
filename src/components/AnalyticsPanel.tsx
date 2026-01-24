@@ -165,6 +165,17 @@ export function AnalyticsPanel({ onClose }: AnalyticsPanelProps) {
     setWeeklyGoal(getWeeklyGoal());
   }, []);
 
+  // Handle Escape key to close
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
   const handleSetGoal = () => {
     const target = parseInt(goalInput);
     if (target > 0) {
@@ -380,9 +391,11 @@ export function AnalyticsPanel({ onClose }: AnalyticsPanelProps) {
                       cy="50%"
                       outerRadius={80}
                       dataKey="value"
-                      label={({ name, percent }) =>
-                        `${name} ${((percent ?? 0) * 100).toFixed(0)}%`
-                      }
+                      label={({ name, percent }) => {
+                        const pct = (percent ?? 0) * 100;
+                        const display = pct > 0 && pct < 1 ? "< 1" : pct.toFixed(0);
+                        return `${name} ${display}%`;
+                      }}
                       labelLine={false}
                     >
                       {pieData.map((entry, index) => (
@@ -545,7 +558,12 @@ export function AnalyticsPanel({ onClose }: AnalyticsPanelProps) {
                     {getCurrentWeekApplications(stats.weekly_applications)} / {weeklyGoal.target}
                   </span>
                   <span className="text-sm text-surface-500">
-                    {Math.round((getCurrentWeekApplications(stats.weekly_applications) / weeklyGoal.target) * 100)}% complete
+                    {(() => {
+                      const pct = (getCurrentWeekApplications(stats.weekly_applications) / weeklyGoal.target) * 100;
+                      if (pct === 0) return "0%";
+                      if (pct > 0 && pct < 1) return "< 1%";
+                      return `${Math.round(pct)}%`;
+                    })()} complete
                   </span>
                 </div>
                 <div className="h-3 bg-surface-200 dark:bg-surface-600 rounded-full overflow-hidden">

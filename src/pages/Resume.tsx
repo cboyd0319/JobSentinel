@@ -91,7 +91,53 @@ export default function Resume({ onBack }: ResumeProps) {
     proficiency_level: "Intermediate",
   });
 
-  const fetchData = useCallback(async () => {
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [resumeData, resumesData] = await Promise.all([
+          invoke<ResumeData | null>("get_active_resume"),
+          invoke<ResumeData[]>("list_all_resumes"),
+        ]);
+
+        if (cancelled) return;
+
+        setResume(resumeData);
+        setAllResumes(resumesData);
+
+        if (resumeData) {
+          const [skillsData, matchesData] = await Promise.all([
+            invoke<UserSkill[]>("get_user_skills", { resumeId: resumeData.id }),
+            invoke<MatchResult[]>("get_recent_matches", { resumeId: resumeData.id, limit: 10 }),
+          ]);
+
+          if (cancelled) return;
+
+          setSkills(skillsData);
+          setRecentMatches(matchesData);
+        }
+      } catch (err) {
+        if (cancelled) return;
+        logError("Failed to fetch resume data:", err);
+        toast.error("Failed to load resume", getErrorMessage(err));
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchData();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [toast]);
+
+  // Refetch data after operations
+  const refetchData = useCallback(async () => {
     try {
       setLoading(true);
       const [resumeData, resumesData] = await Promise.all([
@@ -117,10 +163,6 @@ export default function Resume({ onBack }: ResumeProps) {
     }
   }, [toast]);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
   const handleUploadResume = async () => {
     try {
       const selected = await open({
@@ -136,7 +178,7 @@ export default function Resume({ onBack }: ResumeProps) {
 
       await invoke("upload_resume", { name: fileName, filePath });
       toast.success("Resume uploaded", "Your resume has been parsed and analyzed");
-      fetchData();
+      refetchData();
     } catch (err) {
       logError("Failed to upload resume:", err);
       toast.error("Upload failed", getErrorMessage(err));
@@ -150,7 +192,7 @@ export default function Resume({ onBack }: ResumeProps) {
       await invoke("set_active_resume", { resumeId });
       toast.success("Resume activated", "Switched to selected resume");
       setShowResumeLibrary(false);
-      fetchData();
+      refetchData();
     } catch (err) {
       logError("Failed to set active resume:", err);
       toast.error("Failed to switch resume", getErrorMessage(err));
@@ -161,7 +203,7 @@ export default function Resume({ onBack }: ResumeProps) {
     try {
       await invoke("delete_resume", { resumeId });
       toast.success("Resume deleted", "Resume and associated data removed");
-      fetchData();
+      refetchData();
     } catch (err) {
       logError("Failed to delete resume:", err);
       toast.error("Failed to delete resume", getErrorMessage(err));
@@ -174,7 +216,7 @@ export default function Resume({ onBack }: ResumeProps) {
       toast.success("Skill updated", "Your skill has been updated");
       setEditingSkillId(null);
       setEditForm({});
-      fetchData();
+      refetchData();
     } catch (err) {
       logError("Failed to update skill:", err);
       toast.error("Failed to update skill", getErrorMessage(err));
@@ -185,7 +227,7 @@ export default function Resume({ onBack }: ResumeProps) {
     try {
       await invoke("delete_user_skill", { skillId });
       toast.success("Skill deleted", "Skill removed from your resume");
-      fetchData();
+      refetchData();
     } catch (err) {
       logError("Failed to delete skill:", err);
       toast.error("Failed to delete skill", getErrorMessage(err));
@@ -206,7 +248,7 @@ export default function Resume({ onBack }: ResumeProps) {
       toast.success("Skill added", `Added "${newSkillForm.skill_name}" to your skills`);
       setShowAddSkill(false);
       setNewSkillForm({ skill_name: "", proficiency_level: "Intermediate" });
-      fetchData();
+      refetchData();
     } catch (err) {
       logError("Failed to add skill:", err);
       toast.error("Failed to add skill", getErrorMessage(err));

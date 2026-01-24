@@ -294,7 +294,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
 
               <Button
                 onClick={() => setStep(1)}
-                disabled={selectedProfile === undefined}
+                disabled={!selectedProfile}
                 className="w-full mt-6"
                 size="lg"
               >
@@ -538,15 +538,9 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                   Get notified when we find great matches for you
                 </p>
                 
-                {/* Simple notification toggle */}
+                {/* Slack notification info */}
                 <div className="space-y-3 mb-6">
-                  <label className="flex items-center gap-3 p-4 rounded-lg border-2 border-surface-200 hover:border-surface-300 cursor-pointer transition-colors">
-                    <input
-                      type="checkbox"
-                      checked={config.alerts.slack.enabled && config.alerts.slack.webhook_url.length > 0}
-                      onChange={() => {}}
-                      className="sr-only"
-                    />
+                  <div className="flex items-center gap-3 p-4 rounded-lg border-2 border-surface-200">
                     <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
                       <SlackIcon />
                     </div>
@@ -554,7 +548,12 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                       <p className="font-medium text-surface-700">Slack</p>
                       <p className="text-sm text-surface-500">Get alerts in your Slack workspace</p>
                     </div>
-                  </label>
+                    {config.alerts.slack.enabled && config.alerts.slack.webhook_url.length > 0 && (
+                      <span className="text-xs font-medium text-green-600 bg-green-100 px-2 py-1 rounded-full">
+                        Enabled
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 {/* Slack webhook input */}

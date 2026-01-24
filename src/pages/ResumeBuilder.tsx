@@ -504,10 +504,12 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
         iframe.onload = () => {
           setTimeout(() => {
             iframe.contentWindow?.print();
-            // Remove iframe after print dialog closes
+            // Remove iframe after print dialog closes (3s to allow for print dialog)
             setTimeout(() => {
-              document.body.removeChild(iframe);
-            }, 1000);
+              if (document.body.contains(iframe)) {
+                document.body.removeChild(iframe);
+              }
+            }, 3000);
           }, 250);
         };
 
