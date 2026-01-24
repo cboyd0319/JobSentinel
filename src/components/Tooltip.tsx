@@ -65,6 +65,7 @@ export function Tooltip({
         <div
           ref={tooltipRef}
           role="tooltip"
+          aria-live="polite"
           className={`
             absolute z-50 ${positionStyles[position]}
             px-3 py-2 text-sm font-medium text-white

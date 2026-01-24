@@ -126,7 +126,9 @@ export function ProfileForm({ onSaved }: ProfileFormProps) {
       toast.error("Name required", "Please enter your full name");
       return;
     }
-    if (!email.trim() || !email.includes("@")) {
+    // Proper email validation (RFC 5322 simplified)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email.trim() || !emailRegex.test(email.trim())) {
       toast.error("Valid email required", "Please enter a valid email address");
       return;
     }

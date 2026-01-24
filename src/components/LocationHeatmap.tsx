@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, Badge } from "./";
 
 interface LocationHeat {
@@ -17,6 +17,13 @@ interface LocationHeatmapProps {
 
 export function LocationHeatmap({ locations, loading = false }: LocationHeatmapProps) {
   const [selectedLocation, setSelectedLocation] = useState<LocationHeat | null>(null);
+
+  // Calculate max jobs for intensity scaling (memoized for performance)
+  // Must be before early returns to follow Rules of Hooks
+  const maxJobs = useMemo(
+    () => locations.length > 0 ? Math.max(...locations.map((l) => l.total_jobs)) : 0,
+    [locations]
+  );
 
   if (loading) {
     return (
@@ -49,9 +56,6 @@ export function LocationHeatmap({ locations, loading = false }: LocationHeatmapP
       </Card>
     );
   }
-
-  // Calculate max jobs for intensity scaling
-  const maxJobs = Math.max(...locations.map((l) => l.total_jobs));
 
   const getIntensityColor = (jobs: number) => {
     const intensity = jobs / maxJobs;
