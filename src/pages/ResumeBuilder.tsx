@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { Button, Card, CardHeader, LoadingSpinner, Progress, Modal, ModalFooter, AtsLiveScorePanel } from "../components";
 import { useToast } from "../hooks/useToast";
-import { getErrorMessage } from "../utils/errorUtils";
+import { getErrorMessage, logError } from "../utils/errorUtils";
 
 // TypeScript Types
 interface Resume {
@@ -422,7 +422,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
         });
         setAtsAnalysis(analysis);
       } catch (atsErr) {
-        console.error("ATS analysis failed:", atsErr);
+        logError("ATS analysis failed (non-critical):", atsErr);
         // Non-critical, don't block preview
       }
     } catch (err) {

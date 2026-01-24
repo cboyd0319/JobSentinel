@@ -10,6 +10,7 @@ import {
   requestPermission,
   sendNotification,
 } from "@tauri-apps/plugin-notification";
+import { logError } from "./errorUtils";
 
 /**
  * Check if notification permissions are granted.
@@ -61,7 +62,7 @@ export async function notifyNewJob(
       body: `${title} at ${company} - ${Math.round(score * 100)}% match`,
     });
   } catch (error) {
-    console.error("Failed to send notification:", error);
+    logError("Failed to send notification:", error);
   }
 }
 
@@ -82,7 +83,7 @@ export async function notifyReminder(
       body: message,
     });
   } catch (error) {
-    console.error("Failed to send notification:", error);
+    logError("Failed to send notification:", error);
   }
 }
 
@@ -105,7 +106,7 @@ export async function notifyScrapingComplete(
       body: `Found ${newJobs} new jobs, ${highMatches} high matches!`,
     });
   } catch (error) {
-    console.error("Failed to send notification:", error);
+    logError("Failed to send notification:", error);
   }
 }
 
@@ -119,6 +120,6 @@ export async function notify(title: string, body: string): Promise<void> {
   try {
     sendNotification({ title, body });
   } catch (error) {
-    console.error("Failed to send notification:", error);
+    logError("Failed to send notification:", error);
   }
 }

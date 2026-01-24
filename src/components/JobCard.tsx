@@ -3,6 +3,7 @@ import { ScoreDisplay } from "./ScoreDisplay";
 import { ScoreBreakdownModal } from "./ScoreBreakdownModal";
 import { GhostIndicatorCompact } from "./GhostIndicator";
 import { open } from "@tauri-apps/plugin-shell";
+import { logError } from "../utils/errorUtils";
 
 interface Job {
   id: number;
@@ -48,7 +49,7 @@ export function JobCard({ job, onViewJob, onHideJob, onToggleBookmark, onEditNot
   const handleOpenUrl = async (url: string) => {
     // Security: Block dangerous URL protocols (javascript:, data:, file:, etc.)
     if (!isValidUrl(url)) {
-      console.error("Blocked attempt to open URL with invalid protocol:", url.slice(0, 50));
+      logError("Security: Blocked attempt to open URL with invalid protocol:", url.slice(0, 50));
       return;
     }
 

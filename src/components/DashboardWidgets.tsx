@@ -81,12 +81,18 @@ export function DashboardWidgets({ className = '' }: DashboardWidgetsProps) {
       const stats = await invoke<ApplicationStats>('get_application_stats');
       setAppStats(stats);
 
-      // Fetch jobs by source
-      const jobs = await invoke<{ source: string; count: number }[]>('get_jobs_by_source').catch(() => []);
+      // Fetch jobs by source (optional, degrade gracefully)
+      const jobs = await invoke<{ source: string; count: number }[]>('get_jobs_by_source').catch((err) => {
+        logError('Failed to load jobs by source (non-critical):', err);
+        return [];
+      });
       setJobsBySource(jobs);
 
-      // Calculate salary ranges from jobs
-      const salaryData = await invoke<SalaryRange[]>('get_salary_distribution').catch(() => []);
+      // Calculate salary ranges from jobs (optional, degrade gracefully)
+      const salaryData = await invoke<SalaryRange[]>('get_salary_distribution').catch((err) => {
+        logError('Failed to load salary distribution (non-critical):', err);
+        return [];
+      });
       setSalaryRanges(salaryData);
     } catch (error) {
       logError('Failed to load widget data:', error);

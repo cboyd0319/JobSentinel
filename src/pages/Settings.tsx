@@ -404,7 +404,7 @@ export default function Settings({ onClose }: SettingsProps) {
           const expiryStatus = await invoke<LinkedInExpiryStatus>("get_linkedin_expiry_status");
           setLinkedInExpiry(expiryStatus);
         } catch (err) {
-          console.error("Failed to fetch LinkedIn expiry status:", err);
+          logError("Failed to fetch LinkedIn expiry status (non-critical):", err);
         }
       }
 
