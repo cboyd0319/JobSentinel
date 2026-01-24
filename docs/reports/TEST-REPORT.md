@@ -1,7 +1,7 @@
 # JobSentinel Beta Launch Test Report
 
 **Date:** 2026-01-18
-**Version:** 2.5.1
+**Version:** 2.5.2
 **Tester:** Automated CI/Agent + Manual Validation
 **Platform:** macOS (aarch64)
 
@@ -67,9 +67,9 @@ Merged 22 migration files into single schema file:
 
 All version numbers match across config files:
 
-- `package.json`: 2.5.1
-- `Cargo.toml`: 2.5.1
-- `tauri.conf.json`: 2.5.1
+- `package.json`: 2.5.2
+- `Cargo.toml`: 2.5.2
+- `tauri.conf.json`: 2.5.2
 
 ### 1.2 Wellfound Scraper ✅
 
@@ -128,7 +128,7 @@ npm run tauri:build
 Output Bundles:
 
 - `/src-tauri/target/release/bundle/macos/JobSentinel.app`
-- `/src-tauri/target/release/bundle/dmg/JobSentinel_2.5.1_aarch64.dmg`
+- `/src-tauri/target/release/bundle/dmg/JobSentinel_2.5.2_aarch64.dmg`
 
 ## Phase 3: E2E Testing
 
@@ -190,7 +190,7 @@ Full-stack validation with real scraped data revealed and fixed all issues.
 ### Build Outputs
 
 - `JobSentinel.app` - macOS application bundle
-- `JobSentinel_2.5.1_aarch64.dmg` - macOS disk image
+- `JobSentinel_2.5.2_aarch64.dmg` - macOS disk image
 
 ### Test Reports
 
@@ -219,7 +219,7 @@ E2E tests captured updated screenshots in `docs/images/`:
 - [x] App launches without crash
 - [x] **Real backend tested with live data**
 - [x] **Navigation sidebar added for feature discoverability**
-- [x] Version numbers correct (2.5.1)
+- [x] Version numbers correct (2.5.2)
 - [x] README accurate
 - [x] License file present (MIT)
 - [x] No secrets in repo
@@ -248,7 +248,7 @@ All backend commands have real database implementations (no stubs/TODOs).
 
 **✅ SHIP IT**
 
-JobSentinel v2.5.1 is ready for the Reddit beta launch. Full-stack validation
+JobSentinel v2.5.2 is ready for the Reddit beta launch. Full-stack validation
 complete with real scraped data, navigation UX fixed, all tests passing.
 
 ---

@@ -2,7 +2,7 @@
 
 ## Project Status
 
-**Version 2.5.1** (January 18, 2026)
+**Version 2.5.2** (January 18, 2026)
 
 | Component | Status |
 |-----------|--------|

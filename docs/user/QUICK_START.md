@@ -14,8 +14,8 @@ You'll need to install JobSentinel on your computer. Here's the quick version:
 
 1. Go to [GitHub Releases](https://github.com/cboyd0319/JobSentinel/releases)
 2. Download the installer for your platform:
-   - **Windows:** `JobSentinel_2.5.1_x64_en-US.msi`
-   - **macOS (Apple Silicon):** `JobSentinel_2.5.1_aarch64.dmg`
+   - **Windows:** `JobSentinel_2.5.2_x64_en-US.msi`
+   - **macOS (Apple Silicon):** `JobSentinel_2.5.2_aarch64.dmg`
 3. Double-click and follow the prompts
 4. Done!
 

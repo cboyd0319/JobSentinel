@@ -1,6 +1,6 @@
 # Testing Guide
 
-**Complete guide to testing in JobSentinel v2.5.1**
+**Complete guide to testing in JobSentinel v2.5.2**
 
 ---
 
@@ -585,5 +585,5 @@ See [tests/README.md](../../tests/README.md) for full documentation.
 
 **Last Updated**: January 18, 2026
 **Test Count**: 2085+ passing (unit + integration + E2E)
-**Version**: v2.5.1
+**Version**: v2.5.2
 **Maintained By**: The Rust Mac Overlord 🦀
