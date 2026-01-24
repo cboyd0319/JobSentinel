@@ -1,8 +1,8 @@
 # JobSentinel Roadmap
 
-**Last Updated:** January 18, 2026
+**Last Updated:** January 24, 2026
 
-## Current Version: 2.5.1
+## Current Version: 2.5.2
 
 ### Working Features (v1.4.0)
 

@@ -11,7 +11,7 @@
 <br>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-2.5.1-blue?style=for-the-badge" alt="Version 2.5.1">
+  <img src="https://img.shields.io/badge/Version-2.5.2-blue?style=for-the-badge" alt="Version 2.5.2">
   <img src="https://img.shields.io/badge/Windows-Ready-0078D6?style=for-the-badge&logo=Windows&logoColor=white" alt="Windows">
   <img src="https://img.shields.io/badge/macOS-Ready-000000?style=for-the-badge&logo=apple&logoColor=white" alt="macOS">
   <img src="https://img.shields.io/badge/Linux-Coming_Soon-FCC624?style=for-the-badge&logo=linux&logoColor=black" alt="Linux">
@@ -187,8 +187,8 @@ Power users can navigate entirely by keyboard:
 
 | Platform | Download |
 |----------|----------|
-| **Windows** | [JobSentinel_2.5.1_x64_en-US.msi](https://github.com/cboyd0319/JobSentinel/releases/download/v2.5.1/JobSentinel_2.5.1_x64_en-US.msi) |
-| **macOS (Apple Silicon)** | [JobSentinel_2.5.1_aarch64.dmg](https://github.com/cboyd0319/JobSentinel/releases/download/v2.5.1/JobSentinel_2.5.1_aarch64.dmg) |
+| **Windows** | [JobSentinel_2.5.2_x64_en-US.msi](https://github.com/cboyd0319/JobSentinel/releases/download/v2.5.2/JobSentinel_2.5.2_x64_en-US.msi) |
+| **macOS (Apple Silicon)** | [JobSentinel_2.5.2_aarch64.dmg](https://github.com/cboyd0319/JobSentinel/releases/download/v2.5.2/JobSentinel_2.5.2_aarch64.dmg) |
 
 <details>
 <summary><strong>Or build from source</strong></summary>
@@ -375,8 +375,8 @@ No command line or technical knowledge required.
 
 ### By the Numbers
 
-- **140 Tauri commands** powering all features
-- **2,000+ tests passing** (unit, integration, property-based)
+- **87 Tauri commands** powering all features
+- **2,900+ tests passing** (unit, integration, property-based)
 - **0 security vulnerabilities** (cargo-audit verified)
 - **~8MB** installed size
 - **<50MB RAM** typical usage

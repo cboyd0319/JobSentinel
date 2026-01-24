@@ -306,6 +306,26 @@ export function profileToConfig(profile: CareerProfile) {
         enabled: false,
         webhook_url: "",
       },
+      desktop: {
+        enabled: true,
+        play_sound: true,
+        show_when_focused: false,
+      },
+    },
+    // Enable free scrapers by default (no auth required, work out of the box)
+    remoteok: {
+      enabled: true,
+      tags: [] as string[],
+      limit: 50,
+    },
+    hn_hiring: {
+      enabled: true,
+      remote_only: false,
+      limit: 100,
+    },
+    weworkremotely: {
+      enabled: true,
+      limit: 50,
     },
   };
 }

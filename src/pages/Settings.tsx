@@ -145,10 +145,13 @@ interface Credentials {
   slack_webhook: string;
   smtp_password: string;
   linkedin_cookie: string;
+  discord_webhook: string;
+  teams_webhook: string;
+  telegram_bot_token: string;
 }
 
 // Credential key names (must match backend CredentialKey enum)
-type CredentialKey = "slack_webhook" | "smtp_password" | "linkedin_cookie";
+type CredentialKey = "slack_webhook" | "smtp_password" | "linkedin_cookie" | "discord_webhook" | "teams_webhook" | "telegram_bot_token";
 
 // Helper to store a credential in secure storage
 async function storeCredential(key: CredentialKey, value: string): Promise<void> {
@@ -181,11 +184,17 @@ export default function Settings({ onClose }: SettingsProps) {
     slack_webhook: "",
     smtp_password: "",
     linkedin_cookie: "",
+    discord_webhook: "",
+    teams_webhook: "",
+    telegram_bot_token: "",
   });
   const [credentialStatus, setCredentialStatus] = useState<Record<CredentialKey, boolean>>({
     slack_webhook: false,
     smtp_password: false,
     linkedin_cookie: false,
+    discord_webhook: false,
+    teams_webhook: false,
+    telegram_bot_token: false,
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -211,16 +220,22 @@ export default function Settings({ onClose }: SettingsProps) {
       setConfig(configData);
 
       // Check which credentials exist in secure storage (don't load actual values)
-      const [hasSlack, hasSmtp, hasLinkedIn] = await Promise.all([
+      const [hasSlack, hasSmtp, hasLinkedIn, hasDiscord, hasTeams, hasTelegram] = await Promise.all([
         hasCredential("slack_webhook"),
         hasCredential("smtp_password"),
         hasCredential("linkedin_cookie"),
+        hasCredential("discord_webhook"),
+        hasCredential("teams_webhook"),
+        hasCredential("telegram_bot_token"),
       ]);
 
       setCredentialStatus({
         slack_webhook: hasSlack,
         smtp_password: hasSmtp,
         linkedin_cookie: hasLinkedIn,
+        discord_webhook: hasDiscord,
+        teams_webhook: hasTeams,
+        telegram_bot_token: hasTelegram,
       });
 
     } catch (error) {
@@ -275,6 +290,15 @@ export default function Settings({ onClose }: SettingsProps) {
       }
       if (credentials.linkedin_cookie) {
         credentialSaves.push(storeCredential("linkedin_cookie", credentials.linkedin_cookie));
+      }
+      if (credentials.discord_webhook) {
+        credentialSaves.push(storeCredential("discord_webhook", credentials.discord_webhook));
+      }
+      if (credentials.teams_webhook) {
+        credentialSaves.push(storeCredential("teams_webhook", credentials.teams_webhook));
+      }
+      if (credentials.telegram_bot_token) {
+        credentialSaves.push(storeCredential("telegram_bot_token", credentials.telegram_bot_token));
       }
 
       // Save credentials and config in parallel
@@ -1311,9 +1335,21 @@ export default function Settings({ onClose }: SettingsProps) {
                   </label>
                 </div>
                 {config.alerts.discord?.enabled && (
-                  <p className="text-xs text-surface-500 dark:text-surface-400 mt-2">
-                    Configure webhook URL in Discord server settings → Integrations → Webhooks
-                  </p>
+                  <div className="mt-3 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-surface-600 dark:text-surface-400">Webhook URL</span>
+                      {credentialStatus.discord_webhook && (
+                        <span className="text-xs text-green-600 dark:text-green-400">(Stored securely)</span>
+                      )}
+                    </div>
+                    <Input
+                      type="password"
+                      value={credentials.discord_webhook}
+                      onChange={(e) => setCredentials((prev) => ({ ...prev, discord_webhook: e.target.value }))}
+                      placeholder={credentialStatus.discord_webhook ? "Enter new webhook to update" : "Paste your Discord webhook URL"}
+                      hint="Server Settings → Integrations → Webhooks → New Webhook → Copy URL"
+                    />
+                  </div>
                 )}
               </div>
             </div>
@@ -1352,9 +1388,21 @@ export default function Settings({ onClose }: SettingsProps) {
                   </label>
                 </div>
                 {config.alerts.teams?.enabled && (
-                  <p className="text-xs text-surface-500 dark:text-surface-400 mt-2">
-                    Add "Incoming Webhook" connector to your Teams channel, then paste the webhook URL
-                  </p>
+                  <div className="mt-3 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-surface-600 dark:text-surface-400">Webhook URL</span>
+                      {credentialStatus.teams_webhook && (
+                        <span className="text-xs text-green-600 dark:text-green-400">(Stored securely)</span>
+                      )}
+                    </div>
+                    <Input
+                      type="password"
+                      value={credentials.teams_webhook}
+                      onChange={(e) => setCredentials((prev) => ({ ...prev, teams_webhook: e.target.value }))}
+                      placeholder={credentialStatus.teams_webhook ? "Enter new webhook to update" : "Paste your Teams webhook URL"}
+                      hint="Channel → Connectors → Incoming Webhook → Configure → Copy URL"
+                    />
+                  </div>
                 )}
               </div>
             </div>
@@ -1393,25 +1441,43 @@ export default function Settings({ onClose }: SettingsProps) {
                   </label>
                 </div>
                 {config.alerts.telegram?.enabled && (
-                  <div className="mt-2">
-                    <Input
-                      placeholder="Chat ID (e.g., 123456789)"
-                      value={config.alerts.telegram?.chat_id ?? ""}
-                      onChange={(e) =>
-                        setConfig({
-                          ...config,
-                          alerts: {
-                            ...config.alerts,
-                            telegram: {
-                              ...config.alerts.telegram,
-                              enabled: true,
-                              chat_id: e.target.value,
+                  <div className="mt-3 space-y-3">
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm text-surface-600 dark:text-surface-400">Bot Token</span>
+                        {credentialStatus.telegram_bot_token && (
+                          <span className="text-xs text-green-600 dark:text-green-400">(Stored securely)</span>
+                        )}
+                      </div>
+                      <Input
+                        type="password"
+                        value={credentials.telegram_bot_token}
+                        onChange={(e) => setCredentials((prev) => ({ ...prev, telegram_bot_token: e.target.value }))}
+                        placeholder={credentialStatus.telegram_bot_token ? "Enter new token to update" : "Paste your bot token from @BotFather"}
+                        hint="Message @BotFather → /newbot → Copy the token"
+                      />
+                    </div>
+                    <div>
+                      <span className="text-sm text-surface-600 dark:text-surface-400 mb-1 block">Chat ID</span>
+                      <Input
+                        placeholder="Chat ID (e.g., 123456789)"
+                        value={config.alerts.telegram?.chat_id ?? ""}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            alerts: {
+                              ...config.alerts,
+                              telegram: {
+                                ...config.alerts.telegram,
+                                enabled: true,
+                                chat_id: e.target.value,
+                              },
                             },
-                          },
-                        })
-                      }
-                      hint="Get your chat ID from @userinfobot on Telegram"
-                    />
+                          })
+                        }
+                        hint="Message @userinfobot to get your chat ID"
+                      />
+                    </div>
                   </div>
                 )}
               </div>

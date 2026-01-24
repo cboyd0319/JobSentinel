@@ -49,6 +49,26 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
         enabled: false,
         webhook_url: "",
       },
+      desktop: {
+        enabled: true,
+        play_sound: true,
+        show_when_focused: false,
+      },
+    },
+    // Enable free scrapers by default (no auth required, work out of the box)
+    remoteok: {
+      enabled: true,
+      tags: [] as string[],
+      limit: 50,
+    },
+    hn_hiring: {
+      enabled: true,
+      remote_only: false,
+      limit: 100,
+    },
+    weworkremotely: {
+      enabled: true,
+      limit: 50,
     },
   });
 
@@ -83,6 +103,26 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
             enabled: false,
             webhook_url: "",
           },
+          desktop: {
+            enabled: true,
+            play_sound: true,
+            show_when_focused: false,
+          },
+        },
+        // Enable free scrapers by default
+        remoteok: {
+          enabled: true,
+          tags: [],
+          limit: 50,
+        },
+        hn_hiring: {
+          enabled: true,
+          remote_only: false,
+          limit: 100,
+        },
+        weworkremotely: {
+          enabled: true,
+          limit: 50,
         },
       });
     }
@@ -153,7 +193,25 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
 
   const handleComplete = async () => {
     try {
-      await invoke("complete_setup", { config });
+      // Store Slack webhook in secure storage if provided
+      const webhookUrl = config.alerts.slack.webhook_url;
+      if (webhookUrl && isValidSlackWebhook(webhookUrl)) {
+        await invoke("store_credential", { key: "slack_webhook", value: webhookUrl });
+      }
+
+      // Create config object without the webhook_url (it's stored in keyring, not config file)
+      const configToSave = {
+        ...config,
+        alerts: {
+          ...config.alerts,
+          slack: {
+            enabled: config.alerts.slack.enabled,
+            // webhook_url is intentionally omitted - stored in OS keyring
+          },
+        },
+      };
+
+      await invoke("complete_setup", { config: configToSave });
       toast.success("Setup complete!", "Let's find you some great jobs");
       onComplete();
     } catch (error) {
@@ -507,6 +565,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                     setConfig((prev) => ({
                       ...prev,
                       alerts: {
+                        ...prev.alerts,
                         slack: {
                           enabled: e.target.value.length > 0 && isValidSlackWebhook(e.target.value),
                           webhook_url: e.target.value,

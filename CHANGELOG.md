@@ -5,6 +5,40 @@ All notable changes to JobSentinel will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.2] - 2026-01-24
+
+### Fixed - Critical Onboarding and Settings Bugs
+
+Comprehensive validation audit revealed and fixed 5 critical bugs affecting new user onboarding and notification configuration.
+
+#### Onboarding Fixes
+
+- **Slack webhook now saved correctly** - SetupWizard was putting `webhook_url` in config JSON, but backend uses `#[serde(skip)]` so it was silently discarded. Now properly stores in OS keyring via `store_credential`.
+
+- **Scrapers enabled by default** - After completing onboarding, all scrapers were disabled (`enabled: false`), resulting in 0 jobs being scraped. Now enables RemoteOK, HN Who's Hiring, and WeWorkRemotely by default.
+
+- **Desktop notifications preserved** - When updating Slack config in wizard, the entire `alerts` object was replaced, losing desktop notification settings. Fixed to preserve existing alert config.
+
+#### Settings Page Fixes
+
+- **Discord, Teams, Telegram credentials can now be saved** - Frontend `CredentialKey` type only had 3 keys but backend has 6. Added missing: `discord_webhook`, `teams_webhook`, `telegram_bot_token`.
+
+- **Discord, Teams, Telegram now have input fields** - Users could toggle these notification channels on, but there were NO input fields to enter webhook URLs or bot tokens. Added proper input fields with secure storage indicators.
+
+#### Validation Summary
+
+- **2,911+ tests passing** (Backend: 2,195 | Frontend: 716)
+- **E2E validated**: 1,337 jobs scraped, scored, and stored
+- **All 4 working scrapers confirmed**: Greenhouse (1,177), Lever (89), HN Hiring (48), RemoteOK (23)
+
+### Changed
+
+- `src/pages/SetupWizard.tsx` - Credential storage, default scrapers, alert preservation
+- `src/utils/profiles.ts` - Career profiles now include default scrapers
+- `src/pages/Settings.tsx` - Added 3 credential types and input fields
+
+---
+
 ## [2.5.1] - 2026-01-18
 
 ### Added - Code Quality & Feature Completion Sprint
