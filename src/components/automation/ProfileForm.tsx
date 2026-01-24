@@ -1,9 +1,25 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { Button, Input, Card, HelpIcon } from "..";
 import { useToast } from "../../contexts";
 import { logError } from "../../utils/errorUtils";
+
+// Type for tracking original form values
+interface FormSnapshot {
+  fullName: string;
+  email: string;
+  phone: string;
+  linkedinUrl: string;
+  githubUrl: string;
+  portfolioUrl: string;
+  websiteUrl: string;
+  resumeFilePath: string;
+  usWorkAuthorized: boolean;
+  requiresSponsorship: boolean;
+  maxApplicationsPerDay: number;
+  requireManualApproval: boolean;
+}
 
 // Types matching the Rust backend
 interface ApplicationProfile {
@@ -68,6 +84,28 @@ export function ProfileForm({ onSaved }: ProfileFormProps) {
   const [maxApplicationsPerDay, setMaxApplicationsPerDay] = useState(10);
   const [requireManualApproval, setRequireManualApproval] = useState(true);
 
+  // Track original values for dirty detection
+  const [originalValues, setOriginalValues] = useState<FormSnapshot | null>(null);
+
+  // Compute if form has unsaved changes
+  const isDirty = useMemo(() => {
+    if (!originalValues) return false;
+    return (
+      fullName !== originalValues.fullName ||
+      email !== originalValues.email ||
+      phone !== originalValues.phone ||
+      linkedinUrl !== originalValues.linkedinUrl ||
+      githubUrl !== originalValues.githubUrl ||
+      portfolioUrl !== originalValues.portfolioUrl ||
+      websiteUrl !== originalValues.websiteUrl ||
+      resumeFilePath !== originalValues.resumeFilePath ||
+      usWorkAuthorized !== originalValues.usWorkAuthorized ||
+      requiresSponsorship !== originalValues.requiresSponsorship ||
+      maxApplicationsPerDay !== originalValues.maxApplicationsPerDay ||
+      requireManualApproval !== originalValues.requireManualApproval
+    );
+  }, [originalValues, fullName, email, phone, linkedinUrl, githubUrl, portfolioUrl, websiteUrl, resumeFilePath, usWorkAuthorized, requiresSponsorship, maxApplicationsPerDay, requireManualApproval]);
+
   const loadProfile = useCallback(async () => {
     try {
       setLoading(true);
@@ -87,6 +125,37 @@ export function ProfileForm({ onSaved }: ProfileFormProps) {
         setRequiresSponsorship(data.requiresSponsorship);
         setMaxApplicationsPerDay(data.maxApplicationsPerDay);
         setRequireManualApproval(data.requireManualApproval);
+        // Store original values for dirty detection
+        setOriginalValues({
+          fullName: data.fullName,
+          email: data.email,
+          phone: data.phone || "",
+          linkedinUrl: data.linkedinUrl || "",
+          githubUrl: data.githubUrl || "",
+          portfolioUrl: data.portfolioUrl || "",
+          websiteUrl: data.websiteUrl || "",
+          resumeFilePath: data.resumeFilePath || "",
+          usWorkAuthorized: data.usWorkAuthorized,
+          requiresSponsorship: data.requiresSponsorship,
+          maxApplicationsPerDay: data.maxApplicationsPerDay,
+          requireManualApproval: data.requireManualApproval,
+        });
+      } else {
+        // New profile - track initial empty state
+        setOriginalValues({
+          fullName: "",
+          email: "",
+          phone: "",
+          linkedinUrl: "",
+          githubUrl: "",
+          portfolioUrl: "",
+          websiteUrl: "",
+          resumeFilePath: "",
+          usWorkAuthorized: true,
+          requiresSponsorship: false,
+          maxApplicationsPerDay: 10,
+          requireManualApproval: true,
+        });
       }
     } catch (error) {
       logError("Failed to load application profile:", error);
@@ -181,6 +250,21 @@ export function ProfileForm({ onSaved }: ProfileFormProps) {
 
       await invoke("upsert_application_profile", { input });
       toast.success("Profile saved", "Your application profile has been updated");
+      // Update original values to mark form as clean
+      setOriginalValues({
+        fullName: fullName.trim(),
+        email: email.trim(),
+        phone: phone.trim(),
+        linkedinUrl: linkedinUrl.trim(),
+        githubUrl: githubUrl.trim(),
+        portfolioUrl: portfolioUrl.trim(),
+        websiteUrl: websiteUrl.trim(),
+        resumeFilePath: resumeFilePath.trim(),
+        usWorkAuthorized,
+        requiresSponsorship,
+        maxApplicationsPerDay,
+        requireManualApproval,
+      });
       onSaved?.();
     } catch (error) {
       logError("Failed to save profile:", error);
@@ -405,8 +489,16 @@ export function ProfileForm({ onSaved }: ProfileFormProps) {
         </section>
 
         {/* Save Button */}
-        <div className="flex justify-end pt-4 border-t border-surface-200 dark:border-surface-700">
-          <Button onClick={handleSave} loading={saving}>
+        <div className="flex items-center justify-between pt-4 border-t border-surface-200 dark:border-surface-700">
+          {isDirty ? (
+            <span className="text-sm text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+              <span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" aria-hidden="true" />
+              You have unsaved changes
+            </span>
+          ) : (
+            <span />
+          )}
+          <Button onClick={handleSave} loading={saving} disabled={!isDirty && !saving}>
             Save Profile
           </Button>
         </div>

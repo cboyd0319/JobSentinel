@@ -3,6 +3,7 @@ import { Card } from './Card';
 import { Button } from './Button';
 import { Badge } from './Badge';
 import { LoadingSpinner } from './LoadingSpinner';
+import { COMPANY_CACHE_TTL } from '../utils/constants';
 
 interface CompanyInfo {
   name: string;
@@ -28,7 +29,6 @@ interface CompanyResearchPanelProps {
 }
 
 const CACHE_KEY = 'jobsentinel_company_cache';
-const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
 
 interface CacheEntry {
   data: CompanyInfo;
@@ -57,7 +57,7 @@ function getCachedCompany(name: string): CompanyInfo | null {
   const key = name.toLowerCase().trim();
   const entry = cache[key];
 
-  if (entry && Date.now() - entry.timestamp < CACHE_TTL) {
+  if (entry && Date.now() - entry.timestamp < COMPANY_CACHE_TTL) {
     return entry.data;
   }
   return null;
