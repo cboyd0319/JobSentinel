@@ -1,6 +1,6 @@
 [package]
 name = "jobsentinel"
-version = "2.5.1"
+version = "2.5.2"
 description = "Privacy-first job search automation for Windows 11+"
 authors = ["Chad Boyd"]
 license = "MIT"
