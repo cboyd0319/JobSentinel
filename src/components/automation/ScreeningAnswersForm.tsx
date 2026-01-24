@@ -80,6 +80,14 @@ export function ScreeningAnswersForm({ onSaved }: ScreeningAnswersFormProps) {
       return;
     }
 
+    // Validate regex pattern
+    try {
+      new RegExp(questionPattern.trim(), "i");
+    } catch {
+      toast.error("Invalid pattern", "The regex pattern is invalid. Check for unmatched brackets or special characters.");
+      return;
+    }
+
     try {
       setSaving(true);
       await invoke("upsert_screening_answer", {
@@ -134,8 +142,8 @@ export function ScreeningAnswersForm({ onSaved }: ScreeningAnswersFormProps) {
   if (loading) {
     return (
       <Card className="p-6">
-        <div className="flex items-center justify-center py-8">
-          <div className="animate-spin w-6 h-6 border-2 border-sentinel-500 border-t-transparent rounded-full" />
+        <div className="flex items-center justify-center py-8" role="status" aria-busy="true" aria-label="Loading screening answers">
+          <div className="animate-spin w-6 h-6 border-2 border-sentinel-500 border-t-transparent rounded-full" aria-hidden="true" />
         </div>
       </Card>
     );

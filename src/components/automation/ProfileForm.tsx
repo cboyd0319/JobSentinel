@@ -133,6 +133,35 @@ export function ProfileForm({ onSaved }: ProfileFormProps) {
       return;
     }
 
+    // URL validation helper
+    const isValidUrl = (url: string): boolean => {
+      if (!url.trim()) return true; // Empty is OK (optional field)
+      try {
+        const parsed = new URL(url);
+        return parsed.protocol === "https:" || parsed.protocol === "http:";
+      } catch {
+        return false;
+      }
+    };
+
+    // Validate URLs if provided
+    if (linkedinUrl && !isValidUrl(linkedinUrl)) {
+      toast.error("Invalid LinkedIn URL", "Please enter a valid URL (e.g., https://linkedin.com/in/yourname)");
+      return;
+    }
+    if (githubUrl && !isValidUrl(githubUrl)) {
+      toast.error("Invalid GitHub URL", "Please enter a valid URL (e.g., https://github.com/yourname)");
+      return;
+    }
+    if (portfolioUrl && !isValidUrl(portfolioUrl)) {
+      toast.error("Invalid portfolio URL", "Please enter a valid URL starting with http:// or https://");
+      return;
+    }
+    if (websiteUrl && !isValidUrl(websiteUrl)) {
+      toast.error("Invalid website URL", "Please enter a valid URL starting with http:// or https://");
+      return;
+    }
+
     try {
       setSaving(true);
       const input: ApplicationProfileInput = {
