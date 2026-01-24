@@ -5,6 +5,66 @@ All notable changes to JobSentinel will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.4] - 2026-01-24
+
+### Added - UX Improvements for Non-Technical Users
+
+Making JobSentinel accessible to everyone, not just developers.
+
+#### Email Provider Templates
+
+One-click SMTP configuration for popular email providers:
+
+- **Gmail** - Auto-fills `smtp.gmail.com:587` with TLS, links to App Password creation
+- **Outlook** - Auto-fills `smtp-mail.outlook.com:587` with TLS
+- **Yahoo** - Auto-fills `smtp.mail.yahoo.com:587`, links to Yahoo Security Settings
+- **Custom** - Manual entry for other providers
+
+#### Ghost Detection Presets
+
+No more tweaking 6 different sliders - just pick a mode:
+
+| Preset | Stale | Repost | Description |
+|--------|-------|--------|-------------|
+| 🟢 Lenient | 120 days | 5× | Shows most jobs, rarely flags anything |
+| 🟡 Balanced | 60 days | 3× | Good default, flags obviously stale jobs |
+| 🔴 Strict | 30 days | 2× | Aggressively filters old/reposted jobs |
+
+#### Security Trust Indicators
+
+Visual badges showing where credentials are stored:
+
+- `🔒 Stored in macOS Keychain` - macOS users
+- `🔒 Stored in Windows Credential Manager` - Windows users
+- `🔒 Stored in System Keyring` - Linux users
+
+Appears next to: Slack webhook, SMTP password, LinkedIn cookie, Discord webhook, Teams webhook, Telegram bot token, USAJobs API key.
+
+#### Smart Job Board Recommendations
+
+Context-aware suggestions based on your preferences:
+
+- Remote work enabled? → Suggests RemoteOK, WeWorkRemotely
+- Startup keywords? → Suggests YC Startups
+- Tech keywords? → Suggests HN Who's Hiring, Dice
+- Government keywords? → Suggests USAJobs
+- US tech hub cities? → Suggests BuiltIn
+
+#### USAJobs Guided Setup
+
+Step-by-step flow for federal job seekers:
+
+1. Quick Setup panel appears when USAJobs enabled
+2. Numbered steps explain the process
+3. "Get Free API Key →" button links directly to signup page
+4. Clearer field labels and hints
+
+#### Files Changed
+
+- `src/pages/Settings.tsx` - All UX improvements (+281 lines)
+
+---
+
 ## [2.5.3] - 2026-01-24
 
 ### Added - LinkedIn Auto-Connect (Zero-Copy Authentication)
