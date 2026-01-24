@@ -6,6 +6,7 @@ import { HelpIcon } from './HelpIcon';
 import { CompanyAutocomplete } from './CompanyAutocomplete';
 import { useToast } from '../contexts';
 import { logError } from '../utils/errorUtils';
+import { SALARY_THOUSANDS_MULTIPLIER } from '../utils/constants';
 
 export interface SourceNotificationConfig {
   enabled: boolean;
@@ -183,7 +184,7 @@ export function shouldNotifyForJob(
 
     // Salary filter
     if (advancedFilters.minSalary !== null) {
-      const minSalaryThreshold = advancedFilters.minSalary * 1000; // Convert from K to actual
+      const minSalaryThreshold = advancedFilters.minSalary * SALARY_THOUSANDS_MULTIPLIER;
       const jobMaxSalary = job.salary_max ?? job.salary_min ?? 0;
       if (jobMaxSalary > 0 && jobMaxSalary < minSalaryThreshold) return false;
     }

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import {
   useKeyboardShortcuts,
   formatShortcut,
@@ -26,42 +26,47 @@ export function CommandPalette({ commands = [] }: CommandPaletteProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
-  // Combine shortcuts with additional commands
-  const allCommands: Command[] = [
-    ...shortcuts.map((s) => ({
-      id: s.key,
-      name: s.description,
-      shortcut: s,
-      action: s.action,
-      category: s.category,
-    })),
-    ...commands,
-  ];
-
-  // Filter commands based on query
-  const filteredCommands = allCommands.filter((cmd) =>
-    cmd.name.toLowerCase().includes(query.toLowerCase())
+  // Combine shortcuts with additional commands (memoized)
+  const allCommands = useMemo<Command[]>(
+    () => [
+      ...shortcuts.map((s) => ({
+        id: s.key,
+        name: s.description,
+        shortcut: s,
+        action: s.action,
+        category: s.category,
+      })),
+      ...commands,
+    ],
+    [shortcuts, commands]
   );
 
-  // Group by category
-  const groupedCommands = filteredCommands.reduce(
-    (acc, cmd) => {
-      if (!acc[cmd.category]) {
-        acc[cmd.category] = [];
-      }
-      acc[cmd.category].push(cmd);
-      return acc;
-    },
-    {} as Record<string, Command[]>
-  );
+  // Filter, group, sort, and flatten commands (memoized)
+  const { groupedCommands, sortedCategories, flatCommands } = useMemo(() => {
+    const filtered = allCommands.filter((cmd) =>
+      cmd.name.toLowerCase().includes(query.toLowerCase())
+    );
 
-  const categoryOrder = ["navigation", "actions", "ui"];
-  const sortedCategories = Object.keys(groupedCommands).sort(
-    (a, b) => categoryOrder.indexOf(a) - categoryOrder.indexOf(b)
-  );
+    const grouped = filtered.reduce(
+      (acc, cmd) => {
+        if (!acc[cmd.category]) {
+          acc[cmd.category] = [];
+        }
+        acc[cmd.category].push(cmd);
+        return acc;
+      },
+      {} as Record<string, Command[]>
+    );
 
-  // Flatten for keyboard navigation
-  const flatCommands = sortedCategories.flatMap((cat) => groupedCommands[cat]);
+    const categoryOrder = ["navigation", "actions", "ui"];
+    const sorted = Object.keys(grouped).sort(
+      (a, b) => categoryOrder.indexOf(a) - categoryOrder.indexOf(b)
+    );
+
+    const flat = sorted.flatMap((cat) => grouped[cat]);
+
+    return { groupedCommands: grouped, sortedCategories: sorted, flatCommands: flat };
+  }, [allCommands, query]);
 
   const executeCommand = useCallback(
     (command: Command) => {

@@ -1,6 +1,7 @@
 import { useCallback, type CSSProperties } from "react";
 import { List, useListRef, type RowComponentProps } from "react-window";
 import { JobCard } from "./JobCard";
+import { DEFAULT_LIST_HEIGHT, DEFAULT_JOB_CARD_HEIGHT } from "../utils/constants";
 
 interface Job {
   id: number;
@@ -51,8 +52,8 @@ function JobRow({ index, style, ...props }: RowComponentProps<JobRowProps>) {
 export function VirtualJobList({
   jobs,
   onHideJob,
-  height = 600,
-  itemHeight = 140,
+  height = DEFAULT_LIST_HEIGHT,
+  itemHeight = DEFAULT_JOB_CARD_HEIGHT,
 }: VirtualJobListProps) {
   const listRef = useListRef(null);
 

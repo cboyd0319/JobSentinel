@@ -10,6 +10,7 @@ import type {
   GhostFilter,
   SearchQuery
 } from "../DashboardTypes";
+import { SALARY_THOUSANDS_MULTIPLIER, GHOST_SCORE_THRESHOLD } from "../../utils/constants";
 
 // Parse advanced search query with AND, OR, NOT operators
 export function parseSearchQuery(query: string): SearchQuery {
@@ -201,11 +202,11 @@ export function useDashboardFilters(jobs: Job[]) {
 
         // Check against filters (salary filter is in thousands, job salary is in actual dollars)
         if (salaryMinFilter !== null) {
-          const minThreshold = salaryMinFilter * 1000;
+          const minThreshold = salaryMinFilter * SALARY_THOUSANDS_MULTIPLIER;
           if (jobMax < minThreshold) return false;
         }
         if (salaryMaxFilter !== null) {
-          const maxThreshold = salaryMaxFilter * 1000;
+          const maxThreshold = salaryMaxFilter * SALARY_THOUSANDS_MULTIPLIER;
           if (jobMin > maxThreshold) return false;
         }
         return true;
@@ -215,7 +216,7 @@ export function useDashboardFilters(jobs: Job[]) {
     // Apply ghost filter (v1.4)
     if (ghostFilter !== "all") {
       result = result.filter((job) => {
-        const isGhost = (job.ghost_score ?? 0) >= 0.5;
+        const isGhost = (job.ghost_score ?? 0) >= GHOST_SCORE_THRESHOLD;
         if (ghostFilter === "real") return !isGhost;
         if (ghostFilter === "ghost") return isGhost;
         return true;

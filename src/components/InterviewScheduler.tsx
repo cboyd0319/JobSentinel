@@ -4,6 +4,7 @@ import { cachedInvoke, invalidateCacheByCommand } from "../utils/api";
 import { Card, Button, Badge, CompanyResearchPanel } from "./index";
 import { useToast } from "../contexts";
 import { logError, getErrorMessage } from "../utils/errorUtils";
+import { MIN_INTERVIEW_DURATION, MAX_INTERVIEW_DURATION } from "../utils/constants";
 
 interface Interview {
   id: number;
@@ -324,9 +325,9 @@ export function InterviewScheduler({ onClose, applications = [] }: InterviewSche
       return;
     }
 
-    // Validate duration is reasonable (15 minutes to 8 hours)
-    if (formData.duration_minutes < 15 || formData.duration_minutes > 480) {
-      toast.error("Invalid duration", "Duration must be between 15 minutes and 8 hours");
+    // Validate duration is reasonable
+    if (formData.duration_minutes < MIN_INTERVIEW_DURATION || formData.duration_minutes > MAX_INTERVIEW_DURATION) {
+      toast.error("Invalid duration", `Duration must be between ${MIN_INTERVIEW_DURATION} minutes and ${MAX_INTERVIEW_DURATION / 60} hours`);
       return;
     }
 
