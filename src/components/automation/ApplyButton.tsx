@@ -325,14 +325,19 @@ export function ApplyButton({ job, onApplied }: ApplyButtonProps) {
 // Standalone ATS badge for use in job cards
 export function AtsBadge({ url }: { url: string }) {
   const [platform, setPlatform] = useState<string | null>(null);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     invoke<AtsDetectionResponse>("detect_ats_platform", { url })
       .then((result) => setPlatform(result.platform))
-      .catch(() => {});
+      .catch((err) => {
+        logError("ATS detection failed for badge:", err);
+        setError(true);
+      });
   }, [url]);
 
-  if (!platform || platform === "unknown") return null;
+  // Don't show badge on error or unknown platform
+  if (error || !platform || platform === "unknown") return null;
 
   // Use inline styles since Badge doesn't support className
   return (

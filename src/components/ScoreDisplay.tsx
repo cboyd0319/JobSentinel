@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Tooltip } from "./Tooltip";
 
 interface ScoreDisplayProps {
@@ -150,7 +151,7 @@ function ScoreBreakdownTooltip({
   );
 }
 
-export function ScoreDisplay({
+export const ScoreDisplay = memo(function ScoreDisplay({
   score,
   size = "md",
   showLabel = true,
@@ -237,7 +238,7 @@ export function ScoreDisplay({
       </div>
     </Tooltip>
   );
-}
+});
 
 // Simple horizontal score bar
 interface ScoreBarProps {
@@ -245,7 +246,7 @@ interface ScoreBarProps {
   className?: string;
 }
 
-export function ScoreBar({ score, className = "" }: ScoreBarProps) {
+export const ScoreBar = memo(function ScoreBar({ score, className = "" }: ScoreBarProps) {
   const percentage = Math.round(score * 100);
 
   const getColor = () => {
@@ -263,4 +264,4 @@ export function ScoreBar({ score, className = "" }: ScoreBarProps) {
       />
     </div>
   );
-}
+});
