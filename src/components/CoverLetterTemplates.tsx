@@ -6,6 +6,7 @@ import { Card } from './Card';
 import { Modal, ModalFooter } from './Modal';
 import { useToast } from '../contexts';
 import { LoadingSpinner } from './LoadingSpinner';
+import { logError } from '../utils/errorUtils';
 
 type TemplateCategory = 'general' | 'tech' | 'creative' | 'finance' | 'healthcare' | 'sales' | 'custom' | 'thankyou' | 'followup' | 'withdrawal';
 
@@ -266,7 +267,7 @@ export function CoverLetterTemplates({ selectedJob }: CoverLetterTemplatesProps 
       const result = await invoke<CoverLetterTemplate[]>('list_cover_letter_templates');
       setTemplates(result);
     } catch (error) {
-      console.error('Failed to load templates:', error);
+      logError('Failed to load templates:', error);
       toast.error('Failed to load templates', String(error));
     } finally {
       setLoading(false);
@@ -316,7 +317,7 @@ export function CoverLetterTemplates({ selectedJob }: CoverLetterTemplatesProps 
         setIsCreating(false);
       }
     } catch (error) {
-      console.error('Failed to save template:', error);
+      logError('Failed to save template:', error);
       toast.error('Failed to save template', String(error));
     } finally {
       setSaving(false);
@@ -333,7 +334,7 @@ export function CoverLetterTemplates({ selectedJob }: CoverLetterTemplatesProps 
         toast.error('Template not found');
       }
     } catch (error) {
-      console.error('Failed to delete template:', error);
+      logError('Failed to delete template:', error);
       toast.error('Failed to delete template', String(error));
     }
     setDeleteConfirm(null);

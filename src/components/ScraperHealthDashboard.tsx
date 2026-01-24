@@ -7,6 +7,7 @@ import { StatCard } from "./StatCard";
 import { LoadingSpinner } from "./LoadingSpinner";
 import { Tooltip } from "./Tooltip";
 import { Modal } from "./Modal";
+import { logError } from "../utils/errorUtils";
 
 // Types matching Rust backend
 interface ScraperHealthMetrics {
@@ -195,7 +196,7 @@ export function ScraperHealthDashboard({ onClose }: ScraperHealthDashboardProps)
       setRuns(runsData);
     } catch (err) {
       if (signal?.aborted) return;
-      console.error("Failed to load run history:", err);
+      logError("Failed to load run history:", err);
     } finally {
       if (!signal?.aborted) {
         setRunsLoading(false);
@@ -210,7 +211,7 @@ export function ScraperHealthDashboard({ onClose }: ScraperHealthDashboardProps)
       // Reload data
       await loadHealthData();
     } catch (err) {
-      console.error("Failed to toggle scraper:", err);
+      logError("Failed to toggle scraper:", err);
     }
   }, [loadHealthData]);
 
@@ -224,7 +225,7 @@ export function ScraperHealthDashboard({ onClose }: ScraperHealthDashboardProps)
       // Reload health data after test
       await loadHealthData();
     } catch (err) {
-      console.error("Failed to run smoke test:", err);
+      logError("Failed to run smoke test:", err);
     } finally {
       setTestingSingle(null);
     }
@@ -240,7 +241,7 @@ export function ScraperHealthDashboard({ onClose }: ScraperHealthDashboardProps)
       // Reload health data after tests
       await loadHealthData();
     } catch (err) {
-      console.error("Failed to run smoke tests:", err);
+      logError("Failed to run smoke tests:", err);
     } finally {
       setTestingAll(false);
     }

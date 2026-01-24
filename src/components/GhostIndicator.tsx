@@ -1,6 +1,7 @@
 import { Tooltip } from "./Tooltip";
 import { invoke } from "@tauri-apps/api/core";
 import { useState } from "react";
+import { logError } from "../utils/errorUtils";
 
 interface GhostReason {
   category: "stale" | "repost" | "generic" | "missing_details" | "unrealistic" | "company_behavior";
@@ -134,7 +135,7 @@ export function GhostIndicator({
       setFeedbackState(verdict);
       onFeedbackSubmitted?.(verdict);
     } catch (err) {
-      console.error(`Failed to mark job as ${verdict}:`, err);
+      logError(`Failed to mark job as ${verdict}:`, err);
     } finally {
       setIsSubmitting(false);
     }
@@ -267,7 +268,7 @@ export function GhostIndicatorCompact({
       setFeedbackState(verdict);
       onFeedbackSubmitted?.(verdict);
     } catch (err) {
-      console.error(`Failed to mark job as ${verdict}:`, err);
+      logError(`Failed to mark job as ${verdict}:`, err);
     } finally {
       setIsSubmitting(false);
     }

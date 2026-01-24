@@ -186,7 +186,11 @@ export function CommandPalette({ commands = [] }: CommandPaletteProps) {
           data-testid="command-palette-list"
         >
           {flatCommands.length === 0 ? (
-            <div className="px-4 py-8 text-center text-surface-500">
+            <div
+              className="px-4 py-8 text-center text-surface-500"
+              role="status"
+              aria-live="polite"
+            >
               No commands found
             </div>
           ) : (

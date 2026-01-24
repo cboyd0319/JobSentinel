@@ -80,7 +80,7 @@ export async function loadNotificationPreferencesAsync(): Promise<NotificationPr
       return { ...DEFAULT_PREFERENCES, ...stored };
     }
   } catch (e) {
-    console.warn('Failed to load notification preferences from backend:', e);
+    logError('Failed to load notification preferences from backend:', e);
   }
   return DEFAULT_PREFERENCES;
 }
@@ -91,7 +91,7 @@ export async function saveNotificationPreferencesAsync(prefs: NotificationPrefer
     await invoke('save_notification_preferences', { prefs });
     return true;
   } catch (e) {
-    console.warn('Failed to save notification preferences to backend:', e);
+    logError('Failed to save notification preferences to backend:', e);
     return false;
   }
 }
@@ -102,8 +102,8 @@ export function loadNotificationPreferences(): NotificationPreferences {
 }
 
 // Sync version for backward compatibility (no-op, async version should be used)
+/** @deprecated Use saveNotificationPreferencesAsync instead */
 export function saveNotificationPreferences(_prefs: NotificationPreferences): boolean {
-  console.warn('saveNotificationPreferences is deprecated, use saveNotificationPreferencesAsync');
   return false;
 }
 

@@ -9,6 +9,7 @@ import {
 } from 'recharts';
 import { Card } from './Card';
 import { LoadingSpinner } from './LoadingSpinner';
+import { logError } from '../utils/errorUtils';
 
 // Types matching backend
 interface ApplicationStats {
@@ -88,7 +89,7 @@ export function DashboardWidgets({ className = '' }: DashboardWidgetsProps) {
       const salaryData = await invoke<SalaryRange[]>('get_salary_distribution').catch(() => []);
       setSalaryRanges(salaryData);
     } catch (error) {
-      console.error('Failed to load widget data:', error);
+      logError('Failed to load widget data:', error);
     } finally {
       setLoading(false);
     }

@@ -10,6 +10,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { Button, Badge, Modal, ModalFooter, Tooltip } from ".";
+import { logError } from "../utils/errorUtils";
 
 // Full ATS analysis result from backend
 export interface AtsAnalysisResult {
@@ -274,7 +275,7 @@ export function AtsLiveScorePanel({
 
         setAnalysis(result);
       } catch (err) {
-        console.error("ATS analysis error:", err);
+        logError("ATS analysis error:", err);
         setError(err instanceof Error ? err.message : "Analysis failed");
       } finally {
         setAnalyzing(false);
