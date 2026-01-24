@@ -310,7 +310,7 @@ export function ScreeningAnswersForm({ onSaved }: ScreeningAnswersFormProps) {
           >
             Cancel
           </Button>
-          <Button onClick={handleSave} loading={saving}>
+          <Button onClick={handleSave} loading={saving} loadingText={editingId ? "Updating..." : "Saving..."}>
             {editingId ? "Update" : "Save"} Answer
           </Button>
         </ModalFooter>

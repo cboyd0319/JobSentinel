@@ -2767,7 +2767,7 @@ export default function Settings({ onClose }: SettingsProps) {
             <Button variant="secondary" onClick={onClose} className="flex-1">
               Cancel
             </Button>
-            <Button onClick={handleSave} loading={saving} className="flex-1">
+            <Button onClick={handleSave} loading={saving} loadingText="Saving..." className="flex-1">
               Save Changes
             </Button>
           </div>

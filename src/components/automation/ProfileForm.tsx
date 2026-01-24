@@ -498,7 +498,7 @@ export function ProfileForm({ onSaved }: ProfileFormProps) {
           ) : (
             <span />
           )}
-          <Button onClick={handleSave} loading={saving} disabled={!isDirty && !saving}>
+          <Button onClick={handleSave} loading={saving} loadingText="Saving..." disabled={!isDirty && !saving}>
             Save Profile
           </Button>
         </div>

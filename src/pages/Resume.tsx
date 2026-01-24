@@ -315,7 +315,7 @@ export default function Resume({ onBack }: ResumeProps) {
                   Library ({allResumes.length})
                 </Button>
               )}
-              <Button onClick={handleUploadResume} loading={uploading}>
+              <Button onClick={handleUploadResume} loading={uploading} loadingText="Uploading...">
                 {resume ? "Upload New" : "Upload Resume"}
               </Button>
             </div>
@@ -393,7 +393,7 @@ export default function Resume({ onBack }: ResumeProps) {
               Upload your resume to enable AI-powered job matching. We'll extract your skills
               and match them against job requirements.
             </p>
-            <Button onClick={handleUploadResume} loading={uploading}>
+            <Button onClick={handleUploadResume} loading={uploading} loadingText="Uploading...">
               Upload Resume (PDF)
             </Button>
           </Card>

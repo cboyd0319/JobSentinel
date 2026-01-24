@@ -286,7 +286,7 @@ export function ApplyButton({ job, onApplied }: ApplyButtonProps) {
           <Button variant="secondary" onClick={() => setShowPreview(false)}>
             Cancel
           </Button>
-          <Button onClick={handleFillForm} loading={isFilling}>
+          <Button onClick={handleFillForm} loading={isFilling} loadingText="Filling...">
             <BoltIcon className="w-4 h-4 mr-2" />
             Fill Form
           </Button>

@@ -6,6 +6,8 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: React.ReactNode;
   iconPosition?: "left" | "right";
   loading?: boolean;
+  /** Custom loading text (defaults to "Loading...") */
+  loadingText?: string;
   children: React.ReactNode;
 }
 
@@ -31,6 +33,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       icon,
       iconPosition = "left",
       loading = false,
+      loadingText = "Loading...",
       children,
       className = "",
       disabled,
@@ -58,7 +61,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {loading ? (
           <>
             <LoadingIcon className="animate-spin" />
-            <span>Loading...</span>
+            <span>{loadingText}</span>
           </>
         ) : (
           <>
