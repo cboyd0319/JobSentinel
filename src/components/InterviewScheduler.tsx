@@ -168,6 +168,7 @@ export function InterviewScheduler({ onClose, applications = [] }: InterviewSche
   const [followUpReminders, setFollowUpReminders] = useState<Record<number, FollowUpReminder>>({});
   const [showCompanyResearch, setShowCompanyResearch] = useState(false);
   const [researchCompany, setResearchCompany] = useState<string>('');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const toast = useToast();
 
   // Load follow-up reminders from backend
@@ -1016,16 +1017,37 @@ export function InterviewScheduler({ onClose, applications = [] }: InterviewSche
               </div>
 
               <div className="flex gap-3 pt-2">
-                <Button
-                  variant="secondary"
-                  onClick={() => {
-                    handleDeleteInterview(selectedInterview.id);
-                    setSelectedInterview(null);
-                  }}
-                  className="text-red-600 dark:text-red-400"
-                >
-                  Delete
-                </Button>
+                {showDeleteConfirm ? (
+                  <>
+                    <span className="text-sm text-red-600 dark:text-red-400 self-center">
+                      Delete this interview?
+                    </span>
+                    <Button
+                      variant="secondary"
+                      onClick={() => setShowDeleteConfirm(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="danger"
+                      onClick={() => {
+                        handleDeleteInterview(selectedInterview.id);
+                        setSelectedInterview(null);
+                        setShowDeleteConfirm(false);
+                      }}
+                    >
+                      Confirm Delete
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    variant="secondary"
+                    onClick={() => setShowDeleteConfirm(true)}
+                    className="text-red-600 dark:text-red-400"
+                  >
+                    Delete
+                  </Button>
+                )}
               </div>
             </div>
           </Card>

@@ -1,3 +1,5 @@
+import { memo } from "react";
+
 interface StatCardProps {
   label: string;
   value: string | number;
@@ -27,7 +29,7 @@ const accentStyles = {
   },
 };
 
-export function StatCard({
+export const StatCard = memo(function StatCard({
   label,
   value,
   icon,
@@ -69,4 +71,4 @@ export function StatCard({
       )}
     </div>
   );
-}
+});

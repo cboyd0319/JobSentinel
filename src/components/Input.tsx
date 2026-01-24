@@ -2,6 +2,8 @@ import { forwardRef } from "react";
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
+  /** Hide the label visually but keep it for screen readers */
+  hideLabel?: boolean;
   error?: string;
   hint?: string;
   leftIcon?: React.ReactNode;
@@ -9,13 +11,13 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, hint, leftIcon, rightIcon, className = "", ...props }, ref) => {
+  ({ label, hideLabel = false, error, hint, leftIcon, rightIcon, className = "", ...props }, ref) => {
     const hasError = Boolean(error);
 
     return (
       <div className="w-full">
         {label && (
-          <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">
+          <label className={`block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5 ${hideLabel ? "sr-only" : ""}`}>
             {label}
           </label>
         )}

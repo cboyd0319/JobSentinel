@@ -202,6 +202,16 @@ export function ProfileForm({ onSaved }: ProfileFormProps) {
       return;
     }
 
+    // Phone validation (optional field, but validate format if provided)
+    if (phone.trim()) {
+      // Accept formats: +1234567890, (123) 456-7890, 123-456-7890, etc.
+      const phoneDigits = phone.replace(/\D/g, "");
+      if (phoneDigits.length < 10 || phoneDigits.length > 15) {
+        toast.error("Invalid phone number", "Please enter a valid phone number (10-15 digits)");
+        return;
+      }
+    }
+
     // URL validation helper
     const isValidUrl = (url: string): boolean => {
       if (!url.trim()) return true; // Empty is OK (optional field)
@@ -373,7 +383,8 @@ export function ProfileForm({ onSaved }: ProfileFormProps) {
           <div className="flex items-center gap-3">
             <div className="flex-1">
               <Input
-                label=""
+                label="Resume file path"
+                hideLabel
                 value={resumeFilePath}
                 onChange={(e) => setResumeFilePath(e.target.value)}
                 placeholder="No resume selected"
