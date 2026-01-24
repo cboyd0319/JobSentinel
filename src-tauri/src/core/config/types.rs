@@ -91,6 +91,14 @@ pub struct Config {
     #[serde(default)]
     pub usajobs: UsaJobsConfig,
 
+    /// SimplyHired job aggregator scraper configuration (v2.5.5)
+    #[serde(default)]
+    pub simplyhired: SimplyHiredConfig,
+
+    /// Glassdoor job board scraper configuration (v2.5.5)
+    #[serde(default)]
+    pub glassdoor: GlassdoorConfig,
+
     /// JobsWithGPT MCP endpoint URL
     #[serde(default = "super::defaults::default_jobswithgpt_endpoint")]
     pub jobswithgpt_endpoint: String,
@@ -432,6 +440,52 @@ pub struct YcStartupConfig {
     /// Filter for remote jobs only
     #[serde(default)]
     pub remote_only: bool,
+
+    /// Maximum results to return (default: 50)
+    #[serde(default = "super::defaults::default_scraper_limit")]
+    pub limit: usize,
+}
+
+/// SimplyHired scraper configuration (v2.5.5)
+///
+/// SimplyHired job aggregator. Uses RSS feeds.
+/// Note: May be blocked by Cloudflare, returns empty if so.
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct SimplyHiredConfig {
+    /// Enable SimplyHired job scraping
+    #[serde(default)]
+    pub enabled: bool,
+
+    /// Search query (e.g., "rust developer", "software engineer")
+    #[serde(default)]
+    pub query: String,
+
+    /// Location filter (e.g., "Remote", "San Francisco, CA")
+    #[serde(default)]
+    pub location: Option<String>,
+
+    /// Maximum results to return (default: 50)
+    #[serde(default = "super::defaults::default_scraper_limit")]
+    pub limit: usize,
+}
+
+/// Glassdoor scraper configuration (v2.5.5)
+///
+/// Glassdoor job board with company reviews.
+/// Note: Has strong Cloudflare protection, may return empty if blocked.
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct GlassdoorConfig {
+    /// Enable Glassdoor job scraping
+    #[serde(default)]
+    pub enabled: bool,
+
+    /// Search query (e.g., "software engineer", "data scientist")
+    #[serde(default)]
+    pub query: String,
+
+    /// Location filter (e.g., "San Francisco, CA", "Remote")
+    #[serde(default)]
+    pub location: Option<String>,
 
     /// Maximum results to return (default: 50)
     #[serde(default = "super::defaults::default_scraper_limit")]

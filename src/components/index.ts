@@ -38,6 +38,8 @@ export { CareerProfileSelector } from "./CareerProfileSelector";
 export { GhostIndicator, GhostIndicatorCompact } from "./GhostIndicator";
 export { ScraperHealthDashboard } from "./ScraperHealthDashboard";
 export { ResumeMatchScoreBreakdown } from "./ResumeMatchScoreBreakdown";
+export { AtsLiveScorePanel } from "./AtsLiveScorePanel";
+export type { AtsAnalysisResult } from "./AtsLiveScorePanel";
 export { SkillCategoryFilter } from "./SkillCategoryFilter";
 
 // Market Intelligence (v2.5)
@@ -45,6 +47,9 @@ export { MarketSnapshotCard } from "./MarketSnapshotCard";
 export { TrendChart } from "./TrendChart";
 export { MarketAlertCard, MarketAlertList } from "./MarketAlertCard";
 export { LocationHeatmap } from "./LocationHeatmap";
+
+// Analytics Dashboard (v2.5.5)
+export { DashboardWidgets } from "./DashboardWidgets";
 
 // Automation (One-Click Apply)
 export { ProfileForm, ScreeningAnswersForm, ApplyButton, AtsBadge, ApplicationPreview } from "./automation";

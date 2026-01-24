@@ -119,6 +119,8 @@ fn main() {
             commands::jobs::get_scraping_status,
             commands::jobs::find_duplicates,
             commands::jobs::merge_duplicates,
+            commands::jobs::get_jobs_by_source,
+            commands::jobs::get_salary_distribution,
             // Config commands
             commands::config::save_config,
             commands::config::get_config,
@@ -217,6 +219,7 @@ fn main() {
             commands::user_data::create_cover_letter_template,
             commands::user_data::update_cover_letter_template,
             commands::user_data::delete_cover_letter_template,
+            commands::user_data::seed_default_templates,
             commands::user_data::get_interview_prep_checklist,
             commands::user_data::save_interview_prep_item,
             commands::user_data::get_interview_followup,
@@ -244,6 +247,7 @@ fn main() {
             commands::linkedin_auth::is_linkedin_connected,
             commands::linkedin_auth::disconnect_linkedin,
             commands::linkedin_auth::close_linkedin_login,
+            commands::linkedin_auth::get_linkedin_expiry_status,
             // Automation commands (One-Click Apply)
             commands::automation::upsert_application_profile,
             commands::automation::get_application_profile,
@@ -264,6 +268,8 @@ fn main() {
             commands::automation::is_browser_running,
             commands::automation::fill_application_form,
             commands::automation::take_automation_screenshot,
+            commands::automation::mark_attempt_submitted,
+            commands::automation::get_attempts_for_job,
             // Health monitoring commands (v2.1)
             commands::health::get_scraper_health,
             commands::health::get_health_summary,
@@ -320,6 +326,8 @@ fn main() {
                     dice: Default::default(),
                     yc_startup: Default::default(),
                     usajobs: Default::default(),
+                    simplyhired: Default::default(),
+                    glassdoor: Default::default(),
                     jobswithgpt_endpoint: "https://api.jobswithgpt.com/mcp".to_string(),
                     salary_target_usd: None,
                     penalize_missing_salary: false,

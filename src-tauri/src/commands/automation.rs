@@ -12,7 +12,7 @@ use crate::commands::AppState;
 use crate::core::automation::{
     ats_detector::AtsDetector,
     profile::{ApplicationProfileInput, ProfileManager, ScreeningAnswer},
-    ApplicationAttempt, AtsPlatform, AutomationManager, AutomationStats,
+    ApplicationAttempt, AtsPlatform, AutomationManager, AutomationStats, AutomationStatus,
 };
 use serde::{Deserialize, Serialize};
 use tauri::State;
@@ -413,15 +413,18 @@ pub async fn is_browser_running() -> Result<bool, String> {
 ///
 /// 1. Navigates to the job URL
 /// 2. Detects ATS platform
-/// 3. Fills form fields from profile
-/// 4. Returns what was filled
-/// 5. User reviews and clicks submit manually
+/// 3. Fills form fields from profile and screening answers
+/// 4. Creates automation attempt for tracking
+/// 5. Returns what was filled
+/// 6. User reviews and clicks submit manually
 #[tauri::command]
 pub async fn fill_application_form(
     job_url: String,
+    job_hash: Option<String>,
     state: State<'_, AppState>,
-) -> Result<FillResult, String> {
+) -> Result<FillResultWithAttempt, String> {
     tracing::info!("Command: fill_application_form (url: {})", job_url);
+    let start_time = std::time::Instant::now();
 
     // Get profile
     let profile_manager = ProfileManager::new(state.database.pool().clone());
@@ -430,6 +433,38 @@ pub async fn fill_application_form(
         .await
         .map_err(|e| format!("Failed to get profile: {}", e))?
         .ok_or("No application profile configured. Please set up your profile first.")?;
+
+    // Get screening answers for auto-filling questions
+    let screening_answers = profile_manager
+        .get_screening_answers()
+        .await
+        .map_err(|e| format!("Failed to get screening answers: {}", e))?;
+
+    tracing::info!(
+        "Loaded {} screening answer patterns",
+        screening_answers.len()
+    );
+
+    // Detect ATS platform
+    let platform = AtsDetector::detect_from_url(&job_url);
+    tracing::info!("Detected ATS platform: {:?}", platform);
+
+    // Create automation attempt for tracking (if job_hash provided)
+    let attempt_id = if let Some(ref hash) = job_hash {
+        let automation_manager = AutomationManager::new(state.database.pool().clone());
+        match automation_manager.create_attempt(hash, platform.clone()).await {
+            Ok(id) => {
+                tracing::info!("Created automation attempt #{}", id);
+                Some(id)
+            }
+            Err(e) => {
+                tracing::warn!("Failed to create automation attempt: {}", e);
+                None
+            }
+        }
+    } else {
+        None
+    };
 
     // Launch browser if not running
     let manager = BROWSER_MANAGER.lock().await;
@@ -446,33 +481,66 @@ pub async fn fill_application_form(
         .await
         .map_err(|e| format!("Failed to open page: {}", e))?;
 
-    // Detect ATS platform
-    let platform = AtsDetector::detect_from_url(&job_url);
-    tracing::info!("Detected ATS platform: {:?}", platform);
-
     // Get resume path from profile if configured
     let resume_path = profile
         .resume_file_path
         .as_ref()
         .map(std::path::PathBuf::from);
 
-    // Create form filler and fill the form
-    // The profile from ProfileManager is already ApplicationProfile with DateTime fields
-    let filler = FormFiller::new(profile, resume_path);
+    // Create form filler with screening answers and fill the form
+    let filler = FormFiller::new(profile, resume_path).with_screening_answers(screening_answers);
 
     let result = filler
         .fill_page(&page, &platform)
         .await
         .map_err(|e| format!("Failed to fill form: {}", e))?;
 
+    let duration_ms = start_time.elapsed().as_millis() as i64;
+
     tracing::info!(
-        "Form fill complete: {} fields filled, {} unfilled, captcha: {}",
+        "Form fill complete in {}ms: {} fields filled, {} unfilled, captcha: {}",
+        duration_ms,
         result.filled_fields.len(),
         result.unfilled_fields.len(),
         result.captcha_detected
     );
 
-    Ok(result)
+    // Update attempt status
+    if let Some(id) = attempt_id {
+        let automation_manager = AutomationManager::new(state.database.pool().clone());
+        let status = if result.captcha_detected {
+            AutomationStatus::AwaitingApproval
+        } else if result.ready_for_review {
+            AutomationStatus::AwaitingApproval
+        } else {
+            AutomationStatus::Failed
+        };
+
+        let _ = automation_manager
+            .update_status(id, status, result.error_message.as_deref())
+            .await;
+    }
+
+    Ok(FillResultWithAttempt {
+        fill_result: result,
+        attempt_id,
+        duration_ms,
+        ats_platform: platform.as_str().to_string(),
+    })
+}
+
+/// Extended fill result with tracking info
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct FillResultWithAttempt {
+    #[serde(flatten)]
+    pub fill_result: FillResult,
+    /// Automation attempt ID for tracking (if job_hash was provided)
+    pub attempt_id: Option<i64>,
+    /// Time taken in milliseconds
+    pub duration_ms: i64,
+    /// Detected ATS platform
+    pub ats_platform: String,
 }
 
 /// Take a screenshot of the current browser page
@@ -483,4 +551,70 @@ pub async fn take_automation_screenshot(path: String) -> Result<(), String> {
     // Note: This is a placeholder - we'd need to track the current page
     // For now, users can use OS screenshot tools
     Err("Screenshot functionality requires active page context".to_string())
+}
+
+/// Mark an automation attempt as submitted by the user
+///
+/// Called when user confirms they clicked the submit button on the form.
+#[tauri::command]
+pub async fn mark_attempt_submitted(
+    attempt_id: i64,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    tracing::info!("Command: mark_attempt_submitted (id: {})", attempt_id);
+
+    let manager = AutomationManager::new(state.database.pool().clone());
+    manager
+        .mark_submitted(attempt_id)
+        .await
+        .map_err(|e| format!("Failed to mark attempt as submitted: {}", e))
+}
+
+/// Get all automation attempts for a job
+#[tauri::command]
+pub async fn get_attempts_for_job(
+    job_hash: String,
+    state: State<'_, AppState>,
+) -> Result<Vec<AttemptResponse>, String> {
+    tracing::info!("Command: get_attempts_for_job (hash: {})", job_hash);
+
+    let rows = sqlx::query(
+        r#"
+        SELECT id, job_hash, application_id, status, ats_platform,
+               error_message, screenshot_path, confirmation_screenshot_path,
+               automation_duration_ms, user_approved, submitted_at, created_at
+        FROM application_attempts
+        WHERE job_hash = ?
+        ORDER BY created_at DESC
+        "#,
+    )
+    .bind(&job_hash)
+    .fetch_all(state.database.pool())
+    .await
+    .map_err(|e| format!("Failed to get attempts: {}", e))?;
+
+    use sqlx::Row;
+    let attempts: Vec<AttemptResponse> = rows
+        .into_iter()
+        .map(|row| {
+            let submitted_at: Option<String> = row.get("submitted_at");
+            let created_at: String = row.get("created_at");
+            AttemptResponse {
+                id: row.get("id"),
+                job_hash: row.get("job_hash"),
+                application_id: row.get("application_id"),
+                status: row.get("status"),
+                ats_platform: row.get("ats_platform"),
+                error_message: row.get("error_message"),
+                screenshot_path: row.get("screenshot_path"),
+                confirmation_screenshot_path: row.get("confirmation_screenshot_path"),
+                automation_duration_ms: row.get("automation_duration_ms"),
+                user_approved: row.get::<i32, _>("user_approved") != 0,
+                submitted_at,
+                created_at,
+            }
+        })
+        .collect();
+
+    Ok(attempts)
 }

@@ -100,6 +100,19 @@ pub async fn delete_cover_letter_template(
         .map_err(|e| format!("Database error: {}", e))
 }
 
+/// Seed default templates if none exist
+/// Called on first app launch to provide starter templates
+#[tauri::command]
+pub async fn seed_default_templates(state: State<'_, AppState>) -> Result<usize, String> {
+    tracing::info!("Command: seed_default_templates");
+
+    let manager = UserDataManager::new(state.database.pool().clone());
+    manager
+        .seed_default_templates()
+        .await
+        .map_err(|e| format!("Database error: {}", e))
+}
+
 /// Import cover letter templates from localStorage migration
 #[tauri::command]
 pub async fn import_cover_letter_templates(

@@ -146,6 +146,15 @@ interface Credentials {
 // Credential key names (must match backend CredentialKey enum)
 type CredentialKey = "slack_webhook" | "smtp_password" | "linkedin_cookie" | "discord_webhook" | "teams_webhook" | "telegram_bot_token" | "usajobs_api_key";
 
+// LinkedIn cookie expiry status (must match backend LinkedInExpiryStatus)
+interface LinkedInExpiryStatus {
+  connected: boolean;
+  expires_at: string | null;
+  days_remaining: number | null;
+  expiry_warning: boolean;
+  expired: boolean;
+}
+
 // Helper to store a credential in secure storage
 async function storeCredential(key: CredentialKey, value: string): Promise<void> {
   await invoke("store_credential", { key, value });
@@ -206,6 +215,7 @@ export default function Settings({ onClose }: SettingsProps) {
   const [ghostPreset, setGhostPreset] = useState<"lenient" | "balanced" | "strict" | "custom">("balanced");
   const [emailProvider, setEmailProvider] = useState<"custom" | "gmail" | "outlook" | "yahoo">("custom");
   const [activeTab, setActiveTab] = useState<"basic" | "advanced">("basic");
+  const [linkedInExpiry, setLinkedInExpiry] = useState<LinkedInExpiryStatus | null>(null);
   const toast = useToast();
 
   // Email provider templates for auto-fill
@@ -383,6 +393,16 @@ export default function Settings({ onClose }: SettingsProps) {
         telegram_bot_token: hasTelegram,
         usajobs_api_key: hasUsaJobs,
       });
+
+      // Fetch LinkedIn expiry status if connected
+      if (hasLinkedIn) {
+        try {
+          const expiryStatus = await invoke<LinkedInExpiryStatus>("get_linkedin_expiry_status");
+          setLinkedInExpiry(expiryStatus);
+        } catch (err) {
+          console.error("Failed to fetch LinkedIn expiry status:", err);
+        }
+      }
 
     } catch (error) {
       logError("Failed to load config:", error);
@@ -1780,27 +1800,81 @@ export default function Settings({ onClose }: SettingsProps) {
                 <div className="space-y-3">
                   {/* Connection Status */}
                   {credentialStatus.linkedin_cookie ? (
-                    <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <span className="text-green-600 dark:text-green-400">✓</span>
-                        <span className="text-sm font-medium text-green-800 dark:text-green-200">LinkedIn Connected</span>
-                        <SecurityBadge stored={true} />
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <span className="text-green-600 dark:text-green-400">✓</span>
+                          <span className="text-sm font-medium text-green-800 dark:text-green-200">LinkedIn Connected</span>
+                          <SecurityBadge stored={true} />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            try {
+                              await invoke("disconnect_linkedin");
+                              setCredentialStatus((prev) => ({ ...prev, linkedin_cookie: false }));
+                              setLinkedInExpiry(null);
+                              toast.success("Disconnected", "LinkedIn has been disconnected");
+                            } catch (err) {
+                              toast.error("Error", "Failed to disconnect LinkedIn");
+                            }
+                          }}
+                          className="text-sm text-red-600 dark:text-red-400 hover:underline"
+                        >
+                          Disconnect
+                        </button>
                       </div>
-                      <button
-                        type="button"
-                        onClick={async () => {
-                          try {
-                            await invoke("disconnect_linkedin");
-                            setCredentialStatus((prev) => ({ ...prev, linkedin_cookie: false }));
-                            toast.success("Disconnected", "LinkedIn has been disconnected");
-                          } catch (err) {
-                            toast.error("Error", "Failed to disconnect LinkedIn");
-                          }
-                        }}
-                        className="text-sm text-red-600 dark:text-red-400 hover:underline"
-                      >
-                        Disconnect
-                      </button>
+
+                      {/* Expiry Warning */}
+                      {linkedInExpiry?.expired && (
+                        <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                          <svg className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                          </svg>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-red-800 dark:text-red-200">Session Expired</p>
+                            <p className="text-xs text-red-600 dark:text-red-400">Your LinkedIn session has expired. Please reconnect to continue searching LinkedIn jobs.</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              try {
+                                await invoke("disconnect_linkedin");
+                                setCredentialStatus((prev) => ({ ...prev, linkedin_cookie: false }));
+                                setLinkedInExpiry(null);
+                              } catch (err) {
+                                // Ignore
+                              }
+                            }}
+                            className="text-xs font-medium text-red-700 dark:text-red-300 hover:underline"
+                          >
+                            Reconnect
+                          </button>
+                        </div>
+                      )}
+
+                      {linkedInExpiry?.expiry_warning && !linkedInExpiry?.expired && (
+                        <div className="flex items-center gap-2 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+                          <svg className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-amber-800 dark:text-amber-200">Session Expiring Soon</p>
+                            <p className="text-xs text-amber-600 dark:text-amber-400">
+                              {linkedInExpiry.days_remaining !== null && linkedInExpiry.days_remaining > 0
+                                ? `Expires in ${linkedInExpiry.days_remaining} day${linkedInExpiry.days_remaining !== 1 ? 's' : ''}`
+                                : 'Expires soon'
+                              }. Reconnect to refresh your session.
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
+                      {linkedInExpiry?.expires_at && !linkedInExpiry?.expiry_warning && !linkedInExpiry?.expired && (
+                        <p className="text-xs text-surface-500 dark:text-surface-400 px-1">
+                          Session valid until {new Date(linkedInExpiry.expires_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                        </p>
+                      )}
                     </div>
                   ) : (
                     <div className="space-y-3">
@@ -1815,6 +1889,13 @@ export default function Settings({ onClose }: SettingsProps) {
                             await invoke("linkedin_login");
                             // If we get here without throwing, login was successful
                             setCredentialStatus((prev) => ({ ...prev, linkedin_cookie: true }));
+                            // Fetch expiry status for the new session
+                            try {
+                              const expiryStatus = await invoke<LinkedInExpiryStatus>("get_linkedin_expiry_status");
+                              setLinkedInExpiry(expiryStatus);
+                            } catch {
+                              // Non-critical, ignore
+                            }
                             toast.success("Connected!", "LinkedIn connected successfully");
                           } catch (err) {
                             const errorStr = String(err);

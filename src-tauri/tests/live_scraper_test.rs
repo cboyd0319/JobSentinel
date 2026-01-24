@@ -8,17 +8,19 @@
 use jobsentinel::core::scrapers::{
     builtin::BuiltInScraper,
     dice::DiceScraper,
+    glassdoor::GlassdoorScraper,
     greenhouse::{GreenhouseCompany, GreenhouseScraper},
     hn_hiring::HnHiringScraper,
     lever::{LeverCompany, LeverScraper},
     remoteok::RemoteOkScraper,
+    simplyhired::SimplyHiredScraper,
     weworkremotely::WeWorkRemotelyScraper,
     yc_startup::YcStartupScraper,
     JobScraper,
 };
 
-// REMOVED: indeed, ziprecruiter, wellfound, simplyhired
-// These scrapers were blocked by Cloudflare and have been removed from the codebase
+// Note: indeed, ziprecruiter, wellfound were removed (blocked by Cloudflare)
+// simplyhired and glassdoor re-added in v2.5.5 - may return empty if blocked
 
 // ============================================================================
 // API-BASED SCRAPERS (Most reliable)
@@ -203,4 +205,74 @@ async fn test_jobswithgpt_live() {
     // JobsWithGPT uses MCP protocol
     // This test is skipped by default
     println!("⏭️  JobsWithGPT: Skipped (requires MCP endpoint)");
+}
+
+// ============================================================================
+// V2.5.5 SCRAPERS (May be blocked by Cloudflare)
+// ============================================================================
+
+#[tokio::test]
+async fn test_simplyhired_live() {
+    let scraper = SimplyHiredScraper::new(
+        "rust developer".to_string(),
+        Some("Remote".to_string()),
+        50,
+    );
+
+    let result = scraper.scrape().await;
+    match result {
+        Ok(jobs) => {
+            if jobs.is_empty() {
+                println!("⚠️  SimplyHired: 0 jobs (likely Cloudflare blocked)");
+            } else {
+                println!("✅ SimplyHired: Found {} jobs", jobs.len());
+                // Verify job structure
+                for job in jobs.iter().take(3) {
+                    println!(
+                        "   - {} at {} ({})",
+                        job.title,
+                        job.company,
+                        job.location.as_deref().unwrap_or("Unknown")
+                    );
+                }
+            }
+        }
+        Err(e) => {
+            println!("⚠️  SimplyHired: {}", e);
+            println!("    (May be blocked by Cloudflare)");
+        }
+    }
+}
+
+#[tokio::test]
+async fn test_glassdoor_live() {
+    let scraper = GlassdoorScraper::new(
+        "software engineer".to_string(),
+        Some("San Francisco".to_string()),
+        50,
+    );
+
+    let result = scraper.scrape().await;
+    match result {
+        Ok(jobs) => {
+            if jobs.is_empty() {
+                println!("⚠️  Glassdoor: 0 jobs (likely Cloudflare blocked)");
+            } else {
+                println!("✅ Glassdoor: Found {} jobs", jobs.len());
+                // Verify job structure
+                for job in jobs.iter().take(3) {
+                    println!(
+                        "   - {} at {} ({})",
+                        job.title,
+                        job.company,
+                        job.location.as_deref().unwrap_or("Unknown")
+                    );
+                }
+            }
+        }
+        Err(e) => {
+            println!("⚠️  Glassdoor: {}", e);
+            println!("    (May be blocked by Cloudflare)");
+        }
+    }
 }

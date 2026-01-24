@@ -277,6 +277,133 @@ export const CAREER_PROFILES: CareerProfile[] = [
     keywordsExclude: ["ghostwriting only", "content mill", "pay per article"],
     locationPreferences: { allow_remote: true, allow_hybrid: true, allow_onsite: true },
     sampleTitles: ["Content Writer", "UX Writer", "Content Strategist"]
+  },
+  {
+    id: "healthcare",
+    name: "Healthcare",
+    description: "Nurses, healthcare admin, medical professionals",
+    icon: "heart",
+    salaryRange: "$50k - $150k",
+    salaryFloor: 50000,
+    titleAllowlist: [
+      "Registered Nurse", "RN", "Nurse Practitioner", "NP", "Licensed Practical Nurse",
+      "Clinical Nurse", "Charge Nurse", "Nurse Manager", "Director of Nursing",
+      "Healthcare Administrator", "Hospital Administrator", "Practice Manager",
+      "Medical Director", "Clinical Director", "Health Services Manager",
+      "Patient Care Coordinator", "Case Manager", "Clinical Research Coordinator",
+      "Healthcare Consultant", "Medical Writer", "Health Informatics Specialist"
+    ],
+    titleBlocklist: ["Aide", "Assistant", "Volunteer", "Student"],
+    keywordsBoost: [
+      "Healthcare", "Clinical", "Patient Care", "HIPAA", "EMR", "EHR",
+      "Epic", "Cerner", "Medical Records", "Nursing", "BSN", "MSN",
+      "Healthcare Administration", "Quality Improvement", "Patient Safety",
+      "Care Coordination", "Population Health", "Value-Based Care"
+    ],
+    keywordsExclude: ["travel nursing agency"],
+    locationPreferences: { allow_remote: false, allow_hybrid: true, allow_onsite: true },
+    sampleTitles: ["Registered Nurse", "Healthcare Admin", "Nurse Manager"]
+  },
+  {
+    id: "legal",
+    name: "Legal",
+    description: "Attorneys, paralegals, and legal professionals",
+    icon: "scale",
+    salaryRange: "$60k - $250k+",
+    salaryFloor: 60000,
+    titleAllowlist: [
+      "Attorney", "Lawyer", "Associate Attorney", "Senior Associate", "Partner",
+      "General Counsel", "Legal Counsel", "Corporate Counsel", "In-House Counsel",
+      "Paralegal", "Senior Paralegal", "Legal Assistant", "Legal Secretary",
+      "Contracts Manager", "Compliance Officer", "Legal Operations Manager",
+      "Patent Attorney", "IP Counsel", "Litigation Associate", "Transactional Attorney"
+    ],
+    titleBlocklist: ["Intern", "Internship", "Law Clerk", "Student"],
+    keywordsBoost: [
+      "JD", "Bar Admission", "Corporate Law", "Contract Negotiation", "M&A",
+      "Litigation", "Compliance", "Regulatory", "Intellectual Property", "Patent",
+      "Employment Law", "Securities", "Privacy Law", "GDPR", "Data Privacy",
+      "Legal Research", "Westlaw", "LexisNexis", "Due Diligence"
+    ],
+    keywordsExclude: ["document review only", "temporary"],
+    locationPreferences: { allow_remote: true, allow_hybrid: true, allow_onsite: true },
+    sampleTitles: ["Corporate Counsel", "Senior Paralegal", "Compliance Officer"]
+  },
+  {
+    id: "education",
+    name: "Education",
+    description: "Teachers, instructional designers, EdTech roles",
+    icon: "book",
+    salaryRange: "$45k - $120k",
+    salaryFloor: 45000,
+    titleAllowlist: [
+      "Teacher", "Instructor", "Professor", "Lecturer", "Adjunct Faculty",
+      "Instructional Designer", "Curriculum Developer", "Learning Designer",
+      "Training Manager", "Corporate Trainer", "Learning & Development Manager",
+      "Education Director", "Principal", "Dean", "Academic Director",
+      "EdTech Product Manager", "Learning Experience Designer", "Course Developer"
+    ],
+    titleBlocklist: ["Substitute", "Aide", "Assistant Teacher", "Student Teacher"],
+    keywordsBoost: [
+      "Curriculum Development", "Instructional Design", "Learning Management System",
+      "LMS", "E-Learning", "ADDIE", "Articulate", "Canvas", "Blackboard",
+      "Assessment Design", "Educational Technology", "Adult Learning",
+      "Professional Development", "Training Delivery", "Facilitation"
+    ],
+    keywordsExclude: ["tutoring only", "part-time only"],
+    locationPreferences: { allow_remote: true, allow_hybrid: true, allow_onsite: true },
+    sampleTitles: ["Instructional Designer", "Training Manager", "Curriculum Developer"]
+  },
+  {
+    id: "customer-success",
+    name: "Customer Success",
+    description: "CSMs, support leads, and customer experience",
+    icon: "smile",
+    salaryRange: "$50k - $130k",
+    salaryFloor: 50000,
+    titleAllowlist: [
+      "Customer Success Manager", "CSM", "Senior Customer Success Manager",
+      "Customer Success Director", "VP of Customer Success", "Head of Customer Success",
+      "Customer Experience Manager", "CX Manager", "Customer Support Manager",
+      "Support Engineer", "Technical Support Specialist", "Support Lead",
+      "Implementation Manager", "Onboarding Specialist", "Client Success Manager",
+      "Account Manager", "Relationship Manager", "Customer Advocate"
+    ],
+    titleBlocklist: ["Intern", "Internship", "Junior", "Entry Level", "Tier 1"],
+    keywordsBoost: [
+      "Customer Success", "Customer Experience", "NPS", "CSAT", "Churn Prevention",
+      "Onboarding", "Implementation", "Renewal", "Upsell", "Cross-sell",
+      "Salesforce", "Gainsight", "ChurnZero", "Zendesk", "Intercom",
+      "SaaS", "B2B", "Enterprise", "Technical Support", "Troubleshooting"
+    ],
+    keywordsExclude: ["call center", "phone only", "high volume tickets"],
+    locationPreferences: { allow_remote: true, allow_hybrid: true, allow_onsite: false },
+    sampleTitles: ["Customer Success Manager", "Support Lead", "CX Manager"]
+  },
+  {
+    id: "creative-media",
+    name: "Creative & Media",
+    description: "Designers, video producers, and creative directors",
+    icon: "palette",
+    salaryRange: "$55k - $150k",
+    salaryFloor: 55000,
+    titleAllowlist: [
+      "Graphic Designer", "Senior Designer", "Art Director", "Creative Director",
+      "Visual Designer", "Brand Designer", "Marketing Designer",
+      "Video Producer", "Video Editor", "Motion Graphics Designer", "Animator",
+      "Photographer", "Photo Editor", "Creative Producer",
+      "Social Media Designer", "Digital Designer", "Multimedia Specialist"
+    ],
+    titleBlocklist: ["Intern", "Internship", "Junior", "Freelance", "Contract"],
+    keywordsBoost: [
+      "Adobe Creative Suite", "Photoshop", "Illustrator", "InDesign", "After Effects",
+      "Premiere Pro", "Figma", "Sketch", "Brand Identity", "Visual Design",
+      "Motion Graphics", "Video Production", "Photography", "Art Direction",
+      "Creative Strategy", "Campaign Design", "Social Media Content"
+    ],
+    keywordsExclude: ["stock imagery only", "template-based"],
+    locationPreferences: { allow_remote: true, allow_hybrid: true, allow_onsite: true },
+    sampleTitles: ["Art Director", "Video Producer", "Brand Designer"]
   }
 ];
 
@@ -335,4 +462,5 @@ export function profileToConfig(profile: CareerProfile) {
  */
 export type ProfileIconType =
   | "code" | "shield" | "chart" | "lightbulb" | "trending"
-  | "briefcase" | "users" | "calculator" | "clipboard" | "pen";
+  | "briefcase" | "users" | "calculator" | "clipboard" | "pen"
+  | "heart" | "scale" | "book" | "smile" | "palette";

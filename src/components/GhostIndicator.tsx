@@ -3,11 +3,30 @@ import { invoke } from "@tauri-apps/api/core";
 import { useState } from "react";
 
 interface GhostReason {
-  category: string;
+  category: "stale" | "repost" | "generic" | "missing_details" | "unrealistic" | "company_behavior";
   description: string;
   weight: number;
   severity: "low" | "medium" | "high";
 }
+
+// Category display names and icons for ML-enhanced signals
+const categoryLabels: Record<GhostReason["category"], string> = {
+  stale: "Stale Listing",
+  repost: "Reposted",
+  generic: "Generic Content",
+  missing_details: "Missing Details",
+  unrealistic: "Unrealistic",
+  company_behavior: "Company Pattern",
+};
+
+const categoryIcons: Record<GhostReason["category"], string> = {
+  stale: "📅",
+  repost: "🔄",
+  generic: "📋",
+  missing_details: "❓",
+  unrealistic: "⚠️",
+  company_behavior: "🏢",
+};
 
 interface GhostIndicatorProps {
   ghostScore: number | null;
@@ -127,24 +146,29 @@ export function GhostIndicator({
         Potential Ghost Job ({Math.round(ghostScore * 100)}% confidence)
       </div>
       {reasons.length > 0 ? (
-        <ul className="text-xs space-y-1">
+        <ul className="text-xs space-y-1.5">
           {reasons.map((reason, i) => (
-            <li key={i} className="flex items-start gap-1">
-              <span
-                className={`inline-block w-2 h-2 rounded-full mt-1 flex-shrink-0 ${
+            <li key={i} className="flex items-start gap-1.5">
+              <span className="flex-shrink-0 text-sm" role="img" aria-label={categoryLabels[reason.category] || reason.category}>
+                {categoryIcons[reason.category] || "•"}
+              </span>
+              <span className="flex-1">
+                <span className={`font-medium ${
                   reason.severity === "high"
-                    ? "bg-red-400"
+                    ? "text-red-400"
                     : reason.severity === "medium"
-                    ? "bg-orange-400"
-                    : "bg-yellow-400"
-                }`}
-              />
-              <span>{reason.description}</span>
+                    ? "text-orange-400"
+                    : "text-yellow-400"
+                }`}>
+                  {categoryLabels[reason.category] || reason.category}:
+                </span>{" "}
+                {reason.description}
+              </span>
             </li>
           ))}
         </ul>
       ) : (
-        <p className="text-xs">Multiple warning signals detected</p>
+        <p className="text-xs">ML analysis detected warning signals</p>
       )}
       {jobId && !feedbackState && (
         <div className="mt-2 pt-2 border-t border-surface-200 dark:border-surface-600">

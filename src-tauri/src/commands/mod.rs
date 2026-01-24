@@ -49,9 +49,9 @@ pub struct AppState {
 
 // Job commands
 pub use jobs::{
-    find_duplicates, get_bookmarked_jobs, get_job_by_id, get_job_notes, get_recent_jobs,
-    get_scraping_status, get_statistics, hide_job, merge_duplicates, search_jobs,
-    search_jobs_query, set_job_notes, toggle_bookmark, unhide_job,
+    find_duplicates, get_bookmarked_jobs, get_job_by_id, get_job_notes, get_jobs_by_source,
+    get_recent_jobs, get_salary_distribution, get_scraping_status, get_statistics, hide_job,
+    merge_duplicates, search_jobs, search_jobs_query, set_job_notes, toggle_bookmark, unhide_job,
 };
 
 // ATS commands
@@ -136,8 +136,8 @@ pub use user_data::{
     get_interview_followup, get_interview_prep_checklist, get_notification_preferences,
     get_search_history, import_cover_letter_templates, import_saved_searches,
     list_cover_letter_templates, list_saved_searches, save_interview_followup,
-    save_interview_prep_item, save_notification_preferences, update_cover_letter_template,
-    use_saved_search,
+    save_interview_prep_item, save_notification_preferences, seed_default_templates,
+    update_cover_letter_template, use_saved_search,
 };
 
 // Config commands
@@ -150,8 +150,8 @@ pub use credentials::{
 
 // LinkedIn auth commands
 pub use linkedin_auth::{
-    close_linkedin_login, disconnect_linkedin, is_linkedin_connected, linkedin_login,
-    store_linkedin_cookie,
+    close_linkedin_login, disconnect_linkedin, get_linkedin_expiry_status, is_linkedin_connected,
+    linkedin_login, store_linkedin_cookie,
 };
 
 // Automation commands (One-Click Apply)

@@ -7,7 +7,7 @@ import { listen } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/plugin-shell";
 import {
   Button, Card, CardHeader, LoadingSpinner, JobCard, ScoreDisplay, Modal, ModalFooter,
-  ModalErrorBoundary, CompanyResearchPanel
+  ModalErrorBoundary, CompanyResearchPanel, DashboardWidgets
 } from "../components";
 import { useToast } from "../contexts";
 import { useKeyboardNavigation } from "../hooks/useKeyboardNavigation";
@@ -24,7 +24,7 @@ import { useDashboardSearch } from "./hooks/useDashboardSearch";
 import { useDashboardJobOps } from "./hooks/useDashboardJobOps";
 import { useDashboardSavedSearches } from "./hooks/useDashboardSavedSearches";
 import { useDashboardAutoRefresh } from "./hooks/useDashboardAutoRefresh";
-import { DashboardHeader, DashboardStats, DashboardFiltersBar } from "./DashboardUI";
+import { DashboardHeader, DashboardStats, DashboardFiltersBar, QuickActions } from "./DashboardUI";
 
 export default function Dashboard({ onNavigate: _onNavigate, showSettings: showSettingsProp, onShowSettingsChange }: DashboardProps) {
   // Core state
@@ -287,7 +287,25 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
       <main className="max-w-7xl mx-auto px-6 py-8">
         <DashboardStats statistics={statistics} />
 
-        <section className="mt-8">
+        {/* Analytics Widgets (collapsible) */}
+        <DashboardWidgets className="mb-6" />
+
+        {/* Quick Actions */}
+        <QuickActions
+          totalJobs={statistics.total_jobs}
+          highMatches={statistics.high_matches}
+          filteredCount={filters.filteredAndSortedJobs.length}
+          onExportHighMatches={() => {
+            const highMatchJobs = jobs.filter(j => j.score >= 0.7);
+            jobOps.handleBulkExport(highMatchJobs);
+          }}
+          onShowHighMatchesOnly={() => filters.setScoreFilter("high")}
+          onShowRemoteOnly={() => filters.setRemoteFilter("remote")}
+          onClearFilters={filters.clearFilters}
+          hasActiveFilters={!!filters.hasActiveFilters}
+        />
+
+        <section className="mt-4">
           <DashboardFiltersBar
             jobs={jobs}
             filteredJobs={filters.filteredAndSortedJobs}

@@ -100,12 +100,19 @@ pub async fn linkedin_login(app: AppHandle) -> Result<String, String> {
                 let cookie_result: Result<String, String> = Err("Unsupported platform".to_string());
 
                 match &cookie_result {
-                    Ok(cookie) => {
+                    Ok((cookie, expiry)) => {
                         tracing::info!("Successfully extracted LinkedIn cookie");
-                        // Store in keyring
+                        // Store cookie in keyring
                         if let Err(e) = CredentialStore::store(CredentialKey::LinkedInCookie, cookie)
                         {
                             tracing::error!("Failed to store cookie: {}", e);
+                        }
+                        // Store expiry date if available
+                        if let Some(exp) = expiry {
+                            if let Err(e) = CredentialStore::store(CredentialKey::LinkedInCookieExpiry, exp)
+                            {
+                                tracing::error!("Failed to store cookie expiry: {}", e);
+                            }
                         }
                     }
                     Err(e) => {
@@ -113,9 +120,9 @@ pub async fn linkedin_login(app: AppHandle) -> Result<String, String> {
                     }
                 }
 
-                // Send result back
+                // Send result back (just the cookie value, not expiry)
                 if let Some(tx) = result_tx.lock().unwrap().take() {
-                    let _ = tx.send(cookie_result);
+                    let _ = tx.send(cookie_result.map(|(cookie, _)| cookie));
                 }
 
                 // Close the window - need to get it fresh since we can't capture it
@@ -157,9 +164,10 @@ pub async fn linkedin_login(app: AppHandle) -> Result<String, String> {
 /// Extract the li_at cookie from the system cookie store
 ///
 /// Platform-specific implementations access the native cookie store.
+/// Returns (cookie_value, optional_expiry_iso8601)
 #[cfg(target_os = "macos")]
 #[allow(unsafe_code)] // Required for Objective-C interop
-async fn extract_linkedin_cookie() -> Result<String, String> {
+async fn extract_linkedin_cookie() -> Result<(String, Option<String>), String> {
     use block2::StackBlock;
     use objc2_foundation::{NSArray, NSHTTPCookie};
     use objc2_web_kit::WKWebsiteDataStore;
@@ -169,7 +177,8 @@ async fn extract_linkedin_cookie() -> Result<String, String> {
     tracing::info!("Extracting LinkedIn cookie via WKHTTPCookieStore (macOS)");
 
     // Create a channel to receive cookies from the callback
-    let (tx, rx) = mpsc::channel::<Option<String>>();
+    // Returns (cookie_value, expiry_timestamp_seconds)
+    let (tx, rx) = mpsc::channel::<Option<(String, Option<f64>)>>();
 
     // Access the default data store and its cookie store
     // This needs to run on the main thread for WebKit
@@ -184,7 +193,7 @@ async fn extract_linkedin_cookie() -> Result<String, String> {
             let tx_clone = tx.clone();
             let block =
                 StackBlock::new(move |cookies: NonNull<NSArray<NSHTTPCookie>>| {
-                    let mut li_at_value: Option<String> = None;
+                    let mut li_at_value: Option<(String, Option<f64>)> = None;
 
                     let cookies_ref = cookies.as_ref();
                     let count = cookies_ref.count();
@@ -197,8 +206,11 @@ async fn extract_linkedin_cookie() -> Result<String, String> {
 
                         if name_str == "li_at" {
                             let value = cookie.value();
-                            li_at_value = Some(value.to_string());
-                            tracing::info!("Found li_at cookie!");
+                            // Try to get expiry date
+                            let expiry = cookie.expiresDate()
+                                .map(|date| date.timeIntervalSince1970());
+                            li_at_value = Some((value.to_string(), expiry));
+                            tracing::info!("Found li_at cookie! Expiry: {:?}", expiry);
                             break;
                         }
                     }
@@ -215,7 +227,16 @@ async fn extract_linkedin_cookie() -> Result<String, String> {
 
     // Wait for result with timeout
     match rx.recv_timeout(std::time::Duration::from_secs(5)) {
-        Ok(Some(cookie)) => Ok(cookie),
+        Ok(Some((cookie, expiry_secs))) => {
+            // Convert timestamp to ISO 8601 string
+            let expiry_str = expiry_secs.map(|secs| {
+                use chrono::{DateTime, Utc};
+                let dt = DateTime::<Utc>::from_timestamp(secs as i64, 0)
+                    .unwrap_or_else(|| Utc::now());
+                dt.to_rfc3339()
+            });
+            Ok((cookie, expiry_str))
+        },
         Ok(None) => Err(
             "LinkedIn cookie (li_at) not found. Please make sure you're fully logged in."
                 .to_string(),
@@ -229,8 +250,9 @@ async fn extract_linkedin_cookie() -> Result<String, String> {
 /// This uses Tauri's webview.cookies_for_url() which wraps:
 /// - Windows: WebView2 ICoreWebView2CookieManager
 /// - Linux: WebKitGTK cookie jar
+/// Returns (cookie_value, optional_expiry_iso8601)
 #[cfg(any(target_os = "windows", target_os = "linux"))]
-async fn extract_linkedin_cookie_from_webview(app: &AppHandle) -> Result<String, String> {
+async fn extract_linkedin_cookie_from_webview(app: &AppHandle) -> Result<(String, Option<String>), String> {
     use tauri::Manager;
 
     tracing::info!("Extracting LinkedIn cookie via Tauri cookie API");
@@ -252,8 +274,17 @@ async fn extract_linkedin_cookie_from_webview(app: &AppHandle) -> Result<String,
     for cookie in cookies {
         if cookie.name() == "li_at" {
             let value = cookie.value().to_string();
-            tracing::info!("Found li_at cookie!");
-            return Ok(value);
+            // Get expiry if available - Tauri's Cookie has expires() method
+            let expiry_str = cookie.expires().map(|expires| {
+                use chrono::{DateTime, Utc};
+                // Tauri returns expiry as OffsetDateTime, convert to timestamp
+                let timestamp = expires.unix_timestamp();
+                let dt = DateTime::<Utc>::from_timestamp(timestamp, 0)
+                    .unwrap_or_else(|| Utc::now());
+                dt.to_rfc3339()
+            });
+            tracing::info!("Found li_at cookie! Expiry: {:?}", expiry_str);
+            return Ok((value, expiry_str));
         }
     }
 
@@ -261,21 +292,21 @@ async fn extract_linkedin_cookie_from_webview(app: &AppHandle) -> Result<String,
 }
 
 #[cfg(target_os = "windows")]
-async fn extract_linkedin_cookie() -> Result<String, String> {
+async fn extract_linkedin_cookie() -> Result<(String, Option<String>), String> {
     // This function is kept for API compatibility but won't be used directly
     // The actual extraction happens via extract_linkedin_cookie_from_webview
     Err("Use extract_linkedin_cookie_from_webview instead".to_string())
 }
 
 #[cfg(target_os = "linux")]
-async fn extract_linkedin_cookie() -> Result<String, String> {
+async fn extract_linkedin_cookie() -> Result<(String, Option<String>), String> {
     // This function is kept for API compatibility but won't be used directly
     // The actual extraction happens via extract_linkedin_cookie_from_webview
     Err("Use extract_linkedin_cookie_from_webview instead".to_string())
 }
 
 #[cfg(not(any(target_os = "macos", target_os = "windows", target_os = "linux")))]
-async fn extract_linkedin_cookie() -> Result<String, String> {
+async fn extract_linkedin_cookie() -> Result<(String, Option<String>), String> {
     Err("Automatic cookie extraction not supported on this platform.".to_string())
 }
 
@@ -310,10 +341,11 @@ pub async fn is_linkedin_connected() -> Result<bool, String> {
     }
 }
 
-/// Disconnect LinkedIn (remove cookie from keyring)
+/// Disconnect LinkedIn (remove cookie and expiry from keyring)
 #[tauri::command]
 pub async fn disconnect_linkedin() -> Result<(), String> {
     CredentialStore::delete(CredentialKey::LinkedInCookie)?;
+    CredentialStore::delete(CredentialKey::LinkedInCookieExpiry)?;
     tracing::info!("LinkedIn disconnected");
     Ok(())
 }
@@ -327,6 +359,76 @@ pub async fn close_linkedin_login(app: AppHandle) -> Result<(), String> {
             .map_err(|e| format!("Failed to close window: {}", e))?;
     }
     Ok(())
+}
+
+/// LinkedIn cookie expiry status
+#[derive(serde::Serialize)]
+pub struct LinkedInExpiryStatus {
+    /// Whether a cookie exists
+    pub connected: bool,
+    /// Expiry date in ISO 8601 format (if known)
+    pub expires_at: Option<String>,
+    /// Days until expiry (negative if expired)
+    pub days_remaining: Option<i64>,
+    /// Whether expiry is within warning threshold (7 days)
+    pub expiry_warning: bool,
+    /// Whether the cookie has expired
+    pub expired: bool,
+}
+
+/// Get LinkedIn cookie expiry status
+///
+/// Returns detailed information about the LinkedIn cookie's expiry status
+/// to help users know when they need to re-authenticate.
+#[tauri::command]
+pub async fn get_linkedin_expiry_status() -> Result<LinkedInExpiryStatus, String> {
+    use chrono::{DateTime, Utc};
+
+    // Check if connected
+    let connected = match CredentialStore::retrieve(CredentialKey::LinkedInCookie) {
+        Ok(Some(cookie)) => !cookie.is_empty(),
+        _ => false,
+    };
+
+    if !connected {
+        return Ok(LinkedInExpiryStatus {
+            connected: false,
+            expires_at: None,
+            days_remaining: None,
+            expiry_warning: false,
+            expired: false,
+        });
+    }
+
+    // Get expiry date if stored
+    let expires_at = match CredentialStore::retrieve(CredentialKey::LinkedInCookieExpiry) {
+        Ok(Some(expiry)) if !expiry.is_empty() => Some(expiry),
+        _ => None,
+    };
+
+    // Calculate days remaining
+    let (days_remaining, expiry_warning, expired) = if let Some(ref expiry_str) = expires_at {
+        if let Ok(expiry_dt) = DateTime::parse_from_rfc3339(expiry_str) {
+            let now = Utc::now();
+            let expiry_utc = expiry_dt.with_timezone(&Utc);
+            let duration = expiry_utc.signed_duration_since(now);
+            let days = duration.num_days();
+
+            (Some(days), days <= 7 && days > 0, days <= 0)
+        } else {
+            (None, false, false)
+        }
+    } else {
+        (None, false, false)
+    };
+
+    Ok(LinkedInExpiryStatus {
+        connected,
+        expires_at,
+        days_remaining,
+        expiry_warning,
+        expired,
+    })
 }
 
 #[cfg(test)]

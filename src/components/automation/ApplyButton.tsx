@@ -56,7 +56,17 @@ export function ApplyButton({ job, onApplied }: ApplyButtonProps) {
   const [showPreview, setShowPreview] = useState(false);
   const [isFilling, setIsFilling] = useState(false);
   const [browserRunning, setBrowserRunning] = useState(false);
+  const [lastAttemptId, setLastAttemptId] = useState<number | null>(null);
+  const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
   const toast = useToast();
+
+  // Check for previous attempt on mount
+  useEffect(() => {
+    const stored = localStorage.getItem(`lastAttempt_${job.hash}`);
+    if (stored) {
+      setLastAttemptId(parseInt(stored, 10));
+    }
+  }, [job.hash]);
 
   // Detect ATS platform from URL
   const detectPlatform = useCallback(async () => {
@@ -119,7 +129,14 @@ export function ApplyButton({ job, onApplied }: ApplyButtonProps) {
         captchaDetected: boolean;
         readyForReview: boolean;
         errorMessage: string | null;
-      }>("fill_application_form", { jobUrl: job.url });
+        attemptId: number | null;
+        durationMs: number;
+        atsPlatform: string;
+      }>("fill_application_form", { jobUrl: job.url, jobHash: job.hash });
+
+      // Count screening questions filled
+      const screeningCount = result.filledFields.filter(f => f.startsWith("screening:")).length;
+      const basicCount = result.filledFields.length - screeningCount;
 
       if (result.captchaDetected) {
         toast.warning(
@@ -129,16 +146,27 @@ export function ApplyButton({ job, onApplied }: ApplyButtonProps) {
       } else if (result.errorMessage) {
         toast.error("Form fill error", result.errorMessage);
       } else {
-        const filled = result.filledFields.length;
         const unfilled = result.unfilledFields.length;
-        toast.success(
-          "Form filled!",
-          `Filled ${filled} fields${unfilled > 0 ? `, ${unfilled} need attention` : ""}. Review and click Submit.`
-        );
+        let message = `Filled ${basicCount} basic fields`;
+        if (screeningCount > 0) {
+          message += ` and ${screeningCount} screening questions`;
+        }
+        if (unfilled > 0) {
+          message += `. ${unfilled} fields need attention`;
+        }
+        message += `. Review and click Submit in ${(result.durationMs / 1000).toFixed(1)}s.`;
+
+        toast.success("Form filled!", message);
       }
 
       setShowPreview(false);
       setBrowserRunning(true);
+
+      // Store attempt ID for later tracking
+      if (result.attemptId) {
+        localStorage.setItem(`lastAttempt_${job.hash}`, result.attemptId.toString());
+      }
+
       onApplied?.();
     } catch (error) {
       logError("Failed to fill form:", error);
@@ -155,10 +183,39 @@ export function ApplyButton({ job, onApplied }: ApplyButtonProps) {
     try {
       await invoke("close_automation_browser");
       setBrowserRunning(false);
-      toast.info("Browser closed", "The automation browser has been closed");
+
+      // If we have a pending attempt, ask if they submitted
+      if (lastAttemptId) {
+        setShowSubmitConfirm(true);
+      } else {
+        toast.info("Browser closed", "The automation browser has been closed");
+      }
     } catch (error) {
       logError("Failed to close browser:", error);
     }
+  };
+
+  const handleMarkSubmitted = async () => {
+    if (!lastAttemptId) return;
+
+    try {
+      await invoke("mark_attempt_submitted", { attemptId: lastAttemptId });
+      toast.success("Marked as submitted", "Your application has been tracked");
+      localStorage.removeItem(`lastAttempt_${job.hash}`);
+      setLastAttemptId(null);
+      setShowSubmitConfirm(false);
+      onApplied?.();
+    } catch (error) {
+      logError("Failed to mark as submitted:", error);
+      toast.error("Failed to track submission", "Please try again");
+    }
+  };
+
+  const handleSkipTracking = () => {
+    localStorage.removeItem(`lastAttempt_${job.hash}`);
+    setLastAttemptId(null);
+    setShowSubmitConfirm(false);
+    toast.info("Browser closed", "Application not tracked");
   };
 
   return (
@@ -215,6 +272,32 @@ export function ApplyButton({ job, onApplied }: ApplyButtonProps) {
           </Button>
         </ModalFooter>
       </Modal>
+
+      {/* Submit Confirmation Modal */}
+      <Modal
+        isOpen={showSubmitConfirm}
+        onClose={handleSkipTracking}
+        title="Did you submit?"
+        size="sm"
+      >
+        <div className="py-4">
+          <p className="text-surface-700 dark:text-surface-300 mb-4">
+            Did you click the Submit button on the application form?
+          </p>
+          <p className="text-sm text-surface-500 dark:text-surface-400">
+            This helps track your application status.
+          </p>
+        </div>
+        <ModalFooter>
+          <Button variant="secondary" onClick={handleSkipTracking}>
+            No, skip
+          </Button>
+          <Button onClick={handleMarkSubmitted}>
+            <CheckIcon className="w-4 h-4 mr-2" />
+            Yes, I submitted
+          </Button>
+        </ModalFooter>
+      </Modal>
     </>
   );
 }
@@ -254,6 +337,14 @@ function XIcon({ className = "" }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  );
+}
+
+function CheckIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
     </svg>
   );
 }

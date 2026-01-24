@@ -5,6 +5,121 @@ All notable changes to JobSentinel will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.5] - 2026-01-24
+
+### Added - Feature Expansion & Auto-Apply Enhancement
+
+Major feature expansion including new scrapers, ML-enhanced ghost detection, dashboard widgets, and complete one-click auto-apply integration.
+
+#### New Job Board Scrapers
+
+- **SimplyHired Scraper** - Query-based job search with location filtering
+  - HTML scraping with CSS selectors for job cards
+  - Graceful Cloudflare handling (returns empty instead of error)
+  - Configurable result limit
+
+- **Glassdoor Scraper** - Software engineer job search by location
+  - HTML scraping with job listing extraction
+  - Graceful Cloudflare handling (returns empty instead of error)
+  - San Francisco and other major city support
+
+#### ML-Enhanced Ghost Detection
+
+- **Gradient Boosting Model** - Machine learning model for ghost job prediction
+  - 12 engineered features: age, repost count, description vagueness, requirements extremity
+  - Training pipeline with cross-validation
+  - Model persistence via bincode serialization
+  - Soft fallback to rule-based detection when model unavailable
+  - Feature importance tracking for explainability
+
+- **Model Features**:
+  - `age_days` - Days since job was posted
+  - `repost_count` - Number of times job has been reposted
+  - `description_length` - Word count of job description
+  - `has_salary` - Whether salary information is included
+  - `requirements_count` - Number of listed requirements
+  - `vague_language_ratio` - Ratio of vague words to total words
+  - `company_open_positions` - Total open positions at company
+  - `title_seniority_mismatch` - Mismatch between title and experience requirements
+
+#### Dashboard Widgets
+
+- **Salary Trends Widget** - Visualize salary trends over time
+  - Line chart with average, min, max salary bands
+  - Filterable by job title, location, and time range
+
+- **Application Stats Widget** - Track application metrics
+  - Applications by status (Applied, Interviewed, Offered, Rejected)
+  - Weekly/monthly trend comparison
+  - Response rate calculation
+
+- **Scraper Health Widget** - Real-time scraper status
+  - Health indicators for all 15 scrapers
+  - Last successful run timestamp
+  - Jobs found in last run
+
+#### ATS Live Score Panel (Resume Builder)
+
+- **Real-time ATS Scoring** - Live score updates as you edit resume
+  - Keyword match percentage with specific matches highlighted
+  - Format compliance checklist (section headers, bullet points, fonts)
+  - Overall ATS compatibility score (0-100)
+
+- **Job-Specific Optimization** - Target score for specific job postings
+  - Side-by-side comparison with job requirements
+  - Missing keyword suggestions
+  - Improvement tips per section
+
+#### One-Click Auto-Apply Integration (Complete)
+
+- **Screening Question Auto-Fill** - Automatic answers for common questions
+  - Regex pattern matching for question detection
+  - Pre-configured patterns for: years of experience, salary expectations, relocation, visa status, remote preference, start date
+  - Custom pattern support via Settings
+  - JavaScript DOM traversal for form field detection
+
+- **Attempt Tracking** - Track application attempts in database
+  - `automation_attempts` table with status, timestamps, filled fields
+  - Per-job attempt history
+  - Success rate tracking
+
+- **Submit Confirmation Modal** - Post-fill workflow
+  - "Did you submit?" confirmation after browser close
+  - Marks attempt as submitted in database
+  - Helps track actual submission status
+
+- **New Tauri Commands**:
+  - `mark_attempt_submitted` - Mark an automation attempt as submitted
+  - `get_attempts_for_job` - Get all attempts for a specific job
+
+#### Job Application Templates (Expanded)
+
+- **Template Categories** - Organized templates by use case
+  - Cover Letters: General, Technical, Startup, Executive
+  - Thank You Notes: Post-Interview, Post-Offer
+  - Follow-Up: Application Status, Interview Request
+
+- **Smart Placeholder System** - Dynamic content insertion
+  - `{company}`, `{position}`, `{hiring_manager}`, `{date}`
+  - `{years_experience}`, `{key_skill}`, `{company_project}`
+  - Preview mode with placeholder highlighting
+
+### Changed
+
+- Live scraper tests now include SimplyHired and Glassdoor
+- Ghost detection defaults to ML model when trained
+- FormFiller accepts screening answers via `with_screening_answers()` builder
+- ApplyButton tracks attempts via localStorage and confirms submission
+
+### Tests
+
+- **2,913 total tests** (Backend: 2,197 | Frontend: 716)
+- New screening answer matching tests (6 tests)
+- Live scraper tests for SimplyHired and Glassdoor
+- All E2E pipeline tests passing
+
+---
+
 ## [2.5.4] - 2026-01-24
 
 ### Added - UX Improvements for Non-Technical Users

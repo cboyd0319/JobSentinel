@@ -211,4 +211,57 @@ impl Database {
 
         Ok(jobs)
     }
+
+    // ==================== Analytics Queries ====================
+
+    /// Get job counts grouped by source (for analytics dashboard)
+    pub async fn get_job_counts_by_source(&self) -> Result<Vec<(String, i64)>, sqlx::Error> {
+        let rows: Vec<(String, i64)> = sqlx::query_as(
+            "SELECT source, COUNT(*) as count FROM jobs WHERE hidden = 0 GROUP BY source ORDER BY count DESC",
+        )
+        .fetch_all(self.pool())
+        .await?;
+
+        Ok(rows)
+    }
+
+    /// Get salary distribution (jobs grouped by salary ranges)
+    pub async fn get_salary_distribution(&self) -> Result<Vec<(String, i64)>, sqlx::Error> {
+        let rows: Vec<(String, i64)> = sqlx::query_as(
+            r#"
+            SELECT
+                CASE
+                    WHEN salary_min IS NULL AND salary_max IS NULL THEN 'Not Listed'
+                    WHEN COALESCE(salary_min, salary_max) < 50000 THEN '<$50k'
+                    WHEN COALESCE(salary_min, salary_max) < 75000 THEN '$50k-75k'
+                    WHEN COALESCE(salary_min, salary_max) < 100000 THEN '$75k-100k'
+                    WHEN COALESCE(salary_min, salary_max) < 125000 THEN '$100k-125k'
+                    WHEN COALESCE(salary_min, salary_max) < 150000 THEN '$125k-150k'
+                    WHEN COALESCE(salary_min, salary_max) < 175000 THEN '$150k-175k'
+                    WHEN COALESCE(salary_min, salary_max) < 200000 THEN '$175k-200k'
+                    ELSE '$200k+'
+                END as range,
+                COUNT(*) as count
+            FROM jobs
+            WHERE hidden = 0
+            GROUP BY range
+            ORDER BY
+                CASE range
+                    WHEN 'Not Listed' THEN 99
+                    WHEN '<$50k' THEN 1
+                    WHEN '$50k-75k' THEN 2
+                    WHEN '$75k-100k' THEN 3
+                    WHEN '$100k-125k' THEN 4
+                    WHEN '$125k-150k' THEN 5
+                    WHEN '$150k-175k' THEN 6
+                    WHEN '$175k-200k' THEN 7
+                    ELSE 8
+                END
+            "#,
+        )
+        .fetch_all(self.pool())
+        .await?;
+
+        Ok(rows)
+    }
 }

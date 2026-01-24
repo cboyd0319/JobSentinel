@@ -9,12 +9,14 @@ use crate::core::{
     scrapers::{
         builtin::BuiltInScraper,
         dice::DiceScraper,
+        glassdoor::GlassdoorScraper,
         greenhouse::{GreenhouseCompany, GreenhouseScraper},
         hn_hiring::HnHiringScraper,
         jobswithgpt::{JobQuery, JobsWithGptScraper},
         lever::{LeverCompany, LeverScraper},
         linkedin::LinkedInScraper,
         remoteok::RemoteOkScraper,
+        simplyhired::SimplyHiredScraper,
         usajobs::UsaJobsScraper,
         weworkremotely::WeWorkRemotelyScraper,
         yc_startup::YcStartupScraper,
@@ -319,6 +321,58 @@ pub async fn run_scrapers(config: &Arc<Config>) -> (Vec<Job>, Vec<String>) {
             }
             Err(e) => {
                 let error_msg = format!("Failed to retrieve USAJobs API key from keyring: {}", e);
+                tracing::error!("{}", error_msg);
+                errors.push(error_msg);
+            }
+        }
+    }
+
+    // 12. SimplyHired job aggregator (v2.5.5) - may be blocked by Cloudflare
+    if config.simplyhired.enabled && !config.simplyhired.query.is_empty() {
+        tracing::info!("Running SimplyHired scraper");
+        let simplyhired = SimplyHiredScraper::new(
+            config.simplyhired.query.clone(),
+            config.simplyhired.location.clone(),
+            config.simplyhired.limit,
+        );
+
+        match simplyhired.scrape().await {
+            Ok(jobs) => {
+                if jobs.is_empty() {
+                    tracing::warn!("SimplyHired: 0 jobs (may be Cloudflare blocked)");
+                } else {
+                    tracing::info!("SimplyHired: {} jobs found", jobs.len());
+                }
+                all_jobs.extend(jobs);
+            }
+            Err(e) => {
+                let error_msg = format!("SimplyHired scraper failed: {}", e);
+                tracing::error!("{}", error_msg);
+                errors.push(error_msg);
+            }
+        }
+    }
+
+    // 13. Glassdoor job board (v2.5.5) - may be blocked by Cloudflare
+    if config.glassdoor.enabled && !config.glassdoor.query.is_empty() {
+        tracing::info!("Running Glassdoor scraper");
+        let glassdoor = GlassdoorScraper::new(
+            config.glassdoor.query.clone(),
+            config.glassdoor.location.clone(),
+            config.glassdoor.limit,
+        );
+
+        match glassdoor.scrape().await {
+            Ok(jobs) => {
+                if jobs.is_empty() {
+                    tracing::warn!("Glassdoor: 0 jobs (may be Cloudflare blocked)");
+                } else {
+                    tracing::info!("Glassdoor: {} jobs found", jobs.len());
+                }
+                all_jobs.extend(jobs);
+            }
+            Err(e) => {
+                let error_msg = format!("Glassdoor scraper failed: {}", e);
                 tracing::error!("{}", error_msg);
                 errors.push(error_msg);
             }

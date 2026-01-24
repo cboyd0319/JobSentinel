@@ -1305,18 +1305,22 @@ mod tests {
         }
 
         /// Property: Location presence affects hash
-        /// None vs Some(location) should produce different hashes
+        /// None vs Some(non-empty location) should produce different hashes
+        /// Note: Whitespace-only locations normalize to empty, same as None (correct behavior)
         #[test]
         fn prop_hash_location_none_vs_some(
             company in "\\PC{1,100}",
             title in "\\PC{1,200}",
-            location in "\\PC{1,100}",
+            location in "[a-zA-Z0-9][\\PC]{0,99}",  // Ensure at least one non-whitespace char
             url in "https?://[a-z0-9./]+",
         ) {
+            // Skip if location would normalize to empty (whitespace-only)
+            prop_assume!(!location.trim().is_empty());
+
             let hash_none = GreenhouseScraper::compute_hash(&company, &title, None, &url);
             let hash_some = GreenhouseScraper::compute_hash(&company, &title, Some(&location), &url);
 
-            prop_assert_ne!(hash_none, hash_some, "None vs Some location should produce different hashes");
+            prop_assert_ne!(hash_none, hash_some, "None vs Some(non-empty) location should produce different hashes");
         }
 
         /// Property: Hash handles all valid Unicode

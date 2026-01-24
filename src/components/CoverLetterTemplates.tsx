@@ -7,7 +7,7 @@ import { Modal, ModalFooter } from './Modal';
 import { useToast } from '../contexts';
 import { LoadingSpinner } from './LoadingSpinner';
 
-type TemplateCategory = 'general' | 'tech' | 'creative' | 'finance' | 'healthcare' | 'sales' | 'custom';
+type TemplateCategory = 'general' | 'tech' | 'creative' | 'finance' | 'healthcare' | 'sales' | 'custom' | 'thankyou' | 'followup' | 'withdrawal';
 
 // Minimal Job interface for auto-fill feature
 export interface JobForTemplate {
@@ -60,6 +60,9 @@ const CATEGORY_LABELS: Record<TemplateCategory, string> = {
   healthcare: 'Healthcare',
   sales: 'Sales & Marketing',
   custom: 'Custom',
+  thankyou: 'Thank You Notes',
+  followup: 'Follow-Up Emails',
+  withdrawal: 'Withdrawal',
 };
 
 const PLACEHOLDER_HINTS = [
@@ -254,6 +257,12 @@ export function CoverLetterTemplates({ selectedJob }: CoverLetterTemplatesProps 
   const loadTemplates = useCallback(async () => {
     try {
       setLoading(true);
+      // Seed default templates on first use
+      try {
+        await invoke<number>('seed_default_templates');
+      } catch {
+        // Ignore - templates may already exist
+      }
       const result = await invoke<CoverLetterTemplate[]>('list_cover_letter_templates');
       setTemplates(result);
     } catch (error) {

@@ -313,3 +313,51 @@ pub async fn merge_duplicates(
         .await
         .map_err(|e| format!("Database error: {}", e))
 }
+
+/// Job count by source for analytics
+#[derive(serde::Serialize)]
+pub struct JobsBySource {
+    pub source: String,
+    pub count: i64,
+}
+
+/// Get job counts grouped by source
+#[tauri::command]
+pub async fn get_jobs_by_source(state: State<'_, AppState>) -> Result<Vec<JobsBySource>, String> {
+    tracing::info!("Command: get_jobs_by_source");
+
+    state
+        .database
+        .get_job_counts_by_source()
+        .await
+        .map(|rows| {
+            rows.into_iter()
+                .map(|(source, count)| JobsBySource { source, count })
+                .collect()
+        })
+        .map_err(|e| format!("Database error: {}", e))
+}
+
+/// Salary range for analytics
+#[derive(serde::Serialize)]
+pub struct SalaryRange {
+    pub range: String,
+    pub count: i64,
+}
+
+/// Get salary distribution (jobs grouped by salary ranges)
+#[tauri::command]
+pub async fn get_salary_distribution(state: State<'_, AppState>) -> Result<Vec<SalaryRange>, String> {
+    tracing::info!("Command: get_salary_distribution");
+
+    state
+        .database
+        .get_salary_distribution()
+        .await
+        .map(|rows| {
+            rows.into_iter()
+                .map(|(range, count)| SalaryRange { range, count })
+                .collect()
+        })
+        .map_err(|e| format!("Database error: {}", e))
+}

@@ -82,8 +82,8 @@ pub async fn score_jobs(
             .await
             .unwrap_or(0);
 
-        // Analyze for ghost indicators
-        let analysis = ghost_detector.analyze(
+        // Analyze for ghost indicators (using ML-enhanced analysis v2.5.5)
+        let analysis = ghost_detector.analyze_enhanced(
             &job.title,
             job.description.as_deref(),
             job.salary_min,

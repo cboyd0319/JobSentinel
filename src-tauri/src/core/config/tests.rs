@@ -51,6 +51,8 @@ mod tests {
             dice: Default::default(),
             yc_startup: Default::default(),
             usajobs: Default::default(),
+            simplyhired: Default::default(),
+            glassdoor: Default::default(),
             ghost_config: None,
             company_whitelist: vec![],
             company_blacklist: vec![],

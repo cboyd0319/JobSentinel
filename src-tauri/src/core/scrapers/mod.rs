@@ -9,6 +9,7 @@ use async_trait::async_trait;
 pub mod builtin;
 pub mod cache;
 pub mod dice;
+pub mod glassdoor;
 pub mod greenhouse;
 pub mod hn_hiring;
 pub mod http_client;
@@ -18,14 +19,15 @@ pub mod linkedin;
 pub mod location_utils;
 pub mod rate_limiter;
 pub mod remoteok;
+pub mod simplyhired;
 pub mod title_utils;
 pub mod url_utils;
 pub mod usajobs;
 pub mod weworkremotely;
 pub mod yc_startup;
 
-// REMOVED: indeed, ziprecruiter, wellfound, simplyhired
-// These scrapers were blocked by Cloudflare and no longer functional
+// NOTE: SimplyHired and Glassdoor have Cloudflare protection.
+// These scrapers attempt to use RSS/JSON-LD but may return empty if blocked.
 
 // NOTE: GovernmentJobs.com and ClearanceJobs.com explicitly prohibit scraping in their ToS.
 // We provide Deep Link Generator and Bookmarklet features instead. See docs/CLAUDE.md for details.

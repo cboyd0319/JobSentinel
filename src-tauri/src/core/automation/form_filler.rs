@@ -2,11 +2,13 @@
 //!
 //! Fills job application forms with user profile data.
 //! Platform-specific selectors for each ATS type.
+//! Also handles screening questions using stored answer patterns.
 
 use super::browser::{AutomationPage, FillResult};
-use super::profile::ApplicationProfile;
+use super::profile::{ApplicationProfile, ScreeningAnswer};
 use super::AtsPlatform;
 use anyhow::Result;
+use regex::Regex;
 use std::collections::HashMap;
 use std::path::PathBuf;
 
@@ -14,6 +16,7 @@ use std::path::PathBuf;
 pub struct FormFiller {
     profile: ApplicationProfile,
     resume_path: Option<PathBuf>,
+    screening_answers: Vec<ScreeningAnswer>,
 }
 
 impl FormFiller {
@@ -22,7 +25,14 @@ impl FormFiller {
         Self {
             profile,
             resume_path,
+            screening_answers: Vec::new(),
         }
+    }
+
+    /// Create form filler with screening answers for auto-filling questions
+    pub fn with_screening_answers(mut self, answers: Vec<ScreeningAnswer>) -> Self {
+        self.screening_answers = answers;
+        self
     }
 
     /// Fill the application form on the page
@@ -59,6 +69,11 @@ impl FormFiller {
         if let Some(ref resume_path) = self.resume_path {
             self.fill_resume(page, &selectors, resume_path, &mut result)
                 .await;
+        }
+
+        // Fill screening questions using stored answers
+        if !self.screening_answers.is_empty() {
+            self.fill_screening_questions(page, &mut result).await;
         }
 
         // Check for CAPTCHA again after filling (some appear after form interaction)
@@ -267,6 +282,186 @@ impl FormFiller {
         }
     }
 
+    /// Fill screening questions using stored answer patterns
+    ///
+    /// Finds question labels on the page, matches them against stored patterns,
+    /// and fills the corresponding inputs with configured answers.
+    async fn fill_screening_questions(&self, page: &AutomationPage, result: &mut FillResult) {
+        // Common screening question selectors across ATS platforms
+        let question_selectors = [
+            // Greenhouse
+            "div.field label",
+            "div.application-question label",
+            // Lever
+            "div.question-field label",
+            "[data-qa='question-label']",
+            // Workday
+            "[data-automation-id='questionLabel']",
+            "label.WGAE",
+            // Generic
+            "fieldset legend",
+            "div.form-group label",
+            ".question label",
+            "label[for]",
+        ];
+
+        // Try to find and fill questions
+        for selector in question_selectors {
+            if let Ok(questions) = self.find_questions_with_selector(page, selector).await {
+                for (question_text, input_selector) in questions {
+                    if let Some(answer) = self.find_answer_for_question(&question_text) {
+                        // Try to fill the associated input
+                        if let Ok(true) = page.fill(&input_selector, &answer).await {
+                            let field_name = Self::truncate_question(&question_text, 30);
+                            result
+                                .filled_fields
+                                .push(format!("screening:{}", field_name));
+                            tracing::debug!(
+                                "Filled screening question '{}' with answer",
+                                question_text
+                            );
+                        } else if let Ok(true) = page.select(&input_selector, &answer).await {
+                            let field_name = Self::truncate_question(&question_text, 30);
+                            result
+                                .filled_fields
+                                .push(format!("screening:{}", field_name));
+                            tracing::debug!(
+                                "Selected screening answer for '{}'",
+                                question_text
+                            );
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /// Find question elements and their associated input selectors
+    async fn find_questions_with_selector(
+        &self,
+        page: &AutomationPage,
+        _selector: &str,
+    ) -> Result<Vec<(String, String)>> {
+        // Use JavaScript to find all question labels and their associated inputs
+        let script = r#"
+            (function() {
+                const results = [];
+                const labels = document.querySelectorAll('label[for], fieldset legend, .question label, [data-automation-id*="question"]');
+
+                for (const label of labels) {
+                    const text = label.textContent?.trim();
+                    if (!text || text.length < 5) continue;
+
+                    // Find associated input
+                    let input = null;
+
+                    // Try 'for' attribute
+                    if (label.htmlFor) {
+                        input = document.getElementById(label.htmlFor);
+                    }
+
+                    // Try next sibling
+                    if (!input) {
+                        input = label.nextElementSibling;
+                        if (input && !['INPUT', 'SELECT', 'TEXTAREA'].includes(input.tagName)) {
+                            input = input.querySelector('input, select, textarea');
+                        }
+                    }
+
+                    // Try parent container
+                    if (!input) {
+                        const container = label.closest('.field, .form-group, .question, fieldset');
+                        if (container) {
+                            input = container.querySelector('input:not([type="hidden"]), select, textarea');
+                        }
+                    }
+
+                    if (input && (input.tagName === 'INPUT' || input.tagName === 'SELECT' || input.tagName === 'TEXTAREA')) {
+                        // Generate a unique selector for the input
+                        let selector = '';
+                        if (input.id) {
+                            selector = '#' + input.id;
+                        } else if (input.name) {
+                            selector = `[name="${input.name}"]`;
+                        } else {
+                            // Use data attributes or class
+                            const attrs = Array.from(input.attributes)
+                                .filter(a => a.name.startsWith('data-'))
+                                .map(a => `[${a.name}="${a.value}"]`)
+                                .join('');
+                            if (attrs) selector = input.tagName.toLowerCase() + attrs;
+                        }
+
+                        if (selector) {
+                            results.push([text, selector]);
+                        }
+                    }
+                }
+
+                return results;
+            })()
+        "#;
+
+        let value = page
+            .inner()
+            .evaluate(script)
+            .await
+            .map_err(|e| anyhow::anyhow!("Failed to execute question finder script: {}", e))?;
+
+        // Parse the result - expecting array of [question, selector] pairs
+        let result_value: serde_json::Value = value
+            .into_value()
+            .map_err(|e| anyhow::anyhow!("Failed to parse question finder result: {}", e))?;
+
+        let pairs: Vec<(String, String)> = match result_value {
+            serde_json::Value::Array(arr) => arr
+                .into_iter()
+                .filter_map(|item| {
+                    if let serde_json::Value::Array(pair) = item {
+                        if pair.len() == 2 {
+                            let q = pair[0].as_str()?.to_string();
+                            let s = pair[1].as_str()?.to_string();
+                            return Some((q, s));
+                        }
+                    }
+                    None
+                })
+                .collect(),
+            _ => Vec::new(),
+        };
+
+        Ok(pairs)
+    }
+
+    /// Find matching answer for a question text
+    fn find_answer_for_question(&self, question: &str) -> Option<String> {
+        let question_lower = question.to_lowercase();
+
+        for answer in &self.screening_answers {
+            if let Ok(regex) = Regex::new(&format!("(?i){}", answer.question_pattern)) {
+                if regex.is_match(&question_lower) {
+                    tracing::debug!(
+                        "Matched pattern '{}' for question '{}'",
+                        answer.question_pattern,
+                        question
+                    );
+                    return Some(answer.answer.clone());
+                }
+            }
+        }
+
+        None
+    }
+
+    /// Truncate question text for logging/display
+    fn truncate_question(text: &str, max_len: usize) -> String {
+        if text.len() <= max_len {
+            text.to_string()
+        } else {
+            format!("{}...", &text[..max_len - 3])
+        }
+    }
+
     /// Get field selectors for each ATS platform
     fn get_field_selectors(platform: &AtsPlatform) -> HashMap<FieldType, Vec<&'static str>> {
         let mut selectors = HashMap::new();
@@ -471,6 +666,41 @@ enum FieldType {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chrono::Utc;
+
+    fn make_test_profile() -> ApplicationProfile {
+        ApplicationProfile {
+            id: 1,
+            full_name: "John Doe".to_string(),
+            email: "john@example.com".to_string(),
+            phone: Some("+1234567890".to_string()),
+            linkedin_url: Some("https://linkedin.com/in/johndoe".to_string()),
+            github_url: Some("https://github.com/johndoe".to_string()),
+            portfolio_url: None,
+            website_url: None,
+            default_resume_id: None,
+            resume_file_path: None,
+            default_cover_letter_template: None,
+            us_work_authorized: true,
+            requires_sponsorship: false,
+            max_applications_per_day: 10,
+            require_manual_approval: true,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+        }
+    }
+
+    fn make_screening_answer(pattern: &str, answer: &str) -> ScreeningAnswer {
+        ScreeningAnswer {
+            id: 1,
+            question_pattern: pattern.to_string(),
+            answer: answer.to_string(),
+            answer_type: Some("text".to_string()),
+            notes: None,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+        }
+    }
 
     #[test]
     fn test_get_greenhouse_selectors() {
@@ -493,5 +723,72 @@ mod tests {
         // Unknown platform should still have generic selectors
         assert!(selectors.contains_key(&FieldType::Email));
         assert!(selectors.contains_key(&FieldType::Resume));
+    }
+
+    #[test]
+    fn test_screening_answer_matching() {
+        let profile = make_test_profile();
+        let answers = vec![
+            make_screening_answer("years.*experience", "5"),
+            make_screening_answer("(?i)authorized.*work.*us", "Yes"),
+            make_screening_answer("salary|compensation", "120000"),
+            make_screening_answer("remote|work.*from.*home", "Yes, I prefer remote work"),
+        ];
+
+        let filler = FormFiller::new(profile, None).with_screening_answers(answers);
+
+        // Test exact matches
+        assert_eq!(
+            filler.find_answer_for_question("How many years of experience do you have?"),
+            Some("5".to_string())
+        );
+        assert_eq!(
+            filler.find_answer_for_question("Are you authorized to work in the US?"),
+            Some("Yes".to_string())
+        );
+        assert_eq!(
+            filler.find_answer_for_question("What is your expected salary?"),
+            Some("120000".to_string())
+        );
+        assert_eq!(
+            filler.find_answer_for_question("Are you open to remote work from home?"),
+            Some("Yes, I prefer remote work".to_string())
+        );
+
+        // Test non-matching question
+        assert_eq!(
+            filler.find_answer_for_question("What is your favorite color?"),
+            None
+        );
+    }
+
+    #[test]
+    fn test_screening_answer_case_insensitive() {
+        let profile = make_test_profile();
+        let answers = vec![make_screening_answer("(?i)security.*clearance", "No")];
+
+        let filler = FormFiller::new(profile, None).with_screening_answers(answers);
+
+        // Should match regardless of case
+        assert_eq!(
+            filler.find_answer_for_question("Do you have a Security Clearance?"),
+            Some("No".to_string())
+        );
+        assert_eq!(
+            filler.find_answer_for_question("SECURITY CLEARANCE STATUS"),
+            Some("No".to_string())
+        );
+    }
+
+    #[test]
+    fn test_truncate_question() {
+        assert_eq!(
+            FormFiller::truncate_question("Short", 30),
+            "Short".to_string()
+        );
+        assert_eq!(
+            FormFiller::truncate_question("This is a very long question that should be truncated", 30),
+            "This is a very long questio...".to_string()
+        );
     }
 }
