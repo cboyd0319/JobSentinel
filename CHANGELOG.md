@@ -59,9 +59,22 @@ Step-by-step flow for federal job seekers:
 3. "Get Free API Key →" button links directly to signup page
 4. Clearer field labels and hints
 
+#### Windows & Linux LinkedIn Auto-Connect
+
+Full automatic cookie extraction now works on all platforms:
+
+| Platform | Method |
+|----------|--------|
+| macOS | WKHTTPCookieStore (objc2) |
+| Windows | WebView2 via Tauri's cookies_for_url() |
+| Linux | WebKitGTK via Tauri's cookies_for_url() |
+
+No more manual cookie copying on any platform!
+
 #### Files Changed
 
 - `src/pages/Settings.tsx` - All UX improvements (+281 lines)
+- `src-tauri/src/commands/linkedin_auth.rs` - Cross-platform cookie extraction
 
 ---
 

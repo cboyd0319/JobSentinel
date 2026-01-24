@@ -89,8 +89,15 @@ pub async fn linkedin_login(app: AppHandle) -> Result<String, String> {
                 // Give the page a moment to fully load and cookies to be set
                 tokio::time::sleep(tokio::time::Duration::from_millis(1500)).await;
 
-                // Extract cookie using platform-native method
+                // Extract cookie using platform-appropriate method
+                #[cfg(target_os = "macos")]
                 let cookie_result = extract_linkedin_cookie().await;
+
+                #[cfg(any(target_os = "windows", target_os = "linux"))]
+                let cookie_result = extract_linkedin_cookie_from_webview(&app).await;
+
+                #[cfg(not(any(target_os = "macos", target_os = "windows", target_os = "linux")))]
+                let cookie_result: Result<String, String> = Err("Unsupported platform".to_string());
 
                 match &cookie_result {
                     Ok(cookie) => {
@@ -217,17 +224,54 @@ async fn extract_linkedin_cookie() -> Result<String, String> {
     }
 }
 
+/// Extract LinkedIn cookie using Tauri's built-in cookie API (Windows/Linux)
+///
+/// This uses Tauri's webview.cookies_for_url() which wraps:
+/// - Windows: WebView2 ICoreWebView2CookieManager
+/// - Linux: WebKitGTK cookie jar
+#[cfg(any(target_os = "windows", target_os = "linux"))]
+async fn extract_linkedin_cookie_from_webview(app: &AppHandle) -> Result<String, String> {
+    use tauri::Manager;
+
+    tracing::info!("Extracting LinkedIn cookie via Tauri cookie API");
+
+    // Get the login window's webview
+    let window = app
+        .get_webview_window("linkedin-login")
+        .ok_or("LinkedIn login window not found")?;
+
+    // Get cookies for LinkedIn domain
+    // Note: On Windows, this must be called from an async context to avoid deadlock
+    let cookies = window
+        .cookies_for_url("https://www.linkedin.com")
+        .map_err(|e| format!("Failed to get cookies: {}", e))?;
+
+    tracing::debug!("Found {} cookies for linkedin.com", cookies.len());
+
+    // Find the li_at cookie
+    for cookie in cookies {
+        if cookie.name() == "li_at" {
+            let value = cookie.value().to_string();
+            tracing::info!("Found li_at cookie!");
+            return Ok(value);
+        }
+    }
+
+    Err("LinkedIn cookie (li_at) not found. Please make sure you're fully logged in.".to_string())
+}
+
 #[cfg(target_os = "windows")]
 async fn extract_linkedin_cookie() -> Result<String, String> {
-    // Windows WebView2 cookie extraction would go here
-    // For now, return an error indicating manual entry is needed
-    Err("Automatic cookie extraction not yet supported on Windows. Please enter your cookie manually.".to_string())
+    // This function is kept for API compatibility but won't be used directly
+    // The actual extraction happens via extract_linkedin_cookie_from_webview
+    Err("Use extract_linkedin_cookie_from_webview instead".to_string())
 }
 
 #[cfg(target_os = "linux")]
 async fn extract_linkedin_cookie() -> Result<String, String> {
-    // Linux WebKitGTK cookie extraction would go here
-    Err("Automatic cookie extraction not yet supported on Linux. Please enter your cookie manually.".to_string())
+    // This function is kept for API compatibility but won't be used directly
+    // The actual extraction happens via extract_linkedin_cookie_from_webview
+    Err("Use extract_linkedin_cookie_from_webview instead".to_string())
 }
 
 #[cfg(not(any(target_os = "macos", target_os = "windows", target_os = "linux")))]
