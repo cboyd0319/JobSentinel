@@ -216,6 +216,10 @@ export default function Settings({ onClose }: SettingsProps) {
   const [emailProvider, setEmailProvider] = useState<"custom" | "gmail" | "outlook" | "yahoo">("custom");
   const [activeTab, setActiveTab] = useState<"basic" | "advanced">("basic");
   const [linkedInExpiry, setLinkedInExpiry] = useState<LinkedInExpiryStatus | null>(null);
+  // Loading states for async test/connect buttons
+  const [testingSlack, setTestingSlack] = useState(false);
+  const [testingEmail, setTestingEmail] = useState(false);
+  const [connectingLinkedIn, setConnectingLinkedIn] = useState(false);
   const toast = useToast();
 
   // Email provider templates for auto-fill
@@ -1228,7 +1232,9 @@ export default function Settings({ onClose }: SettingsProps) {
                 {(credentials.slack_webhook || credentialStatus.slack_webhook) && (
                   <Button
                     variant="secondary"
+                    disabled={testingSlack}
                     onClick={async () => {
+                      setTestingSlack(true);
                       try {
                         // Use new value if entered, otherwise test existing stored credential
                         const webhookUrl = credentials.slack_webhook || await retrieveCredential("slack_webhook");
@@ -1240,11 +1246,13 @@ export default function Settings({ onClose }: SettingsProps) {
                         toast.success("Test sent!", "Check your Slack channel");
                       } catch {
                         toast.error("Test failed", "Check that the webhook URL is correct and try again");
+                      } finally {
+                        setTestingSlack(false);
                       }
                     }}
                     className="whitespace-nowrap"
                   >
-                    Test
+                    {testingSlack ? "Testing..." : "Test"}
                   </Button>
                 )}
               </div>
@@ -1322,7 +1330,9 @@ export default function Settings({ onClose }: SettingsProps) {
                       hasValidToEmails && (
                         <Button
                           variant="secondary"
+                          disabled={testingEmail}
                           onClick={async () => {
+                            setTestingEmail(true);
                             try {
                               // Use new password if entered, otherwise retrieve from keyring
                               const password = credentials.smtp_password || await retrieveCredential("smtp_password");
@@ -1344,11 +1354,13 @@ export default function Settings({ onClose }: SettingsProps) {
                               toast.success("Test sent!", "Check your email inbox");
                             } catch {
                               toast.error("Test failed", "Check your email settings and try again");
+                            } finally {
+                              setTestingEmail(false);
                             }
                           }}
                           className="whitespace-nowrap"
                         >
-                          Test
+                          {testingEmail ? "Testing..." : "Test"}
                         </Button>
                       )}
                   </div>
@@ -1809,7 +1821,9 @@ export default function Settings({ onClose }: SettingsProps) {
                         </div>
                         <button
                           type="button"
+                          disabled={connectingLinkedIn}
                           onClick={async () => {
+                            setConnectingLinkedIn(true);
                             try {
                               await invoke("disconnect_linkedin");
                               setCredentialStatus((prev) => ({ ...prev, linkedin_cookie: false }));
@@ -1817,11 +1831,13 @@ export default function Settings({ onClose }: SettingsProps) {
                               toast.success("Disconnected", "LinkedIn has been disconnected");
                             } catch (err) {
                               toast.error("Error", "Failed to disconnect LinkedIn");
+                            } finally {
+                              setConnectingLinkedIn(false);
                             }
                           }}
-                          className="text-sm text-red-600 dark:text-red-400 hover:underline"
+                          className="text-sm text-red-600 dark:text-red-400 hover:underline disabled:opacity-50"
                         >
-                          Disconnect
+                          {connectingLinkedIn ? "..." : "Disconnect"}
                         </button>
                       </div>
 
@@ -1837,18 +1853,22 @@ export default function Settings({ onClose }: SettingsProps) {
                           </div>
                           <button
                             type="button"
+                            disabled={connectingLinkedIn}
                             onClick={async () => {
+                              setConnectingLinkedIn(true);
                               try {
                                 await invoke("disconnect_linkedin");
                                 setCredentialStatus((prev) => ({ ...prev, linkedin_cookie: false }));
                                 setLinkedInExpiry(null);
                               } catch (err) {
                                 // Ignore
+                              } finally {
+                                setConnectingLinkedIn(false);
                               }
                             }}
-                            className="text-xs font-medium text-red-700 dark:text-red-300 hover:underline"
+                            className="text-xs font-medium text-red-700 dark:text-red-300 hover:underline disabled:opacity-50"
                           >
-                            Reconnect
+                            {connectingLinkedIn ? "..." : "Reconnect"}
                           </button>
                         </div>
                       )}
@@ -1883,7 +1903,9 @@ export default function Settings({ onClose }: SettingsProps) {
                       </p>
                       <button
                         type="button"
+                        disabled={connectingLinkedIn}
                         onClick={async () => {
+                          setConnectingLinkedIn(true);
                           try {
                             toast.info("Connecting...", "Please log in to LinkedIn in the window that opens");
                             await invoke("linkedin_login");
@@ -1906,12 +1928,14 @@ export default function Settings({ onClose }: SettingsProps) {
                             } else {
                               toast.error("Error", errorStr);
                             }
+                          } finally {
+                            setConnectingLinkedIn(false);
                           }
                         }}
-                        className="w-full py-2.5 px-4 bg-[#0077B5] hover:bg-[#006399] text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+                        className="w-full py-2.5 px-4 bg-[#0077B5] hover:bg-[#006399] disabled:bg-[#0077B5]/50 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
                       >
                         <LinkedInIcon className="w-5 h-5" />
-                        Connect LinkedIn
+                        {connectingLinkedIn ? "Connecting..." : "Connect LinkedIn"}
                       </button>
                       <p className="text-xs text-surface-500 dark:text-surface-400 text-center">
                         A secure login window will open. Just log in normally – no copy/paste needed!

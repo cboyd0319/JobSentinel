@@ -316,6 +316,20 @@ export function InterviewScheduler({ onClose, applications = [] }: InterviewSche
       return;
     }
 
+    // Validate date is not in the past
+    const scheduledDate = new Date(formData.scheduled_at);
+    const now = new Date();
+    if (scheduledDate < now) {
+      toast.error("Invalid date", "Interview cannot be scheduled in the past");
+      return;
+    }
+
+    // Validate duration is reasonable (15 minutes to 8 hours)
+    if (formData.duration_minutes < 15 || formData.duration_minutes > 480) {
+      toast.error("Invalid duration", "Duration must be between 15 minutes and 8 hours");
+      return;
+    }
+
     try {
       await invoke("schedule_interview", {
         applicationId: formData.application_id,
