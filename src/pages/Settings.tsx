@@ -203,8 +203,157 @@ export default function Settings({ onClose }: SettingsProps) {
   const [showHealthDashboard, setShowHealthDashboard] = useState(false);
   const [ghostConfig, setGhostConfig] = useState<GhostConfig | null>(null);
   const [ghostConfigLoading, setGhostConfigLoading] = useState(false);
+  const [ghostPreset, setGhostPreset] = useState<"lenient" | "balanced" | "strict" | "custom">("balanced");
+  const [emailProvider, setEmailProvider] = useState<"custom" | "gmail" | "outlook" | "yahoo">("custom");
   const [activeTab, setActiveTab] = useState<"basic" | "advanced">("basic");
   const toast = useToast();
+
+  // Email provider templates for auto-fill
+  const emailProviderTemplates = {
+    gmail: { server: "smtp.gmail.com", port: 587, starttls: true, hint: "Use an App Password, not your regular password" },
+    outlook: { server: "smtp-mail.outlook.com", port: 587, starttls: true, hint: "Use your Outlook.com password" },
+    yahoo: { server: "smtp.mail.yahoo.com", port: 587, starttls: true, hint: "Use an App Password from Yahoo Account Security" },
+    custom: { server: "", port: 587, starttls: true, hint: "Enter your email provider's SMTP settings" },
+  };
+
+  // Ghost detection presets
+  const ghostPresets = {
+    lenient: { stale_threshold_days: 120, repost_threshold: 5, min_description_length: 100, penalize_missing_salary: false, warning_threshold: 0.5, hide_threshold: 0.85 },
+    balanced: { stale_threshold_days: 60, repost_threshold: 3, min_description_length: 200, penalize_missing_salary: false, warning_threshold: 0.3, hide_threshold: 0.7 },
+    strict: { stale_threshold_days: 30, repost_threshold: 2, min_description_length: 300, penalize_missing_salary: true, warning_threshold: 0.2, hide_threshold: 0.5 },
+  };
+
+  // Apply ghost detection preset
+  const applyGhostPreset = (preset: "lenient" | "balanced" | "strict") => {
+    setGhostPreset(preset);
+    setGhostConfig({ ...ghostPresets[preset] });
+  };
+
+  // Apply email provider template
+  const applyEmailProvider = (provider: "gmail" | "outlook" | "yahoo" | "custom") => {
+    setEmailProvider(provider);
+    if (provider !== "custom" && config) {
+      const template = emailProviderTemplates[provider];
+      setConfig({
+        ...config,
+        alerts: {
+          ...config.alerts,
+          email: {
+            ...config.alerts.email,
+            smtp_server: template.server,
+            smtp_port: template.port,
+            use_starttls: template.starttls,
+          },
+        },
+      });
+    }
+  };
+
+  // Smart job board recommendations based on user preferences
+  const getJobBoardRecommendations = () => {
+    const recommendations: { board: string; reason: string; enable: () => void }[] = [];
+    const keywords = [...(config?.keywords_boost ?? []), ...(config?.title_allowlist ?? [])].map(k => k.toLowerCase());
+    const allowRemote = config?.location_preferences?.allow_remote ?? false;
+    const cities = config?.location_preferences?.cities ?? [];
+
+    // Remote-focused boards
+    if (allowRemote || keywords.some(k => k.includes("remote"))) {
+      if (!config?.remoteok?.enabled) {
+        recommendations.push({
+          board: "RemoteOK",
+          reason: "You prefer remote work",
+          enable: () => setConfig({ ...config!, remoteok: { ...config?.remoteok, enabled: true, tags: config?.remoteok?.tags ?? [], limit: 50 } }),
+        });
+      }
+      if (!config?.weworkremotely?.enabled) {
+        recommendations.push({
+          board: "WeWorkRemotely",
+          reason: "Great for remote positions",
+          enable: () => setConfig({ ...config!, weworkremotely: { ...config?.weworkremotely, enabled: true, limit: 50 } }),
+        });
+      }
+    }
+
+    // Startup keywords
+    if (keywords.some(k => k.includes("startup") || k.includes("early stage") || k.includes("seed"))) {
+      if (!config?.yc_startup?.enabled) {
+        recommendations.push({
+          board: "YC Startups",
+          reason: "You're interested in startups",
+          enable: () => setConfig({ ...config!, yc_startup: { ...config?.yc_startup, enabled: true, remote_only: false, limit: 50 } }),
+        });
+      }
+    }
+
+    // Tech/Developer keywords
+    if (keywords.some(k => k.includes("engineer") || k.includes("developer") || k.includes("programmer"))) {
+      if (!config?.hn_hiring?.enabled) {
+        recommendations.push({
+          board: "HN Who's Hiring",
+          reason: "Popular with tech companies",
+          enable: () => setConfig({ ...config!, hn_hiring: { ...config?.hn_hiring, enabled: true, remote_only: false, limit: 50 } }),
+        });
+      }
+      if (!config?.dice?.enabled) {
+        recommendations.push({
+          board: "Dice",
+          reason: "Tech-focused job board",
+          enable: () => setConfig({ ...config!, dice: { ...config?.dice, enabled: true, query: "", limit: 50 } }),
+        });
+      }
+    }
+
+    // Government/Federal keywords
+    if (keywords.some(k => k.includes("federal") || k.includes("government") || k.includes("clearance") || k.includes("public sector"))) {
+      if (!config?.usajobs?.enabled) {
+        recommendations.push({
+          board: "USAJobs",
+          reason: "You're interested in government roles",
+          enable: () => setConfig({ ...config!, usajobs: { ...config?.usajobs, enabled: true, email: config?.usajobs?.email ?? "", remote_only: false, date_posted_days: 30, limit: 100 } }),
+        });
+      }
+    }
+
+    // If they have US cities, suggest BuiltIn
+    if (cities.some(c => c.toLowerCase().includes("san francisco") || c.toLowerCase().includes("new york") || c.toLowerCase().includes("austin") || c.toLowerCase().includes("seattle") || c.toLowerCase().includes("chicago"))) {
+      if (!config?.builtin?.enabled) {
+        recommendations.push({
+          board: "BuiltIn",
+          reason: "Great for tech hubs like " + cities[0],
+          enable: () => setConfig({ ...config!, builtin: { ...config?.builtin, enabled: true, cities: config?.builtin?.cities ?? [], limit: 50 } }),
+        });
+      }
+    }
+
+    return recommendations.slice(0, 3); // Show max 3 recommendations
+  };
+
+  // Security trust indicator - shows platform-specific secure storage info
+  const SecurityBadge = ({ stored }: { stored?: boolean }) => {
+    const platform = navigator.platform.toLowerCase();
+    const keychain = platform.includes("mac") ? "macOS Keychain"
+      : platform.includes("win") ? "Windows Credential Manager"
+      : "System Keyring";
+
+    if (stored) {
+      return (
+        <span className="inline-flex items-center gap-1 text-xs text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30 px-2 py-0.5 rounded-full">
+          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+          </svg>
+          Stored in {keychain}
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center gap-1 text-xs text-surface-500 dark:text-surface-400">
+        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+          <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+        </svg>
+        Will store in {keychain}
+      </span>
+    );
+  };
 
   const loadConfig = useCallback(async () => {
     try {
@@ -1030,9 +1179,7 @@ export default function Settings({ onClose }: SettingsProps) {
               <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1 flex items-center gap-2">
                 Slack Notifications
                 <HelpIcon text="Get job alerts in a Slack channel. To set up: Go to your Slack workspace → Apps → Incoming Webhooks → Create New → Copy the webhook URL" position="right" />
-                {credentialStatus.slack_webhook && (
-                  <span className="text-xs text-green-600 dark:text-green-400">(Stored securely)</span>
-                )}
+                <SecurityBadge stored={credentialStatus.slack_webhook} />
               </label>
               <div className="flex gap-2">
                 <div className="flex-1">
@@ -1115,10 +1262,37 @@ export default function Settings({ onClose }: SettingsProps) {
 
               {config.alerts.email?.enabled && (
                 <div className="space-y-3">
+                  {/* Email Provider Quick Setup */}
+                  <div className="flex items-center gap-2 -mt-1 mb-2">
+                    <span className="text-sm text-surface-600 dark:text-surface-400">Quick setup:</span>
+                    <div className="flex gap-1">
+                      {(["gmail", "outlook", "yahoo", "custom"] as const).map((provider) => (
+                        <button
+                          key={provider}
+                          type="button"
+                          onClick={() => applyEmailProvider(provider)}
+                          className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
+                            emailProvider === provider
+                              ? "bg-sentinel-500 text-white"
+                              : "bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-600"
+                          }`}
+                        >
+                          {provider === "gmail" ? "Gmail" : provider === "outlook" ? "Outlook" : provider === "yahoo" ? "Yahoo" : "Custom"}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <p className="text-sm text-surface-500 dark:text-surface-400 -mt-1">
+                    {emailProviderTemplates[emailProvider].hint}
+                    {emailProvider === "gmail" && (
+                      <> — <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener noreferrer" className="text-sentinel-500 hover:underline">Create App Password</a></>
+                    )}
+                    {emailProvider === "yahoo" && (
+                      <> — <a href="https://login.yahoo.com/account/security" target="_blank" rel="noopener noreferrer" className="text-sentinel-500 hover:underline">Yahoo Security Settings</a></>
+                    )}
+                  </p>
                   <div className="flex items-center justify-between -mt-1 mb-3">
-                    <p className="text-sm text-surface-500 dark:text-surface-400">
-                      For Gmail: use smtp.gmail.com, port 587, and create an App Password in your Google Account settings.
-                    </p>
+                    <span></span>
                     {config.alerts.email?.smtp_server &&
                       config.alerts.email?.smtp_username &&
                       (credentials.smtp_password || credentialStatus.smtp_password) &&
@@ -1244,16 +1418,13 @@ export default function Settings({ onClose }: SettingsProps) {
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-sm font-medium text-surface-700 dark:text-surface-300">App Password</span>
-                        {credentialStatus.smtp_password && (
-                          <span className="text-xs text-green-600 dark:text-green-400">(Stored securely)</span>
-                        )}
+                        <SecurityBadge stored={credentialStatus.smtp_password} />
                       </div>
                       <Input
                         type="password"
                         value={credentials.smtp_password}
                         onChange={(e) => setCredentials((prev) => ({ ...prev, smtp_password: e.target.value }))}
                         placeholder={credentialStatus.smtp_password ? "Enter new password to update" : "Your app-specific password"}
-                        hint="Stored securely in your system keychain"
                       />
                     </div>
                   </div>
@@ -1338,9 +1509,7 @@ export default function Settings({ onClose }: SettingsProps) {
                   <div className="mt-3 space-y-2">
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-surface-600 dark:text-surface-400">Webhook URL</span>
-                      {credentialStatus.discord_webhook && (
-                        <span className="text-xs text-green-600 dark:text-green-400">(Stored securely)</span>
-                      )}
+                      <SecurityBadge stored={credentialStatus.discord_webhook} />
                     </div>
                     <Input
                       type="password"
@@ -1391,9 +1560,7 @@ export default function Settings({ onClose }: SettingsProps) {
                   <div className="mt-3 space-y-2">
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-surface-600 dark:text-surface-400">Webhook URL</span>
-                      {credentialStatus.teams_webhook && (
-                        <span className="text-xs text-green-600 dark:text-green-400">(Stored securely)</span>
-                      )}
+                      <SecurityBadge stored={credentialStatus.teams_webhook} />
                     </div>
                     <Input
                       type="password"
@@ -1445,9 +1612,7 @@ export default function Settings({ onClose }: SettingsProps) {
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-sm text-surface-600 dark:text-surface-400">Bot Token</span>
-                        {credentialStatus.telegram_bot_token && (
-                          <span className="text-xs text-green-600 dark:text-green-400">(Stored securely)</span>
-                        )}
+                        <SecurityBadge stored={credentialStatus.telegram_bot_token} />
                       </div>
                       <Input
                         type="password"
@@ -1616,9 +1781,10 @@ export default function Settings({ onClose }: SettingsProps) {
                   {/* Connection Status */}
                   {credentialStatus.linkedin_cookie ? (
                     <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-3">
                         <span className="text-green-600 dark:text-green-400">✓</span>
                         <span className="text-sm font-medium text-green-800 dark:text-green-200">LinkedIn Connected</span>
+                        <SecurityBadge stored={true} />
                       </div>
                       <button
                         type="button"
@@ -1782,31 +1948,41 @@ export default function Settings({ onClose }: SettingsProps) {
 
               {config.usajobs?.enabled && (
                 <div className="space-y-3">
-                  <p className="text-sm text-surface-500 dark:text-surface-400 -mt-1">
-                    Search federal government positions. Requires a free API key from{" "}
-                    <a href="https://developer.usajobs.gov/" target="_blank" rel="noopener noreferrer" className="text-sentinel-500 hover:underline">
-                      developer.usajobs.gov
-                    </a>
-                  </p>
+                  {/* Quick Setup Guide */}
+                  {!credentialStatus.usajobs_api_key && (
+                    <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                      <p className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">⚡ Quick Setup (2 minutes)</p>
+                      <ol className="text-xs text-blue-700 dark:text-blue-300 space-y-1 ml-4 list-decimal">
+                        <li>Click "Get Free API Key" below</li>
+                        <li>Sign up with your email (no credit card needed)</li>
+                        <li>Copy the API key from your email</li>
+                        <li>Paste it here and you're done!</li>
+                      </ol>
+                      <a
+                        href="https://developer.usajobs.gov/APIRequest/Index"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 mt-3 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded transition-colors"
+                      >
+                        Get Free API Key →
+                      </a>
+                    </div>
+                  )}
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1 flex items-center gap-2">
                         API Key
-                        <HelpIcon text="Get a free API key from developer.usajobs.gov. Takes 2 minutes to sign up." position="right" />
-                        {credentialStatus.usajobs_api_key && (
-                          <span className="text-xs text-green-600 dark:text-green-400">(Stored)</span>
-                        )}
+                        <SecurityBadge stored={credentialStatus.usajobs_api_key} />
                       </label>
                       <Input
                         type="password"
                         value={credentials.usajobs_api_key}
                         onChange={(e) => setCredentials((prev) => ({ ...prev, usajobs_api_key: e.target.value }))}
-                        placeholder={credentialStatus.usajobs_api_key ? "Enter new key to update" : "Your USAJobs API key"}
-                        hint="Stored securely in system keychain"
+                        placeholder={credentialStatus.usajobs_api_key ? "Enter new key to update" : "Paste your API key here"}
                       />
                     </div>
                     <Input
-                      label="Email (for API)"
+                      label="Email (same as signup)"
                       value={config.usajobs?.email ?? ""}
                       onChange={(e) =>
                         setConfig({
@@ -1895,6 +2071,32 @@ export default function Settings({ onClose }: SettingsProps) {
                 </div>
               )}
             </div>
+
+            {/* Smart Recommendations */}
+            {getJobBoardRecommendations().length > 0 && (
+              <div className="mb-4 p-3 bg-sentinel-50 dark:bg-sentinel-900/20 border border-sentinel-200 dark:border-sentinel-800 rounded-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-sm font-medium text-sentinel-700 dark:text-sentinel-300">💡 Recommended for you</span>
+                </div>
+                <div className="space-y-2">
+                  {getJobBoardRecommendations().map((rec) => (
+                    <div key={rec.board} className="flex items-center justify-between">
+                      <div>
+                        <span className="text-sm font-medium text-surface-800 dark:text-surface-200">{rec.board}</span>
+                        <span className="text-xs text-surface-500 dark:text-surface-400 ml-2">— {rec.reason}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={rec.enable}
+                        className="text-xs px-2 py-1 bg-sentinel-500 hover:bg-sentinel-600 text-white rounded transition-colors"
+                      >
+                        Enable
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* More Job Boards - Collapsible Section */}
             <details className="border border-surface-200 dark:border-surface-700 rounded-lg">
@@ -2067,10 +2269,53 @@ export default function Settings({ onClose }: SettingsProps) {
           <section className="mb-6">
             <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
               Ghost Detection Settings
-              <HelpIcon text="Adjust how aggressively JobSentinel flags fake or stale job postings. Lower thresholds mean stricter detection." />
+              <HelpIcon text="Adjust how aggressively JobSentinel flags fake or stale job postings. Choose a preset or customize." />
             </h3>
             {ghostConfig && (
               <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-4 space-y-4">
+                {/* Preset Buttons */}
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-medium text-surface-700 dark:text-surface-300">Detection Level:</span>
+                  <div className="flex gap-2">
+                    {(["lenient", "balanced", "strict"] as const).map((preset) => (
+                      <button
+                        key={preset}
+                        type="button"
+                        onClick={() => applyGhostPreset(preset)}
+                        className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                          ghostPreset === preset
+                            ? preset === "lenient" ? "bg-green-500 text-white"
+                              : preset === "balanced" ? "bg-sentinel-500 text-white"
+                              : "bg-red-500 text-white"
+                            : "bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-600"
+                        }`}
+                      >
+                        {preset === "lenient" ? "🟢 Lenient" : preset === "balanced" ? "🟡 Balanced" : "🔴 Strict"}
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => setGhostPreset("custom")}
+                      className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                        ghostPreset === "custom"
+                          ? "bg-surface-600 text-white"
+                          : "bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-600"
+                      }`}
+                    >
+                      ⚙️ Custom
+                    </button>
+                  </div>
+                </div>
+                <p className="text-xs text-surface-500 dark:text-surface-400 -mt-2">
+                  {ghostPreset === "lenient" && "Shows most jobs, rarely flags anything. Best if you don't want to miss opportunities."}
+                  {ghostPreset === "balanced" && "Good default. Flags obviously stale or suspicious jobs without being too aggressive."}
+                  {ghostPreset === "strict" && "Aggressively filters old, reposted, or incomplete job listings. May hide some legitimate jobs."}
+                  {ghostPreset === "custom" && "Fine-tune each setting below to match your preferences."}
+                </p>
+
+                {/* Show detailed settings only in custom mode */}
+                {ghostPreset === "custom" && (
+                <>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
@@ -2198,6 +2443,8 @@ export default function Settings({ onClose }: SettingsProps) {
                     </p>
                   </div>
                 </div>
+                </>
+                )}
 
                 <div className="flex gap-3 pt-2">
                   <Button
