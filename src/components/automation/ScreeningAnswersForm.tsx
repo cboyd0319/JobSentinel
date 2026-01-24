@@ -182,10 +182,18 @@ export function ScreeningAnswersForm({ onSaved }: ScreeningAnswersFormProps) {
 
         {/* Saved Answers List */}
         {answers.length === 0 ? (
-          <div className="text-center py-8 text-surface-500 dark:text-surface-400">
-            <QuestionIcon className="w-12 h-12 mx-auto mb-3 opacity-50" />
-            <p>No screening answers configured yet.</p>
-            <p className="text-sm mt-1">Add your answers to common questions above.</p>
+          <div className="text-center py-12 px-6 bg-surface-50 dark:bg-surface-800/50 rounded-lg border-2 border-dashed border-surface-200 dark:border-surface-700">
+            <QuestionIcon className="w-16 h-16 mx-auto mb-4 text-surface-300 dark:text-surface-600" />
+            <h4 className="text-lg font-medium text-surface-700 dark:text-surface-300 mb-2">
+              No screening answers yet
+            </h4>
+            <p className="text-surface-500 dark:text-surface-400 mb-6 max-w-md mx-auto">
+              Add common answers to auto-fill screening questions like "Years of experience" or "Salary expectations" during Quick Apply.
+            </p>
+            <Button onClick={() => setShowAddModal(true)}>
+              <PlusIcon className="w-4 h-4 mr-2" />
+              Add Your First Answer
+            </Button>
           </div>
         ) : (
           <div className="space-y-3">

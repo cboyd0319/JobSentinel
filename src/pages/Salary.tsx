@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { Button, Card, Input, Badge } from "../components";
+import { Button, Card, Input, Badge, HelpIcon } from "../components";
 import { useToast } from "../contexts";
 import { logError, getErrorMessage } from "../utils/errorUtils";
 
@@ -230,11 +230,14 @@ export default function Salary({ onBack }: SalaryProps) {
 
                 {/* Salary Range Visualization */}
                 <div className="bg-surface-50 dark:bg-surface-700 rounded-lg p-4">
-                  <div className="flex justify-between text-sm text-surface-500 dark:text-surface-400 mb-2">
+                  <div className="flex items-center justify-between text-sm text-surface-500 dark:text-surface-400 mb-2">
                     <span>25th %</span>
                     <span>Median</span>
                     <span>75th %</span>
-                    <span>90th %</span>
+                    <span className="flex items-center gap-1">
+                      90th %
+                      <HelpIcon text="Percentiles show salary distribution. Median (50th) = half earn more, half less. 75th = top 25% of earners. Aim for 75th+ with your experience." />
+                    </span>
                   </div>
 
                   <div className="relative h-8 bg-surface-200 dark:bg-surface-600 rounded-full overflow-hidden">

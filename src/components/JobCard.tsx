@@ -115,6 +115,7 @@ export function JobCard({ job, onViewJob, onHideJob, onToggleBookmark, onEditNot
         className={`
           group relative bg-white dark:bg-surface-800 rounded-card border transition-all duration-200 ease-out
           hover:shadow-card-hover hover:-translate-y-0.5
+          focus-within:ring-2 focus-within:ring-sentinel-500 dark:focus-within:ring-sentinel-400
           ${isSelected
             ? "ring-2 ring-sentinel-500 dark:ring-sentinel-400 border-sentinel-300 dark:border-sentinel-600"
             : isHighMatch
@@ -125,6 +126,8 @@ export function JobCard({ job, onViewJob, onHideJob, onToggleBookmark, onEditNot
         data-testid="job-card"
         data-job-id={job.id}
         data-selected={isSelected || undefined}
+        role="article"
+        aria-label={`${job.title} at ${job.company}${job.score >= 0.9 ? ", high match" : job.score >= 0.7 ? ", good match" : ""}`}
       >
       {/* High match indicator */}
       {isHighMatch && (

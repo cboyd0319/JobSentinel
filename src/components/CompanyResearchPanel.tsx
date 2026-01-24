@@ -654,6 +654,14 @@ export function CompanyResearchPanel({ companyName, onClose }: CompanyResearchPa
   useEffect(() => {
     let cancelled = false;
 
+    // Timeout to prevent infinite spinner
+    const timeoutId = setTimeout(() => {
+      if (!cancelled && loading) {
+        setError('Request timed out. The company lookup is taking too long.');
+        setLoading(false);
+      }
+    }, 15000);
+
     async function loadInfo() {
       setLoading(true);
       setError(null);
@@ -670,12 +678,16 @@ export function CompanyResearchPanel({ companyName, onClose }: CompanyResearchPa
       } finally {
         if (!cancelled) {
           setLoading(false);
+          clearTimeout(timeoutId);
         }
       }
     }
 
     loadInfo();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+      clearTimeout(timeoutId);
+    };
   }, [companyName, retryCount]);
 
   const handleRetry = () => {

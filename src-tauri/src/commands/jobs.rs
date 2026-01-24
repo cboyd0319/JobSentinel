@@ -2,6 +2,7 @@
 //!
 //! Commands for job searching, retrieval, bookmarking, notes, and deduplication.
 
+use crate::commands::errors::user_friendly_error;
 use crate::commands::AppState;
 use crate::core::db::DuplicateGroup;
 use serde_json::Value;
@@ -68,7 +69,7 @@ pub async fn get_recent_jobs(
         }
         Err(e) => {
             tracing::error!("Failed to get recent jobs: {}", e);
-            Err(format!("Database error: {}", e))
+            Err(user_friendly_error("Failed to load jobs", e))
         }
     }
 }
@@ -89,7 +90,7 @@ pub async fn get_job_by_id(id: i64, state: State<'_, AppState>) -> Result<Option
         })),
         Err(e) => {
             tracing::error!("Failed to get job: {}", e);
-            Err(format!("Database error: {}", e))
+            Err(user_friendly_error("Failed to load job details", e))
         }
     }
 }
@@ -125,7 +126,7 @@ pub async fn search_jobs_query(
         }
         Err(e) => {
             tracing::error!("Search failed: {}", e);
-            Err(format!("Database error: {}", e))
+            Err(user_friendly_error("Database operation failed", e))
         }
     }
 }
@@ -142,7 +143,7 @@ pub async fn hide_job(id: i64, state: State<'_, AppState>) -> Result<(), String>
         }
         Err(e) => {
             tracing::error!("Failed to hide job: {}", e);
-            Err(format!("Database error: {}", e))
+            Err(user_friendly_error("Database operation failed", e))
         }
     }
 }
@@ -159,7 +160,7 @@ pub async fn unhide_job(id: i64, state: State<'_, AppState>) -> Result<(), Strin
         }
         Err(e) => {
             tracing::error!("Failed to unhide job: {}", e);
-            Err(format!("Database error: {}", e))
+            Err(user_friendly_error("Database operation failed", e))
         }
     }
 }
@@ -176,7 +177,7 @@ pub async fn toggle_bookmark(id: i64, state: State<'_, AppState>) -> Result<bool
         }
         Err(e) => {
             tracing::error!("Failed to toggle bookmark: {}", e);
-            Err(format!("Database error: {}", e))
+            Err(user_friendly_error("Database operation failed", e))
         }
     }
 }
@@ -207,7 +208,7 @@ pub async fn get_bookmarked_jobs(
         }
         Err(e) => {
             tracing::error!("Failed to get bookmarked jobs: {}", e);
-            Err(format!("Database error: {}", e))
+            Err(user_friendly_error("Database operation failed", e))
         }
     }
 }
@@ -232,7 +233,7 @@ pub async fn set_job_notes(
         }
         Err(e) => {
             tracing::error!("Failed to save notes: {}", e);
-            Err(format!("Database error: {}", e))
+            Err(user_friendly_error("Database operation failed", e))
         }
     }
 }
@@ -246,7 +247,7 @@ pub async fn get_job_notes(id: i64, state: State<'_, AppState>) -> Result<Option
         Ok(notes) => Ok(notes),
         Err(e) => {
             tracing::error!("Failed to get notes: {}", e);
-            Err(format!("Database error: {}", e))
+            Err(user_friendly_error("Database operation failed", e))
         }
     }
 }
@@ -262,7 +263,7 @@ pub async fn get_statistics(state: State<'_, AppState>) -> Result<Value, String>
         }
         Err(e) => {
             tracing::error!("Failed to get statistics: {}", e);
-            Err(format!("Database error: {}", e))
+            Err(user_friendly_error("Database operation failed", e))
         }
     }
 }

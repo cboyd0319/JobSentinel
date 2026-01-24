@@ -104,13 +104,20 @@ function SortableApplicationCard({
     opacity: isDragging ? 0.5 : 1,
   };
 
+  // Find the column this app is in for ARIA announcement
+  const columnLabel = STATUS_COLUMNS.find(c => c.key === app.status)?.label || app.status;
+
   return (
     <div
       ref={setNodeRef}
       style={style}
       {...attributes}
       {...listeners}
-      className={`p-3 bg-white dark:bg-surface-700 rounded-lg shadow-sm cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow ${
+      role="button"
+      aria-label={`${app.job_title} at ${app.company}. Status: ${columnLabel}. Press space to start dragging.`}
+      aria-pressed={isDragging}
+      aria-describedby={isDragging ? "drag-instructions" : undefined}
+      className={`p-3 bg-white dark:bg-surface-700 rounded-lg shadow-sm cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow focus:outline-none focus:ring-2 focus:ring-sentinel-500 ${
         isDragging ? "shadow-lg ring-2 ring-sentinel-500" : ""
       }`}
       onClick={(e) => {

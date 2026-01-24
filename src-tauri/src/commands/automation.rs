@@ -8,6 +8,7 @@
 //! - Automation attempt tracking
 //! - ATS platform detection
 
+use crate::commands::errors::user_friendly_error;
 use crate::commands::AppState;
 use crate::core::automation::{
     ats_detector::AtsDetector,
@@ -33,7 +34,7 @@ pub async fn upsert_application_profile(
     manager
         .upsert_profile(&input)
         .await
-        .map_err(|e| format!("Failed to save profile: {}", e))
+        .map_err(|e| user_friendly_error("Failed to save profile", e))
 }
 
 /// Get the current application profile
@@ -387,7 +388,7 @@ pub async fn launch_automation_browser() -> Result<(), String> {
     manager
         .launch()
         .await
-        .map_err(|e| format!("Failed to launch browser: {}", e))
+        .map_err(|e| user_friendly_error("Failed to launch browser", e))
 }
 
 /// Close the automation browser
@@ -399,7 +400,7 @@ pub async fn close_automation_browser() -> Result<(), String> {
     manager
         .close()
         .await
-        .map_err(|e| format!("Failed to close browser: {}", e))
+        .map_err(|e| user_friendly_error("Failed to close browser", e))
 }
 
 /// Check if browser is running
@@ -431,14 +432,14 @@ pub async fn fill_application_form(
     let profile = profile_manager
         .get_profile()
         .await
-        .map_err(|e| format!("Failed to get profile: {}", e))?
-        .ok_or("No application profile configured. Please set up your profile first.")?;
+        .map_err(|e| user_friendly_error("Failed to load profile", e))?
+        .ok_or("No application profile configured. Please set up your profile first in Settings > One-Click Apply.")?;
 
     // Get screening answers for auto-filling questions
     let screening_answers = profile_manager
         .get_screening_answers()
         .await
-        .map_err(|e| format!("Failed to get screening answers: {}", e))?;
+        .map_err(|e| user_friendly_error("Failed to load screening answers", e))?;
 
     tracing::info!(
         "Loaded {} screening answer patterns",
@@ -472,14 +473,14 @@ pub async fn fill_application_form(
         manager
             .launch()
             .await
-            .map_err(|e| format!("Failed to launch browser: {}", e))?;
+            .map_err(|e| user_friendly_error("Failed to launch browser", e))?;
     }
 
     // Create new page and navigate
     let page = manager
         .new_page(&job_url)
         .await
-        .map_err(|e| format!("Failed to open page: {}", e))?;
+        .map_err(|e| user_friendly_error("Failed to open job page", e))?;
 
     // Get resume path from profile if configured
     let resume_path = profile
@@ -493,7 +494,7 @@ pub async fn fill_application_form(
     let result = filler
         .fill_page(&page, &platform)
         .await
-        .map_err(|e| format!("Failed to fill form: {}", e))?;
+        .map_err(|e| user_friendly_error("Failed to fill application form", e))?;
 
     let duration_ms = start_time.elapsed().as_millis() as i64;
 

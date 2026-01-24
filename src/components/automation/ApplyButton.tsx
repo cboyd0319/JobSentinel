@@ -51,6 +51,7 @@ const ATS_COLORS: Record<string, string> = {
 
 export function ApplyButton({ job, onApplied }: ApplyButtonProps) {
   const [atsPlatform, setAtsPlatform] = useState<string | null>(null);
+  const [atsLoading, setAtsLoading] = useState(true);
   const [atsInfo, setAtsInfo] = useState<AtsDetectionResponse | null>(null);
   const [hasProfile, setHasProfile] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
@@ -71,6 +72,7 @@ export function ApplyButton({ job, onApplied }: ApplyButtonProps) {
   // Detect ATS platform from URL
   const detectPlatform = useCallback(async () => {
     try {
+      setAtsLoading(true);
       const result = await invoke<AtsDetectionResponse>("detect_ats_platform", {
         url: job.url,
       });
@@ -78,6 +80,8 @@ export function ApplyButton({ job, onApplied }: ApplyButtonProps) {
       setAtsInfo(result);
     } catch (error) {
       logError("Failed to detect ATS platform:", error);
+    } finally {
+      setAtsLoading(false);
     }
   }, [job.url]);
 
@@ -170,10 +174,22 @@ export function ApplyButton({ job, onApplied }: ApplyButtonProps) {
       onApplied?.();
     } catch (error) {
       logError("Failed to fill form:", error);
-      toast.error(
-        "Failed to fill form",
-        error instanceof Error ? error.message : "Please try again"
-      );
+
+      // Check if browser is still running after error for recovery guidance
+      let stillRunning = false;
+      try {
+        stillRunning = await invoke<boolean>("is_browser_running");
+        setBrowserRunning(stillRunning);
+      } catch {
+        // Ignore check failure
+      }
+
+      const errorMsg = error instanceof Error ? error.message : "Please try again";
+      const recoveryHint = stillRunning
+        ? ". Browser is still open - you can close it or try again."
+        : "";
+
+      toast.error("Failed to fill form", errorMsg + recoveryHint);
     } finally {
       setIsFilling(false);
     }
@@ -222,14 +238,16 @@ export function ApplyButton({ job, onApplied }: ApplyButtonProps) {
     <>
       <div className="flex items-center gap-2">
         {/* ATS Platform Badge */}
-        {atsPlatform && atsPlatform !== "unknown" && (
+        {atsLoading ? (
+          <span className="w-16 h-6 bg-surface-200 dark:bg-surface-700 rounded-full animate-pulse" />
+        ) : atsPlatform && atsPlatform !== "unknown" ? (
           <span
             className={`px-2 py-1 text-xs font-medium rounded-full ${ATS_COLORS[atsPlatform] || ATS_COLORS.unknown}`}
             title={atsInfo?.automationNotes || undefined}
           >
             {ATS_DISPLAY_NAMES[atsPlatform] || atsPlatform}
           </span>
-        )}
+        ) : null}
 
         {/* Main Action Button */}
         {browserRunning ? (
@@ -240,12 +258,14 @@ export function ApplyButton({ job, onApplied }: ApplyButtonProps) {
         ) : (
           <Button
             onClick={handlePrepareApplication}
-            disabled={!hasProfile}
+            disabled={!hasProfile || atsLoading}
             size="sm"
             title={
-              !hasProfile
-                ? "Set up your application profile first"
-                : "Prepare to apply - fills form fields automatically"
+              atsLoading
+                ? "Detecting application platform..."
+                : !hasProfile
+                  ? "Set up your application profile first"
+                  : "Prepare to apply - fills form fields automatically"
             }
           >
             <BoltIcon className="w-4 h-4 mr-1" />

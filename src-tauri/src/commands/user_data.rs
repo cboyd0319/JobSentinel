@@ -2,6 +2,7 @@
 //!
 //! Commands for cover letter templates, interview prep, saved searches, and notification preferences.
 
+use crate::commands::errors::user_friendly_error;
 use crate::commands::AppState;
 use crate::core::user_data::{
     CoverLetterTemplate, FollowUpReminder, NotificationPreferences, PrepChecklistItem, SavedSearch,
@@ -24,7 +25,7 @@ pub async fn list_cover_letter_templates(
     manager
         .list_templates()
         .await
-        .map_err(|e| format!("Database error: {}", e))
+        .map_err(|e| user_friendly_error("Database operation failed", e))
 }
 
 /// Get a single cover letter template by ID
@@ -39,7 +40,7 @@ pub async fn get_cover_letter_template(
     manager
         .get_template(&id)
         .await
-        .map_err(|e| format!("Database error: {}", e))
+        .map_err(|e| user_friendly_error("Database operation failed", e))
 }
 
 /// Create a new cover letter template
@@ -60,7 +61,7 @@ pub async fn create_cover_letter_template(
     manager
         .create_template(&name, &content, category)
         .await
-        .map_err(|e| format!("Database error: {}", e))
+        .map_err(|e| user_friendly_error("Database operation failed", e))
 }
 
 /// Update an existing cover letter template
@@ -82,7 +83,7 @@ pub async fn update_cover_letter_template(
     manager
         .update_template(&id, &name, &content, category)
         .await
-        .map_err(|e| format!("Database error: {}", e))
+        .map_err(|e| user_friendly_error("Database operation failed", e))
 }
 
 /// Delete a cover letter template
@@ -97,7 +98,7 @@ pub async fn delete_cover_letter_template(
     manager
         .delete_template(&id)
         .await
-        .map_err(|e| format!("Database error: {}", e))
+        .map_err(|e| user_friendly_error("Database operation failed", e))
 }
 
 /// Seed default templates if none exist
@@ -110,7 +111,7 @@ pub async fn seed_default_templates(state: State<'_, AppState>) -> Result<usize,
     manager
         .seed_default_templates()
         .await
-        .map_err(|e| format!("Database error: {}", e))
+        .map_err(|e| user_friendly_error("Database operation failed", e))
 }
 
 /// Import cover letter templates from localStorage migration
@@ -128,7 +129,7 @@ pub async fn import_cover_letter_templates(
     manager
         .import_templates(templates)
         .await
-        .map_err(|e| format!("Database error: {}", e))
+        .map_err(|e| user_friendly_error("Database operation failed", e))
 }
 
 // ============================================================================
@@ -150,7 +151,7 @@ pub async fn get_interview_prep_checklist(
     manager
         .get_prep_checklist(interview_id)
         .await
-        .map_err(|e| format!("Database error: {}", e))
+        .map_err(|e| user_friendly_error("Database operation failed", e))
 }
 
 /// Save interview prep checklist item
@@ -172,7 +173,7 @@ pub async fn save_interview_prep_item(
     manager
         .save_prep_item(interview_id, &item_id, completed)
         .await
-        .map_err(|e| format!("Database error: {}", e))
+        .map_err(|e| user_friendly_error("Database operation failed", e))
 }
 
 // ============================================================================
@@ -194,7 +195,7 @@ pub async fn get_interview_followup(
     manager
         .get_followup(interview_id)
         .await
-        .map_err(|e| format!("Database error: {}", e))
+        .map_err(|e| user_friendly_error("Database operation failed", e))
 }
 
 /// Save interview follow-up reminder
@@ -214,7 +215,7 @@ pub async fn save_interview_followup(
     manager
         .save_followup(interview_id, thank_you_sent)
         .await
-        .map_err(|e| format!("Database error: {}", e))
+        .map_err(|e| user_friendly_error("Database operation failed", e))
 }
 
 // ============================================================================
@@ -230,7 +231,7 @@ pub async fn list_saved_searches(state: State<'_, AppState>) -> Result<Vec<Saved
     manager
         .list_saved_searches()
         .await
-        .map_err(|e| format!("Database error: {}", e))
+        .map_err(|e| user_friendly_error("Database operation failed", e))
 }
 
 /// Create a saved search
@@ -245,7 +246,7 @@ pub async fn create_saved_search(
     manager
         .create_saved_search(search)
         .await
-        .map_err(|e| format!("Database error: {}", e))
+        .map_err(|e| user_friendly_error("Database operation failed", e))
 }
 
 /// Mark a saved search as used (updates last_used_at)
@@ -257,7 +258,7 @@ pub async fn use_saved_search(id: String, state: State<'_, AppState>) -> Result<
     manager
         .use_saved_search(&id)
         .await
-        .map_err(|e| format!("Database error: {}", e))
+        .map_err(|e| user_friendly_error("Database operation failed", e))
 }
 
 /// Delete a saved search
@@ -269,7 +270,7 @@ pub async fn delete_saved_search(id: String, state: State<'_, AppState>) -> Resu
     manager
         .delete_saved_search(&id)
         .await
-        .map_err(|e| format!("Database error: {}", e))
+        .map_err(|e| user_friendly_error("Database operation failed", e))
 }
 
 /// Import saved searches from localStorage migration
@@ -287,7 +288,7 @@ pub async fn import_saved_searches(
     manager
         .import_saved_searches(searches)
         .await
-        .map_err(|e| format!("Database error: {}", e))
+        .map_err(|e| user_friendly_error("Database operation failed", e))
 }
 
 // ============================================================================
@@ -305,7 +306,7 @@ pub async fn get_notification_preferences(
     manager
         .get_notification_preferences()
         .await
-        .map_err(|e| format!("Database error: {}", e))
+        .map_err(|e| user_friendly_error("Database operation failed", e))
 }
 
 /// Save notification preferences
@@ -320,7 +321,7 @@ pub async fn save_notification_preferences(
     manager
         .save_notification_preferences(&prefs)
         .await
-        .map_err(|e| format!("Database error: {}", e))
+        .map_err(|e| user_friendly_error("Database operation failed", e))
 }
 
 // ============================================================================
@@ -336,7 +337,7 @@ pub async fn add_search_history(query: String, state: State<'_, AppState>) -> Re
     manager
         .add_search_history(&query)
         .await
-        .map_err(|e| format!("Database error: {}", e))
+        .map_err(|e| user_friendly_error("Database operation failed", e))
 }
 
 /// Get search history
@@ -351,7 +352,7 @@ pub async fn get_search_history(
     manager
         .get_search_history(limit)
         .await
-        .map_err(|e| format!("Database error: {}", e))
+        .map_err(|e| user_friendly_error("Database operation failed", e))
 }
 
 /// Clear search history
@@ -363,5 +364,5 @@ pub async fn clear_search_history(state: State<'_, AppState>) -> Result<(), Stri
     manager
         .clear_search_history()
         .await
-        .map_err(|e| format!("Database error: {}", e))
+        .map_err(|e| user_friendly_error("Database operation failed", e))
 }

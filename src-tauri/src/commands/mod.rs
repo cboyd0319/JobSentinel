@@ -14,6 +14,7 @@ pub mod ats;
 pub mod automation;
 pub mod config;
 pub mod credentials;
+pub mod errors;
 pub mod ghost;
 pub mod health;
 pub mod jobs;

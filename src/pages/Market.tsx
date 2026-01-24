@@ -246,18 +246,22 @@ export default function Market({ onBack }: MarketProps) {
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-1 mt-4 -mb-4 overflow-x-auto">
+          <div className="flex gap-1 mt-4 -mb-4 overflow-x-auto" role="tablist" aria-label="Market Intelligence sections">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
+                role="tab"
+                aria-selected={activeTab === tab.id}
+                aria-controls={`${tab.id}-panel`}
+                id={`${tab.id}-tab`}
                 className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors whitespace-nowrap flex items-center gap-2 ${
                   activeTab === tab.id
                     ? "bg-surface-50 dark:bg-surface-900 text-sentinel-600 dark:text-sentinel-400 border-t border-x border-surface-200 dark:border-surface-700"
                     : "text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-white"
                 }`}
               >
-                <span>{tab.icon}</span>
+                <span aria-hidden="true">{tab.icon}</span>
                 {tab.label}
                 {tab.badge !== undefined && tab.badge > 0 && (
                   <Badge variant="alert" className="ml-1">

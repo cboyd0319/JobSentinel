@@ -3,6 +3,7 @@ import { Card, StatCard, Skeleton } from "../components";
 import { ProfileForm, ScreeningAnswersForm } from "../components/automation";
 import { invoke } from "@tauri-apps/api/core";
 import { logError } from "../utils/errorUtils";
+import { useToast } from "../contexts";
 
 interface ApplicationProfileProps {
   onBack: () => void;
@@ -22,17 +23,19 @@ export default function ApplicationProfile({ onBack }: ApplicationProfileProps) 
   const [activeTab, setActiveTab] = useState<Tab>("profile");
   const [stats, setStats] = useState<AutomationStats | null>(null);
   const [loadingStats, setLoadingStats] = useState(false);
+  const toast = useToast();
 
   const loadStats = async (signal?: AbortSignal) => {
     try {
       setLoadingStats(true);
       const data = await invoke<AutomationStats>("get_automation_stats");
-      
+
       if (signal?.aborted) return;
       setStats(data);
     } catch (error) {
       if (signal?.aborted) return;
       logError("Failed to load automation stats:", error);
+      toast.error("Failed to load stats", "Your automation history may be unavailable. Try restarting the app.");
     } finally {
       if (!signal?.aborted) {
         setLoadingStats(false);

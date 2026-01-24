@@ -44,6 +44,7 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
   const [error, setError] = useState<string | null>(null);
   const [showSettingsLocal, setShowSettingsLocal] = useState(false);
   const [searchCooldown, setSearchCooldown] = useState(false);
+  const [cooldownSeconds, setCooldownSeconds] = useState(0);
   const [researchCompany, setResearchCompany] = useState<string | null>(null);
 
   const toast = useToast();
@@ -150,15 +151,28 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
   // Manual search
   const handleSearchNow = async () => {
     if (searchCooldown) {
-      toast.info("Please wait", "Search is on cooldown to prevent rate limiting");
+      toast.info("Please wait", `Search available in ${cooldownSeconds} seconds`);
       return;
     }
 
     try {
       setSearching(true);
       setSearchCooldown(true);
+      setCooldownSeconds(30);
       setError(null);
       toast.info("Scanning job boards...", "This may take a moment");
+
+      // Start countdown timer
+      const countdownInterval = setInterval(() => {
+        setCooldownSeconds((prev) => {
+          if (prev <= 1) {
+            clearInterval(countdownInterval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
       await invoke("search_jobs");
 
       invalidateCacheByCommand("get_recent_jobs");
@@ -178,13 +192,21 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
       if (statsData.high_matches > 0) {
         notifyScrapingComplete(jobsData.length, statsData.high_matches);
       }
+
+      // Clear cooldown after 30 seconds from start
+      setTimeout(() => {
+        setSearchCooldown(false);
+        setCooldownSeconds(0);
+      }, 30000);
     } catch (err) {
       logError("Failed to search jobs:", err);
       setError(getErrorMessage(err));
       toast.error("Scan failed", getErrorMessage(err));
+      // Reset cooldown on error so user can retry
+      setSearchCooldown(false);
+      setCooldownSeconds(0);
     } finally {
       setSearching(false);
-      setTimeout(() => setSearchCooldown(false), 30000);
     }
   };
 
@@ -280,6 +302,7 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
         formatTimeUntil={autoRefresh.formatTimeUntil}
         searching={searching}
         searchCooldown={searchCooldown}
+        cooldownSeconds={cooldownSeconds}
         onSearchNow={handleSearchNow}
         onOpenSettings={() => setShowSettings(true)}
       />

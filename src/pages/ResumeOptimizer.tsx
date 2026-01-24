@@ -10,6 +10,7 @@ import {
   ModalFooter,
 } from "../components";
 import { useToast } from "../contexts";
+import { logError } from "../utils/errorUtils";
 
 // TypeScript Types
 interface ContactInfo {
@@ -120,7 +121,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
       const words = await invoke<string[]>("get_ats_power_words");
       setPowerWords(words);
     } catch (err) {
-      console.error("Failed to load power words:", err);
+      logError("Failed to load power words:", err);
     }
   }, []);
 
@@ -150,7 +151,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       toast.error("Analysis failed", message);
-      console.error("Analysis error:", err);
+      logError("Analysis error:", err);
     } finally {
       setAnalyzing(false);
     }
@@ -176,7 +177,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       toast.error("Analysis failed", message);
-      console.error("Format analysis error:", err);
+      logError("Format analysis error:", err);
     } finally {
       setAnalyzing(false);
     }
@@ -201,7 +202,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       toast.error("Improvement failed", message);
-      console.error("Bullet improvement error:", err);
+      logError("Bullet improvement error:", err);
     } finally {
       setImprovingBullet(false);
     }

@@ -12,6 +12,7 @@ interface DashboardHeaderProps {
   formatTimeUntil: (date: Date) => string;
   searching: boolean;
   searchCooldown: boolean;
+  cooldownSeconds?: number;
   onSearchNow: () => void;
   onOpenSettings: () => void;
 }
@@ -23,6 +24,7 @@ export function DashboardHeader({
   formatTimeUntil,
   searching,
   searchCooldown,
+  cooldownSeconds = 0,
   onSearchNow,
   onOpenSettings,
 }: DashboardHeaderProps) {
@@ -101,11 +103,11 @@ export function DashboardHeader({
               loading={searching}
               disabled={searchCooldown && !searching}
               icon={<SearchIcon />}
-              aria-label={searching ? "Scanning job boards" : "Search for new jobs"}
+              aria-label={searching ? "Scanning job boards" : searchCooldown ? `Search available in ${cooldownSeconds} seconds` : "Search for new jobs"}
               data-tour="search-button"
               data-testid="btn-search-now"
             >
-              {searchCooldown && !searching ? "Wait..." : "Search Now"}
+              {searching ? "Scanning..." : searchCooldown ? `Wait ${cooldownSeconds}s` : "Search Now"}
             </Button>
           </div>
         </div>
