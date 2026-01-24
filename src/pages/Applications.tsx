@@ -417,6 +417,11 @@ export default function Applications({ onBack }: ApplicationsProps) {
 
   return (
     <div className="min-h-screen bg-surface-50 dark:bg-surface-900">
+      {/* Hidden instructions for screen readers during drag */}
+      <div id="drag-instructions" className="sr-only" aria-live="polite">
+        Use arrow keys to move between columns. Press space or enter to drop.
+      </div>
+
       {/* Header */}
       <header className="bg-white dark:bg-surface-800 border-b border-surface-100 dark:border-surface-700 sticky top-0 z-10">
         <div className="max-w-full mx-auto px-6 py-4">
@@ -688,8 +693,12 @@ export default function Applications({ onBack }: ApplicationsProps) {
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Add notes about this application..."
                   rows={3}
+                  maxLength={500}
                   className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 resize-none focus:ring-2 focus:ring-sentinel-500 focus:border-sentinel-500"
                 />
+                <p className="text-xs text-surface-500 dark:text-surface-400 mt-1 text-right">
+                  {notes.length}/500 characters
+                </p>
               </div>
 
               {selectedApp.notes && (

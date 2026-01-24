@@ -732,6 +732,7 @@ export function InterviewScheduler({ onClose, applications = [] }: InterviewSche
                   id="scheduled-at"
                   value={formData.scheduled_at}
                   onChange={(e) => setFormData({ ...formData, scheduled_at: e.target.value })}
+                  min={new Date().toISOString().slice(0, 16)}
                   className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100"
                 />
               </div>
