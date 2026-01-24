@@ -1,6 +1,6 @@
 [package]
 name = "jobsentinel"
-version = "2.5.2"
+version = "2.5.3"
 description = "Privacy-first job search automation for Windows 11+"
 authors = ["Chad Boyd"]
 license = "MIT"
@@ -99,6 +99,13 @@ futures-util = "0.3"
 
 [target.'cfg(windows)'.dependencies]
 windows = { version = "0.58", features = ["Win32_Foundation", "Win32_System_Threading"] }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+# Native macOS cookie extraction from WKWebView
+objc2 = "0.5"
+objc2-foundation = { version = "0.2", features = ["NSString", "NSArray", "NSDictionary", "NSDate", "NSURL", "block2"] }
+objc2-web-kit = { version = "0.2", features = ["WKWebsiteDataStore", "WKHTTPCookieStore", "WKWebViewConfiguration", "WKWebView", "block2"] }
+block2 = "0.5"
 
 [dev-dependencies]
 tempfile = "3.13"

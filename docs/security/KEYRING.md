@@ -39,7 +39,7 @@ The following credentials are stored securely in the OS keyring:
 | `slack_webhook_url` | Slack incoming webhook URL | Slack notifications |
 | `discord_webhook_url` | Discord webhook URL | Discord notifications |
 | `teams_webhook_url` | Microsoft Teams webhook URL | Teams notifications |
-| `linkedin_session_cookie` | LinkedIn `li_at` session cookie | LinkedIn job scraper |
+| `linkedin_session_cookie` | LinkedIn `li_at` session cookie | LinkedIn job scraper (auto-extracted on macOS v2.5.3+) |
 
 ---
 
@@ -335,6 +335,6 @@ keyring = { version = "3", features = [
 
 ---
 
-**Last Updated**: January 17, 2026
-**Version**: 2.0.0
+**Last Updated**: 2026-01-24
+**Version**: 2.5.3
 **Security Level**: Production Ready

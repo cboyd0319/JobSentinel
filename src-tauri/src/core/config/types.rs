@@ -87,6 +87,10 @@ pub struct Config {
     #[serde(default)]
     pub yc_startup: YcStartupConfig,
 
+    /// USAJobs.gov federal government job scraper configuration
+    #[serde(default)]
+    pub usajobs: UsaJobsConfig,
+
     /// JobsWithGPT MCP endpoint URL
     #[serde(default = "super::defaults::default_jobswithgpt_endpoint")]
     pub jobswithgpt_endpoint: String,
@@ -431,5 +435,59 @@ pub struct YcStartupConfig {
 
     /// Maximum results to return (default: 50)
     #[serde(default = "super::defaults::default_scraper_limit")]
+    pub limit: usize,
+}
+
+/// USAJobs.gov scraper configuration
+///
+/// Official federal government job API. Requires a free API key from:
+/// https://developer.usajobs.gov/
+///
+/// # Security
+/// The API key is stored securely in the OS keyring.
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct UsaJobsConfig {
+    /// Enable USAJobs scraping
+    #[serde(default)]
+    pub enabled: bool,
+
+    /// API key from developer.usajobs.gov - stored in OS keyring
+    #[serde(skip)]
+    pub api_key: String,
+
+    /// Email used for User-Agent header (required by API)
+    #[serde(default)]
+    pub email: String,
+
+    /// Search keywords (e.g., "software engineer", "data scientist")
+    #[serde(default)]
+    pub keywords: Option<String>,
+
+    /// Location filter (city, state, or zip)
+    #[serde(default)]
+    pub location: Option<String>,
+
+    /// Search radius in miles from location
+    #[serde(default)]
+    pub radius: Option<u32>,
+
+    /// Only show remote positions
+    #[serde(default)]
+    pub remote_only: bool,
+
+    /// Minimum GS pay grade (1-15)
+    #[serde(default)]
+    pub pay_grade_min: Option<u8>,
+
+    /// Maximum GS pay grade (1-15)
+    #[serde(default)]
+    pub pay_grade_max: Option<u8>,
+
+    /// Only show jobs posted within N days (1-60, default: 30)
+    #[serde(default = "super::defaults::default_usajobs_date_posted")]
+    pub date_posted_days: u8,
+
+    /// Maximum results to return (default: 100)
+    #[serde(default = "super::defaults::default_usajobs_limit")]
     pub limit: usize,
 }

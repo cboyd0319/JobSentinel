@@ -113,21 +113,50 @@ faster. Our parallel scraping architecture enables simultaneous searches across 
 
 ## 🔹 LinkedIn Scraper
 
-### Setup Instructions
+### Setup Instructions (v2.5.3+)
 
-**Step 1: Extract Session Cookie**
+**One-Click Connect — No Technical Knowledge Required!**
 
-1. Log into [LinkedIn](https://www.linkedin.com) in your browser
-2. Open DevTools (F12) → Application → Cookies
-3. Find and copy the `li_at` cookie value
+1. Go to **Settings** → **Job Sources** → Enable **LinkedIn**
+2. Click **"Connect LinkedIn"**
+3. Log in normally in the window that opens (username, password, 2FA if needed)
+4. Done! The cookie is extracted automatically and stored securely
 
-**Step 2: Add to Config**
+That's it. No DevTools. No copy-paste. No technical steps.
+
+#### How It Works (Technical Details)
+
+On macOS, JobSentinel uses native WebKit integration to extract the `li_at` session cookie
+directly from the system cookie store:
+
+```rust
+// Native macOS cookie extraction via objc2
+use objc2_web_kit::WKWebsiteDataStore;
+use objc2_foundation::NSHTTPCookie;
+
+let data_store = WKWebsiteDataStore::defaultDataStore();
+let cookie_store = data_store.httpCookieStore();
+cookie_store.getAllCookies(&block);
+```
+
+The cookie is stored securely in your OS keychain (macOS Keychain, Windows Credential Manager, or Linux Secret Service).
+
+#### Platform Support
+
+| Platform | Auto-Connect | Manual Fallback |
+|----------|--------------|-----------------|
+| **macOS** | ✅ Full support | Available |
+| **Windows** | ⏳ Coming soon | ✅ Available |
+| **Linux** | ⏳ Coming soon | ✅ Available |
+
+#### Config (Search Parameters)
+
+After connecting, configure your search in Settings:
 
 ```json
 {
   "linkedin": {
     "enabled": true,
-    "session_cookie": "YOUR_LI_AT_COOKIE_HERE",
     "query": "software engineer",
     "location": "San Francisco Bay Area",
     "remote_only": false,
@@ -136,28 +165,7 @@ faster. Our parallel scraping architecture enables simultaneous searches across 
 }
 ```
 
-**Step 3: Run Scraper**
-
-```rust
-use jobsentinel::core::scrapers::linkedin::LinkedInScraper;
-use jobsentinel::core::scrapers::rate_limiter::{RateLimiter, limits};
-
-let rate_limiter = RateLimiter::new();
-
-let scraper = LinkedInScraper::new(
-    config.linkedin.session_cookie.clone(),
-    "software engineer".to_string(),
-    "San Francisco Bay Area".to_string(),
-)
-.with_remote_only(true)
-.with_limit(50);
-
-// Respect rate limits (100 req/hour)
-rate_limiter.wait("linkedin", limits::LINKEDIN).await;
-
-let jobs = scraper.scrape().await?;
-println!("Found {} jobs from LinkedIn", jobs.len());
-```
+Note: The `session_cookie` is stored in the OS keychain, NOT in config.json.
 
 ### How It Works
 
@@ -193,44 +201,31 @@ Headers:
 
 ### Limitations
 
-- **No Password Storage:** Requires manual cookie extraction
-- **Session Expiry:** Need to update cookie every 90 days
+- **Session Expiry:** Cookie expires after ~365 days, requires re-login
 - **Rate Limits:** 100 requests/hour to avoid detection
 - **CAPTCHA:** May trigger CAPTCHA if too aggressive
 
-### Future Enhancement: Headless Browser
+### ✅ Implemented: In-App Login (v2.5.3)
 
-For Phase 2, we can upgrade to headless browser automation:
+**No manual cookie extraction required!** JobSentinel v2.5.3 introduced native in-app login:
 
-```rust
-// Using headless_chrome crate
-use headless_chrome::{Browser, LaunchOptionsBuilder};
-
-let browser = Browser::new(LaunchOptionsBuilder::default().build()?)?;
-let tab = browser.wait_for_initial_tab()?;
-
-// Navigate to LinkedIn login
-tab.navigate_to("https://www.linkedin.com/login")?;
-tab.wait_for_element("input#username")?.type_into("your@email.com")?;
-tab.wait_for_element("input#password")?.type_into("your_password")?;
-tab.wait_for_element("button[type=submit]")?.click()?;
-
-// Navigate to jobs search
-tab.navigate_to("https://www.linkedin.com/jobs/search/?keywords=software+engineer")?;
-```
+- Opens a native WebView window with LinkedIn login
+- User logs in normally (username, password, 2FA)
+- Cookie extracted automatically via native macOS `WKHTTPCookieStore` API
+- Stored securely in OS keychain
 
 **Benefits:**
 
-- No manual cookie extraction
-- JavaScript rendering
-- Better CAPTCHA handling
-- Session management
+- Zero technical knowledge required
+- No DevTools or copy-paste
+- Secure OS-level credential storage
+- Works with 2FA/MFA
 
-**Drawbacks:**
+**Platform Status:**
 
-- Slower (30-60s startup)
-- Higher resource usage (Chrome instance)
-- More complex debugging
+- ✅ macOS: Full automatic extraction
+- ⏳ Windows: Manual fallback (WebView2 integration planned)
+- ⏳ Linux: Manual fallback (WebKitGTK integration planned)
 
 ---
 
@@ -818,8 +813,8 @@ impl RateLimiter {
 
 ---
 
-**Last Updated:** 2026-01-17
-**Version:** 2.1.0
+**Last Updated:** 2026-01-24
+**Version:** 2.5.3
 **Maintained By:** JobSentinel Core Team
-**Implementation Status:** ✅ Phase 2 Complete (Health Monitoring)
-**Next Phase:** v2.2 - Advanced Scraping (Headless Browser, Additional Boards)
+**Implementation Status:** ✅ Phase 3 Complete (LinkedIn Auto-Connect)
+**Next Phase:** v2.6 - ML Predictions, Windows/Linux Auto-Connect

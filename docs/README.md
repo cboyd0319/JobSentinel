@@ -11,7 +11,7 @@ Welcome to JobSentinel documentation.
 3. **CHECK FILE SIZES** - Keep files <500 lines. See [ROADMAP.md](ROADMAP.md) for refactoring plan.
 4. **READ docs/CLAUDE.md FIRST** - Contains project context and critical requirements.
 
-### Current Version: 2.5.2 (Production Ready)
+### Current Version: 2.5.3 (Production Ready)
 
 See [ROADMAP.md](ROADMAP.md) for future plans (v2.6: ML predictions, installers).
 
@@ -19,7 +19,16 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.6: ML predictions, installers)
 
 ## Current Status (January 2026)
 
-**Version: 2.5.2** | 2900+ tests passing | Bug Fixes Release
+**Version: 2.5.3** | 2900+ tests passing | LinkedIn Auto-Connect
+
+### What's New in v2.5.3 🔗
+
+- **LinkedIn Auto-Connect** - Zero-copy authentication, no technical knowledge required
+  - Click "Connect LinkedIn" → Log in normally → Done!
+  - Native macOS WebKit integration for automatic cookie extraction
+  - No more DevTools, no more copy-paste
+  - Cookie stored securely in OS keychain
+- See [LinkedIn Setup](features/scrapers.md#-linkedin-scraper) for details
 
 ### What's New in v2.5 📊
 
@@ -167,6 +176,7 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.6: ML predictions, installers)
 
 ### Release Notes
 
+- **[v2.5.3 - LinkedIn Auto-Connect](releases/v2.5.3.md)** - Zero-copy LinkedIn authentication
 - **[v2.5.2 - Bug Fixes](releases/v2.5.2.md)** - Onboarding and settings fixes
 - **[v2.5.1 - Production Release](releases/v2.5.1.md)** - Official installers for Windows and macOS
 - **[v2.5 - Market Intelligence UI](releases/v2.5.md)** - Interactive charts, tabbed layout, heatmaps
@@ -248,4 +258,4 @@ tests/                     # All tests
 
 ---
 
-**Last Updated:** January 24, 2026
+**Last Updated:** 2026-01-24

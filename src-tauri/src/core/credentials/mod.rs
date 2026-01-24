@@ -31,6 +31,8 @@ pub enum CredentialKey {
     TeamsWebhook,
     /// LinkedIn session cookie (li_at)
     LinkedInCookie,
+    /// USAJobs API key (free from developer.usajobs.gov)
+    UsaJobsApiKey,
 }
 
 impl CredentialKey {
@@ -43,6 +45,7 @@ impl CredentialKey {
             Self::DiscordWebhook => "jobsentinel_discord_webhook",
             Self::TeamsWebhook => "jobsentinel_teams_webhook",
             Self::LinkedInCookie => "jobsentinel_linkedin_cookie",
+            Self::UsaJobsApiKey => "jobsentinel_usajobs_api_key",
         }
     }
 
@@ -55,6 +58,7 @@ impl CredentialKey {
             Self::DiscordWebhook,
             Self::TeamsWebhook,
             Self::LinkedInCookie,
+            Self::UsaJobsApiKey,
         ]
     }
 
@@ -67,6 +71,7 @@ impl CredentialKey {
             "discord_webhook" | "jobsentinel_discord_webhook" => Some(Self::DiscordWebhook),
             "teams_webhook" | "jobsentinel_teams_webhook" => Some(Self::TeamsWebhook),
             "linkedin_cookie" | "jobsentinel_linkedin_cookie" => Some(Self::LinkedInCookie),
+            "usajobs_api_key" | "jobsentinel_usajobs_api_key" => Some(Self::UsaJobsApiKey),
             _ => None,
         }
     }

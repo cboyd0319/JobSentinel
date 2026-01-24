@@ -116,6 +116,19 @@ interface Config {
     remote_only: boolean;
     limit: number;
   };
+  usajobs: {
+    enabled: boolean;
+    // api_key stored securely in keyring
+    email: string;
+    keywords?: string;
+    location?: string;
+    radius?: number;
+    remote_only: boolean;
+    pay_grade_min?: number;
+    pay_grade_max?: number;
+    date_posted_days: number;
+    limit: number;
+  };
   use_resume_matching: boolean;
 }
 
@@ -127,10 +140,11 @@ interface Credentials {
   discord_webhook: string;
   teams_webhook: string;
   telegram_bot_token: string;
+  usajobs_api_key: string;
 }
 
 // Credential key names (must match backend CredentialKey enum)
-type CredentialKey = "slack_webhook" | "smtp_password" | "linkedin_cookie" | "discord_webhook" | "teams_webhook" | "telegram_bot_token";
+type CredentialKey = "slack_webhook" | "smtp_password" | "linkedin_cookie" | "discord_webhook" | "teams_webhook" | "telegram_bot_token" | "usajobs_api_key";
 
 // Helper to store a credential in secure storage
 async function storeCredential(key: CredentialKey, value: string): Promise<void> {
@@ -166,6 +180,7 @@ export default function Settings({ onClose }: SettingsProps) {
     discord_webhook: "",
     teams_webhook: "",
     telegram_bot_token: "",
+    usajobs_api_key: "",
   });
   const [credentialStatus, setCredentialStatus] = useState<Record<CredentialKey, boolean>>({
     slack_webhook: false,
@@ -174,6 +189,7 @@ export default function Settings({ onClose }: SettingsProps) {
     discord_webhook: false,
     teams_webhook: false,
     telegram_bot_token: false,
+    usajobs_api_key: false,
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -199,13 +215,14 @@ export default function Settings({ onClose }: SettingsProps) {
       setConfig(configData);
 
       // Check which credentials exist in secure storage (don't load actual values)
-      const [hasSlack, hasSmtp, hasLinkedIn, hasDiscord, hasTeams, hasTelegram] = await Promise.all([
+      const [hasSlack, hasSmtp, hasLinkedIn, hasDiscord, hasTeams, hasTelegram, hasUsaJobs] = await Promise.all([
         hasCredential("slack_webhook"),
         hasCredential("smtp_password"),
         hasCredential("linkedin_cookie"),
         hasCredential("discord_webhook"),
         hasCredential("teams_webhook"),
         hasCredential("telegram_bot_token"),
+        hasCredential("usajobs_api_key"),
       ]);
 
       setCredentialStatus({
@@ -215,6 +232,7 @@ export default function Settings({ onClose }: SettingsProps) {
         discord_webhook: hasDiscord,
         teams_webhook: hasTeams,
         telegram_bot_token: hasTelegram,
+        usajobs_api_key: hasUsaJobs,
       });
 
     } catch (error) {
@@ -278,6 +296,9 @@ export default function Settings({ onClose }: SettingsProps) {
       }
       if (credentials.telegram_bot_token) {
         credentialSaves.push(storeCredential("telegram_bot_token", credentials.telegram_bot_token));
+      }
+      if (credentials.usajobs_api_key) {
+        credentialSaves.push(storeCredential("usajobs_api_key", credentials.usajobs_api_key));
       }
 
       // Save credentials and config in parallel
@@ -1592,87 +1613,279 @@ export default function Settings({ onClose }: SettingsProps) {
 
               {config.linkedin?.enabled && (
                 <div className="space-y-3">
+                  {/* Connection Status */}
+                  {credentialStatus.linkedin_cookie ? (
+                    <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <span className="text-green-600 dark:text-green-400">✓</span>
+                        <span className="text-sm font-medium text-green-800 dark:text-green-200">LinkedIn Connected</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          try {
+                            await invoke("disconnect_linkedin");
+                            setCredentialStatus((prev) => ({ ...prev, linkedin_cookie: false }));
+                            toast.success("Disconnected", "LinkedIn has been disconnected");
+                          } catch (err) {
+                            toast.error("Error", "Failed to disconnect LinkedIn");
+                          }
+                        }}
+                        className="text-sm text-red-600 dark:text-red-400 hover:underline"
+                      >
+                        Disconnect
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <p className="text-sm text-surface-500 dark:text-surface-400">
+                        Connect your LinkedIn account to search for jobs. Your session is stored securely in your system keychain.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          try {
+                            toast.info("Connecting...", "Please log in to LinkedIn in the window that opens");
+                            await invoke("linkedin_login");
+                            // If we get here without throwing, login was successful
+                            setCredentialStatus((prev) => ({ ...prev, linkedin_cookie: true }));
+                            toast.success("Connected!", "LinkedIn connected successfully");
+                          } catch (err) {
+                            const errorStr = String(err);
+                            if (errorStr.includes("cancelled")) {
+                              toast.info("Cancelled", "LinkedIn login was cancelled");
+                            } else if (errorStr.includes("cookie") && errorStr.includes("not found")) {
+                              toast.error("Login incomplete", "Please make sure you're fully logged in before closing the window");
+                            } else {
+                              toast.error("Error", errorStr);
+                            }
+                          }
+                        }}
+                        className="w-full py-2.5 px-4 bg-[#0077B5] hover:bg-[#006399] text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+                      >
+                        <LinkedInIcon className="w-5 h-5" />
+                        Connect LinkedIn
+                      </button>
+                      <p className="text-xs text-surface-500 dark:text-surface-400 text-center">
+                        A secure login window will open. Just log in normally – no copy/paste needed!
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Search Configuration (only show when connected) */}
+                  {credentialStatus.linkedin_cookie && (
+                    <>
+                      <div className="grid grid-cols-2 gap-3">
+                        <Input
+                          label="Search Query"
+                          value={config.linkedin?.query ?? ""}
+                          onChange={(e) =>
+                            setConfig({
+                              ...config,
+                              linkedin: {
+                                ...config.linkedin,
+                                query: e.target.value,
+                              },
+                            })
+                          }
+                          placeholder="e.g., Security Engineer"
+                        />
+                        <Input
+                          label="Location"
+                          value={config.linkedin?.location ?? ""}
+                          onChange={(e) =>
+                            setConfig({
+                              ...config,
+                              linkedin: {
+                                ...config.linkedin,
+                                location: e.target.value,
+                              },
+                            })
+                          }
+                          placeholder="e.g., United States"
+                        />
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={config.linkedin?.remote_only ?? false}
+                            onChange={(e) =>
+                              setConfig({
+                                ...config,
+                                linkedin: {
+                                  ...config.linkedin,
+                                  remote_only: e.target.checked,
+                                },
+                              })
+                            }
+                            className="w-4 h-4 rounded border-surface-300 text-sentinel-500 focus:ring-sentinel-500"
+                          />
+                          <span className="text-sm text-surface-700 dark:text-surface-300">Remote only</span>
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <label className="text-sm text-surface-700 dark:text-surface-300">Max results:</label>
+                          <input
+                            type="number"
+                            min="10"
+                            max="100"
+                            value={config.linkedin?.limit ?? 25}
+                            onChange={(e) =>
+                              setConfig({
+                                ...config,
+                                linkedin: {
+                                  ...config.linkedin,
+                                  limit: parseInt(e.target.value) || 25,
+                                },
+                              })
+                            }
+                            className="w-20 px-2 py-1 text-sm border border-surface-300 dark:border-surface-600 rounded bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100"
+                          />
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* USAJobs */}
+            <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-4 mb-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">🇺🇸</span>
+                  <span className="font-medium text-surface-800 dark:text-surface-200">USAJobs</span>
+                  <span className="text-xs text-surface-500">(Federal government jobs)</span>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={config.usajobs?.enabled ?? false}
+                    onChange={(e) =>
+                      setConfig({
+                        ...config,
+                        usajobs: {
+                          ...config.usajobs,
+                          enabled: e.target.checked,
+                          email: config.usajobs?.email ?? "",
+                          remote_only: config.usajobs?.remote_only ?? false,
+                          date_posted_days: config.usajobs?.date_posted_days ?? 30,
+                          limit: config.usajobs?.limit ?? 100,
+                        },
+                      })
+                    }
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-surface-200 peer-focus:ring-4 peer-focus:ring-sentinel-300 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-sentinel-500"></div>
+                </label>
+              </div>
+
+              {config.usajobs?.enabled && (
+                <div className="space-y-3">
                   <p className="text-sm text-surface-500 dark:text-surface-400 -mt-1">
-                    LinkedIn requires your login cookie. Stored securely in your system keychain and never shared.
+                    Search federal government positions. Requires a free API key from{" "}
+                    <a href="https://developer.usajobs.gov/" target="_blank" rel="noopener noreferrer" className="text-sentinel-500 hover:underline">
+                      developer.usajobs.gov
+                    </a>
                   </p>
-                  <div>
-                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1 flex items-center gap-2">
-                      Login Cookie
-                      <HelpIcon text="To get this: 1) Log into LinkedIn in Chrome, 2) Right-click → Inspect → Application → Cookies → linkedin.com, 3) Copy the 'li_at' value" position="right" />
-                      {credentialStatus.linkedin_cookie && (
-                        <span className="text-xs text-green-600 dark:text-green-400">(Stored securely)</span>
-                      )}
-                    </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1 flex items-center gap-2">
+                        API Key
+                        <HelpIcon text="Get a free API key from developer.usajobs.gov. Takes 2 minutes to sign up." position="right" />
+                        {credentialStatus.usajobs_api_key && (
+                          <span className="text-xs text-green-600 dark:text-green-400">(Stored)</span>
+                        )}
+                      </label>
+                      <Input
+                        type="password"
+                        value={credentials.usajobs_api_key}
+                        onChange={(e) => setCredentials((prev) => ({ ...prev, usajobs_api_key: e.target.value }))}
+                        placeholder={credentialStatus.usajobs_api_key ? "Enter new key to update" : "Your USAJobs API key"}
+                        hint="Stored securely in system keychain"
+                      />
+                    </div>
                     <Input
-                      type="password"
-                      value={credentials.linkedin_cookie}
-                      onChange={(e) => setCredentials((prev) => ({ ...prev, linkedin_cookie: e.target.value }))}
-                      placeholder={credentialStatus.linkedin_cookie ? "Enter new cookie to update" : "Paste your li_at cookie value here"}
-                      hint="Stored securely in your system keychain"
+                      label="Email (for API)"
+                      value={config.usajobs?.email ?? ""}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          usajobs: { ...config.usajobs, email: e.target.value, enabled: config.usajobs?.enabled ?? false, remote_only: config.usajobs?.remote_only ?? false, date_posted_days: config.usajobs?.date_posted_days ?? 30, limit: config.usajobs?.limit ?? 100 },
+                        })
+                      }
+                      placeholder="your@email.com"
+                      hint="Required by USAJobs API"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <Input
-                      label="Search Query"
-                      value={config.linkedin?.query ?? ""}
+                      label="Keywords"
+                      value={config.usajobs?.keywords ?? ""}
                       onChange={(e) =>
                         setConfig({
                           ...config,
-                          linkedin: {
-                            ...config.linkedin,
-                            query: e.target.value,
-                          },
+                          usajobs: { ...config.usajobs, keywords: e.target.value, enabled: config.usajobs?.enabled ?? false, email: config.usajobs?.email ?? "", remote_only: config.usajobs?.remote_only ?? false, date_posted_days: config.usajobs?.date_posted_days ?? 30, limit: config.usajobs?.limit ?? 100 },
                         })
                       }
-                      placeholder="e.g., Security Engineer"
+                      placeholder="e.g., software engineer"
                     />
                     <Input
                       label="Location"
-                      value={config.linkedin?.location ?? ""}
+                      value={config.usajobs?.location ?? ""}
                       onChange={(e) =>
                         setConfig({
                           ...config,
-                          linkedin: {
-                            ...config.linkedin,
-                            location: e.target.value,
-                          },
+                          usajobs: { ...config.usajobs, location: e.target.value, enabled: config.usajobs?.enabled ?? false, email: config.usajobs?.email ?? "", remote_only: config.usajobs?.remote_only ?? false, date_posted_days: config.usajobs?.date_posted_days ?? 30, limit: config.usajobs?.limit ?? 100 },
                         })
                       }
-                      placeholder="e.g., United States"
+                      placeholder="e.g., Washington, DC"
                     />
                   </div>
                   <div className="flex items-center gap-4">
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input
                         type="checkbox"
-                        checked={config.linkedin?.remote_only ?? false}
+                        checked={config.usajobs?.remote_only ?? false}
                         onChange={(e) =>
                           setConfig({
                             ...config,
-                            linkedin: {
-                              ...config.linkedin,
-                              remote_only: e.target.checked,
-                            },
+                            usajobs: { ...config.usajobs, remote_only: e.target.checked, enabled: config.usajobs?.enabled ?? false, email: config.usajobs?.email ?? "", date_posted_days: config.usajobs?.date_posted_days ?? 30, limit: config.usajobs?.limit ?? 100 },
                           })
                         }
-                        className="w-4 h-4 rounded border-surface-300 text-sentinel-500 focus:ring-sentinel-500"
+                        className="rounded border-surface-300 text-sentinel-500 focus:ring-sentinel-500"
                       />
                       <span className="text-sm text-surface-700 dark:text-surface-300">Remote only</span>
                     </label>
+                    <div className="flex items-center gap-2">
+                      <label className="text-sm text-surface-700 dark:text-surface-300">Posted within:</label>
+                      <select
+                        value={config.usajobs?.date_posted_days ?? 30}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            usajobs: { ...config.usajobs, date_posted_days: parseInt(e.target.value), enabled: config.usajobs?.enabled ?? false, email: config.usajobs?.email ?? "", remote_only: config.usajobs?.remote_only ?? false, limit: config.usajobs?.limit ?? 100 },
+                          })
+                        }
+                        className="px-2 py-1 text-sm border border-surface-300 dark:border-surface-600 rounded bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100"
+                      >
+                        <option value={7}>7 days</option>
+                        <option value={14}>14 days</option>
+                        <option value={30}>30 days</option>
+                        <option value={60}>60 days</option>
+                      </select>
+                    </div>
                     <div className="flex items-center gap-2">
                       <label className="text-sm text-surface-700 dark:text-surface-300">Max results:</label>
                       <input
                         type="number"
                         min="10"
-                        max="100"
-                        value={config.linkedin?.limit ?? 25}
+                        max="500"
+                        value={config.usajobs?.limit ?? 100}
                         onChange={(e) =>
                           setConfig({
                             ...config,
-                            linkedin: {
-                              ...config.linkedin,
-                              limit: parseInt(e.target.value) || 25,
-                            },
+                            usajobs: { ...config.usajobs, limit: parseInt(e.target.value) || 100, enabled: config.usajobs?.enabled ?? false, email: config.usajobs?.email ?? "", remote_only: config.usajobs?.remote_only ?? false, date_posted_days: config.usajobs?.date_posted_days ?? 30 },
                           })
                         }
                         className="w-20 px-2 py-1 text-sm border border-surface-300 dark:border-surface-600 rounded bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100"
@@ -1682,7 +1895,6 @@ export default function Settings({ onClose }: SettingsProps) {
                 </div>
               )}
             </div>
-
 
             {/* More Job Boards - Collapsible Section */}
             <details className="border border-surface-200 dark:border-surface-700 rounded-lg">

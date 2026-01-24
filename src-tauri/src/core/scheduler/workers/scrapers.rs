@@ -15,6 +15,7 @@ use crate::core::{
         lever::{LeverCompany, LeverScraper},
         linkedin::LinkedInScraper,
         remoteok::RemoteOkScraper,
+        usajobs::UsaJobsScraper,
         weworkremotely::WeWorkRemotelyScraper,
         yc_startup::YcStartupScraper,
         JobScraper,
@@ -269,6 +270,55 @@ pub async fn run_scrapers(config: &Arc<Config>) -> (Vec<Job>, Vec<String>) {
             }
             Err(e) => {
                 let error_msg = format!("YC Startup scraper failed: {}", e);
+                tracing::error!("{}", error_msg);
+                errors.push(error_msg);
+            }
+        }
+    }
+
+    // 11. USAJobs federal government scraper - requires API key from keyring
+    if config.usajobs.enabled && !config.usajobs.email.is_empty() {
+        match CredentialStore::retrieve(CredentialKey::UsaJobsApiKey) {
+            Ok(Some(api_key)) => {
+                tracing::info!("Running USAJobs scraper");
+                let mut scraper = UsaJobsScraper::new(api_key, config.usajobs.email.clone());
+
+                // Apply configuration
+                if let Some(ref kw) = config.usajobs.keywords {
+                    scraper = scraper.with_keywords(kw.clone());
+                }
+                if let Some(ref loc) = config.usajobs.location {
+                    scraper = scraper.with_location(loc.clone(), config.usajobs.radius);
+                }
+                if config.usajobs.remote_only {
+                    scraper = scraper.remote_only();
+                }
+                if config.usajobs.pay_grade_min.is_some() || config.usajobs.pay_grade_max.is_some()
+                {
+                    scraper =
+                        scraper.with_pay_grade(config.usajobs.pay_grade_min, config.usajobs.pay_grade_max);
+                }
+                scraper = scraper
+                    .posted_within_days(config.usajobs.date_posted_days)
+                    .with_limit(config.usajobs.limit);
+
+                match scraper.scrape().await {
+                    Ok(jobs) => {
+                        tracing::info!("USAJobs: {} jobs found", jobs.len());
+                        all_jobs.extend(jobs);
+                    }
+                    Err(e) => {
+                        let error_msg = format!("USAJobs scraper failed: {}", e);
+                        tracing::error!("{}", error_msg);
+                        errors.push(error_msg);
+                    }
+                }
+            }
+            Ok(None) => {
+                tracing::warn!("USAJobs enabled but API key not configured in keyring");
+            }
+            Err(e) => {
+                let error_msg = format!("Failed to retrieve USAJobs API key from keyring: {}", e);
                 tracing::error!("{}", error_msg);
                 errors.push(error_msg);
             }

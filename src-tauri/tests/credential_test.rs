@@ -78,3 +78,37 @@ fn test_telegram_bot_token_credential() {
 
     let _ = CredentialStore::delete(CredentialKey::TelegramBotToken);
 }
+
+#[test]
+fn test_linkedin_cookie_credential() {
+    let _ = CredentialStore::delete(CredentialKey::LinkedInCookie);
+
+    // LinkedIn session cookies are typically long base64-like strings
+    let test_value = "AQEDAQRlbmNyeXB0ZWQtdGVzdC1jb29raWUtdmFsdWU";
+
+    let result = CredentialStore::store(CredentialKey::LinkedInCookie, test_value);
+    assert!(result.is_ok(), "Failed to store LinkedIn cookie: {:?}", result);
+
+    let retrieved = CredentialStore::retrieve(CredentialKey::LinkedInCookie);
+    assert!(retrieved.is_ok());
+    assert_eq!(retrieved.unwrap(), Some(test_value.to_string()));
+
+    let _ = CredentialStore::delete(CredentialKey::LinkedInCookie);
+}
+
+#[test]
+fn test_usajobs_api_key_credential() {
+    let _ = CredentialStore::delete(CredentialKey::UsaJobsApiKey);
+
+    // USAJobs API keys are typically alphanumeric strings
+    let test_value = "xABC123defGHI456jklMNO789pqrSTU";
+
+    let result = CredentialStore::store(CredentialKey::UsaJobsApiKey, test_value);
+    assert!(result.is_ok(), "Failed to store USAJobs API key: {:?}", result);
+
+    let retrieved = CredentialStore::retrieve(CredentialKey::UsaJobsApiKey);
+    assert!(retrieved.is_ok());
+    assert_eq!(retrieved.unwrap(), Some(test_value.to_string()));
+
+    let _ = CredentialStore::delete(CredentialKey::UsaJobsApiKey);
+}

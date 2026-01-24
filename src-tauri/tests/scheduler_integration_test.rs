@@ -56,6 +56,7 @@ fn create_test_config() -> Config {
         hn_hiring: Default::default(),
         dice: Default::default(),
         yc_startup: Default::default(),
+        usajobs: Default::default(),
         ghost_config: None,
         use_resume_matching: false,
         company_whitelist: vec![],

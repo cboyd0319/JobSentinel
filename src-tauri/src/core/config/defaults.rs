@@ -54,3 +54,13 @@ pub(crate) fn default_linkedin_limit() -> usize {
 pub(crate) fn default_scraper_limit() -> usize {
     50
 }
+
+/// Default USAJobs date posted filter (30 days)
+pub(crate) fn default_usajobs_date_posted() -> u8 {
+    30
+}
+
+/// Default USAJobs result limit (100)
+pub(crate) fn default_usajobs_limit() -> usize {
+    100
+}

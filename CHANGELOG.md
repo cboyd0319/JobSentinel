@@ -5,6 +5,49 @@ All notable changes to JobSentinel will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.3] - 2026-01-24
+
+### Added - LinkedIn Auto-Connect (Zero-Copy Authentication)
+
+**User Experience Revolution:** LinkedIn authentication now requires ZERO technical knowledge. No more copying cookies from DevTools - just log in normally.
+
+#### How It Works
+
+1. Click "Connect LinkedIn" in Settings
+2. Log in normally in the window that opens (username, password, 2FA if needed)
+3. Done! Cookie extracted automatically, stored securely in OS keychain
+
+#### Technical Implementation
+
+- **Native WebKit Integration (macOS):** Uses `WKHTTPCookieStore` via objc2 to extract cookies directly from the system cookie store
+- **Tauri 2 Navigation Monitoring:** `WebviewWindowBuilder.on_navigation()` detects successful login by URL pattern matching
+- **Secure Storage:** Cookie stored in OS keychain (macOS Keychain, Windows Credential Manager, Linux Secret Service)
+- **Platform Support:** Full automatic extraction on macOS; Windows/Linux fall back to manual entry
+
+#### New Dependencies (macOS only)
+
+```toml
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2 = "0.5"
+objc2-foundation = { version = "0.2", features = ["NSString", "NSArray", "NSDictionary", "NSDate", "NSURL", "block2"] }
+objc2-web-kit = { version = "0.2", features = ["WKWebsiteDataStore", "WKHTTPCookieStore", "block2"] }
+block2 = "0.5"
+```
+
+#### Files Changed
+
+- `src-tauri/src/commands/linkedin_auth.rs` - Complete rewrite with native cookie extraction
+- `src-tauri/Cargo.toml` - Added objc2 ecosystem for macOS cookie access
+- `src/pages/Settings.tsx` - Simplified LinkedIn UI (removed manual cookie input)
+
+#### Tests
+
+- 44 LinkedIn-related tests passing
+- Frontend TypeScript: 0 errors
+- Frontend ESLint: 0 errors
+
+---
+
 ## [2.5.2] - 2026-01-24
 
 ### Fixed - Critical Onboarding and Settings Bugs

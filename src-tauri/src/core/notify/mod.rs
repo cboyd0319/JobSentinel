@@ -350,6 +350,7 @@ mod tests {
             hn_hiring: Default::default(),
             dice: Default::default(),
             yc_startup: Default::default(),
+            usajobs: Default::default(),
             ghost_config: None,
             company_whitelist: vec![],
             company_blacklist: vec![],

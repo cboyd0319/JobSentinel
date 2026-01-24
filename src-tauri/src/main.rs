@@ -238,6 +238,12 @@ fn main() {
             commands::credentials::delete_credential,
             commands::credentials::has_credential,
             commands::credentials::get_credential_status,
+            // LinkedIn auth commands (in-app login flow)
+            commands::linkedin_auth::linkedin_login,
+            commands::linkedin_auth::store_linkedin_cookie,
+            commands::linkedin_auth::is_linkedin_connected,
+            commands::linkedin_auth::disconnect_linkedin,
+            commands::linkedin_auth::close_linkedin_login,
             // Automation commands (One-Click Apply)
             commands::automation::upsert_application_profile,
             commands::automation::get_application_profile,
@@ -313,6 +319,7 @@ fn main() {
                     hn_hiring: Default::default(),
                     dice: Default::default(),
                     yc_startup: Default::default(),
+                    usajobs: Default::default(),
                     jobswithgpt_endpoint: "https://api.jobswithgpt.com/mcp".to_string(),
                     salary_target_usd: None,
                     penalize_missing_salary: false,

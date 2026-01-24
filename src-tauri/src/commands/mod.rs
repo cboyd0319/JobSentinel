@@ -17,6 +17,7 @@ pub mod credentials;
 pub mod ghost;
 pub mod health;
 pub mod jobs;
+pub mod linkedin_auth;
 pub mod market;
 pub mod resume;
 pub mod salary;
@@ -145,6 +146,12 @@ pub use config::{complete_setup, get_config, is_first_run, save_config, validate
 // Credential commands
 pub use credentials::{
     delete_credential, get_credential_status, has_credential, retrieve_credential, store_credential,
+};
+
+// LinkedIn auth commands
+pub use linkedin_auth::{
+    close_linkedin_login, disconnect_linkedin, is_linkedin_connected, linkedin_login,
+    store_linkedin_cookie,
 };
 
 // Automation commands (One-Click Apply)
