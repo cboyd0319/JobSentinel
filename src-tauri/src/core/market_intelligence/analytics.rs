@@ -1147,12 +1147,14 @@ mod tests {
     async fn test_calculate_market_sentiment_bullish() {
         let pool = setup_test_db().await;
 
-        // Insert historical snapshots
+        // Insert historical snapshots using relative dates (last 7 days)
+        let today = chrono::Utc::now().date_naive();
         for i in 1..=7 {
+            let date = today - chrono::Duration::days(i);
             sqlx::query(
                 "INSERT INTO market_snapshots (date, total_jobs, new_jobs_today, jobs_filled_today, total_companies_hiring, market_sentiment) VALUES (?, ?, ?, ?, ?, ?)",
             )
-            .bind(format!("2026-01-{:02}", 9 + i))
+            .bind(date.to_string())
             .bind(100)
             .bind(50)
             .bind(10)
@@ -1174,12 +1176,14 @@ mod tests {
     async fn test_calculate_market_sentiment_bearish() {
         let pool = setup_test_db().await;
 
-        // Insert historical snapshots
+        // Insert historical snapshots using relative dates (last 7 days)
+        let today = chrono::Utc::now().date_naive();
         for i in 1..=7 {
+            let date = today - chrono::Duration::days(i);
             sqlx::query(
                 "INSERT INTO market_snapshots (date, total_jobs, new_jobs_today, jobs_filled_today, total_companies_hiring, market_sentiment) VALUES (?, ?, ?, ?, ?, ?)",
             )
-            .bind(format!("2026-01-{:02}", 9 + i))
+            .bind(date.to_string())
             .bind(100)
             .bind(100)
             .bind(10)
@@ -1201,12 +1205,14 @@ mod tests {
     async fn test_calculate_market_sentiment_neutral() {
         let pool = setup_test_db().await;
 
-        // Insert historical snapshots
+        // Insert historical snapshots using relative dates (last 7 days)
+        let today = chrono::Utc::now().date_naive();
         for i in 1..=7 {
+            let date = today - chrono::Duration::days(i);
             sqlx::query(
                 "INSERT INTO market_snapshots (date, total_jobs, new_jobs_today, jobs_filled_today, total_companies_hiring, market_sentiment) VALUES (?, ?, ?, ?, ?, ?)",
             )
-            .bind(format!("2026-01-{:02}", 9 + i))
+            .bind(date.to_string())
             .bind(100)
             .bind(100)
             .bind(10)
