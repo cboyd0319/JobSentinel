@@ -31,6 +31,9 @@ export const Badge = memo(function Badge({
   className = "",
   ...ariaProps
 }: BadgeProps) {
+  // Extract text content for accessible remove button label
+  const badgeText = typeof children === "string" ? children : "badge";
+
   return (
     <span
       className={`
@@ -46,7 +49,7 @@ export const Badge = memo(function Badge({
         <button
           onClick={onRemove}
           className="ml-0.5 p-0.5 rounded-full hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
-          aria-label="Remove"
+          aria-label={`Remove ${badgeText}`}
         >
           <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

@@ -52,6 +52,12 @@ export const Tooltip = memo(function Tooltip({
     right: "right-full top-1/2 -translate-y-1/2 border-r-surface-800 dark:border-r-surface-700 border-y-transparent border-l-transparent",
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Escape" && isVisible) {
+      hideTooltip();
+    }
+  };
+
   return (
     <div
       className="relative inline-block"
@@ -59,6 +65,7 @@ export const Tooltip = memo(function Tooltip({
       onMouseLeave={hideTooltip}
       onFocus={showTooltip}
       onBlur={hideTooltip}
+      onKeyDown={handleKeyDown}
     >
       {children}
       {isVisible && (

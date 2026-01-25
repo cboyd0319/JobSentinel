@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ScraperHealthDashboard } from "./ScraperHealthDashboard";
 
@@ -481,8 +481,6 @@ describe("ScraperHealthDashboard", () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 
       await waitFor(() => {
-        // Table shows Healthy badge for Indeed
-        const table = screen.getByRole("table", { name: /scraper health status/i });
         // Multiple "Healthy" texts may appear - one in summary and in table
         const healthyBadges = screen.getAllByText("Healthy");
         expect(healthyBadges.length).toBeGreaterThan(0);
@@ -628,7 +626,7 @@ describe("ScraperHealthDashboard", () => {
 
   describe("run history", () => {
     beforeEach(() => {
-      mockInvoke.mockImplementation((cmd: string, args?: unknown) => {
+      mockInvoke.mockImplementation((cmd: string) => {
         if (cmd === "get_health_summary") return Promise.resolve(mockSummary);
         if (cmd === "get_scraper_health") return Promise.resolve(mockScrapers);
         if (cmd === "get_expiring_credentials") return Promise.resolve([]);

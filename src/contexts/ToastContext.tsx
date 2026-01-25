@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, memo, ReactNode, useRef } from "react";
+import { useState, useCallback, useMemo, memo, ReactNode, useRef, useEffect } from "react";
 import { ToastContext, Toast, ToastAction } from "./toastContextDef";
 
 let toastId = 0;
@@ -6,6 +6,15 @@ let toastId = 0;
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const timerRefs = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
+
+  // Cleanup all pending timers on unmount to prevent memory leaks
+  useEffect(() => {
+    const timers = timerRefs.current;
+    return () => {
+      timers.forEach(timer => clearTimeout(timer));
+      timers.clear();
+    };
+  }, []);
 
   const removeToast = useCallback((id: string) => {
     // Clear any pending timer

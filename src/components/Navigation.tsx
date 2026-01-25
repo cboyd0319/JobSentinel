@@ -96,11 +96,12 @@ export const Navigation = memo(function Navigation({ currentPage, onNavigate }: 
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <nav 
+    <nav
       className="fixed left-0 top-0 h-full bg-surface-50 dark:bg-surface-900 border-r border-surface-200 dark:border-surface-700 z-40 transition-all duration-200"
       style={{ width: isExpanded ? "200px" : "64px" }}
       onMouseEnter={() => setIsExpanded(true)}
       onMouseLeave={() => setIsExpanded(false)}
+      aria-label="Main navigation"
     >
       <div className="flex flex-col h-full py-4">
         {/* Logo */}

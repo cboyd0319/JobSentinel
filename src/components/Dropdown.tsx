@@ -110,6 +110,7 @@ export const Dropdown = memo(function Dropdown({
         disabled={disabled}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
+        aria-activedescendant={isOpen && highlightedIndex >= 0 ? `dropdown-option-${highlightedIndex}` : undefined}
         className={`
           w-full px-4 py-3 text-left
           bg-white dark:bg-surface-800
@@ -159,6 +160,7 @@ export const Dropdown = memo(function Dropdown({
           {options.map((option, index) => (
             <li
               key={option.value}
+              id={`dropdown-option-${index}`}
               role="option"
               aria-selected={option.value === value}
               aria-disabled={option.disabled}

@@ -132,10 +132,16 @@ describe("Badge", () => {
   });
 
   describe("accessibility", () => {
-    it("remove button has accessible label", () => {
+    it("remove button has contextual accessible label", () => {
       render(<Badge removable>Test</Badge>);
-      const removeButton = screen.getByRole("button", { name: "Remove" });
-      expect(removeButton).toHaveAttribute("aria-label", "Remove");
+      const removeButton = screen.getByRole("button", { name: "Remove Test" });
+      expect(removeButton).toHaveAttribute("aria-label", "Remove Test");
+    });
+
+    it("remove button uses 'badge' for non-string children", () => {
+      render(<Badge removable><span>Icon</span></Badge>);
+      const removeButton = screen.getByRole("button", { name: "Remove badge" });
+      expect(removeButton).toHaveAttribute("aria-label", "Remove badge");
     });
 
     it("remove button can be keyboard activated", async () => {
