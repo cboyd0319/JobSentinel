@@ -488,8 +488,8 @@ export function InterviewScheduler({ onClose, applications = [] }: InterviewSche
               </Button>
               <button
                 onClick={onClose}
-                className="p-2 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 transition-colors"
-                aria-label="Close"
+                className="p-2.5 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-700/50 transition-colors"
+                aria-label="Close interview scheduler"
               >
                 <CloseIcon />
               </button>
@@ -854,7 +854,8 @@ export function InterviewScheduler({ onClose, applications = [] }: InterviewSche
                 </span>
                 <button
                   onClick={() => setSelectedInterview(null)}
-                  className="p-1 text-surface-400 hover:text-surface-600"
+                  className="p-2.5 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-700/50 transition-colors"
+                  aria-label="Close interview details"
                 >
                   <CloseIcon />
                 </button>

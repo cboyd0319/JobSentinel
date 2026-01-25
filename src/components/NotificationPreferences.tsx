@@ -273,16 +273,16 @@ const SourceConfigRow = memo(function SourceConfigRow({ sourceKey, config, onCha
         </Badge>
       </div>
 
-      {/* Sound toggle */}
-      <label className="flex items-center gap-2 cursor-pointer">
+      {/* Sound toggle - larger touch target for mobile */}
+      <label className="flex items-center gap-2 cursor-pointer p-2 -m-2 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-700/50 transition-colors">
         <input
           type="checkbox"
           checked={config.soundEnabled}
           onChange={(e) => onChange({ ...config, soundEnabled: e.target.checked })}
           disabled={!config.enabled}
-          className="w-4 h-4 rounded border-surface-300 text-sentinel-500 focus:ring-sentinel-500 disabled:opacity-50"
+          className="w-5 h-5 rounded border-surface-300 text-sentinel-500 focus:ring-sentinel-500 disabled:opacity-50"
         />
-        <SoundIcon className={`w-4 h-4 ${config.enabled ? 'text-surface-500' : 'text-surface-300'}`} />
+        <SoundIcon className={`w-5 h-5 ${config.enabled ? 'text-surface-500' : 'text-surface-300'}`} />
       </label>
     </div>
   );

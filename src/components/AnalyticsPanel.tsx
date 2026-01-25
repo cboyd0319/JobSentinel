@@ -534,6 +534,7 @@ export function AnalyticsPanel({ onClose }: AnalyticsPanelProps) {
                   value={goalInput}
                   onChange={(e) => setGoalInput(e.target.value)}
                   placeholder="Applications per week"
+                  aria-label="Weekly application goal"
                   min={1}
                   className="flex-1 px-3 py-2 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-white"
                 />
