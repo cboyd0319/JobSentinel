@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, memo } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { Button, Input, Card, HelpIcon } from "..";
@@ -66,7 +66,7 @@ interface ProfileFormProps {
 // Email validation regex (defined outside component for stable reference)
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export function ProfileForm({ onSaved }: ProfileFormProps) {
+export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormProps) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_profile, setProfile] = useState<ApplicationProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -589,7 +589,7 @@ export function ProfileForm({ onSaved }: ProfileFormProps) {
       </div>
     </Card>
   );
-}
+});
 
 // Icons
 function LinkedInIcon({ className = "" }: { className?: string }) {

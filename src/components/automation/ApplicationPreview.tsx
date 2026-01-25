@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { Badge, Card } from "..";
 import { logError } from "../../utils/errorUtils";
@@ -32,7 +32,7 @@ interface ApplicationPreviewProps {
   atsPlatform: string | null;
 }
 
-export function ApplicationPreview({ job, atsPlatform }: ApplicationPreviewProps) {
+export const ApplicationPreview = memo(function ApplicationPreview({ job, atsPlatform }: ApplicationPreviewProps) {
   const [profile, setProfile] = useState<ApplicationProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -188,7 +188,7 @@ export function ApplicationPreview({ job, atsPlatform }: ApplicationPreviewProps
       </div>
     </div>
   );
-}
+});
 
 // Icons
 function CheckCircleIcon({ className = "" }: { className?: string }) {
