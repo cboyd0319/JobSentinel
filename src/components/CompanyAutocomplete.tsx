@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { memo, useState, useRef, useEffect, useCallback } from 'react';
 
 /**
  * Well-known companies for autocomplete suggestions.
@@ -78,7 +78,7 @@ interface CompanyAutocompleteProps {
   buttonColor?: 'sentinel' | 'blue' | 'red' | 'surface';
 }
 
-export function CompanyAutocomplete({
+export const CompanyAutocomplete = memo(function CompanyAutocomplete({
   value,
   onChange,
   onAdd,
@@ -120,7 +120,22 @@ export function CompanyAutocomplete({
     setSelectedIndex(0);
   }, [suggestions.length]);
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const selectSuggestion = useCallback((companyName: string) => {
+    onAdd(companyName);
+    onChange('');
+    setShowSuggestions(false);
+    inputRef.current?.focus();
+  }, [onAdd, onChange]);
+
+  const handleAdd = useCallback(() => {
+    const trimmed = value.trim();
+    if (trimmed) {
+      onAdd(trimmed);
+      onChange('');
+    }
+  }, [value, onAdd, onChange]);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (!showSuggestions || suggestions.length === 0) {
       if (e.key === 'Enter') {
         e.preventDefault();
@@ -129,43 +144,26 @@ export function CompanyAutocomplete({
       return;
     }
 
-    switch (e.key) {
-      case 'ArrowDown':
-        e.preventDefault();
-        setSelectedIndex(prev => (prev + 1) % suggestions.length);
-        break;
-      case 'ArrowUp':
-        e.preventDefault();
-        setSelectedIndex(prev => (prev - 1 + suggestions.length) % suggestions.length);
-        break;
-      case 'Enter':
-        e.preventDefault();
+    // Keyboard handlers lookup (better performance than switch)
+    const keyHandlers: Record<string, () => void> = {
+      ArrowDown: () => setSelectedIndex(prev => (prev + 1) % suggestions.length),
+      ArrowUp: () => setSelectedIndex(prev => (prev - 1 + suggestions.length) % suggestions.length),
+      Enter: () => {
         if (suggestions[selectedIndex]) {
           selectSuggestion(suggestions[selectedIndex].displayName);
         } else {
           handleAdd();
         }
-        break;
-      case 'Escape':
-        setShowSuggestions(false);
-        break;
-    }
-  };
+      },
+      Escape: () => setShowSuggestions(false),
+    };
 
-  const selectSuggestion = (companyName: string) => {
-    onAdd(companyName);
-    onChange('');
-    setShowSuggestions(false);
-    inputRef.current?.focus();
-  };
-
-  const handleAdd = () => {
-    const trimmed = value.trim();
-    if (trimmed) {
-      onAdd(trimmed);
-      onChange('');
+    const handler = keyHandlers[e.key];
+    if (handler) {
+      e.preventDefault();
+      handler();
     }
-  };
+  }, [showSuggestions, suggestions, selectedIndex, selectSuggestion, handleAdd]);
 
   const buttonColors = {
     sentinel: 'bg-sentinel-500 hover:bg-sentinel-600',
@@ -260,4 +258,4 @@ export function CompanyAutocomplete({
       )}
     </div>
   );
-}
+});
