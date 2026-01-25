@@ -56,6 +56,8 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
   // Refs
   const jobListRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null!);
+  const cooldownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const cooldownTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Stable callback for data updates
   const handleDataUpdate = useCallback((data: { jobs: Job[]; stats: Statistics; status: ScrapingStatus }) => {
@@ -148,6 +150,14 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoRefresh.autoRefreshEnabled]);
 
+  // Cleanup cooldown timers on unmount
+  useEffect(() => {
+    return () => {
+      if (cooldownIntervalRef.current) clearInterval(cooldownIntervalRef.current);
+      if (cooldownTimeoutRef.current) clearTimeout(cooldownTimeoutRef.current);
+    };
+  }, []);
+
   // Manual search
   const handleSearchNow = async () => {
     if (searchCooldown) {
@@ -162,11 +172,18 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
       setError(null);
       toast.info("Scanning job boards...", "This may take a moment");
 
+      // Clear any existing timers
+      if (cooldownIntervalRef.current) clearInterval(cooldownIntervalRef.current);
+      if (cooldownTimeoutRef.current) clearTimeout(cooldownTimeoutRef.current);
+
       // Start countdown timer
-      const countdownInterval = setInterval(() => {
+      cooldownIntervalRef.current = setInterval(() => {
         setCooldownSeconds((prev) => {
           if (prev <= 1) {
-            clearInterval(countdownInterval);
+            if (cooldownIntervalRef.current) {
+              clearInterval(cooldownIntervalRef.current);
+              cooldownIntervalRef.current = null;
+            }
             return 0;
           }
           return prev - 1;
@@ -194,9 +211,10 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
       }
 
       // Clear cooldown after 30 seconds from start
-      setTimeout(() => {
+      cooldownTimeoutRef.current = setTimeout(() => {
         setSearchCooldown(false);
         setCooldownSeconds(0);
+        cooldownTimeoutRef.current = null;
       }, 30000);
     } catch (err) {
       logError("Failed to search jobs:", err);

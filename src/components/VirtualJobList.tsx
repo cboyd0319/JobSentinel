@@ -32,6 +32,7 @@ interface JobRowProps {
 }
 
 // Row component for react-window v2
+// Note: JobCard is already memoized, so we don't wrap JobRow to avoid react-window type conflicts
 function JobRow({ index, style, ...props }: RowComponentProps<JobRowProps>) {
   const rowProps = props as unknown as JobRowProps;
   const job = rowProps.jobs[index];

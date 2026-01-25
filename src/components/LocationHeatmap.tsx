@@ -91,7 +91,7 @@ export function LocationHeatmap({ locations, loading = false }: LocationHeatmapP
           <button
             key={loc.location}
             onClick={() => setSelectedLocation(selectedLocation?.location === loc.location ? null : loc)}
-            className={`p-3 rounded-lg border transition-all text-left ${getIntensityColor(loc.total_jobs)} ${
+            className={`p-3 rounded-lg border transition-all text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sentinel-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-900 ${getIntensityColor(loc.total_jobs)} ${
               selectedLocation?.location === loc.location
                 ? "ring-2 ring-sentinel-500 ring-offset-2 dark:ring-offset-surface-900"
                 : "hover:scale-[1.02]"

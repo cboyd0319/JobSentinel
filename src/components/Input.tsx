@@ -1,4 +1,4 @@
-import { forwardRef } from "react";
+import { forwardRef, useId } from "react";
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -11,13 +11,18 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, hideLabel = false, error, hint, leftIcon, rightIcon, className = "", ...props }, ref) => {
+  ({ label, hideLabel = false, error, hint, leftIcon, rightIcon, className = "", id, ...props }, ref) => {
     const hasError = Boolean(error);
+    const generatedId = useId();
+    const inputId = id || generatedId;
+    const errorId = `${inputId}-error`;
+    const hintId = `${inputId}-hint`;
+    const describedBy = error ? errorId : hint ? hintId : undefined;
 
     return (
       <div className="w-full">
         {label && (
-          <label className={`block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5 ${hideLabel ? "sr-only" : ""}`}>
+          <label htmlFor={inputId} className={`block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5 ${hideLabel ? "sr-only" : ""}`}>
             {label}
           </label>
         )}
@@ -29,6 +34,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           )}
           <input
             ref={ref}
+            id={inputId}
+            aria-describedby={describedBy}
+            aria-invalid={hasError || undefined}
             className={`
               w-full px-4 py-3 bg-white dark:bg-surface-800 border rounded-lg
               text-surface-800 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500
@@ -38,8 +46,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               disabled:bg-surface-50 dark:disabled:bg-surface-900 disabled:text-surface-500 disabled:cursor-not-allowed
               ${leftIcon ? "pl-10" : ""}
               ${rightIcon ? "pr-10" : ""}
-              ${hasError 
-                ? "border-danger focus:border-danger focus:ring-danger/20" 
+              ${hasError
+                ? "border-danger focus:border-danger focus:ring-danger/20"
                 : "border-surface-200 dark:border-surface-700"
               }
               ${className}
@@ -53,13 +61,13 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           )}
         </div>
         {error && (
-          <p className="mt-1.5 text-sm text-danger flex items-center gap-1">
+          <p id={errorId} className="mt-1.5 text-sm text-danger flex items-center gap-1">
             <ErrorIcon />
             {error}
           </p>
         )}
         {hint && !error && (
-          <p className="mt-1.5 text-sm text-surface-500 dark:text-surface-400">{hint}</p>
+          <p id={hintId} className="mt-1.5 text-sm text-surface-500 dark:text-surface-400">{hint}</p>
         )}
       </div>
     );

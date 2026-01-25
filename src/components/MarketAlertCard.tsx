@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Button } from "./";
 
 interface MarketAlert {
@@ -18,7 +19,7 @@ interface MarketAlertCardProps {
   onMarkRead?: (id: number) => void;
 }
 
-export function MarketAlertCard({ alert, onMarkRead }: MarketAlertCardProps) {
+export const MarketAlertCard = memo(function MarketAlertCard({ alert, onMarkRead }: MarketAlertCardProps) {
   const getSeverityStyles = (severity: string) => {
     switch (severity.toLowerCase()) {
       case "critical":
@@ -142,7 +143,7 @@ export function MarketAlertCard({ alert, onMarkRead }: MarketAlertCardProps) {
       </div>
     </div>
   );
-}
+});
 
 interface MarketAlertListProps {
   alerts: MarketAlert[];

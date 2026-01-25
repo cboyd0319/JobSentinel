@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Modal } from './Modal';
 import { useOnboarding } from './OnboardingTour';
 
@@ -57,7 +58,7 @@ export function ShortcutKey({ children }: { children: string }) {
   );
 }
 
-function ShortcutRow({ keys, description }: { keys: string[]; description: string }) {
+const ShortcutRow = memo(function ShortcutRow({ keys, description }: { keys: string[]; description: string }) {
   return (
     <div className="flex items-center justify-between py-1.5" role="listitem">
       <span className="text-sm text-surface-600 dark:text-surface-400">
@@ -73,9 +74,9 @@ function ShortcutRow({ keys, description }: { keys: string[]; description: strin
       </div>
     </div>
   );
-}
+});
 
-function ShortcutSection({ title, shortcuts }: { title: string; shortcuts: { keys: string[]; description: string }[] }) {
+const ShortcutSection = memo(function ShortcutSection({ title, shortcuts }: { title: string; shortcuts: { keys: string[]; description: string }[] }) {
   return (
     <div role="group" aria-labelledby={`shortcut-section-${title.replace(/\s+/g, '-').toLowerCase()}`}>
       <h4 id={`shortcut-section-${title.replace(/\s+/g, '-').toLowerCase()}`} className="text-xs font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wide mb-2">
@@ -88,7 +89,7 @@ function ShortcutSection({ title, shortcuts }: { title: string; shortcuts: { key
       </div>
     </div>
   );
-}
+});
 
 export function KeyboardShortcutsHelp({ isOpen, onClose }: KeyboardShortcutsHelpProps) {
   const { startTour, hasCompletedTour } = useOnboarding();
@@ -123,7 +124,7 @@ export function KeyboardShortcutsHelp({ isOpen, onClose }: KeyboardShortcutsHelp
         <div className="text-center pt-2 border-t border-surface-200 dark:border-surface-700">
           <button
             onClick={handleStartTour}
-            className="text-xs text-sentinel-600 dark:text-sentinel-400 hover:text-sentinel-700 dark:hover:text-sentinel-300 underline"
+            className="text-xs text-sentinel-600 dark:text-sentinel-400 hover:text-sentinel-700 dark:hover:text-sentinel-300 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sentinel-500 focus-visible:ring-offset-2 rounded"
             aria-label={hasCompletedTour ? 'Retake the guided tour' : 'Take a guided tour'}
           >
             {hasCompletedTour ? 'Retake the guided tour' : 'Take a guided tour'}
