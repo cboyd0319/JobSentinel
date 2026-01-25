@@ -1,3 +1,5 @@
+import { memo } from "react";
+
 interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   children: React.ReactNode;
   variant?: "sentinel" | "alert" | "surface" | "success" | "danger";
@@ -20,7 +22,7 @@ const sizeStyles = {
   md: "px-2.5 py-1 text-sm",
 };
 
-export function Badge({
+export const Badge = memo(function Badge({
   children,
   variant = "surface",
   size = "md",
@@ -53,4 +55,4 @@ export function Badge({
       )}
     </span>
   );
-}
+});

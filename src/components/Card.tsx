@@ -1,3 +1,5 @@
+import { memo } from "react";
+
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   className?: string;
@@ -13,7 +15,7 @@ const paddingStyles = {
   lg: "p-8",
 };
 
-export function Card({
+export const Card = memo(function Card({
   children,
   className = "",
   hover = false,
@@ -52,7 +54,7 @@ export function Card({
       {children}
     </div>
   );
-}
+});
 
 // Card subcomponents for structured content
 interface CardHeaderProps {
@@ -61,7 +63,7 @@ interface CardHeaderProps {
   action?: React.ReactNode;
 }
 
-export function CardHeader({ title, subtitle, action }: CardHeaderProps) {
+export const CardHeader = memo(function CardHeader({ title, subtitle, action }: CardHeaderProps) {
   return (
     <div className="flex items-start justify-between mb-4">
       <div>
@@ -73,8 +75,8 @@ export function CardHeader({ title, subtitle, action }: CardHeaderProps) {
       {action && <div>{action}</div>}
     </div>
   );
-}
+});
 
-export function CardDivider() {
+export const CardDivider = memo(function CardDivider() {
   return <hr className="border-surface-100 dark:border-surface-700 my-4" />;
-}
+});

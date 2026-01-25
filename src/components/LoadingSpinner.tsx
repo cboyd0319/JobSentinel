@@ -1,11 +1,13 @@
+import { memo } from "react";
+
 interface LoadingSpinnerProps {
   message?: string;
   size?: "sm" | "md" | "lg";
 }
 
-export function LoadingSpinner({ 
-  message = "Loading...", 
-  size = "md" 
+export const LoadingSpinner = memo(function LoadingSpinner({
+  message = "Loading...",
+  size = "md"
 }: LoadingSpinnerProps) {
   const sizeClasses = {
     sm: "w-8 h-8",
@@ -73,10 +75,10 @@ export function LoadingSpinner({
       </div>
     </div>
   );
-}
+});
 
 // Inline loading indicator for buttons/smaller contexts
-export function LoadingDots() {
+export const LoadingDots = memo(function LoadingDots() {
   return (
     <span className="inline-flex gap-1">
       <span className="w-1.5 h-1.5 bg-current rounded-full motion-safe:animate-bounce" style={{ animationDelay: '0ms' }} />
@@ -84,4 +86,4 @@ export function LoadingDots() {
       <span className="w-1.5 h-1.5 bg-current rounded-full motion-safe:animate-bounce" style={{ animationDelay: '300ms' }} />
     </span>
   );
-}
+});
