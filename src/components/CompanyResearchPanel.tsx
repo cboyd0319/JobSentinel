@@ -647,12 +647,20 @@ const InfoRow = memo(function InfoRow({ label, value, icon }: { label: string; v
 
 export function CompanyResearchPanel({ companyName, onClose }: CompanyResearchPanelProps) {
   const [loading, setLoading] = useState(true);
+  const [takingLong, setTakingLong] = useState(false);
   const [info, setInfo] = useState<CompanyInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
+
+    // Show "taking longer than expected" after 5 seconds
+    const slowLoadingId = setTimeout(() => {
+      if (!cancelled && loading) {
+        setTakingLong(true);
+      }
+    }, 5000);
 
     // Timeout to prevent infinite spinner
     const timeoutId = setTimeout(() => {
@@ -664,6 +672,7 @@ export function CompanyResearchPanel({ companyName, onClose }: CompanyResearchPa
 
     async function loadInfo() {
       setLoading(true);
+      setTakingLong(false);
       setError(null);
 
       try {
@@ -678,7 +687,9 @@ export function CompanyResearchPanel({ companyName, onClose }: CompanyResearchPa
       } finally {
         if (!cancelled) {
           setLoading(false);
+          setTakingLong(false);
           clearTimeout(timeoutId);
+          clearTimeout(slowLoadingId);
         }
       }
     }
@@ -687,6 +698,7 @@ export function CompanyResearchPanel({ companyName, onClose }: CompanyResearchPa
     return () => {
       cancelled = true;
       clearTimeout(timeoutId);
+      clearTimeout(slowLoadingId);
     };
   }, [companyName, retryCount]);
 
@@ -725,8 +737,13 @@ export function CompanyResearchPanel({ companyName, onClose }: CompanyResearchPa
 
       <div className="p-4">
         {loading ? (
-          <div className="flex items-center justify-center py-8">
+          <div className="flex flex-col items-center justify-center py-8">
             <LoadingSpinner />
+            {takingLong && (
+              <p className="mt-3 text-sm text-surface-500 dark:text-surface-400 text-center">
+                Taking longer than expected...
+              </p>
+            )}
           </div>
         ) : error ? (
           <div className="text-center py-6">
