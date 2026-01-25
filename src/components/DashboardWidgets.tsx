@@ -135,7 +135,9 @@ export function DashboardWidgets({ className = '' }: DashboardWidgetsProps) {
       {/* Toggle Button */}
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center justify-between px-4 py-3 bg-surface-50 dark:bg-surface-800 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors mb-4"
+        className="w-full flex items-center justify-between px-4 py-3 bg-surface-50 dark:bg-surface-800 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors mb-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sentinel-500 focus-visible:ring-offset-2"
+        aria-expanded={expanded}
+        aria-controls="analytics-dashboard-content"
       >
         <div className="flex items-center gap-2">
           <ChartIcon className="w-5 h-5 text-sentinel-500" />
@@ -153,7 +155,7 @@ export function DashboardWidgets({ className = '' }: DashboardWidgetsProps) {
       </button>
 
       {expanded && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div id="analytics-dashboard-content" className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2 duration-200" role="region" aria-label="Analytics charts">
           {/* Application Funnel */}
           {funnelData.length > 0 && (
             <Card className="p-4 dark:bg-surface-800">

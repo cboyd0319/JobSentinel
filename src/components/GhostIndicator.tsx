@@ -181,7 +181,7 @@ export function GhostIndicator({
                 handleFeedback("real");
               }}
               disabled={isSubmitting}
-              className="flex-1 px-2 py-1 text-xs rounded bg-green-500 hover:bg-green-600 text-white transition-colors disabled:opacity-50"
+              className="flex-1 px-2 py-1 text-xs rounded bg-green-500 hover:bg-green-600 text-white transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-1"
               title="Mark as real job"
             >
               ✓ Real
@@ -192,7 +192,7 @@ export function GhostIndicator({
                 handleFeedback("ghost");
               }}
               disabled={isSubmitting}
-              className="flex-1 px-2 py-1 text-xs rounded bg-red-500 hover:bg-red-600 text-white transition-colors disabled:opacity-50"
+              className="flex-1 px-2 py-1 text-xs rounded bg-red-500 hover:bg-red-600 text-white transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-1"
               title="Confirm ghost job"
             >
               ✗ Ghost
@@ -303,7 +303,7 @@ export function GhostIndicatorCompact({
                 handleFeedback("real");
               }}
               disabled={isSubmitting}
-              className="flex-1 px-2 py-1 text-xs rounded bg-green-500 hover:bg-green-600 text-white transition-colors disabled:opacity-50"
+              className="flex-1 px-2 py-1 text-xs rounded bg-green-500 hover:bg-green-600 text-white transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-1"
               title="Mark as real job"
             >
               ✓ Real
@@ -314,7 +314,7 @@ export function GhostIndicatorCompact({
                 handleFeedback("ghost");
               }}
               disabled={isSubmitting}
-              className="flex-1 px-2 py-1 text-xs rounded bg-red-500 hover:bg-red-600 text-white transition-colors disabled:opacity-50"
+              className="flex-1 px-2 py-1 text-xs rounded bg-red-500 hover:bg-red-600 text-white transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-1"
               title="Confirm ghost job"
             >
               ✗ Ghost
