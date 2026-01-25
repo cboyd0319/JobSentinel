@@ -679,7 +679,7 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
                           type="checkbox"
                           checked={followUpReminders[interview.id]?.thankYouSent || false}
                           onChange={() => handleFollowUpToggle(interview.id)}
-                          className="w-4 h-4 rounded border-surface-300 dark:border-surface-600 text-sentinel-500 focus:ring-sentinel-500"
+                          className="w-4 h-4 rounded border-surface-300 dark:border-surface-600 text-sentinel-500 focus-visible:ring-sentinel-500"
                         />
                         <span className={`text-sm ${followUpReminders[interview.id]?.thankYouSent ? 'text-green-600 dark:text-green-400' : 'text-surface-600 dark:text-surface-400'}`}>
                           {followUpReminders[interview.id]?.thankYouSent ? (
@@ -969,7 +969,7 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
                         type="checkbox"
                         checked={prepProgress[item.id] || false}
                         onChange={() => handlePrepToggle(item.id)}
-                        className="w-4 h-4 rounded border-surface-300 dark:border-surface-600 text-sentinel-500 focus:ring-sentinel-500"
+                        className="w-4 h-4 rounded border-surface-300 dark:border-surface-600 text-sentinel-500 focus-visible:ring-sentinel-500"
                       />
                       <span className={`text-sm ${prepProgress[item.id] ? 'text-surface-400 line-through' : 'text-surface-600 dark:text-surface-400'}`}>
                         {item.label}

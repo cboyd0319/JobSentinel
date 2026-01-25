@@ -144,7 +144,7 @@ class ModalErrorBoundary extends Component<Props, State> {
               {!showRetryWarning && (
                 <button
                   onClick={this.handleRetry}
-                  className="flex-1 bg-sentinel-500 hover:bg-sentinel-600 text-white font-medium py-2.5 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-sentinel-500 focus:ring-offset-2"
+                  className="flex-1 bg-sentinel-500 hover:bg-sentinel-600 text-white font-medium py-2.5 px-4 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sentinel-500 focus-visible:ring-offset-2"
                   aria-label="Try again"
                 >
                   Try Again

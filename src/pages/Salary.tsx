@@ -154,7 +154,7 @@ export default function Salary({ onBack }: SalaryProps) {
                   id="seniority-level"
                   value={seniority}
                   onChange={(e) => setSeniority(e.target.value)}
-                  className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:ring-2 focus:ring-sentinel-500 focus:border-sentinel-500"
+                  className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus-visible:ring-2 focus-visible:ring-sentinel-500 focus:border-sentinel-500"
                 >
                   {SENIORITY_LEVELS.map((level) => (
                     <option key={level.value} value={level.value}>

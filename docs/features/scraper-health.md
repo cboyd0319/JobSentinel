@@ -355,10 +355,10 @@ Under "Credential Warnings" section:
 LinkedIn Session Cookie
 ────────────────────────
 Status:          ✅ Valid
-Set Date:        2025-12-03
-Expires:         2026-01-17 (31 days from now)
-Warnings:        ⚠️  Cookie expires in 31 days
-Action:          Refresh cookie before 2026-01-17
+Set Date:        2026-01-20
+Expires:         2027-01-20 (365 days from now)
+Warnings:        None
+Action:          No action needed (expires in 365 days)
 
 Refresh Instructions:
 1. Log into LinkedIn

@@ -507,7 +507,7 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
             {resumeFilePath && (
               <button
                 onClick={() => setResumeFilePath("")}
-                className="p-2 text-surface-400 hover:text-red-500 transition-colors"
+                className="p-2 text-surface-400 hover:text-red-500 transition-colors cursor-pointer"
                 aria-label="Clear resume"
               >
                 <ClearIcon className="w-4 h-4" />
@@ -531,7 +531,7 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
                 type="checkbox"
                 checked={usWorkAuthorized}
                 onChange={(e) => setUsWorkAuthorized(e.target.checked)}
-                className="mt-1 w-4 h-4 rounded border-surface-300 text-sentinel-500 focus:ring-sentinel-500"
+                className="mt-1 w-4 h-4 rounded border-surface-300 text-sentinel-500 focus-visible:ring-sentinel-500"
               />
               <div>
                 <span className="text-surface-700 dark:text-surface-300 font-medium">
@@ -547,7 +547,7 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
                 type="checkbox"
                 checked={requiresSponsorship}
                 onChange={(e) => setRequiresSponsorship(e.target.checked)}
-                className="mt-1 w-4 h-4 rounded border-surface-300 text-sentinel-500 focus:ring-sentinel-500"
+                className="mt-1 w-4 h-4 rounded border-surface-300 text-sentinel-500 focus-visible:ring-sentinel-500"
               />
               <div>
                 <span className="text-surface-700 dark:text-surface-300 font-medium">
@@ -590,7 +590,7 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
                 type="checkbox"
                 checked={requireManualApproval}
                 onChange={(e) => setRequireManualApproval(e.target.checked)}
-                className="mt-1 w-4 h-4 rounded border-surface-300 text-sentinel-500 focus:ring-sentinel-500"
+                className="mt-1 w-4 h-4 rounded border-surface-300 text-sentinel-500 focus-visible:ring-sentinel-500"
               />
               <div>
                 <span className="text-surface-700 dark:text-surface-300 font-medium">

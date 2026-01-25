@@ -199,7 +199,7 @@ export const DashboardFiltersBar = memo(function DashboardFiltersBar({
                   }
                 }}
                 placeholder="Search (AND, OR, NOT)..."
-                className="w-48 sm:w-56 pl-8 pr-8 py-1.5 text-sm bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-sentinel-500 focus:border-transparent"
+                className="w-48 sm:w-56 pl-8 pr-8 py-1.5 text-sm bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-sentinel-500 focus:border-transparent"
                 aria-label="Search jobs with advanced syntax"
                 data-testid="search-input"
               />
@@ -478,7 +478,7 @@ export const DashboardFiltersBar = memo(function DashboardFiltersBar({
               type="checkbox"
               checked={selectedJobIds.size === filteredJobs.length && filteredJobs.length > 0}
               onChange={(e) => e.target.checked ? selectAllJobs() : clearSelection()}
-              className="w-4 h-4 rounded border-surface-300 dark:border-surface-600 text-sentinel-500 focus:ring-sentinel-500"
+              className="w-4 h-4 rounded border-surface-300 dark:border-surface-600 text-sentinel-500 focus-visible:ring-sentinel-500"
               aria-label="Select all jobs"
             />
             <span className="text-sm text-surface-600 dark:text-surface-400">

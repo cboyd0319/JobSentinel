@@ -981,7 +981,7 @@ export default function Settings({ onClose }: SettingsProps) {
                       },
                     })
                   }
-                  className="w-5 h-5 rounded border-surface-300 text-sentinel-500 focus:ring-sentinel-500"
+                  className="w-5 h-5 rounded border-surface-300 text-sentinel-500 focus-visible:ring-sentinel-500"
                 />
                 <span className="text-surface-700 dark:text-surface-300">Remote</span>
               </label>
@@ -998,7 +998,7 @@ export default function Settings({ onClose }: SettingsProps) {
                       },
                     })
                   }
-                  className="w-5 h-5 rounded border-surface-300 text-sentinel-500 focus:ring-sentinel-500"
+                  className="w-5 h-5 rounded border-surface-300 text-sentinel-500 focus-visible:ring-sentinel-500"
                 />
                 <span className="text-surface-700 dark:text-surface-300">Hybrid</span>
               </label>
@@ -1015,7 +1015,7 @@ export default function Settings({ onClose }: SettingsProps) {
                       },
                     })
                   }
-                  className="w-5 h-5 rounded border-surface-300 text-sentinel-500 focus:ring-sentinel-500"
+                  className="w-5 h-5 rounded border-surface-300 text-sentinel-500 focus-visible:ring-sentinel-500"
                 />
                 <span className="text-surface-700 dark:text-surface-300">On-site</span>
               </label>
@@ -1197,7 +1197,7 @@ export default function Settings({ onClose }: SettingsProps) {
                     }
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-surface-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-sentinel-300 dark:peer-focus:ring-sentinel-800 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-surface-600 peer-checked:bg-sentinel-500"></div>
+                  <div className="w-11 h-6 bg-surface-200 peer-focus:outline-none peer-focus-visible:ring-4 peer-focus-visible:ring-sentinel-300 dark:peer-focus-visible:ring-sentinel-800 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-surface-600 peer-checked:bg-sentinel-500"></div>
                 </label>
               </div>
 
@@ -1217,7 +1217,7 @@ export default function Settings({ onClose }: SettingsProps) {
                           },
                         })
                       }
-                      className="px-3 py-1.5 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500"
+                      className="px-3 py-1.5 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
                     >
                       <option value="5">5 minutes</option>
                       <option value="10">10 minutes</option>
@@ -1337,7 +1337,7 @@ export default function Settings({ onClose }: SettingsProps) {
                     }
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-surface-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-sentinel-300 dark:peer-focus:ring-sentinel-800 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-surface-600 peer-checked:bg-sentinel-500"></div>
+                  <div className="w-11 h-6 bg-surface-200 peer-focus:outline-none peer-focus-visible:ring-4 peer-focus-visible:ring-sentinel-300 dark:peer-focus-visible:ring-sentinel-800 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-surface-600 peer-checked:bg-sentinel-500"></div>
                 </label>
               </div>
 
@@ -1474,7 +1474,7 @@ export default function Settings({ onClose }: SettingsProps) {
                                 },
                               })
                             }
-                            className="w-4 h-4 rounded border-surface-300 text-sentinel-500 focus:ring-sentinel-500"
+                            className="w-4 h-4 rounded border-surface-300 text-sentinel-500 focus-visible:ring-sentinel-500"
                           />
                           <span className="text-sm text-surface-700 dark:text-surface-300">Secure</span>
                         </label>
@@ -1587,7 +1587,7 @@ export default function Settings({ onClose }: SettingsProps) {
                       }
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-surface-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-sentinel-300 dark:peer-focus:ring-sentinel-800 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-surface-600 peer-checked:bg-sentinel-500"></div>
+                    <div className="w-11 h-6 bg-surface-200 peer-focus:outline-none peer-focus-visible:ring-4 peer-focus-visible:ring-sentinel-300 dark:peer-focus-visible:ring-sentinel-800 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-surface-600 peer-checked:bg-sentinel-500"></div>
                   </label>
                 </div>
                 {config.alerts.discord?.enabled && (
@@ -1638,7 +1638,7 @@ export default function Settings({ onClose }: SettingsProps) {
                       }
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-surface-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-sentinel-300 dark:peer-focus:ring-sentinel-800 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-surface-600 peer-checked:bg-sentinel-500"></div>
+                    <div className="w-11 h-6 bg-surface-200 peer-focus:outline-none peer-focus-visible:ring-4 peer-focus-visible:ring-sentinel-300 dark:peer-focus-visible:ring-sentinel-800 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-surface-600 peer-checked:bg-sentinel-500"></div>
                   </label>
                 </div>
                 {config.alerts.teams?.enabled && (
@@ -1689,7 +1689,7 @@ export default function Settings({ onClose }: SettingsProps) {
                       }
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-surface-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-sentinel-300 dark:peer-focus:ring-sentinel-800 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-surface-600 peer-checked:bg-sentinel-500"></div>
+                    <div className="w-11 h-6 bg-surface-200 peer-focus:outline-none peer-focus-visible:ring-4 peer-focus-visible:ring-sentinel-300 dark:peer-focus-visible:ring-sentinel-800 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-surface-600 peer-checked:bg-sentinel-500"></div>
                   </label>
                 </div>
                 {config.alerts.telegram?.enabled && (
@@ -1765,7 +1765,7 @@ export default function Settings({ onClose }: SettingsProps) {
                       }
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-surface-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-sentinel-300 dark:peer-focus:ring-sentinel-800 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-surface-600 peer-checked:bg-sentinel-500"></div>
+                    <div className="w-11 h-6 bg-surface-200 peer-focus:outline-none peer-focus-visible:ring-4 peer-focus-visible:ring-sentinel-300 dark:peer-focus-visible:ring-sentinel-800 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-surface-600 peer-checked:bg-sentinel-500"></div>
                   </label>
                 </div>
                 {config.alerts.desktop?.enabled && (
@@ -1788,7 +1788,7 @@ export default function Settings({ onClose }: SettingsProps) {
                             },
                           })
                         }
-                        className="w-4 h-4 rounded border-surface-300 text-sentinel-500 focus:ring-sentinel-500"
+                        className="w-4 h-4 rounded border-surface-300 text-sentinel-500 focus-visible:ring-sentinel-500"
                       />
                       <span className="text-sm text-surface-600 dark:text-surface-300">Play sound</span>
                     </label>
@@ -1810,7 +1810,7 @@ export default function Settings({ onClose }: SettingsProps) {
                             },
                           })
                         }
-                        className="w-4 h-4 rounded border-surface-300 text-sentinel-500 focus:ring-sentinel-500"
+                        className="w-4 h-4 rounded border-surface-300 text-sentinel-500 focus-visible:ring-sentinel-500"
                       />
                       <span className="text-sm text-surface-600 dark:text-surface-300">Show even when app is focused</span>
                     </label>
@@ -1857,7 +1857,7 @@ export default function Settings({ onClose }: SettingsProps) {
                     }
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-surface-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-sentinel-300 dark:peer-focus:ring-sentinel-800 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-surface-600 peer-checked:bg-sentinel-500"></div>
+                  <div className="w-11 h-6 bg-surface-200 peer-focus:outline-none peer-focus-visible:ring-4 peer-focus-visible:ring-sentinel-300 dark:peer-focus-visible:ring-sentinel-800 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-surface-600 peer-checked:bg-sentinel-500"></div>
                 </label>
               </div>
 
@@ -2043,7 +2043,7 @@ export default function Settings({ onClose }: SettingsProps) {
                                 },
                               })
                             }
-                            className="w-4 h-4 rounded border-surface-300 text-sentinel-500 focus:ring-sentinel-500"
+                            className="w-4 h-4 rounded border-surface-300 text-sentinel-500 focus-visible:ring-sentinel-500"
                           />
                           <span className="text-sm text-surface-700 dark:text-surface-300">Remote only</span>
                         </label>
@@ -2100,7 +2100,7 @@ export default function Settings({ onClose }: SettingsProps) {
                     }
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-surface-200 peer-focus:ring-4 peer-focus:ring-sentinel-300 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-sentinel-500"></div>
+                  <div className="w-11 h-6 bg-surface-200 peer-focus-visible:ring-4 peer-focus-visible:ring-sentinel-300 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-sentinel-500"></div>
                 </label>
               </div>
 
@@ -2187,7 +2187,7 @@ export default function Settings({ onClose }: SettingsProps) {
                             usajobs: { ...config.usajobs, remote_only: e.target.checked, enabled: config.usajobs?.enabled ?? false, email: config.usajobs?.email ?? "", date_posted_days: config.usajobs?.date_posted_days ?? 30, limit: config.usajobs?.limit ?? 100 },
                           })
                         }
-                        className="rounded border-surface-300 text-sentinel-500 focus:ring-sentinel-500"
+                        className="rounded border-surface-300 text-sentinel-500 focus-visible:ring-sentinel-500"
                       />
                       <span className="text-sm text-surface-700 dark:text-surface-300">Remote only</span>
                     </label>
@@ -2284,7 +2284,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         }
                         className="sr-only peer"
                       />
-                      <div className="w-9 h-5 bg-surface-200 peer-focus:ring-2 peer-focus:ring-sentinel-300 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sentinel-500"></div>
+                      <div className="w-9 h-5 bg-surface-200 peer-focus-visible:ring-2 peer-focus-visible:ring-sentinel-300 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sentinel-500"></div>
                     </label>
                   </div>
                 </div>
@@ -2310,7 +2310,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         }
                         className="sr-only peer"
                       />
-                      <div className="w-9 h-5 bg-surface-200 peer-focus:ring-2 peer-focus:ring-sentinel-300 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sentinel-500"></div>
+                      <div className="w-9 h-5 bg-surface-200 peer-focus-visible:ring-2 peer-focus-visible:ring-sentinel-300 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sentinel-500"></div>
                     </label>
                   </div>
                 </div>
@@ -2335,7 +2335,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         }
                         className="sr-only peer"
                       />
-                      <div className="w-9 h-5 bg-surface-200 peer-focus:ring-2 peer-focus:ring-sentinel-300 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sentinel-500"></div>
+                      <div className="w-9 h-5 bg-surface-200 peer-focus-visible:ring-2 peer-focus-visible:ring-sentinel-300 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sentinel-500"></div>
                     </label>
                   </div>
                 </div>
@@ -2360,7 +2360,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         }
                         className="sr-only peer"
                       />
-                      <div className="w-9 h-5 bg-surface-200 peer-focus:ring-2 peer-focus:ring-sentinel-300 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sentinel-500"></div>
+                      <div className="w-9 h-5 bg-surface-200 peer-focus-visible:ring-2 peer-focus-visible:ring-sentinel-300 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sentinel-500"></div>
                     </label>
                   </div>
                 </div>
@@ -2385,7 +2385,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         }
                         className="sr-only peer"
                       />
-                      <div className="w-9 h-5 bg-surface-200 peer-focus:ring-2 peer-focus:ring-sentinel-300 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sentinel-500"></div>
+                      <div className="w-9 h-5 bg-surface-200 peer-focus-visible:ring-2 peer-focus-visible:ring-sentinel-300 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sentinel-500"></div>
                     </label>
                   </div>
                 </div>
@@ -2410,7 +2410,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         }
                         className="sr-only peer"
                       />
-                      <div className="w-9 h-5 bg-surface-200 peer-focus:ring-2 peer-focus:ring-sentinel-300 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sentinel-500"></div>
+                      <div className="w-9 h-5 bg-surface-200 peer-focus-visible:ring-2 peer-focus-visible:ring-sentinel-300 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sentinel-500"></div>
                     </label>
                   </div>
                 </div>
@@ -2544,7 +2544,7 @@ export default function Settings({ onClose }: SettingsProps) {
                             penalize_missing_salary: e.target.checked,
                           })
                         }
-                        className="w-4 h-4 rounded border-surface-300 text-sentinel-500 focus:ring-sentinel-500"
+                        className="w-4 h-4 rounded border-surface-300 text-sentinel-500 focus-visible:ring-sentinel-500"
                       />
                       <span className="text-sm text-surface-700 dark:text-surface-300">
                         Flag jobs without salary info
@@ -2664,7 +2664,7 @@ export default function Settings({ onClose }: SettingsProps) {
                     }
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-surface-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-sentinel-300 dark:peer-focus:ring-sentinel-800 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-surface-600 peer-checked:bg-sentinel-500"></div>
+                  <div className="w-11 h-6 bg-surface-200 peer-focus:outline-none peer-focus-visible:ring-4 peer-focus-visible:ring-sentinel-300 dark:peer-focus-visible:ring-sentinel-800 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-surface-600 peer-checked:bg-sentinel-500"></div>
                 </label>
               </div>
               <div className="mt-3 pt-3 border-t border-surface-200 dark:border-surface-700">

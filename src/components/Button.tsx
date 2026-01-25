@@ -63,7 +63,7 @@ export const Button = memo(forwardRef<HTMLButtonElement, ButtonProps>(
       >
         {loading ? (
           <>
-            <LoadingIcon className="animate-spin" />
+            <LoadingIcon className="motion-safe:animate-spin" />
             <span>{loadingText}</span>
           </>
         ) : (

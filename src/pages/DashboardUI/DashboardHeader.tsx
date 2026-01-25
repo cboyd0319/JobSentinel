@@ -105,7 +105,7 @@ export const DashboardHeader = memo(function DashboardHeader({
             <Tooltip content="Settings" position="bottom">
               <button
                 onClick={onOpenSettings}
-                className="p-2 text-surface-500 hover:text-surface-700 dark:text-surface-400 dark:hover:text-surface-200 transition-colors"
+                className="p-2 text-surface-500 hover:text-surface-700 hover:bg-surface-100 dark:text-surface-400 dark:hover:text-surface-200 dark:hover:bg-surface-700 transition-colors cursor-pointer rounded-lg"
                 aria-label="Open settings"
                 data-tour="settings-button"
               >

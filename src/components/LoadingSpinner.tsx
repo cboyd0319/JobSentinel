@@ -43,7 +43,7 @@ export const LoadingSpinner = memo(function LoadingSpinner({
       aria-label={message}
       className="flex items-center justify-center h-screen bg-surface-50 dark:bg-surface-900"
     >
-      <div className="text-center animate-fade-in">
+      <div className="text-center motion-safe:animate-fade-in">
         {/* Sentinel-themed scanner animation */}
         <div className="relative mb-6">
           <div className={`${SIZE_CLASSES[size]} mx-auto`}>

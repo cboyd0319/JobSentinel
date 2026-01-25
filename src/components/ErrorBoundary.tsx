@@ -140,7 +140,7 @@ class ErrorBoundary extends Component<Props, State> {
               {this.state.errorCount < 3 && (
                 <button
                   onClick={this.handleRetry}
-                  className="w-full bg-sentinel-500 hover:bg-sentinel-600 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 hover:shadow-soft focus:outline-none focus:ring-2 focus:ring-sentinel-500 focus:ring-offset-2 dark:focus:ring-offset-surface-800"
+                  className="w-full bg-sentinel-500 hover:bg-sentinel-600 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 hover:shadow-soft focus:outline-none focus-visible:ring-2 focus-visible:ring-sentinel-500 focus-visible:ring-offset-2 dark:focus:ring-offset-surface-800"
                 >
                   Try Again
                 </button>

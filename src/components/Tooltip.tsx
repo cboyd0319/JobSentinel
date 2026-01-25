@@ -80,7 +80,7 @@ export const Tooltip = memo(function Tooltip({
             bg-surface-800 dark:bg-surface-700
             rounded-lg shadow-lg
             whitespace-nowrap
-            animate-fade-in
+            motion-safe:animate-fade-in
           `}
         >
           {content}

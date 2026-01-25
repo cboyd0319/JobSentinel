@@ -123,7 +123,7 @@ const SortableApplicationCard = memo(function SortableApplicationCard({
       aria-label={`${app.job_title} at ${app.company}. Status: ${columnLabel}. Press space to start dragging.`}
       aria-pressed={isDragging}
       aria-describedby={isDragging ? "drag-instructions" : undefined}
-      className={`p-3 bg-white dark:bg-surface-700 rounded-lg shadow-sm cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow focus:outline-none focus:ring-2 focus:ring-sentinel-500 ${
+      className={`p-3 bg-white dark:bg-surface-700 rounded-lg shadow-sm cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-sentinel-500 ${
         isDragging ? "shadow-lg ring-2 ring-sentinel-500" : ""
       }`}
       onClick={(e) => {
@@ -687,7 +687,7 @@ export default function Applications({ onBack }: ApplicationsProps) {
                       );
                     }
                   }}
-                  className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:ring-2 focus:ring-sentinel-500 focus:border-sentinel-500"
+                  className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus-visible:ring-2 focus-visible:ring-sentinel-500 focus:border-sentinel-500"
                 >
                   {STATUS_COLUMNS.map((col) => (
                     <option key={col.key} value={col.key}>
@@ -708,7 +708,7 @@ export default function Applications({ onBack }: ApplicationsProps) {
                   placeholder="Add notes about this application..."
                   rows={3}
                   maxLength={500}
-                  className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 resize-none focus:ring-2 focus:ring-sentinel-500 focus:border-sentinel-500"
+                  className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 resize-none focus-visible:ring-2 focus-visible:ring-sentinel-500 focus:border-sentinel-500"
                 />
                 <p className="text-xs text-surface-500 dark:text-surface-400 mt-1 text-right">
                   {notes.length}/500 characters

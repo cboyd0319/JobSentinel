@@ -132,7 +132,7 @@ function TemplateEditor({ template, onSave, onCancel, saving }: TemplateEditorPr
             value={category}
             onChange={(e) => setCategory(e.target.value as TemplateCategory)}
             disabled={saving}
-            className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500 disabled:opacity-50"
+            className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500 disabled:opacity-50"
           >
             {Object.entries(CATEGORY_LABELS).map(([value, label]) => (
               <option key={value} value={value}>
@@ -159,7 +159,7 @@ function TemplateEditor({ template, onSave, onCancel, saving }: TemplateEditorPr
           rows={12}
           maxLength={5000}
           disabled={saving}
-          className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500 resize-y font-mono text-sm disabled:opacity-50"
+          className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500 resize-y font-mono text-sm disabled:opacity-50"
         />
       </div>
 

@@ -105,7 +105,7 @@ export const Modal = memo(function Modal({
     >
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-surface-900/60 dark:bg-black/70 backdrop-blur-sm animate-fade-in"
+        className="absolute inset-0 bg-surface-900/60 dark:bg-black/70 backdrop-blur-sm motion-safe:animate-fade-in"
         onClick={closeOnOverlayClick ? onClose : undefined}
         aria-hidden="true"
       />
@@ -119,7 +119,7 @@ export const Modal = memo(function Modal({
           relative w-full ${SIZE_STYLES[size]}
           bg-white dark:bg-surface-800
           rounded-card shadow-xl
-          animate-slide-up
+          motion-safe:animate-slide-up
           focus:outline-none
         `}
       >

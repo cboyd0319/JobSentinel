@@ -732,7 +732,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                     type="text"
                     value={contact.name}
                     onChange={(e) => setContact({ ...contact, name: e.target.value })}
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500"
+                    className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
                     placeholder="John Doe"
                   />
                 </div>
@@ -744,7 +744,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                     type="email"
                     value={contact.email}
                     onChange={(e) => setContact({ ...contact, email: e.target.value })}
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500"
+                    className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
                     placeholder="john@example.com"
                   />
                 </div>
@@ -758,7 +758,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                     onChange={(e) =>
                       setContact({ ...contact, phone: e.target.value || null })
                     }
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500"
+                    className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
                     placeholder="(555) 123-4567"
                   />
                 </div>
@@ -772,7 +772,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                     onChange={(e) =>
                       setContact({ ...contact, location: e.target.value || null })
                     }
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500"
+                    className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
                     placeholder="San Francisco, CA"
                   />
                 </div>
@@ -786,7 +786,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                     onChange={(e) =>
                       setContact({ ...contact, linkedin: e.target.value || null })
                     }
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500"
+                    className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
                     placeholder="linkedin.com/in/johndoe"
                   />
                 </div>
@@ -800,7 +800,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                     onChange={(e) =>
                       setContact({ ...contact, github: e.target.value || null })
                     }
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500"
+                    className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
                     placeholder="github.com/johndoe"
                   />
                 </div>
@@ -814,7 +814,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                     onChange={(e) =>
                       setContact({ ...contact, website: e.target.value || null })
                     }
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500"
+                    className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
                     placeholder="https://johndoe.com"
                   />
                 </div>
@@ -837,7 +837,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                   onChange={(e) => setSummary(e.target.value)}
                   rows={6}
                   aria-describedby="summary-hint"
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500 resize-none"
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500 resize-none"
                   placeholder="Experienced software engineer with 5+ years building scalable web applications. Specialized in React, TypeScript, and cloud infrastructure. Proven track record of leading cross-functional teams and delivering high-impact projects."
                 />
                 <p id="summary-hint" className="text-xs text-surface-500 dark:text-surface-400 mt-2">
@@ -1062,7 +1062,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                     type="text"
                     value={newSkill.name}
                     onChange={(e) => setNewSkill({ ...newSkill, name: e.target.value })}
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500"
+                    className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
                     placeholder="React"
                   />
                 </div>
@@ -1074,7 +1074,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                     type="text"
                     value={newSkill.category}
                     onChange={(e) => setNewSkill({ ...newSkill, category: e.target.value })}
-                    className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500"
+                    className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
                     placeholder="Frontend"
                   />
                 </div>
@@ -1091,7 +1091,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                           proficiency: (e.target.value as typeof newSkill.proficiency) || null,
                         })
                       }
-                      className="flex-1 px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500"
+                      className="flex-1 px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
                     >
                       <option value="">Select level</option>
                       {PROFICIENCY_LEVELS.map((level) => (
@@ -1404,7 +1404,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                   onChange={(e) =>
                     setEditingExperience({ ...editingExperience, title: e.target.value })
                   }
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500"
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
                   placeholder="Senior Software Engineer"
                 />
               </div>
@@ -1418,7 +1418,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                   onChange={(e) =>
                     setEditingExperience({ ...editingExperience, company: e.target.value })
                   }
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500"
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
                   placeholder="Acme Corp"
                 />
               </div>
@@ -1435,7 +1435,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                       start_date: e.target.value,
                     })
                   }
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500"
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
                   placeholder="Jan 2020"
                 />
               </div>
@@ -1452,7 +1452,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                       end_date: e.target.value || null,
                     })
                   }
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500"
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
                   placeholder="Present"
                 />
               </div>
@@ -1469,7 +1469,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                       location: e.target.value || null,
                     })
                   }
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500"
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
                   placeholder="San Francisco, CA"
                 />
               </div>
@@ -1486,7 +1486,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                     })
                   }
                   rows={4}
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500 resize-none"
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500 resize-none"
                   placeholder="Led team of 5 engineers&#10;Increased performance by 40%&#10;Shipped 3 major features"
                 />
               </div>
@@ -1525,7 +1525,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                   onChange={(e) =>
                     setEditingEducation({ ...editingEducation, degree: e.target.value })
                   }
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500"
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
                   placeholder="B.S. Computer Science"
                 />
               </div>
@@ -1539,7 +1539,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                   onChange={(e) =>
                     setEditingEducation({ ...editingEducation, institution: e.target.value })
                   }
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500"
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
                   placeholder="Stanford University"
                 />
               </div>
@@ -1556,7 +1556,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                       graduation_date: e.target.value || null,
                     })
                   }
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500"
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
                   placeholder="May 2020"
                 />
               </div>
@@ -1573,7 +1573,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                       gpa: e.target.value || null,
                     })
                   }
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500"
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
                   placeholder="3.8"
                 />
               </div>
@@ -1590,7 +1590,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                       location: e.target.value || null,
                     })
                   }
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500"
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500"
                   placeholder="Stanford, CA"
                 />
               </div>
@@ -1607,7 +1607,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                     })
                   }
                   rows={3}
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500 resize-none"
+                  className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500 resize-none"
                   placeholder="Dean's List&#10;Summa Cum Laude"
                 />
               </div>

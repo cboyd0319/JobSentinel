@@ -284,7 +284,7 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
             <select
               value={answerType}
               onChange={(e) => setAnswerType(e.target.value)}
-              className="w-full px-4 py-3 bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-lg text-surface-800 dark:text-white focus:outline-none focus:border-sentinel-400 focus:ring-2 focus:ring-sentinel-100 dark:focus:ring-sentinel-900"
+              className="w-full px-4 py-3 bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-lg text-surface-800 dark:text-white focus:outline-none focus:border-sentinel-400 focus-visible:ring-2 focus-visible:ring-sentinel-100 dark:focus-visible:ring-sentinel-900"
               aria-label="Answer type"
             >
               <option value="text">Text input</option>
@@ -315,7 +315,7 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
                   required
                   aria-invalid={Boolean(formErrors.answer)}
                   aria-describedby={formErrors.answer ? "answer-error" : undefined}
-                  className={`w-full px-4 py-3 bg-white dark:bg-surface-800 border rounded-lg text-surface-800 dark:text-white placeholder:text-surface-400 resize-none focus:outline-none focus:border-sentinel-400 focus:ring-2 focus:ring-sentinel-100 dark:focus:ring-sentinel-900 ${
+                  className={`w-full px-4 py-3 bg-white dark:bg-surface-800 border rounded-lg text-surface-800 dark:text-white placeholder:text-surface-400 resize-none focus:outline-none focus:border-sentinel-400 focus-visible:ring-2 focus-visible:ring-sentinel-100 dark:focus-visible:ring-sentinel-900 ${
                     formErrors.answer ? "border-danger focus:border-danger focus:ring-danger/20" : "border-surface-200 dark:border-surface-700"
                   }`}
                 />

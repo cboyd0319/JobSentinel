@@ -521,7 +521,7 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
                         type="checkbox"
                         checked={jobOps.selectedJobIds.has(job.id)}
                         onChange={() => jobOps.toggleJobSelection(job.id)}
-                        className="w-5 h-5 rounded border-surface-300 dark:border-surface-600 text-sentinel-500 focus:ring-sentinel-500"
+                        className="w-5 h-5 rounded border-surface-300 dark:border-surface-600 text-sentinel-500 focus-visible:ring-sentinel-500"
                         aria-label={`Select ${job.title}`}
                       />
                     </div>
@@ -554,7 +554,7 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
             value={jobOps.notesText}
             onChange={(e) => jobOps.setNotesText(e.target.value)}
             placeholder="Interview prep, company research, questions to ask..."
-            className="w-full h-32 px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 placeholder-surface-400 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500 dark:focus:border-sentinel-400 dark:focus:ring-sentinel-400 resize-none"
+            className="w-full h-32 px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 placeholder-surface-400 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500 dark:focus:border-sentinel-400 dark:focus-visible:ring-sentinel-400 resize-none"
             aria-label="Job notes"
             autoFocus
           />
@@ -590,7 +590,7 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
               value={savedSearches.newSearchName}
               onChange={(e) => savedSearches.setNewSearchName(e.target.value)}
               placeholder="e.g., Remote Rust Jobs"
-              className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 placeholder-surface-400 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500 dark:focus:border-sentinel-400 dark:focus:ring-sentinel-400"
+              className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 placeholder-surface-400 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500 dark:focus:border-sentinel-400 dark:focus-visible:ring-sentinel-400"
               autoFocus
               onKeyDown={(e) => {
                 if (e.key === "Enter") savedSearches.handleSaveSearch(filters.getCurrentFilters);
@@ -631,7 +631,7 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
                     </button>
                     <button
                       onClick={() => savedSearches.handleDeleteSearch(search.id)}
-                      className="p-1 text-surface-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="p-1 text-surface-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
                       aria-label={`Delete "${search.name}"`}
                     >
                       <TrashIcon className="w-4 h-4" />

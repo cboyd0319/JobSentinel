@@ -529,7 +529,7 @@ export default function Resume({ onBack }: ResumeProps) {
                   <select
                     value={categoryFilter || ""}
                     onChange={(e) => setCategoryFilter(e.target.value || null)}
-                    className="px-3 py-1.5 text-sm rounded-lg border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-800 dark:text-surface-200 focus:ring-2 focus:ring-sentinel-500"
+                    className="px-3 py-1.5 text-sm rounded-lg border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-800 dark:text-surface-200 focus-visible:ring-2 focus-visible:ring-sentinel-500"
                   >
                     <option value="">All Categories</option>
                     {SKILL_CATEGORIES.map((cat) => (
@@ -563,7 +563,7 @@ export default function Resume({ onBack }: ResumeProps) {
                         onChange={(e) =>
                           setNewSkillForm({ ...newSkillForm, skill_name: e.target.value })
                         }
-                        className="w-full px-3 py-2 rounded-lg border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-800 dark:text-surface-200 focus:ring-2 focus:ring-sentinel-500"
+                        className="w-full px-3 py-2 rounded-lg border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-800 dark:text-surface-200 focus-visible:ring-2 focus-visible:ring-sentinel-500"
                       />
                     </div>
                     <div>
@@ -576,7 +576,7 @@ export default function Resume({ onBack }: ResumeProps) {
                         onChange={(e) =>
                           setNewSkillForm({ ...newSkillForm, proficiency_level: e.target.value })
                         }
-                        className="w-full px-3 py-2 rounded-lg border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-800 dark:text-surface-200 focus:ring-2 focus:ring-sentinel-500"
+                        className="w-full px-3 py-2 rounded-lg border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-800 dark:text-surface-200 focus-visible:ring-2 focus-visible:ring-sentinel-500"
                       >
                         {PROFICIENCY_LEVELS.map((level) => (
                           <option key={level} value={level}>
@@ -598,7 +598,7 @@ export default function Resume({ onBack }: ResumeProps) {
                             skill_category: e.target.value || undefined,
                           })
                         }
-                        className="w-full px-3 py-2 rounded-lg border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-800 dark:text-surface-200 focus:ring-2 focus:ring-sentinel-500"
+                        className="w-full px-3 py-2 rounded-lg border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-800 dark:text-surface-200 focus-visible:ring-2 focus-visible:ring-sentinel-500"
                       >
                         <option value="">Select category (optional)</option>
                         {SKILL_CATEGORIES.map((cat) => (
@@ -625,7 +625,7 @@ export default function Resume({ onBack }: ResumeProps) {
                             years_experience: e.target.value ? Number(e.target.value) : undefined,
                           })
                         }
-                        className="w-full px-3 py-2 rounded-lg border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-800 dark:text-surface-200 focus:ring-2 focus:ring-sentinel-500"
+                        className="w-full px-3 py-2 rounded-lg border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-800 dark:text-surface-200 focus-visible:ring-2 focus-visible:ring-sentinel-500"
                       />
                     </div>
                   </div>

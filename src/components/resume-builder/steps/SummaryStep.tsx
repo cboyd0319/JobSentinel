@@ -21,7 +21,7 @@ const SummaryStep = memo(function SummaryStep({ summary, setSummary }: SummarySt
           onChange={(e) => setSummary(e.target.value)}
           rows={6}
           aria-describedby="summary-hint"
-          className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500 resize-none"
+          className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500 resize-none"
           placeholder="Experienced software engineer with 5+ years building scalable web applications. Specialized in React, TypeScript, and cloud infrastructure. Proven track record of leading cross-functional teams and delivering high-impact projects."
         />
         <p id="summary-hint" className="text-xs text-surface-500 dark:text-surface-400 mt-2">

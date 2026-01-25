@@ -3,7 +3,7 @@
 ## Complete Reference Guide for JobSentinel
 
 > **Status:** ✅ Fully Implemented
-> **Last Updated:** 2025-11-15
+> **Last Updated:** 2026-01-25
 > **SQLite Min Version:** 3.31+ (with fallbacks for older versions)
 
 ---

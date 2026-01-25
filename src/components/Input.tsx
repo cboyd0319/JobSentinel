@@ -42,7 +42,7 @@ export const Input = memo(forwardRef<HTMLInputElement, InputProps>(
               text-surface-800 dark:text-white placeholder:text-surface-400 dark:placeholder:text-surface-500
               transition-all duration-150
               hover:border-surface-300 dark:hover:border-surface-600
-              focus:outline-none focus:border-sentinel-400 focus:ring-2 focus:ring-sentinel-100 dark:focus:ring-sentinel-900
+              focus:outline-none focus:border-sentinel-400 focus-visible:ring-2 focus-visible:ring-sentinel-100 dark:focus-visible:ring-sentinel-900
               disabled:bg-surface-50 dark:disabled:bg-surface-900 disabled:text-surface-500 disabled:cursor-not-allowed
               ${leftIcon ? "pl-10" : ""}
               ${rightIcon ? "pr-10" : ""}
