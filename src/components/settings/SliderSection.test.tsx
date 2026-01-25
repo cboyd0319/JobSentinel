@@ -1,6 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { SliderSection } from "./SliderSection";
 
 describe("SliderSection", () => {
@@ -202,7 +201,6 @@ describe("SliderSection", () => {
 
   describe("value changes", () => {
     it("calls onChange when slider is moved", async () => {
-      const user = userEvent.setup();
       const onChange = vi.fn();
       render(
         <SliderSection

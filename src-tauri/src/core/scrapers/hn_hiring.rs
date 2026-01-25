@@ -6,6 +6,7 @@
 
 use super::error::ScraperError;
 use super::http_client::get_client;
+use super::rate_limiter::RateLimiter;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
 
@@ -20,16 +21,25 @@ pub struct HnHiringScraper {
     pub limit: usize,
     /// Filter for remote jobs only
     pub remote_only: bool,
+    /// Rate limiter for respecting HN API limits
+    pub rate_limiter: RateLimiter,
 }
 
 impl HnHiringScraper {
     pub fn new(limit: usize, remote_only: bool) -> Self {
-        Self { limit, remote_only }
+        Self {
+            limit,
+            remote_only,
+            rate_limiter: RateLimiter::new(),
+        }
     }
 
     /// Fetch the latest "Who is hiring?" thread
     async fn fetch_jobs(&self) -> ScraperResult {
         tracing::info!("Fetching jobs from HN Who's Hiring");
+
+        // Use rate limiter (Algolia API, reasonable limit)
+        self.rate_limiter.wait("hn_hiring", 500).await;
 
         let client = get_client();
 

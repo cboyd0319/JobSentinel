@@ -461,22 +461,7 @@ export default function Settings({ onClose }: SettingsProps) {
     loadGhostConfig();
   }, [loadConfig, loadGhostConfig]);
 
-  // Keyboard shortcut: Cmd+S to save
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 's' && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        if (!saving && config) {
-          handleSave();
-        }
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [saving, config]);
-
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     if (!config) return;
 
     try {
@@ -522,7 +507,22 @@ export default function Settings({ onClose }: SettingsProps) {
     } finally {
       setSaving(false);
     }
-  };
+  }, [config, credentials, toast, onClose]);
+
+  // Keyboard shortcut: Cmd+S to save
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 's' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        if (!saving && config) {
+          handleSave();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [saving, config, handleSave]);
 
   const handleExportConfig = () => {
     if (!config) return;

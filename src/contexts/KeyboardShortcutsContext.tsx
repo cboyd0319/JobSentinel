@@ -33,6 +33,7 @@ interface KeyboardShortcutsContextType {
 const KeyboardShortcutsContext =
   createContext<KeyboardShortcutsContextType | null>(null);
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useKeyboardShortcuts() {
   const context = useContext(KeyboardShortcutsContext);
   if (!context) {
@@ -339,6 +340,7 @@ export function KeyboardShortcutsProvider({
 }
 
 // Helper to format shortcut for display
+// eslint-disable-next-line react-refresh/only-export-components
 export function formatShortcut(shortcut: Shortcut): string {
   const isMac =
     typeof navigator !== "undefined" &&

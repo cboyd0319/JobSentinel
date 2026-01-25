@@ -7,6 +7,7 @@
 
 use super::error::ScraperError;
 use super::http_client::get_client;
+use super::rate_limiter::RateLimiter;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
 
@@ -23,6 +24,8 @@ pub struct SimplyHiredScraper {
     pub location: Option<String>,
     /// Maximum results to return
     pub limit: usize,
+    /// Rate limiter for respecting SimplyHired's request limits
+    pub rate_limiter: RateLimiter,
 }
 
 impl SimplyHiredScraper {
@@ -31,12 +34,16 @@ impl SimplyHiredScraper {
             query: query.into(),
             location,
             limit,
+            rate_limiter: RateLimiter::new(),
         }
     }
 
     /// Fetch jobs from SimplyHired RSS feed
     async fn fetch_jobs(&self) -> ScraperResult {
         tracing::info!("Fetching jobs from SimplyHired for: {}", self.query);
+
+        // Use rate limiter (conservative due to Cloudflare protection)
+        self.rate_limiter.wait("simplyhired", 200).await;
 
         let client = get_client();
 

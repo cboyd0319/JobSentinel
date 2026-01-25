@@ -57,6 +57,7 @@ export function ErrorReportingProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useErrorReporting() {
   const context = useContext(ErrorReportingContext);
   if (!context) {

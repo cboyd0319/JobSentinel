@@ -5,6 +5,7 @@
 
 use super::error::ScraperError;
 use super::http_client::get_client;
+use super::rate_limiter::RateLimiter;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
 
@@ -22,6 +23,8 @@ pub struct YcStartupScraper {
     pub remote_only: bool,
     /// Maximum results to return
     pub limit: usize,
+    /// Rate limiter for respecting YC's request limits
+    pub rate_limiter: RateLimiter,
 }
 
 impl YcStartupScraper {
@@ -30,6 +33,7 @@ impl YcStartupScraper {
             query,
             remote_only,
             limit,
+            rate_limiter: RateLimiter::new(),
         }
     }
 
@@ -56,6 +60,9 @@ impl YcStartupScraper {
     /// Fetch jobs from YC
     async fn fetch_jobs(&self) -> ScraperResult {
         tracing::info!("Fetching jobs from Y Combinator Work at a Startup");
+
+        // Use rate limiter (YC job board, reasonable limit)
+        self.rate_limiter.wait("yc_startup", 300).await;
 
         let client = get_client();
         let url = self.build_url();

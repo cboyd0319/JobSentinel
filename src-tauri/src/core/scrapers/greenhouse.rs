@@ -5,6 +5,7 @@
 
 use super::error::ScraperError;
 use super::http_client::get_with_retry;
+use super::rate_limiter::{RateLimiter, limits};
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
 use async_trait::async_trait;
@@ -17,6 +18,8 @@ use sha2::{Digest, Sha256};
 pub struct GreenhouseScraper {
     /// List of Greenhouse company URLs to scrape
     pub companies: Vec<GreenhouseCompany>,
+    /// Rate limiter for respecting Greenhouse's request limits
+    pub rate_limiter: RateLimiter,
 }
 
 #[derive(Debug, Clone)]
@@ -28,7 +31,10 @@ pub struct GreenhouseCompany {
 
 impl GreenhouseScraper {
     pub fn new(companies: Vec<GreenhouseCompany>) -> Self {
-        Self { companies }
+        Self {
+            companies,
+            rate_limiter: RateLimiter::new(),
+        }
     }
 
     /// Scrape a single Greenhouse company
@@ -280,6 +286,9 @@ impl JobScraper for GreenhouseScraper {
         let mut all_jobs = Vec::new();
 
         for company in &self.companies {
+            // Use rate limiter to respect Greenhouse's limits
+            self.rate_limiter.wait("greenhouse", limits::GREENHOUSE).await;
+            
             match self.scrape_company(company).await {
                 Ok(jobs) => {
                     all_jobs.extend(jobs);
@@ -289,9 +298,6 @@ impl JobScraper for GreenhouseScraper {
                     // Continue with other companies
                 }
             }
-
-            // Rate limiting: wait 2 seconds between companies
-            tokio::time::sleep(std::time::Duration::from_secs(2)).await;
         }
 
         Ok(all_jobs)

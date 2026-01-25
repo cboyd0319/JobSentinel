@@ -44,6 +44,7 @@
 
 use super::error::ScraperError;
 use super::http_client::get_client;
+use super::rate_limiter::{RateLimiter, limits};
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
 use async_trait::async_trait;
@@ -67,6 +68,9 @@ pub struct LinkedInScraper {
     pub remote_only: bool,
     /// Maximum results to return (default: 50, max: 100)
     pub limit: usize,
+    /// Rate limiter for respecting LinkedIn's request limits
+    #[serde(skip)]
+    pub rate_limiter: RateLimiter,
 }
 
 /// LinkedIn job search result from API
@@ -121,6 +125,7 @@ impl LinkedInScraper {
             location: location.into(),
             remote_only: false,
             limit: 50,
+            rate_limiter: RateLimiter::new(),
         }
     }
 
@@ -202,11 +207,11 @@ impl LinkedInScraper {
         let mut last_error = None;
 
         for attempt in 0..=MAX_RETRIES {
-            // Add delay to respect rate limits (longer on retries)
-            if attempt == 0 {
-                sleep(Duration::from_secs(2)).await;
-            } else {
-                let delay_secs = 2_u64.pow(attempt); // 2s, 4s, 8s
+            // Use rate limiter to respect LinkedIn's limits
+            self.rate_limiter.wait("linkedin", limits::LINKEDIN).await;
+            
+            if attempt > 0 {
+                let delay_secs = 2_u64.pow(attempt); // 2s, 4s, 8s for retries
                 tracing::warn!(
                     attempt,
                     max_retries = MAX_RETRIES + 1,
@@ -444,10 +449,10 @@ impl LinkedInScraper {
         let mut last_error = None;
 
         for attempt in 0..=MAX_RETRIES {
-            // Add delay to respect rate limits
-            if attempt == 0 {
-                sleep(Duration::from_secs(2)).await;
-            } else {
+            // Use rate limiter to respect LinkedIn's limits
+            self.rate_limiter.wait("linkedin", limits::LINKEDIN).await;
+            
+            if attempt > 0 {
                 let delay_secs = 2_u64.pow(attempt);
                 tracing::warn!(
                     "Retrying LinkedIn HTML scrape (attempt {}/{}), waiting {}s",

@@ -8,6 +8,7 @@
 
 use super::error::ScraperError;
 use super::http_client::get_client;
+use super::rate_limiter::RateLimiter;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
 
@@ -24,6 +25,8 @@ pub struct GlassdoorScraper {
     pub location: Option<String>,
     /// Maximum results to return
     pub limit: usize,
+    /// Rate limiter for respecting Glassdoor's request limits
+    pub rate_limiter: RateLimiter,
 }
 
 impl GlassdoorScraper {
@@ -32,12 +35,16 @@ impl GlassdoorScraper {
             query: query.into(),
             location,
             limit,
+            rate_limiter: RateLimiter::new(),
         }
     }
 
     /// Fetch jobs from Glassdoor
     async fn fetch_jobs(&self) -> ScraperResult {
         tracing::info!("Fetching jobs from Glassdoor for: {}", self.query);
+
+        // Use rate limiter (conservative due to Cloudflare protection)
+        self.rate_limiter.wait("glassdoor", 200).await;
 
         let client = get_client();
 

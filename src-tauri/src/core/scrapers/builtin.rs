@@ -9,6 +9,7 @@
 
 use super::error::ScraperError;
 use super::http_client::get_client;
+use super::rate_limiter::RateLimiter;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
 
@@ -25,6 +26,8 @@ pub struct BuiltInScraper {
     pub remote_only: bool,
     /// Maximum results to return
     pub limit: usize,
+    /// Rate limiter for respecting BuiltIn's request limits
+    pub rate_limiter: RateLimiter,
 }
 
 impl BuiltInScraper {
@@ -34,7 +37,11 @@ impl BuiltInScraper {
     /// * `remote_only` - If true, only fetch remote jobs from /jobs/remote
     /// * `limit` - Maximum number of jobs to return
     pub fn new(remote_only: bool, limit: usize) -> Self {
-        Self { remote_only, limit }
+        Self {
+            remote_only,
+            limit,
+            rate_limiter: RateLimiter::new(),
+        }
     }
 
     /// Legacy constructor for backwards compatibility
@@ -48,6 +55,7 @@ impl BuiltInScraper {
         Self {
             remote_only: false,
             limit,
+            rate_limiter: RateLimiter::new(),
         }
     }
 
@@ -64,6 +72,9 @@ impl BuiltInScraper {
     async fn fetch_jobs(&self) -> ScraperResult {
         let mode = if self.remote_only { "remote" } else { "all" };
         tracing::info!("Fetching jobs from BuiltIn (mode: {})", mode);
+
+        // Use rate limiter (job board, reasonable limit)
+        self.rate_limiter.wait("builtin", 300).await;
 
         let client = get_client();
         let url = self.build_url();

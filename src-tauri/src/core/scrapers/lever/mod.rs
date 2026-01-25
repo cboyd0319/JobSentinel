@@ -5,6 +5,7 @@
 
 use super::error::ScraperError;
 use super::http_client::get_client;
+use super::rate_limiter::{RateLimiter, limits};
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
 use async_trait::async_trait;
@@ -16,6 +17,8 @@ use sha2::{Digest, Sha256};
 pub struct LeverScraper {
     /// List of Lever company URLs to scrape
     pub companies: Vec<LeverCompany>,
+    /// Rate limiter for respecting Lever's request limits
+    pub rate_limiter: RateLimiter,
 }
 
 #[derive(Debug, Clone)]
@@ -27,7 +30,10 @@ pub struct LeverCompany {
 
 impl LeverScraper {
     pub fn new(companies: Vec<LeverCompany>) -> Self {
-        Self { companies }
+        Self {
+            companies,
+            rate_limiter: RateLimiter::new(),
+        }
     }
 
     /// Scrape a single Lever company via API
@@ -163,6 +169,9 @@ impl JobScraper for LeverScraper {
         let mut all_jobs = Vec::new();
 
         for company in &self.companies {
+            // Use rate limiter to respect Lever's limits
+            self.rate_limiter.wait("lever", limits::LEVER).await;
+            
             match self.scrape_company(company).await {
                 Ok(jobs) => {
                     all_jobs.extend(jobs);
@@ -172,9 +181,6 @@ impl JobScraper for LeverScraper {
                     // Continue with other companies
                 }
             }
-
-            // Rate limiting: wait 2 seconds between companies
-            tokio::time::sleep(std::time::Duration::from_secs(2)).await;
         }
 
         Ok(all_jobs)

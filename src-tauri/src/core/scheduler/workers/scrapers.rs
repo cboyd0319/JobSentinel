@@ -15,6 +15,7 @@ use crate::core::{
         jobswithgpt::{JobQuery, JobsWithGptScraper},
         lever::{LeverCompany, LeverScraper},
         linkedin::LinkedInScraper,
+        rate_limiter::RateLimiter,
         remoteok::RemoteOkScraper,
         simplyhired::SimplyHiredScraper,
         usajobs::UsaJobsScraper,
@@ -131,6 +132,7 @@ pub async fn run_scrapers(config: &Arc<Config>) -> (Vec<Job>, Vec<String>) {
                     location: config.linkedin.location.clone(),
                     remote_only: config.linkedin.remote_only,
                     limit: config.linkedin.limit,
+                    rate_limiter: RateLimiter::new(),
                 };
 
                 match linkedin.scrape().await {

@@ -7,6 +7,7 @@
 //! it's an official public API designed for programmatic access.
 
 use super::error::ScraperError;
+use super::rate_limiter::RateLimiter;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
 
@@ -43,6 +44,8 @@ pub struct UsaJobsScraper {
     pub date_posted_days: Option<u8>,
     /// Maximum results to return
     pub limit: usize,
+    /// Rate limiter for respecting USAJobs API limits
+    pub rate_limiter: RateLimiter,
 }
 
 impl UsaJobsScraper {
@@ -59,6 +62,7 @@ impl UsaJobsScraper {
             pay_grade_max: None,
             date_posted_days: Some(30), // Default to last 30 days
             limit: 100,
+            rate_limiter: RateLimiter::new(),
         }
     }
 
@@ -171,6 +175,9 @@ impl UsaJobsScraper {
     /// Fetch jobs from USAJobs API
     async fn fetch_jobs(&self) -> ScraperResult {
         tracing::info!("Fetching jobs from USAJobs API");
+
+        // Use rate limiter (official API, generous limit)
+        self.rate_limiter.wait("usajobs", 1000).await;
 
         let client = self.build_client()?;
         let url = format!("{}{}", BASE_URL, SEARCH_ENDPOINT);

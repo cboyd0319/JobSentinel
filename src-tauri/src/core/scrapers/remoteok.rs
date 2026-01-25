@@ -5,6 +5,7 @@
 
 use super::error::ScraperError;
 use super::http_client::get_client;
+use super::rate_limiter::RateLimiter;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
 use async_trait::async_trait;
@@ -18,16 +19,25 @@ pub struct RemoteOkScraper {
     pub tags: Vec<String>,
     /// Maximum results to return
     pub limit: usize,
+    /// Rate limiter for respecting RemoteOK's request limits
+    pub rate_limiter: RateLimiter,
 }
 
 impl RemoteOkScraper {
     pub fn new(tags: Vec<String>, limit: usize) -> Self {
-        Self { tags, limit }
+        Self {
+            tags,
+            limit,
+            rate_limiter: RateLimiter::new(),
+        }
     }
 
     /// Fetch jobs from RemoteOK API
     async fn fetch_jobs(&self) -> ScraperResult {
         tracing::info!("Fetching jobs from RemoteOK");
+
+        // Use rate limiter (500 req/hr - public API)
+        self.rate_limiter.wait("remoteok", 500).await;
 
         let client = get_client();
         let url = "https://remoteok.com/api";

@@ -252,7 +252,7 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
     }
   };
 
-  const handleSave = async (): Promise<void> => {
+  const handleSave = useCallback(async (): Promise<void> => {
     // Validate all fields and collect errors
     const newErrors = {
       fullName: validateField("fullName", fullName),
@@ -315,7 +315,23 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
     } finally {
       setSaving(false);
     }
-  };
+  }, [
+    fullName,
+    email,
+    phone,
+    linkedinUrl,
+    githubUrl,
+    portfolioUrl,
+    websiteUrl,
+    resumeFilePath,
+    usWorkAuthorized,
+    requiresSponsorship,
+    maxApplicationsPerDay,
+    requireManualApproval,
+    validateField,
+    toast,
+    onSaved,
+  ]);
 
   // Keyboard shortcuts: Cmd+S to save, Cmd+Enter to submit
   useEffect(() => {

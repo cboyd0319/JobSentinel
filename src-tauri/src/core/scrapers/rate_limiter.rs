@@ -159,6 +159,33 @@ pub mod limits {
 
     /// JobsWithGPT: 10,000 requests/hour (MCP server)
     pub const JOBSWITHGPT: u32 = 10_000;
+
+    /// Dice: 500 requests/hour (public job board)
+    pub const DICE: u32 = 500;
+
+    /// RemoteOK: 500 requests/hour (public API)
+    pub const REMOTEOK: u32 = 500;
+
+    /// Glassdoor: 200 requests/hour (conservative due to Cloudflare)
+    pub const GLASSDOOR: u32 = 200;
+
+    /// SimplyHired: 200 requests/hour (conservative due to Cloudflare)
+    pub const SIMPLYHIRED: u32 = 200;
+
+    /// USAJobs: 1000 requests/hour (official government API)
+    pub const USAJOBS: u32 = 1000;
+
+    /// WeWorkRemotely: 300 requests/hour (RSS feed)
+    pub const WEWORKREMOTELY: u32 = 300;
+
+    /// HN Hiring: 500 requests/hour (Algolia API)
+    pub const HN_HIRING: u32 = 500;
+
+    /// YC Startup: 300 requests/hour (job board)
+    pub const YC_STARTUP: u32 = 300;
+
+    /// BuiltIn: 300 requests/hour (job board)
+    pub const BUILTIN: u32 = 300;
 }
 
 #[cfg(test)]

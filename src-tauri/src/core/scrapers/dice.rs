@@ -5,6 +5,7 @@
 
 use super::error::ScraperError;
 use super::http_client::get_client;
+use super::rate_limiter::RateLimiter;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
 use async_trait::async_trait;
@@ -21,6 +22,8 @@ pub struct DiceScraper {
     pub location: Option<String>,
     /// Maximum results to return
     pub limit: usize,
+    /// Rate limiter for respecting Dice's request limits
+    pub rate_limiter: RateLimiter,
 }
 
 impl DiceScraper {
@@ -29,6 +32,7 @@ impl DiceScraper {
             query: query.into(),
             location,
             limit,
+            rate_limiter: RateLimiter::new(),
         }
     }
 
@@ -50,6 +54,9 @@ impl DiceScraper {
     /// Fetch jobs from Dice
     async fn fetch_jobs(&self) -> ScraperResult {
         tracing::info!("Fetching jobs from Dice for query: {}", self.query);
+
+        // Use rate limiter (500 req/hr - similar to Indeed)
+        self.rate_limiter.wait("dice", 500).await;
 
         let client = get_client();
         let url = self.build_url();

@@ -99,7 +99,7 @@ export function useDashboardJobOps(jobs: Job[], setJobs: (jobs: Job[] | ((prev: 
     } catch {
       // Error already logged and shown to user via safeInvokeWithToast (used in undo/redo actions)
     }
-  }, [jobs, setJobs, toast, pushAction]);
+  }, [jobs, setJobs, pushAction]);
 
   const handleEditNotes = useCallback((id: number, currentNotes?: string | null) => {
     setEditingJobId(id);

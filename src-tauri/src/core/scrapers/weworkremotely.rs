@@ -5,6 +5,7 @@
 
 use super::error::ScraperError;
 use super::http_client::get_client;
+use super::rate_limiter::RateLimiter;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
 
@@ -19,11 +20,17 @@ pub struct WeWorkRemotelyScraper {
     pub category: Option<String>,
     /// Maximum results to return
     pub limit: usize,
+    /// Rate limiter for respecting WeWorkRemotely's request limits
+    pub rate_limiter: RateLimiter,
 }
 
 impl WeWorkRemotelyScraper {
     pub fn new(category: Option<String>, limit: usize) -> Self {
-        Self { category, limit }
+        Self {
+            category,
+            limit,
+            rate_limiter: RateLimiter::new(),
+        }
     }
 
     /// Build the RSS feed URL
@@ -37,6 +44,9 @@ impl WeWorkRemotelyScraper {
     /// Fetch jobs from WeWorkRemotely RSS feed
     async fn fetch_jobs(&self) -> ScraperResult {
         tracing::info!("Fetching jobs from WeWorkRemotely");
+
+        // Use rate limiter (RSS feed, be conservative)
+        self.rate_limiter.wait("weworkremotely", 300).await;
 
         let client = get_client();
         let url = self.build_url();

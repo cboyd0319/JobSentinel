@@ -67,7 +67,7 @@ describe("ApplyButton", () => {
         return Promise.resolve(null);
       });
 
-      const { container } = renderWithToast(<ApplyButton job={mockJob} />);
+      renderWithToast(<ApplyButton job={mockJob} />);
 
       await waitFor(() => {
         const button = screen.getByRole("button", { name: /quick apply/i });
@@ -279,7 +279,6 @@ describe("ApplyButton", () => {
 
   describe("button click behavior", () => {
     it("shows error toast when clicking without profile", async () => {
-      const user = userEvent.setup();
       mockInvoke.mockImplementation((cmd) => {
         if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
         if (cmd === "get_application_profile") return Promise.resolve(null);
