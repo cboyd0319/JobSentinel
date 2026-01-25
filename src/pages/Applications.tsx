@@ -76,9 +76,9 @@ const STATUS_COLUMNS = [
   { key: "phone_screen", label: "Phone Screen", color: "bg-purple-500" },
   { key: "technical", label: "Technical", color: "bg-indigo-500" },
   { key: "onsite", label: "Onsite", color: "bg-cyan-500" },
-  { key: "offer", label: "Offer", color: "bg-green-500" },
+  { key: "offer", label: "Offer", color: "bg-success" },
   { key: "accepted", label: "Accepted", color: "bg-emerald-500" },
-  { key: "rejected", label: "Rejected", color: "bg-red-500" },
+  { key: "rejected", label: "Rejected", color: "bg-danger" },
   { key: "withdrawn", label: "Withdrawn", color: "bg-orange-500" },
   { key: "ghosted", label: "Ghosted", color: "bg-surface-400" },
 ] as const;
@@ -479,6 +479,13 @@ export default function Applications({ onBack }: ApplicationsProps) {
         Use arrow keys to move between columns. Press space or enter to drop.
       </div>
 
+      {/* Live region for drag announcements */}
+      <div className="sr-only" aria-live="assertive" aria-atomic="true">
+        {activeId && getActiveApp() && (
+          `Moving ${getActiveApp()?.job_title} at ${getActiveApp()?.company}`
+        )}
+      </div>
+
       {/* Header */}
       <header className="bg-white dark:bg-surface-800 border-b border-surface-100 dark:border-surface-700 sticky top-0 z-10">
         <div className="max-w-full mx-auto px-6 py-4">
@@ -496,7 +503,7 @@ export default function Applications({ onBack }: ApplicationsProps) {
                   Application Tracker
                 </h1>
                 <p className="text-sm text-surface-500 dark:text-surface-400">
-                  Drag cards between columns to update status
+                  Drag cards between columns or use keyboard (Space + Arrow keys) to update status
                 </p>
               </div>
             </div>
@@ -802,10 +809,10 @@ function QuickStat({
   highlight?: boolean;
 }) {
   return (
-    <div className={`flex items-center gap-2 ${highlight && value > 0 ? "text-green-600 dark:text-green-400" : "text-surface-600 dark:text-surface-300"}`}>
+    <div className={`flex items-center gap-2 ${highlight && value > 0 ? "text-success" : "text-surface-600 dark:text-surface-300"}`}>
       <span className="text-base">{icon}</span>
       <span className="font-medium">{label}:</span>
-      <span className={`font-semibold ${highlight && value > 0 ? "text-green-600 dark:text-green-400" : "text-surface-900 dark:text-white"}`}>
+      <span className={`font-semibold ${highlight && value > 0 ? "text-success" : "text-surface-900 dark:text-white"}`}>
         {value}
       </span>
       {percent !== undefined && (

@@ -430,7 +430,7 @@ describe("DashboardWidgets", () => {
       fireEvent.click(screen.getByText("Analytics Dashboard"));
 
       const responseRateBox = screen.getByText("Response Rate").closest("div");
-      expect(responseRateBox?.className).toContain("bg-green-50");
+      expect(responseRateBox?.className).toContain("bg-success/10");
     });
 
     it("shows warning color for medium response rate", async () => {
@@ -450,7 +450,7 @@ describe("DashboardWidgets", () => {
       fireEvent.click(screen.getByText("Analytics Dashboard"));
 
       const responseRateBox = screen.getByText("Response Rate").closest("div");
-      expect(responseRateBox?.className).toContain("bg-amber-50");
+      expect(responseRateBox?.className).toContain("bg-warning/10");
     });
 
     it("shows danger color for low response rate", async () => {
@@ -470,7 +470,7 @@ describe("DashboardWidgets", () => {
       fireEvent.click(screen.getByText("Analytics Dashboard"));
 
       const responseRateBox = screen.getByText("Response Rate").closest("div");
-      expect(responseRateBox?.className).toContain("bg-red-50");
+      expect(responseRateBox?.className).toContain("bg-danger/10");
     });
   });
 });

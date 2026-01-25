@@ -453,7 +453,7 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
 
           {/* Job List */}
           {jobs.length === 0 ? (
-            <Card className="text-center py-12 dark:bg-surface-800" data-tour="job-list">
+            <Card className="text-center py-12 dark:bg-surface-800" data-tour="job-list" role="status" aria-live="polite">
               <div className="w-12 h-12 bg-sentinel-50 dark:bg-sentinel-900/30 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <BriefcaseIcon className="w-6 h-6 text-sentinel-400" />
               </div>
@@ -489,7 +489,7 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
               </div>
             </Card>
           ) : filters.filteredAndSortedJobs.length === 0 ? (
-            <Card className="text-center py-8 dark:bg-surface-800">
+            <Card className="text-center py-8 dark:bg-surface-800" role="status" aria-live="polite" aria-atomic="true">
               <div className="w-12 h-12 bg-surface-100 dark:bg-surface-700 rounded-full flex items-center justify-center mx-auto mb-3">
                 <FilterIcon className="w-6 h-6 text-surface-400" />
               </div>
@@ -508,8 +508,12 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
               </button>
             </Card>
           ) : (
-            <div ref={jobListRef} className="space-y-3 stagger-children" data-testid="job-list">
-              {filters.filteredAndSortedJobs.map((job, index) => (
+            <>
+              <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+                {filters.filteredAndSortedJobs.length} job{filters.filteredAndSortedJobs.length === 1 ? "" : "s"} found
+              </div>
+              <div ref={jobListRef} className="space-y-3 stagger-children" data-testid="job-list">
+                {filters.filteredAndSortedJobs.map((job, index) => (
                 <div key={job.id} className="flex items-start gap-3">
                   {jobOps.bulkMode && (
                     <div className="flex-shrink-0 pt-5">
@@ -534,7 +538,8 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
                   </div>
                 </div>
               ))}
-            </div>
+              </div>
+            </>
           )}
         </section>
       </main>

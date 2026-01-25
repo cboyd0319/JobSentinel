@@ -46,13 +46,13 @@ describe("Badge", () => {
     it("renders with success variant", () => {
       const { container } = render(<Badge variant="success">Test</Badge>);
       const badge = container.querySelector("span");
-      expect(badge).toHaveClass("bg-green-100", "text-green-700");
+      expect(badge).toHaveClass("bg-success/10", "text-success");
     });
 
     it("renders with danger variant", () => {
       const { container } = render(<Badge variant="danger">Test</Badge>);
       const badge = container.querySelector("span");
-      expect(badge).toHaveClass("bg-red-100", "text-red-700");
+      expect(badge).toHaveClass("bg-danger/10", "text-danger");
     });
   });
 

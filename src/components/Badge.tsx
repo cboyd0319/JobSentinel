@@ -13,8 +13,8 @@ const variantStyles = {
   sentinel: "bg-sentinel-100 dark:bg-sentinel-900/30 text-sentinel-700 dark:text-sentinel-400",
   alert: "bg-alert-100 dark:bg-alert-900/30 text-alert-700 dark:text-alert-400",
   surface: "bg-surface-100 dark:bg-surface-700 text-surface-600 dark:text-surface-300",
-  success: "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400",
-  danger: "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400",
+  success: "bg-success/10 dark:bg-success/20 text-success",
+  danger: "bg-danger/10 dark:bg-danger/20 text-danger",
 };
 
 const sizeStyles = {

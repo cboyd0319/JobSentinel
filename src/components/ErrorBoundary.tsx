@@ -99,7 +99,7 @@ class ErrorBoundary extends Component<Props, State> {
 
           <div className="relative max-w-md w-full bg-white dark:bg-surface-800 rounded-card shadow-card dark:shadow-none border dark:border-surface-700 p-8 animate-fade-in">
             <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-danger/10 dark:bg-danger/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg
                   className="h-8 w-8 text-danger"
                   fill="none"
@@ -122,7 +122,7 @@ class ErrorBoundary extends Component<Props, State> {
                 {this.state.error.message || 'An unexpected error occurred'}
               </p>
               {this.state.errorCount > 1 && (
-                <p className="text-xs text-red-600 dark:text-red-400">
+                <p className="text-xs text-danger">
                   Error occurred {this.state.errorCount} times
                 </p>
               )}
@@ -156,7 +156,7 @@ class ErrorBoundary extends Component<Props, State> {
               {showClearData && (
                 <button
                   onClick={this.handleClearData}
-                  className="w-full bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 font-semibold py-3 px-4 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-surface-800"
+                  className="w-full bg-danger/10 hover:bg-danger/20 text-danger font-semibold py-3 px-4 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-danger focus:ring-offset-2 dark:focus:ring-offset-surface-800"
                 >
                   Clear App Data & Reload
                 </button>
@@ -168,7 +168,7 @@ class ErrorBoundary extends Component<Props, State> {
                 <summary className="cursor-pointer text-sm text-surface-600 dark:text-surface-400 font-medium">
                   Error Details (Development Only)
                 </summary>
-                <pre className="mt-2 text-xs text-red-600 dark:text-red-400 overflow-auto max-h-48 whitespace-pre-wrap">
+                <pre className="mt-2 text-xs text-danger overflow-auto max-h-48 whitespace-pre-wrap">
                   {this.state.error.stack}
                 </pre>
               </details>

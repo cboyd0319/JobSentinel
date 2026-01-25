@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "../components/Button";
 import { Input } from "../components/Input";
 import { Badge } from "../components/Badge";
@@ -31,6 +31,9 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
   const [skillInput, setSkillInput] = useState("");
   const [cityInput, setCityInput] = useState("");
   const toast = useToast();
+  const [stepAnnouncement, setStepAnnouncement] = useState("");
+  const [validationAnnouncement, setValidationAnnouncement] = useState("");
+  const announcementTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [config, setConfig] = useState({
     title_allowlist: [] as string[],
     title_blocklist: [] as string[],
@@ -130,6 +133,40 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
   const canProceedFromStep1 = config.title_allowlist.length > 0;
   const [slackWebhookError, setSlackWebhookError] = useState<string | undefined>();
 
+  // Announce step changes for screen readers
+  useEffect(() => {
+    const currentStep = STEPS[step];
+    if (currentStep) {
+      setStepAnnouncement(`Step ${step + 1} of ${STEPS.length}: ${currentStep.title}`);
+    }
+  }, [step]);
+
+  // Announce validation errors for screen readers
+  useEffect(() => {
+    if (slackWebhookError) {
+      setValidationAnnouncement(slackWebhookError);
+      // Clear after announcement
+      if (announcementTimeoutRef.current) {
+        clearTimeout(announcementTimeoutRef.current);
+      }
+      announcementTimeoutRef.current = setTimeout(() => {
+        setValidationAnnouncement("");
+      }, 1000);
+    }
+    return () => {
+      if (announcementTimeoutRef.current) {
+        clearTimeout(announcementTimeoutRef.current);
+      }
+    };
+  }, [slackWebhookError]);
+
+  // Announce when user cannot proceed from step 1
+  useEffect(() => {
+    if (step === 1 && !canProceedFromStep1) {
+      setValidationAnnouncement("Add at least one job title to continue");
+    }
+  }, [step, canProceedFromStep1]);
+
   const handleAddTitle = () => {
     const trimmed = titleInput.trim();
     if (trimmed && !config.title_allowlist.includes(trimmed)) {
@@ -228,6 +265,14 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-sentinel-500/10 rounded-full blur-3xl" />
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-sentinel-600/10 rounded-full blur-3xl" />
+      </div>
+
+      {/* Live regions for screen reader announcements */}
+      <div aria-live="polite" aria-atomic="true" className="sr-only">
+        {stepAnnouncement}
+      </div>
+      <div aria-live="assertive" aria-atomic="true" className="sr-only">
+        {validationAnnouncement}
       </div>
 
       <div className="relative w-full max-w-xl animate-fade-in">
@@ -640,21 +685,34 @@ interface LocationOptionProps {
 }
 
 function LocationOption({ label, description, checked, onChange, icon }: LocationOptionProps) {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onChange(!checked);
+    }
+  };
+
   return (
     <label
       className={`
         flex items-center gap-4 p-4 rounded-lg border-2 cursor-pointer transition-all duration-150
-        ${checked 
-          ? "border-sentinel-500 bg-sentinel-50" 
+        ${checked
+          ? "border-sentinel-500 bg-sentinel-50"
           : "border-surface-200 hover:border-surface-300"
         }
       `}
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+      role="checkbox"
+      aria-checked={checked}
+      aria-label={`${label}: ${description}`}
     >
       <input
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
         className="sr-only"
+        tabIndex={-1}
       />
       <div className={`
         w-10 h-10 rounded-lg flex items-center justify-center

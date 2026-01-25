@@ -342,18 +342,18 @@ export const DashboardWidgets = memo(function DashboardWidgets({ className = '' 
 // Extracted to top level and memoized to prevent re-creation on every render
 const bgColors = {
   primary: 'bg-indigo-50 dark:bg-indigo-900/20',
-  success: 'bg-green-50 dark:bg-green-900/20',
-  warning: 'bg-amber-50 dark:bg-amber-900/20',
-  danger: 'bg-red-50 dark:bg-red-900/20',
+  success: 'bg-success/10 dark:bg-success/20',
+  warning: 'bg-warning/10 dark:bg-warning/20',
+  danger: 'bg-danger/10 dark:bg-danger/20',
   info: 'bg-blue-50 dark:bg-blue-900/20',
   surface: 'bg-surface-50 dark:bg-surface-700',
 } as const;
 
 const textColors = {
   primary: 'text-indigo-700 dark:text-indigo-300',
-  success: 'text-green-700 dark:text-green-300',
-  warning: 'text-amber-700 dark:text-amber-300',
-  danger: 'text-red-700 dark:text-red-300',
+  success: 'text-success',
+  warning: 'text-warning',
+  danger: 'text-danger',
   info: 'text-blue-700 dark:text-blue-300',
   surface: 'text-surface-700 dark:text-surface-300',
 } as const;

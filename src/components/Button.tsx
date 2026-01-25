@@ -15,8 +15,8 @@ const variantStyles = {
   primary: "bg-sentinel-500 text-white hover:bg-sentinel-600 hover:shadow-soft hover:-translate-y-0.5 active:translate-y-0 active:bg-sentinel-700 focus-visible:ring-sentinel-500",
   secondary: "bg-surface-100 dark:bg-surface-700 text-surface-700 dark:text-surface-300 border border-surface-200 dark:border-surface-600 hover:bg-surface-200 dark:hover:bg-surface-600 hover:border-surface-300 active:bg-surface-300 dark:active:bg-surface-500 focus-visible:ring-surface-400",
   ghost: "text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800 hover:text-surface-800 dark:hover:text-surface-200 active:bg-surface-200 dark:active:bg-surface-700",
-  success: "bg-success text-white hover:bg-green-600 hover:shadow-soft hover:-translate-y-0.5 active:translate-y-0 focus-visible:ring-success",
-  danger: "bg-danger text-white hover:bg-red-600 hover:shadow-soft hover:-translate-y-0.5 active:translate-y-0 focus-visible:ring-danger",
+  success: "bg-success text-white hover:brightness-90 hover:shadow-soft hover:-translate-y-0.5 active:translate-y-0 focus-visible:ring-success",
+  danger: "bg-danger text-white hover:brightness-90 hover:shadow-soft hover:-translate-y-0.5 active:translate-y-0 focus-visible:ring-danger",
 };
 
 const sizeStyles = {

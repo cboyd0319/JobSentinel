@@ -165,7 +165,7 @@ export const JobCard = memo(function JobCard({ job, onViewJob, onHideJob, onTogg
 
               {/* Salary */}
               {salaryText && (
-                <span className="inline-flex items-center gap-1 text-green-600 dark:text-green-400 font-medium">
+                <span className="inline-flex items-center gap-1 text-success font-medium">
                   <SalaryIcon />
                   {salaryText}
                 </span>

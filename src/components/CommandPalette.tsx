@@ -26,6 +26,7 @@ export const CommandPalette = memo(function CommandPalette({ commands = [] }: Co
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const isMountedRef = useRef(true);
+  const [announcement, setAnnouncement] = useState("");
 
   // Combine shortcuts with additional commands (memoized)
   const allCommands = useMemo<Command[]>(
@@ -108,12 +109,22 @@ export const CommandPalette = memo(function CommandPalette({ commands = [] }: Co
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowDown") {
         e.preventDefault();
-        setSelectedIndex((prev) =>
-          prev < flatCommands.length - 1 ? prev + 1 : prev
-        );
+        setSelectedIndex((prev) => {
+          const newIndex = prev < flatCommands.length - 1 ? prev + 1 : prev;
+          if (newIndex !== prev && flatCommands[newIndex]) {
+            setAnnouncement(`${newIndex + 1} of ${flatCommands.length}, ${flatCommands[newIndex].name}`);
+          }
+          return newIndex;
+        });
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
-        setSelectedIndex((prev) => (prev > 0 ? prev - 1 : prev));
+        setSelectedIndex((prev) => {
+          const newIndex = prev > 0 ? prev - 1 : prev;
+          if (newIndex !== prev && flatCommands[newIndex]) {
+            setAnnouncement(`${newIndex + 1} of ${flatCommands.length}, ${flatCommands[newIndex].name}`);
+          }
+          return newIndex;
+        });
       } else if (e.key === "Enter") {
         e.preventDefault();
         if (flatCommands[selectedIndex]) {
@@ -139,7 +150,10 @@ export const CommandPalette = memo(function CommandPalette({ commands = [] }: Co
   // Reset selection when query changes
   useEffect(() => {
     setSelectedIndex(0);
-  }, [query]);
+    if (flatCommands.length > 0) {
+      setAnnouncement(`${flatCommands.length} ${flatCommands.length === 1 ? 'result' : 'results'}`);
+    }
+  }, [query, flatCommands.length]);
 
   if (!isCommandPaletteOpen) return null;
 
@@ -168,6 +182,16 @@ export const CommandPalette = memo(function CommandPalette({ commands = [] }: Co
         aria-label="Command palette"
         data-testid="command-palette"
       >
+        {/* Screen reader announcements */}
+        <div
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+          className="sr-only"
+        >
+          {announcement}
+        </div>
+
         {/* Search input */}
         <div className="flex items-center border-b border-surface-200 dark:border-surface-700 px-4">
           <svg
@@ -192,6 +216,11 @@ export const CommandPalette = memo(function CommandPalette({ commands = [] }: Co
             placeholder="Type a command or search..."
             className="w-full px-3 py-4 bg-transparent text-surface-900 dark:text-white placeholder-surface-400 focus:outline-none"
             data-testid="command-palette-input"
+            role="combobox"
+            aria-expanded="true"
+            aria-controls="command-palette-listbox"
+            aria-activedescendant={flatCommands[selectedIndex] ? `command-option-${flatCommands[selectedIndex].id}` : undefined}
+            aria-autocomplete="list"
           />
           <kbd className="hidden sm:inline-flex px-2 py-1 text-xs font-medium text-surface-500 bg-surface-100 dark:bg-surface-700 rounded">
             esc
@@ -203,6 +232,7 @@ export const CommandPalette = memo(function CommandPalette({ commands = [] }: Co
           ref={listRef}
           className="max-h-80 overflow-y-auto py-2"
           role="listbox"
+          id="command-palette-listbox"
           data-testid="command-palette-list"
         >
           {flatCommands.length === 0 ? (
@@ -225,6 +255,7 @@ export const CommandPalette = memo(function CommandPalette({ commands = [] }: Co
                   return (
                     <button
                       key={command.id}
+                      id={`command-option-${command.id}`}
                       data-index={currentIndex}
                       role="option"
                       aria-selected={isSelected}
