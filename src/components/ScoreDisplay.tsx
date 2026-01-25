@@ -92,6 +92,15 @@ const FACTOR_WEIGHTS = {
 } as const;
 
 /**
+ * Size configurations for score display (extracted to prevent re-creation on each render)
+ */
+const SIZE_CONFIG = {
+  sm: { container: "w-12 h-12", strokeWidth: 3, fontSize: "text-xs", radius: 18 },
+  md: { container: "w-16 h-16", strokeWidth: 4, fontSize: "text-sm", radius: 26 },
+  lg: { container: "w-20 h-20", strokeWidth: 5, fontSize: "text-base", radius: 34 },
+} as const;
+
+/**
  * Render the score breakdown tooltip content
  */
 function ScoreBreakdownTooltip({
@@ -175,13 +184,7 @@ export const ScoreDisplay = memo(function ScoreDisplay({
 
   const colors = getScoreColor();
 
-  const sizeConfig = {
-    sm: { container: "w-12 h-12", strokeWidth: 3, fontSize: "text-xs", radius: 18 },
-    md: { container: "w-16 h-16", strokeWidth: 4, fontSize: "text-sm", radius: 26 },
-    lg: { container: "w-20 h-20", strokeWidth: 5, fontSize: "text-base", radius: 34 },
-  };
-
-  const config = sizeConfig[size];
+  const config = SIZE_CONFIG[size];
   const circumference = 2 * Math.PI * config.radius;
   const strokeDashoffset = circumference - (safeScore * circumference);
 

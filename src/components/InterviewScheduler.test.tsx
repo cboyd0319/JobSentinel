@@ -692,9 +692,10 @@ describe("InterviewScheduler", () => {
       render(<InterviewScheduler onClose={mockOnClose} />);
 
       await waitFor(() => {
+        // Error message uses userFriendly format, falls back to title
         expect(mockToast.error).toHaveBeenCalledWith(
           "Failed to load interviews",
-          "Network error"
+          undefined
         );
       });
     });

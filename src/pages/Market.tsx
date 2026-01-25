@@ -1,5 +1,4 @@
 import { memo, useEffect, useState, useCallback, useMemo, lazy, Suspense } from "react";
-import { invoke } from "@tauri-apps/api/core";
 import { Button } from "../components/Button";
 import { Card } from "../components/Card";
 import { Badge } from "../components/Badge";
@@ -9,7 +8,7 @@ import { MarketAlertList } from "../components/MarketAlertCard";
 import { LocationHeatmap } from "../components/LocationHeatmap";
 import { ChartSkeleton } from "../components/LoadingFallbacks";
 import { useToast } from "../contexts";
-import { logError, getErrorMessage } from "../utils/errorUtils";
+import { safeInvoke, safeInvokeWithToast } from "../utils/api";
 import { formatCurrency } from "../utils/formatUtils";
 
 // Lazy load TrendChart to defer recharts bundle
@@ -167,11 +166,11 @@ export default function Market({ onBack }: MarketProps) {
       setLoading(true);
       setError(null);
       const [skillsData, companiesData, locationsData, alertsData, snapshotData] = await Promise.all([
-        invoke<SkillTrend[]>("get_trending_skills", { limit: 15 }),
-        invoke<CompanyActivity[]>("get_active_companies", { limit: 15 }),
-        invoke<LocationHeat[]>("get_hottest_locations", { limit: 12 }),
-        invoke<MarketAlert[]>("get_market_alerts"),
-        invoke<MarketSnapshot | null>("get_market_snapshot"),
+        safeInvoke<SkillTrend[]>("get_trending_skills", { limit: 15 }, { logContext: "Get trending skills" }),
+        safeInvoke<CompanyActivity[]>("get_active_companies", { limit: 15 }, { logContext: "Get active companies" }),
+        safeInvoke<LocationHeat[]>("get_hottest_locations", { limit: 12 }, { logContext: "Get hottest locations" }),
+        safeInvoke<MarketAlert[]>("get_market_alerts", {}, { logContext: "Get market alerts" }),
+        safeInvoke<MarketSnapshot | null>("get_market_snapshot", {}, { logContext: "Get market snapshot" }),
       ]);
 
       if (signal?.aborted) return;
@@ -182,14 +181,13 @@ export default function Market({ onBack }: MarketProps) {
       setAlerts(alertsData);
       setSnapshot(snapshotData);
       setLastFetched(new Date());
-    } catch (err) {
+    } catch (error) {
       if (signal?.aborted) return;
-      logError("Failed to fetch market data:", err);
-      const errorMsg = getErrorMessage(err);
-      setError(errorMsg);
+      const enhanced = error as Error & { userFriendly?: { title: string; message: string } };
+      setError(enhanced.message || "Failed to load market data");
       toast.error(
-        "Market data unavailable",
-        "Couldn't load market intelligence. Check your connection and make sure market analysis has been run at least once."
+        enhanced.userFriendly?.title || "Market data unavailable",
+        enhanced.userFriendly?.message || "Couldn't load market intelligence. Check your connection and make sure market analysis has been run at least once."
       );
     } finally {
       if (!signal?.aborted) {
@@ -209,15 +207,13 @@ export default function Market({ onBack }: MarketProps) {
   const handleRunAnalysis = async () => {
     try {
       setAnalyzing(true);
-      await invoke("run_market_analysis");
+      await safeInvokeWithToast("run_market_analysis", {}, toast, {
+        logContext: "Run market analysis"
+      });
       toast.success("Analysis complete", "Market data has been refreshed");
       await fetchData();
-    } catch (err) {
-      logError("Failed to run analysis:", err);
-      toast.error(
-        "Market analysis failed",
-        "Couldn't analyze market data. Make sure you have job listings in your database first."
-      );
+    } catch {
+      // Error already logged and shown to user
     } finally {
       setAnalyzing(false);
     }
@@ -225,30 +221,26 @@ export default function Market({ onBack }: MarketProps) {
 
   const handleMarkAlertRead = async (id: number) => {
     try {
-      await invoke("mark_alert_read", { id });
+      await safeInvokeWithToast("mark_alert_read", { id }, toast, {
+        logContext: "Mark alert as read"
+      });
       setAlerts((prev) =>
         prev.map((a) => (a.id === id ? { ...a, is_read: true } : a))
       );
-    } catch (err) {
-      logError("Failed to mark alert as read:", err);
-      toast.error(
-        "Couldn't mark alert as read",
-        "The alert is still marked unread. Try again or restart the app if this continues."
-      );
+    } catch {
+      // Error already logged and shown to user
     }
   };
 
   const handleMarkAllAlertsRead = async () => {
     try {
-      await invoke("mark_all_alerts_read");
+      await safeInvokeWithToast("mark_all_alerts_read", {}, toast, {
+        logContext: "Mark all alerts as read"
+      });
       setAlerts((prev) => prev.map((a) => ({ ...a, is_read: true })));
       toast.success("All alerts marked as read");
-    } catch (err) {
-      logError("Failed to mark all alerts:", err);
-      toast.error(
-        "Couldn't mark all alerts as read",
-        "Some alerts may still be unread. Try marking them individually or restart the app."
-      );
+    } catch {
+      // Error already logged and shown to user
     }
   };
 

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, memo } from "react";
-import { invoke } from "@tauri-apps/api/core";
+import { safeInvoke } from "../utils/api";
 import { Button } from "./Button";
 import { Card, CardHeader } from "./Card";
 import { Badge } from "./Badge";
@@ -7,7 +7,6 @@ import { StatCard } from "./StatCard";
 import { LoadingSpinner } from "./LoadingSpinner";
 import { Tooltip } from "./Tooltip";
 import { Modal } from "./Modal";
-import { logError } from "../utils/errorUtils";
 
 // Types matching Rust backend
 interface ScraperHealthMetrics {
@@ -163,9 +162,9 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({ onC
       setError(null);
 
       const [summaryData, scrapersData, credentialsData] = await Promise.all([
-        invoke<HealthSummary>("get_health_summary"),
-        invoke<ScraperHealthMetrics[]>("get_scraper_health"),
-        invoke<CredentialHealth[]>("get_expiring_credentials"),
+        safeInvoke<HealthSummary>("get_health_summary", {}, { logContext: "Load health summary" }),
+        safeInvoke<ScraperHealthMetrics[]>("get_scraper_health", {}, { logContext: "Load scraper health" }),
+        safeInvoke<CredentialHealth[]>("get_expiring_credentials", {}, { logContext: "Load credential health" }),
       ]);
 
       if (signal?.aborted) return;
@@ -187,16 +186,19 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({ onC
   const loadRunHistory = useCallback(async (scraperName: string, signal?: AbortSignal) => {
     try {
       setRunsLoading(true);
-      const runsData = await invoke<ScraperRun[]>("get_scraper_runs", {
+      const runsData = await safeInvoke<ScraperRun[]>("get_scraper_runs", {
         scraperName,
         limit: 20,
+      }, {
+        logContext: "Load scraper run history",
+        silent: true
       });
-      
+
       if (signal?.aborted) return;
       setRuns(runsData);
-    } catch (err) {
+    } catch {
       if (signal?.aborted) return;
-      logError("Failed to load run history:", err);
+      // Silent failure - non-critical
     } finally {
       if (!signal?.aborted) {
         setRunsLoading(false);
@@ -207,11 +209,13 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({ onC
   // Toggle scraper enabled
   const toggleScraper = useCallback(async (scraperName: string, enabled: boolean) => {
     try {
-      await invoke("set_scraper_enabled", { scraperName, enabled });
+      await safeInvoke("set_scraper_enabled", { scraperName, enabled }, {
+        logContext: "Toggle scraper enabled"
+      });
       // Reload data
       await loadHealthData();
-    } catch (err) {
-      logError("Failed to toggle scraper:", err);
+    } catch {
+      // Error already logged
     }
   }, [loadHealthData]);
 
@@ -219,13 +223,15 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({ onC
   const runSmokeTest = useCallback(async (scraperName: string) => {
     try {
       setTestingSingle(scraperName);
-      const result = await invoke<SmokeTestResult>("run_scraper_smoke_test", { scraperName });
+      const result = await safeInvoke<SmokeTestResult>("run_scraper_smoke_test", { scraperName }, {
+        logContext: "Run smoke test"
+      });
       setTestResults([result]);
       setShowTestResults(true);
       // Reload health data after test
       await loadHealthData();
-    } catch (err) {
-      logError("Failed to run smoke test:", err);
+    } catch {
+      // Error already logged
     } finally {
       setTestingSingle(null);
     }
@@ -235,13 +241,15 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({ onC
   const runAllSmokeTests = useCallback(async () => {
     try {
       setTestingAll(true);
-      const results = await invoke<SmokeTestResult[]>("run_all_smoke_tests");
+      const results = await safeInvoke<SmokeTestResult[]>("run_all_smoke_tests", {}, {
+        logContext: "Run all smoke tests"
+      });
       setTestResults(results);
       setShowTestResults(true);
       // Reload health data after tests
       await loadHealthData();
-    } catch (err) {
-      logError("Failed to run smoke tests:", err);
+    } catch {
+      // Error already logged
     } finally {
       setTestingAll(false);
     }

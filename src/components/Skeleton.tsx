@@ -8,6 +8,17 @@ interface SkeletonProps {
   lines?: number;
 }
 
+// Base styles constant (prevents re-creation on each render)
+const BASE_STYLES = "animate-pulse motion-safe:animate-pulse bg-surface-200 dark:bg-surface-700";
+
+// Variant styles constant
+const VARIANT_STYLES = {
+  text: "rounded h-4",
+  circular: "rounded-full",
+  rectangular: "",
+  rounded: "rounded-lg",
+} as const;
+
 export const Skeleton = memo(function Skeleton({
   className = "",
   variant = "text",
@@ -15,16 +26,6 @@ export const Skeleton = memo(function Skeleton({
   height,
   lines = 1,
 }: SkeletonProps) {
-  // Use both motion-safe:animate-pulse (for accessibility) and animate-pulse (for testability)
-  const baseStyles = "animate-pulse motion-safe:animate-pulse bg-surface-200 dark:bg-surface-700";
-
-  const variantStyles = {
-    text: "rounded h-4",
-    circular: "rounded-full",
-    rectangular: "",
-    rounded: "rounded-lg",
-  };
-
   const style: React.CSSProperties = {
     width: width ?? (variant === "circular" ? height : "100%"),
     height: height ?? (variant === "circular" ? width : undefined),
@@ -36,7 +37,7 @@ export const Skeleton = memo(function Skeleton({
         {Array.from({ length: lines }).map((_, i) => (
           <div
             key={i}
-            className={`${baseStyles} ${variantStyles.text}`}
+            className={`${BASE_STYLES} ${VARIANT_STYLES.text}`}
             style={{
               ...style,
               width: i === lines - 1 ? "75%" : style.width,
@@ -49,7 +50,7 @@ export const Skeleton = memo(function Skeleton({
 
   return (
     <div
-      className={`${baseStyles} ${variantStyles[variant]} ${className}`}
+      className={`${BASE_STYLES} ${VARIANT_STYLES[variant]} ${className}`}
       style={style}
     />
   );

@@ -493,6 +493,7 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
               <button
                 onClick={filters.clearFilters}
                 className="text-sm text-sentinel-600 dark:text-sentinel-400 hover:underline"
+                aria-label="Clear all filters to show all jobs"
               >
                 Clear all filters
               </button>
@@ -540,6 +541,7 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
             onChange={(e) => jobOps.setNotesText(e.target.value)}
             placeholder="Interview prep, company research, questions to ask..."
             className="w-full h-32 px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 placeholder-surface-400 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500 dark:focus:border-sentinel-400 dark:focus:ring-sentinel-400 resize-none"
+            aria-label="Job notes"
             autoFocus
           />
           <ModalFooter>
@@ -609,6 +611,7 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
                         savedSearches.setSaveSearchModalOpen(false);
                       }}
                       className="text-sm text-surface-600 dark:text-surface-300 hover:text-sentinel-600 dark:hover:text-sentinel-400 text-left flex-1"
+                      aria-label={`Load saved search: ${search.name}`}
                     >
                       {search.name}
                     </button>

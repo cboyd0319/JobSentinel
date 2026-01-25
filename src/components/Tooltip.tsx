@@ -7,6 +7,21 @@ interface TooltipProps {
   delay?: number;
 }
 
+// Position and arrow styles (extracted to prevent re-creation on each render)
+const POSITION_STYLES = {
+  top: "bottom-full left-1/2 -translate-x-1/2 mb-2",
+  bottom: "top-full left-1/2 -translate-x-1/2 mt-2",
+  left: "right-full top-1/2 -translate-y-1/2 mr-2",
+  right: "left-full top-1/2 -translate-y-1/2 ml-2",
+} as const;
+
+const ARROW_STYLES = {
+  top: "top-full left-1/2 -translate-x-1/2 border-t-surface-800 dark:border-t-surface-700 border-x-transparent border-b-transparent",
+  bottom: "bottom-full left-1/2 -translate-x-1/2 border-b-surface-800 dark:border-b-surface-700 border-x-transparent border-t-transparent",
+  left: "left-full top-1/2 -translate-y-1/2 border-l-surface-800 dark:border-l-surface-700 border-y-transparent border-r-transparent",
+  right: "right-full top-1/2 -translate-y-1/2 border-r-surface-800 dark:border-r-surface-700 border-y-transparent border-l-transparent",
+} as const;
+
 export const Tooltip = memo(function Tooltip({
   content,
   children,
@@ -38,20 +53,6 @@ export const Tooltip = memo(function Tooltip({
     };
   }, []);
 
-  const positionStyles = {
-    top: "bottom-full left-1/2 -translate-x-1/2 mb-2",
-    bottom: "top-full left-1/2 -translate-x-1/2 mt-2",
-    left: "right-full top-1/2 -translate-y-1/2 mr-2",
-    right: "left-full top-1/2 -translate-y-1/2 ml-2",
-  };
-
-  const arrowStyles = {
-    top: "top-full left-1/2 -translate-x-1/2 border-t-surface-800 dark:border-t-surface-700 border-x-transparent border-b-transparent",
-    bottom: "bottom-full left-1/2 -translate-x-1/2 border-b-surface-800 dark:border-b-surface-700 border-x-transparent border-t-transparent",
-    left: "left-full top-1/2 -translate-y-1/2 border-l-surface-800 dark:border-l-surface-700 border-y-transparent border-r-transparent",
-    right: "right-full top-1/2 -translate-y-1/2 border-r-surface-800 dark:border-r-surface-700 border-y-transparent border-l-transparent",
-  };
-
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Escape" && isVisible) {
       hideTooltip();
@@ -74,7 +75,7 @@ export const Tooltip = memo(function Tooltip({
           role="tooltip"
           aria-live="polite"
           className={`
-            absolute z-50 ${positionStyles[position]}
+            absolute z-50 ${POSITION_STYLES[position]}
             px-3 py-2 text-sm font-medium text-white
             bg-surface-800 dark:bg-surface-700
             rounded-lg shadow-lg
@@ -84,7 +85,7 @@ export const Tooltip = memo(function Tooltip({
         >
           {content}
           <div
-            className={`absolute w-0 h-0 border-4 ${arrowStyles[position]}`}
+            className={`absolute w-0 h-0 border-4 ${ARROW_STYLES[position]}`}
           />
         </div>
       )}

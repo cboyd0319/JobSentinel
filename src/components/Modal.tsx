@@ -12,12 +12,13 @@ interface ModalProps {
   showCloseButton?: boolean;
 }
 
-const sizeStyles = {
+// Size styles (extracted to prevent re-creation on each render)
+const SIZE_STYLES = {
   sm: "max-w-sm",
   md: "max-w-md",
   lg: "max-w-lg",
   xl: "max-w-xl",
-};
+} as const;
 
 export const Modal = memo(function Modal({
   isOpen,
@@ -101,7 +102,7 @@ export const Modal = memo(function Modal({
         tabIndex={-1}
         onKeyDown={handleKeyDown}
         className={`
-          relative w-full ${sizeStyles[size]}
+          relative w-full ${SIZE_STYLES[size]}
           bg-white dark:bg-surface-800
           rounded-card shadow-xl
           animate-slide-up

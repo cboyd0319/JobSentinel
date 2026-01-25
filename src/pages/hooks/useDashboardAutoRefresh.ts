@@ -2,12 +2,10 @@
 // Manages auto-refresh timer logic and countdown display
 
 import { useState, useEffect } from "react";
-import { invoke } from "@tauri-apps/api/core";
 import type { Job, Statistics, ScrapingStatus } from "../DashboardTypes";
 import { useToast } from "../../contexts";
-import { logError } from "../../utils/errorUtils";
 import { notifyScrapingComplete } from "../../utils/notifications";
-import { invalidateCacheByCommand } from "../../utils/api";
+import { safeInvoke, invalidateCacheByCommand } from "../../utils/api";
 
 interface AutoRefreshHookProps {
   searching: boolean;
@@ -61,7 +59,10 @@ export function useDashboardAutoRefresh({
 
       try {
         toast.info("Auto-refreshing...", "Scanning for new jobs");
-        await invoke("search_jobs");
+        await safeInvoke("search_jobs", {}, {
+          logContext: "Auto-refresh search jobs",
+          silent: true // Silent mode - don't log failures for auto-refresh
+        });
 
         // Invalidate cache after mutation
         invalidateCacheByCommand("get_recent_jobs");
@@ -70,9 +71,9 @@ export function useDashboardAutoRefresh({
 
         // Fetch fresh data
         const [jobsData, statsData, statusData] = await Promise.all([
-          invoke<Job[]>("get_recent_jobs", { limit: 50 }),
-          invoke<Statistics>("get_statistics"),
-          invoke<ScrapingStatus>("get_scraping_status"),
+          safeInvoke<Job[]>("get_recent_jobs", { limit: 50 }, { logContext: "Auto-refresh get jobs", silent: true }),
+          safeInvoke<Statistics>("get_statistics", {}, { logContext: "Auto-refresh get stats", silent: true }),
+          safeInvoke<ScrapingStatus>("get_scraping_status", {}, { logContext: "Auto-refresh get status", silent: true }),
         ]);
 
         onDataUpdate({
@@ -87,8 +88,7 @@ export function useDashboardAutoRefresh({
           toast.success("New matches found!", `${newCount} new high-match jobs`);
           notifyScrapingComplete(jobsData.length, newCount);
         }
-      } catch (err) {
-        logError("Auto-refresh failed:", err);
+      } catch {
         // Silent fail for auto-refresh - don't show error toast
       }
 

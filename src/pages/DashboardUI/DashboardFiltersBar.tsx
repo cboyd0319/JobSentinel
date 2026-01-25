@@ -232,6 +232,7 @@ export const DashboardFiltersBar = memo(function DashboardFiltersBar({
                   <button
                     onClick={clearSearchHistory}
                     className="text-xs text-surface-400 hover:text-surface-600 dark:hover:text-surface-300"
+                    aria-label="Clear search history"
                   >
                     Clear
                   </button>
@@ -245,6 +246,7 @@ export const DashboardFiltersBar = memo(function DashboardFiltersBar({
                           setShowSearchHistory(false);
                         }}
                         className="w-full px-3 py-2 text-left text-sm text-surface-700 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-700 flex items-center gap-2"
+                        aria-label={`Use search: ${query}`}
                       >
                         <HistoryIcon className="w-3 h-3 text-surface-400" />
                         {query}
@@ -386,6 +388,7 @@ export const DashboardFiltersBar = memo(function DashboardFiltersBar({
             <button
               onClick={clearFilters}
               className="text-sm text-sentinel-600 dark:text-sentinel-400 hover:underline"
+              aria-label="Clear all active filters"
             >
               Clear filters
             </button>
@@ -492,6 +495,7 @@ export const DashboardFiltersBar = memo(function DashboardFiltersBar({
                 <button
                   onClick={handleBulkExport}
                   className="flex items-center gap-1 px-2 py-1 text-sm text-surface-600 dark:text-surface-300 hover:text-surface-800 dark:hover:text-surface-100 hover:bg-surface-200 dark:hover:bg-surface-700 rounded transition-colors"
+                  aria-label={`Export ${selectedJobIds.size} selected jobs to CSV`}
                 >
                   <ExportIcon className="w-4 h-4" />
                   Export
@@ -500,6 +504,7 @@ export const DashboardFiltersBar = memo(function DashboardFiltersBar({
                   onClick={handleCompareJobs}
                   disabled={selectedJobIds.size < 2 || selectedJobIds.size > 3}
                   className="flex items-center gap-1 px-2 py-1 text-sm text-surface-600 dark:text-surface-300 hover:text-sentinel-600 dark:hover:text-sentinel-400 hover:bg-surface-200 dark:hover:bg-surface-700 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  aria-label={selectedJobIds.size < 2 ? "Select 2-3 jobs to compare" : selectedJobIds.size > 3 ? "Maximum 3 jobs for comparison" : `Compare ${selectedJobIds.size} selected jobs`}
                   title={selectedJobIds.size < 2 ? "Select 2-3 jobs" : selectedJobIds.size > 3 ? "Max 3 jobs" : "Compare selected jobs"}
                 >
                   <CompareIcon className="w-4 h-4" />
@@ -508,6 +513,7 @@ export const DashboardFiltersBar = memo(function DashboardFiltersBar({
                 <button
                   onClick={() => handleBulkBookmark(true)}
                   className="flex items-center gap-1 px-2 py-1 text-sm text-surface-600 dark:text-surface-300 hover:text-yellow-600 dark:hover:text-yellow-400 hover:bg-surface-200 dark:hover:bg-surface-700 rounded transition-colors"
+                  aria-label={`Bookmark ${selectedJobIds.size} selected jobs`}
                 >
                   <BookmarkIcon className="w-4 h-4" />
                   Bookmark
@@ -515,6 +521,7 @@ export const DashboardFiltersBar = memo(function DashboardFiltersBar({
                 <button
                   onClick={handleBulkHide}
                   className="flex items-center gap-1 px-2 py-1 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
+                  aria-label={`Hide ${selectedJobIds.size} selected jobs`}
                 >
                   <HideIcon className="w-4 h-4" />
                   Hide

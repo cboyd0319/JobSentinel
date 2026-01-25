@@ -250,6 +250,7 @@ export const JobCard = memo(function JobCard({ job, onViewJob, onHideJob, onTogg
                   : "bg-surface-50 dark:bg-surface-700 text-surface-600 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-600"
                 }
               `}
+              aria-label={`View ${job.title} at ${job.company} job posting`}
               data-testid="btn-view"
             >
               View

@@ -16,6 +16,8 @@ interface DropdownProps {
   error?: string;
   disabled?: boolean;
   className?: string;
+  /** Accessible label for dropdowns without visible labels */
+  "aria-label"?: string;
 }
 
 export const Dropdown = memo(function Dropdown({
@@ -27,6 +29,7 @@ export const Dropdown = memo(function Dropdown({
   error,
   disabled = false,
   className = "",
+  "aria-label": ariaLabel,
 }: DropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
@@ -111,6 +114,7 @@ export const Dropdown = memo(function Dropdown({
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         aria-activedescendant={isOpen && highlightedIndex >= 0 ? `dropdown-option-${highlightedIndex}` : undefined}
+        aria-label={!label ? ariaLabel || placeholder : undefined}
         className={`
           w-full px-4 py-3 text-left
           bg-white dark:bg-surface-800

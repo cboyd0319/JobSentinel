@@ -119,27 +119,27 @@ try {
 - ✅ `src/pages/Dashboard.tsx` - Manual search, job operations
 - ✅ `src/pages/Applications.tsx` - Status updates, notes, reminders, ghost detection
 - ⏳ `src/pages/Settings.tsx` - Already using getUserFriendlyError (good!)
-- ⏳ `src/pages/Resume.tsx` - Needs review
-- ⏳ `src/pages/ResumeBuilder.tsx` - Needs review
-- ⏳ `src/pages/Market.tsx` - Needs review
-- ⏳ `src/pages/SetupWizard.tsx` - Needs review
+- ✅ `src/pages/Resume.tsx` - MIGRATED
+- ✅ `src/pages/ResumeBuilder.tsx` - MIGRATED
+- ✅ `src/pages/Market.tsx` - MIGRATED
+- ✅ `src/pages/SetupWizard.tsx` - MIGRATED
 
 ### Hooks
 
 - ✅ `src/pages/hooks/useDashboardJobOps.ts` - Hide, bookmark, notes, bulk ops, duplicates
-- ⏳ `src/pages/hooks/useDashboardSavedSearches.ts` - Needs review
-- ⏳ `src/pages/hooks/useDashboardAutoRefresh.ts` - Needs review
+- ✅ `src/pages/hooks/useDashboardSavedSearches.ts` - MIGRATED
+- ✅ `src/pages/hooks/useDashboardAutoRefresh.ts` - MIGRATED
 
 ### Components
 
 - ✅ `src/components/automation/ApplyButton.tsx` - ATS detection, form filling, browser control
-- ⏳ `src/components/automation/ProfileForm.tsx` - Needs review
-- ⏳ `src/components/automation/ScreeningAnswersForm.tsx` - Needs review
-- ⏳ `src/components/InterviewScheduler.tsx` - Needs review
-- ⏳ `src/components/NotificationPreferences.tsx` - Needs review
-- ⏳ `src/components/ScraperHealthDashboard.tsx` - Needs review
-- ⏳ `src/components/GhostIndicator.tsx` - Needs review
-- ⏳ `src/components/AsyncButton.tsx` - Needs review
+- ⏳ `src/components/automation/ProfileForm.tsx` - NOT MODIFIED (already fixed per user request)
+- ✅ `src/components/automation/ScreeningAnswersForm.tsx` - MIGRATED
+- ✅ `src/components/InterviewScheduler.tsx` - MIGRATED
+- ✅ `src/components/NotificationPreferences.tsx` - MIGRATED
+- ✅ `src/components/ScraperHealthDashboard.tsx` - MIGRATED
+- ✅ `src/components/GhostIndicator.tsx` - MIGRATED
+- ⏳ `src/components/AsyncButton.tsx` - NOT NEEDED (no Tauri invoke calls)
 
 ## Benefits
 

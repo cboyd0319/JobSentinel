@@ -10,18 +10,19 @@ interface ProgressProps {
   className?: string;
 }
 
-const sizeStyles = {
+// Style constants (extracted to prevent re-creation on each render)
+const SIZE_STYLES = {
   sm: "h-1",
   md: "h-2",
   lg: "h-3",
-};
+} as const;
 
-const variantStyles = {
+const VARIANT_STYLES = {
   sentinel: "bg-sentinel-500",
   alert: "bg-alert-500",
   success: "bg-success",
   danger: "bg-danger",
-};
+} as const;
 
 export const Progress = memo(function Progress({
   value,
@@ -49,7 +50,7 @@ export const Progress = memo(function Progress({
       <div
         className={`
           w-full bg-surface-100 dark:bg-surface-700 rounded-full overflow-hidden
-          ${sizeStyles[size]}
+          ${SIZE_STYLES[size]}
         `}
         role="progressbar"
         aria-valuenow={value}
@@ -59,7 +60,7 @@ export const Progress = memo(function Progress({
         <div
           className={`
             h-full rounded-full
-            ${variantStyles[variant]}
+            ${VARIANT_STYLES[variant]}
             ${animated ? "transition-all duration-500 ease-out" : ""}
           `}
           style={{ width: `${percentage}%` }}
@@ -79,7 +80,7 @@ export const ProgressIndeterminate = memo(function ProgressIndeterminate({
     <div
       className={`
         w-full bg-surface-100 dark:bg-surface-700 rounded-full overflow-hidden
-        ${sizeStyles[size]}
+        ${SIZE_STYLES[size]}
         ${className}
       `}
       role="progressbar"
@@ -88,7 +89,7 @@ export const ProgressIndeterminate = memo(function ProgressIndeterminate({
       <div
         className={`
           h-full w-1/3 rounded-full
-          ${variantStyles[variant]}
+          ${VARIANT_STYLES[variant]}
           animate-progress-indeterminate
         `}
       />

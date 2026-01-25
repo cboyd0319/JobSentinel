@@ -1,9 +1,7 @@
 import { useEffect, useState, useCallback, memo } from "react";
-import { invoke } from "@tauri-apps/api/core";
-import { cachedInvoke, invalidateCacheByCommand } from "../utils/api";
+import { cachedInvoke, invalidateCacheByCommand, safeInvoke, safeInvokeWithToast } from "../utils/api";
 import { Card, Button, Badge, CompanyResearchPanel } from "./index";
 import { useToast } from "../contexts";
-import { logError, getErrorMessage } from "../utils/errorUtils";
 import { formatInterviewDate, getRelativeTimeUntil } from "../utils/formatUtils";
 import { MIN_INTERVIEW_DURATION, MAX_INTERVIEW_DURATION } from "../utils/constants";
 
@@ -182,9 +180,10 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
       // Load reminders for all past interviews
       const reminders: Record<number, FollowUpReminder> = {};
       for (const interview of pastInterviews) {
-        const result = await invoke<{ thank_you_sent: boolean; sent_at: string | null } | null>(
+        const result = await safeInvoke<{ thank_you_sent: boolean; sent_at: string | null } | null>(
           'get_interview_followup',
-          { interviewId: interview.id }
+          { interviewId: interview.id },
+          { logContext: "Load interview follow-up", silent: true }
         );
         if (result) {
           reminders[interview.id] = {
@@ -195,8 +194,8 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
         }
       }
       setFollowUpReminders(reminders);
-    } catch (err) {
-      logError("Failed to load follow-up reminders:", err);
+    } catch {
+      // Silent failure - non-critical on load
     }
   }, [pastInterviews]);
 
@@ -212,17 +211,17 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
     const loadPrepProgress = async () => {
       if (!selectedInterview) return;
       try {
-        const items = await invoke<PrepChecklistItem[]>(
+        const items = await safeInvoke<PrepChecklistItem[]>(
           'get_interview_prep_checklist',
-          { interviewId: selectedInterview.id }
+          { interviewId: selectedInterview.id },
+          { logContext: "Load interview prep checklist", silent: true }
         );
         const progress: PrepProgress = {};
         for (const item of items) {
           progress[item.itemId] = item.completed;
         }
         setPrepProgress(progress);
-      } catch (err) {
-        logError("Failed to load prep progress:", err);
+      } catch {
         setPrepProgress({});
       }
     };
@@ -235,16 +234,16 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
     // Optimistic update
     setPrepProgress(prev => ({ ...prev, [itemId]: newCompleted }));
     try {
-      await invoke('save_interview_prep_item', {
+      await safeInvokeWithToast('save_interview_prep_item', {
         interviewId: selectedInterview.id,
         itemId,
         completed: newCompleted,
+      }, toast, {
+        logContext: "Save interview prep item"
       });
-    } catch (err) {
+    } catch {
       // Revert on error
-      logError("Failed to save prep item:", err);
       setPrepProgress(prev => ({ ...prev, [itemId]: !newCompleted }));
-      toast.error("Failed to save", getErrorMessage(err));
     }
   };
 
@@ -261,21 +260,21 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
       },
     }));
     try {
-      await invoke('save_interview_followup', {
+      await safeInvokeWithToast('save_interview_followup', {
         interviewId,
         thankYouSent: newValue,
+      }, toast, {
+        logContext: "Save interview follow-up"
       });
       if (newValue) {
         toast.success("Follow-up marked", "Thank you note sent!");
       }
-    } catch (err) {
+    } catch {
       // Revert on error
-      logError("Failed to save follow-up:", err);
       setFollowUpReminders(prev => ({
         ...prev,
         [interviewId]: current || { interviewId, thankYouSent: false, sentAt: null },
       }));
-      toast.error("Failed to save", getErrorMessage(err));
     }
   };
 
@@ -306,8 +305,11 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
       setInterviews(upcomingData);
       setPastInterviews(pastData);
     } catch (err) {
-      logError("Failed to fetch interviews:", err);
-      toast.error("Failed to load interviews", getErrorMessage(err));
+      const enhanced = err as Error & { userFriendly?: { title: string; message: string } };
+      toast.error(
+        enhanced.userFriendly?.title || "Failed to load interviews",
+        enhanced.userFriendly?.message
+      );
     } finally {
       setLoading(false);
     }
@@ -370,7 +372,7 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
 
     try {
       setScheduling(true);
-      await invoke("schedule_interview", {
+      await safeInvokeWithToast("schedule_interview", {
         applicationId: formData.application_id,
         interviewType: formData.interview_type,
         scheduledAt: formData.scheduled_at,
@@ -379,6 +381,8 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
         interviewerName: formData.interviewer_name || null,
         interviewerTitle: formData.interviewer_title || null,
         notes: formData.notes || null,
+      }, toast, {
+        logContext: "Schedule interview"
       });
       invalidateCacheByCommand("get_upcoming_interviews");
       toast.success("Interview scheduled", "Your interview has been added to the calendar");
@@ -394,9 +398,8 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
         notes: "",
       });
       fetchInterviews();
-    } catch (err) {
-      logError("Failed to schedule interview:", err);
-      toast.error("Failed to schedule", getErrorMessage(err));
+    } catch {
+      // Error already logged and shown to user
     } finally {
       setScheduling(false);
     }
@@ -405,10 +408,12 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
   const handleCompleteInterview = async (interview: Interview, outcome: string, postNotes?: string) => {
     try {
       setCompleting(true);
-      await invoke("complete_interview", {
+      await safeInvokeWithToast("complete_interview", {
         interviewId: interview.id,
         outcome,
         notes: postNotes || null,
+      }, toast, {
+        logContext: "Complete interview"
       });
       invalidateCacheByCommand("get_upcoming_interviews");
       invalidateCacheByCommand("get_past_interviews");
@@ -418,9 +423,8 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
       setFeedbackOutcome('');
       setFeedbackNotes('');
       fetchInterviews();
-    } catch (err) {
-      logError("Failed to complete interview:", err);
-      toast.error("Failed to update", getErrorMessage(err));
+    } catch {
+      // Error already logged and shown to user
     } finally {
       setCompleting(false);
     }
@@ -434,15 +438,16 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
   const handleDeleteInterview = async (interviewId: number) => {
     try {
       setDeleting(true);
-      await invoke("delete_interview", { interviewId });
+      await safeInvokeWithToast("delete_interview", { interviewId }, toast, {
+        logContext: "Delete interview"
+      });
       invalidateCacheByCommand("get_upcoming_interviews");
       toast.success("Interview deleted", "The interview has been removed");
       setShowDeleteConfirm(false);
       setSelectedInterview(null);
       fetchInterviews();
-    } catch (err) {
-      logError("Failed to delete interview:", err);
-      toast.error("Failed to delete", getErrorMessage(err));
+    } catch {
+      // Error already logged and shown to user
     } finally {
       setDeleting(false);
     }

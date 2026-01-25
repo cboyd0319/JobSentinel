@@ -1,12 +1,11 @@
 import { useState } from "react";
-import { invoke } from "@tauri-apps/api/core";
 import { Button } from "../components/Button";
 import { Input } from "../components/Input";
 import { Badge } from "../components/Badge";
 import { Card } from "../components/Card";
 import { CareerProfileSelector } from "../components/CareerProfileSelector";
 import { useToast } from "../contexts";
-import { logError, getErrorMessage } from "../utils/errorUtils";
+import { safeInvoke, safeInvokeWithToast } from "../utils/api";
 import { CAREER_PROFILES, getProfileById, profileToConfig } from "../utils/profiles";
 
 interface SetupWizardProps {
@@ -199,7 +198,9 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
       // Store Slack webhook in secure storage if provided
       const webhookUrl = config.alerts.slack.webhook_url;
       if (webhookUrl && isValidSlackWebhook(webhookUrl)) {
-        await invoke("store_credential", { key: "slack_webhook", value: webhookUrl });
+        await safeInvoke("store_credential", { key: "slack_webhook", value: webhookUrl }, {
+          logContext: "Store Slack webhook credential"
+        });
       }
 
       // Create config object without the webhook_url (it's stored in keyring, not config file)
@@ -214,12 +215,13 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
         },
       };
 
-      await invoke("complete_setup", { config: configToSave });
+      await safeInvokeWithToast("complete_setup", { config: configToSave }, toast, {
+        logContext: "Complete setup wizard"
+      });
       toast.success("Setup complete!", "Let's find you some great jobs");
       onComplete();
-    } catch (error) {
-      logError("Setup failed:", error);
-      toast.error("Setup failed", getErrorMessage(error));
+    } catch {
+      // Error already logged and shown to user
     }
   };
 

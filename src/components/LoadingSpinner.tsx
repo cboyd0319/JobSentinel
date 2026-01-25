@@ -5,22 +5,28 @@ interface LoadingSpinnerProps {
   size?: "sm" | "md" | "lg";
 }
 
+// Size configurations (extracted to prevent re-creation on each render)
+const SIZE_CLASSES = {
+  sm: "w-8 h-8",
+  md: "w-12 h-12",
+  lg: "w-16 h-16",
+} as const;
+
+// Animation durations (extracted constants)
+const ANIMATION_DURATION = "1.5s";
+const DOT_ANIMATION_DELAYS = ["0ms", "150ms", "300ms"] as const;
+
 export const LoadingSpinner = memo(function LoadingSpinner({
   message = "Loading...",
   size = "md"
 }: LoadingSpinnerProps) {
-  const sizeClasses = {
-    sm: "w-8 h-8",
-    md: "w-12 h-12",
-    lg: "w-16 h-16",
-  };
 
   return (
     <div className="flex items-center justify-center h-screen bg-surface-50 dark:bg-surface-900">
       <div className="text-center animate-fade-in">
         {/* Sentinel-themed scanner animation */}
         <div className="relative mb-6">
-          <div className={`${sizeClasses[size]} mx-auto`}>
+          <div className={`${SIZE_CLASSES[size]} mx-auto`}>
             {/* Outer ring */}
             <svg className="w-full h-full" viewBox="0 0 48 48" aria-hidden="true">
               <circle
@@ -43,7 +49,7 @@ export const LoadingSpinner = memo(function LoadingSpinner({
                 strokeLinecap="round"
                 strokeDasharray="31.4 94.2"
                 className="text-sentinel-500 animate-spin motion-safe:animate-spin"
-                style={{ animationDuration: '1.5s' }}
+                style={{ animationDuration: ANIMATION_DURATION }}
               />
             </svg>
             {/* Center sentinel icon */}
@@ -81,9 +87,9 @@ export const LoadingSpinner = memo(function LoadingSpinner({
 export const LoadingDots = memo(function LoadingDots() {
   return (
     <span className="inline-flex gap-1">
-      <span className="w-1.5 h-1.5 bg-current rounded-full animate-bounce motion-safe:animate-bounce" style={{ animationDelay: '0ms' }} />
-      <span className="w-1.5 h-1.5 bg-current rounded-full animate-bounce motion-safe:animate-bounce" style={{ animationDelay: '150ms' }} />
-      <span className="w-1.5 h-1.5 bg-current rounded-full animate-bounce motion-safe:animate-bounce" style={{ animationDelay: '300ms' }} />
+      <span className="w-1.5 h-1.5 bg-current rounded-full animate-bounce motion-safe:animate-bounce" style={{ animationDelay: DOT_ANIMATION_DELAYS[0] }} />
+      <span className="w-1.5 h-1.5 bg-current rounded-full animate-bounce motion-safe:animate-bounce" style={{ animationDelay: DOT_ANIMATION_DELAYS[1] }} />
+      <span className="w-1.5 h-1.5 bg-current rounded-full animate-bounce motion-safe:animate-bounce" style={{ animationDelay: DOT_ANIMATION_DELAYS[2] }} />
     </span>
   );
 });

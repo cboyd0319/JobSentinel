@@ -1,5 +1,4 @@
 import { useEffect, useState, useCallback } from "react";
-import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { Button } from "../components/Button";
 import { Card } from "../components/Card";
@@ -8,7 +7,7 @@ import { ScoreDisplay } from "../components/ScoreDisplay";
 import { Modal, ModalFooter } from "../components/Modal";
 import { ResumeSkeleton } from "../components/Skeleton";
 import { useToast } from "../contexts";
-import { logError, getErrorMessage } from "../utils/errorUtils";
+import { safeInvoke, safeInvokeWithToast } from "../utils/api";
 
 // Proficiency color lookup (better performance than switch)
 type BadgeVariant = "sentinel" | "alert" | "surface" | "success" | "danger";
@@ -120,8 +119,8 @@ export default function Resume({ onBack }: ResumeProps) {
       try {
         setLoading(true);
         const [resumeData, resumesData] = await Promise.all([
-          invoke<ResumeData | null>("get_active_resume"),
-          invoke<ResumeData[]>("list_all_resumes"),
+          safeInvoke<ResumeData | null>("get_active_resume", {}, { logContext: "Load active resume" }),
+          safeInvoke<ResumeData[]>("list_all_resumes", {}, { logContext: "List all resumes" }),
         ]);
 
         if (cancelled) return;
@@ -131,8 +130,8 @@ export default function Resume({ onBack }: ResumeProps) {
 
         if (resumeData) {
           const [skillsData, matchesData] = await Promise.all([
-            invoke<UserSkill[]>("get_user_skills", { resumeId: resumeData.id }),
-            invoke<MatchResult[]>("get_recent_matches", { resumeId: resumeData.id, limit: 10 }),
+            safeInvoke<UserSkill[]>("get_user_skills", { resumeId: resumeData.id }, { logContext: "Load user skills" }),
+            safeInvoke<MatchResult[]>("get_recent_matches", { resumeId: resumeData.id, limit: 10 }, { logContext: "Load recent matches" }),
           ]);
 
           if (cancelled) return;
@@ -140,10 +139,13 @@ export default function Resume({ onBack }: ResumeProps) {
           setSkills(skillsData);
           setRecentMatches(matchesData);
         }
-      } catch (err) {
+      } catch (error) {
         if (cancelled) return;
-        logError("Failed to fetch resume data:", err);
-        toast.error("Failed to load resume", getErrorMessage(err));
+        const enhanced = error as Error & { userFriendly?: { title: string; message: string } };
+        toast.error(
+          enhanced.userFriendly?.title || "Failed to load resume",
+          enhanced.userFriendly?.message
+        );
       } finally {
         if (!cancelled) {
           setLoading(false);
@@ -163,23 +165,26 @@ export default function Resume({ onBack }: ResumeProps) {
     try {
       setLoading(true);
       const [resumeData, resumesData] = await Promise.all([
-        invoke<ResumeData | null>("get_active_resume"),
-        invoke<ResumeData[]>("list_all_resumes"),
+        safeInvoke<ResumeData | null>("get_active_resume", {}, { logContext: "Refetch active resume" }),
+        safeInvoke<ResumeData[]>("list_all_resumes", {}, { logContext: "Refetch all resumes" }),
       ]);
       setResume(resumeData);
       setAllResumes(resumesData);
 
       if (resumeData) {
         const [skillsData, matchesData] = await Promise.all([
-          invoke<UserSkill[]>("get_user_skills", { resumeId: resumeData.id }),
-          invoke<MatchResult[]>("get_recent_matches", { resumeId: resumeData.id, limit: 10 }),
+          safeInvoke<UserSkill[]>("get_user_skills", { resumeId: resumeData.id }, { logContext: "Refetch user skills" }),
+          safeInvoke<MatchResult[]>("get_recent_matches", { resumeId: resumeData.id, limit: 10 }, { logContext: "Refetch recent matches" }),
         ]);
         setSkills(skillsData);
         setRecentMatches(matchesData);
       }
-    } catch (err) {
-      logError("Failed to fetch resume data:", err);
-      toast.error("Failed to load resume", getErrorMessage(err));
+    } catch (error) {
+      const enhanced = error as Error & { userFriendly?: { title: string; message: string } };
+      toast.error(
+        enhanced.userFriendly?.title || "Failed to load resume",
+        enhanced.userFriendly?.message
+      );
     } finally {
       setLoading(false);
     }
@@ -198,12 +203,13 @@ export default function Resume({ onBack }: ResumeProps) {
       const filePath = selected as string;
       const fileName = filePath.split("/").pop() || "Resume";
 
-      await invoke("upload_resume", { name: fileName, filePath });
+      await safeInvokeWithToast("upload_resume", { name: fileName, filePath }, toast, {
+        logContext: "Upload resume"
+      });
       toast.success("Resume uploaded", "Your resume has been parsed and analyzed");
       refetchData();
-    } catch (err) {
-      logError("Failed to upload resume:", err);
-      toast.error("Upload failed", getErrorMessage(err));
+    } catch {
+      // Error already logged and shown to user
     } finally {
       setUploading(false);
     }
@@ -211,24 +217,26 @@ export default function Resume({ onBack }: ResumeProps) {
 
   const handleSetActiveResume = async (resumeId: number) => {
     try {
-      await invoke("set_active_resume", { resumeId });
+      await safeInvokeWithToast("set_active_resume", { resumeId }, toast, {
+        logContext: "Set active resume"
+      });
       toast.success("Resume activated", "Switched to selected resume");
       setShowResumeLibrary(false);
       refetchData();
-    } catch (err) {
-      logError("Failed to set active resume:", err);
-      toast.error("Failed to switch resume", getErrorMessage(err));
+    } catch {
+      // Error already logged and shown to user
     }
   };
 
   const handleDeleteResume = async (resumeId: number) => {
     try {
-      await invoke("delete_resume", { resumeId });
+      await safeInvokeWithToast("delete_resume", { resumeId }, toast, {
+        logContext: "Delete resume"
+      });
       toast.success("Resume deleted", "Resume and associated data removed");
       refetchData();
-    } catch (err) {
-      logError("Failed to delete resume:", err);
-      toast.error("Failed to delete resume", getErrorMessage(err));
+    } catch {
+      // Error already logged and shown to user
     } finally {
       setDeleteConfirm(null);
     }
@@ -240,25 +248,27 @@ export default function Resume({ onBack }: ResumeProps) {
 
   const handleUpdateSkill = async (skillId: number) => {
     try {
-      await invoke("update_user_skill", { skillId, updates: editForm });
+      await safeInvokeWithToast("update_user_skill", { skillId, updates: editForm }, toast, {
+        logContext: "Update user skill"
+      });
       toast.success("Skill updated", "Your skill has been updated");
       setEditingSkillId(null);
       setEditForm({});
       refetchData();
-    } catch (err) {
-      logError("Failed to update skill:", err);
-      toast.error("Failed to update skill", getErrorMessage(err));
+    } catch {
+      // Error already logged and shown to user
     }
   };
 
   const handleDeleteSkill = async (skillId: number) => {
     try {
-      await invoke("delete_user_skill", { skillId });
+      await safeInvokeWithToast("delete_user_skill", { skillId }, toast, {
+        logContext: "Delete user skill"
+      });
       toast.success("Skill deleted", "Skill removed from your resume");
       refetchData();
-    } catch (err) {
-      logError("Failed to delete skill:", err);
-      toast.error("Failed to delete skill", getErrorMessage(err));
+    } catch {
+      // Error already logged and shown to user
     } finally {
       setDeleteConfirm(null);
     }
@@ -275,17 +285,18 @@ export default function Resume({ onBack }: ResumeProps) {
     }
 
     try {
-      await invoke("add_user_skill", {
+      await safeInvokeWithToast("add_user_skill", {
         resumeId: resume.id,
         skill: newSkillForm,
+      }, toast, {
+        logContext: "Add user skill"
       });
       toast.success("Skill added", `Added "${newSkillForm.skill_name}" to your skills`);
       setShowAddSkill(false);
       setNewSkillForm({ skill_name: "", proficiency_level: "Intermediate" });
       refetchData();
-    } catch (err) {
-      logError("Failed to add skill:", err);
-      toast.error("Failed to add skill", getErrorMessage(err));
+    } catch {
+      // Error already logged and shown to user
     }
   };
 

@@ -57,6 +57,8 @@ export const Button = memo(forwardRef<HTMLButtonElement, ButtonProps>(
           ${className}
         `}
         disabled={isDisabled}
+        aria-busy={loading || undefined}
+        aria-live={loading ? "polite" : undefined}
         {...props}
       >
         {loading ? (

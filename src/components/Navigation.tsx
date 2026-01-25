@@ -81,6 +81,12 @@ const OptimizerIcon = memo(function OptimizerIcon() {
   );
 });
 
+// Navigation dimensions (extracted to prevent re-creation on each render)
+const NAV_WIDTHS = {
+  collapsed: "64px",
+  expanded: "200px",
+} as const;
+
 const navItems: NavItem[] = [
   { id: "dashboard", label: "Dashboard", shortcut: "⌘1", icon: <DashboardIcon /> },
   { id: "applications", label: "Applications", shortcut: "⌘2", icon: <ApplicationsIcon /> },
@@ -98,7 +104,7 @@ export const Navigation = memo(function Navigation({ currentPage, onNavigate }: 
   return (
     <nav
       className="fixed left-0 top-0 h-full bg-surface-50 dark:bg-surface-900 border-r border-surface-200 dark:border-surface-700 z-40 transition-all duration-200"
-      style={{ width: isExpanded ? "200px" : "64px" }}
+      style={{ width: isExpanded ? NAV_WIDTHS.expanded : NAV_WIDTHS.collapsed }}
       onMouseEnter={() => setIsExpanded(true)}
       onMouseLeave={() => setIsExpanded(false)}
       aria-label="Main navigation"
@@ -126,11 +132,13 @@ export const Navigation = memo(function Navigation({ currentPage, onNavigate }: 
               onClick={() => onNavigate(item.id)}
               className={`
                 w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors
-                ${currentPage === item.id 
-                  ? "bg-sentinel-100 dark:bg-sentinel-900 text-sentinel-700 dark:text-sentinel-300" 
+                ${currentPage === item.id
+                  ? "bg-sentinel-100 dark:bg-sentinel-900 text-sentinel-700 dark:text-sentinel-300"
                   : "text-surface-600 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800 hover:text-surface-900 dark:hover:text-white"
                 }
               `}
+              aria-label={`${item.label} (${item.shortcut})`}
+              aria-current={currentPage === item.id ? "page" : undefined}
               title={!isExpanded ? `${item.label} (${item.shortcut})` : undefined}
             >
               <span className="flex-shrink-0">{item.icon}</span>

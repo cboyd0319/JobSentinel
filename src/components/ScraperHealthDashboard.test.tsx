@@ -781,7 +781,7 @@ describe("ScraperHealthDashboard", () => {
       await user.click(screen.getByText("Test All"));
 
       await waitFor(() => {
-        expect(mockInvoke).toHaveBeenCalledWith("run_all_smoke_tests");
+        expect(mockInvoke).toHaveBeenCalledWith("run_all_smoke_tests", {});
       });
     });
 
@@ -926,9 +926,9 @@ describe("ScraperHealthDashboard", () => {
       await user.click(screen.getByText("Refresh"));
 
       await waitFor(() => {
-        expect(mockInvoke).toHaveBeenCalledWith("get_health_summary");
-        expect(mockInvoke).toHaveBeenCalledWith("get_scraper_health");
-        expect(mockInvoke).toHaveBeenCalledWith("get_expiring_credentials");
+        expect(mockInvoke).toHaveBeenCalledWith("get_health_summary", {});
+        expect(mockInvoke).toHaveBeenCalledWith("get_scraper_health", {});
+        expect(mockInvoke).toHaveBeenCalledWith("get_expiring_credentials", {});
       });
     });
   });

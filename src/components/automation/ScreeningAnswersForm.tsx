@@ -1,8 +1,7 @@
 import { memo, useState, useEffect, useCallback, type ReactElement } from "react";
-import { invoke } from "@tauri-apps/api/core";
 import { Button, Input, Card, Badge, HelpIcon, Modal, ModalFooter } from "..";
 import { useToast } from "../../contexts";
-import { logError } from "../../utils/errorUtils";
+import { safeInvoke, safeInvokeWithToast } from "../../utils/api";
 
 // Lookup object for answer type badges (better performance than switch)
 const ANSWER_TYPE_BADGES: Record<string, ReactElement> = {
@@ -61,11 +60,16 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
   const loadAnswers = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await invoke<ScreeningAnswer[]>("get_screening_answers");
+      const data = await safeInvoke<ScreeningAnswer[]>("get_screening_answers", {}, {
+        logContext: "Load screening answers"
+      });
       setAnswers(data);
     } catch (error) {
-      logError("Failed to load screening answers:", error);
-      toast.error("Failed to load answers", "Please try again");
+      const enhanced = error as Error & { userFriendly?: { title: string; message: string } };
+      toast.error(
+        enhanced.userFriendly?.title || "Failed to load answers",
+        enhanced.userFriendly?.message || "Please try again"
+      );
     } finally {
       setLoading(false);
     }
@@ -103,11 +107,13 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
 
     try {
       setSaving(true);
-      await invoke("upsert_screening_answer", {
+      await safeInvokeWithToast("upsert_screening_answer", {
         questionPattern: questionPattern.trim(),
         answer: answer.trim(),
         answerType,
         notes: notes.trim() || null,
+      }, toast, {
+        logContext: "Upsert screening answer"
       });
 
       toast.success("Answer saved", "Your screening answer has been saved");
@@ -115,9 +121,8 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
       resetForm();
       await loadAnswers();
       onSaved?.();
-    } catch (error) {
-      logError("Failed to save screening answer:", error);
-      toast.error("Failed to save", "Please try again");
+    } catch {
+      // Error already logged and shown to user
     } finally {
       setSaving(false);
     }

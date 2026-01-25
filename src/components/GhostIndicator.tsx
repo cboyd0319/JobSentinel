@@ -1,7 +1,6 @@
 import { memo, useState } from "react";
 import { Tooltip } from "./Tooltip";
-import { invoke } from "@tauri-apps/api/core";
-import { logError } from "../utils/errorUtils";
+import { safeInvoke } from "../utils/api";
 
 interface GhostReason {
   category: "stale" | "repost" | "generic" | "missing_details" | "unrealistic" | "company_behavior";
@@ -128,14 +127,20 @@ export const GhostIndicator = memo(function GhostIndicator({
     setIsSubmitting(true);
     try {
       if (feedbackVerdict === "real") {
-        await invoke("mark_job_as_real", { jobId });
+        await safeInvoke("mark_job_as_real", { jobId }, {
+          logContext: "Mark job as real",
+          silent: true
+        });
       } else {
-        await invoke("mark_job_as_ghost", { jobId });
+        await safeInvoke("mark_job_as_ghost", { jobId }, {
+          logContext: "Mark job as ghost",
+          silent: true
+        });
       }
       setFeedbackState(feedbackVerdict);
       onFeedbackSubmitted?.(feedbackVerdict);
-    } catch (err) {
-      logError(`Failed to mark job as ${feedbackVerdict}:`, err);
+    } catch {
+      // Silent failure - feedback submission is non-critical
     } finally {
       setIsSubmitting(false);
     }
@@ -261,14 +266,20 @@ export const GhostIndicatorCompact = memo(function GhostIndicatorCompact({
     setIsSubmitting(true);
     try {
       if (feedbackVerdict === "real") {
-        await invoke("mark_job_as_real", { jobId });
+        await safeInvoke("mark_job_as_real", { jobId }, {
+          logContext: "Mark job as real",
+          silent: true
+        });
       } else {
-        await invoke("mark_job_as_ghost", { jobId });
+        await safeInvoke("mark_job_as_ghost", { jobId }, {
+          logContext: "Mark job as ghost",
+          silent: true
+        });
       }
       setFeedbackState(feedbackVerdict);
       onFeedbackSubmitted?.(feedbackVerdict);
-    } catch (err) {
-      logError(`Failed to mark job as ${feedbackVerdict}:`, err);
+    } catch {
+      // Silent failure - feedback submission is non-critical
     } finally {
       setIsSubmitting(false);
     }

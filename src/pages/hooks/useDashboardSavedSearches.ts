@@ -2,10 +2,9 @@
 // Manages saved search CRUD operations
 
 import { useState, useEffect, useCallback } from "react";
-import { invoke } from "@tauri-apps/api/core";
 import type { SavedSearch, SortOption, ScoreFilter, PostedDateFilter } from "../DashboardTypes";
 import { useToast } from "../../contexts";
-import { logError } from "../../utils/errorUtils";
+import { safeInvoke, safeInvokeWithToast } from "../../utils/api";
 
 export function useDashboardSavedSearches() {
   const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
@@ -17,7 +16,7 @@ export function useDashboardSavedSearches() {
   useEffect(() => {
     const loadSavedSearches = async () => {
       try {
-        const searches = await invoke<Array<{
+        const searches = await safeInvoke<Array<{
           id: string;
           name: string;
           sort_by: SortOption;
@@ -33,7 +32,10 @@ export function useDashboardSavedSearches() {
           text_search: string | null;
           created_at: string;
           last_used_at: string | null;
-        }>>('list_saved_searches');
+        }>>('list_saved_searches', {}, {
+          logContext: "Load saved searches",
+          silent: true // Non-critical on mount
+        });
         // Transform backend format to frontend format
         const transformed: SavedSearch[] = searches.map(s => ({
           id: s.id,
@@ -52,8 +54,8 @@ export function useDashboardSavedSearches() {
           createdAt: s.created_at,
         }));
         setSavedSearches(transformed);
-      } catch (err) {
-        logError("Failed to load saved searches:", err);
+      } catch {
+        // Error already logged, silent failure on mount
       }
     };
     loadSavedSearches();
@@ -79,7 +81,7 @@ export function useDashboardSavedSearches() {
 
     try {
       const filters = getCurrentFilters();
-      const result = await invoke<{
+      const result = await safeInvoke<{
         id: string;
         name: string;
         created_at: string;
@@ -94,6 +96,8 @@ export function useDashboardSavedSearches() {
         postedDateFilter: filters.postedDateFilter,
         salaryMinFilter: filters.salaryMinFilter,
         salaryMaxFilter: filters.salaryMaxFilter,
+      }, {
+        logContext: "Create saved search"
       });
 
       const newSearch: SavedSearch = {
@@ -107,11 +111,11 @@ export function useDashboardSavedSearches() {
       setSaveSearchModalOpen(false);
       setNewSearchName("");
       toast.success("Search saved", `"${newSearch.name}" can now be loaded anytime`);
-    } catch (err) {
-      logError("Failed to save search:", err);
+    } catch (error) {
+      const enhanced = error as Error & { userFriendly?: { title: string; message: string } };
       toast.error(
-        "Search wasn't saved",
-        "Your search filters couldn't be saved. Make sure you entered a unique name and try again."
+        enhanced.userFriendly?.title || "Search wasn't saved",
+        enhanced.userFriendly?.message || "Your search filters couldn't be saved. Make sure you entered a unique name and try again."
       );
     }
   }, [newSearchName, toast]);
@@ -122,23 +126,21 @@ export function useDashboardSavedSearches() {
   ) => {
     loadFilters(search.filters);
     toast.info("Filters loaded", `Applied "${search.name}"`);
-    // Track usage in backend (non-blocking)
-    invoke('use_saved_search', { id: search.id }).catch(err => {
-      logError("Failed to track search usage:", err);
+    // Track usage in backend (non-blocking, silent failure)
+    safeInvoke('use_saved_search', { id: search.id }, { silent: true }).catch(() => {
+      // Silent failure - tracking is non-critical
     });
   }, [toast]);
 
   const handleDeleteSearch = useCallback(async (id: string) => {
     try {
-      await invoke('delete_saved_search', { id });
+      await safeInvokeWithToast('delete_saved_search', { id }, toast, {
+        logContext: "Delete saved search"
+      });
       setSavedSearches(prev => prev.filter((s) => s.id !== id));
       toast.success("Search deleted", "Saved search removed");
-    } catch (err) {
-      logError("Failed to delete search:", err);
-      toast.error(
-        "Couldn't delete saved search",
-        "The search is still saved. Try again, or restart the app if the problem continues."
-      );
+    } catch {
+      // Error already logged and shown to user
     }
   }, [toast]);
 

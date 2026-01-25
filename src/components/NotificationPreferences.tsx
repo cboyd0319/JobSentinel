@@ -1,11 +1,10 @@
 import { useState, useEffect, useCallback, memo } from 'react';
-import { invoke } from '@tauri-apps/api/core';
 import { Card } from './Card';
 import { Badge } from './Badge';
 import { HelpIcon } from './HelpIcon';
 import { CompanyAutocomplete } from './CompanyAutocomplete';
 import { useToast } from '../contexts';
-import { logError } from '../utils/errorUtils';
+import { safeInvoke } from '../utils/api';
 import { SALARY_THOUSANDS_MULTIPLIER } from '../utils/constants';
 
 export interface SourceNotificationConfig {
@@ -75,13 +74,16 @@ const SOURCE_INFO: Record<string, { name: string; color: string; icon: string }>
 // Async load from backend
 export async function loadNotificationPreferencesAsync(): Promise<NotificationPreferences> {
   try {
-    const stored = await invoke<NotificationPreferences | null>('get_notification_preferences');
+    const stored = await safeInvoke<NotificationPreferences | null>('get_notification_preferences', {}, {
+      logContext: "Load notification preferences",
+      silent: true
+    });
     if (stored) {
       // Merge with defaults to handle new fields
       return { ...DEFAULT_PREFERENCES, ...stored };
     }
-  } catch (e) {
-    logError('Failed to load notification preferences from backend:', e);
+  } catch {
+    // Silent failure - return defaults
   }
   return DEFAULT_PREFERENCES;
 }
@@ -89,10 +91,12 @@ export async function loadNotificationPreferencesAsync(): Promise<NotificationPr
 // Async save to backend
 export async function saveNotificationPreferencesAsync(prefs: NotificationPreferences): Promise<boolean> {
   try {
-    await invoke('save_notification_preferences', { prefs });
+    await safeInvoke('save_notification_preferences', { prefs }, {
+      logContext: "Save notification preferences"
+    });
     return true;
-  } catch (e) {
-    logError('Failed to save notification preferences to backend:', e);
+  } catch {
+    // Error already logged
     return false;
   }
 }
@@ -302,8 +306,8 @@ export const NotificationPreferences = memo(function NotificationPreferences() {
       setLoadError(null);
       const loaded = await loadNotificationPreferencesAsync();
       setPrefs(loaded);
-    } catch (err) {
-      logError('Failed to load notification preferences:', err);
+    } catch {
+      // Error logged by safeInvoke in loadNotificationPreferencesAsync
       setLoadError('Failed to load notification preferences');
     } finally {
       setLoading(false);

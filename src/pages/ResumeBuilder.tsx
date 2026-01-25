@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from "react";
-import { invoke } from "@tauri-apps/api/core";
 import { Button } from "../components/Button";
 import { Card, CardHeader } from "../components/Card";
 import { LoadingSpinner } from "../components/LoadingSpinner";
@@ -7,7 +6,7 @@ import { Progress } from "../components/Progress";
 import { Modal, ModalFooter } from "../components/Modal";
 import { AtsLiveScorePanel } from "../components/AtsLiveScorePanel";
 import { useToast } from "../hooks/useToast";
-import { getErrorMessage, logError } from "../utils/errorUtils";
+import { safeInvoke, safeInvokeWithToast } from "../utils/api";
 
 // TypeScript Types
 interface Resume {
@@ -169,18 +168,23 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
   const initializeResume = useCallback(async () => {
     try {
       setLoading(true);
-      const id = await invoke<number>("create_resume_draft");
+      const id = await safeInvoke<number>("create_resume_draft", {}, {
+        logContext: "Create resume draft"
+      });
       setResumeId(id);
 
       // Load templates
-      const templatesData = await invoke<Template[]>("list_resume_templates");
+      const templatesData = await safeInvoke<Template[]>("list_resume_templates", {}, {
+        logContext: "List resume templates"
+      });
       setTemplates(templatesData);
 
       toast.success("Resume created", "Let's build your resume");
-    } catch (err) {
+    } catch (error) {
+      const enhanced = error as Error & { userFriendly?: { title: string; message: string } };
       toast.error(
-        "Resume builder unavailable",
-        "Couldn't start the resume builder. Try restarting the app or check if the database is accessible."
+        enhanced.userFriendly?.title || "Resume builder unavailable",
+        enhanced.userFriendly?.message || "Couldn't start the resume builder. Try restarting the app or check if the database is accessible."
       );
     } finally {
       setLoading(false);
@@ -197,7 +201,9 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
     if (!resumeId) return;
 
     try {
-      const data = await invoke<ResumeData | null>("get_resume_draft", { resumeId });
+      const data = await safeInvoke<ResumeData | null>("get_resume_draft", { resumeId }, {
+        logContext: "Load resume draft"
+      });
       if (data) {
         setResumeData(data);
         setContact(data.contact);
@@ -206,10 +212,11 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
         setEducations(data.education);
         setSkills(data.skills);
       }
-    } catch (err) {
+    } catch (error) {
+      const enhanced = error as Error & { userFriendly?: { title: string; message: string } };
       toast.error(
-        "Couldn't load your resume",
-        "Your resume data couldn't be retrieved. Try restarting the app or creating a new resume."
+        enhanced.userFriendly?.title || "Couldn't load your resume",
+        enhanced.userFriendly?.message || "Your resume data couldn't be retrieved. Try restarting the app or creating a new resume."
       );
     }
   }, [resumeId, toast]);
@@ -223,23 +230,30 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
 
       switch (currentStep) {
         case 1:
-          await invoke("update_resume_contact", { resumeId, contact });
+          await safeInvoke("update_resume_contact", { resumeId, contact }, {
+            logContext: "Update resume contact"
+          });
           break;
         case 2:
-          await invoke("update_resume_summary", { resumeId, summary });
+          await safeInvoke("update_resume_summary", { resumeId, summary }, {
+            logContext: "Update resume summary"
+          });
           break;
         case 5:
-          await invoke("set_resume_skills", { resumeId, skills });
+          await safeInvoke("set_resume_skills", { resumeId, skills }, {
+            logContext: "Set resume skills"
+          });
           break;
       }
 
       await loadResumeData();
-    } catch (err) {
+    } catch (error) {
+      const enhanced = error as Error & { userFriendly?: { title: string; message: string } };
       toast.error(
-        "Your changes weren't saved",
-        "The resume section couldn't be saved. Copy your work to a safe place and try again."
+        enhanced.userFriendly?.title || "Your changes weren't saved",
+        enhanced.userFriendly?.message || "The resume section couldn't be saved. Copy your work to a safe place and try again."
       );
-      throw err;
+      throw error;
     } finally {
       setSaving(false);
     }
@@ -297,17 +311,19 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
     if (!resumeId || !editingExperience) return;
 
     try {
-      const id = await invoke<number>("add_resume_experience", {
+      const id = await safeInvokeWithToast<number>("add_resume_experience", {
         resumeId,
         experience: editingExperience,
+      }, toast, {
+        logContext: "Add resume experience"
       });
 
       setExperiences([...experiences, { ...editingExperience, id }]);
       setShowExperienceModal(false);
       setEditingExperience(null);
       toast.success("Experience added", "");
-    } catch (err) {
-      toast.error("Failed to add experience", getErrorMessage(err));
+    } catch {
+      // Error already logged and shown to user
     }
   };
 
@@ -315,11 +331,13 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
     if (!resumeId) return;
 
     try {
-      await invoke("delete_resume_experience", { resumeId, experienceId });
+      await safeInvokeWithToast("delete_resume_experience", { resumeId, experienceId }, toast, {
+        logContext: "Delete resume experience"
+      });
       setExperiences(experiences.filter((e) => e.id !== experienceId));
       toast.success("Experience removed", "");
-    } catch (err) {
-      toast.error("Failed to delete experience", getErrorMessage(err));
+    } catch {
+      // Error already logged and shown to user
     } finally {
       setDeleteConfirm(null);
     }
@@ -334,17 +352,19 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
     if (!resumeId || !editingEducation) return;
 
     try {
-      const id = await invoke<number>("add_resume_education", {
+      const id = await safeInvokeWithToast<number>("add_resume_education", {
         resumeId,
         education: editingEducation,
+      }, toast, {
+        logContext: "Add resume education"
       });
 
       setEducations([...educations, { ...editingEducation, id }]);
       setShowEducationModal(false);
       setEditingEducation(null);
       toast.success("Education added", "");
-    } catch (err) {
-      toast.error("Failed to add education", getErrorMessage(err));
+    } catch {
+      // Error already logged and shown to user
     }
   };
 
@@ -352,11 +372,13 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
     if (!resumeId) return;
 
     try {
-      await invoke("delete_resume_education", { resumeId, educationId });
+      await safeInvokeWithToast("delete_resume_education", { resumeId, educationId }, toast, {
+        logContext: "Delete resume education"
+      });
       setEducations(educations.filter((e) => e.id !== educationId));
       toast.success("Education removed", "");
-    } catch (err) {
-      toast.error("Failed to delete education", getErrorMessage(err));
+    } catch {
+      // Error already logged and shown to user
     } finally {
       setDeleteConfirm(null);
     }
@@ -391,15 +413,19 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
       setImportingSkills(true);
 
       // Get active resume
-      const activeResume = await invoke<Resume>("get_active_resume");
+      const activeResume = await safeInvoke<Resume>("get_active_resume", {}, {
+        logContext: "Get active resume for skill import"
+      });
       if (!activeResume) {
         toast.warning("No resume uploaded", "Please upload a resume in ATS Optimizer first");
         return;
       }
 
       // Get skills from resume
-      const userSkills = await invoke<UserSkill[]>("get_user_skills", {
+      const userSkills = await safeInvoke<UserSkill[]>("get_user_skills", {
         resumeId: activeResume.id,
+      }, {
+        logContext: "Get user skills for import"
       });
 
       if (userSkills.length === 0) {
@@ -427,8 +453,12 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
 
       setSkills([...skills, ...newSkills]);
       toast.success(`Imported ${newSkills.length} skills`, "Skills added from resume");
-    } catch (err) {
-      toast.error("Failed to import skills", getErrorMessage(err));
+    } catch (error) {
+      const enhanced = error as Error & { userFriendly?: { title: string; message: string } };
+      toast.error(
+        enhanced.userFriendly?.title || "Failed to import skills",
+        enhanced.userFriendly?.message
+      );
     } finally {
       setImportingSkills(false);
     }
@@ -455,24 +485,32 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
       setLoading(true);
       // NOTE: render_resume_html must sanitize all user input on the Rust side
       // to prevent XSS attacks. The HTML returned here is trusted.
-      const html = await invoke<string>("render_resume_html", {
+      const html = await safeInvoke<string>("render_resume_html", {
         resume: resumeData,
         templateId: selectedTemplate,
+      }, {
+        logContext: "Render resume HTML"
       });
       setPreviewHtml(html);
 
       // Generate ATS analysis
       try {
-        const analysis = await invoke<ATSAnalysis>("analyze_resume_format", {
+        const analysis = await safeInvoke<ATSAnalysis>("analyze_resume_format", {
           resume: resumeData,
+        }, {
+          logContext: "Analyze resume format",
+          silent: true  // Non-critical, don't log failures
         });
         setAtsAnalysis(analysis);
-      } catch (atsErr) {
-        logError("ATS analysis failed (non-critical):", atsErr);
+      } catch {
         // Non-critical, don't block preview
       }
-    } catch (err) {
-      toast.error("Failed to generate preview", getErrorMessage(err));
+    } catch (error) {
+      const enhanced = error as Error & { userFriendly?: { title: string; message: string } };
+      toast.error(
+        enhanced.userFriendly?.title || "Failed to generate preview",
+        enhanced.userFriendly?.message
+      );
     } finally {
       setLoading(false);
     }
@@ -490,9 +528,11 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
 
     try {
       setExporting(true);
-      const docxData = await invoke<number[]>("export_resume_docx", {
+      const docxData = await safeInvoke<number[]>("export_resume_docx", {
         resume: resumeData as ExportResumeData,
         template: selectedTemplate as ExportTemplateId,
+      }, {
+        logContext: "Export resume to DOCX"
       });
 
       // Create Blob and download
@@ -509,8 +549,12 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
       URL.revokeObjectURL(url);
 
       toast.success("Resume exported", "Downloaded as DOCX");
-    } catch (err) {
-      toast.error("Export failed", getErrorMessage(err));
+    } catch (error) {
+      const enhanced = error as Error & { userFriendly?: { title: string; message: string } };
+      toast.error(
+        enhanced.userFriendly?.title || "Export failed",
+        enhanced.userFriendly?.message
+      );
     } finally {
       setExporting(false);
     }
@@ -524,9 +568,11 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
       setExporting(true);
 
       // Generate HTML using the selected template
-      const html = await invoke<string>("render_resume_html", {
+      const html = await safeInvoke<string>("render_resume_html", {
         resume: resumeData,
         templateId: selectedTemplate,
+      }, {
+        logContext: "Render resume for PDF export"
       });
 
       // Create a hidden iframe for printing
@@ -570,8 +616,12 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
       }
 
       toast.success("Print dialog opened", "Save as PDF using your browser's print dialog");
-    } catch (err) {
-      toast.error("Export failed", getErrorMessage(err));
+    } catch (error) {
+      const enhanced = error as Error & { userFriendly?: { title: string; message: string } };
+      toast.error(
+        enhanced.userFriendly?.title || "Export failed",
+        enhanced.userFriendly?.message
+      );
     } finally {
       setExporting(false);
     }

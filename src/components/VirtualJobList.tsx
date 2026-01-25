@@ -1,4 +1,4 @@
-import { memo, useCallback, type CSSProperties } from "react";
+import { memo, useCallback } from "react";
 import { List, useListRef, type RowComponentProps } from "react-window";
 import { JobCard } from "./JobCard";
 import { DEFAULT_LIST_HEIGHT, DEFAULT_JOB_CARD_HEIGHT } from "../utils/constants";
@@ -40,7 +40,7 @@ function JobRow({ index, style, ...props }: RowComponentProps<JobRowProps>) {
   if (!job) return null;
 
   return (
-    <div style={style as CSSProperties} className="pb-3 pr-2">
+    <div style={style} className="pb-3 pr-2">
       <JobCard job={job} onHideJob={rowProps.onHideJob} />
     </div>
   );
