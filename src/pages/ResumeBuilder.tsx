@@ -234,7 +234,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
   // Navigation handlers
   const handleNext = async () => {
     if (!canProceed()) {
-      toast.warning("Please complete required fields", "");
+      toast.warning("Missing information", getValidationMessage());
       return;
     }
 
@@ -265,6 +265,26 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
         return skills.length > 0;
       default:
         return true;
+    }
+  };
+
+  // Get specific validation message for current step
+  const getValidationMessage = (): string => {
+    switch (currentStep) {
+      case 1:
+        if (!contact.name) return "Please enter your name";
+        if (!contact.email) return "Please enter your email";
+        return "";
+      case 2:
+        return "Please write a summary (at least 10 characters)";
+      case 3:
+        return "Please add at least one work experience";
+      case 4:
+        return "Please add at least one education entry";
+      case 5:
+        return "Please add at least one skill";
+      default:
+        return "";
     }
   };
 
