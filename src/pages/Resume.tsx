@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { Button, Card, Badge, LoadingSpinner, ScoreDisplay, Modal, ModalFooter } from "../components";
+import { Button, Card, Badge, ScoreDisplay, Modal, ModalFooter, ResumeSkeleton } from "../components";
 import { useToast } from "../contexts";
 import { logError, getErrorMessage } from "../utils/errorUtils";
 
@@ -296,7 +296,7 @@ export default function Resume({ onBack }: ResumeProps) {
   };
 
   if (loading) {
-    return <LoadingSpinner message="Loading resume..." />;
+    return <ResumeSkeleton />;
   }
 
   return (

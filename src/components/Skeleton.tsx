@@ -114,6 +114,86 @@ export function SkeletonJobList({ count = 5 }: { count?: number }) {
   );
 }
 
+export function ResumeSkeleton() {
+  return (
+    <div className="min-h-screen bg-surface-50 dark:bg-surface-900">
+      {/* Header skeleton */}
+      <header className="bg-white dark:bg-surface-800 border-b border-surface-100 dark:border-surface-700 sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Skeleton variant="rounded" width={40} height={40} />
+              <div>
+                <Skeleton width={160} height={24} className="mb-2" />
+                <Skeleton width={220} height={16} />
+              </div>
+            </div>
+            <Skeleton variant="rounded" width={128} height={40} />
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto px-6 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left column - Skills */}
+          <div className="lg:col-span-2">
+            <div className="bg-white dark:bg-surface-800 rounded-card border border-surface-100 dark:border-surface-700 p-6">
+              <div className="flex items-center justify-between mb-6">
+                <Skeleton width={128} height={24} />
+                <Skeleton variant="rounded" width={96} height={32} />
+              </div>
+              {/* Skill filters skeleton */}
+              <div className="flex gap-2 mb-4 pb-4 border-b border-surface-200 dark:border-surface-700">
+                {[1, 2, 3, 4].map((i) => (
+                  <Skeleton key={i} variant="rounded" width={80} height={28} />
+                ))}
+              </div>
+              {/* Skills list skeleton */}
+              <div className="space-y-3">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div key={i} className="p-3 bg-surface-50 dark:bg-surface-700 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <Skeleton variant="rounded" width={64} height={24} />
+                        <Skeleton width={100} height={18} />
+                      </div>
+                      <Skeleton variant="rounded" width={80} height={24} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Right column - Match Results */}
+          <div>
+            <div className="bg-white dark:bg-surface-800 rounded-card border border-surface-100 dark:border-surface-700 p-6">
+              <Skeleton width={160} height={24} className="mb-4" />
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="p-4 bg-surface-50 dark:bg-surface-700 rounded-lg">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1">
+                        <Skeleton width="80%" height={18} className="mb-1" />
+                        <Skeleton width="50%" height={14} />
+                      </div>
+                      <Skeleton variant="circular" width={40} height={40} />
+                    </div>
+                    <div className="flex gap-2 mt-3">
+                      <Skeleton variant="rounded" width={48} height={20} />
+                      <Skeleton variant="rounded" width={56} height={20} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
+
 export function DashboardSkeleton() {
   return (
     <div className="min-h-screen bg-surface-50 dark:bg-surface-900">
