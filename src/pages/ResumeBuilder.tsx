@@ -148,6 +148,11 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
 
   // Skills state
   const [skills, setSkills] = useState<SkillEntry[]>([]);
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    type: 'experience' | 'education' | 'skill';
+    id: number;
+    name: string;
+  } | null>(null);
   const [newSkill, setNewSkill] = useState<SkillEntry>({
     name: "",
     category: "",
@@ -291,7 +296,13 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
       toast.success("Experience removed", "");
     } catch (err) {
       toast.error("Failed to delete experience", getErrorMessage(err));
+    } finally {
+      setDeleteConfirm(null);
     }
+  };
+
+  const confirmDeleteExperience = (exp: Experience) => {
+    setDeleteConfirm({ type: 'experience', id: exp.id, name: `${exp.title} at ${exp.company}` });
   };
 
   // Education handlers
@@ -322,7 +333,13 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
       toast.success("Education removed", "");
     } catch (err) {
       toast.error("Failed to delete education", getErrorMessage(err));
+    } finally {
+      setDeleteConfirm(null);
     }
+  };
+
+  const confirmDeleteEducation = (edu: Education) => {
+    setDeleteConfirm({ type: 'education', id: edu.id, name: `${edu.degree} at ${edu.institution}` });
   };
 
   // Skills handlers
@@ -338,6 +355,11 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
 
   const handleDeleteSkill = (index: number) => {
     setSkills(skills.filter((_, i) => i !== index));
+    setDeleteConfirm(null);
+  };
+
+  const confirmDeleteSkill = (index: number, skillName: string) => {
+    setDeleteConfirm({ type: 'skill', id: index, name: skillName });
   };
 
   const handleImportSkills = async () => {
@@ -804,7 +826,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                           )}
                         </div>
                         <button
-                          onClick={() => handleDeleteExperience(exp.id)}
+                          onClick={() => confirmDeleteExperience(exp)}
                           className="p-2 text-surface-400 hover:text-red-500 transition-colors"
                           aria-label="Delete experience"
                         >
@@ -884,7 +906,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                           )}
                         </div>
                         <button
-                          onClick={() => handleDeleteEducation(edu.id)}
+                          onClick={() => confirmDeleteEducation(edu)}
                           className="p-2 text-surface-400 hover:text-red-500 transition-colors"
                           aria-label="Delete education"
                         >
@@ -993,7 +1015,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                         )}
                       </div>
                       <button
-                        onClick={() => handleDeleteSkill(idx)}
+                        onClick={() => confirmDeleteSkill(idx, skill.name)}
                         className="p-2 text-surface-400 hover:text-red-500 transition-colors"
                         aria-label="Delete skill"
                       >
@@ -1483,6 +1505,37 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
             </ModalFooter>
           </div>
         )}
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={!!deleteConfirm}
+        onClose={() => setDeleteConfirm(null)}
+        title={`Delete ${deleteConfirm?.type === 'experience' ? 'Experience' : deleteConfirm?.type === 'education' ? 'Education' : 'Skill'}?`}
+      >
+        <p className="text-surface-600 dark:text-surface-400 mb-4">
+          Are you sure you want to delete <span className="font-medium text-surface-800 dark:text-surface-200">{deleteConfirm?.name}</span>? This action cannot be undone.
+        </p>
+        <ModalFooter>
+          <Button variant="secondary" onClick={() => setDeleteConfirm(null)}>
+            Cancel
+          </Button>
+          <Button
+            variant="danger"
+            onClick={() => {
+              if (!deleteConfirm) return;
+              if (deleteConfirm.type === 'experience') {
+                handleDeleteExperience(deleteConfirm.id);
+              } else if (deleteConfirm.type === 'education') {
+                handleDeleteEducation(deleteConfirm.id);
+              } else {
+                handleDeleteSkill(deleteConfirm.id);
+              }
+            }}
+          >
+            Delete
+          </Button>
+        </ModalFooter>
       </Modal>
     </div>
   );

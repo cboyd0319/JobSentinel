@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { Button, Card, Badge, LoadingSpinner, ScoreDisplay } from "../components";
+import { Button, Card, Badge, LoadingSpinner, ScoreDisplay, Modal, ModalFooter } from "../components";
 import { useToast } from "../contexts";
 import { logError, getErrorMessage } from "../utils/errorUtils";
 
@@ -82,6 +82,11 @@ export default function Resume({ onBack }: ResumeProps) {
   const [showAddSkill, setShowAddSkill] = useState(false);
   const [showResumeLibrary, setShowResumeLibrary] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    type: 'resume' | 'skill';
+    id: number;
+    name: string;
+  } | null>(null);
   const toast = useToast();
 
   // Form state for editing/adding skills
@@ -207,7 +212,13 @@ export default function Resume({ onBack }: ResumeProps) {
     } catch (err) {
       logError("Failed to delete resume:", err);
       toast.error("Failed to delete resume", getErrorMessage(err));
+    } finally {
+      setDeleteConfirm(null);
     }
+  };
+
+  const confirmDeleteResume = (r: ResumeData) => {
+    setDeleteConfirm({ type: 'resume', id: r.id, name: r.name });
   };
 
   const handleUpdateSkill = async (skillId: number) => {
@@ -231,7 +242,13 @@ export default function Resume({ onBack }: ResumeProps) {
     } catch (err) {
       logError("Failed to delete skill:", err);
       toast.error("Failed to delete skill", getErrorMessage(err));
+    } finally {
+      setDeleteConfirm(null);
     }
+  };
+
+  const confirmDeleteSkill = (skill: UserSkill) => {
+    setDeleteConfirm({ type: 'skill', id: skill.id, name: skill.skill_name });
   };
 
   const handleAddSkill = async () => {
@@ -363,7 +380,7 @@ export default function Resume({ onBack }: ResumeProps) {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleDeleteResume(r.id);
+                            confirmDeleteResume(r);
                           }}
                           className="p-1 text-surface-400 hover:text-red-500 transition-colors"
                           title="Delete resume"
@@ -717,7 +734,7 @@ export default function Resume({ onBack }: ResumeProps) {
                               <EditIcon className="w-4 h-4" />
                             </button>
                             <button
-                              onClick={() => handleDeleteSkill(skill.id)}
+                              onClick={() => confirmDeleteSkill(skill)}
                               className="p-1.5 text-surface-400 hover:text-red-500 transition-colors"
                               title="Delete skill"
                             >
@@ -917,6 +934,40 @@ export default function Resume({ onBack }: ResumeProps) {
           </div>
         )}
       </main>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={!!deleteConfirm}
+        onClose={() => setDeleteConfirm(null)}
+        title={`Delete ${deleteConfirm?.type === 'resume' ? 'Resume' : 'Skill'}?`}
+      >
+        <p className="text-surface-600 dark:text-surface-400 mb-4">
+          Are you sure you want to delete <span className="font-medium text-surface-800 dark:text-surface-200">{deleteConfirm?.name}</span>?
+          {deleteConfirm?.type === 'resume' && (
+            <span className="block mt-2 text-sm text-red-600 dark:text-red-400">
+              This will also remove all associated skills and match data.
+            </span>
+          )}
+        </p>
+        <ModalFooter>
+          <Button variant="secondary" onClick={() => setDeleteConfirm(null)}>
+            Cancel
+          </Button>
+          <Button
+            variant="danger"
+            onClick={() => {
+              if (!deleteConfirm) return;
+              if (deleteConfirm.type === 'resume') {
+                handleDeleteResume(deleteConfirm.id);
+              } else {
+                handleDeleteSkill(deleteConfirm.id);
+              }
+            }}
+          >
+            Delete
+          </Button>
+        </ModalFooter>
+      </Modal>
     </div>
   );
 }
