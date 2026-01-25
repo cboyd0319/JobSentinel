@@ -169,6 +169,9 @@ export function InterviewScheduler({ onClose, applications = [] }: InterviewSche
   const [showCompanyResearch, setShowCompanyResearch] = useState(false);
   const [researchCompany, setResearchCompany] = useState<string>('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [scheduling, setScheduling] = useState(false);
+  const [completing, setCompleting] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const toast = useToast();
 
   // Load follow-up reminders from backend
@@ -333,6 +336,7 @@ export function InterviewScheduler({ onClose, applications = [] }: InterviewSche
     }
 
     try {
+      setScheduling(true);
       await invoke("schedule_interview", {
         applicationId: formData.application_id,
         interviewType: formData.interview_type,
@@ -360,11 +364,14 @@ export function InterviewScheduler({ onClose, applications = [] }: InterviewSche
     } catch (err) {
       logError("Failed to schedule interview:", err);
       toast.error("Failed to schedule", getErrorMessage(err));
+    } finally {
+      setScheduling(false);
     }
   };
 
   const handleCompleteInterview = async (interview: Interview, outcome: string, postNotes?: string) => {
     try {
+      setCompleting(true);
       await invoke("complete_interview", {
         interviewId: interview.id,
         outcome,
@@ -381,6 +388,8 @@ export function InterviewScheduler({ onClose, applications = [] }: InterviewSche
     } catch (err) {
       logError("Failed to complete interview:", err);
       toast.error("Failed to update", getErrorMessage(err));
+    } finally {
+      setCompleting(false);
     }
   };
 
@@ -391,13 +400,18 @@ export function InterviewScheduler({ onClose, applications = [] }: InterviewSche
 
   const handleDeleteInterview = async (interviewId: number) => {
     try {
+      setDeleting(true);
       await invoke("delete_interview", { interviewId });
       invalidateCacheByCommand("get_upcoming_interviews");
       toast.success("Interview deleted", "The interview has been removed");
+      setShowDeleteConfirm(false);
+      setSelectedInterview(null);
       fetchInterviews();
     } catch (err) {
       logError("Failed to delete interview:", err);
       toast.error("Failed to delete", getErrorMessage(err));
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -811,10 +825,10 @@ export function InterviewScheduler({ onClose, applications = [] }: InterviewSche
               </div>
 
               <div className="flex gap-3 pt-2">
-                <Button variant="secondary" onClick={() => setShowAddForm(false)} className="flex-1">
+                <Button variant="secondary" onClick={() => setShowAddForm(false)} disabled={scheduling} className="flex-1">
                   Cancel
                 </Button>
-                <Button variant="primary" onClick={handleScheduleInterview} className="flex-1">
+                <Button variant="primary" onClick={handleScheduleInterview} loading={scheduling} loadingText="Scheduling..." className="flex-1">
                   Schedule
                 </Button>
               </div>
@@ -1001,6 +1015,7 @@ export function InterviewScheduler({ onClose, applications = [] }: InterviewSche
                       <Button
                         variant="secondary"
                         onClick={() => { setShowFeedbackForm(false); setFeedbackOutcome(''); setFeedbackNotes(''); }}
+                        disabled={completing}
                         className="flex-1"
                       >
                         Back
@@ -1008,6 +1023,8 @@ export function InterviewScheduler({ onClose, applications = [] }: InterviewSche
                       <Button
                         variant="primary"
                         onClick={() => handleCompleteInterview(selectedInterview, feedbackOutcome, feedbackNotes)}
+                        loading={completing}
+                        loadingText="Saving..."
                         className="flex-1"
                       >
                         Save & Complete
@@ -1026,16 +1043,15 @@ export function InterviewScheduler({ onClose, applications = [] }: InterviewSche
                     <Button
                       variant="secondary"
                       onClick={() => setShowDeleteConfirm(false)}
+                      disabled={deleting}
                     >
                       Cancel
                     </Button>
                     <Button
                       variant="danger"
-                      onClick={() => {
-                        handleDeleteInterview(selectedInterview.id);
-                        setSelectedInterview(null);
-                        setShowDeleteConfirm(false);
-                      }}
+                      onClick={() => handleDeleteInterview(selectedInterview.id)}
+                      loading={deleting}
+                      loadingText="Deleting..."
                     >
                       Confirm Delete
                     </Button>
