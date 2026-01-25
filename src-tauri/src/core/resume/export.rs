@@ -130,8 +130,8 @@ impl ResumeExporter {
     /// - Professional typography and layout
     ///
     /// **Implementation**: Option A - HTML + browser print (RECOMMENDED)
-    pub fn export_html(resume: &ResumeData, template: TemplateId) -> String {
-        // Convert export types to template types
+    pub fn export_html(resume: ResumeData, template: TemplateId) -> String {
+        // Convert export types to template types - takes ownership to avoid clones
         let template_resume = convert_to_template_resume(resume);
 
         // Use existing template renderer for HTML generation
@@ -378,62 +378,62 @@ fn convert_template_id(template: TemplateId) -> crate::core::resume::templates::
 }
 
 /// Convert export ResumeData to templates ResumeData
-fn convert_to_template_resume(resume: &ResumeData) -> crate::core::resume::templates::ResumeData {
+/// Takes ownership to avoid cloning - eliminates 27 allocations
+fn convert_to_template_resume(resume: ResumeData) -> crate::core::resume::templates::ResumeData {
     use crate::core::resume::templates;
 
     templates::ResumeData {
         contact: templates::ContactInfo {
-            name: resume.personal.full_name.clone(),
-            email: resume.personal.email.clone(),
-            phone: Some(resume.personal.phone.clone()),
-            location: Some(resume.personal.location.clone()),
-            linkedin: resume.personal.linkedin_url.clone(),
-            website: resume.personal.website_url.clone(),
+            name: resume.personal.full_name,
+            email: resume.personal.email,
+            phone: Some(resume.personal.phone),
+            location: Some(resume.personal.location),
+            linkedin: resume.personal.linkedin_url,
+            website: resume.personal.website_url,
         },
-        summary: resume.summary.clone(),
+        summary: resume.summary,
         experience: resume
             .experience
-            .iter()
+            .into_iter()
             .map(|exp| templates::Experience {
-                title: exp.job_title.clone(),
-                company: exp.company.clone(),
-                location: exp.location.clone(),
-                start_date: exp.start_date.clone(),
-                end_date: exp.end_date.clone(),
-                achievements: exp.responsibilities.clone(),
+                title: exp.job_title,
+                company: exp.company,
+                location: exp.location,
+                start_date: exp.start_date,
+                end_date: exp.end_date,
+                achievements: exp.responsibilities,
             })
             .collect(),
         education: resume
             .education
-            .iter()
+            .into_iter()
             .map(|edu| templates::Education {
-                degree: edu.degree.clone(),
-                institution: edu.institution.clone(),
+                degree: edu.degree,
+                institution: edu.institution,
                 location: None,
-                graduation_date: Some(edu.graduation_year.clone()),
+                graduation_date: Some(edu.graduation_year),
                 gpa: edu.gpa.map(|g| format!("{:.2}", g)),
                 honors: edu
                     .honors
-                    .as_ref()
-                    .map(|h| vec![h.clone()])
+                    .map(|h| vec![h])
                     .unwrap_or_default(),
             })
             .collect(),
         skills: resume
             .skills
-            .iter()
+            .into_iter()
             .map(|skill_cat| templates::SkillCategory {
-                name: skill_cat.category.clone(),
-                skills: skill_cat.skills.clone(),
+                name: skill_cat.category,
+                skills: skill_cat.skills,
             })
             .collect(),
         certifications: resume
             .certifications
-            .iter()
+            .into_iter()
             .map(|cert| templates::Certification {
-                name: cert.name.clone(),
-                issuer: cert.issuer.clone(),
-                date: Some(cert.date.clone()),
+                name: cert.name,
+                issuer: cert.issuer,
+                date: Some(cert.date),
                 expiry: None,
             })
             .collect(),
@@ -445,18 +445,17 @@ fn convert_to_template_resume(resume: &ResumeData) -> crate::core::resume::templ
 // Helper functions for DOCX generation
 
 fn format_contact_line(personal: &PersonalInfo) -> String {
-    let mut parts = vec![
-        personal.email.clone(),
-        personal.phone.clone(),
-        personal.location.clone(),
-    ];
+    let mut parts: Vec<&str> = Vec::with_capacity(5);
+    parts.push(&personal.email);
+    parts.push(&personal.phone);
+    parts.push(&personal.location);
 
     if let Some(linkedin) = &personal.linkedin_url {
-        parts.push(linkedin.clone());
+        parts.push(linkedin);
     }
 
     if let Some(website) = &personal.website_url {
-        parts.push(website.clone());
+        parts.push(website);
     }
 
     parts.join(" | ")
@@ -719,7 +718,7 @@ mod tests {
     #[test]
     fn test_export_html() {
         let resume = create_test_resume();
-        let html = ResumeExporter::export_html(&resume, TemplateId::Professional);
+        let html = ResumeExporter::export_html(resume, TemplateId::Professional);
 
         assert!(!html.is_empty());
         assert!(html.contains("<html"));

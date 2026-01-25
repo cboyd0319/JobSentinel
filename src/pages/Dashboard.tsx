@@ -18,7 +18,7 @@ import { cachedInvoke, invalidateCacheByCommand } from "../utils/api";
 import Settings from "./Settings";
 
 // Extracted modules
-import type { Job, Statistics, ScrapingStatus, DuplicateGroup, DashboardProps, AutoRefreshConfig } from "./DashboardTypes";
+import type { Job, Statistics, ScrapingStatus, DuplicateGroup, DashboardProps, AutoRefreshConfig, SavedSearch } from "./DashboardTypes";
 import { FilterIcon, TrashIcon, CheckCircleIcon, BriefcaseIcon } from "./DashboardIcons";
 import { useDashboardFilters } from "./hooks/useDashboardFilters";
 import { useDashboardSearch } from "./hooks/useDashboardSearch";
@@ -276,6 +276,36 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
     }
   }, [selectedIndex, isKeyboardActive]);
 
+  // Memoized callbacks for QuickActions and DashboardFiltersBar
+  const handleExportHighMatches = useCallback(() => {
+    const highMatchJobs = jobs.filter(j => j.score >= SCORE_THRESHOLD_GOOD);
+    jobOps.handleBulkExport(highMatchJobs);
+  }, [jobs, jobOps]);
+
+  const handleShowHighMatchesOnly = useCallback(() => {
+    filters.setScoreFilter("high");
+  }, [filters]);
+
+  const handleShowRemoteOnly = useCallback(() => {
+    filters.setRemoteFilter("remote");
+  }, [filters]);
+
+  const handleExportFilteredJobs = useCallback(() => {
+    jobOps.handleBulkExport(filters.filteredAndSortedJobs);
+  }, [jobOps, filters.filteredAndSortedJobs]);
+
+  const handleLoadSearch = useCallback((search: SavedSearch) => {
+    savedSearches.handleLoadSearch(search, filters.loadFilters);
+  }, [savedSearches, filters.loadFilters]);
+
+  const handleSelectAllJobs = useCallback(() => {
+    jobOps.selectAllJobs(filters.filteredAndSortedJobs);
+  }, [jobOps, filters.filteredAndSortedJobs]);
+
+  const handleExportSelectedJobs = useCallback(() => {
+    jobOps.handleBulkExport(filters.filteredAndSortedJobs.filter(j => jobOps.selectedJobIds.has(j.id)));
+  }, [jobOps, filters.filteredAndSortedJobs]);
+
   // Settings modal
   if (showSettings) {
     return (
@@ -333,12 +363,9 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
           totalJobs={statistics.total_jobs}
           highMatches={statistics.high_matches}
           filteredCount={filters.filteredAndSortedJobs.length}
-          onExportHighMatches={() => {
-            const highMatchJobs = jobs.filter(j => j.score >= SCORE_THRESHOLD_GOOD);
-            jobOps.handleBulkExport(highMatchJobs);
-          }}
-          onShowHighMatchesOnly={() => filters.setScoreFilter("high")}
-          onShowRemoteOnly={() => filters.setRemoteFilter("remote")}
+          onExportHighMatches={handleExportHighMatches}
+          onShowHighMatchesOnly={handleShowHighMatchesOnly}
+          onShowRemoteOnly={handleShowRemoteOnly}
           onClearFilters={filters.clearFilters}
           hasActiveFilters={!!filters.hasActiveFilters}
         />
@@ -382,14 +409,14 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
             handleCheckDuplicates={jobOps.handleCheckDuplicates}
             bulkMode={jobOps.bulkMode}
             toggleBulkMode={jobOps.toggleBulkMode}
-            onExportJobs={() => jobOps.handleBulkExport(filters.filteredAndSortedJobs)}
+            onExportJobs={handleExportFilteredJobs}
             onOpenSaveSearch={() => savedSearches.setSaveSearchModalOpen(true)}
             savedSearches={savedSearches.savedSearches}
-            onLoadSearch={(search) => savedSearches.handleLoadSearch(search, filters.loadFilters)}
+            onLoadSearch={handleLoadSearch}
             selectedJobIds={jobOps.selectedJobIds}
-            selectAllJobs={() => jobOps.selectAllJobs(filters.filteredAndSortedJobs)}
+            selectAllJobs={handleSelectAllJobs}
             clearSelection={jobOps.clearSelection}
-            handleBulkExport={() => jobOps.handleBulkExport(filters.filteredAndSortedJobs.filter(j => jobOps.selectedJobIds.has(j.id)))}
+            handleBulkExport={handleExportSelectedJobs}
             handleCompareJobs={jobOps.handleCompareJobs}
             handleBulkBookmark={jobOps.handleBulkBookmark}
             handleBulkHide={jobOps.handleBulkHide}

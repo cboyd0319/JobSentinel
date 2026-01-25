@@ -423,7 +423,7 @@ pub fn export_resume_html(
     template: crate::core::resume::ExportTemplateId,
 ) -> String {
     tracing::info!("Command: export_resume_html (template: {:?})", template);
-    ResumeExporter::export_html(&resume, template)
+    ResumeExporter::export_html(resume, template)
 }
 
 /// Export resume to plain text
