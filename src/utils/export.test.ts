@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { jobsToCSV } from "./export";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { jobsToCSV, downloadFile, exportJobsToCSV, exportConfigToJSON } from "./export";
 
 describe("export utilities", () => {
   describe("jobsToCSV", () => {
@@ -183,6 +183,265 @@ describe("export utilities", () => {
 
       const csv = jobsToCSV(jobs);
       expect(csv).toContain("86%"); // Rounded
+    });
+  });
+
+  describe("downloadFile", () => {
+    let mockLink: {
+      href: string;
+      download: string;
+      click: ReturnType<typeof vi.fn>;
+    };
+    let mockCreateObjectURL: ReturnType<typeof vi.fn>;
+    let mockRevokeObjectURL: ReturnType<typeof vi.fn>;
+    let mockAppendChild: ReturnType<typeof vi.fn>;
+    let mockRemoveChild: ReturnType<typeof vi.fn>;
+
+    beforeEach(() => {
+      mockLink = {
+        href: "",
+        download: "",
+        click: vi.fn(),
+      };
+
+      vi.spyOn(document, "createElement").mockReturnValue(mockLink as unknown as HTMLAnchorElement);
+      mockAppendChild = vi.spyOn(document.body, "appendChild").mockReturnValue(mockLink as unknown as HTMLAnchorElement);
+      mockRemoveChild = vi.spyOn(document.body, "removeChild").mockReturnValue(mockLink as unknown as HTMLAnchorElement);
+
+      mockCreateObjectURL = vi.fn().mockReturnValue("blob:test-url");
+      mockRevokeObjectURL = vi.fn();
+      globalThis.URL.createObjectURL = mockCreateObjectURL;
+      globalThis.URL.revokeObjectURL = mockRevokeObjectURL;
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it("creates blob with content and mimeType", () => {
+      downloadFile("test content", "test.txt", "text/plain");
+
+      expect(mockCreateObjectURL).toHaveBeenCalled();
+      const blobArg = mockCreateObjectURL.mock.calls[0][0];
+      expect(blobArg).toBeInstanceOf(Blob);
+    });
+
+    it("sets download filename on link", () => {
+      downloadFile("test content", "my-file.csv");
+
+      expect(mockLink.download).toBe("my-file.csv");
+    });
+
+    it("defaults to text/csv mimeType", () => {
+      downloadFile("test content", "test.csv");
+
+      expect(mockCreateObjectURL).toHaveBeenCalled();
+    });
+
+    it("triggers click on link", () => {
+      downloadFile("test", "test.csv");
+
+      expect(mockLink.click).toHaveBeenCalled();
+    });
+
+    it("cleans up after download", () => {
+      downloadFile("test", "test.csv");
+
+      expect(mockAppendChild).toHaveBeenCalled();
+      expect(mockRemoveChild).toHaveBeenCalled();
+      expect(mockRevokeObjectURL).toHaveBeenCalledWith("blob:test-url");
+    });
+  });
+
+  describe("exportJobsToCSV", () => {
+    let mockLink: {
+      href: string;
+      download: string;
+      click: ReturnType<typeof vi.fn>;
+    };
+
+    beforeEach(() => {
+      mockLink = {
+        href: "",
+        download: "",
+        click: vi.fn(),
+      };
+
+      vi.spyOn(document, "createElement").mockReturnValue(mockLink as unknown as HTMLAnchorElement);
+      vi.spyOn(document.body, "appendChild").mockReturnValue(mockLink as unknown as HTMLAnchorElement);
+      vi.spyOn(document.body, "removeChild").mockReturnValue(mockLink as unknown as HTMLAnchorElement);
+      globalThis.URL.createObjectURL = vi.fn().mockReturnValue("blob:url");
+      globalThis.URL.revokeObjectURL = vi.fn();
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it("exports jobs and triggers download", () => {
+      const jobs = [
+        {
+          id: 1,
+          title: "Test Job",
+          company: "Test Co",
+          location: "Remote",
+          url: "https://example.com",
+          source: "test",
+          score: 0.9,
+          created_at: "2024-01-15T10:00:00Z",
+        },
+      ];
+
+      exportJobsToCSV(jobs);
+
+      expect(mockLink.click).toHaveBeenCalled();
+    });
+
+    it("uses provided filename", () => {
+      const jobs = [
+        {
+          id: 1,
+          title: "Job",
+          company: "Co",
+          location: "Loc",
+          url: "https://example.com",
+          source: "test",
+          score: 0.5,
+          created_at: "2024-01-15T10:00:00Z",
+        },
+      ];
+
+      exportJobsToCSV(jobs, "custom-filename.csv");
+
+      expect(mockLink.download).toBe("custom-filename.csv");
+    });
+
+    it("generates default filename with date", () => {
+      const jobs = [
+        {
+          id: 1,
+          title: "Job",
+          company: "Co",
+          location: "Loc",
+          url: "https://example.com",
+          source: "test",
+          score: 0.5,
+          created_at: "2024-01-15T10:00:00Z",
+        },
+      ];
+
+      exportJobsToCSV(jobs);
+
+      expect(mockLink.download).toMatch(/^jobsentinel-export-\d{4}-\d{2}-\d{2}\.csv$/);
+    });
+  });
+
+  describe("exportConfigToJSON", () => {
+    let mockLink: {
+      href: string;
+      download: string;
+      click: ReturnType<typeof vi.fn>;
+    };
+
+    beforeEach(() => {
+      mockLink = {
+        href: "",
+        download: "",
+        click: vi.fn(),
+      };
+
+      vi.spyOn(document, "createElement").mockReturnValue(mockLink as unknown as HTMLAnchorElement);
+      vi.spyOn(document.body, "appendChild").mockReturnValue(mockLink as unknown as HTMLAnchorElement);
+      vi.spyOn(document.body, "removeChild").mockReturnValue(mockLink as unknown as HTMLAnchorElement);
+      globalThis.URL.createObjectURL = vi.fn().mockReturnValue("blob:url");
+      globalThis.URL.revokeObjectURL = vi.fn();
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it("exports config as JSON", () => {
+      const config = { setting: "value" };
+
+      exportConfigToJSON(config);
+
+      expect(mockLink.click).toHaveBeenCalled();
+    });
+
+    it("uses provided filename", () => {
+      const config = { setting: "value" };
+
+      exportConfigToJSON(config, "my-config.json");
+
+      expect(mockLink.download).toBe("my-config.json");
+    });
+
+    it("generates default filename with date", () => {
+      const config = { setting: "value" };
+
+      exportConfigToJSON(config);
+
+      expect(mockLink.download).toMatch(/^jobsentinel-config-\d{4}-\d{2}-\d{2}\.json$/);
+    });
+
+    it("sanitizes email password from alerts config", () => {
+      let capturedBlob: Blob | null = null;
+      globalThis.URL.createObjectURL = vi.fn((blob: Blob) => {
+        capturedBlob = blob;
+        return "blob:url";
+      });
+
+      const config = {
+        alerts: {
+          email: {
+            smtp_password: "secret123",
+            other_setting: "keep this",
+          },
+        },
+      };
+
+      exportConfigToJSON(config);
+
+      expect(capturedBlob).toBeDefined();
+      // Read blob content
+      const reader = new FileReader();
+      reader.onload = () => {
+        const content = JSON.parse(reader.result as string);
+        expect(content.alerts.email.smtp_password).toBe("");
+        expect(content.alerts.email.other_setting).toBe("keep this");
+      };
+      if (capturedBlob) {
+        reader.readAsText(capturedBlob);
+      }
+    });
+
+    it("sanitizes linkedin session cookie", () => {
+      let capturedBlob: Blob | null = null;
+      globalThis.URL.createObjectURL = vi.fn((blob: Blob) => {
+        capturedBlob = blob;
+        return "blob:url";
+      });
+
+      const config = {
+        linkedin: {
+          session_cookie: "secret-cookie",
+          other_setting: "keep",
+        },
+      };
+
+      exportConfigToJSON(config);
+
+      expect(capturedBlob).toBeDefined();
+      const reader = new FileReader();
+      reader.onload = () => {
+        const content = JSON.parse(reader.result as string);
+        expect(content.linkedin.session_cookie).toBe("");
+        expect(content.linkedin.other_setting).toBe("keep");
+      };
+      if (capturedBlob) {
+        reader.readAsText(capturedBlob);
+      }
     });
   });
 });
