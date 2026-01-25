@@ -147,7 +147,7 @@ interface MarketAlertListProps {
   loading?: boolean;
 }
 
-export function MarketAlertList({
+export const MarketAlertList = memo(function MarketAlertList({
   alerts = [],
   onMarkRead,
   onMarkAllRead,
@@ -192,4 +192,4 @@ export function MarketAlertList({
       ))}
     </div>
   );
-}
+});

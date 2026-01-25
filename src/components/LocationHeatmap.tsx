@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { memo, useState, useMemo } from "react";
 import { Card, Badge } from "./";
 
 interface LocationHeat {
@@ -15,7 +15,7 @@ interface LocationHeatmapProps {
   loading?: boolean;
 }
 
-export function LocationHeatmap({ locations, loading = false }: LocationHeatmapProps) {
+export const LocationHeatmap = memo(function LocationHeatmap({ locations, loading = false }: LocationHeatmapProps) {
   const [selectedLocation, setSelectedLocation] = useState<LocationHeat | null>(null);
 
   // Calculate max jobs for intensity scaling (memoized for performance)
@@ -180,4 +180,4 @@ export function LocationHeatmap({ locations, loading = false }: LocationHeatmapP
       </div>
     </Card>
   );
-}
+});

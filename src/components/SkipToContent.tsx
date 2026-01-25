@@ -1,4 +1,6 @@
-export function SkipToContent() {
+import { memo } from "react";
+
+export const SkipToContent = memo(function SkipToContent() {
   return (
     <a
       href="#main-content"
@@ -13,4 +15,4 @@ export function SkipToContent() {
       Skip to main content
     </a>
   );
-}
+});

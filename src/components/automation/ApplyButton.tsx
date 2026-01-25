@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { memo, useState, useEffect, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { Button, Modal, ModalFooter } from "..";
 import { useToast } from "../../contexts";
@@ -351,7 +351,7 @@ export function ApplyButton({ job, onApplied }: ApplyButtonProps) {
 }
 
 // Standalone ATS badge for use in job cards
-export function AtsBadge({ url }: { url: string }) {
+export const AtsBadge = memo(function AtsBadge({ url }: { url: string }) {
   const [platform, setPlatform] = useState<string | null>(null);
   const [error, setError] = useState(false);
 
@@ -375,7 +375,7 @@ export function AtsBadge({ url }: { url: string }) {
       {ATS_DISPLAY_NAMES[platform] || platform}
     </span>
   );
-}
+});
 
 // Icons
 function BoltIcon({ className = "" }: { className?: string }) {

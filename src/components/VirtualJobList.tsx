@@ -1,4 +1,4 @@
-import { useCallback, type CSSProperties } from "react";
+import { memo, useCallback, type CSSProperties } from "react";
 import { List, useListRef, type RowComponentProps } from "react-window";
 import { JobCard } from "./JobCard";
 import { DEFAULT_LIST_HEIGHT, DEFAULT_JOB_CARD_HEIGHT } from "../utils/constants";
@@ -50,7 +50,7 @@ function JobRow({ index, style, ...props }: RowComponentProps<JobRowProps>) {
  * Virtualized job list for rendering large numbers of jobs efficiently.
  * Only renders visible items plus a small overscan buffer.
  */
-export function VirtualJobList({
+export const VirtualJobList = memo(function VirtualJobList({
   jobs,
   onHideJob,
   height = DEFAULT_LIST_HEIGHT,
@@ -91,7 +91,7 @@ export function VirtualJobList({
       aria-label={`${jobs.length} job listings`}
     />
   );
-}
+});
 
 /**
  * Hook for auto-scrolling to a specific job

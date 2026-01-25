@@ -1,7 +1,7 @@
 // Dashboard Widgets - Visual analytics for job search progress
 // Uses Recharts for charts
 
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { memo, useEffect, useState, useCallback, useMemo } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
@@ -66,7 +66,7 @@ interface DashboardWidgetsProps {
   className?: string;
 }
 
-export function DashboardWidgets({ className = '' }: DashboardWidgetsProps) {
+export const DashboardWidgets = memo(function DashboardWidgets({ className = '' }: DashboardWidgetsProps) {
   const [appStats, setAppStats] = useState<ApplicationStats | null>(null);
   const [jobsBySource, setJobsBySource] = useState<JobsBySource[]>([]);
   const [salaryRanges, setSalaryRanges] = useState<SalaryRange[]>([]);
@@ -340,7 +340,7 @@ export function DashboardWidgets({ className = '' }: DashboardWidgetsProps) {
       )}
     </div>
   );
-}
+});
 
 function StatBox({ label, value, color }: { label: string; value: string; color: keyof typeof COLORS }) {
   const bgColors = {

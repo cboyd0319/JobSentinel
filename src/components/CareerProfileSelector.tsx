@@ -11,7 +11,7 @@ interface CareerProfileSelectorProps {
   onSelectProfile: (profileId: string | null) => void;
 }
 
-export function CareerProfileSelector({ selectedProfile, onSelectProfile }: CareerProfileSelectorProps) {
+export const CareerProfileSelector = memo(function CareerProfileSelector({ selectedProfile, onSelectProfile }: CareerProfileSelectorProps) {
   return (
     <div className="animate-slide-up" role="radiogroup" aria-label="Select career profile">
       <div className="grid grid-cols-2 gap-3 mb-4">
@@ -61,7 +61,7 @@ export function CareerProfileSelector({ selectedProfile, onSelectProfile }: Care
       )}
     </div>
   );
-}
+});
 
 interface ProfileCardProps {
   profile: CareerProfile;
