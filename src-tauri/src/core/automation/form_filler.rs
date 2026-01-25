@@ -39,15 +39,18 @@ impl FormFiller {
     ///
     /// Returns what was filled and what needs manual attention.
     /// Does NOT submit - user must click submit manually.
+    #[tracing::instrument(skip(self, page), fields(platform = ?platform))]
     pub async fn fill_page(
         &self,
         page: &AutomationPage,
         platform: &AtsPlatform,
     ) -> Result<FillResult> {
+        tracing::info!("Starting form auto-fill");
         let mut result = FillResult::new();
 
         // Check for CAPTCHA first
         if page.has_captcha().await {
+            tracing::warn!("CAPTCHA detected, aborting auto-fill");
             return Ok(result.with_captcha());
         }
 
@@ -55,33 +58,40 @@ impl FormFiller {
         let selectors = Self::get_field_selectors(platform);
 
         // Fill basic contact fields
+        tracing::debug!("Filling contact fields");
         self.fill_contact_fields(page, &selectors, &mut result)
             .await;
 
         // Fill URLs (LinkedIn, GitHub, etc.)
+        tracing::debug!("Filling URL fields");
         self.fill_url_fields(page, &selectors, &mut result).await;
 
         // Fill work authorization
+        tracing::debug!("Filling work authorization fields");
         self.fill_work_auth_fields(page, &selectors, &mut result)
             .await;
 
         // Upload resume if available
         if let Some(ref resume_path) = self.resume_path {
+            tracing::debug!("Uploading resume");
             self.fill_resume(page, &selectors, resume_path, &mut result)
                 .await;
         }
 
         // Fill screening questions using stored answers
         if !self.screening_answers.is_empty() {
+            tracing::debug!("Filling {} screening questions", self.screening_answers.len());
             self.fill_screening_questions(page, &mut result).await;
         }
 
         // Check for CAPTCHA again after filling (some appear after form interaction)
         if page.has_captcha().await {
+            tracing::warn!("CAPTCHA appeared after form interaction, aborting");
             return Ok(result.with_captcha());
         }
 
         result.ready_for_review = true;
+        tracing::info!("Form auto-fill complete, {} fields filled", result.filled_fields.len());
         Ok(result)
     }
 

@@ -13,19 +13,35 @@ impl Scheduler {
     /// 2. Score each job
     /// 3. Store in database (with deduplication)
     /// 4. Send notifications for high-scoring jobs
+    #[tracing::instrument(skip(self))]
     pub async fn run_scraping_cycle(&self) -> Result<ScrapingResult> {
+        tracing::info!("Starting full scraping cycle");
+
         // 1. Run all scrapers
-        tracing::info!("Step 1: Running scrapers");
+        tracing::info!("Pipeline stage 1/3: Running scrapers");
         let (all_jobs, mut errors) = run_scrapers(&self.config).await;
+        tracing::info!("Scrapers completed: {} total jobs fetched", all_jobs.len());
 
         // 2. Score all jobs and run ghost detection
+        tracing::info!("Pipeline stage 2/3: Scoring jobs and detecting ghost postings");
         let scored_jobs = score_jobs(all_jobs, &self.config, &self.database).await;
+        tracing::info!("Scoring completed: {} jobs scored", scored_jobs.len());
 
         // 3. Store in database and send notifications
+        tracing::info!("Pipeline stage 3/3: Persisting jobs and sending notifications");
         let stats = persist_and_notify(&scored_jobs, &self.config, &self.database).await;
 
         // Combine errors from all stages
         errors.extend(stats.errors);
+
+        tracing::info!(
+            "Scraping cycle complete: {} new, {} updated, {} high matches, {} alerts sent, {} errors",
+            stats.jobs_new,
+            stats.jobs_updated,
+            stats.high_matches,
+            stats.alerts_sent,
+            errors.len()
+        );
 
         Ok(ScrapingResult {
             jobs_found: scored_jobs.len(),

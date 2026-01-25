@@ -20,9 +20,14 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Button, Card, Badge, InterviewScheduler, CoverLetterTemplates, LoadingSpinner } from "../components";
+import { Button } from "../components/Button";
+import { Card } from "../components/Card";
+import { Badge } from "../components/Badge";
+import { InterviewScheduler } from "../components/InterviewScheduler";
+import { CoverLetterTemplates } from "../components/CoverLetterTemplates";
+import { LoadingSpinner } from "../components/LoadingSpinner";
 import { useToast } from "../contexts";
-import { logError, getErrorMessage } from "../utils/errorUtils";
+import { logError } from "../utils/errorUtils";
 import { formatEventDate } from "../utils/formatUtils";
 
 // Lazy load AnalyticsPanel to defer recharts bundle
@@ -275,7 +280,10 @@ export default function Applications({ onBack }: ApplicationsProps) {
       setReminders(remindersData);
     } catch (err) {
       logError("Failed to fetch applications:", err);
-      toast.error("Failed to load applications", getErrorMessage(err));
+      toast.error(
+        "Couldn't load applications",
+        "Your applications list failed to load. Check your internet connection and restart the app if needed."
+      );
     } finally {
       setLoading(false);
     }
@@ -348,7 +356,10 @@ export default function Applications({ onBack }: ApplicationsProps) {
       toast.success("Status updated", `Application moved to ${STATUS_COLUMNS.find((c) => c.key === newColumn)?.label}`);
     } catch (err) {
       logError("Failed to update status:", err);
-      toast.error("Failed to update status", getErrorMessage(err));
+      toast.error(
+        "Status update failed",
+        "The application status wasn't changed. Try again, or check if the database is accessible."
+      );
       // Revert by refetching
       invalidateCacheByCommand("get_applications_kanban");
       fetchData();
@@ -367,7 +378,10 @@ export default function Applications({ onBack }: ApplicationsProps) {
       fetchData();
     } catch (err) {
       logError("Failed to add notes:", err);
-      toast.error("Failed to add notes", getErrorMessage(err));
+      toast.error(
+        "Notes weren't saved",
+        "Your notes couldn't be added to this application. Copy them elsewhere and try again after restarting."
+      );
     }
   };
 
@@ -380,7 +394,10 @@ export default function Applications({ onBack }: ApplicationsProps) {
       fetchData();
     } catch (err) {
       logError("Failed to complete reminder:", err);
-      toast.error("Failed to complete reminder", getErrorMessage(err));
+      toast.error(
+        "Couldn't mark reminder complete",
+        "The reminder is still active. Try again, or manage reminders in your notifications settings."
+      );
     }
   };
 
@@ -393,7 +410,10 @@ export default function Applications({ onBack }: ApplicationsProps) {
       fetchData();
     } catch (err) {
       logError("Failed to detect ghosted:", err);
-      toast.error("Detection failed", getErrorMessage(err));
+      toast.error(
+        "Ghost detection unavailable",
+        "Couldn't check for ghost jobs. The feature might not be enabled in Settings > Ghost Detection."
+      );
     }
   };
 
@@ -662,7 +682,10 @@ export default function Applications({ onBack }: ApplicationsProps) {
                       fetchData();
                     } catch (err) {
                       logError("Failed to update status:", err);
-                      toast.error("Failed to update status", getErrorMessage(err));
+                      toast.error(
+                        "Status update failed",
+                        "The application status wasn't changed. Try again, or check if the database is accessible."
+                      );
                     }
                   }}
                   className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus:ring-2 focus:ring-sentinel-500 focus:border-sentinel-500"

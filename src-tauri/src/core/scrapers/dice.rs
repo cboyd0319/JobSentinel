@@ -13,6 +13,7 @@ use scraper::{Html, Selector};
 use sha2::{Digest, Sha256};
 
 /// Dice job scraper
+#[derive(Debug, Clone)]
 pub struct DiceScraper {
     /// Search query (e.g., "rust developer", "software engineer")
     pub query: String,
@@ -23,9 +24,9 @@ pub struct DiceScraper {
 }
 
 impl DiceScraper {
-    pub fn new(query: String, location: Option<String>, limit: usize) -> Self {
+    pub fn new(query: impl Into<String>, location: Option<String>, limit: usize) -> Self {
         Self {
-            query,
+            query: query.into(),
             location,
             limit,
         }
@@ -82,7 +83,7 @@ impl DiceScraper {
     #[allow(clippy::expect_used)] // Static CSS selectors are known valid at compile time
     fn parse_html(&self, html: &str) -> Result<Vec<Job>> {
         let document = Html::parse_document(html);
-        let mut jobs = Vec::new();
+        let mut jobs = Vec::with_capacity(self.limit.min(100));
 
         // Dice uses various selectors for job cards
         // Try multiple patterns for resilience

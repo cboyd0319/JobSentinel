@@ -1,6 +1,13 @@
 import { useEffect, useState, useCallback, lazy, Suspense } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { ErrorBoundary, LoadingSpinner, SkipToContent, CommandPalette, PageErrorBoundary, KeyboardShortcutsHelp, OnboardingProvider, useOnboarding, Navigation } from "./components";
+import { default as ErrorBoundary } from "./components/ErrorBoundary";
+import { LoadingSpinner } from "./components/LoadingSpinner";
+import { SkipToContent } from "./components/SkipToContent";
+import { CommandPalette } from "./components/CommandPalette";
+import { default as PageErrorBoundary } from "./components/PageErrorBoundary";
+import { KeyboardShortcutsHelp } from "./components/KeyboardShortcutsHelp";
+import { OnboardingProvider, useOnboarding } from "./components/OnboardingTour";
+import { Navigation } from "./components/Navigation";
 import { KeyboardShortcutsProvider, useKeyboardShortcuts } from "./contexts/KeyboardShortcutsContext";
 import { logError } from "./utils/errorUtils";
 import { defaultTourSteps } from "./config/tourSteps";

@@ -14,6 +14,7 @@ pub enum RunStatus {
 }
 
 impl RunStatus {
+    #[inline]
     pub fn as_str(&self) -> &'static str {
         match self {
             Self::Running => "running",
@@ -23,6 +24,7 @@ impl RunStatus {
         }
     }
 
+    #[inline]
     pub fn from_str(s: &str) -> Self {
         match s {
             "running" => Self::Running,
@@ -51,17 +53,19 @@ pub struct ScraperRun {
 }
 
 /// Overall health status
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum HealthStatus {
     Healthy,  // Success in last 24h
     Degraded, // Success in last 7 days but not 24h
     Down,     // No success in 7 days
     Disabled, // Scraper disabled
+    #[default]
     Unknown,  // No runs recorded yet
 }
 
 impl HealthStatus {
+    #[inline]
     pub fn from_str(s: &str) -> Self {
         match s {
             "healthy" => Self::Healthy,
@@ -75,16 +79,18 @@ impl HealthStatus {
 }
 
 /// Selector health for HTML scrapers
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum SelectorHealth {
     Healthy,  // All selectors working
     Degraded, // Some selectors failing
     Broken,   // All selectors failing
+    #[default]
     Unknown,  // Not checked yet
 }
 
 impl SelectorHealth {
+    #[inline]
     pub fn from_str(s: &str) -> Self {
         match s {
             "healthy" => Self::Healthy,
@@ -107,6 +113,7 @@ pub enum ScraperType {
 }
 
 impl ScraperType {
+    #[inline]
     pub fn from_str(s: &str) -> Self {
         match s {
             "api" => Self::Api,
@@ -163,6 +170,7 @@ pub enum SmokeTestType {
 }
 
 impl SmokeTestType {
+    #[inline]
     pub fn as_str(&self) -> &'static str {
         match self {
             Self::Connectivity => "connectivity",
@@ -185,16 +193,18 @@ pub struct SmokeTestResult {
 }
 
 /// Credential validation status
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum CredentialStatus {
     Valid,    // Working and not expiring soon
     Expiring, // < 30 days left
     Expired,  // Past expiry date
+    #[default]
     Unknown,  // Not yet validated
 }
 
 impl CredentialStatus {
+    #[inline]
     pub fn from_str(s: &str) -> Self {
         match s {
             "valid" => Self::Valid,

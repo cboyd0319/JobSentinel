@@ -1,6 +1,13 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { Button, Input, Badge, Card, ErrorLogPanel, NotificationPreferences, HelpIcon, ScraperHealthDashboard } from "../components";
+import { Button } from "../components/Button";
+import { Input } from "../components/Input";
+import { Badge } from "../components/Badge";
+import { Card } from "../components/Card";
+import { ErrorLogPanel } from "../components/ErrorLogPanel";
+import { NotificationPreferences } from "../components/NotificationPreferences";
+import { HelpIcon } from "../components/HelpIcon";
+import { ScraperHealthDashboard } from "../components/ScraperHealthDashboard";
 import { useToast } from "../contexts";
 import { logError } from "../utils/errorUtils";
 import { getUserFriendlyError } from "../utils/errorMessages";
@@ -442,6 +449,21 @@ export default function Settings({ onClose }: SettingsProps) {
     loadConfig();
     loadGhostConfig();
   }, [loadConfig, loadGhostConfig]);
+
+  // Keyboard shortcut: Cmd+S to save
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 's' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        if (!saving && config) {
+          handleSave();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [saving, config]);
 
   const handleSave = async () => {
     if (!config) return;

@@ -13,6 +13,7 @@ use scraper::{Html, Selector};
 use sha2::{Digest, Sha256};
 
 /// Greenhouse scraper configuration
+#[derive(Debug, Clone)]
 pub struct GreenhouseScraper {
     /// List of Greenhouse company URLs to scrape
     pub companies: Vec<GreenhouseCompany>,
@@ -31,13 +32,15 @@ impl GreenhouseScraper {
     }
 
     /// Scrape a single Greenhouse company
+    #[tracing::instrument(skip(self), fields(company_name = %company.name, company_url = %company.url))]
     async fn scrape_company(&self, company: &GreenhouseCompany) -> ScraperResult {
-        tracing::info!("Scraping Greenhouse: {}", company.name);
+        tracing::info!("Starting Greenhouse scrape");
 
         // Fetch the careers page with retry logic
         let response = get_with_retry(&company.url).await?;
 
         if !response.status().is_success() {
+            tracing::error!("HTTP error {} from Greenhouse", response.status());
             return Err(anyhow::anyhow!(
                 "HTTP {}: {}",
                 response.status(),

@@ -27,27 +27,26 @@ impl Database {
     }
 
     /// Toggle bookmark status for a job
+    ///
+    /// OPTIMIZATION: Single query with RETURNING instead of read-then-write pattern.
+    /// Eliminates race condition and reduces round-trips from 2 to 1.
     pub async fn toggle_bookmark(&self, id: i64) -> Result<bool, sqlx::Error> {
-        // Get current state
-        let current: Option<i64> = sqlx::query_scalar("SELECT bookmarked FROM jobs WHERE id = ?")
-            .bind(id)
-            .fetch_optional(self.pool())
-            .await?;
+        let new_state: Option<i64> = sqlx::query_scalar(
+            r#"
+            UPDATE jobs
+            SET bookmarked = CASE WHEN bookmarked = 1 THEN 0 ELSE 1 END
+            WHERE id = ?
+            RETURNING bookmarked
+            "#,
+        )
+        .bind(id)
+        .fetch_optional(self.pool())
+        .await?;
 
-        let new_state = match current {
-            Some(1) => 0,
-            Some(0) => 1,
-            None => return Err(sqlx::Error::RowNotFound),
-            _ => 1,
-        };
-
-        sqlx::query("UPDATE jobs SET bookmarked = ? WHERE id = ?")
-            .bind(new_state)
-            .bind(id)
-            .execute(self.pool())
-            .await?;
-
-        Ok(new_state == 1)
+        match new_state {
+            Some(state) => Ok(state == 1),
+            None => Err(sqlx::Error::RowNotFound),
+        }
     }
 
     /// Set bookmark status for a job
@@ -73,6 +72,8 @@ impl Database {
     }
 
     /// Get notes for a job
+    ///
+    /// NOTE: Already optimized - selects only the notes column.
     pub async fn get_job_notes(&self, id: i64) -> Result<Option<String>, sqlx::Error> {
         let notes: Option<String> = sqlx::query_scalar("SELECT notes FROM jobs WHERE id = ?")
             .bind(id)

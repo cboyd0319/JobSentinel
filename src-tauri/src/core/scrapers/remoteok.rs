@@ -12,6 +12,7 @@ use chrono::Utc;
 use sha2::{Digest, Sha256};
 
 /// RemoteOK job scraper
+#[derive(Debug, Clone)]
 pub struct RemoteOkScraper {
     /// Search tags to filter jobs (e.g., "rust", "python", "engineer")
     pub tags: Vec<String>,

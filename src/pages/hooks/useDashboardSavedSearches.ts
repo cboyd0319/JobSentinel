@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import type { SavedSearch, SortOption, ScoreFilter, PostedDateFilter } from "../DashboardTypes";
 import { useToast } from "../../contexts";
-import { getErrorMessage, logError } from "../../utils/errorUtils";
+import { logError } from "../../utils/errorUtils";
 
 export function useDashboardSavedSearches() {
   const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
@@ -109,7 +109,10 @@ export function useDashboardSavedSearches() {
       toast.success("Search saved", `"${newSearch.name}" can now be loaded anytime`);
     } catch (err) {
       logError("Failed to save search:", err);
-      toast.error("Failed to save", getErrorMessage(err));
+      toast.error(
+        "Search wasn't saved",
+        "Your search filters couldn't be saved. Make sure you entered a unique name and try again."
+      );
     }
   }, [newSearchName, toast]);
 
@@ -132,7 +135,10 @@ export function useDashboardSavedSearches() {
       toast.success("Search deleted", "Saved search removed");
     } catch (err) {
       logError("Failed to delete search:", err);
-      toast.error("Failed to delete", getErrorMessage(err));
+      toast.error(
+        "Couldn't delete saved search",
+        "The search is still saved. Try again, or restart the app if the problem continues."
+      );
     }
   }, [toast]);
 

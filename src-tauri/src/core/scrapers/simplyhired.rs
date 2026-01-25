@@ -14,6 +14,7 @@ use chrono::Utc;
 use sha2::{Digest, Sha256};
 
 /// SimplyHired job scraper using RSS feeds
+#[derive(Debug, Clone)]
 pub struct SimplyHiredScraper {
     /// Search query (e.g., "rust developer")
     pub query: String,
@@ -24,9 +25,9 @@ pub struct SimplyHiredScraper {
 }
 
 impl SimplyHiredScraper {
-    pub fn new(query: String, location: Option<String>, limit: usize) -> Self {
+    pub fn new(query: impl Into<String>, location: Option<String>, limit: usize) -> Self {
         Self {
-            query,
+            query: query.into(),
             location,
             limit,
         }
@@ -90,7 +91,7 @@ impl SimplyHiredScraper {
 
     /// Parse RSS feed XML
     fn parse_rss(&self, xml: &str) -> Result<Vec<Job>> {
-        let mut jobs = Vec::new();
+        let mut jobs = Vec::with_capacity(self.limit);
 
         // Simple XML parsing for RSS items
         // Using string manipulation since we don't need a full XML parser

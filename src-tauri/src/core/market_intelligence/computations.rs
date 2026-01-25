@@ -24,19 +24,44 @@ pub(super) fn compute_median(values: &mut [f64]) -> Option<f64> {
 
 impl MarketIntelligence {
     /// Compute skill demand trends for today
+    ///
+    /// OPTIMIZATION: Reduced N+2 queries per skill to 1 query per skill using subqueries.
+    /// Combines salary stats and top company/location into single query with skill counts.
     pub(super) async fn compute_skill_demand_trends(&self) -> Result<()> {
         let today = Utc::now().date_naive();
 
-        // Get all skills from job_skills table grouped by skill
+        // Single comprehensive query per skill using subqueries instead of 3 separate queries
         let records = sqlx::query(
             r#"
             SELECT
-                skill_name,
-                COUNT(DISTINCT job_hash) as job_count,
-                COUNT(*) as mention_count
-            FROM job_skills
-            WHERE created_at >= date('now', 'start of day')
-            GROUP BY skill_name
+                js.skill_name,
+                COUNT(DISTINCT js.job_hash) as job_count,
+                COUNT(*) as mention_count,
+                AVG(jsp.predicted_median) as avg_salary,
+                (
+                    SELECT j.company
+                    FROM job_skills js2
+                    JOIN jobs j ON js2.job_hash = j.hash
+                    WHERE js2.skill_name = js.skill_name
+                      AND js2.created_at >= date('now', 'start of day')
+                    GROUP BY j.company
+                    ORDER BY COUNT(*) DESC
+                    LIMIT 1
+                ) as top_company,
+                (
+                    SELECT j.location
+                    FROM job_skills js3
+                    JOIN jobs j ON js3.job_hash = j.hash
+                    WHERE js3.skill_name = js.skill_name
+                      AND js3.created_at >= date('now', 'start of day')
+                    GROUP BY j.location
+                    ORDER BY COUNT(*) DESC
+                    LIMIT 1
+                ) as top_location
+            FROM job_skills js
+            LEFT JOIN job_salary_predictions jsp ON js.job_hash = jsp.job_hash
+            WHERE js.created_at >= date('now', 'start of day')
+            GROUP BY js.skill_name
             "#,
         )
         .fetch_all(&self.db)
@@ -46,8 +71,12 @@ impl MarketIntelligence {
             let skill_name: String = record.try_get("skill_name")?;
             let mention_count: i64 = record.try_get("mention_count")?;
             let job_count: i64 = record.try_get("job_count")?;
+            let avg_salary: Option<f64> = record.try_get("avg_salary").ok().flatten();
+            let top_company: Option<String> = record.try_get("top_company").ok();
+            let top_location: Option<String> = record.try_get("top_location").ok();
 
-            // Get salary stats for jobs with this skill
+            // For median, we still need to fetch individual salaries (no MEDIAN in SQLite)
+            // This is acceptable as it's per-skill, not per-job
             let salary_rows = sqlx::query(
                 r#"
                 SELECT jsp.predicted_median
@@ -65,38 +94,7 @@ impl MarketIntelligence {
                 .iter()
                 .filter_map(|r| r.try_get::<f64, _>("predicted_median").ok())
                 .collect();
-            let avg_salary = if salaries.is_empty() {
-                None
-            } else {
-                Some(salaries.iter().sum::<f64>() / salaries.len() as f64)
-            };
             let median_salary = compute_median(&mut salaries);
-
-            // Get top company and location for this skill
-            let top_data = sqlx::query(
-                r#"
-                SELECT
-                    j.company as top_company,
-                    j.location as top_location
-                FROM job_skills js
-                JOIN jobs j ON js.job_hash = j.hash
-                WHERE js.skill_name = ?
-                  AND js.created_at >= date('now', 'start of day')
-                GROUP BY j.company, j.location
-                ORDER BY COUNT(*) DESC
-                LIMIT 1
-                "#,
-            )
-            .bind(&skill_name)
-            .fetch_optional(&self.db)
-            .await?;
-
-            let top_company: Option<String> = top_data
-                .as_ref()
-                .and_then(|r| r.try_get("top_company").ok());
-            let top_location: Option<String> = top_data
-                .as_ref()
-                .and_then(|r| r.try_get("top_location").ok());
 
             // Insert or update skill demand trend
             sqlx::query(
@@ -231,6 +229,9 @@ impl MarketIntelligence {
     }
 
     /// Compute company hiring velocity
+    ///
+    /// OPTIMIZATION: Reduced 4 queries per company to 1 query per company.
+    /// Batches job counts, active count, filled count, and top role into single query.
     pub(super) async fn compute_company_hiring_velocity(&self) -> Result<()> {
         let today = Utc::now().date_naive();
 
@@ -240,6 +241,7 @@ impl MarketIntelligence {
             SELECT DISTINCT company
             FROM jobs
             WHERE company IS NOT NULL AND company != ''
+            LIMIT 10000
             "#,
         )
         .fetch_all(&self.db)
@@ -248,59 +250,44 @@ impl MarketIntelligence {
         for company_record in companies {
             let company: String = company_record.try_get("company")?;
 
-            // Jobs posted today
-            let jobs_posted = sqlx::query_scalar::<_, i64>(
-                "SELECT COUNT(*) FROM jobs WHERE company = ? AND DATE(posted_at) = DATE('now')",
-            )
-            .bind(&company)
-            .fetch_one(&self.db)
-            .await?;
-
-            // Currently active jobs
-            let jobs_active = sqlx::query_scalar::<_, i64>(
-                "SELECT COUNT(*) FROM jobs WHERE company = ? AND status = 'active'",
-            )
-            .bind(&company)
-            .fetch_one(&self.db)
-            .await?;
-
-            // Jobs filled today (status changed to 'closed' or 'filled')
-            let jobs_filled = sqlx::query_scalar::<_, i64>(
-                "SELECT COUNT(*) FROM jobs WHERE company = ? AND status IN ('closed', 'filled') AND DATE(updated_at) = DATE('now')"
-            )
-            .bind(&company)
-            .fetch_one(&self.db)
-            .await?;
-
-            // Top role
-            let top_role = sqlx::query_scalar::<_, Option<String>>(
+            // Batch all company stats into single query
+            let stats = sqlx::query(
                 r#"
-                SELECT title
+                SELECT
+                    SUM(CASE WHEN DATE(posted_at) = DATE('now') THEN 1 ELSE 0 END) as jobs_posted,
+                    SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as jobs_active,
+                    SUM(CASE WHEN status IN ('closed', 'filled') AND DATE(updated_at) = DATE('now') THEN 1 ELSE 0 END) as jobs_filled,
+                    (
+                        SELECT title
+                        FROM jobs
+                        WHERE company = ?
+                        GROUP BY title
+                        ORDER BY COUNT(*) DESC
+                        LIMIT 1
+                    ) as top_role,
+                    (
+                        SELECT location
+                        FROM jobs
+                        WHERE company = ?
+                        GROUP BY location
+                        ORDER BY COUNT(*) DESC
+                        LIMIT 1
+                    ) as top_location
                 FROM jobs
                 WHERE company = ?
-                GROUP BY title
-                ORDER BY COUNT(*) DESC
-                LIMIT 1
                 "#,
             )
             .bind(&company)
-            .fetch_one(&self.db)
-            .await?;
-
-            // Top location
-            let top_location = sqlx::query_scalar::<_, Option<String>>(
-                r#"
-                SELECT location
-                FROM jobs
-                WHERE company = ?
-                GROUP BY location
-                ORDER BY COUNT(*) DESC
-                LIMIT 1
-                "#,
-            )
+            .bind(&company)
             .bind(&company)
             .fetch_one(&self.db)
             .await?;
+
+            let jobs_posted: i64 = stats.try_get("jobs_posted")?;
+            let jobs_active: i64 = stats.try_get("jobs_active")?;
+            let jobs_filled: i64 = stats.try_get("jobs_filled")?;
+            let top_role: Option<String> = stats.try_get("top_role").ok();
+            let top_location: Option<String> = stats.try_get("top_location").ok();
 
             // Determine hiring trend (compare to previous week)
             let prev_week_velocity = sqlx::query_scalar::<_, Option<i64>>(

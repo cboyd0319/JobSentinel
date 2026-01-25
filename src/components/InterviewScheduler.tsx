@@ -317,6 +317,37 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
     fetchInterviews();
   }, [fetchInterviews]);
 
+  // Keyboard shortcuts: Tab to switch tabs, R to refresh, Cmd+N to add new
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Tab key to switch between upcoming/past
+      if (e.key === 'Tab' && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
+        const target = e.target as HTMLElement;
+        // Only switch tabs if not focused on an input/button
+        if (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA' && target.tagName !== 'BUTTON') {
+          e.preventDefault();
+          setActiveTab(prev => prev === 'upcoming' ? 'past' : 'upcoming');
+        }
+      }
+      // R to refresh
+      if (e.key === 'r' && !e.ctrlKey && !e.metaKey) {
+        const target = e.target as HTMLElement;
+        if (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA') {
+          e.preventDefault();
+          fetchInterviews();
+        }
+      }
+      // Cmd+N to schedule new interview
+      if (e.key === 'n' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setShowAddForm(true);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [fetchInterviews]);
+
   const handleScheduleInterview = async () => {
     if (!formData.application_id || !formData.scheduled_at) {
       toast.error("Missing required fields", "Please select an application and date/time");
@@ -478,21 +509,25 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
           <div className="flex gap-1 p-1 bg-surface-100 dark:bg-surface-700 rounded-lg">
             <button
               onClick={() => setActiveTab('upcoming')}
+              onKeyDown={(e) => e.key === 'Enter' && setActiveTab('upcoming')}
               className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
                 activeTab === 'upcoming'
                   ? 'bg-white dark:bg-surface-600 text-surface-900 dark:text-white shadow-sm'
                   : 'text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-white'
               }`}
+              aria-label="View upcoming interviews (press Tab to switch)"
             >
               Upcoming ({interviews.length})
             </button>
             <button
               onClick={() => setActiveTab('past')}
+              onKeyDown={(e) => e.key === 'Enter' && setActiveTab('past')}
               className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
                 activeTab === 'past'
                   ? 'bg-white dark:bg-surface-600 text-surface-900 dark:text-white shadow-sm'
                   : 'text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-white'
               }`}
+              aria-label="View past interviews (press Tab to switch)"
             >
               Past ({pastInterviews.length})
             </button>
@@ -668,7 +703,14 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
         <div
           className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4"
           onClick={(e) => e.target === e.currentTarget && setShowAddForm(false)}
-          onKeyDown={(e) => e.key === "Escape" && setShowAddForm(false)}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setShowAddForm(false);
+            // Cmd+Enter to submit form
+            if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+              e.preventDefault();
+              handleScheduleInterview();
+            }
+          }}
           role="dialog"
           aria-modal="true"
         >

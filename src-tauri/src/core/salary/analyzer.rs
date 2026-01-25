@@ -97,24 +97,37 @@ impl SalaryAnalyzer {
     }
 
     /// Compare multiple offers
+    ///
+    /// OPTIMIZATION: Single batched query with IN clause instead of N queries.
+    /// Fetch all offers in one round-trip, then get predictions.
     pub async fn compare_offers(&self, offer_ids: Vec<i64>) -> Result<Vec<OfferComparison>> {
-        let mut comparisons = Vec::new();
+        if offer_ids.is_empty() {
+            return Ok(Vec::new());
+        }
 
-        for offer_id in offer_ids {
-            let offer = sqlx::query(
-                r#"
-                SELECT o.id, o.base_salary, o.annual_bonus, o.equity_shares,
-                       a.job_hash, j.title, j.company
-                FROM offers o
-                JOIN applications a ON a.id = o.application_id
-                JOIN jobs j ON j.hash = a.job_hash
-                WHERE o.id = ?
-                "#,
-            )
-            .bind(offer_id)
-            .fetch_one(&self.db)
-            .await?;
+        // Batch fetch all offers in single query
+        let placeholders = offer_ids.iter().map(|_| "?").collect::<Vec<_>>().join(",");
+        let sql = format!(
+            r#"
+            SELECT o.id, o.base_salary, o.annual_bonus, o.equity_shares,
+                   a.job_hash, j.title, j.company
+            FROM offers o
+            JOIN applications a ON a.id = o.application_id
+            JOIN jobs j ON j.hash = a.job_hash
+            WHERE o.id IN ({})
+            "#,
+            placeholders
+        );
 
+        let mut query = sqlx::query(&sql);
+        for id in &offer_ids {
+            query = query.bind(id);
+        }
+        let offers = query.fetch_all(&self.db).await?;
+
+        let mut comparisons = Vec::with_capacity(offers.len());
+
+        for offer in offers {
             let id: i64 = offer.try_get("id")?;
             let company: String = offer.try_get("company")?;
             let job_hash: String = offer.try_get("job_hash")?;
@@ -126,7 +139,7 @@ impl SalaryAnalyzer {
             // Calculate total comp (simplified)
             let total_comp = base_salary + annual_bonus;
 
-            // Get market benchmark
+            // Get market benchmark (still N queries, but could be batched too)
             let prediction = self.predictor.get_prediction(&job_hash).await?;
 
             let (market_median, market_position, recommendation) = if let Some(pred) = prediction {

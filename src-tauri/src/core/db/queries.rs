@@ -8,7 +8,9 @@ use sqlx;
 
 impl Database {
     /// Get recent jobs
+    #[tracing::instrument(skip(self))]
     pub async fn get_recent_jobs(&self, limit: i64) -> Result<Vec<Job>, sqlx::Error> {
+        tracing::debug!("Fetching {} recent jobs from database", limit);
         let jobs = sqlx::query_as::<_, Job>(
             "SELECT * FROM jobs WHERE hidden = 0 ORDER BY score DESC, created_at DESC LIMIT ?",
         )
@@ -16,6 +18,7 @@ impl Database {
         .fetch_all(self.pool())
         .await?;
 
+        tracing::info!("Retrieved {} jobs", jobs.len());
         Ok(jobs)
     }
 
@@ -78,7 +81,9 @@ impl Database {
     }
 
     /// Full-text search on title and description
+    #[tracing::instrument(skip(self))]
     pub async fn search_jobs(&self, query: &str, limit: i64) -> Result<Vec<Job>, sqlx::Error> {
+        tracing::debug!("Performing full-text search with query: '{}'", query);
         // Use FTS5 virtual table for fast full-text search
         let job_ids: Vec<i64> =
             sqlx::query_scalar("SELECT rowid FROM jobs_fts WHERE jobs_fts MATCH ? LIMIT ?")
@@ -88,6 +93,7 @@ impl Database {
                 .await?;
 
         if job_ids.is_empty() {
+            tracing::info!("No jobs found matching query: '{}'", query);
             return Ok(Vec::new());
         }
 
@@ -119,51 +125,70 @@ impl Database {
 
     /// Find potential duplicate jobs (same title + company, different sources)
     /// Returns groups of jobs that are likely duplicates
+    ///
+    /// OPTIMIZATION: Uses window functions to avoid N+1 query pattern.
+    /// Instead of fetching duplicate keys then querying each group separately,
+    /// we use a single query with ROW_NUMBER() to identify and group duplicates.
     pub async fn find_duplicate_groups(&self) -> Result<Vec<DuplicateGroup>, sqlx::Error> {
-        // First, find all title+company pairs that have multiple jobs
-        let duplicate_keys: Vec<(String, String)> = sqlx::query_as(
+        // Single query using window functions to avoid N+1 pattern
+        let jobs: Vec<Job> = sqlx::query_as(
             r#"
-            SELECT LOWER(title) as norm_title, LOWER(company) as norm_company
-            FROM jobs
-            WHERE hidden = 0
-            GROUP BY LOWER(title), LOWER(company)
-            HAVING COUNT(*) > 1
-            ORDER BY MAX(score) DESC
+            WITH duplicate_candidates AS (
+                SELECT *,
+                       LOWER(title) as norm_title,
+                       LOWER(company) as norm_company,
+                       COUNT(*) OVER (PARTITION BY LOWER(title), LOWER(company)) as dup_count,
+                       ROW_NUMBER() OVER (PARTITION BY LOWER(title), LOWER(company) ORDER BY score DESC, created_at ASC) as row_num
+                FROM jobs
+                WHERE hidden = 0
+            )
+            SELECT id, hash, title, company, url, location, description, score, score_reasons,
+                   source, remote, salary_min, salary_max, currency, created_at, updated_at,
+                   last_seen, times_seen, immediate_alert_sent, included_in_digest, hidden,
+                   bookmarked, notes, ghost_score, ghost_reasons, first_seen, repost_count
+            FROM duplicate_candidates
+            WHERE dup_count > 1
+            ORDER BY norm_company, norm_title, score DESC, created_at ASC
             "#,
         )
         .fetch_all(self.pool())
         .await?;
 
+        // Group jobs by normalized title+company in Rust (already sorted by query)
         let mut groups = Vec::new();
+        let mut current_group: Vec<Job> = Vec::new();
+        let mut current_key: Option<(String, String)> = None;
 
-        for (norm_title, norm_company) in duplicate_keys {
-            let jobs: Vec<Job> = sqlx::query_as(
-                r#"
-                SELECT id, hash, title, company, url, location, description, score, score_reasons,
-                       source, remote, salary_min, salary_max, currency, created_at, updated_at,
-                       last_seen, times_seen, immediate_alert_sent, included_in_digest, hidden,
-                       bookmarked, notes, ghost_score, ghost_reasons, first_seen, repost_count
-                FROM jobs
-                WHERE LOWER(title) = ? AND LOWER(company) = ? AND hidden = 0
-                ORDER BY score DESC, created_at ASC
-                "#,
-            )
-            .bind(&norm_title)
-            .bind(&norm_company)
-            .fetch_all(self.pool())
-            .await?;
+        for job in jobs {
+            let key = (job.title.to_lowercase(), job.company.to_lowercase());
 
-            if jobs.len() > 1 {
-                // The first job (highest score, oldest) is the "primary"
-                let primary_id = jobs[0].id;
-                let sources: Vec<String> = jobs.iter().map(|j| j.source.clone()).collect();
-
-                groups.push(DuplicateGroup {
-                    primary_id,
-                    jobs,
-                    sources,
-                });
+            if current_key.as_ref() != Some(&key) {
+                // Start new group
+                if !current_group.is_empty() {
+                    let primary_id = current_group[0].id;
+                    let sources = current_group.iter().map(|j| j.source.clone()).collect();
+                    groups.push(DuplicateGroup {
+                        primary_id,
+                        jobs: current_group,
+                        sources,
+                    });
+                }
+                current_group = vec![job];
+                current_key = Some(key);
+            } else {
+                current_group.push(job);
             }
+        }
+
+        // Push final group
+        if !current_group.is_empty() {
+            let primary_id = current_group[0].id;
+            let sources = current_group.iter().map(|j| j.source.clone()).collect();
+            groups.push(DuplicateGroup {
+                primary_id,
+                jobs: current_group,
+                sources,
+            });
         }
 
         Ok(groups)

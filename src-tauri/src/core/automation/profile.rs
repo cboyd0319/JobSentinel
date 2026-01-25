@@ -31,6 +31,7 @@ pub struct ApplicationProfile {
 }
 
 /// Profile manager
+#[derive(Debug)]
 pub struct ProfileManager {
     db: SqlitePool,
 }
@@ -190,12 +191,16 @@ impl ProfileManager {
     }
 
     /// Get all screening answers
+    ///
+    /// OPTIMIZATION: Added reasonable LIMIT (1000) to prevent unbounded result sets.
+    /// Most users will have <100 screening patterns; 1000 is a safe upper bound.
     pub async fn get_screening_answers(&self) -> Result<Vec<ScreeningAnswer>> {
         let rows = sqlx::query(
             r#"
             SELECT id, question_pattern, answer, answer_type, notes, created_at, updated_at
             FROM screening_answers
             ORDER BY created_at DESC
+            LIMIT 1000
             "#,
         )
         .fetch_all(&self.db)
@@ -225,13 +230,25 @@ impl ProfileManager {
     }
 
     /// Find matching screening answer for a question
+    ///
+    /// OPTIMIZATION: Fetch only pattern+answer columns instead of full rows.
+    /// Reduces data transfer and memory allocation for pattern matching.
     pub async fn find_answer_for_question(&self, question: &str) -> Result<Option<String>> {
-        let answers = self.get_screening_answers().await?;
+        // Fetch only needed columns for pattern matching
+        let rows = sqlx::query(
+            "SELECT question_pattern, answer FROM screening_answers ORDER BY created_at DESC",
+        )
+        .fetch_all(&self.db)
+        .await?;
 
-        for answer in answers {
-            if let Ok(regex) = regex::Regex::new(&answer.question_pattern) {
+        use sqlx::Row;
+        for row in rows {
+            let pattern: String = row.try_get("question_pattern")?;
+            let answer: String = row.try_get("answer")?;
+
+            if let Ok(regex) = regex::Regex::new(&pattern) {
                 if regex.is_match(question) {
-                    return Ok(Some(answer.answer));
+                    return Ok(Some(answer));
                 }
             }
         }
@@ -241,7 +258,7 @@ impl ProfileManager {
 }
 
 /// Input for creating/updating profile
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct ApplicationProfileInput {
     pub full_name: String,
     pub email: String,

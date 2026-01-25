@@ -13,6 +13,7 @@ use chrono::Utc;
 use sha2::{Digest, Sha256};
 
 /// Hacker News Who's Hiring scraper
+#[derive(Debug, Clone)]
 pub struct HnHiringScraper {
     /// Maximum results to return
     pub limit: usize,

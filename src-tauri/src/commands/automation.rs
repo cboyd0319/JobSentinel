@@ -573,6 +573,9 @@ pub async fn mark_attempt_submitted(
 }
 
 /// Get all automation attempts for a job
+///
+/// OPTIMIZATION: Added LIMIT clause to prevent unbounded result sets.
+/// Most jobs will have 1-3 attempts; cap at 100 for safety.
 #[tauri::command]
 pub async fn get_attempts_for_job(
     job_hash: String,
@@ -588,6 +591,7 @@ pub async fn get_attempts_for_job(
         FROM application_attempts
         WHERE job_hash = ?
         ORDER BY created_at DESC
+        LIMIT 100
         "#,
     )
     .bind(&job_hash)

@@ -4,7 +4,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 /// Seniority level
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 pub enum SeniorityLevel {
     Entry,
     Mid,
@@ -15,6 +15,7 @@ pub enum SeniorityLevel {
 }
 
 impl SeniorityLevel {
+    #[inline]
     pub fn as_str(&self) -> &'static str {
         match self {
             Self::Entry => "entry",
@@ -26,6 +27,7 @@ impl SeniorityLevel {
         }
     }
 
+    #[inline]
     pub fn parse(s: &str) -> Self {
         match s {
             "entry" => Self::Entry,
@@ -38,6 +40,7 @@ impl SeniorityLevel {
     }
 
     /// Infer seniority from years of experience
+    #[inline]
     pub fn from_years_of_experience(years: i32) -> Self {
         match years {
             0..=2 => Self::Entry,

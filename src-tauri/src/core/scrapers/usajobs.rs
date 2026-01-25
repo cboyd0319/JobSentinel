@@ -22,6 +22,7 @@ const DEFAULT_RESULTS_PER_PAGE: u32 = 100;
 const MAX_RESULTS_PER_PAGE: u32 = 500;
 
 /// USAJobs API scraper for federal government positions
+#[derive(Debug, Clone)]
 pub struct UsaJobsScraper {
     /// API key from developer.usajobs.gov
     pub api_key: String,
@@ -47,10 +48,10 @@ pub struct UsaJobsScraper {
 
 impl UsaJobsScraper {
     /// Create a new USAJobs scraper with API credentials
-    pub fn new(api_key: String, email: String) -> Self {
+    pub fn new(api_key: impl Into<String>, email: impl Into<String>) -> Self {
         Self {
-            api_key,
-            email,
+            api_key: api_key.into(),
+            email: email.into(),
             keywords: None,
             location: None,
             radius: None,
@@ -124,10 +125,10 @@ impl UsaJobsScraper {
         // Pre-allocate capacity for typical number of params (10)
         let mut params = Vec::with_capacity(10);
 
-        if let Some(ref kw) = self.keywords {
+        if let Some(kw) = &self.keywords {
             params.push(("Keyword", kw.clone()));
         }
-        if let Some(ref loc) = self.location {
+        if let Some(loc) = &self.location {
             params.push(("LocationName", loc.clone()));
         }
         if let Some(r) = self.radius {
@@ -190,7 +191,7 @@ impl UsaJobsScraper {
             self.limit
         );
 
-        let mut jobs = Vec::new();
+        let mut jobs = Vec::with_capacity(self.limit);
         for item in api_response.search_result.search_result_items {
             if let Some(job) = self.parse_job(&item) {
                 jobs.push(job);
@@ -208,27 +209,27 @@ impl UsaJobsScraper {
     fn parse_job(&self, item: &SearchResultItem) -> Option<Job> {
         let desc = &item.matched_object_descriptor;
 
-        let title = desc.position_title.clone();
+        let title = &desc.position_title;
         if title.is_empty() {
             return None;
         }
 
-        let url = desc.position_uri.clone();
+        let url = &desc.position_uri;
         if url.is_empty() {
             return None;
         }
 
         // Use organization name, fall back to department
         let company = if !desc.organization_name.is_empty() {
-            desc.organization_name.clone()
+            &desc.organization_name
         } else {
-            desc.department_name.clone()
+            &desc.department_name
         };
 
         let location = if desc.position_location_display.is_empty() {
             None
         } else {
-            Some(desc.position_location_display.clone())
+            Some(&desc.position_location_display)
         };
 
         // Parse salary from remuneration array
@@ -249,17 +250,18 @@ impl UsaJobsScraper {
             .user_area
             .as_ref()
             .and_then(|ua| ua.details.as_ref())
-            .and_then(|d| d.job_summary.clone());
+            .and_then(|d| d.job_summary.as_deref())
+            .map(str::to_string);
 
-        let hash = Self::compute_hash(&company, &title, location.as_deref(), &url);
+        let hash = Self::compute_hash(company, title, location.map(|s| s as &str), url);
 
         Some(Job {
             id: 0,
             hash,
-            title,
-            company,
-            url,
-            location,
+            title: title.clone(),
+            company: company.clone(),
+            url: url.clone(),
+            location: location.cloned(),
             description,
             score: None,
             score_reasons: None,

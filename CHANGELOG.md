@@ -5,6 +5,115 @@ All notable changes to JobSentinel will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.1] - 2026-01-25
+
+### Added - Performance & Code Quality Sprint
+
+Major code quality improvements including React optimizations, Rust performance enhancements, accessibility, and developer experience.
+
+#### React Performance Optimizations
+
+- **60+ useCallback hooks** - Memoized callbacks across components to prevent re-renders
+  - Dashboard hooks: useDashboardJobOps, useDashboardSavedSearches, useDashboardFilters
+  - InterviewScheduler, ScoreBreakdownModal, ProfileForm, Applications, Settings
+  - SetupWizard, ResumeBuilder, ResumeOptimizer, Market, Salary pages
+
+- **8 React.memo components** - Memoized expensive components
+  - DashboardFiltersBar, QuickActions, Dropdown, DashboardWidgets
+  - StatBox, FilterListInput, ToggleSection, SliderSection
+
+- **5 useMemo optimizations** - Computed values memoized
+  - DashboardWidgets: funnelData, sourceData
+  - Dashboard: filtered jobs, pagination
+
+#### New Reusable Hooks
+
+- **useModal** - Generic modal state management with open/close/toggle
+- **useTabs** - Tab state management with activeTab and setActiveTab
+- **useFetchOnMount** - Data fetching with loading, error, retry, and AbortController cleanup
+
+#### Component Deduplication
+
+- **Icons.tsx** - Consolidated 22+ inline SVG icons into reusable components
+- **AsyncButton** - Generic async button with loading state and error handling
+- **FilterListInput** - Reusable comma-separated list input with chip display
+- **ToggleSection** - Collapsible section with toggle button
+- **SliderSection** - Slider input with label and help text
+- **CredentialInput** - Secure credential input with stored/not-stored indicators
+
+#### Rust Performance Enhancements
+
+- **25+ structs with new derives** - Added Clone, Debug, Default, PartialEq where appropriate
+  - ATS types, automation types, health types, scheduler types
+  - Resume types, salary types, market intelligence types
+
+- **20 #[inline] hints** - Added to hot-path functions for compiler optimization
+  - Scraper utility functions: normalize_*, format_*, detect_*
+  - Database query builders and utility functions
+
+- **4 Cow<str> optimizations** - Zero-copy string handling in hot paths
+  - normalize_url, normalize_location, normalize_title, normalize_company_name
+
+- **15 #[tracing::instrument] additions** - Structured logging for debugging
+  - All scraper entry points now instrumented
+  - Database operations with query timing
+
+#### Database Optimizations
+
+- **10 query optimizations** - Reduced N+1 queries, added LIMIT clauses
+  - get_recent_jobs: Added LIMIT for pagination
+  - get_applications_kanban: Batch loading instead of per-status queries
+  - get_trending_skills: Single query with grouping
+
+- **8 new indexes** - Performance indexes for common queries
+  - jobs: (score DESC, created_at), (source, created_at)
+  - applications: (status, updated_at), (job_id, status)
+  - scrapers: (last_success, enabled)
+
+#### Accessibility Improvements (11 fixes)
+
+- **Navigation.tsx** - aria-label="Main navigation" for screen readers
+- **Dropdown.tsx** - aria-activedescendant for keyboard navigation
+- **Tooltip.tsx** - Escape key dismisses tooltips
+- **Badge.tsx** - Contextual remove button labels ("Remove {content}")
+- **DashboardWidgets.tsx** - aria-hidden on decorative icons
+- **Forms** - Required field indicators, maxLength validation, input patterns
+- **Focus management** - Improved focus rings and tab order
+
+#### Keyboard Shortcuts (13 new)
+
+- **Global**: Ctrl+/ (search), Ctrl+B (bulk mode), Ctrl+E (export)
+- **Dashboard**: j/k (navigate jobs), Enter (open job), Space (toggle select)
+- **Modals**: Escape (close), Tab (navigate fields)
+- **Forms**: Ctrl+Enter (submit), Ctrl+S (save)
+
+#### Error Message Improvements (23 messages)
+
+- All user-facing error messages now explain what went wrong and suggest fixes
+- Toast messages include actionable recovery steps
+- Form validation shows specific field errors with fix suggestions
+
+#### Memory Leak Fixes (2 critical)
+
+- **AtsLiveScorePanel** - AbortController cleanup on unmount
+- **NotificationPreferences** - Cancelled flag prevents state updates after unmount
+
+#### Form Validation (10 improvements)
+
+- Email validation with regex patterns
+- URL validation for webhook fields
+- Required field visual indicators
+- Character count displays for text areas
+- Real-time validation on blur
+
+### Tests
+
+- **4,135+ total tests** (Backend: 2,274 | Frontend: 1,861)
+- New hook tests: useModal.test.ts, useTabs.test.ts, useFetchOnMount.test.ts
+- All TypeScript strict mode errors resolved
+
+---
+
 ## [2.6.0] - 2026-01-24
 
 ### Added - UX Improvement Sprint

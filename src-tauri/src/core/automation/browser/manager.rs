@@ -26,10 +26,13 @@ impl BrowserManager {
     /// Launch the browser
     ///
     /// Launches Chrome in visible mode so user can watch form filling.
+    #[tracing::instrument(skip(self))]
     pub async fn launch(&self) -> Result<()> {
+        tracing::info!("Launching browser in visible mode");
         let mut browser_guard = self.browser.lock().await;
 
         if browser_guard.is_some() {
+            tracing::debug!("Browser already launched, skipping");
             return Ok(()); // Already launched
         }
 
@@ -58,9 +61,10 @@ impl BrowserManager {
                     tracing::warn!("Browser handler error: {:?}", event);
                 }
             }
+            tracing::debug!("Browser handler task terminated");
         });
 
-        tracing::info!("Browser launched successfully in visible mode");
+        tracing::info!("Browser launched successfully (visible mode, window_size=1280x900)");
         *browser_guard = Some(browser);
 
         Ok(())
@@ -69,7 +73,9 @@ impl BrowserManager {
     /// Create a new page for automation
     ///
     /// Returns an AutomationPage that provides form filling methods.
+    #[tracing::instrument(skip(self))]
     pub async fn new_page(&self, url: &str) -> Result<AutomationPage> {
+        tracing::debug!("Creating new browser page");
         let browser_guard = self.browser.lock().await;
         let browser = browser_guard
             .as_ref()
@@ -80,12 +86,13 @@ impl BrowserManager {
             .await
             .context("Failed to create new page")?;
 
+        tracing::debug!("Waiting for page navigation to complete");
         // Wait for page to load
         page.wait_for_navigation()
             .await
             .context("Failed to wait for navigation")?;
 
-        tracing::info!("Created new page and navigated to: {}", url);
+        tracing::info!("New page created and loaded successfully");
 
         Ok(AutomationPage::new(page))
     }

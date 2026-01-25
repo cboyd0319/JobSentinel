@@ -1,14 +1,12 @@
 import { memo, useEffect, useState, useCallback, useMemo, lazy, Suspense } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import {
-  Button,
-  Card,
-  Badge,
-  LoadingSpinner,
-  MarketSnapshotCard,
-  MarketAlertList,
-  LocationHeatmap,
-} from "../components";
+import { Button } from "../components/Button";
+import { Card } from "../components/Card";
+import { Badge } from "../components/Badge";
+import { LoadingSpinner } from "../components/LoadingSpinner";
+import { MarketSnapshotCard } from "../components/MarketSnapshotCard";
+import { MarketAlertList } from "../components/MarketAlertCard";
+import { LocationHeatmap } from "../components/LocationHeatmap";
 import { useToast } from "../contexts";
 import { logError, getErrorMessage } from "../utils/errorUtils";
 import { formatCurrency } from "../utils/formatUtils";
@@ -199,7 +197,10 @@ export default function Market({ onBack }: MarketProps) {
       logError("Failed to fetch market data:", err);
       const errorMsg = getErrorMessage(err);
       setError(errorMsg);
-      toast.error("Failed to load market data", errorMsg);
+      toast.error(
+        "Market data unavailable",
+        "Couldn't load market intelligence. Check your connection and make sure market analysis has been run at least once."
+      );
     } finally {
       if (!signal?.aborted) {
         setLoading(false);
@@ -223,7 +224,10 @@ export default function Market({ onBack }: MarketProps) {
       await fetchData();
     } catch (err) {
       logError("Failed to run analysis:", err);
-      toast.error("Analysis failed", getErrorMessage(err));
+      toast.error(
+        "Market analysis failed",
+        "Couldn't analyze market data. Make sure you have job listings in your database first."
+      );
     } finally {
       setAnalyzing(false);
     }
@@ -237,7 +241,10 @@ export default function Market({ onBack }: MarketProps) {
       );
     } catch (err) {
       logError("Failed to mark alert as read:", err);
-      toast.error("Failed to mark alert", getErrorMessage(err));
+      toast.error(
+        "Couldn't mark alert as read",
+        "The alert is still marked unread. Try again or restart the app if this continues."
+      );
     }
   };
 
@@ -248,7 +255,10 @@ export default function Market({ onBack }: MarketProps) {
       toast.success("All alerts marked as read");
     } catch (err) {
       logError("Failed to mark all alerts:", err);
-      toast.error("Failed to mark alerts", getErrorMessage(err));
+      toast.error(
+        "Couldn't mark all alerts as read",
+        "Some alerts may still be unread. Try marking them individually or restart the app."
+      );
     }
   };
 

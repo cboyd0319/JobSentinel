@@ -11,7 +11,7 @@ Welcome to JobSentinel documentation.
 3. **CHECK FILE SIZES** - Keep files <500 lines. See [ROADMAP.md](ROADMAP.md) for refactoring plan.
 4. **READ docs/CLAUDE.md FIRST** - Contains project context and critical requirements.
 
-### Current Version: 2.6.0 (Production Ready)
+### Current Version: 2.6.1 (Production Ready)
 
 See [ROADMAP.md](ROADMAP.md) for future plans (v2.7: ML predictions, Linux support).
 
@@ -19,7 +19,19 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.7: ML predictions, Linux suppo
 
 ## Current Status (January 2026)
 
-**Version: 2.6.0** | 4,085+ tests passing | UX Improvements + Performance + Accessibility
+**Version: 2.6.1** | 4,135+ tests passing | Performance + Code Quality Sprint
+
+### What's New in v2.6.1
+
+- **React Performance** - 60+ useCallback hooks, 8 React.memo components, 5 useMemo optimizations
+- **New Reusable Hooks** - useModal, useTabs, useFetchOnMount with proper cleanup
+- **Component Deduplication** - Icons.tsx (22 icons), AsyncButton, FilterListInput
+- **Rust Optimizations** - 25+ structs with derives, 20 #[inline] hints, 4 Cow zero-copy functions
+- **Database Performance** - 10 query optimizations, 8 new indexes
+- **Accessibility** - 11 fixes, 13 new keyboard shortcuts
+- **Error Messages** - 23 user-friendly messages with recovery suggestions
+- **Memory Leaks** - 2 critical fixes (AbortController cleanup)
+- **Form Validation** - 10 improvements with real-time feedback
 
 ### What's New in v2.6.0 ⚡
 
@@ -43,7 +55,7 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.7: ML predictions, Linux suppo
   - Tooltip: Escape key dismisses tooltips
   - Badge: Contextual remove button labels
 
-- **Test Coverage** - 4,085+ tests (2,257 Rust + 1,828 Frontend)
+- **Test Coverage** - 4,085+ tests (2,257 Rust + 1,828 Frontend) - *Now 4,135+ in v2.6.1*
 
 - See [v2.6.0 Release Notes](releases/v2.6.0.md) for full details
 

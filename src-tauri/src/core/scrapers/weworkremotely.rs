@@ -12,6 +12,7 @@ use chrono::Utc;
 use sha2::{Digest, Sha256};
 
 /// WeWorkRemotely job scraper
+#[derive(Debug, Clone)]
 pub struct WeWorkRemotelyScraper {
     /// Category to search (e.g., "programming", "design", "devops")
     pub category: Option<String>,
@@ -61,7 +62,7 @@ impl WeWorkRemotelyScraper {
 
     /// Parse RSS XML to extract job listings
     fn parse_rss(&self, xml: &str) -> Result<Vec<Job>> {
-        let mut jobs = Vec::new();
+        let mut jobs = Vec::with_capacity(self.limit);
 
         // Simple XML parsing for RSS items
         // Format: <item><title>...</title><link>...</link><description>...</description></item>
@@ -77,7 +78,7 @@ impl WeWorkRemotelyScraper {
                 let (c, t) = title.split_at(pos);
                 (c.trim().to_string(), t[1..].trim().to_string())
             } else {
-                ("Unknown Company".to_string(), title.clone())
+                ("Unknown Company".to_string(), title)
             };
 
             if job_title.is_empty() || url.is_empty() {

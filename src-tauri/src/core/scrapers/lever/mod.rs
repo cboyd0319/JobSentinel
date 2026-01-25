@@ -11,6 +11,7 @@ use chrono::Utc;
 use sha2::{Digest, Sha256};
 
 /// Lever scraper configuration
+#[derive(Debug, Clone)]
 pub struct LeverScraper {
     /// List of Lever company URLs to scrape
     pub companies: Vec<LeverCompany>,

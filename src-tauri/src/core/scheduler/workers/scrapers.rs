@@ -26,7 +26,9 @@ use crate::core::{
 use std::sync::Arc;
 
 /// Run all configured scrapers and return jobs and errors
+#[tracing::instrument(skip_all)]
 pub async fn run_scrapers(config: &Arc<Config>) -> (Vec<Job>, Vec<String>) {
+    tracing::info!("Starting scraper execution across all enabled sources");
     let mut all_jobs = Vec::new();
     let mut errors = Vec::new();
 
@@ -379,7 +381,15 @@ pub async fn run_scrapers(config: &Arc<Config>) -> (Vec<Job>, Vec<String>) {
         }
     }
 
-    tracing::info!("Total jobs scraped: {}", all_jobs.len());
+    tracing::info!(
+        "Scraper execution complete: {} total jobs, {} errors",
+        all_jobs.len(),
+        errors.len()
+    );
+
+    if !errors.is_empty() {
+        tracing::warn!("Scraping errors encountered: {:?}", errors);
+    }
 
     (all_jobs, errors)
 }

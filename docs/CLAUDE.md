@@ -83,7 +83,7 @@ Complete Reddit marketing campaign for beta tester recruitment. **Advocacy first
 
 ### 4. CURRENT STATUS
 
-**Version:** 2.6.0 (Production Ready)
+**Version:** 2.6.1 (Production Ready)
 
 All major features complete:
 
@@ -96,7 +96,7 @@ All major features complete:
 - Multi-channel notifications
 - **Market Intelligence UI** - Interactive charts, tabbed layout, heatmaps (NEW)
 
-**v2.6.0 NEW:** Comprehensive UX improvements - error recovery, loading states, accessibility, performance
+**v2.6.1 NEW:** Performance & code quality sprint - React optimizations, Rust performance, accessibility, memory leaks
 
 **Next:** v2.7 - Machine learning predictions, official installers
 
@@ -109,7 +109,7 @@ See `docs/ROADMAP.md` for future plans
 **JobSentinel** is a privacy-first job search automation desktop app built with Tauri 2.x (Rust backend)
 and React 19 (TypeScript frontend).
 
-**Current Version:** 2.6.0 (January 2026)
+**Current Version:** 2.6.1 (January 2026)
 **Primary Target:** Windows 11+ (macOS/Linux planned for v2.5)
 
 ## Tech Stack
@@ -206,7 +206,7 @@ All core modules are enabled and functional:
 
 ### Test Status
 
-- **4,085+ tests passing** (2,257 Rust + 1,828 Frontend)
+- **4,135+ tests passing** (2,274 Rust + 1,861 Frontend)
 - 49 ignored (require file-based database, Chrome, or are doc-tests)
 - Integration test files: `tests/automation_integration_test.rs`, `tests/scheduler_integration_test.rs`, etc.
 

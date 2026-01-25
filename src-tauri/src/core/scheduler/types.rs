@@ -24,6 +24,7 @@ impl From<&Config> for ScheduleConfig {
 }
 
 /// Scheduler handle
+#[derive(Debug)]
 pub struct Scheduler {
     pub(crate) config: Arc<Config>,
     pub(crate) database: Arc<crate::core::db::Database>,
@@ -31,7 +32,7 @@ pub struct Scheduler {
 }
 
 /// Scraping result statistics
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct ScrapingResult {
     pub jobs_found: usize,
     pub jobs_new: usize,

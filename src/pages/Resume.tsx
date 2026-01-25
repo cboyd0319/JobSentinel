@@ -1,7 +1,12 @@
 import { useEffect, useState, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { Button, Card, Badge, ScoreDisplay, Modal, ModalFooter, ResumeSkeleton } from "../components";
+import { Button } from "../components/Button";
+import { Card } from "../components/Card";
+import { Badge } from "../components/Badge";
+import { ScoreDisplay } from "../components/ScoreDisplay";
+import { Modal, ModalFooter } from "../components/Modal";
+import { ResumeSkeleton } from "../components/Skeleton";
 import { useToast } from "../contexts";
 import { logError, getErrorMessage } from "../utils/errorUtils";
 

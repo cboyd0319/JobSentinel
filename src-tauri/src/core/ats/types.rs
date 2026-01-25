@@ -7,6 +7,7 @@ use std::fmt;
 use std::str::FromStr;
 
 /// Parse a datetime string from SQLite which can be in multiple formats
+#[inline]
 pub fn parse_sqlite_datetime(s: &str) -> Result<DateTime<Utc>> {
     // Try RFC3339 first (format with 'T' and 'Z'): 2026-01-15T12:34:56Z
     if let Ok(dt) = DateTime::parse_from_rfc3339(s) {
@@ -45,6 +46,7 @@ pub enum ApplicationStatus {
 }
 
 impl fmt::Display for ApplicationStatus {
+    #[inline]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s = match self {
             Self::ToApply => "to_apply",
@@ -183,6 +185,7 @@ pub enum InterviewType {
 }
 
 impl fmt::Display for InterviewType {
+    #[inline]
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             InterviewType::Phone => write!(f, "phone"),

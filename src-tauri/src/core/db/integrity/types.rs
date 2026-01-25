@@ -1,14 +1,14 @@
 //! Type definitions for database integrity checking
 
 /// Result of an integrity check
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(super) struct CheckResult {
     pub is_ok: bool,
     pub message: String,
 }
 
 /// Status of database integrity
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum IntegrityStatus {
     Healthy,
     Corrupted(String),

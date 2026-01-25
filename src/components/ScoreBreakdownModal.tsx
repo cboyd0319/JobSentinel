@@ -260,7 +260,11 @@ export const ScoreBreakdownModal = memo(function ScoreBreakdownModal({
       </div>
 
       <ModalFooter>
-        <Button variant="secondary" onClick={onClose}>
+        <Button
+          variant="secondary"
+          onClick={onClose}
+          onKeyDown={(e) => e.key === 'Enter' && onClose()}
+        >
           Close
         </Button>
       </ModalFooter>

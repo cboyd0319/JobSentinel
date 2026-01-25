@@ -21,7 +21,7 @@ pub struct Resume {
 // ============================================================================
 
 /// Contact information for ATS analysis
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct ContactInfo {
     pub name: String,
     pub email: String,
@@ -33,7 +33,7 @@ pub struct ContactInfo {
 }
 
 /// Work experience entry for ATS analysis
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Experience {
     pub title: String,
     pub company: String,
@@ -45,7 +45,7 @@ pub struct Experience {
 }
 
 /// Education entry for ATS analysis
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Education {
     pub degree: String,
     pub institution: String,
@@ -56,7 +56,7 @@ pub struct Education {
 }
 
 /// Skill for ATS analysis
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Skill {
     pub name: String,
     pub category: String,
@@ -64,7 +64,7 @@ pub struct Skill {
 }
 
 /// Complete resume data for ATS analysis
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct ResumeData {
     pub contact_info: ContactInfo,
     pub summary: String,
@@ -136,7 +136,7 @@ pub struct MatchResultWithJob {
 // ============================================================================
 
 /// Update payload for modifying a user skill
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct SkillUpdate {
     pub skill_name: Option<String>,
     pub skill_category: Option<String>,
@@ -145,7 +145,7 @@ pub struct SkillUpdate {
 }
 
 /// Payload for adding a new skill
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct NewSkill {
     pub skill_name: String,
     pub skill_category: Option<String>,
@@ -158,7 +158,7 @@ pub struct NewSkill {
 // ============================================================================
 
 /// Experience requirement extracted from job description
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct ExperienceRequirement {
     /// The skill/technology this requirement applies to (None = general experience)
     pub skill: Option<String>,
@@ -247,7 +247,7 @@ impl Default for DegreeLevel {
 }
 
 /// Education requirement extracted from job description
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct EducationRequirement {
     /// Minimum degree level required
     pub degree_level: DegreeLevel,

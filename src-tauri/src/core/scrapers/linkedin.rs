@@ -114,11 +114,11 @@ struct LinkedInCompanyInfo {
 }
 
 impl LinkedInScraper {
-    pub fn new(session_cookie: String, query: String, location: String) -> Self {
+    pub fn new(session_cookie: impl Into<String>, query: impl Into<String>, location: impl Into<String>) -> Self {
         Self {
-            session_cookie,
-            query,
-            location,
+            session_cookie: session_cookie.into(),
+            query: query.into(),
+            location: location.into(),
             remote_only: false,
             limit: 50,
         }
@@ -135,15 +135,13 @@ impl LinkedInScraper {
     }
 
     /// Scrape jobs from LinkedIn
+    #[tracing::instrument(skip(self), fields(query = %self.query, location = %self.location, limit = %self.limit))]
     async fn scrape_linkedin(&self) -> ScraperResult {
-        tracing::info!(
-            "Scraping LinkedIn for '{}' in {}",
-            self.query,
-            self.location
-        );
+        tracing::info!("Starting LinkedIn scrape");
 
         // Validate session cookie
         if self.session_cookie.is_empty() || self.session_cookie.len() < 10 {
+            tracing::error!("Invalid LinkedIn session cookie provided");
             return Err(anyhow::anyhow!(
                 "Invalid LinkedIn session cookie. Please provide your li_at cookie value."
             ));
@@ -224,6 +222,7 @@ impl LinkedInScraper {
                 status == reqwest::StatusCode::TOO_MANY_REQUESTS || status.is_server_error();
 
             if !should_retry {
+                tracing::error!("LinkedIn API non-retryable error: HTTP {}", status);
                 return Err(anyhow::anyhow!(
                     "LinkedIn API HTTP {}: Check if your session cookie is valid",
                     status
@@ -238,6 +237,7 @@ impl LinkedInScraper {
             ));
         }
 
+        tracing::error!("LinkedIn API failed after {} retries", MAX_RETRIES);
         Err(last_error.unwrap_or_else(|| anyhow::anyhow!("LinkedIn API failed after retries")))
     }
 
@@ -260,7 +260,7 @@ impl LinkedInScraper {
 
         // Fallback to manual parsing if typed deserialization fails
         // (LinkedIn API response structure can vary)
-        let mut jobs = Vec::new();
+        let mut jobs = Vec::with_capacity(self.limit.min(20));
         if let Some(elements) = json
             .get("data")
             .and_then(|d| d.get("searchDashJobsByCard"))
@@ -289,8 +289,9 @@ impl LinkedInScraper {
             .company_details
             .as_ref()
             .and_then(|cd| cd.company.as_ref())
-            .map(|c| c.name.clone())
-            .unwrap_or_else(|| "Unknown Company".to_string());
+            .map(|c| c.name.as_str())
+            .unwrap_or("Unknown Company")
+            .to_string();
 
         let url = format!("https://www.linkedin.com/jobs/view/{}", job_id);
         let hash = Self::compute_hash(&company, &element.title, element.location.as_deref(), &url);

@@ -19,6 +19,7 @@ pub struct PersistenceStats {
 }
 
 /// Persist jobs to database and send notifications for high-scoring jobs
+#[tracing::instrument(skip_all, fields(job_count = scored_jobs.len()))]
 pub async fn persist_and_notify(
     scored_jobs: &[(crate::core::db::Job, JobScore)],
     config: &Arc<Config>,
@@ -31,7 +32,7 @@ pub async fn persist_and_notify(
     let mut errors = Vec::new();
 
     // Store in database
-    tracing::info!("Step 3: Storing jobs in database");
+    tracing::info!("Persisting {} jobs to database", scored_jobs.len());
 
     for (job, _score) in scored_jobs {
         // Check if job exists before upserting

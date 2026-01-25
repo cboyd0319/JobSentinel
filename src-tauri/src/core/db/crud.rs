@@ -19,6 +19,7 @@ impl Database {
     /// - Inserts as new row
     ///
     /// Returns the job ID.
+    #[tracing::instrument(skip(self, job), fields(job_hash = %job.hash, job_title = %job.title, job_company = %job.company))]
     pub async fn upsert_job(&self, job: &Job) -> Result<i64, sqlx::Error> {
         // Validate job field lengths to prevent database bloat
         const MAX_TITLE_LENGTH: usize = 500;
@@ -86,6 +87,7 @@ impl Database {
 
         if let Some(existing_id) = existing {
             // Job exists - update it (preserve first_seen, increment repost_count)
+            tracing::debug!("Updating existing job with id={}", existing_id);
             sqlx::query(
                 r#"
                 UPDATE jobs SET
@@ -131,9 +133,11 @@ impl Database {
             .execute(self.pool())
             .await?;
 
+            tracing::info!("Updated job id={}, times_seen incremented", existing_id);
             Ok(existing_id)
         } else {
             // New job - insert it
+            tracing::info!("Inserting new job from source={}", job.source);
             let result = sqlx::query(
                 r#"
                 INSERT INTO jobs (
@@ -206,17 +210,49 @@ impl Database {
     }
 
     /// Merge duplicate jobs: hide all duplicates except the primary one
+    ///
+    /// OPTIMIZATION: Single UPDATE with IN clause instead of loop with N queries.
+    /// Reduces round-trips from N to 1 for batch hiding duplicates.
+    #[tracing::instrument(skip(self), fields(primary_id, dup_count = duplicate_ids.len()))]
     pub async fn merge_duplicates(
         &self,
         primary_id: i64,
         duplicate_ids: &[i64],
     ) -> Result<(), sqlx::Error> {
-        // Hide all duplicates
-        for &id in duplicate_ids {
-            if id != primary_id {
-                self.hide_job(id).await?;
-            }
+        if duplicate_ids.is_empty() {
+            return Ok(());
         }
+
+        tracing::info!(
+            "Merging {} duplicate jobs into primary job",
+            duplicate_ids.len()
+        );
+
+        // Filter out primary_id and build batch update
+        let ids_to_hide: Vec<i64> = duplicate_ids
+            .iter()
+            .filter(|&&id| id != primary_id)
+            .copied()
+            .collect();
+
+        if ids_to_hide.is_empty() {
+            return Ok(());
+        }
+
+        // Batch hide all duplicates in single query
+        let placeholders = ids_to_hide.iter().map(|_| "?").collect::<Vec<_>>().join(",");
+        let sql = format!("UPDATE jobs SET hidden = 1 WHERE id IN ({})", placeholders);
+
+        let mut query = sqlx::query(&sql);
+        for id in &ids_to_hide {
+            query = query.bind(id);
+        }
+        query.execute(self.pool()).await?;
+
+        tracing::info!(
+            "Batch hid {} duplicate jobs in single query",
+            ids_to_hide.len()
+        );
         Ok(())
     }
 }

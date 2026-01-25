@@ -13,6 +13,7 @@ use scraper::{Html, Selector};
 use sha2::{Digest, Sha256};
 
 /// Y Combinator Work at a Startup scraper
+#[derive(Debug, Clone)]
 pub struct YcStartupScraper {
     /// Optional keyword filter
     pub query: Option<String>,

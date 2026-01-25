@@ -18,6 +18,7 @@ use scraper::{Html, Selector};
 use sha2::{Digest, Sha256};
 
 /// BuiltIn job scraper
+#[derive(Debug, Clone)]
 pub struct BuiltInScraper {
     /// Whether to filter for remote jobs only
     pub remote_only: bool,
@@ -41,9 +42,8 @@ impl BuiltInScraper {
         since = "2.6.0",
         note = "Use new(remote_only, limit) instead. City parameter is ignored."
     )]
-    pub fn new_legacy(city: String, category: Option<String>, limit: usize) -> Self {
-        let _ = city; // Ignored - BuiltIn changed URL structure
-        let _ = category; // Ignored
+    pub fn new_legacy(_city: impl Into<String>, _category: Option<String>, limit: usize) -> Self {
+        // City and category ignored - BuiltIn changed URL structure
         Self {
             remote_only: false,
             limit,

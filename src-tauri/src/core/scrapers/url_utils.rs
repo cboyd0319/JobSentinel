@@ -3,6 +3,7 @@
 //! Provides URL normalization for consistent job deduplication.
 //! Strips tracking parameters while preserving essential job identifiers.
 
+use std::borrow::Cow;
 use url::Url;
 
 /// Common tracking parameters to strip from URLs
@@ -107,21 +108,43 @@ const ESSENTIAL_PARAMS: &[&str] = &[
 /// let url = "https://lever.co/jobs/abc-def?source=email";
 /// assert_eq!(normalize_url(url), "https://lever.co/jobs/abc-def");
 /// ```
-pub fn normalize_url(url_str: &str) -> String {
+#[inline]
+pub fn normalize_url(url_str: &str) -> Cow<'_, str> {
     // Try to parse the URL
     let mut url = match Url::parse(url_str) {
         Ok(u) => u,
         Err(_) => {
-            // If parsing fails, return the original string
+            // If parsing fails, return the original string (zero-copy)
             tracing::warn!("Failed to parse URL for normalization: {}", url_str);
-            return url_str.to_string();
+            return Cow::Borrowed(url_str);
         }
     };
 
     // Check if URL has query parameters
     if url.query().is_none() {
-        // No query string, return as-is
-        return url.to_string();
+        // No query string, return original (zero-copy when possible)
+        return if url.as_str() == url_str {
+            Cow::Borrowed(url_str)
+        } else {
+            Cow::Owned(url.to_string())
+        };
+    }
+
+    // Collect tracking params to check if we need to modify
+    let has_tracking_params = url.query_pairs().any(|(key, _)| {
+        let key_lower = key.to_lowercase();
+        TRACKING_PARAMS
+            .iter()
+            .any(|&param| key_lower == param.to_lowercase())
+    });
+
+    // If no tracking params, return as-is (zero-copy optimization)
+    if !has_tracking_params {
+        return if url.as_str() == url_str {
+            Cow::Borrowed(url_str)
+        } else {
+            Cow::Owned(url.to_string())
+        };
     }
 
     // Filter query parameters
@@ -162,7 +185,7 @@ pub fn normalize_url(url_str: &str) -> String {
         url.set_query(None);
     }
 
-    url.to_string()
+    Cow::Owned(url.to_string())
 }
 
 #[cfg(test)]

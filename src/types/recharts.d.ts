@@ -52,3 +52,23 @@ declare module "recharts/es6/component/Cell" {
 declare module "recharts/es6/polar/Pie" {
   export { Pie } from "recharts";
 }
+
+declare module "recharts/es6/chart/AreaChart" {
+  export { AreaChart } from "recharts";
+}
+
+declare module "recharts/es6/cartesian/Area" {
+  export { Area } from "recharts";
+}
+
+declare module "recharts/es6/chart/FunnelChart" {
+  export { FunnelChart } from "recharts";
+}
+
+declare module "recharts/es6/cartesian/Funnel" {
+  export { Funnel } from "recharts";
+}
+
+declare module "recharts/es6/component/LabelList" {
+  export { LabelList } from "recharts";
+}

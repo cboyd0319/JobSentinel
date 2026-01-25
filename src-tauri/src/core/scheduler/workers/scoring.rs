@@ -11,12 +11,13 @@ use std::sync::Arc;
 /// Score all jobs and run ghost detection analysis
 ///
 /// Returns scored jobs sorted by score descending
+#[tracing::instrument(skip_all, fields(job_count = jobs.len(), resume_matching = config.use_resume_matching))]
 pub async fn score_jobs(
     jobs: Vec<Job>,
     config: &Arc<Config>,
     database: &Arc<Database>,
 ) -> Vec<(Job, JobScore)> {
-    tracing::info!("Step 2: Scoring jobs");
+    tracing::info!("Scoring {} jobs (resume_matching={})", jobs.len(), config.use_resume_matching);
 
     // Use with_db to enable resume-based scoring when configured
     let scoring_engine = ScoringEngine::with_db(Arc::clone(config), database.pool().clone());

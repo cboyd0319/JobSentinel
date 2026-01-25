@@ -1,6 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { Button, Card, CardHeader, LoadingSpinner, Progress, Modal, ModalFooter, AtsLiveScorePanel } from "../components";
+import { Button } from "../components/Button";
+import { Card, CardHeader } from "../components/Card";
+import { LoadingSpinner } from "../components/LoadingSpinner";
+import { Progress } from "../components/Progress";
+import { Modal, ModalFooter } from "../components/Modal";
+import { AtsLiveScorePanel } from "../components/AtsLiveScorePanel";
 import { useToast } from "../hooks/useToast";
 import { getErrorMessage, logError } from "../utils/errorUtils";
 
@@ -173,7 +178,10 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
 
       toast.success("Resume created", "Let's build your resume");
     } catch (err) {
-      toast.error("Failed to initialize", getErrorMessage(err));
+      toast.error(
+        "Resume builder unavailable",
+        "Couldn't start the resume builder. Try restarting the app or check if the database is accessible."
+      );
     } finally {
       setLoading(false);
     }
@@ -199,7 +207,10 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
         setSkills(data.skills);
       }
     } catch (err) {
-      toast.error("Failed to load resume", getErrorMessage(err));
+      toast.error(
+        "Couldn't load your resume",
+        "Your resume data couldn't be retrieved. Try restarting the app or creating a new resume."
+      );
     }
   }, [resumeId, toast]);
 
@@ -224,7 +235,10 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
 
       await loadResumeData();
     } catch (err) {
-      toast.error("Failed to save", getErrorMessage(err));
+      toast.error(
+        "Your changes weren't saved",
+        "The resume section couldn't be saved. Copy your work to a safe place and try again."
+      );
       throw err;
     } finally {
       setSaving(false);

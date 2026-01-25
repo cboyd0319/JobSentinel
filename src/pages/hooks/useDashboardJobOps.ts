@@ -6,7 +6,7 @@ import { invoke } from "@tauri-apps/api/core";
 import type { Job, DuplicateGroup } from "../DashboardTypes";
 import { useToast } from "../../contexts";
 import { useUndo } from "../../contexts/UndoContext";
-import { getErrorMessage, logError } from "../../utils/errorUtils";
+import { logError } from "../../utils/errorUtils";
 import { exportJobsToCSV } from "../../utils/export";
 import { invalidateCacheByCommand } from "../../utils/api";
 
@@ -63,7 +63,10 @@ export function useDashboardJobOps(jobs: Job[], setJobs: (jobs: Job[] | ((prev: 
       });
     } catch (err) {
       logError("Failed to hide job:", err);
-      toast.error("Failed to hide job", getErrorMessage(err));
+      toast.error(
+        "Couldn't hide this job",
+        "The job is still visible. Try refreshing the page, or restart the app if the problem continues."
+      );
     }
   }, [jobs, setJobs, toast, pushAction]);
 
@@ -99,7 +102,10 @@ export function useDashboardJobOps(jobs: Job[], setJobs: (jobs: Job[] | ((prev: 
       });
     } catch (err) {
       logError("Failed to toggle bookmark:", err);
-      toast.error("Failed to update bookmark", getErrorMessage(err));
+      toast.error(
+        "Couldn't save bookmark",
+        "Your bookmark change wasn't saved. Try again, or check if the database is locked by another operation."
+      );
     }
   }, [jobs, setJobs, toast, pushAction]);
 
@@ -149,7 +155,10 @@ export function useDashboardJobOps(jobs: Job[], setJobs: (jobs: Job[] | ((prev: 
       setNotesText("");
     } catch (err) {
       logError("Failed to save notes:", err);
-      toast.error("Failed to save notes", getErrorMessage(err));
+      toast.error(
+        "Your notes weren't saved",
+        "Try saving again. If this keeps happening, copy your notes elsewhere and restart the app."
+      );
     }
   }, [editingJobId, notesText, jobs, setJobs, toast, pushAction]);
 
@@ -222,7 +231,10 @@ export function useDashboardJobOps(jobs: Job[], setJobs: (jobs: Job[] | ((prev: 
       });
     } catch (err) {
       logError("Failed to bulk hide jobs:", err);
-      toast.error("Failed to hide jobs", getErrorMessage(err));
+      toast.error(
+        "Couldn't hide selected jobs",
+        "The jobs are still visible. Try hiding them one at a time, or refresh the page and try again."
+      );
     }
   }, [selectedJobIds, jobs, setJobs, toast, pushAction]);
 
@@ -283,7 +295,10 @@ export function useDashboardJobOps(jobs: Job[], setJobs: (jobs: Job[] | ((prev: 
       });
     } catch (err) {
       logError("Failed to bulk bookmark jobs:", err);
-      toast.error("Failed to update bookmarks", getErrorMessage(err));
+      toast.error(
+        "Couldn't update bookmarks",
+        "Your bookmarks weren't changed. Try bookmarking jobs individually, or restart the app if this continues."
+      );
     }
   }, [selectedJobIds, jobs, setJobs, toast, pushAction]);
 
@@ -309,7 +324,10 @@ export function useDashboardJobOps(jobs: Job[], setJobs: (jobs: Job[] | ((prev: 
       }
     } catch (err) {
       logError("Failed to check duplicates:", err);
-      toast.error("Check failed", getErrorMessage(err));
+      toast.error(
+        "Duplicate check failed",
+        "Couldn't scan for duplicate jobs. Try running a new job search first, then check again."
+      );
     } finally {
       setCheckingDuplicates(false);
     }
@@ -335,7 +353,10 @@ export function useDashboardJobOps(jobs: Job[], setJobs: (jobs: Job[] | ((prev: 
       invalidateCacheByCommand("get_statistics");
     } catch (err) {
       logError("Failed to merge duplicates:", err);
-      toast.error("Merge failed", getErrorMessage(err));
+      toast.error(
+        "Couldn't merge duplicates",
+        "The jobs weren't merged. Make sure both jobs still exist and try again."
+      );
     }
   }, [jobs, setJobs, toast]);
 
@@ -357,7 +378,10 @@ export function useDashboardJobOps(jobs: Job[], setJobs: (jobs: Job[] | ((prev: 
       toast.success("All duplicates merged", `${duplicateGroups.length} groups cleaned up`);
     } catch (err) {
       logError("Failed to merge all duplicates:", err);
-      toast.error("Merge failed", getErrorMessage(err));
+      toast.error(
+        "Couldn't merge all duplicates",
+        "Some duplicates might have been merged. Refresh the page to see what changed, then try merging the rest individually."
+      );
     }
   }, [duplicateGroups, toast]);
 

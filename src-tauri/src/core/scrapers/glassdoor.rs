@@ -15,6 +15,7 @@ use chrono::Utc;
 use sha2::{Digest, Sha256};
 
 /// Glassdoor job scraper
+#[derive(Debug, Clone)]
 pub struct GlassdoorScraper {
     /// Search query (e.g., "software engineer")
     pub query: String,
@@ -25,9 +26,9 @@ pub struct GlassdoorScraper {
 }
 
 impl GlassdoorScraper {
-    pub fn new(query: String, location: Option<String>, limit: usize) -> Self {
+    pub fn new(query: impl Into<String>, location: Option<String>, limit: usize) -> Self {
         Self {
-            query,
+            query: query.into(),
             location,
             limit,
         }
@@ -89,7 +90,7 @@ impl GlassdoorScraper {
 
     /// Parse HTML response and extract job data
     fn parse_html(&self, html: &str) -> Result<Vec<Job>> {
-        let mut jobs = Vec::new();
+        let mut jobs = Vec::with_capacity(self.limit);
 
         // Look for JSON-LD structured data (Schema.org JobPosting)
         if let Some(json_ld_jobs) = self.extract_json_ld(html)? {
@@ -128,7 +129,7 @@ impl GlassdoorScraper {
 
     /// Parse JSON-LD JobPosting data
     fn parse_json_ld_data(&self, data: &serde_json::Value) -> Option<Vec<Job>> {
-        let mut jobs = Vec::new();
+        let mut jobs = Vec::with_capacity(self.limit.min(20));
 
         // Handle array of job postings
         if let Some(arr) = data.as_array() {
@@ -194,6 +195,7 @@ impl GlassdoorScraper {
         // Extract salary if available
         let (salary_min, salary_max) = self.extract_salary(data);
 
+        let is_remote = self.is_remote(location.as_deref());
         let hash = Self::compute_hash(&company, &title, location.as_deref(), &url);
 
         Some(Job {
@@ -202,12 +204,12 @@ impl GlassdoorScraper {
             title,
             company,
             url,
-            location: location.clone(),
+            location,
             description,
             score: None,
             score_reasons: None,
             source: "glassdoor".to_string(),
-            remote: self.is_remote(location.as_deref()),
+            remote: is_remote,
             salary_min,
             salary_max,
             currency: Some("USD".to_string()),
@@ -339,6 +341,7 @@ impl GlassdoorScraper {
 
         let (salary_min, salary_max) = self.extract_salary(data);
 
+        let is_remote = self.is_remote(location.as_deref());
         let hash = Self::compute_hash(&company, &title, location.as_deref(), &url);
 
         Some(Job {
@@ -347,12 +350,12 @@ impl GlassdoorScraper {
             title,
             company,
             url,
-            location: location.clone(),
+            location,
             description,
             score: None,
             score_reasons: None,
             source: "glassdoor".to_string(),
-            remote: self.is_remote(location.as_deref()),
+            remote: is_remote,
             salary_min,
             salary_max,
             currency: Some("USD".to_string()),

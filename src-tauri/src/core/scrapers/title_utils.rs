@@ -22,6 +22,7 @@
 //! ```
 
 use regex::Regex;
+use std::borrow::Cow;
 use std::sync::LazyLock;
 
 /// Regex pattern for level indicators to remove
@@ -45,6 +46,18 @@ static COMMA_PATTERN: LazyLock<Regex> =
 /// Regex pattern for removing filler words
 static FILLER_WORDS_PATTERN: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"\b(?:of|the|and|or)\b").expect("Valid filler words regex"));
+
+/// Pre-compiled abbreviation regexes for performance
+static ABBREVIATION_REGEXES: LazyLock<Vec<(Regex, &'static str)>> = LazyLock::new(|| {
+    ABBREVIATIONS
+        .iter()
+        .map(|(pattern, replacement)| {
+            let regex = Regex::new(&format!("(?i){}", pattern))
+                .expect("Valid abbreviation regex pattern");
+            (regex, *replacement)
+        })
+        .collect()
+});
 
 /// Common abbreviation mappings for job titles
 ///
@@ -96,7 +109,7 @@ const ABBREVIATIONS: &[(&str, &str)] = &[
 ///
 /// # Returns
 ///
-/// The normalized title suitable for comparison
+/// The normalized title suitable for comparison (borrows input if already normalized)
 ///
 /// # Examples
 ///
@@ -118,7 +131,22 @@ const ABBREVIATIONS: &[(&str, &str)] = &[
 ///     "vice president engineering"
 /// );
 /// ```
-pub fn normalize_title(title: &str) -> String {
+#[inline]
+pub fn normalize_title(title: &str) -> Cow<'_, str> {
+    let trimmed = title.trim();
+
+    // Fast path: check if already normalized (lowercase, no special chars)
+    let is_already_normalized = trimmed.chars().all(|c| c.is_ascii_lowercase() || c == ' ')
+        && !trimmed.contains("  ") // No double spaces
+        && !LEVEL_PATTERN.is_match(trimmed)
+        && !COMMA_PATTERN.is_match(trimmed)
+        && !TRAILING_PUNCT_PATTERN.is_match(trimmed)
+        && !ABBREVIATION_REGEXES.iter().any(|(regex, _)| regex.is_match(trimmed));
+
+    if is_already_normalized {
+        return Cow::Borrowed(trimmed);
+    }
+
     // Step 1: Lowercase
     let mut normalized = title.to_lowercase();
 
@@ -131,9 +159,8 @@ pub fn normalize_title(title: &str) -> String {
         .to_string();
 
     // Step 4: Expand abbreviations (with case-insensitive matching)
-    for (pattern, replacement) in ABBREVIATIONS {
-        let re = Regex::new(&format!("(?i){}", pattern)).expect("Valid abbreviation regex");
-        normalized = re.replace_all(&normalized, *replacement).to_string();
+    for (regex, replacement) in ABBREVIATION_REGEXES.iter() {
+        normalized = regex.replace_all(&normalized, *replacement).to_string();
     }
 
     // Step 5: Remove level indicators
@@ -147,8 +174,8 @@ pub fn normalize_title(title: &str) -> String {
         .replace_all(&normalized, "")
         .to_string();
 
-    // Final trim
-    normalized.trim().to_string()
+    // Final trim and return owned
+    Cow::Owned(normalized.trim().to_string())
 }
 
 /// Check if two job titles match after normalization
@@ -182,6 +209,7 @@ pub fn normalize_title(title: &str) -> String {
 ///     "Product Manager"
 /// ));
 /// ```
+#[inline]
 pub fn titles_match(title1: &str, title2: &str) -> bool {
     normalize_title(title1) == normalize_title(title2)
 }
@@ -289,7 +317,10 @@ mod tests {
             "Sr Software Engr",
         ];
 
-        let normalized: Vec<String> = variations.iter().map(|v| normalize_title(v)).collect();
+        let normalized: Vec<String> = variations
+            .iter()
+            .map(|v| normalize_title(v).into_owned())
+            .collect();
 
         // All should normalize to the same string
         for n in &normalized[1..] {

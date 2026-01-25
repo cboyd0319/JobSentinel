@@ -91,7 +91,7 @@ pub struct Job {
 }
 
 /// Database statistics
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Statistics {
     pub total_jobs: i64,
     pub high_matches: i64,
@@ -100,7 +100,7 @@ pub struct Statistics {
 }
 
 /// Ghost detection statistics
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct GhostStatistics {
     /// Total jobs with ghost analysis
     pub total_analyzed: i64,

@@ -8,30 +8,29 @@ use sqlx;
 
 impl Database {
     /// Get statistics
+    ///
+    /// OPTIMIZATION: Batched into single query instead of 4 separate queries.
+    /// Reduces round-trips and enables SQLite to optimize execution plan.
     pub async fn get_statistics(&self) -> Result<Statistics, sqlx::Error> {
-        let total_jobs: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM jobs")
-            .fetch_one(self.pool())
-            .await?;
+        let row = sqlx::query(
+            r#"
+            SELECT
+                COUNT(*) as total_jobs,
+                SUM(CASE WHEN score >= 0.9 THEN 1 ELSE 0 END) as high_matches,
+                AVG(CASE WHEN score IS NOT NULL THEN score END) as average_score,
+                SUM(CASE WHEN DATE(created_at) = DATE('now') THEN 1 ELSE 0 END) as jobs_today
+            FROM jobs
+            "#,
+        )
+        .fetch_one(self.pool())
+        .await?;
 
-        let high_matches: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM jobs WHERE score >= 0.9")
-            .fetch_one(self.pool())
-            .await?;
-
-        let average_score: Option<f64> =
-            sqlx::query_scalar("SELECT AVG(score) FROM jobs WHERE score IS NOT NULL")
-                .fetch_one(self.pool())
-                .await?;
-
-        let jobs_today: i64 =
-            sqlx::query_scalar("SELECT COUNT(*) FROM jobs WHERE DATE(created_at) = DATE('now')")
-                .fetch_one(self.pool())
-                .await?;
-
+        use sqlx::Row;
         Ok(Statistics {
-            total_jobs,
-            high_matches,
-            average_score: average_score.unwrap_or(0.0),
-            jobs_today,
+            total_jobs: row.try_get("total_jobs")?,
+            high_matches: row.try_get("high_matches")?,
+            average_score: row.try_get("average_score").unwrap_or(0.0),
+            jobs_today: row.try_get("jobs_today")?,
         })
     }
 
@@ -47,38 +46,36 @@ impl Database {
     }
 
     /// Get ghost detection statistics
+    ///
+    /// OPTIMIZATION: Batched 4 job queries into single query, repost count separate.
+    /// Reduces round-trips from 5 to 2.
     pub async fn get_ghost_statistics(&self) -> Result<GhostStatistics, sqlx::Error> {
-        let total_analyzed: i64 =
-            sqlx::query_scalar("SELECT COUNT(*) FROM jobs WHERE ghost_score IS NOT NULL")
-                .fetch_one(self.pool())
-                .await?;
-
-        let likely_ghosts: i64 =
-            sqlx::query_scalar("SELECT COUNT(*) FROM jobs WHERE ghost_score >= 0.5")
-                .fetch_one(self.pool())
-                .await?;
-
-        let warnings: i64 = sqlx::query_scalar(
-            "SELECT COUNT(*) FROM jobs WHERE ghost_score >= 0.3 AND ghost_score < 0.5",
+        // Batch ghost score stats into single query
+        let row = sqlx::query(
+            r#"
+            SELECT
+                SUM(CASE WHEN ghost_score IS NOT NULL THEN 1 ELSE 0 END) as total_analyzed,
+                SUM(CASE WHEN ghost_score >= 0.5 THEN 1 ELSE 0 END) as likely_ghosts,
+                SUM(CASE WHEN ghost_score >= 0.3 AND ghost_score < 0.5 THEN 1 ELSE 0 END) as warnings,
+                AVG(CASE WHEN ghost_score IS NOT NULL THEN ghost_score END) as avg_ghost_score
+            FROM jobs
+            "#,
         )
         .fetch_one(self.pool())
         .await?;
 
-        let avg_ghost_score: Option<f64> =
-            sqlx::query_scalar("SELECT AVG(ghost_score) FROM jobs WHERE ghost_score IS NOT NULL")
-                .fetch_one(self.pool())
-                .await?;
-
+        // Separate query for repost count (different table)
         let total_reposts: i64 =
             sqlx::query_scalar("SELECT COALESCE(SUM(repost_count), 0) FROM job_repost_history")
                 .fetch_one(self.pool())
                 .await?;
 
+        use sqlx::Row;
         Ok(GhostStatistics {
-            total_analyzed,
-            likely_ghosts,
-            warnings,
-            avg_ghost_score: avg_ghost_score.unwrap_or(0.0),
+            total_analyzed: row.try_get("total_analyzed")?,
+            likely_ghosts: row.try_get("likely_ghosts")?,
+            warnings: row.try_get("warnings")?,
+            avg_ghost_score: row.try_get("avg_ghost_score").unwrap_or(0.0),
             total_reposts,
         })
     }

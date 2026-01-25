@@ -3,6 +3,7 @@
 //! Normalizes location strings to canonical forms to improve job deduplication.
 //! Handles common abbreviations, state codes, and remote work variations.
 
+use std::borrow::Cow;
 use std::collections::HashMap;
 
 /// Normalize a location string to canonical form
@@ -14,6 +15,8 @@ use std::collections::HashMap;
 /// - Strips country suffixes (", USA", ", United States")
 /// - Lowercases and trims whitespace
 ///
+/// Returns `Cow::Borrowed` for already-normalized strings and common cases like "remote".
+///
 /// # Examples
 /// ```
 /// use jobsentinel::core::scrapers::location_utils::normalize_location;
@@ -23,24 +26,40 @@ use std::collections::HashMap;
 /// assert_eq!(normalize_location("Remote - USA"), "remote");
 /// assert_eq!(normalize_location("Austin, TX, USA"), "austin, texas");
 /// ```
-pub fn normalize_location(location: &str) -> String {
-    if location.trim().is_empty() {
-        return String::new();
-    }
+#[inline]
+pub fn normalize_location(location: &str) -> Cow<'_, str> {
+    let trimmed = location.trim();
 
-    let mut normalized = location.trim().to_string();
+    if trimmed.is_empty() {
+        return Cow::Borrowed("");
+    }
 
     // Handle remote variants first (case-insensitive)
-    let lower = normalized.to_lowercase();
+    let lower = trimmed.to_lowercase();
     if lower.contains("remote") {
         // Remote US, Remote - USA, Fully Remote, etc. → "remote"
-        return "remote".to_string();
+        return Cow::Borrowed("remote");
     }
+
+    // Fast path: check if already normalized (lowercase, no country suffix, no abbreviations)
+    let is_already_normalized = trimmed == lower
+        && !trimmed.ends_with(", USA")
+        && !trimmed.ends_with(", United States")
+        && !trimmed.ends_with(", US")
+        && !needs_location_normalization(&lower);
+
+    if is_already_normalized {
+        return Cow::Borrowed(trimmed);
+    }
+
+    // Build normalized string
+    let mut normalized = trimmed.to_string();
 
     // Strip common country suffixes
     for suffix in &[", USA", ", United States", ", US"] {
         if normalized.ends_with(suffix) {
             normalized = normalized[..normalized.len() - suffix.len()].to_string();
+            break;
         }
     }
 
@@ -70,10 +89,41 @@ pub fn normalize_location(location: &str) -> String {
         })
         .collect();
 
-    normalized_parts.join(", ")
+    Cow::Owned(normalized_parts.join(", "))
+}
+
+/// Check if a location string needs normalization
+#[inline]
+fn needs_location_normalization(lower: &str) -> bool {
+    // Check for common abbreviations that need expansion
+    let parts: Vec<&str> = lower.split(',').map(|s| s.trim()).collect();
+
+    for part in parts {
+        // City abbreviations
+        if matches!(
+            part,
+            "sf" | "nyc" | "la" | "dc" | "chi" | "atl" | "bos" | "sea" | "den" | "aus"
+        ) {
+            return true;
+        }
+
+        // State abbreviations (two-letter codes)
+        if part.len() == 2
+            && matches!(
+                part,
+                "ca" | "ny" | "tx" | "fl" | "wa" | "il" | "ma" | "co" | "ga" | "az" | "or"
+                    | "nc" | "pa" | "va"
+            )
+        {
+            return true;
+        }
+    }
+
+    false
 }
 
 /// Get city abbreviation mappings
+#[inline]
 fn get_city_abbreviations() -> HashMap<&'static str, &'static str> {
     let mut map = HashMap::new();
 
@@ -125,6 +175,7 @@ fn get_city_abbreviations() -> HashMap<&'static str, &'static str> {
 }
 
 /// Get state abbreviation mappings (US states)
+#[inline]
 fn get_state_abbreviations() -> HashMap<&'static str, &'static str> {
     let mut map = HashMap::new();
 

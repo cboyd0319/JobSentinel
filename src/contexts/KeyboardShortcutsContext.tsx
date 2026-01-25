@@ -186,6 +186,62 @@ export function KeyboardShortcutsProvider({
         action: toggleHelp,
         category: "ui",
       },
+      {
+        key: "r",
+        modifiers: [],
+        description: "Refresh current view",
+        action: () => window.dispatchEvent(new CustomEvent('keyboard-refresh')),
+        category: "actions",
+      },
+      {
+        key: "f",
+        modifiers: ["meta"],
+        description: "Focus search / filter",
+        action: () => window.dispatchEvent(new CustomEvent('keyboard-focus-search')),
+        category: "ui",
+      },
+      {
+        key: "Enter",
+        modifiers: ["meta"],
+        description: "Submit current form",
+        action: () => window.dispatchEvent(new CustomEvent('keyboard-submit-form')),
+        category: "actions",
+      },
+      {
+        key: "z",
+        modifiers: ["meta"],
+        description: "Undo last action",
+        action: () => window.dispatchEvent(new CustomEvent('keyboard-undo')),
+        category: "actions",
+      },
+      {
+        key: "z",
+        modifiers: ["meta", "shift"],
+        description: "Redo last action",
+        action: () => window.dispatchEvent(new CustomEvent('keyboard-redo')),
+        category: "actions",
+      },
+      {
+        key: "n",
+        modifiers: ["meta"],
+        description: "Create new item",
+        action: () => window.dispatchEvent(new CustomEvent('keyboard-new-item')),
+        category: "actions",
+      },
+      {
+        key: "s",
+        modifiers: ["meta"],
+        description: "Save current changes",
+        action: () => window.dispatchEvent(new CustomEvent('keyboard-save')),
+        category: "actions",
+      },
+      {
+        key: "/",
+        modifiers: [],
+        description: "Focus search",
+        action: () => window.dispatchEvent(new CustomEvent('keyboard-focus-search')),
+        category: "ui",
+      },
     ];
 
     defaultShortcuts.forEach(registerShortcut);

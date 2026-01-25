@@ -1,14 +1,10 @@
 import { useState, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import {
-  Button,
-  Card,
-  CardHeader,
-  Badge,
-  LoadingSpinner,
-  Modal,
-  ModalFooter,
-} from "../components";
+import { Button } from "../components/Button";
+import { Card, CardHeader } from "../components/Card";
+import { Badge } from "../components/Badge";
+import { LoadingSpinner } from "../components/LoadingSpinner";
+import { Modal, ModalFooter } from "../components/Modal";
 import { useToast } from "../contexts";
 import { logError } from "../utils/errorUtils";
 import { getScoreColor, getScoreBg } from "../utils/scoreUtils";

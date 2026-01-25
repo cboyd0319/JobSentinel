@@ -228,6 +228,22 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
     loadProfile();
   }, [loadProfile]);
 
+  // Keyboard shortcuts: Cmd+S to save, Cmd+Enter to submit
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Cmd+S or Cmd+Enter to save
+      if ((e.key === 's' || e.key === 'Enter') && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        if (isDirty && !saving) {
+          handleSave();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isDirty, saving]);
+
   // Show "taking longer" message if loading exceeds 5 seconds
   useEffect(() => {
     if (!loading) {

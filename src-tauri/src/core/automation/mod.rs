@@ -321,34 +321,32 @@ impl AutomationManager {
     }
 
     /// Get automation statistics
+    ///
+    /// OPTIMIZATION: Batched 4 queries into single query using CASE expressions.
+    /// Reduces round-trips from 4 to 1 and enables better query optimization.
     pub async fn get_stats(&self) -> Result<AutomationStats> {
-        let total = sqlx::query_scalar::<_, i64>("SELECT COUNT(*) FROM application_attempts")
-            .fetch_one(&self.db)
-            .await?;
-
-        let submitted = sqlx::query_scalar::<_, i64>(
-            "SELECT COUNT(*) FROM application_attempts WHERE status = 'submitted'",
+        let row = sqlx::query(
+            r#"
+            SELECT
+                COUNT(*) as total,
+                SUM(CASE WHEN status = 'submitted' THEN 1 ELSE 0 END) as submitted,
+                SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) as failed,
+                SUM(CASE WHEN status = 'pending' AND user_approved = 1 THEN 1 ELSE 0 END) as pending
+            FROM application_attempts
+            "#,
         )
         .fetch_one(&self.db)
         .await?;
 
-        let failed = sqlx::query_scalar::<_, i64>(
-            "SELECT COUNT(*) FROM application_attempts WHERE status = 'failed'",
-        )
-        .fetch_one(&self.db)
-        .await?;
-
-        let pending = sqlx::query_scalar::<_, i64>(
-            "SELECT COUNT(*) FROM application_attempts WHERE status = 'pending' AND user_approved = 1",
-        )
-        .fetch_one(&self.db)
-        .await?;
+        use sqlx::Row;
+        let total: i64 = row.try_get("total")?;
+        let submitted: i64 = row.try_get("submitted")?;
 
         Ok(AutomationStats {
             total_attempts: total,
-            submitted: submitted,
-            failed: failed,
-            pending: pending,
+            submitted,
+            failed: row.try_get("failed")?,
+            pending: row.try_get("pending")?,
             success_rate: if total > 0 {
                 (submitted as f64 / total as f64) * 100.0
             } else {

@@ -6,6 +6,7 @@ use sqlx::{sqlite::SqlitePool, Row};
 use std::path::PathBuf;
 
 /// Database handle
+#[derive(Debug)]
 pub struct Database {
     pool: SqlitePool,
 }

@@ -95,6 +95,7 @@ pub fn get_client() -> &'static reqwest::Client {
 /// ```ignore
 /// let client = create_custom_client("CustomAgent/1.0", 60)?;
 /// ```
+#[must_use = "this constructs a new HTTP client"]
 pub fn create_custom_client(user_agent: &str, timeout_secs: u64) -> Result<reqwest::Client> {
     let client = reqwest::Client::builder()
         .user_agent(user_agent)
@@ -135,6 +136,7 @@ const BASE_DELAY_SECS: u64 = 1;
 /// let response = get_with_retry("https://example.com/api/jobs").await?;
 /// let jobs = response.json::<Vec<Job>>().await?;
 /// ```
+#[must_use = "this returns the HTTP response"]
 pub async fn get_with_retry(url: &str) -> Result<reqwest::Response> {
     let client = get_client();
 

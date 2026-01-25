@@ -9,11 +9,13 @@ use std::time::{Duration, Instant};
 use tokio::sync::Mutex;
 
 /// Rate limiter using token bucket algorithm
+#[derive(Debug, Clone)]
 pub struct RateLimiter {
     buckets: Arc<Mutex<HashMap<String, TokenBucket>>>,
 }
 
 /// Token bucket for rate limiting
+#[derive(Debug)]
 struct TokenBucket {
     /// Maximum tokens (requests) allowed
     capacity: u32,
@@ -51,7 +53,9 @@ impl RateLimiter {
     /// limiter.wait("indeed", 500).await;
     /// # }
     /// ```
+    #[tracing::instrument(skip(self))]
     pub async fn wait(&self, scraper_name: &str, max_requests_per_hour: u32) {
+        tracing::debug!("Acquiring rate limit token for scraper");
         let mut buckets = self.buckets.lock().await;
 
         let bucket = buckets
@@ -117,6 +121,7 @@ impl TokenBucket {
 
             if self.tokens > 0 {
                 self.tokens -= 1;
+                tracing::debug!("Token consumed, {} tokens remaining", self.tokens);
                 return;
             }
 
@@ -124,9 +129,10 @@ impl TokenBucket {
             let wait_secs = 1.0 / self.refill_rate;
             let wait_duration = Duration::from_secs_f64(wait_secs);
 
-            tracing::debug!(
-                "Rate limit reached, waiting {:?} for next token",
-                wait_duration
+            tracing::warn!(
+                "Rate limit exhausted, waiting {:?} for token refill (refill_rate: {}/sec)",
+                wait_duration,
+                self.refill_rate
             );
 
             tokio::time::sleep(wait_duration).await;

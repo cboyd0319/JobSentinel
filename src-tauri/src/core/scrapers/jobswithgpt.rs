@@ -12,6 +12,7 @@ use chrono::Utc;
 use sha2::{Digest, Sha256};
 
 /// JobsWithGPT MCP scraper
+#[derive(Debug, Clone)]
 pub struct JobsWithGptScraper {
     /// MCP server endpoint
     pub endpoint: String,
@@ -19,7 +20,7 @@ pub struct JobsWithGptScraper {
     pub query: JobQuery,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct JobQuery {
     /// Job titles to search for
     pub titles: Vec<String>,
@@ -32,8 +33,8 @@ pub struct JobQuery {
 }
 
 impl JobsWithGptScraper {
-    pub fn new(endpoint: String, query: JobQuery) -> Self {
-        Self { endpoint, query }
+    pub fn new(endpoint: impl Into<String>, query: JobQuery) -> Self {
+        Self { endpoint: endpoint.into(), query }
     }
 
     /// Query JobsWithGPT MCP server

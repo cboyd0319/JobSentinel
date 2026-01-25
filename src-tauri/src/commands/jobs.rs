@@ -97,6 +97,7 @@ pub async fn get_job_by_id(id: i64, state: State<'_, AppState>) -> Result<Option
 
 /// Search jobs with filter
 #[tauri::command]
+#[tracing::instrument(skip(state))]
 pub async fn search_jobs_query(
     query: String,
     limit: usize,

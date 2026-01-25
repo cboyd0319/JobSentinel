@@ -26,9 +26,9 @@ struct CacheEntry {
 
 impl CacheEntry {
     /// Create a new cache entry with current timestamp
-    fn new(body: String) -> Self {
+    fn new(body: impl Into<String>) -> Self {
         Self {
-            body,
+            body: body.into(),
             cached_at: SystemTime::now(),
         }
     }
@@ -100,8 +100,8 @@ impl ResponseCache {
     }
 
     /// Store response in cache
-    fn set(&mut self, url: String, body: String) {
-        // Log before insert since we move url into the map
+    fn set(&mut self, url: impl Into<String>, body: impl Into<String>) {
+        let url = url.into();
         tracing::debug!("Caching response for URL: {}", &url);
         self.cache.insert(url, CacheEntry::new(body));
         tracing::debug!("Cache now has {} entries", self.cache.len());
@@ -170,9 +170,9 @@ pub async fn get_cached(url: &str) -> Option<String> {
 /// let response = client.get(url).send().await?.text().await?;
 /// set_cached(url, response.clone()).await;
 /// ```
-pub async fn set_cached(url: &str, body: String) {
+pub async fn set_cached(url: &str, body: impl Into<String>) {
     let mut cache = CACHE.write().await;
-    cache.set(url.to_string(), body);
+    cache.set(url, body);
 }
 
 /// Clear all cached entries and reset statistics

@@ -1581,3 +1581,47 @@ INSERT OR IGNORE INTO scoring_config (
     0.10,  -- Company: 10%
     0.05   -- Recency: 5%
 );
+
+-- ============================================================================
+-- QUERY OPTIMIZATION: Composite Indexes
+-- ============================================================================
+-- These composite indexes optimize common query patterns by covering multiple
+-- columns used together in WHERE clauses and ORDER BY.
+
+-- Optimize queries filtering by hidden + ordering by score/created_at
+-- Used by: get_recent_jobs, get_jobs_by_score, get_bookmarked_jobs
+CREATE INDEX IF NOT EXISTS idx_jobs_hidden_score_created ON jobs(hidden, score DESC, created_at DESC)
+WHERE hidden = 0;
+
+-- Optimize queries filtering by hidden + source + ordering
+-- Used by: get_jobs_by_source
+CREATE INDEX IF NOT EXISTS idx_jobs_hidden_source_created ON jobs(hidden, source, created_at DESC)
+WHERE hidden = 0;
+
+-- Optimize bookmarked job queries (filter + order)
+-- Used by: get_bookmarked_jobs
+CREATE INDEX IF NOT EXISTS idx_jobs_bookmarked_score_created ON jobs(bookmarked, score DESC, created_at DESC)
+WHERE bookmarked = 1 AND hidden = 0;
+
+-- Optimize ghost score filtering + ordering
+-- Used by: get_ghost_jobs, get_recent_jobs_filtered
+CREATE INDEX IF NOT EXISTS idx_jobs_ghost_score_desc ON jobs(ghost_score DESC, hidden)
+WHERE ghost_score IS NOT NULL AND hidden = 0;
+
+-- Optimize duplicate detection by normalized title+company
+-- Used by: find_duplicate_groups (window function partitioning)
+CREATE INDEX IF NOT EXISTS idx_jobs_normalized_title_company ON jobs(LOWER(title), LOWER(company), score DESC, created_at ASC)
+WHERE hidden = 0;
+
+-- Optimize application attempts queries by job_hash + status
+-- Used by: get_attempts_for_job, get_pending_attempts
+CREATE INDEX IF NOT EXISTS idx_attempts_job_hash_created ON application_attempts(job_hash, created_at DESC);
+
+-- Optimize pending attempts query (status + user_approved filter)
+-- Used by: get_pending_attempts, get_automation_stats
+CREATE INDEX IF NOT EXISTS idx_attempts_status_approved ON application_attempts(status, user_approved, created_at ASC)
+WHERE user_approved = 1;
+
+-- Optimize application queries joining with jobs
+-- Used by: get_applications_by_status, interview queries
+CREATE INDEX IF NOT EXISTS idx_applications_updated_desc ON applications(updated_at DESC);
