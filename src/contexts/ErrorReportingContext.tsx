@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, useMemo, ReactNode } from 'react';
 import { errorReporter, ErrorReport } from '../utils/errorReporting';
 
 interface ErrorReportingContextType {
@@ -25,33 +25,33 @@ export function ErrorReportingProvider({ children }: { children: ReactNode }) {
     return unsubscribe;
   }, []);
 
-  const captureError = (error: Error, context?: Record<string, unknown>) => {
+  const captureError = useCallback((error: Error, context?: Record<string, unknown>) => {
     errorReporter.captureCustom(error.message, context);
-  };
+  }, []);
 
-  const clearErrors = () => {
+  const clearErrors = useCallback(() => {
     errorReporter.clear();
-  };
+  }, []);
 
-  const clearError = (id: string) => {
+  const clearError = useCallback((id: string) => {
     errorReporter.clearError(id);
-  };
+  }, []);
 
-  const exportErrors = () => {
+  const exportErrors = useCallback(() => {
     errorReporter.downloadExport();
-  };
+  }, []);
+
+  const value = useMemo(() => ({
+    errors,
+    errorCount: errors.length,
+    captureError,
+    clearErrors,
+    clearError,
+    exportErrors,
+  }), [errors, captureError, clearErrors, clearError, exportErrors]);
 
   return (
-    <ErrorReportingContext.Provider
-      value={{
-        errors,
-        errorCount: errors.length,
-        captureError,
-        clearErrors,
-        clearError,
-        exportErrors,
-      }}
-    >
+    <ErrorReportingContext.Provider value={value}>
       {children}
     </ErrorReportingContext.Provider>
   );

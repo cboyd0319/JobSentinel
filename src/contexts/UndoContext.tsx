@@ -1,4 +1,4 @@
-import { createContext, useContext, useCallback, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useCallback, useMemo, useState, useEffect, ReactNode } from "react";
 import { useToast } from "./index";
 
 type ActionType = "hide" | "bookmark" | "notes" | "status";
@@ -130,14 +130,14 @@ export function UndoProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [undo, redo]);
 
-  const value: UndoContextType = {
+  const value = useMemo<UndoContextType>(() => ({
     pushAction,
     undo,
     redo,
     canUndo: undoStack.length > 0,
     canRedo: redoStack.length > 0,
     lastAction: undoStack[0] || null,
-  };
+  }), [pushAction, undo, redo, undoStack]);
 
   return (
     <UndoContext.Provider value={value}>

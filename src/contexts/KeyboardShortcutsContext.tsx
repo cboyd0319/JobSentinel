@@ -2,6 +2,7 @@ import {
   createContext,
   useContext,
   useCallback,
+  useMemo,
   useEffect,
   useState,
   type ReactNode,
@@ -248,22 +249,34 @@ export function KeyboardShortcutsProvider({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [shortcuts]);
 
+  const value = useMemo(() => ({
+    shortcuts,
+    registerShortcut,
+    unregisterShortcut,
+    isCommandPaletteOpen,
+    openCommandPalette,
+    closeCommandPalette,
+    toggleCommandPalette,
+    isHelpOpen,
+    openHelp,
+    closeHelp,
+    toggleHelp,
+  }), [
+    shortcuts,
+    registerShortcut,
+    unregisterShortcut,
+    isCommandPaletteOpen,
+    openCommandPalette,
+    closeCommandPalette,
+    toggleCommandPalette,
+    isHelpOpen,
+    openHelp,
+    closeHelp,
+    toggleHelp,
+  ]);
+
   return (
-    <KeyboardShortcutsContext.Provider
-      value={{
-        shortcuts,
-        registerShortcut,
-        unregisterShortcut,
-        isCommandPaletteOpen,
-        openCommandPalette,
-        closeCommandPalette,
-        toggleCommandPalette,
-        isHelpOpen,
-        openHelp,
-        closeHelp,
-        toggleHelp,
-      }}
-    >
+    <KeyboardShortcutsContext.Provider value={value}>
       {children}
     </KeyboardShortcutsContext.Provider>
   );

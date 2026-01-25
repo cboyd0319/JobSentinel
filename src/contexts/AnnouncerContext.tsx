@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, ReactNode, useEffect, useRef } from "react";
+import { createContext, useContext, useState, useCallback, useMemo, ReactNode, useEffect, useRef } from "react";
 
 interface AnnouncerContextType {
   announce: (message: string, priority?: "polite" | "assertive") => void;
@@ -37,8 +37,10 @@ export function AnnouncerProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  const value = useMemo(() => ({ announce }), [announce]);
+
   return (
-    <AnnouncerContext.Provider value={{ announce }}>
+    <AnnouncerContext.Provider value={value}>
       {children}
       {/* Screen reader live regions - visually hidden but announced */}
       <div
