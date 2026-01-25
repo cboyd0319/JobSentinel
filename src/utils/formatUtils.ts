@@ -62,6 +62,20 @@ export function formatInterviewDate(dateStr: string): string {
 }
 
 /**
+ * Format a date compactly with month, day, and time (no year, no weekday)
+ * Useful for recent timestamps like alerts or notifications
+ */
+export function formatCompactDateTime(dateStr: string): string {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
+/**
  * Get relative time until a future date (e.g., "Tomorrow", "3 days")
  */
 export function getRelativeTimeUntil(dateStr: string): string {

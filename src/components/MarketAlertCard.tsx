@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { Button } from "./";
+import { formatCompactDateTime } from "../utils/formatUtils";
 
 interface MarketAlert {
   id: number;
@@ -66,16 +67,6 @@ export const MarketAlertCard = memo(function MarketAlertCard({ alert, onMarkRead
     return `${sign}${change.toFixed(1)}%`;
   };
 
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-    });
-  };
-
   const styles = getSeverityStyles(alert.severity);
 
   return (
@@ -121,7 +112,7 @@ export const MarketAlertCard = memo(function MarketAlertCard({ alert, onMarkRead
                   {formatChange(alert.metric_change_pct)}
                 </span>
               )}
-              <span>{formatDate(alert.created_at)}</span>
+              <span>{formatCompactDateTime(alert.created_at)}</span>
             </div>
           </div>
         </div>

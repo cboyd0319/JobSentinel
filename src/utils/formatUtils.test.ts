@@ -4,6 +4,7 @@ import {
   formatEventDate,
   formatDateTime,
   formatInterviewDate,
+  formatCompactDateTime,
   getRelativeTimeUntil,
   formatSalaryNumber,
   formatSalaryRange,
@@ -77,6 +78,18 @@ describe("formatUtils", () => {
       expect(result).toContain("25");
       expect(result).not.toContain("2026"); // No year
       expect(result).toMatch(/\d:\d/); // Time
+    });
+  });
+
+  describe("formatCompactDateTime", () => {
+    it("formats date with month, day, and time (no year, no weekday)", () => {
+      const result = formatCompactDateTime("2026-01-25T14:30:00Z");
+      expect(result).toContain("Jan");
+      expect(result).toContain("25");
+      expect(result).not.toContain("2026"); // No year
+      expect(result).toMatch(/\d:\d/); // Time
+      // Should not contain weekday
+      expect(result).not.toMatch(/Mon|Tue|Wed|Thu|Fri|Sat|Sun/);
     });
   });
 
