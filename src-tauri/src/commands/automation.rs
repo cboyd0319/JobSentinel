@@ -509,9 +509,7 @@ pub async fn fill_application_form(
     // Update attempt status
     if let Some(id) = attempt_id {
         let automation_manager = AutomationManager::new(state.database.pool().clone());
-        let status = if result.captcha_detected {
-            AutomationStatus::AwaitingApproval
-        } else if result.ready_for_review {
+        let status = if result.captcha_detected || result.ready_for_review {
             AutomationStatus::AwaitingApproval
         } else {
             AutomationStatus::Failed

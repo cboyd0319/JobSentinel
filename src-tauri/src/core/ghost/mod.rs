@@ -593,9 +593,9 @@ impl GhostDetector {
     /// Calculate substance-to-fluff ratio (higher = more substance)
     fn calculate_substance_ratio(&self, text: &str) -> f64 {
         let text_lower = text.to_lowercase();
-        let words: Vec<&str> = text_lower.split_whitespace().collect();
 
-        if words.is_empty() {
+        // Check if text has any words
+        if text_lower.split_whitespace().next().is_none() {
             return 0.0;
         }
 

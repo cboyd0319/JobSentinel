@@ -239,7 +239,7 @@ impl SimplyHiredScraper {
         // Common patterns: "Location: City, State" or "in City, State"
         if let Some(pos) = desc.find("Location:") {
             let rest = &desc[pos + 9..];
-            let end = rest.find(|c: char| c == '\n' || c == '<' || c == '|').unwrap_or(rest.len().min(50));
+            let end = rest.find(|c: char| c == '\n' || c == '<' || c == '|').unwrap_or_else(|| rest.len().min(50));
             let location = rest[..end].trim();
             if !location.is_empty() {
                 return Some(location.to_string());

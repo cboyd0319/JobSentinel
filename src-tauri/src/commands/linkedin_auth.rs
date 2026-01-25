@@ -63,10 +63,13 @@ pub async fn linkedin_login(app: AppHandle) -> Result<String, String> {
     let app_nav = app.clone();
 
     // Build the login window with navigation monitoring
+    // URL parsing of a compile-time constant cannot fail
+    #[allow(clippy::expect_used)]
+    let login_url = LINKEDIN_LOGIN_URL.parse().expect("invalid LinkedIn URL constant");
     let window = WebviewWindowBuilder::new(
         &app,
         "linkedin-login",
-        WebviewUrl::External(LINKEDIN_LOGIN_URL.parse().unwrap()),
+        WebviewUrl::External(login_url),
     )
     .title("Connect LinkedIn")
     .inner_size(450.0, 700.0)
@@ -121,7 +124,10 @@ pub async fn linkedin_login(app: AppHandle) -> Result<String, String> {
                 }
 
                 // Send result back (just the cookie value, not expiry)
-                if let Some(tx) = result_tx.lock().unwrap().take() {
+                // Mutex poisoning indicates another thread panicked - propagate panic
+                #[allow(clippy::expect_used)]
+                let tx_option = result_tx.lock().expect("result_tx mutex poisoned").take();
+                if let Some(tx) = tx_option {
                     let _ = tx.send(cookie_result.map(|(cookie, _)| cookie));
                 }
 
@@ -147,7 +153,10 @@ pub async fn linkedin_login(app: AppHandle) -> Result<String, String> {
     window.on_window_event(move |event| {
         if let tauri::WindowEvent::CloseRequested { .. } = event {
             if !login_detected_cancel.load(Ordering::SeqCst) {
-                if let Some(tx) = result_tx_cancel.lock().unwrap().take() {
+                // Mutex poisoning indicates another thread panicked - propagate panic
+                #[allow(clippy::expect_used)]
+                let tx_option = result_tx_cancel.lock().expect("result_tx mutex poisoned").take();
+                if let Some(tx) = tx_option {
                     let _ = tx.send(Err("Login cancelled by user".to_string()));
                 }
             }
@@ -190,7 +199,6 @@ async fn extract_linkedin_cookie() -> Result<(String, Option<String>), String> {
             let cookie_store = data_store.httpCookieStore();
 
             // Create block to receive cookies
-            let tx_clone = tx.clone();
             let block =
                 StackBlock::new(move |cookies: NonNull<NSArray<NSHTTPCookie>>| {
                     let mut li_at_value: Option<(String, Option<f64>)> = None;
@@ -215,7 +223,7 @@ async fn extract_linkedin_cookie() -> Result<(String, Option<String>), String> {
                         }
                     }
 
-                    let _ = tx_clone.send(li_at_value);
+                    let _ = tx.send(li_at_value);
                 });
 
             // Get all cookies
@@ -232,7 +240,7 @@ async fn extract_linkedin_cookie() -> Result<(String, Option<String>), String> {
             let expiry_str = expiry_secs.map(|secs| {
                 use chrono::{DateTime, Utc};
                 let dt = DateTime::<Utc>::from_timestamp(secs as i64, 0)
-                    .unwrap_or_else(|| Utc::now());
+                    .unwrap_or_else(Utc::now);
                 dt.to_rfc3339()
             });
             Ok((cookie, expiry_str))

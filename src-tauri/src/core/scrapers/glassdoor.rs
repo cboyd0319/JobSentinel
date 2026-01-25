@@ -338,7 +338,7 @@ impl GlassdoorScraper {
         let description = data["description"]
             .as_str()
             .or_else(|| data["jobDescription"].as_str())
-            .map(|d| Self::strip_html(d));
+            .map(Self::strip_html);
 
         let (salary_min, salary_max) = self.extract_salary(data);
 
@@ -411,6 +411,7 @@ impl GlassdoorScraper {
     }
 
     /// Check if job appears to be remote based on location
+    #[allow(clippy::single_option_map)]
     fn is_remote(&self, location: Option<&str>) -> Option<bool> {
         location.map(|l| {
             let lower = l.to_lowercase();
