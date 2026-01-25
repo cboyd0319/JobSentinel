@@ -12,6 +12,7 @@ import {
 import { useToast } from "../contexts";
 import { useKeyboardNavigation } from "../hooks/useKeyboardNavigation";
 import { getErrorMessage, logError } from "../utils/errorUtils";
+import { SCORE_THRESHOLD_GOOD } from "../utils/constants";
 import { notifyScrapingComplete } from "../utils/notifications";
 import { cachedInvoke, invalidateCacheByCommand } from "../utils/api";
 import Settings from "./Settings";
@@ -333,7 +334,7 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
           highMatches={statistics.high_matches}
           filteredCount={filters.filteredAndSortedJobs.length}
           onExportHighMatches={() => {
-            const highMatchJobs = jobs.filter(j => j.score >= 0.7);
+            const highMatchJobs = jobs.filter(j => j.score >= SCORE_THRESHOLD_GOOD);
             jobOps.handleBulkExport(highMatchJobs);
           }}
           onShowHighMatchesOnly={() => filters.setScoreFilter("high")}

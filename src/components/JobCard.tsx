@@ -5,6 +5,7 @@ import { GhostIndicatorCompact } from "./GhostIndicator";
 import { open } from "@tauri-apps/plugin-shell";
 import { logError } from "../utils/errorUtils";
 import { formatRelativeDate, formatSalaryRange, truncateText } from "../utils/formatUtils";
+import { SCORE_THRESHOLD_HIGH, SCORE_THRESHOLD_GOOD } from "../utils/constants";
 
 interface Job {
   id: number;
@@ -64,8 +65,8 @@ export const JobCard = memo(function JobCard({ job, onViewJob, onHideJob, onTogg
   };
 
 
-  const isHighMatch = job.score >= 0.9;
-  const isGoodMatch = job.score >= 0.7;
+  const isHighMatch = job.score >= SCORE_THRESHOLD_HIGH;
+  const isGoodMatch = job.score >= SCORE_THRESHOLD_GOOD;
   const salaryText = formatSalaryRange(job.salary_min, job.salary_max);
   const descSnippet = truncateText(job.description);
 
@@ -95,7 +96,7 @@ export const JobCard = memo(function JobCard({ job, onViewJob, onHideJob, onTogg
         data-job-id={job.id}
         data-selected={isSelected || undefined}
         role="article"
-        aria-label={`${job.title} at ${job.company}${job.score >= 0.9 ? ", high match" : job.score >= 0.7 ? ", good match" : ""}`}
+        aria-label={`${job.title} at ${job.company}${job.score >= SCORE_THRESHOLD_HIGH ? ", high match" : job.score >= SCORE_THRESHOLD_GOOD ? ", good match" : ""}`}
       >
       {/* High match indicator */}
       {isHighMatch && (

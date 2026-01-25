@@ -1,6 +1,7 @@
 import { memo } from "react";
 import { Modal, ModalFooter } from "./Modal";
 import { Button } from "./Button";
+import { SCORE_THRESHOLD_HIGH, SCORE_THRESHOLD_GOOD, SCORE_THRESHOLD_PARTIAL } from "../utils/constants";
 
 interface ScoreBreakdown {
   skills: number;
@@ -122,8 +123,8 @@ function estimateBreakdown(_score: number, reasons: ReturnType<typeof parseScore
  */
 function getScoreColor(score: number, maxScore: number): string {
   const percentage = score / maxScore;
-  if (percentage >= 0.9) return "text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20";
-  if (percentage >= 0.5) return "text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20";
+  if (percentage >= SCORE_THRESHOLD_HIGH) return "text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20";
+  if (percentage >= SCORE_THRESHOLD_PARTIAL) return "text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20";
   return "text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20";
 }
 
@@ -132,8 +133,8 @@ function getScoreColor(score: number, maxScore: number): string {
  */
 function getBarColor(score: number, maxScore: number): string {
   const percentage = score / maxScore;
-  if (percentage >= 0.9) return "bg-green-500 dark:bg-green-400";
-  if (percentage >= 0.5) return "bg-yellow-500 dark:bg-yellow-400";
+  if (percentage >= SCORE_THRESHOLD_HIGH) return "bg-green-500 dark:bg-green-400";
+  if (percentage >= SCORE_THRESHOLD_PARTIAL) return "bg-yellow-500 dark:bg-yellow-400";
   return "bg-red-500 dark:bg-red-400";
 }
 
@@ -149,9 +150,9 @@ export const ScoreBreakdownModal = memo(function ScoreBreakdownModal({
   const percentage = Math.round(score * 100);
 
   const getScoreLabel = () => {
-    if (score >= 0.9) return { label: "Great Match!", color: "text-green-600 dark:text-green-400" };
-    if (score >= 0.7) return { label: "Good Match", color: "text-sentinel-600 dark:text-sentinel-400" };
-    if (score >= 0.5) return { label: "Partial Match", color: "text-yellow-600 dark:text-yellow-400" };
+    if (score >= SCORE_THRESHOLD_HIGH) return { label: "Great Match!", color: "text-green-600 dark:text-green-400" };
+    if (score >= SCORE_THRESHOLD_GOOD) return { label: "Good Match", color: "text-sentinel-600 dark:text-sentinel-400" };
+    if (score >= SCORE_THRESHOLD_PARTIAL) return { label: "Partial Match", color: "text-yellow-600 dark:text-yellow-400" };
     return { label: "Low Match", color: "text-surface-500 dark:text-surface-400" };
   };
 

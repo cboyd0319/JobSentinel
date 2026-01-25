@@ -43,6 +43,29 @@ export const DEFAULT_JOB_CARD_HEIGHT = 140;
 export const GHOST_SCORE_THRESHOLD = 0.5;
 
 // ============================================================================
+// Job Match Score Thresholds
+// ============================================================================
+
+/** Score threshold for "high" or "great" match (0.0 - 1.0) */
+export const SCORE_THRESHOLD_HIGH = 0.9;
+
+/** Score threshold for "good" match (0.0 - 1.0) */
+export const SCORE_THRESHOLD_GOOD = 0.7;
+
+/** Score threshold for "partial" match (0.0 - 1.0) */
+export const SCORE_THRESHOLD_PARTIAL = 0.5;
+
+// ============================================================================
+// Chart Constants
+// ============================================================================
+
+/** Default chart height in pixels */
+export const CHART_HEIGHT_DEFAULT = 250;
+
+/** Compact chart height for dashboards (pixels) */
+export const CHART_HEIGHT_COMPACT = 200;
+
+// ============================================================================
 // Cache Constants
 // ============================================================================
 

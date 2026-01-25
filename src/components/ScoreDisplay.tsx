@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { Tooltip } from "./Tooltip";
+import { SCORE_THRESHOLD_HIGH, SCORE_THRESHOLD_GOOD, SCORE_THRESHOLD_PARTIAL } from "../utils/constants";
 
 interface ScoreDisplayProps {
   score: number; // 0-1 range
@@ -61,15 +62,15 @@ function parseScoreReasons(reasonsJson?: string | null): {
  * Get a human-friendly label and explanation for a job match score
  */
 function getScoreInfo(score: number) {
-  if (score >= 0.9) return {
+  if (score >= SCORE_THRESHOLD_HIGH) return {
     label: "Great Match!",
     explanation: "This job closely matches your skills, salary, and preferences. Highly recommended!",
   };
-  if (score >= 0.7) return {
+  if (score >= SCORE_THRESHOLD_GOOD) return {
     label: "Good Match",
     explanation: "This job matches most of your criteria. Worth a closer look.",
   };
-  if (score >= 0.5) return {
+  if (score >= SCORE_THRESHOLD_PARTIAL) return {
     label: "Partial Match",
     explanation: "This job matches some of your criteria but may be missing key requirements.",
   };
@@ -166,9 +167,9 @@ export const ScoreDisplay = memo(function ScoreDisplay({
 
   // Color based on score
   const getScoreColor = () => {
-    if (safeScore >= 0.9) return { ring: "stroke-alert-500", text: "text-alert-600 dark:text-alert-400", glow: "shadow-alert-glow" };
-    if (safeScore >= 0.7) return { ring: "stroke-sentinel-500", text: "text-sentinel-600 dark:text-sentinel-400", glow: "" };
-    if (safeScore >= 0.5) return { ring: "stroke-surface-400", text: "text-surface-600 dark:text-surface-400", glow: "" };
+    if (safeScore >= SCORE_THRESHOLD_HIGH) return { ring: "stroke-alert-500", text: "text-alert-600 dark:text-alert-400", glow: "shadow-alert-glow" };
+    if (safeScore >= SCORE_THRESHOLD_GOOD) return { ring: "stroke-sentinel-500", text: "text-sentinel-600 dark:text-sentinel-400", glow: "" };
+    if (safeScore >= SCORE_THRESHOLD_PARTIAL) return { ring: "stroke-surface-400", text: "text-surface-600 dark:text-surface-400", glow: "" };
     return { ring: "stroke-surface-300", text: "text-surface-500 dark:text-surface-400", glow: "" };
   };
 
@@ -193,7 +194,7 @@ export const ScoreDisplay = memo(function ScoreDisplay({
         className={`inline-flex flex-col items-center gap-1 ${onClick ? "cursor-pointer" : "cursor-help"}`}
         onClick={onClick}
       >
-        <div className={`relative ${config.container} ${safeScore >= 0.9 ? colors.glow : ""} rounded-full`}>
+        <div className={`relative ${config.container} ${safeScore >= SCORE_THRESHOLD_HIGH ? colors.glow : ""} rounded-full`}>
           <svg className="w-full h-full -rotate-90" viewBox="0 0 80 80" aria-hidden="true">
             {/* Background ring */}
             <circle
@@ -250,9 +251,9 @@ export const ScoreBar = memo(function ScoreBar({ score, className = "" }: ScoreB
   const percentage = Math.round(score * 100);
 
   const getColor = () => {
-    if (score >= 0.9) return "bg-alert-500";
-    if (score >= 0.7) return "bg-sentinel-500";
-    if (score >= 0.5) return "bg-surface-400";
+    if (score >= SCORE_THRESHOLD_HIGH) return "bg-alert-500";
+    if (score >= SCORE_THRESHOLD_GOOD) return "bg-sentinel-500";
+    if (score >= SCORE_THRESHOLD_PARTIAL) return "bg-surface-400";
     return "bg-surface-300";
   };
 

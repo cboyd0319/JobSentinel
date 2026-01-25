@@ -10,7 +10,7 @@ import type {
   GhostFilter,
   SearchQuery
 } from "../DashboardTypes";
-import { SALARY_THOUSANDS_MULTIPLIER, GHOST_SCORE_THRESHOLD } from "../../utils/constants";
+import { SALARY_THOUSANDS_MULTIPLIER, GHOST_SCORE_THRESHOLD, SCORE_THRESHOLD_GOOD } from "../../utils/constants";
 
 // Sort comparators lookup (better performance than switch)
 const SORT_COMPARATORS: Record<SortOption, (a: Job, b: Job) => number> = {
@@ -146,8 +146,8 @@ export function useDashboardFilters(jobs: Job[]) {
     // Apply score filter
     if (scoreFilter !== "all") {
       result = result.filter((job) => {
-        if (scoreFilter === "high") return job.score >= 0.7;
-        if (scoreFilter === "medium") return job.score >= 0.4 && job.score < 0.7;
+        if (scoreFilter === "high") return job.score >= SCORE_THRESHOLD_GOOD;
+        if (scoreFilter === "medium") return job.score >= 0.4 && job.score < SCORE_THRESHOLD_GOOD;
         if (scoreFilter === "low") return job.score < 0.4;
         return true;
       });
