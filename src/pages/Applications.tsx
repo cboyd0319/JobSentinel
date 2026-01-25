@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, lazy, Suspense, useId, useMemo } from "react";
+import { useEffect, useState, useCallback, lazy, Suspense, useId, useMemo, memo } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { cachedInvoke, invalidateCacheByCommand } from "../utils/api";
 import {
@@ -80,8 +80,8 @@ const STATUS_COLUMNS = [
 
 type StatusKey = typeof STATUS_COLUMNS[number]["key"];
 
-// Sortable application card component
-function SortableApplicationCard({
+// Sortable application card component - memoized to prevent re-renders
+const SortableApplicationCard = memo(function SortableApplicationCard({
   app,
   onClick,
   formatDate,
@@ -145,10 +145,10 @@ function SortableApplicationCard({
       )}
     </div>
   );
-}
+});
 
-// Droppable column component
-function DroppableColumn({
+// Droppable column component - memoized to prevent re-renders
+const DroppableColumn = memo(function DroppableColumn({
   column,
   apps,
   onCardClick,
@@ -192,7 +192,7 @@ function DroppableColumn({
       </SortableContext>
     </div>
   );
-}
+});
 
 // Skeleton loader for initial load
 function KanbanSkeleton() {

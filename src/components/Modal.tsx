@@ -131,6 +131,7 @@ export const Modal = memo(function Modal({
             </div>
             {showCloseButton && (
               <button
+                type="button"
                 onClick={onClose}
                 className="
                   -mt-1 -mr-1 p-2 rounded-lg
