@@ -57,11 +57,8 @@ export const JobCard = memo(function JobCard({ job, onViewJob, onHideJob, onTogg
     try {
       await open(url);
     } catch (err) {
-      // Log error only in development mode
-      if (import.meta.env.DEV) {
-        console.error("Failed to open URL:", err);
-      }
-      // Fallback to window.open
+      // Log error and fallback to window.open
+      logError("Failed to open URL via Tauri shell:", err);
       window.open(url, "_blank", "noopener,noreferrer");
     }
   };
