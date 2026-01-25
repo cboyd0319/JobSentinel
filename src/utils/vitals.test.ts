@@ -1,6 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { getMetricRating, getMetricUnit, getPerformanceSummary } from "./vitals";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { getMetricRating, getMetricUnit, getPerformanceSummary, reportWebVitals } from "./vitals";
 import type { Metric } from "web-vitals";
+import { onCLS, onFCP, onINP, onLCP, onTTFB } from "web-vitals";
 
 // Mock web-vitals
 vi.mock("web-vitals", () => ({
@@ -10,6 +11,12 @@ vi.mock("web-vitals", () => ({
   onLCP: vi.fn(),
   onTTFB: vi.fn(),
 }));
+
+const mockOnCLS = vi.mocked(onCLS);
+const mockOnFCP = vi.mocked(onFCP);
+const mockOnINP = vi.mocked(onINP);
+const mockOnLCP = vi.mocked(onLCP);
+const mockOnTTFB = vi.mocked(onTTFB);
 
 describe("vitals utilities", () => {
   describe("getMetricRating", () => {
@@ -145,6 +152,38 @@ describe("vitals utilities", () => {
     it("includes resource count", () => {
       const summary = getPerformanceSummary();
       expect(summary.resourceCount).toBe(3);
+    });
+  });
+
+  describe("reportWebVitals", () => {
+    beforeEach(() => {
+      vi.clearAllMocks();
+    });
+
+    afterEach(() => {
+      vi.clearAllMocks();
+    });
+
+    it("registers all web vital callbacks", () => {
+      const customCallback = vi.fn();
+      reportWebVitals(customCallback);
+
+      expect(mockOnCLS).toHaveBeenCalledWith(customCallback);
+      expect(mockOnFCP).toHaveBeenCalledWith(customCallback);
+      expect(mockOnINP).toHaveBeenCalledWith(customCallback);
+      expect(mockOnLCP).toHaveBeenCalledWith(customCallback);
+      expect(mockOnTTFB).toHaveBeenCalledWith(customCallback);
+    });
+
+    it("uses default logger when no callback provided", () => {
+      reportWebVitals();
+
+      // Should still register all callbacks (with default logger)
+      expect(mockOnCLS).toHaveBeenCalled();
+      expect(mockOnFCP).toHaveBeenCalled();
+      expect(mockOnINP).toHaveBeenCalled();
+      expect(mockOnLCP).toHaveBeenCalled();
+      expect(mockOnTTFB).toHaveBeenCalled();
     });
   });
 });
