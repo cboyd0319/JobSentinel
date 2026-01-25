@@ -71,11 +71,13 @@ export const DashboardWidgets = memo(function DashboardWidgets({ className = '' 
   const [jobsBySource, setJobsBySource] = useState<JobsBySource[]>([]);
   const [salaryRanges, setSalaryRanges] = useState<SalaryRange[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(false);
 
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
+      setError(null);
 
       // Fetch application stats
       const stats = await invoke<ApplicationStats>('get_application_stats');
@@ -96,6 +98,7 @@ export const DashboardWidgets = memo(function DashboardWidgets({ className = '' 
       setSalaryRanges(salaryData);
     } catch (error) {
       logError('Failed to load widget data:', error);
+      setError('Failed to load analytics data');
     } finally {
       setLoading(false);
     }
@@ -127,6 +130,20 @@ export const DashboardWidgets = memo(function DashboardWidgets({ className = '' 
     return (
       <div className={`flex items-center justify-center p-8 ${className}`}>
         <LoadingSpinner />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={`flex flex-col items-center justify-center p-8 ${className}`}>
+        <p className="text-danger mb-2">{error}</p>
+        <button
+          onClick={loadData}
+          className="px-4 py-2 text-sm font-medium text-sentinel-600 hover:text-sentinel-700 dark:text-sentinel-400 dark:hover:text-sentinel-300"
+        >
+          Try again
+        </button>
       </div>
     );
   }

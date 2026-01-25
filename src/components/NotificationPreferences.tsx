@@ -291,23 +291,28 @@ const SourceConfigRow = memo(function SourceConfigRow({ sourceKey, config, onCha
 export const NotificationPreferences = memo(function NotificationPreferences() {
   const [prefs, setPrefs] = useState<NotificationPreferences>(DEFAULT_PREFERENCES);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
   const toast = useToast();
 
   // Load preferences from backend on mount
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const loaded = await loadNotificationPreferencesAsync();
-        setPrefs(loaded);
-      } catch (err) {
-        logError('Failed to load notification preferences:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
+  const loadPreferences = useCallback(async () => {
+    try {
+      setLoading(true);
+      setLoadError(null);
+      const loaded = await loadNotificationPreferencesAsync();
+      setPrefs(loaded);
+    } catch (err) {
+      logError('Failed to load notification preferences:', err);
+      setLoadError('Failed to load notification preferences');
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadPreferences();
+  }, [loadPreferences]);
 
   const savePrefs = useCallback(async (updated: NotificationPreferences) => {
     // Optimistic update - apply changes immediately
@@ -348,6 +353,22 @@ export const NotificationPreferences = memo(function NotificationPreferences() {
       <Card>
         <div className="p-8 text-center text-surface-500">
           Loading preferences...
+        </div>
+      </Card>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <Card>
+        <div className="p-8 text-center">
+          <p className="text-danger mb-3">{loadError}</p>
+          <button
+            onClick={loadPreferences}
+            className="px-4 py-2 text-sm font-medium bg-sentinel-500 text-white rounded-lg hover:bg-sentinel-600 transition-colors"
+          >
+            Try again
+          </button>
         </div>
       </Card>
     );
