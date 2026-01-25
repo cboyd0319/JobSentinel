@@ -1,7 +1,7 @@
 // Dashboard Widgets - Visual analytics for job search progress
 // Uses Recharts for charts
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
@@ -105,6 +105,24 @@ export function DashboardWidgets({ className = '' }: DashboardWidgetsProps) {
     loadData();
   }, [loadData]);
 
+  // Build funnel data from status counts (memoized for performance)
+  // Must be before early returns to follow Rules of Hooks
+  const funnelData = useMemo(() => appStats ? [
+    { name: 'Applied', value: appStats.by_status.applied, fill: COLORS.primary },
+    { name: 'Screening', value: appStats.by_status.screening_call, fill: COLORS.info },
+    { name: 'Phone', value: appStats.by_status.phone_interview, fill: '#8b5cf6' },
+    { name: 'Technical', value: appStats.by_status.technical_interview, fill: '#ec4899' },
+    { name: 'Onsite', value: appStats.by_status.onsite_interview, fill: COLORS.warning },
+    { name: 'Offers', value: appStats.by_status.offer_received, fill: COLORS.success },
+  ].filter(d => d.value > 0) : [], [appStats]);
+
+  // Source data for pie chart (memoized for performance)
+  const sourceData = useMemo(() => jobsBySource.map((s, i) => ({
+    name: formatSourceName(s.source),
+    value: s.count,
+    fill: PIE_COLORS[i % PIE_COLORS.length],
+  })), [jobsBySource]);
+
   if (loading) {
     return (
       <div className={`flex items-center justify-center p-8 ${className}`}>
@@ -112,23 +130,6 @@ export function DashboardWidgets({ className = '' }: DashboardWidgetsProps) {
       </div>
     );
   }
-
-  // Build funnel data from status counts
-  const funnelData = appStats ? [
-    { name: 'Applied', value: appStats.by_status.applied, fill: COLORS.primary },
-    { name: 'Screening', value: appStats.by_status.screening_call, fill: COLORS.info },
-    { name: 'Phone', value: appStats.by_status.phone_interview, fill: '#8b5cf6' },
-    { name: 'Technical', value: appStats.by_status.technical_interview, fill: '#ec4899' },
-    { name: 'Onsite', value: appStats.by_status.onsite_interview, fill: COLORS.warning },
-    { name: 'Offers', value: appStats.by_status.offer_received, fill: COLORS.success },
-  ].filter(d => d.value > 0) : [];
-
-  // Source data for pie chart
-  const sourceData = jobsBySource.map((s, i) => ({
-    name: formatSourceName(s.source),
-    value: s.count,
-    fill: PIE_COLORS[i % PIE_COLORS.length],
-  }));
 
   return (
     <div className={className}>

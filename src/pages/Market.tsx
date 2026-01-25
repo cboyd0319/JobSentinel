@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, lazy, Suspense } from "react";
+import { useEffect, useState, useCallback, useMemo, lazy, Suspense } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import {
   Button,
@@ -120,7 +120,7 @@ export default function Market({ onBack }: MarketProps) {
   const [analyzing, setAnalyzing] = useState(false);
   const toast = useToast();
 
-  const unreadAlertCount = (alerts ?? []).filter((a) => !a.is_read).length;
+  const unreadAlertCount = useMemo(() => (alerts ?? []).filter((a) => !a.is_read).length, [alerts]);
 
   const tabs: Tab[] = [
     { id: "overview", label: "Overview", icon: "📊" },

@@ -63,6 +63,9 @@ interface ProfileFormProps {
   onSaved?: () => void;
 }
 
+// Email validation regex (defined outside component for stable reference)
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export function ProfileForm({ onSaved }: ProfileFormProps) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_profile, setProfile] = useState<ApplicationProfile | null>(null);
@@ -97,9 +100,6 @@ export function ProfileForm({ onSaved }: ProfileFormProps) {
     portfolioUrl?: string;
     websiteUrl?: string;
   }>({});
-
-  // Email validation regex (defined outside useCallback to avoid dependency)
-  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   // URL validation helper
   const isValidUrl = useCallback((url: string): boolean => {
@@ -350,6 +350,7 @@ export function ProfileForm({ onSaved }: ProfileFormProps) {
               onBlur={() => handleBlur("fullName", fullName)}
               placeholder="John Doe"
               error={errors.fullName}
+              autoComplete="name"
             />
             <Input
               label="Email *"
@@ -359,6 +360,7 @@ export function ProfileForm({ onSaved }: ProfileFormProps) {
               onBlur={() => handleBlur("email", email)}
               placeholder="john@example.com"
               error={errors.email}
+              autoComplete="email"
             />
             <Input
               label="Phone"
@@ -368,6 +370,7 @@ export function ProfileForm({ onSaved }: ProfileFormProps) {
               onBlur={() => handleBlur("phone", phone)}
               placeholder="+1 (555) 123-4567"
               error={errors.phone}
+              autoComplete="tel"
             />
           </div>
         </section>
@@ -387,6 +390,7 @@ export function ProfileForm({ onSaved }: ProfileFormProps) {
               placeholder="https://linkedin.com/in/johndoe"
               leftIcon={<LinkedInIcon className="w-4 h-4" />}
               error={errors.linkedinUrl}
+              autoComplete="url"
             />
             <Input
               label="GitHub"
@@ -396,6 +400,7 @@ export function ProfileForm({ onSaved }: ProfileFormProps) {
               placeholder="https://github.com/johndoe"
               leftIcon={<GitHubIcon className="w-4 h-4" />}
               error={errors.githubUrl}
+              autoComplete="url"
             />
             <Input
               label="Portfolio"
@@ -405,6 +410,7 @@ export function ProfileForm({ onSaved }: ProfileFormProps) {
               placeholder="https://johndoe.com"
               leftIcon={<GlobeIcon className="w-4 h-4" />}
               error={errors.portfolioUrl}
+              autoComplete="url"
             />
             <Input
               label="Website"
@@ -414,6 +420,7 @@ export function ProfileForm({ onSaved }: ProfileFormProps) {
               placeholder="https://blog.johndoe.com"
               leftIcon={<LinkIcon className="w-4 h-4" />}
               error={errors.websiteUrl}
+              autoComplete="url"
             />
           </div>
         </section>

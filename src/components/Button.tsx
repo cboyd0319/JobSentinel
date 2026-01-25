@@ -46,6 +46,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         ref={ref}
+        type={props.type ?? "button"}
         className={`
           inline-flex items-center justify-center font-semibold rounded-lg
           transition-all duration-200 ease-out
