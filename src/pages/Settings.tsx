@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { Button, Input, Badge, Card, ErrorLogPanel, NotificationPreferences, HelpIcon, ScraperHealthDashboard } from "../components";
 import { useToast } from "../contexts";
@@ -263,8 +263,8 @@ export default function Settings({ onClose }: SettingsProps) {
     }
   };
 
-  // Smart job board recommendations based on user preferences
-  const getJobBoardRecommendations = () => {
+  // Smart job board recommendations based on user preferences (memoized)
+  const jobBoardRecommendations = useMemo(() => {
     const recommendations: { board: string; reason: string; enable: () => void }[] = [];
     const keywords = [...(config?.keywords_boost ?? []), ...(config?.title_allowlist ?? [])].map(k => k.toLowerCase());
     const allowRemote = config?.location_preferences?.allow_remote ?? false;
@@ -340,7 +340,7 @@ export default function Settings({ onClose }: SettingsProps) {
     }
 
     return recommendations.slice(0, 3); // Show max 3 recommendations
-  };
+  }, [config]);
 
   // Security trust indicator - shows platform-specific secure storage info
   const SecurityBadge = ({ stored }: { stored?: boolean }) => {
@@ -2178,13 +2178,13 @@ export default function Settings({ onClose }: SettingsProps) {
             </div>
 
             {/* Smart Recommendations */}
-            {getJobBoardRecommendations().length > 0 && (
+            {jobBoardRecommendations.length > 0 && (
               <div className="mb-4 p-3 bg-sentinel-50 dark:bg-sentinel-900/20 border border-sentinel-200 dark:border-sentinel-800 rounded-lg">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-sm font-medium text-sentinel-700 dark:text-sentinel-300">💡 Recommended for you</span>
                 </div>
                 <div className="space-y-2">
-                  {getJobBoardRecommendations().map((rec) => (
+                  {jobBoardRecommendations.map((rec) => (
                     <div key={rec.board} className="flex items-center justify-between">
                       <div>
                         <span className="text-sm font-medium text-surface-800 dark:text-surface-200">{rec.board}</span>
