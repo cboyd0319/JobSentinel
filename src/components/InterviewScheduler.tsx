@@ -172,6 +172,7 @@ export function InterviewScheduler({ onClose, applications = [] }: InterviewSche
   const [scheduling, setScheduling] = useState(false);
   const [completing, setCompleting] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [dateError, setDateError] = useState<string | null>(null);
   const toast = useToast();
 
   // Load follow-up reminders from backend
@@ -745,10 +746,33 @@ export function InterviewScheduler({ onClose, applications = [] }: InterviewSche
                   type="datetime-local"
                   id="scheduled-at"
                   value={formData.scheduled_at}
-                  onChange={(e) => setFormData({ ...formData, scheduled_at: e.target.value })}
+                  onChange={(e) => {
+                    setFormData({ ...formData, scheduled_at: e.target.value });
+                    // Clear error when user changes value
+                    if (dateError) setDateError(null);
+                  }}
+                  onBlur={(e) => {
+                    if (e.target.value) {
+                      const scheduledDate = new Date(e.target.value);
+                      if (scheduledDate < new Date()) {
+                        setDateError("Interview cannot be scheduled in the past");
+                      }
+                    }
+                  }}
                   min={new Date().toISOString().slice(0, 16)}
-                  className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100"
+                  className={`w-full px-3 py-2 border rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 ${
+                    dateError
+                      ? 'border-red-500 dark:border-red-400 focus:ring-red-500'
+                      : 'border-surface-300 dark:border-surface-600'
+                  }`}
+                  aria-invalid={!!dateError}
+                  aria-describedby={dateError ? "scheduled-at-error" : undefined}
                 />
+                {dateError && (
+                  <p id="scheduled-at-error" className="mt-1 text-sm text-red-600 dark:text-red-400">
+                    {dateError}
+                  </p>
+                )}
               </div>
 
               <div>

@@ -70,6 +70,7 @@ export function ProfileForm({ onSaved }: ProfileFormProps) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_profile, setProfile] = useState<ApplicationProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [takingLong, setTakingLong] = useState(false);
   const [saving, setSaving] = useState(false);
   const toast = useToast();
 
@@ -229,6 +230,20 @@ export function ProfileForm({ onSaved }: ProfileFormProps) {
     loadProfile();
   }, [loadProfile]);
 
+  // Show "taking longer" message if loading exceeds 5 seconds
+  useEffect(() => {
+    if (!loading) {
+      setTakingLong(false);
+      return;
+    }
+
+    const timeoutId = setTimeout(() => {
+      setTakingLong(true);
+    }, 5000);
+
+    return () => clearTimeout(timeoutId);
+  }, [loading]);
+
   const handleSelectResume = async () => {
     try {
       const selected = await open({
@@ -317,8 +332,13 @@ export function ProfileForm({ onSaved }: ProfileFormProps) {
   if (loading) {
     return (
       <Card className="p-6">
-        <div className="flex items-center justify-center py-8" role="status" aria-busy="true" aria-label="Loading profile">
+        <div className="flex flex-col items-center justify-center py-8" role="status" aria-busy="true" aria-label="Loading profile">
           <div className="animate-spin w-6 h-6 border-2 border-sentinel-500 border-t-transparent rounded-full" aria-hidden="true" />
+          {takingLong && (
+            <p className="mt-3 text-sm text-surface-500 dark:text-surface-400">
+              Taking longer than expected...
+            </p>
+          )}
         </div>
       </Card>
     );
