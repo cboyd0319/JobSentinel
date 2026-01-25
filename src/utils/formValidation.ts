@@ -109,7 +109,7 @@ export function validateSlackWebhook(url: string): string | undefined {
     }
     
     return undefined;
-  } catch (e) {
+  } catch {
     return "Invalid URL format";
   }
 }
@@ -143,7 +143,7 @@ export function validateDiscordWebhook(url: string): string | undefined {
     }
     
     return undefined;
-  } catch (e) {
+  } catch {
     return "Invalid URL format";
   }
 }
