@@ -1,4 +1,4 @@
-import { useState, useCallback, ReactNode, useRef } from "react";
+import { useState, useCallback, useMemo, memo, ReactNode, useRef } from "react";
 import { ToastContext, Toast, ToastAction } from "./toastContextDef";
 
 let toastId = 0;
@@ -46,8 +46,18 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     addToast({ type: "info", title, message });
   }, [addToast]);
 
+  const value = useMemo(() => ({
+    toasts,
+    addToast,
+    removeToast,
+    success,
+    error,
+    warning,
+    info,
+  }), [toasts, addToast, removeToast, success, error, warning, info]);
+
   return (
-    <ToastContext.Provider value={{ toasts, addToast, removeToast, success, error, warning, info }}>
+    <ToastContext.Provider value={value}>
       {children}
       <ToastContainer toasts={toasts} onRemove={removeToast} />
     </ToastContext.Provider>
@@ -57,7 +67,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 // useToast hook is in src/hooks/useToast.ts to satisfy react-refresh/only-export-components
 
 // Toast Container Component
-function ToastContainer({ toasts, onRemove }: { toasts: Toast[]; onRemove: (id: string) => void }) {
+const ToastContainer = memo(function ToastContainer({ toasts, onRemove }: { toasts: Toast[]; onRemove: (id: string) => void }) {
   if (toasts.length === 0) return null;
 
   return (
@@ -67,10 +77,10 @@ function ToastContainer({ toasts, onRemove }: { toasts: Toast[]; onRemove: (id: 
       ))}
     </div>
   );
-}
+});
 
 // Individual Toast Item
-function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: (id: string) => void }) {
+const ToastItem = memo(function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: (id: string) => void }) {
   const typeStyles = {
     success: {
       bg: "bg-success dark:bg-success/90",
@@ -136,7 +146,7 @@ function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: (id: string) =
       </button>
     </div>
   );
-}
+});
 
 // Icons
 function CheckCircleIcon() {

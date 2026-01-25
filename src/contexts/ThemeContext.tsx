@@ -1,4 +1,4 @@
-import { useEffect, useState, ReactNode } from "react";
+import { useEffect, useState, useCallback, useMemo, ReactNode } from "react";
 import { ThemeContext } from "./themeContextDef";
 
 type Theme = "light" | "dark" | "system";
@@ -72,22 +72,36 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     }
   }, [highContrast]);
 
-  const setTheme = (newTheme: Theme) => {
+  const setTheme = useCallback((newTheme: Theme) => {
     setThemeState(newTheme);
     localStorage.setItem(STORAGE_KEY, newTheme);
-  };
+  }, []);
 
-  const toggleTheme = () => {
-    setTheme(resolvedTheme === "light" ? "dark" : "light");
-  };
+  const toggleTheme = useCallback(() => {
+    setThemeState(prev => {
+      const currentResolved = prev === "system" ? getSystemTheme() : prev;
+      const newTheme = currentResolved === "light" ? "dark" : "light";
+      localStorage.setItem(STORAGE_KEY, newTheme);
+      return newTheme;
+    });
+  }, []);
 
-  const setHighContrast = (enabled: boolean) => {
+  const setHighContrast = useCallback((enabled: boolean) => {
     setHighContrastState(enabled);
     localStorage.setItem(HIGH_CONTRAST_KEY, String(enabled));
-  };
+  }, []);
+
+  const value = useMemo(() => ({
+    theme,
+    resolvedTheme,
+    setTheme,
+    toggleTheme,
+    highContrast,
+    setHighContrast,
+  }), [theme, resolvedTheme, setTheme, toggleTheme, highContrast, setHighContrast]);
 
   return (
-    <ThemeContext.Provider value={{ theme, resolvedTheme, setTheme, toggleTheme, highContrast, setHighContrast }}>
+    <ThemeContext.Provider value={value}>
       {children}
     </ThemeContext.Provider>
   );
