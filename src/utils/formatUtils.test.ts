@@ -24,9 +24,14 @@ describe("formatUtils", () => {
       vi.useRealTimers();
     });
 
-    it("returns 'Just now' for dates less than 1 hour old", () => {
+    it("returns 'Just now' for dates less than 1 minute old", () => {
+      const thirtySecondsAgo = new Date("2026-01-25T11:59:30Z").toISOString();
+      expect(formatRelativeDate(thirtySecondsAgo)).toBe("Just now");
+    });
+
+    it("returns minutes ago for dates less than 1 hour old", () => {
       const thirtyMinutesAgo = new Date("2026-01-25T11:30:00Z").toISOString();
-      expect(formatRelativeDate(thirtyMinutesAgo)).toBe("Just now");
+      expect(formatRelativeDate(thirtyMinutesAgo)).toBe("30m ago");
     });
 
     it("returns hours ago for dates less than 24 hours old", () => {

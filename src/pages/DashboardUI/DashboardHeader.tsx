@@ -5,6 +5,7 @@ import { memo } from "react";
 import { Button, ThemeToggle, Tooltip, TourHelpButton } from "../../components";
 import { SentinelIcon, SearchIcon, SettingsIcon } from "../DashboardIcons";
 import type { ScrapingStatus } from "../DashboardTypes";
+import { formatRelativeDate } from "../../utils/formatUtils";
 
 interface DashboardHeaderProps {
   scrapingStatus: ScrapingStatus;
@@ -21,16 +22,7 @@ interface DashboardHeaderProps {
 // Format relative time for "last updated" display
 function formatLastUpdated(dateStr: string | null): string {
   if (!dateStr) return "Never";
-  const date = new Date(dateStr);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMins / 60);
-
-  if (diffMins < 1) return "Just now";
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  return date.toLocaleDateString();
+  return formatRelativeDate(dateStr);
 }
 
 export const DashboardHeader = memo(function DashboardHeader({
