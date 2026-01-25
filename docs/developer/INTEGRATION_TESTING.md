@@ -731,6 +731,6 @@ for _ in 0..50 {
 
 ---
 
-**Last Updated**: January 17, 2026
-**Test Count**: 76 integration tests across 6 files
-**Version**: v2.0.0
+**Last Updated**: January 25, 2026
+**Test Count**: 75+ integration tests across 6 files
+**Version**: v2.6.3

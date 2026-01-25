@@ -6,7 +6,7 @@
 
 ## Overview
 
-JobSentinel v2.0 introduces **OS-native keyring integration** for secure credential storage.
+JobSentinel v2.0.0 introduces **OS-native keyring integration** for secure credential storage.
 All sensitive credentials (API keys, passwords, webhook URLs, session cookies) are now stored
 in the operating system's secure credential manager instead of plain text configuration files.
 
@@ -39,7 +39,7 @@ The following credentials are stored securely in the OS keyring:
 | `slack_webhook_url` | Slack incoming webhook URL | Slack notifications |
 | `discord_webhook_url` | Discord webhook URL | Discord notifications |
 | `teams_webhook_url` | Microsoft Teams webhook URL | Teams notifications |
-| `linkedin_session_cookie` | LinkedIn `li_at` session cookie | LinkedIn job scraper (auto-extracted on macOS v2.5.3+) |
+| `linkedin_session_cookie` | LinkedIn `li_at` session cookie | LinkedIn job scraper (auto-extracted on macOS) |
 
 ---
 
@@ -158,7 +158,7 @@ pub async fn get_credential_status() -> Result<HashMap<String, bool>, String>
 
 ### Automatic Migration
 
-When JobSentinel v2.0 starts for the first time, it automatically migrates any plaintext
+When JobSentinel v2.0.0+ starts for the first time, it automatically migrates any plaintext
 credentials from your config file to the secure keyring:
 
 1. Checks if migration has already been performed
@@ -217,7 +217,7 @@ The following data is still stored in `config.json` (non-sensitive):
 
 ### Config File Changes
 
-In v2.0, credential fields in `config.json` are ignored:
+In v2.0.0+, credential fields in `config.json` are ignored:
 
 ```json
 {
@@ -331,10 +331,10 @@ keyring = { version = "3", features = [
 - [Notifications Setup](../features/notifications.md) - Configure notification channels
 - [Architecture](../developer/ARCHITECTURE.md) - System architecture overview
 - [Quick Start](../user/QUICK_START.md) - Getting started guide
-- [Security Audit Report](../reports/security-audit.md) - Full security assessment
+- [Security Audit Report](../reports/SECURITY_AUDIT_2026-01-16.md) - Full security assessment
 
 ---
 
-**Last Updated**: 2026-01-24
-**Version**: 2.5.3
+**Last Updated**: 2026-01-25
+**Version**: 2.6.3
 **Security Level**: Production Ready

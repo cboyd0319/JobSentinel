@@ -30,7 +30,7 @@ before changes are merged or released.
 4. **Multi-platform** - Build and test on all supported OSes
 5. **Automated releases** - Generate binaries and GitHub Releases
 
-### Current Status (v2.1.0)
+### Current Status (v2.6.3)
 
 - ✅ Multi-platform builds (Windows, macOS, Linux)
 - ✅ Automated testing on CI
@@ -631,7 +631,7 @@ npm audit
 
 ---
 
-**Last Updated:** January 17, 2026
-**Version:** v2.1.0
+**Last Updated:** January 25, 2026
+**Version:** v2.6.3
 **Status:** Documentation-only (Workflows not yet implemented)
 **Maintained By:** The Rust Mac Overlord 🦀

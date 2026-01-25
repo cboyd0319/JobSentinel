@@ -3,8 +3,8 @@
 **Find the best job matches automatically with intelligent multi-factor scoring.**
 
 > **Status:** ENABLED - Module fully functional
-> **Version:** 2.2
-> **Last Updated:** 2026-01-17
+> **Version:** 2.6.3
+> **Last Updated:** 2026-01-25
 
 ---
 
@@ -784,6 +784,7 @@ Without these, the system falls back to keyword-only matching.
 
 | Version | Date | Changes |
 |---------|------|---------|
+| **2.6.3** | 2026-01-25 | Security fixes, standardized error types |
 | **2.2** | 2026-01-17 | Resume integration, score breakdown modal, weight presets |
 | **2.1** | 2025-12-01 | Salary AI prediction, graduated scoring for all factors |
 | **2.0** | 2025-11-15 | Multi-factor algorithm launch, customizable weights |
@@ -791,7 +792,8 @@ Without these, the system falls back to keyword-only matching.
 
 ---
 
-**Last Updated:** 2026-01-17
+**Last Updated:** 2026-01-25
+**Version:** 2.6.3
 **Maintained By:** JobSentinel Core Team
 **Implementation Status:** ✅ Complete (All features implemented)
-**Next Phase:** ML-based skills matching (v2.3)
+**Next Phase:** ML-based skills matching (v2.7)

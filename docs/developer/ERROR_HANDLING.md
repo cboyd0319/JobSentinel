@@ -694,5 +694,5 @@ fn test_error_message_quality() {
 
 ---
 
-**Last Updated**: January 18, 2026
+**Last Updated**: January 25, 2026
 **Maintained By**: The Rust Mac Overlord 🦀

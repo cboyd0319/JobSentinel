@@ -273,11 +273,11 @@ let output = Command::new("tesseract")
 
 **Purpose**: OCR is opt-in and can be disabled at compile time.
 
-```rust
-// Cargo.toml
-// [features]
-// default = []
-// ocr = ["dep:uuid", "dep:scopeguard"]
+```toml
+# Cargo.toml
+[features]
+default = []
+ocr = []
 ```
 
 ```rust
@@ -567,7 +567,8 @@ fn test_command_injection_attempts() {
 
 - [URL Validation Security](./URL_VALIDATION.md)
 - [Security Policy](../../SECURITY.md)
-- [Resume Parser Implementation](../features/RESUME_PARSER.md)
+- [Resume Builder](../features/resume-builder.md)
+- [Resume Matcher](../features/resume-matcher.md)
 
 ## References
 
@@ -578,6 +579,6 @@ fn test_command_injection_attempts() {
 
 ---
 
-**Last Updated**: 2026-01-24  
-**Version**: 2.5.3  
+**Last Updated**: 2026-01-25
+**Version**: 2.6.3
 **Security Level**: Production Ready

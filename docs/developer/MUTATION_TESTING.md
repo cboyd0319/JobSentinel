@@ -482,5 +482,6 @@ exclude_functions = ["::function_name"]
 
 ---
 
-**Last Updated**: November 14, 2025
+**Last Updated**: January 25, 2026
+**Version**: v2.6.3
 **Maintained By**: The Rust Mac Overlord 🦀

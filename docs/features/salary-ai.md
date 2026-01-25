@@ -38,7 +38,8 @@ which are verified and updated quarterly.
 
 > **Status:** ENABLED - Module fully functional
 > **Completion:** 100%
-> **Last Updated:** 2026-01-17
+> **Last Updated:** 2026-01-25
+> **Version:** 2.6.3
 
 ---
 
@@ -626,7 +627,8 @@ impl SalaryPredictor {
 
 ---
 
-**Last Updated:** 2026-01-17
+**Last Updated:** 2026-01-25
+**Version:** 2.6.3
 **Maintained By:** JobSentinel Core Team
 **Implementation Status:** ✅ Phase 1 Complete (Data Infrastructure)
 **Next Feature:** ML-based salary prediction

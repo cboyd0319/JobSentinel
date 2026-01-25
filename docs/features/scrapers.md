@@ -4,7 +4,8 @@
 
 > **Status:** ACTIVE (v2.1.0+)
 > **Supported Scrapers:** 13 sources
-> **Last Updated:** 2026-01-17
+> **Last Updated:** 2026-01-25
+> **Version:** 2.6.3
 > **Architecture:** Parallel scraping with intelligent rate limiting, health monitoring, and deduplication
 
 **Note:** JobSentinel includes production-ready scrapers for 13 major job boards. All scrapers
@@ -813,8 +814,8 @@ impl RateLimiter {
 
 ---
 
-**Last Updated:** 2026-01-24
-**Version:** 2.5.3
+**Last Updated:** 2026-01-25
+**Version:** 2.6.3
 **Maintained By:** JobSentinel Core Team
 **Implementation Status:** ✅ Phase 3 Complete (LinkedIn Auto-Connect)
-**Next Phase:** v2.6 - ML Predictions, Windows/Linux Auto-Connect
+**Next Phase:** v2.7 - ML Predictions, Windows/Linux Auto-Connect

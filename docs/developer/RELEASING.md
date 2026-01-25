@@ -41,6 +41,7 @@ Review the draft release on GitHub and click "Publish release".
 
 ## Version History
 
+- **v2.6.3** - Security fixes, memory leak fixes, standardized errors, docs update
 - **v2.5.1** - Dark mode default, navigation sidebar, all screenshots updated
 - **v2.5.0** - Market Intelligence UI, 13 scrapers, One-Click Apply
 - **v2.0.0** - Resume Builder, ATS Optimizer, OS keyring integration

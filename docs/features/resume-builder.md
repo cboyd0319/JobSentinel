@@ -213,4 +213,4 @@ Resumes are stored as JSON in the `resume_drafts` table, auto-saved after each s
 
 ---
 
-**Version:** 2.0.0 | **Last Updated:** January 17, 2026
+**Version:** 2.6.3 | **Last Updated:** January 25, 2026

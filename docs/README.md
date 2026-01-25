@@ -11,7 +11,7 @@ Welcome to JobSentinel documentation.
 3. **CHECK FILE SIZES** - Keep files <500 lines. See [ROADMAP.md](ROADMAP.md) for refactoring plan.
 4. **READ docs/CLAUDE.md FIRST** - Contains project context and critical requirements.
 
-### Current Version: 2.6.1 (Production Ready)
+### Current Version: 2.6.3 (Production Ready)
 
 See [ROADMAP.md](ROADMAP.md) for future plans (v2.7: ML predictions, Linux support).
 
@@ -19,7 +19,17 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.7: ML predictions, Linux suppo
 
 ## Current Status (January 2026)
 
-**Version: 2.6.1** | 4,135+ tests passing | Performance + Code Quality Sprint
+**Version: 2.6.3** | 4,565+ tests passing | Security + Stability Sprint
+
+### What's New in v2.6.3 🔒
+
+- **Security Fixes** - XSS prevention, URL validation, MIME type checks, path traversal protection
+- **Memory Leak Fixes** - Fixed 2 critical leaks in toast context and modal cleanup
+- **Standardized Error Types** - Consistent error handling across all scrapers and components
+- **Enhanced Error Handling** - Component-level error boundaries with retry logic
+- **Test Coverage** - 145 new tests (ApplyButton, ProfileForm, ScreeningAnswersForm)
+- **Custom React Hooks** - useOptimisticUpdate, usePagination, useFormValidation
+- **Documentation** - Updated all developer and API docs for v2.6.3
 
 ### What's New in v2.6.1
 
@@ -55,7 +65,7 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.7: ML predictions, Linux suppo
   - Tooltip: Escape key dismisses tooltips
   - Badge: Contextual remove button labels
 
-- **Test Coverage** - 4,085+ tests (2,257 Rust + 1,828 Frontend) - *Now 4,135+ in v2.6.1*
+- **Test Coverage** - 4,565+ tests (2,390 Frontend + 2,175 Rust) - *Now 4,565+ in v2.6.3*
 
 - See [v2.6.0 Release Notes](releases/v2.6.0.md) for full details
 
@@ -214,6 +224,7 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.7: ML predictions, Linux suppo
 
 ### Release Notes
 
+- **[v2.6.3 - Security & Stability](releases/v2.6.3.md)** - Security fixes, memory leaks, standardized errors
 - **[v2.6.0 - UX Improvements](releases/v2.6.0.md)** - Error recovery, loading states, accessibility, performance
 - **[v2.5.3 - LinkedIn Auto-Connect](releases/v2.5.3.md)** - Zero-copy LinkedIn authentication
 - **[v2.5.2 - Bug Fixes](releases/v2.5.2.md)** - Onboarding and settings fixes
@@ -294,6 +305,27 @@ tests/                     # All tests
 │   └── webdriverio/       # WebdriverIO + Tauri tests
 └── unit/                  # Unit tests (future)
 ```
+
+---
+
+### Release Notes
+
+- **[v2.6.3 - Security & Stability](releases/v2.6.3.md)** - Security fixes, memory leaks, standardized errors
+- **[v2.6.0 - UX Improvements](releases/v2.6.0.md)** - Error recovery, loading states, accessibility, performance
+- **[v2.5.3 - LinkedIn Auto-Connect](releases/v2.5.3.md)** - Zero-copy LinkedIn authentication
+- **[v2.5.2 - Bug Fixes](releases/v2.5.2.md)** - Onboarding and settings fixes
+- **[v2.5.1 - Production Release](releases/v2.5.1.md)** - Official installers for Windows and macOS
+- **[v2.5 - Market Intelligence UI](releases/v2.5.md)** - Interactive charts, tabbed layout, heatmaps
+- **[v2.4 - Resume UI Enhancements](releases/v2.4.md)** - Skill visualization, comparison views
+- **[v2.3 - Health Monitoring](releases/v2.3.md)** - Scraper health, smoke tests
+- **[v2.2 - Additional Features](releases/v2.2.md)** - Bug fixes and improvements
+- **[v2.1 - CI/CD](releases/v2.1.md)** - Build pipeline, testing improvements
+- **[v2.0 - Security Hardening](releases/v2.0.md)** - OS-native keyring integration
+- **[v1.6 - Additional Refactoring](releases/v1.6.md)** - Commands, scrapers, salary, resume modularization
+- **[v1.5 - Modularization](releases/v1.5.md)** - File refactoring and code organization
+- **[v1.4 - Ghost Hunter](releases/v1.4.md)** - Ghost job detection
+- **[v1.3 - Power User](releases/v1.3.md)** - Keyboard shortcuts, advanced search
+- **[v1.2 - Notifications](releases/v1.2.md)** - Multi-channel notifications
 
 ---
 

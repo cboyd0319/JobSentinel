@@ -509,7 +509,7 @@ fn validate_external_url(url: &str) -> Result<()> {
 
 ```toml
 [dependencies]
-url = "2.5"
+url = "2.5"  # Current version in JobSentinel
 ```
 
 ### 2. Parse early, validate thoroughly
@@ -552,7 +552,7 @@ fn validate_webhook_url(url: &str) -> Result<()> {
 
 - [Webhook Security Guide](./WEBHOOK_SECURITY.md)
 - [Security Policy](../../SECURITY.md)
-- [Network Security](./NETWORK_SECURITY.md)
+- [Security Documentation Index](./README.md)
 
 ## References
 
@@ -562,6 +562,6 @@ fn validate_webhook_url(url: &str) -> Result<()> {
 
 ---
 
-**Last Updated**: 2026-01-24  
-**Version**: 2.5.3  
+**Last Updated**: 2026-01-25
+**Version**: 2.6.3
 **Security Level**: Production Ready

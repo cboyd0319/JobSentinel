@@ -20,7 +20,7 @@ User data management provides four core features for organizing your job search:
 All data is stored locally in SQLite. No data leaves your computer unless you explicitly
 configure external notifications (Slack, Discord, etc.).
 
-**Version:** 1.4.0 | **Status:** Stable | **Last Updated:** January 17, 2026
+**Version:** 2.6.3 | **Status:** Stable | **Last Updated:** January 25, 2026
 
 ---
 
@@ -694,4 +694,4 @@ Consider creating a backup first (feature coming in v1.5).
 
 ---
 
-**Version:** 1.4.0 | **Updated:** January 17, 2026
+**Version:** 2.6.3 | **Updated:** January 25, 2026

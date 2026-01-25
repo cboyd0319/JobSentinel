@@ -2,13 +2,13 @@
 
 ## Project Status
 
-**Version 2.5.2** (January 18, 2026)
+**Version 2.6.3** (January 25, 2026)
 
 | Component | Status |
 |-----------|--------|
 | Core modules (config, db, scoring, scrapers, scheduler, notify, ghost, ats, resume, salary, market, automation, credentials, health) | Working |
 | Frontend (React 19 + TypeScript) | Working |
-| Tests | 4,449+ passing (2,175 backend + 2,274+ frontend) |
+| Tests | 4,565+ passing (2,175 backend + 2,390+ frontend) |
 
 ---
 
@@ -113,7 +113,7 @@ JobSentinel/
 cd src-tauri
 cargo test
 
-# Frontend tests (2,274+ tests)
+# Frontend tests (2,390+ tests)
 npm test
 ```
 
@@ -274,4 +274,4 @@ To maintain code quality and regenerability, all files follow the LLM-first codi
 
 ---
 
-**Last Updated:** January 17, 2026
+**Last Updated:** January 25, 2026

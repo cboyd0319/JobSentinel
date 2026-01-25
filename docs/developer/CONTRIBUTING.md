@@ -53,7 +53,7 @@ See `docs/ROADMAP.md` → Technical Debt section for files needing refactoring.
 
 ### MANDATORY: Check Current Status
 
-**Current version:** 2.0.0 (Production Ready)
+**Current version:** 2.6.3 (Production Ready)
 
 See `docs/ROADMAP.md` for future plans and technical debt tracking.
 
@@ -438,7 +438,7 @@ Closes #123
 
 ## Testing
 - [ ] Tested on Windows 11
-- [ ] Tested on macOS 26.2+ (Tahoe)
+- [ ] Tested on macOS
 - [ ] All Rust tests pass
 - [ ] Manual testing completed
 
@@ -649,4 +649,4 @@ Contributors will be:
 
 ---
 
-**Last Updated:** January 17, 2026 (v1.5.0)
+**Last Updated:** January 25, 2026 (v2.6.3)

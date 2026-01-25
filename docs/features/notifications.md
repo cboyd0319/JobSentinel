@@ -248,4 +248,4 @@ All connections use TLS/STARTTLS encryption.
 
 ---
 
-**Version:** 2.0.0 | **Last Updated:** January 17, 2026
+**Version:** 2.6.3 | **Last Updated:** January 25, 2026

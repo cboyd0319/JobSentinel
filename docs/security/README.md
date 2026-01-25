@@ -207,7 +207,7 @@ We follow Semantic Versioning:
 
 Security fixes are released as:
 
-1. **Patch version** (e.g., 2.5.3 → 2.5.4)
+1. **Patch version** (e.g., 2.6.3 → 2.6.4)
 2. **Announced in CHANGELOG** with severity level
 3. **GitHub Security Advisory** published
 4. **Users notified** to update
@@ -237,7 +237,7 @@ jobsentinel --version
 
 ### 2. Protect Credentials
 
-- **Use keyring storage** (automatic in v2.0+)
+- **Use keyring storage** (automatic in v2.0.0+)
 - **Never commit** config files with credentials
 - **Rotate secrets** if compromised
 - **Use strong passwords** for services
@@ -321,7 +321,7 @@ cargo geiger
 - [Rust Security Guidelines](https://anssi-fr.github.io/rust-guide/)
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
 - [CWE Top 25](https://cwe.mitre.org/top25/)
-- [Tauri Security](https://tauri.app/v1/references/architecture/security/)
+- [Tauri Security](https://v2.tauri.app/learn/security/)
 
 ### Security Learning
 
@@ -348,6 +348,6 @@ For security-related questions or private disclosure:
 
 ---
 
-**Last Updated**: 2026-01-24  
-**JobSentinel Version**: 2.5.3  
+**Last Updated**: 2026-01-25
+**JobSentinel Version**: 2.6.3
 **Security Level**: Production Ready

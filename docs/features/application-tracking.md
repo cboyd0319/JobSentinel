@@ -35,7 +35,8 @@ set reminders to follow up, and see your entire pipeline at a glance.
 
 > **Status:** WORKING - Module enabled in v1.4.0
 > **Completion:** 100% core functionality
-> **Last Updated:** 2026-01-17
+> **Last Updated:** 2026-01-25
+> **Version:** 2.6.3
 > **Tests:** 4 tests (ignored - require file-based database setup)
 
 ---

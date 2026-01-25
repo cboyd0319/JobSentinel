@@ -39,7 +39,7 @@ It removes dangerous content while preserving safe formatting.
 ### Installation
 
 ```bash
-npm install dompurify
+npm install dompurify  # JobSentinel uses v3.3.1+
 ```
 
 Or via CDN:
@@ -372,6 +372,7 @@ If you discover an XSS vulnerability that bypasses DOMPurify protection:
 
 ---
 
-**Last Updated**: 2026-01-24  
-**DOMPurify Version**: 3.x  
+**Last Updated**: 2026-01-25
+**DOMPurify Version**: 3.x
+**JobSentinel Version**: 2.6.3
 **Security Level**: Production Ready

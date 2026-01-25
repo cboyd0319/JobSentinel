@@ -36,7 +36,8 @@ The data updates automatically as JobSentinel finds new jobs.
 
 > **Status:** ENABLED - Module fully functional with UI
 > **Completion:** 100%
-> **Last Updated:** 2026-01-18
+> **Last Updated:** 2026-01-25
+> **Version:** 2.6.3
 
 ---
 
@@ -820,7 +821,8 @@ if let Some(company) = target_company {
 
 ---
 
-**Last Updated:** 2026-01-18
+**Last Updated:** 2026-01-25
+**Version:** 2.6.3
 **Maintained By:** JobSentinel Core Team
 **Implementation Status:** ✅ Phase 1 & 3 Complete (Data Infrastructure + UI)
 **Next Feature:** Machine learning trend prediction

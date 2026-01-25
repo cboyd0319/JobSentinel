@@ -1,6 +1,6 @@
 # Testing Guide
 
-**Complete guide to testing in JobSentinel v2.5.2**
+**Complete guide to testing in JobSentinel v2.6.3**
 
 ---
 
@@ -155,8 +155,8 @@ easier maintenance and regeneration.
 | `cloud/common` | 1 | Deployment mode detection |
 | **Backend Unit Tests** | **2,100+** | **Core module coverage** |
 | **Backend Integration Tests** | **75+** | **Full pipeline** |
-| **Frontend Tests** | **2,274+** | **Component and integration** |
-| **Total** | **4,449+ passing** | **26 ignored** |
+| **Frontend Tests** | **2,390+** | **Component and integration** |
+| **Total** | **4,565+ passing** | **26 ignored** |
 
 ---
 
@@ -583,7 +583,7 @@ See [tests/README.md](../../tests/README.md) for full documentation.
 
 ---
 
-**Last Updated**: January 18, 2026
-**Test Count**: 4,449+ passing (2,175 backend + 2,274+ frontend)
-**Version**: v2.5.2
+**Last Updated**: January 25, 2026
+**Test Count**: 4,565+ passing (2,175 backend + 2,390+ frontend)
+**Version**: v2.6.3
 **Maintained By**: The Rust Mac Overlord 🦀

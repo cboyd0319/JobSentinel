@@ -369,7 +369,7 @@ https://hooks.slack.com.evil.com/services/T/B/X
 
 **Mitigation**:
 
-1. **v2.0+**: Webhooks stored in OS keyring (encrypted)
+1. **v2.0.0+**: Webhooks stored in OS keyring (encrypted)
 2. Requires user authentication to access keyring
 3. No plaintext webhooks in config file
 4. Even with file access, attacker cannot read webhooks
@@ -530,6 +530,6 @@ mod tests {
 
 ---
 
-**Last Updated**: 2026-01-24  
-**Version**: 2.5.3  
+**Last Updated**: 2026-01-25
+**Version**: 2.6.3
 **Security Level**: Production Ready

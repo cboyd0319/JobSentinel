@@ -538,6 +538,7 @@ After deployment, verify:
 
 ---
 
-**Last Updated:** 2025-11-15
+**Last Updated:** 2026-01-25
+**Version:** v2.6.3
 **Maintained By:** JobSentinel Core Team
 **SQLite Version:** 3.31+ (recommended 3.37+ for all features)

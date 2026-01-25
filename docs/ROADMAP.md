@@ -2,7 +2,7 @@
 
 **Last Updated:** January 25, 2026
 
-## Current Version: 2.6.0
+## Current Version: 2.6.3
 
 ### Working Features (v1.4.0)
 
@@ -323,18 +323,70 @@ Comprehensive frontend UX improvements released January 24, 2026.
 | useMinimumLoadingDuration | ✅ Done | New hook for loading state management |
 | Actionable Empty States | ✅ Done | Resume skills, ResumeBuilder experience/education |
 
-See [docs/plans/v2.6.0-ux-improvements.md](plans/v2.6.0-ux-improvements.md) for details.
+See [v2.6.0 UX improvements](plans/v2.6.0-ux-improvements.md) and [v2.6.0 release notes](releases/v2.6.0.md)
+for details.
 
-### v2.7+ Planned Features
+### v2.6.1 - Performance & Code Quality (COMPLETED)
+
+Performance optimizations and code quality improvements released January 2026.
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| macOS support (.dmg) | ✅ Done | v2.5.1 |
-| Windows support (.msi) | ✅ Done | v2.5.1 |
-| Linux support (.deb, .rpm) | Planned | v2.6 |
-| Intel Mac support | Planned | v2.6 |
-| CI/CD Pipeline | ✅ Done | GitHub Actions |
-| **Expanded Scrapers** | Planned | See scraper wishlist below |
+| **Rust Performance** | ✅ Done | Removed unnecessary clones (190+ instances) |
+| **React Performance** | ✅ Done | Added useCallback to prevent re-renders (50+ components) |
+| **Accessibility** | ✅ Done | Added aria-hidden to decorative icons |
+| **Documentation Cleanup** | ✅ Done | Fixed inconsistencies across all docs |
+| **Constant Extraction** | ✅ Done | Extracted magic numbers to named constants |
+
+### v2.6.2 - Code Quality & Test Coverage (COMPLETED)
+
+Test coverage expansion and code quality improvements released January 2026.
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| **Integration Tests** | ✅ Done | 50+ new integration tests |
+| **Frontend Tests** | ✅ Done | 100+ new component tests |
+| **TypeScript Strict Mode** | ✅ Done | Enabled strict null checks |
+| **Accessibility** | ✅ Done | ARIA labels, keyboard navigation improvements |
+
+### v2.6.3 - Security & Stability (COMPLETED)
+
+Security fixes, memory leak resolution, and standardized error handling released January 25, 2026.
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| **Custom React Hooks** | ✅ Done | useOptimisticUpdate, usePagination, useFormValidation |
+| **Error Utilities** | ✅ Done | errorHelpers.ts with retry logic and error classification |
+| **Form Validation** | ✅ Done | Shared validation utilities (email, URL, phone) |
+| **Enhanced Error Boundaries** | ✅ Done | Component-level error isolation with retry |
+| **Security Fixes** | ✅ Done | XSS prevention, URL validation, input sanitization |
+| **Memory Leak Fixes** | ✅ Done | useEffect cleanup, subscription management |
+| **Standardized Error Types** | ✅ Done | Consistent error handling across frontend/backend |
+| **Config Validation** | ✅ Done | Comprehensive runtime config validation |
+| **Test Coverage** | ✅ Done | 145+ new tests (ApplyButton, custom hooks, utilities) |
+
+**Current Test Status:**
+
+- **4,565+ tests passing** (2,390 Frontend + 2,175 Rust)
+- 26 ignored (require file-based database, Chrome, or are doc-tests)
+
+See [CHANGELOG.md](../CHANGELOG.md) for detailed v2.6.3 changes.
+
+### v2.7+ Planned Features
+
+| Feature | Status | Priority | Notes |
+|---------|--------|----------|-------|
+| macOS support (.dmg) | ✅ Done | - | v2.5.1 |
+| Windows support (.msi) | ✅ Done | - | v2.5.1 |
+| Linux support (.deb, .rpm) | 🔲 Planned | High | AppImage, Debian, RPM packages |
+| Intel Mac support | 🔲 Planned | Medium | Universal binary (x86_64 + arm64) |
+| CI/CD Pipeline | ✅ Done | - | GitHub Actions |
+| **Expanded Scrapers** | 🔲 Planned | High | USAJobs, SimplyHired (code ready) |
+| **Undo/Redo for Actions** | 🔲 Planned | Medium | Context exists, needs wiring |
+| **Auto-detect Location** | 🔲 Planned | Medium | IP geolocation for Setup Wizard |
+| **Settings Quick Mode** | 🔲 Planned | Low | Simplified settings for new users |
+| **JSON Resume Import** | 🔲 Planned | Low | jsonresume.org format support |
+| **Smart Screening Answers** | 🔲 Planned | Low | Learn from previous answers |
 
 ---
 
@@ -623,15 +675,18 @@ See [docs/features/one-click-apply.md](features/one-click-apply.md) for full doc
 
 - All Rust code compiles with 0 errors
 - Clippy passes with 0 warnings (`-D warnings`)
-- **4,085+ tests passing** (2,257 Rust + 1,828 Frontend), 49 ignored (require file-based database or are doc examples)
-- P3 Integration tests: 76 tests across 4 files (api_contract, scheduler, database, automation)
-- P5 Automation tests: 19 tests (12 unit + 7 integration)
+- **4,565+ tests passing** (2,390 Frontend + 2,175 Rust), 26 ignored (require file-based database, Chrome, or are doc-tests)
+- Integration tests: 76+ tests across multiple files (automation, scheduler, database, API contract)
+- Component tests: 300+ tests across React components
+- E2E tests: Playwright test suite
 - All modules enabled and functional
 - **151 Tauri commands** for backend modules (22 Resume Builder + 18 One-Click Apply)
 - 13 job board scrapers with parallel execution
 - Ghost job detection with repost tracking
 - Backend persistence for all user data (localStorage → SQLite)
 - One-Click Apply automation with 7 ATS platforms
+- Custom React hooks for optimistic updates, pagination, form validation
+- Enhanced error boundaries with component-level isolation
 
 ### Resolved Technical Debt
 

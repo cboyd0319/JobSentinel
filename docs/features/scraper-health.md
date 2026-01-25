@@ -4,8 +4,8 @@
 
 > **Status:** ACTIVE (v2.1.0+)
 > **Coverage:** 13 scrapers tracked with real-time health metrics
-> **Last Updated:** 2026-01-17
-> **Version:** 2.1.0
+> **Last Updated:** 2026-01-25
+> **Version:** 2.6.3
 
 JobSentinel's scraper health monitoring gives you complete visibility into your job board
 connections. See which scrapers are working, which need attention, and troubleshoot problems
@@ -1095,8 +1095,9 @@ Expected resolution: 2026-01-18 03:00 UTC
 | Version | Date | Changes |
 |---------|------|---------|
 | **2.1.0** | Jan 2026 | Initial release: Dashboard, smoke tests, run history, credential tracking |
-| **2.2.0** | Q2 2026 | Planned: Real-time alerts, predictive health scoring, multi-user support |
+| **2.6.3** | Jan 2026 | Security fixes, memory leak fixes, standardized errors |
+| **2.7.0** | Q2 2026 | Planned: Real-time alerts, predictive health scoring, multi-user support |
 
 ---
 
-**Version:** 2.1.0 | **Last Updated:** January 17, 2026 | **Status:** ✅ Production Ready
+**Version:** 2.6.3 | **Last Updated:** January 25, 2026 | **Status:** ✅ Production Ready
