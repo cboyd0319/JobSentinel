@@ -11,6 +11,14 @@ import { Card } from './Card';
 import { LoadingSpinner } from './LoadingSpinner';
 import { logError } from '../utils/errorUtils';
 
+// Extracted constant to prevent re-creating object on each render
+const TOOLTIP_CONTENT_STYLE = {
+  backgroundColor: 'var(--color-surface-800)',
+  border: 'none',
+  borderRadius: '8px',
+  color: 'white'
+} as const;
+
 // Types matching backend
 interface ApplicationStats {
   total: number;
@@ -180,14 +188,7 @@ export const DashboardWidgets = memo(function DashboardWidgets({ className = '' 
               <h4 className="font-medium text-surface-800 dark:text-surface-200 mb-4">Application Funnel</h4>
               <ResponsiveContainer width="100%" height={200}>
                 <FunnelChart>
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'var(--color-surface-800)',
-                      border: 'none',
-                      borderRadius: '8px',
-                      color: 'white'
-                    }}
-                  />
+                  <Tooltip contentStyle={TOOLTIP_CONTENT_STYLE} />
                   <Funnel
                     dataKey="value"
                     data={funnelData}
@@ -229,14 +230,7 @@ export const DashboardWidgets = memo(function DashboardWidgets({ className = '' 
                     tick={{ fill: '#64748b', fontSize: 11 }}
                     axisLine={{ stroke: '#e2e8f0' }}
                   />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'var(--color-surface-800)',
-                      border: 'none',
-                      borderRadius: '8px',
-                      color: 'white'
-                    }}
-                  />
+                  <Tooltip contentStyle={TOOLTIP_CONTENT_STYLE} />
                   <Area
                     type="monotone"
                     dataKey="count"
@@ -269,14 +263,7 @@ export const DashboardWidgets = memo(function DashboardWidgets({ className = '' 
                       <Cell key={`cell-${index}`} fill={entry.fill} />
                     ))}
                   </Pie>
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'var(--color-surface-800)',
-                      border: 'none',
-                      borderRadius: '8px',
-                      color: 'white'
-                    }}
-                  />
+                  <Tooltip contentStyle={TOOLTIP_CONTENT_STYLE} />
                   <Legend
                     verticalAlign="bottom"
                     height={36}
@@ -305,14 +292,7 @@ export const DashboardWidgets = memo(function DashboardWidgets({ className = '' 
                     tick={{ fill: '#64748b', fontSize: 11 }}
                     axisLine={{ stroke: '#e2e8f0' }}
                   />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: 'var(--color-surface-800)',
-                      border: 'none',
-                      borderRadius: '8px',
-                      color: 'white'
-                    }}
-                  />
+                  <Tooltip contentStyle={TOOLTIP_CONTENT_STYLE} />
                   <Bar dataKey="count" fill={COLORS.success} radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>

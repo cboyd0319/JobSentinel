@@ -14,6 +14,14 @@ import { Card } from "./";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ChartData = Record<string, any>;
 
+// Extracted constant to prevent re-creating object on each render
+const TOOLTIP_CONTENT_STYLE = {
+  backgroundColor: "#1f2937",
+  border: "1px solid #374151",
+  borderRadius: "0.5rem",
+  color: "#f9fafb",
+} as const;
+
 interface TrendChartProps {
   data: ChartData[];
   type: "line" | "bar";
@@ -108,14 +116,7 @@ export const TrendChart = memo(function TrendChart({
                   : undefined
               }
             />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: "#1f2937",
-                border: "1px solid #374151",
-                borderRadius: "0.5rem",
-                color: "#f9fafb",
-              }}
-            />
+            <Tooltip contentStyle={TOOLTIP_CONTENT_STYLE} />
             <Legend />
             <Line
               type="monotone"
@@ -149,14 +150,7 @@ export const TrendChart = memo(function TrendChart({
                   : undefined
               }
             />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: "#1f2937",
-                border: "1px solid #374151",
-                borderRadius: "0.5rem",
-                color: "#f9fafb",
-              }}
-            />
+            <Tooltip contentStyle={TOOLTIP_CONTENT_STYLE} />
             <Legend />
             <Bar dataKey={yKey} fill={color} radius={[4, 4, 0, 0]} />
           </BarChart>
