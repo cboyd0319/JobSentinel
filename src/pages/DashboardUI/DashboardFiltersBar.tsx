@@ -1,8 +1,9 @@
 // Dashboard Filters Bar Component
 // Contains all filter controls, search, bulk actions, and action buttons
 
-import { RefObject } from "react";
+import { RefObject, useState, useEffect } from "react";
 import { Dropdown, Tooltip } from "../../components";
+import { useDebouncedValue } from "../../hooks";
 import {
   KeyboardIcon,
   ExportIcon,
@@ -118,6 +119,24 @@ export function DashboardFiltersBar({
   handleBulkBookmark,
   handleBulkHide,
 }: DashboardFiltersBarProps) {
+  // Local state for responsive input, debounced for filtering performance
+  const [localSearch, setLocalSearch] = useState(textSearch);
+  const debouncedSearch = useDebouncedValue(localSearch, 300);
+
+  // Sync debounced value to parent for filtering
+  useEffect(() => {
+    if (debouncedSearch !== textSearch) {
+      setTextSearch(debouncedSearch);
+    }
+  }, [debouncedSearch, setTextSearch, textSearch]);
+
+  // Sync from parent when textSearch changes externally (e.g., loading saved search)
+  useEffect(() => {
+    if (textSearch !== localSearch && textSearch !== debouncedSearch) {
+      setLocalSearch(textSearch);
+    }
+  }, [textSearch]); // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <div className="flex flex-col gap-4 mb-4">
       <div className="flex items-center justify-between">
@@ -136,9 +155,17 @@ export function DashboardFiltersBar({
           )}
         </div>
         {jobs.length > 0 && (
-          <span className="text-sm text-surface-500 dark:text-surface-400">
-            Showing {filteredJobs.length} of {jobs.length} jobs
-          </span>
+          <>
+            <span className="text-sm text-surface-500 dark:text-surface-400">
+              Showing {filteredJobs.length} of {jobs.length} jobs
+            </span>
+            {/* Screen reader announcement for filter changes */}
+            <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+              {filteredJobs.length === jobs.length
+                ? `Showing all ${jobs.length} jobs`
+                : `Filtered to ${filteredJobs.length} of ${jobs.length} jobs`}
+            </span>
+          </>
         )}
       </div>
 
@@ -161,13 +188,13 @@ export function DashboardFiltersBar({
               <input
                 ref={searchInputRef}
                 type="text"
-                value={textSearch}
-                onChange={(e) => setTextSearch(e.target.value)}
+                value={localSearch}
+                onChange={(e) => setLocalSearch(e.target.value)}
                 onFocus={() => setShowSearchHistory(true)}
                 onBlur={() => setTimeout(() => setShowSearchHistory(false), 200)}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' && textSearch.trim()) {
-                    addToSearchHistory(textSearch.trim());
+                  if (e.key === 'Enter' && localSearch.trim()) {
+                    addToSearchHistory(localSearch.trim());
                     setShowSearchHistory(false);
                   }
                 }}
@@ -185,9 +212,9 @@ export function DashboardFiltersBar({
             >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
-            {textSearch && (
+            {localSearch && (
               <button
-                onClick={() => setTextSearch("")}
+                onClick={() => setLocalSearch("")}
                 className="absolute right-2 top-1/2 -translate-y-1/2 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300"
                 aria-label="Clear search"
               >

@@ -13,7 +13,7 @@ export function Skeleton({
   height,
   lines = 1,
 }: SkeletonProps) {
-  const baseStyles = "animate-pulse bg-surface-200 dark:bg-surface-700";
+  const baseStyles = "motion-safe:animate-pulse bg-surface-200 dark:bg-surface-700";
 
   const variantStyles = {
     text: "rounded h-4",

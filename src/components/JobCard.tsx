@@ -114,8 +114,8 @@ export const JobCard = memo(function JobCard({ job, onViewJob, onHideJob, onTogg
 
       <div
         className={`
-          group relative bg-white dark:bg-surface-800 rounded-card border transition-all duration-200 ease-out
-          hover:shadow-card-hover hover:-translate-y-0.5
+          group relative bg-white dark:bg-surface-800 rounded-card border motion-safe:transition-all motion-safe:duration-200 motion-safe:ease-out
+          motion-safe:hover:shadow-card-hover motion-safe:hover:-translate-y-0.5
           focus-within:ring-2 focus-within:ring-sentinel-500 dark:focus-within:ring-sentinel-400
           ${isSelected
             ? "ring-2 ring-sentinel-500 dark:ring-sentinel-400 border-sentinel-300 dark:border-sentinel-600"

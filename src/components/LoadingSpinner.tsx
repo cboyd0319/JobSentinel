@@ -40,16 +40,16 @@ export function LoadingSpinner({
                 strokeWidth="2.5"
                 strokeLinecap="round"
                 strokeDasharray="31.4 94.2"
-                className="text-sentinel-500 animate-spin"
+                className="text-sentinel-500 motion-safe:animate-spin"
                 style={{ animationDuration: '1.5s' }}
               />
             </svg>
             {/* Center sentinel icon */}
             <div className="absolute inset-0 flex items-center justify-center">
-              <svg 
-                className="w-5 h-5 text-sentinel-500 animate-pulse-slow" 
-                fill="none" 
-                viewBox="0 0 24 24" 
+              <svg
+                className="w-5 h-5 text-sentinel-500 motion-safe:animate-pulse-slow"
+                fill="none"
+                viewBox="0 0 24 24"
                 stroke="currentColor"
                 aria-hidden="true"
               >
@@ -79,9 +79,9 @@ export function LoadingSpinner({
 export function LoadingDots() {
   return (
     <span className="inline-flex gap-1">
-      <span className="w-1.5 h-1.5 bg-current rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-      <span className="w-1.5 h-1.5 bg-current rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-      <span className="w-1.5 h-1.5 bg-current rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+      <span className="w-1.5 h-1.5 bg-current rounded-full motion-safe:animate-bounce" style={{ animationDelay: '0ms' }} />
+      <span className="w-1.5 h-1.5 bg-current rounded-full motion-safe:animate-bounce" style={{ animationDelay: '150ms' }} />
+      <span className="w-1.5 h-1.5 bg-current rounded-full motion-safe:animate-bounce" style={{ animationDelay: '300ms' }} />
     </span>
   );
 }
