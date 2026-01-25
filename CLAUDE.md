@@ -5,9 +5,9 @@
 **JobSentinel** is a privacy-first job search automation desktop app built with
 Tauri 2.x (Rust backend) and React 19 (TypeScript frontend).
 
-**Current Version:** 2.6.0 (January 2026)
+**Current Version:** 2.6.3 (January 2026)
 **Primary Target:** Windows 11+, macOS
-**Tests:** 4,085+ passing (1,828 frontend + 2,257 Rust)
+**Tests:** 4,286+ passing (2,129 frontend + 2,157 Rust)
 
 ## Tech Stack
 
@@ -91,7 +91,14 @@ npm run test:e2e:ui      # Interactive mode
 - `src-tauri/src/commands/` - All Tauri commands
 - `src-tauri/src/scrapers/` - Job board scrapers
 - `src/components/` - React components
+- `src/components/ErrorBoundary.tsx` - Global error boundary with retry
+- `src/components/ComponentErrorBoundary.tsx` - Component-level error isolation
 - `src/hooks/` - Custom React hooks
+- `src/hooks/useOptimisticUpdate.ts` - Optimistic UI updates with rollback
+- `src/hooks/usePagination.ts` - Client-side pagination
+- `src/hooks/useFormValidation.ts` - Form validation with touched state
+- `src/utils/errorHelpers.ts` - Error classification and retry logic
+- `src/utils/formValidation.ts` - Shared validation utilities
 - `src/services/` - Business logic
 
 ## Scrapers (13 job boards)

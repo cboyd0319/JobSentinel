@@ -5,6 +5,89 @@ All notable changes to JobSentinel will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.3] - 2026-01-25
+
+### Added
+
+#### New Custom React Hooks
+
+- **useOptimisticUpdate** - Optimistic UI updates with automatic rollback on failure
+  - Applies changes immediately for responsive UX
+  - Rolls back automatically if async operation fails
+  - Supports success/error callbacks and toast notifications
+
+- **usePagination** - Client-side pagination with navigation
+  - Page state management with next/prev/goToPage
+  - Configurable page size with auto-calculation
+  - Reset functionality for filter changes
+
+- **useFormValidation** - Form validation with touched state tracking
+  - Per-field validation with custom validators
+  - Touched state tracking for progressive validation
+  - Batch validation with validateAll() for submission
+
+#### New Utilities
+
+- **formValidation.ts** - Shared validation functions
+  - Email validation (required and optional variants)
+  - URL validation with protocol enforcement
+  - Phone number validation (10-15 digit support)
+  - Regex pattern validation
+  - Slack/Discord webhook URL validation
+  - Comma-separated email list validation
+
+- **errorHelpers.ts** - Error handling utilities
+  - Error type classification (network, API, validation, timeout, etc.)
+  - User-friendly error messages
+  - Retry logic with exponential backoff
+  - Debounced error handlers to prevent spam
+  - Recovery detection for retryable errors
+
+#### Enhanced Error Boundaries
+
+- **ComponentErrorBoundary** - Component-level error isolation
+  - Isolates failures to individual components
+  - Retry functionality without full page reload
+  - Customizable fallback UI
+
+- **ErrorBoundary improvements**
+  - Retry limit tracking (3 attempts before forced reload)
+  - "Clear App Data" option for persistent errors
+  - Error count display for debugging
+
+#### Rust Backend Improvements
+
+- **ConfigValidationError** - Comprehensive config validation
+  - Structured error types for all validation scenarios
+  - Detailed error messages with field paths
+  - 23 config validation tests
+
+- **Scraper error improvements**
+  - Context-aware error types with recovery hints
+  - Tracing instrumentation in scheduler workers
+
+### Tests
+
+- **New test coverage**
+  - ToggleSection.test.tsx - 15 tests, comprehensive interaction testing
+  - SliderSection.test.tsx - 24 tests, slider behavior and edge cases
+  - ApplicationPreview.test.tsx - Full component coverage
+  - useFormValidation.test.ts - Validation hook testing
+  - usePagination.test.ts - Pagination logic testing
+  - useOptimisticUpdate.test.tsx - Optimistic update testing
+  - ComponentErrorBoundary.test.tsx - Error boundary testing
+  - Config validation_tests.rs - 23 Rust validation tests
+
+- **Test stability improvements**
+  - Fixed flaky ErrorBoundary tests with correct assertions
+  - Simplified ErrorReportingContext tests for worker stability
+
+### Changed
+
+- **Test counts**: 4,286+ total tests (2,129 frontend + 2,157 Rust)
+
+---
+
 ## [2.6.2] - 2026-01-25
 
 ### Added
