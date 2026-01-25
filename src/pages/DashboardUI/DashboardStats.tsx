@@ -1,6 +1,7 @@
 // Dashboard Statistics Cards Component
 // Displays total jobs, high matches, and average score
 
+import { memo } from "react";
 import { Card, ScoreDisplay } from "../../components";
 import { BriefcaseIcon, StarIcon } from "../DashboardIcons";
 import type { Statistics } from "../DashboardTypes";
@@ -9,7 +10,7 @@ interface DashboardStatsProps {
   statistics: Statistics;
 }
 
-export function DashboardStats({ statistics }: DashboardStatsProps) {
+export const DashboardStats = memo(function DashboardStats({ statistics }: DashboardStatsProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 stagger-children">
       {/* Total Jobs */}
@@ -60,4 +61,4 @@ export function DashboardStats({ statistics }: DashboardStatsProps) {
       </Card>
     </div>
   );
-}
+});

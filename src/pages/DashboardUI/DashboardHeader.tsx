@@ -1,6 +1,7 @@
 // Dashboard Header Component
 // Logo, title, status indicator, theme toggle, settings button, search button
 
+import { memo } from "react";
 import { Button, ThemeToggle, Tooltip, TourHelpButton } from "../../components";
 import { SentinelIcon, SearchIcon, SettingsIcon } from "../DashboardIcons";
 import type { ScrapingStatus } from "../DashboardTypes";
@@ -32,7 +33,7 @@ function formatLastUpdated(dateStr: string | null): string {
   return date.toLocaleDateString();
 }
 
-export function DashboardHeader({
+export const DashboardHeader = memo(function DashboardHeader({
   scrapingStatus,
   autoRefreshEnabled,
   nextRefreshTime,
@@ -136,4 +137,4 @@ export function DashboardHeader({
       </div>
     </header>
   );
-}
+});
