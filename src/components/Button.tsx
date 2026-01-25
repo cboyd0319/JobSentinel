@@ -1,4 +1,4 @@
-import { forwardRef } from "react";
+import { forwardRef, memo } from "react";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "ghost" | "success" | "danger";
@@ -25,7 +25,7 @@ const sizeStyles = {
   lg: "px-6 py-3 text-base gap-2.5",
 };
 
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+export const Button = memo(forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
       variant = "primary",
@@ -74,7 +74,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       </button>
     );
   }
-);
+));
 
 Button.displayName = "Button";
 
