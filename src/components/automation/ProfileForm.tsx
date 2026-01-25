@@ -87,6 +87,66 @@ export function ProfileForm({ onSaved }: ProfileFormProps) {
   // Track original values for dirty detection
   const [originalValues, setOriginalValues] = useState<FormSnapshot | null>(null);
 
+  // Inline validation errors (shown on blur and submit)
+  const [errors, setErrors] = useState<{
+    fullName?: string;
+    email?: string;
+    phone?: string;
+    linkedinUrl?: string;
+    githubUrl?: string;
+    portfolioUrl?: string;
+    websiteUrl?: string;
+  }>({});
+
+  // Email validation regex (defined outside useCallback to avoid dependency)
+  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  // URL validation helper
+  const isValidUrl = useCallback((url: string): boolean => {
+    if (!url.trim()) return true;
+    try {
+      const parsed = new URL(url);
+      return parsed.protocol === "https:" || parsed.protocol === "http:";
+    } catch {
+      return false;
+    }
+  }, []);
+
+  // Field validation function
+  const validateField = useCallback((field: string, value: string): string | undefined => {
+    switch (field) {
+      case "fullName":
+        return value.trim() ? undefined : "Full name is required";
+      case "email": {
+        if (!value.trim()) return "Email is required";
+        if (!EMAIL_REGEX.test(value.trim())) return "Please enter a valid email";
+        return undefined;
+      }
+      case "phone": {
+        if (!value.trim()) return undefined;
+        const digits = value.replace(/\D/g, "");
+        if (digits.length < 10 || digits.length > 15) return "Enter 10-15 digit phone number";
+        return undefined;
+      }
+      case "linkedinUrl":
+      case "githubUrl":
+      case "portfolioUrl":
+      case "websiteUrl": {
+        if (!value.trim()) return undefined;
+        if (!isValidUrl(value)) return "Enter a valid URL (https://...)";
+        return undefined;
+      }
+      default:
+        return undefined;
+    }
+  }, [isValidUrl, EMAIL_REGEX]);
+
+  // Handle field blur for inline validation
+  const handleBlur = useCallback((field: string, value: string) => {
+    const error = validateField(field, value);
+    setErrors((prev) => ({ ...prev, [field]: error }));
+  }, [validateField]);
+
   // Compute if form has unsaved changes
   const isDirty = useMemo(() => {
     if (!originalValues) return false;
@@ -190,54 +250,24 @@ export function ProfileForm({ onSaved }: ProfileFormProps) {
   };
 
   const handleSave = async () => {
-    // Validation
-    if (!fullName.trim()) {
-      toast.error("Name required", "Please enter your full name");
-      return;
-    }
-    // Proper email validation (RFC 5322 simplified)
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email.trim() || !emailRegex.test(email.trim())) {
-      toast.error("Valid email required", "Please enter a valid email address");
-      return;
-    }
-
-    // Phone validation (optional field, but validate format if provided)
-    if (phone.trim()) {
-      // Accept formats: +1234567890, (123) 456-7890, 123-456-7890, etc.
-      const phoneDigits = phone.replace(/\D/g, "");
-      if (phoneDigits.length < 10 || phoneDigits.length > 15) {
-        toast.error("Invalid phone number", "Please enter a valid phone number (10-15 digits)");
-        return;
-      }
-    }
-
-    // URL validation helper
-    const isValidUrl = (url: string): boolean => {
-      if (!url.trim()) return true; // Empty is OK (optional field)
-      try {
-        const parsed = new URL(url);
-        return parsed.protocol === "https:" || parsed.protocol === "http:";
-      } catch {
-        return false;
-      }
+    // Validate all fields and collect errors
+    const newErrors = {
+      fullName: validateField("fullName", fullName),
+      email: validateField("email", email),
+      phone: validateField("phone", phone),
+      linkedinUrl: validateField("linkedinUrl", linkedinUrl),
+      githubUrl: validateField("githubUrl", githubUrl),
+      portfolioUrl: validateField("portfolioUrl", portfolioUrl),
+      websiteUrl: validateField("websiteUrl", websiteUrl),
     };
 
-    // Validate URLs if provided
-    if (linkedinUrl && !isValidUrl(linkedinUrl)) {
-      toast.error("Invalid LinkedIn URL", "Please enter a valid URL (e.g., https://linkedin.com/in/yourname)");
-      return;
-    }
-    if (githubUrl && !isValidUrl(githubUrl)) {
-      toast.error("Invalid GitHub URL", "Please enter a valid URL (e.g., https://github.com/yourname)");
-      return;
-    }
-    if (portfolioUrl && !isValidUrl(portfolioUrl)) {
-      toast.error("Invalid portfolio URL", "Please enter a valid URL starting with http:// or https://");
-      return;
-    }
-    if (websiteUrl && !isValidUrl(websiteUrl)) {
-      toast.error("Invalid website URL", "Please enter a valid URL starting with http:// or https://");
+    // Update error state to show inline errors
+    setErrors(newErrors);
+
+    // Check if any errors exist
+    const hasErrors = Object.values(newErrors).some((error) => error !== undefined);
+    if (hasErrors) {
+      toast.error("Please fix the errors", "Check the highlighted fields");
       return;
     }
 
@@ -317,21 +347,27 @@ export function ProfileForm({ onSaved }: ProfileFormProps) {
               label="Full Name *"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
+              onBlur={() => handleBlur("fullName", fullName)}
               placeholder="John Doe"
+              error={errors.fullName}
             />
             <Input
               label="Email *"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              onBlur={() => handleBlur("email", email)}
               placeholder="john@example.com"
+              error={errors.email}
             />
             <Input
               label="Phone"
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
+              onBlur={() => handleBlur("phone", phone)}
               placeholder="+1 (555) 123-4567"
+              error={errors.phone}
             />
           </div>
         </section>
@@ -347,29 +383,37 @@ export function ProfileForm({ onSaved }: ProfileFormProps) {
               label="LinkedIn"
               value={linkedinUrl}
               onChange={(e) => setLinkedinUrl(e.target.value)}
+              onBlur={() => handleBlur("linkedinUrl", linkedinUrl)}
               placeholder="https://linkedin.com/in/johndoe"
               leftIcon={<LinkedInIcon className="w-4 h-4" />}
+              error={errors.linkedinUrl}
             />
             <Input
               label="GitHub"
               value={githubUrl}
               onChange={(e) => setGithubUrl(e.target.value)}
+              onBlur={() => handleBlur("githubUrl", githubUrl)}
               placeholder="https://github.com/johndoe"
               leftIcon={<GitHubIcon className="w-4 h-4" />}
+              error={errors.githubUrl}
             />
             <Input
               label="Portfolio"
               value={portfolioUrl}
               onChange={(e) => setPortfolioUrl(e.target.value)}
+              onBlur={() => handleBlur("portfolioUrl", portfolioUrl)}
               placeholder="https://johndoe.com"
               leftIcon={<GlobeIcon className="w-4 h-4" />}
+              error={errors.portfolioUrl}
             />
             <Input
               label="Website"
               value={websiteUrl}
               onChange={(e) => setWebsiteUrl(e.target.value)}
+              onBlur={() => handleBlur("websiteUrl", websiteUrl)}
               placeholder="https://blog.johndoe.com"
               leftIcon={<LinkIcon className="w-4 h-4" />}
+              error={errors.websiteUrl}
             />
           </div>
         </section>

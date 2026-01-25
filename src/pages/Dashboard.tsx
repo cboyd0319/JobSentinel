@@ -7,7 +7,7 @@ import { listen } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/plugin-shell";
 import {
   Button, Card, CardHeader, LoadingSpinner, JobCard, ScoreDisplay, Modal, ModalFooter,
-  ModalErrorBoundary, CompanyResearchPanel, DashboardWidgets
+  ModalErrorBoundary, CompanyResearchPanel, DashboardWidgets, FocusTrap
 } from "../components";
 import { useToast } from "../contexts";
 import { useKeyboardNavigation } from "../hooks/useKeyboardNavigation";
@@ -645,7 +645,15 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
                 ))}
               </div>
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+                <table className="w-full text-sm" role="table" aria-label="Job comparison">
+                  <thead className="sr-only">
+                    <tr>
+                      <th scope="col">Attribute</th>
+                      {jobOps.comparedJobs.map((job) => (
+                        <th key={job.id} scope="col">{job.title} at {job.company}</th>
+                      ))}
+                    </tr>
+                  </thead>
                   <tbody className="divide-y divide-surface-200 dark:divide-surface-700">
                     <CompareRow label="Match Score" values={jobOps.comparedJobs.map((j) => `${Math.round(j.score * 100)}%`)} />
                     <CompareRow label="Location" values={jobOps.comparedJobs.map((j) => j.remote ? "Remote" : j.location || "N/A")} />
@@ -692,8 +700,11 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
           onKeyDown={(e) => { if (e.key === "Escape") setResearchCompany(null); }}
           role="dialog"
           aria-modal="true"
+          aria-label={`Company research for ${researchCompany}`}
         >
-          <CompanyResearchPanel companyName={researchCompany} onClose={() => setResearchCompany(null)} />
+          <FocusTrap>
+            <CompanyResearchPanel companyName={researchCompany} onClose={() => setResearchCompany(null)} />
+          </FocusTrap>
         </div>
       )}
     </div>
@@ -711,7 +722,8 @@ function DuplicateGroupCard({ group, onMerge }: { group: DuplicateGroup; onMerge
         </div>
         <button
           onClick={() => onMerge(group.primary_id, group.jobs.map((j) => j.id))}
-          className="px-3 py-1 text-sm bg-sentinel-500 text-white rounded-lg hover:bg-sentinel-600 transition-colors"
+          className="px-3 py-1 text-sm bg-sentinel-500 text-white rounded-lg hover:bg-sentinel-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sentinel-400 focus-visible:ring-offset-2"
+          aria-label={`Merge ${group.jobs.length} duplicate jobs for ${group.jobs[0].title}`}
         >
           Merge
         </button>
@@ -744,7 +756,7 @@ function DuplicateGroupCard({ group, onMerge }: { group: DuplicateGroup; onMerge
 function CompareRow({ label, values }: { label: string; values: string[] }) {
   return (
     <tr>
-      <td className="py-2 pr-4 font-medium text-surface-700 dark:text-surface-300 whitespace-nowrap">{label}</td>
+      <th scope="row" className="py-2 pr-4 font-medium text-surface-700 dark:text-surface-300 whitespace-nowrap text-left">{label}</th>
       {values.map((value, i) => (
         <td key={i} className="py-2 px-4 text-surface-600 dark:text-surface-400">{value}</td>
       ))}
