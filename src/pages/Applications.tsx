@@ -23,6 +23,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { Button, Card, Badge, InterviewScheduler, CoverLetterTemplates, LoadingSpinner } from "../components";
 import { useToast } from "../contexts";
 import { logError, getErrorMessage } from "../utils/errorUtils";
+import { formatEventDate } from "../utils/formatUtils";
 
 // Lazy load AnalyticsPanel to defer recharts bundle
 const AnalyticsPanel = lazy(() => import("../components/AnalyticsPanel").then(m => ({ default: m.AnalyticsPanel })));
@@ -396,13 +397,6 @@ export default function Applications({ onBack }: ApplicationsProps) {
     }
   };
 
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
 
   const getActiveApp = (): Application | null => {
     if (!activeId || !applications) return null;
@@ -570,7 +564,7 @@ export default function Applications({ onBack }: ApplicationsProps) {
                       {reminder.job_title} at {reminder.company}
                     </p>
                     <p className="text-sm text-surface-500 dark:text-surface-400">
-                      {reminder.reminder_type} - Due: {formatDate(reminder.due_date)}
+                      {reminder.reminder_type} - Due: {formatEventDate(reminder.due_date)}
                     </p>
                   </div>
                   <Button
@@ -604,7 +598,7 @@ export default function Applications({ onBack }: ApplicationsProps) {
                     column={column}
                     apps={apps}
                     onCardClick={setSelectedApp}
-                    formatDate={formatDate}
+                    formatDate={formatEventDate}
                   />
                 );
               })}

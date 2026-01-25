@@ -4,6 +4,7 @@ import { ScoreBreakdownModal } from "./ScoreBreakdownModal";
 import { GhostIndicatorCompact } from "./GhostIndicator";
 import { open } from "@tauri-apps/plugin-shell";
 import { logError } from "../utils/errorUtils";
+import { formatRelativeDate, formatSalaryRange, truncateText } from "../utils/formatUtils";
 
 interface Job {
   id: number;
@@ -65,42 +66,11 @@ export const JobCard = memo(function JobCard({ job, onViewJob, onHideJob, onTogg
     }
   };
 
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffDays = Math.floor(diffHours / 24);
-
-    if (diffHours < 1) return "Just now";
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays < 7) return `${diffDays}d ago`;
-    return date.toLocaleDateString();
-  };
-
-  const formatSalary = (min?: number | null, max?: number | null) => {
-    if (!min && !max) return null;
-    const formatNum = (n: number) => {
-      if (n >= 1000) return `$${Math.round(n / 1000)}k`;
-      return `$${n}`;
-    };
-    if (min && max) return `${formatNum(min)} - ${formatNum(max)}`;
-    if (min) return `${formatNum(min)}+`;
-    if (max) return `Up to ${formatNum(max)}`;
-    return null;
-  };
-
-  const truncateDescription = (desc?: string | null, maxLen = 120) => {
-    if (!desc) return null;
-    const cleaned = desc.replace(/\s+/g, ' ').trim();
-    if (cleaned.length <= maxLen) return cleaned;
-    return cleaned.substring(0, maxLen).trim() + '...';
-  };
 
   const isHighMatch = job.score >= 0.9;
   const isGoodMatch = job.score >= 0.7;
-  const salaryText = formatSalary(job.salary_min, job.salary_max);
-  const descSnippet = truncateDescription(job.description);
+  const salaryText = formatSalaryRange(job.salary_min, job.salary_max);
+  const descSnippet = truncateText(job.description);
 
   return (
     <>
@@ -206,7 +176,7 @@ export const JobCard = memo(function JobCard({ job, onViewJob, onHideJob, onTogg
               {/* Time */}
               <span className="inline-flex items-center gap-1">
                 <ClockIcon />
-                {formatDate(job.created_at)}
+                {formatRelativeDate(job.created_at)}
               </span>
             </div>
           </div>
