@@ -384,6 +384,7 @@ export default function Resume({ onBack }: ResumeProps) {
                           }}
                           className="p-1 text-surface-400 hover:text-red-500 transition-colors"
                           title="Delete resume"
+                          aria-label={`Delete resume: ${r.name}`}
                         >
                           <TrashIcon className="w-4 h-4" />
                         </button>
@@ -534,59 +535,83 @@ export default function Resume({ onBack }: ResumeProps) {
                     Add New Skill
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <input
-                      type="text"
-                      placeholder="Skill name (e.g., Python, React)"
-                      value={newSkillForm.skill_name}
-                      onChange={(e) =>
-                        setNewSkillForm({ ...newSkillForm, skill_name: e.target.value })
-                      }
-                      className="px-3 py-2 rounded-lg border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-800 dark:text-surface-200 focus:ring-2 focus:ring-sentinel-500"
-                    />
-                    <select
-                      value={newSkillForm.proficiency_level || "Intermediate"}
-                      onChange={(e) =>
-                        setNewSkillForm({ ...newSkillForm, proficiency_level: e.target.value })
-                      }
-                      className="px-3 py-2 rounded-lg border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-800 dark:text-surface-200 focus:ring-2 focus:ring-sentinel-500"
-                    >
-                      {PROFICIENCY_LEVELS.map((level) => (
-                        <option key={level} value={level}>
-                          {level}
-                        </option>
-                      ))}
-                    </select>
-                    <select
-                      value={newSkillForm.skill_category || ""}
-                      onChange={(e) =>
-                        setNewSkillForm({
-                          ...newSkillForm,
-                          skill_category: e.target.value || undefined,
-                        })
-                      }
-                      className="px-3 py-2 rounded-lg border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-800 dark:text-surface-200 focus:ring-2 focus:ring-sentinel-500"
-                    >
-                      <option value="">Select category (optional)</option>
-                      {SKILL_CATEGORIES.map((cat) => (
-                        <option key={cat} value={cat}>
-                          {cat}
-                        </option>
-                      ))}
-                    </select>
-                    <input
-                      type="number"
-                      placeholder="Years of experience (optional)"
-                      min="0"
-                      max="50"
-                      value={newSkillForm.years_experience || ""}
-                      onChange={(e) =>
-                        setNewSkillForm({
-                          ...newSkillForm,
-                          years_experience: e.target.value ? Number(e.target.value) : undefined,
-                        })
-                      }
-                      className="px-3 py-2 rounded-lg border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-800 dark:text-surface-200 focus:ring-2 focus:ring-sentinel-500"
-                    />
+                    <div>
+                      <label htmlFor="skill-name" className="sr-only">
+                        Skill name
+                      </label>
+                      <input
+                        id="skill-name"
+                        type="text"
+                        placeholder="Skill name (e.g., Python, React)"
+                        value={newSkillForm.skill_name}
+                        onChange={(e) =>
+                          setNewSkillForm({ ...newSkillForm, skill_name: e.target.value })
+                        }
+                        className="w-full px-3 py-2 rounded-lg border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-800 dark:text-surface-200 focus:ring-2 focus:ring-sentinel-500"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="proficiency-level" className="sr-only">
+                        Proficiency level
+                      </label>
+                      <select
+                        id="proficiency-level"
+                        value={newSkillForm.proficiency_level || "Intermediate"}
+                        onChange={(e) =>
+                          setNewSkillForm({ ...newSkillForm, proficiency_level: e.target.value })
+                        }
+                        className="w-full px-3 py-2 rounded-lg border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-800 dark:text-surface-200 focus:ring-2 focus:ring-sentinel-500"
+                      >
+                        {PROFICIENCY_LEVELS.map((level) => (
+                          <option key={level} value={level}>
+                            {level}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label htmlFor="skill-category" className="sr-only">
+                        Skill category
+                      </label>
+                      <select
+                        id="skill-category"
+                        value={newSkillForm.skill_category || ""}
+                        onChange={(e) =>
+                          setNewSkillForm({
+                            ...newSkillForm,
+                            skill_category: e.target.value || undefined,
+                          })
+                        }
+                        className="w-full px-3 py-2 rounded-lg border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-800 dark:text-surface-200 focus:ring-2 focus:ring-sentinel-500"
+                      >
+                        <option value="">Select category (optional)</option>
+                        {SKILL_CATEGORIES.map((cat) => (
+                          <option key={cat} value={cat}>
+                            {cat}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label htmlFor="years-experience" className="sr-only">
+                        Years of experience
+                      </label>
+                      <input
+                        id="years-experience"
+                        type="number"
+                        placeholder="Years of experience (optional)"
+                        min="0"
+                        max="50"
+                        value={newSkillForm.years_experience || ""}
+                        onChange={(e) =>
+                          setNewSkillForm({
+                            ...newSkillForm,
+                            years_experience: e.target.value ? Number(e.target.value) : undefined,
+                          })
+                        }
+                        className="w-full px-3 py-2 rounded-lg border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-800 dark:text-surface-200 focus:ring-2 focus:ring-sentinel-500"
+                      />
+                    </div>
                   </div>
                   <div className="flex gap-2 mt-3">
                     <Button onClick={handleAddSkill}>Add Skill</Button>
@@ -760,6 +785,7 @@ export default function Resume({ onBack }: ResumeProps) {
                               onClick={() => startEditingSkill(skill)}
                               className="p-1.5 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 transition-colors"
                               title="Edit skill"
+                              aria-label={`Edit skill: ${skill.skill_name}`}
                             >
                               <EditIcon className="w-4 h-4" />
                             </button>
@@ -767,6 +793,7 @@ export default function Resume({ onBack }: ResumeProps) {
                               onClick={() => confirmDeleteSkill(skill)}
                               className="p-1.5 text-surface-400 hover:text-red-500 transition-colors"
                               title="Delete skill"
+                              aria-label={`Delete skill: ${skill.skill_name}`}
                             >
                               <TrashIcon className="w-4 h-4" />
                             </button>

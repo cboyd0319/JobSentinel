@@ -73,11 +73,13 @@ npm run test:e2e:ui      # Interactive mode
 ## Code Standards
 
 ### Rust
+
 - Use `Result<T, E>` everywhere (no unwrap in production)
 - SQLx offline mode - run `cargo sqlx prepare` after schema changes
 - Run `cargo clippy` before committing
 
 ### React/TypeScript
+
 - Functional components with hooks
 - Type all props and state
 - Use custom hooks for reusable logic
@@ -97,7 +99,7 @@ npm run test:e2e:ui      # Interactive mode
 | Scraper | Board |
 |---------|-------|
 | indeed | Indeed |
-| linkedin | LinkedIn |
+| LinkedIn | LinkedIn |
 | glassdoor | Glassdoor |
 | ziprecruiter | ZipRecruiter |
 | dice | Dice (tech) |
@@ -113,17 +115,20 @@ npm run test:e2e:ui      # Interactive mode
 ## Common Tasks
 
 ### Adding a new scraper
+
 1. Create `src-tauri/src/scrapers/newboard.rs`
 2. Implement `Scraper` trait
 3. Register in `src-tauri/src/scrapers/mod.rs`
 4. Add to scraper factory
 
 ### Adding a Tauri command
+
 1. Create handler in `src-tauri/src/commands/*.rs`
 2. Register in `lib.rs` invoke_handler
 3. Call from frontend via `invoke()`
 
 ### Database changes
+
 1. Add migration in `src-tauri/migrations/`
 2. Run `cargo sqlx prepare` for offline mode
 3. Update relevant types
@@ -178,6 +183,7 @@ npm run test:e2e:ui      # Interactive mode
 ## Memory Conventions
 
 When storing memories for this project, use these tags:
+
 - `jobsentinel` - Always include
 - `scraper` - Scraper-related decisions
 - `database` - Schema, migration decisions
@@ -208,6 +214,7 @@ npm outdated
 ## Context7 Usage
 
 For library docs, use Context7 MCP:
+
 - `resolve-library-id` to find the library
 - `get-library-docs` to fetch specific docs
 

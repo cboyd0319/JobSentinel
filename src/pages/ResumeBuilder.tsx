@@ -588,6 +588,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
               onClick={onBack}
               className="p-2 rounded-lg hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors"
               title="Back to Dashboard"
+              aria-label="Back to Dashboard"
             >
               <svg className="w-5 h-5 text-surface-600 dark:text-surface-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -1089,6 +1090,8 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                   <button
                     key={template.id}
                     onClick={() => setSelectedTemplate(template.id)}
+                    aria-label={`Select ${template.name} template: ${template.description}`}
+                    aria-pressed={selectedTemplate === template.id}
                     className={`p-3 rounded-lg border-2 transition-all ${
                       selectedTemplate === template.id
                         ? "border-sentinel-500 bg-sentinel-50 dark:bg-sentinel-900/20"

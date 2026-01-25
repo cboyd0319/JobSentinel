@@ -750,8 +750,16 @@ export default function Settings({ onClose }: SettingsProps) {
           </div>
 
           {/* Tab Navigation */}
-          <div className="flex border-b border-surface-200 dark:border-surface-700 mb-6">
+          <div
+            role="tablist"
+            aria-label="Settings tabs"
+            className="flex border-b border-surface-200 dark:border-surface-700 mb-6"
+          >
             <button
+              role="tab"
+              aria-selected={activeTab === "basic"}
+              aria-controls="basic-settings-panel"
+              id="basic-settings-tab"
               onClick={() => setActiveTab("basic")}
               className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === "basic"
@@ -762,6 +770,10 @@ export default function Settings({ onClose }: SettingsProps) {
               Basic Settings
             </button>
             <button
+              role="tab"
+              aria-selected={activeTab === "advanced"}
+              aria-controls="advanced-settings-panel"
+              id="advanced-settings-tab"
               onClick={() => setActiveTab("advanced")}
               className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === "advanced"
@@ -775,7 +787,11 @@ export default function Settings({ onClose }: SettingsProps) {
 
           {/* BASIC SETTINGS TAB */}
           {activeTab === "basic" && (
-            <>
+            <div
+              role="tabpanel"
+              id="basic-settings-panel"
+              aria-labelledby="basic-settings-tab"
+            >
           {/* Job Titles */}
           <section className="mb-6">
             <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
@@ -1185,12 +1201,16 @@ export default function Settings({ onClose }: SettingsProps) {
               )}
             </div>
           </section>
-            </>
+            </div>
           )}
 
           {/* ADVANCED SETTINGS TAB */}
           {activeTab === "advanced" && (
-            <>
+            <div
+              role="tabpanel"
+              id="advanced-settings-panel"
+              aria-labelledby="advanced-settings-tab"
+            >
           {/* Notifications */}
           <section className="mb-6">
             <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
@@ -2739,7 +2759,7 @@ export default function Settings({ onClose }: SettingsProps) {
 
             <ErrorLogPanel />
           </section>
-            </>
+            </div>
           )}
 
           {/* Backup & Restore - visible on both tabs */}
