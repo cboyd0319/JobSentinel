@@ -1,3 +1,5 @@
+import { memo } from "react";
+
 interface SkeletonProps {
   className?: string;
   variant?: "text" | "circular" | "rectangular" | "rounded";
@@ -6,7 +8,7 @@ interface SkeletonProps {
   lines?: number;
 }
 
-export function Skeleton({
+export const Skeleton = memo(function Skeleton({
   className = "",
   variant = "text",
   width,
@@ -50,10 +52,10 @@ export function Skeleton({
       style={style}
     />
   );
-}
+});
 
 // Skeleton variants for common use cases
-export function SkeletonCard() {
+export const SkeletonCard = memo(function SkeletonCard() {
   return (
     <div className="p-6 bg-white dark:bg-surface-800 rounded-card border border-surface-100 dark:border-surface-700">
       <div className="flex gap-4">
@@ -68,9 +70,9 @@ export function SkeletonCard() {
       </div>
     </div>
   );
-}
+});
 
-export function SkeletonJobCard() {
+export const SkeletonJobCard = memo(function SkeletonJobCard() {
   return (
     <div className="p-5 bg-white dark:bg-surface-800 rounded-card border border-surface-100 dark:border-surface-700">
       <div className="flex gap-4">
@@ -88,9 +90,9 @@ export function SkeletonJobCard() {
       </div>
     </div>
   );
-}
+});
 
-export function SkeletonStatCard() {
+export const SkeletonStatCard = memo(function SkeletonStatCard() {
   return (
     <div className="p-6 bg-white dark:bg-surface-800 rounded-card border border-surface-100 dark:border-surface-700">
       <div className="flex items-center justify-between">
@@ -102,9 +104,9 @@ export function SkeletonStatCard() {
       </div>
     </div>
   );
-}
+});
 
-export function SkeletonJobList({ count = 5 }: { count?: number }) {
+export const SkeletonJobList = memo(function SkeletonJobList({ count = 5 }: { count?: number }) {
   return (
     <div className="space-y-3">
       {Array.from({ length: count }).map((_, i) => (
@@ -112,9 +114,9 @@ export function SkeletonJobList({ count = 5 }: { count?: number }) {
       ))}
     </div>
   );
-}
+});
 
-export function ResumeSkeleton() {
+export const ResumeSkeleton = memo(function ResumeSkeleton() {
   return (
     <div className="min-h-screen bg-surface-50 dark:bg-surface-900">
       {/* Header skeleton */}
@@ -192,9 +194,9 @@ export function ResumeSkeleton() {
       </main>
     </div>
   );
-}
+});
 
-export function DashboardSkeleton() {
+export const DashboardSkeleton = memo(function DashboardSkeleton() {
   return (
     <div className="min-h-screen bg-surface-50 dark:bg-surface-900">
       {/* Header skeleton */}
@@ -253,4 +255,4 @@ export function DashboardSkeleton() {
       </main>
     </div>
   );
-}
+});
