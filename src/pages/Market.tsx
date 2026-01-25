@@ -26,18 +26,46 @@ function ChartFallback() {
   );
 }
 
-// Format relative time for "last updated" display
-function formatRelativeTime(date: Date): string {
+// Format relative time for "last updated" display with staleness indicator
+function formatRelativeTime(date: Date): { text: string; stale: "fresh" | "normal" | "stale" | "very-stale" } {
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
   const diffMins = Math.floor(diffMs / 60000);
   const diffHours = Math.floor(diffMins / 60);
 
-  if (diffMins < 1) return "just now";
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  return date.toLocaleDateString();
+  let text: string;
+  let stale: "fresh" | "normal" | "stale" | "very-stale";
+
+  if (diffMins < 1) {
+    text = "just now";
+    stale = "fresh";
+  } else if (diffMins < 30) {
+    text = `${diffMins}m ago`;
+    stale = "fresh";
+  } else if (diffMins < 60) {
+    text = `${diffMins}m ago`;
+    stale = "normal";
+  } else if (diffHours < 2) {
+    text = `${diffHours}h ago`;
+    stale = "stale";
+  } else if (diffHours < 24) {
+    text = `${diffHours}h ago`;
+    stale = "very-stale";
+  } else {
+    text = date.toLocaleDateString();
+    stale = "very-stale";
+  }
+
+  return { text, stale };
 }
+
+// Color classes for staleness indicator
+const STALENESS_COLORS = {
+  fresh: "text-green-500 dark:text-green-400",
+  normal: "text-surface-400 dark:text-surface-500",
+  stale: "text-amber-500 dark:text-amber-400",
+  "very-stale": "text-red-500 dark:text-red-400",
+};
 
 // ============================================================================
 // Types - Aligned with Rust backend
@@ -286,11 +314,15 @@ export default function Market({ onBack }: MarketProps) {
                 </h1>
                 <p className="text-sm text-surface-500 dark:text-surface-400">
                   Job market trends, company activity, and location insights
-                  {lastFetched && (
-                    <span className="ml-2 text-surface-400 dark:text-surface-500">
-                      · Updated {formatRelativeTime(lastFetched)}
-                    </span>
-                  )}
+                  {lastFetched && (() => {
+                    const { text, stale } = formatRelativeTime(lastFetched);
+                    return (
+                      <span className={`ml-2 ${STALENESS_COLORS[stale]}`}>
+                        · Updated {text}
+                        {stale === "very-stale" && " (may be outdated)"}
+                      </span>
+                    );
+                  })()}
                 </p>
               </div>
             </div>

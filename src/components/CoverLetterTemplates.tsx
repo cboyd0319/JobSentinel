@@ -89,6 +89,13 @@ function TemplateEditor({ template, onSave, onCancel, saving }: TemplateEditorPr
   const [name, setName] = useState(template?.name || '');
   const [content, setContent] = useState(template?.content || '');
   const [category, setCategory] = useState<TemplateCategory>(template?.category || 'general');
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
+
+  // Track dirty state (has unsaved changes)
+  const isDirty =
+    name !== (template?.name || '') ||
+    content !== (template?.content || '') ||
+    category !== (template?.category || 'general');
 
   // Calculate word and character counts
   const charCount = content.length;
@@ -97,6 +104,14 @@ function TemplateEditor({ template, onSave, onCancel, saving }: TemplateEditorPr
   const handleSave = () => {
     if (!name.trim() || !content.trim()) return;
     onSave({ name: name.trim(), content: content.trim(), category });
+  };
+
+  const handleCancel = () => {
+    if (isDirty) {
+      setShowDiscardConfirm(true);
+    } else {
+      onCancel();
+    }
   };
 
   return (
@@ -167,13 +182,35 @@ function TemplateEditor({ template, onSave, onCancel, saving }: TemplateEditorPr
       </div>
 
       <ModalFooter>
-        <Button variant="secondary" onClick={onCancel} disabled={saving}>
+        <Button variant="secondary" onClick={handleCancel} disabled={saving}>
           Cancel
         </Button>
         <Button onClick={handleSave} disabled={!name.trim() || !content.trim() || saving}>
           {saving ? 'Saving...' : template ? 'Update' : 'Create'} Template
         </Button>
       </ModalFooter>
+
+      {/* Discard Changes Confirmation */}
+      {showDiscardConfirm && (
+        <Modal
+          isOpen
+          onClose={() => setShowDiscardConfirm(false)}
+          title="Discard changes?"
+          size="sm"
+        >
+          <p className="text-surface-600 dark:text-surface-400 mb-4">
+            You have unsaved changes. Are you sure you want to discard them?
+          </p>
+          <ModalFooter>
+            <Button variant="secondary" onClick={() => setShowDiscardConfirm(false)}>
+              Keep editing
+            </Button>
+            <Button variant="danger" onClick={onCancel}>
+              Discard changes
+            </Button>
+          </ModalFooter>
+        </Modal>
+      )}
     </div>
   );
 }
