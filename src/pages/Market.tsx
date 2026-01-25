@@ -11,6 +11,7 @@ import {
 } from "../components";
 import { useToast } from "../contexts";
 import { logError, getErrorMessage } from "../utils/errorUtils";
+import { formatCurrency } from "../utils/formatUtils";
 
 // Lazy load TrendChart to defer recharts bundle
 const TrendChart = lazy(() => import("../components/TrendChart").then(m => ({ default: m.TrendChart })));
@@ -251,14 +252,6 @@ export default function Market({ onBack }: MarketProps) {
     }
   };
 
-  const formatCurrency = (amount: number | null) => {
-    if (amount === null) return "N/A";
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
 
   if (loading) {
     return <LoadingSpinner message="Loading market intelligence..." />;

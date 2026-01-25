@@ -3,6 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { Button, Card, Input, Badge, HelpIcon } from "../components";
 import { useToast } from "../contexts";
 import { logError, getErrorMessage } from "../utils/errorUtils";
+import { formatCurrency } from "../utils/formatUtils";
 
 interface SalaryBenchmark {
   role: string;
@@ -92,13 +93,6 @@ export default function Salary({ onBack }: SalaryProps) {
     }
   }, [benchmark, jobTitle, location, toast]);
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
 
   return (
     <div className="min-h-screen bg-surface-50 dark:bg-surface-900">

@@ -11,6 +11,7 @@ import {
   truncateText,
   formatNumber,
   formatPercent,
+  formatCurrency,
 } from "./formatUtils";
 
 describe("formatUtils", () => {
@@ -217,6 +218,26 @@ describe("formatUtils", () => {
 
     it("handles zero", () => {
       expect(formatPercent(0)).toBe("0%");
+    });
+  });
+
+  describe("formatCurrency", () => {
+    it("formats currency with dollar sign and commas", () => {
+      expect(formatCurrency(120000)).toBe("$120,000");
+      expect(formatCurrency(1500)).toBe("$1,500");
+      expect(formatCurrency(50)).toBe("$50");
+    });
+
+    it("returns N/A for null values", () => {
+      expect(formatCurrency(null)).toBe("N/A");
+    });
+
+    it("handles large numbers", () => {
+      expect(formatCurrency(1000000)).toBe("$1,000,000");
+    });
+
+    it("handles zero", () => {
+      expect(formatCurrency(0)).toBe("$0");
     });
   });
 });

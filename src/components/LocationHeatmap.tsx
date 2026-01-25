@@ -1,5 +1,6 @@
 import { memo, useState, useMemo } from "react";
 import { Card, Badge } from "./";
+import { formatCurrency } from "../utils/formatUtils";
 
 interface LocationHeat {
   location: string;
@@ -65,14 +66,6 @@ export const LocationHeatmap = memo(function LocationHeatmap({ locations, loadin
     return "bg-surface-100 dark:bg-surface-800 border-surface-300 dark:border-surface-600";
   };
 
-  const formatCurrency = (amount: number | null) => {
-    if (amount === null) return "N/A";
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
 
   const formatLocationName = (loc: LocationHeat) => {
     if (loc.location.toLowerCase() === "remote") return "🌐 Remote";

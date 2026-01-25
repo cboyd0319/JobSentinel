@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { Card, Badge } from "./";
+import { formatCurrency } from "../utils/formatUtils";
 
 interface MarketSnapshot {
   date: string;
@@ -33,14 +34,6 @@ const DEFAULT_SENTIMENT = SENTIMENT_CONFIG.neutral;
 const getSentimentConfig = (sentiment: string | undefined | null) =>
   SENTIMENT_CONFIG[(sentiment ?? "neutral").toLowerCase()] ?? DEFAULT_SENTIMENT;
 
-const formatCurrency = (amount: number | null) => {
-  if (amount === null) return "N/A";
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(amount);
-};
 
 export const MarketSnapshotCard = memo(function MarketSnapshotCard({ snapshot, loading = false }: MarketSnapshotCardProps) {
   if (loading) {

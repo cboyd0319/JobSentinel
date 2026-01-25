@@ -145,3 +145,16 @@ export function formatNumber(num: number): string {
 export function formatPercent(value: number, decimals = 0): string {
   return `${(value * 100).toFixed(decimals)}%`;
 }
+
+/**
+ * Format a currency amount for display (e.g., 120000 -> "$120,000")
+ * Returns "N/A" for null values.
+ */
+export function formatCurrency(amount: number | null): string {
+  if (amount === null) return "N/A";
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(amount);
+}

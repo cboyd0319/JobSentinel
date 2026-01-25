@@ -11,6 +11,7 @@ import {
 } from "../components";
 import { useToast } from "../contexts";
 import { logError } from "../utils/errorUtils";
+import { getScoreColor, getScoreBg } from "../utils/scoreUtils";
 
 // TypeScript Types
 interface ContactInfo {
@@ -208,13 +209,6 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
     }
   };
 
-  // Get score color
-  const getScoreColor = (score: number): string => {
-    if (score >= 80) return "text-green-600 dark:text-green-400";
-    if (score >= 60) return "text-yellow-600 dark:text-yellow-400";
-    if (score >= 40) return "text-orange-600 dark:text-orange-400";
-    return "text-red-600 dark:text-red-400";
-  };
 
   // Get severity badge variant
   const getSeverityVariant = (severity: IssueSeverity): "danger" | "alert" | "sentinel" => {
@@ -841,20 +835,13 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
 
 // Helper component for score items
 function ScoreItem({ label, score }: { label: string; score: number }) {
-  const getScoreColor = (s: number): string => {
-    if (s >= 80) return "bg-green-500";
-    if (s >= 60) return "bg-yellow-500";
-    if (s >= 40) return "bg-orange-500";
-    return "bg-red-500";
-  };
-
   return (
     <div className="flex items-center justify-between">
       <span className="text-sm text-surface-600 dark:text-surface-400">{label}</span>
       <div className="flex items-center gap-2">
         <div className="w-24 h-2 bg-surface-200 dark:bg-surface-700 rounded-full overflow-hidden">
           <div
-            className={`h-full ${getScoreColor(score)} transition-all duration-300`}
+            className={`h-full ${getScoreBg(score)} transition-all duration-300`}
             style={{ width: `${score}%` }}
           />
         </div>
