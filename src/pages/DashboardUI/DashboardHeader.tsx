@@ -17,6 +17,21 @@ interface DashboardHeaderProps {
   onOpenSettings: () => void;
 }
 
+// Format relative time for "last updated" display
+function formatLastUpdated(dateStr: string | null): string {
+  if (!dateStr) return "Never";
+  const date = new Date(dateStr);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMins / 60);
+
+  if (diffMins < 1) return "Just now";
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  return date.toLocaleDateString();
+}
+
 export function DashboardHeader({
   scrapingStatus,
   autoRefreshEnabled,
@@ -49,7 +64,7 @@ export function DashboardHeader({
 
           {/* Actions */}
           <div className="flex items-center gap-3">
-            {/* Status indicator */}
+            {/* Status indicator with last updated */}
             <Tooltip
               content={
                 scrapingStatus.is_running
@@ -68,14 +83,21 @@ export function DashboardHeader({
                       ? "status-dot-auto"
                       : "status-dot-idle"
                 } />
-                <span className="text-sm text-surface-600 dark:text-surface-300">
-                  {scrapingStatus.is_running
-                    ? "Scanning..."
-                    : autoRefreshEnabled && nextRefreshTime
-                      ? formatTimeUntil(nextRefreshTime)
-                      : "Idle"
-                  }
-                </span>
+                <div className="flex flex-col">
+                  <span className="text-sm text-surface-600 dark:text-surface-300">
+                    {scrapingStatus.is_running
+                      ? "Scanning..."
+                      : autoRefreshEnabled && nextRefreshTime
+                        ? formatTimeUntil(nextRefreshTime)
+                        : "Idle"
+                    }
+                  </span>
+                  {scrapingStatus.last_scrape && !scrapingStatus.is_running && (
+                    <span className="text-[10px] text-surface-400 dark:text-surface-500">
+                      Updated {formatLastUpdated(scrapingStatus.last_scrape)}
+                    </span>
+                  )}
+                </div>
               </div>
             </Tooltip>
 

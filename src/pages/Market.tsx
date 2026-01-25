@@ -26,6 +26,19 @@ function ChartFallback() {
   );
 }
 
+// Format relative time for "last updated" display
+function formatRelativeTime(date: Date): string {
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMins / 60);
+
+  if (diffMins < 1) return "just now";
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  return date.toLocaleDateString();
+}
+
 // ============================================================================
 // Types - Aligned with Rust backend
 // ============================================================================
@@ -119,6 +132,7 @@ export default function Market({ onBack }: MarketProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
+  const [lastFetched, setLastFetched] = useState<Date | null>(null);
   const toast = useToast();
 
   const unreadAlertCount = useMemo(() => (alerts ?? []).filter((a) => !a.is_read).length, [alerts]);
@@ -150,6 +164,7 @@ export default function Market({ onBack }: MarketProps) {
       setLocations(locationsData);
       setAlerts(alertsData);
       setSnapshot(snapshotData);
+      setLastFetched(new Date());
     } catch (err) {
       if (signal?.aborted) return;
       logError("Failed to fetch market data:", err);
@@ -271,6 +286,11 @@ export default function Market({ onBack }: MarketProps) {
                 </h1>
                 <p className="text-sm text-surface-500 dark:text-surface-400">
                   Job market trends, company activity, and location insights
+                  {lastFetched && (
+                    <span className="ml-2 text-surface-400 dark:text-surface-500">
+                      · Updated {formatRelativeTime(lastFetched)}
+                    </span>
+                  )}
                 </p>
               </div>
             </div>
