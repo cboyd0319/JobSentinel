@@ -190,7 +190,7 @@ pub struct ApplicationAttempt {
 /// # Examples
 ///
 /// ```no_run
-/// # use job_sentinel::core::automation::{AutomationManager, AtsPlatform};
+/// # use jobsentinel::core::automation::{AutomationManager, AtsPlatform};
 /// # async fn example(db: sqlx::SqlitePool) -> anyhow::Result<()> {
 /// let manager = AutomationManager::new(db);
 ///
@@ -232,7 +232,7 @@ impl AutomationManager {
     /// # Examples
     ///
     /// ```no_run
-    /// # use job_sentinel::core::automation::{AutomationManager, AtsPlatform};
+    /// # use jobsentinel::core::automation::{AutomationManager, AtsPlatform};
     /// # async fn example(manager: &AutomationManager) -> anyhow::Result<()> {
     /// let attempt_id = manager.create_attempt("job_xyz", AtsPlatform::Lever).await?;
     /// println!("Created attempt {}", attempt_id);
@@ -319,7 +319,7 @@ impl AutomationManager {
     /// # Examples
     ///
     /// ```no_run
-    /// # use job_sentinel::core::automation::{AutomationManager, AutomationStatus};
+    /// # use jobsentinel::core::automation::{AutomationManager, AutomationStatus};
     /// # async fn example(manager: &AutomationManager) -> anyhow::Result<()> {
     /// manager.update_status(
     ///     123,
@@ -363,7 +363,7 @@ impl AutomationManager {
     /// # Examples
     ///
     /// ```no_run
-    /// # use job_sentinel::core::automation::AutomationManager;
+    /// # use jobsentinel::core::automation::AutomationManager;
     /// # async fn example(manager: &AutomationManager) -> anyhow::Result<()> {
     /// // User reviews filled application and approves it
     /// manager.approve_attempt(123).await?;

@@ -68,7 +68,10 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied }: ApplyBu
   useEffect(() => {
     const stored = localStorage.getItem(`lastAttempt_${job.hash}`);
     if (stored) {
-      setLastAttemptId(parseInt(stored, 10));
+      const attemptId = parseInt(stored, 10);
+      if (!isNaN(attemptId)) {
+        setLastAttemptId(attemptId);
+      }
     }
   }, [job.hash]);
 

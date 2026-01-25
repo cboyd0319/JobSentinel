@@ -203,7 +203,20 @@ pub trait JobScraper: Send + Sync {
     async fn scrape(&self) -> ScraperResult;
     fn name(&self) -> &'static str;
 }
+
+// Error handling with ScraperError
+pub type ScraperResult = Result<Vec<Job>, ScraperError>;
 ```
+
+**Error Handling:**
+
+All scrapers use `ScraperError` for structured error handling with:
+
+- HTTP request/status errors
+- Rate limiting detection
+- CAPTCHA and bot protection detection
+- Parse errors with context
+- User-friendly error messages
 
 **Hash Computation:**
 
@@ -683,10 +696,31 @@ pub struct GreenhouseScraper { ... }
 
 ### 3. **Error Handling**
 
-- Use `thiserror` for library errors (specific, structured)
-- Use `anyhow` for application errors (context)
+- Use domain-specific errors (`ScraperError`, `DatabaseError`, `AutomationError`)
+- All errors implement structured error types with `thiserror`
+- Provide user-friendly messages with `.user_message()` method
+- Sanitize URLs and sensitive data in error messages
 - Never use `.unwrap()` in production code
 - Always provide context with errors
+
+**Example:**
+
+```rust
+// ScraperError provides rich context
+let result = scraper.scrape().await;
+match result {
+    Ok(jobs) => { /* ... */ },
+    Err(e) => {
+        tracing::error!("Scraper failed: {}", e);
+        // User-friendly message for UI
+        let msg = e.user_message();
+        // Check if error is retryable
+        if e.is_retryable() {
+            // Implement retry logic
+        }
+    }
+}
+```
 
 ### 4. **Async-First**
 
@@ -720,18 +754,23 @@ pub struct GreenhouseScraper { ... }
 1. **Input Validation**
    - Config validation (strict limits)
    - URL validation (format + domain allowlisting)
-   - String length limits
+   - URL format enforcement: Greenhouse URLs must start with `https://boards.greenhouse.io/`
+   - String length limits (max 500 chars for URLs)
+   - XSS prevention in resume HTML generation with `escape_html()`
 
 2. **Database Security**
    - Parameterized queries (no string concatenation)
    - Transaction isolation
    - Field length validation
+   - XSS prevention: `javascript:` protocol validation in URLs
 
 3. **Network Security**
-   - HTTPS only
+   - HTTPS only for external requests
+   - URL validation with domain allowlisting
    - 30 second timeouts
    - User-Agent headers
    - Domain allowlisting for webhooks
+   - URL sanitization in error messages (removes query params)
 
 4. **Data Privacy**
    - All data stored locally

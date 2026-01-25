@@ -179,7 +179,18 @@ async function hasCredential(key: CredentialKey): Promise<boolean> {
 
 const isValidSlackWebhook = (url: string): boolean => {
   if (!url) return true;
-  return url.startsWith("https://hooks.slack.com/services/");
+  // Parse URL to validate host/origin, not just string prefix
+  // This prevents bypass attacks like "https://evil.com?https://hooks.slack.com/services/..."
+  try {
+    const parsed = new URL(url);
+    return (
+      parsed.protocol === "https:" &&
+      parsed.hostname === "hooks.slack.com" &&
+      parsed.pathname.startsWith("/services/")
+    );
+  } catch {
+    return false;
+  }
 };
 
 const isValidEmail = (email: string): boolean => {

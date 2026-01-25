@@ -143,9 +143,9 @@ impl fmt::Display for ValidationError {
         match self {
             Self::OutOfRange { field, value, min, max } => {
                 // Format messages to match existing test expectations
-                if field.contains("salary_floor") && value.parse::<i64>().ok().map_or(false, |v| v < 0) {
+                if field.contains("salary_floor") && value.parse::<i64>().ok().is_some_and(|v| v < 0) {
                     write!(f, "Salary floor cannot be negative")
-                } else if field.contains("salary_floor") && value.parse::<i64>().ok().map_or(false, |v| v > 10_000_000) {
+                } else if field.contains("salary_floor") && value.parse::<i64>().ok().is_some_and(|v| v > 10_000_000) {
                     write!(f, "Salary floor exceeds reasonable limit ($10M USD)")
                 } else if field.contains("immediate_alert_threshold") || field.contains("threshold") {
                     match (min, max) {
@@ -153,13 +153,13 @@ impl fmt::Display for ValidationError {
                         _ => write!(f, "Invalid threshold value"),
                     }
                 } else if field.contains("scraping_interval") {
-                    if value.parse::<u64>().ok().map_or(false, |v| v < 1) {
+                    if value.parse::<u64>().ok().is_some_and(|v| v < 1) {
                         write!(f, "Scraping interval must be at least 1 hour")
                     } else {
                         write!(f, "Scraping interval cannot exceed 168 hours (1 week)")
                     }
                 } else if field.contains("linkedin.limit") {
-                    if value.parse::<usize>().ok().map_or(false, |v| v == 0) {
+                    if value.parse::<usize>().ok() == Some(0) {
                         write!(f, "LinkedIn result limit must be at least 1")
                     } else {
                         write!(f, "LinkedIn result limit cannot exceed 100")
@@ -181,7 +181,7 @@ impl fmt::Display for ValidationError {
                     }
                 }
             }
-            Self::InvalidValue { field, value, reason } => {
+            Self::InvalidValue { field, value: _, reason } => {
                 write!(f, "{}: {}", field.replace('_', " ").replace('.', " "), reason)
             }
             Self::RequiredField { field, reason } => {
@@ -204,7 +204,7 @@ impl fmt::Display for ValidationError {
                     write!(f, "{}: {}", field.replace('_', " ").replace('.', " "), reason)
                 }
             }
-            Self::TooLong { field, length, max } => {
+            Self::TooLong { field, length: _, max } => {
                 // Format to match existing test expectations
                 if field.contains("cities") {
                     write!(f, "City name too long (max: {} chars)", max)
@@ -236,7 +236,7 @@ impl fmt::Display for ValidationError {
                     write!(f, "{} too long (max: {} chars)", field.replace('_', " ").replace('.', " "), max)
                 }
             }
-            Self::TooManyElements { field, count, max } => {
+            Self::TooManyElements { field, count: _, max } => {
                 if field.contains("greenhouse") {
                     write!(f, "Too many Greenhouse URLs (max: {})", max)
                 } else if field.contains("lever") {
@@ -267,7 +267,7 @@ impl fmt::Display for ValidationError {
                     write!(f, "Invalid email format in {}: {}", field.replace('_', " ").replace('.', " "), email)
                 }
             }
-            Self::InconsistentValues { field1, field2, reason } => {
+            Self::InconsistentValues { field1: _, field2: _, reason } => {
                 write!(f, "{}", reason)
             }
             Self::EmptyString { field } => {

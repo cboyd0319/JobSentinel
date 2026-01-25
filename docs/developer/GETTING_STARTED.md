@@ -8,7 +8,7 @@
 |-----------|--------|
 | Core modules (config, db, scoring, scrapers, scheduler, notify, ghost, ats, resume, salary, market, automation, credentials, health) | Working |
 | Frontend (React 19 + TypeScript) | Working |
-| Tests | 2200+ passing, 20 ignored |
+| Tests | 4,449+ passing (2,175 backend + 2,274+ frontend) |
 
 ---
 
@@ -109,11 +109,11 @@ JobSentinel/
 ### Running Tests
 
 ```bash
-# Rust tests
+# Backend tests (2,175+ tests)
 cd src-tauri
 cargo test
 
-# Frontend tests (716 tests)
+# Frontend tests (2,274+ tests)
 npm test
 ```
 

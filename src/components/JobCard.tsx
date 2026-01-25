@@ -48,7 +48,14 @@ export const JobCard = memo(function JobCard({ job, onViewJob, onHideJob, onTogg
 
   // Security: Validate URL protocol before opening
   const isValidUrl = (url: string): boolean => {
-    return url.startsWith("https://") || url.startsWith("http://");
+    // Parse URL to validate scheme properly, not just string prefix
+    // This prevents bypass attacks like "javascript:alert(1)//https://"
+    try {
+      const parsed = new URL(url);
+      return parsed.protocol === "https:" || parsed.protocol === "http:";
+    } catch {
+      return false;
+    }
   };
 
   const handleOpenUrl = async (url: string) => {

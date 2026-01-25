@@ -32,21 +32,29 @@ export const Modal = memo(function Modal({
 }: ModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   const previousActiveElement = useRef<Element | null>(null);
+  const isMountedRef = useRef(true);
 
   useEffect(() => {
     if (isOpen) {
       previousActiveElement.current = document.activeElement;
       document.body.style.overflow = "hidden";
 
-      // Focus the modal
-      setTimeout(() => {
-        modalRef.current?.focus();
-      }, 0);
+      // Focus the modal with proper timing and mounted check
+      const rafId = requestAnimationFrame(() => {
+        if (isMountedRef.current && modalRef.current) {
+          modalRef.current.focus();
+        }
+      });
+
+      return () => {
+        cancelAnimationFrame(rafId);
+        document.body.style.overflow = "";
+      };
     } else {
       document.body.style.overflow = "";
       
-      // Return focus to previous element
-      if (previousActiveElement.current instanceof HTMLElement) {
+      // Return focus to previous element with null check
+      if (previousActiveElement.current instanceof HTMLElement && document.body.contains(previousActiveElement.current)) {
         previousActiveElement.current.focus();
       }
     }
@@ -55,6 +63,12 @@ export const Modal = memo(function Modal({
       document.body.style.overflow = "";
     };
   }, [isOpen]);
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   const handleKeyDown = (e: KeyboardEvent): void => {
     if (e.key === "Escape") {

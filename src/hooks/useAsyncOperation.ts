@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useToast } from "../contexts";
 import { getErrorMessage, logError } from "../utils/errorUtils";
 
@@ -61,6 +61,13 @@ export function useAsyncOperation<T, TArgs extends unknown[] = unknown[]>(
 
   // Track if component is mounted to prevent state updates after unmount
   const isMountedRef = useRef(true);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   const execute = useCallback(
     async (...args: TArgs): Promise<T | undefined> => {

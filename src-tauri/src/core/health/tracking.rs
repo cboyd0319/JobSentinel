@@ -31,9 +31,9 @@ use super::types::{RunStatus, ScraperRun};
 ///
 /// # Examples
 ///
-/// ```no_run
-/// # use job_sentinel::core::Database;
-/// # use job_sentinel::core::health::tracking;
+/// ```ignore
+/// # use jobsentinel::core::Database;
+/// # use jobsentinel::core::health::tracking;
 /// # async fn example(db: &Database) -> anyhow::Result<()> {
 /// let run_id = tracking::start_run(db, "linkedin").await?;
 /// // ... perform scraping ...

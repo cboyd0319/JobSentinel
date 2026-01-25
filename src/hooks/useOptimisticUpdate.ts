@@ -71,6 +71,7 @@ export function useOptimisticUpdate<T, TArgs extends unknown[] = unknown[]>(
   // Track if component is mounted to prevent state updates after unmount
   const isMountedRef = useRef(true);
   const previousValueRef = useRef<T | null>(null);
+  const currentDataRef = useRef<T | null>(null);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -79,14 +80,19 @@ export function useOptimisticUpdate<T, TArgs extends unknown[] = unknown[]>(
     };
   }, []);
 
+  // Keep currentDataRef in sync with data state
+  useEffect(() => {
+    currentDataRef.current = data;
+  }, [data]);
+
   const execute = useCallback(
     async (optimisticValue: T, ...args: TArgs): Promise<T | undefined> => {
       if (!isMountedRef.current) return undefined;
 
-      // Store previous value for rollback BEFORE setting optimistic value
-      previousValueRef.current = data;
+      // Capture current value before async operation starts
+      previousValueRef.current = currentDataRef.current;
 
-      // Apply optimistic update immediately (synchronously)
+      // Apply optimistic update immediately
       setData(optimisticValue);
       setLoading(true);
       setError(null);
@@ -130,7 +136,7 @@ export function useOptimisticUpdate<T, TArgs extends unknown[] = unknown[]>(
         }
       }
     },
-    [asyncFn, data, successMessage, errorMessage, showSuccessToast, showErrorToast, onSuccess, onError, onRollback, toast]
+    [asyncFn, successMessage, errorMessage, showSuccessToast, showErrorToast, onSuccess, onError, onRollback, toast]
   );
 
   const reset = useCallback(() => {

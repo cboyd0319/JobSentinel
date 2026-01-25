@@ -334,7 +334,6 @@ impl ScoringEngine {
     ///
     /// Compares the job requirements against the user's active resume.
     /// Returns (score, reasons) tuple.
-    #[must_use]
     async fn score_skills_with_resume(
         &self,
         job: &Job,

@@ -3,10 +3,11 @@
 //! Scrapes jobs from Y Combinator's job board for YC-backed startups.
 //! Features curated startup positions from YC portfolio companies.
 
+use super::error::ScraperError;
 use super::http_client::get_client;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
-use anyhow::Result;
+
 use async_trait::async_trait;
 use chrono::Utc;
 use scraper::{Html, Selector};
@@ -70,9 +71,10 @@ impl YcStartupScraper {
             .await?;
 
         if !response.status().is_success() {
-            return Err(anyhow::anyhow!(
-                "YC Work at a Startup request failed: {}",
-                response.status()
+            return Err(ScraperError::http_status(
+                response.status().as_u16(),
+                &url,
+                format!("YC Work at a Startup request failed: {}", response.status()),
             ));
         }
 
@@ -85,7 +87,7 @@ impl YcStartupScraper {
 
     /// Parse HTML to extract job listings
     #[allow(clippy::expect_used)] // Static CSS selectors are known valid at compile time
-    fn parse_html(&self, html: &str) -> Result<Vec<Job>> {
+    fn parse_html(&self, html: &str) -> Result<Vec<Job>, ScraperError> {
         let document = Html::parse_document(html);
         let mut jobs = Vec::new();
 

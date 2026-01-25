@@ -1,7 +1,7 @@
 // Dashboard Auto-Refresh Hook
 // Manages auto-refresh timer logic and countdown display
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { Job, Statistics, ScrapingStatus } from "../DashboardTypes";
 import { useToast } from "../../contexts";
 import { notifyScrapingComplete } from "../../utils/notifications";
@@ -26,6 +26,12 @@ export function useDashboardAutoRefresh({
   // countdownTick forces re-renders to update countdown display - value is intentionally unused
   const [, setCountdownTick] = useState(0);
   const toast = useToast();
+
+  // Use ref to access current statistics value in interval callback (avoid stale closure)
+  const statisticsRef = useRef(statistics);
+  useEffect(() => {
+    statisticsRef.current = statistics;
+  }, [statistics]);
 
   // Countdown display update effect - refreshes every second when auto-refresh is enabled
   useEffect(() => {
@@ -82,9 +88,10 @@ export function useDashboardAutoRefresh({
           status: statusData,
         });
 
-        // Check for new high matches
-        if (statsData.high_matches > statistics.high_matches) {
-          const newCount = statsData.high_matches - statistics.high_matches;
+        // Check for new high matches - use ref to avoid stale closure
+        const previousHighMatches = statisticsRef.current.high_matches;
+        if (statsData.high_matches > previousHighMatches) {
+          const newCount = statsData.high_matches - previousHighMatches;
           toast.success("New matches found!", `${newCount} new high-match jobs`);
           notifyScrapingComplete(jobsData.length, newCount);
         }
@@ -102,7 +109,8 @@ export function useDashboardAutoRefresh({
       clearInterval(intervalId);
       setNextRefreshTime(null);
     };
-  }, [autoRefreshEnabled, autoRefreshInterval, searching, showSettings, statistics.high_matches, toast, onDataUpdate]);
+    // Removed statistics.high_matches from deps - now using ref to avoid stale closure
+  }, [autoRefreshEnabled, autoRefreshInterval, searching, showSettings, toast, onDataUpdate]);
 
   const formatTimeUntil = (date: Date) => {
     const now = Date.now();

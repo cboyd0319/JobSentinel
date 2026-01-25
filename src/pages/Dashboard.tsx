@@ -66,6 +66,7 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
   // Refs
   const jobListRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null!);
+  const fetchDataRef = useRef<(() => Promise<void>) | null>(null);
 
   // Accessibility IDs (SSR-safe)
   const saveSearchNameId = useId();
@@ -127,6 +128,11 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
     }
   }, [autoRefresh]);
 
+  // Keep ref updated to avoid stale closure in timeout
+  useEffect(() => {
+    fetchDataRef.current = fetchData;
+  }, [fetchData]);
+
   useEffect(() => {
     fetchData();
   }, [fetchData]);
@@ -154,14 +160,14 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
     if (autoRefresh.autoRefreshEnabled) return;
 
     const initialRefresh = setTimeout(() => {
-      if (jobs.length === 0) {
-        fetchData();
+      // Use ref to get current fetchData and jobs.length to avoid stale closure
+      if (jobs.length === 0 && fetchDataRef.current) {
+        fetchDataRef.current();
       }
     }, 30000);
 
     return () => clearTimeout(initialRefresh);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoRefresh.autoRefreshEnabled]);
+  }, [autoRefresh.autoRefreshEnabled, jobs.length]);
 
   // Cleanup cooldown timers on unmount
   useEffect(() => {

@@ -90,6 +90,7 @@ export const CompanyAutocomplete = memo(function CompanyAutocomplete({
   const [selectedIndex, setSelectedIndex] = useState(0);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const isMountedRef = useRef(true);
 
   // Filter suggestions based on input (memoized to prevent useCallback dependency issues)
   const suggestions = useMemo(() => {
@@ -116,6 +117,13 @@ export const CompanyAutocomplete = memo(function CompanyAutocomplete({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Track mounted state
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
   // Reset selection when suggestions change
   useEffect(() => {
     setSelectedIndex(0);
@@ -125,7 +133,13 @@ export const CompanyAutocomplete = memo(function CompanyAutocomplete({
     onAdd(companyName);
     onChange('');
     setShowSuggestions(false);
-    inputRef.current?.focus();
+    
+    // Focus input after state updates with proper timing
+    requestAnimationFrame(() => {
+      if (isMountedRef.current && inputRef.current && document.body.contains(inputRef.current)) {
+        inputRef.current.focus();
+      }
+    });
   }, [onAdd, onChange]);
 
   const handleAdd = useCallback(() => {

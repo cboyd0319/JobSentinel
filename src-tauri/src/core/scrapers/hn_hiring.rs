@@ -4,10 +4,11 @@
 //! These threads are posted on the first of each month and contain
 //! high-quality tech job postings from the HN community.
 
+use super::error::ScraperError;
 use super::http_client::get_client;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
-use anyhow::Result;
+
 use async_trait::async_trait;
 use chrono::Utc;
 use sha2::{Digest, Sha256};
@@ -43,7 +44,11 @@ impl HnHiringScraper {
             .await?;
 
         if !response.status().is_success() {
-            return Err(anyhow::anyhow!("HN search failed: {}", response.status()));
+            return Err(ScraperError::http_status(
+                response.status().as_u16(),
+                search_url,
+                format!("HN search failed: {}", response.status()),
+            ));
         }
 
         let search_result: serde_json::Value = response.json().await?;
@@ -52,7 +57,10 @@ impl HnHiringScraper {
         let thread_id = search_result["hits"]
             .get(0)
             .and_then(|h| h["objectID"].as_str())
-            .ok_or_else(|| anyhow::anyhow!("Could not find Who is hiring thread"))?;
+            .ok_or_else(|| ScraperError::SelectorNotFound {
+                url: search_url.to_string(),
+                selector: "hits[0].objectID".to_string(),
+            })?;
 
         // Fetch comments from the thread
         let comments_url = format!(
@@ -67,9 +75,10 @@ impl HnHiringScraper {
             .await?;
 
         if !comments_response.status().is_success() {
-            return Err(anyhow::anyhow!(
-                "HN comments fetch failed: {}",
-                comments_response.status()
+            return Err(ScraperError::http_status(
+                comments_response.status().as_u16(),
+                &comments_url,
+                format!("HN comments fetch failed: {}", comments_response.status()),
             ));
         }
 
@@ -81,12 +90,16 @@ impl HnHiringScraper {
     }
 
     /// Parse comments to extract job postings
-    fn parse_comments(&self, data: &serde_json::Value) -> Result<Vec<Job>> {
+    fn parse_comments(&self, data: &serde_json::Value) -> Result<Vec<Job>, ScraperError> {
         let mut jobs = Vec::new();
 
         let hits = data["hits"]
             .as_array()
-            .ok_or_else(|| anyhow::anyhow!("No hits in response"))?;
+            .ok_or_else(|| ScraperError::parse(
+                "JSON",
+                "HN API response",
+                std::io::Error::new(std::io::ErrorKind::InvalidData, "No hits in response"),
+            ))?;
 
         for comment in hits.iter().take(self.limit * 2) {
             // Take more than limit since we'll filter

@@ -97,9 +97,9 @@ All major features complete:
 - **Market Intelligence UI** - Interactive charts, tabbed layout, heatmaps
 - **Custom React Hooks** - useOptimisticUpdate, usePagination, useFormValidation
 - **Enhanced Error Handling** - Component-level error boundaries, retry logic
-- **Comprehensive Test Suite** - 4,286+ tests (2,129 frontend + 2,157 Rust)
+- **Comprehensive Test Suite** - 4,449+ tests (2,274 frontend + 2,175 Rust)
 
-**v2.6.3 NEW:** Custom hooks, config validation, error boundaries, expanded test coverage
+**v2.6.3 NEW:** Security fixes (XSS, URL validation), memory leak fixes, standardized error types, 145 new tests
 
 **Next:** v2.7 - Machine learning predictions, official installers
 

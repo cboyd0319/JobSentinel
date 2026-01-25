@@ -244,9 +244,11 @@ cargo audit
 
 - Use descriptive variable names
 - Add doc comments for public APIs
-- Handle errors explicitly (avoid `.unwrap()` in production)
+- Handle errors explicitly with domain-specific error types (`ScraperError`, `DatabaseError`)
+- Use structured error handling with `thiserror` (avoid `.unwrap()` in production)
 - Use `tracing::` for logging (not `println!`)
 - Keep functions small and focused
+- Sanitize URLs in error messages to prevent information leakage
 
 **Example:**
 
@@ -258,11 +260,28 @@ cargo audit
 ///
 /// # Returns
 /// * `Ok(Vec<Job>)` - List of jobs found
-/// * `Err(anyhow::Error)` - If scraping fails
-pub async fn scrape_company(&self, company: &GreenhouseCompany) -> Result<Vec<Job>> {
+/// * `Err(ScraperError)` - If scraping fails with structured error context
+///
+/// # Errors
+/// Returns `ScraperError` for HTTP errors, parsing failures, or rate limiting
+pub async fn scrape_company(&self, company: &GreenhouseCompany) -> ScraperResult {
     tracing::info!("Scraping Greenhouse: {}", company.name);
 
-    // Implementation...
+    let response = self.client
+        .get(&company.url)
+        .send()
+        .await
+        .map_err(|e| ScraperError::http_request(&company.url, e))?;
+
+    if !response.status().is_success() {
+        return Err(ScraperError::http_status(
+            response.status().as_u16(),
+            &company.url,
+            "Failed to fetch jobs"
+        ));
+    }
+
+    // Parse and return jobs...
 }
 ```
 

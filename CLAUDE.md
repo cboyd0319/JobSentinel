@@ -7,7 +7,7 @@ Tauri 2.x (Rust backend) and React 19 (TypeScript frontend).
 
 **Current Version:** 2.6.3 (January 2026)
 **Primary Target:** Windows 11+, macOS
-**Tests:** 4,286+ passing (2,129 frontend + 2,157 Rust)
+**Tests:** 4,449+ passing (2,274 frontend + 2,175 Rust)
 
 ## Tech Stack
 

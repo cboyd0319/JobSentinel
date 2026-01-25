@@ -3,10 +3,11 @@
 //! Integrates with JobsWithGPT via Model Context Protocol for 500K+ job listings.
 //! MCP is a JSON-RPC based protocol for querying structured data.
 
+use super::error::ScraperError;
 use super::http_client::get_client;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
-use anyhow::Result;
+
 use async_trait::async_trait;
 use chrono::Utc;
 use sha2::{Digest, Sha256};
@@ -62,14 +63,21 @@ impl JobsWithGptScraper {
         let response = client.post(&self.endpoint).json(&request).send().await?;
 
         if !response.status().is_success() {
-            return Err(anyhow::anyhow!("MCP server failed: {}", response.status()));
+            return Err(ScraperError::http_status(
+                response.status().as_u16(),
+                &self.endpoint,
+                format!("MCP server failed: {}", response.status()),
+            ));
         }
 
         let json: serde_json::Value = response.json().await?;
 
         // Parse MCP response: { "jsonrpc": "2.0", "result": [...], "id": 1 }
         if let Some(error) = json.get("error") {
-            return Err(anyhow::anyhow!("MCP error: {}", error));
+            return Err(ScraperError::Generic {
+                scraper: "jobswithgpt".to_string(),
+                message: format!("MCP error: {}", error),
+            });
         }
 
         let mut jobs = Vec::new();
@@ -87,7 +95,7 @@ impl JobsWithGptScraper {
     }
 
     /// Parse a job from MCP response
-    fn parse_mcp_job(&self, data: &serde_json::Value) -> Result<Option<Job>> {
+    fn parse_mcp_job(&self, data: &serde_json::Value) -> Result<Option<Job>, ScraperError> {
         let title = data["title"].as_str().unwrap_or("").to_string();
         let company = data["company"].as_str().unwrap_or("Unknown").to_string();
         let url = data["url"].as_str().unwrap_or("").to_string();

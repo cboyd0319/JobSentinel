@@ -178,8 +178,8 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
   }, [onClose]);
 
   const handleSetGoal = () => {
-    const target = parseInt(goalInput);
-    if (target > 0) {
+    const target = parseInt(goalInput, 10);
+    if (!isNaN(target) && target > 0) {
       saveWeeklyGoal(target);
       setWeeklyGoal(getWeeklyGoal());
       setShowGoalInput(false);
@@ -192,7 +192,8 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
     setError(null);
     try {
       // Pass date range filter if not 'all'
-      const params = dateRange !== 'all' ? { days: parseInt(dateRange) } : undefined;
+      const days = parseInt(dateRange, 10);
+      const params = dateRange !== 'all' && !isNaN(days) ? { days } : undefined;
       const data = await cachedInvoke<ApplicationStats>(
         "get_application_stats",
         params,

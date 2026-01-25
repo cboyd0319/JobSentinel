@@ -3,10 +3,10 @@
 //! Scrapes jobs from Greenhouse-powered career pages.
 //! Greenhouse is used by companies like Cloudflare, Stripe, Figma, etc.
 
+use super::error::ScraperError;
 use super::http_client::get_with_retry;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
-use anyhow::Result;
 use async_trait::async_trait;
 use chrono::Utc;
 use scraper::{Html, Selector};
@@ -37,14 +37,16 @@ impl GreenhouseScraper {
         tracing::info!("Starting Greenhouse scrape");
 
         // Fetch the careers page with retry logic
-        let response = get_with_retry(&company.url).await?;
+        let response = get_with_retry(&company.url)
+            .await
+            .map_err(|e| ScraperError::from_anyhow("greenhouse", e))?;
 
         if !response.status().is_success() {
             tracing::error!("HTTP error {} from Greenhouse", response.status());
-            return Err(anyhow::anyhow!(
-                "HTTP {}: {}",
-                response.status(),
-                company.url
+            return Err(ScraperError::http_status(
+                response.status().as_u16(),
+                &company.url,
+                format!("HTTP {} from Greenhouse", response.status()),
             ));
         }
 
@@ -95,7 +97,7 @@ impl GreenhouseScraper {
         &self,
         element: &scraper::ElementRef,
         company: &GreenhouseCompany,
-    ) -> Result<Option<Job>> {
+    ) -> Result<Option<Job>, ScraperError> {
         // Extract title
         let title_selector = Selector::parse("a, .title, [data-gh-job-title]").ok();
         let title = if let Some(sel) = title_selector {
@@ -181,7 +183,10 @@ impl GreenhouseScraper {
             .trim_end_matches('/')
             .split('/')
             .next_back()
-            .ok_or_else(|| anyhow::anyhow!("Invalid Greenhouse URL"))?;
+            .ok_or_else(|| ScraperError::InvalidUrl {
+                url: company.url.clone(),
+                reason: "Cannot extract company ID from Greenhouse URL".to_string(),
+            })?;
 
         let api_url = format!(
             "https://boards-api.greenhouse.io/v1/boards/{}/jobs",
@@ -191,12 +196,15 @@ impl GreenhouseScraper {
         tracing::debug!("Fetching Greenhouse API: {}", api_url);
 
         // Use retry logic for API calls
-        let response = get_with_retry(&api_url).await?;
+        let response = get_with_retry(&api_url)
+            .await
+            .map_err(|e| ScraperError::from_anyhow("greenhouse", e))?;
 
         if !response.status().is_success() {
-            return Err(anyhow::anyhow!(
-                "Greenhouse API failed: {}",
-                response.status()
+            return Err(ScraperError::http_status(
+                response.status().as_u16(),
+                &api_url,
+                format!("Greenhouse API failed: {}", response.status()),
             ));
         }
 

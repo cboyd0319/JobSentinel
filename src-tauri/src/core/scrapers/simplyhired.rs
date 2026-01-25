@@ -5,10 +5,11 @@
 //! Note: SimplyHired has Cloudflare protection on their main site,
 //! but RSS feeds may work. Falls back gracefully if blocked.
 
+use super::error::ScraperError;
 use super::http_client::get_client;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
-use anyhow::Result;
+
 use async_trait::async_trait;
 use chrono::Utc;
 use sha2::{Digest, Sha256};
@@ -74,7 +75,11 @@ impl SimplyHiredScraper {
                 );
                 return Ok(vec![]); // Return empty instead of error
             }
-            return Err(anyhow::anyhow!("SimplyHired RSS failed: {}", status));
+            return Err(ScraperError::http_status(
+                status.as_u16(),
+                &url,
+                format!("SimplyHired RSS failed: {}", status),
+            ));
         }
 
         let body = response.text().await?;
@@ -90,7 +95,7 @@ impl SimplyHiredScraper {
     }
 
     /// Parse RSS feed XML
-    fn parse_rss(&self, xml: &str) -> Result<Vec<Job>> {
+    fn parse_rss(&self, xml: &str) -> Result<Vec<Job>, ScraperError> {
         let mut jobs = Vec::with_capacity(self.limit);
 
         // Simple XML parsing for RSS items
@@ -109,7 +114,7 @@ impl SimplyHiredScraper {
     }
 
     /// Parse a single RSS item
-    fn parse_item(&self, item: &str) -> Result<Option<Job>> {
+    fn parse_item(&self, item: &str) -> Result<Option<Job>, ScraperError> {
         // Extract title
         let title = match Self::extract_tag(item, "title") {
             Some(t) if !t.is_empty() => Self::decode_html_entities(&t),

@@ -3,10 +3,10 @@
 //! Scrapes remote jobs from RemoteOK's public JSON API.
 //! RemoteOK is a popular remote job board with tech-focused listings.
 
+use super::error::ScraperError;
 use super::http_client::get_client;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
-use anyhow::Result;
 use async_trait::async_trait;
 use chrono::Utc;
 use sha2::{Digest, Sha256};
@@ -36,21 +36,24 @@ impl RemoteOkScraper {
             .get(url)
             .header("User-Agent", "JobSentinel/1.0")
             .send()
-            .await?;
+            .await
+            .map_err(|e| ScraperError::http_request(url, e))?;
 
         if !response.status().is_success() {
-            return Err(anyhow::anyhow!(
-                "RemoteOK API failed: {}",
-                response.status()
+            return Err(ScraperError::http_status(
+                response.status().as_u16(),
+                url,
+                format!("RemoteOK API failed: {}", response.status()),
             ));
         }
 
         let json: serde_json::Value = response.json().await?;
 
         // RemoteOK returns an array where first element is a legal notice
-        let jobs_array = json
-            .as_array()
-            .ok_or_else(|| anyhow::anyhow!("Expected array from RemoteOK API"))?;
+        let jobs_array = json.as_array().ok_or_else(|| {
+            ScraperError::parse("JSON", url, 
+                std::io::Error::new(std::io::ErrorKind::InvalidData, "Expected array from RemoteOK API"))
+        })?;
 
         let mut jobs = Vec::new();
         let tags_lower: Vec<String> = self.tags.iter().map(|t| t.to_lowercase()).collect();
@@ -87,7 +90,7 @@ impl RemoteOkScraper {
     }
 
     /// Parse a job from RemoteOK JSON response
-    fn parse_job(&self, data: &serde_json::Value) -> Result<Option<Job>> {
+    fn parse_job(&self, data: &serde_json::Value) -> Result<Option<Job>, ScraperError> {
         // Skip if no position field (might be a non-job entry)
         let title = match data["position"].as_str() {
             Some(t) if !t.is_empty() => t.to_string(),

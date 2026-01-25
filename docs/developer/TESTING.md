@@ -153,10 +153,10 @@ easier maintenance and regeneration.
 | `core/market_intelligence` | 12 | Trends + alerts + analytics |
 | `platforms/macos` | 6 | Paths + initialization |
 | `cloud/common` | 1 | Deployment mode detection |
-| **Unit Tests** | **1992** | **Core module coverage** |
-| **Integration Tests** | **40** | **Full pipeline** |
-| **Doc Tests** | **1** | **Example code verification** |
-| **Total** | **2033 passing** | **0 ignored** |
+| **Backend Unit Tests** | **2,100+** | **Core module coverage** |
+| **Backend Integration Tests** | **75+** | **Full pipeline** |
+| **Frontend Tests** | **2,274+** | **Component and integration** |
+| **Total** | **4,449+ passing** | **26 ignored** |
 
 ---
 
@@ -584,6 +584,6 @@ See [tests/README.md](../../tests/README.md) for full documentation.
 ---
 
 **Last Updated**: January 18, 2026
-**Test Count**: 2085+ passing (unit + integration + E2E)
+**Test Count**: 4,449+ passing (2,175 backend + 2,274+ frontend)
 **Version**: v2.5.2
 **Maintained By**: The Rust Mac Overlord 🦀

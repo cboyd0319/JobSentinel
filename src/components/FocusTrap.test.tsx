@@ -29,13 +29,16 @@ describe("FocusTrap", () => {
   });
 
   describe("initial focus", () => {
-    it("focuses first focusable element when active", () => {
+    it("focuses first focusable element when active", async () => {
       render(
         <FocusTrap active={true}>
           <button>First button</button>
           <button>Second button</button>
         </FocusTrap>
       );
+
+      // Wait for requestAnimationFrame to complete
+      await new Promise(resolve => requestAnimationFrame(() => resolve(undefined)));
 
       const firstButton = screen.getByRole("button", { name: "First button" });
       expect(firstButton).toHaveFocus();
@@ -53,24 +56,30 @@ describe("FocusTrap", () => {
       expect(firstButton).not.toHaveFocus();
     });
 
-    it("defaults to active when prop is not provided", () => {
+    it("defaults to active when prop is not provided", async () => {
       render(
         <FocusTrap>
           <button>First button</button>
         </FocusTrap>
       );
 
+      // Wait for requestAnimationFrame to complete
+      await new Promise(resolve => requestAnimationFrame(() => resolve(undefined)));
+
       const firstButton = screen.getByRole("button", { name: "First button" });
       expect(firstButton).toHaveFocus();
     });
 
-    it("focuses first input element", () => {
+    it("focuses first input element", async () => {
       render(
         <FocusTrap>
           <input aria-label="First input" />
           <button>Button</button>
         </FocusTrap>
       );
+
+      // Wait for requestAnimationFrame to complete
+      await new Promise(resolve => requestAnimationFrame(() => resolve(undefined)));
 
       const firstInput = screen.getByLabelText("First input");
       expect(firstInput).toHaveFocus();
@@ -88,6 +97,9 @@ describe("FocusTrap", () => {
           <button>Button 3</button>
         </FocusTrap>
       );
+
+      // Wait for requestAnimationFrame to complete
+      await new Promise(resolve => requestAnimationFrame(() => resolve(undefined)));
 
       const button1 = screen.getByRole("button", { name: "Button 1" });
       const button2 = screen.getByRole("button", { name: "Button 2" });
@@ -108,6 +120,9 @@ describe("FocusTrap", () => {
           <button>Button 3</button>
         </FocusTrap>
       );
+
+      // Wait for requestAnimationFrame to complete
+      await new Promise(resolve => requestAnimationFrame(() => resolve(undefined)));
 
       const button1 = screen.getByRole("button", { name: "Button 1" });
       const button3 = screen.getByRole("button", { name: "Button 3" });
@@ -155,6 +170,9 @@ describe("FocusTrap", () => {
         </FocusTrap>
       );
 
+      // Wait for requestAnimationFrame to complete
+      await new Promise(resolve => requestAnimationFrame(() => resolve(undefined)));
+
       const button1 = screen.getByRole("button", { name: "Button 1" });
       const button3 = screen.getByRole("button", { name: "Button 3" });
 
@@ -192,23 +210,29 @@ describe("FocusTrap", () => {
   });
 
   describe("focusable elements", () => {
-    it("includes buttons in focus trap", () => {
+    it("includes buttons in focus trap", async () => {
       render(
         <FocusTrap>
           <button>Button</button>
         </FocusTrap>
       );
 
+      // Wait for requestAnimationFrame to complete
+      await new Promise(resolve => requestAnimationFrame(() => resolve(undefined)));
+
       const button = screen.getByRole("button", { name: "Button" });
       expect(button).toHaveFocus();
     });
 
-    it("includes links in focus trap", () => {
+    it("includes links in focus trap", async () => {
       render(
         <FocusTrap>
           <a href="#test">Link</a>
         </FocusTrap>
       );
+
+      // Wait for requestAnimationFrame to complete
+      await new Promise(resolve => requestAnimationFrame(() => resolve(undefined)));
 
       const link = screen.getByRole("link", { name: "Link" });
       expect(link).toHaveFocus();
@@ -224,6 +248,9 @@ describe("FocusTrap", () => {
         </FocusTrap>
       );
 
+      // Wait for requestAnimationFrame to complete
+      await new Promise(resolve => requestAnimationFrame(() => resolve(undefined)));
+
       const input1 = screen.getByLabelText("Input 1");
       const input2 = screen.getByLabelText("Input 2");
 
@@ -233,18 +260,21 @@ describe("FocusTrap", () => {
       expect(input2).toHaveFocus();
     });
 
-    it("includes textareas in focus trap", () => {
+    it("includes textareas in focus trap", async () => {
       render(
         <FocusTrap>
           <textarea aria-label="Textarea" />
         </FocusTrap>
       );
 
+      // Wait for requestAnimationFrame to complete
+      await new Promise(resolve => requestAnimationFrame(() => resolve(undefined)));
+
       const textarea = screen.getByLabelText("Textarea");
       expect(textarea).toHaveFocus();
     });
 
-    it("includes select elements in focus trap", () => {
+    it("includes select elements in focus trap", async () => {
       render(
         <FocusTrap>
           <select aria-label="Select">
@@ -252,6 +282,9 @@ describe("FocusTrap", () => {
           </select>
         </FocusTrap>
       );
+
+      // Wait for requestAnimationFrame to complete
+      await new Promise(resolve => requestAnimationFrame(() => resolve(undefined)));
 
       const select = screen.getByLabelText("Select");
       expect(select).toHaveFocus();
@@ -267,6 +300,9 @@ describe("FocusTrap", () => {
         </FocusTrap>
       );
 
+      // Wait for requestAnimationFrame to complete
+      await new Promise(resolve => requestAnimationFrame(() => resolve(undefined)));
+
       const div1 = screen.getByText("Focusable div 1");
       const div2 = screen.getByText("Focusable div 2");
 
@@ -276,7 +312,7 @@ describe("FocusTrap", () => {
       expect(div2).toHaveFocus();
     });
 
-    it("excludes disabled buttons from focus trap", () => {
+    it("excludes disabled buttons from focus trap", async () => {
       render(
         <FocusTrap>
           <button disabled>Disabled button</button>
@@ -284,11 +320,14 @@ describe("FocusTrap", () => {
         </FocusTrap>
       );
 
+      // Wait for requestAnimationFrame to complete
+      await new Promise(resolve => requestAnimationFrame(() => resolve(undefined)));
+
       const enabledButton = screen.getByRole("button", { name: "Enabled button" });
       expect(enabledButton).toHaveFocus();
     });
 
-    it("excludes disabled inputs from focus trap", () => {
+    it("excludes disabled inputs from focus trap", async () => {
       render(
         <FocusTrap>
           <input disabled aria-label="Disabled input" />
@@ -296,17 +335,23 @@ describe("FocusTrap", () => {
         </FocusTrap>
       );
 
+      // Wait for requestAnimationFrame to complete
+      await new Promise(resolve => requestAnimationFrame(() => resolve(undefined)));
+
       const enabledInput = screen.getByLabelText("Enabled input");
       expect(enabledInput).toHaveFocus();
     });
 
-    it("excludes elements with tabindex -1 from focus trap", () => {
+    it("excludes elements with tabindex -1 from focus trap", async () => {
       render(
         <FocusTrap>
           <div tabIndex={-1}>Not focusable</div>
           <button>Focusable button</button>
         </FocusTrap>
       );
+
+      // Wait for requestAnimationFrame to complete
+      await new Promise(resolve => requestAnimationFrame(() => resolve(undefined)));
 
       const button = screen.getByRole("button", { name: "Focusable button" });
       expect(button).toHaveFocus();
@@ -322,6 +367,9 @@ describe("FocusTrap", () => {
           <button>Only button</button>
         </FocusTrap>
       );
+
+      // Wait for requestAnimationFrame to complete
+      await new Promise(resolve => requestAnimationFrame(() => resolve(undefined)));
 
       const button = screen.getByRole("button", { name: "Only button" });
       expect(button).toHaveFocus();
@@ -343,6 +391,9 @@ describe("FocusTrap", () => {
           <button>Button 1</button>
         </FocusTrap>
       );
+
+      // Wait for requestAnimationFrame to complete
+      await new Promise(resolve => requestAnimationFrame(() => resolve(undefined)));
 
       const button1 = screen.getByRole("button", { name: "Button 1" });
       expect(button1).toHaveFocus();
@@ -369,6 +420,9 @@ describe("FocusTrap", () => {
           <button>Button</button>
         </FocusTrap>
       );
+
+      // Wait for requestAnimationFrame to complete
+      await new Promise(resolve => requestAnimationFrame(() => resolve(undefined)));
 
       const button = screen.getByRole("button", { name: "Button" });
       expect(button).toHaveFocus();
@@ -397,6 +451,9 @@ describe("FocusTrap", () => {
           <button>Button 2</button>
         </FocusTrap>
       );
+
+      // Wait for requestAnimationFrame to complete
+      await new Promise(resolve => requestAnimationFrame(() => resolve(undefined)));
 
       const button1 = screen.getByRole("button", { name: "Nested button 1" });
       const deepButton = screen.getByRole("button", { name: "Deeply nested button" });

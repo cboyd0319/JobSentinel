@@ -88,10 +88,30 @@ export function validatePhone(phone: string): string | undefined {
 export function validateSlackWebhook(url: string): string | undefined {
   if (!url.trim()) return undefined; // Empty is valid (optional field)
 
-  if (!url.startsWith("https://hooks.slack.com/services/")) {
-    return "Must be a valid Slack webhook URL (https://hooks.slack.com/services/...)";
+  // Parse URL to validate host/origin, not just string prefix
+  // This prevents bypass attacks like "https://evil.com?https://hooks.slack.com/services/..."
+  try {
+    const parsed = new URL(url);
+    
+    // Validate scheme
+    if (parsed.protocol !== "https:") {
+      return "Slack webhook must use HTTPS";
+    }
+    
+    // Validate host
+    if (parsed.hostname !== "hooks.slack.com") {
+      return "Slack webhook must use hooks.slack.com domain";
+    }
+    
+    // Validate path
+    if (!parsed.pathname.startsWith("/services/")) {
+      return "Invalid Slack webhook path";
+    }
+    
+    return undefined;
+  } catch (e) {
+    return "Invalid URL format";
   }
-  return undefined;
 }
 
 /**
@@ -102,10 +122,30 @@ export function validateSlackWebhook(url: string): string | undefined {
 export function validateDiscordWebhook(url: string): string | undefined {
   if (!url.trim()) return undefined; // Empty is valid (optional field)
 
-  if (!url.startsWith("https://discord.com/api/webhooks/") && !url.startsWith("https://discordapp.com/api/webhooks/")) {
-    return "Must be a valid Discord webhook URL";
+  // Parse URL to validate host/origin, not just string prefix
+  // This prevents bypass attacks like "https://evil.com?https://discord.com/api/webhooks/..."
+  try {
+    const parsed = new URL(url);
+    
+    // Validate scheme
+    if (parsed.protocol !== "https:") {
+      return "Discord webhook must use HTTPS";
+    }
+    
+    // Validate host
+    if (parsed.hostname !== "discord.com" && parsed.hostname !== "discordapp.com") {
+      return "Discord webhook must use discord.com or discordapp.com domain";
+    }
+    
+    // Validate path
+    if (!parsed.pathname.startsWith("/api/webhooks/")) {
+      return "Invalid Discord webhook path";
+    }
+    
+    return undefined;
+  } catch (e) {
+    return "Invalid URL format";
   }
-  return undefined;
 }
 
 /**

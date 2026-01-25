@@ -6,10 +6,11 @@
 //! attempts to fetch jobs using their JSON API endpoints and falls
 //! back gracefully if blocked.
 
+use super::error::ScraperError;
 use super::http_client::get_client;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
-use anyhow::Result;
+
 use async_trait::async_trait;
 use chrono::Utc;
 use sha2::{Digest, Sha256};
@@ -70,7 +71,11 @@ impl GlassdoorScraper {
                 tracing::warn!("Glassdoor returned {} - likely Cloudflare blocked", status);
                 return Ok(vec![]); // Return empty instead of error
             }
-            return Err(anyhow::anyhow!("Glassdoor request failed: {}", status));
+            return Err(ScraperError::http_status(
+                status.as_u16(),
+                &api_url,
+                format!("Glassdoor request failed: {}", status),
+            ));
         }
 
         let body = response.text().await?;
@@ -89,7 +94,7 @@ impl GlassdoorScraper {
     }
 
     /// Parse HTML response and extract job data
-    fn parse_html(&self, html: &str) -> Result<Vec<Job>> {
+    fn parse_html(&self, html: &str) -> Result<Vec<Job>, ScraperError> {
         let mut jobs = Vec::with_capacity(self.limit);
 
         // Look for JSON-LD structured data (Schema.org JobPosting)
@@ -112,7 +117,7 @@ impl GlassdoorScraper {
     }
 
     /// Extract jobs from JSON-LD structured data
-    fn extract_json_ld(&self, html: &str) -> Result<Option<Vec<Job>>> {
+    fn extract_json_ld(&self, html: &str) -> Result<Option<Vec<Job>>, ScraperError> {
         // Find JSON-LD script tags
         for script in html.split("<script type=\"application/ld+json\">") {
             if let Some(end) = script.find("</script>") {
@@ -230,7 +235,7 @@ impl GlassdoorScraper {
     }
 
     /// Extract embedded JSON data from Next.js or similar frameworks
-    fn extract_embedded_json(&self, html: &str) -> Result<Option<Vec<Job>>> {
+    fn extract_embedded_json(&self, html: &str) -> Result<Option<Vec<Job>>, ScraperError> {
         // Look for __NEXT_DATA__ pattern
         if let Some(start) = html.find("__NEXT_DATA__") {
             if let Some(json_start) = html[start..].find('{') {

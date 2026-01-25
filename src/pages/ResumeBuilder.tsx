@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import DOMPurify from "dompurify";
 import { Button } from "../components/Button";
 import { Card, CardHeader } from "../components/Card";
 import { LoadingSpinner } from "../components/LoadingSpinner";
@@ -1269,8 +1270,8 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                         atsAnalysis ? "lg:col-span-2" : "lg:col-span-3"
                       } border border-surface-200 dark:border-surface-600 rounded-lg p-6 bg-white dark:bg-surface-700 max-h-96 overflow-y-auto`}
                     >
-                      {/* SAFETY: HTML is sanitized by Rust backend in render_resume_html */}
-                      <div dangerouslySetInnerHTML={{ __html: previewHtml }} />
+                      {/* SAFETY: HTML is sanitized by DOMPurify (defense in depth with Rust backend) */}
+                      <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(previewHtml) }} />
                     </div>
                   )}
                 </div>

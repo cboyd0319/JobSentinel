@@ -30,8 +30,8 @@
 //! ## Examples
 //!
 //! ```no_run
-//! # use job_sentinel::core::{Database, Config};
-//! # use job_sentinel::core::health::HealthManager;
+//! # use jobsentinel::core::{Database, Config};
+//! # use jobsentinel::core::health::HealthManager;
 //! # use std::sync::Arc;
 //! # async fn example(db: Arc<Database>, config: &Config) -> anyhow::Result<()> {
 //! let health = HealthManager::new(db);
@@ -128,8 +128,8 @@ impl HealthManager {
     /// # Examples
     ///
     /// ```no_run
-    /// # use job_sentinel::core::{Database, Config};
-    /// # use job_sentinel::core::health::HealthManager;
+    /// # use jobsentinel::core::{Database, Config};
+    /// # use jobsentinel::core::health::HealthManager;
     /// # use std::sync::Arc;
     /// # async fn example(manager: &HealthManager, config: &Config) -> anyhow::Result<()> {
     /// let result = manager.run_smoke_test("linkedin", config).await?;

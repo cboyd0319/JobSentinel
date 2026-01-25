@@ -7,6 +7,7 @@ interface FocusTrapProps {
 
 export const FocusTrap = memo(function FocusTrap({ children, active = true }: FocusTrapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const isMountedRef = useRef(true);
 
   useEffect(() => {
     if (!active) return;
@@ -14,12 +15,25 @@ export const FocusTrap = memo(function FocusTrap({ children, active = true }: Fo
     const container = containerRef.current;
     if (!container) return;
 
-    // Focus the first focusable element
-    const focusableElements = getFocusableElements(container);
-    if (focusableElements.length > 0) {
-      (focusableElements[0] as HTMLElement).focus();
-    }
+    // Focus the first focusable element with proper timing
+    requestAnimationFrame(() => {
+      if (!isMountedRef.current || !container) return;
+      
+      const focusableElements = getFocusableElements(container);
+      if (focusableElements.length > 0) {
+        const firstElement = focusableElements[0] as HTMLElement;
+        if (firstElement && document.body.contains(firstElement)) {
+          firstElement.focus();
+        }
+      }
+    });
   }, [active]);
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   const handleKeyDown = (e: KeyboardEvent) => {
     if (!active || e.key !== "Tab") return;

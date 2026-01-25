@@ -102,6 +102,17 @@ pub enum ScraperError {
 }
 
 impl ScraperError {
+    /// Convert from anyhow::Error with scraper context
+    /// 
+    /// This is a migration helper for converting anyhow errors to ScraperError.
+    /// Use specific constructors (http_request, parse, etc.) when possible.
+    pub fn from_anyhow(scraper: impl Into<String>, error: anyhow::Error) -> Self {
+        Self::Generic {
+            scraper: scraper.into(),
+            message: error.to_string(),
+        }
+    }
+
     /// Create an HTTP request error with context
     pub fn http_request(url: impl Into<String>, source: reqwest::Error) -> Self {
         Self::HttpRequest {
@@ -235,6 +246,37 @@ impl ScraperError {
 
 /// Result type alias for scraper operations
 pub type ScraperResult<T> = Result<T, ScraperError>;
+
+/// Implement From trait for easy conversion from common error types
+impl From<reqwest::Error> for ScraperError {
+    fn from(error: reqwest::Error) -> Self {
+        // Try to extract URL from the error if available
+        let url = error.url()
+            .map(|u| u.to_string())
+            .unwrap_or_else(|| "unknown".to_string());
+        
+        if error.is_timeout() {
+            Self::Timeout {
+                url,
+                timeout_secs: 30, // Default timeout
+            }
+        } else if error.is_connect() {
+            Self::Network { url, source: error }
+        } else {
+            Self::HttpRequest { url, source: error }
+        }
+    }
+}
+
+impl From<serde_json::Error> for ScraperError {
+    fn from(error: serde_json::Error) -> Self {
+        Self::ParseError {
+            format: "JSON".to_string(),
+            url: "unknown".to_string(),
+            source: Box::new(error),
+        }
+    }
+}
 
 #[cfg(test)]
 mod tests {

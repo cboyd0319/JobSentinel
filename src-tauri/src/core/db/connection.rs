@@ -13,7 +13,6 @@ pub struct Database {
 
 impl Database {
     /// Connect to SQLite database with optimized settings
-    #[must_use]
     pub async fn connect(path: &std::path::Path) -> Result<Self, sqlx::Error> {
         // Ensure parent directory exists
         if let Some(parent) = path.parent() {
@@ -33,7 +32,6 @@ impl Database {
     }
 
     /// Configure SQLite PRAGMA settings for MAXIMUM performance and integrity
-    #[must_use]
     async fn configure_pragmas(pool: &SqlitePool) -> Result<(), sqlx::Error> {
         tracing::info!("🔧 Configuring SQLite with maximum protections and performance...");
 
@@ -314,7 +312,6 @@ impl Database {
     }
 
     /// Run database migrations
-    #[must_use]
     pub async fn migrate(&self) -> Result<(), sqlx::Error> {
         sqlx::migrate!("./migrations").run(&self.pool).await?;
         Ok(())
@@ -322,7 +319,6 @@ impl Database {
 
     /// Connect to in-memory SQLite database (for testing)
     /// Available in test builds and for integration tests
-    #[must_use]
     pub async fn connect_memory() -> Result<Self, sqlx::Error> {
         let pool = SqlitePool::connect("sqlite::memory:").await?;
         Ok(Database { pool })
@@ -357,7 +353,6 @@ impl Database {
     ///
     /// Should be run periodically (daily or after bulk inserts) to keep
     /// query plans optimal. This helps SQLite choose the best indexes.
-    #[must_use]
     pub async fn analyze(&self) -> Result<(), sqlx::Error> {
         sqlx::query("ANALYZE").execute(&self.pool).await?;
         tracing::info!("Updated query planner statistics");
@@ -368,7 +363,6 @@ impl Database {
     ///
     /// Should be run periodically (daily) to keep internal structures optimized.
     /// This is a lightweight operation that SQLite uses to maintain performance.
-    #[must_use]
     pub async fn optimize(&self) -> Result<(), sqlx::Error> {
         sqlx::query("PRAGMA optimize").execute(&self.pool).await?;
         tracing::info!("Optimized database structures");
@@ -376,7 +370,6 @@ impl Database {
     }
 
     /// Get database size in bytes
-    #[must_use]
     pub async fn database_size(&self) -> Result<i64, sqlx::Error> {
         let size: i64 = sqlx::query_scalar("SELECT page_count * page_size FROM pragma_page_count(), pragma_page_size()")
             .fetch_one(&self.pool)
@@ -385,7 +378,6 @@ impl Database {
     }
 
     /// Get WAL (Write-Ahead Log) size in pages
-    #[must_use]
     pub async fn wal_size(&self) -> Result<i64, sqlx::Error> {
         let size: i64 = sqlx::query_scalar("PRAGMA wal_checkpoint(PASSIVE)")
             .fetch_one(&self.pool)
@@ -397,7 +389,6 @@ impl Database {
     ///
     /// This merges the WAL file back into the main database file.
     /// Use this periodically if the WAL grows too large.
-    #[must_use]
     pub async fn checkpoint_wal(&self) -> Result<(), sqlx::Error> {
         sqlx::query("PRAGMA wal_checkpoint(TRUNCATE)")
             .execute(&self.pool)

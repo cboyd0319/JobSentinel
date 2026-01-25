@@ -3,6 +3,7 @@
 //! Scrapes jobs from Lever-powered career pages.
 //! Lever is used by companies like Netflix, Shopify, IDEO, etc.
 
+use super::error::ScraperError;
 use super::http_client::get_client;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
@@ -43,7 +44,11 @@ impl LeverScraper {
         let response = client.get(&api_url).send().await?;
 
         if !response.status().is_success() {
-            return Err(anyhow::anyhow!("Lever API failed: {}", response.status()));
+            return Err(ScraperError::http_status(
+                response.status().as_u16(),
+                &api_url,
+                format!("Lever API failed: {}", response.status()),
+            ));
         }
 
         let json: serde_json::Value = response.json().await?;

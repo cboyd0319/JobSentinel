@@ -3,7 +3,6 @@
 //! Implementations for scraping various job boards.
 
 use crate::core::db::Job;
-use anyhow::Result;
 use async_trait::async_trait;
 
 pub mod builtin;
@@ -36,10 +35,11 @@ pub use error::{ScraperError, ScraperResult as TypedScraperResult};
 // NOTE: GovernmentJobs.com and ClearanceJobs.com explicitly prohibit scraping in their ToS.
 // We provide Deep Link Generator and Bookmarklet features instead. See docs/CLAUDE.md for details.
 
-/// Legacy scraper result using anyhow for automatic Send + Sync
+/// Scraper result type using ScraperError for better error context
 ///
-/// Use `TypedScraperResult` for new code with better error context
-pub type ScraperResult = Result<Vec<Job>>;
+/// This provides structured errors with helpful context for debugging and user messages.
+/// All scrapers now use this typed error approach instead of anyhow::Error.
+pub type ScraperResult = Result<Vec<Job>, ScraperError>;
 
 /// Job scraper trait
 #[async_trait]

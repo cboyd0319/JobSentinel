@@ -11,7 +11,7 @@
 <br>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-2.6.0-blue?style=for-the-badge" alt="Version 2.6.0">
+  <img src="https://img.shields.io/badge/Version-2.6.3-blue?style=for-the-badge" alt="Version 2.6.3">
   <img src="https://img.shields.io/badge/Windows-Ready-0078D6?style=for-the-badge&logo=Windows&logoColor=white" alt="Windows">
   <img src="https://img.shields.io/badge/macOS-Ready-000000?style=for-the-badge&logo=apple&logoColor=white" alt="macOS">
   <img src="https://img.shields.io/badge/Linux-Coming_Soon-FCC624?style=for-the-badge&logo=linux&logoColor=black" alt="Linux">
@@ -187,8 +187,8 @@ Power users can navigate entirely by keyboard:
 
 | Platform | Download |
 |----------|----------|
-| **Windows** | [JobSentinel_2.5.2_x64_en-US.msi](https://github.com/cboyd0319/JobSentinel/releases/download/v2.5.2/JobSentinel_2.5.2_x64_en-US.msi) |
-| **macOS (Apple Silicon)** | [JobSentinel_2.5.2_aarch64.dmg](https://github.com/cboyd0319/JobSentinel/releases/download/v2.5.2/JobSentinel_2.5.2_aarch64.dmg) |
+| **Windows** | [JobSentinel_2.6.3_x64_en-US.msi](https://github.com/cboyd0319/JobSentinel/releases/download/v2.6.3/JobSentinel_2.6.3_x64_en-US.msi) |
+| **macOS (Apple Silicon)** | [JobSentinel_2.6.3_aarch64.dmg](https://github.com/cboyd0319/JobSentinel/releases/download/v2.6.3/JobSentinel_2.6.3_aarch64.dmg) |
 
 <details>
 <summary><strong>Or build from source</strong></summary>
@@ -376,7 +376,7 @@ No command line or technical knowledge required.
 ### By the Numbers
 
 - **151 Tauri commands** powering all features
-- **4,085+ tests passing** (1,828 frontend + 2,257 Rust)
+- **4,449+ tests passing** (2,274 frontend + 2,175 Rust)
 - **0 security vulnerabilities** (cargo-audit verified)
 - **~8MB** installed size
 - **<50MB RAM** typical usage
@@ -405,7 +405,7 @@ For full technical documentation, see:
 - **Linux support** — AppImage installer for Linux users
 - **Mobile companion** — Get notifications on your phone
 
-### Just Released (v2.6.0)
+### Just Released (v2.6.3)
 
 - **Comprehensive UX improvements** — Error recovery with retry buttons, skeleton loaders, inline validation
 - **Performance optimizations** — 50+ components memoized, context providers optimized

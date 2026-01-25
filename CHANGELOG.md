@@ -82,9 +82,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Fixed flaky ErrorBoundary tests with correct assertions
   - Simplified ErrorReportingContext tests for worker stability
 
+### Security Fixes
+
+- XSS vulnerability fixed in ResumeBuilder with DOMPurify sanitization
+- URL validation bypass fixed using proper URL parsing (Rust url crate + JS URL API)
+- OCR command injection risk mitigated with symlink validation
+- Webhook URL validation hardened for Slack, Discord, and Teams
+
+### Bug Fixes
+
+- Memory leak fixed in useAsyncOperation (missing cleanup)
+- Race condition fixed in useOptimisticUpdate (stale closure)
+- Focus management race conditions fixed in Modal, CommandPalette, FocusTrap
+- Stale closure bugs fixed in Dashboard auto-refresh
+- parseInt NaN handling added in AnalyticsPanel and ApplyButton
+
+### Code Quality
+
+- All clippy warnings fixed (38 errors resolved)
+- Doctest failures fixed (11 tests)
+- Standardized error types across all 13 scrapers to ScraperError
+- Redundant #[must_use] attributes removed
+
 ### Changed
 
-- **Test counts**: 4,286+ total tests (2,129 frontend + 2,157 Rust)
+- **Test counts**: 4,449+ total tests (2,274 frontend + 2,175 Rust)
+- **New test coverage**
+  - formValidation.test.ts - 65 new tests for all validators
+  - errorHelpers.test.ts - 80 new tests for error handling utilities
 
 ---
 

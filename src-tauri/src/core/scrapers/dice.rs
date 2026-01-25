@@ -3,10 +3,10 @@
 //! Scrapes tech jobs from Dice.com, a tech-focused job board.
 //! Dice specializes in technology and IT positions.
 
+use super::error::ScraperError;
 use super::http_client::get_client;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
-use anyhow::Result;
 use async_trait::async_trait;
 use chrono::Utc;
 use scraper::{Html, Selector};
@@ -66,9 +66,10 @@ impl DiceScraper {
             .await?;
 
         if !response.status().is_success() {
-            return Err(anyhow::anyhow!(
-                "Dice request failed: {}",
-                response.status()
+            return Err(ScraperError::http_status(
+                response.status().as_u16(),
+                &url,
+                format!("Dice request failed: {}", response.status()),
             ));
         }
 
@@ -81,7 +82,7 @@ impl DiceScraper {
 
     /// Parse HTML to extract job listings
     #[allow(clippy::expect_used)] // Static CSS selectors are known valid at compile time
-    fn parse_html(&self, html: &str) -> Result<Vec<Job>> {
+    fn parse_html(&self, html: &str) -> Result<Vec<Job>, ScraperError> {
         let document = Html::parse_document(html);
         let mut jobs = Vec::with_capacity(self.limit.min(100));
 

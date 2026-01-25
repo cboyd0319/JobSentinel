@@ -35,14 +35,7 @@ fn validate_core_settings(config: &Config, errors: &mut ValidationErrors) {
     }
 
     // Validate scraping interval (must be at least 1 hour, max 168 hours/1 week)
-    if config.scraping_interval_hours < 1 {
-        errors.add(ValidationError::out_of_range(
-            "scraping_interval_hours",
-            config.scraping_interval_hours,
-            Some(1_u64),
-            Some(168_u64),
-        ));
-    } else if config.scraping_interval_hours > 168 {
+    if config.scraping_interval_hours < 1 || config.scraping_interval_hours > 168 {
         errors.add(ValidationError::out_of_range(
             "scraping_interval_hours",
             config.scraping_interval_hours,
@@ -454,14 +447,7 @@ fn validate_scrapers(config: &Config, errors: &mut ValidationErrors) {
             ));
         }
 
-        if config.linkedin.limit == 0 {
-            errors.add(ValidationError::out_of_range(
-                "linkedin.limit",
-                config.linkedin.limit,
-                Some(1_usize),
-                Some(100_usize),
-            ));
-        } else if config.linkedin.limit > 100 {
+        if config.linkedin.limit == 0 || config.linkedin.limit > 100 {
             errors.add(ValidationError::out_of_range(
                 "linkedin.limit",
                 config.linkedin.limit,
@@ -472,79 +458,51 @@ fn validate_scrapers(config: &Config, errors: &mut ValidationErrors) {
     }
 
     // Validate RemoteOK scraper
-    if config.remoteok.enabled {
-        if config.remoteok.limit == 0 {
-            errors.add(ValidationError::out_of_range(
-                "remoteok.limit",
-                config.remoteok.limit,
-                Some(1_usize),
-                Some(MAX_SCRAPER_LIMIT),
-            ));
-        } else if config.remoteok.limit > MAX_SCRAPER_LIMIT {
-            errors.add(ValidationError::out_of_range(
-                "remoteok.limit",
-                config.remoteok.limit,
-                Some(1_usize),
-                Some(MAX_SCRAPER_LIMIT),
-            ));
-        }
+    if config.remoteok.enabled
+        && (config.remoteok.limit == 0 || config.remoteok.limit > MAX_SCRAPER_LIMIT)
+    {
+        errors.add(ValidationError::out_of_range(
+            "remoteok.limit",
+            config.remoteok.limit,
+            Some(1_usize),
+            Some(MAX_SCRAPER_LIMIT),
+        ));
     }
 
     // Validate WeWorkRemotely scraper
-    if config.weworkremotely.enabled {
-        if config.weworkremotely.limit == 0 {
-            errors.add(ValidationError::out_of_range(
-                "weworkremotely.limit",
-                config.weworkremotely.limit,
-                Some(1_usize),
-                Some(MAX_SCRAPER_LIMIT),
-            ));
-        } else if config.weworkremotely.limit > MAX_SCRAPER_LIMIT {
-            errors.add(ValidationError::out_of_range(
-                "weworkremotely.limit",
-                config.weworkremotely.limit,
-                Some(1_usize),
-                Some(MAX_SCRAPER_LIMIT),
-            ));
-        }
+    if config.weworkremotely.enabled
+        && (config.weworkremotely.limit == 0 || config.weworkremotely.limit > MAX_SCRAPER_LIMIT)
+    {
+        errors.add(ValidationError::out_of_range(
+            "weworkremotely.limit",
+            config.weworkremotely.limit,
+            Some(1_usize),
+            Some(MAX_SCRAPER_LIMIT),
+        ));
     }
 
     // Validate BuiltIn scraper
-    if config.builtin.enabled {
-        if config.builtin.limit == 0 {
-            errors.add(ValidationError::out_of_range(
-                "builtin.limit",
-                config.builtin.limit,
-                Some(1_usize),
-                Some(MAX_SCRAPER_LIMIT),
-            ));
-        } else if config.builtin.limit > MAX_SCRAPER_LIMIT {
-            errors.add(ValidationError::out_of_range(
-                "builtin.limit",
-                config.builtin.limit,
-                Some(1_usize),
-                Some(MAX_SCRAPER_LIMIT),
-            ));
-        }
+    if config.builtin.enabled
+        && (config.builtin.limit == 0 || config.builtin.limit > MAX_SCRAPER_LIMIT)
+    {
+        errors.add(ValidationError::out_of_range(
+            "builtin.limit",
+            config.builtin.limit,
+            Some(1_usize),
+            Some(MAX_SCRAPER_LIMIT),
+        ));
     }
 
     // Validate HN Hiring scraper
-    if config.hn_hiring.enabled {
-        if config.hn_hiring.limit == 0 {
-            errors.add(ValidationError::out_of_range(
-                "hn_hiring.limit",
-                config.hn_hiring.limit,
-                Some(1_usize),
-                Some(MAX_SCRAPER_LIMIT),
-            ));
-        } else if config.hn_hiring.limit > MAX_SCRAPER_LIMIT {
-            errors.add(ValidationError::out_of_range(
-                "hn_hiring.limit",
-                config.hn_hiring.limit,
-                Some(1_usize),
-                Some(MAX_SCRAPER_LIMIT),
-            ));
-        }
+    if config.hn_hiring.enabled
+        && (config.hn_hiring.limit == 0 || config.hn_hiring.limit > MAX_SCRAPER_LIMIT)
+    {
+        errors.add(ValidationError::out_of_range(
+            "hn_hiring.limit",
+            config.hn_hiring.limit,
+            Some(1_usize),
+            Some(MAX_SCRAPER_LIMIT),
+        ));
     }
 
     // Validate Dice scraper
@@ -572,14 +530,7 @@ fn validate_scrapers(config: &Config, errors: &mut ValidationErrors) {
             }
         }
 
-        if config.dice.limit == 0 {
-            errors.add(ValidationError::out_of_range(
-                "dice.limit",
-                config.dice.limit,
-                Some(1_usize),
-                Some(MAX_SCRAPER_LIMIT),
-            ));
-        } else if config.dice.limit > MAX_SCRAPER_LIMIT {
+        if config.dice.limit == 0 || config.dice.limit > MAX_SCRAPER_LIMIT {
             errors.add(ValidationError::out_of_range(
                 "dice.limit",
                 config.dice.limit,
@@ -601,14 +552,7 @@ fn validate_scrapers(config: &Config, errors: &mut ValidationErrors) {
             }
         }
 
-        if config.yc_startup.limit == 0 {
-            errors.add(ValidationError::out_of_range(
-                "yc_startup.limit",
-                config.yc_startup.limit,
-                Some(1_usize),
-                Some(MAX_SCRAPER_LIMIT),
-            ));
-        } else if config.yc_startup.limit > MAX_SCRAPER_LIMIT {
+        if config.yc_startup.limit == 0 || config.yc_startup.limit > MAX_SCRAPER_LIMIT {
             errors.add(ValidationError::out_of_range(
                 "yc_startup.limit",
                 config.yc_startup.limit,
@@ -702,14 +646,7 @@ fn validate_scrapers(config: &Config, errors: &mut ValidationErrors) {
             ));
         }
 
-        if config.usajobs.limit == 0 {
-            errors.add(ValidationError::out_of_range(
-                "usajobs.limit",
-                config.usajobs.limit,
-                Some(1_usize),
-                Some(MAX_SCRAPER_LIMIT),
-            ));
-        } else if config.usajobs.limit > MAX_SCRAPER_LIMIT {
+        if config.usajobs.limit == 0 || config.usajobs.limit > MAX_SCRAPER_LIMIT {
             errors.add(ValidationError::out_of_range(
                 "usajobs.limit",
                 config.usajobs.limit,
@@ -744,14 +681,7 @@ fn validate_scrapers(config: &Config, errors: &mut ValidationErrors) {
             }
         }
 
-        if config.simplyhired.limit == 0 {
-            errors.add(ValidationError::out_of_range(
-                "simplyhired.limit",
-                config.simplyhired.limit,
-                Some(1_usize),
-                Some(MAX_SCRAPER_LIMIT),
-            ));
-        } else if config.simplyhired.limit > MAX_SCRAPER_LIMIT {
+        if config.simplyhired.limit == 0 || config.simplyhired.limit > MAX_SCRAPER_LIMIT {
             errors.add(ValidationError::out_of_range(
                 "simplyhired.limit",
                 config.simplyhired.limit,
@@ -786,14 +716,7 @@ fn validate_scrapers(config: &Config, errors: &mut ValidationErrors) {
             }
         }
 
-        if config.glassdoor.limit == 0 {
-            errors.add(ValidationError::out_of_range(
-                "glassdoor.limit",
-                config.glassdoor.limit,
-                Some(1_usize),
-                Some(MAX_SCRAPER_LIMIT),
-            ));
-        } else if config.glassdoor.limit > MAX_SCRAPER_LIMIT {
+        if config.glassdoor.limit == 0 || config.glassdoor.limit > MAX_SCRAPER_LIMIT {
             errors.add(ValidationError::out_of_range(
                 "glassdoor.limit",
                 config.glassdoor.limit,

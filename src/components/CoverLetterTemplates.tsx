@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, memo } from 'react';
+import { useState, useEffect, useCallback, memo, useRef } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { Button } from './Button';
 import { Input } from './Input';
@@ -291,10 +291,20 @@ export const CoverLetterTemplates = memo(function CoverLetterTemplates({ selecte
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<TemplateCategory | 'all'>('all');
   const toast = useToast();
+  const isMountedRef = useRef(true);
+
+  // Track mount state for cleanup
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   // Load templates from backend
   const loadTemplates = useCallback(async () => {
     try {
+      if (!isMountedRef.current) return;
       setLoading(true);
       setError(null);
       // Seed default templates on first use
@@ -304,14 +314,20 @@ export const CoverLetterTemplates = memo(function CoverLetterTemplates({ selecte
         // Ignore - templates may already exist
       }
       const result = await invoke<CoverLetterTemplate[]>('list_cover_letter_templates');
-      setTemplates(result);
+      if (isMountedRef.current) {
+        setTemplates(result);
+      }
     } catch (err) {
       logError('Failed to load templates:', err);
       const errorMsg = String(err);
-      setError(errorMsg);
-      toast.error('Failed to load templates', errorMsg);
+      if (isMountedRef.current) {
+        setError(errorMsg);
+        toast.error('Failed to load templates', errorMsg);
+      }
     } finally {
-      setLoading(false);
+      if (isMountedRef.current) {
+        setLoading(false);
+      }
     }
   }, [toast]);
 
@@ -326,6 +342,7 @@ export const CoverLetterTemplates = memo(function CoverLetterTemplates({ selecte
     : templates.filter((t) => t.category === categoryFilter);
 
   const handleSaveTemplate = async (data: Omit<CoverLetterTemplate, 'id' | 'createdAt' | 'updatedAt'>) => {
+    if (!isMountedRef.current) return;
     setSaving(true);
     try {
       if (editingTemplate) {
@@ -337,6 +354,7 @@ export const CoverLetterTemplates = memo(function CoverLetterTemplates({ selecte
           category: data.category,
         });
 
+        if (!isMountedRef.current) return;
         if (updated) {
           setTemplates((prev) =>
             prev.map((t) => (t.id === editingTemplate.id ? updated : t))
@@ -353,21 +371,27 @@ export const CoverLetterTemplates = memo(function CoverLetterTemplates({ selecte
           content: data.content,
           category: data.category,
         });
+        if (!isMountedRef.current) return;
         setTemplates((prev) => [newTemplate, ...prev]);
         toast.success('Template created');
         setIsCreating(false);
       }
     } catch (error: unknown) {
       logError('Failed to save template:', error);
-      toast.error('Failed to save template', String(error));
+      if (isMountedRef.current) {
+        toast.error('Failed to save template', String(error));
+      }
     } finally {
-      setSaving(false);
+      if (isMountedRef.current) {
+        setSaving(false);
+      }
     }
   };
 
   const handleDeleteTemplate = async (id: string) => {
     try {
       const deleted = await invoke<boolean>('delete_cover_letter_template', { id });
+      if (!isMountedRef.current) return;
       if (deleted) {
         setTemplates((prev) => prev.filter((t) => t.id !== id));
         toast.success('Template deleted');
@@ -376,9 +400,13 @@ export const CoverLetterTemplates = memo(function CoverLetterTemplates({ selecte
       }
     } catch (error: unknown) {
       logError('Failed to delete template:', error);
-      toast.error('Failed to delete template', String(error));
+      if (isMountedRef.current) {
+        toast.error('Failed to delete template', String(error));
+      }
     }
-    setDeleteConfirm(null);
+    if (isMountedRef.current) {
+      setDeleteConfirm(null);
+    }
   };
 
   const handleCopyTemplate = async (template: CoverLetterTemplate) => {

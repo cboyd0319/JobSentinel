@@ -47,7 +47,6 @@ impl ScoringConfig {
     /// Validate that weights sum to approximately 1.0
     ///
     /// Returns an error if the sum is outside the acceptable range.
-    #[must_use]
     pub fn validate(&self) -> Result<(), String> {
         // Check all weights are non-negative
         if self.skills_weight < 0.0

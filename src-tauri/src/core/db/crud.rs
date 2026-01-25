@@ -19,7 +19,6 @@ impl Database {
     /// - Inserts as new row
     ///
     /// Returns the job ID.
-    #[must_use]
     #[tracing::instrument(
         skip(self, job),
         fields(

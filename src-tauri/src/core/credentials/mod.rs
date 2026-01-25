@@ -68,7 +68,7 @@ impl CredentialKey {
     /// # Examples
     ///
     /// ```
-    /// # use job_sentinel::core::credentials::CredentialKey;
+    /// # use jobsentinel::core::credentials::CredentialKey;
     /// for key in CredentialKey::all() {
     ///     println!("Credential: {}", key.as_str());
     /// }
@@ -141,7 +141,8 @@ const SERVICE_NAME: &str = "JobSentinel";
 /// # Examples
 ///
 /// ```no_run
-/// # use job_sentinel::core::credentials::{CredentialStore, CredentialKey};
+/// # use jobsentinel::core::credentials::{CredentialStore, CredentialKey};
+/// # fn main() -> Result<(), String> {
 /// // Store a credential
 /// CredentialStore::store(CredentialKey::SmtpPassword, "secret123")?;
 ///
@@ -152,7 +153,8 @@ const SERVICE_NAME: &str = "JobSentinel";
 ///
 /// // Delete it
 /// CredentialStore::delete(CredentialKey::SmtpPassword)?;
-/// # Ok::<(), String>(())
+/// # Ok(())
+/// # }
 /// ```
 pub struct CredentialStore;
 

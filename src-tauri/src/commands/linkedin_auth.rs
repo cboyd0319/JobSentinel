@@ -30,9 +30,37 @@ const SUCCESS_URL_PREFIXES: &[&str] = &[
 
 /// Check if a URL indicates successful LinkedIn login
 fn is_login_success_url(url: &str) -> bool {
-    SUCCESS_URL_PREFIXES
-        .iter()
-        .any(|prefix| url.starts_with(prefix))
+    // Parse the URL to validate host/origin, not just string prefix
+    // This prevents bypass attacks like "https://evil.com?https://www.linkedin.com/feed"
+    let parsed = match url::Url::parse(url) {
+        Ok(u) => u,
+        Err(_) => return false,
+    };
+
+    // Verify host is linkedin.com or www.linkedin.com
+    let host = match parsed.host_str() {
+        Some(h) => h,
+        None => return false,
+    };
+    if host != "linkedin.com" && host != "www.linkedin.com" {
+        return false;
+    }
+
+    // Verify HTTPS
+    if parsed.scheme() != "https" {
+        return false;
+    }
+
+    // Check if path matches any allowed prefix
+    let path = parsed.path();
+    SUCCESS_URL_PREFIXES.iter().any(|prefix| {
+        // Extract just the path from the prefix URL
+        if let Ok(prefix_url) = url::Url::parse(prefix) {
+            path.starts_with(prefix_url.path())
+        } else {
+            false
+        }
+    })
 }
 
 /// Open LinkedIn login window and automatically extract cookie after login
@@ -468,6 +496,60 @@ mod tests {
         ));
         assert!(!is_login_success_url("https://www.linkedin.com/"));
         assert!(!is_login_success_url("https://google.com/"));
+    }
+
+    // SECURITY TESTS: URL validation bypass attacks
+    #[test]
+    fn test_query_param_bypass_attack_fails() {
+        // Attack: Try to bypass validation by putting allowed domain in query param
+        assert!(!is_login_success_url(
+            "https://evil.com/phishing?redirect=https://www.linkedin.com/feed"
+        ));
+    }
+
+    #[test]
+    fn test_fragment_bypass_attack_fails() {
+        // Attack: Try to bypass validation by putting allowed domain in fragment
+        assert!(!is_login_success_url(
+            "https://evil.com/phishing#https://www.linkedin.com/feed"
+        ));
+    }
+
+    #[test]
+    fn test_subdomain_bypass_attack_fails() {
+        // Attack: Try to bypass validation using a subdomain of attacker's domain
+        assert!(!is_login_success_url(
+            "https://www.linkedin.com.evil.com/feed"
+        ));
+    }
+
+    #[test]
+    fn test_path_bypass_attack_fails() {
+        // Attack: Try to bypass validation by embedding allowed domain in path
+        assert!(!is_login_success_url(
+            "https://evil.com/www.linkedin.com/feed"
+        ));
+    }
+
+    #[test]
+    fn test_username_bypass_attack_fails() {
+        // Attack: Try to bypass validation using @ in URL
+        assert!(!is_login_success_url(
+            "https://www.linkedin.com@evil.com/feed"
+        ));
+    }
+
+    #[test]
+    fn test_non_https_fails() {
+        // Should reject non-HTTPS URLs
+        assert!(!is_login_success_url("http://www.linkedin.com/feed"));
+    }
+
+    #[test]
+    fn test_wrong_host_fails() {
+        // Should reject URLs with wrong host
+        assert!(!is_login_success_url("https://evil.com/feed"));
+        assert!(!is_login_success_url("https://linkedin.com.phishing.com/feed"));
     }
 
     #[test]

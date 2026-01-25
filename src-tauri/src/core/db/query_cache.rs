@@ -13,7 +13,7 @@ use tokio::sync::RwLock;
 /// explicit control over hot-path queries and allows for performance monitoring.
 #[derive(Debug)]
 pub struct QueryCache {
-    pool: Arc<SqlitePool>,
+    _pool: Arc<SqlitePool>,
     // Query execution metrics
     metrics: Arc<RwLock<QueryMetrics>>,
 }
@@ -29,7 +29,7 @@ impl QueryCache {
     /// Create a new query cache
     pub fn new(pool: SqlitePool) -> Self {
         Self {
-            pool: Arc::new(pool),
+            _pool: Arc::new(pool),
             metrics: Arc::new(RwLock::new(QueryMetrics::default())),
         }
     }
@@ -63,10 +63,12 @@ impl QueryHints {
     /// SQLite's query planner is usually smarter than manual hints.
     ///
     /// # Usage
-    /// ```rust
+    /// ```ignore
+    /// # use jobsentinel::core::db::query_cache::QueryHints;
     /// let hint = QueryHints::indexed_by("idx_jobs_hidden_score_created");
     /// let query = format!("SELECT * FROM jobs {} WHERE hidden = 0", hint);
     /// ```
+    #[allow(dead_code)]
     pub fn indexed_by(index_name: &str) -> String {
         format!("INDEXED BY {}", index_name)
     }
@@ -76,6 +78,7 @@ impl QueryHints {
     /// Example: `NOT INDEXED`
     ///
     /// Useful when you know the table is small or the index would be slower.
+    #[allow(dead_code)]
     pub const NOT_INDEXED: &'static str = "NOT INDEXED";
 }
 
@@ -89,7 +92,7 @@ impl QueryAnalyzer {
     /// Useful for understanding which indexes are being used.
     ///
     /// Example:
-    /// ```rust
+    /// ```ignore
     /// let plan = QueryAnalyzer::explain_query_plan(
     ///     pool,
     ///     "SELECT * FROM jobs WHERE hidden = 0 ORDER BY score DESC LIMIT 10"

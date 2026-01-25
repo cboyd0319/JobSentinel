@@ -56,6 +56,7 @@ const TRACKING_PARAMS: &[&str] = &[
 ///
 /// These parameters typically contain job posting IDs that are required
 /// for correct deduplication and accessing the job listing.
+#[allow(dead_code)]
 const ESSENTIAL_PARAMS: &[&str] = &[
     // Job identifiers
     "id",

@@ -6,9 +6,10 @@
 //! This is the safest and most reliable government job source since
 //! it's an official public API designed for programmatic access.
 
+use super::error::ScraperError;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
-use anyhow::{Context, Result};
+
 use async_trait::async_trait;
 use chrono::Utc;
 use reqwest::header::{HeaderMap, HeaderValue, HOST, USER_AGENT};
@@ -100,22 +101,33 @@ impl UsaJobsScraper {
     }
 
     /// Build HTTP client with required headers
-    fn build_client(&self) -> Result<reqwest::Client> {
+    fn build_client(&self) -> Result<reqwest::Client, ScraperError> {
         let mut headers = HeaderMap::new();
         headers.insert(HOST, HeaderValue::from_static("data.usajobs.gov"));
         headers.insert(
             USER_AGENT,
-            HeaderValue::from_str(&self.email).context("Invalid email for User-Agent header")?,
+            HeaderValue::from_str(&self.email)
+                .map_err(|e| ScraperError::InvalidConfiguration {
+                    scraper: "usajobs".to_string(),
+                    message: format!("Invalid email for User-Agent header: {}", e),
+                })?,
         );
         headers.insert(
             "Authorization-Key",
-            HeaderValue::from_str(&self.api_key).context("Invalid API key")?,
+            HeaderValue::from_str(&self.api_key)
+                .map_err(|e| ScraperError::InvalidConfiguration {
+                    scraper: "usajobs".to_string(),
+                    message: format!("Invalid API key: {}", e),
+                })?,
         );
 
         reqwest::Client::builder()
             .default_headers(headers)
             .build()
-            .context("Failed to build HTTP client")
+            .map_err(|e| ScraperError::Generic {
+                scraper: "usajobs".to_string(),
+                message: format!("Failed to build HTTP client: {}", e),
+            })
     }
 
     /// Build query parameters for the search API
@@ -169,18 +181,19 @@ impl UsaJobsScraper {
             .query(&params)
             .send()
             .await
-            .context("Failed to send request to USAJobs API")?;
+            .map_err(|e| ScraperError::http_request(&url, e))?;
 
         if !response.status().is_success() {
             let status = response.status();
             let body = response.text().await.unwrap_or_default();
-            return Err(anyhow::anyhow!("USAJobs API error: {} - {}", status, body));
+            return Err(ScraperError::http_status(
+                status.as_u16(),
+                &url,
+                format!("USAJobs API error: {} - {}", status, body),
+            ));
         }
 
-        let api_response: UsaJobsResponse = response
-            .json()
-            .await
-            .context("Failed to parse USAJobs API response")?;
+        let api_response: UsaJobsResponse = response.json().await?;
 
         let total_jobs = api_response.search_result.search_result_count_all;
         tracing::info!(

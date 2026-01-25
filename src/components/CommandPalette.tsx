@@ -25,6 +25,7 @@ export const CommandPalette = memo(function CommandPalette({ commands = [] }: Co
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
+  const isMountedRef = useRef(true);
 
   // Combine shortcuts with additional commands (memoized)
   const allCommands = useMemo<Command[]>(
@@ -78,14 +79,27 @@ export const CommandPalette = memo(function CommandPalette({ commands = [] }: Co
     [closeCommandPalette]
   );
 
-  // Focus input when opened
+  // Focus input when opened with proper timing
   useEffect(() => {
     if (isCommandPaletteOpen) {
-      inputRef.current?.focus();
       setQuery("");
       setSelectedIndex(0);
+      
+      // Use requestAnimationFrame to ensure DOM is ready
+      requestAnimationFrame(() => {
+        if (isMountedRef.current && inputRef.current) {
+          inputRef.current.focus();
+        }
+      });
     }
   }, [isCommandPaletteOpen]);
+
+  // Track mounted state
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   // Handle keyboard navigation
   useEffect(() => {

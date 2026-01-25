@@ -154,6 +154,12 @@ impl ResumeParser {
     /// Uses command-line tools:
     /// - pdftoppm (from poppler-utils) to convert PDF pages to images
     /// - tesseract to extract text from images
+    ///
+    /// # Security
+    /// - `file_path` must be pre-validated (canonicalized, extension checked) by caller
+    /// - Temp directory uses UUID to prevent collisions/races
+    /// - Image paths are validated to prevent symlink attacks outside temp_dir
+    /// - Command arguments are passed directly (not via shell) to prevent injection
     #[cfg(feature = "ocr")]
     fn ocr_pdf(&self, file_path: &Path) -> Result<String> {
         use std::process::Command;
@@ -170,22 +176,39 @@ impl ResumeParser {
         });
 
         // Convert PDF pages to images using pdftoppm (commonly installed with poppler)
+        // Security: output_prefix is in our controlled temp_dir, file_path is already canonicalized
         let output_prefix = temp_dir.join("page");
         let pdftoppm_result = Command::new("pdftoppm")
             .arg("-png")
             .arg("-r")
             .arg("300") // 300 DPI for good OCR quality
-            .arg(file_path)
-            .arg(&output_prefix)
+            .arg(file_path) // Safe: canonicalized in parse_pdf()
+            .arg(&output_prefix) // Safe: controlled temp directory
             .output();
 
         let mut image_paths: Vec<std::path::PathBuf> = match pdftoppm_result {
             Ok(output) if output.status.success() => {
                 // Find generated image files
+                // Security: Only include files that are:
+                // 1. Within temp_dir (canonicalize + starts_with check)
+                // 2. Have .png extension
+                // 3. Are regular files
                 std::fs::read_dir(&temp_dir)?
                     .filter_map(|e| e.ok())
                     .map(|e| e.path())
-                    .filter(|p| p.extension().map(|e| e == "png").unwrap_or(false))
+                    .filter(|p| {
+                        // Extension check
+                        if p.extension().map(|e| e == "png").unwrap_or(false) {
+                            // Security: Verify path is within temp_dir (prevents symlink attacks)
+                            if let Ok(canonical) = p.canonicalize() {
+                                // Ensure canonical path is still in temp_dir
+                                if let Ok(canonical_temp) = temp_dir.canonicalize() {
+                                    return canonical.starts_with(&canonical_temp) && canonical.is_file();
+                                }
+                            }
+                        }
+                        false
+                    })
                     .collect()
             }
             _ => {
@@ -206,11 +229,15 @@ impl ResumeParser {
         let mut full_text = String::new();
 
         for image_path in &image_paths {
+            // Security: image_path is already validated to be:
+            // - Within temp_dir
+            // - A regular file with .png extension
+            // - Not a symlink outside temp_dir
             let output = Command::new("tesseract")
-                .arg(image_path)
+                .arg(image_path) // Safe: validated above
                 .arg("stdout")
                 .arg("-l")
-                .arg("eng") // English language
+                .arg("eng") // Language code: hardcoded, not user input
                 .output()
                 .context("Failed to run Tesseract OCR")?;
 

@@ -30,9 +30,111 @@ JobSentinel treats errors as first-class citizens:
 
 ## Error Types
 
-### 1. `thiserror` - Library Errors
+### 1. Domain-Specific Errors with `thiserror`
 
-**Use for**: Errors in library code that consumers need to handle
+**Use for**: Module-specific errors with rich context and user-friendly messages
+
+**ScraperError Example:**
+
+```rust
+use thiserror::Error;
+
+#[derive(Error, Debug)]
+pub enum ScraperError {
+    #[error("HTTP request failed for {url}: {source}")]
+    HttpRequest {
+        url: String,
+        #[source]
+        source: reqwest::Error,
+    },
+
+    #[error("HTTP {status} from {url}: {message}")]
+    HttpStatus {
+        status: u16,
+        url: String,
+        message: String,
+    },
+
+    #[error("Rate limit exceeded for {scraper}: {message}")]
+    RateLimit { scraper: String, message: String },
+
+    #[error("Failed to parse {format} from {url}: {source}")]
+    ParseError {
+        format: String, // "HTML", "JSON", "XML"
+        url: String,
+        #[source]
+        source: Box<dyn std::error::Error + Send + Sync>,
+    },
+
+    #[error("CAPTCHA detected on {url} - manual intervention required")]
+    CaptchaDetected { url: String },
+}
+
+impl ScraperError {
+    /// Create an HTTP request error with context
+    pub fn http_request(url: impl Into<String>, source: reqwest::Error) -> Self {
+        Self::HttpRequest {
+            url: url.into(),
+            source,
+        }
+    }
+
+    /// Check if this is a transient error that can be retried
+    #[must_use]
+    pub fn is_retryable(&self) -> bool {
+        match self {
+            Self::HttpStatus { status, .. } => (*status >= 500 && *status < 600) || *status == 429,
+            Self::Timeout { .. } | Self::Network { .. } => true,
+            _ => false,
+        }
+    }
+
+    /// Get a user-friendly error message (safe to show in UI)
+    #[must_use]
+    pub fn user_message(&self) -> String {
+        match self {
+            Self::HttpRequest { url, .. } => {
+                format!("Failed to connect to {}", Self::sanitize_url(url))
+            }
+            Self::RateLimit { scraper, .. } => {
+                format!("Rate limit reached for {}. Please try again later.", scraper)
+            }
+            Self::CaptchaDetected { .. } => {
+                "CAPTCHA detected. Please complete the challenge in your browser.".to_string()
+            }
+            _ => self.to_string(),
+        }
+    }
+
+    /// Sanitize URL for display (remove sensitive query params)
+    fn sanitize_url(url: &str) -> String {
+        if let Some(base) = url.split('?').next() {
+            base.to_string()
+        } else {
+            url.to_string()
+        }
+    }
+}
+```
+
+**Benefits:**
+
+- Type-safe error handling with rich context
+- Automatic `From` implementations
+- User-friendly messages with `.user_message()`
+- Retryability detection with `.is_retryable()`
+- URL sanitization to prevent information leakage
+- Pattern matching support
+
+**Other Domain-Specific Errors:**
+
+- `DatabaseError` - Database operations with query context
+- `AutomationError` - Browser automation errors
+- `ConfigError` - Configuration validation errors
+
+### 2. `thiserror` - Library Errors (Legacy Pattern)
+
+**Use for**: Simple library errors (being phased out in favor of domain-specific errors)
 
 ```rust
 use thiserror::Error;
@@ -57,7 +159,7 @@ pub enum ScraperError {
 - Good error messages
 - Pattern matching support
 
-### 2. `anyhow` - Application Errors
+### 3. `anyhow` - Application Errors
 
 **Use for**: Errors in application code where you want context
 
@@ -113,7 +215,7 @@ impl Config {
 
 | Situation | Use | Example |
 |-----------|-----|---------|
-| Library with specific errors | `thiserror` | Scraper errors, DB errors |
+| Library with specific errors | Domain-specific `thiserror` | `ScraperError`, `DatabaseError`, `AutomationError` |
 | Application logic | `anyhow` | Scheduler, command handlers |
 | Public API boundaries | `Box<dyn Error>` | Config loading, Tauri commands |
 | Cannot fail | Return value directly | Pure computation |
@@ -122,8 +224,11 @@ impl Config {
 
 ```text
 Is this library code that others will use?
-├─ Yes → Use thiserror
-│  └─ Define custom error enum
+├─ Yes → Use domain-specific thiserror error type
+│  └─ Define custom error enum with context fields
+│      - Add .user_message() for user-friendly errors
+│      - Add .is_retryable() if relevant
+│      - Sanitize URLs and sensitive data
 │
 └─ No → Is this application code?
    ├─ Yes → Use anyhow::Result
@@ -159,58 +264,93 @@ fn validate(&self) -> Result<(), Box<dyn std::error::Error>> {
 - Clear error messages
 - Return descriptive errors
 
-### Pattern 2: Network Errors with Retry
+### Pattern 2: Network Errors with Retry and Structured Errors
 
 ```rust
-use backoff::{ExponentialBackoff, Operation};
-
-async fn scrape_with_retry(url: &str) -> Result<String> {
-    let mut op = || async {
-        client.get(url)
-            .send()
-            .await?
-            .text()
-            .await
-            .map_err(backoff::Error::transient)
-    };
-
-    op.retry(ExponentialBackoff::default())
+async fn scrape_company(&self, company: &Company) -> Result<Vec<Job>, ScraperError> {
+    let url = &company.url;
+    
+    // Make HTTP request with structured error handling
+    let response = self.client
+        .get(url)
+        .send()
         .await
-        .context("Failed to scrape after retries")
+        .map_err(|e| ScraperError::http_request(url, e))?;
+    
+    // Check status with structured error
+    if !response.status().is_success() {
+        return Err(ScraperError::http_status(
+            response.status().as_u16(),
+            url,
+            "Failed to fetch jobs"
+        ));
+    }
+    
+    // Parse response with error context
+    let html = response.text()
+        .await
+        .map_err(|e| ScraperError::http_request(url, e))?;
+    
+    // Parse jobs with structured errors
+    parse_jobs(&html, url)
+        .map_err(|e| ScraperError::parse("HTML", url, e))
 }
 ```
 
 **Pattern:**
 
-- Retry transient errors (network)
+- Use domain-specific errors with rich context
+- Retry transient errors (`.is_retryable()`)
 - Fail fast on permanent errors (404, 401)
+- Sanitize URLs in error messages
 - Log retry attempts
 
-### Pattern 3: Graceful Degradation
+### Pattern 3: Graceful Degradation with Structured Errors
 
 ```rust
-pub async fn scrape(&self) -> ScraperResult {
+pub async fn scrape(&self) -> Result<Vec<Job>, ScraperError> {
     let mut all_jobs = Vec::new();
+    let mut errors = Vec::new();
 
     for company in &self.companies {
         match self.scrape_company(company).await {
             Ok(jobs) => {
+                tracing::info!(
+                    company = %company.name,
+                    jobs_count = jobs.len(),
+                    "Successfully scraped company"
+                );
                 all_jobs.extend(jobs);
             }
             Err(e) => {
-                tracing::error!("Failed to scrape {}: {}", company.name, e);
+                tracing::warn!(
+                    company = %company.name,
+                    error = %e,
+                    user_message = %e.user_message(),
+                    retryable = e.is_retryable(),
+                    "Failed to scrape company"
+                );
+                errors.push((company.name.clone(), e));
                 // Continue with other companies
             }
         }
     }
 
-    Ok(all_jobs)
+    // Return partial results even if some scrapers failed
+    if !all_jobs.is_empty() || errors.is_empty() {
+        Ok(all_jobs)
+    } else {
+        // All scrapers failed - return first error
+        Err(errors.into_iter().next().unwrap().1)
+    }
 }
 ```
 
 **Pattern:**
 
-- Log errors but continue
+- Log errors with structured fields
+- Use `.user_message()` for user-friendly logging
+- Check `.is_retryable()` for retry logic
 - Return partial results
 - Don't let one failure stop everything
 
@@ -349,19 +489,29 @@ pub async fn search_jobs(state: State<'_, AppState>) -> Result<Value, String> {
             }))
         }
         Err(e) => {
-            tracing::error!("Search failed: {}", e);
+            tracing::error!("Search failed: {:#}", e);
 
-            // Convert technical error to user-friendly message
-            let user_msg = match e.downcast_ref::<reqwest::Error>() {
-                Some(_) => "Network error. Please check your internet connection.",
-                None => "An unexpected error occurred. Please try again.",
+            // Use domain-specific error's user-friendly message
+            let user_msg = if let Some(scraper_err) = e.downcast_ref::<ScraperError>() {
+                scraper_err.user_message()
+            } else if let Some(db_err) = e.downcast_ref::<DatabaseError>() {
+                db_err.user_message()
+            } else {
+                "An unexpected error occurred. Please try again.".to_string()
             };
 
-            Err(user_msg.to_string())
+            Err(user_msg)
         }
     }
 }
 ```
+
+**Security Considerations:**
+
+- URL sanitization removes query parameters (may contain tokens)
+- Error messages never expose internal paths or secrets
+- Stack traces logged but not shown to users
+- `.user_message()` provides safe, user-friendly text
 
 ### Error Message Guidelines
 
@@ -510,8 +660,11 @@ fn test_error_message_quality() {
 
 ### DO ✅
 
-- Use appropriate error types (`thiserror` vs `anyhow`)
-- Add context to errors (`.context()`)
+- Use appropriate error types (domain-specific `thiserror` vs `anyhow`)
+- Add context to errors (`.context()` or structured fields)
+- Provide `.user_message()` methods for user-facing errors
+- Implement `.is_retryable()` for network errors
+- Sanitize URLs and sensitive data in error messages
 - Log errors with structured fields
 - Provide user-friendly error messages
 - Test error paths
@@ -541,5 +694,5 @@ fn test_error_message_quality() {
 
 ---
 
-**Last Updated**: November 14, 2025
+**Last Updated**: January 18, 2026
 **Maintained By**: The Rust Mac Overlord 🦀

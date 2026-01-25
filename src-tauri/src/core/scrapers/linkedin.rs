@@ -42,10 +42,10 @@
 //!    }
 //!    ```
 
+use super::error::ScraperError;
 use super::http_client::get_client;
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
-use anyhow::{Context, Result};
 use async_trait::async_trait;
 use chrono::Utc;
 use scraper::{Html, Selector};
@@ -153,9 +153,10 @@ impl LinkedInScraper {
                 cookie_len = self.session_cookie.len(),
                 "Invalid LinkedIn session cookie provided"
             );
-            return Err(anyhow::anyhow!(
-                "Invalid LinkedIn session cookie. Please provide your li_at cookie value."
-            ));
+            return Err(ScraperError::Authentication {
+                scraper: "linkedin".to_string(),
+                message: "Invalid LinkedIn session cookie. Please provide your li_at cookie value.".to_string(),
+            });
         }
 
         // Try API-based search first (faster, more reliable)
@@ -221,7 +222,7 @@ impl LinkedInScraper {
                 .header("csrf-token", &self.session_cookie) // LinkedIn CSRF protection
                 .send()
                 .await
-                .context("Failed to fetch LinkedIn API")?;
+                .map_err(|e| ScraperError::http_request(&api_url, e))?;
 
             let status = response.status();
 
@@ -244,10 +245,10 @@ impl LinkedInScraper {
                     http_status = status.as_u16(),
                     "LinkedIn API non-retryable error - check session cookie validity"
                 );
-                return Err(anyhow::anyhow!(
-                    "LinkedIn API HTTP {}: Check if your session cookie is valid",
-                    status
-                ));
+                return Err(ScraperError::SessionExpired {
+                    scraper: "linkedin".to_string(),
+                    message: format!("LinkedIn API HTTP {}: Check if your session cookie is valid", status),
+                });
             }
 
             tracing::warn!(
@@ -256,20 +257,22 @@ impl LinkedInScraper {
                 "LinkedIn API retryable error"
             );
 
-            last_error = Some(anyhow::anyhow!(
-                "LinkedIn API HTTP {} (attempt {}/{})",
-                status,
-                attempt + 1,
-                MAX_RETRIES + 1
+            last_error = Some(ScraperError::http_status(
+                status.as_u16(),
+                &api_url,
+                format!("LinkedIn API HTTP {} (attempt {}/{})", status, attempt + 1, MAX_RETRIES + 1),
             ));
         }
 
         tracing::error!(max_retries = MAX_RETRIES, "LinkedIn API exhausted all retries");
-        Err(last_error.unwrap_or_else(|| anyhow::anyhow!("LinkedIn API failed after retries")))
+        Err(last_error.unwrap_or_else(|| ScraperError::Generic {
+            scraper: "linkedin".to_string(),
+            message: "LinkedIn API failed after retries".to_string(),
+        }))
     }
 
     /// Parse LinkedIn API JSON response using typed structs
-    fn parse_linkedin_api_response(&self, json: &serde_json::Value) -> Result<Vec<Job>> {
+    fn parse_linkedin_api_response(&self, json: &serde_json::Value) -> Result<Vec<Job>, ScraperError> {
         // Try to deserialize into typed struct first (avoid cloning json)
         if let Ok(response) = serde_json::from_value::<LinkedInSearchResponse>(json.clone()) {
             let elements_len = response.data.jobs.elements.len();
@@ -356,7 +359,7 @@ impl LinkedInScraper {
     }
 
     /// Parse individual LinkedIn job from API response (fallback for untyped parsing)
-    fn parse_linkedin_job_element(&self, element: &serde_json::Value) -> Result<Option<Job>> {
+    fn parse_linkedin_job_element(&self, element: &serde_json::Value) -> Result<Option<Job>, ScraperError> {
         // Extract job ID from URN
         let urn = element["dashEntityUrn"].as_str().unwrap_or("").to_string();
         let job_id = urn.split(':').next_back().unwrap_or("unknown").to_string();
@@ -460,7 +463,7 @@ impl LinkedInScraper {
                 .header("Cookie", format!("li_at={}", self.session_cookie))
                 .send()
                 .await
-                .context("Failed to fetch LinkedIn search")?;
+                .map_err(|e| ScraperError::http_request(&search_url, e))?;
 
             let status = response.status();
 
@@ -479,26 +482,27 @@ impl LinkedInScraper {
                 status == reqwest::StatusCode::TOO_MANY_REQUESTS || status.is_server_error();
 
             if !should_retry {
-                return Err(anyhow::anyhow!(
-                    "LinkedIn HTML HTTP {}: Session may have expired",
-                    status
-                ));
+                return Err(ScraperError::SessionExpired {
+                    scraper: "linkedin".to_string(),
+                    message: format!("LinkedIn HTML HTTP {}: Session may have expired", status),
+                });
             }
 
-            last_error = Some(anyhow::anyhow!(
-                "LinkedIn HTML HTTP {} (attempt {}/{})",
-                status,
-                attempt + 1,
-                MAX_RETRIES + 1
+            last_error = Some(ScraperError::http_status(
+                status.as_u16(),
+                &search_url,
+                format!("LinkedIn HTML HTTP {} (attempt {}/{})", status, attempt + 1, MAX_RETRIES + 1),
             ));
         }
 
-        Err(last_error
-            .unwrap_or_else(|| anyhow::anyhow!("LinkedIn HTML scrape failed after retries")))
+        Err(last_error.unwrap_or_else(|| ScraperError::Generic {
+            scraper: "linkedin".to_string(),
+            message: "LinkedIn HTML scrape failed after retries".to_string(),
+        }))
     }
 
     /// Parse LinkedIn HTML job listings
-    fn parse_linkedin_html(&self, html: &str) -> Result<Vec<Job>> {
+    fn parse_linkedin_html(&self, html: &str) -> Result<Vec<Job>, ScraperError> {
         let document = Html::parse_document(html);
         let mut jobs = Vec::new();
 
@@ -517,7 +521,7 @@ impl LinkedInScraper {
     }
 
     /// Parse LinkedIn job card from HTML
-    fn parse_linkedin_job_card(&self, card: &scraper::ElementRef) -> Result<Option<Job>> {
+    fn parse_linkedin_job_card(&self, card: &scraper::ElementRef) -> Result<Option<Job>, ScraperError> {
         // Extract job ID from data attribute or link
         let job_id = card
             .value()
