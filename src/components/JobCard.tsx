@@ -199,7 +199,7 @@ export const JobCard = memo(function JobCard({ job, onViewJob, onHideJob, onTogg
             {onResearchCompany && (
               <button
                 onClick={() => onResearchCompany(job.company)}
-                className="p-2 text-surface-400 hover:text-purple-500 dark:hover:text-purple-400 opacity-0 group-hover:opacity-100 focus:opacity-100 group-focus-within:opacity-100 transition-colors"
+                className="p-2 text-surface-400 hover:text-purple-500 dark:hover:text-purple-400 opacity-40 group-hover:opacity-100 focus-visible:opacity-100 transition-colors"
                 aria-label="Research company"
                 title="Research company"
                 data-testid="btn-research"
@@ -215,7 +215,7 @@ export const JobCard = memo(function JobCard({ job, onViewJob, onHideJob, onTogg
                 className={`p-2 transition-colors ${
                   job.notes
                     ? "text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300"
-                    : "text-surface-400 hover:text-blue-500 dark:hover:text-blue-400 opacity-0 group-hover:opacity-100 focus:opacity-100 group-focus-within:opacity-100"
+                    : "text-surface-400 hover:text-blue-500 dark:hover:text-blue-400 opacity-40 group-hover:opacity-100 focus-visible:opacity-100"
                 }`}
                 aria-label={job.notes ? "Edit notes" : "Add notes"}
                 data-testid="btn-notes"
@@ -231,7 +231,7 @@ export const JobCard = memo(function JobCard({ job, onViewJob, onHideJob, onTogg
                 className={`p-2 transition-colors ${
                   job.bookmarked
                     ? "text-yellow-500 hover:text-yellow-600 dark:text-yellow-400 dark:hover:text-yellow-300"
-                    : "text-surface-400 hover:text-yellow-500 dark:hover:text-yellow-400 opacity-0 group-hover:opacity-100 focus:opacity-100 group-focus-within:opacity-100"
+                    : "text-surface-400 hover:text-yellow-500 dark:hover:text-yellow-400 opacity-40 group-hover:opacity-100 focus-visible:opacity-100"
                 }`}
                 aria-label={job.bookmarked ? "Remove bookmark" : "Bookmark this job"}
                 data-testid="btn-bookmark"
@@ -268,7 +268,7 @@ export const JobCard = memo(function JobCard({ job, onViewJob, onHideJob, onTogg
             {onHideJob && (
               <button
                 onClick={() => onHideJob(job.id)}
-                className="p-2 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 group-focus-within:opacity-100"
+                className="p-2 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 transition-colors opacity-40 group-hover:opacity-100 focus-visible:opacity-100"
                 aria-label="Not interested in this job"
                 data-testid="btn-hide"
               >

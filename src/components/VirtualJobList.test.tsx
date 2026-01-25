@@ -1,6 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, renderHook, act } from "@testing-library/react";
 import { VirtualJobList, useVirtualListScroll } from "./VirtualJobList";
+import { AnnouncerProvider } from "../contexts/AnnouncerContext";
+import { ReactNode } from "react";
+
+// Wrapper for AnnouncerProvider
+const Wrapper = ({ children }: { children: ReactNode }) => (
+  <AnnouncerProvider>{children}</AnnouncerProvider>
+);
 
 // Mock JobCard component
 vi.mock("./JobCard", () => ({
@@ -52,14 +59,14 @@ describe("VirtualJobList", () => {
 
   describe("non-virtualized rendering (≤10 jobs)", () => {
     it("renders jobs without virtualization when 10 or fewer", () => {
-      render(<VirtualJobList {...defaultProps} />);
+      render(<VirtualJobList {...defaultProps} />, { wrapper: Wrapper });
 
       expect(screen.getByRole("list")).toBeInTheDocument();
       expect(screen.queryByTestId("virtual-list")).not.toBeInTheDocument();
     });
 
     it("renders all job cards", () => {
-      render(<VirtualJobList {...defaultProps} />);
+      render(<VirtualJobList {...defaultProps} />, { wrapper: Wrapper });
 
       expect(screen.getByTestId("job-card-1")).toBeInTheDocument();
       expect(screen.getByTestId("job-card-2")).toBeInTheDocument();
@@ -67,7 +74,7 @@ describe("VirtualJobList", () => {
     });
 
     it("displays job titles", () => {
-      render(<VirtualJobList {...defaultProps} />);
+      render(<VirtualJobList {...defaultProps} />, { wrapper: Wrapper });
 
       expect(screen.getByText("Job 1")).toBeInTheDocument();
       expect(screen.getByText("Job 2")).toBeInTheDocument();
@@ -75,7 +82,7 @@ describe("VirtualJobList", () => {
     });
 
     it("has aria-label on list", () => {
-      render(<VirtualJobList {...defaultProps} />);
+      render(<VirtualJobList {...defaultProps} />, { wrapper: Wrapper });
 
       expect(screen.getByRole("list")).toHaveAttribute(
         "aria-label",
@@ -85,7 +92,7 @@ describe("VirtualJobList", () => {
 
     it("renders with 10 jobs without virtualization", () => {
       const jobs = Array.from({ length: 10 }, (_, i) => createJob(i + 1));
-      render(<VirtualJobList jobs={jobs} onHideJob={vi.fn()} />);
+      render(<VirtualJobList jobs={jobs} onHideJob={vi.fn()} />, { wrapper: Wrapper });
 
       expect(screen.queryByTestId("virtual-list")).not.toBeInTheDocument();
       expect(screen.getAllByTestId(/job-card-/)).toHaveLength(10);
@@ -96,19 +103,19 @@ describe("VirtualJobList", () => {
     const manyJobs = Array.from({ length: 50 }, (_, i) => createJob(i + 1));
 
     it("uses virtualized list when more than 10 jobs", () => {
-      render(<VirtualJobList jobs={manyJobs} onHideJob={vi.fn()} />);
+      render(<VirtualJobList jobs={manyJobs} onHideJob={vi.fn()} />, { wrapper: Wrapper });
 
       expect(screen.getByTestId("virtual-list")).toBeInTheDocument();
     });
 
     it("has role list on virtualized container", () => {
-      render(<VirtualJobList jobs={manyJobs} onHideJob={vi.fn()} />);
+      render(<VirtualJobList jobs={manyJobs} onHideJob={vi.fn()} />, { wrapper: Wrapper });
 
       expect(screen.getByTestId("virtual-list")).toHaveAttribute("role", "list");
     });
 
     it("has aria-label with job count on virtualized list", () => {
-      render(<VirtualJobList jobs={manyJobs} onHideJob={vi.fn()} />);
+      render(<VirtualJobList jobs={manyJobs} onHideJob={vi.fn()} />, { wrapper: Wrapper });
 
       expect(screen.getByTestId("virtual-list")).toHaveAttribute(
         "aria-label",
@@ -117,7 +124,7 @@ describe("VirtualJobList", () => {
     });
 
     it("renders visible rows", () => {
-      render(<VirtualJobList jobs={manyJobs} onHideJob={vi.fn()} />);
+      render(<VirtualJobList jobs={manyJobs} onHideJob={vi.fn()} />, { wrapper: Wrapper });
 
       // Mock renders first 5 items
       expect(screen.getByTestId("job-card-1")).toBeInTheDocument();
@@ -125,7 +132,7 @@ describe("VirtualJobList", () => {
     });
 
     it("passes jobs to row component", () => {
-      render(<VirtualJobList jobs={manyJobs} onHideJob={vi.fn()} />);
+      render(<VirtualJobList jobs={manyJobs} onHideJob={vi.fn()} />, { wrapper: Wrapper });
 
       expect(screen.getByText("Job 1")).toBeInTheDocument();
     });
@@ -136,7 +143,8 @@ describe("VirtualJobList", () => {
 
     it("accepts custom height", () => {
       render(
-        <VirtualJobList jobs={manyJobs} onHideJob={vi.fn()} height={500} />
+        <VirtualJobList jobs={manyJobs} onHideJob={vi.fn()} height={500} />,
+        { wrapper: Wrapper }
       );
 
       // Virtual list should render
@@ -145,7 +153,8 @@ describe("VirtualJobList", () => {
 
     it("accepts custom itemHeight", () => {
       render(
-        <VirtualJobList jobs={manyJobs} onHideJob={vi.fn()} itemHeight={200} />
+        <VirtualJobList jobs={manyJobs} onHideJob={vi.fn()} itemHeight={200} />,
+        { wrapper: Wrapper }
       );
 
       expect(screen.getByTestId("virtual-list")).toBeInTheDocument();
@@ -153,7 +162,7 @@ describe("VirtualJobList", () => {
 
     it("passes onHideJob to JobCard", async () => {
       const onHideJob = vi.fn();
-      render(<VirtualJobList {...defaultProps} onHideJob={onHideJob} />);
+      render(<VirtualJobList {...defaultProps} onHideJob={onHideJob} />, { wrapper: Wrapper });
 
       // JobCard receives onHideJob prop (verified via mock)
       const { JobCard } = await import("./JobCard");
@@ -167,7 +176,7 @@ describe("VirtualJobList", () => {
 
   describe("empty state", () => {
     it("renders empty list when no jobs", () => {
-      render(<VirtualJobList jobs={[]} onHideJob={vi.fn()} />);
+      render(<VirtualJobList jobs={[]} onHideJob={vi.fn()} />, { wrapper: Wrapper });
 
       const list = screen.getByRole("list");
       expect(list).toBeInTheDocument();
@@ -185,7 +194,7 @@ describe("VirtualJobList", () => {
         remote: true,
       };
 
-      render(<VirtualJobList jobs={[jobWithOptionals]} onHideJob={vi.fn()} />);
+      render(<VirtualJobList jobs={[jobWithOptionals]} onHideJob={vi.fn()} />, { wrapper: Wrapper });
 
       expect(screen.getByTestId("job-card-1")).toBeInTheDocument();
     });
@@ -196,7 +205,7 @@ describe("VirtualJobList", () => {
         location: null,
       };
 
-      render(<VirtualJobList jobs={[jobWithNullLocation]} onHideJob={vi.fn()} />);
+      render(<VirtualJobList jobs={[jobWithNullLocation]} onHideJob={vi.fn()} />, { wrapper: Wrapper });
 
       expect(screen.getByTestId("job-card-1")).toBeInTheDocument();
     });
@@ -273,7 +282,7 @@ describe("JobRow", () => {
       created_at: new Date().toISOString(),
     }));
 
-    render(<VirtualJobList jobs={manyJobs} onHideJob={vi.fn()} />);
+    render(<VirtualJobList jobs={manyJobs} onHideJob={vi.fn()} />, { wrapper: Wrapper });
 
     // First row should be visible
     expect(screen.getByText("Position 1")).toBeInTheDocument();

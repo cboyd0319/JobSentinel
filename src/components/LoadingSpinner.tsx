@@ -1,8 +1,10 @@
-import { memo } from "react";
+import { memo, useState, useEffect } from "react";
 
 interface LoadingSpinnerProps {
   message?: string;
   size?: "sm" | "md" | "lg";
+  /** Delay in ms before showing spinner to prevent flash for fast loads. Set to 0 for immediate display. */
+  delay?: number;
 }
 
 // Size configurations (extracted to prevent re-creation on each render)
@@ -16,13 +18,31 @@ const SIZE_CLASSES = {
 const ANIMATION_DURATION = "1.5s";
 const DOT_ANIMATION_DELAYS = ["0ms", "150ms", "300ms"] as const;
 
+// Delay before showing spinner to prevent flash for fast loads
+const SPINNER_DELAY_MS = 250;
+
 export const LoadingSpinner = memo(function LoadingSpinner({
   message = "Loading...",
-  size = "md"
+  size = "md",
+  delay = SPINNER_DELAY_MS
 }: LoadingSpinnerProps) {
+  const [showSpinner, setShowSpinner] = useState(delay === 0);
+
+  useEffect(() => {
+    if (delay === 0) return;
+    const timer = setTimeout(() => setShowSpinner(true), delay);
+    return () => clearTimeout(timer);
+  }, [delay]);
+
+  if (!showSpinner) return null;
 
   return (
-    <div className="flex items-center justify-center h-screen bg-surface-50 dark:bg-surface-900">
+    <div
+      role="status"
+      aria-busy="true"
+      aria-label={message}
+      className="flex items-center justify-center h-screen bg-surface-50 dark:bg-surface-900"
+    >
       <div className="text-center animate-fade-in">
         {/* Sentinel-themed scanner animation */}
         <div className="relative mb-6">

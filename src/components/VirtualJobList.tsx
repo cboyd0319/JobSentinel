@@ -1,7 +1,8 @@
-import { memo, useCallback } from "react";
+import { memo, useCallback, useEffect } from "react";
 import { List, useListRef, type RowComponentProps } from "react-window";
 import { JobCard } from "./JobCard";
 import { DEFAULT_LIST_HEIGHT, DEFAULT_JOB_CARD_HEIGHT } from "../utils/constants";
+import { useAnnouncer } from "../contexts/AnnouncerContext";
 
 interface Job {
   id: number;
@@ -57,6 +58,7 @@ export const VirtualJobList = memo(function VirtualJobList({
   itemHeight = DEFAULT_JOB_CARD_HEIGHT,
 }: VirtualJobListProps) {
   const listRef = useListRef(null);
+  const { announce } = useAnnouncer();
 
   // Calculate dynamic height based on viewport
   const calculateHeight = useCallback(() => {
@@ -65,6 +67,17 @@ export const VirtualJobList = memo(function VirtualJobList({
     }
     return height;
   }, [height]);
+
+  // Announce job count changes to screen readers
+  useEffect(() => {
+    if (jobs.length === 0) {
+      announce("No jobs found");
+    } else if (jobs.length === 1) {
+      announce("1 job found");
+    } else {
+      announce(`${jobs.length} jobs found`);
+    }
+  }, [jobs.length, announce]);
 
   // If we have few items, don't virtualize
   if (jobs.length <= 10) {

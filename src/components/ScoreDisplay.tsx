@@ -194,8 +194,17 @@ export const ScoreDisplay = memo(function ScoreDisplay({
       position="top"
     >
       <div
+        role={onClick ? "button" : undefined}
+        tabIndex={onClick ? 0 : undefined}
+        aria-label={onClick ? `Match score: ${percentage}%. ${scoreInfo.label}` : undefined}
         className={`inline-flex flex-col items-center gap-1 ${onClick ? "cursor-pointer" : "cursor-help"}`}
         onClick={onClick}
+        onKeyDown={onClick ? (e: React.KeyboardEvent) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onClick();
+          }
+        } : undefined}
       >
         <div className={`relative ${config.container} ${safeScore >= SCORE_THRESHOLD_HIGH ? colors.glow : ""} rounded-full`}>
           <svg className="w-full h-full -rotate-90" viewBox="0 0 80 80" aria-hidden="true">

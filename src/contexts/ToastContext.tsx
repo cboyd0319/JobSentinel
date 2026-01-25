@@ -28,8 +28,16 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
   const addToast = useCallback((toast: Omit<Toast, "id">): void => {
     const id = `toast-${++toastId}`;
-    // Longer duration for toasts with actions (user needs time to click)
-    const duration = toast.duration ?? (toast.action ? 8000 : 5000);
+
+    // Calculate duration based on message length for better accessibility
+    let duration = toast.duration;
+    if (duration === undefined) {
+      const messageLength = (toast.title.length + (toast.message?.length ?? 0));
+      const baseDuration = toast.type === 'error' ? 8000 : 5000;
+      const calculatedDuration = baseDuration + (messageLength * 50);
+      // Longer duration for toasts with actions (user needs time to click)
+      duration = toast.action ? Math.max(calculatedDuration, 8000) : calculatedDuration;
+    }
 
     setToasts((prev) => [...prev, { ...toast, id }]);
 
@@ -44,7 +52,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   }, [addToast]);
 
   const error = useCallback((title: string, message?: string): void => {
-    addToast({ type: "error", title, message, duration: 8000 });
+    addToast({ type: "error", title, message });
   }, [addToast]);
 
   const warning = useCallback((title: string, message?: string): void => {
@@ -80,7 +88,13 @@ const ToastContainer = memo(function ToastContainer({ toasts, onRemove }: { toas
   if (toasts.length === 0) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none">
+    <div
+      className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"
+      role="region"
+      aria-live="polite"
+      aria-atomic="false"
+      aria-label="Notifications"
+    >
       {toasts.map((toast) => (
         <ToastItem key={toast.id} toast={toast} onRemove={onRemove} />
       ))}
@@ -149,7 +163,7 @@ const ToastItem = memo(function ToastItem({ toast, onRemove }: { toast: Toast; o
       <button
         onClick={() => onRemove(toast.id)}
         className="flex-shrink-0 text-white/60 hover:text-white transition-colors"
-        aria-label="Dismiss"
+        aria-label={`Dismiss ${toast.title} notification`}
       >
         <XIcon />
       </button>

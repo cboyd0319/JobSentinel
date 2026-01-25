@@ -5,23 +5,23 @@ import { LoadingSpinner, LoadingDots } from "./LoadingSpinner";
 describe("LoadingSpinner", () => {
   describe("basic rendering", () => {
     it("renders with default message", () => {
-      render(<LoadingSpinner />);
+      render(<LoadingSpinner delay={0} />);
       expect(screen.getByText("Loading...")).toBeInTheDocument();
     });
 
     it("renders with custom message", () => {
-      render(<LoadingSpinner message="Please wait" />);
+      render(<LoadingSpinner message="Please wait" delay={0} />);
       expect(screen.getByText("Please wait")).toBeInTheDocument();
     });
 
     it("renders spinner animation", () => {
-      const { container } = render(<LoadingSpinner />);
+      const { container } = render(<LoadingSpinner delay={0} />);
       const svg = container.querySelector("svg");
       expect(svg).toBeInTheDocument();
     });
 
     it("centers content on screen", () => {
-      const { container } = render(<LoadingSpinner />);
+      const { container } = render(<LoadingSpinner delay={0} />);
       const flexContainer = container.querySelector(".flex.items-center.justify-center");
       expect(flexContainer).toBeInTheDocument();
       expect(flexContainer).toHaveClass("h-screen");
@@ -30,26 +30,26 @@ describe("LoadingSpinner", () => {
 
   describe("size variations", () => {
     it("renders small size", () => {
-      const { container } = render(<LoadingSpinner size="sm" />);
+      const { container } = render(<LoadingSpinner size="sm" delay={0} />);
       const spinner = container.querySelector(".w-8.h-8");
       expect(spinner).toBeInTheDocument();
     });
 
     it("renders medium size by default", () => {
-      const { container } = render(<LoadingSpinner />);
+      const { container } = render(<LoadingSpinner delay={0} />);
       const spinner = container.querySelector(".w-12.h-12");
       expect(spinner).toBeInTheDocument();
     });
 
     it("renders large size", () => {
-      const { container } = render(<LoadingSpinner size="lg" />);
+      const { container } = render(<LoadingSpinner size="lg" delay={0} />);
       const spinner = container.querySelector(".w-16.h-16");
       expect(spinner).toBeInTheDocument();
     });
 
     it("small size with custom message", () => {
       const { container } = render(
-        <LoadingSpinner size="sm" message="Fetching data..." />
+        <LoadingSpinner size="sm" message="Fetching data..." delay={0} />
       );
       expect(screen.getByText("Fetching data...")).toBeInTheDocument();
       const spinner = container.querySelector(".w-8.h-8");
@@ -58,7 +58,7 @@ describe("LoadingSpinner", () => {
 
     it("large size with custom message", () => {
       const { container } = render(
-        <LoadingSpinner size="lg" message="Processing..." />
+        <LoadingSpinner size="lg" message="Processing..." delay={0} />
       );
       expect(screen.getByText("Processing...")).toBeInTheDocument();
       const spinner = container.querySelector(".w-16.h-16");
@@ -68,25 +68,25 @@ describe("LoadingSpinner", () => {
 
   describe("animations", () => {
     it("applies fade-in animation to container", () => {
-      const { container } = render(<LoadingSpinner />);
+      const { container } = render(<LoadingSpinner delay={0} />);
       const animatedContainer = container.querySelector(".animate-fade-in");
       expect(animatedContainer).toBeInTheDocument();
     });
 
     it("applies spin animation to scanning arc", () => {
-      const { container } = render(<LoadingSpinner />);
+      const { container } = render(<LoadingSpinner delay={0} />);
       const spinner = container.querySelector(".animate-spin");
       expect(spinner).toBeInTheDocument();
     });
 
     it("applies pulse animation to center icon", () => {
-      const { container } = render(<LoadingSpinner />);
+      const { container } = render(<LoadingSpinner delay={0} />);
       const icon = container.querySelector(".animate-pulse-slow");
       expect(icon).toBeInTheDocument();
     });
 
     it("spinner has custom animation duration", () => {
-      const { container } = render(<LoadingSpinner />);
+      const { container } = render(<LoadingSpinner delay={0} />);
       const spinner = container.querySelector(".animate-spin");
       expect(spinner).toHaveStyle({ animationDuration: "1.5s" });
     });
@@ -94,25 +94,25 @@ describe("LoadingSpinner", () => {
 
   describe("sentinel-themed elements", () => {
     it("renders outer ring circle", () => {
-      const { container } = render(<LoadingSpinner />);
+      const { container } = render(<LoadingSpinner delay={0} />);
       const circles = container.querySelectorAll("circle");
       expect(circles.length).toBeGreaterThanOrEqual(2);
     });
 
     it("renders scanning arc with sentinel color", () => {
-      const { container } = render(<LoadingSpinner />);
+      const { container } = render(<LoadingSpinner delay={0} />);
       const sentinelArc = container.querySelector(".text-sentinel-500");
       expect(sentinelArc).toBeInTheDocument();
     });
 
     it("renders center sentinel eye icon", () => {
-      const { container } = render(<LoadingSpinner />);
+      const { container } = render(<LoadingSpinner delay={0} />);
       const eyeIcon = container.querySelector('svg path[d*="M15 12a3 3 0 11-6 0"]');
       expect(eyeIcon).toBeInTheDocument();
     });
 
     it("center icon is positioned absolutely", () => {
-      const { container } = render(<LoadingSpinner />);
+      const { container } = render(<LoadingSpinner delay={0} />);
       const iconContainer = container.querySelector(".absolute.inset-0");
       expect(iconContainer).toBeInTheDocument();
     });
@@ -120,26 +120,26 @@ describe("LoadingSpinner", () => {
 
   describe("styling", () => {
     it("applies background color to screen", () => {
-      const { container } = render(<LoadingSpinner />);
+      const { container } = render(<LoadingSpinner delay={0} />);
       const background = container.querySelector(".bg-surface-50");
       expect(background).toBeInTheDocument();
     });
 
     it("applies dark mode background", () => {
-      const { container } = render(<LoadingSpinner />);
+      const { container } = render(<LoadingSpinner delay={0} />);
       const darkBg = container.querySelector(".dark\\:bg-surface-900");
       expect(darkBg).toBeInTheDocument();
     });
 
     it("message has proper text styling", () => {
-      render(<LoadingSpinner message="Test" />);
+      render(<LoadingSpinner message="Test" delay={0} />);
       const message = screen.getByText("Test");
       expect(message).toHaveClass("font-medium");
       expect(message).toHaveClass("text-surface-600");
     });
 
     it("centers message text", () => {
-      const { container } = render(<LoadingSpinner />);
+      const { container } = render(<LoadingSpinner delay={0} />);
       const textCenter = container.querySelector(".text-center");
       expect(textCenter).toBeInTheDocument();
     });
@@ -147,32 +147,32 @@ describe("LoadingSpinner", () => {
 
   describe("accessibility", () => {
     it("SVG elements have aria-hidden", () => {
-      const { container } = render(<LoadingSpinner />);
+      const { container } = render(<LoadingSpinner delay={0} />);
       const svgs = container.querySelectorAll('svg[aria-hidden="true"]');
       expect(svgs.length).toBeGreaterThan(0);
     });
 
     it("message is readable by screen readers", () => {
-      render(<LoadingSpinner message="Loading your dashboard" />);
+      render(<LoadingSpinner message="Loading your dashboard" delay={0} />);
       expect(screen.getByText("Loading your dashboard")).toBeInTheDocument();
     });
   });
 
   describe("SVG structure", () => {
     it("SVG has correct viewBox", () => {
-      const { container } = render(<LoadingSpinner />);
+      const { container } = render(<LoadingSpinner delay={0} />);
       const svg = container.querySelector('svg[viewBox="0 0 48 48"]');
       expect(svg).toBeInTheDocument();
     });
 
     it("outer circle uses surface color", () => {
-      const { container } = render(<LoadingSpinner />);
+      const { container } = render(<LoadingSpinner delay={0} />);
       const outerCircle = container.querySelector(".text-surface-200");
       expect(outerCircle).toBeInTheDocument();
     });
 
     it("scanning arc has stroke properties", () => {
-      const { container } = render(<LoadingSpinner />);
+      const { container } = render(<LoadingSpinner delay={0} />);
       const circles = container.querySelectorAll("circle");
       const scanningArc = Array.from(circles).find(
         (circle) => circle.getAttribute("stroke-dasharray") === "31.4 94.2"

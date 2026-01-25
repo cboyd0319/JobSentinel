@@ -153,7 +153,7 @@ describe("ToastContext", () => {
         expect(screen.getByRole("alert")).toBeInTheDocument();
       });
 
-      const dismissButton = screen.getByLabelText("Dismiss");
+      const dismissButton = screen.getByLabelText(/Dismiss.*notification/i);
       fireEvent.click(dismissButton);
 
       await waitFor(() => {
