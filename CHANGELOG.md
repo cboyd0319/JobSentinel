@@ -5,6 +5,85 @@ All notable changes to JobSentinel will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.0] - 2026-01-24
+
+### Added - UX Improvement Sprint
+
+Comprehensive UX improvements focused on error recovery, loading states, accessibility, and performance optimizations.
+
+#### Error Recovery & Retry Capabilities
+
+- **Error Recovery UI** - Added retry buttons across multiple components
+  - Market.tsx: Error state with retry for market intelligence loading
+  - CoverLetterTemplates.tsx: Error state with retry for template loading
+  - AtsLiveScorePanel.tsx: Retry capability for ATS score calculation
+  - AnalyticsPanel.tsx: Error state with retry for analytics loading
+  - ApplyButton.tsx: Keep modal open on failure with "Try Again" button
+
+- **Optimistic Updates with Rollback** - NotificationPreferences now reverts on failure
+
+#### Loading State Improvements
+
+- **Skeleton Loaders** - Replace spinners with content-shaped skeletons
+  - ResumeSkeleton component for Resume page
+  - Better perceived performance
+
+- **Timeout Feedback** - "Taking longer than expected..." messages
+  - CompanyResearchPanel: Shows after 5 seconds
+  - ProfileForm: Shows after 5 seconds of loading
+
+- **useMinimumLoadingDuration Hook** - Prevents "flash of loading" for quick operations
+
+#### Data Freshness Indicators
+
+- **Stale Data Indicators** - Color-coded "last updated" timestamps
+  - DashboardHeader: Shows relative time with "Updated Xm ago"
+  - Market.tsx: Color-coded staleness (green/amber/red) with warning for very stale data
+
+#### Form Validation & Feedback
+
+- **Inline Validation** - Real-time validation on blur
+  - InterviewScheduler: Datetime validation (past date check with inline error)
+  - ResumeBuilder: Specific validation messages per step
+
+- **Unsaved Changes Warning** - CoverLetterTemplates editor shows confirmation on cancel
+
+#### Accessibility Improvements
+
+- **Form Labels** - Added accessible labels with htmlFor and aria-describedby
+  - ResumeBuilder: Summary textarea with sr-only label and hint
+  - ResumeOptimizer: Job description and resume JSON textareas
+
+- **Confirmation Dialogs** - Added for destructive actions across the app
+
+#### Performance Optimizations
+
+- **Component Memoization** - React.memo for expensive components
+  - DashboardFiltersBar (40+ props)
+  - QuickActions
+  - Dropdown
+
+- **Lookup Objects** - Replaced switch statements with lookup objects
+  - MarketAlertCard: Severity styles and alert type icons
+
+#### Empty States
+
+- **Actionable Empty States** - Improved guidance in empty states
+  - Resume.tsx: Skills empty state with icon, description, and action buttons
+  - ResumeBuilder.tsx: Experience and education empty states
+
+### Changed
+
+- Improved touch targets and button sizing
+- Better loading text ("Scanning..." instead of generic "Loading...")
+- Contextual loading text in buttons
+
+### Fixed
+
+- Flash of loading state for quick operations
+- Missing aria-labels on interactive elements
+- Inconsistent error handling patterns
+
 ## [2.5.5] - 2026-01-24
 
 ### Added - Feature Expansion & Auto-Apply Enhancement

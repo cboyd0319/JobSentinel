@@ -2,7 +2,7 @@
 
 **Last Updated:** January 24, 2026
 
-## Current Version: 2.5.2
+## Current Version: 2.6.0
 
 ### Working Features (v1.4.0)
 
@@ -304,7 +304,28 @@ Complete visualization layer for Market Intelligence with interactive charts and
 
 See [docs/features/market-intelligence.md](features/market-intelligence.md) for full documentation.
 
-### v2.6+ Planned Features
+### v2.6.0 - UX Improvement Sprint (COMPLETED)
+
+Comprehensive frontend UX improvements released January 24, 2026.
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Error Recovery UI | ✅ Done | Retry buttons in Market, CoverLetterTemplates, AtsLiveScorePanel, AnalyticsPanel, ApplyButton |
+| Stale Data Indicators | ✅ Done | Color-coded timestamps (green/amber/red) |
+| Skeleton Loaders | ✅ Done | ResumeSkeleton component, better perceived performance |
+| Timeout Feedback | ✅ Done | "Taking longer than expected..." messages |
+| Inline Validation | ✅ Done | InterviewScheduler datetime, ResumeBuilder steps |
+| Unsaved Changes Warning | ✅ Done | CoverLetterTemplates editor confirmation |
+| Component Memoization | ✅ Done | DashboardFiltersBar, QuickActions, Dropdown |
+| Lookup Objects | ✅ Done | MarketAlertCard severity/type styles |
+| Accessible Labels | ✅ Done | ResumeBuilder, ResumeOptimizer textareas |
+| Optimistic Update Rollback | ✅ Done | NotificationPreferences reverts on failure |
+| useMinimumLoadingDuration | ✅ Done | New hook for loading state management |
+| Actionable Empty States | ✅ Done | Resume skills, ResumeBuilder experience/education |
+
+See [docs/plans/v2.6.0-ux-improvements.md](plans/v2.6.0-ux-improvements.md) for details.
+
+### v2.7+ Planned Features
 
 | Feature | Status | Notes |
 |---------|--------|-------|
