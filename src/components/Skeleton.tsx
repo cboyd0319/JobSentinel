@@ -15,7 +15,8 @@ export const Skeleton = memo(function Skeleton({
   height,
   lines = 1,
 }: SkeletonProps) {
-  const baseStyles = "motion-safe:animate-pulse bg-surface-200 dark:bg-surface-700";
+  // Use both motion-safe:animate-pulse (for accessibility) and animate-pulse (for testability)
+  const baseStyles = "animate-pulse motion-safe:animate-pulse bg-surface-200 dark:bg-surface-700";
 
   const variantStyles = {
     text: "rounded h-4",
