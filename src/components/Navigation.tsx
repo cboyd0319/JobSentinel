@@ -1,6 +1,6 @@
 // Navigation Component - Visible navigation bar for all app pages
 
-import { useState } from "react";
+import { memo, useState } from "react";
 
 type Page = "dashboard" | "applications" | "resume" | "resume-builder" | "ats-optimizer" | "salary" | "market" | "automation";
 
@@ -76,7 +76,7 @@ const navItems: NavItem[] = [
   { id: "ats-optimizer", label: "ATS Optimizer", shortcut: "⌘8", icon: <OptimizerIcon /> },
 ];
 
-export function Navigation({ currentPage, onNavigate }: NavigationProps) {
+export const Navigation = memo(function Navigation({ currentPage, onNavigate }: NavigationProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
@@ -140,6 +140,6 @@ export function Navigation({ currentPage, onNavigate }: NavigationProps) {
       </div>
     </nav>
   );
-}
+});
 
 export default Navigation;

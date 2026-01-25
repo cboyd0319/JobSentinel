@@ -1,8 +1,21 @@
-import { useState, useEffect, useCallback } from "react";
+import { memo, useState, useEffect, useCallback, type ReactElement } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { Button, Input, Card, Badge, HelpIcon, Modal, ModalFooter } from "..";
 import { useToast } from "../../contexts";
 import { logError } from "../../utils/errorUtils";
+
+// Lookup object for answer type badges (better performance than switch)
+const ANSWER_TYPE_BADGES: Record<string, ReactElement> = {
+  yes_no: <Badge variant="success">Yes/No</Badge>,
+  textarea: <Badge variant="alert">Long text</Badge>,
+  select: <Badge variant="sentinel">Dropdown</Badge>,
+  text: <Badge variant="surface">Text</Badge>,
+};
+
+const DEFAULT_BADGE = ANSWER_TYPE_BADGES.text;
+
+const getAnswerTypeBadge = (type: string | null) =>
+  ANSWER_TYPE_BADGES[type ?? "text"] ?? DEFAULT_BADGE;
 
 // Types matching the Rust backend
 interface ScreeningAnswer {
@@ -31,7 +44,7 @@ const COMMON_PATTERNS = [
   { pattern: "cover.*letter|why.*company|why.*role", label: "Cover letter / Why this role", type: "textarea" },
 ];
 
-export function ScreeningAnswersForm({ onSaved }: ScreeningAnswersFormProps) {
+export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved }: ScreeningAnswersFormProps) {
   const [answers, setAnswers] = useState<ScreeningAnswer[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -124,19 +137,6 @@ export function ScreeningAnswersForm({ onSaved }: ScreeningAnswersFormProps) {
     setAnswerType(pattern.type);
     setNotes(`Auto-answer for "${pattern.label}" questions`);
     setShowAddModal(true);
-  };
-
-  const getAnswerTypeBadge = (type: string | null) => {
-    switch (type) {
-      case "yes_no":
-        return <Badge variant="success">Yes/No</Badge>;
-      case "textarea":
-        return <Badge variant="alert">Long text</Badge>;
-      case "select":
-        return <Badge variant="sentinel">Dropdown</Badge>;
-      default:
-        return <Badge variant="surface">Text</Badge>;
-    }
   };
 
   if (loading) {
@@ -317,7 +317,7 @@ export function ScreeningAnswersForm({ onSaved }: ScreeningAnswersFormProps) {
       </Modal>
     </>
   );
-}
+});
 
 // Icons
 function PlusIcon({ className = "" }: { className?: string }) {

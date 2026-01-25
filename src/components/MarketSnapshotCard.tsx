@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Card, Badge } from "./";
 
 interface MarketSnapshot {
@@ -20,7 +21,28 @@ interface MarketSnapshotCardProps {
   loading?: boolean;
 }
 
-export function MarketSnapshotCard({ snapshot, loading = false }: MarketSnapshotCardProps) {
+// Lookup objects for sentiment styling (better performance than switch)
+const SENTIMENT_CONFIG: Record<string, { icon: string; color: string }> = {
+  bullish: { icon: "📈", color: "text-green-600 dark:text-green-400" },
+  bearish: { icon: "📉", color: "text-red-600 dark:text-red-400" },
+  neutral: { icon: "➖", color: "text-surface-600 dark:text-surface-400" },
+};
+
+const DEFAULT_SENTIMENT = SENTIMENT_CONFIG.neutral;
+
+const getSentimentConfig = (sentiment: string | undefined | null) =>
+  SENTIMENT_CONFIG[(sentiment ?? "neutral").toLowerCase()] ?? DEFAULT_SENTIMENT;
+
+const formatCurrency = (amount: number | null) => {
+  if (amount === null) return "N/A";
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(amount);
+};
+
+export const MarketSnapshotCard = memo(function MarketSnapshotCard({ snapshot, loading = false }: MarketSnapshotCardProps) {
   if (loading) {
     return (
       <Card className="dark:bg-surface-800 animate-pulse" role="status" aria-busy="true" aria-label="Loading market snapshot">
@@ -39,36 +61,7 @@ export function MarketSnapshotCard({ snapshot, loading = false }: MarketSnapshot
     );
   }
 
-  const getSentimentIcon = (sentiment: string | undefined | null) => {
-    switch ((sentiment ?? "neutral").toLowerCase()) {
-      case "bullish":
-        return "📈";
-      case "bearish":
-        return "📉";
-      default:
-        return "➖";
-    }
-  };
-
-  const getSentimentColor = (sentiment: string | undefined | null) => {
-    switch ((sentiment ?? "neutral").toLowerCase()) {
-      case "bullish":
-        return "text-green-600 dark:text-green-400";
-      case "bearish":
-        return "text-red-600 dark:text-red-400";
-      default:
-        return "text-surface-600 dark:text-surface-400";
-    }
-  };
-
-  const formatCurrency = (amount: number | null) => {
-    if (amount === null) return "N/A";
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
+  const sentimentConfig = getSentimentConfig(snapshot.market_sentiment);
 
   return (
     <Card className="dark:bg-surface-800" role="region" aria-label="Market snapshot">
@@ -103,8 +96,8 @@ export function MarketSnapshotCard({ snapshot, loading = false }: MarketSnapshot
 
         {/* Sentiment */}
         <div className="text-right" role="status" aria-label={`Market sentiment: ${snapshot.market_sentiment}`}>
-          <span className={`text-2xl ${getSentimentColor(snapshot.market_sentiment)}`} aria-hidden="true">
-            {getSentimentIcon(snapshot.market_sentiment)} {snapshot.market_sentiment}
+          <span className={`text-2xl ${sentimentConfig.color}`} aria-hidden="true">
+            {sentimentConfig.icon} {snapshot.market_sentiment}
           </span>
           <p className="text-sm text-surface-500 dark:text-surface-400">Market Sentiment</p>
         </div>
@@ -129,4 +122,4 @@ export function MarketSnapshotCard({ snapshot, loading = false }: MarketSnapshot
       </div>
     </Card>
   );
-}
+});

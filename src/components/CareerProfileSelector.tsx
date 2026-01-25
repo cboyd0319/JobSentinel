@@ -3,6 +3,7 @@
  * Displays a grid of career paths for users to select from
  */
 
+import { memo, type ComponentType } from "react";
 import { CAREER_PROFILES, type CareerProfile, type ProfileIconType } from "../utils/profiles";
 
 interface CareerProfileSelectorProps {
@@ -68,7 +69,7 @@ interface ProfileCardProps {
   onSelect: () => void;
 }
 
-function ProfileCard({ profile, isSelected, onSelect }: ProfileCardProps) {
+const ProfileCard = memo(function ProfileCard({ profile, isSelected, onSelect }: ProfileCardProps) {
   return (
     <button
       onClick={onSelect}
@@ -109,9 +110,9 @@ function ProfileCard({ profile, isSelected, onSelect }: ProfileCardProps) {
       </div>
     </button>
   );
-}
+});
 
-function SelectedProfilePreview({ profileId }: { profileId: string }) {
+const SelectedProfilePreview = memo(function SelectedProfilePreview({ profileId }: { profileId: string }) {
   const profile = CAREER_PROFILES.find(p => p.id === profileId);
   if (!profile) return null;
 
@@ -139,45 +140,31 @@ function SelectedProfilePreview({ profileId }: { profileId: string }) {
       </p>
     </div>
   );
-}
+});
 
-// Icon components for each profile type
-function ProfileIcon({ type }: { type: ProfileIconType }) {
-  switch (type) {
-    case "code":
-      return <CodeIcon />;
-    case "shield":
-      return <ShieldIcon />;
-    case "chart":
-      return <ChartIcon />;
-    case "lightbulb":
-      return <LightbulbIcon />;
-    case "trending":
-      return <TrendingIcon />;
-    case "briefcase":
-      return <BriefcaseIcon />;
-    case "users":
-      return <UsersIcon />;
-    case "calculator":
-      return <CalculatorIcon />;
-    case "clipboard":
-      return <ClipboardIcon />;
-    case "pen":
-      return <PenIcon />;
-    case "heart":
-      return <HeartIcon />;
-    case "scale":
-      return <ScaleIcon />;
-    case "book":
-      return <BookIcon />;
-    case "smile":
-      return <SmileIcon />;
-    case "palette":
-      return <PaletteIcon />;
-    default:
-      return <BriefcaseIcon />;
-  }
-}
+// Icon component lookup (better performance than switch)
+const ICON_COMPONENTS: Record<ProfileIconType, ComponentType> = {
+  code: CodeIcon,
+  shield: ShieldIcon,
+  chart: ChartIcon,
+  lightbulb: LightbulbIcon,
+  trending: TrendingIcon,
+  briefcase: BriefcaseIcon,
+  users: UsersIcon,
+  calculator: CalculatorIcon,
+  clipboard: ClipboardIcon,
+  pen: PenIcon,
+  heart: HeartIcon,
+  scale: ScaleIcon,
+  book: BookIcon,
+  smile: SmileIcon,
+  palette: PaletteIcon,
+};
+
+const ProfileIcon = memo(function ProfileIcon({ type }: { type: ProfileIconType }) {
+  const IconComponent = ICON_COMPONENTS[type] ?? BriefcaseIcon;
+  return <IconComponent />;
+});
 
 // SVG Icons
 function CodeIcon() {

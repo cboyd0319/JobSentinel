@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { memo, useState, useRef, useEffect } from "react";
 
 interface SkillCategoryFilterProps {
   categories: string[];
@@ -7,7 +7,23 @@ interface SkillCategoryFilterProps {
   skillCounts?: Record<string, number>;
 }
 
-export function SkillCategoryFilter({
+const ChevronIcon = memo(function ChevronIcon({ isOpen }: { isOpen: boolean }) {
+  return (
+    <svg
+      className={`w-5 h-5 text-surface-400 transition-transform duration-200 flex-shrink-0 ${
+        isOpen ? "rotate-180" : ""
+      }`}
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      aria-hidden="true"
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+    </svg>
+  );
+});
+
+export const SkillCategoryFilter = memo(function SkillCategoryFilter({
   categories,
   selected,
   onChange,
@@ -215,20 +231,4 @@ export function SkillCategoryFilter({
       )}
     </div>
   );
-}
-
-function ChevronIcon({ isOpen }: { isOpen: boolean }) {
-  return (
-    <svg
-      className={`w-5 h-5 text-surface-400 transition-transform duration-200 flex-shrink-0 ${
-        isOpen ? "rotate-180" : ""
-      }`}
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      aria-hidden="true"
-    >
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-    </svg>
-  );
-}
+});
