@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, memo } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { Card } from './Card';
 import { Badge } from './Badge';
@@ -223,7 +223,7 @@ interface SourceConfigRowProps {
   onChange: (config: SourceNotificationConfig) => void;
 }
 
-function SourceConfigRow({ sourceKey, config, onChange }: SourceConfigRowProps) {
+const SourceConfigRow = memo(function SourceConfigRow({ sourceKey, config, onChange }: SourceConfigRowProps) {
   const info = SOURCE_INFO[sourceKey] || { name: sourceKey, color: '#666', icon: '?' };
 
   return (
@@ -286,7 +286,7 @@ function SourceConfigRow({ sourceKey, config, onChange }: SourceConfigRowProps) 
       </label>
     </div>
   );
-}
+});
 
 export function NotificationPreferences() {
   const [prefs, setPrefs] = useState<NotificationPreferences>(DEFAULT_PREFERENCES);

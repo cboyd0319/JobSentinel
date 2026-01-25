@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import { Card } from './Card';
 import { Button } from './Button';
 import { Badge } from './Badge';
@@ -629,7 +629,7 @@ function RatingStars({ rating }: { rating: number }) {
   );
 }
 
-function InfoRow({ label, value, icon }: { label: string; value: string; icon?: React.ReactNode }) {
+const InfoRow = memo(function InfoRow({ label, value, icon }: { label: string; value: string; icon?: React.ReactNode }) {
   return (
     <div className="flex items-start gap-3 py-2">
       {icon && (
@@ -643,7 +643,7 @@ function InfoRow({ label, value, icon }: { label: string; value: string; icon?: 
       </div>
     </div>
   );
-}
+});
 
 export function CompanyResearchPanel({ companyName, onClose }: CompanyResearchPanelProps) {
   const [loading, setLoading] = useState(true);
