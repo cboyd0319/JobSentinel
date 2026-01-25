@@ -157,6 +157,7 @@ function TemplateEditor({ template, onSave, onCancel, saving }: TemplateEditorPr
           onChange={(e) => setContent(e.target.value)}
           placeholder="Write your cover letter template here..."
           rows={12}
+          maxLength={5000}
           disabled={saving}
           className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500 resize-y font-mono text-sm disabled:opacity-50"
         />

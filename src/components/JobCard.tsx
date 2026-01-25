@@ -6,6 +6,7 @@ import { open } from "@tauri-apps/plugin-shell";
 import { logError } from "../utils/errorUtils";
 import { formatRelativeDate, formatSalaryRange, truncateText } from "../utils/formatUtils";
 import { SCORE_THRESHOLD_HIGH, SCORE_THRESHOLD_GOOD } from "../utils/constants";
+import { useToast } from "../hooks/useToast";
 
 // Lazy load modal to reduce initial bundle size
 const ScoreBreakdownModal = lazy(() => import("./ScoreBreakdownModal").then(m => ({ default: m.ScoreBreakdownModal })));
@@ -45,6 +46,7 @@ interface JobCardProps {
 
 export const JobCard = memo(function JobCard({ job, onViewJob, onHideJob, onToggleBookmark, onEditNotes, onResearchCompany, isSelected = false }: JobCardProps) {
   const [isScoreModalOpen, setIsScoreModalOpen] = useState(false);
+  const toast = useToast();
 
   // Security: Validate URL protocol before opening
   const isValidUrl = (url: string): boolean => {
@@ -55,6 +57,14 @@ export const JobCard = memo(function JobCard({ job, onViewJob, onHideJob, onTogg
       return parsed.protocol === "https:" || parsed.protocol === "http:";
     } catch {
       return false;
+    }
+  };
+
+  // Keyboard accessibility helper
+  const handleKeyDown = (e: React.KeyboardEvent, callback: () => void) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      callback();
     }
   };
 
@@ -70,6 +80,7 @@ export const JobCard = memo(function JobCard({ job, onViewJob, onHideJob, onTogg
     } catch (err: unknown) {
       // Log error and fallback to window.open
       logError("Failed to open URL via Tauri shell:", err);
+      toast.error("Failed to open link", "Unable to open the job posting URL");
       window.open(url, "_blank", "noopener,noreferrer");
     }
   };
@@ -199,6 +210,7 @@ export const JobCard = memo(function JobCard({ job, onViewJob, onHideJob, onTogg
             {onResearchCompany && (
               <button
                 onClick={() => onResearchCompany(job.company)}
+                onKeyDown={(e) => handleKeyDown(e, () => onResearchCompany(job.company))}
                 className="p-2 text-surface-400 hover:text-purple-500 dark:hover:text-purple-400 opacity-40 group-hover:opacity-100 focus-visible:opacity-100 transition-colors"
                 aria-label="Research company"
                 title="Research company"
@@ -212,6 +224,7 @@ export const JobCard = memo(function JobCard({ job, onViewJob, onHideJob, onTogg
             {onEditNotes && (
               <button
                 onClick={() => onEditNotes(job.id, job.notes)}
+                onKeyDown={(e) => handleKeyDown(e, () => onEditNotes(job.id, job.notes))}
                 className={`p-2 transition-colors ${
                   job.notes
                     ? "text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300"
@@ -228,6 +241,7 @@ export const JobCard = memo(function JobCard({ job, onViewJob, onHideJob, onTogg
             {onToggleBookmark && (
               <button
                 onClick={() => onToggleBookmark(job.id)}
+                onKeyDown={(e) => handleKeyDown(e, () => onToggleBookmark(job.id))}
                 className={`p-2 transition-colors ${
                   job.bookmarked
                     ? "text-yellow-500 hover:text-yellow-600 dark:text-yellow-400 dark:hover:text-yellow-300"
@@ -249,6 +263,13 @@ export const JobCard = memo(function JobCard({ job, onViewJob, onHideJob, onTogg
                   handleOpenUrl(job.url);
                 }
               }}
+              onKeyDown={(e) => handleKeyDown(e, () => {
+                if (onViewJob) {
+                  onViewJob(job.url);
+                } else {
+                  handleOpenUrl(job.url);
+                }
+              })}
               className={`
                 inline-flex items-center gap-1 px-4 py-2 rounded-lg font-medium text-sm
                 transition-all duration-150 cursor-pointer
@@ -268,6 +289,7 @@ export const JobCard = memo(function JobCard({ job, onViewJob, onHideJob, onTogg
             {onHideJob && (
               <button
                 onClick={() => onHideJob(job.id)}
+                onKeyDown={(e) => handleKeyDown(e, () => onHideJob(job.id))}
                 className="p-2 text-surface-400 hover:text-surface-600 dark:hover:text-surface-300 transition-colors opacity-40 group-hover:opacity-100 focus-visible:opacity-100"
                 aria-label="Not interested in this job"
                 data-testid="btn-hide"

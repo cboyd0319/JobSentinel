@@ -97,7 +97,7 @@ All major features complete:
 - **Market Intelligence UI** - Interactive charts, tabbed layout, heatmaps
 - **Custom React Hooks** - useOptimisticUpdate, usePagination, useFormValidation
 - **Enhanced Error Handling** - Component-level error boundaries, retry logic
-- **Comprehensive Test Suite** - 4,565+ tests (2,390 frontend + 2,175 Rust)
+- **Comprehensive Test Suite** - 4,449+ tests (2,274 frontend + 2,175 Rust)
 
 **v2.6.3 NEW:** Security fixes (XSS, URL validation), memory leak fixes, standardized error types, 145 new tests
 
@@ -209,7 +209,7 @@ All core modules are enabled and functional:
 
 ### Test Status
 
-- **4,565+ tests passing** (2,390 Frontend + 2,175 Rust)
+- **4,449+ tests passing** (2,274 Frontend + 2,175 Rust)
 - 26 ignored (require file-based database, Chrome, or are doc-tests)
 - Integration test files: `tests/automation_integration_test.rs`, `tests/scheduler_integration_test.rs`, etc.
 

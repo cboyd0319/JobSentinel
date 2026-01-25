@@ -827,6 +827,7 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
                   value={formData.location}
                   onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                   placeholder="Zoom, Google Meet, or address"
+                  autoComplete="off"
                   className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100"
                 />
               </div>
@@ -841,6 +842,7 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
                     id="interviewer-name"
                     value={formData.interviewer_name}
                     onChange={(e) => setFormData({ ...formData, interviewer_name: e.target.value })}
+                    autoComplete="name"
                     className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100"
                   />
                 </div>
@@ -868,6 +870,7 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                   rows={2}
                   placeholder="Preparation notes, topics to cover..."
+                  maxLength={1000}
                   className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 resize-none"
                 />
               </div>
@@ -1057,6 +1060,7 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
                         onChange={(e) => setFeedbackNotes(e.target.value)}
                         rows={4}
                         placeholder="How did it go? Topics discussed, questions asked, overall impression..."
+                        maxLength={1000}
                         className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 resize-none text-sm"
                       />
                     </div>
