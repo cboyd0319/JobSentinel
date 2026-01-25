@@ -1,4 +1,4 @@
-import { useState, useRef, ReactNode, useEffect } from "react";
+import { memo, useState, useRef, ReactNode, useEffect } from "react";
 
 interface TooltipProps {
   content: ReactNode;
@@ -7,7 +7,7 @@ interface TooltipProps {
   delay?: number;
 }
 
-export function Tooltip({
+export const Tooltip = memo(function Tooltip({
   content,
   children,
   position = "top",
@@ -83,4 +83,4 @@ export function Tooltip({
       )}
     </div>
   );
-}
+});

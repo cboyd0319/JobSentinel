@@ -1,3 +1,5 @@
+import { memo } from "react";
+
 type IllustrationType = "search" | "jobs" | "applications" | "resume" | "salary" | "market" | "error" | "success" | "empty";
 
 interface EmptyStateProps {
@@ -8,7 +10,7 @@ interface EmptyStateProps {
   action?: React.ReactNode;
 }
 
-export function EmptyState({ icon, illustration, title, description, action }: EmptyStateProps) {
+export const EmptyState = memo(function EmptyState({ icon, illustration, title, description, action }: EmptyStateProps) {
   const renderIllustration = () => {
     if (icon) {
       return (
@@ -43,7 +45,7 @@ export function EmptyState({ icon, illustration, title, description, action }: E
       {action && <div>{action}</div>}
     </div>
   );
-}
+});
 
 // SVG Illustrations for different empty states
 const illustrations: Record<IllustrationType, React.ReactNode> = {
