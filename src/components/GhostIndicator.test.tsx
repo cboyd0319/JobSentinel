@@ -246,6 +246,13 @@ describe("GhostIndicatorCompact", () => {
       expect(container.firstChild).toBeNull();
     });
 
+    it("does not render when ghostScore is below threshold", () => {
+      const { container } = render(
+        <GhostIndicatorCompact ghostScore={0.4} ghostReasons={null} />
+      );
+      expect(container.firstChild).toBeNull();
+    });
+
     it("renders compact indicator when score is above threshold", () => {
       render(<GhostIndicatorCompact ghostScore={0.8} ghostReasons={null} />);
       const indicator = screen.getByLabelText(/ghost warning: 80%/i);
@@ -257,6 +264,18 @@ describe("GhostIndicatorCompact", () => {
       render(<GhostIndicatorCompact ghostScore={0.8} ghostReasons={null} />);
       const indicator = screen.getByLabelText(/ghost warning: 80%/i);
       expect(indicator).toHaveClass("bg-red-100");
+    });
+
+    it("renders with low severity for scores 0.5-0.59", () => {
+      render(<GhostIndicatorCompact ghostScore={0.55} ghostReasons={null} />);
+      const indicator = screen.getByLabelText(/ghost warning: 55%/i);
+      expect(indicator).toHaveClass("bg-yellow-100");
+    });
+
+    it("renders with medium severity for scores 0.6-0.74", () => {
+      render(<GhostIndicatorCompact ghostScore={0.65} ghostReasons={null} />);
+      const indicator = screen.getByLabelText(/ghost warning: 65%/i);
+      expect(indicator).toHaveClass("bg-orange-100");
     });
 
     it("shows limited reasons in compact tooltip", async () => {
@@ -278,6 +297,76 @@ describe("GhostIndicatorCompact", () => {
         expect(screen.getByText(/reason 2/i)).toBeInTheDocument();
         expect(screen.getByText(/reason 3/i)).toBeInTheDocument();
         expect(screen.getByText(/\+1 more warnings/i)).toBeInTheDocument();
+      });
+    });
+
+    it("shows default message when no reasons", async () => {
+      const user = userEvent.setup();
+      render(<GhostIndicatorCompact ghostScore={0.8} ghostReasons={null} />);
+
+      const indicator = screen.getByLabelText(/ghost warning: 80%/i);
+      await user.hover(indicator);
+
+      await waitFor(() => {
+        expect(screen.getByText(/this job may be stale or fake/i)).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe("feedback functionality", () => {
+    it("shows feedback buttons when jobId is provided", async () => {
+      const user = userEvent.setup();
+      render(<GhostIndicatorCompact ghostScore={0.8} ghostReasons={null} jobId={456} />);
+
+      const indicator = screen.getByLabelText(/ghost warning: 80%/i);
+      await user.hover(indicator);
+
+      await waitFor(() => {
+        expect(screen.getByTitle("Mark as real job")).toBeInTheDocument();
+        expect(screen.getByTitle("Confirm ghost job")).toBeInTheDocument();
+      });
+    });
+
+    it("renders with jobId prop", () => {
+      render(
+        <GhostIndicatorCompact
+          ghostScore={0.8}
+          ghostReasons={null}
+          jobId={456}
+        />
+      );
+      expect(screen.getByLabelText(/ghost warning: 80%/i)).toBeInTheDocument();
+    });
+
+    it("renders with onFeedbackSubmitted prop", () => {
+      const onFeedbackSubmitted = vi.fn();
+      render(
+        <GhostIndicatorCompact
+          ghostScore={0.8}
+          ghostReasons={null}
+          jobId={456}
+          onFeedbackSubmitted={onFeedbackSubmitted}
+        />
+      );
+      expect(screen.getByLabelText(/ghost warning: 80%/i)).toBeInTheDocument();
+    });
+
+    it("does not show feedback buttons without jobId", async () => {
+      const user = userEvent.setup();
+
+      render(
+        <GhostIndicatorCompact
+          ghostScore={0.8}
+          ghostReasons={null}
+        />
+      );
+
+      const indicator = screen.getByLabelText(/ghost warning: 80%/i);
+      await user.hover(indicator);
+
+      // No feedback buttons without jobId
+      await waitFor(() => {
+        expect(screen.queryByTitle("Mark as real job")).not.toBeInTheDocument();
       });
     });
   });
