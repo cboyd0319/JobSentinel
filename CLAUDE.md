@@ -141,18 +141,38 @@ npm run test:e2e:ui      # Interactive mode
 - `docs/developer/TESTING.md` - Testing guide
 - `docs/developer/CONTRIBUTING.md` - Contribution guide
 
-## Recommended Agents
+## Sub-Agents (USE THESE)
 
-| Task | Agent |
-|------|-------|
-| Rust work | `rust-expert` |
-| React/TS work | `typescript-expert` |
-| Scraper development | `scraper-expert` |
-| Code review | `code-reviewer` |
-| Security audit | `security-audit` |
-| Database work | `database-expert` |
-| Bug investigation | `debugger` |
-| Fast exploration | `explore-fast` |
+**Always prefer sub-agents for parallel work.** Launch multiple agents simultaneously when tasks are independent.
+
+| Task | Agent | When to Use |
+|------|-------|-------------|
+| Rust work | `rust-expert` | Any .rs file changes |
+| React/TS work | `typescript-expert` | Any .ts/.tsx changes |
+| Scraper development | `scraper-expert` | New scrapers, parsing logic |
+| Code review | `code-reviewer` | Before commits, PR reviews |
+| Security audit | `security-audit` | Auth, crypto, input handling |
+| Database work | `database-expert` | Schema, migrations, queries |
+| Bug investigation | `debugger` | Tracing issues, errors |
+| Fast exploration | `explore-fast` | Finding files, understanding code |
+
+### Parallel Agent Patterns
+
+```
+# Good: Run independent tasks in parallel
+- Launch `rust-expert` for backend changes
+- Launch `typescript-expert` for frontend changes
+- Launch `code-reviewer` to review while you work
+
+# Good: Explore multiple areas simultaneously
+- Launch `explore-fast` to find scraper patterns
+- Launch `explore-fast` to find React component patterns
+
+# Bad: Sequential when parallel is possible
+- Wait for rust-expert to finish before starting typescript-expert
+```
+
+**Rule:** If tasks don't depend on each other, launch agents in parallel (single message, multiple Task tool calls).
 
 ## Memory Conventions
 
