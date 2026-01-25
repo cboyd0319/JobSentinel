@@ -794,9 +794,19 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                 </Button>
               </div>
               {experiences.length === 0 ? (
-                <div className="text-center py-8 text-surface-500 dark:text-surface-400">
-                  <p>No work experience added yet</p>
-                  <p className="text-xs mt-1">Click "Add Experience" to get started</p>
+                <div className="text-center py-8">
+                  <div className="w-12 h-12 bg-surface-100 dark:bg-surface-700 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <svg className="w-6 h-6 text-surface-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <p className="font-medium text-surface-700 dark:text-surface-300 mb-1">No work experience added yet</p>
+                  <p className="text-sm text-surface-500 dark:text-surface-400 mb-4">
+                    Add your relevant work history to strengthen your resume
+                  </p>
+                  <Button size="sm" onClick={() => setShowExperienceModal(true)}>
+                    Add Your First Job
+                  </Button>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -867,9 +877,35 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                 </Button>
               </div>
               {educations.length === 0 ? (
-                <div className="text-center py-8 text-surface-500 dark:text-surface-400">
-                  <p>No education added yet</p>
-                  <p className="text-xs mt-1">Click "Add Education" to get started</p>
+                <div className="text-center py-8">
+                  <div className="w-12 h-12 bg-surface-100 dark:bg-surface-700 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <svg className="w-6 h-6 text-surface-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path d="M12 14l9-5-9-5-9 5 9 5z" />
+                      <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
+                    </svg>
+                  </div>
+                  <p className="font-medium text-surface-700 dark:text-surface-300 mb-1">No education added yet</p>
+                  <p className="text-sm text-surface-500 dark:text-surface-400 mb-4">
+                    Add your educational background to complete your profile
+                  </p>
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      setEditingEducation({
+                        id: 0,
+                        degree: "",
+                        institution: "",
+                        location: null,
+                        graduation_date: null,
+                        gpa: null,
+                        honors: [],
+                      });
+                      setShowEducationModal(true);
+                    }}
+                  >
+                    Add Education
+                  </Button>
                 </div>
               ) : (
                 <div className="space-y-4">
