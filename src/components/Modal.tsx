@@ -1,4 +1,4 @@
-import { useEffect, useRef, ReactNode, KeyboardEvent } from "react";
+import { memo, useEffect, useRef, ReactNode, KeyboardEvent } from "react";
 import { createPortal } from "react-dom";
 
 interface ModalProps {
@@ -19,7 +19,7 @@ const sizeStyles = {
   xl: "max-w-xl",
 };
 
-export function Modal({
+export const Modal = memo(function Modal({
   isOpen,
   onClose,
   title,
@@ -155,7 +155,7 @@ export function Modal({
     </div>,
     document.body
   );
-}
+});
 
 // Modal footer component for action buttons
 interface ModalFooterProps {
@@ -163,10 +163,10 @@ interface ModalFooterProps {
   className?: string;
 }
 
-export function ModalFooter({ children, className = "" }: ModalFooterProps) {
+export const ModalFooter = memo(function ModalFooter({ children, className = "" }: ModalFooterProps) {
   return (
     <div className={`flex items-center justify-end gap-3 pt-4 border-t border-surface-100 dark:border-surface-700 ${className}`}>
       {children}
     </div>
   );
-}
+});
