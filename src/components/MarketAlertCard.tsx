@@ -19,51 +19,46 @@ interface MarketAlertCardProps {
   onMarkRead?: (id: number) => void;
 }
 
-export const MarketAlertCard = memo(function MarketAlertCard({ alert, onMarkRead }: MarketAlertCardProps) {
-  const getSeverityStyles = (severity: string) => {
-    switch (severity.toLowerCase()) {
-      case "critical":
-        return {
-          bg: "bg-red-50 dark:bg-red-900/20",
-          border: "border-red-200 dark:border-red-800",
-          icon: "🚨",
-          badge: "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300",
-        };
-      case "warning":
-        return {
-          bg: "bg-alert-50 dark:bg-alert-900/20",
-          border: "border-alert-200 dark:border-alert-800",
-          icon: "⚠️",
-          badge: "bg-alert-100 dark:bg-alert-900/40 text-alert-700 dark:text-alert-300",
-        };
-      default:
-        return {
-          bg: "bg-blue-50 dark:bg-blue-900/20",
-          border: "border-blue-200 dark:border-blue-800",
-          icon: "ℹ️",
-          badge: "bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300",
-        };
-    }
-  };
+// Lookup objects for cleaner mapping (moved outside component to avoid recreation)
+const SEVERITY_STYLES: Record<string, { bg: string; border: string; icon: string; badge: string }> = {
+  critical: {
+    bg: "bg-red-50 dark:bg-red-900/20",
+    border: "border-red-200 dark:border-red-800",
+    icon: "🚨",
+    badge: "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300",
+  },
+  warning: {
+    bg: "bg-alert-50 dark:bg-alert-900/20",
+    border: "border-alert-200 dark:border-alert-800",
+    icon: "⚠️",
+    badge: "bg-alert-100 dark:bg-alert-900/40 text-alert-700 dark:text-alert-300",
+  },
+};
 
-  const getAlertTypeIcon = (type: string) => {
-    switch (type.toLowerCase()) {
-      case "skill_surge":
-        return "🔧";
-      case "salary_spike":
-        return "💰";
-      case "hiring_freeze":
-        return "❄️";
-      case "hiring_spree":
-        return "🚀";
-      case "location_boom":
-        return "📍";
-      case "role_obsolete":
-        return "📉";
-      default:
-        return "📊";
-    }
-  };
+const DEFAULT_SEVERITY_STYLE = {
+  bg: "bg-blue-50 dark:bg-blue-900/20",
+  border: "border-blue-200 dark:border-blue-800",
+  icon: "ℹ️",
+  badge: "bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300",
+};
+
+const ALERT_TYPE_ICONS: Record<string, string> = {
+  skill_surge: "🔧",
+  salary_spike: "💰",
+  hiring_freeze: "❄️",
+  hiring_spree: "🚀",
+  location_boom: "📍",
+  role_obsolete: "📉",
+};
+
+const DEFAULT_ALERT_ICON = "📊";
+
+export const MarketAlertCard = memo(function MarketAlertCard({ alert, onMarkRead }: MarketAlertCardProps) {
+  const getSeverityStyles = (severity: string) =>
+    SEVERITY_STYLES[severity.toLowerCase()] ?? DEFAULT_SEVERITY_STYLE;
+
+  const getAlertTypeIcon = (type: string) =>
+    ALERT_TYPE_ICONS[type.toLowerCase()] ?? DEFAULT_ALERT_ICON;
 
   const formatChange = (change: number | null) => {
     if (change === null) return null;

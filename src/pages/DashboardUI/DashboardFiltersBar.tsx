@@ -1,7 +1,7 @@
 // Dashboard Filters Bar Component
 // Contains all filter controls, search, bulk actions, and action buttons
 
-import { RefObject, useState, useEffect } from "react";
+import { memo, RefObject, useState, useEffect } from "react";
 import { Dropdown, Tooltip } from "../../components";
 import { useDebouncedValue } from "../../hooks";
 import {
@@ -69,7 +69,7 @@ interface DashboardFiltersBarProps {
   handleBulkHide: () => void;
 }
 
-export function DashboardFiltersBar({
+export const DashboardFiltersBar = memo(function DashboardFiltersBar({
   jobs,
   filteredJobs,
   textSearch,
@@ -526,4 +526,4 @@ export function DashboardFiltersBar({
       )}
     </div>
   );
-}
+});

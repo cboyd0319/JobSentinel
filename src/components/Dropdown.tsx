@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, ReactNode } from "react";
+import { memo, useState, useRef, useEffect, ReactNode } from "react";
 
 interface DropdownOption {
   value: string;
@@ -18,7 +18,7 @@ interface DropdownProps {
   className?: string;
 }
 
-export function Dropdown({
+export const Dropdown = memo(function Dropdown({
   options,
   value,
   onChange,
@@ -202,7 +202,7 @@ export function Dropdown({
       )}
     </div>
   );
-}
+});
 
 function ChevronIcon({ isOpen }: { isOpen: boolean }) {
   return (

@@ -15,7 +15,7 @@ interface QuickActionsProps {
   hasActiveFilters: boolean;
 }
 
-export function QuickActions({
+export const QuickActions = memo(function QuickActions({
   totalJobs,
   highMatches,
   filteredCount,
@@ -156,7 +156,7 @@ export function QuickActions({
       )}
     </div>
   );
-}
+});
 
 const ShortcutItem = memo(function ShortcutItem({ keys, description }: { keys: string[]; description: string }) {
   return (
