@@ -19,7 +19,7 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.7: ML predictions, Linux suppo
 
 ## Current Status (January 2026)
 
-**Version: 2.6.3** | 4,565+ tests passing | Security + Stability Sprint
+**Version: 2.6.3** | 4,449+ tests passing | Security + Stability Sprint
 
 ### What's New in v2.6.3 🔒
 
@@ -27,7 +27,7 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.7: ML predictions, Linux suppo
 - **Memory Leak Fixes** - Fixed 2 critical leaks in toast context and modal cleanup
 - **Standardized Error Types** - Consistent error handling across all scrapers and components
 - **Enhanced Error Handling** - Component-level error boundaries with retry logic
-- **Test Coverage** - 145 new tests (ApplyButton, ProfileForm, ScreeningAnswersForm)
+- **Test Coverage** - 145 new tests (ApplyButton, ProfileForm, ScreeningAnswersForm, formValidation, errorHelpers)
 - **Custom React Hooks** - useOptimisticUpdate, usePagination, useFormValidation
 - **Documentation** - Updated all developer and API docs for v2.6.3
 
@@ -65,7 +65,7 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.7: ML predictions, Linux suppo
   - Tooltip: Escape key dismisses tooltips
   - Badge: Contextual remove button labels
 
-- **Test Coverage** - 4,565+ tests (2,390 Frontend + 2,175 Rust) - *Now 4,565+ in v2.6.3*
+- **Test Coverage** - 4,449+ tests (2,274 Frontend + 2,175 Rust)
 
 - See [v2.6.0 Release Notes](releases/v2.6.0.md) for full details
 

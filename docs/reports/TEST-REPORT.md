@@ -1,5 +1,9 @@
 # JobSentinel Beta Launch Test Report
 
+**NOTE:** This is a historical report from the v2.5.2 beta launch. For current test status, see the main [README.md](../../README.md).
+
+---
+
 **Date:** 2026-01-18
 **Version:** 2.5.2
 **Tester:** Automated CI/Agent + Manual Validation

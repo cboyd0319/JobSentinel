@@ -584,6 +584,6 @@ See [tests/README.md](../../tests/README.md) for full documentation.
 ---
 
 **Last Updated**: January 25, 2026
-**Test Count**: 4,565+ passing (2,175 backend + 2,390+ frontend)
+**Test Count**: 4,449+ passing (2,274 frontend + 2,175 Rust)
 **Version**: v2.6.3
 **Maintained By**: The Rust Mac Overlord 🦀

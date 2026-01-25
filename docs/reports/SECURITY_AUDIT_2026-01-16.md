@@ -1,7 +1,7 @@
 # JobSentinel Security Audit Report
 
 **Date:** January 16, 2026
-**Version Audited:** v1.3.1
+**Version Audited:** v2.6.3
 **Auditor:** Claude Opus 4.5 (automated security analysis)
 **Scope:** Full repository - backend (Rust/Tauri), frontend (React/TypeScript), dependencies
 **Status:** COMPLETE - All identified issues remediated
@@ -371,7 +371,7 @@ expect_used = "warn"   # Warn on .expect() usage
 
 ## Conclusion
 
-JobSentinel v1.3.1 demonstrates mature security practices with comprehensive defense-in-depth:
+JobSentinel v2.6.3 demonstrates mature security practices with comprehensive defense-in-depth:
 
 - **No critical or high vulnerabilities** identified or present
 - **All medium/low findings remediated** with tested fixes

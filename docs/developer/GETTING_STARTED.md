@@ -8,7 +8,7 @@
 |-----------|--------|
 | Core modules (config, db, scoring, scrapers, scheduler, notify, ghost, ats, resume, salary, market, automation, credentials, health) | Working |
 | Frontend (React 19 + TypeScript) | Working |
-| Tests | 4,565+ passing (2,175 backend + 2,390+ frontend) |
+| Tests | 4,449+ passing (2,274 frontend + 2,175 Rust) |
 
 ---
 

@@ -367,7 +367,7 @@ Security fixes, memory leak resolution, and standardized error handling released
 
 **Current Test Status:**
 
-- **4,565+ tests passing** (2,390 Frontend + 2,175 Rust)
+- **4,449+ tests passing** (2,274 Frontend + 2,175 Rust)
 - 26 ignored (require file-based database, Chrome, or are doc-tests)
 
 See [CHANGELOG.md](../CHANGELOG.md) for detailed v2.6.3 changes.
@@ -675,7 +675,7 @@ See [docs/features/one-click-apply.md](features/one-click-apply.md) for full doc
 
 - All Rust code compiles with 0 errors
 - Clippy passes with 0 warnings (`-D warnings`)
-- **4,565+ tests passing** (2,390 Frontend + 2,175 Rust), 26 ignored (require file-based database, Chrome, or are doc-tests)
+- **4,449+ tests passing** (2,274 Frontend + 2,175 Rust), 26 ignored (require file-based database, Chrome, or are doc-tests)
 - Integration tests: 76+ tests across multiple files (automation, scheduler, database, API contract)
 - Component tests: 300+ tests across React components
 - E2E tests: Playwright test suite

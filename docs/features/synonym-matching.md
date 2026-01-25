@@ -262,3 +262,7 @@ No configuration changes needed! Synonym matching is **backward compatible**:
 - [Smart Scoring](./smart-scoring.md) - Overview of the scoring system
 - [Configuration Guide](../user/configuration.md) - How to configure keywords
 - [Changelog](../../CHANGELOG.md) - Version history
+
+---
+
+**Version:** 2.6.3 | **Last Updated:** January 25, 2026

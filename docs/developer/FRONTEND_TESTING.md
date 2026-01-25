@@ -772,7 +772,7 @@ test("should open external link in browser", async () => {
 ---
 
 **Last Updated**: January 25, 2026
-**Test Count**: 2,390+ passing frontend tests
+**Test Count**: 2,274+ passing frontend tests
 **Stack**: Vitest 4.0.17 + React Testing Library 16.3.1 + Playwright 1.57.0
 **Target**: React 19 + Tauri 2.x
 **Version**: v2.6.3

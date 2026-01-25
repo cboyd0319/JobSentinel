@@ -174,3 +174,7 @@ Potential improvements for v2.0+:
 2. **Custom score multipliers** - Let users customize the penalty for non-preferred arrangements
 3. **Location-aware scoring** - Combine remote preference with city/state preferences for hybrid/onsite jobs
 4. **Resume-based detection** - Use resume's remote work experience to suggest preference
+
+---
+
+**Version:** 2.6.3 | **Last Updated:** January 25, 2026
