@@ -10,7 +10,7 @@ import {
 // Test component that uses the keyboard shortcuts context
 function TestComponent({
   onRegister,
-  onUnregister,
+  onUnregister: _onUnregister,
 }: {
   onRegister?: () => void;
   onUnregister?: () => void;
