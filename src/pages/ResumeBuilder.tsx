@@ -250,43 +250,33 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
     setCurrentStep((prev) => Math.max(prev - 1, 1));
   };
 
-  // Validation
-  const canProceed = (): boolean => {
-    switch (currentStep) {
-      case 1:
-        return !!(contact.name && contact.email);
-      case 2:
-        return summary.length >= 10;
-      case 3:
-        return experiences.length > 0;
-      case 4:
-        return educations.length > 0;
-      case 5:
-        return skills.length > 0;
-      default:
-        return true;
-    }
-  };
+  // Validation using lookup pattern (better performance than switch)
+  const canProceed = useCallback((): boolean => {
+    const validators: Record<number, () => boolean> = {
+      1: () => !!(contact.name && contact.email),
+      2: () => summary.length >= 10,
+      3: () => experiences.length > 0,
+      4: () => educations.length > 0,
+      5: () => skills.length > 0,
+    };
+    return validators[currentStep]?.() ?? true;
+  }, [currentStep, contact, summary, experiences, educations, skills]);
 
-  // Get specific validation message for current step
-  const getValidationMessage = (): string => {
-    switch (currentStep) {
-      case 1:
+  // Validation messages using lookup pattern
+  const getValidationMessage = useCallback((): string => {
+    const messages: Record<number, () => string> = {
+      1: () => {
         if (!contact.name) return "Please enter your name";
         if (!contact.email) return "Please enter your email";
         return "";
-      case 2:
-        return "Please write a summary (at least 10 characters)";
-      case 3:
-        return "Please add at least one work experience";
-      case 4:
-        return "Please add at least one education entry";
-      case 5:
-        return "Please add at least one skill";
-      default:
-        return "";
-    }
-  };
+      },
+      2: () => "Please write a summary (at least 10 characters)",
+      3: () => "Please add at least one work experience",
+      4: () => "Please add at least one education entry",
+      5: () => "Please add at least one skill",
+    };
+    return messages[currentStep]?.() ?? "";
+  }, [currentStep, contact]);
 
   // Experience handlers
   const handleAddExperience = async () => {

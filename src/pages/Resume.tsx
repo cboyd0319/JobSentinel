@@ -5,6 +5,18 @@ import { Button, Card, Badge, ScoreDisplay, Modal, ModalFooter, ResumeSkeleton }
 import { useToast } from "../contexts";
 import { logError, getErrorMessage } from "../utils/errorUtils";
 
+// Proficiency color lookup (better performance than switch)
+type BadgeVariant = "sentinel" | "alert" | "surface" | "success" | "danger";
+
+const PROFICIENCY_COLORS: Record<string, BadgeVariant> = {
+  expert: "sentinel",
+  advanced: "alert",
+  intermediate: "surface",
+};
+
+const getProficiencyColor = (proficiency: string | null): BadgeVariant =>
+  PROFICIENCY_COLORS[proficiency?.toLowerCase() ?? ""] ?? "surface";
+
 // Backend types (matching Rust types)
 interface ResumeData {
   id: number;
@@ -282,18 +294,6 @@ export default function Resume({ onBack }: ResumeProps) {
     });
   };
 
-  const getProficiencyColor = (proficiency: string | null) => {
-    switch (proficiency?.toLowerCase()) {
-      case "expert":
-        return "sentinel";
-      case "advanced":
-        return "alert";
-      case "intermediate":
-        return "surface";
-      default:
-        return "surface";
-    }
-  };
 
   if (loading) {
     return <ResumeSkeleton />;
