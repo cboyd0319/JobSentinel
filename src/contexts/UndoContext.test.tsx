@@ -306,5 +306,179 @@ describe("UndoContext", () => {
 
       expect(onRedo).not.toHaveBeenCalled();
     });
+
+    it("shows error toast when redo fails", async () => {
+      const onUndo = vi.fn().mockResolvedValue(undefined);
+      const onRedo = vi.fn().mockRejectedValue(new Error("Redo failed"));
+
+      render(
+        <TestWrapper>
+          <TestComponent onUndo={onUndo} onRedo={onRedo} />
+        </TestWrapper>
+      );
+
+      // Push and undo to enable redo
+      fireEvent.click(screen.getByTestId("push-action"));
+      await waitFor(() => {
+        expect(screen.getByTestId("can-undo")).toHaveTextContent("true");
+      });
+
+      await act(async () => {
+        fireEvent.click(screen.getByTestId("undo-btn"));
+      });
+
+      await waitFor(() => {
+        expect(onUndo).toHaveBeenCalled();
+      });
+
+      // Now try to redo which will fail
+      await act(async () => {
+        fireEvent.click(screen.getByTestId("redo-btn"));
+      });
+
+      await waitFor(() => {
+        expect(onRedo).toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe("keyboard shortcuts", () => {
+    it("triggers undo on Ctrl+Z (Windows)", async () => {
+      const onUndo = vi.fn().mockResolvedValue(undefined);
+
+      // Mock Windows user agent
+      Object.defineProperty(navigator, "userAgent", {
+        value: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+        configurable: true,
+      });
+
+      render(
+        <TestWrapper>
+          <TestComponent onUndo={onUndo} />
+        </TestWrapper>
+      );
+
+      fireEvent.click(screen.getByTestId("push-action"));
+      await waitFor(() => {
+        expect(screen.getByTestId("can-undo")).toHaveTextContent("true");
+      });
+
+      await act(async () => {
+        fireEvent.keyDown(window, { key: "z", ctrlKey: true });
+      });
+
+      await waitFor(() => {
+        expect(onUndo).toHaveBeenCalled();
+      });
+    });
+
+    it("triggers undo on Cmd+Z (Mac)", async () => {
+      const onUndo = vi.fn().mockResolvedValue(undefined);
+
+      // Mock Mac user agent
+      Object.defineProperty(navigator, "userAgent", {
+        value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+        configurable: true,
+      });
+
+      render(
+        <TestWrapper>
+          <TestComponent onUndo={onUndo} />
+        </TestWrapper>
+      );
+
+      fireEvent.click(screen.getByTestId("push-action"));
+      await waitFor(() => {
+        expect(screen.getByTestId("can-undo")).toHaveTextContent("true");
+      });
+
+      await act(async () => {
+        fireEvent.keyDown(window, { key: "z", metaKey: true });
+      });
+
+      await waitFor(() => {
+        expect(onUndo).toHaveBeenCalled();
+      });
+    });
+
+    it("triggers redo on Ctrl+Y (Windows)", async () => {
+      const onUndo = vi.fn().mockResolvedValue(undefined);
+      const onRedo = vi.fn().mockResolvedValue(undefined);
+
+      // Mock Windows user agent
+      Object.defineProperty(navigator, "userAgent", {
+        value: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+        configurable: true,
+      });
+
+      render(
+        <TestWrapper>
+          <TestComponent onUndo={onUndo} onRedo={onRedo} />
+        </TestWrapper>
+      );
+
+      // Push and undo to enable redo
+      fireEvent.click(screen.getByTestId("push-action"));
+      await waitFor(() => {
+        expect(screen.getByTestId("can-undo")).toHaveTextContent("true");
+      });
+
+      await act(async () => {
+        fireEvent.keyDown(window, { key: "z", ctrlKey: true });
+      });
+
+      await waitFor(() => {
+        expect(onUndo).toHaveBeenCalled();
+      });
+
+      // Now redo with Ctrl+Y
+      await act(async () => {
+        fireEvent.keyDown(window, { key: "y", ctrlKey: true });
+      });
+
+      await waitFor(() => {
+        expect(onRedo).toHaveBeenCalled();
+      });
+    });
+
+    it("triggers redo on Cmd+Shift+Z (Mac)", async () => {
+      const onUndo = vi.fn().mockResolvedValue(undefined);
+      const onRedo = vi.fn().mockResolvedValue(undefined);
+
+      // Mock Mac user agent
+      Object.defineProperty(navigator, "userAgent", {
+        value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+        configurable: true,
+      });
+
+      render(
+        <TestWrapper>
+          <TestComponent onUndo={onUndo} onRedo={onRedo} />
+        </TestWrapper>
+      );
+
+      // Push and undo to enable redo
+      fireEvent.click(screen.getByTestId("push-action"));
+      await waitFor(() => {
+        expect(screen.getByTestId("can-undo")).toHaveTextContent("true");
+      });
+
+      await act(async () => {
+        fireEvent.keyDown(window, { key: "z", metaKey: true });
+      });
+
+      await waitFor(() => {
+        expect(onUndo).toHaveBeenCalled();
+      });
+
+      // Now redo with Cmd+Shift+Z
+      await act(async () => {
+        fireEvent.keyDown(window, { key: "z", metaKey: true, shiftKey: true });
+      });
+
+      await waitFor(() => {
+        expect(onRedo).toHaveBeenCalled();
+      });
+    });
   });
 });

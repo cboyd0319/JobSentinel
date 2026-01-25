@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { jobsToCSV, downloadFile, exportJobsToCSV, exportConfigToJSON } from "./export";
+import { jobsToCSV, downloadFile, exportJobsToCSV, exportConfigToJSON, importConfigFromJSON } from "./export";
 
 describe("export utilities", () => {
   describe("jobsToCSV", () => {
@@ -442,6 +442,119 @@ describe("export utilities", () => {
       if (capturedBlob) {
         reader.readAsText(capturedBlob);
       }
+    });
+  });
+
+  describe("importConfigFromJSON", () => {
+    let mockInput: {
+      type: string;
+      accept: string;
+      onchange: ((e: Event) => void) | null;
+      oncancel: (() => void) | null;
+      click: ReturnType<typeof vi.fn>;
+      files: FileList | null;
+    };
+
+    beforeEach(() => {
+      mockInput = {
+        type: "",
+        accept: "",
+        onchange: null,
+        oncancel: null,
+        click: vi.fn(),
+        files: null,
+      };
+
+      vi.spyOn(document, "createElement").mockReturnValue(mockInput as unknown as HTMLInputElement);
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it("creates file input with correct attributes", async () => {
+      const promise = importConfigFromJSON();
+
+      expect(mockInput.type).toBe("file");
+      expect(mockInput.accept).toBe(".json,application/json");
+      expect(mockInput.click).toHaveBeenCalled();
+
+      // Cancel to resolve promise
+      mockInput.oncancel?.();
+      await promise;
+    });
+
+    it("returns null when cancelled", async () => {
+      const promise = importConfigFromJSON();
+
+      mockInput.oncancel?.();
+
+      const result = await promise;
+      expect(result).toBeNull();
+    });
+
+    it("returns null when no file selected", async () => {
+      const promise = importConfigFromJSON();
+
+      // Simulate change event with no files
+      mockInput.files = null;
+      mockInput.onchange?.({ target: mockInput } as unknown as Event);
+
+      const result = await promise;
+      expect(result).toBeNull();
+    });
+
+    it("returns null when files array is empty", async () => {
+      const promise = importConfigFromJSON();
+
+      // Simulate change event with empty files
+      mockInput.files = { length: 0, item: () => null } as unknown as FileList;
+      mockInput.onchange?.({ target: mockInput } as unknown as Event);
+
+      const result = await promise;
+      expect(result).toBeNull();
+    });
+
+    it("parses and returns valid JSON file", async () => {
+      const testConfig = { setting: "value", nested: { key: 123 } };
+
+      // Create a mock file with a mocked text() method
+      const mockFile = {
+        text: vi.fn().mockResolvedValue(JSON.stringify(testConfig)),
+      };
+
+      const promise = importConfigFromJSON<typeof testConfig>();
+
+      mockInput.files = {
+        length: 1,
+        0: mockFile,
+        item: (index: number) => (index === 0 ? mockFile : null),
+      } as unknown as FileList;
+
+      // Trigger the onchange handler
+      mockInput.onchange?.({ target: mockInput } as unknown as Event);
+
+      const result = await promise;
+      expect(result).toEqual(testConfig);
+    });
+
+    it("returns null for invalid JSON", async () => {
+      // Create a mock file with invalid JSON content
+      const mockFile = {
+        text: vi.fn().mockResolvedValue("not valid json {{{"),
+      };
+
+      const promise = importConfigFromJSON();
+
+      mockInput.files = {
+        length: 1,
+        0: mockFile,
+        item: (index: number) => (index === 0 ? mockFile : null),
+      } as unknown as FileList;
+      mockInput.onchange?.({ target: mockInput } as unknown as Event);
+
+      const result = await promise;
+      expect(result).toBeNull();
     });
   });
 });
