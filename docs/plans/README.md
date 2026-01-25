@@ -6,7 +6,7 @@ This folder contains formal planning documents for JobSentinel releases.
 
 | Version | Status | Document |
 |---------|--------|----------|
-| v2.6.0 | 🟡 In Progress | [v2.6.0-ux-improvements.md](./v2.6.0-ux-improvements.md) |
+| v2.7.0 | 🔲 Planned | (No formal plan yet - ML predictions, Linux support) |
 
 ## Plan Template
 
@@ -24,6 +24,7 @@ Each release plan includes:
 
 | Version | Status | Document |
 |---------|--------|----------|
+| v2.6.0 | ✅ Complete | [v2.6.0-ux-improvements.md](./v2.6.0-ux-improvements.md) |
 | v2.5.0 | ✅ Complete | (No formal plan - market intelligence UI) |
 | v2.0.0 | ✅ Complete | (No formal plan - one-click apply) |
 | v1.0.0 | ✅ Complete | (No formal plan - initial release) |

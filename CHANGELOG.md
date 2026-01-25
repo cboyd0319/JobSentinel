@@ -78,11 +78,26 @@ Comprehensive UX improvements focused on error recovery, loading states, accessi
 - Better loading text ("Scanning..." instead of generic "Loading...")
 - Contextual loading text in buttons
 
+#### Performance Optimizations (January 24, 2026)
+
+- **React.memo for Components** - Memoized 50+ components to prevent unnecessary re-renders
+  - Navigation icons (8 components)
+  - DashboardHeader, DashboardStats
+  - Button, Input (with forwardRef)
+  - DashboardIcons (22 icon components)
+  - Panel and modal components (ApplyButton, ProfileForm, etc.)
+
+- **Context Provider Optimization** - Added useCallback/useMemo to all context providers
+  - ThemeContext: useCallback for setTheme, toggleTheme, setHighContrast
+  - ToastContext: useMemo for context value, memo for ToastContainer/ToastItem
+  - AnnouncerContext, UndoContext, ErrorReportingContext, KeyboardShortcutsContext
+
 ### Fixed
 
 - Flash of loading state for quick operations
 - Missing aria-labels on interactive elements
 - Inconsistent error handling patterns
+- Unnecessary re-renders in context consumers
 
 ## [2.5.5] - 2026-01-24
 

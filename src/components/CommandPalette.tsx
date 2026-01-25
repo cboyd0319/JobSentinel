@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { memo, useState, useEffect, useRef, useCallback, useMemo } from "react";
 import {
   useKeyboardShortcuts,
   formatShortcut,
@@ -18,7 +18,7 @@ interface CommandPaletteProps {
   commands?: Command[];
 }
 
-export function CommandPalette({ commands = [] }: CommandPaletteProps) {
+export const CommandPalette = memo(function CommandPalette({ commands = [] }: CommandPaletteProps) {
   const { shortcuts, isCommandPaletteOpen, closeCommandPalette } =
     useKeyboardShortcuts();
   const [query, setQuery] = useState("");
@@ -264,4 +264,4 @@ export function CommandPalette({ commands = [] }: CommandPaletteProps) {
       </div>
     </div>
   );
-}
+});

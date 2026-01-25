@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { useErrorReporting } from '../contexts/ErrorReportingContext';
 import { Button } from './Button';
 import { Badge } from './Badge';
@@ -33,7 +33,7 @@ interface ErrorItemProps {
   onClear: (id: string) => void;
 }
 
-function ErrorItem({ error, onClear }: ErrorItemProps) {
+const ErrorItem = memo(function ErrorItem({ error, onClear }: ErrorItemProps) {
   const [expanded, setExpanded] = useState(false);
   const typeInfo = TYPE_LABELS[error.type];
 
@@ -122,9 +122,9 @@ function ErrorItem({ error, onClear }: ErrorItemProps) {
       )}
     </div>
   );
-}
+});
 
-export function ErrorLogPanel() {
+export const ErrorLogPanel = memo(function ErrorLogPanel() {
   const { errors, clearErrors, clearError, exportErrors } = useErrorReporting();
 
   return (
@@ -183,4 +183,4 @@ export function ErrorLogPanel() {
       )}
     </Card>
   );
-}
+});

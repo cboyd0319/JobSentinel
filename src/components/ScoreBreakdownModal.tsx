@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Modal, ModalFooter } from "./Modal";
 import { Button } from "./Button";
 
@@ -136,7 +137,7 @@ function getBarColor(score: number, maxScore: number): string {
   return "bg-red-500 dark:bg-red-400";
 }
 
-export function ScoreBreakdownModal({
+export const ScoreBreakdownModal = memo(function ScoreBreakdownModal({
   isOpen,
   onClose,
   score,
@@ -264,4 +265,4 @@ export function ScoreBreakdownModal({
       </ModalFooter>
     </Modal>
   );
-}
+});

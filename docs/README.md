@@ -11,15 +11,32 @@ Welcome to JobSentinel documentation.
 3. **CHECK FILE SIZES** - Keep files <500 lines. See [ROADMAP.md](ROADMAP.md) for refactoring plan.
 4. **READ docs/CLAUDE.md FIRST** - Contains project context and critical requirements.
 
-### Current Version: 2.5.3 (Production Ready)
+### Current Version: 2.6.0 (Production Ready)
 
-See [ROADMAP.md](ROADMAP.md) for future plans (v2.6: ML predictions, installers).
+See [ROADMAP.md](ROADMAP.md) for future plans (v2.7: ML predictions, Linux support).
 
 ---
 
 ## Current Status (January 2026)
 
-**Version: 2.5.3** | 2900+ tests passing | LinkedIn Auto-Connect
+**Version: 2.6.0** | 2900+ tests passing | UX Improvements + Performance
+
+### What's New in v2.6.0 ⚡
+
+- **Comprehensive UX Improvements** - Error recovery, loading states, accessibility
+  - Retry buttons across multiple components (Market, AtsLiveScorePanel, ApplyButton)
+  - Stale data indicators with color-coded timestamps
+  - Skeleton loaders for better perceived performance
+  - Inline validation with real-time feedback
+  - Unsaved changes warnings
+  - Actionable empty states with guidance
+
+- **Performance Optimizations** - React.memo and context optimization
+  - 50+ components memoized to prevent unnecessary re-renders
+  - All context providers optimized with useCallback/useMemo
+  - Lookup objects replace switch statements
+
+- See [v2.6.0 Release Notes](releases/v2.6.0.md) for full details
 
 ### What's New in v2.5.3 🔗
 
@@ -176,6 +193,7 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.6: ML predictions, installers)
 
 ### Release Notes
 
+- **[v2.6.0 - UX Improvements](releases/v2.6.0.md)** - Error recovery, loading states, accessibility, performance
 - **[v2.5.3 - LinkedIn Auto-Connect](releases/v2.5.3.md)** - Zero-copy LinkedIn authentication
 - **[v2.5.2 - Bug Fixes](releases/v2.5.2.md)** - Onboarding and settings fixes
 - **[v2.5.1 - Production Release](releases/v2.5.1.md)** - Official installers for Windows and macOS

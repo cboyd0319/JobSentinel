@@ -399,18 +399,19 @@ For full technical documentation, see:
 
 ## What's Next?
 
-### Coming Soon (v2.6)
+### Coming Soon (v2.7)
 
 - **Machine learning predictions** — Predict likelihood of response based on historical data
 - **Linux support** — AppImage installer for Linux users
 - **Mobile companion** — Get notifications on your phone
 
-### Just Released (v2.5.3)
+### Just Released (v2.6.0)
 
-- **LinkedIn Auto-Connect** — Just click "Connect", log in normally, done! No more copying cookies from DevTools
-- **Market Intelligence UI** — Interactive charts, tabbed layout, location heatmaps
-- **Visible navigation sidebar** — All features accessible without keyboard shortcuts
-- **Production builds** — Windows MSI and macOS DMG installers available
+- **Comprehensive UX improvements** — Error recovery with retry buttons, skeleton loaders, inline validation
+- **Performance optimizations** — 50+ components memoized, context providers optimized
+- **Better accessibility** — Form labels with aria-describedby, confirmation dialogs
+- **Stale data indicators** — Color-coded timestamps showing data freshness
+- **LinkedIn Auto-Connect** — Just click "Connect", log in normally, done!
 
 ---
 
