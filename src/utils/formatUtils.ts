@@ -48,6 +48,37 @@ export function formatDateTime(dateStr: string): string {
 }
 
 /**
+ * Format an interview/meeting date with weekday and time (no year)
+ */
+export function formatInterviewDate(dateStr: string): string {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
+/**
+ * Get relative time until a future date (e.g., "Tomorrow", "3 days")
+ */
+export function getRelativeTimeUntil(dateStr: string): string {
+  const date = new Date(dateStr);
+  const now = new Date();
+  const diffMs = date.getTime() - now.getTime();
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+
+  if (diffHours < 0) return "Past";
+  if (diffHours < 1) return "< 1 hour";
+  if (diffHours < 24) return `${diffHours} hours`;
+  if (diffDays === 1) return "Tomorrow";
+  return `${diffDays} days`;
+}
+
+/**
  * Format a salary number to a compact display (e.g., $120k)
  */
 export function formatSalaryNumber(salary: number): string {

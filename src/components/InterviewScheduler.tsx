@@ -4,6 +4,7 @@ import { cachedInvoke, invalidateCacheByCommand } from "../utils/api";
 import { Card, Button, Badge, CompanyResearchPanel } from "./index";
 import { useToast } from "../contexts";
 import { logError, getErrorMessage } from "../utils/errorUtils";
+import { formatInterviewDate, getRelativeTimeUntil } from "../utils/formatUtils";
 import { MIN_INTERVIEW_DURATION, MAX_INTERVIEW_DURATION } from "../utils/constants";
 
 interface Interview {
@@ -416,30 +417,6 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
     }
   };
 
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("en-US", {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-    });
-  };
-
-  const getRelativeTime = (dateStr: string) => {
-    const date = new Date(dateStr);
-    const now = new Date();
-    const diffMs = date.getTime() - now.getTime();
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-
-    if (diffHours < 0) return "Past";
-    if (diffHours < 1) return "< 1 hour";
-    if (diffHours < 24) return `${diffHours} hours`;
-    if (diffDays === 1) return "Tomorrow";
-    return `${diffDays} days`;
-  };
 
   if (loading) {
     return (
@@ -546,7 +523,7 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
                           <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${TYPE_COLORS[interview.interview_type] || TYPE_COLORS.other}`}>
                             {INTERVIEW_TYPES.find((t) => t.value === interview.interview_type)?.label || interview.interview_type}
                           </span>
-                          <Badge variant="surface">{getRelativeTime(interview.scheduled_at)}</Badge>
+                          <Badge variant="surface">{getRelativeTimeUntil(interview.scheduled_at)}</Badge>
                         </div>
                         <h3 className="font-medium text-surface-900 dark:text-white truncate">
                           {interview.job_title}
@@ -557,7 +534,7 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
                       </div>
                       <div className="text-right text-sm flex flex-col items-end gap-1">
                         <p className="font-medium text-surface-900 dark:text-white">
-                          {formatDate(interview.scheduled_at)}
+                          {formatInterviewDate(interview.scheduled_at)}
                         </p>
                         <p className="text-surface-500 dark:text-surface-400">
                           {interview.duration_minutes} min
@@ -631,7 +608,7 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
                       </div>
                       <div className="text-right text-sm">
                         <p className="font-medium text-surface-900 dark:text-white">
-                          {formatDate(interview.scheduled_at)}
+                          {formatInterviewDate(interview.scheduled_at)}
                         </p>
                         <p className="text-surface-500 dark:text-surface-400">
                           {interview.duration_minutes} min
@@ -897,7 +874,7 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
               <div className="space-y-2 text-sm">
                 <div className="flex items-center gap-2">
                   <CalendarIcon className="w-4 h-4 text-surface-400" />
-                  <span>{formatDate(selectedInterview.scheduled_at)}</span>
+                  <span>{formatInterviewDate(selectedInterview.scheduled_at)}</span>
                   <span className="text-surface-400">({selectedInterview.duration_minutes} min)</span>
                 </div>
                 {selectedInterview.location && (

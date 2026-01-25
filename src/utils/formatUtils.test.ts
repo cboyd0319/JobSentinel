@@ -3,6 +3,8 @@ import {
   formatRelativeDate,
   formatEventDate,
   formatDateTime,
+  formatInterviewDate,
+  getRelativeTimeUntil,
   formatSalaryNumber,
   formatSalaryRange,
   truncateText,
@@ -64,6 +66,48 @@ describe("formatUtils", () => {
       expect(result).toContain("2026");
       // Time will be localized, so just check it contains numbers
       expect(result).toMatch(/\d:\d/);
+    });
+  });
+
+  describe("formatInterviewDate", () => {
+    it("formats date with weekday, month, day, and time (no year)", () => {
+      const result = formatInterviewDate("2026-01-25T14:30:00Z");
+      expect(result).toMatch(/\w{3}/); // 3-letter weekday
+      expect(result).toContain("Jan");
+      expect(result).toContain("25");
+      expect(result).not.toContain("2026"); // No year
+      expect(result).toMatch(/\d:\d/); // Time
+    });
+  });
+
+  describe("getRelativeTimeUntil", () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date("2026-01-25T12:00:00Z"));
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it("returns 'Past' for past dates", () => {
+      expect(getRelativeTimeUntil("2026-01-24T12:00:00Z")).toBe("Past");
+    });
+
+    it("returns '< 1 hour' for dates within an hour", () => {
+      expect(getRelativeTimeUntil("2026-01-25T12:30:00Z")).toBe("< 1 hour");
+    });
+
+    it("returns hours for dates within 24 hours", () => {
+      expect(getRelativeTimeUntil("2026-01-25T17:00:00Z")).toBe("5 hours");
+    });
+
+    it("returns 'Tomorrow' for dates 1 day away", () => {
+      expect(getRelativeTimeUntil("2026-01-26T14:00:00Z")).toBe("Tomorrow");
+    });
+
+    it("returns days for dates more than 1 day away", () => {
+      expect(getRelativeTimeUntil("2026-01-28T12:00:00Z")).toBe("3 days");
     });
   });
 
