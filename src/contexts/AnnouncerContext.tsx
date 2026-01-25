@@ -11,7 +11,7 @@ export function AnnouncerProvider({ children }: { children: ReactNode }) {
   const [assertiveMessage, setAssertiveMessage] = useState("");
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const announce = useCallback((message: string, priority: "polite" | "assertive" = "polite") => {
+  const announce = useCallback((message: string, priority: "polite" | "assertive" = "polite"): void => {
     // Clear any pending timeout
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -63,7 +63,7 @@ export function AnnouncerProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useAnnouncer() {
+export function useAnnouncer(): AnnouncerContextType {
   const context = useContext(AnnouncerContext);
   if (!context) {
     throw new Error("useAnnouncer must be used within an AnnouncerProvider");

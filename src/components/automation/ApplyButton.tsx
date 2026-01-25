@@ -4,6 +4,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { Button, Modal, ModalFooter } from "..";
 import { useToast } from "../../contexts";
 import { logError } from "../../utils/errorUtils";
+import { safeInvoke, safeInvokeWithToast } from "../../utils/api";
 import { ApplicationPreview } from "./ApplicationPreview";
 
 interface Job {
@@ -75,13 +76,13 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied }: ApplyBu
   const detectPlatform = useCallback(async () => {
     try {
       setAtsLoading(true);
-      const result = await invoke<AtsDetectionResponse>("detect_ats_platform", {
+      const result = await safeInvoke<AtsDetectionResponse>("detect_ats_platform", {
         url: job.url,
-      });
+      }, { silent: true }); // Silent mode - ATS detection is optional
       setAtsPlatform(result.platform);
       setAtsInfo(result);
-    } catch (error) {
-      logError("Failed to detect ATS platform:", error);
+    } catch {
+      // Silently fail - ATS detection is optional
     } finally {
       setAtsLoading(false);
     }
@@ -90,20 +91,22 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied }: ApplyBu
   // Check if user has configured a profile
   const checkProfile = useCallback(async () => {
     try {
-      const profile = await invoke<unknown | null>("get_application_profile");
+      const profile = await safeInvoke<unknown | null>("get_application_profile", undefined, {
+        silent: true,
+      });
       setHasProfile(profile !== null);
-    } catch (error) {
-      logError("Failed to check profile:", error);
+    } catch {
+      // Silently fail - will show error when user tries to apply
     }
   }, []);
 
   // Check if browser is running
   const checkBrowser = useCallback(async () => {
     try {
-      const running = await invoke<boolean>("is_browser_running");
+      const running = await safeInvoke<boolean>("is_browser_running", undefined, { silent: true });
       setBrowserRunning(running);
-    } catch (error) {
-      logError("Failed to check browser status:", error);
+    } catch {
+      // Silently fail - default to false
     }
   }, []);
 
@@ -179,24 +182,30 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied }: ApplyBu
 
       onApplied?.();
     } catch (error) {
-      logError("Failed to fill form:", error);
-
       // Check if browser is still running after error for recovery guidance
       let stillRunning = false;
       try {
-        stillRunning = await invoke<boolean>("is_browser_running");
+        stillRunning = await safeInvoke<boolean>("is_browser_running", undefined, { silent: true });
         setBrowserRunning(stillRunning);
       } catch {
         // Ignore check failure
       }
 
-      const errorMsg = error instanceof Error ? error.message : "An unexpected error occurred";
-      const recoveryHint = stillRunning
-        ? " Browser is still open."
-        : "";
+      const enhancedError = error as Error & {
+        userFriendly?: { title: string; message: string; action?: string };
+      };
+
+      const errorMsg = enhancedError.userFriendly?.message || enhancedError.message || "An unexpected error occurred";
+      const recoveryHint = stillRunning ? " Browser is still open." : "";
+      const actionHint = enhancedError.userFriendly?.action ? `\n\n${enhancedError.userFriendly.action}` : "";
 
       // Keep modal open with error for retry
-      setFillError(errorMsg + recoveryHint);
+      setFillError(errorMsg + recoveryHint + actionHint);
+      logError("Failed to fill form:", error);
+      toast.error(
+        enhancedError.userFriendly?.title || "Form Fill Failed",
+        errorMsg + (recoveryHint || actionHint ? recoveryHint + actionHint : "")
+      );
     } finally {
       setIsFilling(false);
     }
@@ -204,7 +213,9 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied }: ApplyBu
 
   const closeBrowser = async () => {
     try {
-      await invoke("close_automation_browser");
+      await safeInvokeWithToast("close_automation_browser", undefined, toast, {
+        logContext: "Close automation browser",
+      });
       setBrowserRunning(false);
 
       // If we have a pending attempt, ask if they submitted
@@ -213,8 +224,8 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied }: ApplyBu
       } else {
         toast.info("Browser closed", "The automation browser has been closed");
       }
-    } catch (error) {
-      logError("Failed to close browser:", error);
+    } catch {
+      // Error already logged and shown to user
     }
   };
 
@@ -222,15 +233,16 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied }: ApplyBu
     if (!lastAttemptId) return;
 
     try {
-      await invoke("mark_attempt_submitted", { attemptId: lastAttemptId });
+      await safeInvokeWithToast("mark_attempt_submitted", { attemptId: lastAttemptId }, toast, {
+        logContext: "Mark application submitted",
+      });
       toast.success("Marked as submitted", "Your application has been tracked");
       localStorage.removeItem(`lastAttempt_${job.hash}`);
       setLastAttemptId(null);
       setShowSubmitConfirm(false);
       onApplied?.();
-    } catch (error) {
-      logError("Failed to mark as submitted:", error);
-      toast.error("Failed to track submission", "Please try again");
+    } catch {
+      // Error already logged and shown to user
     }
   };
 

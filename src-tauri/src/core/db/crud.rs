@@ -19,6 +19,7 @@ impl Database {
     /// - Inserts as new row
     ///
     /// Returns the job ID.
+    #[must_use]
     #[tracing::instrument(skip(self, job), fields(job_hash = %job.hash, job_title = %job.title, job_company = %job.company))]
     pub async fn upsert_job(&self, job: &Job) -> Result<i64, sqlx::Error> {
         // Validate job field lengths to prevent database bloat

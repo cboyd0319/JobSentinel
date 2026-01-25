@@ -113,7 +113,7 @@ const ProfileCard = memo(function ProfileCard({ profile, isSelected, onSelect }:
 });
 
 const SelectedProfilePreview = memo(function SelectedProfilePreview({ profileId }: { profileId: string }) {
-  const profile = CAREER_PROFILES.find(p => p.id === profileId);
+  const profile = CAREER_PROFILES.find((p) => p.id === profileId);
   if (!profile) return null;
 
   return (

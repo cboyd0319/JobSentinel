@@ -6,12 +6,14 @@ pub(crate) fn default_jobswithgpt_endpoint() -> String {
 }
 
 /// Default immediate alert threshold (0.9)
-pub(crate) fn default_immediate_threshold() -> f64 {
+#[must_use]
+pub(crate) const fn default_immediate_threshold() -> f64 {
     0.9
 }
 
 /// Default scraping interval in hours (2 hours)
-pub(crate) fn default_scraping_interval() -> u64 {
+#[must_use]
+pub(crate) const fn default_scraping_interval() -> u64 {
     2
 }
 
@@ -21,46 +23,55 @@ pub(crate) fn default_country() -> String {
 }
 
 /// Default auto-refresh interval in minutes (30 minutes)
-pub(crate) fn default_auto_refresh_interval() -> u32 {
+#[must_use]
+pub(crate) const fn default_auto_refresh_interval() -> u32 {
     30
 }
 
 /// Default SMTP port (587 for STARTTLS)
-pub(crate) fn default_smtp_port() -> u16 {
+#[must_use]
+pub(crate) const fn default_smtp_port() -> u16 {
     587
 }
 
 /// Default STARTTLS setting (true)
-pub(crate) fn default_use_starttls() -> bool {
+#[must_use]
+pub(crate) const fn default_use_starttls() -> bool {
     true
 }
 
 /// Default desktop notifications enabled (true)
-pub(crate) fn default_desktop_enabled() -> bool {
+#[must_use]
+pub(crate) const fn default_desktop_enabled() -> bool {
     true
 }
 
 /// Default notification sound enabled (true)
-pub(crate) fn default_play_sound() -> bool {
+#[must_use]
+pub(crate) const fn default_play_sound() -> bool {
     true
 }
 
 /// Default LinkedIn result limit (50)
-pub(crate) fn default_linkedin_limit() -> usize {
+#[must_use]
+pub(crate) const fn default_linkedin_limit() -> usize {
     50
 }
 
 /// Default scraper result limit (50)
-pub(crate) fn default_scraper_limit() -> usize {
+#[must_use]
+pub(crate) const fn default_scraper_limit() -> usize {
     50
 }
 
 /// Default USAJobs date posted filter (30 days)
-pub(crate) fn default_usajobs_date_posted() -> u8 {
+#[must_use]
+pub(crate) const fn default_usajobs_date_posted() -> u8 {
     30
 }
 
 /// Default USAJobs result limit (100)
-pub(crate) fn default_usajobs_limit() -> usize {
+#[must_use]
+pub(crate) const fn default_usajobs_limit() -> usize {
     100
 }

@@ -110,8 +110,7 @@ const ErrorItem = memo(function ErrorItem({ error, onClear }: ErrorItemProps) {
             <Button
               size="sm"
               variant="danger"
-              onClick={(e) => {
-                e.stopPropagation();
+              onClick={() => {
                 onClear(error.id);
               }}
             >

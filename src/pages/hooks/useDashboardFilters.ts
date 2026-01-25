@@ -114,7 +114,11 @@ export interface FilterActions {
   loadFilters: (filters: Partial<Omit<FilterState, "textSearch">>) => void;
 }
 
-export function useDashboardFilters(jobs: Job[]) {
+export function useDashboardFilters(jobs: Job[]): FilterState & FilterActions & {
+  availableSources: string[];
+  filteredAndSortedJobs: Job[];
+  hasActiveFilters: boolean;
+} {
   const [sortBy, setSortBy] = useState<SortOption>("score-desc");
   const [scoreFilter, setScoreFilter] = useState<ScoreFilter>("all");
   const [sourceFilter, setSourceFilter] = useState<string>("all");
@@ -241,7 +245,7 @@ export function useDashboardFilters(jobs: Job[]) {
     return result;
   }, [jobs, textSearch, scoreFilter, sourceFilter, remoteFilter, bookmarkFilter, notesFilter, postedDateFilter, salaryMinFilter, salaryMaxFilter, ghostFilter, sortBy]);
 
-  const clearFilters = () => {
+  const clearFilters = (): void => {
     setTextSearch("");
     setScoreFilter("all");
     setSourceFilter("all");
@@ -254,7 +258,7 @@ export function useDashboardFilters(jobs: Job[]) {
     setSalaryMaxFilter(null);
   };
 
-  const getCurrentFilters = () => ({
+  const getCurrentFilters = (): Omit<FilterState, "textSearch"> => ({
     sortBy,
     scoreFilter,
     sourceFilter,
@@ -262,11 +266,12 @@ export function useDashboardFilters(jobs: Job[]) {
     bookmarkFilter,
     notesFilter,
     postedDateFilter,
+    ghostFilter,
     salaryMinFilter,
     salaryMaxFilter,
   });
 
-  const loadFilters = (filters: Partial<Omit<FilterState, "textSearch">>) => {
+  const loadFilters = (filters: Partial<Omit<FilterState, "textSearch">>): void => {
     if (filters.sortBy !== undefined) setSortBy(filters.sortBy);
     if (filters.scoreFilter !== undefined) setScoreFilter(filters.scoreFilter);
     if (filters.sourceFilter !== undefined) setSourceFilter(filters.sourceFilter);
@@ -279,7 +284,7 @@ export function useDashboardFilters(jobs: Job[]) {
     if (filters.ghostFilter !== undefined) setGhostFilter(filters.ghostFilter);
   };
 
-  const hasActiveFilters = textSearch || scoreFilter !== "all" || sourceFilter !== "all" ||
+  const hasActiveFilters = Boolean(textSearch) || scoreFilter !== "all" || sourceFilter !== "all" ||
     remoteFilter !== "all" || bookmarkFilter !== "all" || notesFilter !== "all" ||
     ghostFilter !== "all" || postedDateFilter !== "all" ||
     salaryMinFilter !== null || salaryMaxFilter !== null;

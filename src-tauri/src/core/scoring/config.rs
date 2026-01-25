@@ -47,6 +47,7 @@ impl ScoringConfig {
     /// Validate that weights sum to approximately 1.0
     ///
     /// Returns an error if the sum is outside the acceptable range.
+    #[must_use]
     pub fn validate(&self) -> Result<(), String> {
         // Check all weights are non-negative
         if self.skills_weight < 0.0
@@ -90,7 +91,8 @@ impl ScoringConfig {
     }
 
     /// Calculate the sum of all weights
-    pub fn sum(&self) -> f64 {
+    #[must_use]
+    pub const fn sum(&self) -> f64 {
         self.skills_weight
             + self.salary_weight
             + self.location_weight

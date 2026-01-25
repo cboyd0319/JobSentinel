@@ -11,6 +11,7 @@ import { ResponsiveContainer } from "recharts/es6/component/ResponsiveContainer"
 import { Legend } from "recharts/es6/component/Legend";
 import { Card } from "./";
 
+// Generic chart data - accepts any object with string keys
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ChartData = Record<string, any>;
 

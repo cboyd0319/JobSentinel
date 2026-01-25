@@ -122,20 +122,20 @@ export const GhostIndicator = memo(function GhostIndicator({
   const reasons = parseReasons(ghostReasons);
   const sizeClass = size === "sm" ? "w-4 h-4" : "w-5 h-5";
 
-  const handleFeedback = async (verdict: "real" | "ghost") => {
+  const handleFeedback = async (feedbackVerdict: "real" | "ghost") => {
     if (!jobId || isSubmitting) return;
 
     setIsSubmitting(true);
     try {
-      if (verdict === "real") {
+      if (feedbackVerdict === "real") {
         await invoke("mark_job_as_real", { jobId });
       } else {
         await invoke("mark_job_as_ghost", { jobId });
       }
-      setFeedbackState(verdict);
-      onFeedbackSubmitted?.(verdict);
+      setFeedbackState(feedbackVerdict);
+      onFeedbackSubmitted?.(feedbackVerdict);
     } catch (err) {
-      logError(`Failed to mark job as ${verdict}:`, err);
+      logError(`Failed to mark job as ${feedbackVerdict}:`, err);
     } finally {
       setIsSubmitting(false);
     }
@@ -255,20 +255,20 @@ export const GhostIndicatorCompact = memo(function GhostIndicatorCompact({
   const severity = getSeverity(ghostScore);
   const reasons = parseReasons(ghostReasons);
 
-  const handleFeedback = async (verdict: "real" | "ghost") => {
+  const handleFeedback = async (feedbackVerdict: "real" | "ghost") => {
     if (!jobId || isSubmitting) return;
 
     setIsSubmitting(true);
     try {
-      if (verdict === "real") {
+      if (feedbackVerdict === "real") {
         await invoke("mark_job_as_real", { jobId });
       } else {
         await invoke("mark_job_as_ghost", { jobId });
       }
-      setFeedbackState(verdict);
-      onFeedbackSubmitted?.(verdict);
+      setFeedbackState(feedbackVerdict);
+      onFeedbackSubmitted?.(feedbackVerdict);
     } catch (err) {
-      logError(`Failed to mark job as ${verdict}:`, err);
+      logError(`Failed to mark job as ${feedbackVerdict}:`, err);
     } finally {
       setIsSubmitting(false);
     }

@@ -55,7 +55,7 @@ export const Modal = memo(function Modal({
     };
   }, [isOpen]);
 
-  const handleKeyDown = (e: KeyboardEvent) => {
+  const handleKeyDown = (e: KeyboardEvent): void => {
     if (e.key === "Escape") {
       onClose();
     }

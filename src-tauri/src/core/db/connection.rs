@@ -13,6 +13,7 @@ pub struct Database {
 
 impl Database {
     /// Connect to SQLite database with optimized settings
+    #[must_use]
     pub async fn connect(path: &std::path::Path) -> Result<Self, sqlx::Error> {
         // Ensure parent directory exists
         if let Some(parent) = path.parent() {
@@ -32,6 +33,7 @@ impl Database {
     }
 
     /// Configure SQLite PRAGMA settings for MAXIMUM performance and integrity
+    #[must_use]
     async fn configure_pragmas(pool: &SqlitePool) -> Result<(), sqlx::Error> {
         tracing::info!("🔧 Configuring SQLite with maximum protections and performance...");
 
@@ -312,6 +314,7 @@ impl Database {
     }
 
     /// Run database migrations
+    #[must_use]
     pub async fn migrate(&self) -> Result<(), sqlx::Error> {
         sqlx::migrate!("./migrations").run(&self.pool).await?;
         Ok(())
@@ -319,29 +322,34 @@ impl Database {
 
     /// Connect to in-memory SQLite database (for testing)
     /// Available in test builds and for integration tests
+    #[must_use]
     pub async fn connect_memory() -> Result<Self, sqlx::Error> {
         let pool = SqlitePool::connect("sqlite::memory:").await?;
         Ok(Database { pool })
     }
 
     /// Get reference to the connection pool (for integrity checks and backups)
-    pub fn pool(&self) -> &SqlitePool {
+    #[must_use]
+    pub const fn pool(&self) -> &SqlitePool {
         &self.pool
     }
 
     /// Get default database path
+    #[must_use]
     pub fn default_path() -> PathBuf {
         crate::platforms::get_data_dir().join("jobs.db")
     }
 
     /// Get default backup directory path
+    #[must_use]
     pub fn default_backup_dir() -> PathBuf {
         crate::platforms::get_data_dir().join("backups")
     }
 
     /// Create Database from an existing pool (for testing/advanced use cases)
     #[doc(hidden)]
-    pub fn from_pool(pool: SqlitePool) -> Self {
+    #[must_use]
+    pub const fn from_pool(pool: SqlitePool) -> Self {
         Database { pool }
     }
 }

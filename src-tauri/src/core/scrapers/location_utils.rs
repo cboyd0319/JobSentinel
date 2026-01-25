@@ -26,6 +26,7 @@ use std::collections::HashMap;
 /// assert_eq!(normalize_location("Remote - USA"), "remote");
 /// assert_eq!(normalize_location("Austin, TX, USA"), "austin, texas");
 /// ```
+#[must_use]
 #[inline]
 pub fn normalize_location(location: &str) -> Cow<'_, str> {
     let trimmed = location.trim();

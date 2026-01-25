@@ -17,6 +17,7 @@ export { Tooltip } from "./Tooltip";
 export { HelpIcon } from "./HelpIcon";
 export { Dropdown } from "./Dropdown";
 export { Skeleton, SkeletonCard, SkeletonJobCard, SkeletonStatCard, SkeletonJobList, ResumeSkeleton, DashboardSkeleton } from "./Skeleton";
+export { ChartSkeleton, ModalSkeleton, PanelSkeleton, AnalyticsSkeleton, WidgetSkeleton, SettingsSkeleton, FormSkeleton, CompactLoadingSpinner } from "./LoadingFallbacks";
 export { CommandPalette } from "./CommandPalette";
 export { Progress, ProgressIndeterminate } from "./Progress";
 export { default as ErrorBoundary } from "./ErrorBoundary";

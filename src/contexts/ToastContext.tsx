@@ -16,7 +16,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const removeToast = useCallback((id: string) => {
+  const removeToast = useCallback((id: string): void => {
     // Clear any pending timer
     const timer = timerRefs.current.get(id);
     if (timer) {
@@ -26,7 +26,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
-  const addToast = useCallback((toast: Omit<Toast, "id">) => {
+  const addToast = useCallback((toast: Omit<Toast, "id">): void => {
     const id = `toast-${++toastId}`;
     // Longer duration for toasts with actions (user needs time to click)
     const duration = toast.duration ?? (toast.action ? 8000 : 5000);
@@ -39,19 +39,19 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     }
   }, [removeToast]);
 
-  const success = useCallback((title: string, message?: string, action?: ToastAction) => {
+  const success = useCallback((title: string, message?: string, action?: ToastAction): void => {
     addToast({ type: "success", title, message, action });
   }, [addToast]);
 
-  const error = useCallback((title: string, message?: string) => {
+  const error = useCallback((title: string, message?: string): void => {
     addToast({ type: "error", title, message, duration: 8000 });
   }, [addToast]);
 
-  const warning = useCallback((title: string, message?: string) => {
+  const warning = useCallback((title: string, message?: string): void => {
     addToast({ type: "warning", title, message });
   }, [addToast]);
 
-  const info = useCallback((title: string, message?: string) => {
+  const info = useCallback((title: string, message?: string): void => {
     addToast({ type: "info", title, message });
   }, [addToast]);
 

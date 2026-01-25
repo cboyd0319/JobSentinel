@@ -228,22 +228,6 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
     loadProfile();
   }, [loadProfile]);
 
-  // Keyboard shortcuts: Cmd+S to save, Cmd+Enter to submit
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Cmd+S or Cmd+Enter to save
-      if ((e.key === 's' || e.key === 'Enter') && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        if (isDirty && !saving) {
-          handleSave();
-        }
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isDirty, saving]);
-
   // Show "taking longer" message if loading exceeds 5 seconds
   useEffect(() => {
     if (!loading) {
@@ -258,7 +242,7 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
     return () => clearTimeout(timeoutId);
   }, [loading]);
 
-  const handleSelectResume = async () => {
+  const handleSelectResume = async (): Promise<void> => {
     try {
       const selected = await open({
         multiple: false,
@@ -278,7 +262,7 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
     }
   };
 
-  const handleSave = async () => {
+  const handleSave = async (): Promise<void> => {
     // Validate all fields and collect errors
     const newErrors = {
       fullName: validateField("fullName", fullName),
@@ -342,6 +326,22 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
       setSaving(false);
     }
   };
+
+  // Keyboard shortcuts: Cmd+S to save, Cmd+Enter to submit
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent): void => {
+      // Cmd+S or Cmd+Enter to save
+      if ((e.key === 's' || e.key === 'Enter') && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        if (isDirty && !saving) {
+          handleSave();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isDirty, saving, handleSave]);
 
   if (loading) {
     return (

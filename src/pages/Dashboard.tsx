@@ -2,7 +2,6 @@
 // Refactored for v1.5 modularization - uses extracted hooks and components
 
 import { useEffect, useState, useCallback, useRef, useId, lazy, Suspense } from "react";
-import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/plugin-shell";
 import { Button } from "../components/Button";
@@ -11,7 +10,6 @@ import { JobCard } from "../components/JobCard";
 import { ScoreDisplay } from "../components/ScoreDisplay";
 import { Modal, ModalFooter } from "../components/Modal";
 import { default as ModalErrorBoundary } from "../components/ModalErrorBoundary";
-import { CompanyResearchPanel } from "../components/CompanyResearchPanel";
 import { FocusTrap } from "../components/FocusTrap";
 import { DashboardSkeleton } from "../components/Skeleton";
 import { useToast } from "../contexts";
@@ -19,11 +17,13 @@ import { useKeyboardNavigation } from "../hooks/useKeyboardNavigation";
 import { getErrorMessage, logError } from "../utils/errorUtils";
 import { SCORE_THRESHOLD_GOOD } from "../utils/constants";
 import { notifyScrapingComplete } from "../utils/notifications";
-import { cachedInvoke, invalidateCacheByCommand } from "../utils/api";
-import Settings from "./Settings";
+import { cachedInvoke, invalidateCacheByCommand, safeInvoke } from "../utils/api";
+import { PanelSkeleton, WidgetSkeleton } from "../components/LoadingFallbacks";
 
-// Lazy load analytics widget with recharts dependency
+// Lazy load heavy components to reduce initial bundle size
 const DashboardWidgets = lazy(() => import("../components/DashboardWidgets").then(m => ({ default: m.DashboardWidgets })));
+const CompanyResearchPanel = lazy(() => import("../components/CompanyResearchPanel").then(m => ({ default: m.CompanyResearchPanel })));
+const Settings = lazy(() => import("./Settings"));
 
 // Extracted modules
 import type { Job, Statistics, ScrapingStatus, DuplicateGroup, DashboardProps, AutoRefreshConfig, SavedSearch } from "./DashboardTypes";
@@ -202,16 +202,16 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
         });
       }, 1000);
 
-      await invoke("search_jobs");
+      await safeInvoke("search_jobs", undefined, { logContext: "Manual job search" });
 
       invalidateCacheByCommand("get_recent_jobs");
       invalidateCacheByCommand("get_statistics");
       invalidateCacheByCommand("get_scraping_status");
 
       const [jobsData, statsData, statusData] = await Promise.all([
-        invoke<Job[]>("get_recent_jobs", { limit: 50 }),
-        invoke<Statistics>("get_statistics"),
-        invoke<ScrapingStatus>("get_scraping_status"),
+        safeInvoke<Job[]>("get_recent_jobs", { limit: 50 }),
+        safeInvoke<Statistics>("get_statistics"),
+        safeInvoke<ScrapingStatus>("get_scraping_status"),
       ]);
       setJobs(jobsData);
       setStatistics(statsData);
@@ -229,11 +229,16 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
         cooldownTimeoutRef.current = null;
       }, 30000);
     } catch (err) {
-      logError("Failed to search jobs:", err);
-      setError(getErrorMessage(err));
+      const enhancedError = err as Error & {
+        userFriendly?: { title: string; message: string; action?: string };
+      };
+      setError(enhancedError.userFriendly?.message || getErrorMessage(err));
       toast.error(
-        "Job search failed",
-        "Couldn't scan for jobs. Check your internet connection and job board settings, then try again."
+        enhancedError.userFriendly?.title || "Job Search Failed",
+        enhancedError.userFriendly?.action
+          ? `${enhancedError.userFriendly.message}\n\n${enhancedError.userFriendly.action}`
+          : enhancedError.userFriendly?.message ||
+            "Couldn't scan for jobs. Check your internet connection and job board settings, then try again."
       );
       // Reset cooldown on error so user can retry
       setSearchCooldown(false);
@@ -321,7 +326,9 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
   if (showSettings) {
     return (
       <ModalErrorBoundary onClose={() => setShowSettings(false)}>
-        <Settings onClose={() => setShowSettings(false)} />
+        <Suspense fallback={<PanelSkeleton />}>
+          <Settings onClose={() => setShowSettings(false)} />
+        </Suspense>
       </ModalErrorBoundary>
     );
   }
@@ -367,7 +374,7 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
         <DashboardStats statistics={statistics} />
 
         {/* Analytics Widgets (collapsible, lazy-loaded) */}
-        <Suspense fallback={<div className="mb-6 h-16" />}>
+        <Suspense fallback={<WidgetSkeleton />}>
           <DashboardWidgets className="mb-6" />
         </Suspense>
 
@@ -740,7 +747,9 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
           aria-label={`Company research for ${researchCompany}`}
         >
           <FocusTrap>
-            <CompanyResearchPanel companyName={researchCompany} onClose={() => setResearchCompany(null)} />
+            <Suspense fallback={<PanelSkeleton />}>
+              <CompanyResearchPanel companyName={researchCompany} onClose={() => setResearchCompany(null)} />
+            </Suspense>
           </FocusTrap>
         </div>
       )}

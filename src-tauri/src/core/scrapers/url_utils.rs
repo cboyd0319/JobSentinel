@@ -108,6 +108,7 @@ const ESSENTIAL_PARAMS: &[&str] = &[
 /// let url = "https://lever.co/jobs/abc-def?source=email";
 /// assert_eq!(normalize_url(url), "https://lever.co/jobs/abc-def");
 /// ```
+#[must_use]
 #[inline]
 pub fn normalize_url(url_str: &str) -> Cow<'_, str> {
     // Try to parse the URL

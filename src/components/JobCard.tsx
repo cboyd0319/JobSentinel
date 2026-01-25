@@ -1,11 +1,14 @@
-import { useState, memo } from "react";
+import { useState, memo, lazy, Suspense } from "react";
 import { ScoreDisplay } from "./ScoreDisplay";
-import { ScoreBreakdownModal } from "./ScoreBreakdownModal";
 import { GhostIndicatorCompact } from "./GhostIndicator";
+import { ModalSkeleton } from "./LoadingFallbacks";
 import { open } from "@tauri-apps/plugin-shell";
 import { logError } from "../utils/errorUtils";
 import { formatRelativeDate, formatSalaryRange, truncateText } from "../utils/formatUtils";
 import { SCORE_THRESHOLD_HIGH, SCORE_THRESHOLD_GOOD } from "../utils/constants";
+
+// Lazy load modal to reduce initial bundle size
+const ScoreBreakdownModal = lazy(() => import("./ScoreBreakdownModal").then(m => ({ default: m.ScoreBreakdownModal })));
 
 interface Job {
   id: number;
@@ -72,13 +75,17 @@ export const JobCard = memo(function JobCard({ job, onViewJob, onHideJob, onTogg
 
   return (
     <>
-      <ScoreBreakdownModal
-        isOpen={isScoreModalOpen}
-        onClose={() => setIsScoreModalOpen(false)}
-        score={job.score}
-        scoreReasons={job.score_reasons}
-        jobTitle={job.title}
-      />
+      {isScoreModalOpen && (
+        <Suspense fallback={<ModalSkeleton />}>
+          <ScoreBreakdownModal
+            isOpen={isScoreModalOpen}
+            onClose={() => setIsScoreModalOpen(false)}
+            score={job.score}
+            scoreReasons={job.score_reasons}
+            jobTitle={job.title}
+          />
+        </Suspense>
+      )}
 
       <div
         className={`

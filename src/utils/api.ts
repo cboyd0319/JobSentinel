@@ -152,5 +152,128 @@ export function getCacheStats(): {
   };
 }
 
+/**
+ * Type-safe error handler for Tauri invoke calls.
+ * Extracts user-friendly error messages and handles logging.
+ */
+export interface InvokeError {
+  message: string;
+  technical?: string;
+  userFriendly?: {
+    title: string;
+    message: string;
+    action?: string;
+  };
+}
+
+/**
+ * Safe invoke wrapper with consistent error handling.
+ * Automatically logs errors and returns typed results with error info.
+ *
+ * @param cmd - Tauri command name
+ * @param args - Command arguments
+ * @param options - Error handling options
+ * @returns Promise with data or throws with enhanced error
+ *
+ * @example
+ * ```typescript
+ * const jobs = await safeInvoke<Job[]>("get_jobs", { limit: 10 });
+ * ```
+ */
+export async function safeInvoke<T>(
+  cmd: string,
+  args?: Record<string, unknown>,
+  options?: {
+    logContext?: string;
+    silent?: boolean; // Don't log errors (for expected failures)
+  }
+): Promise<T> {
+  try {
+    return await invoke<T>(cmd, args);
+  } catch (error) {
+    // Import utilities here to avoid circular dependencies
+    const { logError: log } = await import("./errorUtils");
+    const { getUserFriendlyError } = await import("./errorMessages");
+
+    const context = options?.logContext || `invoke(${cmd})`;
+
+    // Log error unless silent mode
+    if (!options?.silent) {
+      log(context, error);
+    }
+
+    // Create enhanced error with user-friendly message
+    const friendlyError = getUserFriendlyError(error);
+    const enhancedError = Object.assign(
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        userFriendly: friendlyError,
+        invokeCommand: cmd,
+        invokeArgs: args,
+      }
+    );
+
+    throw enhancedError;
+  }
+}
+
+/**
+ * Safe invoke with automatic toast error notification.
+ * Best for user-initiated actions where errors should be shown.
+ *
+ * @param cmd - Tauri command name
+ * @param args - Command arguments
+ * @param toast - Toast context from useToast()
+ * @param options - Error handling options
+ * @returns Promise with data or throws
+ *
+ * @example
+ * ```typescript
+ * const toast = useToast();
+ * try {
+ *   await safeInvokeWithToast("delete_job", { id: 123 }, toast, {
+ *     successMessage: "Job deleted successfully"
+ *   });
+ * } catch (error) {
+ *   // Error already shown to user via toast
+ * }
+ * ```
+ */
+export async function safeInvokeWithToast<T>(
+  cmd: string,
+  args: Record<string, unknown> | undefined,
+  toast: { error: (title: string, message?: string) => void },
+  options?: {
+    logContext?: string;
+    silent?: boolean;
+    errorTitle?: string; // Custom error title
+    showTechnical?: boolean; // Show technical details in dev mode
+  }
+): Promise<T> {
+  try {
+    const result = await safeInvoke<T>(cmd, args, options);
+    return result;
+  } catch (error) {
+    // Extract user-friendly error
+    const enhancedError = error as Error & {
+      userFriendly?: { title: string; message: string; action?: string };
+    };
+
+    const title = options?.errorTitle || enhancedError.userFriendly?.title || "Operation Failed";
+    const message = enhancedError.userFriendly?.message;
+    const action = enhancedError.userFriendly?.action;
+
+    // Show technical details in dev mode if requested
+    const fullMessage = options?.showTechnical && import.meta.env.DEV && enhancedError.message
+      ? `${message || "An error occurred"}\n\nTechnical: ${enhancedError.message}`
+      : action
+        ? `${message}\n\n${action}`
+        : message;
+
+    toast.error(title, fullMessage);
+    throw error;
+  }
+}
+
 // Re-export invoke for convenience
 export { invoke };

@@ -8,7 +8,7 @@ import { useToast } from "../../contexts";
 import { useUndo } from "../../contexts/UndoContext";
 import { logError } from "../../utils/errorUtils";
 import { exportJobsToCSV } from "../../utils/export";
-import { invalidateCacheByCommand } from "../../utils/api";
+import { invalidateCacheByCommand, safeInvokeWithToast } from "../../utils/api";
 
 export function useDashboardJobOps(jobs: Job[], setJobs: (jobs: Job[] | ((prev: Job[]) => Job[])) => void) {
   const [notesModalOpen, setNotesModalOpen] = useState(false);
@@ -37,7 +37,7 @@ export function useDashboardJobOps(jobs: Job[], setJobs: (jobs: Job[] | ((prev: 
     if (!hiddenJob) return;
 
     try {
-      await invoke("hide_job", { id });
+      await safeInvokeWithToast("hide_job", { id }, toast, { logContext: "Hide job" });
       // Invalidate cache since job list changed
       invalidateCacheByCommand("get_recent_jobs");
       invalidateCacheByCommand("get_statistics");
@@ -61,12 +61,8 @@ export function useDashboardJobOps(jobs: Job[], setJobs: (jobs: Job[] | ((prev: 
           setJobs((prev) => prev.filter((job) => job.id !== id));
         },
       });
-    } catch (err) {
-      logError("Failed to hide job:", err);
-      toast.error(
-        "Couldn't hide this job",
-        "The job is still visible. Try refreshing the page, or restart the app if the problem continues."
-      );
+    } catch {
+      // Error already logged and shown to user
     }
   }, [jobs, setJobs, toast, pushAction]);
 
@@ -100,12 +96,8 @@ export function useDashboardJobOps(jobs: Job[], setJobs: (jobs: Job[] | ((prev: 
           ));
         },
       });
-    } catch (err) {
-      logError("Failed to toggle bookmark:", err);
-      toast.error(
-        "Couldn't save bookmark",
-        "Your bookmark change wasn't saved. Try again, or check if the database is locked by another operation."
-      );
+    } catch {
+      // Error already logged and shown to user via safeInvokeWithToast (used in undo/redo actions)
     }
   }, [jobs, setJobs, toast, pushAction]);
 
@@ -126,7 +118,9 @@ export function useDashboardJobOps(jobs: Job[], setJobs: (jobs: Job[] | ((prev: 
 
     try {
       const notesToSave = notesText.trim() || null;
-      await invoke("set_job_notes", { id: jobId, notes: notesToSave });
+      await safeInvokeWithToast("set_job_notes", { id: jobId, notes: notesToSave }, toast, {
+        logContext: "Save job notes",
+      });
       // Update local state
       setJobs(jobs.map((j) =>
         j.id === jobId ? { ...j, notes: notesToSave } : j
@@ -153,12 +147,8 @@ export function useDashboardJobOps(jobs: Job[], setJobs: (jobs: Job[] | ((prev: 
       setNotesModalOpen(false);
       setEditingJobId(null);
       setNotesText("");
-    } catch (err) {
-      logError("Failed to save notes:", err);
-      toast.error(
-        "Your notes weren't saved",
-        "Try saving again. If this keeps happening, copy your notes elsewhere and restart the app."
-      );
+    } catch {
+      // Error already logged and shown to user
     }
   }, [editingJobId, notesText, jobs, setJobs, toast, pushAction]);
 
@@ -230,10 +220,15 @@ export function useDashboardJobOps(jobs: Job[], setJobs: (jobs: Job[] | ((prev: 
         },
       });
     } catch (err) {
+      // Log and show user-friendly error
       logError("Failed to bulk hide jobs:", err);
+      const enhancedError = err as Error & {
+        userFriendly?: { title: string; message: string; action?: string };
+      };
       toast.error(
-        "Couldn't hide selected jobs",
-        "The jobs are still visible. Try hiding them one at a time, or refresh the page and try again."
+        enhancedError.userFriendly?.title || "Bulk Hide Failed",
+        enhancedError.userFriendly?.message ||
+          "The jobs are still visible. Try hiding them one at a time, or refresh the page and try again."
       );
     }
   }, [selectedJobIds, jobs, setJobs, toast, pushAction]);
@@ -295,9 +290,13 @@ export function useDashboardJobOps(jobs: Job[], setJobs: (jobs: Job[] | ((prev: 
       });
     } catch (err) {
       logError("Failed to bulk bookmark jobs:", err);
+      const enhancedError = err as Error & {
+        userFriendly?: { title: string; message: string; action?: string };
+      };
       toast.error(
-        "Couldn't update bookmarks",
-        "Your bookmarks weren't changed. Try bookmarking jobs individually, or restart the app if this continues."
+        enhancedError.userFriendly?.title || "Bulk Bookmark Failed",
+        enhancedError.userFriendly?.message ||
+          "Your bookmarks weren't changed. Try bookmarking jobs individually, or restart the app if this continues."
       );
     }
   }, [selectedJobIds, jobs, setJobs, toast, pushAction]);
@@ -313,7 +312,9 @@ export function useDashboardJobOps(jobs: Job[], setJobs: (jobs: Job[] | ((prev: 
   const handleCheckDuplicates = useCallback(async () => {
     try {
       setCheckingDuplicates(true);
-      const groups = await invoke<DuplicateGroup[]>("find_duplicates");
+      const groups = await safeInvokeWithToast<DuplicateGroup[]>("find_duplicates", undefined, toast, {
+        logContext: "Find duplicate jobs",
+      });
       setDuplicateGroups(groups);
       setDuplicatesModalOpen(true);
 
@@ -322,12 +323,8 @@ export function useDashboardJobOps(jobs: Job[], setJobs: (jobs: Job[] | ((prev: 
       } else {
         toast.info("Duplicates found", `${groups.length} duplicate groups detected`);
       }
-    } catch (err) {
-      logError("Failed to check duplicates:", err);
-      toast.error(
-        "Duplicate check failed",
-        "Couldn't scan for duplicate jobs. Try running a new job search first, then check again."
-      );
+    } catch {
+      // Error already logged and shown to user
     } finally {
       setCheckingDuplicates(false);
     }
@@ -335,9 +332,8 @@ export function useDashboardJobOps(jobs: Job[], setJobs: (jobs: Job[] | ((prev: 
 
   const handleMergeDuplicates = useCallback(async (primaryId: number, duplicateIds: number[]) => {
     try {
-      await invoke("merge_duplicates", {
-        primaryId,
-        duplicateIds,
+      await safeInvokeWithToast("merge_duplicates", { primaryId, duplicateIds }, toast, {
+        logContext: "Merge duplicate jobs",
       });
 
       // Remove merged jobs from the list
@@ -351,12 +347,8 @@ export function useDashboardJobOps(jobs: Job[], setJobs: (jobs: Job[] | ((prev: 
       // Invalidate cache
       invalidateCacheByCommand("get_recent_jobs");
       invalidateCacheByCommand("get_statistics");
-    } catch (err) {
-      logError("Failed to merge duplicates:", err);
-      toast.error(
-        "Couldn't merge duplicates",
-        "The jobs weren't merged. Make sure both jobs still exist and try again."
-      );
+    } catch {
+      // Error already logged and shown to user
     }
   }, [jobs, setJobs, toast]);
 
@@ -378,9 +370,13 @@ export function useDashboardJobOps(jobs: Job[], setJobs: (jobs: Job[] | ((prev: 
       toast.success("All duplicates merged", `${duplicateGroups.length} groups cleaned up`);
     } catch (err) {
       logError("Failed to merge all duplicates:", err);
+      const enhancedError = err as Error & {
+        userFriendly?: { title: string; message: string; action?: string };
+      };
       toast.error(
-        "Couldn't merge all duplicates",
-        "Some duplicates might have been merged. Refresh the page to see what changed, then try merging the rest individually."
+        enhancedError.userFriendly?.title || "Bulk Merge Failed",
+        enhancedError.userFriendly?.message ||
+          "Some duplicates might have been merged. Refresh the page to see what changed, then try merging the rest individually."
       );
     }
   }, [duplicateGroups, toast]);

@@ -28,6 +28,7 @@ struct TokenBucket {
 }
 
 impl RateLimiter {
+    #[must_use]
     pub fn new() -> Self {
         Self {
             buckets: Arc::new(Mutex::new(HashMap::new())),
@@ -66,6 +67,7 @@ impl RateLimiter {
     }
 
     /// Check if request is allowed without waiting
+    #[must_use]
     pub async fn is_allowed(&self, scraper_name: &str, max_requests_per_hour: u32) -> bool {
         let mut buckets = self.buckets.lock().await;
 
@@ -91,6 +93,7 @@ impl Default for RateLimiter {
 }
 
 impl TokenBucket {
+    #[must_use]
     fn new(max_requests_per_hour: u32) -> Self {
         Self {
             capacity: max_requests_per_hour,

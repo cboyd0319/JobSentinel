@@ -7,23 +7,13 @@ import { LoadingSpinner } from "../components/LoadingSpinner";
 import { MarketSnapshotCard } from "../components/MarketSnapshotCard";
 import { MarketAlertList } from "../components/MarketAlertCard";
 import { LocationHeatmap } from "../components/LocationHeatmap";
+import { ChartSkeleton } from "../components/LoadingFallbacks";
 import { useToast } from "../contexts";
 import { logError, getErrorMessage } from "../utils/errorUtils";
 import { formatCurrency } from "../utils/formatUtils";
 
 // Lazy load TrendChart to defer recharts bundle
 const TrendChart = lazy(() => import("../components/TrendChart").then(m => ({ default: m.TrendChart })));
-
-// Chart loading fallback
-function ChartFallback() {
-  return (
-    <Card className="dark:bg-surface-800">
-      <div className="h-[250px] flex items-center justify-center">
-        <LoadingSpinner message="Loading chart..." />
-      </div>
-    </Card>
-  );
-}
 
 // Format relative time for "last updated" display with staleness indicator
 function formatRelativeTime(date: Date): { text: string; stale: "fresh" | "normal" | "stale" | "very-stale" } {
@@ -370,7 +360,7 @@ export default function Market({ onBack }: MarketProps) {
             <MarketSnapshotCard snapshot={snapshot} />
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Suspense fallback={<ChartFallback />}>
+              <Suspense fallback={<ChartSkeleton />}>
                 <TrendChart
                   data={skills.slice(0, 8)}
                   type="bar"
@@ -382,7 +372,7 @@ export default function Market({ onBack }: MarketProps) {
                   emptyMessage="Run analysis to see skill trends"
                 />
               </Suspense>
-              <Suspense fallback={<ChartFallback />}>
+              <Suspense fallback={<ChartSkeleton />}>
                 <TrendChart
                   data={companies.slice(0, 8)}
                   type="bar"
@@ -420,7 +410,7 @@ export default function Market({ onBack }: MarketProps) {
         {/* Skills Tab */}
         {activeTab === "skills" && (
           <div className="space-y-6">
-            <Suspense fallback={<ChartFallback />}>
+            <Suspense fallback={<ChartSkeleton />}>
               <TrendChart
                 data={skills}
                 type="bar"
@@ -484,7 +474,7 @@ export default function Market({ onBack }: MarketProps) {
         {/* Companies Tab */}
         {activeTab === "companies" && (
           <div className="space-y-6">
-            <Suspense fallback={<ChartFallback />}>
+            <Suspense fallback={<ChartSkeleton />}>
               <TrendChart
                 data={companies}
                 type="bar"

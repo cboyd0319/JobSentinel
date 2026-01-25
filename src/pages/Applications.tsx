@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, lazy, Suspense, useId, useMemo, memo } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { cachedInvoke, invalidateCacheByCommand } from "../utils/api";
+import { cachedInvoke, invalidateCacheByCommand, safeInvokeWithToast } from "../utils/api";
 import {
   DndContext,
   DragOverlay,
@@ -23,15 +23,15 @@ import { CSS } from "@dnd-kit/utilities";
 import { Button } from "../components/Button";
 import { Card } from "../components/Card";
 import { Badge } from "../components/Badge";
-import { InterviewScheduler } from "../components/InterviewScheduler";
-import { CoverLetterTemplates } from "../components/CoverLetterTemplates";
-import { LoadingSpinner } from "../components/LoadingSpinner";
+import { AnalyticsSkeleton, ModalSkeleton } from "../components/LoadingFallbacks";
 import { useToast } from "../contexts";
 import { logError } from "../utils/errorUtils";
 import { formatEventDate } from "../utils/formatUtils";
 
-// Lazy load AnalyticsPanel to defer recharts bundle
+// Lazy load heavy components to reduce initial bundle size
 const AnalyticsPanel = lazy(() => import("../components/AnalyticsPanel").then(m => ({ default: m.AnalyticsPanel })));
+const InterviewScheduler = lazy(() => import("../components/InterviewScheduler").then(m => ({ default: m.InterviewScheduler })));
+const CoverLetterTemplates = lazy(() => import("../components/CoverLetterTemplates").then(m => ({ default: m.CoverLetterTemplates })));
 
 interface Application {
   id: number;
@@ -350,16 +350,14 @@ export default function Applications({ onBack }: ApplicationsProps) {
 
     // Persist the change to backend
     try {
-      await invoke("update_application_status", { applicationId: activeId, status: newColumn });
+      await safeInvokeWithToast("update_application_status", { applicationId: activeId, status: newColumn }, toast, {
+        logContext: "Update application status",
+      });
       // Invalidate cache after mutation
       invalidateCacheByCommand("get_applications_kanban");
       toast.success("Status updated", `Application moved to ${STATUS_COLUMNS.find((c) => c.key === newColumn)?.label}`);
-    } catch (err) {
-      logError("Failed to update status:", err);
-      toast.error(
-        "Status update failed",
-        "The application status wasn't changed. Try again, or check if the database is accessible."
-      );
+    } catch {
+      // Error already logged and shown to user via safeInvokeWithToast
       // Revert by refetching
       invalidateCacheByCommand("get_applications_kanban");
       fetchData();
@@ -369,51 +367,45 @@ export default function Applications({ onBack }: ApplicationsProps) {
   const handleAddNotes = async () => {
     if (!selectedApp || !notes.trim()) return;
     try {
-      await invoke("add_application_notes", { applicationId: selectedApp.id, notes });
+      await safeInvokeWithToast("add_application_notes", { applicationId: selectedApp.id, notes }, toast, {
+        logContext: "Add application notes",
+      });
       // Invalidate cache after mutation
       invalidateCacheByCommand("get_applications_kanban");
       toast.success("Notes added", "Your notes have been saved");
       setNotes("");
       setSelectedApp(null);
       fetchData();
-    } catch (err) {
-      logError("Failed to add notes:", err);
-      toast.error(
-        "Notes weren't saved",
-        "Your notes couldn't be added to this application. Copy them elsewhere and try again after restarting."
-      );
+    } catch {
+      // Error already logged and shown to user
     }
   };
 
   const handleCompleteReminder = async (reminderId: number) => {
     try {
-      await invoke("complete_reminder", { reminderId });
+      await safeInvokeWithToast("complete_reminder", { reminderId }, toast, {
+        logContext: "Complete reminder",
+      });
       // Invalidate cache after mutation
       invalidateCacheByCommand("get_pending_reminders");
       toast.success("Reminder completed", "Marked as done");
       fetchData();
-    } catch (err) {
-      logError("Failed to complete reminder:", err);
-      toast.error(
-        "Couldn't mark reminder complete",
-        "The reminder is still active. Try again, or manage reminders in your notifications settings."
-      );
+    } catch {
+      // Error already logged and shown to user
     }
   };
 
   const handleDetectGhosted = async () => {
     try {
-      const count = await invoke<number>("detect_ghosted_applications");
+      const count = await safeInvokeWithToast<number>("detect_ghosted_applications", undefined, toast, {
+        logContext: "Detect ghosted applications",
+      });
       // Invalidate cache after mutation
       invalidateCacheByCommand("get_applications_kanban");
       toast.info("Ghosted detection complete", `${count} application(s) marked as ghosted`);
       fetchData();
-    } catch (err) {
-      logError("Failed to detect ghosted:", err);
-      toast.error(
-        "Ghost detection unavailable",
-        "Couldn't check for ghost jobs. The feature might not be enabled in Settings > Ghost Detection."
-      );
+    } catch {
+      // Error already logged and shown to user
     }
   };
 
@@ -739,23 +731,25 @@ export default function Applications({ onBack }: ApplicationsProps) {
 
       {/* Analytics Panel */}
       {showAnalytics && (
-        <Suspense fallback={<div className="fixed inset-0 flex items-center justify-center bg-surface-900/50"><LoadingSpinner message="Loading analytics..." /></div>}>
+        <Suspense fallback={<AnalyticsSkeleton />}>
           <AnalyticsPanel onClose={() => setShowAnalytics(false)} />
         </Suspense>
       )}
 
       {/* Interview Scheduler */}
       {showInterviews && applications && (
-        <InterviewScheduler
-          onClose={() => setShowInterviews(false)}
-          applications={Object.values(applications)
-            .flat()
-            .map((app) => ({
-              id: app.id,
-              job_title: app.job_title,
-              company: app.company,
-            }))}
-        />
+        <Suspense fallback={<ModalSkeleton />}>
+          <InterviewScheduler
+            onClose={() => setShowInterviews(false)}
+            applications={Object.values(applications)
+              .flat()
+              .map((app) => ({
+                id: app.id,
+                job_title: app.job_title,
+                company: app.company,
+              }))}
+          />
+        </Suspense>
       )}
 
       {/* Cover Letter Templates */}
@@ -783,7 +777,9 @@ export default function Applications({ onBack }: ApplicationsProps) {
                 <CloseIcon />
               </button>
             </div>
-            <CoverLetterTemplates />
+            <Suspense fallback={<ModalSkeleton />}>
+              <CoverLetterTemplates />
+            </Suspense>
           </div>
         </div>
       )}

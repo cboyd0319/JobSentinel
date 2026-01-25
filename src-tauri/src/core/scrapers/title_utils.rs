@@ -131,6 +131,7 @@ const ABBREVIATIONS: &[(&str, &str)] = &[
 ///     "vice president engineering"
 /// );
 /// ```
+#[must_use]
 #[inline]
 pub fn normalize_title(title: &str) -> Cow<'_, str> {
     let trimmed = title.trim();
@@ -209,6 +210,7 @@ pub fn normalize_title(title: &str) -> Cow<'_, str> {
 ///     "Product Manager"
 /// ));
 /// ```
+#[must_use]
 #[inline]
 pub fn titles_match(title1: &str, title2: &str) -> bool {
     normalize_title(title1) == normalize_title(title2)

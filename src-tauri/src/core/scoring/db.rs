@@ -4,6 +4,7 @@ use super::ScoringConfig;
 use sqlx::SqlitePool;
 
 /// Load scoring configuration from database
+#[must_use]
 pub async fn load_scoring_config(pool: &SqlitePool) -> Result<ScoringConfig, String> {
     sqlx::query_as::<_, ScoringConfigRow>(
         "SELECT skills_weight, salary_weight, location_weight, company_weight, recency_weight
@@ -22,6 +23,7 @@ pub async fn load_scoring_config(pool: &SqlitePool) -> Result<ScoringConfig, Str
 }
 
 /// Save scoring configuration to database
+#[must_use]
 pub async fn save_scoring_config(pool: &SqlitePool, config: &ScoringConfig) -> Result<(), String> {
     // Validate before saving
     config.validate()?;
@@ -45,6 +47,7 @@ pub async fn save_scoring_config(pool: &SqlitePool, config: &ScoringConfig) -> R
 }
 
 /// Reset scoring configuration to defaults
+#[must_use]
 pub async fn reset_scoring_config(pool: &SqlitePool) -> Result<(), String> {
     let default_config = ScoringConfig::default();
     save_scoring_config(pool, &default_config).await

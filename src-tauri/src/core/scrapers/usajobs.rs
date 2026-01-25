@@ -17,8 +17,6 @@ use sha2::{Digest, Sha256};
 
 const BASE_URL: &str = "https://data.usajobs.gov";
 const SEARCH_ENDPOINT: &str = "/api/Search";
-#[allow(dead_code)]
-const DEFAULT_RESULTS_PER_PAGE: u32 = 100;
 const MAX_RESULTS_PER_PAGE: u32 = 500;
 
 /// USAJobs API scraper for federal government positions

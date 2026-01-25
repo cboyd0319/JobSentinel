@@ -26,6 +26,7 @@ struct CacheEntry {
 
 impl CacheEntry {
     /// Create a new cache entry with current timestamp
+    #[must_use]
     fn new(body: impl Into<String>) -> Self {
         Self {
             body: body.into(),
@@ -34,6 +35,7 @@ impl CacheEntry {
     }
 
     /// Check if this entry is still fresh based on the given duration
+    #[must_use]
     fn is_fresh(&self, duration: Duration) -> bool {
         SystemTime::now()
             .duration_since(self.cached_at)
@@ -52,6 +54,7 @@ pub struct CacheStats {
 
 impl CacheStats {
     /// Calculate hit rate as a percentage
+    #[must_use]
     pub fn hit_rate(&self) -> f64 {
         let total = self.hits + self.misses;
         if total == 0 {
@@ -71,6 +74,7 @@ struct ResponseCache {
 }
 
 impl ResponseCache {
+    #[must_use]
     fn new() -> Self {
         Self {
             cache: HashMap::new(),
@@ -81,6 +85,7 @@ impl ResponseCache {
     }
 
     /// Get cached response if it exists and is fresh
+    #[must_use]
     fn get(&mut self, url: &str) -> Option<String> {
         if let Some(entry) = self.cache.get(url) {
             if entry.is_fresh(self.duration) {
@@ -117,6 +122,7 @@ impl ResponseCache {
     }
 
     /// Get cache statistics
+    #[must_use]
     fn stats(&self) -> CacheStats {
         CacheStats {
             hits: self.hits,

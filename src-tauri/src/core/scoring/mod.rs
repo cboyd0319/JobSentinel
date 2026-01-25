@@ -25,6 +25,7 @@ use tracing::debug;
 
 /// Normalize company name for fuzzy matching
 /// Strips common suffixes, extra whitespace, and converts to lowercase
+#[must_use]
 pub(crate) fn normalize_company_name(name: &str) -> String {
     // First normalize whitespace and lowercase
     let normalized = name.to_lowercase().trim().to_string();
@@ -63,6 +64,7 @@ pub(crate) fn normalize_company_name(name: &str) -> String {
 }
 
 /// Fuzzy match two company names (case-insensitive, handles suffixes)
+#[must_use]
 pub(crate) fn fuzzy_match_company(job_company: &str, config_company: &str) -> bool {
     let normalized_job = normalize_company_name(job_company);
     let normalized_config = normalize_company_name(config_company);
@@ -106,6 +108,7 @@ pub struct ScoringEngine {
 }
 
 impl ScoringEngine {
+    #[must_use]
     pub fn new(config: Arc<Config>) -> Self {
         Self {
             config,
@@ -116,6 +119,7 @@ impl ScoringEngine {
     }
 
     /// Create a new scoring engine with database support (for resume matching)
+    #[must_use]
     pub fn with_db(config: Arc<Config>, db: sqlx::SqlitePool) -> Self {
         Self {
             config,
@@ -126,6 +130,7 @@ impl ScoringEngine {
     }
 
     /// Create a new scoring engine with a custom synonym map
+    #[must_use]
     pub fn with_synonym_map(config: Arc<Config>, synonym_map: SynonymMap) -> Self {
         Self {
             config,
@@ -136,6 +141,7 @@ impl ScoringEngine {
     }
 
     /// Create a new scoring engine with database and custom synonym map
+    #[must_use]
     pub fn with_db_and_synonym_map(
         config: Arc<Config>,
         db: sqlx::SqlitePool,
@@ -150,6 +156,7 @@ impl ScoringEngine {
     }
 
     /// Create a new scoring engine with custom scoring config
+    #[must_use]
     pub fn with_scoring_config(config: Arc<Config>, scoring_config: ScoringConfig) -> Self {
         Self {
             config,
@@ -160,11 +167,13 @@ impl ScoringEngine {
     }
 
     /// Get the current scoring configuration
-    pub fn scoring_config(&self) -> &ScoringConfig {
+    #[must_use]
+    pub const fn scoring_config(&self) -> &ScoringConfig {
         &self.scoring_config
     }
 
     /// Score a job
+    #[must_use]
     pub fn score(&self, job: &Job) -> JobScore {
         let skills_score = self.score_skills(job);
         let salary_score = self.score_salary(job);
@@ -220,6 +229,7 @@ impl ScoringEngine {
     /// When `use_resume_matching` is enabled in config and a database is available,
     /// this method will use the active resume to enhance skills scoring.
     /// Falls back to keyword-based scoring if no resume is available.
+    #[must_use]
     pub async fn score_async(&self, job: &Job) -> JobScore {
         // Try resume-based skills scoring if enabled
         let skills_score = if self.config.use_resume_matching {
@@ -290,6 +300,7 @@ impl ScoringEngine {
     ///
     /// Compares the job requirements against the user's active resume.
     /// Returns (score, reasons) tuple.
+    #[must_use]
     async fn score_skills_with_resume(
         &self,
         job: &Job,
@@ -704,6 +715,7 @@ impl ScoringEngine {
     }
 
     /// Check if job meets immediate alert threshold
+    #[must_use]
     pub fn should_alert_immediately(&self, score: &JobScore) -> bool {
         score.total >= self.config.immediate_alert_threshold
     }
