@@ -1,10 +1,7 @@
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::db::{
-        with_timeout, Database, DuplicateGroup, GhostStatistics, Job, Statistics,
-        DEFAULT_QUERY_TIMEOUT,
-    };
+    use crate::core::db::{Database, Job};
     use chrono::Utc;
     use std::time::Duration;
 

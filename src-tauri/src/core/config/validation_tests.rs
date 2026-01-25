@@ -2,9 +2,7 @@
 
 #[cfg(test)]
 mod validation_tests {
-    use crate::core::config::{
-        types::*, validation::validate_config, ValidationError, ValidationErrors,
-    };
+    use crate::core::config::{types::*, validation::validate_config};
 
     fn create_minimal_valid_config() -> Config {
         Config {

@@ -1827,7 +1827,7 @@ async fn test_scheduler_runs_multiple_cycles_before_shutdown() {
 // ========================================
 
 #[tokio::test]
-#[ignore] // Integration test - makes real HTTP requests, flaky in CI
+#[ignore = "Integration test - makes real HTTP requests"]
 async fn test_complete_workflow_with_all_error_paths() {
     // Comprehensive test hitting multiple error paths
     let mut config = create_test_config();

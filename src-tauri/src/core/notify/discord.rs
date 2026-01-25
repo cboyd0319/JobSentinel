@@ -1416,7 +1416,7 @@ mod tests {
     #[test]
     fn test_whitespace_leading_url_succeeds() {
         // The url crate handles leading whitespace gracefully
-        let result = validate_webhook_url(" https://discord.com/api/webhooks/123/token");
-        assert!(result.is_ok(), "Leading whitespace should be handled: {:?}", result);
+        let _result = validate_webhook_url(" https://discord.com/api/webhooks/123/token");
+        assert!(_result.is_ok(), "Leading whitespace should be handled: {:?}", _result);
     }
 }

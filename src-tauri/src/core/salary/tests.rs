@@ -791,6 +791,7 @@ mod database_tests {
         .expect("Failed to insert job");
     }
 
+    #[allow(dead_code)]
     async fn insert_template(pool: &SqlitePool, scenario: &str, text: &str) {
         sqlx::query(
             r#"

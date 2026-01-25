@@ -124,9 +124,10 @@ describe("AsyncButton", () => {
 
     it("stays disabled when both loading and disabled prop", async () => {
       const user = userEvent.setup();
-      let resolve: () => void;
       const mockOnClick = vi.fn(
-        () => new Promise<void>((r) => (resolve = r))
+        () => new Promise<void>(() => {
+          // Never resolves - testing disabled state
+        })
       );
 
       renderWithToast(

@@ -766,11 +766,11 @@ mod tests {
     #[test]
     fn test_message_card_title_format() {
         let notification = create_test_notification();
-        let title = format!(
+        let _title = format!(
             "🎯 High Match Job Alert ({}% Match)",
             (notification.score.total * 100.0).round()
         );
-        assert_eq!(title, "🎯 High Match Job Alert (95% Match)");
+        assert_eq!(_title, "🎯 High Match Job Alert (95% Match)");
     }
 
     #[test]
