@@ -1,0 +1,54 @@
+# Build artifacts - huge, no value to Claude
+target/
+node_modules/
+dist/
+dist-ssr/
+coverage/
+playwright-report/
+test-results/
+storybook-static/
+
+# Large generated files
+*.lock
+package-lock.json
+Cargo.lock
+
+# Binary/media files
+*.dmg
+*.msi
+*.exe
+*.app
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.ico
+*.svg
+*.woff
+*.woff2
+*.ttf
+*.eot
+
+# Database files
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# Sensitive files (also in deny, but skip reading entirely)
+.env
+.env.*
+*.pem
+*.key
+oauth_*.json
+
+# IDE/Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Git internals
+.git/objects/
+.git/hooks/

@@ -58,4 +58,6 @@ storybook-static
 coverage/
 playwright-report/
 test-results/
-.claude/
+# Claude CLI configuration (track settings, ignore user data)
+.claude/*
+!.claude/settings.local.json
