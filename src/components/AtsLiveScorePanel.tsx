@@ -173,7 +173,7 @@ const getStepTips = (step: number, analysis: AtsAnalysisResult | null): string[]
   return tips.slice(0, 3);
 };
 
-export function AtsLiveScorePanel({
+export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
   resumeData,
   currentStep,
   debounceMs = 1000,
@@ -578,7 +578,7 @@ export function AtsLiveScorePanel({
       </Modal>
     </div>
   );
-}
+});
 
 // Helper component for score bars
 const ScoreBar = memo(function ScoreBar({ label, score }: { label: string; score: number }) {

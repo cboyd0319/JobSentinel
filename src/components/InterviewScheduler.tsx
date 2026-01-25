@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, memo } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { cachedInvoke, invalidateCacheByCommand } from "../utils/api";
 import { Card, Button, Badge, CompanyResearchPanel } from "./index";
@@ -154,7 +154,7 @@ function downloadICalFile(interview: Interview): void {
   URL.revokeObjectURL(url);
 }
 
-export function InterviewScheduler({ onClose, applications = [] }: InterviewSchedulerProps) {
+export const InterviewScheduler = memo(function InterviewScheduler({ onClose, applications = [] }: InterviewSchedulerProps) {
   const [interviews, setInterviews] = useState<Interview[]>([]);
   const [pastInterviews, setPastInterviews] = useState<Interview[]>([]);
   const [loading, setLoading] = useState(true);
@@ -1108,7 +1108,7 @@ export function InterviewScheduler({ onClose, applications = [] }: InterviewSche
       )}
     </div>
   );
-}
+});
 
 function CloseIcon() {
   return (

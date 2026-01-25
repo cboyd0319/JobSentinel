@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, memo } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { Button } from './Button';
 import { Input } from './Input';
@@ -281,7 +281,7 @@ interface CoverLetterTemplatesProps {
   selectedJob?: JobForTemplate | null;
 }
 
-export function CoverLetterTemplates({ selectedJob }: CoverLetterTemplatesProps = {}) {
+export const CoverLetterTemplates = memo(function CoverLetterTemplates({ selectedJob }: CoverLetterTemplatesProps = {}) {
   const [templates, setTemplates] = useState<CoverLetterTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -570,7 +570,7 @@ export function CoverLetterTemplates({ selectedJob }: CoverLetterTemplatesProps 
       )}
     </Card>
   );
-}
+});
 
 function DocumentIcon({ className = '' }: { className?: string }) {
   return (

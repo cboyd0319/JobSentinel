@@ -1,4 +1,5 @@
 import { memo, useState, useEffect, useCallback } from "react";
+// memo applied to ApplyButton, AtsBadge
 import { invoke } from "@tauri-apps/api/core";
 import { Button, Modal, ModalFooter } from "..";
 import { useToast } from "../../contexts";
@@ -49,7 +50,7 @@ const ATS_COLORS: Record<string, string> = {
   unknown: "bg-surface-100 text-surface-600 dark:bg-surface-700 dark:text-surface-300",
 };
 
-export function ApplyButton({ job, onApplied }: ApplyButtonProps) {
+export const ApplyButton = memo(function ApplyButton({ job, onApplied }: ApplyButtonProps) {
   const [atsPlatform, setAtsPlatform] = useState<string | null>(null);
   const [atsLoading, setAtsLoading] = useState(true);
   const [atsInfo, setAtsInfo] = useState<AtsDetectionResponse | null>(null);
@@ -348,7 +349,7 @@ export function ApplyButton({ job, onApplied }: ApplyButtonProps) {
       </Modal>
     </>
   );
-}
+});
 
 // Standalone ATS badge for use in job cards
 export const AtsBadge = memo(function AtsBadge({ url }: { url: string }) {

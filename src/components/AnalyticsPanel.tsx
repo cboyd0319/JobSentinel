@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, memo } from "react";
 import { cachedInvoke } from "../utils/api";
 import { Card } from "./Card";
 import { logError } from "../utils/errorUtils";
@@ -152,7 +152,7 @@ function getCurrentWeekApplications(weeklyData: WeeklyData[]): number {
   return weeklyData[weeklyData.length - 1]?.count || 0;
 }
 
-export function AnalyticsPanel({ onClose }: AnalyticsPanelProps) {
+export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: AnalyticsPanelProps) {
   const [stats, setStats] = useState<ApplicationStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -753,7 +753,7 @@ export function AnalyticsPanel({ onClose }: AnalyticsPanelProps) {
       </Card>
     </div>
   );
-}
+});
 
 function MetricCard({
   label,

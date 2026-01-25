@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Tooltip } from "./Tooltip";
 
 interface ResumeMatchScoreBreakdownProps {
@@ -77,7 +78,7 @@ function ScoreBar({
   );
 }
 
-export function ResumeMatchScoreBreakdown({
+export const ResumeMatchScoreBreakdown = memo(function ResumeMatchScoreBreakdown({
   skillsScore,
   experienceScore,
   educationScore,
@@ -199,4 +200,4 @@ export function ResumeMatchScoreBreakdown({
       )}
     </div>
   );
-}
+});

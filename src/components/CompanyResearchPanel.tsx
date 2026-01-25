@@ -645,7 +645,7 @@ const InfoRow = memo(function InfoRow({ label, value, icon }: { label: string; v
   );
 });
 
-export function CompanyResearchPanel({ companyName, onClose }: CompanyResearchPanelProps) {
+export const CompanyResearchPanel = memo(function CompanyResearchPanel({ companyName, onClose }: CompanyResearchPanelProps) {
   const [loading, setLoading] = useState(true);
   const [takingLong, setTakingLong] = useState(false);
   const [info, setInfo] = useState<CompanyInfo | null>(null);
@@ -871,7 +871,7 @@ export function CompanyResearchPanel({ companyName, onClose }: CompanyResearchPa
       </div>
     </Card>
   );
-}
+});
 
 // Icons
 function BuildingIcon({ className = '' }: { className?: string }) {

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { Button } from "./Button";
 import { Card, CardHeader } from "./Card";
@@ -142,7 +142,7 @@ function StatusIcon({ status }: { status: string }) {
   return icons[status as keyof typeof icons] || icons.question;
 }
 
-export function ScraperHealthDashboard({ onClose }: ScraperHealthDashboardProps) {
+export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({ onClose }: ScraperHealthDashboardProps) {
   const [loading, setLoading] = useState(true);
   const [summary, setSummary] = useState<HealthSummary | null>(null);
   const [scrapers, setScrapers] = useState<ScraperHealthMetrics[]>([]);
@@ -688,4 +688,4 @@ export function ScraperHealthDashboard({ onClose }: ScraperHealthDashboardProps)
       </Modal>
     </div>
   );
-}
+});

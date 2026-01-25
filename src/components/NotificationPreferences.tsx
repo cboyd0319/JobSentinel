@@ -288,7 +288,7 @@ const SourceConfigRow = memo(function SourceConfigRow({ sourceKey, config, onCha
   );
 });
 
-export function NotificationPreferences() {
+export const NotificationPreferences = memo(function NotificationPreferences() {
   const [prefs, setPrefs] = useState<NotificationPreferences>(DEFAULT_PREFERENCES);
   const [loading, setLoading] = useState(true);
   const [hasChanges, setHasChanges] = useState(false);
@@ -463,7 +463,7 @@ export function NotificationPreferences() {
       </div>
     </Card>
   );
-}
+});
 
 // Advanced Filters Section Component
 interface AdvancedFiltersSectionProps {
