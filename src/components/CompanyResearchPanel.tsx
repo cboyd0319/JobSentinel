@@ -680,7 +680,7 @@ export const CompanyResearchPanel = memo(function CompanyResearchPanel({ company
         if (!cancelled) {
           setInfo(data);
         }
-      } catch (err) {
+      } catch {
         if (!cancelled) {
           setError('Failed to load company information');
         }
@@ -700,6 +700,9 @@ export const CompanyResearchPanel = memo(function CompanyResearchPanel({ company
       clearTimeout(timeoutId);
       clearTimeout(slowLoadingId);
     };
+    // Note: 'loading' is intentionally excluded - including it would cause infinite re-renders
+    // The timeouts check loading defensively but the cancelled flag handles the cleanup case
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companyName, retryCount]);
 
   const handleRetry = () => {

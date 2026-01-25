@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, StatCard, Skeleton } from "../components";
 import { ProfileForm, ScreeningAnswersForm } from "../components/automation";
 import { invoke } from "@tauri-apps/api/core";
@@ -25,7 +25,7 @@ export default function ApplicationProfile({ onBack }: ApplicationProfileProps) 
   const [loadingStats, setLoadingStats] = useState(false);
   const toast = useToast();
 
-  const loadStats = async (signal?: AbortSignal) => {
+  const loadStats = useCallback(async (signal?: AbortSignal) => {
     try {
       setLoadingStats(true);
       const data = await invoke<AutomationStats>("get_automation_stats");
@@ -41,16 +41,16 @@ export default function ApplicationProfile({ onBack }: ApplicationProfileProps) 
         setLoadingStats(false);
       }
     }
-  };
+  }, [toast]);
 
   // Load stats on mount
   useEffect(() => {
     const controller = new AbortController();
-    
+
     loadStats(controller.signal);
-    
+
     return () => controller.abort();
-  }, []);
+  }, [loadStats]);
 
   return (
     <div className="min-h-screen bg-surface-50 dark:bg-surface-900">

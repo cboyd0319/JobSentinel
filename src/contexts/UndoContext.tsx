@@ -137,7 +137,7 @@ export function UndoProvider({ children }: { children: ReactNode }) {
     canUndo: undoStack.length > 0,
     canRedo: redoStack.length > 0,
     lastAction: undoStack[0] || null,
-  }), [pushAction, undo, redo, undoStack]);
+  }), [pushAction, undo, redo, undoStack, redoStack]);
 
   return (
     <UndoContext.Provider value={value}>

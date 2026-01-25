@@ -1,4 +1,4 @@
-import { memo, useState, useRef, useEffect, useCallback } from 'react';
+import { memo, useState, useRef, useEffect, useCallback, useMemo } from 'react';
 
 /**
  * Well-known companies for autocomplete suggestions.
@@ -91,18 +91,19 @@ export const CompanyAutocomplete = memo(function CompanyAutocomplete({
   const wrapperRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Filter suggestions based on input
-  const suggestions = value.trim().length >= 1
-    ? COMPANY_SUGGESTIONS.filter(company => {
-        const searchTerm = value.toLowerCase();
-        const matchesName = company.name.includes(searchTerm) ||
-                          company.displayName.toLowerCase().includes(searchTerm);
-        const notAlreadyAdded = !existingCompanies.some(
-          existing => existing.toLowerCase() === company.displayName.toLowerCase()
-        );
-        return matchesName && notAlreadyAdded;
-      }).slice(0, 6) // Limit to 6 suggestions
-    : [];
+  // Filter suggestions based on input (memoized to prevent useCallback dependency issues)
+  const suggestions = useMemo(() => {
+    if (value.trim().length < 1) return [];
+    return COMPANY_SUGGESTIONS.filter(company => {
+      const searchTerm = value.toLowerCase();
+      const matchesName = company.name.includes(searchTerm) ||
+                        company.displayName.toLowerCase().includes(searchTerm);
+      const notAlreadyAdded = !existingCompanies.some(
+        existing => existing.toLowerCase() === company.displayName.toLowerCase()
+      );
+      return matchesName && notAlreadyAdded;
+    }).slice(0, 6); // Limit to 6 suggestions
+  }, [value, existingCompanies]);
 
   // Close dropdown when clicking outside
   useEffect(() => {

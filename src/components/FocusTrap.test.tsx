@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { FocusTrap } from "./FocusTrap";
@@ -178,7 +178,7 @@ describe("FocusTrap", () => {
         </>
       );
 
-      const insideButton1 = screen.getByRole("button", { name: "Inside button 1" });
+      screen.getByRole("button", { name: "Inside button 1" });
       const insideButton2 = screen.getByRole("button", { name: "Inside button 2" });
 
       insideButton2.focus();

@@ -169,7 +169,7 @@ test.describe("Command Palette", () => {
     await page.waitForLoadState("networkidle");
 
     // Try to open command palette
-    const { palette, isOpen } = await tryOpenCommandPalette(page);
+    const { isOpen } = await tryOpenCommandPalette(page);
     if (!isOpen) {
       test.skip(true, "Keyboard shortcuts may not work in headless browser");
       return;
@@ -189,7 +189,7 @@ test.describe("Command Palette", () => {
     await page.waitForLoadState("networkidle");
 
     // Try to open command palette
-    const { palette, isOpen } = await tryOpenCommandPalette(page);
+    const { isOpen } = await tryOpenCommandPalette(page);
     if (!isOpen) {
       test.skip(true, "Keyboard shortcuts may not work in headless browser");
       return;
@@ -466,7 +466,6 @@ test.describe("One-Click Apply Settings", () => {
       // Check for profile form fields
       const nameInput = page.locator('input[placeholder*="name" i], input[name*="name" i]');
       const emailInput = page.locator('input[type="email"], input[placeholder*="email" i]');
-      const phoneInput = page.locator('input[type="tel"], input[placeholder*="phone" i]');
 
       // At least some form fields should be visible
       const hasNameInput = await nameInput.first().isVisible().catch(() => false);

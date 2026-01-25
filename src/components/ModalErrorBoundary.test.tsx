@@ -13,7 +13,6 @@ function ThrowError({ shouldThrow = false }: { shouldThrow?: boolean }) {
 
 // Suppress console errors in tests (only in dev mode)
 const originalError = console.error;
-const originalEnv = import.meta.env.DEV;
 beforeEach(() => {
   console.error = vi.fn();
   return () => {
@@ -159,7 +158,7 @@ describe("ModalErrorBoundary", () => {
 
     it("displays fallback when error message is undefined", () => {
       function ThrowErrorWithoutMessage() {
-        // eslint-disable-next-line @typescript-eslint/only-throw-error
+         
         throw { name: "CustomError" };
       }
 

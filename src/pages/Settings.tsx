@@ -1829,7 +1829,7 @@ export default function Settings({ onClose }: SettingsProps) {
                               setCredentialStatus((prev) => ({ ...prev, linkedin_cookie: false }));
                               setLinkedInExpiry(null);
                               toast.success("Disconnected", "LinkedIn has been disconnected");
-                            } catch (err) {
+                            } catch {
                               toast.error("Error", "Failed to disconnect LinkedIn");
                             } finally {
                               setConnectingLinkedIn(false);
@@ -1860,8 +1860,8 @@ export default function Settings({ onClose }: SettingsProps) {
                                 await invoke("disconnect_linkedin");
                                 setCredentialStatus((prev) => ({ ...prev, linkedin_cookie: false }));
                                 setLinkedInExpiry(null);
-                              } catch (err) {
-                                // Ignore
+                              } catch {
+                                // Ignore disconnect errors
                               } finally {
                                 setConnectingLinkedIn(false);
                               }

@@ -1,4 +1,4 @@
-import { useEffect, useState, memo } from "react";
+import { useEffect, useState, useCallback, memo } from "react";
 import { cachedInvoke } from "../utils/api";
 import { Card } from "./Card";
 import { logError } from "../utils/errorUtils";
@@ -187,7 +187,7 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
     }
   };
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -205,11 +205,11 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
     } finally {
       setLoading(false);
     }
-  };
+  }, [dateRange]);
 
   useEffect(() => {
     fetchStats();
-  }, [dateRange]);
+  }, [fetchStats]);
 
   const handleExportCSV = () => {
     if (!stats) return;

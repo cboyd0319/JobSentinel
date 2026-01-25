@@ -161,12 +161,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
 
   const toast = useToast();
 
-  // Initialize resume on mount
-  useEffect(() => {
-    initializeResume();
-  }, []);
-
-  const initializeResume = async () => {
+  const initializeResume = useCallback(async () => {
     try {
       setLoading(true);
       const id = await invoke<number>("create_resume_draft");
@@ -182,7 +177,12 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
+
+  // Initialize resume on mount
+  useEffect(() => {
+    initializeResume();
+  }, [initializeResume]);
 
   // Load resume data
   const loadResumeData = useCallback(async () => {
