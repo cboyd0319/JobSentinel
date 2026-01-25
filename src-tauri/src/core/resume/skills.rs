@@ -41,16 +41,76 @@ impl SkillExtractor {
         let mut seen_skills = HashSet::new();
 
         // Extract from all categories
-        self.extract_category(&text_lower, &self.skill_database.programming_languages, "programming_language", &mut found_skills, &mut seen_skills);
-        self.extract_category(&text_lower, &self.skill_database.frameworks, "framework", &mut found_skills, &mut seen_skills);
-        self.extract_category(&text_lower, &self.skill_database.tools, "tool", &mut found_skills, &mut seen_skills);
-        self.extract_category(&text_lower, &self.skill_database.databases, "database", &mut found_skills, &mut seen_skills);
-        self.extract_category(&text_lower, &self.skill_database.cloud_platforms, "cloud_platform", &mut found_skills, &mut seen_skills);
-        self.extract_category(&text_lower, &self.skill_database.soft_skills, "soft_skill", &mut found_skills, &mut seen_skills);
-        self.extract_category(&text_lower, &self.skill_database.methodologies, "methodology", &mut found_skills, &mut seen_skills);
-        self.extract_category(&text_lower, &self.skill_database.certifications, "certification", &mut found_skills, &mut seen_skills);
-        self.extract_category(&text_lower, &self.skill_database.security_skills, "security", &mut found_skills, &mut seen_skills);
-        self.extract_category(&text_lower, &self.skill_database.data_skills, "data", &mut found_skills, &mut seen_skills);
+        self.extract_category(
+            &text_lower,
+            &self.skill_database.programming_languages,
+            "programming_language",
+            &mut found_skills,
+            &mut seen_skills,
+        );
+        self.extract_category(
+            &text_lower,
+            &self.skill_database.frameworks,
+            "framework",
+            &mut found_skills,
+            &mut seen_skills,
+        );
+        self.extract_category(
+            &text_lower,
+            &self.skill_database.tools,
+            "tool",
+            &mut found_skills,
+            &mut seen_skills,
+        );
+        self.extract_category(
+            &text_lower,
+            &self.skill_database.databases,
+            "database",
+            &mut found_skills,
+            &mut seen_skills,
+        );
+        self.extract_category(
+            &text_lower,
+            &self.skill_database.cloud_platforms,
+            "cloud_platform",
+            &mut found_skills,
+            &mut seen_skills,
+        );
+        self.extract_category(
+            &text_lower,
+            &self.skill_database.soft_skills,
+            "soft_skill",
+            &mut found_skills,
+            &mut seen_skills,
+        );
+        self.extract_category(
+            &text_lower,
+            &self.skill_database.methodologies,
+            "methodology",
+            &mut found_skills,
+            &mut seen_skills,
+        );
+        self.extract_category(
+            &text_lower,
+            &self.skill_database.certifications,
+            "certification",
+            &mut found_skills,
+            &mut seen_skills,
+        );
+        self.extract_category(
+            &text_lower,
+            &self.skill_database.security_skills,
+            "security",
+            &mut found_skills,
+            &mut seen_skills,
+        );
+        self.extract_category(
+            &text_lower,
+            &self.skill_database.data_skills,
+            "data",
+            &mut found_skills,
+            &mut seen_skills,
+        );
 
         // Sort by confidence score (highest first)
         found_skills.sort_by(|a, b| {

@@ -193,15 +193,23 @@ impl DegreeLevel {
         }
 
         // Master's
-        if lower.contains("master") || lower.contains("m.s.") || lower.contains("m.a.")
-            || lower.contains("mba") || lower.contains("ms ") || lower.contains("ma ")
+        if lower.contains("master")
+            || lower.contains("m.s.")
+            || lower.contains("m.a.")
+            || lower.contains("mba")
+            || lower.contains("ms ")
+            || lower.contains("ma ")
         {
             return Some(DegreeLevel::Master);
         }
 
         // Bachelor's
-        if lower.contains("bachelor") || lower.contains("b.s.") || lower.contains("b.a.")
-            || lower.contains("bs ") || lower.contains("ba ") || lower.contains("undergraduate")
+        if lower.contains("bachelor")
+            || lower.contains("b.s.")
+            || lower.contains("b.a.")
+            || lower.contains("bs ")
+            || lower.contains("ba ")
+            || lower.contains("undergraduate")
         {
             return Some(DegreeLevel::Bachelor);
         }

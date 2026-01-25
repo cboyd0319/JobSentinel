@@ -325,10 +325,7 @@ impl FormFiller {
                             result
                                 .filled_fields
                                 .push(format!("screening:{}", field_name));
-                            tracing::debug!(
-                                "Selected screening answer for '{}'",
-                                question_text
-                            );
+                            tracing::debug!("Selected screening answer for '{}'", question_text);
                         }
                     }
                 }
@@ -787,7 +784,10 @@ mod tests {
             "Short".to_string()
         );
         assert_eq!(
-            FormFiller::truncate_question("This is a very long question that should be truncated", 30),
+            FormFiller::truncate_question(
+                "This is a very long question that should be truncated",
+                30
+            ),
             "This is a very long questio...".to_string()
         );
     }

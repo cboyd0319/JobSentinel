@@ -348,7 +348,9 @@ pub struct SalaryRange {
 
 /// Get salary distribution (jobs grouped by salary ranges)
 #[tauri::command]
-pub async fn get_salary_distribution(state: State<'_, AppState>) -> Result<Vec<SalaryRange>, String> {
+pub async fn get_salary_distribution(
+    state: State<'_, AppState>,
+) -> Result<Vec<SalaryRange>, String> {
     tracing::info!("Command: get_salary_distribution");
 
     state

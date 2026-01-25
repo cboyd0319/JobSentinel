@@ -7,7 +7,7 @@ use sqlx::SqlitePool;
 pub async fn load_scoring_config(pool: &SqlitePool) -> Result<ScoringConfig, String> {
     sqlx::query_as::<_, ScoringConfigRow>(
         "SELECT skills_weight, salary_weight, location_weight, company_weight, recency_weight
-         FROM scoring_config WHERE id = 1"
+         FROM scoring_config WHERE id = 1",
     )
     .fetch_one(pool)
     .await
@@ -22,10 +22,7 @@ pub async fn load_scoring_config(pool: &SqlitePool) -> Result<ScoringConfig, Str
 }
 
 /// Save scoring configuration to database
-pub async fn save_scoring_config(
-    pool: &SqlitePool,
-    config: &ScoringConfig,
-) -> Result<(), String> {
+pub async fn save_scoring_config(pool: &SqlitePool, config: &ScoringConfig) -> Result<(), String> {
     // Validate before saving
     config.validate()?;
 
@@ -33,7 +30,7 @@ pub async fn save_scoring_config(
         "UPDATE scoring_config
          SET skills_weight = ?, salary_weight = ?, location_weight = ?,
              company_weight = ?, recency_weight = ?, updated_at = datetime('now')
-         WHERE id = 1"
+         WHERE id = 1",
     )
     .bind(config.skills_weight)
     .bind(config.salary_weight)
@@ -82,7 +79,7 @@ mod tests {
                 company_weight REAL NOT NULL DEFAULT 0.10,
                 recency_weight REAL NOT NULL DEFAULT 0.05,
                 updated_at TEXT NOT NULL DEFAULT (datetime('now'))
-            )"
+            )",
         )
         .execute(&pool)
         .await

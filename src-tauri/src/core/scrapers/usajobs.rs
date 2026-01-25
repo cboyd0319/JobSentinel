@@ -106,13 +106,11 @@ impl UsaJobsScraper {
         headers.insert(HOST, HeaderValue::from_static("data.usajobs.gov"));
         headers.insert(
             USER_AGENT,
-            HeaderValue::from_str(&self.email)
-                .context("Invalid email for User-Agent header")?,
+            HeaderValue::from_str(&self.email).context("Invalid email for User-Agent header")?,
         );
         headers.insert(
             "Authorization-Key",
-            HeaderValue::from_str(&self.api_key)
-                .context("Invalid API key")?,
+            HeaderValue::from_str(&self.api_key).context("Invalid API key")?,
         );
 
         reqwest::Client::builder()
@@ -149,9 +147,7 @@ impl UsaJobsScraper {
 
         // Pagination
         params.push(("Page", page.to_string()));
-        let results_per_page = (self.limit as u32)
-            .min(MAX_RESULTS_PER_PAGE)
-            .max(1);
+        let results_per_page = (self.limit as u32).min(MAX_RESULTS_PER_PAGE).max(1);
         params.push(("ResultsPerPage", results_per_page.to_string()));
 
         // Get full details
@@ -178,11 +174,7 @@ impl UsaJobsScraper {
         if !response.status().is_success() {
             let status = response.status();
             let body = response.text().await.unwrap_or_default();
-            return Err(anyhow::anyhow!(
-                "USAJobs API error: {} - {}",
-                status,
-                body
-            ));
+            return Err(anyhow::anyhow!("USAJobs API error: {} - {}", status, body));
         }
 
         let api_response: UsaJobsResponse = response
@@ -242,8 +234,14 @@ impl UsaJobsScraper {
         let (salary_min, salary_max) = self.parse_salary(&desc.position_remuneration);
 
         // Check if remote from location display
-        let is_remote = desc.position_location_display.to_lowercase().contains("remote")
-            || desc.position_location_display.to_lowercase().contains("telework");
+        let is_remote = desc
+            .position_location_display
+            .to_lowercase()
+            .contains("remote")
+            || desc
+                .position_location_display
+                .to_lowercase()
+                .contains("telework");
 
         // Get job description from user area details
         let description = desc
@@ -415,10 +413,8 @@ mod tests {
 
     #[test]
     fn test_new_scraper() {
-        let scraper = UsaJobsScraper::new(
-            "test-api-key".to_string(),
-            "test@example.com".to_string(),
-        );
+        let scraper =
+            UsaJobsScraper::new("test-api-key".to_string(), "test@example.com".to_string());
 
         assert_eq!(scraper.api_key, "test-api-key");
         assert_eq!(scraper.email, "test@example.com");
@@ -449,8 +445,8 @@ mod tests {
 
     #[test]
     fn test_date_posted_capped_at_60() {
-        let scraper = UsaJobsScraper::new("key".to_string(), "email".to_string())
-            .posted_within_days(100);
+        let scraper =
+            UsaJobsScraper::new("key".to_string(), "email".to_string()).posted_within_days(100);
 
         assert_eq!(scraper.date_posted_days, Some(60));
     }
@@ -463,7 +459,9 @@ mod tests {
         // Should have DatePosted (default 30), Page, ResultsPerPage, Fields
         assert!(params.iter().any(|(k, v)| *k == "DatePosted" && v == "30"));
         assert!(params.iter().any(|(k, v)| *k == "Page" && v == "1"));
-        assert!(params.iter().any(|(k, v)| *k == "ResultsPerPage" && v == "100"));
+        assert!(params
+            .iter()
+            .any(|(k, v)| *k == "ResultsPerPage" && v == "100"));
         assert!(params.iter().any(|(k, v)| *k == "Fields" && v == "Full"));
     }
 
@@ -478,12 +476,20 @@ mod tests {
 
         let params = scraper.build_query_params(2);
 
-        assert!(params.iter().any(|(k, v)| *k == "Keyword" && v == "developer"));
-        assert!(params.iter().any(|(k, v)| *k == "LocationName" && v == "Denver, CO"));
+        assert!(params
+            .iter()
+            .any(|(k, v)| *k == "Keyword" && v == "developer"));
+        assert!(params
+            .iter()
+            .any(|(k, v)| *k == "LocationName" && v == "Denver, CO"));
         assert!(params.iter().any(|(k, v)| *k == "Radius" && v == "50"));
-        assert!(params.iter().any(|(k, v)| *k == "RemoteIndicator" && v == "true"));
+        assert!(params
+            .iter()
+            .any(|(k, v)| *k == "RemoteIndicator" && v == "true"));
         assert!(params.iter().any(|(k, v)| *k == "PayGradeLow" && v == "12"));
-        assert!(params.iter().any(|(k, v)| *k == "PayGradeHigh" && v == "15"));
+        assert!(params
+            .iter()
+            .any(|(k, v)| *k == "PayGradeHigh" && v == "15"));
         assert!(params.iter().any(|(k, v)| *k == "DatePosted" && v == "14"));
         assert!(params.iter().any(|(k, v)| *k == "Page" && v == "2"));
     }
@@ -509,18 +515,10 @@ mod tests {
 
     #[test]
     fn test_compute_hash_unique() {
-        let hash1 = UsaJobsScraper::compute_hash(
-            "DOD",
-            "Engineer",
-            Some("DC"),
-            "https://usajobs.gov/1",
-        );
-        let hash2 = UsaJobsScraper::compute_hash(
-            "DOD",
-            "Analyst",
-            Some("DC"),
-            "https://usajobs.gov/2",
-        );
+        let hash1 =
+            UsaJobsScraper::compute_hash("DOD", "Engineer", Some("DC"), "https://usajobs.gov/1");
+        let hash2 =
+            UsaJobsScraper::compute_hash("DOD", "Analyst", Some("DC"), "https://usajobs.gov/2");
 
         assert_ne!(hash1, hash2);
     }
@@ -711,8 +709,7 @@ mod tests {
 
     #[test]
     fn test_results_per_page_capped() {
-        let scraper = UsaJobsScraper::new("key".to_string(), "email".to_string())
-            .with_limit(1000); // Over the max
+        let scraper = UsaJobsScraper::new("key".to_string(), "email".to_string()).with_limit(1000); // Over the max
 
         let params = scraper.build_query_params(1);
 

@@ -453,7 +453,10 @@ pub async fn fill_application_form(
     // Create automation attempt for tracking (if job_hash provided)
     let attempt_id = if let Some(ref hash) = job_hash {
         let automation_manager = AutomationManager::new(state.database.pool().clone());
-        match automation_manager.create_attempt(hash, platform.clone()).await {
+        match automation_manager
+            .create_attempt(hash, platform.clone())
+            .await
+        {
             Ok(id) => {
                 tracing::info!("Created automation attempt #{}", id);
                 Some(id)

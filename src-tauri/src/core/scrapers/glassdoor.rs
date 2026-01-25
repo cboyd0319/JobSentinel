@@ -66,10 +66,7 @@ impl GlassdoorScraper {
         let status = response.status();
         if !status.is_success() {
             if status.as_u16() == 403 || status.as_u16() == 503 {
-                tracing::warn!(
-                    "Glassdoor returned {} - likely Cloudflare blocked",
-                    status
-                );
+                tracing::warn!("Glassdoor returned {} - likely Cloudflare blocked", status);
                 return Ok(vec![]); // Return empty instead of error
             }
             return Err(anyhow::anyhow!("Glassdoor request failed: {}", status));
@@ -415,7 +412,9 @@ impl GlassdoorScraper {
     fn is_remote(&self, location: Option<&str>) -> Option<bool> {
         location.map(|l| {
             let lower = l.to_lowercase();
-            lower.contains("remote") || lower.contains("anywhere") || lower.contains("work from home")
+            lower.contains("remote")
+                || lower.contains("anywhere")
+                || lower.contains("work from home")
         })
     }
 

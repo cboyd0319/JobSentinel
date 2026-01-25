@@ -65,86 +65,91 @@ pub async fn linkedin_login(app: AppHandle) -> Result<String, String> {
     // Build the login window with navigation monitoring
     // URL parsing of a compile-time constant cannot fail
     #[allow(clippy::expect_used)]
-    let login_url = LINKEDIN_LOGIN_URL.parse().expect("invalid LinkedIn URL constant");
-    let window = WebviewWindowBuilder::new(
-        &app,
-        "linkedin-login",
-        WebviewUrl::External(login_url),
-    )
-    .title("Connect LinkedIn")
-    .inner_size(450.0, 700.0)
-    .center()
-    .resizable(true)
-    .visible(true)
-    .on_navigation(move |url| {
-        let url_str = url.as_str();
-        tracing::debug!("LinkedIn navigation: {}", url_str);
+    let login_url = LINKEDIN_LOGIN_URL
+        .parse()
+        .expect("invalid LinkedIn URL constant");
+    let window = WebviewWindowBuilder::new(&app, "linkedin-login", WebviewUrl::External(login_url))
+        .title("Connect LinkedIn")
+        .inner_size(450.0, 700.0)
+        .center()
+        .resizable(true)
+        .visible(true)
+        .on_navigation(move |url| {
+            let url_str = url.as_str();
+            tracing::debug!("LinkedIn navigation: {}", url_str);
 
-        if is_login_success_url(url_str) && !login_detected_nav.load(Ordering::SeqCst) {
-            tracing::info!("LinkedIn login success detected!");
-            login_detected_nav.store(true, Ordering::SeqCst);
+            if is_login_success_url(url_str) && !login_detected_nav.load(Ordering::SeqCst) {
+                tracing::info!("LinkedIn login success detected!");
+                login_detected_nav.store(true, Ordering::SeqCst);
 
-            let result_tx = Arc::clone(&result_tx_nav);
-            let app = app_nav.clone();
+                let result_tx = Arc::clone(&result_tx_nav);
+                let app = app_nav.clone();
 
-            // Spawn async task to extract cookies
-            tauri::async_runtime::spawn(async move {
-                // Give the page a moment to fully load and cookies to be set
-                tokio::time::sleep(tokio::time::Duration::from_millis(1500)).await;
+                // Spawn async task to extract cookies
+                tauri::async_runtime::spawn(async move {
+                    // Give the page a moment to fully load and cookies to be set
+                    tokio::time::sleep(tokio::time::Duration::from_millis(1500)).await;
 
-                // Extract cookie using platform-appropriate method
-                #[cfg(target_os = "macos")]
-                let cookie_result = extract_linkedin_cookie().await;
+                    // Extract cookie using platform-appropriate method
+                    #[cfg(target_os = "macos")]
+                    let cookie_result = extract_linkedin_cookie().await;
 
-                #[cfg(any(target_os = "windows", target_os = "linux"))]
-                let cookie_result = extract_linkedin_cookie_from_webview(&app).await;
+                    #[cfg(any(target_os = "windows", target_os = "linux"))]
+                    let cookie_result = extract_linkedin_cookie_from_webview(&app).await;
 
-                #[cfg(not(any(target_os = "macos", target_os = "windows", target_os = "linux")))]
-                let cookie_result: Result<String, String> = Err("Unsupported platform".to_string());
+                    #[cfg(not(any(
+                        target_os = "macos",
+                        target_os = "windows",
+                        target_os = "linux"
+                    )))]
+                    let cookie_result: Result<String, String> =
+                        Err("Unsupported platform".to_string());
 
-                match &cookie_result {
-                    Ok((cookie, expiry)) => {
-                        tracing::info!("Successfully extracted LinkedIn cookie");
-                        // Store cookie in keyring
-                        if let Err(e) = CredentialStore::store(CredentialKey::LinkedInCookie, cookie)
-                        {
-                            tracing::error!("Failed to store cookie: {}", e);
-                        }
-                        // Store expiry date if available
-                        if let Some(exp) = expiry {
-                            if let Err(e) = CredentialStore::store(CredentialKey::LinkedInCookieExpiry, exp)
+                    match &cookie_result {
+                        Ok((cookie, expiry)) => {
+                            tracing::info!("Successfully extracted LinkedIn cookie");
+                            // Store cookie in keyring
+                            if let Err(e) =
+                                CredentialStore::store(CredentialKey::LinkedInCookie, cookie)
                             {
-                                tracing::error!("Failed to store cookie expiry: {}", e);
+                                tracing::error!("Failed to store cookie: {}", e);
+                            }
+                            // Store expiry date if available
+                            if let Some(exp) = expiry {
+                                if let Err(e) =
+                                    CredentialStore::store(CredentialKey::LinkedInCookieExpiry, exp)
+                                {
+                                    tracing::error!("Failed to store cookie expiry: {}", e);
+                                }
                             }
                         }
+                        Err(e) => {
+                            tracing::error!("Failed to extract cookie: {}", e);
+                        }
                     }
-                    Err(e) => {
-                        tracing::error!("Failed to extract cookie: {}", e);
+
+                    // Send result back (just the cookie value, not expiry)
+                    // Mutex poisoning indicates another thread panicked - propagate panic
+                    #[allow(clippy::expect_used)]
+                    let tx_option = result_tx.lock().expect("result_tx mutex poisoned").take();
+                    if let Some(tx) = tx_option {
+                        let _ = tx.send(cookie_result.map(|(cookie, _)| cookie));
                     }
-                }
 
-                // Send result back (just the cookie value, not expiry)
-                // Mutex poisoning indicates another thread panicked - propagate panic
-                #[allow(clippy::expect_used)]
-                let tx_option = result_tx.lock().expect("result_tx mutex poisoned").take();
-                if let Some(tx) = tx_option {
-                    let _ = tx.send(cookie_result.map(|(cookie, _)| cookie));
-                }
+                    // Close the window - need to get it fresh since we can't capture it
+                    if let Some(win) = app.get_webview_window("linkedin-login") {
+                        let _ = win.close();
+                    }
 
-                // Close the window - need to get it fresh since we can't capture it
-                if let Some(win) = app.get_webview_window("linkedin-login") {
-                    let _ = win.close();
-                }
+                    // Emit event to frontend
+                    let _ = app.emit("linkedin-auth-complete", ());
+                });
+            }
 
-                // Emit event to frontend
-                let _ = app.emit("linkedin-auth-complete", ());
-            });
-        }
-
-        true // Allow navigation to continue
-    })
-    .build()
-    .map_err(|e| format!("Failed to create login window: {}", e))?;
+            true // Allow navigation to continue
+        })
+        .build()
+        .map_err(|e| format!("Failed to create login window: {}", e))?;
 
     // Handle window close (user cancelled)
     let result_tx_cancel = Arc::clone(&result_tx);
@@ -155,7 +160,10 @@ pub async fn linkedin_login(app: AppHandle) -> Result<String, String> {
             if !login_detected_cancel.load(Ordering::SeqCst) {
                 // Mutex poisoning indicates another thread panicked - propagate panic
                 #[allow(clippy::expect_used)]
-                let tx_option = result_tx_cancel.lock().expect("result_tx mutex poisoned").take();
+                let tx_option = result_tx_cancel
+                    .lock()
+                    .expect("result_tx mutex poisoned")
+                    .take();
                 if let Some(tx) = tx_option {
                     let _ = tx.send(Err("Login cancelled by user".to_string()));
                 }
@@ -199,32 +207,32 @@ async fn extract_linkedin_cookie() -> Result<(String, Option<String>), String> {
             let cookie_store = data_store.httpCookieStore();
 
             // Create block to receive cookies
-            let block =
-                StackBlock::new(move |cookies: NonNull<NSArray<NSHTTPCookie>>| {
-                    let mut li_at_value: Option<(String, Option<f64>)> = None;
+            let block = StackBlock::new(move |cookies: NonNull<NSArray<NSHTTPCookie>>| {
+                let mut li_at_value: Option<(String, Option<f64>)> = None;
 
-                    let cookies_ref = cookies.as_ref();
-                    let count = cookies_ref.count();
-                    tracing::debug!("Found {} cookies", count);
+                let cookies_ref = cookies.as_ref();
+                let count = cookies_ref.count();
+                tracing::debug!("Found {} cookies", count);
 
-                    for i in 0..count {
-                        let cookie = cookies_ref.objectAtIndex(i);
-                        let name = cookie.name();
-                        let name_str = name.to_string();
+                for i in 0..count {
+                    let cookie = cookies_ref.objectAtIndex(i);
+                    let name = cookie.name();
+                    let name_str = name.to_string();
 
-                        if name_str == "li_at" {
-                            let value = cookie.value();
-                            // Try to get expiry date
-                            let expiry = cookie.expiresDate()
-                                .map(|date| date.timeIntervalSince1970());
-                            li_at_value = Some((value.to_string(), expiry));
-                            tracing::info!("Found li_at cookie! Expiry: {:?}", expiry);
-                            break;
-                        }
+                    if name_str == "li_at" {
+                        let value = cookie.value();
+                        // Try to get expiry date
+                        let expiry = cookie
+                            .expiresDate()
+                            .map(|date| date.timeIntervalSince1970());
+                        li_at_value = Some((value.to_string(), expiry));
+                        tracing::info!("Found li_at cookie! Expiry: {:?}", expiry);
+                        break;
                     }
+                }
 
-                    let _ = tx.send(li_at_value);
-                });
+                let _ = tx.send(li_at_value);
+            });
 
             // Get all cookies
             cookie_store.getAllCookies(&block);
@@ -239,12 +247,11 @@ async fn extract_linkedin_cookie() -> Result<(String, Option<String>), String> {
             // Convert timestamp to ISO 8601 string
             let expiry_str = expiry_secs.map(|secs| {
                 use chrono::{DateTime, Utc};
-                let dt = DateTime::<Utc>::from_timestamp(secs as i64, 0)
-                    .unwrap_or_else(Utc::now);
+                let dt = DateTime::<Utc>::from_timestamp(secs as i64, 0).unwrap_or_else(Utc::now);
                 dt.to_rfc3339()
             });
             Ok((cookie, expiry_str))
-        },
+        }
         Ok(None) => Err(
             "LinkedIn cookie (li_at) not found. Please make sure you're fully logged in."
                 .to_string(),
@@ -260,7 +267,9 @@ async fn extract_linkedin_cookie() -> Result<(String, Option<String>), String> {
 /// - Linux: WebKitGTK cookie jar
 /// Returns (cookie_value, optional_expiry_iso8601)
 #[cfg(any(target_os = "windows", target_os = "linux"))]
-async fn extract_linkedin_cookie_from_webview(app: &AppHandle) -> Result<(String, Option<String>), String> {
+async fn extract_linkedin_cookie_from_webview(
+    app: &AppHandle,
+) -> Result<(String, Option<String>), String> {
     use tauri::Manager;
 
     tracing::info!("Extracting LinkedIn cookie via Tauri cookie API");
@@ -287,8 +296,8 @@ async fn extract_linkedin_cookie_from_webview(app: &AppHandle) -> Result<(String
                 use chrono::{DateTime, Utc};
                 // Tauri returns expiry as OffsetDateTime, convert to timestamp
                 let timestamp = expires.unix_timestamp();
-                let dt = DateTime::<Utc>::from_timestamp(timestamp, 0)
-                    .unwrap_or_else(|| Utc::now());
+                let dt =
+                    DateTime::<Utc>::from_timestamp(timestamp, 0).unwrap_or_else(|| Utc::now());
                 dt.to_rfc3339()
             });
             tracing::info!("Found li_at cookie! Expiry: {:?}", expiry_str);
@@ -329,9 +338,7 @@ pub async fn store_linkedin_cookie(cookie: String) -> Result<(), String> {
 
     // Validate it looks like a LinkedIn cookie
     if !cookie.starts_with("AQ") {
-        tracing::warn!(
-            "LinkedIn cookie doesn't start with expected 'AQ' prefix - storing anyway"
-        );
+        tracing::warn!("LinkedIn cookie doesn't start with expected 'AQ' prefix - storing anyway");
     }
 
     CredentialStore::store(CredentialKey::LinkedInCookie, &cookie)?;
@@ -451,9 +458,7 @@ mod tests {
         assert!(is_login_success_url(
             "https://www.linkedin.com/jobs/search?keywords=rust"
         ));
-        assert!(is_login_success_url(
-            "https://www.linkedin.com/in/someuser"
-        ));
+        assert!(is_login_success_url("https://www.linkedin.com/in/someuser"));
         assert!(is_login_success_url("https://www.linkedin.com/mynetwork/"));
 
         // Should not match login/checkpoint URLs

@@ -162,7 +162,6 @@ async fn test_dice_live() {
     }
 }
 
-
 #[tokio::test]
 async fn test_yc_startups_live() {
     let scraper = YcStartupScraper::new(Some("engineer".to_string()), false, 50);
@@ -177,7 +176,6 @@ async fn test_yc_startups_live() {
         }
     }
 }
-
 
 // ============================================================================
 // AUTH-REQUIRED SCRAPERS (Skipped - require credentials)
@@ -213,11 +211,8 @@ async fn test_jobswithgpt_live() {
 
 #[tokio::test]
 async fn test_simplyhired_live() {
-    let scraper = SimplyHiredScraper::new(
-        "rust developer".to_string(),
-        Some("Remote".to_string()),
-        50,
-    );
+    let scraper =
+        SimplyHiredScraper::new("rust developer".to_string(), Some("Remote".to_string()), 50);
 
     let result = scraper.scrape().await;
     match result {

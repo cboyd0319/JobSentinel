@@ -53,8 +53,14 @@ impl SimplyHiredScraper {
 
         let response = client
             .get(&url)
-            .header("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36")
-            .header("Accept", "application/rss+xml, application/xml, text/xml, */*")
+            .header(
+                "User-Agent",
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+            )
+            .header(
+                "Accept",
+                "application/rss+xml, application/xml, text/xml, */*",
+            )
             .send()
             .await?;
 
@@ -221,7 +227,9 @@ impl SimplyHiredScraper {
         if let Some(desc) = description {
             if let Some(pos) = desc.find("Company:") {
                 let rest = &desc[pos + 8..];
-                let end = rest.find(|c: char| c == '\n' || c == '<').unwrap_or(rest.len());
+                let end = rest
+                    .find(|c: char| c == '\n' || c == '<')
+                    .unwrap_or(rest.len());
                 let company = rest[..end].trim();
                 if !company.is_empty() {
                     return Some(company.to_string());
@@ -239,7 +247,9 @@ impl SimplyHiredScraper {
         // Common patterns: "Location: City, State" or "in City, State"
         if let Some(pos) = desc.find("Location:") {
             let rest = &desc[pos + 9..];
-            let end = rest.find(|c: char| c == '\n' || c == '<' || c == '|').unwrap_or_else(|| rest.len().min(50));
+            let end = rest
+                .find(|c: char| c == '\n' || c == '<' || c == '|')
+                .unwrap_or_else(|| rest.len().min(50));
             let location = rest[..end].trim();
             if !location.is_empty() {
                 return Some(location.to_string());
@@ -338,11 +348,20 @@ mod tests {
     #[test]
     fn test_is_remote_job() {
         let scraper = SimplyHiredScraper::new("remote rust developer".to_string(), None, 10);
-        assert_eq!(scraper.is_remote_job("remote rust developer", None), Some(true));
+        assert_eq!(
+            scraper.is_remote_job("remote rust developer", None),
+            Some(true)
+        );
 
         let scraper = SimplyHiredScraper::new("rust developer".to_string(), None, 10);
-        assert_eq!(scraper.is_remote_job("rust developer", Some("Remote")), Some(true));
-        assert_eq!(scraper.is_remote_job("rust developer", Some("San Francisco")), None);
+        assert_eq!(
+            scraper.is_remote_job("rust developer", Some("Remote")),
+            Some(true)
+        );
+        assert_eq!(
+            scraper.is_remote_job("rust developer", Some("San Francisco")),
+            None
+        );
     }
 
     #[test]

@@ -220,8 +220,8 @@ impl LinkedInScraper {
             }
 
             // Check if we should retry
-            let should_retry = status == reqwest::StatusCode::TOO_MANY_REQUESTS 
-                || status.is_server_error();
+            let should_retry =
+                status == reqwest::StatusCode::TOO_MANY_REQUESTS || status.is_server_error();
 
             if !should_retry {
                 return Err(anyhow::anyhow!(
@@ -446,8 +446,8 @@ impl LinkedInScraper {
             }
 
             // Check if we should retry
-            let should_retry = status == reqwest::StatusCode::TOO_MANY_REQUESTS 
-                || status.is_server_error();
+            let should_retry =
+                status == reqwest::StatusCode::TOO_MANY_REQUESTS || status.is_server_error();
 
             if !should_retry {
                 return Err(anyhow::anyhow!(
@@ -464,7 +464,8 @@ impl LinkedInScraper {
             ));
         }
 
-        Err(last_error.unwrap_or_else(|| anyhow::anyhow!("LinkedIn HTML scrape failed after retries")))
+        Err(last_error
+            .unwrap_or_else(|| anyhow::anyhow!("LinkedIn HTML scrape failed after retries")))
     }
 
     /// Parse LinkedIn HTML job listings

@@ -281,9 +281,7 @@ mod tests {
 
     /// Helper to create a minimal disabled config
     fn create_disabled_config() -> Arc<Config> {
-        use crate::core::config::{
-            AutoRefreshConfig, LinkedInConfig, LocationPreferences,
-        };
+        use crate::core::config::{AutoRefreshConfig, LinkedInConfig, LocationPreferences};
 
         Arc::new(Config {
             title_allowlist: vec!["Engineer".to_string()],
@@ -895,7 +893,19 @@ mod tests {
         let notification = create_test_notification();
 
         // Source should be a known scraper
-        let valid_sources = ["greenhouse", "lever", "linkedin", "remoteok", "weworkremotely", "hn_hiring", "yc_startup", "dice", "builtin", "usajobs", "jobswithgpt"];
+        let valid_sources = [
+            "greenhouse",
+            "lever",
+            "linkedin",
+            "remoteok",
+            "weworkremotely",
+            "hn_hiring",
+            "yc_startup",
+            "dice",
+            "builtin",
+            "usajobs",
+            "jobswithgpt",
+        ];
         assert!(
             valid_sources.contains(&notification.job.source.as_str()),
             "Job source should be a known scraper"

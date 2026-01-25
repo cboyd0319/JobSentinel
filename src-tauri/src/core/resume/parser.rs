@@ -135,10 +135,7 @@ impl ResumeParser {
             match self.ocr_pdf(&canonical_path) {
                 Ok(ocr_text) => {
                     if ocr_text.len() > cleaned_text.len() {
-                        tracing::info!(
-                            "OCR extraction successful ({} chars)",
-                            ocr_text.len()
-                        );
+                        tracing::info!("OCR extraction successful ({} chars)", ocr_text.len());
                         return Ok(ocr_text);
                     }
                 }

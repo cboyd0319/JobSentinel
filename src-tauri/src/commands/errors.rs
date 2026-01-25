@@ -43,7 +43,9 @@ impl ErrorCategory {
     /// Get recovery suggestion for this error category
     pub fn recovery_hint(&self) -> &'static str {
         match self {
-            Self::Database => "Try restarting the app. If the issue persists, your database may need repair.",
+            Self::Database => {
+                "Try restarting the app. If the issue persists, your database may need repair."
+            }
             Self::Network => "Check your internet connection and try again.",
             Self::FileSystem => "Check file permissions and available disk space.",
             Self::Configuration => "Check your settings or try resetting to defaults.",
@@ -136,10 +138,7 @@ pub fn categorize_error(error: &str) -> ErrorCategory {
     }
 
     // Configuration
-    if lower.contains("config")
-        || lower.contains("setting")
-        || lower.contains("preference")
-    {
+    if lower.contains("config") || lower.contains("setting") || lower.contains("preference") {
         return ErrorCategory::Configuration;
     }
 
@@ -157,7 +156,12 @@ pub fn user_friendly_error<E: Display>(context: &str, error: E) -> String {
     if let Some(hint) = specific_hint {
         format!("{}: {}", context, hint)
     } else {
-        format!("{}: {} {}", context, category.title(), category.recovery_hint())
+        format!(
+            "{}: {} {}",
+            context,
+            category.title(),
+            category.recovery_hint()
+        )
     }
 }
 

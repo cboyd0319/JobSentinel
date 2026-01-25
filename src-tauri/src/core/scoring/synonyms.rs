@@ -442,7 +442,7 @@ mod tests {
 
         // Go and Golang ARE synonyms, so this SHOULD match
         assert!(map.matches_with_synonyms("go", "golang developer")); // "go" and "golang" are synonyms
-        // "dev" is NOT a synonym for "development" and shouldn't match partial words
+                                                                      // "dev" is NOT a synonym for "development" and shouldn't match partial words
         assert!(!map.matches_with_synonyms("dev", "development")); // "dev" should not match "development"
 
         // Should match at start/end of string

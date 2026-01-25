@@ -122,9 +122,10 @@ pub fn score_remote_match(
         (UserRemotePreference::RemoteOnly, RemoteStatus::Onsite) => {
             (0.1, "✗ Onsite job (remote-only preferred)")
         }
-        (UserRemotePreference::RemoteOnly, RemoteStatus::Unspecified) => {
-            (0.3, "⚠ Work arrangement not specified (remote-only preferred)")
-        }
+        (UserRemotePreference::RemoteOnly, RemoteStatus::Unspecified) => (
+            0.3,
+            "⚠ Work arrangement not specified (remote-only preferred)",
+        ),
 
         // RemotePreferred
         (UserRemotePreference::RemotePreferred, RemoteStatus::Remote) => {
@@ -184,7 +185,12 @@ mod tests {
     use crate::core::db::Job;
     use chrono::Utc;
 
-    fn create_test_job(title: &str, location: Option<&str>, description: Option<&str>, remote: Option<bool>) -> Job {
+    fn create_test_job(
+        title: &str,
+        location: Option<&str>,
+        description: Option<&str>,
+        remote: Option<bool>,
+    ) -> Job {
         Job {
             id: 1,
             hash: "test".to_string(),
@@ -230,7 +236,12 @@ mod tests {
 
     #[test]
     fn test_detect_remote_from_title() {
-        let job = create_test_job("Remote Software Engineer", Some("San Francisco"), None, None);
+        let job = create_test_job(
+            "Remote Software Engineer",
+            Some("San Francisco"),
+            None,
+            None,
+        );
         assert_eq!(detect_remote_status(&job), RemoteStatus::Remote);
     }
 
@@ -264,7 +275,12 @@ mod tests {
 
     #[test]
     fn test_detect_unspecified() {
-        let job = create_test_job("Engineer", Some("New York, NY"), Some("Great benefits"), None);
+        let job = create_test_job(
+            "Engineer",
+            Some("New York, NY"),
+            Some("Great benefits"),
+            None,
+        );
         assert_eq!(detect_remote_status(&job), RemoteStatus::Unspecified);
     }
 
@@ -302,15 +318,13 @@ mod tests {
 
     #[test]
     fn test_score_remote_only_hybrid_penalty() {
-        let (score, _) =
-            score_remote_match(UserRemotePreference::RemoteOnly, RemoteStatus::Hybrid);
+        let (score, _) = score_remote_match(UserRemotePreference::RemoteOnly, RemoteStatus::Hybrid);
         assert_eq!(score, 0.5);
     }
 
     #[test]
     fn test_score_remote_only_onsite_severe_penalty() {
-        let (score, _) =
-            score_remote_match(UserRemotePreference::RemoteOnly, RemoteStatus::Onsite);
+        let (score, _) = score_remote_match(UserRemotePreference::RemoteOnly, RemoteStatus::Onsite);
         assert_eq!(score, 0.1);
     }
 
@@ -332,7 +346,10 @@ mod tests {
     fn test_score_unspecified_gets_partial_credit() {
         let (score, _) =
             score_remote_match(UserRemotePreference::Flexible, RemoteStatus::Unspecified);
-        assert!(score > 0.0 && score < 1.0, "Unspecified should get partial credit");
+        assert!(
+            score > 0.0 && score < 1.0,
+            "Unspecified should get partial credit"
+        );
     }
 
     #[test]

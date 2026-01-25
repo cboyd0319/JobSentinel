@@ -81,13 +81,17 @@ impl JobMatcher {
                 .unwrap();
 
         // Pattern 2: "X-Y years [of] experience/SKILL" - e.g., "3-5 years experience"
-        let pattern2 =
-            Regex::new(r"(\d+)\s*[-–]\s*(\d+)\s*(?:years?|yrs?)\s+(?:of\s+)?([a-zA-Z][a-zA-Z0-9+#/.\s]*)?")
-                .unwrap();
+        let pattern2 = Regex::new(
+            r"(\d+)\s*[-–]\s*(\d+)\s*(?:years?|yrs?)\s+(?:of\s+)?([a-zA-Z][a-zA-Z0-9+#/.\s]*)?",
+        )
+        .unwrap();
 
         // Pattern 3: Level indicators - "Senior", "Mid-level", etc.
         let seniority_patterns = [
-            (r"(?i)\bsenior\b|\bsr\.\b|\blead\b|\bprincipal\b|\bstaff\b", 5.0),
+            (
+                r"(?i)\bsenior\b|\bsr\.\b|\blead\b|\bprincipal\b|\bstaff\b",
+                5.0,
+            ),
             (r"(?i)\bmid[- ]?level\b|\bintermediate\b", 3.0),
             (r"(?i)\bjunior\b|\bjr\.\b|\bentry[- ]?level\b", 0.0),
         ];
@@ -208,7 +212,11 @@ impl JobMatcher {
 
                     // Take highest degree level found
                     if best_match.is_none()
-                        || level > best_match.as_ref().map(|(l, _)| *l).unwrap_or(DegreeLevel::None)
+                        || level
+                            > best_match
+                                .as_ref()
+                                .map(|(l, _)| *l)
+                                .unwrap_or(DegreeLevel::None)
                     {
                         best_match = Some((level, fields));
                     }
@@ -295,8 +303,8 @@ impl JobMatcher {
         requirement: Option<&EducationRequirement>,
     ) -> f64 {
         match (user_education, requirement) {
-            (_, None) => 1.0,                // No requirement = full match
-            (None, Some(_)) => 0.0,          // Requirement but no user education
+            (_, None) => 1.0,       // No requirement = full match
+            (None, Some(_)) => 0.0, // Requirement but no user education
             (Some(user), Some(req)) => {
                 if user >= req.degree_level {
                     1.0 // Meets or exceeds
@@ -366,7 +374,8 @@ impl JobMatcher {
 
         // Extract and calculate experience match
         let experience_reqs = self.extract_experience_requirements(&job_text);
-        let experience_match_score = self.calculate_experience_match(&user_skills, &experience_reqs);
+        let experience_match_score =
+            self.calculate_experience_match(&user_skills, &experience_reqs);
 
         // Extract and calculate education match
         // For now, we'll try to detect user's education from their resume text
@@ -516,7 +525,11 @@ impl JobMatcher {
                 } else {
                     format!("{}+", req.min_years)
                 };
-                let required_label = if req.is_required { "required" } else { "preferred" };
+                let required_label = if req.is_required {
+                    "required"
+                } else {
+                    "preferred"
+                };
                 analysis.push_str(&format!(
                     "  • {} years {} ({})\n",
                     range, skill_label, required_label
@@ -527,7 +540,11 @@ impl JobMatcher {
 
         // Education breakdown
         if let Some(req) = education_req {
-            let required_label = if req.is_required { "required" } else { "preferred" };
+            let required_label = if req.is_required {
+                "required"
+            } else {
+                "preferred"
+            };
             analysis.push_str(&format!(
                 "🎓 Education: {} {} ({})\n",
                 req.degree_level.as_str(),

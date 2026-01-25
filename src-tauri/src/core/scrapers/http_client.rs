@@ -4,9 +4,9 @@
 //! for all job board scrapers. This improves performance by reusing
 //! connection pools instead of creating new clients per request.
 
+use crate::core::scrapers::cache;
 use anyhow::{Context, Result};
 use std::time::Duration;
-use crate::core::scrapers::cache;
 
 /// Default user agent for scraper requests
 pub const DEFAULT_USER_AGENT: &str =
@@ -137,16 +137,16 @@ const BASE_DELAY_SECS: u64 = 1;
 /// ```
 pub async fn get_with_retry(url: &str) -> Result<reqwest::Response> {
     let client = get_client();
-    
+
     for attempt in 0..=MAX_RETRIES {
         let response = client
             .get(url)
             .send()
             .await
             .context("Failed to send GET request")?;
-        
+
         let status = response.status();
-        
+
         // Success - return immediately
         if status.is_success() {
             if attempt > 0 {
@@ -158,10 +158,11 @@ pub async fn get_with_retry(url: &str) -> Result<reqwest::Response> {
             }
             return Ok(response);
         }
-        
+
         // Check if we should retry
-        let should_retry = status == reqwest::StatusCode::TOO_MANY_REQUESTS || status.is_server_error();
-        
+        let should_retry =
+            status == reqwest::StatusCode::TOO_MANY_REQUESTS || status.is_server_error();
+
         if !should_retry || attempt == MAX_RETRIES {
             // Don't retry, or exhausted retries
             return Err(anyhow::anyhow!(
@@ -171,10 +172,10 @@ pub async fn get_with_retry(url: &str) -> Result<reqwest::Response> {
                 url
             ));
         }
-        
+
         // Calculate backoff delay
         let delay = calculate_backoff_delay(&response, attempt);
-        
+
         tracing::warn!(
             "Request failed with HTTP {} (attempt {}/{}), retrying after {}s: {}",
             status,
@@ -183,10 +184,10 @@ pub async fn get_with_retry(url: &str) -> Result<reqwest::Response> {
             delay.as_secs(),
             url
         );
-        
+
         tokio::time::sleep(delay).await;
     }
-    
+
     // Unreachable, but satisfy the compiler
     Err(anyhow::anyhow!("Retry logic error"))
 }
@@ -218,15 +219,18 @@ pub async fn get_with_cache(url: &str) -> Result<String> {
         tracing::debug!("Returning cached response for: {}", url);
         return Ok(cached_body);
     }
-    
+
     // Cache miss - make the request
     tracing::debug!("Cache miss, fetching: {}", url);
     let response = get_with_retry(url).await?;
-    let body = response.text().await.context("Failed to read response body")?;
-    
+    let body = response
+        .text()
+        .await
+        .context("Failed to read response body")?;
+
     // Cache the successful response
     cache::set_cached(url, body.clone()).await;
-    
+
     Ok(body)
 }
 
@@ -264,16 +268,19 @@ pub async fn get_with_retry_cached(url: &str, use_cache: bool) -> Result<String>
             return Ok(cached_body);
         }
     }
-    
+
     // Make the actual request
     let response = get_with_retry(url).await?;
-    let body = response.text().await.context("Failed to read response body")?;
-    
+    let body = response
+        .text()
+        .await
+        .context("Failed to read response body")?;
+
     // Cache successful responses if caching is enabled
     if use_cache {
         cache::set_cached(url, body.clone()).await;
     }
-    
+
     Ok(body)
 }
 
@@ -308,7 +315,7 @@ pub async fn post_with_retry<T: serde::Serialize + Clone>(
     body: T,
 ) -> Result<reqwest::Response> {
     let client = get_client();
-    
+
     for attempt in 0..=MAX_RETRIES {
         let response = client
             .post(url)
@@ -316,9 +323,9 @@ pub async fn post_with_retry<T: serde::Serialize + Clone>(
             .send()
             .await
             .context("Failed to send POST request")?;
-        
+
         let status = response.status();
-        
+
         // Success - return immediately
         if status.is_success() {
             if attempt > 0 {
@@ -330,10 +337,11 @@ pub async fn post_with_retry<T: serde::Serialize + Clone>(
             }
             return Ok(response);
         }
-        
+
         // Check if we should retry
-        let should_retry = status == reqwest::StatusCode::TOO_MANY_REQUESTS || status.is_server_error();
-        
+        let should_retry =
+            status == reqwest::StatusCode::TOO_MANY_REQUESTS || status.is_server_error();
+
         if !should_retry || attempt == MAX_RETRIES {
             // Don't retry, or exhausted retries
             return Err(anyhow::anyhow!(
@@ -343,10 +351,10 @@ pub async fn post_with_retry<T: serde::Serialize + Clone>(
                 url
             ));
         }
-        
+
         // Calculate backoff delay
         let delay = calculate_backoff_delay(&response, attempt);
-        
+
         tracing::warn!(
             "Request failed with HTTP {} (attempt {}/{}), retrying after {}s: {}",
             status,
@@ -355,10 +363,10 @@ pub async fn post_with_retry<T: serde::Serialize + Clone>(
             delay.as_secs(),
             url
         );
-        
+
         tokio::time::sleep(delay).await;
     }
-    
+
     // Unreachable, but satisfy the compiler
     Err(anyhow::anyhow!("Retry logic error"))
 }
@@ -388,7 +396,7 @@ fn calculate_backoff_delay(response: &reqwest::Response, attempt: u32) -> Durati
             // Could also parse HTTP date format here, but most rate limiters use seconds
         }
     }
-    
+
     // Exponential backoff: 2^attempt * BASE_DELAY_SECS
     // attempt 0: 1s, attempt 1: 2s, attempt 2: 4s, attempt 3: 8s
     let delay_secs = BASE_DELAY_SECS * 2_u64.pow(attempt);
@@ -569,11 +577,11 @@ mod tests {
         cache::clear_cache().await;
         let stats_before = cache::cache_stats().await;
         let misses_before = stats_before.misses;
-        
+
         // This should result in a cache miss and fetch from network
         let result = get_with_cache("https://httpbin.org/status/200").await;
         assert!(result.is_ok());
-        
+
         let stats = cache::cache_stats().await;
         // At least one new miss should have occurred
         assert!(stats.misses > misses_before);
@@ -583,19 +591,19 @@ mod tests {
     #[ignore = "requires network access - may fail in CI or offline environments"]
     async fn test_get_with_cache_hit() {
         cache::clear_cache().await;
-        
+
         let url = "https://httpbin.org/uuid";
         let stats_before = cache::cache_stats().await;
         let hits_before = stats_before.hits;
-        
+
         // First request - cache miss
         let body1 = get_with_cache(url).await.unwrap();
-        
+
         // Second request - should hit cache and return same body
         let body2 = get_with_cache(url).await.unwrap();
-        
+
         assert_eq!(body1, body2);
-        
+
         let stats = cache::cache_stats().await;
         // At least one new hit should have occurred
         assert!(stats.hits > hits_before);
@@ -605,25 +613,24 @@ mod tests {
     #[ignore = "requires network access - may fail in CI or offline environments"]
     async fn test_cache_reduces_requests() {
         cache::clear_cache().await;
-        
+
         let url = "https://httpbin.org/uuid";
-        
+
         // Make 5 requests to the same URL
         let mut responses = Vec::new();
         for _ in 0..5 {
             let body = get_with_cache(url).await.unwrap();
             responses.push(body);
         }
-        
+
         // All responses should be identical (from cache)
         for response in &responses[1..] {
             assert_eq!(&responses[0], response);
         }
-        
+
         let stats = cache::cache_stats().await;
         // 1 miss on first request, 4 hits on subsequent requests
         assert_eq!(stats.misses, 1);
         assert_eq!(stats.hits, 4);
     }
 }
-

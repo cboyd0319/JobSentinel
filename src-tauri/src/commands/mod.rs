@@ -65,23 +65,21 @@ pub use ats::{
 
 // Resume commands
 pub use resume::{
-    // Skill management commands (Phase 1)
-    add_user_skill,
-    delete_user_skill,
-    update_user_skill,
-    // Resume library commands (Phase 2)
-    delete_resume,
-    list_all_resumes,
     // Builder commands
     add_resume_education,
     add_resume_experience,
+    // Skill management commands (Phase 1)
+    add_user_skill,
     // ATS analysis commands
     analyze_resume_for_job,
     analyze_resume_format,
     create_resume_draft,
+    // Resume library commands (Phase 2)
+    delete_resume,
     delete_resume_draft,
     delete_resume_education,
     delete_resume_experience,
+    delete_user_skill,
     // Export commands
     export_resume_docx,
     export_resume_text,
@@ -94,6 +92,7 @@ pub use resume::{
     get_resume_draft,
     get_user_skills,
     improve_bullet_point,
+    list_all_resumes,
     // Template commands
     list_resume_templates,
     match_resume_to_job,
@@ -103,6 +102,7 @@ pub use resume::{
     set_resume_skills,
     update_resume_contact,
     update_resume_summary,
+    update_user_skill,
     upload_resume,
 };
 

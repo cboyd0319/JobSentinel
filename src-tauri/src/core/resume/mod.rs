@@ -79,10 +79,9 @@ pub use templates::{
 
 // Re-export core types
 pub use types::{
-    ContactInfo as AtsContactInfo, DegreeLevel, Education as AtsEducation,
-    EducationRequirement, Experience as AtsExperience, ExperienceRequirement, JobSkill,
-    MatchResult, MatchResultWithJob, NewSkill, Resume, ResumeData as AtsResumeData, Skill,
-    SkillUpdate, UserSkill,
+    ContactInfo as AtsContactInfo, DegreeLevel, Education as AtsEducation, EducationRequirement,
+    Experience as AtsExperience, ExperienceRequirement, JobSkill, MatchResult, MatchResultWithJob,
+    NewSkill, Resume, ResumeData as AtsResumeData, Skill, SkillUpdate, UserSkill,
 };
 
 /// Main resume matcher service
@@ -560,11 +559,7 @@ impl ResumeMatcher {
     }
 
     /// Add a new skill manually
-    pub async fn add_user_skill(
-        &self,
-        resume_id: i64,
-        skill: types::NewSkill,
-    ) -> Result<i64> {
+    pub async fn add_user_skill(&self, resume_id: i64, skill: types::NewSkill) -> Result<i64> {
         let result = sqlx::query(
             r#"
             INSERT INTO user_skills (

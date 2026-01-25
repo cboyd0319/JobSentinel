@@ -215,17 +215,64 @@ static PROMOTIONAL_PATTERNS: LazyLock<Vec<Regex>> = LazyLock::new(|| {
 static SUBSTANCE_KEYWORDS: LazyLock<Vec<&'static str>> = LazyLock::new(|| {
     vec![
         // Technical terms
-        "api", "database", "server", "client", "architecture", "design", "implement",
-        "build", "develop", "test", "deploy", "maintain", "debug", "optimize",
-        "integrate", "scale", "monitor", "automate", "document", "review",
+        "api",
+        "database",
+        "server",
+        "client",
+        "architecture",
+        "design",
+        "implement",
+        "build",
+        "develop",
+        "test",
+        "deploy",
+        "maintain",
+        "debug",
+        "optimize",
+        "integrate",
+        "scale",
+        "monitor",
+        "automate",
+        "document",
+        "review",
         // Specific technologies (sampled - these indicate real requirements)
-        "python", "java", "javascript", "typescript", "rust", "go", "sql",
-        "react", "angular", "vue", "node", "docker", "kubernetes", "aws",
-        "azure", "gcp", "linux", "git", "ci/cd", "agile", "scrum",
+        "python",
+        "java",
+        "javascript",
+        "typescript",
+        "rust",
+        "go",
+        "sql",
+        "react",
+        "angular",
+        "vue",
+        "node",
+        "docker",
+        "kubernetes",
+        "aws",
+        "azure",
+        "gcp",
+        "linux",
+        "git",
+        "ci/cd",
+        "agile",
+        "scrum",
         // Business substance
-        "revenue", "customers", "users", "stakeholders", "deliverables",
-        "deadline", "milestone", "sprint", "roadmap", "specification",
-        "requirement", "analysis", "report", "metrics", "kpi",
+        "revenue",
+        "customers",
+        "users",
+        "stakeholders",
+        "deliverables",
+        "deadline",
+        "milestone",
+        "sprint",
+        "roadmap",
+        "specification",
+        "requirement",
+        "analysis",
+        "report",
+        "metrics",
+        "kpi",
     ]
 });
 
@@ -233,15 +280,39 @@ static SUBSTANCE_KEYWORDS: LazyLock<Vec<&'static str>> = LazyLock::new(|| {
 static FLUFF_KEYWORDS: LazyLock<Vec<&'static str>> = LazyLock::new(|| {
     vec![
         // Generic positivity
-        "exciting", "amazing", "incredible", "wonderful", "fantastic",
-        "thrilling", "dynamic", "vibrant", "energetic", "passionate",
+        "exciting",
+        "amazing",
+        "incredible",
+        "wonderful",
+        "fantastic",
+        "thrilling",
+        "dynamic",
+        "vibrant",
+        "energetic",
+        "passionate",
         // Empty promises
-        "competitive", "attractive", "generous", "excellent", "outstanding",
-        "exceptional", "world-class", "best-in-class", "top-tier",
+        "competitive",
+        "attractive",
+        "generous",
+        "excellent",
+        "outstanding",
+        "exceptional",
+        "world-class",
+        "best-in-class",
+        "top-tier",
         // Meaningless descriptors
-        "synergy", "leverage", "optimize", "maximize", "streamline",
-        "holistic", "innovative", "cutting-edge", "state-of-the-art",
-        "next-generation", "game-changing", "disruptive",
+        "synergy",
+        "leverage",
+        "optimize",
+        "maximize",
+        "streamline",
+        "holistic",
+        "innovative",
+        "cutting-edge",
+        "state-of-the-art",
+        "next-generation",
+        "game-changing",
+        "disruptive",
     ]
 });
 
@@ -709,7 +780,10 @@ impl GhostDetector {
             let weight = 0.1 * (promotional_count.min(4) as f64 / 4.0);
             base_analysis.reasons.push(GhostReason {
                 category: GhostCategory::Generic,
-                description: format!("Overly promotional language ({} patterns)", promotional_count),
+                description: format!(
+                    "Overly promotional language ({} patterns)",
+                    promotional_count
+                ),
                 weight,
                 severity: if promotional_count >= 3 {
                     Severity::Medium
@@ -1178,7 +1252,10 @@ mod tests {
 
         // Should detect urgency patterns
         assert!(
-            analysis.reasons.iter().any(|r| r.description.contains("urgency")),
+            analysis
+                .reasons
+                .iter()
+                .any(|r| r.description.contains("urgency")),
             "Should detect urgency patterns"
         );
     }
@@ -1206,7 +1283,10 @@ mod tests {
 
         // Should detect promotional language
         assert!(
-            analysis.reasons.iter().any(|r| r.description.contains("promotional")),
+            analysis
+                .reasons
+                .iter()
+                .any(|r| r.description.contains("promotional")),
             "Should detect overly promotional language"
         );
     }
@@ -1284,7 +1364,10 @@ mod tests {
 
         // Should match ghost templates
         assert!(
-            analysis.reasons.iter().any(|r| r.description.contains("template")),
+            analysis
+                .reasons
+                .iter()
+                .any(|r| r.description.contains("template")),
             "Should detect ghost job templates"
         );
     }

@@ -18,12 +18,20 @@ fn test_slack_webhook_credential() {
 
     // Retrieve credential
     let retrieved = CredentialStore::retrieve(CredentialKey::SlackWebhook);
-    assert!(retrieved.is_ok(), "Failed to retrieve credential: {:?}", retrieved);
+    assert!(
+        retrieved.is_ok(),
+        "Failed to retrieve credential: {:?}",
+        retrieved
+    );
     assert_eq!(retrieved.unwrap(), Some(test_value.to_string()));
 
     // Clean up
     let delete_result = CredentialStore::delete(CredentialKey::SlackWebhook);
-    assert!(delete_result.is_ok(), "Failed to delete credential: {:?}", delete_result);
+    assert!(
+        delete_result.is_ok(),
+        "Failed to delete credential: {:?}",
+        delete_result
+    );
 
     // Verify deleted
     let after_delete = CredentialStore::retrieve(CredentialKey::SlackWebhook);
@@ -38,7 +46,11 @@ fn test_discord_webhook_credential() {
     let test_value = "https://discord.com/api/webhooks/test/token123";
 
     let result = CredentialStore::store(CredentialKey::DiscordWebhook, test_value);
-    assert!(result.is_ok(), "Failed to store Discord webhook: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Failed to store Discord webhook: {:?}",
+        result
+    );
 
     let retrieved = CredentialStore::retrieve(CredentialKey::DiscordWebhook);
     assert!(retrieved.is_ok());
@@ -54,7 +66,11 @@ fn test_teams_webhook_credential() {
     let test_value = "https://outlook.office.com/webhook/test/IncomingWebhook/abc123";
 
     let result = CredentialStore::store(CredentialKey::TeamsWebhook, test_value);
-    assert!(result.is_ok(), "Failed to store Teams webhook: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Failed to store Teams webhook: {:?}",
+        result
+    );
 
     let retrieved = CredentialStore::retrieve(CredentialKey::TeamsWebhook);
     assert!(retrieved.is_ok());
@@ -70,7 +86,11 @@ fn test_telegram_bot_token_credential() {
     let test_value = "123456789:ABCdefGHIjklMNOpqrsTUVwxyz";
 
     let result = CredentialStore::store(CredentialKey::TelegramBotToken, test_value);
-    assert!(result.is_ok(), "Failed to store Telegram token: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Failed to store Telegram token: {:?}",
+        result
+    );
 
     let retrieved = CredentialStore::retrieve(CredentialKey::TelegramBotToken);
     assert!(retrieved.is_ok());
@@ -87,7 +107,11 @@ fn test_linkedin_cookie_credential() {
     let test_value = "AQEDAQRlbmNyeXB0ZWQtdGVzdC1jb29raWUtdmFsdWU";
 
     let result = CredentialStore::store(CredentialKey::LinkedInCookie, test_value);
-    assert!(result.is_ok(), "Failed to store LinkedIn cookie: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Failed to store LinkedIn cookie: {:?}",
+        result
+    );
 
     let retrieved = CredentialStore::retrieve(CredentialKey::LinkedInCookie);
     assert!(retrieved.is_ok());
@@ -104,7 +128,11 @@ fn test_usajobs_api_key_credential() {
     let test_value = "xABC123defGHI456jklMNO789pqrSTU";
 
     let result = CredentialStore::store(CredentialKey::UsaJobsApiKey, test_value);
-    assert!(result.is_ok(), "Failed to store USAJobs API key: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Failed to store USAJobs API key: {:?}",
+        result
+    );
 
     let retrieved = CredentialStore::retrieve(CredentialKey::UsaJobsApiKey);
     assert!(retrieved.is_ok());

@@ -297,8 +297,8 @@ pub async fn run_scrapers(config: &Arc<Config>) -> (Vec<Job>, Vec<String>) {
                 }
                 if config.usajobs.pay_grade_min.is_some() || config.usajobs.pay_grade_max.is_some()
                 {
-                    scraper =
-                        scraper.with_pay_grade(config.usajobs.pay_grade_min, config.usajobs.pay_grade_max);
+                    scraper = scraper
+                        .with_pay_grade(config.usajobs.pay_grade_min, config.usajobs.pay_grade_max);
                 }
                 scraper = scraper
                     .posted_within_days(config.usajobs.date_posted_days)

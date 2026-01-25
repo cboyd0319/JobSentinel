@@ -37,7 +37,10 @@ impl BuiltInScraper {
 
     /// Legacy constructor for backwards compatibility
     /// City parameter is ignored - BuiltIn no longer supports city-specific URLs
-    #[deprecated(since = "2.6.0", note = "Use new(remote_only, limit) instead. City parameter is ignored.")]
+    #[deprecated(
+        since = "2.6.0",
+        note = "Use new(remote_only, limit) instead. City parameter is ignored."
+    )]
     pub fn new_legacy(city: String, category: Option<String>, limit: usize) -> Self {
         let _ = city; // Ignored - BuiltIn changed URL structure
         let _ = category; // Ignored
@@ -171,9 +174,7 @@ impl BuiltInScraper {
                         // Create a mini-document from the parent HTML
                         let parent_html = grandparent
                             .children()
-                            .filter_map(|c| {
-                                scraper::ElementRef::wrap(c).map(|e| e.html())
-                            })
+                            .filter_map(|c| scraper::ElementRef::wrap(c).map(|e| e.html()))
                             .collect::<String>();
                         let parent_doc = Html::parse_fragment(&parent_html);
 
@@ -358,7 +359,10 @@ mod tests {
 
         assert_eq!(jobs.len(), 2);
         assert_eq!(jobs[0].title, "Senior Rust Engineer");
-        assert_eq!(jobs[0].url, "https://builtin.com/job/senior-rust-engineer/123");
+        assert_eq!(
+            jobs[0].url,
+            "https://builtin.com/job/senior-rust-engineer/123"
+        );
         assert_eq!(jobs[0].source, "builtin");
         assert_eq!(jobs[1].title, "Frontend Developer");
     }
@@ -469,7 +473,11 @@ mod tests {
         let jobs = scraper.parse_html(html).expect("parse_html should succeed");
 
         assert_eq!(jobs.len(), 1);
-        assert_eq!(jobs[0].remote, Some(true), "remote_only flag should set remote=true");
+        assert_eq!(
+            jobs[0].remote,
+            Some(true),
+            "remote_only flag should set remote=true"
+        );
     }
 
     #[test]
@@ -542,7 +550,10 @@ mod tests {
             "https://builtin.com/job/123",
         );
 
-        assert_eq!(hash1, hash2, "Hashes with None location should be deterministic");
+        assert_eq!(
+            hash1, hash2,
+            "Hashes with None location should be deterministic"
+        );
         assert_eq!(hash1.len(), 64, "SHA-256 hash should be 64 hex chars");
     }
 
@@ -561,7 +572,10 @@ mod tests {
             "https://builtin.com/job/123",
         );
 
-        assert_ne!(hash_with_loc, hash_without_loc, "Location should affect hash value");
+        assert_ne!(
+            hash_with_loc, hash_without_loc,
+            "Location should affect hash value"
+        );
     }
 
     #[test]
@@ -632,8 +646,14 @@ mod tests {
             "https://builtin.com/job/1",
         );
 
-        assert_ne!(hash1, hash2, "Different company should produce different hash");
-        assert_ne!(hash1, hash3, "Different title should produce different hash");
+        assert_ne!(
+            hash1, hash2,
+            "Different company should produce different hash"
+        );
+        assert_ne!(
+            hash1, hash3,
+            "Different title should produce different hash"
+        );
     }
 
     #[test]

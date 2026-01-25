@@ -75,7 +75,9 @@ impl CredentialKey {
             "discord_webhook" | "jobsentinel_discord_webhook" => Some(Self::DiscordWebhook),
             "teams_webhook" | "jobsentinel_teams_webhook" => Some(Self::TeamsWebhook),
             "linkedin_cookie" | "jobsentinel_linkedin_cookie" => Some(Self::LinkedInCookie),
-            "linkedin_cookie_expiry" | "jobsentinel_linkedin_cookie_expiry" => Some(Self::LinkedInCookieExpiry),
+            "linkedin_cookie_expiry" | "jobsentinel_linkedin_cookie_expiry" => {
+                Some(Self::LinkedInCookieExpiry)
+            }
             "usajobs_api_key" | "jobsentinel_usajobs_api_key" => Some(Self::UsaJobsApiKey),
             _ => None,
         }

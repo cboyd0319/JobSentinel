@@ -133,7 +133,7 @@ impl ResumeExporter {
     pub fn export_html(resume: &ResumeData, template: TemplateId) -> String {
         // Convert export types to template types
         let template_resume = convert_to_template_resume(resume);
-        
+
         // Use existing template renderer for HTML generation
         crate::core::resume::templates::TemplateRenderer::render_html(
             &template_resume,
@@ -380,7 +380,7 @@ fn convert_template_id(template: TemplateId) -> crate::core::resume::templates::
 /// Convert export ResumeData to templates ResumeData
 fn convert_to_template_resume(resume: &ResumeData) -> crate::core::resume::templates::ResumeData {
     use crate::core::resume::templates;
-    
+
     templates::ResumeData {
         contact: templates::ContactInfo {
             name: resume.personal.full_name.clone(),
@@ -412,7 +412,11 @@ fn convert_to_template_resume(resume: &ResumeData) -> crate::core::resume::templ
                 location: None,
                 graduation_date: Some(edu.graduation_year.clone()),
                 gpa: edu.gpa.map(|g| format!("{:.2}", g)),
-                honors: edu.honors.as_ref().map(|h| vec![h.clone()]).unwrap_or_default(),
+                honors: edu
+                    .honors
+                    .as_ref()
+                    .map(|h| vec![h.clone()])
+                    .unwrap_or_default(),
             })
             .collect(),
         skills: resume

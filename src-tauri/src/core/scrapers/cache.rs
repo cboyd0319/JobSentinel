@@ -9,10 +9,10 @@
 //! - Hit/miss statistics tracking
 //! - Automatic expiration on read
 
+use once_cell::sync::Lazy;
 use std::collections::HashMap;
 use std::time::{Duration, SystemTime};
 use tokio::sync::RwLock;
-use once_cell::sync::Lazy;
 
 /// Default cache duration: 5 minutes
 const DEFAULT_CACHE_DURATION_SECS: u64 = 300;
@@ -32,7 +32,7 @@ impl CacheEntry {
             cached_at: SystemTime::now(),
         }
     }
-    
+
     /// Check if this entry is still fresh based on the given duration
     fn is_fresh(&self, duration: Duration) -> bool {
         SystemTime::now()
@@ -79,7 +79,7 @@ impl ResponseCache {
             misses: 0,
         }
     }
-    
+
     /// Get cached response if it exists and is fresh
     fn get(&mut self, url: &str) -> Option<String> {
         if let Some(entry) = self.cache.get(url) {
@@ -93,18 +93,22 @@ impl ResponseCache {
                 self.cache.remove(url);
             }
         }
-        
+
         self.misses += 1;
         tracing::debug!("Cache MISS for URL: {}", url);
         None
     }
-    
+
     /// Store response in cache
     fn set(&mut self, url: String, body: String) {
         self.cache.insert(url.clone(), CacheEntry::new(body));
-        tracing::debug!("Cached response for URL: {} (total entries: {})", url, self.cache.len());
+        tracing::debug!(
+            "Cached response for URL: {} (total entries: {})",
+            url,
+            self.cache.len()
+        );
     }
-    
+
     /// Clear all cached entries
     fn clear(&mut self) {
         let count = self.cache.len();
@@ -113,7 +117,7 @@ impl ResponseCache {
         self.misses = 0;
         tracing::info!("Cleared {} cached entries and reset stats", count);
     }
-    
+
     /// Get cache statistics
     fn stats(&self) -> CacheStats {
         CacheStats {
@@ -122,7 +126,7 @@ impl ResponseCache {
             entries: self.cache.len(),
         }
     }
-    
+
     /// Set cache duration
     fn set_duration(&mut self, duration: Duration) {
         self.duration = duration;
@@ -234,10 +238,10 @@ mod tests {
     #[tokio::test]
     async fn test_cache_miss() {
         clear_cache().await;
-        
+
         let result = get_cached("https://example.com/test1").await;
         assert!(result.is_none());
-        
+
         let stats = cache_stats().await;
         assert_eq!(stats.misses, 1);
         assert_eq!(stats.hits, 0);
@@ -246,17 +250,17 @@ mod tests {
     #[tokio::test]
     async fn test_cache_hit() {
         clear_cache().await;
-        
+
         let url = "https://example.com/test2";
         let body = "test response".to_string();
-        
+
         // Cache the response
         set_cached(url, body.clone()).await;
-        
+
         // Retrieve it
         let result = get_cached(url).await;
         assert_eq!(result, Some(body));
-        
+
         let stats = cache_stats().await;
         assert_eq!(stats.hits, 1);
         assert_eq!(stats.entries, 1);
@@ -265,25 +269,25 @@ mod tests {
     #[tokio::test]
     async fn test_cache_expiration() {
         clear_cache().await;
-        
+
         // Set very short cache duration
         set_cache_duration(Duration::from_millis(100)).await;
-        
+
         let url = "https://example.com/test3";
         let body = "test response".to_string();
-        
+
         // Cache the response
         set_cached(url, body).await;
-        
+
         // Should hit immediately
         assert!(get_cached(url).await.is_some());
-        
+
         // Wait for expiration
         sleep(Duration::from_millis(150)).await;
-        
+
         // Should miss now
         assert!(get_cached(url).await.is_none());
-        
+
         // Reset to default duration for other tests
         set_cache_duration(Duration::from_secs(DEFAULT_CACHE_DURATION_SECS)).await;
     }
@@ -291,18 +295,18 @@ mod tests {
     #[tokio::test]
     async fn test_clear_cache() {
         clear_cache().await;
-        
+
         // Add multiple entries
         set_cached("https://example.com/test4", "body1".to_string()).await;
         set_cached("https://example.com/test5", "body2".to_string()).await;
         set_cached("https://example.com/test6", "body3".to_string()).await;
-        
+
         let stats = cache_stats().await;
         assert_eq!(stats.entries, 3);
-        
+
         // Clear cache
         clear_cache().await;
-        
+
         let stats = cache_stats().await;
         assert_eq!(stats.entries, 0);
         assert_eq!(stats.hits, 0);
@@ -312,18 +316,18 @@ mod tests {
     #[tokio::test]
     async fn test_cache_stats_hit_rate() {
         clear_cache().await;
-        
+
         let url = "https://example.com/test7";
         set_cached(url, "body".to_string()).await;
-        
+
         // 3 hits
         get_cached(url).await;
         get_cached(url).await;
         get_cached(url).await;
-        
+
         // 1 miss
         get_cached("https://example.com/notcached").await;
-        
+
         let stats = cache_stats().await;
         assert_eq!(stats.hits, 3);
         assert_eq!(stats.misses, 1);
@@ -333,13 +337,13 @@ mod tests {
     #[tokio::test]
     async fn test_cache_overwrite() {
         clear_cache().await;
-        
+
         let url = "https://example.com/test8";
-        
+
         // Cache first value
         set_cached(url, "first".to_string()).await;
         assert_eq!(get_cached(url).await, Some("first".to_string()));
-        
+
         // Overwrite with second value
         set_cached(url, "second".to_string()).await;
         assert_eq!(get_cached(url).await, Some("second".to_string()));
@@ -348,16 +352,16 @@ mod tests {
     #[tokio::test]
     async fn test_multiple_urls() {
         clear_cache().await;
-        
+
         let url1 = "https://example.com/test9";
         let url2 = "https://example.com/test10";
-        
+
         set_cached(url1, "body1".to_string()).await;
         set_cached(url2, "body2".to_string()).await;
-        
+
         assert_eq!(get_cached(url1).await, Some("body1".to_string()));
         assert_eq!(get_cached(url2).await, Some("body2".to_string()));
-        
+
         let stats = cache_stats().await;
         assert_eq!(stats.entries, 2);
     }

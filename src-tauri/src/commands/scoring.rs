@@ -3,7 +3,9 @@
 //! Commands for managing user-configurable scoring weights.
 
 use crate::commands::AppState;
-use crate::core::scoring::{load_scoring_config, reset_scoring_config, save_scoring_config, ScoringConfig};
+use crate::core::scoring::{
+    load_scoring_config, reset_scoring_config, save_scoring_config, ScoringConfig,
+};
 use tauri::State;
 
 /// Get current scoring configuration

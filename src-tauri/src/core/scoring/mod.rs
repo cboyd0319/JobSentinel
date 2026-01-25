@@ -23,19 +23,32 @@ use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tracing::debug;
 
-
 /// Normalize company name for fuzzy matching
 /// Strips common suffixes, extra whitespace, and converts to lowercase
 pub(crate) fn normalize_company_name(name: &str) -> String {
     // First normalize whitespace and lowercase
     let normalized = name.to_lowercase().trim().to_string();
     let suffixes = [
-        " inc", " inc.", " incorporated",
-        " llc", " llc.", " l.l.c", " l.l.c.",
-        " ltd", " ltd.", " limited",
-        " corp", " corp.", " corporation",
-        " co", " co.", " company",
-        " plc", " plc.", " gmbh", " ag",
+        " inc",
+        " inc.",
+        " incorporated",
+        " llc",
+        " llc.",
+        " l.l.c",
+        " l.l.c.",
+        " ltd",
+        " ltd.",
+        " limited",
+        " corp",
+        " corp.",
+        " corporation",
+        " co",
+        " co.",
+        " company",
+        " plc",
+        " plc.",
+        " gmbh",
+        " ag",
     ];
     // Normalize internal whitespace before suffix check
     let mut result: String = normalized.split_whitespace().collect::<Vec<_>>().join(" ");
@@ -585,7 +598,6 @@ impl ScoringEngine {
 
         (max_score * multiplier, reasons)
     }
-
 
     /// Score location match (20% weight)
     fn score_location(&self, job: &Job) -> (f64, Vec<String>) {
@@ -1635,10 +1647,7 @@ mod tests {
         );
 
         // Check that the reason mentions the range
-        assert!(score
-            .reasons
-            .iter()
-            .any(|r| r.contains("Salary range")));
+        assert!(score.reasons.iter().any(|r| r.contains("Salary range")));
     }
 
     #[test]
@@ -1658,10 +1667,7 @@ mod tests {
         );
 
         // Check that the reason mentions "minimum only"
-        assert!(score
-            .reasons
-            .iter()
-            .any(|r| r.contains("minimum only")));
+        assert!(score.reasons.iter().any(|r| r.contains("minimum only")));
     }
 
     #[test]
@@ -1681,10 +1687,7 @@ mod tests {
         );
 
         // Check that the reason mentions "maximum only"
-        assert!(score
-            .reasons
-            .iter()
-            .any(|r| r.contains("maximum only")));
+        assert!(score.reasons.iter().any(|r| r.contains("maximum only")));
     }
 
     #[test]
@@ -1707,10 +1710,7 @@ mod tests {
         );
 
         // Check for the lower percentage in reason
-        assert!(score
-            .reasons
-            .iter()
-            .any(|r| r.contains("30% credit")));
+        assert!(score.reasons.iter().any(|r| r.contains("30% credit")));
     }
 
     #[test]
@@ -1975,7 +1975,10 @@ mod tests {
     fn test_fuzzy_match_company() {
         // Exact match after normalization
         assert!(fuzzy_match_company("Google LLC", "Google"));
-        assert!(fuzzy_match_company("Microsoft Corporation", "Microsoft Corp"));
+        assert!(fuzzy_match_company(
+            "Microsoft Corporation",
+            "Microsoft Corp"
+        ));
 
         // Partial match
         assert!(fuzzy_match_company("Google DeepMind", "Google"));
@@ -1997,10 +2000,7 @@ mod tests {
             "Cloudflare".to_string(),
             "Amazon".to_string(),
         ];
-        config.company_blacklist = vec![
-            "BadCorp".to_string(),
-            "WorstCompany".to_string(),
-        ];
+        config.company_blacklist = vec!["BadCorp".to_string(), "WorstCompany".to_string()];
 
         let engine = ScoringEngine::new(Arc::new(config));
 
@@ -2017,7 +2017,10 @@ mod tests {
         // Test blacklisted
         job.company = "WorstCompany LLC".to_string();
         let score = engine.score(&job);
-        assert_eq!(score.breakdown.company, 0.0, "WorstCompany should be blacklisted");
+        assert_eq!(
+            score.breakdown.company, 0.0,
+            "WorstCompany should be blacklisted"
+        );
 
         // Test neutral (use approximate comparison for floating point)
         job.company = "Microsoft".to_string();

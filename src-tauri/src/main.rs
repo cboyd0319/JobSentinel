@@ -18,11 +18,11 @@ use jobsentinel::{Config, Database};
 
 use chrono::{Duration, Utc};
 use std::sync::Arc;
-use tauri::{Emitter, Manager};
 use tauri::{
     menu::{Menu, MenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
 };
+use tauri::{Emitter, Manager};
 use tokio::sync::RwLock;
 
 fn main() {
