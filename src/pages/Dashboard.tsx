@@ -1,13 +1,13 @@
 // Dashboard - Main job search interface
 // Refactored for v1.5 modularization - uses extracted hooks and components
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useId } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/plugin-shell";
 import {
-  Button, Card, CardHeader, LoadingSpinner, JobCard, ScoreDisplay, Modal, ModalFooter,
-  ModalErrorBoundary, CompanyResearchPanel, DashboardWidgets, FocusTrap
+  Button, Card, CardHeader, JobCard, ScoreDisplay, Modal, ModalFooter,
+  ModalErrorBoundary, CompanyResearchPanel, DashboardWidgets, FocusTrap, DashboardSkeleton
 } from "../components";
 import { useToast } from "../contexts";
 import { useKeyboardNavigation } from "../hooks/useKeyboardNavigation";
@@ -56,6 +56,9 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
   // Refs
   const jobListRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null!);
+
+  // Accessibility IDs (SSR-safe)
+  const saveSearchNameId = useId();
   const cooldownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const cooldownTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -281,16 +284,9 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
     );
   }
 
-  // Loading state
+  // Loading state - use skeleton for better perceived performance
   if (loading) {
-    return (
-      <div className="min-h-screen bg-surface-50 dark:bg-surface-900 flex items-center justify-center">
-        <div className="text-center">
-          <LoadingSpinner size="lg" />
-          <p className="mt-4 text-surface-600 dark:text-surface-400">Loading dashboard...</p>
-        </div>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   // Error state
@@ -521,11 +517,11 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
             Save your current filter settings to quickly apply them later.
           </p>
           <div>
-            <label htmlFor="search-name" className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
+            <label htmlFor={saveSearchNameId} className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
               Name
             </label>
             <input
-              id="search-name"
+              id={saveSearchNameId}
               type="text"
               value={savedSearches.newSearchName}
               onChange={(e) => savedSearches.setNewSearchName(e.target.value)}
