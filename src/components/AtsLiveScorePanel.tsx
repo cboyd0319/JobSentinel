@@ -182,6 +182,7 @@ export function AtsLiveScorePanel({
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [jobDescription, setJobDescription] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [retryTrigger, setRetryTrigger] = useState(0);
 
   // Load job context from localStorage (set by ATS Optimizer)
   useEffect(() => {
@@ -283,7 +284,7 @@ export function AtsLiveScorePanel({
     }, debounceMs);
 
     return () => clearTimeout(timeoutId);
-  }, [resumeData, jobDescription, debounceMs, convertToAtsFormat]);
+  }, [resumeData, jobDescription, debounceMs, convertToAtsFormat, retryTrigger]);
 
   // Memoize tips
   const tips = useMemo(() => getStepTips(currentStep, analysis), [currentStep, analysis]);
@@ -317,10 +318,20 @@ export function AtsLiveScorePanel({
       <div className="p-4">
         {error ? (
           <div className="text-center py-4">
-            <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-            <Button size="sm" variant="ghost" className="mt-2" onClick={() => setError(null)}>
-              Dismiss
-            </Button>
+            <div className="w-10 h-10 mx-auto mb-3 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+              <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <p className="text-sm text-red-600 dark:text-red-400 mb-3">{error}</p>
+            <div className="flex gap-2 justify-center">
+              <Button size="sm" variant="ghost" onClick={() => setError(null)}>
+                Dismiss
+              </Button>
+              <Button size="sm" onClick={() => { setError(null); setRetryTrigger((n) => n + 1); }}>
+                Retry
+              </Button>
+            </div>
           </div>
         ) : analysis ? (
           <div className="space-y-4">

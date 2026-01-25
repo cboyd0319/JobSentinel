@@ -247,6 +247,7 @@ interface CoverLetterTemplatesProps {
 export function CoverLetterTemplates({ selectedJob }: CoverLetterTemplatesProps = {}) {
   const [templates, setTemplates] = useState<CoverLetterTemplate[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<CoverLetterTemplate | null>(null);
   const [isCreating, setIsCreating] = useState(false);
@@ -258,6 +259,7 @@ export function CoverLetterTemplates({ selectedJob }: CoverLetterTemplatesProps 
   const loadTemplates = useCallback(async () => {
     try {
       setLoading(true);
+      setError(null);
       // Seed default templates on first use
       try {
         await invoke<number>('seed_default_templates');
@@ -266,9 +268,11 @@ export function CoverLetterTemplates({ selectedJob }: CoverLetterTemplatesProps 
       }
       const result = await invoke<CoverLetterTemplate[]>('list_cover_letter_templates');
       setTemplates(result);
-    } catch (error) {
-      logError('Failed to load templates:', error);
-      toast.error('Failed to load templates', String(error));
+    } catch (err) {
+      logError('Failed to load templates:', err);
+      const errorMsg = String(err);
+      setError(errorMsg);
+      toast.error('Failed to load templates', errorMsg);
     } finally {
       setLoading(false);
     }
@@ -369,6 +373,29 @@ export function CoverLetterTemplates({ selectedJob }: CoverLetterTemplatesProps 
         <div className="flex items-center justify-center p-8">
           <LoadingSpinner />
           <span className="ml-2 text-surface-600 dark:text-surface-400">Loading templates...</span>
+        </div>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <div className="p-8 text-center">
+          <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+            <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <h4 className="font-medium text-surface-900 dark:text-white mb-2">
+            Failed to Load Templates
+          </h4>
+          <p className="text-sm text-surface-600 dark:text-surface-400 mb-4">
+            {error}
+          </p>
+          <Button onClick={() => loadTemplates()}>
+            Try Again
+          </Button>
         </div>
       </Card>
     );

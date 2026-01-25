@@ -117,6 +117,7 @@ export default function Market({ onBack }: MarketProps) {
   const [alerts, setAlerts] = useState<MarketAlert[]>([]);
   const [snapshot, setSnapshot] = useState<MarketSnapshot | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const toast = useToast();
 
@@ -133,6 +134,7 @@ export default function Market({ onBack }: MarketProps) {
   const fetchData = useCallback(async (signal?: AbortSignal) => {
     try {
       setLoading(true);
+      setError(null);
       const [skillsData, companiesData, locationsData, alertsData, snapshotData] = await Promise.all([
         invoke<SkillTrend[]>("get_trending_skills", { limit: 15 }),
         invoke<CompanyActivity[]>("get_active_companies", { limit: 15 }),
@@ -151,7 +153,9 @@ export default function Market({ onBack }: MarketProps) {
     } catch (err) {
       if (signal?.aborted) return;
       logError("Failed to fetch market data:", err);
-      toast.error("Failed to load market data", getErrorMessage(err));
+      const errorMsg = getErrorMessage(err);
+      setError(errorMsg);
+      toast.error("Failed to load market data", errorMsg);
     } finally {
       if (!signal?.aborted) {
         setLoading(false);
@@ -215,6 +219,36 @@ export default function Market({ onBack }: MarketProps) {
 
   if (loading) {
     return <LoadingSpinner message="Loading market intelligence..." />;
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-surface-50 dark:bg-surface-900 flex items-center justify-center p-6">
+        <Card className="dark:bg-surface-800 max-w-md w-full text-center">
+          <div className="p-2">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+              <svg className="w-8 h-8 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <h2 className="font-display text-display-sm text-surface-900 dark:text-white mb-2">
+              Failed to Load Market Data
+            </h2>
+            <p className="text-surface-600 dark:text-surface-400 mb-6">
+              {error}
+            </p>
+            <div className="flex gap-3 justify-center">
+              <Button variant="secondary" onClick={onBack}>
+                Go Back
+              </Button>
+              <Button onClick={() => fetchData()}>
+                Try Again
+              </Button>
+            </div>
+          </div>
+        </Card>
+      </div>
+    );
   }
 
   return (
