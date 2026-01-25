@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, lazy, Suspense } from "react";
+import { useEffect, useState, useCallback, lazy, Suspense, useId } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { cachedInvoke, invalidateCacheByCommand } from "../utils/api";
 import {
@@ -246,6 +246,10 @@ export default function Applications({ onBack }: ApplicationsProps) {
   const [showInterviews, setShowInterviews] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
   const toast = useToast();
+
+  // Accessibility IDs (SSR-safe)
+  const appStatusId = useId();
+  const appNotesId = useId();
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -655,11 +659,11 @@ export default function Applications({ onBack }: ApplicationsProps) {
               <p className="text-surface-600 dark:text-surface-400 mb-4">{selectedApp.company}</p>
 
               <div className="mb-4">
-                <label htmlFor="app-status" className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+                <label htmlFor={appStatusId} className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                   Status
                 </label>
                 <select
-                  id="app-status"
+                  id={appStatusId}
                   value={selectedApp.status}
                   onChange={async (e) => {
                     const newStatus = e.target.value;
@@ -684,11 +688,11 @@ export default function Applications({ onBack }: ApplicationsProps) {
               </div>
 
               <div className="mb-4">
-                <label htmlFor="app-notes" className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
+                <label htmlFor={appNotesId} className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
                   Add Notes
                 </label>
                 <textarea
-                  id="app-notes"
+                  id={appNotesId}
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Add notes about this application..."
