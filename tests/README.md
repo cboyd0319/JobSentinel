@@ -59,11 +59,11 @@ npm test
 | Type | Framework | Count | Location |
 |------|-----------|-------|----------|
 | Rust unit tests | cargo test | 2,257 | `src-tauri/src/` |
-| Frontend unit tests | Vitest | 1,780 | `src/**/*.test.tsx` |
+| Frontend unit tests | Vitest | 1,828 | `src/**/*.test.tsx` |
 | E2E (Playwright) | Playwright | 82 | `tests/e2e/playwright/` |
 | E2E (WebdriverIO) | WebdriverIO | 8 | `tests/e2e/webdriverio/` |
 
-**Total: 4,127+ tests**
+**Total: 4,175+ tests**
 
 ## Writing Tests
 

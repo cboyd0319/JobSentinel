@@ -623,11 +623,11 @@ See [docs/features/one-click-apply.md](features/one-click-apply.md) for full doc
 
 - All Rust code compiles with 0 errors
 - Clippy passes with 0 warnings (`-D warnings`)
-- **4,037 tests passing** (2,257 Rust + 1,780 Frontend), 49 ignored (require file-based database or are doc examples)
+- **4,085+ tests passing** (2,257 Rust + 1,828 Frontend), 49 ignored (require file-based database or are doc examples)
 - P3 Integration tests: 76 tests across 4 files (api_contract, scheduler, database, automation)
 - P5 Automation tests: 19 tests (12 unit + 7 integration)
 - All modules enabled and functional
-- **117 Tauri commands** for backend modules (22 Resume Builder + 18 One-Click Apply)
+- **151 Tauri commands** for backend modules (22 Resume Builder + 18 One-Click Apply)
 - 13 job board scrapers with parallel execution
 - Ghost job detection with repost tracking
 - Backend persistence for all user data (localStorage → SQLite)

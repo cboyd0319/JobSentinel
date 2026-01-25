@@ -19,7 +19,7 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.7: ML predictions, Linux suppo
 
 ## Current Status (January 2026)
 
-**Version: 2.6.0** | 4,000+ tests passing | UX Improvements + Performance + Accessibility
+**Version: 2.6.0** | 4,085+ tests passing | UX Improvements + Performance + Accessibility
 
 ### What's New in v2.6.0 ⚡
 
@@ -43,7 +43,7 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.7: ML predictions, Linux suppo
   - Tooltip: Escape key dismisses tooltips
   - Badge: Contextual remove button labels
 
-- **Test Coverage** - 4,037 tests (2,257 Rust + 1,780 Frontend)
+- **Test Coverage** - 4,085+ tests (2,257 Rust + 1,828 Frontend)
 
 - See [v2.6.0 Release Notes](releases/v2.6.0.md) for full details
 
@@ -140,7 +140,7 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.7: ML predictions, Linux suppo
 |-----------------|
 | ![One-Click Apply](images/one-click-apply.png) |
 
-### Backend Modules (144 Tauri Commands)
+### Backend Modules (151 Tauri Commands)
 
 - **Core**: config, db, scoring, scheduler, scrapers (13 with parallel scraping), notify, ghost
 - **ATS**: 10 commands (Kanban, reminders, ghosting detection, interviews)

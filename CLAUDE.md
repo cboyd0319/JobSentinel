@@ -2,11 +2,12 @@
 
 ## Project Overview
 
-**JobSentinel** is a privacy-first job search automation desktop app built with Tauri 2.x (Rust backend) and React 19 (TypeScript frontend).
+**JobSentinel** is a privacy-first job search automation desktop app built with
+Tauri 2.x (Rust backend) and React 19 (TypeScript frontend).
 
 **Current Version:** 2.6.0 (January 2026)
 **Primary Target:** Windows 11+, macOS
-**Tests:** 2,024 passing (Rust + React + E2E)
+**Tests:** 4,085+ passing (1,828 frontend + 2,257 Rust)
 
 ## Tech Stack
 
@@ -19,7 +20,7 @@
 
 ## Project Structure
 
-```
+```text
 JobSentinel/
 ├── src/                   # React frontend
 │   ├── components/        # React components
@@ -158,7 +159,7 @@ npm run test:e2e:ui      # Interactive mode
 
 ### Parallel Agent Patterns
 
-```
+```text
 # Good: Run independent tasks in parallel
 - Launch `rust-expert` for backend changes
 - Launch `typescript-expert` for frontend changes

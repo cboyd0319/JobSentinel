@@ -152,7 +152,7 @@ JobSentinel/
 │   │   │   ├── scheduler/ # Job scheduling with auto-refresh
 │   │   │   ├── scoring/   # Job scoring algorithm
 │   │   │   └── scrapers/  # 13 job board scrapers with parallel scraping
-│   │   ├── commands/      # Tauri RPC handlers (144 commands)
+│   │   ├── commands/      # Tauri RPC handlers (151 commands)
 │   │   └── platforms/     # Platform-specific code (Windows, macOS, Linux)
 │   └── migrations/        # SQLite migrations (21 migrations)
 └── docs/                  # Documentation
@@ -206,11 +206,11 @@ All core modules are enabled and functional:
 
 ### Test Status
 
-- **4,037 tests passing** (2,257 Rust + 1,780 Frontend)
+- **4,085+ tests passing** (2,257 Rust + 1,828 Frontend)
 - 49 ignored (require file-based database, Chrome, or are doc-tests)
 - Integration test files: `tests/automation_integration_test.rs`, `tests/scheduler_integration_test.rs`, etc.
 
-### Tauri Commands (144 total)
+### Tauri Commands (151 total)
 
 - Core Jobs: 14 commands (search, get, hide, bookmark, notes, stats, duplicates)
 - Config: 6 commands (save, get, validate_webhook, first_run, complete_setup, test_email)
@@ -288,7 +288,7 @@ and start proper migrations from that baseline.
 - `src-tauri/src/core/automation/mod.rs` - One-Click Apply automation manager
 - `src-tauri/src/core/automation/browser/` - Chrome DevTools Protocol automation
 - `src-tauri/src/core/credentials/mod.rs` - OS keyring credential storage
-- `src-tauri/src/commands/mod.rs` - Tauri command handlers (144 commands)
+- `src-tauri/src/commands/mod.rs` - Tauri command handlers (151 commands)
 - `src-tauri/src/commands/automation.rs` - Automation Tauri commands (18 commands)
 - `src/pages/Dashboard.tsx` - Main dashboard with search, job list, ghost filter
 - `src/pages/ApplicationProfile.tsx` - One-Click Apply settings page
