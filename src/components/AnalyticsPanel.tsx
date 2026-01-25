@@ -155,6 +155,7 @@ function getCurrentWeekApplications(weeklyData: WeeklyData[]): number {
 export function AnalyticsPanel({ onClose }: AnalyticsPanelProps) {
   const [stats, setStats] = useState<ApplicationStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<DateRange>('all');
   const [weeklyGoal, setWeeklyGoal] = useState<WeeklyGoal | null>(null);
   const [showGoalInput, setShowGoalInput] = useState(false);
@@ -186,24 +187,27 @@ export function AnalyticsPanel({ onClose }: AnalyticsPanelProps) {
     }
   };
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        // Pass date range filter if not 'all'
-        const params = dateRange !== 'all' ? { days: parseInt(dateRange) } : undefined;
-        const data = await cachedInvoke<ApplicationStats>(
-          "get_application_stats",
-          params,
-          30_000
-        );
-        setStats(data);
-      } catch (err) {
-        logError("Failed to fetch analytics:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchStats = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      // Pass date range filter if not 'all'
+      const params = dateRange !== 'all' ? { days: parseInt(dateRange) } : undefined;
+      const data = await cachedInvoke<ApplicationStats>(
+        "get_application_stats",
+        params,
+        30_000
+      );
+      setStats(data);
+    } catch (err) {
+      logError("Failed to fetch analytics:", err);
+      setError("Failed to load analytics data. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchStats();
   }, [dateRange]);
 
@@ -270,8 +274,47 @@ export function AnalyticsPanel({ onClose }: AnalyticsPanelProps) {
     );
   }
 
-  if (!stats) {
-    return null;
+  if (error || !stats) {
+    return (
+      <div
+        className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+        onClick={(e) => e.target === e.currentTarget && onClose()}
+        onKeyDown={(e) => e.key === "Escape" && onClose()}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Analytics error"
+      >
+        <Card className="w-full max-w-md dark:bg-surface-800 text-center p-8">
+          <div className="text-red-500 mb-4">
+            <svg className="w-12 h-12 mx-auto\" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold text-surface-900 dark:text-white mb-2">
+            {error || "No analytics data available"}
+          </h3>
+          <p className="text-sm text-surface-500 dark:text-surface-400 mb-6">
+            {error ? "There was a problem loading your analytics." : "Start tracking applications to see your analytics."}
+          </p>
+          <div className="flex justify-center gap-3">
+            {error && (
+              <button
+                onClick={fetchStats}
+                className="px-4 py-2 bg-sentinel-500 text-white rounded-lg hover:bg-sentinel-600 transition-colors"
+              >
+                Try Again
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              className="px-4 py-2 bg-surface-200 dark:bg-surface-700 text-surface-700 dark:text-surface-300 rounded-lg hover:bg-surface-300 dark:hover:bg-surface-600 transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </Card>
+      </div>
+    );
   }
 
   // Prepare pie chart data
