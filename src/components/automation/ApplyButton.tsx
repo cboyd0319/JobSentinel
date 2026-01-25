@@ -181,7 +181,7 @@ export const ApplyButton = memo(function ApplyButton({ job, onApplied }: ApplyBu
       }
 
       onApplied?.();
-    } catch (error) {
+    } catch (error: unknown) {
       // Check if browser is still running after error for recovery guidance
       let stillRunning = false;
       try {

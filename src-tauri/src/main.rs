@@ -280,6 +280,10 @@ fn main() {
             commands::health::run_all_smoke_tests,
             commands::health::get_linkedin_cookie_health,
             commands::health::get_expiring_credentials,
+            // Cache management commands
+            commands::cache::get_score_cache_stats,
+            commands::cache::clear_scoring_cache,
+            commands::cache::get_cache_health,
         ])
         .setup(|app| {
             // Initialize configuration

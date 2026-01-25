@@ -104,7 +104,7 @@ export const DashboardWidgets = memo(function DashboardWidgets({ className = '' 
         return [];
       });
       setSalaryRanges(salaryData);
-    } catch (error) {
+    } catch (error: unknown) {
       logError('Failed to load widget data:', error);
       setError('Failed to load analytics data');
     } finally {
@@ -339,62 +339,65 @@ export const DashboardWidgets = memo(function DashboardWidgets({ className = '' 
   );
 });
 
-function StatBox({ label, value, color }: { label: string; value: string; color: keyof typeof COLORS }) {
-  const bgColors = {
-    primary: 'bg-indigo-50 dark:bg-indigo-900/20',
-    success: 'bg-green-50 dark:bg-green-900/20',
-    warning: 'bg-amber-50 dark:bg-amber-900/20',
-    danger: 'bg-red-50 dark:bg-red-900/20',
-    info: 'bg-blue-50 dark:bg-blue-900/20',
-    surface: 'bg-surface-50 dark:bg-surface-700',
-  };
+// Extracted to top level and memoized to prevent re-creation on every render
+const bgColors = {
+  primary: 'bg-indigo-50 dark:bg-indigo-900/20',
+  success: 'bg-green-50 dark:bg-green-900/20',
+  warning: 'bg-amber-50 dark:bg-amber-900/20',
+  danger: 'bg-red-50 dark:bg-red-900/20',
+  info: 'bg-blue-50 dark:bg-blue-900/20',
+  surface: 'bg-surface-50 dark:bg-surface-700',
+} as const;
 
-  const textColors = {
-    primary: 'text-indigo-700 dark:text-indigo-300',
-    success: 'text-green-700 dark:text-green-300',
-    warning: 'text-amber-700 dark:text-amber-300',
-    danger: 'text-red-700 dark:text-red-300',
-    info: 'text-blue-700 dark:text-blue-300',
-    surface: 'text-surface-700 dark:text-surface-300',
-  };
+const textColors = {
+  primary: 'text-indigo-700 dark:text-indigo-300',
+  success: 'text-green-700 dark:text-green-300',
+  warning: 'text-amber-700 dark:text-amber-300',
+  danger: 'text-red-700 dark:text-red-300',
+  info: 'text-blue-700 dark:text-blue-300',
+  surface: 'text-surface-700 dark:text-surface-300',
+} as const;
 
+const StatBox = memo(function StatBox({ label, value, color }: { label: string; value: string; color: keyof typeof COLORS }) {
   return (
     <div className={`p-3 rounded-lg ${bgColors[color]}`}>
       <p className="text-xs text-surface-500 dark:text-surface-400 mb-1">{label}</p>
       <p className={`text-xl font-bold ${textColors[color]}`}>{value}</p>
     </div>
   );
-}
+});
+
+// Extracted to top level for better performance
+const SOURCE_NAMES: Record<string, string> = {
+  greenhouse: 'Greenhouse',
+  lever: 'Lever',
+  linkedin: 'LinkedIn',
+  indeed: 'Indeed',
+  remoteok: 'RemoteOK',
+  hn_hiring: 'HN Hiring',
+  weworkremotely: 'WWR',
+  ziprecruiter: 'ZipRecruiter',
+  builtin: 'BuiltIn',
+  dice: 'Dice',
+  wellfound: 'Wellfound',
+};
 
 function formatSourceName(source: string): string {
-  const names: Record<string, string> = {
-    greenhouse: 'Greenhouse',
-    lever: 'Lever',
-    linkedin: 'LinkedIn',
-    indeed: 'Indeed',
-    remoteok: 'RemoteOK',
-    hn_hiring: 'HN Hiring',
-    weworkremotely: 'WWR',
-    ziprecruiter: 'ZipRecruiter',
-    builtin: 'BuiltIn',
-    dice: 'Dice',
-    wellfound: 'Wellfound',
-  };
-  return names[source.toLowerCase()] || source;
+  return SOURCE_NAMES[source.toLowerCase()] || source;
 }
 
-function ChartIcon({ className = '' }: { className?: string }) {
+const ChartIcon = memo(function ChartIcon({ className = '' }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
     </svg>
   );
-}
+});
 
-function ChevronIcon({ className = '' }: { className?: string }) {
+const ChevronIcon = memo(function ChevronIcon({ className = '' }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
     </svg>
   );
-}
+});

@@ -7,11 +7,16 @@
 //! - Company: 10% (default)
 //! - Recency: 5% (default)
 
+mod cache;
 mod config;
 mod db;
 mod remote;
 mod synonyms;
 
+pub use cache::{
+    clear_score_cache, get_cached_score, invalidate_job, invalidate_resume, score_cache_stats,
+    set_cached_score, ScoreCacheKey, ScoreCacheStats,
+};
 pub use config::ScoringConfig;
 pub use db::{load_scoring_config, reset_scoring_config, save_scoring_config};
 pub use remote::{detect_remote_status, score_remote_match, RemoteStatus, UserRemotePreference};

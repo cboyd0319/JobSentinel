@@ -232,7 +232,7 @@ class ErrorReporter {
       if (stored) {
         this.errors = JSON.parse(stored);
       }
-    } catch (e) {
+    } catch (e: unknown) {
       console.warn('[ErrorReporter] Failed to load from storage:', e);
       this.errors = [];
     }
@@ -241,7 +241,7 @@ class ErrorReporter {
   private saveToStorage(): void {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(this.errors));
-    } catch (e) {
+    } catch (e: unknown) {
       console.warn('[ErrorReporter] Failed to save to storage:', e);
     }
   }
@@ -258,7 +258,7 @@ export function withErrorCapture<T extends (...args: unknown[]) => Promise<unkno
   return (async (...args: unknown[]) => {
     try {
       return await fn(...args);
-    } catch (error) {
+    } catch (error: unknown) {
       errorReporter.captureApiError(
         error instanceof Error ? error : new Error(String(error)),
         { ...context, args }

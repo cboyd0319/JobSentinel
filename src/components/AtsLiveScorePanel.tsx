@@ -255,7 +255,7 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
         }
 
         setAnalysis(result);
-      } catch (err) {
+      } catch (err: unknown) {
         logError("ATS analysis error:", err);
         setError(err instanceof Error ? err.message : "Analysis failed");
       } finally {

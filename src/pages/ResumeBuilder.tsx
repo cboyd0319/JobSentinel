@@ -180,7 +180,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
       setTemplates(templatesData);
 
       toast.success("Resume created", "Let's build your resume");
-    } catch (error) {
+    } catch (error: unknown) {
       const enhanced = error as Error & { userFriendly?: { title: string; message: string } };
       toast.error(
         enhanced.userFriendly?.title || "Resume builder unavailable",
@@ -212,7 +212,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
         setEducations(data.education);
         setSkills(data.skills);
       }
-    } catch (error) {
+    } catch (error: unknown) {
       const enhanced = error as Error & { userFriendly?: { title: string; message: string } };
       toast.error(
         enhanced.userFriendly?.title || "Couldn't load your resume",
@@ -247,7 +247,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
       }
 
       await loadResumeData();
-    } catch (error) {
+    } catch (error: unknown) {
       const enhanced = error as Error & { userFriendly?: { title: string; message: string } };
       toast.error(
         enhanced.userFriendly?.title || "Your changes weren't saved",
@@ -453,7 +453,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
 
       setSkills([...skills, ...newSkills]);
       toast.success(`Imported ${newSkills.length} skills`, "Skills added from resume");
-    } catch (error) {
+    } catch (error: unknown) {
       const enhanced = error as Error & { userFriendly?: { title: string; message: string } };
       toast.error(
         enhanced.userFriendly?.title || "Failed to import skills",
@@ -505,7 +505,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
       } catch {
         // Non-critical, don't block preview
       }
-    } catch (error) {
+    } catch (error: unknown) {
       const enhanced = error as Error & { userFriendly?: { title: string; message: string } };
       toast.error(
         enhanced.userFriendly?.title || "Failed to generate preview",
@@ -549,7 +549,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
       URL.revokeObjectURL(url);
 
       toast.success("Resume exported", "Downloaded as DOCX");
-    } catch (error) {
+    } catch (error: unknown) {
       const enhanced = error as Error & { userFriendly?: { title: string; message: string } };
       toast.error(
         enhanced.userFriendly?.title || "Export failed",
@@ -616,7 +616,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
       }
 
       toast.success("Print dialog opened", "Save as PDF using your browser's print dialog");
-    } catch (error) {
+    } catch (error: unknown) {
       const enhanced = error as Error & { userFriendly?: { title: string; message: string } };
       toast.error(
         enhanced.userFriendly?.title || "Export failed",
@@ -663,7 +663,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                 Resume Builder
               </h1>
               <p className="text-sm text-surface-600 dark:text-surface-400 mt-1">
-                Step {currentStep} of {STEPS.length}: {STEPS[currentStep - 1].name}
+                Step {currentStep} of {STEPS.length}: {STEPS[currentStep - 1]?.name ?? 'Unknown'}
               </p>
             </div>
           </div>

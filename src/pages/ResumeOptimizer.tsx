@@ -117,7 +117,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
     try {
       const words = await invoke<string[]>("get_ats_power_words");
       setPowerWords(words);
-    } catch (err) {
+    } catch (err: unknown) {
       logError("Failed to load power words:", err);
     }
   }, []);
@@ -145,7 +145,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
 
       setAnalysisResult(result);
       toast.success("Analysis complete", `Overall score: ${Math.round(result.overall_score)}%`);
-    } catch (err) {
+    } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       toast.error("Analysis failed", message);
       logError("Analysis error:", err);
@@ -171,7 +171,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
 
       setAnalysisResult(result);
       toast.success("Format analysis complete", `Format score: ${Math.round(result.format_score)}%`);
-    } catch (err) {
+    } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       toast.error("Analysis failed", message);
       logError("Format analysis error:", err);
@@ -196,7 +196,7 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
 
       setImprovedBullet(improved);
       toast.success("Bullet improved", "See the improved version below");
-    } catch (err) {
+    } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       toast.error("Improvement failed", message);
       logError("Bullet improvement error:", err);

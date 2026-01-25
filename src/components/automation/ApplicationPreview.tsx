@@ -42,7 +42,7 @@ export const ApplicationPreview = memo(function ApplicationPreview({ job, atsPla
       
       if (signal?.aborted) return;
       setProfile(data);
-    } catch (error) {
+    } catch (error: unknown) {
       if (signal?.aborted) return;
       logError("Failed to load profile for preview:", error);
     } finally {

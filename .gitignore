@@ -58,6 +58,12 @@ storybook-static
 coverage/
 playwright-report/
 test-results/
+
+# Test fixtures (not committed)
+tests/e2e/fixtures/*.pdf
+tests/e2e/fixtures/*.docx
+tests/e2e/fixtures/*.txt
+
 # Claude CLI configuration (track settings, ignore user data)
 .claude/*
 !.claude/settings.local.json

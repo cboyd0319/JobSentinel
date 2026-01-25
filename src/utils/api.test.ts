@@ -236,7 +236,7 @@ describe("api utilities", () => {
       try {
         await safeInvoke("test_cmd", { id: 1 });
         expect.fail("Should have thrown");
-      } catch (e) {
+      } catch (e: unknown) {
         const enhancedError = e as { invokeCommand?: string; invokeArgs?: unknown };
         expect(enhancedError.invokeCommand).toBe("test_cmd");
         expect(enhancedError.invokeArgs).toEqual({ id: 1 });
@@ -252,7 +252,7 @@ describe("api utilities", () => {
       try {
         await safeInvoke("cmd", undefined, { logContext: "Custom Context" });
         expect.fail("Should have thrown");
-      } catch (e) {
+      } catch (e: unknown) {
         // Error should be logged with custom context (verify it was enhanced)
         expect(e).toHaveProperty("userFriendly");
       }
@@ -267,7 +267,7 @@ describe("api utilities", () => {
       try {
         await safeInvoke("cmd", undefined, { silent: true });
         expect.fail("Should have thrown");
-      } catch (e) {
+      } catch (e: unknown) {
         // Should still throw but not log
         expect(e).toHaveProperty("userFriendly");
       }
@@ -281,7 +281,7 @@ describe("api utilities", () => {
       try {
         await safeInvoke("cmd");
         expect.fail("Should have thrown");
-      } catch (e) {
+      } catch (e: unknown) {
         expect(e).toHaveProperty("userFriendly");
       }
     });
@@ -294,7 +294,7 @@ describe("api utilities", () => {
       try {
         await safeInvoke("cmd");
         expect.fail("Should have thrown");
-      } catch (e) {
+      } catch (e: unknown) {
         expect(e).toHaveProperty("userFriendly");
       }
     });

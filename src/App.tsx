@@ -51,6 +51,7 @@ function TourStartTrigger({ shouldStart, onStarted }: { shouldStart: boolean; on
       }, 500);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [shouldStart, hasCompletedTour, startTour, onStarted]);
 
   return null;

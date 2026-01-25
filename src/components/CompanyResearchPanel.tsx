@@ -71,8 +71,10 @@ function setCachedCompany(name: string, data: CompanyInfo): void {
   // Keep cache size reasonable (max 100 companies)
   const keys = Object.keys(cache);
   if (keys.length > 100) {
-    const oldest = keys.sort((a, b) => cache[a].timestamp - cache[b].timestamp)[0];
-    delete cache[oldest];
+    const oldest = keys.sort((a, b) => (cache[a]?.timestamp ?? 0) - (cache[b]?.timestamp ?? 0))[0];
+    if (oldest) {
+      delete cache[oldest];
+    }
   }
 
   saveCache(cache);

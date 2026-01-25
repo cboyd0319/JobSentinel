@@ -111,7 +111,7 @@ export function useDashboardSavedSearches() {
       setSaveSearchModalOpen(false);
       setNewSearchName("");
       toast.success("Search saved", `"${newSearch.name}" can now be loaded anytime`);
-    } catch (error) {
+    } catch (error: unknown) {
       const enhanced = error as Error & { userFriendly?: { title: string; message: string } };
       toast.error(
         enhanced.userFriendly?.title || "Search wasn't saved",

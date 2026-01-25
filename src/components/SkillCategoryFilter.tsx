@@ -63,7 +63,8 @@ export const SkillCategoryFilter = memo(function SkillCategoryFilter({
           if (highlightedIndex === 0) {
             onChange(null);
           } else {
-            onChange(categories[highlightedIndex - 1]);
+            const category = categories[highlightedIndex - 1];
+            onChange(category ?? null);
           }
           setIsOpen(false);
         } else {

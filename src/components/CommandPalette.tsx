@@ -52,7 +52,7 @@ export const CommandPalette = memo(function CommandPalette({ commands = [] }: Co
         if (!acc[cmd.category]) {
           acc[cmd.category] = [];
         }
-        acc[cmd.category].push(cmd);
+        acc[cmd.category]!.push(cmd);
         return acc;
       },
       {} as Record<string, Command[]>
@@ -205,7 +205,7 @@ export const CommandPalette = memo(function CommandPalette({ commands = [] }: Co
                 <div className="px-4 py-2 text-xs font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider">
                   {categoryLabels[category] || category}
                 </div>
-                {groupedCommands[category].map((command) => {
+                {groupedCommands[category]?.map((command) => {
                   const currentIndex = flatIndex++;
                   const isSelected = currentIndex === selectedIndex;
                   return (

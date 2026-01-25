@@ -73,7 +73,7 @@ export function useFetchOnMount<T>(
           setData(result);
           onSuccess?.(result);
         }
-      } catch (err) {
+      } catch (err: unknown) {
         if (signal?.aborted) return;
 
         const errMsg = getErrorMessage(err);

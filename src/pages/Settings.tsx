@@ -415,7 +415,7 @@ export default function Settings({ onClose }: SettingsProps) {
         }
       }
 
-    } catch (error) {
+    } catch (error: unknown) {
       logError("Failed to load config:", error);
       const friendly = getUserFriendlyError(error);
       toast.error(friendly.title, friendly.message);
@@ -429,7 +429,7 @@ export default function Settings({ onClose }: SettingsProps) {
       setGhostConfigLoading(true);
       const config = await invoke<GhostConfig>("get_ghost_config");
       setGhostConfig(config);
-    } catch (error) {
+    } catch (error: unknown) {
       logError("Failed to load ghost config:", error);
       // Use default values if loading fails
       setGhostConfig({
@@ -504,7 +504,7 @@ export default function Settings({ onClose }: SettingsProps) {
 
       toast.success("Settings saved!", "Credentials stored securely in your system keychain");
       onClose();
-    } catch (error) {
+    } catch (error: unknown) {
       logError("Failed to save config:", error);
       const friendly = getUserFriendlyError(error);
       toast.error(friendly.title, friendly.message);
@@ -518,7 +518,7 @@ export default function Settings({ onClose }: SettingsProps) {
     try {
       exportConfigToJSON(config);
       toast.success("Config exported", "Sensitive data (passwords, tokens) excluded for security");
-    } catch (error) {
+    } catch (error: unknown) {
       logError("Failed to export config:", error);
       const friendly = getUserFriendlyError(error);
       toast.error(friendly.title, friendly.message);
@@ -536,7 +536,7 @@ export default function Settings({ onClose }: SettingsProps) {
       // So we just import the non-sensitive config settings
       setConfig(imported);
       toast.success("Config imported", "Review settings and click Save to apply. Note: Credentials must be re-entered (they are stored securely and not exported).");
-    } catch (error) {
+    } catch (error: unknown) {
       logError("Failed to import config:", error);
       toast.error("Failed to import config", "The file may be corrupted or invalid");
     }
@@ -699,7 +699,7 @@ export default function Settings({ onClose }: SettingsProps) {
       setGhostConfigLoading(true);
       await invoke("set_ghost_config", { config: ghostConfig });
       toast.success("Ghost Detection Settings Saved", "Settings will apply to new job scans");
-    } catch (error) {
+    } catch (error: unknown) {
       logError("Failed to save ghost config:", error);
       const friendly = getUserFriendlyError(error);
       toast.error(friendly.title, friendly.message);
@@ -714,7 +714,7 @@ export default function Settings({ onClose }: SettingsProps) {
       await invoke("reset_ghost_config");
       await loadGhostConfig();
       toast.success("Reset to Defaults", "Ghost detection settings have been reset");
-    } catch (error) {
+    } catch (error: unknown) {
       logError("Failed to reset ghost config:", error);
       const friendly = getUserFriendlyError(error);
       toast.error(friendly.title, friendly.message);

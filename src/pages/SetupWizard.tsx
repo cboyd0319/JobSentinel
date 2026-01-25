@@ -282,10 +282,10 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
               <SentinelIcon className="w-8 h-8 text-sentinel-600" />
             </div>
             <h1 className="font-display text-display-xl text-surface-900 mb-2">
-              {STEPS[step].title}
+              {STEPS[step]?.title ?? 'Setup'}
             </h1>
             <p className="text-surface-500">
-              {STEPS[step].description}
+              {STEPS[step]?.description ?? ''}
             </p>
           </div>
 

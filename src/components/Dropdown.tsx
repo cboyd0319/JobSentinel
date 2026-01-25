@@ -65,7 +65,7 @@ export const Dropdown = memo(function Dropdown({
         e.preventDefault();
         if (isOpen && highlightedIndex >= 0) {
           const option = options[highlightedIndex];
-          if (!option.disabled) {
+          if (option && !option.disabled) {
             onChange(option.value);
             setIsOpen(false);
           }

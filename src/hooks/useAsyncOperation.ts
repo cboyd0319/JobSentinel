@@ -82,7 +82,7 @@ export function useAsyncOperation<T, TArgs extends unknown[] = unknown[]>(
 
         onSuccess?.(result);
         return result;
-      } catch (err) {
+      } catch (err: unknown) {
         if (!isMountedRef.current) return undefined;
 
         const errMsg = getErrorMessage(err);

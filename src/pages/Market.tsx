@@ -181,7 +181,7 @@ export default function Market({ onBack }: MarketProps) {
       setAlerts(alertsData);
       setSnapshot(snapshotData);
       setLastFetched(new Date());
-    } catch (error) {
+    } catch (error: unknown) {
       if (signal?.aborted) return;
       const enhanced = error as Error & { userFriendly?: { title: string; message: string } };
       setError(enhanced.message || "Failed to load market data");

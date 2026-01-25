@@ -141,10 +141,12 @@ export function useKeyboardNavigation<T>({
               event.preventDefault();
               handled = true;
               const item = currentItems[currentIndex];
-              if (openCb) {
-                openCb(item, currentIndex);
-              } else if (selectCb) {
-                selectCb(item, currentIndex);
+              if (item) {
+                if (openCb) {
+                  openCb(item, currentIndex);
+                } else if (selectCb) {
+                  selectCb(item, currentIndex);
+                }
               }
             }
             return currentIndex;
@@ -160,7 +162,9 @@ export function useKeyboardNavigation<T>({
               event.preventDefault();
               handled = true;
               const item = currentItems[currentIndex];
-              hideCb(item, currentIndex);
+              if (item) {
+                hideCb(item, currentIndex);
+              }
               // Move selection after hide
               if (currentIndex >= currentItems.length - 1) {
                 return Math.max(0, currentItems.length - 2);
@@ -213,7 +217,9 @@ export function useKeyboardNavigation<T>({
               event.preventDefault();
               handled = true;
               const item = currentItems[currentIndex];
-              bookmarkCb(item, currentIndex);
+              if (item) {
+                bookmarkCb(item, currentIndex);
+              }
             }
             return currentIndex;
           });
@@ -227,7 +233,9 @@ export function useKeyboardNavigation<T>({
               event.preventDefault();
               handled = true;
               const item = currentItems[currentIndex];
-              notesCb(item, currentIndex);
+              if (item) {
+                notesCb(item, currentIndex);
+              }
             }
             return currentIndex;
           });
@@ -241,7 +249,9 @@ export function useKeyboardNavigation<T>({
               event.preventDefault();
               handled = true;
               const item = currentItems[currentIndex];
-              researchCb(item, currentIndex);
+              if (item) {
+                researchCb(item, currentIndex);
+              }
             }
             return currentIndex;
           });
@@ -255,7 +265,9 @@ export function useKeyboardNavigation<T>({
               event.preventDefault();
               handled = true;
               const item = currentItems[currentIndex];
-              toggleSelectCb(item, currentIndex);
+              if (item) {
+                toggleSelectCb(item, currentIndex);
+              }
             }
             return currentIndex;
           });

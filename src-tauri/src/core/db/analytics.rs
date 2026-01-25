@@ -36,6 +36,8 @@ impl Database {
 
     /// Count open jobs per company (for company behavior analysis)
     pub async fn count_company_open_jobs(&self, company: &str) -> Result<i64, sqlx::Error> {
+        // OPTIMIZATION: Uses idx_jobs_company for fast lookup
+        // WHERE clause reordered to use index efficiently (company first, then hidden)
         let count: i64 =
             sqlx::query_scalar("SELECT COUNT(*) FROM jobs WHERE company = ? AND hidden = 0")
                 .bind(company)

@@ -9,6 +9,7 @@ use async_trait::async_trait;
 pub mod builtin;
 pub mod cache;
 pub mod dice;
+pub mod error;
 pub mod glassdoor;
 pub mod greenhouse;
 pub mod hn_hiring;
@@ -26,13 +27,18 @@ pub mod usajobs;
 pub mod weworkremotely;
 pub mod yc_startup;
 
+// Re-export error types
+pub use error::{ScraperError, ScraperResult as TypedScraperResult};
+
 // NOTE: SimplyHired and Glassdoor have Cloudflare protection.
 // These scrapers attempt to use RSS/JSON-LD but may return empty if blocked.
 
 // NOTE: GovernmentJobs.com and ClearanceJobs.com explicitly prohibit scraping in their ToS.
 // We provide Deep Link Generator and Bookmarklet features instead. See docs/CLAUDE.md for details.
 
-/// Scraper result using anyhow for automatic Send + Sync
+/// Legacy scraper result using anyhow for automatic Send + Sync
+///
+/// Use `TypedScraperResult` for new code with better error context
 pub type ScraperResult = Result<Vec<Job>>;
 
 /// Job scraper trait

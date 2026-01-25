@@ -357,7 +357,7 @@ export const CoverLetterTemplates = memo(function CoverLetterTemplates({ selecte
         toast.success('Template created');
         setIsCreating(false);
       }
-    } catch (error) {
+    } catch (error: unknown) {
       logError('Failed to save template:', error);
       toast.error('Failed to save template', String(error));
     } finally {
@@ -374,7 +374,7 @@ export const CoverLetterTemplates = memo(function CoverLetterTemplates({ selecte
       } else {
         toast.error('Template not found');
       }
-    } catch (error) {
+    } catch (error: unknown) {
       logError('Failed to delete template:', error);
       toast.error('Failed to delete template', String(error));
     }

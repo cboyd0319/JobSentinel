@@ -106,7 +106,7 @@ function estimateBreakdown(_score: number, reasons: ReturnType<typeof parseScore
         const match = reasonsList.find(r => r.includes("%"));
         if (match) {
           const percentMatch = match.match(/(\d+)%/);
-          if (percentMatch) {
+          if (percentMatch?.[1]) {
             const percent = parseInt(percentMatch[1], 10) / 100;
             breakdown[key] = FACTOR_WEIGHTS[key].weight * percent;
           }
@@ -163,7 +163,7 @@ export const ScoreBreakdownModal = memo(function ScoreBreakdownModal({
       <div className="space-y-6">
         {/* Overall Score */}
         <div className="text-center pb-4 border-b border-surface-200 dark:border-surface-700">
-          <div className="text-5xl font-bold font-mono mb-2" style={{ color: scoreLabel.color.split(" ")[0].replace("text-", "") }}>
+          <div className="text-5xl font-bold font-mono mb-2" style={{ color: scoreLabel.color.split(" ")[0]?.replace("text-", "") ?? '' }}>
             {percentage}%
           </div>
           <div className={`text-lg font-semibold ${scoreLabel.color}`}>

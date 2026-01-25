@@ -139,7 +139,7 @@ export default function Resume({ onBack }: ResumeProps) {
           setSkills(skillsData);
           setRecentMatches(matchesData);
         }
-      } catch (error) {
+      } catch (error: unknown) {
         if (cancelled) return;
         const enhanced = error as Error & { userFriendly?: { title: string; message: string } };
         toast.error(
@@ -179,7 +179,7 @@ export default function Resume({ onBack }: ResumeProps) {
         setSkills(skillsData);
         setRecentMatches(matchesData);
       }
-    } catch (error) {
+    } catch (error: unknown) {
       const enhanced = error as Error & { userFriendly?: { title: string; message: string } };
       toast.error(
         enhanced.userFriendly?.title || "Failed to load resume",

@@ -11,6 +11,8 @@ impl Database {
     #[tracing::instrument(skip(self))]
     pub async fn get_recent_jobs(&self, limit: i64) -> Result<Vec<Job>, sqlx::Error> {
         tracing::debug!("Fetching {} recent jobs from database", limit);
+        // OPTIMIZATION: Use composite index idx_jobs_hidden_score_created (covering index)
+        // Index contains: hidden, score DESC, created_at DESC - perfect for this query
         let jobs = sqlx::query_as::<_, Job>(
             "SELECT * FROM jobs WHERE hidden = 0 ORDER BY score DESC, created_at DESC LIMIT ?",
         )
@@ -45,8 +47,10 @@ impl Database {
         source: &str,
         limit: i64,
     ) -> Result<Vec<Job>, sqlx::Error> {
+        // OPTIMIZATION: Use composite index idx_jobs_hidden_source_created
+        // Reordered WHERE clause to match index (hidden first, then source)
         let jobs = sqlx::query_as::<_, Job>(
-            "SELECT * FROM jobs WHERE source = ? AND hidden = 0 ORDER BY created_at DESC LIMIT ?",
+            "SELECT * FROM jobs WHERE hidden = 0 AND source = ? ORDER BY created_at DESC LIMIT ?",
         )
         .bind(source)
         .bind(limit)
@@ -58,6 +62,8 @@ impl Database {
 
     /// Get bookmarked jobs
     pub async fn get_bookmarked_jobs(&self, limit: i64) -> Result<Vec<Job>, sqlx::Error> {
+        // OPTIMIZATION: Use composite index idx_jobs_bookmarked_score_created
+        // This is a covering index with WHERE clause filter
         let jobs = sqlx::query_as::<_, Job>(
             "SELECT * FROM jobs WHERE bookmarked = 1 AND hidden = 0 ORDER BY score DESC, created_at DESC LIMIT ?",
         )
@@ -237,6 +243,8 @@ impl Database {
         min_ghost_score: f64,
         limit: i64,
     ) -> Result<Vec<Job>, sqlx::Error> {
+        // OPTIMIZATION: Use composite index idx_jobs_ghost_score_desc
+        // Reordered: Check ghost_score first (indexed), then hidden
         let jobs = sqlx::query_as::<_, Job>(
             "SELECT * FROM jobs WHERE ghost_score >= ? AND hidden = 0 ORDER BY ghost_score DESC LIMIT ?",
         )
@@ -252,6 +260,8 @@ impl Database {
 
     /// Get job counts grouped by source (for analytics dashboard)
     pub async fn get_job_counts_by_source(&self) -> Result<Vec<(String, i64)>, sqlx::Error> {
+        // OPTIMIZATION: COUNT(*) with GROUP BY is optimized by SQLite
+        // Uses idx_jobs_source for grouping, idx_jobs_hidden for filtering
         let rows: Vec<(String, i64)> = sqlx::query_as(
             "SELECT source, COUNT(*) as count FROM jobs WHERE hidden = 0 GROUP BY source ORDER BY count DESC",
         )

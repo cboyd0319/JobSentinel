@@ -9,9 +9,11 @@ pub mod integrity;
 mod analytics;
 mod connection;
 mod crud;
+pub mod error;
 mod ghost;
 mod interactions;
 mod queries;
+mod query_cache;
 mod types;
 
 // Tests
@@ -23,6 +25,12 @@ pub use types::{DuplicateGroup, GhostStatistics, Job, Statistics};
 
 // Re-export Database struct
 pub use connection::Database;
+
+// Re-export query optimization tools
+pub use query_cache::{QueryAnalyzer, QueryCache};
+
+// Re-export error types
+pub use error::{DatabaseError, DatabaseResult};
 
 // Re-export utilities
 use std::time::Duration;

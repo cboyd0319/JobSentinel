@@ -12,6 +12,7 @@ use crate::core::{config::Config, db::Database, scheduler::Scheduler};
 // Module declarations (public for Tauri macro access)
 pub mod ats;
 pub mod automation;
+pub mod cache;
 pub mod config;
 pub mod credentials;
 pub mod errors;
@@ -185,3 +186,6 @@ pub use health::{
     get_scraper_health, get_scraper_runs, run_all_smoke_tests, run_scraper_smoke_test,
     set_scraper_enabled,
 };
+
+// Cache management commands
+pub use cache::{clear_scoring_cache, get_cache_health, get_score_cache_stats};

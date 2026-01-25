@@ -1,7 +1,7 @@
 // Dashboard - Main job search interface
 // Refactored for v1.5 modularization - uses extracted hooks and components
 
-import { useEffect, useState, useCallback, useRef, useId, lazy, Suspense } from "react";
+import { useEffect, useState, useCallback, useRef, useId, lazy, Suspense, memo } from "react";
 import { listen } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/plugin-shell";
 import { Button } from "../components/Button";
@@ -118,7 +118,7 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
       } catch {
         // Config might not have auto_refresh yet, use defaults
       }
-    } catch (err) {
+    } catch (err: unknown) {
       logError("Failed to fetch dashboard data:", err);
       setError(getErrorMessage(err));
     } finally {
@@ -228,7 +228,7 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
         setCooldownSeconds(0);
         cooldownTimeoutRef.current = null;
       }, 30000);
-    } catch (err) {
+    } catch (err: unknown) {
       const enhancedError = err as Error & {
         userFriendly?: { title: string; message: string; action?: string };
       };
@@ -760,19 +760,25 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
   );
 }
 
-// Helper component for duplicate groups
-function DuplicateGroupCard({ group, onMerge }: { group: DuplicateGroup; onMerge: (primaryId: number, jobIds: number[]) => void }) {
+// Helper component for duplicate groups - memoized to prevent re-renders
+const DuplicateGroupCard = memo(function DuplicateGroupCard({
+  group,
+  onMerge
+}: {
+  group: DuplicateGroup;
+  onMerge: (primaryId: number, jobIds: number[]) => void;
+}) {
   return (
     <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-4">
       <div className="flex items-start justify-between mb-3">
         <div>
-          <h4 className="font-medium text-surface-800 dark:text-surface-200">{group.jobs[0].title}</h4>
-          <p className="text-sm text-surface-500 dark:text-surface-400">{group.jobs[0].company}</p>
+          <h4 className="font-medium text-surface-800 dark:text-surface-200">{group.jobs[0]?.title ?? 'Unknown'}</h4>
+          <p className="text-sm text-surface-500 dark:text-surface-400">{group.jobs[0]?.company ?? 'Unknown'}</p>
         </div>
         <button
           onClick={() => onMerge(group.primary_id, group.jobs.map((j) => j.id))}
           className="px-3 py-1 text-sm bg-sentinel-500 text-white rounded-lg hover:bg-sentinel-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sentinel-400 focus-visible:ring-offset-2"
-          aria-label={`Merge ${group.jobs.length} duplicate jobs for ${group.jobs[0].title}`}
+          aria-label={`Merge ${group.jobs.length} duplicate jobs for ${group.jobs[0]?.title ?? 'Unknown'}`}
         >
           Merge
         </button>
@@ -799,10 +805,10 @@ function DuplicateGroupCard({ group, onMerge }: { group: DuplicateGroup; onMerge
       </div>
     </div>
   );
-}
+});
 
-// Comparison table row component
-function CompareRow({ label, values }: { label: string; values: string[] }) {
+// Comparison table row component - memoized to prevent re-renders
+const CompareRow = memo(function CompareRow({ label, values }: { label: string; values: string[] }) {
   return (
     <tr>
       <th scope="row" className="py-2 pr-4 font-medium text-surface-700 dark:text-surface-300 whitespace-nowrap text-left">{label}</th>
@@ -811,4 +817,4 @@ function CompareRow({ label, values }: { label: string; values: string[] }) {
       ))}
     </tr>
   );
-}
+});

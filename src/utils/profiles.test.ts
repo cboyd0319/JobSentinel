@@ -54,32 +54,34 @@ describe("profiles", () => {
     it("converts profile to config format", () => {
       const profile = getProfileById("software-engineering");
       expect(profile).toBeDefined();
+      if (!profile) return;
 
-      const config = profileToConfig(profile!);
+      const config = profileToConfig(profile);
 
-      expect(config.title_allowlist).toEqual(profile!.titleAllowlist);
-      expect(config.title_blocklist).toEqual(profile!.titleBlocklist);
-      expect(config.keywords_boost).toEqual(profile!.keywordsBoost);
-      expect(config.keywords_exclude).toEqual(profile!.keywordsExclude);
-      expect(config.location_preferences.allow_remote).toBe(profile!.locationPreferences.allow_remote);
-      expect(config.location_preferences.allow_hybrid).toBe(profile!.locationPreferences.allow_hybrid);
-      expect(config.location_preferences.allow_onsite).toBe(profile!.locationPreferences.allow_onsite);
+      expect(config.title_allowlist).toEqual(profile.titleAllowlist);
+      expect(config.title_blocklist).toEqual(profile.titleBlocklist);
+      expect(config.keywords_boost).toEqual(profile.keywordsBoost);
+      expect(config.keywords_exclude).toEqual(profile.keywordsExclude);
+      expect(config.location_preferences.allow_remote).toBe(profile.locationPreferences.allow_remote);
+      expect(config.location_preferences.allow_hybrid).toBe(profile.locationPreferences.allow_hybrid);
+      expect(config.location_preferences.allow_onsite).toBe(profile.locationPreferences.allow_onsite);
       expect(config.location_preferences.cities).toEqual([]);
     });
 
     it("creates independent copies of arrays", () => {
       const profile = getProfileById("software-engineering");
       expect(profile).toBeDefined();
+      if (!profile) return;
 
-      const config = profileToConfig(profile!);
+      const config = profileToConfig(profile);
 
       // Modify config arrays
       config.title_allowlist.push("Test Title");
       config.keywords_boost.push("Test Keyword");
 
       // Original profile should be unchanged
-      expect(profile!.titleAllowlist).not.toContain("Test Title");
-      expect(profile!.keywordsBoost).not.toContain("Test Keyword");
+      expect(profile.titleAllowlist).not.toContain("Test Title");
+      expect(profile.keywordsBoost).not.toContain("Test Keyword");
     });
   });
 });

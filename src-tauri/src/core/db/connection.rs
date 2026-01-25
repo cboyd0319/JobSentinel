@@ -352,4 +352,57 @@ impl Database {
     pub const fn from_pool(pool: SqlitePool) -> Self {
         Database { pool }
     }
+
+    /// Run ANALYZE to update query planner statistics
+    ///
+    /// Should be run periodically (daily or after bulk inserts) to keep
+    /// query plans optimal. This helps SQLite choose the best indexes.
+    #[must_use]
+    pub async fn analyze(&self) -> Result<(), sqlx::Error> {
+        sqlx::query("ANALYZE").execute(&self.pool).await?;
+        tracing::info!("Updated query planner statistics");
+        Ok(())
+    }
+
+    /// Run PRAGMA optimize to maintain database performance
+    ///
+    /// Should be run periodically (daily) to keep internal structures optimized.
+    /// This is a lightweight operation that SQLite uses to maintain performance.
+    #[must_use]
+    pub async fn optimize(&self) -> Result<(), sqlx::Error> {
+        sqlx::query("PRAGMA optimize").execute(&self.pool).await?;
+        tracing::info!("Optimized database structures");
+        Ok(())
+    }
+
+    /// Get database size in bytes
+    #[must_use]
+    pub async fn database_size(&self) -> Result<i64, sqlx::Error> {
+        let size: i64 = sqlx::query_scalar("SELECT page_count * page_size FROM pragma_page_count(), pragma_page_size()")
+            .fetch_one(&self.pool)
+            .await?;
+        Ok(size)
+    }
+
+    /// Get WAL (Write-Ahead Log) size in pages
+    #[must_use]
+    pub async fn wal_size(&self) -> Result<i64, sqlx::Error> {
+        let size: i64 = sqlx::query_scalar("PRAGMA wal_checkpoint(PASSIVE)")
+            .fetch_one(&self.pool)
+            .await?;
+        Ok(size)
+    }
+
+    /// Checkpoint the WAL to reclaim space
+    ///
+    /// This merges the WAL file back into the main database file.
+    /// Use this periodically if the WAL grows too large.
+    #[must_use]
+    pub async fn checkpoint_wal(&self) -> Result<(), sqlx::Error> {
+        sqlx::query("PRAGMA wal_checkpoint(TRUNCATE)")
+            .execute(&self.pool)
+            .await?;
+        tracing::info!("Checkpointed WAL file");
+        Ok(())
+    }
 }

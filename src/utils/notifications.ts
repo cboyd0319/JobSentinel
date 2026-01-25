@@ -61,7 +61,7 @@ export async function notifyNewJob(
       title: "New High-Match Job Found!",
       body: `${title} at ${company} - ${Math.round(score * 100)}% match`,
     });
-  } catch (error) {
+  } catch (error: unknown) {
     logError("Failed to send notification:", error);
   }
 }
@@ -82,7 +82,7 @@ export async function notifyReminder(
       title: `Reminder: ${jobTitle} at ${company}`,
       body: message,
     });
-  } catch (error) {
+  } catch (error: unknown) {
     logError("Failed to send notification:", error);
   }
 }
@@ -105,7 +105,7 @@ export async function notifyScrapingComplete(
       title: "Job Search Complete",
       body: `Found ${newJobs} new jobs, ${highMatches} high matches!`,
     });
-  } catch (error) {
+  } catch (error: unknown) {
     logError("Failed to send notification:", error);
   }
 }
@@ -119,7 +119,7 @@ export async function notify(title: string, body: string): Promise<void> {
 
   try {
     sendNotification({ title, body });
-  } catch (error) {
+  } catch (error: unknown) {
     logError("Failed to send notification:", error);
   }
 }

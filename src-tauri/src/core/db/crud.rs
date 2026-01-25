@@ -81,6 +81,7 @@ impl Database {
             }
         }
         // Check if job with this hash already exists
+        // OPTIMIZATION: Uses implicit UNIQUE index on hash column for fast lookup
         let existing: Option<i64> = sqlx::query_scalar("SELECT id FROM jobs WHERE hash = ?")
             .bind(&job.hash)
             .fetch_optional(self.pool())

@@ -34,7 +34,7 @@ export default function ApplicationProfile({ onBack }: ApplicationProfileProps) 
 
       if (signal?.aborted) return;
       setStats(data);
-    } catch (error) {
+    } catch (error: unknown) {
       if (signal?.aborted) return;
       logError("Failed to load automation stats:", error);
       toast.error("Failed to load stats", "Your automation history may be unavailable. Try restarting the app.");

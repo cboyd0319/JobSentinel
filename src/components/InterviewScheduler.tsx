@@ -304,7 +304,7 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
       ]);
       setInterviews(upcomingData);
       setPastInterviews(pastData);
-    } catch (err) {
+    } catch (err: unknown) {
       const enhanced = err as Error & { userFriendly?: { title: string; message: string } };
       toast.error(
         enhanced.userFriendly?.title || "Failed to load interviews",
@@ -690,7 +690,7 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
                         </span>
                         {followUpReminders[interview.id]?.sentAt && (
                           <span className="text-xs text-surface-400 ml-auto">
-                            {new Date(followUpReminders[interview.id].sentAt!).toLocaleDateString()}
+                            {new Date(followUpReminders[interview.id]?.sentAt ?? Date.now()).toLocaleDateString()}
                           </span>
                         )}
                       </label>

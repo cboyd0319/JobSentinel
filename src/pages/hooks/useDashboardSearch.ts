@@ -15,7 +15,7 @@ export function useDashboardSearch() {
       try {
         const history = await invoke<string[]>('get_search_history');
         setSearchHistory(history);
-      } catch (err) {
+      } catch (err: unknown) {
         logError("Failed to load search history:", err);
       }
     };
@@ -32,7 +32,7 @@ export function useDashboardSearch() {
         const filtered = prev.filter(h => h.toLowerCase() !== query.toLowerCase());
         return [query.trim(), ...filtered];
       });
-    } catch (err) {
+    } catch (err: unknown) {
       logError("Failed to save search history:", err);
     }
   }, []);
@@ -41,7 +41,7 @@ export function useDashboardSearch() {
     try {
       await invoke('clear_search_history');
       setSearchHistory([]);
-    } catch (err) {
+    } catch (err: unknown) {
       logError("Failed to clear search history:", err);
     }
   }, []);

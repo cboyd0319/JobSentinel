@@ -190,7 +190,7 @@ export async function safeInvoke<T>(
 ): Promise<T> {
   try {
     return await invoke<T>(cmd, args);
-  } catch (error) {
+  } catch (error: unknown) {
     // Import utilities here to avoid circular dependencies
     const { logError: log } = await import("./errorUtils");
     const { getUserFriendlyError } = await import("./errorMessages");
@@ -253,7 +253,7 @@ export async function safeInvokeWithToast<T>(
   try {
     const result = await safeInvoke<T>(cmd, args, options);
     return result;
-  } catch (error) {
+  } catch (error: unknown) {
     // Extract user-friendly error
     const enhancedError = error as Error & {
       userFriendly?: { title: string; message: string; action?: string };

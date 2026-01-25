@@ -172,7 +172,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({ onC
       setSummary(summaryData);
       setScrapers(scrapersData);
       setCredentials(credentialsData);
-    } catch (err) {
+    } catch (err: unknown) {
       if (signal?.aborted) return;
       setError(err instanceof Error ? err.message : String(err));
     } finally {

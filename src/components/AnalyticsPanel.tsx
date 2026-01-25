@@ -199,7 +199,7 @@ export const AnalyticsPanel = memo(function AnalyticsPanel({ onClose }: Analytic
         30_000
       );
       setStats(data);
-    } catch (err) {
+    } catch (err: unknown) {
       logError("Failed to fetch analytics:", err);
       setError("Failed to load analytics data. Please try again.");
     } finally {

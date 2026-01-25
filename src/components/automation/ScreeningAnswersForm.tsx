@@ -64,7 +64,7 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
         logContext: "Load screening answers"
       });
       setAnswers(data);
-    } catch (error) {
+    } catch (error: unknown) {
       const enhanced = error as Error & { userFriendly?: { title: string; message: string } };
       toast.error(
         enhanced.userFriendly?.title || "Failed to load answers",

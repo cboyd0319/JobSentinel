@@ -219,7 +219,7 @@ export function useDashboardJobOps(jobs: Job[], setJobs: (jobs: Job[] | ((prev: 
           setJobs((prev) => prev.filter((job) => !idsToHide.includes(job.id)));
         },
       });
-    } catch (err) {
+    } catch (err: unknown) {
       // Log and show user-friendly error
       logError("Failed to bulk hide jobs:", err);
       const enhancedError = err as Error & {
@@ -288,7 +288,7 @@ export function useDashboardJobOps(jobs: Job[], setJobs: (jobs: Job[] | ((prev: 
           ));
         },
       });
-    } catch (err) {
+    } catch (err: unknown) {
       logError("Failed to bulk bookmark jobs:", err);
       const enhancedError = err as Error & {
         userFriendly?: { title: string; message: string; action?: string };
@@ -368,7 +368,7 @@ export function useDashboardJobOps(jobs: Job[], setJobs: (jobs: Job[] | ((prev: 
       setDuplicatesModalOpen(false);
 
       toast.success("All duplicates merged", `${duplicateGroups.length} groups cleaned up`);
-    } catch (err) {
+    } catch (err: unknown) {
       logError("Failed to merge all duplicates:", err);
       const enhancedError = err as Error & {
         userFriendly?: { title: string; message: string; action?: string };

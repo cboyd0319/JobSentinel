@@ -216,7 +216,7 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
           requireManualApproval: true,
         });
       }
-    } catch (error) {
+    } catch (error: unknown) {
       logError("Failed to load application profile:", error);
       toast.error("Failed to load profile", "Please try again");
     } finally {
@@ -256,7 +256,7 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
       if (selected && typeof selected === "string") {
         setResumeFilePath(selected);
       }
-    } catch (error) {
+    } catch (error: unknown) {
       logError("Failed to select resume file:", error);
       toast.error("Failed to select file", "Please try again");
     }
@@ -319,7 +319,7 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
         requireManualApproval,
       });
       onSaved?.();
-    } catch (error) {
+    } catch (error: unknown) {
       logError("Failed to save profile:", error);
       toast.error("Failed to save", "Please try again");
     } finally {

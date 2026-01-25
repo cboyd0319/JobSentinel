@@ -278,7 +278,7 @@ export default function Applications({ onBack }: ApplicationsProps) {
       ]);
       setApplications(appsData);
       setReminders(remindersData);
-    } catch (err) {
+    } catch (err: unknown) {
       logError("Failed to fetch applications:", err);
       toast.error(
         "Couldn't load applications",
@@ -672,7 +672,7 @@ export default function Applications({ onBack }: ApplicationsProps) {
                       toast.success("Status updated", `Application moved to ${newStatus}`);
                       setSelectedApp({ ...selectedApp, status: newStatus });
                       fetchData();
-                    } catch (err) {
+                    } catch (err: unknown) {
                       logError("Failed to update status:", err);
                       toast.error(
                         "Status update failed",

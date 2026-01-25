@@ -89,8 +89,8 @@ export const MarketSnapshotCard = memo(function MarketSnapshotCard({ snapshot, l
 
         {/* Sentiment */}
         <div className="text-right" role="status" aria-label={`Market sentiment: ${snapshot.market_sentiment}`}>
-          <span className={`text-2xl ${sentimentConfig.color}`} aria-hidden="true">
-            {sentimentConfig.icon} {snapshot.market_sentiment}
+          <span className={`text-2xl ${sentimentConfig?.color ?? ''}`} aria-hidden="true">
+            {sentimentConfig?.icon ?? '➖'} {snapshot.market_sentiment}
           </span>
           <p className="text-sm text-surface-500 dark:text-surface-400">Market Sentiment</p>
         </div>

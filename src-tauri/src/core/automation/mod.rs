@@ -44,11 +44,13 @@ use sqlx::SqlitePool;
 
 pub mod ats_detector;
 pub mod browser;
+pub mod error;
 pub mod form_filler;
 pub mod profile;
 
 pub use ats_detector::AtsDetector;
 pub use browser::{AutomationPage, BrowserManager, FillResult};
+pub use error::{AutomationError, AutomationResult};
 pub use form_filler::FormFiller;
 pub use profile::ApplicationProfile;
 

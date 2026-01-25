@@ -64,7 +64,7 @@ export default function Salary({ onBack }: SalaryProps) {
         toast.info("No data", "No salary data found for this combination");
         setBenchmark(null);
       }
-    } catch (err) {
+    } catch (err: unknown) {
       logError("Failed to get benchmark:", err);
       toast.error("Benchmark failed", getErrorMessage(err));
     } finally {
@@ -89,7 +89,7 @@ export default function Salary({ onBack }: SalaryProps) {
 
       setNegotiationScript(script);
       toast.success("Script generated", "Negotiation talking points ready");
-    } catch (err) {
+    } catch (err: unknown) {
       logError("Failed to generate script:", err);
       toast.error("Script generation failed", getErrorMessage(err));
     } finally {
