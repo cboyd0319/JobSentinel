@@ -176,6 +176,12 @@ export function CompanyAutocomplete({
 
   return (
     <div ref={wrapperRef} className="relative" role="combobox" aria-expanded={showSuggestions && suggestions.length > 0} aria-haspopup="listbox" aria-controls="company-suggestions-list">
+      {/* Screen reader announcement for suggestion count */}
+      <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+        {showSuggestions && value.trim().length >= 1 && suggestions.length > 0
+          ? `${suggestions.length} suggestion${suggestions.length === 1 ? '' : 's'} available`
+          : ''}
+      </span>
       <div className="flex gap-2">
         <input
           ref={inputRef}
