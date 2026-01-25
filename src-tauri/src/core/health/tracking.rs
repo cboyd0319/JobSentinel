@@ -1,4 +1,13 @@
-//! Run tracking - record scraper execution history
+//! Run tracking - record scraper execution history.
+//!
+//! Provides functions to track the lifecycle of scraper executions:
+//! - Starting runs
+//! - Completing successful runs
+//! - Recording failures and timeouts
+//! - Incrementing retry counters
+//!
+//! All functions write to the `scraper_runs` table which is used for
+//! health metrics calculation and historical analysis.
 
 use crate::core::Database;
 use anyhow::Result;
@@ -6,7 +15,32 @@ use chrono::Utc;
 
 use super::types::{RunStatus, ScraperRun};
 
-/// Start a new scraper run and return its ID
+/// Start a new scraper run and return its database ID.
+///
+/// Creates a new record in `scraper_runs` with status `Running`.
+/// This ID should be used in subsequent tracking calls.
+///
+/// # Arguments
+///
+/// * `db` - Database connection
+/// * `scraper_name` - Scraper identifier (e.g. "greenhouse")
+///
+/// # Returns
+///
+/// Database ID of the new run record.
+///
+/// # Examples
+///
+/// ```no_run
+/// # use job_sentinel::core::Database;
+/// # use job_sentinel::core::health::tracking;
+/// # async fn example(db: &Database) -> anyhow::Result<()> {
+/// let run_id = tracking::start_run(db, "linkedin").await?;
+/// // ... perform scraping ...
+/// tracking::complete_run(db, run_id, 5000, 50, 10).await?;
+/// # Ok(())
+/// # }
+/// ```
 pub async fn start_run(db: &Database, scraper_name: &str) -> Result<i64> {
     let now = Utc::now();
     let result = sqlx::query!(
@@ -24,7 +58,18 @@ pub async fn start_run(db: &Database, scraper_name: &str) -> Result<i64> {
     Ok(result.id)
 }
 
-/// Complete a successful run
+/// Mark a run as successfully completed.
+///
+/// Updates the run record with completion time, duration, and job counts.
+/// Sets status to `Success`.
+///
+/// # Arguments
+///
+/// * `db` - Database connection
+/// * `run_id` - Run ID from `start_run`
+/// * `duration_ms` - Total execution time in milliseconds
+/// * `jobs_found` - Total jobs scraped (including duplicates)
+/// * `jobs_new` - New jobs added to database
 pub async fn complete_run(
     db: &Database,
     run_id: i64,
@@ -58,7 +103,18 @@ pub async fn complete_run(
     Ok(())
 }
 
-/// Record a failed run
+/// Record a failed run with error details.
+///
+/// Updates the run record with failure status, error message, and optional error code.
+/// Error codes are typically HTTP status codes (e.g. "429", "503") or error types.
+///
+/// # Arguments
+///
+/// * `db` - Database connection
+/// * `run_id` - Run ID from `start_run`
+/// * `duration_ms` - Execution time before failure
+/// * `error_message` - Human-readable error message
+/// * `error_code` - Optional error code (HTTP status, error type)
 pub async fn fail_run(
     db: &Database,
     run_id: i64,
@@ -90,7 +146,15 @@ pub async fn fail_run(
     Ok(())
 }
 
-/// Record a timeout
+/// Record a timeout failure.
+///
+/// Updates the run record with timeout status and duration.
+///
+/// # Arguments
+///
+/// * `db` - Database connection
+/// * `run_id` - Run ID from `start_run`
+/// * `duration_ms` - Time elapsed before timeout
 pub async fn timeout_run(db: &Database, run_id: i64, duration_ms: i64) -> Result<()> {
     let now = Utc::now();
 
@@ -113,7 +177,14 @@ pub async fn timeout_run(db: &Database, run_id: i64, duration_ms: i64) -> Result
     Ok(())
 }
 
-/// Update retry attempt count
+/// Increment the retry attempt counter for a run.
+///
+/// Used when retrying a failed run with exponential backoff.
+///
+/// # Arguments
+///
+/// * `db` - Database connection
+/// * `run_id` - Run ID to update
 pub async fn increment_retry(db: &Database, run_id: i64) -> Result<()> {
     sqlx::query!(
         r#"
@@ -129,7 +200,19 @@ pub async fn increment_retry(db: &Database, run_id: i64) -> Result<()> {
     Ok(())
 }
 
-/// Get recent runs for a scraper
+/// Retrieve recent execution history for a scraper.
+///
+/// Returns runs ordered by start time (newest first).
+///
+/// # Arguments
+///
+/// * `db` - Database connection
+/// * `scraper_name` - Scraper identifier
+/// * `limit` - Maximum number of runs to return
+///
+/// # Returns
+///
+/// Vector of run records with all fields populated.
 pub async fn get_scraper_runs(
     db: &Database,
     scraper_name: &str,

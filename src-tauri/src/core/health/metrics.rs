@@ -1,4 +1,8 @@
-//! Health metrics calculation and retrieval
+//! Health metrics calculation and retrieval.
+//!
+//! Provides functions to query aggregated health metrics from the database.
+//! Metrics are calculated from the `scraper_health_status` view which joins
+//! configuration data with recent run history.
 
 use crate::core::Database;
 use anyhow::Result;
@@ -7,7 +11,18 @@ use super::types::{
     HealthStatus, ScraperConfig, ScraperHealthMetrics, ScraperType, SelectorHealth,
 };
 
-/// Get health status for all scrapers using the view
+/// Get aggregated health metrics for all scrapers.
+///
+/// Queries the `scraper_health_status` database view which calculates metrics
+/// from the last 24 hours of run history.
+///
+/// # Arguments
+///
+/// * `db` - Database connection
+///
+/// # Returns
+///
+/// Vector of health metrics sorted by status (worst first), then by display name.
 pub async fn get_all_scraper_health(db: &Database) -> Result<Vec<ScraperHealthMetrics>> {
     let rows = sqlx::query!(
         r#"
@@ -60,7 +75,17 @@ pub async fn get_all_scraper_health(db: &Database) -> Result<Vec<ScraperHealthMe
     Ok(metrics)
 }
 
-/// Get configuration for all scrapers
+/// Get configuration metadata for all scrapers.
+///
+/// Returns static configuration without aggregated metrics.
+///
+/// # Arguments
+///
+/// * `db` - Database connection
+///
+/// # Returns
+///
+/// Vector of scraper configs sorted by display name.
 pub async fn get_scraper_configs(db: &Database) -> Result<Vec<ScraperConfig>> {
     let rows = sqlx::query!(
         r#"
@@ -100,7 +125,16 @@ pub async fn get_scraper_configs(db: &Database) -> Result<Vec<ScraperConfig>> {
     Ok(configs)
 }
 
-/// Enable or disable a scraper
+/// Enable or disable a scraper.
+///
+/// Updates the `is_enabled` flag in `scraper_config` table.
+/// Disabled scrapers skip during scheduled runs.
+///
+/// # Arguments
+///
+/// * `db` - Database connection
+/// * `scraper_name` - Scraper identifier
+/// * `enabled` - New enabled state
 pub async fn set_scraper_enabled(db: &Database, scraper_name: &str, enabled: bool) -> Result<()> {
     sqlx::query!(
         r#"
@@ -117,7 +151,16 @@ pub async fn set_scraper_enabled(db: &Database, scraper_name: &str, enabled: boo
     Ok(())
 }
 
-/// Update selector health for a scraper
+/// Update DOM selector health status for an HTML scraper.
+///
+/// Records the result of selector validation checks. Only applicable
+/// to HTML scrapers (API scrapers should remain `Unknown`).
+///
+/// # Arguments
+///
+/// * `db` - Database connection
+/// * `scraper_name` - Scraper identifier
+/// * `health` - New selector health status
 pub async fn update_selector_health(
     db: &Database,
     scraper_name: &str,
@@ -147,7 +190,18 @@ pub async fn update_selector_health(
     Ok(())
 }
 
-/// Get summary statistics
+/// Get aggregated summary statistics across all scrapers.
+///
+/// Calculates counts for each health status level and total jobs found.
+/// Useful for dashboard overview displays.
+///
+/// # Arguments
+///
+/// * `db` - Database connection
+///
+/// # Returns
+///
+/// Summary statistics including scraper counts by status and total jobs.
 pub async fn get_health_summary(db: &Database) -> Result<HealthSummary> {
     let row = sqlx::query!(
         r#"
@@ -174,13 +228,21 @@ pub async fn get_health_summary(db: &Database) -> Result<HealthSummary> {
     })
 }
 
-/// Health summary statistics
+/// Aggregated summary statistics across all scrapers.
+///
+/// Used for dashboard overview and alerting thresholds.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct HealthSummary {
+    /// Total number of configured scrapers.
     pub total_scrapers: i32,
+    /// Count of healthy scrapers.
     pub healthy: i32,
+    /// Count of degraded scrapers.
     pub degraded: i32,
+    /// Count of down scrapers.
     pub down: i32,
+    /// Count of disabled scrapers.
     pub disabled: i32,
+    /// Total jobs found in last 24 hours.
     pub total_jobs_24h: i32,
 }

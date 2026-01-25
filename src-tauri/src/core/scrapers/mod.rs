@@ -66,7 +66,8 @@ pub async fn scrape_all_parallel(scrapers: Vec<Box<dyn JobScraper>>) -> Vec<Job>
         return vec![];
     }
 
-    tracing::info!("Starting parallel scrape of {} sources", scrapers.len());
+    let scraper_count = scrapers.len();
+    tracing::info!("Starting parallel scrape of {} sources", scraper_count);
 
     // Use JoinSet for parallel execution with proper ownership
     let mut join_set = JoinSet::new();
@@ -91,8 +92,8 @@ pub async fn scrape_all_parallel(scrapers: Vec<Box<dyn JobScraper>>) -> Vec<Job>
         });
     }
 
-    // Collect all results
-    let mut all_jobs = Vec::new();
+    // Collect all results - pre-allocate with estimated capacity
+    let mut all_jobs = Vec::with_capacity(scraper_count * 20);
     while let Some(result) = join_set.join_next().await {
         match result {
             Ok(jobs) => all_jobs.extend(jobs),

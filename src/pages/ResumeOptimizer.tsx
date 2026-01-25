@@ -306,8 +306,8 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
       return;
     }
 
-    // Store job description in localStorage for resume builder
-    localStorage.setItem("jobContext", JSON.stringify({
+    // Store job description in sessionStorage for resume builder
+    sessionStorage.setItem("jobContext", JSON.stringify({
       description: jobDescription,
       timestamp: Date.now(),
     }));

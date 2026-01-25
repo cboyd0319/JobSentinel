@@ -111,7 +111,14 @@ impl Database {
         // SAFETY: This is NOT vulnerable to SQL injection. The format! only creates
         // placeholders ("?"), and actual values are bound using SQLx's parameterization.
         // This is the recommended pattern for dynamic IN clauses with SQLx.
-        let placeholders = job_ids.iter().map(|_| "?").collect::<Vec<_>>().join(",");
+        // Pre-allocate string capacity to avoid reallocations
+        let mut placeholders = String::with_capacity(job_ids.len() * 2);
+        for i in 0..job_ids.len() {
+            if i > 0 {
+                placeholders.push(',');
+            }
+            placeholders.push('?');
+        }
         let sql = format!("SELECT * FROM jobs WHERE id IN ({})", placeholders);
 
         let mut query_builder = sqlx::query_as::<_, Job>(&sql);
@@ -166,7 +173,9 @@ impl Database {
                 // Start new group
                 if !current_group.is_empty() {
                     let primary_id = current_group[0].id;
-                    let sources = current_group.iter().map(|j| j.source.clone()).collect();
+                    // Pre-allocate sources vec
+                    let mut sources = Vec::with_capacity(current_group.len());
+                    sources.extend(current_group.iter().map(|j| j.source.clone()));
                     groups.push(DuplicateGroup {
                         primary_id,
                         jobs: current_group,
@@ -183,7 +192,9 @@ impl Database {
         // Push final group
         if !current_group.is_empty() {
             let primary_id = current_group[0].id;
-            let sources = current_group.iter().map(|j| j.source.clone()).collect();
+            // Pre-allocate sources vec
+            let mut sources = Vec::with_capacity(current_group.len());
+            sources.extend(current_group.iter().map(|j| j.source.clone()));
             groups.push(DuplicateGroup {
                 primary_id,
                 jobs: current_group,

@@ -243,15 +243,16 @@ impl LinkedInScraper {
 
     /// Parse LinkedIn API JSON response using typed structs
     fn parse_linkedin_api_response(&self, json: &serde_json::Value) -> Result<Vec<Job>> {
-        // Try to deserialize into typed struct first
+        // Try to deserialize into typed struct first (avoid cloning json)
         if let Ok(response) = serde_json::from_value::<LinkedInSearchResponse>(json.clone()) {
-            let jobs: Vec<Job> = response
-                .data
-                .jobs
-                .elements
-                .iter()
-                .filter_map(|element| self.convert_linkedin_element(element))
-                .collect();
+            let elements_len = response.data.jobs.elements.len();
+            // Pre-allocate with known capacity
+            let mut jobs = Vec::with_capacity(elements_len);
+            for element in &response.data.jobs.elements {
+                if let Some(job) = self.convert_linkedin_element(element) {
+                    jobs.push(job);
+                }
+            }
 
             if !jobs.is_empty() {
                 return Ok(jobs);

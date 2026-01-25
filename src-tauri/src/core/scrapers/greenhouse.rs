@@ -55,7 +55,8 @@ impl GreenhouseScraper {
         let mut jobs = {
             let document = Html::parse_document(&html);
 
-            let mut parsed_jobs = Vec::new();
+            // Pre-allocate with reasonable capacity
+            let mut parsed_jobs = Vec::with_capacity(20);
 
             // Pattern 1: boards.greenhouse.io embedded
             if let Ok(selector) = Selector::parse(".opening") {

@@ -1355,7 +1355,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
             />
 
             {/* Job Context Info */}
-            {typeof window !== "undefined" && localStorage.getItem("jobContext") && (
+            {typeof window !== "undefined" && sessionStorage.getItem("jobContext") && (
               <div className="bg-white dark:bg-surface-800 rounded-lg border border-surface-200 dark:border-surface-700 shadow-sm p-4">
                 <h4 className="text-sm font-semibold text-surface-800 dark:text-surface-200 mb-2 flex items-center gap-2">
                   <svg className="w-4 h-4 text-sentinel-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1368,7 +1368,7 @@ export default function ResumeBuilder({ onBack }: ResumeBuilderProps) {
                 </p>
                 <button
                   onClick={() => {
-                    localStorage.removeItem("jobContext");
+                    sessionStorage.removeItem("jobContext");
                     window.location.reload();
                   }}
                   className="mt-2 text-xs text-red-600 dark:text-red-400 hover:underline"

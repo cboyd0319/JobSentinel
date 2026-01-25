@@ -8,11 +8,14 @@ import {
   AnnouncerProvider,
   ErrorReportingProvider,
 } from "./contexts";
-import { reportWebVitals } from "./utils/vitals";
 import "./index.css";
 
-// Report Web Vitals in development mode
-reportWebVitals();
+// Lazy-load Web Vitals to reduce main bundle size
+if (import.meta.env.DEV) {
+  import("./utils/vitals").then(({ reportWebVitals }) => {
+    reportWebVitals();
+  });
+}
 
 // Enable API mocking in development (when running in browser without Tauri)
 async function enableMocking() {

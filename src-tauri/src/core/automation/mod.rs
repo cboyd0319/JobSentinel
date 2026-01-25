@@ -52,7 +52,15 @@ pub use browser::{AutomationPage, BrowserManager, FillResult};
 pub use form_filler::FormFiller;
 pub use profile::ApplicationProfile;
 
-/// Application automation status
+/// Lifecycle status of an automated job application.
+///
+/// Applications move through these states:
+/// 1. `Pending` - Created but not yet started
+/// 2. `InProgress` - Currently being automated
+/// 3. `AwaitingApproval` - Filled, waiting for user review (default mode)
+/// 4. `Submitted` - Successfully submitted
+/// 5. `Failed` - Automation failed (error logged)
+/// 6. `Cancelled` - User cancelled before submission
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum AutomationStatus {
     Pending,
@@ -64,6 +72,7 @@ pub enum AutomationStatus {
 }
 
 impl AutomationStatus {
+    /// Convert status to database string representation.
     pub fn as_str(&self) -> &'static str {
         match self {
             Self::Pending => "pending",
@@ -75,6 +84,9 @@ impl AutomationStatus {
         }
     }
 
+    /// Parse status from database string.
+    ///
+    /// Returns `Failed` for unknown strings (fail-safe).
     pub fn from_str(s: &str) -> Self {
         match s {
             "pending" => Self::Pending,
@@ -88,7 +100,10 @@ impl AutomationStatus {
     }
 }
 
-/// ATS platform type
+/// Applicant Tracking System (ATS) platform identifier.
+///
+/// Used to select the correct automation strategy for form filling.
+/// Each platform has unique DOM structure and API patterns.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum AtsPlatform {
     Greenhouse,
@@ -102,6 +117,7 @@ pub enum AtsPlatform {
 }
 
 impl AtsPlatform {
+    /// Convert platform to database string representation.
     pub fn as_str(&self) -> &'static str {
         match self {
             Self::Greenhouse => "greenhouse",
@@ -115,6 +131,9 @@ impl AtsPlatform {
         }
     }
 
+    /// Parse platform from database string.
+    ///
+    /// Returns `Unknown` for unrecognized platforms.
     pub fn from_str(s: &str) -> Self {
         match s {
             "greenhouse" => Self::Greenhouse,
@@ -129,34 +148,95 @@ impl AtsPlatform {
     }
 }
 
-/// Application automation attempt
+/// Record of a single automation attempt for a job application.
+///
+/// Tracks the full lifecycle including timing, status, errors, and user approval.
+/// Screenshots are stored for debugging and user verification.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ApplicationAttempt {
+    /// Database ID of this attempt.
     pub id: i64,
+    /// Job hash linking to the jobs table.
     pub job_hash: String,
+    /// Optional link to saved application record.
     pub application_id: Option<i64>,
+    /// Current lifecycle status.
     pub status: AutomationStatus,
+    /// Detected ATS platform for this job.
     pub ats_platform: AtsPlatform,
+    /// Error message if automation failed.
     pub error_message: Option<String>,
+    /// Path to screenshot taken during automation (debugging).
     pub screenshot_path: Option<String>,
+    /// Path to confirmation page screenshot (proof of submission).
     pub confirmation_screenshot_path: Option<String>,
+    /// Total time spent automating this application (milliseconds).
     pub automation_duration_ms: Option<i64>,
+    /// Whether user has approved this for submission (human-in-the-loop).
     pub user_approved: bool,
+    /// Timestamp when application was submitted (if successful).
     pub submitted_at: Option<DateTime<Utc>>,
+    /// When this attempt was created.
     pub created_at: DateTime<Utc>,
 }
 
-/// Automation manager
+/// Manages application automation lifecycle and database tracking.
+///
+/// Handles CRUD operations for automation attempts, status updates,
+/// and aggregated statistics.
+///
+/// # Examples
+///
+/// ```no_run
+/// # use job_sentinel::core::automation::{AutomationManager, AtsPlatform};
+/// # async fn example(db: sqlx::SqlitePool) -> anyhow::Result<()> {
+/// let manager = AutomationManager::new(db);
+///
+/// // Create new automation attempt
+/// let attempt_id = manager.create_attempt("job_abc123", AtsPlatform::Greenhouse).await?;
+///
+/// // User reviews and approves
+/// manager.approve_attempt(attempt_id).await?;
+///
+/// // Mark as submitted after automation completes
+/// manager.mark_submitted(attempt_id).await?;
+/// # Ok(())
+/// # }
+/// ```
 pub struct AutomationManager {
     db: SqlitePool,
 }
 
 impl AutomationManager {
+    /// Create a new automation manager with database connection.
     pub fn new(db: SqlitePool) -> Self {
         Self { db }
     }
 
-    /// Create a new automation attempt for a job
+    /// Create a new automation attempt for a job.
+    ///
+    /// Initializes a new attempt with `Pending` status and the detected ATS platform.
+    /// User approval is required before submission (default behavior).
+    ///
+    /// # Arguments
+    ///
+    /// * `job_hash` - Unique identifier for the job from the jobs table
+    /// * `ats_platform` - Detected ATS platform (from `AtsDetector`)
+    ///
+    /// # Returns
+    ///
+    /// Database ID of the newly created attempt.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use job_sentinel::core::automation::{AutomationManager, AtsPlatform};
+    /// # async fn example(manager: &AutomationManager) -> anyhow::Result<()> {
+    /// let attempt_id = manager.create_attempt("job_xyz", AtsPlatform::Lever).await?;
+    /// println!("Created attempt {}", attempt_id);
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn create_attempt(&self, job_hash: &str, ats_platform: AtsPlatform) -> Result<i64> {
         let result = sqlx::query(
             r#"
@@ -173,7 +253,19 @@ impl AutomationManager {
         Ok(result.last_insert_rowid())
     }
 
-    /// Get automation attempt by ID
+    /// Retrieve an automation attempt by its database ID.
+    ///
+    /// # Arguments
+    ///
+    /// * `attempt_id` - Database ID returned from `create_attempt`
+    ///
+    /// # Returns
+    ///
+    /// Full `ApplicationAttempt` record with all fields populated.
+    ///
+    /// # Errors
+    ///
+    /// Returns error if attempt_id doesn't exist or database query fails.
     pub async fn get_attempt(&self, attempt_id: i64) -> Result<ApplicationAttempt> {
         let row = sqlx::query(
             r#"
@@ -212,7 +304,29 @@ impl AutomationManager {
         })
     }
 
-    /// Update automation attempt status
+    /// Update the status of an automation attempt.
+    ///
+    /// Use this to transition between lifecycle states and optionally record error messages.
+    ///
+    /// # Arguments
+    ///
+    /// * `attempt_id` - Database ID of the attempt
+    /// * `status` - New status to set
+    /// * `error_message` - Optional error message (typically for `Failed` status)
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use job_sentinel::core::automation::{AutomationManager, AutomationStatus};
+    /// # async fn example(manager: &AutomationManager) -> anyhow::Result<()> {
+    /// manager.update_status(
+    ///     123,
+    ///     AutomationStatus::Failed,
+    ///     Some("CAPTCHA detected")
+    /// ).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn update_status(
         &self,
         attempt_id: i64,
@@ -235,7 +349,25 @@ impl AutomationManager {
         Ok(())
     }
 
-    /// Mark attempt as user approved
+    /// Mark an attempt as approved by the user (human-in-the-loop).
+    ///
+    /// Sets `user_approved = true` and transitions status to `Pending` so the
+    /// automation can proceed. This enforces the human review requirement.
+    ///
+    /// # Arguments
+    ///
+    /// * `attempt_id` - Database ID of the attempt to approve
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use job_sentinel::core::automation::AutomationManager;
+    /// # async fn example(manager: &AutomationManager) -> anyhow::Result<()> {
+    /// // User reviews filled application and approves it
+    /// manager.approve_attempt(123).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn approve_attempt(&self, attempt_id: i64) -> Result<()> {
         sqlx::query(
             r#"
@@ -252,7 +384,14 @@ impl AutomationManager {
         Ok(())
     }
 
-    /// Mark attempt as submitted with timestamp
+    /// Mark an attempt as successfully submitted.
+    ///
+    /// Sets status to `Submitted` and records the submission timestamp.
+    /// This is the final state for successful automation.
+    ///
+    /// # Arguments
+    ///
+    /// * `attempt_id` - Database ID of the attempt
     pub async fn mark_submitted(&self, attempt_id: i64) -> Result<()> {
         let now = Utc::now().to_rfc3339();
 
@@ -272,7 +411,18 @@ impl AutomationManager {
         Ok(())
     }
 
-    /// Get pending automation attempts (approved and ready to process)
+    /// Retrieve pending automation attempts that are ready to process.
+    ///
+    /// Returns attempts with `Pending` status AND `user_approved = true`,
+    /// ordered by creation time (FIFO queue).
+    ///
+    /// # Arguments
+    ///
+    /// * `limit` - Maximum number of attempts to return
+    ///
+    /// # Returns
+    ///
+    /// Vector of approved attempts ready for automation, oldest first.
     pub async fn get_pending_attempts(&self, limit: usize) -> Result<Vec<ApplicationAttempt>> {
         let rows = sqlx::query(
             r#"
@@ -320,10 +470,19 @@ impl AutomationManager {
             .collect())
     }
 
-    /// Get automation statistics
+    /// Calculate aggregated automation statistics.
     ///
-    /// OPTIMIZATION: Batched 4 queries into single query using CASE expressions.
-    /// Reduces round-trips from 4 to 1 and enables better query optimization.
+    /// Returns counts for all attempt statuses and calculates success rate.
+    ///
+    /// # Performance
+    ///
+    /// Optimized single query using CASE expressions instead of 4 separate queries.
+    /// Reduces database round-trips from 4 to 1 and enables better query planning.
+    ///
+    /// # Returns
+    ///
+    /// Statistics including total attempts, submitted count, failed count,
+    /// pending count, and overall success rate percentage.
     pub async fn get_stats(&self) -> Result<AutomationStats> {
         let row = sqlx::query(
             r#"
@@ -356,13 +515,20 @@ impl AutomationManager {
     }
 }
 
-/// Automation statistics
+/// Aggregated statistics for automation performance tracking.
+///
+/// Used for dashboard metrics and health monitoring.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AutomationStats {
+    /// Total number of automation attempts (all statuses).
     pub total_attempts: i64,
+    /// Count of successfully submitted applications.
     pub submitted: i64,
+    /// Count of failed attempts.
     pub failed: i64,
+    /// Count of approved attempts waiting to be processed.
     pub pending: i64,
+    /// Success rate percentage (submitted / total * 100).
     pub success_rate: f64,
 }
 

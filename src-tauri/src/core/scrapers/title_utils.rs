@@ -152,28 +152,36 @@ pub fn normalize_title(title: &str) -> Cow<'_, str> {
     let mut normalized = title.to_lowercase();
 
     // Step 2: Normalize commas to spaces (e.g., "VP, Engineering" → "VP Engineering")
-    normalized = COMMA_PATTERN.replace_all(&normalized, " ").to_string();
+    if COMMA_PATTERN.is_match(&normalized) {
+        normalized = COMMA_PATTERN.replace_all(&normalized, " ").into_owned();
+    }
 
     // Step 3: Remove filler words (of, the, and, or)
-    normalized = FILLER_WORDS_PATTERN
-        .replace_all(&normalized, "")
-        .to_string();
+    if FILLER_WORDS_PATTERN.is_match(&normalized) {
+        normalized = FILLER_WORDS_PATTERN.replace_all(&normalized, "").into_owned();
+    }
 
     // Step 4: Expand abbreviations (with case-insensitive matching)
     for (regex, replacement) in ABBREVIATION_REGEXES.iter() {
-        normalized = regex.replace_all(&normalized, *replacement).to_string();
+        if regex.is_match(&normalized) {
+            normalized = regex.replace_all(&normalized, *replacement).into_owned();
+        }
     }
 
     // Step 5: Remove level indicators
-    normalized = LEVEL_PATTERN.replace_all(&normalized, "").to_string();
+    if LEVEL_PATTERN.is_match(&normalized) {
+        normalized = LEVEL_PATTERN.replace_all(&normalized, "").into_owned();
+    }
 
     // Step 6: Normalize whitespace
-    normalized = WHITESPACE_PATTERN.replace_all(&normalized, " ").to_string();
+    if WHITESPACE_PATTERN.is_match(&normalized) {
+        normalized = WHITESPACE_PATTERN.replace_all(&normalized, " ").into_owned();
+    }
 
     // Step 7: Remove trailing punctuation
-    normalized = TRAILING_PUNCT_PATTERN
-        .replace_all(&normalized, "")
-        .to_string();
+    if TRAILING_PUNCT_PATTERN.is_match(&normalized) {
+        normalized = TRAILING_PUNCT_PATTERN.replace_all(&normalized, "").into_owned();
+    }
 
     // Final trim and return owned
     Cow::Owned(normalized.trim().to_string())

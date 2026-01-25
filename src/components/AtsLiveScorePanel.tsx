@@ -164,10 +164,10 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
   const [error, setError] = useState<string | null>(null);
   const [retryTrigger, setRetryTrigger] = useState(0);
 
-  // Load job context from localStorage (set by ATS Optimizer)
+  // Load job context from sessionStorage (set by ATS Optimizer)
   useEffect(() => {
     try {
-      const stored = localStorage.getItem("jobContext");
+      const stored = sessionStorage.getItem("jobContext");
       if (stored) {
         const parsed = JSON.parse(stored);
         // Only use if less than 24 hours old
@@ -176,7 +176,7 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
         }
       }
     } catch {
-      // Ignore localStorage errors
+      // Ignore sessionStorage errors
     }
   }, []);
 

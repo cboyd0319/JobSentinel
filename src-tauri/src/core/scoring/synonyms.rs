@@ -150,13 +150,15 @@ impl SynonymMap {
         }
 
         let group_index = self.synonym_groups.len();
-        let normalized_synonyms: Vec<String> = synonyms.iter().map(|s| s.to_lowercase()).collect();
-
-        self.synonym_groups.push(normalized_synonyms.clone());
-
-        for synonym in normalized_synonyms {
-            self.keyword_to_group.insert(synonym, group_index);
+        // Pre-allocate with exact capacity
+        let mut normalized_synonyms = Vec::with_capacity(synonyms.len());
+        for s in synonyms {
+            let normalized = s.to_lowercase();
+            self.keyword_to_group.insert(normalized.clone(), group_index);
+            normalized_synonyms.push(normalized);
         }
+
+        self.synonym_groups.push(normalized_synonyms);
     }
 
     /// Get all synonyms for a given keyword (including the keyword itself)
@@ -189,21 +191,25 @@ impl SynonymMap {
             return false;
         }
 
-        // Find all occurrences of the word
+        // Use bytes for boundary checks (faster than chars for ASCII)
         let text_bytes = text.as_bytes();
+        let word_len = word.len();
 
         let mut start = 0;
         while let Some(pos) = text[start..].find(word) {
             let abs_pos = start + pos;
 
-            // Check if this is a word boundary match
-            let before_ok = abs_pos == 0
-                || !text_bytes[abs_pos - 1].is_ascii_alphanumeric()
-                    && text_bytes[abs_pos - 1] != b'_';
+            // Check word boundaries using byte indexing (ASCII-safe)
+            let before_ok = abs_pos == 0 || {
+                let b = text_bytes[abs_pos - 1];
+                !b.is_ascii_alphanumeric() && b != b'_'
+            };
 
-            let after_pos = abs_pos + word.len();
-            let after_ok = after_pos >= text.len()
-                || !text_bytes[after_pos].is_ascii_alphanumeric() && text_bytes[after_pos] != b'_';
+            let after_pos = abs_pos + word_len;
+            let after_ok = after_pos >= text.len() || {
+                let b = text_bytes[after_pos];
+                !b.is_ascii_alphanumeric() && b != b'_'
+            };
 
             if before_ok && after_ok {
                 return true;

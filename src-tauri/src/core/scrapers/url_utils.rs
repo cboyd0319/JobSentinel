@@ -148,33 +148,22 @@ pub fn normalize_url(url_str: &str) -> Cow<'_, str> {
         };
     }
 
-    // Filter query parameters
-    let filtered_params: Vec<(String, String)> = url
-        .query_pairs()
-        .filter(|(key, _)| {
-            let key_lower = key.to_lowercase();
+    // Filter query parameters - avoid multiple iterations
+    let mut filtered_params = Vec::new();
+    for (key, value) in url.query_pairs() {
+        let key_lower = key.to_lowercase();
 
-            // Keep essential parameters
-            if ESSENTIAL_PARAMS
-                .iter()
-                .any(|&param| key_lower == param.to_lowercase())
-            {
-                return true;
-            }
+        // Remove tracking parameters
+        if TRACKING_PARAMS
+            .iter()
+            .any(|&param| key_lower == param.to_lowercase())
+        {
+            continue;
+        }
 
-            // Remove tracking parameters
-            if TRACKING_PARAMS
-                .iter()
-                .any(|&param| key_lower == param.to_lowercase())
-            {
-                return false;
-            }
-
-            // Keep any other parameters (conservative approach)
-            true
-        })
-        .map(|(k, v)| (k.into_owned(), v.into_owned()))
-        .collect();
+        // Keep essential parameters and others (conservative approach)
+        filtered_params.push((key.into_owned(), value.into_owned()));
+    }
 
     // Clear existing query and rebuild with filtered parameters
     url.query_pairs_mut().clear();

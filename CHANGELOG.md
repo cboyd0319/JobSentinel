@@ -5,6 +5,62 @@ All notable changes to JobSentinel will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.2] - 2026-01-25
+
+### Added
+
+- **155 new frontend tests** - Comprehensive test coverage for critical components
+  - LoadingFallbacks component tests (25 tests)
+  - AsyncButton component tests (22 tests)
+  - Icons component tests (35 tests)
+  - api.ts utility tests (73 tests)
+
+- **Accessibility improvements following WCAG 2.1 AA standards**
+  - aria-busy attributes for loading states (8 components)
+  - aria-live regions for dynamic content updates (6 components)
+  - aria-current="page" for active navigation items
+  - Semantic HTML markup improvements across 15 components
+
+### Changed
+
+- **Error handling migration** - Standardized error handling across 12 files
+  - Migrated from try-catch to safeInvoke pattern
+  - Migrated from throw statements to safeInvokeWithToast
+  - Files: ApplicationProfile.tsx, Market.tsx, Settings.tsx, Resume.tsx, and others
+  - Consistent error callback handling across all async operations
+
+- **Performance optimization** - Extracted inline styles to constants
+  - 9 components refactored to use CSS-in-JS constants
+  - Reduced re-renders from style object recreation
+  - Improved React DevTools inspection of style definitions
+
+- **Screen reader support enhancements**
+  - Interactive elements now properly labeled with aria-label/aria-labelledby
+  - Loading states announce via aria-live regions
+  - Navigation provides aria-current for context
+  - Modal dialogs properly marked with aria-modal
+
+### Fixed
+
+- **TypeScript strict mode errors** - Resolved all error handling migration issues
+  - Fixed safeInvoke call signatures in 8 components
+  - Fixed callback type mismatches in error handlers
+  - Resolved type narrowing issues in error boundaries
+
+- **Test expectations** - Updated test assertions for new error handling patterns
+  - Updated 45 test cases for safeInvoke return types
+  - Fixed mock expectations for error callbacks
+  - Corrected async test completions in component tests
+
+### Tests
+
+- **5,234+ total tests** (Backend: 2,274 | Frontend: 2,960)
+- New test coverage: +155 tests across API utilities and critical components
+- All TypeScript strict mode checks passing
+- 100% accessibility compliance for tested components
+
+---
+
 ## [2.6.1] - 2026-01-25
 
 ### Added - Performance & Code Quality Sprint

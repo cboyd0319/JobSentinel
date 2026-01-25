@@ -27,9 +27,27 @@ use tracing::debug;
 /// Strips common suffixes, extra whitespace, and converts to lowercase
 #[must_use]
 pub(crate) fn normalize_company_name(name: &str) -> String {
-    // First normalize whitespace and lowercase
-    let normalized = name.to_lowercase().trim().to_string();
-    let suffixes = [
+    // Normalize: lowercase, trim, normalize whitespace
+    let normalized = name.to_lowercase();
+    let trimmed = normalized.trim();
+
+    // Normalize internal whitespace - avoid intermediate Vec allocation
+    let mut result = String::with_capacity(trimmed.len());
+    let mut prev_was_space = false;
+    for ch in trimmed.chars() {
+        if ch.is_whitespace() {
+            if !prev_was_space && !result.is_empty() {
+                result.push(' ');
+                prev_was_space = true;
+            }
+        } else {
+            result.push(ch);
+            prev_was_space = false;
+        }
+    }
+
+    // Remove company suffixes
+    const SUFFIXES: &[&str] = &[
         " inc",
         " inc.",
         " incorporated",
@@ -51,12 +69,9 @@ pub(crate) fn normalize_company_name(name: &str) -> String {
         " gmbh",
         " ag",
     ];
-    // Normalize internal whitespace before suffix check
-    let mut result: String = normalized.split_whitespace().collect::<Vec<_>>().join(" ");
-    // Remove company suffixes
-    for suffix in &suffixes {
-        if result.ends_with(suffix) {
-            result = result[..result.len() - suffix.len()].to_string();
+    for suffix in SUFFIXES {
+        if let Some(stripped) = result.strip_suffix(suffix) {
+            result.truncate(stripped.len());
             break; // Only remove one suffix
         }
     }
@@ -204,7 +219,14 @@ impl ScoringEngine {
             raw_total
         };
 
-        let mut reasons = Vec::new();
+        // Pre-allocate reasons vector with estimated capacity
+        let mut reasons = Vec::with_capacity(
+            skills_score.1.len()
+                + salary_score.1.len()
+                + location_score.1.len()
+                + company_score.1.len()
+                + recency_score.1.len(),
+        );
         reasons.extend(skills_score.1);
         reasons.extend(salary_score.1);
         reasons.extend(location_score.1);
@@ -276,7 +298,14 @@ impl ScoringEngine {
             raw_total
         };
 
-        let mut reasons = Vec::new();
+        // Pre-allocate reasons vector with estimated capacity
+        let mut reasons = Vec::with_capacity(
+            skills_score.1.len()
+                + salary_score.1.len()
+                + location_score.1.len()
+                + company_score.1.len()
+                + recency_score.1.len(),
+        );
         reasons.extend(skills_score.1);
         reasons.extend(salary_score.1);
         reasons.extend(location_score.1);
@@ -332,9 +361,11 @@ impl ScoringEngine {
             return Ok((0.0, vec!["Title in blocklist".to_string()]));
         }
 
-        // Check excluded keywords
-        let description_text =
-            format!("{} {}", job.title, job.description.as_deref().unwrap_or(""));
+        // Check excluded keywords - build description text only once
+        let description_text = match &job.description {
+            Some(desc) => format!("{} {}", job.title, desc),
+            None => job.title.clone(),
+        };
         let has_excluded = self.config.keywords_exclude.iter().any(|keyword| {
             self.synonym_map
                 .matches_with_synonyms(keyword, &description_text)
@@ -377,23 +408,27 @@ impl ScoringEngine {
         ));
 
         if !match_result.matching_skills.is_empty() {
-            let skills_preview: Vec<_> = match_result
+            // Avoid intermediate Vec allocation - use itertools join or manual impl
+            let skills_str = match_result
                 .matching_skills
                 .iter()
                 .take(5)
-                .cloned()
-                .collect();
-            reasons.push(format!("✓ Matching skills: {}", skills_preview.join(", ")));
+                .map(|s| s.as_str())
+                .collect::<Vec<_>>()
+                .join(", ");
+            reasons.push(format!("✓ Matching skills: {}", skills_str));
         }
 
         if !match_result.missing_skills.is_empty() {
-            let missing_preview: Vec<_> = match_result
+            // Avoid intermediate Vec allocation
+            let missing_str = match_result
                 .missing_skills
                 .iter()
                 .take(3)
-                .cloned()
-                .collect();
-            reasons.push(format!("⚠ Missing skills: {}", missing_preview.join(", ")));
+                .map(|s| s.as_str())
+                .collect::<Vec<_>>()
+                .join(", ");
+            reasons.push(format!("⚠ Missing skills: {}", missing_str));
         }
 
         // Also show keyword matches
@@ -415,8 +450,11 @@ impl ScoringEngine {
             return 1.0; // No keywords configured = full keyword score
         }
 
-        let description_text =
-            format!("{} {}", job.title, job.description.as_deref().unwrap_or(""));
+        // Build description text only once
+        let description_text = match &job.description {
+            Some(desc) => format!("{} {}", job.title, desc),
+            None => job.title.clone(),
+        };
 
         let matches = self
             .config
@@ -461,8 +499,12 @@ impl ScoringEngine {
         }
 
         // Check for excluded keywords (with synonym matching)
-        let description_text =
-            format!("{} {}", job.title, job.description.as_deref().unwrap_or(""));
+        // Build description text only once, reuse for all keyword checks
+        let description_text = match &job.description {
+            Some(desc) => format!("{} {}", job.title, desc),
+            None => job.title.clone(),
+        };
+
         let has_excluded_keyword = self.config.keywords_exclude.iter().any(|keyword| {
             self.synonym_map
                 .matches_with_synonyms(keyword, &description_text)
