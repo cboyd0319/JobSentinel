@@ -67,8 +67,6 @@ interface ProfileFormProps {
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormProps) {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_profile, setProfile] = useState<ApplicationProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [takingLong, setTakingLong] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -174,8 +172,6 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
       setLoading(true);
       const data = await invoke<ApplicationProfile | null>("get_application_profile");
       if (data) {
-        // Store profile for reference (used for default resume ID, etc.)
-        setProfile(data);
         setFullName(data.fullName);
         setEmail(data.email);
         setPhone(data.phone || "");
