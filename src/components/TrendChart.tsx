@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { memo, useMemo } from "react";
 import { LineChart } from "recharts/es6/chart/LineChart";
 import { Line } from "recharts/es6/cartesian/Line";
 import { BarChart } from "recharts/es6/chart/BarChart";
@@ -27,7 +27,7 @@ interface TrendChartProps {
   emptyMessage?: string;
 }
 
-export function TrendChart({
+export const TrendChart = memo(function TrendChart({
   data,
   type,
   title,
@@ -165,4 +165,4 @@ export function TrendChart({
       </div>
     </Card>
   );
-}
+});

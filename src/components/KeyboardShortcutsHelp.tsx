@@ -50,13 +50,13 @@ const SHORTCUTS = {
 };
 
 // Exported for use in tooltips and button hints
-export function ShortcutKey({ children }: { children: string }) {
+export const ShortcutKey = memo(function ShortcutKey({ children }: { children: string }) {
   return (
     <kbd className="inline-flex items-center justify-center min-w-[24px] h-6 px-1.5 text-xs font-mono bg-surface-100 dark:bg-surface-700 border border-surface-300 dark:border-surface-600 rounded shadow-sm">
       {children}
     </kbd>
   );
-}
+});
 
 const ShortcutRow = memo(function ShortcutRow({ keys, description }: { keys: string[]; description: string }) {
   return (
@@ -91,7 +91,7 @@ const ShortcutSection = memo(function ShortcutSection({ title, shortcuts }: { ti
   );
 });
 
-export function KeyboardShortcutsHelp({ isOpen, onClose }: KeyboardShortcutsHelpProps) {
+export const KeyboardShortcutsHelp = memo(function KeyboardShortcutsHelp({ isOpen, onClose }: KeyboardShortcutsHelpProps) {
   const { startTour, hasCompletedTour } = useOnboarding();
 
   const handleStartTour = () => {
@@ -133,4 +133,4 @@ export function KeyboardShortcutsHelp({ isOpen, onClose }: KeyboardShortcutsHelp
       </div>
     </Modal>
   );
-}
+});

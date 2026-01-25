@@ -1,11 +1,11 @@
-import { useEffect, useRef, KeyboardEvent } from "react";
+import { memo, useEffect, useRef, KeyboardEvent } from "react";
 
 interface FocusTrapProps {
   children: React.ReactNode;
   active?: boolean;
 }
 
-export function FocusTrap({ children, active = true }: FocusTrapProps) {
+export const FocusTrap = memo(function FocusTrap({ children, active = true }: FocusTrapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -51,7 +51,7 @@ export function FocusTrap({ children, active = true }: FocusTrapProps) {
       {children}
     </div>
   );
-}
+});
 
 function getFocusableElements(container: HTMLElement): NodeListOf<Element> {
   return container.querySelectorAll(
