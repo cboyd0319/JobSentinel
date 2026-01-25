@@ -7,7 +7,7 @@
  * @version 2.5.5
  */
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { memo, useState, useEffect, useCallback, useMemo } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { Button, Badge, Modal, ModalFooter, Tooltip } from ".";
 import { logError } from "../utils/errorUtils";
@@ -119,40 +119,42 @@ const getScoreLabel = (score: number): string => {
   return "Poor";
 };
 
+// Step tips lookup (better performance than switch)
+const STEP_TIPS: Record<number, string[]> = {
+  1: [ // Contact
+    "Include a professional email address",
+    "Add LinkedIn profile for tech roles",
+    "Use a location that matches job requirements",
+  ],
+  2: [ // Summary
+    "Keep summary to 2-3 sentences",
+    "Include your years of experience",
+    "Mention your specialization or expertise",
+  ],
+  3: [ // Experience
+    "Use action verbs to start bullet points",
+    "Include quantifiable achievements",
+    "Focus on impact, not just duties",
+  ],
+  4: [ // Education
+    "Include degree, institution, and graduation date",
+    "Add relevant coursework for junior roles",
+    "List honors and achievements",
+  ],
+  5: [ // Skills
+    "Match skills to job requirements",
+    "Group skills by category",
+    "Include both technical and soft skills",
+  ],
+};
+
 // Quick tips based on current step
 const getStepTips = (step: number, analysis: AtsAnalysisResult | null): string[] => {
-  const tips: string[] = [];
-
   if (!analysis) {
-    switch (step) {
-      case 1: // Contact
-        tips.push("Include a professional email address");
-        tips.push("Add LinkedIn profile for tech roles");
-        tips.push("Use a location that matches job requirements");
-        break;
-      case 2: // Summary
-        tips.push("Keep summary to 2-3 sentences");
-        tips.push("Include your years of experience");
-        tips.push("Mention your specialization or expertise");
-        break;
-      case 3: // Experience
-        tips.push("Use action verbs to start bullet points");
-        tips.push("Include quantifiable achievements");
-        tips.push("Focus on impact, not just duties");
-        break;
-      case 4: // Education
-        tips.push("Include degree, institution, and graduation date");
-        tips.push("Add relevant coursework for junior roles");
-        tips.push("List honors and achievements");
-        break;
-      case 5: // Skills
-        tips.push("Match skills to job requirements");
-        tips.push("Group skills by category");
-        tips.push("Include both technical and soft skills");
-        break;
-    }
-    return tips;
+    return STEP_TIPS[step] ?? [];
   }
+
+  const tips: string[] = [];
 
   // Tips based on analysis
   if (analysis.format_score < 70) {
@@ -579,7 +581,7 @@ export function AtsLiveScorePanel({
 }
 
 // Helper component for score bars
-function ScoreBar({ label, score }: { label: string; score: number }) {
+const ScoreBar = memo(function ScoreBar({ label, score }: { label: string; score: number }) {
   return (
     <div className="flex items-center gap-2">
       <span className="text-xs text-surface-600 dark:text-surface-400 w-16 truncate">{label}</span>
@@ -594,10 +596,10 @@ function ScoreBar({ label, score }: { label: string; score: number }) {
       </span>
     </div>
   );
-}
+});
 
 // Helper component for score cards in modal
-function ScoreCard({ label, score }: { label: string; score: number }) {
+const ScoreCard = memo(function ScoreCard({ label, score }: { label: string; score: number }) {
   return (
     <div className="text-center p-3 bg-surface-50 dark:bg-surface-700 rounded-lg">
       <div className={`text-2xl font-bold ${getScoreColor(score)}`}>
@@ -606,6 +608,6 @@ function ScoreCard({ label, score }: { label: string; score: number }) {
       <p className="text-xs text-surface-500 dark:text-surface-400 mt-1">{label}</p>
     </div>
   );
-}
+});
 
 export default AtsLiveScorePanel;

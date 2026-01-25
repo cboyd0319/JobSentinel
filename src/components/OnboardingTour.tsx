@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, createContext, useContext, type ReactNode } from "react";
+import { memo, useState, useEffect, useCallback, createContext, useContext, type ReactNode } from "react";
 
 interface TourStep {
   target: string; // CSS selector
@@ -90,7 +90,27 @@ interface TourOverlayProps {
   steps: TourStep[];
 }
 
-function TourOverlay({ steps }: TourOverlayProps) {
+// Position calculators for each placement (better performance than switch)
+const PLACEMENT_CALCULATORS: Record<NonNullable<TourStep["placement"]>, (rect: DOMRect, padding: number) => { top: number; left: number }> = {
+  top: (rect, padding) => ({
+    top: rect.top - padding - 150,
+    left: rect.left + rect.width / 2,
+  }),
+  bottom: (rect, padding) => ({
+    top: rect.bottom + padding,
+    left: rect.left + rect.width / 2,
+  }),
+  left: (rect, padding) => ({
+    top: rect.top + rect.height / 2,
+    left: rect.left - padding - 300,
+  }),
+  right: (rect, padding) => ({
+    top: rect.top + rect.height / 2,
+    left: rect.right + padding,
+  }),
+};
+
+const TourOverlay = memo(function TourOverlay({ steps }: TourOverlayProps) {
   const { currentStep, nextStep, prevStep, endTour } = useOnboarding();
   const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
@@ -110,29 +130,8 @@ function TourOverlay({ steps }: TourOverlayProps) {
       const placement = step.placement || "bottom";
       const padding = 12;
 
-      let top = 0;
-      let left = 0;
-
-      switch (placement) {
-        case "top":
-          top = rect.top - padding - 150; // Approximate tooltip height
-          left = rect.left + rect.width / 2;
-          break;
-        case "bottom":
-          top = rect.bottom + padding;
-          left = rect.left + rect.width / 2;
-          break;
-        case "left":
-          top = rect.top + rect.height / 2;
-          left = rect.left - padding - 300; // Approximate tooltip width
-          break;
-        case "right":
-          top = rect.top + rect.height / 2;
-          left = rect.right + padding;
-          break;
-      }
-
-      setTooltipPosition({ top, left });
+      const calculator = PLACEMENT_CALCULATORS[placement];
+      setTooltipPosition(calculator(rect, padding));
     };
 
     updatePosition();
@@ -260,10 +259,10 @@ function TourOverlay({ steps }: TourOverlayProps) {
       />
     </div>
   );
-}
+});
 
 // Export a simple help button that triggers the tour
-export function TourHelpButton() {
+export const TourHelpButton = memo(function TourHelpButton() {
   const { startTour, hasCompletedTour } = useOnboarding();
 
   return (
@@ -287,4 +286,4 @@ export function TourHelpButton() {
       {!hasCompletedTour && <span>Tour</span>}
     </button>
   );
-}
+});
