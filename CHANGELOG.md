@@ -98,6 +98,27 @@ Comprehensive UX improvements focused on error recovery, loading states, accessi
 - Missing aria-labels on interactive elements
 - Inconsistent error handling patterns
 - Unnecessary re-renders in context consumers
+- **Memory leak in ToastContext** - Timers now properly cleaned up on unmount
+
+### Accessibility (January 25, 2026)
+
+- **Navigation.tsx** - Added `aria-label="Main navigation"` for screen readers
+- **Dropdown.tsx** - Added `aria-activedescendant` for keyboard navigation accessibility
+- **Tooltip.tsx** - Added Escape key to dismiss tooltips for keyboard users
+- **Badge.tsx** - Contextual remove button labels (`Remove {content}` instead of generic "Remove")
+
+### Error Handling (January 25, 2026)
+
+- **DashboardWidgets.tsx** - Added error state with retry button for analytics loading failures
+- **NotificationPreferences.tsx** - Added error state with retry for preference loading failures
+
+### Tests (January 25, 2026)
+
+- **4,037 total tests** (Backend: 2,257 | Frontend: 1,780)
+- Added ScraperHealthDashboard tests (53 tests)
+- Added InterviewScheduler tests (39 tests)
+- Added CompanyResearchPanel tests (36 tests)
+- Updated Badge tests for new contextual aria-labels
 
 ## [2.5.5] - 2026-01-24
 

@@ -1,6 +1,6 @@
 # JobSentinel Roadmap
 
-**Last Updated:** January 24, 2026
+**Last Updated:** January 25, 2026
 
 ## Current Version: 2.6.0
 
@@ -623,7 +623,7 @@ See [docs/features/one-click-apply.md](features/one-click-apply.md) for full doc
 
 - All Rust code compiles with 0 errors
 - Clippy passes with 0 warnings (`-D warnings`)
-- 2104+ tests passing, 28 ignored (require file-based database or are doc examples)
+- **4,037 tests passing** (2,257 Rust + 1,780 Frontend), 49 ignored (require file-based database or are doc examples)
 - P3 Integration tests: 76 tests across 4 files (api_contract, scheduler, database, automation)
 - P5 Automation tests: 19 tests (12 unit + 7 integration)
 - All modules enabled and functional

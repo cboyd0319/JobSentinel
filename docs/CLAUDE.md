@@ -206,8 +206,8 @@ All core modules are enabled and functional:
 
 ### Test Status
 
-- 2085 tests passing
-- 20 ignored (require file-based database, Chrome, or are doc-tests)
+- **4,037 tests passing** (2,257 Rust + 1,780 Frontend)
+- 49 ignored (require file-based database, Chrome, or are doc-tests)
 - Integration test files: `tests/automation_integration_test.rs`, `tests/scheduler_integration_test.rs`, etc.
 
 ### Tauri Commands (144 total)

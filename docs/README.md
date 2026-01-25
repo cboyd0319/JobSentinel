@@ -19,12 +19,12 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.7: ML predictions, Linux suppo
 
 ## Current Status (January 2026)
 
-**Version: 2.6.0** | 2900+ tests passing | UX Improvements + Performance
+**Version: 2.6.0** | 4,000+ tests passing | UX Improvements + Performance + Accessibility
 
 ### What's New in v2.6.0 ⚡
 
 - **Comprehensive UX Improvements** - Error recovery, loading states, accessibility
-  - Retry buttons across multiple components (Market, AtsLiveScorePanel, ApplyButton)
+  - Retry buttons across multiple components (Market, AtsLiveScorePanel, ApplyButton, DashboardWidgets, NotificationPreferences)
   - Stale data indicators with color-coded timestamps
   - Skeleton loaders for better perceived performance
   - Inline validation with real-time feedback
@@ -35,6 +35,15 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.7: ML predictions, Linux suppo
   - 50+ components memoized to prevent unnecessary re-renders
   - All context providers optimized with useCallback/useMemo
   - Lookup objects replace switch statements
+  - Fixed memory leak in ToastContext (timer cleanup)
+
+- **Accessibility Enhancements**
+  - Navigation: Added aria-label for main navigation
+  - Dropdown: Added aria-activedescendant for keyboard navigation
+  - Tooltip: Escape key dismisses tooltips
+  - Badge: Contextual remove button labels
+
+- **Test Coverage** - 4,037 tests (2,257 Rust + 1,780 Frontend)
 
 - See [v2.6.0 Release Notes](releases/v2.6.0.md) for full details
 
@@ -131,7 +140,7 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.7: ML predictions, Linux suppo
 |-----------------|
 | ![One-Click Apply](images/one-click-apply.png) |
 
-### Backend Modules (87 Tauri Commands)
+### Backend Modules (144 Tauri Commands)
 
 - **Core**: config, db, scoring, scheduler, scrapers (13 with parallel scraping), notify, ghost
 - **ATS**: 10 commands (Kanban, reminders, ghosting detection, interviews)
@@ -276,4 +285,4 @@ tests/                     # All tests
 
 ---
 
-**Last Updated:** 2026-01-24
+**Last Updated:** 2026-01-25
