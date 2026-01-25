@@ -121,7 +121,8 @@ impl UsaJobsScraper {
 
     /// Build query parameters for the search API
     fn build_query_params(&self, page: u32) -> Vec<(&str, String)> {
-        let mut params = Vec::new();
+        // Pre-allocate capacity for typical number of params (10)
+        let mut params = Vec::with_capacity(10);
 
         if let Some(ref kw) = self.keywords {
             params.push(("Keyword", kw.clone()));

@@ -101,12 +101,10 @@ impl ResponseCache {
 
     /// Store response in cache
     fn set(&mut self, url: String, body: String) {
-        self.cache.insert(url.clone(), CacheEntry::new(body));
-        tracing::debug!(
-            "Cached response for URL: {} (total entries: {})",
-            url,
-            self.cache.len()
-        );
+        // Log before insert since we move url into the map
+        tracing::debug!("Caching response for URL: {}", &url);
+        self.cache.insert(url, CacheEntry::new(body));
+        tracing::debug!("Cache now has {} entries", self.cache.len());
     }
 
     /// Clear all cached entries
