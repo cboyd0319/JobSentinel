@@ -310,15 +310,20 @@ export function NotificationPreferences() {
   }, []);
 
   const savePrefs = useCallback(async (updated: NotificationPreferences) => {
+    // Optimistic update - apply changes immediately
+    const previousPrefs = prefs;
     setPrefs(updated);
+
     const success = await saveNotificationPreferencesAsync(updated);
     if (success) {
       setHasChanges(true);
       setTimeout(() => setHasChanges(false), 2000);
     } else {
-      toast.error('Failed to save', 'Changes may be lost when you close the app');
+      // Rollback on failure
+      setPrefs(previousPrefs);
+      toast.error('Failed to save', 'Your changes have been reverted');
     }
-  }, [toast]);
+  }, [prefs, toast]);
 
   const handleSourceChange = useCallback((sourceKey: string, config: SourceNotificationConfig) => {
     const updated = { ...prefs, [sourceKey]: config };

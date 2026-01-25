@@ -359,7 +359,9 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
           <div className="space-y-6">
             <Card>
               <CardHeader title="Job Description" />
+              <label htmlFor="job-description-input" className="sr-only">Job Description</label>
               <textarea
+                id="job-description-input"
                 value={jobDescription}
                 onChange={(e) => setJobDescription(e.target.value)}
                 placeholder="Paste the job description here..."
@@ -369,13 +371,16 @@ export default function ResumeOptimizer({ onBack, onNavigate }: ResumeOptimizerP
 
             <Card>
               <CardHeader title="Resume Data (JSON)" />
+              <label htmlFor="resume-json-input" className="sr-only">Resume Data in JSON format</label>
               <textarea
+                id="resume-json-input"
                 value={resumeJson}
                 onChange={(e) => setResumeJson(e.target.value)}
                 placeholder='{"contact_info": {...}, "summary": "...", "experience": [...], ...}'
+                aria-describedby="resume-json-hint"
                 className="w-full h-96 px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 placeholder-surface-400 focus:border-sentinel-500 focus:ring-1 focus:ring-sentinel-500 dark:focus:border-sentinel-400 dark:focus:ring-sentinel-400 resize-none font-mono"
               />
-              <p className="text-xs text-surface-500 dark:text-surface-400 mt-2">
+              <p id="resume-json-hint" className="text-xs text-surface-500 dark:text-surface-400 mt-2">
                 Paste your resume as JSON following the AtsResumeData schema
               </p>
             </Card>
