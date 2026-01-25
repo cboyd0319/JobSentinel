@@ -1,3 +1,5 @@
+import { memo } from "react";
+
 interface ProgressProps {
   value: number; // 0-100
   max?: number;
@@ -21,7 +23,7 @@ const variantStyles = {
   danger: "bg-danger",
 };
 
-export function Progress({
+export const Progress = memo(function Progress({
   value,
   max = 100,
   size = "md",
@@ -65,10 +67,10 @@ export function Progress({
       </div>
     </div>
   );
-}
+});
 
 // Indeterminate progress for loading states
-export function ProgressIndeterminate({
+export const ProgressIndeterminate = memo(function ProgressIndeterminate({
   size = "md",
   variant = "sentinel",
   className = "",
@@ -92,4 +94,4 @@ export function ProgressIndeterminate({
       />
     </div>
   );
-}
+});

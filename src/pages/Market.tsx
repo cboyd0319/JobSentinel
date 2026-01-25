@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo, lazy, Suspense } from "react";
+import { memo, useEffect, useState, useCallback, useMemo, lazy, Suspense } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import {
   Button,
@@ -599,28 +599,26 @@ interface TrendIndicatorProps {
   percent: number;
 }
 
-function TrendIndicator({ direction, percent }: TrendIndicatorProps) {
-  const getIcon = () => {
-    switch ((direction ?? "stable").toLowerCase()) {
-      case "up":
-        return "↑";
-      case "down":
-        return "↓";
-      default:
-        return "→";
-    }
-  };
+// Trend direction icon lookup (better performance than switch)
+const TREND_ICONS: Record<string, string> = {
+  up: "↑",
+  down: "↓",
+  stable: "→",
+};
 
-  const getColor = () => {
-    if (percent > 0) return "text-green-600 dark:text-green-400";
-    if (percent < 0) return "text-red-600 dark:text-red-400";
-    return "text-surface-500 dark:text-surface-400";
-  };
+const TrendIndicator = memo(function TrendIndicator({ direction, percent }: TrendIndicatorProps) {
+  const icon = TREND_ICONS[(direction ?? "stable").toLowerCase()] ?? TREND_ICONS.stable;
+
+  const color = percent > 0
+    ? "text-green-600 dark:text-green-400"
+    : percent < 0
+      ? "text-red-600 dark:text-red-400"
+      : "text-surface-500 dark:text-surface-400";
 
   return (
-    <span className={`text-sm font-medium ${getColor()}`}>
-      {getIcon()} {percent > 0 ? "+" : ""}
+    <span className={`text-sm font-medium ${color}`}>
+      {icon} {percent > 0 ? "+" : ""}
       {percent.toFixed(1)}%
     </span>
   );
-}
+});

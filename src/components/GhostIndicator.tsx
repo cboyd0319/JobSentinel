@@ -1,6 +1,6 @@
+import { memo, useState } from "react";
 import { Tooltip } from "./Tooltip";
 import { invoke } from "@tauri-apps/api/core";
-import { useState } from "react";
 import { logError } from "../utils/errorUtils";
 
 interface GhostReason {
@@ -103,7 +103,7 @@ function WarningIcon({ className }: { className?: string }) {
   );
 }
 
-export function GhostIndicator({
+export const GhostIndicator = memo(function GhostIndicator({
   ghostScore,
   ghostReasons,
   size = "sm",
@@ -236,10 +236,10 @@ export function GhostIndicator({
       </span>
     </Tooltip>
   );
-}
+});
 
 // Compact version for job list rows
-export function GhostIndicatorCompact({
+export const GhostIndicatorCompact = memo(function GhostIndicatorCompact({
   ghostScore,
   ghostReasons,
   jobId,
@@ -347,4 +347,4 @@ export function GhostIndicatorCompact({
       </span>
     </Tooltip>
   );
-}
+});

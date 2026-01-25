@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Tooltip } from "./Tooltip";
 
 interface HelpIconProps {
@@ -12,7 +13,7 @@ const sizeStyles = {
   lg: "w-6 h-6 text-base",
 };
 
-export function HelpIcon({ text, size = "sm", position = "top" }: HelpIconProps) {
+export const HelpIcon = memo(function HelpIcon({ text, size = "sm", position = "top" }: HelpIconProps) {
   return (
     <Tooltip content={text} position={position}>
       <div
@@ -34,4 +35,4 @@ export function HelpIcon({ text, size = "sm", position = "top" }: HelpIconProps)
       </div>
     </Tooltip>
   );
-}
+});

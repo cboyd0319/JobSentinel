@@ -12,6 +12,15 @@ import type {
 } from "../DashboardTypes";
 import { SALARY_THOUSANDS_MULTIPLIER, GHOST_SCORE_THRESHOLD } from "../../utils/constants";
 
+// Sort comparators lookup (better performance than switch)
+const SORT_COMPARATORS: Record<SortOption, (a: Job, b: Job) => number> = {
+  "score-desc": (a, b) => b.score - a.score,
+  "score-asc": (a, b) => a.score - b.score,
+  "date-desc": (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+  "date-asc": (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+  "company-asc": (a, b) => a.company.localeCompare(b.company),
+};
+
 // Parse advanced search query with AND, OR, NOT operators
 export function parseSearchQuery(query: string): SearchQuery {
   const trimmed = query.trim();
@@ -223,23 +232,11 @@ export function useDashboardFilters(jobs: Job[]) {
       });
     }
 
-    // Apply sorting
-    result.sort((a, b) => {
-      switch (sortBy) {
-        case "score-desc":
-          return b.score - a.score;
-        case "score-asc":
-          return a.score - b.score;
-        case "date-desc":
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-        case "date-asc":
-          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-        case "company-asc":
-          return a.company.localeCompare(b.company);
-        default:
-          return 0;
-      }
-    });
+    // Apply sorting using lookup
+    const comparator = SORT_COMPARATORS[sortBy];
+    if (comparator) {
+      result.sort(comparator);
+    }
 
     return result;
   }, [jobs, textSearch, scoreFilter, sourceFilter, remoteFilter, bookmarkFilter, notesFilter, postedDateFilter, salaryMinFilter, salaryMaxFilter, ghostFilter, sortBy]);

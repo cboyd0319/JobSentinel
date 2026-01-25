@@ -1,10 +1,11 @@
+import { memo } from "react";
 import { useTheme } from "../contexts";
 
 interface ThemeToggleProps {
   className?: string;
 }
 
-export function ThemeToggle({ className = "" }: ThemeToggleProps) {
+export const ThemeToggle = memo(function ThemeToggle({ className = "" }: ThemeToggleProps) {
   const { resolvedTheme, toggleTheme } = useTheme();
 
   return (
@@ -59,4 +60,4 @@ export function ThemeToggle({ className = "" }: ThemeToggleProps) {
       </svg>
     </button>
   );
-}
+});

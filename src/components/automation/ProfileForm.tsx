@@ -113,34 +113,36 @@ export function ProfileForm({ onSaved }: ProfileFormProps) {
     }
   }, []);
 
-  // Field validation function
+  // Field validators lookup (better performance than switch)
+  const validateUrl = useCallback((value: string): string | undefined => {
+    if (!value.trim()) return undefined;
+    if (!isValidUrl(value)) return "Enter a valid URL (https://...)";
+    return undefined;
+  }, [isValidUrl]);
+
+  const fieldValidators = useMemo((): Record<string, (value: string) => string | undefined> => ({
+    fullName: (value) => value.trim() ? undefined : "Full name is required",
+    email: (value) => {
+      if (!value.trim()) return "Email is required";
+      if (!EMAIL_REGEX.test(value.trim())) return "Please enter a valid email";
+      return undefined;
+    },
+    phone: (value) => {
+      if (!value.trim()) return undefined;
+      const digits = value.replace(/\D/g, "");
+      if (digits.length < 10 || digits.length > 15) return "Enter 10-15 digit phone number";
+      return undefined;
+    },
+    linkedinUrl: validateUrl,
+    githubUrl: validateUrl,
+    portfolioUrl: validateUrl,
+    websiteUrl: validateUrl,
+  }), [validateUrl]);
+
+  // Field validation function using lookup
   const validateField = useCallback((field: string, value: string): string | undefined => {
-    switch (field) {
-      case "fullName":
-        return value.trim() ? undefined : "Full name is required";
-      case "email": {
-        if (!value.trim()) return "Email is required";
-        if (!EMAIL_REGEX.test(value.trim())) return "Please enter a valid email";
-        return undefined;
-      }
-      case "phone": {
-        if (!value.trim()) return undefined;
-        const digits = value.replace(/\D/g, "");
-        if (digits.length < 10 || digits.length > 15) return "Enter 10-15 digit phone number";
-        return undefined;
-      }
-      case "linkedinUrl":
-      case "githubUrl":
-      case "portfolioUrl":
-      case "websiteUrl": {
-        if (!value.trim()) return undefined;
-        if (!isValidUrl(value)) return "Enter a valid URL (https://...)";
-        return undefined;
-      }
-      default:
-        return undefined;
-    }
-  }, [isValidUrl, EMAIL_REGEX]);
+    return fieldValidators[field]?.(value);
+  }, [fieldValidators]);
 
   // Handle field blur for inline validation
   const handleBlur = useCallback((field: string, value: string) => {
