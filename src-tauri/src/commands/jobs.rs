@@ -12,8 +12,9 @@ use tauri::State;
 ///
 /// This triggers a full scraping cycle across Greenhouse, Lever, and JobsWithGPT.
 #[tauri::command]
+#[tracing::instrument(skip(state), level = "info")]
 pub async fn search_jobs(state: State<'_, AppState>) -> Result<Value, String> {
-    tracing::info!("Command: search_jobs");
+    tracing::info!("Manual job search triggered via command");
 
     // Create scheduler instance
     let scheduler =
@@ -22,7 +23,12 @@ pub async fn search_jobs(state: State<'_, AppState>) -> Result<Value, String> {
     // Run single scraping cycle
     match scheduler.run_scraping_cycle().await {
         Ok(result) => {
-            tracing::info!("Scraping complete: {} jobs found", result.jobs_found);
+            tracing::info!(
+                jobs_found = result.jobs_found,
+                jobs_new = result.jobs_new,
+                high_matches = result.high_matches,
+                "Manual search completed successfully"
+            );
 
             Ok(serde_json::json!({
                 "success": true,
@@ -35,7 +41,7 @@ pub async fn search_jobs(state: State<'_, AppState>) -> Result<Value, String> {
             }))
         }
         Err(e) => {
-            tracing::error!("Search failed: {}", e);
+            tracing::error!(error = %e, "Manual search failed");
             Err(format!("Scraping failed: {}", e))
         }
     }
@@ -45,11 +51,12 @@ pub async fn search_jobs(state: State<'_, AppState>) -> Result<Value, String> {
 ///
 /// Returns the most recent jobs, sorted by score (descending).
 #[tauri::command]
+#[tracing::instrument(skip(state), fields(limit), level = "debug")]
 pub async fn get_recent_jobs(
     limit: usize,
     state: State<'_, AppState>,
 ) -> Result<Vec<Value>, String> {
-    tracing::info!("Command: get_recent_jobs (limit: {})", limit);
+    tracing::debug!("Fetching recent jobs");
 
     match state.database.get_recent_jobs(limit as i64).await {
         Ok(jobs) => {
@@ -58,17 +65,18 @@ pub async fn get_recent_jobs(
                 .filter_map(|job| {
                     serde_json::to_value(&job)
                         .map_err(|e| {
-                            tracing::error!("Failed to serialize job {}: {}", job.id, e);
+                            tracing::error!(job_id = job.id, error = %e, "Failed to serialize job");
                             e
                         })
                         .ok()
                 })
                 .collect();
 
+            tracing::debug!(returned_count = jobs_json.len(), "Recent jobs fetched");
             Ok(jobs_json)
         }
         Err(e) => {
-            tracing::error!("Failed to get recent jobs: {}", e);
+            tracing::error!(error = %e, "Failed to get recent jobs from database");
             Err(user_friendly_error("Failed to load jobs", e))
         }
     }
@@ -76,20 +84,23 @@ pub async fn get_recent_jobs(
 
 /// Get job by ID
 #[tauri::command]
+#[tracing::instrument(skip(state), fields(job_id = id), level = "debug")]
 pub async fn get_job_by_id(id: i64, state: State<'_, AppState>) -> Result<Option<Value>, String> {
-    tracing::info!("Command: get_job_by_id (id: {})", id);
-
     match state.database.get_job_by_id(id).await {
-        Ok(job) => Ok(job.and_then(|j| {
-            serde_json::to_value(&j)
-                .map_err(|e| {
-                    tracing::error!("Failed to serialize job {}: {}", j.id, e);
-                    e
-                })
-                .ok()
-        })),
+        Ok(job) => {
+            let found = job.is_some();
+            tracing::debug!(found, "Job lookup complete");
+            Ok(job.and_then(|j| {
+                serde_json::to_value(&j)
+                    .map_err(|e| {
+                        tracing::error!(job_id = j.id, error = %e, "Failed to serialize job");
+                        e
+                    })
+                    .ok()
+            }))
+        }
         Err(e) => {
-            tracing::error!("Failed to get job: {}", e);
+            tracing::error!(error = %e, "Failed to get job from database");
             Err(user_friendly_error("Failed to load job details", e))
         }
     }

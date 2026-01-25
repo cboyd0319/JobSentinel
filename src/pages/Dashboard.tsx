@@ -10,6 +10,7 @@ import { JobCard } from "../components/JobCard";
 import { ScoreDisplay } from "../components/ScoreDisplay";
 import { Modal, ModalFooter } from "../components/Modal";
 import { default as ModalErrorBoundary } from "../components/ModalErrorBoundary";
+import { default as ComponentErrorBoundary } from "../components/ComponentErrorBoundary";
 import { FocusTrap } from "../components/FocusTrap";
 import { DashboardSkeleton } from "../components/Skeleton";
 import { useToast } from "../contexts";
@@ -325,7 +326,7 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
   // Settings modal
   if (showSettings) {
     return (
-      <ModalErrorBoundary onClose={() => setShowSettings(false)}>
+      <ModalErrorBoundary modalName="settings" onClose={() => setShowSettings(false)}>
         <Suspense fallback={<PanelSkeleton />}>
           <Settings onClose={() => setShowSettings(false)} />
         </Suspense>
@@ -374,9 +375,11 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
         <DashboardStats statistics={statistics} />
 
         {/* Analytics Widgets (collapsible, lazy-loaded) */}
-        <Suspense fallback={<WidgetSkeleton />}>
-          <DashboardWidgets className="mb-6" />
-        </Suspense>
+        <ComponentErrorBoundary componentName="DashboardWidgets" silentFail>
+          <Suspense fallback={<WidgetSkeleton />}>
+            <DashboardWidgets className="mb-6" />
+          </Suspense>
+        </ComponentErrorBoundary>
 
         {/* Quick Actions */}
         <QuickActions
@@ -750,9 +753,21 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
           aria-label={`Company research for ${researchCompany}`}
         >
           <FocusTrap>
-            <Suspense fallback={<PanelSkeleton />}>
-              <CompanyResearchPanel companyName={researchCompany} onClose={() => setResearchCompany(null)} />
-            </Suspense>
+            <ComponentErrorBoundary
+              componentName="CompanyResearchPanel"
+              fallback={() => (
+                <div className="p-6 text-center">
+                  <p className="text-red-600 dark:text-red-400 mb-4">
+                    Failed to load company research
+                  </p>
+                  <Button onClick={() => setResearchCompany(null)}>Close</Button>
+                </div>
+              )}
+            >
+              <Suspense fallback={<PanelSkeleton />}>
+                <CompanyResearchPanel companyName={researchCompany} onClose={() => setResearchCompany(null)} />
+              </Suspense>
+            </ComponentErrorBoundary>
           </FocusTrap>
         </div>
       )}

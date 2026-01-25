@@ -242,13 +242,22 @@ mod tests {
 
     #[test]
     fn test_http_request_error() {
-        let err = ScraperError::http_request(
-            "https://example.com",
-            reqwest::Error::from(std::io::Error::new(
-                std::io::ErrorKind::ConnectionRefused,
-                "connection refused",
-            )),
-        );
+        // Create a proper reqwest error using timeout
+        let client = reqwest::Client::builder()
+            .timeout(std::time::Duration::from_millis(1))
+            .build()
+            .unwrap();
+
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        let reqwest_err = rt.block_on(async {
+            client
+                .get("https://example.com")
+                .send()
+                .await
+                .unwrap_err()
+        });
+
+        let err = ScraperError::http_request("https://example.com", reqwest_err);
         assert!(matches!(err, ScraperError::HttpRequest { .. }));
         assert!(err.to_string().contains("example.com"));
     }

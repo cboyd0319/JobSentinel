@@ -13,34 +13,60 @@ impl Scheduler {
     /// 2. Score each job
     /// 3. Store in database (with deduplication)
     /// 4. Send notifications for high-scoring jobs
-    #[tracing::instrument(skip(self))]
+    #[tracing::instrument(skip(self), level = "info")]
     pub async fn run_scraping_cycle(&self) -> Result<ScrapingResult> {
+        use std::time::Instant;
+
+        let cycle_start = Instant::now();
         tracing::info!("Starting full scraping cycle");
 
         // 1. Run all scrapers
+        let stage1_start = Instant::now();
         tracing::info!("Pipeline stage 1/3: Running scrapers");
         let (all_jobs, mut errors) = run_scrapers(&self.config).await;
-        tracing::info!("Scrapers completed: {} total jobs fetched", all_jobs.len());
+        let stage1_duration = stage1_start.elapsed();
+        tracing::info!(
+            job_count = all_jobs.len(),
+            elapsed_ms = stage1_duration.as_millis(),
+            "Stage 1 complete: Scrapers finished"
+        );
 
         // 2. Score all jobs and run ghost detection
+        let stage2_start = Instant::now();
         tracing::info!("Pipeline stage 2/3: Scoring jobs and detecting ghost postings");
         let scored_jobs = score_jobs(all_jobs, &self.config, &self.database).await;
-        tracing::info!("Scoring completed: {} jobs scored", scored_jobs.len());
+        let stage2_duration = stage2_start.elapsed();
+        tracing::info!(
+            job_count = scored_jobs.len(),
+            elapsed_ms = stage2_duration.as_millis(),
+            "Stage 2 complete: Scoring and ghost detection finished"
+        );
 
         // 3. Store in database and send notifications
+        let stage3_start = Instant::now();
         tracing::info!("Pipeline stage 3/3: Persisting jobs and sending notifications");
         let stats = persist_and_notify(&scored_jobs, &self.config, &self.database).await;
+        let stage3_duration = stage3_start.elapsed();
+        tracing::info!(
+            elapsed_ms = stage3_duration.as_millis(),
+            "Stage 3 complete: Persistence and notifications finished"
+        );
 
         // Combine errors from all stages
         errors.extend(stats.errors);
 
+        let total_duration = cycle_start.elapsed();
         tracing::info!(
-            "Scraping cycle complete: {} new, {} updated, {} high matches, {} alerts sent, {} errors",
-            stats.jobs_new,
-            stats.jobs_updated,
-            stats.high_matches,
-            stats.alerts_sent,
-            errors.len()
+            jobs_new = stats.jobs_new,
+            jobs_updated = stats.jobs_updated,
+            high_matches = stats.high_matches,
+            alerts_sent = stats.alerts_sent,
+            error_count = errors.len(),
+            total_elapsed_ms = total_duration.as_millis(),
+            stage1_ms = stage1_duration.as_millis(),
+            stage2_ms = stage2_duration.as_millis(),
+            stage3_ms = stage3_duration.as_millis(),
+            "Scraping cycle complete"
         );
 
         Ok(ScrapingResult {

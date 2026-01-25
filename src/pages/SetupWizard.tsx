@@ -7,15 +7,12 @@ import { CareerProfileSelector } from "../components/CareerProfileSelector";
 import { useToast } from "../contexts";
 import { safeInvoke, safeInvokeWithToast } from "../utils/api";
 import { CAREER_PROFILES, getProfileById, profileToConfig } from "../utils/profiles";
+import { validateSlackWebhook } from "../utils/formValidation";
 
 interface SetupWizardProps {
   onComplete: () => void;
 }
 
-const isValidSlackWebhook = (url: string): boolean => {
-  if (!url) return true;
-  return url.startsWith("https://hooks.slack.com/services/");
-};
 
 // Step 0 is profile selection, then simplified flow
 const STEPS = [
@@ -131,7 +128,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
   };
 
   const canProceedFromStep1 = config.title_allowlist.length > 0;
-  const isValidWebhook = isValidSlackWebhook(config.alerts.slack.webhook_url);
+  const [slackWebhookError, setSlackWebhookError] = useState<string | undefined>();
 
   const handleAddTitle = () => {
     const trimmed = titleInput.trim();
@@ -197,7 +194,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
     try {
       // Store Slack webhook in secure storage if provided
       const webhookUrl = config.alerts.slack.webhook_url;
-      if (webhookUrl && isValidSlackWebhook(webhookUrl)) {
+      if (webhookUrl && !validateSlackWebhook(webhookUrl)) {
         await safeInvoke("store_credential", { key: "slack_webhook", value: webhookUrl }, {
           logContext: "Store Slack webhook credential"
         });
@@ -563,24 +560,39 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
 
                 {/* Slack webhook input */}
                 <Input
-                  label="Slack Webhook URL"
+                  label="Slack Webhook URL (optional)"
+                  type="url"
                   value={config.alerts.slack.webhook_url}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    const value = e.target.value;
                     setConfig((prev) => ({
                       ...prev,
                       alerts: {
                         ...prev.alerts,
                         slack: {
-                          enabled: e.target.value.length > 0 && isValidSlackWebhook(e.target.value),
-                          webhook_url: e.target.value,
+                          enabled: value.length > 0 && !validateSlackWebhook(value),
+                          webhook_url: value,
                         },
                       },
-                    }))
-                  }
+                    }));
+                    // Real-time validation
+                    if (value.trim()) {
+                      setSlackWebhookError(validateSlackWebhook(value));
+                    } else {
+                      setSlackWebhookError(undefined);
+                    }
+                  }}
+                  onBlur={(e) => {
+                    const value = e.target.value;
+                    if (value.trim()) {
+                      setSlackWebhookError(validateSlackWebhook(value));
+                    }
+                  }}
                   placeholder="https://hooks.slack.com/services/..."
                   leftIcon={<SlackIcon />}
-                  error={config.alerts.slack.webhook_url && !isValidWebhook ? "Please enter a valid Slack webhook URL" : undefined}
+                  error={slackWebhookError}
                   hint="Don't have Slack? No problem! Skip this and check the app directly."
+                  maxLength={500}
                 />
               </div>
 
@@ -597,7 +609,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
                 </Button>
                 <Button
                   onClick={handleComplete}
-                  disabled={config.alerts.slack.webhook_url.length > 0 && !isValidWebhook}
+                  disabled={Boolean(slackWebhookError)}
                   variant="success"
                   className="flex-1"
                   size="lg"

@@ -56,6 +56,35 @@ class ErrorReporter {
         error,
         context: { reason: event.reason },
       });
+
+      // Prevent default browser console error in production
+      if (!import.meta.env.DEV) {
+        event.preventDefault();
+      }
+    };
+
+    // Console error override (capture but don't suppress)
+    const originalConsoleError = console.error;
+    console.error = (...args: unknown[]) => {
+      // Call original first
+      originalConsoleError.apply(console, args);
+
+      // Capture if it's an error object
+      const firstArg = args[0];
+      if (firstArg instanceof Error) {
+        this.capture({
+          type: 'custom',
+          error: firstArg,
+          context: { consoleArgs: args.slice(1) },
+        });
+      } else if (typeof firstArg === 'string' && firstArg.toLowerCase().includes('error')) {
+        // Capture string errors too
+        this.capture({
+          type: 'custom',
+          error: new Error(String(firstArg)),
+          context: { consoleArgs: args.slice(1) },
+        });
+      }
     };
 
     // Log initialization
@@ -266,4 +295,55 @@ export function withErrorCapture<T extends (...args: unknown[]) => Promise<unkno
       throw error;
     }
   }) as T;
+}
+
+// Helper to safely execute a function and capture errors
+export function trySafe<T>(
+  fn: () => T,
+  fallback: T,
+  context?: Record<string, unknown>
+): T {
+  try {
+    return fn();
+  } catch (error: unknown) {
+    errorReporter.captureCustom(
+      error instanceof Error ? error.message : String(error),
+      context
+    );
+    return fallback;
+  }
+}
+
+// Helper for async safe execution
+export async function tryAsyncSafe<T>(
+  fn: () => Promise<T>,
+  fallback: T,
+  context?: Record<string, unknown>
+): Promise<T> {
+  try {
+    return await fn();
+  } catch (error: unknown) {
+    errorReporter.captureApiError(
+      error instanceof Error ? error : new Error(String(error)),
+      context
+    );
+    return fallback;
+  }
+}
+
+// Helper to create error context from component props
+export function createErrorContext(
+  componentName: string,
+  props?: Record<string, unknown>
+): Record<string, unknown> {
+  return {
+    component: componentName,
+    props: props ? JSON.parse(JSON.stringify(props, (_, v) => {
+      // Remove functions and complex objects from props for logging
+      if (typeof v === 'function') return '[Function]';
+      if (v instanceof Error) return v.message;
+      return v;
+    })) : undefined,
+    timestamp: new Date().toISOString(),
+  };
 }

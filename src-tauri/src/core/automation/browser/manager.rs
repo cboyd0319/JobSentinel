@@ -26,8 +26,11 @@ impl BrowserManager {
     /// Launch the browser
     ///
     /// Launches Chrome in visible mode so user can watch form filling.
-    #[tracing::instrument(skip(self))]
+    #[tracing::instrument(skip(self), level = "info")]
     pub async fn launch(&self) -> Result<()> {
+        use std::time::Instant;
+
+        let start = Instant::now();
         tracing::info!("Launching browser in visible mode");
         let mut browser_guard = self.browser.lock().await;
 
@@ -57,14 +60,18 @@ impl BrowserManager {
         // Spawn handler task to process browser events
         tokio::spawn(async move {
             while let Some(event) = handler.next().await {
-                if event.is_err() {
-                    tracing::warn!("Browser handler error: {:?}", event);
+                if let Err(e) = event {
+                    tracing::debug!(error = %e, "Browser handler event error");
                 }
             }
             tracing::debug!("Browser handler task terminated");
         });
 
-        tracing::info!("Browser launched successfully (visible mode, window_size=1280x900)");
+        let duration = start.elapsed();
+        tracing::info!(
+            elapsed_ms = duration.as_millis(),
+            "Browser launched successfully (visible mode, 1280x900)"
+        );
         *browser_guard = Some(browser);
 
         Ok(())
@@ -73,8 +80,11 @@ impl BrowserManager {
     /// Create a new page for automation
     ///
     /// Returns an AutomationPage that provides form filling methods.
-    #[tracing::instrument(skip(self))]
+    #[tracing::instrument(skip(self), fields(url = %url), level = "info")]
     pub async fn new_page(&self, url: &str) -> Result<AutomationPage> {
+        use std::time::Instant;
+
+        let start = Instant::now();
         tracing::debug!("Creating new browser page");
         let browser_guard = self.browser.lock().await;
         let browser = browser_guard
@@ -92,7 +102,11 @@ impl BrowserManager {
             .await
             .context("Failed to wait for navigation")?;
 
-        tracing::info!("New page created and loaded successfully");
+        let duration = start.elapsed();
+        tracing::info!(
+            elapsed_ms = duration.as_millis(),
+            "Browser page created and loaded"
+        );
 
         Ok(AutomationPage::new(page))
     }

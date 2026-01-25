@@ -2,6 +2,7 @@ import { memo, useState, useEffect, useCallback, type ReactElement } from "react
 import { Button, Input, Card, Badge, HelpIcon, Modal, ModalFooter } from "..";
 import { useToast } from "../../contexts";
 import { safeInvoke, safeInvokeWithToast } from "../../utils/api";
+import { validateRequiredRegex, validateRequired } from "../../utils/formValidation";
 
 // Lookup object for answer type badges (better performance than switch)
 const ANSWER_TYPE_BADGES: Record<string, ReactElement> = {
@@ -57,6 +58,12 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
 
+  // Validation errors
+  const [formErrors, setFormErrors] = useState<{
+    pattern?: string;
+    answer?: string;
+  }>({});
+
   const loadAnswers = useCallback(async () => {
     try {
       setLoading(true);
@@ -85,23 +92,21 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
     setAnswer("");
     setAnswerType("text");
     setNotes("");
+    setFormErrors({});
   };
 
   const handleSave = async () => {
-    if (!questionPattern.trim()) {
-      toast.error("Pattern required", "Enter a question pattern to match");
-      return;
-    }
-    if (!answer.trim()) {
-      toast.error("Answer required", "Enter your default answer");
-      return;
-    }
+    // Validate all fields
+    const patternError = validateRequiredRegex(questionPattern);
+    const answerError = validateRequired(answer, "Answer");
 
-    // Validate regex pattern
-    try {
-      new RegExp(questionPattern.trim(), "i");
-    } catch {
-      toast.error("Invalid pattern", "The regex pattern is invalid. Check for unmatched brackets or special characters.");
+    setFormErrors({
+      pattern: patternError,
+      answer: answerError,
+    });
+
+    if (patternError || answerError) {
+      toast.error("Please fix the errors", "Check the highlighted fields");
       return;
     }
 
@@ -257,11 +262,20 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
       >
         <div className="space-y-4">
           <Input
-            label="Question Pattern (regex)"
+            label="Question Pattern (regex) *"
             value={questionPattern}
-            onChange={(e) => setQuestionPattern(e.target.value)}
+            onChange={(e) => {
+              setQuestionPattern(e.target.value);
+              if (formErrors.pattern) {
+                setFormErrors((prev) => ({ ...prev, pattern: validateRequiredRegex(e.target.value) }));
+              }
+            }}
+            onBlur={() => setFormErrors((prev) => ({ ...prev, pattern: validateRequiredRegex(questionPattern) }))}
             placeholder="e.g., years.*experience"
             hint="Use regex patterns to match question text. Case-insensitive."
+            error={formErrors.pattern}
+            maxLength={200}
+            required
           />
           <div>
             <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">
@@ -270,7 +284,8 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
             <select
               value={answerType}
               onChange={(e) => setAnswerType(e.target.value)}
-              className="w-full px-4 py-3 bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-lg text-surface-800 dark:text-white"
+              className="w-full px-4 py-3 bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-lg text-surface-800 dark:text-white focus:outline-none focus:border-sentinel-400 focus:ring-2 focus:ring-sentinel-100 dark:focus:ring-sentinel-900"
+              aria-label="Answer type"
             >
               <option value="text">Text input</option>
               <option value="yes_no">Yes/No</option>
@@ -279,22 +294,53 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">
-              Your Answer
+            <label htmlFor="answer-input" className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1.5">
+              Your Answer *
             </label>
             {answerType === "textarea" ? (
-              <textarea
-                value={answer}
-                onChange={(e) => setAnswer(e.target.value)}
-                placeholder="Enter your default answer..."
-                rows={4}
-                className="w-full px-4 py-3 bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-lg text-surface-800 dark:text-white placeholder:text-surface-400 resize-none"
-              />
+              <>
+                <textarea
+                  id="answer-input"
+                  value={answer}
+                  onChange={(e) => {
+                    setAnswer(e.target.value);
+                    if (formErrors.answer) {
+                      setFormErrors((prev) => ({ ...prev, answer: validateRequired(e.target.value, "Answer") }));
+                    }
+                  }}
+                  onBlur={() => setFormErrors((prev) => ({ ...prev, answer: validateRequired(answer, "Answer") }))}
+                  placeholder="Enter your default answer..."
+                  rows={4}
+                  maxLength={2000}
+                  required
+                  aria-invalid={Boolean(formErrors.answer)}
+                  aria-describedby={formErrors.answer ? "answer-error" : undefined}
+                  className={`w-full px-4 py-3 bg-white dark:bg-surface-800 border rounded-lg text-surface-800 dark:text-white placeholder:text-surface-400 resize-none focus:outline-none focus:border-sentinel-400 focus:ring-2 focus:ring-sentinel-100 dark:focus:ring-sentinel-900 ${
+                    formErrors.answer ? "border-danger focus:border-danger focus:ring-danger/20" : "border-surface-200 dark:border-surface-700"
+                  }`}
+                />
+                {formErrors.answer && (
+                  <p id="answer-error" className="mt-1.5 text-sm text-danger flex items-center gap-1">
+                    <ErrorIcon />
+                    {formErrors.answer}
+                  </p>
+                )}
+              </>
             ) : (
               <Input
+                id="answer-input"
                 value={answer}
-                onChange={(e) => setAnswer(e.target.value)}
+                onChange={(e) => {
+                  setAnswer(e.target.value);
+                  if (formErrors.answer) {
+                    setFormErrors((prev) => ({ ...prev, answer: validateRequired(e.target.value, "Answer") }));
+                  }
+                }}
+                onBlur={() => setFormErrors((prev) => ({ ...prev, answer: validateRequired(answer, "Answer") }))}
                 placeholder={answerType === "yes_no" ? "Yes or No" : "Enter your default answer..."}
+                error={formErrors.answer}
+                maxLength={500}
+                required
               />
             )}
           </div>
@@ -303,6 +349,7 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Notes about when to use this answer..."
+            maxLength={500}
           />
         </div>
         <ModalFooter>
@@ -345,6 +392,14 @@ function QuestionIcon({ className = "" }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+  );
+}
+
+function ErrorIcon() {
+  return (
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
     </svg>
   );
 }

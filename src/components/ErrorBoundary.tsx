@@ -3,34 +3,93 @@ import { errorReporter } from '../utils/errorReporting';
 
 interface Props {
   children: ReactNode;
+  fallback?: (error: Error, retry: () => void) => ReactNode;
 }
 
 interface State {
   hasError: boolean;
   error: Error | null;
+  errorCount: number;
 }
 
+/**
+ * Global error boundary for the entire application.
+ * Catches unhandled errors and provides recovery options.
+ *
+ * Features:
+ * - Automatic error reporting and logging
+ * - Retry functionality with error count tracking
+ * - Fallback to full reload if too many errors
+ * - Custom fallback UI support
+ */
 class ErrorBoundary extends Component<Props, State> {
   public state: State = {
     hasError: false,
     error: null,
+    errorCount: 0,
   };
 
-  public static getDerivedStateFromError(error: Error): State {
+  public static getDerivedStateFromError(error: Error): Partial<State> {
     return { hasError: true, error };
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    // Increment error count
+    this.setState(prev => ({ errorCount: prev.errorCount + 1 }));
+
     // Capture error with error reporting system
     errorReporter.captureReactError(
       error,
       errorInfo.componentStack || undefined,
-      { location: 'root' }
+      {
+        location: 'root',
+        errorCount: this.state.errorCount + 1,
+        userAgent: navigator.userAgent,
+        timestamp: new Date().toISOString(),
+      }
     );
+
+    // Log to console in development
+    if (import.meta.env.DEV) {
+      console.error('Global Error Boundary caught error:', error, errorInfo);
+    }
   }
 
+  private handleRetry = () => {
+    // If too many errors, force reload
+    if (this.state.errorCount >= 3) {
+      window.location.reload();
+      return;
+    }
+
+    // Otherwise, try to recover by resetting state
+    this.setState({ hasError: false, error: null });
+  };
+
+  private handleReload = () => {
+    window.location.reload();
+  };
+
+  private handleClearData = () => {
+    // Clear all localStorage except theme preference
+    const theme = localStorage.getItem('jobsentinel_theme');
+    localStorage.clear();
+    if (theme) {
+      localStorage.setItem('jobsentinel_theme', theme);
+    }
+    window.location.reload();
+  };
+
   public render() {
-    if (this.state.hasError) {
+    if (this.state.hasError && this.state.error) {
+      // Use custom fallback if provided
+      if (this.props.fallback) {
+        return this.props.fallback(this.state.error, this.handleRetry);
+      }
+
+      // Default error UI
+      const showClearData = this.state.errorCount >= 2;
+
       return (
         <div className="min-h-screen bg-surface-900 flex items-center justify-center px-6">
           {/* Background effect */}
@@ -57,25 +116,63 @@ class ErrorBoundary extends Component<Props, State> {
                 </svg>
               </div>
               <h3 className="font-display text-display-lg text-surface-900 dark:text-white mb-2">
-                Something went wrong
+                Application Error
               </h3>
-              <p className="text-surface-600 dark:text-surface-400">
-                {this.state.error?.message || 'An unexpected error occurred'}
+              <p className="text-surface-600 dark:text-surface-400 mb-2">
+                {this.state.error.message || 'An unexpected error occurred'}
               </p>
+              {this.state.errorCount > 1 && (
+                <p className="text-xs text-red-600 dark:text-red-400">
+                  Error occurred {this.state.errorCount} times
+                </p>
+              )}
             </div>
 
             <div className="p-4 bg-surface-50 dark:bg-surface-900/50 rounded-lg mb-6">
               <p className="text-sm text-surface-500 dark:text-surface-400">
-                Your data is safe. Try reloading the application to continue.
+                {showClearData
+                  ? "Multiple errors detected. Try clearing app data or reloading."
+                  : "Your data is safe. Try reloading the application to continue."}
               </p>
             </div>
 
-            <button
-              onClick={() => window.location.reload()}
-              className="w-full bg-sentinel-500 hover:bg-sentinel-600 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 hover:shadow-soft focus:outline-none focus:ring-2 focus:ring-sentinel-500 focus:ring-offset-2 dark:focus:ring-offset-surface-800"
-            >
-              Reload Application
-            </button>
+            <div className="space-y-3">
+              {this.state.errorCount < 3 && (
+                <button
+                  onClick={this.handleRetry}
+                  className="w-full bg-sentinel-500 hover:bg-sentinel-600 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 hover:shadow-soft focus:outline-none focus:ring-2 focus:ring-sentinel-500 focus:ring-offset-2 dark:focus:ring-offset-surface-800"
+                >
+                  Try Again
+                </button>
+              )}
+
+              <button
+                onClick={this.handleReload}
+                className="w-full bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 text-surface-700 dark:text-surface-200 font-semibold py-3 px-4 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-surface-400 focus:ring-offset-2 dark:focus:ring-offset-surface-800"
+              >
+                Reload Application
+              </button>
+
+              {showClearData && (
+                <button
+                  onClick={this.handleClearData}
+                  className="w-full bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 font-semibold py-3 px-4 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-surface-800"
+                >
+                  Clear App Data & Reload
+                </button>
+              )}
+            </div>
+
+            {import.meta.env.DEV && this.state.error.stack && (
+              <details className="mt-6 p-4 bg-surface-100 dark:bg-surface-900/50 rounded-lg">
+                <summary className="cursor-pointer text-sm text-surface-600 dark:text-surface-400 font-medium">
+                  Error Details (Development Only)
+                </summary>
+                <pre className="mt-2 text-xs text-red-600 dark:text-red-400 overflow-auto max-h-48 whitespace-pre-wrap">
+                  {this.state.error.stack}
+                </pre>
+              </details>
+            )}
           </div>
         </div>
       );

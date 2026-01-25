@@ -39,18 +39,29 @@ impl FormFiller {
     ///
     /// Returns what was filled and what needs manual attention.
     /// Does NOT submit - user must click submit manually.
-    #[tracing::instrument(skip(self, page), fields(platform = ?platform))]
+    #[tracing::instrument(
+        skip(self, page),
+        fields(
+            platform = ?platform,
+            has_resume = self.resume_path.is_some(),
+            screening_answer_count = self.screening_answers.len()
+        ),
+        level = "info"
+    )]
     pub async fn fill_page(
         &self,
         page: &AutomationPage,
         platform: &AtsPlatform,
     ) -> Result<FillResult> {
+        use std::time::Instant;
+
+        let start = Instant::now();
         tracing::info!("Starting form auto-fill");
         let mut result = FillResult::new();
 
         // Check for CAPTCHA first
         if page.has_captcha().await {
-            tracing::warn!("CAPTCHA detected, aborting auto-fill");
+            tracing::warn!("CAPTCHA detected before filling, aborting auto-fill");
             return Ok(result.with_captcha());
         }
 
@@ -58,9 +69,11 @@ impl FormFiller {
         let selectors = Self::get_field_selectors(platform);
 
         // Fill basic contact fields
+        let contact_start = Instant::now();
         tracing::debug!("Filling contact fields");
         self.fill_contact_fields(page, &selectors, &mut result)
             .await;
+        tracing::debug!(elapsed_ms = contact_start.elapsed().as_millis(), "Contact fields filled");
 
         // Fill URLs (LinkedIn, GitHub, etc.)
         tracing::debug!("Filling URL fields");
@@ -73,25 +86,31 @@ impl FormFiller {
 
         // Upload resume if available
         if let Some(ref resume_path) = self.resume_path {
-            tracing::debug!("Uploading resume");
+            tracing::debug!(resume_path = %resume_path.display(), "Uploading resume");
             self.fill_resume(page, &selectors, resume_path, &mut result)
                 .await;
         }
 
         // Fill screening questions using stored answers
         if !self.screening_answers.is_empty() {
-            tracing::debug!("Filling {} screening questions", self.screening_answers.len());
+            let answer_count = self.screening_answers.len();
+            tracing::debug!(answer_count, "Filling screening questions");
             self.fill_screening_questions(page, &mut result).await;
         }
 
         // Check for CAPTCHA again after filling (some appear after form interaction)
         if page.has_captcha().await {
-            tracing::warn!("CAPTCHA appeared after form interaction, aborting");
+            tracing::warn!("CAPTCHA appeared after form interaction");
             return Ok(result.with_captcha());
         }
 
         result.ready_for_review = true;
-        tracing::info!("Form auto-fill complete, {} fields filled", result.filled_fields.len());
+        let duration = start.elapsed();
+        tracing::info!(
+            fields_filled = result.filled_fields.len(),
+            elapsed_ms = duration.as_millis(),
+            "Form auto-fill complete"
+        );
         Ok(result)
     }
 

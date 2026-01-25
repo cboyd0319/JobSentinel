@@ -135,13 +135,24 @@ impl LinkedInScraper {
     }
 
     /// Scrape jobs from LinkedIn
-    #[tracing::instrument(skip(self), fields(query = %self.query, location = %self.location, limit = %self.limit))]
+    #[tracing::instrument(
+        skip(self),
+        fields(
+            query = %self.query,
+            location = %self.location,
+            limit = %self.limit,
+            remote_only = %self.remote_only
+        )
+    )]
     async fn scrape_linkedin(&self) -> ScraperResult {
         tracing::info!("Starting LinkedIn scrape");
 
         // Validate session cookie
         if self.session_cookie.is_empty() || self.session_cookie.len() < 10 {
-            tracing::error!("Invalid LinkedIn session cookie provided");
+            tracing::error!(
+                cookie_len = self.session_cookie.len(),
+                "Invalid LinkedIn session cookie provided"
+            );
             return Err(anyhow::anyhow!(
                 "Invalid LinkedIn session cookie. Please provide your li_at cookie value."
             ));
@@ -150,21 +161,28 @@ impl LinkedInScraper {
         // Try API-based search first (faster, more reliable)
         match self.scrape_linkedin_api().await {
             Ok(jobs) if !jobs.is_empty() => {
-                tracing::info!("Found {} jobs from LinkedIn API", jobs.len());
+                let job_count = jobs.len();
+                tracing::info!(job_count, method = "API", "LinkedIn scrape completed");
                 return Ok(jobs);
             }
-            Ok(_) => tracing::warn!("LinkedIn API returned no jobs, trying HTML fallback"),
-            Err(e) => tracing::warn!("LinkedIn API failed: {}, trying HTML fallback", e),
+            Ok(_) => {
+                tracing::warn!("LinkedIn API returned no jobs, trying HTML fallback");
+            }
+            Err(e) => {
+                tracing::warn!(error = %e, "LinkedIn API failed, trying HTML fallback");
+            }
         }
 
         // Fallback to HTML scraping
         let jobs = self.scrape_linkedin_html().await?;
 
-        tracing::info!("Found {} jobs from LinkedIn HTML", jobs.len());
+        let job_count = jobs.len();
+        tracing::info!(job_count, method = "HTML", "LinkedIn scrape completed");
         Ok(jobs)
     }
 
     /// Scrape using LinkedIn's internal API (requires session cookie)
+    #[tracing::instrument(skip(self), level = "debug")]
     async fn scrape_linkedin_api(&self) -> ScraperResult {
         // LinkedIn job search API endpoint
         // This is a simplified version - LinkedIn's actual API is more complex
@@ -189,10 +207,10 @@ impl LinkedInScraper {
             } else {
                 let delay_secs = 2_u64.pow(attempt); // 2s, 4s, 8s
                 tracing::warn!(
-                    "Retrying LinkedIn API (attempt {}/{}), waiting {}s",
-                    attempt + 1,
-                    MAX_RETRIES + 1,
-                    delay_secs
+                    attempt,
+                    max_retries = MAX_RETRIES + 1,
+                    delay_secs,
+                    "Retrying LinkedIn API with exponential backoff"
                 );
                 sleep(Duration::from_secs(delay_secs)).await;
             }
@@ -209,7 +227,7 @@ impl LinkedInScraper {
 
             if status.is_success() {
                 if attempt > 0 {
-                    tracing::info!("LinkedIn API request succeeded after {} retries", attempt);
+                    tracing::info!(attempt, "LinkedIn API request succeeded after retries");
                 }
 
                 let json: serde_json::Value = response.json().await?;
@@ -222,12 +240,21 @@ impl LinkedInScraper {
                 status == reqwest::StatusCode::TOO_MANY_REQUESTS || status.is_server_error();
 
             if !should_retry {
-                tracing::error!("LinkedIn API non-retryable error: HTTP {}", status);
+                tracing::error!(
+                    http_status = status.as_u16(),
+                    "LinkedIn API non-retryable error - check session cookie validity"
+                );
                 return Err(anyhow::anyhow!(
                     "LinkedIn API HTTP {}: Check if your session cookie is valid",
                     status
                 ));
             }
+
+            tracing::warn!(
+                http_status = status.as_u16(),
+                attempt,
+                "LinkedIn API retryable error"
+            );
 
             last_error = Some(anyhow::anyhow!(
                 "LinkedIn API HTTP {} (attempt {}/{})",
@@ -237,7 +264,7 @@ impl LinkedInScraper {
             ));
         }
 
-        tracing::error!("LinkedIn API failed after {} retries", MAX_RETRIES);
+        tracing::error!(max_retries = MAX_RETRIES, "LinkedIn API exhausted all retries");
         Err(last_error.unwrap_or_else(|| anyhow::anyhow!("LinkedIn API failed after retries")))
     }
 

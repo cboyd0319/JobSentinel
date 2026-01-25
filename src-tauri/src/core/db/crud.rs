@@ -20,7 +20,17 @@ impl Database {
     ///
     /// Returns the job ID.
     #[must_use]
-    #[tracing::instrument(skip(self, job), fields(job_hash = %job.hash, job_title = %job.title, job_company = %job.company))]
+    #[tracing::instrument(
+        skip(self, job),
+        fields(
+            job_hash = %job.hash,
+            job_title = %job.title,
+            job_company = %job.company,
+            job_source = %job.source,
+            job_score = ?job.score
+        ),
+        level = "debug"
+    )]
     pub async fn upsert_job(&self, job: &Job) -> Result<i64, sqlx::Error> {
         // Validate job field lengths to prevent database bloat
         const MAX_TITLE_LENGTH: usize = 500;
@@ -89,7 +99,10 @@ impl Database {
 
         if let Some(existing_id) = existing {
             // Job exists - update it (preserve first_seen, increment repost_count)
-            tracing::debug!("Updating existing job with id={}", existing_id);
+            tracing::debug!(
+                job_id = existing_id,
+                "Job already exists, updating and incrementing times_seen"
+            );
             sqlx::query(
                 r#"
                 UPDATE jobs SET
@@ -135,11 +148,11 @@ impl Database {
             .execute(self.pool())
             .await?;
 
-            tracing::info!("Updated job id={}, times_seen incremented", existing_id);
+            tracing::debug!(job_id = existing_id, "Job update completed");
             Ok(existing_id)
         } else {
             // New job - insert it
-            tracing::info!("Inserting new job from source={}", job.source);
+            tracing::info!("Inserting new job");
             let result = sqlx::query(
                 r#"
                 INSERT INTO jobs (
@@ -178,11 +191,14 @@ impl Database {
             .execute(self.pool())
             .await?;
 
-            Ok(result.last_insert_rowid())
+            let job_id = result.last_insert_rowid();
+            tracing::info!(job_id, "New job inserted");
+            Ok(job_id)
         }
     }
 
     /// Get job by ID
+    #[tracing::instrument(skip(self), fields(job_id = id), level = "debug")]
     pub async fn get_job_by_id(&self, id: i64) -> Result<Option<Job>, sqlx::Error> {
         let job = sqlx::query_as::<_, Job>("SELECT * FROM jobs WHERE id = ?")
             .bind(id)
@@ -193,6 +209,7 @@ impl Database {
     }
 
     /// Get job by hash
+    #[tracing::instrument(skip(self), fields(job_hash = hash), level = "debug")]
     pub async fn get_job_by_hash(&self, hash: &str) -> Result<Option<Job>, sqlx::Error> {
         let job = sqlx::query_as::<_, Job>("SELECT * FROM jobs WHERE hash = ?")
             .bind(hash)

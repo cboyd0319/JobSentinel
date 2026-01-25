@@ -19,12 +19,15 @@ pub struct PersistenceStats {
 }
 
 /// Persist jobs to database and send notifications for high-scoring jobs
-#[tracing::instrument(skip_all, fields(job_count = scored_jobs.len()))]
+#[tracing::instrument(skip_all, fields(job_count = scored_jobs.len()), level = "info")]
 pub async fn persist_and_notify(
     scored_jobs: &[(crate::core::db::Job, JobScore)],
     config: &Arc<Config>,
     database: &Arc<Database>,
 ) -> PersistenceStats {
+    use std::time::Instant;
+
+    let start = Instant::now();
     let mut jobs_new = 0;
     let mut jobs_updated = 0;
     let mut high_matches = 0;
@@ -32,7 +35,8 @@ pub async fn persist_and_notify(
     let mut errors = Vec::new();
 
     // Store in database
-    tracing::info!("Persisting {} jobs to database", scored_jobs.len());
+    let job_count = scored_jobs.len();
+    tracing::debug!(job_count, "Starting database persistence");
 
     for (job, _score) in scored_jobs {
         // Check if job exists before upserting
@@ -50,7 +54,13 @@ pub async fn persist_and_notify(
         }
 
         if let Err(e) = database.upsert_job(job).await {
-            tracing::error!("Failed to upsert job {}: {}", job.title, e);
+            tracing::error!(
+                job_title = %job.title,
+                job_company = %job.company,
+                job_hash = %job.hash,
+                error = %e,
+                "Failed to upsert job"
+            );
             errors.push(format!("Database error for {}: {}", job.title, e));
         }
 
@@ -59,14 +69,25 @@ pub async fn persist_and_notify(
             .track_repost(&job.hash, &job.company, &job.title, &job.source)
             .await
         {
-            tracing::warn!("Failed to track repost for {}: {}", job.title, e);
+            tracing::debug!(
+                job_title = %job.title,
+                error = %e,
+                "Failed to track repost"
+            );
         }
     }
 
-    tracing::info!("Database: {} new jobs, {} updated", jobs_new, jobs_updated);
+    let persist_duration = start.elapsed();
+    tracing::info!(
+        jobs_new,
+        jobs_updated,
+        elapsed_ms = persist_duration.as_millis(),
+        "Database persistence complete"
+    );
 
     // Send notifications for high-scoring jobs
-    tracing::info!("Step 4: Sending notifications");
+    let notify_start = Instant::now();
+    tracing::debug!("Processing notifications");
     let notification_service = NotificationService::new(Arc::clone(config));
     let scoring_engine = ScoringEngine::new(Arc::clone(config));
 
@@ -86,7 +107,12 @@ pub async fn persist_and_notify(
                     .await
                 {
                     Ok(()) => {
-                        tracing::info!("Alert sent for: {}", job.title);
+                        tracing::info!(
+                            job_title = %job.title,
+                            job_company = %job.company,
+                            job_score = score.total,
+                            "Notification alert sent"
+                        );
                         alerts_sent += 1;
 
                         // Mark as alerted in database (use hash to avoid race conditions)
@@ -97,9 +123,10 @@ pub async fn persist_and_notify(
                         {
                             if let Err(e) = database.mark_alert_sent(existing_job.id).await {
                                 tracing::error!(
-                                    "Failed to mark alert as sent for {}: {}",
-                                    job.title,
-                                    e
+                                    job_id = existing_job.id,
+                                    job_title = %job.title,
+                                    error = %e,
+                                    "Failed to mark alert as sent"
                                 );
                                 errors.push(format!(
                                     "Failed to mark alert sent for {}: {}",
@@ -109,7 +136,12 @@ pub async fn persist_and_notify(
                         }
                     }
                     Err(e) => {
-                        tracing::error!("Failed to send alert for {}: {}", job.title, e);
+                        tracing::error!(
+                            job_title = %job.title,
+                            job_company = %job.company,
+                            error = %e,
+                            "Failed to send notification alert"
+                        );
                         errors.push(format!("Notification error for {}: {}", job.title, e));
                     }
                 }
@@ -117,10 +149,12 @@ pub async fn persist_and_notify(
         }
     }
 
+    let notify_duration = notify_start.elapsed();
     tracing::info!(
-        "Notifications: {} high matches, {} alerts sent",
         high_matches,
-        alerts_sent
+        alerts_sent,
+        elapsed_ms = notify_duration.as_millis(),
+        "Notifications complete"
     );
 
     PersistenceStats {

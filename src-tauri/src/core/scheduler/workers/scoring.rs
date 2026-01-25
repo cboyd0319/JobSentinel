@@ -11,13 +11,28 @@ use std::sync::Arc;
 /// Score all jobs and run ghost detection analysis
 ///
 /// Returns scored jobs sorted by score descending
-#[tracing::instrument(skip_all, fields(job_count = jobs.len(), resume_matching = config.use_resume_matching))]
+#[tracing::instrument(
+    skip_all,
+    fields(
+        job_count = jobs.len(),
+        resume_matching = config.use_resume_matching
+    ),
+    level = "info"
+)]
 pub async fn score_jobs(
     jobs: Vec<Job>,
     config: &Arc<Config>,
     database: &Arc<Database>,
 ) -> Vec<(Job, JobScore)> {
-    tracing::info!("Scoring {} jobs (resume_matching={})", jobs.len(), config.use_resume_matching);
+    use std::time::Instant;
+
+    let start = Instant::now();
+    let job_count = jobs.len();
+    tracing::info!(
+        job_count,
+        resume_matching = config.use_resume_matching,
+        "Starting job scoring"
+    );
 
     // Use with_db to enable resume-based scoring when configured
     let scoring_engine = ScoringEngine::with_db(Arc::clone(config), database.pool().clone());
@@ -25,16 +40,19 @@ pub async fn score_jobs(
     let mut scored_jobs: Vec<(Job, JobScore)> = Vec::with_capacity(jobs.len());
 
     // Use async scoring when resume matching is enabled
+    let mut cache_hits = 0;
+    let mut cache_misses = 0;
+
     if config.use_resume_matching {
-        tracing::info!("Resume-based scoring enabled, using async scoring with cache");
+        tracing::debug!("Resume-based scoring enabled, using async scoring with cache");
         for mut job in jobs {
             // Try cache first (resume-aware)
             let cache_key = ScoreCacheKey::base(&job.hash);
             let score = if let Some(cached) = get_cached_score(&cache_key).await {
-                tracing::debug!("Using cached score for hash={}", job.hash);
+                cache_hits += 1;
                 (*cached).clone()
             } else {
-                tracing::debug!("Computing fresh score for hash={}", job.hash);
+                cache_misses += 1;
                 let fresh_score = scoring_engine.score_async(&job).await;
                 set_cached_score(cache_key, fresh_score.clone()).await;
                 fresh_score
@@ -42,7 +60,7 @@ pub async fn score_jobs(
 
             job.score = Some(score.total);
             job.score_reasons = Some(serde_json::to_string(&score.reasons).unwrap_or_else(|e| {
-                tracing::warn!("Failed to serialize score reasons: {}", e);
+                tracing::warn!(error = %e, job_hash = %job.hash, "Failed to serialize score reasons");
                 String::new()
             }));
             scored_jobs.push((job, score));
@@ -53,10 +71,10 @@ pub async fn score_jobs(
         for mut job in jobs {
             let cache_key = ScoreCacheKey::base(&job.hash);
             let score = if let Some(cached) = get_cached_score(&cache_key).await {
-                tracing::debug!("Using cached score for hash={}", job.hash);
+                cache_hits += 1;
                 (*cached).clone()
             } else {
-                tracing::debug!("Computing fresh score for hash={}", job.hash);
+                cache_misses += 1;
                 let fresh_score = scoring_engine.score(&job);
                 set_cached_score(cache_key, fresh_score.clone()).await;
                 fresh_score
@@ -64,7 +82,7 @@ pub async fn score_jobs(
 
             job.score = Some(score.total);
             job.score_reasons = Some(serde_json::to_string(&score.reasons).unwrap_or_else(|e| {
-                tracing::warn!("Failed to serialize score reasons: {}", e);
+                tracing::warn!(error = %e, job_hash = %job.hash, "Failed to serialize score reasons");
                 String::new()
             }));
             scored_jobs.push((job, score));
@@ -78,10 +96,25 @@ pub async fn score_jobs(
             .unwrap_or(std::cmp::Ordering::Equal)
     });
 
-    tracing::info!("Scored {} jobs", scored_jobs.len());
+    let scoring_duration = start.elapsed();
+    let cache_hit_rate = if job_count > 0 {
+        cache_hits as f64 / job_count as f64 * 100.0
+    } else {
+        0.0
+    };
+
+    tracing::info!(
+        scored_count = scored_jobs.len(),
+        cache_hits,
+        cache_misses,
+        cache_hit_rate,
+        elapsed_ms = scoring_duration.as_millis(),
+        "Job scoring complete"
+    );
 
     // Ghost detection analysis
-    tracing::info!("Step 2.5: Analyzing jobs for ghost indicators");
+    let ghost_start = Instant::now();
+    tracing::debug!("Running ghost detection analysis");
     let ghost_config = config
         .ghost_config
         .clone()
@@ -142,9 +175,11 @@ pub async fn score_jobs(
         .iter()
         .filter(|(j, _)| j.ghost_score.unwrap_or(0.0) >= 0.5)
         .count();
+    let ghost_duration = ghost_start.elapsed();
     tracing::info!(
-        "Ghost analysis: {} potential ghost jobs detected",
-        ghost_count
+        ghost_count,
+        elapsed_ms = ghost_duration.as_millis(),
+        "Ghost detection complete"
     );
 
     scored_jobs

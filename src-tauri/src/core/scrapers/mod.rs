@@ -65,15 +65,17 @@ pub trait JobScraper: Send + Sync {
 /// ];
 /// let jobs = scrape_all_parallel(scrapers).await;
 /// ```
+#[tracing::instrument(skip_all, fields(scraper_count = scrapers.len()))]
 pub async fn scrape_all_parallel(scrapers: Vec<Box<dyn JobScraper>>) -> Vec<Job> {
     use tokio::task::JoinSet;
 
     if scrapers.is_empty() {
+        tracing::debug!("No scrapers provided, returning empty result");
         return vec![];
     }
 
     let scraper_count = scrapers.len();
-    tracing::info!("Starting parallel scrape of {} sources", scraper_count);
+    tracing::info!(scraper_count, "Starting parallel scrape");
 
     // Use JoinSet for parallel execution with proper ownership
     let mut join_set = JoinSet::new();
@@ -82,16 +84,29 @@ pub async fn scrape_all_parallel(scrapers: Vec<Box<dyn JobScraper>>) -> Vec<Job>
         join_set.spawn(async move {
             let name = scraper.name();
             let start = std::time::Instant::now();
+
+            tracing::debug!(scraper = name, "Starting scraper");
             let result = scraper.scrape().await;
             let elapsed = start.elapsed();
 
             match result {
                 Ok(jobs) => {
-                    tracing::info!("{}: found {} jobs in {:?}", name, jobs.len(), elapsed);
+                    let job_count = jobs.len();
+                    tracing::info!(
+                        scraper = name,
+                        job_count,
+                        elapsed_ms = elapsed.as_millis(),
+                        "Scraper completed successfully"
+                    );
                     jobs
                 }
                 Err(e) => {
-                    tracing::error!("{}: scraping failed after {:?}: {}", name, elapsed, e);
+                    tracing::error!(
+                        scraper = name,
+                        elapsed_ms = elapsed.as_millis(),
+                        error = %e,
+                        "Scraper failed"
+                    );
                     vec![]
                 }
             }
@@ -103,11 +118,14 @@ pub async fn scrape_all_parallel(scrapers: Vec<Box<dyn JobScraper>>) -> Vec<Job>
     while let Some(result) = join_set.join_next().await {
         match result {
             Ok(jobs) => all_jobs.extend(jobs),
-            Err(e) => tracing::error!("Scraper task panicked: {}", e),
+            Err(e) => {
+                tracing::error!(error = %e, "Scraper task panicked");
+            }
         }
     }
 
-    tracing::info!("Parallel scrape complete: {} total jobs", all_jobs.len());
+    let total_jobs = all_jobs.len();
+    tracing::info!(total_jobs, "Parallel scrape complete");
     all_jobs
 }
 

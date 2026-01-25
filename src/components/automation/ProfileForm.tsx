@@ -4,6 +4,12 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { Button, Input, Card, HelpIcon } from "..";
 import { useToast } from "../../contexts";
 import { logError } from "../../utils/errorUtils";
+import {
+  validateRequiredEmail,
+  validatePhone,
+  validateUrl,
+  validateRequired,
+} from "../../utils/formValidation";
 
 // Type for tracking original form values
 interface FormSnapshot {
@@ -63,9 +69,6 @@ interface ProfileFormProps {
   onSaved?: () => void;
 }
 
-// Email validation regex (defined outside component for stable reference)
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormProps) {
   const [loading, setLoading] = useState(true);
   const [takingLong, setTakingLong] = useState(false);
@@ -100,42 +103,19 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
     websiteUrl?: string;
   }>({});
 
-  // URL validation helper
-  const isValidUrl = useCallback((url: string): boolean => {
-    if (!url.trim()) return true;
-    try {
-      const parsed = new URL(url);
-      return parsed.protocol === "https:" || parsed.protocol === "http:";
-    } catch {
-      return false;
-    }
-  }, []);
+  // Track which fields have been touched (for real-time validation)
+  const [touched, setTouched] = useState<Set<string>>(new Set());
 
   // Field validators lookup (better performance than switch)
-  const validateUrl = useCallback((value: string): string | undefined => {
-    if (!value.trim()) return undefined;
-    if (!isValidUrl(value)) return "Enter a valid URL (https://...)";
-    return undefined;
-  }, [isValidUrl]);
-
   const fieldValidators = useMemo((): Record<string, (value: string) => string | undefined> => ({
-    fullName: (value) => value.trim() ? undefined : "Full name is required",
-    email: (value) => {
-      if (!value.trim()) return "Email is required";
-      if (!EMAIL_REGEX.test(value.trim())) return "Please enter a valid email";
-      return undefined;
-    },
-    phone: (value) => {
-      if (!value.trim()) return undefined;
-      const digits = value.replace(/\D/g, "");
-      if (digits.length < 10 || digits.length > 15) return "Enter 10-15 digit phone number";
-      return undefined;
-    },
+    fullName: (value) => validateRequired(value, "Full name"),
+    email: validateRequiredEmail,
+    phone: validatePhone,
     linkedinUrl: validateUrl,
     githubUrl: validateUrl,
     portfolioUrl: validateUrl,
     websiteUrl: validateUrl,
-  }), [validateUrl]);
+  }), []);
 
   // Field validation function using lookup
   const validateField = useCallback((field: string, value: string): string | undefined => {
@@ -144,9 +124,19 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
 
   // Handle field blur for inline validation
   const handleBlur = useCallback((field: string, value: string) => {
+    setTouched((prev) => new Set(prev).add(field));
     const error = validateField(field, value);
     setErrors((prev) => ({ ...prev, [field]: error }));
   }, [validateField]);
+
+  // Real-time validation for touched fields
+  const handleChange = useCallback((field: string, value: string, setter: (v: string) => void) => {
+    setter(value);
+    if (touched.has(field)) {
+      const error = validateField(field, value);
+      setErrors((prev) => ({ ...prev, [field]: error }));
+    }
+  }, [touched, validateField]);
 
   // Compute if form has unsaved changes
   const isDirty = useMemo(() => {
@@ -380,31 +370,37 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
             <Input
               label="Full Name *"
               value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
+              onChange={(e) => handleChange("fullName", e.target.value, setFullName)}
               onBlur={() => handleBlur("fullName", fullName)}
               placeholder="John Doe"
               error={errors.fullName}
               autoComplete="name"
+              maxLength={100}
+              required
             />
             <Input
               label="Email *"
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => handleChange("email", e.target.value, setEmail)}
               onBlur={() => handleBlur("email", email)}
               placeholder="john@example.com"
               error={errors.email}
               autoComplete="email"
+              maxLength={255}
+              required
             />
             <Input
               label="Phone"
               type="tel"
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              onChange={(e) => handleChange("phone", e.target.value, setPhone)}
               onBlur={() => handleBlur("phone", phone)}
               placeholder="+1 (555) 123-4567"
+              hint="10-15 digits"
               error={errors.phone}
               autoComplete="tel"
+              maxLength={20}
             />
           </div>
         </section>
@@ -418,43 +414,51 @@ export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormPro
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input
               label="LinkedIn"
+              type="url"
               value={linkedinUrl}
-              onChange={(e) => setLinkedinUrl(e.target.value)}
+              onChange={(e) => handleChange("linkedinUrl", e.target.value, setLinkedinUrl)}
               onBlur={() => handleBlur("linkedinUrl", linkedinUrl)}
               placeholder="https://linkedin.com/in/johndoe"
               leftIcon={<LinkedInIcon className="w-4 h-4" />}
               error={errors.linkedinUrl}
               autoComplete="url"
+              maxLength={255}
             />
             <Input
               label="GitHub"
+              type="url"
               value={githubUrl}
-              onChange={(e) => setGithubUrl(e.target.value)}
+              onChange={(e) => handleChange("githubUrl", e.target.value, setGithubUrl)}
               onBlur={() => handleBlur("githubUrl", githubUrl)}
               placeholder="https://github.com/johndoe"
               leftIcon={<GitHubIcon className="w-4 h-4" />}
               error={errors.githubUrl}
               autoComplete="url"
+              maxLength={255}
             />
             <Input
               label="Portfolio"
+              type="url"
               value={portfolioUrl}
-              onChange={(e) => setPortfolioUrl(e.target.value)}
+              onChange={(e) => handleChange("portfolioUrl", e.target.value, setPortfolioUrl)}
               onBlur={() => handleBlur("portfolioUrl", portfolioUrl)}
               placeholder="https://johndoe.com"
               leftIcon={<GlobeIcon className="w-4 h-4" />}
               error={errors.portfolioUrl}
               autoComplete="url"
+              maxLength={255}
             />
             <Input
               label="Website"
+              type="url"
               value={websiteUrl}
-              onChange={(e) => setWebsiteUrl(e.target.value)}
+              onChange={(e) => handleChange("websiteUrl", e.target.value, setWebsiteUrl)}
               onBlur={() => handleBlur("websiteUrl", websiteUrl)}
               placeholder="https://blog.johndoe.com"
               leftIcon={<LinkIcon className="w-4 h-4" />}
               error={errors.websiteUrl}
               autoComplete="url"
+              maxLength={255}
             />
           </div>
         </section>

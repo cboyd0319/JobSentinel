@@ -23,6 +23,7 @@ export { Progress, ProgressIndeterminate } from "./Progress";
 export { default as ErrorBoundary } from "./ErrorBoundary";
 export { default as ModalErrorBoundary } from "./ModalErrorBoundary";
 export { default as PageErrorBoundary } from "./PageErrorBoundary";
+export { default as ComponentErrorBoundary } from "./ComponentErrorBoundary";
 export { OnboardingProvider, useOnboarding, TourHelpButton } from "./OnboardingTour";
 export { VirtualJobList } from "./VirtualJobList";
 export { AnalyticsPanel } from "./AnalyticsPanel";
