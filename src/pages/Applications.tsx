@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, lazy, Suspense, useId } from "react";
+import { useEffect, useState, useCallback, lazy, Suspense, useId, useMemo } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { cachedInvoke, invalidateCacheByCommand } from "../utils/api";
 import {
@@ -409,6 +409,53 @@ export default function Applications({ onBack }: ApplicationsProps) {
     return null;
   };
 
+  // Memoized application stats to avoid recalculating on every render
+  const stats = useMemo(() => {
+    if (!applications) return null;
+
+    const totalApplied =
+      applications.applied.length +
+      applications.phone_screen.length +
+      applications.technical.length +
+      applications.onsite.length +
+      applications.offer.length +
+      applications.accepted.length +
+      applications.rejected.length +
+      applications.withdrawn.length +
+      applications.ghosted.length;
+
+    const interviews =
+      applications.phone_screen.length +
+      applications.technical.length +
+      applications.onsite.length;
+
+    const interviewsPlusOffers = interviews +
+      applications.offer.length +
+      applications.accepted.length;
+
+    const offers =
+      applications.offer.length + applications.accepted.length;
+
+    const rejected = applications.rejected.length;
+
+    const interviewRate = totalApplied > 0
+      ? Math.round((interviewsPlusOffers / totalApplied) * 100)
+      : 0;
+
+    const offerRate = totalApplied > 0
+      ? Math.round((offers / totalApplied) * 100)
+      : 0;
+
+    return {
+      totalApplied,
+      interviews,
+      offers,
+      rejected,
+      interviewRate,
+      offerRate,
+    };
+  }, [applications]);
+
   if (loading) {
     return <KanbanSkeleton />;
   }
@@ -463,83 +510,30 @@ export default function Applications({ onBack }: ApplicationsProps) {
       </header>
 
       {/* Quick Stats Bar */}
-      {applications && (
+      {stats && (
         <div className="bg-white dark:bg-surface-800 border-b border-surface-100 dark:border-surface-700 px-6 py-3">
           <div className="flex items-center gap-6 text-sm">
             <QuickStat
               label="Applied"
-              value={
-                applications.applied.length +
-                applications.phone_screen.length +
-                applications.technical.length +
-                applications.onsite.length +
-                applications.offer.length +
-                applications.accepted.length +
-                applications.rejected.length +
-                applications.withdrawn.length +
-                applications.ghosted.length
-              }
+              value={stats.totalApplied}
               icon="📝"
             />
             <QuickStat
               label="Interviews"
-              value={
-                applications.phone_screen.length +
-                applications.technical.length +
-                applications.onsite.length
-              }
-              percent={(() => {
-                const applied =
-                  applications.applied.length +
-                  applications.phone_screen.length +
-                  applications.technical.length +
-                  applications.onsite.length +
-                  applications.offer.length +
-                  applications.accepted.length +
-                  applications.rejected.length +
-                  applications.withdrawn.length +
-                  applications.ghosted.length;
-                const interviews =
-                  applications.phone_screen.length +
-                  applications.technical.length +
-                  applications.onsite.length +
-                  applications.offer.length +
-                  applications.accepted.length;
-                return applied > 0 ? Math.round((interviews / applied) * 100) : 0;
-              })()}
+              value={stats.interviews}
+              percent={stats.interviewRate}
               icon="📞"
             />
             <QuickStat
               label="Offers"
-              value={
-                applications.offer.length +
-                applications.accepted.length
-              }
-              percent={(() => {
-                const applied =
-                  applications.applied.length +
-                  applications.phone_screen.length +
-                  applications.technical.length +
-                  applications.onsite.length +
-                  applications.offer.length +
-                  applications.accepted.length +
-                  applications.rejected.length +
-                  applications.withdrawn.length +
-                  applications.ghosted.length;
-                const offers = applications.offer.length + applications.accepted.length;
-                return applied > 0 ? Math.round((offers / applied) * 100) : 0;
-              })()}
+              value={stats.offers}
+              percent={stats.offerRate}
               icon="🎉"
               highlight
             />
             <QuickStat
               label="In Progress"
-              value={
-                applications.applied.length +
-                applications.phone_screen.length +
-                applications.technical.length +
-                applications.onsite.length
-              }
+              value={stats.totalApplied - stats.offers - stats.rejected}
               icon="⏳"
             />
           </div>
