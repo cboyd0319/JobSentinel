@@ -9,6 +9,7 @@
 //! - Proper heading hierarchy
 
 use serde::{Deserialize, Serialize};
+use std::str::FromStr;
 
 /// Template identifier
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
@@ -30,15 +31,19 @@ impl TemplateId {
             TemplateId::Military => "military",
         }
     }
+}
 
-    pub fn from_str(s: &str) -> Option<Self> {
+impl FromStr for TemplateId {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
-            "classic" => Some(TemplateId::Classic),
-            "modern" => Some(TemplateId::Modern),
-            "technical" => Some(TemplateId::Technical),
-            "executive" => Some(TemplateId::Executive),
-            "military" => Some(TemplateId::Military),
-            _ => None,
+            "classic" => Ok(TemplateId::Classic),
+            "modern" => Ok(TemplateId::Modern),
+            "technical" => Ok(TemplateId::Technical),
+            "executive" => Ok(TemplateId::Executive),
+            "military" => Ok(TemplateId::Military),
+            _ => Err(format!("Invalid template ID: {}", s)),
         }
     }
 }
@@ -1074,8 +1079,8 @@ mod tests {
     #[test]
     fn test_template_id_conversion() {
         assert_eq!(TemplateId::Classic.as_str(), "classic");
-        assert_eq!(TemplateId::from_str("classic"), Some(TemplateId::Classic));
-        assert_eq!(TemplateId::from_str("invalid"), None);
+        assert_eq!("classic".parse::<TemplateId>().unwrap(), TemplateId::Classic);
+        assert!("invalid".parse::<TemplateId>().is_err());
     }
 
     #[test]

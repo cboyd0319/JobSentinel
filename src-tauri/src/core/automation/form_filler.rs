@@ -10,7 +10,7 @@ use super::AtsPlatform;
 use anyhow::Result;
 use regex::Regex;
 use std::collections::HashMap;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 /// Form filler - fills application forms based on ATS platform
 pub struct FormFiller {
@@ -298,7 +298,7 @@ impl FormFiller {
         &self,
         page: &AutomationPage,
         selectors: &HashMap<FieldType, Vec<&str>>,
-        resume_path: &PathBuf,
+        resume_path: &Path,
         result: &mut FillResult,
     ) {
         if let Some(sel_list) = selectors.get(&FieldType::Resume) {

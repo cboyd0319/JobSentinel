@@ -167,22 +167,22 @@ impl fmt::Display for ValidationError {
                 } else {
                     match (min, max) {
                         (Some(min), Some(max)) => {
-                            write!(f, "{} must be between {} and {}", field.replace('_', " ").replace('.', " "), min, max)
+                            write!(f, "{} must be between {} and {}", field.replace(['_', '.'], " "), min, max)
                         }
                         (Some(min), None) => {
-                            write!(f, "{} must be at least {}", field.replace('_', " ").replace('.', " "), min)
+                            write!(f, "{} must be at least {}", field.replace(['_', '.'], " "), min)
                         }
                         (None, Some(max)) => {
-                            write!(f, "{} cannot exceed {}", field.replace('_', " ").replace('.', " "), max)
+                            write!(f, "{} cannot exceed {}", field.replace(['_', '.'], " "), max)
                         }
                         (None, None) => {
-                            write!(f, "{} has invalid value: {}", field.replace('_', " ").replace('.', " "), value)
+                            write!(f, "{} has invalid value: {}", field.replace(['_', '.'], " "), value)
                         }
                     }
                 }
             }
             Self::InvalidValue { field, value: _, reason } => {
-                write!(f, "{}: {}", field.replace('_', " ").replace('.', " "), reason)
+                write!(f, "{}: {}", field.replace(['_', '.'], " "), reason)
             }
             Self::RequiredField { field, reason } => {
                 // Format to match existing test expectations
@@ -201,7 +201,7 @@ impl fmt::Display for ValidationError {
                 } else if field.contains("linkedin.query") {
                     write!(f, "LinkedIn search query is required when LinkedIn is enabled")
                 } else {
-                    write!(f, "{}: {}", field.replace('_', " ").replace('.', " "), reason)
+                    write!(f, "{}: {}", field.replace(['_', '.'], " "), reason)
                 }
             }
             Self::TooLong { field, length: _, max } => {
@@ -233,7 +233,7 @@ impl fmt::Display for ValidationError {
                 } else if field.contains("keywords") {
                     write!(f, "Keyword too long (max: {} chars)", max)
                 } else {
-                    write!(f, "{} too long (max: {} chars)", field.replace('_', " ").replace('.', " "), max)
+                    write!(f, "{} too long (max: {} chars)", field.replace(['_', '.'], " "), max)
                 }
             }
             Self::TooManyElements { field, count: _, max } => {
@@ -246,7 +246,7 @@ impl fmt::Display for ValidationError {
                 } else if field.contains("states") {
                     write!(f, "Too many states (max: {})", max)
                 } else {
-                    write!(f, "Too many {} entries (max: {})", field.replace('_', " ").replace('.', " "), max)
+                    write!(f, "Too many {} entries (max: {})", field.replace(['_', '.'], " "), max)
                 }
             }
             Self::InvalidUrl { field, url, reason } => {
@@ -255,7 +255,7 @@ impl fmt::Display for ValidationError {
                 } else if field.contains("lever") {
                     write!(f, "Invalid Lever URL format. Must start with 'https://jobs.lever.co/'. Got: {}", url)
                 } else {
-                    write!(f, "Invalid URL in {}: {}", field.replace('_', " ").replace('.', " "), reason)
+                    write!(f, "Invalid URL in {}: {}", field.replace(['_', '.'], " "), reason)
                 }
             }
             Self::InvalidEmail { field, email } => {
@@ -264,7 +264,7 @@ impl fmt::Display for ValidationError {
                 } else if field.contains("to_emails") {
                     write!(f, "Invalid recipient email format: {}", email)
                 } else {
-                    write!(f, "Invalid email format in {}: {}", field.replace('_', " ").replace('.', " "), email)
+                    write!(f, "Invalid email format in {}: {}", field.replace(['_', '.'], " "), email)
                 }
             }
             Self::InconsistentValues { field1: _, field2: _, reason } => {
@@ -284,7 +284,7 @@ impl fmt::Display for ValidationError {
                 } else if field.contains("to_emails") {
                     write!(f, "Recipient email cannot be empty")
                 } else {
-                    write!(f, "{} cannot be empty", field.replace('_', " ").replace('.', " "))
+                    write!(f, "{} cannot be empty", field.replace(['_', '.'], " "))
                 }
             }
         }

@@ -14,6 +14,7 @@
 
 use keyring::Entry;
 use serde::{Deserialize, Serialize};
+use std::str::FromStr;
 
 /// Enumeration of all credential types supported by JobSentinel.
 ///
@@ -85,28 +86,32 @@ impl CredentialKey {
             Self::UsaJobsApiKey,
         ]
     }
+}
+
+impl FromStr for CredentialKey {
+    type Err = String;
 
     /// Parse credential key from string.
     ///
     /// Accepts both prefixed (`jobsentinel_smtp_password`) and unprefixed
     /// (`smtp_password`) variants for backwards compatibility.
     ///
-    /// # Returns
+    /// # Errors
     ///
-    /// `Some(key)` if recognized, `None` otherwise.
-    pub fn from_str(s: &str) -> Option<Self> {
+    /// Returns error if the string doesn't match any known credential key.
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            "smtp_password" | "jobsentinel_smtp_password" => Some(Self::SmtpPassword),
-            "telegram_bot_token" | "jobsentinel_telegram_bot_token" => Some(Self::TelegramBotToken),
-            "slack_webhook" | "jobsentinel_slack_webhook" => Some(Self::SlackWebhook),
-            "discord_webhook" | "jobsentinel_discord_webhook" => Some(Self::DiscordWebhook),
-            "teams_webhook" | "jobsentinel_teams_webhook" => Some(Self::TeamsWebhook),
-            "linkedin_cookie" | "jobsentinel_linkedin_cookie" => Some(Self::LinkedInCookie),
+            "smtp_password" | "jobsentinel_smtp_password" => Ok(Self::SmtpPassword),
+            "telegram_bot_token" | "jobsentinel_telegram_bot_token" => Ok(Self::TelegramBotToken),
+            "slack_webhook" | "jobsentinel_slack_webhook" => Ok(Self::SlackWebhook),
+            "discord_webhook" | "jobsentinel_discord_webhook" => Ok(Self::DiscordWebhook),
+            "teams_webhook" | "jobsentinel_teams_webhook" => Ok(Self::TeamsWebhook),
+            "linkedin_cookie" | "jobsentinel_linkedin_cookie" => Ok(Self::LinkedInCookie),
             "linkedin_cookie_expiry" | "jobsentinel_linkedin_cookie_expiry" => {
-                Some(Self::LinkedInCookieExpiry)
+                Ok(Self::LinkedInCookieExpiry)
             }
-            "usajobs_api_key" | "jobsentinel_usajobs_api_key" => Some(Self::UsaJobsApiKey),
-            _ => None,
+            "usajobs_api_key" | "jobsentinel_usajobs_api_key" => Ok(Self::UsaJobsApiKey),
+            _ => Err(format!("Invalid credential key: {}", s)),
         }
     }
 }
@@ -471,13 +476,13 @@ mod tests {
     #[test]
     fn test_credential_key_from_str() {
         assert_eq!(
-            CredentialKey::from_str("smtp_password"),
-            Some(CredentialKey::SmtpPassword)
+            "smtp_password".parse::<CredentialKey>().unwrap(),
+            CredentialKey::SmtpPassword
         );
         assert_eq!(
-            CredentialKey::from_str("jobsentinel_slack_webhook"),
-            Some(CredentialKey::SlackWebhook)
+            "jobsentinel_slack_webhook".parse::<CredentialKey>().unwrap(),
+            CredentialKey::SlackWebhook
         );
-        assert_eq!(CredentialKey::from_str("unknown_key"), None);
+        assert!("unknown_key".parse::<CredentialKey>().is_err());
     }
 }

@@ -702,12 +702,12 @@ mod credential_commands {
 
     #[test]
     fn test_credential_key_parsing() {
-        // from_str returns Option<CredentialKey>
+        // FromStr trait: parse returns Result<CredentialKey, _>
         assert_eq!(
-            CredentialKey::from_str("smtp_password"),
+            "smtp_password".parse::<CredentialKey>().ok(),
             Some(CredentialKey::SmtpPassword)
         );
-        assert_eq!(CredentialKey::from_str("invalid"), None);
+        assert!("invalid".parse::<CredentialKey>().is_err());
 
         // as_str returns &'static str
         assert_eq!(

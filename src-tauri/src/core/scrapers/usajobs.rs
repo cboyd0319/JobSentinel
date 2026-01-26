@@ -163,7 +163,7 @@ impl UsaJobsScraper {
 
         // Pagination
         params.push(("Page", page.to_string()));
-        let results_per_page = (self.limit as u32).min(MAX_RESULTS_PER_PAGE).max(1);
+        let results_per_page = (self.limit as u32).clamp(1, MAX_RESULTS_PER_PAGE);
         params.push(("ResultsPerPage", results_per_page.to_string()));
 
         // Get full details
