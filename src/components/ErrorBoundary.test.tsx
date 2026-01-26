@@ -165,7 +165,7 @@ describe("ErrorBoundary", () => {
       );
 
       const button = screen.getByRole("button", { name: /reload application/i });
-      expect(button).toHaveClass("focus:ring-2");
+      expect(button).toHaveClass("focus-visible:ring-2");
     });
 
     it("error icon has aria-hidden", () => {

@@ -96,14 +96,19 @@ describe("DashboardWidgets", () => {
   });
 
   describe("loading state", () => {
-    it("shows loading spinner initially", () => {
+    it("shows loading spinner initially", async () => {
+      vi.useFakeTimers();
       // Delay the promise resolution
       mockInvoke.mockImplementation(() => new Promise(() => {}));
 
       render(<DashboardWidgets />);
 
+      // Advance past the spinner delay
+      await vi.advanceTimersByTimeAsync(300);
+
       // Should show loading spinner
       expect(document.querySelector(".animate-spin")).toBeInTheDocument();
+      vi.useRealTimers();
     });
   });
 

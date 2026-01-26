@@ -148,7 +148,7 @@ class ErrorBoundary extends Component<Props, State> {
 
               <button
                 onClick={this.handleReload}
-                className="w-full bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 text-surface-700 dark:text-surface-200 font-semibold py-3 px-4 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-surface-400 focus:ring-offset-2 dark:focus:ring-offset-surface-800"
+                className="w-full bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 text-surface-700 dark:text-surface-200 font-semibold py-3 px-4 rounded-lg transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-800"
               >
                 Reload Application
               </button>
@@ -156,7 +156,7 @@ class ErrorBoundary extends Component<Props, State> {
               {showClearData && (
                 <button
                   onClick={this.handleClearData}
-                  className="w-full bg-danger/10 hover:bg-danger/20 text-danger font-semibold py-3 px-4 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-danger focus:ring-offset-2 dark:focus:ring-offset-surface-800"
+                  className="w-full bg-danger/10 hover:bg-danger/20 text-danger font-semibold py-3 px-4 rounded-lg transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-danger focus-visible:ring-offset-2 dark:focus-visible:ring-offset-surface-800"
                 >
                   Clear App Data & Reload
                 </button>

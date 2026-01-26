@@ -304,7 +304,7 @@ describe("Tooltip", () => {
       await waitFor(() => {
         const tooltip = screen.getByRole("tooltip");
         expect(tooltip).toHaveClass("shadow-lg");
-        expect(tooltip).toHaveClass("animate-fade-in");
+        expect(tooltip).toHaveClass("motion-safe:animate-fade-in");
       });
     });
   });

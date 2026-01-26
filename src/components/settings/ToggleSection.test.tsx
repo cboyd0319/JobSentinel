@@ -347,7 +347,7 @@ describe("ToggleSection", () => {
         />
       );
 
-      const toggleDiv = container.querySelector(".peer-focus\\:ring-4");
+      const toggleDiv = container.querySelector(".peer-focus-visible\\:ring-4");
       expect(toggleDiv).toBeInTheDocument();
     });
   });

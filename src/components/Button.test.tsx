@@ -122,7 +122,7 @@ describe("Button", () => {
 
     it("renders loading spinner with animation class", () => {
       const { container } = render(<Button loading>Submit</Button>);
-      const spinner = container.querySelector(".animate-spin");
+      const spinner = container.querySelector(".motion-safe\\:animate-spin");
       expect(spinner).toBeInTheDocument();
     });
   });

@@ -114,7 +114,7 @@ export const FormSkeleton = memo(function FormSkeleton() {
 export const CompactLoadingSpinner = memo(function CompactLoadingSpinner({ message }: { message?: string }) {
   return (
     <div className="flex items-center justify-center py-4">
-      <LoadingSpinner message={message} />
+      <LoadingSpinner message={message} delay={0} />
     </div>
   );
 });

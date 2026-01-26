@@ -118,15 +118,15 @@ describe("SkipToContent", () => {
       render(<SkipToContent />);
 
       const link = screen.getByRole("link", { name: /skip to main content/i });
-      expect(link).toHaveClass("focus:ring-2");
-      expect(link).toHaveClass("focus:ring-sentinel-500");
+      expect(link).toHaveClass("focus-visible:ring-2");
+      expect(link).toHaveClass("focus-visible:ring-sentinel-500");
     });
 
     it("has focus ring offset", () => {
       render(<SkipToContent />);
 
       const link = screen.getByRole("link", { name: /skip to main content/i });
-      expect(link).toHaveClass("focus:ring-offset-2");
+      expect(link).toHaveClass("focus-visible:ring-offset-2");
     });
 
     it("removes default outline", () => {
@@ -282,7 +282,7 @@ describe("SkipToContent", () => {
       render(<SkipToContent />);
 
       const link = screen.getByRole("link", { name: /skip to main content/i });
-      expect(link).toHaveClass("focus:ring-2");
+      expect(link).toHaveClass("focus-visible:ring-2");
     });
   });
 

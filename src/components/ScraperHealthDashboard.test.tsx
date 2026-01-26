@@ -156,12 +156,17 @@ describe("ScraperHealthDashboard", () => {
   });
 
   describe("loading state", () => {
-    it("shows loading spinner initially", () => {
+    it("shows loading spinner initially", async () => {
+      vi.useFakeTimers();
       mockInvoke.mockImplementation(() => new Promise(() => {})); // Never resolves
 
       render(<ScraperHealthDashboard onClose={onClose} />);
 
+      // Advance past the spinner delay
+      await vi.advanceTimersByTimeAsync(300);
+
       expect(screen.getByText(/loading scraper health/i)).toBeInTheDocument();
+      vi.useRealTimers();
     });
   });
 

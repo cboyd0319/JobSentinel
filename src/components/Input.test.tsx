@@ -311,11 +311,11 @@ describe("Input", () => {
     it("applies focus ring on focus", async () => {
       const user = userEvent.setup();
       render(<Input />);
-      
+
       const input = screen.getByRole("textbox");
       await user.click(input);
-      
-      expect(input).toHaveClass("focus:ring-2");
+
+      expect(input).toHaveClass("focus-visible:ring-2");
     });
 
     it("has proper dark mode classes", () => {

@@ -69,7 +69,7 @@ describe("LoadingSpinner", () => {
   describe("animations", () => {
     it("applies fade-in animation to container", () => {
       const { container } = render(<LoadingSpinner delay={0} />);
-      const animatedContainer = container.querySelector(".animate-fade-in");
+      const animatedContainer = container.querySelector(".motion-safe\\:animate-fade-in");
       expect(animatedContainer).toBeInTheDocument();
     });
 
