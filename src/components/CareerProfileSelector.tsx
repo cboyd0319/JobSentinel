@@ -13,7 +13,7 @@ interface CareerProfileSelectorProps {
 
 export const CareerProfileSelector = memo(function CareerProfileSelector({ selectedProfile, onSelectProfile }: CareerProfileSelectorProps) {
   return (
-    <div className="animate-slide-up" role="radiogroup" aria-label="Select career profile">
+    <div className="motion-safe:animate-slide-up" role="radiogroup" aria-label="Select career profile">
       <div className="grid grid-cols-2 gap-3 mb-4">
         {CAREER_PROFILES.map((profile) => (
           <ProfileCard

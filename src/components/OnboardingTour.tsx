@@ -178,7 +178,7 @@ const TourOverlay = memo(function TourOverlay({ steps }: TourOverlayProps) {
       {/* Target highlight */}
       {targetRect && (
         <div
-          className="absolute border-2 border-sentinel-400 rounded-lg pointer-events-none animate-pulse"
+          className="absolute border-2 border-sentinel-400 rounded-lg pointer-events-none motion-safe:animate-pulse"
           style={{
             top: targetRect.top - 4,
             left: targetRect.left - 4,

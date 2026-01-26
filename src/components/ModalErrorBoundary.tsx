@@ -86,7 +86,7 @@ class ModalErrorBoundary extends Component<Props, State> {
           aria-modal="true"
           aria-labelledby="modal-error-title"
         >
-          <div className="w-full max-w-md bg-white dark:bg-surface-800 rounded-card shadow-card border dark:border-surface-700 p-6 animate-fade-in">
+          <div className="w-full max-w-md bg-white dark:bg-surface-800 rounded-card shadow-card border dark:border-surface-700 p-6 motion-safe:animate-fade-in">
             <div className="text-center mb-6">
               <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg

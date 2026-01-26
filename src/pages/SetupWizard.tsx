@@ -275,7 +275,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
         {validationAnnouncement}
       </div>
 
-      <div className="relative w-full max-w-xl animate-fade-in">
+      <div className="relative w-full max-w-xl motion-safe:animate-fade-in">
         {/* Progress indicator */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-3">
@@ -333,7 +333,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
 
           {/* Step 0: Career Profile Selection */}
           {step === 0 && (
-            <div className="animate-slide-up">
+            <div className="motion-safe:animate-slide-up">
               <CareerProfileSelector
                 selectedProfile={selectedProfile}
                 onSelectProfile={handleProfileSelect}
@@ -352,7 +352,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
 
           {/* Step 1: Review & Edit Job Titles + Skills (combined) */}
           {step === 1 && (
-            <div className="animate-slide-up space-y-6">
+            <div className="motion-safe:animate-slide-up space-y-6">
               {/* Pre-populated indicator */}
               {selectedProfile && (
                 <div className="p-3 bg-sentinel-50 border border-sentinel-200 rounded-lg text-sm text-sentinel-700">
@@ -480,7 +480,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
 
           {/* Step 2: Location */}
           {step === 2 && (
-            <div className="animate-slide-up">
+            <div className="motion-safe:animate-slide-up">
               <div className="space-y-3 mb-6">
                 <LocationOption
                   label="Remote"
@@ -579,7 +579,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
 
           {/* Step 3: Notifications */}
           {step === 3 && (
-            <div className="animate-slide-up">
+            <div className="motion-safe:animate-slide-up">
               <div className="mb-6">
                 <p className="text-surface-600 mb-4 text-center">
                   Get notified when we find great matches for you

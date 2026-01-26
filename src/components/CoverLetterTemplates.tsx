@@ -122,6 +122,7 @@ function TemplateEditor({ template, onSave, onCancel, saving }: TemplateEditorPr
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="e.g., Tech Company Application"
+          autoComplete="off"
           disabled={saving}
         />
         <div>
@@ -132,6 +133,7 @@ function TemplateEditor({ template, onSave, onCancel, saving }: TemplateEditorPr
             value={category}
             onChange={(e) => setCategory(e.target.value as TemplateCategory)}
             disabled={saving}
+            aria-label="Template category"
             className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-surface-100 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500 disabled:opacity-50"
           >
             {Object.entries(CATEGORY_LABELS).map(([value, label]) => (

@@ -135,7 +135,7 @@ const ToastItem = memo(function ToastItem({ toast, onRemove }: { toast: Toast; o
   return (
     <div
       className={`
-        pointer-events-auto animate-slide-in-right
+        pointer-events-auto motion-safe:animate-slide-in-right
         ${styles.bg} text-white rounded-lg shadow-lg p-4
         flex items-start gap-3
       `}

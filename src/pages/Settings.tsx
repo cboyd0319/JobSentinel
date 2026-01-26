@@ -1280,6 +1280,7 @@ export default function Settings({ onClose }: SettingsProps) {
                     placeholder={credentialStatus.slack_webhook ? "Enter new webhook to update" : "Paste your Slack webhook URL here"}
                     error={credentials.slack_webhook && !isValidSlackWebhook(credentials.slack_webhook) ? "This doesn't look like a valid Slack webhook URL" : undefined}
                     hint="Stored securely in your system keychain"
+                    autoComplete="off"
                   />
                 </div>
                 {(credentials.slack_webhook || credentialStatus.slack_webhook) && (
@@ -1499,6 +1500,7 @@ export default function Settings({ onClose }: SettingsProps) {
                       }
                       placeholder="your@gmail.com"
                       hint="The email account to send from"
+                      autoComplete="email"
                     />
                     <div>
                       <div className="flex items-center gap-2 mb-1">
@@ -1510,6 +1512,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         value={credentials.smtp_password}
                         onChange={(e) => setCredentials((prev) => ({ ...prev, smtp_password: e.target.value }))}
                         placeholder={credentialStatus.smtp_password ? "Enter new password to update" : "Your app-specific password"}
+                        autoComplete="current-password"
                       />
                     </div>
                   </div>
@@ -1532,6 +1535,7 @@ export default function Settings({ onClose }: SettingsProps) {
                       placeholder="your@gmail.com"
                       hint="Usually same as 'Your Email'"
                       error={!isValidFromEmail ? "Please enter a valid email address" : undefined}
+                      autoComplete="email"
                     />
                     <Input
                       label="Send To"
@@ -1551,6 +1555,7 @@ export default function Settings({ onClose }: SettingsProps) {
                       placeholder="you@email.com"
                       hint="Where to receive alerts (can be the same email)"
                       error={!hasValidToEmails ? "Please enter a valid email address" : undefined}
+                      autoComplete="email"
                     />
                   </div>
                 </div>
@@ -1602,6 +1607,7 @@ export default function Settings({ onClose }: SettingsProps) {
                       onChange={(e) => setCredentials((prev) => ({ ...prev, discord_webhook: e.target.value }))}
                       placeholder={credentialStatus.discord_webhook ? "Enter new webhook to update" : "Paste your Discord webhook URL"}
                       hint="Server Settings → Integrations → Webhooks → New Webhook → Copy URL"
+                      autoComplete="off"
                     />
                   </div>
                 )}
@@ -1652,6 +1658,7 @@ export default function Settings({ onClose }: SettingsProps) {
                       value={credentials.teams_webhook}
                       onChange={(e) => setCredentials((prev) => ({ ...prev, teams_webhook: e.target.value }))}
                       placeholder={credentialStatus.teams_webhook ? "Enter new webhook to update" : "Paste your Teams webhook URL"}
+                      autoComplete="off"
                       hint="Channel → Connectors → Incoming Webhook → Configure → Copy URL"
                     />
                   </div>
@@ -2137,6 +2144,7 @@ export default function Settings({ onClose }: SettingsProps) {
                         value={credentials.usajobs_api_key}
                         onChange={(e) => setCredentials((prev) => ({ ...prev, usajobs_api_key: e.target.value }))}
                         placeholder={credentialStatus.usajobs_api_key ? "Enter new key to update" : "Paste your API key here"}
+                        autoComplete="off"
                       />
                     </div>
                     <Input
@@ -2150,6 +2158,7 @@ export default function Settings({ onClose }: SettingsProps) {
                       }
                       placeholder="your@email.com"
                       hint="Required by USAJobs API"
+                      autoComplete="email"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-3">

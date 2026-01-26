@@ -201,6 +201,7 @@ export const DashboardFiltersBar = memo(function DashboardFiltersBar({
                 placeholder="Search (AND, OR, NOT)..."
                 className="w-48 sm:w-56 pl-8 pr-8 py-1.5 text-sm bg-surface-50 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-sentinel-500 focus:border-transparent"
                 aria-label="Search jobs with advanced syntax"
+                autoComplete="off"
                 data-testid="search-input"
               />
             </Tooltip>

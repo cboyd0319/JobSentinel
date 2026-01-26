@@ -147,7 +147,7 @@ export const SkillCategoryFilter = memo(function SkillCategoryFilter({
             rounded-lg shadow-lg
             max-h-60 overflow-auto
             py-1
-            animate-slide-up
+            motion-safe:animate-slide-up
           "
         >
           <li

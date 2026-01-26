@@ -59,6 +59,7 @@ export const FilterListInput = memo(function FilterListInput({
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
           aria-label={label}
+          autoComplete="off"
         />
         <Button onClick={handleAdd} disabled={!inputValue.trim()}>
           Add

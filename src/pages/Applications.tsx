@@ -207,13 +207,13 @@ function KanbanSkeleton() {
         <div className="max-w-full mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-surface-200 dark:bg-surface-700 rounded-lg animate-pulse" />
+              <div className="w-10 h-10 bg-surface-200 dark:bg-surface-700 rounded-lg motion-safe:animate-pulse" />
               <div>
-                <div className="h-6 w-48 bg-surface-200 dark:bg-surface-700 rounded animate-pulse mb-2" />
-                <div className="h-4 w-64 bg-surface-200 dark:bg-surface-700 rounded animate-pulse" />
+                <div className="h-6 w-48 bg-surface-200 dark:bg-surface-700 rounded motion-safe:animate-pulse mb-2" />
+                <div className="h-4 w-64 bg-surface-200 dark:bg-surface-700 rounded motion-safe:animate-pulse" />
               </div>
             </div>
-            <div className="h-10 w-32 bg-surface-200 dark:bg-surface-700 rounded-lg animate-pulse" />
+            <div className="h-10 w-32 bg-surface-200 dark:bg-surface-700 rounded-lg motion-safe:animate-pulse" />
           </div>
         </div>
       </header>
@@ -222,14 +222,14 @@ function KanbanSkeleton() {
           {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} className="w-72 flex-shrink-0 bg-surface-100 dark:bg-surface-800 rounded-lg p-4">
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-3 h-3 rounded-full bg-surface-300 dark:bg-surface-600 animate-pulse" />
-                <div className="h-5 w-24 bg-surface-200 dark:bg-surface-700 rounded animate-pulse" />
+                <div className="w-3 h-3 rounded-full bg-surface-300 dark:bg-surface-600 motion-safe:animate-pulse" />
+                <div className="h-5 w-24 bg-surface-200 dark:bg-surface-700 rounded motion-safe:animate-pulse" />
               </div>
               <div className="space-y-3">
                 {[1, 2].map((j) => (
                   <div key={j} className="p-3 bg-white dark:bg-surface-700 rounded-lg">
-                    <div className="h-4 w-full bg-surface-200 dark:bg-surface-600 rounded animate-pulse mb-2" />
-                    <div className="h-3 w-2/3 bg-surface-200 dark:bg-surface-600 rounded animate-pulse" />
+                    <div className="h-4 w-full bg-surface-200 dark:bg-surface-600 rounded motion-safe:animate-pulse mb-2" />
+                    <div className="h-3 w-2/3 bg-surface-200 dark:bg-surface-600 rounded motion-safe:animate-pulse" />
                   </div>
                 ))}
               </div>
