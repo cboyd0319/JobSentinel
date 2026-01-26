@@ -20,6 +20,7 @@ import { SCORE_THRESHOLD_GOOD } from "../utils/constants";
 import { notifyScrapingComplete } from "../utils/notifications";
 import { cachedInvoke, invalidateCacheByCommand, safeInvoke } from "../utils/api";
 import { PanelSkeleton, WidgetSkeleton } from "../components/LoadingFallbacks";
+import { isValidJobUrl } from "../utils/urlValidation";
 
 // Lazy load heavy components to reduce initial bundle size
 const DashboardWidgets = lazy(() => import("../components/DashboardWidgets").then(m => ({ default: m.DashboardWidgets })));
@@ -257,12 +258,19 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
 
   // Open job URL
   const handleOpenJob = useCallback(async (job: Job) => {
+    // Security: Validate URL before opening
+    if (!isValidJobUrl(job.url)) {
+      logError("Security: Blocked attempt to open invalid URL:", job.url.slice(0, 50));
+      toast.error("Invalid URL", "This job posting URL is not valid or safe to open");
+      return;
+    }
+
     try {
       await open(job.url);
     } catch {
       window.open(job.url, "_blank", "noopener,noreferrer");
     }
-  }, []);
+  }, [toast]);
 
   // Keyboard navigation
   const { selectedIndex, isKeyboardActive } = useKeyboardNavigation({

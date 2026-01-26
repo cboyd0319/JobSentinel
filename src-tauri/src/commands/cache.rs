@@ -46,10 +46,10 @@ mod tests {
     #[tokio::test]
     async fn test_get_score_cache_stats() {
         // Should not fail even with empty cache
-        let result = get_score_cache_stats().await;
-        assert!(result.is_ok());
+        let stats = get_score_cache_stats()
+            .await
+            .expect("Failed to get score cache stats");
 
-        let stats = result.unwrap();
         assert!(stats.hit_rate >= 0.0 && stats.hit_rate <= 100.0);
     }
 
@@ -61,10 +61,10 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_cache_health() {
-        let result = get_cache_health().await;
-        assert!(result.is_ok());
+        let health = get_cache_health()
+            .await
+            .expect("Failed to get cache health");
 
-        let health = result.unwrap();
         assert_eq!(health["status"], "healthy");
         assert!(health["score_cache"]["entries"].is_number());
     }

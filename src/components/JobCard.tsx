@@ -7,6 +7,7 @@ import { logError } from "../utils/errorUtils";
 import { formatRelativeDate, formatSalaryRange, truncateText } from "../utils/formatUtils";
 import { SCORE_THRESHOLD_HIGH, SCORE_THRESHOLD_GOOD } from "../utils/constants";
 import { useToast } from "../hooks/useToast";
+import { isValidJobUrl } from "../utils/urlValidation";
 
 // Lazy load modal to reduce initial bundle size
 const ScoreBreakdownModal = lazy(() => import("./ScoreBreakdownModal").then(m => ({ default: m.ScoreBreakdownModal })));
@@ -48,18 +49,6 @@ export const JobCard = memo(function JobCard({ job, onViewJob, onHideJob, onTogg
   const [isScoreModalOpen, setIsScoreModalOpen] = useState(false);
   const toast = useToast();
 
-  // Security: Validate URL protocol before opening
-  const isValidUrl = (url: string): boolean => {
-    // Parse URL to validate scheme properly, not just string prefix
-    // This prevents bypass attacks like "javascript:alert(1)//https://"
-    try {
-      const parsed = new URL(url);
-      return parsed.protocol === "https:" || parsed.protocol === "http:";
-    } catch {
-      return false;
-    }
-  };
-
   // Keyboard accessibility helper
   const handleKeyDown = (e: React.KeyboardEvent, callback: () => void) => {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -69,9 +58,10 @@ export const JobCard = memo(function JobCard({ job, onViewJob, onHideJob, onTogg
   };
 
   const handleOpenUrl = async (url: string) => {
-    // Security: Block dangerous URL protocols (javascript:, data:, file:, etc.)
-    if (!isValidUrl(url)) {
-      logError("Security: Blocked attempt to open URL with invalid protocol:", url.slice(0, 50));
+    // Security: Validate URL before opening
+    if (!isValidJobUrl(url)) {
+      logError("Security: Blocked attempt to open invalid URL:", url.slice(0, 50));
+      toast.error("Invalid URL", "This job posting URL is not valid or safe to open");
       return;
     }
 
