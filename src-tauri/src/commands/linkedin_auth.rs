@@ -320,13 +320,20 @@ async fn extract_linkedin_cookie_from_webview(
         if cookie.name() == "li_at" {
             let value = cookie.value().to_string();
             // Get expiry if available - Tauri's Cookie has expires() method
-            let expiry_str = cookie.expires().map(|expires| {
+            let expiry_str = cookie.expires().and_then(|expires| {
                 use chrono::{DateTime, Utc};
-                // Tauri returns expiry as OffsetDateTime, convert to timestamp
-                let timestamp = expires.unix_timestamp();
-                let dt =
-                    DateTime::<Utc>::from_timestamp(timestamp, 0).unwrap_or_else(|| Utc::now());
-                dt.to_rfc3339()
+                use tauri::webview::cookie::Expiration;
+
+                // Tauri returns Expiration enum - extract DateTime variant
+                match expires {
+                    Expiration::DateTime(dt) => {
+                        let timestamp = dt.unix_timestamp();
+                        let chrono_dt = DateTime::<Utc>::from_timestamp(timestamp, 0)
+                            .unwrap_or_else(|| Utc::now());
+                        Some(chrono_dt.to_rfc3339())
+                    }
+                    Expiration::Session => None,
+                }
             });
             tracing::info!("Found li_at cookie! Expiry: {:?}", expiry_str);
             return Ok((value, expiry_str));
