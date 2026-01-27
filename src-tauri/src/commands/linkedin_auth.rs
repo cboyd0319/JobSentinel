@@ -309,8 +309,10 @@ async fn extract_linkedin_cookie_from_webview(
 
     // Get cookies for LinkedIn domain
     // Note: On Windows, this must be called from an async context to avoid deadlock
+    let linkedin_url = url::Url::parse("https://www.linkedin.com")
+        .map_err(|e| format!("Failed to parse URL: {}", e))?;
     let cookies = window
-        .cookies_for_url("https://www.linkedin.com")
+        .cookies_for_url(linkedin_url)
         .map_err(|e| format!("Failed to get cookies: {}", e))?;
 
     tracing::debug!("Found {} cookies for linkedin.com", cookies.len());
