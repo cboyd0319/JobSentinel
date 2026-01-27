@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ScraperHealthDashboard } from "./ScraperHealthDashboard";
@@ -153,6 +153,11 @@ describe("ScraperHealthDashboard", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.useRealTimers(); // Ensure real timers are used
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   describe("loading state", () => {
@@ -162,10 +167,12 @@ describe("ScraperHealthDashboard", () => {
 
       render(<ScraperHealthDashboard onClose={onClose} />);
 
-      // Advance past the spinner delay
+      // Advance past the spinner delay (250ms) and flush React updates
       await vi.advanceTimersByTimeAsync(300);
+      await vi.advanceTimersByTimeAsync(0); // Flush any pending React updates
 
-      expect(screen.getByText(/loading scraper health/i)).toBeInTheDocument();
+      // Check for the loading role status element with the loading message
+      expect(screen.getByRole("status", { name: /loading scraper health/i })).toBeInTheDocument();
       vi.useRealTimers();
     });
   });

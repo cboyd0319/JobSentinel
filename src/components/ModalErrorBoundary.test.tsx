@@ -297,7 +297,7 @@ describe("ModalErrorBoundary", () => {
         </ModalErrorBoundary>
       );
 
-      const animatedElement = container.querySelector(".animate-fade-in");
+      const animatedElement = container.querySelector(".motion-safe\\:animate-fade-in");
       expect(animatedElement).toBeInTheDocument();
     });
   });

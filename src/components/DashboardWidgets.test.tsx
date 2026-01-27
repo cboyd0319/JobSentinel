@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { DashboardWidgets } from "./DashboardWidgets";
 
@@ -81,6 +81,7 @@ describe("DashboardWidgets", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.useRealTimers(); // Ensure real timers are used
     mockInvoke.mockImplementation((command: string) => {
       switch (command) {
         case "get_application_stats":
@@ -95,6 +96,10 @@ describe("DashboardWidgets", () => {
     });
   });
 
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   describe("loading state", () => {
     it("shows loading spinner initially", async () => {
       vi.useFakeTimers();
@@ -106,8 +111,8 @@ describe("DashboardWidgets", () => {
       // Advance past the spinner delay
       await vi.advanceTimersByTimeAsync(300);
 
-      // Should show loading spinner
-      expect(document.querySelector(".animate-spin")).toBeInTheDocument();
+      // Should show loading spinner (motion-safe prefix for accessibility)
+      expect(document.querySelector(".motion-safe\\:animate-spin")).toBeInTheDocument();
       vi.useRealTimers();
     });
   });
