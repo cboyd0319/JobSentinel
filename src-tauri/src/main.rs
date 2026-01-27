@@ -284,6 +284,18 @@ fn main() {
             commands::cache::get_score_cache_stats,
             commands::cache::clear_scoring_cache,
             commands::cache::get_cache_health,
+            // Feedback system commands
+            commands::feedback::get_system_info,
+            commands::feedback::get_config_summary,
+            commands::feedback::get_debug_log_formatted,
+            commands::feedback::get_debug_log_events,
+            commands::feedback::clear_debug_log_cmd,
+            commands::feedback::open_github_issues,
+            commands::feedback::open_google_drive,
+            commands::feedback::reveal_file,
+            commands::feedback::generate_feedback_report,
+            commands::feedback::get_feedback_filename,
+            commands::feedback::save_feedback_file,
         ])
         .setup(|app| {
             // Initialize configuration

@@ -1,6 +1,6 @@
 # JobSentinel Roadmap
 
-**Last Updated:** January 25, 2026
+**Last Updated:** January 26, 2026
 
 ## Current Version: 2.6.3
 
@@ -364,6 +364,7 @@ Security fixes, memory leak resolution, and standardized error handling released
 | **Standardized Error Types** | ✅ Done | Consistent error handling across frontend/backend |
 | **Config Validation** | ✅ Done | Comprehensive runtime config validation |
 | **Test Coverage** | ✅ Done | 145+ new tests (ApplyButton, custom hooks, utilities) |
+| **Beta Feedback System** | ✅ Done | GitHub Issues + Google Drive integration, PII sanitization |
 
 **Current Test Status:**
 
@@ -376,6 +377,7 @@ See [CHANGELOG.md](../CHANGELOG.md) for detailed v2.6.3 changes.
 
 | Feature | Status | Priority | Notes |
 |---------|--------|----------|-------|
+| **Beta Feedback System** | ✅ Done | High | GitHub Issues + Google Drive, PII sanitization |
 | macOS support (.dmg) | ✅ Done | - | v2.5.1 |
 | Windows support (.msi) | ✅ Done | - | v2.5.1 |
 | Linux support (.deb, .rpm) | 🔲 Planned | High | AppImage, Debian, RPM packages |

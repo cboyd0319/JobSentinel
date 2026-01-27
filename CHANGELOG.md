@@ -5,6 +5,19 @@ All notable changes to JobSentinel will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.0] - 2026-01-26
+
+### Added
+
+- **Beta Feedback System** - Privacy-first feedback for beta testers
+  - GitHub Issues integration (primary channel) with pre-filled templates
+  - Google Drive upload (secondary channel) for users without GitHub
+  - Full PII sanitization (paths, emails, webhooks, tokens, IPs)
+  - Cross-platform support (macOS, Windows, Linux)
+  - Debug log ring buffer (100 events) for diagnostics
+  - 8 new Tauri commands: `open_github_issues`, `open_google_drive`, `reveal_file`, `get_system_info`, `get_config_summary`, `generate_feedback_report`, `get_debug_log_formatted`, `clear_debug_log`
+- **GitHub Issue Templates** - Structured forms for bug reports, feature requests, questions
+
 ## [2.6.3] - 2026-01-25
 
 ### Added
@@ -1551,14 +1564,6 @@ Complete Settings UI with user-configurable scoring weights and intelligent job 
 - Improved loading states with skeleton components
 - Better accessibility with skip-to-content links
 
-## [Unreleased]
-
-### Added
-
-- **Comprehensive clippy configuration** - lib.rs now includes pedantic lint allows for intentional patterns
-- **Email validation** in Settings - from/to email fields validate format before save
-- **4 new frontend pages** with navigation from Dashboard:
-  - **Applications** - Kanban board for tracking job applications through pipeline
   - **Resume** - AI resume matcher with PDF upload and skill extraction
   - **Salary** - Salary benchmarks, predictions, and negotiation script generation
   - **Market** - Market intelligence with skill trends, company activity, location heat maps

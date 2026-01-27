@@ -8,6 +8,8 @@ import { ErrorLogPanel } from "../components/ErrorLogPanel";
 import { NotificationPreferences } from "../components/NotificationPreferences";
 import { HelpIcon } from "../components/HelpIcon";
 import { ScraperHealthDashboard } from "../components/ScraperHealthDashboard";
+import { FeedbackModal } from "../components/feedback";
+import { FeedbackIcon } from "./DashboardIcons";
 import { useToast } from "../contexts";
 import { logError } from "../utils/errorUtils";
 import { getUserFriendlyError } from "../utils/errorMessages";
@@ -228,6 +230,7 @@ export default function Settings({ onClose }: SettingsProps) {
   const [whitelistCompanyInput, setWhitelistCompanyInput] = useState("");
   const [blacklistCompanyInput, setBlacklistCompanyInput] = useState("");
   const [showHealthDashboard, setShowHealthDashboard] = useState(false);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [ghostConfig, setGhostConfig] = useState<GhostConfig | null>(null);
   const [ghostConfigLoading, setGhostConfigLoading] = useState(false);
   const [ghostPreset, setGhostPreset] = useState<"lenient" | "balanced" | "strict" | "custom">("balanced");
@@ -2824,6 +2827,18 @@ export default function Settings({ onClose }: SettingsProps) {
             </button>
           </div>
 
+          {/* Help & Feedback */}
+          <div className="flex gap-3 mb-4">
+            <button
+              onClick={() => setShowFeedbackModal(true)}
+              className="flex items-center gap-2 px-3 py-2 text-sm text-surface-600 dark:text-surface-300 hover:text-surface-800 dark:hover:text-surface-100 bg-surface-100 dark:bg-surface-700 hover:bg-surface-200 dark:hover:bg-surface-600 rounded-lg transition-colors"
+              title="Report a bug, suggest a feature, or ask a question"
+            >
+              <FeedbackIcon className="w-4 h-4" />
+              Send Feedback
+            </button>
+          </div>
+
           {/* Actions */}
           <div className="flex gap-3">
             <Button variant="secondary" onClick={onClose} className="flex-1">
@@ -2840,6 +2855,12 @@ export default function Settings({ onClose }: SettingsProps) {
       {showHealthDashboard && (
         <ScraperHealthDashboard onClose={() => setShowHealthDashboard(false)} />
       )}
+
+      {/* Feedback Modal */}
+      <FeedbackModal
+        isOpen={showFeedbackModal}
+        onClose={() => setShowFeedbackModal(false)}
+      />
     </div>
   );
 }
@@ -2909,3 +2930,4 @@ function HealthIcon({ className = "" }: { className?: string }) {
     </svg>
   );
 }
+

@@ -213,7 +213,7 @@ All core modules are enabled and functional:
 - 26 ignored (require file-based database, Chrome, or are doc-tests)
 - Integration test files: `tests/automation_integration_test.rs`, `tests/scheduler_integration_test.rs`, etc.
 
-### Tauri Commands (151 total)
+### Tauri Commands (159 total)
 
 - Core Jobs: 14 commands (search, get, hide, bookmark, notes, stats, duplicates)
 - Config: 6 commands (save, get, validate_webhook, first_run, complete_setup, test_email)
@@ -234,6 +234,8 @@ All core modules are enabled and functional:
 - Browser: 2 commands (take_screenshot, fill_form - subset of automation)
 - Health: 9 commands (scraper_health, health_summary, scraper_configs, set_scraper_enabled,
   scraper_runs, smoke_test, all_smoke_tests, linkedin_cookie_health, expiring_credentials)
+- Feedback: 8 commands (open_github_issues, open_google_drive, reveal_file, get_system_info,
+  get_config_summary, generate_feedback_report, get_debug_log_formatted, clear_debug_log)
 
 ## Development Commands
 

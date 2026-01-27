@@ -1,0 +1,60 @@
+name: Bug Report
+description: Something isn't working right
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug!
+
+        **Important:** Please don't include any personal information like:
+        - Specific job titles you're searching for
+        - Company names from your search
+        - Your location or salary preferences
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of what went wrong
+      placeholder: "When I clicked X, I expected Y but got Z instead"
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: How can we make this happen?
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. See error
+
+  - type: textarea
+    id: debug-info
+    attributes:
+      label: Debug Information
+      description: Paste the ANONYMIZED debug info from JobSentinel (Help → Send Feedback → Copy Debug Info)
+      render: shell
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: If applicable, add screenshots (make sure they don't show personal info!)
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      options:
+        - Windows 11
+        - Windows 10
+        - macOS 15 (Sequoia)
+        - macOS 14 (Sonoma)
+        - macOS 13 (Ventura)
+        - Linux
+    validations:
+      required: true

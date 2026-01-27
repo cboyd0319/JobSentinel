@@ -16,6 +16,7 @@ pub mod cache;
 pub mod config;
 pub mod credentials;
 pub mod errors;
+pub mod feedback;
 pub mod ghost;
 pub mod health;
 pub mod jobs;
@@ -189,3 +190,10 @@ pub use health::{
 
 // Cache management commands
 pub use cache::{clear_scoring_cache, get_cache_health, get_score_cache_stats};
+
+// Feedback system commands
+pub use feedback::{
+    clear_debug_log_cmd, generate_feedback_report, get_config_summary, get_debug_log_events,
+    get_debug_log_formatted, get_feedback_filename, get_system_info, open_github_issues,
+    open_google_drive, reveal_file, save_feedback_file,
+};

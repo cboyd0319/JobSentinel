@@ -119,6 +119,11 @@ npm run test:e2e:ui      # Interactive mode
 | remoteok | Remote OK |
 | wellfound | Wellfound (startups) |
 
+## Tauri Commands (159 total)
+
+- **Feedback:** 8 commands (GitHub issues, Google Drive, report generation, debug log)
+- **Jobs, Scrapers, Database, Settings:** 151 other commands
+
 ## Common Tasks
 
 ### Adding a new scraper
