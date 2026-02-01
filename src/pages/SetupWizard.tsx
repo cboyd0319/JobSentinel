@@ -168,9 +168,8 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
           // Cache in sessionStorage to avoid repeated calls
           sessionStorage.setItem("detected_location", JSON.stringify(location));
         }
-      } catch (error) {
+      } catch {
         // Silently fail - location detection is optional
-        console.debug("Location detection failed (non-critical):", error);
       } finally {
         setIsDetectingLocation(false);
       }

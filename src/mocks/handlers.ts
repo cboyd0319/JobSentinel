@@ -46,8 +46,6 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
   // Simulate network latency
   await delay(100 + Math.random() * 200);
 
-  console.log(`[Mock] invoke: ${cmd}`, args);
-
   switch (cmd) {
     // Job commands
     case "get_jobs":
@@ -292,7 +290,6 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
       return undefined as T;
 
     default:
-      console.warn(`[Mock] Unhandled command: ${cmd}`);
       return undefined as T;
   }
 }

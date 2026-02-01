@@ -17,7 +17,6 @@ let mockingEnabled = false;
  */
 export async function enableMocking(): Promise<void> {
   if (mockingEnabled) {
-    console.log("[Mock] Mocking already enabled");
     return;
   }
 
@@ -25,7 +24,6 @@ export async function enableMocking(): Promise<void> {
   const isTauri = "__TAURI__" in window || "__TAURI_INTERNALS__" in window;
 
   if (isTauri) {
-    console.log("[Mock] Running in Tauri environment - mocking disabled");
     return;
   }
 
@@ -45,8 +43,6 @@ export async function enableMocking(): Promise<void> {
   }
 
   mockingEnabled = true;
-  console.log("[Mock] API mocking enabled - using mock data");
-  console.log("[Mock] Mock data includes 5 jobs, applications, interviews");
 }
 
 /**
