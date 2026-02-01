@@ -123,12 +123,12 @@ pub async fn get_config_summary(state: State<'_, AppState>) -> Result<ConfigSumm
 /// Generate a complete feedback report
 #[tauri::command]
 pub async fn generate_feedback_report(
-    _state: State<'_, AppState>,
+    state: State<'_, AppState>,
     category: String,
     description: String,
     include_debug_info: bool,
 ) -> Result<String, String> {
-    report::generate_feedback_report_impl(category, description, include_debug_info).await
+    report::generate_feedback_report_impl(state, category, description, include_debug_info).await
 }
 
 /// Generate suggested filename for feedback report

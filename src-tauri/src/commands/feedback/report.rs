@@ -5,10 +5,12 @@
 
 use chrono::{DateTime, Local, Utc};
 use serde::Serialize;
+use tauri::State;
 
+use crate::commands::AppState;
 use super::debug_log::get_recent_events;
 use super::sanitizer::{ConfigSummary, Sanitizer};
-use super::system_info::SystemInfo;
+use super::system_info::{summarize_config, SystemInfo};
 
 /// Feedback category
 #[derive(Debug, Clone, Serialize)]
@@ -34,6 +36,7 @@ impl FeedbackCategory {
 /// This is the main report generation function. All output is sanitized.
 /// Called by the Tauri command wrapper in mod.rs.
 pub(super) async fn generate_feedback_report_impl(
+    state: State<'_, AppState>,
     category: String,
     description: String,
     include_debug_info: bool,
@@ -51,8 +54,7 @@ pub(super) async fn generate_feedback_report_impl(
 
     // Get config summary (if debug info requested)
     let config_summary = if include_debug_info {
-        // TODO: Get from state once config is accessible
-        None
+        Some(summarize_config(&state.config))
     } else {
         None
     };

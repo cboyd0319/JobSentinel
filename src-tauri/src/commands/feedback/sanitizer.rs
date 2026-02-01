@@ -8,35 +8,56 @@ use regex::Regex;
 use serde::Serialize;
 
 // Unix paths: /Users/johnsmith/... → /[USER_PATH]/...
-static PATH_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"/(Users|home)/[^/\s]+").unwrap());
+static PATH_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"/(Users|home)/[^/\s]+")
+        .expect("Unix path regex pattern is valid and should compile")
+});
 
 // Windows paths: C:\Users\johnsmith\... → C:\[USER_PATH]\...
-static WINDOWS_PATH_REGEX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"[A-Za-z]:\\Users\\[^\\]+").unwrap());
+static WINDOWS_PATH_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"[A-Za-z]:\\Users\\[^\\]+")
+        .expect("Windows path regex pattern is valid and should compile")
+});
 
 // Emails: john@example.com → [EMAIL]
-static EMAIL_REGEX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}").unwrap());
+static EMAIL_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}")
+        .expect("Email address regex pattern is valid and should compile")
+});
 
 // Webhooks: https://hooks.slack.com/... → [WEBHOOK_CONFIGURED]
-static WEBHOOK_REGEX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"https://hooks\.(slack|discord|teams)\.com/[^\s]+").unwrap());
+static WEBHOOK_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"https://hooks\.(slack|discord|teams)\.com/[^\s]+")
+        .expect("Webhook URL regex pattern is valid and should compile")
+});
 
 // LinkedIn cookies: li_at=AQEDARa... → li_at=[REDACTED]
-static LINKEDIN_COOKIE_REGEX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"li_at=[^\s;]+").unwrap());
+static LINKEDIN_COOKIE_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"li_at=[^\s;]+")
+        .expect("LinkedIn cookie regex pattern is valid and should compile")
+});
 
 // API tokens: Bearer eyJ... or token ghp_... → [TOKEN]
-static TOKEN_REGEX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"(Bearer\s+[^\s]+|token\s+[^\s]+|api_key=[^\s&]+)").unwrap());
+static TOKEN_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"(Bearer\s+[^\s]+|token\s+[^\s]+|api_key=[^\s&]+)")
+        .expect("API token regex pattern is valid and should compile")
+});
 
 // IP addresses: 192.168.1.1 → [IP_ADDRESS]
-static IP_REGEX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b").unwrap());
+static IP_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b")
+        .expect("IP address regex pattern is valid and should compile")
+});
 
 // Quoted strings (might be job titles or company names)
-static QUOTED_STRING_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r#""[^"]+""#).unwrap());
-static SINGLE_QUOTED_REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"'[^']+'").unwrap());
+static QUOTED_STRING_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r#""[^"]+""#)
+        .expect("Double-quoted string regex pattern is valid and should compile")
+});
+static SINGLE_QUOTED_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new(r"'[^']+'")
+        .expect("Single-quoted string regex pattern is valid and should compile")
+});
 
 /// Sanitizer removes all user-identifiable information from text
 pub struct Sanitizer;

@@ -81,8 +81,8 @@ impl SystemInfo {
     }
 }
 
-/// Generate anonymized configuration summary (public for use by commands/feedback/mod.rs)
-pub(super) fn summarize_config(config: &Config) -> ConfigSummary {
+/// Generate anonymized configuration summary
+pub fn summarize_config(config: &Config) -> ConfigSummary {
     // Count configured notification channels
     let notifications_configured = {
         let mut count = 0;
