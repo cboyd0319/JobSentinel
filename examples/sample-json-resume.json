@@ -1,0 +1,300 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jsonresume/resume-schema/master/schema.json",
+  "basics": {
+    "name": "John Doe",
+    "label": "Senior Software Engineer",
+    "image": "",
+    "email": "john.doe@example.com",
+    "phone": "+1-555-123-4567",
+    "url": "https://johndoe.com",
+    "summary": "Experienced software engineer with 8+ years building scalable backend systems and distributed applications. Expert in Rust, Python, and cloud infrastructure. Passionate about performance optimization and system design.",
+    "location": {
+      "address": "123 Tech Street",
+      "postalCode": "94105",
+      "city": "San Francisco",
+      "countryCode": "US",
+      "region": "California"
+    },
+    "profiles": [
+      {
+        "network": "LinkedIn",
+        "username": "johndoe",
+        "url": "https://linkedin.com/in/johndoe"
+      },
+      {
+        "network": "GitHub",
+        "username": "johndoe",
+        "url": "https://github.com/johndoe"
+      },
+      {
+        "network": "Twitter",
+        "username": "johndoe",
+        "url": "https://twitter.com/johndoe"
+      }
+    ]
+  },
+  "work": [
+    {
+      "name": "Tech Corp",
+      "position": "Senior Software Engineer",
+      "url": "https://techcorp.com",
+      "startDate": "2020-01-01",
+      "endDate": "",
+      "summary": "Leading development of distributed systems for high-traffic applications",
+      "highlights": [
+        "Architected microservices platform serving 10M+ daily users",
+        "Reduced API latency by 60% through performance optimizations",
+        "Led team of 5 engineers in building real-time data pipeline",
+        "Implemented CI/CD pipeline reducing deployment time from 2 hours to 15 minutes"
+      ]
+    },
+    {
+      "name": "Startup Inc",
+      "position": "Software Engineer",
+      "url": "https://startup.com",
+      "startDate": "2018-03-01",
+      "endDate": "2019-12-31",
+      "summary": "Full-stack development for early-stage SaaS product",
+      "highlights": [
+        "Built MVP from scratch using Python and React",
+        "Implemented authentication and authorization system",
+        "Designed PostgreSQL database schema for multi-tenant architecture",
+        "Integrated Stripe payment processing"
+      ]
+    },
+    {
+      "name": "MegaCorp",
+      "position": "Junior Developer",
+      "url": "https://megacorp.com",
+      "startDate": "2016-06-01",
+      "endDate": "2018-02-28",
+      "summary": "Backend development for enterprise applications",
+      "highlights": [
+        "Developed RESTful APIs using Java Spring Boot",
+        "Wrote unit and integration tests achieving 85% code coverage",
+        "Participated in agile development processes (Scrum)",
+        "Mentored 3 interns on coding best practices"
+      ]
+    }
+  ],
+  "volunteer": [
+    {
+      "organization": "Code.org",
+      "position": "Coding Mentor",
+      "url": "https://code.org",
+      "startDate": "2019-09-01",
+      "endDate": "2021-05-31",
+      "summary": "Teaching programming to high school students",
+      "highlights": [
+        "Taught Python and web development to 20+ students",
+        "Organized coding workshops and hackathons",
+        "Helped students build portfolio projects"
+      ]
+    }
+  ],
+  "education": [
+    {
+      "institution": "Massachusetts Institute of Technology",
+      "url": "https://mit.edu",
+      "area": "Computer Science",
+      "studyType": "Bachelor of Science",
+      "startDate": "2012-09-01",
+      "endDate": "2016-05-31",
+      "score": "3.8",
+      "courses": [
+        "6.006 - Introduction to Algorithms",
+        "6.033 - Computer Systems Engineering",
+        "6.824 - Distributed Systems",
+        "6.828 - Operating System Engineering"
+      ]
+    }
+  ],
+  "awards": [
+    {
+      "title": "Employee of the Year",
+      "date": "2022-12-01",
+      "awarder": "Tech Corp",
+      "summary": "Recognized for outstanding contributions to platform stability and team leadership"
+    },
+    {
+      "title": "Hackathon Winner",
+      "date": "2019-10-15",
+      "awarder": "TechConf 2019",
+      "summary": "First place for building real-time collaboration tool"
+    }
+  ],
+  "certificates": [
+    {
+      "name": "AWS Certified Solutions Architect - Professional",
+      "date": "2023-03-15",
+      "issuer": "Amazon Web Services",
+      "url": "https://aws.amazon.com/certification/"
+    },
+    {
+      "name": "Certified Kubernetes Administrator",
+      "date": "2022-08-20",
+      "issuer": "Cloud Native Computing Foundation",
+      "url": "https://www.cncf.io/certification/cka/"
+    }
+  ],
+  "publications": [
+    {
+      "name": "Optimizing Database Queries in Distributed Systems",
+      "publisher": "Tech Blog",
+      "releaseDate": "2023-06-01",
+      "url": "https://techblog.com/optimizing-queries",
+      "summary": "Deep dive into query optimization techniques for distributed databases"
+    }
+  ],
+  "skills": [
+    {
+      "name": "Programming Languages",
+      "level": "Expert",
+      "keywords": [
+        "Rust",
+        "Python",
+        "Go",
+        "TypeScript",
+        "Java"
+      ]
+    },
+    {
+      "name": "Backend Frameworks",
+      "level": "Advanced",
+      "keywords": [
+        "Actix",
+        "Tokio",
+        "FastAPI",
+        "Django",
+        "Spring Boot"
+      ]
+    },
+    {
+      "name": "Frontend Technologies",
+      "level": "Intermediate",
+      "keywords": [
+        "React",
+        "TypeScript",
+        "Tailwind CSS",
+        "Vite"
+      ]
+    },
+    {
+      "name": "Databases",
+      "level": "Advanced",
+      "keywords": [
+        "PostgreSQL",
+        "MongoDB",
+        "Redis",
+        "DynamoDB",
+        "Elasticsearch"
+      ]
+    },
+    {
+      "name": "Cloud & Infrastructure",
+      "level": "Expert",
+      "keywords": [
+        "AWS",
+        "Docker",
+        "Kubernetes",
+        "Terraform",
+        "CloudFormation"
+      ]
+    },
+    {
+      "name": "Tools & Practices",
+      "level": "Advanced",
+      "keywords": [
+        "Git",
+        "CI/CD",
+        "GitHub Actions",
+        "Monitoring",
+        "Agile",
+        "TDD"
+      ]
+    }
+  ],
+  "languages": [
+    {
+      "language": "English",
+      "fluency": "Native speaker"
+    },
+    {
+      "language": "Spanish",
+      "fluency": "Professional working proficiency"
+    }
+  ],
+  "interests": [
+    {
+      "name": "Open Source",
+      "keywords": [
+        "Contributing to Rust projects",
+        "Maintaining CLI tools"
+      ]
+    },
+    {
+      "name": "Technology",
+      "keywords": [
+        "System design",
+        "Performance optimization",
+        "Developer tools"
+      ]
+    }
+  ],
+  "references": [
+    {
+      "name": "Jane Smith",
+      "reference": "John is an exceptional engineer with deep expertise in distributed systems. His leadership and technical skills make him an invaluable team member."
+    }
+  ],
+  "projects": [
+    {
+      "name": "JobSentinel",
+      "description": "Job search automation desktop app built with Tauri 2.x and Rust",
+      "highlights": [
+        "Built Rust backend with 13 job board scrapers",
+        "Designed SQLite database schema with 20+ migrations",
+        "Implemented ATS-optimized resume builder",
+        "Created real-time job matching algorithm"
+      ],
+      "keywords": [
+        "Rust",
+        "Tauri",
+        "React",
+        "SQLite",
+        "Desktop App"
+      ],
+      "startDate": "2024-01-01",
+      "endDate": "",
+      "url": "https://github.com/johndoe/jobsentinel",
+      "roles": [
+        "Lead Developer",
+        "Architect"
+      ],
+      "entity": "Personal",
+      "type": "application"
+    },
+    {
+      "name": "RustCache",
+      "description": "High-performance caching library for Rust applications",
+      "highlights": [
+        "Implemented LRU and LFU eviction policies",
+        "Achieved 99.9% cache hit rate in production",
+        "Published on crates.io with 1000+ downloads"
+      ],
+      "keywords": [
+        "Rust",
+        "Caching",
+        "Performance"
+      ],
+      "startDate": "2023-03-01",
+      "endDate": "2023-08-31",
+      "url": "https://github.com/johndoe/rustcache",
+      "roles": [
+        "Author"
+      ],
+      "entity": "Open Source",
+      "type": "library"
+    }
+  ]
+}

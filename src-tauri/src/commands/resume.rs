@@ -32,6 +32,22 @@ pub async fn upload_resume(
         .map_err(|e| format!("Failed to upload resume: {}", e))
 }
 
+/// Import resume from JSON Resume format
+#[tauri::command]
+pub async fn import_json_resume(
+    name: String,
+    json_string: String,
+    state: State<'_, AppState>,
+) -> Result<i64, String> {
+    tracing::info!("Command: import_json_resume (name: {})", name);
+
+    let matcher = ResumeMatcher::new(state.database.pool().clone());
+    matcher
+        .import_json_resume(name, &json_string)
+        .await
+        .map_err(|e| format!("Failed to import JSON Resume: {}", e))
+}
+
 /// Get active resume
 #[tauri::command]
 pub async fn get_active_resume(state: State<'_, AppState>) -> Result<Option<Resume>, String> {

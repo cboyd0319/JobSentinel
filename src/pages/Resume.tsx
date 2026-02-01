@@ -215,6 +215,43 @@ export default function Resume({ onBack }: ResumeProps) {
     }
   };
 
+  const handleImportJsonResume = async () => {
+    try {
+      const selected = await open({
+        multiple: false,
+        filters: [{ name: "JSON Resume", extensions: ["json"] }],
+      });
+
+      if (!selected) return;
+
+      setUploading(true);
+      const filePath = selected as string;
+      const fileName = filePath.split("/").pop()?.replace(".json", "") || "Resume";
+
+      // Read file content using fetch (works in Tauri)
+      const response = await fetch(`file://${filePath}`);
+      const jsonString = await response.text();
+
+      // Validate it's valid JSON
+      try {
+        JSON.parse(jsonString);
+      } catch {
+        toast.error("Invalid JSON", "The selected file is not valid JSON");
+        return;
+      }
+
+      await safeInvokeWithToast("import_json_resume", { name: fileName, jsonString }, toast, {
+        logContext: "Import JSON Resume"
+      });
+      toast.success("Resume imported", "Your JSON Resume has been imported and analyzed");
+      refetchData();
+    } catch {
+      // Error already logged and shown to user
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSetActiveResume = async (resumeId: number) => {
     try {
       await safeInvokeWithToast("set_active_resume", { resumeId }, toast, {
@@ -348,6 +385,14 @@ export default function Resume({ onBack }: ResumeProps) {
                   Library ({allResumes.length})
                 </Button>
               )}
+              <Button
+                variant="secondary"
+                onClick={handleImportJsonResume}
+                loading={uploading}
+                loadingText="Importing..."
+              >
+                Import JSON Resume
+              </Button>
               <Button onClick={handleUploadResume} loading={uploading} loadingText="Uploading...">
                 {resume ? "Upload New" : "Upload Resume"}
               </Button>
@@ -427,9 +472,19 @@ export default function Resume({ onBack }: ResumeProps) {
               Upload your resume to enable AI-powered job matching. We'll extract your skills
               and match them against job requirements.
             </p>
-            <Button onClick={handleUploadResume} loading={uploading} loadingText="Uploading...">
-              Upload Resume (PDF)
-            </Button>
+            <div className="flex gap-3 justify-center">
+              <Button onClick={handleUploadResume} loading={uploading} loadingText="Uploading...">
+                Upload Resume (PDF)
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={handleImportJsonResume}
+                loading={uploading}
+                loadingText="Importing..."
+              >
+                Import JSON Resume
+              </Button>
+            </div>
           </Card>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

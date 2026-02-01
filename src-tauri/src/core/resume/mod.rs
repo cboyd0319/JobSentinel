@@ -40,6 +40,7 @@ use std::path::Path;
 pub mod ats_analyzer;
 pub mod builder;
 pub mod export;
+pub mod json_resume;
 pub mod matcher;
 pub mod parser;
 pub mod skills;
@@ -70,6 +71,9 @@ pub use export::{
     Project as ExportProject, ResumeData as ExportResumeData, ResumeExporter,
     SkillCategory as ExportSkillCategory, TemplateId as ExportTemplateId,
 };
+
+// Re-export JSON Resume types
+pub use json_resume::JsonResume;
 
 // Re-export template rendering types
 pub use templates::{
@@ -663,6 +667,117 @@ impl ResumeMatcher {
 
         tracing::info!("Deleted resume {} and associated data", resume_id);
         Ok(())
+    }
+
+    // ========================================================================
+    // JSON Resume Import Operations
+    // ========================================================================
+
+    /// Import a resume from JSON Resume format
+    ///
+    /// Parses a JSON Resume string, converts it to JobSentinel's internal format,
+    /// and creates a new resume draft in the database.
+    ///
+    /// # Arguments
+    /// * `name` - Name for the imported resume
+    /// * `json_string` - JSON Resume formatted string
+    ///
+    /// # Returns
+    /// The ID of the newly created resume draft
+    ///
+    /// # Errors
+    /// Returns an error if JSON parsing fails or database insertion fails
+    pub async fn import_json_resume(&self, _name: String, json_string: &str) -> Result<i64> {
+        use anyhow::Context;
+
+        // Parse JSON Resume
+        let json_resume = json_resume::JsonResume::from_json(json_string)
+            .context("Failed to parse JSON Resume")?;
+
+        // Convert to JobSentinel ResumeData (which has different field names than builder)
+        let json_data = json_resume
+            .to_resume_data()
+            .context("Failed to convert JSON Resume to internal format")?;
+
+        // Create resume draft using ResumeBuilder
+        let builder = builder::ResumeBuilder::new(self.db.clone());
+        let resume_id = builder.create_resume().await?;
+
+        // Convert JSON Resume types to builder types and populate the draft
+        let contact = builder::ContactInfo {
+            name: json_data.contact_info.name,
+            email: json_data.contact_info.email,
+            phone: Some(json_data.contact_info.phone),
+            linkedin: json_data.contact_info.linkedin,
+            github: json_data.contact_info.github,
+            location: Some(json_data.contact_info.location),
+            website: json_data.contact_info.website,
+        };
+
+        builder.update_contact(resume_id, contact).await?;
+        builder.update_summary(resume_id, json_data.summary).await?;
+
+        // Add experience entries - convert from json_resume types to builder types
+        for exp in json_data.experience {
+            let builder_exp = builder::Experience {
+                id: 0, // Will be assigned by database
+                company: exp.company,
+                title: exp.title,
+                location: Some(exp.location),
+                start_date: exp.start_date,
+                end_date: if exp.current {
+                    None
+                } else {
+                    Some(exp.end_date)
+                },
+                is_current: exp.current,
+                bullets: exp.achievements,
+            };
+            builder.add_experience(resume_id, builder_exp).await?;
+        }
+
+        // Add education entries
+        for edu in json_data.education {
+            let builder_edu = builder::Education {
+                id: 0, // Will be assigned by database
+                institution: edu.institution,
+                degree: edu.degree,
+                field_of_study: None,
+                graduation_year: edu.graduation_date.parse::<i32>().ok(),
+                gpa: edu.gpa,
+                honors: Some(edu.honors.join(", ")),
+            };
+            builder.add_education(resume_id, builder_edu).await?;
+        }
+
+        // Set skills - convert from json_resume types to builder types
+        let builder_skills: Vec<builder::SkillEntry> = json_data
+            .skills
+            .into_iter()
+            .map(|s| builder::SkillEntry {
+                name: s.name,
+                category: builder::SkillCategory::Other, // Default category
+                proficiency: s.proficiency.unwrap_or(builder::Proficiency::Intermediate),
+                years_experience: None,
+            })
+            .collect();
+
+        builder.set_skills(resume_id, builder_skills).await?;
+
+        // Add certifications
+        for cert in json_data.certifications {
+            let builder_cert = builder::Certification {
+                name: cert.name,
+                issuer: cert.issuer,
+                date_obtained: Some(cert.date),
+                expiration_date: None,
+                credential_id: None,
+            };
+            builder.add_certification(resume_id, builder_cert).await?;
+        }
+
+        tracing::info!("Imported JSON Resume as draft {}", resume_id);
+        Ok(resume_id)
     }
 }
 
