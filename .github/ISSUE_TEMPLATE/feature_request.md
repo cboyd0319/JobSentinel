@@ -28,6 +28,7 @@ Who would benefit from this feature and how?
 ## Privacy Considerations
 
 JobSentinel is privacy-first. Please consider:
+
 - Does this feature require sending data externally?
 - Can it work completely offline?
 - What data would be stored locally?

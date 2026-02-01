@@ -6,7 +6,9 @@
 
 ## Overview
 
-JobSentinel has a complete undo/redo system that allows users to reverse and replay actions across the application. The system uses a command pattern with dual stacks (undo/redo) and integrates with keyboard shortcuts and toast notifications.
+JobSentinel has a complete undo/redo system that allows users to reverse and replay actions across the
+application. The system uses a command pattern with dual stacks (undo/redo) and integrates with keyboard shortcuts
+and toast notifications.
 
 ## Architecture
 

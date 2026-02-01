@@ -6,7 +6,9 @@
 
 ## Overview
 
-JobSentinel's embedded ML feature provides semantic skill matching using on-device inference with the Candle framework. This enhances the resume matcher by understanding semantic similarity between skills, not just exact keyword matches.
+JobSentinel's embedded ML feature provides semantic skill matching using on-device inference with the Candle
+framework. This enhances the resume matcher by understanding semantic similarity between skills, not just exact
+keyword matches.
 
 ## Features
 
@@ -19,7 +21,7 @@ JobSentinel's embedded ML feature provides semantic skill matching using on-devi
 
 ## Architecture
 
-```
+```text
 src-tauri/src/core/ml/
 ├── mod.rs          # Module entry, feature flag
 ├── model.rs        # Model download, loading, inference

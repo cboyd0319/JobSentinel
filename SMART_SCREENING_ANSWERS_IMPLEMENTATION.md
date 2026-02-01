@@ -49,7 +49,7 @@ Smart learning system for JobSentinel's screening question answers that improves
 ```rust
 // Lowercase, remove punctuation, collapse spaces
 normalize_question("What's your salary? (USD)")
-// → "what s your salary usd"
+// Result: "what s your salary usd"
 ```
 
 #### Similarity Calculation
@@ -60,7 +60,7 @@ normalize_question("What's your salary? (USD)")
 
 #### Confidence Scoring Algorithm
 
-```
+```text
 confidence = base × usage_weight × recency_weight × modification_penalty
 
 Where:
@@ -511,4 +511,5 @@ sqlite3 data/JobSentinel.db "SELECT * FROM screening_learned_answers;"
 
 This feature is part of JobSentinel and subject to the project's license.
 
-**Privacy Note:** All learning happens locally. No data is sent to external servers. User modifications are stored only in the local database.
+**Privacy Note:** All learning happens locally. No data is sent to external servers. User modifications are
+stored only in the local database.

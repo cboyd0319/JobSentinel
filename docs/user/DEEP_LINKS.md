@@ -4,9 +4,11 @@ Generate pre-filled job search URLs for sites we can't scrape.
 
 ## Overview
 
-The Deep Link Generator creates URLs for 19+ job sites with your search criteria pre-filled. Click any link to open it in your browser with the search ready to go.
+The Deep Link Generator creates URLs for 19+ job sites with your search criteria pre-filled. Click any link to
+open it in your browser with the search ready to go.
 
 **Benefits:**
+
 - 100% legal - we're just building URLs, your browser does the rest
 - No rate limiting or ToS concerns
 - Access sites that block automated scraping
@@ -15,6 +17,7 @@ The Deep Link Generator creates URLs for 19+ job sites with your search criteria
 ## Supported Sites (19)
 
 ### General Job Boards (5)
+
 - **Indeed** - Largest job board with millions of listings
 - **Monster** - Established job board with career resources
 - **CareerBuilder** - General job listings
@@ -22,28 +25,34 @@ The Deep Link Generator creates URLs for 19+ job sites with your search criteria
 - **ZipRecruiter** - Fast-growing job board with one-click apply
 
 ### Professional Networking (2)
+
 - **LinkedIn** - Professional network (requires login)
 - **Glassdoor** - Jobs with company reviews and salaries (requires login)
 
 ### Tech-Specific (2)
+
 - **Dice** - Tech-focused job board for IT professionals
 - **Stack Overflow Jobs** - Developer-focused jobs
 
 ### Government (4)
+
 - **USAJobs** - Official federal government job board
 - **GovernmentJobs** - State and local government positions
 - **CalCareers** - California state government jobs
 - **CAPPS** - Texas state government jobs
 
 ### Cleared/Security (1)
+
 - **ClearanceJobs** - Jobs requiring security clearances
 
 ### Remote-Specific (3)
+
 - **FlexJobs** - Curated remote and flexible jobs (requires subscription)
 - **We Work Remotely** - Popular remote job board
 - **Remote OK** - Remote jobs aggregator
 
 ### Startups (2)
+
 - **Wellfound** (AngelList) - Startup jobs with equity info (requires login)
 - **Y Combinator Jobs** - Jobs at Y Combinator companies
 
@@ -60,22 +69,26 @@ The Deep Link Generator creates URLs for 19+ job sites with your search criteria
 ### Example Searches
 
 **Software Engineer in San Francisco**
-```
+
+```text
 Job Title: Software Engineer
 Location: San Francisco, CA
 ```
 
 **Remote Product Manager**
-```
+
+```text
 Job Title: Product Manager
 Location: Remote
 ```
 
 **Federal Government Jobs**
-```
+
+```text
 Job Title: IT Specialist
 Location: Washington, DC
 ```
+
 Filter by "Government" category to see only USAJobs, GovernmentJobs, etc.
 
 ### Category Filters
@@ -96,6 +109,7 @@ After generating links, use the category filters to narrow down results:
 ### Sites Requiring Login
 
 Some sites require login to view full results:
+
 - LinkedIn
 - Glassdoor
 - FlexJobs (also requires subscription)
@@ -106,6 +120,7 @@ These are clearly marked with a 🔐 icon.
 ### URL Parameters
 
 Deep links include:
+
 - **Query** - Your job title/keywords (all sites)
 - **Location** - City, state, or "remote" (most sites)
 - **Job Type** - Full-time, part-time, contract (LinkedIn, Indeed)
@@ -116,12 +131,14 @@ Not all sites support all parameters - we use what's available.
 ## Privacy & Legal
 
 **100% Private:**
+
 - No data is sent to JobSentinel servers
 - URLs are generated locally in your app
 - Your browser makes the actual request to job sites
 - No tracking or analytics
 
 **100% Legal:**
+
 - We only generate URLs - no scraping
 - Respects site Terms of Service
 - User's browser makes the request (same as manual search)
@@ -132,6 +149,7 @@ Not all sites support all parameters - we use what's available.
 ### Why can't you scrape these sites?
 
 Many sites (LinkedIn, Glassdoor, Indeed, etc.) actively block automated scraping:
+
 - Rate limiting
 - CAPTCHA challenges
 - IP bans
@@ -142,6 +160,7 @@ Deep links let you search these sites legally without scraping.
 ### Can I save my searches?
 
 Not yet, but this is planned for v2.7. For now, you can:
+
 1. Bookmark the Deep Links page
 2. Generate links on-demand
 3. Open multiple sites at once in tabs
@@ -153,7 +172,7 @@ Not yet, but planned for v2.7. For now, use the category filters to narrow resul
 ### What if a site changes its URL format?
 
 We'll update the URL patterns in new releases. If you notice a broken link, please report it on GitHub:
-https://github.com/cboyd0319/JobSentinel/issues
+<https://github.com/cboyd0319/JobSentinel/issues>
 
 ### Can I add more sites?
 
@@ -184,12 +203,14 @@ Yes! Deep links are easy to add. See [CONTRIBUTING.md](../../CONTRIBUTING.md) fo
 ### Search results are wrong
 
 Some sites have limited URL parameter support. Try:
+
 1. Opening the link and refining the search on the site
 2. Using a different site with better parameter support
 
 ### Link opens but requires login
 
 Sites marked with 🔐 always require login:
+
 - LinkedIn
 - Glassdoor
 - FlexJobs
@@ -206,12 +227,14 @@ This is expected - log in to view results.
 ## Roadmap
 
 ### v2.7 (Planned)
+
 - Save favorite deep link searches
 - Custom site preferences
 - Bulk open (open multiple sites at once)
 - Browser extension integration
 
 ### v3.0 (Future)
+
 - More sites (50+ total)
 - Advanced filters (salary, experience level)
 - Search history

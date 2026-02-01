@@ -18,13 +18,15 @@ JobSentinel needs a feedback mechanism for beta testers that:
 4. **Prioritizes GitHub Issues** (public, searchable, community-driven)
 5. **100% anonymizes all logs** - this is a PUBLIC repo
 
-**CRITICAL: This is a PUBLIC repository. All feedback files, logs, and debug information MUST be completely anonymized. No PII. No identifiable job searches. No company names. Nothing.**
+**CRITICAL: This is a PUBLIC repository. All feedback files, logs, and debug information MUST be completely
+anonymized. No PII. No identifiable job searches. No company names. Nothing.**
 
 ### Primary Feedback Channel: GitHub Issues
 
-**URL:** https://github.com/cboyd0319/JobSentinel/issues
+**URL:** <https://github.com/cboyd0319/JobSentinel/issues>
 
 GitHub Issues is the PRIMARY feedback channel because:
+
 - Public - helps other users find solutions
 - Searchable - reduces duplicate reports
 - Community - users can add "+1" or context
@@ -33,9 +35,10 @@ GitHub Issues is the PRIMARY feedback channel because:
 
 ### Secondary Feedback Channel: Google Drive
 
-**URL:** https://drive.google.com/drive/folders/1cbhxt_8mVf4fbi-eD3XPd2UGUSBmhLfo
+**URL:** <https://drive.google.com/drive/folders/1cbhxt_8mVf4fbi-eD3XPd2UGUSBmhLfo>
 
 For users who:
+
 - Don't have a GitHub account
 - Aren't comfortable with public issue submission
 - Want to attach large files (screen recordings, etc.)
@@ -91,9 +94,11 @@ If a user can't or won't use GitHub, they should still have a clear path to subm
 
 ### 2.1 Why This Matters
 
-**JobSentinel is a PUBLIC repository.** Every issue, every log snippet, every debug report is visible to the entire internet. Job seekers' privacy is paramount.
+**JobSentinel is a PUBLIC repository.** Every issue, every log snippet, every debug report is visible to the
+entire internet. Job seekers' privacy is paramount.
 
 > **A user's job search is deeply personal. We must NEVER leak:**
+>
 > - What jobs they're looking for
 > - Which companies they're targeting
 > - Their resume content
@@ -216,7 +221,7 @@ pub struct ConfigSummary {
     pub notifications_configured: usize,
     pub has_resume: bool,
 }
-```
+```text
 
 ### 2.4 Privacy Checklist (Pre-Release)
 
@@ -287,7 +292,7 @@ Before every release, verify:
 │     └─────────────────────────────────────────────────────────────┘ │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
-```
+```text
 
 ### 3.3 GitHub Issues Path (Primary)
 
@@ -303,7 +308,7 @@ Clipboard contains ANONYMIZED debug info (user can paste)
 User edits title/description, submits
         ↓
 Issue created, user can track progress
-```
+```text
 
 ### 3.4 Google Drive Path (Secondary)
 
@@ -318,7 +323,7 @@ Success screen with instructions:
   1. Click "Open Google Drive Feedback Folder"
   2. Drag your file into the folder
   3. That's it!
-```
+```text
 
 ### 3.5 Key UX Decisions
 
@@ -438,7 +443,7 @@ body:
     attributes:
       label: Alternatives you've considered
       description: Any other approaches you've thought about?
-```
+```text
 
 #### Question Template
 
@@ -503,7 +508,7 @@ export async function openGitHubIssue(
       : 'Opening GitHub... Fill out the issue form to submit.'
   );
 }
-```
+```text
 
 ### 4.3 Making GitHub Easy
 
@@ -524,7 +529,7 @@ Display this guidance in the feedback modal:
 ║  → Or use the Google Drive option below                          ║
 ║                                                                   ║
 ╚═══════════════════════════════════════════════════════════════════╝
-```
+```text
 
 ---
 
@@ -570,7 +575,7 @@ Display this guidance in the feedback modal:
 │  └─────────────────────┘    └─────────────────────┘                 │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
-```
+```text
 
 ### 5.2 File Structure
 
@@ -600,7 +605,7 @@ src-tauri/
             ├── system_info.rs       # System info collection
             ├── debug_log.rs         # Debug log management
             └── sanitizer.rs         # ALL OUTPUT ANONYMIZATION
-```
+```text
 
 ### 5.3 Debug Log System
 
@@ -625,6 +630,7 @@ pub struct DebugLogBuffer {
 ```
 
 **What IS logged (safe):**
+
 - View transitions (`Dashboard → Jobs`)
 - Command outcomes (`scrape_jobs → success, 42 jobs`)
 - Errors with SANITIZED messages
@@ -632,6 +638,7 @@ pub struct DebugLogBuffer {
 - Scraper names and job counts (no content)
 
 **What is NEVER logged:**
+
 - Job titles, descriptions, or company names
 - User's search keywords or filters
 - Resume content or file paths
@@ -644,12 +651,13 @@ pub struct DebugLogBuffer {
 ### 5.4 Report Format
 
 The generated report is:
+
 1. **Human-readable** - Plain text with clear sections
 2. **AI-parseable** - JSON block at the end for automated processing
 3. **FULLY ANONYMIZED** - No PII, no identifiable data
 4. **Safe** - Plain `.txt` file, no executable content
 
-```
+```text
 ═══════════════════════════════════════════════════════════════════════
                     JOBSENTINEL BETA FEEDBACK REPORT
 ═══════════════════════════════════════════════════════════════════════
@@ -727,7 +735,8 @@ STRUCTURED DATA (for automated processing)
 ═══════════════════════════════════════════════════════════════════════
                     END OF REPORT
 ═══════════════════════════════════════════════════════════════════════
-```
+
+```text
 
 ---
 
@@ -974,22 +983,23 @@ test('bug report flow - github', async () => {
 
 ### Google Drive Folder
 
-**URL:** https://drive.google.com/drive/folders/1cbhxt_8mVf4fbi-eD3XPd2UGUSBmhLfo
+**URL:** <https://drive.google.com/drive/folders/1cbhxt_8mVf4fbi-eD3XPd2UGUSBmhLfo>
 
 **Access:** Share with specific beta testers (Editor permission)
 
 ### GitHub Issues
 
-**URL:** https://github.com/cboyd0319/JobSentinel/issues
+**URL:** <https://github.com/cboyd0319/JobSentinel/issues>
 
 **Templates:**
+
 - Bug Report: `bug_report.yml`
 - Feature Request: `feature_request.yml`
 - Question: `question.yml`
 
 ### Report Filename Format
 
-```
+```text
 jobsentinel-{category}-{YYYY-MM-DD}-{HHMM}.txt
 
 Examples:
@@ -1392,7 +1402,7 @@ ${info.debug_log}
 \`\`\`
 `;
 }
-```
+```text
 
 ### C.2 CategorySelector.tsx
 
@@ -1562,7 +1572,7 @@ Example:
     </div>
   );
 }
-```
+```text
 
 ### C.4 DebugInfoPreview.tsx
 
@@ -1835,7 +1845,7 @@ export function SubmitOptions({ onGitHub, onDrive, isLoading }: SubmitOptionsPro
     </div>
   );
 }
-```
+```text
 
 ### C.6 SuccessScreen.tsx
 
@@ -2058,13 +2068,14 @@ export function useFeedback(): UseFeedbackReturn {
     initialDescription,
   };
 }
-```
+```text
 
 ---
 
 ## Appendix D: Complete Rust Implementations
 
 > **CRITICAL: Cross-Platform Requirements**
+>
 > - All code MUST work on macOS 26+ AND Windows 11
 > - Use conditional compilation (`#[cfg(target_os = "...")]`) for platform-specific code
 > - Test on BOTH platforms before considering complete
@@ -2078,7 +2089,7 @@ src-tauri/src/commands/feedback/
 ├── system_info.rs      # System info collection (cross-platform)
 ├── debug_log.rs        # Debug log buffer
 └── sanitizer.rs        # ALL anonymization goes here
-```
+```text
 
 ### D.2 mod.rs (Module Exports + Tauri Commands)
 
@@ -2541,7 +2552,7 @@ mod tests {
         assert_eq!(name, "Linux");
     }
 }
-```
+```text
 
 ### D.4 sanitizer.rs (ALL Anonymization)
 
@@ -2884,7 +2895,7 @@ mod tests {
         assert!(log.contains("[EMAIL]"));
     }
 }
-```
+```text
 
 ### D.6 report.rs (Report Generation)
 
@@ -3061,6 +3072,7 @@ mod tests {
 ### E.1 Report File Format (EXACT Template)
 
 **Filename Pattern:** `jobsentinel-{category}-{timestamp}.txt`
+
 - `{category}`: One of `bug`, `feature`, or `feedback`
 - `{timestamp}`: Format `YYYY-MM-DD-HHMM` (local time)
 - Example: `jobsentinel-bug-2026-01-26-1545.txt`
@@ -3109,7 +3121,7 @@ fn validate_extension(path: &std::path::Path) -> Result<(), String> {
     }
     Ok(())
 }
-```
+```text
 
 ### E.3 Description Length Limits
 
@@ -3301,7 +3313,7 @@ body:
           required: true
         - label: I have removed any personal information from this report
           required: true
-```
+```text
 
 ### G.3 feature_request.yml
 
@@ -3419,7 +3431,7 @@ body:
         - Not applicable
     validations:
       required: false
-```
+```text
 
 ---
 
@@ -3478,7 +3490,7 @@ export function ErrorToast({ message, error }: { message: string; error: Error }
     </div>
   );
 }
-```
+```text
 
 ### H.3 Keyboard Shortcut Registration
 
@@ -3523,7 +3535,7 @@ tauri::generate_handler![
     commands::feedback::open_feedback_drive_folder,
     commands::feedback::open_github_issue,
 ]
-```
+```text
 
 ### H.5 Adding Debug Log to AppState
 
@@ -3589,7 +3601,7 @@ pub async fn run_scraper(
         }
     }
 }
-```
+```text
 
 ---
 
@@ -3707,12 +3719,14 @@ No additional dependencies needed - uses native clipboard API and existing Tauri
 ### J.10 Cross-Platform Specific
 
 **macOS:**
+
 - [ ] Save dialog is native macOS sheet
 - [ ] Finder opens and selects file correctly
 - [ ] Cmd+Shift+F works
 - [ ] Dark mode renders correctly
 
 **Windows:**
+
 - [ ] Save dialog is native Windows dialog
 - [ ] Explorer opens and selects file correctly
 - [ ] Ctrl+Shift+F works
@@ -3726,7 +3740,7 @@ No additional dependencies needed - uses native clipboard API and existing Tauri
 
 ### Phase 1: Backend Foundation
 
-```
+```text
 1.  [Rust] Create feedback module structure
     - src-tauri/src/commands/feedback/mod.rs
     - Add module to src-tauri/src/commands/mod.rs
@@ -3763,7 +3777,7 @@ No additional dependencies needed - uses native clipboard API and existing Tauri
 
 ### Phase 2: Frontend Components
 
-```
+```text
 9.  [React] Create useFeedback hook
     - src/hooks/useFeedback.ts
 
@@ -3791,7 +3805,7 @@ No additional dependencies needed - uses native clipboard API and existing Tauri
 
 ### Phase 3: Integration
 
-```
+```text
 17. [React] Add FeedbackModal to App.tsx
     - Render conditionally based on useFeedback state
 
@@ -3807,7 +3821,7 @@ No additional dependencies needed - uses native clipboard API and existing Tauri
 
 ### Phase 4: GitHub Templates
 
-```
+```text
 21. [GitHub] Create config.yml
     - .github/ISSUE_TEMPLATE/config.yml
 
@@ -3823,7 +3837,7 @@ No additional dependencies needed - uses native clipboard API and existing Tauri
 
 ### Phase 5: Testing
 
-```
+```text
 25. [Test] Unit tests for Sanitizer
     - All regex patterns
     - Edge cases
@@ -3848,7 +3862,7 @@ No additional dependencies needed - uses native clipboard API and existing Tauri
 
 ### Phase 6: Documentation
 
-```
+```text
 31. [Docs] Update CHANGELOG.md
     - Add feedback system to version notes
 
@@ -3876,15 +3890,17 @@ No additional dependencies needed - uses native clipboard API and existing Tauri
 ### L.2 Platform-Specific Debugging
 
 **macOS:**
+
 ```bash
 # Check if open command works
 open -R ~/Desktop/test.txt
 
 # Check browser opening
 open https://github.com
-```
+```text
 
 **Windows:**
+
 ```powershell
 # Check if explorer works
 explorer /select,"C:\Users\Public\test.txt"
@@ -3902,7 +3918,7 @@ Add temporary logging to diagnose issues:
 tracing::debug!("save_feedback_file called with category: {}", category);
 tracing::debug!("Generated report length: {}", report_text.len());
 tracing::debug!("Save path: {:?}", path);
-```
+```text
 
 ---
 
@@ -3911,6 +3927,7 @@ tracing::debug!("Save path: {:?}", path);
 This document provides a complete implementation plan for JobSentinel's beta feedback system.
 
 **Key Points:**
+
 1. **GitHub Issues is PRIMARY** - make it easy, pre-fill templates
 2. **Google Drive is SECONDARY** - for non-GitHub users
 3. **100% ANONYMIZATION** - this is a PUBLIC repo
@@ -3918,6 +3935,7 @@ This document provides a complete implementation plan for JobSentinel's beta fee
 5. **Complete code** - copy-paste ready for less capable models
 
 **File Count:**
+
 - 5 Rust modules (~600 lines total)
 - 6 React components (~800 lines total)
 - 4 GitHub YAML templates (~200 lines total)

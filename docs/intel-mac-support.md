@@ -2,7 +2,8 @@
 
 ## Overview
 
-JobSentinel now ships as a universal binary for macOS, providing native support for both Intel and Apple Silicon Macs in a single .dmg installer.
+JobSentinel now ships as a universal binary for macOS, providing native support for both Intel and Apple Silicon
+Macs in a single .dmg installer.
 
 **Version:** 2.7.1+
 

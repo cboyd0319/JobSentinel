@@ -9,7 +9,8 @@
 ### 1. Core Parser (`src-tauri/src/core/resume/json_resume.rs`)
 
 - Complete JSON Resume v1.0.0 schema types (600+ lines)
-- All sections supported: basics, work, volunteer, education, awards, certificates, publications, skills, languages, interests, references, projects
+- All sections supported: basics, work, volunteer, education, awards, certificates, publications, skills, languages,
+  interests, references, projects
 - Conversion to JobSentinel's internal builder types
 - Graceful handling of partial/incomplete resumes
 - Field mapping with intelligent defaults

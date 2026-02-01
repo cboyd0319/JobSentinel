@@ -56,10 +56,12 @@ impl SemanticMatcher {
 ### Performance Tuning
 
 **Batch Size**
+
 - Larger batches = better throughput
 - Smaller batches = lower memory
 
 **Similarity Threshold**
+
 - Higher = stricter matching (fewer false positives)
 - Lower = looser matching (more false positives)
 
@@ -80,6 +82,7 @@ RUST_LOG=jobsentinel::core::ml=debug cargo run --features embedded-ml
 - **Model (runtime):** ~20MB
 
 The binary size increase is minimal because:
+
 1. Candle uses `safetensors` (efficient binary format)
 2. No heavy dependencies (pure Rust)
 3. Model loaded at runtime, not embedded
@@ -95,6 +98,7 @@ let device = ModelManager::get_device()?; // Automatically uses Metal if availab
 ### CPU Optimization
 
 The model is already optimized for CPU:
+
 - f32 precision (SIMD-friendly)
 - Batch processing
 - Efficient matrix operations
@@ -106,6 +110,7 @@ The model is already optimized for CPU:
 **Issue:** `candle-core` not found
 
 **Fix:** Enable feature flag:
+
 ```bash
 cargo build --features embedded-ml
 ```
@@ -121,6 +126,7 @@ cargo build --features embedded-ml
 **Issue:** Large batch processing
 
 **Fix:** Reduce batch size in `embeddings.rs`:
+
 ```rust
 const MAX_BATCH_SIZE: usize = 32; // Adjust as needed
 ```

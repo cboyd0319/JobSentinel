@@ -22,7 +22,8 @@ Add learning capabilities to JobSentinel's screening answers system to improve a
 Add tables:
 
 - `screening_answer_history` - Track each time an answer is used
-  - id, screening_answer_id, question_text_normalized, answer_used, was_modified, modified_to, job_hash, created_at
+  - id, screening_answer_id, question_text_normalized, answer_used, was_modified, modified_to,
+    job_hash, created_at
 - Update `screening_answers` table:
   - Add `times_used INTEGER DEFAULT 0`
   - Add `times_modified INTEGER DEFAULT 0`
@@ -117,13 +118,13 @@ Tests for:
 
 ## Confidence Scoring Algorithm
 
-```
+```text
 confidence = base_confidence * usage_weight * recency_weight * modification_penalty
 
 base_confidence = 1.0 (initial)
 usage_weight = min(1.0, times_used / 10)  // Caps at 10 uses
 recency_weight = 1.0 - (days_since_last_use / 365)  // Decays over a year
-modification_penalty = 1.0 - (times_modified / times_used)  // 0% modified = 1.0, 100% modified = 0.0
+modification_penalty = 1.0 - (times_modified / times_used)  // 0% modified = 1.0, 100% = 0.0
 ```
 
 ## Question Matching Strategy

@@ -38,11 +38,12 @@ If applicable, add screenshots to help explain your problem.
 ## Logs
 
 If applicable, include relevant log output. Logs are located at:
+
 - Windows: `%APPDATA%/JobSentinel/logs/`
 - macOS: `~/Library/Application Support/JobSentinel/logs/`
 - Linux: `~/.config/JobSentinel/logs/`
 
-```
+```text
 Paste relevant log output here
 ```
 

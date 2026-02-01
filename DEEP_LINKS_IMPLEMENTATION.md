@@ -6,7 +6,8 @@
 
 ## Overview
 
-Added a Deep Link Generator feature that creates pre-filled job search URLs for 19 job sites we can't scrape. This approach is 100% legal (just building URLs), respects site ToS, and provides a better user experience.
+Added a Deep Link Generator feature that creates pre-filled job search URLs for 19 job sites we can't scrape.
+This approach is 100% legal (just building URLs), respects site ToS, and provides a better user experience.
 
 ## Implementation
 
@@ -14,7 +15,7 @@ Added a Deep Link Generator feature that creates pre-filled job search URLs for 
 
 #### Module Structure (`src-tauri/src/core/deeplinks/`)
 
-```
+```text
 deeplinks/
 ├── mod.rs          - Module entry point with documentation
 ├── types.rs        - Type definitions (SearchCriteria, DeepLink, SiteInfo, etc.)
@@ -206,25 +207,25 @@ cargo test --lib deeplinks
 
 ### Indeed
 
-```
+```text
 https://www.indeed.com/jobs?q=Software%20Engineer&l=San%20Francisco%2C%20CA&remotejob=032b3046-06a3-4876-8dfd-474eb5e7ed11
 ```
 
 ### LinkedIn
 
-```
+```text
 https://www.linkedin.com/jobs/search/?keywords=Software%20Engineer&location=San%20Francisco%2C%20CA&f_JT=F&f_WT=2
 ```
 
 ### Dice (Tech)
 
-```
+```text
 https://www.dice.com/jobs?q=Software%20Engineer&location=San%20Francisco%2C%20CA&filters.isRemote=true
 ```
 
 ### USAJobs (Government)
 
-```
+```text
 https://www.usajobs.gov/Search/Results?k=Software%20Engineer&l=San%20Francisco%2C%20CA
 ```
 
@@ -269,7 +270,7 @@ Commands registered in `invoke_handler![]`:
 
 ### Component Structure
 
-```
+```text
 DeepLinksPage
 └── DeepLinkGenerator
     ├── Search Form (query + location)
@@ -444,7 +445,8 @@ No migration needed - new feature, no breaking changes.
 
 ## Conclusion
 
-The Deep Link Generator provides a legal, privacy-respecting way to search 19 job sites that block automated scraping. It's fast, simple, and extensible.
+The Deep Link Generator provides a legal, privacy-respecting way to search 19 job sites that block automated
+scraping. It's fast, simple, and extensible.
 
 **Total Implementation:**
 

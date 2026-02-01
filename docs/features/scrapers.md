@@ -852,7 +852,7 @@ impl RateLimiter {
 
 ### How It Works
 
-1. **Official API:** Uses the official USAJobs public API (https://data.usajobs.gov)
+1. **Official API:** Uses the official USAJobs public API (<https://data.usajobs.gov>)
 2. **Authentication:** API key + email in User-Agent header (required by API)
 3. **Rate Limiting:** Conservative 1-second delays between requests
 4. **Deduplication:** SHA-256 hash of (organization + title + location + URL)
@@ -939,7 +939,7 @@ Headers:
 
 ### How It Works
 
-1. **RSS Feed:** Uses public RSS feeds (https://www.simplyhired.com/search?q=...&output=rss)
+1. **RSS Feed:** Uses public RSS feeds (<https://www.simplyhired.com/search?q=...&output=rss>)
 2. **No Authentication:** Public access
 3. **XML Parsing:** Simple XML parsing (no full XML library needed)
 4. **Rate Limiting:** Conservative 5-second delays (Cloudflare protection)

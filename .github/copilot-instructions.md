@@ -2,7 +2,8 @@
 
 ## Project Overview
 
-**JobSentinel** is a privacy-first job search automation desktop app built with Tauri 2.x (Rust backend) and React 19 (TypeScript frontend).
+**JobSentinel** is a privacy-first job search automation desktop app built with Tauri 2.x (Rust backend) and
+React 19 (TypeScript frontend).
 
 | Fact | Value |
 |------|-------|
@@ -14,7 +15,7 @@
 
 ## Project Structure
 
-```
+```text
 JobSentinel/
 ├── src/                   # React frontend
 │   ├── components/        # React components
@@ -66,12 +67,14 @@ npm run test:e2e:ui      # Interactive mode
 ## Code Standards
 
 ### Rust
+
 - Use `Result<T, E>` everywhere - no `.unwrap()` in production code
 - SQLx offline mode - run `cargo sqlx prepare` after schema changes
 - Run `cargo clippy -- -D warnings` before committing
 - Error handling: use `anyhow` with `.context()` for meaningful errors
 
 ### React/TypeScript
+
 - Functional components with hooks only
 - Type all props and state - avoid `any`
 - Custom hooks for reusable logic
@@ -79,6 +82,7 @@ npm run test:e2e:ui      # Interactive mode
 - Named exports preferred over default exports
 
 ### Tauri IPC Pattern
+
 ```rust
 // Rust command - always return Result<T, String>
 #[tauri::command]
@@ -106,9 +110,11 @@ const jobs = await invoke<Job[]>('get_jobs');
 
 ## Scrapers (13 job boards)
 
-Indeed, LinkedIn, Glassdoor, ZipRecruiter, Dice, Monster, CareerBuilder, SimplyHired, USAJobs, FlexJobs, We Work Remotely, Remote OK, Wellfound
+Indeed, LinkedIn, Glassdoor, ZipRecruiter, Dice, Monster, CareerBuilder, SimplyHired, USAJobs, FlexJobs,
+We Work Remotely, Remote OK, Wellfound
 
 ### Adding a New Scraper
+
 1. Create `src-tauri/src/scrapers/newboard.rs`
 2. Implement `Scraper` trait
 3. Register in `src-tauri/src/scrapers/mod.rs`

@@ -5,7 +5,9 @@
 
 ## Overview
 
-The JobSentinel bookmarklet allows you to import jobs from **any website** directly into your local JobSentinel database with a single click. No scraping, no API keys, completely legal - it runs in your browser using your existing session.
+The JobSentinel bookmarklet allows you to import jobs from **any website** directly into your local JobSentinel
+database with a single click. No scraping, no API keys, completely legal - it runs in your browser using your
+existing session.
 
 ## Supported Sites
 
@@ -111,7 +113,7 @@ The bookmarklet works on:
 
 ### Architecture
 
-```
+```text
 Browser Bookmarklet
     ↓ (HTTP POST)
 Local HTTP Server (localhost:4321)

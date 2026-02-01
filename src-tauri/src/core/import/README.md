@@ -23,7 +23,7 @@ This implementation is designed for legal compliance:
 
 ## Architecture
 
-```
+```text
 src/core/import/
 ├── mod.rs           - Module entry point
 ├── types.rs         - Import-specific types (errors, preview, Schema.org structs)
@@ -70,10 +70,12 @@ const job = await invoke("import_job_from_url", {
 The importer supports the following Schema.org JobPosting fields:
 
 ### Required Fields
+
 - `title` (or `name`)
 - `hiringOrganization.name`
 
 ### Optional Fields
+
 - `description` - Job description (HTML or plain text)
 - `jobLocation` - Location (single or array)
 - `baseSalary` - Salary information (string or object)
@@ -105,6 +107,7 @@ cargo test import
 ## Examples
 
 ### Indeed Job
+
 ```html
 <script type="application/ld+json">
 {
@@ -125,6 +128,7 @@ cargo test import
 ```
 
 ### LinkedIn Job
+
 ```html
 <script type="application/ld+json">
 {

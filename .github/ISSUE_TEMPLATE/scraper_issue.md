@@ -9,6 +9,7 @@ assignees: ''
 ## Affected Scraper
 
 Which job board scraper is affected?
+
 - [ ] Greenhouse
 - [ ] Lever
 - [ ] LinkedIn
@@ -39,7 +40,8 @@ A clear description of what's wrong.
 ## Example Job URL
 
 If applicable, provide a URL to a job posting that demonstrates the issue:
-```
+
+```text
 https://example.com/jobs/...
 ```
 
@@ -56,7 +58,8 @@ https://example.com/jobs/...
 ## Scraper Health Dashboard Output
 
 If available, paste the output from the Scraper Health Dashboard:
-```
+
+```text
 Paste scraper health info here
 ```
 

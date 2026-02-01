@@ -5,6 +5,7 @@ Quick guide for adding support for new job sites to the Deep Link Generator.
 ## Overview
 
 Adding a new site requires changes to 3 files:
+
 1. `src-tauri/src/core/deeplinks/sites.rs` - Add site metadata
 2. `src-tauri/src/core/deeplinks/generator.rs` - Add URL generator
 3. Update tests
@@ -25,7 +26,8 @@ Before adding a site, you need to understand its URL structure.
 ### Example Research
 
 **Indeed:**
-```
+
+```text
 Search: "Software Engineer" in "San Francisco, CA"
 URL: https://www.indeed.com/jobs?q=Software+Engineer&l=San+Francisco%2C+CA
 
@@ -37,7 +39,8 @@ Parameters:
 ```
 
 **LinkedIn:**
-```
+
+```text
 Search: "Product Manager" in "New York, NY"
 URL: https://www.linkedin.com/jobs/search/?keywords=Product+Manager&location=New+York%2C+NY
 
@@ -165,6 +168,7 @@ fn generate_newsite_url(criteria: &SearchCriteria) -> Result<String> {
 ### URL Building Patterns
 
 **Simple (query only):**
+
 ```rust
 fn generate_simple_url(criteria: &SearchCriteria) -> Result<String> {
     Ok(format!(
@@ -175,6 +179,7 @@ fn generate_simple_url(criteria: &SearchCriteria) -> Result<String> {
 ```
 
 **With optional location:**
+
 ```rust
 fn generate_with_location_url(criteria: &SearchCriteria) -> Result<String> {
     let mut url = format!(
@@ -191,6 +196,7 @@ fn generate_with_location_url(criteria: &SearchCriteria) -> Result<String> {
 ```
 
 **With remote filter:**
+
 ```rust
 if criteria.remote_type == Some(RemoteType::Remote) {
     url.push_str("&remote=1");
@@ -198,6 +204,7 @@ if criteria.remote_type == Some(RemoteType::Remote) {
 ```
 
 **With job type mapping:**
+
 ```rust
 if let Some(job_type) = criteria.job_type {
     let type_param = match job_type {
@@ -272,6 +279,7 @@ All tests should pass, including your new ones.
 
 **Problem:** Special characters not encoded properly
 **Solution:** Use `encode()` from `urlencoding` crate:
+
 ```rust
 format!("?q={}", encode(&criteria.query))
 ```
@@ -405,4 +413,4 @@ https://example.com/jobs?q=Software%20Engineer&location=San%20Francisco%2C%20CA&
 
 - Check existing implementations in `generator.rs`
 - Look at tests for examples
-- Ask in GitHub Discussions: https://github.com/cboyd0319/JobSentinel/discussions
+- Ask in GitHub Discussions: <https://github.com/cboyd0319/JobSentinel/discussions>
