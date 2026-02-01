@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import { DashboardWidgets } from "./DashboardWidgets";
 
 // Mock Tauri invoke
@@ -108,11 +108,14 @@ describe("DashboardWidgets", () => {
 
       render(<DashboardWidgets />);
 
-      // Advance past the spinner delay
-      await vi.advanceTimersByTimeAsync(300);
+      // Advance past the spinner delay (LoadingSpinner has 250ms delay)
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(300);
+      });
 
       // Should show loading spinner (motion-safe prefix for accessibility)
       expect(document.querySelector(".motion-safe\\:animate-spin")).toBeInTheDocument();
+
       vi.useRealTimers();
     });
   });

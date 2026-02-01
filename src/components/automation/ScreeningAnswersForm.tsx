@@ -90,13 +90,14 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
       const data = await safeInvoke<ScreeningAnswer[]>("get_screening_answers", {}, {
         logContext: "Load screening answers"
       });
-      setAnswers(data);
+      setAnswers(data || []);
     } catch (error: unknown) {
       const enhanced = error as Error & { userFriendly?: { title: string; message: string } };
       toast.error(
         enhanced.userFriendly?.title || "Failed to load answers",
         enhanced.userFriendly?.message || "Please try again"
       );
+      setAnswers([]); // Ensure answers is always an array even on error
     } finally {
       setLoading(false);
     }
@@ -205,7 +206,7 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
           </h4>
           <div className="flex flex-wrap gap-2">
             {COMMON_PATTERNS.filter(
-              (p) => !answers.some((a) => a.questionPattern === p.pattern)
+              (p) => !answers?.some((a) => a.questionPattern === p.pattern)
             ).map((pattern) => (
               <button
                 key={pattern.pattern}

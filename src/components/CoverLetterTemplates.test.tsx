@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { CoverLetterTemplates, fillTemplatePlaceholders, type JobForTemplate } from "./CoverLetterTemplates";
+import { UndoProvider } from "../contexts/UndoContext";
 
 // Mock Tauri invoke
 const mockInvoke = vi.fn();
@@ -18,6 +19,11 @@ const mockToast = {
 vi.mock("../contexts", () => ({
   useToast: () => mockToast,
 }));
+
+// Helper to render with required providers
+const renderWithProviders = (ui: React.ReactElement) => {
+  return render(<UndoProvider>{ui}</UndoProvider>);
+};
 
 // Mock clipboard
 Object.assign(navigator, {
@@ -122,7 +128,7 @@ describe("CoverLetterTemplates", () => {
     it("shows loading spinner initially", async () => {
       mockInvoke.mockImplementation(() => new Promise(() => {})); // Never resolves
 
-      render(<CoverLetterTemplates />);
+      renderWithProviders(<CoverLetterTemplates />);
 
       expect(screen.getByText("Loading templates...")).toBeInTheDocument();
     });
@@ -132,7 +138,7 @@ describe("CoverLetterTemplates", () => {
     it("shows error message when loading fails", async () => {
       mockInvoke.mockRejectedValue(new Error("Network error"));
 
-      render(<CoverLetterTemplates />);
+      renderWithProviders(<CoverLetterTemplates />);
 
       await waitFor(() => {
         expect(screen.getByText("Failed to Load Templates")).toBeInTheDocument();
@@ -142,7 +148,7 @@ describe("CoverLetterTemplates", () => {
     it("shows Try Again button on error", async () => {
       mockInvoke.mockRejectedValue(new Error("Network error"));
 
-      render(<CoverLetterTemplates />);
+      renderWithProviders(<CoverLetterTemplates />);
 
       await waitFor(() => {
         expect(screen.getByRole("button", { name: "Try Again" })).toBeInTheDocument();
@@ -155,7 +161,7 @@ describe("CoverLetterTemplates", () => {
         .mockResolvedValueOnce(0) // seed_default_templates
         .mockRejectedValueOnce(new Error("Network error")); // list_cover_letter_templates
 
-      render(<CoverLetterTemplates />);
+      renderWithProviders(<CoverLetterTemplates />);
 
       await waitFor(() => {
         expect(screen.getByRole("button", { name: "Try Again" })).toBeInTheDocument();
@@ -178,7 +184,7 @@ describe("CoverLetterTemplates", () => {
     it("shows empty state when no templates", async () => {
       mockInvoke.mockResolvedValue([]);
 
-      render(<CoverLetterTemplates />);
+      renderWithProviders(<CoverLetterTemplates />);
 
       await waitFor(() => {
         expect(screen.getByText("No templates yet")).toBeInTheDocument();
@@ -188,7 +194,7 @@ describe("CoverLetterTemplates", () => {
     it("shows helper text for creating first template", async () => {
       mockInvoke.mockResolvedValue([]);
 
-      render(<CoverLetterTemplates />);
+      renderWithProviders(<CoverLetterTemplates />);
 
       await waitFor(() => {
         expect(screen.getByText("Create your first cover letter template")).toBeInTheDocument();
@@ -204,7 +210,7 @@ describe("CoverLetterTemplates", () => {
     });
 
     it("renders template list", async () => {
-      render(<CoverLetterTemplates />);
+      renderWithProviders(<CoverLetterTemplates />);
 
       await waitFor(() => {
         expect(screen.getByText("Test Template")).toBeInTheDocument();
@@ -212,7 +218,7 @@ describe("CoverLetterTemplates", () => {
     });
 
     it("shows template content", async () => {
-      render(<CoverLetterTemplates />);
+      renderWithProviders(<CoverLetterTemplates />);
 
       await waitFor(() => {
         expect(screen.getByText(/Dear \{hiring_manager\}/)).toBeInTheDocument();
@@ -220,7 +226,7 @@ describe("CoverLetterTemplates", () => {
     });
 
     it("shows category badge", async () => {
-      render(<CoverLetterTemplates />);
+      renderWithProviders(<CoverLetterTemplates />);
 
       await waitFor(() => {
         expect(screen.getByText("General")).toBeInTheDocument();
@@ -228,7 +234,7 @@ describe("CoverLetterTemplates", () => {
     });
 
     it("shows word count", async () => {
-      render(<CoverLetterTemplates />);
+      renderWithProviders(<CoverLetterTemplates />);
 
       await waitFor(() => {
         // The template has 9 words
@@ -237,7 +243,7 @@ describe("CoverLetterTemplates", () => {
     });
 
     it("shows New Template button", async () => {
-      render(<CoverLetterTemplates />);
+      renderWithProviders(<CoverLetterTemplates />);
 
       await waitFor(() => {
         expect(screen.getByRole("button", { name: "New Template" })).toBeInTheDocument();
@@ -245,7 +251,7 @@ describe("CoverLetterTemplates", () => {
     });
 
     it("shows Copy button", async () => {
-      render(<CoverLetterTemplates />);
+      renderWithProviders(<CoverLetterTemplates />);
 
       await waitFor(() => {
         expect(screen.getByRole("button", { name: "Copy" })).toBeInTheDocument();
@@ -253,7 +259,7 @@ describe("CoverLetterTemplates", () => {
     });
 
     it("shows Edit button", async () => {
-      render(<CoverLetterTemplates />);
+      renderWithProviders(<CoverLetterTemplates />);
 
       await waitFor(() => {
         expect(screen.getByRole("button", { name: "Edit" })).toBeInTheDocument();
@@ -261,7 +267,7 @@ describe("CoverLetterTemplates", () => {
     });
 
     it("shows Delete button", async () => {
-      render(<CoverLetterTemplates />);
+      renderWithProviders(<CoverLetterTemplates />);
 
       await waitFor(() => {
         expect(screen.getByRole("button", { name: "Delete" })).toBeInTheDocument();
@@ -277,7 +283,7 @@ describe("CoverLetterTemplates", () => {
     });
 
     it("copies template to clipboard", async () => {
-      render(<CoverLetterTemplates />);
+      renderWithProviders(<CoverLetterTemplates />);
 
       await waitFor(() => {
         expect(screen.getByRole("button", { name: "Copy" })).toBeInTheDocument();
@@ -289,7 +295,7 @@ describe("CoverLetterTemplates", () => {
     });
 
     it("shows success toast after copying", async () => {
-      render(<CoverLetterTemplates />);
+      renderWithProviders(<CoverLetterTemplates />);
 
       await waitFor(() => {
         expect(screen.getByRole("button", { name: "Copy" })).toBeInTheDocument();
@@ -314,7 +320,7 @@ describe("CoverLetterTemplates", () => {
     });
 
     it("shows delete confirmation modal", async () => {
-      render(<CoverLetterTemplates />);
+      renderWithProviders(<CoverLetterTemplates />);
 
       await waitFor(() => {
         expect(screen.getByRole("button", { name: "Delete" })).toBeInTheDocument();
@@ -327,7 +333,7 @@ describe("CoverLetterTemplates", () => {
     });
 
     it("closes modal when Cancel is clicked", async () => {
-      render(<CoverLetterTemplates />);
+      renderWithProviders(<CoverLetterTemplates />);
 
       await waitFor(() => {
         expect(screen.getByRole("button", { name: "Delete" })).toBeInTheDocument();
@@ -346,7 +352,7 @@ describe("CoverLetterTemplates", () => {
         .mockResolvedValueOnce([mockTemplate]) // list_cover_letter_templates
         .mockResolvedValueOnce(true); // delete_cover_letter_template
 
-      render(<CoverLetterTemplates />);
+      renderWithProviders(<CoverLetterTemplates />);
 
       await waitFor(() => {
         expect(screen.getByRole("button", { name: "Delete" })).toBeInTheDocument();
@@ -374,7 +380,7 @@ describe("CoverLetterTemplates", () => {
     });
 
     it("shows editor when New Template is clicked", async () => {
-      render(<CoverLetterTemplates />);
+      renderWithProviders(<CoverLetterTemplates />);
 
       await waitFor(() => {
         expect(screen.getByRole("button", { name: "New Template" })).toBeInTheDocument();
@@ -388,7 +394,7 @@ describe("CoverLetterTemplates", () => {
     });
 
     it("shows placeholder hints in editor", async () => {
-      render(<CoverLetterTemplates />);
+      renderWithProviders(<CoverLetterTemplates />);
 
       await waitFor(() => {
         expect(screen.getByRole("button", { name: "New Template" })).toBeInTheDocument();
@@ -402,7 +408,7 @@ describe("CoverLetterTemplates", () => {
     });
 
     it("shows word and character count", async () => {
-      render(<CoverLetterTemplates />);
+      renderWithProviders(<CoverLetterTemplates />);
 
       await waitFor(() => {
         expect(screen.getByRole("button", { name: "New Template" })).toBeInTheDocument();
@@ -414,7 +420,7 @@ describe("CoverLetterTemplates", () => {
     });
 
     it("disables Create button when name is empty", async () => {
-      render(<CoverLetterTemplates />);
+      renderWithProviders(<CoverLetterTemplates />);
 
       await waitFor(() => {
         expect(screen.getByRole("button", { name: "New Template" })).toBeInTheDocument();
@@ -426,7 +432,7 @@ describe("CoverLetterTemplates", () => {
     });
 
     it("closes editor when Cancel is clicked", async () => {
-      render(<CoverLetterTemplates />);
+      renderWithProviders(<CoverLetterTemplates />);
 
       await waitFor(() => {
         expect(screen.getByRole("button", { name: "New Template" })).toBeInTheDocument();
@@ -447,7 +453,7 @@ describe("CoverLetterTemplates", () => {
     });
 
     it("shows editor with template data when Edit is clicked", async () => {
-      render(<CoverLetterTemplates />);
+      renderWithProviders(<CoverLetterTemplates />);
 
       await waitFor(() => {
         expect(screen.getByRole("button", { name: "Edit" })).toBeInTheDocument();
@@ -459,7 +465,7 @@ describe("CoverLetterTemplates", () => {
     });
 
     it("shows Update Template button when editing", async () => {
-      render(<CoverLetterTemplates />);
+      renderWithProviders(<CoverLetterTemplates />);
 
       await waitFor(() => {
         expect(screen.getByRole("button", { name: "Edit" })).toBeInTheDocument();
@@ -485,7 +491,7 @@ describe("CoverLetterTemplates", () => {
     });
 
     it("shows All filter with count", async () => {
-      render(<CoverLetterTemplates />);
+      renderWithProviders(<CoverLetterTemplates />);
 
       await waitFor(() => {
         expect(screen.getByText("All (3)")).toBeInTheDocument();
@@ -493,7 +499,7 @@ describe("CoverLetterTemplates", () => {
     });
 
     it("shows category filter buttons", async () => {
-      render(<CoverLetterTemplates />);
+      renderWithProviders(<CoverLetterTemplates />);
 
       await waitFor(() => {
         expect(screen.getByText("General (1)")).toBeInTheDocument();
@@ -503,7 +509,7 @@ describe("CoverLetterTemplates", () => {
     });
 
     it("filters templates by category", async () => {
-      render(<CoverLetterTemplates />);
+      renderWithProviders(<CoverLetterTemplates />);
 
       await waitFor(() => {
         expect(screen.getByText("Tech Template")).toBeInTheDocument();
@@ -516,7 +522,7 @@ describe("CoverLetterTemplates", () => {
     });
 
     it("shows empty message for filtered category", async () => {
-      render(<CoverLetterTemplates />);
+      renderWithProviders(<CoverLetterTemplates />);
 
       await waitFor(() => {
         expect(screen.getByText("Tech Template")).toBeInTheDocument();
@@ -549,7 +555,7 @@ describe("CoverLetterTemplates", () => {
     });
 
     it("shows Use for Job button when job is provided", async () => {
-      render(<CoverLetterTemplates selectedJob={selectedJob} />);
+      renderWithProviders(<CoverLetterTemplates selectedJob={selectedJob} />);
 
       await waitFor(() => {
         expect(screen.getByRole("button", { name: "Use for Job" })).toBeInTheDocument();
@@ -557,7 +563,7 @@ describe("CoverLetterTemplates", () => {
     });
 
     it("does not show Use for Job button when no job", async () => {
-      render(<CoverLetterTemplates />);
+      renderWithProviders(<CoverLetterTemplates />);
 
       await waitFor(() => {
         expect(screen.getByText("Test Template")).toBeInTheDocument();
@@ -567,7 +573,7 @@ describe("CoverLetterTemplates", () => {
     });
 
     it("fills template and copies when Use for Job is clicked", async () => {
-      render(<CoverLetterTemplates selectedJob={selectedJob} />);
+      renderWithProviders(<CoverLetterTemplates selectedJob={selectedJob} />);
 
       await waitFor(() => {
         expect(screen.getByRole("button", { name: "Use for Job" })).toBeInTheDocument();
@@ -584,7 +590,7 @@ describe("CoverLetterTemplates", () => {
     });
 
     it("shows success toast with placeholder warning", async () => {
-      render(<CoverLetterTemplates selectedJob={selectedJob} />);
+      renderWithProviders(<CoverLetterTemplates selectedJob={selectedJob} />);
 
       await waitFor(() => {
         expect(screen.getByRole("button", { name: "Use for Job" })).toBeInTheDocument();
@@ -609,7 +615,7 @@ describe("CoverLetterTemplates", () => {
     });
 
     it("shows title", async () => {
-      render(<CoverLetterTemplates />);
+      renderWithProviders(<CoverLetterTemplates />);
 
       await waitFor(() => {
         expect(screen.getByText("Cover Letter Templates")).toBeInTheDocument();
@@ -617,7 +623,7 @@ describe("CoverLetterTemplates", () => {
     });
 
     it("shows description", async () => {
-      render(<CoverLetterTemplates />);
+      renderWithProviders(<CoverLetterTemplates />);
 
       await waitFor(() => {
         expect(screen.getByText("Create reusable templates for your applications")).toBeInTheDocument();
@@ -633,7 +639,7 @@ describe("CoverLetterTemplates", () => {
     });
 
     it("shows confirmation when canceling with unsaved changes", async () => {
-      render(<CoverLetterTemplates />);
+      renderWithProviders(<CoverLetterTemplates />);
 
       await waitFor(() => {
         expect(screen.getByRole("button", { name: "New Template" })).toBeInTheDocument();
@@ -653,7 +659,7 @@ describe("CoverLetterTemplates", () => {
     });
 
     it("closes editor when Discard changes is clicked", async () => {
-      render(<CoverLetterTemplates />);
+      renderWithProviders(<CoverLetterTemplates />);
 
       await waitFor(() => {
         expect(screen.getByRole("button", { name: "New Template" })).toBeInTheDocument();
@@ -672,7 +678,7 @@ describe("CoverLetterTemplates", () => {
     });
 
     it("returns to editor when Keep editing is clicked", async () => {
-      render(<CoverLetterTemplates />);
+      renderWithProviders(<CoverLetterTemplates />);
 
       await waitFor(() => {
         expect(screen.getByRole("button", { name: "New Template" })).toBeInTheDocument();
