@@ -11,6 +11,7 @@ import { ScoreDisplay } from "../components/ScoreDisplay";
 import { Modal, ModalFooter } from "../components/Modal";
 import { default as ModalErrorBoundary } from "../components/ModalErrorBoundary";
 import { default as ComponentErrorBoundary } from "../components/ComponentErrorBoundary";
+import { JobImportModal } from "../components/JobImportModal";
 import { FocusTrap } from "../components/FocusTrap";
 import { DashboardSkeleton } from "../components/Skeleton";
 import { useToast } from "../contexts";
@@ -57,6 +58,7 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
   const [searchCooldown, setSearchCooldown] = useState(false);
   const [cooldownSeconds, setCooldownSeconds] = useState(0);
   const [researchCompany, setResearchCompany] = useState<string | null>(null);
+  const [showImportModal, setShowImportModal] = useState(false);
 
   const toast = useToast();
 
@@ -405,6 +407,7 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
           onShowRemoteOnly={handleShowRemoteOnly}
           onClearFilters={filters.clearFilters}
           hasActiveFilters={!!filters.hasActiveFilters}
+          onImportJob={() => setShowImportModal(true)}
         />
 
         <section className="mt-4">
@@ -790,6 +793,16 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
           </FocusTrap>
         </div>
       )}
+
+      {/* Import Job Modal */}
+      <JobImportModal
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        onImportSuccess={() => {
+          // Refresh jobs list after import
+          fetchData();
+        }}
+      />
     </div>
   );
 }

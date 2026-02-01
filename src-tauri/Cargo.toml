@@ -14,6 +14,8 @@ default = []
 # OCR support for scanned PDFs (uses command-line tesseract + pdftoppm)
 # Requires: tesseract-ocr and poppler-utils installed on system
 ocr = []
+# Embedded ML for semantic skill matching (Candle framework with quantized models)
+embedded-ml = ["candle-core", "candle-nn", "hf-hub", "tokenizers"]
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
@@ -96,6 +98,12 @@ docx-rs = "0.4"
 # Browser automation for form filling (One-Click Apply)
 chromiumoxide = { version = "0.7", default-features = false, features = ["tokio-runtime"] }
 futures-util = "0.3"
+
+# Embedded ML (optional) - Candle framework for on-device inference
+candle-core = { version = "0.8", optional = true }
+candle-nn = { version = "0.8", optional = true }
+hf-hub = { version = "0.3", optional = true, default-features = false, features = ["tokio"] }
+tokenizers = { version = "0.20", optional = true, default-features = false, features = ["http", "onig"] }
 
 [target.'cfg(windows)'.dependencies]
 windows = { version = "0.58", features = ["Win32_Foundation", "Win32_System_Threading"] }

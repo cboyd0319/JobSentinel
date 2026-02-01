@@ -1,14 +1,14 @@
 # Job Board Scrapers
 
-## Support for 13+ Job Sources with Parallel Scraping
+## Support for 15+ Job Sources with Parallel Scraping
 
 > **Status:** ACTIVE (v2.1.0+)
-> **Supported Scrapers:** 13 sources
-> **Last Updated:** 2026-01-25
-> **Version:** 2.6.3
+> **Supported Scrapers:** 15 sources
+> **Last Updated:** 2026-01-30
+> **Version:** 2.6.3+
 > **Architecture:** Parallel scraping with intelligent rate limiting, health monitoring, and deduplication
 
-**Note:** JobSentinel includes production-ready scrapers for 13 major job boards. All scrapers
+**Note:** JobSentinel includes production-ready scrapers for 15 major job boards. All scrapers
 implement intelligent rate limiting, automatic deduplication via SHA-256 hashing, and robust
 error handling.
 
@@ -19,7 +19,7 @@ error handling.
 JobSentinel integrates with 13 major job boards to maximize job coverage and find opportunities
 faster. Our parallel scraping architecture enables simultaneous searches across multiple sources.
 
-### Supported Scrapers (v1.5.0)
+### Supported Scrapers (v2.6.3+)
 
 | Scraper | Job Count | Authentication | Status |
 |---------|-----------|-----------------|--------|
@@ -36,6 +36,8 @@ faster. Our parallel scraping architecture enables simultaneous searches across 
 | **Dice** | ~50K | Public | ✅ Production |
 | **YC Startup Jobs** | ~10K | Public | ✅ Production |
 | **ZipRecruiter** | ~8M | Public | ✅ Production |
+| **USAJobs** | ~50K | API key (free) | ✅ Production |
+| **SimplyHired** | ~5M | None (RSS) | ⚠️ May be blocked |
 
 ### Key Features (v1.5.0)
 
@@ -814,8 +816,173 @@ impl RateLimiter {
 
 ---
 
-**Last Updated:** 2026-01-25
-**Version:** 2.6.3
+## 🇺🇸 USAJobs Federal Government Scraper
+
+### Setup Instructions
+
+**Free API key required** from [https://developer.usajobs.gov/](https://developer.usajobs.gov/)
+
+1. Go to **Settings** → **Job Sources** → Enable **USAJobs**
+2. Click "Get Free API Key" → Sign up with email (no credit card)
+3. Copy API key from confirmation email
+4. Paste into JobSentinel → Stored securely in OS keychain
+5. Enter same email used for signup (required by API)
+6. Configure search parameters (keywords, location, pay grade, etc.)
+
+**Config:**
+
+```json
+{
+  "usajobs": {
+    "enabled": true,
+    "email": "you@example.com",
+    "keywords": "software engineer",
+    "location": "Washington, DC",
+    "radius": 50,
+    "remote_only": false,
+    "pay_grade_min": 11,
+    "pay_grade_max": 15,
+    "date_posted_days": 30,
+    "limit": 100
+  }
+}
+```
+
+**Note:** The `api_key` is stored in the OS keychain, NOT in config.json.
+
+### How It Works
+
+1. **Official API:** Uses the official USAJobs public API (https://data.usajobs.gov)
+2. **Authentication:** API key + email in User-Agent header (required by API)
+3. **Rate Limiting:** Conservative 1-second delays between requests
+4. **Deduplication:** SHA-256 hash of (organization + title + location + URL)
+5. **GS Pay Grades:** Supports filtering by government pay scale (GS-1 through GS-15)
+
+### API Endpoint
+
+```text
+GET https://data.usajobs.gov/api/Search
+?Keyword=software+engineer
+&LocationName=Washington,+DC
+&Radius=50
+&DatePosted=30
+&Page=1
+&ResultsPerPage=100
+
+Headers:
+- Host: data.usajobs.gov
+- User-Agent: your@email.com
+- Authorization-Key: YOUR_API_KEY
+```
+
+### Search Parameters
+
+| Parameter | Description | Example |
+|-----------|-------------|---------|
+| `Keyword` | Job title/keywords | `software engineer` |
+| `LocationName` | City, state, or zip | `Washington, DC` |
+| `Radius` | Search radius in miles | `50` |
+| `RemoteIndicator` | Remote-only jobs | `true` |
+| `PayGradeLow` | Min GS pay grade (1-15) | `11` |
+| `PayGradeHigh` | Max GS pay grade (1-15) | `15` |
+| `DatePosted` | Days since posting (0-60) | `30` |
+
+### GS Pay Scale Reference
+
+| Grade | Annual Salary Range | Typical Role |
+|-------|---------------------|--------------|
+| **GS-5** | $36K - $46K | Entry-level |
+| **GS-7** | $44K - $57K | Junior |
+| **GS-9** | $54K - $70K | Mid-level |
+| **GS-11** | $66K - $86K | Senior |
+| **GS-12** | $79K - $103K | Senior Specialist |
+| **GS-13** | $94K - $122K | Lead/Manager |
+| **GS-14** | $111K - $145K | Senior Manager |
+| **GS-15** | $131K - $170K | Executive |
+
+### Features
+
+- ✅ **Official API:** Designed for programmatic access (no scraping)
+- ✅ **Comprehensive Data:** Full job descriptions, salary ranges, locations
+- ✅ **Salary Data:** Annual salary ranges with PA (Per Annum) codes
+- ✅ **Remote Detection:** Detects "Remote" or "Telework" in location fields
+- ✅ **No CAPTCHA Risk:** Official API, no anti-bot measures
+- ✅ **Free API Key:** No credit card, instant approval
+
+### Limitations
+
+- **API Key Required:** Free but needs signup
+- **60-Day Max:** Can only search jobs posted within last 60 days
+- **500 Results/Page Max:** Capped by API (use pagination for more)
+- **Federal Jobs Only:** Only U.S. government positions
+
+---
+
+## 📋 SimplyHired Job Aggregator Scraper
+
+### Setup Instructions
+
+**No authentication required!** SimplyHired provides RSS feeds.
+
+**Add to Config:**
+
+```json
+{
+  "simplyhired": {
+    "enabled": true,
+    "query": "software engineer",
+    "location": "Remote",
+    "limit": 50
+  }
+}
+```
+
+### How It Works
+
+1. **RSS Feed:** Uses public RSS feeds (https://www.simplyhired.com/search?q=...&output=rss)
+2. **No Authentication:** Public access
+3. **XML Parsing:** Simple XML parsing (no full XML library needed)
+4. **Rate Limiting:** Conservative 5-second delays (Cloudflare protection)
+5. **Graceful Degradation:** Returns empty list if Cloudflare blocks request
+
+### Search URL Format
+
+```text
+https://www.simplyhired.com/search
+?q=software+engineer
+&l=Remote
+&output=rss
+```
+
+### Cloudflare Protection
+
+SimplyHired has Cloudflare bot protection. The scraper:
+
+- Detects Cloudflare challenge pages (`cf-browser-verification`)
+- Returns empty list instead of error if blocked
+- Shows warning in UI when enabled
+- Uses realistic User-Agent headers
+
+**Warning:** May return 0 jobs if Cloudflare blocks the request. This is expected behavior.
+
+### Advantages
+
+- ✅ **No Authentication:** Public RSS feeds
+- ✅ **Large Coverage:** 5M+ jobs (aggregates from multiple sources)
+- ✅ **Simple Parsing:** XML RSS format is easy to parse
+- ✅ **Low Rate Limits:** RSS is explicitly public
+
+### Limitations
+
+- ⚠️ **Cloudflare Risk:** May be blocked by anti-bot protection
+- **Limited Data:** RSS feeds have brief descriptions only
+- **No Salary:** Salary data not in RSS feeds
+- **Generic Locations:** Location data may be vague
+
+---
+
+**Last Updated:** 2026-01-30
+**Version:** 2.6.3+
 **Maintained By:** JobSentinel Core Team
-**Implementation Status:** ✅ Phase 3 Complete (LinkedIn Auto-Connect)
+**Implementation Status:** ✅ Phase 3 Complete (15 Scrapers Integrated)
 **Next Phase:** v2.7 - ML Predictions, Windows/Linux Auto-Connect

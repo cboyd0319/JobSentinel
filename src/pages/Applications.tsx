@@ -25,6 +25,7 @@ import { Card } from "../components/Card";
 import { Badge } from "../components/Badge";
 import { AnalyticsSkeleton, ModalSkeleton } from "../components/LoadingFallbacks";
 import { useToast } from "../contexts";
+import { useUndo } from "../contexts/UndoContext";
 import { logError } from "../utils/errorUtils";
 import { formatEventDate } from "../utils/formatUtils";
 
@@ -252,6 +253,7 @@ export default function Applications({ onBack }: ApplicationsProps) {
   const [showInterviews, setShowInterviews] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
   const toast = useToast();
+  const { pushAction } = useUndo();
 
   // Accessibility IDs (SSR-safe)
   const appStatusId = useId();
@@ -345,8 +347,14 @@ export default function Applications({ onBack }: ApplicationsProps) {
 
     const activeId = active.id as number;
     const newColumn = findColumnForApp(activeId);
+    const oldColumn = STATUS_COLUMNS.find(c =>
+      applications[c.key as keyof ApplicationsByStatus].some(a => a.id === activeId)
+    )?.key;
 
-    if (!newColumn) return;
+    if (!newColumn || !oldColumn) return;
+
+    const app = applications[oldColumn as keyof ApplicationsByStatus].find(a => a.id === activeId);
+    if (!app) return;
 
     // Persist the change to backend
     try {
@@ -355,7 +363,23 @@ export default function Applications({ onBack }: ApplicationsProps) {
       });
       // Invalidate cache after mutation
       invalidateCacheByCommand("get_applications_kanban");
-      toast.success("Status updated", `Application moved to ${STATUS_COLUMNS.find((c) => c.key === newColumn)?.label}`);
+      const newLabel = STATUS_COLUMNS.find((c) => c.key === newColumn)?.label;
+
+      // Push undoable action
+      pushAction({
+        type: "status",
+        description: `Moved ${app.job_title} to ${newLabel}`,
+        undo: async () => {
+          await invoke("update_application_status", { applicationId: activeId, status: oldColumn });
+          invalidateCacheByCommand("get_applications_kanban");
+          fetchData();
+        },
+        redo: async () => {
+          await invoke("update_application_status", { applicationId: activeId, status: newColumn });
+          invalidateCacheByCommand("get_applications_kanban");
+          fetchData();
+        },
+      });
     } catch {
       // Error already logged and shown to user via safeInvokeWithToast
       // Revert by refetching
@@ -366,16 +390,36 @@ export default function Applications({ onBack }: ApplicationsProps) {
 
   const handleAddNotes = async () => {
     if (!selectedApp || !notes.trim()) return;
+    const appId = selectedApp.id;
+    const appTitle = selectedApp.job_title;
+    const previousNotes = selectedApp.notes;
+    const newNotes = notes;
+
     try {
-      await safeInvokeWithToast("add_application_notes", { applicationId: selectedApp.id, notes }, toast, {
+      await safeInvokeWithToast("add_application_notes", { applicationId: appId, notes: newNotes }, toast, {
         logContext: "Add application notes",
       });
       // Invalidate cache after mutation
       invalidateCacheByCommand("get_applications_kanban");
-      toast.success("Notes added", "Your notes have been saved");
       setNotes("");
       setSelectedApp(null);
       fetchData();
+
+      // Push undoable action
+      pushAction({
+        type: "notes",
+        description: `Updated notes for ${appTitle}`,
+        undo: async () => {
+          await invoke("add_application_notes", { applicationId: appId, notes: previousNotes });
+          invalidateCacheByCommand("get_applications_kanban");
+          fetchData();
+        },
+        redo: async () => {
+          await invoke("add_application_notes", { applicationId: appId, notes: newNotes });
+          invalidateCacheByCommand("get_applications_kanban");
+          fetchData();
+        },
+      });
     } catch {
       // Error already logged and shown to user
     }

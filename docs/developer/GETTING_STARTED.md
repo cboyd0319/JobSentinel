@@ -43,10 +43,22 @@ npm run tauri:dev
 ### Building for Production
 
 ```bash
-# Build Windows MSI installer
+# Build for your current platform
 npm run tauri:build
 
-# Output: src-tauri/target/release/bundle/msi/JobSentinel_1.0.0_x64_en-US.msi
+# macOS: Build universal binary (Intel + Apple Silicon)
+rustup target add aarch64-apple-darwin x86_64-apple-darwin
+cd src-tauri && cargo tauri build --target universal-apple-darwin
+
+# Windows MSI installer output
+# src-tauri/target/release/bundle/msi/JobSentinel_2.6.3_x64_en-US.msi
+
+# macOS Universal DMG output
+# src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_2.6.3_universal.dmg
+
+# Linux packages output
+# src-tauri/target/release/bundle/deb/JobSentinel_2.6.3_amd64.deb
+# src-tauri/target/release/bundle/appimage/JobSentinel_2.6.3_amd64.AppImage
 ```
 
 ### Project Structure

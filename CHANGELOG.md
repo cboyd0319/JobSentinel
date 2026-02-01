@@ -5,6 +5,16 @@ All notable changes to JobSentinel will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.1] - Unreleased
+
+### Changed
+
+- **macOS Universal Binary** - Single .dmg installer now works on both Intel and Apple Silicon Macs
+  - Updated GitHub Actions release workflow to build universal binary
+  - Installs both aarch64-apple-darwin and x86_64-apple-darwin Rust targets
+  - Uses `--target universal-apple-darwin` flag for Tauri builds
+  - Eliminates need for separate Intel and Apple Silicon downloads
+
 ## [2.7.0] - 2026-01-26
 
 ### Added

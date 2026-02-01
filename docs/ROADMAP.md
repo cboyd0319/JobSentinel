@@ -380,10 +380,10 @@ See [CHANGELOG.md](../CHANGELOG.md) for detailed v2.6.3 changes.
 | **Beta Feedback System** | ✅ Done | High | GitHub Issues + Google Drive, PII sanitization |
 | macOS support (.dmg) | ✅ Done | - | v2.5.1 |
 | Windows support (.msi) | ✅ Done | - | v2.5.1 |
-| Linux support (.deb, .rpm) | 🔲 Planned | High | AppImage, Debian, RPM packages |
-| Intel Mac support | 🔲 Planned | Medium | Universal binary (x86_64 + arm64) |
+| Linux support (.deb, .AppImage) | ✅ Done | - | v2.7.0 - Ubuntu 20.04+ compatibility |
+| Intel Mac support | ✅ Done | - | v2.7.1 - Universal binary (single .dmg for both Intel and Apple Silicon) |
 | CI/CD Pipeline | ✅ Done | - | GitHub Actions |
-| **Expanded Scrapers** | 🔲 Planned | High | USAJobs, SimplyHired (code ready) |
+| **Expanded Scrapers** | ✅ Done | - | USAJobs, SimplyHired (v2.6.3+) |
 | **Undo/Redo for Actions** | 🔲 Planned | Medium | Context exists, needs wiring |
 | **Auto-detect Location** | 🔲 Planned | Medium | IP geolocation for Setup Wizard |
 | **Settings Quick Mode** | 🔲 Planned | Low | Simplified settings for new users |
@@ -396,20 +396,23 @@ See [CHANGELOG.md](../CHANGELOG.md) for detailed v2.6.3 changes.
 
 **Legal Compliance is NON-NEGOTIABLE.** JobSentinel stays 100% legal. No exceptions.
 
-Currently JobSentinel has **13 scrapers**. The goal is to cover more job sources while respecting
+Currently JobSentinel has **15 scrapers** (v2.6.3+). The goal is to cover more job sources while respecting
 legal boundaries. This helps everyone — job seekers, veterans, career changers.
 
 ### New Scrapers (Legal - API or Permissible Scraping)
 
 | Source | Method | Priority | Status | Notes |
 |--------|--------|----------|--------|-------|
-| **USAJobs.gov** | Official API | High | Code Ready | Free API key, designed for programmatic access |
-| **SimplyHired** | HTML Scraping | High | Code Ready | Aggregator, no explicit anti-scraping ToS |
+| **USAJobs.gov** | Official API | High | ✅ Done | Free API key, v2.6.3+ |
+| **SimplyHired** | RSS Feed | High | ✅ Done | May be blocked by Cloudflare, v2.6.3+ |
 
 Files implemented:
 
-- `src-tauri/src/core/scrapers/usajobs.rs`
-- `src-tauri/src/core/scrapers/simplyhired.rs`
+- `src-tauri/src/core/scrapers/usajobs.rs` - USAJobs API client
+- `src-tauri/src/core/scrapers/simplyhired.rs` - SimplyHired RSS scraper
+- Backend integration: `src-tauri/src/core/scheduler/workers/scrapers.rs` (lines 286-384)
+- Frontend config: `src/pages/Settings.tsx` (USAJobs, SimplyHired sections)
+- Documentation: `docs/features/scrapers.md` (updated with 15 scrapers)
 
 ### Restricted Sites (Legal Alternatives Only)
 
@@ -468,8 +471,8 @@ Many governments publish job data as open CSV/JSON:
 
 ### Implementation Priority
 
-1. ✅ USAJobs API scraper (code done, needs config wiring)
-2. ✅ SimplyHired scraper (code done, needs config wiring)
+1. ✅ USAJobs API scraper (DONE - v2.6.3+)
+2. ✅ SimplyHired scraper (DONE - v2.6.3+)
 3. 🔲 Universal Job Importer with Schema.org parsing
 4. 🔲 Deep Link Generator for 15+ sites
 5. 🔲 Bookmarklet generator

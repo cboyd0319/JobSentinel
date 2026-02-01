@@ -13,6 +13,7 @@ interface QuickActionsProps {
   onShowRemoteOnly: () => void;
   onClearFilters: () => void;
   hasActiveFilters: boolean;
+  onImportJob?: () => void;
 }
 
 export const QuickActions = memo(function QuickActions({
@@ -24,11 +25,9 @@ export const QuickActions = memo(function QuickActions({
   onShowRemoteOnly,
   onClearFilters,
   hasActiveFilters,
+  onImportJob,
 }: QuickActionsProps) {
   const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false);
-
-  // Don't show if no jobs
-  if (totalJobs === 0) return null;
 
   return (
     <div className="mb-6">
@@ -37,6 +36,23 @@ export const QuickActions = memo(function QuickActions({
         <span className="text-xs font-medium text-surface-500 dark:text-surface-400 uppercase tracking-wide">
           Quick Actions
         </span>
+
+        {/* Import Job Button */}
+        {onImportJob && (
+          <button
+            onClick={onImportJob}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg
+                       bg-sentinel-50 dark:bg-sentinel-900/30 text-sentinel-700 dark:text-sentinel-300
+                       hover:bg-sentinel-100 dark:hover:bg-sentinel-900/50 transition-colors
+                       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sentinel-500 focus-visible:ring-offset-1"
+            title="Import a job from any website URL"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Import Job
+          </button>
+        )}
 
         {highMatches > 0 && (
           <button

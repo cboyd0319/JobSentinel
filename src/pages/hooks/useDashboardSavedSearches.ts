@@ -2,8 +2,10 @@
 // Manages saved search CRUD operations
 
 import { useState, useEffect, useCallback } from "react";
+import { invoke } from "@tauri-apps/api/core";
 import type { SavedSearch, SortOption, ScoreFilter, PostedDateFilter } from "../DashboardTypes";
 import { useToast } from "../../contexts";
+import { useUndo } from "../../contexts/UndoContext";
 import { safeInvoke, safeInvokeWithToast } from "../../utils/api";
 
 export function useDashboardSavedSearches() {
@@ -11,6 +13,7 @@ export function useDashboardSavedSearches() {
   const [saveSearchModalOpen, setSaveSearchModalOpen] = useState(false);
   const [newSearchName, setNewSearchName] = useState("");
   const toast = useToast();
+  const { pushAction } = useUndo();
 
   // Load saved searches from backend on mount
   useEffect(() => {
@@ -133,16 +136,49 @@ export function useDashboardSavedSearches() {
   }, [toast]);
 
   const handleDeleteSearch = useCallback(async (id: string) => {
+    const deletedSearch = savedSearches.find(s => s.id === id);
+    if (!deletedSearch) return;
+
     try {
       await safeInvokeWithToast('delete_saved_search', { id }, toast, {
         logContext: "Delete saved search"
       });
       setSavedSearches(prev => prev.filter((s) => s.id !== id));
-      toast.success("Search deleted", "Saved search removed");
+
+      // Push undoable action
+      pushAction({
+        type: "bookmark", // Reusing bookmark type for saved searches (both are save/unsave operations)
+        description: `Deleted search: ${deletedSearch.name}`,
+        undo: async () => {
+          // Re-create the saved search
+          const result = await invoke<{ id: string; name: string; created_at: string }>('create_saved_search', {
+            name: deletedSearch.name,
+            sortBy: deletedSearch.filters.sortBy,
+            scoreFilter: deletedSearch.filters.scoreFilter,
+            sourceFilter: deletedSearch.filters.sourceFilter,
+            remoteFilter: deletedSearch.filters.remoteFilter,
+            bookmarkFilter: deletedSearch.filters.bookmarkFilter,
+            notesFilter: deletedSearch.filters.notesFilter,
+            postedDateFilter: deletedSearch.filters.postedDateFilter,
+            salaryMinFilter: deletedSearch.filters.salaryMinFilter,
+            salaryMaxFilter: deletedSearch.filters.salaryMaxFilter,
+          });
+          const restoredSearch: SavedSearch = {
+            ...deletedSearch,
+            id: result.id,
+            createdAt: result.created_at,
+          };
+          setSavedSearches(prev => [restoredSearch, ...prev]);
+        },
+        redo: async () => {
+          await invoke('delete_saved_search', { id });
+          setSavedSearches(prev => prev.filter((s) => s.id !== id));
+        },
+      });
     } catch {
       // Error already logged and shown to user
     }
-  }, [toast]);
+  }, [savedSearches, toast, pushAction]);
 
   return {
     savedSearches,

@@ -188,7 +188,7 @@ Power users can navigate entirely by keyboard:
 | Platform | Download |
 |----------|----------|
 | **Windows** | [JobSentinel_2.6.3_x64_en-US.msi](https://github.com/cboyd0319/JobSentinel/releases/download/v2.6.3/JobSentinel_2.6.3_x64_en-US.msi) |
-| **macOS (Apple Silicon)** | [JobSentinel_2.6.3_aarch64.dmg](https://github.com/cboyd0319/JobSentinel/releases/download/v2.6.3/JobSentinel_2.6.3_aarch64.dmg) |
+| **macOS** (Intel & Apple Silicon) | [JobSentinel_2.6.3_universal.dmg](https://github.com/cboyd0319/JobSentinel/releases/download/v2.6.3/JobSentinel_2.6.3_universal.dmg) |
 
 <details>
 <summary><strong>Or build from source</strong></summary>

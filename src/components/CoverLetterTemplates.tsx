@@ -5,6 +5,7 @@ import { Input } from './Input';
 import { Card } from './Card';
 import { Modal, ModalFooter } from './Modal';
 import { useToast } from '../contexts';
+import { useUndo } from '../contexts/UndoContext';
 import { LoadingSpinner } from './LoadingSpinner';
 import { logError } from '../utils/errorUtils';
 
@@ -294,6 +295,7 @@ export const CoverLetterTemplates = memo(function CoverLetterTemplates({ selecte
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<TemplateCategory | 'all'>('all');
   const toast = useToast();
+  const { pushAction } = useUndo();
   const isMountedRef = useRef(true);
 
   // Track mount state for cleanup
@@ -350,6 +352,7 @@ export const CoverLetterTemplates = memo(function CoverLetterTemplates({ selecte
     try {
       if (editingTemplate) {
         // Update existing
+        const previousTemplate = { ...editingTemplate };
         const updated = await invoke<CoverLetterTemplate | null>('update_cover_letter_template', {
           id: editingTemplate.id,
           name: data.name,
@@ -362,11 +365,38 @@ export const CoverLetterTemplates = memo(function CoverLetterTemplates({ selecte
           setTemplates((prev) =>
             prev.map((t) => (t.id === editingTemplate.id ? updated : t))
           );
-          toast.success('Template updated');
+          setEditingTemplate(null);
+
+          // Push undoable action
+          pushAction({
+            type: "notes", // Reusing notes type for template edits (both are content changes)
+            description: `Updated template: ${data.name}`,
+            undo: async () => {
+              const reverted = await invoke<CoverLetterTemplate | null>('update_cover_letter_template', {
+                id: previousTemplate.id,
+                name: previousTemplate.name,
+                content: previousTemplate.content,
+                category: previousTemplate.category,
+              });
+              if (reverted && isMountedRef.current) {
+                setTemplates((prev) => prev.map((t) => (t.id === previousTemplate.id ? reverted : t)));
+              }
+            },
+            redo: async () => {
+              const redone = await invoke<CoverLetterTemplate | null>('update_cover_letter_template', {
+                id: editingTemplate.id,
+                name: data.name,
+                content: data.content,
+                category: data.category,
+              });
+              if (redone && isMountedRef.current) {
+                setTemplates((prev) => prev.map((t) => (t.id === editingTemplate.id ? redone : t)));
+              }
+            },
+          });
         } else {
           toast.error('Template not found');
         }
-        setEditingTemplate(null);
       } else {
         // Create new
         const newTemplate = await invoke<CoverLetterTemplate>('create_cover_letter_template', {
@@ -376,8 +406,29 @@ export const CoverLetterTemplates = memo(function CoverLetterTemplates({ selecte
         });
         if (!isMountedRef.current) return;
         setTemplates((prev) => [newTemplate, ...prev]);
-        toast.success('Template created');
         setIsCreating(false);
+
+        // Push undoable action
+        pushAction({
+          type: "notes", // Reusing notes type for template creation
+          description: `Created template: ${data.name}`,
+          undo: async () => {
+            await invoke<boolean>('delete_cover_letter_template', { id: newTemplate.id });
+            if (isMountedRef.current) {
+              setTemplates((prev) => prev.filter((t) => t.id !== newTemplate.id));
+            }
+          },
+          redo: async () => {
+            const recreated = await invoke<CoverLetterTemplate>('create_cover_letter_template', {
+              name: data.name,
+              content: data.content,
+              category: data.category,
+            });
+            if (isMountedRef.current) {
+              setTemplates((prev) => [recreated, ...prev]);
+            }
+          },
+        });
       }
     } catch (error: unknown) {
       logError('Failed to save template:', error);
@@ -392,12 +443,37 @@ export const CoverLetterTemplates = memo(function CoverLetterTemplates({ selecte
   };
 
   const handleDeleteTemplate = async (id: string) => {
+    const templateToDelete = templates.find(t => t.id === id);
+    if (!templateToDelete) return;
+
     try {
       const deleted = await invoke<boolean>('delete_cover_letter_template', { id });
       if (!isMountedRef.current) return;
       if (deleted) {
         setTemplates((prev) => prev.filter((t) => t.id !== id));
-        toast.success('Template deleted');
+        setDeleteConfirm(null);
+
+        // Push undoable action
+        pushAction({
+          type: "notes", // Reusing notes type for template deletion
+          description: `Deleted template: ${templateToDelete.name}`,
+          undo: async () => {
+            const restored = await invoke<CoverLetterTemplate>('create_cover_letter_template', {
+              name: templateToDelete.name,
+              content: templateToDelete.content,
+              category: templateToDelete.category,
+            });
+            if (isMountedRef.current) {
+              setTemplates((prev) => [restored, ...prev]);
+            }
+          },
+          redo: async () => {
+            await invoke<boolean>('delete_cover_letter_template', { id });
+            if (isMountedRef.current) {
+              setTemplates((prev) => prev.filter((t) => t.id !== id));
+            }
+          },
+        });
       } else {
         toast.error('Template not found');
       }
