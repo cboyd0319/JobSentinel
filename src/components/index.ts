@@ -56,3 +56,6 @@ export { DashboardWidgets } from "./DashboardWidgets";
 // Automation (One-Click Apply)
 export { ProfileForm, ScreeningAnswersForm, ApplyButton, AtsBadge, ApplicationPreview } from "./automation";
 export { Navigation } from './Navigation';
+
+// Browser Integration (v2.6)
+export { BookmarkletGenerator } from './BookmarkletGenerator';
