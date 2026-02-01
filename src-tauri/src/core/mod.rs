@@ -47,6 +47,22 @@ pub mod automation;
 // v2.1+ modules - Scraper health monitoring
 pub mod health;
 
+// v2.2+ modules - Universal Job Importer
+pub mod import;
+
+// v2.6+ modules - Deep link generation for non-scrapable sites
+pub mod deeplinks;
+
+// v2.6+ modules - Bookmarklet server for browser integration
+pub mod bookmarklet;
+
+// v2.6+ modules - IP geolocation for setup wizard
+pub mod geo;
+
+// v2.7+ modules - Embedded ML (optional)
+#[cfg(feature = "embedded-ml")]
+pub mod ml;
+
 // Re-export commonly used types
 pub use config::Config;
 pub use db::{Database, Job};
@@ -94,3 +110,22 @@ pub use health::{
     RunStatus, ScraperConfig, ScraperHealthMetrics, ScraperRun, ScraperType, SelectorHealth,
     SmokeTestResult, SmokeTestType,
 };
+
+// v2.2+ import re-exports
+pub use import::{
+    fetch_job_page, parse_schema_org_job_posting, ImportError, ImportResult, JobImportPreview,
+    SchemaOrgJobPosting,
+};
+
+// v2.6+ deeplinks re-exports
+pub use deeplinks::{
+    generate_all_links, generate_link_for_site, get_all_sites, get_site_by_id,
+    get_sites_by_category, DeepLink, ExperienceLevel, JobType as DeepLinkJobType, RemoteType,
+    SearchCriteria, SiteCategory, SiteInfo,
+};
+
+// v2.6+ bookmarklet re-exports
+pub use bookmarklet::{BookmarkletConfig, BookmarkletJobData, BookmarkletServer};
+
+// v2.6+ geo re-exports
+pub use geo::LocationInfo;
