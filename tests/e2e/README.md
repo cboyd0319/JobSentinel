@@ -13,6 +13,10 @@ Reusable page objects following the Page Object Model pattern:
 - `ResumePage.ts` - Resume upload and matching
 - `ApplicationsPage.ts` - Application tracking kanban
 - `SettingsPage.ts` - Settings management
+- `OneClickApplyPage.ts` - One-Click Apply automation
+- `ResumeBuilderPage.ts` - Resume Builder wizard
+- `MarketIntelligencePage.ts` - Market Intelligence features
+- `JobDetailPage.ts` - Job detail view and interactions
 
 ### Test Suites
 
@@ -46,13 +50,45 @@ Reusable page objects following the Page Object Model pattern:
    - Tab navigation and focus management
    - Accessibility features
 
-6. **app.spec.ts** (existing)
-   - Basic app loading and rendering
-   - Theme toggle
-   - Sidebar navigation
+6. **one-click-apply.spec.ts**
+   - Quick Apply button functionality
+   - ATS platform detection
+   - Browser automation start/pause/resume
+   - Form field detection
+   - Submit confirmation
 
-7. **screenshots.spec.ts** (existing)
-   - Documentation screenshots
+7. **resume-builder.spec.ts**
+   - Wizard navigation (7 steps)
+   - Contact info form
+   - Professional summary
+   - Experience and education
+   - Skills management
+   - Template selection and preview
+   - PDF/DOCX export
+
+8. **market-intelligence.spec.ts**
+   - Overview tab with market metrics
+   - Trends charts and tooltips
+   - Skills trends analysis
+   - Company activity tracking
+   - Location heatmap
+   - Market alerts
+
+9. **job-interactions.spec.ts**
+   - Bookmarking jobs
+   - Adding notes to jobs
+   - Application status tracking
+   - Search and filtering
+   - Match score display
+   - Complete user flow
+
+10. **app.spec.ts** (existing)
+    - Basic app loading and rendering
+    - Theme toggle
+    - Sidebar navigation
+
+11. **screenshots.spec.ts** (existing)
+    - Documentation screenshots
 
 ## Running Tests
 
@@ -207,6 +243,10 @@ Current test coverage:
 - ✅ Application tracking
 - ✅ Settings management
 - ✅ Keyboard navigation
+- ✅ One-Click Apply automation
+- ✅ Resume Builder wizard
+- ✅ Market Intelligence features
+- ✅ Job interactions (bookmarking, notes, status)
 - ✅ Theme toggle
 - ✅ Responsive design
 - ✅ Accessibility
