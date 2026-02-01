@@ -624,3 +624,228 @@ pub async fn get_attempts_for_job(
 
     Ok(attempts)
 }
+
+// ============================================================================
+// Screening Answer Learning Commands
+// ============================================================================
+
+use crate::core::automation::answer_learning::{
+    AnswerLearningManager, AnswerSource, AnswerStatistics, AnswerSuggestion,
+};
+
+/// Get suggested answers for a screening question
+///
+/// Returns ranked suggestions based on:
+/// - Manual patterns (from screening_answers table)
+/// - Learned patterns (from user modifications)
+/// - Historical answers (from similar questions)
+#[tauri::command]
+pub async fn get_suggested_answers(
+    question: String,
+    limit: Option<usize>,
+    state: State<'_, AppState>,
+) -> Result<Vec<AnswerSuggestionResponse>, String> {
+    tracing::info!(
+        "Command: get_suggested_answers (question: {}, limit: {:?})",
+        question,
+        limit
+    );
+
+    let manager = AnswerLearningManager::new(state.database.pool().clone());
+    let suggestions = manager
+        .get_suggested_answers(&question, limit.unwrap_or(5))
+        .await
+        .map_err(|e| format!("Failed to get suggestions: {}", e))?;
+
+    Ok(suggestions
+        .into_iter()
+        .map(AnswerSuggestionResponse::from)
+        .collect())
+}
+
+/// Record that a screening answer was used
+///
+/// Tracks usage and user modifications for learning.
+/// If `was_modified` is true, the system learns from the correction.
+#[tauri::command]
+pub async fn record_answer_usage(
+    screening_answer_id: Option<i64>,
+    question_text: String,
+    answer_filled: String,
+    was_modified: bool,
+    modified_to: Option<String>,
+    job_hash: Option<String>,
+    application_attempt_id: Option<i64>,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    tracing::info!(
+        "Command: record_answer_usage (pattern_id: {:?}, modified: {})",
+        screening_answer_id,
+        was_modified
+    );
+
+    let manager = AnswerLearningManager::new(state.database.pool().clone());
+    manager
+        .record_answer_usage(
+            screening_answer_id,
+            &question_text,
+            &answer_filled,
+            was_modified,
+            modified_to.as_deref(),
+            job_hash.as_deref(),
+            application_attempt_id,
+        )
+        .await
+        .map_err(|e| format!("Failed to record usage: {}", e))
+}
+
+/// Get statistics for a specific answer pattern
+///
+/// Shows usage metrics, modification rate, confidence score, and recent modifications.
+#[tauri::command]
+pub async fn get_answer_statistics(
+    pattern: String,
+    state: State<'_, AppState>,
+) -> Result<Option<AnswerStatisticsResponse>, String> {
+    tracing::info!("Command: get_answer_statistics (pattern: {})", pattern);
+
+    let manager = AnswerLearningManager::new(state.database.pool().clone());
+    match manager.get_answer_statistics(&pattern).await {
+        Ok(Some(stats)) => Ok(Some(AnswerStatisticsResponse::from(stats))),
+        Ok(None) => Ok(None),
+        Err(e) => Err(format!("Failed to get statistics: {}", e)),
+    }
+}
+
+/// Clear answer history (optionally for a specific pattern)
+///
+/// Removes usage history and resets statistics.
+/// If `pattern` is None, clears all history.
+#[tauri::command]
+pub async fn clear_answer_history(
+    pattern: Option<String>,
+    state: State<'_, AppState>,
+) -> Result<usize, String> {
+    tracing::info!("Command: clear_answer_history (pattern: {:?})", pattern);
+
+    let manager = AnswerLearningManager::new(state.database.pool().clone());
+    manager
+        .clear_answer_history(pattern.as_deref())
+        .await
+        .map_err(|e| format!("Failed to clear history: {}", e))
+}
+
+// Response types for learning commands
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AnswerSuggestionResponse {
+    pub answer: String,
+    pub confidence: f64,
+    pub source: AnswerSourceResponse,
+    pub times_used: i32,
+    pub times_modified: i32,
+    pub last_used_days_ago: Option<i32>,
+    pub modification_rate: f64,
+}
+
+impl From<AnswerSuggestion> for AnswerSuggestionResponse {
+    fn from(s: AnswerSuggestion) -> Self {
+        Self {
+            answer: s.answer,
+            confidence: s.confidence,
+            source: AnswerSourceResponse::from(s.source),
+            times_used: s.times_used,
+            times_modified: s.times_modified,
+            last_used_days_ago: s.last_used_days_ago,
+            modification_rate: s.modification_rate,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum AnswerSourceResponse {
+    Manual {
+        pattern: String,
+        #[serde(rename = "answerId")]
+        answer_id: i64,
+    },
+    Learned {
+        pattern: String,
+        #[serde(rename = "learnedId")]
+        learned_id: i64,
+    },
+    Historical {
+        #[serde(rename = "originalQuestion")]
+        original_question: String,
+    },
+}
+
+impl From<AnswerSource> for AnswerSourceResponse {
+    fn from(source: AnswerSource) -> Self {
+        match source {
+            AnswerSource::Manual { pattern, answer_id } => Self::Manual { pattern, answer_id },
+            AnswerSource::Learned { pattern, learned_id } => Self::Learned { pattern, learned_id },
+            AnswerSource::Historical { original_question } => {
+                Self::Historical { original_question }
+            }
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AnswerStatisticsResponse {
+    pub pattern: String,
+    pub answer: String,
+    pub times_used: i32,
+    pub times_modified: i32,
+    pub modification_rate: f64,
+    pub confidence_score: f64,
+    pub last_used_at: Option<String>,
+    pub created_at: String,
+    pub recent_modifications: Vec<ModificationExampleResponse>,
+}
+
+impl From<AnswerStatistics> for AnswerStatisticsResponse {
+    fn from(stats: AnswerStatistics) -> Self {
+        Self {
+            pattern: stats.pattern,
+            answer: stats.answer,
+            times_used: stats.times_used,
+            times_modified: stats.times_modified,
+            modification_rate: stats.modification_rate,
+            confidence_score: stats.confidence_score,
+            last_used_at: stats.last_used_at.map(|d| d.to_rfc3339()),
+            created_at: stats.created_at.to_rfc3339(),
+            recent_modifications: stats
+                .recent_modifications
+                .into_iter()
+                .map(ModificationExampleResponse::from)
+                .collect(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ModificationExampleResponse {
+    pub original_answer: String,
+    pub modified_to: String,
+    pub question_text: String,
+    pub modified_at: String,
+}
+
+impl From<crate::core::automation::answer_learning::ModificationExample>
+    for ModificationExampleResponse
+{
+    fn from(ex: crate::core::automation::answer_learning::ModificationExample) -> Self {
+        Self {
+            original_answer: ex.original_answer,
+            modified_to: ex.modified_to,
+            question_text: ex.question_text,
+            modified_at: ex.modified_at.to_rfc3339(),
+        }
+    }
+}

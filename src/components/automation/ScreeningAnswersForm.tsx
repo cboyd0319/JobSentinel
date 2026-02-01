@@ -26,6 +26,11 @@ interface ScreeningAnswer {
   notes: string | null;
   createdAt: string;
   updatedAt: string;
+  // Learning fields (added v2.6.4)
+  timesUsed?: number;
+  timesModified?: number;
+  confidenceScore?: number;
+  lastUsedAt?: string | null;
 }
 
 interface ScreeningAnswersFormProps {
@@ -43,6 +48,21 @@ const COMMON_PATTERNS = [
   { pattern: "degree|education|university", label: "Education level", type: "text" },
   { pattern: "cover.*letter|why.*company|why.*role", label: "Cover letter / Why this role", type: "textarea" },
 ];
+
+// Format relative time (e.g., "2 days ago", "1 week ago")
+function formatRelativeTime(isoDate: string): string {
+  const date = new Date(isoDate);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) return "today";
+  if (diffDays === 1) return "yesterday";
+  if (diffDays < 7) return `${diffDays} days ago`;
+  if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+  if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
+  return `${Math.floor(diffDays / 365)} years ago`;
+}
 
 export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved }: ScreeningAnswersFormProps) {
   const [answers, setAnswers] = useState<ScreeningAnswer[]>([]);
@@ -227,10 +247,33 @@ export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved
                         {a.questionPattern}
                       </code>
                       {getAnswerTypeBadge(a.answerType)}
+                      {/* Confidence badge */}
+                      {a.confidenceScore !== undefined && a.confidenceScore > 0 && (
+                        <Badge variant={
+                          a.confidenceScore >= 0.8 ? "success" :
+                          a.confidenceScore >= 0.5 ? "sentinel" : "surface"
+                        } className="text-xs">
+                          {Math.round(a.confidenceScore * 100)}% confident
+                        </Badge>
+                      )}
                     </div>
                     <p className="text-surface-700 dark:text-surface-300 truncate">
                       {a.answer}
                     </p>
+                    {/* Usage statistics */}
+                    {a.timesUsed !== undefined && a.timesUsed > 0 && (
+                      <div className="flex items-center gap-3 mt-2 text-xs text-surface-500 dark:text-surface-400">
+                        <span>Used {a.timesUsed}×</span>
+                        {a.timesModified !== undefined && a.timesModified > 0 && (
+                          <span className="text-warning">
+                            Modified {a.timesModified}× ({Math.round((a.timesModified / a.timesUsed) * 100)}%)
+                          </span>
+                        )}
+                        {a.lastUsedAt && (
+                          <span>Last used: {formatRelativeTime(a.lastUsedAt)}</span>
+                        )}
+                      </div>
+                    )}
                     {a.notes && (
                       <p className="text-sm text-surface-500 dark:text-surface-400 mt-1">
                         {a.notes}

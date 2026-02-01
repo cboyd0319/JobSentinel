@@ -42,6 +42,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
 
+pub mod answer_learning;
 pub mod ats_detector;
 pub mod browser;
 pub mod error;
