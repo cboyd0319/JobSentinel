@@ -10,6 +10,7 @@ import { HelpIcon } from "../components/HelpIcon";
 import { ScraperHealthDashboard } from "../components/ScraperHealthDashboard";
 import { FeedbackModal } from "../components/feedback";
 import { FeedbackIcon } from "./DashboardIcons";
+import { BookmarkletGenerator } from "../components/BookmarkletGenerator";
 import { useToast } from "../contexts";
 import { logError } from "../utils/errorUtils";
 import { getUserFriendlyError } from "../utils/errorMessages";
@@ -23,6 +24,13 @@ interface GhostConfig {
   penalize_missing_salary: boolean;
   warning_threshold: number;
   hide_threshold: number;
+}
+
+interface LocationInfo {
+  city: string;
+  region: string;
+  country: string;
+  timezone: string;
 }
 
 interface SettingsProps {
@@ -138,6 +146,18 @@ interface Config {
     date_posted_days: number;
     limit: number;
   };
+  simplyhired: {
+    enabled: boolean;
+    query: string;
+    location?: string;
+    limit: number;
+  };
+  glassdoor: {
+    enabled: boolean;
+    query: string;
+    location?: string;
+    limit: number;
+  };
   use_resume_matching: boolean;
 }
 
@@ -242,6 +262,10 @@ export default function Settings({ onClose }: SettingsProps) {
   const [testingEmail, setTestingEmail] = useState(false);
   const [connectingLinkedIn, setConnectingLinkedIn] = useState(false);
   const toast = useToast();
+
+  // Location detection state
+  const [detectedLocation, setDetectedLocation] = useState<LocationInfo | null>(null);
+  const [isDetectingLocation, setIsDetectingLocation] = useState(false);
 
   // Email provider templates for auto-fill
   const emailProviderTemplates = {
@@ -459,10 +483,40 @@ export default function Settings({ onClose }: SettingsProps) {
     }
   }, []);
 
+  // Detect location on mount (once per session)
+  const detectLocationOnce = useCallback(async () => {
+    // Check if we already detected location in this session
+    const cached = sessionStorage.getItem("detected_location");
+    if (cached) {
+      try {
+        setDetectedLocation(JSON.parse(cached));
+        return;
+      } catch {
+        // Invalid cache, continue with detection
+      }
+    }
+
+    setIsDetectingLocation(true);
+    try {
+      const location = await invoke<LocationInfo>("detect_location");
+      if (location) {
+        setDetectedLocation(location);
+        // Cache in sessionStorage to avoid repeated calls
+        sessionStorage.setItem("detected_location", JSON.stringify(location));
+      }
+    } catch (error) {
+      // Silently fail - location detection is optional
+      console.debug("Location detection failed (non-critical):", error);
+    } finally {
+      setIsDetectingLocation(false);
+    }
+  }, []);
+
   useEffect(() => {
     loadConfig();
     loadGhostConfig();
-  }, [loadConfig, loadGhostConfig]);
+    detectLocationOnce();
+  }, [loadConfig, loadGhostConfig, detectLocationOnce]);
 
   const handleSave = useCallback(async () => {
     if (!config) return;
@@ -1026,6 +1080,48 @@ export default function Settings({ onClose }: SettingsProps) {
 
             {(config.location_preferences.allow_hybrid || config.location_preferences.allow_onsite) && (
               <>
+                {/* Detected location indicator */}
+                {detectedLocation && (
+                  <div className="mb-3 p-3 bg-sentinel-50 dark:bg-sentinel-950 border border-sentinel-200 dark:border-sentinel-800 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                        </svg>
+                        <span className="text-sm text-sentinel-700 dark:text-sentinel-300">
+                          Detected: <strong>{detectedLocation.city}, {detectedLocation.region}</strong>
+                        </span>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => {
+                          const locationStr = `${detectedLocation.city}, ${detectedLocation.region}`;
+                          if (!config.location_preferences.cities.includes(locationStr)) {
+                            setConfig({
+                              ...config,
+                              location_preferences: {
+                                ...config.location_preferences,
+                                cities: [...config.location_preferences.cities, locationStr],
+                              },
+                            });
+                            toast.success("Location added", `Added ${locationStr}`);
+                          }
+                        }}
+                        disabled={config.location_preferences.cities.includes(`${detectedLocation.city}, ${detectedLocation.region}`)}
+                      >
+                        {config.location_preferences.cities.includes(`${detectedLocation.city}, ${detectedLocation.region}`) ? "Added" : "Use This"}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+                {isDetectingLocation && (
+                  <div className="mb-3 p-3 bg-surface-50 dark:bg-surface-800 rounded-lg text-sm text-surface-600 dark:text-surface-400">
+                    Detecting your location...
+                  </div>
+                )}
+
                 <div className="flex gap-2 mb-3">
                   <Input
                     placeholder="Add a city..."
@@ -2427,12 +2523,80 @@ export default function Settings({ onClose }: SettingsProps) {
                   </div>
                 </div>
 
+                {/* SimplyHired */}
+                <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">📋</span>
+                      <span className="font-medium text-surface-800 dark:text-surface-200">SimplyHired</span>
+                      <span className="text-xs text-surface-500">(Job aggregator)</span>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={config.simplyhired?.enabled ?? false}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            simplyhired: { ...config.simplyhired, enabled: e.target.checked, query: config.simplyhired?.query ?? "", limit: config.simplyhired?.limit ?? 50 },
+                          })
+                        }
+                        className="sr-only peer"
+                      />
+                      <div className="w-9 h-5 bg-surface-200 peer-focus-visible:ring-2 peer-focus-visible:ring-sentinel-300 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sentinel-500"></div>
+                    </label>
+                  </div>
+                  {config.simplyhired?.enabled && (
+                    <div className="mt-3 text-xs text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-2">
+                      ⚠️ May be blocked by Cloudflare protection
+                    </div>
+                  )}
+                </div>
+
+                {/* Glassdoor */}
+                <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">🔍</span>
+                      <span className="font-medium text-surface-800 dark:text-surface-200">Glassdoor</span>
+                      <span className="text-xs text-surface-500">(Jobs + reviews)</span>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={config.glassdoor?.enabled ?? false}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            glassdoor: { ...config.glassdoor, enabled: e.target.checked, query: config.glassdoor?.query ?? "", limit: config.glassdoor?.limit ?? 50 },
+                          })
+                        }
+                        className="sr-only peer"
+                      />
+                      <div className="w-9 h-5 bg-surface-200 peer-focus-visible:ring-2 peer-focus-visible:ring-sentinel-300 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sentinel-500"></div>
+                    </label>
+                  </div>
+                  {config.glassdoor?.enabled && (
+                    <div className="mt-3 text-xs text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-2">
+                      ⚠️ May be blocked by Cloudflare protection
+                    </div>
+                  )}
+                </div>
 
                 <p className="text-xs text-surface-500 dark:text-surface-400 pt-2">
                   💡 These job boards are searched automatically. Enable the ones relevant to your job search.
                 </p>
               </div>
             </details>
+          </section>
+
+          {/* Browser Integration */}
+          <section className="mb-6">
+            <h3 className="font-medium text-surface-800 dark:text-surface-200 mb-3 flex items-center gap-2">
+              Browser Integration
+              <HelpIcon text="Import jobs from any website by installing a bookmarklet in your browser." />
+            </h3>
+            <BookmarkletGenerator />
           </section>
 
           {/* Ghost Detection Settings */}

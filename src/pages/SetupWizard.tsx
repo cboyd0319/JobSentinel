@@ -13,6 +13,13 @@ interface SetupWizardProps {
   onComplete: () => void;
 }
 
+interface LocationInfo {
+  city: string;
+  region: string;
+  country: string;
+  timezone: string;
+}
+
 
 // Step 0 is profile selection, then simplified flow
 const STEPS = [
@@ -34,6 +41,8 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
   const [stepAnnouncement, setStepAnnouncement] = useState("");
   const [validationAnnouncement, setValidationAnnouncement] = useState("");
   const announcementTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [detectedLocation, setDetectedLocation] = useState<LocationInfo | null>(null);
+  const [isDetectingLocation, setIsDetectingLocation] = useState(false);
   const [config, setConfig] = useState({
     title_allowlist: [] as string[],
     title_blocklist: [] as string[],
@@ -132,6 +141,43 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
 
   const canProceedFromStep1 = config.title_allowlist.length > 0;
   const [slackWebhookError, setSlackWebhookError] = useState<string | undefined>();
+
+  // Detect location on mount (once per session)
+  useEffect(() => {
+    const detectLocationOnce = async () => {
+      // Check if we already detected location in this session
+      const cached = sessionStorage.getItem("detected_location");
+      if (cached) {
+        try {
+          setDetectedLocation(JSON.parse(cached));
+          return;
+        } catch {
+          // Invalid cache, continue with detection
+        }
+      }
+
+      setIsDetectingLocation(true);
+      try {
+        const location = await safeInvoke<LocationInfo>(
+          "detect_location",
+          {},
+          { logContext: "Detect location from IP" }
+        );
+        if (location) {
+          setDetectedLocation(location);
+          // Cache in sessionStorage to avoid repeated calls
+          sessionStorage.setItem("detected_location", JSON.stringify(location));
+        }
+      } catch (error) {
+        // Silently fail - location detection is optional
+        console.debug("Location detection failed (non-critical):", error);
+      } finally {
+        setIsDetectingLocation(false);
+      }
+    };
+
+    detectLocationOnce();
+  }, []);
 
   // Announce step changes for screen readers
   useEffect(() => {
@@ -532,6 +578,45 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
               {/* City input for hybrid/onsite */}
               {(config.location_preferences.allow_hybrid || config.location_preferences.allow_onsite) && (
                 <div className="mb-6">
+                  {/* Detected location indicator */}
+                  {detectedLocation && (
+                    <div className="mb-3 p-3 bg-sentinel-50 border border-sentinel-200 rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <MapPinIcon />
+                          <span className="text-sm text-sentinel-700">
+                            Detected: <strong>{detectedLocation.city}, {detectedLocation.region}</strong>
+                          </span>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => {
+                            const locationStr = `${detectedLocation.city}, ${detectedLocation.region}`;
+                            if (!config.location_preferences.cities.includes(locationStr)) {
+                              setConfig(prev => ({
+                                ...prev,
+                                location_preferences: {
+                                  ...prev.location_preferences,
+                                  cities: [...prev.location_preferences.cities, locationStr],
+                                },
+                              }));
+                              toast.success("Location added", `Added ${locationStr}`);
+                            }
+                          }}
+                          disabled={config.location_preferences.cities.includes(`${detectedLocation.city}, ${detectedLocation.region}`)}
+                        >
+                          {config.location_preferences.cities.includes(`${detectedLocation.city}, ${detectedLocation.region}`) ? "Added" : "Use This"}
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                  {isDetectingLocation && (
+                    <div className="mb-3 p-3 bg-surface-50 rounded-lg text-sm text-surface-600">
+                      Detecting your location...
+                    </div>
+                  )}
+
                   <div className="flex gap-2 mb-3">
                     <Input
                       placeholder="e.g., San Francisco, New York"
