@@ -11,6 +11,7 @@
 
 // Import library modules
 use jobsentinel::commands::{self, AppState, SchedulerStatus};
+use jobsentinel::core::bookmarklet::{BookmarkletConfig, BookmarkletServer};
 use jobsentinel::core::credentials::{migration, CredentialStore};
 use jobsentinel::core::scheduler::Scheduler;
 use jobsentinel::platforms;
@@ -128,6 +129,8 @@ fn main() {
             commands::config::is_first_run,
             commands::config::complete_setup,
             commands::config::test_email_notification,
+            // Geo commands
+            commands::geo::detect_location,
             // ATS commands
             commands::ats::create_application,
             commands::ats::get_applications_kanban,
@@ -144,6 +147,7 @@ fn main() {
             commands::ats::delete_interview,
             // Resume Matcher commands
             commands::resume::upload_resume,
+            commands::resume::import_json_resume,
             commands::resume::get_active_resume,
             commands::resume::set_active_resume,
             commands::resume::get_user_skills,
@@ -254,6 +258,11 @@ fn main() {
             commands::automation::upsert_screening_answer,
             commands::automation::get_screening_answers,
             commands::automation::find_answer_for_question,
+            // Screening answer learning commands (v2.6.4)
+            commands::automation::get_suggested_answers,
+            commands::automation::record_answer_usage,
+            commands::automation::get_answer_statistics,
+            commands::automation::clear_answer_history,
             commands::automation::create_automation_attempt,
             commands::automation::get_automation_attempt,
             commands::automation::approve_automation_attempt,
@@ -296,6 +305,29 @@ fn main() {
             commands::feedback::generate_feedback_report,
             commands::feedback::get_feedback_filename,
             commands::feedback::save_feedback_file,
+            // Import commands (v2.2 - Universal Job Importer)
+            commands::import::preview_job_import,
+            commands::import::import_job_from_url,
+            // Deep link commands (v2.6)
+            commands::deeplinks::generate_deep_links,
+            commands::deeplinks::generate_deep_link,
+            commands::deeplinks::get_supported_sites,
+            commands::deeplinks::get_sites_by_category_cmd,
+            commands::deeplinks::open_deep_link,
+            // Bookmarklet commands (v2.6)
+            commands::bookmarklet::get_bookmarklet_config,
+            commands::bookmarklet::start_bookmarklet_server,
+            commands::bookmarklet::stop_bookmarklet_server,
+            commands::bookmarklet::set_bookmarklet_port,
+            // ML commands (optional - only if embedded-ml feature enabled)
+            #[cfg(feature = "embedded-ml")]
+            commands::ml::download_ml_model,
+            #[cfg(feature = "embedded-ml")]
+            commands::ml::get_ml_status,
+            #[cfg(feature = "embedded-ml")]
+            commands::ml::semantic_match_skills,
+            #[cfg(feature = "embedded-ml")]
+            commands::ml::match_resume_semantic,
         ])
         .setup(|app| {
             // Initialize configuration
@@ -383,12 +415,17 @@ fn main() {
             let scheduler = Scheduler::new(Arc::clone(&config_arc), Arc::clone(&database_arc));
             let scheduler_arc = Arc::new(scheduler);
 
+            // Create bookmarklet server (not started automatically)
+            let bookmarklet_config = BookmarkletConfig::default();
+            let bookmarklet_server = Arc::new(RwLock::new(BookmarkletServer::new(bookmarklet_config)));
+
             // Create AppState with Arc-wrapped shared state
             let app_state = AppState {
                 config: Arc::clone(&config_arc),
                 database: Arc::clone(&database_arc),
                 scheduler: Some(Arc::clone(&scheduler_arc)),
                 scheduler_status: Arc::clone(&scheduler_status),
+                bookmarklet_server: Arc::clone(&bookmarklet_server),
             };
 
             // Register AppState with Tauri

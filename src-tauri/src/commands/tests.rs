@@ -59,11 +59,17 @@ mod tests {
             .expect("Failed to create test database");
         database.migrate().await.expect("Failed to run migrations");
 
+        use crate::core::bookmarklet::{BookmarkletConfig, BookmarkletServer};
+
+        let bookmarklet_config = BookmarkletConfig { port: 9528 };
+        let bookmarklet_server = BookmarkletServer::new(bookmarklet_config);
+
         AppState {
             config: Arc::new(config),
             database: Arc::new(database),
             scheduler: None,
             scheduler_status: Arc::new(RwLock::new(SchedulerStatus::default())),
+            bookmarklet_server: Arc::new(RwLock::new(bookmarklet_server)),
         }
     }
 

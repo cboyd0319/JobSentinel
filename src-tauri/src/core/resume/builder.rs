@@ -65,7 +65,7 @@ pub struct SkillEntry {
 }
 
 /// Skill category enumeration
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SkillCategory {
     ProgrammingLanguage,
     Framework,
@@ -77,7 +77,7 @@ pub enum SkillCategory {
 }
 
 /// Proficiency level enumeration
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Proficiency {
     Beginner,
     Intermediate,

@@ -49,8 +49,8 @@ impl Sanitizer {
     ///
     /// # Examples
     ///
-    /// ```
-    /// use crate::commands::feedback::sanitizer::Sanitizer;
+    /// ```rust,ignore
+    /// use jobsentinel::commands::feedback::sanitizer::Sanitizer;
     ///
     /// let dirty = "Error reading /Users/johnsmith/Documents/jobs.db";
     /// let clean = Sanitizer::sanitize(dirty);

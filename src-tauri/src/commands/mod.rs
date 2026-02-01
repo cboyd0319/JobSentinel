@@ -7,18 +7,22 @@ use chrono::{DateTime, Utc};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
-use crate::core::{config::Config, db::Database, scheduler::Scheduler};
+use crate::core::{bookmarklet::BookmarkletServer, config::Config, db::Database, scheduler::Scheduler};
 
 // Module declarations (public for Tauri macro access)
 pub mod ats;
 pub mod automation;
+pub mod bookmarklet;
 pub mod cache;
 pub mod config;
 pub mod credentials;
+pub mod deeplinks;
 pub mod errors;
 pub mod feedback;
+pub mod geo;
 pub mod ghost;
 pub mod health;
+pub mod import;
 pub mod jobs;
 pub mod linkedin_auth;
 pub mod market;
@@ -26,6 +30,10 @@ pub mod resume;
 pub mod salary;
 pub mod scoring;
 pub mod user_data;
+
+// Optional ML commands
+#[cfg(feature = "embedded-ml")]
+pub mod ml;
 
 #[cfg(test)]
 mod tests;
@@ -44,6 +52,7 @@ pub struct AppState {
     pub database: Arc<Database>,
     pub scheduler: Option<Arc<Scheduler>>,
     pub scheduler_status: Arc<RwLock<SchedulerStatus>>,
+    pub bookmarklet_server: Arc<RwLock<BookmarkletServer>>,
 }
 
 // ============================================================================
@@ -93,6 +102,8 @@ pub use resume::{
     get_recent_matches,
     get_resume_draft,
     get_user_skills,
+    // Import commands
+    import_json_resume,
     improve_bullet_point,
     list_all_resumes,
     // Template commands
@@ -146,6 +157,9 @@ pub use user_data::{
 // Config commands
 pub use config::{complete_setup, get_config, is_first_run, save_config, validate_slack_webhook};
 
+// Geo commands
+pub use geo::detect_location;
+
 // Credential commands
 pub use credentials::{
     delete_credential, get_credential_status, has_credential, retrieve_credential, store_credential,
@@ -197,3 +211,22 @@ pub use feedback::{
     get_debug_log_formatted, get_feedback_filename, get_system_info, open_github_issues,
     open_google_drive, reveal_file, save_feedback_file,
 };
+
+// Import commands
+pub use import::{import_job_from_url, preview_job_import};
+
+// Deep link commands
+pub use deeplinks::{
+    generate_deep_link, generate_deep_links, get_sites_by_category_cmd, get_supported_sites,
+    open_deep_link,
+};
+
+// Bookmarklet commands
+pub use bookmarklet::{
+    get_bookmarklet_config, set_bookmarklet_port, start_bookmarklet_server,
+    stop_bookmarklet_server,
+};
+
+// ML commands (optional)
+#[cfg(feature = "embedded-ml")]
+pub use ml::{download_ml_model, get_ml_status, match_resume_semantic, semantic_match_skills};

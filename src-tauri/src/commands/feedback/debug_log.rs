@@ -150,8 +150,8 @@ static DEBUG_LOG: Lazy<RwLock<DebugLogBuffer>> =
 ///
 /// # Examples
 ///
-/// ```
-/// use crate::commands::feedback::debug_log::{log_event, DebugEvent};
+/// ```rust,ignore
+/// use jobsentinel::commands::feedback::debug_log::{log_event, DebugEvent};
 ///
 /// log_event(DebugEvent::AppStarted {
 ///     version: env!("CARGO_PKG_VERSION").to_string()

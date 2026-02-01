@@ -218,6 +218,15 @@ impl Database {
         Ok(job)
     }
 
+    /// Check if a job exists by hash (faster than get_job_by_hash for existence checks)
+    pub async fn job_exists_by_hash(&self, hash: &str) -> Result<bool, sqlx::Error> {
+        let exists: Option<i64> = sqlx::query_scalar("SELECT 1 FROM jobs WHERE hash = ? LIMIT 1")
+            .bind(hash)
+            .fetch_optional(self.pool())
+            .await?;
+        Ok(exists.is_some())
+    }
+
     /// Mark job as having sent immediate alert
     pub async fn mark_alert_sent(&self, job_id: i64) -> Result<(), sqlx::Error> {
         sqlx::query("UPDATE jobs SET immediate_alert_sent = 1 WHERE id = ?")

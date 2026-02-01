@@ -22,6 +22,7 @@ use tauri_plugin_shell::ShellExt;
 
 /// Open GitHub Issues page for bug reports
 #[tauri::command]
+#[allow(deprecated)]
 pub async fn open_github_issues(
     app: AppHandle,
     template: Option<String>,
@@ -48,6 +49,7 @@ pub async fn open_github_issues(
 
 /// Open Google Drive feedback folder
 #[tauri::command]
+#[allow(deprecated)]
 pub async fn open_google_drive(app: AppHandle) -> Result<(), String> {
     let url = "https://drive.google.com/drive/folders/1cbhxt_8mVf4fbi-eD3XPd2UGUSBmhLfo";
 
