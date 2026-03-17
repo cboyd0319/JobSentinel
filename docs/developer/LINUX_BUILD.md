@@ -18,7 +18,7 @@ Install the required development libraries:
 ```bash
 sudo apt-get update
 sudo apt-get install -y \
-  libwebkit2gtk-4.0-dev \
+  libwebkit2gtk-4.1-dev \
   libgtk-3-dev \
   libappindicator3-dev \
   librsvg2-dev \
@@ -45,20 +45,15 @@ cargo fetch --target x86_64-unknown-linux-gnu
 cd ..
 ```
 
-### 2. Build Frontend
+### 2. Build Tauri App
+
+The Tauri CLI builds both the frontend and the Rust backend:
 
 ```bash
-npm run build
+npx tauri build --target x86_64-unknown-linux-gnu
 ```
 
-### 3. Build Tauri App
-
-```bash
-cd src-tauri
-cargo tauri build --target x86_64-unknown-linux-gnu
-```
-
-### 4. Locate Build Artifacts
+### 3. Locate Build Artifacts
 
 Build outputs are located at:
 
@@ -97,17 +92,17 @@ Releases include:
 
 **Supported Distributions:**
 
-- Ubuntu 20.04+
-- Debian 11+
-- Fedora 34+
+- Ubuntu 22.04+
+- Debian 12+
+- Fedora 38+
 - Arch Linux (current)
-- Pop!_OS 20.04+
-- Linux Mint 20+
+- Pop!_OS 22.04+
+- Linux Mint 21+
 
 **Runtime Requirements:**
 
-- glibc 2.31+ (Ubuntu 20.04 baseline)
-- `libwebkit2gtk-4.0-37`
+- glibc 2.35+ (Ubuntu 22.04 baseline)
+- `libwebkit2gtk-4.1-0`
 - `libgtk-3-0`
 - `libappindicator3-1`
 
@@ -115,10 +110,10 @@ Releases include:
 
 **Supported Distributions:**
 
-- Ubuntu 20.04+
-- Debian 11+
-- Pop!_OS 20.04+
-- Linux Mint 20+
+- Ubuntu 22.04+
+- Debian 12+
+- Pop!_OS 22.04+
+- Linux Mint 21+
 
 **Dependency Declaration:**
 
@@ -128,7 +123,7 @@ The `.deb` package declares runtime dependencies in `tauri.conf.json`:
 "linux": {
   "deb": {
     "depends": [
-      "libwebkit2gtk-4.0-37",
+      "libwebkit2gtk-4.1-0",
       "libgtk-3-0",
       "libappindicator3-1"
     ]
@@ -166,7 +161,7 @@ If you see errors about missing libraries:
 ```bash
 # Install runtime dependencies
 sudo apt-get install -y \
-  libwebkit2gtk-4.0-37 \
+  libwebkit2gtk-4.1-0 \
   libgtk-3-0 \
   libappindicator3-1
 ```
@@ -189,25 +184,24 @@ chmod +x JobSentinel-Linux-*.AppImage
 
 ### Build Fails on Non-Ubuntu Systems
 
-JobSentinel is built on **Ubuntu 20.04** for glibc compatibility.
+JobSentinel CI builds on **Ubuntu 22.04+** for glibc compatibility.
 
 If building on a newer system, the binary may not run on older distributions.
 
-**Solution:** Use Docker or build in an Ubuntu 20.04 container:
+**Solution:** Use Docker or build in an Ubuntu 22.04 container:
 
 ```bash
 docker run -it --rm \
   -v $(pwd):/workspace \
   -w /workspace \
-  ubuntu:20.04 \
+  ubuntu:22.04 \
   bash -c "apt-get update && \
-    apt-get install -y curl build-essential libwebkit2gtk-4.0-dev libgtk-3-dev libappindicator3-dev librsvg2-dev patchelf && \
+    apt-get install -y curl build-essential libwebkit2gtk-4.1-dev libgtk-3-dev libappindicator3-dev librsvg2-dev patchelf && \
     curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && \
     source ~/.cargo/env && \
-    npm ci && npm run build && \
-    cd src-tauri && cargo tauri build --target x86_64-unknown-linux-gnu"
+    npm ci && npx tauri build --target x86_64-unknown-linux-gnu"
 ```
 
 ## Signing and Auto-Updates
@@ -223,11 +217,11 @@ For auto-update support, releases must be signed with Tauri's signing keys.
 3. Add private key to GitHub Secrets
 4. Update workflow to sign releases
 
-See [Tauri Signing Documentation](https://tauri.app/v1/guides/distribution/sign-your-app/) for details.
+See [Tauri Signing Documentation](https://tauri.app/distribute/sign/) for details.
 
 ## Notes
 
-- **Ubuntu 20.04 baseline** ensures glibc 2.31 compatibility across distributions
+- **Ubuntu 22.04 baseline** ensures glibc 2.35 compatibility across distributions
 - AppImage is **recommended** for maximum compatibility
 - `.deb` is provided for users who prefer package managers
 - **No RPM packages yet** - contributions welcome for Fedora/RHEL support
