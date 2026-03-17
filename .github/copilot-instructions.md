@@ -5,13 +5,13 @@
 **JobSentinel** is a privacy-first job search automation desktop app built with Tauri 2.x (Rust backend) and
 React 19 (TypeScript frontend).
 
-| Fact | Value |
-|------|-------|
-| Version | 2.6.3 |
-| Tests | 4,286+ passing (2,129 frontend + 2,157 Rust) |
-| Frontend | React 19, TypeScript, Vite, Tailwind CSS |
-| Backend | Rust 2021, Tauri 2.x, Tokio async |
-| Database | SQLite (sqlx, offline mode) |
+| Fact     | Value                                        |
+| -------- | -------------------------------------------- |
+| Version  | 2.6.3                                        |
+| Tests    | 4,833+ passing (2,403 frontend + 2,430 Rust) |
+| Frontend | React 19, TypeScript, Vite, Tailwind CSS     |
+| Backend  | Rust 2021, Tauri 2.x, Tokio async            |
+| Database | SQLite (sqlx, offline mode)                  |
 
 ## Project Structure
 
@@ -93,20 +93,20 @@ pub async fn get_jobs(state: State<'_, AppState>) -> Result<Vec<Job>, String> {
 
 ```typescript
 // Frontend - use invoke with type parameters
-import { invoke } from '@tauri-apps/api/core';
-const jobs = await invoke<Job[]>('get_jobs');
+import { invoke } from "@tauri-apps/api/core";
+const jobs = await invoke<Job[]>("get_jobs");
 ```
 
 ## Key Files
 
-| File | Purpose |
-|------|---------|
-| `src-tauri/src/lib.rs` | Command registration |
+| File                      | Purpose                |
+| ------------------------- | ---------------------- |
+| `src-tauri/src/lib.rs`    | Command registration   |
 | `src-tauri/src/commands/` | All Tauri IPC handlers |
-| `src-tauri/src/scrapers/` | Job board scrapers |
-| `src/components/` | React components |
-| `src/hooks/` | Custom React hooks |
-| `src/services/` | Business logic |
+| `src-tauri/src/scrapers/` | Job board scrapers     |
+| `src/components/`         | React components       |
+| `src/hooks/`              | Custom React hooks     |
+| `src/services/`           | Business logic         |
 
 ## Scrapers (13 job boards)
 
