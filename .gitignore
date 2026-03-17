@@ -76,3 +76,5 @@ tests/e2e/fixtures/*.txt
 *_ROADMAP.md
 *_GUIDE.md
 *_CHECKLIST.md
+*_IMPLEMENTATION.md
+*_PLAN.md

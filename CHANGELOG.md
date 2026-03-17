@@ -28,6 +28,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - 8 new Tauri commands: `open_github_issues`, `open_google_drive`, `reveal_file`, `get_system_info`, `get_config_summary`, `generate_feedback_report`, `get_debug_log_formatted`, `clear_debug_log`
 - **GitHub Issue Templates** - Structured forms for bug reports, feature requests, questions
 
+## [2.6.4] - 2026-03-17
+
+### Fixed
+
+- **Settings infinite loading on Windows** - Settings page no longer spins forever when Windows
+  Credential Manager is restricted (domain policy, locked vault, etc.); now shows a Retry button
+  with a clear error message instead of an unresponsive spinner
+- **Job search returning 0 results** - Fixed null score handling bug: `Option<f64>` fields
+  serialized without a value were coerced to `NaN` in TypeScript, silently filtering out all
+  unscored jobs from search results and sort comparators
+- **HTML whitespace normalization in schema.org import** - `strip_html_tags` was joining text
+  nodes with a space separator while nodes already contained trailing whitespace, producing double
+  spaces in parsed job descriptions
+
+### Security
+
+- Updated `dompurify` 3.3.1 → 3.3.2 (XSS vulnerability patch)
+- Updated `storybook` and all `@storybook/*` packages 10.1.x → 10.2.10
+- Updated `quinn-proto` 0.11.13 → 0.11.14 (QUIC protocol security fix)
+- Updated `time` crate 0.3.45 → 0.3.47
+- Updated `bytes`, `flatted`, `minimatch`, `rollup` (transitive dependency fixes)
+- Total: 9 Dependabot vulnerabilities resolved (6 high, 3 moderate)
+
 ## [2.6.3] - 2026-01-25
 
 ### Added
@@ -235,7 +258,7 @@ Major code quality improvements including React optimizations, Rust performance 
   - Resume types, salary types, market intelligence types
 
 - **20 #[inline] hints** - Added to hot-path functions for compiler optimization
-  - Scraper utility functions: normalize_*, format_*, detect_*
+  - Scraper utility functions: normalize*\*, format*_, detect\__
   - Database query builders and utility functions
 
 - **4 Cow<str> optimizations** - Zero-copy string handling in hot paths
@@ -550,11 +573,11 @@ One-click SMTP configuration for popular email providers:
 
 No more tweaking 6 different sliders - just pick a mode:
 
-| Preset | Stale | Repost | Description |
-|--------|-------|--------|-------------|
-| 🟢 Lenient | 120 days | 5× | Shows most jobs, rarely flags anything |
-| 🟡 Balanced | 60 days | 3× | Good default, flags obviously stale jobs |
-| 🔴 Strict | 30 days | 2× | Aggressively filters old/reposted jobs |
+| Preset      | Stale    | Repost | Description                              |
+| ----------- | -------- | ------ | ---------------------------------------- |
+| 🟢 Lenient  | 120 days | 5×     | Shows most jobs, rarely flags anything   |
+| 🟡 Balanced | 60 days  | 3×     | Good default, flags obviously stale jobs |
+| 🔴 Strict   | 30 days  | 2×     | Aggressively filters old/reposted jobs   |
 
 #### Security Trust Indicators
 
@@ -589,11 +612,11 @@ Step-by-step flow for federal job seekers:
 
 Full automatic cookie extraction now works on all platforms:
 
-| Platform | Method |
-|----------|--------|
-| macOS | WKHTTPCookieStore (objc2) |
-| Windows | WebView2 via Tauri's cookies_for_url() |
-| Linux | WebKitGTK via Tauri's cookies_for_url() |
+| Platform | Method                                  |
+| -------- | --------------------------------------- |
+| macOS    | WKHTTPCookieStore (objc2)               |
+| Windows  | WebView2 via Tauri's cookies_for_url()  |
+| Linux    | WebKitGTK via Tauri's cookies_for_url() |
 
 No more manual cookie copying on any platform!
 
@@ -1233,7 +1256,7 @@ Complete Settings UI with user-configurable scoring weights and intelligent job 
 #### Deduplication Improvements
 
 - **URL Normalization** - Strips 20+ tracking parameters before hashing
-  - Removes: utm_*, ref, fbclid, gclid, source, campaign, session, etc.
+  - Removes: utm\_\*, ref, fbclid, gclid, source, campaign, session, etc.
   - Preserves: id, job_id, posting, gh_jid, lever_id, position, etc.
   - Benefit: same job shared via different sources now deduplicated
 - **Location Normalization** - Consistent location matching
@@ -1573,10 +1596,10 @@ Complete Settings UI with user-configurable scoring weights and intelligent job 
 
 - Improved loading states with skeleton components
 - Better accessibility with skip-to-content links
-
   - **Resume** - AI resume matcher with PDF upload and skill extraction
   - **Salary** - Salary benchmarks, predictions, and negotiation script generation
   - **Market** - Market intelligence with skill trends, company activity, location heat maps
+
 - **Email notifications UI** in Settings - full SMTP configuration with toggle switch
 - **GitHub Actions CI/CD** - multi-platform build/test workflow (`.github/workflows/ci.yml`)
 - **Dialog plugin** for file picker (tauri-plugin-dialog) - enables resume PDF upload
