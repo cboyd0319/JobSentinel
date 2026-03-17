@@ -109,7 +109,7 @@ const jobs = await invoke<Job[]>("get_jobs");
 
 ## Scrapers (13 job boards)
 
-Indeed, LinkedIn, Glassdoor, Dice, SimplyHired, USAJobs,
+LinkedIn, Glassdoor, Dice, SimplyHired, USAJobs,
 We Work Remotely, Remote OK, BuiltIn, Greenhouse, Lever, HN Who's Hiring, JobsWithGPT, YC Startup Jobs
 
 ### Adding a New Scraper
