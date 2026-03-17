@@ -183,32 +183,48 @@ Power users can navigate entirely by keyboard:
 
 ### Step 1: Download
 
-**Download from [GitHub Releases](https://github.com/cboyd0319/JobSentinel/releases):**
+**Download the latest installers from [GitHub Releases](https://github.com/cboyd0319/JobSentinel/releases).**
 
-| Platform                          | Download                                                                                                                             |
-| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| **Windows**                       | [JobSentinel_2.6.3_x64_en-US.msi](https://github.com/cboyd0319/JobSentinel/releases/download/v2.6.3/JobSentinel_2.6.3_x64_en-US.msi) |
-| **macOS** (Intel & Apple Silicon) | [JobSentinel_2.6.3_universal.dmg](https://github.com/cboyd0319/JobSentinel/releases/download/v2.6.3/JobSentinel_2.6.3_universal.dmg) |
+| Platform                          | Format |
+| --------------------------------- | ------ |
+| **Windows**                       | `.msi` installer |
+| **macOS** (Intel & Apple Silicon) | `.dmg` universal binary |
+
+> If no release is available yet, build from source using the instructions below.
 
 <details>
-<summary><strong>Or build from source</strong></summary>
+<summary><strong>Build from source</strong></summary>
 <br>
 
+**Prerequisites:**
+
+- [Rust](https://rustup.rs) (latest stable)
+- [Node.js](https://nodejs.org) 20+
+
+<details>
+<summary>Linux system dependencies</summary>
+
 ```bash
-# 1. Install Rust (if you don't have it)
-# Visit: https://rustup.rs and follow the instructions
+# Debian/Ubuntu
+sudo apt update
+sudo apt install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf \
+  build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev
+```
 
-# 2. Install Node.js 20+ (if you don't have it)
-# Visit: https://nodejs.org
+</details>
 
-# 3. Download and build JobSentinel
+```bash
+# Clone and build
 git clone https://github.com/cboyd0319/JobSentinel
 cd JobSentinel
 npm install
 npm run tauri:build
 
-# 4. Find your installer in src-tauri/target/release/bundle/
+# Find your installer in src-tauri/target/release/bundle/
 ```
+
+> **Note:** The SQLite database is created automatically on first launch.
+> No manual database setup is required — migrations run at startup.
 
 </details>
 
