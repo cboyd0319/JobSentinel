@@ -1,0 +1,97 @@
+name: Scraper Issue
+description: Report a broken or misbehaving job board scraper
+title: "[Scraper]: "
+labels: ["scraper", "bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a scraper issue!
+
+        **Important:** Please don't include any personal information like specific
+        job titles, company names, or location details from your search.
+
+  - type: dropdown
+    id: scraper
+    attributes:
+      label: Affected Scraper
+      description: Which job board scraper is affected?
+      options:
+        - BuiltIn
+        - Dice
+        - Glassdoor
+        - Greenhouse
+        - HN Who's Hiring
+        - JobsWithGPT
+        - Lever
+        - LinkedIn
+        - Remote OK
+        - SimplyHired
+        - USAJobs
+        - We Work Remotely
+        - YC Startup Jobs
+    validations:
+      required: true
+
+  - type: dropdown
+    id: issue-type
+    attributes:
+      label: Issue Type
+      description: What kind of problem are you seeing?
+      options:
+        - Scraper returns no jobs
+        - Scraper returns incomplete data
+        - Scraper crashes/errors
+        - Jobs are being incorrectly parsed
+        - Duplicate jobs being created
+        - Rate limiting or blocking issues
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A clear description of what's wrong
+      placeholder: "When scraping X, I expected Y but got Z instead"
+    validations:
+      required: true
+
+  - type: textarea
+    id: example-url
+    attributes:
+      label: Example Job URL
+      description: If applicable, provide a URL to a job posting that demonstrates the issue (make sure it doesn't contain personal info)
+      placeholder: "https://example.com/jobs/..."
+
+  - type: textarea
+    id: health-dashboard
+    attributes:
+      label: Scraper Health Dashboard Output
+      description: If available, paste the output from the Scraper Health Dashboard
+      render: shell
+
+  - type: textarea
+    id: debug-info
+    attributes:
+      label: Debug Information
+      description: Paste the ANONYMIZED debug info from JobSentinel (Help → Send Feedback → Copy Debug Info)
+      render: shell
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      options:
+        - Windows 11
+        - Windows 10
+        - macOS 26 (Tahoe)
+        - macOS 15 (Sequoia)
+        - macOS 14 (Sonoma)
+        - Linux (Ubuntu)
+        - Linux (Fedora)
+        - Linux (Arch)
+        - Linux (Other)
+    validations:
+      required: true

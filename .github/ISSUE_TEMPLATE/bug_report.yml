@@ -52,9 +52,12 @@ body:
       options:
         - Windows 11
         - Windows 10
+        - macOS 26 (Tahoe)
         - macOS 15 (Sequoia)
         - macOS 14 (Sonoma)
-        - macOS 13 (Ventura)
-        - Linux
+        - Linux (Ubuntu)
+        - Linux (Fedora)
+        - Linux (Arch)
+        - Linux (Other)
     validations:
       required: true
