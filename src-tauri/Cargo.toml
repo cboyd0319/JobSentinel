@@ -96,7 +96,7 @@ docx-rs = "0.4"
 # This avoids complex native library linking while still providing OCR support
 
 # Browser automation for form filling (One-Click Apply)
-chromiumoxide = { version = "0.7", default-features = false, features = ["tokio-runtime"] }
+chromiumoxide = { version = "0.8", default-features = false, features = ["tokio-runtime"] }
 futures-util = "0.3"
 
 # Embedded ML (optional) - Candle framework for on-device inference
