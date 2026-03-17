@@ -384,8 +384,8 @@ No command line or technical knowledge required.
 
 ### By the Numbers
 
-- **180 Tauri commands** powering all features
-- **4,833+ tests passing** (2,403 frontend + 2,430 Rust)
+- **169 Tauri commands** powering all features
+- **4,770+ tests passing** (2,413 frontend + 2,357 Rust)
 - **0 security vulnerabilities** (cargo-audit verified)
 - **~8MB** installed size
 - **<50MB RAM** typical usage

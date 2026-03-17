@@ -8,10 +8,6 @@ function ApplicationStatusTest() {
   const { pushAction, undo, redo, canUndo, canRedo } = useUndo();
 
   const simulateStatusChange = () => {
-    const previousStatus = "applied";
-    const newStatus = "phone_screen";
-    const appId = 123;
-
     pushAction({
       type: "status",
       description: `Moved Software Engineer to Phone Screen`,

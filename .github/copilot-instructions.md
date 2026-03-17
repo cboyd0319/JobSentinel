@@ -8,7 +8,7 @@ React 19 (TypeScript frontend).
 | Fact     | Value                                        |
 | -------- | -------------------------------------------- |
 | Version  | 2.6.3                                        |
-| Tests    | 4,833+ passing (2,403 frontend + 2,430 Rust) |
+| Tests    | 4,770+ passing (2,413 frontend + 2,357 Rust) |
 | Frontend | React 19, TypeScript, Vite, Tailwind CSS     |
 | Backend  | Rust 2021, Tauri 2.x, Tokio async            |
 | Database | SQLite (sqlx, offline mode)                  |
@@ -28,8 +28,7 @@ JobSentinel/
 ├── src-tauri/             # Rust backend
 │   ├── src/
 │   │   ├── commands/      # Tauri IPC handlers
-│   │   ├── scrapers/      # Job board scrapers (13)
-│   │   ├── db/            # Database layer
+│   │   ├── core/          # Core modules (scrapers, db, etc.)
 │   │   └── lib.rs         # App setup
 │   └── Cargo.toml
 ├── tests/                 # Frontend tests
@@ -103,21 +102,21 @@ const jobs = await invoke<Job[]>("get_jobs");
 | ------------------------- | ---------------------- |
 | `src-tauri/src/lib.rs`    | Command registration   |
 | `src-tauri/src/commands/` | All Tauri IPC handlers |
-| `src-tauri/src/scrapers/` | Job board scrapers     |
+| `src-tauri/src/core/scrapers/` | Job board scrapers     |
 | `src/components/`         | React components       |
 | `src/hooks/`              | Custom React hooks     |
 | `src/services/`           | Business logic         |
 
 ## Scrapers (13 job boards)
 
-Indeed, LinkedIn, Glassdoor, ZipRecruiter, Dice, Monster, CareerBuilder, SimplyHired, USAJobs, FlexJobs,
-We Work Remotely, Remote OK, Wellfound
+LinkedIn, Glassdoor, Dice, SimplyHired, USAJobs,
+We Work Remotely, Remote OK, BuiltIn, Greenhouse, Lever, HN Who's Hiring, JobsWithGPT, YC Startup Jobs
 
 ### Adding a New Scraper
 
-1. Create `src-tauri/src/scrapers/newboard.rs`
+1. Create `src-tauri/src/core/scrapers/newboard.rs`
 2. Implement `Scraper` trait
-3. Register in `src-tauri/src/scrapers/mod.rs`
+3. Register in `src-tauri/src/core/scrapers/mod.rs`
 4. Add to scraper factory
 
 ## Database Changes

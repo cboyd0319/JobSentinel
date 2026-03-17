@@ -19,7 +19,7 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.7: ML predictions, Linux suppo
 
 ## Current Status (January 2026)
 
-**Version: 2.6.3** | 4,449+ tests passing | Security + Stability Sprint
+**Version: 2.6.3** | 4,770+ tests passing | Security + Stability Sprint
 
 ### What's New in v2.6.3 🔒
 
@@ -162,7 +162,7 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.7: ML predictions, Linux suppo
 |-----------------|
 | ![One-Click Apply](images/one-click-apply.png) |
 
-### Backend Modules (151 Tauri Commands)
+### Backend Modules (169 Tauri Commands)
 
 - **Core**: config, db, scoring, scheduler, scrapers (13 with parallel scraping), notify, ghost
 - **ATS**: 10 commands (Kanban, reminders, ghosting detection, interviews)
@@ -308,25 +308,4 @@ tests/                     # All tests
 
 ---
 
-### Release Notes
-
-- **[v2.6.3 - Security & Stability](releases/v2.6.3.md)** - Security fixes, memory leaks, standardized errors
-- **[v2.6.0 - UX Improvements](releases/v2.6.0.md)** - Error recovery, loading states, accessibility, performance
-- **[v2.5.3 - LinkedIn Auto-Connect](releases/v2.5.3.md)** - Zero-copy LinkedIn authentication
-- **[v2.5.2 - Bug Fixes](releases/v2.5.2.md)** - Onboarding and settings fixes
-- **[v2.5.1 - Production Release](releases/v2.5.1.md)** - Official installers for Windows and macOS
-- **[v2.5 - Market Intelligence UI](releases/v2.5.md)** - Interactive charts, tabbed layout, heatmaps
-- **[v2.4 - Resume UI Enhancements](releases/v2.4.md)** - Skill visualization, comparison views
-- **[v2.3 - Health Monitoring](releases/v2.3.md)** - Scraper health, smoke tests
-- **[v2.2 - Additional Features](releases/v2.2.md)** - Bug fixes and improvements
-- **[v2.1 - CI/CD](releases/v2.1.md)** - Build pipeline, testing improvements
-- **[v2.0 - Security Hardening](releases/v2.0.md)** - OS-native keyring integration
-- **[v1.6 - Additional Refactoring](releases/v1.6.md)** - Commands, scrapers, salary, resume modularization
-- **[v1.5 - Modularization](releases/v1.5.md)** - File refactoring and code organization
-- **[v1.4 - Ghost Hunter](releases/v1.4.md)** - Ghost job detection
-- **[v1.3 - Power User](releases/v1.3.md)** - Keyboard shortcuts, advanced search
-- **[v1.2 - Notifications](releases/v1.2.md)** - Multi-channel notifications
-
----
-
-**Last Updated:** 2026-01-25
+**Last Updated:** 2026-03-17

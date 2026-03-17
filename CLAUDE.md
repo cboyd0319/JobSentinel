@@ -5,9 +5,9 @@
 **JobSentinel** is a privacy-first job search automation desktop app built with
 Tauri 2.x (Rust backend) and React 19 (TypeScript frontend).
 
-**Current Version:** 2.6.3 (March 2026)
+**Current Version:** 2.6.3 (January 2026)
 **Primary Target:** Windows 11+, macOS
-**Tests:** 4,833+ passing (2,403 frontend + 2,430 Rust)
+**Tests:** 4,770+ passing (2,413 frontend + 2,357 Rust)
 
 ## Tech Stack
 
@@ -32,8 +32,7 @@ JobSentinel/
 ├── src-tauri/             # Rust backend
 │   ├── src/
 │   │   ├── commands/      # Tauri IPC handlers
-│   │   ├── scrapers/      # Job board scrapers (13)
-│   │   ├── db/            # Database layer
+│   │   ├── core/          # Core modules (scrapers, db, etc.)
 │   │   └── lib.rs         # App setup
 │   └── Cargo.toml
 ├── tests/                 # Frontend tests
@@ -89,7 +88,7 @@ npm run test:e2e:ui      # Interactive mode
 
 - `src-tauri/src/lib.rs` - Command registration
 - `src-tauri/src/commands/` - All Tauri commands
-- `src-tauri/src/scrapers/` - Job board scrapers
+- `src-tauri/src/core/scrapers/` - Job board scrapers
 - `src/components/` - React components
 - `src/components/ErrorBoundary.tsx` - Global error boundary with retry
 - `src/components/ComponentErrorBoundary.tsx` - Component-level error isolation
@@ -105,32 +104,33 @@ npm run test:e2e:ui      # Interactive mode
 
 | Scraper        | Board                |
 | -------------- | -------------------- |
-| indeed         | Indeed               |
-| LinkedIn       | LinkedIn             |
-| glassdoor      | Glassdoor            |
-| ziprecruiter   | ZipRecruiter         |
+| builtin        | BuiltIn              |
 | dice           | Dice (tech)          |
-| monster        | Monster              |
-| careerbuilder  | CareerBuilder        |
+| glassdoor      | Glassdoor            |
+| greenhouse     | Greenhouse           |
+| hn_hiring      | HN Who's Hiring      |
+| jobswithgpt    | JobsWithGPT          |
+| lever          | Lever                |
+| LinkedIn       | LinkedIn             |
+| remoteok       | Remote OK            |
 | simplyhired    | SimplyHired          |
 | usajobs        | USAJobs (gov)        |
-| flexjobs       | FlexJobs (remote)    |
 | weworkremotely | We Work Remotely     |
-| remoteok       | Remote OK            |
-| wellfound      | Wellfound (startups) |
+| yc_startup     | YC Startup Jobs      |
 
-## Tauri Commands (180 total)
+## Tauri Commands (169 total)
 
-- **Feedback:** 8 commands (GitHub issues, Google Drive, report generation, debug log)
-- **Jobs, Scrapers, Database, Settings:** 172 other commands
+- **19 command handler modules** across ats, automation, bookmarklet, cache,
+  config, credentials, deeplinks, geo, ghost, health, import, jobs,
+  LinkedIn_auth, market, ml, resume, salary, scoring, user_data
 
 ## Common Tasks
 
 ### Adding a new scraper
 
-1. Create `src-tauri/src/scrapers/newboard.rs`
+1. Create `src-tauri/src/core/scrapers/newboard.rs`
 2. Implement `Scraper` trait
-3. Register in `src-tauri/src/scrapers/mod.rs`
+3. Register in `src-tauri/src/core/scrapers/mod.rs`
 4. Add to scraper factory
 
 ### Adding a Tauri command
