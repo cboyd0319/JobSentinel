@@ -44,7 +44,7 @@ reqwest = { version = "0.12", features = ["json", "rustls-tls"] }
 url = "2.5"
 
 # HTML Parsing
-scraper = "0.21"
+scraper = "0.25"
 
 # URL encoding for query parameters
 urlencoding = "2.1"
