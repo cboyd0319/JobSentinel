@@ -138,7 +138,11 @@ impl AnswerLearningManager {
         suggestions.extend(historical);
 
         // Sort by confidence descending
-        suggestions.sort_by(|a, b| b.confidence.partial_cmp(&a.confidence).unwrap());
+        suggestions.sort_by(|a, b| {
+            b.confidence
+                .partial_cmp(&a.confidence)
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
 
         // Deduplicate by answer text (keep highest confidence)
         let mut seen = HashMap::new();
