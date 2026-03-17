@@ -52,7 +52,7 @@ body:
       options:
         - Windows 11
         - Windows 10
-        - macOS 16 (Tahoe)
+        - macOS 26 (Tahoe)
         - macOS 15 (Sequoia)
         - macOS 14 (Sonoma)
         - Linux (Ubuntu)

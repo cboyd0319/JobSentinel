@@ -92,16 +92,16 @@ Releases include:
 
 **Supported Distributions:**
 
-- Ubuntu 22.04+
+- Ubuntu 24.04+
 - Debian 12+
-- Fedora 38+
+- Fedora 40+
 - Arch Linux (current)
-- Pop!_OS 22.04+
-- Linux Mint 21+
+- Pop!_OS 24.04+
+- Linux Mint 22+
 
 **Runtime Requirements:**
 
-- glibc 2.35+ (Ubuntu 22.04 baseline)
+- glibc 2.39+ (Ubuntu 24.04 baseline)
 - `libwebkit2gtk-4.1-0`
 - `libgtk-3-0`
 - `libappindicator3-1`
@@ -110,10 +110,10 @@ Releases include:
 
 **Supported Distributions:**
 
-- Ubuntu 22.04+
+- Ubuntu 24.04+
 - Debian 12+
-- Pop!_OS 22.04+
-- Linux Mint 21+
+- Pop!_OS 24.04+
+- Linux Mint 22+
 
 **Dependency Declaration:**
 
@@ -184,17 +184,17 @@ chmod +x JobSentinel-Linux-*.AppImage
 
 ### Build Fails on Non-Ubuntu Systems
 
-JobSentinel CI builds on **Ubuntu 22.04+** for glibc compatibility.
+JobSentinel CI builds on **Ubuntu 24.04** (`ubuntu-latest`) for glibc compatibility.
 
 If building on a newer system, the binary may not run on older distributions.
 
-**Solution:** Use Docker or build in an Ubuntu 22.04 container:
+**Solution:** Use Docker or build in an Ubuntu 24.04 container:
 
 ```bash
 docker run -it --rm \
   -v $(pwd):/workspace \
   -w /workspace \
-  ubuntu:22.04 \
+  ubuntu:24.04 \
   bash -c "apt-get update && \
     apt-get install -y curl build-essential libwebkit2gtk-4.1-dev libgtk-3-dev libappindicator3-dev librsvg2-dev patchelf && \
     curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
@@ -217,11 +217,11 @@ For auto-update support, releases must be signed with Tauri's signing keys.
 3. Add private key to GitHub Secrets
 4. Update workflow to sign releases
 
-See [Tauri Signing Documentation](https://tauri.app/distribute/sign/) for details.
+See [Tauri Signing Documentation](https://tauri.app/distribute/sign/linux/) for details.
 
 ## Notes
 
-- **Ubuntu 22.04 baseline** ensures glibc 2.35 compatibility across distributions
+- **Ubuntu 24.04 baseline** (`ubuntu-latest`) ensures glibc 2.39 compatibility across distributions
 - AppImage is **recommended** for maximum compatibility
 - `.deb` is provided for users who prefer package managers
 - **No RPM packages yet** - contributions welcome for Fedora/RHEL support
