@@ -7,16 +7,16 @@ Tauri 2.x (Rust backend) and React 19 (TypeScript frontend).
 
 **Current Version:** 2.6.3 (January 2026)
 **Primary Target:** Windows 11+, macOS
-**Tests:** 4,449+ passing (2,274 frontend + 2,175 Rust)
+**Tests:** 4,833+ passing (2,403 frontend + 2,430 Rust)
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|------------|
+| Layer    | Technology                               |
+| -------- | ---------------------------------------- |
 | Frontend | React 19, TypeScript, Vite, Tailwind CSS |
-| Backend | Rust 2021, Tauri 2.x, Tokio async |
-| Storage | SQLite (sqlx, offline mode) |
-| Testing | Vitest, Playwright, cargo test |
+| Backend  | Rust 2021, Tauri 2.x, Tokio async        |
+| Storage  | SQLite (sqlx, offline mode)              |
+| Testing  | Vitest, Playwright, cargo test           |
 
 ## Project Structure
 
@@ -103,26 +103,26 @@ npm run test:e2e:ui      # Interactive mode
 
 ## Scrapers (13 job boards)
 
-| Scraper | Board |
-|---------|-------|
-| indeed | Indeed |
-| LinkedIn | LinkedIn |
-| glassdoor | Glassdoor |
-| ziprecruiter | ZipRecruiter |
-| dice | Dice (tech) |
-| monster | Monster |
-| careerbuilder | CareerBuilder |
-| simplyhired | SimplyHired |
-| usajobs | USAJobs (gov) |
-| flexjobs | FlexJobs (remote) |
-| weworkremotely | We Work Remotely |
-| remoteok | Remote OK |
-| wellfound | Wellfound (startups) |
+| Scraper        | Board                |
+| -------------- | -------------------- |
+| indeed         | Indeed               |
+| LinkedIn       | LinkedIn             |
+| glassdoor      | Glassdoor            |
+| ziprecruiter   | ZipRecruiter         |
+| dice           | Dice (tech)          |
+| monster        | Monster              |
+| careerbuilder  | CareerBuilder        |
+| simplyhired    | SimplyHired          |
+| usajobs        | USAJobs (gov)        |
+| flexjobs       | FlexJobs (remote)    |
+| weworkremotely | We Work Remotely     |
+| remoteok       | Remote OK            |
+| wellfound      | Wellfound (startups) |
 
-## Tauri Commands (159 total)
+## Tauri Commands (180 total)
 
 - **Feedback:** 8 commands (GitHub issues, Google Drive, report generation, debug log)
-- **Jobs, Scrapers, Database, Settings:** 151 other commands
+- **Jobs, Scrapers, Database, Settings:** 172 other commands
 
 ## Common Tasks
 
@@ -163,16 +163,16 @@ npm run test:e2e:ui      # Interactive mode
 
 **Always prefer sub-agents for parallel work.** Launch multiple agents simultaneously when tasks are independent.
 
-| Task | Agent | When to Use |
-|------|-------|-------------|
-| Rust work | `rust-expert` | Any .rs file changes |
-| React/TS work | `typescript-expert` | Any .ts/.tsx changes |
-| Scraper development | `scraper-expert` | New scrapers, parsing logic |
-| Code review | `code-reviewer` | Before commits, PR reviews |
-| Security audit | `security-audit` | Auth, crypto, input handling |
-| Database work | `database-expert` | Schema, migrations, queries |
-| Bug investigation | `debugger` | Tracing issues, errors |
-| Fast exploration | `explore-fast` | Finding files, understanding code |
+| Task                | Agent               | When to Use                       |
+| ------------------- | ------------------- | --------------------------------- |
+| Rust work           | `rust-expert`       | Any .rs file changes              |
+| React/TS work       | `typescript-expert` | Any .ts/.tsx changes              |
+| Scraper development | `scraper-expert`    | New scrapers, parsing logic       |
+| Code review         | `code-reviewer`     | Before commits, PR reviews        |
+| Security audit      | `security-audit`    | Auth, crypto, input handling      |
+| Database work       | `database-expert`   | Schema, migrations, queries       |
+| Bug investigation   | `debugger`          | Tracing issues, errors            |
+| Fast exploration    | `explore-fast`      | Finding files, understanding code |
 
 ### Parallel Agent Patterns
 

@@ -324,8 +324,9 @@ fn strip_html_tags(html: &str) -> String {
         .text()
         .collect::<Vec<_>>()
         .join(" ")
-        .trim()
-        .to_string()
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ")
 }
 
 /// Truncate a string to a maximum length, adding "..." if truncated

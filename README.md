@@ -110,14 +110,14 @@ That's it. No accounts. No subscriptions. No data harvesting. Just... jobs that 
 
 ### The Job Search Is Rigged Against You
 
-| The Problem | How JobSentinel Fixes It |
-|-------------|--------------------------|
-| **Job sites sell your data** | Your data never leaves your computer. Period. |
-| **You miss jobs while sleeping** | JobSentinel watches 13 job boards 24/7 and pings you instantly |
+| The Problem                          | How JobSentinel Fixes It                                                 |
+| ------------------------------------ | ------------------------------------------------------------------------ |
+| **Job sites sell your data**         | Your data never leaves your computer. Period.                            |
+| **You miss jobs while sleeping**     | JobSentinel watches 13 job boards 24/7 and pings you instantly           |
 | **Half the listings are ghost jobs** | Built-in ghost detection flags fake, stale, and already-filled positions |
-| **Applications take forever** | One-click apply fills forms automatically (you still click Submit) |
-| **You're guessing at salary** | Salary AI shows real market rates from public government data |
-| **Subscription fatigue** | **Free forever.** No premium tier. No "upgrade to unlock." |
+| **Applications take forever**        | One-click apply fills forms automatically (you still click Submit)       |
+| **You're guessing at salary**        | Salary AI shows real market rates from public government data            |
+| **Subscription fatigue**             | **Free forever.** No premium tier. No "upgrade to unlock."               |
 
 ### What Makes It Special
 
@@ -166,16 +166,16 @@ That's it. No accounts. No subscriptions. No data harvesting. Just... jobs that 
 
 Power users can navigate entirely by keyboard:
 
-| Key | Action |
-|-----|--------|
-| `j` / `k` | Navigate job list (down/up) |
-| `o` | Open selected job |
-| `b` | Bookmark job |
-| `h` | Hide job |
-| `n` | Add note |
-| `/` | Focus search |
-| `?` | Show all shortcuts |
-| `Ctrl+1-7` | Switch pages |
+| Key        | Action                      |
+| ---------- | --------------------------- |
+| `j` / `k`  | Navigate job list (down/up) |
+| `o`        | Open selected job           |
+| `b`        | Bookmark job                |
+| `h`        | Hide job                    |
+| `n`        | Add note                    |
+| `/`        | Focus search                |
+| `?`        | Show all shortcuts          |
+| `Ctrl+1-7` | Switch pages                |
 
 ---
 
@@ -185,9 +185,9 @@ Power users can navigate entirely by keyboard:
 
 **Download from [GitHub Releases](https://github.com/cboyd0319/JobSentinel/releases):**
 
-| Platform | Download |
-|----------|----------|
-| **Windows** | [JobSentinel_2.6.3_x64_en-US.msi](https://github.com/cboyd0319/JobSentinel/releases/download/v2.6.3/JobSentinel_2.6.3_x64_en-US.msi) |
+| Platform                          | Download                                                                                                                             |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| **Windows**                       | [JobSentinel_2.6.3_x64_en-US.msi](https://github.com/cboyd0319/JobSentinel/releases/download/v2.6.3/JobSentinel_2.6.3_x64_en-US.msi) |
 | **macOS** (Intel & Apple Silicon) | [JobSentinel_2.6.3_universal.dmg](https://github.com/cboyd0319/JobSentinel/releases/download/v2.6.3/JobSentinel_2.6.3_universal.dmg) |
 
 <details>
@@ -227,6 +227,7 @@ macOS may show "JobSentinel can't be opened because Apple cannot check it for ma
 3. Click **Open** in the confirmation dialog
 
 This only happens once. JobSentinel is safe — it's open source and you can verify the code yourself.
+
 </details>
 
 <details>
@@ -241,6 +242,7 @@ Windows SmartScreen may show "Windows protected your PC" because JobSentinel is 
 2. Click **"Run anyway"**
 
 This is normal for new apps. JobSentinel is safe — it's open source and you can verify the code yourself.
+
 </details>
 
 ### Step 2: Setup (2 minutes)
@@ -282,6 +284,7 @@ You can also click "Search Now" anytime to run a manual scan.
 Yes. 100% free, forever. No subscriptions, no premium tier, no "upgrade to unlock features."
 
 JobSentinel is open source under the MIT license. You can literally read every line of code.
+
 </details>
 
 <details>
@@ -297,6 +300,7 @@ Nope. No account, no login, no cloud sync. Everything runs on your computer.
 
 JobSentinel has no telemetry, no analytics, no tracking. Your job search data exists only on
 your computer. We couldn't see your data even if we wanted to.
+
 </details>
 
 <details>
@@ -306,6 +310,7 @@ Those are job boards that collect and sell your data. JobSentinel is a <em>tool<
 searches those job boards for you, privately, on your own computer.
 
 Think of it like the difference between Google tracking your searches vs. a private search engine.
+
 </details>
 
 <details>
@@ -315,6 +320,7 @@ Absolutely! While the default settings are optimized for tech roles, JobSentinel
 job posted on the supported job boards.
 
 Just change your title allowlist and keywords to match what you're looking for.
+
 </details>
 
 <details>
@@ -325,6 +331,7 @@ just to collect resumes, or has been sitting there for 6 months.
 
 JobSentinel analyzes each job and flags suspicious ones so you don't waste time applying to
 dead ends.
+
 </details>
 
 <details>
@@ -336,6 +343,7 @@ automatically.
 
 <strong>Important:</strong> You always review the form and click Submit yourself. JobSentinel never
 submits applications without you.
+
 </details>
 
 <details>
@@ -348,6 +356,7 @@ Yes. Passwords and API tokens are stored in your operating system's secure crede
 - <strong>Linux:</strong> Secret Service (GNOME Keyring)
 
 Your job search data is stored in a local SQLite database that only you can access.
+
 </details>
 
 <details>
@@ -366,17 +375,17 @@ No command line or technical knowledge required.
 
 ### Tech Stack
 
-| Layer | Technology |
-|-------|------------|
+| Layer    | Technology                              |
+| -------- | --------------------------------------- |
 | Frontend | React 19, TypeScript, Vite, TailwindCSS |
-| Backend | Rust, Tokio (async), SQLx |
-| Desktop | Tauri 2.x |
-| Database | SQLite (local) |
+| Backend  | Rust, Tokio (async), SQLx               |
+| Desktop  | Tauri 2.x                               |
+| Database | SQLite (local)                          |
 
 ### By the Numbers
 
-- **151 Tauri commands** powering all features
-- **4,449+ tests passing** (2,274 frontend + 2,175 Rust)
+- **180 Tauri commands** powering all features
+- **4,833+ tests passing** (2,403 frontend + 2,430 Rust)
 - **0 security vulnerabilities** (cargo-audit verified)
 - **~8MB** installed size
 - **<50MB RAM** typical usage
@@ -412,6 +421,10 @@ For full technical documentation, see:
 - **Better accessibility** — Form labels with aria-describedby, confirmation dialogs
 - **Stale data indicators** — Color-coded timestamps showing data freshness
 - **LinkedIn Auto-Connect** — Just click "Connect", log in normally, done!
+- **Bug fix: Settings infinite loading on Windows** — No longer spins forever when
+  Windows Credential Manager is restricted; shows a Retry button instead
+- **Bug fix: Job search returning 0 results** — Fixed null score handling that silently filtered out unscored jobs
+- **Security patches** — 9 Dependabot vulnerabilities resolved (dompurify, storybook, quinn-proto, and more)
 
 ---
 
