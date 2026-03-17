@@ -101,7 +101,7 @@ futures-util = "0.3"
 
 # Embedded ML (optional) - Candle framework for on-device inference
 candle-core = { version = "0.8", optional = true }
-candle-nn = { version = "0.8", optional = true }
+candle-nn = { version = "0.9", optional = true }
 hf-hub = { version = "0.3", optional = true, default-features = false, features = ["tokio"] }
 tokenizers = { version = "0.20", optional = true, default-features = false, features = ["http", "onig"] }
 
