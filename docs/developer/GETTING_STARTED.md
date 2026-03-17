@@ -8,7 +8,7 @@
 |-----------|--------|
 | Core modules (config, db, scoring, scrapers, scheduler, notify, ghost, ats, resume, salary, market, automation, credentials, health) | Working |
 | Frontend (React 19 + TypeScript) | Working |
-| Tests | 4,449+ passing (2,274 frontend + 2,175 Rust) |
+| Tests | 4,770+ passing (2,413 frontend + 2,357 Rust) |
 
 ---
 
@@ -94,8 +94,8 @@ JobSentinel/
 │   │   │   └── scrapers/    # 13 job board scrapers
 │   │   ├── platforms/       # Windows/macOS/Linux specific code
 │   │   ├── cloud/           # GCP/AWS deployment (v3.0+)
-│   │   └── commands/        # 70 Tauri RPC command handlers
-│   ├── migrations/          # 18 SQLite migrations
+│   │   └── commands/        # 169 Tauri RPC command handlers
+│   ├── migrations/          # 3 SQLite migrations
 │   └── Cargo.toml           # Rust dependencies
 ├── public/                  # Static assets (logo, etc.)
 ├── docs/                    # Documentation

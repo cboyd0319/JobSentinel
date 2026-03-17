@@ -685,7 +685,7 @@ See [docs/features/one-click-apply.md](features/one-click-apply.md) for full doc
 - Component tests: 300+ tests across React components
 - E2E tests: Playwright test suite
 - All modules enabled and functional
-- **151 Tauri commands** for backend modules (22 Resume Builder + 18 One-Click Apply)
+- **169 Tauri commands** for backend modules (22 Resume Builder + 18 One-Click Apply)
 - 13 job board scrapers with parallel execution
 - Ghost job detection with repost tracking
 - Backend persistence for all user data (localStorage → SQLite)
