@@ -52,7 +52,7 @@
     "@storybook/addon-docs": "^10.2.10",
     "@storybook/addon-onboarding": "^10.2.10",
     "@storybook/addon-vitest": "^10.2.10",
-    "@storybook/react-vite": "^10.2.10",
+    "@storybook/react-vite": "^10.2.19",
     "@tauri-apps/cli": "^2.1.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.1",
