@@ -36,7 +36,7 @@ pub async fn fetch_job_page(url: &str) -> ImportResult<String> {
         .timeout(HTTP_TIMEOUT)
         .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
         .build()
-        .map_err(|e| ImportError::HttpError(e))?;
+        .map_err(ImportError::HttpError)?;
 
     // Fetch the page
     let response = client
@@ -52,13 +52,7 @@ pub async fn fetch_job_page(url: &str) -> ImportResult<String> {
         })?;
 
     // Check HTTP status
-    if !response.status().is_success() {
-        return Err(ImportError::HttpError(
-            reqwest::Error::from(
-                response.error_for_status().unwrap_err()
-            )
-        ));
-    }
+    let response = response.error_for_status().map_err(ImportError::HttpError)?;
 
     // Get HTML content
     let html = response.text().await.map_err(ImportError::HttpError)?;

@@ -194,22 +194,22 @@ async fn test_jobs_hash_unique_constraint() {
     let (pool, _temp_dir) = setup_raw_pool().await;
 
     // Insert first job
-    sqlx::query!(
+    sqlx::query(
         r#"
         INSERT INTO jobs (hash, title, company, url, source)
         VALUES ('unique_hash', 'Job 1', 'Company 1', 'https://example.com/1', 'test')
-        "#
+        "#,
     )
     .execute(&pool)
     .await
     .unwrap();
 
     // Try to insert duplicate hash (should fail)
-    let result = sqlx::query!(
+    let result = sqlx::query(
         r#"
         INSERT INTO jobs (hash, title, company, url, source)
         VALUES ('unique_hash', 'Job 2', 'Company 2', 'https://example.com/2', 'test')
-        "#
+        "#,
     )
     .execute(&pool)
     .await;
@@ -226,22 +226,22 @@ async fn test_applications_foreign_key_constraint() {
 
     // Applications table has a foreign key to jobs(hash)
     // First insert a job, then create an application
-    sqlx::query!(
+    sqlx::query(
         r#"
         INSERT INTO jobs (hash, title, company, url, source)
         VALUES ('app_fk_test', 'Test Job', 'TestCorp', 'https://example.com', 'test')
-        "#
+        "#,
     )
     .execute(&pool)
     .await
     .unwrap();
 
     // Now create application referencing that job
-    let result = sqlx::query!(
+    let result = sqlx::query(
         r#"
         INSERT INTO applications (job_hash, status)
         VALUES ('app_fk_test', 'applied')
-        "#
+        "#,
     )
     .execute(&pool)
     .await;
@@ -257,22 +257,22 @@ async fn test_interviews_foreign_key_constraint() {
     let (pool, _temp_dir) = setup_raw_pool().await;
 
     // Create job first (required for application)
-    sqlx::query!(
+    sqlx::query(
         r#"
         INSERT INTO jobs (hash, title, company, url, source)
         VALUES ('interview_job_test', 'Test Job', 'TestCorp', 'https://example.com', 'test')
-        "#
+        "#,
     )
     .execute(&pool)
     .await
     .unwrap();
 
     // Create application
-    sqlx::query!(
+    sqlx::query(
         r#"
         INSERT INTO applications (job_hash, status)
         VALUES ('interview_job_test', 'applied')
-        "#
+        "#,
     )
     .execute(&pool)
     .await
@@ -286,13 +286,13 @@ async fn test_interviews_foreign_key_constraint() {
             .unwrap();
 
     // Insert interview with valid application_id
-    let result = sqlx::query!(
+    let result = sqlx::query(
         r#"
         INSERT INTO interviews (application_id, interview_type, scheduled_at, location)
         VALUES (?, 'phone_interview', datetime('now'), 'Remote')
         "#,
-        app_id
     )
+    .bind(app_id)
     .execute(&pool)
     .await;
 
@@ -307,22 +307,22 @@ async fn test_screening_answers_unique_pattern() {
     let (pool, _temp_dir) = setup_raw_pool().await;
 
     // Insert first screening answer
-    sqlx::query!(
+    sqlx::query(
         r#"
         INSERT INTO screening_answers (question_pattern, answer, answer_type)
         VALUES ('(?i)work.*authorized', 'Yes', 'boolean')
-        "#
+        "#,
     )
     .execute(&pool)
     .await
     .unwrap();
 
     // Try to insert duplicate pattern (should fail due to UNIQUE constraint)
-    let result = sqlx::query!(
+    let result = sqlx::query(
         r#"
         INSERT INTO screening_answers (question_pattern, answer, answer_type)
         VALUES ('(?i)work.*authorized', 'No', 'boolean')
-        "#
+        "#,
     )
     .execute(&pool)
     .await;

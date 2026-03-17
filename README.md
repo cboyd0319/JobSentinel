@@ -183,52 +183,68 @@ Power users can navigate entirely by keyboard:
 
 ### Step 1: Download
 
-**Download the latest installers from [GitHub Releases](https://github.com/cboyd0319/JobSentinel/releases).**
+**👉 [Download the latest release from GitHub](https://github.com/cboyd0319/JobSentinel/releases/latest)**
 
-| Platform                          | Format |
-| --------------------------------- | ------ |
-| **Windows**                       | `.msi` installer |
-| **macOS** (Intel & Apple Silicon) | `.dmg` universal binary |
+| Platform                          | What to Download                  |
+| --------------------------------- | --------------------------------- |
+| **Windows**                       | The `.msi` file — double-click to install |
+| **macOS** (Intel & Apple Silicon) | The `.dmg` file — drag to Applications    |
+| **Linux**                         | Coming soon — [build from source](#build-from-source) for now |
 
-> If no release is available yet, build from source using the instructions below.
+> **Don't see a download?** Releases may still be in review.
+> You can always [build from source](#build-from-source) below.
 
 <details>
-<summary><strong>Build from source</strong></summary>
+<summary id="build-from-source"><strong>Build from source (for developers)</strong></summary>
 <br>
 
 **Prerequisites:**
 
-- [Rust](https://rustup.rs) (latest stable)
-- [Node.js](https://nodejs.org) 20+
+| Requirement | How to Install |
+| ----------- | -------------- |
+| **Rust** | Visit [rustup.rs](https://rustup.rs) and follow the instructions |
+| **Node.js 20+** | Visit [nodejs.org](https://nodejs.org) and download the LTS version |
 
 <details>
-<summary>Linux system dependencies</summary>
+<summary>Extra requirements for Windows</summary>
+
+- [Visual Studio Build Tools 2022](https://visualstudio.microsoft.com/downloads/)
+  (select "Desktop development with C++")
+- Windows 10 SDK (included with Build Tools)
+
+</details>
+
+<details>
+<summary>Extra requirements for Linux</summary>
 
 ```bash
-# Debian/Ubuntu
-sudo apt update
-sudo apt install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf \
-  build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev
+sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev \
+  libappindicator3-dev librsvg2-dev patchelf
 ```
 
 </details>
 
+**Then build:**
+
 ```bash
-# Clone and build
 git clone https://github.com/cboyd0319/JobSentinel
 cd JobSentinel
 npm install
 npm run tauri:build
-
-# Find your installer in src-tauri/target/release/bundle/
 ```
 
-> **Note:** The SQLite database is created automatically on first launch.
-> No manual database setup is required — migrations run at startup.
+Your installer will be in:
+
+- **Windows:** `src-tauri/target/release/bundle/msi/` (`.msi` file)
+- **macOS:** `src-tauri/target/release/bundle/dmg/` (`.dmg` file)
+- **Linux:** `src-tauri/target/release/bundle/appimage/` (`.AppImage` file)
+
+For more details, see the [Developer Guide](docs/developer/GETTING_STARTED.md).
 
 </details>
 
 **That's it.** The app is ~10MB and runs without admin rights.
+No database setup needed — everything is created automatically on first launch.
 
 <details>
 <summary><strong>First time on Mac? (Gatekeeper warning)</strong></summary>

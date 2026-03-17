@@ -44,7 +44,7 @@ reqwest = { version = "0.12", features = ["json", "rustls-tls"] }
 url = "2.5"
 
 # HTML Parsing
-scraper = "0.21"
+scraper = "0.25"
 
 # URL encoding for query parameters
 urlencoding = "2.1"
@@ -96,13 +96,13 @@ docx-rs = "0.4"
 # This avoids complex native library linking while still providing OCR support
 
 # Browser automation for form filling (One-Click Apply)
-chromiumoxide = { version = "0.7", default-features = false, features = ["tokio-runtime"] }
+chromiumoxide = { version = "0.8", default-features = false, features = ["tokio-runtime"] }
 futures-util = "0.3"
 
 # Embedded ML (optional) - Candle framework for on-device inference
-candle-core = { version = "0.8", optional = true }
-candle-nn = { version = "0.8", optional = true }
-hf-hub = { version = "0.3", optional = true, default-features = false, features = ["tokio"] }
+candle-core = { version = "0.9", optional = true }
+candle-nn = { version = "0.9", optional = true }
+hf-hub = { version = "0.5", optional = true, default-features = false, features = ["tokio"] }
 tokenizers = { version = "0.20", optional = true, default-features = false, features = ["http", "onig"] }
 
 [target.'cfg(windows)'.dependencies]

@@ -4,7 +4,7 @@ use super::tracker::ApplicationTracker;
 use super::types::*;
 use crate::core::db::Database;
 use chrono::{Datelike, Duration, Timelike, Utc};
-use sqlx::SqlitePool;
+use sqlx::{Row, SqlitePool};
 
 // ========================================
 // Unit tests (no database required)
@@ -254,16 +254,16 @@ async fn test_auto_reminders() {
         .unwrap();
 
     // Check reminder was created
-    let reminders = sqlx::query!(
+    let reminders = sqlx::query(
         "SELECT * FROM application_reminders WHERE application_id = ?",
-        app_id
     )
+    .bind(app_id)
     .fetch_all(&pool)
     .await
     .unwrap();
 
     assert_eq!(reminders.len(), 1);
-    assert_eq!(reminders[0].reminder_type, "follow_up");
+    assert_eq!(reminders[0].get::<String, _>("reminder_type"), "follow_up");
 }
 
 // ========================================
@@ -405,10 +405,10 @@ async fn test_add_notes() {
     assert_eq!(app.notes, Some("Great opportunity!".to_string()));
 
     // Verify event was logged
-    let events = sqlx::query!(
+    let events = sqlx::query(
         "SELECT * FROM application_events WHERE application_id = ? AND event_type = 'note_added'",
-        app_id
     )
+    .bind(app_id)
     .fetch_all(&pool)
     .await
     .unwrap();
@@ -456,17 +456,17 @@ async fn test_set_reminder() {
         .await
         .unwrap();
 
-    let reminders = sqlx::query!(
+    let reminders = sqlx::query(
         "SELECT * FROM application_reminders WHERE application_id = ?",
-        app_id
     )
+    .bind(app_id)
     .fetch_all(&pool)
     .await
     .unwrap();
 
     assert_eq!(reminders.len(), 1);
-    assert_eq!(reminders[0].reminder_type, "follow_up");
-    assert_eq!(reminders[0].message, Some("Check status".to_string()));
+    assert_eq!(reminders[0].get::<String, _>("reminder_type"), "follow_up");
+    assert_eq!(reminders[0].get::<Option<String>, _>("message"), Some("Check status".to_string()));
 }
 
 #[tokio::test]
@@ -529,15 +529,15 @@ async fn test_complete_reminder() {
     assert_eq!(pending_after.len(), 0);
 
     // Verify completed flag set
-    let reminder = sqlx::query!(
+    let reminder = sqlx::query(
         "SELECT completed, completed_at FROM application_reminders WHERE id = ?",
-        reminder_id
     )
+    .bind(reminder_id)
     .fetch_one(&pool)
     .await
     .unwrap();
-    assert_eq!(reminder.completed, 1);
-    assert!(reminder.completed_at.is_some());
+    assert_eq!(reminder.get::<i32, _>("completed"), 1);
+    assert!(reminder.get::<Option<String>, _>("completed_at").is_some());
 }
 
 // ========================================
@@ -576,11 +576,11 @@ async fn test_auto_detect_ghosted() {
 
     // Set last_contact to 3 weeks ago
     let old_contact = (Utc::now() - Duration::days(21)).to_rfc3339();
-    sqlx::query!(
+    sqlx::query(
         "UPDATE applications SET last_contact = ? WHERE id = ?",
-        old_contact,
-        app1
     )
+    .bind(&old_contact)
+    .bind(app1)
     .execute(&pool)
     .await
     .unwrap();
@@ -623,11 +623,11 @@ async fn test_auto_detect_ghosted_no_last_contact() {
 
     // Backdoor: set applied_at to 3 weeks ago
     let old_time = (Utc::now() - Duration::days(21)).to_rfc3339();
-    sqlx::query!(
+    sqlx::query(
         "UPDATE applications SET applied_at = ? WHERE id = ?",
-        old_time,
-        app_id
     )
+    .bind(&old_time)
+    .bind(app_id)
     .execute(&pool)
     .await
     .unwrap();
@@ -658,11 +658,11 @@ async fn test_auto_detect_ghosted_skips_terminal_states() {
 
     // Set old last_contact
     let old_contact = (Utc::now() - Duration::days(21)).to_rfc3339();
-    sqlx::query!(
+    sqlx::query(
         "UPDATE applications SET last_contact = ? WHERE id = ?",
-        old_contact,
-        app_id
     )
+    .bind(&old_contact)
+    .bind(app_id)
     .execute(&pool)
     .await
     .unwrap();
@@ -878,14 +878,16 @@ async fn test_status_change_logs_event() {
         .await
         .unwrap();
 
-    let events = sqlx::query!("SELECT * FROM application_events WHERE application_id = ? AND event_type = 'status_change'", app_id)
+    let events = sqlx::query("SELECT * FROM application_events WHERE application_id = ? AND event_type = 'status_change'")
+        .bind(app_id)
         .fetch_all(&pool)
         .await
         .unwrap();
 
     assert_eq!(events.len(), 1);
+    let event_data_raw: Option<String> = events[0].get("event_data");
     let event_data: serde_json::Value =
-        serde_json::from_str(events[0].event_data.as_ref().unwrap()).unwrap();
+        serde_json::from_str(event_data_raw.as_ref().unwrap()).unwrap();
     assert_eq!(event_data["from"], "to_apply");
     assert_eq!(event_data["to"], "applied");
 }
@@ -954,16 +956,16 @@ async fn test_interview_status_auto_sets_thank_you_reminder() {
         .await
         .unwrap();
 
-    let reminders = sqlx::query!(
+    let reminders = sqlx::query(
         "SELECT * FROM application_reminders WHERE application_id = ?",
-        app_id
     )
+    .bind(app_id)
     .fetch_all(&pool)
     .await
     .unwrap();
 
     assert_eq!(reminders.len(), 1);
-    assert!(reminders[0].message.as_ref().unwrap().contains("thank-you"));
+    assert!(reminders[0].get::<Option<String>, _>("message").as_ref().unwrap().contains("thank-you"));
 }
 
 // ========================================
@@ -1362,10 +1364,10 @@ async fn test_auto_reminder_for_offer_status() {
         .unwrap();
 
     // Clear initial reminder
-    sqlx::query!(
+    sqlx::query(
         "DELETE FROM application_reminders WHERE application_id = ?",
-        app_id
     )
+    .bind(app_id)
     .execute(&pool)
     .await
     .unwrap();
@@ -1376,10 +1378,10 @@ async fn test_auto_reminder_for_offer_status() {
         .await
         .unwrap();
 
-    let reminders = sqlx::query!(
+    let reminders = sqlx::query(
         "SELECT * FROM application_reminders WHERE application_id = ?",
-        app_id
     )
+    .bind(app_id)
     .fetch_all(&pool)
     .await
     .unwrap();
@@ -1408,16 +1410,16 @@ async fn test_technical_interview_auto_sets_thank_you_reminder() {
         .await
         .unwrap();
 
-    let reminders = sqlx::query!(
+    let reminders = sqlx::query(
         "SELECT * FROM application_reminders WHERE application_id = ?",
-        app_id
     )
+    .bind(app_id)
     .fetch_all(&pool)
     .await
     .unwrap();
 
     assert_eq!(reminders.len(), 1);
-    assert!(reminders[0].message.as_ref().unwrap().contains("thank-you"));
+    assert!(reminders[0].get::<Option<String>, _>("message").as_ref().unwrap().contains("thank-you"));
 }
 
 #[tokio::test]
@@ -1437,16 +1439,16 @@ async fn test_onsite_interview_auto_sets_thank_you_reminder() {
         .await
         .unwrap();
 
-    let reminders = sqlx::query!(
+    let reminders = sqlx::query(
         "SELECT * FROM application_reminders WHERE application_id = ?",
-        app_id
     )
+    .bind(app_id)
     .fetch_all(&pool)
     .await
     .unwrap();
 
     assert_eq!(reminders.len(), 1);
-    assert!(reminders[0].message.as_ref().unwrap().contains("thank-you"));
+    assert!(reminders[0].get::<Option<String>, _>("message").as_ref().unwrap().contains("thank-you"));
 }
 
 #[tokio::test]
@@ -1466,10 +1468,10 @@ async fn test_screening_call_no_auto_reminder() {
         .await
         .unwrap();
 
-    let reminders = sqlx::query!(
+    let reminders = sqlx::query(
         "SELECT * FROM application_reminders WHERE application_id = ?",
-        app_id
     )
+    .bind(app_id)
     .fetch_all(&pool)
     .await
     .unwrap();
@@ -1495,10 +1497,10 @@ async fn test_withdrawn_status_no_auto_reminder() {
         .await
         .unwrap();
 
-    let reminders = sqlx::query!(
+    let reminders = sqlx::query(
         "SELECT * FROM application_reminders WHERE application_id = ?",
-        app_id
     )
+    .bind(app_id)
     .fetch_all(&pool)
     .await
     .unwrap();
@@ -1534,10 +1536,10 @@ async fn test_application_stats_weekly_data_with_null_week() {
     assert!(stats.weekly_applications.len() >= 0);
 
     // Insert application with NULL applied_at to test filter_map on line 769
-    sqlx::query!(
+    sqlx::query(
         "UPDATE applications SET applied_at = NULL WHERE id = ?",
-        app_id
     )
+    .bind(app_id)
     .execute(&pool)
     .await
     .unwrap();
@@ -1566,17 +1568,18 @@ async fn test_event_logging_via_reminder_set() {
         .unwrap();
 
     // Verify event was logged (tests log_event function lines 329-338)
-    let events = sqlx::query!(
+    let events = sqlx::query(
         "SELECT * FROM application_events WHERE application_id = ? AND event_type = 'reminder_set'",
-        app_id
     )
+    .bind(app_id)
     .fetch_all(&pool)
     .await
     .unwrap();
 
     assert_eq!(events.len(), 1);
+    let event_data_raw: Option<String> = events[0].get("event_data");
     let event_data: serde_json::Value =
-        serde_json::from_str(events[0].event_data.as_ref().unwrap()).unwrap();
+        serde_json::from_str(event_data_raw.as_ref().unwrap()).unwrap();
     assert_eq!(event_data["type"], "custom");
     assert_eq!(event_data["message"], "Custom reminder");
 }

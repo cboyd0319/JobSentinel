@@ -164,7 +164,7 @@ pub fn create_preview(
     let remote = posting
         .job_location_type
         .as_ref()
-        .map_or(false, |t| t == "TELECOMMUTE");
+        .is_some_and(|t| t == "TELECOMMUTE");
 
     Ok(JobImportPreview {
         title,

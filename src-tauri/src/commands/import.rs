@@ -137,7 +137,7 @@ pub async fn import_job_from_url(url: String, state: State<'_, AppState>) -> Res
     let remote = posting
         .job_location_type
         .as_ref()
-        .map_or(false, |t| t == "TELECOMMUTE");
+        .is_some_and(|t| t == "TELECOMMUTE");
 
     // Parse date posted
     let created_at = posting
@@ -148,7 +148,7 @@ pub async fn import_job_from_url(url: String, state: State<'_, AppState>) -> Res
         .unwrap_or_else(Utc::now);
 
     // Insert into database
-    let result = sqlx::query!(
+    let result = sqlx::query(
         r#"
         INSERT INTO jobs (
             hash, title, company, url, location, description,
@@ -156,22 +156,22 @@ pub async fn import_job_from_url(url: String, state: State<'_, AppState>) -> Res
             created_at, updated_at, last_seen, times_seen
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         "#,
-        job_hash,
-        title,
-        company,
-        url,
-        location,
-        description,
-        "import", // Source is "import" for manually imported jobs
-        remote,
-        salary_min,
-        salary_max,
-        currency,
-        created_at,
-        created_at,
-        created_at,
-        1
     )
+    .bind(&job_hash)
+    .bind(title)
+    .bind(company)
+    .bind(&url)
+    .bind(&location)
+    .bind(&description)
+    .bind("import")
+    .bind(remote)
+    .bind(salary_min)
+    .bind(salary_max)
+    .bind(&currency)
+    .bind(created_at)
+    .bind(created_at)
+    .bind(created_at)
+    .bind(1)
     .execute(state.database.pool())
     .await
     .map_err(|e| user_friendly_error("Failed to import job", e))?;
@@ -311,7 +311,7 @@ fn format_import_error(error: &ImportError) -> String {
             } else if e.is_timeout() {
                 "The request timed out. Please try again.".to_string()
             } else if e.is_status() {
-                format!("The website returned an error: {}", e.status().map_or("Unknown".to_string(), |s| s.to_string()))
+                format!("The website returned an error: {}", e.status().map_or_else(|| "Unknown".to_string(), |s| s.to_string()))
             } else {
                 format!("Failed to fetch the page: {}", e)
             }

@@ -206,7 +206,6 @@ async fn handle_connection(
             Err(ref e) if e.kind() == std::io::ErrorKind::WouldBlock => {
                 // Wait for more data
                 tokio::time::sleep(tokio::time::Duration::from_millis(10)).await;
-                continue;
             }
             Err(e) => return Err(Box::new(e)),
         }
@@ -322,26 +321,26 @@ async fn handle_import_request(
 
     // Insert job into database
     let created_at = Utc::now();
-    let result = sqlx::query!(
+    let result = sqlx::query(
         r#"
         INSERT INTO jobs (
             hash, title, company, url, location, description,
             source, remote, created_at, updated_at, last_seen, times_seen
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         "#,
-        job_hash,
-        title,
-        company,
-        url,
-        location,
-        description,
-        "bookmarklet",
-        remote,
-        created_at,
-        created_at,
-        created_at,
-        1
     )
+    .bind(&job_hash)
+    .bind(&title)
+    .bind(&company)
+    .bind(&url)
+    .bind(&location)
+    .bind(&description)
+    .bind("bookmarklet")
+    .bind(remote)
+    .bind(created_at)
+    .bind(created_at)
+    .bind(created_at)
+    .bind(1)
     .execute(database.pool())
     .await;
 

@@ -8,52 +8,61 @@ use regex::Regex;
 use serde::Serialize;
 
 // Unix paths: /Users/johnsmith/... → /[USER_PATH]/...
+#[allow(clippy::expect_used)]
 static PATH_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"/(Users|home)/[^/\s]+")
         .expect("Unix path regex pattern is valid and should compile")
 });
 
 // Windows paths: C:\Users\johnsmith\... → C:\[USER_PATH]\...
+#[allow(clippy::expect_used)]
 static WINDOWS_PATH_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"[A-Za-z]:\\Users\\[^\\]+")
         .expect("Windows path regex pattern is valid and should compile")
 });
 
 // Emails: john@example.com → [EMAIL]
+#[allow(clippy::expect_used)]
 static EMAIL_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}")
         .expect("Email address regex pattern is valid and should compile")
 });
 
 // Webhooks: https://hooks.slack.com/... → [WEBHOOK_CONFIGURED]
+#[allow(clippy::expect_used)]
 static WEBHOOK_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"https://hooks\.(slack|discord|teams)\.com/[^\s]+")
         .expect("Webhook URL regex pattern is valid and should compile")
 });
 
 // LinkedIn cookies: li_at=AQEDARa... → li_at=[REDACTED]
+#[allow(clippy::expect_used)]
 static LINKEDIN_COOKIE_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"li_at=[^\s;]+")
         .expect("LinkedIn cookie regex pattern is valid and should compile")
 });
 
 // API tokens: Bearer eyJ... or token ghp_... → [TOKEN]
+#[allow(clippy::expect_used)]
 static TOKEN_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(Bearer\s+[^\s]+|token\s+[^\s]+|api_key=[^\s&]+)")
         .expect("API token regex pattern is valid and should compile")
 });
 
 // IP addresses: 192.168.1.1 → [IP_ADDRESS]
+#[allow(clippy::expect_used)]
 static IP_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b")
         .expect("IP address regex pattern is valid and should compile")
 });
 
 // Quoted strings (might be job titles or company names)
+#[allow(clippy::expect_used)]
 static QUOTED_STRING_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r#""[^"]+""#)
         .expect("Double-quoted string regex pattern is valid and should compile")
 });
+#[allow(clippy::expect_used)]
 static SINGLE_QUOTED_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"'[^']+'")
         .expect("Single-quoted string regex pattern is valid and should compile")

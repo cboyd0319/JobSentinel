@@ -2,13 +2,13 @@
 
 ## Project Status
 
-**Version 2.6.3** (January 25, 2026)
+**Version 2.6.3** (March 2026)
 
 | Component | Status |
 |-----------|--------|
 | Core modules (config, db, scoring, scrapers, scheduler, notify, ghost, ats, resume, salary, market, automation, credentials, health) | Working |
 | Frontend (React 19 + TypeScript) | Working |
-| Tests | 4,770+ passing (2,413 frontend + 2,357 Rust) |
+| Tests | 4,833+ passing (2,403 frontend + 2,430 Rust) |
 
 ---
 
@@ -16,14 +16,40 @@
 
 ### Prerequisites
 
+**All Platforms:**
+
 ```bash
 # Install Rust (https://rustup.rs/)
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 # Install Node.js 20+ (https://nodejs.org/)
+# Download the LTS version from the website
 
 # Install Tauri CLI
 cargo install tauri-cli@2.1
+```
+
+**Windows Only:**
+
+- [Visual Studio Build Tools 2022](https://visualstudio.microsoft.com/downloads/) — select "Desktop development with C++"
+- Windows 10 SDK (included with Build Tools)
+
+**Linux Only:**
+
+```bash
+sudo apt-get install -y \
+  libwebkit2gtk-4.1-dev \
+  libgtk-3-dev \
+  libappindicator3-dev \
+  librsvg2-dev \
+  patchelf
+```
+
+**macOS Only:**
+
+```bash
+# Install Xcode Command Line Tools (if you don't have them)
+xcode-select --install
 ```
 
 ### Development Setup
@@ -211,13 +237,29 @@ When running `npm run tauri:dev`, press `Ctrl+Shift+I` (Windows) to open Chrome 
 
 ### Database
 
-Database location: `%LOCALAPPDATA%\JobSentinel\jobs.db`
+The SQLite database is **created automatically** on first launch — no setup needed.
+
+**Database location by platform:**
+
+| Platform | Path |
+|----------|------|
+| **Windows** | `%LOCALAPPDATA%\JobSentinel\jobs.db` |
+| **macOS** | `~/Library/Application Support/com.jobsentinel.app/jobs.db` |
+| **Linux** | `~/.local/share/com.jobsentinel.app/jobs.db` |
+
+Migrations run automatically. You never need to set up tables manually.
 
 Open with [DB Browser for SQLite](https://sqlitebrowser.org/):
 
 ```bash
 # Windows
 explorer %LOCALAPPDATA%\JobSentinel
+
+# macOS
+open ~/Library/Application\ Support/com.jobsentinel.app/
+
+# Linux
+xdg-open ~/.local/share/com.jobsentinel.app/
 ```
 
 ---
@@ -254,6 +296,35 @@ Ensure you have:
 - Windows 10 SDK
 
 Download: <https://visualstudio.microsoft.com/downloads/>
+
+### "Build fails on Linux"
+
+Install the required system libraries:
+
+```bash
+sudo apt-get install -y \
+  libwebkit2gtk-4.1-dev \
+  libgtk-3-dev \
+  libappindicator3-dev \
+  librsvg2-dev \
+  patchelf
+```
+
+### "sqlx error" or "no cached data for this query"
+
+The project uses SQLx offline mode so you don't need a running database to compile.
+This is configured automatically via `src-tauri/.cargo/config.toml` (sets `SQLX_OFFLINE=true`).
+
+If you see this error, make sure the `.sqlx/` directory exists in `src-tauri/`. If you've
+changed any SQL queries using the `sqlx::query!()` macro, you'll need to regenerate the cache:
+
+```bash
+cd src-tauri
+DATABASE_URL="sqlite:jobs.db" cargo sqlx prepare
+```
+
+> **Prefer runtime queries:** Use `sqlx::query()` (without `!`) for new code. Runtime queries
+> don't need the offline cache and are easier to maintain.
 
 ### Modular Architecture (v1.5+)
 
