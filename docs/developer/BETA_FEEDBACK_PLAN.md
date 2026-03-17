@@ -71,13 +71,13 @@ If a user can't or won't use GitHub, they should still have a clear path to subm
 
 ### Design Principles
 
-| Principle | What It Means |
-|-----------|---------------|
-| **GitHub First** | Primary channel - public, searchable, community-driven |
-| **Privacy by Default** | All debug info is anonymized BEFORE the user sees it |
-| **One-Click Simplicity** | Pre-fill issue templates with anonymized system info |
-| **Multiple Channels** | GitHub Issues OR Google Drive - user's choice |
-| **Offline First** | Everything works without internet; sending happens outside JobSentinel |
+| Principle                | What It Means                                                          |
+| ------------------------ | ---------------------------------------------------------------------- |
+| **GitHub First**         | Primary channel - public, searchable, community-driven                 |
+| **Privacy by Default**   | All debug info is anonymized BEFORE the user sees it                   |
+| **One-Click Simplicity** | Pre-fill issue templates with anonymized system info                   |
+| **Multiple Channels**    | GitHub Issues OR Google Drive - user's choice                          |
+| **Offline First**        | Everything works without internet; sending happens outside JobSentinel |
 
 ### What We're NOT Building
 
@@ -110,32 +110,32 @@ entire internet. Job seekers' privacy is paramount.
 
 #### ALWAYS Stripped (Automatic)
 
-| Data Type | Before Anonymization | After Anonymization |
-|-----------|---------------------|---------------------|
-| File paths | `/Users/johnsmith/Documents/resume.pdf` | `/Users/[USER]/Documents/resume.pdf` |
-| Job titles | `Senior Software Engineer at Google` | `[JOB_TITLE] at [COMPANY]` |
-| Company names | `Matched: Microsoft, Apple, Meta` | `Matched: [N] companies` |
-| Webhook URLs | `https://hooks.slack.com/T123/B456/xyz` | `Slack webhook: [CONFIGURED]` |
-| Email addresses | `john@example.com` | `[EMAIL]` |
-| Scraper keywords | `"rust developer" OR "systems engineer"` | `[N] search keywords configured` |
-| Location prefs | `San Francisco, Remote OK` | `Location preferences: [CONFIGURED]` |
-| Salary prefs | `$150k - $200k` | `Salary preferences: [CONFIGURED]` |
-| Resume content | `Experience: 10 years at...` | `[RESUME_CONTENT_REDACTED]` |
-| LinkedIn cookie | `li_at=AQEDA...` | `LinkedIn session: [CONFIGURED]` |
-| Database paths | `/Users/john/Library/.../jobs.db` | `[APP_DATA]/jobs.db` |
+| Data Type        | Before Anonymization                     | After Anonymization                  |
+| ---------------- | ---------------------------------------- | ------------------------------------ |
+| File paths       | `/Users/johnsmith/Documents/resume.pdf`  | `/Users/[USER]/Documents/resume.pdf` |
+| Job titles       | `Senior Software Engineer at Google`     | `[JOB_TITLE] at [COMPANY]`           |
+| Company names    | `Matched: Microsoft, Apple, Meta`        | `Matched: [N] companies`             |
+| Webhook URLs     | `https://hooks.slack.com/T123/B456/xyz`  | `Slack webhook: [CONFIGURED]`        |
+| Email addresses  | `john@example.com`                       | `[EMAIL]`                            |
+| Scraper keywords | `"rust developer" OR "systems engineer"` | `[N] search keywords configured`     |
+| Location prefs   | `San Francisco, Remote OK`               | `Location preferences: [CONFIGURED]` |
+| Salary prefs     | `$150k - $200k`                          | `Salary preferences: [CONFIGURED]`   |
+| Resume content   | `Experience: 10 years at...`             | `[RESUME_CONTENT_REDACTED]`          |
+| LinkedIn cookie  | `li_at=AQEDA...`                         | `LinkedIn session: [CONFIGURED]`     |
+| Database paths   | `/Users/john/Library/.../jobs.db`        | `[APP_DATA]/jobs.db`                 |
 
 #### NEVER Logged (By Design)
 
-| Data | Reason |
-|------|--------|
-| Resume text or parsed content | Private career history |
-| Job descriptions | May contain identifiable search patterns |
-| Company blocklist/allowlist | Reveals user's preferences |
-| Application tracking data | Private job search activity |
-| Ghost job feedback | Reveals which jobs user is viewing |
-| Notification webhook payloads | Contains job match details |
-| Scraper results | Contains actual job listings |
-| Error messages with job data | May contain titles/companies |
+| Data                          | Reason                                   |
+| ----------------------------- | ---------------------------------------- |
+| Resume text or parsed content | Private career history                   |
+| Job descriptions              | May contain identifiable search patterns |
+| Company blocklist/allowlist   | Reveals user's preferences               |
+| Application tracking data     | Private job search activity              |
+| Ghost job feedback            | Reveals which jobs user is viewing       |
+| Notification webhook payloads | Contains job match details               |
+| Scraper results               | Contains actual job listings             |
+| Error messages with job data  | May contain titles/companies             |
 
 ### 2.3 Implementation: The Sanitizer
 
@@ -221,7 +221,7 @@ pub struct ConfigSummary {
     pub notifications_configured: usize,
     pub has_resume: bool,
 }
-```text
+```
 
 ### 2.4 Privacy Checklist (Pre-Release)
 
@@ -245,16 +245,16 @@ Before every release, verify:
 
 ### 3.1 Entry Points
 
-| Location | Trigger | Context |
-|----------|---------|---------|
-| **Help Menu** | Settings → Help → "Send Feedback" | Intentional feedback |
-| **Error Toast** | "Something went wrong" → "Report This" | Bug reporting |
-| **Keyboard Shortcut** | `Cmd/Ctrl + Shift + F` | Power users |
-| **About Screen** | "Report an Issue" button | Visible reminder |
+| Location              | Trigger                                | Context              |
+| --------------------- | -------------------------------------- | -------------------- |
+| **Help Menu**         | Settings → Help → "Send Feedback"      | Intentional feedback |
+| **Error Toast**       | "Something went wrong" → "Report This" | Bug reporting        |
+| **Keyboard Shortcut** | `Cmd/Ctrl + Shift + F`                 | Power users          |
+| **About Screen**      | "Report an Issue" button               | Visible reminder     |
 
 ### 3.2 The Two-Path Flow
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────────┐
 │                         FEEDBACK FLOW                               │
 ├─────────────────────────────────────────────────────────────────────┤
@@ -292,48 +292,49 @@ Before every release, verify:
 │     └─────────────────────────────────────────────────────────────┘ │
 │                                                                     │
 └─────────────────────────────────────────────────────────────────────┘
-```text
+```
 
 ### 3.3 GitHub Issues Path (Primary)
 
-```
-User clicks "Open GitHub Issue"
-        ↓
-Browser opens: github.com/cboyd0319/JobSentinel/issues/new
-        ↓
-Issue template pre-selected based on category (bug/feature/question)
-        ↓
-Clipboard contains ANONYMIZED debug info (user can paste)
-        ↓
-User edits title/description, submits
-        ↓
-Issue created, user can track progress
 ```text
+User clicks "Open GitHub Issue"
+↓
+Browser opens: github.com/cboyd0319/JobSentinel/issues/new
+↓
+Issue template pre-selected based on category (bug/feature/question)
+↓
+Clipboard contains ANONYMIZED debug info (user can paste)
+↓
+User edits title/description, submits
+↓
+Issue created, user can track progress
+```
 
 ### 3.4 Google Drive Path (Secondary)
 
-```
-User clicks "Save & Upload to Google Drive"
-        ↓
-Save dialog opens (suggest Desktop)
-        ↓
-File saved: jobsentinel-bug-2026-01-26-1545.txt
-        ↓
-Success screen with instructions:
-  1. Click "Open Google Drive Feedback Folder"
-  2. Drag your file into the folder
-  3. That's it!
 ```text
+User clicks "Save & Upload to Google Drive"
+↓
+Save dialog opens (suggest Desktop)
+↓
+File saved: jobsentinel-bug-2026-01-26-1545.txt
+↓
+Success screen with instructions:
+
+1. Click "Open Google Drive Feedback Folder"
+2. Drag your file into the folder
+3. That's it!
+```
 
 ### 3.5 Key UX Decisions
 
-| Decision | Rationale |
-|----------|-----------|
-| GitHub Issues highlighted as "RECOMMENDED" | We want issues in the public tracker |
-| Pre-fill clipboard, not issue body | User reviews before pasting - extra privacy check |
-| Anonymized preview shown BEFORE any action | Transparency - user sees exactly what's shared |
-| Google Drive as clear alternative | Don't force GitHub on everyone |
-| No email option | Too unreliable across platforms |
+| Decision                                   | Rationale                                         |
+| ------------------------------------------ | ------------------------------------------------- |
+| GitHub Issues highlighted as "RECOMMENDED" | We want issues in the public tracker              |
+| Pre-fill clipboard, not issue body         | User reviews before pasting - extra privacy check |
+| Anonymized preview shown BEFORE any action | Transparency - user sees exactly what's shared    |
+| Google Drive as clear alternative          | Don't force GitHub on everyone                    |
+| No email option                            | Too unreliable across platforms                   |
 
 ---
 
@@ -411,7 +412,7 @@ body:
 
 #### Feature Request Template
 
-```yaml
+````yaml
 # .github/ISSUE_TEMPLATE/feature_request.yml
 name: Feature Request
 description: Suggest an improvement or new feature
@@ -467,7 +468,7 @@ body:
     attributes:
       label: Additional context
       description: Any relevant background
-```
+````
 
 ### 4.2 Pre-Filling Issue Data
 
@@ -477,9 +478,9 @@ When user clicks "Open GitHub Issue":
 // src/services/feedback.ts
 
 export async function openGitHubIssue(
-  category: 'bug' | 'feature' | 'question',
+  category: "bug" | "feature" | "question",
   description: string,
-  debugInfo: string | null
+  debugInfo: string | null,
 ): Promise<void> {
   // 1. Copy debug info to clipboard (if included)
   if (debugInfo) {
@@ -487,9 +488,12 @@ export async function openGitHubIssue(
   }
 
   // 2. Build GitHub issue URL
-  const template = category === 'bug' ? 'bug_report.yml'
-                 : category === 'feature' ? 'feature_request.yml'
-                 : 'question.yml';
+  const template =
+    category === "bug"
+      ? "bug_report.yml"
+      : category === "feature"
+        ? "feature_request.yml"
+        : "question.yml";
 
   const params = new URLSearchParams({
     template,
@@ -499,37 +503,37 @@ export async function openGitHubIssue(
   const url = `https://github.com/cboyd0319/JobSentinel/issues/new?${params}`;
 
   // 3. Open browser
-  await invoke('open_url', { url });
+  await invoke("open_url", { url });
 
   // 4. Show toast with next steps
   toast.info(
     debugInfo
-      ? 'Debug info copied! Paste it into the GitHub issue form.'
-      : 'Opening GitHub... Fill out the issue form to submit.'
+      ? "Debug info copied! Paste it into the GitHub issue form."
+      : "Opening GitHub... Fill out the issue form to submit.",
   );
 }
-```text
+```
 
 ### 4.3 Making GitHub Easy
 
 Display this guidance in the feedback modal:
 
-```
-╔═══════════════════════════════════════════════════════════════════╗
-║  Why GitHub Issues?                                               ║
-╠═══════════════════════════════════════════════════════════════════╣
-║                                                                   ║
-║  ✓ Public - Others with the same issue can find the solution     ║
-║  ✓ Trackable - See when your issue is addressed                  ║
-║  ✓ Searchable - Check if it's already been reported              ║
-║  ✓ Community - Other users can add context                       ║
-║                                                                   ║
-║  Don't have a GitHub account?                                     ║
-║  → It's free! github.com/signup                                  ║
-║  → Or use the Google Drive option below                          ║
-║                                                                   ║
-╚═══════════════════════════════════════════════════════════════════╝
 ```text
+╔═══════════════════════════════════════════════════════════════════╗
+║ Why GitHub Issues? ║
+╠═══════════════════════════════════════════════════════════════════╣
+║ ║
+║ ✓ Public - Others with the same issue can find the solution ║
+║ ✓ Trackable - See when your issue is addressed ║
+║ ✓ Searchable - Check if it's already been reported ║
+║ ✓ Community - Other users can add context ║
+║ ║
+║ Don't have a GitHub account? ║
+║ → It's free! github.com/signup ║
+║ → Or use the Google Drive option below ║
+║ ║
+╚═══════════════════════════════════════════════════════════════════╝
+```
 
 ---
 
@@ -537,75 +541,75 @@ Display this guidance in the feedback modal:
 
 ### 5.1 Components Overview
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                        FRONTEND (React)                             │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│  ┌─────────────────────┐    ┌─────────────────────┐                 │
-│  │  FeedbackModal.tsx  │    │   useFeedback.ts    │                 │
-│  │  (UI Component)     │◄───│   (Hook)            │                 │
-│  └─────────────────────┘    └─────────────────────┘                 │
-│           │                          │                              │
-│           ▼                          ▼                              │
-│  ┌─────────────────────┐    ┌─────────────────────┐                 │
-│  │ DebugInfoPreview    │    │  feedbackService.ts │                 │
-│  │ (Shows anonymized)  │    │  (Business logic)   │                 │
-│  └─────────────────────┘    └─────────────────────┘                 │
-│                                      │                              │
-└──────────────────────────────────────│──────────────────────────────┘
-                                       │ IPC (invoke)
-                                       ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                        BACKEND (Rust/Tauri)                         │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│  ┌─────────────────────┐    ┌─────────────────────┐                 │
-│  │ feedback.rs         │    │ system_info.rs      │                 │
-│  │ - generate_report() │    │ - get_system_info() │                 │
-│  │ - save_to_file()    │    │ - get_app_version() │                 │
-│  │ - open_github()     │    │ - get_debug_log()   │                 │
-│  └─────────────────────┘    └─────────────────────┘                 │
-│           │                          │                              │
-│           ▼                          ▼                              │
-│  ┌─────────────────────┐    ┌─────────────────────┐                 │
-│  │ DebugLogBuffer      │    │ Sanitizer           │                 │
-│  │ (Ring buffer of     │    │ - ALL OUTPUT GOES   │                 │
-│  │  last 100 events)   │    │   THROUGH HERE      │                 │
-│  └─────────────────────┘    └─────────────────────┘                 │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
 ```text
+┌─────────────────────────────────────────────────────────────────────┐
+│ FRONTEND (React) │
+├─────────────────────────────────────────────────────────────────────┤
+│ │
+│ ┌─────────────────────┐ ┌─────────────────────┐ │
+│ │ FeedbackModal.tsx │ │ useFeedback.ts │ │
+│ │ (UI Component) │◄───│ (Hook) │ │
+│ └─────────────────────┘ └─────────────────────┘ │
+│ │ │ │
+│ ▼ ▼ │
+│ ┌─────────────────────┐ ┌─────────────────────┐ │
+│ │ DebugInfoPreview │ │ feedbackService.ts │ │
+│ │ (Shows anonymized) │ │ (Business logic) │ │
+│ └─────────────────────┘ └─────────────────────┘ │
+│ │ │
+└──────────────────────────────────────│──────────────────────────────┘
+│ IPC (invoke)
+▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ BACKEND (Rust/Tauri) │
+├─────────────────────────────────────────────────────────────────────┤
+│ │
+│ ┌─────────────────────┐ ┌─────────────────────┐ │
+│ │ feedback.rs │ │ system_info.rs │ │
+│ │ - generate_report() │ │ - get_system_info() │ │
+│ │ - save_to_file() │ │ - get_app_version() │ │
+│ │ - open_github() │ │ - get_debug_log() │ │
+│ └─────────────────────┘ └─────────────────────┘ │
+│ │ │ │
+│ ▼ ▼ │
+│ ┌─────────────────────┐ ┌─────────────────────┐ │
+│ │ DebugLogBuffer │ │ Sanitizer │ │
+│ │ (Ring buffer of │ │ - ALL OUTPUT GOES │ │
+│ │ last 100 events) │ │ THROUGH HERE │ │
+│ └─────────────────────┘ └─────────────────────┘ │
+│ │
+└─────────────────────────────────────────────────────────────────────┘
+```
 
 ### 5.2 File Structure
 
-```
+```text
 src/
 ├── components/
-│   └── feedback/
-│       ├── FeedbackModal.tsx        # Main modal component
-│       ├── CategorySelector.tsx     # Bug/Idea/Other buttons
-│       ├── DescriptionInput.tsx     # Text area with prompts
-│       ├── DebugInfoPreview.tsx     # Shows ANONYMIZED preview
-│       ├── SubmitOptions.tsx        # GitHub (primary) / Drive (secondary)
-│       └── SuccessScreen.tsx        # Post-save instructions
+│ └── feedback/
+│ ├── FeedbackModal.tsx # Main modal component
+│ ├── CategorySelector.tsx # Bug/Idea/Other buttons
+│ ├── DescriptionInput.tsx # Text area with prompts
+│ ├── DebugInfoPreview.tsx # Shows ANONYMIZED preview
+│ ├── SubmitOptions.tsx # GitHub (primary) / Drive (secondary)
+│ └── SuccessScreen.tsx # Post-save instructions
 │
 ├── hooks/
-│   └── useFeedback.ts               # Feedback state management
+│ └── useFeedback.ts # Feedback state management
 │
 └── services/
-    └── feedbackService.ts           # Business logic
+└── feedbackService.ts # Business logic
 
 src-tauri/
 └── src/
-    └── commands/
-        └── feedback/
-            ├── mod.rs               # Module exports
-            ├── report.rs            # Report generation
-            ├── system_info.rs       # System info collection
-            ├── debug_log.rs         # Debug log management
-            └── sanitizer.rs         # ALL OUTPUT ANONYMIZATION
-```text
+└── commands/
+└── feedback/
+├── mod.rs # Module exports
+├── report.rs # Report generation
+├── system_info.rs # System info collection
+├── debug_log.rs # Debug log management
+└── sanitizer.rs # ALL OUTPUT ANONYMIZATION
+```
 
 ### 5.3 Debug Log System
 
@@ -657,7 +661,7 @@ The generated report is:
 3. **FULLY ANONYMIZED** - No PII, no identifiable data
 4. **Safe** - Plain `.txt` file, no executable content
 
-```text
+````text
 ═══════════════════════════════════════════════════════════════════════
                     JOBSENTINEL BETA FEEDBACK REPORT
 ═══════════════════════════════════════════════════════════════════════
@@ -733,10 +737,9 @@ STRUCTURED DATA (for automated processing)
 ```
 
 ═══════════════════════════════════════════════════════════════════════
-                    END OF REPORT
+END OF REPORT
 ═══════════════════════════════════════════════════════════════════════
-
-```text
+````
 
 ---
 
@@ -748,72 +751,72 @@ STRUCTURED DATA (for automated processing)
 
 #### Backend Tasks (Rust)
 
-| # | Task | File | Details |
-|---|------|------|---------|
-| 1.1 | Create feedback module | `commands/feedback/mod.rs` | Module structure |
-| 1.2 | Create Sanitizer | `commands/feedback/sanitizer.rs` | ALL OUTPUT GOES THROUGH HERE |
-| 1.3 | Create report generator | `commands/feedback/report.rs` | Anonymized report formatting |
-| 1.4 | Get system info command | `commands/feedback/system_info.rs` | App version, OS, arch |
-| 1.5 | Get config summary command | Same | Counts only, no values |
-| 1.6 | Save file command | `commands/feedback/report.rs` | File save dialog |
-| 1.7 | Open GitHub Issues | `commands/feedback/mod.rs` | Browser to new issue |
-| 1.8 | Open Google Drive folder | Same | Browser to Drive folder |
-| 1.9 | Reveal saved file | Same | Finder/Explorer |
+| #   | Task                       | File                               | Details                      |
+| --- | -------------------------- | ---------------------------------- | ---------------------------- |
+| 1.1 | Create feedback module     | `commands/feedback/mod.rs`         | Module structure             |
+| 1.2 | Create Sanitizer           | `commands/feedback/sanitizer.rs`   | ALL OUTPUT GOES THROUGH HERE |
+| 1.3 | Create report generator    | `commands/feedback/report.rs`      | Anonymized report formatting |
+| 1.4 | Get system info command    | `commands/feedback/system_info.rs` | App version, OS, arch        |
+| 1.5 | Get config summary command | Same                               | Counts only, no values       |
+| 1.6 | Save file command          | `commands/feedback/report.rs`      | File save dialog             |
+| 1.7 | Open GitHub Issues         | `commands/feedback/mod.rs`         | Browser to new issue         |
+| 1.8 | Open Google Drive folder   | Same                               | Browser to Drive folder      |
+| 1.9 | Reveal saved file          | Same                               | Finder/Explorer              |
 
 #### Frontend Tasks (React)
 
-| # | Task | File | Details |
-|---|------|------|---------|
-| 1.10 | Create FeedbackModal | `components/feedback/FeedbackModal.tsx` | Main modal |
-| 1.11 | Category selector | `components/feedback/CategorySelector.tsx` | 3 big buttons |
-| 1.12 | Description input | `components/feedback/DescriptionInput.tsx` | Textarea |
-| 1.13 | Debug info preview | `components/feedback/DebugInfoPreview.tsx` | SHOWS ANONYMIZED DATA |
-| 1.14 | Submit options | `components/feedback/SubmitOptions.tsx` | GitHub vs Drive |
-| 1.15 | Success screen | `components/feedback/SuccessScreen.tsx` | Next steps |
-| 1.16 | useFeedback hook | `hooks/useFeedback.ts` | State management |
-| 1.17 | Add to Help menu | `components/Settings/*.tsx` | Entry point |
+| #    | Task                 | File                                       | Details               |
+| ---- | -------------------- | ------------------------------------------ | --------------------- |
+| 1.10 | Create FeedbackModal | `components/feedback/FeedbackModal.tsx`    | Main modal            |
+| 1.11 | Category selector    | `components/feedback/CategorySelector.tsx` | 3 big buttons         |
+| 1.12 | Description input    | `components/feedback/DescriptionInput.tsx` | Textarea              |
+| 1.13 | Debug info preview   | `components/feedback/DebugInfoPreview.tsx` | SHOWS ANONYMIZED DATA |
+| 1.14 | Submit options       | `components/feedback/SubmitOptions.tsx`    | GitHub vs Drive       |
+| 1.15 | Success screen       | `components/feedback/SuccessScreen.tsx`    | Next steps            |
+| 1.16 | useFeedback hook     | `hooks/useFeedback.ts`                     | State management      |
+| 1.17 | Add to Help menu     | `components/Settings/*.tsx`                | Entry point           |
 
 #### GitHub Integration
 
-| # | Task | File | Details |
-|---|------|------|---------|
-| 1.18 | Bug report template | `.github/ISSUE_TEMPLATE/bug_report.yml` | Issue form |
-| 1.19 | Feature request template | `.github/ISSUE_TEMPLATE/feature_request.yml` | Issue form |
-| 1.20 | Question template | `.github/ISSUE_TEMPLATE/question.yml` | Issue form |
-| 1.21 | Config.yml | `.github/ISSUE_TEMPLATE/config.yml` | Template config |
+| #    | Task                     | File                                         | Details         |
+| ---- | ------------------------ | -------------------------------------------- | --------------- |
+| 1.18 | Bug report template      | `.github/ISSUE_TEMPLATE/bug_report.yml`      | Issue form      |
+| 1.19 | Feature request template | `.github/ISSUE_TEMPLATE/feature_request.yml` | Issue form      |
+| 1.20 | Question template        | `.github/ISSUE_TEMPLATE/question.yml`        | Issue form      |
+| 1.21 | Config.yml               | `.github/ISSUE_TEMPLATE/config.yml`          | Template config |
 
 ### Phase 2: Debug Log System
 
 **Goal:** Add opt-in diagnostic information (fully anonymized).
 
-| # | Task | File | Details |
-|---|------|------|---------|
-| 2.1 | Create DebugLogBuffer | `commands/feedback/debug_log.rs` | Ring buffer |
-| 2.2 | Instrument commands | Various command files | Add logging |
+| #   | Task                  | File                             | Details             |
+| --- | --------------------- | -------------------------------- | ------------------- |
+| 2.1 | Create DebugLogBuffer | `commands/feedback/debug_log.rs` | Ring buffer         |
+| 2.2 | Instrument commands   | Various command files            | Add logging         |
 | 2.3 | Get debug log command | `commands/feedback/debug_log.rs` | Retrieve + sanitize |
-| 2.4 | Integrate into modal | `FeedbackModal.tsx` | Toggle + preview |
-| 2.5 | Test sanitization | `tests/` | Verify no leaks |
+| 2.4 | Integrate into modal  | `FeedbackModal.tsx`              | Toggle + preview    |
+| 2.5 | Test sanitization     | `tests/`                         | Verify no leaks     |
 
 ### Phase 3: Screenshots & Polish
 
 **Goal:** Screenshot attachment and UX polish.
 
-| # | Task | File | Details |
-|---|------|------|---------|
-| 3.1 | Screenshot picker | `components/feedback/ScreenshotAttach.tsx` | File picker |
-| 3.2 | Image preview | Same | Thumbnail, remove |
-| 3.3 | Save alongside report | `report.rs` | Copy to same folder |
-| 3.4 | "Report This" on errors | Error handling | Quick bug report |
-| 3.5 | Keyboard shortcut | `App.tsx` | Cmd+Shift+F |
-| 3.6 | E2E tests | `tests/e2e/feedback.spec.ts` | Full flow |
+| #   | Task                    | File                                       | Details             |
+| --- | ----------------------- | ------------------------------------------ | ------------------- |
+| 3.1 | Screenshot picker       | `components/feedback/ScreenshotAttach.tsx` | File picker         |
+| 3.2 | Image preview           | Same                                       | Thumbnail, remove   |
+| 3.3 | Save alongside report   | `report.rs`                                | Copy to same folder |
+| 3.4 | "Report This" on errors | Error handling                             | Quick bug report    |
+| 3.5 | Keyboard shortcut       | `App.tsx`                                  | Cmd+Shift+F         |
+| 3.6 | E2E tests               | `tests/e2e/feedback.spec.ts`               | Full flow           |
 
 ### Phase 4: Documentation
 
-| # | Task | File | Details |
-|---|------|------|---------|
-| 4.1 | Beta tester guide | `docs/user/BETA_TESTING.md` | How to use feedback |
-| 4.2 | Privacy documentation | `docs/user/PRIVACY.md` | What we collect |
-| 4.3 | Update README | `README.md` | Add feedback section |
+| #   | Task                  | File                        | Details              |
+| --- | --------------------- | --------------------------- | -------------------- |
+| 4.1 | Beta tester guide     | `docs/user/BETA_TESTING.md` | How to use feedback  |
+| 4.2 | Privacy documentation | `docs/user/PRIVACY.md`      | What we collect      |
+| 4.3 | Update README         | `README.md`                 | Add feedback section |
 
 ---
 
@@ -821,76 +824,76 @@ STRUCTURED DATA (for automated processing)
 
 ### 7.1 Always Included (Safe)
 
-| Data | Example | Purpose |
-|------|---------|---------|
-| App version | `2.6.3` | Know which version has the bug |
-| Report timestamp | `2026-01-26T15:45:00Z` | Timeline |
-| Category | `bug` | Triage |
-| User description | (their text) | Context |
+| Data             | Example                | Purpose                        |
+| ---------------- | ---------------------- | ------------------------------ |
+| App version      | `2.6.3`                | Know which version has the bug |
+| Report timestamp | `2026-01-26T15:45:00Z` | Timeline                       |
+| Category         | `bug`                  | Triage                         |
+| User description | (their text)           | Context                        |
 
 ### 7.2 Opt-In Debug Information (Anonymized)
 
-| Data | Example | Purpose | Sensitive? |
-|------|---------|---------|------------|
-| OS version | `Windows 11` | Platform bugs | No |
-| Architecture | `x86_64` | Platform bugs | No |
-| Scrapers enabled count | `5` | Feature usage | No |
-| Keywords count | `3` | Config complexity | No |
-| Debug event log | See section 5.3 | Reproduce issues | No* |
+| Data                   | Example         | Purpose           | Sensitive? |
+| ---------------------- | --------------- | ----------------- | ---------- |
+| OS version             | `Windows 11`    | Platform bugs     | No         |
+| Architecture           | `x86_64`        | Platform bugs     | No         |
+| Scrapers enabled count | `5`             | Feature usage     | No         |
+| Keywords count         | `3`             | Config complexity | No         |
+| Debug event log        | See section 5.3 | Reproduce issues  | No\*       |
 
-*Debug log is sanitized to remove ALL user-entered content and identifiable data.
+\*Debug log is sanitized to remove ALL user-entered content and identifiable data.
 
 ### 7.3 NEVER Included
 
-| Data | Reason |
-|------|--------|
-| Job titles or descriptions | Reveals job search |
-| Company names | Reveals targets |
-| Search keywords | Reveals job search |
-| Location preferences | Reveals location |
-| Salary preferences | Reveals expectations |
-| Resume content | Private career history |
-| LinkedIn session | Security |
-| Webhook URLs | Security |
-| File paths with username | Privacy |
-| Database contents | Private data |
-| Application tracking | Private job search |
+| Data                       | Reason                 |
+| -------------------------- | ---------------------- |
+| Job titles or descriptions | Reveals job search     |
+| Company names              | Reveals targets        |
+| Search keywords            | Reveals job search     |
+| Location preferences       | Reveals location       |
+| Salary preferences         | Reveals expectations   |
+| Resume content             | Private career history |
+| LinkedIn session           | Security               |
+| Webhook URLs               | Security               |
+| File paths with username   | Privacy                |
+| Database contents          | Private data           |
+| Application tracking       | Private job search     |
 
 ### 7.4 Configuration Summary (Anonymized)
 
 Instead of revealing configuration values, we provide counts:
 
-| What User Configured | What We Report |
-|---------------------|----------------|
-| `keywords: ["rust developer", "systems engineer"]` | `keywords_count: 2` |
-| `location: "San Francisco"` | `has_location_prefs: true` |
-| `salary_floor: 150000` | `has_salary_prefs: true` |
-| `company_blocklist: ["BadCorp", "EvilInc"]` | `company_blocklist: 2 entries` |
-| Slack webhook URL | `notifications: ["slack"]` |
+| What User Configured                               | What We Report                 |
+| -------------------------------------------------- | ------------------------------ |
+| `keywords: ["rust developer", "systems engineer"]` | `keywords_count: 2`            |
+| `location: "San Francisco"`                        | `has_location_prefs: true`     |
+| `salary_floor: 150000`                             | `has_salary_prefs: true`       |
+| `company_blocklist: ["BadCorp", "EvilInc"]`        | `company_blocklist: 2 entries` |
+| Slack webhook URL                                  | `notifications: ["slack"]`     |
 
 ---
 
 ## 8. Edge Cases & Error Handling
 
-### 8.1 What If...
+### 8.1 What if things go wrong
 
-| Scenario | Handling |
-|----------|----------|
-| User doesn't have GitHub account | Show Google Drive alternative prominently |
-| User cancels file save dialog | "No worries - click 'Save' when you're ready" |
-| User can't find saved file | "Show in Finder/Explorer" button |
-| Browser doesn't open | Show URL with "Copy link" button |
-| Clipboard write fails | Show text in selectable field |
-| Disk full | "Couldn't save - your disk might be full" |
+| Scenario                         | Handling                                      |
+| -------------------------------- | --------------------------------------------- |
+| User doesn't have GitHub account | Show Google Drive alternative prominently     |
+| User cancels file save dialog    | "No worries - click 'Save' when you're ready" |
+| User can't find saved file       | "Show in Finder/Explorer" button              |
+| Browser doesn't open             | Show URL with "Copy link" button              |
+| Clipboard write fails            | Show text in selectable field                 |
+| Disk full                        | "Couldn't save - your disk might be full"     |
 
 ### 8.2 Error Messages (Plain Language)
 
-| Technical Issue | User-Friendly Message |
-|-----------------|----------------------|
-| File save cancelled | "No problem! Click 'Save Feedback Report' when you're ready." |
-| Permission denied | "Couldn't save there - try your Desktop instead." |
-| Clipboard failed | "Couldn't copy to clipboard - you can select and copy the text below." |
-| Browser won't open | "Couldn't open your browser. Here's the link to copy: [url]" |
+| Technical Issue     | User-Friendly Message                                                  |
+| ------------------- | ---------------------------------------------------------------------- |
+| File save cancelled | "No problem! Click 'Save Feedback Report' when you're ready."          |
+| Permission denied   | "Couldn't save there - try your Desktop instead."                      |
+| Clipboard failed    | "Couldn't copy to clipboard - you can select and copy the text below." |
+| Browser won't open  | "Couldn't open your browser. Here's the link to copy: [url]"           |
 
 ---
 
@@ -898,38 +901,38 @@ Instead of revealing configuration values, we provide counts:
 
 ### 9.1 Unit Tests
 
-| Component | Test Cases |
-|-----------|------------|
-| `Sanitizer` | Paths, emails, webhooks, quoted strings, edge cases |
-| `DebugLogBuffer` | Ring buffer behavior, max size, event formatting |
-| `FeedbackReport` | Formatting, all fields included, JSON valid |
-| `ConfigSummary` | Counts correct, no values leaked |
+| Component        | Test Cases                                          |
+| ---------------- | --------------------------------------------------- |
+| `Sanitizer`      | Paths, emails, webhooks, quoted strings, edge cases |
+| `DebugLogBuffer` | Ring buffer behavior, max size, event formatting    |
+| `FeedbackReport` | Formatting, all fields included, JSON valid         |
+| `ConfigSummary`  | Counts correct, no values leaked                    |
 
 ### 9.2 Integration Tests
 
-| Flow | Test Cases |
-|------|------------|
-| Bug report → GitHub | Opens correct template URL |
-| Bug report → Drive | File saved, opens Drive folder |
-| Debug info toggle | Preview updates, data included/excluded correctly |
-| Error context | Pre-fills from error, category = bug |
+| Flow                | Test Cases                                        |
+| ------------------- | ------------------------------------------------- |
+| Bug report → GitHub | Opens correct template URL                        |
+| Bug report → Drive  | File saved, opens Drive folder                    |
+| Debug info toggle   | Preview updates, data included/excluded correctly |
+| Error context       | Pre-fills from error, category = bug              |
 
 ### 9.3 Privacy Tests (CRITICAL)
 
-| Test | Verification |
-|------|--------------|
-| Path sanitization | No `/Users/actualname` in any output |
-| Job data exclusion | No job titles, companies, descriptions |
-| Config sanitization | Only counts, never values |
-| Error message sanitization | No quoted strings with user data |
-| Full report review | Manual review of sample report |
+| Test                       | Verification                           |
+| -------------------------- | -------------------------------------- |
+| Path sanitization          | No `/Users/actualname` in any output   |
+| Job data exclusion         | No job titles, companies, descriptions |
+| Config sanitization        | Only counts, never values              |
+| Error message sanitization | No quoted strings with user data       |
+| Full report review         | Manual review of sample report         |
 
 ### 9.4 E2E Tests
 
 ```typescript
 // tests/e2e/feedback.spec.ts
 
-test('bug report flow - github', async () => {
+test("bug report flow - github", async () => {
   // Open feedback modal
   await page.click('[data-testid="help-menu"]');
   await page.click('[data-testid="send-feedback"]');
@@ -938,19 +941,19 @@ test('bug report flow - github', async () => {
   await page.click('[data-testid="category-bug"]');
 
   // Enter description
-  await page.fill('[data-testid="description"]', 'Test bug description');
+  await page.fill('[data-testid="description"]', "Test bug description");
 
   // Verify debug info preview is anonymized
   const preview = await page.textContent('[data-testid="debug-preview"]');
-  expect(preview).not.toContain('/Users/');
-  expect(preview).not.toContain('@');
+  expect(preview).not.toContain("/Users/");
+  expect(preview).not.toContain("@");
 
   // Click GitHub submit (mock browser open)
   await page.click('[data-testid="submit-github"]');
 
   // Verify correct URL
   expect(mockOpenUrl).toHaveBeenCalledWith(
-    expect.stringContaining('github.com/cboyd0319/JobSentinel/issues/new')
+    expect.stringContaining("github.com/cboyd0319/JobSentinel/issues/new"),
   );
 });
 ```
@@ -961,21 +964,21 @@ test('bug report flow - github', async () => {
 
 ### 10.1 Potential Additions
 
-| Enhancement | Description | Priority |
-|-------------|-------------|----------|
-| Screen recording | Record issue reproduction | Low |
-| Automatic error capture | Pre-fill on unhandled errors | Medium |
-| Issue search | Check for duplicates before submitting | Medium |
-| Response tracking | Show when your issue gets a response | Low |
+| Enhancement             | Description                            | Priority |
+| ----------------------- | -------------------------------------- | -------- |
+| Screen recording        | Record issue reproduction              | Low      |
+| Automatic error capture | Pre-fill on unhandled errors           | Medium   |
+| Issue search            | Check for duplicates before submitting | Medium   |
+| Response tracking       | Show when your issue gets a response   | Low      |
 
 ### 10.2 NOT Planned
 
-| Feature | Why Not |
-|---------|---------|
-| Telemetry | Violates privacy-first philosophy |
-| Automatic submission | App never makes network requests |
-| User accounts | We don't track users |
-| Analytics | We don't collect usage data |
+| Feature              | Why Not                           |
+| -------------------- | --------------------------------- |
+| Telemetry            | Violates privacy-first philosophy |
+| Automatic submission | App never makes network requests  |
+| User accounts        | We don't track users              |
+| Analytics            | We don't collect usage data       |
 
 ---
 
@@ -1038,7 +1041,7 @@ Before releasing any version with feedback functionality:
 
 This is the orchestrating component that manages the multi-step flow.
 
-```tsx
+````tsx
 // src/components/feedback/FeedbackModal.tsx
 import { useState, useCallback } from 'react';
 import { invoke } from '@tauri-apps/api/core';
@@ -1488,11 +1491,11 @@ export function CategorySelector({ selected, onSelect }: CategorySelectorProps) 
     </div>
   );
 }
-```
+````
 
 ### C.3 DescriptionInput.tsx
 
-```tsx
+````tsx
 // src/components/feedback/DescriptionInput.tsx
 import { useMemo } from 'react';
 
@@ -1708,11 +1711,11 @@ ${debugInfo.debug_log || '(no recent activity)'}`}
     </div>
   );
 }
-```
+````
 
 ### C.5 SubmitOptions.tsx
 
-```tsx
+````tsx
 // src/components/feedback/SubmitOptions.tsx
 
 interface SubmitOptionsProps {
@@ -2024,11 +2027,11 @@ export function SuccessScreen({
     </div>
   );
 }
-```
+````
 
 ### C.7 useFeedback.ts (Hook)
 
-```tsx
+````tsx
 // src/hooks/useFeedback.ts
 import { useState, useCallback } from 'react';
 
@@ -2082,14 +2085,14 @@ export function useFeedback(): UseFeedbackReturn {
 
 ### D.1 Module Structure
 
-```
-src-tauri/src/commands/feedback/
-├── mod.rs              # Module exports + Tauri commands
-├── report.rs           # Report generation
-├── system_info.rs      # System info collection (cross-platform)
-├── debug_log.rs        # Debug log buffer
-└── sanitizer.rs        # ALL anonymization goes here
 ```text
+src-tauri/src/commands/feedback/
+├── mod.rs # Module exports + Tauri commands
+├── report.rs # Report generation
+├── system_info.rs # System info collection (cross-platform)
+├── debug_log.rs # Debug log buffer
+└── sanitizer.rs # ALL anonymization goes here
+```
 
 ### D.2 mod.rs (Module Exports + Tauri Commands)
 
@@ -2343,11 +2346,11 @@ async fn get_sanitized_debug_log(state: &State<'_, AppState>) -> String {
     let log = state.debug_log.lock().await;
     log.get_formatted_log()
 }
-```
+````
 
 ### D.3 system_info.rs (Cross-Platform System Info)
 
-```rust
+````rust
 // src-tauri/src/commands/feedback/system_info.rs
 
 use serde::{Deserialize, Serialize};
@@ -2709,11 +2712,11 @@ mod tests {
         assert_eq!(output, "update_config [args redacted]");
     }
 }
-```
+````
 
 ### D.5 debug_log.rs (Ring Buffer)
 
-```rust
+````rust
 // src-tauri/src/commands/feedback/debug_log.rs
 
 use chrono::{DateTime, Local};
@@ -3063,7 +3066,7 @@ mod tests {
         assert!(report.contains("```json"));
     }
 }
-```
+````
 
 ---
 
@@ -3085,26 +3088,26 @@ Since this is a PUBLIC repo and files may be uploaded to shared folders:
 
 **Generated Files MUST Be:**
 
-| Rule | Enforcement |
-|------|-------------|
-| Plain text only (`.txt`) | Hardcoded extension in `save_feedback_file` |
-| UTF-8 encoded | Rust's `std::fs::write` handles this |
-| No embedded code | Report format is plain text with fixed structure |
-| Max size 1MB | Reject if description > 10,000 chars |
+| Rule                     | Enforcement                                      |
+| ------------------------ | ------------------------------------------------ |
+| Plain text only (`.txt`) | Hardcoded extension in `save_feedback_file`      |
+| UTF-8 encoded            | Rust's `std::fs::write` handles this             |
+| No embedded code         | Report format is plain text with fixed structure |
+| Max size 1MB             | Reject if description > 10,000 chars             |
 
 **NEVER Generate:**
 
-| Type | Extension | Reason |
-|------|-----------|--------|
-| Executables | `.exe`, `.app`, `.sh`, `.bat`, `.cmd` | Could run malicious code |
-| Scripts | `.js`, `.py`, `.rb`, `.ps1` | Could run malicious code |
-| Office macros | `.docm`, `.xlsm` | Could contain macros |
-| Archives | `.zip`, `.tar`, `.gz` | Could hide any of the above |
-| HTML | `.html`, `.htm` | Could contain XSS |
+| Type          | Extension                             | Reason                      |
+| ------------- | ------------------------------------- | --------------------------- |
+| Executables   | `.exe`, `.app`, `.sh`, `.bat`, `.cmd` | Could run malicious code    |
+| Scripts       | `.js`, `.py`, `.rb`, `.ps1`           | Could run malicious code    |
+| Office macros | `.docm`, `.xlsm`                      | Could contain macros        |
+| Archives      | `.zip`, `.tar`, `.gz`                 | Could hide any of the above |
+| HTML          | `.html`, `.htm`                       | Could contain XSS           |
 
 **Rust Enforcement:**
 
-```rust
+````rust
 const ALLOWED_EXTENSIONS: &[&str] = &["txt"];
 
 fn validate_extension(path: &std::path::Path) -> Result<(), String> {
@@ -3202,11 +3205,11 @@ contact_links:
   - name: Discussions
     url: https://github.com/cboyd0319/JobSentinel/discussions
     about: Ask questions and share ideas
-```
+````
 
 ### G.2 bug_report.yml
 
-```yaml
+````yaml
 # .github/ISSUE_TEMPLATE/bug_report.yml
 name: "🐛 Bug Report"
 description: "Something isn't working right"
@@ -3380,11 +3383,11 @@ body:
       options:
         - label: I have searched existing issues to make sure this isn't a duplicate
           required: true
-```
+````
 
 ### G.4 question.yml
 
-```yaml
+````yaml
 # .github/ISSUE_TEMPLATE/question.yml
 name: "❓ Question"
 description: "Ask a question about using JobSentinel"
@@ -3460,11 +3463,11 @@ export function HelpMenu() {
     </div>
   );
 }
-```
+````
 
 ### H.2 Adding "Report This" to Error Toasts
 
-```tsx
+````tsx
 // In your toast/notification system
 import { useFeedback } from '@/hooks/useFeedback';
 
@@ -3517,11 +3520,11 @@ export function KeyboardShortcuts() {
 
   return null;
 }
-```
+````
 
 ### H.4 Registering Tauri Commands
 
-```rust
+````rust
 // In src-tauri/src/lib.rs or main.rs
 
 // Add to your tauri::generate_handler! macro:
@@ -3558,11 +3561,11 @@ impl AppState {
         }
     }
 }
-```
+````
 
 ### H.6 Logging Events in Commands
 
-```rust
+````rust
 // Example: In a scraper command
 use commands::feedback::{DebugLogBuffer, debug_log::DebugEvent};
 
@@ -3627,7 +3630,7 @@ lazy_static = "1.4"
 
 # For directory paths
 dirs = "5"
-```
+````
 
 ### I.2 Frontend Dependencies (package.json)
 
@@ -3879,19 +3882,19 @@ No additional dependencies needed - uses native clipboard API and existing Tauri
 
 ### L.1 Common Issues
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Save dialog doesn't open | rfd not properly linked | Verify rfd in Cargo.toml, rebuild |
-| Browser doesn't open | open crate issue | Check system default browser settings |
-| Reveal file doesn't work | Path has special characters | Use proper escaping in platform code |
-| Clipboard copy fails | Permission issue | Check Tauri permissions in tauri.conf.json |
-| Debug info empty | DebugLogBuffer not initialized | Verify AppState initialization |
+| Issue                    | Cause                          | Solution                                   |
+| ------------------------ | ------------------------------ | ------------------------------------------ |
+| Save dialog doesn't open | rfd not properly linked        | Verify rfd in Cargo.toml, rebuild          |
+| Browser doesn't open     | open crate issue               | Check system default browser settings      |
+| Reveal file doesn't work | Path has special characters    | Use proper escaping in platform code       |
+| Clipboard copy fails     | Permission issue               | Check Tauri permissions in tauri.conf.json |
+| Debug info empty         | DebugLogBuffer not initialized | Verify AppState initialization             |
 
 ### L.2 Platform-Specific Debugging
 
 **macOS:**
 
-```bash
+````bash
 # Check if open command works
 open -R ~/Desktop/test.txt
 
@@ -3907,13 +3910,13 @@ explorer /select,"C:\Users\Public\test.txt"
 
 # Check browser opening
 start https://github.com
-```
+````
 
 ### L.3 Debug Logging
 
 Add temporary logging to diagnose issues:
 
-```rust
+````rust
 // In commands
 tracing::debug!("save_feedback_file called with category: {}", category);
 tracing::debug!("Generated report length: {}", report_text.len());
@@ -3947,3 +3950,4 @@ This document provides a complete implementation plan for JobSentinel's beta fee
 
 **Document Version:** 1.4
 **Last Updated:** 2026-01-26
+````
