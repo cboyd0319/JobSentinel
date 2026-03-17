@@ -9,7 +9,7 @@ interface Job {
   location: string | null;
   url: string;
   source: string;
-  score: number;
+  score: number | null;
   created_at: string;
   description?: string | null;
   salary_min?: number | null;
@@ -20,7 +20,9 @@ interface Job {
 /**
  * Escape CSV cell values (handles commas, quotes, newlines)
  */
-function escapeCSV(value: string | number | boolean | null | undefined): string {
+function escapeCSV(
+  value: string | number | boolean | null | undefined,
+): string {
   if (value === null || value === undefined) return "";
   const str = String(value);
   // If contains comma, quote, or newline, wrap in quotes and escape internal quotes
@@ -55,7 +57,7 @@ export function jobsToCSV(jobs: Job[]): string {
     escapeCSV(job.location),
     escapeCSV(job.url),
     escapeCSV(job.source),
-    Math.round(job.score * 100) + "%",
+    job.score != null ? Math.round(job.score * 100) + "%" : "N/A",
     job.remote === true ? "Yes" : job.remote === false ? "No" : "",
     job.salary_min ?? "",
     job.salary_max ?? "",
@@ -68,7 +70,11 @@ export function jobsToCSV(jobs: Job[]): string {
 /**
  * Download a string as a file
  */
-export function downloadFile(content: string, filename: string, mimeType: string = "text/csv"): void {
+export function downloadFile(
+  content: string,
+  filename: string,
+  mimeType: string = "text/csv",
+): void {
   const blob = new Blob([content], { type: mimeType });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
@@ -106,7 +112,10 @@ export function exportConfigToJSON<T>(config: T, filename?: string): void {
  * Remove sensitive data from config before export
  */
 function sanitizeConfigForExport<T>(config: T): T {
-  const sanitized = JSON.parse(JSON.stringify(config)) as Record<string, unknown>;
+  const sanitized = JSON.parse(JSON.stringify(config)) as Record<
+    string,
+    unknown
+  >;
 
   // Remove sensitive fields
   if (sanitized.alerts && typeof sanitized.alerts === "object") {

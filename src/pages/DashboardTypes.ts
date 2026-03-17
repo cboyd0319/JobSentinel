@@ -1,11 +1,21 @@
 // Dashboard.tsx Type Definitions
 // Extracted from Dashboard.tsx to reduce file size
 
-export type SortOption = "score-desc" | "score-asc" | "date-desc" | "date-asc" | "company-asc";
+export type SortOption =
+  | "score-desc"
+  | "score-asc"
+  | "date-desc"
+  | "date-asc"
+  | "company-asc";
 export type ScoreFilter = "all" | "high" | "medium" | "low";
 export type PostedDateFilter = "all" | "24h" | "7d" | "30d";
 export type GhostFilter = "all" | "real" | "ghost";
-export type Page = "dashboard" | "applications" | "resume" | "salary" | "market";
+export type Page =
+  | "dashboard"
+  | "applications"
+  | "resume"
+  | "salary"
+  | "market";
 
 export interface Job {
   id: number;
@@ -14,7 +24,7 @@ export interface Job {
   location: string | null;
   url: string;
   source: string;
-  score: number;
+  score: number | null;
   created_at: string;
   description?: string | null;
   salary_min?: number | null;

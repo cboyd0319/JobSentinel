@@ -1,7 +1,10 @@
 import { memo, useCallback, useEffect } from "react";
 import { List, useListRef, type RowComponentProps } from "react-window";
 import { JobCard } from "./JobCard";
-import { DEFAULT_LIST_HEIGHT, DEFAULT_JOB_CARD_HEIGHT } from "../utils/constants";
+import {
+  DEFAULT_LIST_HEIGHT,
+  DEFAULT_JOB_CARD_HEIGHT,
+} from "../utils/constants";
 import { useAnnouncer } from "../contexts/AnnouncerContext";
 
 interface Job {
@@ -11,7 +14,7 @@ interface Job {
   location: string | null;
   url: string;
   source: string;
-  score: number;
+  score: number | null;
   created_at: string;
   description?: string | null;
   salary_min?: number | null;
@@ -116,7 +119,7 @@ export function useVirtualListScroll() {
     (index: number, align: "start" | "center" | "end" | "auto" = "center") => {
       listRef.current?.scrollToRow({ index, align });
     },
-    [listRef]
+    [listRef],
   );
 
   return { listRef, scrollToJob };

@@ -8,16 +8,22 @@ import type {
   ScoreFilter,
   PostedDateFilter,
   GhostFilter,
-  SearchQuery
+  SearchQuery,
 } from "../DashboardTypes";
-import { SALARY_THOUSANDS_MULTIPLIER, GHOST_SCORE_THRESHOLD, SCORE_THRESHOLD_GOOD } from "../../utils/constants";
+import {
+  SALARY_THOUSANDS_MULTIPLIER,
+  GHOST_SCORE_THRESHOLD,
+  SCORE_THRESHOLD_GOOD,
+} from "../../utils/constants";
 
 // Sort comparators lookup (better performance than switch)
 const SORT_COMPARATORS: Record<SortOption, (a: Job, b: Job) => number> = {
-  "score-desc": (a, b) => b.score - a.score,
-  "score-asc": (a, b) => a.score - b.score,
-  "date-desc": (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-  "date-asc": (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+  "score-desc": (a, b) => (b.score ?? -1) - (a.score ?? -1),
+  "score-asc": (a, b) => (a.score ?? -1) - (b.score ?? -1),
+  "date-desc": (a, b) =>
+    new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+  "date-asc": (a, b) =>
+    new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
   "company-asc": (a, b) => a.company.localeCompare(b.company),
 };
 
@@ -31,24 +37,24 @@ export function parseSearchQuery(query: string): SearchQuery {
   let isOr = false;
 
   // Check for OR mode (comma-separated or explicit OR)
-  if (trimmed.includes(',') || trimmed.toUpperCase().includes(' OR ')) {
+  if (trimmed.includes(",") || trimmed.toUpperCase().includes(" OR ")) {
     isOr = true;
   }
 
   // Split by comma or OR
   const parts = trimmed
     .split(/,|\sOR\s/i)
-    .map(p => p.trim())
-    .filter(p => p.length > 0);
+    .map((p) => p.trim())
+    .filter((p) => p.length > 0);
 
   for (const part of parts) {
     // Handle AND within each part
-    const andParts = part.split(/\sAND\s/i).map(p => p.trim());
+    const andParts = part.split(/\sAND\s/i).map((p) => p.trim());
 
     for (const term of andParts) {
       // Handle NOT/- prefix
-      if (term.startsWith('-') || term.toUpperCase().startsWith('NOT ')) {
-        const excludeTerm = term.replace(/^-|^NOT\s+/i, '').trim();
+      if (term.startsWith("-") || term.toUpperCase().startsWith("NOT ")) {
+        const excludeTerm = term.replace(/^-|^NOT\s+/i, "").trim();
         if (excludeTerm) excludes.push(excludeTerm.toLowerCase());
       } else {
         if (term) includes.push(term.toLowerCase());
@@ -62,9 +68,10 @@ export function parseSearchQuery(query: string): SearchQuery {
 // Match job against parsed search query
 export function matchesSearchQuery(
   job: { title: string; company: string; location: string | null },
-  query: SearchQuery
+  query: SearchQuery,
 ): boolean {
-  const searchableText = `${job.title} ${job.company} ${job.location || ''}`.toLowerCase();
+  const searchableText =
+    `${job.title} ${job.company} ${job.location || ""}`.toLowerCase();
 
   // Check excludes first - any match means exclude
   for (const exclude of query.excludes) {
@@ -76,11 +83,11 @@ export function matchesSearchQuery(
 
   // OR mode: any include matches
   if (query.isOr) {
-    return query.includes.some(term => searchableText.includes(term));
+    return query.includes.some((term) => searchableText.includes(term));
   }
 
   // AND mode: all includes must match
-  return query.includes.every(term => searchableText.includes(term));
+  return query.includes.every((term) => searchableText.includes(term));
 }
 
 export interface FilterState {
@@ -114,18 +121,20 @@ export interface FilterActions {
   loadFilters: (filters: Partial<Omit<FilterState, "textSearch">>) => void;
 }
 
-export function useDashboardFilters(jobs: Job[]): FilterState & FilterActions & {
-  availableSources: string[];
-  filteredAndSortedJobs: Job[];
-  hasActiveFilters: boolean;
-} {
+export function useDashboardFilters(jobs: Job[]): FilterState &
+  FilterActions & {
+    availableSources: string[];
+    filteredAndSortedJobs: Job[];
+    hasActiveFilters: boolean;
+  } {
   const [sortBy, setSortBy] = useState<SortOption>("score-desc");
   const [scoreFilter, setScoreFilter] = useState<ScoreFilter>("all");
   const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [remoteFilter, setRemoteFilter] = useState<string>("all");
   const [bookmarkFilter, setBookmarkFilter] = useState<string>("all");
   const [notesFilter, setNotesFilter] = useState<string>("all");
-  const [postedDateFilter, setPostedDateFilter] = useState<PostedDateFilter>("all");
+  const [postedDateFilter, setPostedDateFilter] =
+    useState<PostedDateFilter>("all");
   const [ghostFilter, setGhostFilter] = useState<GhostFilter>("all");
   const [salaryMinFilter, setSalaryMinFilter] = useState<number | null>(null);
   const [salaryMaxFilter, setSalaryMaxFilter] = useState<number | null>(null);
@@ -150,9 +159,12 @@ export function useDashboardFilters(jobs: Job[]): FilterState & FilterActions & 
     // Apply score filter
     if (scoreFilter !== "all") {
       result = result.filter((job) => {
-        if (scoreFilter === "high") return job.score >= SCORE_THRESHOLD_GOOD;
-        if (scoreFilter === "medium") return job.score >= 0.4 && job.score < SCORE_THRESHOLD_GOOD;
-        if (scoreFilter === "low") return job.score < 0.4;
+        const score = job.score ?? null;
+        if (score === null) return false;
+        if (scoreFilter === "high") return score >= SCORE_THRESHOLD_GOOD;
+        if (scoreFilter === "medium")
+          return score >= 0.4 && score < SCORE_THRESHOLD_GOOD;
+        if (scoreFilter === "low") return score < 0.4;
         return true;
       });
     }
@@ -194,7 +206,8 @@ export function useDashboardFilters(jobs: Job[]): FilterState & FilterActions & 
       const now = new Date();
       result = result.filter((job) => {
         const jobDate = new Date(job.created_at);
-        const diffHours = (now.getTime() - jobDate.getTime()) / (1000 * 60 * 60);
+        const diffHours =
+          (now.getTime() - jobDate.getTime()) / (1000 * 60 * 60);
         if (postedDateFilter === "24h") return diffHours <= 24;
         if (postedDateFilter === "7d") return diffHours <= 24 * 7;
         if (postedDateFilter === "30d") return diffHours <= 24 * 30;
@@ -243,7 +256,20 @@ export function useDashboardFilters(jobs: Job[]): FilterState & FilterActions & 
     }
 
     return result;
-  }, [jobs, textSearch, scoreFilter, sourceFilter, remoteFilter, bookmarkFilter, notesFilter, postedDateFilter, salaryMinFilter, salaryMaxFilter, ghostFilter, sortBy]);
+  }, [
+    jobs,
+    textSearch,
+    scoreFilter,
+    sourceFilter,
+    remoteFilter,
+    bookmarkFilter,
+    notesFilter,
+    postedDateFilter,
+    salaryMinFilter,
+    salaryMaxFilter,
+    ghostFilter,
+    sortBy,
+  ]);
 
   const clearFilters = (): void => {
     setTextSearch("");
@@ -271,23 +297,38 @@ export function useDashboardFilters(jobs: Job[]): FilterState & FilterActions & 
     salaryMaxFilter,
   });
 
-  const loadFilters = (filters: Partial<Omit<FilterState, "textSearch">>): void => {
+  const loadFilters = (
+    filters: Partial<Omit<FilterState, "textSearch">>,
+  ): void => {
     if (filters.sortBy !== undefined) setSortBy(filters.sortBy);
     if (filters.scoreFilter !== undefined) setScoreFilter(filters.scoreFilter);
-    if (filters.sourceFilter !== undefined) setSourceFilter(filters.sourceFilter);
-    if (filters.remoteFilter !== undefined) setRemoteFilter(filters.remoteFilter);
-    if (filters.bookmarkFilter !== undefined) setBookmarkFilter(filters.bookmarkFilter);
+    if (filters.sourceFilter !== undefined)
+      setSourceFilter(filters.sourceFilter);
+    if (filters.remoteFilter !== undefined)
+      setRemoteFilter(filters.remoteFilter);
+    if (filters.bookmarkFilter !== undefined)
+      setBookmarkFilter(filters.bookmarkFilter);
     if (filters.notesFilter !== undefined) setNotesFilter(filters.notesFilter);
-    if (filters.postedDateFilter !== undefined) setPostedDateFilter(filters.postedDateFilter);
-    if (filters.salaryMinFilter !== undefined) setSalaryMinFilter(filters.salaryMinFilter);
-    if (filters.salaryMaxFilter !== undefined) setSalaryMaxFilter(filters.salaryMaxFilter);
+    if (filters.postedDateFilter !== undefined)
+      setPostedDateFilter(filters.postedDateFilter);
+    if (filters.salaryMinFilter !== undefined)
+      setSalaryMinFilter(filters.salaryMinFilter);
+    if (filters.salaryMaxFilter !== undefined)
+      setSalaryMaxFilter(filters.salaryMaxFilter);
     if (filters.ghostFilter !== undefined) setGhostFilter(filters.ghostFilter);
   };
 
-  const hasActiveFilters = Boolean(textSearch) || scoreFilter !== "all" || sourceFilter !== "all" ||
-    remoteFilter !== "all" || bookmarkFilter !== "all" || notesFilter !== "all" ||
-    ghostFilter !== "all" || postedDateFilter !== "all" ||
-    salaryMinFilter !== null || salaryMaxFilter !== null;
+  const hasActiveFilters =
+    Boolean(textSearch) ||
+    scoreFilter !== "all" ||
+    sourceFilter !== "all" ||
+    remoteFilter !== "all" ||
+    bookmarkFilter !== "all" ||
+    notesFilter !== "all" ||
+    ghostFilter !== "all" ||
+    postedDateFilter !== "all" ||
+    salaryMinFilter !== null ||
+    salaryMaxFilter !== null;
 
   return {
     // State

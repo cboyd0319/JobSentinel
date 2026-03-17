@@ -1,7 +1,16 @@
 // Dashboard - Main job search interface
 // Refactored for v1.5 modularization - uses extracted hooks and components
 
-import { useEffect, useState, useCallback, useRef, useId, lazy, Suspense, memo } from "react";
+import {
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+  useId,
+  lazy,
+  Suspense,
+  memo,
+} from "react";
 import { listen } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/plugin-shell";
 import { Button } from "../components/Button";
@@ -19,26 +28,60 @@ import { useKeyboardNavigation } from "../hooks/useKeyboardNavigation";
 import { getErrorMessage, logError } from "../utils/errorUtils";
 import { SCORE_THRESHOLD_GOOD } from "../utils/constants";
 import { notifyScrapingComplete } from "../utils/notifications";
-import { cachedInvoke, invalidateCacheByCommand, safeInvoke } from "../utils/api";
+import {
+  cachedInvoke,
+  invalidateCacheByCommand,
+  safeInvoke,
+} from "../utils/api";
 import { PanelSkeleton, WidgetSkeleton } from "../components/LoadingFallbacks";
 import { isValidJobUrl } from "../utils/urlValidation";
 
 // Lazy load heavy components to reduce initial bundle size
-const DashboardWidgets = lazy(() => import("../components/DashboardWidgets").then(m => ({ default: m.DashboardWidgets })));
-const CompanyResearchPanel = lazy(() => import("../components/CompanyResearchPanel").then(m => ({ default: m.CompanyResearchPanel })));
+const DashboardWidgets = lazy(() =>
+  import("../components/DashboardWidgets").then((m) => ({
+    default: m.DashboardWidgets,
+  })),
+);
+const CompanyResearchPanel = lazy(() =>
+  import("../components/CompanyResearchPanel").then((m) => ({
+    default: m.CompanyResearchPanel,
+  })),
+);
 const Settings = lazy(() => import("./Settings"));
 
 // Extracted modules
-import type { Job, Statistics, ScrapingStatus, DuplicateGroup, DashboardProps, AutoRefreshConfig, SavedSearch } from "./DashboardTypes";
-import { FilterIcon, TrashIcon, CheckCircleIcon, BriefcaseIcon } from "./DashboardIcons";
+import type {
+  Job,
+  Statistics,
+  ScrapingStatus,
+  DuplicateGroup,
+  DashboardProps,
+  AutoRefreshConfig,
+  SavedSearch,
+} from "./DashboardTypes";
+import {
+  FilterIcon,
+  TrashIcon,
+  CheckCircleIcon,
+  BriefcaseIcon,
+} from "./DashboardIcons";
 import { useDashboardFilters } from "./hooks/useDashboardFilters";
 import { useDashboardSearch } from "./hooks/useDashboardSearch";
 import { useDashboardJobOps } from "./hooks/useDashboardJobOps";
 import { useDashboardSavedSearches } from "./hooks/useDashboardSavedSearches";
 import { useDashboardAutoRefresh } from "./hooks/useDashboardAutoRefresh";
-import { DashboardHeader, DashboardStats, DashboardFiltersBar, QuickActions } from "./DashboardUI";
+import {
+  DashboardHeader,
+  DashboardStats,
+  DashboardFiltersBar,
+  QuickActions,
+} from "./DashboardUI";
 
-export default function Dashboard({ onNavigate: _onNavigate, showSettings: showSettingsProp, onShowSettingsChange }: DashboardProps) {
+export default function Dashboard({
+  onNavigate: _onNavigate,
+  showSettings: showSettingsProp,
+  onShowSettingsChange,
+}: DashboardProps) {
   // Core state
   const [jobs, setJobs] = useState<Job[]>([]);
   const [statistics, setStatistics] = useState<Statistics>({
@@ -73,19 +116,30 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
 
   // Accessibility IDs (SSR-safe)
   const saveSearchNameId = useId();
-  const cooldownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const cooldownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
+    null,
+  );
   const cooldownTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Stable callback for data updates
-  const handleDataUpdate = useCallback((data: { jobs: Job[]; stats: Statistics; status: ScrapingStatus }) => {
-    setJobs(data.jobs);
-    setStatistics(data.stats);
-    setScrapingStatus(data.status);
-  }, []);
+  const handleDataUpdate = useCallback(
+    (data: { jobs: Job[]; stats: Statistics; status: ScrapingStatus }) => {
+      setJobs(data.jobs);
+      setStatistics(data.stats);
+      setScrapingStatus(data.status);
+    },
+    [],
+  );
 
   // Extracted hooks
   const filters = useDashboardFilters(jobs);
-  const { searchHistory, addToSearchHistory, clearSearchHistory, showSearchHistory, setShowSearchHistory } = useDashboardSearch();
+  const {
+    searchHistory,
+    addToSearchHistory,
+    clearSearchHistory,
+    showSearchHistory,
+    setShowSearchHistory,
+  } = useDashboardSearch();
   const jobOps = useDashboardJobOps(jobs, setJobs);
   const savedSearches = useDashboardSavedSearches();
 
@@ -115,10 +169,16 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
 
       // Load auto-refresh config
       try {
-        const config = await cachedInvoke<{ auto_refresh?: AutoRefreshConfig }>("get_config", undefined, 60_000);
+        const config = await cachedInvoke<{ auto_refresh?: AutoRefreshConfig }>(
+          "get_config",
+          undefined,
+          60_000,
+        );
         if (config?.auto_refresh) {
           autoRefresh.setAutoRefreshEnabled(config.auto_refresh.enabled);
-          autoRefresh.setAutoRefreshInterval(config.auto_refresh.interval_minutes || 30);
+          autoRefresh.setAutoRefreshInterval(
+            config.auto_refresh.interval_minutes || 30,
+          );
         }
       } catch {
         // Config might not have auto_refresh yet, use defaults
@@ -142,16 +202,22 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
 
   // Listen for jobs-updated event from Tauri backend
   useEffect(() => {
-    const unlisten = listen<{ jobs_found: number; jobs_new: number }>("jobs-updated", (event) => {
-      const { jobs_new } = event.payload;
-      if (jobs_new > 0) {
-        toast.success("New jobs found!", `${jobs_new} new job${jobs_new > 1 ? "s" : ""} added`);
-        // Invalidate cache and refresh data
-        invalidateCacheByCommand("get_recent_jobs");
-        invalidateCacheByCommand("get_statistics");
-        fetchData();
-      }
-    });
+    const unlisten = listen<{ jobs_found: number; jobs_new: number }>(
+      "jobs-updated",
+      (event) => {
+        const { jobs_new } = event.payload;
+        if (jobs_new > 0) {
+          toast.success(
+            "New jobs found!",
+            `${jobs_new} new job${jobs_new > 1 ? "s" : ""} added`,
+          );
+          // Invalidate cache and refresh data
+          invalidateCacheByCommand("get_recent_jobs");
+          invalidateCacheByCommand("get_statistics");
+          fetchData();
+        }
+      },
+    );
 
     return () => {
       unlisten.then((fn) => fn());
@@ -175,7 +241,8 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
   // Cleanup cooldown timers on unmount
   useEffect(() => {
     return () => {
-      if (cooldownIntervalRef.current) clearInterval(cooldownIntervalRef.current);
+      if (cooldownIntervalRef.current)
+        clearInterval(cooldownIntervalRef.current);
       if (cooldownTimeoutRef.current) clearTimeout(cooldownTimeoutRef.current);
     };
   }, []);
@@ -183,7 +250,10 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
   // Manual search
   const handleSearchNow = async () => {
     if (searchCooldown) {
-      toast.info("Please wait", `Search available in ${cooldownSeconds} seconds`);
+      toast.info(
+        "Please wait",
+        `Search available in ${cooldownSeconds} seconds`,
+      );
       return;
     }
 
@@ -195,7 +265,8 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
       toast.info("Scanning job boards...", "This may take a moment");
 
       // Clear any existing timers
-      if (cooldownIntervalRef.current) clearInterval(cooldownIntervalRef.current);
+      if (cooldownIntervalRef.current)
+        clearInterval(cooldownIntervalRef.current);
       if (cooldownTimeoutRef.current) clearTimeout(cooldownTimeoutRef.current);
 
       // Start countdown timer
@@ -212,7 +283,9 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
         });
       }, 1000);
 
-      await safeInvoke("search_jobs", undefined, { logContext: "Manual job search" });
+      await safeInvoke("search_jobs", undefined, {
+        logContext: "Manual job search",
+      });
 
       invalidateCacheByCommand("get_recent_jobs");
       invalidateCacheByCommand("get_statistics");
@@ -248,7 +321,7 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
         enhancedError.userFriendly?.action
           ? `${enhancedError.userFriendly.message}\n\n${enhancedError.userFriendly.action}`
           : enhancedError.userFriendly?.message ||
-            "Couldn't scan for jobs. Check your internet connection and job board settings, then try again."
+              "Couldn't scan for jobs. Check your internet connection and job board settings, then try again.",
       );
       // Reset cooldown on error so user can retry
       setSearchCooldown(false);
@@ -259,20 +332,29 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
   };
 
   // Open job URL
-  const handleOpenJob = useCallback(async (job: Job) => {
-    // Security: Validate URL before opening
-    if (!isValidJobUrl(job.url)) {
-      logError("Security: Blocked attempt to open invalid URL:", job.url.slice(0, 50));
-      toast.error("Invalid URL", "This job posting URL is not valid or safe to open");
-      return;
-    }
+  const handleOpenJob = useCallback(
+    async (job: Job) => {
+      // Security: Validate URL before opening
+      if (!isValidJobUrl(job.url)) {
+        logError(
+          "Security: Blocked attempt to open invalid URL:",
+          job.url.slice(0, 50),
+        );
+        toast.error(
+          "Invalid URL",
+          "This job posting URL is not valid or safe to open",
+        );
+        return;
+      }
 
-    try {
-      await open(job.url);
-    } catch {
-      window.open(job.url, "_blank", "noopener,noreferrer");
-    }
-  }, [toast]);
+      try {
+        await open(job.url);
+      } catch {
+        window.open(job.url, "_blank", "noopener,noreferrer");
+      }
+    },
+    [toast],
+  );
 
   // Keyboard navigation
   const { selectedIndex, isKeyboardActive } = useKeyboardNavigation({
@@ -302,16 +384,23 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
   // Scroll selected job into view
   useEffect(() => {
     if (isKeyboardActive && selectedIndex >= 0 && jobListRef.current) {
-      const selectedElement = jobListRef.current.querySelector(`[data-selected="true"]`);
+      const selectedElement = jobListRef.current.querySelector(
+        `[data-selected="true"]`,
+      );
       if (selectedElement) {
-        selectedElement.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        selectedElement.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+        });
       }
     }
   }, [selectedIndex, isKeyboardActive]);
 
   // Memoized callbacks for QuickActions and DashboardFiltersBar
   const handleExportHighMatches = useCallback(() => {
-    const highMatchJobs = jobs.filter(j => j.score >= SCORE_THRESHOLD_GOOD);
+    const highMatchJobs = jobs.filter(
+      (j) => (j.score ?? 0) >= SCORE_THRESHOLD_GOOD,
+    );
     jobOps.handleBulkExport(highMatchJobs);
   }, [jobs, jobOps]);
 
@@ -327,22 +416,32 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
     jobOps.handleBulkExport(filters.filteredAndSortedJobs);
   }, [jobOps, filters.filteredAndSortedJobs]);
 
-  const handleLoadSearch = useCallback((search: SavedSearch) => {
-    savedSearches.handleLoadSearch(search, filters.loadFilters);
-  }, [savedSearches, filters.loadFilters]);
+  const handleLoadSearch = useCallback(
+    (search: SavedSearch) => {
+      savedSearches.handleLoadSearch(search, filters.loadFilters);
+    },
+    [savedSearches, filters.loadFilters],
+  );
 
   const handleSelectAllJobs = useCallback(() => {
     jobOps.selectAllJobs(filters.filteredAndSortedJobs);
   }, [jobOps, filters.filteredAndSortedJobs]);
 
   const handleExportSelectedJobs = useCallback(() => {
-    jobOps.handleBulkExport(filters.filteredAndSortedJobs.filter(j => jobOps.selectedJobIds.has(j.id)));
+    jobOps.handleBulkExport(
+      filters.filteredAndSortedJobs.filter((j) =>
+        jobOps.selectedJobIds.has(j.id),
+      ),
+    );
   }, [jobOps, filters.filteredAndSortedJobs]);
 
   // Settings modal
   if (showSettings) {
     return (
-      <ModalErrorBoundary modalName="settings" onClose={() => setShowSettings(false)}>
+      <ModalErrorBoundary
+        modalName="settings"
+        onClose={() => setShowSettings(false)}
+      >
         <Suspense fallback={<PanelSkeleton />}>
           <Settings onClose={() => setShowSettings(false)} />
         </Suspense>
@@ -464,43 +563,80 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
 
           {/* Job List */}
           {jobs.length === 0 ? (
-            <Card className="text-center py-12 dark:bg-surface-800" data-tour="job-list" role="status" aria-live="polite">
+            <Card
+              className="text-center py-12 dark:bg-surface-800"
+              data-tour="job-list"
+              role="status"
+              aria-live="polite"
+            >
               <div className="w-12 h-12 bg-sentinel-50 dark:bg-sentinel-900/30 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <BriefcaseIcon className="w-6 h-6 text-sentinel-400" />
               </div>
-              <CardHeader title="No jobs yet" subtitle="Start by searching for jobs" />
-              <Button onClick={handleSearchNow} loading={searching} className="mt-4">
+              <CardHeader
+                title="No jobs yet"
+                subtitle="Start by searching for jobs"
+              />
+              <Button
+                onClick={handleSearchNow}
+                loading={searching}
+                className="mt-4"
+              >
                 Search Now
               </Button>
               <div className="mt-8 pt-6 border-t border-surface-200 dark:border-surface-700">
-                <p className="text-sm text-surface-500 dark:text-surface-400 mb-4">How JobSentinel works:</p>
+                <p className="text-sm text-surface-500 dark:text-surface-400 mb-4">
+                  How JobSentinel works:
+                </p>
                 <div className="flex flex-col gap-4 max-w-xs mx-auto text-left">
                   <div className="flex gap-3">
-                    <div className="flex-shrink-0 w-8 h-8 bg-sentinel-100 dark:bg-sentinel-900/30 rounded-full flex items-center justify-center text-sentinel-600 dark:text-sentinel-400 font-semibold text-sm">1</div>
+                    <div className="flex-shrink-0 w-8 h-8 bg-sentinel-100 dark:bg-sentinel-900/30 rounded-full flex items-center justify-center text-sentinel-600 dark:text-sentinel-400 font-semibold text-sm">
+                      1
+                    </div>
                     <div>
-                      <p className="text-sm font-medium text-surface-700 dark:text-surface-300">We search</p>
-                      <p className="text-xs text-surface-500 dark:text-surface-400">13 job boards automatically</p>
+                      <p className="text-sm font-medium text-surface-700 dark:text-surface-300">
+                        We search
+                      </p>
+                      <p className="text-xs text-surface-500 dark:text-surface-400">
+                        13 job boards automatically
+                      </p>
                     </div>
                   </div>
                   <div className="flex gap-3">
-                    <div className="flex-shrink-0 w-8 h-8 bg-sentinel-100 dark:bg-sentinel-900/30 rounded-full flex items-center justify-center text-sentinel-600 dark:text-sentinel-400 font-semibold text-sm">2</div>
+                    <div className="flex-shrink-0 w-8 h-8 bg-sentinel-100 dark:bg-sentinel-900/30 rounded-full flex items-center justify-center text-sentinel-600 dark:text-sentinel-400 font-semibold text-sm">
+                      2
+                    </div>
                     <div>
-                      <p className="text-sm font-medium text-surface-700 dark:text-surface-300">We match</p>
-                      <p className="text-xs text-surface-500 dark:text-surface-400">Based on your skills</p>
+                      <p className="text-sm font-medium text-surface-700 dark:text-surface-300">
+                        We match
+                      </p>
+                      <p className="text-xs text-surface-500 dark:text-surface-400">
+                        Based on your skills
+                      </p>
                     </div>
                   </div>
                   <div className="flex gap-3">
-                    <div className="flex-shrink-0 w-8 h-8 bg-sentinel-100 dark:bg-sentinel-900/30 rounded-full flex items-center justify-center text-sentinel-600 dark:text-sentinel-400 font-semibold text-sm">3</div>
+                    <div className="flex-shrink-0 w-8 h-8 bg-sentinel-100 dark:bg-sentinel-900/30 rounded-full flex items-center justify-center text-sentinel-600 dark:text-sentinel-400 font-semibold text-sm">
+                      3
+                    </div>
                     <div>
-                      <p className="text-sm font-medium text-surface-700 dark:text-surface-300">You apply</p>
-                      <p className="text-xs text-surface-500 dark:text-surface-400">To jobs that fit you</p>
+                      <p className="text-sm font-medium text-surface-700 dark:text-surface-300">
+                        You apply
+                      </p>
+                      <p className="text-xs text-surface-500 dark:text-surface-400">
+                        To jobs that fit you
+                      </p>
                     </div>
                   </div>
                 </div>
               </div>
             </Card>
           ) : filters.filteredAndSortedJobs.length === 0 ? (
-            <Card className="text-center py-8 dark:bg-surface-800" role="status" aria-live="polite" aria-atomic="true">
+            <Card
+              className="text-center py-8 dark:bg-surface-800"
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+            >
               <div className="w-12 h-12 bg-surface-100 dark:bg-surface-700 rounded-full flex items-center justify-center mx-auto mb-3">
                 <FilterIcon className="w-6 h-6 text-surface-400" />
               </div>
@@ -520,35 +656,55 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
             </Card>
           ) : (
             <>
-              <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
-                {filters.filteredAndSortedJobs.length} job{filters.filteredAndSortedJobs.length === 1 ? "" : "s"} found
+              <div
+                role="status"
+                aria-live="polite"
+                aria-atomic="true"
+                className="sr-only"
+              >
+                {filters.filteredAndSortedJobs.length} job
+                {filters.filteredAndSortedJobs.length === 1 ? "" : "s"} found
               </div>
-              <div ref={jobListRef} className="space-y-3 stagger-children" data-testid="job-list">
+              <div
+                ref={jobListRef}
+                className="space-y-3 stagger-children"
+                data-testid="job-list"
+              >
                 {filters.filteredAndSortedJobs.map((job, index) => (
-                <div key={job.id} className="flex items-start gap-3">
-                  {jobOps.bulkMode && (
-                    <div className="flex-shrink-0 pt-5">
-                      <input
-                        type="checkbox"
-                        checked={jobOps.selectedJobIds.has(job.id)}
-                        onChange={() => jobOps.toggleJobSelection(job.id)}
-                        className="w-5 h-5 rounded border-surface-300 dark:border-surface-600 text-sentinel-500 focus-visible:ring-sentinel-500"
-                        aria-label={`Select ${job.title}`}
+                  <div key={job.id} className="flex items-start gap-3">
+                    {jobOps.bulkMode && (
+                      <div className="flex-shrink-0 pt-5">
+                        <input
+                          type="checkbox"
+                          checked={jobOps.selectedJobIds.has(job.id)}
+                          onChange={() => jobOps.toggleJobSelection(job.id)}
+                          className="w-5 h-5 rounded border-surface-300 dark:border-surface-600 text-sentinel-500 focus-visible:ring-sentinel-500"
+                          aria-label={`Select ${job.title}`}
+                        />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <JobCard
+                        job={job}
+                        onHideJob={
+                          jobOps.bulkMode ? undefined : jobOps.handleHideJob
+                        }
+                        onToggleBookmark={
+                          jobOps.bulkMode
+                            ? undefined
+                            : jobOps.handleToggleBookmark
+                        }
+                        onEditNotes={
+                          jobOps.bulkMode ? undefined : jobOps.handleEditNotes
+                        }
+                        onResearchCompany={
+                          jobOps.bulkMode ? undefined : setResearchCompany
+                        }
+                        isSelected={isKeyboardActive && index === selectedIndex}
                       />
                     </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <JobCard
-                      job={job}
-                      onHideJob={jobOps.bulkMode ? undefined : jobOps.handleHideJob}
-                      onToggleBookmark={jobOps.bulkMode ? undefined : jobOps.handleToggleBookmark}
-                      onEditNotes={jobOps.bulkMode ? undefined : jobOps.handleEditNotes}
-                      onResearchCompany={jobOps.bulkMode ? undefined : setResearchCompany}
-                      isSelected={isKeyboardActive && index === selectedIndex}
-                    />
                   </div>
-                </div>
-              ))}
+                ))}
               </div>
             </>
           )}
@@ -556,7 +712,11 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
       </main>
 
       {/* Notes Modal */}
-      <Modal isOpen={jobOps.notesModalOpen} onClose={jobOps.handleCloseNotesModal} title="Edit Notes">
+      <Modal
+        isOpen={jobOps.notesModalOpen}
+        onClose={jobOps.handleCloseNotesModal}
+        title="Edit Notes"
+      >
         <div className="space-y-4">
           <p className="text-sm text-surface-600 dark:text-surface-400">
             Add personal notes about this job. Notes are only visible to you.
@@ -570,7 +730,9 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
             autoFocus
           />
           <ModalFooter>
-            <Button variant="secondary" onClick={jobOps.handleCloseNotesModal}>Cancel</Button>
+            <Button variant="secondary" onClick={jobOps.handleCloseNotesModal}>
+              Cancel
+            </Button>
             <Button onClick={jobOps.handleSaveNotes}>
               {jobOps.notesText.trim() ? "Save Notes" : "Remove Notes"}
             </Button>
@@ -592,7 +754,10 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
             Save your current filter settings to quickly apply them later.
           </p>
           <div>
-            <label htmlFor={saveSearchNameId} className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">
+            <label
+              htmlFor={saveSearchNameId}
+              className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1"
+            >
               Name
             </label>
             <input
@@ -604,7 +769,8 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
               className="w-full px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 placeholder-surface-400 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500 dark:focus:border-sentinel-400 dark:focus-visible:ring-sentinel-400"
               autoFocus
               onKeyDown={(e) => {
-                if (e.key === "Enter") savedSearches.handleSaveSearch(filters.getCurrentFilters);
+                if (e.key === "Enter")
+                  savedSearches.handleSaveSearch(filters.getCurrentFilters);
               }}
             />
           </div>
@@ -612,14 +778,37 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
             <p className="font-medium mb-1">Current filters:</p>
             <ul className="list-disc list-inside space-y-0.5">
               <li>Sort: {filters.sortBy}</li>
-              {filters.scoreFilter !== "all" && <li>Score: {filters.scoreFilter}</li>}
-              {filters.sourceFilter !== "all" && <li>Source: {filters.sourceFilter}</li>}
-              {filters.remoteFilter !== "all" && <li>Location: {filters.remoteFilter}</li>}
-              {filters.bookmarkFilter !== "all" && <li>Saved: {filters.bookmarkFilter}</li>}
-              {filters.notesFilter !== "all" && <li>Notes: {filters.notesFilter}</li>}
-              {filters.postedDateFilter !== "all" && <li>Posted: {filters.postedDateFilter === "24h" ? "Last 24 hours" : filters.postedDateFilter === "7d" ? "Last 7 days" : "Last 30 days"}</li>}
-              {filters.salaryMinFilter !== null && <li>Min salary: ${filters.salaryMinFilter}K</li>}
-              {filters.salaryMaxFilter !== null && <li>Max salary: ${filters.salaryMaxFilter}K</li>}
+              {filters.scoreFilter !== "all" && (
+                <li>Score: {filters.scoreFilter}</li>
+              )}
+              {filters.sourceFilter !== "all" && (
+                <li>Source: {filters.sourceFilter}</li>
+              )}
+              {filters.remoteFilter !== "all" && (
+                <li>Location: {filters.remoteFilter}</li>
+              )}
+              {filters.bookmarkFilter !== "all" && (
+                <li>Saved: {filters.bookmarkFilter}</li>
+              )}
+              {filters.notesFilter !== "all" && (
+                <li>Notes: {filters.notesFilter}</li>
+              )}
+              {filters.postedDateFilter !== "all" && (
+                <li>
+                  Posted:{" "}
+                  {filters.postedDateFilter === "24h"
+                    ? "Last 24 hours"
+                    : filters.postedDateFilter === "7d"
+                      ? "Last 7 days"
+                      : "Last 30 days"}
+                </li>
+              )}
+              {filters.salaryMinFilter !== null && (
+                <li>Min salary: ${filters.salaryMinFilter}K</li>
+              )}
+              {filters.salaryMaxFilter !== null && (
+                <li>Max salary: ${filters.salaryMaxFilter}K</li>
+              )}
             </ul>
           </div>
           {savedSearches.savedSearches.length > 0 && (
@@ -629,10 +818,16 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
               </p>
               <div className="space-y-1 max-h-32 overflow-y-auto">
                 {savedSearches.savedSearches.map((search) => (
-                  <div key={search.id} className="flex items-center justify-between px-2 py-1 rounded hover:bg-surface-100 dark:hover:bg-surface-700 group">
+                  <div
+                    key={search.id}
+                    className="flex items-center justify-between px-2 py-1 rounded hover:bg-surface-100 dark:hover:bg-surface-700 group"
+                  >
                     <button
                       onClick={() => {
-                        savedSearches.handleLoadSearch(search, filters.loadFilters);
+                        savedSearches.handleLoadSearch(
+                          search,
+                          filters.loadFilters,
+                        );
                         savedSearches.setSaveSearchModalOpen(false);
                       }}
                       className="text-sm text-surface-600 dark:text-surface-300 hover:text-sentinel-600 dark:hover:text-sentinel-400 text-left flex-1"
@@ -641,7 +836,9 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
                       {search.name}
                     </button>
                     <button
-                      onClick={() => savedSearches.handleDeleteSearch(search.id)}
+                      onClick={() =>
+                        savedSearches.handleDeleteSearch(search.id)
+                      }
                       className="p-1 text-surface-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
                       aria-label={`Delete "${search.name}"`}
                     >
@@ -653,13 +850,21 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
             </div>
           )}
           <ModalFooter>
-            <Button variant="secondary" onClick={() => {
-              savedSearches.setSaveSearchModalOpen(false);
-              savedSearches.setNewSearchName("");
-            }}>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                savedSearches.setSaveSearchModalOpen(false);
+                savedSearches.setNewSearchName("");
+              }}
+            >
               Cancel
             </Button>
-            <Button onClick={() => savedSearches.handleSaveSearch(filters.getCurrentFilters)} disabled={!savedSearches.newSearchName.trim()}>
+            <Button
+              onClick={() =>
+                savedSearches.handleSaveSearch(filters.getCurrentFilters)
+              }
+              disabled={!savedSearches.newSearchName.trim()}
+            >
               Save
             </Button>
           </ModalFooter>
@@ -667,7 +872,11 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
       </Modal>
 
       {/* Duplicates Modal */}
-      <Modal isOpen={jobOps.duplicatesModalOpen} onClose={() => jobOps.setDuplicatesModalOpen(false)} title="Duplicate Jobs">
+      <Modal
+        isOpen={jobOps.duplicatesModalOpen}
+        onClose={() => jobOps.setDuplicatesModalOpen(false)}
+        title="Duplicate Jobs"
+      >
         <div className="space-y-4">
           {jobOps.duplicateGroups.length === 0 ? (
             <div className="text-center py-8">
@@ -679,8 +888,9 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
           ) : (
             <>
               <p className="text-sm text-surface-600 dark:text-surface-400">
-                Found {jobOps.duplicateGroups.length} duplicate groups. Same job from multiple sources.
-                Merging will keep the highest-scoring version and hide duplicates.
+                Found {jobOps.duplicateGroups.length} duplicate groups. Same job
+                from multiple sources. Merging will keep the highest-scoring
+                version and hide duplicates.
               </p>
               <div className="space-y-4 max-h-96 overflow-y-auto">
                 {jobOps.duplicateGroups.map((group) => (
@@ -692,8 +902,15 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
                 ))}
               </div>
               <ModalFooter>
-                <Button variant="secondary" onClick={() => jobOps.setDuplicatesModalOpen(false)}>Close</Button>
-                <Button onClick={() => jobOps.handleMergeAllDuplicates(fetchData)}>
+                <Button
+                  variant="secondary"
+                  onClick={() => jobOps.setDuplicatesModalOpen(false)}
+                >
+                  Close
+                </Button>
+                <Button
+                  onClick={() => jobOps.handleMergeAllDuplicates(fetchData)}
+                >
                   Merge All ({jobOps.duplicateGroups.length})
                 </Button>
               </ModalFooter>
@@ -703,61 +920,138 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
       </Modal>
 
       {/* Job Comparison Modal */}
-      <Modal isOpen={jobOps.compareModalOpen} onClose={() => jobOps.setCompareModalOpen(false)} title="Compare Jobs" size="xl">
+      <Modal
+        isOpen={jobOps.compareModalOpen}
+        onClose={() => jobOps.setCompareModalOpen(false)}
+        title="Compare Jobs"
+        size="xl"
+      >
         <div className="space-y-4">
           {jobOps.comparedJobs.length > 0 && (
             <>
-              <div className={`grid gap-4 ${jobOps.comparedJobs.length === 2 ? "grid-cols-2" : "grid-cols-3"}`}>
+              <div
+                className={`grid gap-4 ${jobOps.comparedJobs.length === 2 ? "grid-cols-2" : "grid-cols-3"}`}
+              >
                 {jobOps.comparedJobs.map((job) => (
-                  <div key={job.id} className="p-4 bg-surface-50 dark:bg-surface-700 rounded-lg border border-surface-200 dark:border-surface-600">
-                    <h4 className="font-semibold text-surface-800 dark:text-surface-200 truncate">{job.title}</h4>
-                    <p className="text-sm text-surface-500 dark:text-surface-400 truncate">{job.company}</p>
-                    <ScoreDisplay score={job.score} size="sm" showLabel={false} />
+                  <div
+                    key={job.id}
+                    className="p-4 bg-surface-50 dark:bg-surface-700 rounded-lg border border-surface-200 dark:border-surface-600"
+                  >
+                    <h4 className="font-semibold text-surface-800 dark:text-surface-200 truncate">
+                      {job.title}
+                    </h4>
+                    <p className="text-sm text-surface-500 dark:text-surface-400 truncate">
+                      {job.company}
+                    </p>
+                    <ScoreDisplay
+                      score={job.score}
+                      size="sm"
+                      showLabel={false}
+                    />
                   </div>
                 ))}
               </div>
               <div className="overflow-x-auto">
-                <table className="w-full text-sm" role="table" aria-label="Job comparison">
+                <table
+                  className="w-full text-sm"
+                  role="table"
+                  aria-label="Job comparison"
+                >
                   <thead className="sr-only">
                     <tr>
                       <th scope="col">Attribute</th>
                       {jobOps.comparedJobs.map((job) => (
-                        <th key={job.id} scope="col">{job.title} at {job.company}</th>
+                        <th key={job.id} scope="col">
+                          {job.title} at {job.company}
+                        </th>
                       ))}
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-surface-200 dark:divide-surface-700">
-                    <CompareRow label="Match Score" values={jobOps.comparedJobs.map((j) => `${Math.round(j.score * 100)}%`)} />
-                    <CompareRow label="Location" values={jobOps.comparedJobs.map((j) => j.remote ? "Remote" : j.location || "N/A")} />
+                    <CompareRow
+                      label="Match Score"
+                      values={jobOps.comparedJobs.map((j) =>
+                        j.score != null
+                          ? `${Math.round(j.score * 100)}%`
+                          : "N/A",
+                      )}
+                    />
+                    <CompareRow
+                      label="Location"
+                      values={jobOps.comparedJobs.map((j) =>
+                        j.remote ? "Remote" : j.location || "N/A",
+                      )}
+                    />
                     <CompareRow
                       label="Salary"
                       values={jobOps.comparedJobs.map((j) => {
                         if (!j.salary_min && !j.salary_max) return "Not listed";
-                        const min = j.salary_min ? `$${Math.round(j.salary_min / 1000)}k` : "";
-                        const max = j.salary_max ? `$${Math.round(j.salary_max / 1000)}k` : "";
+                        const min = j.salary_min
+                          ? `$${Math.round(j.salary_min / 1000)}k`
+                          : "";
+                        const max = j.salary_max
+                          ? `$${Math.round(j.salary_max / 1000)}k`
+                          : "";
                         if (min && max) return `${min} - ${max}`;
                         return min || `Up to ${max}`;
                       })}
                     />
-                    <CompareRow label="Source" values={jobOps.comparedJobs.map((j) => j.source)} />
-                    <CompareRow label="Remote" values={jobOps.comparedJobs.map((j) => j.remote ? "Yes" : j.remote === false ? "No" : "Unknown")} />
-                    <CompareRow label="Posted" values={jobOps.comparedJobs.map((j) => new Date(j.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" }))} />
-                    <CompareRow label="Bookmarked" values={jobOps.comparedJobs.map((j) => j.bookmarked ? "Yes" : "No")} />
+                    <CompareRow
+                      label="Source"
+                      values={jobOps.comparedJobs.map((j) => j.source)}
+                    />
+                    <CompareRow
+                      label="Remote"
+                      values={jobOps.comparedJobs.map((j) =>
+                        j.remote
+                          ? "Yes"
+                          : j.remote === false
+                            ? "No"
+                            : "Unknown",
+                      )}
+                    />
+                    <CompareRow
+                      label="Posted"
+                      values={jobOps.comparedJobs.map((j) =>
+                        new Date(j.created_at).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                        }),
+                      )}
+                    />
+                    <CompareRow
+                      label="Bookmarked"
+                      values={jobOps.comparedJobs.map((j) =>
+                        j.bookmarked ? "Yes" : "No",
+                      )}
+                    />
                   </tbody>
                 </table>
               </div>
               <div className="pt-4 border-t border-surface-200 dark:border-surface-700">
-                <h5 className="font-medium text-surface-800 dark:text-surface-200 mb-3">Descriptions</h5>
-                <div className={`grid gap-4 ${jobOps.comparedJobs.length === 2 ? "grid-cols-2" : "grid-cols-3"}`}>
+                <h5 className="font-medium text-surface-800 dark:text-surface-200 mb-3">
+                  Descriptions
+                </h5>
+                <div
+                  className={`grid gap-4 ${jobOps.comparedJobs.length === 2 ? "grid-cols-2" : "grid-cols-3"}`}
+                >
                   {jobOps.comparedJobs.map((job) => (
-                    <div key={job.id} className="p-3 bg-surface-50 dark:bg-surface-700 rounded-lg text-xs text-surface-600 dark:text-surface-400 max-h-40 overflow-y-auto">
+                    <div
+                      key={job.id}
+                      className="p-3 bg-surface-50 dark:bg-surface-700 rounded-lg text-xs text-surface-600 dark:text-surface-400 max-h-40 overflow-y-auto"
+                    >
                       {job.description || "No description available"}
                     </div>
                   ))}
                 </div>
               </div>
               <ModalFooter>
-                <Button variant="secondary" onClick={() => jobOps.setCompareModalOpen(false)}>Close</Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => jobOps.setCompareModalOpen(false)}
+                >
+                  Close
+                </Button>
               </ModalFooter>
             </>
           )}
@@ -768,8 +1062,12 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
       {researchCompany && (
         <div
           className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-          onClick={(e) => { if (e.target === e.currentTarget) setResearchCompany(null); }}
-          onKeyDown={(e) => { if (e.key === "Escape") setResearchCompany(null); }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setResearchCompany(null);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setResearchCompany(null);
+          }}
           role="dialog"
           aria-modal="true"
           aria-label={`Company research for ${researchCompany}`}
@@ -782,12 +1080,17 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
                   <p className="text-red-600 dark:text-red-400 mb-4">
                     Failed to load company research
                   </p>
-                  <Button onClick={() => setResearchCompany(null)}>Close</Button>
+                  <Button onClick={() => setResearchCompany(null)}>
+                    Close
+                  </Button>
                 </div>
               )}
             >
               <Suspense fallback={<PanelSkeleton />}>
-                <CompanyResearchPanel companyName={researchCompany} onClose={() => setResearchCompany(null)} />
+                <CompanyResearchPanel
+                  companyName={researchCompany}
+                  onClose={() => setResearchCompany(null)}
+                />
               </Suspense>
             </ComponentErrorBoundary>
           </FocusTrap>
@@ -810,7 +1113,7 @@ export default function Dashboard({ onNavigate: _onNavigate, showSettings: showS
 // Helper component for duplicate groups - memoized to prevent re-renders
 const DuplicateGroupCard = memo(function DuplicateGroupCard({
   group,
-  onMerge
+  onMerge,
 }: {
   group: DuplicateGroup;
   onMerge: (primaryId: number, jobIds: number[]) => void;
@@ -819,13 +1122,22 @@ const DuplicateGroupCard = memo(function DuplicateGroupCard({
     <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-4">
       <div className="flex items-start justify-between mb-3">
         <div>
-          <h4 className="font-medium text-surface-800 dark:text-surface-200">{group.jobs[0]?.title ?? 'Unknown'}</h4>
-          <p className="text-sm text-surface-500 dark:text-surface-400">{group.jobs[0]?.company ?? 'Unknown'}</p>
+          <h4 className="font-medium text-surface-800 dark:text-surface-200">
+            {group.jobs[0]?.title ?? "Unknown"}
+          </h4>
+          <p className="text-sm text-surface-500 dark:text-surface-400">
+            {group.jobs[0]?.company ?? "Unknown"}
+          </p>
         </div>
         <button
-          onClick={() => onMerge(group.primary_id, group.jobs.map((j) => j.id))}
+          onClick={() =>
+            onMerge(
+              group.primary_id,
+              group.jobs.map((j) => j.id),
+            )
+          }
           className="px-3 py-1 text-sm bg-sentinel-500 text-white rounded-lg hover:bg-sentinel-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sentinel-400 focus-visible:ring-offset-2"
-          aria-label={`Merge ${group.jobs.length} duplicate jobs for ${group.jobs[0]?.title ?? 'Unknown'}`}
+          aria-label={`Merge ${group.jobs.length} duplicate jobs for ${group.jobs[0]?.title ?? "Unknown"}`}
         >
           Merge
         </button>
@@ -841,8 +1153,14 @@ const DuplicateGroupCard = memo(function DuplicateGroupCard({
             }`}
           >
             <div className="flex items-center gap-2">
-              <span className="text-xs font-medium text-surface-500 dark:text-surface-400 uppercase">{job.source}</span>
-              {idx === 0 && <span className="text-xs bg-sentinel-500 text-white px-1.5 py-0.5 rounded">Primary</span>}
+              <span className="text-xs font-medium text-surface-500 dark:text-surface-400 uppercase">
+                {job.source}
+              </span>
+              {idx === 0 && (
+                <span className="text-xs bg-sentinel-500 text-white px-1.5 py-0.5 rounded">
+                  Primary
+                </span>
+              )}
             </div>
             <span className="text-sm text-surface-600 dark:text-surface-300">
               {job.score ? `${Math.round(job.score * 100)}%` : "N/A"}
@@ -855,12 +1173,28 @@ const DuplicateGroupCard = memo(function DuplicateGroupCard({
 });
 
 // Comparison table row component - memoized to prevent re-renders
-const CompareRow = memo(function CompareRow({ label, values }: { label: string; values: string[] }) {
+const CompareRow = memo(function CompareRow({
+  label,
+  values,
+}: {
+  label: string;
+  values: string[];
+}) {
   return (
     <tr>
-      <th scope="row" className="py-2 pr-4 font-medium text-surface-700 dark:text-surface-300 whitespace-nowrap text-left">{label}</th>
+      <th
+        scope="row"
+        className="py-2 pr-4 font-medium text-surface-700 dark:text-surface-300 whitespace-nowrap text-left"
+      >
+        {label}
+      </th>
       {values.map((value, i) => (
-        <td key={i} className="py-2 px-4 text-surface-600 dark:text-surface-400">{value}</td>
+        <td
+          key={i}
+          className="py-2 px-4 text-surface-600 dark:text-surface-400"
+        >
+          {value}
+        </td>
       ))}
     </tr>
   );
