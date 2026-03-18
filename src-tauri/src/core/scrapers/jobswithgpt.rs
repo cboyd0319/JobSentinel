@@ -5,7 +5,7 @@
 
 use super::error::ScraperError;
 use super::http_client::get_client;
-use super::rate_limiter::{RateLimiter, limits};
+use super::rate_limiter::{limits, RateLimiter};
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
 
@@ -50,7 +50,9 @@ impl JobsWithGptScraper {
         tracing::info!("Querying JobsWithGPT MCP server");
 
         // Use rate limiter (MCP server, high limit)
-        self.rate_limiter.wait("jobswithgpt", limits::JOBSWITHGPT).await;
+        self.rate_limiter
+            .wait("jobswithgpt", limits::JOBSWITHGPT)
+            .await;
 
         // Build MCP JSON-RPC request
         // MCP format: { "jsonrpc": "2.0", "method": "search", "params": {...}, "id": 1 }

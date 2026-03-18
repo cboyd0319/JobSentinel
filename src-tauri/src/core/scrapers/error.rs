@@ -103,7 +103,7 @@ pub enum ScraperError {
 
 impl ScraperError {
     /// Convert from anyhow::Error with scraper context
-    /// 
+    ///
     /// This is a migration helper for converting anyhow errors to ScraperError.
     /// Use specific constructors (http_request, parse, etc.) when possible.
     pub fn from_anyhow(scraper: impl Into<String>, error: anyhow::Error) -> Self {
@@ -203,16 +203,30 @@ impl ScraperError {
                 format!("Failed to connect to {}", Self::sanitize_url(url))
             }
             Self::HttpStatus { status, url, .. } => {
-                format!("Server returned error {} for {}", status, Self::sanitize_url(url))
+                format!(
+                    "Server returned error {} for {}",
+                    status,
+                    Self::sanitize_url(url)
+                )
             }
             Self::RateLimit { scraper, .. } => {
-                format!("Rate limit reached for {}. Please try again later.", scraper)
+                format!(
+                    "Rate limit reached for {}. Please try again later.",
+                    scraper
+                )
             }
             Self::ParseError { format, url, .. } => {
-                format!("Failed to parse {} from {}", format, Self::sanitize_url(url))
+                format!(
+                    "Failed to parse {} from {}",
+                    format,
+                    Self::sanitize_url(url)
+                )
             }
             Self::Authentication { scraper, .. } => {
-                format!("Authentication required for {}. Please check your credentials.", scraper)
+                format!(
+                    "Authentication required for {}. Please check your credentials.",
+                    scraper
+                )
             }
             Self::SessionExpired { scraper, .. } => {
                 format!("Your {} session has expired. Please log in again.", scraper)
@@ -220,14 +234,25 @@ impl ScraperError {
             Self::CaptchaDetected { .. } => {
                 "CAPTCHA detected. Please complete the challenge in your browser.".to_string()
             }
-            Self::BotProtection { protection_type, .. } => {
-                format!("{} protection detected. Please try again later or use a different method.", protection_type)
+            Self::BotProtection {
+                protection_type, ..
+            } => {
+                format!(
+                    "{} protection detected. Please try again later or use a different method.",
+                    protection_type
+                )
             }
             Self::Timeout { timeout_secs, .. } => {
-                format!("Request timed out after {} seconds. Please check your connection.", timeout_secs)
+                format!(
+                    "Request timed out after {} seconds. Please check your connection.",
+                    timeout_secs
+                )
             }
             Self::NoResults { scraper, .. } => {
-                format!("No jobs found on {}. Try adjusting your search criteria.", scraper)
+                format!(
+                    "No jobs found on {}. Try adjusting your search criteria.",
+                    scraper
+                )
             }
             _ => self.to_string(),
         }
@@ -251,10 +276,11 @@ pub type ScraperResult<T> = Result<T, ScraperError>;
 impl From<reqwest::Error> for ScraperError {
     fn from(error: reqwest::Error) -> Self {
         // Try to extract URL from the error if available
-        let url = error.url()
+        let url = error
+            .url()
             .map(|u| u.to_string())
             .unwrap_or_else(|| "unknown".to_string());
-        
+
         if error.is_timeout() {
             Self::Timeout {
                 url,
@@ -291,13 +317,8 @@ mod tests {
             .unwrap();
 
         let rt = tokio::runtime::Runtime::new().unwrap();
-        let reqwest_err = rt.block_on(async {
-            client
-                .get("https://example.com")
-                .send()
-                .await
-                .unwrap_err()
-        });
+        let reqwest_err =
+            rt.block_on(async { client.get("https://example.com").send().await.unwrap_err() });
 
         let err = ScraperError::http_request("https://example.com", reqwest_err);
         assert!(matches!(err, ScraperError::HttpRequest { .. }));
@@ -331,10 +352,7 @@ mod tests {
         let parse_error = ScraperError::parse(
             "JSON",
             "https://example.com",
-            serde_json::Error::io(std::io::Error::new(
-                std::io::ErrorKind::InvalidData,
-                "test",
-            )),
+            serde_json::Error::io(std::io::Error::new(std::io::ErrorKind::InvalidData, "test")),
         );
         assert!(!parse_error.requires_user_action());
     }

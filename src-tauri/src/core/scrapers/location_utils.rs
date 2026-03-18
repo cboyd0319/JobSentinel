@@ -112,8 +112,19 @@ fn needs_location_normalization(lower: &str) -> bool {
         if part.len() == 2
             && matches!(
                 part,
-                "ca" | "ny" | "tx" | "fl" | "wa" | "il" | "ma" | "co" | "ga" | "az" | "or"
-                    | "nc" | "pa" | "va"
+                "ca" | "ny"
+                    | "tx"
+                    | "fl"
+                    | "wa"
+                    | "il"
+                    | "ma"
+                    | "co"
+                    | "ga"
+                    | "az"
+                    | "or"
+                    | "nc"
+                    | "pa"
+                    | "va"
             )
         {
             return true;

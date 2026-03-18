@@ -52,8 +52,8 @@ static ABBREVIATION_REGEXES: LazyLock<Vec<(Regex, &'static str)>> = LazyLock::ne
     ABBREVIATIONS
         .iter()
         .map(|(pattern, replacement)| {
-            let regex = Regex::new(&format!("(?i){}", pattern))
-                .expect("Valid abbreviation regex pattern");
+            let regex =
+                Regex::new(&format!("(?i){}", pattern)).expect("Valid abbreviation regex pattern");
             (regex, *replacement)
         })
         .collect()
@@ -158,7 +158,9 @@ pub fn normalize_title(title: &str) -> Cow<'_, str> {
 
     // Step 3: Remove filler words (of, the, and, or)
     if FILLER_WORDS_PATTERN.is_match(&normalized) {
-        normalized = FILLER_WORDS_PATTERN.replace_all(&normalized, "").into_owned();
+        normalized = FILLER_WORDS_PATTERN
+            .replace_all(&normalized, "")
+            .into_owned();
     }
 
     // Step 4: Expand abbreviations (with case-insensitive matching)
@@ -175,12 +177,16 @@ pub fn normalize_title(title: &str) -> Cow<'_, str> {
 
     // Step 6: Normalize whitespace
     if WHITESPACE_PATTERN.is_match(&normalized) {
-        normalized = WHITESPACE_PATTERN.replace_all(&normalized, " ").into_owned();
+        normalized = WHITESPACE_PATTERN
+            .replace_all(&normalized, " ")
+            .into_owned();
     }
 
     // Step 7: Remove trailing punctuation
     if TRAILING_PUNCT_PATTERN.is_match(&normalized) {
-        normalized = TRAILING_PUNCT_PATTERN.replace_all(&normalized, "").into_owned();
+        normalized = TRAILING_PUNCT_PATTERN
+            .replace_all(&normalized, "")
+            .into_owned();
     }
 
     // Final trim and return owned

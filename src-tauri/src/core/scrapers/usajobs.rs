@@ -110,19 +110,19 @@ impl UsaJobsScraper {
         headers.insert(HOST, HeaderValue::from_static("data.usajobs.gov"));
         headers.insert(
             USER_AGENT,
-            HeaderValue::from_str(&self.email)
-                .map_err(|e| ScraperError::InvalidConfiguration {
-                    scraper: "usajobs".to_string(),
-                    message: format!("Invalid email for User-Agent header: {}", e),
-                })?,
+            HeaderValue::from_str(&self.email).map_err(|e| ScraperError::InvalidConfiguration {
+                scraper: "usajobs".to_string(),
+                message: format!("Invalid email for User-Agent header: {}", e),
+            })?,
         );
         headers.insert(
             "Authorization-Key",
-            HeaderValue::from_str(&self.api_key)
-                .map_err(|e| ScraperError::InvalidConfiguration {
+            HeaderValue::from_str(&self.api_key).map_err(|e| {
+                ScraperError::InvalidConfiguration {
                     scraper: "usajobs".to_string(),
                     message: format!("Invalid API key: {}", e),
-                })?,
+                }
+            })?,
         );
 
         reqwest::Client::builder()

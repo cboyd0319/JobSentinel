@@ -99,10 +99,7 @@ impl QueryAnalyzer {
     /// ).await?;
     /// println!("Query plan: {}", plan);
     /// ```
-    pub async fn explain_query_plan(
-        pool: &SqlitePool,
-        query: &str,
-    ) -> Result<String, sqlx::Error> {
+    pub async fn explain_query_plan(pool: &SqlitePool, query: &str) -> Result<String, sqlx::Error> {
         let explain_query = format!("EXPLAIN QUERY PLAN {}", query);
         let rows: Vec<(i64, i64, i64, String)> =
             sqlx::query_as(&explain_query).fetch_all(pool).await?;
@@ -177,10 +174,9 @@ mod tests {
         assert!(plan.contains("SEARCH"));
 
         // Test index usage detection
-        let uses_idx =
-            QueryAnalyzer::uses_index(&pool, "SELECT * FROM test WHERE value = 'x'")
-                .await
-                .unwrap();
+        let uses_idx = QueryAnalyzer::uses_index(&pool, "SELECT * FROM test WHERE value = 'x'")
+            .await
+            .unwrap();
         assert!(uses_idx, "Query should use index");
     }
 }

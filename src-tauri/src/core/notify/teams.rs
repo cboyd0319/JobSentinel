@@ -255,10 +255,7 @@ mod tests {
         let invalid_url = "http://outlook.office.com/webhook/123/456";
         let result = validate_webhook_url(invalid_url);
         assert!(result.is_err(), "HTTP (not HTTPS) webhook should fail");
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("HTTPS"));
+        assert!(result.unwrap_err().to_string().contains("HTTPS"));
     }
 
     #[test]
@@ -307,13 +304,9 @@ mod tests {
     #[test]
     fn test_subdomain_bypass_attack_fails() {
         // Attack: Try to bypass validation using a subdomain of attacker's domain
-        let attack_url =
-            "https://outlook.office.com.evil.com/webhook/xxx@yyy/IncomingWebhook/zzz";
+        let attack_url = "https://outlook.office.com.evil.com/webhook/xxx@yyy/IncomingWebhook/zzz";
         let result = validate_webhook_url(attack_url);
-        assert!(
-            result.is_err(),
-            "Subdomain bypass attack should be blocked"
-        );
+        assert!(result.is_err(), "Subdomain bypass attack should be blocked");
     }
 
     #[test]
@@ -612,7 +605,10 @@ mod tests {
         let result = validate_webhook_url(url);
         // URL host is normalized to lowercase by the url crate (per RFC 3986)
         // So uppercase hostnames actually pass validation
-        assert!(result.is_ok(), "Uppercase host is normalized to lowercase and should pass validation");
+        assert!(
+            result.is_ok(),
+            "Uppercase host is normalized to lowercase and should pass validation"
+        );
     }
 
     #[test]
@@ -964,7 +960,10 @@ mod tests {
         let result = validate_webhook_url(url);
         // URL with non-standard port - host_str() still returns "outlook.office.com"
         // This actually passes validation since only the host is checked
-        assert!(result.is_ok(), "URL with non-standard port passes validation (only host is checked)");
+        assert!(
+            result.is_ok(),
+            "URL with non-standard port passes validation (only host is checked)"
+        );
     }
 
     #[test]
@@ -973,7 +972,10 @@ mod tests {
         let result = validate_webhook_url(url);
         // URL with username - host_str() still returns "outlook.office.com"
         // This actually passes validation since only the host is checked
-        assert!(result.is_ok(), "URL with username passes validation (only host is checked)");
+        assert!(
+            result.is_ok(),
+            "URL with username passes validation (only host is checked)"
+        );
     }
 
     #[test]
@@ -1495,7 +1497,11 @@ mod tests {
             let result = validate_webhook_url(url);
             // URL host is normalized to lowercase by the url crate (per RFC 3986)
             // So mixed case domains actually pass validation
-            assert!(result.is_ok(), "Mixed case domain is normalized and should pass: {}", url);
+            assert!(
+                result.is_ok(),
+                "Mixed case domain is normalized and should pass: {}",
+                url
+            );
         }
     }
 
@@ -1646,10 +1652,7 @@ mod tests {
     #[test]
     fn test_webhook_url_validation_error_messages_specificity() {
         let cases = vec![
-            (
-                "http://outlook.office.com/webhook/123",
-                "HTTPS",
-            ),
+            ("http://outlook.office.com/webhook/123", "HTTPS"),
             ("https://evil.com/webhook/123", "outlook.office"),
             ("https://outlook.office.com/badpath/123", "webhook"),
             ("not-a-url", "Invalid"),

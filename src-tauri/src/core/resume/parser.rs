@@ -203,7 +203,8 @@ impl ResumeParser {
                             if let Ok(canonical) = p.canonicalize() {
                                 // Ensure canonical path is still in temp_dir
                                 if let Ok(canonical_temp) = temp_dir.canonicalize() {
-                                    return canonical.starts_with(&canonical_temp) && canonical.is_file();
+                                    return canonical.starts_with(&canonical_temp)
+                                        && canonical.is_file();
                                 }
                             }
                         }

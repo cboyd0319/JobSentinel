@@ -254,13 +254,11 @@ async fn test_auto_reminders() {
         .unwrap();
 
     // Check reminder was created
-    let reminders = sqlx::query(
-        "SELECT * FROM application_reminders WHERE application_id = ?",
-    )
-    .bind(app_id)
-    .fetch_all(&pool)
-    .await
-    .unwrap();
+    let reminders = sqlx::query("SELECT * FROM application_reminders WHERE application_id = ?")
+        .bind(app_id)
+        .fetch_all(&pool)
+        .await
+        .unwrap();
 
     assert_eq!(reminders.len(), 1);
     assert_eq!(reminders[0].get::<String, _>("reminder_type"), "follow_up");
@@ -456,17 +454,18 @@ async fn test_set_reminder() {
         .await
         .unwrap();
 
-    let reminders = sqlx::query(
-        "SELECT * FROM application_reminders WHERE application_id = ?",
-    )
-    .bind(app_id)
-    .fetch_all(&pool)
-    .await
-    .unwrap();
+    let reminders = sqlx::query("SELECT * FROM application_reminders WHERE application_id = ?")
+        .bind(app_id)
+        .fetch_all(&pool)
+        .await
+        .unwrap();
 
     assert_eq!(reminders.len(), 1);
     assert_eq!(reminders[0].get::<String, _>("reminder_type"), "follow_up");
-    assert_eq!(reminders[0].get::<Option<String>, _>("message"), Some("Check status".to_string()));
+    assert_eq!(
+        reminders[0].get::<Option<String>, _>("message"),
+        Some("Check status".to_string())
+    );
 }
 
 #[tokio::test]
@@ -529,13 +528,12 @@ async fn test_complete_reminder() {
     assert_eq!(pending_after.len(), 0);
 
     // Verify completed flag set
-    let reminder = sqlx::query(
-        "SELECT completed, completed_at FROM application_reminders WHERE id = ?",
-    )
-    .bind(reminder_id)
-    .fetch_one(&pool)
-    .await
-    .unwrap();
+    let reminder =
+        sqlx::query("SELECT completed, completed_at FROM application_reminders WHERE id = ?")
+            .bind(reminder_id)
+            .fetch_one(&pool)
+            .await
+            .unwrap();
     assert_eq!(reminder.get::<i32, _>("completed"), 1);
     assert!(reminder.get::<Option<String>, _>("completed_at").is_some());
 }
@@ -576,14 +574,12 @@ async fn test_auto_detect_ghosted() {
 
     // Set last_contact to 3 weeks ago
     let old_contact = (Utc::now() - Duration::days(21)).to_rfc3339();
-    sqlx::query(
-        "UPDATE applications SET last_contact = ? WHERE id = ?",
-    )
-    .bind(&old_contact)
-    .bind(app1)
-    .execute(&pool)
-    .await
-    .unwrap();
+    sqlx::query("UPDATE applications SET last_contact = ? WHERE id = ?")
+        .bind(&old_contact)
+        .bind(app1)
+        .execute(&pool)
+        .await
+        .unwrap();
 
     // Create recent application (should not be ghosted)
     let app2 = tracker.create_application("test2").await.unwrap();
@@ -623,14 +619,12 @@ async fn test_auto_detect_ghosted_no_last_contact() {
 
     // Backdoor: set applied_at to 3 weeks ago
     let old_time = (Utc::now() - Duration::days(21)).to_rfc3339();
-    sqlx::query(
-        "UPDATE applications SET applied_at = ? WHERE id = ?",
-    )
-    .bind(&old_time)
-    .bind(app_id)
-    .execute(&pool)
-    .await
-    .unwrap();
+    sqlx::query("UPDATE applications SET applied_at = ? WHERE id = ?")
+        .bind(&old_time)
+        .bind(app_id)
+        .execute(&pool)
+        .await
+        .unwrap();
 
     let ghosted_count = tracker.auto_detect_ghosted().await.unwrap();
     assert_eq!(ghosted_count, 1);
@@ -658,14 +652,12 @@ async fn test_auto_detect_ghosted_skips_terminal_states() {
 
     // Set old last_contact
     let old_contact = (Utc::now() - Duration::days(21)).to_rfc3339();
-    sqlx::query(
-        "UPDATE applications SET last_contact = ? WHERE id = ?",
-    )
-    .bind(&old_contact)
-    .bind(app_id)
-    .execute(&pool)
-    .await
-    .unwrap();
+    sqlx::query("UPDATE applications SET last_contact = ? WHERE id = ?")
+        .bind(&old_contact)
+        .bind(app_id)
+        .execute(&pool)
+        .await
+        .unwrap();
 
     let ghosted_count = tracker.auto_detect_ghosted().await.unwrap();
     assert_eq!(ghosted_count, 0);
@@ -956,16 +948,18 @@ async fn test_interview_status_auto_sets_thank_you_reminder() {
         .await
         .unwrap();
 
-    let reminders = sqlx::query(
-        "SELECT * FROM application_reminders WHERE application_id = ?",
-    )
-    .bind(app_id)
-    .fetch_all(&pool)
-    .await
-    .unwrap();
+    let reminders = sqlx::query("SELECT * FROM application_reminders WHERE application_id = ?")
+        .bind(app_id)
+        .fetch_all(&pool)
+        .await
+        .unwrap();
 
     assert_eq!(reminders.len(), 1);
-    assert!(reminders[0].get::<Option<String>, _>("message").as_ref().unwrap().contains("thank-you"));
+    assert!(reminders[0]
+        .get::<Option<String>, _>("message")
+        .as_ref()
+        .unwrap()
+        .contains("thank-you"));
 }
 
 // ========================================
@@ -1364,13 +1358,11 @@ async fn test_auto_reminder_for_offer_status() {
         .unwrap();
 
     // Clear initial reminder
-    sqlx::query(
-        "DELETE FROM application_reminders WHERE application_id = ?",
-    )
-    .bind(app_id)
-    .execute(&pool)
-    .await
-    .unwrap();
+    sqlx::query("DELETE FROM application_reminders WHERE application_id = ?")
+        .bind(app_id)
+        .execute(&pool)
+        .await
+        .unwrap();
 
     // Transition to OfferReceived - should NOT create reminder (lines 298-300)
     tracker
@@ -1378,13 +1370,11 @@ async fn test_auto_reminder_for_offer_status() {
         .await
         .unwrap();
 
-    let reminders = sqlx::query(
-        "SELECT * FROM application_reminders WHERE application_id = ?",
-    )
-    .bind(app_id)
-    .fetch_all(&pool)
-    .await
-    .unwrap();
+    let reminders = sqlx::query("SELECT * FROM application_reminders WHERE application_id = ?")
+        .bind(app_id)
+        .fetch_all(&pool)
+        .await
+        .unwrap();
 
     assert_eq!(reminders.len(), 0);
 }
@@ -1410,16 +1400,18 @@ async fn test_technical_interview_auto_sets_thank_you_reminder() {
         .await
         .unwrap();
 
-    let reminders = sqlx::query(
-        "SELECT * FROM application_reminders WHERE application_id = ?",
-    )
-    .bind(app_id)
-    .fetch_all(&pool)
-    .await
-    .unwrap();
+    let reminders = sqlx::query("SELECT * FROM application_reminders WHERE application_id = ?")
+        .bind(app_id)
+        .fetch_all(&pool)
+        .await
+        .unwrap();
 
     assert_eq!(reminders.len(), 1);
-    assert!(reminders[0].get::<Option<String>, _>("message").as_ref().unwrap().contains("thank-you"));
+    assert!(reminders[0]
+        .get::<Option<String>, _>("message")
+        .as_ref()
+        .unwrap()
+        .contains("thank-you"));
 }
 
 #[tokio::test]
@@ -1439,16 +1431,18 @@ async fn test_onsite_interview_auto_sets_thank_you_reminder() {
         .await
         .unwrap();
 
-    let reminders = sqlx::query(
-        "SELECT * FROM application_reminders WHERE application_id = ?",
-    )
-    .bind(app_id)
-    .fetch_all(&pool)
-    .await
-    .unwrap();
+    let reminders = sqlx::query("SELECT * FROM application_reminders WHERE application_id = ?")
+        .bind(app_id)
+        .fetch_all(&pool)
+        .await
+        .unwrap();
 
     assert_eq!(reminders.len(), 1);
-    assert!(reminders[0].get::<Option<String>, _>("message").as_ref().unwrap().contains("thank-you"));
+    assert!(reminders[0]
+        .get::<Option<String>, _>("message")
+        .as_ref()
+        .unwrap()
+        .contains("thank-you"));
 }
 
 #[tokio::test]
@@ -1468,13 +1462,11 @@ async fn test_screening_call_no_auto_reminder() {
         .await
         .unwrap();
 
-    let reminders = sqlx::query(
-        "SELECT * FROM application_reminders WHERE application_id = ?",
-    )
-    .bind(app_id)
-    .fetch_all(&pool)
-    .await
-    .unwrap();
+    let reminders = sqlx::query("SELECT * FROM application_reminders WHERE application_id = ?")
+        .bind(app_id)
+        .fetch_all(&pool)
+        .await
+        .unwrap();
 
     // ScreeningCall is not in the auto-reminder list (line 301), so no reminders
     assert_eq!(reminders.len(), 0);
@@ -1497,13 +1489,11 @@ async fn test_withdrawn_status_no_auto_reminder() {
         .await
         .unwrap();
 
-    let reminders = sqlx::query(
-        "SELECT * FROM application_reminders WHERE application_id = ?",
-    )
-    .bind(app_id)
-    .fetch_all(&pool)
-    .await
-    .unwrap();
+    let reminders = sqlx::query("SELECT * FROM application_reminders WHERE application_id = ?")
+        .bind(app_id)
+        .fetch_all(&pool)
+        .await
+        .unwrap();
 
     // Withdrawn is not in the auto-reminder list (line 301), so no reminders
     assert_eq!(reminders.len(), 0);
@@ -1536,13 +1526,11 @@ async fn test_application_stats_weekly_data_with_null_week() {
     assert!(stats.weekly_applications.len() >= 0);
 
     // Insert application with NULL applied_at to test filter_map on line 769
-    sqlx::query(
-        "UPDATE applications SET applied_at = NULL WHERE id = ?",
-    )
-    .bind(app_id)
-    .execute(&pool)
-    .await
-    .unwrap();
+    sqlx::query("UPDATE applications SET applied_at = NULL WHERE id = ?")
+        .bind(app_id)
+        .execute(&pool)
+        .await
+        .unwrap();
 
     let stats2 = tracker.get_application_stats().await.unwrap();
     // NULL applied_at should be filtered out

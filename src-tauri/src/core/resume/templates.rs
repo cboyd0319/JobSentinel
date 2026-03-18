@@ -1079,7 +1079,10 @@ mod tests {
     #[test]
     fn test_template_id_conversion() {
         assert_eq!(TemplateId::Classic.as_str(), "classic");
-        assert_eq!("classic".parse::<TemplateId>().unwrap(), TemplateId::Classic);
+        assert_eq!(
+            "classic".parse::<TemplateId>().unwrap(),
+            TemplateId::Classic
+        );
         assert!("invalid".parse::<TemplateId>().is_err());
     }
 

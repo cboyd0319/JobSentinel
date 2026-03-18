@@ -126,7 +126,10 @@ fn validate_lists(config: &Config, errors: &mut ValidationErrors) {
     }
     for (i, title) in config.title_allowlist.iter().enumerate() {
         if title.is_empty() {
-            errors.add(ValidationError::empty_string(format!("title_allowlist[{}]", i)));
+            errors.add(ValidationError::empty_string(format!(
+                "title_allowlist[{}]",
+                i
+            )));
         } else if title.len() > MAX_TITLE_LENGTH {
             errors.add(ValidationError::too_long(
                 format!("title_allowlist[{}]", i),
@@ -164,7 +167,10 @@ fn validate_lists(config: &Config, errors: &mut ValidationErrors) {
     }
     for (i, keyword) in config.keywords_boost.iter().enumerate() {
         if keyword.is_empty() {
-            errors.add(ValidationError::empty_string(format!("keywords_boost[{}]", i)));
+            errors.add(ValidationError::empty_string(format!(
+                "keywords_boost[{}]",
+                i
+            )));
         } else if keyword.len() > MAX_KEYWORD_LENGTH {
             errors.add(ValidationError::too_long(
                 format!("keywords_boost[{}]", i),
@@ -184,7 +190,10 @@ fn validate_lists(config: &Config, errors: &mut ValidationErrors) {
     }
     for (i, keyword) in config.keywords_exclude.iter().enumerate() {
         if keyword.is_empty() {
-            errors.add(ValidationError::empty_string(format!("keywords_exclude[{}]", i)));
+            errors.add(ValidationError::empty_string(format!(
+                "keywords_exclude[{}]",
+                i
+            )));
         } else if keyword.len() > MAX_KEYWORD_LENGTH {
             errors.add(ValidationError::too_long(
                 format!("keywords_exclude[{}]", i),
@@ -204,7 +213,10 @@ fn validate_lists(config: &Config, errors: &mut ValidationErrors) {
     }
     for (i, company) in config.company_whitelist.iter().enumerate() {
         if company.is_empty() {
-            errors.add(ValidationError::empty_string(format!("company_whitelist[{}]", i)));
+            errors.add(ValidationError::empty_string(format!(
+                "company_whitelist[{}]",
+                i
+            )));
         } else if company.len() > MAX_COMPANY_NAME_LENGTH {
             errors.add(ValidationError::too_long(
                 format!("company_whitelist[{}]", i),
@@ -224,7 +236,10 @@ fn validate_lists(config: &Config, errors: &mut ValidationErrors) {
     }
     for (i, company) in config.company_blacklist.iter().enumerate() {
         if company.is_empty() {
-            errors.add(ValidationError::empty_string(format!("company_blacklist[{}]", i)));
+            errors.add(ValidationError::empty_string(format!(
+                "company_blacklist[{}]",
+                i
+            )));
         } else if company.len() > MAX_COMPANY_NAME_LENGTH {
             errors.add(ValidationError::too_long(
                 format!("company_blacklist[{}]", i),
@@ -302,7 +317,6 @@ fn validate_location(config: &Config, errors: &mut ValidationErrors) {
 
 /// Validate alert configuration
 fn validate_alerts(config: &Config, errors: &mut ValidationErrors) {
-
     const MAX_EMAIL_LENGTH: usize = 100;
     const MAX_HOSTNAME_LENGTH: usize = 100;
     const MAX_CHAT_ID_LENGTH: usize = 50;
@@ -354,7 +368,10 @@ fn validate_alerts(config: &Config, errors: &mut ValidationErrors) {
         } else {
             for (i, email) in config.alerts.email.to_emails.iter().enumerate() {
                 if email.is_empty() {
-                    errors.add(ValidationError::empty_string(format!("alerts.email.to_emails[{}]", i)));
+                    errors.add(ValidationError::empty_string(format!(
+                        "alerts.email.to_emails[{}]",
+                        i
+                    )));
                 } else if !is_valid_email(email) {
                     errors.add(ValidationError::invalid_email(
                         format!("alerts.email.to_emails[{}]", i),
@@ -626,7 +643,8 @@ fn validate_scrapers(config: &Config, errors: &mut ValidationErrors) {
         }
 
         // Validate pay grade consistency
-        if let (Some(min), Some(max)) = (config.usajobs.pay_grade_min, config.usajobs.pay_grade_max) {
+        if let (Some(min), Some(max)) = (config.usajobs.pay_grade_min, config.usajobs.pay_grade_max)
+        {
             if min > max {
                 errors.add(ValidationError::inconsistent_values(
                     "usajobs.pay_grade_min",
@@ -742,7 +760,10 @@ fn validate_urls(config: &Config, errors: &mut ValidationErrors) {
     }
     for (i, url) in config.greenhouse_urls.iter().enumerate() {
         if url.is_empty() {
-            errors.add(ValidationError::empty_string(format!("greenhouse_urls[{}]", i)));
+            errors.add(ValidationError::empty_string(format!(
+                "greenhouse_urls[{}]",
+                i
+            )));
         } else if url.len() > MAX_URL_LENGTH {
             errors.add(ValidationError::too_long(
                 format!("greenhouse_urls[{}]", i),

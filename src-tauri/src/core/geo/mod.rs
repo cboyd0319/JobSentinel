@@ -69,10 +69,7 @@ pub async fn detect_location() -> Result<LocationInfo> {
     // Check HTTP status
     let status_code = response.status();
     if !status_code.is_success() {
-        anyhow::bail!(
-            "IP geolocation API returned error status: {}",
-            status_code
-        );
+        anyhow::bail!("IP geolocation API returned error status: {}", status_code);
     }
 
     let api_response: IpApiResponse = response

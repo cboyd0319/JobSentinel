@@ -33,10 +33,7 @@ impl SystemInfo {
         {
             // macOS version detection
             use std::process::Command;
-            if let Ok(output) = Command::new("sw_vers")
-                .arg("-productVersion")
-                .output()
-            {
+            if let Ok(output) = Command::new("sw_vers").arg("-productVersion").output() {
                 if let Ok(version) = String::from_utf8(output.stdout) {
                     return format!("macOS {}", version.trim());
                 }
@@ -48,10 +45,7 @@ impl SystemInfo {
         {
             // Windows version detection
             use std::process::Command;
-            if let Ok(output) = Command::new("cmd")
-                .args(["/C", "ver"])
-                .output()
-            {
+            if let Ok(output) = Command::new("cmd").args(["/C", "ver"]).output() {
                 if let Ok(version) = String::from_utf8(output.stdout) {
                     return version.trim().to_string();
                 }
@@ -63,10 +57,7 @@ impl SystemInfo {
         {
             // Linux version detection
             use std::process::Command;
-            if let Ok(output) = Command::new("uname")
-                .arg("-r")
-                .output()
-            {
+            if let Ok(output) = Command::new("uname").arg("-r").output() {
                 if let Ok(version) = String::from_utf8(output.stdout) {
                     return format!("Linux {}", version.trim());
                 }

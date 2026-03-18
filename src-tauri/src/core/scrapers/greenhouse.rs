@@ -5,7 +5,7 @@
 
 use super::error::ScraperError;
 use super::http_client::get_with_retry;
-use super::rate_limiter::{RateLimiter, limits};
+use super::rate_limiter::{limits, RateLimiter};
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
 use async_trait::async_trait;
@@ -287,8 +287,10 @@ impl JobScraper for GreenhouseScraper {
 
         for company in &self.companies {
             // Use rate limiter to respect Greenhouse's limits
-            self.rate_limiter.wait("greenhouse", limits::GREENHOUSE).await;
-            
+            self.rate_limiter
+                .wait("greenhouse", limits::GREENHOUSE)
+                .await;
+
             match self.scrape_company(company).await {
                 Ok(jobs) => {
                     all_jobs.extend(jobs);

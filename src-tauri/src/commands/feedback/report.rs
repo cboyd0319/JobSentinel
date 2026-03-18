@@ -7,10 +7,10 @@ use chrono::{DateTime, Local, Utc};
 use serde::Serialize;
 use tauri::State;
 
-use crate::commands::AppState;
 use super::debug_log::get_recent_events;
 use super::sanitizer::{ConfigSummary, Sanitizer};
 use super::system_info::{summarize_config, SystemInfo};
+use crate::commands::AppState;
 
 /// Feedback category
 #[derive(Debug, Clone, Serialize)]
@@ -98,10 +98,7 @@ fn format_feedback_report(
     report.push_str("\n");
 
     report.push_str(&format!("CATEGORY: {}\n", category.as_str()));
-    report.push_str(&format!(
-        "DATE: {}\n",
-        now.format("%B %d, %Y at %I:%M %p")
-    ));
+    report.push_str(&format!("DATE: {}\n", now.format("%B %d, %Y at %I:%M %p")));
     report.push_str("\n");
 
     // User feedback
@@ -127,9 +124,11 @@ fn format_feedback_report(
 
     // Config summary (if provided)
     if let Some(summary) = config_summary {
-        report.push_str("───────────────────────────────────────────────────────────────────────\n");
+        report
+            .push_str("───────────────────────────────────────────────────────────────────────\n");
         report.push_str("CONFIGURATION SUMMARY (anonymized - no actual values)\n");
-        report.push_str("───────────────────────────────────────────────────────────────────────\n");
+        report
+            .push_str("───────────────────────────────────────────────────────────────────────\n");
         report.push_str("\n");
         report.push_str(&format!("Scrapers enabled: {}\n", summary.scrapers_enabled));
         report.push_str(&format!(
@@ -182,9 +181,11 @@ fn format_feedback_report(
 
     // Debug events (if provided)
     if !debug_events.is_empty() {
-        report.push_str("───────────────────────────────────────────────────────────────────────\n");
+        report
+            .push_str("───────────────────────────────────────────────────────────────────────\n");
         report.push_str("RECENT ACTIVITY LOG (anonymized)\n");
-        report.push_str("───────────────────────────────────────────────────────────────────────\n");
+        report
+            .push_str("───────────────────────────────────────────────────────────────────────\n");
         report.push_str("\n");
 
         for event in debug_events {

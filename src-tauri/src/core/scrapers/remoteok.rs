@@ -61,8 +61,14 @@ impl RemoteOkScraper {
 
         // RemoteOK returns an array where first element is a legal notice
         let jobs_array = json.as_array().ok_or_else(|| {
-            ScraperError::parse("JSON", url, 
-                std::io::Error::new(std::io::ErrorKind::InvalidData, "Expected array from RemoteOK API"))
+            ScraperError::parse(
+                "JSON",
+                url,
+                std::io::Error::new(
+                    std::io::ErrorKind::InvalidData,
+                    "Expected array from RemoteOK API",
+                ),
+            )
         })?;
 
         let mut jobs = Vec::new();

@@ -154,7 +154,8 @@ impl SynonymMap {
         let mut normalized_synonyms = Vec::with_capacity(synonyms.len());
         for s in synonyms {
             let normalized = s.to_lowercase();
-            self.keyword_to_group.insert(normalized.clone(), group_index);
+            self.keyword_to_group
+                .insert(normalized.clone(), group_index);
             normalized_synonyms.push(normalized);
         }
 

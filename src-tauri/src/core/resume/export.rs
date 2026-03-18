@@ -413,10 +413,7 @@ fn convert_to_template_resume(resume: ResumeData) -> crate::core::resume::templa
                 location: None,
                 graduation_date: Some(edu.graduation_year),
                 gpa: edu.gpa.map(|g| format!("{:.2}", g)),
-                honors: edu
-                    .honors
-                    .map(|h| vec![h])
-                    .unwrap_or_default(),
+                honors: edu.honors.map(|h| vec![h]).unwrap_or_default(),
             })
             .collect(),
         skills: resume

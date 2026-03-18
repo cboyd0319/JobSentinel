@@ -64,8 +64,7 @@ pub async fn semantic_match_skills(
         .match_skills(&user_skills, &job_requirements)
         .map_err(|e| format!("Failed to match skills: {}", e))?;
 
-    serde_json::to_value(&result)
-        .map_err(|e| format!("Failed to serialize result: {}", e))
+    serde_json::to_value(&result).map_err(|e| format!("Failed to serialize result: {}", e))
 }
 
 /// Enhanced resume matching with semantic understanding
@@ -130,6 +129,5 @@ pub async fn match_resume_semantic(
         .match_skills(&user_skills, &job_skills)
         .map_err(|e| format!("Failed to match skills: {}", e))?;
 
-    serde_json::to_value(&result)
-        .map_err(|e| format!("Failed to serialize result: {}", e))
+    serde_json::to_value(&result).map_err(|e| format!("Failed to serialize result: {}", e))
 }

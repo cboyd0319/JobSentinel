@@ -151,9 +151,11 @@ pub async fn run_scrapers(config: &Arc<Config>) -> (Vec<Job>, Vec<String>) {
                 tracing::warn!("LinkedIn enabled but session cookie not configured in keyring");
             }
             Err(e) => {
-                let error_msg = format!("Failed to retrieve LinkedIn cookie from keyring: {}", e);
-                tracing::error!("{}", error_msg);
-                errors.push(error_msg);
+                tracing::warn!(
+                    "LinkedIn skipped: could not access keyring ({}). \
+                     This is expected in environments without a secret service.",
+                    e
+                );
             }
         }
     }

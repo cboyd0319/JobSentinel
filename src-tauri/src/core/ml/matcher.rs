@@ -116,7 +116,10 @@ impl SemanticMatcher {
         let avg_similarity = if matched_skills.is_empty() {
             0.0
         } else {
-            matched_skills.iter().map(|m| m.similarity as f64).sum::<f64>()
+            matched_skills
+                .iter()
+                .map(|m| m.similarity as f64)
+                .sum::<f64>()
                 / matched_skills.len() as f64
         };
         let overall_score = coverage * 0.7 + avg_similarity * 0.3;
@@ -166,7 +169,8 @@ impl SemanticMatcher {
             .enumerate()
             .map(|(idx, emb)| {
                 let normalized = EmbeddingGenerator::normalize_embedding(emb);
-                let similarity = EmbeddingGenerator::cosine_similarity(&query_embedding, &normalized);
+                let similarity =
+                    EmbeddingGenerator::cosine_similarity(&query_embedding, &normalized);
                 (candidate_skills[idx].clone(), similarity)
             })
             .collect();
@@ -207,7 +211,9 @@ mod tests {
             "Java".to_string(),
         ];
 
-        let result = matcher.match_skills(&user_skills, &job_requirements).unwrap();
+        let result = matcher
+            .match_skills(&user_skills, &job_requirements)
+            .unwrap();
 
         assert!(result.overall_score > 0.5);
         assert!(result.matched_skills.len() >= 2);

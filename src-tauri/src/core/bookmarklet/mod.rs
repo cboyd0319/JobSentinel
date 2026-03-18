@@ -121,8 +121,7 @@ impl BookmarkletJobData {
                 if let Some(address) = obj.get("address") {
                     if let Some(addr_obj) = address.as_object() {
                         let mut parts = Vec::new();
-                        if let Some(city) =
-                            addr_obj.get("addressLocality").and_then(|v| v.as_str())
+                        if let Some(city) = addr_obj.get("addressLocality").and_then(|v| v.as_str())
                         {
                             parts.push(city);
                         }

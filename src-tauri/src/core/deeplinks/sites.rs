@@ -208,7 +208,9 @@ mod tests {
 
         let gov_sites = get_sites_by_category(SiteCategory::Government);
         assert!(!gov_sites.is_empty());
-        assert!(gov_sites.iter().all(|s| s.category == SiteCategory::Government));
+        assert!(gov_sites
+            .iter()
+            .all(|s| s.category == SiteCategory::Government));
     }
 
     #[test]
@@ -224,8 +226,7 @@ mod tests {
     #[test]
     fn test_site_categories_represented() {
         let sites = get_all_sites();
-        let categories: std::collections::HashSet<_> =
-            sites.iter().map(|s| s.category).collect();
+        let categories: std::collections::HashSet<_> = sites.iter().map(|s| s.category).collect();
 
         // Should have at least these categories
         assert!(categories.contains(&SiteCategory::General));

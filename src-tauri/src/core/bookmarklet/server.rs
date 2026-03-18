@@ -34,10 +34,7 @@ pub enum BookmarkletError {
     NotRunning,
 
     #[error("Failed to bind to port {port}: {source}")]
-    BindError {
-        port: u16,
-        source: std::io::Error,
-    },
+    BindError { port: u16, source: std::io::Error },
 
     #[error("Database error: {0}")]
     DatabaseError(String),
@@ -218,10 +215,7 @@ async fn handle_connection(
         handle_import_request(&request, database).await
     } else if request.starts_with("OPTIONS") {
         // Handle preflight CORS request
-        (
-            "OK".to_string(),
-            "text/plain".to_string(),
-        )
+        ("OK".to_string(), "text/plain".to_string())
     } else {
         (
             r#"{"error":"Not found"}"#.to_string(),
@@ -252,10 +246,7 @@ async fn handle_connection(
 }
 
 /// Handle import request
-async fn handle_import_request(
-    request: &str,
-    database: Arc<Database>,
-) -> (String, String) {
+async fn handle_import_request(request: &str, database: Arc<Database>) -> (String, String) {
     // Extract JSON body from request
     let body = if let Some(body_start) = request.find("\r\n\r\n") {
         &request[body_start + 4..]

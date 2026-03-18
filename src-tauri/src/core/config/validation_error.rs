@@ -19,10 +19,7 @@ pub enum ValidationError {
         reason: String,
     },
     /// Required field is missing or empty
-    RequiredField {
-        field: String,
-        reason: String,
-    },
+    RequiredField { field: String, reason: String },
     /// Field value is too long
     TooLong {
         field: String,
@@ -42,10 +39,7 @@ pub enum ValidationError {
         reason: String,
     },
     /// Invalid email format
-    InvalidEmail {
-        field: String,
-        email: String,
-    },
+    InvalidEmail { field: String, email: String },
     /// Field values are inconsistent with each other
     InconsistentValues {
         field1: String,
@@ -53,14 +47,17 @@ pub enum ValidationError {
         reason: String,
     },
     /// Field contains an empty string where it shouldn't
-    EmptyString {
-        field: String,
-    },
+    EmptyString { field: String },
 }
 
 impl ValidationError {
     /// Create an out of range error
-    pub fn out_of_range(field: impl Into<String>, value: impl fmt::Display, min: Option<impl fmt::Display>, max: Option<impl fmt::Display>) -> Self {
+    pub fn out_of_range(
+        field: impl Into<String>,
+        value: impl fmt::Display,
+        min: Option<impl fmt::Display>,
+        max: Option<impl fmt::Display>,
+    ) -> Self {
         Self::OutOfRange {
             field: field.into(),
             value: value.to_string(),
@@ -70,7 +67,11 @@ impl ValidationError {
     }
 
     /// Create an invalid value error
-    pub fn invalid_value(field: impl Into<String>, value: impl fmt::Display, reason: impl Into<String>) -> Self {
+    pub fn invalid_value(
+        field: impl Into<String>,
+        value: impl fmt::Display,
+        reason: impl Into<String>,
+    ) -> Self {
         Self::InvalidValue {
             field: field.into(),
             value: value.to_string(),
@@ -105,7 +106,11 @@ impl ValidationError {
     }
 
     /// Create an invalid URL error
-    pub fn invalid_url(field: impl Into<String>, url: impl Into<String>, reason: impl Into<String>) -> Self {
+    pub fn invalid_url(
+        field: impl Into<String>,
+        url: impl Into<String>,
+        reason: impl Into<String>,
+    ) -> Self {
         Self::InvalidUrl {
             field: field.into(),
             url: url.into(),
@@ -122,7 +127,11 @@ impl ValidationError {
     }
 
     /// Create an inconsistent values error
-    pub fn inconsistent_values(field1: impl Into<String>, field2: impl Into<String>, reason: impl Into<String>) -> Self {
+    pub fn inconsistent_values(
+        field1: impl Into<String>,
+        field2: impl Into<String>,
+        reason: impl Into<String>,
+    ) -> Self {
         Self::InconsistentValues {
             field1: field1.into(),
             field2: field2.into(),
@@ -141,15 +150,27 @@ impl ValidationError {
 impl fmt::Display for ValidationError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::OutOfRange { field, value, min, max } => {
+            Self::OutOfRange {
+                field,
+                value,
+                min,
+                max,
+            } => {
                 // Format messages to match existing test expectations
-                if field.contains("salary_floor") && value.parse::<i64>().ok().is_some_and(|v| v < 0) {
+                if field.contains("salary_floor")
+                    && value.parse::<i64>().ok().is_some_and(|v| v < 0)
+                {
                     write!(f, "Salary floor cannot be negative")
-                } else if field.contains("salary_floor") && value.parse::<i64>().ok().is_some_and(|v| v > 10_000_000) {
+                } else if field.contains("salary_floor")
+                    && value.parse::<i64>().ok().is_some_and(|v| v > 10_000_000)
+                {
                     write!(f, "Salary floor exceeds reasonable limit ($10M USD)")
-                } else if field.contains("immediate_alert_threshold") || field.contains("threshold") {
+                } else if field.contains("immediate_alert_threshold") || field.contains("threshold")
+                {
                     match (min, max) {
-                        (Some(_min), Some(_max)) => write!(f, "Immediate alert threshold must be between 0.0 and 1.0"),
+                        (Some(_min), Some(_max)) => {
+                            write!(f, "Immediate alert threshold must be between 0.0 and 1.0")
+                        }
                         _ => write!(f, "Invalid threshold value"),
                     }
                 } else if field.contains("scraping_interval") {
@@ -167,21 +188,46 @@ impl fmt::Display for ValidationError {
                 } else {
                     match (min, max) {
                         (Some(min), Some(max)) => {
-                            write!(f, "{} must be between {} and {}", field.replace(['_', '.'], " "), min, max)
+                            write!(
+                                f,
+                                "{} must be between {} and {}",
+                                field.replace(['_', '.'], " "),
+                                min,
+                                max
+                            )
                         }
                         (Some(min), None) => {
-                            write!(f, "{} must be at least {}", field.replace(['_', '.'], " "), min)
+                            write!(
+                                f,
+                                "{} must be at least {}",
+                                field.replace(['_', '.'], " "),
+                                min
+                            )
                         }
                         (None, Some(max)) => {
-                            write!(f, "{} cannot exceed {}", field.replace(['_', '.'], " "), max)
+                            write!(
+                                f,
+                                "{} cannot exceed {}",
+                                field.replace(['_', '.'], " "),
+                                max
+                            )
                         }
                         (None, None) => {
-                            write!(f, "{} has invalid value: {}", field.replace(['_', '.'], " "), value)
+                            write!(
+                                f,
+                                "{} has invalid value: {}",
+                                field.replace(['_', '.'], " "),
+                                value
+                            )
                         }
                     }
                 }
             }
-            Self::InvalidValue { field, value: _, reason } => {
+            Self::InvalidValue {
+                field,
+                value: _,
+                reason,
+            } => {
                 write!(f, "{}: {}", field.replace(['_', '.'], " "), reason)
             }
             Self::RequiredField { field, reason } => {
@@ -191,20 +237,39 @@ impl fmt::Display for ValidationError {
                 } else if field.contains("smtp_username") {
                     write!(f, "SMTP username is required when email alerts are enabled")
                 } else if field.contains("from_email") {
-                    write!(f, "From email address is required when email alerts are enabled")
+                    write!(
+                        f,
+                        "From email address is required when email alerts are enabled"
+                    )
                 } else if field.contains("to_emails") {
-                    write!(f, "At least one recipient email is required when email alerts are enabled")
+                    write!(
+                        f,
+                        "At least one recipient email is required when email alerts are enabled"
+                    )
                 } else if field.contains("telegram.chat_id") {
-                    write!(f, "Telegram chat ID is required when Telegram alerts are enabled")
+                    write!(
+                        f,
+                        "Telegram chat ID is required when Telegram alerts are enabled"
+                    )
                 } else if field.contains("linkedin.session_cookie") {
-                    write!(f, "LinkedIn session cookie is required when LinkedIn is enabled")
+                    write!(
+                        f,
+                        "LinkedIn session cookie is required when LinkedIn is enabled"
+                    )
                 } else if field.contains("linkedin.query") {
-                    write!(f, "LinkedIn search query is required when LinkedIn is enabled")
+                    write!(
+                        f,
+                        "LinkedIn search query is required when LinkedIn is enabled"
+                    )
                 } else {
                     write!(f, "{}: {}", field.replace(['_', '.'], " "), reason)
                 }
             }
-            Self::TooLong { field, length: _, max } => {
+            Self::TooLong {
+                field,
+                length: _,
+                max,
+            } => {
                 // Format to match existing test expectations
                 if field.contains("cities") {
                     write!(f, "City name too long (max: {} chars)", max)
@@ -233,10 +298,19 @@ impl fmt::Display for ValidationError {
                 } else if field.contains("keywords") {
                     write!(f, "Keyword too long (max: {} chars)", max)
                 } else {
-                    write!(f, "{} too long (max: {} chars)", field.replace(['_', '.'], " "), max)
+                    write!(
+                        f,
+                        "{} too long (max: {} chars)",
+                        field.replace(['_', '.'], " "),
+                        max
+                    )
                 }
             }
-            Self::TooManyElements { field, count: _, max } => {
+            Self::TooManyElements {
+                field,
+                count: _,
+                max,
+            } => {
                 if field.contains("greenhouse") {
                     write!(f, "Too many Greenhouse URLs (max: {})", max)
                 } else if field.contains("lever") {
@@ -246,7 +320,12 @@ impl fmt::Display for ValidationError {
                 } else if field.contains("states") {
                     write!(f, "Too many states (max: {})", max)
                 } else {
-                    write!(f, "Too many {} entries (max: {})", field.replace(['_', '.'], " "), max)
+                    write!(
+                        f,
+                        "Too many {} entries (max: {})",
+                        field.replace(['_', '.'], " "),
+                        max
+                    )
                 }
             }
             Self::InvalidUrl { field, url, reason } => {
@@ -255,7 +334,12 @@ impl fmt::Display for ValidationError {
                 } else if field.contains("lever") {
                     write!(f, "Invalid Lever URL format. Must start with 'https://jobs.lever.co/'. Got: {}", url)
                 } else {
-                    write!(f, "Invalid URL in {}: {}", field.replace(['_', '.'], " "), reason)
+                    write!(
+                        f,
+                        "Invalid URL in {}: {}",
+                        field.replace(['_', '.'], " "),
+                        reason
+                    )
                 }
             }
             Self::InvalidEmail { field, email } => {
@@ -264,10 +348,19 @@ impl fmt::Display for ValidationError {
                 } else if field.contains("to_emails") {
                     write!(f, "Invalid recipient email format: {}", email)
                 } else {
-                    write!(f, "Invalid email format in {}: {}", field.replace(['_', '.'], " "), email)
+                    write!(
+                        f,
+                        "Invalid email format in {}: {}",
+                        field.replace(['_', '.'], " "),
+                        email
+                    )
                 }
             }
-            Self::InconsistentValues { field1: _, field2: _, reason } => {
+            Self::InconsistentValues {
+                field1: _,
+                field2: _,
+                reason,
+            } => {
                 write!(f, "{}", reason)
             }
             Self::EmptyString { field } => {
@@ -302,9 +395,7 @@ pub struct ValidationErrors {
 impl ValidationErrors {
     /// Create a new validation errors collection
     pub fn new() -> Self {
-        Self {
-            errors: Vec::new(),
-        }
+        Self { errors: Vec::new() }
     }
 
     /// Add an error to the collection
@@ -348,7 +439,11 @@ impl fmt::Display for ValidationErrors {
         if self.errors.len() == 1 {
             write!(f, "Configuration validation failed: {}", self.errors[0])
         } else {
-            writeln!(f, "Configuration validation failed with {} errors:", self.errors.len())?;
+            writeln!(
+                f,
+                "Configuration validation failed with {} errors:",
+                self.errors.len()
+            )?;
             for (i, error) in self.errors.iter().enumerate() {
                 writeln!(f, "  {}. {}", i + 1, error)?;
             }

@@ -267,7 +267,11 @@ impl Database {
         }
 
         // Batch hide all duplicates in single query
-        let placeholders = ids_to_hide.iter().map(|_| "?").collect::<Vec<_>>().join(",");
+        let placeholders = ids_to_hide
+            .iter()
+            .map(|_| "?")
+            .collect::<Vec<_>>()
+            .join(",");
         let sql = format!("UPDATE jobs SET hidden = 1 WHERE id IN ({})", placeholders);
 
         let mut query = sqlx::query(&sql);
