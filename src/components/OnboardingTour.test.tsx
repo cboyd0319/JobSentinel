@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, renderHook, act } from "@testing-library/react";
-import { OnboardingProvider, useOnboarding, TourHelpButton } from "./OnboardingTour";
+import { OnboardingProvider, TourHelpButton } from "./OnboardingTour";
+import { useOnboarding } from "../hooks/useOnboarding";
 
 // Mock localStorage
 const localStorageMock = (() => {

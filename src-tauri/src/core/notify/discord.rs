@@ -253,10 +253,7 @@ mod tests {
         let invalid_url = "http://discord.com/api/webhooks/123456789/token";
         let result = validate_webhook_url(invalid_url);
         assert!(result.is_err(), "HTTP (not HTTPS) webhook should fail");
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("HTTPS"));
+        assert!(result.unwrap_err().to_string().contains("HTTPS"));
     }
 
     #[test]
@@ -306,10 +303,7 @@ mod tests {
         // Attack: Try to bypass validation using a subdomain of attacker's domain
         let attack_url = "https://discord.com.evil.com/api/webhooks/123/token";
         let result = validate_webhook_url(attack_url);
-        assert!(
-            result.is_err(),
-            "Subdomain bypass attack should be blocked"
-        );
+        assert!(result.is_err(), "Subdomain bypass attack should be blocked");
     }
 
     #[test]
@@ -578,7 +572,10 @@ mod tests {
         let result = validate_webhook_url(url);
         // URL host is normalized to lowercase by the url crate (per RFC 3986)
         // So uppercase hostnames actually pass validation
-        assert!(result.is_ok(), "Uppercase host is normalized to lowercase and should pass validation");
+        assert!(
+            result.is_ok(),
+            "Uppercase host is normalized to lowercase and should pass validation"
+        );
     }
 
     #[test]
@@ -1172,10 +1169,7 @@ mod tests {
     #[test]
     fn test_webhook_url_validation_error_messages() {
         let test_cases = vec![
-            (
-                "http://discord.com/api/webhooks/123/token",
-                "HTTPS",
-            ),
+            ("http://discord.com/api/webhooks/123/token", "HTTPS"),
             ("https://evil.com/api/webhooks/123/token", "discord.com"),
             ("https://discord.com/wrong/path", "webhook"),
         ];
@@ -1417,6 +1411,10 @@ mod tests {
     fn test_whitespace_leading_url_succeeds() {
         // The url crate handles leading whitespace gracefully
         let _result = validate_webhook_url(" https://discord.com/api/webhooks/123/token");
-        assert!(_result.is_ok(), "Leading whitespace should be handled: {:?}", _result);
+        assert!(
+            _result.is_ok(),
+            "Leading whitespace should be handled: {:?}",
+            _result
+        );
     }
 }

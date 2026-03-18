@@ -371,9 +371,11 @@ impl Database {
 
     /// Get database size in bytes
     pub async fn database_size(&self) -> Result<i64, sqlx::Error> {
-        let size: i64 = sqlx::query_scalar("SELECT page_count * page_size FROM pragma_page_count(), pragma_page_size()")
-            .fetch_one(&self.pool)
-            .await?;
+        let size: i64 = sqlx::query_scalar(
+            "SELECT page_count * page_size FROM pragma_page_count(), pragma_page_size()",
+        )
+        .fetch_one(&self.pool)
+        .await?;
         Ok(size)
     }
 

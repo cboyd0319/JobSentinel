@@ -46,10 +46,7 @@ pub enum AutomationError {
 
     /// Failed to fill form field
     #[error("Failed to fill field '{field_name}': {reason}")]
-    FillFieldError {
-        field_name: String,
-        reason: String,
-    },
+    FillFieldError { field_name: String, reason: String },
 
     /// CAPTCHA detected - requires manual intervention
     #[error("CAPTCHA detected on {url} - manual intervention required")]
@@ -211,25 +208,40 @@ impl AutomationError {
     pub fn user_message(&self) -> String {
         match self {
             Self::BrowserLaunch { .. } => {
-                "Failed to launch browser. Please ensure Chrome is installed and up to date.".to_string()
+                "Failed to launch browser. Please ensure Chrome is installed and up to date."
+                    .to_string()
             }
             Self::BrowserNotRunning => {
                 "Browser has stopped running. The automation will restart.".to_string()
             }
             Self::Navigation { url, .. } => {
-                format!("Failed to open {}. Please check your internet connection.", Self::sanitize_url(url))
+                format!(
+                    "Failed to open {}. Please check your internet connection.",
+                    Self::sanitize_url(url)
+                )
             }
             Self::PageLoadTimeout { url, timeout_secs } => {
-                format!("Page took too long to load ({} seconds): {}", timeout_secs, Self::sanitize_url(url))
+                format!(
+                    "Page took too long to load ({} seconds): {}",
+                    timeout_secs,
+                    Self::sanitize_url(url)
+                )
             }
             Self::ElementNotFound { selector, .. } => {
-                format!("Form element '{}' not found. The page layout may have changed.", Self::sanitize_selector(selector))
+                format!(
+                    "Form element '{}' not found. The page layout may have changed.",
+                    Self::sanitize_selector(selector)
+                )
             }
             Self::CaptchaDetected { .. } => {
-                "CAPTCHA detected. Please complete the challenge in your browser and try again.".to_string()
+                "CAPTCHA detected. Please complete the challenge in your browser and try again."
+                    .to_string()
             }
             Self::MfaRequired { platform } => {
-                format!("Multi-factor authentication required for {}. Please complete verification.", platform)
+                format!(
+                    "Multi-factor authentication required for {}. Please complete verification.",
+                    platform
+                )
             }
             Self::AlreadySubmitted { platform, .. } => {
                 format!("You have already applied to this job on {}.", platform)
@@ -238,19 +250,28 @@ impl AutomationError {
                 format!("Application platform '{}' is not supported yet.", platform)
             }
             Self::IncompleteProfile { missing_fields } => {
-                format!("Your profile is incomplete. Please fill in: {}", missing_fields.join(", "))
+                format!(
+                    "Your profile is incomplete. Please fill in: {}",
+                    missing_fields.join(", ")
+                )
             }
             Self::ResumeError { reason } => {
                 format!("Resume issue: {}", reason)
             }
             Self::FileUploadError { file_type, .. } => {
-                format!("Failed to upload {}. Please check the file and try again.", file_type)
+                format!(
+                    "Failed to upload {}. Please check the file and try again.",
+                    file_type
+                )
             }
             Self::ApprovalRequired => {
                 "This application requires your approval before submission.".to_string()
             }
             Self::DailyLimitReached { current, max } => {
-                format!("Daily application limit reached ({}/{}). Try again tomorrow.", current, max)
+                format!(
+                    "Daily application limit reached ({}/{}). Try again tomorrow.",
+                    current, max
+                )
             }
             _ => "An automation error occurred. Please try again.".to_string(),
         }
@@ -326,12 +347,16 @@ mod tests {
 
     #[test]
     fn test_user_message() {
-        let err = AutomationError::incomplete_profile(vec!["email".to_string(), "phone".to_string()]);
+        let err =
+            AutomationError::incomplete_profile(vec!["email".to_string(), "phone".to_string()]);
         let msg = err.user_message();
         assert!(msg.contains("email"));
         assert!(msg.contains("phone"));
 
-        let err = AutomationError::DailyLimitReached { current: 10, max: 10 };
+        let err = AutomationError::DailyLimitReached {
+            current: 10,
+            max: 10,
+        };
         let msg = err.user_message();
         assert!(msg.contains("10/10"));
     }

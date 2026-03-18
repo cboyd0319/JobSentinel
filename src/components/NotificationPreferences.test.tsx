@@ -2,10 +2,12 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import {
   NotificationPreferences as NotificationPreferencesComponent,
+} from "./NotificationPreferences";
+import {
   shouldNotifyForJob,
   type NotificationPreferences,
   type JobForNotification,
-} from "./NotificationPreferences";
+} from "../utils/notificationPreferences";
 
 // Mock Tauri invoke
 const mockInvoke = vi.fn();

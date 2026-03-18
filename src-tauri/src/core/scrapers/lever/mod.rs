@@ -5,7 +5,7 @@
 
 use super::error::ScraperError;
 use super::http_client::get_client;
-use super::rate_limiter::{RateLimiter, limits};
+use super::rate_limiter::{limits, RateLimiter};
 use super::{location_utils, title_utils, url_utils, JobScraper, ScraperResult};
 use crate::core::db::Job;
 use async_trait::async_trait;
@@ -171,7 +171,7 @@ impl JobScraper for LeverScraper {
         for company in &self.companies {
             // Use rate limiter to respect Lever's limits
             self.rate_limiter.wait("lever", limits::LEVER).await;
-            
+
             match self.scrape_company(company).await {
                 Ok(jobs) => {
                     all_jobs.extend(jobs);

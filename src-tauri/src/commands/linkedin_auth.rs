@@ -293,6 +293,7 @@ async fn extract_linkedin_cookie() -> Result<(String, Option<String>), String> {
 /// This uses Tauri's webview.cookies_for_url() which wraps:
 /// - Windows: WebView2 ICoreWebView2CookieManager
 /// - Linux: WebKitGTK cookie jar
+///
 /// Returns (cookie_value, optional_expiry_iso8601)
 #[cfg(any(target_os = "windows", target_os = "linux"))]
 async fn extract_linkedin_cookie_from_webview(
@@ -331,7 +332,7 @@ async fn extract_linkedin_cookie_from_webview(
                     Expiration::DateTime(dt) => {
                         let timestamp = dt.unix_timestamp();
                         let chrono_dt = DateTime::<Utc>::from_timestamp(timestamp, 0)
-                            .unwrap_or_else(|| Utc::now());
+                            .unwrap_or_else(Utc::now);
                         Some(chrono_dt.to_rfc3339())
                     }
                     Expiration::Session => None,
@@ -346,6 +347,7 @@ async fn extract_linkedin_cookie_from_webview(
 }
 
 #[cfg(target_os = "windows")]
+#[allow(dead_code)]
 async fn extract_linkedin_cookie() -> Result<(String, Option<String>), String> {
     // This function is kept for API compatibility but won't be used directly
     // The actual extraction happens via extract_linkedin_cookie_from_webview
@@ -353,6 +355,7 @@ async fn extract_linkedin_cookie() -> Result<(String, Option<String>), String> {
 }
 
 #[cfg(target_os = "linux")]
+#[allow(dead_code)]
 async fn extract_linkedin_cookie() -> Result<(String, Option<String>), String> {
     // This function is kept for API compatibility but won't be used directly
     // The actual extraction happens via extract_linkedin_cookie_from_webview
@@ -558,7 +561,9 @@ mod tests {
     fn test_wrong_host_fails() {
         // Should reject URLs with wrong host
         assert!(!is_login_success_url("https://evil.com/feed"));
-        assert!(!is_login_success_url("https://linkedin.com.phishing.com/feed"));
+        assert!(!is_login_success_url(
+            "https://linkedin.com.phishing.com/feed"
+        ));
     }
 
     #[test]

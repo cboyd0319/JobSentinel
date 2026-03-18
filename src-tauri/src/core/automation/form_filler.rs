@@ -73,7 +73,10 @@ impl FormFiller {
         tracing::debug!("Filling contact fields");
         self.fill_contact_fields(page, &selectors, &mut result)
             .await;
-        tracing::debug!(elapsed_ms = contact_start.elapsed().as_millis(), "Contact fields filled");
+        tracing::debug!(
+            elapsed_ms = contact_start.elapsed().as_millis(),
+            "Contact fields filled"
+        );
 
         // Fill URLs (LinkedIn, GitHub, etc.)
         tracing::debug!("Filling URL fields");

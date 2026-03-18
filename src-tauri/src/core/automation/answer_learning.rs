@@ -77,13 +77,16 @@ impl AnswerLearningManager {
         let lower = text.to_lowercase();
         let no_punct = lower
             .chars()
-            .map(|c| if c.is_alphanumeric() || c.is_whitespace() { c } else { ' ' })
+            .map(|c| {
+                if c.is_alphanumeric() || c.is_whitespace() {
+                    c
+                } else {
+                    ' '
+                }
+            })
             .collect::<String>();
 
-        no_punct
-            .split_whitespace()
-            .collect::<Vec<_>>()
-            .join(" ")
+        no_punct.split_whitespace().collect::<Vec<_>>().join(" ")
     }
 
     /// Calculate similarity between two normalized question texts
@@ -132,9 +135,7 @@ impl AnswerLearningManager {
         suggestions.extend(learned);
 
         // 3. Check historical answers with similar questions
-        let historical = self
-            .get_historical_matches(&normalized, 0.6)
-            .await?;
+        let historical = self.get_historical_matches(&normalized, 0.6).await?;
         suggestions.extend(historical);
 
         // Sort by confidence descending
@@ -208,7 +209,10 @@ impl AnswerLearningManager {
                     suggestions.push(AnswerSuggestion {
                         answer,
                         confidence,
-                        source: AnswerSource::Manual { pattern, answer_id: id },
+                        source: AnswerSource::Manual {
+                            pattern,
+                            answer_id: id,
+                        },
                         times_used,
                         times_modified,
                         last_used_days_ago: last_used_days,
@@ -271,7 +275,10 @@ impl AnswerLearningManager {
                     suggestions.push(AnswerSuggestion {
                         answer,
                         confidence,
-                        source: AnswerSource::Learned { pattern, learned_id: id },
+                        source: AnswerSource::Learned {
+                            pattern,
+                            learned_id: id,
+                        },
                         times_used,
                         times_modified,
                         last_used_days_ago: last_used_days,
@@ -375,7 +382,8 @@ impl AnswerLearningManager {
             1.0 // No usage yet, no penalty
         };
 
-        let final_confidence = base_confidence * usage_weight * recency_weight * modification_penalty;
+        let final_confidence =
+            base_confidence * usage_weight * recency_weight * modification_penalty;
         final_confidence.clamp(0.0, 1.0)
     }
 
@@ -507,7 +515,11 @@ impl AnswerLearningManager {
             times_modified,
             modification_rate,
             confidence_score: row.get("confidence_score"),
-            last_used_at: last_used.and_then(|d| DateTime::parse_from_rfc3339(&d).ok().map(|dt| dt.with_timezone(&Utc))),
+            last_used_at: last_used.and_then(|d| {
+                DateTime::parse_from_rfc3339(&d)
+                    .ok()
+                    .map(|dt| dt.with_timezone(&Utc))
+            }),
             created_at: DateTime::parse_from_rfc3339(&created_at)?.with_timezone(&Utc),
             recent_modifications: modification_examples,
         }))
@@ -544,7 +556,9 @@ impl AnswerLearningManager {
                     original_answer: row.get("answer_filled"),
                     modified_to: modified_to?,
                     question_text: row.get("question_text"),
-                    modified_at: DateTime::parse_from_rfc3339(&created_at).ok()?.with_timezone(&Utc),
+                    modified_at: DateTime::parse_from_rfc3339(&created_at)
+                        .ok()?
+                        .with_timezone(&Utc),
                 })
             })
             .collect();
@@ -556,12 +570,11 @@ impl AnswerLearningManager {
     pub async fn clear_answer_history(&self, pattern: Option<&str>) -> Result<usize> {
         let count = if let Some(p) = pattern {
             // Clear history for specific pattern
-            let answer_id: Option<i64> = sqlx::query_scalar(
-                "SELECT id FROM screening_answers WHERE question_pattern = ?",
-            )
-            .bind(p)
-            .fetch_optional(&self.db)
-            .await?;
+            let answer_id: Option<i64> =
+                sqlx::query_scalar("SELECT id FROM screening_answers WHERE question_pattern = ?")
+                    .bind(p)
+                    .fetch_optional(&self.db)
+                    .await?;
 
             if let Some(id) = answer_id {
                 let result = sqlx::query(
@@ -641,22 +654,17 @@ mod tests {
         );
 
         // Completely different
-        assert!(
-            AnswerLearningManager::calculate_similarity("hello", "goodbye") < 0.5
-        );
+        assert!(AnswerLearningManager::calculate_similarity("hello", "goodbye") < 0.5);
 
         // Partial overlap
         let sim = AnswerLearningManager::calculate_similarity(
             "how many years experience",
-            "how many years of programming experience"
+            "how many years of programming experience",
         );
         assert!(sim > 0.6);
         assert!(sim < 1.0);
 
         // Empty strings
-        assert_eq!(
-            AnswerLearningManager::calculate_similarity("", "test"),
-            0.0
-        );
+        assert_eq!(AnswerLearningManager::calculate_similarity("", "test"), 0.0);
     }
 }

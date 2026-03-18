@@ -103,11 +103,7 @@ mod tests {
         let cache_dir = PathBuf::from("./test_ml_cache");
         let generator = EmbeddingGenerator::new(cache_dir).unwrap();
 
-        let texts = vec![
-            "Python programming",
-            "Machine Learning",
-            "Data Science",
-        ];
+        let texts = vec!["Python programming", "Machine Learning", "Data Science"];
 
         let embeddings = generator.embed_batch(&texts).unwrap();
 
@@ -136,7 +132,9 @@ mod tests {
             "Kubernetes".to_string(),
         ];
 
-        let result = matcher.match_skills(&user_skills, &job_requirements).unwrap();
+        let result = matcher
+            .match_skills(&user_skills, &job_requirements)
+            .unwrap();
 
         // Should match Python, ML, and statistical analysis
         assert!(result.matched_skills.len() >= 2);
@@ -182,17 +180,13 @@ mod tests {
         let matcher = SemanticMatcher::new(cache_dir).unwrap();
 
         // These should match semantically but not by exact string
-        let user_skills = vec![
-            "Machine Learning".to_string(),
-            "Deep Learning".to_string(),
-        ];
+        let user_skills = vec!["Machine Learning".to_string(), "Deep Learning".to_string()];
 
-        let job_requirements = vec![
-            "ML experience".to_string(),
-            "Neural Networks".to_string(),
-        ];
+        let job_requirements = vec!["ML experience".to_string(), "Neural Networks".to_string()];
 
-        let result = matcher.match_skills(&user_skills, &job_requirements).unwrap();
+        let result = matcher
+            .match_skills(&user_skills, &job_requirements)
+            .unwrap();
 
         // Semantic matching should find these
         assert!(result.matched_skills.len() >= 1);

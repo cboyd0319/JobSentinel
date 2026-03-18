@@ -141,8 +141,7 @@ impl Default for DebugLogBuffer {
 }
 
 // Global debug log buffer (thread-safe)
-static DEBUG_LOG: Lazy<RwLock<DebugLogBuffer>> =
-    Lazy::new(|| RwLock::new(DebugLogBuffer::new()));
+static DEBUG_LOG: Lazy<RwLock<DebugLogBuffer>> = Lazy::new(|| RwLock::new(DebugLogBuffer::new()));
 
 /// Log an event to the global debug buffer
 ///

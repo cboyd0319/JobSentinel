@@ -7,7 +7,9 @@ use chrono::{DateTime, Utc};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
-use crate::core::{bookmarklet::BookmarkletServer, config::Config, db::Database, scheduler::Scheduler};
+use crate::core::{
+    bookmarklet::BookmarkletServer, config::Config, db::Database, scheduler::Scheduler,
+};
 
 // Module declarations (public for Tauri macro access)
 pub mod ats;
@@ -223,8 +225,7 @@ pub use deeplinks::{
 
 // Bookmarklet commands
 pub use bookmarklet::{
-    get_bookmarklet_config, set_bookmarklet_port, start_bookmarklet_server,
-    stop_bookmarklet_server,
+    get_bookmarklet_config, set_bookmarklet_port, start_bookmarklet_server, stop_bookmarklet_server,
 };
 
 // ML commands (optional)

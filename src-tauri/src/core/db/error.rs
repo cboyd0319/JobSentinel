@@ -170,7 +170,11 @@ impl DatabaseError {
     }
 
     /// Create a field too long error
-    pub fn field_too_long(field: impl Into<String>, max_length: usize, actual_length: usize) -> Self {
+    pub fn field_too_long(
+        field: impl Into<String>,
+        max_length: usize,
+        actual_length: usize,
+    ) -> Self {
         Self::FieldTooLong {
             field: field.into(),
             max_length,

@@ -55,7 +55,11 @@ mod tests {
     #[test]
     fn test_parse_schema_org_simple() {
         let result = parse_schema_org_job_posting(SAMPLE_SCHEMA_ORG_HTML);
-        assert!(result.is_ok(), "Failed to parse Schema.org data: {:?}", result);
+        assert!(
+            result.is_ok(),
+            "Failed to parse Schema.org data: {:?}",
+            result
+        );
 
         let postings = result.unwrap();
         assert_eq!(postings.len(), 1);
@@ -85,7 +89,9 @@ mod tests {
     fn test_create_preview() {
         let posting = SchemaOrgJobPosting {
             title: Some("Software Engineer".to_string()),
-            description: Some("We are looking for a talented software engineer to join our team.".to_string()),
+            description: Some(
+                "We are looking for a talented software engineer to join our team.".to_string(),
+            ),
             hiring_organization: Some(types::HiringOrganization {
                 name: Some("Example Corp".to_string()),
                 logo: None,
@@ -117,11 +123,8 @@ mod tests {
             job_location_type: Some("TELECOMMUTE".to_string()),
         };
 
-        let preview = schema_org::create_preview(
-            &posting,
-            "https://example.com/jobs/1".to_string(),
-            false,
-        );
+        let preview =
+            schema_org::create_preview(&posting, "https://example.com/jobs/1".to_string(), false);
 
         assert!(preview.is_ok(), "Failed to create preview: {:?}", preview);
 
@@ -159,11 +162,8 @@ mod tests {
             job_location_type: None,
         };
 
-        let preview = schema_org::create_preview(
-            &posting,
-            "https://example.com/jobs/1".to_string(),
-            false,
-        );
+        let preview =
+            schema_org::create_preview(&posting, "https://example.com/jobs/1".to_string(), false);
 
         assert!(preview.is_ok());
         let preview = preview.unwrap();

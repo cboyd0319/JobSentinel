@@ -24,8 +24,7 @@ pub fn generate_all_links(criteria: &SearchCriteria) -> Result<Vec<DeepLink>> {
 
 /// Generate deep link for a specific site
 pub fn generate_link_for_site(site_id: &str, criteria: &SearchCriteria) -> Result<DeepLink> {
-    let site = get_site_by_id(site_id)
-        .with_context(|| format!("Unknown site ID: {}", site_id))?;
+    let site = get_site_by_id(site_id).with_context(|| format!("Unknown site ID: {}", site_id))?;
 
     let url = generate_url_for_site(site_id, criteria)?;
 
@@ -61,10 +60,7 @@ fn generate_url_for_site(site_id: &str, criteria: &SearchCriteria) -> Result<Str
 // URL generators for each site
 
 fn generate_indeed_url(criteria: &SearchCriteria) -> Result<String> {
-    let mut url = format!(
-        "https://www.indeed.com/jobs?q={}",
-        encode(&criteria.query)
-    );
+    let mut url = format!("https://www.indeed.com/jobs?q={}", encode(&criteria.query));
 
     if let Some(location) = &criteria.location {
         url.push_str(&format!("&l={}", encode(location)));

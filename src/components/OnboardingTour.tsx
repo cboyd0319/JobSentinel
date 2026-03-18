@@ -1,30 +1,11 @@
-import { memo, useState, useEffect, useCallback, createContext, useContext, type ReactNode } from "react";
+import { memo, useState, useEffect, useCallback, type ReactNode } from "react";
+import { OnboardingContext, useOnboarding } from "../hooks/useOnboarding";
 
 interface TourStep {
   target: string; // CSS selector
   title: string;
   content: string;
   placement?: "top" | "bottom" | "left" | "right";
-}
-
-interface OnboardingContextType {
-  isActive: boolean;
-  currentStep: number;
-  startTour: () => void;
-  endTour: () => void;
-  nextStep: () => void;
-  prevStep: () => void;
-  hasCompletedTour: boolean;
-}
-
-const OnboardingContext = createContext<OnboardingContextType | null>(null);
-
-export function useOnboarding() {
-  const context = useContext(OnboardingContext);
-  if (!context) {
-    throw new Error("useOnboarding must be used within an OnboardingProvider");
-  }
-  return context;
 }
 
 const TOUR_STORAGE_KEY = "jobsentinel-tour-completed";

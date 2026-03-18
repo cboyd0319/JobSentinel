@@ -230,10 +230,7 @@ mod tests {
             "http://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX";
         let result = validate_webhook_url(invalid_url);
         assert!(result.is_err(), "HTTP (not HTTPS) webhook should fail");
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("HTTPS"));
+        assert!(result.unwrap_err().to_string().contains("HTTPS"));
     }
 
     #[test]
@@ -283,10 +280,7 @@ mod tests {
         // Attack: Try to bypass validation by putting allowed domain in fragment
         let attack_url = "https://evil.com/steal#https://hooks.slack.com/services/T00/B00/XXX";
         let result = validate_webhook_url(attack_url);
-        assert!(
-            result.is_err(),
-            "Fragment bypass attack should be blocked"
-        );
+        assert!(result.is_err(), "Fragment bypass attack should be blocked");
         assert!(result.unwrap_err().to_string().contains("hooks.slack.com"));
     }
 
@@ -304,10 +298,7 @@ mod tests {
         // Attack: Try to bypass validation using a subdomain of attacker's domain
         let attack_url = "https://hooks.slack.com.evil.com/services/T00/B00/XXX";
         let result = validate_webhook_url(attack_url);
-        assert!(
-            result.is_err(),
-            "Subdomain bypass attack should be blocked"
-        );
+        assert!(result.is_err(), "Subdomain bypass attack should be blocked");
         assert!(result.unwrap_err().to_string().contains("hooks.slack.com"));
     }
 
@@ -316,10 +307,7 @@ mod tests {
         // Attack: Try to bypass validation using @ in URL
         let attack_url = "https://hooks.slack.com@evil.com/services/T00/B00/XXX";
         let result = validate_webhook_url(attack_url);
-        assert!(
-            result.is_err(),
-            "Username bypass attack should be blocked"
-        );
+        assert!(result.is_err(), "Username bypass attack should be blocked");
     }
 
     #[test]
@@ -509,7 +497,10 @@ mod tests {
         let result = validate_webhook_url(invalid_url);
         // URL host is normalized to lowercase by the url crate (per RFC 3986)
         // So uppercase hostnames actually pass validation
-        assert!(result.is_ok(), "Uppercase host is normalized to lowercase and should pass validation");
+        assert!(
+            result.is_ok(),
+            "Uppercase host is normalized to lowercase and should pass validation"
+        );
     }
 
     #[test]
@@ -1020,10 +1011,7 @@ mod tests {
     #[test]
     fn test_validate_webhook_url_error_messages() {
         let test_cases = vec![
-            (
-                "http://hooks.slack.com/services/T/B/X",
-                "HTTPS",
-            ),
+            ("http://hooks.slack.com/services/T/B/X", "HTTPS"),
             ("https://evil.com/services/T/B/X", "hooks.slack.com"),
             ("https://hooks.slack.com/wrong/T/B/X", "Slack webhook"),
         ];
@@ -1049,10 +1037,7 @@ mod tests {
         let result = validate_webhook_url(url);
         assert!(result.is_err(), "Malformed URL should fail");
         // This fails URL parsing
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("Invalid URL"));
+        assert!(result.unwrap_err().to_string().contains("Invalid URL"));
     }
 
     #[test]

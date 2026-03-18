@@ -38,8 +38,7 @@ static WEBHOOK_REGEX: Lazy<Regex> = Lazy::new(|| {
 // LinkedIn cookies: li_at=AQEDARa... → li_at=[REDACTED]
 #[allow(clippy::expect_used)]
 static LINKEDIN_COOKIE_REGEX: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"li_at=[^\s;]+")
-        .expect("LinkedIn cookie regex pattern is valid and should compile")
+    Regex::new(r"li_at=[^\s;]+").expect("LinkedIn cookie regex pattern is valid and should compile")
 });
 
 // API tokens: Bearer eyJ... or token ghp_... → [TOKEN]
@@ -64,8 +63,7 @@ static QUOTED_STRING_REGEX: Lazy<Regex> = Lazy::new(|| {
 });
 #[allow(clippy::expect_used)]
 static SINGLE_QUOTED_REGEX: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"'[^']+'")
-        .expect("Single-quoted string regex pattern is valid and should compile")
+    Regex::new(r"'[^']+'").expect("Single-quoted string regex pattern is valid and should compile")
 });
 
 /// Sanitizer removes all user-identifiable information from text
@@ -273,8 +271,14 @@ mod tests {
     fn test_sanitize_api_tokens() {
         let tests = vec![
             ("Bearer eyJ0eXAiOiJKV1QiLCJhbGc...", "[TOKEN]"),
-            ("Authorization: token ghp_1234567890abcdefg", "Authorization: [TOKEN]"),
-            ("URL: /api?api_key=secret123&foo=bar", "URL: /api?[TOKEN]&foo=bar"),
+            (
+                "Authorization: token ghp_1234567890abcdefg",
+                "Authorization: [TOKEN]",
+            ),
+            (
+                "URL: /api?api_key=secret123&foo=bar",
+                "URL: /api?[TOKEN]&foo=bar",
+            ),
         ];
 
         for (input, expected) in tests {

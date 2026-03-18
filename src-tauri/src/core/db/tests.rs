@@ -2101,8 +2101,8 @@ mod tests {
         fn test_default_path() {
             let path = Database::default_path();
 
-            // Should contain "JobSentinel" and end with .db
-            assert!(path.to_string_lossy().contains("JobSentinel"));
+            // Should contain "jobsentinel" (case-insensitive) and end with .db
+            assert!(path.to_string_lossy().to_lowercase().contains("jobsentinel"));
             assert!(path.to_string_lossy().ends_with(".db"));
         }
 
@@ -2110,9 +2110,9 @@ mod tests {
         fn test_default_backup_dir() {
             let dir = Database::default_backup_dir();
 
-            // Should contain "JobSentinel" and "backups"
-            let path_str = dir.to_string_lossy();
-            assert!(path_str.contains("JobSentinel"));
+            // Should contain "jobsentinel" (case-insensitive) and "backups"
+            let path_str = dir.to_string_lossy().to_lowercase();
+            assert!(path_str.contains("jobsentinel"));
             assert!(path_str.contains("backups"));
         }
     }

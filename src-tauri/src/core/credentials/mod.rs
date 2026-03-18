@@ -480,7 +480,9 @@ mod tests {
             CredentialKey::SmtpPassword
         );
         assert_eq!(
-            "jobsentinel_slack_webhook".parse::<CredentialKey>().unwrap(),
+            "jobsentinel_slack_webhook"
+                .parse::<CredentialKey>()
+                .unwrap(),
             CredentialKey::SlackWebhook
         );
         assert!("unknown_key".parse::<CredentialKey>().is_err());

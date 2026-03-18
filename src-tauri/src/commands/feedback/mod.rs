@@ -23,10 +23,7 @@ use tauri_plugin_shell::ShellExt;
 /// Open GitHub Issues page for bug reports
 #[tauri::command]
 #[allow(deprecated)]
-pub async fn open_github_issues(
-    app: AppHandle,
-    template: Option<String>,
-) -> Result<(), String> {
+pub async fn open_github_issues(app: AppHandle, template: Option<String>) -> Result<(), String> {
     let base_url = "https://github.com/cboyd0319/JobSentinel/issues/new";
 
     let url = if let Some(tmpl) = template {
@@ -95,6 +92,7 @@ pub async fn reveal_file(app: AppHandle, path: String) -> Result<(), String> {
             .to_str()
             .ok_or("Invalid path encoding")?;
 
+        #[allow(deprecated)]
         app.shell()
             .open(parent, None)
             .map_err(|e| format!("Failed to open directory: {e}"))?;

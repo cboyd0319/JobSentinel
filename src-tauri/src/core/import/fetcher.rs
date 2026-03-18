@@ -39,20 +39,18 @@ pub async fn fetch_job_page(url: &str) -> ImportResult<String> {
         .map_err(ImportError::HttpError)?;
 
     // Fetch the page
-    let response = client
-        .get(url)
-        .send()
-        .await
-        .map_err(|e| {
-            if e.is_timeout() {
-                ImportError::Timeout
-            } else {
-                ImportError::HttpError(e)
-            }
-        })?;
+    let response = client.get(url).send().await.map_err(|e| {
+        if e.is_timeout() {
+            ImportError::Timeout
+        } else {
+            ImportError::HttpError(e)
+        }
+    })?;
 
     // Check HTTP status
-    let response = response.error_for_status().map_err(ImportError::HttpError)?;
+    let response = response
+        .error_for_status()
+        .map_err(ImportError::HttpError)?;
 
     // Get HTML content
     let html = response.text().await.map_err(ImportError::HttpError)?;

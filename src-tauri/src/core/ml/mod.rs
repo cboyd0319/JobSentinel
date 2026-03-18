@@ -22,7 +22,7 @@ mod model;
 mod tests;
 
 pub use embeddings::EmbeddingGenerator;
-pub use matcher::{SemanticMatcher, SemanticMatchResult};
+pub use matcher::{SemanticMatchResult, SemanticMatcher};
 pub use model::{ModelManager, ModelStatus};
 
 use anyhow::Result;

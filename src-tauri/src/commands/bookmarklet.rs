@@ -36,10 +36,7 @@ pub async fn get_bookmarklet_config(
 /// Start the bookmarklet server
 #[tauri::command]
 #[tracing::instrument(skip(state), fields(port))]
-pub async fn start_bookmarklet_server(
-    state: State<'_, AppState>,
-    port: u16,
-) -> Result<(), String> {
+pub async fn start_bookmarklet_server(state: State<'_, AppState>, port: u16) -> Result<(), String> {
     tracing::info!(port = port, "Starting bookmarklet server");
 
     let mut server_guard = state.bookmarklet_server.write().await;

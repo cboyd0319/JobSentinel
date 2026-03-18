@@ -103,13 +103,13 @@ impl HnHiringScraper {
     fn parse_comments(&self, data: &serde_json::Value) -> Result<Vec<Job>, ScraperError> {
         let mut jobs = Vec::new();
 
-        let hits = data["hits"]
-            .as_array()
-            .ok_or_else(|| ScraperError::parse(
+        let hits = data["hits"].as_array().ok_or_else(|| {
+            ScraperError::parse(
                 "JSON",
                 "HN API response",
                 std::io::Error::new(std::io::ErrorKind::InvalidData, "No hits in response"),
-            ))?;
+            )
+        })?;
 
         for comment in hits.iter().take(self.limit * 2) {
             // Take more than limit since we'll filter

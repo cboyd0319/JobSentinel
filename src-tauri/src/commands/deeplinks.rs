@@ -70,12 +70,10 @@ pub async fn open_deep_link(app: tauri::AppHandle, url: String) -> Result<(), St
     // Use tauri-plugin-shell to open URL
     let shell = app.shell();
     #[allow(deprecated)]
-    shell
-        .open(&url, None)
-        .map_err(|e| {
-            tracing::error!(error = %e, url = %url, "Failed to open URL");
-            format!("Failed to open URL: {}", e)
-        })?;
+    shell.open(&url, None).map_err(|e| {
+        tracing::error!(error = %e, url = %url, "Failed to open URL");
+        format!("Failed to open URL: {}", e)
+    })?;
 
     // Emit event for analytics/tracking
     app.emit("deep-link-opened", DeepLinkOpenedEvent { url: url.clone() })

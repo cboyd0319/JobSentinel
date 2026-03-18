@@ -117,7 +117,12 @@ pub async fn import_job_from_url(url: String, state: State<'_, AppState>) -> Res
     let job_hash = calculate_job_hash(company, title, &url);
 
     // Check if job already exists
-    if state.database.job_exists_by_hash(&job_hash).await.unwrap_or(false) {
+    if state
+        .database
+        .job_exists_by_hash(&job_hash)
+        .await
+        .unwrap_or(false)
+    {
         return Err("This job already exists in your database".to_string());
     }
 
@@ -194,8 +199,7 @@ pub async fn import_job_from_url(url: String, state: State<'_, AppState>) -> Res
         .ok_or_else(|| "Job was imported but could not be retrieved".to_string())?;
 
     // Convert to JSON
-    serde_json::to_value(&job)
-        .map_err(|e| format!("Failed to serialize job: {}", e))
+    serde_json::to_value(&job).map_err(|e| format!("Failed to serialize job: {}", e))
 }
 
 /// Calculate job hash for deduplication
@@ -245,7 +249,9 @@ fn extract_location_string(job_location: &serde_json::Value) -> Option<String> {
 }
 
 /// Extract salary information from Schema.org baseSalary
-fn extract_salary_info(base_salary: &Option<serde_json::Value>) -> (Option<i64>, Option<i64>, Option<String>) {
+fn extract_salary_info(
+    base_salary: &Option<serde_json::Value>,
+) -> (Option<i64>, Option<i64>, Option<String>) {
     let salary = match base_salary {
         Some(s) => s,
         None => return (None, None, None),

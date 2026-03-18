@@ -786,7 +786,13 @@ impl From<AnswerSource> for AnswerSourceResponse {
     fn from(source: AnswerSource) -> Self {
         match source {
             AnswerSource::Manual { pattern, answer_id } => Self::Manual { pattern, answer_id },
-            AnswerSource::Learned { pattern, learned_id } => Self::Learned { pattern, learned_id },
+            AnswerSource::Learned {
+                pattern,
+                learned_id,
+            } => Self::Learned {
+                pattern,
+                learned_id,
+            },
             AnswerSource::Historical { original_question } => {
                 Self::Historical { original_question }
             }

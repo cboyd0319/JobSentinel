@@ -28,8 +28,9 @@ impl EmbeddingGenerator {
 
         if !manager.is_model_downloaded() {
             return Err(MlError::ModelNotDownloaded(
-                "Model not found. Call download_model() first.".to_string()
-            ).into());
+                "Model not found. Call download_model() first.".to_string(),
+            )
+            .into());
         }
 
         let device = ModelManager::get_device()?;
@@ -47,7 +48,9 @@ impl EmbeddingGenerator {
     /// Generate embedding for a single text
     pub fn embed_text(&self, text: &str) -> Result<Vec<f32>> {
         let embeddings = self.embed_batch(&[text])?;
-        Ok(embeddings.into_iter().next()
+        Ok(embeddings
+            .into_iter()
+            .next()
             .ok_or_else(|| MlError::InferenceFailed("No embedding generated".to_string()))?)
     }
 
@@ -58,7 +61,8 @@ impl EmbeddingGenerator {
         }
 
         // Tokenize all texts
-        let encodings = self.tokenizer
+        let encodings = self
+            .tokenizer
             .encode_batch(texts.to_vec(), true)
             .map_err(|e| MlError::TokenizationFailed(e.to_string()))?;
 

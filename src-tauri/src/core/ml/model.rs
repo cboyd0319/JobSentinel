@@ -15,11 +15,7 @@ const MODEL_ID: &str = "sentence-transformers/all-MiniLM-L6-v2";
 const MODEL_REVISION: &str = "main";
 
 /// Required files for the model
-const MODEL_FILES: &[&str] = &[
-    "config.json",
-    "tokenizer.json",
-    "model.safetensors",
-];
+const MODEL_FILES: &[&str] = &["config.json", "tokenizer.json", "model.safetensors"];
 
 /// Model download and loading status
 #[derive(Debug, Clone, serde::Serialize)]
@@ -80,26 +76,22 @@ impl ModelManager {
         tracing::info!("Downloading model {} from HuggingFace Hub", MODEL_ID);
 
         // Create cache directory
-        std::fs::create_dir_all(&self.cache_dir)
-            .context("Failed to create cache directory")?;
+        std::fs::create_dir_all(&self.cache_dir).context("Failed to create cache directory")?;
 
-        let api = Api::new()
-            .map_err(|e| MlError::DownloadFailed(e.to_string()))?;
+        let api = Api::new().map_err(|e| MlError::DownloadFailed(e.to_string()))?;
 
         let repo = api.repo(Repo::new(MODEL_ID.to_string(), RepoType::Model));
 
         // Download each required file
         let model_dir = self.cache_dir.join("all-MiniLM-L6-v2");
-        std::fs::create_dir_all(&model_dir)
-            .context("Failed to create model directory")?;
+        std::fs::create_dir_all(&model_dir).context("Failed to create model directory")?;
 
         for file in MODEL_FILES {
             tracing::info!("Downloading {}", file);
 
-            let remote_path = repo
-                .get(file)
-                .await
-                .map_err(|e| MlError::DownloadFailed(format!("Failed to download {}: {}", file, e)))?;
+            let remote_path = repo.get(file).await.map_err(|e| {
+                MlError::DownloadFailed(format!("Failed to download {}: {}", file, e))
+            })?;
 
             let target_path = model_dir.join(file);
             std::fs::copy(&remote_path, &target_path)
@@ -116,8 +108,9 @@ impl ModelManager {
 
         if !tokenizer_path.exists() {
             return Err(MlError::ModelNotDownloaded(
-                "Tokenizer not found. Call download_model() first.".to_string()
-            ).into());
+                "Tokenizer not found. Call download_model() first.".to_string(),
+            )
+            .into());
         }
 
         Tokenizer::from_file(&tokenizer_path)
@@ -130,8 +123,9 @@ impl ModelManager {
 
         if !model_path.exists() {
             return Err(MlError::ModelNotDownloaded(
-                "Model weights not found. Call download_model() first.".to_string()
-            ).into());
+                "Model weights not found. Call download_model() first.".to_string(),
+            )
+            .into());
         }
 
         let vb = unsafe {
@@ -202,12 +196,9 @@ impl SentenceTransformer {
         const VOCAB_SIZE: usize = 30522;
 
         // Load embeddings
-        let embeddings = candle_nn::embedding(
-            VOCAB_SIZE,
-            HIDDEN_SIZE,
-            vb.pp("embeddings.word_embeddings"),
-        )
-        .map_err(|e| MlError::ModelLoadFailed(e.to_string()))?;
+        let embeddings =
+            candle_nn::embedding(VOCAB_SIZE, HIDDEN_SIZE, vb.pp("embeddings.word_embeddings"))
+                .map_err(|e| MlError::ModelLoadFailed(e.to_string()))?;
 
         // Load transformer layers
         let mut layers = Vec::new();
@@ -217,12 +208,8 @@ impl SentenceTransformer {
         }
 
         // Load pooler
-        let pooler = candle_nn::linear(
-            HIDDEN_SIZE,
-            HIDDEN_SIZE,
-            vb.pp("pooler.dense"),
-        )
-        .map_err(|e| MlError::ModelLoadFailed(e.to_string()))?;
+        let pooler = candle_nn::linear(HIDDEN_SIZE, HIDDEN_SIZE, vb.pp("pooler.dense"))
+            .map_err(|e| MlError::ModelLoadFailed(e.to_string()))?;
 
         Ok(Self {
             embeddings,
@@ -235,12 +222,15 @@ impl SentenceTransformer {
     /// Forward pass to generate embeddings
     pub fn forward(&self, input_ids: &Tensor, attention_mask: &Tensor) -> Result<Tensor> {
         // Embedding lookup
-        let mut hidden = self.embeddings.forward(input_ids)
+        let mut hidden = self
+            .embeddings
+            .forward(input_ids)
             .map_err(|e| MlError::InferenceFailed(e.to_string()))?;
 
         // Transformer layers
         for layer in &self.layers {
-            hidden = layer.forward(&hidden, attention_mask)
+            hidden = layer
+                .forward(&hidden, attention_mask)
                 .map_err(|e| MlError::InferenceFailed(e.to_string()))?;
         }
 
@@ -265,10 +255,12 @@ impl SentenceTransformer {
             .sum(1)
             .map_err(|e| MlError::InferenceFailed(e.to_string()))?;
 
-        let count = mask_expanded.sum(1)
+        let count = mask_expanded
+            .sum(1)
             .map_err(|e| MlError::InferenceFailed(e.to_string()))?;
 
-        let pooled = sum.broadcast_div(&count)
+        let pooled = sum
+            .broadcast_div(&count)
             .map_err(|e| MlError::InferenceFailed(e.to_string()))?;
 
         Ok(pooled)
@@ -315,16 +307,18 @@ impl TransformerLayer {
     fn forward(&self, hidden: &Tensor, attention_mask: &Tensor) -> Result<Tensor> {
         // Self-attention with residual
         let attn_output = self.self_attention.forward(hidden, attention_mask)?;
-        let hidden = (hidden + attn_output)
-            .map_err(|e| MlError::InferenceFailed(e.to_string()))?;
-        let hidden = self.ln1.forward(&hidden)
+        let hidden = (hidden + attn_output).map_err(|e| MlError::InferenceFailed(e.to_string()))?;
+        let hidden = self
+            .ln1
+            .forward(&hidden)
             .map_err(|e| MlError::InferenceFailed(e.to_string()))?;
 
         // Feed-forward with residual
         let ff_output = self.feed_forward.forward(&hidden)?;
-        let hidden = (&hidden + ff_output)
-            .map_err(|e| MlError::InferenceFailed(e.to_string()))?;
-        let hidden = self.ln2.forward(&hidden)
+        let hidden = (&hidden + ff_output).map_err(|e| MlError::InferenceFailed(e.to_string()))?;
+        let hidden = self
+            .ln2
+            .forward(&hidden)
             .map_err(|e| MlError::InferenceFailed(e.to_string()))?;
 
         Ok(hidden)
@@ -333,66 +327,85 @@ impl TransformerLayer {
 
 impl MultiHeadAttention {
     fn forward(&self, hidden: &Tensor, _attention_mask: &Tensor) -> Result<Tensor> {
-        let (batch_size, seq_len, _hidden_size) = hidden.dims3()
+        let (batch_size, seq_len, _hidden_size) = hidden
+            .dims3()
             .map_err(|e| MlError::InferenceFailed(e.to_string()))?;
 
         // Project to Q, K, V
-        let query = self.query.forward(hidden)
+        let query = self
+            .query
+            .forward(hidden)
             .map_err(|e| MlError::InferenceFailed(e.to_string()))?;
-        let key = self.key.forward(hidden)
+        let key = self
+            .key
+            .forward(hidden)
             .map_err(|e| MlError::InferenceFailed(e.to_string()))?;
-        let value = self.value.forward(hidden)
+        let value = self
+            .value
+            .forward(hidden)
             .map_err(|e| MlError::InferenceFailed(e.to_string()))?;
 
         // Reshape for multi-head attention
-        let query = query.reshape((batch_size, seq_len, self.num_heads, self.head_dim))
+        let query = query
+            .reshape((batch_size, seq_len, self.num_heads, self.head_dim))
             .map_err(|e| MlError::InferenceFailed(e.to_string()))?
             .transpose(1, 2)
             .map_err(|e| MlError::InferenceFailed(e.to_string()))?;
 
-        let key = key.reshape((batch_size, seq_len, self.num_heads, self.head_dim))
+        let key = key
+            .reshape((batch_size, seq_len, self.num_heads, self.head_dim))
             .map_err(|e| MlError::InferenceFailed(e.to_string()))?
             .transpose(1, 2)
             .map_err(|e| MlError::InferenceFailed(e.to_string()))?;
 
-        let value = value.reshape((batch_size, seq_len, self.num_heads, self.head_dim))
+        let value = value
+            .reshape((batch_size, seq_len, self.num_heads, self.head_dim))
             .map_err(|e| MlError::InferenceFailed(e.to_string()))?
             .transpose(1, 2)
             .map_err(|e| MlError::InferenceFailed(e.to_string()))?;
 
         // Scaled dot-product attention
         let scale = (self.head_dim as f64).sqrt();
-        let key_t = key.t()
+        let key_t = key
+            .t()
             .map_err(|e: candle_core::Error| MlError::InferenceFailed(e.to_string()))?;
-        let scores = query.matmul(&key_t)
+        let scores = query
+            .matmul(&key_t)
             .map_err(|e: candle_core::Error| MlError::InferenceFailed(e.to_string()))?
             / scale;
 
         let attn_weights = candle_nn::ops::softmax_last_dim(&scores)
             .map_err(|e: candle_core::Error| MlError::InferenceFailed(e.to_string()))?;
 
-        let context = attn_weights.matmul(&value)
+        let context = attn_weights
+            .matmul(&value)
             .map_err(|e| MlError::InferenceFailed(e.to_string()))?;
 
         // Reshape back
-        let context = context.transpose(1, 2)
+        let context = context
+            .transpose(1, 2)
             .map_err(|e| MlError::InferenceFailed(e.to_string()))?
             .reshape((batch_size, seq_len, self.num_heads * self.head_dim))
             .map_err(|e| MlError::InferenceFailed(e.to_string()))?;
 
         // Output projection
-        self.output.forward(&context)
+        self.output
+            .forward(&context)
             .map_err(|e| MlError::InferenceFailed(e.to_string()).into())
     }
 }
 
 impl FeedForward {
     fn forward(&self, hidden: &Tensor) -> Result<Tensor> {
-        let x = self.linear1.forward(hidden)
+        let x = self
+            .linear1
+            .forward(hidden)
             .map_err(|e: candle_core::Error| MlError::InferenceFailed(e.to_string()))?;
-        let x = x.gelu()
+        let x = x
+            .gelu()
             .map_err(|e: candle_core::Error| MlError::InferenceFailed(e.to_string()))?;
-        self.linear2.forward(&x)
+        self.linear2
+            .forward(&x)
             .map_err(|e: candle_core::Error| MlError::InferenceFailed(e.to_string()).into())
     }
 }
