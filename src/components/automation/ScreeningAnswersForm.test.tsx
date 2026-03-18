@@ -62,7 +62,9 @@ describe("ScreeningAnswersForm", () => {
 
       render(<ScreeningAnswersForm />);
 
-      expect(screen.getByRole("status", { name: /loading screening answers/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole("status", { name: /loading screening answers/i }),
+      ).toBeInTheDocument();
       const spinner = screen.getByRole("status").querySelector(".animate-spin");
       expect(spinner).toBeInTheDocument();
     });
@@ -72,7 +74,9 @@ describe("ScreeningAnswersForm", () => {
 
       render(<ScreeningAnswersForm />);
 
-      const status = screen.getByRole("status", { name: /loading screening answers/i });
+      const status = screen.getByRole("status", {
+        name: /loading screening answers/i,
+      });
       expect(status).toHaveAttribute("aria-busy", "true");
     });
 
@@ -82,7 +86,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.queryByRole("status", { name: /loading/i })).not.toBeInTheDocument();
+        expect(
+          screen.queryByRole("status", { name: /loading/i }),
+        ).not.toBeInTheDocument();
       });
     });
   });
@@ -96,8 +102,12 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByText("Screening Question Answers")).toBeInTheDocument();
-        expect(screen.getByText(/save answers to common questions/i)).toBeInTheDocument();
+        expect(
+          screen.getByText("Screening Question Answers"),
+        ).toBeInTheDocument();
+        expect(
+          screen.getByText(/save answers to common questions/i),
+        ).toBeInTheDocument();
       });
     });
 
@@ -105,7 +115,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
     });
 
@@ -114,7 +126,9 @@ describe("ScreeningAnswersForm", () => {
 
       await waitFor(() => {
         // HelpIcon component is present (it renders an icon with a tooltip)
-        expect(screen.getByText("Screening Question Answers")).toBeInTheDocument();
+        expect(
+          screen.getByText("Screening Question Answers"),
+        ).toBeInTheDocument();
       });
     });
   });
@@ -128,7 +142,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByText(/no screening answers yet/i)).toBeInTheDocument();
+        expect(
+          screen.getByText(/no screening answers yet/i),
+        ).toBeInTheDocument();
       });
     });
 
@@ -136,7 +152,11 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByText(/add common answers to auto-fill screening questions/i)).toBeInTheDocument();
+        expect(
+          screen.getByText(
+            /add common answers to auto-fill screening questions/i,
+          ),
+        ).toBeInTheDocument();
       });
     });
 
@@ -144,7 +164,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add your first answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add your first answer/i }),
+        ).toBeInTheDocument();
       });
     });
 
@@ -152,7 +174,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        const emptyState = screen.getByText(/no screening answers yet/i).parentElement;
+        const emptyState = screen.getByText(
+          /no screening answers yet/i,
+        ).parentElement;
         expect(emptyState?.querySelector("svg")).toBeInTheDocument();
       });
     });
@@ -178,7 +202,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        const codeElements = screen.getAllByText(/years.*experience|willing.*relocate|cover.*letter/);
+        const codeElements = screen.getAllByText(
+          /years.*experience|willing.*relocate|cover.*letter/,
+        );
         codeElements.forEach((el) => {
           expect(el.tagName.toLowerCase()).toBe("code");
         });
@@ -198,7 +224,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        const relocateAnswer = screen.getByText("willing.*relocate").closest("div");
+        const relocateAnswer = screen
+          .getByText("willing.*relocate")
+          .closest("div");
         expect(relocateAnswer?.textContent).not.toContain("notes");
       });
     });
@@ -225,9 +253,7 @@ describe("ScreeningAnswersForm", () => {
 
   describe("answer type badges", () => {
     it("shows Text badge for text type", async () => {
-      mockInvoke.mockResolvedValue([
-        { ...mockAnswers[0], answerType: "text" },
-      ]);
+      mockInvoke.mockResolvedValue([{ ...mockAnswers[0], answerType: "text" }]);
 
       render(<ScreeningAnswersForm />);
 
@@ -273,9 +299,7 @@ describe("ScreeningAnswersForm", () => {
     });
 
     it("defaults to Text badge for null type", async () => {
-      mockInvoke.mockResolvedValue([
-        { ...mockAnswers[0], answerType: null },
-      ]);
+      mockInvoke.mockResolvedValue([{ ...mockAnswers[0], answerType: null }]);
 
       render(<ScreeningAnswersForm />);
 
@@ -294,7 +318,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByText(/quick add common questions/i)).toBeInTheDocument();
+        expect(
+          screen.getByText(/quick add common questions/i),
+        ).toBeInTheDocument();
       });
     });
 
@@ -304,8 +330,12 @@ describe("ScreeningAnswersForm", () => {
       await waitFor(() => {
         expect(screen.getByText(/\+ Years of experience/i)).toBeInTheDocument();
         expect(screen.getByText(/\+ Salary expectation/i)).toBeInTheDocument();
-        expect(screen.getByText(/\+ Start date \/ Notice period/i)).toBeInTheDocument();
-        expect(screen.getByText(/\+ Willingness to relocate/i)).toBeInTheDocument();
+        expect(
+          screen.getByText(/\+ Start date \/ Notice period/i),
+        ).toBeInTheDocument();
+        expect(
+          screen.getByText(/\+ Willingness to relocate/i),
+        ).toBeInTheDocument();
       });
     });
 
@@ -315,7 +345,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.queryByText(/\+ Years of experience/i)).not.toBeInTheDocument();
+        expect(
+          screen.queryByText(/\+ Years of experience/i),
+        ).not.toBeInTheDocument();
         expect(screen.getByText(/\+ Salary expectation/i)).toBeInTheDocument();
       });
     });
@@ -332,7 +364,9 @@ describe("ScreeningAnswersForm", () => {
 
       await waitFor(() => {
         expect(screen.getByRole("dialog")).toBeInTheDocument();
-        const input = screen.getByLabelText(/question pattern/i) as HTMLInputElement;
+        const input = screen.getByLabelText(
+          /question pattern/i,
+        ) as HTMLInputElement;
         expect(input.value).toBe("years.*experience");
       });
     });
@@ -348,7 +382,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
@@ -364,7 +400,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
@@ -382,7 +420,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
@@ -403,13 +443,17 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /save answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /save answer/i }),
+        ).toBeInTheDocument();
       });
     });
   });
@@ -424,7 +468,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
@@ -440,7 +486,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
@@ -460,7 +508,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
@@ -479,7 +529,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
@@ -508,7 +560,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
@@ -525,7 +579,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
@@ -542,14 +598,16 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
 
       const notesInput = screen.getByLabelText(/notes/i);
       await user.clear(notesInput);
-      await user.paste("Test notes");
+      await user.type(notesInput, "Test notes");
 
       expect(notesInput).toHaveValue("Test notes");
     });
@@ -559,7 +617,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
@@ -575,7 +635,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
@@ -603,7 +665,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
@@ -616,7 +680,7 @@ describe("ScreeningAnswersForm", () => {
       await waitFor(() => {
         expect(mockToast.error).toHaveBeenCalledWith(
           "Please fix the errors",
-          "Check the highlighted fields"
+          "Check the highlighted fields",
         );
       });
     });
@@ -626,7 +690,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
@@ -639,7 +705,7 @@ describe("ScreeningAnswersForm", () => {
       await waitFor(() => {
         expect(mockToast.error).toHaveBeenCalledWith(
           "Please fix the errors",
-          "Check the highlighted fields"
+          "Check the highlighted fields",
         );
       });
     });
@@ -649,7 +715,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
@@ -668,7 +736,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
@@ -687,7 +757,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
@@ -704,7 +776,9 @@ describe("ScreeningAnswersForm", () => {
       await user.type(patternInput, "valid.*pattern");
 
       await waitFor(() => {
-        expect(screen.queryByText(/pattern is required/i)).not.toBeInTheDocument();
+        expect(
+          screen.queryByText(/pattern is required/i),
+        ).not.toBeInTheDocument();
       });
     });
 
@@ -713,7 +787,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
@@ -749,7 +825,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
@@ -766,7 +844,9 @@ describe("ScreeningAnswersForm", () => {
 
       await waitFor(() => {
         const calls = mockInvoke.mock.calls;
-        const upsertCall = calls.find((call) => call[0] === "upsert_screening_answer");
+        const upsertCall = calls.find(
+          (call) => call[0] === "upsert_screening_answer",
+        );
         expect(upsertCall).toBeDefined();
         expect(upsertCall?.[1]).toEqual({
           questionPattern: "testpattern",
@@ -779,50 +859,63 @@ describe("ScreeningAnswersForm", () => {
 
     // TODO: This test is flaky when run in parallel with other tests. Passes when run individually.
     // Root cause: Test pollution from async state updates in other tests affecting mock state.
-    it.skip("trims whitespace from inputs before submission", { timeout: 10000 }, async () => {
-      const user = userEvent.setup();
-      mockInvoke
-        .mockResolvedValueOnce([]) // Initial load
-        .mockResolvedValueOnce(undefined) // Upsert
-        .mockResolvedValueOnce([]); // Reload
+    it.skip(
+      "trims whitespace from inputs before submission",
+      { timeout: 10000 },
+      async () => {
+        const user = userEvent.setup();
+        mockInvoke
+          .mockResolvedValueOnce([]) // Initial load
+          .mockResolvedValueOnce(undefined) // Upsert
+          .mockResolvedValueOnce([]); // Reload
 
-      render(<ScreeningAnswersForm />);
+        render(<ScreeningAnswersForm />);
 
-      await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
-      });
-
-      await user.click(screen.getByRole("button", { name: /add answer/i }));
-
-      const patternInput = screen.getByLabelText(/question pattern/i);
-      const answerInput = screen.getByLabelText(/your answer/i);
-
-      await user.type(patternInput, "  testpattern  ");
-      await user.type(answerInput, "  Testanswer  ");
-
-      await user.click(screen.getByRole("button", { name: /save answer/i }));
-
-      await waitFor(() => {
-        const calls = mockInvoke.mock.calls;
-        const upsertCall = calls.find((call) => call[0] === "upsert_screening_answer");
-        expect(upsertCall).toBeDefined();
-        expect(upsertCall?.[1]).toEqual({
-          questionPattern: "testpattern",
-          answer: "Testanswer",
-          answerType: "text",
-          notes: null,
+        await waitFor(() => {
+          expect(
+            screen.getByRole("button", { name: /add answer/i }),
+          ).toBeInTheDocument();
         });
-      });
-    });
+
+        await user.click(screen.getByRole("button", { name: /add answer/i }));
+
+        const patternInput = screen.getByLabelText(/question pattern/i);
+        const answerInput = screen.getByLabelText(/your answer/i);
+
+        await user.type(patternInput, "  testpattern  ");
+        await user.type(answerInput, "  Testanswer  ");
+
+        await user.click(screen.getByRole("button", { name: /save answer/i }));
+
+        await waitFor(() => {
+          const calls = mockInvoke.mock.calls;
+          const upsertCall = calls.find(
+            (call) => call[0] === "upsert_screening_answer",
+          );
+          expect(upsertCall).toBeDefined();
+          expect(upsertCall?.[1]).toEqual({
+            questionPattern: "testpattern",
+            answer: "Testanswer",
+            answerType: "text",
+            notes: null,
+          });
+        });
+      },
+    );
 
     it("converts empty notes to null", async () => {
       const user = userEvent.setup();
-      mockInvoke.mockResolvedValueOnce([]).mockResolvedValueOnce(undefined).mockResolvedValueOnce([]);
+      mockInvoke
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce(undefined)
+        .mockResolvedValueOnce([]);
 
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
@@ -840,19 +933,24 @@ describe("ScreeningAnswersForm", () => {
           "upsert_screening_answer",
           expect.objectContaining({
             notes: null,
-          })
+          }),
         );
       });
     });
 
     it("shows success toast after successful submission", async () => {
       const user = userEvent.setup();
-      mockInvoke.mockResolvedValueOnce([]).mockResolvedValueOnce(undefined).mockResolvedValueOnce([]);
+      mockInvoke
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce(undefined)
+        .mockResolvedValueOnce([]);
 
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
@@ -868,19 +966,24 @@ describe("ScreeningAnswersForm", () => {
       await waitFor(() => {
         expect(mockToast.success).toHaveBeenCalledWith(
           "Answer saved",
-          "Your screening answer has been saved"
+          "Your screening answer has been saved",
         );
       });
     });
 
     it("closes modal after successful submission", async () => {
       const user = userEvent.setup();
-      mockInvoke.mockResolvedValueOnce([]).mockResolvedValueOnce(undefined).mockResolvedValueOnce([]);
+      mockInvoke
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce(undefined)
+        .mockResolvedValueOnce([]);
 
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
@@ -908,7 +1011,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
@@ -930,12 +1035,17 @@ describe("ScreeningAnswersForm", () => {
     it("calls onSaved callback after successful submission", async () => {
       const user = userEvent.setup();
       const onSaved = vi.fn();
-      mockInvoke.mockResolvedValueOnce([]).mockResolvedValueOnce(undefined).mockResolvedValueOnce([]);
+      mockInvoke
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce(undefined)
+        .mockResolvedValueOnce([]);
 
       render(<ScreeningAnswersForm onSaved={onSaved} />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
@@ -955,12 +1065,17 @@ describe("ScreeningAnswersForm", () => {
 
     it("does not call onSaved when not provided", async () => {
       const user = userEvent.setup();
-      mockInvoke.mockResolvedValueOnce([]).mockResolvedValueOnce(undefined).mockResolvedValueOnce([]);
+      mockInvoke
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce(undefined)
+        .mockResolvedValueOnce([]);
 
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
@@ -981,12 +1096,16 @@ describe("ScreeningAnswersForm", () => {
 
     it("shows loading state on save button during submission", async () => {
       const user = userEvent.setup();
-      mockInvoke.mockResolvedValueOnce([]).mockImplementation(() => new Promise(() => {}));
+      mockInvoke
+        .mockResolvedValueOnce([])
+        .mockImplementation(() => new Promise(() => {}));
 
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
@@ -1013,7 +1132,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
@@ -1064,8 +1185,12 @@ describe("ScreeningAnswersForm", () => {
       await user.click(screen.getAllByLabelText("Edit answer")[0]);
 
       await waitFor(() => {
-        const patternInput = screen.getByLabelText(/question pattern/i) as HTMLInputElement;
-        const answerInput = screen.getByLabelText(/your answer/i) as HTMLInputElement;
+        const patternInput = screen.getByLabelText(
+          /question pattern/i,
+        ) as HTMLInputElement;
+        const answerInput = screen.getByLabelText(
+          /your answer/i,
+        ) as HTMLInputElement;
         const notesInput = screen.getByLabelText(/notes/i) as HTMLInputElement;
 
         expect(patternInput.value).toBe("years.*experience");
@@ -1085,7 +1210,9 @@ describe("ScreeningAnswersForm", () => {
       await user.click(screen.getAllByLabelText("Edit answer")[1]);
 
       await waitFor(() => {
-        const answerTypeSelect = screen.getByLabelText(/answer type/i) as HTMLSelectElement;
+        const answerTypeSelect = screen.getByLabelText(
+          /answer type/i,
+        ) as HTMLSelectElement;
         expect(answerTypeSelect.value).toBe("yes_no");
       });
     });
@@ -1101,7 +1228,9 @@ describe("ScreeningAnswersForm", () => {
       await user.click(screen.getAllByLabelText("Edit answer")[0]);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /update answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /update answer/i }),
+        ).toBeInTheDocument();
       });
     });
 
@@ -1120,7 +1249,9 @@ describe("ScreeningAnswersForm", () => {
       await user.click(screen.getAllByLabelText("Edit answer")[0]);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /update answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /update answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /update answer/i }));
@@ -1173,7 +1304,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
@@ -1186,7 +1319,9 @@ describe("ScreeningAnswersForm", () => {
       await user.click(screen.getByRole("button", { name: /add answer/i }));
 
       await waitFor(() => {
-        const patternInputAfter = screen.getByLabelText(/question pattern/i) as HTMLInputElement;
+        const patternInputAfter = screen.getByLabelText(
+          /question pattern/i,
+        ) as HTMLInputElement;
         expect(patternInputAfter.value).toBe("");
       });
     });
@@ -1196,7 +1331,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
@@ -1212,7 +1349,9 @@ describe("ScreeningAnswersForm", () => {
       await user.click(screen.getByRole("button", { name: /add answer/i }));
 
       await waitFor(() => {
-        expect(screen.queryByText(/pattern is required/i)).not.toBeInTheDocument();
+        expect(
+          screen.queryByText(/pattern is required/i),
+        ).not.toBeInTheDocument();
       });
     });
   });
@@ -1250,7 +1389,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
@@ -1265,7 +1406,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
@@ -1293,7 +1436,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
@@ -1311,7 +1456,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
@@ -1336,7 +1483,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
@@ -1350,7 +1499,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
@@ -1364,7 +1515,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));
@@ -1383,7 +1536,9 @@ describe("ScreeningAnswersForm", () => {
       render(<ScreeningAnswersForm />);
 
       await waitFor(() => {
-        expect(screen.getByRole("button", { name: /add answer/i })).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: /add answer/i }),
+        ).toBeInTheDocument();
       });
 
       await user.click(screen.getByRole("button", { name: /add answer/i }));

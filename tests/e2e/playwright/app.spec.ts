@@ -5,15 +5,19 @@ test.describe("JobSentinel App", () => {
     await page.goto("/");
 
     // Wait for the main content to load - look for common elements
-    await expect(page.locator("main, [role='main'], #root")).toBeVisible({ timeout: 15000 });
+    await expect(page.locator("main, [role='main'], #root")).toBeVisible({
+      timeout: 15000,
+    });
 
     // App should have loaded without crashing
     await expect(page.locator("body")).not.toHaveText(/error/i);
   });
 
-  test("should show setup wizard on first run or dashboard", async ({ page }) => {
+  test("should show setup wizard on first run or dashboard", async ({
+    page,
+  }) => {
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
     await page.waitForTimeout(500); // Extra wait for React hydration
 
     // App should render some content
@@ -28,15 +32,20 @@ test.describe("JobSentinel App", () => {
 
   test("should have accessible skip to content link", async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
 
     // Skip link should exist in the DOM (may be visually hidden)
-    const skipLink = page.locator("a[href='#main-content'], .skip-link, [class*='skip']");
+    const skipLink = page.locator(
+      "a[href='#main-content'], .skip-link, [class*='skip']",
+    );
     const count = await skipLink.count();
 
     // If no skip link, that's a minor accessibility issue but not a failure
     if (count === 0) {
-      test.skip(true, "Skip link not found - consider adding for accessibility");
+      test.skip(
+        true,
+        "Skip link not found - consider adding for accessibility",
+      );
     }
   });
 });
@@ -46,7 +55,7 @@ test.describe("Keyboard Shortcuts", () => {
   // These tests are marked as soft failures - they verify the feature exists
   test("should open command palette with Cmd+K or Ctrl+K", async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
 
     // Try keyboard shortcut (may not work in all headless browsers)
     await page.keyboard.press("Control+k");
@@ -64,7 +73,7 @@ test.describe("Keyboard Shortcuts", () => {
 
   test("should close command palette with Escape", async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
 
     // Try to open command palette
     await page.keyboard.press("Control+k");
@@ -85,10 +94,13 @@ test.describe("Keyboard Shortcuts", () => {
 
   test("should focus search with / key", async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
 
     // Skip if setup wizard is visible
-    const isSetupWizard = await page.locator("text=Welcome").isVisible().catch(() => false);
+    const isSetupWizard = await page
+      .locator("text=Welcome")
+      .isVisible()
+      .catch(() => false);
     if (isSetupWizard) {
       test.skip();
       return;
@@ -104,17 +116,21 @@ test.describe("Keyboard Shortcuts", () => {
     // Search input should be focused (soft check - keyboard shortcuts can be flaky in tests)
     const searchInput = page.locator("[data-testid='search-input']");
     if (await searchInput.isVisible()) {
-      const isFocused = await searchInput.evaluate(el => el === document.activeElement);
+      const isFocused = await searchInput.evaluate(
+        (el) => el === document.activeElement,
+      );
       // Soft assertion - test passes but warns if not focused
       if (!isFocused) {
-        console.warn("Search input not focused after / key - may be a timing issue");
+        console.warn(
+          "Search input not focused after / key - may be a timing issue",
+        );
       }
     }
   });
 
   test("should show help modal with ? key", async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
 
     // Press ? to show help (Shift+/)
     await page.keyboard.press("Shift+/");
@@ -133,15 +149,19 @@ test.describe("Keyboard Shortcuts", () => {
 test.describe("Theme Toggle", () => {
   test("should toggle dark mode", async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
 
     // Find the theme toggle button
-    const themeToggle = page.locator('button[aria-label="Toggle theme"]').first();
+    const themeToggle = page
+      .locator('button[aria-label="Toggle theme"]')
+      .first();
 
     if (await themeToggle.isVisible()) {
       // Get initial state
       const html = page.locator("html");
-      const wasDark = await html.getAttribute("class").then((c) => c?.includes("dark"));
+      const wasDark = await html
+        .getAttribute("class")
+        .then((c) => c?.includes("dark"));
 
       // Click toggle
       await themeToggle.click();
@@ -150,7 +170,9 @@ test.describe("Theme Toggle", () => {
       await page.waitForTimeout(300);
 
       // Check that class changed
-      const isDark = await html.getAttribute("class").then((c) => c?.includes("dark"));
+      const isDark = await html
+        .getAttribute("class")
+        .then((c) => c?.includes("dark"));
       expect(isDark).not.toBe(wasDark);
     }
   });
@@ -166,7 +188,7 @@ test.describe("Command Palette", () => {
 
   test("should filter commands on typing", async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
 
     // Try to open command palette
     const { isOpen } = await tryOpenCommandPalette(page);
@@ -186,7 +208,7 @@ test.describe("Command Palette", () => {
 
   test("should navigate with arrow keys", async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
 
     // Try to open command palette
     const { isOpen } = await tryOpenCommandPalette(page);
@@ -208,16 +230,21 @@ test.describe("Command Palette", () => {
 test.describe("Dashboard", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
 
     // Skip setup wizard if visible
-    const isSetupWizard = await page.locator("text=Welcome").isVisible().catch(() => false);
+    const isSetupWizard = await page
+      .locator("text=Welcome")
+      .isVisible()
+      .catch(() => false);
     if (isSetupWizard) {
       // Try to skip or close it
-      const skipButton = page.locator("text=Skip for now, button:has-text('Skip')").first();
+      const skipButton = page
+        .locator("text=Skip for now, button:has-text('Skip')")
+        .first();
       if (await skipButton.isVisible().catch(() => false)) {
         await skipButton.click();
-        await page.waitForLoadState("networkidle");
+        await page.waitForLoadState("load");
       }
     }
   });
@@ -237,7 +264,10 @@ test.describe("Dashboard", () => {
 
     // If none of the dashboard elements are visible, skip
     if (!hasJobList && !hasJobCards && !hasSearch) {
-      test.skip(true, "Dashboard content not loaded - app may still be initializing");
+      test.skip(
+        true,
+        "Dashboard content not loaded - app may still be initializing",
+      );
     }
   });
 
@@ -268,13 +298,15 @@ test.describe("Dashboard", () => {
 test.describe("Job Card Interactions", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
 
     // Skip setup wizard if visible
-    const skipButton = page.locator("text=Skip for now, button:has-text('Skip')").first();
+    const skipButton = page
+      .locator("text=Skip for now, button:has-text('Skip')")
+      .first();
     if (await skipButton.isVisible().catch(() => false)) {
       await skipButton.click();
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("load");
     }
   });
 
@@ -286,13 +318,19 @@ test.describe("Job Card Interactions", () => {
 
       if (await firstCard.isVisible()) {
         // Should have title
-        await expect(firstCard.locator("[data-testid='job-title']")).toBeVisible();
+        await expect(
+          firstCard.locator("[data-testid='job-title']"),
+        ).toBeVisible();
 
         // Should have company
-        await expect(firstCard.locator("[data-testid='job-company']")).toBeVisible();
+        await expect(
+          firstCard.locator("[data-testid='job-company']"),
+        ).toBeVisible();
 
         // Should have view button
-        await expect(firstCard.locator("[data-testid='btn-view']")).toBeVisible();
+        await expect(
+          firstCard.locator("[data-testid='btn-view']"),
+        ).toBeVisible();
       }
     }
   });
@@ -310,7 +348,7 @@ test.describe("Job Card Interactions", () => {
 
         // Action buttons should become visible on hover
         const bookmarkBtn = firstCard.locator("[data-testid='btn-bookmark']");
-        if (await bookmarkBtn.count() > 0) {
+        if ((await bookmarkBtn.count()) > 0) {
           // Button exists (may have opacity:0 until hover)
           await expect(bookmarkBtn).toBeAttached();
         }
@@ -331,12 +369,14 @@ test.describe("Job Card Interactions", () => {
         const bookmarkBtn = firstCard.locator("[data-testid='btn-bookmark']");
 
         if (await bookmarkBtn.isVisible()) {
-          const wasBookmarked = await bookmarkBtn.getAttribute("data-bookmarked");
+          const wasBookmarked =
+            await bookmarkBtn.getAttribute("data-bookmarked");
 
           await bookmarkBtn.click();
           await page.waitForTimeout(500);
 
-          const isBookmarked = await bookmarkBtn.getAttribute("data-bookmarked");
+          const isBookmarked =
+            await bookmarkBtn.getAttribute("data-bookmarked");
           expect(isBookmarked).not.toBe(wasBookmarked);
         }
       }
@@ -347,7 +387,7 @@ test.describe("Job Card Interactions", () => {
 test.describe("Accessibility", () => {
   test("should have proper heading structure", async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
     await page.waitForTimeout(500);
 
     // Check for headings
@@ -362,7 +402,7 @@ test.describe("Accessibility", () => {
 
   test("should have proper ARIA labels", async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
 
     // Check for any buttons with aria-labels
     const buttonsWithLabels = page.locator("button[aria-label]");
@@ -374,16 +414,21 @@ test.describe("Accessibility", () => {
 
   test("should have focusable interactive elements", async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
     await page.waitForTimeout(500);
 
     // Check that page has focusable elements
-    const focusableElements = page.locator("button, a, input, select, textarea");
+    const focusableElements = page.locator(
+      "button, a, input, select, textarea",
+    );
     const count = await focusableElements.count();
 
     // If no focusable elements, app may not be fully rendered
     if (count === 0) {
-      test.skip(true, "No focusable elements found - app may not be fully rendered");
+      test.skip(
+        true,
+        "No focusable elements found - app may not be fully rendered",
+      );
     }
   });
 });
@@ -393,59 +438,74 @@ test.describe("Responsive Design", () => {
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
 
     // App should load without crashing
-    await expect(page.locator("main, [role='main'], #root")).toBeVisible({ timeout: 15000 });
+    await expect(page.locator("main, [role='main'], #root")).toBeVisible({
+      timeout: 15000,
+    });
   });
 
   test("should adapt to tablet viewport", async ({ page }) => {
     // Set tablet viewport
     await page.setViewportSize({ width: 768, height: 1024 });
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
 
     // App should load without crashing
-    await expect(page.locator("main, [role='main'], #root")).toBeVisible({ timeout: 15000 });
+    await expect(page.locator("main, [role='main'], #root")).toBeVisible({
+      timeout: 15000,
+    });
   });
 
   test("should work on desktop viewport", async ({ page }) => {
     // Set desktop viewport
     await page.setViewportSize({ width: 1920, height: 1080 });
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
 
     // App should load without crashing
-    await expect(page.locator("main, [role='main'], #root")).toBeVisible({ timeout: 15000 });
+    await expect(page.locator("main, [role='main'], #root")).toBeVisible({
+      timeout: 15000,
+    });
   });
 });
 
 test.describe("One-Click Apply Settings", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
 
     // Skip setup wizard if visible
-    const skipButton = page.locator("text=Skip for now, button:has-text('Skip')").first();
+    const skipButton = page
+      .locator("text=Skip for now, button:has-text('Skip')")
+      .first();
     if (await skipButton.isVisible().catch(() => false)) {
       await skipButton.click();
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("load");
     }
   });
 
   test("should navigate to One-Click Apply settings", async ({ page }) => {
     // Look for navigation to automation settings
-    const automationLink = page.locator(
-      'a[href*="automation"], button:has-text("One-Click"), button:has-text("Quick Apply"), nav button'
-    ).first();
+    const automationLink = page
+      .locator(
+        'a[href*="automation"], button:has-text("One-Click"), button:has-text("Quick Apply"), nav button',
+      )
+      .first();
 
     if (await automationLink.isVisible().catch(() => false)) {
       await automationLink.click();
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("load");
 
       // Check for One-Click Apply page content
-      const heading = page.locator("text=One-Click Apply, text=Application Profile");
-      const isVisible = await heading.first().isVisible().catch(() => false);
+      const heading = page.locator(
+        "text=One-Click Apply, text=Application Profile",
+      );
+      const isVisible = await heading
+        .first()
+        .isVisible()
+        .catch(() => false);
 
       if (isVisible) {
         await expect(heading.first()).toBeVisible();
@@ -455,21 +515,33 @@ test.describe("One-Click Apply Settings", () => {
 
   test("should display Application Profile form fields", async ({ page }) => {
     // Navigate to automation settings first
-    const automationLink = page.locator(
-      'a[href*="automation"], button:has-text("One-Click"), button:has-text("Quick Apply")'
-    ).first();
+    const automationLink = page
+      .locator(
+        'a[href*="automation"], button:has-text("One-Click"), button:has-text("Quick Apply")',
+      )
+      .first();
 
     if (await automationLink.isVisible().catch(() => false)) {
       await automationLink.click();
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("load");
 
       // Check for profile form fields
-      const nameInput = page.locator('input[placeholder*="name" i], input[name*="name" i]');
-      const emailInput = page.locator('input[type="email"], input[placeholder*="email" i]');
+      const nameInput = page.locator(
+        'input[placeholder*="name" i], input[name*="name" i]',
+      );
+      const emailInput = page.locator(
+        'input[type="email"], input[placeholder*="email" i]',
+      );
 
       // At least some form fields should be visible
-      const hasNameInput = await nameInput.first().isVisible().catch(() => false);
-      const hasEmailInput = await emailInput.first().isVisible().catch(() => false);
+      const hasNameInput = await nameInput
+        .first()
+        .isVisible()
+        .catch(() => false);
+      const hasEmailInput = await emailInput
+        .first()
+        .isVisible()
+        .catch(() => false);
 
       if (hasNameInput || hasEmailInput) {
         // Verify at least one field exists
@@ -480,18 +552,22 @@ test.describe("One-Click Apply Settings", () => {
 
   test("should switch between Profile and Screening tabs", async ({ page }) => {
     // Navigate to automation settings
-    const automationLink = page.locator(
-      'a[href*="automation"], button:has-text("One-Click"), button:has-text("Quick Apply")'
-    ).first();
+    const automationLink = page
+      .locator(
+        'a[href*="automation"], button:has-text("One-Click"), button:has-text("Quick Apply")',
+      )
+      .first();
 
     if (await automationLink.isVisible().catch(() => false)) {
       await automationLink.click();
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("load");
 
       // Find tab buttons
-      const profileTab = page.locator('button:has-text("Profile"), [role="tab"]:has-text("Profile")');
+      const profileTab = page.locator(
+        'button:has-text("Profile"), [role="tab"]:has-text("Profile")',
+      );
       const screeningTab = page.locator(
-        'button:has-text("Screening"), [role="tab"]:has-text("Screening")'
+        'button:has-text("Screening"), [role="tab"]:has-text("Screening")',
       );
 
       if (await screeningTab.isVisible().catch(() => false)) {
@@ -500,8 +576,13 @@ test.describe("One-Click Apply Settings", () => {
         await page.waitForTimeout(300);
 
         // Should show screening content
-        const screeningContent = page.locator('text=Screening, text=Question Pattern');
-        const isScreeningVisible = await screeningContent.first().isVisible().catch(() => false);
+        const screeningContent = page.locator(
+          "text=Screening, text=Question Pattern",
+        );
+        const isScreeningVisible = await screeningContent
+          .first()
+          .isVisible()
+          .catch(() => false);
 
         if (isScreeningVisible) {
           // Click back to profile tab
@@ -514,17 +595,24 @@ test.describe("One-Click Apply Settings", () => {
 
   test("should display How It Works section", async ({ page }) => {
     // Navigate to automation settings
-    const automationLink = page.locator(
-      'a[href*="automation"], button:has-text("One-Click"), button:has-text("Quick Apply")'
-    ).first();
+    const automationLink = page
+      .locator(
+        'a[href*="automation"], button:has-text("One-Click"), button:has-text("Quick Apply")',
+      )
+      .first();
 
     if (await automationLink.isVisible().catch(() => false)) {
       await automationLink.click();
-      await page.waitForLoadState("networkidle");
+      await page.waitForLoadState("load");
 
       // Check for "How It Works" section
-      const howItWorks = page.locator('text=How It Works, text=How One-Click Apply Works');
-      const isVisible = await howItWorks.first().isVisible().catch(() => false);
+      const howItWorks = page.locator(
+        "text=How It Works, text=How One-Click Apply Works",
+      );
+      const isVisible = await howItWorks
+        .first()
+        .isVisible()
+        .catch(() => false);
 
       if (isVisible) {
         await expect(howItWorks.first()).toBeVisible();
@@ -536,7 +624,7 @@ test.describe("One-Click Apply Settings", () => {
 test.describe("Navigation Sidebar", () => {
   test("should display navigation sidebar", async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
     await page.waitForTimeout(300);
 
     // Navigation should be visible
@@ -546,51 +634,51 @@ test.describe("Navigation Sidebar", () => {
 
   test("should have all navigation items", async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
 
     // Check for navigation buttons
     const navButtons = page.locator("nav button");
     const count = await navButtons.count();
-    
+
     // Should have at least 5 navigation items
     expect(count).toBeGreaterThanOrEqual(5);
   });
 
   test("should navigate to different pages via sidebar", async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
     await page.waitForTimeout(500);
 
     // Find and click Applications nav button (second one)
     const navButtons = page.locator("nav button");
     const applicationsBtn = navButtons.nth(1);
-    
+
     if (await applicationsBtn.isVisible().catch(() => false)) {
       await applicationsBtn.click();
       await page.waitForTimeout(300);
-      
+
       // Should navigate to Applications page
-      const pageContent = await page.textContent("body") || "";
+      const pageContent = (await page.textContent("body")) || "";
       expect(pageContent.match(/Applications|Kanban|Track/i)).toBeTruthy();
     }
   });
 
   test("should expand sidebar on hover", async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
 
     const nav = page.locator("nav").first();
-    
+
     // Get initial width
     const initialBox = await nav.boundingBox();
-    
+
     // Hover over nav
     await nav.hover();
     await page.waitForTimeout(300);
-    
+
     // Get expanded width
     const expandedBox = await nav.boundingBox();
-    
+
     // Sidebar should expand (width increases)
     if (initialBox && expandedBox) {
       expect(expandedBox.width).toBeGreaterThan(initialBox.width);
