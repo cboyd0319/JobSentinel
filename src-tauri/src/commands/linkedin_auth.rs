@@ -331,8 +331,8 @@ async fn extract_linkedin_cookie_from_webview(
                 match expires {
                     Expiration::DateTime(dt) => {
                         let timestamp = dt.unix_timestamp();
-                        let chrono_dt = DateTime::<Utc>::from_timestamp(timestamp, 0)
-                            .unwrap_or_else(Utc::now);
+                        let chrono_dt =
+                            DateTime::<Utc>::from_timestamp(timestamp, 0).unwrap_or_else(Utc::now);
                         Some(chrono_dt.to_rfc3339())
                     }
                     Expiration::Session => None,

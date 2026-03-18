@@ -2102,7 +2102,10 @@ mod tests {
             let path = Database::default_path();
 
             // Should contain "jobsentinel" (case-insensitive) and end with .db
-            assert!(path.to_string_lossy().to_lowercase().contains("jobsentinel"));
+            assert!(path
+                .to_string_lossy()
+                .to_lowercase()
+                .contains("jobsentinel"));
             assert!(path.to_string_lossy().ends_with(".db"));
         }
 
