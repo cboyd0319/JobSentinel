@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { Modal } from './Modal';
-import { useOnboarding } from './OnboardingTour';
+import { useOnboarding } from '../hooks/useOnboarding';
 
 interface KeyboardShortcutsHelpProps {
   isOpen: boolean;

@@ -3,7 +3,7 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { KeyboardShortcutsHelp, ShortcutKey } from "./KeyboardShortcutsHelp";
 
 // Mock the OnboardingTour hook
-vi.mock("./OnboardingTour", () => ({
+vi.mock("../hooks/useOnboarding", () => ({
   useOnboarding: vi.fn(() => ({
     startTour: vi.fn(),
     hasCompletedTour: false,
@@ -11,7 +11,7 @@ vi.mock("./OnboardingTour", () => ({
 }));
 
 // Import the mocked module to access the mock functions
-import { useOnboarding } from "./OnboardingTour";
+import { useOnboarding } from "../hooks/useOnboarding";
 
 const mockUseOnboarding = vi.mocked(useOnboarding);
 

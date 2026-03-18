@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { CompanyAutocomplete, COMPANY_SUGGESTIONS } from "./CompanyAutocomplete";
+import { CompanyAutocomplete } from "./CompanyAutocomplete";
+import { COMPANY_SUGGESTIONS } from "../utils/companySuggestions";
 
 describe("CompanyAutocomplete", () => {
   const defaultProps = {

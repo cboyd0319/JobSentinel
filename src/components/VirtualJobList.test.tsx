@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, renderHook, act } from "@testing-library/react";
-import { VirtualJobList, useVirtualListScroll } from "./VirtualJobList";
+import { VirtualJobList } from "./VirtualJobList";
+import { useVirtualListScroll } from "../hooks/useVirtualListScroll";
 import { AnnouncerProvider } from "../contexts/AnnouncerContext";
 import { ReactNode } from "react";
 
