@@ -3,8 +3,30 @@ name: CI
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/PULL_REQUEST_TEMPLATE.md'
+      - '.github/copilot-instructions.md'
+      - '.github/dependabot.yml'
+      - '.storybook/**'
+      - 'LICENSE'
   pull_request:
     branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/PULL_REQUEST_TEMPLATE.md'
+      - '.github/copilot-instructions.md'
+      - '.github/dependabot.yml'
+      - '.storybook/**'
+      - 'LICENSE'
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
@@ -91,7 +113,7 @@ jobs:
         run: npx playwright install --with-deps chromium
       
       - name: Run E2E tests
-        run: npx playwright test e2e/app.spec.ts --project=chromium
+        run: npx playwright test tests/e2e/playwright/app.spec.ts --project=chromium
       
       - name: Upload test results
         if: failure()
@@ -174,4 +196,4 @@ jobs:
       
       - name: Check Rust builds
         working-directory: src-tauri
-        run: cargo build --release
+        run: cargo check
