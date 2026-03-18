@@ -2938,7 +2938,7 @@ dependencies = [
  "keyring",
  "lettre",
  "objc2 0.5.2",
- "objc2-foundation 0.2.2",
+ "objc2-foundation 0.3.2",
  "objc2-web-kit 0.2.2",
  "once_cell",
  "pdf-extract",
