@@ -2923,7 +2923,7 @@ version = "2.6.3"
 dependencies = [
  "anyhow",
  "async-trait",
- "block2 0.5.1",
+ "block2 0.6.2",
  "candle-core",
  "candle-nn",
  "chromiumoxide",
