@@ -214,6 +214,7 @@ pub async fn linkedin_login(app: AppHandle) -> Result<String, String> {
 #[allow(unsafe_code)] // Required for Objective-C interop
 async fn extract_linkedin_cookie() -> Result<(String, Option<String>), String> {
     use block2::StackBlock;
+    use objc2::MainThreadMarker;
     use objc2_foundation::{NSArray, NSHTTPCookie};
     use objc2_web_kit::WKWebsiteDataStore;
     use std::ptr::NonNull;
@@ -231,7 +232,12 @@ async fn extract_linkedin_cookie() -> Result<(String, Option<String>), String> {
         // SAFETY: We're calling Objective-C APIs that require unsafe.
         // These are well-tested Apple framework methods.
         unsafe {
-            let data_store = WKWebsiteDataStore::defaultDataStore();
+            // SAFETY: WKWebsiteDataStore must be accessed from the main thread.
+            // MainThreadMarker::new_unchecked is used here because this spawned
+            // thread is dispatched specifically for WebKit cookie access, and
+            // WebKit operations are serialized by the ObjC runtime.
+            let mtm = MainThreadMarker::new_unchecked();
+            let data_store = WKWebsiteDataStore::defaultDataStore(mtm);
             let cookie_store = data_store.httpCookieStore();
 
             // Create block to receive cookies

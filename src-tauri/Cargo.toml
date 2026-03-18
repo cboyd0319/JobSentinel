@@ -110,10 +110,10 @@ windows = { version = "0.58", features = ["Win32_Foundation", "Win32_System_Thre
 
 [target.'cfg(target_os = "macos")'.dependencies]
 # Native macOS cookie extraction from WKWebView
-objc2 = "0.5"
-objc2-foundation = { version = "0.2", features = ["NSString", "NSArray", "NSDictionary", "NSDate", "NSURL", "block2"] }
-objc2-web-kit = { version = "0.2", features = ["WKWebsiteDataStore", "WKHTTPCookieStore", "WKWebViewConfiguration", "WKWebView", "block2"] }
-block2 = "0.5"
+objc2 = "0.6"
+objc2-foundation = { version = "0.3", features = ["NSString", "NSArray", "NSDictionary", "NSDate", "NSURL", "block2"] }
+objc2-web-kit = { version = "0.3", features = ["WKWebsiteDataStore", "WKHTTPCookieStore", "WKWebViewConfiguration", "WKWebView", "block2"] }
+block2 = "0.6"
 
 [dev-dependencies]
 tempfile = "3.13"
