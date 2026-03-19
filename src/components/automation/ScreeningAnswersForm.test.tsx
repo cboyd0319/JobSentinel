@@ -569,7 +569,7 @@ describe("ScreeningAnswersForm", () => {
 
       const patternInput = screen.getByLabelText(/question pattern/i);
       await user.clear(patternInput);
-      await user.paste("salary|compensation");
+      await user.type(patternInput, "salary|compensation");
 
       expect(patternInput).toHaveValue("salary|compensation");
     });
@@ -588,7 +588,7 @@ describe("ScreeningAnswersForm", () => {
 
       const answerInput = screen.getByLabelText(/your answer/i);
       await user.clear(answerInput);
-      await user.paste("$100,000 - $120,000");
+      await user.type(answerInput, "$100,000 - $120,000");
 
       expect(answerInput).toHaveValue("$100,000 - $120,000");
     });
