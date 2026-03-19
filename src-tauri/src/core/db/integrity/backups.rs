@@ -9,10 +9,20 @@ use super::types::BackupEntry;
 use super::DatabaseIntegrity;
 
 impl DatabaseIntegrity {
+    /// Sanitize a backup reason string to prevent SQL injection via VACUUM INTO.
+    /// Only allows alphanumeric characters, underscores, and hyphens.
+    fn sanitize_backup_reason(reason: &str) -> String {
+        reason
+            .chars()
+            .map(|c| if c.is_alphanumeric() || c == '_' || c == '-' { c } else { '_' })
+            .collect()
+    }
+
     /// Create database backup using VACUUM INTO
     pub async fn create_backup(&self, reason: &str) -> Result<PathBuf> {
+        let safe_reason = Self::sanitize_backup_reason(reason);
         let timestamp = Utc::now().format("%Y%m%d_%H%M%S");
-        let backup_name = format!("jobsentinel_backup_{}_{}.db", timestamp, reason);
+        let backup_name = format!("jobsentinel_backup_{}_{}.db", timestamp, safe_reason);
         let backup_path = self.backup_dir.join(&backup_name);
 
         tracing::info!("💾 Creating database backup: {}", backup_path.display());
@@ -162,5 +172,52 @@ impl DatabaseIntegrity {
         }
 
         Ok(backups)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // ========================================================================
+    // Security: VACUUM INTO SQL injection prevention (CWE-89)
+    // ========================================================================
+
+    #[test]
+    fn test_sanitize_backup_reason_strips_sql_injection() {
+        let malicious = "'; DROP TABLE jobs; --";
+        let sanitized = DatabaseIntegrity::sanitize_backup_reason(malicious);
+        assert!(!sanitized.contains('\''), "Single quotes must be stripped");
+        assert!(!sanitized.contains(';'), "Semicolons must be stripped");
+        assert_eq!(sanitized, "___DROP_TABLE_jobs__--");
+    }
+
+    #[test]
+    fn test_sanitize_backup_reason_preserves_safe_chars() {
+        let safe = "pre_migration-v2";
+        let sanitized = DatabaseIntegrity::sanitize_backup_reason(safe);
+        assert_eq!(sanitized, safe, "Safe characters should be preserved");
+    }
+
+    #[test]
+    fn test_sanitize_backup_reason_handles_path_traversal() {
+        let traversal = "../../etc/passwd";
+        let sanitized = DatabaseIntegrity::sanitize_backup_reason(traversal);
+        assert!(!sanitized.contains('/'), "Path separators must be stripped");
+        assert!(!sanitized.contains('.'), "Dots must be stripped");
+    }
+
+    #[test]
+    fn test_sanitize_backup_reason_handles_empty() {
+        let sanitized = DatabaseIntegrity::sanitize_backup_reason("");
+        assert_eq!(sanitized, "", "Empty string should remain empty");
+    }
+
+    #[test]
+    fn test_sanitize_backup_reason_handles_unicode() {
+        let unicode = "backup_日本語";
+        let sanitized = DatabaseIntegrity::sanitize_backup_reason(unicode);
+        // Unicode alphanumeric chars should be preserved
+        assert!(sanitized.contains("backup_"));
     }
 }

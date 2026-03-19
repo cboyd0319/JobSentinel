@@ -17,8 +17,41 @@ pub use sanitizer::{ConfigSummary, Sanitizer};
 pub use system_info::SystemInfo;
 
 use crate::commands::AppState;
+use std::path::PathBuf;
 use tauri::{AppHandle, State};
 use tauri_plugin_shell::ShellExt;
+
+/// Validate that a path is safe to reveal in the file manager.
+///
+/// Returns the canonicalized path if valid, or an error if:
+/// - The path doesn't exist or can't be resolved
+/// - The path is outside allowed directories (home dir, app data dir)
+fn validate_reveal_path(path: &str) -> Result<PathBuf, String> {
+    if path.is_empty() {
+        return Err("Path cannot be empty".to_string());
+    }
+
+    let canonical = PathBuf::from(path)
+        .canonicalize()
+        .map_err(|_| "File not found or inaccessible".to_string())?;
+
+    // Restrict to safe directories: home dir and app data dir
+    let home_dir = std::env::var("HOME")
+        .or_else(|_| std::env::var("USERPROFILE"))
+        .map(PathBuf::from)
+        .ok();
+    let data_dir = crate::platforms::get_data_dir();
+
+    let is_allowed = [home_dir.as_ref(), Some(&data_dir)]
+        .iter()
+        .any(|dir| dir.map(|d| canonical.starts_with(d)).unwrap_or(false));
+
+    if !is_allowed {
+        return Err("Access denied: path outside allowed directories".to_string());
+    }
+
+    Ok(canonical)
+}
 
 /// Open GitHub Issues page for bug reports
 #[tauri::command]
@@ -58,35 +91,41 @@ pub async fn open_google_drive(app: AppHandle) -> Result<(), String> {
 }
 
 /// Reveal a file in Finder/Explorer
+///
+/// # Security
+/// Path is canonicalized and validated to prevent path traversal attacks (CWE-22).
+/// Only paths within the user's home directory or the app data directory are allowed.
 #[tauri::command]
 pub async fn reveal_file(app: AppHandle, path: String) -> Result<(), String> {
+    let canonical = validate_reveal_path(&path)?;
+
     #[cfg(target_os = "macos")]
     {
-        let _ = &app; // Silence unused warning on macOS
+        let _ = &app;
         use std::process::Command;
         Command::new("open")
             .arg("-R")
-            .arg(&path)
+            .arg(canonical.as_os_str())
             .spawn()
             .map_err(|e| format!("Failed to reveal file: {e}"))?;
     }
 
     #[cfg(target_os = "windows")]
     {
-        let _ = &app; // Silence unused warning on Windows
+        let _ = &app;
         use std::process::Command;
-        // Windows explorer requires /select, to be concatenated with the path
+        let path_str = canonical
+            .to_str()
+            .ok_or("Invalid path encoding")?;
         Command::new("explorer")
-            .arg(format!("/select,{}", path))
+            .arg(format!("/select,{}", path_str))
             .spawn()
             .map_err(|e| format!("Failed to reveal file: {e}"))?;
     }
 
     #[cfg(target_os = "linux")]
     {
-        // Try xdg-open to open the parent directory
-        use std::path::Path;
-        let parent = Path::new(&path)
+        let parent = canonical
             .parent()
             .ok_or("Invalid path")?
             .to_str()
@@ -183,7 +222,6 @@ mod tests {
 
     #[test]
     fn test_github_issue_url_generation() {
-        // Just verify the URL generation logic is correct
         let base = "https://github.com/cboyd0319/JobSentinel/issues/new";
 
         assert_eq!(
@@ -195,5 +233,58 @@ mod tests {
             format!("{}?template=feature_request.yml", base),
             "https://github.com/cboyd0319/JobSentinel/issues/new?template=feature_request.yml"
         );
+    }
+
+    // ========================================================================
+    // Security: reveal_file path validation (CWE-22 Path Traversal)
+    // ========================================================================
+
+    #[test]
+    fn test_validate_reveal_path_rejects_traversal() {
+        // Path traversal with ".." should be rejected
+        let result = validate_reveal_path("/tmp/../../../etc/passwd");
+        assert!(result.is_err(), "Path traversal with .. must be rejected");
+    }
+
+    #[test]
+    fn test_validate_reveal_path_rejects_outside_home() {
+        // Paths outside user's home directory should be rejected
+        let result = validate_reveal_path("/etc/passwd");
+        assert!(result.is_err(), "Paths outside home dir must be rejected");
+    }
+
+    #[test]
+    fn test_validate_reveal_path_rejects_system_dirs() {
+        let system_paths = ["/etc/shadow", "/var/log/system.log", "/usr/bin/sudo"];
+        for path in &system_paths {
+            let result = validate_reveal_path(path);
+            assert!(
+                result.is_err(),
+                "System path {} must be rejected",
+                path
+            );
+        }
+    }
+
+    #[test]
+    fn test_validate_reveal_path_allows_home_dir() {
+        // Paths within $HOME should be allowed (if they exist)
+        if let Ok(home) = std::env::var("HOME") {
+            // Use a path we know exists
+            let result = validate_reveal_path(&home);
+            assert!(result.is_ok(), "Home dir itself should be allowed");
+        }
+    }
+
+    #[test]
+    fn test_validate_reveal_path_rejects_nonexistent() {
+        let result = validate_reveal_path("/nonexistent/path/that/does/not/exist");
+        assert!(result.is_err(), "Nonexistent paths must be rejected");
+    }
+
+    #[test]
+    fn test_validate_reveal_path_rejects_empty() {
+        let result = validate_reveal_path("");
+        assert!(result.is_err(), "Empty path must be rejected");
     }
 }

@@ -1,6 +1,7 @@
 //! Configuration type definitions
 
 use serde::{Deserialize, Serialize};
+use std::fmt;
 
 /// User configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -177,13 +178,22 @@ pub struct AlertConfig {
     pub desktop: DesktopConfig,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Clone, Serialize, Deserialize, Default)]
 pub struct SlackConfig {
     pub enabled: bool,
 
     /// Webhook URL - stored in OS keyring, not serialized
     #[serde(skip)]
     pub webhook_url: String,
+}
+
+impl fmt::Debug for SlackConfig {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("SlackConfig")
+            .field("enabled", &self.enabled)
+            .field("webhook_url", &if self.webhook_url.is_empty() { "[empty]" } else { "[REDACTED]" })
+            .finish()
+    }
 }
 
 /// Email notification configuration
@@ -196,7 +206,7 @@ pub struct SlackConfig {
 /// - Linux: Secret Service API (libsecret)
 ///
 /// For Gmail, use app-specific passwords rather than your main password.
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Clone, Serialize, Deserialize, Default)]
 pub struct EmailConfig {
     #[serde(default)]
     pub enabled: bool,
@@ -231,7 +241,22 @@ pub struct EmailConfig {
     pub use_starttls: bool,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+impl fmt::Debug for EmailConfig {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("EmailConfig")
+            .field("enabled", &self.enabled)
+            .field("smtp_server", &self.smtp_server)
+            .field("smtp_port", &self.smtp_port)
+            .field("smtp_username", &self.smtp_username)
+            .field("smtp_password", &if self.smtp_password.is_empty() { "[empty]" } else { "[REDACTED]" })
+            .field("from_email", &self.from_email)
+            .field("to_emails", &self.to_emails)
+            .field("use_starttls", &self.use_starttls)
+            .finish()
+    }
+}
+
+#[derive(Clone, Serialize, Deserialize, Default)]
 pub struct DiscordConfig {
     #[serde(default)]
     pub enabled: bool,
@@ -245,7 +270,17 @@ pub struct DiscordConfig {
     pub user_id_to_mention: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+impl fmt::Debug for DiscordConfig {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("DiscordConfig")
+            .field("enabled", &self.enabled)
+            .field("webhook_url", &if self.webhook_url.is_empty() { "[empty]" } else { "[REDACTED]" })
+            .field("user_id_to_mention", &self.user_id_to_mention)
+            .finish()
+    }
+}
+
+#[derive(Clone, Serialize, Deserialize, Default)]
 pub struct TelegramConfig {
     #[serde(default)]
     pub enabled: bool,
@@ -259,7 +294,17 @@ pub struct TelegramConfig {
     pub chat_id: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+impl fmt::Debug for TelegramConfig {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("TelegramConfig")
+            .field("enabled", &self.enabled)
+            .field("bot_token", &if self.bot_token.is_empty() { "[empty]" } else { "[REDACTED]" })
+            .field("chat_id", &self.chat_id)
+            .finish()
+    }
+}
+
+#[derive(Clone, Serialize, Deserialize, Default)]
 pub struct TeamsConfig {
     #[serde(default)]
     pub enabled: bool,
@@ -267,6 +312,15 @@ pub struct TeamsConfig {
     /// Microsoft Teams webhook URL - stored in OS keyring, not serialized
     #[serde(skip)]
     pub webhook_url: String,
+}
+
+impl fmt::Debug for TeamsConfig {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("TeamsConfig")
+            .field("enabled", &self.enabled)
+            .field("webhook_url", &if self.webhook_url.is_empty() { "[empty]" } else { "[REDACTED]" })
+            .finish()
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -291,7 +345,7 @@ pub struct DesktopConfig {
 /// # Security
 /// The session cookie is stored securely in the OS keyring (macOS Keychain,
 /// Windows Credential Manager, Linux Secret Service).
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Clone, Serialize, Deserialize, Default)]
 pub struct LinkedInConfig {
     /// Enable LinkedIn job scraping
     #[serde(default)]
@@ -319,6 +373,19 @@ pub struct LinkedInConfig {
     /// Maximum results to return (default: 50, max: 100)
     #[serde(default = "super::defaults::default_linkedin_limit")]
     pub limit: usize,
+}
+
+impl fmt::Debug for LinkedInConfig {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("LinkedInConfig")
+            .field("enabled", &self.enabled)
+            .field("session_cookie", &if self.session_cookie.is_empty() { "[empty]" } else { "[REDACTED]" })
+            .field("query", &self.query)
+            .field("location", &self.location)
+            .field("remote_only", &self.remote_only)
+            .field("limit", &self.limit)
+            .finish()
+    }
 }
 
 /// RemoteOK scraper configuration
@@ -544,4 +611,113 @@ pub struct UsaJobsConfig {
     /// Maximum results to return (default: 100)
     #[serde(default = "super::defaults::default_usajobs_limit")]
     pub limit: usize,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // ========================================================================
+    // Security: Debug trait must NOT leak secrets (CWE-532)
+    // ========================================================================
+
+    #[test]
+    fn test_email_config_debug_does_not_leak_password() {
+        let config = EmailConfig {
+            smtp_password: "super_secret_p@ssw0rd!".to_string(),
+            smtp_username: "user@example.com".to_string(),
+            ..Default::default()
+        };
+        let debug_output = format!("{:?}", config);
+        assert!(
+            !debug_output.contains("super_secret_p@ssw0rd!"),
+            "EmailConfig Debug output must not contain password. Got: {}",
+            debug_output
+        );
+    }
+
+    #[test]
+    fn test_linkedin_config_debug_does_not_leak_cookie() {
+        let config = LinkedInConfig {
+            session_cookie: "AQEDARAbc123_secret_cookie_value".to_string(),
+            ..Default::default()
+        };
+        let debug_output = format!("{:?}", config);
+        assert!(
+            !debug_output.contains("AQEDARAbc123_secret_cookie_value"),
+            "LinkedInConfig Debug output must not contain session cookie. Got: {}",
+            debug_output
+        );
+    }
+
+    #[test]
+    fn test_discord_config_debug_does_not_leak_webhook() {
+        let config = DiscordConfig {
+            webhook_url: "https://discord.com/api/webhooks/123/secret-token".to_string(),
+            ..Default::default()
+        };
+        let debug_output = format!("{:?}", config);
+        assert!(
+            !debug_output.contains("secret-token"),
+            "DiscordConfig Debug output must not contain webhook URL. Got: {}",
+            debug_output
+        );
+    }
+
+    #[test]
+    fn test_telegram_config_debug_does_not_leak_token() {
+        let config = TelegramConfig {
+            bot_token: "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11".to_string(),
+            ..Default::default()
+        };
+        let debug_output = format!("{:?}", config);
+        assert!(
+            !debug_output.contains("ABC-DEF1234ghIkl"),
+            "TelegramConfig Debug output must not contain bot token. Got: {}",
+            debug_output
+        );
+    }
+
+    #[test]
+    fn test_teams_config_debug_does_not_leak_webhook() {
+        let config = TeamsConfig {
+            webhook_url: "https://outlook.office.com/webhook/secret-guid".to_string(),
+            ..Default::default()
+        };
+        let debug_output = format!("{:?}", config);
+        assert!(
+            !debug_output.contains("secret-guid"),
+            "TeamsConfig Debug output must not contain webhook URL. Got: {}",
+            debug_output
+        );
+    }
+
+    #[test]
+    fn test_slack_config_debug_does_not_leak_webhook() {
+        let config = SlackConfig {
+            webhook_url: "https://hooks.slack.com/services/T00/B00/xxxx-secret".to_string(),
+            ..Default::default()
+        };
+        let debug_output = format!("{:?}", config);
+        assert!(
+            !debug_output.contains("xxxx-secret"),
+            "SlackConfig Debug output must not contain webhook URL. Got: {}",
+            debug_output
+        );
+    }
+
+    // Verify that non-secret fields ARE still visible in Debug output
+    #[test]
+    fn test_email_config_debug_shows_non_secret_fields() {
+        let config = EmailConfig {
+            smtp_server: "smtp.gmail.com".to_string(),
+            smtp_password: "secret".to_string(),
+            ..Default::default()
+        };
+        let debug_output = format!("{:?}", config);
+        assert!(
+            debug_output.contains("smtp.gmail.com"),
+            "Non-secret fields should still appear in Debug output"
+        );
+    }
 }

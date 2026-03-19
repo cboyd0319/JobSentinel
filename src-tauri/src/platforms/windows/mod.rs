@@ -2,7 +2,9 @@
 //!
 //! This module contains all Windows-specific code for JobSentinel v1.0.
 
-// Allow unsafe code for Windows API calls
+// Allow unsafe code for Windows API FFI calls throughout this module.
+// Every unsafe block below interfaces directly with Windows system APIs
+// (advapi32, kernel32, ntdll) which inherently require unsafe.
 #![allow(unsafe_code)]
 
 use std::path::PathBuf;

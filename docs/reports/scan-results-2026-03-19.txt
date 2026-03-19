@@ -1,0 +1,476 @@
+================================================================================
+ JOBSENTINEL SECURITY AUDIT — PHASE 1 & 2
+ Version: v2.6.4 | Commit: f0a75ea | Date: 2026-03-19
+================================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ PHASE 1: RECONNAISSANCE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. FULL DEPENDENCY LIST (Direct Dependencies)
+═══════════════════════════════════════════
+
+  Crate                        Version   Security Relevance
+  ─────────────────────────────────────────────────────────
+  ⛔ SECURITY-CRITICAL:
+  reqwest                      0.12      HTTP client (outbound network, rustls-tls)
+  sqlx                         0.8       Database (SQLite, migrations, runtime-tokio-rustls)
+  chromiumoxide                0.8       Browser automation (One-Click Apply)
+  lettre                       0.11      SMTP email (tokio1-rustls-tls)
+  keyring                      3.0       OS keyring access (apple-native, windows-native)
+  tauri-plugin-secure-storage  1.4       Secure storage plugin
+  tauri-plugin-shell           2.0       Shell command execution
+  sha2                         0.10      SHA-256 hashing
+
+  ⚠️ MODERATE RISK:
+  scraper                      0.26      HTML parsing (untrusted web content)
+  pdf-extract                  0.10      PDF parsing (user-uploaded files)
+  docx-rs                      0.4       DOCX parsing (user-uploaded files)
+  dotenvy                      0.15      .env file loading
+  tauri-plugin-dialog          2.0       File dialogs
+  tauri-plugin-notification    2.0       System notifications
+
+  📦 STANDARD UTILITY:
+  tauri                        2.10      App framework (tray-icon feature)
+  serde / serde_json           1.0       Serialization
+  tokio                        1.42      Async runtime (full features)
+  async-trait                  0.1       Trait async support
+  url                          2.5       URL parsing
+  urlencoding                  2.1       URL encoding
+  regex                        1.10      Regular expressions
+  chrono                       0.4       Date/time (serde feature)
+  thiserror                    2.0       Error types
+  anyhow                       1.0       Error handling
+  uuid                         1.11      UUID generation (v4)
+  tracing / tracing-subscriber 0.1/0.3   Logging
+  hex                          0.4       Hex encoding
+  once_cell                    1.19      Lazy init
+  scopeguard                   1.2       Cleanup guards
+  dirs                         6.0       Platform directories
+  futures-util                 0.3       Async combinators
+
+  🧪 OPTIONAL (embedded-ml feature):
+  candle-core                  0.9       ML inference framework
+  candle-nn                    0.9       Neural network layers
+  hf-hub                       0.5       HuggingFace model downloads
+  tokenizers                   0.22      Text tokenization
+
+  🖥️ PLATFORM-SPECIFIC:
+  windows                      0.61      Win32 API (Win32_Foundation, Threading)
+  objc2 / objc2-foundation     0.6/0.3   macOS Obj-C interop
+  objc2-web-kit                0.3       macOS WebKit cookie access
+  block2                       0.6       ObjC block support
+
+  🧪 DEV ONLY:
+  tempfile                     3.13      Temp files
+  proptest                     1.5       Property testing
+  wiremock                     0.6       HTTP mocking
+  futures                      0.3       Async testing
+
+2. SECURITY-RELEVANT BUILD CONFIGURATION
+════════════════════════════════════════
+
+  [profile.release]
+    ✅ overflow-checks = true          (integer overflow protection in release)
+    ✅ panic = "abort"                 (prevents stack unwinding info leaks)
+    ✅ lto = "thin"                    (link-time optimization)
+    ✅ strip = "symbols"               (strips debug symbols)
+    ✅ codegen-units = 1               (better optimization)
+
+  [lints.rust]
+    ✅ unsafe_code = "deny"            (unsafe denied at crate level)
+
+  [lints.clippy]
+    ✅ pedantic = "warn"               (strict linting enabled)
+    ✅ nursery = "warn"                (experimental lints enabled)
+    ✅ unwrap_used = "warn"            (flags .unwrap() calls)
+    ✅ expect_used = "warn"            (flags .expect() calls)
+    ⚠️ indexing_slicing NOT configured  (array bounds not checked by clippy)
+
+  lib.rs suppressed lints (security-relevant):
+    ⚠️ #![allow(clippy::cast_possible_truncation)]
+    ⚠️ #![allow(clippy::cast_sign_loss)]
+    ⚠️ #![allow(clippy::cast_precision_loss)]
+    ⚠️ #![allow(clippy::needless_pass_by_value)]
+
+3. TAURI CONFIGURATION (tauri.conf.json)
+═══════════════════════════════════════
+
+  CSP Policy:
+    default-src 'self'
+    connect-src 'self' https://hooks.slack.com https://discord.com
+                https://outlook.office.com https://boards.greenhouse.io
+                https://boards-api.greenhouse.io https://jobs.lever.co
+                https://api.lever.co https://api.jobswithgpt.com
+    style-src   'self' 'unsafe-inline'     ⚠️ unsafe-inline for styles
+    script-src  'self'                     ✅ No unsafe-eval or unsafe-inline
+
+  Plugins:
+    shell.open = true                      ⚠️ Can open URLs/files via shell
+
+4. TAURI CAPABILITIES (capabilities/default.json)
+═════════════════════════════════════════════════
+
+  Scoped to window: "main"
+
+  Permissions granted:
+    ✅ core:default                    (basic Tauri IPC)
+    ⚠️ shell:allow-open                (can open URLs/files via system)
+    ✅ notification:default            (system notifications)
+    ✅ dialog:default                  (file open/save dialogs)
+
+  NOTABLE ABSENCES (good):
+    ✅ No fs: permissions (no direct filesystem access from frontend)
+    ✅ No http: permissions (no direct HTTP from frontend)
+    ✅ No clipboard permissions
+    ✅ No global-shortcut permissions
+
+5. ATTACK SURFACE MAP
+════════════════════
+
+  ┌──────────────────────────────────────────────────────────────────────────┐
+  │                         ATTACK SURFACE                                  │
+  ├──────────────────────┬───────────────────────────────────────────────────┤
+  │ VECTOR               │ DETAILS                                          │
+  ├──────────────────────┼───────────────────────────────────────────────────┤
+  │ IPC (Frontend→Rust)  │ 191 #[tauri::command] functions across 20 mods  │
+  │                      │ Largest: resume(34), automation(24), user_data(21)│
+  ├──────────────────────┼───────────────────────────────────────────────────┤
+  │ Network (Outbound)   │ Web scrapers: LinkedIn, Indeed, WeWorkRemotely,  │
+  │                      │   RemoteOK, USAJobs, Greenhouse, Lever,          │
+  │                      │   JobsWithGPT                                    │
+  │                      │ Webhooks: Slack, Discord, Teams                  │
+  │                      │ Email: SMTP via lettre                           │
+  │                      │ Geolocation: http://ip-api.com (plain HTTP!)     │
+  │                      │ ML models: HuggingFace Hub downloads             │
+  ├──────────────────────┼───────────────────────────────────────────────────┤
+  │ Network (Inbound)    │ Bookmarklet HTTP server on localhost:4321        │
+  │                      │ Accepts raw TCP, parses HTTP manually            │
+  │                      │ 8KB buffer, no TLS                               │
+  ├──────────────────────┼───────────────────────────────────────────────────┤
+  │ Browser Automation   │ chromiumoxide: headless Chromium control          │
+  │                      │ Form filling, navigation, screenshots            │
+  │                      │ LinkedIn OAuth login via WKWebView (macOS)       │
+  ├──────────────────────┼───────────────────────────────────────────────────┤
+  │ File I/O             │ Resume upload (PDF, DOCX parsing)                │
+  │                      │ Config files (JSON, .env)                        │
+  │                      │ SQLite database (user jobs, credentials)         │
+  │                      │ Database backups via VACUUM INTO                 │
+  │                      │ Automation screenshots                           │
+  │                      │ Feedback file export                             │
+  │                      │ Cover letter / resume template import/export     │
+  ├──────────────────────┼───────────────────────────────────────────────────┤
+  │ Credential Storage   │ OS keyring (keyring crate + tauri-plugin)        │
+  │                      │ Stores: SMTP password, Telegram bot token,       │
+  │                      │   Slack/Discord/Teams webhooks, LinkedIn cookie, │
+  │                      │   USAJobs API key                                │
+  ├──────────────────────┼───────────────────────────────────────────────────┤
+  │ Unsafe Code          │ 4 unsafe blocks:                                 │
+  │                      │   1. macOS ObjC interop (LinkedIn cookie)        │
+  │                      │   2. Windows token elevation check               │
+  │                      │   3. Unix geteuid() call                         │
+  │                      │   4. ML model mmap loading (candle)              │
+  ├──────────────────────┼───────────────────────────────────────────────────┤
+  │ External Processes   │ shell:allow-open (URL/file opening)              │
+  │                      │ OCR feature: tesseract + pdftoppm (CLI)          │
+  │                      │ Chromium browser process                         │
+  └──────────────────────┴───────────────────────────────────────────────────┘
+
+6. IPC COMMAND INVENTORY (191 commands across 20 modules)
+═══════════════════════════════════════════════════════
+
+  Module                 Count  High-Risk Commands
+  ──────────────────────────────────────────────────
+  resume.rs               34   upload_resume, export_resume_*, import_json_resume
+  automation.rs           24   fill_application_form, launch_automation_browser,
+                               take_automation_screenshot, approve_automation_attempt
+  user_data.rs            21   upsert_application_profile, upsert_screening_answer
+  jobs.rs                 16   import_job_from_url, search_jobs_query
+  ats.rs                  13   detect_ats_from_html (accepts raw HTML)
+  feedback/mod.rs         11   save_feedback_file, generate_feedback_report
+  ghost.rs                10   mark_job_as_ghost, detect_ghosted_applications
+  market.rs                9   run_market_analysis
+  health.rs                9   run_all_smoke_tests, get_system_info
+  linkedin_auth.rs         6   linkedin_login, store_linkedin_cookie,
+                               close_linkedin_login
+  config.rs                6   save_config, complete_setup, test_email_notification
+  deeplinks.rs             5   open_deep_link, generate_deep_links
+  credentials.rs           5   store_credential, retrieve_credential, delete_credential
+  scoring.rs               4   update_scoring_config, validate_scoring_config
+  salary.rs                4   predict_salary, compare_offers
+  ml.rs                    4   download_ml_model, semantic_match_skills
+  bookmarklet.rs           4   start_bookmarklet_server, set_bookmarklet_port
+  cache.rs                 3   get_cache_health, get_score_cache_stats
+  import.rs                2   preview_job_import, import_cover_letter_templates
+  geo.rs                   1   detect_location
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ PHASE 2: AUTOMATED SCAN RESULTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+A. DEPENDENCY VULNERABILITIES (cargo audit)
+═══════════════════════════════════════════
+
+  Scanned: 796 crate dependencies
+  Result: 1 vulnerability + 20 warnings
+
+  ┌─────────────────────────────────────────────────────────────────────────┐
+  │ ⛔ VULNERABILITY                                                       │
+  ├─────────────────────────────────────────────────────────────────────────┤
+  │ Crate:    rsa 0.9.10                                                   │
+  │ ID:       RUSTSEC-2023-0071                                            │
+  │ Title:    Marvin Attack: potential key recovery via timing sidechannels│
+  │ Severity: 5.9 (MEDIUM)                                                │
+  │ Fix:      No fixed upgrade available                                   │
+  │ Path:     rsa → sqlx-mysql → sqlx-macros-core → sqlx → jobsentinel   │
+  │ Note:     Transitive via sqlx MySQL support (not directly used since   │
+  │           app uses SQLite only). sqlx pulls in mysql feature by default│
+  └─────────────────────────────────────────────────────────────────────────┘
+
+  ┌─────────────────────────────────────────────────────────────────────────┐
+  │ ⚠️ WARNINGS (unmaintained/unsound crates)                              │
+  ├─────────────────────────────────────────────────────────────────────────┤
+  │ • glib 0.18.5 (RUSTSEC-2024-0429) — UNSOUND VariantStrIter impls     │
+  │   Path: glib → gtk → wry → tauri (Linux GTK dependency)              │
+  │                                                                        │
+  │ • atk/atk-sys 0.18.2 (RUSTSEC-2024-0413/0416) — unmaintained GTK3   │
+  │ • gdk*/gio*/glib-sys/gobject-sys/gtk*/pango* — all unmaintained GTK3 │
+  │ • soup3-sys 0.5.0 — unmaintained                                      │
+  │ • unic-ucd-ident/version 0.9.0 — unmaintained                        │
+  │ • javascriptcore-rs/-sys 1.1.2 — unmaintained                        │
+  │   All above: transitive via Tauri's Linux GTK/WebKit dependencies     │
+  └─────────────────────────────────────────────────────────────────────────┘
+
+B. SECRET DETECTION
+═══════════════════
+
+  Findings (non-test code only):
+
+  PRODUCTION CODE:
+    ✅ src/core/config/types.rs:219: smtp_password field — #[serde(skip)] (good)
+    ✅ src/core/config/types.rs:255: bot_token field — #[serde(skip)] (good)
+    ✅ src/core/config/types.rs:510: api_key field (USAJobs) — struct field
+    ✅ src/core/scrapers/usajobs.rs:28: api_key field — runtime config
+    ✅ Credentials module uses keyring for actual storage (not plaintext)
+
+  DATA SANITIZATION:
+    ✅ src/commands/feedback/sanitizer.rs: Regex sanitizers for:
+       - API tokens/Bearer tokens
+       - IP addresses
+       - LinkedIn cookies (li_at)
+       - Email addresses
+       - Webhook URLs
+       - File paths
+       - Quoted strings
+
+  VERDICT: No hardcoded secrets found. Sensitive fields properly
+           #[serde(skip)]'d and stored in OS keyring.
+
+C. PLAIN HTTP USAGE
+════════════════════
+
+  ⛔ PRODUCTION CODE:
+    src/core/geo/mod.rs:56
+      url = "http://ip-api.com/json/?fields=status,message,city,regionName,country,timezone"
+      → Geolocation API over plain HTTP — leaks user IP to MitM
+
+    src/core/config/validated.rs:115,132
+      → WebhookUrl::new() accepts http:// URLs (not HTTPS-only)
+
+    src/core/db/crud.rs:66
+      → Job URL validation accepts http:// protocol
+
+    src/core/bookmarklet/server.rs:149
+      → Localhost HTTP server (acceptable for localhost-only)
+
+  ⚠️ TEST CODE ONLY (acceptable):
+    - Various http:// URLs in test assertions and mock data
+
+D. HARDCODED IPs
+═════════════════
+
+  ✅ src/commands/feedback/sanitizer.rs:51,292 — IP regex + test data (OK)
+  ✅ src/core/notify/slack.rs:1045 — test data (OK)
+  ✅ src/core/notify/discord.rs:1084 — test data (OK)
+  ⚠️ src/core/scrapers/http_client.rs:13 — Hardcoded Chrome UA string
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36..."
+      → User-agent spoofing (intentional for scraping, but static/stale)
+
+E. UNSAFE CODE BLOCKS
+══════════════════════
+
+  Despite deny(unsafe_code) at crate level, 4 uses with #[allow]:
+
+  1. src/commands/linkedin_auth.rs:214,234
+     #[allow(unsafe_code)] — macOS ObjC interop for WKHTTPCookieStore
+     Risk: MainThreadMarker::new_unchecked() — thread safety assumption
+     SAFETY comments: Present ✅ but reasoning is questionable
+     ("WebKit operations are serialized by the ObjC runtime" — not actually
+      true; this is called from a spawned thread, not the main thread)
+
+  2. src/platforms/windows/mod.rs:103
+     Windows token elevation check via Win32 API
+     Risk: Low — well-understood Win32 pattern
+     SAFETY comments: None ❌
+
+  3. src/platforms/windows/mod.rs:133
+     Unix geteuid() check
+     Risk: Minimal — standard libc call
+     SAFETY comments: None ❌
+
+  4. src/core/ml/model.rs:131
+     Memory-mapped safetensors model loading
+     Risk: Moderate — mmap can be unsound if file is modified while mapped
+     SAFETY comments: None ❌
+
+F. UNWRAP/EXPECT USAGE
+══════════════════════
+
+  Total in non-test production code: 735 instances
+
+  HIGH-RISK locations (command handlers / runtime code):
+    src/commands/linkedin_auth.rs:98      .expect("invalid LinkedIn URL constant")
+    src/commands/linkedin_auth.rs:162     .expect("result_tx mutex poisoned")
+    src/commands/linkedin_auth.rs:193     .expect("result_tx mutex poisoned")
+    src/commands/cache.rs:51              .expect("Failed to get score cache stats")
+    src/commands/cache.rs:66              .expect("Failed to get cache health")
+
+  MODERATE-RISK (lazy static regex compilation):
+    src/commands/feedback/sanitizer.rs:14-66  7x .expect() on Regex::new()
+    src/core/scrapers/title_utils.rs:31-56    6x .expect() on Regex::new()
+    → These are compile-time-verified patterns, low actual risk
+
+  NOTE: The 735 count includes extensive use in test modules that are
+  co-located with production code (e.g., resume/builder.rs, analytics.rs).
+  Actual production-path unwraps are ~50-80.
+
+G. DYNAMIC SQL / SQL INJECTION SURFACE
+═══════════════════════════════════════
+
+  4 instances of format!() with SQL:
+
+  1. src/core/db/crud.rs:275
+     format!("UPDATE jobs SET hidden = 1 WHERE id IN ({})", placeholders)
+     → Placeholders are "?" strings, values bound via .bind() ✅ SAFE
+
+  2. src/core/db/queries.rs:128
+     format!("SELECT * FROM jobs WHERE id IN ({})", placeholders)
+     → Same pattern: "?" placeholders with .bind() ✅ SAFE
+
+  3. src/core/db/query_cache.rs:69
+     → Comment/docstring example only ✅ NOT EXECUTED
+
+  4. src/core/db/integrity/backups.rs:26
+     format!("VACUUM INTO '{}'", backup_path_str)
+     → ⛔ PATH INJECTED INTO SQL via string formatting!
+       backup_path_str comes from filesystem path, not user input directly,
+       but if path contains single quotes, this is SQL injection.
+       Should use parameterized query or path sanitization.
+
+H. DEBUG DERIVES ON SENSITIVE TYPES
+════════════════════════════════════
+
+  ⚠️ src/core/credentials/mod.rs — CredentialKey has #[derive(Debug)]
+     → Enum of key names (e.g., SmtpPassword), not actual values. OK.
+
+  ⚠️ src/core/health/types.rs — Credential health info has #[derive(Debug)]
+     → Tracks validation status/expiry, not actual credential values. OK.
+
+  ✅ src/core/config/types.rs — EmailConfig has #[derive(Debug)] BUT:
+     → smtp_password field is #[serde(skip)] — won't serialize
+     → However, Debug derive WILL print the password in logs/errors!
+     → Same issue: bot_token, webhook_url, api_key
+
+  ✅ src/core/scrapers/linkedin.rs — LinkedIn config has #[derive(Debug)]
+     → session_cookie could be printed via Debug
+
+  ✅ src/core/scrapers/usajobs.rs — USAJobs scraper has #[derive(Debug)]
+     → api_key could be printed via Debug
+
+I. CLIPPY SECURITY LINT RESULTS
+════════════════════════════════
+
+  Build failed with --all-features due to missing SQLX offline cache for
+  embedded-ml feature. Partial results:
+
+  Errors:
+    ⛔ error: usage of an `unsafe` block — caught the linkedin_auth.rs usage
+    ⛔ 2x SQLX_OFFLINE cache miss — embedded-ml feature needs `cargo sqlx prepare`
+    ⛔ 2x type annotation errors — compilation issues in ML code
+
+  Warnings:
+    ⚠️ Unused imports (Context, Path)
+    ⚠️ Duplicated attributes
+    ⚠️ Multiple #[ignore] without reason on tests
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ SUMMARY OF FINDINGS BY SEVERITY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ⛔ CRITICAL (0)
+  ─────────────
+  None identified in automated scanning.
+
+  🔴 HIGH (3)
+  ───────────
+  H1. VACUUM INTO path injection (backups.rs:26)
+      format!("VACUUM INTO '{}'", backup_path_str) — path not sanitized
+      Impact: SQL injection if backup path contains single quotes
+
+  H2. Plain HTTP geolocation API (geo/mod.rs:56)
+      http://ip-api.com — user's IP address leaked over unencrypted channel
+      Impact: MitM can observe and modify geolocation data
+
+  H3. unsafe MainThreadMarker::new_unchecked() (linkedin_auth.rs:239)
+      Called from spawned thread, not main thread. SAFETY comment's reasoning
+      is incorrect. Could cause undefined behavior on macOS.
+
+  🟡 MEDIUM (5)
+  ─────────────
+  M1. Debug derives on sensitive types (config/types.rs, scrapers)
+      EmailConfig, TelegramConfig, USAJobs, LinkedIn configs derive Debug
+      but contain passwords/tokens/cookies that could leak to logs
+
+  M2. WebhookUrl accepts plain HTTP (config/validated.rs:132)
+      Webhook URLs to Slack/Discord/Teams not enforced as HTTPS
+
+  M3. Bookmarklet server has no authentication (bookmarklet/server.rs)
+      Localhost HTTP server accepts connections without auth tokens
+      Any local process can inject job data
+
+  M4. rsa 0.9.10 timing sidechannel (RUSTSEC-2023-0071)
+      Transitive via sqlx-mysql (not directly used). No fix available.
+
+  M5. glib 0.18.5 unsound iterator (RUSTSEC-2024-0429)
+      Transitive via Tauri's GTK deps on Linux
+
+  🟢 LOW (4)
+  ──────────
+  L1. 735 unwrap/expect calls in non-test code (~50-80 in hot paths)
+      Most are lazy-static regex init (acceptable) or test-adjacent code
+
+  L2. Hardcoded Chrome User-Agent string (http_client.rs)
+      Static, will become stale. Fingerprinting risk.
+
+  L3. CSP allows 'unsafe-inline' for styles
+      Lower risk than script unsafe-inline, but still weakens CSP
+
+  L4. ~20 unmaintained transitive GTK/WebKit crates
+      All via Tauri's Linux dependencies; no direct mitigation available
+
+  📋 INFORMATIONAL
+  ────────────────
+  I1. 191 IPC commands — very large attack surface via frontend
+  I2. shell:allow-open capability — can open arbitrary URLs via system
+  I3. #[serde(skip)] properly used for sensitive config fields
+  I4. Credential storage properly uses OS keyring, not plaintext
+  I5. Feedback sanitizer properly strips PII before export
+  I6. SQL queries use parameterized bindings (except VACUUM INTO)
+  I7. overflow-checks enabled in release profile
+  I8. panic=abort prevents stack unwinding info leaks
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ END OF PHASE 1 & 2 REPORT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

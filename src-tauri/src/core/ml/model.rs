@@ -128,6 +128,12 @@ impl ModelManager {
             .into());
         }
 
+        // SAFETY: Memory-mapping the safetensors file is unsafe because:
+        // 1. The mapped memory must not be modified by another process while in use
+        // 2. The file must not be truncated or deleted while mapped
+        // 3. The safetensors format includes validation headers that candle checks
+        // Mitigations: The model file is in our app data dir, only we write to it,
+        // and we verify existence above. The file is read-only mapped.
         let vb = unsafe {
             VarBuilder::from_mmaped_safetensors(&[model_path], DType::F32, device)
                 .map_err(|e| MlError::ModelLoadFailed(e.to_string()))?

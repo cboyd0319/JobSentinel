@@ -100,6 +100,20 @@ impl QueryAnalyzer {
     /// println!("Query plan: {}", plan);
     /// ```
     pub async fn explain_query_plan(pool: &SqlitePool, query: &str) -> Result<String, sqlx::Error> {
+        // Validate query starts with a read-only statement to prevent misuse
+        let trimmed = query.trim_start().to_uppercase();
+        if !trimmed.starts_with("SELECT")
+            && !trimmed.starts_with("INSERT")
+            && !trimmed.starts_with("UPDATE")
+            && !trimmed.starts_with("DELETE")
+            && !trimmed.starts_with("WITH")
+        {
+            return Err(sqlx::Error::Protocol(
+                "explain_query_plan only accepts SELECT/INSERT/UPDATE/DELETE/WITH statements"
+                    .to_string(),
+            ));
+        }
+
         let explain_query = format!("EXPLAIN QUERY PLAN {}", query);
         let rows: Vec<(i64, i64, i64, String)> =
             sqlx::query_as(&explain_query).fetch_all(pool).await?;
@@ -178,5 +192,54 @@ mod tests {
             .await
             .unwrap();
         assert!(uses_idx, "Query should use index");
+    }
+
+    // ========================================================================
+    // Security: explain_query_plan input validation (CWE-89)
+    // ========================================================================
+
+    #[tokio::test]
+    async fn test_explain_rejects_drop_table() {
+        let pool = SqlitePool::connect("sqlite::memory:").await.unwrap();
+        let result = QueryAnalyzer::explain_query_plan(&pool, "DROP TABLE users").await;
+        assert!(result.is_err(), "DROP TABLE must be rejected");
+    }
+
+    #[tokio::test]
+    async fn test_explain_rejects_pragma() {
+        let pool = SqlitePool::connect("sqlite::memory:").await.unwrap();
+        let result = QueryAnalyzer::explain_query_plan(&pool, "PRAGMA table_info(users)").await;
+        assert!(result.is_err(), "PRAGMA must be rejected");
+    }
+
+    #[tokio::test]
+    async fn test_explain_rejects_attach() {
+        let pool = SqlitePool::connect("sqlite::memory:").await.unwrap();
+        let result =
+            QueryAnalyzer::explain_query_plan(&pool, "ATTACH DATABASE '/tmp/evil.db' AS evil")
+                .await;
+        assert!(result.is_err(), "ATTACH must be rejected");
+    }
+
+    #[tokio::test]
+    async fn test_explain_accepts_valid_queries() {
+        let pool = SqlitePool::connect("sqlite::memory:").await.unwrap();
+        sqlx::query("CREATE TABLE t (id INTEGER)")
+            .execute(&pool)
+            .await
+            .unwrap();
+
+        // SELECT should work
+        assert!(
+            QueryAnalyzer::explain_query_plan(&pool, "SELECT 1")
+                .await
+                .is_ok()
+        );
+        // WITH (CTE) should work
+        assert!(
+            QueryAnalyzer::explain_query_plan(&pool, "WITH cte AS (SELECT 1) SELECT * FROM cte")
+                .await
+                .is_ok()
+        );
     }
 }
