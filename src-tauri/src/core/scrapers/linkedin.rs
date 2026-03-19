@@ -193,103 +193,174 @@ impl LinkedInScraper {
     }
 
     /// Scrape using LinkedIn's internal API (requires session cookie)
+    ///
+    /// LinkedIn increments the `decorationId` version number when they update their Voyager API
+    /// schema. We try a range of known-recent versions from highest to lowest so that a stale
+    /// version never silently breaks the scraper.
     #[tracing::instrument(skip(self), level = "debug")]
     async fn scrape_linkedin_api(&self) -> ScraperResult {
-        // LinkedIn job search API endpoint
-        // This is a simplified version - LinkedIn's actual API is more complex
-        let api_url = format!(
-            "https://www.linkedin.com/voyager/api/voyagerJobsDashJobCards?decorationId=com.linkedin.voyager.dash.deco.jobs.search.JobSearchCardsCollection-174&count={}&keywords={}&location={}&start=0",
-            self.limit,
-            urlencoding::encode(&self.query),
-            urlencoding::encode(&self.location)
-        );
+        // Known-good decorationId versions, newest first.
+        // When LinkedIn bumps their schema, add the new version at the front of this list.
+        const DECORATION_IDS: &[u32] = &[178, 176, 174, 172, 170, 168, 166];
 
-        // Use shared HTTP client
         let client = get_client();
-
-        // Retry logic for LinkedIn API (with authentication headers)
         const MAX_RETRIES: u32 = 3;
-        let mut last_error = None;
 
-        for attempt in 0..=MAX_RETRIES {
-            // Use rate limiter to respect LinkedIn's limits
-            self.rate_limiter.wait("linkedin", limits::LINKEDIN).await;
+        let keywords = urlencoding::encode(&self.query);
+        let location = urlencoding::encode(&self.location);
 
-            if attempt > 0 {
-                let delay_secs = 2_u64.pow(attempt); // 2s, 4s, 8s for retries
-                tracing::warn!(
-                    attempt,
-                    max_retries = MAX_RETRIES + 1,
-                    delay_secs,
-                    "Retrying LinkedIn API with exponential backoff"
-                );
-                sleep(Duration::from_secs(delay_secs)).await;
-            }
-
-            let response = client
-                .get(&api_url)
-                .header("Cookie", format!("li_at={}", self.session_cookie))
-                .header("csrf-token", &self.session_cookie) // LinkedIn CSRF protection
-                .send()
-                .await
-                .map_err(|e| ScraperError::http_request(&api_url, e))?;
-
-            let status = response.status();
-
-            if status.is_success() {
-                if attempt > 0 {
-                    tracing::info!(attempt, "LinkedIn API request succeeded after retries");
-                }
-
-                let json: serde_json::Value = response.json().await?;
-                let jobs = self.parse_linkedin_api_response(&json)?;
-                return Ok(jobs);
-            }
-
-            // Check if we should retry
-            let should_retry =
-                status == reqwest::StatusCode::TOO_MANY_REQUESTS || status.is_server_error();
-
-            if !should_retry {
-                tracing::error!(
-                    http_status = status.as_u16(),
-                    "LinkedIn API non-retryable error - check session cookie validity"
-                );
-                return Err(ScraperError::SessionExpired {
-                    scraper: "linkedin".to_string(),
-                    message: format!(
-                        "LinkedIn API HTTP {}: Check if your session cookie is valid",
-                        status
-                    ),
-                });
-            }
-
-            tracing::warn!(
-                http_status = status.as_u16(),
-                attempt,
-                "LinkedIn API retryable error"
+        for &decoration_version in DECORATION_IDS {
+            let api_url = format!(
+                "https://www.linkedin.com/voyager/api/voyagerJobsDashJobCards\
+                 ?decorationId=com.linkedin.voyager.dash.deco.jobs.search.JobSearchCardsCollection-{}\
+                 &count={}&keywords={}&location={}&start=0",
+                decoration_version, self.limit, keywords, location
             );
 
-            last_error = Some(ScraperError::http_status(
-                status.as_u16(),
-                &api_url,
-                format!(
-                    "LinkedIn API HTTP {} (attempt {}/{})",
-                    status,
-                    attempt + 1,
-                    MAX_RETRIES + 1
-                ),
-            ));
+            tracing::debug!(decoration_version, "Trying LinkedIn decorationId version");
+
+            // --- inner retry loop for 429 / 5xx on this specific version ---
+            let mut last_error: Option<ScraperError> = None;
+            let mut skip_version = false;
+
+            for attempt in 0..=MAX_RETRIES {
+                self.rate_limiter.wait("linkedin", limits::LINKEDIN).await;
+
+                if attempt > 0 {
+                    let delay_secs = 2_u64.pow(attempt); // 2s, 4s, 8s
+                    tracing::warn!(
+                        attempt,
+                        max_retries = MAX_RETRIES + 1,
+                        delay_secs,
+                        decoration_version,
+                        "Retrying LinkedIn API with exponential backoff"
+                    );
+                    sleep(Duration::from_secs(delay_secs)).await;
+                }
+
+                let response = client
+                    .get(&api_url)
+                    .header("Cookie", format!("li_at={}", self.session_cookie))
+                    .header("csrf-token", &self.session_cookie) // LinkedIn CSRF protection
+                    .send()
+                    .await
+                    .map_err(|e| ScraperError::http_request(&api_url, e))?;
+
+                let status = response.status();
+
+                if status.is_success() {
+                    if attempt > 0 {
+                        tracing::info!(attempt, decoration_version, "LinkedIn API succeeded after retries");
+                    }
+                    let json: serde_json::Value = response.json().await?;
+                    let jobs = self.parse_linkedin_api_response(&json)?;
+
+                    if !jobs.is_empty() {
+                        tracing::info!(decoration_version, job_count = jobs.len(), "LinkedIn decorationId version resolved");
+                        return Ok(jobs);
+                    }
+
+                    // 200 but no jobs — treat as stale schema, try next version
+                    tracing::debug!(decoration_version, "decorationId returned 200 but zero jobs, trying next version");
+                    skip_version = true;
+                    break;
+                }
+
+                // 400 / 404 → bad decorationId, move to next version immediately
+                if status == reqwest::StatusCode::BAD_REQUEST
+                    || status == reqwest::StatusCode::NOT_FOUND
+                {
+                    tracing::debug!(
+                        decoration_version,
+                        http_status = status.as_u16(),
+                        "decorationId rejected by LinkedIn, trying next version"
+                    );
+                    skip_version = true;
+                    break;
+                }
+
+                // 401 / 403 → auth problem, no point retrying any version
+                if status == reqwest::StatusCode::UNAUTHORIZED
+                    || status == reqwest::StatusCode::FORBIDDEN
+                {
+                    tracing::error!(
+                        http_status = status.as_u16(),
+                        "LinkedIn API auth error - check session cookie validity"
+                    );
+                    return Err(ScraperError::SessionExpired {
+                        scraper: "linkedin".to_string(),
+                        message: format!(
+                            "LinkedIn API HTTP {}: Check if your session cookie is valid",
+                            status
+                        ),
+                    });
+                }
+
+                // 429 / 5xx → transient, honour the retry loop
+                let should_retry =
+                    status == reqwest::StatusCode::TOO_MANY_REQUESTS || status.is_server_error();
+
+                if !should_retry {
+                    // Unexpected non-retryable status
+                    tracing::error!(
+                        http_status = status.as_u16(),
+                        decoration_version,
+                        "LinkedIn API unexpected non-retryable error"
+                    );
+                    return Err(ScraperError::SessionExpired {
+                        scraper: "linkedin".to_string(),
+                        message: format!(
+                            "LinkedIn API HTTP {}: Check if your session cookie is valid",
+                            status
+                        ),
+                    });
+                }
+
+                tracing::warn!(
+                    http_status = status.as_u16(),
+                    attempt,
+                    decoration_version,
+                    "LinkedIn API retryable error"
+                );
+
+                last_error = Some(ScraperError::http_status(
+                    status.as_u16(),
+                    &api_url,
+                    format!(
+                        "LinkedIn API HTTP {} (attempt {}/{})",
+                        status,
+                        attempt + 1,
+                        MAX_RETRIES + 1
+                    ),
+                ));
+            }
+
+            if skip_version {
+                continue;
+            }
+
+            // Exhausted retries for this version — if it was a transient error, bubble it
+            if let Some(err) = last_error {
+                tracing::error!(
+                    decoration_version,
+                    "LinkedIn API exhausted all retries for this decorationId version"
+                );
+                return Err(err);
+            }
         }
 
         tracing::error!(
-            max_retries = MAX_RETRIES,
-            "LinkedIn API exhausted all retries"
+            ?DECORATION_IDS,
+            "LinkedIn API: all decorationId versions failed or returned no jobs"
         );
-        Err(last_error.unwrap_or_else(|| ScraperError::Generic {
+        Err(ScraperError::Generic {
             scraper: "linkedin".to_string(),
-            message: "LinkedIn API failed after retries".to_string(),
-        }))
+            message: format!(
+                "LinkedIn Voyager API: all {} decorationId versions tried — schema may have changed. \
+                 Add a newer version to DECORATION_IDS.",
+                DECORATION_IDS.len()
+            ),
+        })
     }
 
     /// Parse LinkedIn API JSON response using typed structs
@@ -1170,6 +1241,26 @@ mod tests {
         assert!(job.is_some());
         let job = job.unwrap();
         assert_eq!(job.company, "Unknown Company");
+    }
+
+    #[test]
+    fn test_decoration_ids_ordered_descending() {
+        // DECORATION_IDS must be sorted highest-first so we probe the most recent version first.
+        // If this fails, add the new version at the front of the array in scrape_linkedin_api.
+        const DECORATION_IDS: &[u32] = &[178, 176, 174, 172, 170, 168, 166];
+        let windows: Vec<_> = DECORATION_IDS.windows(2).collect();
+        for w in &windows {
+            assert!(
+                w[0] > w[1],
+                "DECORATION_IDS must be descending: {} should be > {}",
+                w[0],
+                w[1]
+            );
+        }
+        assert!(
+            !DECORATION_IDS.is_empty(),
+            "DECORATION_IDS must have at least one entry"
+        );
     }
 
     #[test]

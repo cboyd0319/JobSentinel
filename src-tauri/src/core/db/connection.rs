@@ -9,6 +9,8 @@ use std::path::PathBuf;
 #[derive(Debug)]
 pub struct Database {
     pool: SqlitePool,
+    /// Path to the on-disk database file. `None` for in-memory databases.
+    db_path: Option<PathBuf>,
 }
 
 impl Database {
@@ -28,7 +30,10 @@ impl Database {
         // Configure SQLite for better integrity and performance
         Self::configure_pragmas(&pool).await?;
 
-        Ok(Database { pool })
+        Ok(Database {
+            pool,
+            db_path: Some(path.to_path_buf()),
+        })
     }
 
     /// Configure SQLite PRAGMA settings for MAXIMUM performance and integrity
@@ -312,9 +317,115 @@ impl Database {
     }
 
     /// Run database migrations
+    ///
+    /// Before applying migrations, creates a timestamped backup of the database
+    /// file (if one already exists on disk) so that a failed migration can be
+    /// recovered. The backup is placed in [`Database::default_backup_dir()`] and
+    /// named `backup_pre_migration_YYYYMMDD_HHMMSS.db`. Only the 5 most recent
+    /// pre-migration backups are kept; older ones are pruned automatically.
+    ///
+    /// A backup failure is logged as a warning but never aborts the migration —
+    /// a missing backup is better than refusing to migrate.
     pub async fn migrate(&self) -> Result<(), sqlx::Error> {
+        // Only attempt a backup when we have a real on-disk database that has
+        // already been migrated at least once (i.e. not a fresh install).
+        if let Some(db_path) = &self.db_path {
+            let is_existing_db = sqlx::query_scalar::<_, i64>(
+                "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='_sqlx_migrations'",
+            )
+            .fetch_one(&self.pool)
+            .await
+            .unwrap_or(0)
+                > 0;
+
+            if is_existing_db {
+                if let Err(e) = Self::backup_pre_migration(db_path) {
+                    tracing::warn!(
+                        "Pre-migration backup failed (migration will continue): {}",
+                        e
+                    );
+                }
+            }
+        }
+
         sqlx::migrate!("./migrations").run(&self.pool).await?;
         Ok(())
+    }
+
+    /// Create a timestamped `backup_pre_migration_YYYYMMDD_HHMMSS.db` copy of
+    /// the database file, then prune old pre-migration backups so that at most
+    /// [`PRE_MIGRATION_BACKUP_KEEP`] copies are retained.
+    fn backup_pre_migration(db_path: &std::path::Path) -> Result<(), Box<dyn std::error::Error>> {
+        /// Maximum number of pre-migration backups to retain.
+        const PRE_MIGRATION_BACKUP_KEEP: usize = 5;
+
+        if !db_path.exists() {
+            // Nothing to back up (fresh database that hasn't been written yet).
+            return Ok(());
+        }
+
+        let backup_dir = Self::default_backup_dir();
+        std::fs::create_dir_all(&backup_dir)?;
+
+        let timestamp = chrono::Utc::now().format("%Y%m%d_%H%M%S");
+        let backup_name = format!("backup_pre_migration_{}.db", timestamp);
+        let backup_path = backup_dir.join(&backup_name);
+
+        std::fs::copy(db_path, &backup_path)?;
+        tracing::info!(
+            "Pre-migration backup created: {}",
+            backup_path.display()
+        );
+
+        // Prune pre-migration backups beyond the keep limit.
+        Self::prune_pre_migration_backups(&backup_dir, PRE_MIGRATION_BACKUP_KEEP);
+
+        Ok(())
+    }
+
+    /// Delete old `backup_pre_migration_*.db` files, keeping the `keep` newest.
+    fn prune_pre_migration_backups(backup_dir: &std::path::Path, keep: usize) {
+        let mut entries: Vec<_> = match std::fs::read_dir(backup_dir) {
+            Ok(rd) => rd
+                .filter_map(|e| e.ok())
+                .filter(|e| {
+                    let name = e.file_name();
+                    let name = name.to_string_lossy();
+                    name.starts_with("backup_pre_migration_") && name.ends_with(".db")
+                })
+                .collect(),
+            Err(e) => {
+                tracing::warn!("Could not read backup directory for pruning: {}", e);
+                return;
+            }
+        };
+
+        if entries.len() <= keep {
+            return;
+        }
+
+        // Sort oldest-first by modification time so we delete from the front.
+        entries.sort_by_key(|e| {
+            e.metadata()
+                .and_then(|m| m.modified())
+                .unwrap_or(std::time::SystemTime::UNIX_EPOCH)
+        });
+
+        let to_delete = entries.len() - keep;
+        for entry in entries.iter().take(to_delete) {
+            if let Err(e) = std::fs::remove_file(entry.path()) {
+                tracing::warn!(
+                    "Failed to delete old pre-migration backup {}: {}",
+                    entry.path().display(),
+                    e
+                );
+            } else {
+                tracing::info!(
+                    "Pruned old pre-migration backup: {}",
+                    entry.path().display()
+                );
+            }
+        }
     }
 
     /// Connect to in-memory SQLite database (for testing)
@@ -325,7 +436,10 @@ impl Database {
         // WAL journal mode, mmap_size, auto_vacuum, and WAL checkpointing
         // do not work with in-memory databases and are intentionally skipped.
         Self::configure_memory_pragmas(&pool).await?;
-        Ok(Database { pool })
+        Ok(Database {
+            pool,
+            db_path: None,
+        })
     }
 
     /// Configure SQLite PRAGMA settings compatible with in-memory databases (tests).
@@ -410,8 +524,11 @@ impl Database {
     /// Create Database from an existing pool (for testing/advanced use cases)
     #[doc(hidden)]
     #[must_use]
-    pub const fn from_pool(pool: SqlitePool) -> Self {
-        Database { pool }
+    pub fn from_pool(pool: SqlitePool) -> Self {
+        Database {
+            pool,
+            db_path: None,
+        }
     }
 
     /// Run ANALYZE to update query planner statistics

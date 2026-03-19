@@ -805,26 +805,23 @@ fn validate_urls(config: &Config, errors: &mut ValidationErrors) {
         }
     }
 
-    // Validate jobswithgpt_endpoint
-    if config.jobswithgpt_endpoint.is_empty() {
-        errors.add(ValidationError::required_field(
-            "jobswithgpt_endpoint",
-            "JobsWithGPT endpoint URL is required",
-        ));
-    } else if !config.jobswithgpt_endpoint.starts_with("http://")
-        && !config.jobswithgpt_endpoint.starts_with("https://")
-    {
-        errors.add(ValidationError::invalid_url(
-            "jobswithgpt_endpoint",
-            &config.jobswithgpt_endpoint,
-            "must start with http:// or https://",
-        ));
-    } else if config.jobswithgpt_endpoint.len() > MAX_URL_LENGTH {
-        errors.add(ValidationError::too_long(
-            "jobswithgpt_endpoint",
-            config.jobswithgpt_endpoint.len(),
-            MAX_URL_LENGTH,
-        ));
+    // Validate jobswithgpt_endpoint (optional — empty disables JobsWithGPT)
+    if !config.jobswithgpt_endpoint.is_empty() {
+        if !config.jobswithgpt_endpoint.starts_with("http://")
+            && !config.jobswithgpt_endpoint.starts_with("https://")
+        {
+            errors.add(ValidationError::invalid_url(
+                "jobswithgpt_endpoint",
+                &config.jobswithgpt_endpoint,
+                "must start with http:// or https://",
+            ));
+        } else if config.jobswithgpt_endpoint.len() > MAX_URL_LENGTH {
+            errors.add(ValidationError::too_long(
+                "jobswithgpt_endpoint",
+                config.jobswithgpt_endpoint.len(),
+                MAX_URL_LENGTH,
+            ));
+        }
     }
 }
 
