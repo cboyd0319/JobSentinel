@@ -17,7 +17,10 @@ test.describe("JobSentinel App", () => {
     page,
   }) => {
     await page.goto("/");
-    await page.waitForLoadState("load");
+    await page
+      .locator("#root > *")
+      .first()
+      .waitFor({ state: "attached", timeout: 15000 });
     await page.waitForTimeout(500); // Extra wait for React hydration
 
     // App should render some content
@@ -32,7 +35,10 @@ test.describe("JobSentinel App", () => {
 
   test("should have accessible skip to content link", async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("load");
+    await page
+      .locator("#root > *")
+      .first()
+      .waitFor({ state: "attached", timeout: 15000 });
 
     // Skip link should exist in the DOM (may be visually hidden)
     const skipLink = page.locator(
@@ -55,7 +61,10 @@ test.describe("Keyboard Shortcuts", () => {
   // These tests are marked as soft failures - they verify the feature exists
   test("should open command palette with Cmd+K or Ctrl+K", async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("load");
+    await page
+      .locator("#root > *")
+      .first()
+      .waitFor({ state: "attached", timeout: 15000 });
 
     // Try keyboard shortcut (may not work in all headless browsers)
     await page.keyboard.press("Control+k");
@@ -73,7 +82,10 @@ test.describe("Keyboard Shortcuts", () => {
 
   test("should close command palette with Escape", async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("load");
+    await page
+      .locator("#root > *")
+      .first()
+      .waitFor({ state: "attached", timeout: 15000 });
 
     // Try to open command palette
     await page.keyboard.press("Control+k");
@@ -94,7 +106,10 @@ test.describe("Keyboard Shortcuts", () => {
 
   test("should focus search with / key", async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("load");
+    await page
+      .locator("#root > *")
+      .first()
+      .waitFor({ state: "attached", timeout: 15000 });
 
     // Skip if setup wizard is visible
     const isSetupWizard = await page
@@ -130,7 +145,10 @@ test.describe("Keyboard Shortcuts", () => {
 
   test("should show help modal with ? key", async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("load");
+    await page
+      .locator("#root > *")
+      .first()
+      .waitFor({ state: "attached", timeout: 15000 });
 
     // Press ? to show help (Shift+/)
     await page.keyboard.press("Shift+/");
@@ -149,7 +167,10 @@ test.describe("Keyboard Shortcuts", () => {
 test.describe("Theme Toggle", () => {
   test("should toggle dark mode", async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("load");
+    await page
+      .locator("#root > *")
+      .first()
+      .waitFor({ state: "attached", timeout: 15000 });
 
     // Find the theme toggle button
     const themeToggle = page
@@ -188,7 +209,10 @@ test.describe("Command Palette", () => {
 
   test("should filter commands on typing", async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("load");
+    await page
+      .locator("#root > *")
+      .first()
+      .waitFor({ state: "attached", timeout: 15000 });
 
     // Try to open command palette
     const { isOpen } = await tryOpenCommandPalette(page);
@@ -208,7 +232,10 @@ test.describe("Command Palette", () => {
 
   test("should navigate with arrow keys", async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("load");
+    await page
+      .locator("#root > *")
+      .first()
+      .waitFor({ state: "attached", timeout: 15000 });
 
     // Try to open command palette
     const { isOpen } = await tryOpenCommandPalette(page);
@@ -230,7 +257,10 @@ test.describe("Command Palette", () => {
 test.describe("Dashboard", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("load");
+    await page
+      .locator("#root > *")
+      .first()
+      .waitFor({ state: "attached", timeout: 15000 });
 
     // Skip setup wizard if visible
     const isSetupWizard = await page
@@ -244,7 +274,10 @@ test.describe("Dashboard", () => {
         .first();
       if (await skipButton.isVisible().catch(() => false)) {
         await skipButton.click();
-        await page.waitForLoadState("load");
+        await page
+          .locator("#root > *")
+          .first()
+          .waitFor({ state: "attached", timeout: 15000 });
       }
     }
   });
@@ -298,7 +331,10 @@ test.describe("Dashboard", () => {
 test.describe("Job Card Interactions", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("load");
+    await page
+      .locator("#root > *")
+      .first()
+      .waitFor({ state: "attached", timeout: 15000 });
 
     // Skip setup wizard if visible
     const skipButton = page
@@ -306,7 +342,10 @@ test.describe("Job Card Interactions", () => {
       .first();
     if (await skipButton.isVisible().catch(() => false)) {
       await skipButton.click();
-      await page.waitForLoadState("load");
+      await page
+        .locator("#root > *")
+        .first()
+        .waitFor({ state: "attached", timeout: 15000 });
     }
   });
 
@@ -387,7 +426,10 @@ test.describe("Job Card Interactions", () => {
 test.describe("Accessibility", () => {
   test("should have proper heading structure", async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("load");
+    await page
+      .locator("#root > *")
+      .first()
+      .waitFor({ state: "attached", timeout: 15000 });
     await page.waitForTimeout(500);
 
     // Check for headings
@@ -402,7 +444,10 @@ test.describe("Accessibility", () => {
 
   test("should have proper ARIA labels", async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("load");
+    await page
+      .locator("#root > *")
+      .first()
+      .waitFor({ state: "attached", timeout: 15000 });
 
     // Check for any buttons with aria-labels
     const buttonsWithLabels = page.locator("button[aria-label]");
@@ -414,7 +459,10 @@ test.describe("Accessibility", () => {
 
   test("should have focusable interactive elements", async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("load");
+    await page
+      .locator("#root > *")
+      .first()
+      .waitFor({ state: "attached", timeout: 15000 });
     await page.waitForTimeout(500);
 
     // Check that page has focusable elements
@@ -438,7 +486,10 @@ test.describe("Responsive Design", () => {
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto("/");
-    await page.waitForLoadState("load");
+    await page
+      .locator("#root > *")
+      .first()
+      .waitFor({ state: "attached", timeout: 15000 });
 
     // App should load without crashing
     await expect(page.locator("main, [role='main'], #root")).toBeVisible({
@@ -450,7 +501,10 @@ test.describe("Responsive Design", () => {
     // Set tablet viewport
     await page.setViewportSize({ width: 768, height: 1024 });
     await page.goto("/");
-    await page.waitForLoadState("load");
+    await page
+      .locator("#root > *")
+      .first()
+      .waitFor({ state: "attached", timeout: 15000 });
 
     // App should load without crashing
     await expect(page.locator("main, [role='main'], #root")).toBeVisible({
@@ -462,7 +516,10 @@ test.describe("Responsive Design", () => {
     // Set desktop viewport
     await page.setViewportSize({ width: 1920, height: 1080 });
     await page.goto("/");
-    await page.waitForLoadState("load");
+    await page
+      .locator("#root > *")
+      .first()
+      .waitFor({ state: "attached", timeout: 15000 });
 
     // App should load without crashing
     await expect(page.locator("main, [role='main'], #root")).toBeVisible({
@@ -474,7 +531,10 @@ test.describe("Responsive Design", () => {
 test.describe("One-Click Apply Settings", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("load");
+    await page
+      .locator("#root > *")
+      .first()
+      .waitFor({ state: "attached", timeout: 15000 });
 
     // Skip setup wizard if visible
     const skipButton = page
@@ -482,7 +542,10 @@ test.describe("One-Click Apply Settings", () => {
       .first();
     if (await skipButton.isVisible().catch(() => false)) {
       await skipButton.click();
-      await page.waitForLoadState("load");
+      await page
+        .locator("#root > *")
+        .first()
+        .waitFor({ state: "attached", timeout: 15000 });
     }
   });
 
@@ -496,7 +559,10 @@ test.describe("One-Click Apply Settings", () => {
 
     if (await automationLink.isVisible().catch(() => false)) {
       await automationLink.click();
-      await page.waitForLoadState("load");
+      await page
+        .locator("#root > *")
+        .first()
+        .waitFor({ state: "attached", timeout: 15000 });
 
       // Check for One-Click Apply page content
       const heading = page.locator(
@@ -523,7 +589,10 @@ test.describe("One-Click Apply Settings", () => {
 
     if (await automationLink.isVisible().catch(() => false)) {
       await automationLink.click();
-      await page.waitForLoadState("load");
+      await page
+        .locator("#root > *")
+        .first()
+        .waitFor({ state: "attached", timeout: 15000 });
 
       // Check for profile form fields
       const nameInput = page.locator(
@@ -560,7 +629,10 @@ test.describe("One-Click Apply Settings", () => {
 
     if (await automationLink.isVisible().catch(() => false)) {
       await automationLink.click();
-      await page.waitForLoadState("load");
+      await page
+        .locator("#root > *")
+        .first()
+        .waitFor({ state: "attached", timeout: 15000 });
 
       // Find tab buttons
       const profileTab = page.locator(
@@ -603,7 +675,10 @@ test.describe("One-Click Apply Settings", () => {
 
     if (await automationLink.isVisible().catch(() => false)) {
       await automationLink.click();
-      await page.waitForLoadState("load");
+      await page
+        .locator("#root > *")
+        .first()
+        .waitFor({ state: "attached", timeout: 15000 });
 
       // Check for "How It Works" section
       const howItWorks = page.locator(
@@ -624,7 +699,10 @@ test.describe("One-Click Apply Settings", () => {
 test.describe("Navigation Sidebar", () => {
   test("should display navigation sidebar", async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("load");
+    await page
+      .locator("#root > *")
+      .first()
+      .waitFor({ state: "attached", timeout: 15000 });
     await page.waitForTimeout(300);
 
     // Navigation should be visible
@@ -634,7 +712,10 @@ test.describe("Navigation Sidebar", () => {
 
   test("should have all navigation items", async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("load");
+    await page
+      .locator("#root > *")
+      .first()
+      .waitFor({ state: "attached", timeout: 15000 });
 
     // Check for navigation buttons
     const navButtons = page.locator("nav button");
@@ -646,7 +727,10 @@ test.describe("Navigation Sidebar", () => {
 
   test("should navigate to different pages via sidebar", async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("load");
+    await page
+      .locator("#root > *")
+      .first()
+      .waitFor({ state: "attached", timeout: 15000 });
     await page.waitForTimeout(500);
 
     // Find and click Applications nav button (second one)
@@ -665,7 +749,10 @@ test.describe("Navigation Sidebar", () => {
 
   test("should expand sidebar on hover", async ({ page }) => {
     await page.goto("/");
-    await page.waitForLoadState("load");
+    await page
+      .locator("#root > *")
+      .first()
+      .waitFor({ state: "attached", timeout: 15000 });
 
     const nav = page.locator("nav").first();
 
