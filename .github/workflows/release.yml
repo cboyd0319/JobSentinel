@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 permissions:
   contents: write
@@ -64,8 +64,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@631a55b12751854ce901bb631d5902ceb48146f7 # stable
@@ -89,7 +89,7 @@ jobs:
         if: matrix.platform == 'windows-latest'
         uses: softprops/action-gh-release@153bb8e04406b158c6c84fc1615b65b24149a1fe # v2.6.1
         with:
-          files: src-tauri/target/release/bundle/msi/*.msi
+          files: src-tauri/target/${{ matrix.target }}/release/bundle/msi/*.msi
 
       # macOS DMG upload
       - name: Upload macOS DMG
