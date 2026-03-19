@@ -34,7 +34,7 @@ pub async fn fetch_job_page(url: &str) -> ImportResult<String> {
     // Build HTTP client with browser-like headers
     let client = Client::builder()
         .timeout(HTTP_TIMEOUT)
-        .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+        .user_agent(crate::core::scrapers::http_client::DEFAULT_USER_AGENT)
         .build()
         .map_err(ImportError::HttpError)?;
 

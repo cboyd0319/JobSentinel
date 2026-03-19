@@ -64,7 +64,7 @@ impl GlassdoorScraper {
 
         let response = client
             .get(&api_url)
-            .header("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+            .header("User-Agent", super::http_client::DEFAULT_USER_AGENT)
             .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
             .header("Accept-Language", "en-US,en;q=0.5")
             .header("Connection", "keep-alive")
