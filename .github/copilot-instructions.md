@@ -7,7 +7,7 @@ React 19 (TypeScript frontend).
 
 | Fact     | Value                                        |
 | -------- | -------------------------------------------- |
-| Version  | 2.6.3                                        |
+| Version  | 2.6.4                                        |
 | Tests    | 4,770+ passing (2,413 frontend + 2,357 Rust) |
 | Frontend | React 19, TypeScript, Vite, Tailwind CSS     |
 | Backend  | Rust 2021, Tauri 2.x, Tokio async            |
@@ -98,14 +98,14 @@ const jobs = await invoke<Job[]>("get_jobs");
 
 ## Key Files
 
-| File                      | Purpose                |
-| ------------------------- | ---------------------- |
-| `src-tauri/src/lib.rs`    | Command registration   |
-| `src-tauri/src/commands/` | All Tauri IPC handlers |
+| File                           | Purpose                |
+| ------------------------------ | ---------------------- |
+| `src-tauri/src/lib.rs`         | Command registration   |
+| `src-tauri/src/commands/`      | All Tauri IPC handlers |
 | `src-tauri/src/core/scrapers/` | Job board scrapers     |
-| `src/components/`         | React components       |
-| `src/hooks/`              | Custom React hooks     |
-| `src/services/`           | Business logic         |
+| `src/components/`              | React components       |
+| `src/hooks/`                   | Custom React hooks     |
+| `src/services/`                | Business logic         |
 
 ## Scrapers (13 job boards)
 

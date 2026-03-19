@@ -1,8 +1,8 @@
 # JobSentinel Roadmap
 
-**Last Updated:** January 26, 2026
+**Last Updated:** March 18, 2026
 
-## Current Version: 2.6.3
+## Current Version: 2.6.4
 
 ### Working Features (v1.4.0)
 
@@ -26,87 +26,87 @@
 
 ### v1.1 Features (COMPLETED)
 
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Email notifications (SMTP) | **Done** | Full UI in Settings |
+| Feature                                     | Status   | Notes                       |
+| ------------------------------------------- | -------- | --------------------------- |
+| Email notifications (SMTP)                  | **Done** | Full UI in Settings         |
 | Frontend pages for ATS/Resume/Salary/Market | **Done** | 4 new pages with navigation |
-| GitHub Actions CI/CD | **Done** | Multi-platform build/test |
+| GitHub Actions CI/CD                        | **Done** | Multi-platform build/test   |
 
 ### v1.2 Features (COMPLETED)
 
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Virtual job list | **Done** | Performance for large lists |
-| Error boundaries | **Done** | Graceful error handling |
-| Command palette | **Done** | Cmd/Ctrl+K quick actions |
-| Onboarding tour | **Done** | First-run guided tour |
-| Export utilities | **Done** | CSV/JSON export |
-| RemoteOK scraper | **Done** | JSON API for remote jobs |
-| Wellfound scraper | **Done** | HTML scraping for startups |
+| Feature           | Status   | Notes                       |
+| ----------------- | -------- | --------------------------- |
+| Virtual job list  | **Done** | Performance for large lists |
+| Error boundaries  | **Done** | Graceful error handling     |
+| Command palette   | **Done** | Cmd/Ctrl+K quick actions    |
+| Onboarding tour   | **Done** | First-run guided tour       |
+| Export utilities  | **Done** | CSV/JSON export             |
+| RemoteOK scraper  | **Done** | JSON API for remote jobs    |
+| Wellfound scraper | **Done** | HTML scraping for startups  |
 
 ### v1.3 Features (COMPLETED)
 
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Advanced notification filtering | **Done** | Keywords, salary, company lists |
-| Keyboard shortcuts | **Done** | Power user navigation |
-| Cover letter categories | **Done** | Template filtering and placeholders |
-| Company research panel | **Done** | 40+ companies with tech stacks |
-| Interview prep checklist | **Done** | 5-item checklist with reminders |
-| Follow-up reminders | **Done** | Post-interview thank you tracking |
-| Analytics weekly goals | **Done** | Application targets with progress |
-| Company response rates | **Done** | Fastest/slowest responders |
-| WeWorkRemotely scraper | **Done** | RSS feed for remote jobs |
-| BuiltIn scraper | **Done** | City-specific tech jobs |
-| HN Who's Hiring scraper | **Done** | Monthly thread parsing |
-| Advanced search | **Done** | AND/OR/NOT, search history |
+| Feature                         | Status   | Notes                               |
+| ------------------------------- | -------- | ----------------------------------- |
+| Advanced notification filtering | **Done** | Keywords, salary, company lists     |
+| Keyboard shortcuts              | **Done** | Power user navigation               |
+| Cover letter categories         | **Done** | Template filtering and placeholders |
+| Company research panel          | **Done** | 40+ companies with tech stacks      |
+| Interview prep checklist        | **Done** | 5-item checklist with reminders     |
+| Follow-up reminders             | **Done** | Post-interview thank you tracking   |
+| Analytics weekly goals          | **Done** | Application targets with progress   |
+| Company response rates          | **Done** | Fastest/slowest responders          |
+| WeWorkRemotely scraper          | **Done** | RSS feed for remote jobs            |
+| BuiltIn scraper                 | **Done** | City-specific tech jobs             |
+| HN Who's Hiring scraper         | **Done** | Monthly thread parsing              |
+| Advanced search                 | **Done** | AND/OR/NOT, search history          |
 
 ### v1.4 Features (COMPLETED)
 
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Ghost Job Detection | **Done** | Detect stale, reposted, and fake job postings |
-| Ghost Filter UI | **Done** | Dashboard dropdown to filter by ghost status |
-| Ghost Indicators | **Done** | Visual badges with severity coloring |
-| Score Breakdown Tooltip | **Done** | Hover to see scoring factor breakdown |
-| Application Conversion Stats | **Done** | Quick stats bar on Applications page |
-| Resume Match Visualization | **Done** | Green/red skill match display |
-| **Backend Persistence (E3)** | **Done** | localStorage → SQLite migration |
-| Cover Letter Templates | **Done** | Persisted with categories in SQLite |
-| Interview Prep Checklists | **Done** | Per-interview completion tracking |
-| Saved Searches | **Done** | Filter presets stored in database |
-| Search History | **Done** | Unlimited history (no 10-item cap) |
-| Notification Preferences | **Done** | Advanced filtering stored in SQLite |
-| **UI Polish (E4)** | **Done** | Cover letter auto-fill, shortcut badges, tour link |
-| Cover Letter Auto-Fill | **Done** | "Use for Job" button fills placeholders |
-| Keyboard Shortcut Badges | **Done** | ShortcutKey component for visual hints |
-| Tour Integration | **Done** | "Take a guided tour" link in keyboard help |
+| Feature                      | Status   | Notes                                              |
+| ---------------------------- | -------- | -------------------------------------------------- |
+| Ghost Job Detection          | **Done** | Detect stale, reposted, and fake job postings      |
+| Ghost Filter UI              | **Done** | Dashboard dropdown to filter by ghost status       |
+| Ghost Indicators             | **Done** | Visual badges with severity coloring               |
+| Score Breakdown Tooltip      | **Done** | Hover to see scoring factor breakdown              |
+| Application Conversion Stats | **Done** | Quick stats bar on Applications page               |
+| Resume Match Visualization   | **Done** | Green/red skill match display                      |
+| **Backend Persistence (E3)** | **Done** | localStorage → SQLite migration                    |
+| Cover Letter Templates       | **Done** | Persisted with categories in SQLite                |
+| Interview Prep Checklists    | **Done** | Per-interview completion tracking                  |
+| Saved Searches               | **Done** | Filter presets stored in database                  |
+| Search History               | **Done** | Unlimited history (no 10-item cap)                 |
+| Notification Preferences     | **Done** | Advanced filtering stored in SQLite                |
+| **UI Polish (E4)**           | **Done** | Cover letter auto-fill, shortcut badges, tour link |
+| Cover Letter Auto-Fill       | **Done** | "Use for Job" button fills placeholders            |
+| Keyboard Shortcut Badges     | **Done** | ShortcutKey component for visual hints             |
+| Tour Integration             | **Done** | "Take a guided tour" link in keyboard help         |
 
 ### v1.5 - Code Quality & Refactoring (COMPLETED)
 
 Major refactoring effort to modularize oversized files. All high-priority files have been split.
 
-| File | Before | After | Status |
-|------|--------|-------|--------|
-| `db/mod.rs` | 4442 | 85 (+8 modules) | **Done** |
-| `scheduler/mod.rs` | 2955 | ~300 (+7 modules) | **Done** |
-| `market_intelligence/mod.rs` | 2703 | ~400 (+4 modules) | **Done** |
-| `db/integrity.rs` | 2517 | 85 (+5 modules) | **Done** |
-| `config/mod.rs` | 2343 | ~300 (+5 modules) | **Done** |
-| `Dashboard.tsx` | 2315 | 672 (+11 files) | **Done** |
-| `ats/mod.rs` | 2082 | ~300 (+5 modules) | **Done** |
-| `scrapers/lever.rs` | 2256 | - | Deferred (mostly tests) |
+| File                         | Before | After             | Status                  |
+| ---------------------------- | ------ | ----------------- | ----------------------- |
+| `db/mod.rs`                  | 4442   | 85 (+8 modules)   | **Done**                |
+| `scheduler/mod.rs`           | 2955   | ~300 (+7 modules) | **Done**                |
+| `market_intelligence/mod.rs` | 2703   | ~400 (+4 modules) | **Done**                |
+| `db/integrity.rs`            | 2517   | 85 (+5 modules)   | **Done**                |
+| `config/mod.rs`              | 2343   | ~300 (+5 modules) | **Done**                |
+| `Dashboard.tsx`              | 2315   | 672 (+11 files)   | **Done**                |
+| `ats/mod.rs`                 | 2082   | ~300 (+5 modules) | **Done**                |
+| `scrapers/lever.rs`          | 2256   | -                 | Deferred (mostly tests) |
 
 ### v1.6 - Additional Refactoring (COMPLETED)
 
 Continued refactoring of remaining large files.
 
-| File | Before | After | Status |
-|------|--------|-------|--------|
-| `commands/mod.rs` | 1732 | 94 (+9 domain modules) | **Done** |
-| `scrapers/lever.rs` | 2379 | 183 (+tests.rs) | **Done** |
-| `salary/mod.rs` | 2026 | 59 (+types, analyzer, tests) | **Done** |
-| `resume/mod.rs` | 1831 | 440 (+types.rs, tests.rs) | **Done** |
+| File                | Before | After                        | Status   |
+| ------------------- | ------ | ---------------------------- | -------- |
+| `commands/mod.rs`   | 1732   | 94 (+9 domain modules)       | **Done** |
+| `scrapers/lever.rs` | 2379   | 183 (+tests.rs)              | **Done** |
+| `salary/mod.rs`     | 2026   | 59 (+types, analyzer, tests) | **Done** |
+| `resume/mod.rs`     | 1831   | 440 (+types.rs, tests.rs)    | **Done** |
 
 **Commands split into domain modules:**
 
@@ -124,18 +124,18 @@ Continued refactoring of remaining large files.
 
 Major security release with OS-native keyring integration, Resume Builder, and One-Click Apply automation.
 
-| Feature | Status | Notes |
-|---------|--------|-------|
-| **OS-Native Keyring Integration** | **Done** | Secure credential storage |
-| macOS Keychain support | **Done** | `keyring` crate with `apple-native` |
-| Windows Credential Manager | **Done** | `keyring` crate with `windows-native` |
-| Linux Secret Service | **Done** | `keyring` crate with `sync-secret-service` |
-| Automatic migration | **Done** | Plaintext → keyring on first v2.0 launch |
-| 5 credential commands | **Done** | store, retrieve, delete, has, get_status |
-| Updated Settings UI | **Done** | Credential status indicators |
-| **P3 Integration Tests** | **Done** | 76 tests across 4 files |
-| **P4 Resume Builder + ATS Optimizer** | **Done** | Full resume creation and optimization |
-| **P5 One-Click Apply** | **Done** | Form filling automation with human-in-the-loop |
+| Feature                               | Status   | Notes                                          |
+| ------------------------------------- | -------- | ---------------------------------------------- |
+| **OS-Native Keyring Integration**     | **Done** | Secure credential storage                      |
+| macOS Keychain support                | **Done** | `keyring` crate with `apple-native`            |
+| Windows Credential Manager            | **Done** | `keyring` crate with `windows-native`          |
+| Linux Secret Service                  | **Done** | `keyring` crate with `sync-secret-service`     |
+| Automatic migration                   | **Done** | Plaintext → keyring on first v2.0 launch       |
+| 5 credential commands                 | **Done** | store, retrieve, delete, has, get_status       |
+| Updated Settings UI                   | **Done** | Credential status indicators                   |
+| **P3 Integration Tests**              | **Done** | 76 tests across 4 files                        |
+| **P4 Resume Builder + ATS Optimizer** | **Done** | Full resume creation and optimization          |
+| **P5 One-Click Apply**                | **Done** | Form filling automation with human-in-the-loop |
 
 **Credentials secured:**
 
@@ -176,16 +176,16 @@ See [docs/features/one-click-apply.md](features/one-click-apply.md) for full doc
 
 Comprehensive health monitoring system for all 13 job board scrapers.
 
-| Feature | Status | Notes |
-|---------|--------|-------|
-| **All 13 Scrapers Wired** | **Done** | Previously only 5/13 connected |
-| **Health Dashboard** | **Done** | Settings → Troubleshooting |
-| **Run History Tracking** | **Done** | Per-scraper execution logs |
-| **Exponential Backoff Retry** | **Done** | Auto-retry on 429, 5xx errors |
-| **Smoke Tests** | **Done** | Test individual or all scrapers |
-| **LinkedIn Cookie Expiry** | **Done** | 30-day warning threshold |
-| **9 New Tauri Commands** | **Done** | Health monitoring API |
-| **4 New Database Tables** | **Done** | + 1 aggregation view |
+| Feature                       | Status   | Notes                           |
+| ----------------------------- | -------- | ------------------------------- |
+| **All 13 Scrapers Wired**     | **Done** | Previously only 5/13 connected  |
+| **Health Dashboard**          | **Done** | Settings → Troubleshooting      |
+| **Run History Tracking**      | **Done** | Per-scraper execution logs      |
+| **Exponential Backoff Retry** | **Done** | Auto-retry on 429, 5xx errors   |
+| **Smoke Tests**               | **Done** | Test individual or all scrapers |
+| **LinkedIn Cookie Expiry**    | **Done** | 30-day warning threshold        |
+| **9 New Tauri Commands**      | **Done** | Health monitoring API           |
+| **4 New Database Tables**     | **Done** | + 1 aggregation view            |
 
 **Scrapers now fully wired (previously missing 8):**
 
@@ -206,15 +206,15 @@ See [docs/features/scrapers.md](features/scrapers.md) for full documentation.
 
 Comprehensive resume enhancement with 7 major features for intelligent job matching.
 
-| Feature | Status | Notes |
-|---------|--------|-------|
-| **Phase 1: Skill Validation UI** | **Done** | Edit/delete/add extracted skills |
-| **Phase 2: Resume Library UI** | **Done** | Multiple resume management |
-| **Phase 3: Experience Matching** | **Done** | Years of experience vs requirements |
-| **Phase 4: Education Matching** | **Done** | Degree level comparison |
-| **Phase 5: PDF Export** | **Done** | Browser print-to-PDF |
-| **Phase 6: OCR Support** | **Done** | Scanned PDF parsing (optional) |
-| **Phase 7: Enhanced Skill Database** | **Done** | 300+ skills, 10 categories |
+| Feature                              | Status   | Notes                               |
+| ------------------------------------ | -------- | ----------------------------------- |
+| **Phase 1: Skill Validation UI**     | **Done** | Edit/delete/add extracted skills    |
+| **Phase 2: Resume Library UI**       | **Done** | Multiple resume management          |
+| **Phase 3: Experience Matching**     | **Done** | Years of experience vs requirements |
+| **Phase 4: Education Matching**      | **Done** | Degree level comparison             |
+| **Phase 5: PDF Export**              | **Done** | Browser print-to-PDF                |
+| **Phase 6: OCR Support**             | **Done** | Scanned PDF parsing (optional)      |
+| **Phase 7: Enhanced Skill Database** | **Done** | 300+ skills, 10 categories          |
 
 **Weighted Match Scoring:**
 
@@ -246,20 +246,20 @@ See [docs/features/resume-matcher.md](features/resume-matcher.md) for full docum
 
 Enhanced user interfaces for resume management with visual improvements and seamless workflow integration.
 
-| Feature | Status | Notes |
-|---------|--------|-------|
-| **Resume.tsx Skill Enhancements** | **Done** | Confidence scores, experience, category filter |
-| **Visual Score Breakdown Chart** | **Done** | Three-factor visualization: skills/experience/education |
-| **Styled Gap Analysis** | **Done** | Color-coded missing skills display |
-| **Proficiency Distribution Chart** | **Done** | Skill level visualization |
-| **ResumeOptimizer.tsx Job Comparison** | **Done** | Side-by-side resume vs job requirements |
-| **Keyword Density Heatmap** | **Done** | Keyword importance visualization |
-| **Tailor Resume Workflow** | **Done** | Button linking optimizer to builder |
-| **Template Thumbnail Previews** | **Done** | Visual template selection cards |
-| **Import Skills from Resume** | **Done** | Auto-populate builder skills from matcher |
-| **ATS Score Preview** | **Done** | Score display in builder step 6 |
-| **New Components** | **Done** | ResumeMatchScoreBreakdown, SkillCategoryFilter, etc. |
-| **Resume → Builder Integration** | **Done** | Seamless data flow between modules |
+| Feature                                | Status   | Notes                                                   |
+| -------------------------------------- | -------- | ------------------------------------------------------- |
+| **Resume.tsx Skill Enhancements**      | **Done** | Confidence scores, experience, category filter          |
+| **Visual Score Breakdown Chart**       | **Done** | Three-factor visualization: skills/experience/education |
+| **Styled Gap Analysis**                | **Done** | Color-coded missing skills display                      |
+| **Proficiency Distribution Chart**     | **Done** | Skill level visualization                               |
+| **ResumeOptimizer.tsx Job Comparison** | **Done** | Side-by-side resume vs job requirements                 |
+| **Keyword Density Heatmap**            | **Done** | Keyword importance visualization                        |
+| **Tailor Resume Workflow**             | **Done** | Button linking optimizer to builder                     |
+| **Template Thumbnail Previews**        | **Done** | Visual template selection cards                         |
+| **Import Skills from Resume**          | **Done** | Auto-populate builder skills from matcher               |
+| **ATS Score Preview**                  | **Done** | Score display in builder step 6                         |
+| **New Components**                     | **Done** | ResumeMatchScoreBreakdown, SkillCategoryFilter, etc.    |
+| **Resume → Builder Integration**       | **Done** | Seamless data flow between modules                      |
 
 **Enhanced User Workflow:**
 
@@ -278,16 +278,16 @@ See [docs/features/resume-matcher.md](features/resume-matcher.md) for full UI in
 
 Complete visualization layer for Market Intelligence with interactive charts and tabbed layout.
 
-| Feature | Status | Notes |
-|---------|--------|-------|
-| **MarketSnapshotCard** | **Done** | Daily summary with sentiment |
-| **TrendChart (Recharts)** | **Done** | Line/bar charts for trends |
-| **MarketAlertCard** | **Done** | Severity-colored alert display |
-| **LocationHeatmap** | **Done** | Interactive job density grid |
-| **Tabbed Market.tsx** | **Done** | Overview, Skills, Companies, Locations, Alerts |
-| **Enhanced Backend Types** | **Done** | change_percent, trend_direction, growth_rate |
-| **4 New Tauri Commands** | **Done** | snapshot, historical, alert marking |
-| **TypeScript Alignment** | **Done** | Frontend types match Rust exactly |
+| Feature                    | Status   | Notes                                          |
+| -------------------------- | -------- | ---------------------------------------------- |
+| **MarketSnapshotCard**     | **Done** | Daily summary with sentiment                   |
+| **TrendChart (Recharts)**  | **Done** | Line/bar charts for trends                     |
+| **MarketAlertCard**        | **Done** | Severity-colored alert display                 |
+| **LocationHeatmap**        | **Done** | Interactive job density grid                   |
+| **Tabbed Market.tsx**      | **Done** | Overview, Skills, Companies, Locations, Alerts |
+| **Enhanced Backend Types** | **Done** | change_percent, trend_direction, growth_rate   |
+| **4 New Tauri Commands**   | **Done** | snapshot, historical, alert marking            |
+| **TypeScript Alignment**   | **Done** | Frontend types match Rust exactly              |
 
 **New Tauri Commands:**
 
@@ -308,20 +308,20 @@ See [docs/features/market-intelligence.md](features/market-intelligence.md) for 
 
 Comprehensive frontend UX improvements released January 24, 2026.
 
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Error Recovery UI | ✅ Done | Retry buttons in Market, CoverLetterTemplates, AtsLiveScorePanel, AnalyticsPanel, ApplyButton |
-| Stale Data Indicators | ✅ Done | Color-coded timestamps (green/amber/red) |
-| Skeleton Loaders | ✅ Done | ResumeSkeleton component, better perceived performance |
-| Timeout Feedback | ✅ Done | "Taking longer than expected..." messages |
-| Inline Validation | ✅ Done | InterviewScheduler datetime, ResumeBuilder steps |
-| Unsaved Changes Warning | ✅ Done | CoverLetterTemplates editor confirmation |
-| Component Memoization | ✅ Done | DashboardFiltersBar, QuickActions, Dropdown |
-| Lookup Objects | ✅ Done | MarketAlertCard severity/type styles |
-| Accessible Labels | ✅ Done | ResumeBuilder, ResumeOptimizer textareas |
-| Optimistic Update Rollback | ✅ Done | NotificationPreferences reverts on failure |
-| useMinimumLoadingDuration | ✅ Done | New hook for loading state management |
-| Actionable Empty States | ✅ Done | Resume skills, ResumeBuilder experience/education |
+| Feature                    | Status  | Notes                                                                                         |
+| -------------------------- | ------- | --------------------------------------------------------------------------------------------- |
+| Error Recovery UI          | ✅ Done | Retry buttons in Market, CoverLetterTemplates, AtsLiveScorePanel, AnalyticsPanel, ApplyButton |
+| Stale Data Indicators      | ✅ Done | Color-coded timestamps (green/amber/red)                                                      |
+| Skeleton Loaders           | ✅ Done | ResumeSkeleton component, better perceived performance                                        |
+| Timeout Feedback           | ✅ Done | "Taking longer than expected..." messages                                                     |
+| Inline Validation          | ✅ Done | InterviewScheduler datetime, ResumeBuilder steps                                              |
+| Unsaved Changes Warning    | ✅ Done | CoverLetterTemplates editor confirmation                                                      |
+| Component Memoization      | ✅ Done | DashboardFiltersBar, QuickActions, Dropdown                                                   |
+| Lookup Objects             | ✅ Done | MarketAlertCard severity/type styles                                                          |
+| Accessible Labels          | ✅ Done | ResumeBuilder, ResumeOptimizer textareas                                                      |
+| Optimistic Update Rollback | ✅ Done | NotificationPreferences reverts on failure                                                    |
+| useMinimumLoadingDuration  | ✅ Done | New hook for loading state management                                                         |
+| Actionable Empty States    | ✅ Done | Resume skills, ResumeBuilder experience/education                                             |
 
 See [v2.6.0 UX improvements](plans/v2.6.0-ux-improvements.md) and [v2.6.0 release notes](releases/v2.6.0.md)
 for details.
@@ -330,41 +330,41 @@ for details.
 
 Performance optimizations and code quality improvements released January 2026.
 
-| Feature | Status | Notes |
-|---------|--------|-------|
-| **Rust Performance** | ✅ Done | Removed unnecessary clones (190+ instances) |
-| **React Performance** | ✅ Done | Added useCallback to prevent re-renders (50+ components) |
-| **Accessibility** | ✅ Done | Added aria-hidden to decorative icons |
-| **Documentation Cleanup** | ✅ Done | Fixed inconsistencies across all docs |
-| **Constant Extraction** | ✅ Done | Extracted magic numbers to named constants |
+| Feature                   | Status  | Notes                                                    |
+| ------------------------- | ------- | -------------------------------------------------------- |
+| **Rust Performance**      | ✅ Done | Removed unnecessary clones (190+ instances)              |
+| **React Performance**     | ✅ Done | Added useCallback to prevent re-renders (50+ components) |
+| **Accessibility**         | ✅ Done | Added aria-hidden to decorative icons                    |
+| **Documentation Cleanup** | ✅ Done | Fixed inconsistencies across all docs                    |
+| **Constant Extraction**   | ✅ Done | Extracted magic numbers to named constants               |
 
 ### v2.6.2 - Code Quality & Test Coverage (COMPLETED)
 
 Test coverage expansion and code quality improvements released January 2026.
 
-| Feature | Status | Notes |
-|---------|--------|-------|
-| **Integration Tests** | ✅ Done | 50+ new integration tests |
-| **Frontend Tests** | ✅ Done | 100+ new component tests |
-| **TypeScript Strict Mode** | ✅ Done | Enabled strict null checks |
-| **Accessibility** | ✅ Done | ARIA labels, keyboard navigation improvements |
+| Feature                    | Status  | Notes                                         |
+| -------------------------- | ------- | --------------------------------------------- |
+| **Integration Tests**      | ✅ Done | 50+ new integration tests                     |
+| **Frontend Tests**         | ✅ Done | 100+ new component tests                      |
+| **TypeScript Strict Mode** | ✅ Done | Enabled strict null checks                    |
+| **Accessibility**          | ✅ Done | ARIA labels, keyboard navigation improvements |
 
 ### v2.6.3 - Security & Stability (COMPLETED)
 
 Security fixes, memory leak resolution, and standardized error handling released January 25, 2026.
 
-| Feature | Status | Notes |
-|---------|--------|-------|
-| **Custom React Hooks** | ✅ Done | useOptimisticUpdate, usePagination, useFormValidation |
-| **Error Utilities** | ✅ Done | errorHelpers.ts with retry logic and error classification |
-| **Form Validation** | ✅ Done | Shared validation utilities (email, URL, phone) |
-| **Enhanced Error Boundaries** | ✅ Done | Component-level error isolation with retry |
-| **Security Fixes** | ✅ Done | XSS prevention, URL validation, input sanitization |
-| **Memory Leak Fixes** | ✅ Done | useEffect cleanup, subscription management |
-| **Standardized Error Types** | ✅ Done | Consistent error handling across frontend/backend |
-| **Config Validation** | ✅ Done | Comprehensive runtime config validation |
-| **Test Coverage** | ✅ Done | 145+ new tests (ApplyButton, custom hooks, utilities) |
-| **Beta Feedback System** | ✅ Done | GitHub Issues + Google Drive integration, PII sanitization |
+| Feature                       | Status  | Notes                                                      |
+| ----------------------------- | ------- | ---------------------------------------------------------- |
+| **Custom React Hooks**        | ✅ Done | useOptimisticUpdate, usePagination, useFormValidation      |
+| **Error Utilities**           | ✅ Done | errorHelpers.ts with retry logic and error classification  |
+| **Form Validation**           | ✅ Done | Shared validation utilities (email, URL, phone)            |
+| **Enhanced Error Boundaries** | ✅ Done | Component-level error isolation with retry                 |
+| **Security Fixes**            | ✅ Done | XSS prevention, URL validation, input sanitization         |
+| **Memory Leak Fixes**         | ✅ Done | useEffect cleanup, subscription management                 |
+| **Standardized Error Types**  | ✅ Done | Consistent error handling across frontend/backend          |
+| **Config Validation**         | ✅ Done | Comprehensive runtime config validation                    |
+| **Test Coverage**             | ✅ Done | 145+ new tests (ApplyButton, custom hooks, utilities)      |
+| **Beta Feedback System**      | ✅ Done | GitHub Issues + Google Drive integration, PII sanitization |
 
 **Current Test Status:**
 
@@ -375,20 +375,20 @@ See [CHANGELOG.md](../CHANGELOG.md) for detailed v2.6.3 changes.
 
 ### v2.7+ Planned Features
 
-| Feature | Status | Priority | Notes |
-|---------|--------|----------|-------|
-| **Beta Feedback System** | ✅ Done | High | GitHub Issues + Google Drive, PII sanitization |
-| macOS support (.dmg) | ✅ Done | - | v2.5.1 |
-| Windows support (.msi) | ✅ Done | - | v2.5.1 |
-| Linux support (.deb, .AppImage) | ✅ Done | - | v2.7.0 - Ubuntu 20.04+ compatibility |
-| Intel Mac support | ✅ Done | - | v2.7.1 - Universal binary (single .dmg for both Intel and Apple Silicon) |
-| CI/CD Pipeline | ✅ Done | - | GitHub Actions |
-| **Expanded Scrapers** | ✅ Done | - | USAJobs, SimplyHired (v2.6.3+) |
-| **Undo/Redo for Actions** | 🔲 Planned | Medium | Context exists, needs wiring |
-| **Auto-detect Location** | 🔲 Planned | Medium | IP geolocation for Setup Wizard |
-| **Settings Quick Mode** | 🔲 Planned | Low | Simplified settings for new users |
-| **JSON Resume Import** | 🔲 Planned | Low | jsonresume.org format support |
-| **Smart Screening Answers** | 🔲 Planned | Low | Learn from previous answers |
+| Feature                         | Status     | Priority | Notes                                                                    |
+| ------------------------------- | ---------- | -------- | ------------------------------------------------------------------------ |
+| **Beta Feedback System**        | ✅ Done    | High     | GitHub Issues + Google Drive, PII sanitization                           |
+| macOS support (.dmg)            | ✅ Done    | -        | v2.5.1                                                                   |
+| Windows support (.msi)          | ✅ Done    | -        | v2.5.1                                                                   |
+| Linux support (.deb, .AppImage) | ✅ Done    | -        | v2.7.0 - Ubuntu 20.04+ compatibility                                     |
+| Intel Mac support               | ✅ Done    | -        | v2.7.1 - Universal binary (single .dmg for both Intel and Apple Silicon) |
+| CI/CD Pipeline                  | ✅ Done    | -        | GitHub Actions                                                           |
+| **Expanded Scrapers**           | ✅ Done    | -        | USAJobs, SimplyHired (v2.6.3+)                                           |
+| **Undo/Redo for Actions**       | 🔲 Planned | Medium   | Context exists, needs wiring                                             |
+| **Auto-detect Location**        | 🔲 Planned | Medium   | IP geolocation for Setup Wizard                                          |
+| **Settings Quick Mode**         | 🔲 Planned | Low      | Simplified settings for new users                                        |
+| **JSON Resume Import**          | 🔲 Planned | Low      | jsonresume.org format support                                            |
+| **Smart Screening Answers**     | 🔲 Planned | Low      | Learn from previous answers                                              |
 
 ---
 
@@ -401,10 +401,10 @@ legal boundaries. This helps everyone — job seekers, veterans, career changers
 
 ### New Scrapers (Legal - API or Permissible Scraping)
 
-| Source | Method | Priority | Status | Notes |
-|--------|--------|----------|--------|-------|
-| **USAJobs.gov** | Official API | High | ✅ Done | Free API key, v2.6.3+ |
-| **SimplyHired** | RSS Feed | High | ✅ Done | May be blocked by Cloudflare, v2.6.3+ |
+| Source          | Method       | Priority | Status  | Notes                                 |
+| --------------- | ------------ | -------- | ------- | ------------------------------------- |
+| **USAJobs.gov** | Official API | High     | ✅ Done | Free API key, v2.6.3+                 |
+| **SimplyHired** | RSS Feed     | High     | ✅ Done | May be blocked by Cloudflare, v2.6.3+ |
 
 Files implemented:
 
@@ -418,11 +418,11 @@ Files implemented:
 
 These sites explicitly prohibit scraping in their Terms of Service. **DO NOT SCRAPE THEM.**
 
-| Site | Restriction | Our Approach |
-|------|-------------|--------------|
-| **ClearanceJobs.com** | ToS prohibits scraping + AI/ML training | Deep links only |
+| Site                   | Restriction                                    | Our Approach    |
+| ---------------------- | ---------------------------------------------- | --------------- |
+| **ClearanceJobs.com**  | ToS prohibits scraping + AI/ML training        | Deep links only |
 | **GovernmentJobs.com** | robots.txt blocks bots, ToS prohibits scraping | Deep links only |
-| **Glassdoor** | Heavy anti-bot, login walls | Skip entirely |
+| **Glassdoor**          | Heavy anti-bot, login walls                    | Skip entirely   |
 
 ### Legal Maximum Value Features
 
@@ -530,25 +530,25 @@ LM Studio, OpenAI, or other external services violate these principles.
 
 Use Rust-native ML frameworks to ship small models with the application:
 
-| Framework | Pros | Cons |
-|-----------|------|------|
-| **candle** (HuggingFace) | Pure Rust, no C deps, growing ecosystem | Newer, less mature |
-| **ort** (ONNX Runtime) | Mature, wide model support, optimized | C++ deps, larger binary |
-| **burn** | Pure Rust, GPU support, modern API | Very new, smaller ecosystem |
-| **tract** | Pure Rust, ONNX support, lightweight | Less active development |
+| Framework                | Pros                                    | Cons                        |
+| ------------------------ | --------------------------------------- | --------------------------- |
+| **candle** (HuggingFace) | Pure Rust, no C deps, growing ecosystem | Newer, less mature          |
+| **ort** (ONNX Runtime)   | Mature, wide model support, optimized   | C++ deps, larger binary     |
+| **burn**                 | Pure Rust, GPU support, modern API      | Very new, smaller ecosystem |
+| **tract**                | Pure Rust, ONNX support, lightweight    | Less active development     |
 
 **Recommendation:** Start with `candle` for pure Rust simplicity, fall back to `ort` if model
 support is needed.
 
 ### Potential ML Features
 
-| Feature | Model Type | Use Case |
-|---------|------------|----------|
-| Semantic skill matching | Sentence embeddings | Match skills beyond exact keywords |
-| Job classification | Text classifier | Auto-categorize jobs (remote, contract, etc.) |
-| Resume section parsing | NER model | Extract experience, education, skills |
-| Job quality scoring | Regression model | Predict job posting quality/legitimacy |
-| Cover letter generation | Small LLM (Phi-2, TinyLlama) | Generate personalized cover letters |
+| Feature                 | Model Type                   | Use Case                                      |
+| ----------------------- | ---------------------------- | --------------------------------------------- |
+| Semantic skill matching | Sentence embeddings          | Match skills beyond exact keywords            |
+| Job classification      | Text classifier              | Auto-categorize jobs (remote, contract, etc.) |
+| Resume section parsing  | NER model                    | Extract experience, education, skills         |
+| Job quality scoring     | Regression model             | Predict job posting quality/legitimacy        |
+| Cover letter generation | Small LLM (Phi-2, TinyLlama) | Generate personalized cover letters           |
 
 ### Implementation Plan
 
@@ -574,12 +574,12 @@ support is needed.
 
 ### Size Considerations
 
-| Model | Size (Quantized) | Purpose |
-|-------|------------------|---------|
-| all-MiniLM-L6-v2 | ~20MB | Sentence embeddings |
-| DistilBERT | ~65MB | Text classification |
-| Phi-2 | ~1.5GB | Text generation |
-| TinyLlama | ~600MB | Text generation |
+| Model            | Size (Quantized) | Purpose             |
+| ---------------- | ---------------- | ------------------- |
+| all-MiniLM-L6-v2 | ~20MB            | Sentence embeddings |
+| DistilBERT       | ~65MB            | Text classification |
+| Phi-2            | ~1.5GB           | Text generation     |
+| TinyLlama        | ~600MB           | Text generation     |
 
 Base app should stay under 100MB. Larger models (LLMs) should be optional downloads.
 
@@ -741,29 +741,29 @@ The v1.5 modularization effort successfully split 7 oversized files into smaller
 
 #### Rust Backend Modules
 
-| Module | Before | After | Files Created |
-|--------|--------|-------|---------------|
-| `db/mod.rs` | 4442 | 85 | types.rs, connection.rs, crud.rs, queries.rs, interactions.rs, analytics.rs, ghost.rs, tests.rs |
-| `db/integrity.rs` | 2517 | → `db/integrity/` | mod.rs (85), types.rs, checks.rs, backups.rs, diagnostics.rs, tests.rs |
-| `scheduler/mod.rs` | 2955 | ~300 | types.rs, pipeline.rs, workers/{mod,scrapers,scoring,persistence}.rs, tests.rs |
-| `market_intelligence/mod.rs` | 2703 | ~400 | computations.rs, queries.rs, utils.rs, tests.rs |
-| `config/mod.rs` | 2343 | ~300 | types.rs, defaults.rs, validation.rs, io.rs, tests.rs |
-| `ats/mod.rs` | 2082 | ~300 | types.rs, tracker.rs, reminders.rs, interview.rs, tests.rs |
-| `salary/mod.rs` | 2026 | 59 | types.rs (98), analyzer.rs (213), tests.rs (853) |
+| Module                       | Before | After             | Files Created                                                                                   |
+| ---------------------------- | ------ | ----------------- | ----------------------------------------------------------------------------------------------- |
+| `db/mod.rs`                  | 4442   | 85                | types.rs, connection.rs, crud.rs, queries.rs, interactions.rs, analytics.rs, ghost.rs, tests.rs |
+| `db/integrity.rs`            | 2517   | → `db/integrity/` | mod.rs (85), types.rs, checks.rs, backups.rs, diagnostics.rs, tests.rs                          |
+| `scheduler/mod.rs`           | 2955   | ~300              | types.rs, pipeline.rs, workers/{mod,scrapers,scoring,persistence}.rs, tests.rs                  |
+| `market_intelligence/mod.rs` | 2703   | ~400              | computations.rs, queries.rs, utils.rs, tests.rs                                                 |
+| `config/mod.rs`              | 2343   | ~300              | types.rs, defaults.rs, validation.rs, io.rs, tests.rs                                           |
+| `ats/mod.rs`                 | 2082   | ~300              | types.rs, tracker.rs, reminders.rs, interview.rs, tests.rs                                      |
+| `salary/mod.rs`              | 2026   | 59                | types.rs (98), analyzer.rs (213), tests.rs (853)                                                |
 
 #### React Frontend
 
-| File | Before | After | Files Created |
-|------|--------|-------|---------------|
-| `Dashboard.tsx` | 2315 | 672 | DashboardTypes.ts, DashboardIcons.tsx, 5 hooks (useDashboardFilters, useDashboardSearch, useDashboardJobOps, useDashboardSavedSearches, useDashboardAutoRefresh), 3 UI components (DashboardHeader, DashboardStats, DashboardFiltersBar) |
+| File            | Before | After | Files Created                                                                                                                                                                                                                            |
+| --------------- | ------ | ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Dashboard.tsx` | 2315   | 672   | DashboardTypes.ts, DashboardIcons.tsx, 5 hooks (useDashboardFilters, useDashboardSearch, useDashboardJobOps, useDashboardSavedSearches, useDashboardAutoRefresh), 3 UI components (DashboardHeader, DashboardStats, DashboardFiltersBar) |
 
 ### Remaining (Lower Priority - v1.6+)
 
-| File | Lines | Notes |
-|------|-------|-------|
-| `scrapers/lever.rs` | 2256 | Mostly tests - extract when needed |
-| `resume/mod.rs` | 1727 | Split parser, matcher, tests |
-| `commands/mod.rs` | 1278 | Could split by domain (jobs, ats, resume, salary) |
+| File                | Lines | Notes                                             |
+| ------------------- | ----- | ------------------------------------------------- |
+| `scrapers/lever.rs` | 2256  | Mostly tests - extract when needed                |
+| `resume/mod.rs`     | 1727  | Split parser, matcher, tests                      |
+| `commands/mod.rs`   | 1278  | Could split by domain (jobs, ats, resume, salary) |
 
 ### Frontend Architecture (v2.6+)
 
@@ -830,14 +830,14 @@ src/
 
 ### Priority 4 - Low (1000-2000 lines)
 
-| File | Lines | Action |
-|------|-------|--------|
-| `resume/mod.rs` | 1727 | Extract parser, matcher, tests |
-| `market_intelligence/analytics.rs` | 1645 | Consider merging into trends.rs |
-| `notify/teams.rs` | 1552 | Extract tests (~1000 lines) |
-| `notify/slack.rs` | 1542 | Extract tests (~1000 lines) |
-| `commands/mod.rs` | 1278 | Split by domain: jobs, ats, resume, salary, market |
-| `Settings.tsx` | 1142 | Extract section components |
+| File                               | Lines | Action                                             |
+| ---------------------------------- | ----- | -------------------------------------------------- |
+| `resume/mod.rs`                    | 1727  | Extract parser, matcher, tests                     |
+| `market_intelligence/analytics.rs` | 1645  | Consider merging into trends.rs                    |
+| `notify/teams.rs`                  | 1552  | Extract tests (~1000 lines)                        |
+| `notify/slack.rs`                  | 1542  | Extract tests (~1000 lines)                        |
+| `commands/mod.rs`                  | 1278  | Split by domain: jobs, ats, resume, salary, market |
+| `Settings.tsx`                     | 1142  | Extract section components                         |
 
 ### Refactoring Guidelines
 

@@ -53,7 +53,7 @@ See `docs/ROADMAP.md` → Technical Debt section for files needing refactoring.
 
 ### MANDATORY: Check Current Status
 
-**Current version:** 2.6.3 (Production Ready)
+**Current version:** 2.6.4 (Production Ready)
 
 See `docs/ROADMAP.md` for future plans and technical debt tracking.
 
@@ -658,4 +658,4 @@ Contributors will be:
 
 ---
 
-**Last Updated:** March 18, 2026 (v2.6.3)
+**Last Updated:** March 18, 2026 (v2.6.4)

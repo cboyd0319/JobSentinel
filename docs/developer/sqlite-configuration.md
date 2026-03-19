@@ -3,7 +3,7 @@
 ## Complete Reference Guide for JobSentinel
 
 > **Status:** ✅ Fully Implemented
-> **Last Updated:** 2026-01-25
+> **Last Updated:** 2026-03-18
 > **SQLite Min Version:** 3.31+ (with fallbacks for older versions)
 
 ---
@@ -27,11 +27,11 @@ maximum reliability, security, and speed.
 
 ### 1. JOURNAL & TRANSACTION SETTINGS
 
-| Setting | Value | Purpose | Impact |
-|---------|-------|---------|--------|
-| `journal_mode` | **WAL** | Write-Ahead Logging for crash recovery | ✅ Concurrent reads during writes, better crash recovery |
-| `synchronous` | **NORMAL** | Balanced fsync strategy | ✅ Good safety with minimal performance penalty |
-| `wal_autocheckpoint` | **1000 pages** (~4MB) | Automatic WAL size management | ✅ Prevents WAL from growing unbounded |
+| Setting              | Value                 | Purpose                                | Impact                                                   |
+| -------------------- | --------------------- | -------------------------------------- | -------------------------------------------------------- |
+| `journal_mode`       | **WAL**               | Write-Ahead Logging for crash recovery | ✅ Concurrent reads during writes, better crash recovery |
+| `synchronous`        | **NORMAL**            | Balanced fsync strategy                | ✅ Good safety with minimal performance penalty          |
+| `wal_autocheckpoint` | **1000 pages** (~4MB) | Automatic WAL size management          | ✅ Prevents WAL from growing unbounded                   |
 
 **Why WAL Mode?**
 
@@ -51,15 +51,15 @@ maximum reliability, security, and speed.
 
 ### 2. INTEGRITY & SECURITY SETTINGS
 
-| Setting | Value | Purpose | Impact |
-|---------|-------|---------|--------|
-| `foreign_keys` | **ON** | Enforce referential integrity | ✅ Prevents orphaned records, data consistency |
-| `defer_foreign_keys` | **OFF** | Immediate FK checks | ✅ Catch constraint violations early |
-| `cell_size_check` | **ON** | B-tree corruption detection | ✅ Detect corrupted database pages |
-| `checksum_verification` | **ON** (3.37+) | Verify checksums on read | ✅ Detect silent data corruption |
-| `trusted_schema` | **OFF** (3.31+) | Disable unsafe schema features | ✅ Prevent SQL injection via schema |
-| `secure_delete` | **FAST** | Overwrite free pages | ✅ Prevent deleted data recovery |
-| `reverse_unordered_selects` | **ON** (debug) | Randomize result order | ✅ Detect reliance on undefined ordering |
+| Setting                     | Value           | Purpose                        | Impact                                         |
+| --------------------------- | --------------- | ------------------------------ | ---------------------------------------------- |
+| `foreign_keys`              | **ON**          | Enforce referential integrity  | ✅ Prevents orphaned records, data consistency |
+| `defer_foreign_keys`        | **OFF**         | Immediate FK checks            | ✅ Catch constraint violations early           |
+| `cell_size_check`           | **ON**          | B-tree corruption detection    | ✅ Detect corrupted database pages             |
+| `checksum_verification`     | **ON** (3.37+)  | Verify checksums on read       | ✅ Detect silent data corruption               |
+| `trusted_schema`            | **OFF** (3.31+) | Disable unsafe schema features | ✅ Prevent SQL injection via schema            |
+| `secure_delete`             | **FAST**        | Overwrite free pages           | ✅ Prevent deleted data recovery               |
+| `reverse_unordered_selects` | **ON** (debug)  | Randomize result order         | ✅ Detect reliance on undefined ordering       |
 
 **Security Benefits:**
 
@@ -78,14 +78,14 @@ maximum reliability, security, and speed.
 
 ### 3. PERFORMANCE SETTINGS
 
-| Setting | Value | Purpose | Impact |
-|---------|-------|---------|--------|
-| `cache_size` | **-64000** (64MB) | In-memory page cache | 🚀 **200-300% faster queries** |
-| `temp_store` | **MEMORY** | RAM for temp tables/indices | 🚀 **Eliminates temp disk I/O** |
-| `mmap_size` | **268435456** (256MB) | Memory-mapped file I/O | 🚀 **50-100% faster reads** |
-| `locking_mode` | **NORMAL** | Multi-connection support | ✅ Allows concurrent access |
-| `busy_timeout` | **5000ms** | Lock wait timeout | ✅ Prevents immediate failures |
-| `page_size` | **4096 bytes** | Database page size | ✅ Optimal for most systems |
+| Setting        | Value                 | Purpose                     | Impact                          |
+| -------------- | --------------------- | --------------------------- | ------------------------------- |
+| `cache_size`   | **-64000** (64MB)     | In-memory page cache        | 🚀 **200-300% faster queries**  |
+| `temp_store`   | **MEMORY**            | RAM for temp tables/indices | 🚀 **Eliminates temp disk I/O** |
+| `mmap_size`    | **268435456** (256MB) | Memory-mapped file I/O      | 🚀 **50-100% faster reads**     |
+| `locking_mode` | **NORMAL**            | Multi-connection support    | ✅ Allows concurrent access     |
+| `busy_timeout` | **5000ms**            | Lock wait timeout           | ✅ Prevents immediate failures  |
+| `page_size`    | **4096 bytes**        | Database page size          | ✅ Optimal for most systems     |
 
 **Performance Breakdown:**
 
@@ -118,10 +118,10 @@ maximum reliability, security, and speed.
 
 ### 4. VACUUM & SPACE MANAGEMENT
 
-| Setting | Value | Purpose | Impact |
-|---------|-------|---------|--------|
-| `auto_vacuum` | **INCREMENTAL** | Automatic space reclamation | ✅ Prevents database bloat |
-| `incremental_vacuum(100)` | On startup | Free 100 pages immediately | ✅ Reclaim space without full VACUUM |
+| Setting                   | Value           | Purpose                     | Impact                               |
+| ------------------------- | --------------- | --------------------------- | ------------------------------------ |
+| `auto_vacuum`             | **INCREMENTAL** | Automatic space reclamation | ✅ Prevents database bloat           |
+| `incremental_vacuum(100)` | On startup      | Free 100 pages immediately  | ✅ Reclaim space without full VACUUM |
 
 **Auto-Vacuum Modes:**
 
@@ -145,10 +145,10 @@ maximum reliability, security, and speed.
 
 ### 5. APPLICATION METADATA
 
-| Setting | Value | Purpose | Impact |
-|---------|-------|---------|--------|
+| Setting          | Value                   | Purpose               | Impact                     |
+| ---------------- | ----------------------- | --------------------- | -------------------------- |
 | `application_id` | **0x4A534442** ("JSDB") | Unique app identifier | ✅ Forensic identification |
-| `user_version` | **2** | Schema version | ✅ Track migrations |
+| `user_version`   | **2**                   | Schema version        | ✅ Track migrations        |
 
 **Application ID:**
 
@@ -168,8 +168,8 @@ maximum reliability, security, and speed.
 
 ### 6. QUERY OPTIMIZER
 
-| Setting | Value | Purpose | Impact |
-|---------|-------|---------|--------|
+| Setting    | Value      | Purpose           | Impact                    |
+| ---------- | ---------- | ----------------- | ------------------------- |
 | `optimize` | On startup | Update statistics | 🚀 **Better query plans** |
 
 **What `PRAGMA optimize` Does:**
@@ -192,7 +192,7 @@ maximum reliability, security, and speed.
 **At Startup, We Log:**
 
 - ✅ SQLite version (e.g., "3.42.0")
-- ✅ Compile options (FTS5, JSON1, R*Tree availability)
+- ✅ Compile options (FTS5, JSON1, R\*Tree availability)
 - ✅ All PRAGMA settings configured
 - ✅ Configuration success/failure status
 
@@ -370,15 +370,15 @@ let diag = db_integrity.get_pragma_diagnostics().await?;
 
 ### Expected Performance (vs. Default SQLite)
 
-| Operation | Default | Optimized | Improvement |
-|-----------|---------|-----------|-------------|
-| SELECT (cold cache) | 100ms | 30ms | **3.3x faster** |
-| SELECT (hot cache) | 50ms | 5ms | **10x faster** |
-| Full-text search | 200ms | 50ms | **4x faster** |
-| INSERT (single) | 5ms | 4ms | **1.2x faster** |
-| INSERT (batch 1000) | 1000ms | 200ms | **5x faster** |
-| DELETE (with vacuum) | 500ms | 150ms | **3.3x faster** |
-| Integrity check | 2000ms | 100ms | **20x faster** |
+| Operation            | Default | Optimized | Improvement     |
+| -------------------- | ------- | --------- | --------------- |
+| SELECT (cold cache)  | 100ms   | 30ms      | **3.3x faster** |
+| SELECT (hot cache)   | 50ms    | 5ms       | **10x faster**  |
+| Full-text search     | 200ms   | 50ms      | **4x faster**   |
+| INSERT (single)      | 5ms     | 4ms       | **1.2x faster** |
+| INSERT (batch 1000)  | 1000ms  | 200ms     | **5x faster**   |
+| DELETE (with vacuum) | 500ms   | 150ms     | **3.3x faster** |
+| Integrity check      | 2000ms  | 100ms     | **20x faster**  |
 
 **Why So Fast?**
 
@@ -538,7 +538,7 @@ After deployment, verify:
 
 ---
 
-**Last Updated:** 2026-01-25
-**Version:** v2.6.3
+**Last Updated:** 2026-03-18
+**Version:** v2.6.4
 **Maintained By:** JobSentinel Core Team
 **SQLite Version:** 3.31+ (recommended 3.37+ for all features)

@@ -4,8 +4,8 @@
 
 > **Status:** ACTIVE (v2.1.0+)
 > **Supported Scrapers:** 13 sources
-> **Last Updated:** 2026-01-30
-> **Version:** 2.6.3+
+> **Last Updated:** 2026-03-18
+> **Version:** 2.6.4
 > **Architecture:** Parallel scraping with intelligent rate limiting, health monitoring, and deduplication
 
 **Note:** JobSentinel includes production-ready scrapers for 13 major job boards. All scrapers
@@ -845,8 +845,8 @@ SimplyHired has Cloudflare bot protection. The scraper:
 
 ---
 
-**Last Updated:** 2026-01-30
-**Version:** 2.6.3+
+**Last Updated:** 2026-03-18
+**Version:** 2.6.4
 **Maintained By:** JobSentinel Core Team
 **Implementation Status:** ✅ Phase 3 Complete (13 scrapers integrated)
 **Next Phase:** v2.7 - ML Predictions, Windows/Linux Auto-Connect

@@ -21,14 +21,14 @@ to send job alerts. You create this URL in Slack/Discord/Teams, then paste it in
 
 Pick whichever channels work best for you:
 
-| Channel | Best For |
-|---------|----------|
-| **Slack** | Already live in Slack for work |
-| **Discord** | Have a personal Discord server |
-| **Microsoft Teams** | Your company uses Teams |
-| **Email** | Want a record in your inbox |
-| **Telegram** | Prefer mobile notifications |
-| **Desktop** | Want instant on-screen alerts |
+| Channel             | Best For                       |
+| ------------------- | ------------------------------ |
+| **Slack**           | Already live in Slack for work |
+| **Discord**         | Have a personal Discord server |
+| **Microsoft Teams** | Your company uses Teams        |
+| **Email**           | Want a record in your inbox    |
+| **Telegram**        | Prefer mobile notifications    |
+| **Desktop**         | Want instant on-screen alerts  |
 
 You can enable multiple channels at once - they all fire simultaneously.
 
@@ -235,12 +235,12 @@ src-tauri/src/core/notify/
 
 ### SMTP Settings
 
-| Provider | Server | Port |
-|----------|--------|------|
-| Gmail | smtp.gmail.com | 587 |
-| Outlook | smtp-mail.outlook.com | 587 |
-| Yahoo | smtp.mail.yahoo.com | 587 |
-| SendGrid | smtp.sendgrid.net | 587 |
+| Provider | Server                | Port |
+| -------- | --------------------- | ---- |
+| Gmail    | smtp.gmail.com        | 587  |
+| Outlook  | smtp-mail.outlook.com | 587  |
+| Yahoo    | smtp.mail.yahoo.com   | 587  |
+| SendGrid | smtp.sendgrid.net     | 587  |
 
 All connections use TLS/STARTTLS encryption.
 
@@ -248,4 +248,4 @@ All connections use TLS/STARTTLS encryption.
 
 ---
 
-**Version:** 2.6.3 | **Last Updated:** January 25, 2026
+**Version:** 2.6.4 | **Last Updated:** March 18, 2026

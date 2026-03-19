@@ -76,22 +76,22 @@ fn validate_webhook_url(url: &str) -> Result<()> {
     // 1. Parse URL first
     let url_parsed = Url::parse(url)
         .map_err(|e| anyhow!("Invalid URL format: {}", e))?;
-    
+
     // 2. Validate scheme
     if url_parsed.scheme() != "https" {
         return Err(anyhow!("Webhook URL must use HTTPS"));
     }
-    
+
     // 3. Validate host (exact match)
     if url_parsed.host_str() != Some("hooks.slack.com") {
         return Err(anyhow!("Webhook URL must use hooks.slack.com domain"));
     }
-    
+
     // 4. Validate path
     if !url_parsed.path().starts_with("/services/") {
         return Err(anyhow!("Invalid Slack webhook path"));
     }
-    
+
     Ok(())
 }
 ```
@@ -182,7 +182,7 @@ fn validate_webhook_url(url: &str) -> Result<()> {
 
     let host = url_parsed.host_str()
         .ok_or_else(|| anyhow!("Invalid webhook URL host"))?;
-    
+
     if host != "discord.com" && host != "discordapp.com" {
         return Err(anyhow!(
             "Webhook URL must use discord.com or discordapp.com domain"
@@ -219,7 +219,7 @@ fn validate_webhook_url(url: &str) -> Result<()> {
 
     let host = url_parsed.host_str()
         .ok_or_else(|| anyhow!("Invalid webhook URL host"))?;
-    
+
     if host != "outlook.office.com" && host != "outlook.office365.com" {
         return Err(anyhow!(
             "Webhook URL must use outlook.office.com or outlook.office365.com domain"
@@ -419,23 +419,23 @@ fn test_attack_vectors() {
         // Data exfiltration attempts
         "https://evil.com/steal?next=https://hooks.slack.com/services/T/B/X",
         "https://attacker.com#https://hooks.slack.com/services/T/B/X",
-        
+
         // Subdomain tricks
         "https://hooks.slack.com.attacker.com/services/T/B/X",
         "https://fakehooks.slack.com/services/T/B/X",
-        
+
         // Encoding tricks
         "https://evil.com/https%3A%2F%2Fhooks.slack.com%2Fservices%2F",
-        
+
         // Credentials in URL
         "https://user:pass@hooks.slack.com/services/T/B/X",
-        
+
         // Path traversal
         "https://hooks.slack.com/services/../admin/T/B/X",
-        
+
         // Port tricks
         "https://hooks.slack.com:8080/services/T/B/X",
-        
+
         // Non-HTTPS
         "http://hooks.slack.com/services/T/B/X",
         "ftp://hooks.slack.com/services/T/B/X",
@@ -459,14 +459,14 @@ fn test_attack_vectors() {
 // When redirecting users, validate the destination
 fn validate_redirect_url(url: &str, allowed_hosts: &[&str]) -> Result<()> {
     let parsed = Url::parse(url)?;
-    
+
     let host = parsed.host_str()
         .ok_or_else(|| anyhow!("Invalid host"))?;
-    
+
     if !allowed_hosts.contains(&host) {
         return Err(anyhow!("Redirect to external site not allowed"));
     }
-    
+
     Ok(())
 }
 ```
@@ -477,7 +477,7 @@ fn validate_redirect_url(url: &str, allowed_hosts: &[&str]) -> Result<()> {
 // When making HTTP requests based on user input
 fn validate_external_url(url: &str) -> Result<()> {
     let parsed = Url::parse(url)?;
-    
+
     // Reject internal/private IPs
     if let Some(host) = parsed.host() {
         match host {
@@ -498,7 +498,7 @@ fn validate_external_url(url: &str) -> Result<()> {
             }
         }
     }
-    
+
     Ok(())
 }
 ```
@@ -543,7 +543,7 @@ fn validate_webhook_url(url: &str) -> Result<()> {
         tracing::warn!("Invalid webhook URL: {} - {}", url, e);
         anyhow!("Invalid URL format: {}", e)
     })?;
-    
+
     // ... rest of validation
 }
 ```
@@ -562,6 +562,6 @@ fn validate_webhook_url(url: &str) -> Result<()> {
 
 ---
 
-**Last Updated**: 2026-01-25
-**Version**: 2.6.3
+**Last Updated**: 2026-03-18
+**Version**: 2.6.4
 **Security Level**: Production Ready

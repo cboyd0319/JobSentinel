@@ -4,8 +4,8 @@
 
 > **Status:** ACTIVE (v2.1.0+)
 > **Coverage:** 13 scrapers tracked with real-time health metrics
-> **Last Updated:** 2026-01-25
-> **Version:** 2.6.3
+> **Last Updated:** 2026-03-18
+> **Version:** 2.6.4
 
 JobSentinel's scraper health monitoring gives you complete visibility into your job board
 connections. See which scrapers are working, which need attention, and troubleshoot problems
@@ -29,33 +29,33 @@ The health monitoring system automatically tracks all 13 scrapers and alerts you
 
 For each of the 13 scrapers, JobSentinel tracks:
 
-| Metric | What It Shows |
-|--------|---------------|
-| **Health Status** | Current state (healthy/degraded/down/disabled) |
-| **Success Rate** | Percentage of successful runs (last 30 days) |
-| **Avg Duration** | How long scrapes typically take |
-| **Jobs Found (24h)** | How many jobs found in last 24 hours |
-| **Last Run** | When the scraper last ran |
-| **Error Count** | Failed runs in last 24 hours |
-| **Selector Health** | HTML parsing status for web scrapers |
+| Metric               | What It Shows                                  |
+| -------------------- | ---------------------------------------------- |
+| **Health Status**    | Current state (healthy/degraded/down/disabled) |
+| **Success Rate**     | Percentage of successful runs (last 30 days)   |
+| **Avg Duration**     | How long scrapes typically take                |
+| **Jobs Found (24h)** | How many jobs found in last 24 hours           |
+| **Last Run**         | When the scraper last ran                      |
+| **Error Count**      | Failed runs in last 24 hours                   |
+| **Selector Health**  | HTML parsing status for web scrapers           |
 
 ### 13 Scrapers Monitored
 
-| Scraper | Type | Status | Last Check |
-|---------|------|--------|------------|
-| LinkedIn | API + HTML | ✅ Monitored | 2026-01-17 |
-| Indeed | HTML | ✅ Monitored | 2026-01-17 |
-| Greenhouse | Official API | ✅ Monitored | 2026-01-17 |
-| Lever | Official API | ✅ Monitored | 2026-01-17 |
-| RemoteOK | Public API | ✅ Monitored | 2026-01-17 |
-| Wellfound | Public API | ✅ Monitored | 2026-01-17 |
-| WeWorkRemotely | HTML | ✅ Monitored | 2026-01-17 |
-| BuiltIn | HTML | ✅ Monitored | 2026-01-17 |
-| HN Who's Hiring | HTML | ✅ Monitored | 2026-01-17 |
-| JobsWithGPT | MCP Server | ✅ Monitored | 2026-01-17 |
-| Dice | Public API | ✅ Monitored | 2026-01-17 |
-| YC Startup Jobs | HTML | ✅ Monitored | 2026-01-17 |
-| ZipRecruiter | Public API | ✅ Monitored | 2026-01-17 |
+| Scraper         | Type         | Status       | Last Check |
+| --------------- | ------------ | ------------ | ---------- |
+| LinkedIn        | API + HTML   | ✅ Monitored | 2026-01-17 |
+| Indeed          | HTML         | ✅ Monitored | 2026-01-17 |
+| Greenhouse      | Official API | ✅ Monitored | 2026-01-17 |
+| Lever           | Official API | ✅ Monitored | 2026-01-17 |
+| RemoteOK        | Public API   | ✅ Monitored | 2026-01-17 |
+| Wellfound       | Public API   | ✅ Monitored | 2026-01-17 |
+| WeWorkRemotely  | HTML         | ✅ Monitored | 2026-01-17 |
+| BuiltIn         | HTML         | ✅ Monitored | 2026-01-17 |
+| HN Who's Hiring | HTML         | ✅ Monitored | 2026-01-17 |
+| JobsWithGPT     | MCP Server   | ✅ Monitored | 2026-01-17 |
+| Dice            | Public API   | ✅ Monitored | 2026-01-17 |
+| YC Startup Jobs | HTML         | ✅ Monitored | 2026-01-17 |
+| ZipRecruiter    | Public API   | ✅ Monitored | 2026-01-17 |
 
 ---
 
@@ -425,12 +425,12 @@ Last Test:       2026-01-17 14:30 UTC
 
 **Common SMTP Issues**
 
-| Issue | Fix |
-|-------|-----|
-| **Connection Refused** | Check server address and port |
-| **Authentication Failed** | Verify username and password |
-| **Timeout (>5s)** | Network latency; try different SMTP provider |
-| **TLS Error** | Ensure port matches protocol (587=TLS, 465=SSL) |
+| Issue                     | Fix                                             |
+| ------------------------- | ----------------------------------------------- |
+| **Connection Refused**    | Check server address and port                   |
+| **Authentication Failed** | Verify username and password                    |
+| **Timeout (>5s)**         | Network latency; try different SMTP provider    |
+| **TLS Error**             | Ensure port matches protocol (587=TLS, 465=SSL) |
 
 ---
 
@@ -960,38 +960,38 @@ scraper_health_status (
 
 ```typescript
 // Get health metrics for all scrapers
-invoke('get_scraper_health')
+invoke("get_scraper_health");
 // Returns: { scrapers: [ { name, status, success_rate, avg_duration, ... } ] }
 
 // Get summary statistics
-invoke('get_health_summary')
+invoke("get_health_summary");
 // Returns: { healthy: 11, degraded: 1, down: 1, total_jobs_24h: 2145 }
 
 // Get run history for a specific scraper
-invoke('get_scraper_runs', { scraper_name: 'linkedin', limit: 50 })
+invoke("get_scraper_runs", { scraper_name: "linkedin", limit: 50 });
 // Returns: [ { status, duration_ms, jobs_found, error_message, ... } ]
 
 // Run smoke test for scraper
-invoke('run_scraper_smoke_test', { scraper_name: 'linkedin' })
+invoke("run_scraper_smoke_test", { scraper_name: "linkedin" });
 // Returns: { result: "pass", duration_ms: 2300, error: null }
 
 // Run all smoke tests
-invoke('run_all_smoke_tests')
+invoke("run_all_smoke_tests");
 // Returns: [ { scraper_name, result, duration_ms }, ... ]
 
 // Check LinkedIn cookie health
-invoke('get_linkedin_cookie_health')
+invoke("get_linkedin_cookie_health");
 // Returns: { valid: true, expires_at: '2026-01-17T00:00:00Z', days_until_expiry: 31 }
 
 // Get all expiring credentials
-invoke('get_expiring_credentials')
+invoke("get_expiring_credentials");
 // Returns: [ { type, scraper, expires_at, days_until_expiry }, ... ]
 
 // Enable/disable a scraper
-invoke('set_scraper_enabled', { scraper_name: 'linkedin', enabled: false })
+invoke("set_scraper_enabled", { scraper_name: "linkedin", enabled: false });
 
 // Get scraper configuration
-invoke('get_scraper_configs')
+invoke("get_scraper_configs");
 // Returns: [ { name, enabled, rate_limit, interval_minutes }, ... ]
 ```
 
@@ -1092,12 +1092,13 @@ Expected resolution: 2026-01-18 03:00 UTC
 
 ## Version History
 
-| Version | Date | Changes |
-|---------|------|---------|
-| **2.1.0** | Jan 2026 | Initial release: Dashboard, smoke tests, run history, credential tracking |
-| **2.6.3** | Jan 2026 | Security fixes, memory leak fixes, standardized errors |
-| **2.7.0** | Q2 2026 | Planned: Real-time alerts, predictive health scoring, multi-user support |
+| Version   | Date       | Changes                                                                   |
+| --------- | ---------- | ------------------------------------------------------------------------- |
+| **2.1.0** | Jan 2026   | Initial release: Dashboard, smoke tests, run history, credential tracking |
+| **2.6.3** | Jan 2026   | Security fixes, memory leak fixes, standardized errors                    |
+| **2.6.4** | 2026-03-18 | Settings fix, NaN score handling, bulk operation resilience               |
+| **2.7.0** | Q2 2026    | Planned: Real-time alerts, predictive health scoring, multi-user support  |
 
 ---
 
-**Version:** 2.6.3 | **Last Updated:** January 25, 2026 | **Status:** ✅ Production Ready
+**Version:** 2.6.4 | **Last Updated:** March 18, 2026 | **Status:** ✅ Production Ready

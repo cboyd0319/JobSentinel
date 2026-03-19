@@ -91,7 +91,7 @@ fn validate_webhook_url(url: &str) -> Result<()> {
 
     let host = url_parsed.host_str()
         .ok_or_else(|| anyhow!("Invalid webhook URL host"))?;
-    
+
     if host != "discord.com" && host != "discordapp.com" {
         return Err(anyhow!("Invalid Discord host"));
     }
@@ -121,7 +121,7 @@ fn validate_webhook_url(url: &str) -> Result<()> {
 
     let host = url_parsed.host_str()
         .ok_or_else(|| anyhow!("Invalid webhook URL host"))?;
-    
+
     if host != "outlook.office.com" && host != "outlook.office365.com" {
         return Err(anyhow!("Invalid Teams host"));
     }
@@ -159,11 +159,11 @@ if url_parsed.scheme() != "https" {
 
 JobSentinel only allows webhooks to known, trusted domains:
 
-| Service | Allowed Hosts |
-|---------|---------------|
-| Slack | `hooks.slack.com` |
-| Discord | `discord.com`, `discordapp.com` |
-| Teams | `outlook.office.com`, `outlook.office365.com` |
+| Service | Allowed Hosts                                 |
+| ------- | --------------------------------------------- |
+| Slack   | `hooks.slack.com`                             |
+| Discord | `discord.com`, `discordapp.com`               |
+| Teams   | `outlook.office.com`, `outlook.office365.com` |
 
 **Denylisting doesn't work**:
 
@@ -224,22 +224,22 @@ pub async fn send_slack_notification(
 ) -> Result<()> {
     // Validate before sending
     validate_webhook_url(webhook_url)?;
-    
+
     // Build payload
     let payload = build_slack_payload(notification);
-    
+
     // Send HTTP request
     let client = reqwest::Client::new();
     let response = client.post(webhook_url)
         .json(&payload)
         .send()
         .await?;
-    
+
     // Check response
     if !response.status().is_success() {
         return Err(anyhow!("Webhook request failed: {}", response.status()));
     }
-    
+
     Ok(())
 }
 ```
@@ -530,6 +530,6 @@ mod tests {
 
 ---
 
-**Last Updated**: 2026-01-25
-**Version**: 2.6.3
+**Last Updated**: 2026-03-18
+**Version**: 2.6.4
 **Security Level**: Production Ready

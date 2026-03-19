@@ -75,7 +75,7 @@ Audits both dependency trees for known vulnerabilities.
 
 ## Release builds (release.yml)
 
-**Trigger:** Push of a tag matching `v*` (for example, `v2.6.3`)
+**Trigger:** Push of a tag matching `v*` (for example, `v2.6.4`)
 
 This workflow creates a draft GitHub Release, then builds installers in parallel across three platforms.
 
@@ -108,14 +108,14 @@ hotfix or create a pre-release artifact.
 
 Builds a Windows `.msi` and uploads it as a draft release asset for the specified version tag.
 
-**Input:** `version` — the version string, for example `2.6.3`
+**Input:** `version` — the version string, for example `2.6.4`
 
 ### build-linux.yml
 
 Builds a Linux `.AppImage` and `.deb` and uploads them as workflow artifacts (not a release).
 Download them from the Actions run summary.
 
-**Input:** `version` — the version string, for example `2.6.3`
+**Input:** `version` — the version string, for example `2.6.4`
 
 ---
 
@@ -283,4 +283,4 @@ git push origin vX.Y.Z
 ---
 
 **Last updated:** March 2026
-**Version:** v2.6.3
+**Version:** v2.6.4

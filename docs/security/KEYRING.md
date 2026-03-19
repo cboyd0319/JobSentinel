@@ -20,11 +20,11 @@ This is a **major security improvement** that protects your credentials with:
 
 ## Supported Credential Stores
 
-| Platform | Credential Manager | Implementation |
-|----------|-------------------|----------------|
-| **Windows** | Windows Credential Manager | `keyring` crate with `windows-native` feature |
-| **macOS** | macOS Keychain | `keyring` crate with `apple-native` feature |
-| **Linux** | Secret Service (GNOME Keyring, KWallet) | `keyring` crate with `sync-secret-service` feature |
+| Platform    | Credential Manager                      | Implementation                                     |
+| ----------- | --------------------------------------- | -------------------------------------------------- |
+| **Windows** | Windows Credential Manager              | `keyring` crate with `windows-native` feature      |
+| **macOS**   | macOS Keychain                          | `keyring` crate with `apple-native` feature        |
+| **Linux**   | Secret Service (GNOME Keyring, KWallet) | `keyring` crate with `sync-secret-service` feature |
 
 ---
 
@@ -32,13 +32,13 @@ This is a **major security improvement** that protects your credentials with:
 
 The following credentials are stored securely in the OS keyring:
 
-| Credential Key | Description | Used By |
-|---------------|-------------|---------|
-| `smtp_password` | Email SMTP password | Email notifications |
-| `telegram_bot_token` | Telegram Bot API token | Telegram notifications |
-| `slack_webhook_url` | Slack incoming webhook URL | Slack notifications |
-| `discord_webhook_url` | Discord webhook URL | Discord notifications |
-| `teams_webhook_url` | Microsoft Teams webhook URL | Teams notifications |
+| Credential Key            | Description                     | Used By                                        |
+| ------------------------- | ------------------------------- | ---------------------------------------------- |
+| `smtp_password`           | Email SMTP password             | Email notifications                            |
+| `telegram_bot_token`      | Telegram Bot API token          | Telegram notifications                         |
+| `slack_webhook_url`       | Slack incoming webhook URL      | Slack notifications                            |
+| `discord_webhook_url`     | Discord webhook URL             | Discord notifications                          |
+| `teams_webhook_url`       | Microsoft Teams webhook URL     | Teams notifications                            |
 | `linkedin_session_cookie` | LinkedIn `li_at` session cookie | LinkedIn job scraper (auto-extracted on macOS) |
 
 ---
@@ -227,11 +227,11 @@ In v2.0.0+, credential fields in `config.json` are ignored:
       "smtp_server": "smtp.gmail.com",
       "smtp_port": 587,
       "smtp_username": "user@example.com",
-      "smtp_password": ""  // ← Ignored, use keyring
+      "smtp_password": "" // ← Ignored, use keyring
     },
     "slack": {
       "enabled": true,
-      "webhook_url": ""    // ← Ignored, use keyring
+      "webhook_url": "" // ← Ignored, use keyring
     }
   }
 }
@@ -335,6 +335,6 @@ keyring = { version = "3", features = [
 
 ---
 
-**Last Updated**: 2026-01-25
-**Version**: 2.6.3
+**Last Updated**: 2026-03-18
+**Version**: 2.6.4
 **Security Level**: Production Ready

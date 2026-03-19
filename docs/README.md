@@ -11,25 +11,23 @@ Welcome to JobSentinel documentation.
 3. **CHECK FILE SIZES** - Keep files <500 lines. See [ROADMAP.md](ROADMAP.md) for refactoring plan.
 4. **READ docs/CLAUDE.md FIRST** - Contains project context and critical requirements.
 
-### Current Version: 2.6.3 (Production Ready)
+### Current Version: 2.6.4 (Production Ready)
 
 See [ROADMAP.md](ROADMAP.md) for future plans (v2.7: ML predictions, Linux support).
 
 ---
 
-## Current Status (January 2026)
+## Current Status (March 2026)
 
-**Version: 2.6.3** | 4,770+ tests passing | Security + Stability Sprint
+**Version: 2.6.4** | 4,815+ tests passing | Bug Fixes & Polish
 
-### What's New in v2.6.3 🔒
+### What's New in v2.6.4
 
-- **Security Fixes** - XSS prevention, URL validation, MIME type checks, path traversal protection
-- **Memory Leak Fixes** - Fixed 2 critical leaks in toast context and modal cleanup
-- **Standardized Error Types** - Consistent error handling across all scrapers and components
-- **Enhanced Error Handling** - Component-level error boundaries with retry logic
-- **Test Coverage** - 145 new tests (ApplyButton, ProfileForm, ScreeningAnswersForm, formValidation, errorHelpers)
-- **Custom React Hooks** - useOptimisticUpdate, usePagination, useFormValidation
-- **Documentation** - Updated all developer and API docs for v2.6.3
+- **Settings infinite loading fixed** - Settings page no longer spins forever on first load
+- **NaN score handling** - Jobs with missing salary or scoring data now display correctly instead of showing NaN
+- **Bulk operation resilience** - Bulk bookmark/hide operations no longer fail silently when one job errors
+- **45 new tests** - Expanded coverage for Settings, scoring edge cases, and bulk operations
+- **Security updates** - Dependabot patches for transitive dependencies
 
 ### What's New in v2.6.1
 
@@ -142,24 +140,24 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.7: ML predictions, Linux suppo
 
 ### Screenshots
 
-| Dashboard | Application Tracker |
-|-----------|---------------------|
+| Dashboard                          | Application Tracker                                      |
+| ---------------------------------- | -------------------------------------------------------- |
 | ![Dashboard](images/dashboard.png) | ![Application Tracking](images/application-tracking.png) |
 
-| Resume Matcher | Salary AI |
-|----------------|-----------|
+| Resume Matcher                               | Salary AI                          |
+| -------------------------------------------- | ---------------------------------- |
 | ![Resume Matcher](images/resume-matcher.png) | ![Salary AI](images/salary-ai.png) |
 
-| Market Intelligence | Settings |
-|---------------------|----------|
+| Market Intelligence                                    | Settings                         |
+| ------------------------------------------------------ | -------------------------------- |
 | ![Market Intelligence](images/market-intelligence.png) | ![Settings](images/settings.png) |
 
-| Resume Builder | ATS Optimizer |
-|----------------|---------------|
+| Resume Builder                               | ATS Optimizer                              |
+| -------------------------------------------- | ------------------------------------------ |
 | ![Resume Builder](images/resume-builder.png) | ![ATS Optimizer](images/ats-optimizer.png) |
 
-| One-Click Apply |
-|-----------------|
+| One-Click Apply                                |
+| ---------------------------------------------- |
 | ![One-Click Apply](images/one-click-apply.png) |
 
 ### Backend Modules (169 Tauri Commands)
@@ -204,23 +202,23 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.7: ML predictions, Linux suppo
 
 ### Security
 
-| Topic | Documentation |
-|-------|---------------|
+| Topic                   | Documentation                                    |
+| ----------------------- | ------------------------------------------------ |
 | **Keyring Integration** | [Secure Credential Storage](security/KEYRING.md) |
 
 ### Features
 
-| Feature | Status | Documentation |
-|---------|--------|---------------|
-| Market Intelligence UI | **v2.5** | [Market](features/market-intelligence.md) |
-| One-Click Apply | **v2.0** | [One-Click Apply](features/one-click-apply.md) |
-| Resume Builder | **v2.0** | [Resume Builder](features/resume-builder.md) |
-| Ghost Detection | **v1.4** | [Ghost Detection](features/ghost-detection.md) |
-| Application Tracking | Working | [ATS](features/application-tracking.md) |
-| Notifications | Working | [Notifications](features/notifications.md) |
-| Resume Matcher | Working | [Resume Matcher](features/resume-matcher.md) |
-| Salary AI | Working | [Salary](features/salary-ai.md) |
-| Job Scrapers | Working | [Scrapers](features/scrapers.md) |
+| Feature                | Status   | Documentation                                  |
+| ---------------------- | -------- | ---------------------------------------------- |
+| Market Intelligence UI | **v2.5** | [Market](features/market-intelligence.md)      |
+| One-Click Apply        | **v2.0** | [One-Click Apply](features/one-click-apply.md) |
+| Resume Builder         | **v2.0** | [Resume Builder](features/resume-builder.md)   |
+| Ghost Detection        | **v1.4** | [Ghost Detection](features/ghost-detection.md) |
+| Application Tracking   | Working  | [ATS](features/application-tracking.md)        |
+| Notifications          | Working  | [Notifications](features/notifications.md)     |
+| Resume Matcher         | Working  | [Resume Matcher](features/resume-matcher.md)   |
+| Salary AI              | Working  | [Salary](features/salary-ai.md)                |
+| Job Scrapers           | Working  | [Scrapers](features/scrapers.md)               |
 
 ### Release Notes
 
@@ -255,14 +253,14 @@ See [ROADMAP.md](ROADMAP.md) for future plans (v2.7: ML predictions, Linux suppo
 
 ## Quick Links
 
-| I want to... | Go to... |
-|--------------|----------|
-| Install JobSentinel | [Quick Start](user/QUICK_START.md) |
-| Set up development | [Getting Started](developer/GETTING_STARTED.md) |
-| Understand ghost detection | [Ghost Detection](features/ghost-detection.md) |
-| Contribute code | [Contributing](developer/CONTRIBUTING.md) |
-| Understand architecture | [Architecture](developer/ARCHITECTURE.md) |
-| See the roadmap | [Roadmap](ROADMAP.md) |
+| I want to...               | Go to...                                        |
+| -------------------------- | ----------------------------------------------- |
+| Install JobSentinel        | [Quick Start](user/QUICK_START.md)              |
+| Set up development         | [Getting Started](developer/GETTING_STARTED.md) |
+| Understand ghost detection | [Ghost Detection](features/ghost-detection.md)  |
+| Contribute code            | [Contributing](developer/CONTRIBUTING.md)       |
+| Understand architecture    | [Architecture](developer/ARCHITECTURE.md)       |
+| See the roadmap            | [Roadmap](ROADMAP.md)                           |
 
 ---
 

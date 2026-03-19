@@ -11,7 +11,7 @@
 <br>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-2.6.3-blue?style=for-the-badge" alt="Version 2.6.3">
+  <img src="https://img.shields.io/badge/Version-2.6.4-blue?style=for-the-badge" alt="Version 2.6.4">
   <img src="https://img.shields.io/badge/Windows-Ready-0078D6?style=for-the-badge&logo=Windows&logoColor=white" alt="Windows">
   <img src="https://img.shields.io/badge/macOS-Ready-000000?style=for-the-badge&logo=apple&logoColor=white" alt="macOS">
   <img src="https://img.shields.io/badge/Linux-Coming_Soon-FCC624?style=for-the-badge&logo=linux&logoColor=black" alt="Linux">
@@ -447,21 +447,13 @@ For full technical documentation, see:
 - **Linux support** — AppImage installer for Linux users
 - **Mobile companion** — Get notifications on your phone
 
-### Just Released (v2.6.3)
+### Just Released (v2.6.4)
 
-- **Health dashboard now actually works** — Scraper run history was being silently discarded;
-  all 13 scrapers now record execution results so the dashboard shows real Healthy/Degraded/Down status
-- **Zero-result warning** — Scrapers that run successfully but find 0 jobs now show a visible
-  amber warning instead of appearing green and healthy
-- **YC Startup scraper fixed** — Rewrote for the site's Inertia.js architecture;
-  was returning 0 results for all users
-- **LinkedIn version fallback** — Automatically tries multiple API versions so a single schema
-  bump no longer breaks the scraper entirely
-- **JobsWithGPT endpoint optional** — Disabled by default (the domain was dead, causing an error on every scrape cycle)
-- **Pre-migration database backup** — SQLite database is backed up automatically before any schema migration runs
-- **User-agent updated** — All scrapers now identify as Chrome 131 (was Chrome 120, 14 months stale)
-- **CI trimmed** — Removed Playwright e2e and cross-platform build checks from PR CI; full builds run only on releases
-- **Security patches** — 7 Dependabot vulnerabilities resolved (jsdom, Tauri plugins, pdf-extract, and more)
+- **Settings infinite loading fixed** — Settings page no longer spins forever on first load
+- **NaN score handling** — Jobs with missing salary or scoring data now display correctly instead of showing NaN
+- **Bulk operation resilience** — Bulk bookmark/hide operations no longer fail silently when one job errors
+- **45 new tests** — Expanded coverage for Settings, scoring edge cases, and bulk operations
+- **Security updates** — Dependabot patches for transitive dependencies
 
 ---
 

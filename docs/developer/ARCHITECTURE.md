@@ -1,6 +1,6 @@
 # Architecture Documentation
 
-**JobSentinel v2.6.3 System Architecture**
+**JobSentinel v2.6.4 System Architecture**
 
 ---
 
@@ -834,5 +834,5 @@ match result {
 ---
 
 **Last Updated**: March 18, 2026
-**Version**: 2.6.3
+**Version**: 2.6.4
 **Maintained By**: The Rust Mac Overlord 🦀

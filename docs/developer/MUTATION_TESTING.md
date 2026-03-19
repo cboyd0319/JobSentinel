@@ -133,12 +133,12 @@ Summary:
 
 ### Result Categories
 
-| Category | Meaning | Action |
-|----------|---------|--------|
-| **Caught** ✅ | Test suite detected the mutation | Good! Tests working correctly |
-| **Missed** ❌ | Mutation survived (no test failed) | Add/improve tests for this case |
-| **Unviable** ⚠️ | Mutation caused compile error | Ignore (artifact of mutation) |
-| **Timeout** ⏱️ | Tests took too long | Adjust timeout multiplier |
+| Category        | Meaning                            | Action                          |
+| --------------- | ---------------------------------- | ------------------------------- |
+| **Caught** ✅   | Test suite detected the mutation   | Good! Tests working correctly   |
+| **Missed** ❌   | Mutation survived (no test failed) | Add/improve tests for this case |
+| **Unviable** ⚠️ | Mutation caused compile error      | Ignore (artifact of mutation)   |
+| **Timeout** ⏱️  | Tests took too long                | Adjust timeout multiplier       |
 
 ---
 
@@ -361,7 +361,7 @@ name: Mutation Testing
 on:
   pull_request:
     paths:
-      - 'src-tauri/src/**'
+      - "src-tauri/src/**"
 
 jobs:
   mutants:
@@ -395,12 +395,12 @@ jobs:
 
 ### Module Scores (Example)
 
-| Module | Mutations | Caught | Score | Status |
-|--------|-----------|--------|-------|--------|
-| `core/config` | 85 | 83 | 97.6% | ✅ Excellent |
-| `core/db` | 42 | 40 | 95.2% | ✅ Excellent |
-| `core/scrapers` | 38 | 32 | 84.2% | ⚠️ Needs work |
-| `core/notify` | 15 | 15 | 100% | ✅ Perfect |
+| Module          | Mutations | Caught | Score | Status        |
+| --------------- | --------- | ------ | ----- | ------------- |
+| `core/config`   | 85        | 83     | 97.6% | ✅ Excellent  |
+| `core/db`       | 42        | 40     | 95.2% | ✅ Excellent  |
+| `core/scrapers` | 38        | 32     | 84.2% | ⚠️ Needs work |
+| `core/notify`   | 15        | 15     | 100%  | ✅ Perfect    |
 
 ### When to Improve
 
@@ -466,9 +466,9 @@ exclude_functions = ["::function_name"]
 
 **Mutation testing complements traditional testing:**
 
-| Metric | What it measures |
-|--------|------------------|
-| **Code coverage** | Which lines are executed |
+| Metric             | What it measures                  |
+| ------------------ | --------------------------------- |
+| **Code coverage**  | Which lines are executed          |
 | **Mutation score** | Which lines are *properly* tested |
 
 **Goal:** 90%+ mutation catch rate for critical modules
@@ -482,6 +482,6 @@ exclude_functions = ["::function_name"]
 
 ---
 
-**Last Updated**: January 25, 2026
-**Version**: v2.6.3
+**Last Updated**: March 18, 2026
+**Version**: v2.6.4
 **Maintained By**: The Rust Mac Overlord 🦀

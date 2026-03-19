@@ -34,13 +34,13 @@ The system detects a job's remote status from multiple sources:
 
 Users can express their work preference through config flags (`allow_remote`, `allow_hybrid`, `allow_onsite`):
 
-| Flags | Derived Preference | Meaning |
-|-------|-------------------|---------|
-| `(true, false, false)` | `RemoteOnly` | Only accept remote jobs |
-| `(true, true, false)` | `RemotePreferred` | Prefer remote, accept hybrid/onsite with penalty |
-| `(false, true, false)` | `HybridPreferred` | Prefer hybrid, accept remote/onsite with slight penalty |
-| `(false, false, true)` | `OnsitePreferred` | Prefer onsite, accept hybrid/remote with penalty |
-| `(true, true, true)` | `Flexible` | Accept all work arrangements equally |
+| Flags                  | Derived Preference | Meaning                                                 |
+| ---------------------- | ------------------ | ------------------------------------------------------- |
+| `(true, false, false)` | `RemoteOnly`       | Only accept remote jobs                                 |
+| `(true, true, false)`  | `RemotePreferred`  | Prefer remote, accept hybrid/onsite with penalty        |
+| `(false, true, false)` | `HybridPreferred`  | Prefer hybrid, accept remote/onsite with slight penalty |
+| `(false, false, true)` | `OnsitePreferred`  | Prefer onsite, accept hybrid/remote with penalty        |
+| `(true, true, true)`   | `Flexible`         | Accept all work arrangements equally                    |
 
 ### 3. Graduated Scoring Matrix
 
@@ -48,48 +48,48 @@ Instead of 0 or 1.0, jobs receive graduated scores based on preference match:
 
 #### RemoteOnly Preference
 
-| Job Type | Score | Reason |
-|----------|-------|--------|
-| Remote | 1.0 | ✓ Perfect match |
-| Hybrid | 0.5 | ⚠ Prefer remote-only |
-| Onsite | 0.1 | ✗ Remote-only preferred |
-| Unspecified | 0.3 | ⚠ Not specified (remote-only preferred) |
+| Job Type    | Score | Reason                                  |
+| ----------- | ----- | --------------------------------------- |
+| Remote      | 1.0   | ✓ Perfect match                         |
+| Hybrid      | 0.5   | ⚠ Prefer remote-only                    |
+| Onsite      | 0.1   | ✗ Remote-only preferred                 |
+| Unspecified | 0.3   | ⚠ Not specified (remote-only preferred) |
 
 #### RemotePreferred
 
-| Job Type | Score | Reason |
-|----------|-------|--------|
-| Remote | 1.0 | ✓ Preferred |
-| Hybrid | 0.7 | ✓ Acceptable |
-| Onsite | 0.4 | ⚠ Remote preferred |
-| Unspecified | 0.6 | ⚠ Not specified |
+| Job Type    | Score | Reason             |
+| ----------- | ----- | ------------------ |
+| Remote      | 1.0   | ✓ Preferred        |
+| Hybrid      | 0.7   | ✓ Acceptable       |
+| Onsite      | 0.4   | ⚠ Remote preferred |
+| Unspecified | 0.6   | ⚠ Not specified    |
 
 #### HybridPreferred
 
-| Job Type | Score | Reason |
-|----------|-------|--------|
-| Hybrid | 1.0 | ✓ Preferred |
-| Remote | 0.8 | ✓ Acceptable |
-| Onsite | 0.6 | ✓ Acceptable |
-| Unspecified | 0.7 | ⚠ Not specified |
+| Job Type    | Score | Reason          |
+| ----------- | ----- | --------------- |
+| Hybrid      | 1.0   | ✓ Preferred     |
+| Remote      | 0.8   | ✓ Acceptable    |
+| Onsite      | 0.6   | ✓ Acceptable    |
+| Unspecified | 0.7   | ⚠ Not specified |
 
 #### OnsitePreferred
 
-| Job Type | Score | Reason |
-|----------|-------|--------|
-| Onsite | 1.0 | ✓ Preferred |
-| Hybrid | 0.7 | ✓ Acceptable |
-| Remote | 0.5 | ⚠ Onsite preferred |
-| Unspecified | 0.6 | ⚠ Not specified |
+| Job Type    | Score | Reason             |
+| ----------- | ----- | ------------------ |
+| Onsite      | 1.0   | ✓ Preferred        |
+| Hybrid      | 0.7   | ✓ Acceptable       |
+| Remote      | 0.5   | ⚠ Onsite preferred |
+| Unspecified | 0.6   | ⚠ Not specified    |
 
 #### Flexible
 
-| Job Type | Score | Reason |
-|----------|-------|--------|
-| Remote | 1.0 | ✓ Remote job |
-| Hybrid | 1.0 | ✓ Hybrid job |
-| Onsite | 1.0 | ✓ Onsite job |
-| Unspecified | 0.8 | ⚠ Not specified (assuming flexible) |
+| Job Type    | Score | Reason                              |
+| ----------- | ----- | ----------------------------------- |
+| Remote      | 1.0   | ✓ Remote job                        |
+| Hybrid      | 1.0   | ✓ Hybrid job                        |
+| Onsite      | 1.0   | ✓ Onsite job                        |
+| Unspecified | 0.8   | ⚠ Not specified (assuming flexible) |
 
 ## Implementation Details
 
@@ -177,4 +177,4 @@ Potential improvements for v2.0+:
 
 ---
 
-**Version:** 2.6.3 | **Last Updated:** January 25, 2026
+**Version:** 2.6.4 | **Last Updated:** March 18, 2026

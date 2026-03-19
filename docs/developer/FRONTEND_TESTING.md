@@ -1,6 +1,6 @@
 # Frontend Testing Guide
 
-**Complete guide to testing React components and features in JobSentinel v2.6.3**
+**Complete guide to testing React components and features in JobSentinel v2.6.4**
 
 ---
 
@@ -424,7 +424,9 @@ import { useKeyboardNavigation } from "./useKeyboardNavigation";
 
 describe("useKeyboardNavigation", () => {
   it("should navigate to next item on ArrowDown", () => {
-    const { result } = renderHook(() => useKeyboardNavigation(["Item 1", "Item 2", "Item 3"]));
+    const { result } = renderHook(() =>
+      useKeyboardNavigation(["Item 1", "Item 2", "Item 3"]),
+    );
 
     expect(result.current.selectedIndex).toBe(0);
 
@@ -646,13 +648,13 @@ npm run test:e2e
 
 ### Test Coverage Goals
 
-| Category | Target | Method |
-|----------|--------|--------|
-| Components | 80%+ | Unit tests per component |
-| Hooks | 85%+ | Hook-specific tests |
-| Utils | 90%+ | Unit tests for functions |
-| Critical flows | 100% | E2E tests for main workflows |
-| Accessibility | 100% | Semantic queries in all tests |
+| Category       | Target | Method                        |
+| -------------- | ------ | ----------------------------- |
+| Components     | 80%+   | Unit tests per component      |
+| Hooks          | 85%+   | Hook-specific tests           |
+| Utils          | 90%+   | Unit tests for functions      |
+| Critical flows | 100%   | E2E tests for main workflows  |
+| Accessibility  | 100%   | Semantic queries in all tests |
 
 ### Running Coverage Reports
 
@@ -771,9 +773,9 @@ test("should open external link in browser", async () => {
 
 ---
 
-**Last Updated**: January 25, 2026
+**Last Updated**: March 18, 2026
 **Test Count**: 2,274+ passing frontend tests
 **Stack**: Vitest 4.0.17 + React Testing Library 16.3.1 + Playwright 1.57.0
 **Target**: React 19 + Tauri 2.x
-**Version**: v2.6.3
+**Version**: v2.6.4
 **Maintained By**: JobSentinel Team

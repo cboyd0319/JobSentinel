@@ -2,7 +2,7 @@
 
 ## Project Status
 
-**Version 2.6.3** (March 2026)
+**Version 2.6.4** (March 2026)
 
 | Component                                                                                                                            | Status                                       |
 | ------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------- |
@@ -77,14 +77,14 @@ rustup target add aarch64-apple-darwin x86_64-apple-darwin
 cd src-tauri && cargo tauri build --target universal-apple-darwin
 
 # Windows MSI installer output
-# src-tauri/target/release/bundle/msi/JobSentinel_2.6.3_x64_en-US.msi
+# src-tauri/target/release/bundle/msi/JobSentinel_2.6.4_x64_en-US.msi
 
 # macOS Universal DMG output
-# src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_2.6.3_universal.dmg
+# src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_2.6.4_universal.dmg
 
 # Linux packages output
-# src-tauri/target/release/bundle/deb/JobSentinel_2.6.3_amd64.deb
-# src-tauri/target/release/bundle/appimage/JobSentinel_2.6.3_amd64.AppImage
+# src-tauri/target/release/bundle/deb/JobSentinel_2.6.4_amd64.deb
+# src-tauri/target/release/bundle/appimage/JobSentinel_2.6.4_amd64.AppImage
 ```
 
 ### Project Structure

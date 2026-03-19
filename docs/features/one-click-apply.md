@@ -27,15 +27,15 @@ This is intentional - we never apply to jobs without your explicit approval.
 
 JobSentinel works with these popular hiring platforms:
 
-| Platform | Where You'll See It |
-|----------|---------------------|
-| **Greenhouse** | Most tech companies |
-| **Lever** | Startups, mid-size tech |
-| **Workday** | Enterprise companies |
-| **Taleo** | Large corporations |
-| **iCIMS** | Various industries |
-| **BambooHR** | Small to medium companies |
-| **Ashby** | Modern tech companies |
+| Platform       | Where You'll See It       |
+| -------------- | ------------------------- |
+| **Greenhouse** | Most tech companies       |
+| **Lever**      | Startups, mid-size tech   |
+| **Workday**    | Enterprise companies      |
+| **Taleo**      | Large corporations        |
+| **iCIMS**      | Various industries        |
+| **BambooHR**   | Small to medium companies |
+| **Ashby**      | Modern tech companies     |
 
 Don't see your platform? JobSentinel tries generic form filling on unknown sites -
 it often works!
@@ -93,12 +93,12 @@ You can pre-configure answers for common questions:
 
 ### Example Patterns
 
-| Pattern | Matches Questions Like... |
-|---------|---------------------------|
-| `years.*experience` | "How many years of experience..." |
+| Pattern                | Matches Questions Like...         |
+| ---------------------- | --------------------------------- |
+| `years.*experience`    | "How many years of experience..." |
 | `salary\|compensation` | "What is your expected salary..." |
-| `notice.*period` | "What is your notice period..." |
-| `willing.*relocate` | "Are you willing to relocate..." |
+| `notice.*period`       | "What is your notice period..."   |
+| `willing.*relocate`    | "Are you willing to relocate..."  |
 
 The patterns are flexible (regex), so they'll match variations of the same question.
 
@@ -295,4 +295,4 @@ The first selector that finds an element is used.
 
 ---
 
-**Version:** 2.6.3 | **Last Updated:** January 25, 2026
+**Version:** 2.6.4 | **Last Updated:** March 18, 2026

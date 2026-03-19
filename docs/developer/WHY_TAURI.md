@@ -1,7 +1,7 @@
 # Why Tauri? Architecture Decision
 
-**Last Updated:** January 25, 2026
-**Version:** v2.6.3
+**Last Updated:** March 18, 2026
+**Version:** v2.6.4
 
 ---
 
@@ -15,15 +15,15 @@ computers.
 
 ## The Comparison
 
-| Metric | Tauri | Electron (Chrome) | Web App |
-|--------|-------|-------------------|---------|
-| **App size** | ~8MB | ~150MB | N/A (server) |
-| **Memory usage** | ~50MB | ~300MB+ | Browser tab |
-| **Startup time** | <0.5s | 2-5s | Network dependent |
-| **Backend language** | Rust | Node.js | Any |
-| **Telemetry** | None | Chromium telemetry | Server logs |
-| **Works offline** | Yes | Yes | No |
-| **Data privacy** | 100% local | 100% local | Server-dependent |
+| Metric               | Tauri      | Electron (Chrome)  | Web App           |
+| -------------------- | ---------- | ------------------ | ----------------- |
+| **App size**         | ~8MB       | ~150MB             | N/A (server)      |
+| **Memory usage**     | ~50MB      | ~300MB+            | Browser tab       |
+| **Startup time**     | <0.5s      | 2-5s               | Network dependent |
+| **Backend language** | Rust       | Node.js            | Any               |
+| **Telemetry**        | None       | Chromium telemetry | Server logs       |
+| **Works offline**    | Yes        | Yes                | No                |
+| **Data privacy**     | 100% local | 100% local         | Server-dependent  |
 
 ---
 
@@ -158,11 +158,11 @@ Tauri's killer feature is the Rust backend. This enables:
 
 Instead of bundling Chrome, Tauri uses the OS's built-in webview:
 
-| OS | Webview | Already Installed? |
-|----|---------|-------------------|
-| Windows 11+ | WebView2 (Edge) | Yes |
-| macOS | WebKit (Safari) | Yes |
-| Linux | WebKitGTK | Usually |
+| OS          | Webview         | Already Installed? |
+| ----------- | --------------- | ------------------ |
+| Windows 11+ | WebView2 (Edge) | Yes                |
+| macOS       | WebKit (Safari) | Yes                |
+| Linux       | WebKitGTK       | Usually            |
 
 This means:
 
@@ -195,14 +195,14 @@ Tauri 2.0 (which JobSentinel uses) was released in late 2024 with:
 
 JobSentinel's core promise is privacy. Here's how Tauri enables that:
 
-| Privacy Feature | How Tauri Helps |
-|-----------------|-----------------|
-| No telemetry | Native webview has no Google tracking |
-| Local-only data | SQLite database on user's machine |
-| No cloud dependency | Rust backend runs entirely locally |
-| No account required | No server = no user accounts |
-| Open source | Users can audit every line of code |
-| Offline capable | Works without internet (except scraping) |
+| Privacy Feature     | How Tauri Helps                          |
+| ------------------- | ---------------------------------------- |
+| No telemetry        | Native webview has no Google tracking    |
+| Local-only data     | SQLite database on user's machine        |
+| No cloud dependency | Rust backend runs entirely locally       |
+| No account required | No server = no user accounts             |
+| Open source         | Users can audit every line of code       |
+| Offline capable     | Works without internet (except scraping) |
 
 ---
 
@@ -210,14 +210,14 @@ JobSentinel's core promise is privacy. Here's how Tauri enables that:
 
 Real-world measurements on a 2024 MacBook Pro:
 
-| Operation | Time |
-|-----------|------|
-| Cold start | 0.4s |
-| Hot start | 0.2s |
+| Operation            | Time   |
+| -------------------- | ------ |
+| Cold start           | 0.4s   |
+| Hot start            | 0.2s   |
 | Scrape 13 job boards | 30-60s |
-| Search 10,000 jobs | <50ms |
-| Memory (idle) | 45MB |
-| Memory (active) | 80MB |
+| Search 10,000 jobs   | <50ms  |
+| Memory (idle)        | 45MB   |
+| Memory (active)      | 80MB   |
 
 Compare to typical Electron apps:
 

@@ -13,18 +13,18 @@ models, and best practices.
 
 ### Core Security Features
 
-| Document | Description | Topics Covered |
-|----------|-------------|----------------|
-| [**KEYRING.md**](./KEYRING.md) | OS-native credential storage | Windows Credential Manager, macOS Keychain, Linux Secret Service |
-| [**XSS_PREVENTION.md**](./XSS_PREVENTION.md) | Cross-site scripting protection | DOMPurify, HTML sanitization, Resume Builder security |
-| [**URL_VALIDATION.md**](./URL_VALIDATION.md) | Secure URL parsing | URL parsing vs string matching, bypass prevention, SSRF protection |
-| [**COMMAND_EXECUTION.md**](./COMMAND_EXECUTION.md) | External command security | Path canonicalization, command injection prevention, OCR security |
-| [**WEBHOOK_SECURITY.md**](./WEBHOOK_SECURITY.md) | Notification webhook security | Slack/Discord/Teams validation, data exfiltration prevention |
+| Document                                           | Description                     | Topics Covered                                                     |
+| -------------------------------------------------- | ------------------------------- | ------------------------------------------------------------------ |
+| [**KEYRING.md**](./KEYRING.md)                     | OS-native credential storage    | Windows Credential Manager, macOS Keychain, Linux Secret Service   |
+| [**XSS_PREVENTION.md**](./XSS_PREVENTION.md)       | Cross-site scripting protection | DOMPurify, HTML sanitization, Resume Builder security              |
+| [**URL_VALIDATION.md**](./URL_VALIDATION.md)       | Secure URL parsing              | URL parsing vs string matching, bypass prevention, SSRF protection |
+| [**COMMAND_EXECUTION.md**](./COMMAND_EXECUTION.md) | External command security       | Path canonicalization, command injection prevention, OCR security  |
+| [**WEBHOOK_SECURITY.md**](./WEBHOOK_SECURITY.md)   | Notification webhook security   | Slack/Discord/Teams validation, data exfiltration prevention       |
 
 ### Testing Resources
 
-| File | Purpose |
-|------|---------|
+| File                                                           | Purpose                                                 |
+| -------------------------------------------------------------- | ------------------------------------------------------- |
 | [**dompurify-test-examples.js**](./dompurify-test-examples.js) | XSS sanitization test cases for browser console testing |
 
 ---
@@ -33,27 +33,27 @@ models, and best practices.
 
 ### Security by Feature
 
-| Feature | Security Measures | Documentation |
-|---------|-------------------|---------------|
-| **Resume Builder** | DOMPurify sanitization, XSS prevention | [XSS_PREVENTION.md](./XSS_PREVENTION.md) |
-| **Credential Storage** | OS keyring, encrypted at rest, no plaintext | [KEYRING.md](./KEYRING.md) |
-| **Webhook Notifications** | URL parsing, HTTPS-only, allowlisting | [WEBHOOK_SECURITY.md](./WEBHOOK_SECURITY.md) |
-| **OCR (Resume Parsing)** | Path canonicalization, no shell invocation | [COMMAND_EXECUTION.md](./COMMAND_EXECUTION.md) |
-| **Database** | SQLx parameterized queries, SQL injection prevention | [../../SECURITY.md](../../SECURITY.md) |
-| **Network** | TLS everywhere (rustls), no HTTP fallback | [../../SECURITY.md](../../SECURITY.md) |
+| Feature                   | Security Measures                                    | Documentation                                  |
+| ------------------------- | ---------------------------------------------------- | ---------------------------------------------- |
+| **Resume Builder**        | DOMPurify sanitization, XSS prevention               | [XSS_PREVENTION.md](./XSS_PREVENTION.md)       |
+| **Credential Storage**    | OS keyring, encrypted at rest, no plaintext          | [KEYRING.md](./KEYRING.md)                     |
+| **Webhook Notifications** | URL parsing, HTTPS-only, allowlisting                | [WEBHOOK_SECURITY.md](./WEBHOOK_SECURITY.md)   |
+| **OCR (Resume Parsing)**  | Path canonicalization, no shell invocation           | [COMMAND_EXECUTION.md](./COMMAND_EXECUTION.md) |
+| **Database**              | SQLx parameterized queries, SQL injection prevention | [../../SECURITY.md](../../SECURITY.md)         |
+| **Network**               | TLS everywhere (rustls), no HTTP fallback            | [../../SECURITY.md](../../SECURITY.md)         |
 
 ### Security by Threat
 
-| Threat | Mitigation | Documentation |
-|--------|------------|---------------|
-| **XSS (Cross-Site Scripting)** | DOMPurify HTML sanitization | [XSS_PREVENTION.md](./XSS_PREVENTION.md) |
-| **Data Exfiltration** | Webhook URL validation, domain allowlisting | [WEBHOOK_SECURITY.md](./WEBHOOK_SECURITY.md) |
-| **Command Injection** | No shell invocation, argument validation | [COMMAND_EXECUTION.md](./COMMAND_EXECUTION.md) |
-| **Path Traversal** | Path canonicalization, directory validation | [COMMAND_EXECUTION.md](./COMMAND_EXECUTION.md) |
-| **URL Bypass Attacks** | Proper URL parsing with `url` crate | [URL_VALIDATION.md](./URL_VALIDATION.md) |
-| **Credential Theft** | OS keyring encryption, access control | [KEYRING.md](./KEYRING.md) |
-| **SQL Injection** | Parameterized queries (SQLx) | [../../SECURITY.md](../../SECURITY.md) |
-| **MITM (Man-in-the-Middle)** | HTTPS-only, TLS certificate validation | [WEBHOOK_SECURITY.md](./WEBHOOK_SECURITY.md) |
+| Threat                         | Mitigation                                  | Documentation                                  |
+| ------------------------------ | ------------------------------------------- | ---------------------------------------------- |
+| **XSS (Cross-Site Scripting)** | DOMPurify HTML sanitization                 | [XSS_PREVENTION.md](./XSS_PREVENTION.md)       |
+| **Data Exfiltration**          | Webhook URL validation, domain allowlisting | [WEBHOOK_SECURITY.md](./WEBHOOK_SECURITY.md)   |
+| **Command Injection**          | No shell invocation, argument validation    | [COMMAND_EXECUTION.md](./COMMAND_EXECUTION.md) |
+| **Path Traversal**             | Path canonicalization, directory validation | [COMMAND_EXECUTION.md](./COMMAND_EXECUTION.md) |
+| **URL Bypass Attacks**         | Proper URL parsing with `url` crate         | [URL_VALIDATION.md](./URL_VALIDATION.md)       |
+| **Credential Theft**           | OS keyring encryption, access control       | [KEYRING.md](./KEYRING.md)                     |
+| **SQL Injection**              | Parameterized queries (SQLx)                | [../../SECURITY.md](../../SECURITY.md)         |
+| **MITM (Man-in-the-Middle)**   | HTTPS-only, TLS certificate validation      | [WEBHOOK_SECURITY.md](./WEBHOOK_SECURITY.md)   |
 
 ---
 
@@ -214,12 +214,12 @@ Security fixes are released as:
 
 ### Severity Levels
 
-| Level | Description | Response Time |
-|-------|-------------|---------------|
-| **Critical** | Remote code execution, data breach | < 24 hours |
-| **High** | Privilege escalation, credential theft | < 1 week |
-| **Medium** | Denial of service, information disclosure | < 2 weeks |
-| **Low** | Minor information leak, low-impact issue | < 4 weeks |
+| Level        | Description                               | Response Time |
+| ------------ | ----------------------------------------- | ------------- |
+| **Critical** | Remote code execution, data breach        | < 24 hours    |
+| **High**     | Privilege escalation, credential theft    | < 1 week      |
+| **Medium**   | Denial of service, information disclosure | < 2 weeks     |
+| **Low**      | Minor information leak, low-impact issue  | < 4 weeks     |
 
 ---
 
@@ -348,6 +348,6 @@ For security-related questions or private disclosure:
 
 ---
 
-**Last Updated**: 2026-01-25
-**JobSentinel Version**: 2.6.3
+**Last Updated**: 2026-03-18
+**JobSentinel Version**: 2.6.4
 **Security Level**: Production Ready

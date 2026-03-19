@@ -3,8 +3,8 @@
 **Find the best job matches automatically with intelligent multi-factor scoring.**
 
 > **Status:** ENABLED - Module fully functional
-> **Version:** 2.6.3
-> **Last Updated:** 2026-01-25
+> **Version:** 2.6.4
+> **Last Updated:** 2026-03-18
 
 ---
 
@@ -33,13 +33,13 @@ algorithm prioritize the best matches for you.
 Every job score is calculated by evaluating five factors and combining them into a single 0-100%
 score. Here's what each factor measures:
 
-| Factor | Weight | What It Measures |
-|--------|--------|------------------|
-| **Skills Match** | 40% | How well your skills match the job requirements |
-| **Salary** | 25% | How the job salary compares to your target |
-| **Location** | 20% | How well the job matches your remote/onsite preferences |
-| **Company** | 10% | Whether you've whitelisted or blacklisted the company |
-| **Recency** | 5% | How fresh the job posting is |
+| Factor           | Weight | What It Measures                                        |
+| ---------------- | ------ | ------------------------------------------------------- |
+| **Skills Match** | 40%    | How well your skills match the job requirements         |
+| **Salary**       | 25%    | How the job salary compares to your target              |
+| **Location**     | 20%    | How well the job matches your remote/onsite preferences |
+| **Company**      | 10%    | Whether you've whitelisted or blacklisted the company   |
+| **Recency**      | 5%     | How fresh the job posting is                            |
 
 **Total always equals 100%.** These weights are defaults—you can customize them in Settings.
 
@@ -146,14 +146,14 @@ Skills Factor: (100% × 0.7) + (40% × 0.3) = 70% + 12% = 82%
 
 The system recognizes equivalent skills and keywords:
 
-| Category | Synonyms |
-|----------|----------|
-| JavaScript | JS, JavaScript, Node |
-| React | React, ReactJS, React.js |
-| Python | Python, Py |
-| SQL | SQL, T-SQL, MySQL, PostgreSQL |
-| AWS | AWS, Amazon Web Services |
-| CI/CD | CI/CD, CI-CD, continuous integration |
+| Category   | Synonyms                             |
+| ---------- | ------------------------------------ |
+| JavaScript | JS, JavaScript, Node                 |
+| React      | React, ReactJS, React.js             |
+| Python     | Python, Py                           |
+| SQL        | SQL, T-SQL, MySQL, PostgreSQL        |
+| AWS        | AWS, Amazon Web Services             |
+| CI/CD      | CI/CD, CI-CD, continuous integration |
 
 For complete synonym reference, see [Synonym Matching Guide](synonym-matching.md).
 
@@ -167,26 +167,26 @@ The salary factor rewards jobs that match your target salary range and penalizes
 
 Instead of a simple yes/no, salary scoring is graduated:
 
-| Salary Range | Score | Meaning |
-|--------------|-------|---------|
-| **120%+** of target | 100% | Excellent, pays premium |
-| **100-120%** of target | 100% | Perfect match |
-| **80-100%** of target | 80-100% | Good, slightly below target |
-| **60-80%** of target | 60-80% | Acceptable but low |
-| **30-60%** of target | 20-40% | Significantly below target |
-| **<30%** of target | 0-20% | Too low to consider |
+| Salary Range           | Score   | Meaning                     |
+| ---------------------- | ------- | --------------------------- |
+| **120%+** of target    | 100%    | Excellent, pays premium     |
+| **100-120%** of target | 100%    | Perfect match               |
+| **80-100%** of target  | 80-100% | Good, slightly below target |
+| **60-80%** of target   | 60-80%  | Acceptable but low          |
+| **30-60%** of target   | 20-40%  | Significantly below target  |
+| **<30%** of target     | 0-20%   | Too low to consider         |
 
 ### Example
 
 Your target salary: **$150,000**
 
-| Job Salary | Calculation | Score |
-|------------|-------------|-------|
-| $200,000 | 133% of target | 100% |
-| $150,000 | 100% of target | 100% |
-| $120,000 | 80% of target | 80% |
-| $90,000 | 60% of target | 60% |
-| $50,000 | 33% of target | 20% |
+| Job Salary | Calculation    | Score |
+| ---------- | -------------- | ----- |
+| $200,000   | 133% of target | 100%  |
+| $150,000   | 100% of target | 100%  |
+| $120,000   | 80% of target  | 80%   |
+| $90,000    | 60% of target  | 60%   |
+| $50,000    | 33% of target  | 20%   |
 
 ### How It Handles Missing Data
 
@@ -237,33 +237,33 @@ The location factor prioritizes jobs that match your remote/hybrid/onsite prefer
 
 Choose your ideal work arrangement:
 
-| Preference | Accepts | Best Score Job Type |
-|------------|---------|---|
-| **Remote Only** | Remote jobs only | Remote |
+| Preference           | Accepts                  | Best Score Job Type                       |
+| -------------------- | ------------------------ | ----------------------------------------- |
+| **Remote Only**      | Remote jobs only         | Remote                                    |
 | **Remote Preferred** | Remote + Hybrid + Onsite | Remote (100%), Hybrid (70%), Onsite (40%) |
 | **Hybrid Preferred** | Hybrid + Remote + Onsite | Hybrid (100%), Remote (80%), Onsite (60%) |
 | **Onsite Preferred** | Onsite + Hybrid + Remote | Onsite (100%), Hybrid (70%), Remote (50%) |
-| **Flexible** | All work arrangements | All (100%) |
+| **Flexible**         | All work arrangements    | All (100%)                                |
 
 ### Graduated Scoring Examples
 
 **If you prefer Remote:**
 
-| Job Type | Score | Reasoning |
-|----------|-------|-----------|
-| Fully Remote | 100% | Perfect match |
-| Hybrid | 70% | Mostly remote, acceptable |
-| Onsite | 40% | Not what you want, but possible |
-| Unspecified | 60% | Unknown, give benefit of doubt |
+| Job Type     | Score | Reasoning                       |
+| ------------ | ----- | ------------------------------- |
+| Fully Remote | 100%  | Perfect match                   |
+| Hybrid       | 70%   | Mostly remote, acceptable       |
+| Onsite       | 40%   | Not what you want, but possible |
+| Unspecified  | 60%   | Unknown, give benefit of doubt  |
 
 **If you prefer Hybrid:**
 
-| Job Type | Score | Reasoning |
-|----------|-------|-----------|
-| Hybrid | 100% | Perfect match |
-| Remote | 80% | More flexibility, acceptable |
-| Onsite | 60% | Less flexible, acceptable |
-| Unspecified | 70% | Unknown, assume reasonable |
+| Job Type    | Score | Reasoning                    |
+| ----------- | ----- | ---------------------------- |
+| Hybrid      | 100%  | Perfect match                |
+| Remote      | 80%   | More flexibility, acceptable |
+| Onsite      | 60%   | Less flexible, acceptable    |
+| Unspecified | 70%   | Unknown, assume reasonable   |
 
 ### Detection from Job Data
 
@@ -379,14 +379,14 @@ The recency factor prioritizes fresh job postings over stale ones.
 
 Newer jobs score higher than older ones, with a gradual decline over time:
 
-| Posting Age | Score |
-|-------------|-------|
-| Posted today | 100% |
-| Posted 1 week ago | 90% |
-| Posted 2 weeks ago | 80% |
-| Posted 1 month ago | 70% |
-| Posted 2 months ago | 40% |
-| Posted 3+ months ago | 10% |
+| Posting Age          | Score |
+| -------------------- | ----- |
+| Posted today         | 100%  |
+| Posted 1 week ago    | 90%   |
+| Posted 2 weeks ago   | 80%   |
+| Posted 1 month ago   | 70%   |
+| Posted 2 months ago  | 40%   |
+| Posted 3+ months ago | 10%   |
 
 ### Why It Matters
 
@@ -622,54 +622,54 @@ Quick shortcuts for common scenarios:
 
 ```typescript
 // Get job score and breakdown
-invoke('get_job_score', { job_hash: 'abc123' })
+invoke("get_job_score", { job_hash: "abc123" });
 // Returns: { total: 0.78, breakdown: {...}, reasons: [...] }
 
 // Score all jobs
-invoke('score_all_jobs')
+invoke("score_all_jobs");
 
 // Get current scoring config
-invoke('get_scoring_config')
+invoke("get_scoring_config");
 // Returns: ScoringConfig
 
 // Update scoring weights
-invoke('set_scoring_weights', {
-  skills_weight: 0.40,
+invoke("set_scoring_weights", {
+  skills_weight: 0.4,
   salary_weight: 0.25,
-  location_weight: 0.20,
-  company_weight: 0.10,
-  recency_weight: 0.05
-})
+  location_weight: 0.2,
+  company_weight: 0.1,
+  recency_weight: 0.05,
+});
 
 // Get job score breakdown with explanations
-invoke('get_score_breakdown', { job_hash: 'abc123' })
+invoke("get_score_breakdown", { job_hash: "abc123" });
 // Returns detailed breakdown with human-readable reasons
 
 // Update skills preferences
-invoke('set_skills_preferences', {
-  allowed_titles: ['Software Engineer', 'Backend Developer'],
-  blocked_titles: ['Sales Engineer'],
-  boosted_keywords: ['React', 'TypeScript'],
-  excluded_keywords: ['VB.NET']
-})
+invoke("set_skills_preferences", {
+  allowed_titles: ["Software Engineer", "Backend Developer"],
+  blocked_titles: ["Sales Engineer"],
+  boosted_keywords: ["React", "TypeScript"],
+  excluded_keywords: ["VB.NET"],
+});
 
 // Update salary preferences
-invoke('set_salary_preferences', {
+invoke("set_salary_preferences", {
   target_salary: 150000,
   minimum_salary: 100000,
-  currency: 'USD'
-})
+  currency: "USD",
+});
 
 // Update location preferences
-invoke('set_location_preference', {
-  preference: 'RemotePreferred'  // or RemoteOnly, HybridPreferred, OnsitePreferred, Flexible
-})
+invoke("set_location_preference", {
+  preference: "RemotePreferred", // or RemoteOnly, HybridPreferred, OnsitePreferred, Flexible
+});
 
 // Update company whitelist/blacklist
-invoke('set_company_preferences', {
-  whitelist: ['Microsoft', 'Google'],
-  blacklist: ['Spam Corp']
-})
+invoke("set_company_preferences", {
+  whitelist: ["Microsoft", "Google"],
+  blacklist: ["Spam Corp"],
+});
 ```
 
 ### Rust API
@@ -782,18 +782,19 @@ Without these, the system falls back to keyword-only matching.
 
 ## Version History
 
-| Version | Date | Changes |
-|---------|------|---------|
-| **2.6.3** | 2026-01-25 | Security fixes, standardized error types |
-| **2.2** | 2026-01-17 | Resume integration, score breakdown modal, weight presets |
-| **2.1** | 2025-12-01 | Salary AI prediction, graduated scoring for all factors |
-| **2.0** | 2025-11-15 | Multi-factor algorithm launch, customizable weights |
-| **1.6** | 2025-10-01 | Initial keyword-based scoring |
+| Version   | Date       | Changes                                                     |
+| --------- | ---------- | ----------------------------------------------------------- |
+| **2.6.4** | 2026-03-18 | Settings fix, NaN score handling, bulk operation resilience |
+| **2.6.3** | 2026-01-25 | Security fixes, standardized error types                    |
+| **2.2**   | 2026-01-17 | Resume integration, score breakdown modal, weight presets   |
+| **2.1**   | 2025-12-01 | Salary AI prediction, graduated scoring for all factors     |
+| **2.0**   | 2025-11-15 | Multi-factor algorithm launch, customizable weights         |
+| **1.6**   | 2025-10-01 | Initial keyword-based scoring                               |
 
 ---
 
-**Last Updated:** 2026-01-25
-**Version:** 2.6.3
+**Last Updated:** 2026-03-18
+**Version:** 2.6.4
 **Maintained By:** JobSentinel Core Team
 **Implementation Status:** ✅ Complete (All features implemented)
 **Next Phase:** ML-based skills matching (v2.7)

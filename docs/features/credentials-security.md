@@ -30,14 +30,14 @@ Your credentials are encrypted at rest and only decrypted when JobSentinel asks 
 
 These credentials are automatically stored in your OS keyring:
 
-| Credential | Used For |
-|-----------|----------|
-| **Slack webhook URL** | Job notifications to Slack |
-| **Discord webhook URL** | Job notifications to Discord |
-| **Microsoft Teams webhook URL** | Job notifications to Teams |
-| **Email SMTP password** | Sending job alerts via email |
-| **LinkedIn session cookies** | Scraping LinkedIn job postings |
-| **Telegram bot token** | Job notifications via Telegram |
+| Credential                      | Used For                       |
+| ------------------------------- | ------------------------------ |
+| **Slack webhook URL**           | Job notifications to Slack     |
+| **Discord webhook URL**         | Job notifications to Discord   |
+| **Microsoft Teams webhook URL** | Job notifications to Teams     |
+| **Email SMTP password**         | Sending job alerts via email   |
+| **LinkedIn session cookies**    | Scraping LinkedIn job postings |
+| **Telegram bot token**          | Job notifications via Telegram |
 
 All other configuration (job boards to scrape, salary thresholds, etc.) stays in `config.json` where it belongs.
 
@@ -291,19 +291,19 @@ React components use Tauri commands for credential operations:
 
 ```typescript
 // Store credential
-await invoke('store_credential', {
-  key: 'slack-webhook',
-  value: webhookUrl
+await invoke("store_credential", {
+  key: "slack-webhook",
+  value: webhookUrl,
 });
 
 // Retrieve credential (automatically decrypted by OS)
-const value = await invoke('retrieve_credential', {
-  key: 'slack-webhook'
+const value = await invoke("retrieve_credential", {
+  key: "slack-webhook",
 });
 
 // Delete credential
-await invoke('delete_credential', {
-  key: 'slack-webhook'
+await invoke("delete_credential", {
+  key: "slack-webhook",
 });
 ```
 
@@ -311,12 +311,12 @@ await invoke('delete_credential', {
 
 Common credential errors:
 
-| Error | Cause | Fix |
-|-------|-------|-----|
-| `PermissionDenied` | User rejected OS access | Re-allow in system settings |
-| `NotFound` | Credential was deleted | Re-enter and save |
-| `ServiceUnavailable` | Keyring service crashed | Restart service (Linux) |
-| `InvalidFormat` | Corrupted credential store | Delete and re-enter |
+| Error                | Cause                      | Fix                         |
+| -------------------- | -------------------------- | --------------------------- |
+| `PermissionDenied`   | User rejected OS access    | Re-allow in system settings |
+| `NotFound`           | Credential was deleted     | Re-enter and save           |
+| `ServiceUnavailable` | Keyring service crashed    | Restart service (Linux)     |
+| `InvalidFormat`      | Corrupted credential store | Delete and re-enter         |
 
 ---
 
@@ -355,4 +355,4 @@ If you're upgrading from JobSentinel v1.x:
 
 ---
 
-**Version:** 2.6.3 | **Last Updated:** January 25, 2026
+**Version:** 2.6.4 | **Last Updated:** March 18, 2026

@@ -151,7 +151,7 @@ The synonym matching system consists of:
 ## Performance
 
 - **Lookup Time:** O(1) - HashMap-based synonym lookup
-- **Matching Time:** O(n*m) where n is number of keyword occurrences, m is average synonym group size
+- **Matching Time:** O(n\*m) where n is number of keyword occurrences, m is average synonym group size
 - **Memory:** Minimal - synonym groups are pre-computed at startup
 
 ## Future Enhancements
@@ -265,4 +265,4 @@ No configuration changes needed! Synonym matching is **backward compatible**:
 
 ---
 
-**Version:** 2.6.3 | **Last Updated:** January 25, 2026
+**Version:** 2.6.4 | **Last Updated:** March 18, 2026

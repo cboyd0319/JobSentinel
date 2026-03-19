@@ -20,7 +20,7 @@ User data management provides four core features for organizing your job search:
 All data is stored locally in SQLite. No data leaves your computer unless you explicitly
 configure external notifications (Slack, Discord, etc.).
 
-**Version:** 2.6.3 | **Status:** Stable | **Last Updated:** January 25, 2026
+**Version:** 2.6.4 | **Status:** Stable | **Last Updated:** March 18, 2026
 
 ---
 
@@ -46,14 +46,14 @@ for company names, positions, and other details.
 
 Insert placeholders for values that change per application:
 
-| Variable | Replaced With |
-|----------|---------------|
-| `{company}` | Company name |
-| `{position}` | Job title |
+| Variable           | Replaced With          |
+| ------------------ | ---------------------- |
+| `{company}`        | Company name           |
+| `{position}`       | Job title              |
 | `{hiring_manager}` | Recruiter/manager name |
-| `{department}` | Team or department |
-| `{location}` | Office location |
-| `{salary_range}` | Expected salary band |
+| `{department}`     | Team or department     |
+| `{location}`       | Office location        |
+| `{salary_range}`   | Expected salary band   |
 
 **Example template:**
 
@@ -224,14 +224,14 @@ Create inclusion and exclusion rules:
 
 Set score thresholds per notification channel:
 
-| Channel | Default Threshold | Recommendation |
-|---------|------------------|-----------------|
-| **Desktop** | 80% | Adjust down for more alerts |
-| **Email** | 85% | Keeps inbox clean |
-| **Slack** | 90% | Best for quality jobs |
-| **Discord** | 90% | Best for quality jobs |
-| **Telegram** | 85% | Mobile-friendly |
-| **Teams** | 85% | Corporate-friendly |
+| Channel      | Default Threshold | Recommendation              |
+| ------------ | ----------------- | --------------------------- |
+| **Desktop**  | 80%               | Adjust down for more alerts |
+| **Email**    | 85%               | Keeps inbox clean           |
+| **Slack**    | 90%               | Best for quality jobs       |
+| **Discord**  | 90%               | Best for quality jobs       |
+| **Telegram** | 85%               | Mobile-friendly             |
+| **Teams**    | 85%               | Corporate-friendly          |
 
 ### Saving Preferences
 
@@ -294,7 +294,7 @@ These 20 commands power the user data features. Frontend developers can use thes
 Get all cover letter templates.
 
 ```typescript
-invoke('list_cover_letter_templates')
+invoke("list_cover_letter_templates");
 // Returns: CoverLetterTemplate[]
 // {
 //   id: string,
@@ -311,7 +311,7 @@ invoke('list_cover_letter_templates')
 Get a single template by ID.
 
 ```typescript
-invoke('get_cover_letter_template', { id: 'template-123' })
+invoke("get_cover_letter_template", { id: "template-123" });
 // Returns: CoverLetterTemplate | null
 ```
 
@@ -320,11 +320,11 @@ invoke('get_cover_letter_template', { id: 'template-123' })
 Create a new template.
 
 ```typescript
-invoke('create_cover_letter_template', {
-  name: 'Tech Startup',
-  content: 'Dear {hiring_manager}...',
-  category: 'Startup'
-})
+invoke("create_cover_letter_template", {
+  name: "Tech Startup",
+  content: "Dear {hiring_manager}...",
+  category: "Startup",
+});
 // Returns: CoverLetterTemplate (with generated id, timestamps)
 ```
 
@@ -333,12 +333,12 @@ invoke('create_cover_letter_template', {
 Update an existing template.
 
 ```typescript
-invoke('update_cover_letter_template', {
-  id: 'template-123',
-  name: 'Updated Name',
-  content: 'Updated content...',
-  category: 'Formal'
-})
+invoke("update_cover_letter_template", {
+  id: "template-123",
+  name: "Updated Name",
+  content: "Updated content...",
+  category: "Formal",
+});
 // Returns: CoverLetterTemplate | null
 ```
 
@@ -347,7 +347,7 @@ invoke('update_cover_letter_template', {
 Delete a template permanently.
 
 ```typescript
-invoke('delete_cover_letter_template', { id: 'template-123' })
+invoke("delete_cover_letter_template", { id: "template-123" });
 // Returns: boolean (true = deleted, false = not found)
 ```
 
@@ -356,12 +356,12 @@ invoke('delete_cover_letter_template', { id: 'template-123' })
 Bulk import templates (used during migration).
 
 ```typescript
-invoke('import_cover_letter_templates', {
+invoke("import_cover_letter_templates", {
   templates: [
-    { name: 'Template 1', content: '...', category: 'Default' },
-    { name: 'Template 2', content: '...', category: 'Formal' }
-  ]
-})
+    { name: "Template 1", content: "...", category: "Default" },
+    { name: "Template 2", content: "...", category: "Formal" },
+  ],
+});
 // Returns: number (count imported)
 ```
 
@@ -374,7 +374,7 @@ invoke('import_cover_letter_templates', {
 Get the prep checklist for an interview.
 
 ```typescript
-invoke('get_interview_prep_checklist', { interview_id: 42 })
+invoke("get_interview_prep_checklist", { interview_id: 42 });
 // Returns: PrepChecklistItem[]
 // {
 //   id: string,
@@ -389,11 +389,11 @@ invoke('get_interview_prep_checklist', { interview_id: 42 })
 Mark a checklist item as complete or incomplete.
 
 ```typescript
-invoke('save_interview_prep_item', {
+invoke("save_interview_prep_item", {
   interview_id: 42,
-  item_id: 'item-research-company',
-  completed: true
-})
+  item_id: "item-research-company",
+  completed: true,
+});
 // Returns: void
 ```
 
@@ -406,7 +406,7 @@ invoke('save_interview_prep_item', {
 Get the follow-up reminder for an interview.
 
 ```typescript
-invoke('get_interview_followup', { interview_id: 42 })
+invoke("get_interview_followup", { interview_id: 42 });
 // Returns: FollowUpReminder | null
 // {
 //   interview_id: i64,
@@ -421,10 +421,10 @@ invoke('get_interview_followup', { interview_id: 42 })
 Update the follow-up reminder status.
 
 ```typescript
-invoke('save_interview_followup', {
+invoke("save_interview_followup", {
   interview_id: 42,
-  thank_you_sent: true
-})
+  thank_you_sent: true,
+});
 // Returns: FollowUpReminder
 ```
 
@@ -437,7 +437,7 @@ invoke('save_interview_followup', {
 Get all saved searches.
 
 ```typescript
-invoke('list_saved_searches')
+invoke("list_saved_searches");
 // Returns: SavedSearch[]
 // {
 //   id: string,
@@ -455,15 +455,15 @@ invoke('list_saved_searches')
 Create a new saved search.
 
 ```typescript
-invoke('create_saved_search', {
-  name: 'SWE Remote 120k+',
-  query: 'senior software engineer',
+invoke("create_saved_search", {
+  name: "SWE Remote 120k+",
+  query: "senior software engineer",
   filters: {
     remote_only: true,
     min_salary: 120000,
-    job_types: ['Full-time']
-  }
-})
+    job_types: ["Full-time"],
+  },
+});
 // Returns: SavedSearch (with generated id, timestamps)
 ```
 
@@ -472,7 +472,7 @@ invoke('create_saved_search', {
 Load a saved search (updates last_used_at).
 
 ```typescript
-invoke('use_saved_search', { id: 'search-123' })
+invoke("use_saved_search", { id: "search-123" });
 // Returns: boolean (true = found, false = not found)
 ```
 
@@ -481,7 +481,7 @@ invoke('use_saved_search', { id: 'search-123' })
 Delete a saved search.
 
 ```typescript
-invoke('delete_saved_search', { id: 'search-123' })
+invoke("delete_saved_search", { id: "search-123" });
 // Returns: boolean (true = deleted, false = not found)
 ```
 
@@ -490,12 +490,12 @@ invoke('delete_saved_search', { id: 'search-123' })
 Bulk import searches (used during migration).
 
 ```typescript
-invoke('import_saved_searches', {
+invoke("import_saved_searches", {
   searches: [
-    { name: 'Search 1', query: '...', filters: {} },
-    { name: 'Search 2', query: '...', filters: {} }
-  ]
-})
+    { name: "Search 1", query: "...", filters: {} },
+    { name: "Search 2", query: "...", filters: {} },
+  ],
+});
 // Returns: number (count imported)
 ```
 
@@ -508,7 +508,7 @@ invoke('import_saved_searches', {
 Get the user's notification settings.
 
 ```typescript
-invoke('get_notification_preferences')
+invoke("get_notification_preferences");
 // Returns: NotificationPreferences
 // {
 //   per_source_settings: {
@@ -534,20 +534,20 @@ invoke('get_notification_preferences')
 Update notification preferences.
 
 ```typescript
-invoke('save_notification_preferences', {
+invoke("save_notification_preferences", {
   per_source_settings: {
-    'linkedin': { enabled: true, min_score: 0.9, include_ghosts: false }
+    linkedin: { enabled: true, min_score: 0.9, include_ghosts: false },
   },
   keyword_rules: {
-    include: ['Python', 'TypeScript'],
-    exclude: ['PHP'],
-    company_list: ['Google', 'Meta']
+    include: ["Python", "TypeScript"],
+    exclude: ["PHP"],
+    company_list: ["Google", "Meta"],
   },
   thresholds: {
     slack: 0.9,
-    email: 0.85
-  }
-})
+    email: 0.85,
+  },
+});
 // Returns: void
 ```
 
@@ -560,7 +560,7 @@ invoke('save_notification_preferences', {
 Add a search to history.
 
 ```typescript
-invoke('add_search_history', { query: 'senior rust engineer remote' })
+invoke("add_search_history", { query: "senior rust engineer remote" });
 // Returns: void
 ```
 
@@ -569,7 +569,7 @@ invoke('add_search_history', { query: 'senior rust engineer remote' })
 Get recent search history (default: 50).
 
 ```typescript
-invoke('get_search_history', { limit: 20 })
+invoke("get_search_history", { limit: 20 });
 // Returns: string[]
 // ["latest search", "previous search", "older search"]
 ```
@@ -579,7 +579,7 @@ invoke('get_search_history', { limit: 20 })
 Clear all search history permanently.
 
 ```typescript
-invoke('clear_search_history')
+invoke("clear_search_history");
 // Returns: void
 ```
 
@@ -694,4 +694,4 @@ Consider creating a backup first (feature coming in v1.5).
 
 ---
 
-**Version:** 2.6.3 | **Updated:** January 25, 2026
+**Version:** 2.6.4 | **Updated:** March 18, 2026

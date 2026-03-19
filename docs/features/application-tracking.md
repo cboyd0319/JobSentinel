@@ -35,8 +35,8 @@ set reminders to follow up, and see your entire pipeline at a glance.
 
 > **Status:** WORKING - Module enabled in v1.4.0
 > **Completion:** 100% core functionality
-> **Last Updated:** 2026-01-25
-> **Version:** 2.6.3
+> **Last Updated:** 2026-03-18
+> **Version:** 2.6.4
 > **Tests:** 4 tests (ignored - require file-based database setup)
 
 ---
@@ -129,20 +129,20 @@ Withdrawn  Rejected    Ghosted    Technical Interview
 
 ### Application Statuses (12 Total)
 
-| Status | Description | Auto-Reminders |
-|--------|-------------|----------------|
-| `to_apply` | Saved but not yet applied | None |
-| `applied` | Application submitted | ✅ Follow-up in 7 days |
-| `screening_call` | Initial recruiter contact | None |
-| `phone_interview` | Phone/video interview scheduled | ✅ Thank-you in 24 hours |
-| `technical_interview` | Technical assessment | ✅ Thank-you in 24 hours |
-| `onsite_interview` | In-person/final round | ✅ Thank-you in 24 hours |
-| `offer_received` | Offer extended | None (user decides) |
-| `offer_accepted` | Accepted position | None |
-| `offer_rejected` | Declined offer | None |
-| `rejected` | Company rejected | None |
-| `ghosted` | No response for 14+ days | Auto-detected |
-| `withdrawn` | User withdrew application | None |
+| Status                | Description                     | Auto-Reminders           |
+| --------------------- | ------------------------------- | ------------------------ |
+| `to_apply`            | Saved but not yet applied       | None                     |
+| `applied`             | Application submitted           | ✅ Follow-up in 7 days   |
+| `screening_call`      | Initial recruiter contact       | None                     |
+| `phone_interview`     | Phone/video interview scheduled | ✅ Thank-you in 24 hours |
+| `technical_interview` | Technical assessment            | ✅ Thank-you in 24 hours |
+| `onsite_interview`    | In-person/final round           | ✅ Thank-you in 24 hours |
+| `offer_received`      | Offer extended                  | None (user decides)      |
+| `offer_accepted`      | Accepted position               | None                     |
+| `offer_rejected`      | Declined offer                  | None                     |
+| `rejected`            | Company rejected                | None                     |
+| `ghosted`             | No response for 14+ days        | Auto-detected            |
+| `withdrawn`           | User withdrew application       | None                     |
 
 ---
 
@@ -361,7 +361,7 @@ const kanban = await invoke<ApplicationsByStatus>('get_applications_by_status');
 
 ```typescript
 const updateStatus = async (appId: number, newStatus: string) => {
-  await invoke('update_application_status', {
+  await invoke("update_application_status", {
     applicationId: appId,
     newStatus: newStatus,
   });
@@ -372,7 +372,7 @@ const updateStatus = async (appId: number, newStatus: string) => {
 
 ```typescript
 const checkReminders = async () => {
-  const reminders = await invoke<PendingReminder[]>('get_pending_reminders');
+  const reminders = await invoke<PendingReminder[]>("get_pending_reminders");
 
   for (const reminder of reminders) {
     // Show desktop notification
@@ -381,7 +381,7 @@ const checkReminders = async () => {
     });
 
     // Mark completed
-    await invoke('complete_reminder', { reminderId: reminder.id });
+    await invoke("complete_reminder", { reminderId: reminder.id });
   }
 };
 
@@ -536,7 +536,7 @@ pub struct ApplicationsByStatus {
 
 ---
 
-**Last Updated:** 2026-01-25
+**Last Updated:** 2026-03-18
 **Maintained By:** JobSentinel Core Team
 **Implementation Status:** ✅ Core Complete (Phase 1)
 **Next Feature:** UI Connections & Polish (v1.4 E4)

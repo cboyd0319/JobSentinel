@@ -38,8 +38,8 @@ which are verified and updated quarterly.
 
 > **Status:** ENABLED - Module fully functional
 > **Completion:** 100%
-> **Last Updated:** 2026-01-25
-> **Version:** 2.6.3
+> **Last Updated:** 2026-03-18
+> **Version:** 2.6.4
 
 ---
 
@@ -371,12 +371,12 @@ let seniority = SeniorityLevel::from_job_title("Senior Software Engineer");
 
 ### Built-in Templates
 
-| Template | Scenario | Use When |
-|----------|----------|----------|
-| **Initial Offer Response** | `initial_offer` | First time receiving offer |
-| **Counter Offer** | `counter_offer` | Negotiating after initial response |
-| **Competing Offer Leverage** | `competing_offer` | You have multiple offers |
-| **Equity Focused** | `equity_focused` | Prioritizing stock/options |
+| Template                     | Scenario          | Use When                           |
+| ---------------------------- | ----------------- | ---------------------------------- |
+| **Initial Offer Response**   | `initial_offer`   | First time receiving offer         |
+| **Counter Offer**            | `counter_offer`   | Negotiating after initial response |
+| **Competing Offer Leverage** | `competing_offer` | You have multiple offers           |
+| **Equity Focused**           | `equity_focused`  | Prioritizing stock/options         |
 
 ### Template Placeholders
 
@@ -444,13 +444,13 @@ generator.add_template(
 
 ### Default Salary Ranges (Level 3 Fallback)
 
-| Seniority | Base Salary | Range |
-|-----------|-------------|-------|
-| Entry | $80,000 | $64,000 - $104,000 |
-| Mid | $120,000 | $96,000 - $156,000 |
-| Senior | $160,000 | $128,000 - $208,000 |
-| Staff | $200,000 | $160,000 - $260,000 |
-| Principal | $250,000 | $200,000 - $325,000 |
+| Seniority | Base Salary | Range               |
+| --------- | ----------- | ------------------- |
+| Entry     | $80,000     | $64,000 - $104,000  |
+| Mid       | $120,000    | $96,000 - $156,000  |
+| Senior    | $160,000    | $128,000 - $208,000 |
+| Staff     | $200,000    | $160,000 - $260,000 |
+| Principal | $250,000    | $200,000 - $325,000 |
 
 ---
 
@@ -627,8 +627,8 @@ impl SalaryPredictor {
 
 ---
 
-**Last Updated:** 2026-01-25
-**Version:** 2.6.3
+**Last Updated:** 2026-03-18
+**Version:** 2.6.4
 **Maintained By:** JobSentinel Core Team
 **Implementation Status:** ✅ Phase 1 Complete (Data Infrastructure)
 **Next Feature:** ML-based salary prediction

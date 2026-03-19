@@ -6,8 +6,8 @@ Most companies use software called "ATS" (Applicant Tracking Systems) to filter 
 before a human ever sees them. JobSentinel helps you create resumes that pass these
 filters and land on a recruiter's desk.
 
-| Resume Builder | ATS Optimizer |
-|----------------|---------------|
+| Resume Builder                                  | ATS Optimizer                                 |
+| ----------------------------------------------- | --------------------------------------------- |
 | ![Resume Builder](../images/resume-builder.png) | ![ATS Optimizer](../images/ats-optimizer.png) |
 
 ---
@@ -29,6 +29,7 @@ Enter your basics:
 Write 2-3 sentences about who you are professionally. Think of it as your elevator pitch.
 
 **Good example:**
+
 > "Security engineer with 8 years of experience protecting financial services
 > infrastructure. Led incident response for a $50B+ organization and reduced
 > security incidents by 40%."
@@ -65,13 +66,13 @@ List your technical and soft skills:
 
 Choose from 5 ATS-friendly templates:
 
-| Template | Best For |
-|----------|----------|
-| **Classic** | General use - works for any industry |
-| **Modern** | Tech companies - clean and minimal |
-| **Technical** | Engineering roles - skills first |
-| **Executive** | Senior positions - leadership focus |
-| **Military** | Veterans - civilian-friendly language |
+| Template      | Best For                              |
+| ------------- | ------------------------------------- |
+| **Classic**   | General use - works for any industry  |
+| **Modern**    | Tech companies - clean and minimal    |
+| **Technical** | Engineering roles - skills first      |
+| **Executive** | Senior positions - leadership focus   |
+| **Military**  | Veterans - civilian-friendly language |
 
 All templates are designed to pass ATS filters:
 
@@ -139,9 +140,11 @@ Shows you speak the language.
 Weak bullet points hurt your resume. The improver helps you write stronger ones.
 
 **Before:**
+
 > "Responsible for managing the security team"
 
 **After:**
+
 > "Led 12-person security team, reducing incident response time by 35%"
 
 ### Power Words
@@ -213,4 +216,4 @@ Resumes are stored as JSON in the `resume_drafts` table, auto-saved after each s
 
 ---
 
-**Version:** 2.6.3 | **Last Updated:** January 25, 2026
+**Version:** 2.6.4 | **Last Updated:** March 18, 2026

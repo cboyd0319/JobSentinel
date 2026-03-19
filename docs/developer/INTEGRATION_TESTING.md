@@ -26,14 +26,14 @@ real dependencies.
 
 ### Integration vs Unit Tests
 
-| Aspect | Unit Tests | Integration Tests |
-|--------|-----------|-------------------|
-| Scope | Single function/module | Multiple modules working together |
-| Location | `tests.rs` within module | `src-tauri/tests/` directory |
-| Database | In-memory (mocked) | Real SQLite schema with migrations |
-| Dependencies | Mocked | Real implementations |
-| Speed | Fast (<10ms) | Slower (100ms+) |
-| Coverage | 70%+ lines | End-to-end workflows |
+| Aspect       | Unit Tests               | Integration Tests                  |
+| ------------ | ------------------------ | ---------------------------------- |
+| Scope        | Single function/module   | Multiple modules working together  |
+| Location     | `tests.rs` within module | `src-tauri/tests/` directory       |
+| Database     | In-memory (mocked)       | Real SQLite schema with migrations |
+| Dependencies | Mocked                   | Real implementations               |
+| Speed        | Fast (<10ms)             | Slower (100ms+)                    |
+| Coverage     | 70%+ lines               | End-to-end workflows               |
 
 ### What Integration Tests Cover
 
@@ -731,6 +731,6 @@ for _ in 0..50 {
 
 ---
 
-**Last Updated**: January 25, 2026
+**Last Updated**: March 18, 2026
 **Test Count**: 75+ integration tests across 6 files
-**Version**: v2.6.3
+**Version**: v2.6.4

@@ -73,7 +73,9 @@ DOMPurify removes all potentially dangerous content:
 ```html
 <!-- Input -->
 <h1>Resume</h1>
-<script>alert('XSS')</script>
+<script>
+  alert("XSS");
+</script>
 
 <!-- Output -->
 <h1>Resume</h1>
@@ -85,11 +87,11 @@ DOMPurify removes all potentially dangerous content:
 ```html
 <!-- Input -->
 <h1 onclick="alert('XSS')">Click me</h1>
-<img src="x" onerror="stealData()">
+<img src="x" onerror="stealData()" />
 
 <!-- Output -->
 <h1>Click me</h1>
-<img src="x">
+<img src="x" />
 <!-- All event handlers stripped -->
 ```
 
@@ -121,7 +123,9 @@ DOMPurify removes all potentially dangerous content:
 ```html
 <!-- Input -->
 <style>
-  body { background: url('javascript:alert(1)'); }
+  body {
+    background: url("javascript:alert(1)");
+  }
 </style>
 
 <!-- Output -->
@@ -162,19 +166,29 @@ For stricter control, you can configure allowed elements:
 ```typescript
 const customConfig = {
   ALLOWED_TAGS: [
-    'h1', 'h2', 'h3', 'p', 'div', 'span', 
-    'ul', 'li', 'strong', 'em', 'a', 'br'
+    "h1",
+    "h2",
+    "h3",
+    "p",
+    "div",
+    "span",
+    "ul",
+    "li",
+    "strong",
+    "em",
+    "a",
+    "br",
   ],
-  ALLOWED_ATTR: ['class', 'id', 'style', 'href'],
+  ALLOWED_ATTR: ["class", "id", "style", "href"],
   ALLOWED_STYLES: {
-    '*': {
-      'color': [/^#[0-9a-f]{3,6}$/i],
-      'font-size': [/^\d+px$/],
-      'margin': [/^\d+px$/],
-      'padding': [/^\d+px$/],
-      'text-align': [/^(left|center|right)$/]
-    }
-  }
+    "*": {
+      color: [/^#[0-9a-f]{3,6}$/i],
+      "font-size": [/^\d+px$/],
+      margin: [/^\d+px$/],
+      padding: [/^\d+px$/],
+      "text-align": [/^(left|center|right)$/],
+    },
+  },
 };
 
 const clean = DOMPurify.sanitize(dirty, customConfig);
@@ -187,20 +201,47 @@ For resume HTML, we use a permissive configuration that allows formatting while 
 ```typescript
 const resumeConfig = {
   ALLOWED_TAGS: [
-    'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-    'p', 'div', 'span', 'section', 'article',
-    'ul', 'ol', 'li',
-    'strong', 'em', 'u', 'b', 'i',
-    'a', 'br', 'hr',
-    'table', 'thead', 'tbody', 'tr', 'th', 'td'
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5",
+    "h6",
+    "p",
+    "div",
+    "span",
+    "section",
+    "article",
+    "ul",
+    "ol",
+    "li",
+    "strong",
+    "em",
+    "u",
+    "b",
+    "i",
+    "a",
+    "br",
+    "hr",
+    "table",
+    "thead",
+    "tbody",
+    "tr",
+    "th",
+    "td",
   ],
   ALLOWED_ATTR: [
-    'class', 'id', 'style', 'href', 'target',
-    'colspan', 'rowspan'
+    "class",
+    "id",
+    "style",
+    "href",
+    "target",
+    "colspan",
+    "rowspan",
   ],
   ALLOW_DATA_ATTR: false,
-  FORBID_TAGS: ['script', 'iframe', 'object', 'embed', 'form'],
-  FORBID_ATTR: ['onerror', 'onclick', 'onload', 'onmouseover']
+  FORBID_TAGS: ["script", "iframe", "object", "embed", "form"],
+  FORBID_ATTR: ["onerror", "onclick", "onload", "onmouseover"],
 };
 ```
 
@@ -266,8 +307,8 @@ DOMPurify is lightweight:
 <div dangerouslySetInnerHTML={{ __html: userInput }} />
 
 // ✅ SAFE - Always sanitize first
-<div dangerouslySetInnerHTML={{ 
-  __html: DOMPurify.sanitize(userInput) 
+<div dangerouslySetInnerHTML={{
+  __html: DOMPurify.sanitize(userInput)
 }} />
 ```
 
@@ -277,7 +318,7 @@ DOMPurify is lightweight:
 // Sanitize when displaying content
 const PreviewComponent = ({ html }: { html: string }) => {
   const cleanHtml = DOMPurify.sanitize(html);
-  
+
   return (
     <div dangerouslySetInnerHTML={{ __html: cleanHtml }} />
   );
@@ -289,8 +330,8 @@ const PreviewComponent = ({ html }: { html: string }) => {
 ```typescript
 // For user profiles, comments, etc.
 const strictConfig = {
-  ALLOWED_TAGS: ['p', 'br', 'strong', 'em'],
-  ALLOWED_ATTR: []
+  ALLOWED_TAGS: ["p", "br", "strong", "em"],
+  ALLOWED_ATTR: [],
 };
 
 const clean = DOMPurify.sanitize(userComment, strictConfig);
@@ -339,8 +380,10 @@ DOMPurify only sanitizes HTML. Other contexts require different protection:
 For web deployments, add CSP headers:
 
 ```html
-<meta http-equiv="Content-Security-Policy" 
-      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';">
+<meta
+  http-equiv="Content-Security-Policy"
+  content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';"
+/>
 ```
 
 ### Subresource Integrity (SRI)
@@ -348,11 +391,11 @@ For web deployments, add CSP headers:
 When loading DOMPurify from CDN:
 
 ```html
-<script 
+<script
   src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"
   integrity="sha384-..."
-  crossorigin="anonymous">
-</script>
+  crossorigin="anonymous"
+></script>
 ```
 
 ## Additional Resources
@@ -372,7 +415,7 @@ If you discover an XSS vulnerability that bypasses DOMPurify protection:
 
 ---
 
-**Last Updated**: 2026-01-25
+**Last Updated**: 2026-03-18
 **DOMPurify Version**: 3.x
-**JobSentinel Version**: 2.6.3
+**JobSentinel Version**: 2.6.4
 **Security Level**: Production Ready

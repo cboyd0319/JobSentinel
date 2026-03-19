@@ -1,6 +1,6 @@
 # Testing Guide
 
-**Complete guide to testing in JobSentinel v2.6.3**
+**Complete guide to testing in JobSentinel v2.6.4**
 
 ---
 
@@ -565,4 +565,4 @@ See [tests/README.md](../../tests/README.md) for full documentation.
 
 **Last Updated:** March 18, 2026
 **Test count:** ~4,666 passing (2,403 frontend + 2,263 Rust)
-**Version:** v2.6.3
+**Version:** v2.6.4

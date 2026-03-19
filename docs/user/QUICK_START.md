@@ -14,8 +14,8 @@ You'll need to install JobSentinel on your computer. Here's the quick version:
 
 1. Go to [GitHub Releases](https://github.com/cboyd0319/JobSentinel/releases)
 2. Download the installer for your platform:
-   - **Windows:** `JobSentinel_2.6.3_x64_en-US.msi`
-   - **macOS (Apple Silicon):** `JobSentinel_2.6.3_aarch64.dmg`
+   - **Windows:** `JobSentinel_2.6.4_x64_en-US.msi`
+   - **macOS (Intel & Apple Silicon):** `JobSentinel_2.6.4_universal.dmg`
 3. Double-click and follow the prompts
 4. Done!
 
@@ -32,6 +32,7 @@ macOS may show "JobSentinel can't be opened because Apple cannot check it for ma
 3. Click **Open** in the confirmation dialog
 
 This only happens once. JobSentinel is safe — it's open source and you can verify the code yourself.
+
 </details>
 
 <details>
@@ -46,6 +47,7 @@ Windows SmartScreen may show "Windows protected your PC" because JobSentinel is 
 2. Click **"Run anyway"**
 
 This is normal for new apps. JobSentinel is safe — it's open source and you can verify the code yourself.
+
 </details>
 
 **Option B: Build from Source**
@@ -162,14 +164,14 @@ and Glassdoor ratings.
 
 For power users who hate using the mouse:
 
-| Key | What It Does |
-|-----|--------------|
-| `b` | Bookmark the selected job |
+| Key | What It Does                  |
+| --- | ----------------------------- |
+| `b` | Bookmark the selected job     |
 | `n` | Add notes to the selected job |
-| `c` | View company details |
-| `/` | Jump to the search bar |
-| `r` | Refresh the job list |
-| `?` | Show all keyboard shortcuts |
+| `c` | View company details          |
+| `/` | Jump to the search bar        |
+| `r` | Refresh the job list          |
+| `?` | Show all keyboard shortcuts   |
 
 Press `?` anytime to see the full list.
 

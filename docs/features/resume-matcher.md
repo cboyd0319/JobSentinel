@@ -4,8 +4,8 @@
 
 > **Status:** ENABLED - Module fully functional
 > **Completion:** 100%
-> **Last Updated:** 2026-01-25
-> **Version:** 2.6.3
+> **Last Updated:** 2026-03-18
+> **Version:** 2.6.4
 
 ---
 
@@ -299,12 +299,12 @@ total_confidence = 0.3 + 0.3 + 0.2 = 0.8 (80%)
 
 ### Match Recommendations
 
-| Score Range | Recommendation |
-|------|--------|
-| 80-100% | Strong match! Apply. |
-| 60-79% | Good match. Highlight transferable skills. |
-| 40-59% | Moderate match. Study missing skills. |
-| 0-39% | Low match. Consider upskilling first. |
+| Score Range | Recommendation                             |
+| ----------- | ------------------------------------------ |
+| 80-100%     | Strong match! Apply.                       |
+| 60-79%      | Good match. Highlight transferable skills. |
+| 40-59%      | Moderate match. Study missing skills.      |
+| 0-39%       | Low match. Consider upskilling first.      |
 
 ---
 
@@ -388,17 +388,17 @@ Or simply use the toggle in Settings (recommended for non-technical users).
 ```typescript
 // src/pages/ResumeManager.tsx
 
-import { invoke } from '@tauri-apps/api/core';
+import { invoke } from "@tauri-apps/api/core";
 
 const uploadResume = async (file: File) => {
   const filePath = await save(file); // Save to local storage
 
-  const resumeId = await invoke<number>('upload_resume', {
+  const resumeId = await invoke<number>("upload_resume", {
     name: file.name,
     filePath: filePath,
   });
 
-  console.log('Resume uploaded! ID:', resumeId);
+  console.log("Resume uploaded! ID:", resumeId);
 };
 ```
 
@@ -578,17 +578,19 @@ const ImportSkillsButton = ({ resumeId }: { resumeId: number }) => {
 ```typescript
 // Match resume against all jobs
 const autoMatchJobs = async () => {
-  const jobs = await invoke<Job[]>('get_all_jobs');
-  const activeResume = await invoke<Resume>('get_active_resume');
+  const jobs = await invoke<Job[]>("get_all_jobs");
+  const activeResume = await invoke<Resume>("get_active_resume");
 
   for (const job of jobs) {
-    const match = await invoke<MatchResult>('match_resume_to_job', {
+    const match = await invoke<MatchResult>("match_resume_to_job", {
       resumeId: activeResume.id,
       jobHash: job.hash,
     });
 
     // Store or display match
-    console.log(`${job.title}: ${(match.overall_match_score * 100).toFixed(0)}%`);
+    console.log(
+      `${job.title}: ${(match.overall_match_score * 100).toFixed(0)}%`,
+    );
   }
 };
 ```
@@ -816,8 +818,8 @@ pub struct MatchResult {
 
 ---
 
-**Last Updated:** 2026-01-25
-**Version:** 2.6.3
+**Last Updated:** 2026-03-18
+**Version:** 2.6.4
 **Maintained By:** JobSentinel Core Team
 **Implementation Status:** ✅ v2.4.0 Complete (Enhanced UI + Resume Builder Integration)
 **Tests:** 145+ passing (updated with v2.4.0 component tests)

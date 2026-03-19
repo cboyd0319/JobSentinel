@@ -25,12 +25,12 @@ Studies suggest **30-50% of job postings online are ghosts.** That's a lot of wa
 
 Every job gets analyzed against multiple signals. The result is a "ghost score" from 0% to 100%:
 
-| Score | What It Means |
-|-------|---------------|
-| **0-49%** | Looks legitimate |
-| **50-59%** | Some concerns (yellow flag) |
+| Score      | What It Means                        |
+| ---------- | ------------------------------------ |
+| **0-49%**  | Looks legitimate                     |
+| **50-59%** | Some concerns (yellow flag)          |
 | **60-74%** | Multiple warning signs (orange flag) |
-| **75%+** | Probably a ghost (red flag) |
+| **75%+**   | Probably a ghost (red flag)          |
 
 ### What We Look For
 
@@ -161,14 +161,14 @@ Future enhancement: we'll use this feedback to improve the detection algorithm.
 
 ### Signal Weights
 
-| Signal | Weight |
-|--------|--------|
-| Stale posting (60+ days) | 25% |
-| Frequent reposts | 20% |
-| Generic description | 15% |
-| Vague title | 15% |
-| Unrealistic requirements | 15% |
-| Missing salary | 10% |
+| Signal                   | Weight |
+| ------------------------ | ------ |
+| Stale posting (60+ days) | 25%    |
+| Frequent reposts         | 20%    |
+| Generic description      | 15%    |
+| Vague title              | 15%    |
+| Unrealistic requirements | 15%    |
+| Missing salary           | 10%    |
 
 ### Database Schema
 
@@ -184,38 +184,39 @@ repost_count INTEGER      -- How many times we've seen it
 
 ```typescript
 // Get jobs flagged as ghosts
-invoke('get_ghost_jobs', { threshold: 0.5, limit: 100 })
+invoke("get_ghost_jobs", { threshold: 0.5, limit: 100 });
 
 // Get ghost detection statistics
-invoke('get_ghost_statistics')
+invoke("get_ghost_statistics");
 // Returns: { total_analyzed, ghosts, warnings, real, average_score }
 
 // Get jobs with ghost filtering
-invoke('get_recent_jobs_filtered', { limit: 50, exclude_ghost: true })
+invoke("get_recent_jobs_filtered", { limit: 50, exclude_ghost: true });
 
 // Ghost configuration commands (NEW)
-invoke('get_ghost_config')                        // Get current settings
-invoke('set_ghost_config', {                      // Update settings
+invoke("get_ghost_config"); // Get current settings
+invoke("set_ghost_config", {
+  // Update settings
   stale_threshold_days: 60,
   repost_threshold: 3,
   stale_posting_weight: 0.25,
-  repost_frequency_weight: 0.20,
+  repost_frequency_weight: 0.2,
   generic_description_weight: 0.15,
   vague_title_weight: 0.15,
   unrealistic_requirements_weight: 0.15,
-  missing_salary_weight: 0.10
-})
-invoke('reset_ghost_config')                      // Reset to defaults
+  missing_salary_weight: 0.1,
+});
+invoke("reset_ghost_config"); // Reset to defaults
 
 // User feedback commands
-invoke('mark_job_as_real', { job_id: 123 })    // Mark job as legitimate
-invoke('mark_job_as_ghost', { job_id: 123 })   // Mark job as fake/ghost
-invoke('get_ghost_feedback', { job_id: 123 })  // Get user's verdict ("real", "ghost", or null)
-invoke('clear_ghost_feedback', { job_id: 123 }) // Remove user's verdict
+invoke("mark_job_as_real", { job_id: 123 }); // Mark job as legitimate
+invoke("mark_job_as_ghost", { job_id: 123 }); // Mark job as fake/ghost
+invoke("get_ghost_feedback", { job_id: 123 }); // Get user's verdict ("real", "ghost", or null)
+invoke("clear_ghost_feedback", { job_id: 123 }); // Remove user's verdict
 ```
 
 </details>
 
 ---
 
-**Version:** 2.6.3 | **Last Updated:** January 25, 2026
+**Version:** 2.6.4 | **Last Updated:** March 18, 2026
