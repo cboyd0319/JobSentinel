@@ -57,7 +57,9 @@ export function jobsToCSV(jobs: Job[]): string {
     escapeCSV(job.location),
     escapeCSV(job.url),
     escapeCSV(job.source),
-    job.score != null ? Math.round(job.score * 100) + "%" : "N/A",
+    job.score != null && Number.isFinite(job.score)
+      ? Math.round(job.score * 100) + "%"
+      : "N/A",
     job.remote === true ? "Yes" : job.remote === false ? "No" : "",
     job.salary_min ?? "",
     job.salary_max ?? "",

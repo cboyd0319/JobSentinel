@@ -11,7 +11,11 @@ interface AutoRefreshHookProps {
   searching: boolean;
   showSettings: boolean;
   statistics: Statistics;
-  onDataUpdate: (data: { jobs: Job[]; stats: Statistics; status: ScrapingStatus }) => void;
+  onDataUpdate: (data: {
+    jobs: Job[];
+    stats: Statistics;
+    status: ScrapingStatus;
+  }) => void;
 }
 
 export function useDashboardAutoRefresh({
@@ -25,6 +29,7 @@ export function useDashboardAutoRefresh({
   const [nextRefreshTime, setNextRefreshTime] = useState<Date | null>(null);
   // countdownTick forces re-renders to update countdown display - value is intentionally unused
   const [, setCountdownTick] = useState(0);
+  const [consecutiveFailures, setConsecutiveFailures] = useState(0);
   const toast = useToast();
 
   // Use ref to access current statistics value in interval callback (avoid stale closure)
@@ -65,10 +70,14 @@ export function useDashboardAutoRefresh({
 
       try {
         toast.info("Auto-refreshing...", "Scanning for new jobs");
-        await safeInvoke("search_jobs", {}, {
-          logContext: "Auto-refresh search jobs",
-          silent: true // Silent mode - don't log failures for auto-refresh
-        });
+        await safeInvoke(
+          "search_jobs",
+          {},
+          {
+            logContext: "Auto-refresh search jobs",
+            silent: true, // Silent mode - don't log failures for auto-refresh
+          },
+        );
 
         // Invalidate cache after mutation
         invalidateCacheByCommand("get_recent_jobs");
@@ -77,9 +86,21 @@ export function useDashboardAutoRefresh({
 
         // Fetch fresh data
         const [jobsData, statsData, statusData] = await Promise.all([
-          safeInvoke<Job[]>("get_recent_jobs", { limit: 50 }, { logContext: "Auto-refresh get jobs", silent: true }),
-          safeInvoke<Statistics>("get_statistics", {}, { logContext: "Auto-refresh get stats", silent: true }),
-          safeInvoke<ScrapingStatus>("get_scraping_status", {}, { logContext: "Auto-refresh get status", silent: true }),
+          safeInvoke<Job[]>(
+            "get_recent_jobs",
+            { limit: 50 },
+            { logContext: "Auto-refresh get jobs", silent: true },
+          ),
+          safeInvoke<Statistics>(
+            "get_statistics",
+            {},
+            { logContext: "Auto-refresh get stats", silent: true },
+          ),
+          safeInvoke<ScrapingStatus>(
+            "get_scraping_status",
+            {},
+            { logContext: "Auto-refresh get status", silent: true },
+          ),
         ]);
 
         onDataUpdate({
@@ -92,11 +113,24 @@ export function useDashboardAutoRefresh({
         const previousHighMatches = statisticsRef.current.high_matches;
         if (statsData.high_matches > previousHighMatches) {
           const newCount = statsData.high_matches - previousHighMatches;
-          toast.success("New matches found!", `${newCount} new high-match jobs`);
+          toast.success(
+            "New matches found!",
+            `${newCount} new high-match jobs`,
+          );
           notifyScrapingComplete(jobsData.length, newCount);
         }
+        setConsecutiveFailures(0);
       } catch {
-        // Silent fail for auto-refresh - don't show error toast
+        setConsecutiveFailures((prev) => {
+          const count = prev + 1;
+          if (count === 3) {
+            toast.warning(
+              "Auto-refresh struggling",
+              "Job scanning has failed 3 times in a row. Check your connection or try a manual search.",
+            );
+          }
+          return count;
+        });
       }
 
       // Schedule next refresh
@@ -110,7 +144,14 @@ export function useDashboardAutoRefresh({
       setNextRefreshTime(null);
     };
     // Removed statistics.high_matches from deps - now using ref to avoid stale closure
-  }, [autoRefreshEnabled, autoRefreshInterval, searching, showSettings, toast, onDataUpdate]);
+  }, [
+    autoRefreshEnabled,
+    autoRefreshInterval,
+    searching,
+    showSettings,
+    toast,
+    onDataUpdate,
+  ]);
 
   const formatTimeUntil = (date: Date) => {
     const now = Date.now();
@@ -138,5 +179,6 @@ export function useDashboardAutoRefresh({
     setAutoRefreshInterval,
     nextRefreshTime,
     formatTimeUntil,
+    consecutiveFailures,
   };
 }

@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Uses `--target universal-apple-darwin` flag for Tauri builds
   - Eliminates need for separate Intel and Apple Silicon downloads
 
-## [2.7.0] - 2026-01-26
+## [2.7.0] - Unreleased
 
 ### Added
 
@@ -28,19 +28,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - 8 new Tauri commands: `open_github_issues`, `open_google_drive`, `reveal_file`, `get_system_info`, `get_config_summary`, `generate_feedback_report`, `get_debug_log_formatted`, `clear_debug_log`
 - **GitHub Issue Templates** - Structured forms for bug reports, feature requests, questions
 
-## [2.6.4] - 2026-03-17
+## [2.6.4] - 2026-03-18
 
 ### Fixed
 
-- **Settings infinite loading on Windows** - Settings page no longer spins forever when Windows
-  Credential Manager is restricted (domain policy, locked vault, etc.); now shows a Retry button
-  with a clear error message instead of an unresponsive spinner
-- **Job search returning 0 results** - Fixed null score handling bug: `Option<f64>` fields
+- **Settings page infinite loading (#197)** - `loadConfig` used `Promise.all` for credential
+  checks; a single OS keyring failure (locked vault, domain policy) caused the entire Settings
+  page to hang on a spinner. Now uses `Promise.allSettled` — credential failures are reported
+  via a warning toast, but the page loads normally
+- **Settings save partial failures** - `handleSave` also used `Promise.all`; now uses
+  `Promise.allSettled` with per-item failure tracking and partial success feedback
+- **Job search returning 0 results (#197)** - Fixed NaN score handling: `Option<f64>` fields
   serialized without a value were coerced to `NaN` in TypeScript, silently filtering out all
   unscored jobs from search results and sort comparators
+- **NaN scores in CSV export** - `Number.isFinite()` guard added to export formatting; NaN and
+  Infinity scores now export as "N/A" instead of "NaN%"
+- **NaN scores in JobCard** - Score display now falls back to 0 for non-finite values instead
+  of rendering broken progress bars
+- **Bulk hide/merge partial failures** - `handleBulkHide` and `handleMergeAllDuplicates` now
+  use `Promise.allSettled`; partial failures show which jobs succeeded vs failed instead of
+  losing all progress on first error
+- **Undo/redo silent failures** - All 6 undo/redo handlers (hide, bookmark, notes) now have
+  try/catch with error toasts instead of silently failing
+- **Ghost config load failure** - Shows warning toast with defaults instead of silently using
+  defaults when `get_ghost_config` fails
+- **Pre-existing ScreeningAnswersForm test failures** - Fixed 3 tests that used `user.type()`
+  on controlled inputs where React re-renders dropped characters mid-typing
 - **HTML whitespace normalization in schema.org import** - `strip_html_tags` was joining text
   nodes with a space separator while nodes already contained trailing whitespace, producing double
   spaces in parsed job descriptions
+
+### Added
+
+- **No-scrapers pre-flight check** - Dashboard warns users if no job boards are enabled before
+  attempting a search, preventing the confusing "0 results" experience
+- **Auto-refresh failure tracking** - Warns users after 3 consecutive auto-refresh failures
+  instead of silently retrying forever
+- **Test coverage for critical flows** - 45 new tests covering Settings loadConfig/save,
+  Dashboard pre-flight check, bulk operations partial failures, NaN score edge cases, CSV
+  export edge cases, and credential input components
 
 ### Security
 
@@ -258,7 +284,7 @@ Major code quality improvements including React optimizations, Rust performance 
   - Resume types, salary types, market intelligence types
 
 - **20 #[inline] hints** - Added to hot-path functions for compiler optimization
-  - Scraper utility functions: normalize*\*, format*_, detect\__
+  - Scraper utility functions: normalize*\*, format*\_, detect\_\_
   - Database query builders and utility functions
 
 - **4 Cow<str> optimizations** - Zero-copy string handling in hot paths

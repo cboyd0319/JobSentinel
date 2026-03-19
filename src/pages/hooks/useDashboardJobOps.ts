@@ -10,7 +10,10 @@ import { logError } from "../../utils/errorUtils";
 import { exportJobsToCSV } from "../../utils/export";
 import { invalidateCacheByCommand, safeInvokeWithToast } from "../../utils/api";
 
-export function useDashboardJobOps(jobs: Job[], setJobs: (jobs: Job[] | ((prev: Job[]) => Job[])) => void) {
+export function useDashboardJobOps(
+  jobs: Job[],
+  setJobs: (jobs: Job[] | ((prev: Job[]) => Job[])) => void,
+) {
   const [notesModalOpen, setNotesModalOpen] = useState(false);
   const [editingJobId, setEditingJobId] = useState<number | null>(null);
   const [notesText, setNotesText] = useState("");
@@ -31,81 +34,129 @@ export function useDashboardJobOps(jobs: Job[], setJobs: (jobs: Job[] | ((prev: 
   const toast = useToast();
   const { pushAction } = useUndo();
 
-  const handleHideJob = useCallback(async (id: number) => {
-    // Find the job before hiding for undo
-    const hiddenJob = jobs.find((job) => job.id === id);
-    if (!hiddenJob) return;
+  const handleHideJob = useCallback(
+    async (id: number) => {
+      // Find the job before hiding for undo
+      const hiddenJob = jobs.find((job) => job.id === id);
+      if (!hiddenJob) return;
 
-    try {
-      await safeInvokeWithToast("hide_job", { id }, toast, { logContext: "Hide job" });
-      // Invalidate cache since job list changed
-      invalidateCacheByCommand("get_recent_jobs");
-      invalidateCacheByCommand("get_statistics");
-      setJobs(jobs.filter((job) => job.id !== id));
+      try {
+        await safeInvokeWithToast("hide_job", { id }, toast, {
+          logContext: "Hide job",
+        });
+        // Invalidate cache since job list changed
+        invalidateCacheByCommand("get_recent_jobs");
+        invalidateCacheByCommand("get_statistics");
+        setJobs(jobs.filter((job) => job.id !== id));
 
-      // Push undoable action
-      pushAction({
-        type: "hide",
-        description: `Hidden: ${hiddenJob.title}`,
-        undo: async () => {
-          await invoke("unhide_job", { id });
-          invalidateCacheByCommand("get_recent_jobs");
-          invalidateCacheByCommand("get_statistics");
-          // Re-add the job to the list
-          setJobs((prev) => [hiddenJob, ...prev]);
-        },
-        redo: async () => {
-          await invoke("hide_job", { id });
-          invalidateCacheByCommand("get_recent_jobs");
-          invalidateCacheByCommand("get_statistics");
-          setJobs((prev) => prev.filter((job) => job.id !== id));
-        },
-      });
-    } catch {
-      // Error already logged and shown to user
-    }
-  }, [jobs, setJobs, toast, pushAction]);
+        // Push undoable action
+        pushAction({
+          type: "hide",
+          description: `Hidden: ${hiddenJob.title}`,
+          undo: async () => {
+            try {
+              await invoke("unhide_job", { id });
+              invalidateCacheByCommand("get_recent_jobs");
+              invalidateCacheByCommand("get_statistics");
+              setJobs((prev) => [hiddenJob, ...prev]);
+            } catch (err) {
+              logError("Failed to undo hide:", err);
+              toast.error(
+                "Undo failed",
+                "Couldn't restore the hidden job. Try refreshing.",
+              );
+            }
+          },
+          redo: async () => {
+            try {
+              await invoke("hide_job", { id });
+              invalidateCacheByCommand("get_recent_jobs");
+              invalidateCacheByCommand("get_statistics");
+              setJobs((prev) => prev.filter((job) => job.id !== id));
+            } catch (err) {
+              logError("Failed to redo hide:", err);
+              toast.error(
+                "Redo failed",
+                "Couldn't hide the job again. Try refreshing.",
+              );
+            }
+          },
+        });
+      } catch {
+        // Error already logged and shown to user
+      }
+    },
+    [jobs, setJobs, toast, pushAction],
+  );
 
-  const handleToggleBookmark = useCallback(async (id: number) => {
-    const job = jobs.find((j) => j.id === id);
-    if (!job) return;
+  const handleToggleBookmark = useCallback(
+    async (id: number) => {
+      const job = jobs.find((j) => j.id === id);
+      if (!job) return;
 
-    const previousState = job.bookmarked;
+      const previousState = job.bookmarked;
 
-    try {
-      const newState = await invoke<boolean>("toggle_bookmark", { id });
-      // Update local state optimistically
-      setJobs(jobs.map((j) =>
-        j.id === id ? { ...j, bookmarked: newState } : j
-      ));
+      try {
+        const newState = await invoke<boolean>("toggle_bookmark", { id });
+        // Update local state optimistically
+        setJobs(
+          jobs.map((j) => (j.id === id ? { ...j, bookmarked: newState } : j)),
+        );
 
-      // Push undoable action
-      pushAction({
-        type: "bookmark",
-        description: newState ? `Bookmarked: ${job.title}` : `Unbookmarked: ${job.title}`,
-        undo: async () => {
-          await invoke<boolean>("toggle_bookmark", { id });
-          setJobs((prev) => prev.map((j) =>
-            j.id === id ? { ...j, bookmarked: previousState } : j
-          ));
-        },
-        redo: async () => {
-          await invoke<boolean>("toggle_bookmark", { id });
-          setJobs((prev) => prev.map((j) =>
-            j.id === id ? { ...j, bookmarked: newState } : j
-          ));
-        },
-      });
-    } catch {
-      // Error already logged and shown to user via safeInvokeWithToast (used in undo/redo actions)
-    }
-  }, [jobs, setJobs, pushAction]);
+        // Push undoable action
+        pushAction({
+          type: "bookmark",
+          description: newState
+            ? `Bookmarked: ${job.title}`
+            : `Unbookmarked: ${job.title}`,
+          undo: async () => {
+            try {
+              await invoke<boolean>("toggle_bookmark", { id });
+              setJobs((prev) =>
+                prev.map((j) =>
+                  j.id === id ? { ...j, bookmarked: previousState } : j,
+                ),
+              );
+            } catch (err) {
+              logError("Failed to undo bookmark:", err);
+              toast.error(
+                "Undo failed",
+                "Couldn't restore bookmark state. Try refreshing.",
+              );
+            }
+          },
+          redo: async () => {
+            try {
+              await invoke<boolean>("toggle_bookmark", { id });
+              setJobs((prev) =>
+                prev.map((j) =>
+                  j.id === id ? { ...j, bookmarked: newState } : j,
+                ),
+              );
+            } catch (err) {
+              logError("Failed to redo bookmark:", err);
+              toast.error(
+                "Redo failed",
+                "Couldn't change bookmark. Try refreshing.",
+              );
+            }
+          },
+        });
+      } catch {
+        // Error already logged and shown to user via safeInvokeWithToast (used in undo/redo actions)
+      }
+    },
+    [jobs, setJobs, pushAction, toast],
+  );
 
-  const handleEditNotes = useCallback((id: number, currentNotes?: string | null) => {
-    setEditingJobId(id);
-    setNotesText(currentNotes || "");
-    setNotesModalOpen(true);
-  }, []);
+  const handleEditNotes = useCallback(
+    (id: number, currentNotes?: string | null) => {
+      setEditingJobId(id);
+      setNotesText(currentNotes || "");
+      setNotesModalOpen(true);
+    },
+    [],
+  );
 
   const handleSaveNotes = useCallback(async () => {
     if (editingJobId === null) return;
@@ -118,29 +169,56 @@ export function useDashboardJobOps(jobs: Job[], setJobs: (jobs: Job[] | ((prev: 
 
     try {
       const notesToSave = notesText.trim() || null;
-      await safeInvokeWithToast("set_job_notes", { id: jobId, notes: notesToSave }, toast, {
-        logContext: "Save job notes",
-      });
+      await safeInvokeWithToast(
+        "set_job_notes",
+        { id: jobId, notes: notesToSave },
+        toast,
+        {
+          logContext: "Save job notes",
+        },
+      );
       // Update local state
-      setJobs(jobs.map((j) =>
-        j.id === jobId ? { ...j, notes: notesToSave } : j
-      ));
+      setJobs(
+        jobs.map((j) => (j.id === jobId ? { ...j, notes: notesToSave } : j)),
+      );
 
       // Push undoable action
       pushAction({
         type: "notes",
-        description: notesToSave ? `Updated notes: ${job.title}` : `Removed notes: ${job.title}`,
+        description: notesToSave
+          ? `Updated notes: ${job.title}`
+          : `Removed notes: ${job.title}`,
         undo: async () => {
-          await invoke("set_job_notes", { id: jobId, notes: previousNotes });
-          setJobs((prev) => prev.map((j) =>
-            j.id === jobId ? { ...j, notes: previousNotes } : j
-          ));
+          try {
+            await invoke("set_job_notes", { id: jobId, notes: previousNotes });
+            setJobs((prev) =>
+              prev.map((j) =>
+                j.id === jobId ? { ...j, notes: previousNotes } : j,
+              ),
+            );
+          } catch (err) {
+            logError("Failed to undo notes:", err);
+            toast.error(
+              "Undo failed",
+              "Couldn't restore previous notes. Try refreshing.",
+            );
+          }
         },
         redo: async () => {
-          await invoke("set_job_notes", { id: jobId, notes: notesToSave });
-          setJobs((prev) => prev.map((j) =>
-            j.id === jobId ? { ...j, notes: notesToSave } : j
-          ));
+          try {
+            await invoke("set_job_notes", { id: jobId, notes: notesToSave });
+            setJobs((prev) =>
+              prev.map((j) =>
+                j.id === jobId ? { ...j, notes: notesToSave } : j,
+              ),
+            );
+          } catch (err) {
+            logError("Failed to redo notes:", err);
+            toast.error(
+              "Redo failed",
+              "Couldn't reapply notes. Try refreshing.",
+            );
+          }
         },
       });
 
@@ -192,136 +270,207 @@ export function useDashboardJobOps(jobs: Job[], setJobs: (jobs: Job[] | ((prev: 
     const selectedJobs = jobs.filter((j) => selectedJobIds.has(j.id));
     const idsToHide = Array.from(selectedJobIds);
 
-    try {
-      // Hide all selected jobs
-      await Promise.all(idsToHide.map((id) => invoke("hide_job", { id })));
-
-      // Invalidate cache and update state
-      invalidateCacheByCommand("get_recent_jobs");
-      invalidateCacheByCommand("get_statistics");
-      setJobs(jobs.filter((job) => !selectedJobIds.has(job.id)));
-      setSelectedJobIds(new Set());
-
-      // Push undoable action
-      pushAction({
-        type: "hide",
-        description: `Hidden ${selectedJobs.length} jobs`,
-        undo: async () => {
-          await Promise.all(idsToHide.map((id) => invoke("unhide_job", { id })));
-          invalidateCacheByCommand("get_recent_jobs");
-          invalidateCacheByCommand("get_statistics");
-          setJobs((prev) => [...selectedJobs, ...prev]);
-        },
-        redo: async () => {
-          await Promise.all(idsToHide.map((id) => invoke("hide_job", { id })));
-          invalidateCacheByCommand("get_recent_jobs");
-          invalidateCacheByCommand("get_statistics");
-          setJobs((prev) => prev.filter((job) => !idsToHide.includes(job.id)));
-        },
-      });
-    } catch (err: unknown) {
-      // Log and show user-friendly error
-      logError("Failed to bulk hide jobs:", err);
-      const enhancedError = err as Error & {
-        userFriendly?: { title: string; message: string; action?: string };
-      };
-      toast.error(
-        enhancedError.userFriendly?.title || "Bulk Hide Failed",
-        enhancedError.userFriendly?.message ||
-          "The jobs are still visible. Try hiding them one at a time, or refresh the page and try again."
-      );
-    }
-  }, [selectedJobIds, jobs, setJobs, toast, pushAction]);
-
-  const handleBulkBookmark = useCallback(async (bookmark: boolean) => {
-    if (selectedJobIds.size === 0) return;
-
-    const idsToUpdate = Array.from(selectedJobIds);
-    const previousStates = new Map(
-      jobs.filter((j) => selectedJobIds.has(j.id)).map((j) => [j.id, j.bookmarked])
+    // Hide all selected jobs — use allSettled so partial failures don't lose successful hides
+    const results = await Promise.allSettled(
+      idsToHide.map((id) => invoke("hide_job", { id })),
     );
 
-    try {
-      // Update all selected jobs - we need to toggle each one to match the desired state
-      for (const id of idsToUpdate) {
-        const job = jobs.find((j) => j.id === id);
-        if (job && job.bookmarked !== bookmark) {
-          await invoke<boolean>("toggle_bookmark", { id });
-        }
-      }
+    const failures = results.filter(
+      (r): r is PromiseRejectedResult => r.status === "rejected",
+    );
+    const succeededIds = idsToHide.filter(
+      (_, i) => results[i].status === "fulfilled",
+    );
 
-      // Update local state
-      setJobs(jobs.map((j) =>
-        selectedJobIds.has(j.id) ? { ...j, bookmarked: bookmark } : j
-      ));
+    if (succeededIds.length > 0) {
+      // Invalidate cache and update state for successful hides
+      invalidateCacheByCommand("get_recent_jobs");
+      invalidateCacheByCommand("get_statistics");
+      const succeededSet = new Set(succeededIds);
+      const succeededJobs = selectedJobs.filter((j) => succeededSet.has(j.id));
+      setJobs(jobs.filter((job) => !succeededSet.has(job.id)));
+      setSelectedJobIds(new Set());
 
-      toast.success(
-        bookmark ? `Bookmarked ${idsToUpdate.length} jobs` : `Removed ${idsToUpdate.length} bookmarks`,
-        ""
-      );
-
-      // Push undoable action
+      // Push undoable action for the jobs that actually got hidden
       pushAction({
-        type: "bookmark",
-        description: bookmark ? `Bookmarked ${idsToUpdate.length} jobs` : `Unbookmarked ${idsToUpdate.length} jobs`,
+        type: "hide",
+        description: `Hidden ${succeededIds.length} jobs`,
         undo: async () => {
-          for (const id of idsToUpdate) {
-            const wasBookmarked = previousStates.get(id);
-            const currentJob = jobs.find((j) => j.id === id);
-            if (currentJob && currentJob.bookmarked !== wasBookmarked) {
-              await invoke<boolean>("toggle_bookmark", { id });
-            }
+          try {
+            await Promise.allSettled(
+              succeededIds.map((id) => invoke("unhide_job", { id })),
+            );
+            invalidateCacheByCommand("get_recent_jobs");
+            invalidateCacheByCommand("get_statistics");
+            setJobs((prev) => [...succeededJobs, ...prev]);
+          } catch (err) {
+            logError("Failed to undo bulk hide:", err);
+            toast.error(
+              "Undo failed",
+              "Couldn't restore some hidden jobs. Try refreshing.",
+            );
           }
-          setJobs((prev) => prev.map((j) =>
-            idsToUpdate.includes(j.id) ? { ...j, bookmarked: previousStates.get(j.id) } : j
-          ));
         },
         redo: async () => {
-          for (const id of idsToUpdate) {
-            const job = jobs.find((j) => j.id === id);
-            if (job && job.bookmarked !== bookmark) {
-              await invoke<boolean>("toggle_bookmark", { id });
-            }
+          try {
+            await Promise.allSettled(
+              succeededIds.map((id) => invoke("hide_job", { id })),
+            );
+            invalidateCacheByCommand("get_recent_jobs");
+            invalidateCacheByCommand("get_statistics");
+            setJobs((prev) =>
+              prev.filter((job) => !succeededIds.includes(job.id)),
+            );
+          } catch (err) {
+            logError("Failed to redo bulk hide:", err);
+            toast.error(
+              "Redo failed",
+              "Couldn't hide some jobs again. Try refreshing.",
+            );
           }
-          setJobs((prev) => prev.map((j) =>
-            idsToUpdate.includes(j.id) ? { ...j, bookmarked: bookmark } : j
-          ));
         },
       });
-    } catch (err: unknown) {
-      logError("Failed to bulk bookmark jobs:", err);
-      const enhancedError = err as Error & {
-        userFriendly?: { title: string; message: string; action?: string };
-      };
-      toast.error(
-        enhancedError.userFriendly?.title || "Bulk Bookmark Failed",
-        enhancedError.userFriendly?.message ||
-          "Your bookmarks weren't changed. Try bookmarking jobs individually, or restart the app if this continues."
+    }
+
+    if (failures.length > 0) {
+      logError(
+        "Partial bulk hide failures:",
+        failures.map((f) => f.reason),
       );
+      if (failures.length === idsToHide.length) {
+        toast.error(
+          "Bulk Hide Failed",
+          "None of the jobs could be hidden. Try hiding them one at a time, or refresh and try again.",
+        );
+      } else {
+        toast.warning(
+          "Partially hidden",
+          `${succeededIds.length} jobs hidden, ${failures.length} failed. Try hiding the rest individually.`,
+        );
+      }
     }
   }, [selectedJobIds, jobs, setJobs, toast, pushAction]);
 
-  const handleBulkExport = useCallback((filteredJobs: Job[]) => {
-    const selectedJobs = filteredJobs.filter((j) => selectedJobIds.has(j.id));
-    if (selectedJobs.length === 0) return;
-    exportJobsToCSV(selectedJobs);
-    toast.success(`Exported ${selectedJobs.length} jobs`, "CSV file downloaded");
-  }, [selectedJobIds, toast]);
+  const handleBulkBookmark = useCallback(
+    async (bookmark: boolean) => {
+      if (selectedJobIds.size === 0) return;
+
+      const idsToUpdate = Array.from(selectedJobIds);
+      const previousStates = new Map(
+        jobs
+          .filter((j) => selectedJobIds.has(j.id))
+          .map((j) => [j.id, j.bookmarked]),
+      );
+
+      try {
+        // Update all selected jobs - we need to toggle each one to match the desired state
+        for (const id of idsToUpdate) {
+          const job = jobs.find((j) => j.id === id);
+          if (job && job.bookmarked !== bookmark) {
+            await invoke<boolean>("toggle_bookmark", { id });
+          }
+        }
+
+        // Update local state
+        setJobs(
+          jobs.map((j) =>
+            selectedJobIds.has(j.id) ? { ...j, bookmarked: bookmark } : j,
+          ),
+        );
+
+        toast.success(
+          bookmark
+            ? `Bookmarked ${idsToUpdate.length} jobs`
+            : `Removed ${idsToUpdate.length} bookmarks`,
+          "",
+        );
+
+        // Push undoable action
+        pushAction({
+          type: "bookmark",
+          description: bookmark
+            ? `Bookmarked ${idsToUpdate.length} jobs`
+            : `Unbookmarked ${idsToUpdate.length} jobs`,
+          undo: async () => {
+            for (const id of idsToUpdate) {
+              const wasBookmarked = previousStates.get(id);
+              const currentJob = jobs.find((j) => j.id === id);
+              if (currentJob && currentJob.bookmarked !== wasBookmarked) {
+                await invoke<boolean>("toggle_bookmark", { id });
+              }
+            }
+            setJobs((prev) =>
+              prev.map((j) =>
+                idsToUpdate.includes(j.id)
+                  ? { ...j, bookmarked: previousStates.get(j.id) }
+                  : j,
+              ),
+            );
+          },
+          redo: async () => {
+            for (const id of idsToUpdate) {
+              const job = jobs.find((j) => j.id === id);
+              if (job && job.bookmarked !== bookmark) {
+                await invoke<boolean>("toggle_bookmark", { id });
+              }
+            }
+            setJobs((prev) =>
+              prev.map((j) =>
+                idsToUpdate.includes(j.id) ? { ...j, bookmarked: bookmark } : j,
+              ),
+            );
+          },
+        });
+      } catch (err: unknown) {
+        logError("Failed to bulk bookmark jobs:", err);
+        const enhancedError = err as Error & {
+          userFriendly?: { title: string; message: string; action?: string };
+        };
+        toast.error(
+          enhancedError.userFriendly?.title || "Bulk Bookmark Failed",
+          enhancedError.userFriendly?.message ||
+            "Your bookmarks weren't changed. Try bookmarking jobs individually, or restart the app if this continues.",
+        );
+      }
+    },
+    [selectedJobIds, jobs, setJobs, toast, pushAction],
+  );
+
+  const handleBulkExport = useCallback(
+    (filteredJobs: Job[]) => {
+      const selectedJobs = filteredJobs.filter((j) => selectedJobIds.has(j.id));
+      if (selectedJobs.length === 0) return;
+      exportJobsToCSV(selectedJobs);
+      toast.success(
+        `Exported ${selectedJobs.length} jobs`,
+        "CSV file downloaded",
+      );
+    },
+    [selectedJobIds, toast],
+  );
 
   // Deduplication handlers
   const handleCheckDuplicates = useCallback(async () => {
     try {
       setCheckingDuplicates(true);
-      const groups = await safeInvokeWithToast<DuplicateGroup[]>("find_duplicates", undefined, toast, {
-        logContext: "Find duplicate jobs",
-      });
+      const groups = await safeInvokeWithToast<DuplicateGroup[]>(
+        "find_duplicates",
+        undefined,
+        toast,
+        {
+          logContext: "Find duplicate jobs",
+        },
+      );
       setDuplicateGroups(groups);
       setDuplicatesModalOpen(true);
 
       if (groups.length === 0) {
         toast.success("No duplicates", "All jobs are unique");
       } else {
-        toast.info("Duplicates found", `${groups.length} duplicate groups detected`);
+        toast.info(
+          "Duplicates found",
+          `${groups.length} duplicate groups detected`,
+        );
       }
     } catch {
       // Error already logged and shown to user
@@ -330,56 +479,92 @@ export function useDashboardJobOps(jobs: Job[], setJobs: (jobs: Job[] | ((prev: 
     }
   }, [toast]);
 
-  const handleMergeDuplicates = useCallback(async (primaryId: number, duplicateIds: number[]) => {
-    try {
-      await safeInvokeWithToast("merge_duplicates", { primaryId, duplicateIds }, toast, {
-        logContext: "Merge duplicate jobs",
-      });
+  const handleMergeDuplicates = useCallback(
+    async (primaryId: number, duplicateIds: number[]) => {
+      try {
+        await safeInvokeWithToast(
+          "merge_duplicates",
+          { primaryId, duplicateIds },
+          toast,
+          {
+            logContext: "Merge duplicate jobs",
+          },
+        );
 
-      // Remove merged jobs from the list
-      setJobs(jobs.filter((j) => j.id === primaryId || !duplicateIds.includes(j.id)));
+        // Remove merged jobs from the list
+        setJobs(
+          jobs.filter(
+            (j) => j.id === primaryId || !duplicateIds.includes(j.id),
+          ),
+        );
 
-      // Remove the group from duplicateGroups
-      setDuplicateGroups((prev) => prev.filter((g) => g.primary_id !== primaryId));
+        // Remove the group from duplicateGroups
+        setDuplicateGroups((prev) =>
+          prev.filter((g) => g.primary_id !== primaryId),
+        );
 
-      toast.success("Duplicates merged", "Keeping highest-scoring version");
+        toast.success("Duplicates merged", "Keeping highest-scoring version");
 
-      // Invalidate cache
-      invalidateCacheByCommand("get_recent_jobs");
-      invalidateCacheByCommand("get_statistics");
-    } catch {
-      // Error already logged and shown to user
-    }
-  }, [jobs, setJobs, toast]);
-
-  const handleMergeAllDuplicates = useCallback(async (fetchData: () => Promise<void>) => {
-    try {
-      for (const group of duplicateGroups) {
-        const duplicateIds = group.jobs.map((j) => j.id);
-        await invoke("merge_duplicates", {
-          primaryId: group.primary_id,
-          duplicateIds,
-        });
+        // Invalidate cache
+        invalidateCacheByCommand("get_recent_jobs");
+        invalidateCacheByCommand("get_statistics");
+      } catch {
+        // Error already logged and shown to user
       }
+    },
+    [jobs, setJobs, toast],
+  );
 
-      // Refresh job list
-      await fetchData();
-      setDuplicateGroups([]);
-      setDuplicatesModalOpen(false);
-
-      toast.success("All duplicates merged", `${duplicateGroups.length} groups cleaned up`);
-    } catch (err: unknown) {
-      logError("Failed to merge all duplicates:", err);
-      const enhancedError = err as Error & {
-        userFriendly?: { title: string; message: string; action?: string };
-      };
-      toast.error(
-        enhancedError.userFriendly?.title || "Bulk Merge Failed",
-        enhancedError.userFriendly?.message ||
-          "Some duplicates might have been merged. Refresh the page to see what changed, then try merging the rest individually."
+  const handleMergeAllDuplicates = useCallback(
+    async (fetchData: () => Promise<void>) => {
+      const results = await Promise.allSettled(
+        duplicateGroups.map((group) => {
+          const duplicateIds = group.jobs.map((j) => j.id);
+          return invoke("merge_duplicates", {
+            primaryId: group.primary_id,
+            duplicateIds,
+          });
+        }),
       );
-    }
-  }, [duplicateGroups, toast]);
+
+      const failures = results.filter(
+        (r): r is PromiseRejectedResult => r.status === "rejected",
+      );
+      const successCount = results.length - failures.length;
+
+      // Refresh job list regardless — some may have succeeded
+      await fetchData();
+
+      if (failures.length === 0) {
+        setDuplicateGroups([]);
+        setDuplicatesModalOpen(false);
+        toast.success(
+          "All duplicates merged",
+          `${duplicateGroups.length} groups cleaned up`,
+        );
+      } else if (successCount > 0) {
+        // Keep modal open so user can retry remaining
+        logError(
+          "Partial merge failures:",
+          failures.map((f) => f.reason),
+        );
+        toast.warning(
+          "Partially merged",
+          `${successCount} groups merged, ${failures.length} failed. Try merging the rest individually.`,
+        );
+      } else {
+        logError(
+          "All merges failed:",
+          failures.map((f) => f.reason),
+        );
+        toast.error(
+          "Bulk Merge Failed",
+          "None of the duplicate groups could be merged. Try merging them individually.",
+        );
+      }
+    },
+    [duplicateGroups, toast],
+  );
 
   // Comparison handlers
   const handleCompareJobs = useCallback(() => {

@@ -97,7 +97,8 @@ export const JobCard = memo(function JobCard({
     }
   };
 
-  const safeScore = job.score ?? 0;
+  const safeScore =
+    job.score != null && Number.isFinite(job.score) ? job.score : 0;
   const isHighMatch = safeScore >= SCORE_THRESHOLD_HIGH;
   const isGoodMatch = safeScore >= SCORE_THRESHOLD_GOOD;
   const salaryText = formatSalaryRange(job.salary_min, job.salary_max);

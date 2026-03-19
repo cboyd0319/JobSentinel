@@ -16,10 +16,14 @@ import {
   SCORE_THRESHOLD_GOOD,
 } from "../../utils/constants";
 
+// Coerce score to a finite number for safe comparison (null/NaN/Infinity → -1)
+const safeScore = (s: number | null | undefined): number =>
+  s != null && Number.isFinite(s) ? s : -1;
+
 // Sort comparators lookup (better performance than switch)
 const SORT_COMPARATORS: Record<SortOption, (a: Job, b: Job) => number> = {
-  "score-desc": (a, b) => (b.score ?? -1) - (a.score ?? -1),
-  "score-asc": (a, b) => (a.score ?? -1) - (b.score ?? -1),
+  "score-desc": (a, b) => safeScore(b.score) - safeScore(a.score),
+  "score-asc": (a, b) => safeScore(a.score) - safeScore(b.score),
   "date-desc": (a, b) =>
     new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
   "date-asc": (a, b) =>
@@ -159,8 +163,8 @@ export function useDashboardFilters(jobs: Job[]): FilterState &
     // Apply score filter
     if (scoreFilter !== "all") {
       result = result.filter((job) => {
-        const score = job.score ?? null;
-        if (score === null) return false;
+        const score = job.score;
+        if (score == null || !Number.isFinite(score)) return false;
         if (scoreFilter === "high") return score >= SCORE_THRESHOLD_GOOD;
         if (scoreFilter === "medium")
           return score >= 0.4 && score < SCORE_THRESHOLD_GOOD;

@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { jobsToCSV, downloadFile, exportJobsToCSV, exportConfigToJSON, importConfigFromJSON } from "./export";
+import {
+  jobsToCSV,
+  downloadFile,
+  exportJobsToCSV,
+  exportConfigToJSON,
+  importConfigFromJSON,
+} from "./export";
 
 describe("export utilities", () => {
   describe("jobsToCSV", () => {
@@ -167,6 +173,80 @@ describe("export utilities", () => {
       // remote: null should be empty
     });
 
+    it("handles NaN score as N/A", () => {
+      const jobs = [
+        {
+          id: 1,
+          title: "Job",
+          company: "Company",
+          location: "Location",
+          url: "https://example.com",
+          source: "linkedin",
+          score: NaN,
+          created_at: "2024-01-15T10:00:00Z",
+        },
+      ];
+
+      const csv = jobsToCSV(jobs);
+      expect(csv).toContain("N/A");
+      expect(csv).not.toContain("NaN%");
+    });
+
+    it("handles Infinity score as N/A", () => {
+      const jobs = [
+        {
+          id: 1,
+          title: "Job",
+          company: "Company",
+          location: "Location",
+          url: "https://example.com",
+          source: "linkedin",
+          score: Infinity,
+          created_at: "2024-01-15T10:00:00Z",
+        },
+      ];
+
+      const csv = jobsToCSV(jobs);
+      expect(csv).toContain("N/A");
+      expect(csv).not.toContain("Infinity%");
+    });
+
+    it("handles negative Infinity score as N/A", () => {
+      const jobs = [
+        {
+          id: 1,
+          title: "Job",
+          company: "Company",
+          location: "Location",
+          url: "https://example.com",
+          source: "linkedin",
+          score: -Infinity,
+          created_at: "2024-01-15T10:00:00Z",
+        },
+      ];
+
+      const csv = jobsToCSV(jobs);
+      expect(csv).toContain("N/A");
+    });
+
+    it("handles null score as N/A", () => {
+      const jobs = [
+        {
+          id: 1,
+          title: "Job",
+          company: "Company",
+          location: "Location",
+          url: "https://example.com",
+          source: "linkedin",
+          score: null,
+          created_at: "2024-01-15T10:00:00Z",
+        },
+      ];
+
+      const csv = jobsToCSV(jobs);
+      expect(csv).toContain("N/A");
+    });
+
     it("formats score as percentage", () => {
       const jobs = [
         {
@@ -204,9 +284,15 @@ describe("export utilities", () => {
         click: vi.fn(),
       };
 
-      vi.spyOn(document, "createElement").mockReturnValue(mockLink as unknown as HTMLAnchorElement);
-      mockAppendChild = vi.spyOn(document.body, "appendChild").mockReturnValue(mockLink as unknown as HTMLAnchorElement);
-      mockRemoveChild = vi.spyOn(document.body, "removeChild").mockReturnValue(mockLink as unknown as HTMLAnchorElement);
+      vi.spyOn(document, "createElement").mockReturnValue(
+        mockLink as unknown as HTMLAnchorElement,
+      );
+      mockAppendChild = vi
+        .spyOn(document.body, "appendChild")
+        .mockReturnValue(mockLink as unknown as HTMLAnchorElement);
+      mockRemoveChild = vi
+        .spyOn(document.body, "removeChild")
+        .mockReturnValue(mockLink as unknown as HTMLAnchorElement);
 
       mockCreateObjectURL = vi.fn().mockReturnValue("blob:test-url");
       mockRevokeObjectURL = vi.fn();
@@ -267,9 +353,15 @@ describe("export utilities", () => {
         click: vi.fn(),
       };
 
-      vi.spyOn(document, "createElement").mockReturnValue(mockLink as unknown as HTMLAnchorElement);
-      vi.spyOn(document.body, "appendChild").mockReturnValue(mockLink as unknown as HTMLAnchorElement);
-      vi.spyOn(document.body, "removeChild").mockReturnValue(mockLink as unknown as HTMLAnchorElement);
+      vi.spyOn(document, "createElement").mockReturnValue(
+        mockLink as unknown as HTMLAnchorElement,
+      );
+      vi.spyOn(document.body, "appendChild").mockReturnValue(
+        mockLink as unknown as HTMLAnchorElement,
+      );
+      vi.spyOn(document.body, "removeChild").mockReturnValue(
+        mockLink as unknown as HTMLAnchorElement,
+      );
       globalThis.URL.createObjectURL = vi.fn().mockReturnValue("blob:url");
       globalThis.URL.revokeObjectURL = vi.fn();
     });
@@ -332,7 +424,9 @@ describe("export utilities", () => {
 
       exportJobsToCSV(jobs);
 
-      expect(mockLink.download).toMatch(/^jobsentinel-export-\d{4}-\d{2}-\d{2}\.csv$/);
+      expect(mockLink.download).toMatch(
+        /^jobsentinel-export-\d{4}-\d{2}-\d{2}\.csv$/,
+      );
     });
   });
 
@@ -350,9 +444,15 @@ describe("export utilities", () => {
         click: vi.fn(),
       };
 
-      vi.spyOn(document, "createElement").mockReturnValue(mockLink as unknown as HTMLAnchorElement);
-      vi.spyOn(document.body, "appendChild").mockReturnValue(mockLink as unknown as HTMLAnchorElement);
-      vi.spyOn(document.body, "removeChild").mockReturnValue(mockLink as unknown as HTMLAnchorElement);
+      vi.spyOn(document, "createElement").mockReturnValue(
+        mockLink as unknown as HTMLAnchorElement,
+      );
+      vi.spyOn(document.body, "appendChild").mockReturnValue(
+        mockLink as unknown as HTMLAnchorElement,
+      );
+      vi.spyOn(document.body, "removeChild").mockReturnValue(
+        mockLink as unknown as HTMLAnchorElement,
+      );
       globalThis.URL.createObjectURL = vi.fn().mockReturnValue("blob:url");
       globalThis.URL.revokeObjectURL = vi.fn();
     });
@@ -382,7 +482,9 @@ describe("export utilities", () => {
 
       exportConfigToJSON(config);
 
-      expect(mockLink.download).toMatch(/^jobsentinel-config-\d{4}-\d{2}-\d{2}\.json$/);
+      expect(mockLink.download).toMatch(
+        /^jobsentinel-config-\d{4}-\d{2}-\d{2}\.json$/,
+      );
     });
 
     it("sanitizes email password from alerts config", () => {
@@ -465,7 +567,9 @@ describe("export utilities", () => {
         files: null,
       };
 
-      vi.spyOn(document, "createElement").mockReturnValue(mockInput as unknown as HTMLInputElement);
+      vi.spyOn(document, "createElement").mockReturnValue(
+        mockInput as unknown as HTMLInputElement,
+      );
     });
 
     afterEach(() => {

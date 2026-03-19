@@ -563,6 +563,6 @@ See [tests/README.md](../../tests/README.md) for full documentation.
 
 ---
 
-**Last updated:** March 2026
+**Last Updated:** March 18, 2026
 **Test count:** ~4,666 passing (2,403 frontend + 2,263 Rust)
 **Version:** v2.6.3

@@ -568,8 +568,9 @@ describe("ScreeningAnswersForm", () => {
       await user.click(screen.getByRole("button", { name: /add answer/i }));
 
       const patternInput = screen.getByLabelText(/question pattern/i);
-      await user.clear(patternInput);
-      await user.type(patternInput, "salary|compensation");
+      fireEvent.change(patternInput, {
+        target: { value: "salary|compensation" },
+      });
 
       expect(patternInput).toHaveValue("salary|compensation");
     });
@@ -587,8 +588,11 @@ describe("ScreeningAnswersForm", () => {
       await user.click(screen.getByRole("button", { name: /add answer/i }));
 
       const answerInput = screen.getByLabelText(/your answer/i);
-      await user.clear(answerInput);
-      await user.type(answerInput, "$100,000 - $120,000");
+      // Use fireEvent.change for controlled inputs — userEvent.type can drop
+      // characters when React re-renders between keystrokes in test environments
+      fireEvent.change(answerInput, {
+        target: { value: "$100,000 - $120,000" },
+      });
 
       expect(answerInput).toHaveValue("$100,000 - $120,000");
     });
@@ -606,8 +610,7 @@ describe("ScreeningAnswersForm", () => {
       await user.click(screen.getByRole("button", { name: /add answer/i }));
 
       const notesInput = screen.getByLabelText(/notes/i);
-      await user.clear(notesInput);
-      await user.type(notesInput, "Test notes");
+      fireEvent.change(notesInput, { target: { value: "Test notes" } });
 
       expect(notesInput).toHaveValue("Test notes");
     });

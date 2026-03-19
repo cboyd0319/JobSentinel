@@ -592,36 +592,43 @@ export default function Settings({ onClose }: SettingsProps) {
       setConfig(configData);
 
       // Check which credentials exist in secure storage (don't load actual values)
-      const [
-        hasSlack,
-        hasSmtp,
-        hasLinkedIn,
-        hasDiscord,
-        hasTeams,
-        hasTelegram,
-        hasUsaJobs,
-      ] = await Promise.all([
-        hasCredential("slack_webhook"),
-        hasCredential("smtp_password"),
-        hasCredential("linkedin_cookie"),
-        hasCredential("discord_webhook"),
-        hasCredential("teams_webhook"),
-        hasCredential("telegram_bot_token"),
-        hasCredential("usajobs_api_key"),
-      ]);
+      // Use allSettled so a single keyring failure doesn't block the entire Settings page
+      const credentialKeys: CredentialKey[] = [
+        "slack_webhook",
+        "smtp_password",
+        "linkedin_cookie",
+        "discord_webhook",
+        "teams_webhook",
+        "telegram_bot_token",
+        "usajobs_api_key",
+      ];
+      const credResults = await Promise.allSettled(
+        credentialKeys.map((key) => hasCredential(key)),
+      );
 
-      setCredentialStatus({
-        slack_webhook: hasSlack,
-        smtp_password: hasSmtp,
-        linkedin_cookie: hasLinkedIn,
-        discord_webhook: hasDiscord,
-        teams_webhook: hasTeams,
-        telegram_bot_token: hasTelegram,
-        usajobs_api_key: hasUsaJobs,
+      const newStatus = {} as Record<CredentialKey, boolean>;
+      let credFailures = 0;
+      credentialKeys.forEach((key, i) => {
+        if (credResults[i].status === "fulfilled") {
+          newStatus[key] = (
+            credResults[i] as PromiseFulfilledResult<boolean>
+          ).value;
+        } else {
+          newStatus[key] = false;
+          credFailures++;
+        }
       });
+      setCredentialStatus(newStatus);
+
+      if (credFailures > 0) {
+        toast.warning(
+          "Some credentials unavailable",
+          `Couldn't check ${credFailures} stored credential(s). Your system keychain may be locked.`,
+        );
+      }
 
       // Fetch LinkedIn expiry status if connected
-      if (hasLinkedIn) {
+      if (newStatus.linkedin_cookie) {
         try {
           const expiryStatus = await invoke<LinkedInExpiryStatus>(
             "get_linkedin_expiry_status",
@@ -650,7 +657,7 @@ export default function Settings({ onClose }: SettingsProps) {
       setGhostConfig(config);
     } catch (error: unknown) {
       logError("Failed to load ghost config:", error);
-      // Use default values if loading fails
+      // Use default values if loading fails, but tell the user
       setGhostConfig({
         stale_threshold_days: 60,
         repost_threshold: 3,
@@ -659,10 +666,14 @@ export default function Settings({ onClose }: SettingsProps) {
         warning_threshold: 0.3,
         hide_threshold: 0.7,
       });
+      toast.warning(
+        "Ghost detection defaults loaded",
+        "Couldn't load your saved ghost detection settings. Using defaults.",
+      );
     } finally {
       setGhostConfigLoading(false);
     }
-  }, []);
+  }, [toast]);
 
   // Detect location on mount (once per session)
   const detectLocationOnce = useCallback(async () => {
@@ -743,21 +754,39 @@ export default function Settings({ onClose }: SettingsProps) {
         );
       }
 
-      // Save credentials and config in parallel
-      await Promise.all([
+      // Save credentials and config in parallel, tracking per-item results
+      const results = await Promise.allSettled([
         ...credentialSaves,
         invoke("save_config", { config }),
       ]);
 
-      toast.success(
-        "Settings saved!",
-        "Credentials stored securely in your system keychain",
+      const failures = results.filter(
+        (r): r is PromiseRejectedResult => r.status === "rejected",
       );
-      onClose();
-    } catch (error: unknown) {
-      logError("Failed to save config:", error);
-      const friendly = getUserFriendlyError(error);
-      toast.error(friendly.title, friendly.message);
+
+      if (failures.length > 0) {
+        logError(
+          "Partial save failures:",
+          failures.map((f) => f.reason),
+        );
+        if (failures.length === results.length) {
+          toast.error(
+            "Save failed",
+            "Settings could not be saved. Check your connection and try again.",
+          );
+        } else {
+          toast.warning(
+            "Partially saved",
+            `${failures.length} credential(s) failed to save. Config was saved. Try saving again.`,
+          );
+        }
+      } else {
+        toast.success(
+          "Settings saved!",
+          "Credentials stored securely in your system keychain",
+        );
+        onClose();
+      }
     } finally {
       setSaving(false);
     }

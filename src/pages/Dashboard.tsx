@@ -258,6 +258,41 @@ export default function Dashboard({
     }
 
     try {
+      // Pre-flight check: warn if no scrapers are enabled
+      try {
+        const cfg =
+          await safeInvoke<Record<string, { enabled?: boolean }>>("get_config");
+        if (cfg) {
+          const scraperKeys = [
+            "linkedin",
+            "remoteok",
+            "weworkremotely",
+            "builtin",
+            "hn_hiring",
+            "dice",
+            "yc_startup",
+            "usajobs",
+            "simplyhired",
+            "glassdoor",
+            "greenhouse",
+            "lever",
+            "jobswithgpt",
+          ];
+          const anyEnabled = scraperKeys.some(
+            (k) => cfg[k] && cfg[k].enabled === true,
+          );
+          if (!anyEnabled) {
+            toast.warning(
+              "No job sources enabled",
+              "Enable at least one job board in Settings before searching.",
+            );
+            return;
+          }
+        }
+      } catch {
+        // Config check failed — proceed with search anyway
+      }
+
       setSearching(true);
       setSearchCooldown(true);
       setCooldownSeconds(30);

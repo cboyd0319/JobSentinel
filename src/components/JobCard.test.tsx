@@ -22,7 +22,8 @@ const mockJob = {
   source: "LinkedIn",
   score: 0.85,
   created_at: new Date().toISOString(),
-  description: "We are looking for a talented software engineer to join our team.",
+  description:
+    "We are looking for a talented software engineer to join our team.",
   salary_min: 120000,
   salary_max: 180000,
   remote: false,
@@ -38,7 +39,9 @@ describe("JobCard", () => {
   describe("rendering", () => {
     it("renders job title and company", () => {
       renderWithToast(<JobCard job={mockJob} />);
-      expect(screen.getByTestId("job-title")).toHaveTextContent("Senior Software Engineer");
+      expect(screen.getByTestId("job-title")).toHaveTextContent(
+        "Senior Software Engineer",
+      );
       expect(screen.getByTestId("job-company")).toHaveTextContent("Tech Corp");
     });
 
@@ -72,7 +75,9 @@ describe("JobCard", () => {
 
     it("renders description snippet when available", () => {
       renderWithToast(<JobCard job={mockJob} />);
-      expect(screen.getByText(/We are looking for a talented software engineer/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/We are looking for a talented software engineer/),
+      ).toBeInTheDocument();
     });
 
     it("truncates long descriptions", () => {
@@ -114,6 +119,37 @@ describe("JobCard", () => {
       const { container } = renderWithToast(<JobCard job={mockJob} />);
       const indicator = container.querySelector(".bg-gradient-to-r");
       expect(indicator).not.toBeInTheDocument();
+    });
+
+    it("handles null score without crashing", () => {
+      const nullScoreJob = { ...mockJob, score: null };
+      renderWithToast(<JobCard job={nullScoreJob} />);
+      // Should render 0% for null score
+      const scoreDisplay = screen.getByText("0%");
+      expect(scoreDisplay).toBeInTheDocument();
+    });
+
+    it("handles NaN score without crashing", () => {
+      const nanScoreJob = { ...mockJob, score: NaN };
+      renderWithToast(<JobCard job={nanScoreJob} />);
+      // NaN should be treated as 0, not display "NaN%"
+      const scoreDisplay = screen.getByText("0%");
+      expect(scoreDisplay).toBeInTheDocument();
+    });
+
+    it("does not show high match indicator for NaN score", () => {
+      const nanScoreJob = { ...mockJob, score: NaN };
+      const { container } = renderWithToast(<JobCard job={nanScoreJob} />);
+      const indicator = container.querySelector(".bg-gradient-to-r");
+      expect(indicator).not.toBeInTheDocument();
+    });
+
+    it("handles Infinity score without crashing", () => {
+      const infScoreJob = { ...mockJob, score: Infinity };
+      renderWithToast(<JobCard job={infScoreJob} />);
+      // Should treat Infinity as 0
+      const scoreDisplay = screen.getByText("0%");
+      expect(scoreDisplay).toBeInTheDocument();
     });
   });
 
@@ -178,7 +214,9 @@ describe("JobCard", () => {
   describe("bookmark button", () => {
     it("renders bookmark button when onToggleBookmark is provided", () => {
       const onToggleBookmark = vi.fn();
-      renderWithToast(<JobCard job={mockJob} onToggleBookmark={onToggleBookmark} />);
+      renderWithToast(
+        <JobCard job={mockJob} onToggleBookmark={onToggleBookmark} />,
+      );
       expect(screen.getByTestId("btn-bookmark")).toBeInTheDocument();
     });
 
@@ -190,7 +228,9 @@ describe("JobCard", () => {
     it("calls onToggleBookmark when clicked", async () => {
       const user = userEvent.setup();
       const onToggleBookmark = vi.fn();
-      renderWithToast(<JobCard job={mockJob} onToggleBookmark={onToggleBookmark} />);
+      renderWithToast(
+        <JobCard job={mockJob} onToggleBookmark={onToggleBookmark} />,
+      );
 
       const bookmarkBtn = screen.getByTestId("btn-bookmark");
       await user.click(bookmarkBtn);
@@ -200,7 +240,9 @@ describe("JobCard", () => {
 
     it("shows filled bookmark icon when bookmarked", () => {
       const bookmarkedJob = { ...mockJob, bookmarked: true };
-      renderWithToast(<JobCard job={bookmarkedJob} onToggleBookmark={vi.fn()} />);
+      renderWithToast(
+        <JobCard job={bookmarkedJob} onToggleBookmark={vi.fn()} />,
+      );
 
       const bookmarkBtn = screen.getByTestId("btn-bookmark");
       expect(bookmarkBtn).toHaveAttribute("data-bookmarked");
@@ -281,14 +323,19 @@ describe("JobCard", () => {
     it("has correct aria-label", () => {
       renderWithToast(<JobCard job={mockJob} onHideJob={vi.fn()} />);
       const hideBtn = screen.getByTestId("btn-hide");
-      expect(hideBtn).toHaveAttribute("aria-label", "Not interested in this job");
+      expect(hideBtn).toHaveAttribute(
+        "aria-label",
+        "Not interested in this job",
+      );
     });
   });
 
   describe("research company button", () => {
     it("renders research button when onResearchCompany is provided", () => {
       const onResearchCompany = vi.fn();
-      renderWithToast(<JobCard job={mockJob} onResearchCompany={onResearchCompany} />);
+      renderWithToast(
+        <JobCard job={mockJob} onResearchCompany={onResearchCompany} />,
+      );
       expect(screen.getByTestId("btn-research")).toBeInTheDocument();
     });
 
@@ -300,7 +347,9 @@ describe("JobCard", () => {
     it("calls onResearchCompany with company name when clicked", async () => {
       const user = userEvent.setup();
       const onResearchCompany = vi.fn();
-      renderWithToast(<JobCard job={mockJob} onResearchCompany={onResearchCompany} />);
+      renderWithToast(
+        <JobCard job={mockJob} onResearchCompany={onResearchCompany} />,
+      );
 
       const researchBtn = screen.getByTestId("btn-research");
       await user.click(researchBtn);
@@ -336,7 +385,8 @@ describe("JobCard", () => {
     it("falls back to window.open when shell.open fails", async () => {
       const user = userEvent.setup();
       const mockWindowOpen = vi.fn();
-      (window as typeof globalThis & { open: typeof window.open }).open = mockWindowOpen;
+      (window as typeof globalThis & { open: typeof window.open }).open =
+        mockWindowOpen;
       vi.mocked(shell.open).mockRejectedValue(new Error("Failed"));
 
       renderWithToast(<JobCard job={mockJob} />);
@@ -348,7 +398,7 @@ describe("JobCard", () => {
         expect(mockWindowOpen).toHaveBeenCalledWith(
           "https://example.com/job/1",
           "_blank",
-          "noopener,noreferrer"
+          "noopener,noreferrer",
         );
       });
     });
@@ -396,11 +446,13 @@ describe("JobCard", () => {
           onHideJob={vi.fn()}
           onEditNotes={vi.fn()}
           onResearchCompany={vi.fn()}
-        />
+        />,
       );
 
       expect(screen.getByLabelText("Bookmark this job")).toBeInTheDocument();
-      expect(screen.getByLabelText("Not interested in this job")).toBeInTheDocument();
+      expect(
+        screen.getByLabelText("Not interested in this job"),
+      ).toBeInTheDocument();
       expect(screen.getByLabelText("Add notes")).toBeInTheDocument();
       expect(screen.getByLabelText("Research company")).toBeInTheDocument();
     });

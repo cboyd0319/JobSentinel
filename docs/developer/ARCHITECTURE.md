@@ -833,6 +833,6 @@ match result {
 
 ---
 
-**Last Updated**: January 25, 2026
+**Last Updated**: March 18, 2026
 **Version**: 2.6.3
 **Maintained By**: The Rust Mac Overlord 🦀
