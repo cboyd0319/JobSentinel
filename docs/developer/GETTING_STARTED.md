@@ -4,11 +4,11 @@
 
 **Version 2.6.3** (March 2026)
 
-| Component | Status |
-|-----------|--------|
-| Core modules (config, db, scoring, scrapers, scheduler, notify, ghost, ats, resume, salary, market, automation, credentials, health) | Working |
-| Frontend (React 19 + TypeScript) | Working |
-| Tests | 4,833+ passing (2,403 frontend + 2,430 Rust) |
+| Component                                                                                                                            | Status                                       |
+| ------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------- |
+| Core modules (config, db, scoring, scrapers, scheduler, notify, ghost, ats, resume, salary, market, automation, credentials, health) | Working                                      |
+| Frontend (React 19 + TypeScript)                                                                                                     | Working                                      |
+| Tests                                                                                                                                | 4,660+ passing (2,403 frontend + 2,263 Rust) |
 
 ---
 
@@ -121,7 +121,7 @@ JobSentinel/
 │   │   ├── platforms/       # Windows/macOS/Linux specific code
 │   │   ├── cloud/           # GCP/AWS deployment (v3.0+)
 │   │   └── commands/        # 169 Tauri RPC command handlers
-│   ├── migrations/          # 3 SQLite migrations
+│   ├── migrations/          # 4 SQLite migrations
 │   └── Cargo.toml           # Rust dependencies
 ├── public/                  # Static assets (logo, etc.)
 ├── docs/                    # Documentation
@@ -131,27 +131,27 @@ JobSentinel/
 
 ### Key Technologies
 
-| Technology | Purpose |
-|------------|---------|
-| **Tauri 2.1** | Desktop app framework (Rust + Web) |
-| **React 19** | UI framework |
-| **Vite** | Fast build tool |
-| **TailwindCSS** | Utility-first CSS |
-| **TypeScript** | Type-safe JavaScript |
-| **Rust** | Backend language |
-| **Tokio** | Async runtime |
-| **SQLx** | SQLite database |
-| **reqwest** | HTTP client |
-| **scraper** | HTML parsing |
+| Technology      | Purpose                            |
+| --------------- | ---------------------------------- |
+| **Tauri 2.1**   | Desktop app framework (Rust + Web) |
+| **React 19**    | UI framework                       |
+| **Vite**        | Fast build tool                    |
+| **TailwindCSS** | Utility-first CSS                  |
+| **TypeScript**  | Type-safe JavaScript               |
+| **Rust**        | Backend language                   |
+| **Tokio**       | Async runtime                      |
+| **SQLx**        | SQLite database                    |
+| **reqwest**     | HTTP client                        |
+| **scraper**     | HTML parsing                       |
 
 ### Running Tests
 
 ```bash
-# Backend tests (2,175+ tests)
+# Backend tests (2,263 tests)
 cd src-tauri
 cargo test
 
-# Frontend tests (2,390+ tests)
+# Frontend tests (2,403 tests)
 npm test
 ```
 
@@ -188,8 +188,8 @@ All core functionality is in `src-tauri/src/core/` and works identically on all 
 - **scheduler**: Periodic job scraping with configurable interval and auto-refresh
 - **scoring**: Multi-factor job scoring (0-1 scale)
 - **scrapers**: 13 job board scrapers with parallel execution (Greenhouse, Lever, LinkedIn,
-  Indeed, RemoteOK, Wellfound, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice,
-  YC Startup Jobs, ZipRecruiter)
+  RemoteOK, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice,
+  YC Startup Jobs, USAJobs, SimplyHired, Glassdoor)
 
 ### Platform-Specific Code
 
@@ -241,11 +241,11 @@ The SQLite database is **created automatically** on first launch — no setup ne
 
 **Database location by platform:**
 
-| Platform | Path |
-|----------|------|
-| **Windows** | `%LOCALAPPDATA%\JobSentinel\jobs.db` |
-| **macOS** | `~/Library/Application Support/com.jobsentinel.app/jobs.db` |
-| **Linux** | `~/.local/share/com.jobsentinel.app/jobs.db` |
+| Platform    | Path                                                        |
+| ----------- | ----------------------------------------------------------- |
+| **Windows** | `%LOCALAPPDATA%\JobSentinel\jobs.db`                        |
+| **macOS**   | `~/Library/Application Support/com.jobsentinel.app/jobs.db` |
+| **Linux**   | `~/.local/share/com.jobsentinel.app/jobs.db`                |
 
 Migrations run automatically. You never need to set up tables manually.
 
@@ -337,13 +337,13 @@ To maintain code quality and regenerability, all files follow the LLM-first codi
 
 **v1.5 Refactoring Priority** (see [ROADMAP.md](../ROADMAP.md) for details):
 
-| File | Lines | Status |
-|------|-------|--------|
-| `db/mod.rs` | 4442 | CRITICAL - needs modularization |
-| `scheduler/mod.rs` | 2955 | HIGH - candidate for split |
-| `market_intelligence/mod.rs` | 2703 | HIGH - candidate for split |
-| `config/mod.rs` | 2343 | MEDIUM - monitor size |
-| `Dashboard.tsx` | 2315 | MEDIUM - frontend refactoring planned |
+| File                         | Lines | Status                                |
+| ---------------------------- | ----- | ------------------------------------- |
+| `db/mod.rs`                  | 4442  | CRITICAL - needs modularization       |
+| `scheduler/mod.rs`           | 2955  | HIGH - candidate for split            |
+| `market_intelligence/mod.rs` | 2703  | HIGH - candidate for split            |
+| `config/mod.rs`              | 2343  | MEDIUM - monitor size                 |
+| `Dashboard.tsx`              | 2315  | MEDIUM - frontend refactoring planned |
 
 ---
 

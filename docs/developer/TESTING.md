@@ -23,7 +23,7 @@ JobSentinel uses a comprehensive testing strategy across all layers:
 
 - **Unit Tests**: Test individual functions and modules in isolation
 - **Integration Tests**: Test interaction between modules
-- **End-to-End Tests**: Test complete workflows with WebdriverIO + Tauri Driver
+- **End-to-End Tests**: Test complete workflows with Playwright
 
 ### Testing Philosophy
 
@@ -132,31 +132,29 @@ easier maintenance and regeneration.
 
 ### Test Counts by Module
 
-| Module | Tests | Coverage |
-|--------|-------|----------|
-| `core/config` | 51 | 100% validation |
-| `core/db` | 21 | All CRUD + edge cases |
-| `core/db/integrity` | 12 | Health checks, backups |
-| `core/notify/*` | 55 | Slack, Discord, Teams, Telegram, Email |
-| `commands` | 13 | All Tauri RPC |
-| `core/scoring` | 3 | Happy + edge cases |
-| `core/scheduler` | 12 | Lifecycle + shutdown |
-| `core/scrapers/greenhouse` | 19 | 12 unit + 7 properties |
-| `core/scrapers/lever` | 22 | Unit + properties |
-| `core/scrapers/jobswithgpt` | 21 | Unit + properties |
-| `core/scrapers/linkedin` | 4 | Basic functionality |
-| `core/scrapers/indeed` | 3 | Basic functionality |
-| `core/scrapers/rate_limiter` | 5 | Token bucket algorithm |
-| `core/ats` | 4 | Application tracking (ignored) |
-| `core/resume` | 14 | Parser + matcher + skills |
-| `core/salary` | 8 | Benchmarks + negotiation |
-| `core/market_intelligence` | 12 | Trends + alerts + analytics |
-| `platforms/macos` | 6 | Paths + initialization |
-| `cloud/common` | 1 | Deployment mode detection |
-| **Backend Unit Tests** | **2,100+** | **Core module coverage** |
-| **Backend Integration Tests** | **75+** | **Full pipeline** |
-| **Frontend Tests** | **2,390+** | **Component and integration** |
-| **Total** | **4,565+ passing** | **26 ignored** |
+| Module                       | Tests              | Coverage                               |
+| ---------------------------- | ------------------ | -------------------------------------- |
+| `core/config`                | 51                 | 100% validation                        |
+| `core/db`                    | 21                 | All CRUD + edge cases                  |
+| `core/db/integrity`          | 12                 | Health checks, backups                 |
+| `core/notify/*`              | 55                 | Slack, Discord, Teams, Telegram, Email |
+| `commands`                   | 13                 | All Tauri RPC                          |
+| `core/scoring`               | 3                  | Happy + edge cases                     |
+| `core/scheduler`             | 12                 | Lifecycle + shutdown                   |
+| `core/scrapers/greenhouse`   | 19                 | 12 unit + 7 properties                 |
+| `core/scrapers/lever`        | 22                 | Unit + properties                      |
+| `core/scrapers/jobswithgpt`  | 21                 | Unit + properties                      |
+| `core/scrapers/linkedin`     | 4                  | Basic functionality                    |
+| `core/scrapers/rate_limiter` | 5                  | Token bucket algorithm                 |
+| `core/ats`                   | 4                  | Application tracking (ignored)         |
+| `core/resume`                | 14                 | Parser + matcher + skills              |
+| `core/salary`                | 8                  | Benchmarks + negotiation               |
+| `core/market_intelligence`   | 12                 | Trends + alerts + analytics            |
+| `platforms/macos`            | 6                  | Paths + initialization                 |
+| `cloud/common`               | 1                  | Deployment mode detection              |
+| **Backend Unit Tests**       | **2,263+**         | **Core module coverage**               |
+| **Frontend Tests**           | **2,403+**         | **Component and integration**          |
+| **Total**                    | **~4,666 passing** | **26 ignored**                         |
 
 ---
 
@@ -391,47 +389,35 @@ Open `coverage/index.html` to view detailed coverage.
 
 ### Coverage Goals
 
-| Category | Target | Status |
-|----------|--------|--------|
-| Core business logic | 90%+ | ✅ Achieved |
-| Database layer | 85%+ | ✅ Achieved |
-| Configuration | 100% | ✅ Achieved |
-| Tauri commands | 80%+ | ✅ Achieved |
-| Scrapers | 70%+ | ⚠️ In Progress |
-| Platform-specific | 60%+ | ✅ Achieved |
+| Category            | Target | Status         |
+| ------------------- | ------ | -------------- |
+| Core business logic | 90%+   | ✅ Achieved    |
+| Database layer      | 85%+   | ✅ Achieved    |
+| Configuration       | 100%   | ✅ Achieved    |
+| Tauri commands      | 80%+   | ✅ Achieved    |
+| Scrapers            | 70%+   | ⚠️ In Progress |
+| Platform-specific   | 60%+   | ✅ Achieved    |
 
 ---
 
 ## CI/CD Integration
 
-### GitHub Actions Workflow
+### GitHub Actions workflow
 
-```yaml
-name: Tests
+CI runs on every push and pull request targeting `main`. All jobs run on `ubuntu-latest` with
+the stable Rust toolchain — there is no OS matrix and no beta toolchain run.
 
-on: [push, pull_request]
+The three CI jobs are:
 
-jobs:
-  test:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        rust: [stable, beta]
+- **test-rust** — runs `cargo fmt --all -- --check`, `cargo clippy -- -D warnings`, and `cargo test --lib`
+- **test-frontend** — runs `npx tsc --noEmit`, `npm run lint`, and `npm test -- --run`
+- **security** — runs `npm audit --audit-level=moderate` and `cargo deny check advisories`
 
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: ${{ matrix.rust }}
-          override: true
+Note that CI runs `cargo test --lib`, which covers unit tests only. Integration tests in `tests/`
+that require a file-based database or external services are excluded from CI and run locally with
+`cargo test --ignored`.
 
-      - name: Run tests
-        run: cd src-tauri && cargo test --all-features
-
-      - name: Run tests (release mode)
-        run: cd src-tauri && cargo test --release --all-features
-```
+For full CI/CD documentation see [CI_CD.md](./CI_CD.md).
 
 ### Pre-commit Hook
 
@@ -507,43 +493,38 @@ fn test_example() {
 
 ## End-to-End Tests
 
-E2E tests use WebdriverIO with Tauri Driver to test complete workflows in the built app.
+E2E tests use Playwright to test complete workflows in the built app.
 
 ### Running E2E Tests
 
 ```bash
-# Build the app first
-npm run tauri build
+# Run all E2E tests
+npm run test:e2e
 
-# Run E2E tests
-cd tests/e2e/webdriverio
-npm install
-npm test
-
-# Capture screenshots for documentation
-npm run screenshots
+# Run in interactive UI mode
+npm run test:e2e:ui
 ```
 
 ### E2E Test Coverage
 
-| Page | Test File | Tests |
-|------|-----------|-------|
-| Dashboard | `dashboard.e2e.js` | Load, nav, stats, search, shortcuts |
-| Settings | `settings.e2e.js` | Nav, preferences, notifications, save |
-| Applications | `applications.e2e.js` | Kanban, stats, cards, reminders |
-| Market | `market.e2e.js` | Tabs, snapshot, charts, heatmap, alerts |
-| Resume | `resume.e2e.js` | Upload, skills, categories, gap analysis |
-| Resume Builder | `resume-builder.e2e.js` | Wizard, steps, templates, export |
-| Salary | `salary.e2e.js` | Prediction, benchmark, comparison, negotiation |
-| One-Click Apply | `one-click-apply.e2e.js` | Profile, screening, ATS detection |
+| Page            | Test File                | Tests                                          |
+| --------------- | ------------------------ | ---------------------------------------------- |
+| Dashboard       | `dashboard.e2e.js`       | Load, nav, stats, search, shortcuts            |
+| Settings        | `settings.e2e.js`        | Nav, preferences, notifications, save          |
+| Applications    | `applications.e2e.js`    | Kanban, stats, cards, reminders                |
+| Market          | `market.e2e.js`          | Tabs, snapshot, charts, heatmap, alerts        |
+| Resume          | `resume.e2e.js`          | Upload, skills, categories, gap analysis       |
+| Resume Builder  | `resume-builder.e2e.js`  | Wizard, steps, templates, export               |
+| Salary          | `salary.e2e.js`          | Prediction, benchmark, comparison, negotiation |
+| One-Click Apply | `one-click-apply.e2e.js` | Profile, screening, ATS detection              |
 
 ### Writing E2E Tests
 
 ```javascript
-describe('Feature', () => {
-  it('should do something', async () => {
+describe("Feature", () => {
+  it("should do something", async () => {
     // Find elements
-    const button = await $('button.primary');
+    const button = await $("button.primary");
 
     // Interact
     await button.click();
@@ -578,12 +559,10 @@ See [tests/README.md](../../tests/README.md) for full documentation.
 - [tokio Testing](https://tokio.rs/tokio/topics/testing)
 - [tempfile Crate](https://docs.rs/tempfile/)
 - [SQLx Testing](https://github.com/launchbadge/sqlx#testing)
-- [Tauri WebDriver Docs](https://v2.tauri.app/develop/tests/webdriver/)
-- [WebdriverIO Documentation](https://webdriver.io/docs/gettingstarted)
+- [Playwright documentation](https://playwright.dev/docs/intro)
 
 ---
 
-**Last Updated**: January 25, 2026
-**Test Count**: 4,449+ passing (2,274 frontend + 2,175 Rust)
-**Version**: v2.6.3
-**Maintained By**: The Rust Mac Overlord 🦀
+**Last updated:** March 2026
+**Test count:** ~4,666 passing (2,403 frontend + 2,263 Rust)
+**Version:** v2.6.3

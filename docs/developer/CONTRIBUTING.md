@@ -31,14 +31,14 @@ RIGHT: Launch 3 Explore agents in parallel → Receive all results → Decide wi
 
 **After ANY change, update ALL relevant docs:**
 
-| Change Type | Must Update |
-|------------|-------------|
-| New feature | `CHANGELOG.md`, `docs/features/`, `README.md`, `docs/ROADMAP.md` |
-| New Tauri command | `docs/CLAUDE.md`, `docs/README.md` |
-| Bug fix | `CHANGELOG.md` |
-| Refactoring | `docs/ROADMAP.md` (Technical Debt section) |
-| New scraper | `docs/features/scrapers.md`, `CHANGELOG.md` |
-| Test changes | `docs/developer/TESTING.md` |
+| Change Type       | Must Update                                                      |
+| ----------------- | ---------------------------------------------------------------- |
+| New feature       | `CHANGELOG.md`, `docs/features/`, `README.md`, `docs/ROADMAP.md` |
+| New Tauri command | `docs/CLAUDE.md`, `docs/README.md`                               |
+| Bug fix           | `CHANGELOG.md`                                                   |
+| Refactoring       | `docs/ROADMAP.md` (Technical Debt section)                       |
+| New scraper       | `docs/features/scrapers.md`, `CHANGELOG.md`                      |
+| Test changes      | `docs/developer/TESTING.md`                                      |
 
 **Before committing: "Did I update all relevant docs?"**
 
@@ -181,7 +181,7 @@ RUST_LOG=debug npm run tauri:dev
 
 # Test on target platforms
 # - Windows 11+
-# - macOS 26.2+ (Tahoe)
+# - macOS 13+
 ```
 
 ### 4. Commit Changes
@@ -191,12 +191,12 @@ RUST_LOG=debug npm run tauri:dev
 git add .
 
 # Commit with descriptive message
-git commit -m "feat: Add support for Indeed job scraper
+git commit -m "feat: Add support for NewBoard job scraper
 
-- Implement IndeedScraper in src-tauri/src/core/scrapers/
-- Add parsing for Indeed job listings
-- Add tests for Indeed scraper
-- Update config/config.example.json with Indeed URLs
+- Implement NewBoardScraper in src-tauri/src/core/scrapers/
+- Add parsing for NewBoard job listings
+- Add tests for NewBoard scraper
+- Update config/config.example.json with NewBoard URLs
 
 Closes #123"
 ```
@@ -386,7 +386,7 @@ cargo test -- --nocapture
 - [ ] Slack notifications send (if configured)
 - [ ] Dashboard displays jobs
 - [ ] Config file loads/saves correctly
-- [ ] App runs on Windows 11+ and macOS 26.2+
+- [ ] App runs on Windows 11+ and macOS 13+
 
 ---
 
@@ -425,27 +425,33 @@ Before submitting:
 
 ```markdown
 ## Description
+
 Brief description of changes
 
 ## Type of Change
+
 - [ ] Bug fix
 - [ ] New feature
 - [ ] Breaking change
 - [ ] Documentation update
 
 ## Related Issues
+
 Closes #123
 
 ## Testing
+
 - [ ] Tested on Windows 11
 - [ ] Tested on macOS
 - [ ] All Rust tests pass
 - [ ] Manual testing completed
 
 ## Screenshots
+
 (if applicable)
 
 ## Documentation Updates (REQUIRED)
+
 - [ ] CHANGELOG.md updated
 - [ ] Feature docs updated (if new feature)
 - [ ] docs/CLAUDE.md updated (if structure/commands changed)
@@ -453,6 +459,7 @@ Closes #123
 - [ ] N/A - No docs needed (explain why)
 
 ## Checklist
+
 - [ ] Code follows project conventions
 - [ ] Tests added/updated (in separate `tests.rs` if file >400 lines)
 - [ ] All documentation updated
@@ -469,24 +476,24 @@ Closes #123
 **1. Create scraper file:**
 
 ```rust
-// src-tauri/src/core/scrapers/indeed.rs
+// src-tauri/src/core/scrapers/newboard.rs
 
 use super::{JobScraper, ScraperResult};
 use async_trait::async_trait;
 
-pub struct IndeedScraper {
+pub struct NewBoardScraper {
     pub base_url: String,
 }
 
 #[async_trait]
-impl JobScraper for IndeedScraper {
+impl JobScraper for NewBoardScraper {
     async fn scrape(&self) -> ScraperResult {
         // Implementation
         Ok(vec![])
     }
 
     fn name(&self) -> &'static str {
-        "indeed"
+        "newboard"
     }
 }
 ```
@@ -495,7 +502,7 @@ impl JobScraper for IndeedScraper {
 
 ```rust
 // src-tauri/src/core/scrapers/mod.rs
-pub mod indeed;
+pub mod newboard;
 ```
 
 **3. Add configuration:**
@@ -503,7 +510,7 @@ pub mod indeed;
 ```json
 // config/config.example.json
 {
-  "indeed_urls": ["https://www.indeed.com/jobs?q=engineer"]
+  "newboard_urls": ["https://www.newboard.com/jobs?q=engineer"]
 }
 ```
 
@@ -513,7 +520,7 @@ pub mod indeed;
 #[cfg(test)]
 mod tests {
     #[tokio::test]
-    async fn test_indeed_scraper() {
+    async fn test_newboard_scraper() {
         // Test implementation
     }
 }
@@ -577,6 +584,7 @@ Clear description of what's wrong
 
 **To Reproduce**
 Steps to reproduce:
+
 1. Go to '...'
 2. Click on '...'
 3. See error
@@ -588,9 +596,10 @@ What should happen
 (if applicable)
 
 **Environment:**
- - OS: [e.g., Windows 11, macOS 15 Sequoia]
- - JobSentinel Version: [e.g., 1.0.0]
- - Error logs: (run with `RUST_LOG=debug`)
+
+- OS: [e.g., Windows 11, macOS 15 Sequoia]
+- JobSentinel Version: [e.g., 1.0.0]
+- Error logs: (run with `RUST_LOG=debug`)
 
 **Additional context**
 Any other relevant information
@@ -626,7 +635,7 @@ Mockups, examples, etc.
 ## 📚 Resources
 
 - [Rust Documentation](https://doc.rust-lang.org/)
-- [Tauri Documentation](https://tauri.app/v1/guides/)
+- [Tauri Documentation](https://tauri.app/)
 - [React Documentation](https://react.dev/)
 - [TailwindCSS Documentation](https://tailwindcss.com/)
 - [SQLite Documentation](https://www.sqlite.org/docs.html)

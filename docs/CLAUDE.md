@@ -35,14 +35,14 @@ When to spawn sub-agents:
 
 **After ANY significant change, update ALL relevant docs:**
 
-| Change Type | Update These Docs |
-|------------|-------------------|
-| New feature | `CHANGELOG.md`, `docs/features/`, `README.md`, `docs/ROADMAP.md` |
-| New command | `CLAUDE.md` (Tauri Commands section), `docs/developer/` |
-| Bug fix | `CHANGELOG.md` |
-| Refactoring | `docs/ROADMAP.md` (Technical Debt section) |
-| New scraper | `docs/features/scrapers.md`, `CHANGELOG.md` |
-| Config change | `config/config.example.json`, relevant docs |
+| Change Type   | Update These Docs                                                |
+| ------------- | ---------------------------------------------------------------- |
+| New feature   | `CHANGELOG.md`, `docs/features/`, `README.md`, `docs/ROADMAP.md` |
+| New command   | `CLAUDE.md` (Tauri Commands section), `docs/developer/`          |
+| Bug fix       | `CHANGELOG.md`                                                   |
+| Refactoring   | `docs/ROADMAP.md` (Technical Debt section)                       |
+| New scraper   | `docs/features/scrapers.md`, `CHANGELOG.md`                      |
+| Config change | `config/config.example.json`, relevant docs                      |
 
 **Documentation locations:**
 
@@ -59,21 +59,23 @@ When to spawn sub-agents:
 
 Complete Reddit marketing campaign for beta tester recruitment. **Advocacy first, tool second.**
 
-| File | Purpose |
-|------|---------|
-| `COWORK-INSTRUCTIONS.md` | Master strategy, schedule, engagement tactics |
-| `VOICE-PROMPTS.md` | Chad's authentic voice/answers for all posts |
-| `FAQ.md` | 20+ pre-written responses for comment engagement |
-| `FALLBACK-SUBS.md` | Backup subreddits if primary ones fail |
-| `worms-fix.md` | Pre-launch karma building (WormsWMD-macOS-Fix promotion) |
+| File                     | Purpose                                                  |
+| ------------------------ | -------------------------------------------------------- |
+| `COWORK-INSTRUCTIONS.md` | Master strategy, schedule, engagement tactics            |
+| `VOICE-PROMPTS.md`       | Chad's authentic voice/answers for all posts             |
+| `FAQ.md`                 | 20+ pre-written responses for comment engagement         |
+| `FALLBACK-SUBS.md`       | Backup subreddits if primary ones fail                   |
+| `worms-fix.md`           | Pre-launch karma building (WormsWMD-macOS-Fix promotion) |
 
 **11 Subreddit Posts (all ready):**
+
 - Advocacy: `veterans.md`, `vetsec.md`, `cybersecurity.md`, `securitycareeradvice.md`, `layoffs.md`
 - Pain Point: `recruitinghell.md`
 - Technical: `selfhosted.md`, `opensource.md`, `rust.md`, `cscareerquestions.md`
 - Beta Request: `alphaandbetausers.md`
 
 **Key Principles:**
+
 - MIT licensed forever (NON-NEGOTIABLE)
 - 100% private, no telemetry
 - Portable - runs from USB drive ("library computer + $5 thumb drive")
@@ -97,7 +99,7 @@ All major features complete:
 - **Market Intelligence UI** - Interactive charts, tabbed layout, heatmaps
 - **Custom React Hooks** - useOptimisticUpdate, usePagination, useFormValidation
 - **Enhanced Error Handling** - Component-level error boundaries, retry logic
-- **Comprehensive Test Suite** - 4,770+ tests (2,413 frontend + 2,357 Rust)
+- **Comprehensive Test Suite** - ~4,666 tests (2,403 frontend + 2,263 Rust)
 
 **v2.6.3 NEW:** Security fixes (XSS, URL validation), memory leak fixes, standardized error types, 145 new tests
 
@@ -117,13 +119,13 @@ and React 19 (TypeScript frontend).
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | React 19, TypeScript, Vite, TailwindCSS |
-| Backend | Rust 2021, Tauri 2.x, Tokio async |
-| Database | SQLite with SQLx (async) |
-| HTTP | reqwest with rustls |
-| HTML Parsing | scraper crate |
+| Layer        | Technology                              |
+| ------------ | --------------------------------------- |
+| Frontend     | React 19, TypeScript, Vite, TailwindCSS |
+| Backend      | Rust 2021, Tauri 2.x, Tokio async       |
+| Database     | SQLite with SQLx (async)                |
+| HTTP         | reqwest with rustls                     |
+| HTML Parsing | scraper crate                           |
 
 ## Project Structure
 
@@ -155,9 +157,9 @@ JobSentinel/
 │   │   │   ├── scheduler/ # Job scheduling with auto-refresh
 │   │   │   ├── scoring/   # Job scoring algorithm
 │   │   │   └── scrapers/  # 13 job board scrapers with parallel scraping
-│   │   ├── commands/      # Tauri RPC handlers (151 commands)
+│   │   ├── commands/      # Tauri RPC handlers (169 commands)
 │   │   └── platforms/     # Platform-specific code (Windows, macOS, Linux)
-│   └── migrations/        # SQLite migrations (21 migrations)
+│   └── migrations/        # SQLite migrations (4 migrations)
 └── docs/                  # Documentation
     ├── features/          # Feature documentation
     ├── releases/          # Version release notes
@@ -173,8 +175,8 @@ JobSentinel/
 All core modules are enabled and functional:
 
 - config, db, notify, scheduler, scoring, ghost
-- scrapers (13 sources: Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound,
-  WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, ZipRecruiter)
+- scrapers (13 sources: Greenhouse, Lever, LinkedIn, RemoteOK, WeWorkRemotely,
+  BuiltIn, HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs, USAJobs, SimplyHired, Glassdoor)
 - ats (Application Tracking System with interview scheduler)
 - resume (AI Resume-Job Matcher + Resume Builder + ATS Optimizer)
 - salary (Salary Prediction AI)
@@ -209,11 +211,11 @@ All core modules are enabled and functional:
 
 ### Test Status
 
-- **4,449+ tests passing** (2,274 Frontend + 2,175 Rust)
+- **~4,666 tests passing** (2,403 frontend + 2,263 Rust)
 - 26 ignored (require file-based database, Chrome, or are doc-tests)
 - Integration test files: `tests/automation_integration_test.rs`, `tests/scheduler_integration_test.rs`, etc.
 
-### Tauri Commands (159 total)
+### Tauri Commands (169 total)
 
 - Core Jobs: 14 commands (search, get, hide, bookmark, notes, stats, duplicates)
 - Config: 6 commands (save, get, validate_webhook, first_run, complete_setup, test_email)
@@ -266,17 +268,15 @@ npm run tauri:build      # Production build
 - Use SQLx parameterized queries (never string concatenation)
 - Run `cargo clippy` before committing
 
-### Database Schema Changes (NO MIGRATIONS)
+## Database Schema Changes
 
-**IMPORTANT: No users exist yet. v2.1.0 is the first official release.**
+Add a new migration file in `src-tauri/migrations/` with the next sequential number. After schema changes, run:
 
-- **DO NOT** create incremental migrations for schema changes
-- **DO** modify the schema files directly (consolidate into base migrations)
-- **DO NOT** worry about backward compatibility until v2.1.0
-- **DELETE** migration files when consolidating - no one has data to preserve
+```
+cd src-tauri && DATABASE_URL="sqlite:jobs.db" cargo sqlx prepare
+```
 
-This saves significant development time. When we approach v2.1.0, we'll freeze the schema
-and start proper migrations from that baseline.
+Do NOT modify the squashed initial schema migration (00000000000000) — that's for new installs only.
 
 ### TypeScript
 
@@ -293,7 +293,7 @@ and start proper migrations from that baseline.
 - `src-tauri/src/core/automation/mod.rs` - One-Click Apply automation manager
 - `src-tauri/src/core/automation/browser/` - Chrome DevTools Protocol automation
 - `src-tauri/src/core/credentials/mod.rs` - OS keyring credential storage
-- `src-tauri/src/commands/mod.rs` - Tauri command handlers (151 commands)
+- `src-tauri/src/commands/mod.rs` - Tauri command handlers (169 commands)
 - `src-tauri/src/commands/automation.rs` - Automation Tauri commands (18 commands)
 - `src/pages/Dashboard.tsx` - Main dashboard with search, job list, ghost filter
 - `src/pages/ApplicationProfile.tsx` - One-Click Apply settings page
@@ -318,12 +318,13 @@ and start proper migrations from that baseline.
 
 #### New Scrapers (API or Permissible Scraping)
 
-| Source | Method | Status | Notes |
-|--------|--------|--------|-------|
-| **USAJobs.gov** | Official API | PLANNED | Free API key, designed for programmatic access |
-| **SimplyHired** | HTML Scraping | PLANNED | Aggregator, no explicit anti-scraping ToS |
+| Source          | Method        | Status  | Notes                                          |
+| --------------- | ------------- | ------- | ---------------------------------------------- |
+| **USAJobs.gov** | Official API  | PLANNED | Free API key, designed for programmatic access |
+| **SimplyHired** | HTML Scraping | PLANNED | Aggregator, no explicit anti-scraping ToS      |
 
 Files created:
+
 - `src-tauri/src/core/scrapers/usajobs.rs` - USAJobs API client
 - `src-tauri/src/core/scrapers/simplyhired.rs` - SimplyHired HTML scraper
 
@@ -331,17 +332,18 @@ Files created:
 
 These sites explicitly prohibit scraping in their ToS. **DO NOT SCRAPE THEM.**
 
-| Site | Restriction | Our Approach |
-|------|-------------|--------------|
-| **ClearanceJobs.com** | ToS prohibits scraping + AI training | Deep links only |
+| Site                   | Restriction                                        | Our Approach    |
+| ---------------------- | -------------------------------------------------- | --------------- |
+| **ClearanceJobs.com**  | ToS prohibits scraping + AI training               | Deep links only |
 | **GovernmentJobs.com** | robots.txt blocks all bots, ToS prohibits scraping | Deep links only |
-| **Glassdoor** | Heavy anti-bot, login walls | Skip entirely |
+| **Glassdoor**          | Heavy anti-bot, login walls                        | Skip entirely   |
 
 ### Legal Maximum Value Features
 
 Instead of scraping restricted sites, we provide maximum value through legal means:
 
 #### 1. Universal Job Importer (Schema.org Parser)
+
 User pastes ANY job URL → we fetch that ONE page → parse Schema.org/JobPosting structured data.
 
 - **Why it's legal:** User-initiated, single page, Schema.org is designed for machine reading
@@ -362,18 +364,21 @@ User clicks → opens in their browser with search ready
 - **Sites to support:** GovernmentJobs, ClearanceJobs, Glassdoor, LinkedIn, Indeed, + more
 
 #### 3. Bookmarklet
+
 JavaScript bookmarklet user installs in their browser. They browse to any job, click bookmarklet → extracts job data → sends to local JobSentinel.
 
 - **Why it's legal:** Runs in USER's browser with THEIR session. Not server-side scraping.
 - **Implementation:** Generate bookmarklet code in frontend, user drags to bookmarks bar
 
 #### 4. RSS Feeds (Where Available)
+
 Some sites offer public RSS feeds - these are explicitly permitted.
 
 - Check each site for RSS availability
 - RSS is an invitation to consume data programmatically
 
 #### 5. Government Open Data
+
 Many governments publish job data as open CSV/JSON:
 
 - data.gov federal datasets
@@ -447,24 +452,24 @@ cargo test --ignored          # Run ignored tests (need file db)
 
 ### Files Refactored in v1.5
 
-| File | Original Lines | New Lines | Modules Created | Status |
-|------|---|---|---|--------|
-| `db/mod.rs` | 4442 | 85 | 8 | DONE |
-| `scheduler/mod.rs` | 2955 | ~300 | 7 | DONE |
-| `market_intelligence/mod.rs` | 2703 | ~400 | 4 | DONE |
-| `db/integrity.rs` | 2517 | 85 | 5 (integrity/ dir) | DONE |
-| `config/mod.rs` | 2343 | ~300 | 5 | DONE |
-| `Dashboard.tsx` | 2315 | 672 | 11 files | DONE |
-| `ats/mod.rs` | 2082 | ~300 | 5 | DONE |
-| `scrapers/lever.rs` | 2379 | 183 | lever/ dir (tests.rs) | DONE |
+| File                         | Original Lines | New Lines | Modules Created       | Status |
+| ---------------------------- | -------------- | --------- | --------------------- | ------ |
+| `db/mod.rs`                  | 4442           | 85        | 8                     | DONE   |
+| `scheduler/mod.rs`           | 2955           | ~300      | 7                     | DONE   |
+| `market_intelligence/mod.rs` | 2703           | ~400      | 4                     | DONE   |
+| `db/integrity.rs`            | 2517           | 85        | 5 (integrity/ dir)    | DONE   |
+| `config/mod.rs`              | 2343           | ~300      | 5                     | DONE   |
+| `Dashboard.tsx`              | 2315           | 672       | 11 files              | DONE   |
+| `ats/mod.rs`                 | 2082           | ~300      | 5                     | DONE   |
+| `scrapers/lever.rs`          | 2379           | 183       | lever/ dir (tests.rs) | DONE   |
 
 ### Files Refactored in v1.6
 
-| File | Original Lines | New Lines | Modules Created | Status |
-|------|---|---|---|--------|
-| `commands/mod.rs` | 1732 | 94 | 9 domain modules | DONE |
-| `salary/mod.rs` | 2026 | 59 | types.rs, analyzer.rs, tests.rs | DONE |
-| `resume/mod.rs` | 1831 | 440 | types.rs, tests.rs | DONE |
+| File              | Original Lines | New Lines | Modules Created                 | Status |
+| ----------------- | -------------- | --------- | ------------------------------- | ------ |
+| `commands/mod.rs` | 1732           | 94        | 9 domain modules                | DONE   |
+| `salary/mod.rs`   | 2026           | 59        | types.rs, analyzer.rs, tests.rs | DONE   |
+| `resume/mod.rs`   | 1831           | 440       | types.rs, tests.rs              | DONE   |
 
 **All v1.5 and v1.6 file modularization complete. Codebase ready for v2.0.**
 

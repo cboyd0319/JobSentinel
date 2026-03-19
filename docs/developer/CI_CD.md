@@ -1,637 +1,286 @@
-# CI/CD Pipeline Guide
+# CI/CD pipeline guide
 
-**Complete guide to continuous integration and deployment for JobSentinel**
+**How JobSentinel tests, builds, and releases across platforms**
 
 ---
 
-## Table of Contents
+## Table of contents
 
 - [Overview](#overview)
-- [CI/CD Philosophy](#cicd-philosophy)
-- [GitHub Actions Workflows](#github-actions-workflows)
-- [Local CI Simulation](#local-ci-simulation)
-- [Release Process](#release-process)
-- [Environment Variables and Secrets](#environment-variables-and-secrets)
+- [Continuous integration (ci.yml)](#continuous-integration-ciyml)
+- [Release builds (release.yml)](#release-builds-releaseyml)
+- [Manual build workflows](#manual-build-workflows)
+- [Local CI simulation](#local-ci-simulation)
+- [Release process](#release-process)
+- [Secrets and environment variables](#secrets-and-environment-variables)
 - [Troubleshooting](#troubleshooting)
 
 ---
 
 ## Overview
 
-JobSentinel uses GitHub Actions to automate testing, building, and releasing across Windows,
-macOS, and Linux platforms. The pipeline ensures code quality, security, and consistency
-before changes are merged or released.
+JobSentinel uses four GitHub Actions workflows:
 
-### Pipeline Goals
+| Workflow      | File                | Trigger                      | Purpose                      |
+| ------------- | ------------------- | ---------------------------- | ---------------------------- |
+| CI            | `ci.yml`            | Push or PR to `main`         | Tests, linting, security     |
+| Release       | `release.yml`       | Version tag (`v*`)           | Build and publish installers |
+| Build Windows | `build-windows.yml` | Manual (`workflow_dispatch`) | Windows MSI on demand        |
+| Build Linux   | `build-linux.yml`   | Manual (`workflow_dispatch`) | Linux AppImage/deb on demand |
 
-1. **Catch bugs early** - Run tests and linting on every PR
-2. **Ensure consistency** - Format code and check for violations
-3. **Security first** - Scan for vulnerabilities before release
-4. **Multi-platform** - Build and test on all supported OSes
-5. **Automated releases** - Generate binaries and GitHub Releases
-
-### Current Status (v2.6.3)
-
-- ✅ Multi-platform builds (Windows, macOS, Linux)
-- ✅ Automated testing on CI
-- ✅ Security scanning (cargo-audit, npm audit)
-- ✅ Code formatting checks
-- ✅ Release automation
+CI skips runs when only documentation files change (`.md`, `docs/**`, Storybook, etc.).
 
 ---
 
-## CI/CD Philosophy
+## Continuous integration (ci.yml)
 
-**"If it works locally, it should pass CI. If it passes CI, it's ready to ship."**
+**Trigger:** Push to `main` or pull request targeting `main`
 
-All CI checks should:
+All three jobs run in parallel on `ubuntu-latest`. There is no OS matrix and no beta toolchain — only stable Rust on Linux.
 
-- Catch the same errors as local development
-- Be fast enough not to block PRs (target: <10 minutes)
-- Fail clearly with actionable error messages
-- Run in parallel when possible
+### Job: test-rust
 
-### What's Checked
+Checks formatting, lints, and runs the library test suite.
 
-| Check | When | Time | Scope |
-|-------|------|------|-------|
-| Linting | Push/PR | <1m | Rust + TypeScript |
-| Format | Push/PR | <1m | Rust + TypeScript |
-| Type checking | Push/PR | <2m | TypeScript |
-| Unit tests | Push/PR | <5m | All Rust tests |
-| Build (debug) | Push/PR | <3m | Tauri app (all platforms) |
-| Build (release) | Release tag | <10m | Tauri app (all platforms) |
-| Audit | Release tag | <1m | Dependencies (Rust + npm) |
+| Step             | Command                       |
+| ---------------- | ----------------------------- |
+| Check formatting | `cargo fmt --all -- --check`  |
+| Run Clippy       | `cargo clippy -- -D warnings` |
+| Run tests        | `cargo test --lib`            |
 
----
+Rust dependencies are cached with `Swatinem/rust-cache`. `SQLX_OFFLINE=true` is set globally
+so SQLx does not attempt a live database connection.
 
-## GitHub Actions Workflows
+### Job: test-frontend
 
-### Workflow 1: PR Checks (`.github/workflows/pr-checks.yml`)
+Installs dependencies, type-checks, lints, and runs the Vitest suite.
 
-**Runs on:** Push to any branch, Pull Requests
+| Step                 | Command             |
+| -------------------- | ------------------- |
+| Install dependencies | `npm ci`            |
+| TypeScript check     | `npx tsc --noEmit`  |
+| Lint                 | `npm run lint`      |
+| Unit tests           | `npm test -- --run` |
 
-**Purpose:** Fast feedback loop for development
+### Job: security
 
-```yaml
-name: PR Checks
+Audits both dependency trees for known vulnerabilities.
 
-on:
-  push:
-    branches: [main, develop]
-  pull_request:
-    branches: [main, develop]
-
-jobs:
-  lint-and-format:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      # Rust checks
-      - uses: dtolnay/rust-toolchain@stable
-      - run: cargo fmt --all -- --check
-      - run: cargo clippy --all-targets --all-features -- -D warnings
-
-      # TypeScript checks
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-      - run: npm ci
-      - run: npm run lint
-      - run: npm run type-check
-
-  test:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        rust: [stable, beta]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@${{ matrix.rust }}
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - run: npm ci
-      - run: cd src-tauri && cargo test --all-features
-      - run: cd src-tauri && cargo test --release --all-features
-
-  build-debug:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install Tauri dependencies (Linux)
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libssl-dev libgtk-3-dev libappindicator3-dev
-
-      - run: npm ci
-      - run: npm run tauri:build
-
-  security-audit:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: rustsec/audit-check-action@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-      - run: npm ci
-      - run: npm audit --audit-level=moderate
-```
-
-### Workflow 2: Release Builds (`.github/workflows/release.yml`)
-
-**Runs on:** When a version tag is created (e.g., `v2.1.0`)
-
-**Purpose:** Build and publish release binaries
-
-```yaml
-name: Release
-
-on:
-  push:
-    tags:
-      - 'v*'
-
-jobs:
-  create-release:
-    runs-on: ubuntu-latest
-    outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
-    steps:
-      - uses: actions/checkout@v4
-      - id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: true
-          prerelease: false
-
-  build-release:
-    needs: create-release
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        include:
-          - os: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
-          - os: windows-latest
-            target: x86_64-pc-windows-msvc
-          - os: macos-latest
-            target: x86_64-apple-darwin
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.target }}
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install Tauri dependencies (Linux)
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libssl-dev libgtk-3-dev libappindicator3-dev
-
-      - run: npm ci
-      - run: npm run tauri:build -- --target ${{ matrix.target }}
-
-      # Upload artifacts
-      - name: Upload Release Asset (Windows)
-        if: runner.os == 'Windows'
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: src-tauri/target/release/JobSentinel.msi
-          asset_name: JobSentinel-${{ github.ref_name }}.msi
-          asset_content_type: application/octet-stream
-
-      - name: Upload Release Asset (macOS)
-        if: runner.os == 'macOS'
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: src-tauri/target/release/bundle/dmg/JobSentinel.dmg
-          asset_name: JobSentinel-${{ github.ref_name }}.dmg
-          asset_content_type: application/octet-stream
-
-      - name: Upload Release Asset (Linux)
-        if: runner.os == 'Linux'
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: src-tauri/target/release/bundle/appimage/JobSentinel.AppImage
-          asset_name: JobSentinel-${{ github.ref_name }}.AppImage
-          asset_content_type: application/octet-stream
-```
-
-### Workflow 3: Documentation Deploy (`.github/workflows/docs.yml`)
-
-**Runs on:** Pushes to `main`, Changes to `docs/`
-
-**Purpose:** Deploy documentation site
-
-```yaml
-name: Deploy Docs
-
-on:
-  push:
-    branches: [main]
-    paths:
-      - 'docs/**'
-      - '.github/workflows/docs.yml'
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs
-          cname: jobsentinel.dev
-```
+| Step            | Tool                               |
+| --------------- | ---------------------------------- |
+| npm audit       | `npm audit --audit-level=moderate` |
+| Rust advisories | `cargo deny check advisories`      |
 
 ---
 
-## Local CI Simulation
+## Release builds (release.yml)
 
-### Run All CI Checks Locally
+**Trigger:** Push of a tag matching `v*` (for example, `v2.6.3`)
 
-Before pushing, test your changes against the same checks as CI:
+This workflow creates a draft GitHub Release, then builds installers in parallel across three platforms.
+
+### Platforms and artifacts
+
+| Platform         | Target                     | Artifacts uploaded                                |
+| ---------------- | -------------------------- | ------------------------------------------------- |
+| `windows-latest` | `x86_64-pc-windows-msvc`   | `.msi`                                            |
+| `macos-latest`   | `universal-apple-darwin`   | `.dmg` (universal binary — Intel + Apple Silicon) |
+| `ubuntu-latest`  | `x86_64-unknown-linux-gnu` | `.AppImage`, `.deb`                               |
+
+The release starts as a draft. After reviewing the generated release notes, publish it manually
+from the GitHub Releases page.
+
+### macOS universal binary
+
+The macOS build targets `universal-apple-darwin`, which compiles for both `aarch64-apple-darwin`
+and `x86_64-apple-darwin` and links them into a single binary. This means the `.dmg` runs
+natively on both Apple Silicon and Intel Macs.
+
+---
+
+## Manual build workflows
+
+These workflows run only when triggered manually via **Actions → Run workflow** in the GitHub UI.
+They are useful for producing a build outside of the normal release flow, for example to test a
+hotfix or create a pre-release artifact.
+
+### `build-windows.yml` (Windows manual build)
+
+Builds a Windows `.msi` and uploads it as a draft release asset for the specified version tag.
+
+**Input:** `version` — the version string, for example `2.6.3`
+
+### build-linux.yml
+
+Builds a Linux `.AppImage` and `.deb` and uploads them as workflow artifacts (not a release).
+Download them from the Actions run summary.
+
+**Input:** `version` — the version string, for example `2.6.3`
+
+---
+
+## Local CI simulation
+
+Run the same checks locally before pushing to avoid a CI failure round-trip.
 
 ```bash
-# 1. Format check (Rust)
-cd src-tauri
+# Rust — from src-tauri/
 cargo fmt --all -- --check
+cargo clippy -- -D warnings
+cargo test --lib
 
-# 2. Linting (Rust)
-cargo clippy --all-targets --all-features -- -D warnings
+# Frontend — from repo root
+npx tsc --noEmit
+npm run lint
+npm test -- --run
 
-# 3. Tests (Rust)
-cargo test --all-features
-
-# 4. Build (debug)
-cargo build
-
-# 5. Return to root
-cd ..
-
-# 6. Format check (TypeScript)
-npm run lint:fix  # or just 'npm run lint' to check
-
-# 7. Type check (TypeScript)
-npm run type-check
-
-# 8. Security audit (Rust)
-cargo audit
-
-# 9. Security audit (npm)
+# Security
 npm audit --audit-level=moderate
+cd src-tauri && cargo deny check advisories
 ```
 
-### Pre-commit Hook
-
-Add this to `.git/hooks/pre-commit` to catch issues before committing:
+Or use the combined validation command from `CLAUDE.md`:
 
 ```bash
-#!/bin/bash
-set -e
-
-echo "Running pre-commit checks..."
-
-# Rust checks
-echo "Checking Rust formatting..."
-cd src-tauri
-cargo fmt --all -- --check || {
-    echo "Rust formatting failed. Run 'cargo fmt' to fix."
-    exit 1
-}
-
-echo "Running Rust clippy..."
-cargo clippy --all-targets --all-features -- -D warnings || {
-    echo "Clippy warnings found. Fix them before committing."
-    exit 1
-}
-
-cd ..
-
-# TypeScript checks
-echo "Checking TypeScript..."
-npm run lint --quiet || {
-    echo "TypeScript linting failed. Run 'npm run lint:fix' to fix."
-    exit 1
-}
-
-echo "All checks passed!"
-```
-
-Save and make executable:
-
-```bash
-chmod +x .git/hooks/pre-commit
+cargo fmt --manifest-path src-tauri/Cargo.toml && \
+cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings && \
+cargo test --manifest-path src-tauri/Cargo.toml --lib && \
+npm run lint && npm run test:run
 ```
 
 ---
 
-## Release Process
+## Release process
 
-### 1. Prepare Release
+### 1. Prepare the release
 
 ```bash
-# 1. Update version in package.json
-npm version minor  # or major/patch/prerelease
+# Update version in both places
+# src-tauri/Cargo.toml → [package] version = "X.Y.Z"
+# package.json → "version": "X.Y.Z"
 
-# 2. Update version in src-tauri/Cargo.toml
-# [package]
-# version = "2.1.0"
-
-# 3. Update CHANGELOG.md
-# Add entry for new version
-
-# 4. Update ROADMAP.md (mark completed items)
-
-# 5. Commit changes
-git add -A
-git commit -m "chore: bump version to 2.1.0"
-
-# 6. Push
+# Update CHANGELOG.md, then commit
+git add src-tauri/Cargo.toml package.json CHANGELOG.md
+git commit -m "chore: bump version to X.Y.Z"
 git push origin main
 ```
 
-### 2. Create Release Tag
+### 2. Tag and push
 
 ```bash
-# Tag the release
-git tag v2.1.0
-
-# Push tag (triggers CI/CD)
-git push origin v2.1.0
+git tag vX.Y.Z
+git push origin vX.Y.Z
 ```
 
-### 3. GitHub Actions Builds Release
+Pushing the tag triggers `release.yml` automatically.
 
-The `release.yml` workflow automatically:
+### 3. Publish the draft release
 
-1. Creates a GitHub Release (draft status)
-2. Builds binaries on Windows, macOS, Linux
-3. Uploads binaries to the release
-4. Signs macOS binaries (if secrets configured)
-5. Notarizes macOS app (if secrets configured)
+1. Go to **GitHub → Releases**
+2. Find the draft created by the workflow
+3. Review the auto-generated release notes
+4. Click **Publish release**
 
-### 4. Finalize Release
+### Version numbering
 
-1. Go to GitHub Releases
-2. Review draft release notes
-3. Publish release (removes draft status)
-4. Announce on social media, Discord, etc.
+JobSentinel follows Semantic Versioning (`MAJOR.MINOR.PATCH`):
 
-### Version Numbering
-
-JobSentinel uses Semantic Versioning (MAJOR.MINOR.PATCH):
-
-- **MAJOR**: Breaking changes, major features
-- **MINOR**: New features, backward compatible
-- **PATCH**: Bug fixes, security patches
-
-Example: `2.1.0`
-
-- `2` = Major version (v2.0)
-- `1` = Minor version (2.1)
-- `0` = Patch version (2.1.0)
+- `MAJOR` — breaking changes or a major feature milestone
+- `MINOR` — new features, backward compatible
+- `PATCH` — bug fixes and security patches
 
 ---
 
-## Environment Variables and Secrets
+## Secrets and environment variables
 
-### Required Secrets for CI/CD
+### CI environment variables
 
-Add these to GitHub repository settings under **Secrets and variables**:
+These are set at the workflow level and require no secrets:
 
-#### Required for All Workflows
+| Variable           | Value    | Purpose                                                     |
+| ------------------ | -------- | ----------------------------------------------------------- |
+| `SQLX_OFFLINE`     | `true`   | Prevents SQLx from connecting to a database at compile time |
+| `CARGO_TERM_COLOR` | `always` | Colorized Cargo output in CI logs                           |
 
-```text
-GITHUB_TOKEN                # Auto-provided by GitHub Actions
-```
+### GitHub-provided secrets
 
-#### Required for macOS Signing (v2.1.0+)
+`GITHUB_TOKEN` is automatically available to all workflows. It is used by the release and build
+workflows to create releases and upload assets.
 
-```text
-MACOS_CERTIFICATE           # Base64-encoded .p12 certificate
-MACOS_CERTIFICATE_PWD       # Password for certificate
-MACOS_KEYCHAIN_PWD          # Temporary keychain password
-APPLE_ID                    # Apple ID for notarization
-APPLE_PASSWORD              # App-specific password (not regular password)
-APPLE_TEAM_ID               # 10-character Apple Team ID
-```
+### Optional: macOS signing
 
-#### Recommended for Security
+If you want signed and notarized macOS builds, add these secrets to the repository:
 
 ```text
-CARGO_AUDIT_TOKEN           # For rustsec advisory database
-```
-
-### Setting Up Secrets
-
-1. Go to GitHub repository
-2. **Settings** → **Secrets and variables** → **Actions**
-3. Click **New repository secret**
-4. Add each secret
-
-### Using Secrets in Workflows
-
-In workflow files (`.github/workflows/*.yml`):
-
-```yaml
-env:
-  MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
-  MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
+MACOS_CERTIFICATE        # Base64-encoded .p12 certificate
+MACOS_CERTIFICATE_PWD    # Password for the certificate
+APPLE_ID                 # Apple ID used for notarization
+APPLE_PASSWORD           # App-specific password (not your account password)
+APPLE_TEAM_ID            # 10-character Apple Team ID
 ```
 
 ---
 
 ## Troubleshooting
 
-### Issue: Tests fail locally but pass on CI (or vice versa)
+### Clippy fails on CI but passes locally
 
-**Cause:** Platform-specific code or environment differences
-
-**Solution:**
-
-1. Check OS-specific tests: `#[cfg(target_os = "...")]`
-2. Run tests on target OS locally (or use Docker)
-3. Check for hardcoded paths (use `cfg!` macros)
-4. Verify no environment variables are assumed
-
-### Issue: Clippy warnings fail the build
-
-**Cause:** New Rust version introduced stricter linting
-
-**Solution:**
+CI uses the pinned stable toolchain. If your local toolchain is older, update it:
 
 ```bash
-# View warnings
-cargo clippy --all-targets --all-features
-
-# Fix automatically (if possible)
-cargo clippy --fix --allow-staged
-
-# Review and commit
-git diff
-git add -A
-git commit -m "style: fix clippy warnings"
+rustup update stable
+cargo clippy -- -D warnings
 ```
 
-### Issue: npm audit fails due to transitive dependencies
+### `cargo test --lib` vs `cargo test`
 
-**Cause:** Dependency has known vulnerability
+CI runs `cargo test --lib`, which skips integration tests in `tests/`. Integration tests that
+require a file-based database, network access, or Chrome are excluded by design — they run
+locally with `cargo test --ignored` or `cargo test`.
 
-**Solution:**
+### npm audit blocks CI
+
+If a transitive dependency has a known vulnerability:
 
 ```bash
-# View audit results
-npm audit
-
-# If low risk, override in package.json
-# (only for development dependencies)
+npm audit        # Identify the advisory
+npm update       # Try updating first
+# If the advisory is low-risk and no fix is available yet,
+# add an override in package.json:
 "overrides": {
-  "vulnerable-package": "^1.0.0"
+  "vulnerable-package": "^patched-version"
 }
-
-# Or wait for dependency to release fix
-npm update
-npm audit
 ```
 
-### Issue: Release build fails on macOS
+### Release build fails for one platform
 
-**Cause:** Code signing or notarization issues
+`release.yml` uses `fail-fast: false`, so a failure on one platform does not cancel the others.
+Check the failed job's logs directly. Common causes:
 
-**Solution:**
+- macOS: missing signing certificate secrets
+- Linux: system library version mismatch (the workflow installs `libwebkit2gtk-4.1-dev` specifically)
+- Windows: MSI bundler configuration error in `tauri.conf.json`
 
-1. Check certificates are valid:
+### Retag a broken release
 
-   ```bash
-   security find-identity -v -p codesigning
-   ```
-
-2. Check Team ID matches:
-
-   ```bash
-   codesign -dv --verbose=2 JobSentinel.app
-   ```
-
-3. Verify Apple credentials in GitHub Secrets
-
-4. Check for sandboxing issues in `tauri.conf.json`
-
-### Issue: Build takes longer than expected
-
-**Cause:** No incremental compilation or dependency redownloading
-
-**Solution:**
-
-1. Use cache in CI workflows:
-
-   ```yaml
-   - uses: actions/cache@v3
-     with:
-       path: ~/.cargo
-       key: ${{ runner.os }}-cargo
-   ```
-
-2. Use Mold linker on Linux for faster linking:
-
-   ```bash
-   cargo install mold
-   RUSTFLAGS="-C link-arg=-fuse-ld=mold" cargo build --release
-   ```
-
-### Issue: Cannot publish to GitHub because draft release exists
-
-**Cause:** Previous release never published
-
-**Solution:**
-
-1. Go to GitHub Releases
-2. Delete or publish the draft release
-3. Retag and push:
-
-   ```bash
-   git tag -d v2.1.0
-   git push origin :v2.1.0
-   git tag v2.1.0
-   git push origin v2.1.0
-   ```
-
----
-
-## Best Practices
-
-### DO ✅
-
-- Run PR checks locally before pushing
-- Keep CI/CD configuration in version control
-- Use matrix builds for multi-platform support
-- Cache dependencies (npm, Cargo) in workflows
-- Document why a workflow step exists
-- Review workflow logs when builds fail
-- Tag releases with semantic versions
-
-### DON'T ❌
-
-- Commit broken code and rely on CI to catch it
-- Use `git push --force` after CI starts
-- Ignore security warnings in audit results
-- Commit secrets or passwords to version control
-- Disable security checks for "speed"
-- Run separate workflows for simple checks
-- Hardcode paths or OS-specific commands
+```bash
+git tag -d vX.Y.Z
+git push origin :vX.Y.Z
+# Fix the issue, commit, then retag
+git tag vX.Y.Z
+git push origin vX.Y.Z
+```
 
 ---
 
 ## Resources
 
-- [GitHub Actions Documentation](https://docs.github.com/en/actions)
-- [Tauri Distribution Guide](https://tauri.app/v2/guides/distribution/)
-- [Cargo Documentation](https://doc.rust-lang.org/cargo/)
-- [npm Scripts](https://docs.npmjs.com/cli/v10/using-npm/scripts)
+- [GitHub Actions documentation](https://docs.github.com/en/actions)
+- [Tauri distribution guide](https://v2.tauri.app/distribute/)
+- [cargo-deny documentation](https://embarkstudios.github.io/cargo-deny/)
+- [Semantic Versioning](https://semver.org)
 
 ---
 
-**Last Updated:** January 25, 2026
+**Last updated:** March 2026
 **Version:** v2.6.3
-**Status:** Documentation-only (Workflows not yet implemented)
-**Maintained By:** The Rust Mac Overlord 🦀

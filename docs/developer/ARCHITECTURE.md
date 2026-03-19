@@ -184,16 +184,16 @@ CREATE VIRTUAL TABLE jobs_fts USING fts5(
 - **Greenhouse** - ATS scraper (HTML)
 - **Lever** - ATS scraper (HTML)
 - **LinkedIn** - Session cookie authentication
-- **Indeed** - Query-based search
 - **RemoteOK** - JSON API
-- **Wellfound** - HTML scraper (formerly AngelList)
 - **WeWorkRemotely** - RSS feed parsing
 - **BuiltIn** - City-specific tech jobs (HTML)
 - **HN Who's Hiring** - Algolia API for monthly threads
 - **JobsWithGPT** - API client
 - **Dice** - Tech jobs scraper
 - **YC Startup Jobs** - Y Combinator startup opportunities
-- **ZipRecruiter** - Job search platform
+- **USAJobs** - Official USAJobs.gov API
+- **SimplyHired** - HTML scraper
+- **Glassdoor** - HTML scraper
 
 **Architecture:**
 
@@ -458,10 +458,10 @@ See [One-Click Apply Feature](../features/one-click-apply.md) for full documenta
        v
 ┌──────────────┐
 │ Scrape All   │──> 13 sources in parallel:
-│   Sources    │    Greenhouse, Lever, LinkedIn, Indeed,
-│              │    RemoteOK, Wellfound, WeWorkRemotely,
-│              │    BuiltIn, HN Hiring, JobsGPT, Dice,
-│              │    YC Startup Jobs, ZipRecruiter
+│   Sources    │    Greenhouse, Lever, LinkedIn, RemoteOK,
+│              │    WeWorkRemotely, BuiltIn, HN Hiring,
+│              │    JobsGPT, Dice, YC Startup Jobs,
+│              │    USAJobs, SimplyHired, Glassdoor
 └──────┬───────┘
        │
        v
@@ -482,7 +482,7 @@ See [One-Click Apply Feature](../features/one-click-apply.md) for full documenta
 
 ### 2. Commands (`src/commands/`)
 
-Tauri command handlers (RPC interface between React and Rust). **110 total commands.**
+Tauri command handlers (RPC interface between React and Rust). **169 total commands.**
 
 **Core Commands (18):**
 
@@ -650,26 +650,26 @@ Rust validates config
 
 ### Backend (Rust)
 
-| Category | Technology | Purpose |
-|----------|------------|---------|
-| **Framework** | Tauri 2.x | Desktop app framework |
-| **Async Runtime** | Tokio | Async I/O and scheduling |
-| **Database** | SQLite (sqlx) | Local data storage |
-| **HTTP Client** | reqwest | Web scraping |
-| **HTML Parser** | scraper | Parse job boards |
-| **Serialization** | serde + serde_json | Config and data serialization |
-| **Error Handling** | thiserror + anyhow | Structured error handling |
-| **Logging** | tracing | Structured logging |
-| **Hashing** | sha2 | Job deduplication |
+| Category           | Technology         | Purpose                       |
+| ------------------ | ------------------ | ----------------------------- |
+| **Framework**      | Tauri 2.x          | Desktop app framework         |
+| **Async Runtime**  | Tokio              | Async I/O and scheduling      |
+| **Database**       | SQLite (sqlx)      | Local data storage            |
+| **HTTP Client**    | reqwest            | Web scraping                  |
+| **HTML Parser**    | scraper            | Parse job boards              |
+| **Serialization**  | serde + serde_json | Config and data serialization |
+| **Error Handling** | thiserror + anyhow | Structured error handling     |
+| **Logging**        | tracing            | Structured logging            |
+| **Hashing**        | sha2               | Job deduplication             |
 
 ### Frontend (React)
 
-| Category | Technology | Purpose |
-|----------|------------|---------|
-| **Framework** | React 19 | UI framework |
-| **Language** | TypeScript | Type-safe JavaScript |
-| **Build Tool** | Vite | Fast dev server and build |
-| **Styling** | Tailwind CSS | Utility-first CSS |
+| Category       | Technology   | Purpose                   |
+| -------------- | ------------ | ------------------------- |
+| **Framework**  | React 19     | UI framework              |
+| **Language**   | TypeScript   | Type-safe JavaScript      |
+| **Build Tool** | Vite         | Fast dev server and build |
+| **Styling**    | Tailwind CSS | Utility-first CSS         |
 
 ---
 
@@ -741,13 +741,13 @@ match result {
 
 ### Threat Model
 
-| Threat | Mitigation |
-|--------|------------|
-| **Data exfiltration** | Webhook URL validation (only slack.com) |
-| **SQL injection** | Parameterized queries (sqlx) |
-| **XSS** | No eval(), sanitized HTML parsing |
-| **Secrets in code** | No hardcoded secrets, user-provided webhooks |
-| **Untrusted input** | Strict validation (lengths, formats, ranges) |
+| Threat                | Mitigation                                   |
+| --------------------- | -------------------------------------------- |
+| **Data exfiltration** | Webhook URL validation (only slack.com)      |
+| **SQL injection**     | Parameterized queries (sqlx)                 |
+| **XSS**               | No eval(), sanitized HTML parsing            |
+| **Secrets in code**   | No hardcoded secrets, user-provided webhooks |
+| **Untrusted input**   | Strict validation (lengths, formats, ranges) |
 
 ### Security Layers
 
@@ -779,7 +779,7 @@ match result {
 
 ---
 
-## Future Architecture (v2.0)
+## Cloud Architecture (not implemented)
 
 ### Cloud Deployment
 
@@ -822,14 +822,14 @@ match result {
 
 ## Performance Characteristics
 
-| Operation | Latency | Notes |
-|-----------|---------|-------|
-| Config load | <1ms | File read + JSON parse |
-| Job upsert | <5ms | SQLite with indexes |
-| Job search | <10ms | FTS5 indexed search |
-| Scrape single company | 1-5s | Network dependent |
-| Score single job | <1ms | Pure computation |
-| Full scraping cycle | 30-120s | Depends on # of companies |
+| Operation             | Latency | Notes                     |
+| --------------------- | ------- | ------------------------- |
+| Config load           | <1ms    | File read + JSON parse    |
+| Job upsert            | <5ms    | SQLite with indexes       |
+| Job search            | <10ms   | FTS5 indexed search       |
+| Scrape single company | 1-5s    | Network dependent         |
+| Score single job      | <1ms    | Pure computation          |
+| Full scraping cycle   | 30-120s | Depends on # of companies |
 
 ---
 

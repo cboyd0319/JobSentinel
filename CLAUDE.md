@@ -7,7 +7,7 @@ Tauri 2.x (Rust backend) and React 19 (TypeScript frontend).
 
 **Current Version:** 2.6.3 (January 2026)
 **Primary Target:** Windows 11+, macOS
-**Tests:** 4,770+ passing (2,413 frontend + 2,357 Rust)
+**Tests:** 4,660+ passing (2,403 frontend + 2,263 Rust)
 
 ## Tech Stack
 
@@ -102,21 +102,21 @@ npm run test:e2e:ui      # Interactive mode
 
 ## Scrapers (13 job boards)
 
-| Scraper        | Board                |
-| -------------- | -------------------- |
-| builtin        | BuiltIn              |
-| dice           | Dice (tech)          |
-| glassdoor      | Glassdoor            |
-| greenhouse     | Greenhouse           |
-| hn_hiring      | HN Who's Hiring      |
-| jobswithgpt    | JobsWithGPT          |
-| lever          | Lever                |
-| LinkedIn       | LinkedIn             |
-| remoteok       | Remote OK            |
-| simplyhired    | SimplyHired          |
-| usajobs        | USAJobs (gov)        |
-| weworkremotely | We Work Remotely     |
-| yc_startup     | YC Startup Jobs      |
+| Scraper        | Board            |
+| -------------- | ---------------- |
+| builtin        | BuiltIn          |
+| dice           | Dice (tech)      |
+| glassdoor      | Glassdoor        |
+| greenhouse     | Greenhouse       |
+| hn_hiring      | HN Who's Hiring  |
+| jobswithgpt    | JobsWithGPT      |
+| lever          | Lever            |
+| LinkedIn       | LinkedIn         |
+| remoteok       | Remote OK        |
+| simplyhired    | SimplyHired      |
+| usajobs        | USAJobs (gov)    |
+| weworkremotely | We Work Remotely |
+| yc_startup     | YC Startup Jobs  |
 
 ## Tauri Commands (169 total)
 

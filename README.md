@@ -449,10 +449,14 @@ For full technical documentation, see:
 
 ### Just Released (v2.6.3)
 
-- **Health dashboard now actually works** — Scraper run history was being silently discarded; all 13 scrapers now record execution results so the dashboard shows real Healthy/Degraded/Down status
-- **Zero-result warning** — Scrapers that run successfully but find 0 jobs now show a visible amber warning instead of appearing green and healthy
-- **YC Startup scraper fixed** — Rewrote for the site's Inertia.js architecture; was returning 0 results for all users
-- **LinkedIn version fallback** — Automatically tries multiple API versions so a single schema bump no longer breaks the scraper entirely
+- **Health dashboard now actually works** — Scraper run history was being silently discarded;
+  all 13 scrapers now record execution results so the dashboard shows real Healthy/Degraded/Down status
+- **Zero-result warning** — Scrapers that run successfully but find 0 jobs now show a visible
+  amber warning instead of appearing green and healthy
+- **YC Startup scraper fixed** — Rewrote for the site's Inertia.js architecture;
+  was returning 0 results for all users
+- **LinkedIn version fallback** — Automatically tries multiple API versions so a single schema
+  bump no longer breaks the scraper entirely
 - **JobsWithGPT endpoint optional** — Disabled by default (the domain was dead, causing an error on every scrape cycle)
 - **Pre-migration database backup** — SQLite database is backed up automatically before any schema migration runs
 - **User-agent updated** — All scrapers now identify as Chrome 131 (was Chrome 120, 14 months stale)
