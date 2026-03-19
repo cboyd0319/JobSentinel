@@ -609,10 +609,9 @@ export default function Settings({ onClose }: SettingsProps) {
       const newStatus = {} as Record<CredentialKey, boolean>;
       let credFailures = 0;
       credentialKeys.forEach((key, i) => {
-        if (credResults[i].status === "fulfilled") {
-          newStatus[key] = (
-            credResults[i] as PromiseFulfilledResult<boolean>
-          ).value;
+        const result = credResults[i];
+        if (result?.status === "fulfilled") {
+          newStatus[key] = result.value;
         } else {
           newStatus[key] = false;
           credFailures++;

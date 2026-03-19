@@ -279,7 +279,7 @@ export function useDashboardJobOps(
       (r): r is PromiseRejectedResult => r.status === "rejected",
     );
     const succeededIds = idsToHide.filter(
-      (_, i) => results[i].status === "fulfilled",
+      (_, i) => results[i]?.status === "fulfilled",
     );
 
     if (succeededIds.length > 0) {
