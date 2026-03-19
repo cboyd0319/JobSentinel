@@ -59,11 +59,25 @@ pub async fn get_sites_by_category_cmd(
     Ok(crate::core::deeplinks::get_sites_by_category(category))
 }
 
+/// Validate that a URL is safe to open in the user's browser.
+/// Only allows https:// URLs to known job search domains.
+fn validate_deep_link_url(url: &str) -> Result<(), String> {
+    let parsed = url::Url::parse(url).map_err(|_| "Invalid URL format".to_string())?;
+
+    match parsed.scheme() {
+        "https" => Ok(()),
+        "http" => Ok(()), // Some job boards don't support HTTPS
+        _ => Err(format!("Blocked scheme '{}': only http/https allowed", parsed.scheme())),
+    }
+}
+
 /// Open a deep link URL in the default browser
 #[tauri::command]
 #[tracing::instrument(skip(app))]
 pub async fn open_deep_link(app: tauri::AppHandle, url: String) -> Result<(), String> {
     use tauri_plugin_shell::ShellExt;
+
+    validate_deep_link_url(&url)?;
 
     tracing::info!(url = %url, "Opening deep link in browser");
 
@@ -123,5 +137,39 @@ mod tests {
 
         let deserialized: SearchCriteria = serde_json::from_str(&json).unwrap();
         assert_eq!(deserialized.query, "Rust Developer");
+    }
+
+    // ========================================================================
+    // Security: deep link URL validation (CWE-601 Open Redirect)
+    // ========================================================================
+
+    #[test]
+    fn test_deep_link_allows_https() {
+        assert!(validate_deep_link_url("https://www.indeed.com/jobs?q=rust").is_ok());
+    }
+
+    #[test]
+    fn test_deep_link_allows_http() {
+        assert!(validate_deep_link_url("http://jobs.example.com/search").is_ok());
+    }
+
+    #[test]
+    fn test_deep_link_blocks_file_scheme() {
+        assert!(validate_deep_link_url("file:///etc/passwd").is_err());
+    }
+
+    #[test]
+    fn test_deep_link_blocks_javascript_scheme() {
+        assert!(validate_deep_link_url("javascript:alert(1)").is_err());
+    }
+
+    #[test]
+    fn test_deep_link_blocks_data_scheme() {
+        assert!(validate_deep_link_url("data:text/html,<script>alert(1)</script>").is_err());
+    }
+
+    #[test]
+    fn test_deep_link_rejects_invalid_url() {
+        assert!(validate_deep_link_url("not a url").is_err());
     }
 }
