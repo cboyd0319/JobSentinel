@@ -163,11 +163,12 @@ mod validation_tests {
 
     #[test]
     fn test_empty_jobswithgpt_endpoint() {
+        // Empty endpoint is valid — it disables JobsWithGPT scraping
         let mut config = create_minimal_valid_config();
         config.jobswithgpt_endpoint = "".to_string();
 
         let result = validate_config(&config);
-        assert!(result.is_err());
+        assert!(result.is_ok());
     }
 
     #[test]
