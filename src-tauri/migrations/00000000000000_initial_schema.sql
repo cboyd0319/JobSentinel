@@ -1439,7 +1439,10 @@ INSERT OR IGNORE INTO scraper_config (scraper_name, display_name, requires_auth,
     ('jobswithgpt', 'JobsWithGPT', 0, NULL, 'api', 10000),
     ('dice', 'Dice', 0, NULL, 'html', 300),
     ('yc_startup', 'YC Startup Jobs', 0, NULL, 'html', 300),
-    ('ziprecruiter', 'ZipRecruiter', 0, NULL, 'rss', 300);
+    ('ziprecruiter', 'ZipRecruiter', 0, NULL, 'rss', 300),
+    ('usajobs', 'USAJobs', 1, 'api_key', 'api', 500),
+    ('simplyhired', 'SimplyHired', 0, NULL, 'html', 300),
+    ('glassdoor', 'Glassdoor', 0, NULL, 'html', 300);
 
 -- ============================================================================
 -- CREDENTIAL HEALTH (LinkedIn cookie tracking)

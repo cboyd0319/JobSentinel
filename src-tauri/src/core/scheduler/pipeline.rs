@@ -23,7 +23,7 @@ impl Scheduler {
         // 1. Run all scrapers
         let stage1_start = Instant::now();
         tracing::info!("Pipeline stage 1/3: Running scrapers");
-        let (all_jobs, mut errors) = run_scrapers(&self.config).await;
+        let (all_jobs, mut errors) = run_scrapers(&self.config, &self.database).await;
         let stage1_duration = stage1_start.elapsed();
         tracing::info!(
             job_count = all_jobs.len(),

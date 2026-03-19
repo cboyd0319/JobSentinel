@@ -113,35 +113,87 @@ function formatRelativeTime(dateStr: string | null): string {
 function StatusIcon({ status }: { status: string }) {
   const icons = {
     check: (
-      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+      <svg
+        className="w-4 h-4"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M5 13l4 4L19 7"
+        />
       </svg>
     ),
     warning: (
-      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      <svg
+        className="w-4 h-4"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+        />
       </svg>
     ),
     x: (
-      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+      <svg
+        className="w-4 h-4"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M6 18L18 6M6 6l12 12"
+        />
       </svg>
     ),
     minus: (
-      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+      <svg
+        className="w-4 h-4"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M20 12H4"
+        />
       </svg>
     ),
     question: (
-      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      <svg
+        className="w-4 h-4"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+        />
       </svg>
     ),
   };
   return icons[status as keyof typeof icons] || icons.question;
 }
 
-export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({ onClose }: ScraperHealthDashboardProps) {
+export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
+  onClose,
+}: ScraperHealthDashboardProps) {
   const [loading, setLoading] = useState(true);
   const [summary, setSummary] = useState<HealthSummary | null>(null);
   const [scrapers, setScrapers] = useState<ScraperHealthMetrics[]>([]);
@@ -162,9 +214,21 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({ onC
       setError(null);
 
       const [summaryData, scrapersData, credentialsData] = await Promise.all([
-        safeInvoke<HealthSummary>("get_health_summary", {}, { logContext: "Load health summary" }),
-        safeInvoke<ScraperHealthMetrics[]>("get_scraper_health", {}, { logContext: "Load scraper health" }),
-        safeInvoke<CredentialHealth[]>("get_expiring_credentials", {}, { logContext: "Load credential health" }),
+        safeInvoke<HealthSummary>(
+          "get_health_summary",
+          {},
+          { logContext: "Load health summary" },
+        ),
+        safeInvoke<ScraperHealthMetrics[]>(
+          "get_scraper_health",
+          {},
+          { logContext: "Load scraper health" },
+        ),
+        safeInvoke<CredentialHealth[]>(
+          "get_expiring_credentials",
+          {},
+          { logContext: "Load credential health" },
+        ),
       ]);
 
       if (signal?.aborted) return;
@@ -183,67 +247,92 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({ onC
   }, []);
 
   // Load run history for a scraper
-  const loadRunHistory = useCallback(async (scraperName: string, signal?: AbortSignal) => {
-    try {
-      setRunsLoading(true);
-      const runsData = await safeInvoke<ScraperRun[]>("get_scraper_runs", {
-        scraperName,
-        limit: 20,
-      }, {
-        logContext: "Load scraper run history",
-        silent: true
-      });
+  const loadRunHistory = useCallback(
+    async (scraperName: string, signal?: AbortSignal) => {
+      try {
+        setRunsLoading(true);
+        const runsData = await safeInvoke<ScraperRun[]>(
+          "get_scraper_runs",
+          {
+            scraperName,
+            limit: 20,
+          },
+          {
+            logContext: "Load scraper run history",
+            silent: true,
+          },
+        );
 
-      if (signal?.aborted) return;
-      setRuns(runsData);
-    } catch {
-      if (signal?.aborted) return;
-      // Silent failure - non-critical
-    } finally {
-      if (!signal?.aborted) {
-        setRunsLoading(false);
+        if (signal?.aborted) return;
+        setRuns(runsData);
+      } catch {
+        if (signal?.aborted) return;
+        // Silent failure - non-critical
+      } finally {
+        if (!signal?.aborted) {
+          setRunsLoading(false);
+        }
       }
-    }
-  }, []);
+    },
+    [],
+  );
 
   // Toggle scraper enabled
-  const toggleScraper = useCallback(async (scraperName: string, enabled: boolean) => {
-    try {
-      await safeInvoke("set_scraper_enabled", { scraperName, enabled }, {
-        logContext: "Toggle scraper enabled"
-      });
-      // Reload data
-      await loadHealthData();
-    } catch {
-      // Error already logged
-    }
-  }, [loadHealthData]);
+  const toggleScraper = useCallback(
+    async (scraperName: string, enabled: boolean) => {
+      try {
+        await safeInvoke(
+          "set_scraper_enabled",
+          { scraperName, enabled },
+          {
+            logContext: "Toggle scraper enabled",
+          },
+        );
+        // Reload data
+        await loadHealthData();
+      } catch {
+        // Error already logged
+      }
+    },
+    [loadHealthData],
+  );
 
   // Run smoke test for single scraper
-  const runSmokeTest = useCallback(async (scraperName: string) => {
-    try {
-      setTestingSingle(scraperName);
-      const result = await safeInvoke<SmokeTestResult>("run_scraper_smoke_test", { scraperName }, {
-        logContext: "Run smoke test"
-      });
-      setTestResults([result]);
-      setShowTestResults(true);
-      // Reload health data after test
-      await loadHealthData();
-    } catch {
-      // Error already logged
-    } finally {
-      setTestingSingle(null);
-    }
-  }, [loadHealthData]);
+  const runSmokeTest = useCallback(
+    async (scraperName: string) => {
+      try {
+        setTestingSingle(scraperName);
+        const result = await safeInvoke<SmokeTestResult>(
+          "run_scraper_smoke_test",
+          { scraperName },
+          {
+            logContext: "Run smoke test",
+          },
+        );
+        setTestResults([result]);
+        setShowTestResults(true);
+        // Reload health data after test
+        await loadHealthData();
+      } catch {
+        // Error already logged
+      } finally {
+        setTestingSingle(null);
+      }
+    },
+    [loadHealthData],
+  );
 
   // Run smoke tests for all scrapers
   const runAllSmokeTests = useCallback(async () => {
     try {
       setTestingAll(true);
-      const results = await safeInvoke<SmokeTestResult[]>("run_all_smoke_tests", {}, {
-        logContext: "Run all smoke tests"
-      });
+      const results = await safeInvoke<SmokeTestResult[]>(
+        "run_all_smoke_tests",
+        {},
+        {
+          logContext: "Run all smoke tests",
+        },
+      );
       setTestResults(results);
       setShowTestResults(true);
       // Reload health data after tests
@@ -258,20 +347,20 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({ onC
   // Initial load
   useEffect(() => {
     const controller = new AbortController();
-    
+
     loadHealthData(controller.signal);
-    
+
     return () => controller.abort();
   }, [loadHealthData]);
 
   // Load runs when scraper selected
   useEffect(() => {
     const controller = new AbortController();
-    
+
     if (selectedScraper) {
       loadRunHistory(selectedScraper, controller.signal);
     }
-    
+
     return () => controller.abort();
   }, [selectedScraper, loadRunHistory]);
 
@@ -293,7 +382,9 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({ onC
           <p className="text-danger mb-4">{error}</p>
           <div className="flex gap-2">
             <Button onClick={() => loadHealthData()}>Retry</Button>
-            <Button variant="secondary" onClick={onClose}>Close</Button>
+            <Button variant="secondary" onClick={onClose}>
+              Close
+            </Button>
           </div>
         </Card>
       </div>
@@ -312,7 +403,8 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({ onC
                   Scraper Health Dashboard
                 </h2>
                 <p className="text-sm text-surface-500 dark:text-surface-400 mt-1">
-                  Monitor the health and performance of all 13 job board scrapers
+                  Monitor the health and performance of all 13 job board
+                  scrapers
                 </p>
               </div>
               <div className="flex items-center gap-2">
@@ -334,7 +426,11 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({ onC
 
             {/* Summary Stats */}
             {summary && (
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6" role="region" aria-label="Health summary statistics">
+              <div
+                className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6"
+                role="region"
+                aria-label="Health summary statistics"
+              >
                 <StatCard
                   label="Total Scrapers"
                   value={summary.total_scrapers}
@@ -374,7 +470,11 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({ onC
 
             {/* Credential Warnings */}
             {credentials.length > 0 && (
-              <div className="mb-6 p-4 bg-alert-50 dark:bg-alert-900/20 rounded-lg border border-alert-200 dark:border-alert-800" role="alert" aria-live="polite">
+              <div
+                className="mb-6 p-4 bg-alert-50 dark:bg-alert-900/20 rounded-lg border border-alert-200 dark:border-alert-800"
+                role="alert"
+                aria-live="polite"
+              >
                 <h3 className="font-medium text-alert-700 dark:text-alert-400 mb-2">
                   Credential Warnings
                 </h3>
@@ -388,7 +488,8 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({ onC
                         {cred.credential_name}
                       </span>
                       <span className="text-alert-500 dark:text-alert-400">
-                        {cred.warning_message || `Expires in ${cred.days_until_expiry} days`}
+                        {cred.warning_message ||
+                          `Expires in ${cred.days_until_expiry} days`}
                       </span>
                     </div>
                   ))}
@@ -398,9 +499,16 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({ onC
 
             {/* Scraper List */}
             <div className="overflow-x-auto">
-              <table className="w-full text-sm" role="table" aria-label="Scraper health status">
+              <table
+                className="w-full text-sm"
+                role="table"
+                aria-label="Scraper health status"
+              >
                 <thead>
-                  <tr className="border-b border-surface-200 dark:border-surface-700" role="row">
+                  <tr
+                    className="border-b border-surface-200 dark:border-surface-700"
+                    role="row"
+                  >
                     <th className="text-left py-3 px-4 font-medium text-surface-600 dark:text-surface-400">
                       Scraper
                     </th>
@@ -432,8 +540,10 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({ onC
                 </thead>
                 <tbody>
                   {scrapers.map((scraper) => {
-                    const statusConfig = healthStatusConfig[scraper.health_status];
-                    const selectorConfig = selectorHealthConfig[scraper.selector_health];
+                    const statusConfig =
+                      healthStatusConfig[scraper.health_status];
+                    const selectorConfig =
+                      selectorHealthConfig[scraper.selector_health];
 
                     return (
                       <tr
@@ -450,7 +560,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({ onC
                               setSelectedScraper(
                                 selectedScraper === scraper.scraper_name
                                   ? null
-                                  : scraper.scraper_name
+                                  : scraper.scraper_name,
                               )
                             }
                             className="text-left hover:text-sentinel-600 dark:hover:text-sentinel-400"
@@ -461,7 +571,9 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({ onC
                             <div className="text-xs text-surface-500">
                               {scraper.scraper_name}
                               {scraper.requires_auth && (
-                                <span className="ml-1 text-alert-500">(auth)</span>
+                                <span className="ml-1 text-alert-500">
+                                  (auth)
+                                </span>
                               )}
                             </div>
                           </button>
@@ -483,8 +595,8 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({ onC
                               scraper.success_rate_24h >= 90
                                 ? "text-green-600 dark:text-green-400"
                                 : scraper.success_rate_24h >= 70
-                                ? "text-yellow-600 dark:text-yellow-400"
-                                : "text-red-600 dark:text-red-400"
+                                  ? "text-yellow-600 dark:text-yellow-400"
+                                  : "text-red-600 dark:text-red-400"
                             }
                           >
                             {scraper.success_rate_24h.toFixed(0)}%
@@ -494,9 +606,19 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({ onC
                           {formatDuration(scraper.avg_duration_ms)}
                         </td>
                         <td className="py-3 px-4 text-right">
-                          <span className="font-medium text-surface-900 dark:text-white">
-                            {scraper.jobs_found_24h}
-                          </span>
+                          {scraper.jobs_found_24h === 0 &&
+                          scraper.total_runs_24h > 0 &&
+                          scraper.health_status === "healthy" ? (
+                            <Tooltip content="Scraper ran successfully but found 0 jobs. Check your search terms or this source may be empty.">
+                              <span className="font-medium text-amber-600 dark:text-amber-400 cursor-help">
+                                0 ⚠
+                              </span>
+                            </Tooltip>
+                          ) : (
+                            <span className="font-medium text-surface-900 dark:text-white">
+                              {scraper.jobs_found_24h}
+                            </span>
+                          )}
                           <span className="text-surface-500 ml-1">
                             / {scraper.total_runs_24h} runs
                           </span>
@@ -505,7 +627,8 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({ onC
                           {formatRelativeTime(scraper.last_success)}
                         </td>
                         <td className="py-3 px-4">
-                          {scraper.scraper_type === "html" || scraper.scraper_type === "hybrid" ? (
+                          {scraper.scraper_type === "html" ||
+                          scraper.scraper_type === "hybrid" ? (
                             <Badge variant={selectorConfig.variant} size="sm">
                               {selectorConfig.label}
                             </Badge>
@@ -515,10 +638,17 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({ onC
                         </td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <Tooltip content={scraper.is_enabled ? "Disable" : "Enable"}>
+                            <Tooltip
+                              content={
+                                scraper.is_enabled ? "Disable" : "Enable"
+                              }
+                            >
                               <button
                                 onClick={() =>
-                                  toggleScraper(scraper.scraper_name, !scraper.is_enabled)
+                                  toggleScraper(
+                                    scraper.scraper_name,
+                                    !scraper.is_enabled,
+                                  )
                                 }
                                 className={`p-1.5 rounded transition-colors ${
                                   scraper.is_enabled
@@ -527,31 +657,86 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({ onC
                                 }`}
                               >
                                 {scraper.is_enabled ? (
-                                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                  <svg
+                                    className="w-4 h-4"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M5 13l4 4L19 7"
+                                    />
                                   </svg>
                                 ) : (
-                                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                  <svg
+                                    className="w-4 h-4"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M6 18L18 6M6 6l12 12"
+                                    />
                                   </svg>
                                 )}
                               </button>
                             </Tooltip>
                             <Tooltip content="Run smoke test">
                               <button
-                                onClick={() => runSmokeTest(scraper.scraper_name)}
-                                disabled={testingSingle === scraper.scraper_name || !scraper.is_enabled}
+                                onClick={() =>
+                                  runSmokeTest(scraper.scraper_name)
+                                }
+                                disabled={
+                                  testingSingle === scraper.scraper_name ||
+                                  !scraper.is_enabled
+                                }
                                 className="p-1.5 rounded bg-surface-100 text-surface-600 hover:bg-surface-200 dark:bg-surface-700 dark:text-surface-400 disabled:opacity-50 transition-colors"
                               >
                                 {testingSingle === scraper.scraper_name ? (
-                                  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                  <svg
+                                    className="w-4 h-4 animate-spin"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <circle
+                                      className="opacity-25"
+                                      cx="12"
+                                      cy="12"
+                                      r="10"
+                                      stroke="currentColor"
+                                      strokeWidth="4"
+                                    />
+                                    <path
+                                      className="opacity-75"
+                                      fill="currentColor"
+                                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                    />
                                   </svg>
                                 ) : (
-                                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                  <svg
+                                    className="w-4 h-4"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+                                    />
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                    />
                                   </svg>
                                 )}
                               </button>
@@ -567,17 +752,38 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({ onC
 
             {/* Run History Panel */}
             {selectedScraper && (
-              <div className="mt-6 p-4 bg-surface-50 dark:bg-surface-700/30 rounded-lg" role="region" aria-labelledby="run-history-title" aria-live="polite">
-                <h3 id="run-history-title" className="font-medium text-surface-900 dark:text-white mb-4">
-                  Recent Runs: {scrapers.find((s) => s.scraper_name === selectedScraper)?.display_name}
+              <div
+                className="mt-6 p-4 bg-surface-50 dark:bg-surface-700/30 rounded-lg"
+                role="region"
+                aria-labelledby="run-history-title"
+                aria-live="polite"
+              >
+                <h3
+                  id="run-history-title"
+                  className="font-medium text-surface-900 dark:text-white mb-4"
+                >
+                  Recent Runs:{" "}
+                  {
+                    scrapers.find((s) => s.scraper_name === selectedScraper)
+                      ?.display_name
+                  }
                 </h3>
                 {runsLoading ? (
                   <LoadingSpinner message="Loading run history..." />
                 ) : runs.length === 0 ? (
-                  <p className="text-surface-500 dark:text-surface-400" role="status">No recent runs found.</p>
+                  <p
+                    className="text-surface-500 dark:text-surface-400"
+                    role="status"
+                  >
+                    No recent runs found.
+                  </p>
                 ) : (
                   <div className="overflow-x-auto">
-                    <table className="w-full text-sm" role="table" aria-label="Run history">
+                    <table
+                      className="w-full text-sm"
+                      role="table"
+                      aria-label="Run history"
+                    >
                       <thead>
                         <tr className="border-b border-surface-200 dark:border-surface-600">
                           <th className="text-left py-2 px-3 font-medium text-surface-600 dark:text-surface-400">
@@ -615,15 +821,16 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({ onC
                                   run.status === "success"
                                     ? "success"
                                     : run.status === "running"
-                                    ? "sentinel"
-                                    : run.status === "rate_limited"
-                                    ? "alert"
-                                    : "danger"
+                                      ? "sentinel"
+                                      : run.status === "rate_limited"
+                                        ? "alert"
+                                        : "danger"
                                 }
                                 size="sm"
                               >
                                 {run.status}
-                                {run.retry_attempt > 0 && ` (retry ${run.retry_attempt})`}
+                                {run.retry_attempt > 0 &&
+                                  ` (retry ${run.retry_attempt})`}
                               </Badge>
                             </td>
                             <td className="py-2 px-3 text-right text-surface-600 dark:text-surface-400">
@@ -675,7 +882,10 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({ onC
                   <span className="text-sm text-surface-500 dark:text-surface-400">
                     {result.response_time_ms}ms
                   </span>
-                  <Badge variant={result.success ? "success" : "danger"} size="sm">
+                  <Badge
+                    variant={result.success ? "success" : "danger"}
+                    size="sm"
+                  >
                     {result.success ? "PASS" : "FAIL"}
                   </Badge>
                 </div>
