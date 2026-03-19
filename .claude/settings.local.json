@@ -126,7 +126,18 @@
       "WebFetch(domain:vitest.dev)",
       "WebFetch(domain:crates.io)",
       "WebFetch(domain:lib.rs)",
-      "WebFetch(domain:npmjs.com)"
+      "WebFetch(domain:npmjs.com)",
+      "Bash(gh run:*)",
+      "Bash(python3 -c \"import json,sys; alerts=json.load\\(sys.stdin\\); [print\\(f''''#{a[\"\"number\"\"]} [{a[\"\"security_advisory\"\"][\"\"severity\"\"]}] {a[\"\"security_advisory\"\"][\"\"summary\"\"][:80]} \\({a[\"\"dependency\"\"][\"\"package\"\"][\"\"name\"\"]}\\)''''\\) for a in alerts]\")",
+      "Bash(python3 -c \":*)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(d[''''title'''']\\); print\\(d[''''mergedAt'''']\\); print\\(d[''''body''''][:500]\\)\")",
+      "Bash(for pr:*)",
+      "Bash(do)",
+      "Bash(done)",
+      "Bash(python3 -c \"import json,sys; print\\(json.load\\(sys.stdin\\)[0][''''databaseId'''']\\)\")",
+      "Bash(for run_id in 23269413850 23269413596 23269429959)",
+      "Bash(do echo:*)",
+      "Bash(python3 -c \"import sys,base64; print\\(base64.b64decode\\(sys.stdin.read\\(\\).replace\\(''''\\\\n'''',''''''''\\)\\).decode\\(\\)\\)\")"
     ],
     "deny": [
       "Read(.env)",
