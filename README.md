@@ -123,8 +123,9 @@ That's it. No accounts. No subscriptions. No data harvesting. Just... jobs that 
 
 **13 Job Boards, One Dashboard**
 
-- Greenhouse, Lever, LinkedIn, Indeed, RemoteOK, Wellfound, WeWorkRemotely
-- BuiltIn, Dice, HN Who's Hiring, JobsWithGPT, YC Startup Jobs, ZipRecruiter
+- Greenhouse, Lever, LinkedIn, RemoteOK, WeWorkRemotely, BuiltIn
+- HN Who's Hiring, JobsWithGPT, Dice, YC Startup Jobs
+- USAJobs (federal), SimplyHired, Glassdoor
 - New jobs every 2 hours (or whenever you want)
 
 **Ghost Job Detection**
@@ -185,10 +186,10 @@ Power users can navigate entirely by keyboard:
 
 **👉 [Download the latest release from GitHub](https://github.com/cboyd0319/JobSentinel/releases/latest)**
 
-| Platform                          | What to Download                  |
-| --------------------------------- | --------------------------------- |
-| **Windows**                       | The `.msi` file — double-click to install |
-| **macOS** (Intel & Apple Silicon) | The `.dmg` file — drag to Applications    |
+| Platform                          | What to Download                                              |
+| --------------------------------- | ------------------------------------------------------------- |
+| **Windows**                       | The `.msi` file — double-click to install                     |
+| **macOS** (Intel & Apple Silicon) | The `.dmg` file — drag to Applications                        |
 | **Linux**                         | Coming soon — [build from source](#build-from-source) for now |
 
 > **Don't see a download?** Releases may still be in review.
@@ -200,9 +201,9 @@ Power users can navigate entirely by keyboard:
 
 **Prerequisites:**
 
-| Requirement | How to Install |
-| ----------- | -------------- |
-| **Rust** | Visit [rustup.rs](https://rustup.rs) and follow the instructions |
+| Requirement     | How to Install                                                      |
+| --------------- | ------------------------------------------------------------------- |
+| **Rust**        | Visit [rustup.rs](https://rustup.rs) and follow the instructions    |
 | **Node.js 20+** | Visit [nodejs.org](https://nodejs.org) and download the LTS version |
 
 <details>
@@ -417,7 +418,7 @@ No command line or technical knowledge required.
 ### By the Numbers
 
 - **169 Tauri commands** powering all features
-- **4,770+ tests passing** (2,413 frontend + 2,357 Rust)
+- **4,660+ tests passing** (2,403 frontend + 2,263 Rust)
 - **0 security vulnerabilities** (cargo-audit verified)
 - **~8MB** installed size
 - **<50MB RAM** typical usage
@@ -448,15 +449,15 @@ For full technical documentation, see:
 
 ### Just Released (v2.6.3)
 
-- **Comprehensive UX improvements** — Error recovery with retry buttons, skeleton loaders, inline validation
-- **Performance optimizations** — 50+ components memoized, context providers optimized
-- **Better accessibility** — Form labels with aria-describedby, confirmation dialogs
-- **Stale data indicators** — Color-coded timestamps showing data freshness
-- **LinkedIn Auto-Connect** — Just click "Connect", log in normally, done!
-- **Bug fix: Settings infinite loading on Windows** — No longer spins forever when
-  Windows Credential Manager is restricted; shows a Retry button instead
-- **Bug fix: Job search returning 0 results** — Fixed null score handling that silently filtered out unscored jobs
-- **Security patches** — 9 Dependabot vulnerabilities resolved (dompurify, storybook, quinn-proto, and more)
+- **Health dashboard now actually works** — Scraper run history was being silently discarded; all 13 scrapers now record execution results so the dashboard shows real Healthy/Degraded/Down status
+- **Zero-result warning** — Scrapers that run successfully but find 0 jobs now show a visible amber warning instead of appearing green and healthy
+- **YC Startup scraper fixed** — Rewrote for the site's Inertia.js architecture; was returning 0 results for all users
+- **LinkedIn version fallback** — Automatically tries multiple API versions so a single schema bump no longer breaks the scraper entirely
+- **JobsWithGPT endpoint optional** — Disabled by default (the domain was dead, causing an error on every scrape cycle)
+- **Pre-migration database backup** — SQLite database is backed up automatically before any schema migration runs
+- **User-agent updated** — All scrapers now identify as Chrome 131 (was Chrome 120, 14 months stale)
+- **CI trimmed** — Removed Playwright e2e and cross-platform build checks from PR CI; full builds run only on releases
+- **Security patches** — 7 Dependabot vulnerabilities resolved (jsdom, Tauri plugins, pdf-extract, and more)
 
 ---
 
