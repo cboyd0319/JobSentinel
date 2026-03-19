@@ -102,6 +102,12 @@ pub fn is_elevated() -> bool {
         token_is_elevated: u32,
     }
 
+    // SAFETY: FFI calls to advapi32!OpenProcessToken, advapi32!GetTokenInformation,
+    // and kernel32!CloseHandle.
+    // - GetCurrentProcess() returns a pseudo-handle that does not need closing.
+    // - token_handle is only closed if OpenProcessToken succeeds (early return otherwise).
+    // - TokenElevation is #[repr(C)] with a single u32; mem::zeroed() is a valid value.
+    // - GetTokenInformation result is checked before trusting elevation contents.
     unsafe {
         let mut token_handle: *mut std::ffi::c_void = ptr::null_mut();
         let process_handle = GetCurrentProcess();
@@ -132,6 +138,8 @@ pub fn is_elevated() -> bool {
     // On non-Windows platforms, check if running as root
     #[cfg(unix)]
     {
+        // SAFETY: `libc::geteuid()` is a simple syscall wrapper (getuid(2)) that takes
+        // no arguments and returns a uid_t. It has no preconditions and cannot cause UB.
         unsafe { libc::geteuid() == 0 }
     }
     #[cfg(not(unix))]
@@ -167,8 +175,11 @@ pub fn get_windows_version() -> String {
         reserved: u8,
     }
 
+    // SAFETY: FFI call to ntdll!RtlGetVersion.
+    // - OsVersionInfoExW is #[repr(C)]; mem::zeroed() produces a valid zero-initialized struct.
+    // - os_version_info_size is set before the call as required by the Windows API contract.
+    // - We only read version fields if RtlGetVersion returns STATUS_SUCCESS (0).
     unsafe {
-        let mut version_info: OsVersionInfoExW = mem::zeroed();
         version_info.os_version_info_size = mem::size_of::<OsVersionInfoExW>() as u32;
 
         if RtlGetVersion(&mut version_info) == 0 {

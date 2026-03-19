@@ -1,4 +1,5 @@
 // Clippy configuration - allow common patterns that are intentional
+#![deny(unsafe_code)] // Require explicit #[allow(unsafe_code)] where needed
 #![allow(clippy::module_name_repetitions)]
 #![allow(clippy::must_use_candidate)]
 #![allow(clippy::missing_errors_doc)]
