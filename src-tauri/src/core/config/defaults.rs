@@ -1,8 +1,10 @@
 //! Default values for configuration fields
 
 /// Default JobsWithGPT MCP endpoint
+/// Empty by default — domain api.jobswithgpt.com does not resolve.
+/// Users can configure a custom MCP endpoint if they have one.
 pub(crate) fn default_jobswithgpt_endpoint() -> String {
-    "https://api.jobswithgpt.com/mcp".to_string()
+    String::new()
 }
 
 /// Default immediate alert threshold (0.9)

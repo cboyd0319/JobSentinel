@@ -341,7 +341,7 @@ mod tests {
             greenhouse_urls: vec![],
             lever_urls: vec![],
             linkedin: LinkedInConfig::default(),
-            jobswithgpt_endpoint: "https://api.jobswithgpt.com/mcp".to_string(),
+            jobswithgpt_endpoint: String::new(),
             remoteok: Default::default(),
             weworkremotely: Default::default(),
             builtin: Default::default(),

@@ -376,7 +376,7 @@ fn main() {
                     usajobs: Default::default(),
                     simplyhired: Default::default(),
                     glassdoor: Default::default(),
-                    jobswithgpt_endpoint: "https://api.jobswithgpt.com/mcp".to_string(),
+                    jobswithgpt_endpoint: String::new(),
                     salary_target_usd: None,
                     penalize_missing_salary: false,
                     company_whitelist: vec![],
