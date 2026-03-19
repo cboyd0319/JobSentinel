@@ -2919,7 +2919,7 @@ dependencies = [
  "candle-nn",
  "chromiumoxide",
  "chrono",
- "dirs 5.0.1",
+ "dirs 6.0.0",
  "docx-rs",
  "dotenvy",
  "futures",
