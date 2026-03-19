@@ -321,7 +321,72 @@ impl Database {
     /// Available in test builds and for integration tests
     pub async fn connect_memory() -> Result<Self, sqlx::Error> {
         let pool = SqlitePool::connect("sqlite::memory:").await?;
+        // Apply pragmas that are compatible with in-memory SQLite.
+        // WAL journal mode, mmap_size, auto_vacuum, and WAL checkpointing
+        // do not work with in-memory databases and are intentionally skipped.
+        Self::configure_memory_pragmas(&pool).await?;
         Ok(Database { pool })
+    }
+
+    /// Configure SQLite PRAGMA settings compatible with in-memory databases (tests).
+    ///
+    /// Applies the same integrity and performance settings as [`configure_pragmas`]
+    /// except for features that require a real file (WAL, mmap, auto_vacuum).
+    /// Most importantly, this enables `foreign_keys = ON` so that FK violations
+    /// are caught in tests the same way they would be in production.
+    async fn configure_memory_pragmas(pool: &SqlitePool) -> Result<(), sqlx::Error> {
+        // INTEGRITY: Enable foreign key constraints — the main reason this exists.
+        sqlx::query("PRAGMA foreign_keys = ON")
+            .execute(pool)
+            .await?;
+
+        // INTEGRITY: Enforce immediate FK checking (no deferring).
+        sqlx::query("PRAGMA defer_foreign_keys = OFF")
+            .execute(pool)
+            .await?;
+
+        // INTEGRITY: Cell size verification for corruption detection.
+        sqlx::query("PRAGMA cell_size_check = ON")
+            .execute(pool)
+            .await?;
+
+        // JOURNAL: Use DELETE mode — WAL requires a real file and does not
+        // work with sqlite::memory: connections.
+        sqlx::query("PRAGMA journal_mode = DELETE")
+            .execute(pool)
+            .await?;
+
+        // PERFORMANCE: Synchronous = NORMAL (balanced; no fsync cost for in-memory anyway).
+        sqlx::query("PRAGMA synchronous = NORMAL")
+            .execute(pool)
+            .await?;
+
+        // PERFORMANCE: Keep temp tables in memory.
+        sqlx::query("PRAGMA temp_store = MEMORY")
+            .execute(pool)
+            .await?;
+
+        // PERFORMANCE: 32MB cache for test databases (enough without wasting memory).
+        sqlx::query("PRAGMA cache_size = -32000")
+            .execute(pool)
+            .await?;
+
+        // LOCKING: Wait up to 5 s before failing on a locked database.
+        sqlx::query("PRAGMA busy_timeout = 5000")
+            .execute(pool)
+            .await?;
+
+        // DEBUG: Randomise result order to surface implicit ORDER BY dependencies.
+        #[cfg(debug_assertions)]
+        {
+            sqlx::query("PRAGMA reverse_unordered_selects = ON")
+                .execute(pool)
+                .await
+                .ok();
+        }
+
+        tracing::debug!("In-memory SQLite configured (FK enforcement ON)");
+        Ok(())
     }
 
     /// Get reference to the connection pool (for integrity checks and backups)
