@@ -73,7 +73,7 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
 # SHA-256 for job hashing
-sha2 = "0.10"
+sha2 = "0.11"
 hex = "0.4"
 
 # Lazy initialization for shared resources
